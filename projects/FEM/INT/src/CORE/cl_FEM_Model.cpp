@@ -1083,7 +1083,7 @@ namespace moris
                             tFieldParameter.get< std::string >( "field_create_from_file" ),
                             tFieldParameter.get< sint >( "field_file_time_index" ),
                             tFieldParameter.get< sint >( "field_file_field_index" ),
-                            tFieldParameter.get< bool >( "field_file_update_time_index") );
+                            tFieldParameter.get< bool >( "field_file_update") );
                 }
 
                 if ( not tFieldParameter.get< std::string >( "IQI_Name" ).empty() )

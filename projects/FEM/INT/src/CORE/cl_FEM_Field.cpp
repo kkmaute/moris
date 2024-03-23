@@ -40,7 +40,7 @@ namespace moris::fem
 
     void Field::update_field()
     {
-        if ( not mInputFilePath.empty() and mUpdateTimeIndex )
+        if ( not mInputFilePath.empty() and mUpdateFromFile )
         {
             // detect file type
             std::string tType = mInputFilePath.substr( mInputFilePath.find_last_of( "." ) + 1, mInputFilePath.length() );
@@ -55,7 +55,6 @@ namespace moris::fem
             else if ( tType == "exo" || tType == "e" )
             {
                 load_field_from_exodus( mInputFilePath, mTimeIndex, { { mFieldIndex } } );
-                mTimeIndex++;
             }
             else
             {
@@ -131,13 +130,13 @@ namespace moris::fem
         mInputFilePath = aString;
         mTimeIndex = aTimeIndex;
         mFieldIndex = aFieldIndex;
-        mUpdateTimeIndex = true;
+        mUpdateFromFile = true;
 
         // Update field
         this->update_field();
 
         // Set future updates based on parameter
-        mUpdateTimeIndex = aUpdateTimeIndex;
+        mUpdateFromFile = aUpdateTimeIndex;
     }
 
     //-----------------------------------------------------------------------------
