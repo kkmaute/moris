@@ -5,6 +5,7 @@
 #include "cl_MTK_QuadraturePointMapper_Ray_ArborX_Details.hpp"
 #include "cl_MTK_MappingResult.hpp"
 #include "cl_MTK_Surface_Mesh.hpp"
+#include "cl_Tracer.hpp"
 #include <unordered_map>
 #include <functional>
 
@@ -85,6 +86,7 @@ namespace moris::mtk::arborx
     cell_locator_map
     map_rays_to_boxes( moris::mtk::MappingResult const &aMappingResult, moris::Vector< std::pair< moris_index, moris::mtk::Surface_Mesh > > const &aTargetSurfaceMeshes )
     {
+        Tracer tTracer("Quadrature Point Mapper", "Map", "Perform Raytracing with ArborX");
         using ExecutionSpace = Kokkos::DefaultExecutionSpace;
         using MemorySpace    = ExecutionSpace::memory_space;
         ExecutionSpace tExecutionSpace{};

@@ -4,6 +4,7 @@
 
 #pragma once
 #include "cl_MTK_QuadraturePointMapper_Ray.hpp"
+#include "cl_MTK_QuadraturePointMapper_Ray_ArborX_Details.hpp"
 
 namespace moris::mtk
 {
@@ -16,9 +17,10 @@ namespace moris::mtk
                 const Vector< std::pair< moris_index, moris_index > > &aCandidatePairs )
                 : QuadraturePointMapper_Ray( aIGMesh, aSideSets, aCandidatePairs ){};
 
-        MappingResult map( moris_index aSourceMeshIndex, Matrix< DDRMat > const &aParametricCoordinates, real aMaxNegativeRayLength , real aMaxPositiveRayLength) const override;
+        MappingResult map( moris_index aSourceMeshIndex, Matrix< DDRMat > const &aParametricCoordinates, real aMaxNegativeRayLength, real aMaxPositiveRayLength ) const override;
 
       private:
         Vector< std::pair< moris_index, Surface_Mesh > > get_target_surface_meshes( moris_index aSourceMeshIndex ) const;
+        void                                             check_cell_intersections( MappingResult &tMappingResult, real aMaxNegativeRayLength, real aMaxPositiveRayLength, arborx::cell_locator_map const &tBoxRayMap ) const;
     };
 }    // namespace moris::mtk

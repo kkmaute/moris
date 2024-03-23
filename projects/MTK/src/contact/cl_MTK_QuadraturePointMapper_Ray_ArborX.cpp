@@ -8,11 +8,13 @@
 #include "cl_Matrix.hpp"
 #include "cl_MTK_Ray_Line_Intersection.hpp"
 #include "moris_typedefs.hpp"
+#include "cl_Tracer.hpp"
 
 namespace moris::mtk
 {
     MappingResult QuadraturePointMapper_ArborX::map( moris_index aSourceMeshIndex, Matrix< DDRMat > const &aParametricCoordinates, real aMaxNegativeRayLength, real aMaxPositiveRayLength ) const
     {
+        Tracer                tTracer( "Quadrature Point Mapper", "Map", "Map Quadrature Points" );
         Surface_Mesh const    tSurfaceMesh = get_surface_meshes()( aSourceMeshIndex );
         Side_Set const *const tSideSet     = get_side_sets()( aSourceMeshIndex );
 
@@ -27,8 +29,19 @@ namespace moris::mtk
         MappingResult tMappingResult = initialize_source_points( aSourceMeshIndex, aParametricCoordinates );
         auto const   &tBoxRayMap     = moris::mtk::arborx::map_rays_to_boxes( tMappingResult, get_target_surface_meshes( aSourceMeshIndex ) );
 
+        // check the intersections of the rays with the target cells
+        // since ArborX is only able to tell if a ray intersects with the bounding box of a cell, we need to check the intersection with the actual cell (e.g. line segment)
+        check_cell_intersections( tMappingResult, aMaxNegativeRayLength, aMaxPositiveRayLength, tBoxRayMap );
 
-        // TODO @ff: Split into functions and refactor!
+        return tMappingResult;
+    }
+    void QuadraturePointMapper_ArborX::check_cell_intersections(
+            MappingResult                  &tMappingResult,
+            real                            aMaxNegativeRayLength,
+            real                            aMaxPositiveRayLength,
+            arborx::cell_locator_map const &tBoxRayMap ) const
+    {
+        Tracer tTracer( "Quadrature Point Mapper", "Map", "Check Cell Intersections" );
         for ( auto const &[ tTargetMeshIndex, tTargetCells ] : tBoxRayMap )
         {
             Surface_Mesh const &tTargetMesh = get_surface_meshes()( tTargetMeshIndex );
@@ -81,7 +94,6 @@ namespace moris::mtk
                 }
             }
         }
-        return tMappingResult;
     }
 
     Vector< std::pair< moris_index, Surface_Mesh > > QuadraturePointMapper_ArborX::get_target_surface_meshes( moris_index aSourceMeshIndex ) const

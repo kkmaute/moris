@@ -19,6 +19,7 @@
 #include "fn_join_horiz.hpp"
 #include "linalg_typedefs.hpp"
 #include "moris_typedefs.hpp"
+#include "cl_Tracer.hpp"
 #include <algorithm>
 #include <iterator>
 #include <set>
@@ -290,6 +291,7 @@ namespace moris::mtk
 
     Vector< MappingResult > Contact_Mesh_Editor::perform_mapping( Matrix< DDRMat > aPointsToMap ) const
     {
+        Tracer tTracer("Contact Mesh Editor", "Update", "Perform Mapping");
         // get all possible source side sets that have been specified in the candidate pairings
         std::set< moris_index > tSourceSideSets;
         std::transform(
@@ -318,6 +320,7 @@ namespace moris::mtk
 
     void Contact_Mesh_Editor::update_nonconformal_side_sets() const
     {
+        Tracer tTracer("Contact Mesh Editor", "Update", "Updating Nonconformal Side Sets");
         // removes all nonconformal sidesets and clusters from the IGMesh
         mIGMesh->reset_nonconformal_side_set();
 

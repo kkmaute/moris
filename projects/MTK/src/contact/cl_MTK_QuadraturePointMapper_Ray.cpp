@@ -16,6 +16,7 @@
 #include "cl_MTK_Surface_Mesh.hpp"
 #include "cl_MTK_QuadraturePointMapper.hpp"
 #include "cl_MTK_QuadraturePointMapper_Ray.hpp"
+#include "cl_Tracer.hpp"
 
 namespace moris::mtk
 {
@@ -60,6 +61,7 @@ namespace moris::mtk
 
     MappingResult QuadraturePointMapper_Ray::initialize_source_points( moris_index aSourceMeshIndex, Matrix< DDRMat > const &aParametricCoordinates ) const
     {
+        Tracer tTracer( "Quadrature Point Mapper", "Map", "Initialize Source Points" );
         MORIS_ASSERT( aSourceMeshIndex < static_cast< moris_index >( get_surface_meshes().size() ), "QuadraturePointMapper_Ray::initialize_source_points: Source mesh index %d out of range.", aSourceMeshIndex );
         Surface_Mesh const &tSurfaceMesh          = get_surface_meshes()( aSourceMeshIndex );
         Surface_Mesh const &tReferenceSurfaceMesh = get_reference_surface_meshes()( aSourceMeshIndex );
@@ -112,6 +114,7 @@ namespace moris::mtk
 
     void QuadraturePointMapper_Ray::update_displacements( std::unordered_map< moris_index, Vector< real > > const &aSetDisplacements )
     {
+        Tracer tTracer( "Quadrature Point Mapper", "Update Displacements", "Update" );
         for ( auto &tSurfaceMesh : mSurfaceMeshes )
         {
             uint const tNumSurfaceVertices = tSurfaceMesh.get_number_of_vertices();
@@ -131,6 +134,6 @@ namespace moris::mtk
             }
             tSurfaceMesh.set_displacement( tDisplacements );
         }
-//        write_surface_mesh_json(); // TODO @ff Remove! Only for Debug!
+        //        write_surface_mesh_json(); // TODO @ff Remove! Only for Debug!
     }
 }    // namespace moris::mtk
