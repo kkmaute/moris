@@ -2449,15 +2449,8 @@ namespace moris
             tLeaderIGGI->reset_eval_flags_coordinates();
             Matrix< DDRMat > const tLeaderCoordsPerturbed = tLeaderIGGI->get_space_coeff_current( aLeaderFieldInterpolator );    // get the deformed coordinates of the element after perturbation
             Matrix< DDRMat > const tIGPointPerturbed      = tLeaderIGGI->valx_current( aLeaderFieldInterpolator );               // get the integration point location after deformation of the element nodes
-            Matrix< DDRMat >       tNormalPerturbed       = tLeaderIGGI->get_normal_current( aLeaderFieldInterpolator );
-
-
+            Matrix< DDRMat > const tNormalPerturbed       = tLeaderIGGI->get_normal_current( aLeaderFieldInterpolator );
             MORIS_ASSERT( tLeaderCoordsPerturbed.n_rows() == 2 && tLeaderCoordsPerturbed.n_cols() == 2, "IWG::remap_nonconformal_rays - Nonconformal FD scheme is only implemented for line elements." );
-
-            //            Matrix< DDRMat > const tL1 = tLeaderCoordsPerturbed.get_row( 0 );
-            //            Matrix< DDRMat > const tL2 = tLeaderCoordsPerturbed.get_row( 1 );
-            //            Matrix< DDRMat >       tNormalPerturbed{ { tL2( 1 ) - tL1( 1 ) }, { -( tL2( 0 ) - tL1( 0 ) ) } };
-            //            tNormalPerturbed = tNormalPerturbed / norm( tNormalPerturbed );
 
             // Get the nodes of the follower element and add the perturbed displacement on each of them
             Geometry_Interpolator* tFollowerIGGI = this->mFollowerFIManager->get_IG_geometry_interpolator();
@@ -2511,30 +2504,6 @@ namespace moris
 
             return tFollowerSpaceTime;
         }
-
-        Matrix< DDRMat > IWG::get_deformed_node_coordinates(
-                Geometry_Interpolator* aGeometryInterpolator,
-                Field_Interpolator*    aFieldInterpolator ) const
-        {
-            Matrix< DDRMat > const tPhysicalCoordinates   = aGeometryInterpolator->get_space_coeff();
-            Matrix< DDRMat > const tParametricCoordinates = aGeometryInterpolator->get_space_param_coeff();
-            Matrix< DDRMat >       tResultCoordinates( tPhysicalCoordinates.n_rows(), tPhysicalCoordinates.n_cols() );
-            Matrix< DDRMat > const tPreviousSpace = aFieldInterpolator->get_space_time();
-            for ( size_t iNode = 0; iNode < tPhysicalCoordinates.n_rows(); ++iNode )
-            {
-                // Set the Field Interpolator to the parametric coordinates of the current follower node.
-                // This is required to get the value of the displacement field for this node.
-                Matrix< DDRMat > tSpaceTime( tParametricCoordinates.n_cols() + 1, 1 );
-                tSpaceTime( { 0, tParametricCoordinates.n_cols() - 1 }, { 0, 0 } ) = trans( tParametricCoordinates.get_row( iNode ) );
-                aFieldInterpolator->set_space_time( tSpaceTime );
-                tResultCoordinates.set_row( iNode, tPhysicalCoordinates.get_row( iNode ) + trans( aFieldInterpolator->val() ) );
-            }
-            // Reset the Field Interpolator to the previous space coordinates.
-            aFieldInterpolator->set_space_time( tPreviousSpace );
-            return tResultCoordinates;
-        }
-
-        //------------------------------------------------------------------------------
 
         bool
         IWG::check_jacobian(

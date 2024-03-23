@@ -1002,7 +1002,6 @@ namespace moris
              * @param[ in ] aIsResidual bool true if residual evaluation
              */
             void             build_requested_dof_type_list( const bool aIsStaggered );
-            Matrix< DDRMat > get_deformed_node_coordinates( Geometry_Interpolator* aGeometryInterpolator, Field_Interpolator* aFieldInterpolator ) const;
             Matrix< DDRMat > remap_nonconformal_rays( Field_Interpolator* aLeaderFieldInterpolator, Field_Interpolator* aFollowerFieldInterpolator ) const;
         };
         //------------------------------------------------------------------------------
