@@ -1,7 +1,12 @@
-//
-// Created by frank on 3/17/24.
-//
-
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ * ------------------------------------------------------------------------------------
+ *
+ * cl_MTK_QuadraturePointMapper_Ray_ArborX.hpp
+ *
+ */
 #pragma once
 #include "cl_MTK_QuadraturePointMapper_Ray.hpp"
 #include "cl_MTK_QuadraturePointMapper_Ray_ArborX_Details.hpp"

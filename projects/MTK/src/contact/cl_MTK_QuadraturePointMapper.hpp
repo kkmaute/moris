@@ -1,7 +1,12 @@
-//
-// Created by frank on 11/27/23.
-//
-
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ * ------------------------------------------------------------------------------------
+ *
+ * cl_MTK_QuadraturePointMapper.hpp
+ *
+ */
 #ifndef MORIS_CL_MTK_QUADRATUREPOINTMAPPER_HPP
 #define MORIS_CL_MTK_QUADRATUREPOINTMAPPER_HPP
 

@@ -1,7 +1,12 @@
-//
-// Created by frank on 12/13/23.
-//
-
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ * ------------------------------------------------------------------------------------
+ *
+ * cl_MTK_PointPairs.hpp
+ *
+ */
 #pragma once
 
 #include "cl_Matrix_Arma_Dynamic.hpp"
