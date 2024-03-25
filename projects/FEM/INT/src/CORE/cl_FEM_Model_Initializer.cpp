@@ -21,7 +21,7 @@ namespace moris::fem
 
     void Model_Initializer::create_properties()
     {
-        Vector< ParameterList > tPropParameterList = mParameterList( 0 );
+        Vector< Parameter_List > tPropParameterList = mParameterList( 0 );
         uint                    tNumProps          = tPropParameterList.size();
         mProperties.resize( tNumProps, nullptr );
 
@@ -29,7 +29,7 @@ namespace moris::fem
         for ( uint iProp = 0; iProp < tNumProps; iProp++ )
         {
             // get property parameter list
-            ParameterList tPropParameter = tPropParameterList( iProp );
+            Parameter_List tPropParameter = tPropParameterList( iProp );
             auto          tProperty      = std::make_shared< fem::Property >();
 
             // get property name from parameter list
@@ -82,7 +82,7 @@ namespace moris::fem
 
     void Model_Initializer::create_fields()
     {
-        Vector< ParameterList > tFieldParameterList = mParameterList( 6 );
+        Vector< Parameter_List > tFieldParameterList = mParameterList( 6 );
         sint                    tNumFields          = tFieldParameterList.size();
 
         mFields.resize( tNumFields, nullptr );
@@ -91,7 +91,7 @@ namespace moris::fem
         for ( sint iField = 0; iField < tNumFields; iField++ )
         {
             // get property parameter list
-            ParameterList tFieldParameter = tFieldParameterList( iField );
+            Parameter_List tFieldParameter = tFieldParameterList( iField );
 
             moris::map< std::string, mtk::Field_Entity_Type > tFieldEntityTypeMap = mtk::get_field_entity_type_map();
             mtk::Field_Entity_Type                            tFieldEntityType    = tFieldEntityTypeMap.find( tFieldParameter.get< std::string >( "field_entity_type" ) );
@@ -144,7 +144,7 @@ namespace moris::fem
 
     void Model_Initializer::print_physics_model()
     {
-        ParameterList tComputationParameterList = this->mParameterList( 5 )( 0 );
+        Parameter_List tComputationParameterList = this->mParameterList( 5 )( 0 );
         bool          tPrintPhysics             = tComputationParameterList.get< bool >( "print_physics_model" );
         if ( tPrintPhysics && par_rank() == 0 )
         {
@@ -159,7 +159,7 @@ namespace moris::fem
     }
 
     Vector< fem::PropertyFunc >
-    Model_Initializer::load_library_property_functions( ParameterList const &aParameterList, std::string const &aPropertyName )
+    Model_Initializer::load_library_property_functions( Parameter_List const &aParameterList, std::string const &aPropertyName )
     {
         auto                        tFuncNames    = string_to_cell< std::string >( aParameterList.get< std::string >( aPropertyName ) );
         uint                        tNumFunctions = tFuncNames.size();

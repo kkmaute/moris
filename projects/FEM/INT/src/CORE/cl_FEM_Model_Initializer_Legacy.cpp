@@ -5,7 +5,6 @@
 #include "cl_FEM_Model_Initializer_Legacy.hpp"
 #include "cl_FEM_Model_Initializer.hpp"
 #include "cl_Vector.hpp"
-#include "cl_Param_List.hpp"
 #include "GEN_Data_Types.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "cl_MSI_Dof_Type_Enums.hpp"
@@ -25,7 +24,7 @@ namespace moris::fem
         MM_Factory tMMFactory;
 
         // get the MM parameter list
-        Vector< ParameterList > tMMParameterList = mParameterList( 7 );
+        Vector< Parameter_List > tMMParameterList = mParameterList( 7 );
 
         // get number of material models
         uint tNumMMs = tMMParameterList.size();
@@ -100,7 +99,7 @@ namespace moris::fem
         CM_Factory tCMFactory;
 
         // get the CM parameter list
-        Vector< ParameterList > tCMParameterList = mParameterList( 1 );
+        Vector< Parameter_List > tCMParameterList = mParameterList( 1 );
 
         // get number of constitutive models
         uint tNumCMs = tCMParameterList.size();
@@ -224,7 +223,7 @@ namespace moris::fem
         SP_Factory tSPFactory;
 
         // get the SP parameter list
-        Vector< ParameterList > tSPParameterList = mParameterList( 2 );
+        Vector< Parameter_List > tSPParameterList = mParameterList( 2 );
 
         // get the number of stabilization parameters
         uint tNumSPs = tSPParameterList.size();
@@ -236,7 +235,7 @@ namespace moris::fem
         for ( uint iSP = 0; iSP < tNumSPs; iSP++ )
         {
             // get the SP parameter
-            ParameterList tSPParameter = tSPParameterList( iSP );
+            Parameter_List tSPParameter = tSPParameterList( iSP );
 
             // get the stabilization type from parameter list
             fem::Stabilization_Type tSPType =
@@ -357,15 +356,15 @@ namespace moris::fem
 
     void Model_Initializer_Legacy::create_iwgs()
     {
-        IWG_Factory             tIWGFactory;
-        Vector< ParameterList > tIWGParameterList = mParameterList( 3 );
-        uint const              tNumIWGs          = tIWGParameterList.size();
+        IWG_Factory              tIWGFactory;
+        Vector< Parameter_List > tIWGParameterList = mParameterList( 3 );
+        uint const               tNumIWGs          = tIWGParameterList.size();
         mIWGs.resize( tNumIWGs, nullptr );    // list of IWG pointers
 
         for ( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
         {
             // get the treated IWG parameter list
-            ParameterList const tIWGParameter = tIWGParameterList( iIWG );
+            Parameter_List const tIWGParameter = tIWGParameterList( iIWG );
 
             fem::IWG_Type const tIWGType =
                     static_cast< fem::IWG_Type >( tIWGParameter.get< uint >( "IWG_type" ) );
@@ -375,7 +374,7 @@ namespace moris::fem
             std::string const tIWGName = tIWGParameter.get< std::string >( "IWG_name" );
             tIWG->set_name( tIWGName );
 
-            tIWG->set_is_fd_jacobian( not tIWGParameter.get< bool >( "analytical_jacobian" ) ); // warning: this is a negation
+            tIWG->set_is_fd_jacobian( not tIWGParameter.get< bool >( "analytical_jacobian" ) );    // warning: this is a negation
 
             // fill IWG map
             mIWGMap[ tIWGName ] = iIWG;
@@ -407,14 +406,14 @@ namespace moris::fem
         }
     }
 
-    void Model_Initializer_Legacy::set_iwg_residual_dof_type( ParameterList const &aIWGParameter, std::shared_ptr< IWG > &aIWG ) const
+    void Model_Initializer_Legacy::set_iwg_residual_dof_type( Parameter_List const &aIWGParameter, std::shared_ptr< IWG > &aIWG ) const
     {
         std::string const tDofResidualString = aIWGParameter.get< std::string >( "dof_residual" );
         auto              tResDofTypes       = string_to_cell_of_cell< MSI::Dof_Type >( tDofResidualString, mMSIDofTypeMap );
         aIWG->set_residual_dof_type( tResDofTypes );
     }
 
-    void Model_Initializer_Legacy::set_iwg_stabilization_parameters( ParameterList const &aIWGParameter, std::shared_ptr< IWG > &aIWG )
+    void Model_Initializer_Legacy::set_iwg_stabilization_parameters( Parameter_List const &aIWGParameter, std::shared_ptr< IWG > &aIWG )
     {
         auto tSPNamesPair = string_to_cell_of_cell< std::string >( aIWGParameter.get< std::string >( "stabilization_parameters" ) );
 
@@ -441,7 +440,7 @@ namespace moris::fem
         }
     }
 
-    void Model_Initializer_Legacy::set_iwg_constitutive_models( ParameterList const &aIWGParameter, std::shared_ptr< IWG > &aIWG, mtk::Leader_Follower const &aLeaderFollowerType )
+    void Model_Initializer_Legacy::set_iwg_constitutive_models( Parameter_List const &aIWGParameter, std::shared_ptr< IWG > &aIWG, mtk::Leader_Follower const &aLeaderFollowerType )
     {
         // get the prefix of the property name based on the leader or follower type (either "leader" or "follower")
         std::string const tPrefix      = mtk::get_leader_follower_string( aLeaderFollowerType );
@@ -472,7 +471,7 @@ namespace moris::fem
         }
     }
 
-    void Model_Initializer_Legacy::set_iwg_material_models( ParameterList const &aIWGParameter, std::shared_ptr< IWG > &aIWG, mtk::Leader_Follower const &aLeaderFollowerType )
+    void Model_Initializer_Legacy::set_iwg_material_models( Parameter_List const &aIWGParameter, std::shared_ptr< IWG > &aIWG, mtk::Leader_Follower const &aLeaderFollowerType )
     {
         // get the prefix of the property name based on the leader or follower type (either "leader" or "follower")
         std::string const tPrefix      = mtk::get_leader_follower_string( aLeaderFollowerType );
@@ -503,7 +502,7 @@ namespace moris::fem
         }
     }
 
-    void Model_Initializer_Legacy::set_iwg_properties( ParameterList const &aIWGParameter, std::shared_ptr< IWG > &aIWG, mtk::Leader_Follower const &aLeaderFollowerType )
+    void Model_Initializer_Legacy::set_iwg_properties( Parameter_List const &aIWGParameter, std::shared_ptr< IWG > &aIWG, mtk::Leader_Follower const &aLeaderFollowerType )
     {
         // get the prefix of the property name based on the leader or follower type (either "leader" or "follower")
         std::string const tPrefix = mtk::get_leader_follower_string( aLeaderFollowerType );
@@ -536,7 +535,7 @@ namespace moris::fem
         }
     }
 
-    void Model_Initializer_Legacy::set_iwg_field_types( ParameterList const &aIWGParameter, std::shared_ptr< IWG > &aIWG, mtk::Leader_Follower const &aLeaderFollowerType ) const
+    void Model_Initializer_Legacy::set_iwg_field_types( Parameter_List const &aIWGParameter, std::shared_ptr< IWG > &aIWG, mtk::Leader_Follower const &aLeaderFollowerType ) const
     {
         // get the prefix of the property name based on the leader or follower type (either "leader" or "follower")
         std::string const                          tPrefix     = mtk::get_leader_follower_string( aLeaderFollowerType );
@@ -544,7 +543,7 @@ namespace moris::fem
         aIWG->set_field_type_list( tFieldTypes, aLeaderFollowerType );
     }
 
-    void Model_Initializer_Legacy::set_iwg_dof_dependencies( ParameterList const &aIWGParameter, std::shared_ptr< IWG > &aIWG, mtk::Leader_Follower aLeaderFollowerType ) const
+    void Model_Initializer_Legacy::set_iwg_dof_dependencies( Parameter_List const &aIWGParameter, std::shared_ptr< IWG > &aIWG, mtk::Leader_Follower aLeaderFollowerType ) const
     {
         // get the prefix of the property based on the leader or follower type
         std::string const                        tPrefix   = mtk::get_leader_follower_string( aLeaderFollowerType );
@@ -552,7 +551,7 @@ namespace moris::fem
         aIWG->set_dof_type_list( tDofTypes, aLeaderFollowerType );
     }
 
-    void Model_Initializer_Legacy::set_iwg_dv_dependencies( ParameterList const &aIWGParameter, std::shared_ptr< IWG > &aIWG, mtk::Leader_Follower const &aLeaderFollowerType ) const
+    void Model_Initializer_Legacy::set_iwg_dv_dependencies( Parameter_List const &aIWGParameter, std::shared_ptr< IWG > &aIWG, mtk::Leader_Follower const &aLeaderFollowerType ) const
     {
         // get the prefix of the property based on the leader or follower type
         std::string const                        tPrefix  = mtk::get_leader_follower_string( aLeaderFollowerType );
@@ -567,7 +566,7 @@ namespace moris::fem
         IQI_Factory tIQIFactory;
 
         // get the IQI parameter list
-        Vector< ParameterList > tIQIParameterList = mParameterList( 4 );
+        Vector< Parameter_List > tIQIParameterList = mParameterList( 4 );
 
         // get number of IQIs
         uint tNumIQIs = tIQIParameterList.size();
@@ -579,7 +578,7 @@ namespace moris::fem
         for ( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
         {
             // get the treated IQI parameter list
-            ParameterList tIQIParameter = tIQIParameterList( iIQI );
+            Parameter_List tIQIParameter = tIQIParameterList( iIQI );
 
             // get name from parameter list
             std::string tIQIName = tIQIParameter.get< std::string >( "IQI_name" );
@@ -766,7 +765,7 @@ namespace moris::fem
     // TODO: This method has a similar logic as create_fem_set_info_from_iqis. Proper refactoring could merge the two methods.
     void Model_Initializer_Legacy::create_fem_set_info_from_iwgs( std::map< std::tuple< std::string, bool, bool >, uint > &aMeshToFemSetIndex )
     {
-        ParameterList const tComputationParameterList = mParameterList( 5 )( 0 );
+        Parameter_List const tComputationParameterList = mParameterList( 5 )( 0 );
 
         // forward analysis
         bool const         tIsAnalyticalFA   = tComputationParameterList.get< bool >( "is_analytical_forward" );
@@ -780,10 +779,10 @@ namespace moris::fem
 
         fem::Perturbation_Type tPerturbationStrategy = static_cast< fem::Perturbation_Type >( tComputationParameterList.get< uint >( "finite_difference_perturbation_strategy" ) );
 
-        Vector< ParameterList > tIWGParameterLists = this->mParameterList( 3 );
+        Vector< Parameter_List > tIWGParameterLists = this->mParameterList( 3 );
         for ( uint iIWG = 0; iIWG < tIWGParameterLists.size(); iIWG++ )
         {
-            ParameterList const          &tIWGParameterList = tIWGParameterLists( iIWG );
+            Parameter_List const         &tIWGParameterList = tIWGParameterLists( iIWG );
             std::shared_ptr< IWG > const &tIWG              = this->mIWGs( iIWG );
 
             // get the time continuity and time boundary flags from the IWG parameter list to uniquely identify the fem sets
@@ -841,7 +840,7 @@ namespace moris::fem
     // TODO: This method has a similar logic as create_fem_set_info_from_iwgs. Proper refactoring could merge the two methods.
     void Model_Initializer_Legacy::create_fem_set_info_from_iqis( std::map< std::tuple< std::string, bool, bool >, uint > &aMeshToFemSetIndex )
     {
-        ParameterList const tComputationParameterList = mParameterList( 5 )( 0 );
+        Parameter_List const tComputationParameterList = mParameterList( 5 )( 0 );
 
         // forward analysis
         bool const         tIsAnalyticalFA   = tComputationParameterList.get< bool >( "is_analytical_forward" );
@@ -855,10 +854,10 @@ namespace moris::fem
 
         fem::Perturbation_Type tPerturbationStrategy = static_cast< fem::Perturbation_Type >( tComputationParameterList.get< uint >( "finite_difference_perturbation_strategy" ) );
 
-        Vector< ParameterList > tIQIParameterLists = this->mParameterList( 4 );
+        Vector< Parameter_List > tIQIParameterLists = this->mParameterList( 4 );
         for ( uint iIQI = 0; iIQI < tIQIParameterLists.size(); iIQI++ )
         {
-            ParameterList const          &tIQIParameterList = tIQIParameterLists( iIQI );
+            Parameter_List const         &tIQIParameterList = tIQIParameterLists( iIQI );
             std::shared_ptr< IQI > const &tIQI              = this->mIQIs( iIQI );
 
             bool tTimeContinuity = tIQIParameterList.get< bool >( "time_continuity" );

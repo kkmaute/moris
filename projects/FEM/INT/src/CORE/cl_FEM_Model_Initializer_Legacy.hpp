@@ -6,7 +6,6 @@
 #define MORIS_CL_FEM_MODEL_INITIALIZER_LEGACY_HPP
 
 #include "cl_Vector.hpp"
-#include "cl_Param_List.hpp"
 #include "cl_Library_IO.hpp"
 #include "cl_FEM_Model_Initializer.hpp"
 namespace moris::fem
@@ -15,7 +14,7 @@ namespace moris::fem
     {
       public:
         Model_Initializer_Legacy(
-                Vector< Vector< ParameterList > >      aParameterList,
+                Vector< Vector< Parameter_List > >      aParameterList,
                 std::shared_ptr< Library_IO >                    aLibrary,
                 mtk::Mesh_Pair const*                            aMeshPair,
                 uint                                             aSpatialDimension,
@@ -29,14 +28,14 @@ namespace moris::fem
         void create_fem_set_info_from_iwgs( std::map< std::tuple< std::string, bool, bool >, uint > &aMeshToFemSetIndex );
         void create_fem_set_info_from_iqis( std::map< std::tuple< std::string, bool, bool >, uint > &aMeshToFemSetIndex );
 
-        void set_iwg_dof_dependencies( ParameterList const &aIWGParameter, std::shared_ptr< IWG > &aIWG, mtk::Leader_Follower aLeaderFollowerType ) const;
-        void set_iwg_dv_dependencies( ParameterList const &aIWGParameter, std::shared_ptr< IWG > &aIWG, mtk::Leader_Follower const &aLeaderFollowerType ) const;
-        void set_iwg_field_types( ParameterList const &aIWGParameter, std::shared_ptr< IWG > &aIWG, mtk::Leader_Follower const &aLeaderFollowerType ) const;
-        void set_iwg_properties( ParameterList const &aIWGParameter, std::shared_ptr< IWG > &aIWG, mtk::Leader_Follower const &aLeaderFollowerType );
-        void set_iwg_material_models( ParameterList const &aIWGParameter, std::shared_ptr< IWG > &aIWG, mtk::Leader_Follower const &aLeaderFollowerType );
-        void set_iwg_constitutive_models( ParameterList const &aIWGParameter, std::shared_ptr< IWG > &aIWG, mtk::Leader_Follower const &aLeaderFollowerType );
-        void set_iwg_stabilization_parameters( ParameterList const &aIWGParameter, std::shared_ptr< IWG > &aIWG );
-        void set_iwg_residual_dof_type( ParameterList const &aIWGParameter, std::shared_ptr< IWG > &aIWG ) const;
+        void set_iwg_dof_dependencies( Parameter_List const &aIWGParameter, std::shared_ptr< IWG > &aIWG, mtk::Leader_Follower aLeaderFollowerType ) const;
+        void set_iwg_dv_dependencies( Parameter_List const &aIWGParameter, std::shared_ptr< IWG > &aIWG, mtk::Leader_Follower const &aLeaderFollowerType ) const;
+        void set_iwg_field_types( Parameter_List const &aIWGParameter, std::shared_ptr< IWG > &aIWG, mtk::Leader_Follower const &aLeaderFollowerType ) const;
+        void set_iwg_properties( Parameter_List const &aIWGParameter, std::shared_ptr< IWG > &aIWG, mtk::Leader_Follower const &aLeaderFollowerType );
+        void set_iwg_material_models( Parameter_List const &aIWGParameter, std::shared_ptr< IWG > &aIWG, mtk::Leader_Follower const &aLeaderFollowerType );
+        void set_iwg_constitutive_models( Parameter_List const &aIWGParameter, std::shared_ptr< IWG > &aIWG, mtk::Leader_Follower const &aLeaderFollowerType );
+        void set_iwg_stabilization_parameters( Parameter_List const &aIWGParameter, std::shared_ptr< IWG > &aIWG );
+        void set_iwg_residual_dof_type( Parameter_List const &aIWGParameter, std::shared_ptr< IWG > &aIWG ) const;
 
       protected:
         void create_material_models() override;

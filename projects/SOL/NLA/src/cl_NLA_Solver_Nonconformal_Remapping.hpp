@@ -12,8 +12,6 @@
 
 #include "cl_SOL_Enums.hpp"
 #include "moris_typedefs.hpp"
-#include "cl_Param_List.hpp"
-
 
 namespace moris::NLA
 {
@@ -21,7 +19,7 @@ namespace moris::NLA
     class Solver_Nonconformal_Remapping
     {
       public:
-        Solver_Nonconformal_Remapping( ParameterList& aParameterListNonlinearSolver );
+        Solver_Nonconformal_Remapping( Parameter_List& aParameterListNonlinearSolver );
 
         bool requires_remapping( uint aIter, Nonlinear_Solver* aNonLinSolverManager, real& aLoadFactor );
 

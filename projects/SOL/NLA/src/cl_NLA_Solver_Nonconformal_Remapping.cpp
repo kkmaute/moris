@@ -11,12 +11,11 @@
 #include "cl_NLA_Solver_Nonconformal_Remapping.hpp"
 
 #include <math.h>
-#include "cl_Param_List.hpp"
 #include <cstdlib>
 
 namespace moris::NLA
 {
-    Solver_Nonconformal_Remapping::Solver_Nonconformal_Remapping( ParameterList &aParameterListNonlinearSolver )
+    Solver_Nonconformal_Remapping::Solver_Nonconformal_Remapping( Parameter_List &aParameterListNonlinearSolver )
             : mStrategy( static_cast< sol::SolverRaytracingStrategy >( aParameterListNonlinearSolver.get< uint >( "NLA_remap_strategy" ) ) )
             , mLoadStepFrequency( aParameterListNonlinearSolver.get< int >( "NLA_remap_load_step_frequency" ) )
             , mIterationFrequency( aParameterListNonlinearSolver.get< int >( "NLA_remap_iteration_frequency" ) )

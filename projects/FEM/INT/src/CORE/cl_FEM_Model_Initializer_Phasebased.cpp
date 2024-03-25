@@ -21,7 +21,7 @@ namespace moris::fem
     void Model_Initializer_Phasebased::create_phases()
     {
         // get the phase parameter list
-        Vector< ParameterList > tPhaseParameterList = mParameterList( 7 );
+        Vector< Parameter_List > tPhaseParameterList = mParameterList( 7 );
 
         // get number of phases
         uint tNumPhases = tPhaseParameterList.size();
@@ -33,7 +33,7 @@ namespace moris::fem
         for ( uint iPhase = 0; iPhase < tNumPhases; iPhase++ )
         {
             // get the treated phase parameter list
-            ParameterList tPhaseParameter = tPhaseParameterList( iPhase );
+            Parameter_List tPhaseParameter = tPhaseParameterList( iPhase );
 
             // get the phase name from parameter list
             std::string tPhaseName =
@@ -60,7 +60,7 @@ namespace moris::fem
         MM_Factory tMMFactory;
 
         // get the MM parameter list
-        Vector< ParameterList > tMMParameterList = mParameterList( 8 );
+        Vector< Parameter_List > tMMParameterList = mParameterList( 8 );
 
         // get number of constitutive models
         uint tNumMMs = tMMParameterList.size();
@@ -69,7 +69,7 @@ namespace moris::fem
         for ( uint iMM = 0; iMM < tNumMMs; iMM++ )
         {
             // get the treated MM parameter list
-            ParameterList tMMParameter = tMMParameterList( iMM );
+            Parameter_List tMMParameter = tMMParameterList( iMM );
 
             // get the constitutive type from parameter list
             fem::Material_Type tMMType =
@@ -148,7 +148,7 @@ namespace moris::fem
         CM_Factory tCMFactory;
 
         // get the CM parameter list
-        Vector< ParameterList > tCMParameterList = mParameterList( 1 );
+        Vector< Parameter_List > tCMParameterList = mParameterList( 1 );
 
         // get number of constitutive models
         uint tNumCMs = tCMParameterList.size();
@@ -157,7 +157,7 @@ namespace moris::fem
         for ( uint iCM = 0; iCM < tNumCMs; iCM++ )
         {
             // get the treated CM parameter list
-            ParameterList tCMParameter = tCMParameterList( iCM );
+            Parameter_List tCMParameter = tCMParameterList( iCM );
 
             // get the constitutive type from parameter list
             fem::Constitutive_Type tCMType =
@@ -297,7 +297,7 @@ namespace moris::fem
         SP_Factory tSPFactory;
 
         // get the SP parameter list
-        Vector< ParameterList > tSPParameterList = mParameterList( 2 );
+        Vector< Parameter_List > tSPParameterList = mParameterList( 2 );
 
         // get the number of stabilization parameters
         uint tNumSPs = tSPParameterList.size();
@@ -309,7 +309,7 @@ namespace moris::fem
         for ( uint iSP = 0; iSP < tNumSPs; iSP++ )
         {
             // get the stabilization parameters
-            ParameterList tSPParameter = tSPParameterList( iSP );
+            Parameter_List tSPParameter = tSPParameterList( iSP );
 
             // get the stabilization parameter name
             std::string tSPName = tSPParameter.get< std::string >( "stabilization_name" );
@@ -503,7 +503,7 @@ namespace moris::fem
         IWG_Factory tIWGFactory;
 
         // get the IWG parameter list
-        Vector< ParameterList > tIWGParameterList = mParameterList( 3 );
+        Vector< Parameter_List > tIWGParameterList = mParameterList( 3 );
 
         // get number of IWGs
         uint tNumIWGs = tIWGParameterList.size();
@@ -515,7 +515,7 @@ namespace moris::fem
         for ( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
         {
             // get the treated IWG parameter list
-            ParameterList tIWGParameter = tIWGParameterList( iIWG );
+            Parameter_List tIWGParameter = tIWGParameterList( iIWG );
 
             // get the treated IWG name
             std::string tIWGName = tIWGParameter.get< std::string >( "IWG_name" );
@@ -708,7 +708,7 @@ namespace moris::fem
         for ( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
         {
             // get the treated IWG parameter list
-            ParameterList tIWGParameter = tIWGParameterList( iIWG );
+            Parameter_List tIWGParameter = tIWGParameterList( iIWG );
 
             // get the IWG bulk type
             fem::Element_Type tIWGBulkType = mIWGs( iIWG )->get_bulk_type();
@@ -776,7 +776,7 @@ namespace moris::fem
         IQI_Factory tIQIFactory;
 
         // get the IQI parameter list
-        Vector< ParameterList > tIQIParameterList = mParameterList( 4 );
+        Vector< Parameter_List > tIQIParameterList = mParameterList( 4 );
 
         // get number of IQIs
         uint tNumIQIs = tIQIParameterList.size();
@@ -788,7 +788,7 @@ namespace moris::fem
         for ( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
         {
             // get the treated IQI parameter list
-            ParameterList tIQIParameter = tIQIParameterList( iIQI );
+            Parameter_List tIQIParameter = tIQIParameterList( iIQI );
 
             // get the treated IQI name from parameter list
             std::string tIQIName =
@@ -968,11 +968,11 @@ namespace moris::fem
         uint tNumFEMSets = 0;
 
         // get the IWG and IQI parameter lists
-        Vector< ParameterList > tIWGParameterList = mParameterList( 3 );
-        Vector< ParameterList > tIQIParameterList = mParameterList( 4 );
+        Vector< Parameter_List > tIWGParameterList = mParameterList( 3 );
+        Vector< Parameter_List > tIQIParameterList = mParameterList( 4 );
 
         // get fem computation type parameter list
-        ParameterList tComputationParameterList = mParameterList( 5 )( 0 );
+        Parameter_List tComputationParameterList = mParameterList( 5 )( 0 );
 
         // bool true for analytical forward analysis, false for finite difference
         // decide if dRdu and dQIdu are computed by A/FD
@@ -1014,7 +1014,7 @@ namespace moris::fem
         for ( uint iIWG = 0; iIWG < tIWGParameterList.size(); iIWG++ )
         {
             // get the treated IWG parameter list
-            ParameterList tIWGParameter = tIWGParameterList( iIWG );
+            Parameter_List tIWGParameter = tIWGParameterList( iIWG );
 
             // get the IWG bulk type
             fem::Element_Type tIWGBulkType = mIWGs( iIWG )->get_bulk_type();
@@ -1139,7 +1139,7 @@ namespace moris::fem
         for ( uint iIQI = 0; iIQI < tIQIParameterList.size(); iIQI++ )
         {
             // get the treated IWG parameter list
-            ParameterList tIQIParameter = tIQIParameterList( iIQI );
+            Parameter_List tIQIParameter = tIQIParameterList( iIQI );
 
             // get the IWG bulk type
             fem::Element_Type tIQIBulkType = mIQIs( iIQI )->get_bulk_type();
@@ -1438,8 +1438,8 @@ namespace moris::fem
 
     void Model_Initializer_Phasebased::print_physics_model()
     {
-        ParameterList tComputationParameterList = this->mParameterList( 5 )( 0 );
-        bool          tPrintPhysics             = tComputationParameterList.get< bool >( "print_physics_model" );
+        Parameter_List tComputationParameterList = this->mParameterList( 5 )( 0 );
+        bool           tPrintPhysics             = tComputationParameterList.get< bool >( "print_physics_model" );
         if ( tPrintPhysics && par_rank() == 0 )
         {
             std::cout << "Phase info \n";

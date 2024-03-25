@@ -6,7 +6,6 @@
 #define MORIS_CL_FEM_MODEL_INITIALIZER_HPP
 
 #include "cl_Vector.hpp"
-#include "cl_Param_List.hpp"
 #include "cl_FEM_Property.hpp"
 #include "cl_FEM_Field.hpp"
 #include "cl_FEM_Material_Model.hpp"
@@ -25,7 +24,7 @@ namespace moris::fem
 
       public:
         Model_Initializer(
-                Vector< Vector< ParameterList > >                aParameterList,
+                Vector< Vector< Parameter_List > >                aParameterList,
                 mtk::Mesh_Pair const                            *aMeshPair,
                 std::shared_ptr< Library_IO >                    aLibrary,
                 uint                                             aSpatialDimension,
@@ -70,10 +69,10 @@ namespace moris::fem
 
         template< typename T >
         Vector< Vector< T > >
-        property_to_vec_of_vec( ParameterList const &aParameterList, std::string const &aPropertyName, map< std::string, T > const &aTypeMap ) const;
+        property_to_vec_of_vec( Parameter_List const &aParameterList, std::string const &aPropertyName, map< std::string, T > const &aTypeMap ) const;
 
         Vector< fem::PropertyFunc >
-        load_library_property_functions( ParameterList const &aParameterList, std::string const &aPropertyName );
+        load_library_property_functions( Parameter_List const &aParameterList, std::string const &aPropertyName );
 
         /**
          * @brief check the ghost set names and conrrect them to automatically include
@@ -92,7 +91,7 @@ namespace moris::fem
                 moris::fem::Field_Interpolator_Manager   *aFIManager );
 
         // data
-        Vector< Vector< ParameterList > >                mParameterList;
+        Vector< Vector< Parameter_List > >                mParameterList;
         mtk::Mesh_Pair const                            *mMeshPair;
         std::shared_ptr< Library_IO >                    mLibrary;
         uint                                             mSpatialDimension;
@@ -126,7 +125,7 @@ namespace moris::fem
     };
 
     template< typename T >
-    Vector< Vector< T > > Model_Initializer::property_to_vec_of_vec( ParameterList const &aParameterList, std::string const &aPropertyName, map< std::string, T > const &aTypeMap ) const
+    Vector< Vector< T > > Model_Initializer::property_to_vec_of_vec( Parameter_List const &aParameterList, std::string const &aPropertyName, map< std::string, T > const &aTypeMap ) const
     {
         return string_to_cell_of_cell< T >( aParameterList.get< std::string >( aPropertyName ), aTypeMap );
     }
