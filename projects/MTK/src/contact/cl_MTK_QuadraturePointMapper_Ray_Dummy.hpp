@@ -28,7 +28,7 @@ namespace moris::mtk
 
         MappingResult map( moris_index aSourceSideSetIndex, Matrix< DDRMat > const &aParametricCoordinates, real aMaxNegativeRayLength, real aMaxPositiveRayLength ) const override
         {
-            MORIS_LOG_ERROR( "To use nonconformal side sets with ray-based mapping, please install ArborX and activate the CMAKE Flag MORIS_HAVE_ARBORX!" );
+            MORIS_ERROR( false, "To use nonconformal side sets with ray-based mapping, please install ArborX and activate the CMAKE Flag MORIS_HAVE_ARBORX!" );
             return { 0, 0, 0 };
         };
     };
