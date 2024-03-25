@@ -240,6 +240,7 @@ namespace moris::mtk
         Vector< moris_index > tLeaderNodeIndices( tNumResults );
         Matrix< DDRMat >      tNormals( aMappingResult.mNormals.n_rows(), tNumResults );
         Matrix< DDRMat >      tReferenceNormals( aMappingResult.mReferenceNormals.n_rows(), tNumResults );
+        Matrix< DDRMat >      tLeaderParametricCoords( mIntegrator.get_points().n_rows(), tNumResults, -1.0 );
         Matrix< DDRMat >      tFollowerParametricCoords( mIntegrator.get_points().n_rows(), tNumResults, -1.0 );
 
         auto const            &tSideSet         = mSideSets( aMappingResult.mSourceMeshIndex );
@@ -257,14 +258,18 @@ namespace moris::mtk
         {
             /* To get the correct column in the mapping result, we have to index into the list of result columns.
              * E.g. for a cell-cell pair, the mapping result columns are [ 3, 6, 8, 9 ] which means that the
-             * mapping results of the first integration point (that got mapped successfully on the other cell) is stored in column 3, the second in column 6 and so on. */
+             * mapping results of the first nodal point (that got mapped successfully on the other cell) is stored in column 3, the second in column 6 and so on. */
             size_t const tMappingResultColumn = aResultIndices( iIndex );
 
             /* The next line provides the local index of the node that has been mapped in the result. E.g. if we have a 2 node line cell, the two nodal points
              * will correspond to the node at the parametric coordinate (-1.0) and (1.0) at the local indices 0 and 1 respectively.
-             * It is up to this function to determine the global index of the node in the mesh! */
+             * It is up to this function to determine which node of the cell has been mapped. */
             size_t const tNodeIndex      = get_node_coordinate_index( tMappingResultColumn );
             tLeaderNodeIndices( iIndex ) = tVertices( tNodeIndex )->get_index();
+
+            // TODO: This is a hack for line elements! Generalize for other cell types by retrieving the local parametric coordinate from a given node index.
+            MORIS_ASSERT( tNodeIndex <= 1, "Currently, only Line elements are supported in the nonconformal mapping!" );
+            tLeaderParametricCoords( 0, iIndex ) = tNodeIndex == 0 ? -1.0 : 1.0;
 
             // Since the integration points have a constant time dimension, we can leave a -1.0 to the parametric coordinates.
             auto tCoordinate = aMappingResult.mTargetParametricCoordinate.get_column( tMappingResultColumn );
@@ -279,6 +284,7 @@ namespace moris::mtk
 
         return {
             tLeaderCellIndex,
+            tLeaderParametricCoords,
             tLeaderNodeIndices,
             tFollowerCellIndex,
             tFollowerParametricCoords,
@@ -291,7 +297,7 @@ namespace moris::mtk
 
     Vector< MappingResult > Contact_Mesh_Editor::perform_mapping( Matrix< DDRMat > aPointsToMap ) const
     {
-        Tracer tTracer("Contact Mesh Editor", "Update", "Perform Mapping");
+        Tracer tTracer( "Contact Mesh Editor", "Update", "Perform Mapping" );
         // get all possible source side sets that have been specified in the candidate pairings
         std::set< moris_index > tSourceSideSets;
         std::transform(
@@ -320,7 +326,7 @@ namespace moris::mtk
 
     void Contact_Mesh_Editor::update_nonconformal_side_sets() const
     {
-        Tracer tTracer("Contact Mesh Editor", "Update", "Updating Nonconformal Side Sets");
+        Tracer tTracer( "Contact Mesh Editor", "Update", "Updating Nonconformal Side Sets" );
         // removes all nonconformal sidesets and clusters from the IGMesh
         mIGMesh->reset_nonconformal_side_set();
 

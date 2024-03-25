@@ -25,12 +25,14 @@ namespace moris::mtk
 
         MappingPointPairs(
                 moris_index const      &aLeaderCellIndex,
+                Matrix< DDRMat > const &aLeaderCoordinates,
                 moris_index const      &aFollowerCellIndex,
                 Matrix< DDRMat > const &aFollowerCoordinates,
                 Vector< real > const   &aPointDistances,
                 Matrix< DDRMat > const &aNormals,
                 Matrix< DDRMat > const &aReferenceNormals )
                 : mLeaderCellIndex( aLeaderCellIndex )
+                , mLeaderCoordinates( aLeaderCoordinates )
                 , mFollowerCellIndex( aFollowerCellIndex )
                 , mFollowerCoordinates( aFollowerCoordinates )
                 , mPointDistances( aPointDistances )
@@ -42,6 +44,7 @@ namespace moris::mtk
         virtual ~MappingPointPairs() = default;
 
         [[nodiscard]] moris_index             get_leader_cell_index() const { return mLeaderCellIndex; }
+        [[nodiscard]] const Matrix< DDRMat > &get_leader_coordinates() const { return mLeaderCoordinates; }
         [[nodiscard]] moris_index             get_follower_cell_index() const { return mFollowerCellIndex; }
         [[nodiscard]] const Matrix< DDRMat > &get_follower_coordinates() const { return mFollowerCoordinates; }
         [[nodiscard]] const Matrix< DDRMat > &get_normals() const { return mNormals; }
@@ -53,6 +56,12 @@ namespace moris::mtk
          * \brief The cell index of the cell on the leader cell from which the mapping was performed.
          */
         moris_index mLeaderCellIndex;
+
+        /**
+         * \brief The parametric coordinates of the integration points on the leader side.
+         * \details A (p x n) matrix, where p is the parametric dimension and n is the number of integration points.
+         */
+        Matrix< DDRMat > mLeaderCoordinates;
 
         /**
          * \brief The cell index of the cell on the follower cluster to which the mapping was performed.
@@ -96,25 +105,15 @@ namespace moris::mtk
                 Vector< real > const   &aIntegrationWeights,
                 Vector< real > const   &aPointDistances,
                 Matrix< DDRMat > const &aNormals,
-                Matrix< DDRMat > const &aReferenceNormals)
-                : MappingPointPairs( aLeaderCellIndex, aFollowerCellIndex, aFollowerCoordinates, aPointDistances, aNormals, aReferenceNormals)
-                , mLeaderCoordinates( aLeaderCoordinates )
+                Matrix< DDRMat > const &aReferenceNormals )
+                : MappingPointPairs( aLeaderCellIndex, aLeaderCoordinates, aFollowerCellIndex, aFollowerCoordinates, aPointDistances, aNormals, aReferenceNormals )
                 , mIntegrationWeights( aIntegrationWeights ){};
 
         ~IntegrationPointPairs() override = default;
 
-        [[nodiscard]] const Vector< real >   &get_integration_weights() const {
-            return mIntegrationWeights; }
-        [[nodiscard]] const Matrix< DDRMat > &get_leader_coordinates() const {
-            return mLeaderCoordinates; }
+        [[nodiscard]] const Vector< real > &get_integration_weights() const { return mIntegrationWeights; }
 
       private:
-        /**
-         * \brief The parametric coordinates of the integration points on the leader side.
-         * \details A (p x n) matrix, where p is the parametric dimension and n is the number of integration points.
-         */
-        Matrix< DDRMat > mLeaderCoordinates;
-
         /**
          * \brief A list of integration points for each of the points in the leader/follower coordinate matrices.
          */
@@ -128,13 +127,14 @@ namespace moris::mtk
 
         NodalPointPairs(
                 moris_index const           &aLeaderCellIndex,
+                Matrix< DDRMat > const      &aLeaderCoordinates,
                 Vector< moris_index > const &aLeaderNodeIndices,
                 moris_index const           &aFollowerCellIndex,
                 Matrix< DDRMat > const      &aFollowerCoordinates,
                 Vector< real > const        &aPointDistances,
                 Matrix< DDRMat > const      &aNormals,
                 Matrix< DDRMat > const      &aReferenceNormals )
-                : MappingPointPairs( aLeaderCellIndex, aFollowerCellIndex, aFollowerCoordinates, aPointDistances, aNormals, aReferenceNormals )
+                : MappingPointPairs( aLeaderCellIndex, aLeaderCoordinates, aFollowerCellIndex, aFollowerCoordinates, aPointDistances, aNormals, aReferenceNormals )
                 , mLeaderNodeIndices( aLeaderNodeIndices ){};
 
         ~NodalPointPairs() override = default;

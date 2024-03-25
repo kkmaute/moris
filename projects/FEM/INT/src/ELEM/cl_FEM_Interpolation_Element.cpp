@@ -1337,44 +1337,27 @@ namespace moris
             const auto* const tNCSCluster = dynamic_cast< mtk::Nonconformal_Side_Cluster const * >( tVisCluster->get_mesh_cluster() );
 
             // get the vertices' local coordinates and the indices on the respective mesh clusters (they are both ordered in the same way)
-            Matrix< IndexMat > const tLeaderVisVertexIndices  = tNCSCluster->get_leader_vertex_indices_in_cluster();
-            Matrix< DDRMat > const   tLeaderVertexLocalCoords = tNCSCluster->get_vertices_local_coordinates_wrt_interp_cell( mtk::Leader_Follower::LEADER );
-            uint const               tNumSpatialDims          = tLeaderVertexLocalCoords.n_cols();
+            Matrix< IndexMat > const & tLeaderVisVertexIndices  = tNCSCluster->get_leader_vertex_indices_in_cluster();
+            Matrix< DDRMat > const &   tLeaderVertexLocalCoords = tNCSCluster->get_vertices_local_coordinates_wrt_interp_cell( mtk::Leader_Follower::LEADER );
+//            uint const                 tNumSpatialDims          = tLeaderVertexLocalCoords.n_cols();
 
             for ( auto const & tNodalPointPair : tNCSCluster->get_nodal_point_pairs() )
             {
-                moris_index      tLeaderCellIndex     = tNodalPointPair.get_leader_cell_index();
-                moris_index      tFollowerCellIndex   = tNodalPointPair.get_follower_cell_index();
-                Matrix< DDRMat > tFollowerCoordinates = tNodalPointPair.get_follower_coordinates();
-
-                auto const & tFoundElement = std::find_if(
-                        tCellIndicesToElementMap.begin(),
-                        tCellIndicesToElementMap.end(),
-                        [ &tLeaderCellIndex, &tFollowerCellIndex ]( auto const & tMapElement ) {
-                            return tMapElement.first.first == tLeaderCellIndex && tMapElement.first.second == tFollowerCellIndex;
-                        } );
-
-                MORIS_ASSERT( tFoundElement != tCellIndicesToElementMap.end(),
-                        "Interpolation_Element::compute_nodal_QIs_nonconformal_side() - "
-                        "Could not find the element for the given leader and follower cell indices." );
+                moris_index const &           tLeaderCellIndex     = tNodalPointPair.get_leader_cell_index();
+                Vector< moris_index > const & tLeaderNodeIndices   = tNodalPointPair.get_leader_node_indices();
+                Matrix< DDRMat > const &      tLeaderCoordinates   = tNodalPointPair.get_leader_coordinates();
+                moris_index const &           tFollowerCellIndex   = tNodalPointPair.get_follower_cell_index();
+                Matrix< DDRMat > const &      tFollowerCoordinates = tNodalPointPair.get_follower_coordinates();
 
                 // prepare the geometry interpolators
-                auto const * tNCElement = dynamic_cast< Element_Nonconformal_Sideset const * >( tFoundElement->second );
+                auto const * tNCElement = dynamic_cast< Element_Nonconformal_Sideset const * >( tCellIndicesToElementMap.at( { tLeaderCellIndex, tFollowerCellIndex } ) );
                 tNCElement->init_ig_geometry_interpolator();
 
                 for ( size_t iNode = 0; iNode < tNodalPointPair.get_leader_node_indices().size(); iNode++ )
                 {
-                    // find the position at which the leader node index is located in the list of leader vertex indices and therefore also the row in which the coordinate is stored in the leader vertex local coordinates
-                    moris_index const tLeaderNodeIndex  = tNodalPointPair.get_leader_node_indices()( iNode );
-                    auto* const       tFoundLeaderIndex = std::find( tLeaderVisVertexIndices.begin(), tLeaderVisVertexIndices.end(), tLeaderNodeIndex );
-                    MORIS_ASSERT( tFoundLeaderIndex != tLeaderVisVertexIndices.end(), "Interpolation_Element::compute_nodal_QIs_nonconformal_side(): Could not find the leader node index in the leader vertex indices." );
-                    moris_index const tLeaderIndexPosition = std::distance( tLeaderVisVertexIndices.begin(), tFoundLeaderIndex );
-
-                    // get the local coordinates of the leader node
-                    Matrix< DDRMat > tNodalPointLeaderLocalCoords = tLeaderVertexLocalCoords.get_row( tLeaderIndexPosition );
-                    tNodalPointLeaderLocalCoords.resize( 1, tNumSpatialDims + 1 );    // add time dimension
-                    tNodalPointLeaderLocalCoords( tNumSpatialDims ) = -1.0;           // set time location to -1
-                    mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER )->set_space_time( trans( tNodalPointLeaderLocalCoords ) );
+                    // set vertex coordinates for field interpolator
+                    mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER )
+                            ->set_space_time_from_local_IG_point( tLeaderCoordinates.get_column( iNode ) );
 
                     // the coordinate of the follower side is known from the mapper
                     // it is not a IG point, but the method can still be used (a parametric point on the follower side geometry)
@@ -1385,7 +1368,7 @@ namespace moris
                     if ( mSet->mNumEigenVectors )
                     {
                         mSet->get_field_interpolator_manager_eigen_vectors( mtk::Leader_Follower::LEADER )
-                                ->set_space_time( tNodalPointLeaderLocalCoords );
+                                ->set_space_time_from_local_IG_point( tLeaderCoordinates.get_column( iNode ) );
                         mSet->get_field_interpolator_manager_eigen_vectors( mtk::Leader_Follower::FOLLOWER )
                                 ->set_space_time_from_local_IG_point( tFollowerCoordinates.get_column( iNode ) );
                     }
@@ -1410,7 +1393,7 @@ namespace moris
 
                         // assemble the nodal QI value on the set
                         // NOTE: output of the dbl. sided elements by the VIS mesh is defined on the leader side; hence, the nodal value is outputted to the leader vertex
-                        ( *mSet->mSetNodalValues )( tLeaderNodeIndex, tGlobalIqiIndex ) = tQINodal( 0 );
+                        ( *mSet->mSetNodalValues )( tLeaderNodeIndices( iNode ), tGlobalIqiIndex ) = tQINodal( 0 );
                     }
                 }
             }

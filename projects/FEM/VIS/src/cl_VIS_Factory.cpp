@@ -1439,6 +1439,7 @@ namespace moris
 
                 auto tVNPP = mtk::NodalPointPairs(
                         mPrimaryFemCellIndexToVisCellIndex( tNPP.get_leader_cell_index() ),
+                        tNPP.get_leader_coordinates(),
                         tLeaderVisNodeIndices,
                         mPrimaryFemCellIndexToVisCellIndex( tNPP.get_follower_cell_index() ),
                         tNPP.get_follower_coordinates(),
