@@ -66,11 +66,9 @@ set(HEADERS
         contact/cl_MTK_MappingResult.hpp
         contact/cl_MTK_PointPairs.hpp
         contact/cl_MTK_QuadraturePointMapper.hpp
-        contact/cl_MTK_QuadraturePointMapper_Ray_BruteForce.hpp
+        contact/cl_MTK_QuadraturePointMapper_Ray_Dummy.hpp
         contact/cl_MTK_QuadraturePointMapper_Ray.hpp
         # contact/cl_MTK_QuadraturePointMapper_Ray_ArborX.hpp ## gets added further down (if ArborX is used)
-        contact/cl_MTK_Spatial_Indexer.h
-        contact/cl_MTK_Spatial_Indexer_BruteForce.h
 
         field/cl_MTK_Field.hpp
         field/cl_MTK_Field_Analytic.hpp
@@ -246,11 +244,8 @@ set(LIB_SOURCES
         contact/cl_MTK_Contact_Mesh_Editor.cpp
         contact/cl_MTK_MappingResult.cpp
         contact/cl_MTK_QuadraturePointMapper.cpp
-        contact/cl_MTK_QuadraturePointMapper_Ray_BruteForce.cpp
         # contact/cl_MTK_QuadraturePointMapper_Ray_ArborX.cpp ## gets added further down (if ArborX is used)
         contact/cl_MTK_QuadraturePointMapper_Ray.cpp
-        contact/cl_MTK_Spatial_Indexer.cpp
-        contact/cl_MTK_Spatial_Indexer_BruteForce.cpp
 
         field/cl_MTK_Field.cpp
         field/cl_MTK_Field_Analytic.cpp

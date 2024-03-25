@@ -11,7 +11,6 @@
 #include "cl_MTK_Surface_Mesh.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Space_Interpolator.hpp"
-#include "cl_MTK_Spatial_Indexer_BruteForce.h"
 #include "cl_Json_Object.hpp"
 
 namespace moris::mtk

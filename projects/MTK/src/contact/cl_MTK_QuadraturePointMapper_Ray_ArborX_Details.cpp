@@ -71,22 +71,13 @@ namespace moris::mtk::arborx
                     } );
         }
 
-        // print list of rays
-//        for ( size_t i = 0; i < tNumRays; ++i )
-//        {
-//            std::cout << "Ray " << i
-//                      << " origin: " << tRays( i )._origin[ 0 ] << ", " << tRays( i )._origin[ 1 ] << ", " << tRays( i )._origin[ 2 ]
-//                      << " direction: " << tRays( i )._direction[ 0 ] << ", " << tRays( i )._direction[ 1 ] << ", " << tRays( i )._direction[ 2 ]
-//                      << " cell index: " << tCellIndices( i ) << std::endl;
-//        }
-
         return QueryRays< MemorySpace >{ tRays, tCellIndices };
     }
 
     cell_locator_map
     map_rays_to_boxes( moris::mtk::MappingResult const &aMappingResult, moris::Vector< std::pair< moris_index, moris::mtk::Surface_Mesh > > const &aTargetSurfaceMeshes )
     {
-        Tracer tTracer("Quadrature Point Mapper", "Map", "Perform Raytracing with ArborX");
+        Tracer tTracer( "Quadrature Point Mapper", "Map", "Perform Raytracing with ArborX" );
         using ExecutionSpace = Kokkos::DefaultExecutionSpace;
         using MemorySpace    = ExecutionSpace::memory_space;
         ExecutionSpace tExecutionSpace{};

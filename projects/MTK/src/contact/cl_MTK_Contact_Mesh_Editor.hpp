@@ -20,8 +20,9 @@
 #include "cl_MTK_QuadraturePointMapper_Ray_ArborX.hpp"
 using PointMapper = moris::mtk::QuadraturePointMapper_ArborX;
 #else
-#include "cl_MTK_QuadraturePointMapper_Ray_BruteForce.hpp"
-using PointMapper = moris::mtk::QuadraturePointMapper_Ray_BruteForce;
+// This will let the code compile without ArborX. But it will throw an error if nonconformal side sets are used.
+#include "cl_MTK_QuadraturePointMapper_Ray_Dummy.hpp"
+using PointMapper = moris::mtk::QuadraturePointMapper_Ray_Dummy;
 #endif
 
 namespace moris::mtk
