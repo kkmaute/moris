@@ -13,10 +13,16 @@
 
 
 #include "cl_MTK_Integration_Mesh.hpp"
-#include "cl_MTK_QuadraturePointMapper_Ray_BruteForce.hpp"
-#include "cl_MTK_QuadraturePointMapper_Ray_ArborX.hpp"
 #include "cl_MTK_Integrator.hpp"
 #include "fn_assert.hpp"
+
+#if MORIS_HAVE_ARBORX == ON
+#include "cl_MTK_QuadraturePointMapper_Ray_ArborX.hpp"
+using PointMapper = moris::mtk::QuadraturePointMapper_ArborX;
+#else
+#include "cl_MTK_QuadraturePointMapper_Ray_BruteForce.hpp"
+using PointMapper = moris::mtk::QuadraturePointMapper_Ray_BruteForce;
+#endif
 
 namespace moris::mtk
 {
@@ -32,7 +38,7 @@ namespace moris::mtk
                 , mIntegrator( std::move( aIntegrator ) )
                 , mSideSets( aCandidateSideSet )
                 , mCandidatePairs( aCandidatePairs )
-                , mPointMapper( QuadraturePointMapper_ArborX( aIGMesh, aCandidateSideSet, aCandidatePairs ) )
+                , mPointMapper( PointMapper( aIGMesh, aCandidateSideSet, aCandidatePairs ) )
         {
         }
 
@@ -145,7 +151,7 @@ namespace moris::mtk
         Integrator                                      mIntegrator;
         Vector< Side_Set const * >                      mSideSets;
         Vector< std::pair< moris_index, moris_index > > mCandidatePairs;
-        QuadraturePointMapper_ArborX                    mPointMapper;
+        PointMapper                                     mPointMapper;
         real                                            mMaxNegativeRayLength;
         real                                            mMaxPositiveRayLength;
         int                                             mIteration = 0;
