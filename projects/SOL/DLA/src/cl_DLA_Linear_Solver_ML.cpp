@@ -17,8 +17,6 @@
 
 #include "cl_DLA_Linear_Problem.hpp"
 
-#include "fn_PRM_SOL_Parameters.hpp"
-
 // Teuchos
 #include "Teuchos_RCPDecl.hpp"
 #include "Teuchos_ParameterList.hpp"
@@ -34,17 +32,10 @@ using namespace dla;
 
 //----------------------------------------------------------------------------------------
 
-Linear_Solver_ML::Linear_Solver_ML( const moris::ParameterList aParameterlist )
-        : Linear_Solver_Algorithm_Trilinos( aParameterlist )
+Linear_Solver_ML::Linear_Solver_ML( const Parameter_List& aParameterList )
+        : Linear_Solver_Algorithm_Trilinos( aParameterList )
 {
 }
-
-//----------------------------------------------------------------------------------------
-
-Linear_Solver_ML::~Linear_Solver_ML()
-{
-}
-
 
 //----------------------------------------------------------------------------------------
 

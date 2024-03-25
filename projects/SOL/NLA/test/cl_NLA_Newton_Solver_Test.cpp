@@ -275,6 +275,22 @@ namespace moris
                 Nonlinear_Problem* tNonlinearProblem = new Nonlinear_Problem( tSolverInput );
 
                 /*!
+                 * Set nonlinear solver parameters
+                 *
+                 * \code{.cpp}
+                 * tNonlinearSolverParameterList.set( "NLA_max_iter", 10 );
+                 * tNonlinearSolverParameterList.set( "NLA_hard_break", false );
+                 * tNonlinearSolverParameterList.set( "NLA_max_lin_solver_restarts", 2 );
+                 * tNonlinearSolverParameterList.set( "NLA_rebuild_jacobian", true );
+                 * \endcode
+                 */
+                Parameter_List tNonlinearSolverParameterList = prm::create_nonlinear_algorithm_parameter_list();
+                tNonlinearSolverParameterList.set( "NLA_max_iter", 10 );
+                tNonlinearSolverParameterList.set( "NLA_hard_break", false );
+                tNonlinearSolverParameterList.set( "NLA_max_lin_solver_restarts", 2 );
+                tNonlinearSolverParameterList.set( "NLA_rebuild_jacobian", true );
+
+                /*!
                  * Create nonlinear solver factory. Build nonlinear solver.
                  *
                  * \code{.cpp}
@@ -285,26 +301,28 @@ namespace moris
                  * \endcode
                  */
                 Nonlinear_Solver_Factory               tNonlinFactory;
-                std::shared_ptr< Nonlinear_Algorithm > tNonlLinSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NonlinearSolverType::NEWTON_SOLVER );
-
+                std::shared_ptr< Nonlinear_Algorithm > tNonlLinSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( tNonlinearSolverParameterList );
                 tNonlLinSolverAlgorithm->set_linear_solver( tLinSolManager );
+                tNonLinSolManager.set_nonlinear_algorithm( tNonlLinSolverAlgorithm, 0 );
+
                 /*!
-                 * Set nonlinear solver parameters
+                 * Set linear solver options
                  *
                  * \code{.cpp}
-                 * tNonlLinSolverAlgorithm->set_param("NLA_max_iter")   = 10;
-                 * tNonlLinSolverAlgorithm->set_param("NLA_hard_break") = false;
-                 * tNonlLinSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;
-                 *
-                 * tNonLinSolManager.set_nonlinear_algorithm( tNonlLinSolverAlgorithm, 0 );
+                 * Parameter_List tLinearSolverParameterList1 = prm::create_linear_algorithm_parameter_list_aztec();
+                 * tLinearSolverParameterList1.set( "AZ_diagnostics", AZ_none );
+                 * tLinearSolverParameterList1.set( "AZ_output", AZ_none );
+                 * Parameter_List tLinearSolverParameterList2 = prm::create_linear_algorithm_parameter_list_aztec();
+                 * tLinearSolverParameterList2.set( "AZ_solver", AZ_gmres );
+                 * tLinearSolverParameterList2.set( "AZ_precond", AZ_dom_decomp );
                  * \endcode
                  */
-                tNonlLinSolverAlgorithm->set_param( "NLA_max_iter" )                = 10;
-                tNonlLinSolverAlgorithm->set_param( "NLA_hard_break" )              = false;
-                tNonlLinSolverAlgorithm->set_param( "NLA_max_lin_solver_restarts" ) = 2;
-                tNonlLinSolverAlgorithm->set_param( "NLA_rebuild_jacobian" )        = true;
-
-                tNonLinSolManager.set_nonlinear_algorithm( tNonlLinSolverAlgorithm, 0 );
+                Parameter_List tLinearSolverParameterList1 = prm::create_linear_algorithm_parameter_list_aztec();
+                tLinearSolverParameterList1.set( "AZ_diagnostics", AZ_none );
+                tLinearSolverParameterList1.set( "AZ_output", AZ_none );
+                Parameter_List tLinearSolverParameterList2 = prm::create_linear_algorithm_parameter_list_aztec();
+                tLinearSolverParameterList2.set( "AZ_solver", AZ_gmres );
+                tLinearSolverParameterList2.set( "AZ_precond", AZ_dom_decomp );
 
                 /*!
                  * Build linear solver factory and linear solvers.
@@ -316,23 +334,8 @@ namespace moris
                  * \endcode
                  */
                 dla::Solver_Factory                             tSolFactory;
-                std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
-                std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
-
-                /*!
-                 * Set linear solver options
-                 *
-                 * \code{.cpp}
-                 * tLinSolver1->set_param("AZ_diagnostics") = AZ_none;
-                 * tLinSolver1->set_param("AZ_output") = AZ_none;
-                 * tLinSolver2->set_param("AZ_solver") = AZ_gmres;
-                 * tLinSolver2->set_param("AZ_precond") = AZ_dom_decomp;
-                 * \endcode
-                 */
-                tLinSolver1->set_param( "AZ_diagnostics" ) = AZ_none;
-                tLinSolver1->set_param( "AZ_output" )      = AZ_none;
-                tLinSolver2->set_param( "AZ_solver" )      = AZ_gmres;
-                tLinSolver2->set_param( "AZ_precond" )     = AZ_dom_decomp;
+                std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( tLinearSolverParameterList1 );
+                std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( tLinearSolverParameterList2 );
 
                 /*!
                  * Set linear solver to linear solver manager
@@ -400,22 +403,22 @@ namespace moris
 
                 Nonlinear_Solver_Factory tNonlinFactory;
 
+                Parameter_List tNonlinearSolverParameterList = prm::create_nonlinear_algorithm_parameter_list();
+                tNonlinearSolverParameterList.set( "NLA_max_iter", 10 );
+                tNonlinearSolverParameterList.set( "NLA_hard_break", false );
+                tNonlinearSolverParameterList.set( "NLA_max_lin_solver_restarts", 2 );
+                tNonlinearSolverParameterList.set( "NLA_rebuild_jacobian", true );
                 std::shared_ptr< Nonlinear_Algorithm > tNonlLinSolverAlgorithm =
-                        tNonlinFactory.create_nonlinear_solver( NonlinearSolverType::NEWTON_SOLVER );
+                        tNonlinFactory.create_nonlinear_solver( tNonlinearSolverParameterList );
 
                 tNonlLinSolverAlgorithm->set_linear_solver( tLinSolManager );
-
-                tNonlLinSolverAlgorithm->set_param( "NLA_max_iter" )                = 10;
-                tNonlLinSolverAlgorithm->set_param( "NLA_hard_break" )              = false;
-                tNonlLinSolverAlgorithm->set_param( "NLA_max_lin_solver_restarts" ) = 2;
-                tNonlLinSolverAlgorithm->set_param( "NLA_rebuild_jacobian" )        = true;
-
                 tNonLinSolManager.set_nonlinear_algorithm( tNonlLinSolverAlgorithm, 0 );
 
                 dla::Solver_Factory tSolFactory;
 
-                std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
-                std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
+                Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_amesos();
+                std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( tLinearSolverParameterList );
+                std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( tLinearSolverParameterList );
 
                 tLinSolManager->set_linear_algorithm( 0, tLinSolver1 );
                 tLinSolManager->set_linear_algorithm( 1, tLinSolver2 );
@@ -452,23 +455,23 @@ namespace moris
 
                 Nonlinear_Problem tNonlinearProblem( tSolverInput, 0, true, sol::MapType::Petsc );
 
+                Parameter_List tNonlinearSolverParameterList = prm::create_nonlinear_algorithm_parameter_list();
+                tNonlinearSolverParameterList.set( "NLA_max_iter", 10 );
+                tNonlinearSolverParameterList.set( "NLA_hard_break", false );
+                tNonlinearSolverParameterList.set( "NLA_max_lin_solver_restarts", 2 );
+                tNonlinearSolverParameterList.set( "NLA_rebuild_jacobian", true );
                 Nonlinear_Solver_Factory               tNonlinFactory;
                 std::shared_ptr< Nonlinear_Algorithm > tNonlLinSolverAlgorithm =
-                        tNonlinFactory.create_nonlinear_solver( NonlinearSolverType::NEWTON_SOLVER );
+                        tNonlinFactory.create_nonlinear_solver( tNonlinearSolverParameterList );
 
                 tNonlLinSolverAlgorithm->set_linear_solver( &tLinSolManager );
-
-                tNonlLinSolverAlgorithm->set_param( "NLA_max_iter" )                = 10;
-                tNonlLinSolverAlgorithm->set_param( "NLA_hard_break" )              = false;
-                tNonlLinSolverAlgorithm->set_param( "NLA_max_lin_solver_restarts" ) = 2;
-                tNonlLinSolverAlgorithm->set_param( "NLA_rebuild_jacobian" )        = true;
 
                 tNonLinSolManager.set_nonlinear_algorithm( tNonlLinSolverAlgorithm, 0 );
 
                 dla::Solver_Factory tSolFactory;
-
-                std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( sol::SolverType::PETSC );
-                std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( sol::SolverType::PETSC );
+                Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_petsc();
+                std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( tLinearSolverParameterList );
+                std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( tLinearSolverParameterList );
 
                 tLinSolManager.set_linear_algorithm( 0, tLinSolver1 );
                 tLinSolManager.set_linear_algorithm( 1, tLinSolver2 );
@@ -503,24 +506,25 @@ namespace moris
 
                 Nonlinear_Problem* tNonlinearProblem = new Nonlinear_Problem( tSolverInput );
 
+                Parameter_List tNonlinearSolverParameterList = prm::create_nonlinear_algorithm_parameter_list();
+                tNonlinearSolverParameterList.set( "NLA_max_iter", 20 );
+                tNonlinearSolverParameterList.set( "NLA_hard_break", false );
+                tNonlinearSolverParameterList.set( "NLA_max_lin_solver_restarts", 2 );
+                tNonlinearSolverParameterList.set( "NLA_rebuild_jacobian", true );
+                tNonlinearSolverParameterList.set( "NLA_relaxation_strategy", static_cast< uint >( sol::SolverRelaxationType::InvResNorm ) );
+                tNonlinearSolverParameterList.set( "NLA_relaxation_parameter", 0.95 );
                 Nonlinear_Solver_Factory               tNonlinFactory;
                 std::shared_ptr< Nonlinear_Algorithm > tNonlLinSolverAlgorithm =
-                        tNonlinFactory.create_nonlinear_solver( NonlinearSolverType::NEWTON_SOLVER );
+                        tNonlinFactory.create_nonlinear_solver( tNonlinearSolverParameterList );
 
                 tNonlLinSolverAlgorithm->set_linear_solver( tLinSolManager );
 
-                tNonlLinSolverAlgorithm->set_param( "NLA_max_iter" )                = 20;
-                tNonlLinSolverAlgorithm->set_param( "NLA_hard_break" )              = false;
-                tNonlLinSolverAlgorithm->set_param( "NLA_max_lin_solver_restarts" ) = 2;
-                tNonlLinSolverAlgorithm->set_param( "NLA_rebuild_jacobian" )        = true;
-                tNonlLinSolverAlgorithm->set_param( "NLA_relaxation_strategy" )     = static_cast< uint >( sol::SolverRelaxationType::InvResNorm );
-                tNonlLinSolverAlgorithm->set_param( "NLA_relaxation_parameter" )    = 0.95;
-
                 tNonLinSolManager.set_nonlinear_algorithm( tNonlLinSolverAlgorithm, 0 );
 
+                Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_amesos();
                 dla::Solver_Factory                             tSolFactory;
-                std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
-                std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
+                std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( tLinearSolverParameterList );
+                std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( tLinearSolverParameterList );
 
                 tLinSolManager->set_linear_algorithm( 0, tLinSolver1 );
                 tLinSolManager->set_linear_algorithm( 1, tLinSolver2 );
@@ -556,25 +560,26 @@ namespace moris
 
                 Nonlinear_Problem* tNonlinearProblem = new Nonlinear_Problem( tSolverInput );
 
+                Parameter_List tNonlinearSolverParameterList = prm::create_nonlinear_algorithm_parameter_list();
+                tNonlinearSolverParameterList.set( "NLA_max_iter", 20 );
+                tNonlinearSolverParameterList.set( "NLA_hard_break", false );
+                tNonlinearSolverParameterList.set( "NLA_max_lin_solver_restarts", 2 );
+                tNonlinearSolverParameterList.set( "NLA_rebuild_jacobian", true );
+                tNonlinearSolverParameterList.set( "NLA_relaxation_strategy", static_cast< uint >( sol::SolverRelaxationType::InvResNormAdaptive ) );
+                tNonlinearSolverParameterList.set( "NLA_relaxation_parameter", 1.0 );
+                tNonlinearSolverParameterList.set( "NLA_relaxation_damping", 0.95 );
                 Nonlinear_Solver_Factory               tNonlinFactory;
                 std::shared_ptr< Nonlinear_Algorithm > tNonlLinSolverAlgorithm =
-                        tNonlinFactory.create_nonlinear_solver( NonlinearSolverType::NEWTON_SOLVER );
+                        tNonlinFactory.create_nonlinear_solver( tNonlinearSolverParameterList );
 
                 tNonlLinSolverAlgorithm->set_linear_solver( tLinSolManager );
 
-                tNonlLinSolverAlgorithm->set_param( "NLA_max_iter" )                = 20;
-                tNonlLinSolverAlgorithm->set_param( "NLA_hard_break" )              = false;
-                tNonlLinSolverAlgorithm->set_param( "NLA_max_lin_solver_restarts" ) = 2;
-                tNonlLinSolverAlgorithm->set_param( "NLA_rebuild_jacobian" )        = true;
-                tNonlLinSolverAlgorithm->set_param( "NLA_relaxation_strategy" )     = static_cast< uint >( sol::SolverRelaxationType::InvResNormAdaptive );
-                tNonlLinSolverAlgorithm->set_param( "NLA_relaxation_parameter" )    = 1.0;
-                tNonlLinSolverAlgorithm->set_param( "NLA_relaxation_damping" )      = 0.95;
-
                 tNonLinSolManager.set_nonlinear_algorithm( tNonlLinSolverAlgorithm, 0 );
 
+                Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_amesos();
                 dla::Solver_Factory                             tSolFactory;
-                std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
-                std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
+                std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( tLinearSolverParameterList );
+                std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( tLinearSolverParameterList );
 
                 tLinSolManager->set_linear_algorithm( 0, tLinSolver1 );
                 tLinSolManager->set_linear_algorithm( 1, tLinSolver2 );
@@ -673,7 +678,7 @@ namespace moris
                  */
                 Nonlinear_Solver_Factory               tNonlinFactory;
                 std::shared_ptr< Nonlinear_Algorithm > tNonlLinSolverAlgorithm =
-                        tNonlinFactory.create_nonlinear_solver( NonlinearSolverType::NEWTON_SOLVER );
+                        tNonlinFactory.create_nonlinear_solver();
 
                 /*!
                  * Assign linear solver manager to nonlinear solver
@@ -687,17 +692,17 @@ namespace moris
                  * Set nonlinear solver parameters
                  *
                  * \code{.cpp}
-                 * tNonlLinSolverAlgorithm->set_param("NLA_max_iter")   = 10;
-                 * tNonlLinSolverAlgorithm->set_param("NLA_hard_break") = false;
-                 * tNonlLinSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;
-                 * tNonlLinSolverAlgorithm->set_param("NLA_rebuild_jacobian") = false;
-                 * tNonlLinSolverAlgorithm->set_param("NLA_restart")    = 2;
+                 * Parameter_List tNonlinearSolverParameterList = prm::create_nonlinear_algorithm_parameter_list();
+                 * tNonlinearSolverParameterList.set( "NLA_max_iter", 20 );
+                 * tNonlinearSolverParameterList.set( "NLA_hard_break", false );
+                 * tNonlinearSolverParameterList.set( "NLA_max_lin_solver_restarts", 2 );
+                 * tNonLinSolManager.set_nonlinear_algorithm( tNonlLinSolverAlgorithm, 0 );
                  * \endcode
                  */
-                tNonlLinSolverAlgorithm->set_param( "NLA_max_iter" )                = 20;
-                tNonlLinSolverAlgorithm->set_param( "NLA_hard_break" )              = false;
-                tNonlLinSolverAlgorithm->set_param( "NLA_max_lin_solver_restarts" ) = 2;
-
+                Parameter_List tNonlinearSolverParameterList = prm::create_nonlinear_algorithm_parameter_list();
+                tNonlinearSolverParameterList.set( "NLA_max_iter", 20 );
+                tNonlinearSolverParameterList.set( "NLA_hard_break", false );
+                tNonlinearSolverParameterList.set( "NLA_max_lin_solver_restarts", 2 );
                 tNonLinSolManager.set_nonlinear_algorithm( tNonlLinSolverAlgorithm, 0 );
 
                 /*!
@@ -710,8 +715,10 @@ namespace moris
                  * \endcode
                  */
                 dla::Solver_Factory                             tSolFactory;
-                std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
-                std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
+                Parameter_List tLinearSolverParameterList1 = prm::create_linear_algorithm_parameter_list_amesos();
+                std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( tLinearSolverParameterList1 );
+                Parameter_List tLinearSolverParameterList2 = prm::create_linear_algorithm_parameter_list_aztec();
+                std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( tLinearSolverParameterList2 );
 
                 /*!
                  * Set linear solver options

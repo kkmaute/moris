@@ -72,6 +72,13 @@ namespace moris
 {
     namespace fem
     {
+        // User-defined FEM function
+        typedef void ( *FEM_Function )(
+                moris::Matrix< moris::DDRMat >                &aPropMatrix,
+                Vector< moris::Matrix< moris::DDRMat > > &aParameters,
+                moris::fem::Field_Interpolator_Manager        *aFIManager );
+        //------------------------------------------------------------------------------
+
         FEM_Model::FEM_Model(
                 std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
                 const moris_index                   &aMeshPairIndex,
@@ -156,7 +163,7 @@ namespace moris
         FEM_Model::FEM_Model(
                 std::shared_ptr< mtk::Mesh_Manager >     aMeshManager,
                 const moris_index                       &aMeshPairIndex,
-                const Vector< Vector< ParameterList > > &aParameterList,
+                const Vector< Vector< Parameter_List > > &aParameterList,
                 std::shared_ptr< Library_IO >            aLibrary )
                 : mMeshManager( aMeshManager )
                 , mMeshPairIndex( aMeshPairIndex )
@@ -194,7 +201,7 @@ namespace moris
         FEM_Model::FEM_Model(
                 std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
                 const moris_index                   &aMeshPairIndex,
-                Vector< Vector< ParameterList > >    aParameterList,
+                Vector< Vector< Parameter_List > >    aParameterList,
                 MSI::Design_Variable_Interface      *aDesignVariableInterface )
                 : mMeshManager( aMeshManager )
                 , mMeshPairIndex( aMeshPairIndex )
@@ -929,6 +936,14 @@ namespace moris
             }
         }
 
+
+        void FEM_Model::update_fields()
+        {
+            for ( const auto& iField : mFields )
+            {
+                iField->update_field();
+            }
+        }
 
         const std::shared_ptr< fem::Field > &
         FEM_Model::get_field( mtk::Field_Type tFieldType )

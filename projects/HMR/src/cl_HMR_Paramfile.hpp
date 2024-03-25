@@ -56,7 +56,7 @@ namespace moris::hmr
         // the parser object
         XML_Parser *        mParser = nullptr;
 
-        ParameterList       mParameterList;
+        Parameter_List mParameterList;
 
         //! container with mesh settings
         Vector< Mesh_Param >  mMeshParams;
@@ -99,7 +99,7 @@ namespace moris::hmr
 
 // -----------------------------------------------------------------------------
 
-        ParameterList & get_parameter_list();
+        Parameter_List & get_parameter_list();
 
 // -----------------------------------------------------------------------------
 

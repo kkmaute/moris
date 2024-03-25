@@ -16,7 +16,7 @@
 #include "linalg_typedefs.hpp"
 #include "cl_Vector.hpp"
 
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 
 namespace moris::xtk
 {
@@ -37,7 +37,7 @@ namespace moris::xtk
     {
       public:
         Mesh_Cleanup( Model*          aModel,
-                moris::ParameterList* aParamList );
+                moris::Parameter_List* aParamList );
 
         void
         perform();

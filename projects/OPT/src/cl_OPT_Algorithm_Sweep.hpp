@@ -26,7 +26,7 @@ namespace moris
             /**
              * Constructor
              */
-            Algorithm_Sweep(ParameterList aParameterList);
+            Algorithm_Sweep( Parameter_List aParameterList);
 
             /**
              * Destructor

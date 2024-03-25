@@ -671,7 +671,7 @@ namespace moris::xtk
         Integration_Mesh_Generator       *mIgMeshGen;
 
       public:
-        Octree_Interface( ParameterList &aParameterList );
+        Octree_Interface( Parameter_List &aParameterList );
 
         // set of
         void

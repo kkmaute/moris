@@ -129,7 +129,8 @@ namespace moris
                  */
                 Linear_Problem* tLinProblem = tSolFactory.create_linear_system( tSolverInterface, sol::MapType::Epetra );
 
-                std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
+                Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_aztec();
+                std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( tLinearSolverParameterList );
 
                 /*!
                  * Assemble linear problem.
@@ -144,16 +145,16 @@ namespace moris
                  * Set linear solver parameters.
                  *
                  * \code{.cpp}
-                 * tLinSolver->set_param("AZ_precond") = AZ_dom_decomp;
-                 * tLinSolver->set_param("AZ_max_iter") = 200;
-                 * tLinSolver->set_param("AZ_diagnostics") = AZ_none;
-                 * tLinSolver->set_param("AZ_output") = AZ_none;
+                 * tLinearSolverParameterList.set( "AZ_precond", AZ_dom_decomp );
+                 * tLinearSolverParameterList.set( "AZ_max_iter", 200 );
+                 * tLinearSolverParameterList.set( "AZ_diagnostics", AZ_none );
+                 * tLinearSolverParameterList.set( "AZ_output", AZ_none );
                  * \endcode
                  */
-                tLinSolver->set_param( "AZ_precond" )     = AZ_dom_decomp;
-                tLinSolver->set_param( "AZ_max_iter" )    = 200;
-                tLinSolver->set_param( "AZ_diagnostics" ) = AZ_none;
-                tLinSolver->set_param( "AZ_output" )      = AZ_none;
+                tLinearSolverParameterList.set( "AZ_precond", AZ_dom_decomp );
+                tLinearSolverParameterList.set( "AZ_max_iter", 200 );
+                tLinearSolverParameterList.set( "AZ_diagnostics", AZ_none );
+                tLinearSolverParameterList.set( "AZ_output", AZ_none );
 
                 /*!
                  * Solver linear system
@@ -202,9 +203,10 @@ namespace moris
 
                 Linear_Problem* tLinProblem = tSolFactory.create_linear_system( tSolverInterface, sol::MapType::Epetra );
 
-                std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( sol::SolverType::BELOS_IMPL );
+                Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_belos();
+                std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( tLinearSolverParameterList );
 
-                ParameterList tParamList;
+                Parameter_List tParamList;
                 tParamList.insert( "ifpack_prec_type", std::string( "ILU" ) );
                 tParamList.insert( "ml_prec_type", "" );
                 tParamList.insert( "fact: level-of-fill", 1 );
@@ -221,7 +223,7 @@ namespace moris
 
 
                 // create preconditioner
-                Preconditioner_Trilinos tPreconditioner( &tParamList );
+                Preconditioner_Trilinos tPreconditioner( tParamList );
                 tLinSolver->set_preconditioner( &tPreconditioner );
 
                 //        tLinProblem->assemble_residual_and_jacobian();
@@ -287,15 +289,19 @@ namespace moris
 
                 Linear_Problem* tLinProblem = tSolFactory.create_linear_system( tSolverInterface, sol::MapType::Petsc, true );
 
-                std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( sol::SolverType::PETSC );
+                Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_petsc();
+                tLinearSolverParameterList.set( "KSPType", std::string( "fgmres" ) );
+                tLinearSolverParameterList.set( "PCType", std::string( "none" ) );
+                tLinearSolverParameterList.set( "ILUFill", 3 );
+                tLinearSolverParameterList.set( "ouput_eigenspectrum", (uint)1 );
+                std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( tLinearSolverParameterList );
 
                 tLinProblem->assemble_residual_and_jacobian();
-                tLinSolver->set_param( "KSPType" ) = std::string( "fgmres" );
 
                 // create preconditioner
-                ParameterList tParamList;
+                Parameter_List tParamList;
                 tParamList.insert( "PCType", std::string( "none" ) );
-                Preconditioner_PETSc tPreconditioner( &tParamList );
+                Preconditioner_PETSc tPreconditioner( tParamList );
                 tLinSolver->set_preconditioner( &tPreconditioner );
 
                 tLinSolver->solve_linear_system( tLinProblem );
@@ -367,26 +373,26 @@ namespace moris
                 // create solver object
                 Linear_Problem* tEigProblem = tSolFactory.create_linear_system( tSolverInterface, &tSolverWarehouse, tMap, tMapFull, tMapType );
 
-                // create eigen solver
-                std::shared_ptr< Linear_Solver_Algorithm > tEigSolver = tSolFactory.create_solver( sol::SolverType::EIGEN_SOLVER );
-
                 // set eigen algorithm parameters
-                tEigSolver->set_param( "Eigen_Algorithm" )                = std::string( "EIGALG_BLOCK_DAVIDSON" );
-                tEigSolver->set_param( "Which" )                          = std::string( "LM" );
-                tEigSolver->set_param( "Verbosity" )                      = false;
-                tEigSolver->set_param( "Block_Size" )                     = 1;    // 1
-                tEigSolver->set_param( "Num_Blocks" )                     = 3;
-                tEigSolver->set_param( "NumFreeDofs" )                    = 8;
-                tEigSolver->set_param( "Num_Eig_Vals" )                   = 1;     // 2; 1
-                tEigSolver->set_param( "MaxSubSpaceDims" )                = 6;     // 10
-                tEigSolver->set_param( "MaxRestarts" )                    = 20;    // 20
-                tEigSolver->set_param( "Initial_Guess" )                  = 0;
-                tEigSolver->set_param( "Convergence_Tolerance" )          = 1e-05;
-                tEigSolver->set_param( "Relative_Convergence_Tolerance" ) = true;
+                Parameter_List tLinearSolverParameterList = prm::create_eigen_algorithm_parameter_list();
+                tLinearSolverParameterList.set( "Eigen_Algorithm", std::string( "EIGALG_BLOCK_DAVIDSON" ) );
+                tLinearSolverParameterList.set( "Which", std::string( "LM" ) );
+                tLinearSolverParameterList.set( "Verbosity", false );
+                tLinearSolverParameterList.set( "Block_Size", 1 );
+                tLinearSolverParameterList.set( "Num_Blocks", 3 );
+                tLinearSolverParameterList.set( "NumFreeDofs", 8 );
+                tLinearSolverParameterList.set( "Num_Eig_Vals", 1 );
+                tLinearSolverParameterList.set( "MaxSubSpaceDims", 6 );
+                tLinearSolverParameterList.set( "MaxRestarts", 20 );
+                tLinearSolverParameterList.set( "Initial_Guess", 0 );
+                tLinearSolverParameterList.set( "Convergence_Tolerance", 1e-05 );
+                tLinearSolverParameterList.set( "Relative_Convergence_Tolerance", true );
+                tLinearSolverParameterList.set( "Update_Flag", false );    // false flag is set only for unit test. Default: True
 
-                tEigSolver->set_param( "Update_Flag" ) = false;    // false flag is set only for unit test. Default: True
+                // create eigen solver
+                std::shared_ptr< Linear_Solver_Algorithm > tEigSolver = tSolFactory.create_solver( tLinearSolverParameterList );
 
-                ParameterList tParamList;
+                Parameter_List tParamList;
                 tParamList.insert( "ifpack_prec_type", std::string( "Amesos" ) );
                 tParamList.insert( "ml_prec_type", "" );
                 tParamList.insert( "amesos: solver type", std::string( "Amesos_Pardiso" ) );
@@ -400,7 +406,7 @@ namespace moris
                 tParamList.insert( "Amesos_Direct_Solver_Type", "Amesos_Klu" );
 
                 // create preconditioner
-                Preconditioner_Trilinos tPreconditioner( &tParamList );
+                Preconditioner_Trilinos tPreconditioner( tParamList );
                 tEigSolver->set_preconditioner( &tPreconditioner );
 
                 tEigProblem->set_rhs_matrix_type( tRHSMatType );

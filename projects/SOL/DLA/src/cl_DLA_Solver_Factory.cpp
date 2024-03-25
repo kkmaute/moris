@@ -13,7 +13,6 @@
 
 #include "cl_DLA_Linear_Solver_Aztec.hpp"
 #include "cl_DLA_Linear_Solver_Amesos.hpp"
-#include "cl_DLA_Linear_Solver_Amesos2.hpp"
 #include "cl_DLA_Linear_Solver_Belos.hpp"
 #include "cl_DLA_Linear_Solver_ML.hpp"
 
@@ -44,74 +43,32 @@ Solver_Factory::~Solver_Factory()
 
 //------------------------------------------------------------------------------
 Preconditioner*
-Solver_Factory::create_preconditioner( const enum sol::PreconditionerType aPreconditionerType,
-        ParameterList&                                                    aParameterlist )
+Solver_Factory::create_preconditioner( const Parameter_List& aParameterList )
 {
-    switch ( aPreconditionerType )
+    switch ( static_cast< sol::PreconditionerType >( aParameterList.get< uint >( "Preconditioner_Implementation" ) ) )
     {
         case ( sol::PreconditionerType::NONE ):
             return nullptr;
         case ( sol::PreconditionerType::IFPACK ):
-            return new Preconditioner_Trilinos( &aParameterlist );
         case ( sol::PreconditionerType::ML ):
-            return new Preconditioner_Trilinos( &aParameterlist );
+            return new Preconditioner_Trilinos( aParameterList );
         case ( sol::PreconditionerType::PETSC ):
-            return new Preconditioner_PETSc( &aParameterlist );
+            return new Preconditioner_PETSc( aParameterList );
         default:
             MORIS_ERROR( false, "No solver type specified" );
             return nullptr;
     }
-}
-
-std::shared_ptr< Linear_Solver_Algorithm >
-Solver_Factory::create_solver( const enum sol::SolverType aSolverType )
-{
-    std::shared_ptr< Linear_Solver_Algorithm > tLinSol;
-
-    switch ( aSolverType )
-    {
-        case ( sol::SolverType::AZTEC_IMPL ):
-            tLinSol = std::make_shared< Linear_Solver_Aztec >();
-            break;
-        case ( sol::SolverType::AMESOS_IMPL ):
-            tLinSol = std::make_shared< Linear_Solver_Amesos >();
-            break;
-        case ( sol::SolverType::BELOS_IMPL ):
-            tLinSol = std::make_shared< Linear_Solver_Belos >();
-            break;
-        case ( sol::SolverType::AMESOS2_IMPL ):
-            tLinSol = std::make_shared< Linear_Solver_Amesos2 >();
-            break;
-        case ( sol::SolverType::PETSC ):
-#ifdef MORIS_HAVE_PETSC
-            tLinSol = std::make_shared< Linear_Solver_PETSc >();
-#else
-            MORIS_ERROR( false, "MORIS is configured with out PETSC support." );
-#endif
-            break;
-        case ( sol::SolverType::EIGEN_SOLVER ):
-            tLinSol = std::make_shared< Eigen_Solver >();
-            break;
-        case ( sol::SolverType::ML ):
-            tLinSol = std::make_shared< Linear_Solver_ML >();
-            break;
-        default:
-            MORIS_ERROR( false, "No solver type specified" );
-            break;
-    }
-    return tLinSol;
 }
 
 //------------------------------------------------------------------------------
 
 std::shared_ptr< Linear_Solver_Algorithm >
 Solver_Factory::create_solver(
-        const enum sol::SolverType aSolverType,
-        const ParameterList        aParameterlist )
+        const Parameter_List& aParameterlist )
 {
     std::shared_ptr< Linear_Solver_Algorithm > tLinSol;
 
-    switch ( aSolverType )
+    switch ( static_cast< sol::SolverType >( aParameterlist.get< uint >( "Solver_Implementation" ) ) )
     {
         case ( sol::SolverType::AZTEC_IMPL ):
             tLinSol = std::make_shared< Linear_Solver_Aztec >( aParameterlist );

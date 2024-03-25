@@ -174,7 +174,7 @@ namespace moris
 
             uint tLagrangeMeshIndex = 0;
 
-            ParameterList tParameters = prm::create_hmr_parameter_list();
+            Parameter_List tParameters = prm::create_hmr_parameter_list();
             tParameters.set( "number_of_elements_per_dimension", std::to_string( tNumX ) + "," + std::to_string( tNumY ) );
             tParameters.set( "domain_dimensions", std::to_string( tDomainLX ) + "," + std::to_string( tDomainLY ) );
             tParameters.set( "domain_offset", std::to_string( -tDomainLX / 2 + tCenterPoint( 0 ) ) + "," + std::to_string( -tDomainLY / 2 + tCenterPoint( 1 ) ) );
@@ -466,7 +466,7 @@ namespace moris
 
             // create linear solver and algorithm
             // --------------------------------------------------------------------------------------
-            Vector< Vector< moris::ParameterList > > tSOLParameterlist( 8 );
+            Vector< Vector< moris::Parameter_List > > tSOLParameterlist( 8 );
             for ( uint Ik = 0; Ik < 8; Ik++ )
             {
                 tSOLParameterlist( Ik ).resize( 1 );
@@ -539,7 +539,7 @@ namespace moris
 
             moris::uint tLagrangeMeshIndex = 0;
 
-            ParameterList tParameters = prm::create_hmr_parameter_list();
+            Parameter_List tParameters = prm::create_hmr_parameter_list();
             tParameters.set( "number_of_elements_per_dimension", std::to_string( tNumX ) + "," + std::to_string( tNumY ) );
             tParameters.set( "domain_dimensions", std::to_string( tDomainLX ) + "," + std::to_string( tDomainLY ) );
             tParameters.set( "domain_offset", std::to_string( -tDomainLX / 2 + tCenterPoint( 0 ) ) + "," + std::to_string( -tDomainLY / 2 + tCenterPoint( 1 ) ) );
@@ -827,7 +827,7 @@ namespace moris
 
             // create linear solver and algorithm
             // --------------------------------------------------------------------------------------
-            Vector< Vector< moris::ParameterList > > tSOLParameterlist( 8 );
+            Vector< Vector< moris::Parameter_List > > tSOLParameterlist( 8 );
             for ( uint Ik = 0; Ik < 8; Ik++ )
             {
                 tSOLParameterlist( Ik ).resize( 1 );
@@ -2230,7 +2230,7 @@ namespace moris
 
             moris::uint tLagrangeMeshIndex = 0;
 
-            ParameterList tParameters = prm::create_hmr_parameter_list();
+            Parameter_List tParameters = prm::create_hmr_parameter_list();
 
             tParameters.set( "number_of_elements_per_dimension", std::to_string( tNumX ) + "," + std::to_string( tNumY ) );
             tParameters.set( "domain_dimensions", std::to_string( tDomainLX ) + "," + std::to_string( tDomainLY ) );
@@ -2524,7 +2524,7 @@ namespace moris
 
             // create linear solver and algorithm
             // --------------------------------------------------------------------------------------
-            Vector< Vector< moris::ParameterList > > tSOLParameterlist( 8 );
+            Vector< Vector< moris::Parameter_List > > tSOLParameterlist( 8 );
             for ( uint Ik = 0; Ik < 8; Ik++ )
             {
                 tSOLParameterlist( Ik ).resize( 1 );

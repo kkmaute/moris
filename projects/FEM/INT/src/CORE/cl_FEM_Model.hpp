@@ -106,7 +106,7 @@ namespace moris
             Matrix< DDSMat > mXYZLocalAssemblyIndices;
 
             // parameter list to build the fem model
-            Vector< Vector< ParameterList > > mParameterList;
+            Vector< Vector< Parameter_List > > mParameterList;
 
             // unpacked fem inputs
             Vector< fem::Set_User_Info > mSetInfo;
@@ -114,7 +114,7 @@ namespace moris
             // space dimension
             uint mSpaceDim;
 
-            std::shared_ptr<mtk::Contact_Mesh_Editor> mContactMeshEditor;
+            std::shared_ptr< mtk::Contact_Mesh_Editor > mContactMeshEditor;
 
             Vector< std::shared_ptr< fem::Field > > mFields;
             Vector< moris::sint >                   mFieldTypes;
@@ -169,10 +169,10 @@ namespace moris
              * @param[ in ] aLibrary       a file path for property functions
              */
             FEM_Model(
-                    std::shared_ptr< mtk::Mesh_Manager >     aMeshManager,
-                    const moris_index                       &aMeshPairIndex,
-                    const Vector< Vector< ParameterList > > &aParameterList,
-                    std::shared_ptr< Library_IO >            aLibrary );
+                    std::shared_ptr< mtk::Mesh_Manager >      aMeshManager,
+                    const moris_index                        &aMeshPairIndex,
+                    const Vector< Vector< Parameter_List > > &aParameterList,
+                    std::shared_ptr< Library_IO >             aLibrary );
 
             /**
              * @brief constructor with fem input
@@ -185,7 +185,7 @@ namespace moris
             FEM_Model(
                     std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
                     const moris_index                   &aMeshPairIndex,
-                    Vector< Vector< ParameterList > >    aParameterList,
+                    Vector< Vector< Parameter_List > >   aParameterList,
                     MSI::Design_Variable_Interface      *aDesignVariableInterface );
 
             /**
@@ -359,7 +359,7 @@ namespace moris
              * @param[ in ] aParameterList a list of parameter for the FEM model
              */
             void
-            set_parameter_list( const Vector< Vector< ParameterList > > &aParameterList )
+            set_parameter_list( const Vector< Vector< Parameter_List > > &aParameterList )
             {
                 mParameterList = aParameterList;
             }
@@ -423,6 +423,11 @@ namespace moris
              * @brief scale the IQIs according to user input.
              */
             void normalize_IQIs() override;
+
+            /**
+             * Updates the stored fields.
+             */
+            void update_fields() override;
 
             /**
              * @brief return field by type
@@ -508,7 +513,8 @@ namespace moris
             mtk::Integrator
             prepare_nonconformal_integrator( mtk::Integration_Mesh const *aIGMesh );
 
-            std::shared_ptr<mtk::Contact_Mesh_Editor> get_contact_mesh_editor() const{
+            std::shared_ptr< mtk::Contact_Mesh_Editor > get_contact_mesh_editor() const
+            {
                 return mContactMeshEditor;
             };
 

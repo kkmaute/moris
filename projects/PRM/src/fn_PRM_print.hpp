@@ -11,7 +11,7 @@
 #ifndef MORIS_FN_PRM_PRINT_HPP
 #define MORIS_FN_PRM_PRINT_HPP
 
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 
 namespace moris
 {
@@ -19,55 +19,57 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        // types in parameter list
-        // bool, sint, real, const char*, std::string, uint, std::pair< std::string, std::string >
-        inline void
-        print( ParameterList& aParamList )
-        {
-            for ( auto it = aParamList.begin(); it != aParamList.end(); ++it )
-            {
-                std::cout << std::setw( 40 ) << std::left << it->first << " | ";
+// FIXME ask Adam to re-enable this
 
-                if ( boost::get< bool >( &( it->second ) ) != nullptr )
-                {
-                    std::cout << boost::get< bool >( it->second ) << "\n";
-                }
-
-                else if ( boost::get< sint >( &( it->second ) ) != nullptr )
-                {
-                    std::cout << boost::get< sint >( it->second ) << "\n";
-                }
-
-                else if ( boost::get< real >( &( it->second ) ) != nullptr )
-                {
-                    std::cout << boost::get< real >( it->second ) << "\n";
-                }
-
-                else if ( boost::get< const char* >( &( it->second ) ) != nullptr )
-                {
-                    std::cout << boost::get< const char* >( it->second ) << "\n";
-                }
-
-                else if ( boost::get< std::string >( &( it->second ) ) != nullptr )
-                {
-                    std::cout << "\"" << boost::get< std::string >( it->second ) << "\""
-                              << "\n";
-                }
-
-                else if ( boost::get< uint >( &( it->second ) ) != nullptr )
-                {
-                    std::cout << boost::get< uint >( it->second ) << "\n";
-                }
-
-                else
-                {
-                    std::cout << " not printable" << std::endl;
-                }
-            }
-        }
-
-        //------------------------------------------------------------------------------
-
+//        // types in parameter list
+//        // bool, sint, real, const char*, std::string, uint, std::pair< std::string, std::string >
+//        inline void
+//        print( Parameter_List& aParamList )
+//        {
+//            for ( auto it = aParamList.begin(); it != aParamList.end(); ++it )
+//            {
+//                std::cout << std::setw( 40 ) << std::left << it->first << " | ";
+//
+//                if ( boost::get< bool >( &( it->second.get_value() ) ) != nullptr )
+//                {
+//                    std::cout << boost::get< bool >( it->second.get_value() ) << "\n";
+//                }
+//
+//                else if ( boost::get< sint >( &( it->second.get_value() ) ) != nullptr )
+//                {
+//                    std::cout << boost::get< sint >( it->second.get_value() ) << "\n";
+//                }
+//
+//                else if ( boost::get< real >( &( it->second.get_value() ) ) != nullptr )
+//                {
+//                    std::cout << boost::get< real >( it->second.get_value() ) << "\n";
+//                }
+//
+//                else if ( boost::get< const char* >( &( it->second.get_value() ) ) != nullptr )
+//                {
+//                    std::cout << boost::get< const char* >( it->second.get_value() ) << "\n";
+//                }
+//
+//                else if ( boost::get< std::string >( &( it->second.get_value() ) ) != nullptr )
+//                {
+//                    std::cout << "\"" << boost::get< std::string >( it->second.get_value() ) << "\""
+//                              << "\n";
+//                }
+//
+//                else if ( boost::get< uint >( &( it->second.get_value() ) ) != nullptr )
+//                {
+//                    std::cout << boost::get< uint >( it->second.get_value() ) << "\n";
+//                }
+//
+//                else
+//                {
+//                    std::cout << " not printable" << std::endl;
+//                }
+//            }
+//        }
+//
+//        //------------------------------------------------------------------------------
+//
     }    // namespace prm
 }    // namespace moris
 

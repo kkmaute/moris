@@ -11,7 +11,7 @@
 #ifndef SRC_cl_MIG
 #define SRC_cl_MIG
 
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 
 namespace moris::mtk
 {
@@ -32,7 +32,7 @@ namespace moris::mig
         std::shared_ptr< moris::mtk::Mesh_Manager > mMeshManager;
 
         // parameter list
-        moris::ParameterList                        mParameterList;
+        moris::Parameter_List mParameterList;
 
         // geometry engine in order to link newly created nodes
         moris::gen::Geometry_Engine*                 mGeometryEngine;
@@ -50,7 +50,7 @@ namespace moris::mig
          */
 
         MIG( std::shared_ptr< moris::mtk::Mesh_Manager > aMeshManager,
-            moris::ParameterList&                        aParameterList,
+            moris::Parameter_List&                        aParameterList,
             moris::gen::Geometry_Engine*                  aGeometryEngine );
 
         // ----------------------------------------------------------------------------

@@ -250,8 +250,7 @@ protected:
                  * @brief triggers update of field values and coeffs
                  *
                  */
-
-                void update_field();
+                virtual void update_field();
 
                 //------------------------------------------------------------------------------
 

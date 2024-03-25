@@ -10,7 +10,7 @@
 #ifndef SRC_FEM_CL_NLA_SOLVER_LOAD_CONTROL_HPP_
 #define SRC_FEM_CL_NLA_SOLVER_LOAD_CONTROL_HPP_
 
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 
 #include "cl_SOL_Enums.hpp"
 
@@ -45,7 +45,7 @@ namespace moris
             bool check_load_step_requirement( Nonlinear_Solver* aNonLinSolverManager );
 
           public:
-            Solver_Load_Control( ParameterList& aParameterListNonlinearSolver );
+            Solver_Load_Control( Parameter_List& aParameterListNonlinearSolver );
 
             ~Solver_Load_Control(){};
 

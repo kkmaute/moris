@@ -33,7 +33,7 @@ namespace moris::gen
          *
          * @param aParameterList Design field parameter list
          */
-        explicit Field_Parameters( const ParameterList& aParameterList );
+        explicit Field_Parameters( const Parameter_List& aParameterList );
     };
 
     class Design_Field

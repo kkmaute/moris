@@ -24,7 +24,7 @@ namespace moris
     {
         //--------------------------------------------------------------------------------------------------------------------------
 
-        Solver_Load_Control::Solver_Load_Control( ParameterList& aParameterListNonlinearSolver )
+        Solver_Load_Control::Solver_Load_Control( Parameter_List& aParameterListNonlinearSolver )
         {
             // get relaxation strategy
             mLoadControlStrategy = static_cast< sol::SolverLoadControlType >(

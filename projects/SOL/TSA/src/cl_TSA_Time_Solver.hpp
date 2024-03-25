@@ -14,7 +14,7 @@
 #include "moris_typedefs.hpp"    // CON/src
 #include "cl_Vector.hpp"
 #include <memory>
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 #include "cl_MSI_Dof_Type_Enums.hpp"
 
 #include "cl_TSA_Time_Solver_Enums.hpp"
@@ -24,6 +24,7 @@
 namespace moris
 {
     class Solver_Interface;
+    typedef void ( *Void_Function )();
 
     namespace sol
     {
@@ -67,8 +68,9 @@ namespace moris
 
             Vector< moris::uint >     mOutputIndices;
             Vector< Output_Criteria > mOutputCriteriaPointer;
+            Void_Function mPauseFunction = [](){};
 
-            moris::ParameterList mParameterListTimeSolver;
+            moris::Parameter_List mParameterListTimeSolver;
 
             //! Pointer to solver database
             sol::SOL_Warehouse* mSolverWarehouse = nullptr;
@@ -108,7 +110,7 @@ namespace moris
              * @param[in] aTimeSolverType    Time solver type. Default is Newton
              */
             Time_Solver(
-                    const ParameterList       aParameterlist,
+                    const Parameter_List      aParameterlist,
                     sol::SOL_Warehouse*       aSolverWarehouse,
                     const enum TimeSolverType aTimeSolverType = TimeSolverType::MONOLITHIC );
 
@@ -325,6 +327,13 @@ namespace moris
                     const uint      aOutputIndex,
                     Output_Criteria aOutputCriteria );
 
+            /**
+             * Sets a user-defined pause function for pausing between time steps.
+             *
+             * @param aPauseFunction Pause function
+             */
+            void set_pause_function( Void_Function aPauseFunction );
+
             //--------------------------------------------------------------------------------------------------
 
             void solve();
@@ -375,13 +384,6 @@ namespace moris
 
             void set_time_solver_parameters();
 
-            //--------------------------------------------------------------------------------------------------
-
-            ParameterListTypes&
-            set_param( char const * aKey )
-            {
-                return mParameterListTimeSolver( aKey );
-            }
         };
     }    // namespace tsa
 }    // namespace moris

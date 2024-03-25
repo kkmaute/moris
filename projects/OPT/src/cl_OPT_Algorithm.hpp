@@ -11,7 +11,7 @@
 #ifndef MORIS_CL_OPT_ALGORITHM_HPP_
 #define MORIS_CL_OPT_ALGORITHM_HPP_
 
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 #include "cl_OPT_Problem.hpp"
 
 namespace moris

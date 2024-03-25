@@ -27,53 +27,13 @@
 using namespace moris;
 using namespace dla;
 
-Linear_Solver::Linear_Solver()
-{
-    // create solver factory
-    Solver_Factory tSolFactory;
-
-    // create solver object
-    std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
-
-    //    tLinSolver->set_param("AZ_diagnostics") = AZ_none;
-    //    tLinSolver->set_param("AZ_output") = AZ_none;
-
-    mLinearSolverList.clear();
-
-    mLinearSolverList.resize( 1, nullptr );
-
-    mLinearSolverList( 0 ) = tLinSolver;
-
-    this->set_linear_solver_manager_parameters();
-}
-
 //--------------------------------------------------------------------------------------------------
 
 Linear_Solver::Linear_Solver(
-        const moris::ParameterList aParameterlist )
-        : mParameterListLinearSolver( aParameterlist )
+        const Parameter_List& aParameterList )
+        : mParameterListLinearSolver( aParameterList )
 {
-    // create solver factory
-    Solver_Factory tSolFactory;
-
-    // create solver object
-    std::shared_ptr< Linear_Solver_Algorithm > tLinSolver =
-            tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
-
-    //    tLinSolver->set_param("AZ_diagnostics") = AZ_none;
-    //    tLinSolver->set_param("AZ_output") = AZ_none;
-
-    mLinearSolverList.clear();
-
-    mLinearSolverList.resize( 1, nullptr );
-
-    mLinearSolverList( 0 ) = tLinSolver;
-
-    this->set_linear_solver_manager_parameters();
 }
-
-// Linear_Solver::~Linear_Solver()
-//{}
 
 //--------------------------------------------------------------------------------------------------
 void Linear_Solver::set_linear_algorithm( std::shared_ptr< Linear_Solver_Algorithm > aLinSolverAlgorithm )
@@ -202,23 +162,4 @@ void Linear_Solver::solver_linear_system(
     {
         mLinearSolverList( 0 )->compute_operator_condition_number_with_moris( mParameterListLinearSolver.get< std::string >( "DLA_operator_condition_number_with_moris" ) );
     }
-}
-
-//--------------------------------------------------------------------------------------------------------------------------
-void Linear_Solver::set_linear_solver_manager_parameters()
-{
-    // Maximal number of linear solver restarts on fail
-    mParameterListLinearSolver.insert( "DLA_max_lin_solver_restarts", 0 );
-
-    // Maximal number of linear solver restarts on fail
-    mParameterListLinearSolver.insert( "DLA_hard_break", true );
-
-    // Determines if lin solve should restart on fail
-    mParameterListLinearSolver.insert( "DLA_rebuild_lin_solver_on_fail", false );
-
-    // RHS matrix type ( for eigen analysis )
-    mParameterListLinearSolver.insert( "RHS_Matrix_Type", "" );
-
-    mParameterListLinearSolver.insert( "DLA_operator_condition_number_with_moris", "" );
-    mParameterListLinearSolver.insert( "DLA_prec_operator_condition_number_with_moris", "" );
 }

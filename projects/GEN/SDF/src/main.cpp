@@ -169,8 +169,8 @@ perform_calculation(
 {
 
     // step 1: load parameters
-    ParameterList tGlobalParameters;
-    Vector< ParameterList > tObjectParameters;
+    Parameter_List           tGlobalParameters;
+    Vector< Parameter_List > tObjectParameters;
 
     // load XML file
     load_sdf_parameter_list_from_xml(

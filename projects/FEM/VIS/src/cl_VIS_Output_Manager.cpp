@@ -84,7 +84,7 @@ namespace moris
         //-----------------------------------------------------------------------------------------------------------
 
         void
-        Output_Manager::set_outputs( moris::ParameterList aParameterlist )
+        Output_Manager::set_outputs( moris::Parameter_List aParameterlist )
         {
             // create output data object
             vis::Output_Data tOutputData;

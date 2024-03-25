@@ -16,7 +16,7 @@ set(TEST_SOURCES
 	ut_Vector.cpp
     cl_Dist_Map.cpp
     cl_Map.cpp
-    cl_Param_List.cpp
+	ut_Parameter_List.cpp
     cl_Tuple.cpp )
 
 # List test dependencies

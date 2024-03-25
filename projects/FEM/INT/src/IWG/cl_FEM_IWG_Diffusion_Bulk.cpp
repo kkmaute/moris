@@ -29,6 +29,8 @@ namespace moris
             // populate the property map
             mPropertyMap[ "Load" ]      = static_cast< uint >( IWG_Property_Type::BODY_LOAD );
             mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
+            mPropertyMap[ "H2Penalty" ] = static_cast< uint >( IWG_Property_Type::H2_Penalty );
+            mPropertyMap[ "H3Penalty" ] = static_cast< uint >( IWG_Property_Type::H3_Penalty );
 
             // set size for the constitutive model pointer cell
             mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
@@ -77,6 +79,14 @@ namespace moris
             const std::shared_ptr< Property >& tPropThickness =
                     mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
 
+            // get H2 penalty property
+            const std::shared_ptr< Property >& tPropH2Pen =
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::H2_Penalty ) );
+
+            // get H3 penalty property
+            const std::shared_ptr< Property >& tPropH3Pen =
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::H3_Penalty ) );
+
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
@@ -94,6 +104,20 @@ namespace moris
             {
                 // compute contribution of body load to residual
                 tRes -= aWStar * ( tFITemp->N_trans() * tPropLoad->val()( 0 ) );
+            }
+
+            // if H2 penalty
+            if ( tPropH2Pen != nullptr )
+            {
+                // compute contribution of body load to residual
+                tRes += aWStar * tPropH2Pen->val()( 0 ) * ( trans( tFITemp->dnNdxn( 2 ) ) * tFITemp->gradx( 2 ) );
+            }
+
+            // if H3 penalty
+            if ( tPropH3Pen != nullptr )
+            {
+                // compute contribution of body load to residual
+                tRes += aWStar * tPropH3Pen->val()( 0 ) * ( trans( tFITemp->dnNdxn( 3 ) ) * tFITemp->gradx( 3 ) );
             }
 
             // if stabilization parameter is defined
@@ -144,6 +168,14 @@ namespace moris
             const std::shared_ptr< Property >& tPropThickness =
                     mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
 
+            // get H2 penalty property
+            const std::shared_ptr< Property >& tPropH2Pen =
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::H2_Penalty ) );
+
+            // get H3 penalty property
+            const std::shared_ptr< Property >& tPropH3Pen =
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::H3_Penalty ) );
+
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
@@ -174,6 +206,24 @@ namespace moris
                     {
                         // add contribution to Jacobian
                         tJac -= aWStar * ( tFITemp->N_trans() * tPropLoad->dPropdDOF( tDofType ) );
+                    }
+                }
+
+                // for explicit dependence on residual dof type
+                if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
+                {
+                    // if H2 penalty
+                    if ( tPropH2Pen != nullptr )
+                    {
+                        // compute contribution of body load to residual
+                        tJac += aWStar * tPropH2Pen->val()( 0 ) * ( trans( tFITemp->dnNdxn( 2 ) ) * tFITemp->dnNdxn( 2 ) );
+                    }
+
+                    // if H2 penalty
+                    if ( tPropH3Pen != nullptr )
+                    {
+                        // compute contribution of body load to residual
+                        tJac += aWStar * tPropH3Pen->val()( 0 ) * ( trans( tFITemp->dnNdxn( 3 ) ) * tFITemp->dnNdxn( 3 ) );
                     }
                 }
 

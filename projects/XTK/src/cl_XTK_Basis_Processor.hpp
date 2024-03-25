@@ -13,7 +13,7 @@
 #include <unordered_set>
 #include "cl_Vector.hpp"
 #include "cl_Matrix.hpp"
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 
 
 using namespace moris;
@@ -67,7 +67,7 @@ namespace moris::xtk
         // B-spline mesh indices
         Matrix< IndexMat > mMeshIndices;
 
-        moris::ParameterList* mParameterList;
+        moris::Parameter_List* mParameterList;
 
         // spatial dimension
         uint mSpatialDim;

@@ -17,7 +17,7 @@
 #include "assert.hpp"
 
 #include "cl_Library_Enums.hpp"
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 #include "cl_Vector.hpp"
 
 namespace moris
@@ -28,7 +28,7 @@ namespace moris
     class XML_Parser;
 
     // Define what a module parameter list is
-    typedef Vector< Vector< moris::ParameterList > > ModuleParameterList;
+    typedef Vector< Vector< moris::Parameter_List > > ModuleParameterList;
 
     // Define what a parameter function is
     typedef void ( *Parameter_Function )( ModuleParameterList& aParameterList );
@@ -202,7 +202,7 @@ namespace moris
         // -----------------------------------------------------------------------------
 
         void
-        write_parameter_list_to_xml_buffer( ParameterList& aParameterList );
+        write_parameter_list_to_xml_buffer( Parameter_List& aParameterList );
 
         // -----------------------------------------------------------------------------
 

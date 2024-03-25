@@ -12,7 +12,7 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "op_equal_equal.hpp"
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 #include "cl_MTK_Cell.hpp"
 #include "cl_MTK_Cluster.hpp"
 #include "cl_MTK_Double_Side_Cluster.hpp"
@@ -63,7 +63,7 @@ namespace moris
                 tMeshManager->register_mesh_pair( tInterpMesh, tIntegMesh );
 
                 // parameter list input for the surfaces that are going to be periodic
-                moris::ParameterList tParameterList;
+                moris::Parameter_List tParameterList;
                 tParameterList.insert( "periodic_side_set_pair", "surface_1,surface_2" );
 
                 // construct the intersection detect
@@ -164,7 +164,7 @@ namespace moris
                 tMeshManager->register_mesh_pair( tInterpMesh, tIntegMesh );
 
                 // parameter list input for the surfaces that are going to be periodic
-                moris::ParameterList tParameterList;
+                moris::Parameter_List tParameterList;
                 tParameterList.insert( "periodic_side_set_pair", "surface_1,surface_2" );
 
                 // construct the intersection detect

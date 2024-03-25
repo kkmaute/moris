@@ -65,6 +65,16 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void MSI_Solver_Interface::update_problem()
+        {
+            if ( mModel )
+            {
+                mModel->update_model();
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
         void
         MSI_Solver_Interface::set_solution_vector( sol::Dist_Vector* aSolutionVector )
         {

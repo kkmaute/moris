@@ -1113,7 +1113,7 @@ namespace moris::xtk
     //------------------------------------------------------------------------------
 
     void
-    Enriched_Integration_Mesh::write_mesh( moris::ParameterList *aParamList )
+    Enriched_Integration_Mesh::write_mesh( moris::Parameter_List *aParamList )
     {
         if ( aParamList->get< bool >( "deactivate_empty_sets" ) )
         {

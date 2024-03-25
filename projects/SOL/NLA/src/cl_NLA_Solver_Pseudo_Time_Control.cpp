@@ -32,7 +32,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------------------
 
         Solver_Pseudo_Time_Control::Solver_Pseudo_Time_Control(
-                ParameterList&    aParameterListNonlinearSolver,
+                Parameter_List&    aParameterListNonlinearSolver,
                 sol::Dist_Vector* aCurrentSolution,
                 Nonlinear_Solver* aNonLinSolverManager )
         {

@@ -81,7 +81,7 @@ namespace moris::hmr
 
     // alternative constructor that uses parameter list
     HMR::HMR(
-            ParameterList&                       aParameterList,
+            Parameter_List&                       aParameterList,
             std::shared_ptr< moris::Library_IO > aLibrary )
             : HMR( new Parameters( aParameterList, aLibrary ) )
     {

@@ -681,7 +681,7 @@ namespace moris
                 const Vector< Vector< Adof* > >& aAdofListofTypes,
                 const uint&                                aAdofOffsets )
         {
-            ParameterList& tParameterlist = mModelSolverInterface->get_msi_parameterlist();
+            Parameter_List& tParameterlist = mModelSolverInterface->get_msi_parameterlist();
 
             if ( tParameterlist.get< bool >( "order_adofs_by_host" ) )
             {

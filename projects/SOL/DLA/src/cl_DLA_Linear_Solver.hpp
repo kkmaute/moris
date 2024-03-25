@@ -15,7 +15,7 @@
 #include "moris_typedefs.hpp"    // CON/src
 #include "cl_Vector.hpp"
 #include <memory>
-#include "cl_Param_List.hpp"
+#include "fn_PRM_SOL_Parameters.hpp"
 
 namespace moris
 {
@@ -35,16 +35,11 @@ namespace moris
             std::string mLhsOutputFileName;
 
           protected:
-            moris::ParameterList mParameterListLinearSolver;
+            moris::Parameter_List mParameterListLinearSolver;
 
           public:
-            //--------------------------------------------------------------------------------------------------
-            /**
-             * @brief Constructor. Creates a default linear solver.
-             */
-            Linear_Solver();
 
-            Linear_Solver( const moris::ParameterList aParameterlist );
+            Linear_Solver( const moris::Parameter_List& aParameterList = prm::create_linear_solver_parameter_list() );
 
             //--------------------------------------------------------------------------------------------------
 
@@ -97,20 +92,6 @@ namespace moris
             get_LHS_output_filename()
             {
                 return mLhsOutputFileName;
-            }
-
-            //--------------------------------------------------------------------------------------------------
-
-            ParameterListTypes&
-            set_param( char const * aKey )
-            {
-                return mParameterListLinearSolver( aKey );
-            }
-
-            moris::ParameterList const &
-            get_param_list()
-            {
-                return mParameterListLinearSolver;
             }
 
             //--------------------------------------------------------------------------------------------------

@@ -198,6 +198,11 @@ namespace moris
                     const real aTime,
                     const bool aEndOfTimeIteration );
 
+            /**
+             * Updates the underlying problem via the model.
+             */
+            void update_problem() override;
+
             //------------------------------------------------------------------------------
 
             void

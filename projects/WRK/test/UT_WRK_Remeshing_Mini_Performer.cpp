@@ -77,7 +77,7 @@ TEST_CASE( "WRK L2 test", "[WRK_L2_test]" )
 
         //----- HRM parameter list --------
 
-        ParameterList tParameters = prm::create_hmr_parameter_list();
+        Parameter_List tParameters = prm::create_hmr_parameter_list();
 
         tParameters.set( "number_of_elements_per_dimension", "4,   4" );
         tParameters.set( "domain_dimensions", "4.0,   4.0" );
@@ -103,13 +103,13 @@ TEST_CASE( "WRK L2 test", "[WRK_L2_test]" )
         tParameters.set( "use_multigrid", 0 );
         tParameters.set( "severity_level", 0 );
 
-        ParameterList tRefinementParameters;
+        Parameter_List tRefinementParameters;
         prm::create_refinement_parameterlist( tRefinementParameters );
         tRefinementParameters.set( "field_names", "Circle" );
         tRefinementParameters.set( "levels_of_refinement", "1" );
         tRefinementParameters.set( "refinement_pattern", "0" );
 
-        ParameterList tRemeshingParameters;
+        Parameter_List tRemeshingParameters;
         prm::create_remeshing_parameterlist( tRemeshingParameters );
         tRemeshingParameters.set( "mode", "ab_initio" );
         tRemeshingParameters.set( "remeshing_field_names", "Circle" );

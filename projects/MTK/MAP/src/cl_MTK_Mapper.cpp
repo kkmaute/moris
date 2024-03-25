@@ -667,7 +667,7 @@ namespace moris
             // define time, nonlinear and linear solver
             sol::SOL_Warehouse tSolverWarehouse( mModel->get_solver_interface() );
 
-            Vector< Vector< moris::ParameterList > > tParameterlist( 8 );
+            Vector< Vector< moris::Parameter_List > > tParameterlist( 8 );
             for ( uint Ik = 0; Ik < 8; Ik++ )
             {
                 tParameterlist( Ik ).resize( 1 );

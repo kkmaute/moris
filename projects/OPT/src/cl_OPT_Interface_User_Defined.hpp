@@ -12,7 +12,7 @@
 #define MORIS_CL_OPT_INTERFACE_USER_DEFINED_HPP
 
 #include "cl_OPT_Criteria_Interface.hpp"
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 #include "cl_Library_IO.hpp"
 
 namespace moris
@@ -41,7 +41,7 @@ namespace moris
              *
              * @param aParameterList Parameter list containing parameters for a user-defined interface.
              */
-            Interface_User_Defined(ParameterList aParameterList);
+            Interface_User_Defined( Parameter_List aParameterList);
 
             /**
              * Alternate constructor where the user-defined functions are provided directly. Used in the OPT tests.

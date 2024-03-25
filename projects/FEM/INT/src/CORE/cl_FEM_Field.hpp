@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef PROJECTS_HMR_SRC_CL_FEM_FIELD_HPP_
-#define PROJECTS_HMR_SRC_CL_FEM_FIELD_HPP_
+#pragma once
 
 #include <memory>
 
@@ -42,8 +41,11 @@ namespace moris
             //! Name of IQI which is used to populate field
             std::string mIQIName;
 
-            //! output file name and path
+            //! input/output file name and path
+            std::string mInputFilePath;
             std::string mOutputFilePath;
+            uint mTimeIndex = 0;
+            bool mUpdateFromFile = false;
 
             // ! bool indicating if field shall be populated with the help of an IQI
             bool mPopulateFieldWithIQI = false;
@@ -62,6 +64,11 @@ namespace moris
 
             virtual ~Field();
 
+            /**
+             * Updates this field from file, if necessary.
+             */
+            void update_field() override;
+
             //------------------------------------------------------------------------------
 
             void set_field_type( const Vector< mtk::Field_Type >& aType );
@@ -70,8 +77,9 @@ namespace moris
 
             void set_field_from_file(
                     const std::string& aString,
-                    const uint         aTimeIndex,
-                    const uint         aFieldIndex );
+                    uint               aTimeIndex,
+                    uint               aFieldIndex,
+                    bool               aUpdateTimeIndex = false );
 
             //-----------------------------------------------------------------------------
 
@@ -121,7 +129,7 @@ namespace moris
              * @brief child class implementation: computes and stores nodal values
              */
             virtual void
-            compute_nodal_values()
+            compute_nodal_values() override
             {
                 MORIS_ERROR( false, "fem::Field::compute_nodal_values - not implemented.\n" );
             }
@@ -132,5 +140,3 @@ namespace moris
         //------------------------------------------------------------------------------
     }    // namespace fem
 } /* namespace moris */
-
-#endif /* PROJECTS_HMR_SRC_CL_FEM_FIELD_HPP_ */

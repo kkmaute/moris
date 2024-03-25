@@ -712,7 +712,7 @@ namespace moris::xtk
         // -------------------------------------------------------------------------
 
       public:
-        Elevate_Order_Interface( ParameterList& aParameterList, enum Subdivision_Method aSubdivisionMethod );
+        Elevate_Order_Interface( Parameter_List& aParameterList, enum Subdivision_Method aSubdivisionMethod );
 
         ~Elevate_Order_Interface() {}
 

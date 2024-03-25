@@ -20,7 +20,7 @@ namespace moris
 
         std::shared_ptr< Criteria_Interface >
         create_interface(
-                Vector< ParameterList >                         aParameterLists,
+                Vector< Parameter_List >                         aParameterLists,
                 Vector< std::shared_ptr< Criteria_Interface > > aInterfaces )
         {
             // Get number of interfaces
@@ -55,7 +55,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         std::shared_ptr< Criteria_Interface >
-        create_interface( ParameterList aParameterList )
+        create_interface( Parameter_List aParameterList )
         {
             std::string tInterfaceType = aParameterList.get< std::string >( "field_type" );
             if ( !tInterfaceType.compare( "user_defined" ) )

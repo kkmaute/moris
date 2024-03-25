@@ -520,6 +520,12 @@ namespace moris
             populate_fields() = 0;
 
             /**
+             * Updates the stored fields.
+             */
+            virtual void update_fields() = 0;
+
+            //------------------------------------------------------------------------------
+            /**
              * @brief return all fields
              */
             virtual Vector< std::shared_ptr< mtk::Field > >

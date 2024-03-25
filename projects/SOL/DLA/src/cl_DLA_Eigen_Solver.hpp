@@ -110,13 +110,8 @@ namespace moris
             bool mComputePrecondionerOpertor = false;
 
           public:
-            //-----------------------------------------------------------------------
-            /**
-             * @brief Constructor. Creates a default eigen solver.
-             */
-            Eigen_Solver();
 
-            Eigen_Solver( const ParameterList* aParameterList );
+            Eigen_Solver( const Parameter_List* aParameterList );
 
             //-----------------------------------------------------------------------
             /**

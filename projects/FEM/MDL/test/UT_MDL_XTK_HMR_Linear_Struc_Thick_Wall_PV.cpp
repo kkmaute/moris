@@ -596,13 +596,13 @@ TEST_CASE("2D Linear Stuct Thick Walled Pressure Vessel","[XTK_HMR_LS_PV]")
                 dla::Solver_Factory  tSolFactory;
                 std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
 
-//                tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
-//                tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
-//                tLinearSolverAlgorithm->set_param("AZ_max_iter") = 10000;
-//                tLinearSolverAlgorithm->set_param("AZ_solver") = AZ_gmres;
-//                tLinearSolverAlgorithm->set_param("AZ_subdomain_solve") = AZ_ilu;
-//                tLinearSolverAlgorithm->set_param("AZ_graph_fill") = 10;
-                //        tLinearSolverAlgorithm->set_param("ml_prec_type") = "SA";
+//                tLinearSolverParameterList.set( "AZ_diagnostics", AZ_none );
+//                tLinearSolverParameterList.set( "AZ_output", AZ_none );
+//                tLinearSolverParameterList.set( "AZ_max_iter", 10000 );
+//                tLinearSolverParameterList.set( "AZ_solver", AZ_gmres );
+//                tLinearSolverParameterList.set( "AZ_subdomain_solve", AZ_ilu );
+//                tLinearSolverParameterList.set( "AZ_graph_fill", 10 );
+                //        tLinearSolverParameterList.set( "ml_prec_type", "SA" );
                 dla::Linear_Solver tLinSolver;
                 tLinSolver.set_linear_algorithm( 0, tLinearSolverAlgorithm );
 
@@ -613,7 +613,7 @@ TEST_CASE("2D Linear Stuct Thick Walled Pressure Vessel","[XTK_HMR_LS_PV]")
                 std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
                 //        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithmMonolythicU = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
 
-                tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 5;
+                tNonlinearSolverParameterList.set( "NLA_max_iter", 5 );
                 //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_hard_break") = false;
                 //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_max_lin_solver_restarts") = 2;
                 //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_rebuild_jacobian") = true;
