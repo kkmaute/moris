@@ -145,6 +145,8 @@ namespace moris
         void
         IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche_Unbiased::compute_jacobian( real aWStar )
         {
+            MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche_Unbiased::compute_jacobian - The jacobian can only be computed using FD at the moment." );
+
 #ifdef MORIS_HAVE_DEBUG
             // check leader and follower field interpolators
             this->check_field_interpolators( mtk::Leader_Follower::LEADER );
