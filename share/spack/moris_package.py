@@ -29,7 +29,7 @@ import subprocess
 class Moris(CMakePackage):
     """MORIS"""
 
-    git      = "ssh://git@github.com/kkmaute/moris"
+    git = "ssh://git@github.com/kkmaute/moris"
 
     maintainers = ['kkmaute']
 
@@ -47,15 +47,16 @@ class Moris(CMakePackage):
     variant("examples", default=False, description="Compile with examples")
     variant("debug",    default=False, description="Compile with debug support")
 
+    depends_on('arborx')
     depends_on('armadillo')
     depends_on('arpack-ng')
     depends_on('boost+filesystem+log+serialization+system+thread+timer')
     depends_on('eigen')
     depends_on('hdf5')
 
-    depends_on('gcmma',             when="+gcmma")
-    depends_on('snopt',             when="+snopt")
-    depends_on('lbfgs',             when="+lbfgs")
+    depends_on('gcmma', when="+gcmma")
+    depends_on('snopt', when="+snopt")
+    depends_on('lbfgs', when="+lbfgs")
  
     depends_on('mpi')
  
@@ -71,11 +72,11 @@ class Moris(CMakePackage):
 
     depends_on('petsc',                              when="+petsc")
     depends_on('petsc+mpi+metis+hypre+suite-sparse', when="+petsc")
-    #depends_on('petsc+mkl-pardiso',                  when="+petsc +pardiso")
+    #depends_on('petsc+mkl-pardiso',                 when="+petsc +pardiso")
     depends_on('petsc+mumps',                        when="+petsc +mumps")
     depends_on('petsc~mumps',                        when="+petsc -mumps")
 
-    depends_on('slepc',                              when="+slepc")
+    depends_on('slepc', when="+slepc")
 
     def cmake_args(self):
         spec = self.spec
