@@ -33,7 +33,7 @@ namespace moris
 
       public:
         /**
-         * Constructor for general type
+         * Constructor for general parameter type
          *
          * @tparam T Input parameter type
          * @param aParameterName Parameter name, for error reporting
@@ -54,7 +54,7 @@ namespace moris
          */
         ~Parameter()
         {
-            delete mValidator;
+            //delete mValidator;
         }
 
         /**
