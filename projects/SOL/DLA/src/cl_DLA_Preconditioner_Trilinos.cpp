@@ -46,7 +46,7 @@ Preconditioner_Trilinos::Preconditioner_Trilinos(
         moris::ParameterList* aParameterlist )
 {
     this->initialize(
-            aParameterlist );
+            aParameterlist, nullptr );
 }
 
 //-------------------------------------------------------------------------------
@@ -58,7 +58,8 @@ Preconditioner_Trilinos::~Preconditioner_Trilinos()
 //-------------------------------------------------------------------------------
 
 void Preconditioner_Trilinos::initialize(
-        moris::ParameterList* aParameterlist )
+        moris::ParameterList* aParameterlist,
+        Linear_Problem*       aLinearSystem )
 {
     // set parameter list
     mParameterList = aParameterlist;

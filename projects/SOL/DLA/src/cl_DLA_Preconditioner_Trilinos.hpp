@@ -75,7 +75,8 @@ namespace moris
              * initialize preconditioner by setting parameter list and linear system
              */
             void initialize(
-                    moris::ParameterList* aParameterlist );
+                    moris::ParameterList* aParameterlist,
+                    Linear_Problem*       aLinearSystem );
 
             //-------------------------------------------------------------------------------
 
