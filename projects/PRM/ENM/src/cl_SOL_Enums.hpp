@@ -62,7 +62,7 @@ namespace moris
 
         enum class SolverRaytracingStrategy
         {
-            None,                                 // No (re) ray tracing after initial mapping
+            None,                                 // No (re-)ray tracing
             EveryNthIteration,                    // Ray tracing after every Nth newton iteration
             EveryNthLoadStep,                     // Ray tracing after every Nth load step
             EveryNthLoadStepOrNthIteration,       // Ray tracing after every Nth load step or Nth iteration
