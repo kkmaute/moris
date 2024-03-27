@@ -50,11 +50,18 @@ namespace moris
         }
 
         /**
+         * Custom copy constructor, used to ensure each parameter has a validator.
+         *
+         * @param aParameter Parameter to copy
+         */
+        Parameter( const Parameter& aParameter );
+
+        /**
          * Parameter destructor, deletes the validator.
          */
         ~Parameter()
         {
-            //delete mValidator;
+            delete mValidator;
         }
 
         /**
