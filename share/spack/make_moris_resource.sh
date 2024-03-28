@@ -53,6 +53,7 @@ export SLEPC_INSTALLED=`spack find | awk -F '@' 'BEGIN{n=0}{ if ( $1 == "slepc" 
 export  DOXY_INSTALLED=`spack find | awk -F '@' 'BEGIN{n=0}{ if ( $1 == "doxygen" )         {n=1}}END{print n}'`
 export CLANG_INSTALLED=`spack find | awk -F '@' 'BEGIN{n=0}{ if ( $1 == "llvm" )            {n=1}}END{print n}'`
 export NINJA_INSTALLED=`spack find | awk -F '@' 'BEGIN{n=0}{ if ( $1 == "ninja" )           {n=1}}END{print n}'`
+export  ARBX_INSTALLED=`spack find | awk -F '@' 'BEGIN{n=0}{ if ( $1 == "arborx" )          {n=1}}END{print n}'`
 
 export Trilinos_DIR=`spack location --install-dir trilinos`
 
@@ -132,6 +133,11 @@ fi
 if [ $NINJA_INSTALLED == "1" ];then
 export NINJA_DIR=`spack location --install-dir ninja`
 echo "setenv NINJA_DIR"       $NINJA_DIR                                       >> $HOME/.cshrc_moris
+fi
+
+if [ $ARBX_INSTALLED == "1" ];then
+export ARBX_DIR=`spack location --install-dir arborx`
+echo "setenv ARBX_DIR"       $ARBX_DIR                                         >> $HOME/.cshrc_moris
 fi
 
 echo ""                                                                        >> $HOME/.cshrc_moris

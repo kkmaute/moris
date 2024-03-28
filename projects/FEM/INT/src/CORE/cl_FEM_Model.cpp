@@ -74,9 +74,9 @@ namespace moris
     {
         // User-defined FEM function
         typedef void ( *FEM_Function )(
-                moris::Matrix< moris::DDRMat >                &aPropMatrix,
+                moris::Matrix< moris::DDRMat >           &aPropMatrix,
                 Vector< moris::Matrix< moris::DDRMat > > &aParameters,
-                moris::fem::Field_Interpolator_Manager        *aFIManager );
+                moris::fem::Field_Interpolator_Manager   *aFIManager );
         //------------------------------------------------------------------------------
 
         FEM_Model::FEM_Model(
@@ -939,7 +939,7 @@ namespace moris
 
         void FEM_Model::update_fields()
         {
-            for ( const auto& iField : mFields )
+            for ( const auto &iField : mFields )
             {
                 iField->update_field();
             }

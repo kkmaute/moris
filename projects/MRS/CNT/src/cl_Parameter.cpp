@@ -54,6 +54,15 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
 
+    Parameter::Parameter( const Parameter& aParameter )
+            : mValue( aParameter.mValue )
+    {
+        // Note: This will have to change if we want to use custom validators.
+        mValidator = new Validator( *aParameter.mValidator );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     template<>
     Variant Parameter::make_variant( std::string aParameter )
     {

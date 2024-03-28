@@ -445,7 +445,7 @@ namespace moris
         for ( auto iParamToAdd = aParameterList.begin(); iParamToAdd != aParameterList.end(); ++iParamToAdd )
         {
             // ... and add or modify them
-            mXmlWriter->set_in_buffer( iParamToAdd->first, iParamToAdd->second->get_string() );
+            mXmlWriter->set_in_buffer( iParamToAdd->first, iParamToAdd->second.get_string() );
         }
     }
 
