@@ -974,39 +974,34 @@ namespace moris::fem
         // get fem computation type parameter list
         Parameter_List tComputationParameterList = mParameterList( 5 )( 0 );
 
-        // bool true for analytical forward analysis, false for finite difference
-        // decide if dRdu and dQIdu are computed by A/FD
-        bool tIsAnalyticalFA =
-                tComputationParameterList.get< bool >( "is_analytical_forward" );
+        // get bool for printing physics model
+        bool const tPrintPhysics = tComputationParameterList.get< bool >( "print_physics_model" );
+
+        // get bool for analytical/finite difference for dRdu and dQIdu
+        bool const tIsAnalyticalFA = tComputationParameterList.get< bool >( "is_analytical_forward" );
 
         // get enum for FD scheme for forward analysis
-        fem::FDScheme_Type tFDSchemeForFA = static_cast< fem::FDScheme_Type >(
-                tComputationParameterList.get< uint >( "finite_difference_scheme_forward" ) );
+        fem::FDScheme_Type const tFDSchemeForFA = static_cast< fem::FDScheme_Type >( tComputationParameterList.get< uint >( "finite_difference_scheme_forward" ) );
 
         // get perturbation size for FD for forward analysis
-        real tFDPerturbationFA = tComputationParameterList.get< real >(
-                "finite_difference_perturbation_size_forward" );
+        real const tFDPerturbationFA = tComputationParameterList.get< real >( "finite_difference_perturbation_size_forward" );
 
-        // get bool for analytical/finite difference for sensitivity analysis
-        // decide if dRdp and dQIdp are computed by A/FD
-        bool tIsAnalyticalSA =
-                tComputationParameterList.get< bool >( "is_analytical_sensitivity" );
+        // get bool for analytical/finite difference for SA
+        bool const tIsAnalyticalSA = tComputationParameterList.get< bool >( "is_analytical_sensitivity" );
 
-        // get enum for FD scheme for sensitivity analysis
-        fem::FDScheme_Type tFDSchemeForSA = static_cast< fem::FDScheme_Type >(
-                tComputationParameterList.get< uint >( "finite_difference_scheme" ) );
+        // get enum for FD scheme
+        fem::FDScheme_Type const tFDSchemeForSA = static_cast< fem::FDScheme_Type >( tComputationParameterList.get< uint >( "finite_difference_scheme" ) );
 
-        // get perturbation size for FD for sensitivity analysis
-        real tFDPerturbationSA = tComputationParameterList.get< real >(
-                "finite_difference_perturbation_size" );
+        // get perturbation size for FD
+        real const tFDPerturbationSA = tComputationParameterList.get< real >( "finite_difference_perturbation_size" );
 
         // get enum for perturbation strategy for finite difference
         fem::Perturbation_Type tPerturbationStrategy = static_cast< fem::Perturbation_Type >(
                 tComputationParameterList.get< uint >( "finite_difference_perturbation_strategy" ) );
 
-        mtk::Integration_Order tIntegrationOrder     = static_cast< mtk::Integration_Order >( tComputationParameterList.get< uint >( "nonconformal_integration_order" ) );
-        real                   tMaxNegativeRayLength = tComputationParameterList.get< real >( "nonconformal_max_negative_ray_length" );
-        real                   tMaxPositiveRayLength = tComputationParameterList.get< real >( "nonconformal_max_positive_ray_length" );
+        mtk::Integration_Order const tIntegrationOrder     = static_cast< mtk::Integration_Order >( tComputationParameterList.get< uint >( "nonconformal_integration_order" ) );
+        real const                   tMaxNegativeRayLength = tComputationParameterList.get< real >( "nonconformal_max_negative_ray_length" );
+        real const                   tMaxPositiveRayLength = tComputationParameterList.get< real >( "nonconformal_max_positive_ray_length" );
         // create a map of the set
         std::map< std::tuple< std::string, bool, bool >, uint > tMeshToFemSet;
 
