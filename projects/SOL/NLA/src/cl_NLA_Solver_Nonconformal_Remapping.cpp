@@ -29,6 +29,10 @@ namespace moris::NLA
     {
         switch ( mStrategy )
         {
+            case sol::SolverRaytracingStrategy::None:
+            {
+                return false;
+            }
             case sol::SolverRaytracingStrategy::EveryNthLoadStep:
             {
                 return check_every_nth_load_step( aLoadFactor );
@@ -65,6 +69,7 @@ namespace moris::NLA
             }
             default:
             {
+                MORIS_ASSERT(false, "Solver_Nonconformal_Remapping::requires_remapping() - Invalid remapping strategy.");
                 return false;
             }
         }

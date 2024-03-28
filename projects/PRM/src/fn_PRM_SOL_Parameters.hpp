@@ -792,7 +792,7 @@ namespace moris
             tNonLinAlgorithmParameterList.insert( "NLA_is_eigen_problem", false );
 
             // Determine with which strategy remapping of nonconformal meshes (raytracing) should be performed
-            tNonLinAlgorithmParameterList.insert( "NLA_remap_strategy", (uint)sol::SolverRaytracingStrategy::EveryNthLoadStep );
+            tNonLinAlgorithmParameterList.insert( "NLA_remap_strategy", (uint)sol::SolverRaytracingStrategy::None );
 
             // If "NLA_remap_strategy" is set to "EveryNthIteration", "EveryNthLoadStepOrNthIteration, or "MixedNthLoadStepAndNthIteration",
             // this parameter determines the frequency of remapping inside the newton iterations

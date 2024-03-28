@@ -241,6 +241,11 @@ namespace moris
                 }
             }
 
+            // in case of repeated update of the equation sets, we have to delete the old pdof hosts
+            for ( uint Ik = 0; Ik < mPdofHostList.size(); Ik++ )
+            {
+                delete mPdofHostList( Ik );
+            }
             // Set size of List containing all pdof hosts
             mPdofHostList.resize( tNumPdofHosts );
 
@@ -310,7 +315,7 @@ namespace moris
         void
         Dof_Manager::communicate_check_if_owned_adof_exists(
                 Vector< Vector< Adof* > >& aAdofListofTypes,
-                Matrix< IndexMat > const &           aDiscretizationIndexPerTypeAndTime )
+                Matrix< IndexMat > const & aDiscretizationIndexPerTypeAndTime )
         {
             // Build communication table map to determine the right position for each processor rank. +1 because c++ is 0 based
             Matrix< DDSMat > tCommTableMap( mCommTable.max() + 1, 1, -1 );
@@ -449,9 +454,9 @@ namespace moris
         void
         Dof_Manager::communicate_shared_adof_ids(
                 Vector< Vector< Adof* > > const & aAdofListofTypes,
-                Matrix< IndexMat > const &                  aDiscretizationIndexPerTypeAndTime,
-                Vector< Matrix< DDUMat > >&            aListSharedAdofIds,
-                Vector< Matrix< DDUMat > >&            aListSharedAdofPos )
+                Matrix< IndexMat > const &        aDiscretizationIndexPerTypeAndTime,
+                Vector< Matrix< DDUMat > >&       aListSharedAdofIds,
+                Vector< Matrix< DDUMat > >&       aListSharedAdofPos )
         {
             // Build communication table map to determine the right position for each processor rank. +1 because c++ is 0 based
             Matrix< DDSMat > tCommTableMap( mCommTable.max() + 1, 1, -1 );
@@ -679,7 +684,7 @@ namespace moris
         void
         Dof_Manager::set_owned_adofs_ids(
                 const Vector< Vector< Adof* > >& aAdofListofTypes,
-                const uint&                                aAdofOffsets )
+                const uint&                      aAdofOffsets )
         {
             Parameter_List& tParameterlist = mModelSolverInterface->get_msi_parameterlist();
 
@@ -698,7 +703,7 @@ namespace moris
         void
         Dof_Manager::set_owned_adofs_ids_by_type(
                 const Vector< Vector< Adof* > >& aAdofListofTypes,
-                const uint&                                aAdofOffsets )
+                const uint&                      aAdofOffsets )
         {
             uint tCounterId = aAdofOffsets;
             // uint tCounterShared = 0;
@@ -742,7 +747,7 @@ namespace moris
         void
         Dof_Manager::set_owned_adofs_ids_by_host(
                 const Vector< Vector< Adof* > >& aAdofListofTypes,
-                const uint&                                aAdofOffsets )
+                const uint&                      aAdofOffsets )
         {
             // FIXME by host only makes sense if all adofs have the same interpolation index
             // otherwise it will be just mixed weirdly
@@ -926,6 +931,11 @@ namespace moris
             // Get adof offset for this processor
             uint tAdofOffset = this->communicate_adof_offsets( mNumOwnedAdofs );
 
+            // remove previously allocated adofs (if any)
+            for ( uint Ik = 0; Ik < mAdofList.size(); Ik++ )
+            {
+                delete mAdofList( Ik );
+            }
             // Set size of List containing all adofs
             mAdofList.resize( tNumAdofs, nullptr );
             mAdofListOwned.resize( tNumTypeTimeLevels );
