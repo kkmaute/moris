@@ -54,8 +54,6 @@ else
     ulist=`echo $ctvers`
 fi
 
-echo $ulist
-echo $ulist | awk -v id=$id '{cnt=split($0, list);print list[cnt]}'
 id=0
 
 cd $here
