@@ -13,16 +13,16 @@
 #=================================================================================
 
 # overwrite MORISROOT with director of moris git version
-export MORISROOT=$HOME/codes/moris
+export MORISROOTORG=$HOME/codes/moris
 
 # build directory
-here=$MORISROOT/build_opt
+here=$MORISROOTORG/build_opt
 
 # branch: master or xtk_refactor or main
 branch=main
 
 # file with list of examples 
-exalist=$MORISROOT/share/maintenance/timing/TimingExampleList
+exalist=$MORISROOTORG/share/maintenance/timing/TimingExampleList
 
 # set current version (T13 or T15)
 ctvers=t15
@@ -33,14 +33,14 @@ bashrc_t15=$HOME/.bashrc_moris
 
 # file with git versions to processed in additon to current one; leave empty 
 # if only current git version should be checked
-gitlist=$MORISROOT/share/maintenance/timing/CheckGitList_github
+gitlist=$MORISROOTORG/share/maintenance/timing/CheckGitList_github
 #gitlist=
 
 #=================================================================================
 # end of user input
 #=================================================================================
 
-cd $MORISROOT
+cd $MORISROOTORG
 
 git checkout $branch
 
@@ -54,9 +54,13 @@ else
     ulist=`echo $ctvers`
 fi
 
+echo $ulist
+echo $ulist | awk -v id=$id '{cnt=split($0, list);print list[cnt]}'
 id=0
 
 cd $here
+
+cp $MORISROOTORG/share/cmake/find_modules/FindOPENBLAS.cmake /tmp/FindOPENBLAS.cmake 
 
 if [ ! -d "TimingResults" ];then
     mkdir TimingResults
@@ -94,13 +98,7 @@ if [ ! "$1" = "skip" ];then
         echo " processing $id ( $vers / $date )"
 
         echo " ==============================================="
-                
-        git checkout $vers
-        
-        rm -r -f cmake CMakeCache.txt CMakeDoxyfile.in CMakeDoxygenDefaults.cmake
-        rm -r -f CMakeFiles cmake_install.cmake CTestTestfile.cmake generated
-        rm -r -f lib Makefile share
-        
+                        
         doskip=0
         
         if [ "$urs" = "t13" ]; then    
@@ -109,7 +107,9 @@ if [ ! "$1" = "skip" ];then
                 echo "skipping timing test for $vers"
                 doskip=1
             else
+                echo "trilinos version 13"
                 source $bashrc_t13
+                echo $Trilinos_DIR
             fi
         fi
          
@@ -119,13 +119,28 @@ if [ ! "$1" = "skip" ];then
                 echo "skipping timing test for $vers"
                 doskip=1
             else
+                echo "trilinos version 15"
                 source $bashrc_t15
+                echo $Trilinos_DIR
             fi
         fi
         
         if [ "$doskip" = "0" ];then
-            cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON ..  >& /dev/null
-            cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON ..  >& /dev/null
+        
+            git checkout $vers
+        
+            rm -r -f cmake CMakeCache.txt CMakeDoxyfile.in CMakeDoxygenDefaults.cmake
+            rm -r -f CMakeFiles cmake_install.cmake CTestTestfile.cmake generated
+            rm -r -f lib Makefile share
+            
+            mv $MORISROOTORG/share/cmake/find_modules/FindOPENBLAS.cmake /tmp/FindOPENBLAS.cmake.current
+
+            cp /tmp/FindOPENBLAS.cmake $MORISROOTORG/share/cmake/find_modules/FindOPENBLAS.cmake
+        
+            echo "MORIS cmake for $vers at $date"            > TimingResults/cmake.$date
+            echo " "                                        >> TimingResults/cmake.$date
+            cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON .. >> TimingResults/cmake.$date 2>&1
+            cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON .. >> TimingResults/cmake.$date 2>&1 
         
             echo "MORIS compilation log for $vers at $date"  > TimingResults/compile.$date
             echo " "                                        >> TimingResults/compile.$date
@@ -133,7 +148,10 @@ if [ ! "$1" = "skip" ];then
               
             echo "MORIS ctest for $vers at $date"  > TimingResults/ctest.$date
             echo " "                              >> TimingResults/ctest.$date
-            ctest -V                              >> TimingResults/ctest.$date 2>&1
+            ctest -V                              >> TimingResults/ctest.$date 2>&1            
+            
+            mv /tmp/FindOPENBLAS.cmake.current $MORISROOTORG/share/cmake/find_modules/FindOPENBLAS.cmake
+            
         fi        
     done
     
