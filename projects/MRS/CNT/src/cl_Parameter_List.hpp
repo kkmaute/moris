@@ -147,7 +147,7 @@ namespace moris
          * @return The index of the type as ordered in the variant entry
          *         of mParamMap
          */
-        sint which( const std::string& aKey );
+        uint index( const std::string& aKey );
 
         /**
          * @brief Get the value corresponding to a given key.

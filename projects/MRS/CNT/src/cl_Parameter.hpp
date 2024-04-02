@@ -97,7 +97,7 @@ namespace moris
         template< typename T >
         const T& get_value() const
         {
-            return boost::get< T >( mValue );
+            return std::get< T >( mValue );
         }
 
         /**
@@ -127,9 +127,9 @@ namespace moris
          *
          * @return Variant index
          */
-        [[nodiscard]] sint which() const
+        [[nodiscard]] uint index() const
         {
-            return mValue.which();
+            return mValue.index();
         }
     };
 

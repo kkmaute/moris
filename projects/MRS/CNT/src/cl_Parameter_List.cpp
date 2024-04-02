@@ -53,8 +53,7 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
 
-    moris::sint
-    Parameter_List::which( const std::string& aKey )
+    uint Parameter_List::index( const std::string& aKey )
     {
         auto tIterator = mParamMap.find( aKey );
 
@@ -63,7 +62,7 @@ namespace moris
                 "The requested parameter %s does not exist.\n",
                 aKey.c_str() );
 
-        return tIterator->second.which();
+        return tIterator->second.index();
     }
 
     //--------------------------------------------------------------------------------------------------------------

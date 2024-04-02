@@ -45,7 +45,7 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     Validator::Validator( const Variant& aDefaultParameter )
-            : mTypeIndex( aDefaultParameter.which() )
+            : mTypeIndex( aDefaultParameter.index() )
     {
     }
 
@@ -53,11 +53,11 @@ namespace moris
 
     void Validator::check_parameter_type( const std::string& aParameterName, const Variant& aParameterVariant )
     {
-        MORIS_ERROR( aParameterVariant.which() == mTypeIndex,
+        MORIS_ERROR( aParameterVariant.index() == mTypeIndex,
                 "Parameter %s requires a %s, but was given a %s.",
                 aParameterName.c_str(),
                 get_which_variant_name( mTypeIndex ).c_str(),
-                get_which_variant_name( aParameterVariant.which() ).c_str() );
+                get_which_variant_name( aParameterVariant.index() ).c_str() );
     }
 
     //--------------------------------------------------------------------------------------------------------------

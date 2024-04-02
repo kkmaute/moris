@@ -19,34 +19,43 @@ namespace moris
     {
         std::stringstream tStringStream;
 
-        if ( boost::get< bool >( &aVariant ) != nullptr )
+        switch ( aVariant.index() )
         {
-            tStringStream << boost::get< bool >( aVariant );
-        }
-        else if ( boost::get< uint >( &aVariant ) != nullptr )
-        {
-            tStringStream << boost::get< uint >( aVariant );
-        }
-        else if ( boost::get< sint >( &aVariant ) != nullptr )
-        {
-            tStringStream << boost::get< sint >( aVariant );
-        }
-        else if ( boost::get< real >( &aVariant ) != nullptr )
-        {
-            tStringStream << boost::get< real >( aVariant );
-        }
-        else if ( boost::get< std::string >( &aVariant ) != nullptr )
-        {
-            tStringStream << boost::get< std::string >( aVariant );
-        }
-        else if ( boost::get< std::pair< std::string, std::string > >( &aVariant ) != nullptr )
-        {
-            std::pair< std::string, std::string > tPair = boost::get< std::pair< std::string, std::string > >( aVariant );
-            tStringStream << tPair.first << "," << tPair.second;
-        }
-        else
-        {
-            MORIS_ERROR( false, "Variant conversion error." );
+            case 0:
+            {
+                tStringStream << std::get< bool >( aVariant );
+                break;
+            }
+            case 1:
+            {
+                tStringStream << std::get< uint >( aVariant );
+                break;
+            }
+            case 2:
+            {
+                tStringStream << std::get< sint >( aVariant );
+                break;
+            }
+            case 3:
+            {
+                tStringStream << std::get< real >( aVariant );
+                break;
+            }
+            case 4:
+            {
+                tStringStream << std::get< std::string >( aVariant );
+                break;
+            }
+            case 5:
+            {
+                std::pair< std::string, std::string > tPair = std::get< std::pair< std::string, std::string > >( aVariant );
+                tStringStream << tPair.first << "," << tPair.second;
+                break;
+            }
+            default:
+            {
+                MORIS_ERROR( false, "Invalid variant index." );
+            }
         }
 
         return tStringStream.str();

@@ -10,19 +10,19 @@
 
 #pragma once
 
-#include <boost/variant.hpp>
+#include <variant>
 #include "moris_typedefs.hpp"
 #include "fn_Parsing_Tools.hpp"
 
 namespace moris
 {
     // Variant typedef
-    typedef boost::variant< bool, uint, sint, real, std::string, std::pair< std::string, std::string > > Variant;
+    typedef std::variant< bool, uint, sint, real, std::string, std::pair< std::string, std::string > > Variant;
 
     class Validator
     {
       private:
-        sint mTypeIndex;
+        uint mTypeIndex;
 
       public:
 

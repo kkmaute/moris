@@ -235,7 +235,7 @@ namespace moris
                 // skip over non-SQP specific parameters
                 if ( it->first == "restart_index" ) continue;
 
-                sint tParamType = aParameterList.which( it->first );    // get the underlying parameter type
+                uint tParamType = aParameterList.index( it->first );    // get the underlying parameter type
 
                 // call Fortran subroutine based on parameter type
                 switch ( tParamType )
