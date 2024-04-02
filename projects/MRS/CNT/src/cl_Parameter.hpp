@@ -46,7 +46,7 @@ namespace moris
             mValue = this->make_variant( aParameterValue );
 
             // Create validator with default
-            mValidator = new Validator( mValue );
+            mValidator = new Type_Validator( mValue.index() );
         }
 
         /**
@@ -59,10 +59,7 @@ namespace moris
         /**
          * Parameter destructor, deletes the validator.
          */
-        ~Parameter()
-        {
-            delete mValidator;
-        }
+        ~Parameter();
 
         /**
          * Sets the value of this parameter
@@ -78,9 +75,8 @@ namespace moris
             Variant tParameterVariant = this->make_variant( aParameterValue );
 
             // Validate the variant
-            mValidator->check_parameter_type( aParameterName, tParameterVariant );
-            MORIS_ERROR( mValidator->is_parameter_valid( tParameterVariant ),
-                    "Parameter %s was set with an invalid value. Valid values are: %s.",
+            MORIS_ERROR( mValidator->parameter_is_valid( tParameterVariant ),
+                    "Parameter %s was set incorrectly. Valid values are: %s.",
                     aParameterName.c_str(),
                     mValidator->get_valid_values().c_str() );
 

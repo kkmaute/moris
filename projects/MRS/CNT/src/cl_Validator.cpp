@@ -18,12 +18,12 @@ namespace moris
     /**
      * Gets the name of the type that the boost variant contains, based on the above typedef and an index
      *
-     * @param aWhichIndex Which index from the boost variant
+     * @param aVariantIndex Which index from the boost variant
      * @return Type name
      */
-    std::string get_which_variant_name( sint aWhichIndex )
+    std::string get_variant_name( uint aVariantIndex )
     {
-        switch ( aWhichIndex )
+        switch ( aVariantIndex )
         {
             case 0:
                 return "bool";
@@ -44,34 +44,44 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Validator::Validator( const Variant& aDefaultParameter )
-            : mTypeIndex( aDefaultParameter.index() )
+    Validator::Validator( uint aTypeIndex )
+            : mTypeIndex( aTypeIndex )
     {
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Validator::check_parameter_type( const std::string& aParameterName, const Variant& aParameterVariant )
+    bool Validator::same_type_index( const Variant& aParameterVariant )
     {
-        MORIS_ERROR( aParameterVariant.index() == mTypeIndex,
-                "Parameter %s requires a %s, but was given a %s.",
-                aParameterName.c_str(),
-                get_which_variant_name( mTypeIndex ).c_str(),
-                get_which_variant_name( aParameterVariant.index() ).c_str() );
+        return ( aParameterVariant.index() == mTypeIndex );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    bool Validator::is_parameter_valid( const Variant& aParameterVariant )
+    Type_Validator::Type_Validator( uint aTypeIndex )
+            : Validator( aTypeIndex )
     {
-        return true;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    std::string Validator::get_valid_values()
+    bool Type_Validator::parameter_is_valid( const Variant& aParameterVariant )
     {
-        return "";
+        return this->same_type_index( aParameterVariant );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    std::string Type_Validator::get_valid_values()
+    {
+        return get_variant_name( mTypeIndex );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Validator* Type_Validator::copy()
+    {
+        return new Type_Validator( mTypeIndex );
     }
 
     //--------------------------------------------------------------------------------------------------------------

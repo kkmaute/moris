@@ -14,6 +14,11 @@
 #include "moris_typedefs.hpp"
 #include "fn_Parsing_Tools.hpp"
 
+#define VALIDATOR_OVERRIDES                                                      \
+    bool        parameter_is_valid( const Variant& aParameterVariant ) override; \
+    std::string get_valid_values() override;                                     \
+    Validator*  copy() override;
+
 namespace moris
 {
     // Variant typedef
@@ -21,7 +26,7 @@ namespace moris
 
     class Validator
     {
-      private:
+      protected:
         uint mTypeIndex;
 
       public:
@@ -29,9 +34,9 @@ namespace moris
         /**
          * Validator constructor
          *
-         * @param aDefaultParameter Default variant parameter, for grabbing its type_index
+         * @param aTypeIndex Variant type index
          */
-        explicit Validator( const Variant& aDefaultParameter );
+        explicit Validator( uint aTypeIndex );
 
         /**
          * Validator destructor
@@ -39,27 +44,47 @@ namespace moris
         virtual ~Validator() = default;
 
         /**
-         * Checks if a given variant is valid, by making sure its type matches what is expected.
-         *
-         * @param aParameterName Parameter name (for error output)
-         * @param aParameterVariant Input parameter variant
-         * @return If the input parameter variant has the correct type
-         */
-        void check_parameter_type( const std::string& aParameterName, const Variant& aParameterVariant );
-
-        /**
-         * Checks a parameter to make sure it is valid. For a default validator, this will always return true.
+         * Checks a parameter to make sure it is valid.
          *
          * @param aParameterVariant Input parameter
          * @return If the parameter passes this validator's checks
          */
-        virtual bool is_parameter_valid( const Variant& aParameterVariant );
+        virtual bool parameter_is_valid( const Variant& aParameterVariant ) = 0;
 
         /**
          * Gets the valid values this validator is evaluating against.
          *
          * @return Valid values, represented with a string
          */
-        virtual std::string get_valid_values();
+        virtual std::string get_valid_values() = 0;
+
+        /**
+         * Copies this validator and returns a new pointer.
+         *
+         * @return Validator pointer
+         */
+        virtual Validator* copy() = 0;
+
+      protected:
+        /**
+         * Helper function that checks if a given variant has the same type index as the default parameter.
+         *
+         * @param aParameterVariant Input parameter variant
+         * @return If the input parameter variant has the correct type
+         */
+        bool same_type_index( const Variant& aParameterVariant );
+    };
+
+    class Type_Validator : public Validator
+    {
+      public:
+        /**
+         * A type validator checks inputs to make sure the type is correct, but otherwise every value is valid.
+         *
+         * @param aTypeIndex Variant type index
+         */
+        explicit Type_Validator( uint aTypeIndex );
+
+        VALIDATOR_OVERRIDES
     };
 }
