@@ -78,10 +78,10 @@ namespace moris::gen
          * @param aSecondParentNode Node marking the ending point of the intersection edge
          * @return Parent edge local coordinate, between -1 and 1
          */
-        virtual real compute_intersection_local_coordinate(
+        real compute_intersection_local_coordinate(
                 const Vector< Background_Node* >& aBackgroundNodes,
                 const Parent_Node&   aFirstParentNode,
-                const Parent_Node&   aSecondParentNode ) override;
+                const Parent_Node&   aSecondParentNode );
 
         /**
          * A voxel geometry has no relevant MTK fields for remeshing, so this returns an empty vector.

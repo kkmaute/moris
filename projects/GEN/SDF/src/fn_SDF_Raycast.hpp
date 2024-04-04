@@ -48,7 +48,7 @@ namespace moris::sdf
             Object&           aObject,
             Matrix< DDRMat >& aPoint,
             uint              aAxis,
-            Vector< uint >&   aFacetIndices );
+            Vector< Facet* >& aFacetIndices );
 
     //-------------------------------------------------------------------------------
 

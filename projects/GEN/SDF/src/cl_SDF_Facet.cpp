@@ -141,15 +141,15 @@ namespace moris
         Facet::get_vertex_coords() const
         {
             uint             tDimension = get_number_of_vertices();
-            Matrix< DDRMat > aCoords( tDimension, tDimension );
+            Matrix< DDRMat > tCoords( tDimension, tDimension );
 
             for ( uint iVertex = 0; iVertex < tDimension; ++iVertex )
             {
                 for ( uint iDimensionIndex = 0; iDimensionIndex < tDimension; iDimensionIndex++ )
-                    aCoords( iVertex, iDimensionIndex ) = mVertices( iVertex )->get_coord( iDimensionIndex );
+                    tCoords( iVertex, iDimensionIndex ) = mVertices( iVertex )->get_coord( iDimensionIndex );
             }
 
-            return aCoords;
+            return tCoords;
         }
 
         mtk::Geometry_Type

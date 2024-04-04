@@ -415,16 +415,6 @@ namespace moris
 
         //-------------------------------------------------------------------------------
 
-        Matrix< DDRMat >
-        Triangle::compute_dxi_dvertices( gen::Intersection_Node_Surface_Mesh& aIntersectionNode )
-        {
-            // not implemented yet
-            MORIS_ERROR( false, "3D Objects do not support sensitivities yet" );
-            return Matrix< DDRMat >();
-        }
-
-        //-------------------------------------------------------------------------------
-
 
     } /* namespace sdf */
 } /* namespace moris */

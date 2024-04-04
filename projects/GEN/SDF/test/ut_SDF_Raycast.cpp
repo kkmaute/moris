@@ -253,7 +253,7 @@ namespace moris::sdf
                     { 0.7 }
                 };
 
-                Vector< uint > tIntersectionIndices;
+                Vector< Facet* > tIntersectionIndices;
 
                 real tLineDistanceXExpected = 1.284482127272365;    // facet index = 2
                 real tLineDistanceYExpected = 0.919532986470608;    // facet index = 1
@@ -280,6 +280,9 @@ namespace moris::sdf
 
                 // define test point
                 Matrix< DDRMat > tTestPoint = { { -.25 }, { -0.3 } };
+
+                // vector of facets that intersect the ray
+                Vector< Facet* > tIntersectionIndices;
 
                 // expected results
                 Vector< real > tLineDistanceXExpected = { -0.2, 0.2 };

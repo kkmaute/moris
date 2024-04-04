@@ -22,8 +22,6 @@
 #include "cl_SDF_Facet_Vertex.hpp"
 #include "SDF_Tools.hpp"
 
-#include "GEN/src/PDV/cl_GEN_Intersection_Node_Surface_Mesh.hpp"
-
 namespace moris
 {
     namespace sdf
@@ -199,20 +197,6 @@ namespace moris
              */
             real
             get_vertex_coord( uint aVertexIndex, uint aAxis );
-
-            //-------------------------------------------------------------------------------
-            // GEN functions
-            //-------------------------------------------------------------------------------
-
-            /**
-             * Computes the sensitivity of the local coordinate of a parent edge with respect to the facet vertices
-             *
-             * @param aXi Local coordinate of an intersection along a parent edge, NOT the local coordinate of the facet.
-             * @param aIntersectionNode Intersection node to compute sensitivity for
-             * @return Vector< real > Sensitivities of the local coordinate with respect to the facet vertices. Size <Object dimension x number of vertices>
-             */
-            virtual Matrix< DDRMat >
-            compute_dxi_dvertices( moris::gen::Intersection_Node_Surface_Mesh& aIntersectionNode ) = 0;
 
             //-------------------------------------------------------------------------------
             // MTK API functions

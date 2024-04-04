@@ -89,40 +89,4 @@ namespace moris::sdf
 
     //-------------------------------------------------------------------------------
 
-    Matrix< DDRMat >
-    Line::compute_dxi_dvertices( moris::gen::Intersection_Node_Surface_Mesh& aIntersectionNode )
-    {
-        // Get the parent vector and its norm from the intersection node
-        Matrix< DDRMat > tParentVector     = aIntersectionNode.get_first_parent_node().get_global_coordinates() - aIntersectionNode.get_second_parent_node().get_global_coordinates();
-        real             tParentVectorNorm = norm( tParentVector );
-
-        // Get the rotation matrix from the intersection node
-        Matrix< DDRMat > tRotationMatrix;
-        aIntersectionNode.get_rotation_matrix( tRotationMatrix );
-
-        // get the normal vector rotated in the local coordinate frame
-        Matrix< DDRMat > tNormalPrime = tRotationMatrix * mNormal;
-
-        // get the center vector in the local coordinate frame
-        Matrix< DDRMat > tCenterPrime = 2.0 / ( 3.0 * tParentVectorNorm ) * tRotationMatrix * mCenter;
-
-        // compute vector between facet vertices, and unnormalized normal vector
-        Matrix< DDRMat > tFacetVector = mVertices( 1 )->get_coords() - mVertices( 0 )->get_coords();
-        Matrix< DDRMat > tNormal      = { { mVertices( 0 )->get_coord( 1 ) - mVertices( 1 )->get_coord( 1 ), mVertices( 1 )->get_coord( 0 ) - mVertices( 0 )->get_coord( 0 ) } };
-
-        // derivative of normal vector
-        Matrix< DDRMat > tdNormaldVertex1 = { { 1.0, -1.0 } };
-        Matrix< DDRMat > tdNormaldVertex2 = { { -1.0, 1.0 } };
-
-        // Sensitivity of the normal vector to the vertices
-        Matrix< DDRMat > tdNormalPrimedVertex1 = tRotationMatrix * ( 1.0 / norm( tFacetVector ) * tdNormaldVertex1 - 0.5 * tNormal * ( trans( tFacetVector ) * 1.0 * eye( 2, 2 ) - eye( 2, 2 ) * ( tFacetVector ) ) );
-        Matrix< DDRMat > tdNormalPrimedVertex2 = tRotationMatrix * ( 1.0 / norm( tFacetVector ) * tdNormaldVertex2 - 0.5 * tNormal * ( trans( tFacetVector ) * 1.0 * eye( 2, 2 ) - eye( 2, 2 ) * ( tFacetVector ) ) );
-
-
-        Matrix< DDRMat > tdCenterdVertices = 2.0 / ( 3.0 * tParentVectorNorm ) * tRotationMatrix;
-
-        return join_cols( ( tdNormalPrimedVertex1 * tCenterPrime + tdCenterdVertices * tNormalPrime ) * mNormal( 0 ) - tdNormalPrimedVertex1( 0 ) * ( tNormalPrime * tCenterPrime ),
-                ( tdNormalPrimedVertex2 * tCenterPrime + tdCenterdVertices * tNormalPrime ) * mNormal( 0 ) - tdNormalPrimedVertex2( 0 ) * ( tNormalPrime * tCenterPrime ) );
-    }
-
 } /* namespace moris::sdf */
