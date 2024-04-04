@@ -83,7 +83,7 @@ namespace moris::gen
         {
             // Create scaled field
             real tScale = tUniform( tEngine );
-            tScaledFieldParameterList.set( "constant_parameters", std::to_string( tScale ) );
+            tScaledFieldParameterList.set( "constant_parameters", std::to_string( tScale ), false );
             Design_Factory                        tDesignFactory( { tCircleParameterList, tScaledFieldParameterList }, tADVs );
             std::shared_ptr< Level_Set_Geometry > tCircle     = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
             auto                                  tProperties = tDesignFactory.get_properties();

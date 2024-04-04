@@ -571,8 +571,8 @@ namespace moris
         {
             // load the standard geometry parameter regardless of type
             tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list();
-            tGenParamList( 1 )( iGeom ).set( "number_of_refinements", std::to_string( tNumBoundaryRefinements ) );
-            tGenParamList( 1 )( iGeom ).set( "refinement_mesh_index", "0" );
+            tGenParamList( 1 )( iGeom ).set( "number_of_refinements", std::to_string( tNumBoundaryRefinements ), false );
+            tGenParamList( 1 )( iGeom ).set( "refinement_mesh_index", "0", false );
 
             // move current geometry into the buffer
             mXmlReader->copy_subtree_into_buffer( aGenPath, tGeometryNodeName, iGeom );
@@ -1034,8 +1034,6 @@ namespace moris
         aParameterList( 0 )( 0 ).set( "exodus_output_XTK_ig_mesh", true );
         aParameterList( 0 )( 0 ).set( "high_to_low_dbl_side_sets", true );
         aParameterList( 0 )( 0 ).set( "print_enriched_ig_mesh", false );
-        aParameterList( 0 )( 0 ).set( "global_T_matrix_output_file", "" );
-        aParameterList( 0 )( 0 ).set( "elemental_T_matrix_output_file", "Elemental_Extraction_Operators" );
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -1047,10 +1045,6 @@ namespace moris
         aParameterList.resize( 1 );
         aParameterList( 0 ).resize( 1 );
         aParameterList( 0 )( 0 ) = prm::create_hmr_parameter_list();
-
-        // reduce buffer size as much as possible
-        aParameterList( 0 )( 0 ).set( "refinement_buffer", 0 );
-        aParameterList( 0 )( 0 ).set( "staircase_buffer", 0 );
 
         // Lagrange mesh is always 0
         aParameterList( 0 )( 0 ).set( "lagrange_output_meshes", "0" );

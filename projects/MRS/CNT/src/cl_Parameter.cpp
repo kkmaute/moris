@@ -67,7 +67,14 @@ namespace moris
             : mValue( aParameter.mValue )
     {
         // Note: This will have to change if we want to use custom validators.
-        mValidator = aParameter.mValidator->copy();
+        if ( aParameter.mValidator )
+        {
+            mValidator = aParameter.mValidator->copy();
+        }
+        else
+        {
+            mValidator = nullptr;
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------

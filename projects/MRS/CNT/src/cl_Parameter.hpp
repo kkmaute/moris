@@ -69,8 +69,16 @@ namespace moris
          * @param aParameterValue Input value
          */
         template< typename T >
-        void set_value( const std::string& aParameterName, T aParameterValue )
+        void set_value(
+                const std::string& aParameterName,
+                T                  aParameterValue,
+                bool               aLockValue = true )
         {
+            // Make sure parameter is not locked
+            MORIS_ERROR( mValidator,
+                    "Parameter %s has already been set and locked, it cannot be set again.",
+                    aParameterName.c_str() );
+
             // Make value into a variant
             Variant tParameterVariant = this->make_variant( aParameterValue );
 
@@ -82,6 +90,13 @@ namespace moris
 
             // Set the value
             mValue = tParameterVariant;
+
+            // Lock the parameter by deleting the validator
+            if ( aLockValue )
+            {
+                delete mValidator;
+                mValidator = nullptr;
+            }
         }
 
         /**

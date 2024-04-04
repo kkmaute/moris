@@ -1324,7 +1324,6 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name", "SPGhost_VM" );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
         tParameterList( 2 )( tSPCounter ).set( "function_parameters", std::to_string( tStressGhost ) + "/0" );
-        tParameterList( 2 )( tSPCounter ).set( "leader_properties", std::string( "PropYoungsFrame,Material" ) );
         tParameterList( 2 )( tSPCounter ).set( "follower_properties", std::string( "PropYoungsFrame,Material" ) );
         tParameterList( 2 )( tSPCounter ).set( "leader_properties", "PropUnitValue,Material" );
         tSPCounter++;

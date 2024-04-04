@@ -875,7 +875,7 @@ namespace moris::gen
                 if ( tUseADVs )
                 {
                     tSwissCheeseParameterList.set( "field_variable_indices", "2" );
-                    tSwissCheeseParameterList.set( "adv_indices", "0" );
+                    tSwissCheeseParameterList.set( "adv_indices", "0", false );
                     tSwissCheeseParameterList.set( "constant_parameters", "0.0, 0.0" );
                 }
                 else

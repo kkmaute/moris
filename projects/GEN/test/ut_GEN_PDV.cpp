@@ -518,7 +518,7 @@ namespace moris::gen
         Vector< std::shared_ptr< Property > > tProperties( tNumADVs );
         for ( uint tPropertyIndex = 0; tPropertyIndex < tNumADVs; tPropertyIndex++ )
         {
-            tParameterList.set( "adv_indices", std::to_string( tPropertyIndex ) );
+            tParameterList.set( "adv_indices", std::to_string( tPropertyIndex ), false );
             Design_Factory tDesignFactory( { tParameterList }, tADVs );
             tProperties( tPropertyIndex ) = tDesignFactory.get_properties()( 0 );
         }

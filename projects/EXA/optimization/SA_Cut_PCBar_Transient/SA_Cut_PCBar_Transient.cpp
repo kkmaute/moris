@@ -76,7 +76,7 @@ namespace moris
     moris::real tTmax = 0.1;
 
     moris::real tNLARelResNormDrop      = 5.0e-07;
-    moris::real tNLARelaxationParameter = 0.9;
+    moris::real tNLARelaxationParameter = 0.5;
     moris::sint tNLAMaxIter             = 25;
 
     // Sensitivity Analysis Parameters
@@ -757,7 +757,6 @@ namespace moris
         tParameterlist( 2 )( 0 ).set( "NLA_rel_res_norm_drop", tNLARelResNormDrop );
         tParameterlist( 2 )( 0 ).set( "NLA_relaxation_parameter", tNLARelaxationParameter );
         tParameterlist( 2 )( 0 ).set( "NLA_relaxation_strategy", static_cast< uint >( sol::SolverRelaxationType::InvResNormAdaptive ) );
-        tParameterlist( 2 )( 0 ).set( "NLA_relaxation_parameter", 0.5 );
         tParameterlist( 2 )( 0 ).set( "NLA_relaxation_damping", 0.5 );
         tParameterlist( 2 )( 0 ).set( "NLA_max_iter", tNLAMaxIter );
         tParameterlist( 2 )( 0 ).set( "NLA_combined_res_jac_assembly", false );

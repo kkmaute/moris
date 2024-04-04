@@ -100,9 +100,10 @@ namespace moris
          *            needs to be accessed; spaces will be removed
          * @param[in] aValue Value corresponding to aKey; if values is a string, pair of
          *            strings or character array, whitespaces will be removed
+         * @param aLockValue If the set value is to be locked, and unable to be set again.
          */
         template< typename T >
-        void set( const std::string& aKey, T aValue )
+        void set( const std::string& aKey, T aValue, bool aLockValue = true )
         {
             // create copy of key string such that tIterator can be manipulated
             std::string tKey = aKey;
@@ -118,7 +119,7 @@ namespace moris
                     "The requested parameter %s can not be set because it does not exist.\n",
                     tKey.c_str() );
 
-            tIterator->second.set_value( aKey, aValue );
+            tIterator->second.set_value( aKey, aValue, aLockValue );
         }
 
         /**

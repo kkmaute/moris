@@ -240,7 +240,6 @@ namespace moris
         tParameterlist( 2 )( 0 ).set( "hdf5_path", "shape_opt_test.hdf5" );
         tParameterlist( 2 )( 0 ).set( "num_evaluations_per_adv", "1" );
         tParameterlist( 2 )( 0 ).set( "finite_difference_type", "all" );
-        tParameterlist( 2 )( 0 ).set( "finite_difference_type", "all" );
         tParameterlist( 2 )( 0 ).set( "finite_difference_epsilons", "1e-6" );
     }
 

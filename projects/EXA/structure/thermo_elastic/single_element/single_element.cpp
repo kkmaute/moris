@@ -956,7 +956,6 @@ namespace moris
 
             tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
             tParameterlist( 2 )( 0 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) );
-            tParameterlist( 2 )( 0 ).set( "NLA_combined_res_jac_assembly", false );
             tParameterlist( 2 )( 0 ).set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
             tParameterlist( 2 )( 0 ).set( "NLA_relaxation_parameter", tNLA_relaxation_parameter );
             tParameterlist( 2 )( 0 ).set( "NLA_max_iter", tNLA_max_iter );
@@ -1035,25 +1034,23 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "Mesh_Type", static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
         tParameterlist( 0 )( 0 ).set( "Set_Names", tBulk );
 
-        if ( tHaveStruct )
+        if ( tHaveStruct and tHaveThermo )
+        {
+            tParameterlist( 0 )( 0 ).set( "Field_Names", "TEMP,UX,UY,VOLUME" );
+            tParameterlist( 0 )( 0 ).set( "Field_Type", "NODAL,NODAL,NODAL,GLOBAL" );
+            tParameterlist( 0 )( 0 ).set( "IQI_Names", "IQIBulkTEMP,IQIBulkDISPX,IQIBulkDISPY,IQITotalVolume" );
+        }
+        else if ( tHaveStruct )
         {
             tParameterlist( 0 )( 0 ).set( "Field_Names", "UX,UY,VOLUME" );
             tParameterlist( 0 )( 0 ).set( "Field_Type", "NODAL,NODAL,GLOBAL" );
             tParameterlist( 0 )( 0 ).set( "IQI_Names", "IQIBulkDISPX,IQIBulkDISPY,IQITotalVolume" );
         }
-
-        if ( tHaveThermo )
+        else if ( tHaveThermo )
         {
             tParameterlist( 0 )( 0 ).set( "Field_Names", "TEMP,VOLUME" );
             tParameterlist( 0 )( 0 ).set( "Field_Type", "NODAL,GLOBAL" );
             tParameterlist( 0 )( 0 ).set( "IQI_Names", "IQIBulkTEMP,IQITotalVolume" );
-        }
-
-        if ( tHaveStruct && tHaveThermo )
-        {
-            tParameterlist( 0 )( 0 ).set( "Field_Names", "TEMP,UX,UY,VOLUME" );
-            tParameterlist( 0 )( 0 ).set( "Field_Type", "NODAL,NODAL,NODAL,GLOBAL" );
-            tParameterlist( 0 )( 0 ).set( "IQI_Names", "IQIBulkTEMP,IQIBulkDISPX,IQIBulkDISPY,IQITotalVolume" );
         }
 
         tParameterlist( 0 )( 0 ).set( "Save_Frequency", 1 );

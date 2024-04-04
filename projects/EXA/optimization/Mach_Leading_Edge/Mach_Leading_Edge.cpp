@@ -1512,7 +1512,6 @@ namespace moris
 
         tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
         tParameterlist( 2 )( 0 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) );
-        tParameterlist( 2 )( 0 ).set( "NLA_combined_res_jac_assembly", false );
         tParameterlist( 2 )( 0 ).set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
         tParameterlist( 2 )( 0 ).set( "NLA_relaxation_parameter", tNLA_relaxation_parameter );
         tParameterlist( 2 )( 0 ).set( "NLA_max_iter", tNLA_max_iter );
