@@ -569,6 +569,54 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    Matrix< DDRMat >
+    Surface_Mesh_Geometry::get_dvertex_dadv( uint aFacetVertexIndex )
+    {
+        // Get the element index of this vertex
+        Vector< Vector< real > > tElementBoundingBox( 2, Vector< real >( Object::mDimension ) );
+        moris_index              tElementIndex = this->find_background_element_from_global_coordinates(
+                Object::mVertices( aFacetVertexIndex )->get_coords(),
+                tElementBoundingBox );
+
+        // Get the mtk cell the vertex lies in
+        mtk::Cell* tBackgroundElement = &mMesh->get_mtk_cell( tElementIndex );
+
+        // Get the vertex indices and coordinates of the background element
+        Matrix< DDRMat >   tVertexCoordinates = tBackgroundElement->get_vertex_coords();
+        Matrix< IndexMat > tVertexIndices     = tBackgroundElement->get_vertex_inds();
+
+        // Initialize sensitivity matrix
+        Matrix< DDRMat > tVertexSensitivity;
+
+        // Loop over spatial dimension
+        for ( uint iDimensionIndex = 0; iDimensionIndex < Object::mDimension; iDimensionIndex++ )
+        {
+            // Loop over background nodes
+            for ( uint iNodeIndex = 0; iNodeIndex < mVertexBases.n_cols(); iNodeIndex++ )
+            {
+                Matrix< DDRMat > tNodeSensitivity =  mPerturbationFields( iDimensionIndex )->get_dfield_dadvs( tVertexIndices( iNodeIndex ), tVertexCoordinates.get_row( iNodeIndex) );
+                
+                // set size of vertex sensitivity matrix
+                if ( iDimensionIndex == 0 and iNodeIndex == 0 )
+                {
+                    tVertexSensitivity.resize( Object::mDimension, tNodeSensitivity.numel() );
+                }
+
+                for( uint iADVIndex = 0; iADVIndex < tNodeSensitivity.numel(); iADVIndex++)
+                {
+                    tVertexSensitivity( iDimensionIndex, iADVIndex ) += tNodeSensitivity( iADVIndex );
+                }
+            }
+        }
+
+        // Clean up
+        delete tBackgroundElement;
+
+        return tVertexSensitivity;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     void Surface_Mesh_Geometry::get_design_info(
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates,

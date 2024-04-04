@@ -288,6 +288,13 @@ namespace moris::gen
             return mVertexBases.get_column( aVertexIndex );
         }
 
+        /**
+         * Computes and returns the sensitivity of a facet vertex with respect to the ADVs
+         * 
+         * @return Matrix< DDRMat > 
+         */
+        Matrix< DDRMat > get_dvertex_dadv( uint aFacetVertexIndex);
+
       private:
         /**
          * Puts the entire surface mesh geometry in a local coordinate frame. The x axis is specified as the vector between the parent nodes.
