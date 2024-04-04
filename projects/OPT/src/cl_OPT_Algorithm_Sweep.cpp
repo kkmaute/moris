@@ -210,7 +210,7 @@ namespace moris
             else
             {
                 MORIS_ERROR( mEvaluationPoints.n_rows() == tNumADVs,
-                        "Number of rows in custom_adv_evaluations must match the number of ADVs." );
+                        "Number of rows in custom_adv_evaluations must match the number of ADVs (%d).", tNumADVs );
             }
         }
 
