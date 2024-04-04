@@ -20,7 +20,7 @@
 namespace moris::gen
 {
     /**
-     * This is a struct used to simplify \ref moris::gen::Surface_Mesh_Geometry constructors. It contains all field and level-set parameters.
+     * This is a struct used to simplify \ref moris::gen::Surface_Mesh_Geometry constructors. It contains all field and surface mesh parameters.
      */
     struct Surface_Mesh_Parameters : public Field_Parameters
             , public Design_Parameters
@@ -50,6 +50,7 @@ namespace moris::gen
         Vector< Vector< real > > mOriginalVertexCoordinates;    // All vertex coordinates as they were upon construction <dimension> x <number of vertices>
 
         Vector< std::shared_ptr< Field > > mPerturbationFields;    // Vector of perturbation fields
+        Matrix< DDRMat >                   mVertexBases;           // Basis function values for each vertex <number of fields> x <number of vertices>
 
       public:
         /**
@@ -104,14 +105,14 @@ namespace moris::gen
          * @param aBackgroundNodes Background nodes of the element where the intersection lies
          * @param aFirstParentNode Node marking the starting point of the intersection edge
          * @param aSecondParentNode Node marking the ending point of the intersection edge
-         * @param aParentFacetIndex return value. The index of the facet that intersects the parent edge
+         * @param aParentFacetIndex return value. A pointer to the facet that intersected the edge to create this intersection node
          * @return Parent edge local coordinate, between -1 and 1
          */
-        virtual real compute_intersection_local_coordinate(
+        real compute_intersection_local_coordinate(
                 const Vector< Background_Node* >& aBackgroundNodes,
                 const Parent_Node&                aFirstParentNode,
                 const Parent_Node&                aSecondParentNode,
-                uint&                             aParentFacetIndex ) override;
+                sdf::Facet*                       aParentFacet );
 
         /**
          *
@@ -276,6 +277,17 @@ namespace moris::gen
             return this->Geometry::get_intersection_tolerance();
         }
 
+        /**
+         * Gets the basis functions for the specified vertex
+         *
+         * @param aVertexIndex Index of the vertex
+         * @return Matrix< DDRMat > Basis functions for the vertex
+         */
+        Matrix< DDRMat > get_vertex_bases( uint aVertexIndex )
+        {
+            return mVertexBases.get_column( aVertexIndex );
+        }
+
       private:
         /**
          * Puts the entire surface mesh geometry in a local coordinate frame. The x axis is specified as the vector between the parent nodes.
@@ -300,9 +312,28 @@ namespace moris::gen
                 const Matrix< DDRMat >&   aCoordinate,
                 Vector< Vector< real > >& aBoundingBox );
 
+        /**
+         * @brief Computes the basis functions at a given point in the background element.
+         *
+         * @param aBackgroundElement the background element in which the point resides
+         * @param aParametricCoordinates the local coordinate of the point
+         * @param aBasis Return value. The basis functions at the point.
+         */
+        Matrix< DDRMat > compute_vertex_basis(
+                mtk::Cell*              aBackgroundElement,
+                const Matrix< DDRMat >& aParametricCoordinates );
+
+        /**
+         * Determines the field value at a given point in the background element.
+         *
+         * @param aBackgroundElement The background element in which the point resides
+         * @param aFieldIndex        The perturbation field index (spatial dimension)
+         * @param aBasis  The basis functions at the point
+         * @return real
+         */
         real interpolate_perturbation_from_background_element(
                 mtk::Cell*              aBackgroundElement,
                 uint                    aFieldIndex,
-                const Matrix< DDRMat >& aParametricCoordinates );
+                const Matrix< DDRMat >& aBasis );
     };
 }    // namespace moris::gen

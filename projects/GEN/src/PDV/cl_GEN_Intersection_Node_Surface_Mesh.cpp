@@ -9,11 +9,12 @@
  */
 
 #include "cl_GEN_Intersection_Node_Surface_Mesh.hpp"
-#include "cl_GEN_Surface_Mesh_Geometry.hpp"
 #include "cl_GEN_Parent_Node.hpp"
+#include "cl_GEN_Surface_Mesh_Geometry.hpp"
 
 #include "fn_norm.hpp"
 #include "fn_eye.hpp"
+#include "fn_trans.hpp"
 
 namespace moris::gen
 {
@@ -22,6 +23,8 @@ namespace moris::gen
             const Vector< Background_Node* >& aBackgroundNodes,
             const Parent_Node&                aFirstParentNode,
             const Parent_Node&                aSecondParentNode,
+            real                              aLocalCoordinate,
+            sdf::Facet*                       aParentFacet,
             mtk::Geometry_Type                aBackgroundGeometryType,
             mtk::Interpolation_Order          aBackgroundInterpolationOrder,
             Surface_Mesh_Geometry&            aInterfaceGeometry )
@@ -30,7 +33,7 @@ namespace moris::gen
                     aBackgroundNodes,
                     aFirstParentNode,
                     aSecondParentNode,
-                    aInterfaceGeometry.compute_intersection_local_coordinate( aBackgroundNodes, aFirstParentNode, aSecondParentNode, mParentFacetIndex ),
+                    aLocalCoordinate,
                     aBackgroundGeometryType,
                     aBackgroundInterpolationOrder )
             , mInterfaceGeometry( aInterfaceGeometry )
@@ -94,10 +97,48 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    Matrix< DDRMat >
+    Intersection_Node_Surface_Mesh::compute_dxi_dfacet()
+    {
+        // Get the parent vector and its norm from the intersection node
+        Matrix< DDRMat > tParentVector     = this->get_first_parent_node().get_global_coordinates() - this->get_second_parent_node().get_global_coordinates();
+        real             tParentVectorNorm = norm( tParentVector );
+
+        // Get the rotation matrix from the intersection node
+        Matrix< DDRMat > tRotationMatrix;
+        this->get_rotation_matrix( tRotationMatrix );
+
+        // get the normal vector rotated in the local coordinate frame
+        Matrix< DDRMat > tNormalPrime = tRotationMatrix * mParentFacet->get_normal();
+
+        // get the center vector in the local coordinate frame
+        Matrix< DDRMat > tCenterPrime = 2.0 / ( 3.0 * tParentVectorNorm ) * tRotationMatrix * mParentFacet->get_center();
+
+        // compute vector between facet vertices, and unnormalized normal vector
+        Matrix< DDRMat > tFacetVector = mParentFacet->get_vertex_coords().get_row( 1 ) - mParentFacet->get_vertex_coords().get_row( 0 );
+        Matrix< DDRMat > tNormal      = { { mParentFacet->get_vertex_coord( 0, 1 ) - mParentFacet->get_vertex_coord( 1, 1 ), mParentFacet->get_vertex_coord( 1, 0 ) - mParentFacet->get_vertex_coord( 0, 0 ) } };
+
+        // derivative of normal vector
+        Matrix< DDRMat > tdNormaldVertex1 = { { 1.0, -1.0 } };
+        Matrix< DDRMat > tdNormaldVertex2 = { { -1.0, 1.0 } };
+
+        // Sensitivity of the normal vector to the vertices
+        Matrix< DDRMat > tdNormalPrimedVertex1 = tRotationMatrix * ( 1.0 / norm( tFacetVector ) * tdNormaldVertex1 - 0.5 * tNormal * ( trans( tFacetVector ) * 1.0 * eye( 2, 2 ) - eye( 2, 2 ) * ( tFacetVector ) ) );
+        Matrix< DDRMat > tdNormalPrimedVertex2 = tRotationMatrix * ( 1.0 / norm( tFacetVector ) * tdNormaldVertex2 - 0.5 * tNormal * ( trans( tFacetVector ) * 1.0 * eye( 2, 2 ) - eye( 2, 2 ) * ( tFacetVector ) ) );
+
+
+        Matrix< DDRMat > tdCenterdVertices = 2.0 / ( 3.0 * tParentVectorNorm ) * tRotationMatrix;
+
+        return join_cols( ( tdNormalPrimedVertex1 * tCenterPrime + tdCenterdVertices * tNormalPrime ) * mParentFacet->get_normal()( 0 ) - tdNormalPrimedVertex1( 0 ) * ( tNormalPrime * tCenterPrime ),
+                ( tdNormalPrimedVertex2 * tCenterPrime + tdCenterdVertices * tNormalPrime ) * mParentFacet->get_normal()( 0 ) - tdNormalPrimedVertex2( 0 ) * ( tNormalPrime * tCenterPrime ) );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     void Intersection_Node_Surface_Mesh::append_dcoordinate_dadv( Matrix< DDRMat >& aCoordinateSensitivities, const Matrix< DDRMat >& aSensitivityFactor ) const
     {
         // TODO
-        MORIS_ERROR( false, "Intersection_Node_Surface_Mesh - get_dcoordinate_dadv() not implemented yet." );
+    MORIS_ERROR( false, "Intersection_Node_Surface_Mesh - get_dcoordinate_dadv() not implemented yet." );
     }
 
     //--------------------------------------------------------------------------------------------------------------

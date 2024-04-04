@@ -12,6 +12,12 @@
 
 #include "cl_GEN_Intersection_Node.hpp"
 
+// Forward declare SDF Facet
+namespace moris::sdf
+{
+    class Facet;
+}
+
 namespace moris::gen
 {
     class Surface_Mesh_Geometry;
@@ -19,7 +25,7 @@ namespace moris::gen
     class Intersection_Node_Surface_Mesh : public Intersection_Node
     {
       private:
-        uint mParentFacetIndex;    // Index of the facet that intersected the edge to create this intersection node
+        sdf::Facet* mParentFacet;    // Pointer to the facet that intersected the edge to create this intersection node
 
       protected:
         Surface_Mesh_Geometry& mInterfaceGeometry;
@@ -41,6 +47,8 @@ namespace moris::gen
                 const Vector< Background_Node* >& aBackgroundNodes,
                 const Parent_Node&                aFirstParentNode,
                 const Parent_Node&                aSecondParentNode,
+                real                              aLocalCoordinate,
+                sdf::Facet*                       aParentFacet,
                 mtk::Geometry_Type                aBackgroundGeometryType,
                 mtk::Interpolation_Order          aBackgroundInterpolationOrder,
                 Surface_Mesh_Geometry&            aInterfaceGeometry );
@@ -69,6 +77,14 @@ namespace moris::gen
         const Geometry& get_interface_geometry() const override;
 
       private:
+        /**
+         * Computes the sensitivity of the local coordinate of a parent edge with respect to the facet vertices
+         *
+         * @return Vector< real > Sensitivities of the local coordinate with respect to the facet vertices. Size <Object dimension x number of vertices>
+         */
+        virtual Matrix< DDRMat >
+        compute_dxi_dfacet();
+
         /**
          * Gets the sensitivities of this node's global coordinates with respect to the ADVs which affect one of the
          * ancestor nodes.
