@@ -29,7 +29,7 @@ namespace moris
             Parameter_List tSolverWarehouseList;
 
             // TPL type. can be epetra or petsc
-            tSolverWarehouseList.insert( "SOL_TPL_Type", (uint)( sol::MapType::Epetra ) );
+            tSolverWarehouseList.insert( "SOL_TPL_Type", sol::MapType::Epetra );
 
             // save operator to matlab file
             tSolverWarehouseList.insert( "SOL_save_operator_to_matlab", std::string( "" ) );
@@ -690,7 +690,7 @@ namespace moris
             tNonLinAlgorithmParameterList.insert( "NLA_max_lin_solver_restarts", 0 );
 
             // Relaxation strategy
-            tNonLinAlgorithmParameterList.insert( "NLA_relaxation_strategy", (uint)( sol::SolverRelaxationType::Constant ) );
+            tNonLinAlgorithmParameterList.insert( "NLA_relaxation_strategy", sol::SolverRelaxationType::Constant );
 
             // Relaxation parameter
             tNonLinAlgorithmParameterList.insert( "NLA_relaxation_parameter", 1.0 );
@@ -699,7 +699,7 @@ namespace moris
             tNonLinAlgorithmParameterList.insert( "NLA_relaxation_damping", 0.5 );
 
             // Load control strategy
-            tNonLinAlgorithmParameterList.insert( "NLA_load_control_strategy", (uint)( sol::SolverLoadControlType::Constant ) );
+            tNonLinAlgorithmParameterList.insert( "NLA_load_control_strategy", sol::SolverLoadControlType::Constant );
 
             // Initial load factor
             tNonLinAlgorithmParameterList.insert( "NLA_load_control_factor", 1.0 );
@@ -714,7 +714,7 @@ namespace moris
             tNonLinAlgorithmParameterList.insert( "NLA_load_control_exponent", 1.0 );
 
             // Pseudo time control strategy
-            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_control_strategy", (uint)( sol::SolverPseudoTimeControlType::None ) );
+            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_control_strategy", sol::SolverPseudoTimeControlType::None );
 
             // Constant time step size
             tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_constant", 0.0 );
@@ -850,7 +850,7 @@ namespace moris
         {
             Parameter_List tTimeParameterList;
 
-            tTimeParameterList.insert( "TSA_TPL_Type", (uint)( sol::MapType::Epetra ) );
+            tTimeParameterList.insert( "TSA_TPL_Type", sol::MapType::Epetra );
 
             tTimeParameterList.insert( "TSA_Solver_algorithms", "0" );
 
@@ -901,7 +901,7 @@ namespace moris
                     create_ml_preconditioner_parameterlist( tParameterList );
                     tParameterList.insert( "Max_Iter", 100 );
                     tParameterList.insert( "Convergence_Tolerance", 1e-9 );
-                    tParameterList.insert( "Solver_Implementation", (uint)( moris::sol::SolverType::ML ) );
+                    tParameterList.insert( "Solver_Implementation", ( moris::sol::SolverType::ML ) );
                     break;
                 }
 

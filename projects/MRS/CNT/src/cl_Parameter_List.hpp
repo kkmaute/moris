@@ -62,7 +62,7 @@ namespace moris
         ~Parameter_List() = default;
 
         /**
-         * @brief Extends an existing container by the element inserted.
+         * Adds a new parameter to this parameter list.
          *
          * @param[in] aKey Key corresponding to the mapped value that
          *            needs to be accessed; should not contain trailing or leading whitespaces
@@ -73,15 +73,8 @@ namespace moris
         template< typename T >
         void insert( const std::string& aKey, T aValue )
         {
-            // check for leading and trailing whitespaces in key
-            std::string tKeyWithoutSpaces = aKey;
-            split_trim_string( tKeyWithoutSpaces, "" );
-            MORIS_ERROR( aKey == tKeyWithoutSpaces,
-                    "Param_List::insert - key contains whitespaces" );
-
-            // Insert new value
-            Parameter tParameter( aValue );
-            mParamMap.insert( { aKey, tParameter } );
+            // Delegate to private implementation overload, depending on if T is an enum
+            this->insert( aKey, aValue, std::is_enum< T >() );
         }
 
         /**
@@ -105,21 +98,8 @@ namespace moris
         template< typename T >
         void set( const std::string& aKey, T aValue, bool aLockValue = true )
         {
-            // create copy of key string such that tIterator can be manipulated
-            std::string tKey = aKey;
-
-            // remove spurious whitespaces from key string
-            split_trim_string( tKey, "" );
-
-            // find key in map
-            auto tIterator = mParamMap.find( tKey );
-
-            // if key does not exist in map
-            MORIS_ERROR( tIterator != mParamMap.end(),
-                    "The requested parameter %s can not be set because it does not exist.\n",
-                    tKey.c_str() );
-
-            tIterator->second.set_value( aKey, aValue, aLockValue );
+            // Delegate to private implementation overload, depending on if T is an enum
+            this->set( aKey, aValue, aLockValue, std::is_enum< T >() );
         }
 
         /**
@@ -214,6 +194,78 @@ namespace moris
          * @return size_t number of entries in the parameter list
          */
         size_t size();
+
+      private:
+
+        /**
+         * Adds a new parameter to this parameter list (private implementation).
+         *
+         * @param[in] aKey Key corresponding to the mapped value that
+         *            needs to be accessed; should not contain trailing or leading whitespaces
+         * @param[in] aValue Value corresponding to aKey; if value is a string,
+         *            pair of strings, or character array leading and trailing whitespaces
+         *            are trimmed off
+         */
+        template< typename T >
+        void insert( const std::string& aKey, T aValue, std::false_type )
+        {
+            // Check for leading and trailing whitespaces in key
+            std::string tKeyWithoutSpaces = aKey;
+            split_trim_string( tKeyWithoutSpaces, "" );
+            MORIS_ERROR( aKey == tKeyWithoutSpaces,
+                    "Param_List::insert - key contains whitespaces" );
+
+            // Insert new value
+            Parameter tParameter( aValue );
+            mParamMap.insert( { aKey, tParameter } );
+        }
+
+        /**
+         * Insert function overload, for static casting enums to a uint.
+         */
+        template< typename T >
+        void insert( const std::string& aKey, T aValue, std::true_type )
+        {
+            this->insert( aKey, static_cast< uint >( aValue ), std::is_enum< uint >() );
+        }
+
+        /**
+         * Sets an element to a value if it exists (private implementation)
+         *
+         * @param[in] aKey Key corresponding to the mapped value that
+         *            needs to be accessed; spaces will be removed
+         * @param[in] aValue Value corresponding to aKey; if values is a string, pair of
+         *            strings or character array, whitespaces will be removed
+         * @param aLockValue If the set value is to be locked, and unable to be set again.
+         */
+        template< typename T >
+        void set( const std::string& aKey, T aValue, bool aLockValue, std::false_type )
+        {
+            // create copy of key string such that tIterator can be manipulated
+            std::string tKey = aKey;
+
+            // remove spurious whitespaces from key string
+            split_trim_string( tKey, "" );
+
+            // find key in map
+            auto tIterator = mParamMap.find( tKey );
+
+            // if key does not exist in map
+            MORIS_ERROR( tIterator != mParamMap.end(),
+                    "The requested parameter %s can not be set because it does not exist.\n",
+                    tKey.c_str() );
+
+            tIterator->second.set_value( aKey, aValue, aLockValue );
+        }
+
+        /**
+         * Set function overload, for static casting enums to a uint.
+         */
+        template< typename T >
+        void set( const std::string& aKey, T aValue, bool aLockValue, std::true_type )
+        {
+            this->set( aKey, static_cast< uint >( aValue ), aLockValue, std::is_enum< uint >() );
+        }
     };
 
     //------------------------------------------------------------------------------

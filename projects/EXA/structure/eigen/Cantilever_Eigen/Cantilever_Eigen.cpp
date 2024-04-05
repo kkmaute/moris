@@ -389,8 +389,8 @@ namespace moris
             // linear elasticity
             tParameterList( 1 ).push_back( prm::create_constitutive_model_parameter_list() );
             tParameterList( 1 )( tCMCounter ).set( "constitutive_name", "CMStrucLinIso" );
-            tParameterList( 1 )( tCMCounter ).set( "model_type", static_cast< uint >( fem::Model_Type::PLANE_STRESS ) );
-            tParameterList( 1 )( tCMCounter ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::STRUC_LIN_ISO ) );
+            tParameterList( 1 )( tCMCounter ).set( "model_type",  fem::Model_Type::PLANE_STRESS ) ;
+            tParameterList( 1 )( tCMCounter ).set( "constitutive_type",  fem::Constitutive_Type::STRUC_LIN_ISO ) ;
             tParameterList( 1 )( tCMCounter ).set( "dof_dependencies", std::pair< std::string, std::string >( "UX,UY", "Displacement" ) );
             tParameterList( 1 )( tCMCounter ).set( "properties", std::string( "PropYoungsModulus,  YoungsModulus;" ) + std::string( "PropPoissonRatio,   PoissonRatio" ) );
             tCMCounter++;
@@ -408,7 +408,7 @@ namespace moris
             // Displacements - Shell - back wall
             tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
             tParameterList( 2 )( tSPCounter ).set( "stabilization_name", "SPNitscheStruc" );
-            tParameterList( 2 )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::DIRICHLET_NITSCHE ) );
+            tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  fem::Stabilization_Type::DIRICHLET_NITSCHE ) ;
             tParameterList( 2 )( tSPCounter ).set( "function_parameters", "100.0" );
             tParameterList( 2 )( tSPCounter ).set( "leader_properties", "PropYoungsModulus,Material" );
             tSPCounter++;
@@ -426,7 +426,7 @@ namespace moris
         {
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGStructShell" );
-            tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_BULK ) );
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_BULK ) ;
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
 
             {
@@ -448,7 +448,7 @@ namespace moris
         {
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGNeumannPressure" );
-            tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_NEUMANN ) );
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_NEUMANN ) ;
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
 
             {
@@ -469,7 +469,7 @@ namespace moris
         {
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGDirichletStruct" );
-            tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE ) );
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE ) ;
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
 
             {
@@ -492,7 +492,7 @@ namespace moris
         {
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name", std::string( "IWGTimeContinuityStruct" ) );
-            tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::TIME_CONTINUITY_DOF ) );
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::TIME_CONTINUITY_DOF ) ;
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual", std::string( "UX,UY" ) );
 
             {
@@ -511,7 +511,7 @@ namespace moris
         //         Volume IQI - TotalDomain - use once to find total volume to compute max dof
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQITotalVolume" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::VOLUME ) );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::VOLUME ) ;
 
         if ( tHaveStruct )
         {
@@ -525,7 +525,7 @@ namespace moris
             // X-displacement
             tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
             tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkDISPX" );
-            tParameterList( 4 )( tIQICounter ).set( "IQI_type", (uint)( fem::IQI_Type::EIGEN_VECTOR ) );
+            tParameterList( 4 )( tIQICounter ).set( "IQI_type", ( fem::IQI_Type::EIGEN_VECTOR ) );
             tParameterList( 4 )( tIQICounter ).set( "function_parameters", "1" );
             tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "UX,UY" );
             tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "UX,UY" );
@@ -536,7 +536,7 @@ namespace moris
             // Y-displacement
             tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
             tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkDISPY" );
-            tParameterList( 4 )( tIQICounter ).set( "IQI_type", (uint)( fem::IQI_Type::EIGEN_VECTOR ) );
+            tParameterList( 4 )( tIQICounter ).set( "IQI_type", ( fem::IQI_Type::EIGEN_VECTOR ) );
             tParameterList( 4 )( tIQICounter ).set( "function_parameters", "1" );
             tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "UX,UY" );
             tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "UX,UY" );
@@ -636,7 +636,7 @@ namespace moris
 
         tParameterlist( 0 )( 0 ) = prm::create_vis_parameter_list();
         tParameterlist( 0 )( 0 ).set( "File_Name", std::pair< std::string, std::string >( "./", tOutputFileName ) );
-        tParameterlist( 0 )( 0 ).set( "Mesh_Type", static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
+        tParameterlist( 0 )( 0 ).set( "Mesh_Type",  vis::VIS_Mesh_Type::STANDARD ) ;
         tParameterlist( 0 )( 0 ).set( "Set_Names", tBulk );
 
         if ( tHaveStruct )

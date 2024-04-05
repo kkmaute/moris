@@ -74,9 +74,6 @@ namespace moris
     // FD
     std::string tFDEpsilon = "1e-6";
     std::string tWhichFD   = "all";
-    uint        tFEMWhichFDForSA = static_cast< uint >( fem::FDScheme_Type::POINT_3_CENTRAL );
-    uint        tFEMWhichFDForFA = static_cast< uint >( fem::FDScheme_Type::POINT_3_CENTRAL );
-    uint        tFEMWhichPerturbation = static_cast< uint >( fem::Perturbation_Type::ABSOLUTE );
 
     /* ------------------------------------------------------------------------ */
     // boundary condition
@@ -448,7 +445,7 @@ namespace moris
         tParameterList( tCMIndex ).push_back( prm::create_constitutive_model_parameter_list() );
         tParameterList( tCMIndex )( tCMCounter ).set( "constitutive_name", "CMDiffusion0") ;
         tParameterList( tCMIndex )( tCMCounter ).set( "phase_name",        "PhaseMaterial0") ;
-        tParameterList( tCMIndex )( tCMCounter ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::DIFF_LIN_ISO ) );
+        tParameterList( tCMIndex )( tCMCounter ).set( "constitutive_type",  fem::Constitutive_Type::DIFF_LIN_ISO ) ;
         tParameterList( tCMIndex )( tCMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
         tParameterList( tCMIndex )( tCMCounter ).set( "properties",
                 "PropConductivity0 , Conductivity;"
@@ -460,7 +457,7 @@ namespace moris
         tParameterList( tCMIndex ).push_back( prm::create_constitutive_model_parameter_list() );
         tParameterList( tCMIndex )( tCMCounter ).set( "constitutive_name", "CMDiffusion1") ;
         tParameterList( tCMIndex )( tCMCounter ).set( "phase_name",        "PhaseMaterial1") ;
-        tParameterList( tCMIndex )( tCMCounter ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::DIFF_LIN_ISO ) );
+        tParameterList( tCMIndex )( tCMCounter ).set( "constitutive_type",  fem::Constitutive_Type::DIFF_LIN_ISO ) ;
         tParameterList( tCMIndex )( tCMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
         tParameterList( tCMIndex )( tCMCounter ).set( "properties",
                 "PropConductivity1 , Conductivity;"
@@ -476,7 +473,7 @@ namespace moris
         tParameterList( tSPIndex ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name",  "SPNitscheTemp0") ;
         tParameterList( tSPIndex )( tSPCounter ).set( "leader_phase_name",   "PhaseMaterial0" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::DIRICHLET_NITSCHE ) );
+        tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type",   fem::Stabilization_Type::DIRICHLET_NITSCHE ) ;
         tParameterList( tSPIndex )( tSPCounter ).set( "function_parameters", "100.0") ;
         tParameterList( tSPIndex )( tSPCounter ).set( "leader_properties",   "PropConductivity0,Material") ;
         tSPCounter++;
@@ -485,7 +482,7 @@ namespace moris
         tParameterList( tSPIndex ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name",  "SPNitscheTemp1") ;
         tParameterList( tSPIndex )( tSPCounter ).set( "leader_phase_name",   "PhaseMaterial1" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::DIRICHLET_NITSCHE ) );
+        tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type",   fem::Stabilization_Type::DIRICHLET_NITSCHE ) ;
         tParameterList( tSPIndex )( tSPCounter ).set( "function_parameters", "100.0") ;
         tParameterList( tSPIndex )( tSPCounter ).set( "leader_properties",   "PropConductivity1,Material") ;
         tSPCounter++;
@@ -495,7 +492,7 @@ namespace moris
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name",  "SPInterfaceNitsche01") ;
         tParameterList( tSPIndex )( tSPCounter ).set( "leader_phase_name",   "PhaseMaterial0" );
         tParameterList( tSPIndex )( tSPCounter ).set( "follower_phase_name",    "PhaseMaterial1" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::NITSCHE_INTERFACE ) );
+        tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type",   fem::Stabilization_Type::NITSCHE_INTERFACE ) ;
         tParameterList( tSPIndex )( tSPCounter ).set( "function_parameters", "100.0") ;
         tParameterList( tSPIndex )( tSPCounter ).set( "leader_properties",   "PropConductivity0,Material") ;
         tParameterList( tSPIndex )( tSPCounter ).set( "follower_properties",    "PropConductivity1,Material") ;
@@ -505,7 +502,7 @@ namespace moris
         tParameterList( tSPIndex ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name",  "SPSidesetMeasure") ;
         tParameterList( tSPIndex )( tSPCounter ).set( "leader_phase_name",   "PhaseMaterial1" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::MEASURE ) );
+        tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type",   fem::Stabilization_Type::MEASURE ) ;
         tParameterList( tSPIndex )( tSPCounter ).set( "cluster_measures",    std::pair< std::string, std::string >( "CELL_SIDE_MEASURE,PRIMARY,LEADER", "ElementSize" ) );
         tSPCounter++;
 
@@ -513,7 +510,7 @@ namespace moris
         tParameterList( tSPIndex ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name",  "SPSidesetLengthMeasure") ;
         tParameterList( tSPIndex )( tSPCounter ).set( "leader_phase_name",   "PhaseMaterial1" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::MEASURE ) );
+        tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type",   fem::Stabilization_Type::MEASURE ) ;
         tParameterList( tSPIndex )( tSPCounter ).set( "cluster_measures",    std::pair< std::string, std::string >( "CELL_LENGTH_MEASURE,PRIMARY,LEADER", "ElementSize" ) );
         tSPCounter++;
 
@@ -521,7 +518,7 @@ namespace moris
         tParameterList( tSPIndex ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name",  "SPBulkMeasure") ;
         tParameterList( tSPIndex )( tSPCounter ).set( "leader_phase_name",   "PhaseMaterial1" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::MEASURE ) );
+        tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type",   fem::Stabilization_Type::MEASURE ) ;
         tParameterList( tSPIndex )( tSPCounter ).set( "cluster_measures",    std::pair< std::string, std::string >( "CELL_MEASURE,PRIMARY,LEADER", "ElementSize" ) );
         tSPCounter++;
 
@@ -529,7 +526,7 @@ namespace moris
         tParameterList( tSPIndex ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name",  "SPBulkLengthMeasure") ;
         tParameterList( tSPIndex )( tSPCounter ).set( "leader_phase_name",   "PhaseMaterial1" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::MEASURE ) );
+        tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type",   fem::Stabilization_Type::MEASURE ) ;
         tParameterList( tSPIndex )( tSPCounter ).set( "cluster_measures",    std::pair< std::string, std::string >( "CELL_LENGTH_MEASURE,PRIMARY,LEADER", "ElementSize" ) );
         tSPCounter++;
 
@@ -540,7 +537,7 @@ namespace moris
             tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name",  "SPGPTemp0") ;
             tParameterList( tSPIndex )( tSPCounter ).set( "leader_phase_name",   "PhaseMaterial0" );
             tParameterList( tSPIndex )( tSPCounter ).set( "follower_phase_name",   "PhaseMaterial0" );
-            tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
+            tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type",   fem::Stabilization_Type::GHOST_DISPL ) ;
             tParameterList( tSPIndex )( tSPCounter ).set( "function_parameters", tGhostPenalty ) ;
             tParameterList( tSPIndex )( tSPCounter ).set( "leader_properties",   "PropConductivity0,Material") ;
             tParameterList( tSPIndex )( tSPCounter ).set( "follower_properties",   "PropConductivity0,Material") ;
@@ -551,7 +548,7 @@ namespace moris
             tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name",  "SPGPTemp1") ;
             tParameterList( tSPIndex )( tSPCounter ).set( "leader_phase_name",   "PhaseMaterial1" );
             tParameterList( tSPIndex )( tSPCounter ).set( "follower_phase_name",   "PhaseMaterial1" );
-            tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
+            tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type",   fem::Stabilization_Type::GHOST_DISPL ) ;
             tParameterList( tSPIndex )( tSPCounter ).set( "function_parameters", tGhostPenalty ) ;
             tParameterList( tSPIndex )( tSPCounter ).set( "leader_properties",   "PropConductivity1,Material") ;
             tParameterList( tSPIndex )( tSPCounter ).set( "follower_properties",   "PropConductivity1,Material") ;
@@ -565,7 +562,7 @@ namespace moris
         // create IWG for material 0 - bulk diffusion
         tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGDiffusion0Bulk") ;
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_BULK ) );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                    fem::IWG_Type::SPATIALDIFF_BULK ) ;
         tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name",          "PhaseMaterial0" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "TEMP") ;
         tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_constitutive_models", "CMDiffusion0,Diffusion") ;
@@ -575,7 +572,7 @@ namespace moris
         // create IWG for material 1 - bulk diffusion
         tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGDiffusion1Bulk") ;
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_BULK ) );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                    fem::IWG_Type::SPATIALDIFF_BULK ) ;
         tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name",          "PhaseMaterial1" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "TEMP") ;
         tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_constitutive_models", "CMDiffusion1,Diffusion") ;
@@ -585,8 +582,8 @@ namespace moris
         // create IWG for interface conditions mat0 - mat1
         tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGInterface01") ;
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type",              static_cast< uint >( fem::Element_Type::DOUBLE_SIDESET ) );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE ) );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type",               fem::Element_Type::DOUBLE_SIDESET ) ;
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                    fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE ) ;
         tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "TEMP");
         tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name",          "PhaseMaterial0" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "follower_phase_name",           "PhaseMaterial1" );
@@ -598,8 +595,8 @@ namespace moris
         // create IWG for Neumann boundary conditions
         tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGInletFlux") ;
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type",              static_cast< uint >( fem::Element_Type::SIDESET ) );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_NEUMANN ) );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type",               fem::Element_Type::SIDESET ) ;
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                    fem::IWG_Type::SPATIALDIFF_NEUMANN ) ;
         tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name",          "PhaseMaterial1" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "side_ordinals",              "4" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "TEMP") ;
@@ -609,9 +606,9 @@ namespace moris
         // create IWG for Dirichlet boundary conditions on mat 0
         tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGOutletTemp0") ;
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type",              static_cast< uint >( fem::Element_Type::SIDESET ) );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type",               fem::Element_Type::SIDESET ) ;
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",
-                                                        static_cast< uint >( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE ) );
+                                                         fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE ) ;
         tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name",          "PhaseMaterial0" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "side_ordinals",              "4" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "TEMP") ;
@@ -623,9 +620,9 @@ namespace moris
         // create IWG for Dirichlet boundary conditions on mat 1
         tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGOutletTemp1") ;
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type",              static_cast< uint >( fem::Element_Type::SIDESET ) );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type",               fem::Element_Type::SIDESET ) ;
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",
-                                                        static_cast< uint >( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE ) );
+                                                         fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE ) ;
         tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name",          "PhaseMaterial1" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "side_ordinals",              "4" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "TEMP") ;
@@ -640,9 +637,9 @@ namespace moris
             tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGGP0Temp") ;
             tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type",
-                                                            static_cast< uint >( fem::Element_Type::DOUBLE_SIDESET ) );
+                                                             fem::Element_Type::DOUBLE_SIDESET ) ;
             tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",
-                                                            static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
+                                                             fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
             tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name",          "PhaseMaterial0" );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "follower_phase_name",           "PhaseMaterial0" );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "TEMP") ;
@@ -652,9 +649,9 @@ namespace moris
             tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGGP1Temp") ;
             tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type",
-                                                            static_cast< uint >( fem::Element_Type::DOUBLE_SIDESET ) );
+                                                             fem::Element_Type::DOUBLE_SIDESET ) ;
             tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",
-                                                            static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
+                                                             fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
             tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name",          "PhaseMaterial1" );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "follower_phase_name",           "PhaseMaterial1" );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "TEMP") ;
@@ -669,7 +666,7 @@ namespace moris
         // Nodal Temperature IQI
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name",                   "IQIBulkTEMP") ;
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::DOF ) );
+        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type",                    fem::IQI_Type::DOF ) ;
         tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name",          "PhaseAll" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "dof_quantity",               "TEMP");
         tParameterList( tIQIIndex )( tIQICounter ).set( "vectorial_field_index",      0 );
@@ -678,22 +675,22 @@ namespace moris
         // Volume mat0
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name",                   "IQIVolumeMat0") ;
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::VOLUME ) );
+        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type",                    fem::IQI_Type::VOLUME ) ;
         tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name",          "PhaseMaterial0" );
         tIQICounter++;
 
         // Volume mat1
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name",                   "IQIVolumeMat1") ;
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::VOLUME ) );
+        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type",                    fem::IQI_Type::VOLUME ) ;
         tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name",          "PhaseMaterial1" );
         tIQICounter++;
 
         // Interface length
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name",                   "IQIVolumeInterface1") ;
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::VOLUME ) );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_bulk_type",              static_cast< uint >( fem::Element_Type::SIDESET ) );
+        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type",                    fem::IQI_Type::VOLUME ) ;
+        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_bulk_type",               fem::Element_Type::SIDESET ) ;
         tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name",          "PhaseMaterial1" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "neighbor_phases",            "PhaseMaterial0" );
         tIQICounter++;
@@ -701,7 +698,7 @@ namespace moris
         // strain energy mat0
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name",                   "IQIBulkStrainEnergy0");
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type",                    static_cast< uint >( fem::IQI_Type::STRAIN_ENERGY ) );
+        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type",                     fem::IQI_Type::STRAIN_ENERGY ) ;
         tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name",          "PhaseMaterial0" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "leader_constitutive_models", "CMDiffusion0,Elast");
         tIQICounter++;
@@ -709,7 +706,7 @@ namespace moris
         // strain energy mat1
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name",                   "IQIBulkStrainEnergy1");
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type",                    static_cast< uint >( fem::IQI_Type::STRAIN_ENERGY ) );
+        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type",                     fem::IQI_Type::STRAIN_ENERGY ) ;
         tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name",          "PhaseMaterial1" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "leader_constitutive_models", "CMDiffusion1,Elast");
         tIQICounter++;
@@ -717,8 +714,8 @@ namespace moris
         // IQI with sideset measure
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name",                   "IQISidesetMeasure");
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::STABILIZATION ) );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_bulk_type",              static_cast< uint >( fem::Element_Type::SIDESET ) );
+        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type",                    fem::IQI_Type::STABILIZATION ) ;
+        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_bulk_type",               fem::Element_Type::SIDESET ) ;
         tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name",          "PhaseMaterial1" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "neighbor_phases",            "PhaseMaterial0" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "stabilization_parameters",   "SPSidesetMeasure,Stabilization");
@@ -727,8 +724,8 @@ namespace moris
         // IQI with sideset length measure
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name",                   "IQISidesetLengthMeasure");
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::STABILIZATION ) );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_bulk_type",              static_cast< uint >( fem::Element_Type::SIDESET ) );
+        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type",                    fem::IQI_Type::STABILIZATION ) ;
+        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_bulk_type",               fem::Element_Type::SIDESET ) ;
         tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name",          "PhaseMaterial1" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "neighbor_phases",            "PhaseMaterial0" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "stabilization_parameters",   "SPSidesetLengthMeasure,Stabilization");
@@ -737,7 +734,7 @@ namespace moris
         // IQI with bulk measure
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name",                   "IQIBulkMeasure");
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::STABILIZATION ) );
+        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type",                    fem::IQI_Type::STABILIZATION ) ;
         tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name",          "PhaseMaterial1" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "stabilization_parameters",   "SPBulkMeasure,Stabilization");
         tIQICounter++;
@@ -745,7 +742,7 @@ namespace moris
          // IQI with bulk length measure
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name",                   "IQIBulkLengthMeasure");
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::STABILIZATION ) );
+        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type",                    fem::IQI_Type::STABILIZATION ) ;
         tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name",          "PhaseMaterial1" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "stabilization_parameters",   "SPBulkLengthMeasure,Stabilization");
         tIQICounter++;
@@ -756,14 +753,14 @@ namespace moris
         tParameterList( tFEMIndex )( 0 ).set( "print_physics_model",                 false );
         // sensitivity analysis
         tParameterList( tFEMIndex )( 0 ).set( "is_analytical_sensitivity",           false );
-        tParameterList( tFEMIndex )( 0 ).set( "finite_difference_scheme",            tFEMWhichFDForSA );
+        tParameterList( tFEMIndex )( 0 ).set( "finite_difference_scheme",            fem::FDScheme_Type::POINT_3_CENTRAL );
         tParameterList( tFEMIndex )( 0 ).set( "finite_difference_perturbation_size", stod(tFDEpsilon) );
         // forward analysis
         tParameterList( tFEMIndex )( 0 ).set( "is_analytical_forward",                       true );
-        tParameterList( tFEMIndex )( 0 ).set( "finite_difference_scheme_forward",            tFEMWhichFDForFA );
+        tParameterList( tFEMIndex )( 0 ).set( "finite_difference_scheme_forward",            fem::FDScheme_Type::POINT_3_CENTRAL );
         tParameterList( tFEMIndex )( 0 ).set( "finite_difference_perturbation_size_forward", stod(tFDEpsilon) );
         // perturbation strategy
-        tParameterList( tFEMIndex )( 0 ).set( "finite_difference_perturbation_strategy",     tFEMWhichPerturbation );
+        tParameterList( tFEMIndex )( 0 ).set( "finite_difference_perturbation_strategy",     fem::Perturbation_Type::ABSOLUTE );
     }
 
     void SOLParameterList( Vector< Vector< Parameter_List > > & tParameterlist )
@@ -817,7 +814,7 @@ namespace moris
 
         tParameterlist( 0 )( 0 ) = prm::create_vis_parameter_list();
         tParameterlist( 0 )( 0 ).set( "File_Name"  , std::pair< std::string, std::string >( "./", tOutputFileName ) );
-        tParameterlist( 0 )( 0 ).set( "Mesh_Type"  , static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
+        tParameterlist( 0 )( 0 ).set( "Mesh_Type"  ,  vis::VIS_Mesh_Type::STANDARD ) ;
         tParameterlist( 0 )( 0 ).set( "Set_Names"  , tTotalDomain );
         tParameterlist( 0 )( 0 ).set( "Field_Names",
                                       "TEMP,VOLUME_MAT1,VOLUME_MAT0,VOLUME_INT1") ;
