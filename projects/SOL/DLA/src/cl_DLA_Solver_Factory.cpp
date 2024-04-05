@@ -45,7 +45,7 @@ Solver_Factory::~Solver_Factory()
 Preconditioner*
 Solver_Factory::create_preconditioner( const Parameter_List& aParameterList )
 {
-    switch ( static_cast< sol::PreconditionerType >( aParameterList.get< uint >( "Preconditioner_Implementation" ) ) )
+    switch ( aParameterList.get< sol::PreconditionerType >( "Preconditioner_Implementation" ) )
     {
         case ( sol::PreconditionerType::NONE ):
             return nullptr;
@@ -68,7 +68,7 @@ Solver_Factory::create_solver(
 {
     std::shared_ptr< Linear_Solver_Algorithm > tLinSol;
 
-    switch ( static_cast< sol::SolverType >( aParameterlist.get< uint >( "Solver_Implementation" ) ) )
+    switch ( aParameterlist.get< sol::SolverType >( "Solver_Implementation" ) )
     {
         case ( sol::SolverType::AZTEC_IMPL ):
             tLinSol = std::make_shared< Linear_Solver_Aztec >( aParameterlist );

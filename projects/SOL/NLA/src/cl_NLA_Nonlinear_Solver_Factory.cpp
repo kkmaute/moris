@@ -22,7 +22,7 @@ namespace moris::NLA
     {
         std::shared_ptr< Nonlinear_Algorithm > tNonLinSys = nullptr;
 
-        switch ( static_cast< NonlinearSolverType >( aParameterList.get< uint >( "NLA_Solver_Implementation" ) ) )
+        switch ( aParameterList.get< NonlinearSolverType >( "NLA_Solver_Implementation" ) )
         {
             case ( NonlinearSolverType::NEWTON_SOLVER ):
                 tNonLinSys = std::make_shared< Newton_Solver >( aParameterList );

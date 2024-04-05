@@ -1124,8 +1124,7 @@ namespace moris
                 Parameter_List tMMParameter = tMMParameterList( iMM );
 
                 // get the constitutive type from parameter list
-                fem::Material_Type tMMType =
-                        static_cast< fem::Material_Type >( tMMParameter.get< uint >( "material_type" ) );
+                auto tMMType = tMMParameter.get< fem::Material_Type >( "material_type" );
 
                 // get the constitutive model name from parameter list
                 std::string tMMName =
@@ -1218,8 +1217,7 @@ namespace moris
                 Parameter_List tCMParameter = tCMParameterList( iCM );
 
                 // get the constitutive type from parameter list
-                fem::Constitutive_Type tCMType =
-                        static_cast< fem::Constitutive_Type >( tCMParameter.get< uint >( "constitutive_type" ) );
+                auto tCMType = tCMParameter.get< fem::Constitutive_Type >( "constitutive_type" );
 
                 // get the constitutive model name from parameter list
                 std::string tCMName =
@@ -1235,8 +1233,7 @@ namespace moris
                         tPhaseName.c_str() );
 
                 // get the model type
-                fem::Model_Type tCMModelType =
-                        static_cast< fem::Model_Type >( tCMParameter.get< uint >( "model_type" ) );
+                fem::Model_Type tCMModelType = tCMParameter.get< fem::Model_Type >( "model_type" );
 
                 // create a constitutive model pointer
                 std::shared_ptr< fem::Constitutive_Model > tCM =
@@ -1380,8 +1377,7 @@ namespace moris
                 std::string tSPName = tSPParameter.get< std::string >( "stabilization_name" );
 
                 // get the stabilization type from parameter list
-                fem::Stabilization_Type tSPType =
-                        static_cast< fem::Stabilization_Type >( tSPParameter.get< uint >( "stabilization_type" ) );
+                fem::Stabilization_Type tSPType = tSPParameter.get< fem::Stabilization_Type >( "stabilization_type" );
 
                 // create a stabilization parameter pointer
                 mSPs( iSP ) = tSPFactory.create_SP( tSPType );
@@ -1592,8 +1588,7 @@ namespace moris
                 std::string tIWGName = tIWGParameter.get< std::string >( "IWG_name" );
 
                 // get the treated IWG type
-                fem::IWG_Type tIWGType =
-                        static_cast< fem::IWG_Type >( tIWGParameter.get< uint >( "IWG_type" ) );
+                auto tIWGType = tIWGParameter.get< fem::IWG_Type >( "IWG_type" );
 
                 // get the ghost order from parameter list
                 uint tGhostOrder = tIWGParameter.get< uint >( "ghost_order" );
@@ -1612,8 +1607,7 @@ namespace moris
                         tFuncParameters );
 
                 // get the treated IWG bulk type
-                fem::Element_Type tIWGBulkType =
-                        static_cast< fem::Element_Type >( tIWGParameter.get< uint >( "IWG_bulk_type" ) );
+                auto tIWGBulkType = tIWGParameter.get< fem::Element_Type >( "IWG_bulk_type" );
 
                 // set flag for leader/follower
                 bool tLeaderFollower = ( tIWGBulkType == fem::Element_Type::DOUBLE_SIDESET );
@@ -1871,8 +1865,7 @@ namespace moris
                         tIQIParameter.get< std::string >( "IQI_name" );
 
                 // get the IQI type from parameter list
-                fem::IQI_Type tIQIType =
-                        static_cast< fem::IQI_Type >( tIQIParameter.get< uint >( "IQI_type" ) );
+                auto tIQIType = tIQIParameter.get< fem::IQI_Type >( "IQI_type" );
 
                 // get the quantity dof type from parameter list
                 Vector< moris::MSI::Dof_Type > tQuantityDofTypes;
@@ -1892,8 +1885,7 @@ namespace moris
                         tFuncParameters );
 
                 // get the treated IQI bulk type
-                fem::Element_Type tIQIBulkType =
-                        static_cast< fem::Element_Type >( tIQIParameter.get< uint >( "IQI_bulk_type" ) );
+                auto tIQIBulkType = tIQIParameter.get< fem::Element_Type >( "IQI_bulk_type" );
 
                 // set bool to true if double sideset
                 bool tLeaderFollower = ( tIQIBulkType == fem::Element_Type::DOUBLE_SIDESET );
@@ -2098,8 +2090,7 @@ namespace moris
                     tComputationParameterList.get< bool >( "is_analytical_forward" );
 
             // get enum for FD scheme for forward analysis
-            fem::FDScheme_Type tFDSchemeForFA = static_cast< fem::FDScheme_Type >(
-                    tComputationParameterList.get< uint >( "finite_difference_scheme_forward" ) );
+            auto tFDSchemeForFA = tComputationParameterList.get< fem::FDScheme_Type >( "finite_difference_scheme_forward" );
 
             // get perturbation size for FD for forward analysis
             real tFDPerturbationFA = tComputationParameterList.get< real >(
@@ -2111,16 +2102,14 @@ namespace moris
                     tComputationParameterList.get< bool >( "is_analytical_sensitivity" );
 
             // get enum for FD scheme for sensitivity analysis
-            fem::FDScheme_Type tFDSchemeForSA = static_cast< fem::FDScheme_Type >(
-                    tComputationParameterList.get< uint >( "finite_difference_scheme" ) );
+            auto tFDSchemeForSA = tComputationParameterList.get< fem::FDScheme_Type >( "finite_difference_scheme" );
 
             // get perturbation size for FD for sensitivity analysis
             real tFDPerturbationSA = tComputationParameterList.get< real >(
                     "finite_difference_perturbation_size" );
 
             // get enum for perturbation strategy for finite difference
-            fem::Perturbation_Type tPerturbationStrategy = static_cast< fem::Perturbation_Type >(
-                    tComputationParameterList.get< uint >( "finite_difference_perturbation_strategy" ) );
+            auto tPerturbationStrategy = tComputationParameterList.get< fem::Perturbation_Type >( "finite_difference_perturbation_strategy" );
 
             // create a map of the set
             std::map< std::tuple< std::string, bool, bool >, uint > tMeshToFemSet;
@@ -2590,8 +2579,7 @@ namespace moris
             for ( uint iMM = 0; iMM < tNumMMs; iMM++ )
             {
                 // get the material type from parameter list
-                fem::Material_Type tMMType =
-                        static_cast< fem::Material_Type >( tMMParameterList( iMM ).get< uint >( "material_type" ) );
+                fem::Material_Type tMMType = tMMParameterList( iMM ).get< fem::Material_Type >( "material_type" );
 
                 // create a material model pointer
                 mMMs( iMM ) = tMMFactory.create_MM( tMMType );
@@ -2674,8 +2662,7 @@ namespace moris
             for ( uint iCM = 0; iCM < tNumCMs; iCM++ )
             {
                 // get the constitutive type from parameter list
-                fem::Constitutive_Type tCMType =
-                        static_cast< fem::Constitutive_Type >( tCMParameterList( iCM ).get< uint >( "constitutive_type" ) );
+                auto tCMType = tCMParameterList( iCM ).get< fem::Constitutive_Type >( "constitutive_type" );
 
                 // create a constitutive model pointer
                 mCMs( iCM ) = tCMFactory.create_CM( tCMType );
@@ -2687,8 +2674,7 @@ namespace moris
                 aCMMap[ tCMParameterList( iCM ).get< std::string >( "constitutive_name" ) ] = iCM;
 
                 // set CM model type
-                fem::Model_Type tCMModelType =
-                        static_cast< fem::Model_Type >( tCMParameterList( iCM ).get< uint >( "model_type" ) );
+                auto tCMModelType = tCMParameterList( iCM ).get< fem::Model_Type >( "model_type" );
                 if ( tCMModelType != fem::Model_Type::UNDEFINED )
                 {
                     mCMs( iCM )->set_model_type( tCMModelType );
@@ -2809,8 +2795,7 @@ namespace moris
                 Parameter_List tSPParameter = tSPParameterList( iSP );
 
                 // get the stabilization type from parameter list
-                fem::Stabilization_Type tSPType =
-                        static_cast< fem::Stabilization_Type >( tSPParameter.get< uint >( "stabilization_type" ) );
+                auto tSPType = tSPParameter.get< fem::Stabilization_Type >( "stabilization_type" );
 
                 // create a stabilization parameter pointer
                 mSPs( iSP ) = tSPFactory.create_SP( tSPType );
@@ -2958,8 +2943,7 @@ namespace moris
                 Parameter_List tIWGParameter = tIWGParameterList( iIWG );
 
                 // get the IWG type from parameter list
-                fem::IWG_Type tIWGType =
-                        static_cast< fem::IWG_Type >( tIWGParameter.get< uint >( "IWG_type" ) );
+                auto tIWGType = tIWGParameter.get< fem::IWG_Type >( "IWG_type" );
 
                 // create an IWG pointer
                 mIWGs( iIWG ) = tIWGFactory.create_IWG( tIWGType );
@@ -3190,12 +3174,10 @@ namespace moris
                 std::string tIQIName = tIQIParameter.get< std::string >( "IQI_name" );
 
                 // get the IQI type from parameter list
-                fem::IQI_Type tIQIType =
-                        static_cast< fem::IQI_Type >( tIQIParameter.get< uint >( "IQI_type" ) );
+                auto tIQIType = tIQIParameter.get< fem::IQI_Type >( "IQI_type" );
 
                 // get the treated IQI bulk type
-                fem::Element_Type tIQIBulkType =
-                        static_cast< fem::Element_Type >( tIQIParameter.get< uint >( "IQI_bulk_type" ) );
+                auto tIQIBulkType = tIQIParameter.get< fem::Element_Type >( "IQI_bulk_type" );
 
                 // create an IQI pointer
                 mIQIs( iIQI ) = tIQIFactory.create_IQI( tIQIType );
@@ -3384,8 +3366,7 @@ namespace moris
                     tComputationParameterList.get< bool >( "is_analytical_forward" );
 
             // get enum for FD scheme for forward analysis
-            fem::FDScheme_Type tFDSchemeForFA = static_cast< fem::FDScheme_Type >(
-                    tComputationParameterList.get< uint >( "finite_difference_scheme_forward" ) );
+            auto tFDSchemeForFA = tComputationParameterList.get< fem::FDScheme_Type >( "finite_difference_scheme_forward" );
 
             // get perturbation size for FD for forward analysis
             real tFDPerturbationFA = tComputationParameterList.get< real >(
@@ -3396,8 +3377,7 @@ namespace moris
                     tComputationParameterList.get< bool >( "is_analytical_sensitivity" );
 
             // get enum for FD scheme
-            fem::FDScheme_Type tFDSchemeForSA = static_cast< fem::FDScheme_Type >(
-                    tComputationParameterList.get< uint >( "finite_difference_scheme" ) );
+            auto tFDSchemeForSA = tComputationParameterList.get< fem::FDScheme_Type >( "finite_difference_scheme" );
 
             // get perturbation size for FD
             real tFDPerturbation = tComputationParameterList.get< real >(

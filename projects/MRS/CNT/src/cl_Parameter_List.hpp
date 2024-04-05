@@ -131,7 +131,7 @@ namespace moris
         uint index( const std::string& aKey );
 
         /**
-         * @brief Get the value corresponding to a given key.
+         * Gets the parameter value corresponding to a given key.
          *
          * @param[in] aKey Key corresponding to the mapped value that
          *            needs to be accessed
@@ -139,17 +139,10 @@ namespace moris
          * @return The value corresponding to aKey.
          */
         template< typename T >
-        const T&
-        get( const std::string& aKey ) const
+        const T& get( const std::string& aKey ) const
         {
-            auto tIterator = mParamMap.find( aKey );
-
-            // check if key exists
-            MORIS_ERROR( tIterator != mParamMap.end(),
-                    "The requested parameter %s does not exist.\n",
-                    aKey.c_str() );
-
-            return tIterator->second.get_value< T >();
+            // Delegate to private implementation overload, depending on if T is an enum
+            return this->get< T >( aKey, std::is_enum< T >() );
         }
 
         /**
@@ -265,6 +258,36 @@ namespace moris
         void set( const std::string& aKey, T aValue, bool aLockValue, std::true_type )
         {
             this->set( aKey, static_cast< uint >( aValue ), aLockValue, std::is_enum< uint >() );
+        }
+
+        /**
+         * Gets the parameter value corresponding to a given key (private implementation)
+         *
+         * @param[in] aKey Key corresponding to the mapped value that
+         *            needs to be accessed
+         *
+         * @return The value corresponding to aKey.
+         */
+        template< typename T >
+        const T& get( const std::string& aKey, std::false_type ) const
+        {
+            auto tIterator = mParamMap.find( aKey );
+
+            // check if key exists
+            MORIS_ERROR( tIterator != mParamMap.end(),
+                    "The requested parameter %s does not exist.\n",
+                    aKey.c_str() );
+
+            return tIterator->second.get_value< T >();
+        }
+
+        /**
+         * Get function overload, for static casting uints to a requested enum.
+         */
+        template< typename T >
+        const T& get( const std::string& aKey, std::true_type ) const
+        {
+            return ( const T& ) this->get< uint >( aKey, std::is_enum< uint >() );
         }
     };
 
