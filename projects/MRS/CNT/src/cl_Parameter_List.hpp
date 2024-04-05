@@ -219,7 +219,7 @@ namespace moris
         template< typename T >
         void insert( const std::string& aKey, T aValue, std::true_type )
         {
-            this->insert( aKey, static_cast< uint >( aValue ), std::is_enum< uint >() );
+            this->insert( aKey, static_cast< uint >( aValue ), std::false_type() );
         }
 
         /**
@@ -257,7 +257,7 @@ namespace moris
         template< typename T >
         void set( const std::string& aKey, T aValue, bool aLockValue, std::true_type )
         {
-            this->set( aKey, static_cast< uint >( aValue ), aLockValue, std::is_enum< uint >() );
+            this->set( aKey, static_cast< uint >( aValue ), aLockValue, std::false_type() );
         }
 
         /**
@@ -287,7 +287,7 @@ namespace moris
         template< typename T >
         const T& get( const std::string& aKey, std::true_type ) const
         {
-            return ( const T& ) this->get< uint >( aKey, std::is_enum< uint >() );
+            return ( const T& ) this->get< uint >( aKey, std::false_type() );
         }
     };
 
