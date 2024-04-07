@@ -82,7 +82,7 @@ namespace moris
             Parameter_List tParameterList;
 
             tParameterList.insert( "material_name", "undefined" );
-            tParameterList.insert( "material_type", fem::Material_Type::UNDEFINED );
+            tParameterList.insert( "material_type", fem::Material_Type::UNDEFINED, fem::Material_Type::PERFECT_GAS, fem::Material_Type::VAN_DER_WAALS_FLUID );
             tParameterList.insert( "dof_dependencies", std::pair< std::string, std::string >( "", "" ) );
             tParameterList.insert( "properties", "" );
             tParameterList.insert( "phase_name", "" );
@@ -102,13 +102,13 @@ namespace moris
             Parameter_List tParameterList;
 
             tParameterList.insert( "constitutive_name", "undefined" );
-            tParameterList.insert( "constitutive_type", fem::Constitutive_Type::UNDEFINED );
+            tParameterList.insert( "constitutive_type", fem::Constitutive_Type::UNDEFINED, fem::Constitutive_Type::DIFF_LIN_ISO, fem::Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
             tParameterList.insert( "function_parameters", "" );
             tParameterList.insert( "dof_dependencies", std::pair< std::string, std::string >( "", "" ) );
             tParameterList.insert( "dv_dependencies", std::pair< std::string, std::string >( "", "" ) );
             tParameterList.insert( "properties", "" );
             tParameterList.insert( "material_model", "" );
-            tParameterList.insert( "model_type", fem::Model_Type::UNDEFINED );
+            tParameterList.insert( "model_type", fem::Model_Type::UNDEFINED, fem::Model_Type::PLANE_STRESS, fem::Model_Type::DEVIATORIC );
             tParameterList.insert( "phase_name", "" );
 
             return tParameterList;
@@ -126,7 +126,7 @@ namespace moris
             Parameter_List tParameterList;
 
             tParameterList.insert( "stabilization_name", "undefined" );
-            tParameterList.insert( "stabilization_type", fem::Stabilization_Type::UNDEFINED );
+            tParameterList.insert( "stabilization_type", fem::Stabilization_Type::UNDEFINED, fem::Stabilization_Type::DIRICHLET_NITSCHE, fem::Stabilization_Type::LAGRANGE_MULTIPLIER_L2 );
             tParameterList.insert( "function_parameters", "" );
             tParameterList.insert( "leader_dof_dependencies", std::pair< std::string, std::string >( "", "" ) );
             tParameterList.insert( "follower_dof_dependencies", std::pair< std::string, std::string >( "", "" ) );
@@ -157,8 +157,8 @@ namespace moris
             Parameter_List tParameterList;
 
             tParameterList.insert( "IWG_name", "undefined" );
-            tParameterList.insert( "IWG_bulk_type", fem::Element_Type::BULK );
-            tParameterList.insert( "IWG_type", fem::IWG_Type::UNDEFINED );
+            tParameterList.insert( "IWG_bulk_type", fem::Element_Type::BULK, fem::Element_Type::BULK, fem::Element_Type::TIME_BOUNDARY );
+            tParameterList.insert( "IWG_type", fem::IWG_Type::UNDEFINED, fem::IWG_Type::L2, fem::IWG_Type::GHOST_NORMAL_FIELD );
             tParameterList.insert( "dof_residual", "" );
 
             tParameterList.insert( "leader_phase_name", "" );
@@ -210,8 +210,8 @@ namespace moris
             Parameter_List tParameterList;
 
             tParameterList.insert( "IQI_name", "undefined" );
-            tParameterList.insert( "IQI_type", fem::IQI_Type::UNDEFINED );
-            tParameterList.insert( "IQI_bulk_type", fem::Element_Type::BULK );
+            tParameterList.insert( "IQI_type", fem::IQI_Type::UNDEFINED, fem::IQI_Type::VOLUME, fem::IQI_Type::LINEAR_ELASTICITY_DAMAGE );
+            tParameterList.insert( "IQI_bulk_type", fem::Element_Type::BULK, fem::Element_Type::BULK, fem::Element_Type::TIME_BOUNDARY );
             tParameterList.insert( "dof_quantity", "" );
             tParameterList.insert( "vectorial_field_index", -1 );
 
@@ -290,7 +290,7 @@ namespace moris
             tParameterList.insert( "is_analytical_forward", true );
 
             // enum for finite difference scheme for forward analysis
-            tParameterList.insert( "finite_difference_scheme_forward", fem::FDScheme_Type::POINT_1_FORWARD );
+            tParameterList.insert( "finite_difference_scheme_forward", fem::FDScheme_Type::POINT_1_FORWARD, fem::FDScheme_Type::POINT_1_FORWARD, fem::FDScheme_Type::POINT_5 );
 
             // real for relative perturbation size for finite difference for forward analysis
             tParameterList.insert( "finite_difference_perturbation_size_forward", 1e-6 );
@@ -300,13 +300,13 @@ namespace moris
             tParameterList.insert( "is_analytical_sensitivity", false );
 
             // enum for finite difference scheme for sensitivity analysis
-            tParameterList.insert( "finite_difference_scheme", fem::FDScheme_Type::POINT_1_FORWARD );
+            tParameterList.insert( "finite_difference_scheme", fem::FDScheme_Type::POINT_1_FORWARD, fem::FDScheme_Type::POINT_1_FORWARD, fem::FDScheme_Type::POINT_5 );
 
             // real for relative perturbation size for finite difference
             tParameterList.insert( "finite_difference_perturbation_size", 1e-6 );
 
             // enum for finite difference perturbation strategy (relative, absolute)
-            tParameterList.insert( "finite_difference_perturbation_strategy", fem::Perturbation_Type::RELATIVE );
+            tParameterList.insert( "finite_difference_perturbation_strategy", fem::Perturbation_Type::RELATIVE, fem::Perturbation_Type::RELATIVE, fem::Perturbation_Type::ABSOLUTE );
 
             return tParameterList;
         }

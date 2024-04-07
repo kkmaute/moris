@@ -36,7 +36,6 @@ namespace moris
          * Constructor for general parameter type
          *
          * @tparam T Input parameter type
-         * @param aParameterName Parameter name, for error reporting
          * @param aParameterValue Default value
          */
         template< typename T >
@@ -47,6 +46,24 @@ namespace moris
 
             // Create validator with default
             mValidator = new Type_Validator( mValue.index() );
+        }
+        
+        /**
+         * Constructor for general parameter type
+         *
+         * @tparam T Input parameter type
+         * @param aParameterValue Default value
+         * @param aMinimumValue Maximum permitted parameter value
+         * @param aMaximumValue Minimum permitted parameter value
+         */
+        template< typename T >
+        Parameter( T aParameterValue, T aMinimumValue, T aMaximumValue )
+        {
+            // Set default value without validation
+            mValue = this->make_variant( aParameterValue );
+            
+            // Create validator with default
+            mValidator = new Range_Validator( mValue.index(), aMinimumValue, aMaximumValue );
         }
 
         /**

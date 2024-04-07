@@ -24,6 +24,14 @@ namespace moris
     // Variant typedef
     typedef std::variant< bool, uint, sint, real, std::string, std::pair< std::string, std::string > > Variant;
 
+    /**
+     * Gets the name of the type that the boost variant contains, based on the above typedef and an index
+     *
+     * @param aVariantIndex Which index from the boost variant
+     * @return Type name
+     */
+    std::string get_variant_name( uint aVariantIndex );
+
     class Validator
     {
       protected:
@@ -86,5 +94,53 @@ namespace moris
         explicit Type_Validator( uint aTypeIndex );
 
         VALIDATOR_OVERRIDES
+    };
+
+    template< typename T >
+    class Range_Validator : public Validator
+    {
+      private:
+        T mMinimumValue;
+        T mMaximumValue;
+
+      public:
+        /**
+         * A range validator checks inputs to ensure the value lies within a specific range.
+         *
+         * @param aTypeIndex Variant type index
+         * @param aMinimumValue Maximum permitted parameter value
+         * @param aMaximumValue Minimum permitted parameter value
+         */
+        Range_Validator( uint aTypeIndex, T aMinimumValue, T aMaximumValue )
+                : Validator( aTypeIndex )
+                , mMinimumValue( aMinimumValue )
+                , mMaximumValue( aMaximumValue )
+        {
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        bool parameter_is_valid( const Variant& aParameterVariant ) override
+        {
+            return this->same_type_index( aParameterVariant )
+               and std::get< T >( aParameterVariant ) >= mMinimumValue
+               and std::get< T >( aParameterVariant ) <= mMaximumValue;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        std::string get_valid_values() override
+        {
+            return get_variant_name( mTypeIndex ) + ", [" + std::to_string( mMinimumValue ) + ", " + std::to_string( mMaximumValue ) + "]";
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Validator* copy() override
+        {
+            return new Range_Validator< T >( mTypeIndex, mMinimumValue, mMaximumValue );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
     };
 }

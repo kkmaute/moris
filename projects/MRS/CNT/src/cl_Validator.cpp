@@ -15,12 +15,6 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
 
-    /**
-     * Gets the name of the type that the boost variant contains, based on the above typedef and an index
-     *
-     * @param aVariantIndex Which index from the boost variant
-     * @return Type name
-     */
     std::string get_variant_name( uint aVariantIndex )
     {
         switch ( aVariantIndex )

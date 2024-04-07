@@ -62,7 +62,7 @@ namespace moris
         ~Parameter_List() = default;
 
         /**
-         * Adds a new parameter to this parameter list.
+         * Adds a new parameter to this parameter list. This parameter's type will be validated when being set.
          *
          * @param[in] aKey Key corresponding to the mapped value that
          *            needs to be accessed; should not contain trailing or leading whitespaces
@@ -73,8 +73,33 @@ namespace moris
         template< typename T >
         void insert( const std::string& aKey, T aValue )
         {
+            // Check for leading and trailing whitespaces in key
+            std::string tKeyWithoutSpaces = aKey;
+            split_trim_string( tKeyWithoutSpaces, "" );
+            MORIS_ERROR( aKey == tKeyWithoutSpaces,
+                    "Param_List::insert - key contains whitespaces" );
+
+            // Insert new value
+            Parameter tParameter( aValue );
+            mParamMap.insert( { aKey, tParameter } );
+        }
+
+        /**
+         * Adds a new parameter to this parameter list. This parameter must be set with a valid range.
+         *
+         * @param[in] aKey Key corresponding to the mapped value that
+         *            needs to be accessed; should not contain trailing or leading whitespaces
+         * @param[in] aValue Value corresponding to aKey; if value is a string,
+         *            pair of strings, or character array leading and trailing whitespaces
+         *            are trimmed off
+         * @param aMinimumValue Maximum permitted parameter value
+         * @param aMaximumValue Minimum permitted parameter value
+         */
+        template< typename T >
+        void insert( const std::string& aKey, T aValue, T aMinimumValue, T aMaximumValue )
+        {
             // Delegate to private implementation overload, depending on if T is an enum
-            this->insert( aKey, aValue, std::is_enum< T >() );
+            this->insert( aKey, aValue, aMinimumValue, aMaximumValue, std::is_enum< T >() );
         }
 
         /**
@@ -200,7 +225,7 @@ namespace moris
          *            are trimmed off
          */
         template< typename T >
-        void insert( const std::string& aKey, T aValue, std::false_type )
+        void insert( const std::string& aKey, T aValue, T aMinimumValue, T aMaximumValue, std::false_type )
         {
             // Check for leading and trailing whitespaces in key
             std::string tKeyWithoutSpaces = aKey;
@@ -209,7 +234,7 @@ namespace moris
                     "Param_List::insert - key contains whitespaces" );
 
             // Insert new value
-            Parameter tParameter( aValue );
+            Parameter tParameter( aValue, aMinimumValue, aMaximumValue );
             mParamMap.insert( { aKey, tParameter } );
         }
 
@@ -217,9 +242,14 @@ namespace moris
          * Insert function overload, for static casting enums to a uint.
          */
         template< typename T >
-        void insert( const std::string& aKey, T aValue, std::true_type )
+        void insert( const std::string& aKey, T aValue, T aMinimumValue, T aMaximumValue, std::true_type )
         {
-            this->insert( aKey, static_cast< uint >( aValue ), std::false_type() );
+            this->insert(
+                    aKey,
+                    static_cast< uint >( aValue ),
+                    static_cast< uint >( aMinimumValue ),
+                    static_cast< uint >( aMaximumValue ),
+                    std::false_type() );
         }
 
         /**
