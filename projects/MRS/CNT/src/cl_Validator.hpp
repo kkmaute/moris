@@ -10,9 +10,7 @@
 
 #pragma once
 
-#include <variant>
-#include "moris_typedefs.hpp"
-#include "fn_Parsing_Tools.hpp"
+#include "cl_Variant.hpp"
 
 #define VALIDATOR_OVERRIDES                                                      \
     bool        parameter_is_valid( const Variant& aParameterVariant ) override; \
@@ -21,17 +19,6 @@
 
 namespace moris
 {
-    // Variant typedef
-    typedef std::variant< bool, uint, sint, real, std::string, std::pair< std::string, std::string > > Variant;
-
-    /**
-     * Gets the name of the type that the boost variant contains, based on the above typedef and an index
-     *
-     * @param aVariantIndex Which index from the boost variant
-     * @return Type name
-     */
-    std::string get_variant_name( uint aVariantIndex );
-
     class Validator
     {
       protected:

@@ -12,30 +12,6 @@
 
 namespace moris
 {
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    std::string get_variant_name( uint aVariantIndex )
-    {
-        switch ( aVariantIndex )
-        {
-            case 0:
-                return "bool";
-            case 1:
-                return "uint";
-            case 2:
-                return "sint";
-            case 3:
-                return "real";
-            case 4:
-                return "string";
-            case 5:
-                return "std::pair<string, string>";
-            default:
-                return "";
-        }
-    }
-
     //--------------------------------------------------------------------------------------------------------------
 
     Validator::Validator( uint aTypeIndex )
@@ -79,5 +55,4 @@ namespace moris
     }
 
     //--------------------------------------------------------------------------------------------------------------
-
 }

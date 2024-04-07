@@ -17,14 +17,6 @@
 
 namespace moris
 {
-    /**
-     * Gets a string of the value stored inside of a variant.
-     *
-     * @param aVariant Input variant
-     * @return Value as a string
-     */
-    std::string convert_variant_to_string( Variant aVariant );
-
     class Parameter
     {
       private:
@@ -33,7 +25,7 @@ namespace moris
 
       public:
         /**
-         * Constructor for general parameter type
+         * Constructor for a parameter with a type validator.
          *
          * @tparam T Input parameter type
          * @param aParameterValue Default value
@@ -42,14 +34,14 @@ namespace moris
         explicit Parameter( T aParameterValue )
         {
             // Set default value without validation
-            mValue = this->make_variant( aParameterValue );
+            mValue = make_variant( aParameterValue );
 
-            // Create validator with default
+            // Create type validator
             mValidator = new Type_Validator( mValue.index() );
         }
         
         /**
-         * Constructor for general parameter type
+         * Constructor for a parameter with a range validator.
          *
          * @tparam T Input parameter type
          * @param aParameterValue Default value
@@ -60,9 +52,9 @@ namespace moris
         Parameter( T aParameterValue, T aMinimumValue, T aMaximumValue )
         {
             // Set default value without validation
-            mValue = this->make_variant( aParameterValue );
+            mValue = make_variant( aParameterValue );
             
-            // Create validator with default
+            // Create range validator
             mValidator = new Range_Validator( mValue.index(), aMinimumValue, aMaximumValue );
         }
 
@@ -97,7 +89,7 @@ namespace moris
                     aParameterName.c_str() );
 
             // Make value into a variant
-            Variant tParameterVariant = this->make_variant( aParameterValue );
+            Variant tParameterVariant = make_variant( aParameterValue );
 
             // Validate the variant
             MORIS_ERROR( mValidator->parameter_is_valid( tParameterVariant ),
@@ -129,44 +121,19 @@ namespace moris
         }
 
         /**
-         * Takes the input value and converts it to a variant type.
-         *
-         * @tparam T Input parameter type
-         * @param aParameterValue Input parameter
-         */
-        template< typename T >
-        Variant make_variant( T aParameterValue )
-        {
-            return aParameterValue;
-        }
-
-        /**
          * Gets this parameter value as a string
          *
          * @return Parameter string
          */
-        [[nodiscard]] std::string get_string() const
-        {
-            return convert_variant_to_string( mValue );
-        }
+        [[nodiscard]] std::string get_string() const;
 
         /**
          * Gets the underlying type index of this parameter variant.
          *
          * @return Variant index
          */
-        [[nodiscard]] uint index() const
-        {
-            return mValue.index();
-        }
+        [[nodiscard]] uint index() const;
     };
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    // Declare template specializations making variants
-    template<> Variant Parameter::make_variant( std::string aParameter );
-    template<> Variant Parameter::make_variant( std::pair< std::string, std::string > aParameterValue );
-    template<> Variant Parameter::make_variant( const char* aParameterValue );
 
     //--------------------------------------------------------------------------------------------------------------
 }

@@ -19,6 +19,7 @@ set(HEADERS
     cl_Dist_Map.hpp
     cl_Map.hpp
     cl_Mini_Maps.hpp
+	cl_Variant.hpp
 	cl_Validator.hpp
 	cl_Parameter.hpp
 	cl_Parameter_List.hpp
@@ -30,6 +31,7 @@ set(HEADERS
 # List library source files
 set(LIB_SOURCES
 	cl_Vector.cpp
+	cl_Variant.cpp
 	cl_Validator.cpp
 	cl_Parameter.cpp
 	cl_Parameter_List.cpp
