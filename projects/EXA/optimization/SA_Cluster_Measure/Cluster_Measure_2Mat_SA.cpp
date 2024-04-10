@@ -161,7 +161,7 @@ namespace moris
 
    /* ------------------------------------------------------------------------ */
 
-   uint tNumConstraints = 8;
+    uint tNumConstraints = 8;
     Matrix<DDSMat> get_constraint_types()
     {
         Matrix<DDSMat> tConstraintTypes( 1, tNumConstraints, 1 );
@@ -171,7 +171,7 @@ namespace moris
 
     /* ------------------------------------------------------------------------ */
 
-    Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria)
+    Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< real >& aCriteria )
     {
         Matrix<DDRMat> tObjectives( 1, 1 );
         tObjectives( 0 ) = aCriteria( 0 );
@@ -181,7 +181,7 @@ namespace moris
 
     /* ------------------------------------------------------------------------ */
 
-    Matrix<DDRMat> compute_constraints(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria)
+    Matrix<DDRMat> compute_constraints( const Vector< real >& aADVs, const Vector< real >& aCriteria )
     {
         Matrix<DDRMat> tConstraints( 1, tNumConstraints );
         tConstraints( 0 ) = aCriteria( 1 );
@@ -198,18 +198,18 @@ namespace moris
 
     /* ------------------------------------------------------------------------ */
 
-    Matrix<DDRMat> compute_dobjective_dadv(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria)
+    Matrix<DDRMat> compute_dobjective_dadv( const Vector< real >& aADVs, const Vector< real >& aCriteria )
     {
-        Matrix<DDRMat> tDObjectiveDADV( 1, aADVs.numel(), 0.0 );
+        Matrix<DDRMat> tDObjectiveDADV( 1, aADVs.size(), 0.0 );
 
         return tDObjectiveDADV;
     }
 
     /* ------------------------------------------------------------------------ */
 
-    Matrix<DDRMat> compute_dobjective_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria)
+    Matrix<DDRMat> compute_dobjective_dcriteria( const Vector< real >& aADVs, const Vector< real >& aCriteria )
     {
-        Matrix<DDRMat> tDObjectiveDCriteria( 1, aCriteria.numel(), 0.0 );
+        Matrix<DDRMat> tDObjectiveDCriteria( 1, aCriteria.size(), 0.0 );
         tDObjectiveDCriteria( 0 ) = 1;
 
         return tDObjectiveDCriteria;
@@ -217,17 +217,17 @@ namespace moris
 
     /* ------------------------------------------------------------------------ */
 
-    Matrix<DDRMat> compute_dconstraint_dadv(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria)
+    Matrix<DDRMat> compute_dconstraint_dadv( const Vector< real >& aADVs, const Vector< real >& aCriteria )
     {
-        Matrix<DDRMat> tDConstraintDADV( tNumConstraints, aADVs.numel(), 0.0 );
+        Matrix<DDRMat> tDConstraintDADV( tNumConstraints, aADVs.size(), 0.0 );
         return tDConstraintDADV;
     }
 
     /* ------------------------------------------------------------------------ */
 
-    Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria)
+    Matrix<DDRMat> compute_dconstraint_dcriteria( const Vector< real >& aADVs, const Vector< real >& aCriteria )
     {
-        Matrix<DDRMat> tDConstraintDCriteria( tNumConstraints, aCriteria.numel(), 0.0 );
+        Matrix<DDRMat> tDConstraintDCriteria( tNumConstraints, aCriteria.size(), 0.0 );
         tDConstraintDCriteria( 0, 1 ) = 1.0;
         tDConstraintDCriteria( 1, 2 ) = 1.0;
         tDConstraintDCriteria( 2, 3 ) = 1.0;

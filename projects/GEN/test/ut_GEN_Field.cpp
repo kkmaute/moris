@@ -179,12 +179,12 @@ namespace moris::gen
         tCircle2ParameterList.set( "adv_indices", "0, 2, 4" );
 
         // ADV vector
-        Matrix< DDRMat > tADVs;
+        Vector< real > tADVs;
 
         // Distributed ADVs
         sol::Matrix_Vector_Factory tDistributedFactory;
 
-        Matrix< DDSMat >  tADVIds          = { { 0 }, { 1 }, { 2 }, { 3 }, { 4 } };
+        Vector< sint >  tADVIds          = { 0, 1, 2, 3, 4 };
         sol::Dist_Map*    tADVMap          = tDistributedFactory.create_map( tADVIds );
         sol::Dist_Vector* tDistributedADVs = tDistributedFactory.create_vector( tADVMap, 1, false, true );
 
@@ -196,7 +196,7 @@ namespace moris::gen
         for ( bool tDistributed : { false, true } )
         {
             // Set ADVs
-            tADVs = { { 0.0, 1.0, 2.0, 1.0, 2.0 } };
+            tADVs = { 0.0, 1.0, 2.0, 1.0, 2.0 };
             tDistributedADVs->replace_global_values( tADVIds, tADVs );
 
             // Create circles
@@ -274,7 +274,7 @@ namespace moris::gen
         tSuperellipseParameterList.set( "adv_indices", "all" );
 
         // Create circles
-        Matrix< DDRMat >                      tADVs = { { 3.0, 4.0, 1.0, 2.0, 2.0, 1.0, 0.0, 0.0 } };
+        Vector< real >                        tADVs = { { 3.0, 4.0, 1.0, 2.0, 2.0, 1.0, 0.0, 0.0 } };
         Design_Factory                        tDesignFactory( { tSuperellipseParameterList }, tADVs );
         std::shared_ptr< Level_Set_Geometry > tSuperellipse = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
 
@@ -379,7 +379,7 @@ namespace moris::gen
         tSphereParameterList.set( "adv_indices", "all" );
 
         // Create sphere
-        Matrix< DDRMat >                      tADVs = { { -1.0, 0.0, 1.0, 2.0 } };
+        Vector< real >                        tADVs = { { -1.0, 0.0, 1.0, 2.0 } };
         Design_Factory                        tDesignFactory( { tSphereParameterList }, tADVs );
         std::shared_ptr< Level_Set_Geometry > tSphere = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
 
@@ -425,7 +425,7 @@ namespace moris::gen
         tSuperellipsoidParameterList.set( "adv_indices", "all" );
 
         // Create superellipsoid
-        Matrix< DDRMat >                      tADVs = { { 3.0, 4.0, 5.0, 1.0, 2.0, 4.0, 2.0 } };
+        Vector< real >                        tADVs = { { 3.0, 4.0, 5.0, 1.0, 2.0, 4.0, 2.0 } };
         Design_Factory                        tDesignFactory( { tSuperellipsoidParameterList }, tADVs );
         std::shared_ptr< Level_Set_Geometry > tSuperellipsoid = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
 
@@ -518,14 +518,14 @@ namespace moris::gen
     TEST_CASE( "User-defined Geometry", "[gen], [field], [user-defined field]" )
     {
         // Create user-defined geometry
-        Matrix< DDRMat > tADVs                = { { -1.0, 0.5 } };
-        auto tUserDefinedField    = std::make_shared< User_Defined_Field >(
+        Vector< real > tADVs = { -1.0, 0.5 };
+        auto tUserDefinedField = std::make_shared< User_Defined_Field >(
                 &user_defined_geometry_field,
                 &user_defined_geometry_sensitivity,
                 tADVs,
-                Matrix< DDUMat >( { { 1, 0 } } ),
-                Matrix< DDUMat >( { { 0, 1 } } ),
-                Matrix< DDRMat >( { {} } ) );
+                Vector< uint >( { 1, 0 } ),
+                Vector< uint >( { 0, 1 } ),
+                Vector< real >() );
 
         // Set coordinates for checking
         Matrix< DDRMat > tCoordinates1 = { { 1.0, 1.0 } };
@@ -559,8 +559,8 @@ namespace moris::gen
     TEST_CASE( "B-spline Geometry", "[gen], [field], [distributed advs], [B-spline geometry]" )
     {
         // Set up 2 B-spline geometries
-        Matrix< DDRMat >                    tADVs( 0, 0 );
-        Matrix< DDRMat >                    tRadii = { { 0.5, 0.25 } };
+        Vector< real > tADVs;
+        Matrix< DDRMat > tRadii = { { 0.5, 0.25 } };
         Vector< std::shared_ptr< Geometry > > tBSplineGeometries( 2 );
 
         // Loop over possible cases
@@ -600,9 +600,9 @@ namespace moris::gen
                     Geometry_Engine_Test tGeometryEngine( tMesh, tGeometryEngineParameters );
 
                     // Get ADVs and upper/lower bounds
-                    tADVs                         = tGeometryEngine.get_advs();
-                    Matrix< DDRMat > tLowerBounds = tGeometryEngine.get_lower_bounds();
-                    Matrix< DDRMat > tUpperBounds = tGeometryEngine.get_upper_bounds();
+                    tADVs                       = tGeometryEngine.get_advs();
+                    Vector< real > tLowerBounds = tGeometryEngine.get_lower_bounds();
+                    Vector< real > tUpperBounds = tGeometryEngine.get_upper_bounds();
 
                     // Set epsilon for checking
                     real tEpsilon = std::numeric_limits< real >::epsilon() * 10;
@@ -611,9 +611,9 @@ namespace moris::gen
                     if ( par_rank() == 0 )
                     {
                         uint tNumADVs = pow( tNumElementsPerDimension * pow( 2, tRefinement ) + tBSplineOrder, 2 ) * 2;
-                        REQUIRE( tADVs.length() == tNumADVs );
-                        REQUIRE( tLowerBounds.length() == tNumADVs );
-                        REQUIRE( tUpperBounds.length() == tNumADVs );
+                        REQUIRE( tADVs.size() == tNumADVs );
+                        REQUIRE( tLowerBounds.size() == tNumADVs );
+                        REQUIRE( tUpperBounds.size() == tNumADVs );
                         for ( uint tBSplineIndex = 0; tBSplineIndex < tNumADVs; tBSplineIndex++ )
                         {
                             CHECK( tLowerBounds( tBSplineIndex ) == Approx( -1.0 ) );
@@ -622,9 +622,9 @@ namespace moris::gen
                     }
                     else
                     {
-                        REQUIRE( tADVs.length() == 0 );
-                        REQUIRE( tLowerBounds.length() == 0 );
-                        REQUIRE( tUpperBounds.length() == 0 );
+                        REQUIRE( tADVs.size() == 0 );
+                        REQUIRE( tLowerBounds.size() == 0 );
+                        REQUIRE( tUpperBounds.size() == 0 );
                     }
 
                     // Epsilon for field value checks must be larger for a quadratic Lagrange mesh
@@ -665,15 +665,22 @@ namespace moris::gen
                                 if ( (uint)par_rank() == tMesh->get_entity_owner( tNodeIndex, mtk::EntityRank::NODE, 0 ) )
                                 {
                                     Matrix< DDRMat > tMatrix = trans( tMesh->get_t_matrix_of_node_loc_ind( tNodeIndex, 0 ) );
-                                    Matrix< DDSMat > tIDs    = trans( tMesh->get_coefficient_IDs_of_node( tNodeIndex, 0 ) )
-                                                          + tOffset;
+                                    Matrix< DDSMat > tIDs    = trans( tMesh->get_coefficient_IDs_of_node( tNodeIndex, 0 ) );
+                                    Vector< sint > tIDVector( tIDs.length() );
+                                    for ( uint iIndex = 0; iIndex < tIDVector.size(); iIndex++ )
+                                    {
+                                        tIDVector( iIndex ) = tIDs( iIndex ) + tOffset;
+                                    }
                                     CHECK_EQUAL( tBSplineGeometry->get_dfield_dadvs( tNodeIndex, { {} } ), tMatrix, );
-                                    CHECK_EQUAL( tBSplineGeometry->get_determining_adv_ids( tNodeIndex, { {} } ), tIDs, );
+                                    CHECK_EQUAL( tBSplineGeometry->get_determining_adv_ids( tNodeIndex, { {} } ), tIDVector, );
                                 }
                             }
 
                             // Set new ADVs
-                            tADVs = tADVs + ( tRadii( tGeometryIndex ) / 2.0 );
+                            for ( uint iADVIndex = 0; iADVIndex < tADVs.size(); iADVIndex++ )
+                            {
+                                tADVs( iADVIndex ) = tADVs( iADVIndex ) + ( tRadii( tGeometryIndex ) / 2.0 );
+                            }
                             tGeometryEngine.set_advs( tADVs );
 
                             // Check field values at all nodes again
@@ -693,7 +700,10 @@ namespace moris::gen
                             }
 
                             // Reset ADVs for next geometry
-                            tADVs = tADVs - ( tRadii( tGeometryIndex ) / 2.0 );
+                            for ( uint iADVIndex = 0; iADVIndex < tADVs.size(); iADVIndex++ )
+                            {
+                                tADVs( iADVIndex ) = tADVs( iADVIndex ) - ( tRadii( tGeometryIndex ) / 2.0 );
+                            }
                             tGeometryEngine.set_advs( tADVs );
                         }
 
@@ -720,7 +730,7 @@ namespace moris::gen
         tCircleParameterList.set( "discretization_mesh_index", -1 );
 
         // Set up geometry
-        Matrix< DDRMat >                      tADVs = { { 0.0, 0.0, 0.5 } };
+        Vector< real >                        tADVs = { { 0.0, 0.0, 0.5 } };
         Design_Factory                        tDesignFactory( { tCircleParameterList }, tADVs );
         std::shared_ptr< Level_Set_Geometry > tCircle = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
 
@@ -809,7 +819,7 @@ namespace moris::gen
         tParameterLists( 2 ).set( "dependencies", "Circle 1, Circle 2" );
 
         // Create combined fields
-        Matrix< DDRMat >                    tADVs = { { 0.0, 1.0, 2.0, 1.0, 2.0 } };
+        Vector< real > tADVs = { 0.0, 1.0, 2.0, 1.0, 2.0 };
         Design_Factory                      tDesignFactory( tParameterLists, tADVs );
         Vector< std::shared_ptr< Geometry > > tGeometries = tDesignFactory.get_geometries();
 
@@ -884,7 +894,7 @@ namespace moris::gen
                 }
 
                 // Create swiss cheese
-                Matrix< DDRMat >                      tADVs = { { 0.1 } };
+                Vector< real >                        tADVs = { 0.1 };
                 Design_Factory                        tDesignFactory( { tSwissCheeseParameterList }, tADVs );
                 std::shared_ptr< Level_Set_Geometry > tSwissCheese = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
 
@@ -948,7 +958,7 @@ namespace moris::gen
             tSwissCheeseParameterList.set( "constant_parameters", "0.0, 0.0, 4.0, 1.0, 0.0, 0.0" );
 
             // Create swiss cheese
-            Matrix< DDRMat >                      tADVs = { { 0.3, 1.0 } };
+            Vector< real >                        tADVs = { { 0.3, 1.0 } };
             Design_Factory                        tDesignFactory( { tSwissCheeseParameterList }, tADVs );
             std::shared_ptr< Level_Set_Geometry > tSwissCheese = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
 
@@ -1005,7 +1015,7 @@ namespace moris::gen
             tSwissCheeseParameterList.set( "offset_per_row_z", -0.1 );
 
             // Create swiss cheese
-            Matrix< DDRMat >                      tADVs = { { 0.3, 1.0 } };
+            Vector< real >                        tADVs = { { 0.3, 1.0 } };
             Design_Factory                        tDesignFactory( { tSwissCheeseParameterList }, tADVs );
             std::shared_ptr< Level_Set_Geometry > tSwissCheese = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
 

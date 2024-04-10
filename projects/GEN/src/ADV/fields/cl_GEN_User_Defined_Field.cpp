@@ -16,9 +16,9 @@ namespace moris::gen
 
     User_Defined_Field::User_Defined_Field(
             Field_Function          aFieldFunction,
-            const Matrix< DDRMat >& aConstants )
+            const Vector< real >&   aConstants )
             : Field_Analytic( aConstants )
-            , mFieldVariables( aConstants.length() )
+            , mFieldVariables( aConstants.size() )
             , get_field_value_user_defined( aFieldFunction )
             , get_dfield_dadvs_user_defined( nullptr )
     {

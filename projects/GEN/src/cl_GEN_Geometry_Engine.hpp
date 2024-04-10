@@ -58,16 +58,16 @@ namespace moris::gen
         uint mNumSpatialDimensions;
 
         // ADVs
-        Matrix< DDRMat >  mInitialPrimitiveADVs;
-        Matrix< DDRMat >  mADVs;
-        Matrix< DDSMat >  mFullADVIds;
+        Vector< real >    mInitialPrimitiveADVs;
+        Vector< real >    mADVs;
+        Vector< sint >    mFullADVIds;
         Matrix< IdMat >   mFullijklIDs;
         sol::Dist_Vector* mOwnedADVs     = nullptr;
         sol::Dist_Vector* mPrimitiveADVs = nullptr;
 
         // Bounds
-        Matrix< DDRMat > mLowerBounds;
-        Matrix< DDRMat > mUpperBounds;
+        Vector< real > mLowerBounds;
+        Vector< real > mUpperBounds;
 
         // IQIs
         Vector< std::string > mRequestedIQIs;
@@ -121,14 +121,14 @@ namespace moris::gen
          *
          * @param aNewADVs vector of new advs to use
          */
-        void set_advs( const Matrix< DDRMat >& aNewADVs );
+        void set_advs( const Vector< real >& aNewADVs );
 
         /**
          * Gets the advs from the geometry engine
          *
          * @return vector of advs
          */
-        Matrix< DDRMat >& get_advs();
+        Vector< real >& get_advs();
 
         /**
          * Get vector with ijkl IDs. All Ids are on proc 0, all others return empty vec
@@ -142,14 +142,14 @@ namespace moris::gen
          *
          * @return vector of lower bounds
          */
-        Matrix< DDRMat >& get_lower_bounds();
+        Vector< real >& get_lower_bounds();
 
         /**
          * Gets the upper bounds from the geometry engine
          *
          * @return vector of upper bounds
          */
-        Matrix< DDRMat >& get_upper_bounds();
+        Vector< real >& get_upper_bounds();
 
         /**
          * Lets MDL know about the stored requested IQIs through the PDV host manager. This has to be done after

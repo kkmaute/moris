@@ -23,14 +23,15 @@ namespace moris::gen
      *
      * @param aFieldParameterList Parameter list for creating a field class
      * @param aADVs ADV Vector
+     * @param aFieldDependencies Other fields that the created field depends on
      * @param aLibrary Pointer to library for loading user-defined functions
+     * @param aMTKMesh MTK mesh
      * @return Pointer to a Field object
      */
     std::shared_ptr< Field > create_field(
             Parameter_List                     aFieldParameterList,
-            Matrix< DDRMat >&                     aADVs,
-            Vector< std::shared_ptr< Field > >      aFieldDependencies = {},
-            std::shared_ptr<Library_IO>           aLibrary = nullptr,
-            mtk::Mesh*                            aMTKMesh = nullptr,
-            uint                                  aIndex = 0 );
+            Vector< real >&                    aADVs,
+            Vector< std::shared_ptr< Field > > aFieldDependencies = {},
+            std::shared_ptr< Library_IO >      aLibrary = nullptr,
+            mtk::Mesh*                         aMTKMesh = nullptr );
 }

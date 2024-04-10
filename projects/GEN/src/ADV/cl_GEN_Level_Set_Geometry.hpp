@@ -166,10 +166,10 @@ namespace moris::gen
          * @param aADVOffsetID Offset in the owned ADV IDs for pulling ADV IDs
          */
         void discretize(
-                mtk::Mesh_Pair          aMeshPair,
-                sol::Dist_Vector*       aOwnedADVs,
-                const Matrix< DDSMat >& aSharedADVIds,
-                uint                    aADVOffsetID ) override;
+                mtk::Mesh_Pair        aMeshPair,
+                sol::Dist_Vector*     aOwnedADVs,
+                const Vector< sint >& aSharedADVIds,
+                uint                  aADVOffsetID ) override;
 
         /**
          * If intended for this field, maps the field to B-spline coefficients or stores the nodal field values in a stored field object.
@@ -183,7 +183,7 @@ namespace moris::gen
                 std::shared_ptr< mtk::Field > aMTKField,
                 mtk::Mesh_Pair                aMeshPair,
                 sol::Dist_Vector*             aOwnedADVs,
-                const Matrix< DDSMat >&       aSharedADVIds,
+                const Vector< sint >&         aSharedADVIds,
                 uint                          aADVOffsetID ) override;
 
         /**

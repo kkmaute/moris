@@ -103,7 +103,7 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Manager::get_advs()
+        Vector< real > Manager::get_advs()
         {
             return mProblem->get_advs();
         }

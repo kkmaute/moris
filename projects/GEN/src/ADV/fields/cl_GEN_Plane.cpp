@@ -22,7 +22,7 @@ namespace moris::gen
             real aXNormal,
             real aYNormal,
             real aZNormal )
-            : Field_Analytic< 2 >( Matrix< DDRMat >( { { aXCenter, aYCenter, aZCenter, aXNormal, aYNormal, aZNormal } } ) )
+            : Field_Analytic< 2 >( { aXCenter, aYCenter, aZCenter, aXNormal, aYNormal, aZNormal } )
     {
         m_eval_field       = &Plane::eval_field_3d;
         m_eval_sensitivity = &Plane::eval_sensitivity_3d;
@@ -35,7 +35,7 @@ namespace moris::gen
             real aYCenter,
             real aXNormal,
             real aYNormal )
-            : Field_Analytic< 2 >( Matrix< DDRMat >( { { aXCenter, aYCenter, aXNormal, aYNormal } } ) )
+            : Field_Analytic< 2 >( { aXCenter, aYCenter, aXNormal, aYNormal } )
     {
         m_eval_field       = &Plane::eval_field_2d;
         m_eval_sensitivity = &Plane::eval_sensitivity_2d;

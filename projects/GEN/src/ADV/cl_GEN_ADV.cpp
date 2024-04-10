@@ -16,7 +16,7 @@ namespace moris::gen
 {
     //--------------------------------------------------------------------------------------------------------------
 
-    ADV::ADV( Matrix< DDRMat >& aADVs, sint aID )
+    ADV::ADV( Vector< real >& aADVs, sint aID )
             : mValue( &aADVs( aID ) )
             , mID( aID )
     {

@@ -45,7 +45,7 @@ namespace moris::gen
       private:
         Field_Parameters mParameters;
         Matrix< DDRMat > mInterpolatedSensitivities;
-        Matrix< DDSMat > mInterpolatedADVIDs;
+        Vector< sint > mInterpolatedADVIDs;
 
       public:
         /**
@@ -69,10 +69,10 @@ namespace moris::gen
          * @param aADVOffsetID Offset in the owned ADV IDs for pulling ADV IDs
          */
         void discretize(
-                mtk::Mesh_Pair          aMeshPair,
-                sol::Dist_Vector*       aOwnedADVs,
-                const Matrix< DDSMat >& aSharedADVIds,
-                uint                    aADVOffsetID );
+                mtk::Mesh_Pair        aMeshPair,
+                sol::Dist_Vector*     aOwnedADVs,
+                const Vector< sint >& aSharedADVIds,
+                uint                  aADVOffsetID );
 
         /**
          * If intended for this field, maps the field to B-spline coefficients or stores the nodal field values in a stored field object.
@@ -86,7 +86,7 @@ namespace moris::gen
                 std::shared_ptr< mtk::Field > aMTKField,
                 mtk::Mesh_Pair                aMeshPair,
                 sol::Dist_Vector*             aOwnedADVs,
-                const Matrix< DDSMat >&       aSharedADVIds,
+                const Vector< sint >&         aSharedADVIds,
                 uint                          aADVOffsetID );
 
         /**
@@ -107,7 +107,7 @@ namespace moris::gen
          * @param aCoordinates Node coordinates
          * @return Determining ADV IDs at this node
          */
-        Matrix< DDSMat > get_determining_adv_ids(
+        Vector< sint > get_determining_adv_ids(
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates );
 

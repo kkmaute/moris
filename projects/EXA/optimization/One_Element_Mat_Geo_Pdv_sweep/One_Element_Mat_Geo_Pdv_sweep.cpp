@@ -236,7 +236,7 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDRMat >
-    compute_objectives( Matrix< DDRMat > aADVs, Matrix< DDRMat > aCriteria )
+    compute_objectives( const Vector< real >& aADVs, const Vector< real >& aCriteria )
     {
         Matrix< DDRMat > tObjectives( 1, 1 );
 
@@ -260,7 +260,7 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDRMat >
-    compute_constraints( Matrix< DDRMat > aADVs, Matrix< DDRMat > aCriteria )
+    compute_constraints( const Vector< real >& aADVs, const Vector< real >& aCriteria )
     {
         Matrix< DDRMat > tConstraints( 1, 1 );
         tConstraints( 0 ) = aCriteria( 1 ) / tMaxMass - 1.0;
@@ -276,9 +276,9 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDRMat >
-    compute_dobjective_dadv( Matrix< DDRMat > aADVs, Matrix< DDRMat > aCriteria )
+    compute_dobjective_dadv( const Vector< real >& aADVs, const Vector< real >& aCriteria )
     {
-        Matrix< DDRMat > tDObjectiveDADV( 1, aADVs.numel(), 0.0 );
+        Matrix< DDRMat > tDObjectiveDADV( 1, aADVs.size(), 0.0 );
 
         return tDObjectiveDADV;
     }
@@ -287,10 +287,10 @@ namespace moris
 
     Matrix< DDRMat >
     compute_dobjective_dcriteria(
-            Matrix< DDRMat > aADVs,
-            Matrix< DDRMat > aCriteria )
+            const Vector< real >& aADVs,
+            const Vector< real >& aCriteria )
     {
-        Matrix< DDRMat > tDObjectiveDCriteria( 1, aCriteria.numel(), 0.0 );
+        Matrix< DDRMat > tDObjectiveDCriteria( 1, aCriteria.size(), 0.0 );
 
         tDObjectiveDCriteria( 0 ) = 1.0 / tInitialStrainEnergy;
 
@@ -301,10 +301,10 @@ namespace moris
 
     Matrix< DDRMat >
     compute_dconstraint_dadv(
-            Matrix< DDRMat > aADVs,
-            Matrix< DDRMat > aCriteria )
+            const Vector< real >& aADVs,
+            const Vector< real >& aCriteria )
     {
-        Matrix< DDRMat > tDConstraintDADV( 1, aADVs.numel(), 0.0 );
+        Matrix< DDRMat > tDConstraintDADV( 1, aADVs.size(), 0.0 );
 
         return tDConstraintDADV;
     }
@@ -313,10 +313,10 @@ namespace moris
 
     Matrix< DDRMat >
     compute_dconstraint_dcriteria(
-            Matrix< DDRMat > aADVs,
-            Matrix< DDRMat > aCriteria )
+            const Vector< real >& aADVs,
+            const Vector< real >& aCriteria )
     {
-        Matrix< DDRMat > tDConstraintDCriteria( 1, aCriteria.numel(), 0.0 );
+        Matrix< DDRMat > tDConstraintDCriteria( 1, aCriteria.size(), 0.0 );
 
         tDConstraintDCriteria( 1 ) = 1.0 / tMaxMass;
 
@@ -431,9 +431,9 @@ namespace moris
         // tParameterlist(0)(0).set("output_mesh_file", tGENOutputFile );
         tParameterlist( 0 )( 0 ).set( "time_offset", 10.0 );
         tParameterlist( 0 )( 0 ).set( "PDV_types", "LS1" );
-        tParameterlist( 0 )( 0 ).set( "initial_advs", "2.0; 0.0; 1.0; 0.0" );
-        tParameterlist( 0 )( 0 ).set( "lower_bounds", "-5.0; -1.0; -2.0; -1.0" );
-        tParameterlist( 0 )( 0 ).set( "upper_bounds", "5.0; 1.0; 2.0; 1.0" );
+        tParameterlist( 0 )( 0 ).set( "initial_advs", "2.0, 0.0, 1.0, 0.0" );
+        tParameterlist( 0 )( 0 ).set( "lower_bounds", "-5.0, -1.0, -2.0, -1.0" );
+        tParameterlist( 0 )( 0 ).set( "upper_bounds", "5.0, 1.0, 2.0, 1.0" );
 
         // init geometry counter
         uint tGeoCounter = 0;

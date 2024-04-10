@@ -21,8 +21,8 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Design_Factory::Design_Factory(
-            Vector< Parameter_List >         aParameterLists,
-            Matrix< DDRMat >&             aADVs,
+            Vector< Parameter_List >      aParameterLists,
+            Vector< real >&               aADVs,
             std::shared_ptr< Library_IO > aLibrary,
             mtk::Mesh*                    aMesh,
             Node_Manager&                 aNodeManager )

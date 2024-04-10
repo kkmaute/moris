@@ -108,7 +108,7 @@ namespace moris
             tHMR->perform_initial_refinement();
             tHMR->perform();
 
-            auto                                       tField          = std::make_shared< moris::gen::User_Defined_Field >( &( LevelSetSphereCylinderGeometry ), Matrix< DDRMat >( 0, 0 ) );
+            auto                                       tField          = std::make_shared< moris::gen::User_Defined_Field >( &( LevelSetSphereCylinderGeometry ), Vector< real >() );
             Vector< std::shared_ptr< gen::Geometry > > tGeometryVector = { std::make_shared< gen::Level_Set_Geometry >( tField ) };
 
             size_t                                 tModelDimension = 3;

@@ -47,8 +47,8 @@ namespace moris::gen
          * @param aNodeManager Node manager from the geometry engine, if applicable
          */
         Design_Factory(
-                Vector< Parameter_List >         aParameterLists,
-                Matrix< DDRMat >&             aADVs,
+                Vector< Parameter_List >      aParameterLists,
+                Vector< real >&               aADVs,
                 std::shared_ptr< Library_IO > aLibrary = nullptr,
                 mtk::Mesh*                    aMesh = nullptr,
                 Node_Manager&                 aNodeManager = Node_Manager::get_trivial_instance() );

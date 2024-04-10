@@ -94,6 +94,6 @@ namespace moris::gen
          *
          * @return ADV ID vector
          */
-        Matrix< DDSMat > get_coordinate_determining_adv_ids() const;
+        Vector< sint > get_coordinate_determining_adv_ids() const;
     };
 }

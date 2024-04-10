@@ -771,7 +771,7 @@ namespace moris
             tic tTimer_XTK;
 
             Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector( 1 );
-            auto tUserDefinedField = std::make_shared< moris::gen::User_Defined_Field >( &( LevelSetSphereCylinderGeometry ), Matrix< DDRMat >( 0, 0 ) );
+            auto tUserDefinedField = std::make_shared< moris::gen::User_Defined_Field >( &( LevelSetSphereCylinderGeometry ), Vector< real >() );
             tGeometryVector( 0 ) = std::make_shared< gen::Level_Set_Geometry >( tUserDefinedField );
 
             // Tell the geometry engine about the discrete field mesh and how to interpret phases

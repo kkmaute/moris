@@ -19,7 +19,7 @@
  * \def ADV_ARG_TYPES
  * All the ADV arguments to a field
  */
-#define ADV_ARG_TYPES Matrix< DDRMat >& aADVs, Matrix< DDUMat > aFieldVariableIndices, Matrix< DDUMat > aADVIndices, Matrix< DDRMat > aConstants, std::string aName = ""
+#define ADV_ARG_TYPES Vector< real >& aADVs, const Vector< uint >& aFieldVariableIndices, const Vector< uint >& aADVIndices, const Vector< real >& aConstants, std::string aName = ""
 
 /**
  * \def ADV_ARGS
@@ -31,7 +31,7 @@
  * \def VARIABLE_CHECK( num_variables )
  * Generates a moris error that checks that the number of variables passed to a field is correct. This should be called in most child field constructors.
  */
-#define VARIABLE_CHECK( num_variables ) MORIS_ERROR( aFieldVariableIndices.length() + aConstants.length() == num_variables, \
+#define VARIABLE_CHECK( num_variables ) MORIS_ERROR( aFieldVariableIndices.size() + aConstants.size() == num_variables, \
         "A GEN %s must be created with a total of exactly %d variables (ADVs + constants)", __FUNCTION__, num_variables )
 
 namespace moris::mtk
@@ -69,19 +69,19 @@ namespace moris::gen
          * @param aConstants The constant field variables not filled by ADVs
          * @param aName Name of this field
          */
-        Field( Matrix< DDRMat >& aADVs,
-                Matrix< DDUMat > aFieldVariableIndices,
-                Matrix< DDUMat > aADVIndices,
-                Matrix< DDRMat > aConstants,
-                std::string      aName );
+        Field( Vector< real >& aADVs,
+                const Vector< uint >& aFieldVariableIndices,
+                const Vector< uint >& aADVIndices,
+                const Vector< real >& aConstants,
+                std::string           aName );
 
         /**
          * Constructor using only constants (no ADVs).
          *
          * @param aConstants The parameters that define this field
          */
-        Field( Matrix< DDRMat > aConstants,
-                std::string     aName );
+        Field( const Vector< real >& aConstants,
+                std::string          aName );
 
         /**
          * Constructor that sets all field variables as consecutive ADVs. Assumes the use of distributed ADVs.
@@ -89,8 +89,8 @@ namespace moris::gen
          * @param aFieldVariableIndices Field variable indices for assigning the shared ADV IDs
          * @param aSharedADVIds Shared ADV IDs needed for this field
          */
-        Field( const Matrix< DDSMat >& aSharedADVIds,
-                std::string            aName );
+        Field( const Vector< sint >& aSharedADVIds,
+                std::string          aName );
 
         /**
          * Copy constructor with replacement variables for new constants.
@@ -221,7 +221,7 @@ namespace moris::gen
          * @param aCoordinates Node coordinates
          * @return Determining ADV IDs at this node
          */
-        virtual Matrix< DDSMat > get_determining_adv_ids(
+        virtual Vector< sint > get_determining_adv_ids(
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates );
 
@@ -233,7 +233,7 @@ namespace moris::gen
          * @param aNodeManager Node manager
          */
         virtual void get_determining_adv_ids(
-                Matrix< DDSMat >&   aDeterminingADVIDs,
+                Vector< sint >&     aDeterminingADVIDs,
                 const Derived_Node& aDerivedNode,
                 const Node_Manager& aNodeManager );
 
@@ -244,9 +244,9 @@ namespace moris::gen
          * @param aBasisNodes Basis nodes of a derived node
          */
         void append_interpolated_determining_adv_ids(
-                Matrix< DDSMat >&         aInterpolatedADVIDs,
+                Vector< sint >&           aInterpolatedADVIDs,
                 const Vector< Basis_Node >& aBasisNodes,
-                const Node_Manager&       aNodeManager );
+                const Node_Manager&         aNodeManager );
 
         /**
          * Given a node index or coordinates, returns a vector of the field derivatives with respect to the nodal

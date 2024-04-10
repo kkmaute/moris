@@ -17,19 +17,19 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     ADV_Manager::ADV_Manager(
-            Matrix< DDRMat >&       aADVs,
-            const Matrix< DDUMat >& aVariableIndices,
-            const Matrix< DDUMat >& aADVIndices,
-            const Matrix< DDRMat >& aConstants )
-            : mDeterminingADVIds( aVariableIndices.length() + aConstants.length(), 1, gNoID )
-            , mHasADVs( aADVIndices.length() )
+            Vector< real >&       aADVs,
+            const Vector< uint >& aVariableIndices,
+            const Vector< uint >& aADVIndices,
+            const Vector< real >& aConstants )
+            : mDeterminingADVIds( aVariableIndices.size() + aConstants.size(), gNoID )
+            , mHasADVs( aADVIndices.size() )
     {
         // Check that the number of field variables indices equals the number of ADV indices
-        MORIS_ERROR( aVariableIndices.length() == aADVIndices.length(),
+        MORIS_ERROR( aVariableIndices.size() == aADVIndices.size(),
                 "Number of field variables indices must equal the number of ADV indices in a GEN ADV_Manager." );
 
         // Set ADV dependencies
-        for ( uint tADVFillIndex = 0; tADVFillIndex < aVariableIndices.length(); tADVFillIndex++ )
+        for ( uint tADVFillIndex = 0; tADVFillIndex < aVariableIndices.size(); tADVFillIndex++ )
         {
             mDeterminingADVIds( aVariableIndices( tADVFillIndex ) ) = aADVIndices( tADVFillIndex );
         }
@@ -41,18 +41,18 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     ADV_Manager::ADV_Manager(
-            const Matrix< DDRMat >& aConstants )
-            : mDeterminingADVIds( aConstants.length(), 1, gNoID )
+            const Vector< real >& aConstants )
+            : mDeterminingADVIds( aConstants.size(), gNoID )
             , mHasADVs( false )
     {
         // Set ADVs
-        Matrix< DDRMat > tDummyADVs( 0, 0 );
+        Vector< real > tDummyADVs;
         this->create_advs( tDummyADVs, aConstants );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    ADV_Manager::ADV_Manager( const Matrix< DDSMat >& aSharedADVIds )
+    ADV_Manager::ADV_Manager( const Vector< sint >& aSharedADVIds )
             : mDeterminingADVIds( aSharedADVIds )
             , mHasADVs( true )
     {
@@ -62,7 +62,7 @@ namespace moris::gen
         mSharedADVs = tDistributedFactory.create_vector( tSharedADVMap, 1, false, true );
 
         // Set variables from ADVs
-        uint tNumSharedADVs = aSharedADVIds.length();
+        uint tNumSharedADVs = aSharedADVIds.size();
         mADVs.reserve( tNumSharedADVs );
         for ( uint iVariableIndex = 0; iVariableIndex < tNumSharedADVs; iVariableIndex++ )
         {
@@ -105,7 +105,7 @@ namespace moris::gen
     void
     ADV_Manager::set_advs( Vector_Type& aADVs )
     {
-        for ( uint iVariableIndex = 0; iVariableIndex < mDeterminingADVIds.length(); iVariableIndex++ )
+        for ( uint iVariableIndex = 0; iVariableIndex < mDeterminingADVIds.size(); iVariableIndex++ )
         {
             if ( mDeterminingADVIds( iVariableIndex ) >= 0 )
             {
@@ -133,7 +133,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix< DDSMat > ADV_Manager::get_determining_adv_ids()
+    Vector< sint > ADV_Manager::get_determining_adv_ids()
     {
         return mDeterminingADVIds;
     }
@@ -148,15 +148,15 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void ADV_Manager::create_advs(
-            Matrix< DDRMat >& aADVs,
-            const Matrix< DDRMat >& aConstants )
+            Vector< real >&       aADVs,
+            const Vector< real >& aConstants )
     {
         // Reserve ADVs
-        mADVs.reserve( mDeterminingADVIds.length() );
+        mADVs.reserve( mDeterminingADVIds.size() );
 
         // Create ADVs
         uint tConstantIndex = 0;
-        for ( uint iVariableIndex = 0; iVariableIndex < mDeterminingADVIds.length(); iVariableIndex++ )
+        for ( uint iVariableIndex = 0; iVariableIndex < mDeterminingADVIds.size(); iVariableIndex++ )
         {
             if ( mDeterminingADVIds( iVariableIndex ) >= 0 )
             {
@@ -173,7 +173,7 @@ namespace moris::gen
     // Explicit template instantiation
     //--------------------------------------------------------------------------------------------------------------
 
-    template void ADV_Manager::set_advs( Matrix< DDRMat >& aADVs );
+    template void ADV_Manager::set_advs( Vector< real >& aADVs );
     template void ADV_Manager::set_advs( sol::Dist_Vector*& aADVs );
 
     //--------------------------------------------------------------------------------------------------------------

@@ -33,7 +33,7 @@ namespace moris::gen
          * @param aADVs ADV vector
          * @param aID ID in the ADV vector
          */
-        ADV( Matrix< DDRMat >& aADVs, sint aADVId );
+        ADV( Vector< real >& aADVs, sint aADVId );
 
         /**
          * Constructor given an ADV vector and an ID

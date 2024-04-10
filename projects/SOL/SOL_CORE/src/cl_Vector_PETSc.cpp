@@ -133,6 +133,45 @@ Vector_PETSc::sum_into_global_values(
 
 //-----------------------------------------------------------------------------
 
+void
+Vector_PETSc::sum_into_global_values(
+        const Vector< sint >&   aGlobalIds,
+        const Matrix< DDRMat >& aValues,
+        const uint&             aVectorIndex )
+{
+    // Petsc implementation is for single column vector as of now
+    MORIS_ASSERT( aVectorIndex == 0,
+            "Vector_PETSc::sum_into_global_values - Petsc implementation is for single column vector only." );
+
+    // get number of dofs to be summed into
+    uint tNumMyDofs = aGlobalIds.size();
+
+    // check for consistent sizes of vectors of IDs and values
+    MORIS_ASSERT( aValues.numel() == tNumMyDofs,
+            "Vector_PETSc::sum_into_global_values - inconsistent sizes of ID and value vectors" );
+
+    // create copy of vector with moris IDs; will be overwritten in AOApplicationToPetsc
+    Vector< sint > tTempElemDofs = aGlobalIds;
+
+    // loop over elemental dofs
+    for ( uint Ij = 0; Ij < tNumMyDofs; Ij++ )
+    {
+        // set constrDof to neg value
+        if ( mDirichletBCVec( aGlobalIds( Ij ), 0 ) == 1 )
+        {
+            tTempElemDofs( Ij ) = -1;
+        }
+    }
+
+    // map moris IDs into petsc IDs
+    AOApplicationToPetsc( mMap->get_petsc_map(), tNumMyDofs, tTempElemDofs.memptr() );
+
+    // add values into vector
+    VecSetValues( mPetscVector, tNumMyDofs, tTempElemDofs.memptr(), aValues.data(), ADD_VALUES );
+}
+
+//-----------------------------------------------------------------------------
+
 
 void
 Vector_PETSc::replace_global_values(
@@ -153,6 +192,23 @@ Vector_PETSc::replace_global_values(
 
     // set values in petsc vector
     VecSetValuesLocal( mPetscVector, tIndices.numel(), tIndices.data(), aValues.data(), INSERT_VALUES );
+}
+
+//-----------------------------------------------------------------------------
+
+void Vector_PETSc::replace_global_values(
+        const Vector< sint >& aGlobalIds,
+        const Vector< real >& aValues )
+{
+    // check that Id and value vectors have same length
+    MORIS_ASSERT( aGlobalIds.size() == aValues.size(),
+            "Vector_PETSc::replace_global_values - inconsistent number of IDs and values" );
+
+    // get map from moris id to indices in vector
+    Vector< sint > tIndices = mMap->map_from_moris_ids_to_indices( aGlobalIds );
+
+    // set values in petsc vector
+    VecSetValuesLocal( mPetscVector, tIndices.size(), tIndices.memptr(), aValues.memptr(), INSERT_VALUES );
 }
 
 //-----------------------------------------------------------------------------
@@ -302,6 +358,38 @@ Vector_PETSc::extract_copy( Matrix< DDRMat >& LHSValues )
 
 //-----------------------------------------------------------------------------
 
+void Vector_PETSc::extract_copy( Vector< real >& aVector )
+{
+    sint tVecLocSize;
+    VecGetLocalSize( mPetscVector, &tVecLocSize );
+
+    // FIXME replace with VecGetArray()
+    Matrix< DDSMat > tVal( tVecLocSize, 1, 0 );
+    aVector.resize( tVecLocSize );
+
+    // Get list containing the number of owned adofs of each processor
+    Matrix< DDUMat > tNumOwnedList;
+    comm_gather_and_broadcast( tVecLocSize, tNumOwnedList );
+
+    Matrix< DDUMat > tOwnedOffsetList( tNumOwnedList.length(), 1, 0 );
+
+    // Loop over all entries to create the offsets. Starting with 1
+    for ( uint Ij = 1; Ij < tOwnedOffsetList.length(); Ij++ )
+    {
+        // Add the number of owned adofs of the previous processor to the offset of the previous processor
+        tOwnedOffsetList( Ij, 0 ) = tOwnedOffsetList( Ij - 1, 0 ) + tNumOwnedList( Ij - 1, 0 );
+    }
+
+    for ( sint Ik = 0; Ik < tVecLocSize; Ik++ )
+    {
+        tVal( Ik, 0 ) = tOwnedOffsetList( par_rank(), 0 ) + Ik;
+    }
+
+    VecGetValues( mPetscVector, tVecLocSize, tVal.data(), aVector.memptr() );
+}
+
+//-----------------------------------------------------------------------------
+
 void
 Vector_PETSc::import_local_to_global( sol::Dist_Vector& aSourceVec )
 {
@@ -376,18 +464,18 @@ Vector_PETSc::extract_my_values(
 {
     // check that vector index  is zero
     MORIS_ASSERT( aBlockRowOffsets == 0,
-            "Vector_PETSc::replace_global_values - petsc not implemented yet for aBlockRowOffsets neq 0" );
+            "Vector_PETSc::extract_my_values - petsc not implemented yet for aBlockRowOffsets neq 0" );
 
     // check that aNumIndices equals size of aGlobalBlockRows
     MORIS_ASSERT( aNumIndices == aGlobalBlockRows.numel(),
-            "Vector_PETSc::replace_global_values - number of indices does not match size of aGlobalBlockRows" );
+            "Vector_PETSc::extract_my_values - number of indices does not match size of aGlobalBlockRows" );
 
     // get map from moris id to indices in vector
     Matrix< DDSMat > tIndices = mMap->map_from_moris_ids_to_indices( aGlobalBlockRows );
 
     // check that aNumIndices equals size of tIndices
     MORIS_ASSERT( aNumIndices == tIndices.numel(),
-            "Vector_PETSc::replace_global_values - number of indices does not match size of tIndices" );
+            "Vector_PETSc::extract_my_values - number of indices does not match size of tIndices" );
 
 
     // allocate memory for extracted values

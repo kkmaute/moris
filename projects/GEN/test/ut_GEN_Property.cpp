@@ -24,7 +24,7 @@ namespace moris::gen
     TEST_CASE( "Constant property", "[gen], [property], [constant property]" )
     {
         // Create ADVs
-        Matrix< DDRMat > tADVs = { { 0.0 } };
+        Vector< real > tADVs = { 0.0 };
 
         // Set up property
         Parameter_List tConstantPropertyParameterList = prm::create_gen_property_parameter_list();
@@ -61,7 +61,7 @@ namespace moris::gen
     TEST_CASE( "Scaled field property", "[gen], [property], [scaled field]" )
     {
         // Create ADVs
-        Matrix< DDRMat > tADVs = { { 0.0, 0.0, 0.5 } };
+        Vector< real > tADVs = { 0.0, 0.0, 0.5 };
 
         // Set up and create geometry
         Parameter_List tCircleParameterList = prm::create_level_set_geometry_parameter_list();
@@ -160,7 +160,7 @@ namespace moris::gen
                     tBSplineOrder );
 
             // Set up property
-            Matrix< DDRMat > tADVs( 0, 0 );
+            Vector< real > tADVs;
             Design_Factory   tDesignFactory( { tPropertyParameterList }, tADVs );
             auto             tBSplineProperty = tDesignFactory.get_properties()( 0 );
 
@@ -171,16 +171,16 @@ namespace moris::gen
 
             // Get ADVs and upper/lower bounds
             tADVs                         = tGeometryEngine.get_advs();
-            Matrix< DDRMat > tLowerBounds = tGeometryEngine.get_lower_bounds();
-            Matrix< DDRMat > tUpperBounds = tGeometryEngine.get_upper_bounds();
+            Vector< real > tLowerBounds = tGeometryEngine.get_lower_bounds();
+            Vector< real > tUpperBounds = tGeometryEngine.get_upper_bounds();
 
             // Check that ADVs were created and L2 was performed
             if ( par_rank() == 0 )
             {
                 uint tNumADVs = pow( tNumElementsPerDimension + tBSplineOrder, 2 );
-                REQUIRE( tADVs.length() == tNumADVs );
-                REQUIRE( tLowerBounds.length() == tNumADVs );
-                REQUIRE( tUpperBounds.length() == tNumADVs );
+                REQUIRE( tADVs.size() == tNumADVs );
+                REQUIRE( tLowerBounds.size() == tNumADVs );
+                REQUIRE( tUpperBounds.size() == tNumADVs );
                 for ( uint tBSplineIndex = 0; tBSplineIndex < tNumADVs; tBSplineIndex++ )
                 {
                     CHECK( tLowerBounds( tBSplineIndex ) == Approx( -2.0 ) );
@@ -189,9 +189,9 @@ namespace moris::gen
             }
             else
             {
-                REQUIRE( tADVs.length() == 0 );
-                REQUIRE( tLowerBounds.length() == 0 );
-                REQUIRE( tUpperBounds.length() == 0 );
+                REQUIRE( tADVs.size() == 0 );
+                REQUIRE( tLowerBounds.size() == 0 );
+                REQUIRE( tUpperBounds.size() == 0 );
             }
 
             // Get property back
@@ -208,13 +208,21 @@ namespace moris::gen
                 {
                     Matrix< DDRMat > tMatrix = trans( tMesh->get_t_matrix_of_node_loc_ind( tNodeIndex, 0 ) );
                     Matrix< DDSMat > tIDs    = trans( tMesh->get_coefficient_IDs_of_node( tNodeIndex, 0 ) );
+                    Vector< sint > tIDVector( tIDs.length() );
+                    for ( uint iIndex = 0; iIndex < tIDVector.size(); iIndex++ )
+                    {
+                        tIDVector( iIndex ) = tIDs( iIndex );
+                    }
                     CHECK_EQUAL( tBSplineProperty->get_dfield_dadvs( tNodeIndex, { {} } ), tMatrix, );
-                    CHECK_EQUAL( tBSplineProperty->get_determining_adv_ids( tNodeIndex, { {} } ), tIDs, );
+                    CHECK_EQUAL( tBSplineProperty->get_determining_adv_ids( tNodeIndex, { {} } ), tIDVector, );
                 }
             }
 
             // Set new ADVs
-            tADVs = tADVs * 2;
+            for ( uint iADVIndex = 0; iADVIndex < tADVs.size(); iADVIndex++ )
+            {
+                tADVs( iADVIndex ) = tADVs( iADVIndex ) * 2;
+            }
             tGeometryEngine.set_advs( tADVs );
 
             // Check field values at all nodes again

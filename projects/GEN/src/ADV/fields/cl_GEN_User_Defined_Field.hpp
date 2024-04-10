@@ -50,7 +50,7 @@ namespace moris::gen
                 Sensitivity_Function aSensitivityFunction,
                 ADV_ARG_TYPES )
                 : Field_Analytic< 0 >( ADV_ARGS )
-                , mFieldVariables( aFieldVariableIndices.length() + aConstants.length() )
+                , mFieldVariables( aFieldVariableIndices.size() + aConstants.size() )
                 , get_field_value_user_defined( aFieldFunction )
                 , get_dfield_dadvs_user_defined( aSensitivityFunction )
         {
@@ -65,8 +65,8 @@ namespace moris::gen
          * @param aFieldFunction User-defined function for evaluating the field field
          */
         explicit User_Defined_Field(
-                Field_Function          aFieldFunction,
-                const Matrix< DDRMat >& aConstants = { {} } );
+                Field_Function        aFieldFunction,
+                const Vector< real >& aConstants = {} );
 
         /**
          * For the specific case of a user-defined field, this function indicates that new field variables must be set for the user-defined function calls.

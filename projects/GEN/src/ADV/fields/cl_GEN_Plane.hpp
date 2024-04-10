@@ -32,12 +32,12 @@ namespace moris::gen
         Plane( ADV_ARG_TYPES )
                : Field_Analytic< 2 >( ADV_ARGS )
         {
-            if ( mADVManager.get_determining_adv_ids().length() == 4 )
+            if ( mADVManager.get_determining_adv_ids().size() == 4 )
             {
                 m_eval_field = &Plane::eval_field_2d;
                 m_eval_sensitivity = &Plane::eval_sensitivity_2d;
             }
-            else if ( mADVManager.get_determining_adv_ids().length() == 6 )
+            else if ( mADVManager.get_determining_adv_ids().size() == 6 )
             {
                 m_eval_field = &Plane::eval_field_3d;
                 m_eval_sensitivity = &Plane::eval_sensitivity_3d;

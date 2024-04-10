@@ -23,7 +23,7 @@ namespace moris::gen
             real aScaling,
             real aRegularization,
             real aShift )
-            : Field_Analytic< 2 >( Matrix<DDRMat>({{aXCenter, aYCenter, aXSemidiameter, aYSemidiameter, aExponent, aScaling, aRegularization, aShift}}) )
+            : Field_Analytic< 2 >( { aXCenter, aYCenter, aXSemidiameter, aYSemidiameter, aExponent, aScaling, aRegularization, aShift } )
     {
         MORIS_ERROR( mADVManager.get_variable( 2 ) > 0 and mADVManager.get_variable( 3 ) > 0,
                 "A GEN Super-ellipse must be created with positive semi-diameters.");

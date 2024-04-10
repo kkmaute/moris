@@ -19,14 +19,13 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Field::Field(
-            Matrix< DDRMat >& aADVs,
-            Matrix< DDUMat >  aFieldVariableIndices,
-            Matrix< DDUMat >  aADVIndices,
-            Matrix< DDRMat >  aConstants,
-            std::string       aName )
+    Field::Field( Vector< real >& aADVs,
+            const Vector< uint >& aFieldVariableIndices,
+            const Vector< uint >& aADVIndices,
+            const Vector< real >& aConstants,
+            std::string           aName )
             : mADVManager( aADVs, aFieldVariableIndices, aADVIndices, aConstants )
-            , mSensitivities( 1, aFieldVariableIndices.length() + aConstants.length() )
+            , mSensitivities( 1, aFieldVariableIndices.size() + aConstants.size() )
             , mName( std::move( aName ) )
     {
         this->verify_name();
@@ -34,11 +33,10 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Field::Field(
-            Matrix< DDRMat > aConstants,
-            std::string      aName )
+    Field::Field( const Vector< real >& aConstants,
+            std::string          aName )
             : mADVManager( aConstants )
-            , mSensitivities( 1, aConstants.length(), 0.0 )
+            , mSensitivities( 1, aConstants.size(), 0.0 )
             , mName( aName )
     {
         this->verify_name();
@@ -47,10 +45,10 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
     
     Field::Field(
-            const Matrix< DDSMat >& aSharedADVIds,
-            std::string             aName)
+            const Vector< sint >& aSharedADVIds,
+            std::string           aName)
             : mADVManager( aSharedADVIds )
-            , mSensitivities( 1, aSharedADVIds.length() )
+            , mSensitivities( 1, aSharedADVIds.size() )
             , mName( std::move( aName ) )
     {
         this->verify_name();
@@ -163,7 +161,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix< DDSMat > Field::get_determining_adv_ids(
+    Vector< sint > Field::get_determining_adv_ids(
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates )
     {
@@ -173,7 +171,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void Field::get_determining_adv_ids(
-            Matrix< DDSMat >& aDeterminingADVIDs,
+            Vector< sint >&     aDeterminingADVIDs,
             const Derived_Node& aDerivedNode,
             const Node_Manager& aNodeManager )
     {
@@ -183,9 +181,9 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
     
     void Field::append_interpolated_determining_adv_ids(
-            Matrix< DDSMat >&         aInterpolatedADVIDs,
+            Vector< sint >&             aInterpolatedADVIDs,
             const Vector< Basis_Node >& aBasisNodes,
-            const Node_Manager&       aNodeManager )
+            const Node_Manager&         aNodeManager )
     {
         // Add contributions from each basis node
         for ( auto iBasisNode : aBasisNodes )
@@ -194,16 +192,16 @@ namespace moris::gen
             if ( aNodeManager.is_background_node( iBasisNode.get_index() ) )
             {
                 // Get locator sensitivities
-                Matrix< DDSMat > tBasisNodeADVIDs = this->get_determining_adv_ids( iBasisNode.get_index(), iBasisNode.get_global_coordinates() );
+                Vector< sint > tBasisNodeADVIDs = this->get_determining_adv_ids( iBasisNode.get_index(), iBasisNode.get_global_coordinates() );
 
                 // Get current joined ADV ID length
-                uint tJoinedADVIDLength = aInterpolatedADVIDs.length();
+                uint tJoinedADVIDLength = aInterpolatedADVIDs.size();
 
                 // Have to do a resize, since each basis node can depend on different number of ADVs
-                aInterpolatedADVIDs.resize( 1, tJoinedADVIDLength + tBasisNodeADVIDs.length() );
+                aInterpolatedADVIDs.resize( tJoinedADVIDLength + tBasisNodeADVIDs.size() );
 
                 // Append to current list
-                for ( uint iBasisNodeADV = 0; iBasisNodeADV < tBasisNodeADVIDs.length(); iBasisNodeADV++ )
+                for ( uint iBasisNodeADV = 0; iBasisNodeADV < tBasisNodeADVIDs.size(); iBasisNodeADV++ )
                 {
                     aInterpolatedADVIDs( tJoinedADVIDLength + iBasisNodeADV ) = tBasisNodeADVIDs( iBasisNodeADV );
                 }

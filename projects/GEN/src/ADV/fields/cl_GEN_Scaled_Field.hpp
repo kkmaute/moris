@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "cl_GEN_Field_Discrete_Interpolation.hpp"
+#include "cl_GEN_Field.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 
 namespace moris::gen
@@ -95,7 +95,7 @@ namespace moris::gen
          * @param aCoordinates Node coordinates
          * @return Determining ADV IDs at this node
          */
-        Matrix<DDSMat> get_determining_adv_ids(
+        Vector< sint > get_determining_adv_ids(
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates ) override;
 
@@ -107,7 +107,7 @@ namespace moris::gen
          * @param aNodeManager Node manager
          */
         void get_determining_adv_ids(
-                Matrix< DDSMat >&   aDeterminingADVIDs,
+                Vector< sint >&   aDeterminingADVIDs,
                 const Derived_Node& aDerivedNode,
                 const Node_Manager& aNodeManager ) override;
 

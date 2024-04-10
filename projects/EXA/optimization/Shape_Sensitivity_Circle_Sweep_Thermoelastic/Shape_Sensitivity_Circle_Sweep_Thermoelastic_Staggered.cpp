@@ -146,7 +146,7 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDRMat >
-    compute_objectives( Matrix< DDRMat > aADVs, Matrix< DDRMat > aCriteria )
+    compute_objectives( const Vector< real >& aADVs, const Vector< real >& aCriteria )
     {
         Matrix< DDRMat > tObjectives( 1, 1 );
         tObjectives( 0 ) = aCriteria( 0 );
@@ -157,7 +157,7 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDRMat >
-    compute_constraints( Matrix< DDRMat > aADVs, Matrix< DDRMat > aCriteria )
+    compute_constraints( const Vector< real >& aADVs, const Vector< real >& aCriteria )
     {
         Matrix< DDRMat > tConstraints( 1, 1 );
         tConstraints( 0 ) = aCriteria( 1 );
@@ -168,9 +168,9 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDRMat >
-    compute_dobjective_dadv( Matrix< DDRMat > aADVs, Matrix< DDRMat > aCriteria )
+    compute_dobjective_dadv( const Vector< real >& aADVs, const Vector< real >& aCriteria )
     {
-        Matrix< DDRMat > tDObjectiveDADV( 1, aADVs.numel(), 0.0 );
+        Matrix< DDRMat > tDObjectiveDADV( 1, aADVs.size(), 0.0 );
 
         return tDObjectiveDADV;
     }
@@ -178,7 +178,7 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDRMat >
-    compute_dobjective_dcriteria( Matrix< DDRMat > aADVs, Matrix< DDRMat > aCriteria )
+    compute_dobjective_dcriteria( const Vector< real >& aADVs, const Vector< real >& aCriteria )
     {
         Matrix< DDRMat > tDObjectiveDCriteria( 1, 2 );
         tDObjectiveDCriteria( 0 ) = 1.0;
@@ -190,9 +190,9 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDRMat >
-    compute_dconstraint_dadv( Matrix< DDRMat > aADVs, Matrix< DDRMat > aCriteria )
+    compute_dconstraint_dadv( const Vector< real >& aADVs, const Vector< real >& aCriteria )
     {
-        Matrix< DDRMat > tDConstraintDADV( 1, aADVs.numel(), 0.0 );
+        Matrix< DDRMat > tDConstraintDADV( 1, aADVs.size(), 0.0 );
 
         return tDConstraintDADV;
     }
@@ -200,7 +200,7 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDRMat >
-    compute_dconstraint_dcriteria( Matrix< DDRMat > aADVs, Matrix< DDRMat > aCriteria )
+    compute_dconstraint_dcriteria( const Vector< real >& aADVs, const Vector< real >& aCriteria )
     {
         Matrix< DDRMat > tDConstraintDCriteria( 1, 2 );
         tDConstraintDCriteria( 0 ) = 0.0;
@@ -299,9 +299,9 @@ namespace moris
         tParameterlist.resize( 3 );
         tParameterlist( 0 ).resize( 1 );
         tParameterlist( 0 )( 0 ) = moris::prm::create_gen_parameter_list();
-        tParameterlist( 0 )( 0 ).set( "initial_advs", "3.0; 2.21; 1.4" );
-        tParameterlist( 0 )( 0 ).set( "lower_bounds", "3.0; 2.21; 1.4" );
-        tParameterlist( 0 )( 0 ).set( "upper_bounds", "3.0; 2.21; 1.4" );
+        tParameterlist( 0 )( 0 ).set( "initial_advs", "3.0, 2.21, 1.4" );
+        tParameterlist( 0 )( 0 ).set( "lower_bounds", "3.0, 2.21, 1.4" );
+        tParameterlist( 0 )( 0 ).set( "upper_bounds", "3.0, 2.21, 1.4" );
         tParameterlist( 0 )( 0 ).set( "IQI_types", "IQIBulkStrainEnergyDISP,IQIBulkVolume" );
 
         // Geometry parameter lists

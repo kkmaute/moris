@@ -206,11 +206,11 @@ int fn_WRK_Workflow_Main_Interface( int argc, char *argv[] )
         }
         else
         {
-            Matrix< DDRMat > tADVs( 0, 0 );
-            Matrix< DDRMat > tDummyBounds;
+            Vector< real > tADVs( 0, 0 );
+            Vector< real > tDummyBounds;
             Matrix< IdMat >  tDummy1( 1, 1, 0.0 );
             tWorkflows( 0 )->initialize( tADVs, tDummyBounds, tDummyBounds, tDummy1 );
-            Matrix< DDRMat > tIQIVal = tWorkflows( 0 )->get_criteria( tADVs );
+            Vector< real > tIQIVal = tWorkflows( 0 )->get_criteria( tADVs );
 
             // print out matrix of IQI values
             MORIS_LOG_SPEC( "IQI values", ios::stringify_log( tIQIVal ) );

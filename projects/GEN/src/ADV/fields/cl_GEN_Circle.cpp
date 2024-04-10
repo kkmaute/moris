@@ -19,7 +19,7 @@ namespace moris::gen
             real aXCenter,
             real aYCenter,
             real aRadius )
-            : Field_Analytic< 2 >( Matrix< DDRMat >( { { aXCenter, aYCenter, aRadius } } ) )
+            : Field_Analytic< 2 >( { aXCenter, aYCenter, aRadius } )
     {
     }
 

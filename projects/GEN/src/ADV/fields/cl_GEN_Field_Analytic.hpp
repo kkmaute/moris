@@ -44,7 +44,7 @@ namespace moris::gen
          *
          * @param aConstants The parameters that define this field
          */
-        explicit Field_Analytic( Matrix< DDRMat > aConstants )
+        explicit Field_Analytic( const Vector< real >& aConstants )
                 : Field( aConstants, "" )
         {
         }

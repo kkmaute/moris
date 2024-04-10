@@ -60,7 +60,7 @@ namespace moris::gen
          *
          * @return ADV IDs
          */
-        Matrix< DDSMat > get_coordinate_determining_adv_ids() const override;
+        Vector< sint > get_coordinate_determining_adv_ids() const override;
 
       protected:
 

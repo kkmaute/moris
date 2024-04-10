@@ -455,8 +455,8 @@ namespace moris
 
     moris::Matrix< moris::DDRMat >
     compute_objectives(
-            Matrix< DDRMat >               aADVs,
-            moris::Matrix< moris::DDRMat > aCriteria )
+            const Vector< real >& aADVs,
+            const Vector< real >& aCriteria )
     {
         moris::Matrix< moris::DDRMat > tObjectives( 1, 1, 0.0 );
 
@@ -487,8 +487,8 @@ namespace moris
 
     moris::Matrix< moris::DDRMat >
     compute_constraints(
-            Matrix< DDRMat >               aADVs,
-            moris::Matrix< moris::DDRMat > aCriteria )
+            const Vector< real >& aADVs,
+            const Vector< real >& aCriteria )
     {
         moris::Matrix< moris::DDRMat > tConstraints( 1, 1, 0.0 );
 
@@ -503,10 +503,10 @@ namespace moris
 
     moris::Matrix< moris::DDRMat >
     compute_dobjective_dadv(
-            Matrix< DDRMat >               aADVs,
-            moris::Matrix< moris::DDRMat > aCriteria )
+            const Vector< real >& aADVs,
+            const Vector< real >& aCriteria )
     {
-        moris::Matrix< moris::DDRMat > tDObjectiveDADV( 1, aADVs.length(), 0.0 );
+        moris::Matrix< moris::DDRMat > tDObjectiveDADV( 1, aADVs.size(), 0.0 );
         return tDObjectiveDADV;
     }
 
@@ -514,8 +514,8 @@ namespace moris
 
     moris::Matrix< moris::DDRMat >
     compute_dobjective_dcriteria(
-            moris::Matrix< moris::DDRMat > aADVs,
-            moris::Matrix< moris::DDRMat > aCriteria )
+            const Vector< real >& aADVs,
+            const Vector< real >& aCriteria )
     {
         moris::Matrix< moris::DDRMat > tDObjectiveDCriteria( 1, 4, 0.0 );
 
@@ -534,17 +534,17 @@ namespace moris
 
     moris::Matrix< moris::DDRMat >
     compute_dconstraint_dadv(
-            moris::Matrix< moris::DDRMat > aADVs,
-            moris::Matrix< moris::DDRMat > aCriteria )
+            const Vector< real >& aADVs,
+            const Vector< real >& aCriteria )
     {
-        moris::Matrix< moris::DDRMat > tDConstraintDADV( 1, aADVs.length(), 0.0 );
+        moris::Matrix< moris::DDRMat > tDConstraintDADV( 1, aADVs.size(), 0.0 );
         return tDConstraintDADV;
     }
 
     moris::Matrix< moris::DDRMat >
     compute_dconstraint_dcriteria(
-            moris::Matrix< moris::DDRMat > aADVs,
-            moris::Matrix< moris::DDRMat > aCriteria )
+            const Vector< real >& aADVs,
+            const Vector< real >& aCriteria )
     {
         moris::Matrix< moris::DDRMat > tDConstraintDCriteria( 1, 4, 0.0 );
 

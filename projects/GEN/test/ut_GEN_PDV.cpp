@@ -331,12 +331,12 @@ namespace moris::gen
         if ( par_size() == 2 )
         {
             // Create circle
-            Matrix< DDRMat >            tADVs   = { { 0.0, 0.0, 1.0 } };
+            Vector< real > tADVs = { { 0.0, 0.0, 1.0 } };
             auto tCircleField = std::make_shared< Circle >(
                     tADVs,
-                    Matrix< DDUMat >( { { 0, 1, 2 } } ),
-                    Matrix< DDUMat >( { { 0, 1, 2 } } ),
-                    Matrix< DDRMat >( { {} } ) );
+                    Vector< uint >( { 0, 1, 2 } ),
+                    Vector< uint >( { 0, 1, 2 } ),
+                    Vector< real >() );
 
             auto tCircleGeometry = std::make_shared< Level_Set_Geometry >( tCircleField );
 
@@ -464,15 +464,15 @@ namespace moris::gen
             }
 
             // Set owned ADV IDs
-            Matrix< DDSMat > tOwnedADVIds( 0, 0 );
+            Vector< sint > tOwnedADVIds( 0 );
             if ( par_rank() == 0 )
             {
-                tOwnedADVIds = { { 0 }, { 1 }, { 2 } };
+                tOwnedADVIds = { 0, 1, 2 };
             }
             tPDVHostManager.set_owned_adv_ids( tOwnedADVIds );
 
             // Get sensitivities
-            Matrix< DDSMat > tFullADVIds( 0, 0 );
+            Vector< sint > tFullADVIds( 0, 0 );
             if ( par_rank() == 0 )
             {
                 tFullADVIds = tOwnedADVIds;
@@ -512,7 +512,7 @@ namespace moris::gen
 
         // Create ADVs
         uint             tNumADVs = 2 * par_size();
-        Matrix< DDRMat > tADVs( tNumADVs, 1 );
+        Vector< real > tADVs( tNumADVs );
 
         // Create constant properties
         Vector< std::shared_ptr< Property > > tProperties( tNumADVs );
@@ -576,13 +576,13 @@ namespace moris::gen
         tPDVHostManager.create_pdv_ids();
 
         // Owned ADV IDs
-        tPDVHostManager.set_owned_adv_ids( { { 2 * par_rank() }, { 2 * par_rank() + 1 } } );
+        tPDVHostManager.set_owned_adv_ids( { 2 * par_rank(), 2 * par_rank() + 1 } );
 
         // Full ADV IDs
-        Matrix< DDSMat > tFullADVIds( 0, 0 );
+        Vector< sint > tFullADVIds;
         if ( par_rank() == 0 )
         {
-            tFullADVIds.resize( tNumADVs, 1 );
+            tFullADVIds.resize( tNumADVs );
             for ( uint tADVIndex = 0; tADVIndex < tNumADVs; tADVIndex++ )
             {
                 tFullADVIds( tADVIndex ) = tADVIndex;

@@ -53,7 +53,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix<DDSMat> Scaled_Field::get_determining_adv_ids(
+    Vector< sint > Scaled_Field::get_determining_adv_ids(
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates )
     {
@@ -63,7 +63,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void Scaled_Field::get_determining_adv_ids(
-            Matrix< DDSMat >&   aDeterminingADVIDs,
+            Vector< sint >&   aDeterminingADVIDs,
             const Derived_Node& aDerivedNode,
             const Node_Manager& aNodeManager )
     {

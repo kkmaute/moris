@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef PROJECTS_FEM_MDL_SRC_CL_WRK_WORKFLOW_HMR_XTK_HPP_
-#define PROJECTS_FEM_MDL_SRC_CL_WRK_WORKFLOW_HMR_XTK_HPP_
+#pragma once
 
 #include "cl_WRK_Workflow.hpp"
 #include "cl_OPT_Criteria_Interface.hpp"
@@ -78,10 +77,10 @@ namespace moris
              * Initializes the vectors of ADV values, lower bounds, and upper bounds
              */
             void initialize(
-                    Matrix< DDRMat >& aADVs,
-                    Matrix< DDRMat >& aLowerBounds,
-                    Matrix< DDRMat >& aUpperBounds,
-                    Matrix< IdMat >&  aIjklIDs );
+                    Vector< real >& aADVs,
+                    Vector< real >& aLowerBounds,
+                    Vector< real >& aUpperBounds,
+                    Matrix< IdMat >& aIjklIDs );
 
             //------------------------------------------------------------------------------
             /**
@@ -89,7 +88,7 @@ namespace moris
              *
              * @return vector of criteria
              */
-            Matrix< DDRMat > perform( Matrix< DDRMat >& aNewADVs );
+            Vector< real > perform( Vector< real >& aNewADVs );
 
             //------------------------------------------------------------------------------
             /**
@@ -115,5 +114,3 @@ namespace moris
         //------------------------------------------------------------------------------
     }    // namespace wrk
 } /* namespace moris */
-
-#endif /* PROJECTS_FEM_MDL_SRC_CL_WRK_WORKFLOW_HMR_XTK_HPP_ */

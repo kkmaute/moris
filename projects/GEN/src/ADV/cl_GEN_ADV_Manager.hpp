@@ -20,8 +20,8 @@ namespace moris::gen
     {
 
       private:
-        Vector< ADV >       mADVs;
-        Matrix< DDSMat >  mDeterminingADVIds;
+        Vector< ADV >     mADVs;
+        Vector< sint >    mDeterminingADVIds;
         bool              mHasADVs;
         sol::Dist_Vector* mSharedADVs = nullptr;
 
@@ -36,17 +36,17 @@ namespace moris::gen
          * @param aParameters Additional parameters
          */
         ADV_Manager(
-                Matrix< DDRMat >&       aADVs,
-                const Matrix< DDUMat >& aVariableIndices,
-                const Matrix< DDUMat >& aADVIndices,
-                const Matrix< DDRMat >& aConstants );
+                Vector< real >&         aADVs,
+                const Vector< uint >& aVariableIndices,
+                const Vector< uint >& aADVIndices,
+                const Vector< real >& aConstants );
 
         /**
          * Constructor using only constants (no ADVs).
          *
          * @param aConstants The parameters that define this field
          */
-        explicit ADV_Manager( const Matrix< DDRMat >& aConstants );
+        explicit ADV_Manager( const Vector< real >& aConstants );
 
         /**
          * Constructor, sets variables as consecutive ADVs. Assumes the use of distributed ADVs.
@@ -54,7 +54,7 @@ namespace moris::gen
          * @param aVariableIndices Variable indices for assigning the shared ADV IDs
          * @param aSharedADVIds Shared ADV IDs needed
          */
-        ADV_Manager( const Matrix< DDSMat >& aSharedADVIds );
+        ADV_Manager( const Vector< sint >& aSharedADVIds );
 
         /**
          * Copy constructor, with optional arguments for replacing constant values.
@@ -64,7 +64,7 @@ namespace moris::gen
          * @param aNewConstants New constant values
          */
         ADV_Manager(
-                const ADV_Manager& aCopyADVManager,
+                const ADV_Manager&    aCopyADVManager,
                 const Vector< uint >& aReplaceVariables = {},
                 const Vector< real >& aNewConstants = {{}} );
 
@@ -102,7 +102,7 @@ namespace moris::gen
          *
          * @return Determining ADV IDs at this node
          */
-        Matrix< DDSMat > get_determining_adv_ids();
+        Vector< sint > get_determining_adv_ids();
 
         /**
          * Gets if this manager has ADVs (at least one non-constant parameter)
@@ -120,7 +120,7 @@ namespace moris::gen
          * @param aConstants Constants to fill in other values
          */
         void create_advs(
-                Matrix< DDRMat >& aADVs,
-                const Matrix< DDRMat >& aConstants );
+                Vector< real >&         aADVs,
+                const Vector< real >& aConstants );
     };
 }

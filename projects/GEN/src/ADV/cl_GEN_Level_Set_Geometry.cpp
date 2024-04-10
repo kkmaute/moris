@@ -552,10 +552,10 @@ namespace moris::gen
 
     void
     Level_Set_Geometry::discretize(
-            mtk::Mesh_Pair          aMeshPair,
-            sol::Dist_Vector*       aOwnedADVs,
-            const Matrix< DDSMat >& aSharedADVIds,
-            uint                    aADVOffsetID )
+            mtk::Mesh_Pair        aMeshPair,
+            sol::Dist_Vector*     aOwnedADVs,
+            const Vector< sint >& aSharedADVIds,
+            uint                  aADVOffsetID )
     {
         Design_Field::discretize( aMeshPair, aOwnedADVs, aSharedADVIds, aADVOffsetID );
     }
@@ -567,7 +567,7 @@ namespace moris::gen
             std::shared_ptr< mtk::Field > aMTKField,
             mtk::Mesh_Pair                aMeshPair,
             sol::Dist_Vector*             aOwnedADVs,
-            const Matrix< DDSMat >&       aSharedADVIds,
+            const Vector< sint >&         aSharedADVIds,
             uint                          aADVOffsetID )
     {
         Design_Field::discretize( aMTKField, aMeshPair, aOwnedADVs, aSharedADVIds, aADVOffsetID );

@@ -337,8 +337,8 @@ namespace moris
 
     Matrix< DDRMat >
     compute_objectives(
-            Matrix< DDRMat > aADVs,
-            Matrix< DDRMat > aCriteria )
+            const Vector< real >& aADVs,
+            const Vector< real >& aCriteria )
     {
         Matrix< DDRMat > tObjectives = { { aCriteria( 0 ) } };
 
@@ -349,10 +349,10 @@ namespace moris
 
     Matrix< DDRMat >
     compute_dobjective_dadv(
-            Matrix< DDRMat > aADVs,
-            Matrix< DDRMat > aCriteria )
+            const Vector< real >& aADVs,
+            const Vector< real >& aCriteria )
     {
-        Matrix< DDRMat > tDObjectiveDADV( 1, aADVs.numel(), 0.0 );
+        Matrix< DDRMat > tDObjectiveDADV( 1, aADVs.size(), 0.0 );
 
         return tDObjectiveDADV;
     }
@@ -361,10 +361,10 @@ namespace moris
 
     Matrix< DDRMat >
     compute_dobjective_dcriteria(
-            Matrix< DDRMat > aADVs,
-            Matrix< DDRMat > aCriteria )
+            const Vector< real >& aADVs,
+            const Vector< real >& aCriteria )
     {
-        Matrix< DDRMat > tDObjectiveDCriteria( 1, aCriteria.numel(), 0.0 );
+        Matrix< DDRMat > tDObjectiveDCriteria( 1, aCriteria.size(), 0.0 );
 
         tDObjectiveDCriteria( 0 ) = 1.0;
 
@@ -375,8 +375,8 @@ namespace moris
 
     Matrix< DDRMat >
     compute_constraints(
-            Matrix< DDRMat > aADVs,
-            Matrix< DDRMat > aCriteria )
+            const Vector< real >& aADVs,
+            const Vector< real >& aCriteria )
     {
         Matrix< DDRMat > tConstraints( tNumConstraints, 1 );
 
@@ -396,10 +396,10 @@ namespace moris
 
     Matrix< DDRMat >
     compute_dconstraint_dadv(
-            Matrix< DDRMat > aADVs,
-            Matrix< DDRMat > aCriteria )
+            const Vector< real >& aADVs,
+            const Vector< real >& aCriteria )
     {
-        Matrix< DDRMat > tDConstraintDADV( tNumConstraints, aADVs.numel(), 0.0 );
+        Matrix< DDRMat > tDConstraintDADV( tNumConstraints, aADVs.size(), 0.0 );
 
         return tDConstraintDADV;
     }
@@ -408,10 +408,10 @@ namespace moris
 
     Matrix< DDRMat >
     compute_dconstraint_dcriteria(
-            Matrix< DDRMat > aADVs,
-            Matrix< DDRMat > aCriteria )
+            const Vector< real >& aADVs,
+            const Vector< real >& aCriteria )
     {
-        Matrix< DDRMat > tDConstraintDCriteria( tNumConstraints, aCriteria.numel(), 0.0 );
+        Matrix< DDRMat > tDConstraintDCriteria( tNumConstraints, aCriteria.size(), 0.0 );
 
         tDConstraintDCriteria( 0, 0 ) = 1.0;
         tDConstraintDCriteria( 1, 1 ) = 1.0;

@@ -90,7 +90,7 @@ namespace moris::gen
             mtk::Interpolation_Mesh* tMesh = create_simple_mesh( 2, 2 );
 
             // Set up geometry
-            Matrix< DDRMat > tADVs = { {} };
+            Vector< real > tADVs = {};
 
             // surface mesh
             Parameter_List tRhombusParameterList = prm::create_surface_mesh_geometry_parameter_list();

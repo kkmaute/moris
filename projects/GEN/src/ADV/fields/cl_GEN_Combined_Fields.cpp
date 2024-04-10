@@ -20,7 +20,7 @@ namespace moris::gen
             Vector< std::shared_ptr< Field > > aFields,
             bool                               aUseMinimum,
             std::string                        aName )
-            : Field( Matrix< DDRMat >{ {} }, aName )
+            : Field( Vector< real >(), aName )
             , mFields( aFields )
             , mScale( 2 * aUseMinimum - 1 )
     {
@@ -104,7 +104,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix< DDSMat > Combined_Fields::get_determining_adv_ids(
+    Vector< sint > Combined_Fields::get_determining_adv_ids(
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates )
     {
@@ -128,7 +128,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void Combined_Fields::get_determining_adv_ids(
-            Matrix< DDSMat >&   aDeterminingADVIDs,
+            Vector< sint >&   aDeterminingADVIDs,
             const Derived_Node& aDerivedNode,
             const Node_Manager& aNodeManager )
     {
