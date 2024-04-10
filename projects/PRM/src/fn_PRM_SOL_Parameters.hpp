@@ -808,9 +808,12 @@ namespace moris
         {
             Parameter_List tNonLinSolverParameterList;
 
-            enum moris::NLA::NonlinearSolverType NonlinearSolverType = moris::NLA::NonlinearSolverType::NEWTON_SOLVER;
+            enum moris::NLA::NonlinearSolverType tNonlinearSolverType = moris::NLA::NonlinearSolverType::NEWTON_SOLVER;
 
-            tNonLinSolverParameterList.insert( "NLA_Solver_Implementation", (uint)( NonlinearSolverType ) );
+            tNonLinSolverParameterList.insert( "NLA_Solver_Implementation",
+                    tNonlinearSolverType,
+                    NLA::NonlinearSolverType::NEWTON_SOLVER,
+                    NLA::NonlinearSolverType::ARC_LENGTH_SOLVER );
 
             tNonLinSolverParameterList.insert( "NLA_DofTypes", "UNDEFINED" );
 
