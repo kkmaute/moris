@@ -41,7 +41,7 @@ namespace moris::gen
     }
 
     void
-    Intersection_Node_Surface_Mesh::get_rotation_matrix( Matrix< DDRMat >& aRotationMatrix )
+    Intersection_Node_Surface_Mesh::get_rotation_matrix( Matrix< DDRMat >& aRotationMatrix ) const
     {
         // get parent vector
         Matrix< DDRMat > tParentVector = this->get_first_parent_node().get_global_coordinates() - this->get_second_parent_node().get_global_coordinates();
@@ -98,7 +98,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDRMat >
-    Intersection_Node_Surface_Mesh::compute_dxi_dfacet()
+    Intersection_Node_Surface_Mesh::compute_dxi_dfacet() const
     {
         // Get the parent vector and its norm from the intersection node
         Matrix< DDRMat > tParentVector     = this->get_first_parent_node().get_global_coordinates() - this->get_second_parent_node().get_global_coordinates();
@@ -137,8 +137,47 @@ namespace moris::gen
 
     void Intersection_Node_Surface_Mesh::append_dcoordinate_dadv( Matrix< DDRMat >& aCoordinateSensitivities, const Matrix< DDRMat >& aSensitivityFactor ) const
     {
-        // TODO
-    MORIS_ERROR( false, "Intersection_Node_Surface_Mesh - get_dcoordinate_dadv() not implemented yet." );
+        // Get parent nodes
+        const Basis_Node& tFirstParentNode  = this->get_first_parent_node();
+        const Basis_Node& tSecondParentNode = this->get_second_parent_node();
+
+        // Compute parent vector
+        Matrix< DDRMat > tParentVector = trans( tSecondParentNode.get_global_coordinates() - tFirstParentNode.get_global_coordinates() );
+
+        Matrix< DDRMat > tLocalCoordinateFacetVertexSensitivities = this->compute_dxi_dfacet();
+
+        Matrix< DDRMat > tSensitivitiesToAdd = .5 * aSensitivityFactor * tParentVector * ( tLocalCoordinateFacetVertexSensitivities.get_column( 0 ) * mInterfaceGeometry.get_dvertex_dadv( mParentFacet->get_vertex_inds()( 0 ) ) + tLocalCoordinateFacetVertexSensitivities.get_column( 1 ) * mInterfaceGeometry.get_dvertex_dadv( mParentFacet->get_vertex_inds()( 1 ) ) );
+
+        // Resize sensitivities
+        uint tJoinedSensitivityLength = aCoordinateSensitivities.n_cols();
+        aCoordinateSensitivities.resize( tSensitivitiesToAdd.n_rows(),
+                tJoinedSensitivityLength + tSensitivitiesToAdd.n_cols() );
+
+        // Join sensitivities
+        for ( uint iCoordinateIndex = 0; iCoordinateIndex < tSensitivitiesToAdd.n_rows(); iCoordinateIndex++ )
+        {
+            for ( uint iAddedSensitivity = 0; iAddedSensitivity < tSensitivitiesToAdd.n_cols(); iAddedSensitivity++ )
+            {
+                aCoordinateSensitivities( iCoordinateIndex, tJoinedSensitivityLength + iAddedSensitivity ) =
+                        tSensitivitiesToAdd( iCoordinateIndex, iAddedSensitivity );
+            }
+        }
+
+        // Add first parent coordinate sensitivities
+        if ( tFirstParentNode.depends_on_advs() )
+        {
+            Matrix< DDRMat > tLocCoord          = ( 1.0 - this->get_local_coordinate() ) * eye( tParentVector.n_rows(), tParentVector.n_rows() );
+            Matrix< DDRMat > tSensitivityFactor = 0.5 * ( tLocCoord + tParentVector * this->get_dxi_dcoordinate_first_parent() );
+            tFirstParentNode.append_dcoordinate_dadv( aCoordinateSensitivities, tSensitivityFactor );
+        }
+
+        // Add second parent coordinate sensitivities
+        if ( tSecondParentNode.depends_on_advs() )
+        {
+            Matrix< DDRMat > tLocCoord          = ( 1.0 + this->get_local_coordinate() ) * eye( tParentVector.n_rows(), tParentVector.n_rows() );
+            Matrix< DDRMat > tSensitivityFactor = 0.5 * ( tLocCoord + tParentVector * this->get_dxi_dcoordinate_second_parent() );
+            tSecondParentNode.append_dcoordinate_dadv( aCoordinateSensitivities, tSensitivityFactor );
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -146,11 +185,57 @@ namespace moris::gen
     Matrix< DDSMat >
     Intersection_Node_Surface_Mesh::get_coordinate_determining_adv_ids() const
     {
-        // TODO
-        MORIS_ERROR( false, "Intersection_Node_Surface_Mesh - get_coordinate_determining_adv_ids() not implemented yet." );
-        return { { -1 } };
+        // Initialize ADV IDs
+        Matrix< DDSMat > tCoordinateDeterminingADVIDs;
+
+        // Get sensitivity values from parents
+        const Vector< Basis_Node >& tFieldBasisNodes = this->get_locator_nodes();
+        for ( uint iFieldBasisNode = 0; iFieldBasisNode < tFieldBasisNodes.size(); iFieldBasisNode++ )
+        {
+            // Get geometry field sensitivity with respect to ADVs
+            const Matrix< DDSMat >& tAncestorADVIDs = mInterfaceGeometry.get_determining_adv_ids(
+                    tFieldBasisNodes( iFieldBasisNode ).get_index(),
+                    tFieldBasisNodes( iFieldBasisNode ).get_global_coordinates() );
+
+            // Join IDs
+            Intersection_Node::join_adv_ids( tCoordinateDeterminingADVIDs, tAncestorADVIDs );
+        }
+
+        // Get parent nodes
+        const Basis_Node& tFirstParentNode = this->get_first_parent_node();
+        const Basis_Node& tSecondParentNode = this->get_second_parent_node();
+
+        // Add parent IDs
+        if ( tFirstParentNode.depends_on_advs() )
+        {
+            Intersection_Node::join_adv_ids( tCoordinateDeterminingADVIDs, tFirstParentNode.get_coordinate_determining_adv_ids() );
+        }
+        if ( tSecondParentNode.depends_on_advs() )
+        {
+            Intersection_Node::join_adv_ids( tCoordinateDeterminingADVIDs, tSecondParentNode.get_coordinate_determining_adv_ids() );
+        }
+
+        // Return joined ADV IDs
+        return tCoordinateDeterminingADVIDs;
     }
 
     //--------------------------------------------------------------------------------------------------------------
+
+    Matrix< DDRMat >
+    Intersection_Node_Surface_Mesh::get_dxi_dcoordinate_first_parent() const
+    {
+        MORIS_ERROR( false, "Intersection_Node_Surface_Mesh does not yet support intersections on intersections." );
+        return { { 0 } };
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+
+    Matrix< DDRMat >
+    Intersection_Node_Surface_Mesh::get_dxi_dcoordinate_second_parent() const
+    {
+        MORIS_ERROR( false, "Intersection_Node_Surface_Mesh does not yet support intersections on intersections." );
+        return { { 0 } };
+    }
 
 }    // namespace moris::gen

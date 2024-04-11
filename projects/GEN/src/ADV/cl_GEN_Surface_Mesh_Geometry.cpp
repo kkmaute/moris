@@ -52,6 +52,7 @@ namespace moris::gen
             , mMesh( aMesh )
             , mOriginalVertexCoordinates( Object::mVertices.size(), Object::mDimension )
             , mPerturbationFields( 0 )
+            , mVertexBases( 0, 0 )
     {
         // Check the correct number of ADVs are provided (either as many as dimensions or zero)
         MORIS_ERROR( aParameters.mADVIndices.size() == Object::mDimension
@@ -134,7 +135,6 @@ namespace moris::gen
                     // determine the local coordinates of the vertex inside the mtk::Cell
                     for ( uint iDimensionIndex = 0; iDimensionIndex < Object::mDimension; iDimensionIndex++ )
                     {
-                        // BRENDAN, parametric coordinates might need to be between 0 and 1
                         tVertexParametricCoordinates( iDimensionIndex, 0 ) = 2.0 * ( Object::mVertices( iVertexIndex )->get_coord( iDimensionIndex ) - tElementBoundingBox( 0 )( iDimensionIndex ) )
                                                                                    / ( tElementBoundingBox( 1 )( iDimensionIndex ) - tElementBoundingBox( 0 )( iDimensionIndex ) )
                                                                            - 1.0;
@@ -594,15 +594,15 @@ namespace moris::gen
             // Loop over background nodes
             for ( uint iNodeIndex = 0; iNodeIndex < mVertexBases.n_cols(); iNodeIndex++ )
             {
-                Matrix< DDRMat > tNodeSensitivity =  mPerturbationFields( iDimensionIndex )->get_dfield_dadvs( tVertexIndices( iNodeIndex ), tVertexCoordinates.get_row( iNodeIndex) );
-                
+                Matrix< DDRMat > tNodeSensitivity = mPerturbationFields( iDimensionIndex )->get_dfield_dadvs( tVertexIndices( iNodeIndex ), tVertexCoordinates.get_row( iNodeIndex ) );
+
                 // set size of vertex sensitivity matrix
                 if ( iDimensionIndex == 0 and iNodeIndex == 0 )
                 {
                     tVertexSensitivity.resize( Object::mDimension, tNodeSensitivity.numel() );
                 }
 
-                for( uint iADVIndex = 0; iADVIndex < tNodeSensitivity.numel(); iADVIndex++)
+                for ( uint iADVIndex = 0; iADVIndex < tNodeSensitivity.numel(); iADVIndex++ )
                 {
                     tVertexSensitivity( iDimensionIndex, iADVIndex ) += tNodeSensitivity( iADVIndex );
                 }
@@ -613,6 +613,35 @@ namespace moris::gen
         delete tBackgroundElement;
 
         return tVertexSensitivity;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+
+    Matrix< DDSMat >
+    Surface_Mesh_Geometry::get_determining_adv_ids(
+            uint                    aNodeIndex,
+            const Matrix< DDRMat >& aCoordinates )
+    {
+        Matrix< DDSMat > tADVIDs;
+        for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
+        {
+            // Get the ADV IDs for this field
+            Matrix< DDSMat > tFieldADVIDs = mPerturbationFields( iFieldIndex )->get_determining_adv_ids( aNodeIndex, aCoordinates );
+
+            // Append the ADV IDs to the output matrix
+            // Resize IDs
+            uint tJoinedIDLength = tADVIDs.n_cols();
+            tADVIDs.resize( 1, tJoinedIDLength + tFieldADVIDs.length() );
+
+            // Join IDs
+            for ( uint tAddedSensitivity = 0; tAddedSensitivity < tFieldADVIDs.length(); tAddedSensitivity++ )
+            {
+                tADVIDs( tJoinedIDLength + tAddedSensitivity ) = tFieldADVIDs( tAddedSensitivity );
+            }
+        }
+
+        return tADVIDs;
     }
 
     //--------------------------------------------------------------------------------------------------------------

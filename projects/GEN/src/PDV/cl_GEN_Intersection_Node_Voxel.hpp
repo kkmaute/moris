@@ -35,16 +35,15 @@ namespace moris::gen
          * @param aInterfaceGeometry Interface geometry (voxel)
          */
         Intersection_Node_Voxel(
-                uint                     aNodeIndex,
+                uint                              aNodeIndex,
                 const Vector< Background_Node* >& aBackgroundNodes,
-                const Parent_Node&       aFirstParentNode,
-                const Parent_Node&       aSecondParentNode,
-                mtk::Geometry_Type       aBackgroundGeometryType,
-                mtk::Interpolation_Order aBackgroundInterpolationOrder,
-                Voxel_Geometry&          aInterfaceGeometry );
+                const Parent_Node&                aFirstParentNode,
+                const Parent_Node&                aSecondParentNode,
+                mtk::Geometry_Type                aBackgroundGeometryType,
+                mtk::Interpolation_Order          aBackgroundInterpolationOrder,
+                Voxel_Geometry&                   aInterfaceGeometry );
 
       protected:
-
         /**
          * Gets the geometry that this intersection node was created on its interface.
          *
@@ -58,5 +57,21 @@ namespace moris::gen
          * @return Const geometry reference
          */
         const Geometry& get_interface_geometry() const override;
+
+        /**
+         * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
+         * coordinate values of its first parent.
+         *
+         * @return Local coordinate sensitivity
+         */
+        Matrix< DDRMat > get_dxi_dcoordinate_first_parent() const override;
+
+        /**
+         * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
+         * coordinate values of its second parent.
+         *
+         * @return Local coordinate sensitivity
+         */
+        Matrix< DDRMat > get_dxi_dcoordinate_second_parent() const override;
     };
-}
+}    // namespace moris::gen

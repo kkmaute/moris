@@ -189,5 +189,21 @@ namespace moris::gen
         static void join_adv_ids(
                 Matrix< DDSMat >&       aCombinedIDs,
                 const Matrix< DDSMat >& aIDsToAdd );
+
+        /**
+         * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
+         * coordinate values of its first parent.
+         *
+         * @return Local coordinate sensitivity
+         */
+        virtual Matrix< DDRMat > get_dxi_dcoordinate_first_parent() const = 0;
+
+        /**
+         * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
+         * coordinate values of its second parent.
+         *
+         * @return Local coordinate sensitivity
+         */
+        virtual Matrix< DDRMat > get_dxi_dcoordinate_second_parent() const = 0;
     };
 }    // namespace moris::gen

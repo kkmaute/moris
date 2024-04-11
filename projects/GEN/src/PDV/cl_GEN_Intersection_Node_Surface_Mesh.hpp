@@ -59,7 +59,7 @@ namespace moris::gen
          *
          * @param aRotationMatrix Rotation matrix to fill
          */
-        void get_rotation_matrix( Matrix< DDRMat >& aRotationMatrix );
+        void get_rotation_matrix( Matrix< DDRMat >& aRotationMatrix ) const;
 
       protected:
         /**
@@ -75,6 +75,22 @@ namespace moris::gen
          * @return Const geometry reference
          */
         const Geometry& get_interface_geometry() const override;
+        
+                /**
+         * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
+         * coordinate values of its first parent.
+         *
+         * @return Local coordinate sensitivity
+         */
+        Matrix< DDRMat > get_dxi_dcoordinate_first_parent() const override;
+
+        /**
+         * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
+         * coordinate values of its second parent.
+         *
+         * @return Local coordinate sensitivity
+         */
+        Matrix< DDRMat > get_dxi_dcoordinate_second_parent() const override;
 
       private:
         /**
@@ -82,8 +98,8 @@ namespace moris::gen
          *
          * @return Vector< real > Sensitivities of the local coordinate with respect to the facet vertices. Size <Object dimension x number of vertices>
          */
-        virtual Matrix< DDRMat >
-        compute_dxi_dfacet();
+        Matrix< DDRMat >
+        compute_dxi_dfacet() const;
 
         /**
          * Gets the sensitivities of this node's global coordinates with respect to the ADVs which affect one of the

@@ -290,10 +290,22 @@ namespace moris::gen
 
         /**
          * Computes and returns the sensitivity of a facet vertex with respect to the ADVs
-         * 
-         * @return Matrix< DDRMat > 
+         *
+         * @return Matrix< DDRMat >
          */
-        Matrix< DDRMat > get_dvertex_dadv( uint aFacetVertexIndex);
+        Matrix< DDRMat > get_dvertex_dadv( uint aFacetVertexIndex );
+
+        
+        /**
+         * Gets the IDs of the ADVs that the given node depends on
+         * 
+         * @param aNodeIndex the query node index for which ADVs to retrieve
+         * @param aCoordinates the query node coordinates for which ADVs to retrieve
+         * @return Matrix< DDSMat > 
+         */
+        Matrix< DDSMat > get_determining_adv_ids(
+                uint                    aNodeIndex,
+                const Matrix< DDRMat >& aCoordinates );
 
       private:
         /**
@@ -303,9 +315,7 @@ namespace moris::gen
          * @param aFirstParentNode First parent node, which has a local coordinate value of -1
          * @param aSecondParentNode Second parent node, which has a local coordinate value of 1
          */
-        void transform_surface_mesh_to_local_coordinate(
-                const Parent_Node& aFirstParentNode,
-                const Parent_Node& aSecondParentNode );
+        void transform_surface_mesh_to_local_coordinate( const Parent_Node& aFirstParentNode, const Parent_Node& aSecondParentNode );
 
         /**
          * Finds the background elemenent in aField that contains aCoordinates
