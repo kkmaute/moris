@@ -6,7 +6,7 @@
 #
 
 set(EXAMPLE_MAIN Main_Shape_Sensitivity_Bspline)
-set(EXAMPLE_FILES Shape_Sensitivity_Bspline_2D Shape_Sensitivity_Bspline_3D)
+set(EXAMPLE_FILES Shape_Sensitivity_Bspline_2D Shape_Sensitivity_Bspline_3D Shape_Sensitivity_Bspline_Surface_Mesh_2D)
 set(EXAMPLE_PROCS 1)
 
 # List source files
@@ -91,6 +91,7 @@ endforeach()
 
 # create dynamically linked .so files
 foreach(EXAMPLE_FILE ${EXAMPLE_FILES})
+    message(STATUS "Creating dynamic link for ${EXAMPLE_FILE}")
     dynamic_link_input(${EXAMPLE_FILE} ${EXAMPLE_FILE} ${EXAMPLE_FILE}.cpp ${SO_INCLUDES})
 endforeach()
 
