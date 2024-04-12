@@ -17,7 +17,8 @@
 namespace moris
 {
     // Variant typedef
-    typedef std::variant< bool, uint, sint, real, std::string, std::pair< std::string, std::string > > Variant;
+    typedef std::variant< bool, uint, sint, real, std::string, std::pair< std::string, std::string >,
+            Vector< uint >, Vector< real > > Variant;
 
     /**
      * Gets the name of the type that the boost variant contains, based on the above typedef and an index

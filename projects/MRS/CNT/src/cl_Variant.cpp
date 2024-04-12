@@ -30,8 +30,24 @@ namespace moris
                 return "string";
             case 5:
                 return "std::pair<string, string>";
+            case 6:
+                return "Vector<uint>";
+            case 7:
+                return "Vector<real>";
             default:
                 return "";
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    template< typename T >
+    void vector_variant_to_string( std::stringstream& aStringStream, Variant aVariant )
+    {
+        Vector< T > tVector = std::get< Vector< T > >( aVariant );
+        for ( auto iVectorElement : tVector )
+        {
+            aStringStream << iVectorElement;
         }
     }
 
@@ -72,6 +88,16 @@ namespace moris
             {
                 std::pair< std::string, std::string > tPair = std::get< std::pair< std::string, std::string > >( aVariant );
                 tStringStream << tPair.first << "," << tPair.second;
+                break;
+            }
+            case 6:
+            {
+                vector_variant_to_string< uint >( tStringStream, aVariant );
+                break;
+            }
+            case 7:
+            {
+                vector_variant_to_string< real >( tStringStream, aVariant );
                 break;
             }
             default:

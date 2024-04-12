@@ -111,7 +111,7 @@ namespace moris
         erase( const std::string& aKey );
 
         /**
-         * @brief Sets an element to a value if it exists, otherwise an error is thrown
+         * Sets an element to a value if it exists, otherwise an error is thrown
          *        whitespaces in key and value string will be removed
          *
          * @param[in] aKey Key corresponding to the mapped value that
@@ -125,6 +125,22 @@ namespace moris
         {
             // Delegate to private implementation overload, depending on if T is an enum
             this->set( aKey, aValue, aLockValue, std::is_enum< T >() );
+        }
+
+        /**
+         * Sets an element to a moris vector using a std::initializer_list
+         *
+         * @param[in] aKey Key corresponding to the mapped value that
+         *            needs to be accessed; spaces will be removed
+         * @param[in] aValue Value corresponding to aKey; if values is a string, pair of
+         *            strings or character array, whitespaces will be removed
+         * @param aLockValue If the set value is to be locked, and unable to be set again.
+         */
+        template< typename T >
+        void set( const std::string& aKey, std::initializer_list< T > aValue, bool aLockValue = true )
+        {
+            // Delegate to private implementation overload, T is guaranteed not an enum
+            this->set( aKey, Vector< T >( aValue ), aLockValue, std::false_type() );
         }
 
         /**

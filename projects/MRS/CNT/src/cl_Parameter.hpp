@@ -10,7 +10,6 @@
 
 #pragma once
 
-#include <boost/variant.hpp>
 #include "moris_typedefs.hpp"
 #include "cl_Validator.hpp"
 #include "fn_Parsing_Tools.hpp"
