@@ -667,7 +667,7 @@ namespace moris
         tParameterlist( 2 )( tParamCounter ).set( "name", "LvL_Set_Field" );
         tParameterlist( 2 )( tParamCounter ).set( "dependencies", "Level_Set_Field" );
         tParameterlist( 2 )( tParamCounter ).set( "field_type", "scaled_field" );
-        tParameterlist( 2 )( tParamCounter ).set( "constant_parameters", "1.0" );
+        tParameterlist( 2 )( tParamCounter ).set( "constant_parameters", { 1.0 } );
         tParameterlist( 2 )( tParamCounter ).set( "pdv_type", "LS1" );
         // tParameterlist( 2 )( tParamCounter ).set("discretization_mesh_index",   -1);
         // tParameterlist( 2 )( tParamCounter ).set("discretization_lower_bound", 0.001);
@@ -679,7 +679,7 @@ namespace moris
         tParameterlist( 2 )( tParamCounter ).set( "name", "Density_Field" );
         tParameterlist( 2 )( tParamCounter ).set( "dependencies", "Level_Set_Field" );
         tParameterlist( 2 )( tParamCounter ).set( "field_type", "scaled_field" );
-        tParameterlist( 2 )( tParamCounter ).set( "constant_parameters", "1.0" );
+        tParameterlist( 2 )( tParamCounter ).set( "constant_parameters", { 1.0 } );
         tParameterlist( 2 )( tParamCounter ).set( "pdv_type", "DENSITY" );
         tParameterlist( 2 )( tParamCounter ).set( "pdv_mesh_set_names", tTotalDomainAGhost );
         tParamCounter++;

@@ -68,9 +68,9 @@ namespace moris::gen
         }
         else
         {
-            mInitialPrimitiveADVs = string_to_cell< real >( aParameterLists( 0 )( 0 ).get< std::string >( "initial_advs" ) );
-            mLowerBounds          = string_to_cell< real >( aParameterLists( 0 )( 0 ).get< std::string >( "lower_bounds" ) );
-            mUpperBounds          = string_to_cell< real >( aParameterLists( 0 )( 0 ).get< std::string >( "upper_bounds" ) );
+            mInitialPrimitiveADVs = aParameterLists( 0 )( 0 ).get< Vector< real > >( "initial_advs" );
+            mLowerBounds          = aParameterLists( 0 )( 0 ).get< Vector< real > >( "lower_bounds" );
+            mUpperBounds          = aParameterLists( 0 )( 0 ).get< Vector< real > >( "upper_bounds" );
         }
 
         // Create designs with the factory

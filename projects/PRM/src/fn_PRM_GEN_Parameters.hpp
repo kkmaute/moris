@@ -27,21 +27,20 @@ namespace moris::prm
         Parameter_List tGENParameterList;
 
         // Level set parameters
-        tGENParameterList.insert( "evaluate_new_pts_as_linear", false );    // for the new vertices, should I use full background cell info or only the linear version
         tGENParameterList.insert( "output_mesh_file", "" );                 // File name for exodus mesh, if default no mesh is written
         tGENParameterList.insert( "geometry_field_file", "" );              // Base file name (without extension) for saving geometry fields
         tGENParameterList.insert( "time_offset", 0.0 );                     // Time offset for writing files in optimization process
 
         // ADVs/IQIs
-        tGENParameterList.insert( "initial_advs", "" );          // Initial ADVs, string converted into vector
-        tGENParameterList.insert( "advs_size", 0 );              // Specify size and fill value for ADVs in addition to
-        tGENParameterList.insert( "initial_advs_fill", 0.0 );    // explicitly defined ADVs (above)
-        tGENParameterList.insert( "lower_bounds", "" );          // Lower bounds on advs, string converted into vector
-        tGENParameterList.insert( "lower_bounds_fill", 0.0 );    // Fill value for lower bounds up to size of ADV vector
-        tGENParameterList.insert( "upper_bounds", "" );          // Upper bounds on advs, string converted into vector
-        tGENParameterList.insert( "upper_bounds_fill", 0.0 );    // Fill value for upper bounds up to size of ADV vector
-        tGENParameterList.insert( "IQI_types", "" );             // Requested IQI types for sensitivity analysis
-        tGENParameterList.insert( "PDV_types", "" );             // Requested PDV types for sensitivity analysis
+        tGENParameterList.insert( "initial_advs", Vector< real >() );    // Initial ADV vector
+        tGENParameterList.insert( "advs_size", 0 );                      // Specify size and fill value for ADVs in addition to
+        tGENParameterList.insert( "initial_advs_fill", 0.0 );            // explicitly defined ADVs (above)
+        tGENParameterList.insert( "lower_bounds", Vector< real >() );    // Lower bounds on advs, string converted into vector
+        tGENParameterList.insert( "lower_bounds_fill", 0.0 );            // Fill value for lower bounds up to size of ADV vector
+        tGENParameterList.insert( "upper_bounds", Vector< real >() );    // Upper bounds on advs, string converted into vector
+        tGENParameterList.insert( "upper_bounds_fill", 0.0 );            // Fill value for upper bounds up to size of ADV vector
+        tGENParameterList.insert( "IQI_types", "" );                     // Requested IQI types for sensitivity analysis
+        tGENParameterList.insert( "PDV_types", "" );                     // Requested PDV types for sensitivity analysis
 
         // Phase table
         tGENParameterList.insert( "phase_table", "" );             // Construct phase table directly
@@ -64,12 +63,12 @@ namespace moris::prm
      */
     static void insert_field_parameters( Parameter_List& aDesignParameterList )
     {
-        aDesignParameterList.insert( "name", "" );                      // Name of field
-        aDesignParameterList.insert( "field_type", "" );                // Type of field
-        aDesignParameterList.insert( "dependencies", "" );              // Names of other fields that this field depends on
-        aDesignParameterList.insert( "field_variable_indices", "" );    // Indices of field variables to fill
-        aDesignParameterList.insert( "adv_indices", "" );               // ADVs used to fill in variables
-        aDesignParameterList.insert( "constant_parameters", "" );       // Remaining geometry parameters that are constant
+        aDesignParameterList.insert( "field_type", "" );                              // Type of field
+        aDesignParameterList.insert( "name", "" );                                    // Name of field
+        aDesignParameterList.insert( "dependencies", "" );                            // Names of other fields that this field depends on
+        aDesignParameterList.insert( "field_variable_indices", Vector< uint >() );    // Indices of field variables to fill
+        aDesignParameterList.insert( "adv_indices", Vector< uint >() );               // ADVs used to fill in variables
+        aDesignParameterList.insert( "constant_parameters", Vector< real >() );       // Remaining geometry parameters that are constant
     }
 
     /**

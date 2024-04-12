@@ -46,62 +46,43 @@ namespace moris::gen
         Vector< uint > tADVIndices;
         Vector< real > tConstants;
 
-        // If not a swiss cheese, get ADV inputs
-        if ( tFieldType.compare( 0, 12, "swiss_cheese" ) )
+        bool tFillVariables = false;
+        bool tFillADVs      = false;
+
+        tVariableIndices = aFieldParameterList.get< Vector< uint > >( "field_variable_indices" );
+        tADVIndices = aFieldParameterList.get< Vector< uint > >( "adv_indices" );
+
+        // Perform fill
+        if ( tFillVariables and tFillADVs )
         {
-            bool tFillVariables = false;
-            bool tFillADVs      = false;
-
-            // Determine if variable or ADV indices need to be filled (specified by "all")
-            if ( aFieldParameterList.get< std::string >( "field_variable_indices" ) == "all" )
+            uint tNumADVs = aADVs.size();
+            tVariableIndices.resize( tNumADVs );
+            tADVIndices.resize( tNumADVs );
+            for ( uint tIndex = 0; tIndex < tNumADVs; tIndex++ )
             {
-                tFillVariables = true;
+                tVariableIndices( tIndex ) = tIndex;
+                tADVIndices( tIndex )      = tIndex;
             }
-            else
-            {
-                string_to_cell( aFieldParameterList.get< std::string >( "field_variable_indices" ), tVariableIndices );
-            }
-            if ( aFieldParameterList.get< std::string >( "adv_indices" ) == "all" )
-            {
-                tFillADVs = true;
-            }
-            else
-            {
-                string_to_cell( aFieldParameterList.get< std::string >( "adv_indices" ), tADVIndices );
-            }
-
-            // Perform fill
-            if ( tFillVariables and tFillADVs )
-            {
-                uint tNumADVs = aADVs.size();
-                tVariableIndices.resize( tNumADVs );
-                tADVIndices.resize( tNumADVs );
-                for ( uint tIndex = 0; tIndex < tNumADVs; tIndex++ )
-                {
-                    tVariableIndices( tIndex ) = tIndex;
-                    tADVIndices( tIndex )      = tIndex;
-                }
-            }
-            else if ( tFillVariables )
-            {
-                tVariableIndices.resize( tADVIndices.size() );
-                for ( uint tIndex = 0; tIndex < tADVIndices.size(); tIndex++ )
-                {
-                    tVariableIndices( tIndex ) = tIndex;
-                }
-            }
-            else if ( tFillADVs )
-            {
-                tADVIndices.resize( tVariableIndices.size() );
-                for ( uint tIndex = 0; tIndex < tVariableIndices.size(); tIndex++ )
-                {
-                    tADVIndices( tIndex ) = tIndex;
-                }
-            }
-
-            // Constant parameters
-            string_to_cell( aFieldParameterList.get< std::string >( "constant_parameters" ), tConstants );
         }
+        else if ( tFillVariables )
+        {
+            tVariableIndices.resize( tADVIndices.size() );
+            for ( uint tIndex = 0; tIndex < tADVIndices.size(); tIndex++ )
+            {
+                tVariableIndices( tIndex ) = tIndex;
+            }
+        }
+        else if ( tFillADVs )
+        {
+            tADVIndices.resize( tVariableIndices.size() );
+            for ( uint tIndex = 0; tIndex < tVariableIndices.size(); tIndex++ )
+            {
+                tADVIndices( tIndex ) = tIndex;
+            }
+        }
+
+        // Constant parameters
+        tConstants = aFieldParameterList.get< Vector< real > >( "constant_parameters" );
 
         // Name of the field
         std::string tName = aFieldParameterList.get< std::string >( "name" );

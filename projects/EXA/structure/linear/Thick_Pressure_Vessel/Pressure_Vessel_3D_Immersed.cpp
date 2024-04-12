@@ -297,27 +297,27 @@ namespace moris
         // Geometry parameter lists
         tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Sphere" );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", std::to_string( tOuterRad ) );
+        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", { tOuterRad } );
         tGeoCounter++;
 
         tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Sphere" );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", std::to_string( tInnerRad ) );
+        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", { tInnerRad } );
         tGeoCounter++;
 
         tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Plane" );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "0,0,0,1,0,0" );
+        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", { 0.0, 0.0, 0.0, 1.0, 0.0, 0.0 } );
         tGeoCounter++;
 
         tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Plane" );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "0,0,0,0,1,0" );
+        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", { 0.0, 0.0, 0.0, 0.0, 1.0, 0.0 } );
         tGeoCounter++;
 
         tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Plane" );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "0,0,0,0,0,1" );
+        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", { 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 } );
     }
     /* ------------------------------------------------------------------------ */
 

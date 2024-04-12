@@ -29,8 +29,8 @@ namespace moris::gen
         // Set up property
         Parameter_List tConstantPropertyParameterList = prm::create_gen_property_parameter_list();
         tConstantPropertyParameterList.set( "field_type", "constant" );
-        tConstantPropertyParameterList.set( "field_variable_indices", "0" );
-        tConstantPropertyParameterList.set( "adv_indices", "0" );
+        tConstantPropertyParameterList.set( "field_variable_indices", { 0u } );
+        tConstantPropertyParameterList.set( "adv_indices", { 0u } );
         Design_Factory              tDesignFactory( { tConstantPropertyParameterList }, tADVs );
         std::shared_ptr< Property > tConstantProperty = tDesignFactory.get_properties()( 0 );
 
@@ -67,8 +67,8 @@ namespace moris::gen
         Parameter_List tCircleParameterList = prm::create_level_set_geometry_parameter_list();
         tCircleParameterList.set( "field_type", "circle" );
         tCircleParameterList.set( "name", "My Circle" );
-        tCircleParameterList.set( "field_variable_indices", "0, 1, 2" );
-        tCircleParameterList.set( "adv_indices", "0, 1, 2" );
+        tCircleParameterList.set( "field_variable_indices", { 0u, 1u, 2u } );
+        tCircleParameterList.set( "adv_indices", { 0u, 1u, 2u } );
 
         // Set up property
         Parameter_List tScaledFieldParameterList = prm::create_gen_property_parameter_list();
@@ -83,7 +83,7 @@ namespace moris::gen
         {
             // Create scaled field
             real tScale = tUniform( tEngine );
-            tScaledFieldParameterList.set( "constant_parameters", std::to_string( tScale ), false );
+            tScaledFieldParameterList.set( "constant_parameters", { tScale }, false );
             Design_Factory                        tDesignFactory( { tCircleParameterList, tScaledFieldParameterList }, tADVs );
             std::shared_ptr< Level_Set_Geometry > tCircle     = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
             auto                                  tProperties = tDesignFactory.get_properties();
@@ -116,7 +116,7 @@ namespace moris::gen
         // Constant B-spline parameter list
         Parameter_List tPropertyParameterList = prm::create_gen_property_parameter_list();
         tPropertyParameterList.set( "field_type", "constant" );
-        tPropertyParameterList.set( "constant_parameters", "1.0" );
+        tPropertyParameterList.set( "constant_parameters", { 1.0 } );
         tPropertyParameterList.set( "discretization_mesh_index", 0 );
         tPropertyParameterList.set( "discretization_lower_bound", -2.0 );
         tPropertyParameterList.set( "discretization_upper_bound", 2.0 );

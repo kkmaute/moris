@@ -279,7 +279,7 @@ namespace moris
         tParameterlist( 2 )( 0 ) = moris::prm::create_gen_property_parameter_list();
         tParameterlist( 2 )( 0 ).set( "field_type", "constant" );
         tParameterlist( 2 )( 0 ).set( "name", "density" );
-        tParameterlist( 2 )( 0 ).set( "constant_parameters", "0.4" );
+        tParameterlist( 2 )( 0 ).set( "constant_parameters", { 0.4 } );
         tParameterlist( 2 )( 0 ).set( "discretization_mesh_index", 0 );
         tParameterlist( 2 )( 0 ).set( "discretization_lower_bound", 0.001 );
         tParameterlist( 2 )( 0 ).set( "discretization_upper_bound", 1.0 );

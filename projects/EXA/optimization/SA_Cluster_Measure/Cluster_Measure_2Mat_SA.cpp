@@ -322,9 +322,9 @@ namespace moris
         tParameterList( 0 ).push_back( prm::create_gen_parameter_list() );
         tParameterList( 0 )( 0 ).set( "number_of_phases"    , 2 );
         tParameterList( 0 )( 0 ).set( "phase_function_name" , tGetPhaseIndex );
-        tParameterList( 0 )( 0 ).set( "initial_advs", "1.35, 0.0, 1.0, 1.0" );
-        tParameterList( 0 )( 0 ).set( "lower_bounds", "1.35, 0.0, 1.0, 1.0" );
-        tParameterList( 0 )( 0 ).set( "upper_bounds", "1.35, 0.0, 1.0, 1.0" );
+        tParameterList( 0 )( 0 ).set( "initial_advs", { 1.35, 0.0, 1.0, 1.0 } );
+        tParameterList( 0 )( 0 ).set( "lower_bounds", { 1.35, 0.0, 1.0, 1.0 } );
+        tParameterList( 0 )( 0 ).set( "upper_bounds", { 1.35, 0.0, 1.0, 1.0 } );
         tParameterList( 0 )( 0 ).set( "IQI_types"   ,
                                      "IQIVolumeInterface1,"
                                      "IQIVolumeMat0,IQIVolumeMat1,"
@@ -341,8 +341,8 @@ namespace moris
         // interface plane
         tParameterList( 1 ).push_back( prm::create_level_set_geometry_parameter_list() );
         tParameterList( 1 )( tGeoCounter ).set( "field_type","plane" );
-        tParameterList( 1 )( tGeoCounter ).set( "field_variable_indices", "0, 1, 2, 3" );
-        tParameterList( 1 )( tGeoCounter ).set( "adv_indices", "0, 1, 2, 3" );
+        tParameterList( 1 )( tGeoCounter ).set( "field_variable_indices", { 0u, 1u, 2u, 3u } );
+        tParameterList( 1 )( tGeoCounter ).set( "adv_indices", { 0u, 1u, 2u, 3u } );
         tGeoCounter++;
     }
 

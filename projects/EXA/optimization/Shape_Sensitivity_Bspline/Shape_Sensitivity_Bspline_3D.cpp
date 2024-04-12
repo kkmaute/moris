@@ -233,24 +233,24 @@ namespace moris
         switch ( tGeoModel )
         {
             case 0:
-                tParameterlist( 0 )( 0 ).set( "initial_advs", "0.20" );
-                tParameterlist( 0 )( 0 ).set( "lower_bounds", "0.00" );
-                tParameterlist( 0 )( 0 ).set( "upper_bounds", "1.00" );
+                tParameterlist( 0 )( 0 ).set( "initial_advs", { 0.20 } );
+                tParameterlist( 0 )( 0 ).set( "lower_bounds", { 0.00 } );
+                tParameterlist( 0 )( 0 ).set( "upper_bounds", { 1.00 } );
                 break;
             case 1:
-                tParameterlist( 0 )( 0 ).set( "initial_advs", "0.65" );
-                tParameterlist( 0 )( 0 ).set( "lower_bounds", "0.00" );
-                tParameterlist( 0 )( 0 ).set( "upper_bounds", "1.00" );
+                tParameterlist( 0 )( 0 ).set( "initial_advs", { 0.65 } );
+                tParameterlist( 0 )( 0 ).set( "lower_bounds", { 0.00 } );
+                tParameterlist( 0 )( 0 ).set( "upper_bounds", { 1.00 } );
                 break;
             case 2:
-                tParameterlist( 0 )( 0 ).set( "initial_advs", "0.20,0.65" );
-                tParameterlist( 0 )( 0 ).set( "lower_bounds", "0.00,0.00" );
-                tParameterlist( 0 )( 0 ).set( "upper_bounds", "1.00,1.00" );
+                tParameterlist( 0 )( 0 ).set( "initial_advs", { 0.20,0.65 } );
+                tParameterlist( 0 )( 0 ).set( "lower_bounds", { 0.00,0.00 } );
+                tParameterlist( 0 )( 0 ).set( "upper_bounds", { 1.00,1.00 } );
                 break;
             case 3:
-                tParameterlist( 0 )( 0 ).set( "initial_advs", "0.65,0.20" );
-                tParameterlist( 0 )( 0 ).set( "lower_bounds", "0.00,0.00" );
-                tParameterlist( 0 )( 0 ).set( "upper_bounds", "1.00,1.00" );
+                tParameterlist( 0 )( 0 ).set( "initial_advs", { 0.65,0.20 } );
+                tParameterlist( 0 )( 0 ).set( "lower_bounds", { 0.00,0.00 } );
+                tParameterlist( 0 )( 0 ).set( "upper_bounds", { 1.00,1.00 } );
                 break;
         }
 
@@ -263,32 +263,32 @@ namespace moris
         switch ( tGeoModel )
         {
             case 0:
-                tParameterlist( 1 )( 0 ).set( "constant_parameters", "-1.0, -1.0, 1.0, 0.0, 0.0" );
-                tParameterlist( 1 )( 0 ).set( "field_variable_indices", "0" );
-                tParameterlist( 1 )( 0 ).set( "adv_indices", "0" );
+                tParameterlist( 1 )( 0 ).set( "constant_parameters", { -1.0, -1.0, 1.0, 0.0, 0.0 } );
+                tParameterlist( 1 )( 0 ).set( "field_variable_indices", { 0u } );
+                tParameterlist( 1 )( 0 ).set( "adv_indices", { 0u } );
                 break;
             case 1:
-                tParameterlist( 1 )( 0 ).set( "constant_parameters", "0.2, -1.0, -1.0, 1.0, 0.0, 0.0" );
+                tParameterlist( 1 )( 0 ).set( "constant_parameters", { 0.2, -1.0, -1.0, 1.0, 0.0, 0.0 } );
                 break;
             case 2:
-                tParameterlist( 1 )( 0 ).set( "constant_parameters", "-1.0, -1.0, 1.0, 0.0, 0.0" );
-                tParameterlist( 1 )( 0 ).set( "field_variable_indices", "0" );
-                tParameterlist( 1 )( 0 ).set( "adv_indices", "0" );
+                tParameterlist( 1 )( 0 ).set( "constant_parameters", { -1.0, -1.0, 1.0, 0.0, 0.0 } );
+                tParameterlist( 1 )( 0 ).set( "field_variable_indices", { 0u } );
+                tParameterlist( 1 )( 0 ).set( "adv_indices", { 0u } );
                 break;
             case 3:
-                tParameterlist( 1 )( 0 ).set( "constant_parameters", "-1.0, -1.0, 1.0, 0.0, 0.0" );
-                tParameterlist( 1 )( 0 ).set( "field_variable_indices", "0" );
-                tParameterlist( 1 )( 0 ).set( "adv_indices", "1" );
+                tParameterlist( 1 )( 0 ).set( "constant_parameters", { -1.0, -1.0, 1.0, 0.0, 0.0 } );
+                tParameterlist( 1 )( 0 ).set( "field_variable_indices", { 0u } );
+                tParameterlist( 1 )( 0 ).set( "adv_indices", { 1u } );
                 break;
             case 4:
-                tParameterlist( 1 )( 0 ).set( "constant_parameters", "0.2, -1.0, -1.0, 1.0, 0.0, 0.0" );
+                tParameterlist( 1 )( 0 ).set( "constant_parameters", { 0.2, -1.0, -1.0, 1.0, 0.0, 0.0 } );
                 tParameterlist( 1 )( 0 ).set( "discretization_mesh_index", 0 );
                 break;
             case 5:
-                tParameterlist( 1 )( 0 ).set( "constant_parameters", "0.2, -1.0, -1.0, 1.0, 0.0, 0.0" );
+                tParameterlist( 1 )( 0 ).set( "constant_parameters", { 0.2, -1.0, -1.0, 1.0, 0.0, 0.0 } );
                 break;
             case 6:
-                tParameterlist( 1 )( 0 ).set( "constant_parameters", "0.2, -1.0, -1.0, 1.0, 0.0, 0.0" );
+                tParameterlist( 1 )( 0 ).set( "constant_parameters", { 0.2, -1.0, -1.0, 1.0, 0.0, 0.0 } );
                 tParameterlist( 1 )( 0 ).set( "discretization_mesh_index", 0 );
                 break;
             default:
@@ -301,32 +301,32 @@ namespace moris
         switch ( tGeoModel )
         {
             case 0:
-                tParameterlist( 1 )( 1 ).set( "constant_parameters", "0.65, -1.0, -1.0, .707106781, .707106781, 0.0" );
+                tParameterlist( 1 )( 1 ).set( "constant_parameters", { 0.65, -1.0, -1.0, .707106781, .707106781, 0.0 } );
                 break;
             case 1:
-                tParameterlist( 1 )( 1 ).set( "constant_parameters", " -1.0, -1.0, .707106781, .707106781, 0.0" );
-                tParameterlist( 1 )( 1 ).set( "field_variable_indices", "0" );
-                tParameterlist( 1 )( 1 ).set( "adv_indices", "0" );
+                tParameterlist( 1 )( 1 ).set( "constant_parameters", {  -1.0, -1.0, .707106781, .707106781, 0.0 } );
+                tParameterlist( 1 )( 1 ).set( "field_variable_indices", { 0u } );
+                tParameterlist( 1 )( 1 ).set( "adv_indices", { 0u } );
                 break;
             case 2:
-                tParameterlist( 1 )( 1 ).set( "constant_parameters", " -1.0, -1.0, .707106781, .707106781, 0.0" );
-                tParameterlist( 1 )( 1 ).set( "field_variable_indices", "0" );
-                tParameterlist( 1 )( 1 ).set( "adv_indices", "1" );
+                tParameterlist( 1 )( 1 ).set( "constant_parameters", {  -1.0, -1.0, .707106781, .707106781, 0.0 } );
+                tParameterlist( 1 )( 1 ).set( "field_variable_indices", { 0u } );
+                tParameterlist( 1 )( 1 ).set( "adv_indices", { 1u } );
                 break;
             case 3:
-                tParameterlist( 1 )( 1 ).set( "constant_parameters", " -1.0, -1.0, .707106781, .707106781, 0.0" );
-                tParameterlist( 1 )( 1 ).set( "field_variable_indices", "0" );
-                tParameterlist( 1 )( 1 ).set( "adv_indices", "0" );
+                tParameterlist( 1 )( 1 ).set( "constant_parameters", {  -1.0, -1.0, .707106781, .707106781, 0.0 } );
+                tParameterlist( 1 )( 1 ).set( "field_variable_indices", { 0u } );
+                tParameterlist( 1 )( 1 ).set( "adv_indices", { 0u } );
                 break;
             case 4:
-                tParameterlist( 1 )( 1 ).set( "constant_parameters", "0.65, -1.0, -1.0, .707106781, .707106781, 0.0" );
+                tParameterlist( 1 )( 1 ).set( "constant_parameters", { 0.65, -1.0, -1.0, .707106781, .707106781, 0.0 } );
                 break;
             case 5:
-                tParameterlist( 1 )( 1 ).set( "constant_parameters", "0.65, -1.0, -1.0, .707106781, .707106781, 0.0" );
+                tParameterlist( 1 )( 1 ).set( "constant_parameters", { 0.65, -1.0, -1.0, .707106781, .707106781, 0.0 } );
                 tParameterlist( 1 )( 1 ).set( "discretization_mesh_index", 0 );
                 break;
             case 6:
-                tParameterlist( 1 )( 1 ).set( "constant_parameters", "0.65, -1.0, -1.0, .707106781, .707106781, 0.0" );
+                tParameterlist( 1 )( 1 ).set( "constant_parameters", { 0.65, -1.0, -1.0, .707106781, .707106781, 0.0 } );
                 tParameterlist( 1 )( 1 ).set( "discretization_mesh_index", 0 );
                 break;
             default:

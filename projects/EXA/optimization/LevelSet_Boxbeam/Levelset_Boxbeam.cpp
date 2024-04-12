@@ -342,14 +342,13 @@ namespace moris
         // outer frame
         tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list() );
         tParameterlist( 1 )( tGeoCounter ).set( "field_type", "superellipse" );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "1.5, 0.5," + std::to_string( 1.5 - tWallThickness ) + "," + std::to_string( 0.5 - tWallThickness ) + ", 24.0, 0.1, 0.01, 0.0" );
+        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", { 1.5, 0.5, 1.5 - tWallThickness, 0.5 - tWallThickness, 24.0, 0.1, 0.01, 0.0 } );
         tGeoCounter++;
 
         // Geometry parameter lists
         tParameterlist( 1 ).push_back( prm::create_field_array_parameter_list() );
         tParameterlist( 1 )( tGeoCounter ).set( "field_type", "superellipse" );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters",
-                "0.0, 0.0, " + std::to_string( tHoleDiameter ) + ", " + std::to_string( tHoleDiameter ) + ", 8.0, " + std::to_string( std::pow( tHoleDiameter * tHoleDiameter, 0.5 ) ) + ", 0.1, 0.0" );
+        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", { 0.0, 0.0, tHoleDiameter, tHoleDiameter, 8.0, std::pow( tHoleDiameter * tHoleDiameter, 0.5 ), 0.1, 0.0 } );
         tParameterlist( 1 )( tGeoCounter ).set( "lower_bound_x", 0.12 );
         tParameterlist( 1 )( tGeoCounter ).set( "upper_bound_x", 2.88 );
         tParameterlist( 1 )( tGeoCounter ).set( "lower_bound_y", 0.12 );

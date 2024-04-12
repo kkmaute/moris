@@ -348,9 +348,9 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "print_phase_table", true );
 
         // initialize advs
-        tParameterlist( 0 )( 0 ).set( "initial_advs", std::to_string( 1.0 * tOuterRadius ) + "," + std::to_string( 1.0 * tInnerRadius ) );
-        tParameterlist( 0 )( 0 ).set( "lower_bounds", std::to_string( 0.9 * tOuterRadius ) + "," + std::to_string( 0.9 * tInnerRadius ) );
-        tParameterlist( 0 )( 0 ).set( "upper_bounds", std::to_string( 1.1 * tOuterRadius ) + "," + std::to_string( 1.1 * tInnerRadius ) );
+        tParameterlist( 0 )( 0 ).set( "initial_advs", { 1.0 * tOuterRadius, 1.0 * tInnerRadius } );
+        tParameterlist( 0 )( 0 ).set( "lower_bounds", { 0.9 * tOuterRadius, 0.9 * tInnerRadius } );
+        tParameterlist( 0 )( 0 ).set( "upper_bounds", { 1.1 * tOuterRadius, 1.1 * tInnerRadius } );
 
         // init geometry counter
         uint tGeoCounter = 0;
@@ -359,32 +359,32 @@ namespace moris
         {
             tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list() );
             tParameterlist( 1 )( tGeoCounter ).set( "field_type", "sphere" );
-            tParameterlist( 1 )( tGeoCounter ).set( "field_variable_indices", "3" );
-            tParameterlist( 1 )( tGeoCounter ).set( "adv_indices", "0" );
-            tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "0.5, 0.5, 0.5" );
+            tParameterlist( 1 )( tGeoCounter ).set( "field_variable_indices", { 3u } );
+            tParameterlist( 1 )( tGeoCounter ).set( "adv_indices", { 0u } );
+            tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", { 0.5, 0.5, 0.5 } );
             tGeoCounter++;
 
             tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list() );
             tParameterlist( 1 )( tGeoCounter ).set( "field_type", "sphere" );
-            tParameterlist( 1 )( tGeoCounter ).set( "field_variable_indices", "3" );
-            tParameterlist( 1 )( tGeoCounter ).set( "adv_indices", "1" );
-            tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "0.5, 0.5, 0.5" );
+            tParameterlist( 1 )( tGeoCounter ).set( "field_variable_indices", { 3u } );
+            tParameterlist( 1 )( tGeoCounter ).set( "adv_indices", { 1u } );
+            tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", { 0.5, 0.5, 0.5 } );
             tGeoCounter++;
         }
         else
         {
             tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list() );
             tParameterlist( 1 )( tGeoCounter ).set( "field_type", "circle" );
-            tParameterlist( 1 )( tGeoCounter ).set( "field_variable_indices", "2" );
-            tParameterlist( 1 )( tGeoCounter ).set( "adv_indices", "0" );
-            tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "0.5, 0.5" );
+            tParameterlist( 1 )( tGeoCounter ).set( "field_variable_indices", { 2u } );
+            tParameterlist( 1 )( tGeoCounter ).set( "adv_indices", { 0u } );
+            tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", { 0.5, 0.5 } );
             tGeoCounter++;
 
             tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list() );
             tParameterlist( 1 )( tGeoCounter ).set( "field_type", "circle" );
-            tParameterlist( 1 )( tGeoCounter ).set( "field_variable_indices", "2" );
-            tParameterlist( 1 )( tGeoCounter ).set( "adv_indices", "1" );
-            tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "0.5, 0.5" );
+            tParameterlist( 1 )( tGeoCounter ).set( "field_variable_indices", { 2u } );
+            tParameterlist( 1 )( tGeoCounter ).set( "adv_indices", { 1u } );
+            tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", { 0.5, 0.5 } );
             tGeoCounter++;
         }
     }

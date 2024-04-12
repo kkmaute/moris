@@ -631,7 +631,8 @@ namespace moris
 
                     // set the parameters in the GEN parameter list
                     tGenParamList( 1 )( iGeom ).set( "field_type", "plane" );
-                    tGenParamList( 1 )( iGeom ).set( "constant_parameters", tPoint + "," + tNormal );
+                    Vector< real > tConstantParameters = string_to_cell< real >( tPoint + "," + tNormal );
+                    tGenParamList( 1 )( iGeom ).set( "constant_parameters", tConstantParameters );
                 }
 
                 // -------------------------------- //
@@ -660,7 +661,8 @@ namespace moris
 
                     // set the parameters in the GEN parameter list
                     tGenParamList( 1 )( iGeom ).set( "field_type", "circle" );
-                    tGenParamList( 1 )( iGeom ).set( "constant_parameters", tPoint + "," + tRadius );
+                    Vector< real > tConstantParameters = string_to_cell< real >( tPoint + "," + tRadius );
+                    tGenParamList( 1 )( iGeom ).set( "constant_parameters", tConstantParameters );
                 }
 
                 // -------------------------------- //
@@ -699,8 +701,8 @@ namespace moris
 
                     // set the parameters in the GEN parameter list
                     tGenParamList( 1 )( iGeom ).set( "field_type", "superellipse" );
-                    std::string tParamString = tPoint + "," + tSemiDiameters + "," + tExponent + ",1.0,0.0,0.0";
-                    tGenParamList( 1 )( iGeom ).set( "constant_parameters", tParamString );
+                    Vector< real > tConstantParameters = string_to_cell< real >( tPoint + "," + tSemiDiameters + "," + tExponent + ",1.0,0.0,0.0" );
+                    tGenParamList( 1 )( iGeom ).set( "constant_parameters", tConstantParameters );
                 }
 
                 // -------------------------------- //
@@ -734,7 +736,8 @@ namespace moris
 
                     // set the parameters in the GEN parameter list
                     tGenParamList( 1 )( iGeom ).set( "field_type", "sphere" );
-                    tGenParamList( 1 )( iGeom ).set( "constant_parameters", tPoint + "," + tRadius );
+                    Vector< real > tConstantParameters = string_to_cell< real >( tPoint + "," + tRadius );
+                    tGenParamList( 1 )( iGeom ).set( "constant_parameters", tConstantParameters );
                 }
 
                 // -------------------------------- //
@@ -778,7 +781,8 @@ namespace moris
 
                     // set the parameters in the GEN parameter list
                     tGenParamList( 1 )( iGeom ).set( "field_type", "superellipsoid" );
-                    tGenParamList( 1 )( iGeom ).set( "constant_parameters", tPoint + "," + tSemiDiameters + "," + tExponent );
+                    Vector< real > tConstantParameters = string_to_cell< real >( tPoint + "," + tSemiDiameters + "," + tExponent );
+                    tGenParamList( 1 )( iGeom ).set( "constant_parameters", tConstantParameters );
                 }
 
                 // -------------------------------- //

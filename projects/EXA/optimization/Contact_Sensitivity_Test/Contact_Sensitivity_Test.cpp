@@ -443,13 +443,13 @@ namespace moris
         {
             tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list() );
             tParameterlist( 1 )( tGeoCounter ).set( "field_type", "sphere" );
-            tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "0.5, 0.5, 0.5," + std::to_string( tHoleRadius ) );
+            tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", { 0.5, 0.5, 0.5, tHoleRadius } );
         }
         else
         {
             tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list() );
             tParameterlist( 1 )( tGeoCounter ).set( "field_type", "circle" );
-            tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "0.5, 0.5," + std::to_string( tHoleRadius ) );
+            tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", { 0.5, 0.5, tHoleRadius } );
         }
         tGeoCounter++;
 
@@ -459,7 +459,7 @@ namespace moris
             tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list() );
             tParameterlist( 1 )( tGeoCounter ).set( "name", "ADVfield" );
             tParameterlist( 1 )( tGeoCounter ).set( "field_type", "plane" );
-            tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", std::to_string( tInterfaceX ) + ",0.0," + std::to_string( -1.0 * std::sin( tPlaneTilde / 180.0 * pi ) ) + "," + std::to_string( -1.0 * std::cos( tPlaneTilde / 180.0 * pi ) ) );
+            tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", { tInterfaceX, 0.0, -1.0 * std::sin( tPlaneTilde / 180.0 * pi ), -1.0 * std::cos( tPlaneTilde / 180.0 * pi ) } );
             tParameterlist( 1 )( tGeoCounter ).set( "use_multilinear_interpolation", tUseMultiLinear );
 
             if ( tIsOpt )
@@ -476,22 +476,22 @@ namespace moris
             tParameterlist( 2 )( tParamCounter ).set( "name", "LevelsetField" );
             tParameterlist( 2 )( tParamCounter ).set( "dependencies", "ADVfield" );
             tParameterlist( 2 )( tParamCounter ).set( "field_type", "scaled_field" );
-            tParameterlist( 2 )( tParamCounter ).set( "constant_parameters", "1.0" );
+            tParameterlist( 2 )( tParamCounter ).set( "constant_parameters", { 1.0 } );
             tParameterlist( 2 )( tParamCounter ).set( "pdv_type", "LS1" );
             tParameterlist( 2 )( tParamCounter ).set( "pdv_mesh_set_names", tTotalDomainSets );
             tParamCounter++;
         }
         else
         {
-            tParameterlist( 0 )( 0 ).set( "initial_advs", std::to_string( tInterfaceX ) );
-            tParameterlist( 0 )( 0 ).set( "lower_bounds", std::to_string( tInterfaceX * 0.5 ) );
-            tParameterlist( 0 )( 0 ).set( "upper_bounds", std::to_string( tInterfaceX / 0.5 ) );
+            tParameterlist( 0 )( 0 ).set( "initial_advs", { tInterfaceX } );
+            tParameterlist( 0 )( 0 ).set( "lower_bounds", { tInterfaceX * 0.5 } );
+            tParameterlist( 0 )( 0 ).set( "upper_bounds", { tInterfaceX / 0.5 } );
 
             tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list() );
             tParameterlist( 1 )( tGeoCounter ).set( "field_type", "plane" );
-            tParameterlist( 1 )( tGeoCounter ).set( "field_variable_indices", "0" );
-            tParameterlist( 1 )( tGeoCounter ).set( "adv_indices", "0" );
-            tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "0.0," + std::to_string( -1.0 * std::sin( tPlaneTilde / 180.0 * pi ) ) + "," + std::to_string( -1.0 * std::cos( tPlaneTilde / 180.0 * pi ) ) );
+            tParameterlist( 1 )( tGeoCounter ).set( "field_variable_indices", { 0u } );
+            tParameterlist( 1 )( tGeoCounter ).set( "adv_indices", { 0u } );
+            tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", { 0.0, -1.0 * std::sin( tPlaneTilde / 180.0 * pi ), -1.0 * std::cos( tPlaneTilde / 180.0 * pi ) } );
             tGeoCounter++;
 
             // Levelset property
@@ -499,7 +499,7 @@ namespace moris
 
             tParameterlist( 2 )( tParamCounter ).set( "name", "LevelsetField" );
             tParameterlist( 2 )( tParamCounter ).set( "field_type", "constant" );
-            tParameterlist( 2 )( tParamCounter ).set( "constant_parameters", "1.0" );
+            tParameterlist( 2 )( tParamCounter ).set( "constant_parameters", { 1.0 } );
             tParameterlist( 2 )( tParamCounter ).set( "pdv_type", "LS1" );
             tParameterlist( 2 )( tParamCounter ).set( "pdv_mesh_set_names", tTotalDomainSets );
 

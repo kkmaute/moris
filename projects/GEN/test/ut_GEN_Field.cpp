@@ -11,7 +11,6 @@
 #include <memory>
 
 #include "catch.hpp"
-#include "fn_Parsing_Tools.hpp"
 #include "fn_trans.hpp"
 #include "cl_GEN_User_Defined_Field.hpp"
 #include "cl_GEN_Design_Factory.hpp"
@@ -170,13 +169,13 @@ namespace moris::gen
         // Set up geometry
         Parameter_List tCircle1ParameterList = prm::create_level_set_geometry_parameter_list();
         tCircle1ParameterList.set( "field_type", "circle" );
-        tCircle1ParameterList.set( "field_variable_indices", "all" );
-        tCircle1ParameterList.set( "adv_indices", "0, 1, 3" );
+        tCircle1ParameterList.set( "field_variable_indices", { 0u, 1u, 2u } );
+        tCircle1ParameterList.set( "adv_indices", { 0u, 1u, 3u } );
 
         Parameter_List tCircle2ParameterList = prm::create_level_set_geometry_parameter_list();
         tCircle2ParameterList.set( "field_type", "circle" );
-        tCircle2ParameterList.set( "field_variable_indices", "all" );
-        tCircle2ParameterList.set( "adv_indices", "0, 2, 4" );
+        tCircle2ParameterList.set( "field_variable_indices", { 0u, 1u, 2u } );
+        tCircle2ParameterList.set( "adv_indices", { 0u, 2u, 4u } );
 
         // ADV vector
         Vector< real > tADVs;
@@ -270,8 +269,8 @@ namespace moris::gen
         // Set up geometry
         Parameter_List tSuperellipseParameterList = prm::create_level_set_geometry_parameter_list();
         tSuperellipseParameterList.set( "field_type", "superellipse" );
-        tSuperellipseParameterList.set( "field_variable_indices", "all" );
-        tSuperellipseParameterList.set( "adv_indices", "all" );
+        tSuperellipseParameterList.set( "field_variable_indices", { 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u } );
+        tSuperellipseParameterList.set( "adv_indices", { 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u } );
 
         // Create circles
         Vector< real >                        tADVs = { { 3.0, 4.0, 1.0, 2.0, 2.0, 1.0, 0.0, 0.0 } };
@@ -375,8 +374,8 @@ namespace moris::gen
         // Set up geometry
         Parameter_List tSphereParameterList = prm::create_level_set_geometry_parameter_list();
         tSphereParameterList.set( "field_type", "sphere" );
-        tSphereParameterList.set( "field_variable_indices", "all" );
-        tSphereParameterList.set( "adv_indices", "all" );
+        tSphereParameterList.set( "field_variable_indices", { 0u, 1u, 2u, 3u } );
+        tSphereParameterList.set( "adv_indices", { 0u, 1u, 2u, 3u } );
 
         // Create sphere
         Vector< real >                        tADVs = { { -1.0, 0.0, 1.0, 2.0 } };
@@ -421,8 +420,8 @@ namespace moris::gen
         // Set up geometry
         Parameter_List tSuperellipsoidParameterList = prm::create_level_set_geometry_parameter_list();
         tSuperellipsoidParameterList.set( "field_type", "superellipsoid" );
-        tSuperellipsoidParameterList.set( "field_variable_indices", "all" );
-        tSuperellipsoidParameterList.set( "adv_indices", "all" );
+        tSuperellipsoidParameterList.set( "field_variable_indices", { 0u, 1u, 2u, 3u, 4u, 5u, 6u } );
+        tSuperellipsoidParameterList.set( "adv_indices", { 0u, 1u, 2u, 3u, 4u, 5u, 6u } );
 
         // Create superellipsoid
         Vector< real >                        tADVs = { { 3.0, 4.0, 5.0, 1.0, 2.0, 4.0, 2.0 } };
@@ -575,7 +574,7 @@ namespace moris::gen
                     {
                         Parameter_List tCircleParameterList = prm::create_level_set_geometry_parameter_list();
                         tCircleParameterList.set( "field_type", "circle" );
-                        tCircleParameterList.set( "constant_parameters", "0.0, 0.0, " + std::to_string( tRadii( tGeometryIndex ) ) );
+                        tCircleParameterList.set( "constant_parameters", { 0.0, 0.0, tRadii( tGeometryIndex ) } );
                         tCircleParameterList.set( "discretization_mesh_index", 0 );
                         tCircleParameterList.set( "discretization_lower_bound", -1.0 );
                         tCircleParameterList.set( "discretization_upper_bound", 1.0 );
@@ -725,8 +724,8 @@ namespace moris::gen
         // Level set circle parameter list
         Parameter_List tCircleParameterList = prm::create_level_set_geometry_parameter_list();
         tCircleParameterList.set( "field_type", "circle" );
-        tCircleParameterList.set( "field_variable_indices", "0, 1, 2" );
-        tCircleParameterList.set( "adv_indices", "0, 1, 2" );
+        tCircleParameterList.set( "field_variable_indices", { 0u, 1u, 2u } );
+        tCircleParameterList.set( "adv_indices", { 0u, 1u, 2u } );
         tCircleParameterList.set( "discretization_mesh_index", -1 );
 
         // Set up geometry
@@ -795,22 +794,20 @@ namespace moris::gen
     TEST_CASE( "Combined Field", "[gen], [field], [combined field]" )
     {
         // ADV indices
-        std::string      tADVIndices1    = "0, 1, 3";
-        std::string      tADVIndices2    = "0, 2, 4";
-        Matrix< DDSMat > tADVIndicesMat1 = string_to_mat< DDSMat >( tADVIndices1 );
-        Matrix< DDSMat > tADVIndicesMat2 = string_to_mat< DDSMat >( tADVIndices2 );
+        Vector< uint > tADVIndices1 = { 0, 1, 3 };
+        Vector< uint > tADVIndices2 = { 0, 2, 4 };
 
         // Set up 2 circles
         Vector< Parameter_List > tParameterLists( 3 );
         tParameterLists( 0 ) = prm::create_field_parameter_list();
         tParameterLists( 0 ).set( "field_type", "circle" );
-        tParameterLists( 0 ).set( "field_variable_indices", "all" );
+        tParameterLists( 0 ).set( "field_variable_indices", { 0u, 1u, 2u } );
         tParameterLists( 0 ).set( "adv_indices", tADVIndices1 );
         tParameterLists( 0 ).set( "name", "Circle 1" );
 
         tParameterLists( 1 ) = prm::create_field_parameter_list();
         tParameterLists( 1 ).set( "field_type", "circle" );
-        tParameterLists( 1 ).set( "field_variable_indices", "all" );
+        tParameterLists( 1 ).set( "field_variable_indices", { 0u, 1u, 2u } );
         tParameterLists( 1 ).set( "adv_indices", tADVIndices2 );
         tParameterLists( 1 ).set( "name", "Circle 2" );
 
@@ -884,13 +881,13 @@ namespace moris::gen
                 tSwissCheeseParameterList.set( "offset_per_row_x", 1.0 );
                 if ( tUseADVs )
                 {
-                    tSwissCheeseParameterList.set( "field_variable_indices", "2" );
-                    tSwissCheeseParameterList.set( "adv_indices", "0", false );
-                    tSwissCheeseParameterList.set( "constant_parameters", "0.0, 0.0" );
+                    tSwissCheeseParameterList.set( "field_variable_indices", { 2u } );
+                    tSwissCheeseParameterList.set( "adv_indices", { 0u }, false );
+                    tSwissCheeseParameterList.set( "constant_parameters", { 0.0, 0.0 } );
                 }
                 else
                 {
-                    tSwissCheeseParameterList.set( "constant_parameters", "0.0, 0.0, 0.1" );
+                    tSwissCheeseParameterList.set( "constant_parameters", { 0.0, 0.0, 0.1 } );
                 }
 
                 // Create swiss cheese
@@ -953,9 +950,9 @@ namespace moris::gen
             tSwissCheeseParameterList.set( "upper_bound_y", 1.0 );
             tSwissCheeseParameterList.set( "minimum_spacing_x", 0.9 );
             tSwissCheeseParameterList.set( "minimum_spacing_y", 2.5 );
-            tSwissCheeseParameterList.set( "field_variable_indices", "2, 3" );
-            tSwissCheeseParameterList.set( "adv_indices", "0, 1" );
-            tSwissCheeseParameterList.set( "constant_parameters", "0.0, 0.0, 4.0, 1.0, 0.0, 0.0" );
+            tSwissCheeseParameterList.set( "field_variable_indices", { 2u, 3u } );
+            tSwissCheeseParameterList.set( "adv_indices", { 0u, 1u } );
+            tSwissCheeseParameterList.set( "constant_parameters", { 0.0, 0.0, 4.0, 1.0, 0.0, 0.0 } );
 
             // Create swiss cheese
             Vector< real >                        tADVs = { { 0.3, 1.0 } };
@@ -1010,7 +1007,7 @@ namespace moris::gen
             tSwissCheeseParameterList.set( "minimum_spacing_y", 1.4 );
             tSwissCheeseParameterList.set( "number_of_fields_z", 5 );
             tSwissCheeseParameterList.set( "minimum_spacing_z", 1.4 );
-            tSwissCheeseParameterList.set( "constant_parameters", "0.0, 0.0, 0.0, 0.2, 0.4, 0.6, 4.0" );
+            tSwissCheeseParameterList.set( "constant_parameters", { 0.0, 0.0, 0.0, 0.2, 0.4, 0.6, 4.0 } );
             tSwissCheeseParameterList.set( "offset_per_row_y", 0.1 );
             tSwissCheeseParameterList.set( "offset_per_row_z", -0.1 );
 

@@ -205,9 +205,9 @@ namespace moris
         tParameterlist.resize( 3 );
         tParameterlist( 0 ).resize( 1 );
         tParameterlist( 0 )( 0 ) = moris::prm::create_gen_parameter_list();
-        tParameterlist( 0 )( 0 ).set( "initial_advs", "0.8, 0.3, 1.0, 0.0, -0.6, -0.3, 1.0, 1.0" );
-        tParameterlist( 0 )( 0 ).set( "lower_bounds", "0.8, 0.3, 1.0, 0.0, -0.6, -0.3, 1.0, 1.0" );
-        tParameterlist( 0 )( 0 ).set( "upper_bounds", "0.8, 0.3, 1.0, 0.0, -0.6, -0.3, 1.0, 1.0" );
+        tParameterlist( 0 )( 0 ).set( "initial_advs", { 0.8, 0.3, 1.0, 0.0, -0.6, -0.3, 1.0, 1.0 } );
+        tParameterlist( 0 )( 0 ).set( "lower_bounds", { 0.8, 0.3, 1.0, 0.0, -0.6, -0.3, 1.0, 1.0 } );
+        tParameterlist( 0 )( 0 ).set( "upper_bounds", { 0.8, 0.3, 1.0, 0.0, -0.6, -0.3, 1.0, 1.0 } );
         tParameterlist( 0 )( 0 ).set( "IQI_types", "IQIBulkStrainEnergy,IQIBulkVolume" );
         tParameterlist( 0 )( 0 ).set( "PDV_types", "" );
 
@@ -216,13 +216,13 @@ namespace moris
 
         tParameterlist( 1 )( 0 ) = prm::create_level_set_geometry_parameter_list();
         tParameterlist( 1 )( 0 ).set( "field_type", "plane" );
-        tParameterlist( 1 )( 0 ).set( "field_variable_indices", "0, 1, 2, 3" );
-        tParameterlist( 1 )( 0 ).set( "adv_indices", "0, 1, 2, 3" );
+        tParameterlist( 1 )( 0 ).set( "field_variable_indices", { 0u, 1u, 2u, 3u } );
+        tParameterlist( 1 )( 0 ).set( "adv_indices", { 0u, 1u, 2u, 3u } );
 
         tParameterlist( 1 )( 1 ) = prm::create_level_set_geometry_parameter_list();
         tParameterlist( 1 )( 1 ).set( "field_type", "plane" );
-        tParameterlist( 1 )( 1 ).set( "field_variable_indices", "0, 1, 2, 3" );
-        tParameterlist( 1 )( 1 ).set( "adv_indices", "4, 5, 6, 7" );
+        tParameterlist( 1 )( 1 ).set( "field_variable_indices", { 0u, 1u, 2u, 3u } );
+        tParameterlist( 1 )( 1 ).set( "adv_indices", { 4u, 5u, 6u, 7u } );
     }
 
     void

@@ -194,25 +194,25 @@ extern "C"
             // Bottom plane
             tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
             tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Plane");
-            tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "0.0,1.0,0.0," + std::to_string(tPlaneBottom)) ;
+            tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", { 0.0, 1.0, 0.0, tPlaneBottom } ) ;
             tGeoCounter++;
 
             // Top plane
             tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
             tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Plane");
-            tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "0.0,1.0,0.0,"+ std::to_string(tPlaneTop));
+            tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", { 0.0, 1.0, 0.0, tPlaneTop } );
             tGeoCounter++;
 
             // Left plane
             tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
             tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Plane");
-            tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "1.0,0.0," + std::to_string(tPlaneLeft) + ",0.0");
+            tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", { 1.0, 0.0, tPlaneLeft, 0.0 } );
             tGeoCounter++;
 
             // Right plane
             tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
             tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Plane");
-            tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "1.0,0.0," + std::to_string(tPlaneRight) + ",0.0");
+            tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", { 1.0, 0.0, tPlaneRight, 0.0 } );
         }
 
         void FEMParameterList( Vector< Vector< Parameter_List > > & tParameterList )

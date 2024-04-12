@@ -507,7 +507,7 @@ namespace moris::gen
         // Constant property parameter list
         Parameter_List tParameterList = moris::prm::create_gen_property_parameter_list();
         tParameterList.set( "field_type", "constant" );
-        tParameterList.set( "field_variable_indices", "0" );
+        tParameterList.set( "field_variable_indices", { 0u } );
         tParameterList.set( "pdv_type", "DENSITY" );
 
         // Create ADVs
@@ -518,7 +518,7 @@ namespace moris::gen
         Vector< std::shared_ptr< Property > > tProperties( tNumADVs );
         for ( uint tPropertyIndex = 0; tPropertyIndex < tNumADVs; tPropertyIndex++ )
         {
-            tParameterList.set( "adv_indices", std::to_string( tPropertyIndex ), false );
+            tParameterList.set( "adv_indices", { tPropertyIndex }, false );
             Design_Factory tDesignFactory( { tParameterList }, tADVs );
             tProperties( tPropertyIndex ) = tDesignFactory.get_properties()( 0 );
         }

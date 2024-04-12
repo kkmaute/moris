@@ -435,47 +435,9 @@ namespace moris
         // Main GEN parameter list
         tParameterlist( 0 ).push_back( prm::create_gen_parameter_list() );
 
-        tParameterlist( 0 )( 0 ).set( "initial_advs",
-                std::to_string( 0.0 ) + "," +            //
-                        std::to_string( 0.0 ) + "," +    //
-                        std::to_string( 0.1 ) + "," +    //
-                        std::to_string( 1.0 ) + "," +    //
-                        std::to_string( 0.5 ) + "," +    //
-                        std::to_string( 0.1 ) + "," +    //
-                        std::to_string( 0.0 ) + "," +    //
-                        std::to_string( 1.0 ) + "," +    //
-                        std::to_string( 0.1 ) + "," +    //
-                        std::to_string( 1.0 ) + "," +    //
-                        std::to_string( 0.5 ) + "," +    //
-                        std::to_string( 0.1 ) );
-
-        tParameterlist( 0 )( 0 ).set( "lower_bounds",
-                std::to_string( 0.0 ) + "," +            //
-                        std::to_string( 0.0 ) + "," +    //
-                        std::to_string( 0.1 ) + "," +    //
-                        std::to_string( 1.0 ) + "," +    //
-                        std::to_string( 0.5 ) + "," +    //
-                        std::to_string( 0.1 ) + "," +    //
-                        std::to_string( 0.0 ) + "," +    //
-                        std::to_string( 1.0 ) + "," +    //
-                        std::to_string( 0.1 ) + "," +    //
-                        std::to_string( 1.0 ) + "," +    //
-                        std::to_string( 0.5 ) + "," +    //
-                        std::to_string( 0.1 ) );
-
-        tParameterlist( 0 )( 0 ).set( "upper_bounds",
-                std::to_string( 0.0 ) + "," +            //
-                        std::to_string( 0.0 ) + "," +    //
-                        std::to_string( 0.1 ) + "," +    //
-                        std::to_string( 1.0 ) + "," +    //
-                        std::to_string( 0.5 ) + "," +    //
-                        std::to_string( 0.1 ) + "," +    //
-                        std::to_string( 0.0 ) + "," +    //
-                        std::to_string( 1.0 ) + "," +    //
-                        std::to_string( 0.1 ) + "," +    //
-                        std::to_string( 1.0 ) + "," +    //
-                        std::to_string( 0.5 ) + "," +    //
-                        std::to_string( 0.1 ) );
+        tParameterlist( 0 )( 0 ).set( "initial_advs", { 0.0, 0.0, 0.1, 1.0, 0.5, 0.1, 0.0, 1.0, 0.1, 1.0, 0.5, 0.1 } );
+        tParameterlist( 0 )( 0 ).set( "lower_bounds", { 0.0, 0.0, 0.1, 1.0, 0.5, 0.1, 0.0, 1.0, 0.1, 1.0, 0.5, 0.1 } );
+        tParameterlist( 0 )( 0 ).set( "upper_bounds", { 0.0, 0.0, 0.1, 1.0, 0.5, 0.1, 0.0, 1.0, 0.1, 1.0, 0.5, 0.1 } );
 
         tParameterlist( 0 )( 0 ).set( "IQI_types", "IQIBulkStrainEnergy,IQIBulkVolume" );
         tParameterlist( 0 )( 0 ).set( "PDV_types", "" );
@@ -487,13 +449,8 @@ namespace moris
         tParameterlist( 1 )( 0 ).set( "field_function_name", "Bars" );
         tParameterlist( 1 )( 0 ).set( "sensitivity_function_name", "BarsGrad" );
 
-        tParameterlist( 1 )( 0 ).set( "field_variable_indices",
-                " 0,  1,  2,  3,  4,  5,  6,  7,"
-                " 8,  9, 10, 11" );
-
-        tParameterlist( 1 )( 0 ).set( "adv_indices",
-                " 0,  1,  2,  3,  4,  5,  6,  7,"
-                " 8,  9, 10, 11" );
+        tParameterlist( 1 )( 0 ).set( "field_variable_indices", { 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u, 10u, 11u } );
+        tParameterlist( 1 )( 0 ).set( "adv_indices", { 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u, 10u, 11u } );
     }
 
     /* ------------------------------------------------------------------------ */
