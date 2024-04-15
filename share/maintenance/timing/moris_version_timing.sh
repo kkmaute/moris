@@ -12,7 +12,7 @@
 # start of user input
 #=================================================================================
 
-# overwrite MORISROOT with director of moris git version
+# overwrite MORISROOT with directory of moris git version
 export MORISROOTORG=$HOME/codes/moris
 
 # build directory
@@ -24,7 +24,7 @@ branch=main
 # file with list of examples 
 exalist=$MORISROOTORG/share/maintenance/timing/TimingExampleList
 
-# set current version (T13 or T15)
+# set current version (t13 or t15)
 ctvers=t15
 
 # resource file for current and old versions
