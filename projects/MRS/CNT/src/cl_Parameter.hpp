@@ -75,6 +75,7 @@ namespace moris
          * @tparam T Input parameter type
          * @param aParameterName Parameter name, for error reporting
          * @param aParameterValue Input value
+         * @param aLockValue If this value should be locked after setting
          */
         template< typename T >
         void set_value(
@@ -88,7 +89,7 @@ namespace moris
                     aParameterName.c_str() );
 
             // Make value into a variant
-            Variant tParameterVariant = make_variant( aParameterValue );
+            Variant tParameterVariant = this->make_valid_variant( aParameterValue );
 
             // Validate the variant
             MORIS_ERROR( mValidator->parameter_is_valid( tParameterVariant ),
@@ -105,6 +106,19 @@ namespace moris
                 delete mValidator;
                 mValidator = nullptr;
             }
+        }
+
+        /**
+         * Makes the given parameter into a variant to be checked
+         *
+         * @tparam T Input parameter type
+         * @param aParameterValue Parameter value
+         * @return Parameter variant
+         */
+        template< typename T >
+        Variant make_valid_variant( T aParameterValue )
+        {
+            return make_variant( aParameterValue );
         }
 
         /**
@@ -135,4 +149,8 @@ namespace moris
     };
 
     //--------------------------------------------------------------------------------------------------------------
+
+    // Declare template specializations
+    template<> Variant Parameter::make_valid_variant( uint );
+    template<> Variant Parameter::make_valid_variant( real );
 }

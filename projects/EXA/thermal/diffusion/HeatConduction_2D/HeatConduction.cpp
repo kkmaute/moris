@@ -555,12 +555,12 @@ namespace moris
 
         if ( tUseAnalyticGeometry )
         {
-            tParameterlist( 0 )( 0 ).set( "initial_advs", { tSphereRadius } );
-            tParameterlist( 0 )( 0 ).set( "lower_bounds", { tSphereRadius * 0.9 } );
-            tParameterlist( 0 )( 0 ).set( "upper_bounds", { tSphereRadius * 1.1 } );
+            tParameterlist( 0 )( 0 ).set( "initial_advs", tSphereRadius );
+            tParameterlist( 0 )( 0 ).set( "lower_bounds", tSphereRadius * 0.9 );
+            tParameterlist( 0 )( 0 ).set( "upper_bounds", tSphereRadius * 1.1 );
 
-            tParameterlist( 1 )( tGeoCounter ).set( "field_variable_indices", { 0u } );
-            tParameterlist( 1 )( tGeoCounter ).set( "adv_indices", { 0u } );
+            tParameterlist( 1 )( tGeoCounter ).set( "field_variable_indices", 0u );
+            tParameterlist( 1 )( tGeoCounter ).set( "adv_indices", 0u );
         }
         else
         {

@@ -186,32 +186,32 @@ namespace moris
         // Geometry parameter lists
         tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Plane" );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", { 0,0,1,0 } );
+        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 0,0,1,0 );
         tGeoCounter++;
 
         tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Plane" );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", { 0,0,1,0.41 } );
+        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 0,0,1,0.41 );
         tGeoCounter++;
 
         tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Plane" );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", { 0,0,1,0.18 } );
+        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 0,0,1,0.18 );
         tGeoCounter++;
 
         tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Plane" );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", { 0,0,1,0.23 } );
+        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 0,0,1,0.23 );
         tGeoCounter++;
 
         tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Plane" );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", { 1,0,0,0 } );
+        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 1,0,0,0 );
         tGeoCounter++;
 
         tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Plane" );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", { 1,1.845,0,0 } );
+        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 1,1.845,0,0 );
     }
 
     // FEM parameter list

@@ -50,4 +50,40 @@ namespace moris
     }
 
     //--------------------------------------------------------------------------------------------------------------
+
+    template<>
+    Variant Parameter::make_valid_variant( uint aParameterValue )
+    {
+        // Make value into a variant
+        Variant tParameterVariant = make_variant( aParameterValue );
+
+        // If variant is not valid, retry with a vector
+        if ( not mValidator->parameter_is_valid( tParameterVariant ) )
+        {
+            tParameterVariant = make_variant( Vector< uint >( { aParameterValue } ) );
+        }
+
+        // Return variant
+        return tParameterVariant;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    template<>
+    Variant Parameter::make_valid_variant( real aParameterValue )
+    {
+        // Make value into a variant
+        Variant tParameterVariant = make_variant( aParameterValue );
+
+        // If variant is not valid, retry with a vector
+        if ( not mValidator->parameter_is_valid( tParameterVariant ) )
+        {
+            tParameterVariant = make_variant( Vector< real >( { aParameterValue } ) );
+        }
+
+        // Return variant
+        return tParameterVariant;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
 }

@@ -431,9 +431,9 @@ namespace moris
         // tParameterlist(0)(0).set("output_mesh_file", tGENOutputFile );
         tParameterlist( 0 )( 0 ).set( "time_offset", 10.0 );
         tParameterlist( 0 )( 0 ).set( "PDV_types", "LS1" );
-        tParameterlist( 0 )( 0 ).set( "initial_advs", { 2.0, 0.0, 1.0, 0.0 } );
-        tParameterlist( 0 )( 0 ).set( "lower_bounds", { -5.0, -1.0, -2.0, -1.0 } );
-        tParameterlist( 0 )( 0 ).set( "upper_bounds", { 5.0, 1.0, 2.0, 1.0 } );
+        tParameterlist( 0 )( 0 ).set( "initial_advs", 2.0, 0.0, 1.0, 0.0 );
+        tParameterlist( 0 )( 0 ).set( "lower_bounds", -5.0, -1.0, -2.0, -1.0 );
+        tParameterlist( 0 )( 0 ).set( "upper_bounds", 5.0, 1.0, 2.0, 1.0 );
 
         // init geometry counter
         uint tGeoCounter = 0;
@@ -448,17 +448,17 @@ namespace moris
 
         tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list() );
         tParameterlist( 1 )( tGeoCounter ).set( "field_type", "plane" );
-        // tParameterlist(1)( tGeoCounter ).set("constant_parameters", { 0.0, 0.0, 2.0 });
+        // tParameterlist(1)( tGeoCounter ).set("constant_parameters", 0.0, 0.0, 2.0);
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 10e-14 );
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 0.5 );    // FIXME     this has to change
-        tParameterlist( 1 )( tGeoCounter ).set( "field_variable_indices", { 0u, 1u, 2u, 3u } );
-        tParameterlist( 1 )( tGeoCounter ).set( "adv_indices", { 0u, 1u, 2u, 3u } );
+        tParameterlist( 1 )( tGeoCounter ).set( "field_variable_indices", 0u, 1u, 2u, 3u );
+        tParameterlist( 1 )( tGeoCounter ).set( "adv_indices", 0u, 1u, 2u, 3u );
 
         uint tParamCounter = 0;
         tParameterlist( 2 ).push_back( moris::prm::create_gen_property_parameter_list() );
         tParameterlist( 2 )( tParamCounter ).set( "name", "LvL_Set_Field" );
         tParameterlist( 2 )( tParamCounter ).set( "field_type", "constant" );
-        tParameterlist( 2 )( tParamCounter ).set( "constant_parameters", { 0.8 } );
+        tParameterlist( 2 )( tParamCounter ).set( "constant_parameters", 0.8 );
         tParameterlist( 2 )( tParamCounter ).set( "pdv_type", "LS1" );
         // tParameterlist( 2 )( tParamCounter ).set("discretization_mesh_index",   0);
         tParameterlist( 2 )( tParamCounter ).set( "discretization_lower_bound", 0.001 );

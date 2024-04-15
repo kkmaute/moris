@@ -276,12 +276,12 @@ namespace moris
         // Geometry parameter lists
         tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Sphere" );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", { tOuterRad } );
+        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", tOuterRad );
         tGeoCounter++;
 
         tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Sphere" );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", { tInnerRad } );
+        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", tInnerRad );
     }
     /* ------------------------------------------------------------------------ */
 
