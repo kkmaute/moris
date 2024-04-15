@@ -27,10 +27,11 @@ namespace moris
             mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
-            mPropertyMap[ "Load" ]      = static_cast< uint >( IWG_Property_Type::BODY_LOAD );
-            mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
-            mPropertyMap[ "H2Penalty" ] = static_cast< uint >( IWG_Property_Type::H2_Penalty );
-            mPropertyMap[ "H3Penalty" ] = static_cast< uint >( IWG_Property_Type::H3_Penalty );
+            mPropertyMap[ "Load" ]       = static_cast< uint >( IWG_Property_Type::BODY_LOAD );
+            mPropertyMap[ "Thickness" ]  = static_cast< uint >( IWG_Property_Type::THICKNESS );
+            mPropertyMap[ "H2Penalty" ]  = static_cast< uint >( IWG_Property_Type::H2_Penalty );
+            mPropertyMap[ "H3Penalty" ]  = static_cast< uint >( IWG_Property_Type::H3_Penalty );
+            mPropertyMap[ "PhaseField" ] = static_cast< uint >( IWG_Property_Type::Phase_Field );
 
             // set size for the constitutive model pointer cell
             mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
@@ -87,6 +88,10 @@ namespace moris
             const std::shared_ptr< Property >& tPropH3Pen =
                     mLeaderProp( static_cast< uint >( IWG_Property_Type::H3_Penalty ) );
 
+            // get phase field property
+            const std::shared_ptr< Property >& tPropPhaseField =
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::Phase_Field ) );
+
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
@@ -118,6 +123,13 @@ namespace moris
             {
                 // compute contribution of body load to residual
                 tRes += aWStar * tPropH3Pen->val()( 0 ) * ( trans( tFITemp->dnNdxn( 3 ) ) * tFITemp->gradx( 3 ) );
+            }
+
+            // if phase field term
+            if ( tPropPhaseField )
+            {
+                tRes += aWStar * tPropPhaseField->val()( 0 ) * tFITemp->N_trans()    //
+                      * ( tFITemp->val()( 0 ) * ( 1.0 - tFITemp->val()( 0 ) ) * ( 1.0 - 2.0 * tFITemp->val()( 0 ) ) );
             }
 
             // if stabilization parameter is defined
@@ -176,6 +188,10 @@ namespace moris
             const std::shared_ptr< Property >& tPropH3Pen =
                     mLeaderProp( static_cast< uint >( IWG_Property_Type::H3_Penalty ) );
 
+            // get phase field property
+            const std::shared_ptr< Property >& tPropPhaseField =
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::Phase_Field ) );
+
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
@@ -224,6 +240,16 @@ namespace moris
                     {
                         // compute contribution of body load to residual
                         tJac += aWStar * tPropH3Pen->val()( 0 ) * ( trans( tFITemp->dnNdxn( 3 ) ) * tFITemp->dnNdxn( 3 ) );
+                    }
+
+                    // if phase field term
+                    if ( tPropPhaseField )
+                    {
+                        tJac += aWStar * tPropPhaseField->val()( 0 ) * tFITemp->N_trans() * (                    //
+                                        ( ( 1.0 - tFITemp->val()( 0 ) ) * ( 1.0 - 2.0 * tFITemp->val()( 0 ) )    //
+                                                - tFITemp->val()( 0 ) * ( 1.0 - 2.0 * tFITemp->val()( 0 ) )      //
+                                                - 2.0 * tFITemp->val()( 0 ) * ( 1.0 - tFITemp->val()( 0 ) ) )    //
+                                        * tFITemp->N() );
                     }
                 }
 

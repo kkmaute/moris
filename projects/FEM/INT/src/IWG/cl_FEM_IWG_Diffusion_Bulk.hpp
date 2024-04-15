@@ -38,6 +38,7 @@ namespace moris
                 THICKNESS,
                 H2_Penalty,
                 H3_Penalty,
+                Phase_Field,
                 MAX_ENUM
             };
 
