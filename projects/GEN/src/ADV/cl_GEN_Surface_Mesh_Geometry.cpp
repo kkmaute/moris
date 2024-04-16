@@ -20,6 +20,7 @@
 
 #include "fn_cross.hpp"
 #include "fn_eye.hpp"
+#include "fn_trans.hpp"
 
 #include "cl_MTK_Interpolation_Function_Base.hpp"
 #include "cl_MTK_Interpolation_Function_Factory.hpp"
@@ -78,7 +79,6 @@ namespace moris::gen
         if ( aParameters.mADVIndices.size() > 0 or aParameters.mDiscretizationIndex > -1 )
         {
             // Allocate memory for perturbation fields and basis functions
-            mVertexBases.resize( Object::mVertices.size(), aMesh->get_mtk_cell( 0 ).get_number_of_vertices() );
             mPerturbationFields.resize( Object::mDimension );
 
             // build perturbation fields
@@ -114,36 +114,6 @@ namespace moris::gen
                         tADVIndices,
                         tConstants,
                         mName + "_PERT_" + std::to_string( iFieldIndex ) );
-            }
-
-            // Compute the bases for all vertices
-            for ( uint iVertexIndex = 0; iVertexIndex < Object::mVertices.size(); iVertexIndex++ )
-            {
-                // Initialize a bounding box
-                Vector< Vector< real > > tElementBoundingBox( 2, Vector< real >( Object::mDimension ) );
-
-                Matrix< DDRMat > tVertexParametricCoordinates( Object::mDimension, 1 );
-
-                // Determine which element this vertex lies in, will be the same for every field
-                int tElementIndex = this->find_background_element_from_global_coordinates(
-                        Object::mVertices( iVertexIndex )->get_coords(),
-                        tElementBoundingBox );
-
-                // check if the node is inside the mesh domain
-                if ( tElementIndex != -1 )
-                {
-                    // determine the local coordinates of the vertex inside the mtk::Cell
-                    for ( uint iDimensionIndex = 0; iDimensionIndex < Object::mDimension; iDimensionIndex++ )
-                    {
-                        tVertexParametricCoordinates( iDimensionIndex, 0 ) = 2.0 * ( Object::mVertices( iVertexIndex )->get_coord( iDimensionIndex ) - tElementBoundingBox( 0 )( iDimensionIndex ) )
-                                                                                   / ( tElementBoundingBox( 1 )( iDimensionIndex ) - tElementBoundingBox( 0 )( iDimensionIndex ) )
-                                                                           - 1.0;
-                    }
-
-                    // Get the basis function values at the vertex location
-                    Matrix< DDRMat > tBasis = this->compute_vertex_basis( &aMesh->get_mtk_cell( tElementIndex ), tVertexParametricCoordinates );
-                    mVertexBases.set_column( iVertexIndex, tBasis );
-                }
             }
         }
     }
@@ -219,7 +189,7 @@ namespace moris::gen
             const Vector< Background_Node* >& aBackgroundNodes,
             const Parent_Node&                aFirstParentNode,
             const Parent_Node&                aSecondParentNode,
-            sdf::Facet*                       aParentFacet )
+            sdf::Facet*&                      aParentFacet )
     {
         // transform the interface geometry to local coordinates
         this->transform_surface_mesh_to_local_coordinate( aFirstParentNode, aSecondParentNode );
@@ -386,7 +356,7 @@ namespace moris::gen
                         real tInterpolatedPerturbation = this->interpolate_perturbation_from_background_element(
                                 &mMesh->get_mtk_cell( tElementIndex ),
                                 iFieldIndex,
-                                mVertexBases.get_row( iVertexIndex ) );
+                                mVertexBases.get_column( iVertexIndex ) );
 
                         // Displace the vertex by the total perturbation
                         Object::mVertices( iVertexIndex )->set_node_coord( mOriginalVertexCoordinates( iVertexIndex )( iFieldIndex ) + tInterpolatedPerturbation, iFieldIndex );
@@ -461,6 +431,41 @@ namespace moris::gen
 
         // update the stored mtk interpolation mesh with the new mesh
         mMesh = aInterpolationMesh;
+
+        if ( mParameters.mADVIndices.size() > 0 or mParameters.mDiscretizationIndex > -1 )
+        {
+            mVertexBases.resize( mMesh->get_mtk_cell( 0 ).get_number_of_vertices(), Object::mVertices.size() );
+
+            // Compute the bases for all vertices
+            for ( uint iVertexIndex = 0; iVertexIndex < Object::mVertices.size(); iVertexIndex++ )
+            {
+                // Initialize a bounding box
+                Vector< Vector< real > > tElementBoundingBox( 2, Vector< real >( Object::mDimension ) );
+
+                Matrix< DDRMat > tVertexParametricCoordinates( Object::mDimension, 1 );
+
+                // Determine which element this vertex lies in, will be the same for every field
+                int tElementIndex = this->find_background_element_from_global_coordinates(
+                        Object::mVertices( iVertexIndex )->get_coords(),
+                        tElementBoundingBox );
+
+                // check if the node is inside the mesh domain
+                if ( tElementIndex != -1 )
+                {
+                    // determine the local coordinates of the vertex inside the mtk::Cell
+                    for ( uint iDimensionIndex = 0; iDimensionIndex < Object::mDimension; iDimensionIndex++ )
+                    {
+                        tVertexParametricCoordinates( iDimensionIndex, 0 ) = 2.0 * ( Object::mVertices( iVertexIndex )->get_coord( iDimensionIndex ) - tElementBoundingBox( 0 )( iDimensionIndex ) )
+                                                                                   / ( tElementBoundingBox( 1 )( iDimensionIndex ) - tElementBoundingBox( 0 )( iDimensionIndex ) )
+                                                                           - 1.0;
+                    }
+
+                    // Get the basis function values at the vertex location
+                    Matrix< DDRMat > tBasis = this->compute_vertex_basis( &aInterpolationMesh->get_mtk_cell( tElementIndex ), tVertexParametricCoordinates );
+                    mVertexBases.set_column( iVertexIndex, trans( tBasis ) );
+                }
+            }
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -609,9 +614,6 @@ namespace moris::gen
             }
         }
 
-        // Clean up
-        delete tBackgroundElement;
-
         return tVertexSensitivity;
     }
 
@@ -632,12 +634,12 @@ namespace moris::gen
             // Append the ADV IDs to the output matrix
             // Resize IDs
             uint tJoinedIDLength = tADVIDs.n_cols();
-            tADVIDs.resize( 1, tJoinedIDLength + tFieldADVIDs.length() );
+            tADVIDs.resize( mPerturbationFields.size(), tJoinedIDLength + tFieldADVIDs.length() );
 
             // Join IDs
             for ( uint tAddedSensitivity = 0; tAddedSensitivity < tFieldADVIDs.length(); tAddedSensitivity++ )
             {
-                tADVIDs( tJoinedIDLength + tAddedSensitivity ) = tFieldADVIDs( tAddedSensitivity );
+                tADVIDs( iFieldIndex, tJoinedIDLength + tAddedSensitivity ) = tFieldADVIDs( tAddedSensitivity ); //BRENDAN added iFieldIndex and changed the ID matrix to be dxa
             }
         }
 
@@ -706,7 +708,8 @@ namespace moris::gen
             // Determine if the coordinate is in the bounding box
             bool tCoordinateInCell = true;
 
-            // Get the vertices of the mtk::Cell at this index
+            // const mtk::Cell& tBRENDAN = mMesh->get_mtk_cell( iCellIndex );
+
             Matrix< DDRMat > tCurrentSearchElementVertexCoordinates = mMesh->get_mtk_cell( iCellIndex ).get_vertex_coords();
 
             // Build bounding box, set the box as the coordinates for the first vertex

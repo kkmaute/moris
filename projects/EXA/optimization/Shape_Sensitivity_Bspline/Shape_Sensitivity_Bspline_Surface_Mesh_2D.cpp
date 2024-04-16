@@ -236,24 +236,9 @@ namespace moris
         switch ( tGeoModel )
         {
             case 0:
-                tParameterlist( 0 )( 0 ).set( "initial_advs", "0.20" );
-                tParameterlist( 0 )( 0 ).set( "lower_bounds", "0.00" );
-                tParameterlist( 0 )( 0 ).set( "upper_bounds", "1.00" );
-                break;
-            case 1:
-                tParameterlist( 0 )( 0 ).set( "initial_advs", "0.65" );
-                tParameterlist( 0 )( 0 ).set( "lower_bounds", "0.00" );
-                tParameterlist( 0 )( 0 ).set( "upper_bounds", "1.00" );
-                break;
-            case 2:
-                tParameterlist( 0 )( 0 ).set( "initial_advs", "0.20,0.65" );
-                tParameterlist( 0 )( 0 ).set( "lower_bounds", "0.00,0.00" );
-                tParameterlist( 0 )( 0 ).set( "upper_bounds", "1.00,1.00" );
-                break;
-            case 3:
-                tParameterlist( 0 )( 0 ).set( "initial_advs", "0.65,0.20" );
-                tParameterlist( 0 )( 0 ).set( "lower_bounds", "0.00,0.00" );
-                tParameterlist( 0 )( 0 ).set( "upper_bounds", "1.00,1.00" );
+                tParameterlist( 0 )( 0 ).set( "initial_advs", "0.20, 0.10" );
+                tParameterlist( 0 )( 0 ).set( "lower_bounds", "0.00, 0.00" );
+                tParameterlist( 0 )( 0 ).set( "upper_bounds", "1.00, 1.00" );
                 break;
         }
         // Geometry parameter lists
@@ -522,7 +507,7 @@ namespace moris
         tParameterlist( 0 )( 0 ) = moris::prm::create_opt_problem_parameter_list();
         tParameterlist( 0 )( 0 ).set( "is_optimization_problem", true );
         tParameterlist( 0 )( 0 ).set( "problem", "user_defined" );
-        tParameterlist( 0 )( 0 ).set( "library", "Shape_Sensitivity_Bspline_Surface_Mesh.so" );
+        tParameterlist( 0 )( 0 ).set( "library", "Shape_Sensitivity_Bspline_Surface_Mesh_2D.so" );
 
         tParameterlist( 2 )( 0 ) = moris::prm::create_sweep_parameter_list();
         tParameterlist( 2 )( 0 ).set( "hdf5_path", "shape_opt_test_surface_mesh_2D.hdf5" );

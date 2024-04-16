@@ -112,7 +112,7 @@ namespace moris::gen
                 const Vector< Background_Node* >& aBackgroundNodes,
                 const Parent_Node&                aFirstParentNode,
                 const Parent_Node&                aSecondParentNode,
-                sdf::Facet*                       aParentFacet );
+                sdf::Facet*&                      aParentFacet );
 
         /**
          *
@@ -295,13 +295,13 @@ namespace moris::gen
          */
         Matrix< DDRMat > get_dvertex_dadv( uint aFacetVertexIndex );
 
-        
+
         /**
          * Gets the IDs of the ADVs that the given node depends on
-         * 
+         *
          * @param aNodeIndex the query node index for which ADVs to retrieve
          * @param aCoordinates the query node coordinates for which ADVs to retrieve
-         * @return Matrix< DDSMat > 
+         * @return Matrix< DDSMat >
          */
         Matrix< DDSMat > get_determining_adv_ids(
                 uint                    aNodeIndex,
