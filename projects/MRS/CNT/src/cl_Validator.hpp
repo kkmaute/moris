@@ -70,6 +70,8 @@ namespace moris
         bool same_type_index( const Variant& aParameterVariant );
     };
 
+    //--------------------------------------------------------------------------------------------------------------
+
     class Type_Validator : public Validator
     {
       public:
@@ -83,6 +85,17 @@ namespace moris
         VALIDATOR_OVERRIDES
     };
 
+    //--------------------------------------------------------------------------------------------------------------
+
+    /**
+     * A range validator checks inputs to ensure the value lies within a specific range.
+     *
+     * Note: For some reason, the constructor must be defined outside of the class declaration.
+     * Currently, if this is changed, the parameter will have a segmentation fault in its
+     * destructor if compiler optimizations are turned on.
+     *
+     * @tparam T Range validator type
+     */
     template< typename T >
     class Range_Validator : public Validator
     {
@@ -98,36 +111,23 @@ namespace moris
          * @param aMinimumValue Maximum permitted parameter value
          * @param aMaximumValue Minimum permitted parameter value
          */
-        Range_Validator( uint aTypeIndex, T aMinimumValue, T aMaximumValue )
+        Range_Validator( uint aTypeIndex, T aMinimumValue, T aMaximumValue );
+
+        VALIDATOR_OVERRIDES
+    };
+
+    template< typename T >
+    Range_Validator< T >::Range_Validator( uint aTypeIndex, T aMinimumValue, T aMaximumValue )
                 : Validator( aTypeIndex )
                 , mMinimumValue( aMinimumValue )
                 , mMaximumValue( aMaximumValue )
-        {
-        }
+    {
+    }
 
-        //--------------------------------------------------------------------------------------------------------------
+    // Explicitly instantiate only the range validator types that make sense
+    template class Range_Validator< uint >;
+    template class Range_Validator< sint >;
+    template class Range_Validator< real >;
 
-        bool parameter_is_valid( const Variant& aParameterVariant ) override
-        {
-            return this->same_type_index( aParameterVariant )
-               and std::get< T >( aParameterVariant ) >= mMinimumValue
-               and std::get< T >( aParameterVariant ) <= mMaximumValue;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        std::string get_valid_values() override
-        {
-            return get_variant_name( mTypeIndex ) + ", [" + std::to_string( mMinimumValue ) + ", " + std::to_string( mMaximumValue ) + "]";
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        Validator* copy() override
-        {
-            return new Range_Validator< T >( mTypeIndex, mMinimumValue, mMaximumValue );
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-    };
+    //--------------------------------------------------------------------------------------------------------------
 }

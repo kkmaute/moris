@@ -55,4 +55,30 @@ namespace moris
     }
 
     //--------------------------------------------------------------------------------------------------------------
+
+    template< typename T >
+    bool Range_Validator< T >::parameter_is_valid( const Variant& aParameterVariant )
+    {
+        return this->same_type_index( aParameterVariant )
+           and std::get< T >( aParameterVariant ) >= mMinimumValue
+           and std::get< T >( aParameterVariant ) <= mMaximumValue;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    template< typename T >
+    std::string Range_Validator< T >::get_valid_values()
+    {
+        return get_variant_name( mTypeIndex ) + ", [" + std::to_string( mMinimumValue ) + ", " + std::to_string( mMaximumValue ) + "]";
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    template< typename T >
+    Validator* Range_Validator< T >::copy()
+    {
+        return new Range_Validator( mTypeIndex, mMinimumValue, mMaximumValue );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
 }
