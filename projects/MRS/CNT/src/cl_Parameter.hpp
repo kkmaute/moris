@@ -110,8 +110,9 @@ namespace moris
 
             // Validate the variant
             MORIS_ERROR( mValidator->parameter_is_valid( tParameterVariant ),
-                    "Parameter %s was set incorrectly. Valid values are: %s.",
+                    "Parameter %s was set incorrectly as %s. Valid values are: %s.",
                     aParameterName.c_str(),
+                    convert_variant_to_string( tParameterVariant ).c_str(),
                     mValidator->get_valid_values().c_str() );
 
             // Set the value

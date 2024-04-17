@@ -81,7 +81,7 @@ namespace moris
             }
             case 4:
             {
-                tStringStream << std::get< std::string >( aVariant );
+                tStringStream << "\"" << std::get< std::string >( aVariant ) << "\"";
                 break;
             }
             case 5:
