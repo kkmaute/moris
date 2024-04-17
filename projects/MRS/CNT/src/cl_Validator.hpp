@@ -11,6 +11,8 @@
 #pragma once
 
 #include "cl_Variant.hpp"
+#include <set>
+#include <utility>
 
 #define VALIDATOR_OVERRIDES                                                      \
     bool        parameter_is_valid( const Variant& aParameterVariant ) override; \
@@ -91,8 +93,8 @@ namespace moris
      * A range validator checks inputs to ensure the value lies within a specific range.
      *
      * Note: For some reason, the constructor must be defined outside of the class declaration.
-     * Currently, if this is changed, the parameter will have a segmentation fault in its
-     * destructor if compiler optimizations are turned on.
+     * Currently, if this is changed, it will cause the parameter to have a segmentation fault
+     * in its destructor when LTO compiler optimizations are turned on.
      *
      * @tparam T Range validator type
      */
@@ -128,6 +130,45 @@ namespace moris
     template class Range_Validator< uint >;
     template class Range_Validator< sint >;
     template class Range_Validator< real >;
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    /**
+     * A range validator checks inputs to ensure the value lies within a specific range.
+     *
+     * Note: For some reason, the constructor must be defined outside of the class declaration.
+     * Currently, if this is changed, it will cause the parameter to have a segmentation fault
+     * in its destructor when LTO compiler optimizations are turned on.
+     *
+     * @tparam T Range validator type
+     */
+    template< typename T >
+    class Selection_Validator : public Validator
+    {
+      private:
+        std::set< T > mValidValues;
+
+      public:
+        /**
+         * A selection validator checks inputs to ensure the value is one of the given selections.
+         *
+         * @param aTypeIndex Variant type index
+         * @param aValidValues Valid values for this parameter
+         */
+        Selection_Validator( uint aTypeIndex, std::set< T > aValidValues );
+
+        VALIDATOR_OVERRIDES
+    };
+
+    template< typename T >
+    Selection_Validator< T >::Selection_Validator( uint aTypeIndex, std::set< T > aValidValues )
+            : Validator( aTypeIndex )
+            , mValidValues( std::move( aValidValues ) )
+    {
+    }
+
+    // Explicitly instantiate only the selection validator types that make sense
+    template class Selection_Validator< std::string >;
 
     //--------------------------------------------------------------------------------------------------------------
 }

@@ -64,94 +64,106 @@ namespace moris
         /**
          * Adds a new parameter to this parameter list. This parameter's type will be validated when being set.
          *
-         * @param[in] aKey Key corresponding to the mapped value that
-         *            needs to be accessed; should not contain trailing or leading whitespaces
-         * @param[in] aValue Value corresponding to aKey; if value is a string,
-         *            pair of strings, or character array leading and trailing whitespaces
-         *            are trimmed off
+         * @tparam T Parameter type
+         * @param aName Parameter name
+         * @param aDefaultValue Default parameter value
          */
         template< typename T >
-        void insert( const std::string& aKey, T aValue )
+        void insert( const std::string& aName, T aDefaultValue )
         {
             // Check for leading and trailing whitespaces in key
-            std::string tKeyWithoutSpaces = aKey;
+            std::string tKeyWithoutSpaces = aName;
             split_trim_string( tKeyWithoutSpaces, "" );
-            MORIS_ERROR( aKey == tKeyWithoutSpaces,
+            MORIS_ERROR( aName == tKeyWithoutSpaces,
                     "Param_List::insert - key contains whitespaces" );
 
             // Insert new value
-            Parameter tParameter( aValue );
-            mParamMap.insert( { aKey, tParameter } );
+            Parameter tParameter( aDefaultValue );
+            mParamMap.insert( { aName, tParameter } );
         }
+
+        /**
+         * Adds a new string parameter to this parameter list. The parameter must be set from a selection of values.
+         *
+         * @param aName Parameter name
+         * @param aDefaultValue Default parameter value
+         * @param aValidValues Valid values the parameter can be set to
+         */
+        void insert(
+                const std::string&                   aName,
+                std::string                          aDefaultValue,
+                std::initializer_list< std::string > aValidValues );
 
         /**
          * Adds a new parameter to this parameter list. This parameter must be set with a valid range.
          *
-         * @param[in] aKey Key corresponding to the mapped value that
-         *            needs to be accessed; should not contain trailing or leading whitespaces
-         * @param[in] aValue Value corresponding to aKey; if value is a string,
-         *            pair of strings, or character array leading and trailing whitespaces
-         *            are trimmed off
+         * @tparam T Parameter type
+         * @param aName Parameter name
+         * @param aDefaultValue Default parameter value
          * @param aMinimumValue Maximum permitted parameter value
          * @param aMaximumValue Minimum permitted parameter value
          */
         template< typename T >
-        void insert( const std::string& aKey, T aValue, T aMinimumValue, T aMaximumValue )
+        void insert(
+                const std::string& aName,
+                T                  aDefaultValue,
+                T                  aMinimumValue,
+                T                  aMaximumValue )
         {
             // Delegate to private implementation overload, depending on if T is an enum
-            this->insert( aKey, aValue, aMinimumValue, aMaximumValue, std::is_enum< T >() );
+            this->insert( aName, aDefaultValue, aMinimumValue, aMaximumValue, std::is_enum< T >() );
         }
 
         /**
          * Removes the specified key and its associated value from the map
          *
-         * @param aKey the key to be erased
+         * @param aName the key to be erased
          */
         void
-        erase( const std::string& aKey );
+        erase( const std::string& aName );
 
         /**
          * Sets an element to a value if it exists, otherwise an error is thrown
          *        whitespaces in key and value string will be removed
          *
-         * @param aKey Parameter name
+         * @param aName Parameter name
          * @param aValue Parameter value
          * @param aLockValue If the set value is to be locked, and unable to be set again.
          */
         template< typename T >
-        void set( const std::string& aKey, T aValue, bool aLockValue = true )
+        void set( const std::string& aName, T aValue, bool aLockValue = true )
         {
             // Delegate to private implementation overload, depending on if T is an enum
-            this->convert_and_set( aKey, aValue, aLockValue, std::is_enum< T >() );
+            this->convert_and_set( aName, aValue, aLockValue, std::is_enum< T >() );
         }
 
         /**
          * Sets an element to a moris vector using a std::initializer_list
          *
-         * @param aKey Parameter name
+         * @param aName Parameter name
          * @param aValue Parameter value
          * @param aLockValue If the set value is to be locked, and unable to be set again.
          */
         template< typename T >
-        void set( const std::string& aKey, std::initializer_list< T > aValue, bool aLockValue = true )
+        void set( const std::string& aName, std::initializer_list< T > aValue, bool aLockValue = true )
         {
             // Delegate to private implementation overload, T is guaranteed not an enum
-            this->convert_and_set( aKey, Vector< T >( aValue ), aLockValue, std::false_type() );
+            this->convert_and_set( aName, Vector< T >( aValue ), aLockValue, std::false_type() );
         }
 
         /**
          * Sets an element to a moris vector using a parameter pack
          *
-         * @param aKey Parameter name
+         * @param aName Parameter name
          * @param aFirstValue First value to put into the vector
          * @param aSecondValue Second value to put into the vector
          * @param aMoreValues Parameter pack
          */
         template< typename T, typename ... ARGS >
-        void set( const std::string& aKey, T aFirstValue, T aSecondValue, ARGS ... aMoreValues )
+        void set( const std::string& aName, T aFirstValue, T aSecondValue, ARGS ... aMoreValues )
         {
             // Delegate to private implementation overload, with lock on
-            this->convert_and_set( aKey, Vector< T >( { aFirstValue, aSecondValue, aMoreValues... } ), true, std::false_type() );
+            this->convert_and_set( aName, Vector< T >( { aFirstValue, aSecondValue, aMoreValues... } ), true, std::false_type() );
         }
 
         /**
@@ -166,48 +178,48 @@ namespace moris
         /**
          * Checks whether or not the given key exists. Useful for when a parameter may or may not have been inserted.
          *
-         * @param aKey Key in the map
+         * @param aName Key in the map
          * @return whether or not this key is in the map with a corresponding value
          */
-        [[nodiscard]] bool exists( const std::string& aKey ) const;
+        [[nodiscard]] bool exists( const std::string& aName ) const;
 
         /**
          * @brief Determine the underlying type of the entry.
          *
-         * @param[in] aKey Key corresponding to the mapped value that
+         * @param[in] aName Key corresponding to the mapped value that
          *            needs to be accessed
          *
          * @return The index of the type as ordered in the variant entry
          *         of mParamMap
          */
-        uint index( const std::string& aKey );
+        uint index( const std::string& aName );
 
         /**
          * Gets the parameter value corresponding to a given key.
          *
-         * @param[in] aKey Key corresponding to the mapped value that
+         * @param[in] aName Key corresponding to the mapped value that
          *            needs to be accessed
          *
-         * @return The value corresponding to aKey.
+         * @return The value corresponding to aName.
          */
         template< typename T >
-        const T& get( const std::string& aKey ) const
+        const T& get( const std::string& aName ) const
         {
             // Delegate to private implementation overload, depending on if T is an enum
-            return this->get< T >( aKey, std::is_enum< T >() );
+            return this->get< T >( aName, std::is_enum< T >() );
         }
 
         /**
          * Gets a cell from a paramter that is stored as a std::string
          *
          * @tparam T Cell data type
-         * @param aKey Key corresponding to mapped string
+         * @param aName Key corresponding to mapped string
          * @return Cell of values
          */
         template< typename T >
-        Vector< T > get_cell( const std::string& aKey ) const
+        Vector< T > get_cell( const std::string& aName ) const
         {
-            return string_to_cell< T >( this->get< std::string >( aKey ) );
+            return string_to_cell< T >( this->get< std::string >( aName ) );
         }
 
         /**
@@ -245,34 +257,34 @@ namespace moris
         /**
          * Adds a new parameter to this parameter list (private implementation).
          *
-         * @param[in] aKey Key corresponding to the mapped value that
+         * @param[in] aName Key corresponding to the mapped value that
          *            needs to be accessed; should not contain trailing or leading whitespaces
-         * @param[in] aValue Value corresponding to aKey; if value is a string,
+         * @param[in] aValue Value corresponding to aName; if value is a string,
          *            pair of strings, or character array leading and trailing whitespaces
          *            are trimmed off
          */
         template< typename T >
-        void insert( const std::string& aKey, T aValue, T aMinimumValue, T aMaximumValue, std::false_type )
+        void insert( const std::string& aName, T aValue, T aMinimumValue, T aMaximumValue, std::false_type )
         {
             // Check for leading and trailing whitespaces in key
-            std::string tKeyWithoutSpaces = aKey;
+            std::string tKeyWithoutSpaces = aName;
             split_trim_string( tKeyWithoutSpaces, "" );
-            MORIS_ERROR( aKey == tKeyWithoutSpaces,
+            MORIS_ERROR( aName == tKeyWithoutSpaces,
                     "Param_List::insert - key contains whitespaces" );
 
             // Insert new value
             Parameter tParameter( aValue, aMinimumValue, aMaximumValue );
-            mParamMap.insert( { aKey, tParameter } );
+            mParamMap.insert( { aName, tParameter } );
         }
 
         /**
          * Insert function overload, for static casting enums to a uint.
          */
         template< typename T >
-        void insert( const std::string& aKey, T aValue, T aMinimumValue, T aMaximumValue, std::true_type )
+        void insert( const std::string& aName, T aValue, T aMinimumValue, T aMaximumValue, std::true_type )
         {
             this->insert(
-                    aKey,
+                    aName,
                     static_cast< uint >( aValue ),
                     static_cast< uint >( aMinimumValue ),
                     static_cast< uint >( aMaximumValue ),
@@ -282,15 +294,15 @@ namespace moris
         /**
          * Sets an element to a value if it exists (private implementation)
          *
-         * @param aKey Parameter name
+         * @param aName Parameter name
          * @param aValue Parameter value
          * @param aLockValue If the set value is to be locked, and unable to be set again.
          */
         template< typename T >
-        void convert_and_set( const std::string& aKey, T aValue, bool aLockValue, std::false_type )
+        void convert_and_set( const std::string& aName, T aValue, bool aLockValue, std::false_type )
         {
             // create copy of key string such that tIterator can be manipulated
-            std::string tKey = aKey;
+            std::string tKey = aName;
 
             // remove spurious whitespaces from key string
             split_trim_string( tKey, "" );
@@ -303,35 +315,35 @@ namespace moris
                     "The requested parameter %s can not be set because it does not exist.\n",
                     tKey.c_str() );
 
-            tIterator->second.set_value( aKey, aValue, aLockValue );
+            tIterator->second.set_value( aName, aValue, aLockValue );
         }
 
         /**
          * Set function overload, for static casting enums to a uint.
          */
         template< typename T >
-        void convert_and_set( const std::string& aKey, T aValue, bool aLockValue, std::true_type )
+        void convert_and_set( const std::string& aName, T aValue, bool aLockValue, std::true_type )
         {
-            this->convert_and_set( aKey, static_cast< uint >( aValue ), aLockValue, std::false_type() );
+            this->convert_and_set( aName, static_cast< uint >( aValue ), aLockValue, std::false_type() );
         }
 
         /**
          * Gets the parameter value corresponding to a given key (private implementation)
          *
-         * @param[in] aKey Key corresponding to the mapped value that
+         * @param[in] aName Key corresponding to the mapped value that
          *            needs to be accessed
          *
-         * @return The value corresponding to aKey.
+         * @return The value corresponding to aName.
          */
         template< typename T >
-        const T& get( const std::string& aKey, std::false_type ) const
+        const T& get( const std::string& aName, std::false_type ) const
         {
-            auto tIterator = mParamMap.find( aKey );
+            auto tIterator = mParamMap.find( aName );
 
             // check if key exists
             MORIS_ERROR( tIterator != mParamMap.end(),
                     "The requested parameter %s does not exist.\n",
-                    aKey.c_str() );
+                    aName.c_str() );
 
             return tIterator->second.get_value< T >();
         }
@@ -340,9 +352,9 @@ namespace moris
          * Get function overload, for static casting uints to a requested enum.
          */
         template< typename T >
-        const T& get( const std::string& aKey, std::true_type ) const
+        const T& get( const std::string& aName, std::true_type ) const
         {
-            return ( const T& ) this->get< uint >( aKey, std::false_type() );
+            return ( const T& ) this->get< uint >( aName, std::false_type() );
         }
     };
 

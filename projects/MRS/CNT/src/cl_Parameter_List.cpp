@@ -12,6 +12,23 @@
 
 namespace moris
 {
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Parameter_List::insert(
+            const std::string&                   aName,
+            std::string                          aDefaultValue,
+            std::initializer_list< std::string > aValidValues )
+    {
+        // Check for leading and trailing whitespaces in key
+        std::string tKeyWithoutSpaces = aName;
+        split_trim_string( tKeyWithoutSpaces, "" );
+        MORIS_ERROR( aName == tKeyWithoutSpaces,
+                "Param_List::insert - key contains whitespaces" );
+
+        // Insert new value
+        Parameter tParameter( aDefaultValue, std::set( aValidValues ) );
+        mParamMap.insert( { aName, tParameter } );
+    }
 
     //--------------------------------------------------------------------------------------------------------------
 

@@ -58,6 +58,23 @@ namespace moris
         }
 
         /**
+         * Constructor for a parameter with a selection validator.
+         *
+         * @tparam T Input parameter type
+         * @param aParameterValue Default value
+         * @param aValidValues Set of valid values
+         */
+        template< typename T >
+        Parameter( T aParameterValue, std::set< T > aValidValues )
+        {
+            // Set default value without validation
+            mValue = make_variant( aParameterValue );
+
+            // Create selection validator
+            mValidator = new Selection_Validator( mValue.index(), aValidValues );
+        }
+
+        /**
          * Custom copy constructor, used to ensure each parameter has a validator.
          *
          * @param aParameter Parameter to copy
