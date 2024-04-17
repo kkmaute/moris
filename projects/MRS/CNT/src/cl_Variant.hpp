@@ -16,9 +16,66 @@
 
 namespace moris
 {
+    /**
+     * Design variable class, for ADV parameters
+     */
+    class Design_Variable
+    {
+      private:
+        real mValue;
+        real mLowerBound;
+        real mUpperBound;
+        bool mIsConstant;
+
+      public:
+        /**
+         * Constructor for a constant variable.
+         *
+         * @param aConstantValue
+         */
+        Design_Variable( real aConstantValue );
+
+        /**
+         * Constructor for a varying design variable.
+         *
+         * @param aLowerBound Lower bound
+         * @param aInitialValue Initial value
+         * @param aUpperBound Upper value
+         */
+        Design_Variable( real aLowerBound, real aInitialValue, real aUpperBound );
+
+        /**
+         * Gets if this design variable is constant or not.
+         *
+         * @return Is constant
+         */
+        bool is_constant();
+
+        /**
+         * Gets the value of this design variable.
+         *
+         * @return Current value
+         */
+        real get_value();
+
+        /**
+         * Gets the lower bound of this design variable.
+         *
+         * @return Lower bound
+         */
+        real get_lower_bound();
+
+        /**
+         * Gets the upper bound of this design variable.
+         *
+         * @return Upper bound
+         */
+        real get_upper_bound();
+    };
+
     // Variant typedef
     typedef std::variant< bool, uint, sint, real, std::string, std::pair< std::string, std::string >,
-            Vector< uint >, Vector< real > > Variant;
+            Vector< uint >, Vector< real >, Design_Variable > Variant;
 
     /**
      * Gets the name of the type that the boost variant contains, based on the above typedef and an index

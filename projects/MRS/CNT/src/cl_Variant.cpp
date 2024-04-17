@@ -14,6 +14,54 @@ namespace moris
 {
     //--------------------------------------------------------------------------------------------------------------
 
+    Design_Variable::Design_Variable( real aConstantValue )
+            : mValue( aConstantValue )
+            , mLowerBound( aConstantValue )
+            , mUpperBound( aConstantValue )
+            , mIsConstant( true )
+    {
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Design_Variable::Design_Variable( real aLowerBound, real aInitialValue, real aUpperBound )
+            : mValue ( aInitialValue )
+            , mLowerBound( aLowerBound )
+            , mUpperBound( aUpperBound )
+            , mIsConstant( false )
+    {
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    bool Design_Variable::is_constant()
+    {
+        return mIsConstant;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    real Design_Variable::get_value()
+    {
+        return mValue;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    real Design_Variable::get_lower_bound()
+    {
+        return mLowerBound;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    real Design_Variable::get_upper_bound()
+    {
+        return mUpperBound;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     std::string get_variant_name( uint aVariantIndex )
     {
         switch ( aVariantIndex )
@@ -34,6 +82,8 @@ namespace moris
                 return "Vector<uint>";
             case 7:
                 return "Vector<real>";
+            case 8:
+                return "design variable";
             default:
                 return "";
         }
@@ -99,6 +149,20 @@ namespace moris
             {
                 vector_variant_to_string< real >( tStringStream, aVariant );
                 break;
+            }
+            case 8:
+            {
+                Design_Variable tDesignVariable = std::get< Design_Variable >( aVariant );
+                if ( tDesignVariable.is_constant() )
+                {
+                    tStringStream << tDesignVariable.get_value();
+                }
+                else
+                {
+                    tStringStream << "{" << tDesignVariable.get_lower_bound()
+                                  << ", " << tDesignVariable.get_value()
+                                  << ", " << tDesignVariable.get_upper_bound() << "}";
+                }
             }
             default:
             {
