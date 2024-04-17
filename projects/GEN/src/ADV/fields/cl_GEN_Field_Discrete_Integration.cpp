@@ -24,7 +24,6 @@ namespace moris::gen
             : Field( aConstants, "" )
             , mMeshPair( nullptr, nullptr ) // FIXME
     {
-        mNumOriginalNodes = aNumOriginalNodes;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -36,7 +35,6 @@ namespace moris::gen
             : Field( aSharedADVIds, aName )
             , mMeshPair( aMeshPair )
     {
-        mNumOriginalNodes = mMeshPair.get_interpolation_mesh()->get_num_nodes();
     }
 
     //--------------------------------------------------------------------------------------------------------------

@@ -47,7 +47,6 @@ namespace moris::gen
     class Field
     {
       protected:
-        uint mNumOriginalNodes = 0; // FIXME
         ADV_Manager mADVManager;
         Matrix< DDRMat > mSensitivities;
 
