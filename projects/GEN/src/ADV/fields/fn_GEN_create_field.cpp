@@ -42,47 +42,9 @@ namespace moris::gen
         std::string tFieldType = aFieldParameterList.get< std::string >( "field_type" );
 
         // ADV inputs
-        Vector< uint > tVariableIndices;
-        Vector< uint > tADVIndices;
-        Vector< real > tConstants;
-
-        bool tFillVariables = false;
-        bool tFillADVs      = false;
-
-        tVariableIndices = aFieldParameterList.get< Vector< uint > >( "field_variable_indices" );
-        tADVIndices = aFieldParameterList.get< Vector< uint > >( "adv_indices" );
-
-        // Perform fill
-        if ( tFillVariables and tFillADVs )
-        {
-            uint tNumADVs = aADVs.size();
-            tVariableIndices.resize( tNumADVs );
-            tADVIndices.resize( tNumADVs );
-            for ( uint tIndex = 0; tIndex < tNumADVs; tIndex++ )
-            {
-                tVariableIndices( tIndex ) = tIndex;
-                tADVIndices( tIndex )      = tIndex;
-            }
-        }
-        else if ( tFillVariables )
-        {
-            tVariableIndices.resize( tADVIndices.size() );
-            for ( uint tIndex = 0; tIndex < tADVIndices.size(); tIndex++ )
-            {
-                tVariableIndices( tIndex ) = tIndex;
-            }
-        }
-        else if ( tFillADVs )
-        {
-            tADVIndices.resize( tVariableIndices.size() );
-            for ( uint tIndex = 0; tIndex < tVariableIndices.size(); tIndex++ )
-            {
-                tADVIndices( tIndex ) = tIndex;
-            }
-        }
-
-        // Constant parameters
-        tConstants = aFieldParameterList.get< Vector< real > >( "constant_parameters" );
+        Vector< uint > tVariableIndices = aFieldParameterList.get< Vector< uint > >( "field_variable_indices" );
+        Vector< uint > tADVIndices = aFieldParameterList.get< Vector< uint > >( "adv_indices" );
+        Vector< real > tConstants = aFieldParameterList.get< Vector< real > >( "constant_parameters" );
 
         // Name of the field
         std::string tName = aFieldParameterList.get< std::string >( "name" );
