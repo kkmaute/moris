@@ -1009,6 +1009,8 @@ class Trilinos(CMakePackage, CudaPackage, ROCmPackage):
                     else:
                         options.append(define("Kokkos_ARCH_" + arch.upper(), True))
 
+            options.append("-DKokkos_ENABLE_ATOMICS_BYPASS=ON")
+
         # ################# System-specific ######################
 
         if sys.platform == "darwin" and macos_version() >= Version("10.12"):
