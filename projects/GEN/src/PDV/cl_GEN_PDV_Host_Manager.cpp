@@ -67,7 +67,7 @@ namespace moris::gen
 
     void
     PDV_Host_Manager::get_ip_dv_types_for_set(
-            const moris::moris_index  aIPMeshSetIndex,
+            const moris::moris_index      aIPMeshSetIndex,
             Vector< Vector< PDV_Type > >& aPDVTypes )
     {
         if ( mIpPDVTypes.size() > 0 )    // FIXME
@@ -80,7 +80,7 @@ namespace moris::gen
 
     void
     PDV_Host_Manager::get_ig_dv_types_for_set(
-            const moris::moris_index  aIGMeshSetIndex,
+            const moris::moris_index      aIGMeshSetIndex,
             Vector< Vector< PDV_Type > >& aPDVTypes )
     {
         if ( mIgPDVTypes.size() > 0 )    // FIXME
@@ -93,7 +93,7 @@ namespace moris::gen
 
     void
     PDV_Host_Manager::get_ip_unique_dv_types_for_set(
-            const moris_index aIPMeshSetIndex,
+            const moris_index   aIPMeshSetIndex,
             Vector< PDV_Type >& aPDVTypes )
     {
         if ( mUniqueIpPDVTypes.size() > 0 )    // FIXME
@@ -107,7 +107,7 @@ namespace moris::gen
     void
     PDV_Host_Manager::get_ig_unique_dv_types_for_set(
             const moris::moris_index aIGMeshSetIndex,
-            Vector< PDV_Type >&        aPDVTypes )
+            Vector< PDV_Type >&      aPDVTypes )
     {
         if ( mUniqueIgPDVTypes.size() > 0 )    // FIXME
         {
@@ -119,7 +119,7 @@ namespace moris::gen
 
     void
     PDV_Host_Manager::get_ip_pdv_value(
-            const Matrix< IndexMat >& aNodeIndices,
+            const Matrix< IndexMat >&   aNodeIndices,
             const Vector< PDV_Type >&   aPDVTypes,
             Vector< Matrix< DDRMat > >& aDvValues )
     {
@@ -172,10 +172,10 @@ namespace moris::gen
 
     void
     PDV_Host_Manager::get_ig_pdv_value(
-            const Matrix< IndexMat >& aNodeIndices,
+            const Matrix< IndexMat >&   aNodeIndices,
             const Vector< PDV_Type >&   aPDVTypes,
             Vector< Matrix< DDRMat > >& aDvValues,
-            Vector< Vector< bool > >&     aIsActiveDv )
+            Vector< Vector< bool > >&   aIsActiveDv )
     {
         // Get the number of node indices requested
         uint tNumIndices = aNodeIndices.length();
@@ -206,7 +206,7 @@ namespace moris::gen
 
                 if ( mNodeManager.node_depends_on_advs( tGenMeshNodeIndex ) )
                 {
-                    aDvValues( tPDVTypeIndex )( tNode ) = mNodeManager.get_node_coordinate_value( aNodeIndices( tNode ), static_cast< uint >( aPDVTypes( tPDVTypeIndex ) ) );
+                    aDvValues( tPDVTypeIndex )( tNode )   = mNodeManager.get_node_coordinate_value( aNodeIndices( tNode ), static_cast< uint >( aPDVTypes( tPDVTypeIndex ) ) );
                     aIsActiveDv( tPDVTypeIndex )( tNode ) = true;
                 }
             }
@@ -233,9 +233,9 @@ namespace moris::gen
 
     void
     PDV_Host_Manager::get_ip_dv_ids_for_type_and_ind(
-            const Matrix< IndexMat >& aNodeIndices,
-            const Vector< PDV_Type >&   aPDVTypes,
-            Vector< Matrix< IdMat > >&  aDvIds )
+            const Matrix< IndexMat >&  aNodeIndices,
+            const Vector< PDV_Type >&  aPDVTypes,
+            Vector< Matrix< IdMat > >& aDvIds )
     {
         // get the number of node indices requested
         uint tNumIndices = aNodeIndices.length();
@@ -274,9 +274,9 @@ namespace moris::gen
 
     void
     PDV_Host_Manager::get_ig_dv_ids_for_type_and_ind(
-            const Matrix< IndexMat >& aNodeIndices,
-            const Vector< PDV_Type >&   aPDVTypes,
-            Vector< Matrix< IdMat > >&  aDvIds )
+            const Matrix< IndexMat >&  aNodeIndices,
+            const Vector< PDV_Type >&  aPDVTypes,
+            Vector< Matrix< IdMat > >& aDvIds )
     {
         // get the number of node indices requested
         uint tNumIndices = aNodeIndices.numel();
@@ -365,9 +365,9 @@ namespace moris::gen
 
     void
     PDV_Host_Manager::create_interpolation_pdv_hosts(
-            const Vector< Vector< uint > >& aNodeIndicesPerSet,
-            const Vector< Vector< sint > >& aNodeIdsPerSet,
-            const Vector< Vector< uint > >& aNodeOwnersPerSet,
+            const Vector< Vector< uint > >&   aNodeIndicesPerSet,
+            const Vector< Vector< sint > >&   aNodeIdsPerSet,
+            const Vector< Vector< uint > >&   aNodeOwnersPerSet,
             const Vector< Matrix< DDRMat > >& aNodeCoordinatesPerSet )
     {
         // Check that number of sets is consistent
@@ -417,9 +417,9 @@ namespace moris::gen
             for ( uint tNodeIndexOnSet = 0; tNodeIndexOnSet < tNumberOfNodes; tNodeIndexOnSet++ )
             {
                 // Create new host or add unique PDVs
-                moris_index tNodeIndex = aNodeIndicesPerSet( tMeshSetIndex )( tNodeIndexOnSet );
-                moris_id    tNodeId    = aNodeIdsPerSet( tMeshSetIndex )( tNodeIndexOnSet );
-                moris_index tNodeOwner = aNodeOwnersPerSet( tMeshSetIndex )( tNodeIndexOnSet );
+                moris_index      tNodeIndex       = aNodeIndicesPerSet( tMeshSetIndex )( tNodeIndexOnSet );
+                moris_id         tNodeId          = aNodeIdsPerSet( tMeshSetIndex )( tNodeIndexOnSet );
+                moris_index      tNodeOwner       = aNodeOwnersPerSet( tMeshSetIndex )( tNodeIndexOnSet );
                 Matrix< DDRMat > tNodeCoordinates = aNodeCoordinatesPerSet( tMeshSetIndex ).get_row( tNodeIndexOnSet );
 
                 // Create PDV host unless it already exists
@@ -539,9 +539,9 @@ namespace moris::gen
 
         // check for consistent lengths of ID vector and matrix of sensitivities
         MORIS_ERROR( aADVIds.n_cols() == tNumADVs,
-                "PDV_Host_Manager::compute_diqi_dadv - inconsistent number of ADVs (%d) vs. sensitivity values for interpolation PDVs (%zu)",
-                tNumADVs,
-                aADVIds.n_cols() );
+                "PDV_Host_Manager::compute_diqi_dadv - inconsistent number of ADVs (%zu) vs. sensitivity values for interpolation PDVs (%d)",
+                aADVIds.n_cols(),
+                tNumADVs );
 
         // skip of ADV vector is empty
         if ( tNumADVs == 0 ) return;
@@ -667,8 +667,17 @@ namespace moris::gen
                 // Parent sensitivities and ADV IDs
                 tHostADVSensitivities.set_size( 0.0, 0.0 );
                 eye( tNumCoordinates, tNumCoordinates, tI );
-                mNodeManager.append_dcoordinate_dadv_from_derived_node( iNodeIndex, tHostADVSensitivities, tI );
+
                 Matrix< DDSMat > tADVIds = mNodeManager.get_coordinate_determining_adv_ids_from_derived_node( iNodeIndex );
+
+                // BRENDAN
+                if ( tADVIds.numel() == 10 )
+                {
+                    std::cout << "here's where the problem is\n";
+                }
+
+                mNodeManager.append_dcoordinate_dadv_from_derived_node( iNodeIndex, tHostADVSensitivities, tI );
+
 
                 // remove sensitivities wrt unused variables
                 this->remove_sensitivities_of_unused_variables( tADVIds, tHostADVSensitivities );
@@ -994,7 +1003,7 @@ namespace moris::gen
     {
         // Build communication table map to determine the right position for each processor rank.
         Vector< moris_id > tCommTableMap = build_communication_table_map( mCommTable );
-        moris::uint tNumCommProcs = mCommTable.numel();
+        moris::uint        tNumCommProcs = mCommTable.numel();
 
         // FIXME: cannot have communication within following loop
         // Loop over all different pdv types for IP node pdvs
@@ -1115,7 +1124,7 @@ namespace moris::gen
                     uint tReqPDVHostId = tOwnedIds( iCommunicationProcIndex )( iOwnedPDVIndex );
 
                     // Get index of PDV host on this processor
-                    auto tIter = mIPBaseVertexIdtoIndMap.find( tReqPDVHostId );
+                    auto        tIter         = mIPBaseVertexIdtoIndMap.find( tReqPDVHostId );
                     moris::uint tPDVHostIndex = tIter->second;
 
                     // Check that host id exists
@@ -1204,9 +1213,9 @@ namespace moris::gen
     PDV_Host_Manager::communicate_shared_intersection_node_pdv_ids()
     {
         // Build communication table map to determine the right position for each processor rank.
-        Vector< moris_id > tCommTableMap = build_communication_table_map( mCommTable );
-        moris::uint tNumCommProcs = mCommTable.numel();
-        moris::uint tSharedCounter = 0;
+        Vector< moris_id > tCommTableMap  = build_communication_table_map( mCommTable );
+        moris::uint        tNumCommProcs  = mCommTable.numel();
+        moris::uint        tSharedCounter = 0;
 
         Vector< Matrix< DDUMat > > tSharedPDVIds( tNumCommProcs );
         Vector< Matrix< DDUMat > > tSharedPDVPosLocal( tNumCommProcs );
@@ -1389,7 +1398,7 @@ namespace moris::gen
         mOwnedPDVLocalToGlobalMap.set_size( mNumOwnedPDVs, 1, -1 );
         mOwnedAndSharedPDVLocalToGlobalMap.set_size( mNumOwnedAndSharedPDVs, 1, -1 );
 
-        uint tOwnedNodeCounter = 0;
+        uint tOwnedNodeCounter          = 0;
         uint tOwnedAndSharedNodeCounter = 0;
 
         // Loop over all different pdv types for IP node pdvs
@@ -1479,7 +1488,7 @@ namespace moris::gen
     void
     PDV_Host_Manager::set_dQIdp(
             const Vector< Matrix< DDRMat >* >& adQIdp,
-            Matrix< DDSMat >*                aMap )
+            Matrix< DDSMat >*                  aMap )
     {
         // Number
         sint tNumIQIs = adQIdp.size();
@@ -1502,7 +1511,7 @@ namespace moris::gen
                 {
                     // Get number of PDVs and starting ID
                     moris_id tStartingPDVId = mNodeManager.get_derived_node_starting_pdv_id( iNodeIndex );
-                    uint tNumberOfPDVs = mNodeManager.get_number_of_derived_node_pdvs( iNodeIndex );
+                    uint     tNumberOfPDVs  = mNodeManager.get_number_of_derived_node_pdvs( iNodeIndex );
 
                     moris::Matrix< DDSMat > tPDVIds( 1, tNumberOfPDVs );
                     for ( moris::uint iPDV = 0; iPDV < tNumberOfPDVs; iPDV++ )
@@ -1523,4 +1532,4 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-}
+}    // namespace moris::gen
