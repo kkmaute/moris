@@ -233,6 +233,8 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "lower_bounds", "" );
         tParameterlist( 0 )( 0 ).set( "upper_bounds", "" );
 
+        std::cout << "GEO Model: " << tGeoModel << std::endl; // BRENDAN
+
         switch ( tGeoModel )
         {
             case 0:
@@ -255,27 +257,6 @@ namespace moris
             case 1:
                 tParameterlist( 1 )( 0 ).set("fixed_vertex_indices", "0");
                 tParameterlist( 1 )( 0 ).set( "discretization_mesh_index", 0 );
-                break;
-            case 2:
-                tParameterlist( 1 )( 0 ).set("fixed_vertex_indices", "1");
-                tParameterlist( 1 )( 0 ).set( "discretization_mesh_index", 0 );
-                break;
-            case 3:
-                tParameterlist( 1 )( 0 ).set("fixed_vertex_indices", "2");
-                tParameterlist( 1 )( 0 ).set( "discretization_mesh_index", 0 );
-                break;
-            case 4:
-                tParameterlist( 1 )( 0 ).set("fixed_vertex_indices", "3");
-                tParameterlist( 1 )( 0 ).set( "discretization_mesh_index", 0 );
-                break;
-            case 5:
-                tParameterlist( 1 )( 0 ).set("fixed_vertex_indices", "3");
-                tParameterlist( 1 )( 0 ).set( "discretization_mesh_index", 0 );
-                break;
-            case 6:
-                tParameterlist( 1 )( 0 ).set("fixed_vertex_indices", "3");
-                tParameterlist( 1 )( 0 ).set( "discretization_mesh_index", 0 );
-            
                 break;
             default:
                 MORIS_ERROR( false, "geometric model not implemented in test case" );

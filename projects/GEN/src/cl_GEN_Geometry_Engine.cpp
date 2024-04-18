@@ -920,7 +920,7 @@ namespace moris::gen
         Matrix< IdMat > tOwnedijklIDs( tPrimitiveADVIds.numel(), 1, gNoID );
 
         // Owned and shared ADVs per field
-        Vector< Matrix< DDSMat > > tSharedADVIds( tDesigns.size() );
+        // Vector< Matrix< DDSMat > > tSharedADVIds( tDesigns.size() ); BRENDAN
         Matrix< DDUMat >           tAllOffsetIDs( tDesigns.size(), 1 );
 
         // Loop over all geometries to get number of new ADVs

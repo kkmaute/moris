@@ -46,14 +46,16 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Surface_Mesh_Geometry::Surface_Mesh_Geometry( mtk::Mesh* aMesh, Matrix< DDRMat > aADVs, Surface_Mesh_Parameters aParameters )
+    Surface_Mesh_Geometry::Surface_Mesh_Geometry( mtk::Mesh* aMesh, Matrix< DDRMat > aADVs, Surface_Mesh_Parameters aParameters, Node_Manager& aNodeManager )
             : Geometry( aParameters, aParameters.mIntersectionTolerance )
             , Object( aParameters.mFilePath, aParameters.mIntersectionTolerance, aParameters.mOffsets, aParameters.mScale )
             , mParameters( aParameters )
             , mMesh( aMesh )
-            , mOriginalVertexCoordinates( Object::mVertices.size(), Object::mDimension )
+            , mNodeManager( &aNodeManager )
             , mPerturbationFields( 0 )
             , mVertexBases( 0, 0 )
+            , mOriginalVertexCoordinates( Object::mVertices.size(), Object::mDimension )
+
     {
         // Check the correct number of ADVs are provided (either as many as dimensions or zero)
         MORIS_ERROR( aParameters.mADVIndices.size() == Object::mDimension
@@ -122,6 +124,13 @@ namespace moris::gen
 
     Surface_Mesh_Geometry::~Surface_Mesh_Geometry()
     {
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Surface_Mesh_Geometry::set_node_manager( Node_Manager& aNodeManager )
+    {
+        mNodeManager = &aNodeManager;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -597,19 +606,18 @@ namespace moris::gen
         for ( uint iDimensionIndex = 0; iDimensionIndex < Object::mDimension; iDimensionIndex++ )
         {
             // Loop over background nodes
-            for ( uint iNodeIndex = 0; iNodeIndex < mVertexBases.n_cols(); iNodeIndex++ )
+            for ( uint iNodeIndex = 0; iNodeIndex < tVertexCoordinates.n_rows(); iNodeIndex++ )
             {
-                Matrix< DDRMat > tNodeSensitivity = mPerturbationFields( iDimensionIndex )->get_dfield_dadvs( tVertexIndices( iNodeIndex ), tVertexCoordinates.get_row( iNodeIndex ) );
-
+                Matrix< DDRMat > tNodeSensitivity = mVertexBases( aFacetVertexIndex, iNodeIndex ) * mPerturbationFields( iDimensionIndex )->get_dfield_dadvs( tVertexIndices( iNodeIndex ), tVertexCoordinates.get_row( iNodeIndex ) );
                 // set size of vertex sensitivity matrix
                 if ( iDimensionIndex == 0 and iNodeIndex == 0 )
                 {
-                    tVertexSensitivity.resize( Object::mDimension, tNodeSensitivity.numel() );
+                    tVertexSensitivity.resize( Object::mDimension, tNodeSensitivity.numel() * tVertexCoordinates.n_rows() );
                 }
-
+                // Each sensitivity is a separate index
                 for ( uint iADVIndex = 0; iADVIndex < tNodeSensitivity.numel(); iADVIndex++ )
                 {
-                    tVertexSensitivity( iDimensionIndex, iADVIndex ) += tNodeSensitivity( iADVIndex );
+                    tVertexSensitivity( iDimensionIndex, iADVIndex + tNodeSensitivity.numel() * iNodeIndex ) = tNodeSensitivity( iADVIndex );
                 }
             }
         }
@@ -619,6 +627,49 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    Matrix< DDSMat >
+    Surface_Mesh_Geometry::get_vertex_adv_ids( uint aFacetVertexIndex )
+    {
+        // Initialize matrix to be filled
+        Matrix< DDSMat > tVertexADVIds;
+
+        // Get the element index of this vertex
+        Vector< Vector< real > > tElementBoundingBox( 2, Vector< real >( Object::mDimension ) );
+        moris_index              tElementIndex = this->find_background_element_from_global_coordinates(
+                Object::mVertices( aFacetVertexIndex )->get_coords(),
+                tElementBoundingBox );
+
+        // Get the mtk cell the vertex lies in
+        mtk::Cell* tBackgroundElement = &mMesh->get_mtk_cell( tElementIndex );
+
+        // Get the vertex indices and coordinates of the background element
+        Matrix< DDRMat >   tVertexCoordinates = tBackgroundElement->get_vertex_coords();
+        Matrix< IndexMat > tVertexIndices     = tBackgroundElement->get_vertex_inds();
+
+        // Loop over background nodes
+        for ( uint iNodeIndex = 0; iNodeIndex < tVertexCoordinates.n_rows(); iNodeIndex++ )
+        {
+            // Get the ADV IDs for this node
+            Matrix< DDSMat > tNodeIDs = this->get_determining_adv_ids( tVertexIndices( iNodeIndex ), tVertexCoordinates.get_row( iNodeIndex ) );
+
+            // Join the ADV IDs to the output
+            // Get the original length
+            uint tIDLength = tVertexADVIds.length();
+
+            // Resize to add new ADV IDs
+            tVertexADVIds.resize( 1, tVertexADVIds.length() + tNodeIDs.length() );
+
+            // Place IDs in output matrix
+            for ( uint iADVIndex = 0; iADVIndex < tNodeIDs.length(); iADVIndex++ )
+            {
+                tVertexADVIds( tIDLength + iADVIndex ) = tNodeIDs( iADVIndex );
+            }
+        }
+
+        return tVertexADVIds;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDSMat >
     Surface_Mesh_Geometry::get_determining_adv_ids(
@@ -629,17 +680,29 @@ namespace moris::gen
         for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
         {
             // Get the ADV IDs for this field
-            Matrix< DDSMat > tFieldADVIDs = mPerturbationFields( iFieldIndex )->get_determining_adv_ids( aNodeIndex, aCoordinates );
+            Matrix< DDSMat > tFieldADVIDs;
+            if ( mNodeManager->is_background_node( aNodeIndex ) )
+            {
+                tFieldADVIDs = mPerturbationFields( iFieldIndex )->get_determining_adv_ids( aNodeIndex, aCoordinates );
+            }
+            else
+            {
+                const Node_Manager& tNodeManager = *mNodeManager;
+                const Derived_Node& tDerivedNode = tNodeManager.get_derived_node( aNodeIndex );
+                mPerturbationFields( iFieldIndex )->get_determining_adv_ids( tFieldADVIDs, tDerivedNode, *mNodeManager );
+
+                MORIS_ERROR( !mNodeManager->node_depends_on_advs( aNodeIndex ), "node depends on advs????" );    // BRENDAN
+            }
 
             // Append the ADV IDs to the output matrix
             // Resize IDs
             uint tJoinedIDLength = tADVIDs.n_cols();
-            tADVIDs.resize( mPerturbationFields.size(), tJoinedIDLength + tFieldADVIDs.length() );
+            tADVIDs.resize( 1, tJoinedIDLength + tFieldADVIDs.length() );
 
             // Join IDs
             for ( uint tAddedSensitivity = 0; tAddedSensitivity < tFieldADVIDs.length(); tAddedSensitivity++ )
             {
-                tADVIDs( iFieldIndex, tJoinedIDLength + tAddedSensitivity ) = tFieldADVIDs( tAddedSensitivity ); //BRENDAN added iFieldIndex and changed the ID matrix to be dxa
+                tADVIDs( tJoinedIDLength + tAddedSensitivity ) = tFieldADVIDs( tAddedSensitivity );
             }
         }
 
@@ -707,8 +770,6 @@ namespace moris::gen
         {
             // Determine if the coordinate is in the bounding box
             bool tCoordinateInCell = true;
-
-            // const mtk::Cell& tBRENDAN = mMesh->get_mtk_cell( iCellIndex );
 
             Matrix< DDRMat > tCurrentSearchElementVertexCoordinates = mMesh->get_mtk_cell( iCellIndex ).get_vertex_coords();
 

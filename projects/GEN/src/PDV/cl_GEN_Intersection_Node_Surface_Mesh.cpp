@@ -141,8 +141,6 @@ namespace moris::gen
 
         Matrix< DDRMat > tdCenterdVertices = 2.0 / ( 3.0 * tParentVectorNorm ) * tRotationMatrix;
 
-        Matrix< DDRMat > tBRENDAN = ( tdNormalPrimedVertex1 * tCenterPrime + tdCenterdVertices * tNormalPrime ) * mParentFacet->get_normal()( 0 ) - trans( tdNormalPrimedVertex1.get_row( 0 ) ) * dot( tNormalPrime, tCenterPrime );
-
         return join_rows( ( tdNormalPrimedVertex1 * tCenterPrime + tdCenterdVertices * tNormalPrime ) * mParentFacet->get_normal()( 0 ) - trans( tdNormalPrimedVertex1.get_row( 0 ) ) * dot( tNormalPrime, tCenterPrime ),
                 ( tdNormalPrimedVertex2 * tCenterPrime + tdCenterdVertices * tNormalPrime ) * mParentFacet->get_normal()( 0 ) - trans( tdNormalPrimedVertex2.get_row( 0 ) ) * dot( tNormalPrime, tCenterPrime ) );
     }
@@ -160,20 +158,34 @@ namespace moris::gen
 
         Matrix< DDRMat > tLocalCoordinateFacetVertexSensitivities = this->compute_dxi_dfacet();
 
-        Matrix< DDRMat > tSensitivitiesToAdd = .5 * aSensitivityFactor * tParentVector * ( trans( tLocalCoordinateFacetVertexSensitivities.get_column( 0 ) ) * mInterfaceGeometry.get_dvertex_dadv( mParentFacet->get_vertex_inds()( 0 ) ) + trans( tLocalCoordinateFacetVertexSensitivities.get_column( 1 ) ) * mInterfaceGeometry.get_dvertex_dadv( mParentFacet->get_vertex_inds()( 1 ) ) );
-
-        // Resize sensitivities
-        uint tJoinedSensitivityLength = aCoordinateSensitivities.n_cols();
-        aCoordinateSensitivities.resize( tSensitivitiesToAdd.n_rows(),
-                tJoinedSensitivityLength + tSensitivitiesToAdd.n_cols() );
-
-        // Join sensitivities
-        for ( uint iCoordinateIndex = 0; iCoordinateIndex < tSensitivitiesToAdd.n_rows(); iCoordinateIndex++ )
+        Matrix< DDRMat > tDenseSensitivities;
+        for ( uint iParentNodeIndex = 0; iParentNodeIndex < this->get_locator_nodes().size(); iParentNodeIndex++ )
         {
-            for ( uint iAddedSensitivity = 0; iAddedSensitivity < tSensitivitiesToAdd.n_cols(); iAddedSensitivity++ )
+            Matrix< DDRMat > tDenseSensitivities = .5 * aSensitivityFactor * tParentVector * ( trans( tLocalCoordinateFacetVertexSensitivities.get_column( iParentNodeIndex ) ) * mInterfaceGeometry.get_dvertex_dadv( mParentFacet->get_vertex_inds()( iParentNodeIndex ) ) );
+
+            // Expand the sensitivity matrix to be per ADV ID
+            Matrix< DDRMat > tSensitivitiesToAdd( tDenseSensitivities.n_rows(), tDenseSensitivities.n_cols() * tDenseSensitivities.n_rows() );
+            for ( uint iDimensionIndex = 0; iDimensionIndex < tDenseSensitivities.n_rows(); iDimensionIndex++ )
             {
-                aCoordinateSensitivities( iCoordinateIndex, tJoinedSensitivityLength + iAddedSensitivity ) =
-                        tSensitivitiesToAdd( iCoordinateIndex, iAddedSensitivity );
+                for ( uint iADVIndex = 0; iADVIndex < tDenseSensitivities.n_cols(); iADVIndex++ )
+                {
+                    tSensitivitiesToAdd( iDimensionIndex, iADVIndex + iDimensionIndex * tDenseSensitivities.n_cols() ) = tDenseSensitivities( iDimensionIndex, iADVIndex );
+                }
+            }
+
+            // Resize sensitivities
+            uint tJoinedSensitivityLength = aCoordinateSensitivities.n_cols();
+            aCoordinateSensitivities.resize( tSensitivitiesToAdd.n_rows(),
+                    tJoinedSensitivityLength + tSensitivitiesToAdd.n_cols() );
+
+            // Join sensitivities
+            for ( uint iCoordinateIndex = 0; iCoordinateIndex < tSensitivitiesToAdd.n_rows(); iCoordinateIndex++ )
+            {
+                for ( uint iAddedSensitivity = 0; iAddedSensitivity < tSensitivitiesToAdd.n_cols(); iAddedSensitivity++ )
+                {
+                    aCoordinateSensitivities( iCoordinateIndex, tJoinedSensitivityLength + iAddedSensitivity ) =
+                            tSensitivitiesToAdd( iCoordinateIndex, iAddedSensitivity );
+                }
             }
         }
 
@@ -202,18 +214,29 @@ namespace moris::gen
         // Initialize ADV IDs
         Matrix< DDSMat > tCoordinateDeterminingADVIDs;
 
-        // Get sensitivity values from parents
-        const Vector< Basis_Node >& tFieldBasisNodes = this->get_locator_nodes();
-        for ( uint iFieldBasisNode = 0; iFieldBasisNode < tFieldBasisNodes.size(); iFieldBasisNode++ )
+        // Get ADV IDs from facet parents
+        Matrix< DDSMat > tParentFacetVertices = mParentFacet->get_vertex_inds();
+        for( auto tParentFacetVertex: tParentFacetVertices )
         {
-            // Get geometry field sensitivity with respect to ADVs
-            const Matrix< DDSMat >& tAncestorADVIDs = mInterfaceGeometry.get_determining_adv_ids(
-                    tFieldBasisNodes( iFieldBasisNode ).get_index(),
-                    tFieldBasisNodes( iFieldBasisNode ).get_global_coordinates() );
+            // Get the IDs for this vertex
+            Matrix< DDSMat > tVertexADVIds = mInterfaceGeometry.get_vertex_adv_ids( tParentFacetVertex );
 
             // Join IDs
-            Intersection_Node::join_adv_ids( tCoordinateDeterminingADVIDs, tAncestorADVIDs );
+            Intersection_Node::join_adv_ids( tCoordinateDeterminingADVIDs, tVertexADVIds );
         }
+
+        // Get sensitivity values from parents
+        // const Vector< Basis_Node >& tFieldBasisNodes = this->get_locator_nodes();
+        // for ( uint iFieldBasisNode = 0; iFieldBasisNode < tFieldBasisNodes.size(); iFieldBasisNode++ )
+        // {
+        //     // Get geometry field sensitivity with respect to ADVs
+        //     const Matrix< DDSMat >& tAncestorADVIDs = mInterfaceGeometry.get_determining_adv_ids(
+        //             tFieldBasisNodes( iFieldBasisNode ).get_index(),
+        //             tFieldBasisNodes( iFieldBasisNode ).get_global_coordinates() );
+
+        //     // Join IDs
+        //     Intersection_Node::join_adv_ids( tCoordinateDeterminingADVIDs, tAncestorADVIDs );
+        // }
 
         // Get parent nodes
         const Basis_Node& tFirstParentNode  = this->get_first_parent_node();
@@ -228,7 +251,7 @@ namespace moris::gen
         {
             Intersection_Node::join_adv_ids( tCoordinateDeterminingADVIDs, tSecondParentNode.get_coordinate_determining_adv_ids() );
         }
-
+        
         // Return joined ADV IDs
         return tCoordinateDeterminingADVIDs;
     }

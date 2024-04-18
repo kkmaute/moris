@@ -44,13 +44,15 @@ namespace moris::gen
             , public sdf::Object
     {
       private:
-        Surface_Mesh_Parameters  mParameters;
-        std::string              mName;
-        mtk::Mesh*               mMesh;
-        Vector< Vector< real > > mOriginalVertexCoordinates;    // All vertex coordinates as they were upon construction <dimension> x <number of vertices>
+        Surface_Mesh_Parameters mParameters;
+        mtk::Mesh*              mMesh;
+        Node_Manager*           mNodeManager;
+        std::string             mName;
 
-        Vector< std::shared_ptr< Field > > mPerturbationFields;    // Vector of perturbation fields
-        Matrix< DDRMat >                   mVertexBases;           // Basis function values for each vertex <number of fields> x <number of vertices>
+        Vector< std::shared_ptr< Field > > mPerturbationFields;           // Vector of perturbation fields
+        Matrix< DDRMat >                   mVertexBases;                  // Basis function values for each vertex <number of fields> x <number of vertices>
+        Vector< Vector< real > >           mOriginalVertexCoordinates;    // All vertex coordinates as they were upon construction <dimension> x <number of vertices>
+
 
       public:
         /**
@@ -59,7 +61,11 @@ namespace moris::gen
          * @param aField Field for computing nodal values
          * @param aParameters Field parameters
          */
-        Surface_Mesh_Geometry( mtk::Mesh* aMesh, Matrix< DDRMat > aADVs, Surface_Mesh_Parameters aParameters = Surface_Mesh_Parameters() );
+        Surface_Mesh_Geometry(
+                mtk::Mesh*              aMesh,
+                Matrix< DDRMat >        aADVs,
+                Surface_Mesh_Parameters aParameters  = Surface_Mesh_Parameters(),
+                Node_Manager&           aNodeManager = Node_Manager::get_trivial_instance() );
 
         /**
          * Default destructor
@@ -241,6 +247,13 @@ namespace moris::gen
         void set_advs( sol::Dist_Vector* aADVs ) override;
 
         /**
+         * Sets a new node manager (from the geometry engine, if it was created after this geometry)
+         *
+         * @param aNodeManager Geometry engine node manager
+         */
+        void set_node_manager( Node_Manager& aNodeManager ) override;
+
+        /**
          * Gets if this field is to be used for seeding a B-spline field.
          *
          * @return Logic for B-spline creation
@@ -295,11 +308,19 @@ namespace moris::gen
          */
         Matrix< DDRMat > get_dvertex_dadv( uint aFacetVertexIndex );
 
+        /**
+         * Gets the ADV IDs that the facet vertex depends on. 
+         * These are the ADVs that control the bspline field value in the background element that the vertex lies in.
+         * 
+         * @param aFacetVertexIndex Vertex index of the surface mesh
+         * @return Matrix< DDSMat > ADV IDs that the vertex depends on
+         */
+        Matrix< DDSMat > get_vertex_adv_ids( uint aFacetVertexIndex );
 
         /**
          * Gets the IDs of the ADVs that the given node depends on
          *
-         * @param aNodeIndex the query node index for which ADVs to retrieve
+         * @param aNodeIndex the query node index on the integration mesh for which ADVs to retrieve
          * @param aCoordinates the query node coordinates for which ADVs to retrieve
          * @return Matrix< DDSMat >
          */
