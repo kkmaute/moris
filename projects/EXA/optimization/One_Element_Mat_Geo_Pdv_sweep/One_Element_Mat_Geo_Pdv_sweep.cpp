@@ -447,7 +447,7 @@ namespace moris
         // tParameterlist( 1 )( tGeoCounter ).set( "use_multilinear_interpolation", false );
 
         tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list() );
-        tParameterlist( 1 )( tGeoCounter ).set( "field_type", "plane" );
+        tParameterlist( 1 )( tGeoCounter ).set( "field_type", "line" );
         // tParameterlist(1)( tGeoCounter ).set("constant_parameters", 0.0, 0.0, 2.0);
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 10e-14 );
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 0.5 );    // FIXME     this has to change

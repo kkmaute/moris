@@ -14,29 +14,25 @@
 
 namespace moris::gen
 {
-    class Plane : public Field_Analytic< 3 >
+    class Line : public Field_Analytic< 2 >
     {
       public:
 
         // Constructor to allow this field to be created with ADVs
-        ANALYTIC_FIELD_ADV_CONSTRUCTOR( Plane, 3, 6, {} )
+        ANALYTIC_FIELD_ADV_CONSTRUCTOR( Line, 2, 4, {} )
 
         /**
          * Constructor with only constant parameters
          *
-         * @param aXCenter x-coordinate of the center of the plane
-         * @param aYCenter y-coordinate of the center of the plane
-         * @param aZCenter z-coordinate of the center of the plane
-         * @param aXNormal x normal for the plane
-         * @param aYNormal y normal for the plane
-         * @param aZNormal z normal for the plane
+         * @param aXCenter x-coordinate of the center of the line
+         * @param aYCenter y-coordinate of the center of the line
+         * @param aXNormal x normal for the line
+         * @param aYNormal y normal for the line
          */
-        Plane( real  aXCenter,
+        Line( real   aXCenter,
                 real aYCenter,
-                real aZCenter,
                 real aXNormal,
-                real aYNormal,
-                real aZNormal );
+                real aYNormal );
 
         /**
          * Given a node coordinate, returns the field value.

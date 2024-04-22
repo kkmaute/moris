@@ -178,7 +178,7 @@ namespace moris
 
         // Bottom plane
         tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list() );
-        tParameterlist( 1 )( tGeoCounter ).set( "field_type", "plane" );
+        tParameterlist( 1 )( tGeoCounter ).set( "field_type", "line" );
         tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 0.0, 0.0, 0.0, 1.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", "1" );
         tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );
@@ -186,7 +186,7 @@ namespace moris
 
         // Top plane
         tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list() );
-        tParameterlist( 1 )( tGeoCounter ).set( "field_type", "plane" );
+        tParameterlist( 1 )( tGeoCounter ).set( "field_type", "line" );
         tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 0.0, 0.41, 0.0, 1.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", "1" );
         tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );
@@ -194,7 +194,7 @@ namespace moris
 
         // Left plane
         tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list() );
-        tParameterlist( 1 )( tGeoCounter ).set( "field_type", "plane" );
+        tParameterlist( 1 )( tGeoCounter ).set( "field_type", "line" );
         tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 0.0, 0.0, 1.0, 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", "1" );
         tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );
@@ -202,7 +202,7 @@ namespace moris
 
         // Right plane
         tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list() );
-        tParameterlist( 1 )( tGeoCounter ).set( "field_type", "plane" );
+        tParameterlist( 1 )( tGeoCounter ).set( "field_type", "line" );
         tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 2.2, 0.0, 1.0, 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", "1" );
         tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );

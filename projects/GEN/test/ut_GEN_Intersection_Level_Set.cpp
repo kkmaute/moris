@@ -65,13 +65,13 @@ namespace moris::gen
 
             // Plane 1
             Parameter_List tPlane1ParameterList = prm::create_level_set_geometry_parameter_list();
-            tPlane1ParameterList.set( "field_type", "plane" );
+            tPlane1ParameterList.set( "field_type", "line" );
             tPlane1ParameterList.set( "field_variable_indices", { 0u, 1u, 2u, 3u } );
             tPlane1ParameterList.set( "adv_indices", { 0u, 1u, 2u, 3u } );
 
             // Plane 2
             Parameter_List tPlane2ParameterList = prm::create_level_set_geometry_parameter_list();
-            tPlane2ParameterList.set( "field_type", "plane" );
+            tPlane2ParameterList.set( "field_type", "line" );
             tPlane2ParameterList.set( "constant_parameters", { 1.0, 0.0, 1.0, 0.0 } );
 
             // Create geometry engine

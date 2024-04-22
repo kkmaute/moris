@@ -391,7 +391,7 @@ namespace moris
         //        tGeoCounter++;
 
         tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list() );
-        tParameterlist( 1 )( tGeoCounter ).set( "field_type", "plane" );
+        tParameterlist( 1 )( tGeoCounter ).set( "field_type", "line" );
         tParameterlist( 1 )( tGeoCounter ).set( "field_variable_indices", 0u );
         tParameterlist( 1 )( tGeoCounter ).set( "adv_indices", 0u );
         tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 0.0, 1.0, 0.0 );

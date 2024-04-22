@@ -75,7 +75,7 @@ namespace moris::xtk
             tGENParams( 1 )( tGeoCounter ).set( "isocontour_threshold", 1e-16 );
             tGENParams( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1e-12 );
             tGENParams( 1 )( tGeoCounter ).set( "intersection_tolerance", 1e-12 );
-            tGENParams( 1 )( tGeoCounter ).set( "field_type", "plane" );
+            tGENParams( 1 )( tGeoCounter ).set( "field_type", "line" );
             tGENParams( 1 )( tGeoCounter ).set( "constant_parameters", { 0.0, tOffset, tXNormal, tYNormal } );
             tGENParams( 1 )( tGeoCounter ).set( "use_multilinear_interpolation", tBilinear );
             tGeoCounter++;
@@ -85,7 +85,7 @@ namespace moris::xtk
             tGENParams( 1 )( tGeoCounter ).set( "isocontour_threshold", 1e-16 );
             tGENParams( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1e-12 );
             tGENParams( 1 )( tGeoCounter ).set( "intersection_tolerance", 1e-12 );
-            tGENParams( 1 )( tGeoCounter ).set( "field_type", "plane" );
+            tGENParams( 1 )( tGeoCounter ).set( "field_type", "line" );
             tGENParams( 1 )( tGeoCounter ).set( "constant_parameters", { -0.5, 0.0, 1.0, 0.0 } );
             tGENParams( 1 )( tGeoCounter ).set( "use_multilinear_interpolation", tBilinear );
             tGeoCounter++;
@@ -95,7 +95,7 @@ namespace moris::xtk
             tGENParams( 1 )( tGeoCounter ).set( "isocontour_threshold", 1e-16 );
             tGENParams( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1e-12 );
             tGENParams( 1 )( tGeoCounter ).set( "intersection_tolerance", 1e-12 );
-            tGENParams( 1 )( tGeoCounter ).set( "field_type", "plane" );
+            tGENParams( 1 )( tGeoCounter ).set( "field_type", "line" );
             tGENParams( 1 )( tGeoCounter ).set( "constant_parameters", { 1.0, 0.0, 1.0, 0.0 } );
             tGENParams( 1 )( tGeoCounter ).set( "use_multilinear_interpolation", tBilinear );
             tGeoCounter++;

@@ -340,7 +340,7 @@ namespace moris
 
         // interface plane
         tParameterList( 1 ).push_back( prm::create_level_set_geometry_parameter_list() );
-        tParameterList( 1 )( tGeoCounter ).set( "field_type","plane" );
+        tParameterList( 1 )( tGeoCounter ).set( "field_type","line" );
         tParameterList( 1 )( tGeoCounter ).set( "field_variable_indices", 0u, 1u, 2u, 3u );
         tParameterList( 1 )( tGeoCounter ).set( "adv_indices", 0u, 1u, 2u, 3u );
         tGeoCounter++;

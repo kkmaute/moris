@@ -458,7 +458,7 @@ namespace moris
         {
             tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list() );
             tParameterlist( 1 )( tGeoCounter ).set( "name", "ADVfield" );
-            tParameterlist( 1 )( tGeoCounter ).set( "field_type", "plane" );
+            tParameterlist( 1 )( tGeoCounter ).set( "field_type", "line" );
             tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", tInterfaceX, 0.0, -1.0 * std::sin( tPlaneTilde / 180.0 * pi ), -1.0 * std::cos( tPlaneTilde / 180.0 * pi ) );
             tParameterlist( 1 )( tGeoCounter ).set( "use_multilinear_interpolation", tUseMultiLinear );
 
@@ -488,7 +488,7 @@ namespace moris
             tParameterlist( 0 )( 0 ).set( "upper_bounds", tInterfaceX / 0.5 );
 
             tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list() );
-            tParameterlist( 1 )( tGeoCounter ).set( "field_type", "plane" );
+            tParameterlist( 1 )( tGeoCounter ).set( "field_type", "line" );
             tParameterlist( 1 )( tGeoCounter ).set( "field_variable_indices", 0u );
             tParameterlist( 1 )( tGeoCounter ).set( "adv_indices", 0u );
             tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 0.0, -1.0 * std::sin( tPlaneTilde / 180.0 * pi ), -1.0 * std::cos( tPlaneTilde / 180.0 * pi ) );

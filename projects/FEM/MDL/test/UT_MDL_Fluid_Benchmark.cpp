@@ -75,7 +75,7 @@
 #include "cl_TSA_Time_Solver.hpp"
 // GEN
 #include "cl_GEN_Circle.hpp"
-#include "cl_GEN_Plane.hpp"
+#include "cl_GEN_Line.hpp"
 #include <functional>
 
 namespace moris
@@ -205,10 +205,10 @@ namespace moris
 
             // Create geometry engine
             Vector< std::shared_ptr< gen::Geometry > > tGeometry( 4 );
-            auto tBottomPlane = std::make_shared< gen::Plane >( 0.0, tPlaneBottom, 0.0, 1.0 );
-            auto tTopPlane = std::make_shared< gen::Plane >( 0.0, tPlaneTop, 0.0, 1.0 );
-            auto tLeftPlane = std::make_shared< gen::Plane >( tPlaneLeft, 0.0, 1.0, 0.0 );
-            auto tRightPlane = std::make_shared< gen::Plane >( tPlaneRight, 0.0, 1.0, 0.0 );
+            auto tBottomPlane = std::make_shared< gen::Line >( 0.0, tPlaneBottom, 0.0, 1.0 );
+            auto tTopPlane = std::make_shared< gen::Line >( 0.0, tPlaneTop, 0.0, 1.0 );
+            auto tLeftPlane = std::make_shared< gen::Line >( tPlaneLeft, 0.0, 1.0, 0.0 );
+            auto tRightPlane = std::make_shared< gen::Line >( tPlaneRight, 0.0, 1.0, 0.0 );
             tGeometry( 0 ) = std::make_shared< gen::Level_Set_Geometry >( tBottomPlane );
             tGeometry( 1 ) = std::make_shared< gen::Level_Set_Geometry >( tTopPlane );
             tGeometry( 2 ) = std::make_shared< gen::Level_Set_Geometry >( tLeftPlane );
@@ -570,10 +570,10 @@ namespace moris
 
             // Create geometry engine
             Vector< std::shared_ptr< gen::Geometry > > tGeometry( 4 );
-            auto tBottomPlane = std::make_shared< gen::Plane >( 0.0, tPlaneBottom, 0.0, 1.0 );
-            auto tTopPlane = std::make_shared< gen::Plane >( 0.0, tPlaneTop, 0.0, 1.0 );
-            auto tLeftPlane = std::make_shared< gen::Plane >( tPlaneLeft, 0.0, 1.0, 0.0 );
-            auto tRightPlane = std::make_shared< gen::Plane >( tPlaneRight, 0.0, 1.0, 0.0 );
+            auto tBottomPlane = std::make_shared< gen::Line >( 0.0, tPlaneBottom, 0.0, 1.0 );
+            auto tTopPlane = std::make_shared< gen::Line >( 0.0, tPlaneTop, 0.0, 1.0 );
+            auto tLeftPlane = std::make_shared< gen::Line >( tPlaneLeft, 0.0, 1.0, 0.0 );
+            auto tRightPlane = std::make_shared< gen::Line >( tPlaneRight, 0.0, 1.0, 0.0 );
             tGeometry( 0 ) = std::make_shared< gen::Level_Set_Geometry >( tBottomPlane );
             tGeometry( 1 ) = std::make_shared< gen::Level_Set_Geometry >( tTopPlane );
             tGeometry( 2 ) = std::make_shared< gen::Level_Set_Geometry >( tLeftPlane );

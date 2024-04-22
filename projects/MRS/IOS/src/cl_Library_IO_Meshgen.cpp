@@ -603,7 +603,7 @@ namespace moris
                 // -------------------------------- //
                 // PLANE
 
-                if ( tPreDefGeom == "plane" )
+                if ( tPreDefGeom == "line" )
                 {
                     // get the point
                     std::string tPoint = "";
@@ -630,7 +630,7 @@ namespace moris
                             "Number of entries in 'Normal' vector does not match number of spatial dimensions for the 'plane'." );
 
                     // set the parameters in the GEN parameter list
-                    tGenParamList( 1 )( iGeom ).set( "field_type", "plane" );
+                    tGenParamList( 1 )( iGeom ).set( "field_type", "line" );
                     Vector< real > tConstantParameters = string_to_cell< real >( tPoint + "," + tNormal );
                     tGenParamList( 1 )( iGeom ).set( "constant_parameters", tConstantParameters );
                 }
@@ -702,6 +702,38 @@ namespace moris
                     // set the parameters in the GEN parameter list
                     tGenParamList( 1 )( iGeom ).set( "field_type", "superellipse" );
                     Vector< real > tConstantParameters = string_to_cell< real >( tPoint + "," + tSemiDiameters + "," + tExponent + ",1.0,0.0,0.0" );
+                    tGenParamList( 1 )( iGeom ).set( "constant_parameters", tConstantParameters );
+                }
+
+                else if ( tPreDefGeom == "plane" )
+                {
+                    // get the point
+                    std::string tPoint = "";
+                    mXmlReader->get_from_buffer( "Point", tPoint, std::string( "" ) );
+                    MORIS_ERROR( tPoint != "",
+                            "Library_IO_Meshgen::load_parameters_from_xml() - "
+                            "All pre-defined geometries must have a parameter 'Point' specified of format e.g.: '1.2,3.4'" );
+                    Matrix< DDRMat > tPointMat;
+                    moris::string_to_mat( tPoint, tPointMat );
+                    MORIS_ERROR( tPointMat.numel() == mNumSpatialDims || tPointMat.n_cols() == mNumSpatialDims,
+                            "Library_IO_Meshgen::load_parameters_from_xml() - "
+                            "Number of entries in 'Point' vector does not match number of spatial dimensions" );
+
+                    // get the normal
+                    std::string tNormal = "";
+                    mXmlReader->get_from_buffer( "Normal", tNormal, std::string( "" ) );
+                    MORIS_ERROR( tNormal != "",
+                            "Library_IO_Meshgen::load_parameters_from_xml() - "
+                            "All planes must have a parameter 'Normal' specified of format e.g.: '1.2,3.4'" );
+                    Matrix< DDRMat > tNormalMat;
+                    moris::string_to_mat( tNormal, tNormalMat );
+                    MORIS_ERROR( tNormalMat.numel() == mNumSpatialDims || tNormalMat.n_cols() == mNumSpatialDims,
+                            "Library_IO_Meshgen::load_parameters_from_xml() - "
+                            "Number of entries in 'Normal' vector does not match number of spatial dimensions for the 'plane'." );
+
+                    // set the parameters in the GEN parameter list
+                    tGenParamList( 1 )( iGeom ).set( "field_type", "plane" );
+                    Vector< real > tConstantParameters = string_to_cell< real >( tPoint + "," + tNormal );
                     tGenParamList( 1 )( iGeom ).set( "constant_parameters", tConstantParameters );
                 }
 

@@ -58,6 +58,7 @@ set(HEADERS
 	ADV/fields/cl_GEN_Scaled_Field.hpp
 	ADV/fields/cl_GEN_BSpline_Field.hpp
 	ADV/fields/cl_GEN_Circle.hpp
+	ADV/fields/cl_GEN_Line.hpp
 	ADV/fields/cl_GEN_Superellipse.hpp
 	ADV/fields/cl_GEN_Sphere.hpp
 	ADV/fields/cl_GEN_Superellipsoid.hpp
@@ -119,6 +120,7 @@ set(LIB_SOURCES
 	ADV/fields/cl_GEN_BSpline_Field.cpp
 	ADV/fields/cl_GEN_Circle.cpp
 	ADV/fields/cl_GEN_Superellipse.cpp
+	ADV/fields/cl_GEN_Line.cpp
 	ADV/fields/cl_GEN_Sphere.cpp
 	ADV/fields/cl_GEN_Superellipsoid.cpp
 	ADV/fields/cl_GEN_Plane.cpp

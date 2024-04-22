@@ -15,6 +15,7 @@
 #include "cl_GEN_Scaled_Field.hpp"
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Superellipse.hpp"
+#include "cl_GEN_Line.hpp"
 #include "cl_GEN_Sphere.hpp"
 #include "cl_GEN_Superellipsoid.hpp"
 #include "cl_GEN_Plane.hpp"
@@ -68,6 +69,10 @@ namespace moris::gen
         else if ( tFieldType == "superellipse" )
         {
             tField = std::make_shared< Superellipse >( aADVs, tVariableIndices, tADVIndices, tConstants, tName );
+        }
+        else if ( tFieldType == "line" )
+        {
+            tField = std::make_shared< Line >( aADVs, tVariableIndices, tADVIndices, tConstants, tName );
         }
         else if ( tFieldType == "sphere" )
         {
