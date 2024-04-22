@@ -16,6 +16,7 @@ set(HEADERS
     cl_Bitset.hpp
     cl_BoostBitset.hpp
 	cl_Vector.hpp
+	cl_Design_Variable.hpp
     cl_Dist_Map.hpp
     cl_Map.hpp
     cl_Mini_Maps.hpp
@@ -31,6 +32,7 @@ set(HEADERS
 # List library source files
 set(LIB_SOURCES
 	cl_Vector.cpp
+	cl_Design_Variable.cpp
 	cl_Variant.cpp
 	cl_Validator.cpp
 	cl_Parameter.cpp
