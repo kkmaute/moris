@@ -65,7 +65,7 @@ namespace moris
          * @param aValidValues Set of valid values
          */
         template< typename T >
-        Parameter( T aParameterValue, std::set< T > aValidValues )
+        Parameter( T aParameterValue, const std::set< T >& aValidValues )
         {
             // Set default value without validation
             mValue = make_variant( aParameterValue );

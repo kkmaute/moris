@@ -90,9 +90,9 @@ namespace moris
          * @param aValidValues Valid values the parameter can be set to
          */
         void insert(
-                const std::string&                   aName,
-                std::string                          aDefaultValue,
-                std::initializer_list< std::string > aValidValues );
+                const std::string&             aName,
+                const std::string&             aDefaultValue,
+                const std::set< std::string >& aValidValues );
 
         /**
          * Adds a new parameter to this parameter list. This parameter must be set with a valid range.
@@ -131,21 +131,27 @@ namespace moris
          * @param aLockValue If the set value is to be locked, and unable to be set again.
          */
         template< typename T >
-        void set( const std::string& aName, T aValue, bool aLockValue = true )
+        void set(
+                const std::string& aName,
+                T                  aValue,
+                bool               aLockValue = true )
         {
             // Delegate to private implementation overload, depending on if T is an enum
             this->convert_and_set( aName, aValue, aLockValue, std::is_enum< T >() );
         }
 
         /**
-         * Sets an element to a moris vector using a std::initializer_list
+         * Sets a parameter to a moris vector
          *
          * @param aName Parameter name
          * @param aValue Parameter value
          * @param aLockValue If the set value is to be locked, and unable to be set again.
          */
         template< typename T >
-        void set( const std::string& aName, std::initializer_list< T > aValue, bool aLockValue = true )
+        void set(
+                const std::string&         aName,
+                std::initializer_list< T > aValue,
+                bool                       aLockValue = true )
         {
             // Delegate to private implementation overload, T is guaranteed not an enum
             this->convert_and_set( aName, Vector< T >( aValue ), aLockValue, std::false_type() );
@@ -157,10 +163,14 @@ namespace moris
          * @param aName Parameter name
          * @param aFirstValue First value to put into the vector
          * @param aSecondValue Second value to put into the vector
-         * @param aMoreValues Parameter pack
+         * @param aMoreValues Parameter pack of more values
          */
-        template< typename T, typename ... ARGS >
-        void set( const std::string& aName, T aFirstValue, T aSecondValue, ARGS ... aMoreValues )
+        template< typename T, typename... Arg_Types >
+        void set(
+                const std::string& aName,
+                T                  aFirstValue,
+                T                  aSecondValue,
+                Arg_Types...       aMoreValues )
         {
             // Delegate to private implementation overload, with lock on
             this->convert_and_set( aName, Vector< T >( { aFirstValue, aSecondValue, aMoreValues... } ), true, std::false_type() );
@@ -299,7 +309,11 @@ namespace moris
          * @param aLockValue If the set value is to be locked, and unable to be set again.
          */
         template< typename T >
-        void convert_and_set( const std::string& aName, T aValue, bool aLockValue, std::false_type )
+        void convert_and_set(
+                const std::string& aName,
+                T                  aValue,
+                bool               aLockValue,
+                std::false_type )
         {
             // create copy of key string such that tIterator can be manipulated
             std::string tKey = aName;
@@ -322,7 +336,11 @@ namespace moris
          * Set function overload, for static casting enums to a uint.
          */
         template< typename T >
-        void convert_and_set( const std::string& aName, T aValue, bool aLockValue, std::true_type )
+        void convert_and_set(
+                const std::string& aName,
+                T                  aValue,
+                bool               aLockValue,
+                std::true_type )
         {
             this->convert_and_set( aName, static_cast< uint >( aValue ), aLockValue, std::false_type() );
         }

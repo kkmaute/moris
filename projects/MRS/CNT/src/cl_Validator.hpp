@@ -155,15 +155,19 @@ namespace moris
          * @param aTypeIndex Variant type index
          * @param aValidValues Valid values for this parameter
          */
-        Selection_Validator( uint aTypeIndex, std::set< T > aValidValues );
+        Selection_Validator(
+                uint                 aTypeIndex,
+                const std::set< T >& aValidValues );
 
         VALIDATOR_OVERRIDES
     };
 
     template< typename T >
-    Selection_Validator< T >::Selection_Validator( uint aTypeIndex, std::set< T > aValidValues )
+    Selection_Validator< T >::Selection_Validator(
+            uint                 aTypeIndex,
+            const std::set< T >& aValidValues )
             : Validator( aTypeIndex )
-            , mValidValues( std::move( aValidValues ) )
+            , mValidValues( aValidValues )
     {
     }
 
