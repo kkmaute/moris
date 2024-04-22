@@ -141,23 +141,6 @@ namespace moris
         }
 
         /**
-         * Sets a parameter to a moris vector
-         *
-         * @param aName Parameter name
-         * @param aValue Parameter value
-         * @param aLockValue If the set value is to be locked, and unable to be set again.
-         */
-        template< typename T >
-        void set(
-                const std::string&         aName,
-                std::initializer_list< T > aValue,
-                bool                       aLockValue = true )
-        {
-            // Delegate to private implementation overload, T is guaranteed not an enum
-            this->convert_and_set( aName, Vector< T >( aValue ), aLockValue, std::false_type() );
-        }
-
-        /**
          * Sets an element to a moris vector using a parameter pack
          *
          * @param aName Parameter name
