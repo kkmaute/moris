@@ -159,7 +159,7 @@ namespace moris
         else if ( aVariant.index() == Variant( 0.0 ).index() )
         {
             // Real value given, convert to constant parameter
-            Design_Variable tDesignVariable = std::get< real >( aVariant );
+            Design_Variable tDesignVariable( std::get< real >( aVariant ) );
             aVariant = tDesignVariable;
             return true;
         }

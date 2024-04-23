@@ -29,16 +29,16 @@ namespace moris
         /**
          * Constructor for a constant variable.
          *
-         * @param aConstantValue
+         * @param aConstantValue Constant value for this variable
          */
         Design_Variable( real aConstantValue = 0.0 );
 
         /**
          * Constructor for a varying design variable.
          *
-         * @param aLowerBound Lower bound
-         * @param aInitialValue Initial value
-         * @param aUpperBound Upper value
+         * @param aLowerBound Variable lower bound
+         * @param aInitialValue Initial value for this variable
+         * @param aUpperBound Variable upper bound
          */
         Design_Variable( real aLowerBound, real aInitialValue, real aUpperBound );
 
