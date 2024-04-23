@@ -36,7 +36,7 @@ namespace moris
             mValue = make_variant( aParameterValue );
 
             // Create type validator
-            mValidator = new Type_Validator( mValue.index() );
+            mValidator = new Type_Validator< T >();
         }
         
         /**
@@ -54,7 +54,7 @@ namespace moris
             mValue = make_variant( aParameterValue );
             
             // Create range validator
-            mValidator = new Range_Validator( mValue.index(), aMinimumValue, aMaximumValue );
+            mValidator = new Range_Validator( aMinimumValue, aMaximumValue );
         }
 
         /**
@@ -71,7 +71,7 @@ namespace moris
             mValue = make_variant( aParameterValue );
 
             // Create selection validator
-            mValidator = new Selection_Validator( mValue.index(), aValidValues );
+            mValidator = new Selection_Validator( aValidValues );
         }
 
         /**
@@ -106,10 +106,10 @@ namespace moris
                     aParameterName.c_str() );
 
             // Make value into a variant
-            Variant tParameterVariant = this->make_valid_variant( aParameterValue );
+            Variant tParameterVariant = make_variant( aParameterValue );
 
             // Validate the variant
-            MORIS_ERROR( mValidator->parameter_is_valid( tParameterVariant ),
+            MORIS_ERROR( mValidator->make_valid_parameter( tParameterVariant ),
                     "Parameter %s was set incorrectly as %s. Valid values are: %s.",
                     aParameterName.c_str(),
                     convert_variant_to_string( tParameterVariant ).c_str(),
@@ -124,19 +124,6 @@ namespace moris
                 delete mValidator;
                 mValidator = nullptr;
             }
-        }
-
-        /**
-         * Makes the given parameter into a variant to be checked
-         *
-         * @tparam T Input parameter type
-         * @param aParameterValue Parameter value
-         * @return Parameter variant
-         */
-        template< typename T >
-        Variant make_valid_variant( T aParameterValue )
-        {
-            return make_variant( aParameterValue );
         }
 
         /**
@@ -168,7 +155,7 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
 
-    // Declare template specializations
-    template<> Variant Parameter::make_valid_variant( uint );
-    template<> Variant Parameter::make_valid_variant( real );
+    // Declare template specializations of the Parameter constructor
+    template<> Parameter::Parameter( const char* );
+    template<> Parameter::Parameter( const Design_Variable& );
 }

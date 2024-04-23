@@ -15,6 +15,8 @@
 
 #pragma once
 
+#define GET_TYPE_NAME( ... ) template<> inline std::string get_type_name< __VA_ARGS__ >(){ return "__VA_ARGS__"; }
+
 namespace moris
 {
     // Variant typedef
@@ -22,12 +24,42 @@ namespace moris
             Vector< uint >, Vector< real >, Design_Variable > Variant;
 
     /**
-     * Gets the name of the type that the boost variant contains, based on the above typedef and an index
+     * Gets the name of a data type stored in the Variant, for printing purposes.
      *
-     * @param aVariantIndex Which index from the boost variant
+     * @tparam T Type in the variant
      * @return Type name
      */
-    std::string get_variant_name( uint aVariantIndex );
+    template< typename T >
+    std::string get_type_name()
+    {
+        MORIS_ERROR( false, "This type is not currently stored in the Variant." );
+        return "";
+    }
+
+    // Specializations
+    GET_TYPE_NAME( bool )
+    GET_TYPE_NAME( uint )
+    GET_TYPE_NAME( sint )
+    GET_TYPE_NAME( real )
+    GET_TYPE_NAME( std::string )
+    GET_TYPE_NAME( std::pair< std::string, std::string > )
+    GET_TYPE_NAME( Vector< uint > )
+    GET_TYPE_NAME( Vector< real > )
+    GET_TYPE_NAME( Design_Variable )
+
+    /**
+     * Gets the index of a type with a type argument instead of an instantiated variant.
+     *
+     * @tparam T Type in the variant
+     * @return Variant index
+     */
+    template< typename T >
+    uint get_variant_index()
+    {
+        T aValue;
+        Variant tVariant = aValue;
+        return tVariant.index();
+    }
 
     /**
      * Gets a string of the value stored inside of a variant.

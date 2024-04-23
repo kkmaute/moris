@@ -14,6 +14,11 @@ namespace moris
 {
     //--------------------------------------------------------------------------------------------------------------
 
+    // Forward declare design variable validator
+    class Design_Variable_Validator;
+
+    //--------------------------------------------------------------------------------------------------------------
+
     Parameter::Parameter( const Parameter& aParameter )
             : mValue( aParameter.mValue )
     {
@@ -52,37 +57,25 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     template<>
-    Variant Parameter::make_valid_variant( uint aParameterValue )
+    Parameter::Parameter( const Design_Variable& aDesignVariable )
     {
-        // Make value into a variant
-        Variant tParameterVariant = make_variant( aParameterValue );
+        // Set default value without validation
+        mValue = aDesignVariable;
 
-        // If variant is not valid, retry with a vector
-        if ( not mValidator->parameter_is_valid( tParameterVariant ) )
-        {
-            tParameterVariant = make_variant( Vector< uint >( { aParameterValue } ) );
-        }
-
-        // Return variant
-        return tParameterVariant;
+        // Create type validator
+        mValidator = new Design_Variable_Validator();
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     template<>
-    Variant Parameter::make_valid_variant( real aParameterValue )
+    Parameter::Parameter( const char* aString )
     {
-        // Make value into a variant
-        Variant tParameterVariant = make_variant( aParameterValue );
+        // Set default value without validation
+        mValue = make_variant( aString );
 
-        // If variant is not valid, retry with a vector
-        if ( not mValidator->parameter_is_valid( tParameterVariant ) )
-        {
-            tParameterVariant = make_variant( Vector< real >( { aParameterValue } ) );
-        }
-
-        // Return variant
-        return tParameterVariant;
+        // Create type validator
+        mValidator = new Type_Validator< std::string >();
     }
 
     //--------------------------------------------------------------------------------------------------------------

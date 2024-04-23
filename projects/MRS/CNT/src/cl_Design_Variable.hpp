@@ -31,7 +31,7 @@ namespace moris
          *
          * @param aConstantValue
          */
-        Design_Variable( real aConstantValue );
+        Design_Variable( real aConstantValue = 0.0 );
 
         /**
          * Constructor for a varying design variable.

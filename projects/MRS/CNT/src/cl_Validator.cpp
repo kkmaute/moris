@@ -21,54 +21,77 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Validator::Validator( uint aTypeIndex )
-            : mTypeIndex( aTypeIndex )
+    template< typename T >
+    bool Type_Validator< T >::make_valid_parameter( Variant& aVariant )
     {
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    bool Validator::same_type_index( const Variant& aParameterVariant )
-    {
-        return ( aParameterVariant.index() == mTypeIndex );
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    Type_Validator::Type_Validator( uint aTypeIndex )
-            : Validator( aTypeIndex )
-    {
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    bool Type_Validator::parameter_is_valid( const Variant& aParameterVariant )
-    {
-        return this->same_type_index( aParameterVariant );
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    std::string Type_Validator::get_valid_values()
-    {
-        return get_variant_name( mTypeIndex );
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    Validator* Type_Validator::copy()
-    {
-        return new Type_Validator( mTypeIndex );
+        return aVariant.index() == get_variant_index< T >();
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     template< typename T >
-    bool Range_Validator< T >::parameter_is_valid( const Variant& aParameterVariant )
+    std::string Type_Validator< T >::get_valid_values()
     {
-        return this->same_type_index( aParameterVariant )
-           and std::get< T >( aParameterVariant ) >= mMinimumValue
-           and std::get< T >( aParameterVariant ) <= mMaximumValue;
+        return get_type_name< T >();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    template< typename T >
+    Validator* Type_Validator< T >::copy()
+    {
+        return new Type_Validator< T >();
+    }
+    
+    //--------------------------------------------------------------------------------------------------------------
+    
+    template< typename T >
+    bool Vector_Validator< T >::make_valid_parameter( Variant& aVariant )
+    {
+        if ( aVariant.index() == get_variant_index< Vector< T > >() )
+        {
+            // Vector value given, okay
+            return true;
+        }
+        else if ( aVariant.index() == get_variant_index< T >() )
+        {
+            // Single value given, convert to vector
+            T tValue = std::get< T >( aVariant );
+            Vector< T > tVector = { tValue };
+            aVariant = tVector;
+            return true;
+        }
+        else
+        {
+            // Other type given
+            return false;
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    template< typename T >
+    std::string Vector_Validator< T >::get_valid_values()
+    {
+        return get_type_name< Vector< T > >();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    template< typename T >
+    Validator* Vector_Validator< T >::copy()
+    {
+        return new Vector_Validator< T >();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    template< typename T >
+    bool Range_Validator< T >::make_valid_parameter( Variant& aVariant )
+    {
+        return aVariant.index() == get_variant_index< T >()
+           and std::get< T >( aVariant ) >= mMinimumValue
+           and std::get< T >( aVariant ) <= mMaximumValue;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -76,7 +99,7 @@ namespace moris
     template< typename T >
     std::string Range_Validator< T >::get_valid_values()
     {
-        return get_variant_name( mTypeIndex ) + ", [" + std::to_string( mMinimumValue ) + ", " + std::to_string( mMaximumValue ) + "]";
+        return get_type_name< T >() + ", [" + std::to_string( mMinimumValue ) + ", " + std::to_string( mMaximumValue ) + "]";
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -84,16 +107,16 @@ namespace moris
     template< typename T >
     Validator* Range_Validator< T >::copy()
     {
-        return new Range_Validator( mTypeIndex, mMinimumValue, mMaximumValue );
+        return new Range_Validator( mMinimumValue, mMaximumValue );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     template< typename T >
-    bool Selection_Validator< T >::parameter_is_valid( const Variant& aParameterVariant )
+    bool Selection_Validator< T >::make_valid_parameter( Variant& aVariant )
     {
-        return this->same_type_index( aParameterVariant ) and
-               mValidValues.find( std::get< T >( aParameterVariant ) ) != mValidValues.end();
+        return aVariant.index() == get_variant_index< T >() and
+               mValidValues.find( std::get< T >( aVariant ) ) != mValidValues.end();
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -121,7 +144,59 @@ namespace moris
     template< typename T >
     Validator* Selection_Validator< T >::copy()
     {
-        return new Selection_Validator( mTypeIndex, mValidValues );
+        return new Selection_Validator( mValidValues );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    bool Design_Variable_Validator::make_valid_parameter( Variant& aVariant )
+    {
+        if ( aVariant.index() == get_variant_index< Design_Variable >() )
+        {
+            // Design variable given directly, okay
+            return true;
+        }
+        else if ( aVariant.index() == Variant( 0.0 ).index() )
+        {
+            // Real value given, convert to constant parameter
+            Design_Variable tDesignVariable = std::get< real >( aVariant );
+            aVariant = tDesignVariable;
+            return true;
+        }
+        else if ( aVariant.index() == Variant( Vector< real >() ).index() )
+        {
+            // Vector given, check that there are 3 elements then set to design variable
+            Vector< real > tVariableInputs = std::get< Vector< real > >( aVariant );
+            if ( tVariableInputs.size() == 3 )
+            {
+                Design_Variable tDesignVariable( tVariableInputs( 0 ), tVariableInputs( 1 ), tVariableInputs( 2 ) );
+                aVariant = tDesignVariable;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            // Incorrect type
+            return false;
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    std::string Design_Variable_Validator::get_valid_values()
+    {
+        return "Constant value (real) or lower bound, initial value, upper bound (3 reals)";
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Validator* Design_Variable_Validator::copy()
+    {
+        return new Design_Variable_Validator();
     }
 
     //--------------------------------------------------------------------------------------------------------------
