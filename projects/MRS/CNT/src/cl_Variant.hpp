@@ -15,7 +15,7 @@
 
 #pragma once
 
-#define GET_TYPE_NAME( ... ) template<> inline std::string get_type_name< __VA_ARGS__ >(){ return "__VA_ARGS__"; }
+#define GET_TYPE_NAME( ... ) template<> inline std::string get_type_name< __VA_ARGS__ >(){ return #__VA_ARGS__; }
 
 namespace moris
 {
