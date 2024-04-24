@@ -226,7 +226,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Field::set_dependencies( Vector< std::shared_ptr< Field > > aDependencyFields )
+    void Field::update_dependencies( Vector< std::shared_ptr< Field > > aUpdatedFields )
     {
     }
 

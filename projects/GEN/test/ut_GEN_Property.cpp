@@ -27,8 +27,7 @@ namespace moris::gen
         Vector< real > tADVs = { 0.0 };
 
         // Set up property
-        Parameter_List tConstantPropertyParameterList = prm::create_gen_property_parameter_list();
-        tConstantPropertyParameterList.set( "field_type", "constant" );
+        Parameter_List tConstantPropertyParameterList = prm::create_gen_property_parameter_list( gen::Field_Type::CONSTANT );
         tConstantPropertyParameterList.set( "field_variable_indices", 0u );
         tConstantPropertyParameterList.set( "adv_indices", 0u );
         Design_Factory              tDesignFactory( { tConstantPropertyParameterList }, tADVs );
@@ -64,15 +63,13 @@ namespace moris::gen
         Vector< real > tADVs = { 0.0, 0.0, 0.5 };
 
         // Set up and create geometry
-        Parameter_List tCircleParameterList = prm::create_level_set_geometry_parameter_list();
-        tCircleParameterList.set( "field_type", "circle" );
+        Parameter_List tCircleParameterList = prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE );
         tCircleParameterList.set( "name", "My Circle" );
         tCircleParameterList.set( "field_variable_indices", 0u, 1u, 2u );
         tCircleParameterList.set( "adv_indices", 0u, 1u, 2u );
 
         // Set up property
-        Parameter_List tScaledFieldParameterList = prm::create_gen_property_parameter_list();
-        tScaledFieldParameterList.set( "field_type", "scaled_field" );
+        Parameter_List tScaledFieldParameterList = prm::create_gen_property_parameter_list( gen::Field_Type::SCALED_FIELD );
         tScaledFieldParameterList.set( "dependencies", "My Circle" );
 
         // Random distribution
@@ -114,8 +111,7 @@ namespace moris::gen
     TEST_CASE( "B-spline Property", "[gen], [property], [distributed advs], [B-spline property]" )
     {
         // Constant B-spline parameter list
-        Parameter_List tPropertyParameterList = prm::create_gen_property_parameter_list();
-        tPropertyParameterList.set( "field_type", "constant" );
+        Parameter_List tPropertyParameterList = prm::create_gen_property_parameter_list( gen::Field_Type::CONSTANT );
         tPropertyParameterList.set( "constant_parameters", 1.0 );
         tPropertyParameterList.set( "discretization_mesh_index", 0 );
         tPropertyParameterList.set( "discretization_lower_bound", -2.0 );

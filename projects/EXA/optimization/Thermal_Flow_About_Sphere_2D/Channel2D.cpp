@@ -557,7 +557,7 @@ namespace moris
         uint tGeoCounter = 0;
 
         // Inclusions
-        tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Sphere" );
         tParameterlist( 1 )( tGeoCounter ).set( "sensitivity_function_name", "Func_Sphere_Deriv" );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementSphere );
@@ -571,7 +571,7 @@ namespace moris
         tGeoCounter++;
 
         // Inlet plane
-        tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Plane" );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementWalls );
         tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );
@@ -582,7 +582,7 @@ namespace moris
         tGeoCounter++;
 
         // Out plane
-        tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Plane" );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementWalls );
         tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );
@@ -593,7 +593,7 @@ namespace moris
         tGeoCounter++;
 
         // Lower plane
-        tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Plane" );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementWalls );
         tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );
@@ -604,7 +604,7 @@ namespace moris
         tGeoCounter++;
 
         // Upper plane
-        tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Plane" );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementWalls );
         tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );

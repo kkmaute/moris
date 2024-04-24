@@ -253,8 +253,7 @@ namespace moris
         // Geometry parameter lists
         tParameterlist( 1 ).resize( 2 );
 
-        tParameterlist( 1 )( 0 ) = prm::create_level_set_geometry_parameter_list();
-        tParameterlist( 1 )( 0 ).set( "field_type", "line" );
+        tParameterlist( 1 )( 0 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE );
         switch ( tGeoModel )
         {
             case 0:
@@ -290,8 +289,7 @@ namespace moris
                 MORIS_ERROR( false, "geometric model not implemented in test case" );
         }
 
-        tParameterlist( 1 )( 1 ) = prm::create_level_set_geometry_parameter_list();
-        tParameterlist( 1 )( 1 ).set( "field_type", "line" );
+        tParameterlist( 1 )( 1 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE );
         switch ( tGeoModel )
         {
             case 0:

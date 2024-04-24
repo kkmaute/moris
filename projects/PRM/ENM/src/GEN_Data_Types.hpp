@@ -21,7 +21,27 @@ namespace moris::gen
     // Typdefs
     typedef Bitset< MAX_GEOMETRIES > Geometry_Bitset;
 
-    // Enums
+    // Field type enum
+    enum class Field_Type
+    {
+        NONE,
+        CONSTANT,
+        LINE,
+        CIRCLE,
+        SUPERELLIPSE,
+        PLANE,
+        SPHERE,
+        SUPERELLIPSOID,
+        SCALED_FIELD,
+        COMBINED_FIELDS,
+        NODAL,
+        NODAL_FROM_FILE,
+        SIGNED_DISTANCE_OBJECT,
+        SIGNED_DISTANCE_IMAGE,
+        USER_DEFINED
+    };
+
+    // PDV type enum
     enum class PDV_Type
     {
         X_COORDINATE,

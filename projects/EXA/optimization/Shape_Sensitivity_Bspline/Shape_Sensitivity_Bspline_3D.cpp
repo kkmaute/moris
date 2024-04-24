@@ -257,8 +257,7 @@ namespace moris
         // Geometry parameter lists
         tParameterlist( 1 ).resize( 2 );
 
-        tParameterlist( 1 )( 0 ) = prm::create_level_set_geometry_parameter_list();
-        tParameterlist( 1 )( 0 ).set( "field_type", "plane" );
+        tParameterlist( 1 )( 0 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::PLANE );
         // vertical cut
         switch ( tGeoModel )
         {
@@ -295,8 +294,7 @@ namespace moris
                 MORIS_ERROR( false, "geometric model not implemented in test case" );
         }
 
-        tParameterlist( 1 )( 1 ) = prm::create_level_set_geometry_parameter_list();
-        tParameterlist( 1 )( 1 ).set( "field_type", "plane" );
+        tParameterlist( 1 )( 1 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::PLANE );
         // oblique cut
         switch ( tGeoModel )
         {

@@ -962,7 +962,7 @@ Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< re
         uint tGeoCounter = 0;
 
         // outer frame
-        tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "general_shape_outer" );
         // tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", "0,0" );
         // tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0,1" );
@@ -971,7 +971,7 @@ Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< re
         tParameterlist( 1 )( tGeoCounter ).set( "name", "Outer_shape" );
         tGeoCounter++;
 
-        tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Hole_inner" );
         // tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", "0,0" );
         // tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0,1" );
@@ -980,7 +980,7 @@ Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< re
         tParameterlist( 1 )( tGeoCounter ).set( "name", "Inner_Holes" );
         tGeoCounter++;
 
-        tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Hole_outer" );
         // tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", "0,0" );
         // tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0,1" );
@@ -990,7 +990,7 @@ Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< re
         tGeoCounter++;
 
         // initialize fins as swiss cheese geometry
-        tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Const_Geometry" );
         tParameterlist( 1 )( tGeoCounter ).set( "name", "Level_Set_Field" );
         // tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", "0,0" );
@@ -1008,10 +1008,9 @@ Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< re
         tGeoCounter++;
 
         uint tParamCounter = 0;
-        tParameterlist( 2 ).push_back( moris::prm::create_gen_property_parameter_list() );
+        tParameterlist( 2 ).push_back( moris::prm::create_gen_property_parameter_list( gen::Field_Type::SCALED_FIELD ) );
         tParameterlist( 2 )( tParamCounter ).set( "name", "LvL_Set_Field" );
         tParameterlist( 2 )( tParamCounter ).set( "dependencies", "Level_Set_Field" );
-        tParameterlist( 2 )( tParamCounter ).set( "field_type", "scaled_field" );
         tParameterlist( 2 )( tParamCounter ).set( "constant_parameters", 1.0 );
         tParameterlist( 2 )( tParamCounter ).set( "pdv_type", "LS1" );
         // tParameterlist( 2 )( tParamCounter ).set("discretization_mesh_index",   -1);

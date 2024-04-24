@@ -129,7 +129,7 @@ namespace moris::gen
          *
          * @param aDependencyFields Fields that this field depends on.
          */
-        void set_dependencies( Vector< std::shared_ptr< Field > > aDependencyFields ) override;
+        void update_dependencies( Vector< std::shared_ptr< Field > > aDependencyFields ) override;
 
         /**
          * Gets an MTK field, if this field needs to be remapped to a new mesh

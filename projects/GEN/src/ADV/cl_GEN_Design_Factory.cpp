@@ -77,18 +77,19 @@ namespace moris::gen
             // Loop over all designs
             for ( Parameter_List& iParameterList : aParameterLists )
             {
-                // If we can build this field or not
+                // If we can build this design or not
                 bool tCanBuild = true;
 
-                // Check if a field is required
-                if ( iParameterList.exists( "field_type" ) )
+                // Check for any dependencies
+                Vector< std::shared_ptr< Field > > tDependencyFields;
+                if ( iParameterList.exists( "dependencies" ) )
                 {
                     // Get field dependency names
                     Vector< std::string > tDependencyNames =
                             string_to_cell< std::string >( iParameterList.get< std::string >( "dependencies" ) );
 
-                    // Cell of field dependencies
-                    Vector< std::shared_ptr< Field > > tDependencyFields( tDependencyNames.size() );
+                    // Resize dependencies
+                    tDependencyFields.resize( tDependencyNames.size() );
 
                     // Loop over dependencies
                     for ( uint iDependencyIndex = 0; iDependencyIndex < tDependencyNames.size(); iDependencyIndex++ )
@@ -115,19 +116,19 @@ namespace moris::gen
                             break;
                         }
                     }
+                }
 
-                    // Build field if we can
-                    if ( tCanBuild )
-                    {
-                        // Build field
-                        mFields( tFieldIndex++ ) = create_field( iParameterList, aADVs, tDependencyFields, aLibrary, aMesh );
+                // Build a new field if required
+                if ( iParameterList.exists( "field_type" ) and tCanBuild )
+                {
+                    // Build field
+                    mFields( tFieldIndex++ ) = create_field( iParameterList, aADVs, tDependencyFields, aLibrary, aMesh );
 
-                        // Remove this parameter to signal we don't need to build again
-                        iParameterList.erase( "field_type" );
+                    // Remove this parameter to signal we don't need to build again
+                    iParameterList.erase( "field_type" );
 
-                        // Set that a field has been built, so it is fine if another outer loop is needed
-                        tSomethingHasBeenBuilt = true;
-                    }
+                    // Set that a field has been built, so it is fine if another outer loop is needed
+                    tSomethingHasBeenBuilt = true;
                 }
 
                 // Check if design needs building

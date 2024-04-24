@@ -30,7 +30,7 @@ namespace moris::gen
          *
          * @param aParameterList Parameter list with level set geometry parameters
          */
-        explicit Level_Set_Parameters( const Parameter_List& aParameterList = prm::create_level_set_geometry_parameter_list() );
+        explicit Level_Set_Parameters( const Parameter_List& aParameterList = prm::create_level_set_geometry_parameter_list( gen::Field_Type::NONE ) );
     };
 
     class Level_Set_Geometry : public Geometry, public Design_Field
@@ -253,6 +253,14 @@ namespace moris::gen
          * @return Upper bound
          */
         real get_discretization_upper_bound() override;
+
+        /**
+         * Updates the dependencies of this design based on the given designs
+         * (fields may have been mapped/updated).
+         *
+         * @param aAllUpdatedDesigns All designs (this design will take fields from the ones it needs)
+         */
+        void update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedDesigns ) override;
 
       private:
         /**

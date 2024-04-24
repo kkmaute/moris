@@ -291,6 +291,12 @@ namespace moris::gen
     {
         return mParameters.mDiscretizationUpperBound;
     }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Surface_Mesh_Geometry::update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedDesigns )
+    {
+    }
     
     //--------------------------------------------------------------------------------------------------------------
     

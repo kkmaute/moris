@@ -637,7 +637,7 @@ namespace moris
         uint tGeoCounter = 0;
 
         // outer frame
-        tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 10e-14 );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Box_2D3D" );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", "1,0" );
@@ -647,7 +647,7 @@ namespace moris
         tGeoCounter++;
 
         // initialize fins as swiss cheese geometry
-        tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Hole_Pattern_2D3D" );
         tParameterlist( 1 )( tGeoCounter ).set( "name", "Level_Set_Field" );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", "1,0" );
@@ -661,12 +661,11 @@ namespace moris
         }
         tGeoCounter++;
 
-        tParameterlist( 2 ).push_back( moris::prm::create_gen_property_parameter_list() );
+        tParameterlist( 2 ).push_back( moris::prm::create_gen_property_parameter_list( gen::Field_Type::SCALED_FIELD ) );
         uint tParamCounter = 0;
 
         tParameterlist( 2 )( tParamCounter ).set( "name", "LevelsetField" );
         tParameterlist( 2 )( tParamCounter ).set( "dependencies", "Level_Set_Field" );
-        tParameterlist( 2 )( tParamCounter ).set( "field_type", "scaled_field" );
         tParameterlist( 2 )( tParamCounter ).set( "constant_parameters", 1.0 );
         tParameterlist( 2 )( tParamCounter ).set( "pdv_type", "LS1" );
         tParameterlist( 2 )( tParamCounter ).set( "pdv_mesh_set_names", tTotalDomain1 );

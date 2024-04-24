@@ -201,5 +201,13 @@ namespace moris::gen
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates,
                 Vector< real >&           aOutputDesignInfo ) override;
+
+        /**
+         * Updates the dependencies of this design based on the given designs
+         * (fields may have been mapped/updated).
+         *
+         * @param aAllUpdatedDesigns All designs (this design will take fields from the ones it needs)
+         */
+        void update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedDesigns ) override;
     };
 }

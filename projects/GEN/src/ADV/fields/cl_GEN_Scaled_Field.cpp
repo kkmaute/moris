@@ -83,10 +83,15 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Scaled_Field::set_dependencies( Vector< std::shared_ptr< Field > > aDependencyFields )
+    void Scaled_Field::update_dependencies( Vector< std::shared_ptr< Field > > aUpdatedFields )
     {
-        MORIS_ERROR( aDependencyFields.size() == 1, "A scaled field only depends on one field." );
-        mField = aDependencyFields( 0 );
+        for ( const auto& iField : aUpdatedFields )
+        {
+            if ( iField->get_name() == mField->get_name() )
+            {
+                mField = iField;
+            }
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------

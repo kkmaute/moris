@@ -261,6 +261,13 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    void Design_Field::update_dependencies( Vector< std::shared_ptr< Field > > aUpdatedFields )
+    {
+        mField->update_dependencies( aUpdatedFields );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     std::shared_ptr< mtk::Field > Design_Field::get_mtk_field()
     {
         return mField->get_mtk_field();

@@ -616,4 +616,21 @@ namespace moris::gen
         return mParameters.mDiscretizationUpperBound;
     }
 
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Level_Set_Geometry::update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedDesigns )
+    {
+        // Get fields from designs
+        Vector< std::shared_ptr< Field > > tUpdatedFields( aAllUpdatedDesigns.size() );
+        for ( uint iFieldIndex = 0; iFieldIndex < tUpdatedFields.size(); iFieldIndex++ )
+        {
+            tUpdatedFields( iFieldIndex ) = aAllUpdatedDesigns( iFieldIndex )->get_field();
+        }
+
+        // Update fields
+        Design_Field::update_dependencies( tUpdatedFields );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
 }    // namespace moris::gen

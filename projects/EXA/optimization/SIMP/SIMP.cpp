@@ -272,12 +272,11 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "PDV_types", "DENSITY" );
 
         // Geometry parameter lists
-        tParameterlist( 1 )( 0 ) = prm::create_user_defined_geometry_parameter_list();
+        tParameterlist( 1 )( 0 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED );
         tParameterlist( 1 )( 0 ).set( "field_function_name", "Func_Right_Plane" );
 
         // Density property
-        tParameterlist( 2 )( 0 ) = moris::prm::create_gen_property_parameter_list();
-        tParameterlist( 2 )( 0 ).set( "field_type", "constant" );
+        tParameterlist( 2 )( 0 ) = moris::prm::create_gen_property_parameter_list( gen::Field_Type::CONSTANT );
         tParameterlist( 2 )( 0 ).set( "name", "density" );
         tParameterlist( 2 )( 0 ).set( "constant_parameters", 0.4 );
         tParameterlist( 2 )( 0 ).set( "discretization_mesh_index", 0 );

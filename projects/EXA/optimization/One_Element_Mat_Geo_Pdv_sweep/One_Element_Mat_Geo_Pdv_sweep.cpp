@@ -439,15 +439,14 @@ namespace moris
         uint tGeoCounter = 0;
 
         // initialize fins as swiss cheese geometry
-        //( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
+        //( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         // tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Const_Geometry" );
         // tParameterlist( 1 )( tGeoCounter ).set( "name", "Level_Set_Field" );
         // tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", "0,0" );
         // tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0,1" );
         // tParameterlist( 1 )( tGeoCounter ).set( "use_multilinear_interpolation", false );
 
-        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list() );
-        tParameterlist( 1 )( tGeoCounter ).set( "field_type", "line" );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE ) );
         // tParameterlist(1)( tGeoCounter ).set("constant_parameters", 0.0, 0.0, 2.0);
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 10e-14 );
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 0.5 );    // FIXME     this has to change
@@ -455,9 +454,8 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).set( "adv_indices", 0u, 1u, 2u, 3u );
 
         uint tParamCounter = 0;
-        tParameterlist( 2 ).push_back( moris::prm::create_gen_property_parameter_list() );
+        tParameterlist( 2 ).push_back( moris::prm::create_gen_property_parameter_list( gen::Field_Type::CONSTANT ) );
         tParameterlist( 2 )( tParamCounter ).set( "name", "LvL_Set_Field" );
-        tParameterlist( 2 )( tParamCounter ).set( "field_type", "constant" );
         tParameterlist( 2 )( tParamCounter ).set( "constant_parameters", 0.8 );
         tParameterlist( 2 )( tParamCounter ).set( "pdv_type", "LS1" );
         // tParameterlist( 2 )( tParamCounter ).set("discretization_mesh_index",   0);

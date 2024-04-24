@@ -58,20 +58,17 @@ namespace moris::gen
             Vector< real > tADVs = { 0.25, 0.0, 1.0, 0.0 };
 
             // Circle
-            Parameter_List tCircleParameterList = prm::create_level_set_geometry_parameter_list();
-            tCircleParameterList.set( "field_type", "circle" );
+            Parameter_List tCircleParameterList = prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE );
             tCircleParameterList.set( "constant_parameters", -0.25, 0.0, 0.7499999999 );    // Not close enough to snap
             tCircleParameterList.set( "discretization_mesh_index", 0 );
 
             // Plane 1
-            Parameter_List tPlane1ParameterList = prm::create_level_set_geometry_parameter_list();
-            tPlane1ParameterList.set( "field_type", "line" );
+            Parameter_List tPlane1ParameterList = prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE );
             tPlane1ParameterList.set( "field_variable_indices", 0u, 1u, 2u, 3u );
             tPlane1ParameterList.set( "adv_indices", 0u, 1u, 2u, 3u );
 
             // Plane 2
-            Parameter_List tPlane2ParameterList = prm::create_level_set_geometry_parameter_list();
-            tPlane2ParameterList.set( "field_type", "line" );
+            Parameter_List tPlane2ParameterList = prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE );
             tPlane2ParameterList.set( "constant_parameters", 1.0, 0.0, 1.0, 0.0 );
 
             // Create geometry engine
@@ -551,8 +548,7 @@ namespace moris::gen
             mtk::Interpolation_Mesh* tMesh = create_simple_mesh( 2, 2 );
 
             // Set up circle
-            Parameter_List tCircleParameterList = prm::create_level_set_geometry_parameter_list();
-            tCircleParameterList.set( "field_type", "circle" );
+            Parameter_List tCircleParameterList = prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE );
             tCircleParameterList.set( "constant_parameters", -0.25, 0.0, 0.7499999999 );
             tCircleParameterList.set( "discretization_mesh_index", 0 );
             tCircleParameterList.set( "use_multilinear_interpolation", true );

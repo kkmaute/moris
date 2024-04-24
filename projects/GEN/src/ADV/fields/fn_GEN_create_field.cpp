@@ -9,6 +9,7 @@
  */
 
 #include "fn_GEN_create_field.hpp"
+#include "GEN_Data_Types.hpp"
 #include "fn_Parsing_Tools.hpp"
 
 #include "cl_GEN_Constant_Field.hpp"
@@ -40,7 +41,7 @@ namespace moris::gen
             mtk::Mesh*                         aMTKMesh )
     {
         // Field type
-        std::string tFieldType = aFieldParameterList.get< std::string >( "field_type" );
+        auto tFieldType = aFieldParameterList.get< gen::Field_Type >( "field_type" );
 
         // ADV inputs
         Vector< uint > tVariableIndices = aFieldParameterList.get< Vector< uint > >( "field_variable_indices" );
@@ -54,124 +55,137 @@ namespace moris::gen
         std::shared_ptr< Field > tField;
 
         // Build field
-        if ( tFieldType == "constant" )
+        switch ( tFieldType )
         {
-            tField = std::make_shared< Constant_Field >( aADVs, tVariableIndices, tADVIndices, tConstants, tName );
-        }
-        else if ( tFieldType == "scaled_field" )
-        {
-            tField = std::make_shared< Scaled_Field >( aFieldDependencies( 0 ), aADVs, tVariableIndices, tADVIndices, tConstants, tName );
-        }
-        else if ( tFieldType == "circle" )
-        {
-            tField = std::make_shared< Circle >( aADVs, tVariableIndices, tADVIndices, tConstants, tName );
-        }
-        else if ( tFieldType == "superellipse" )
-        {
-            tField = std::make_shared< Superellipse >( aADVs, tVariableIndices, tADVIndices, tConstants, tName );
-        }
-        else if ( tFieldType == "line" )
-        {
-            tField = std::make_shared< Line >( aADVs, tVariableIndices, tADVIndices, tConstants, tName );
-        }
-        else if ( tFieldType == "sphere" )
-        {
-            tField = std::make_shared< Sphere >( aADVs, tVariableIndices, tADVIndices, tConstants, tName );
-        }
-        else if ( tFieldType == "superellipsoid" )
-        {
-            tField = std::make_shared< Superellipsoid >( aADVs, tVariableIndices, tADVIndices, tConstants, tName );
-        }
-        else if ( tFieldType == "plane" )
-        {
-            tField = std::make_shared< Plane >( aADVs, tVariableIndices, tADVIndices, tConstants, tName );
-        }
-        else if ( tFieldType == "combined_fields" )
-        {
-            bool tUseMinimum = true;
-            if ( tConstants.size() == 1 )
+            case gen::Field_Type::NONE:
+                // TODO Right now this isn't possible. In the future, make this an assignable field
+                break;
+            case gen::Field_Type::CONSTANT:
             {
-                tUseMinimum = tConstants( 0 );
+                tField = std::make_shared< Constant_Field >( aADVs, tVariableIndices, tADVIndices, tConstants, tName );
+                break;
             }
-            tField = std::make_shared< Combined_Fields >( aFieldDependencies, tUseMinimum, tName );
-        }
-        else if ( tFieldType == "nodal_field" )
-        {
-            MORIS_ERROR( aMTKMesh != nullptr, "Mesh is a null ptr for nodal field." );
+            case gen::Field_Type::LINE:
+            {
+                tField = std::make_shared< Line >( aADVs, tVariableIndices, tADVIndices, tConstants, tName );
+                break;
+            }
+            case gen::Field_Type::CIRCLE:
+            {
+                tField = std::make_shared< Circle >( aADVs, tVariableIndices, tADVIndices, tConstants, tName );
+                break;
+            }
+            case gen::Field_Type::SUPERELLIPSE:
+            {
+                tField = std::make_shared< Superellipse >( aADVs, tVariableIndices, tADVIndices, tConstants, tName );
+                break;
+            }
+            case gen::Field_Type::PLANE:
+            {
+                tField = std::make_shared< Plane >( aADVs, tVariableIndices, tADVIndices, tConstants, tName );
+                break;
+            }
+            case gen::Field_Type::SPHERE:
+            {
+                tField = std::make_shared< Sphere >( aADVs, tVariableIndices, tADVIndices, tConstants, tName );
+                break;
+            }
+            case gen::Field_Type::SUPERELLIPSOID:
+            {
+                tField = std::make_shared< Superellipsoid >( aADVs, tVariableIndices, tADVIndices, tConstants, tName );
+                break;
+            }
+            case gen::Field_Type::SCALED_FIELD:
+            {
+                tField = std::make_shared< Scaled_Field >( aFieldDependencies( 0 ), aADVs, tVariableIndices, tADVIndices, tConstants, tName );
+                break;
+            }
+            case gen::Field_Type::COMBINED_FIELDS:
+            {
+                bool tUseMinimum = true;
+                if ( tConstants.size() == 1 )
+                {
+                    tUseMinimum = tConstants( 0 );
+                }
+                tField = std::make_shared< Combined_Fields >( aFieldDependencies, tUseMinimum, tName );
+                break;
+            }
+            case gen::Field_Type::NODAL:
+            {
+                MORIS_ERROR( aMTKMesh != nullptr, "Mesh is a null ptr for nodal field." );
+                tField = std::make_shared< gen::Mesh_Field >( aMTKMesh, tName, mtk::EntityRank::NODE );
+                break;
+            }
+            case gen::Field_Type::NODAL_FROM_FILE:
+            {
+                std::string tFileName    = aFieldParameterList.get< std::string >( "file_name" );
+                std::string tFieldName   = aFieldParameterList.get< std::string >( "field_name" );
+                std::string tFieldFormat = aFieldParameterList.get< std::string >( "file_format" );
+                real        tOffset      = aFieldParameterList.get< real >( "offset" );
 
-            tField = std::make_shared< gen::Mesh_Field >( aMTKMesh, tName, mtk::EntityRank::NODE );
-        }
-        else if ( tFieldType == "nodal_field_from_file" )
-        {
-            std::string tFileName    = aFieldParameterList.get< std::string >( "file_name" );
-            std::string tFieldName   = aFieldParameterList.get< std::string >( "field_name" );
-            std::string tFieldFormat = aFieldParameterList.get< std::string >( "file_format" );
-            real        tOffset      = aFieldParameterList.get< real >( "offset" );
+                tField = std::make_shared< gen::Mesh_Field >(
+                        aMTKMesh,
+                        tFileName,
+                        tFieldName,
+                        tFieldFormat,
+                        tOffset,
+                        mtk::EntityRank::NODE );
+                break;
+            }
+            case gen::Field_Type::SIGNED_DISTANCE_OBJECT:
+            {
+                std::string  tObjectPath   = aFieldParameterList.get< std::string >( "sdf_object_path" );
+                Vector< real > tObjectOffset = string_to_cell< real >( aFieldParameterList.get< std::string >( "sdf_object_offset" ) );
+                real         tSDFShift     = aFieldParameterList.get< real >( "sdf_shift" );
 
-            tField = std::make_shared< gen::Mesh_Field >(
-                    aMTKMesh,
-                    tFileName,
-                    tFieldName,
-                    tFieldFormat,
-                    tOffset,
-                    mtk::EntityRank::NODE );
-        }
-        else if ( tFieldType == "sdf_field" )
-        {
-            std::string  tObjectPath   = aFieldParameterList.get< std::string >( "sdf_object_path" );
-            Vector< real > tObjectOffset = string_to_cell< real >( aFieldParameterList.get< std::string >( "sdf_object_offset" ) );
-            real         tSDFShift     = aFieldParameterList.get< real >( "sdf_shift" );
+                tField = std::make_shared< gen::Signed_Distance_Field >(
+                        tObjectPath,
+                        tObjectOffset,
+                        tSDFShift );
+                break;
+            }
+            case gen::Field_Type::SIGNED_DISTANCE_IMAGE:
+            {
+                // Get SDF-specific info
+                std::string      tImageFileName    = aFieldParameterList.get< std::string >( "image_file" );
+                Matrix< DDRMat > tDomainDimensions = string_to_mat< DDRMat >( aFieldParameterList.get< std::string >( "image_dimensions" ) );
+                Matrix< DDRMat > tDomainOffset     = string_to_mat< DDRMat >( aFieldParameterList.get< std::string >( "image_offset" ) );
 
-            tField = std::make_shared< gen::Signed_Distance_Field >(
-                    tObjectPath,
-                    tObjectOffset,
-                    tSDFShift );
-        }
-        else if ( tFieldType == "image_sdf" )
-        {
-            // Get SDF-specific info
-            std::string      tImageFileName    = aFieldParameterList.get< std::string >( "image_file" );
-            Matrix< DDRMat > tDomainDimensions = string_to_mat< DDRMat >( aFieldParameterList.get< std::string >( "image_dimensions" ) );
-            Matrix< DDRMat > tDomainOffset     = string_to_mat< DDRMat >( aFieldParameterList.get< std::string >( "image_offset" ) );
+                real tSDFScaling = aFieldParameterList.get< real >( "image_sdf_scaling" );
+                real tSDFShift   = aFieldParameterList.get< real >( "image_sdf_shift" );
+                real tSDFDefault = aFieldParameterList.get< real >( "image_sdf_default" );
+                bool tsDFInterp  = aFieldParameterList.get< bool >( "image_sdf_interpolate" );
 
-            real tSDFScaling = aFieldParameterList.get< real >( "image_sdf_scaling" );
-            real tSDFShift   = aFieldParameterList.get< real >( "image_sdf_shift" );
-            real tSDFDefault = aFieldParameterList.get< real >( "image_sdf_default" );
-            bool tsDFInterp  = aFieldParameterList.get< bool >( "image_sdf_interpolate" );
+                tField = std::make_shared< Image_Signed_Distance_Field >(
+                        tImageFileName,
+                        tDomainDimensions,
+                        tDomainOffset,
+                        tSDFScaling,
+                        tSDFShift,
+                        tSDFDefault,
+                        tsDFInterp );
+                break;
+            }
+            case gen::Field_Type::USER_DEFINED:
+            {
+                // Check if library is given
+                MORIS_ERROR( aLibrary != nullptr, "Library must be given in order to create a user-defined field." );
 
-            tField = std::make_shared< Image_Signed_Distance_Field >(
-                    tImageFileName,
-                    tDomainDimensions,
-                    tDomainOffset,
-                    tSDFScaling,
-                    tSDFShift,
-                    tSDFDefault,
-                    tsDFInterp );
-        }
-        else if ( tFieldType == "user_defined" )
-        {
-            // Check if library is given
-            MORIS_ERROR( aLibrary != nullptr, "Library must be given in order to create a user-defined field." );
+                // Get sensitivity function if needed
+                std::string          tSensitivityFunctionName = aFieldParameterList.get< std::string >( "sensitivity_function_name" );
+                Sensitivity_Function tSensitivityFunction =
+                        ( tSensitivityFunctionName.empty() ? nullptr : aLibrary->load_function< Sensitivity_Function >( tSensitivityFunctionName ) );
 
-            // Get sensitivity function if needed
-            std::string          tSensitivityFunctionName = aFieldParameterList.get< std::string >( "sensitivity_function_name" );
-            Sensitivity_Function tSensitivityFunction =
-                    ( tSensitivityFunctionName.empty() ? nullptr : aLibrary->load_function< Sensitivity_Function >( tSensitivityFunctionName ) );
-
-            // Create user-defined field
-            tField = std::make_shared< User_Defined_Field >(
-                    aLibrary->load_function< Field_Function >( aFieldParameterList.get< std::string >( "field_function_name" ) ),
-                    tSensitivityFunction,
-                    aADVs,
-                    tVariableIndices,
-                    tADVIndices,
-                    tConstants,
-                    tName );
-        }
-        else
-        {
-            MORIS_ERROR( false, "%s is not recognized as a valid field type in fn_GEN_create_field().", tFieldType.c_str() );
-            tField = nullptr;
+                // Create user-defined field
+                tField = std::make_shared< User_Defined_Field >(
+                        aLibrary->load_function< Field_Function >( aFieldParameterList.get< std::string >( "field_function_name" ) ),
+                        tSensitivityFunction,
+                        aADVs,
+                        tVariableIndices,
+                        tADVIndices,
+                        tConstants,
+                        tName );
+            }
         }
 
         // Check for definition of array parameters

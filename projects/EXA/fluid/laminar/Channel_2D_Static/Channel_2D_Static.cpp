@@ -192,25 +192,25 @@ extern "C"
             uint tGeoCounter = 0;
 
             // Bottom plane
-            tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
+            tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
             tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Plane");
             tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 0.0, 1.0, 0.0, tPlaneBottom ) ;
             tGeoCounter++;
 
             // Top plane
-            tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
+            tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
             tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Plane");
             tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 0.0, 1.0, 0.0, tPlaneTop );
             tGeoCounter++;
 
             // Left plane
-            tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
+            tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
             tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Plane");
             tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 1.0, 0.0, tPlaneLeft, 0.0 );
             tGeoCounter++;
 
             // Right plane
-            tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
+            tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
             tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Plane");
             tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 1.0, 0.0, tPlaneRight, 0.0 );
         }

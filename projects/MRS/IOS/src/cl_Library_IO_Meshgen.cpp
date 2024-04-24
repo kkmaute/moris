@@ -569,11 +569,6 @@ namespace moris
         // go over geometries and load their respective parameters
         for ( uint iGeom = 0; iGeom < tNumGeometries; iGeom++ )
         {
-            // load the standard geometry parameter regardless of type
-            tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list();
-            tGenParamList( 1 )( iGeom ).set( "number_of_refinements", std::to_string( tNumBoundaryRefinements ), false );
-            tGenParamList( 1 )( iGeom ).set( "refinement_mesh_index", "0", false );
-
             // move current geometry into the buffer
             mXmlReader->copy_subtree_into_buffer( aGenPath, tGeometryNodeName, iGeom );
 
@@ -594,17 +589,14 @@ namespace moris
                         "Library_IO_Meshgen::load_parameters_from_xml() - "
                         "All pre-defined geometries must have an attribute 'geom' specified. Supported Options are 'plane' and 'circle'." );
 
-                // set parameters that are independent of the particular geometry used
-                tGenParamList( 1 )( iGeom ).set( "number_of_refinements", mGenNumRefinements );
-                tGenParamList( 1 )( iGeom ).set( "refinement_mesh_index", mGenRefineMeshIndices );
-                tGenParamList( 1 )( iGeom ).set( "use_multilinear_interpolation", tUseMultiLinearIntersections );
-                tGenParamList( 1 )( iGeom ).set( "discretization_mesh_index", -1 );
-
                 // -------------------------------- //
                 // PLANE
 
                 if ( tPreDefGeom == "line" )
                 {
+                    // Create geometry parameter list
+                    tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE );
+
                     // get the point
                     std::string tPoint = "";
                     mXmlReader->get_from_buffer( "Point", tPoint, std::string( "" ) );
@@ -640,6 +632,9 @@ namespace moris
 
                 else if ( tPreDefGeom == "circle" )
                 {
+                    // Create geometry parameter list
+                    tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE );
+
                     // get the point
                     std::string tPoint = "";
                     mXmlReader->get_from_buffer( "Point", tPoint, std::string( "" ) );
@@ -670,6 +665,9 @@ namespace moris
 
                 else if ( tPreDefGeom == "ellipse" )
                 {
+                    // Create geometry parameter list
+                    tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::SUPERELLIPSE );
+
                     // get the point
                     std::string tPoint = "";
                     mXmlReader->get_from_buffer( "Point", tPoint, std::string( "" ) );
@@ -707,6 +705,9 @@ namespace moris
 
                 else if ( tPreDefGeom == "plane" )
                 {
+                    // Create geometry parameter list
+                    tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::PLANE );
+
                     // get the point
                     std::string tPoint = "";
                     mXmlReader->get_from_buffer( "Point", tPoint, std::string( "" ) );
@@ -742,6 +743,9 @@ namespace moris
 
                 else if ( tPreDefGeom == "sphere" )
                 {
+                    // Create geometry parameter list
+                    tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::SPHERE );
+
                     // check dimensionality
                     MORIS_ERROR( mNumSpatialDims != 2,
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
@@ -777,6 +781,9 @@ namespace moris
 
                 else if ( tPreDefGeom == "ellipsoid" )
                 {
+                    // Create geometry parameter list
+                    tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::SUPERELLIPSOID );
+
                     // check dimensionality
                     MORIS_ERROR( mNumSpatialDims != 2,
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
@@ -827,12 +834,21 @@ namespace moris
                             "Unknown pre-defined geometry. Supported Options are 'plane', 'circle', 'sphere', 'ellipse', and 'ellipsoid'." );
                 }
 
+                // set parameters that are independent of the particular geometry used
+                tGenParamList( 1 )( iGeom ).set( "number_of_refinements", mGenNumRefinements );
+                tGenParamList( 1 )( iGeom ).set( "refinement_mesh_index", mGenRefineMeshIndices );
+                tGenParamList( 1 )( iGeom ).set( "use_multilinear_interpolation", tUseMultiLinearIntersections );
+                tGenParamList( 1 )( iGeom ).set( "discretization_mesh_index", -1 );
+
             }    // end if: pre-defined geometry
 
             else if ( tGeomType == "image_file" )
             {
+                // Create geometry parameter list
+                tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::SIGNED_DISTANCE_IMAGE );
+
                 // initialize with the image sdf default parameter list
-                tGenParamList( 1 )( iGeom ) = prm::create_image_sdf_field_parameter_list();
+                tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::SIGNED_DISTANCE_IMAGE );
                 tGenParamList( 1 )( iGeom ).set( "number_of_refinements", mGenNumRefinements );
                 tGenParamList( 1 )( iGeom ).set( "refinement_mesh_index", mGenRefineMeshIndices );
                 tGenParamList( 1 )( iGeom ).set( "use_multilinear_interpolation", tUseMultiLinearIntersections );
@@ -884,8 +900,11 @@ namespace moris
 
             else if ( tGeomType == "object_file" )
             {
+                // Create geometry parameter list
+                tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::SIGNED_DISTANCE_OBJECT );
+
                 // initialize with the sdf field default parameter list
-                tGenParamList( 1 )( iGeom ) = prm::create_sdf_field_parameter_list();
+                tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::SIGNED_DISTANCE_OBJECT );
                 tGenParamList( 1 )( iGeom ).set( "use_multilinear_interpolation", false );
                 // tGenParamList( 1 )( iGeom ).set( "discretization_mesh_index", -1 );
 
@@ -927,7 +946,6 @@ namespace moris
                 tGenParamList( 1 )( iGeom ).set( "sdf_shift", tSdfShift );
 
             }    // end if: geometry from image file
-
             else
             {
                 MORIS_ERROR( false,
@@ -935,6 +953,9 @@ namespace moris
                         "Geometry type '%s' unknown. Currently supported options are: 'pre_defined', 'image_file' and 'object_file'.",
                         tGeomType.c_str() );
             }
+
+            tGenParamList( 1 )( iGeom ).set( "number_of_refinements", std::to_string( tNumBoundaryRefinements ), false );
+            tGenParamList( 1 )( iGeom ).set( "refinement_mesh_index", "0", false );
 
         }    // end for: loop over geometries in input file
 

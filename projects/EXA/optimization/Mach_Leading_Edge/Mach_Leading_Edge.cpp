@@ -669,26 +669,25 @@ namespace moris
         uint tGeoCounter = 0;
 
         // Outer Wall
-        tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Outer_Wedge" );
         // tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tAdaptiveRefinements );
         tGeoCounter++;
 
         // Inner Wall
-        tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Inner_Wedge" );
         // tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tAdaptiveRefinements );
         tGeoCounter++;
 
         // Back Wall
-        tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Back_Wall" );
         // tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tAdaptiveRefinements );
         tGeoCounter++;
 
         // initialize fins as swiss cheese geometry
-        tParameterlist( 1 ).push_back( prm::create_field_array_parameter_list() );
-        tParameterlist( 1 )( tGeoCounter ).set( "field_type", "superellipse" );
+        tParameterlist( 1 ).push_back( prm::create_field_array_parameter_list( gen::Field_Type::SUPERELLIPSE ) );
         tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 0.0, 0.0, 0.5 * tHoleWidth, 0.5 * tHoleHeight, tFinExponent, std::sqrt( tHoleWidth * tHoleHeight ), 0.0, 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "lower_bound_x", tXCenterMin );           // Left-most hole center
         tParameterlist( 1 )( tGeoCounter ).set( "upper_bound_x", tXCenterMax );           // Right-most hole center

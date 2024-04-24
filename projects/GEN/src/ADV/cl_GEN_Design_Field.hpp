@@ -162,6 +162,14 @@ namespace moris::gen
         bool use_multilinear_interpolation() const;
 
         /**
+         * Updates the dependencies of this design based on the given designs
+         * (fields may have been mapped/updated).
+         *
+         * @param aUpdatedFields All designs (this design will take fields from the ones it needs)
+         */
+        void update_dependencies( Vector< std::shared_ptr< Field > > aUpdatedFields );
+
+        /**
          * Gets an MTK field, if this design field uses one that needs to be remapped to a new mesh
          *
          * @return

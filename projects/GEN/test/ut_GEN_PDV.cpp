@@ -505,8 +505,7 @@ namespace moris::gen
         tPDVHostManager.mPDVTypeMap( 3 ) = 0;
 
         // Constant property parameter list
-        Parameter_List tParameterList = moris::prm::create_gen_property_parameter_list();
-        tParameterList.set( "field_type", "constant" );
+        Parameter_List tParameterList = moris::prm::create_gen_property_parameter_list( gen::Field_Type::CONSTANT );
         tParameterList.set( "field_variable_indices", 0u );
         tParameterList.set( "pdv_type", "DENSITY" );
 

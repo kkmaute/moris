@@ -245,28 +245,28 @@ namespace moris
         tParameterlist( 0 )( 0 ) = prm::create_gen_parameter_list();
 
         // Geometry parameter lists
-        tParameterlist( 1 )( 0 ) = prm::create_user_defined_geometry_parameter_list();
+        tParameterlist( 1 )( 0 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED );
         tParameterlist( 1 )( 0 ).set( "field_function_name", "Func_Bottom_Plane" );
 
-        tParameterlist( 1 )( 1 ) = prm::create_user_defined_geometry_parameter_list();
+        tParameterlist( 1 )( 1 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED );
         tParameterlist( 1 )( 1 ).set( "field_function_name", "Func_Top_Plane" );
 
-        tParameterlist( 1 )( 2 ) = prm::create_user_defined_geometry_parameter_list();
+        tParameterlist( 1 )( 2 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED );
         tParameterlist( 1 )( 2 ).set( "field_function_name", "Func_Left_Plane" );
 
-        tParameterlist( 1 )( 3 ) = prm::create_user_defined_geometry_parameter_list();
+        tParameterlist( 1 )( 3 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED );
         tParameterlist( 1 )( 3 ).set( "field_function_name", "Func_Right_Plane" );
 
-        tParameterlist( 1 )( 4 ) = prm::create_user_defined_geometry_parameter_list();
+        tParameterlist( 1 )( 4 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED );
         tParameterlist( 1 )( 4 ).set( "field_function_name", "Func_Cylinder" );
 
-        tParameterlist( 1 )( 5 ) = prm::create_user_defined_geometry_parameter_list();
+        tParameterlist( 1 )( 5 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED );
         tParameterlist( 1 )( 5 ).set( "field_function_name", "Func_Cylinder2" );
 
-        tParameterlist( 1 )( 6 ) = prm::create_user_defined_geometry_parameter_list();
+        tParameterlist( 1 )( 6 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED );
         tParameterlist( 1 )( 6 ).set( "field_function_name", "Func_Cylinder3" );
 
-        tParameterlist( 1 )( 7 ) = prm::create_user_defined_geometry_parameter_list();
+        tParameterlist( 1 )( 7 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED );
         tParameterlist( 1 )( 7 ).set( "field_function_name", "Func_Cylinder4" );
     }
 

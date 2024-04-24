@@ -507,7 +507,7 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "time_offset", 10.0 );
 
         // Levelset geometry
-        tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         uint tGeoCounter = 0;
 
         tParameterlist( 1 )( tGeoCounter ).set( "name", "ADVfield" );
@@ -519,12 +519,11 @@ namespace moris
         tGeoCounter++;
 
         // Levelset property
-        tParameterlist( 2 ).push_back( moris::prm::create_gen_property_parameter_list() );
+        tParameterlist( 2 ).push_back( moris::prm::create_gen_property_parameter_list( gen::Field_Type::SCALED_FIELD ) );
         uint tParamCounter = 0;
 
         tParameterlist( 2 )( tParamCounter ).set( "name", "LevelsetField" );
         tParameterlist( 2 )( tParamCounter ).set( "dependencies", "ADVfield" );
-        tParameterlist( 2 )( tParamCounter ).set( "field_type", "scaled_field" );
         tParameterlist( 2 )( tParamCounter ).set( "constant_parameters", 1.0 );
         tParameterlist( 2 )( tParamCounter ).set( "pdv_type", "LS1" );
         tParameterlist( 2 )( tParamCounter ).set( "pdv_mesh_set_names", tTotalDomain );

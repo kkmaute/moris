@@ -443,7 +443,7 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "PDV_types", "" );
 
         // Geometry parameter lists
-        tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
 
         // User defined geometry of bars
         tParameterlist( 1 )( 0 ).set( "field_function_name", "Bars" );

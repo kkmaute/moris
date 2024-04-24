@@ -268,12 +268,11 @@ namespace moris::gen
         bool has_advs();
 
         /**
-         * Sets the dependencies of this field after they have been found by the owning field. By default
-         * does nothing.
+         * Updates the potential dependencies of this field. By default does nothing.
          *
-         * @param aDependencyFields Other fields that this field depends on.
+         * @param aUpdatedFields Other fields that this field may depend on.
          */
-        virtual void set_dependencies( Vector< std::shared_ptr< Field > > aDependencyFields );
+        virtual void update_dependencies( Vector< std::shared_ptr< Field > > aUpdatedFields );
 
         /**
          * Resets all nodal information, including child nodes. This should be called when a new XTK mesh is being

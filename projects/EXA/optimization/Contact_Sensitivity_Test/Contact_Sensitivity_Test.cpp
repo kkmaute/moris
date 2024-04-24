@@ -441,14 +441,12 @@ namespace moris
 
         if ( tIs3D )
         {
-            tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list() );
-            tParameterlist( 1 )( tGeoCounter ).set( "field_type", "sphere" );
+            tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::SPHERE ) );
             tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 0.5, 0.5, 0.5, tHoleRadius );
         }
         else
         {
-            tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list() );
-            tParameterlist( 1 )( tGeoCounter ).set( "field_type", "circle" );
+            tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE ) );
             tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 0.5, 0.5, tHoleRadius );
         }
         tGeoCounter++;
@@ -456,9 +454,8 @@ namespace moris
         // initialize geometry
         if ( tUseBsplineForLevelset )
         {
-            tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list() );
+            tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE ) );
             tParameterlist( 1 )( tGeoCounter ).set( "name", "ADVfield" );
-            tParameterlist( 1 )( tGeoCounter ).set( "field_type", "line" );
             tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", tInterfaceX, 0.0, -1.0 * std::sin( tPlaneTilde / 180.0 * pi ), -1.0 * std::cos( tPlaneTilde / 180.0 * pi ) );
             tParameterlist( 1 )( tGeoCounter ).set( "use_multilinear_interpolation", tUseMultiLinear );
 
@@ -471,11 +468,10 @@ namespace moris
             tGeoCounter++;
 
             // Levelset property
-            tParameterlist( 2 ).push_back( moris::prm::create_gen_property_parameter_list() );
+            tParameterlist( 2 ).push_back( moris::prm::create_gen_property_parameter_list( gen::Field_Type::SCALED_FIELD ) );
 
             tParameterlist( 2 )( tParamCounter ).set( "name", "LevelsetField" );
             tParameterlist( 2 )( tParamCounter ).set( "dependencies", "ADVfield" );
-            tParameterlist( 2 )( tParamCounter ).set( "field_type", "scaled_field" );
             tParameterlist( 2 )( tParamCounter ).set( "constant_parameters", 1.0 );
             tParameterlist( 2 )( tParamCounter ).set( "pdv_type", "LS1" );
             tParameterlist( 2 )( tParamCounter ).set( "pdv_mesh_set_names", tTotalDomainSets );
@@ -487,18 +483,16 @@ namespace moris
             tParameterlist( 0 )( 0 ).set( "lower_bounds", tInterfaceX * 0.5 );
             tParameterlist( 0 )( 0 ).set( "upper_bounds", tInterfaceX / 0.5 );
 
-            tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list() );
-            tParameterlist( 1 )( tGeoCounter ).set( "field_type", "line" );
+            tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE ) );
             tParameterlist( 1 )( tGeoCounter ).set( "field_variable_indices", 0u );
             tParameterlist( 1 )( tGeoCounter ).set( "adv_indices", 0u );
             tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 0.0, -1.0 * std::sin( tPlaneTilde / 180.0 * pi ), -1.0 * std::cos( tPlaneTilde / 180.0 * pi ) );
             tGeoCounter++;
 
             // Levelset property
-            tParameterlist( 2 ).push_back( moris::prm::create_gen_property_parameter_list() );
+            tParameterlist( 2 ).push_back( moris::prm::create_gen_property_parameter_list( gen::Field_Type::CONSTANT ) );
 
             tParameterlist( 2 )( tParamCounter ).set( "name", "LevelsetField" );
-            tParameterlist( 2 )( tParamCounter ).set( "field_type", "constant" );
             tParameterlist( 2 )( tParamCounter ).set( "constant_parameters", 1.0 );
             tParameterlist( 2 )( tParamCounter ).set( "pdv_type", "LS1" );
             tParameterlist( 2 )( tParamCounter ).set( "pdv_mesh_set_names", tTotalDomainSets );
