@@ -139,8 +139,8 @@ namespace moris::gen
         Matrix< DDRMat > tdNormaldVertex2 = { { 0.0, -1.0 }, { 1.0, 0.0 } };
 
         // Sensitivity of the normal vector to the vertices
-        Matrix< DDRMat > tdNormalPrimedVertex1 = tRotationMatrix / tFacetVectorNorm * ( tdNormaldVertex1 + std::pow( tFacetVectorNorm, -2.0 ) * tNormal * trans( tFacetVector ) );
-        Matrix< DDRMat > tdNormalPrimedVertex2 = tRotationMatrix / tFacetVectorNorm * ( tdNormaldVertex2 - std::pow( tFacetVectorNorm, -2.0 ) * tNormal * trans( tFacetVector ) );
+        Matrix< DDRMat > tdNormalPrimedVertex1 = tRotationMatrix / tFacetVectorNorm * ( tdNormaldVertex1 + std::pow( tFacetVectorNorm, -3.0 ) * tNormal * trans( tFacetVector ) );
+        Matrix< DDRMat > tdNormalPrimedVertex2 = tRotationMatrix / tFacetVectorNorm * ( tdNormaldVertex2 - std::pow( tFacetVectorNorm, -3.0 ) * tNormal * trans( tFacetVector ) );
 
 
         Matrix< DDRMat > tdCenterdVertices = 2.0 / ( (real)mInterfaceGeometry.get_dimension() * tParentVectorNorm ) * tRotationMatrix;

@@ -381,6 +381,12 @@ namespace moris::gen
                 const Matrix< DDRMat >& aParametricCoordinates );
 
         /**
+         * Updates the values of the basis functions for all of the facet vertices
+         * 
+         */
+        void update_all_vertex_bases();
+
+        /**
          * Determines the field value at a given point in the background element.
          *
          * @param aBackgroundElement The background element in which the point resides
