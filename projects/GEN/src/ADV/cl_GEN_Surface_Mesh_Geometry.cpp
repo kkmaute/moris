@@ -176,6 +176,11 @@ namespace moris::gen
             mtk::Interpolation_Order          aBackgroundInterpolationOrder )
     {
         // Determine the local coordinate of the intersection and the facet that intersects the parent edge
+        if ( aFirstParentNode.get_index() == 1 and aSecondParentNode.get_index() == 2 )
+        {
+            std::cout << "this is the intersection to test\n";    // BRENDAN
+        }
+
         sdf::Facet* tParentFacet     = nullptr;
         real        tLocalCoordinate = this->compute_intersection_local_coordinate( aBackgroundNodes, aFirstParentNode, aSecondParentNode, tParentFacet );
 
@@ -236,6 +241,7 @@ namespace moris::gen
         }
 
         // Set return values for intersection location and associated facet
+        MORIS_ASSERT( tIntersectionFacets.size() == tLocalCoordinate.size(), "Inconsistent size of facet vector (size %lu) and local coordinate vector (size %lu)", tIntersectionFacets.size(), tLocalCoordinate.size() );
         aParentFacet = tIntersectionFacets( 0 );
         return tLocalCoordinate( 0 );
     }
@@ -580,12 +586,6 @@ namespace moris::gen
     bool
     Surface_Mesh_Geometry::facet_vertex_depends_on_advs( uint aFacetVertexIndex )
     {
-        // BRENDAN
-        if ( aFacetVertexIndex == 1 )
-        {
-            std::cout << "this should be true\n";
-        }
-
         // check if this node was specified to be fixed
         for ( auto iFacetVertex : mParameters.mFixedVertexIndices )
         {

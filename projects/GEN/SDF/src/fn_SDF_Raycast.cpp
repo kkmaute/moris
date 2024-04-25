@@ -73,15 +73,13 @@ namespace moris::sdf
                 aObject.get_dimension(),
                 aPoint.numel() );
 
-        Vector< Facet* > tFacetsToIntersect;
-
         switch ( aObject.get_dimension() )
         {
             case 2:
             {
                 // preselect lines in the aAxis direction
                 moris::Vector< uint > tIntersectedFacets;
-                preselect_lines( aObject, aPoint, aAxis, tIntersectedFacets, tFacetsToIntersect );
+                preselect_lines( aObject, aPoint, aAxis, tIntersectedFacets, aFacetIndices );
 
                 // get pointers to all facets in tIntersectedFacets to compute intersection location
                 moris::Vector< Facet* > tFacetsFromCandidates( tIntersectedFacets.size() );
@@ -91,7 +89,7 @@ namespace moris::sdf
                 }
 
                 // append the candidates to the intersected facets to compute intersection
-                tFacetsToIntersect.insert( tFacetsToIntersect.size(), tFacetsFromCandidates.begin(), tFacetsFromCandidates.end() );
+                aFacetIndices.insert( aFacetIndices.size(), tFacetsFromCandidates.begin(), tFacetsFromCandidates.end() );
 
                 break;
             }
@@ -111,7 +109,7 @@ namespace moris::sdf
                 }
 
                 // from the candidate triangles, see which triangles will actually be intersected
-                tFacetsToIntersect = intersect_triangles( tCandidateFacets, aObject, aPoint, aAxis );
+                aFacetIndices = intersect_triangles( tCandidateFacets, aObject, aPoint, aAxis );
                 break;
             }
             default:
@@ -121,15 +119,8 @@ namespace moris::sdf
             }
         }
 
-        // Put all the indices of the facets into the return list
-        aFacetIndices.resize( tFacetsToIntersect.size() );
-        for ( uint iFacetIndex = 0; iFacetIndex < tFacetsToIntersect.size(); iFacetIndex++ )
-        {
-            aFacetIndices( iFacetIndex ) = tFacetsToIntersect( iFacetIndex );
-        }
-
         // compute intersection locations
-        moris::Vector< real > tIntersectionCoordinates = intersect_ray_with_facets( tFacetsToIntersect, aPoint, Preselection_Result::SUCCESS, aAxis );
+        moris::Vector< real > tIntersectionCoordinates = intersect_ray_with_facets( aFacetIndices, aPoint, Preselection_Result::SUCCESS, aAxis );
 
         // remove intersection locations that are behind the point
         for ( uint iIntersection = 0; iIntersection < tIntersectionCoordinates.size(); iIntersection++ )
@@ -530,6 +521,12 @@ namespace moris::sdf
                 if ( std::abs( tCoordsKSorted( k ) - tCoordsKSorted( k - 1 ) ) > 10 * MORIS_REAL_EPS )
                 {
                     tIntersectionCoords( tCountUnique++ ) = tCoordsKSorted( k );
+                }
+                else 
+                {
+                    // erase the facet from the list of intersected facets
+                    // FIXME BRENDAN: THIS WILL CAUSE BIG ISSUES IF THE COORDS OF K ARE REARRANGED. THIS VECTOR NEEDS TO ALSO BE REARRANGED IN THE SAME MANNER
+                    aIntersectedFacets.erase( k );
                 }
             }
 

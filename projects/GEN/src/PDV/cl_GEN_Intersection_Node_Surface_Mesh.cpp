@@ -42,11 +42,11 @@ namespace moris::gen
     {
     }
 
-    void
-    Intersection_Node_Surface_Mesh::get_rotation_matrix( Matrix< DDRMat >& aRotationMatrix ) const
+    Matrix< DDRMat >
+    Intersection_Node_Surface_Mesh::get_rotation_matrix() const
     {
         // get parent vector
-        Matrix< DDRMat > tParentVector = this->get_first_parent_node().get_global_coordinates() - this->get_second_parent_node().get_global_coordinates();
+        Matrix< DDRMat > tParentVector = this->get_second_parent_node().get_global_coordinates() - this->get_first_parent_node().get_global_coordinates();
 
         // augment with zero if 2D
         if ( tParentVector.numel() == 2 )
@@ -61,12 +61,12 @@ namespace moris::gen
 
         // create vector orthogonal to parent vector and cast axis
         // in 2D, this vector is the z axis
-        aRotationMatrix.resize( 3, 1 );
+        Matrix< DDRMat > tRotationMatrix( 3, 1 );
         Matrix< DDRMat > tCastAxis = { { 1.0 }, { 0.0 }, { 0.0 } };
 
         if ( norm( tParentVector + tCastAxis ) < mInterfaceGeometry.get_intersection_tolerance() )
         {
-            aRotationMatrix = { { -1.0, 0.0, 0.0 }, { 0.0, 1.0, 0.0 }, { 0.0, 0.0, 1.0 } };
+            tRotationMatrix = { { -1.0, 0.0, 0.0 }, { 0.0, 1.0, 0.0 }, { 0.0, 0.0, 1.0 } };
         }
         else
         {
@@ -78,14 +78,19 @@ namespace moris::gen
                 { 0.0, -std::pow( tParentVector( 1 ), 2 ), -tParentVector( 1 ) * tParentVector( 2 ) },
                 { 0.0, -tParentVector( 1 ) * tParentVector( 2 ), -std::pow( tParentVector( 2 ), 2 ) } };
 
-            aRotationMatrix = eye( 3, 3 ) + tAntisymmetricCrossProduct + ( 1 / ( 1 + tParentVector( 0 ) ) ) * tAntisymmetricCrossProductSquared;
+            tRotationMatrix = eye( 3, 3 ) + tAntisymmetricCrossProduct + ( 1 / ( 1 + tParentVector( 0 ) ) ) * tAntisymmetricCrossProductSquared;
         }
+
+        // check that the rotation matrix is correct by ensuring the parent vector was rotated to the x axis
+        MORIS_ASSERT( norm( tRotationMatrix * tParentVector - tCastAxis ) < mInterfaceGeometry.get_intersection_tolerance(), "Rotation matrix should rotate the parent vector to the x axis." );
 
         // trim the transformation matrix if 2D
         if ( mInterfaceGeometry.get_dimension() == 2 )
         {
-            aRotationMatrix.resize( 2, 2 );
+            tRotationMatrix.resize( 2, 2 );
         }
+
+        return tRotationMatrix;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -112,18 +117,17 @@ namespace moris::gen
         MORIS_ERROR( mInterfaceGeometry.get_dimension() < 3, "Intersection_Node_Surface_Mesh does not yet support 3D problems. " );
 
         // Get the parent vector and its norm from the intersection node
-        Matrix< DDRMat > tParentVector     = this->get_first_parent_node().get_global_coordinates() - this->get_second_parent_node().get_global_coordinates();
+        Matrix< DDRMat > tParentVector     = this->get_second_parent_node().get_global_coordinates() - this->get_first_parent_node().get_global_coordinates();
         real             tParentVectorNorm = norm( tParentVector );
 
         // Get the rotation matrix from the intersection node
-        Matrix< DDRMat > tRotationMatrix;
-        this->get_rotation_matrix( tRotationMatrix );
+        Matrix< DDRMat > tRotationMatrix = this->get_rotation_matrix();
 
         // get the normal vector rotated in the local coordinate frame
         Matrix< DDRMat > tNormalPrime = tRotationMatrix * mParentFacet->get_normal();
 
         // get the center vector in the local coordinate frame
-        Matrix< DDRMat > tCenterPrime = 2.0 / ( 3.0 * tParentVectorNorm ) * tRotationMatrix * mParentFacet->get_center();
+        Matrix< DDRMat > tCenterPrime = 2.0 / ( (real)mInterfaceGeometry.get_dimension() * tParentVectorNorm ) * tRotationMatrix * ( mParentFacet->get_center() - trans( this->get_first_parent_node().get_global_coordinates() ) );
 
         // compute vector between facet vertices, and unnormalized normal vector
         Matrix< DDRMat > tFacetVector     = trans( mParentFacet->get_vertex_coords().get_row( 1 ) - mParentFacet->get_vertex_coords().get_row( 0 ) );
@@ -135,23 +139,33 @@ namespace moris::gen
         Matrix< DDRMat > tdNormaldVertex2 = { { 0.0, -1.0 }, { 1.0, 0.0 } };
 
         // Sensitivity of the normal vector to the vertices
-        Matrix< DDRMat > tdNormalPrimedVertex1 = tRotationMatrix / tFacetVectorNorm * ( tdNormaldVertex1 - std::pow( tFacetVectorNorm, -2.0 ) * tNormal * trans( tFacetVector ) );
+        Matrix< DDRMat > tdNormalPrimedVertex1 = tRotationMatrix / tFacetVectorNorm * ( tdNormaldVertex1 + std::pow( tFacetVectorNorm, -2.0 ) * tNormal * trans( tFacetVector ) );
         Matrix< DDRMat > tdNormalPrimedVertex2 = tRotationMatrix / tFacetVectorNorm * ( tdNormaldVertex2 - std::pow( tFacetVectorNorm, -2.0 ) * tNormal * trans( tFacetVector ) );
 
 
-        Matrix< DDRMat > tdCenterdVertices = 2.0 / ( 3.0 * tParentVectorNorm ) * tRotationMatrix;
+        Matrix< DDRMat > tdCenterdVertices = 2.0 / ( (real)mInterfaceGeometry.get_dimension() * tParentVectorNorm ) * tRotationMatrix;
 
-        return join_rows( ( tdNormalPrimedVertex1 * tCenterPrime + tdCenterdVertices * tNormalPrime ) * mParentFacet->get_normal()( 0 ) - trans( tdNormalPrimedVertex1.get_row( 0 ) ) * dot( tNormalPrime, tCenterPrime ),
-                ( tdNormalPrimedVertex2 * tCenterPrime + tdCenterdVertices * tNormalPrime ) * mParentFacet->get_normal()( 0 ) - trans( tdNormalPrimedVertex2.get_row( 0 ) ) * dot( tNormalPrime, tCenterPrime ) );
+        return join_rows( ( tdNormalPrimedVertex1 * tCenterPrime + tdCenterdVertices * tNormalPrime ) * tNormalPrime( 0 ) - trans( tdNormalPrimedVertex1.get_row( 0 ) ) * dot( tNormalPrime, tCenterPrime ),
+                ( tdNormalPrimedVertex2 * tCenterPrime + tdCenterdVertices * tNormalPrime ) * tNormalPrime( 0 ) - trans( tdNormalPrimedVertex2.get_row( 0 ) ) * dot( tNormalPrime, tCenterPrime ) );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     void Intersection_Node_Surface_Mesh::append_dcoordinate_dadv( Matrix< DDRMat >& aCoordinateSensitivities, const Matrix< DDRMat >& aSensitivityFactor ) const
-    {   
+    {
         // Get parent nodes
         const Basis_Node& tFirstParentNode  = this->get_first_parent_node();
         const Basis_Node& tSecondParentNode = this->get_second_parent_node();
+
+        // BRENDAN
+        if ( std::abs( this->get_local_coordinate() + 0.5 ) < 1e-4 or std::abs( this->get_local_coordinate() - 1.5 ) < 1e-4 )
+        {
+            std::cout << "this is the node we are testing\n";
+        }
+
+        // BRENDAN
+        PRINT( tFirstParentNode.get_global_coordinates() );
+        PRINT( tSecondParentNode.get_global_coordinates() );
 
         // Compute parent vector
         Matrix< DDRMat > tParentVector = trans( tSecondParentNode.get_global_coordinates() - tFirstParentNode.get_global_coordinates() );
@@ -175,7 +189,7 @@ namespace moris::gen
                 {
                     for ( uint iADVIndex = 0; iADVIndex < tDenseSensitivities.n_cols(); iADVIndex++ )
                     {
-                        tSensitivitiesToAdd( iDimensionIndex, iADVIndex + iDimensionIndex * tDenseSensitivities.n_cols() ) = tDenseSensitivities( iDimensionIndex, iADVIndex );
+                        tSensitivitiesToAdd( iDimensionIndex, tDenseSensitivities.n_rows() * iADVIndex + iDimensionIndex ) = tDenseSensitivities( iDimensionIndex, iADVIndex );
                     }
                 }
 
@@ -220,6 +234,12 @@ namespace moris::gen
     Matrix< DDSMat >
     Intersection_Node_Surface_Mesh::get_coordinate_determining_adv_ids() const
     {
+        // BRENDAN
+        if ( std::abs( this->get_local_coordinate() + 0.5 ) < 1e-4 or std::abs( this->get_local_coordinate() - 1.5 ) < 1e-4 )
+        {
+            std::cout << "this is the node we are testing\n";
+        }
+        
         // Initialize ADV IDs
         Matrix< DDSMat > tCoordinateDeterminingADVIDs;
 

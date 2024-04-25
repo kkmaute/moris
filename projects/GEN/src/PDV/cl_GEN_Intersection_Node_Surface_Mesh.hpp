@@ -53,14 +53,6 @@ namespace moris::gen
                 mtk::Interpolation_Order          aBackgroundInterpolationOrder,
                 Surface_Mesh_Geometry&            aInterfaceGeometry );
 
-      public:
-        /**
-         * Recomputes the rotation matrix for this intersection node
-         *
-         * @param aRotationMatrix Rotation matrix to fill
-         */
-        void get_rotation_matrix( Matrix< DDRMat >& aRotationMatrix ) const;
-
       protected:
         /**
          * Gets the geometry that this intersection node was created on its interface.
@@ -75,8 +67,8 @@ namespace moris::gen
          * @return Const geometry reference
          */
         const Geometry& get_interface_geometry() const override;
-        
-                /**
+
+        /**
          * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
          * coordinate values of its first parent.
          *
@@ -93,6 +85,12 @@ namespace moris::gen
         Matrix< DDRMat > get_dxi_dcoordinate_second_parent() const override;
 
       private:
+        /**
+         * Recomputes the rotation matrix for this intersection node and returns it
+         *
+         */
+        Matrix< DDRMat > get_rotation_matrix() const;
+
         /**
          * Computes the sensitivity of the local coordinate of a parent edge with respect to the facet vertices
          *
