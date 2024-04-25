@@ -331,6 +331,9 @@ namespace moris::gen
     void
     Surface_Mesh_Geometry::import_advs( sol::Dist_Vector* aOwnedADVs )
     {
+        // update the vertex bases
+        this->update_all_vertex_bases();
+
         for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
         {
             // STEP 1: Import advs to field
@@ -366,11 +369,12 @@ namespace moris::gen
                                 iFieldIndex,
                                 iVertexIndex );
 
+                        // BRENDAN
                         PRINT( mVertexBases.get_column( iVertexIndex ) );
 
                         if ( tInterpolatedPerturbation > 0 or tInterpolatedPerturbation < 0 )
                         {
-                            std::cout << "something interesting is happening.\n";
+                            std::cout << "Vertex Index: " << iVertexIndex << "Element Index: " << tElementIndex << "Field Index " << iFieldIndex << " Perturbation " << tInterpolatedPerturbation << std::endl;
                         }
 
                         // Displace the vertex by the total perturbation
@@ -382,7 +386,6 @@ namespace moris::gen
 
         // STEP 3: update all facet data
         this->Object::update_all_facets();
-        this->update_all_vertex_bases();
     }
 
     //--------------------------------------------------------------------------------------------------------------
