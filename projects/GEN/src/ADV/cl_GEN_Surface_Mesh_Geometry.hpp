@@ -385,12 +385,12 @@ namespace moris::gen
          *
          * @param aBackgroundElement The background element in which the point resides
          * @param aFieldIndex        The perturbation field index (spatial dimension)
-         * @param aBasis  The basis functions at the point
+         * @param aBasis  The facet vertex to perturb
          * @return real
          */
         real interpolate_perturbation_from_background_element(
                 mtk::Cell*              aBackgroundElement,
                 uint                    aFieldIndex,
-                const Matrix< DDRMat >& aBasis );
+                uint aFacetVertexIndex );
     };
 }    // namespace moris::gen

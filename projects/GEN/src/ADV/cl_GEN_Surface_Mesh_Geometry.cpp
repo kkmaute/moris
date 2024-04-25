@@ -353,12 +353,9 @@ namespace moris::gen
                 // Move vertex if needed
                 if ( tVertexShouldPerturb )
                 {
-                    Matrix< DDRMat > tVertexParametricCoordinates( Object::mDimension, 1 );
-
                     // Determine which element this vertex lies in, will be the same for every field
                     // FIXME: this is determined at construction but not stored. Could be stored to remove this
-                    int tElementIndex = this->find_background_element_from_global_coordinates(
-                            Object::mVertices( iVertexIndex )->get_coords() );
+                    int tElementIndex = this->find_background_element_from_global_coordinates( Object::mVertices( iVertexIndex )->get_coords() );
 
                     // check if the node is inside the mesh domain
                     if ( tElementIndex != -1 )
@@ -367,7 +364,12 @@ namespace moris::gen
                         real tInterpolatedPerturbation = this->interpolate_perturbation_from_background_element(
                                 &mMesh->get_mtk_cell( tElementIndex ),
                                 iFieldIndex,
-                                mVertexBases.get_column( iVertexIndex ) );
+                                iVertexIndex  );
+
+                        if( tInterpolatedPerturbation > 0 )
+                        {
+                            std::cout << "something interesting is happening.\n";
+                        }
 
                         // Displace the vertex by the total perturbation
                         Object::mVertices( iVertexIndex )->set_node_coord( mOriginalVertexCoordinates( iVertexIndex )( iFieldIndex ) + tInterpolatedPerturbation, iFieldIndex );
@@ -881,7 +883,7 @@ namespace moris::gen
     real Surface_Mesh_Geometry::interpolate_perturbation_from_background_element(
             mtk::Cell*              aBackgroundElement,
             uint                    aFieldIndex,
-            const Matrix< DDRMat >& aBasis )
+            uint aFacetVertexIndex )
     {
         // get the indices and coordinates of the background element vertices
         Matrix< IndexMat > tVertexIndices        = aBackgroundElement->get_vertex_inds();
@@ -896,7 +898,7 @@ namespace moris::gen
             Matrix< DDRMat > tVertexCoordinates( &tAllVertexCoordinates( iBackgroundNodeIndex, 0 ), 0, Object::mDimension );
 
             // add this vertex's field value to the value
-            tPerturbation += aBasis( iBackgroundNodeIndex ) * mPerturbationFields( aFieldIndex )->get_field_value( tVertexIndices( iBackgroundNodeIndex ), tVertexCoordinates );
+            tPerturbation += mVertexBases.get_column( aFacetVertexIndex )( iBackgroundNodeIndex ) * mPerturbationFields( aFieldIndex )->get_field_value( tVertexIndices( iBackgroundNodeIndex ), tVertexCoordinates );
         }
 
         return tPerturbation;

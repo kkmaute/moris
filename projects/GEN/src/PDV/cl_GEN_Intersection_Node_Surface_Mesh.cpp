@@ -145,8 +145,8 @@ namespace moris::gen
 
         Matrix< DDRMat > tdCenterdVertices = 2.0 / ( (real)mInterfaceGeometry.get_dimension() * tParentVectorNorm ) * tRotationMatrix;
 
-        return join_rows( ( tdNormalPrimedVertex1 * tCenterPrime + tdCenterdVertices * tNormalPrime ) * tNormalPrime( 0 ) - trans( tdNormalPrimedVertex1.get_row( 0 ) ) * dot( tNormalPrime, tCenterPrime ),
-                ( tdNormalPrimedVertex2 * tCenterPrime + tdCenterdVertices * tNormalPrime ) * tNormalPrime( 0 ) - trans( tdNormalPrimedVertex2.get_row( 0 ) ) * dot( tNormalPrime, tCenterPrime ) );
+        return join_rows( ( 1 / std::pow(tNormalPrime( 0 ), 2 ) ) * (( tdNormalPrimedVertex1 * tCenterPrime + tdCenterdVertices * tNormalPrime ) * tNormalPrime( 0 ) - trans( tdNormalPrimedVertex1.get_row( 0 ) ) * dot( tNormalPrime, tCenterPrime )),
+                ( 1 / std::pow( tNormalPrime( 0 ), 2 ) ) * (( tdNormalPrimedVertex2 * tCenterPrime + tdCenterdVertices * tNormalPrime ) * tNormalPrime( 0 ) - trans( tdNormalPrimedVertex2.get_row( 0 ) ) * dot( tNormalPrime, tCenterPrime ) ) );
     }
 
     //--------------------------------------------------------------------------------------------------------------
