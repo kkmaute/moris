@@ -100,7 +100,17 @@ namespace moris::mtk
             {
                 // Simply use an arbitrary cluster from another set... since this cluster will never be actually evaluated, it does not matter which one we use.
                 Cluster const *tLeaderCluster = mSideSets( tSourceMeshIndex )->get_clusters_by_index( tSourceClusterIndex );
-                uint const     tDummySetIndex = tSourceMeshIndex == 0 ? mSideSets.size() - 1 : 0;
+
+                // To get a dummy set index, we take the first that would be valid based on the candidate pairings.
+                int tDummySetIndex = -1;
+                for ( auto const &[tCandidateSource, tCandidateTarget ] : mCandidatePairs){
+                    if (tCandidateSource == tSourceMeshIndex){
+                        tDummySetIndex = tCandidateTarget;
+                        break;
+                    }
+                }
+                MORIS_ASSERT(tDummySetIndex != -1, "Could not find a valid dummy set index for the nonconformal side cluster!");
+
                 Cluster const *tDummyCluster  = mSideSets( tDummySetIndex )->get_clusters_on_set()( 0 );
                 SetPair const  tSetPair       = std::make_pair( tSourceMeshIndex, tDummySetIndex );
                 tNonconformalSideClusters[ tSetPair ].emplace_back(
