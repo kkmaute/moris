@@ -21,7 +21,7 @@ namespace moris
 {
     // Variant typedef
     typedef std::variant< bool, uint, sint, real, std::string, std::pair< std::string, std::string >,
-            Vector< uint >, Vector< real >, Design_Variable > Variant;
+            Vector< uint >, Vector< real >, Vector< std::string >, Design_Variable > Variant;
 
     /**
      * Gets the name of a data type stored in the Variant, for printing purposes.
@@ -45,6 +45,7 @@ namespace moris
     GET_TYPE_NAME( std::pair< std::string, std::string > )
     GET_TYPE_NAME( Vector< uint > )
     GET_TYPE_NAME( Vector< real > )
+    GET_TYPE_NAME( Vector< std::string > )
     GET_TYPE_NAME( Design_Variable )
 
     /**
@@ -82,7 +83,8 @@ namespace moris
     }
 
     // Declare template specializations making variants
-    template<> Variant make_variant( std::string aParameter );
-    template<> Variant make_variant( std::pair< std::string, std::string > aParameterValue );
-    template<> Variant make_variant( const char* aParameterValue );
+    template<> Variant make_variant( std::string );
+    template<> Variant make_variant( std::pair< std::string, std::string > );
+    template<> Variant make_variant( const char* );
+    template<> Variant make_variant( Vector< const char* > );
 }

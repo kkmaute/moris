@@ -75,6 +75,11 @@ namespace moris
             }
             case 8:
             {
+                vector_variant_to_string< std::string >( tStringStream, aVariant );
+                break;
+            }
+            case 9:
+            {
                 Design_Variable tDesignVariable = std::get< Design_Variable >( aVariant );
                 if ( tDesignVariable.is_constant() )
                 {
@@ -99,11 +104,11 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
     
     template<>
-    Variant make_variant( std::string aParameter )
+    Variant make_variant( std::string aParameterValue )
     {
         // remove whitespaces from string
-        split_trim_string( aParameter, ",;" );
-        return aParameter;
+        split_trim_string( aParameterValue, ",;" );
+        return aParameterValue;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -131,6 +136,21 @@ namespace moris
         // Convert to a string
         std::string tString( aParameterValue );
         return make_variant( tString );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    template<>
+    Variant make_variant( Vector< const char* > aParameterValue )
+    {
+        // Convert to a vector of strings
+        Vector< std::string > tStringVector;
+        tStringVector.reserve( aParameterValue.size() );
+        for ( auto iChar : aParameterValue )
+        {
+            tStringVector.push_back( iChar );
+        }
+        return make_variant( tStringVector );
     }
     
     //--------------------------------------------------------------------------------------------------------------

@@ -99,8 +99,10 @@ namespace moris
     // Type validators with vectors as their template arguments are defined as vector validators
     template class Vector_Validator< uint >;
     template class Vector_Validator< real >;
+    template class Vector_Validator< std::string >;
     template<> class Type_Validator< Vector< uint > > : public Vector_Validator< uint >{};
     template<> class Type_Validator< Vector< real > > : public Vector_Validator< real >{};
+    template<> class Type_Validator< Vector< std::string > > : public Vector_Validator< std::string >{};
 
     //--------------------------------------------------------------------------------------------------------------
 
