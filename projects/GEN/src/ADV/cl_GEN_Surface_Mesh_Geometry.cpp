@@ -347,16 +347,12 @@ namespace moris::gen
                 // Move vertex if needed
                 if ( tVertexShouldPerturb )
                 {
-                    // Initialize a bounding box
-                    Vector< Vector< real > > tElementBoundingBox( 2, Vector< real >( Object::mDimension ) );
-
                     Matrix< DDRMat > tVertexParametricCoordinates( Object::mDimension, 1 );
 
                     // Determine which element this vertex lies in, will be the same for every field
                     // FIXME: this is determined at construction but not stored. Could be stored to remove this
                     int tElementIndex = this->find_background_element_from_global_coordinates(
-                            Object::mVertices( iVertexIndex )->get_coords(),
-                            tElementBoundingBox );
+                            Object::mVertices( iVertexIndex )->get_coords() );
 
                     // check if the node is inside the mesh domain
                     if ( tElementIndex != -1 )
@@ -448,19 +444,17 @@ namespace moris::gen
             // Compute the bases for all vertices
             for ( uint iVertexIndex = 0; iVertexIndex < Object::mVertices.size(); iVertexIndex++ )
             {
-                // Initialize a bounding box
-                Vector< Vector< real > > tElementBoundingBox( 2, Vector< real >( Object::mDimension ) );
-
                 Matrix< DDRMat > tVertexParametricCoordinates( Object::mDimension, 1 );
 
                 // Determine which element this vertex lies in, will be the same for every field
-                int tElementIndex = this->find_background_element_from_global_coordinates(
-                        Object::mVertices( iVertexIndex )->get_coords(),
-                        tElementBoundingBox );
+                int tElementIndex = this->find_background_element_from_global_coordinates( Object::mVertices( iVertexIndex )->get_coords() );
 
                 // check if the node is inside the mesh domain
                 if ( tElementIndex != -1 )
                 {
+                    // Get the bounding box for this element
+                    Vector< Vector< real > > tElementBoundingBox = this->determine_mtk_cell_bounding_box( tElementIndex );
+
                     // determine the local coordinates of the vertex inside the mtk::Cell
                     for ( uint iDimensionIndex = 0; iDimensionIndex < Object::mDimension; iDimensionIndex++ )
                     {
@@ -583,14 +577,43 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    bool
+    Surface_Mesh_Geometry::facet_vertex_depends_on_advs( uint aFacetVertexIndex )
+    {
+        // BRENDAN
+        if ( aFacetVertexIndex == 1 )
+        {
+            std::cout << "this should be true\n";
+        }
+
+        // check if this node was specified to be fixed
+        for ( auto iFacetVertex : mParameters.mFixedVertexIndices )
+        {
+            if ( aFacetVertexIndex == iFacetVertex )
+            {
+                return false;
+            }
+        }
+
+        // check if this node is inside the mesh domain
+        moris_index tElementIndex = this->find_background_element_from_global_coordinates( Object::mVertices( aFacetVertexIndex )->get_coords() );
+
+        // No ADV dependency if the vertex is outside the mesh
+        if ( tElementIndex == -1 )
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     Matrix< DDRMat >
     Surface_Mesh_Geometry::get_dvertex_dadv( uint aFacetVertexIndex )
     {
         // Get the element index of this vertex
-        Vector< Vector< real > > tElementBoundingBox( 2, Vector< real >( Object::mDimension ) );
-        moris_index              tElementIndex = this->find_background_element_from_global_coordinates(
-                Object::mVertices( aFacetVertexIndex )->get_coords(),
-                tElementBoundingBox );
+        moris_index tElementIndex = this->find_background_element_from_global_coordinates( Object::mVertices( aFacetVertexIndex )->get_coords() );
 
         // Get the mtk cell the vertex lies in
         mtk::Cell* tBackgroundElement = &mMesh->get_mtk_cell( tElementIndex );
@@ -608,7 +631,7 @@ namespace moris::gen
             // Loop over background nodes
             for ( uint iNodeIndex = 0; iNodeIndex < tVertexCoordinates.n_rows(); iNodeIndex++ )
             {
-                Matrix< DDRMat > tNodeSensitivity = mVertexBases( aFacetVertexIndex, iNodeIndex ) * mPerturbationFields( iDimensionIndex )->get_dfield_dadvs( tVertexIndices( iNodeIndex ), tVertexCoordinates.get_row( iNodeIndex ) );
+                Matrix< DDRMat > tNodeSensitivity = mVertexBases( iNodeIndex, aFacetVertexIndex ) * mPerturbationFields( iDimensionIndex )->get_dfield_dadvs( tVertexIndices( iNodeIndex ), tVertexCoordinates.get_row( iNodeIndex ) );
                 // set size of vertex sensitivity matrix
                 if ( iDimensionIndex == 0 and iNodeIndex == 0 )
                 {
@@ -634,10 +657,7 @@ namespace moris::gen
         Matrix< DDSMat > tVertexADVIds;
 
         // Get the element index of this vertex
-        Vector< Vector< real > > tElementBoundingBox( 2, Vector< real >( Object::mDimension ) );
-        moris_index              tElementIndex = this->find_background_element_from_global_coordinates(
-                Object::mVertices( aFacetVertexIndex )->get_coords(),
-                tElementBoundingBox );
+        moris_index tElementIndex = this->find_background_element_from_global_coordinates( Object::mVertices( aFacetVertexIndex )->get_coords() );
 
         // Get the mtk cell the vertex lies in
         mtk::Cell* tBackgroundElement = &mMesh->get_mtk_cell( tElementIndex );
@@ -760,43 +780,59 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    Vector< Vector< real > >
+    Surface_Mesh_Geometry::determine_mtk_cell_bounding_box( uint aElementIndex )
+    {
+        // Initialize a bounding box
+        Vector< Vector< real > > tBoundingBox( 2, Vector< real >( Object::mDimension ) );
+
+        Matrix< DDRMat > tCurrentSearchElementVertexCoordinates = mMesh->get_mtk_cell( aElementIndex ).get_vertex_coords();
+
+        // Build bounding box, set the box as the coordinates for the first vertex
+        for ( uint iDimensionIndex = 0; iDimensionIndex < tCurrentSearchElementVertexCoordinates.n_cols(); iDimensionIndex++ )
+        {
+            tBoundingBox( 0 )( iDimensionIndex ) = tCurrentSearchElementVertexCoordinates( 0, iDimensionIndex );
+            tBoundingBox( 1 )( iDimensionIndex ) = tCurrentSearchElementVertexCoordinates( 0, iDimensionIndex );
+
+            // Loop over the rest of the vertices
+            for ( uint iVertexIndex = 1; iVertexIndex < tCurrentSearchElementVertexCoordinates.n_rows(); iVertexIndex++ )
+            {
+                // check if the entry is less than the minimum
+                if ( tCurrentSearchElementVertexCoordinates( iVertexIndex, iDimensionIndex ) < tBoundingBox( 0 )( iDimensionIndex ) )
+                {
+                    tBoundingBox( 0 )( iDimensionIndex ) = tCurrentSearchElementVertexCoordinates( iVertexIndex, iDimensionIndex );
+                }
+                // check if the entry is greater than the maximum
+                if ( tCurrentSearchElementVertexCoordinates( iVertexIndex, iDimensionIndex ) > tBoundingBox( 1 )( iDimensionIndex ) )
+                {
+                    tBoundingBox( 1 )( iDimensionIndex ) = tCurrentSearchElementVertexCoordinates( iVertexIndex, iDimensionIndex );
+                }
+            }
+        }
+
+        return tBoundingBox;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     moris_index
-    Surface_Mesh_Geometry::find_background_element_from_global_coordinates(
-            const Matrix< DDRMat >&   aCoordinate,
-            Vector< Vector< real > >& aBoundingBox )
+    Surface_Mesh_Geometry::find_background_element_from_global_coordinates( const Matrix< DDRMat >& aCoordinate )
     {
         // Loop through each mtk::Cell
         for ( uint iCellIndex = 0; iCellIndex < mMesh->get_num_elems(); iCellIndex++ )
         {
-            // Determine if the coordinate is in the bounding box
+            // get this Cell's bounding box
+            Vector< Vector< real > > tBoundingBox = this->determine_mtk_cell_bounding_box( iCellIndex );
+
+            // assume the point is in this bounding box
             bool tCoordinateInCell = true;
 
-            Matrix< DDRMat > tCurrentSearchElementVertexCoordinates = mMesh->get_mtk_cell( iCellIndex ).get_vertex_coords();
-
-            // Build bounding box, set the box as the coordinates for the first vertex
-            for ( uint iDimensionIndex = 0; iDimensionIndex < tCurrentSearchElementVertexCoordinates.n_cols(); iDimensionIndex++ )
+            // Loop over the bounding box and determine if this is true
+            for ( uint iDimensionIndex = 0; iDimensionIndex < Object::mDimension; iDimensionIndex++ )
             {
-                aBoundingBox( 0 )( iDimensionIndex ) = tCurrentSearchElementVertexCoordinates( 0, iDimensionIndex );
-                aBoundingBox( 1 )( iDimensionIndex ) = tCurrentSearchElementVertexCoordinates( 0, iDimensionIndex );
-
-                // Loop over the rest of the vertices
-                for ( uint iVertexIndex = 1; iVertexIndex < tCurrentSearchElementVertexCoordinates.n_rows(); iVertexIndex++ )
-                {
-                    // check if the entry is less than the minimum
-                    if ( tCurrentSearchElementVertexCoordinates( iVertexIndex, iDimensionIndex ) < aBoundingBox( 0 )( iDimensionIndex ) )
-                    {
-                        aBoundingBox( 0 )( iDimensionIndex ) = tCurrentSearchElementVertexCoordinates( iVertexIndex, iDimensionIndex );
-                    }
-                    // check if the entry is greater than the maximum
-                    if ( tCurrentSearchElementVertexCoordinates( iVertexIndex, iDimensionIndex ) > aBoundingBox( 1 )( iDimensionIndex ) )
-                    {
-                        aBoundingBox( 1 )( iDimensionIndex ) = tCurrentSearchElementVertexCoordinates( iVertexIndex, iDimensionIndex );
-                    }
-                }
-
-                // check if the point is outside the bounding box
-                if ( aCoordinate( iDimensionIndex ) < aBoundingBox( 0 )( iDimensionIndex )
-                        or aCoordinate( iDimensionIndex ) > aBoundingBox( 1 )( iDimensionIndex ) )
+                // check if the point is outside the bounding box in this dimension
+                if ( aCoordinate( iDimensionIndex ) < tBoundingBox( 0 )( iDimensionIndex )
+                        or aCoordinate( iDimensionIndex ) > tBoundingBox( 1 )( iDimensionIndex ) )
                 {
                     tCoordinateInCell = false;
                 }

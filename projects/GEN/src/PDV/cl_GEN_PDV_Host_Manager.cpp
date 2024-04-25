@@ -670,12 +670,6 @@ namespace moris::gen
 
                 Matrix< DDSMat > tADVIds = mNodeManager.get_coordinate_determining_adv_ids_from_derived_node( iNodeIndex );
 
-                // BRENDAN
-                if ( tADVIds.numel() == 10 )
-                {
-                    std::cout << "here's where the problem is\n";
-                }
-
                 mNodeManager.append_dcoordinate_dadv_from_derived_node( iNodeIndex, tHostADVSensitivities, tI );
 
 

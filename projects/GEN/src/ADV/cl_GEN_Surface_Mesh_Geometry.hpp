@@ -302,16 +302,28 @@ namespace moris::gen
         }
 
         /**
+         * Determines if the requested facet vertex depends on ADVs or not
+         *
+         * @param aFacetVertexIndex the index of the facet vertex that is queried
+         * @return true if the vertex's index is not in mParameters.mFixedVertexIndices and the node's position is within the boundaries of the mesh
+         * @return false if either of the above conditions are true
+         */
+        bool facet_vertex_depends_on_advs( uint aFacetVertexIndex );
+
+        /**
          * Computes and returns the sensitivity of a facet vertex with respect to the ADVs
+         * NOTE: This function assumes that the facet vertex depends on ADVs. Check this with facet_vertex_depends_on_advs() if unsure
          *
          * @return Matrix< DDRMat >
          */
         Matrix< DDRMat > get_dvertex_dadv( uint aFacetVertexIndex );
 
         /**
-         * Gets the ADV IDs that the facet vertex depends on. 
+         * Gets the ADV IDs that the facet vertex depends on.
          * These are the ADVs that control the bspline field value in the background element that the vertex lies in.
-         * 
+         * NOTE: This function assumes that the facet vertex depends on ADVs. Check this with facet_vertex_depends_on_advs() if unsure
+         *
+         *
          * @param aFacetVertexIndex Vertex index of the surface mesh
          * @return Matrix< DDSMat > ADV IDs that the vertex depends on
          */
@@ -347,8 +359,15 @@ namespace moris::gen
          * @return Index of the element in which aCoordinates resides. If no element is found, -1 is returned
          */
         moris_index find_background_element_from_global_coordinates(
-                const Matrix< DDRMat >&   aCoordinate,
-                Vector< Vector< real > >& aBoundingBox );
+                const Matrix< DDRMat >& aCoordinate );
+
+        /**
+         * Gets the bounding box of a requested mtk::Cell
+         *
+         * @param aElementIndex the mtk::Cell index of which to get the bounding box
+         * @return Vector< Vector< real > > 2 x dim 2D vector. First index is the minimum second is the maximum for each dimension
+         */
+        Vector< Vector< real > > determine_mtk_cell_bounding_box( uint aElementIndex );
 
         /**
          * @brief Computes the basis functions at a given point in the background element.
