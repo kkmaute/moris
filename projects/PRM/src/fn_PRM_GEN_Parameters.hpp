@@ -81,7 +81,6 @@ namespace moris::prm
             switch ( aFieldType )
             {
                 case gen::Field_Type::NONE:
-                    // TODO Right now this isn't possible. In the future, make this an assignable field
                     break;
                 case gen::Field_Type::CONSTANT:
                 case gen::Field_Type::LINE:
@@ -94,7 +93,7 @@ namespace moris::prm
                 case gen::Field_Type::SCALED_FIELD:
                 case gen::Field_Type::COMBINED_FIELDS:
                 {
-                    aParameterList.insert( "dependencies", "" );    // Names of other fields that this field depends on
+                    aParameterList.insert( "dependencies", Vector< std::string >() );    // Names of other fields that this field depends on
                     break;
                 }
                 case gen::Field_Type::NODAL:

@@ -803,7 +803,7 @@ namespace moris::gen
         tParameterLists( 1 ).set( "name", "Circle 2" );
 
         tParameterLists( 2 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::COMBINED_FIELDS );
-        tParameterLists( 2 ).set( "dependencies", "Circle 1, Circle 2" );
+        tParameterLists( 2 ).set( "dependencies", "Circle 1", "Circle 2" );
 
         // Create combined fields
         Vector< real > tADVs = { 0.0, 1.0, 2.0, 1.0, 2.0 };

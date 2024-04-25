@@ -85,8 +85,7 @@ namespace moris::gen
                 if ( iParameterList.exists( "dependencies" ) )
                 {
                     // Get field dependency names
-                    Vector< std::string > tDependencyNames =
-                            string_to_cell< std::string >( iParameterList.get< std::string >( "dependencies" ) );
+                    Vector< std::string > tDependencyNames = iParameterList.get< Vector< std::string > >( "dependencies" );
 
                     // Resize dependencies
                     tDependencyFields.resize( tDependencyNames.size() );
