@@ -162,24 +162,24 @@ namespace moris
     class Selection_Validator : public Validator
     {
       private:
-        std::set< T > mValidValues;
+        std::set< T > mValidSelections;
 
       public:
         /**
          * A selection validator checks inputs to ensure the value is one of the given selections.
          *
          * @param aTypeIndex Variant type index
-         * @param aValidValues Valid values for this parameter
+         * @param aValidSelections Valid values for this parameter
          */
-        Selection_Validator( const std::set< T >& aValidValues );
+        Selection_Validator( const std::set< T >& aValidSelections );
 
         VALIDATOR_OVERRIDES
     };
 
     template< typename T >
     Selection_Validator< T >::Selection_Validator(
-            const std::set< T >& aValidValues )
-            : mValidValues( aValidValues )
+            const std::set< T >& aValidSelections )
+            : mValidSelections( aValidSelections )
     {
     }
 

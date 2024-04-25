@@ -116,7 +116,7 @@ namespace moris
     bool Selection_Validator< T >::make_valid_parameter( Variant& aVariant )
     {
         return aVariant.index() == get_variant_index< T >() and
-               mValidValues.find( std::get< T >( aVariant ) ) != mValidValues.end();
+               mValidSelections.find( std::get< T >( aVariant ) ) != mValidSelections.end();
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -128,15 +128,15 @@ namespace moris
         using namespace std;
 
         // Create string from the set of valid values
-        std::string tValidValueString;
-        for ( auto iValue : mValidValues )
+        std::string tValidSelectionString;
+        for ( auto iValue : mValidSelections )
         {
-            tValidValueString += ", " + to_string( iValue );
+            tValidSelectionString += ", " + to_string( iValue );
         }
-        tValidValueString.erase( 0, 2 );
+        tValidSelectionString.erase( 0, 2 );
 
         // Return string
-        return tValidValueString;
+        return tValidSelectionString;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -144,7 +144,7 @@ namespace moris
     template< typename T >
     Validator* Selection_Validator< T >::copy()
     {
-        return new Selection_Validator( mValidValues );
+        return new Selection_Validator( mValidSelections );
     }
 
     //--------------------------------------------------------------------------------------------------------------

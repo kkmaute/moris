@@ -62,16 +62,16 @@ namespace moris
          *
          * @tparam T Input parameter type
          * @param aParameterValue Default value
-         * @param aValidValues Set of valid values
+         * @param aValidSelections Set of valid values
          */
         template< typename T >
-        Parameter( T aParameterValue, const std::set< T >& aValidValues )
+        Parameter( T aParameterValue, const std::set< T >& aValidSelections )
         {
             // Set default value without validation
             mValue = make_variant( aParameterValue );
 
             // Create selection validator
-            mValidator = new Selection_Validator( aValidValues );
+            mValidator = new Selection_Validator( aValidSelections );
         }
 
         /**

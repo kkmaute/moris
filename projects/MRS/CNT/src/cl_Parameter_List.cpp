@@ -19,7 +19,7 @@ namespace moris
     void Parameter_List::insert(
             const std::string&             aName,
             const std::string&             aDefaultValue,
-            const std::set< std::string >& aValidValues )
+            const std::set< std::string >& aValidSelections )
     {
         // Check for leading and trailing whitespaces in key
         std::string tKeyWithoutSpaces = aName;
@@ -28,7 +28,7 @@ namespace moris
                 "Param_List::insert - key contains whitespaces" );
 
         // Insert new value
-        Parameter tParameter( aDefaultValue, aValidValues );
+        Parameter tParameter( aDefaultValue, aValidSelections );
         mParamMap.insert( { aName, tParameter } );
     }
 
