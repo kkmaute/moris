@@ -21,9 +21,8 @@ namespace moris::gen
             real aYSemidiameter,
             real aExponent,
             real aScaling,
-            real aRegularization,
-            real aShift )
-            : Field_Analytic< 2 >( { aXCenter, aYCenter, aXSemidiameter, aYSemidiameter, aExponent, aScaling, aRegularization, aShift } )
+            real aRegularization )
+            : Field_Analytic< 2 >( { aXCenter, aYCenter, aXSemidiameter, aYSemidiameter, aExponent, aScaling, aRegularization } )
     {
         MORIS_ERROR( mADVManager.get_variable( 2 ) > 0 and mADVManager.get_variable( 3 ) > 0,
                 "A GEN Super-ellipse must be created with positive semi-diameters.");
@@ -44,7 +43,6 @@ namespace moris::gen
         real tExponent       = mADVManager.get_variable( 4 );
         real tScaling        = mADVManager.get_variable( 5 );
         real tRegularization = mADVManager.get_variable( 6 );
-        real tShift          = mADVManager.get_variable( 7 );
 
         // Evaluate field
         real tConstant = pow(
@@ -53,12 +51,6 @@ namespace moris::gen
                 pow( tRegularization                             , tExponent), 1.0 / tExponent) - tRegularization;
 
         real tLevelset = tScaling * (tConstant - 1.0);
-
-        // Ensure that level set value is not approx. zero at evaluation point
-        if ( std::abs(tLevelset) < tShift)
-        {
-            tLevelset += tLevelset < 0.0 ? -tShift : tShift;
-        }
 
         return tLevelset;
     }
@@ -96,7 +88,6 @@ namespace moris::gen
         mSensitivities(4) = MORIS_REAL_MAX;
         mSensitivities(5) = MORIS_REAL_MAX;
         mSensitivities(6) = MORIS_REAL_MAX;
-        mSensitivities(7) = MORIS_REAL_MAX;
 
         return mSensitivities;
     }

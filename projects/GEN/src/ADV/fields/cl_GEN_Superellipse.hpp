@@ -47,8 +47,7 @@ namespace moris::gen
                 real aYSemidiameter,
                 real aExponent,
                 real aScaling,
-                real aRegularization,
-                real aShift );
+                real aRegularization );
 
         /**
          * Given a node coordinate, returns the field value.
