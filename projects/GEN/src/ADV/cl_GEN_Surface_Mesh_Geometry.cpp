@@ -369,13 +369,10 @@ namespace moris::gen
                                 iFieldIndex,
                                 iVertexIndex );
 
-                        // BRENDAN
-                        PRINT( mVertexBases.get_column( iVertexIndex ) );
-
-                        if ( tInterpolatedPerturbation > 0 or tInterpolatedPerturbation < 0 )
-                        {
-                            std::cout << "Vertex Index: " << iVertexIndex << "Element Index: " << tElementIndex << "Field Index " << iFieldIndex << " Perturbation " << tInterpolatedPerturbation << std::endl;
-                        }
+                        // if ( tInterpolatedPerturbation > 0 or tInterpolatedPerturbation < 0 )
+                        // {
+                        //     std::cout << "Vertex Index: " << iVertexIndex << "Element Index: " << tElementIndex << "Field Index " << iFieldIndex << " Perturbation " << tInterpolatedPerturbation << std::endl;
+                        // }
 
                         // Displace the vertex by the total perturbation
                         Object::mVertices( iVertexIndex )->set_node_coord( mOriginalVertexCoordinates( iVertexIndex )( iFieldIndex ) + tInterpolatedPerturbation, iFieldIndex );
@@ -873,11 +870,17 @@ namespace moris::gen
                 // Determine which element this vertex lies in, will be the same for every field
                 int tElementIndex = this->find_background_element_from_global_coordinates( Object::mVertices( iVertexIndex )->get_coords() );
 
-                // check if the node is inside the mesh domain
+                // check if the vertex is inside the mesh domain
                 if ( tElementIndex != -1 )
                 {
                     // Get the bounding box for this element
                     Vector< Vector< real > > tElementBoundingBox = this->determine_mtk_cell_bounding_box( tElementIndex );
+
+                    std::cout << "Element Index: " << tElementIndex << std::endl;
+                    std::cout << "bounding box(0,0)" << tElementBoundingBox( 0 )( 0 ) << std::endl;
+                    std::cout << "bounding box(0,1)" << tElementBoundingBox( 0 )( 1 ) << std::endl;
+                    std::cout << "bounding box(1,0)" << tElementBoundingBox( 1 )( 0 ) << std::endl;
+                    std::cout << "bounding box(1,1)" << tElementBoundingBox( 1 )( 1 ) << std::endl;
 
                     // determine the local coordinates of the vertex inside the mtk::Cell
                     for ( uint iDimensionIndex = 0; iDimensionIndex < Object::mDimension; iDimensionIndex++ )
