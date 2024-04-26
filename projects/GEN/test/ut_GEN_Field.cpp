@@ -266,11 +266,11 @@ namespace moris::gen
     {
         // Set up geometry
         Parameter_List tSuperellipseParameterList = prm::create_level_set_geometry_parameter_list( gen::Field_Type::SUPERELLIPSE );
-        tSuperellipseParameterList.set( "field_variable_indices", 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u );
-        tSuperellipseParameterList.set( "adv_indices", 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u );
+        tSuperellipseParameterList.set( "field_variable_indices", 0u, 1u, 2u, 3u, 4u, 5u, 6u );
+        tSuperellipseParameterList.set( "adv_indices", 0u, 1u, 2u, 3u, 4u, 5u, 6u );
 
         // Create circles
-        Vector< real >                        tADVs = { { 3.0, 4.0, 1.0, 2.0, 2.0, 1.0, 0.0, 0.0 } };
+        Vector< real >                        tADVs = { { 3.0, 4.0, 1.0, 2.0, 2.0, 1.0, 0.0 } };
         Design_Factory                        tDesignFactory( { tSuperellipseParameterList }, tADVs );
         std::shared_ptr< Level_Set_Geometry > tSuperellipse = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
 
@@ -293,7 +293,6 @@ namespace moris::gen
                         -3.535533905932738e-01,    //
                         MORIS_REAL_MAX,
                         MORIS_REAL_MAX,
-                        MORIS_REAL_MAX,
                         MORIS_REAL_MAX } } ), );
 
         CHECK_EQUAL( tSuperellipse->get_dfield_dadvs( 0, tCoordinates1 ),
@@ -302,7 +301,6 @@ namespace moris::gen
                         5.000000000000000e-01,
                         -0.000000000000000e+00,
                         -2.500000000000000e-01,
-                        MORIS_REAL_MAX,
                         MORIS_REAL_MAX,
                         MORIS_REAL_MAX,
                         MORIS_REAL_MAX } } ), );
@@ -315,11 +313,10 @@ namespace moris::gen
                         -0.000000000000000e+00,
                         MORIS_REAL_MAX,
                         MORIS_REAL_MAX,
-                        MORIS_REAL_MAX,
                         MORIS_REAL_MAX } } ), );
 
         // Change ADVs and coordinates
-        tADVs         = { { 2.0, 1.0, 4.0, 3.0, 4.0, 1.0, 0.0, 0.0 } };
+        tADVs         = { { 2.0, 1.0, 4.0, 3.0, 4.0, 1.0, 0.0 } };
         tCoordinates0 = { { -2.0, 1.0 } };
         tCoordinates1 = { { 0.0, 2.5 } };
         tCoordinates2 = { { 2.0, 5.0 } };
@@ -338,7 +335,6 @@ namespace moris::gen
                         0.0,
                         MORIS_REAL_MAX,
                         MORIS_REAL_MAX,
-                        MORIS_REAL_MAX,
                         MORIS_REAL_MAX } } ), );
 
         CHECK_EQUAL( tSuperellipse->get_dfield_dadvs( 0, tCoordinates1 ),
@@ -349,7 +345,6 @@ namespace moris::gen
                         -pow( 2.0, -0.75 ) / 6.0,
                         MORIS_REAL_MAX,
                         MORIS_REAL_MAX,
-                        MORIS_REAL_MAX,
                         MORIS_REAL_MAX } } ), );
 
         CHECK_EQUAL( tSuperellipse->get_dfield_dadvs( 0, tCoordinates2 ),
@@ -358,7 +353,6 @@ namespace moris::gen
                         -1.0 / 3.0,
                         0.0,
                         -4.0 / 9.0,
-                        MORIS_REAL_MAX,
                         MORIS_REAL_MAX,
                         MORIS_REAL_MAX,
                         MORIS_REAL_MAX } } ), );
@@ -940,7 +934,7 @@ namespace moris::gen
             tSwissCheeseParameterList.set( "minimum_spacing_y", 2.5 );
             tSwissCheeseParameterList.set( "field_variable_indices", 2u, 3u );
             tSwissCheeseParameterList.set( "adv_indices", 0u, 1u );
-            tSwissCheeseParameterList.set( "constant_parameters", 0.0, 0.0, 4.0, 1.0, 0.0, 0.0 );
+            tSwissCheeseParameterList.set( "constant_parameters", 0.0, 0.0, 4.0, 1.0, 0.0 );
 
             // Create swiss cheese
             Vector< real >                        tADVs = { { 0.3, 1.0 } };
