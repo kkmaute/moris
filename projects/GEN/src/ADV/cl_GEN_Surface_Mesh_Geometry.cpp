@@ -54,6 +54,7 @@ namespace moris::gen
             , mNodeManager( &aNodeManager )
             , mPerturbationFields( 0 )
             , mVertexBases( 0, 0 )
+            , mVertexBackgroundElementIndices( 0 )
             , mOriginalVertexCoordinates( Object::mVertices.size(), Object::mDimension )
 
     {
@@ -142,6 +143,9 @@ namespace moris::gen
         // Raycast from the point
         sdf::Object_Region tRegion = raycast_point( *this, aNodeCoordinates );
 
+        PRINT( aNodeCoordinates );
+        std::cout << "Region ( 0 out, 1 in, 2 interface ): " << tRegion << std::endl;
+
         switch ( tRegion )
         {
             case sdf::Object_Region::INSIDE:
@@ -176,11 +180,6 @@ namespace moris::gen
             mtk::Interpolation_Order          aBackgroundInterpolationOrder )
     {
         // Determine the local coordinate of the intersection and the facet that intersects the parent edge
-        if ( aFirstParentNode.get_index() == 1 and aSecondParentNode.get_index() == 2 )
-        {
-            std::cout << "this is the intersection to test\n";    // BRENDAN
-        }
-
         sdf::Facet* tParentFacet     = nullptr;
         real        tLocalCoordinate = this->compute_intersection_local_coordinate( aBackgroundNodes, aFirstParentNode, aSecondParentNode, tParentFacet );
 
@@ -331,15 +330,16 @@ namespace moris::gen
     void
     Surface_Mesh_Geometry::import_advs( sol::Dist_Vector* aOwnedADVs )
     {
-        // update the vertex bases
-        this->update_all_vertex_bases();
-
         for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
         {
-            // STEP 1: Import advs to field
+            // STEP 1: Update the vertex bases
+            // FIXME: this should not be done to make the optimization process differentiable, but NOT doing it causes wiggles in the sweep
+            // this->update_all_vertex_bases();
+
+            // STEP 2: Import advs to field
             mPerturbationFields( iFieldIndex )->import_advs( aOwnedADVs );
 
-            // STEP 2: Apply field value to surface mesh nodes
+            // STEP 3: Apply field value to surface mesh nodes
             for ( uint iVertexIndex = 0; iVertexIndex < Object::mVertices.size(); iVertexIndex++ )
             {
                 bool tVertexShouldPerturb = true;
@@ -354,35 +354,19 @@ namespace moris::gen
                 }
 
                 // Move vertex if needed
-                if ( tVertexShouldPerturb )
+                if ( tVertexShouldPerturb and mVertexBackgroundElementIndices( iVertexIndex ) != -1 )
                 {
-                    // Determine which element this vertex lies in, will be the same for every field
-                    // FIXME: this is determined at construction but not stored. Could be stored to remove this
-                    int tElementIndex = this->find_background_element_from_global_coordinates( Object::mVertices( iVertexIndex )->get_coords() );
+                    // Interpolate the bspline field value at the facet vertex location
+                    real tInterpolatedPerturbation = this->interpolate_perturbation_from_background_element(
+                            &mMesh->get_mtk_cell( mVertexBackgroundElementIndices( iVertexIndex ) ),
+                            iFieldIndex,
+                            iVertexIndex );
 
-                    // check if the node is inside the mesh domain
-                    if ( tElementIndex != -1 )
-                    {
-                        // Interpolate the bspline field value at the facet vertex location
-                        real tInterpolatedPerturbation = this->interpolate_perturbation_from_background_element(
-                                &mMesh->get_mtk_cell( tElementIndex ),
-                                iFieldIndex,
-                                iVertexIndex );
-
-                        // if ( tInterpolatedPerturbation > 0 or tInterpolatedPerturbation < 0 )
-                        // {
-                        //     std::cout << "Vertex Index: " << iVertexIndex << "Element Index: " << tElementIndex << "Field Index " << iFieldIndex << " Perturbation " << tInterpolatedPerturbation << std::endl;
-                        // }
-
-                        // Displace the vertex by the total perturbation
-                        Object::mVertices( iVertexIndex )->set_node_coord( mOriginalVertexCoordinates( iVertexIndex )( iFieldIndex ) + tInterpolatedPerturbation, iFieldIndex );
-                    }
+                    // Displace the vertex by the total perturbation
+                    Object::mVertices( iVertexIndex )->set_node_coord( mOriginalVertexCoordinates( iVertexIndex )( iFieldIndex ) + tInterpolatedPerturbation, iFieldIndex );
                 }
             }
         }
-
-        // STEP 3: update all facet data
-        this->Object::update_all_facets();
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -449,7 +433,7 @@ namespace moris::gen
         mMesh = aInterpolationMesh;
 
         // Update the vertex bases with the new mesh
-        this->update_all_vertex_bases();
+        this->update_vertex_basis_data();
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -570,16 +554,7 @@ namespace moris::gen
             }
         }
 
-        // check if this node is inside the mesh domain
-        moris_index tElementIndex = this->find_background_element_from_global_coordinates( Object::mVertices( aFacetVertexIndex )->get_coords() );
-
-        // No ADV dependency if the vertex is outside the mesh
-        if ( tElementIndex == -1 )
-        {
-            return false;
-        }
-
-        return true;
+        return !( mVertexBackgroundElementIndices( aFacetVertexIndex ) == -1);
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -587,11 +562,8 @@ namespace moris::gen
     Matrix< DDRMat >
     Surface_Mesh_Geometry::get_dvertex_dadv( uint aFacetVertexIndex )
     {
-        // Get the element index of this vertex
-        moris_index tElementIndex = this->find_background_element_from_global_coordinates( Object::mVertices( aFacetVertexIndex )->get_coords() );
-
         // Get the mtk cell the vertex lies in
-        mtk::Cell* tBackgroundElement = &mMesh->get_mtk_cell( tElementIndex );
+        mtk::Cell* tBackgroundElement = &mMesh->get_mtk_cell( mVertexBackgroundElementIndices( aFacetVertexIndex ) );
 
         // Get the vertex indices and coordinates of the background element
         Matrix< DDRMat >   tVertexCoordinates = tBackgroundElement->get_vertex_coords();
@@ -631,11 +603,8 @@ namespace moris::gen
         // Initialize matrix to be filled
         Matrix< DDSMat > tVertexADVIds;
 
-        // Get the element index of this vertex
-        moris_index tElementIndex = this->find_background_element_from_global_coordinates( Object::mVertices( aFacetVertexIndex )->get_coords() );
-
         // Get the mtk cell the vertex lies in
-        mtk::Cell* tBackgroundElement = &mMesh->get_mtk_cell( tElementIndex );
+        mtk::Cell* tBackgroundElement = &mMesh->get_mtk_cell( mVertexBackgroundElementIndices( aFacetVertexIndex ) );
 
         // Get the vertex indices and coordinates of the background element
         Matrix< DDRMat >   tVertexCoordinates = tBackgroundElement->get_vertex_coords();
@@ -852,7 +821,7 @@ namespace moris::gen
     }
 
     void
-    Surface_Mesh_Geometry::update_all_vertex_bases()
+    Surface_Mesh_Geometry::update_vertex_basis_data()
     {
         if ( mParameters.mADVIndices.size() > 0 or mParameters.mDiscretizationIndex > -1 )
         {
@@ -860,6 +829,7 @@ namespace moris::gen
             if ( mVertexBases.n_cols() != Object::mVertices.size() )
             {
                 mVertexBases.resize( mMesh->get_mtk_cell( 0 ).get_number_of_vertices(), Object::mVertices.size() );
+                mVertexBackgroundElementIndices.resize( Object::mVertices.size() );
             }
 
             // Compute the bases for all vertices
@@ -868,19 +838,13 @@ namespace moris::gen
                 Matrix< DDRMat > tVertexParametricCoordinates( Object::mDimension, 1 );
 
                 // Determine which element this vertex lies in, will be the same for every field
-                int tElementIndex = this->find_background_element_from_global_coordinates( Object::mVertices( iVertexIndex )->get_coords() );
+                mVertexBackgroundElementIndices( iVertexIndex ) = this->find_background_element_from_global_coordinates( Object::mVertices( iVertexIndex )->get_coords() );
 
                 // check if the vertex is inside the mesh domain
-                if ( tElementIndex != -1 )
+                if ( mVertexBackgroundElementIndices( iVertexIndex ) != -1 )
                 {
                     // Get the bounding box for this element
-                    Vector< Vector< real > > tElementBoundingBox = this->determine_mtk_cell_bounding_box( tElementIndex );
-
-                    std::cout << "Element Index: " << tElementIndex << std::endl;
-                    std::cout << "bounding box(0,0)" << tElementBoundingBox( 0 )( 0 ) << std::endl;
-                    std::cout << "bounding box(0,1)" << tElementBoundingBox( 0 )( 1 ) << std::endl;
-                    std::cout << "bounding box(1,0)" << tElementBoundingBox( 1 )( 0 ) << std::endl;
-                    std::cout << "bounding box(1,1)" << tElementBoundingBox( 1 )( 1 ) << std::endl;
+                    Vector< Vector< real > > tElementBoundingBox = this->determine_mtk_cell_bounding_box( mVertexBackgroundElementIndices( iVertexIndex ) );
 
                     // determine the local coordinates of the vertex inside the mtk::Cell
                     for ( uint iDimensionIndex = 0; iDimensionIndex < Object::mDimension; iDimensionIndex++ )
@@ -891,7 +855,7 @@ namespace moris::gen
                     }
 
                     // Get the basis function values at the vertex location
-                    Matrix< DDRMat > tBasis = this->compute_vertex_basis( &mMesh->get_mtk_cell( tElementIndex ), tVertexParametricCoordinates );
+                    Matrix< DDRMat > tBasis = this->compute_vertex_basis( &mMesh->get_mtk_cell( mVertexBackgroundElementIndices( iVertexIndex ) ), tVertexParametricCoordinates );
                     mVertexBases.set_column( iVertexIndex, trans( tBasis ) );
                 }
             }

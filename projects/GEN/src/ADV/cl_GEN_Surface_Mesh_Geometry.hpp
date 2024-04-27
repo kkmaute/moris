@@ -49,9 +49,10 @@ namespace moris::gen
         Node_Manager*           mNodeManager;
         std::string             mName;
 
-        Vector< std::shared_ptr< Field > > mPerturbationFields;           // Vector of perturbation fields
-        Matrix< DDRMat >                   mVertexBases;                  // Basis function values for each vertex <number of fields> x <number of vertices>
-        Vector< Vector< real > >           mOriginalVertexCoordinates;    // All vertex coordinates as they were upon construction <dimension> x <number of vertices>
+        Vector< std::shared_ptr< Field > > mPerturbationFields;                // Vector of perturbation fields
+        Matrix< DDRMat >                   mVertexBases;                       // Basis function values for each vertex <number of fields> x <number of vertices>
+        Vector< moris_index >              mVertexBackgroundElementIndices;    // Index of the background element the facet vertex was in on construction
+        Vector< Vector< real > >           mOriginalVertexCoordinates;         // All vertex coordinates as they were upon construction <dimension> x <number of vertices>
 
 
       public:
@@ -381,10 +382,10 @@ namespace moris::gen
                 const Matrix< DDRMat >& aParametricCoordinates );
 
         /**
-         * Updates the values of the basis functions for all of the facet vertices
-         * 
+         * Updates the values of the basis functions for all of the facet vertices and the background elements they lie in
+         *
          */
-        void update_all_vertex_bases();
+        void update_vertex_basis_data();
 
         /**
          * Determines the field value at a given point in the background element.
@@ -395,8 +396,8 @@ namespace moris::gen
          * @return real
          */
         real interpolate_perturbation_from_background_element(
-                mtk::Cell*              aBackgroundElement,
-                uint                    aFieldIndex,
-                uint aFacetVertexIndex );
+                mtk::Cell* aBackgroundElement,
+                uint       aFieldIndex,
+                uint       aFacetVertexIndex );
     };
 }    // namespace moris::gen
