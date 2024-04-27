@@ -151,27 +151,38 @@ namespace moris::sdf
                 Vector< Facet* >    tCandidateFacets;
                 Preselection_Result tPreselectionResult = preselect_lines( aObject, aPoint, aAxis, tIntersectedFacets, tCandidateFacets );
 
-                // the ray will intersect a vertex, cast again in another direction
-                if ( tPreselectionResult == Preselection_Result::FAIL_CAST_TO_VERTEX )
+                switch ( tPreselectionResult )
                 {
-                    return UNSURE;
-                }
-                // the ray originates from a vertex, return interface
-                if ( tPreselectionResult == Preselection_Result::FAIL_ON_VERTEX )
-                {
-                    return INTERFACE;
-                }
-                // the ray will hit nothing and the does not originate from inside a facet's bounding box
-                else if ( tIntersectedFacets.size() == 0 && tCandidateFacets.size() == 0 )
-                {
-                    return OUTSIDE;
-                }
+                    case FAIL_CAST_TO_VERTEX:
+                    {    // the ray will intersect a vertex, cast again in another direction
+                        return UNSURE;
+                    }
+                    case FAIL_ON_VERTEX:
+                    {    // the ray originates from a vertex, return interface
+                        return INTERFACE;
+                    }
+                    case FAIL_ON_FACET:
+                    {    // the facet is along an axis, and the cast point is on it
+                        return INTERFACE;
+                    }
+                    case SUCCESS:
+                    {    // the ray will hit nothing and the does not originate from inside a facet's bounding box
+                        if ( tIntersectedFacets.size() == 0 && tCandidateFacets.size() == 0 )
+                        {
+                            return OUTSIDE;
+                        }
 
-                // compute intersection coordinates if the point is inside a line's bounding box
-                moris::Vector< real > tIntersectionCoords = intersect_ray_with_facets( tCandidateFacets, aPoint, tPreselectionResult, aAxis );
+                        // compute intersection coordinates if the point is inside a line's bounding box
+                        moris::Vector< real > tIntersectionCoords = intersect_ray_with_facets( tCandidateFacets, aPoint, tPreselectionResult, aAxis );
 
-                // check if the node is inside the polygon
-                return check_if_node_is_inside_lines( aObject, tIntersectionCoords, tIntersectedFacets, aPoint, aAxis );
+                        // check if the node is inside the polygon
+                        return check_if_node_is_inside_lines( aObject, tIntersectionCoords, tIntersectedFacets, aPoint, aAxis );
+                    }
+                    default:
+                    {
+                        MORIS_ERROR( false, "Unexpected preselection result of %d returned from preselect_lines()", tPreselectionResult );
+                    }
+                }
             }
             case 3:
             {
@@ -345,6 +356,15 @@ namespace moris::sdf
 
                 return FAIL_ON_VERTEX;
             }
+            // the facet is along an axis, and the point is on it
+            else if ( ( std::abs( tMaxCoordAxisDifference ) < aObject.get_intersection_tolerance()
+                              and std::abs( tMinCoordAxisDifference ) < aObject.get_intersection_tolerance() )
+                      or ( std::abs( tMinCoordOffAxisDifference ) < aObject.get_intersection_tolerance()
+                              and std::abs( tMaxCoordOffAxisDifference ) < aObject.get_intersection_tolerance() ) )
+            {
+                return FAIL_ON_FACET;
+            }
+
             // the ray will hit a vertex, but the cast point is not on a vertex
             if ( std::abs( tMaxCoordOffAxisDifference ) < aObject.get_intersection_tolerance() or std::abs( tMinCoordOffAxisDifference ) < aObject.get_intersection_tolerance() )
             {
@@ -522,7 +542,7 @@ namespace moris::sdf
                 {
                     tIntersectionCoords( tCountUnique++ ) = tCoordsKSorted( k );
                 }
-                else 
+                else
                 {
                     // erase the facet from the list of intersected facets
                     // FIXME BRENDAN: THIS WILL CAUSE BIG ISSUES IF THE COORDS OF K ARE REARRANGED. THIS VECTOR NEEDS TO ALSO BE REARRANGED IN THE SAME MANNER

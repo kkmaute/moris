@@ -665,7 +665,7 @@ namespace moris::gen
                 uint tNumCoordinates      = mNodeManager.get_number_of_derived_node_pdvs( iNodeIndex );
 
                 // Parent sensitivities and ADV IDs
-                tHostADVSensitivities.set_size( 0.0, 0.0 );
+                tHostADVSensitivities.set_size( 0, 0 );
                 eye( tNumCoordinates, tNumCoordinates, tI );
 
                 Matrix< DDSMat > tADVIds = mNodeManager.get_coordinate_determining_adv_ids_from_derived_node( iNodeIndex );
