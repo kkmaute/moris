@@ -84,6 +84,13 @@ namespace moris::gen
          */
         Matrix< DDRMat > get_dxi_dcoordinate_second_parent() const override;
 
+        /**
+         * Gets if this node's position depends on ADVs. This means either the facet vertices or the parent nodes depend on advs
+         *
+         * @return ADV dependence
+         */
+        bool depends_on_advs() const override;
+
       private:
         /**
          * Recomputes the rotation matrix for this intersection node and returns it

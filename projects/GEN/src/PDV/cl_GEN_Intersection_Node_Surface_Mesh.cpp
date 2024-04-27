@@ -110,6 +110,26 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    bool Intersection_Node_Surface_Mesh::depends_on_advs() const
+    {
+        // Check if the facet vertices depend on advs
+        for ( auto iParentFacetVertexIndex : mParentFacet->get_vertex_inds() )
+        {
+            if ( mInterfaceGeometry.facet_vertex_depends_on_advs( iParentFacetVertexIndex ) )
+            {
+                return true;
+            }
+        }
+
+        // Get parent nodes
+        const Basis_Node& tFirstParentNode  = this->get_first_parent_node();
+        const Basis_Node& tSecondParentNode = this->get_second_parent_node();
+
+        return tFirstParentNode.depends_on_advs() or tSecondParentNode.depends_on_advs();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     Matrix< DDRMat >
     Intersection_Node_Surface_Mesh::compute_dxi_dfacet() const
     {
@@ -145,8 +165,8 @@ namespace moris::gen
 
         Matrix< DDRMat > tdCenterdVertices = 2.0 / ( (real)mInterfaceGeometry.get_dimension() * tParentVectorNorm ) * tRotationMatrix;
 
-        return join_rows( ( 1 / std::pow(tNormalPrime( 0 ), 2 ) ) * (( tdNormalPrimedVertex1 * tCenterPrime + tdCenterdVertices * tNormalPrime ) * tNormalPrime( 0 ) - trans( tdNormalPrimedVertex1.get_row( 0 ) ) * dot( tNormalPrime, tCenterPrime )),
-                ( 1 / std::pow( tNormalPrime( 0 ), 2 ) ) * (( tdNormalPrimedVertex2 * tCenterPrime + tdCenterdVertices * tNormalPrime ) * tNormalPrime( 0 ) - trans( tdNormalPrimedVertex2.get_row( 0 ) ) * dot( tNormalPrime, tCenterPrime ) ) );
+        return join_rows( ( 1 / std::pow( tNormalPrime( 0 ), 2 ) ) * ( ( tdNormalPrimedVertex1 * tCenterPrime + tdCenterdVertices * tNormalPrime ) * tNormalPrime( 0 ) - trans( tdNormalPrimedVertex1.get_row( 0 ) ) * dot( tNormalPrime, tCenterPrime ) ),
+                ( 1 / std::pow( tNormalPrime( 0 ), 2 ) ) * ( ( tdNormalPrimedVertex2 * tCenterPrime + tdCenterdVertices * tNormalPrime ) * tNormalPrime( 0 ) - trans( tdNormalPrimedVertex2.get_row( 0 ) ) * dot( tNormalPrime, tCenterPrime ) ) );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -239,7 +259,7 @@ namespace moris::gen
         {
             std::cout << "this is the node we are testing\n";
         }
-        
+
         // Initialize ADV IDs
         Matrix< DDSMat > tCoordinateDeterminingADVIDs;
 
@@ -254,19 +274,6 @@ namespace moris::gen
                 Intersection_Node::join_adv_ids( tCoordinateDeterminingADVIDs, tVertexADVIds );
             }
         }
-
-        // Get sensitivity values from parents
-        // const Vector< Basis_Node >& tFieldBasisNodes = this->get_locator_nodes();
-        // for ( uint iFieldBasisNode = 0; iFieldBasisNode < tFieldBasisNodes.size(); iFieldBasisNode++ )
-        // {
-        //     // Get geometry field sensitivity with respect to ADVs
-        //     const Matrix< DDSMat >& tAncestorADVIDs = mInterfaceGeometry.get_determining_adv_ids(
-        //             tFieldBasisNodes( iFieldBasisNode ).get_index(),
-        //             tFieldBasisNodes( iFieldBasisNode ).get_global_coordinates() );
-
-        //     // Join IDs
-        //     Intersection_Node::join_adv_ids( tCoordinateDeterminingADVIDs, tAncestorADVIDs );
-        // } BRENDAN
 
         // Get parent nodes
         const Basis_Node& tFirstParentNode  = this->get_first_parent_node();
