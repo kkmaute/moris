@@ -16,7 +16,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Property_Parameters::Property_Parameters( const ParameterList& aParameterList )
+    Property_Parameters::Property_Parameters( const Parameter_List& aParameterList )
             : Field_Parameters( aParameterList )
             , Design_Parameters( aParameterList )
             , mDependencyNames( aParameterList.get_cell< std::string >( "dependencies" ) )

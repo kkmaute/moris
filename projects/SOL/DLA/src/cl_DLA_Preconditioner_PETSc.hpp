@@ -8,18 +8,12 @@
  *
  */
 
-#ifndef SRC_DISTLINALG_CL_PRECONDITIONER_PETSC_HPP_
-#define SRC_DISTLINALG_CL_PRECONDITIONER_PETSC_HPP_
+#pragma once
 
 #include <memory>
-//#include "cl_DLA_Linear_Solver_Algorithm.hpp"
-//#include "cl_VectorPETSc.hpp"
-//#include "cl_MatrixPETSc.hpp"
-//
-//#include "cl_SOL_Matrix_Vector_Factory.hpp"
-//#include "cl_DLA_Solver_Interface.hpp"
-//
-//#include "cl_DLA_Linear_Problem.hpp"
+
+#include "cl_MatrixPETSc.hpp"
+
 
 #include "cl_DLA_Preconditioner.hpp"
 
@@ -34,47 +28,58 @@ namespace moris
 
     namespace dla
     {
+        class Geometric_Multigrid;
         class Linear_Solver_PETSc;
         class Linear_Problem;
         class Preconditioner_PETSc : public Preconditioner
         {
           private:
-            Linear_Solver_PETSc* mLinearSolverAlgorithm;
-
+            PC                mpc;
             sol::Dist_Matrix* mPreconMat = nullptr;
             sol::Dist_Map*    mMapFree   = nullptr;
+
+            dla::Geometric_Multigrid* mGeoMultigrid = nullptr;
 
           protected:
 
           public:
-            Preconditioner_PETSc( Linear_Solver_PETSc* aLinearSolverAlgoritm );
 
-            ~Preconditioner_PETSc(){
-                //            if( mPreconMat != nullptr )
-                //            {
-                //                delete mPreconMat;
-                //            }
-                //            if( mMapFree != nullptr )
-                //            {
-                //                delete mMapFree;
-                //            }
-            };
+            /**
+             * Constructor
+             *
+             * @param aParameterlist Parameter list
+             */
+            Preconditioner_PETSc(
+                    const Parameter_List& aParameterlist );
 
-            sol::Dist_Matrix*
-            get_preconditioner_matrix()
-            {
-                return mPreconMat;
-            };
+            //-----------------------------------------------------------------------------------
 
             void build_ilu_preconditioner( Linear_Problem* aLinearSystem );
 
+            //-----------------------------------------------------------------------------------
+
             void build_multigrid_preconditioner( Linear_Problem* aLinearSystem );
 
-            void build_schwarz_preconditioner_petsc();
+            //-----------------------------------------------------------------------------------
+
+            void build_schwarz_preconditioner_petsc( Linear_Problem* aLinearSystem, KSP aPetscKSPProblem );
+
+            //-----------------------------------------------------------------------------------
 
             void build_schwarz_preconditioner( Linear_Problem* aLinearSystem );
+
+            //-----------------------------------------------------------------------------------
+
+            /**
+             * @brief compute the preconditioner based on the type of preconditioner
+             *
+             * @param aLinearSystem linear problem conraining the matrix
+             * @param aPetscKSPProblem KSP problem conext used in petsc
+             */
+
+            void build_preconditioner( Linear_Problem* aLinearSystem, KSP aPetscKSPProblem );
+
+            //-----------------------------------------------------------------------------------
         };
     }    // namespace dla
 }    // namespace moris
-
-#endif /* SRC_DISTLINALG_CL_PRECONDITIONER_PETSC_HPP_ */

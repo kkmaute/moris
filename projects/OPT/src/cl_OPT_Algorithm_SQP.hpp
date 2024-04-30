@@ -51,7 +51,7 @@ namespace moris
             /**
              * Constructor
              */
-            Algorithm_SQP(ParameterList aParameterList);
+            Algorithm_SQP( Parameter_List aParameterList);
 
             /**
              * Destructor

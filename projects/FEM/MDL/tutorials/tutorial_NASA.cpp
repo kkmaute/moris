@@ -399,14 +399,14 @@ main( int    argc,
     dla::Solver_Factory  tSolFactory;
     std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
 
-    tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
-    tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
-    tLinearSolverAlgorithm->set_param("AZ_orthog") = 1;
-    tLinearSolverAlgorithm->set_param("AZ_solver") = AZ_gmres;
-    tLinearSolverAlgorithm->set_param("AZ_precond") = AZ_dom_decomp;
-    tLinearSolverAlgorithm->set_param("AZ_ilut_fill") = 5.0;
-    tLinearSolverAlgorithm->set_param("AZ_max_iter") = 100;
-    tLinearSolverAlgorithm->set_param("rel_residual") = 1e-8;
+    tLinearSolverParameterList.set( "AZ_diagnostics", AZ_none );
+    tLinearSolverParameterList.set( "AZ_output", AZ_none );
+    tLinearSolverParameterList.set( "AZ_orthog", 1 );
+    tLinearSolverParameterList.set( "AZ_solver", AZ_gmres );
+    tLinearSolverParameterList.set( "AZ_precond", AZ_dom_decomp );
+    tLinearSolverParameterList.set( "AZ_ilut_fill", 5.0 );
+    tLinearSolverParameterList.set( "AZ_max_iter", 100 );
+    tLinearSolverParameterList.set( "rel_residual", 1e-8 );
 
     dla::Linear_Solver tLinSolver;
 
@@ -422,11 +422,11 @@ main( int    argc,
     tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
 
     NLA::Nonlinear_Solver tNonlinearSolver;
-    tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 10;
-    tNonlinearSolverAlgorithm->set_param("NLA_hard_break") = false;
-    tNonlinearSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;
-    tNonlinearSolverAlgorithm->set_param("NLA_rebuild_jacobian") = true;
-    tNonlinearSolverAlgorithm->set_param("NLA_rel_residual") = 1e-6;
+    tNonlinearSolverParameterList.set( "NLA_max_iter", 10 );
+    tNonlinearSolverParameterList.set( "NLA_hard_break", false );
+    tNonlinearSolverParameterList.set( "NLA_max_lin_solver_restarts", 2 );
+    tNonlinearSolverParameterList.set( "NLA_rebuild_jacobian", true );
+    tNonlinearSolverParameterList.set( "NLA_rel_residual", 1e-6 );
 
     tNonlinearSolver.set_nonlinear_algorithm( tNonlinearSolverAlgorithm, 0 );
 

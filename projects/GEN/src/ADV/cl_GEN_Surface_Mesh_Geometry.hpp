@@ -37,7 +37,7 @@ namespace moris::gen
          *
          * @param aParameterList Parameter list with level set geometry parameters
          */
-        explicit Surface_Mesh_Parameters( const ParameterList& aParameterList = prm::create_surface_mesh_geometry_parameter_list() );
+        explicit Surface_Mesh_Parameters( const Parameter_List& aParameterList = prm::create_surface_mesh_geometry_parameter_list() );
     };
 
     class Surface_Mesh_Geometry : public Geometry

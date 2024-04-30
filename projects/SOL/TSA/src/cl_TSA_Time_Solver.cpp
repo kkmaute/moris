@@ -55,7 +55,7 @@ Time_Solver::Time_Solver( const enum TimeSolverType aTimeSolverType )
 //--------------------------------------------------------------------------------------------------
 
 Time_Solver::Time_Solver(
-        const ParameterList            aParameterlist,
+        const Parameter_List           aParameterlist,
         sol::SOL_Warehouse*            aSolverWarehouse,
         const enum tsa::TimeSolverType aTimeSolverType )
         : mParameterListTimeSolver( aParameterlist )
@@ -265,6 +265,14 @@ Time_Solver::set_output(
 {
     mOutputIndices.push_back( aOutputIndex );
     mOutputCriteriaPointer.push_back( aOutputCriteria );
+}
+
+//-------------------------------------------------------------------------------------------------------
+
+void Time_Solver::set_pause_function(
+        Void_Function aPauseFunction )
+{
+    mPauseFunction = aPauseFunction;
 }
 
 //-------------------------------------------------------------------------------------------------------
@@ -707,6 +715,12 @@ Time_Solver::prepare_sol_vec_for_next_time_step()
 
         mFullVector( tNumSolVec - 1 )->vec_plus_vec( 1.0, *( mFullVector( tNumSolVec - 2 ) ), 0.0 );
         //        mFullVector( tNumSolVec-1 )->vec_put_scalar( 0.0 );
+
+        // Pause if needed
+        mPauseFunction();
+
+        // Update problem
+        mSolverInterface->update_problem();
     }
 }
 

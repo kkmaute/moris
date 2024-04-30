@@ -21,6 +21,14 @@
 #include "HDF5_Tools.hpp"
 #include "paths.hpp"
 
+#if __has_include( <filesystem>)
+#include <filesystem>
+namespace filesystem = std::filesystem;
+#else
+#include <experimental/filesystem>
+namespace filesystem = std::experimental::filesystem;
+#endif
+
 using namespace moris;
 
 //---------------------------------------------------------------
@@ -35,18 +43,18 @@ TEST_CASE( "obj_sphere",
     // get the root path for MORIS
     std::string tMorisRoot = moris::get_base_moris_dir();
 
-    // FIXME: use std::filesystem paths/copies to perform copies, requires C++17 with gcc version >=8
-    // get the relevant file paths
-    std::string tTestDir = tMorisRoot + "/projects/EXA/mesh_generation/obj_sphere/";
-    std::string tXmlSource   = tTestDir + "OBJ_Sphere.xml";
-    std::string tObjSource  = tTestDir + "Sphere.obj";
-    std::string tTargetDir   = std::getenv( "PWD" );
+    // get all the relevant file paths
+    filesystem::path tMorisRootPath( tMorisRoot );
+    filesystem::path tExamplesDir = tMorisRootPath / "projects/EXA/mesh_generation/obj_sphere/";
+    filesystem::path tXmlSource   = tExamplesDir / "OBJ_Sphere.xml";
+    filesystem::path tHdf5Source  = tExamplesDir / "Sphere.obj";
+    filesystem::path tTargetDir   = filesystem::current_path();
+    filesystem::path tXmlTarget   = tTargetDir / tXmlSource.filename();
+    filesystem::path tHdf5Target  = tTargetDir / tHdf5Source.filename();
 
     // copy relevant files from example directory into working directory
-    std::string tMoveStringXml = "cp -f " + tXmlSource + " " + tTargetDir;
-    std::string tMoveStringObj = "cp -f " + tObjSource + " " + tTargetDir;
-    std::system( tMoveStringXml.c_str() );
-    std::system( tMoveStringObj.c_str() );
+    filesystem::copy_file( tXmlSource, tXmlTarget, filesystem::copy_options::overwrite_existing );
+    filesystem::copy_file( tHdf5Source, tHdf5Target, filesystem::copy_options::overwrite_existing );
 
     // define command line call
     int argc = 3;

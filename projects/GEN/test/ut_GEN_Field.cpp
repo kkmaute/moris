@@ -168,12 +168,12 @@ namespace moris::gen
     TEST_CASE( "Circle", "[gen], [field], [distributed advs], [circle]" )
     {
         // Set up geometry
-        ParameterList tCircle1ParameterList = prm::create_level_set_geometry_parameter_list();
+        Parameter_List tCircle1ParameterList = prm::create_level_set_geometry_parameter_list();
         tCircle1ParameterList.set( "field_type", "circle" );
         tCircle1ParameterList.set( "field_variable_indices", "all" );
         tCircle1ParameterList.set( "adv_indices", "0, 1, 3" );
 
-        ParameterList tCircle2ParameterList = prm::create_level_set_geometry_parameter_list();
+        Parameter_List tCircle2ParameterList = prm::create_level_set_geometry_parameter_list();
         tCircle2ParameterList.set( "field_type", "circle" );
         tCircle2ParameterList.set( "field_variable_indices", "all" );
         tCircle2ParameterList.set( "adv_indices", "0, 2, 4" );
@@ -268,7 +268,7 @@ namespace moris::gen
     TEST_CASE( "Superellipse", "[gen], [field], [superellipse]" )
     {
         // Set up geometry
-        ParameterList tSuperellipseParameterList = prm::create_level_set_geometry_parameter_list();
+        Parameter_List tSuperellipseParameterList = prm::create_level_set_geometry_parameter_list();
         tSuperellipseParameterList.set( "field_type", "superellipse" );
         tSuperellipseParameterList.set( "field_variable_indices", "all" );
         tSuperellipseParameterList.set( "adv_indices", "all" );
@@ -373,7 +373,7 @@ namespace moris::gen
     TEST_CASE( "Sphere", "[gen], [field], [sphere]" )
     {
         // Set up geometry
-        ParameterList tSphereParameterList = prm::create_level_set_geometry_parameter_list();
+        Parameter_List tSphereParameterList = prm::create_level_set_geometry_parameter_list();
         tSphereParameterList.set( "field_type", "sphere" );
         tSphereParameterList.set( "field_variable_indices", "all" );
         tSphereParameterList.set( "adv_indices", "all" );
@@ -419,7 +419,7 @@ namespace moris::gen
     TEST_CASE( "Superellipsoid", "[gen], [field], [superellipsoid]" )
     {
         // Set up geometry
-        ParameterList tSuperellipsoidParameterList = prm::create_level_set_geometry_parameter_list();
+        Parameter_List tSuperellipsoidParameterList = prm::create_level_set_geometry_parameter_list();
         tSuperellipsoidParameterList.set( "field_type", "superellipsoid" );
         tSuperellipsoidParameterList.set( "field_variable_indices", "all" );
         tSuperellipsoidParameterList.set( "adv_indices", "all" );
@@ -573,7 +573,7 @@ namespace moris::gen
                     // Create circles
                     for ( uint tGeometryIndex = 0; tGeometryIndex < 2; tGeometryIndex++ )
                     {
-                        ParameterList tCircleParameterList = prm::create_level_set_geometry_parameter_list();
+                        Parameter_List tCircleParameterList = prm::create_level_set_geometry_parameter_list();
                         tCircleParameterList.set( "field_type", "circle" );
                         tCircleParameterList.set( "constant_parameters", "0.0, 0.0, " + std::to_string( tRadii( tGeometryIndex ) ) );
                         tCircleParameterList.set( "discretization_mesh_index", 0 );
@@ -713,7 +713,7 @@ namespace moris::gen
         mtk::Interpolation_Mesh* tMesh = create_simple_mesh( 6, 6 );
 
         // Level set circle parameter list
-        ParameterList tCircleParameterList = prm::create_level_set_geometry_parameter_list();
+        Parameter_List tCircleParameterList = prm::create_level_set_geometry_parameter_list();
         tCircleParameterList.set( "field_type", "circle" );
         tCircleParameterList.set( "field_variable_indices", "0, 1, 2" );
         tCircleParameterList.set( "adv_indices", "0, 1, 2" );
@@ -791,7 +791,7 @@ namespace moris::gen
         Matrix< DDSMat > tADVIndicesMat2 = string_to_mat< DDSMat >( tADVIndices2 );
 
         // Set up 2 circles
-        Vector< ParameterList > tParameterLists( 3 );
+        Vector< Parameter_List > tParameterLists( 3 );
         tParameterLists( 0 ) = prm::create_field_parameter_list();
         tParameterLists( 0 ).set( "field_type", "circle" );
         tParameterLists( 0 ).set( "field_variable_indices", "all" );
@@ -863,7 +863,7 @@ namespace moris::gen
             for ( bool tUseADVs : { false, true } )
             {
                 // Create swiss cheese
-                ParameterList tSwissCheeseParameterList = prm::create_field_array_parameter_list();
+                Parameter_List tSwissCheeseParameterList = prm::create_field_array_parameter_list();
                 tSwissCheeseParameterList.set( "field_type", "circle" );
                 tSwissCheeseParameterList.set( "lower_bound_x", -2.0 );
                 tSwissCheeseParameterList.set( "upper_bound_x", 2.0 );
@@ -935,7 +935,7 @@ namespace moris::gen
         SECTION( "Superellipse Field Array (Spacing)" )
         {
             // Create swiss cheese
-            ParameterList tSwissCheeseParameterList = prm::create_field_array_parameter_list();
+            Parameter_List tSwissCheeseParameterList = prm::create_field_array_parameter_list();
             tSwissCheeseParameterList.set( "field_type", "superellipse" );
             tSwissCheeseParameterList.set( "lower_bound_x", -3.0 );
             tSwissCheeseParameterList.set( "upper_bound_x", 3.0 );
@@ -987,7 +987,7 @@ namespace moris::gen
         SECTION( "Superellipsoid Field Array (Number + Spacing)" )
         {
             // Create swiss cheese
-            ParameterList tSwissCheeseParameterList = prm::create_field_array_parameter_list();
+            Parameter_List tSwissCheeseParameterList = prm::create_field_array_parameter_list();
             tSwissCheeseParameterList.set( "field_type", "superellipsoid" );
             tSwissCheeseParameterList.set( "lower_bound_x", 1.0 );
             tSwissCheeseParameterList.set( "upper_bound_x", 2.0 );

@@ -13,7 +13,7 @@
 
 #include "cl_OPT_Problem.hpp"
 #include "cl_OPT_Criteria_Interface.hpp"
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 #include "cl_Library_IO.hpp"
 
 namespace moris
@@ -38,7 +38,7 @@ namespace moris
              * @param aInterface Interface class written for other module
              */
             Problem_User_Defined(
-                    ParameterList                       & aParameterList,
+                  Parameter_List& aParameterList,
                     std::shared_ptr<Criteria_Interface> & aInterface);
 
             /**
@@ -55,7 +55,7 @@ namespace moris
              * @param aConstraintCriteriaGradientFunction
              */
             Problem_User_Defined(
-                    ParameterList                       aParameterList,
+                    Parameter_List                        aParameterList,
                     std::shared_ptr<Criteria_Interface> aInterface,
                     Constraint_Types_Function     aConstraintTypesFunction,
                     Objective_Constraint_Function aObjectiveFunction,

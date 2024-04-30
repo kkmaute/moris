@@ -40,13 +40,8 @@ namespace moris
                     bool&        aHardBreak );
 
           public:
-            /**
-             * @brief Constructor for Newton
-             *
-             */
-            Newton_Solver();
 
-            Newton_Solver( const ParameterList aParameterlist );
+            Newton_Solver( const Parameter_List& aParameterlist );
 
             Newton_Solver( dla::Linear_Solver* aLinSolver );
 

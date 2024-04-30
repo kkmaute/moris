@@ -31,7 +31,7 @@ namespace moris::gen
          *
          * @param aParameterList Parameter list with level set geometry parameters
          */
-        explicit Level_Set_Parameters( const ParameterList& aParameterList = prm::create_level_set_geometry_parameter_list() );
+        explicit Level_Set_Parameters( const Parameter_List& aParameterList = prm::create_level_set_geometry_parameter_list() );
     };
 
     class Level_Set_Geometry : public Geometry

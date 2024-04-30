@@ -15,7 +15,7 @@
 
 #include "cl_TSA_Time_Solver_Enums.hpp"
 
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 
 namespace moris
 {
@@ -37,7 +37,7 @@ class Solver_Interface;
             std::shared_ptr< Time_Solver_Algorithm > create_time_solver( const enum TimeSolverType   aTimeSolverType = TimeSolverType::MONOLITHIC );
 
             std::shared_ptr< Time_Solver_Algorithm > create_time_solver( const enum TimeSolverType   aTimeSolverType,
-                                                                         const ParameterList aParameterlist);
+                                                                         const Parameter_List                                                           aParameterlist);
         };
     }
 }

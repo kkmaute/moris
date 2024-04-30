@@ -58,19 +58,19 @@ namespace moris::gen
             Matrix< DDRMat > tADVs = { { 0.25, 0.0, 1.0, 0.0 } };
 
             // Circle
-            ParameterList tCircleParameterList = prm::create_level_set_geometry_parameter_list();
+            Parameter_List tCircleParameterList = prm::create_level_set_geometry_parameter_list();
             tCircleParameterList.set( "field_type", "circle" );
             tCircleParameterList.set( "constant_parameters", "-0.25, 0.0, 0.7499999999" );    // Not close enough to snap
             tCircleParameterList.set( "discretization_mesh_index", 0 );
 
             // Plane 1
-            ParameterList tPlane1ParameterList = prm::create_level_set_geometry_parameter_list();
+            Parameter_List tPlane1ParameterList = prm::create_level_set_geometry_parameter_list();
             tPlane1ParameterList.set( "field_type", "plane" );
             tPlane1ParameterList.set( "field_variable_indices", "all" );
             tPlane1ParameterList.set( "adv_indices", "all" );
 
             // Plane 2
-            ParameterList tPlane2ParameterList = prm::create_level_set_geometry_parameter_list();
+            Parameter_List tPlane2ParameterList = prm::create_level_set_geometry_parameter_list();
             tPlane2ParameterList.set( "field_type", "plane" );
             tPlane2ParameterList.set( "constant_parameters", "1.0, 0.0, 1.0, 0.0" );
 
@@ -550,7 +550,7 @@ namespace moris::gen
             mtk::Interpolation_Mesh* tMesh = create_simple_mesh( 2, 2 );
 
             // Set up circle
-            ParameterList tCircleParameterList = prm::create_level_set_geometry_parameter_list();
+            Parameter_List tCircleParameterList = prm::create_level_set_geometry_parameter_list();
             tCircleParameterList.set( "field_type", "circle" );
             tCircleParameterList.set( "constant_parameters", "-0.25, 0.0, 0.7499999999" );
             tCircleParameterList.set( "discretization_mesh_index", 0 );

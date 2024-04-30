@@ -19,7 +19,7 @@ namespace moris::xtk
 {
     // ----------------------------------------------------------------------------------
 
-    Elevate_Order_Interface::Elevate_Order_Interface( ParameterList& aParameterList, enum Subdivision_Method aSubdivisionMethod )
+    Elevate_Order_Interface::Elevate_Order_Interface( Parameter_List& aParameterList, enum Subdivision_Method aSubdivisionMethod )
     {
         // get number of spatial dimensions and decide on subdivision template
         if ( aSubdivisionMethod == Subdivision_Method::P_ELEVATE_ORDER_TRI3_TRI6 )

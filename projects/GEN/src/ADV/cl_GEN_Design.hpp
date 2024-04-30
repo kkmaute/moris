@@ -30,7 +30,7 @@ namespace moris::gen
          *
          * @param aParameterList Design field parameter list
          */
-        explicit Design_Parameters( const ParameterList& aParameterList );
+        explicit Design_Parameters( const Parameter_List& aParameterList );
 
         /**
          * Default constructor

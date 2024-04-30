@@ -49,11 +49,8 @@ namespace moris
              * @brief Constructor for Newton
              *
              */
-            // NonLinBlockGaussSeidel( Solver_Interface * aSolverInterface );
 
-            NonLinBlockGaussSeidel();
-
-            NonLinBlockGaussSeidel( const ParameterList aParameterlist );
+            NonLinBlockGaussSeidel( const Parameter_List& aParameterList );
 
             ~NonLinBlockGaussSeidel();
 

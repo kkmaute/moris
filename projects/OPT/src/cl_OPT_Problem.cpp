@@ -32,7 +32,7 @@ namespace moris
         // -------------------------------------------------------------------------------------------------------------
 
         Problem::Problem(
-                ParameterList&                         aParameterList,
+                Parameter_List&                         aParameterList,
                 std::shared_ptr< Criteria_Interface >& aInterface )
         {
             // Set interface

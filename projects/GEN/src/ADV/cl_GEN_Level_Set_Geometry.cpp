@@ -24,7 +24,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Level_Set_Parameters::Level_Set_Parameters( const ParameterList& aParameterList )
+    Level_Set_Parameters::Level_Set_Parameters( const Parameter_List& aParameterList )
             : Field_Parameters( aParameterList )
             , Design_Parameters( aParameterList )
             , mIsocontourThreshold( aParameterList.get< real >( "isocontour_threshold" ) )

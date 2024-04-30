@@ -49,7 +49,7 @@ namespace moris::xtk
             uint tLagrangeMeshIndex = 0;
 
             // HMR parameter list
-            moris::ParameterList tParameters = moris::prm::create_hmr_parameter_list();
+            moris::Parameter_List tParameters = moris::prm::create_hmr_parameter_list();
 
             tParameters.set( "number_of_elements_per_dimension", "2, 1" );
             tParameters.set( "domain_dimensions", "2, 1" );
@@ -83,7 +83,7 @@ namespace moris::xtk
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
             // xtk parameter list
-            moris::ParameterList tXTKParameters = moris::prm::create_xtk_parameter_list();
+            moris::Parameter_List tXTKParameters = moris::prm::create_xtk_parameter_list();
             tXTKParameters.set( "decompose", true );
             tXTKParameters.set( "decomposition_type", "conformal" );
             tXTKParameters.set( "enrich", true );

@@ -37,17 +37,7 @@ using namespace dla;
 
 //--------------------------------------------------------------------------------------------------------------------------
 
-Newton_Solver::Newton_Solver()
-{
-    // mLinSolverManager = new dla::Linear_Solver();
-
-    // Set default parameters in parameter list for nonlinear solver
-    this->set_nonlinear_solver_parameters();
-}
-
-//--------------------------------------------------------------------------------------------------------------------------
-
-Newton_Solver::Newton_Solver( const ParameterList aParameterlist )
+Newton_Solver::Newton_Solver( const Parameter_List& aParameterlist )
         : Nonlinear_Algorithm( aParameterlist )
 {
 }

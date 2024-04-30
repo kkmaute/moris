@@ -18,7 +18,7 @@
 
 namespace moris::xtk
 {
-    Regular_Subdivision_Interface::Regular_Subdivision_Interface( ParameterList& aParameterList, mtk::CellTopology aCellTopology )
+    Regular_Subdivision_Interface::Regular_Subdivision_Interface( Parameter_List& aParameterList, mtk::CellTopology aCellTopology )
     {
         // get number of spatial dimensions and decide on subdivision template
         if ( aCellTopology == mtk::CellTopology::QUAD4 )

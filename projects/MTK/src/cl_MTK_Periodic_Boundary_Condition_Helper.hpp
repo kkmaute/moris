@@ -12,7 +12,7 @@
 #define PROJECTS_MTK_SRC_CL_MTK_PERIODIC_BOUNDARY_CONDITION_HELPER_HPP_
 
 #include "cl_MTK_Mesh_Manager.hpp"
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 namespace moris
 {
     namespace mtk
@@ -22,7 +22,7 @@ namespace moris
             public:
             Periodic_Boundary_Condition_Helper( std::shared_ptr<Mesh_Manager> aMeshManager,
                                                 moris_index                   aMeshIndex,
-                                                moris::ParameterList &        aParameterList);
+                                                moris::Parameter_List                                      &        aParameterList);
 
             void
             setup_periodic_boundary_conditions();

@@ -3429,7 +3429,7 @@ namespace moris::xtk
     //------------------------------------------------------------------------------
 
     void
-    Enriched_Interpolation_Mesh::write_mesh( moris::ParameterList* aParamList )
+    Enriched_Interpolation_Mesh::write_mesh( moris::Parameter_List* aParamList )
     {
         this->create_set_names();
 

@@ -15,7 +15,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Design_Parameters::Design_Parameters( const ParameterList& aParameterList )
+    Design_Parameters::Design_Parameters( const Parameter_List& aParameterList )
             : mNumberOfRefinements( aParameterList.get_cell< uint >( "number_of_refinements" ) )
             , mRefinementMeshIndices( aParameterList.get_cell< uint >( "refinement_mesh_index" ) )
             , mRefinementFunctionIndex( aParameterList.get< sint >( "refinement_function_index" ) )

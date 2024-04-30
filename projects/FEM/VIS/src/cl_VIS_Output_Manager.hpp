@@ -22,7 +22,7 @@
 #include "cl_MTK_Writer_Exodus.hpp"
 #include "cl_MTK_Reader_Exodus.hpp"
 
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 
 namespace moris
 {
@@ -115,14 +115,14 @@ namespace moris
 
             //-----------------------------------------------------------------------------------------------------------
 
-            Output_Manager( moris::ParameterList aParameterlist )
+            Output_Manager( moris::Parameter_List aParameterlist )
             {
                 this->set_outputs( aParameterlist );
             };
 
             //-----------------------------------------------------------------------------------------------------------
 
-            Output_Manager( Vector< moris::ParameterList > aParameterList )
+            Output_Manager( Vector< moris::Parameter_List > aParameterList )
             {
                 for ( uint iVisParameter = 0; iVisParameter < aParameterList.size(); iVisParameter++ )
                 {
@@ -188,7 +188,7 @@ namespace moris
 
             //---------------------------------------------------------------------------------------------------------------------------
 
-            void set_outputs( moris::ParameterList aParameterlist );
+            void set_outputs( moris::Parameter_List aParameterlist );
 
             //---------------------------------------------------------------------------------------------------------------------------
 

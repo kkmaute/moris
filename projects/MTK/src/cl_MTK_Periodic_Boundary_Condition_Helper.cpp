@@ -30,7 +30,7 @@ namespace moris
         Periodic_Boundary_Condition_Helper::Periodic_Boundary_Condition_Helper(
                 std::shared_ptr< Mesh_Manager > aMeshManager,
                 moris_index                     aMeshIndex,
-                moris::ParameterList&           aParameterList )
+                moris::Parameter_List&           aParameterList )
                 : mMeshManager( aMeshManager )
                 , mMeshIndex( aMeshIndex )
         {

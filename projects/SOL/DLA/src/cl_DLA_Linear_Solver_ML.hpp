@@ -13,7 +13,7 @@
 #include "cl_DLA_Linear_Solver_Algorithm_Trilinos.hpp"
 #include "cl_DLA_Preconditioner_Trilinos.hpp"
 
-#include "cl_Param_List.hpp"    //CNT/src
+#include "fn_PRM_SOL_Parameters.hpp"
 
 namespace moris::dla
 {
@@ -29,22 +29,15 @@ namespace moris::dla
         // -----------------------------------------------------------------------------------
 
       public:
-        // -----------------------------------------------------------------------------------
-
-        /**
-         * @brief Construct a new Linear_Solver_ML object
-         * 
-         */
-        Linear_Solver_ML(){};
 
         //-----------------------------------------------------------------------------------
 
         /**
          * @brief Construct a new Linear_Solver_ML object
          * 
-         * @param aParameterlist 
+         * @param aParameterList
          */
-        Linear_Solver_ML( const moris::ParameterList aParameterlist );
+        Linear_Solver_ML( const Parameter_List& aParameterList = prm::create_linear_algorithm_parameter_list( sol::SolverType::ML ) );
 
         // -----------------------------------------------------------------------------------
 
@@ -52,7 +45,7 @@ namespace moris::dla
          * @brief Destroy the Linear_Solver_ML object
          * 
          */
-        virtual ~Linear_Solver_ML();
+        virtual ~Linear_Solver_ML() = default;
 
 
         // -----------------------------------------------------------------------------------

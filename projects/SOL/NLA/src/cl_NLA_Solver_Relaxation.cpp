@@ -24,7 +24,7 @@ namespace moris
     {
         //--------------------------------------------------------------------------------------------------------------------------
 
-        Solver_Relaxation::Solver_Relaxation( ParameterList& aParameterListNonlinearSolver )
+        Solver_Relaxation::Solver_Relaxation( Parameter_List& aParameterListNonlinearSolver )
         {
             // get relaxation strategy
             mRelaxationStrategy = static_cast< sol::SolverRelaxationType >(

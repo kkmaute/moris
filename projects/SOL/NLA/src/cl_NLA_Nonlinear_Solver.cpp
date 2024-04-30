@@ -32,36 +32,17 @@ using namespace NLA;
 //--------------------------------------------------------------------------------------------------------------------------
 
 Nonlinear_Solver::Nonlinear_Solver(
-        const enum NonlinearSolverType aNonLinSolverType )
+        const Parameter_List& aSolverParameterList,
+        const Parameter_List& aAlgorithmParameterList )
         : mSecondaryDofTypeList( Vector< Vector< enum MSI::Dof_Type > >( 0 ) )
-        , mNonLinSolverType( aNonLinSolverType )
+        , mParameterListNonLinearSolver( aSolverParameterList )
 {
-    // create solver factory
-    Nonlinear_Solver_Factory tSolFactory;
-
     // create solver object
-    std::shared_ptr< Nonlinear_Algorithm > tNonLinSolver = tSolFactory.create_nonlinear_solver( aNonLinSolverType );
-
-    mNonlinearSolverAlgorithmList.clear();
-
+    Nonlinear_Solver_Factory tSolFactory;
+    std::shared_ptr< Nonlinear_Algorithm > tNonLinSolver = tSolFactory.create_nonlinear_solver( aAlgorithmParameterList );
     mNonlinearSolverAlgorithmList.resize( 1, nullptr );
-
     mNonlinearSolverAlgorithmList( 0 ) = tNonLinSolver;
 
-    mStaggeredDofTypeList.resize( 0 );
-
-    this->set_nonlinear_solver_manager_parameters();
-}
-
-//--------------------------------------------------------------------------------------------------------------------------
-
-Nonlinear_Solver::Nonlinear_Solver(
-        const enum NonlinearSolverType aNonLinSolverType,
-        const ParameterList            aParameterlist )
-        : mSecondaryDofTypeList( Vector< Vector< enum MSI::Dof_Type > >( 0 ) )
-        , mParameterListNonLinearSolver( aParameterlist )
-        , mNonLinSolverType( aNonLinSolverType )
-{
     mStaggeredDofTypeList.resize( 0 );
 }
 
@@ -69,13 +50,11 @@ Nonlinear_Solver::Nonlinear_Solver(
 
 Nonlinear_Solver::Nonlinear_Solver(
         Vector< std::shared_ptr< Nonlinear_Algorithm > >& aNonlinearSolverList,
-        const enum NonlinearSolverType                         aNonLinSolverType )
+        const Parameter_List& aSolverParameterList )
         : mSecondaryDofTypeList( Vector< Vector< enum MSI::Dof_Type > >( 0 ) )
-        , mNonLinSolverType( aNonLinSolverType )
+        , mParameterListNonLinearSolver( aSolverParameterList )
 {
     mNonlinearSolverAlgorithmList = aNonlinearSolverList;
-
-    this->set_nonlinear_solver_manager_parameters();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -266,25 +245,6 @@ Nonlinear_Solver::get_sec_dof_type_union()
 //--------------------------------------------------------------------------------------------------
 
 void
-Nonlinear_Solver::set_nonlinear_solver_manager_index( const moris::sint aNonlinearSolverManagerIndex )
-{
-    mNonlinearSolverManagerIndex = aNonlinearSolverManagerIndex;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-moris::sint
-Nonlinear_Solver::get_nonlinear_solver_manager_index()
-{
-    MORIS_ERROR( mNonlinearSolverManagerIndex != -1,
-            "Nonlinear_Solver_Manager::get_nonlinear_solver_manager_index(): mNonlinearSolverManagerIndex = -1. Solver manager index not set." );
-
-    return mNonlinearSolverManagerIndex;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void
 Nonlinear_Solver::set_solver_warehouse( sol::SOL_Warehouse* aSolverWarehouse )
 {
     mSolverWarehouse = aSolverWarehouse;
@@ -391,15 +351,6 @@ Nonlinear_Solver::solve( Nonlinear_Problem* aNonlinearProblem )
 //--------------------------------------------------------------------------------------------------------------------------
 
 void
-Nonlinear_Solver::set_nonlinear_solver_manager_parameters()
-{
-    // Maximal number of linear solver restarts on fail
-    mParameterListNonLinearSolver.insert( "NLA_max_non_lin_solver_restarts", 0 );
-}
-
-//--------------------------------------------------------------------------------------------------------------------------
-
-void
 Nonlinear_Solver::get_full_solution( moris::Matrix< DDRMat >& LHSValues )
 {
     mNonlinearProblem->get_full_vector()->extract_copy( LHSValues );
@@ -425,30 +376,6 @@ Nonlinear_Problem*
 Nonlinear_Solver::get_my_nonlin_problem()
 {
     return mNonlinearProblem;
-}
-
-//--------------------------------------------------------------------------------------------------------------------------
-
-void
-Nonlinear_Solver::set_nonlin_solver_type( enum NonlinearSolverType aNonLinSolverType )
-{
-    mNonLinSolverType = aNonLinSolverType;
-}
-
-//--------------------------------------------------------------------------------------------------------------------------
-
-enum NonlinearSolverType
-Nonlinear_Solver::get_nonlin_solver_type()
-{
-    return mNonLinSolverType;
-}
-
-//--------------------------------------------------------------------------------------------------------------------------
-
-void
-Nonlinear_Solver::set_time_solver_type( tsa::Time_Solver_Algorithm* aTimeSolverAlgorithm )
-{
-    mMyTimeSolverAlgorithm = aTimeSolverAlgorithm;
 }
 
 //--------------------------------------------------------------------------------------------------------------------------

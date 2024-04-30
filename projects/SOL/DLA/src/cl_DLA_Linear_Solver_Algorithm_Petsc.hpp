@@ -17,7 +17,7 @@
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_SOL_Enums.hpp"
 
-#include "cl_Param_List.hpp"    // CON/src
+#include "cl_Parameter_List.hpp"    // CON/src
 #include "cl_DLA_Linear_Solver_Algorithm.hpp"
 #include "cl_DLA_Preconditioner_PETSc.hpp"
 
@@ -32,13 +32,6 @@ namespace moris::dla
 
       public:
 
-        /**
-         * @brief Construct a new Linear_Solver_Algorithm_Petsc object
-         * 
-         */
-
-        Linear_Solver_Algorithm_Petsc(){};
-
         //-----------------------------------------------------------------------------------
 
         /**
@@ -46,7 +39,7 @@ namespace moris::dla
          * 
          * @param aParameterlist 
          */
-        Linear_Solver_Algorithm_Petsc( const moris::ParameterList aParameterlist )
+        Linear_Solver_Algorithm_Petsc( const moris::Parameter_List& aParameterlist )
                 : Linear_Solver_Algorithm( aParameterlist ){};
 
         //-----------------------------------------------------------------------------------

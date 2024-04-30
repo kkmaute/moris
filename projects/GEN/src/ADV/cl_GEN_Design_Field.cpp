@@ -20,7 +20,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Field_Parameters::Field_Parameters( const ParameterList& aParameterList )
+    Field_Parameters::Field_Parameters( const Parameter_List& aParameterList )
             : mDiscretizationIndex( aParameterList.get< sint >( "discretization_mesh_index" ) )
             , mDiscretizationLowerBound( aParameterList.get< real >( "discretization_lower_bound" ) )
             , mDiscretizationUpperBound( aParameterList.get< real >( "discretization_upper_bound" ) )

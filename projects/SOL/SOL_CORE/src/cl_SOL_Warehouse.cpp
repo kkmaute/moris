@@ -137,9 +137,7 @@ void SOL_Warehouse::create_preconditioner_algorithms()
 
     for ( uint Ik = 0; Ik < tNumLinAlgorithms; Ik++ )
     {
-        mPreconditioners( Ik ) = tSolFactory.create_preconditioner(
-                static_cast< moris::sol::PreconditionerType >( mParameterlist( 7 )( Ik ).get< moris::uint >( "Preconditioner_Implementation" ) ),
-                mParameterlist( 7 )( Ik ) );
+        mPreconditioners( Ik ) = tSolFactory.create_preconditioner( mParameterlist( 7 )( Ik ) );
     }
 }
 
@@ -155,9 +153,7 @@ void SOL_Warehouse::create_linear_solver_algorithms()
 
     for ( uint Ik = 0; Ik < tNumLinAlgorithms; Ik++ )
     {
-        mLinearSolverAlgorithms( Ik ) = tSolFactory.create_solver(
-                static_cast< moris::sol::SolverType >( mParameterlist( 0 )( Ik ).get< moris::uint >( "Solver_Implementation" ) ),
-                mParameterlist( 0 )( Ik ) );
+        mLinearSolverAlgorithms( Ik ) = tSolFactory.create_solver( mParameterlist( 0 )( Ik ) );
 
         // get and set nonlinear sub-solvers for staggered methods
         Vector< uint > tPreconditionerIndices;
@@ -227,7 +223,6 @@ void SOL_Warehouse::create_nonlinear_solver_algorithms()
     {
         mNonlinearSolverAlgorithms( Ik ) =
                 tNonlinFactory.create_nonlinear_solver(    //
-                        static_cast< moris::NLA::NonlinearSolverType >( mParameterlist( 2 )( Ik ).get< moris::uint >( "NLA_Solver_Implementation" ) ),
                         mParameterlist( 2 )( Ik ) );
 
         mNonlinearSolverAlgorithms( Ik )->set_linear_solver( mLinearSolvers( mParameterlist( 2 )( Ik ).get< moris::sint >( "NLA_Linear_solver" ) ) );
@@ -260,7 +255,6 @@ void SOL_Warehouse::create_nonlinear_solvers()
         // create nonlinear solver
         mNonlinearSolvers( Ik ) =
                 new NLA::Nonlinear_Solver(
-                        static_cast< moris::NLA::NonlinearSolverType >( mParameterlist( 3 )( Ik ).get< moris::uint >( "NLA_Solver_Implementation" ) ),
                         mParameterlist( 3 )( Ik ) );
 
         // set nonlinear algorithms
@@ -445,8 +439,12 @@ void SOL_Warehouse::create_time_solvers()
             }
         }
 
-        // set warehouse to time solver
-        //        mTimeSolvers( Ik )->set_solver_warehouse( this );
+        // Set pause function
+        std::string tPauseFunctionName = mParameterlist( 5 )( Ik ).get< std::string >( "TSA_Pause_Function" );
+        if ( not tPauseFunctionName.empty() )
+        {
+            mTimeSolvers( Ik )->set_pause_function( mLibrary->load_function< Void_Function >( tPauseFunctionName ) );
+        }
     }
 }
 

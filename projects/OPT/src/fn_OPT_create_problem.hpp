@@ -12,7 +12,7 @@
 #define MORIS_FN_OPT_CREATE_PROBLEM_HPP
 
 #include "cl_OPT_Problem.hpp"
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 
 namespace moris
 {
@@ -25,7 +25,7 @@ namespace moris
          * @param aInterface Pointer to already-built criteria interface
          * @return Problem class
          */
-        std::shared_ptr<Problem> create_problem(ParameterList aProblemParameterList, std::shared_ptr<Criteria_Interface> aInterface);
+        std::shared_ptr<Problem> create_problem( Parameter_List aProblemParameterList, std::shared_ptr<Criteria_Interface> aInterface);
     }
 }
 

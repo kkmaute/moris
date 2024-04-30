@@ -218,7 +218,7 @@ namespace moris
 {
     namespace opt
     {
-        Algorithm_SQP::Algorithm_SQP( ParameterList aParameterList )
+        Algorithm_SQP::Algorithm_SQP( Parameter_List aParameterList )
         {
 #ifdef MORIS_HAVE_SNOPT
             // Initialize
@@ -240,7 +240,7 @@ namespace moris
                 // call Fortran subroutine based on parameter type
                 switch ( tParamType )
                 {
-                    case 1:    // set integer parameters
+                    case 2:    // set integer parameters
                     {
                         char* paramname = (char*)it->first.c_str();
                         int   tParamVal = aParameterList.get< sint >( paramname );
@@ -263,7 +263,7 @@ namespace moris
                         break;
                     }
 
-                    case 2:    // set double parameters
+                    case 3:    // set double parameters
                     {
                         char*  paramname = (char*)it->first.c_str();
                         double tParamVal = aParameterList.get< real >( paramname );
@@ -307,14 +307,12 @@ namespace moris
                     }
 
                     default:
-                        MORIS_LOG_ERROR( "No matching function call for underlying type." );
-                        assert::error( "In cl_Algorithm_SQP.cpp" );
+                        MORIS_ERROR( false, "No matching function call for underlying type." );
                 }
 
                 if ( tExit != 0 )
                 {
-                    MORIS_LOG_ERROR( "When calling SNOPT Fortran subroutine, unable to set parameter :  %s", it->first.c_str() );
-                    assert::error( "In cl_Algorithm_SQP.cpp" );
+                    MORIS_ERROR( false, "When calling SNOPT Fortran subroutine, unable to set parameter :  %s", it->first.c_str() );
                 }
             }
 #else

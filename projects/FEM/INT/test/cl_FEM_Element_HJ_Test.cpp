@@ -261,8 +261,8 @@
 //                    = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
 //
 //                // set default parameters for linear solver
-//                tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
-//                tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
+//                tLinearSolverParameterList.set( "AZ_diagnostics", AZ_none );
+//                tLinearSolverParameterList.set( "AZ_output", AZ_none );
 //
 //                // create solver manager
 //                dla::Linear_Solver*    tLinSolver       = new dla::Linear_Solver();

@@ -213,9 +213,9 @@ namespace moris
             }
 
             Vector< MSI::Equation_Set* >& tEquationSet = tEquationModel->get_equation_sets();
-            tEquationSet                             = tElementBlocks;
+            tEquationSet                               = tElementBlocks;
 
-            moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
+            moris::Parameter_List tMSIParameters = prm::create_msi_parameter_list();
             tMSIParameters.set( "L2", (sint)tBSplineMeshIndex );
             tMSIParameters.set( "multigrid", true );
 
@@ -237,7 +237,7 @@ namespace moris
 
             sol::SOL_Warehouse tSolverWarehouse( tSolverInterface );
 
-            Vector< Vector< moris::ParameterList > > tParameterlist( 8 );
+            Vector< Vector< moris::Parameter_List > > tParameterlist( 8 );
             for ( uint Ik = 0; Ik < 8; Ik++ )
             {
                 tParameterlist( Ik ).resize( 1 );
@@ -245,9 +245,7 @@ namespace moris
 
             tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::PETSC );
             tParameterlist( 0 )( 0 ).set( "KSPType", std::string( "fgmres" ) );
-            tParameterlist( 0 )( 0 ).set( "PCType", std::string( "mg" ) );
-            tParameterlist( 0 )( 0 ).set( "ILUFill", 3 );
-            tParameterlist( 0 )( 0 ).set( "ILUTol", 1e-6 );
+            tParameterlist( 0 )( 0 ).set( "preconditioners", "0" );
 
             tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
             tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
@@ -265,7 +263,10 @@ namespace moris
             tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
             tParameterlist( 6 )( 0 ).set( "SOL_TPL_Type", static_cast< uint >( sol::MapType::Petsc ) );
 
-            tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE );
+            tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::PETSC );
+            tParameterlist( 7 )( 0 ).set( "PCType", std::string( "mg" ) );
+            tParameterlist( 7 )( 0 ).set( "ILUFill", 3 );
+            tParameterlist( 7 )( 0 ).set( "ILUTol", 1e-6 );
 
             tSolverWarehouse.set_parameterlist( tParameterlist );
 

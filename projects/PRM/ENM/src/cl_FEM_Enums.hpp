@@ -239,7 +239,8 @@ namespace moris
             STRUC_LIN_ISO_DAMAGE,
             STRUC_NON_LIN_ISO,
             STRUC_NON_LIN_ISO_SAINT_VENANT_KIRCHHOFF,
-            STRUC_NON_LIN_ISO_NEO_HOOKEAN,
+            STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_BONET,
+            STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
             FLUID_INCOMPRESSIBLE,
             FLUID_TURBULENCE,
             FLUID_COMPRESSIBLE_IDEAL,
@@ -399,6 +400,10 @@ namespace moris
             PK2,
             CAUCHY,
             DEFORMATION_GRADIENT,
+            RIGHT_CAUCHY_GREEN,
+            INV_RIGHT_CAUCHY_GREEN,
+            LEFT_CAUCHY_GREEN,
+            INV_LEFT_CAUCHY_GREEN,
             LAGRANGIAN,
             EULERIAN,
             END_CM_FUNCTION_TYPE
@@ -420,6 +425,7 @@ namespace moris
         {
             UNDEFINED,
             STRAIN,
+            TEST_STRAIN,
             FLUX,
             TRACTION,
             TEST_TRACTION,

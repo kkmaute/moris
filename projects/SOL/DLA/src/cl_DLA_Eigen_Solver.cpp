@@ -86,15 +86,7 @@ using namespace dla;
 
 // ----------------------------------------------------------------------------
 
-Eigen_Solver::Eigen_Solver()
-{
-    // set eigen solver manager parameters
-    this->set_eigen_solver_manager_parameters();
-}
-
-// ----------------------------------------------------------------------------
-
-Eigen_Solver::Eigen_Solver( const ParameterList* aParameterList )
+Eigen_Solver::Eigen_Solver( const Parameter_List* aParameterList )
         : Linear_Solver_Algorithm_Trilinos( *aParameterList )
         , mMat( NULL )
         , mMassMat( NULL )

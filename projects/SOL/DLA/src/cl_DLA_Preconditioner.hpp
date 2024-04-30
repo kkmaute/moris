@@ -21,36 +21,23 @@ namespace moris::dla
     {
       protected:
         bool mIsInitialized = false;
-
         Linear_Problem* mLinearSystem = nullptr;
-
-        moris::ParameterList* mParameterList;
+        const Parameter_List& mParameterList;
 
       public:
-        //-------------------------------------------------------------------------------
 
-        Preconditioner();
-
-        //-------------------------------------------------------------------------------
-
-        Preconditioner(
-                moris::ParameterList* aParameterlist,
-                Linear_Problem*       aLinearSystem );
-
-        //-------------------------------------------------------------------------------
-
-        virtual ~Preconditioner(void);
-
-        //-------------------------------------------------------------------------------
-
-        /*
-         * initialize preconditioner by setting parameter list and linear system
+        /**
+         * Constructor
          */
-        virtual void initialize(
-                moris::ParameterList* aParameterlist,
-                Linear_Problem*       aLinearSystem ) {};
+        explicit Preconditioner( const Parameter_List& aParameterList )
+                : mParameterList( aParameterList )
+        {
+        }
 
-        //-------------------------------------------------------------------------------
+        /**
+         * Destructor
+         */
+        virtual ~Preconditioner() = default;
 
         /*
          * build and compute preconditioner
@@ -67,22 +54,6 @@ namespace moris::dla
          **/
 
         virtual bool exists() { return mIsInitialized; };
-
-
-        //-------------------------------------------------------------------------------
-
-        /**
-         * @brief Set the param object
-         *
-         * @param aKey
-         * @return ParameterListTypes&
-         */
-
-        ParameterListTypes&
-        set_param( const std::string& aKey )
-        {
-            return ( *mParameterList )( aKey );
-        }
 
         //-------------------------------------------------------------------------------
     };

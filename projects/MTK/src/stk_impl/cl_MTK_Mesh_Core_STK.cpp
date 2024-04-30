@@ -2437,7 +2437,7 @@ namespace moris
             //            Matrix< DDNIMat >  tCompFound = find ( tDummy );
             //
             //
-            //            MORIS_ASSERT( !isempty( tCompFound ),
+            //            MORIS_ASSERT( !is_empty( tCompFound ),
             //                    "Number of components (columns) for all FieldsData should "
             //                    "match one of the supported sizes {1, 2, 3, 4, 9}.");
             //

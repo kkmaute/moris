@@ -4,7 +4,10 @@
 #
 # https://wiki.wxwidgets.org/Valgrind_Suppression_File_Howto
 #
-# A script to extract the actual suppression info from the output of (for example) valgrind --leak-check=full --show-reachable=yes --error-limit=no --gen-suppressions=all ./minimal
+# A script to extract the actual suppression info from the output of (for example)
+#
+# valgrind --leak-check=full --show-reachable=yes --error-limit=no --gen-suppressions=all --log-file=minimalraw.log ./minimal
+#
 # The desired bits are between ^{ and ^} (including the braces themselves).
 # The combined output should either be appended to /usr/lib/valgrind/default.supp, or placed in a .supp of its own
 # If the latter, either tell valgrind about it each time with --suppressions=<filename>, or add that line to ~/.valgrindrc

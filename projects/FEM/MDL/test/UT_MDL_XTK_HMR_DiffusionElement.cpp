@@ -361,10 +361,10 @@ namespace moris
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
             dla::Solver_Factory                             tSolFactory;
-            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
-
-            tLinearSolverAlgorithm->set_param( "AZ_diagnostics" ) = AZ_none;
-            tLinearSolverAlgorithm->set_param( "AZ_output" )      = AZ_none;
+        Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_aztec();
+        tLinearSolverParameterList.set( "AZ_diagnostics", AZ_none );
+        tLinearSolverParameterList.set( "AZ_output", AZ_none );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( tLinearSolverParameterList );
 
             dla::Linear_Solver tLinSolver;
 
@@ -375,12 +375,7 @@ namespace moris
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
             NLA::Nonlinear_Solver_Factory               tNonlinFactory;
-            std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
-
-            //        tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 10;
-            //        tNonlinearSolverAlgorithm->set_param("NLA_hard_break") = false;
-            //        tNonlinearSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;
-            //        tNonlinearSolverAlgorithm->set_param("NLA_rebuild_jacobian") = true;
+            std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver();
 
             tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
 
@@ -640,10 +635,10 @@ namespace moris
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
             dla::Solver_Factory                             tSolFactory;
-            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
-
-            tLinearSolverAlgorithm->set_param( "AZ_diagnostics" ) = AZ_none;
-            tLinearSolverAlgorithm->set_param( "AZ_output" )      = AZ_none;
+        Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_aztec();
+        tLinearSolverParameterList.set( "AZ_diagnostics", AZ_none );
+        tLinearSolverParameterList.set( "AZ_output", AZ_none );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( tLinearSolverParameterList );
 
             dla::Linear_Solver tLinSolver;
 
@@ -654,12 +649,7 @@ namespace moris
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
             NLA::Nonlinear_Solver_Factory               tNonlinFactory;
-            std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
-
-            //        tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 10;
-            //        tNonlinearSolverAlgorithm->set_param("NLA_hard_break") = false;
-            //        tNonlinearSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;
-            //        tNonlinearSolverAlgorithm->set_param("NLA_rebuild_jacobian") = true;
+            std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver();
 
             tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
 
@@ -938,7 +928,7 @@ namespace moris
             //-------------------------------------------------------
             sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
-            Vector< Vector< moris::ParameterList > > tParameterlist( 8 );
+            Vector< Vector< moris::Parameter_List > > tParameterlist( 8 );
             for ( uint Ik = 0; Ik < 8; Ik++ )
             {
                 tParameterlist( Ik ).resize( 1 );
@@ -946,9 +936,7 @@ namespace moris
 
             tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::PETSC );
             tParameterlist( 0 )( 0 ).set( "KSPType", std::string( "fgmres" ) );
-            tParameterlist( 0 )( 0 ).set( "PCType", std::string( "mg" ) );
-            tParameterlist( 0 )( 0 ).set( "ILUFill", 3 );
-            tParameterlist( 0 )( 0 ).set( "ILUTol", 1e-6 );
+            tParameterlist( 0 )( 0 ).set( "preconditioners", std::string( "0" ) );
 
             tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
             tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
@@ -964,7 +952,8 @@ namespace moris
             tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
             tParameterlist( 6 )( 0 ).set( "SOL_TPL_Type", static_cast< uint >( sol::MapType::Petsc ) );
 
-            tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE );
+            tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::PETSC );
+            tParameterlist( 7 )( 0 ).set( "PCType", std::string( "mg" ) );
 
             tSolverWarehouse.set_parameterlist( tParameterlist );
 
@@ -1226,7 +1215,7 @@ namespace moris
             //-------------------------------------------------------
             sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
-            Vector< Vector< moris::ParameterList > > tParameterlist( 8 );
+            Vector< Vector< moris::Parameter_List > > tParameterlist( 8 );
             for ( uint Ik = 0; Ik < 8; Ik++ )
             {
                 tParameterlist( Ik ).resize( 1 );

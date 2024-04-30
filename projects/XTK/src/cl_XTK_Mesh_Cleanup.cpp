@@ -10,14 +10,14 @@
 
 #include "cl_XTK_Mesh_Cleanup.hpp"
 #include "cl_XTK_Model.hpp"
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 #include "cl_MTK_Cell.hpp"
 #include "cl_XTK_Child_Mesh.hpp"
 #include "cl_Tracer.hpp"
 namespace moris::xtk
 {
     Mesh_Cleanup::Mesh_Cleanup( Model* aModel,
-            moris::ParameterList*      aParamList )
+            moris::Parameter_List*      aParamList )
             : mModel( aModel )
     {
         mMeshCleanupParameters.mDeactivateOneBPChildMeshes = aParamList->get< bool >( "cleanup_cut_mesh" );
