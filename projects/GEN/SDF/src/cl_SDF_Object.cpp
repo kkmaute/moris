@@ -29,8 +29,8 @@ namespace moris
 
         Object::Object( const std::string& aFilePath,
                 real                       aIntersectionTolerance,
-                const Vector< real >&        aOffsets,
-                const Vector< real >&        aScale )
+                const Vector< real >&      aOffsets,
+                const Vector< real >&      aScale )
                 : mNumberOfFacets( 0 )
         {
             MORIS_ERROR( aOffsets.size() > 0, "SDF - Object(): Null offset matrix provided. If no offset is needed, use the default value" );
@@ -179,7 +179,7 @@ namespace moris
                 {
                     // temporary container for vertices
                     Vector< std::shared_ptr< Facet_Vertex > > tNodes( mDimension, nullptr );
-                    Matrix< DDUMat >                               tNodeIndices( 3, 1 );
+                    Matrix< DDUMat >                          tNodeIndices( 3, 1 );
                     // read facet topology
                     if ( mDimension == 3 )
                     {
@@ -242,7 +242,7 @@ namespace moris
         //-------------------------------------------------------------------------------
         void
         Object::load_ascii_to_buffer( const std::string& aFilePath,
-                Vector< std::string >&              aBuffer )
+                Vector< std::string >&                   aBuffer )
         {
             // try to open ascii file
             std::ifstream tAsciiFile( aFilePath );
@@ -379,6 +379,42 @@ namespace moris
                 mFacets( iTriangle ) = std::make_shared< Triangle >( iTriangle, tNodes );
                 mNumberOfFacets++;
             }
+        }
+
+        //-------------------------------------------------------------------------------
+
+        void
+        Object::write_to_obj_file( std::string aFilePath )
+        {
+            // Open file for writing
+            std::ofstream tFile;
+            tFile.open( aFilePath );
+
+            // Write vertices
+            for ( auto iVertex : mVertices )
+            {
+                tFile << "v ";
+                for ( uint iDimension = 0; iDimension < mDimension; iDimension++ )
+                {
+                    tFile << iVertex->get_coord( iDimension ) << " ";
+                }
+                tFile << std::endl;
+            }
+
+            // Write facets
+            for ( auto iFacet : mFacets )
+            {
+                tFile << "f ";
+                Matrix< IdMat > tIndices = iFacet->get_vertex_inds();
+                for ( uint iDimension = 0; iDimension < mDimension; iDimension++ )
+                {
+                    tFile << tIndices( iDimension ) << " ";
+                }
+                tFile << std::endl;
+            }
+
+            // close file
+            tFile.close();
         }
 
         //-------------------------------------------------------------------------------

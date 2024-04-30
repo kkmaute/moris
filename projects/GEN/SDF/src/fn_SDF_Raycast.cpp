@@ -477,7 +477,7 @@ namespace moris::sdf
         uint tNumberOfFacets = aIntersectedFacets.size();
 
         // initialize vector with coords in axis
-        Matrix< DDRMat > tCoordsK( tNumberOfFacets, 1 );
+        Vector< real > tCoordsK( tNumberOfFacets, 1 );
 
         uint tCount = 0;
 
@@ -522,36 +522,49 @@ namespace moris::sdf
             // resize coord array
             tCoordsK.resize( tCount, 1 );
 
-            // sort array
-            Matrix< DDRMat > tCoordsKSorted;
-            sort( tCoordsK, tCoordsKSorted );
+            // Get the indices of the coordinate array
+            Vector< uint > tCoordsIndices( tCoordsK.size() );
+            std::iota( tCoordsIndices.begin(), tCoordsIndices.end(), 0 );
+
+            // sort the indices of the array based on the intersection values
+            std::sort( tCoordsIndices.begin(), tCoordsIndices.end(), [ &tCoordsK ]( uint i, uint j ) {
+                return tCoordsK( i ) < tCoordsK( j ) ;
+            } ); 
+
+            // rearrange both tCoordsK and the facets based on the sort
+            Vector< real > tCoordsKSorted( tCoordsK.size() );
+            Vector< Facet* > tIntersectedFacetsSorted( aIntersectedFacets.size() );
+            for( uint iIntersectionIndex = 0; iIntersectionIndex < tCoordsK.size(); iIntersectionIndex++)
+            {
+                tCoordsKSorted( iIntersectionIndex ) = tCoordsK( tCoordsIndices( iIntersectionIndex ) );
+                tIntersectedFacetsSorted( iIntersectionIndex ) = aIntersectedFacets( tCoordsIndices( iIntersectionIndex ) );
+            }
 
             // make result unique
             uint tCountUnique = 0;
 
-            // initialize return Cell
+            // initialize return vector
             Vector< real > tIntersectionCoords( tCount );
 
             // set first entry
-            tIntersectionCoords( tCountUnique++ ) = tCoordsKSorted( 0 );
+            tIntersectionCoords( tCountUnique ) = tCoordsKSorted( 0 );
+            aIntersectedFacets( tCountUnique++) = tIntersectedFacetsSorted( 0 );
 
             // find unique entries
             for ( uint k = 1; k < tCount; ++k )
             {
                 if ( std::abs( tCoordsKSorted( k ) - tCoordsKSorted( k - 1 ) ) > 10 * MORIS_REAL_EPS )
                 {
-                    tIntersectionCoords( tCountUnique++ ) = tCoordsKSorted( k );
-                }
-                else
-                {
-                    // erase the facet from the list of intersected facets
-                    // FIXME BRENDAN: THIS WILL CAUSE BIG ISSUES IF THE COORDS OF K ARE REARRANGED. THIS VECTOR NEEDS TO ALSO BE REARRANGED IN THE SAME MANNER
-                    aIntersectedFacets.erase( k );
+                    tIntersectionCoords( tCountUnique ) = tCoordsKSorted( k );
+                    aIntersectedFacets( tCountUnique ) = tIntersectedFacetsSorted( k );
+
+                    tCountUnique++;
                 }
             }
 
             // chop vector
             tIntersectionCoords.resize( tCountUnique );
+            aIntersectedFacets.resize( tCountUnique );
 
             return tIntersectionCoords;
         }

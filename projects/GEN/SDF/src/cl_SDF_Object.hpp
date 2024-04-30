@@ -139,6 +139,16 @@ namespace moris
                     uint aFacetIndex,
                     uint aAxis );
 
+            //-------------------------------------------------------------------------------
+
+            /**
+             * Outputs the surface mesh to a .obj file
+             * 
+             * @param aFilePath the desired file name and location
+             */
+            void
+            write_to_obj_file( std::string aFilePath );
+
 
             //-------------------------------------------------------------------------------
             // MTK

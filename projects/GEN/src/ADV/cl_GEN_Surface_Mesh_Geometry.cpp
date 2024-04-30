@@ -143,9 +143,6 @@ namespace moris::gen
         // Raycast from the point
         sdf::Object_Region tRegion = raycast_point( *this, aNodeCoordinates );
 
-        PRINT( aNodeCoordinates );
-        std::cout << "Region ( 0 out, 1 in, 2 interface ): " << tRegion << std::endl;
-
         switch ( tRegion )
         {
             case sdf::Object_Region::INSIDE:
@@ -204,6 +201,9 @@ namespace moris::gen
             const Parent_Node&                aSecondParentNode,
             sdf::Facet*&                      aParentFacet )
     {
+        PRINT( aFirstParentNode.get_global_coordinates() );
+        PRINT( aSecondParentNode.get_global_coordinates() );
+
         // transform the interface geometry to local coordinates
         this->transform_surface_mesh_to_local_coordinate( aFirstParentNode, aSecondParentNode );
 
@@ -332,14 +332,10 @@ namespace moris::gen
     {
         for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
         {
-            // STEP 1: Update the vertex bases
-            // FIXME: this should not be done to make the optimization process differentiable, but NOT doing it causes wiggles in the sweep
-            // this->update_all_vertex_bases();
-
-            // STEP 2: Import advs to field
+            // STEP 1: Import advs to field
             mPerturbationFields( iFieldIndex )->import_advs( aOwnedADVs );
 
-            // STEP 3: Apply field value to surface mesh nodes
+            // STEP 2: Apply field value to surface mesh nodes
             for ( uint iVertexIndex = 0; iVertexIndex < Object::mVertices.size(); iVertexIndex++ )
             {
                 bool tVertexShouldPerturb = true;
@@ -367,6 +363,15 @@ namespace moris::gen
                 }
             }
         }
+
+        // Update all facet data
+        this->update_all_facets();
+
+        // BRENDAN delete probably
+        // Write the new surface mesh to an obj file
+        mIteration++;
+        std::string tFileName = mName + "_" + std::to_string( mIteration ) + ".obj";
+        this->write_to_obj_file( tFileName );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -545,6 +550,12 @@ namespace moris::gen
     bool
     Surface_Mesh_Geometry::facet_vertex_depends_on_advs( uint aFacetVertexIndex )
     {
+        // check if the whole surface mesh depends on advs
+        if ( !this->depends_on_advs() )
+        {
+            return false;
+        }
+
         // check if this node was specified to be fixed
         for ( auto iFacetVertex : mParameters.mFixedVertexIndices )
         {
@@ -554,7 +565,8 @@ namespace moris::gen
             }
         }
 
-        return !( mVertexBackgroundElementIndices( aFacetVertexIndex ) == -1);
+        // return whether or not the node is in the mesh domain or not
+        return !( mVertexBackgroundElementIndices( aFacetVertexIndex ) == -1 );
     }
 
     //--------------------------------------------------------------------------------------------------------------
