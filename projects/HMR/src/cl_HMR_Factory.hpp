@@ -97,6 +97,20 @@ namespace moris::hmr
                 luint                 aPolynomialDegree,
                 uint                  aMeshIndex = MORIS_UINT_MAX );
 
+        /**
+         * Creates a dummy B-spline mesh, for L2 testing purposes.
+         *
+         * @param aBackgroundMesh Background mesh
+         * @param aBSplineOrder B-spline order
+         * @param aBsplinePattern B-spline pattern
+         * @return New B-spline mesh
+         */
+        BSpline_Mesh_Base*
+        create_dummy_bspline_mesh(
+                Background_Mesh_Base* aBackgroundMesh,
+                uint                  aBSplineOrder,
+                uint                  aBSplinePattern );
+
         // ----------------------------------------------------------------------------
 
         /**

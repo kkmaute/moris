@@ -340,6 +340,140 @@ namespace moris::hmr
 
     //-------------------------------------------------------------------------------
 
+    BSpline_Mesh_Base*
+    Factory::create_dummy_bspline_mesh(
+            Background_Mesh_Base* aBackgroundMesh,
+            uint                  aBSplineOrder,
+            uint                  aBSplinePattern )
+    {
+        // get number of dimensions from settings
+        uint tNumberOfDimensions = mParameters->get_number_of_dimensions();
+
+        switch ( tNumberOfDimensions )
+        {
+            case ( 2 ):
+            {
+                switch ( aBSplineOrder )
+                {
+                    case ( 1 ):
+                    {
+                        return new BSpline_Mesh< 1, 1, 0 >(
+                                mParameters,
+                                aBackgroundMesh,
+                                aBSplinePattern,
+                                MORIS_UINT_MAX );
+                    }
+                    case ( 2 ):
+                    {
+                        return new BSpline_Mesh< 2, 2, 0 >(
+                                mParameters,
+                                aBackgroundMesh,
+                                aBSplinePattern,
+                                MORIS_UINT_MAX );
+                    }
+                    case ( 3 ):
+                    {
+                        return new BSpline_Mesh< 3, 3, 0 >(
+                                mParameters,
+                                aBackgroundMesh,
+                                aBSplinePattern,
+                                MORIS_UINT_MAX );
+                    }
+                    case ( 4 ):
+                    {
+                        return new BSpline_Mesh< 4, 4, 0 >(
+                                mParameters,
+                                aBackgroundMesh,
+                                aBSplinePattern,
+                                MORIS_UINT_MAX );
+                    }
+                    case ( 5 ):
+                    {
+                        return new BSpline_Mesh< 5, 5, 0 >(
+                                mParameters,
+                                aBackgroundMesh,
+                                aBSplinePattern,
+                                MORIS_UINT_MAX );
+                    }
+                    default:
+                    {
+                        MORIS_ERROR(
+                                false,
+                                "hmr::Factory::create_bspline_mesh(): unsupported polynomial degree %u for dimension %u",
+                                (unsigned int)aBSplineOrder,
+                                (unsigned int)tNumberOfDimensions );
+                        return nullptr;
+                    }
+                }
+            }
+            case ( 3 ):
+            {
+                switch ( aBSplineOrder )
+                {
+                    case ( 1 ):
+                    {
+                        return new BSpline_Mesh< 1, 1, 1 >(
+                                mParameters,
+                                aBackgroundMesh,
+                                aBSplinePattern,
+                                MORIS_UINT_MAX );
+                    }
+                    case ( 2 ):
+                    {
+                        return new BSpline_Mesh< 2, 2, 2 >(
+                                mParameters,
+                                aBackgroundMesh,
+                                aBSplinePattern,
+                                MORIS_UINT_MAX );
+                    }
+                    case ( 3 ):
+                    {
+                        return new BSpline_Mesh< 3, 3, 3 >(
+                                mParameters,
+                                aBackgroundMesh,
+                                aBSplinePattern,
+                                MORIS_UINT_MAX );
+                    }
+                    case ( 4 ):
+                    {
+                        return new BSpline_Mesh< 4, 4, 4 >(
+                                mParameters,
+                                aBackgroundMesh,
+                                aBSplinePattern,
+                                MORIS_UINT_MAX );
+                    }
+                    case ( 5 ):
+                    {
+                        return new BSpline_Mesh< 5, 5, 5 >(
+                                mParameters,
+                                aBackgroundMesh,
+                                aBSplinePattern,
+                                MORIS_UINT_MAX );
+                    }
+                    default:
+                    {
+                        MORIS_ERROR(
+                                false,
+                                "hmr::Factory::create_bspline_mesh(): unsupported polynomial degree %u for dimension %u",
+                                (unsigned int)aBSplineOrder,
+                                (unsigned int)tNumberOfDimensions );
+                        return nullptr;
+                    }
+                }
+            }
+            default:
+            {
+                MORIS_ERROR(
+                        false,
+                        "hmr::Factory::create_bspline_mesh(): unknown number of dimensions %u",
+                        (unsigned int)tNumberOfDimensions );
+                return nullptr;
+            }
+        }
+    }
+
+    //-------------------------------------------------------------------------------
+
 #define CREATE_BSPLINE_MESH( x, y, z ) \
     switch ( z )                                                                         \
     {                                                                                    \
