@@ -201,9 +201,6 @@ namespace moris::gen
             const Parent_Node&                aSecondParentNode,
             sdf::Facet*&                      aParentFacet )
     {
-        PRINT( aFirstParentNode.get_global_coordinates() );
-        PRINT( aSecondParentNode.get_global_coordinates() );
-
         // transform the interface geometry to local coordinates
         this->transform_surface_mesh_to_local_coordinate( aFirstParentNode, aSecondParentNode );
 

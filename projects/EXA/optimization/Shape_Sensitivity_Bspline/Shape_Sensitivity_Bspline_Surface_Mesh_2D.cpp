@@ -167,9 +167,10 @@ namespace moris
 
         tParameterlist( 0 )( 0 ) = prm::create_hmr_parameter_list();
 
-        tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", "2, 2" );
-        tParameterlist( 0 )( 0 ).set( "domain_dimensions", "2.0, 2.0" );
-        tParameterlist( 0 )( 0 ).set( "domain_offset", "-1.0, -1.0" );
+        tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", "2, 1" );
+        tParameterlist( 0 )( 0 ).set( "domain_dimensions", "2.0, 1.0" );
+        // tParameterlist( 0 )( 0 ).set( "domain_offset", "-1.0, -1.0" );
+        tParameterlist( 0 )( 0 ).set( "domain_offset", "0.0, 0.0" );
         tParameterlist( 0 )( 0 ).set( "domain_sidesets", "1,2,3,4" );
         tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes", "0" );
 
@@ -243,19 +244,19 @@ namespace moris
                 tParameterlist( 0 )( 0 ).set( "upper_bounds", "1.00, 1.00" );
                 break;
         }
-        // Geometry parameter lists
         tParameterlist( 1 ).resize( 1 );
 
         tParameterlist( 1 )( 0 ) = prm::create_surface_mesh_geometry_parameter_list();
-        tParameterlist( 1 )( 0 ).set("file_path",   "/home/chong/codes/moris/projects/GEN/SDF/test/data/rhombus.obj"); //BRENDAN FIXME
+        tParameterlist( 1 )( 0 ).set("file_path",   "/home/chong/work/SP24/Input_Files/triangle_sensitivity.obj"); //BRENDAN FIXME
         switch( tGeoModel )
         {
             case 0:
                 tParameterlist( 1 )( 0 ).set("fixed_vertex_indices", "0");
                 tParameterlist( 1 )( 0 ).set("adv_indices", "0,1");
+                // tParameterlist( 1 )( 0 ).set( "discretization_mesh_index", 0 );
                 break;
             case 1:
-                tParameterlist( 1 )( 0 ).set("fixed_vertex_indices", "0");
+                // tParameterlist( 1 )( 0 ).set("fixed_vertex_indices", "0");
                 tParameterlist( 1 )( 0 ).set( "discretization_mesh_index", 0 );
                 break;
             default:
@@ -401,7 +402,7 @@ namespace moris
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkVolume" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::VOLUME ) );
-        tParameterList( 4 )( tIQICounter ).set( "leader_properties", "PropDensity,Density" );
+        // tParameterList( 4 )( tIQICounter ).set( "leader_properties", "PropDensity,Density" );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tMeshSets );
 
         //------------------------------------------------------------------------------

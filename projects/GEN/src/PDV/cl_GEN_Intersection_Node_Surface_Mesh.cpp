@@ -143,30 +143,27 @@ namespace moris::gen
         // Get the rotation matrix from the intersection node
         Matrix< DDRMat > tRotationMatrix = this->get_rotation_matrix();
 
+        // Get the facet vertices
+        Matrix< DDRMat > tVertex1Coordinates = mParentFacet->get_vertex_coords().get_row( 0 );
+        Matrix< DDRMat > tVertex2Coordinates = mParentFacet->get_vertex_coords().get_row( 1 );
+
         // get the normal vector rotated in the local coordinate frame
         Matrix< DDRMat > tNormalPrime = tRotationMatrix * mParentFacet->get_normal();
 
         // get the center vector in the local coordinate frame
         Matrix< DDRMat > tCenterPrime = 2.0 / ( (real)mInterfaceGeometry.get_dimension() * tParentVectorNorm ) * tRotationMatrix * ( mParentFacet->get_center() - trans( this->get_first_parent_node().get_global_coordinates() ) );
 
-        // compute vector between facet vertices, and unnormalized normal vector
-        Matrix< DDRMat > tFacetVector     = trans( mParentFacet->get_vertex_coords().get_row( 1 ) - mParentFacet->get_vertex_coords().get_row( 0 ) );
-        real             tFacetVectorNorm = norm( tFacetVector );
-        Matrix< DDRMat > tNormal          = { { mParentFacet->get_vertex_coord( 0, 1 ) - mParentFacet->get_vertex_coord( 1, 1 ) }, { mParentFacet->get_vertex_coord( 1, 0 ) - mParentFacet->get_vertex_coord( 0, 0 ) } };
-
-        // derivative of normal vector
-        Matrix< DDRMat > tdNormaldVertex1 = { { 0.0, 1.0 }, { -1.0, 0.0 } };
-        Matrix< DDRMat > tdNormaldVertex2 = { { 0.0, -1.0 }, { 1.0, 0.0 } };
-
         // Sensitivity of the normal vector to the vertices
-        Matrix< DDRMat > tdNormalPrimedVertex1 = tRotationMatrix / tFacetVectorNorm * ( tdNormaldVertex1 + std::pow( tFacetVectorNorm, -3.0 ) * tNormal * trans( tFacetVector ) );
-        Matrix< DDRMat > tdNormalPrimedVertex2 = tRotationMatrix / tFacetVectorNorm * ( tdNormaldVertex2 - std::pow( tFacetVectorNorm, -3.0 ) * tNormal * trans( tFacetVector ) );
 
+        Matrix< DDRMat > tdNormalPrimedVertex1 = { { ( tVertex2Coordinates( 1 ) - tVertex1Coordinates( 1 ) ) * ( tVertex1Coordinates( 0 ) - tVertex2Coordinates( 0 ) ), -1.0 * std::pow( tVertex2Coordinates( 1 ) - tVertex1Coordinates( 1 ), 2.0 ) }, { std::pow( tVertex2Coordinates( 0 ) - tVertex1Coordinates( 0 ), 2.0 ), ( tVertex1Coordinates( 0 ) - tVertex2Coordinates( 0 ) ) * ( tVertex1Coordinates( 1 ) - tVertex2Coordinates( 1 ) ) } };
+        tdNormalPrimedVertex1                  = tRotationMatrix / std::pow( norm( tVertex2Coordinates - tVertex1Coordinates ), 3.0 ) * tdNormalPrimedVertex1;
+        Matrix< DDRMat > tdNormalPrimedVertex2 = { { ( tVertex1Coordinates( 1 ) - tVertex2Coordinates( 1 ) ) * ( tVertex1Coordinates( 0 ) - tVertex2Coordinates( 0 ) ), std::pow( tVertex2Coordinates( 1 ) - tVertex1Coordinates( 1 ), 2.0 ) }, { -1.0 * std::pow( tVertex2Coordinates( 0 ) - tVertex1Coordinates( 0 ), 2.0 ), ( tVertex2Coordinates( 0 ) - tVertex1Coordinates( 0 ) ) * ( tVertex1Coordinates( 1 ) - tVertex2Coordinates( 1 ) ) } };
+        tdNormalPrimedVertex2                  = tRotationMatrix / std::pow( norm( tVertex2Coordinates - tVertex1Coordinates ), 3.0 ) * tdNormalPrimedVertex2;
 
         Matrix< DDRMat > tdCenterdVertices = 2.0 / ( (real)mInterfaceGeometry.get_dimension() * tParentVectorNorm ) * tRotationMatrix;
 
-        return join_rows( ( 1 / std::pow( tNormalPrime( 0 ), 2 ) ) * ( ( tdNormalPrimedVertex1 * tCenterPrime + tdCenterdVertices * tNormalPrime ) * tNormalPrime( 0 ) - trans( tdNormalPrimedVertex1.get_row( 0 ) ) * dot( tNormalPrime, tCenterPrime ) ),
-                ( 1 / std::pow( tNormalPrime( 0 ), 2 ) ) * ( ( tdNormalPrimedVertex2 * tCenterPrime + tdCenterdVertices * tNormalPrime ) * tNormalPrime( 0 ) - trans( tdNormalPrimedVertex2.get_row( 0 ) ) * dot( tNormalPrime, tCenterPrime ) ) );
+        return join_rows( tdNormalPrimedVertex1 * tCenterPrime / tNormalPrime( 0 ) + tdCenterdVertices * tNormalPrime / tNormalPrime( 0 ) - dot( tCenterPrime, tNormalPrime ) * trans( tdNormalPrimedVertex1.get_row( 0 ) ) / std::pow( tNormalPrime( 0 ), 2.0 ),
+                tdNormalPrimedVertex2 * tCenterPrime / tNormalPrime( 0 ) + tdCenterdVertices * tNormalPrime / tNormalPrime( 0 ) - dot( tCenterPrime, tNormalPrime ) * trans( tdNormalPrimedVertex2.get_row( 0 ) ) / std::pow( tNormalPrime( 0 ), 2.0 ) );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -178,7 +175,7 @@ namespace moris::gen
         const Basis_Node& tSecondParentNode = this->get_second_parent_node();
 
         // BRENDAN
-        if ( std::abs( this->get_local_coordinate() + 0.5 ) < 1e-4 or std::abs( this->get_local_coordinate() - 1.5 ) < 1e-4 )
+        if ( mParentFacet->get_index() == 0 and std::abs( tFirstParentNode.get_global_coordinates()( 0 ) - 1.0 ) < 1e-4 and std::abs( tSecondParentNode.get_global_coordinates()( 0 ) - 1.0 ) < 1e-4 )
         {
             std::cout << "this is the node we are testing\n";
         }
