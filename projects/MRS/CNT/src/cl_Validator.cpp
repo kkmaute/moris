@@ -156,14 +156,14 @@ namespace moris
             // Design variable given directly, okay
             return true;
         }
-        else if ( aVariant.index() == Variant( 0.0 ).index() )
+        else if ( aVariant.index() == get_variant_index< real >() )
         {
             // Real value given, convert to constant parameter
             Design_Variable tDesignVariable( std::get< real >( aVariant ) );
             aVariant = tDesignVariable;
             return true;
         }
-        else if ( aVariant.index() == Variant( Vector< real >() ).index() )
+        else if ( aVariant.index() == get_variant_index< Vector< real > >() )
         {
             // Vector given, check that there are 3 elements then set to design variable
             Vector< real > tVariableInputs = std::get< Vector< real > >( aVariant );

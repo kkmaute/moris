@@ -157,6 +157,5 @@ namespace moris
 
     // Declare template specializations of the Parameter constructor
     template<> Parameter::Parameter( const char* );
-    template<> Parameter::Parameter( const Vector< const char* >& );
-    template<> Parameter::Parameter( const Design_Variable& );
+    template<> Parameter::Parameter( Design_Variable );
 }

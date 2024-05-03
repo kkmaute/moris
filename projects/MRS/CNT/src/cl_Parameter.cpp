@@ -57,18 +57,6 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     template<>
-    Parameter::Parameter( const Vector< const char* >& aStringVector )
-    {
-        // Set default value without validation
-        mValue = make_variant( aStringVector );
-
-        // Create type validator
-        mValidator = new Type_Validator< Vector< std::string > >();
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    template<>
     Parameter::Parameter( const char* aString )
     {
         // Set default value without validation
@@ -81,7 +69,7 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     template<>
-    Parameter::Parameter( const Design_Variable& aDesignVariable )
+    Parameter::Parameter( Design_Variable aDesignVariable )
     {
         // Set default value without validation
         mValue = aDesignVariable;
