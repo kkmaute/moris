@@ -57,8 +57,8 @@ namespace moris
     template< typename T >
     uint get_variant_index()
     {
-        T aValue;
-        Variant tVariant = aValue;
+        T tValue;
+        Variant tVariant = tValue;
         return tVariant.index();
     }
 

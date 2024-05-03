@@ -111,7 +111,7 @@ namespace moris
                 T                  aMaximumValue )
         {
             // Delegate to private implementation overload, depending on if T is an enum
-            this->insert( aName, aDefaultValue, aMinimumValue, aMaximumValue, std::is_enum< T >() );
+            this->convert_and_insert( aName, aDefaultValue, aMinimumValue, aMaximumValue, std::is_enum< T >() );
         }
 
         /**
@@ -257,7 +257,7 @@ namespace moris
          *            are trimmed off
          */
         template< typename T >
-        void insert( const std::string& aName, T aValue, T aMinimumValue, T aMaximumValue, std::false_type )
+        void convert_and_insert( const std::string& aName, T aValue, T aMinimumValue, T aMaximumValue, std::false_type )
         {
             // Check for leading and trailing whitespaces in key
             std::string tKeyWithoutSpaces = aName;
@@ -274,9 +274,9 @@ namespace moris
          * Insert function overload, for static casting enums to a uint.
          */
         template< typename T >
-        void insert( const std::string& aName, T aValue, T aMinimumValue, T aMaximumValue, std::true_type )
+        void convert_and_insert( const std::string& aName, T aValue, T aMinimumValue, T aMaximumValue, std::true_type )
         {
-            this->insert(
+            this->convert_and_insert(
                     aName,
                     static_cast< uint >( aValue ),
                     static_cast< uint >( aMinimumValue ),
