@@ -30,8 +30,6 @@ namespace moris
 
         /**
          * Validator constructor
-         *
-         * @param aTypeIndex Variant type index
          */
         Validator() = default;
 
@@ -82,6 +80,7 @@ namespace moris
     template class Type_Validator< real >;
     template class Type_Validator< std::string >;
     template class Type_Validator< std::pair< std::string, std::string > >;
+    template class Type_Validator< Design_Variable >;
 
     /**
      * A vector validator checks to make sure that the input type is either the correct vector type,
@@ -124,9 +123,8 @@ namespace moris
 
       public:
         /**
-         * A range validator checks inputs to ensure the value lies within a specific range.
+         * Range validator constructor, with given minimum and maximum values.
          *
-         * @param aTypeIndex Variant type index
          * @param aMinimumValue Maximum permitted parameter value
          * @param aMaximumValue Minimum permitted parameter value
          */
@@ -146,6 +144,7 @@ namespace moris
     template class Range_Validator< uint >;
     template class Range_Validator< sint >;
     template class Range_Validator< real >;
+    template class Range_Validator< Design_Variable >;
 
     //--------------------------------------------------------------------------------------------------------------
 
@@ -156,7 +155,7 @@ namespace moris
      * Currently, if this is changed, it will cause the parameter to have a segmentation fault
      * in its destructor when LTO compiler optimizations are turned on.
      *
-     * @tparam T Range validator type
+     * @tparam T Selection validator type
      */
     template< typename T >
     class Selection_Validator : public Validator
@@ -166,9 +165,8 @@ namespace moris
 
       public:
         /**
-         * A selection validator checks inputs to ensure the value is one of the given selections.
+         * Selection validator constructor, with set of valid selections.
          *
-         * @param aTypeIndex Variant type index
          * @param aValidSelections Valid values for this parameter
          */
         Selection_Validator( const std::set< T >& aValidSelections );
@@ -189,14 +187,14 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     /**
-     * A design variable validator has special rules. It allows a parameter to be set as a design variable,
+     * Design variable validators have special rules. They allow a parameter to be set as a design variable,
      * a single real value, or a vector of 3 real values (lower bound, initial value, and upper bound).
+     * This can be either a type validator or a range validator (where the range applies to all 3 values).
      */
-    class Design_Variable_Validator : public Validator
-    {
-      public:
-        VALIDATOR_OVERRIDES
-    };
+    template<> bool Type_Validator< Design_Variable >::make_valid_parameter( Variant& aVariant );
+    template<> bool Range_Validator< Design_Variable >::make_valid_parameter( Variant& aVariant );
+    template<> std::string Type_Validator< Design_Variable >::get_valid_values();
+    template<> std::string Range_Validator< Design_Variable >::get_valid_values();
 
     //--------------------------------------------------------------------------------------------------------------
 

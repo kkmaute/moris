@@ -31,7 +31,7 @@ namespace moris
          *
          * @param aConstantValue Constant value for this variable
          */
-        Design_Variable( real aConstantValue = 0.0 );
+        Design_Variable( real aConstantValue = 0.0 ); // NOLINT implicit conversion is fine here
 
         /**
          * Constructor for a varying design variable.
@@ -47,27 +47,45 @@ namespace moris
          *
          * @return Is constant
          */
-        bool is_constant();
+        bool is_constant() const;
 
         /**
          * Gets the value of this design variable.
          *
          * @return Current value
          */
-        real get_value();
+        real get_value() const;
 
         /**
          * Gets the lower bound of this design variable.
          *
          * @return Lower bound
          */
-        real get_lower_bound();
+        real get_lower_bound() const;
 
         /**
          * Gets the upper bound of this design variable.
          *
          * @return Upper bound
          */
-        real get_upper_bound();
+        real get_upper_bound() const;
     };
+
+    /**
+     * Less than operator for design variables, comparing both the value and bounds.
+     *
+     * @param aLeft Left design variable argument
+     * @param aRight Right design variable argument
+     * @return If left is less than right
+     */
+    bool operator <( const Design_Variable& aLeft, const Design_Variable& aRight );
+
+    /**
+     * Greater than operator for design variables, comparing both the value and bounds.
+     *
+     * @param aLeft Left design variable argument
+     * @param aRight Right design variable argument
+     * @return If left is greater than right
+     */
+    bool operator >( const Design_Variable& aLeft, const Design_Variable& aRight );
 }

@@ -34,31 +34,49 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
 
-    bool Design_Variable::is_constant()
+    bool Design_Variable::is_constant() const
     {
         return mIsConstant;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real Design_Variable::get_value()
+    real Design_Variable::get_value() const
     {
         return mValue;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real Design_Variable::get_lower_bound()
+    real Design_Variable::get_lower_bound() const
     {
         return mLowerBound;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real Design_Variable::get_upper_bound()
+    real Design_Variable::get_upper_bound() const
     {
         return mUpperBound;
     }
     
+    //--------------------------------------------------------------------------------------------------------------
+
+    bool operator <( const Design_Variable& aLeft, const Design_Variable& aRight )
+    {
+        return aLeft.get_value() < aRight.get_value()
+           and aLeft.get_lower_bound() < aRight.get_lower_bound()
+           and aLeft.get_upper_bound() < aRight.get_upper_bound();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    bool operator >( const Design_Variable& aLeft, const Design_Variable& aRight )
+    {
+        return aLeft.get_value() > aRight.get_value()
+           and aLeft.get_lower_bound() > aRight.get_lower_bound()
+           and aLeft.get_upper_bound() > aRight.get_upper_bound();
+    }
+
     //--------------------------------------------------------------------------------------------------------------
 }

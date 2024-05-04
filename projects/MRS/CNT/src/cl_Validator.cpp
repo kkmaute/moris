@@ -149,7 +149,8 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
 
-    bool Design_Variable_Validator::make_valid_parameter( Variant& aVariant )
+    template<>
+    bool Type_Validator< Design_Variable >::make_valid_parameter( Variant& aVariant )
     {
         if ( aVariant.index() == get_variant_index< Design_Variable >() )
         {
@@ -187,16 +188,29 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
 
-    std::string Design_Variable_Validator::get_valid_values()
+    template<>
+    bool Range_Validator< Design_Variable >::make_valid_parameter( Variant& aVariant )
+    {
+        return Type_Validator< Design_Variable >().make_valid_parameter( aVariant )
+           and std::get< Design_Variable >( aVariant ) > mMinimumValue
+           and std::get< Design_Variable >( aVariant ) < mMaximumValue;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    template<>
+    std::string Type_Validator< Design_Variable >::get_valid_values()
     {
         return "Constant value (real) or lower bound, initial value, upper bound (3 reals)";
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Validator* Design_Variable_Validator::copy()
+    template<>
+    std::string Range_Validator< Design_Variable >::get_valid_values()
     {
-        return new Design_Variable_Validator();
+        return Type_Validator< Design_Variable >().get_valid_values()
+             + ", [" + std::to_string( mMinimumValue.get_value() ) + ", " + std::to_string( mMaximumValue.get_value() ) + "]";
     }
 
     //--------------------------------------------------------------------------------------------------------------

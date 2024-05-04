@@ -67,16 +67,4 @@ namespace moris
     }
 
     //--------------------------------------------------------------------------------------------------------------
-
-    template<>
-    Parameter::Parameter( Design_Variable aDesignVariable )
-    {
-        // Set default value without validation
-        mValue = aDesignVariable;
-
-        // Create type validator
-        mValidator = new Design_Variable_Validator();
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
 }
