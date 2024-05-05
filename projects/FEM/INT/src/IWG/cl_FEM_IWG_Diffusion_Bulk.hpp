@@ -36,9 +36,10 @@ namespace moris
             {
                 BODY_LOAD,
                 THICKNESS,
-                H2_Penalty,
-                H3_Penalty,
+                H2_PENALTY,
+                H3_PENALTY,
                 Phase_Field,
+                SELECT,
                 MAX_ENUM
             };
 
