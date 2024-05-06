@@ -91,10 +91,11 @@ namespace moris
                                   << ", " << tDesignVariable.get_value()
                                   << ", " << tDesignVariable.get_upper_bound() << "}";
                 }
+                break;
             }
             default:
             {
-                MORIS_ERROR( false, "Invalid variant index." );
+                MORIS_ERROR( false, "Invalid variant index: %lu.", aVariant.index() );
             }
         }
 
