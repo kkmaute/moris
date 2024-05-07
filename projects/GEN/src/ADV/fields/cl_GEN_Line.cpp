@@ -15,11 +15,12 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Line::Line(
-            real aXCenter,
-            real aYCenter,
-            real aXNormal,
-            real aYNormal )
-            : Field_Analytic< 2 >( { aXCenter, aYCenter, aXNormal, aYNormal } )
+            const ADV&  aXCenter,
+            const ADV&  aYCenter,
+            const ADV&  aXNormal,
+            const ADV&  aYNormal,
+            std::string aName )
+            : Field_Analytic< 2 >( { aXCenter, aYCenter, aXNormal, aYNormal }, std::move( aName ) )
     {
     }
 
@@ -29,10 +30,10 @@ namespace moris::gen
     Line::get_field_value( const Matrix< DDRMat >& aCoordinates )
     {
         // Get variables
-        real tXCenter = mADVManager.get_variable( 0 );
-        real tYCenter = mADVManager.get_variable( 1 );
-        real tXNormal = mADVManager.get_variable( 2 );
-        real tYNormal = mADVManager.get_variable( 3 );
+        real tXCenter = mADVHandler.get_variable( 0 );
+        real tYCenter = mADVHandler.get_variable( 1 );
+        real tXNormal = mADVHandler.get_variable( 2 );
+        real tYNormal = mADVHandler.get_variable( 3 );
         
         // Evaluate field value
         return tXNormal * ( aCoordinates( 0 ) - tXCenter ) + tYNormal * ( aCoordinates( 1 ) - tYCenter );
@@ -44,10 +45,10 @@ namespace moris::gen
     Line::get_dfield_dadvs( const Matrix< DDRMat >& aCoordinates )
     {
         // Get variables
-        real tXCenter = mADVManager.get_variable( 0 );
-        real tYCenter = mADVManager.get_variable( 1 );
-        real tXNormal = mADVManager.get_variable( 2 );
-        real tYNormal = mADVManager.get_variable( 3 );
+        real tXCenter = mADVHandler.get_variable( 0 );
+        real tYCenter = mADVHandler.get_variable( 1 );
+        real tXNormal = mADVHandler.get_variable( 2 );
+        real tYNormal = mADVHandler.get_variable( 3 );
         
         // Evaluate sensitivities
         mSensitivities( 0 ) = -tXNormal;
@@ -65,8 +66,8 @@ namespace moris::gen
             const Matrix< DDRMat >& aCoordinates,
             Matrix< DDRMat >&       aSensitivities )
     {
-        aSensitivities( 0 ) = mADVManager.get_variable( 2 );
-        aSensitivities( 1 ) = mADVManager.get_variable( 3 );
+        aSensitivities( 0 ) = mADVHandler.get_variable( 2 );
+        aSensitivities( 1 ) = mADVHandler.get_variable( 3 );
     }
 
     //--------------------------------------------------------------------------------------------------------------

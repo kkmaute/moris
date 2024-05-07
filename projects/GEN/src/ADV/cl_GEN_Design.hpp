@@ -11,7 +11,7 @@
 #pragma once
 
 #include "fn_PRM_GEN_Parameters.hpp"
-#include "cl_GEN_ADV_Manager.hpp"
+#include "cl_GEN_ADV_Handler.hpp"
 #include "cl_GEN_Field.hpp"
 namespace moris::gen
 {

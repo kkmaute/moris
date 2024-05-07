@@ -73,8 +73,10 @@ namespace moris::gen
 
             // Create geometry engine
             Geometry_Engine_Parameters tGeometryEngineParameters;
-            tGeometryEngineParameters.mADVs = tADVs;
-            Design_Factory tDesignFactory( { tCircleParameterList, tPlane1ParameterList, tPlane2ParameterList }, tADVs );
+            ADV_Manager tADVManager;
+            tADVManager.mADVs = tADVs;
+            Design_Factory tDesignFactory( { tCircleParameterList, tPlane1ParameterList, tPlane2ParameterList }, tADVManager );
+            tGeometryEngineParameters.mADVManager = tADVManager;
             tGeometryEngineParameters.mGeometries = tDesignFactory.get_geometries();
             Geometry_Engine_Test tGeometryEngine( tMesh, tGeometryEngineParameters );
 
@@ -552,11 +554,11 @@ namespace moris::gen
             tCircleParameterList.set( "constant_parameters", -0.25, 0.0, 0.7499999999 );
             tCircleParameterList.set( "discretization_mesh_index", 0 );
             tCircleParameterList.set( "use_multilinear_interpolation", true );
-            Vector< real > tADVs;
 
             // Create geometry engine
             Geometry_Engine_Parameters tGeometryEngineParameters;
-            Design_Factory             tDesignFactory( { tCircleParameterList }, tADVs );
+            ADV_Manager tADVManager;
+            Design_Factory tDesignFactory( { tCircleParameterList }, tADVManager );
             tGeometryEngineParameters.mGeometries = tDesignFactory.get_geometries();
             Geometry_Engine_Test tGeometryEngine( tMesh, tGeometryEngineParameters );
 
@@ -647,7 +649,7 @@ namespace moris::gen
 
                         // Finite difference sensitivities by queueing dummy nodes
                         Matrix< DDRMat > tFDSensitivities( tHostADVSensitivities.n_rows(), tHostADVSensitivities.n_cols(), 0.0 );
-                        tADVs = tGeometryEngine.get_advs();
+                        Vector< real > tADVs = tGeometryEngine.get_advs();
                         for ( uint iADVIndex = 0; iADVIndex < tADVIDs.size(); iADVIndex++ )
                         {
                             // Get ADV ID

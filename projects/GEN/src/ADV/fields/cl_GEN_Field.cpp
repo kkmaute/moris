@@ -12,7 +12,6 @@
 #include "cl_GEN_Derived_Node.hpp"
 #include "cl_GEN_Basis_Node.hpp"
 #include "cl_MTK_Field_Discrete.hpp"
-#include <utility>
 
 namespace moris::gen
 {
@@ -24,7 +23,7 @@ namespace moris::gen
             const Vector< uint >& aADVIndices,
             const Vector< real >& aConstants,
             std::string           aName )
-            : mADVManager( aADVs, aFieldVariableIndices, aADVIndices, aConstants )
+            : mADVHandler( aADVs, aFieldVariableIndices, aADVIndices, aConstants )
             , mSensitivities( 1, aFieldVariableIndices.size() + aConstants.size() )
             , mName( std::move( aName ) )
     {
@@ -33,11 +32,12 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Field::Field( const Vector< real >& aConstants,
+    Field::Field(
+            const Vector< ADV >& aADVs,
             std::string          aName )
-            : mADVManager( aConstants )
-            , mSensitivities( 1, aConstants.size(), 0.0 )
-            , mName( aName )
+            : mADVHandler( aADVs )
+            , mSensitivities( 1, aADVs.size(), 0.0 )
+            , mName( std::move( aName ) )
     {
         this->verify_name();
     }
@@ -47,7 +47,7 @@ namespace moris::gen
     Field::Field(
             const Vector< sint >& aSharedADVIds,
             std::string           aName)
-            : mADVManager( aSharedADVIds )
+            : mADVHandler( aSharedADVIds )
             , mSensitivities( 1, aSharedADVIds.size() )
             , mName( std::move( aName ) )
     {
@@ -59,7 +59,7 @@ namespace moris::gen
     Field::Field( const Field& aCopy,
             const Vector< uint >& aReplaceVariables,
             const Vector< real >& aNewConstants )
-            : mADVManager( aCopy.mADVManager, aReplaceVariables, aNewConstants )
+            : mADVHandler( aCopy.mADVHandler, aReplaceVariables, aNewConstants )
             , mSensitivities( aCopy.mSensitivities )
             , mName( aCopy.mName )
     {
@@ -79,7 +79,7 @@ namespace moris::gen
 
     void Field::import_advs( sol::Dist_Vector* aOwnedADVs )
     {
-        mADVManager.import_advs( aOwnedADVs );
+        mADVHandler.import_advs( aOwnedADVs );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -165,7 +165,7 @@ namespace moris::gen
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates )
     {
-        return mADVManager.get_determining_adv_ids();
+        return mADVHandler.get_determining_adv_ids();
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -221,7 +221,7 @@ namespace moris::gen
 
     bool Field::has_advs()
     {
-        return mADVManager.has_advs();
+        return mADVHandler.has_advs();
     }
 
     //--------------------------------------------------------------------------------------------------------------

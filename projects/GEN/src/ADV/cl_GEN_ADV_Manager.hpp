@@ -10,117 +10,25 @@
 
 #pragma once
 
+#include "cl_Design_Variable.hpp"
 #include "cl_GEN_ADV.hpp"
 #include "cl_Matrix.hpp"
-#include "cl_SOL_Dist_Vector.hpp"
 
 namespace moris::gen
 {
     class ADV_Manager
     {
-
-      private:
-        Vector< ADV >     mADVs;
-        Vector< sint >    mDeterminingADVIds;
-        bool              mHasADVs;
-        sol::Dist_Vector* mSharedADVs = nullptr;
-
+      // TODO manage data privately
       public:
+        Vector< real > mADVs;
+        Vector< real > mLowerBounds;
+        Vector< real > mUpperBounds;
+
         /**
-         * Constructor, sets the field variable pointers to ADVs and constant parameters for evaluations.
+         * Adds a design variable to the ADV manager, if it is active.
          *
-         * @param aADVs ADV vector
-         * @param aVariableIndices Indices of field variables to be filled by the ADVs
-         * @param aADVIndices The indices of the ADV vector to fill in the field variables
-         * @param aConstants The constant field variables not filled by ADVs
-         * @param aParameters Additional parameters
+         * @param aDesignVariable Design variable
          */
-        ADV_Manager(
-                Vector< real >&         aADVs,
-                const Vector< uint >& aVariableIndices,
-                const Vector< uint >& aADVIndices,
-                const Vector< real >& aConstants );
-
-        /**
-         * Constructor using only constants (no ADVs).
-         *
-         * @param aConstants The parameters that define this field
-         */
-        explicit ADV_Manager( const Vector< real >& aConstants );
-
-        /**
-         * Constructor, sets variables as consecutive ADVs. Assumes the use of distributed ADVs.
-         *
-         * @param aVariableIndices Variable indices for assigning the shared ADV IDs
-         * @param aSharedADVIds Shared ADV IDs needed
-         */
-        ADV_Manager( const Vector< sint >& aSharedADVIds );
-
-        /**
-         * Copy constructor, with optional arguments for replacing constant values.
-         *
-         * @param aCopyADVManager ADV manager to copy
-         * @param aReplaceVariables Indices of constants to replace
-         * @param aNewConstants New constant values
-         */
-        ADV_Manager(
-                const ADV_Manager&    aCopyADVManager,
-                const Vector< uint >& aReplaceVariables = {},
-                const Vector< real >& aNewConstants = {{}} );
-
-        /**
-         * Destructor
-         */
-        ~ADV_Manager();
-
-        /**
-         * Sets the ADVs and grabs the relevant variables needed from the ADV vector
-         *
-         * @tparam Vector_Type Type of vector where ADVs are stored
-         * @param aADVs ADVs
-         */
-        template< typename Vector_Type >
-        void set_advs( Vector_Type& aADVs );
-        
-        /**
-         * Gets the value of a specific design variable so it can be used as a part of a design discretization.
-         * 
-         * @param aVariableIndex Index of the variable in this manager to reference
-         * @return Design variable value
-         */
-        real get_variable( uint aVariableIndex );
-
-        /**
-         * Imports the local ADVs required from the full owned ADV distributed vector.
-         *
-         * @param aOwnedADVs Full owned distributed ADV vector
-         */
-        void import_advs( sol::Dist_Vector* aOwnedADVs );
-
-        /**
-         * Gets the IDs of ADVs that this manager depends on for evaluations.
-         *
-         * @return Determining ADV IDs at this node
-         */
-        Vector< sint > get_determining_adv_ids();
-
-        /**
-         * Gets if this manager has ADVs (at least one non-constant parameter)
-         *
-         * @return if this manager has ADVs
-         */
-        bool has_advs();
-
-      private:
-
-        /**
-         * Creates the ADVs managed by this object.
-         *
-         * @param aADVs ADV vector
-         * @param aConstants Constants to fill in other values
-         */
-        void create_advs(
-                Vector< real >&         aADVs,
-                const Vector< real >& aConstants );
+        ADV create_adv( const Design_Variable& aDesignVariable );
     };
 }

@@ -14,11 +14,22 @@ namespace moris::gen
 {
     //--------------------------------------------------------------------------------------------------------------
 
+    Scaled_Field::Scaled_Field(
+            std::shared_ptr< Field > aField,
+            const ADV&               aScalingFactor,
+            std::string              aName )
+            : Field( { aScalingFactor }, std::move( aName ) )
+            , mField( aField )
+    {
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     real Scaled_Field::get_field_value(
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates )
     {
-        return mADVManager.get_variable( 0 ) * mField->get_field_value( aNodeIndex, aCoordinates );
+        return mADVHandler.get_variable( 0 ) * mField->get_field_value( aNodeIndex, aCoordinates );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -27,7 +38,7 @@ namespace moris::gen
             const Derived_Node& aDerivedNode,
             const Node_Manager& aNodeManager )
     {
-        return mADVManager.get_variable( 0 ) * mField->get_field_value( aDerivedNode, aNodeManager );
+        return mADVHandler.get_variable( 0 ) * mField->get_field_value( aDerivedNode, aNodeManager );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -36,9 +47,10 @@ namespace moris::gen
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates )
     {
-        mSensitivities = mADVManager.get_variable( 0 ) * mField->get_dfield_dadvs( aNodeIndex, aCoordinates );
+        mSensitivities = mADVHandler.get_variable( 0 ) * mField->get_dfield_dadvs( aNodeIndex, aCoordinates );
         return mSensitivities;
     }
+
     //--------------------------------------------------------------------------------------------------------------
 
     void Scaled_Field::get_dfield_dadvs(
@@ -47,9 +59,8 @@ namespace moris::gen
             const Node_Manager& aNodeManager )
     {
         mField->get_dfield_dadvs( aSensitivities, aDerivedNode, aNodeManager );
-        aSensitivities = aSensitivities * mADVManager.get_variable( 0 );
+        aSensitivities = aSensitivities * mADVHandler.get_variable( 0 );
     }
-
 
     //--------------------------------------------------------------------------------------------------------------
 
@@ -78,7 +89,7 @@ namespace moris::gen
             Matrix< DDRMat >&       aSensitivities )
     {
         mField->get_dfield_dcoordinates( aNodeIndex, aCoordinates, aSensitivities );
-        aSensitivities = aSensitivities * mADVManager.get_variable( 0 );
+        aSensitivities = aSensitivities * mADVHandler.get_variable( 0 );
     }
 
     //--------------------------------------------------------------------------------------------------------------

@@ -68,7 +68,7 @@ namespace moris::gen
                 real                      aSdfShift,
                 real                      aSdfDefault,
                 bool                      aSdfInterpolate )
-                : Field_Analytic< 0 >( {} )
+                : Field_Analytic< 0 >( {}, aImageFileName )
                 , mDomainDimensions( aDomainDimensions )
                 , mDomainOffset( aDomainOffset )
                 , mSdfScaling( aSdfScaling )

@@ -48,7 +48,7 @@ namespace moris::gen
          *
          * @param aValue
          */
-        explicit ADV( real aValue );
+        ADV( real aValue ); // NOLINT implicit conversion is fine here
 
         /**
          * Copy constructor such that constant ADVs create a new value instead of just copying the pointer.
@@ -65,9 +65,16 @@ namespace moris::gen
         /**
          * Gets the value of this ADV
          *
-         * @return
+         * @return ADV value
          */
-        real get_value();
+        real get_value() const;
+
+        /**
+         * Gets the ID of this ADV in the ADV vector.
+         *
+         * @return ADV ID
+         */
+        sint get_id() const;
 
         /**
          * Replaces the value of this ADV, if it is a constant value. Does not replace a value in the full ADV vector.

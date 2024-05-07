@@ -214,17 +214,17 @@ namespace moris::gen
     BSpline_Field::import_advs( sol::Dist_Vector* aOwnedADVs )
     {
         // Import ADVs as usual
-        mADVManager.import_advs( aOwnedADVs );
+        mADVHandler.import_advs( aOwnedADVs );
 
         // Reset evaluated field
         mOwnedNodalValues->vec_put_scalar( 0 );
 
         // Evaluate into matrix TODO just make the field accept a cell to begin with
-        uint tNumberOfCoefficients = mADVManager.get_determining_adv_ids().size();
+        uint tNumberOfCoefficients = mADVHandler.get_determining_adv_ids().size();
         moris::Matrix< DDRMat > tCoeff( tNumberOfCoefficients, 1 );
         for ( uint Ik = 0; Ik < tNumberOfCoefficients; Ik++ )
         {
-            tCoeff( Ik ) = mADVManager.get_variable( Ik );
+            tCoeff( Ik ) = mADVHandler.get_variable( Ik );
         }
 
         // Create field
@@ -273,11 +273,11 @@ namespace moris::gen
         auto tMTKField = std::make_shared< mtk::Field_Discrete >( mMeshPair, mDiscretizationIndex );
 
         // Set coefficient vector TODO vector instead of matrix, like above
-        uint tNumberOfCoefficients = mADVManager.get_determining_adv_ids().size();
+        uint tNumberOfCoefficients = mADVHandler.get_determining_adv_ids().size();
         moris::Matrix< DDRMat > tCoefficients( tNumberOfCoefficients, 1 );
         for ( uint iCoefficientIndex = 0; iCoefficientIndex < tNumberOfCoefficients; iCoefficientIndex++ )
         {
-            tCoefficients( iCoefficientIndex ) = mADVManager.get_variable( iCoefficientIndex );
+            tCoefficients( iCoefficientIndex ) = mADVHandler.get_variable( iCoefficientIndex );
         }
 
         // Set coefficients

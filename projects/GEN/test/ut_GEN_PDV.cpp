@@ -19,6 +19,7 @@
 #include "fn_PRM_GEN_Parameters.hpp"
 #include "cl_GEN_Background_Node.hpp"
 #include "cl_GEN_Parent_Node.hpp"
+#include "cl_GEN_ADV_Manager.hpp"
 
 #define protected public
 #define private public
@@ -518,7 +519,9 @@ namespace moris::gen
         for ( uint tPropertyIndex = 0; tPropertyIndex < tNumADVs; tPropertyIndex++ )
         {
             tParameterList.set( "adv_indices", tPropertyIndex, false );
-            Design_Factory tDesignFactory( { tParameterList }, tADVs );
+            ADV_Manager tADVManager;
+            tADVManager.mADVs = tADVs;
+            Design_Factory tDesignFactory( { tParameterList }, tADVManager );
             tProperties( tPropertyIndex ) = tDesignFactory.get_properties()( 0 );
         }
 

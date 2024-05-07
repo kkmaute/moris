@@ -43,6 +43,18 @@ namespace moris::gen
         }
 
         /**
+         * Constructor using created ADVs.
+         *
+         * @param aField Given field that this field will scale
+         * @param aScalingFactor Scaling factor for the given field
+         * @param aName Name of this field
+         */
+        Scaled_Field(
+                std::shared_ptr< Field > aField,
+                const ADV&               aScalingFactor,
+                std::string              aName );
+
+        /**
          * Given a node index, returns the field value.
          *
          * @param aNodeIndex Node index

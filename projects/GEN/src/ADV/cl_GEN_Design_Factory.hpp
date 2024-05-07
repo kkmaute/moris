@@ -21,6 +21,10 @@
 namespace moris
 {
     class Library_IO;
+    namespace gen
+    {
+        class ADV_Manager;
+    }
     namespace mtk
     {
         class Mesh;
@@ -41,14 +45,14 @@ namespace moris::gen
          * Design factory constructor
          *
          * @param aParameterLists Parameter lists for creating designs and related objects such as fields.
-         * @param aADVs ADV vector
+         * @param aADVManager ADV manager, constaining an ADV vector and bounds
          * @param aLibrary Pointer to library for loading user-defined functions
          * @param aMesh MTK mesh used for defining some fields
          * @param aNodeManager Node manager from the geometry engine, if applicable
          */
         Design_Factory(
                 Vector< Parameter_List >      aParameterLists,
-                Vector< real >&               aADVs,
+                ADV_Manager&                  aADVManager,
                 std::shared_ptr< Library_IO > aLibrary = nullptr,
                 mtk::Mesh*                    aMesh = nullptr,
                 Node_Manager&                 aNodeManager = Node_Manager::get_trivial_instance() );

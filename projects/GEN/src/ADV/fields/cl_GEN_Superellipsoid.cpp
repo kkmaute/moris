@@ -15,16 +15,17 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Superellipsoid::Superellipsoid(
-            real                      aXCenter,
-            real                      aYCenter,
-            real                      aZCenter,
-            real                      aXSemidiameter,
-            real                      aYSemidiameter,
-            real                      aZSemidiameter,
-            real                      aExponent )
-            : Field_Analytic< 3 >( { aXCenter, aYCenter, aZCenter, aXSemidiameter, aYSemidiameter, aZSemidiameter, aExponent } )
+            const ADV&  aXCenter,
+            const ADV&  aYCenter,
+            const ADV&  aZCenter,
+            const ADV&  aXSemidiameter,
+            const ADV&  aYSemidiameter,
+            const ADV&  aZSemidiameter,
+            real        aExponent,
+            std::string aName )
+            : Field_Analytic< 3 >( { aXCenter, aYCenter, aZCenter, aXSemidiameter, aYSemidiameter, aZSemidiameter, aExponent }, std::move( aName ) )
     {
-        MORIS_ERROR( mADVManager.get_variable( 3 ) > 0 and mADVManager.get_variable( 4 ) > 0 and mADVManager.get_variable( 5 ) > 0,
+        MORIS_ERROR( mADVHandler.get_variable( 3 ) > 0 and mADVHandler.get_variable( 4 ) > 0 and mADVHandler.get_variable( 5 ) > 0,
                     "A GEN Superellipsoid must be created with positive semidiameters.");
     }
 
@@ -33,13 +34,13 @@ namespace moris::gen
     real Superellipsoid::get_field_value(const Matrix<DDRMat>& aCoordinates)
     {
         // Get variables
-        real tXCenter = mADVManager.get_variable( 0 );
-        real tYCenter = mADVManager.get_variable( 1 );
-        real tZCenter = mADVManager.get_variable( 2 );
-        real tXSemidiameter = mADVManager.get_variable( 3 );
-        real tYSemidiameter = mADVManager.get_variable( 4 );
-        real tZSemidiameter = mADVManager.get_variable( 5 );
-        real tExponent = mADVManager.get_variable( 6 );
+        real tXCenter = mADVHandler.get_variable( 0 );
+        real tYCenter = mADVHandler.get_variable( 1 );
+        real tZCenter = mADVHandler.get_variable( 2 );
+        real tXSemidiameter = mADVHandler.get_variable( 3 );
+        real tYSemidiameter = mADVHandler.get_variable( 4 );
+        real tZSemidiameter = mADVHandler.get_variable( 5 );
+        real tExponent = mADVHandler.get_variable( 6 );
 
         // Evaluate field
         return pow(pow(std::abs(aCoordinates(0) - tXCenter) / tXSemidiameter, tExponent)
@@ -52,13 +53,13 @@ namespace moris::gen
     const Matrix<DDRMat>& Superellipsoid::get_dfield_dadvs(const Matrix<DDRMat>& aCoordinates)
     {
         // Get variables
-        real tXCenter = mADVManager.get_variable( 0 );
-        real tYCenter = mADVManager.get_variable( 1 );
-        real tZCenter = mADVManager.get_variable( 2 );;
-        real tXSemidiameter = mADVManager.get_variable( 3 );
-        real tYSemidiameter = mADVManager.get_variable( 4 );
-        real tZSemidiameter = mADVManager.get_variable( 5 );
-        real tExponent = mADVManager.get_variable( 6 );
+        real tXCenter = mADVHandler.get_variable( 0 );
+        real tYCenter = mADVHandler.get_variable( 1 );
+        real tZCenter = mADVHandler.get_variable( 2 );;
+        real tXSemidiameter = mADVHandler.get_variable( 3 );
+        real tYSemidiameter = mADVHandler.get_variable( 4 );
+        real tZSemidiameter = mADVHandler.get_variable( 5 );
+        real tExponent = mADVHandler.get_variable( 6 );
 
         // Constant in all calculations
         real tConstant = pow(std::abs(aCoordinates(0) - tXCenter) / tXSemidiameter, tExponent)

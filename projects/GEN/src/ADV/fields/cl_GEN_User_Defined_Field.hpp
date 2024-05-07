@@ -29,7 +29,7 @@ namespace moris::gen
     {
 
       private:
-        Vector< real >         mFieldVariables;
+        Vector< real >       mFieldVariables;
         Field_Function       get_field_value_user_defined;
         Sensitivity_Function get_dfield_dadvs_user_defined;
 
@@ -59,14 +59,15 @@ namespace moris::gen
         }
 
         /**
-         * Constructor with only constants and no sensitivities.
+         * Constructor using created ADVs.
          *
-         * @param aConstants The constant field variables not filled by ADVs
-         * @param aFieldFunction User-defined function for evaluating the field field
+         * @param aADVs The parameters that define this field and may be changed as a part of a design
+         * @param aName Name of this field
          */
-        explicit User_Defined_Field(
-                Field_Function        aFieldFunction,
-                const Vector< real >& aConstants = {} );
+        User_Defined_Field(
+                Field_Function       aFieldFunction,
+                const Vector< ADV >& aConstants = {},
+                std::string          aName = "" );
 
         /**
          * For the specific case of a user-defined field, this function indicates that new field variables must be set for the user-defined function calls.

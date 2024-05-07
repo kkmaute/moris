@@ -22,17 +22,20 @@ namespace moris::gen
         ANALYTIC_FIELD_ADV_CONSTRUCTOR( Line, 2, 4, {} )
 
         /**
-         * Constructor with only constant parameters
+         * Constructor
          *
          * @param aXCenter x-coordinate of the center of the line
          * @param aYCenter y-coordinate of the center of the line
          * @param aXNormal x normal for the line
          * @param aYNormal y normal for the line
+         * @param aName Name of this field
          */
-        Line( real   aXCenter,
-                real aYCenter,
-                real aXNormal,
-                real aYNormal );
+        Line(
+                const ADV&  aXCenter,
+                const ADV&  aYCenter,
+                const ADV&  aXNormal,
+                const ADV&  aYNormal,
+                std::string aName = "" );
 
         /**
          * Given a node coordinate, returns the field value.

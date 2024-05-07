@@ -10,8 +10,7 @@
 
 #pragma once
 
-#include <utility>
-#include "cl_GEN_ADV_Manager.hpp"
+#include "cl_GEN_ADV_Handler.hpp"
 #include "cl_GEN_Node_Manager.hpp"
 #include "cl_MTK_Field.hpp"
 
@@ -47,7 +46,7 @@ namespace moris::gen
     class Field
     {
       protected:
-        ADV_Manager mADVManager;
+        ADV_Handler      mADVHandler;
         Matrix< DDRMat > mSensitivities;
 
       private:
@@ -60,7 +59,7 @@ namespace moris::gen
         static inline uint gDiscretizationIndex = 0;
 
         /**
-         * Constructor using pointers to ADVs for variable evaluations.
+         * Constructor using pointers to ADVs for variable evaluations. NOTE this will be removed
          *
          * @param aADVs ADV vector
          * @param aFieldVariableIndices Indices of field variables to be filled by the ADVs
@@ -75,12 +74,13 @@ namespace moris::gen
                 std::string           aName );
 
         /**
-         * Constructor using only constants (no ADVs).
+         * Constructor using created ADVs.
          *
-         * @param aConstants The parameters that define this field
+         * @param aADVs The parameters that define this field and may be changed as a part of a design
+         * @param aName Name of this field
          */
-        Field( const Vector< real >& aConstants,
-                std::string          aName );
+        Field( const Vector< ADV >& aADVs,
+                std::string         aName );
 
         /**
          * Constructor that sets all field variables as consecutive ADVs. Assumes the use of distributed ADVs.
@@ -129,7 +129,7 @@ namespace moris::gen
         template< typename Vector_Type >
         void set_advs( Vector_Type& aADVs )
         {
-            mADVManager.set_advs( aADVs );
+            mADVHandler.set_advs( aADVs );
         }
 
         /**

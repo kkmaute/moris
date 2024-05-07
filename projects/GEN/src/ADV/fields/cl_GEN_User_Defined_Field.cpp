@@ -15,9 +15,10 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     User_Defined_Field::User_Defined_Field(
-            Field_Function          aFieldFunction,
-            const Vector< real >&   aConstants )
-            : Field_Analytic( aConstants )
+            Field_Function       aFieldFunction,
+            const Vector< ADV >& aConstants,
+            std::string          aName )
+            : Field_Analytic( aConstants, std::move( aName ) )
             , mFieldVariables( aConstants.size() )
             , get_field_value_user_defined( aFieldFunction )
             , get_dfield_dadvs_user_defined( nullptr )
@@ -33,7 +34,7 @@ namespace moris::gen
         // Set new variables for the user-defined function calls
         for ( uint iVariableIndex = 0; iVariableIndex < mFieldVariables.size(); iVariableIndex++ )
         {
-            mFieldVariables( iVariableIndex ) = mADVManager.get_variable( iVariableIndex );
+            mFieldVariables( iVariableIndex ) = mADVHandler.get_variable( iVariableIndex );
         }
     }
 

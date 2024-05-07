@@ -40,12 +40,15 @@ namespace moris::gen
         }
 
         /**
-         * Constructor using only constants (no ADVs).
+         * Constructor using created ADVs.
          *
-         * @param aConstants The parameters that define this field
+         * @param aADVs The parameters that define this field and may be changed as a part of a design
+         * @param aName Name of this field
          */
-        explicit Field_Analytic( const Vector< real >& aConstants )
-                : Field( aConstants, "" )
+        Field_Analytic(
+                const Vector< ADV >& aADVs,
+                std::string          aName )
+                : Field( aADVs, aName )
         {
         }
 

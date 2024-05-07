@@ -13,6 +13,7 @@
 // GEN
 #include "st_GEN_Geometry_Engine_Parameters.hpp"
 #include "cl_GEN_Phase_Table.hpp"
+#include "cl_GEN_ADV_Manager.hpp"
 #include "cl_GEN_Node_Manager.hpp"
 #include "cl_GEN_PDV_Host_Manager.hpp"
 
@@ -58,16 +59,12 @@ namespace moris::gen
         uint mNumSpatialDimensions;
 
         // ADVs
+        ADV_Manager       mADVManager;
         Vector< real >    mInitialPrimitiveADVs;
-        Vector< real >    mADVs;
         Vector< sint >    mFullADVIds;
         Matrix< IdMat >   mFullijklIDs;
         sol::Dist_Vector* mOwnedADVs     = nullptr;
         sol::Dist_Vector* mPrimitiveADVs = nullptr;
-
-        // Bounds
-        Vector< real > mLowerBounds;
-        Vector< real > mUpperBounds;
 
         // IQIs
         Vector< std::string > mRequestedIQIs;

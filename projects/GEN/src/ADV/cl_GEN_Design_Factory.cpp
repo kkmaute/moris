@@ -22,7 +22,7 @@ namespace moris::gen
 
     Design_Factory::Design_Factory(
             Vector< Parameter_List >      aParameterLists,
-            Vector< real >&               aADVs,
+            ADV_Manager&                  aADVManager,
             std::shared_ptr< Library_IO > aLibrary,
             mtk::Mesh*                    aMesh,
             Node_Manager&                 aNodeManager )
@@ -121,7 +121,7 @@ namespace moris::gen
                 if ( iParameterList.exists( "field_type" ) and tCanBuild )
                 {
                     // Build field
-                    mFields( tFieldIndex++ ) = create_field( iParameterList, aADVs, tDependencyFields, aLibrary, aMesh );
+                    mFields( tFieldIndex++ ) = create_field( iParameterList, aADVManager, tDependencyFields, aLibrary, aMesh );
 
                     // Remove this parameter to signal we don't need to build again
                     iParameterList.erase( "field_type" );

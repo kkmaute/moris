@@ -22,7 +22,7 @@ namespace moris::gen
         ANALYTIC_FIELD_ADV_CONSTRUCTOR( Plane, 3, 6, {} )
 
         /**
-         * Constructor with only constant parameters
+         * Constructor
          *
          * @param aXCenter x-coordinate of the center of the plane
          * @param aYCenter y-coordinate of the center of the plane
@@ -30,13 +30,16 @@ namespace moris::gen
          * @param aXNormal x normal for the plane
          * @param aYNormal y normal for the plane
          * @param aZNormal z normal for the plane
+         * @param aName Name of this field
          */
-        Plane( real  aXCenter,
-                real aYCenter,
-                real aZCenter,
-                real aXNormal,
-                real aYNormal,
-                real aZNormal );
+        Plane(
+                const ADV&  aXCenter,
+                const ADV&  aYCenter,
+                const ADV&  aZCenter,
+                const ADV&  aXNormal,
+                const ADV&  aYNormal,
+                const ADV&  aZNormal,
+                std::string aName = "" );
 
         /**
          * Given a node coordinate, returns the field value.

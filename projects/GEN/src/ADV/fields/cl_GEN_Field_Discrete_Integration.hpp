@@ -23,13 +23,14 @@ namespace moris::gen
       public:
 
         /**
-         * Constructor using only constants (no ADVs).
+         * Constructor using created ADVs.
          *
-         * @param aConstants The parameters that define this field
+         * @param aADVs The parameters that define this field and may be changed as a part of a design
+         * @param aName Name of this field
          */
         Field_Discrete_Integration(
-                const Vector< real >& aConstants,
-                uint                  aNumOriginalNodes );
+                const Vector< ADV >& aADVs,
+                std::string          aName );
 
         /**
          * Constructor that sets all field variables as consecutive ADVs. Assumes the use of distributed ADVs.

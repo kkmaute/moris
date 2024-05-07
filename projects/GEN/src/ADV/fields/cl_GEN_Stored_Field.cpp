@@ -17,7 +17,7 @@ namespace moris::gen
     Stored_Field::Stored_Field(
             mtk::Mesh*               aMesh,
             std::shared_ptr< Field > aField )
-            : Field_Discrete_Integration( {}, aMesh->get_num_nodes() )
+            : Field_Discrete_Integration( {}, aField->get_name() )
             , mField( aField )
             , mMesh( aMesh )
             , mFieldValues( aMesh->get_num_nodes() )

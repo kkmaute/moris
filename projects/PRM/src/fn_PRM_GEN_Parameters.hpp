@@ -83,17 +83,72 @@ namespace moris::prm
                 case gen::Field_Type::NONE:
                     break;
                 case gen::Field_Type::CONSTANT:
+                {
+                    aParameterList.insert< Design_Variable >( "constant", 0.0 );
+                }
                 case gen::Field_Type::LINE:
-                case gen::Field_Type::CIRCLE:
-                case gen::Field_Type::SUPERELLIPSE:
-                case gen::Field_Type::PLANE:
-                case gen::Field_Type::SPHERE:
-                case gen::Field_Type::SUPERELLIPSOID:
+                {
+                    aParameterList.insert< Design_Variable >( "center_x", 0.0 );
+                    aParameterList.insert< Design_Variable >( "center_y", 0.0 );
+                    aParameterList.insert< Design_Variable >( "normal_x", 1.0 );
+                    aParameterList.insert< Design_Variable >( "normal_y", 0.0 );
                     break;
+                }
+                case gen::Field_Type::CIRCLE:
+                {
+                    aParameterList.insert< Design_Variable >( "center_x", 0.0 );
+                    aParameterList.insert< Design_Variable >( "center_y", 0.0 );
+                    aParameterList.insert< Design_Variable >( "radius", 1.0, 0.0, MORIS_REAL_MAX );
+                    break;
+                }
+                case gen::Field_Type::SUPERELLIPSE:
+                {
+                    aParameterList.insert< Design_Variable >( "center_x", 0.0 );
+                    aParameterList.insert< Design_Variable >( "center_y", 0.0 );
+                    aParameterList.insert< Design_Variable >( "semidiameter_x", 1.0, 0.0, MORIS_REAL_MAX );
+                    aParameterList.insert< Design_Variable >( "semidiameter_y", 1.0, 0.0, MORIS_REAL_MAX );
+                    aParameterList.insert( "exponent", 2.0 );
+                    break;
+                }
+                case gen::Field_Type::PLANE:
+                {
+                    aParameterList.insert< Design_Variable >( "center_x", 0.0 );
+                    aParameterList.insert< Design_Variable >( "center_y", 0.0 );
+                    aParameterList.insert< Design_Variable >( "center_z", 0.0 );
+                    aParameterList.insert< Design_Variable >( "normal_x", 1.0 );
+                    aParameterList.insert< Design_Variable >( "normal_y", 0.0 );
+                    aParameterList.insert< Design_Variable >( "normal_z", 0.0 );
+                    break;
+                }
+                case gen::Field_Type::SPHERE:
+                {
+                    aParameterList.insert< Design_Variable >( "center_x", 0.0 );
+                    aParameterList.insert< Design_Variable >( "center_y", 0.0 );
+                    aParameterList.insert< Design_Variable >( "center_z", 0.0 );
+                    aParameterList.insert< Design_Variable >( "radius", 1.0, 0.0, MORIS_REAL_MAX );
+                    break;
+                }
+                case gen::Field_Type::SUPERELLIPSOID:
+                {
+                    aParameterList.insert< Design_Variable >( "center_x", 0.0 );
+                    aParameterList.insert< Design_Variable >( "center_y", 0.0 );
+                    aParameterList.insert< Design_Variable >( "center_z", 0.0 );
+                    aParameterList.insert< Design_Variable >( "semidiameter_x", 1.0, 0.0, MORIS_REAL_MAX );
+                    aParameterList.insert< Design_Variable >( "semidiameter_y", 1.0, 0.0, MORIS_REAL_MAX );
+                    aParameterList.insert< Design_Variable >( "semidiameter_z", 1.0, 0.0, MORIS_REAL_MAX );
+                    aParameterList.insert( "exponent", 2.0 );
+                    break;
+                }
                 case gen::Field_Type::SCALED_FIELD:
+                {
+                    aParameterList.insert( "dependencies", Vector< std::string >() );
+                    aParameterList.insert< Design_Variable >( "scaling_factor", 1.0 );
+                    break;
+                }
                 case gen::Field_Type::COMBINED_FIELDS:
                 {
-                    aParameterList.insert( "dependencies", Vector< std::string >() );    // Names of other fields that this field depends on
+                    aParameterList.insert( "dependencies", Vector< std::string >() );
+                    aParameterList.insert( "use_minimum", true );
                     break;
                 }
                 case gen::Field_Type::NODAL:

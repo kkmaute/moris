@@ -63,22 +63,30 @@ namespace moris::gen
         if ( tADVsSize )
         {
             mInitialPrimitiveADVs.resize( tADVsSize, aParameterLists( 0 )( 0 ).get< real >( "initial_advs_fill" ) );
-            mLowerBounds         .resize( tADVsSize, aParameterLists( 0 )( 0 ).get< real >( "lower_bounds_fill" ) );
-            mUpperBounds         .resize( tADVsSize, aParameterLists( 0 )( 0 ).get< real >( "upper_bounds_fill" ) );
+            mADVManager.mLowerBounds.resize( tADVsSize, aParameterLists( 0 )( 0 ).get< real >( "lower_bounds_fill" ) );
+            mADVManager.mUpperBounds.resize( tADVsSize, aParameterLists( 0 )( 0 ).get< real >( "upper_bounds_fill" ) );
         }
         else
         {
             mInitialPrimitiveADVs = aParameterLists( 0 )( 0 ).get< Vector< real > >( "initial_advs" );
-            mLowerBounds          = aParameterLists( 0 )( 0 ).get< Vector< real > >( "lower_bounds" );
-            mUpperBounds          = aParameterLists( 0 )( 0 ).get< Vector< real > >( "upper_bounds" );
+            mADVManager.mLowerBounds = aParameterLists( 0 )( 0 ).get< Vector< real > >( "lower_bounds" );
+            mADVManager.mUpperBounds = aParameterLists( 0 )( 0 ).get< Vector< real > >( "upper_bounds" );
         }
+        mADVManager.mADVs = mInitialPrimitiveADVs;
 
         // Create designs with the factory
         for ( uint iParameterIndex = 2; iParameterIndex < aParameterLists.size(); iParameterIndex++ )
         {
             aParameterLists( 1 ).append( aParameterLists( iParameterIndex ) );
         }
-        Design_Factory tDesignFactory( aParameterLists( 1 ), mInitialPrimitiveADVs, aLibrary, aMesh, mNodeManager );
+        Design_Factory tDesignFactory( aParameterLists( 1 ), mADVManager, aLibrary, aMesh, mNodeManager );
+
+        // FIXME make standard once old way of initializing ADVs is removed
+        if ( mADVManager.mADVs.size() > 0 )
+        {
+            mInitialPrimitiveADVs = mADVManager.mADVs;
+            mADVManager.mADVs.clear();
+        }
 
         // Get geometries and properties from the factory
         mGeometries = tDesignFactory.get_geometries();
@@ -118,7 +126,8 @@ namespace moris::gen
             , mGeometries( aParameters.mGeometries )
             , mProperties( aParameters.mProperties )
             , mPhaseTable( create_phase_table( aParameters.mGeometries.size(), aParameters.mBulkPhases ) )
-            , mInitialPrimitiveADVs( aParameters.mADVs )
+            , mADVManager( aParameters.mADVManager )
+            , mInitialPrimitiveADVs( aParameters.mADVManager.mADVs )
             , mTimeOffset( aParameters.mTimeOffset )
             , mPDVHostManager( mNodeManager )
     {
@@ -186,12 +195,12 @@ namespace moris::gen
         tFullVector->import_local_to_global( *mOwnedADVs );
 
         // Extract copy
-        tFullVector->extract_copy( mADVs );
+        tFullVector->extract_copy( mADVManager.mADVs );
 
         // Delete full ADVs/map
         delete tFullVector;
 
-        return mADVs;
+        return mADVManager.mADVs;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -227,14 +236,14 @@ namespace moris::gen
 
     Vector< real >& Geometry_Engine::get_lower_bounds()
     {
-        return mLowerBounds;
+        return mADVManager.mLowerBounds;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     Vector< real >& Geometry_Engine::get_upper_bounds()
     {
-        return mUpperBounds;
+        return mADVManager.mUpperBounds;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -1041,8 +1050,8 @@ namespace moris::gen
 
                 // Resize ID lists and bounds
                 tOwnedADVIds.resize( tNumOwnedADVs + tNumOwnedCoefficients );
-                mLowerBounds.resize( tNumOwnedADVs + tNumOwnedCoefficients );
-                mUpperBounds.resize( tNumOwnedADVs + tNumOwnedCoefficients );
+                mADVManager.mLowerBounds.resize( tNumOwnedADVs + tNumOwnedCoefficients );
+                mADVManager.mUpperBounds.resize( tNumOwnedADVs + tNumOwnedCoefficients );
                 tOwnedijklIDs.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
                 tSharedADVIds( iDesignIndex ).resize( tAllCoefIds.length() );
 
@@ -1059,8 +1068,8 @@ namespace moris::gen
                     MORIS_ASSERT( tADVId - tOffsetID == tAllCoefIds( tOwnedCoefficients( iOwnedCoefficient ) ), "check if this is a problem" );
 
                     tOwnedADVIds( tNumOwnedADVs + iOwnedCoefficient ) = tADVId;
-                    mLowerBounds( tNumOwnedADVs + iOwnedCoefficient ) = tDesigns( iDesignIndex )->get_discretization_lower_bound();
-                    mUpperBounds( tNumOwnedADVs + iOwnedCoefficient ) = tDesigns( iDesignIndex )->get_discretization_upper_bound();
+                    mADVManager.mLowerBounds( tNumOwnedADVs + iOwnedCoefficient ) = tDesigns( iDesignIndex )->get_discretization_lower_bound();
+                    mADVManager.mUpperBounds( tNumOwnedADVs + iOwnedCoefficient ) = tDesigns( iDesignIndex )->get_discretization_upper_bound();
 
                     if ( tMesh->get_mesh_type() == mtk::MeshType::HMR )
                     {
@@ -1260,8 +1269,8 @@ namespace moris::gen
         else
         {
             tSendingIDs         = { tOwnedADVIds };
-            tSendingLowerBounds = { mLowerBounds };
-            tSendingUpperBounds = { mUpperBounds };
+            tSendingLowerBounds = { mADVManager.mLowerBounds };
+            tSendingUpperBounds = { mADVManager.mUpperBounds };
             tSendingijklIDs     = { tOwnedijklIDs };
         }
 
@@ -1302,8 +1311,8 @@ namespace moris::gen
 
                 // Resize full ADV IDs and bounds
                 mFullADVIds.resize( tFullADVsFilled + tNumReceivedADVs );
-                mLowerBounds.resize( tFullADVsFilled + tNumReceivedADVs );
-                mUpperBounds.resize( tFullADVsFilled + tNumReceivedADVs );
+                mADVManager.mLowerBounds.resize( tFullADVsFilled + tNumReceivedADVs );
+                mADVManager.mUpperBounds.resize( tFullADVsFilled + tNumReceivedADVs );
                 if ( tMesh->get_mesh_type() == mtk::MeshType::HMR )
                 {
                     mFullijklIDs.resize( tFullijklIDsFilled + tNumReceivedADVs, 1 );
@@ -1313,9 +1322,9 @@ namespace moris::gen
                 for ( uint tADVIndex = 0; tADVIndex < tNumReceivedADVs; tADVIndex++ )
                 {
                     mFullADVIds( tFullADVsFilled + tADVIndex ) = tReceivingIDs( tProcessorIndex - 1 )( tADVIndex );
-                    mLowerBounds( tFullADVsFilled + tADVIndex ) =
+                    mADVManager.mLowerBounds( tFullADVsFilled + tADVIndex ) =
                             tReceivingLowerBounds( tProcessorIndex - 1 )( tADVIndex );
-                    mUpperBounds( tFullADVsFilled + tADVIndex ) =
+                    mADVManager.mUpperBounds( tFullADVsFilled + tADVIndex ) =
                             tReceivingUpperBounds( tProcessorIndex - 1 )( tADVIndex );
 
                     if ( tMesh->get_mesh_type() == mtk::MeshType::HMR )
@@ -1328,8 +1337,8 @@ namespace moris::gen
         }
         else
         {
-            mLowerBounds.clear();
-            mUpperBounds.clear();
+            mADVManager.mLowerBounds.clear();
+            mADVManager.mUpperBounds.clear();
             mFullijklIDs.set_size( 0, 0 );
         }
 

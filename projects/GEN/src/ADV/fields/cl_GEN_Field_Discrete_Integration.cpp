@@ -19,9 +19,9 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Field_Discrete_Integration::Field_Discrete_Integration(
-            const Vector< real >& aConstants,
-            uint                  aNumOriginalNodes )
-            : Field( aConstants, "" )
+            const Vector< ADV >& aADVs,
+            std::string          aName )
+            : Field( aADVs, aName )
             , mMeshPair( nullptr, nullptr ) // FIXME
     {
     }

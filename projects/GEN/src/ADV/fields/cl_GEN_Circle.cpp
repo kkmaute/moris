@@ -16,10 +16,11 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Circle::Circle(
-            real aXCenter,
-            real aYCenter,
-            real aRadius )
-            : Field_Analytic< 2 >( { aXCenter, aYCenter, aRadius } )
+            const ADV&  aXCenter,
+            const ADV&  aYCenter,
+            const ADV&  aRadius,
+            std::string aName )
+            : Field_Analytic< 2 >( { aXCenter, aYCenter, aRadius }, std::move( aName ) )
     {
     }
 
@@ -29,9 +30,9 @@ namespace moris::gen
     Circle::get_field_value( const Matrix< DDRMat >& aCoordinates )
     {
         // Get variables
-        real tXCenter = mADVManager.get_variable( 0 );
-        real tYCenter = mADVManager.get_variable( 1 );
-        real tRadius  = mADVManager.get_variable( 2 );
+        real tXCenter = mADVHandler.get_variable( 0 );
+        real tYCenter = mADVHandler.get_variable( 1 );
+        real tRadius  = mADVHandler.get_variable( 2 );
 
         // Evaluate field
         return sqrt( pow( aCoordinates( 0 ) - tXCenter, 2 ) + pow( aCoordinates( 1 ) - tYCenter, 2 ) ) - tRadius;
@@ -43,8 +44,8 @@ namespace moris::gen
     Circle::get_dfield_dadvs( const Matrix< DDRMat >& aCoordinates )
     {
         // Get variables
-        real tXCenter = mADVManager.get_variable( 0 );
-        real tYCenter = mADVManager.get_variable( 1 );
+        real tXCenter = mADVHandler.get_variable( 0 );
+        real tYCenter = mADVHandler.get_variable( 1 );
 
         // Calculate sensitivities
         real tConstant = sqrt( pow( aCoordinates( 0 ) - tXCenter, 2 ) + pow( aCoordinates( 1 ) - tYCenter, 2 ) );
@@ -66,8 +67,8 @@ namespace moris::gen
             Matrix< DDRMat >&       aSensitivities )
     {
         // Get variables
-        real tXCenter = mADVManager.get_variable( 0 );
-        real tYCenter = mADVManager.get_variable( 1 );
+        real tXCenter = mADVHandler.get_variable( 0 );
+        real tYCenter = mADVHandler.get_variable( 1 );
 
         // Compute level set value
         real tLevelSet = sqrt( pow( aCoordinates( 0 ) - tXCenter, 2 ) + pow( aCoordinates( 1 ) - tYCenter, 2 ) );

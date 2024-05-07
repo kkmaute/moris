@@ -20,7 +20,7 @@ namespace moris::gen
             Vector< std::shared_ptr< Field > > aFields,
             bool                               aUseMinimum,
             std::string                        aName )
-            : Field( Vector< real >(), aName )
+            : Field( Vector< ADV >(), std::move( aName ) )
             , mFields( aFields )
             , mScale( 2 * aUseMinimum - 1 )
     {

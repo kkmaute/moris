@@ -12,6 +12,7 @@
 
 #include "cl_Vector.hpp"
 #include "cl_Matrix.hpp"
+#include "cl_GEN_ADV_Manager.hpp"
 #include "cl_GEN_Level_Set_Geometry.hpp"
 #include "cl_GEN_Surface_Mesh_Geometry.hpp"
 #include "cl_GEN_Property.hpp"
@@ -31,7 +32,7 @@ namespace moris::gen
          * @var mOutputMeshFile File name for writing an exodus mesh
          * @var mTimeOffset Time offset for writing sequential meshes
          */
-        Vector< real >                        mADVs              = {};
+        ADV_Manager                           mADVManager;
         Vector< std::shared_ptr< Geometry > > mGeometries        = {};
         Vector< std::shared_ptr< Property > > mProperties        = {};
         Matrix< DDUMat >                      mBulkPhases        = {{}};

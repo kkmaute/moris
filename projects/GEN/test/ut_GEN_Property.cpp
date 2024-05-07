@@ -23,14 +23,13 @@ namespace moris::gen
 
     TEST_CASE( "Constant property", "[gen], [property], [constant property]" )
     {
-        // Create ADVs
-        Vector< real > tADVs = { 0.0 };
-
         // Set up property
         Parameter_List tConstantPropertyParameterList = prm::create_gen_property_parameter_list( gen::Field_Type::CONSTANT );
         tConstantPropertyParameterList.set( "field_variable_indices", 0u );
         tConstantPropertyParameterList.set( "adv_indices", 0u );
-        Design_Factory              tDesignFactory( { tConstantPropertyParameterList }, tADVs );
+        ADV_Manager tADVManager;
+        tADVManager.mADVs = { 0.0 };
+        Design_Factory              tDesignFactory( { tConstantPropertyParameterList }, tADVManager );
         std::shared_ptr< Property > tConstantProperty = tDesignFactory.get_properties()( 0 );
 
         // Random distribution
@@ -40,7 +39,7 @@ namespace moris::gen
         for ( uint tTestRun = 0; tTestRun < 4; tTestRun++ )
         {
             // Create scaled field
-            tADVs( 0 ) = tUniform( tEngine );
+            tADVManager.mADVs( 0 ) = tUniform( tEngine );
 
             // Loop over coordinate checks
             for ( uint tCoordinateCheck = 0; tCoordinateCheck < 4; tCoordinateCheck++ )
@@ -49,7 +48,7 @@ namespace moris::gen
                 Matrix< DDRMat > tCoordinates( { { tUniform( tEngine ), tUniform( tEngine ) } } );
 
                 // Checks
-                CHECK( tConstantProperty->get_field_value( 0, tCoordinates ) == Approx( tADVs( 0 ) ) );
+                CHECK( tConstantProperty->get_field_value( 0, tCoordinates ) == Approx( tADVManager.mADVs( 0 ) ) );
                 CHECK_EQUAL( tConstantProperty->get_dfield_dadvs( 0, tCoordinates ), { { 1.0 } }, );
             }
         }
@@ -81,7 +80,9 @@ namespace moris::gen
             // Create scaled field
             real tScale = tUniform( tEngine );
             tScaledFieldParameterList.set( "constant_parameters", tScale, false );
-            Design_Factory                        tDesignFactory( { tCircleParameterList, tScaledFieldParameterList }, tADVs );
+            ADV_Manager tADVManager;
+            tADVManager.mADVs = tADVs;
+            Design_Factory                        tDesignFactory( { tCircleParameterList, tScaledFieldParameterList }, tADVManager );
             std::shared_ptr< Level_Set_Geometry > tCircle     = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
             auto                                  tProperties = tDesignFactory.get_properties();
 
@@ -156,8 +157,8 @@ namespace moris::gen
                     tBSplineOrder );
 
             // Set up property
-            Vector< real > tADVs;
-            Design_Factory   tDesignFactory( { tPropertyParameterList }, tADVs );
+            ADV_Manager tADVManager;
+            Design_Factory   tDesignFactory( { tPropertyParameterList }, tADVManager );
             auto             tBSplineProperty = tDesignFactory.get_properties()( 0 );
 
             // Create geometry engine
@@ -166,7 +167,7 @@ namespace moris::gen
             Geometry_Engine_Test tGeometryEngine( tMesh, tGeometryEngineParameters );
 
             // Get ADVs and upper/lower bounds
-            tADVs                         = tGeometryEngine.get_advs();
+            Vector< real > tADVs = tGeometryEngine.get_advs();
             Vector< real > tLowerBounds = tGeometryEngine.get_lower_bounds();
             Vector< real > tUpperBounds = tGeometryEngine.get_upper_bounds();
 

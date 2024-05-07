@@ -15,11 +15,12 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Sphere::Sphere(
-            real                      aXCenter,
-            real                      aYCenter,
-            real                      aZCenter,
-            real                      aRadius )
-            : Field_Analytic< 3 >( { aXCenter, aYCenter, aZCenter, aRadius } )
+            const ADV&  aXCenter,
+            const ADV&  aYCenter,
+            const ADV&  aZCenter,
+            const ADV&  aRadius,
+            std::string aName )
+            : Field_Analytic< 3 >( { aXCenter, aYCenter, aZCenter, aRadius }, std::move( aName ) )
     {
     }
 
@@ -29,10 +30,10 @@ namespace moris::gen
     Sphere::get_field_value( const Matrix< DDRMat >& aCoordinates )
     {
         // Get variables
-        real tXCenter = mADVManager.get_variable( 0 );
-        real tYCenter = mADVManager.get_variable( 1 );
-        real tZCenter = mADVManager.get_variable( 2 );
-        real tRadius  = mADVManager.get_variable( 3 );
+        real tXCenter = mADVHandler.get_variable( 0 );
+        real tYCenter = mADVHandler.get_variable( 1 );
+        real tZCenter = mADVHandler.get_variable( 2 );
+        real tRadius  = mADVHandler.get_variable( 3 );
 
         // Evaluate field
         return sqrt( pow( aCoordinates( 0 ) - tXCenter, 2 )
@@ -47,9 +48,9 @@ namespace moris::gen
     Sphere::get_dfield_dadvs( const Matrix< DDRMat >& aCoordinates )
     {
         // Get variables
-        real tXCenter = mADVManager.get_variable( 0 );
-        real tYCenter = mADVManager.get_variable( 1 );
-        real tZCenter = mADVManager.get_variable( 2 );
+        real tXCenter = mADVHandler.get_variable( 0 );
+        real tYCenter = mADVHandler.get_variable( 1 );
+        real tZCenter = mADVHandler.get_variable( 2 );
 
         // Calculate sensitivities
         real tConstant = sqrt( pow( aCoordinates( 0 ) - tXCenter, 2 )
