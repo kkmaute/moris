@@ -622,7 +622,6 @@ namespace moris
                             "Number of entries in 'Normal' vector does not match number of spatial dimensions for the 'plane'." );
 
                     // set the parameters in the GEN parameter list
-                    tGenParamList( 1 )( iGeom ).set( "field_type", "line" );
                     Vector< real > tConstantParameters = string_to_cell< real >( tPoint + "," + tNormal );
                     tGenParamList( 1 )( iGeom ).set( "constant_parameters", tConstantParameters );
                 }
@@ -655,7 +654,6 @@ namespace moris
                             "All planes must have a parameter 'Radius' specified of format e.g.: '5.6'" );
 
                     // set the parameters in the GEN parameter list
-                    tGenParamList( 1 )( iGeom ).set( "field_type", "circle" );
                     Vector< real > tConstantParameters = string_to_cell< real >( tPoint + "," + tRadius );
                     tGenParamList( 1 )( iGeom ).set( "constant_parameters", tConstantParameters );
                 }
@@ -698,7 +696,6 @@ namespace moris
                     if ( tExponent == "" ) { tExponent = "2.0"; };
 
                     // set the parameters in the GEN parameter list
-                    tGenParamList( 1 )( iGeom ).set( "field_type", "superellipse" );
                     Vector< real > tConstantParameters = string_to_cell< real >( tPoint + "," + tSemiDiameters + "," + tExponent + ",1.0,0.0,0.0" );
                     tGenParamList( 1 )( iGeom ).set( "constant_parameters", tConstantParameters );
                 }
@@ -733,7 +730,6 @@ namespace moris
                             "Number of entries in 'Normal' vector does not match number of spatial dimensions for the 'plane'." );
 
                     // set the parameters in the GEN parameter list
-                    tGenParamList( 1 )( iGeom ).set( "field_type", "plane" );
                     Vector< real > tConstantParameters = string_to_cell< real >( tPoint + "," + tNormal );
                     tGenParamList( 1 )( iGeom ).set( "constant_parameters", tConstantParameters );
                 }
@@ -771,7 +767,6 @@ namespace moris
                             "All planes must have a parameter 'Radius' specified of format e.g.: '5.6'" );
 
                     // set the parameters in the GEN parameter list
-                    tGenParamList( 1 )( iGeom ).set( "field_type", "sphere" );
                     Vector< real > tConstantParameters = string_to_cell< real >( tPoint + "," + tRadius );
                     tGenParamList( 1 )( iGeom ).set( "constant_parameters", tConstantParameters );
                 }
@@ -819,7 +814,6 @@ namespace moris
                     if ( tExponent == "" ) { tExponent = "2.0"; };
 
                     // set the parameters in the GEN parameter list
-                    tGenParamList( 1 )( iGeom ).set( "field_type", "superellipsoid" );
                     Vector< real > tConstantParameters = string_to_cell< real >( tPoint + "," + tSemiDiameters + "," + tExponent );
                     tGenParamList( 1 )( iGeom ).set( "constant_parameters", tConstantParameters );
                 }
@@ -953,10 +947,6 @@ namespace moris
                         "Geometry type '%s' unknown. Currently supported options are: 'pre_defined', 'image_file' and 'object_file'.",
                         tGeomType.c_str() );
             }
-
-            tGenParamList( 1 )( iGeom ).set( "number_of_refinements", std::to_string( tNumBoundaryRefinements ), false );
-            tGenParamList( 1 )( iGeom ).set( "refinement_mesh_index", "0", false );
-
         }    // end for: loop over geometries in input file
 
         // ------------------------------
