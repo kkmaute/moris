@@ -49,6 +49,10 @@ namespace moris::gen
         for ( uint iLocalADVIndex = 0; iLocalADVIndex < aADVs.size(); iLocalADVIndex++ )
         {
             mDeterminingADVIds( iLocalADVIndex ) = aADVs( iLocalADVIndex ).get_id();
+            if ( mDeterminingADVIds( iLocalADVIndex ) != gNoID )
+            {
+                mHasADVs = true;
+            }
         }
     }
 
