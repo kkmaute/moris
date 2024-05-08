@@ -35,4 +35,12 @@ namespace moris::gen
             Vector< std::shared_ptr< Field > > aFieldDependencies = {},
             std::shared_ptr< Library_IO >      aLibrary = nullptr,
             mtk::Mesh*                         aMTKMesh = nullptr );
+
+    /**
+     * Gets the number of ADVs that will be created based on the given parameter list.
+     *
+     * @param aFieldParameterList Field parameter list
+     * @return Number of active ADVs
+     */
+    Vector< char > get_all_active_parameter_ids( const Parameter_List& aFieldParameterList );
 }

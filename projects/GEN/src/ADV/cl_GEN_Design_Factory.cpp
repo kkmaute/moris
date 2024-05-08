@@ -27,7 +27,7 @@ namespace moris::gen
             mtk::Mesh*                    aMesh,
             Node_Manager&                 aNodeManager )
     {
-        // Count maximum number of possible designs
+        // Count maximum number of possible ADVs, fields, and designs
         uint tGeometryIndex = 0;
         uint tPropertyIndex = 0;
         uint tFieldIndex    = 0;
@@ -54,6 +54,7 @@ namespace moris::gen
             if ( iParameterList.exists( "field_type" ) )
             {
                 tFieldIndex++;
+                aADVManager.register_parameter_ids( get_all_active_parameter_ids( iParameterList ) );
             }
         }
 
@@ -62,6 +63,9 @@ namespace moris::gen
         mGeometries.resize( tGeometryIndex );
         mProperties.resize( tPropertyIndex );
         uint tNumberOfDesignsLeft = tGeometryIndex + tPropertyIndex;
+
+        // Allocate space for ADVs
+        aADVManager.finalize_parameter_ids();
 
         // Re-initialize counters
         tGeometryIndex = 0;

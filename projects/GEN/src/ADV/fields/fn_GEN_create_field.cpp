@@ -29,6 +29,31 @@
 
 namespace moris::gen
 {
+    //--------------------------------------------------------------------------------------------------------------
+
+    Vector< char > get_active_parameter_ids_for_names(
+            const Parameter_List&        aFieldParameterList,
+            const Vector< std::string >& aParameterNames )
+    {
+        // List of parameter IDs
+        Vector< char > tParameterIDs;
+
+        // Loop over given parameter names
+        for ( const auto& iParameterName : aParameterNames )
+        {
+            // Get design variable from parameter list
+            auto tDesignVariable = aFieldParameterList.get< Design_Variable >( iParameterName );
+
+            // Add ID if not constant
+            if ( not tDesignVariable.is_constant() )
+            {
+                tParameterIDs.push_back( tDesignVariable.get_id() );
+            }
+        }
+
+        // Return finished list
+        return tParameterIDs;
+    }
 
     //--------------------------------------------------------------------------------------------------------------
 
@@ -41,7 +66,7 @@ namespace moris::gen
             mtk::Mesh*                         aMTKMesh )
     {
         // Field type
-        auto tFieldType = aFieldParameterList.get< gen::Field_Type >( "field_type" );
+        auto tFieldType = aFieldParameterList.get< Field_Type >( "field_type" );
 
         // ADV inputs
         Vector< uint > tVariableIndices = aFieldParameterList.get< Vector< uint > >( "field_variable_indices" );
@@ -59,58 +84,58 @@ namespace moris::gen
         {
             switch ( tFieldType )
             {
-                case gen::Field_Type::NONE:
+                case Field_Type::NONE:
                 {
                     MORIS_ERROR( false, "A field must be created with a field type." );
                     break;
                 }
-                case gen::Field_Type::CONSTANT:
+                case Field_Type::CONSTANT:
                 {
                     tField = std::make_shared< Constant_Field >( aADVManager.mADVs, tVariableIndices, tADVIndices, tConstants, tName );
                     break;
                 }
-                case gen::Field_Type::LINE:
+                case Field_Type::LINE:
                 {
                     tField = std::make_shared< Line >( aADVManager.mADVs, tVariableIndices, tADVIndices, tConstants, tName );
                     break;
                 }
-                case gen::Field_Type::CIRCLE:
+                case Field_Type::CIRCLE:
                 {
                     tField = std::make_shared< Circle >( aADVManager.mADVs, tVariableIndices, tADVIndices, tConstants, tName );
                     break;
                 }
-                case gen::Field_Type::SUPERELLIPSE:
+                case Field_Type::SUPERELLIPSE:
                 {
                     tField = std::make_shared< Superellipse >( aADVManager.mADVs, tVariableIndices, tADVIndices, tConstants, tName );
                     break;
                 }
-                case gen::Field_Type::PLANE:
+                case Field_Type::PLANE:
                 {
                     tField = std::make_shared< Plane >( aADVManager.mADVs, tVariableIndices, tADVIndices, tConstants, tName );
                     break;
                 }
-                case gen::Field_Type::SPHERE:
+                case Field_Type::SPHERE:
                 {
                     tField = std::make_shared< Sphere >( aADVManager.mADVs, tVariableIndices, tADVIndices, tConstants, tName );
                     break;
                 }
-                case gen::Field_Type::SUPERELLIPSOID:
+                case Field_Type::SUPERELLIPSOID:
                 {
                     tField = std::make_shared< Superellipsoid >( aADVManager.mADVs, tVariableIndices, tADVIndices, tConstants, tName );
                     break;
                 }
-                case gen::Field_Type::SCALED_FIELD:
+                case Field_Type::SCALED_FIELD:
                 {
                     tField = std::make_shared< Scaled_Field >( aFieldDependencies( 0 ), aADVManager.mADVs, tVariableIndices, tADVIndices, tConstants, tName );
                     break;
                 }
-                case gen::Field_Type::NODAL:
+                case Field_Type::NODAL:
                 {
                     MORIS_ERROR( aMTKMesh != nullptr, "Mesh is a null ptr for nodal field." );
                     tField = std::make_shared< gen::Mesh_Field >( aMTKMesh, tName, mtk::EntityRank::NODE );
                     break;
                 }
-                case gen::Field_Type::USER_DEFINED:
+                case Field_Type::USER_DEFINED:
                 {
                     // Check if library is given
                     MORIS_ERROR( aLibrary != nullptr, "Library must be given in order to create a user-defined field." );
@@ -139,89 +164,89 @@ namespace moris::gen
         {
             switch ( tFieldType )
             {
-                case gen::Field_Type::NONE:
+                case Field_Type::NONE:
                 {
                     MORIS_ERROR( false, "A field must be created with a field type." );
                     break;
                 }
-                case gen::Field_Type::CONSTANT:
+                case Field_Type::CONSTANT:
                 {
-                    auto tConstant = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "constant" ) );
+                    ADV tConstant = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "constant" ) );
                     tField = std::make_shared< Constant_Field >( tConstant, tName );
                     break;
                 }
-                case gen::Field_Type::LINE:
+                case Field_Type::LINE:
                 {
-                    auto tCenterX = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_x" ) );
-                    auto tCenterY = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_y" ) );
-                    auto tNormalX = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "normal_x" ) );
-                    auto tNormalY = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "normal_y" ) );
+                    ADV tCenterX = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_x" ) );
+                    ADV tCenterY = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_y" ) );
+                    ADV tNormalX = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "normal_x" ) );
+                    ADV tNormalY = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "normal_y" ) );
                     tField = std::make_shared< Line >( tCenterX, tCenterY, tNormalX, tNormalY, tName );
                     break;
                 }
-                case gen::Field_Type::CIRCLE:
+                case Field_Type::CIRCLE:
                 {
-                    auto tCenterX = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_x" ) );
-                    auto tCenterY = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_y" ) );
-                    auto tRadius = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "radius" ) );
+                    ADV tCenterX = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_x" ) );
+                    ADV tCenterY = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_y" ) );
+                    ADV tRadius = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "radius" ) );
                     tField = std::make_shared< Circle >( tCenterX, tCenterY, tRadius, tName );
                     break;
                 }
-                case gen::Field_Type::SUPERELLIPSE:
+                case Field_Type::SUPERELLIPSE:
                 {
-                    auto tCenterX = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_x" ) );
-                    auto tCenterY = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_y" ) );
-                    auto tSemidiameterX = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "semidiameter_x" ) );
-                    auto tSemidiameterY = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "semidiameter_y" ) );
-                    auto tExponent = aFieldParameterList.get< real >( "exponent" );
+                    ADV tCenterX = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_x" ) );
+                    ADV tCenterY = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_y" ) );
+                    ADV tSemidiameterX = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "semidiameter_x" ) );
+                    ADV tSemidiameterY = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "semidiameter_y" ) );
+                    real tExponent = aFieldParameterList.get< real >( "exponent" );
                     tField = std::make_shared< Superellipse >( tCenterX, tCenterY, tSemidiameterX, tSemidiameterY, tExponent, 1.0, 1.0 );
                     break;
                 }
-                case gen::Field_Type::PLANE:
+                case Field_Type::PLANE:
                 {
-                    auto tCenterX = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_x" ) );
-                    auto tCenterY = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_y" ) );
-                    auto tCenterZ = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_z" ) );
-                    auto tNormalX = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "normal_x" ) );
-                    auto tNormalY = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "normal_y" ) );
-                    auto tNormalZ = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "normal_z" ) );
+                    ADV tCenterX = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_x" ) );
+                    ADV tCenterY = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_y" ) );
+                    ADV tCenterZ = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_z" ) );
+                    ADV tNormalX = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "normal_x" ) );
+                    ADV tNormalY = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "normal_y" ) );
+                    ADV tNormalZ = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "normal_z" ) );
                     tField = std::make_shared< Plane >( tCenterX, tCenterY, tCenterZ, tNormalX, tNormalY, tNormalZ, tName );
                     break;
                 }
-                case gen::Field_Type::SPHERE:
+                case Field_Type::SPHERE:
                 {
-                    auto tCenterX = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_x" ) );
-                    auto tCenterY = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_y" ) );
-                    auto tCenterZ = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_z" ) );
-                    auto tRadius = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "radius" ) );
+                    ADV tCenterX = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_x" ) );
+                    ADV tCenterY = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_y" ) );
+                    ADV tCenterZ = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_z" ) );
+                    ADV tRadius = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "radius" ) );
                     tField = std::make_shared< Sphere >( tCenterX, tCenterY, tCenterZ, tRadius, tName );
                     break;
                 }
-                case gen::Field_Type::SUPERELLIPSOID:
+                case Field_Type::SUPERELLIPSOID:
                 {
-                    auto tCenterX = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_x" ) );
-                    auto tCenterY = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_y" ) );
-                    auto tCenterZ = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_z" ) );
-                    auto tSemidiameterX = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "semidiameter_x" ) );
-                    auto tSemidiameterY = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "semidiameter_y" ) );
-                    auto tSemidiameterZ = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "semidiameter_z" ) );
-                    auto tExponent = aFieldParameterList.get< real >( "exponent" );
+                    ADV tCenterX = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_x" ) );
+                    ADV tCenterY = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_y" ) );
+                    ADV tCenterZ = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_z" ) );
+                    ADV tSemidiameterX = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "semidiameter_x" ) );
+                    ADV tSemidiameterY = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "semidiameter_y" ) );
+                    ADV tSemidiameterZ = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "semidiameter_z" ) );
+                    real tExponent = aFieldParameterList.get< real >( "exponent" );
                     tField = std::make_shared< Superellipsoid >( tCenterX, tCenterY, tCenterZ, tSemidiameterX, tSemidiameterY, tSemidiameterZ, tExponent, tName );
                     break;
                 }
-                case gen::Field_Type::SCALED_FIELD:
+                case Field_Type::SCALED_FIELD:
                 {
-                    auto tScalingFactor = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "scaling_factor" ) );
+                    ADV tScalingFactor = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "scaling_factor" ) );
                     tField = std::make_shared< Scaled_Field >( aFieldDependencies( 0 ), tScalingFactor, tName );
                     break;
                 }
-                case gen::Field_Type::COMBINED_FIELDS:
+                case Field_Type::COMBINED_FIELDS:
                 {
                     bool tUseMinimum = aFieldParameterList.get< bool >( "use_minimum" );
                     tField = std::make_shared< Combined_Fields >( aFieldDependencies, tUseMinimum, tName );
                     break;
                 }
-                case gen::Field_Type::NODAL_FROM_FILE:
+                case Field_Type::NODAL_FROM_FILE:
                 {
                     std::string tFileName    = aFieldParameterList.get< std::string >( "file_name" );
                     std::string tFieldName   = aFieldParameterList.get< std::string >( "field_name" );
@@ -237,7 +262,7 @@ namespace moris::gen
                             mtk::EntityRank::NODE );
                     break;
                 }
-                case gen::Field_Type::SIGNED_DISTANCE_OBJECT:
+                case Field_Type::SIGNED_DISTANCE_OBJECT:
                 {
                     std::string    tObjectPath   = aFieldParameterList.get< std::string >( "sdf_object_path" );
                     Vector< real > tObjectOffset = string_to_cell< real >( aFieldParameterList.get< std::string >( "sdf_object_offset" ) );
@@ -249,7 +274,7 @@ namespace moris::gen
                             tSDFShift );
                     break;
                 }
-                case gen::Field_Type::SIGNED_DISTANCE_IMAGE:
+                case Field_Type::SIGNED_DISTANCE_IMAGE:
                 {
                     // Get SDF-specific info
                     std::string      tImageFileName    = aFieldParameterList.get< std::string >( "image_file" );
@@ -271,7 +296,7 @@ namespace moris::gen
                             tsDFInterp );
                     break;
                 }
-                case gen::Field_Type::USER_DEFINED:
+                case Field_Type::USER_DEFINED:
                 {
                     // Check if library is given
                     MORIS_ERROR( aLibrary != nullptr, "Library must be given in order to create a user-defined field." );
@@ -310,6 +335,62 @@ namespace moris::gen
         {
             // Return single field
             return tField;
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Vector< char > get_all_active_parameter_ids( const Parameter_List& aFieldParameterList )
+    {
+        switch ( aFieldParameterList.get< Field_Type >( "field_type" ) )
+        {
+            case Field_Type::CONSTANT:
+            {
+                return get_active_parameter_ids_for_names( aFieldParameterList, { "constant" } );
+            }
+            case Field_Type::LINE:
+            {
+                return get_active_parameter_ids_for_names( aFieldParameterList, { "center_x", "center_y", "normal_x", "normal_y" } );
+            }
+            case Field_Type::CIRCLE:
+            {
+                return get_active_parameter_ids_for_names( aFieldParameterList, { "center_x", "center_y", "radius" } );
+            }
+            case Field_Type::SUPERELLIPSE:
+            {
+                return get_active_parameter_ids_for_names( aFieldParameterList, { "center_x", "center_y", "semidiameter_x", "semidiameter_y" } );
+            }
+            case Field_Type::PLANE:
+            {
+                return get_active_parameter_ids_for_names( aFieldParameterList, { "center_x", "center_y", "center_z", "normal_x", "normal_y", "normal_z" } );
+            }
+            case Field_Type::SPHERE:
+            {
+                return get_active_parameter_ids_for_names( aFieldParameterList, { "center_x", "center_y", "center_z", "radius" } );
+            }
+            case Field_Type::SUPERELLIPSOID:
+            {
+                return get_active_parameter_ids_for_names( aFieldParameterList, { "center_x", "center_y", "center_z", "semidiameter_x", "semidiameter_y", "semidiameter_z" } );
+            }
+            case Field_Type::SCALED_FIELD:
+            {
+                return get_active_parameter_ids_for_names( aFieldParameterList, { "scaling_factor" } );
+            }
+            case Field_Type::USER_DEFINED:
+            {
+                // FIXME this may not always be empty
+                return {};
+            }
+            case Field_Type::NONE:
+            case Field_Type::COMBINED_FIELDS:
+            case Field_Type::NODAL:
+            case Field_Type::NODAL_FROM_FILE:
+            case Field_Type::SIGNED_DISTANCE_OBJECT:
+            case Field_Type::SIGNED_DISTANCE_IMAGE:
+            default:
+            {
+                return {};
+            }
         }
     }
 

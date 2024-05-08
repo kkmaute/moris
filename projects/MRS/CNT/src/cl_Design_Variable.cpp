@@ -10,12 +10,15 @@
 
 #include "cl_Design_Variable.hpp"
 
+#include <utility>
+
 namespace moris
 {
     //--------------------------------------------------------------------------------------------------------------
 
     Design_Variable::Design_Variable( real aConstantValue )
-            : mValue( aConstantValue )
+            : mID( mCount++ )
+            , mValue( aConstantValue )
             , mLowerBound( aConstantValue )
             , mUpperBound( aConstantValue )
             , mIsConstant( true )
@@ -24,8 +27,13 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Design_Variable::Design_Variable( real aLowerBound, real aInitialValue, real aUpperBound )
-            : mValue ( aInitialValue )
+    Design_Variable::Design_Variable(
+            real        aLowerBound,
+            real        aInitialValue,
+            real        aUpperBound,
+            std::string aName )
+            : mID( mCount++ )
+            , mValue ( aInitialValue )
             , mLowerBound( aLowerBound )
             , mUpperBound( aUpperBound )
             , mIsConstant( false )
@@ -37,6 +45,13 @@ namespace moris
     bool Design_Variable::is_constant() const
     {
         return mIsConstant;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    char Design_Variable::get_id() const
+    {
+        return mID;
     }
 
     //--------------------------------------------------------------------------------------------------------------

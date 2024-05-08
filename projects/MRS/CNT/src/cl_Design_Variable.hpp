@@ -20,10 +20,14 @@ namespace moris
     class Design_Variable
     {
       private:
+        char mID;
         real mValue;
         real mLowerBound;
         real mUpperBound;
         bool mIsConstant;
+
+        // How many design variables have been created, used for having a unique ID
+        inline static char mCount = 0;
 
       public:
         /**
@@ -40,7 +44,11 @@ namespace moris
          * @param aInitialValue Initial value for this variable
          * @param aUpperBound Variable upper bound
          */
-        Design_Variable( real aLowerBound, real aInitialValue, real aUpperBound );
+        Design_Variable(
+                real        aLowerBound,
+                real        aInitialValue,
+                real        aUpperBound,
+                std::string aName = "" );
 
         /**
          * Gets if this design variable is constant or not.
@@ -48,6 +56,14 @@ namespace moris
          * @return Is constant
          */
         bool is_constant() const;
+
+        /**
+         * Gets a unique ID for this design variable.
+         * Used to determine if design variables are the same after being copied.
+         *
+         * @return ID
+         */
+        char get_id() const;
 
         /**
          * Gets the value of this design variable.
