@@ -37,7 +37,7 @@ namespace moris::gen
         /**
          * Constructor, sets the pointers to advs and constant parameters for evaluations.
          *
-         * @param aFieldFunction User-defined function for evaluating the field field
+         * @param aFieldFunction User-defined function for evaluating the field
          * @param aSensitivityFunction User-defined function for evaluating the field sensitivities
          * @param aADVs ADV vector
          * @param aFieldVariableIndices Indices of field variables to be filled by the ADVs
@@ -59,14 +59,29 @@ namespace moris::gen
         }
 
         /**
-         * Constructor using created ADVs.
+         * Constructor with both a user-defined field and user-defined sensitivity function.
          *
+         * @param aFieldFunction User-defined function for evaluating the field
+         * @param aSensitivityFunction User-defined function for evaluating the field sensitivities
          * @param aADVs The parameters that define this field and may be changed as a part of a design
          * @param aName Name of this field
          */
         User_Defined_Field(
                 Field_Function       aFieldFunction,
-                const Vector< ADV >& aConstants = {},
+                Sensitivity_Function aSensitivityFunction,
+                const Vector< ADV >& aADVs = {},
+                std::string          aName = "" );
+
+        /**
+         * Constructor with only a user-defined field function.
+         *
+         * @param aFieldFunction User-defined function for evaluating the field
+         * @param aADVs The parameters that define this field and may be changed as a part of a design
+         * @param aName Name of this field
+         */
+        explicit User_Defined_Field(
+                Field_Function       aFieldFunction,
+                const Vector< ADV >& aADVs = {},
                 std::string          aName = "" );
 
         /**

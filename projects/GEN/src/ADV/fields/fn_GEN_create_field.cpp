@@ -254,7 +254,6 @@ namespace moris::gen
                     std::string      tImageFileName    = aFieldParameterList.get< std::string >( "image_file" );
                     Matrix< DDRMat > tDomainDimensions = string_to_mat< DDRMat >( aFieldParameterList.get< std::string >( "image_dimensions" ) );
                     Matrix< DDRMat > tDomainOffset     = string_to_mat< DDRMat >( aFieldParameterList.get< std::string >( "image_offset" ) );
-
                     real tSDFScaling = aFieldParameterList.get< real >( "image_sdf_scaling" );
                     real tSDFShift   = aFieldParameterList.get< real >( "image_sdf_shift" );
                     real tSDFDefault = aFieldParameterList.get< real >( "image_sdf_default" );
@@ -275,19 +274,31 @@ namespace moris::gen
                     // Check if library is given
                     MORIS_ERROR( aLibrary != nullptr, "Library must be given in order to create a user-defined field." );
 
+                    // get field function
+                    auto tFieldFunction = aLibrary->load_function< Field_Function >( aFieldParameterList.get< std::string >( "field_function_name" ) );
+
                     // Get sensitivity function if needed
                     std::string          tSensitivityFunctionName = aFieldParameterList.get< std::string >( "sensitivity_function_name" );
-                    Sensitivity_Function tSensitivityFunction =
+                    auto tSensitivityFunction =
                             ( tSensitivityFunctionName.empty() ? nullptr : aLibrary->load_function< Sensitivity_Function >( tSensitivityFunctionName ) );
+
+                    // Loop over parameters to create ADVs
+                    Vector< ADV > tADVs;
+                    for ( const auto& iParameter : aFieldParameterList )
+                    {
+                        // Determine if parameter is design variable
+                        if ( iParameter.second.index() == get_variant_index< Design_Variable >() )
+                        {
+                            // Get design variable from parameter list
+                            tADVs.push_back( aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( iParameter.first ) ) );
+                        }
+                    }
 
                     // Create user-defined field
                     tField = std::make_shared< User_Defined_Field >(
-                            aLibrary->load_function< Field_Function >( aFieldParameterList.get< std::string >( "field_function_name" ) ),
+                            tFieldFunction,
                             tSensitivityFunction,
-                            aADVManager.mADVs,
-                            tVariableIndices,
-                            tADVIndices,
-                            tConstants,
+                            tADVs,
                             tName );
                     break;
                 }

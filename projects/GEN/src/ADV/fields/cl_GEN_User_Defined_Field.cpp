@@ -16,15 +16,26 @@ namespace moris::gen
 
     User_Defined_Field::User_Defined_Field(
             Field_Function       aFieldFunction,
-            const Vector< ADV >& aConstants,
+            Sensitivity_Function aSensitivityFunction,
+            const Vector< ADV >& aADVs,
             std::string          aName )
-            : Field_Analytic( aConstants, std::move( aName ) )
-            , mFieldVariables( aConstants.size() )
+            : Field_Analytic< 0 >( aADVs, std::move( aName ) )
+            , mFieldVariables( aADVs.size() )
             , get_field_value_user_defined( aFieldFunction )
-            , get_dfield_dadvs_user_defined( nullptr )
+            , get_dfield_dadvs_user_defined( aSensitivityFunction )
     {
         this->import_advs( nullptr );
         this->validate_user_defined_functions();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    User_Defined_Field::User_Defined_Field(
+            Field_Function       aFieldFunction,
+            const Vector< ADV >& aADVs,
+            std::string          aName )
+            : User_Defined_Field( aFieldFunction, nullptr, aADVs, std::move( aName ) )
+    {
     }
 
     //--------------------------------------------------------------------------------------------------------------
