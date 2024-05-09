@@ -361,14 +361,10 @@ namespace moris::gen
             }
         }
 
-        // Update all facet data
+        // STEP 3: Update all facet data
         this->update_all_facets();
 
-        // BRENDAN delete probably
-        // Write the new surface mesh to an obj file
-        mIteration++;
-        std::string tFileName = mName + "_" + std::to_string( mIteration ) + ".obj";
-        this->write_to_obj_file( tFileName );
+        std::cout << "Facet vertices moved!\n";    // BRENDAN
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -434,7 +430,7 @@ namespace moris::gen
         // update the stored mtk interpolation mesh with the new mesh
         mMesh = aInterpolationMesh;
 
-        // Update the vertex bases with the new mesh
+        // Update the vertex bases with the new mesh and original coordinates
         this->update_vertex_basis_data();
     }
 
@@ -591,12 +587,12 @@ namespace moris::gen
                 // set size of vertex sensitivity matrix
                 if ( iDimensionIndex == 0 and iNodeIndex == 0 )
                 {
-                    tVertexSensitivity.resize( Object::mDimension, tNodeSensitivity.numel() * tVertexCoordinates.n_rows() );
+                    tVertexSensitivity.resize( Object::mDimension, Object::mDimension * tNodeSensitivity.numel() * tVertexCoordinates.n_rows() );
                 }
                 // Each sensitivity is a separate index
                 for ( uint iADVIndex = 0; iADVIndex < tNodeSensitivity.numel(); iADVIndex++ )
                 {
-                    tVertexSensitivity( iDimensionIndex, iADVIndex + tNodeSensitivity.numel() * iNodeIndex ) = tNodeSensitivity( iADVIndex );
+                    tVertexSensitivity( iDimensionIndex, tNodeSensitivity.length()*(iNodeIndex*Object::mDimension + iDimensionIndex) + iADVIndex ) = tNodeSensitivity( iADVIndex );
                 }
             }
         }
@@ -829,6 +825,8 @@ namespace moris::gen
         return tBasis;
     }
 
+    //--------------------------------------------------------------------------------------------------------------
+
     void
     Surface_Mesh_Geometry::update_vertex_basis_data()
     {
@@ -869,6 +867,8 @@ namespace moris::gen
                 }
             }
         }
+
+        std::cout << "Vertex bases updated!\n";    // BRENDAN
     }
 
     //--------------------------------------------------------------------------------------------------------------

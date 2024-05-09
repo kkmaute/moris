@@ -52,9 +52,9 @@ namespace moris
 
     // Constant function for properties
     void
-    Func_Const( moris::Matrix< moris::DDRMat >&            aPropMatrix,
+    Func_Const( moris::Matrix< moris::DDRMat >&       aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         aPropMatrix = aParameters( 0 );
     }
@@ -141,9 +141,9 @@ namespace moris
 
     void
     Func_Traction_U(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         if ( aFIManager->get_IG_geometry_interpolator()->valx()( 1 ) < 0.2 )
         {
@@ -234,7 +234,7 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "lower_bounds", "" );
         tParameterlist( 0 )( 0 ).set( "upper_bounds", "" );
 
-        std::cout << "GEO Model: " << tGeoModel << std::endl; // BRENDAN
+        std::cout << "GEO Model: " << tGeoModel << std::endl;    // BRENDAN
 
         switch ( tGeoModel )
         {
@@ -247,13 +247,13 @@ namespace moris
         tParameterlist( 1 ).resize( 1 );
 
         tParameterlist( 1 )( 0 ) = prm::create_surface_mesh_geometry_parameter_list();
-        tParameterlist( 1 )( 0 ).set("file_path",   "/home/chong/work/SP24/Input_Files/triangle_sensitivity.obj"); //BRENDAN FIXME
-        switch( tGeoModel )
+        tParameterlist( 1 )( 0 ).set( "file_path", "/home/chong/work/SP24/Input_Files/triangle_sensitivity.obj" );    // BRENDAN FIXME
+        switch ( tGeoModel )
         {
             case 0:
-                tParameterlist( 1 )( 0 ).set("fixed_vertex_indices", "0");
-                tParameterlist( 1 )( 0 ).set("adv_indices", "0,1");
-                // tParameterlist( 1 )( 0 ).set( "discretization_mesh_index", 0 );
+                // tParameterlist( 1 )( 0 ).set( "fixed_vertex_indices", "0" );
+                // tParameterlist( 1 )( 0 ).set( "adv_indices", "0,1" );
+                tParameterlist( 1 )( 0 ).set( "discretization_mesh_index", 0 );
                 break;
             case 1:
                 // tParameterlist( 1 )( 0 ).set("fixed_vertex_indices", "0");
@@ -409,6 +409,7 @@ namespace moris
         // fill the computation part of the parameter list
         tParameterList( 5 ).resize( 1 );
         tParameterList( 5 )( 0 ) = prm::create_computation_parameter_list();
+        tParameterList( 5 )( 0 ).set( "finite_difference_scheme", (uint)( fem::FDScheme_Type::POINT_3_CENTRAL ) );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -495,6 +496,7 @@ namespace moris
         tParameterlist( 2 )( 0 ).set( "hdf5_path", "shape_opt_test_surface_mesh_2D.hdf5" );
         tParameterlist( 2 )( 0 ).set( "evaluate_objective_gradients", true );
         tParameterlist( 2 )( 0 ).set( "evaluate_constraint_gradients", true );
+        tParameterlist( 2 )( 0 ).set( "finite_difference_epsilons", "1E-8" );
         tParameterlist( 2 )( 0 ).set( "num_evaluations_per_adv", "1" );
         tParameterlist( 2 )( 0 ).set( "include_bounds", false );
         tParameterlist( 2 )( 0 ).set( "finite_difference_type", "all" );
