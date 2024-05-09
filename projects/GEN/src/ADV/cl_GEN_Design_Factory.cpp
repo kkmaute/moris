@@ -54,7 +54,7 @@ namespace moris::gen
             if ( iParameterList.exists( "field_type" ) )
             {
                 tFieldIndex++;
-                aADVManager.register_parameter_ids( get_all_active_parameter_ids( iParameterList ) );
+                aADVManager.register_parameter_ids( get_active_parameter_ids( iParameterList ) );
             }
         }
 

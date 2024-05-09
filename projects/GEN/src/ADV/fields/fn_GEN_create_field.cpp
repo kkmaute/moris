@@ -31,32 +31,6 @@ namespace moris::gen
 {
     //--------------------------------------------------------------------------------------------------------------
 
-    Vector< char > get_active_parameter_ids_for_names(
-            const Parameter_List&        aFieldParameterList,
-            const Vector< std::string >& aParameterNames )
-    {
-        // List of parameter IDs
-        Vector< char > tParameterIDs;
-
-        // Loop over given parameter names
-        for ( const auto& iParameterName : aParameterNames )
-        {
-            // Get design variable from parameter list
-            auto tDesignVariable = aFieldParameterList.get< Design_Variable >( iParameterName );
-
-            // Add ID if not constant
-            if ( not tDesignVariable.is_constant() )
-            {
-                tParameterIDs.push_back( tDesignVariable.get_id() );
-            }
-        }
-
-        // Return finished list
-        return tParameterIDs;
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
     std::shared_ptr< Field >
     create_field(
             const Parameter_List&              aFieldParameterList,
@@ -340,60 +314,31 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Vector< char > get_all_active_parameter_ids( const Parameter_List& aFieldParameterList )
+    Vector< char > get_active_parameter_ids( const Parameter_List& aFieldParameterList )
     {
-        switch ( aFieldParameterList.get< Field_Type >( "field_type" ) )
+        // Vector of parameter IDs
+        Vector< char > tParameterIDs;
+
+        // Loop over all parameters
+        for ( const auto& iParameter : aFieldParameterList )
         {
-            case Field_Type::CONSTANT:
+            // Determine if parameter is design variable
+            if ( iParameter.second.index() == get_variant_index< Design_Variable >() )
             {
-                return get_active_parameter_ids_for_names( aFieldParameterList, { "constant" } );
-            }
-            case Field_Type::LINE:
-            {
-                return get_active_parameter_ids_for_names( aFieldParameterList, { "center_x", "center_y", "normal_x", "normal_y" } );
-            }
-            case Field_Type::CIRCLE:
-            {
-                return get_active_parameter_ids_for_names( aFieldParameterList, { "center_x", "center_y", "radius" } );
-            }
-            case Field_Type::SUPERELLIPSE:
-            {
-                return get_active_parameter_ids_for_names( aFieldParameterList, { "center_x", "center_y", "semidiameter_x", "semidiameter_y" } );
-            }
-            case Field_Type::PLANE:
-            {
-                return get_active_parameter_ids_for_names( aFieldParameterList, { "center_x", "center_y", "center_z", "normal_x", "normal_y", "normal_z" } );
-            }
-            case Field_Type::SPHERE:
-            {
-                return get_active_parameter_ids_for_names( aFieldParameterList, { "center_x", "center_y", "center_z", "radius" } );
-            }
-            case Field_Type::SUPERELLIPSOID:
-            {
-                return get_active_parameter_ids_for_names( aFieldParameterList, { "center_x", "center_y", "center_z", "semidiameter_x", "semidiameter_y", "semidiameter_z" } );
-            }
-            case Field_Type::SCALED_FIELD:
-            {
-                return get_active_parameter_ids_for_names( aFieldParameterList, { "scaling_factor" } );
-            }
-            case Field_Type::USER_DEFINED:
-            {
-                // FIXME this may not always be empty
-                return {};
-            }
-            case Field_Type::NONE:
-            case Field_Type::COMBINED_FIELDS:
-            case Field_Type::NODAL:
-            case Field_Type::NODAL_FROM_FILE:
-            case Field_Type::SIGNED_DISTANCE_OBJECT:
-            case Field_Type::SIGNED_DISTANCE_IMAGE:
-            default:
-            {
-                return {};
+                // Get design variable from parameter list
+                auto tDesignVariable = aFieldParameterList.get< Design_Variable >( iParameter.first );
+
+                // Add ID if not constant
+                if ( not tDesignVariable.is_constant() )
+                {
+                    tParameterIDs.push_back( tDesignVariable.get_id() );
+                }
             }
         }
+
+        // Return resulting vector
+        return tParameterIDs;
     }
 
     //--------------------------------------------------------------------------------------------------------------
-
-}    // namespace moris::gen
+}

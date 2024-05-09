@@ -42,5 +42,5 @@ namespace moris::gen
      * @param aFieldParameterList Field parameter list
      * @return Number of active ADVs
      */
-    Vector< char > get_all_active_parameter_ids( const Parameter_List& aFieldParameterList );
+    Vector< char > get_active_parameter_ids( const Parameter_List& aFieldParameterList );
 }
