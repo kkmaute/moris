@@ -12,6 +12,15 @@
 
 namespace moris::gen
 {
+    //--------------------------------------------------------------------------------------------------------------
+
+    ADV_Manager::ADV_Manager( uint aNumberOfADVs )
+            : mParameterIDsFinalized( true )
+    {
+        mADVs.reserve( aNumberOfADVs );
+        mLowerBounds.reserve( aNumberOfADVs );
+        mUpperBounds.reserve( aNumberOfADVs );
+    }
 
     //--------------------------------------------------------------------------------------------------------------
 
@@ -67,7 +76,7 @@ namespace moris::gen
             uint tFindIndex = tFindID - mParameterIDs.begin();
 
             // Determine what to do
-            if ( tFindIndex == mADVs.size() )
+            if ( tFindIndex >= mADVs.size() or tFindID == mParameterIDs.end() )
             {
                 // New ADV
                 mADVs.push_back( aDesignVariable.get_value() );

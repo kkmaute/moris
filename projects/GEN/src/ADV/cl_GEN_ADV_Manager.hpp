@@ -29,6 +29,18 @@ namespace moris::gen
         Vector< real > mUpperBounds;
 
         /**
+         * Default constructor.
+         */
+        ADV_Manager() = default;
+
+        /**
+         * Constructor where all ADVs are assumed to be associated with unique parameter IDs.
+         *
+         * @param aNumberOfADVs Number of ADVs
+         */
+        explicit ADV_Manager( uint aNumberOfADVs );
+
+        /**
          * Registers the given unique parameter IDs in the ADV manager's vector of IDs.
          *
          * @param aParameterIDs
