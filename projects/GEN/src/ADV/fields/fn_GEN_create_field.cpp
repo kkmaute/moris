@@ -173,7 +173,7 @@ namespace moris::gen
                     ADV tSemidiameterX = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "semidiameter_x" ) );
                     ADV tSemidiameterY = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "semidiameter_y" ) );
                     real tExponent = aFieldParameterList.get< real >( "exponent" );
-                    tField = std::make_shared< Superellipse >( tCenterX, tCenterY, tSemidiameterX, tSemidiameterY, tExponent, 1.0, 1.0 );
+                    tField = std::make_shared< Superellipse >( tCenterX, tCenterY, tSemidiameterX, tSemidiameterY, tExponent, 1.0, 0.0 );
                     break;
                 }
                 case Field_Type::PLANE:
@@ -278,9 +278,12 @@ namespace moris::gen
                     auto tFieldFunction = aLibrary->load_function< Field_Function >( aFieldParameterList.get< std::string >( "field_function_name" ) );
 
                     // Get sensitivity function if needed
-                    std::string          tSensitivityFunctionName = aFieldParameterList.get< std::string >( "sensitivity_function_name" );
-                    auto tSensitivityFunction =
-                            ( tSensitivityFunctionName.empty() ? nullptr : aLibrary->load_function< Sensitivity_Function >( tSensitivityFunctionName ) );
+                    Sensitivity_Function tSensitivityFunction = nullptr;
+                    std::string tSensitivityFunctionName = aFieldParameterList.get< std::string >( "sensitivity_function_name" );
+                    if ( not tSensitivityFunctionName.empty() )
+                    {
+                        tSensitivityFunction = aLibrary->load_function< Sensitivity_Function >( tSensitivityFunctionName );
+                    }
 
                     // Loop over parameters to create ADVs
                     Vector< ADV > tADVs;
