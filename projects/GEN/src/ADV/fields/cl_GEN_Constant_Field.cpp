@@ -15,10 +15,11 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Constant_Field::Constant_Field(
-            const ADV& aConstant,
+            const ADV&  aConstant,
             std::string aName )
             : Field_Analytic< 0 >( { aConstant }, std::move( aName ) )
     {
+        mSensitivities = { { 1.0 } };
     }
 
     //--------------------------------------------------------------------------------------------------------------
