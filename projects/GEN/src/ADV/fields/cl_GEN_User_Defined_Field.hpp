@@ -130,7 +130,7 @@ namespace moris::gen
          */
         static void no_sensitivities(
                 const Matrix< DDRMat >& aCoordinates,
-                const Vector< real >&     aParameters,
+                const Vector< real >&   aParameters,
                 Matrix< DDRMat >&       aSensitivities );
     };
 }

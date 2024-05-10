@@ -106,7 +106,11 @@ namespace moris::gen
         if ( get_dfield_dadvs_user_defined == nullptr )
         {
             // Sensitivity function was not provided
+            MORIS_ERROR( not this->has_advs(),
+                    "A sensitivity evaluation function was not provided to a user-defined field. "
+                    "Please make sure that you provide this function, or that sensitivities are not required." );
             get_dfield_dadvs_user_defined = &( User_Defined_Field::no_sensitivities );
+            mSensitivities.set_size( 1, this->mFieldVariables.size(), 0.0 );
         }
         else
         {
@@ -138,12 +142,9 @@ namespace moris::gen
     void
     User_Defined_Field::no_sensitivities(
             const Matrix< DDRMat >& aCoordinates,
-            const Vector< real >&    aParameters,
+            const Vector< real >&   aParameters,
             Matrix< DDRMat >&       aSensitivities )
     {
-        MORIS_ERROR( false,
-                "A sensitivity evaluation function was not provided to a user-defined field. "
-                "Please make sure that you provide this function, or that sensitivities are not required." );
     }
 
     //--------------------------------------------------------------------------------------------------------------
