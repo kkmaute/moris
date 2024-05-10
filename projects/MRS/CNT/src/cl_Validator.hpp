@@ -23,9 +23,6 @@ namespace moris
 {
     class Validator
     {
-      protected:
-        uint mTypeIndex;
-
       public:
 
         /**
