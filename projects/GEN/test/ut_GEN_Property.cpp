@@ -25,10 +25,8 @@ namespace moris::gen
     {
         // Set up property
         Parameter_List tConstantPropertyParameterList = prm::create_gen_property_parameter_list( gen::Field_Type::CONSTANT );
-        tConstantPropertyParameterList.set( "field_variable_indices", 0u );
-        tConstantPropertyParameterList.set( "adv_indices", 0u );
+        tConstantPropertyParameterList.set( "constant", 0.0, 0.0, 0.0 );
         ADV_Manager tADVManager;
-        tADVManager.mADVs = { 0.0 };
         Design_Factory              tDesignFactory( { tConstantPropertyParameterList }, tADVManager );
         std::shared_ptr< Property > tConstantProperty = tDesignFactory.get_properties()( 0 );
 
@@ -58,14 +56,12 @@ namespace moris::gen
 
     TEST_CASE( "Scaled field property", "[gen], [property], [scaled field]" )
     {
-        // Create ADVs
-        Vector< real > tADVs = { 0.0, 0.0, 0.5 };
-
         // Set up and create geometry
         Parameter_List tCircleParameterList = prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE );
+        tCircleParameterList.set( "center_x", 0.0, 0.0, 0.0 );
+        tCircleParameterList.set( "center_y", 0.0, 0.0, 0.0 );
+        tCircleParameterList.set( "radius", 0.5, 0.5, 0.5 );
         tCircleParameterList.set( "name", "My Circle" );
-        tCircleParameterList.set( "field_variable_indices", 0u, 1u, 2u );
-        tCircleParameterList.set( "adv_indices", 0u, 1u, 2u );
 
         // Set up property
         Parameter_List tScaledFieldParameterList = prm::create_gen_property_parameter_list( gen::Field_Type::SCALED_FIELD );
@@ -79,9 +75,8 @@ namespace moris::gen
         {
             // Create scaled field
             real tScale = tUniform( tEngine );
-            tScaledFieldParameterList.set( "constant_parameters", tScale, false );
+            tScaledFieldParameterList.set( "scaling_factor", tScale, false );
             ADV_Manager tADVManager;
-            tADVManager.mADVs = tADVs;
             Design_Factory                        tDesignFactory( { tCircleParameterList, tScaledFieldParameterList }, tADVManager );
             std::shared_ptr< Level_Set_Geometry > tCircle     = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
             auto                                  tProperties = tDesignFactory.get_properties();
@@ -113,7 +108,7 @@ namespace moris::gen
     {
         // Constant B-spline parameter list
         Parameter_List tPropertyParameterList = prm::create_gen_property_parameter_list( gen::Field_Type::CONSTANT );
-        tPropertyParameterList.set( "constant_parameters", 1.0 );
+        tPropertyParameterList.set( "constant", 1.0 );
         tPropertyParameterList.set( "discretization_mesh_index", 0 );
         tPropertyParameterList.set( "discretization_lower_bound", -2.0 );
         tPropertyParameterList.set( "discretization_upper_bound", 2.0 );

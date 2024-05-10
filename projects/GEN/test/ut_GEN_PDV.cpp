@@ -505,25 +505,23 @@ namespace moris::gen
         tPDVHostManager.mPDVTypeMap.set_size( 10, 1, -1 );
         tPDVHostManager.mPDVTypeMap( 3 ) = 0;
 
-        // Constant property parameter list
-        Parameter_List tParameterList = moris::prm::create_gen_property_parameter_list( gen::Field_Type::CONSTANT );
-        tParameterList.set( "field_variable_indices", 0u );
-        tParameterList.set( "pdv_type", "DENSITY" );
-
         // Create ADVs
         uint             tNumADVs = 2 * par_size();
-        Vector< real > tADVs( tNumADVs );
 
         // Create constant properties
-        Vector< std::shared_ptr< Property > > tProperties( tNumADVs );
-        for ( uint tPropertyIndex = 0; tPropertyIndex < tNumADVs; tPropertyIndex++ )
+        Vector< Parameter_List > tPropertyParameterLists;
+        for ( uint iPropertyIndex = 0; iPropertyIndex < tNumADVs; iPropertyIndex++ )
         {
-            tParameterList.set( "adv_indices", tPropertyIndex, false );
-            ADV_Manager tADVManager;
-            tADVManager.mADVs = tADVs;
-            Design_Factory tDesignFactory( { tParameterList }, tADVManager );
-            tProperties( tPropertyIndex ) = tDesignFactory.get_properties()( 0 );
+            // Constant property parameter list
+            tPropertyParameterLists.push_back( moris::prm::create_gen_property_parameter_list( gen::Field_Type::CONSTANT ) );
+            tPropertyParameterLists( iPropertyIndex ).set( "pdv_type", "DENSITY" );
+            tPropertyParameterLists( iPropertyIndex ).set( "constant", 0.0, 0.0, 0.0 );
         }
+
+        // Create properties
+        ADV_Manager tADVManager;
+        Design_Factory tDesignFactory( tPropertyParameterLists, tADVManager );
+        Vector< std::shared_ptr< Property > > tProperties = tDesignFactory.get_properties();
 
         // Node indices, IDs, ownership and coordinates per set
         Vector< Vector< uint > > tNodeIndicesPerSet( 1 );
