@@ -234,7 +234,6 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "lower_bounds", "" );
         tParameterlist( 0 )( 0 ).set( "upper_bounds", "" );
 
-        std::cout << "GEO Model: " << tGeoModel << std::endl;    // BRENDAN
 
         switch ( tGeoModel )
         {

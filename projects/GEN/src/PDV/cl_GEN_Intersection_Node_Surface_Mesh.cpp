@@ -174,18 +174,6 @@ namespace moris::gen
         const Basis_Node& tFirstParentNode  = this->get_first_parent_node();
         const Basis_Node& tSecondParentNode = this->get_second_parent_node();
 
-        // BRENDAN
-        // if ( mParentFacet->get_index() == 0 and std::abs( tFirstParentNode.get_global_coordinates()( 0 ) - 1.0 ) < 1e-4 and std::abs( tSecondParentNode.get_global_coordinates()( 0 ) - 1.0 ) < 1e-4 )
-        // if ( std::abs( this->get_local_coordinate() + 0.5 ) < 1e-4 or std::abs( this->get_local_coordinate() - 1.5 ) < 1e-4 )
-        if ( mParentFacet->get_index() == 0 )
-        {
-            std::cout << "this is the node we are testing\n";
-        }
-
-        // BRENDAN
-        PRINT( tFirstParentNode.get_global_coordinates() );
-        PRINT( tSecondParentNode.get_global_coordinates() );
-
         // Compute parent vector
         Matrix< DDRMat > tParentVector = trans( tSecondParentNode.get_global_coordinates() - tFirstParentNode.get_global_coordinates() );
 
@@ -243,12 +231,6 @@ namespace moris::gen
     Matrix< DDSMat >
     Intersection_Node_Surface_Mesh::get_coordinate_determining_adv_ids() const
     {
-        // BRENDAN
-        if ( std::abs( this->get_local_coordinate() + 0.5 ) < 1e-4 or std::abs( this->get_local_coordinate() - 1.5 ) < 1e-4 )
-        {
-            std::cout << "this is the node we are testing\n";
-        }
-
         // Initialize ADV IDs
         Matrix< DDSMat > tCoordinateDeterminingADVIDs;
 

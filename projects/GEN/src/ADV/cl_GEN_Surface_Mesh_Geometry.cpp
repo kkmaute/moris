@@ -318,7 +318,6 @@ namespace moris::gen
 
     Vector< std::shared_ptr< mtk::Field > > Surface_Mesh_Geometry::get_mtk_fields()
     {
-        // TODO BRENDAN: maybe?
         return {};
     }
 
@@ -363,8 +362,6 @@ namespace moris::gen
 
         // STEP 3: Update all facet data
         this->update_all_facets();
-
-        std::cout << "Facet vertices moved!\n";    // BRENDAN
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -659,8 +656,6 @@ namespace moris::gen
                 const Node_Manager& tNodeManager = *mNodeManager;
                 const Derived_Node& tDerivedNode = tNodeManager.get_derived_node( aNodeIndex );
                 mPerturbationFields( iFieldIndex )->get_determining_adv_ids( tFieldADVIDs, tDerivedNode, *mNodeManager );
-
-                MORIS_ERROR( !mNodeManager->node_depends_on_advs( aNodeIndex ), "node depends on advs????" );    // BRENDAN
             }
 
             // Append the ADV IDs to the output matrix
@@ -867,8 +862,6 @@ namespace moris::gen
                 }
             }
         }
-
-        std::cout << "Vertex bases updated!\n";    // BRENDAN
     }
 
     //--------------------------------------------------------------------------------------------------------------

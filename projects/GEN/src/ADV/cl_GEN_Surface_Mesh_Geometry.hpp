@@ -44,8 +44,6 @@ namespace moris::gen
             , public sdf::Object
     {
       private:
-        uint mIteration = 0;    // BRENDAN delete, for debugging purposes
-
         Surface_Mesh_Parameters mParameters;
         mtk::Mesh*              mMesh;
         Node_Manager*           mNodeManager;
