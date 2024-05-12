@@ -296,17 +296,15 @@ namespace moris
         tParameterlist.resize( 3 );
         tParameterlist( 0 ).resize( 1 );
         tParameterlist( 0 )( 0 ) = moris::prm::create_gen_parameter_list();
-        tParameterlist( 0 )( 0 ).set( "initial_advs", 3.0, 2.21, 1.4 );
-        tParameterlist( 0 )( 0 ).set( "lower_bounds", 2.0,  2.0, 1.0 );
-        tParameterlist( 0 )( 0 ).set( "upper_bounds", 4.0,  3.0, 2.0 );
         tParameterlist( 0 )( 0 ).set( "IQI_types", "IQIBulkStrainEnergyDISP,IQIBulkVolume" );
 
         // Geometry parameter lists
         tParameterlist( 1 ).resize( 1 );
 
         tParameterlist( 1 )( 0 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE );
-        tParameterlist( 1 )( 0 ).set( "field_variable_indices", 0u, 1u, 2u );
-        tParameterlist( 1 )( 0 ).set( "adv_indices", 0u, 1u, 2u );
+        tParameterlist( 1 )( 0 ).set( "center_x", 2.0, 3.0, 4.0 );
+        tParameterlist( 1 )( 0 ).set( "center_y", 2.0, 2.21, 3.0 );
+        tParameterlist( 1 )( 0 ).set( "radius", 1.0, 1.4, 2.0 );
     }
 
     void

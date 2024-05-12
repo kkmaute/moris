@@ -435,10 +435,6 @@ namespace moris
         // Main GEN parameter list
         tParameterlist( 0 ).push_back( prm::create_gen_parameter_list() );
 
-        tParameterlist( 0 )( 0 ).set( "initial_advs", 0.0, 0.0, 0.1, 1.0, 0.5, 0.1, 0.0, 1.0, 0.1, 1.0, 0.5, 0.1 );
-        tParameterlist( 0 )( 0 ).set( "lower_bounds", 0.0, 0.0, 0.1, 1.0, 0.5, 0.1, 0.0, 1.0, 0.1, 1.0, 0.5, 0.1 );
-        tParameterlist( 0 )( 0 ).set( "upper_bounds", 0.0, 0.0, 0.1, 1.0, 0.5, 0.1, 0.0, 1.0, 0.1, 1.0, 0.5, 0.1 );
-
         tParameterlist( 0 )( 0 ).set( "IQI_types", "IQIBulkStrainEnergy,IQIBulkVolume" );
         tParameterlist( 0 )( 0 ).set( "PDV_types", "" );
 
@@ -448,9 +444,18 @@ namespace moris
         // User defined geometry of bars
         tParameterlist( 1 )( 0 ).set( "field_function_name", "Bars" );
         tParameterlist( 1 )( 0 ).set( "sensitivity_function_name", "BarsGrad" );
-
-        tParameterlist( 1 )( 0 ).set( "field_variable_indices", 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u, 10u, 11u );
-        tParameterlist( 1 )( 0 ).set( "adv_indices", 0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u, 10u, 11u );
+        tParameterlist( 1 )( 0 ).insert( "variable_01", Design_Variable( 0.0, 0.0, 0.0 ) ); // bar1_xa1
+        tParameterlist( 1 )( 0 ).insert( "variable_02", Design_Variable( 0.0, 0.0, 0.0 ) ); // bar1_xa2
+        tParameterlist( 1 )( 0 ).insert( "variable_03", Design_Variable( 0.1, 0.1, 0.1 ) ); // bar1_ra
+        tParameterlist( 1 )( 0 ).insert( "variable_04", Design_Variable( 1.0, 1.0, 1.0 ) ); // bar1_xb1
+        tParameterlist( 1 )( 0 ).insert( "variable_05", Design_Variable( 0.5, 0.5, 0.5 ) ); // bar1_xb2
+        tParameterlist( 1 )( 0 ).insert( "variable_06", Design_Variable( 0.1, 0.1, 0.1 ) ); // bar1_rb
+        tParameterlist( 1 )( 0 ).insert( "variable_07", Design_Variable( 0.0, 0.0, 0.0 ) ); // bar2_xa1
+        tParameterlist( 1 )( 0 ).insert( "variable_08", Design_Variable( 1.0, 1.0, 1.0 ) ); // bar2_xa2
+        tParameterlist( 1 )( 0 ).insert( "variable_09", Design_Variable( 0.1, 0.1, 0.1 ) ); // bar2_ra
+        tParameterlist( 1 )( 0 ).insert( "variable_10", Design_Variable( 1.0, 1.0, 1.0 ) ); // bar2_xb1
+        tParameterlist( 1 )( 0 ).insert( "variable_11", Design_Variable( 0.5, 0.5, 0.5 ) ); // bar2_xb2
+        tParameterlist( 1 )( 0 ).insert( "variable_12", Design_Variable( 0.1, 0.1, 0.1 ) ); // bar2_rb
     }
 
     /* ------------------------------------------------------------------------ */

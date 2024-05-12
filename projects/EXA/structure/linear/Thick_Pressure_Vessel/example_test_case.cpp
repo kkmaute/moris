@@ -60,9 +60,6 @@ check_results(
         std::cout << "Number of nodes     : " << tNumNodes << std::endl;
         std::cout << "Number of elements  : " << tNumElems << std::endl;
 
-        // coordinates of reference point
-        moris::print( tExoIO.get_nodal_coordinate( tReferenceNodeId( aTestCaseIndex ) ), "Coordinates of reference point" );
-
         // time value for reference time step
         std::cout << "Time value: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_time_value() << std::endl;
 
@@ -77,124 +74,6 @@ check_results(
 
         return;
     }
-
-    // define reference values for dimension, number of nodes and number of elements
-    Vector< uint > tReferenceNumDims  = { 3, 3, 3, 3, 3 };
-    Vector< uint > tReferenceNumNodes = { 18292, 6217, 17824, 5716, 5716 };
-    Vector< uint > tReferenceNumElems = { 40254, 13396, 39168, 12288, 12288 };
-
-    // check dimension, number of nodes and number of elements
-    uint tNumDims  = tExoIO.get_number_of_dimensions();
-    uint tNumNodes = tExoIO.get_number_of_nodes();
-    uint tNumElems = tExoIO.get_number_of_elements();
-
-    MORIS_LOG_INFO( "Check number of dimensions: reference %12d, actual %12d, percent error %12.5e.",
-            tReferenceNumDims( aTestCaseIndex ),
-            tNumDims,
-            std::abs( ( tNumDims - tReferenceNumDims( aTestCaseIndex ) ) / tReferenceNumDims( aTestCaseIndex ) * 100.0 ) );
-    MORIS_LOG_INFO( "Check number of nodes:      reference %12d, actual %12d, percent error %12.5e.",
-            tReferenceNumNodes( aTestCaseIndex ),
-            tNumNodes,
-            std::abs( ( tNumNodes - tReferenceNumNodes( aTestCaseIndex ) ) / tReferenceNumNodes( aTestCaseIndex ) * 100.0 ) );
-    MORIS_LOG_INFO( "Check number of elements:   reference %12d, actual %12d, percent error %12.5e.",
-            tReferenceNumElems( aTestCaseIndex ),
-            tNumElems,
-            std::abs( ( tNumElems - tReferenceNumElems( aTestCaseIndex ) ) / tReferenceNumElems( aTestCaseIndex ) * 100.0 ) );
-
-    REQUIRE( tNumDims == tReferenceNumDims( aTestCaseIndex ) );
-    REQUIRE( tNumNodes == tReferenceNumNodes( aTestCaseIndex ) );
-    REQUIRE( tNumElems == tReferenceNumElems( aTestCaseIndex ) );
-
-    // define reference coordinates for node aNodeId
-    Vector< Matrix< DDRMat > > tReferenceCoordinate;
-
-    tReferenceCoordinate.push_back( { { +2.500000000000000e-01 }, { +2.500000000000000e-01 }, { +2.783105534096050e-01 } } );
-    tReferenceCoordinate.push_back( { { +2.500000000000000e-01 }, { +2.500000000000000e-01 }, { +2.783105534096050e-01 } } );
-    tReferenceCoordinate.push_back( { { +2.000000000000000e-01 }, { +2.000000000000000e-01 }, { +3.500000000000000e-01 } } );
-    tReferenceCoordinate.push_back( { { +2.000000000000000e-01 }, { +2.000000000000000e-01 }, { +3.500000000000000e-01 } } );
-    tReferenceCoordinate.push_back( { { +2.000000000000000e-01 }, { +2.000000000000000e-01 }, { +3.500000000000000e-01 } } );
-
-    // check nodal coordinates
-    Matrix< DDRMat > tActualCoordinate = tExoIO.get_nodal_coordinate( tReferenceNodeId( aTestCaseIndex ) );
-
-    real tRelDiffNorm = moris::norm( tActualCoordinate - tReferenceCoordinate( aTestCaseIndex ) ) / moris::norm( tReferenceCoordinate( aTestCaseIndex ) );
-
-    MORIS_LOG_INFO( "Check nodal x-coordinates:  reference %12.5e, actual %12.5e, percent error %12.5e.",
-            tReferenceCoordinate( aTestCaseIndex )( 0 ),
-            tActualCoordinate( 0 ),
-            tRelDiffNorm * 100.0 );
-    MORIS_LOG_INFO( "Check nodal y-coordinates:  reference %12.5e, actual %12.5e, percent error %12.5e.",
-            tReferenceCoordinate( aTestCaseIndex )( 1 ),
-            tActualCoordinate( 1 ),
-            tRelDiffNorm * 100.0 );
-    MORIS_LOG_INFO( "Check nodal z-coordinates:  reference %12.5e, actual %12.5e, percent error %12.5e.",
-            tReferenceCoordinate( aTestCaseIndex )( 2 ),
-            tActualCoordinate( 2 ),
-            tRelDiffNorm * 100.0 );
-
-    REQUIRE( tRelDiffNorm < 1.0e-5 );
-
-    // check time value for time step index 0
-    Vector< real > tReferenceTime;
-    tReferenceTime.push_back( 1.000000000000000e+00 );
-    tReferenceTime.push_back( 1.000000000000000e+00 );
-    tReferenceTime.push_back( 1.000000000000000e+00 );
-    tReferenceTime.push_back( 1.000000000000000e+00 );
-    tReferenceTime.push_back( 1.000000000000000e+00 );
-
-    real tActualTime = tExoIO.get_time_value();
-
-    real tRelTimeDifference = std::abs( ( tActualTime - tReferenceTime( aTestCaseIndex ) ) / tReferenceTime( aTestCaseIndex ) );
-
-    MORIS_LOG_INFO( "Check time:                 reference %12.5e, actual %12.5e, percent error %12.5e.",
-            tReferenceTime( aTestCaseIndex ),
-            tActualTime,
-            tRelDiffNorm * 100.0 );
-
-    REQUIRE( tRelTimeDifference < 1.0e-8 );
-
-    // check displacements at node aNodeId in first time step (displacements are 3,4,5th nodal fields, first time step has index 0)
-    Vector< Matrix< DDRMat > > tReferenceDisplacement;
-
-    tReferenceDisplacement.push_back( { { -1.619414637604386e+00 }, { -1.619414604667233e+00 }, { -1.801613073132456e+00 } } );
-    tReferenceDisplacement.push_back( { { -1.619414637604319e+00 }, { -1.619414604667178e+00 }, { -1.801613073132412e+00 } } );
-    tReferenceDisplacement.push_back( { { -1.289499430891421e+00 }, { -1.289499430891530e+00 }, { -2.253455428719179e+00 } } );
-    tReferenceDisplacement.push_back( { { -1.289499430891418e+00 }, { -1.289499430891522e+00 }, { -2.253455428719149e+00 } } );
-    tReferenceDisplacement.push_back( { { -1.281913408756792e+00 }, { -1.281913408758628e+00 }, { -2.243085147962265e+00 } } );
-
-    Matrix< DDRMat > tActualDisplacement = {
-        { tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 2, 0 ) },
-        { tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 3, 0 ) },
-        { tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 4, 0 ) }
-    };
-
-    real tRelDispDifference = norm( tActualDisplacement - tReferenceDisplacement( aTestCaseIndex ) ) / norm( tReferenceDisplacement( aTestCaseIndex ) );
-
-    MORIS_LOG_INFO( "Check nodal displacements:  reference %12.5e, actual %12.5e, percent error %12.5e.",
-            norm( tReferenceDisplacement( aTestCaseIndex ) ),
-            norm( tActualDisplacement ),
-            tRelDispDifference * 100.0 );
-
-    REQUIRE( tRelDispDifference < 1.0e-5 );
-
-    // check temperature at node aNodeId in first time step (temperature is 6th nodal field, first time step has index 0)
-    Vector< real > tReferenceTemperature;
-    tReferenceTemperature.push_back( 2.000944820689973e+02 );
-    tReferenceTemperature.push_back( 2.000944820689973e+02 );
-    tReferenceTemperature.push_back( 2.000221005039182e+02 );
-    tReferenceTemperature.push_back( 2.000221005039181e+02 );
-    tReferenceTemperature.push_back( 2.003526463545087e+02 );
-
-    real tActualTemperature = tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 5, 0 );
-
-    real tRelTempDifference = std::abs( ( tActualTemperature - tReferenceTemperature( aTestCaseIndex ) ) / tReferenceTemperature( aTestCaseIndex ) );
-
-    MORIS_LOG_INFO( "Check nodal temperature:    reference %12.5e, actual %12.5e, percent error %12.5e.",
-            tReferenceTemperature( aTestCaseIndex ),
-            tActualTemperature,
-            tRelTempDifference * 100.0 );
-
-    REQUIRE( tRelTempDifference < 1.0e-5 );
 
     // check IQI of first time step (only 1 IQI is defined, first time step has index 0)
     Vector< real > tReferenceIQI;

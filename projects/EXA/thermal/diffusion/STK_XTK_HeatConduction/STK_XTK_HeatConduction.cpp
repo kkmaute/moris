@@ -527,15 +527,11 @@ namespace moris
 
         if ( tUseAnalyticGeometry )
         {
-            tParameterlist( 0 )( 0 ).set( "initial_advs", tSphereRadius );
-            tParameterlist( 0 )( 0 ).set( "lower_bounds", tSphereRadius * 0.9 );
-            tParameterlist( 0 )( 0 ).set( "upper_bounds", tSphereRadius * 1.1 );
-
-            tParameterlist( 1 )( tGeoCounter ).set( "field_variable_indices", 0u );
-            tParameterlist( 1 )( tGeoCounter ).set( "adv_indices", 0u );
+            tParameterlist( 1 )( tGeoCounter ).insert( "radius", Design_Variable( tSphereRadius * 0.9, tSphereRadius, tSphereRadius * 1.1 ) );
         }
         else
         {
+            tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "radius", tSphereRadius );
             tParameterlist( 1 )( tGeoCounter ).set( "discretization_mesh_index", 0 );
             tParameterlist( 1 )( tGeoCounter ).set( "discretization_lower_bound", -2.0 );
             tParameterlist( 1 )( tGeoCounter ).set( "discretization_upper_bound", 2.0 );

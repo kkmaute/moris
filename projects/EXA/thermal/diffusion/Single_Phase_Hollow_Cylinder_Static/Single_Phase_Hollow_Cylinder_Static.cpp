@@ -39,10 +39,10 @@ extern "C" {
 namespace moris
 {
     // set for FEM
-    std::string tSolid      = "HMR_dummy_c_p2,HMR_dummy_n_p2";
-    std::string tInSide     = "iside_b0_2_b1_3";
-    std::string tOutSide    = "iside_b0_2_b1_0";
-    std::string tSolidGhost = "ghost_p2";
+    std::string tSolid      = "HMR_dummy_c_p1,HMR_dummy_n_p1";
+    std::string tInSide     = "iside_b0_1_b1_0";
+    std::string tOutSide    = "iside_b0_1_b1_3";
+    std::string tSolidGhost = "ghost_p1";
 
     // Geometry parameter
     moris::real tRIn     = 1.0;
@@ -120,20 +120,6 @@ namespace moris
         return true;
     }
 
-    moris::real
-    Func_Circle(
-            const moris::Matrix< DDRMat >&     aCoordinates,
-            const Vector< real >& aGeometryParameters )
-    {
-        moris::real tR       = aGeometryParameters( 0 );
-        moris::real tXCenter = aGeometryParameters( 1 );
-        moris::real tYCenter = aGeometryParameters( 2 );
-
-        moris::real aReturnValue = tR - std::pow( std::pow( aCoordinates( 0 ) - tXCenter, 2.0 ) + std::pow( aCoordinates( 1 ) - tYCenter, 2.0 ), 0.5 );
-
-        return aReturnValue;
-    }
-
     void
     OPTParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
@@ -209,14 +195,12 @@ namespace moris
         uint tGeoCounter = 0;
 
         // Geometry parameter lists
-        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
-        tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Circle" );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 2.0,0.0,0.0 );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE ) );
+        tParameterlist( 1 )( tGeoCounter ).set( "radius", 2.0 );
         tGeoCounter++;
 
-        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
-        tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Circle" );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 1.0,0.0,0.0 );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE ) );
+        tParameterlist( 1 )( tGeoCounter ).set( "radius", 1.0 );
     }
 
     void
@@ -465,7 +449,7 @@ namespace moris
         tParameterlist( 0 )( 0 ) = prm::create_vis_parameter_list();
         tParameterlist( 0 )( 0 ).set( "File_Name", std::pair< std::string, std::string >( "./", "Single_Phase_Hollow_Cylinder_Static.exo" ) );
         tParameterlist( 0 )( 0 ).set( "Mesh_Type",  vis::VIS_Mesh_Type::STANDARD ) ;
-        tParameterlist( 0 )( 0 ).set( "Set_Names", "HMR_dummy_n_p2,HMR_dummy_c_p2" );
+        tParameterlist( 0 )( 0 ).set( "Set_Names", tSolid );
         tParameterlist( 0 )( 0 ).set( "Field_Names", "TEMP,TEMP_ANALYTIC,L2_ERROR_ANALYTIC,H1_ERROR_ANALYTIC,MAX_DOF,VOLUME" );
         tParameterlist( 0 )( 0 ).set( "Field_Type", "NODAL,NODAL,GLOBAL,GLOBAL,GLOBAL,GLOBAL" );
         tParameterlist( 0 )( 0 ).set( "IQI_Names", "IQIBulkTEMP,IQIBulkTEMPAnalytic,IQIBulkL2Error,IQIBulkH1Error,IQIMaxTEMP,IQIVolume" );

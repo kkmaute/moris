@@ -76,16 +76,16 @@ namespace moris
     /* ------------------------------------------------------------------------ */
     // Mesh Set Information
 
-    std::string tVessel = "HMR_dummy_n_p23,HMR_dummy_c_p23";
+    std::string tVessel = "HMR_dummy_n_p15,HMR_dummy_c_p15";
 
-    std::string tSupportSurfaceX = "iside_b0_23_b1_19";
-    std::string tSupportSurfaceY = "iside_b0_23_b1_21";
-    std::string tSupportSurfaceZ = "iside_b0_23_b1_22";
+    std::string tSupportSurfaceX = "iside_b0_15_b1_11";
+    std::string tSupportSurfaceY = "iside_b0_15_b1_13";
+    std::string tSupportSurfaceZ = "iside_b0_15_b1_14";
 
-    std::string tInnerPressureSurface = "iside_b0_23_b1_31";
-    std::string tOuterPressureSurface = "iside_b0_23_b1_7";
+    std::string tInnerPressureSurface = "iside_b0_15_b1_7";
+    std::string tOuterPressureSurface = "iside_b0_15_b1_31";
 
-    std::string tVesselGhost = "ghost_p23";
+    std::string tVesselGhost = "ghost_p15";
 
     /* ------------------------------------------------------------------------ */
     // HMR parameters
@@ -109,50 +109,6 @@ namespace moris
     // Output Config
 
     std::string tOutputFileName = "Pressure_Vessel_3D_Immersed.exo";
-
-    /* ------------------------------------------------------------------------ */
-    // Level set function of Sphere
-
-    moris::real Sphere(
-            const moris::Matrix< DDRMat >& aCoordinates,
-            const Vector< real >&     aGeometryParameters )
-    {
-        moris::real tVal = aGeometryParameters( 0 ) - norm( aCoordinates );
-
-        if ( std::abs( tVal ) < tMinLevs )
-        {
-            tVal = tMinLevs;
-        }
-
-        return tVal;
-    }
-
-    /* ------------------------------------------------------------------------ */
-    // Level set function of Plans
-
-    moris::real Plane(
-            const moris::Matrix< DDRMat >& aCoordinates,
-            const Vector< real >&     aGeometryParameters )
-    {
-        moris::Matrix< DDRMat > tXp = { { aGeometryParameters( 0 ) }, { aGeometryParameters( 1 ) }, { aGeometryParameters( 2 ) } };
-        moris::Matrix< DDRMat > tN  = { { aGeometryParameters( 3 ) }, { aGeometryParameters( 4 ) }, { aGeometryParameters( 5 ) } };
-
-        moris::Matrix< DDRMat > tVal = trans( tN ) * ( trans( aCoordinates ) - tXp );
-
-        if ( std::abs( tVal( 0 ) ) < tMinLevs )
-        {
-            if ( tVal( 0 ) < 0 )
-            {
-                tVal( 0 ) = -tMinLevs;
-            }
-            else
-            {
-                tVal( 0 ) = tMinLevs;
-            }
-        }
-
-        return tVal( 0 );
-    }
 
     /* ------------------------------------------------------------------------ */
 
@@ -276,7 +232,7 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "multigrid", false );
         tParameterlist( 0 )( 0 ).set( "verbose", true );
         tParameterlist( 0 )( 0 ).set( "print_enriched_ig_mesh", false );
-        tParameterlist( 0 )( 0 ).set( "exodus_output_XTK_ig_mesh", false );
+        tParameterlist( 0 )( 0 ).set( "exodus_output_XTK_ig_mesh", true );
         tParameterlist( 0 )( 0 ).set( "high_to_low_dbl_side_sets", true );
     }
 
@@ -295,29 +251,30 @@ namespace moris
         uint tGeoCounter = 0;
 
         // Geometry parameter lists
-        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
-        tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Sphere" );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", tOuterRad );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::SPHERE ) );
+        tParameterlist( 1 )( tGeoCounter ).set( "radius", tOuterRad );
         tGeoCounter++;
 
-        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
-        tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Sphere" );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", tInnerRad );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::SPHERE ) );
+        tParameterlist( 1 )( tGeoCounter ).set( "radius", tInnerRad );
         tGeoCounter++;
 
-        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
-        tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Plane" );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 0.0, 0.0, 0.0, 1.0, 0.0, 0.0 );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::PLANE ) );
+        tParameterlist( 1 )( tGeoCounter ).set( "normal_x", 1.0 );
+        tParameterlist( 1 )( tGeoCounter ).set( "normal_y", 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).set( "normal_z", 0.0 );
         tGeoCounter++;
 
-        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
-        tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Plane" );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 0.0, 0.0, 0.0, 0.0, 1.0, 0.0 );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::PLANE ) );
+        tParameterlist( 1 )( tGeoCounter ).set( "normal_x", 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).set( "normal_y", 1.0 );
+        tParameterlist( 1 )( tGeoCounter ).set( "normal_z", 0.0 );
         tGeoCounter++;
 
-        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
-        tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Plane" );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::PLANE ) );
+        tParameterlist( 1 )( tGeoCounter ).set( "normal_x", 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).set( "normal_y", 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).set( "normal_z", 1.0 );
     }
     /* ------------------------------------------------------------------------ */
 

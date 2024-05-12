@@ -335,9 +335,6 @@ namespace moris
 
         // Main GEN parameter list
         tParameterlist( 0 )( 0 ) = prm::create_gen_parameter_list();
-        tParameterlist( 0 )( 0 ).set( "initial_advs", tYlength * tPcmFinRatioMin );
-        tParameterlist( 0 )( 0 ).set( "lower_bounds", tYlength * tPcmFinRatioMin );
-        tParameterlist( 0 )( 0 ).set( "upper_bounds", tYlength * tPcmFinRatioMax );
         tParameterlist( 0 )( 0 ).set( "IQI_types", "IQIMaxTemp,IQIBulkVolume" );
 
         // init geometry counter
@@ -345,13 +342,17 @@ namespace moris
 
         // Geometry parameter lists
         tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE ) );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", -1.0, 0.0, 1.0, 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).set( "center_x", -1.0 );
+        tParameterlist( 1 )( tGeoCounter ).set( "center_y", 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).set( "normal_x", 1.0 );
+        tParameterlist( 1 )( tGeoCounter ).set( "normal_y", 0.0 );
         tGeoCounter++;
 
         tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE ) );
-        tParameterlist( 1 )( tGeoCounter ).set( "field_variable_indices", 1u );
-        tParameterlist( 1 )( tGeoCounter ).set( "adv_indices", 0u );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 0.0, 0.0, 1.0 );
+        tParameterlist( 1 )( tGeoCounter ).set( "center_x", 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).set( "center_y", tYlength * tPcmFinRatioMin, tYlength * tPcmFinRatioMin, tYlength * tPcmFinRatioMax );
+        tParameterlist( 1 )( tGeoCounter ).set( "normal_x", 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).set( "normal_y", 1.0 );
         tGeoCounter++;
     }
 

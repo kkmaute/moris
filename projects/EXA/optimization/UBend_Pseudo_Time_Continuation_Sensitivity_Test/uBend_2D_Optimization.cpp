@@ -1245,28 +1245,40 @@ namespace moris
 
         // Plane 0 in y = 0
         tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE ) );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 0.0, 0.0, 0.0, 1.0 );
+        tParameterlist( 1 )( tGeoCounter ).set( "center_x", 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).set( "center_y", 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).set( "normal_x", 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).set( "normal_y", 1.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementInclusion );
         tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );
         tGeoCounter++;
         
         // Plane 1 in y = 10.0*sH
         tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE ) );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 0.0, 10.0*sH, 0.0, 1.0 );
+        tParameterlist( 1 )( tGeoCounter ).set( "center_x", 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).set( "center_y", 10.0 * sH );
+        tParameterlist( 1 )( tGeoCounter ).set( "normal_x", 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).set( "normal_y", 1.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementInclusion );
         tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );
         tGeoCounter++;
         
         // Plane 2 in x = 0.0*sH
         tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE ) );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 2.0*sH,0.0, 1.0, 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).set( "center_x", 2.0 * sH );
+        tParameterlist( 1 )( tGeoCounter ).set( "center_y", 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).set( "normal_x", 1.0 );
+        tParameterlist( 1 )( tGeoCounter ).set( "normal_y", 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementInclusion );
         tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );
         tGeoCounter++;
         
         // Plane 3 in x = 12.0*sH
         tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE ) );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", (12.0*sH), 0.0, 1.0, 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).set( "center_x", 12.0 * sH );
+        tParameterlist( 1 )( tGeoCounter ).set( "center_y", 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).set( "normal_x", 1.0 );
+        tParameterlist( 1 )( tGeoCounter ).set( "normal_y", 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementInclusion );
         tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );
         tGeoCounter++;
@@ -1274,8 +1286,14 @@ namespace moris
         // Thin wall inner 4
         tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name",   "Func_Thin_Wall" );
-        tParameterlist( 1 )( tGeoCounter ).set( "name",                  "Thin_Wall_Inner" );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 6.5*sH, 5.0*sH, sH / 2.0, sH / 2.0, 2.0, 4.5*sH, 5.5*sH ) ;
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_1", 6.5 * sH );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_2", 5.0 * sH );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_3", sH / 2.0 );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_4", sH / 2.0 );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_5", 2.0 );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_6", 4.5 * sH );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_7", 5.5 * sH );
+        tParameterlist( 1 )( tGeoCounter ).set( "name", "Thin_Wall_Inner" );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementInclusion );
         tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );
         tGeoCounter++;
@@ -1283,8 +1301,14 @@ namespace moris
         // Thin wall outer 5
         tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name",   "Func_Thin_Wall" );
-        tParameterlist( 1 )( tGeoCounter ).set( "name",                  "Thin_Wall_Outer" );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 6.5*sH, 5.0*sH, 2.5*sH, 2.5*sH, 2.0, 2.5*sH, 7.5*sH ) ;
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_1", 6.5 * sH );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_2", 5.0 * sH );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_3", 2.5 * sH );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_4", 2.5 * sH );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_5", 2.0 );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_6", 2.5 * sH );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_7", 7.5 * sH );
+        tParameterlist( 1 )( tGeoCounter ).set( "name", "Thin_Wall_Outer" );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementInclusion );
         tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );
         tGeoCounter++;
@@ -1308,7 +1332,7 @@ namespace moris
 
         tParameterlist( 2 )( tParamCounter ).set( "name", "LevelsetField" );
         tParameterlist( 2 )( tParamCounter ).set( "dependencies", "Level_Set_Field" );
-        tParameterlist( 2 )( tParamCounter ).set( "constant_parameters", 1.0 );
+        tParameterlist( 2 )( tParamCounter ).set( "scaling_factor", 1.0 );
         tParameterlist( 2 )( tParamCounter ).set( "pdv_type", "LS1" );
         tParameterlist( 2 )( tParamCounter ).set( "pdv_mesh_set_names", tFluid + "," + tInclusionSolid );
         tParamCounter++;

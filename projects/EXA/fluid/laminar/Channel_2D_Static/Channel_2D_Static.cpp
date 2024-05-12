@@ -194,25 +194,37 @@ extern "C"
             // Bottom plane
             tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
             tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Plane");
-            tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 0.0, 1.0, 0.0, tPlaneBottom ) ;
+            tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_1", 0.0 );
+            tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_2", 1.0 );
+            tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_3", 0.0 );
+            tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_4", tPlaneBottom );
             tGeoCounter++;
 
             // Top plane
             tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
             tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Plane");
-            tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 0.0, 1.0, 0.0, tPlaneTop );
+            tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_1", 0.0 );
+            tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_2", 1.0 );
+            tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_3", 0.0 );
+            tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_4", tPlaneTop );
             tGeoCounter++;
 
             // Left plane
             tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
             tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Plane");
-            tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 1.0, 0.0, tPlaneLeft, 0.0 );
+            tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_1", 1.0 );
+            tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_2", 0.0 );
+            tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_3", tPlaneLeft );
+            tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_4", 0.0 );
             tGeoCounter++;
 
             // Right plane
             tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
             tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Plane");
-            tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 1.0, 0.0, tPlaneRight, 0.0 );
+            tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_1", 1.0 );
+            tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_2", 0.0 );
+            tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_3", tPlaneRight );
+            tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_4", 0.0 );
         }
 
         void FEMParameterList( Vector< Vector< Parameter_List > > & tParameterList )

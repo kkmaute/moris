@@ -229,65 +229,28 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "PDV_types", "" );
         tParameterlist( 0 )( 0 ).set( "output_mesh_file", "gen_shape_sensitivities_3D.exo" );
 
-        // analytic adv bounds
-        switch ( tGeoModel )
-        {
-            case 0:
-                tParameterlist( 0 )( 0 ).set( "initial_advs", 0.20 );
-                tParameterlist( 0 )( 0 ).set( "lower_bounds", 0.00 );
-                tParameterlist( 0 )( 0 ).set( "upper_bounds", 1.00 );
-                break;
-            case 1:
-                tParameterlist( 0 )( 0 ).set( "initial_advs", 0.65 );
-                tParameterlist( 0 )( 0 ).set( "lower_bounds", 0.00 );
-                tParameterlist( 0 )( 0 ).set( "upper_bounds", 1.00 );
-                break;
-            case 2:
-                tParameterlist( 0 )( 0 ).set( "initial_advs", 0.20,0.65 );
-                tParameterlist( 0 )( 0 ).set( "lower_bounds", 0.00,0.00 );
-                tParameterlist( 0 )( 0 ).set( "upper_bounds", 1.00,1.00 );
-                break;
-            case 3:
-                tParameterlist( 0 )( 0 ).set( "initial_advs", 0.65,0.20 );
-                tParameterlist( 0 )( 0 ).set( "lower_bounds", 0.00,0.00 );
-                tParameterlist( 0 )( 0 ).set( "upper_bounds", 1.00,1.00 );
-                break;
-        }
-
         // Geometry parameter lists
         tParameterlist( 1 ).resize( 2 );
 
         tParameterlist( 1 )( 0 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::PLANE );
-        // vertical cut
+        tParameterlist( 1 )( 0 ).set( "center_y", -1.0 );
+        tParameterlist( 1 )( 0 ).set( "center_z", -1.0 );
+        tParameterlist( 1 )( 0 ).set( "normal_x", 1.0 );
+        tParameterlist( 1 )( 0 ).set( "normal_y", 0.0 );
+        tParameterlist( 1 )( 0 ).set( "normal_z", 0.0 );
         switch ( tGeoModel )
         {
             case 0:
-                tParameterlist( 1 )( 0 ).set( "constant_parameters", -1.0, -1.0, 1.0, 0.0, 0.0 );
-                tParameterlist( 1 )( 0 ).set( "field_variable_indices", 0u );
-                tParameterlist( 1 )( 0 ).set( "adv_indices", 0u );
+            case 2:
+                tParameterlist( 1 )( 0 ).set( "center_x", 0.0, 0.2, 1.0 );
                 break;
             case 1:
-                tParameterlist( 1 )( 0 ).set( "constant_parameters", 0.2, -1.0, -1.0, 1.0, 0.0, 0.0 );
-                break;
-            case 2:
-                tParameterlist( 1 )( 0 ).set( "constant_parameters", -1.0, -1.0, 1.0, 0.0, 0.0 );
-                tParameterlist( 1 )( 0 ).set( "field_variable_indices", 0u );
-                tParameterlist( 1 )( 0 ).set( "adv_indices", 0u );
+            case 4:
+                tParameterlist( 1 )( 0 ).set( "center_x", 0.2 );
                 break;
             case 3:
-                tParameterlist( 1 )( 0 ).set( "constant_parameters", -1.0, -1.0, 1.0, 0.0, 0.0 );
-                tParameterlist( 1 )( 0 ).set( "field_variable_indices", 0u );
-                tParameterlist( 1 )( 0 ).set( "adv_indices", 1u );
-                break;
-            case 4:
-                tParameterlist( 1 )( 0 ).set( "constant_parameters", 0.2, -1.0, -1.0, 1.0, 0.0, 0.0 );
-                tParameterlist( 1 )( 0 ).set( "discretization_mesh_index", 0 );
-                break;
             case 5:
-                tParameterlist( 1 )( 0 ).set( "constant_parameters", 0.2, -1.0, -1.0, 1.0, 0.0, 0.0 );
-                break;
-            case 6:
-                tParameterlist( 1 )( 0 ).set( "constant_parameters", 0.2, -1.0, -1.0, 1.0, 0.0, 0.0 );
+                tParameterlist( 1 )( 0 ).set( "center_x", 0.2 );
                 tParameterlist( 1 )( 0 ).set( "discretization_mesh_index", 0 );
                 break;
             default:
@@ -295,36 +258,24 @@ namespace moris
         }
 
         tParameterlist( 1 )( 1 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::PLANE );
-        // oblique cut
+        tParameterlist( 1 )( 1 ).set( "center_y", -1.0 );
+        tParameterlist( 1 )( 1 ).set( "center_z", -1.0 );
+        tParameterlist( 1 )( 1 ).set( "normal_x", 0.707106781 );
+        tParameterlist( 1 )( 1 ).set( "normal_y", 0.707106781 );
+        tParameterlist( 1 )( 1 ).set( "normal_z", 0.0 );
         switch ( tGeoModel )
         {
             case 0:
-                tParameterlist( 1 )( 1 ).set( "constant_parameters", 0.65, -1.0, -1.0, .707106781, .707106781, 0.0 );
+            case 3:
+                tParameterlist( 1 )( 1 ).set( "center_x", 0.65 );
                 break;
             case 1:
-                tParameterlist( 1 )( 1 ).set( "constant_parameters",  -1.0, -1.0, .707106781, .707106781, 0.0 );
-                tParameterlist( 1 )( 1 ).set( "field_variable_indices", 0u );
-                tParameterlist( 1 )( 1 ).set( "adv_indices", 0u );
-                break;
             case 2:
-                tParameterlist( 1 )( 1 ).set( "constant_parameters",  -1.0, -1.0, .707106781, .707106781, 0.0 );
-                tParameterlist( 1 )( 1 ).set( "field_variable_indices", 0u );
-                tParameterlist( 1 )( 1 ).set( "adv_indices", 1u );
-                break;
-            case 3:
-                tParameterlist( 1 )( 1 ).set( "constant_parameters",  -1.0, -1.0, .707106781, .707106781, 0.0 );
-                tParameterlist( 1 )( 1 ).set( "field_variable_indices", 0u );
-                tParameterlist( 1 )( 1 ).set( "adv_indices", 0u );
+                tParameterlist( 1 )( 1 ).set( "center_x", 0.0, 0.65, 1.0 );
                 break;
             case 4:
-                tParameterlist( 1 )( 1 ).set( "constant_parameters", 0.65, -1.0, -1.0, .707106781, .707106781, 0.0 );
-                break;
             case 5:
-                tParameterlist( 1 )( 1 ).set( "constant_parameters", 0.65, -1.0, -1.0, .707106781, .707106781, 0.0 );
-                tParameterlist( 1 )( 1 ).set( "discretization_mesh_index", 0 );
-                break;
-            case 6:
-                tParameterlist( 1 )( 1 ).set( "constant_parameters", 0.65, -1.0, -1.0, .707106781, .707106781, 0.0 );
+                tParameterlist( 1 )( 1 ).set( "center_x", 0.65 );
                 tParameterlist( 1 )( 1 ).set( "discretization_mesh_index", 0 );
                 break;
             default:

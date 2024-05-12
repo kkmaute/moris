@@ -549,10 +549,6 @@ namespace moris
                 "IQIMaxTemp,"
                 "IQISolidVolume" );
 
-        tParameterlist( 0 )( 0 ).set( "initial_advs", tSphereRadius );
-        tParameterlist( 0 )( 0 ).set( "lower_bounds", tSphereRadius * 0.9 );
-        tParameterlist( 0 )( 0 ).set( "upper_bounds", tSphereRadius * 1.1 );
-
         tParameterlist( 0 )( 0 ).set( "number_of_phases", 5 );
         tParameterlist( 0 )( 0 ).set( "phase_function_name", "get_phase_index" );
         tParameterlist( 0 )( 0 ).set( "output_mesh_file", tGENOutputFile );
@@ -565,22 +561,25 @@ namespace moris
         tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Sphere" );
         tParameterlist( 1 )( tGeoCounter ).set( "sensitivity_function_name", "Func_Sphere_Deriv" );
+        tParameterlist( 1 )( tGeoCounter ).insert( "radius", Design_Variable( tSphereRadius * 0.9, tSphereRadius, tSphereRadius * 1.1 ) );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementSphere );
         tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1.0e-12 );
         tParameterlist( 1 )( tGeoCounter ).set( "intersection_tolerance", 1.0e-12 );
-
-        tParameterlist( 1 )( tGeoCounter ).set( "field_variable_indices", 0u );
-        tParameterlist( 1 )( tGeoCounter ).set( "adv_indices", 0u );
         tGeoCounter++;
 
         // Inlet plane
         tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_1", 1.0 );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_2", 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_3", 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_4", tGeoShift );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_5", 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_6", 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Plane" );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementWalls );
         tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 1.0, 0.0, 0.0, tGeoShift, 0.0, 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1.0e-12 );
         tParameterlist( 1 )( tGeoCounter ).set( "intersection_tolerance", 1.0e-12 );
@@ -589,9 +588,14 @@ namespace moris
         // Out plane
         tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Plane" );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_1", -1.0 );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_2", 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_3", 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_4", tChannelLength + tGeoShift );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_5", 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_6", 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementWalls );
         tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", -1.0, 0.0, 0.0, tChannelLength + tGeoShift, 0.0, 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1.0e-12 );
         tParameterlist( 1 )( tGeoCounter ).set( "intersection_tolerance", 1.0e-12 );
@@ -600,9 +604,14 @@ namespace moris
         // Lower plane
         tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Plane" );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_1", 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_2", 1.0 );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_3", 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_4", 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_5", tGeoShift );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_6", 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementWalls );
         tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 0.0, 1.0, 0.0, 0.0, tGeoShift, 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1.0e-12 );
         tParameterlist( 1 )( tGeoCounter ).set( "intersection_tolerance", 1.0e-12 );
@@ -611,9 +620,14 @@ namespace moris
         // Upper plane
         tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Plane" );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_1", 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_2", -1.0 );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_3", 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_4", 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_5", tChannelHeight + tGeoShift );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_6", 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementWalls );
         tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 0.0, -1.0, 0.0, 0.0, tChannelHeight + tGeoShift, 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1.0e-12 );
         tParameterlist( 1 )( tGeoCounter ).set( "intersection_tolerance", 1.0e-12 );
@@ -622,9 +636,14 @@ namespace moris
         // Back Plan
         tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Plane" );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_1", 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_2", 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_3", 1.0 );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_4", 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_5", 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_6", tGeoShift );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementWalls );
         tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 0.0, 0.0, 1.0, 0.0, 0.0, tGeoShift );
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1.0e-12 );
         tParameterlist( 1 )( tGeoCounter ).set( "intersection_tolerance", 1.0e-12 );
@@ -633,9 +652,14 @@ namespace moris
         // Front plane
         tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Plane" );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_1", 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_2", 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_3", -1.0 );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_4", 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_5", 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_6", tChannelWidth + tGeoShift );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementWalls );
         tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 0.0, 0.0, -1.0, 0.0, 0.0, tChannelWidth + tGeoShift );
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1.0e-12 );
         tParameterlist( 1 )( tGeoCounter ).set( "intersection_tolerance", 1.0e-12 );

@@ -76,11 +76,11 @@ namespace moris
     /* ------------------------------------------------------------------------ */
     // Mesh Set Information
 
-    std::string tVessel = "HMR_dummy_n_p2,HMR_dummy_c_p2";
+    std::string tVessel = "HMR_dummy_n_p1,HMR_dummy_c_p1";
 
-    std::string tSupportSurfaceX = "SideSet_4_n_p2,SideSet_4_c_p2";
-    std::string tSupportSurfaceY = "SideSet_1_n_p2,SideSet_1_c_p2";
-    std::string tSupportSurfaceZ = "SideSet_5_n_p2,SideSet_5_c_p2";
+    std::string tSupportSurfaceX = "SideSet_4_n_p1,SideSet_4_c_p1";
+    std::string tSupportSurfaceY = "SideSet_1_n_p1,SideSet_1_c_p1";
+    std::string tSupportSurfaceZ = "SideSet_5_n_p1,SideSet_5_c_p1";
 
     //    std::string tVessel         = "HMR_dummy_c_p2";
     //
@@ -88,10 +88,10 @@ namespace moris
     //    std::string tSupportSurfaceY = "SideSet_1_c_p2";
     //    std::string tSupportSurfaceZ = "SideSet_5_c_p2";
 
-    std::string tInnerPressureSurface = "iside_b0_2_b1_3";
-    std::string tOuterPressureSurface = "iside_b0_2_b1_0";
+    std::string tInnerPressureSurface = "iside_b0_1_b1_0";
+    std::string tOuterPressureSurface = "iside_b0_1_b1_3";
 
-    std::string tVesselGhost = "ghost_p2";
+    std::string tVesselGhost = "ghost_p1";
 
     /* ------------------------------------------------------------------------ */
     // HMR parameters
@@ -115,23 +115,6 @@ namespace moris
     // Output Config
 
     std::string tOutputFileName = "Pressure_Vessel_3D.exo";
-
-    /* ------------------------------------------------------------------------ */
-    // Level set function of Sphere
-
-    moris::real Sphere(
-            const moris::Matrix< DDRMat >& aCoordinates,
-            const Vector< real >&     aGeometryParameters )
-    {
-        moris::real tVal = aGeometryParameters( 0 ) - norm( aCoordinates );
-
-        if ( std::abs( tVal ) < tMinLevs )
-        {
-            tVal = tMinLevs;
-        }
-
-        return tVal;
-    }
 
     /* ------------------------------------------------------------------------ */
 
@@ -274,14 +257,12 @@ namespace moris
         uint tGeoCounter = 0;
 
         // Geometry parameter lists
-        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
-        tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Sphere" );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", tOuterRad );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::SPHERE ) );
+        tParameterlist( 1 )( tGeoCounter ).set( "radius", tOuterRad );
         tGeoCounter++;
 
-        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
-        tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Sphere" );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", tInnerRad );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::SPHERE ) );
+        tParameterlist( 1 )( tGeoCounter ).set( "radius", tInnerRad );
     }
     /* ------------------------------------------------------------------------ */
 

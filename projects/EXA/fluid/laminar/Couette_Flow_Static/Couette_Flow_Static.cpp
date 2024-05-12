@@ -36,10 +36,10 @@ extern "C" {
 //------------------------------------------------------------------------------
 namespace moris
 {
-    std::string sFluid      = "HMR_dummy_n_p1,HMR_dummy_c_p1";
-    std::string sFluidGhost = "ghost_p1";
-    std::string sIn         = "iside_b0_1_b1_3";
-    std::string sOut        = "iside_b0_1_b1_0";
+    std::string sFluid      = "HMR_dummy_n_p2,HMR_dummy_c_p2";
+    std::string sFluidGhost = "ghost_p2";
+    std::string sIn         = "iside_b0_2_b1_0";
+    std::string sOut        = "iside_b0_2_b1_3";
 
     std::string sInterfaces = sIn + "," + sOut;
 
@@ -122,20 +122,6 @@ namespace moris
         return true;
     }
 
-    moris::real
-    Func_Cylinder(
-            const moris::Matrix< DDRMat >&     aCoordinates,
-            const Vector< real >& aGeometryParameters )
-    {
-        moris::real tR       = aGeometryParameters( 0 );
-        moris::real tXCenter = aGeometryParameters( 1 );
-        moris::real tYCenter = aGeometryParameters( 2 );
-
-        moris::real aReturnValue = tR - std::pow( std::pow( aCoordinates( 0 ) - tXCenter, 2.0 ) + std::pow( aCoordinates( 1 ) - tYCenter, 2.0 ), 0.5 );
-
-        return aReturnValue;
-    }
-
     void
     OPTParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
@@ -211,14 +197,12 @@ namespace moris
         uint tGeoCounter = 0;
 
         // Geometry parameter lists
-        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
-        tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Cylinder" );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 1.0,0.0,0.0 );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE ) );
+        tParameterlist( 1 )( tGeoCounter ).set( "radius", 1.0 );
         tGeoCounter++;
 
-        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
-        tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Cylinder" );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 2.0,0.0,0.0 );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE ) );
+        tParameterlist( 1 )( tGeoCounter ).set( "radius", 2.0 );
     }
 
     void

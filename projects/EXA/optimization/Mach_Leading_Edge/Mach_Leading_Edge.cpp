@@ -688,7 +688,9 @@ namespace moris
 
         // initialize fins as swiss cheese geometry
         tParameterlist( 1 ).push_back( prm::create_field_array_parameter_list( gen::Field_Type::SUPERELLIPSE ) );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", 0.0, 0.0, 0.5 * tHoleWidth, 0.5 * tHoleHeight, tFinExponent, std::sqrt( tHoleWidth * tHoleHeight ), 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).set( "semidiameter_x", 0.5 * tHoleWidth );
+        tParameterlist( 1 )( tGeoCounter ).set( "semidiameter_y", 0.5 * tHoleHeight );
+        tParameterlist( 1 )( tGeoCounter ).set( "exponent", tFinExponent );
         tParameterlist( 1 )( tGeoCounter ).set( "lower_bound_x", tXCenterMin );           // Left-most hole center
         tParameterlist( 1 )( tGeoCounter ).set( "upper_bound_x", tXCenterMax );           // Right-most hole center
         tParameterlist( 1 )( tGeoCounter ).set( "lower_bound_y", tYCenterMin );           // Bottom-most hole center
