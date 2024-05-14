@@ -77,7 +77,6 @@ namespace moris
     template class Type_Validator< real >;
     template class Type_Validator< std::string >;
     template class Type_Validator< std::pair< std::string, std::string > >;
-    template class Type_Validator< Design_Variable >;
 
     /**
      * A vector validator checks to make sure that the input type is either the correct vector type,
@@ -141,7 +140,6 @@ namespace moris
     template class Range_Validator< uint >;
     template class Range_Validator< sint >;
     template class Range_Validator< real >;
-    template class Range_Validator< Design_Variable >;
 
     //--------------------------------------------------------------------------------------------------------------
 
@@ -192,6 +190,8 @@ namespace moris
     template<> bool Range_Validator< Design_Variable >::make_valid_parameter( Variant& aVariant );
     template<> std::string Type_Validator< Design_Variable >::get_valid_values();
     template<> std::string Range_Validator< Design_Variable >::get_valid_values();
+    template class Type_Validator< Design_Variable >;
+    template class Range_Validator< Design_Variable >;
 
     //--------------------------------------------------------------------------------------------------------------
 
