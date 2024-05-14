@@ -20,9 +20,9 @@ namespace moris
     diag_mat(
             ET&            aA,
             size_t const & ak = 0 )
-            -> decltype( arma::diagmat( aA ) )
+            -> decltype( arma::diagmat( aA, ak ) )
     {
-        return arma::diagmat( aA );
+        return arma::diagmat( aA, ak );
     }
 }    // namespace moris
 

@@ -23,36 +23,35 @@
 
 namespace moris
 {
-/**
- * @brief Computes transpose of Matrix A.
- *
- * @param[in] A Matrix.
- *
- * @return The transpose of the Matrix A.
- *
- * @note In case of complex numbers, no conjugate is taken.
- *
- * Example:
- * @include LNA/src/fn_trans/trans_real.inc
- * @include LNA/src/fn_trans/trans_complex.inc
- */
-template< typename Matrix_Type >
-auto
-trans( const Matrix< Matrix_Type > & A )
--> decltype( linalg_internal::trans(A.matrix_data()) )
-{
-    return linalg_internal::trans(A.matrix_data());
-}
+    /**
+     * @brief Computes transpose of Matrix A.
+     *
+     * @param[in] A Matrix.
+     *
+     * @return The transpose of the Matrix A.
+     *
+     * @note In case of complex numbers, no conjugate is taken.
+     *
+     * Example:
+     * @include LNA/src/fn_trans/trans_real.inc
+     * @include LNA/src/fn_trans/trans_complex.inc
+     */
+    template< typename Matrix_Type >
+    auto
+    trans( const Matrix< Matrix_Type > &A )
+            -> decltype( linalg_internal::trans( A.matrix_data() ) )
+    {
+        return linalg_internal::trans( A.matrix_data() );
+    }
 
-template< typename Matrix_Type >
-auto
-trans( Matrix< Matrix_Type > & A )
--> decltype( linalg_internal::trans(A.matrix_data()) )
-{
-    return linalg_internal::trans(A.matrix_data());
-}
+    template< typename Matrix_Type >
+    auto
+    trans( Matrix< Matrix_Type > &A )
+            -> decltype( linalg_internal::trans( A.matrix_data() ) )
+    {
+        return linalg_internal::trans( A.matrix_data() );
+    }
 
-}
+}    // namespace moris
 
 #endif /* PROJECTS_LINALG_SRC_FN_TRANS_HPP_ */
-
