@@ -146,7 +146,7 @@ namespace moris::gen
     
     //--------------------------------------------------------------------------------------------------------------
     
-    moris_id Derived_Node::get_id()
+    moris_id Derived_Node::get_id() const
     {
         return -1;
     }

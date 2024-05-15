@@ -147,7 +147,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     moris_id
-    Intersection_Node::get_id()
+    Intersection_Node::get_id() const
     {
         return mNodeID;
     }

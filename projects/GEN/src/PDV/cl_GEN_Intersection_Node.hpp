@@ -142,7 +142,7 @@ namespace moris::gen
          *
          * @return Node ID
          */
-        moris_id get_id() override;
+        moris_id get_id() const override;
 
         /**
          * Get the owning processor for this node.
