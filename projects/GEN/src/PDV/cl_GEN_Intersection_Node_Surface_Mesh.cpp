@@ -174,6 +174,11 @@ namespace moris::gen
         const Basis_Node& tFirstParentNode  = this->get_first_parent_node();
         const Basis_Node& tSecondParentNode = this->get_second_parent_node();
 
+        PRINT( tFirstParentNode.get_global_coordinates() ); //BRENDAN DELETE
+        PRINT( tSecondParentNode.get_global_coordinates() );
+
+        PRINT( mParentFacet->get_vertex_coords() );
+
         // Compute parent vector
         Matrix< DDRMat > tParentVector = trans( tSecondParentNode.get_global_coordinates() - tFirstParentNode.get_global_coordinates() );
 
@@ -188,7 +193,8 @@ namespace moris::gen
         {
             if ( mInterfaceGeometry.facet_vertex_depends_on_advs( iParentFacetVertexIndex ) )
             {
-                Matrix< DDRMat > tSensitivitiesToAdd = .5 * aSensitivityFactor * tParentVector * ( trans( tLocalCoordinateFacetVertexSensitivities.get_column( tLocalFacetVertexIndex ) ) * mInterfaceGeometry.get_dvertex_dadv( iParentFacetVertexIndex ) );
+                Matrix< DDRMat > tDVertexDAdv        = mInterfaceGeometry.get_dvertex_dadv( iParentFacetVertexIndex );    // brendan can delete later and move to next line
+                Matrix< DDRMat > tSensitivitiesToAdd = .5 * aSensitivityFactor * tParentVector * ( trans( tLocalCoordinateFacetVertexSensitivities.get_column( tLocalFacetVertexIndex ) ) * tDVertexDAdv );
 
                 // Resize sensitivities
                 uint tJoinedSensitivityLength = aCoordinateSensitivities.n_cols();

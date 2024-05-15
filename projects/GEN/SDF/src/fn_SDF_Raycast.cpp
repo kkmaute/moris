@@ -66,7 +66,7 @@ namespace moris::sdf
             Object&           aObject,
             Matrix< DDRMat >& aPoint,
             uint              aAxis,
-            Vector< Facet* >& aFacetIndices )
+            Vector< Facet* >& aIntersectedFacets )
     {
         MORIS_ASSERT( aObject.get_dimension() == aPoint.numel(),
                 "SDF-Raycast::compute_distance_to_facets(): Dimension mismatch. Object dimension: %d Point dimension: %lu",
@@ -79,7 +79,7 @@ namespace moris::sdf
             {
                 // preselect lines in the aAxis direction
                 moris::Vector< uint > tIntersectedFacets;
-                preselect_lines( aObject, aPoint, aAxis, tIntersectedFacets, aFacetIndices );
+                preselect_lines( aObject, aPoint, aAxis, tIntersectedFacets, aIntersectedFacets );
 
                 // get pointers to all facets in tIntersectedFacets to compute intersection location
                 moris::Vector< Facet* > tFacetsFromCandidates( tIntersectedFacets.size() );
@@ -89,7 +89,7 @@ namespace moris::sdf
                 }
 
                 // append the candidates to the intersected facets to compute intersection
-                aFacetIndices.insert( aFacetIndices.size(), tFacetsFromCandidates.begin(), tFacetsFromCandidates.end() );
+                aIntersectedFacets.insert( aIntersectedFacets.size(), tFacetsFromCandidates.begin(), tFacetsFromCandidates.end() );
 
                 break;
             }
@@ -109,7 +109,7 @@ namespace moris::sdf
                 }
 
                 // from the candidate triangles, see which triangles will actually be intersected
-                aFacetIndices = intersect_triangles( tCandidateFacets, aObject, aPoint, aAxis );
+                aIntersectedFacets = intersect_triangles( tCandidateFacets, aObject, aPoint, aAxis );
                 break;
             }
             default:
@@ -120,15 +120,15 @@ namespace moris::sdf
         }
 
         // compute intersection locations
-        moris::Vector< real > tIntersectionCoordinates = intersect_ray_with_facets( aFacetIndices, aPoint, Preselection_Result::SUCCESS, aAxis );
+        Vector< real > tIntersectionCoordinates = intersect_ray_with_facets( aIntersectedFacets, aPoint, Preselection_Result::SUCCESS, aAxis );
 
         // remove intersection locations that are behind the point
-        for ( uint iIntersection = 0; iIntersection < tIntersectionCoordinates.size(); iIntersection++ )
+        for ( int iIntersection = tIntersectionCoordinates.size() - 1; iIntersection > -1; iIntersection-- )
         {
             if ( tIntersectionCoordinates( iIntersection ) < aPoint( aAxis ) )
             {
                 tIntersectionCoordinates.erase( iIntersection );
-                aFacetIndices.erase( iIntersection );
+                aIntersectedFacets.erase( iIntersection );
             }
         }
 
