@@ -21,7 +21,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Design_Factory::Design_Factory(
-            Vector< Parameter_List >         aParameterLists,
+            Vector< Parameter_List >      aParameterLists,
             Matrix< DDRMat >&             aADVs,
             std::shared_ptr< Library_IO > aLibrary,
             mtk::Mesh*                    aMesh,
@@ -180,7 +180,12 @@ namespace moris::gen
                         }
                         else if ( tGeometryType == "surface_mesh" )
                         {
-                            mGeometries( tGeometryIndex++ ) = std::make_shared< Surface_Mesh_Geometry >( aMesh, aADVs, Surface_Mesh_Parameters( iParameterList ) );
+                            mGeometries( tGeometryIndex++ ) = std::make_shared< Surface_Mesh_Geometry >(
+                                    aMesh,
+                                    aADVs,
+                                    Surface_Mesh_Parameters( iParameterList ),
+                                    aNodeManager,
+                                    aLibrary );
                             tSomethingHasBeenBuilt = true;
                         }
                         else

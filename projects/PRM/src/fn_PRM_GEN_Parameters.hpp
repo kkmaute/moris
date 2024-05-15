@@ -189,7 +189,8 @@ namespace moris::prm
         tSurfaceMeshParameterList.insert( "scale", "1.0,1.0,1.0" );                     // scaling factor for all points in the geometry
         tSurfaceMeshParameterList.insert( "file_path", "" );                            // path to .obj file
         tSurfaceMeshParameterList.insert( "adv_indices", "" );                          // ADVs used to fill in variables
-        tSurfaceMeshParameterList.insert( "fixed_vertex_indices", "" );                 // Which surface mesh nodes are unaffected by ADVs
+        tSurfaceMeshParameterList.insert( "fixed_vertex_indices", "" );                 // Which surface mesh nodes are unaffected by ADVs BRENDAN DEPRECATED
+        tSurfaceMeshParameterList.insert( "fixed_vertex_function_name", "" );           // function name that determines which nodes are fixed
         tSurfaceMeshParameterList.set( "geometry_type", "surface_mesh" );               // set the geometry type to surface mesh
         tSurfaceMeshParameterList.set( "intersection_tolerance", 1e-8 );                // interface tolerance for raycast computations
         tSurfaceMeshParameterList.erase( "field_type" );
@@ -355,13 +356,13 @@ namespace moris::prm
     inline Parameter_List
     create_gen_property_parameter_list( bool aIncludeField = true )
     {
-        Parameter_List tPropertyParameterList = create_design_parameter_list();      // Create a design parameter list
-        tPropertyParameterList.set( "design_type", "property" );                     // Set the design type to a property
-        insert_design_field_parameters( tPropertyParameterList, aIncludeField );     // Inserts all design field parameters
-        tPropertyParameterList.insert( "pdv_type", "" );                             // The type of PDV that this property will be assigned to
-        tPropertyParameterList.insert( "pdv_mesh_type", "interpolation" );           // Mesh type for assigning PDVs
-        tPropertyParameterList.insert( "pdv_mesh_set_names", "" );                   // Mesh set names for assigning PDVs
-        tPropertyParameterList.insert( "pdv_mesh_set_indices", "" );                 // Mesh set indices for assigning PDVs
+        Parameter_List tPropertyParameterList = create_design_parameter_list();     // Create a design parameter list
+        tPropertyParameterList.set( "design_type", "property" );                    // Set the design type to a property
+        insert_design_field_parameters( tPropertyParameterList, aIncludeField );    // Inserts all design field parameters
+        tPropertyParameterList.insert( "pdv_type", "" );                            // The type of PDV that this property will be assigned to
+        tPropertyParameterList.insert( "pdv_mesh_type", "interpolation" );          // Mesh type for assigning PDVs
+        tPropertyParameterList.insert( "pdv_mesh_set_names", "" );                  // Mesh set names for assigning PDVs
+        tPropertyParameterList.insert( "pdv_mesh_set_indices", "" );                // Mesh set indices for assigning PDVs
 
         return tPropertyParameterList;
     }
