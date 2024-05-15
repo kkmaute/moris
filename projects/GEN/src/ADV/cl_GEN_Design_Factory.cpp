@@ -154,17 +154,15 @@ namespace moris::gen
                         else if ( tGeometryType == "voxel" )
                         {
                             // Get voxel-specific info
-                            std::string      tVoxelFieldName    = iParameterList.get< std::string >( "voxel_field_file" );
-                            Matrix< DDRMat > tDomainDimensions  = string_to_mat< DDRMat >( iParameterList.get< std::string >( "domain_dimensions" ) );
-                            Matrix< DDRMat > tDomainOffset      = string_to_mat< DDRMat >( iParameterList.get< std::string >( "domain_offset" ) );
-                            Matrix< DDRMat > tGrainIdToValueMap = string_to_mat< DDRMat >( iParameterList.get< std::string >( "grain_id_value_map" ) );
+                            auto tVoxelFieldName   = iParameterList.get< std::string >( "voxel_field_file" );
+                            auto tDomainDimensions = iParameterList.get< Vector< real > >( "domain_dimensions" );
+                            auto tDomainOffset     = iParameterList.get< Vector< real > >( "domain_offset" );
 
                             // Create voxel input
                             auto tVoxelInput = std::make_shared< Voxel_Input >(
                                     tVoxelFieldName,
                                     tDomainDimensions,
                                     tDomainOffset,
-                                    tGrainIdToValueMap,
                                     aNodeManager );
 
                             // Get number of voxel IDs

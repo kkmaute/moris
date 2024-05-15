@@ -292,8 +292,8 @@ namespace moris
         std::string tPath      = tMORISROOT + "projects/EXA/thermal/diffusion/Voxel_Grain_Structure/Voxel_file";
 
         tParameterlist( 1 )( 0 ).set( "voxel_field_file", tPath );
-        tParameterlist( 1 )( 0 ).set( "domain_dimensions", "4.0,4.0,4.0" );
-        tParameterlist( 1 )( 0 ).set( "domain_offset", "-2.0,-2.0,-2.0" );
+        tParameterlist( 1 )( 0 ).set( "domain_dimensions", 4.0, 4.0, 4.0 );
+        tParameterlist( 1 )( 0 ).set( "domain_offset", -2.0, -2.0, -2.0 );
     }
 
     void

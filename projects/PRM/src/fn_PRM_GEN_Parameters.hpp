@@ -304,11 +304,10 @@ namespace moris::prm
     {
         Parameter_List tVoxelParameterList = create_geometry_parameter_list();
 
-        tVoxelParameterList.set( "geometry_type", "voxel" );       // Set the geometry type to a voxel geometry
-        tVoxelParameterList.insert( "voxel_field_file", "" );      // voxel file
-        tVoxelParameterList.insert( "domain_dimensions", "" );     // domain size
-        tVoxelParameterList.insert( "domain_offset", "" );         // domain offset
-        tVoxelParameterList.insert( "grain_id_value_map", "" );    // grain id to value map
+        tVoxelParameterList.set( "geometry_type", "voxel" );                    // Set the geometry type to a voxel geometry
+        tVoxelParameterList.insert( "voxel_field_file", "" );                   // voxel file
+        tVoxelParameterList.insert( "domain_dimensions", Vector< real >() );    // domain size
+        tVoxelParameterList.insert( "domain_offset", Vector< real >() );        // domain offset
 
         return tVoxelParameterList;
     }

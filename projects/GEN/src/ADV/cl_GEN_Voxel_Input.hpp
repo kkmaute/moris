@@ -22,27 +22,25 @@ namespace moris::gen
         std::string             mVoxelFileName;
         Node_Manager&           mNodeManager;
 
-        moris::Matrix< DDRMat > mDomainDimensions;
-        moris::Matrix< DDRMat > mDomainOffset;
-        moris::Matrix< DDRMat > mGrainIdToValueMap;
-        moris::Matrix< DDUMat > mVoxelField;
+        Vector< real > mDomainDimensions;
+        Vector< real > mDomainOffset;
+        Matrix< DDUMat > mVoxelField;
 
-        moris::uint             mVoxelsInX;
-        moris::uint             mVoxelsInY;
-        moris::uint             mVoxelsInZ;
+        uint             mVoxelsInX;
+        uint             mVoxelsInY;
+        uint             mVoxelsInZ;
 
-        moris::uint mNumGrainInd;
+        uint mNumGrainInd;
 
       public:
         /**
          * Constructor
          */
         Voxel_Input(
-                std::string      aVoxelFileName,
-                Matrix< DDRMat > aDomainDimensions,
-                Matrix< DDRMat > aDomainOffset,
-                Matrix< DDRMat > aGrainIdToValueMap,
-                Node_Manager&    aNodeManager );
+                const std::string&    aVoxelFileName,
+                const Vector< real >& aDomainDimensions,
+                const Vector< real >& aDomainOffset,
+                Node_Manager&         aNodeManager );
 
         /**
          * Gets the file name of the voxel field.
@@ -69,7 +67,7 @@ namespace moris::gen
         /**
          * Return number of voxel of different color.
          */
-        moris::uint
+        uint
         get_num_voxel_IDs()
         {
             return mNumGrainInd;
