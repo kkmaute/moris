@@ -35,10 +35,20 @@ namespace moris
      */
     template< typename Matrix_Type >
     auto
-    sum( const Matrix< Matrix_Type > & aA )
-        -> decltype( sum( aA.matrix_data() ) )
+    sum( const Matrix< Matrix_Type > &aA )
+            -> decltype( sum( aA.matrix_data() ) )
     {
         return sum( aA.matrix_data() );
+    }
+
+    template< typename Matrix_Type >
+    auto
+    sum(
+            const Matrix< Matrix_Type > &aA,
+            const uint                   aDim )
+            -> decltype( sum( aA.matrix_data(), aDim ) )
+    {
+        return sum( aA.matrix_data(), aDim );
     }
 
     /*
@@ -49,7 +59,6 @@ namespace moris
     {
         return sum( aA.matrix_data() );
     }*/
-}
+}    // namespace moris
 
 #endif /* PROJECTS_LINALG_SRC_FN_SUM_HPP_ */
-
