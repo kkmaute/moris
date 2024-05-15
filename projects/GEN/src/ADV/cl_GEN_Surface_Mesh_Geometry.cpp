@@ -82,8 +82,8 @@ namespace moris::gen
             }
         }
 
-        // If this surface mesh is being optimized, construct fields, 
-        //store original vertex coordinates, determine which facet vertices are fixed, and compute the bases for all vertices
+        // If this surface mesh is being optimized, construct fields,
+        // store original vertex coordinates, determine which facet vertices are fixed, and compute the bases for all vertices
         if ( aParameters.mADVIndices.size() > 0 or aParameters.mDiscretizationIndex > -1 )
         {
             // Check if the user provided a function to determine which vertices are fixed
@@ -205,20 +205,13 @@ namespace moris::gen
             mtk::Geometry_Type                aBackgroundGeometryType,
             mtk::Interpolation_Order          aBackgroundInterpolationOrder )
     {
-        // BRENDAN
-        if ( aNodeIndex == 5 or aNodeIndex == 13 )
-        {
-            std::cout << "bug here\n";
-        }
-
         // Determine the local coordinate of the intersection and the facet that intersects the parent edge
         sdf::Facet* tParentFacet     = nullptr;
         real        tLocalCoordinate = this->compute_intersection_local_coordinate( aBackgroundNodes, aFirstParentNode, aSecondParentNode, tParentFacet );
 
-
-        MORIS_ERROR( tLocalCoordinate != MORIS_REAL_MAX, "An intersection node with a local coordinate of MORIS_REAL_MAX was admitted" );
-        MORIS_ASSERT( tParentFacet != nullptr or ( tParentFacet == nullptr and ( tLocalCoordinate > 1.0 or tLocalCoordinate < -1.0 ) ),
-                "Parent facet determination and local coordinate determination are not consistent" );
+        MORIS_ERROR( tParentFacet == nullptr or ( tLocalCoordinate < 1 + this->get_intersection_tolerance() and tLocalCoordinate > -1 - this->get_intersection_tolerance() ),
+                "Intersection node local coordinate is not between -1 and 1 or parent facet is null. Local coordinate = %f",
+                tLocalCoordinate );
 
         // Create surface mesh intersection node
         return new Intersection_Node_Surface_Mesh(
@@ -277,7 +270,7 @@ namespace moris::gen
         }
         else if ( tNumberOfParentEdgeIntersections > 1 )
         {
-            std::cout << "WARNING: Multiple intersections detected along parent edge. Using first intersection.\n";
+            MORIS_LOG_WARNING( "Multiple intersections detected along parent edge. Using first intersection." );    // BRENDAN
         }
 
         // Set return values for intersection location and associated facet

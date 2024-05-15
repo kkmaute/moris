@@ -102,9 +102,9 @@ namespace moris::gen
 
     void Node_Manager::create_derived_node(
             const Vector< Background_Node* >& aBackgroundNodes,
-            const Matrix< DDRMat >&  aParametricCoordinates,
-            mtk::Geometry_Type       aGeometryType,
-            mtk::Interpolation_Order aInterpolationOrder )
+            const Matrix< DDRMat >&           aParametricCoordinates,
+            mtk::Geometry_Type                aGeometryType,
+            mtk::Interpolation_Order          aInterpolationOrder )
     {
         mDerivedNodes.push_back(
                 new Derived_Node(
@@ -120,7 +120,9 @@ namespace moris::gen
     void Node_Manager::add_derived_node( Derived_Node* aDerivedNode )
     {
         MORIS_ASSERT( aDerivedNode->get_index() == this->get_total_number_of_nodes(),
-                "Attempted to add a derived node with node index %d when the next index should be %d", aDerivedNode->get_index(), this->get_total_number_of_nodes() );
+                "Attempted to add a derived node with node index %d when the next index should be %d",
+                aDerivedNode->get_index(),
+                this->get_total_number_of_nodes() );
         mDerivedNodes.push_back( aDerivedNode );
     }
 
@@ -251,4 +253,4 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-}
+}    // namespace moris::gen

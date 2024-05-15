@@ -167,10 +167,9 @@ namespace moris
 
         tParameterlist( 0 )( 0 ) = prm::create_hmr_parameter_list();
 
-        tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", "2, 1" );
-        tParameterlist( 0 )( 0 ).set( "domain_dimensions", "2.0, 1.0" );
-        // tParameterlist( 0 )( 0 ).set( "domain_offset", "-1.0, -1.0" );
-        tParameterlist( 0 )( 0 ).set( "domain_offset", "0.0, 0.0" );
+        tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", "2, 2" );
+        tParameterlist( 0 )( 0 ).set( "domain_dimensions", "2.0, 2.0" );
+        tParameterlist( 0 )( 0 ).set( "domain_offset", "0.0, -1.0" );
         tParameterlist( 0 )( 0 ).set( "domain_sidesets", "1,2,3,4" );
         tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes", "0" );
 
@@ -246,7 +245,7 @@ namespace moris
         tParameterlist( 1 ).resize( 1 );
 
         tParameterlist( 1 )( 0 ) = prm::create_surface_mesh_geometry_parameter_list();
-        tParameterlist( 1 )( 0 ).set( "file_path", "/home/chong/work/SP24/Input_Files/triangle_sensitivity.obj" );    // BRENDAN FIXME
+        tParameterlist( 1 )( 0 ).set( "file_path", "/home/chong/work/SP24/Input_Files/triangle_sensitivity_oblique.obj" );    // BRENDAN FIXME
         switch ( tGeoModel )
         {
             case 0:
@@ -378,7 +377,7 @@ namespace moris
         // init IQI counter
         uint tIQICounter = 0;
 
-        // create parameter list for IQI 4
+        // create parameter list for IQI 1
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIDisp" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::DOF ) );
@@ -388,7 +387,7 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tMeshSets );
         tIQICounter++;
 
-        // create parameter list for IQI 4
+        // create parameter list for IQI 2
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkStrainEnergy" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::STRAIN_ENERGY ) );
@@ -397,7 +396,7 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tMeshSets );
         tIQICounter++;
 
-        // create parameter list for IQI 4
+        // create parameter list for IQI 3
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkVolume" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::VOLUME ) );
@@ -495,7 +494,7 @@ namespace moris
         tParameterlist( 2 )( 0 ).set( "hdf5_path", "shape_opt_test_surface_mesh_2D.hdf5" );
         tParameterlist( 2 )( 0 ).set( "evaluate_objective_gradients", true );
         tParameterlist( 2 )( 0 ).set( "evaluate_constraint_gradients", true );
-        tParameterlist( 2 )( 0 ).set( "finite_difference_epsilons", "1E-8" );
+        tParameterlist( 2 )( 0 ).set( "finite_difference_epsilons", "1E-9" );
         tParameterlist( 2 )( 0 ).set( "num_evaluations_per_adv", "1" );
         tParameterlist( 2 )( 0 ).set( "include_bounds", false );
         tParameterlist( 2 )( 0 ).set( "finite_difference_type", "all" );
