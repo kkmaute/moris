@@ -155,28 +155,28 @@ namespace moris::prm
                     break;
                 case gen::Field_Type::NODAL_FROM_FILE:
                 {
-                    aParameterList.insert( "file_name", "" );            // file name
-                    aParameterList.insert( "field_name", "" );           // field name
-                    aParameterList.insert( "file_format", "exodus" );    // file format
-                    aParameterList.insert( "offset", 0.0 );              // offset of field value
+                    aParameterList.insert( "file_name", "" );
+                    aParameterList.insert( "field_name", "" );
+                    aParameterList.insert( "file_format", "exodus", { "exodus", "hdf5" } );
+                    aParameterList.insert( "offset", 0.0 );
                     break;
                 }
                 case gen::Field_Type::SIGNED_DISTANCE_OBJECT:
                 {
-                    aParameterList.insert( "sdf_object_path", "" );      // obj file
-                    aParameterList.insert( "sdf_object_offset", Vector< real >() );    // offset of object
-                    aParameterList.insert( "sdf_shift", 0.0 );           // sdf shift
+                    aParameterList.insert( "sdf_object_path", "" );
+                    aParameterList.insert( "sdf_object_offset", Vector< real >() );
+                    aParameterList.insert( "sdf_shift", 0.0 );
                     break;
                 }
                 case gen::Field_Type::SIGNED_DISTANCE_IMAGE:
                 {
-                    aParameterList.insert( "image_file", "" );                  // image file (hdf5 format)
-                    aParameterList.insert( "image_dimensions", Vector< real >() );            // domain size
-                    aParameterList.insert( "image_offset", Vector< real >() );                // domain offset
-                    aParameterList.insert( "image_sdf_scaling", 0.0 );          // sdf scaling factor (0: automatic scaling)
-                    aParameterList.insert( "image_sdf_shift", 0.0 );            // sdf shift value
-                    aParameterList.insert( "image_sdf_default", -1.0 );         // sdf value outside image
-                    aParameterList.insert( "image_sdf_interpolate", false );    // whether sdf value is interpolated
+                    aParameterList.insert( "image_file", "" );
+                    aParameterList.insert( "image_dimensions", Vector< real >() );
+                    aParameterList.insert( "image_offset", Vector< real >() );
+                    aParameterList.insert( "image_sdf_scaling", 0.0 );                // sdf scaling factor (0: automatic scaling)
+                    aParameterList.insert( "image_sdf_shift", 0.0 );                  // sdf shift value
+                    aParameterList.insert( "image_sdf_default", -1.0 );               // sdf value outside image
+                    aParameterList.insert( "image_sdf_interpolate", false );          // whether sdf value is interpolated
                     break;
                 }
                 case gen::Field_Type::USER_DEFINED:
