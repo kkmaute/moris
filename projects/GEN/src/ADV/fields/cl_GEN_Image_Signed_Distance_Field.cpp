@@ -23,7 +23,7 @@ namespace moris::gen
     Image_Signed_Distance_Field::get_field_value( const Matrix< DDRMat >& aCoordinates )
     {
         // set pointer to correct field value function
-        if ( mDomainDimensions.numel() == 3 )
+        if ( mDomainDimensions.size() == 3 )
         {
             return get_field_value_3d( aCoordinates );
         }
@@ -217,7 +217,7 @@ namespace moris::gen
         close_hdf5_file( tFileID );
 
         // check for correct dimensions
-        MORIS_ERROR( mDomainDimensions.numel() == tDimensions.numel(),
+        MORIS_ERROR( mDomainDimensions.size() == tDimensions.numel(),
                 "Image_Signed_Distance_Field::read_image_sdf_data - mismatch of dimensions in SDF file and domain dimensions." );
 
         // extract dimensions and compute size of voxel

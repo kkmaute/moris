@@ -238,9 +238,9 @@ namespace moris::gen
                 }
                 case Field_Type::SIGNED_DISTANCE_OBJECT:
                 {
-                    std::string    tObjectPath   = aFieldParameterList.get< std::string >( "sdf_object_path" );
-                    Vector< real > tObjectOffset = string_to_cell< real >( aFieldParameterList.get< std::string >( "sdf_object_offset" ) );
-                    real           tSDFShift     = aFieldParameterList.get< real >( "sdf_shift" );
+                    auto tObjectPath   = aFieldParameterList.get< std::string >( "sdf_object_path" );
+                    auto tObjectOffset = aFieldParameterList.get< Vector< real > >( "sdf_object_offset" );
+                    auto tSDFShift     = aFieldParameterList.get< real >( "sdf_shift" );
 
                     tField = std::make_shared< gen::Signed_Distance_Field >(
                             tObjectPath,
@@ -251,9 +251,9 @@ namespace moris::gen
                 case Field_Type::SIGNED_DISTANCE_IMAGE:
                 {
                     // Get SDF-specific info
-                    std::string      tImageFileName    = aFieldParameterList.get< std::string >( "image_file" );
-                    Matrix< DDRMat > tDomainDimensions = string_to_mat< DDRMat >( aFieldParameterList.get< std::string >( "image_dimensions" ) );
-                    Matrix< DDRMat > tDomainOffset     = string_to_mat< DDRMat >( aFieldParameterList.get< std::string >( "image_offset" ) );
+                    auto tImageFileName    = aFieldParameterList.get< std::string >( "image_file" );
+                    auto tDomainDimensions = aFieldParameterList.get< Vector< real > >( "image_dimensions" );
+                    auto tDomainOffset     = aFieldParameterList.get< Vector< real > >( "image_offset" );
                     real tSDFScaling = aFieldParameterList.get< real >( "image_sdf_scaling" );
                     real tSDFShift   = aFieldParameterList.get< real >( "image_sdf_shift" );
                     real tSDFDefault = aFieldParameterList.get< real >( "image_sdf_default" );

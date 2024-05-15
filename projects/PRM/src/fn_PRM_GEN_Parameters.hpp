@@ -164,15 +164,15 @@ namespace moris::prm
                 case gen::Field_Type::SIGNED_DISTANCE_OBJECT:
                 {
                     aParameterList.insert( "sdf_object_path", "" );      // obj file
-                    aParameterList.insert( "sdf_object_offset", "" );    // offset of object
+                    aParameterList.insert( "sdf_object_offset", Vector< real >() );    // offset of object
                     aParameterList.insert( "sdf_shift", 0.0 );           // sdf shift
                     break;
                 }
                 case gen::Field_Type::SIGNED_DISTANCE_IMAGE:
                 {
                     aParameterList.insert( "image_file", "" );                  // image file (hdf5 format)
-                    aParameterList.insert( "image_dimensions", "" );            // domain size
-                    aParameterList.insert( "image_offset", "" );                // domain offset
+                    aParameterList.insert( "image_dimensions", Vector< real >() );            // domain size
+                    aParameterList.insert( "image_offset", Vector< real >() );                // domain offset
                     aParameterList.insert( "image_sdf_scaling", 0.0 );          // sdf scaling factor (0: automatic scaling)
                     aParameterList.insert( "image_sdf_shift", 0.0 );            // sdf shift value
                     aParameterList.insert( "image_sdf_default", -1.0 );         // sdf value outside image
