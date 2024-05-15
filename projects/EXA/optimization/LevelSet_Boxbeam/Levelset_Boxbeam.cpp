@@ -325,7 +325,7 @@ namespace moris
         tParameterlist.resize( 3 );
         tParameterlist( 0 ).resize( 1 );
         tParameterlist( 0 )( 0 ) = moris::prm::create_gen_parameter_list();
-        tParameterlist( 0 )( 0 ).set( "IQI_types", "IQIBulkStrainEnergy_Frame,IQIBulkStrainEnergy_Interior,IQIBulkVolume_Interior,IQIPerimeter_InterfaceVoid" );
+        tParameterlist( 0 )( 0 ).set( "IQI_types", "IQIBulkStrainEnergy_Frame", "IQIBulkStrainEnergy_Interior", "IQIBulkVolume_Interior", "IQIPerimeter_InterfaceVoid" );
         tParameterlist( 0 )( 0 ).set( "output_mesh_file", tGENOutputFile );
 
         Matrix< DDUMat > tPhaseMap( 4, 1, 0 );

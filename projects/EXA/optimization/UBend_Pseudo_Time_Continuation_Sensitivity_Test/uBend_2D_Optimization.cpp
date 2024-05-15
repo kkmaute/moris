@@ -1231,10 +1231,10 @@ namespace moris
 
         tParameterlist( 0 ).push_back( prm::create_gen_parameter_list() );
         tParameterlist( 0 )( 0 ).set( "IQI_types",
-                "IQIVolumePowDisp,"
-                "IQIPerimeterItf,"
-                "IQIHeatMethodPenaltyFluid,"
-                "IQIHeatMethodPenaltyInclusion,"
+                "IQIVolumePowDisp",
+                "IQIPerimeterItf",
+                "IQIHeatMethodPenaltyFluid",
+                "IQIHeatMethodPenaltyInclusion",
                 "IQIFluidVolume" );
         tParameterlist( 0 )( 0 ).set( "number_of_phases", 3 );
         tParameterlist( 0 )( 0 ).set( "phase_function_name", tGetPhaseIndex );

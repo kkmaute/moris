@@ -376,7 +376,7 @@ namespace moris
 
         // Main GEN parameter list
         tParameterlist( 0 )( 0 ) = prm::create_gen_parameter_list();
-        tParameterlist( 0 )( 0 ).set( "IQI_types", "IQIMaxTemp_1,IQIMaxTemp_2,IQIStrainEnergy_1,IQIStrainEnergy_2,IQIVolume_1" );
+        tParameterlist( 0 )( 0 ).set( "IQI_types", "IQIMaxTemp_1", "IQIMaxTemp_2", "IQIStrainEnergy_1", "IQIStrainEnergy_2", "IQIVolume_1" );
         tParameterlist( 0 )( 0 ).set( "output_mesh_file", tGENOutputFile );
 
         // init geometry counter

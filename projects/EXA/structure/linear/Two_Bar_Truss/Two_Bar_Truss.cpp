@@ -435,8 +435,7 @@ namespace moris
         // Main GEN parameter list
         tParameterlist( 0 ).push_back( prm::create_gen_parameter_list() );
 
-        tParameterlist( 0 )( 0 ).set( "IQI_types", "IQIBulkStrainEnergy,IQIBulkVolume" );
-        tParameterlist( 0 )( 0 ).set( "PDV_types", "" );
+        tParameterlist( 0 )( 0 ).set( "IQI_types", "IQIBulkStrainEnergy", "IQIBulkVolume" );
 
         // Geometry parameter lists
         tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );

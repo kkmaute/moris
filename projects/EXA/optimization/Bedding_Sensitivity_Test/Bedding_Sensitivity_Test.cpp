@@ -331,9 +331,9 @@ namespace moris
         tParameterlist( 0 ).push_back( moris::prm::create_gen_parameter_list() );
         tParameterlist( 0 )( 0 ).set(    //
                 "IQI_types",
-                std::string( "IQIBulkStrainEnergy,"
-                             "IQIBulkStrainEnergyWithBedding,"
-                             "IQIBulkVolume" ) );
+                "IQIBulkStrainEnergy",
+                "IQIBulkStrainEnergyWithBedding",
+                "IQIBulkVolume" );
 
         tParameterlist( 0 )( 0 ).set( "output_mesh_file", tGENOutputFile );
         tParameterlist( 0 )( 0 ).set( "time_offset", 10.0 );

@@ -622,13 +622,9 @@ namespace moris
 
         tParameterlist( 0 ).push_back( prm::create_gen_parameter_list() );
         tParameterlist( 0 )( 0 ).set( "IQI_types",
-                "IQIOutletThermalEnergy,"
-                "IQIInletTotalPressure,IQIOutletTotalPressure,"
-                "IQIPerimeterItf,"
-                "IQIInletMassFlow,IQIOutletMassFlow,"
-                "IQIMaxTemp,"
-                "IQISolidVolume,"
-                "IQIInletPowDisp,IQIOutletPowDisp,IQIVolumePowDisp" );
+                "IQIOutletThermalEnergy", "IQIInletTotalPressure", "IQIOutletTotalPressure", "IQIPerimeterItf",
+                "IQIInletMassFlow", "IQIOutletMassFlow", "IQIMaxTemp", "IQISolidVolume", "IQIInletPowDisp",
+                "IQIOutletPowDisp", "IQIVolumePowDisp" );
 
         tParameterlist( 0 )( 0 ).set( "number_of_phases", 5 );
         tParameterlist( 0 )( 0 ).set( "phase_function_name", "get_phase_index" );

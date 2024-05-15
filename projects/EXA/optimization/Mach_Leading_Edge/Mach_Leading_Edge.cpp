@@ -648,7 +648,7 @@ namespace moris
 
         // Main GEN parameter list
         tParameterlist( 0 )( 0 ) = prm::create_gen_parameter_list();
-        tParameterlist( 0 )( 0 ).set( "IQI_types", "IQIMaxTemp,IQIBSplineGeometryVolume,IQIBSplinesPerimeter,IQIStrainEnergy" );    // IQIBSplinesPerimeter
+        tParameterlist( 0 )( 0 ).set( "IQI_types", "IQIMaxTemp", "IQIBSplineGeometryVolume", "IQIBSplinesPerimeter", "IQIStrainEnergy" );    // IQIBSplinesPerimeter
         tParameterlist( 0 )( 0 ).set( "output_mesh_file", tGENOutputFile );
 
         // phase table

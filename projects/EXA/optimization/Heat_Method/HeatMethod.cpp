@@ -502,7 +502,7 @@ namespace moris
         tParameterlist.resize( 3 );
 
         tParameterlist( 0 ).push_back( moris::prm::create_gen_parameter_list() );
-        tParameterlist( 0 )( 0 ).set( "IQI_types", "IQIH1ErrorConst,IQIH1Error,IQIBulkVolume_Inner,IQIBulkVolume_Outer,IQIThetaMeasure,IQIPhidMeasure" );
+        tParameterlist( 0 )( 0 ).set( "IQI_types", "IQIH1ErrorConst", "IQIH1Error", "IQIBulkVolume_Inner", "IQIBulkVolume_Outer", "IQIThetaMeasure", "IQIPhidMeasure" );
         tParameterlist( 0 )( 0 ).set( "output_mesh_file", tGENOutputFile );
         tParameterlist( 0 )( 0 ).set( "time_offset", 10.0 );
 

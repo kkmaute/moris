@@ -621,8 +621,7 @@ namespace moris
         tParameterlist.resize( 3 );
         tParameterlist( 0 ).resize( 1 );
         tParameterlist( 0 )( 0 ) = moris::prm::create_gen_parameter_list();
-        tParameterlist( 0 )( 0 ).set( "IQI_types", "IQIBulkStrainEnergy_Frame,IQIBulkStrainEnergy_Interior,IQIBulkVolume_Interior,IQIPerimeter_InterfaceVoid,IQIHeatMethodPenalty" );
-        // tParameterlist(0)(0).set("IQI_types"       , "IQIBulkStrainEnergy_Frame,IQIBulkStrainEnergy_Interior,IQIBulkVolume_Interior,IQIPerimeter_InterfaceVoid,IQIH1ErrorConst,IQIH1Error");
+        tParameterlist( 0 )( 0 ).set( "IQI_types", "IQIBulkStrainEnergy_Frame", "IQIBulkStrainEnergy_Interior", "IQIBulkVolume_Interior", "IQIPerimeter_InterfaceVoid", "IQIHeatMethodPenalty" );
         tParameterlist( 0 )( 0 ).set( "output_mesh_file", tGENOutputFile );
         tParameterlist( 0 )( 0 ).set( "time_offset", 10.0 );
 

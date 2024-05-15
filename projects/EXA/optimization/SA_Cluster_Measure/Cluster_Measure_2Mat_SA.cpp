@@ -322,14 +322,15 @@ namespace moris
         tParameterList( 0 ).push_back( prm::create_gen_parameter_list() );
         tParameterList( 0 )( 0 ).set( "number_of_phases"    , 2 );
         tParameterList( 0 )( 0 ).set( "phase_function_name" , tGetPhaseIndex );
-        tParameterList( 0 )( 0 ).set( "IQI_types"   ,
-                                     "IQIVolumeInterface1,"
-                                     "IQIVolumeMat0,IQIVolumeMat1,"
-                                     "IQISidesetMeasure,"
-                                     "IQISidesetLengthMeasure,"
-                                     "IQIBulkMeasure,"
-                                     "IQIBulkLengthMeasure,"
-                                     "IQIBulkStrainEnergy0,"
+        tParameterList( 0 )( 0 ).set( "IQI_types",
+                                     "IQIVolumeInterface1",
+                                     "IQIVolumeMat0",
+                                     "IQIVolumeMat1",
+                                     "IQISidesetMeasure",
+                                     "IQISidesetLengthMeasure",
+                                     "IQIBulkMeasure",
+                                     "IQIBulkLengthMeasure",
+                                     "IQIBulkStrainEnergy0",
                                      "IQIBulkStrainEnergy1" );
 
         // init geometry counter

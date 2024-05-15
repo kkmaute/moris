@@ -303,7 +303,7 @@ namespace moris
         tParameterlist.resize( 3 );
         tParameterlist( 0 ).resize( 1 );
         tParameterlist( 0 )( 0 ) = moris::prm::create_gen_parameter_list();
-        tParameterlist( 0 )( 0 ).set( "IQI_types", "IQIBulkStrainEnergyDISP,IQIBulkVolume" );
+        tParameterlist( 0 )( 0 ).set( "IQI_types", "IQIBulkStrainEnergyDISP", "IQIBulkVolume" );
 
         // Geometry parameter lists
         tParameterlist( 1 ).resize( 1 );

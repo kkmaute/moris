@@ -291,7 +291,7 @@ namespace moris
 
         // Main GEN parameter list
         tParameterlist( 0 )( 0 ) = prm::create_gen_parameter_list();
-        tParameterlist( 0 )( 0 ).set( "IQI_types", "IQIMaxTemp,IQIBulkVolume" );
+        tParameterlist( 0 )( 0 ).set( "IQI_types", "IQIMaxTemp", "IQIBulkVolume" );
 
         // init geometry counter
         uint tGeoCounter = 0;

@@ -420,7 +420,7 @@ namespace moris
 
         tParameterlist( 0 ).push_back( moris::prm::create_gen_parameter_list() );
         tParameterlist( 0 )( 0 ).set( "IQI_types",
-                std::string( "IQIBulkStrainEnergy_Material1," ) + std::string( "IQIBulkStrainEnergy_Material2," ) + std::string( "IQIBulkVolume_Material1," ) + std::string( "IQIPerimeter_InterfaceMaterial12" ) );
+                "IQIBulkStrainEnergy_Material1", "IQIBulkStrainEnergy_Material2", "IQIBulkVolume_Material1", "IQIPerimeter_InterfaceMaterial12" );
         tParameterlist( 0 )( 0 ).set( "output_mesh_file", tGENOutputFile );
         tParameterlist( 0 )( 0 ).set( "time_offset", 10.0 );
 

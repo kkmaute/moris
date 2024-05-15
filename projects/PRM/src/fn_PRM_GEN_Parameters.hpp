@@ -32,16 +32,16 @@ namespace moris::prm
         tGENParameterList.insert( "geometry_field_file", "" );              // Base file name (without extension) for saving geometry fields
         tGENParameterList.insert( "time_offset", 0.0 );                     // Time offset for writing files in optimization process
 
-        // ADVs/IQIs
-        tGENParameterList.insert( "initial_advs", Vector< real >() );    // Initial ADV vector
-        tGENParameterList.insert( "advs_size", 0 );                      // Specify size and fill value for ADVs in addition to
-        tGENParameterList.insert( "initial_advs_fill", 0.0 );            // explicitly defined ADVs (above)
-        tGENParameterList.insert( "lower_bounds", Vector< real >() );    // Lower bounds on advs, string converted into vector
-        tGENParameterList.insert( "lower_bounds_fill", 0.0 );            // Fill value for lower bounds up to size of ADV vector
-        tGENParameterList.insert( "upper_bounds", Vector< real >() );    // Upper bounds on advs, string converted into vector
-        tGENParameterList.insert( "upper_bounds_fill", 0.0 );            // Fill value for upper bounds up to size of ADV vector
-        tGENParameterList.insert( "IQI_types", "" );                     // Requested IQI types for sensitivity analysis
-        tGENParameterList.insert( "PDV_types", "" );                     // Requested PDV types for sensitivity analysis
+        // IQIs/PDVs
+        tGENParameterList.insert( "initial_advs", Vector< real >() );        // Initial ADV vector
+        tGENParameterList.insert( "advs_size", 0 );                          // Specify size and fill value for ADVs in addition to
+        tGENParameterList.insert( "initial_advs_fill", 0.0 );                // explicitly defined ADVs (above)
+        tGENParameterList.insert( "lower_bounds", Vector< real >() );        // Lower bounds on advs, string converted into vector
+        tGENParameterList.insert( "lower_bounds_fill", 0.0 );                // Fill value for lower bounds up to size of ADV vector
+        tGENParameterList.insert( "upper_bounds", Vector< real >() );        // Upper bounds on advs, string converted into vector
+        tGENParameterList.insert( "upper_bounds_fill", 0.0 );                // Fill value for upper bounds up to size of ADV vector
+        tGENParameterList.insert( "IQI_types", Vector< std::string >() );    // Requested IQI types for sensitivity analysis
+        tGENParameterList.insert( "PDV_types", Vector< std::string >() );    // Requested PDV types for sensitivity analysis
 
         // Phase table
         tGENParameterList.insert( "phase_table", "" );             // Construct phase table directly

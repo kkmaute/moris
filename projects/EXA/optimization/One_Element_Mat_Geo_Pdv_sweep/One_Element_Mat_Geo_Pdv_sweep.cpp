@@ -427,7 +427,7 @@ namespace moris
         tParameterlist.resize( 3 );
         tParameterlist( 0 ).resize( 1 );
         tParameterlist( 0 )( 0 ) = moris::prm::create_gen_parameter_list();
-        tParameterlist( 0 )( 0 ).set( "IQI_types", "IQIBulkStrainEnergy,IQIBulkVolume" );    //,IQIPerimeter_InterfaceVoid,IQIHeatMethodPenalty");
+        tParameterlist( 0 )( 0 ).set( "IQI_types", "IQIBulkStrainEnergy", "IQIBulkVolume" );    //,IQIPerimeter_InterfaceVoid,IQIHeatMethodPenalty");
         // tParameterlist(0)(0).set("output_mesh_file", tGENOutputFile );
         tParameterlist( 0 )( 0 ).set( "time_offset", 10.0 );
         tParameterlist( 0 )( 0 ).set( "PDV_types", "LS1" );

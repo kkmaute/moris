@@ -524,12 +524,12 @@ namespace moris
 
         tParameterlist( 0 ).push_back( prm::create_gen_parameter_list() );
         tParameterlist( 0 )( 0 ).set( "IQI_types",
-                "IQIInputThermalEnergy,"
-                "IQIDiffusiveLower,"
-                "IQIDiffusiveUpper,"
-                "IQIDiffusiveFront,"
-                "IQIDiffusiveBack,"
-                "IQIStoredThermalEnergy,"
+                "IQIInputThermalEnergy",
+                "IQIDiffusiveLower",
+                "IQIDiffusiveUpper",
+                "IQIDiffusiveFront",
+                "IQIDiffusiveBack",
+                "IQIStoredThermalEnergy",
                 "IQIInputThermalEnergySurface" );
 
         tParameterlist( 0 )( 0 ).set( "number_of_phases", 2 );
