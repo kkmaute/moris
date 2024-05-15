@@ -868,12 +868,12 @@ namespace moris
                         "No image dimensions provided for geometry #%i. "
                         "Please provide image dimensions using the tag 'ImageDimensions' in the the format e.g. '1.2,3.3' ",
                         iGeom );
-                Matrix< DDRMat > tImageDimVec;
-                moris::string_to_mat( tImageDimStr, tImageDimVec );
-                MORIS_ERROR( tImageDimVec.numel() == mNumSpatialDims || tImageDimVec.n_cols() == mNumSpatialDims,
+                Vector< real > tImageDimVec;
+                moris::string_to_cell( tImageDimStr, tImageDimVec );
+                MORIS_ERROR( tImageDimVec.size() == mNumSpatialDims,
                         "Library_IO_Meshgen::load_parameters_from_xml() - "
                         "Number of entries in 'ImageDimensions' vector does not match number of spatial dimensions" );
-                tGenParamList( 1 )( iGeom ).set( "image_dimensions", tImageDimStr );
+                tGenParamList( 1 )( iGeom ).set( "image_dimensions", tImageDimVec );
 
                 // get the image offset
                 std::string tImageOffsetStr = "";
@@ -883,12 +883,12 @@ namespace moris
                         "No image origin provided for geometry #%i. "
                         "Please provide image origin/offset using the tag 'ImageOrigin' in the the format e.g. '1.2,3.3' ",
                         iGeom );
-                Matrix< DDRMat > tImageOffsetVec;
-                moris::string_to_mat( tImageOffsetStr, tImageOffsetVec );
-                MORIS_ERROR( tImageOffsetVec.numel() == mNumSpatialDims || tImageOffsetVec.n_cols() == mNumSpatialDims,
+                Vector< real > tImageOffsetVec;
+                moris::string_to_cell( tImageOffsetStr, tImageOffsetVec );
+                MORIS_ERROR( tImageOffsetVec.size() == mNumSpatialDims,
                         "Library_IO_Meshgen::load_parameters_from_xml() - "
                         "Number of entries in 'ImageOrigin' vector does not match number of spatial dimensions" );
-                tGenParamList( 1 )( iGeom ).set( "image_offset", tImageOffsetStr );
+                tGenParamList( 1 )( iGeom ).set( "image_offset", tImageOffsetVec );
 
             }    // end if: geometry from image file
 
@@ -926,13 +926,13 @@ namespace moris
                         "No object origin provided for geometry #%i. "
                         "Please provide an origin/offset using the tag 'ObjectOrigin' in the the format e.g. '1.2,3.3' ",
                         iGeom );
-                Matrix< DDRMat > tObjectOffsetVec;
-                moris::string_to_mat( tObjectOffsetStr, tObjectOffsetVec );
-                MORIS_ERROR( tObjectOffsetVec.numel() == mNumSpatialDims || tObjectOffsetVec.n_cols() == mNumSpatialDims,
+                Vector< real > tObjectOffsetVec;
+                moris::string_to_cell( tObjectOffsetStr, tObjectOffsetVec );
+                MORIS_ERROR( tObjectOffsetVec.size() == mNumSpatialDims,
                         "Library_IO_Meshgen::load_parameters_from_xml() - "
                         "Number of entries in 'ObjectOrigin' vector for geometry %i does not match number of spatial dimensions.",
                         iGeom );
-                tGenParamList( 1 )( iGeom ).set( "sdf_object_offset", tObjectOffsetStr );
+                tGenParamList( 1 )( iGeom ).set( "sdf_object_offset", tObjectOffsetVec );
 
                 // get an offset in the sign distance value if input is provided
                 double tSdfShift = 0.0;
