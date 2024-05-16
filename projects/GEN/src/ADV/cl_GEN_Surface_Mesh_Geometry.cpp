@@ -401,8 +401,8 @@ namespace moris::gen
         this->update_all_facets();
 
         // brendan
-        // this->write_to_obj_file( this->get_name() + "_" + std::to_string( mIteration ) + ".txt" );
-        // mIteration++;
+        this->write_to_obj_file( this->get_name() + "_" + std::to_string( mIteration ) + ".txt" );
+        mIteration++;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -615,22 +615,29 @@ namespace moris::gen
         // Initialize sensitivity matrix
         Matrix< DDRMat > tVertexSensitivity;
 
-        // Loop over spatial dimension
-        for ( uint iDimensionIndex = 0; iDimensionIndex < Object::mDimension; iDimensionIndex++ )
+        // Loop over background nodes
+        for ( uint iNodeIndex = 0; iNodeIndex < tVertexCoordinates.n_rows(); iNodeIndex++ )
         {
-            // Loop over background nodes
-            for ( uint iNodeIndex = 0; iNodeIndex < tVertexCoordinates.n_rows(); iNodeIndex++ )
+            // Get length before adding sensitivities for this node
+            uint tNumVertexSensitivities = tVertexSensitivity.n_cols();
+            
+            // Loop over spatial dimension
+            for ( uint iDimensionIndex = 0; iDimensionIndex < Object::mDimension; iDimensionIndex++ )
             {
                 Matrix< DDRMat > tNodeSensitivity = mVertexBases( iNodeIndex, aFacetVertexIndex ) * mPerturbationFields( iDimensionIndex )->get_dfield_dadvs( tVertexIndices( iNodeIndex ), tVertexCoordinates.get_row( iNodeIndex ) );
-                // set size of vertex sensitivity matrix
-                if ( iDimensionIndex == 0 and iNodeIndex == 0 )
+
+                // set size of sensitivity matrix
+                if ( iDimensionIndex == 0 )
                 {
-                    tVertexSensitivity.resize( Object::mDimension, Object::mDimension * tNodeSensitivity.numel() * tVertexCoordinates.n_rows() );
+                    tVertexSensitivity.resize( Object::mDimension, tNumVertexSensitivities + Object::mDimension * tNodeSensitivity.numel() );
                 }
+
                 // Each sensitivity is a separate index
                 for ( uint iADVIndex = 0; iADVIndex < tNodeSensitivity.numel(); iADVIndex++ )
                 {
-                    tVertexSensitivity( iDimensionIndex, tNodeSensitivity.length() * ( iNodeIndex * Object::mDimension + iDimensionIndex ) + iADVIndex ) = tNodeSensitivity( iADVIndex );
+                    uint tIndexToAdd = tNodeSensitivity.length() * ( iNodeIndex * Object::mDimension + iDimensionIndex ) + iADVIndex;
+                    std::cout << tIndexToAdd;
+                    tVertexSensitivity( iDimensionIndex, tNumVertexSensitivities + tNodeSensitivity.length() * iDimensionIndex + iADVIndex ) = tNodeSensitivity( iADVIndex );
                 }
             }
         }

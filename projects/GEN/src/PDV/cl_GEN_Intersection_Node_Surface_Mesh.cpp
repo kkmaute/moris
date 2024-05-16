@@ -174,11 +174,6 @@ namespace moris::gen
         const Basis_Node& tFirstParentNode  = this->get_first_parent_node();
         const Basis_Node& tSecondParentNode = this->get_second_parent_node();
 
-        PRINT( tFirstParentNode.get_global_coordinates() ); //BRENDAN DELETE
-        PRINT( tSecondParentNode.get_global_coordinates() );
-
-        PRINT( mParentFacet->get_vertex_coords() );
-
         // Compute parent vector
         Matrix< DDRMat > tParentVector = trans( tSecondParentNode.get_global_coordinates() - tFirstParentNode.get_global_coordinates() );
 
