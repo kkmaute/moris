@@ -40,7 +40,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Geometry_Engine::Geometry_Engine(
-            Vector< Vector< Parameter_List > >        aParameterLists,
+            Vector< Vector< Parameter_List > >   aParameterLists,
             const std::shared_ptr< Library_IO >& aLibrary,
             mtk::Mesh*                           aMesh )
             : mNodeManager( aMesh )
@@ -919,10 +919,6 @@ namespace moris::gen
         // this is done to initialize primitive adv positions with gNoID
         Matrix< IdMat > tOwnedijklIDs( tPrimitiveADVIds.numel(), 1, gNoID );
 
-        // Owned and shared ADVs per field
-        // Vector< Matrix< DDSMat > > tSharedADVIds( tDesigns.size() ); BRENDAN
-        Matrix< DDUMat >           tAllOffsetIDs( tDesigns.size(), 1 );
-
         // Loop over all geometries to get number of new ADVs
         sint tOffsetID = tPrimitiveADVIds.length();
         for ( uint iDesignIndex = 0; iDesignIndex < tDesigns.size(); iDesignIndex++ )
@@ -998,7 +994,6 @@ namespace moris::gen
         clock_t tStart_Convert_to_Bspline_Fields = clock();
 
         // Loop to discretize geometries when requested
-        // FIXME: make the check for the field name inside the geometry, remove the field index parameter,
         for ( uint iGeometryIndex = 0; iGeometryIndex < mGeometries.size(); iGeometryIndex++ )
         {
             for ( uint iGeometryFieldIndex = 0; iGeometryFieldIndex < mGeometries( iGeometryIndex )->get_num_fields(); iGeometryFieldIndex++ )
@@ -1265,7 +1260,7 @@ namespace moris::gen
             {
                 tNumGeometryFields += mGeometries( iGeom )->get_num_fields();
             }
-            Vector< std::string > tFieldNames(0 );
+            Vector< std::string > tFieldNames( 0 );
 
             // Geometry field names
             for ( uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++ )
@@ -1700,7 +1695,7 @@ namespace moris::gen
     Phase_Table
     Geometry_Engine::create_phase_table(
             const Vector< Vector< Parameter_List > >& aParameterLists,
-            const std::shared_ptr< Library_IO >& aLibrary )
+            const std::shared_ptr< Library_IO >&      aLibrary )
     {
         // Get number of geometries
         uint tNumGeometries = aParameterLists( 1 ).size();

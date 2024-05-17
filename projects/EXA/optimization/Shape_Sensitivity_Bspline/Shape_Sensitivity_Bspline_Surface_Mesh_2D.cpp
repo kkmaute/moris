@@ -233,17 +233,7 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "lower_bounds", "" );
         tParameterlist( 0 )( 0 ).set( "upper_bounds", "" );
 
-
-        switch ( tGeoModel )
-        {
-            case 0:
-                tParameterlist( 0 )( 0 ).set( "initial_advs", "0.20, 0.10" );
-                tParameterlist( 0 )( 0 ).set( "lower_bounds", "0.00, 0.00" );
-                tParameterlist( 0 )( 0 ).set( "upper_bounds", "1.00, 1.00" );
-                break;
-        }
         tParameterlist( 1 ).resize( 1 );
-
         tParameterlist( 1 )( 0 ) = prm::create_surface_mesh_geometry_parameter_list();
         tParameterlist( 1 )( 0 ).set( "file_path", "/home/chong/work/SP24/Input_Files/triangle_sensitivity_oblique.obj" );    // BRENDAN FIXME
         switch ( tGeoModel )
@@ -494,7 +484,7 @@ namespace moris
         tParameterlist( 2 )( 0 ).set( "hdf5_path", "shape_opt_test_surface_mesh_2D.hdf5" );
         tParameterlist( 2 )( 0 ).set( "evaluate_objective_gradients", true );
         tParameterlist( 2 )( 0 ).set( "evaluate_constraint_gradients", true );
-        tParameterlist( 2 )( 0 ).set( "finite_difference_epsilons", "1E-9" );
+        tParameterlist( 2 )( 0 ).set( "finite_difference_epsilons", "1E-8" );
         tParameterlist( 2 )( 0 ).set( "num_evaluations_per_adv", "1" );
         tParameterlist( 2 )( 0 ).set( "include_bounds", false );
         tParameterlist( 2 )( 0 ).set( "finite_difference_type", "all" );
