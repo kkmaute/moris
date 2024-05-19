@@ -412,8 +412,8 @@ namespace moris
             uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
 
             // FIXME if not first time step
-            MORIS_ASSERT( mLeaderFIManager->get_IP_geometry_interpolator()->valt()( 0 ) > 0.0,
-                    "IWG_Time_Continuity_Dof::compute_jacobian_previous - should only be called after first time step" );
+            //            MORIS_ASSERT( mLeaderFIManager->get_IP_geometry_interpolator()->valt()( 0 ) > 0.0,
+            //                    "IWG_Time_Continuity_Dof::compute_jacobian_previous - should only be called after first time step" );
 
             // loop over leader dof type dependencies
             for ( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )

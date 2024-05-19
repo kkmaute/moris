@@ -202,8 +202,8 @@ namespace moris::gen
     void
     Image_Signed_Distance_Field::read_image_sdf_data( std::string aImageFiledName )
     {
-        // open hdf5 file
-        hid_t  tFileID = open_hdf5_file( aImageFiledName );
+        // open hdf5 file with serial naming convention and read only
+        hid_t  tFileID = open_hdf5_file( aImageFiledName, false, true );
         herr_t tStatus = 0;
 
         // load image dimensions (number of pixels/voxels)
@@ -274,4 +274,4 @@ namespace moris::gen
     }
 
     //--------------------------------------------------------------------------------------------------------------
-}
+}    // namespace moris::gen
