@@ -40,7 +40,8 @@ namespace moris::prm
         tGENParameterList.insert( "lower_bounds_fill", 0.0 );                // Fill value for lower bounds up to size of ADV vector
         tGENParameterList.insert( "upper_bounds", Vector< real >() );        // Upper bounds on advs, string converted into vector
         tGENParameterList.insert( "upper_bounds_fill", 0.0 );                // Fill value for upper bounds up to size of ADV vector
-        tGENParameterList.insert( "IQI_types", Vector< std::string >() );    // Requested IQI types for sensitivity analysis
+        tGENParameterList.insert( "IQI_types", Vector< std::string >(),      // Requested IQI types for sensitivity analysis
+                Validation_Type::SELECTION, "IQI_name", Parameter_List_Type::FEM, 4 );
         tGENParameterList.insert( "PDV_types", Vector< std::string >() );    // Requested PDV types for sensitivity analysis
 
         // Phase table
