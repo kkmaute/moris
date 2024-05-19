@@ -600,7 +600,7 @@ namespace moris
 
                                     // Execute error
                                     MORIS_ERROR( tAllMatchesFound,
-                                            "Parameter %s was set with an invalid value %s. It requires one of the following selections:\n\t%s\n(%s)",
+                                            "Parameter %s was set with an invalid value, %s. It requires one of the following selections:\n\t%s\n(%s)",
                                             iParameterPair.first.c_str(),
                                             tInternalVariantNotFound.c_str(),
                                             tExternalOptionList.c_str(),
@@ -624,7 +624,7 @@ namespace moris
                                 {
                                     // Additional info about where the checked options came from
                                     std::string tExternalValidatorString =
-                                            "These selections are taken from parameter " + tExternalValidator.mParameterName + ", located in the ";
+                                            "This size is based on parameter " + tExternalValidator.mParameterName + ", located in the ";
                                     if ( tExternalValidator.mParameterListType == Parameter_List_Type::END_ENUM )
                                     {
                                         tExternalValidatorString +=
@@ -640,7 +640,7 @@ namespace moris
 
                                     // Execute error
                                     MORIS_ERROR( tSizeMatch,
-                                            "Parameter %s was set with an invalid value %s. It requires a size of %u.\n(%s)",
+                                            "Parameter %s was set with an invalid value, %s. It requires a size of %u.\n(%s)",
                                             iParameterPair.first.c_str(),
                                             iParameterPair.second.get_string().c_str(),
                                             get_size( tExternalVariants( 0 ) ),

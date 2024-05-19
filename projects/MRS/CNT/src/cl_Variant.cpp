@@ -159,6 +159,7 @@ namespace moris
     template< typename T >
     void vector_variant_to_string( std::stringstream& aStringStream, Variant aVariant )
     {
+        aStringStream << "{";
         Vector< T > tVector = std::get< Vector< T > >( aVariant );
         std::string tDelimiter;
         for ( const auto& iVectorElement : tVector )
@@ -166,6 +167,7 @@ namespace moris
             aStringStream << tDelimiter << iVectorElement;
             tDelimiter = ", ";
         }
+        aStringStream << "}";
     }
 
     //--------------------------------------------------------------------------------------------------------------
