@@ -21,8 +21,8 @@ namespace moris
 
     Parameter::Parameter( const Parameter& aParameter )
             : mValue( aParameter.mValue )
+            , mExternalValidator( aParameter.mExternalValidator )
     {
-        // Note: This will have to change if we want to use custom validators.
         if ( aParameter.mValidator )
         {
             mValidator = aParameter.mValidator->copy();
@@ -42,6 +42,13 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
 
+    const Variant& Parameter::get_value() const
+    {
+        return mValue;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     std::string Parameter::get_string() const
     {
         return convert_variant_to_string( mValue );
@@ -56,14 +63,29 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
 
-    template<>
-    Parameter::Parameter( const char* aString )
+    const External_Validator& Parameter::get_external_validator() const
     {
-        // Set default value without validation
-        mValue = make_variant( aString );
+        return mExternalValidator;
+    }
 
-        // Create type validator
-        mValidator = new Type_Validator< std::string >();
+    //--------------------------------------------------------------------------------------------------------------
+
+    template<>
+    Parameter::Parameter(
+            const char*         aString,
+            Validation_Type     aExternalValidationType,
+            std::string         aExternalParameterName,
+            Parameter_List_Type aExternalParameterListType,
+            uint                aExternalParameterListIndex )
+            : Parameter( std::string( aString ), aExternalValidationType, std::move( aExternalParameterName ), aExternalParameterListType, aExternalParameterListIndex )
+    {
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    bool Parameter::operator==( const Parameter& aOther )
+    {
+        return this->mValue == aOther.mValue;
     }
 
     //--------------------------------------------------------------------------------------------------------------

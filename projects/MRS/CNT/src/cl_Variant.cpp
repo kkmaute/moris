@@ -14,13 +14,157 @@ namespace moris
 {
     //--------------------------------------------------------------------------------------------------------------
 
+    Vector< Variant > split_variant( const Variant& aVariant )
+    {
+        Vector< Variant > tVectorOfVariants;
+        switch ( aVariant.index() )
+        {
+            case 6:
+            {
+                auto tVector = std::get< Vector< uint > >( aVariant );
+                tVectorOfVariants.reserve( tVector.size() );
+                for ( auto iElement : tVector )
+                {
+                    tVectorOfVariants.push_back( Variant( iElement ) );
+                }
+                break;
+            }
+            case 7:
+            {
+                auto tVector = std::get< Vector< real > >( aVariant );
+                tVectorOfVariants.reserve( tVector.size() );
+                for ( auto iElement : tVector )
+                {
+                    tVectorOfVariants.push_back( Variant( iElement ) );
+                }
+                break;
+            }
+            case 8:
+            {
+                auto tVector = std::get< Vector< std::string > >( aVariant );
+                tVectorOfVariants.reserve( tVector.size() );
+                for ( auto iElement : tVector )
+                {
+                    tVectorOfVariants.push_back( Variant( iElement ) );
+                }
+                break;
+            }
+            default:
+            {
+                tVectorOfVariants = { aVariant };
+                break;
+            }
+        }
+
+        // Return vector of variants
+        return tVectorOfVariants;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    uint get_size( const Variant& aVariant )
+    {
+        switch ( aVariant.index() )
+        {
+            case 6:
+            {
+                return std::get< Vector< uint > >( aVariant ).size();
+            }
+            case 7:
+            {
+                return std::get< Vector< real > >( aVariant ).size();
+            }
+            case 8:
+            {
+                return std::get< Vector< std::string > >( aVariant ).size();
+            }
+            default:
+            {
+                return 1;
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    template< typename T >
+    bool compare( const Variant& aLeft, const Variant& aRight )
+    {
+        return std::get< T >( aLeft ) == std::get< T >( aRight );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    bool operator==( const Variant& aLeft, const Variant& aRight )
+    {
+        // If variants have different indices, they are not equal
+        if ( aLeft.index() not_eq aRight.index() )
+        {
+            return false;
+        }
+
+        // Determine equality based on type
+        switch ( aLeft.index() )
+        {
+            case 0:
+            {
+                return compare< bool >( aLeft, aRight );
+            }
+            case 1:
+            {
+                return compare< uint >( aLeft, aRight );
+            }
+            case 2:
+            {
+                return compare< sint >( aLeft, aRight );
+            }
+            case 3:
+            {
+                return compare< real >( aLeft, aRight );
+            }
+            case 4:
+            {
+                return compare< std::string >( aLeft, aRight );
+            }
+            case 5:
+            {
+                return compare< std::pair< std::string, std::string > >( aLeft, aRight );
+            }
+            case 6:
+            {
+                return compare< Vector< uint > >( aLeft, aRight );
+            }
+            case 7:
+            {
+                return compare< Vector< real > >( aLeft, aRight );
+            }
+            case 8:
+            {
+                return compare< Vector< std::string > >( aLeft, aRight );
+            }
+            case 9:
+            {
+                return false;
+            }
+            default:
+            {
+                MORIS_ERROR( false, "Invalid variant index: %lu.", aLeft.index() );
+                return false;
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     template< typename T >
     void vector_variant_to_string( std::stringstream& aStringStream, Variant aVariant )
     {
         Vector< T > tVector = std::get< Vector< T > >( aVariant );
-        for ( auto iVectorElement : tVector )
+        std::string tDelimiter;
+        for ( const auto& iVectorElement : tVector )
         {
-            aStringStream << iVectorElement;
+            aStringStream << tDelimiter << iVectorElement;
+            tDelimiter = ", ";
         }
     }
 

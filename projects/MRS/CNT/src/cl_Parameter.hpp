@@ -10,17 +10,39 @@
 
 #pragma once
 
+#include <utility>
+
 #include "moris_typedefs.hpp"
 #include "cl_Validator.hpp"
+#include "cl_Library_Enums.hpp"
 #include "fn_Parsing_Tools.hpp"
 
 namespace moris
 {
+    enum class Validation_Type
+    {
+        NONE,
+        SELECTION,
+        SIZE
+    };
+
+    /**
+     * For validation after all parameters have been set.
+     */
+    struct External_Validator
+    {
+        Validation_Type     mValidationType     = Validation_Type::NONE;
+        std::string         mParameterName;
+        Parameter_List_Type mParameterListType  = Parameter_List_Type::END_ENUM;
+        uint                mParameterListIndex = 0;
+    };
+
     class Parameter
     {
       private:
         Variant mValue;
         Validator* mValidator;
+        External_Validator mExternalValidator;
 
       public:
         /**
@@ -28,15 +50,30 @@ namespace moris
          *
          * @tparam T Input parameter type
          * @param aParameterValue Default value
+         * @param aExternalValidationType Type of external validation to perform
+         * @param aExternalParameterName Name of external parameter to validate with
+         * @param aExternalParameterListType External parameter list type to validate with
+         * @param aExternalParameterListIndex Index of given parameter list type to search
          */
         template< typename T >
-        explicit Parameter( T aParameterValue )
+        explicit Parameter(
+                T                   aParameterValue,
+                Validation_Type     aExternalValidationType,
+                std::string         aExternalParameterListName,
+                Parameter_List_Type aExternalParameterListType,
+                uint                aExternalParameterListIndex )
         {
             // Set default value without validation
             mValue = make_variant( aParameterValue );
 
             // Create type validator
             mValidator = new Type_Validator< T >();
+
+            // Set external validator
+            mExternalValidator.mValidationType = aExternalValidationType;
+            mExternalValidator.mParameterName = std::move( aExternalParameterListName );
+            mExternalValidator.mParameterListType = aExternalParameterListType;
+            mExternalValidator.mParameterListIndex = aExternalParameterListIndex;
         }
         
         /**
@@ -139,6 +176,13 @@ namespace moris
         }
 
         /**
+         * Gets the value of this parameter, as a variant.
+         *
+         * @return Stored variant
+         */
+        const Variant& get_value() const;
+
+        /**
          * Gets this parameter value as a string
          *
          * @return Parameter string
@@ -151,10 +195,25 @@ namespace moris
          * @return Variant index
          */
         [[nodiscard]] uint index() const;
+
+        /**
+         * Gets the external validator from this parameter, for validation after all parameter have been set.
+         *
+         * @return External validator
+         */
+        const External_Validator& get_external_validator() const;
+
+        /**
+         * Equality operator for parameters, comparing if their stored variants are the same.
+         *
+         * @param aOther Other parameter argument
+         * @return If parameters are equal
+         */
+        bool operator==( const Parameter& aOther );
     };
 
     //--------------------------------------------------------------------------------------------------------------
 
     // Declare template specializations of the Parameter constructor
-    template<> Parameter::Parameter( const char* );
+    template<> Parameter::Parameter( const char*, Validation_Type, std::string, Parameter_List_Type, uint );
 }

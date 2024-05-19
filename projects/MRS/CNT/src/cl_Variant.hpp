@@ -55,12 +55,37 @@ namespace moris
      * @return Variant index
      */
     template< typename T >
-    uint get_variant_index()
+    uint variant_index()
     {
         T tValue;
         Variant tVariant = tValue;
         return tVariant.index();
     }
+
+    /**
+     * Splits a variant into a vector of variants, if the original variant itself is a vector.
+     *
+     * @param aVariant Variant, which may be a vector
+     * @return Vector of variants, all with size 1
+     */
+    Vector< Variant > split_variant( const Variant& aVariant );
+
+    /**
+     * Gets the size of the underlying data in the variant.
+     *
+     * @param aVariant Variant
+     * @return Size of underlying vector/matrix, or 1 for primitive data types
+     */
+    uint get_size( const Variant& aVariant );
+
+    /**
+     * Comparison operator determining if two variants are equal, based on their stored values.
+     *
+     * @param aLeft Left variant argument
+     * @param aRight Right variant argument
+     * @return If both variants store equal values
+     */
+    bool operator==( const Variant& aLeft, const Variant& aRight );
 
     /**
      * Gets a string of the value stored inside of a variant.

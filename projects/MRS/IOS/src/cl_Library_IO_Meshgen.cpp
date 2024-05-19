@@ -62,7 +62,7 @@ namespace moris
         }
 
         // check the parameters for validity
-        // TODO: this->check_parameters();
+        this->check_parameters();
 
         // mark this library as finalized and lock it from modification
         mLibraryIsFinalized = true;

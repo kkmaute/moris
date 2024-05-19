@@ -24,7 +24,7 @@ namespace moris
     template< typename T >
     bool Type_Validator< T >::make_valid_parameter( Variant& aVariant )
     {
-        return aVariant.index() == get_variant_index< T >();
+        return aVariant.index() == variant_index< T >();
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -48,12 +48,12 @@ namespace moris
     template< typename T >
     bool Vector_Validator< T >::make_valid_parameter( Variant& aVariant )
     {
-        if ( aVariant.index() == get_variant_index< Vector< T > >() )
+        if ( aVariant.index() == variant_index< Vector< T > >() )
         {
             // Vector value given, okay
             return true;
         }
-        else if ( aVariant.index() == get_variant_index< T >() )
+        else if ( aVariant.index() == variant_index< T >() )
         {
             // Single value given, convert to vector
             T tValue = std::get< T >( aVariant );
@@ -89,7 +89,7 @@ namespace moris
     template< typename T >
     bool Range_Validator< T >::make_valid_parameter( Variant& aVariant )
     {
-        return aVariant.index() == get_variant_index< T >()
+        return aVariant.index() == variant_index< T >()
            and std::get< T >( aVariant ) >= mMinimumValue
            and std::get< T >( aVariant ) <= mMaximumValue;
     }
@@ -115,7 +115,7 @@ namespace moris
     template< typename T >
     bool Selection_Validator< T >::make_valid_parameter( Variant& aVariant )
     {
-        return aVariant.index() == get_variant_index< T >() and
+        return aVariant.index() == variant_index< T >() and
                mValidSelections.find( std::get< T >( aVariant ) ) != mValidSelections.end();
     }
 
@@ -152,19 +152,19 @@ namespace moris
     template<>
     bool Type_Validator< Design_Variable >::make_valid_parameter( Variant& aVariant )
     {
-        if ( aVariant.index() == get_variant_index< Design_Variable >() )
+        if ( aVariant.index() == variant_index< Design_Variable >() )
         {
             // Design variable given directly, okay
             return true;
         }
-        else if ( aVariant.index() == get_variant_index< real >() )
+        else if ( aVariant.index() == variant_index< real >() )
         {
             // Real value given, convert to constant parameter
             Design_Variable tDesignVariable( std::get< real >( aVariant ) );
             aVariant = tDesignVariable;
             return true;
         }
-        else if ( aVariant.index() == get_variant_index< Vector< real > >() )
+        else if ( aVariant.index() == variant_index< Vector< real > >() )
         {
             // Vector given, check that there are 3 elements then set to design variable
             Vector< real > tVariableInputs = std::get< Vector< real > >( aVariant );

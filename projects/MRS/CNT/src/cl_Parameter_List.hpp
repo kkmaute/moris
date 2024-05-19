@@ -62,14 +62,25 @@ namespace moris
         ~Parameter_List() = default;
 
         /**
-         * Adds a new parameter to this parameter list. This parameter's type will be validated when being set.
+         * Adds a new parameter to this parameter list. This parameter may be validated against other parameters.
+         * If no parameter list type is given, then only the parameter type will be validated upon being set.
          *
          * @tparam T Parameter type
          * @param aName Parameter name
          * @param aDefaultValue Default parameter value
+         * @param aExternalValidationType Type of external validation to perform
+         * @param aExternalParameterName Name of external parameter to validate with
+         * @param aExternalParameterListType External parameter list type to validate with
+         * @param aExternalParameterListIndex Index of given parameter list type to search
          */
         template< typename T >
-        void insert( const std::string& aName, T aDefaultValue )
+        void insert(
+                const std::string&  aName,
+                T                   aDefaultValue,
+                Validation_Type     aExternalValidationType = Validation_Type::NONE,
+                std::string         aExternalParameterName = "",
+                Parameter_List_Type aExternalParameterListType = Parameter_List_Type::END_ENUM,
+                uint                aExternalParameterListIndex = 0 )
         {
             // Check for leading and trailing whitespaces in key
             std::string tKeyWithoutSpaces = aName;
@@ -78,7 +89,7 @@ namespace moris
                     "Param_List::insert - key contains whitespaces" );
 
             // Insert new value
-            Parameter tParameter( aDefaultValue );
+            Parameter tParameter( aDefaultValue, aExternalValidationType, aExternalParameterName, aExternalParameterListType, aExternalParameterListIndex );
             mParamMap.insert( { aName, tParameter } );
         }
 
@@ -190,10 +201,8 @@ namespace moris
         /**
          * Gets the parameter value corresponding to a given key.
          *
-         * @param[in] aName Key corresponding to the mapped value that
-         *            needs to be accessed
-         *
-         * @return The value corresponding to aName.
+         * @param[in] aName Name of the parameter to get
+         * @return The value corresponding to aName
          */
         template< typename T >
         const T& get( const std::string& aName ) const
@@ -201,6 +210,14 @@ namespace moris
             // Delegate to private implementation overload, depending on if T is an enum
             return this->get< T >( aName, std::is_enum< T >() );
         }
+
+        /**
+         * Gets the parameter value corresponding to a given name, as a variant.
+         *
+         * @param aName Name of the parameter to get
+         * @return The variant corresponding to aName
+         */
+        const Variant& get( const std::string& aName ) const;
 
         /**
          * Gets a cell from a paramter that is stored as a std::string

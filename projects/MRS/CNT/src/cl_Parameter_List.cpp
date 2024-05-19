@@ -35,9 +35,9 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    Parameter_List::erase( const std::string& aKey )
+    Parameter_List::erase( const std::string& aName )
     {
-        mParamMap.erase( aKey );
+        mParamMap.erase( aName );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -65,23 +65,37 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
 
-    [[nodiscard]] bool Parameter_List::exists( const std::string& aKey ) const
+    [[nodiscard]] bool Parameter_List::exists( const std::string& aName ) const
     {
-        return mParamMap.find( aKey ) not_eq mParamMap.end();
+        return mParamMap.find( aName ) not_eq mParamMap.end();
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    uint Parameter_List::index( const std::string& aKey )
+    uint Parameter_List::index( const std::string& aName )
     {
-        auto tIterator = mParamMap.find( aKey );
+        auto tIterator = mParamMap.find( aName );
 
         // throw error
         MORIS_ERROR( tIterator != mParamMap.end(),
                 "The requested parameter %s does not exist.\n",
-                aKey.c_str() );
+                aName.c_str() );
 
         return tIterator->second.index();
+    }
+    
+    //--------------------------------------------------------------------------------------------------------------
+    
+    const Variant& Parameter_List::get( const std::string& aName ) const
+    {
+        auto tIterator = mParamMap.find( aName );
+        
+        // throw error
+        MORIS_ERROR( tIterator != mParamMap.end(),
+                "The requested parameter %s does not exist.\n",
+                aName.c_str() );
+
+        return tIterator->second.get_value();
     }
 
     //--------------------------------------------------------------------------------------------------------------
