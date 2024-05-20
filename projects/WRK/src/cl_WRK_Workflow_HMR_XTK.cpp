@@ -158,9 +158,9 @@ namespace moris
             else
             {
                 // get access to the performers
-                std::shared_ptr< gen::Geometry_Engine >        tGeometryEngine     = mPerformerManager->mGENPerformer( 0 );
-                std::shared_ptr< mdl::Model >                 tModelPerformer     = mPerformerManager->mMDLPerformer( 0 );
-                std::shared_ptr< Remeshing_Mini_Performer >   tRemeshingPerformer = mPerformerManager->mRemeshingMiniPerformer( 0 );
+                std::shared_ptr< gen::Geometry_Engine >         tGeometryEngine     = mPerformerManager->mGENPerformer( 0 );
+                std::shared_ptr< mdl::Model >                   tModelPerformer     = mPerformerManager->mMDLPerformer( 0 );
+                std::shared_ptr< Remeshing_Mini_Performer >     tRemeshingPerformer = mPerformerManager->mRemeshingMiniPerformer( 0 );
                 Vector< std::shared_ptr< hmr::HMR > >&          tHmrPerformers      = mPerformerManager->mHMRPerformer;
                 Vector< std::shared_ptr< mtk::Mesh_Manager > >& tMtkPerformers      = mPerformerManager->mMTKPerformer;
 

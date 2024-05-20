@@ -213,7 +213,7 @@ namespace moris::gen
         // Reset evaluated field
         mOwnedNodalValues->vec_put_scalar( 0 );
 
-        // Evaluate into matrix TODO just make the field accept a cell to begin with
+        // Evaluate into matrix TODO just make the field accept a vector to begin with
         uint tNumberOfCoefficients = mADVManager.get_determining_adv_ids().length();
         moris::Matrix< DDRMat > tCoeff( tNumberOfCoefficients, 1 );
         for ( uint Ik = 0; Ik < tNumberOfCoefficients; Ik++ )

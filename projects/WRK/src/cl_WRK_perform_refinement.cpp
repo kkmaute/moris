@@ -31,7 +31,7 @@ namespace moris
     {
 
         Refinement_Mini_Performer::Refinement_Mini_Performer(
-                Parameter_List&                aParameterlist,
+                Parameter_List&               aParameterlist,
                 std::shared_ptr< Library_IO > aLibrary )
                 : mLibrary( aLibrary )
         {
@@ -72,7 +72,7 @@ namespace moris
         void
         Refinement_Mini_Performer::perform_refinement(
                 Vector< std::shared_ptr< mtk::Field > >& aFields,
-                std::shared_ptr< hmr::HMR >            aHMR )
+                std::shared_ptr< hmr::HMR >              aHMR )
         {
             Tracer tTracer( "WRK", "Refinement Mini Performer", "Perform refinement" );
             // create field name to index map
@@ -83,10 +83,10 @@ namespace moris
                 tFieldNameToIndexMap[ aFields( Ik )->get_label() ] = Ik;
             }
 
-            Vector< moris_index >                                      tPattern;
+            Vector< moris_index >                          tPattern;
             Vector< Vector< std::string > >                tFieldNames;
             Vector< Vector< uint > >                       tRefinements;
-            Vector< sint >                                      tMaxRefinementPerLevel;
+            Vector< sint >                                 tMaxRefinementPerLevel;
             Vector< Vector< hmr::Refinement_Function_2 > > tRefinementFunctions;
 
             this->prepare_input_for_refinement(
@@ -149,7 +149,7 @@ namespace moris
         void
         Refinement_Mini_Performer::perform_refinement_2(
                 Vector< std::shared_ptr< mtk::Field > >& aFields,
-                std::shared_ptr< hmr::HMR >            aHMR )
+                std::shared_ptr< hmr::HMR >              aHMR )
         {
             Tracer tTracer( "WRK", "Refinement Mini Performer", "Perform advanced refinement" );
             // create field name to index map
@@ -160,10 +160,10 @@ namespace moris
                 tFieldNameToIndexMap[ aFields( Ik )->get_label() ] = Ik;
             }
 
-            Vector< moris_index >                                      tPattern;
+            Vector< moris_index >                          tPattern;
             Vector< Vector< std::string > >                tFieldNames;
             Vector< Vector< uint > >                       tRefinements;
-            Vector< sint >                                      tMaxRefinementPerLevel;
+            Vector< sint >                                 tMaxRefinementPerLevel;
             Vector< Vector< hmr::Refinement_Function_2 > > tRefinementFunctions;
 
             this->prepare_input_for_refinement(
@@ -311,7 +311,7 @@ namespace moris
         void
         Refinement_Mini_Performer::perform_refinement_based_on_working_pattern(
                 Vector< std::shared_ptr< mtk::Field > >& aFields,
-                std::shared_ptr< hmr::HMR >            aHMR )
+                std::shared_ptr< hmr::HMR >              aHMR )
         {
             // create field name to index map
             moris::map< std::string, moris_index > tFieldNameToIndexMap;
@@ -359,7 +359,7 @@ namespace moris
         uint
         Refinement_Mini_Performer::perform_refinement_low_level_elements(
                 Vector< std::shared_ptr< mtk::Field > >& aFields,
-                std::shared_ptr< hmr::HMR >            aHMR )
+                std::shared_ptr< hmr::HMR >              aHMR )
         {
             Tracer tTracer( "WRK", "Refinement Mini Performer", "Perform refinement of low level elements" );
             uint   tNumQueuedElements = 0;
@@ -372,10 +372,10 @@ namespace moris
                 tFieldNameToIndexMap[ aFields( Ik )->get_label() ] = Ik;
             }
 
-            Vector< moris_index >                                      tPattern;
+            Vector< moris_index >                          tPattern;
             Vector< Vector< std::string > >                tFieldNames;
             Vector< Vector< uint > >                       tRefinements;
-            Vector< sint >                                      tMaxRefinementPerLevel;
+            Vector< sint >                                 tMaxRefinementPerLevel;
             Vector< Vector< hmr::Refinement_Function_2 > > tRefinementFunctions;
 
             this->prepare_input_for_refinement(
@@ -417,10 +417,10 @@ namespace moris
 
         void
         Refinement_Mini_Performer::prepare_input_for_refinement(
-                Vector< moris_index >&                                      aPatternForRefinement,
+                Vector< moris_index >&                          aPatternForRefinement,
                 Vector< Vector< std::string > >&                aFieldsForRefinement,
                 Vector< Vector< uint > >&                       aRefinements,
-                Vector< sint >&                                      aMaxRefinementPerPattern,
+                Vector< sint >&                                 aMaxRefinementPerPattern,
                 Vector< Vector< hmr::Refinement_Function_2 > >& aRefinementFunctions )
         {
 
@@ -484,9 +484,9 @@ namespace moris
 
         void
         Refinement_Mini_Performer::perform_refinement_old(
-                std::shared_ptr< hmr::HMR >          aHMR,
+                std::shared_ptr< hmr::HMR >            aHMR,
                 Vector< std::shared_ptr< Performer > > aPerformers,
-                bool                                 aSimultaneous )
+                bool                                   aSimultaneous )
         {
             Tracer tTracer( "WRK", "Refinement Mini Performer", "Perform GEN refinement" );
 
@@ -645,7 +645,7 @@ namespace moris
                                 Matrix< DDRMat > tNodeCoordinates = aMesh->get_node_coordinate( tNodeIndex );
 
                                 // FIXME right now the geometric region is converted into a real value, but this should be handled by the refinement interface
-                                tFieldValues( tNodeIndex )        = (real) aPerformer->get_geometric_region( iField, tNodeIndex, tNodeCoordinates );
+                                tFieldValues( tNodeIndex ) = (real)aPerformer->get_geometric_region( iField, tNodeIndex, tNodeCoordinates );
                             }
 
                             // Put elements on queue and set flag for refinement
@@ -689,7 +689,7 @@ namespace moris
                             Matrix< DDRMat > tNodeCoordinates = aMesh->get_node_coordinate( tNodeIndex );
 
                             // FIXME right now the geometric region is converted into a real value, but this should be handled by the refinement interface
-                            tFieldValues( tNodeIndex ) = (real) aPerformer->get_geometric_region(
+                            tFieldValues( tNodeIndex ) = (real)aPerformer->get_geometric_region(
                                     iField,
                                     tNodeIndex,
                                     tNodeCoordinates );
@@ -739,8 +739,8 @@ namespace moris
         void
         Refinement_Mini_Performer::get_all_refinement_mesh_indices(
                 const Vector< std::shared_ptr< Performer > >& aPerformers,
-                moris::Matrix< DDSMat >&                    aAllPatternMap,
-                moris::uint&                                aNumPattern )
+                moris::Matrix< DDSMat >&                      aAllPatternMap,
+                moris::uint&                                  aNumPattern )
         {
             moris::Matrix< DDSMat > tCombinedPattern( hmr::gNumberOfPatterns, 1, -1 );
 
