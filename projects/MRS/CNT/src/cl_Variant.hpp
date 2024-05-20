@@ -7,13 +7,12 @@
 * cl_Variant.hpp
 *
 */
+#pragma once
 
 #include <variant>
 #include "moris_typedefs.hpp"
 #include "cl_Design_Variable.hpp"
 #include "fn_Parsing_Tools.hpp"
-
-#pragma once
 
 #define GET_TYPE_NAME( ... ) template<> inline std::string get_type_name< __VA_ARGS__ >(){ return #__VA_ARGS__; }
 
@@ -21,7 +20,7 @@ namespace moris
 {
     // Variant typedef
     typedef std::variant< bool, uint, sint, real, std::string, std::pair< std::string, std::string >,
-            Vector< uint >, Vector< real >, Vector< std::string >, Design_Variable > Variant;
+            Vector< uint >, Vector< sint >, Vector< real >, Vector< std::string >, Design_Variable > Variant;
 
     /**
      * Gets the name of a data type stored in the Variant, for printing purposes.
@@ -44,12 +43,14 @@ namespace moris
     GET_TYPE_NAME( std::string )
     GET_TYPE_NAME( std::pair< std::string, std::string > )
     GET_TYPE_NAME( Vector< uint > )
+    GET_TYPE_NAME( Vector< sint > )
     GET_TYPE_NAME( Vector< real > )
     GET_TYPE_NAME( Vector< std::string > )
     GET_TYPE_NAME( Design_Variable )
 
     /**
      * Gets the index of a type with a type argument instead of an instantiated variant.
+     * TODO: if we ever upgrade to c++20, we can make this constexpr and massively simplify switch statements!
      *
      * @tparam T Type in the variant
      * @return Variant index
@@ -57,9 +58,7 @@ namespace moris
     template< typename T >
     uint variant_index()
     {
-        T tValue;
-        Variant tVariant = tValue;
-        return tVariant.index();
+        return Variant( std::in_place_type< T > ).index();
     }
 
     /**

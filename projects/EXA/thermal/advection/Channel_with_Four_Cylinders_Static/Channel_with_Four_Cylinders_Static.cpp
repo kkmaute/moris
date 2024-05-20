@@ -182,8 +182,8 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).set( "center_y", 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "normal_x", 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "normal_y", 1.0 );
-        tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", 1u );
-        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0u );
+        tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", 1 );
+        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0 );
         tGeoCounter++;
 
         // Top plane
@@ -192,8 +192,8 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).set( "center_y", 0.41 );
         tParameterlist( 1 )( tGeoCounter ).set( "normal_x", 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "normal_y", 1.0 );
-        tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", 1u );
-        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0u );
+        tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", 1 );
+        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0 );
         tGeoCounter++;
 
         // Left plane
@@ -202,8 +202,8 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).set( "center_y", 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "normal_x", 1.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "normal_y", 0.0 );
-        tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", 1u );
-        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0u );
+        tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", 1 );
+        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0 );
         tGeoCounter++;
 
         // Right plane
@@ -212,8 +212,8 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).set( "center_y", 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "normal_x", 1.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "normal_y", 0.0 );
-        tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", 1u );
-        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0u );
+        tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", 1 );
+        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0 );
         tGeoCounter++;
 
         // Cylinder 1
@@ -221,8 +221,8 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).set( "center_x", 0.4 );
         tParameterlist( 1 )( tGeoCounter ).set( "center_y", 0.1 );
         tParameterlist( 1 )( tGeoCounter ).set( "radius", 0.05 );
-        tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", 1u );
-        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0u );
+        tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", 1 );
+        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0 );
         tGeoCounter++;
 
         // Cylinder 2
@@ -230,8 +230,8 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).set( "center_x", 0.8 );
         tParameterlist( 1 )( tGeoCounter ).set( "center_y", 0.3 );
         tParameterlist( 1 )( tGeoCounter ).set( "radius", 0.05 );
-        tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", 1u );
-        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0u );
+        tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", 1 );
+        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0 );
         tGeoCounter++;
 
         // Cylinder 3
@@ -239,8 +239,8 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).set( "center_x", 1.2 );
         tParameterlist( 1 )( tGeoCounter ).set( "center_y", 0.1 );
         tParameterlist( 1 )( tGeoCounter ).set( "radius", 0.05 );
-        tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", 1u );
-        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0u );
+        tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", 1 );
+        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0 );
         tGeoCounter++;
 
         // Cylinder 4
@@ -248,8 +248,8 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).set( "center_x", 1.6 );
         tParameterlist( 1 )( tGeoCounter ).set( "center_y", 0.3 );
         tParameterlist( 1 )( tGeoCounter ).set( "radius", 0.05 );
-        tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", 1u );
-        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0u );
+        tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", 1 );
+        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0 );
         tGeoCounter++;
     }
 

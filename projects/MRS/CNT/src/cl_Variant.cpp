@@ -10,6 +10,18 @@
 
 #include "cl_Variant.hpp"
 
+#define BOOL 0
+#define UINT 1
+#define SINT 2
+#define REAL 3
+#define STRING 4
+#define PAIR 5
+#define VECTOR_UINT 6
+#define VECTOR_SINT 7
+#define VECTOR_REAL 8
+#define VECTOR_STRING 9
+#define DESIGN_VARIABLE 10
+
 namespace moris
 {
     //--------------------------------------------------------------------------------------------------------------
@@ -19,7 +31,7 @@ namespace moris
         Vector< Variant > tVectorOfVariants;
         switch ( aVariant.index() )
         {
-            case 6:
+            case VECTOR_UINT:
             {
                 auto tVector = std::get< Vector< uint > >( aVariant );
                 tVectorOfVariants.reserve( tVector.size() );
@@ -29,7 +41,17 @@ namespace moris
                 }
                 break;
             }
-            case 7:
+            case VECTOR_SINT:
+            {
+                auto tVector = std::get< Vector< sint > >( aVariant );
+                tVectorOfVariants.reserve( tVector.size() );
+                for ( auto iElement : tVector )
+                {
+                    tVectorOfVariants.push_back( Variant( iElement ) );
+                }
+                break;
+            }
+            case VECTOR_REAL:
             {
                 auto tVector = std::get< Vector< real > >( aVariant );
                 tVectorOfVariants.reserve( tVector.size() );
@@ -39,7 +61,7 @@ namespace moris
                 }
                 break;
             }
-            case 8:
+            case VECTOR_STRING:
             {
                 auto tVector = std::get< Vector< std::string > >( aVariant );
                 tVectorOfVariants.reserve( tVector.size() );
@@ -66,15 +88,19 @@ namespace moris
     {
         switch ( aVariant.index() )
         {
-            case 6:
+            case VECTOR_UINT:
             {
                 return std::get< Vector< uint > >( aVariant ).size();
             }
-            case 7:
+            case VECTOR_SINT:
+            {
+                return std::get< Vector< uint > >( aVariant ).size();
+            }
+            case VECTOR_REAL:
             {
                 return std::get< Vector< real > >( aVariant ).size();
             }
-            case 8:
+            case VECTOR_STRING:
             {
                 return std::get< Vector< std::string > >( aVariant ).size();
             }
@@ -106,43 +132,47 @@ namespace moris
         // Determine equality based on type
         switch ( aLeft.index() )
         {
-            case 0:
+            case BOOL:
             {
                 return compare< bool >( aLeft, aRight );
             }
-            case 1:
+            case UINT:
             {
                 return compare< uint >( aLeft, aRight );
             }
-            case 2:
+            case SINT:
             {
                 return compare< sint >( aLeft, aRight );
             }
-            case 3:
+            case REAL:
             {
                 return compare< real >( aLeft, aRight );
             }
-            case 4:
+            case STRING:
             {
                 return compare< std::string >( aLeft, aRight );
             }
-            case 5:
+            case PAIR:
             {
                 return compare< std::pair< std::string, std::string > >( aLeft, aRight );
             }
-            case 6:
+            case VECTOR_UINT:
             {
                 return compare< Vector< uint > >( aLeft, aRight );
             }
-            case 7:
+            case VECTOR_SINT:
+            {
+                return compare< Vector< sint > >( aLeft, aRight );
+            }
+            case VECTOR_REAL:
             {
                 return compare< Vector< real > >( aLeft, aRight );
             }
-            case 8:
+            case VECTOR_STRING:
             {
                 return compare< Vector< std::string > >( aLeft, aRight );
             }
-            case 9:
+            case DESIGN_VARIABLE:
             {
                 return false;
             }
@@ -178,53 +208,58 @@ namespace moris
 
         switch ( aVariant.index() )
         {
-            case 0:
+            case BOOL:
             {
                 tStringStream << std::get< bool >( aVariant );
                 break;
             }
-            case 1:
+            case UINT:
             {
                 tStringStream << std::get< uint >( aVariant );
                 break;
             }
-            case 2:
+            case SINT:
             {
                 tStringStream << std::get< sint >( aVariant );
                 break;
             }
-            case 3:
+            case REAL:
             {
                 tStringStream << std::get< real >( aVariant );
                 break;
             }
-            case 4:
+            case STRING:
             {
                 tStringStream << "\"" << std::get< std::string >( aVariant ) << "\"";
                 break;
             }
-            case 5:
+            case PAIR:
             {
                 std::pair< std::string, std::string > tPair = std::get< std::pair< std::string, std::string > >( aVariant );
                 tStringStream << tPair.first << "," << tPair.second;
                 break;
             }
-            case 6:
+            case VECTOR_UINT:
             {
                 vector_variant_to_string< uint >( tStringStream, aVariant );
                 break;
             }
-            case 7:
+            case VECTOR_SINT:
+            {
+                vector_variant_to_string< sint >( tStringStream, aVariant );
+                break;
+            }
+            case VECTOR_REAL:
             {
                 vector_variant_to_string< real >( tStringStream, aVariant );
                 break;
             }
-            case 8:
+            case VECTOR_STRING:
             {
                 vector_variant_to_string< std::string >( tStringStream, aVariant );
                 break;
             }
-            case 9:
+            case DESIGN_VARIABLE:
             {
                 Design_Variable tDesignVariable = std::get< Design_Variable >( aVariant );
                 if ( tDesignVariable.is_constant() )

@@ -650,8 +650,8 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 0.5 );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Const_Geometry" );
         tParameterlist( 1 )( tGeoCounter ).set( "name", "Level_Set_Field" );
-        tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", 0u, 0u );
-        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0u, 1u );
+        tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", 0, 0 );
+        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0, 1 );
         tParameterlist( 1 )( tGeoCounter ).set( "use_multilinear_interpolation", false );
 
         if ( tIsOpt )

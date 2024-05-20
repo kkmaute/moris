@@ -1250,7 +1250,7 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).set( "normal_x", 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "normal_y", 1.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementInclusion );
-        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0u );
+        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0 );
         tGeoCounter++;
         
         // Plane 1 in y = 10.0*sH
@@ -1260,7 +1260,7 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).set( "normal_x", 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "normal_y", 1.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementInclusion );
-        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0u );
+        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0 );
         tGeoCounter++;
         
         // Plane 2 in x = 0.0*sH
@@ -1270,7 +1270,7 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).set( "normal_x", 1.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "normal_y", 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementInclusion );
-        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0u );
+        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0 );
         tGeoCounter++;
         
         // Plane 3 in x = 12.0*sH
@@ -1280,7 +1280,7 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).set( "normal_x", 1.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "normal_y", 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementInclusion );
-        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0u );
+        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0 );
         tGeoCounter++;
         
         // Thin wall inner 4
@@ -1295,7 +1295,7 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_7", 5.5 * sH );
         tParameterlist( 1 )( tGeoCounter ).set( "name", "Thin_Wall_Inner" );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementInclusion );
-        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0u );
+        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0 );
         tGeoCounter++;
 
         // Thin wall outer 5
@@ -1310,7 +1310,7 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_7", 7.5 * sH );
         tParameterlist( 1 )( tGeoCounter ).set( "name", "Thin_Wall_Outer" );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementInclusion );
-        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0u );
+        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0 );
         tGeoCounter++;
         
         // Inclusions 6
@@ -1318,7 +1318,7 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Inclusion" );
         tParameterlist( 1 )( tGeoCounter ).set( "name", "Level_Set_Field" );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementInclusion );
-        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0u );
+        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0 );
         if ( tIsOpt )
         {
             tParameterlist( 1 )( tGeoCounter ).set( "discretization_mesh_index", 1 );

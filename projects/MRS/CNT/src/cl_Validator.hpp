@@ -12,7 +12,6 @@
 
 #include "cl_Variant.hpp"
 #include <set>
-#include <utility>
 
 #define VALIDATOR_OVERRIDES                                         \
     bool        make_valid_parameter( Variant& aVariant ) override; \
@@ -70,6 +69,9 @@ namespace moris
         VALIDATOR_OVERRIDES
     };
 
+    // Specialize for uints to be able to also accept sints
+    template<> bool Type_Validator< uint >::make_valid_parameter( Variant& aVariant );
+
     // Explicitly instantiate only the type validator types that make sense
     template class Type_Validator< bool >;
     template class Type_Validator< uint >;
@@ -90,6 +92,9 @@ namespace moris
       public:
         VALIDATOR_OVERRIDES
     };
+
+    // Specialize for uint vectors to be able to also accept sints and sint vectors
+    template<> bool Vector_Validator< uint >::make_valid_parameter( Variant& aVariant );
 
     // Type validators with vectors as their template arguments are defined as vector validators
     template class Vector_Validator< uint >;

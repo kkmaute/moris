@@ -592,7 +592,7 @@ namespace moris
         tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Sphere" );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementSphere );
-        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0u );
+        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0 );
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1.0e-12 );
         tParameterlist( 1 )( tGeoCounter ).set( "intersection_tolerance", 1.0e-12 );

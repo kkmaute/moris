@@ -29,6 +29,35 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
 
+    template<>
+    bool Type_Validator< uint >::make_valid_parameter( Variant& aVariant )
+    {
+        if ( aVariant.index() == variant_index< uint >() )
+        {
+            return true;
+        }
+        else if ( aVariant.index() == variant_index< sint >() )
+        {
+            // Get signed integer and check to make sure it is greater than or equal to zero
+            sint tValue = std::get< sint >( aVariant );
+            if ( tValue >= 0 )
+            {
+                aVariant = static_cast< uint >( tValue );
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     template< typename T >
     std::string Type_Validator< T >::get_valid_values()
     {
@@ -64,6 +93,72 @@ namespace moris
         else
         {
             // Other type given
+            return false;
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    template<>
+    bool Vector_Validator< uint >::make_valid_parameter( Variant& aVariant )
+    {
+        if ( aVariant.index() == variant_index< Vector< uint > >() )
+        {
+            // Vector value given, okay
+            return true;
+        }
+        else if ( aVariant.index() == variant_index< uint >() )
+        {
+            // Single value given, convert to vector
+            uint tValue = std::get< uint >( aVariant );
+            Vector< uint > tVector = { tValue };
+            aVariant = tVector;
+            return true;
+        }
+        else if ( aVariant.index() == variant_index< Vector< sint > >() ) // Additional case for signed integer vector
+        {
+            // Create vectors
+            Vector< sint > tSignedVector = std::get< Vector< sint > >( aVariant );
+            Vector< uint > tUnsignedVector( tSignedVector.size() );
+
+            // Check each element
+            for ( uint iVectorIndex = 0; iVectorIndex < tSignedVector.size(); iVectorIndex++ )
+            {
+                // Only copy over if greater than or equal to zero
+                if ( tSignedVector( iVectorIndex ) >= 0 )
+                {
+                    tUnsignedVector( iVectorIndex ) = tSignedVector( iVectorIndex );
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            // Success, if we got here
+            aVariant = tUnsignedVector;
+            return true;
+        }
+        else if ( aVariant.index() == variant_index< sint >() ) // Additional case for single signed integer
+        {
+            // Get value
+            sint tValue = std::get< sint >( aVariant );
+
+            // Check if greater than or equal to zero
+            if ( tValue >= 0 )
+            {
+                Vector< uint > tVector = { static_cast< uint >( tValue ) };
+                aVariant = tVector;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            // All cases failed
             return false;
         }
     }

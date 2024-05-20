@@ -484,8 +484,8 @@ namespace moris
         // outer frame
         tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Box_2D3D" );
-        tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", 1u );
-        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0u );
+        tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", 1 );
+        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0 );
         tParameterlist( 1 )( tGeoCounter ).set( "name", "Box" );
 
         tGeoCounter++;
@@ -494,8 +494,8 @@ namespace moris
         tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Hole_Pattern_2D3D" );
         tParameterlist( 1 )( tGeoCounter ).set( "name", "Level_Set_Field" );
-        tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", 1u );
-        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0u );
+        tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", 1 );
+        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0 );
 
         if ( tIsOpt )
         {
