@@ -227,10 +227,12 @@ namespace moris::prm
     {
         Parameter_List tDesignParameterList;
 
-        tDesignParameterList.insert( "design_type", "" );               // Insert the design type parameter
-        tDesignParameterList.insert( "number_of_refinements", "" );     // Number of refinement steps using HMR
-        tDesignParameterList.insert( "refinement_mesh_index", "" );     // Refinement pattern
-        tDesignParameterList.insert( "refinement_function_index", -1 ); // Index of user-defined refinement function (-1 = default)
+        tDesignParameterList.insert( "design_type", "" );                            // Insert the design type parameter
+        tDesignParameterList.insert( "number_of_refinements", Vector< uint >() );    // Number of refinement steps using HMR
+        tDesignParameterList.insert( "refinement_mesh_index", Vector< uint >(),      // Refinement pattern
+                Validation_Type::SIZE,
+                "number_of_refinements" );
+        tDesignParameterList.insert( "refinement_function_index", -1 );    // Index of user-defined refinement function (-1 = default)
 
         return tDesignParameterList;
     }

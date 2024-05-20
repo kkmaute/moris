@@ -416,11 +416,11 @@ namespace moris
         // create lagrange meshes for the decomposition grid ...
         std::string sLagrangeOrders   = std::to_string( tMaxPolyOrder );
         std::string sLagrangePatterns = std::to_string( tGridIndexForDecomp );
-        mGenNumRefinements            = std::to_string( tBoundaryRefinements( tGridIndexForDecomp ) );
+        mGenNumRefinements            = { (uint)tBoundaryRefinements( tGridIndexForDecomp ) };
 
         // create dummy lagrange meshes using the other grids to trigger geometric refinement through these
         std::string sLagrangeToBsplineAddOn = "";
-        mGenRefineMeshIndices               = "0";
+        mGenRefineMeshIndices               = { 0 };
         uint tLagMeshCounter                = 1;    // start at 1 as Lagrange mesh index 0 is already occupied by the decomposition grid
         for ( uint iGrid = 0; iGrid < tGridIndices.size(); iGrid++ )
         {
@@ -435,8 +435,8 @@ namespace moris
                 sLagrangeToBsplineAddOn += ";-1";
 
                 // store boundary refinements associated with this pattern to later feed through the GEN parameter list
-                mGenRefineMeshIndices += ( "," + std::to_string( tLagMeshCounter ) );
-                mGenNumRefinements += ( "," + std::to_string( tNumBdRefsOnPattern ) );
+                mGenRefineMeshIndices.push_back( tLagMeshCounter );
+                mGenNumRefinements.push_back( tNumBdRefsOnPattern );
                 tLagMeshCounter++;
             }
         }

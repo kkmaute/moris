@@ -151,8 +151,8 @@ namespace moris
     std::string tInitialRef      = std::to_string( tLevelsetInitialRef ) + "," + std::to_string( tDispInitialRef );
     std::string tLagrangePattern = tLevelsetInitialRef > tDispInitialRef ? "0" : "1";
 
-    std::string tInterfaceRefinementSphere = "0";
-    std::string tInterfaceRefinementWalls  = "0";
+    uint tInterfaceRefinementSphere = 0;
+    uint tInterfaceRefinementWalls  = 0;
 
     moris::real tElementEdgeLength = tApproxEleSize / ( std::pow( 2, tDispInitialRef ) );
     moris::real tGeoShift          = 0.1 * tElementEdgeLength;
@@ -556,7 +556,7 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).set( "sensitivity_function_name", "Func_Sphere_Deriv" );
         tParameterlist( 1 )( tGeoCounter ).insert( "radius", Design_Variable( tSphereRadius * 0.9, tSphereRadius, tSphereRadius * 1.1 ) );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementSphere );
-        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );
+        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0u );
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1.0e-12 );
         tParameterlist( 1 )( tGeoCounter ).set( "intersection_tolerance", 1.0e-12 );
@@ -570,7 +570,7 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_3", tGeoShift );
         tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_4", 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementWalls );
-        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );
+        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0u );
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1.0e-12 );
         tParameterlist( 1 )( tGeoCounter ).set( "intersection_tolerance", 1.0e-12 );
@@ -584,7 +584,7 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_3", tChannelLength + tGeoShift );
         tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_4", 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementWalls );
-        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );
+        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0u );
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1.0e-12 );
         tParameterlist( 1 )( tGeoCounter ).set( "intersection_tolerance", 1.0e-12 );
@@ -598,7 +598,7 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_3", 0.0 );
         tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_4", tGeoShift );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementWalls );
-        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );
+        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0u );
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1.0e-12 );
         tParameterlist( 1 )( tGeoCounter ).set( "intersection_tolerance", 1.0e-12 );
@@ -612,7 +612,7 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_3", 0.0 );
         tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_4", tChannelHeight + tGeoShift );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementWalls );
-        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );
+        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0u );
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1.0e-12 );
         tParameterlist( 1 )( tGeoCounter ).set( "intersection_tolerance", 1.0e-12 );

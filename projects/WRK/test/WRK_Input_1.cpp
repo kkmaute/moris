@@ -389,8 +389,8 @@ namespace moris
         // Geometry parameter lists
         tParameterlist( 1 )( 0 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED );
         tParameterlist( 1 )( 0 ).set( "field_function_name", "Lvl_set_1" );
-        tParameterlist( 1 )( 0 ).set( "number_of_refinements", "2" );
-        tParameterlist( 1 )( 0 ).set( "refinement_mesh_index", "0" );
+        tParameterlist( 1 )( 0 ).set( "number_of_refinements", 2u );
+        tParameterlist( 1 )( 0 ).set( "refinement_mesh_index", 0u );
     }
 
     void

@@ -213,8 +213,8 @@ namespace moris
         // Geometry parameter lists
         tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name",       "LevelSetFunction" );
-        tParameterlist( 1 )( tGeoCounter ).set("number_of_refinements", "0");
-        tParameterlist( 1 )( tGeoCounter ).set("refinement_mesh_index", "0");
+        tParameterlist( 1 )( tGeoCounter ).set("number_of_refinements", 0u);
+        tParameterlist( 1 )( tGeoCounter ).set("refinement_mesh_index", 0u);
         tParameterlist( 1 )( tGeoCounter ).set("discretization_mesh_index", 0);
         tParameterlist( 1 )( tGeoCounter ).set("use_multilinear_interpolation", true);
     }
