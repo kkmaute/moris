@@ -84,9 +84,10 @@ namespace moris::gen
 
         // If this surface mesh is being optimized, construct fields,
         // store original vertex coordinates, determine which facet vertices are fixed, and compute the bases for all vertices
-        if ( aParameters.mADVIndices.size() > 0 or aParameters.mDiscretizationIndex > -1 )
+        if ( this->depends_on_advs() )
         {
-            // Check if the user provided a function to determine which vertices are fixed
+
+            // STEP 1: Determine which facet vertices are fixed
             if ( not mParameters.mFixedVertexFunctionName.empty() )
             {
                 // Get pointer to function
@@ -109,8 +110,7 @@ namespace moris::gen
                 mFixedVertexIndices.resize( 0 );
             }
 
-
-            // Allocate memory for perturbation fields and basis functions
+            // STEP 2: Construct perturbation fields
             mPerturbationFields.resize( Object::mDimension );
 
             // build perturbation fields
@@ -147,6 +147,9 @@ namespace moris::gen
                         tConstants,
                         mName + "_PERT_" + std::to_string( iFieldIndex ) );
             }
+
+            // STEP 3: Determine the background elements and lagrange bases for each facet vertex
+            // MORIS_ERROR( mMesh != nullptr, "Surface mesh geometry must be provided mesh on construction." );
         }
     }
 
@@ -270,7 +273,7 @@ namespace moris::gen
         }
         else if ( tNumberOfParentEdgeIntersections > 1 )
         {
-            MORIS_LOG_WARNING( "Multiple intersections detected along parent edge. Using first intersection." );    // BRENDAN
+            MORIS_LOG_WARNING( "Multiple facet intersections detected along parent edge. Using first intersection." );
         }
 
         // Set return values for intersection location and associated facet
@@ -285,7 +288,7 @@ namespace moris::gen
             const Parent_Node& aFirstParentNode,
             const Parent_Node& aSecondParentNode )
     {
-        // step 1: shift the object so the first parent is at the origin
+        // STEP 1: shift the object so the first parent is at the origin
         Matrix< DDRMat > tFirstParentNodeGlobalCoordinates = aFirstParentNode.get_global_coordinates();
         Vector< real >   tShift( Object::mDimension );
         MORIS_ASSERT( tFirstParentNodeGlobalCoordinates.numel() == tShift.size(),
@@ -296,7 +299,7 @@ namespace moris::gen
         }
         this->shift( tShift );
 
-        // step 2: rotate the object
+        // STEP 2: rotate the object
         // get unit axis to rotate to
         Matrix< DDRMat > tParentVector = aSecondParentNode.get_global_coordinates() - aFirstParentNode.get_global_coordinates();
 
@@ -346,7 +349,7 @@ namespace moris::gen
         // rotate the object
         this->rotate( tRotationMatrix );
 
-        // step 3: scale the object
+        // STEP 3: scale the object
         Vector< real > tScaling( Object::mDimension, 2.0 / tParentVectorNorm );
         this->scale( tScaling );
     }
@@ -371,19 +374,8 @@ namespace moris::gen
             // STEP 2: Apply field value to surface mesh nodes
             for ( uint iVertexIndex = 0; iVertexIndex < Object::mVertices.size(); iVertexIndex++ )
             {
-                bool tVertexShouldPerturb = true;
-
-                // check if this vertex should move
-                for ( uint iFixedVertexIndex : mFixedVertexIndices )
-                {
-                    if ( iVertexIndex == iFixedVertexIndex )
-                    {
-                        tVertexShouldPerturb = false;
-                    }
-                }
-
                 // Move vertex if needed
-                if ( tVertexShouldPerturb and mVertexBackgroundElementIndices( iVertexIndex ) != -1 )
+                if ( this->facet_vertex_depends_on_advs( iVertexIndex ) )
                 {
                     // Interpolate the bspline field value at the facet vertex location
                     real tInterpolatedPerturbation = this->interpolate_perturbation_from_background_element(
@@ -399,10 +391,6 @@ namespace moris::gen
 
         // STEP 3: Update all facet data
         this->update_all_facets();
-
-        // brendan
-        this->write_to_obj_file( this->get_name() + "_" + std::to_string( mIteration ) + ".txt" );
-        mIteration++;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -428,7 +416,9 @@ namespace moris::gen
             Matrix< DDRMat >&        aLowerBounds,
             Matrix< DDRMat >&        aUpperBounds )
     {
-        uint tOriginalOffsetID = aOffsetID;
+        // Get the original offset ID
+        sint tOriginalOffsetID = aOffsetID;
+
         for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
         {
             aOffsetID = Design::append_adv_info(
@@ -440,7 +430,7 @@ namespace moris::gen
                     aUpperBounds );
         }
 
-        // set the offset to the offset for the first perturabtion field
+        // reset the offset back to the offset for the first perturabtion field (mOffsetID was changed in the above loop)
         mOffsetID = tOriginalOffsetID;
 
         return aOffsetID;
@@ -451,7 +441,7 @@ namespace moris::gen
     bool
     Surface_Mesh_Geometry::depends_on_advs() const
     {
-        return mPerturbationFields.size() > 0;
+        return mParameters.mADVIndices.size() > 0 or mParameters.mDiscretizationIndex > -1;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -468,8 +458,12 @@ namespace moris::gen
         // update the stored mtk interpolation mesh with the new mesh
         mMesh = aInterpolationMesh;
 
-        // Update the vertex bases with the new mesh and original coordinates
-        this->update_vertex_basis_data();
+        // FIXME: provide GEN with the mesh and do this on construction, removing this boolean member data
+        if ( !mBasesComputed )
+        {
+            this->update_vertex_basis_data();
+            mBasesComputed = true;
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -485,7 +479,8 @@ namespace moris::gen
         if ( mParameters.mDiscretizationIndex >= 0 )
         {
             for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
-            {    // Create a B-spline field
+            {
+                // Create a B-spline field
                 mPerturbationFields( iFieldIndex ) = std::make_shared< BSpline_Field >(
                         aMeshPair,
                         aOwnedADVs,
@@ -503,7 +498,8 @@ namespace moris::gen
         else if ( mParameters.mDiscretizationIndex == -1 )
         {
             for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
-            {    // Just store nodal values
+            {
+                // Just store nodal values
                 mPerturbationFields( iFieldIndex ) = std::make_shared< Stored_Field >(
                         aMeshPair.get_interpolation_mesh(),
                         mPerturbationFields( iFieldIndex ) );
@@ -526,7 +522,8 @@ namespace moris::gen
             if ( mPerturbationFields( iFieldIndex )->get_name() == aMTKField->get_label() )
             {
                 if ( mParameters.mDiscretizationIndex >= 0 )
-                {    // Create a B-spline field
+                {
+                    // Create a B-spline field
                     mPerturbationFields( iFieldIndex ) = std::make_shared< BSpline_Field >(
                             aOwnedADVs,
                             mSharedADVIDs( iFieldIndex ),
@@ -620,7 +617,7 @@ namespace moris::gen
         {
             // Get length before adding sensitivities for this node
             uint tNumVertexSensitivities = tVertexSensitivity.n_cols();
-            
+
             // Loop over spatial dimension
             for ( uint iDimensionIndex = 0; iDimensionIndex < Object::mDimension; iDimensionIndex++ )
             {
@@ -635,8 +632,6 @@ namespace moris::gen
                 // Each sensitivity is a separate index
                 for ( uint iADVIndex = 0; iADVIndex < tNodeSensitivity.numel(); iADVIndex++ )
                 {
-                    uint tIndexToAdd = tNodeSensitivity.length() * ( iNodeIndex * Object::mDimension + iDimensionIndex ) + iADVIndex;
-                    std::cout << tIndexToAdd;
                     tVertexSensitivity( iDimensionIndex, tNumVertexSensitivities + tNodeSensitivity.length() * iDimensionIndex + iADVIndex ) = tNodeSensitivity( iADVIndex );
                 }
             }
@@ -873,41 +868,42 @@ namespace moris::gen
     void
     Surface_Mesh_Geometry::update_vertex_basis_data()
     {
-        if ( mParameters.mADVIndices.size() > 0 or mParameters.mDiscretizationIndex > -1 )
+        std::cout << "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&" << std::endl
+                  << "& WARNING: UPDATED VERTEX BASIS DATA &" << std::endl
+                  << "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&" << std::endl;    // BRENDAN
+
+        // Set size if it has not been set already
+        if ( mVertexBases.n_cols() != Object::mVertices.size() )
         {
-            // Set size if it has not been set already
-            if ( mVertexBases.n_cols() != Object::mVertices.size() )
+            mVertexBases.resize( mMesh->get_mtk_cell( 0 ).get_number_of_vertices(), Object::mVertices.size() );
+            mVertexBackgroundElementIndices.resize( Object::mVertices.size() );
+        }
+
+        // Compute the bases for all vertices
+        for ( uint iVertexIndex = 0; iVertexIndex < Object::mVertices.size(); iVertexIndex++ )
+        {
+            Matrix< DDRMat > tVertexParametricCoordinates( Object::mDimension, 1 );
+
+            // Determine which element this vertex lies in, will be the same for every field
+            mVertexBackgroundElementIndices( iVertexIndex ) = this->find_background_element_from_global_coordinates( Object::mVertices( iVertexIndex )->get_coords() );
+
+            // check if the vertex is inside the mesh domain
+            if ( mVertexBackgroundElementIndices( iVertexIndex ) != -1 )
             {
-                mVertexBases.resize( mMesh->get_mtk_cell( 0 ).get_number_of_vertices(), Object::mVertices.size() );
-                mVertexBackgroundElementIndices.resize( Object::mVertices.size() );
-            }
+                // Get the bounding box for this element
+                Vector< Vector< real > > tElementBoundingBox = this->determine_mtk_cell_bounding_box( mVertexBackgroundElementIndices( iVertexIndex ) );
 
-            // Compute the bases for all vertices
-            for ( uint iVertexIndex = 0; iVertexIndex < Object::mVertices.size(); iVertexIndex++ )
-            {
-                Matrix< DDRMat > tVertexParametricCoordinates( Object::mDimension, 1 );
-
-                // Determine which element this vertex lies in, will be the same for every field
-                mVertexBackgroundElementIndices( iVertexIndex ) = this->find_background_element_from_global_coordinates( Object::mVertices( iVertexIndex )->get_coords() );
-
-                // check if the vertex is inside the mesh domain
-                if ( mVertexBackgroundElementIndices( iVertexIndex ) != -1 )
+                // determine the local coordinates of the vertex inside the mtk::Cell
+                for ( uint iDimensionIndex = 0; iDimensionIndex < Object::mDimension; iDimensionIndex++ )
                 {
-                    // Get the bounding box for this element
-                    Vector< Vector< real > > tElementBoundingBox = this->determine_mtk_cell_bounding_box( mVertexBackgroundElementIndices( iVertexIndex ) );
-
-                    // determine the local coordinates of the vertex inside the mtk::Cell
-                    for ( uint iDimensionIndex = 0; iDimensionIndex < Object::mDimension; iDimensionIndex++ )
-                    {
-                        tVertexParametricCoordinates( iDimensionIndex, 0 ) = 2.0 * ( Object::mVertices( iVertexIndex )->get_coord( iDimensionIndex ) - tElementBoundingBox( 0 )( iDimensionIndex ) )
-                                                                                   / ( tElementBoundingBox( 1 )( iDimensionIndex ) - tElementBoundingBox( 0 )( iDimensionIndex ) )
-                                                                           - 1.0;
-                    }
-
-                    // Get the basis function values at the vertex location
-                    Matrix< DDRMat > tBasis = this->compute_vertex_basis( &mMesh->get_mtk_cell( mVertexBackgroundElementIndices( iVertexIndex ) ), tVertexParametricCoordinates );
-                    mVertexBases.set_column( iVertexIndex, trans( tBasis ) );
+                    tVertexParametricCoordinates( iDimensionIndex, 0 ) = 2.0 * ( Object::mVertices( iVertexIndex )->get_coord( iDimensionIndex ) - tElementBoundingBox( 0 )( iDimensionIndex ) )
+                                                                               / ( tElementBoundingBox( 1 )( iDimensionIndex ) - tElementBoundingBox( 0 )( iDimensionIndex ) )
+                                                                       - 1.0;
                 }
+
+                // Get the basis function values at the vertex location
+                Matrix< DDRMat > tBasis = this->compute_vertex_basis( &mMesh->get_mtk_cell( mVertexBackgroundElementIndices( iVertexIndex ) ), tVertexParametricCoordinates );
+                mVertexBases.set_column( iVertexIndex, trans( tBasis ) );
             }
         }
     }

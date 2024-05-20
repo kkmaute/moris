@@ -47,7 +47,8 @@ namespace moris::gen
             , public sdf::Object
     {
       private:
-        uint mIteration = 0;    // BRENDAN
+        uint mIteration     = 0;    // BRENDAN
+        bool mBasesComputed = false;
 
         Surface_Mesh_Parameters mParameters;
         mtk::Mesh*              mMesh;
