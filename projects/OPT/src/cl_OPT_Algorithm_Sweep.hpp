@@ -56,8 +56,8 @@ namespace moris
 
             std::string mFiniteDifferenceType;         // Finite difference type
 
-            Matrix<DDUMat> mNumEvaluations;            // Number of evaluations per ADV
-            Matrix<DDRMat> mEvaluationPoints;          // Final evaluation points
+            Matrix< DDUMat > mNumEvaluations;        // Number of evaluations per ADV
+            Matrix< DDRMat > mEvaluationPoints;      // Final evaluation points
 
             /**
              * Runs sweep algorithm on processor 0

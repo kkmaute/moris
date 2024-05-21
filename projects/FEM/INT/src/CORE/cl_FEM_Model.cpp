@@ -56,15 +56,15 @@ namespace moris
     {
         // User-defined FEM function
         typedef void ( *FEM_Function )(
-                moris::Matrix< moris::DDRMat >                &aPropMatrix,
+                moris::Matrix< moris::DDRMat >           &aPropMatrix,
                 Vector< moris::Matrix< moris::DDRMat > > &aParameters,
-                moris::fem::Field_Interpolator_Manager        *aFIManager );
+                moris::fem::Field_Interpolator_Manager   *aFIManager );
         //------------------------------------------------------------------------------
 
         FEM_Model::FEM_Model(
                 std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
                 const moris_index                   &aMeshPairIndex,
-                Vector< fem::Set_User_Info >   &aSetInfo )
+                Vector< fem::Set_User_Info >        &aSetInfo )
                 : mMeshManager( aMeshManager )
                 , mMeshPairIndex( aMeshPairIndex )
         {
@@ -98,7 +98,7 @@ namespace moris
         FEM_Model::FEM_Model(
                 std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
                 const moris_index                   &aMeshPairIndex,
-                Vector< fem::Set_User_Info >   &aSetInfo,
+                Vector< fem::Set_User_Info >        &aSetInfo,
                 MSI::Design_Variable_Interface      *aDesignVariableInterface )
                 : mMeshManager( aMeshManager )
                 , mMeshPairIndex( aMeshPairIndex )
@@ -145,10 +145,10 @@ namespace moris
         //------------------------------------------------------------------------------
 
         FEM_Model::FEM_Model(
-                std::shared_ptr< mtk::Mesh_Manager >        aMeshManager,
-                const moris_index                          &aMeshPairIndex,
-                Vector< Vector< Parameter_List > > aParameterList,
-                std::shared_ptr< Library_IO >               aLibrary )
+                std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
+                const moris_index                   &aMeshPairIndex,
+                Vector< Vector< Parameter_List > >   aParameterList,
+                std::shared_ptr< Library_IO >        aLibrary )
                 : mMeshManager( aMeshManager )
                 , mMeshPairIndex( aMeshPairIndex )
                 , mParameterList( aParameterList )
@@ -184,10 +184,10 @@ namespace moris
         //------------------------------------------------------------------------------
 
         FEM_Model::FEM_Model(
-                std::shared_ptr< mtk::Mesh_Manager >        aMeshManager,
-                const moris_index                          &aMeshPairIndex,
-                Vector< Vector< Parameter_List > > aParameterList,
-                MSI::Design_Variable_Interface             *aDesignVariableInterface )
+                std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
+                const moris_index                   &aMeshPairIndex,
+                Vector< Vector< Parameter_List > >   aParameterList,
+                MSI::Design_Variable_Interface      *aDesignVariableInterface )
                 : mMeshManager( aMeshManager )
                 , mMeshPairIndex( aMeshPairIndex )
                 , mParameterList( aParameterList )
@@ -278,9 +278,9 @@ namespace moris
                     uint tVertexIndex = mIGNodes( iNode )->get_index();
 
                     // get the pdv values from the MSI/GEN interface
-                    Matrix< IndexMat >              tVertexIndices( 1, 1, tVertexIndex );
+                    Matrix< IndexMat >         tVertexIndices( 1, 1, tVertexIndex );
                     Vector< Matrix< DDRMat > > tVertexCoordsFromGen( mSpaceDim );
-                    Vector< Vector< bool > > tIsActiveDv;
+                    Vector< Vector< bool > >   tIsActiveDv;
 
                     this->get_design_variable_interface()->get_ig_pdv_value(
                             tVertexIndices,
@@ -328,8 +328,8 @@ namespace moris
 
         void
         FEM_Model::create_fem_sets(
-                mtk::Interpolation_Mesh           *aIPMesh,
-                mtk::Integration_Mesh             *aIGMesh,
+                mtk::Interpolation_Mesh      *aIPMesh,
+                mtk::Integration_Mesh        *aIGMesh,
                 Vector< fem::Set_User_Info > &aSetInfo )
         {
             // get the number of sets
@@ -638,9 +638,9 @@ namespace moris
 
         void
         FEM_Model::set_integration_xyz_pdv_assembly_index(
-                moris_index   aNodeIndex,
+                moris_index        aNodeIndex,
                 enum gen::PDV_Type aPdvType,
-                moris_index   aXYZPdvAssemblyIndex )
+                moris_index        aXYZPdvAssemblyIndex )
         {
             // get the index of the underlying node
             moris_index tIgNodeIndex = mIGNodes( aNodeIndex )->get_index();
@@ -886,7 +886,7 @@ namespace moris
         FEM_Model::create_properties(
                 std::map< std::string, uint >              &aPropertyMap,
                 moris::map< std::string, MSI::Dof_Type >   &aMSIDofTypeMap,
-                moris::map< std::string, gen::PDV_Type >        &aDvTypeMap,
+                moris::map< std::string, gen::PDV_Type >   &aDvTypeMap,
                 moris::map< std::string, mtk::Field_Type > &aFieldTypeMap,
                 std::shared_ptr< Library_IO >               aLibrary )
         {
@@ -962,7 +962,7 @@ namespace moris
                 string_to_cell(
                         tPropParameter.get< std::string >( "dof_derivative_functions" ),
                         tDofDerFuncNames );
-                uint                             tNumDofDerFuncs = tDofDerFuncNames.size();
+                uint                        tNumDofDerFuncs = tDofDerFuncNames.size();
                 Vector< fem::PropertyFunc > tDofDerFunctions( tNumDofDerFuncs, nullptr );
                 for ( uint iFunc = 0; iFunc < tNumDofDerFuncs; iFunc++ )
                 {
@@ -980,7 +980,7 @@ namespace moris
                 string_to_cell(
                         tPropParameter.get< std::string >( "dv_derivative_functions" ),
                         tDvDerFuncNames );
-                uint                             tNumDvDerFuncs = tDvDerFuncNames.size();
+                uint                        tNumDvDerFuncs = tDvDerFuncNames.size();
                 Vector< fem::PropertyFunc > tDvDerFunctions( tNumDvDerFuncs, nullptr );
                 for ( uint iFunc = 0; iFunc < tNumDvDerFuncs; iFunc++ )
                 {
@@ -1044,7 +1044,7 @@ namespace moris
                 mtk::Field_Entity_Type tFieldEntityType =
                         tFieldEntityTypeMap.find( tFieldParameter.get< std::string >( "field_entity_type" ) );
 
-                // create a property pointer
+                // create a field pointer
                 std::shared_ptr< fem::Field > tField = std::make_shared< fem::Field >(
                         mMeshManager->get_mesh_pair( mMeshPairIndex ),
                         tFieldEntityType );
@@ -1082,7 +1082,8 @@ namespace moris
                     tField->set_field_from_file(
                             tFieldParameter.get< std::string >( "field_create_from_file" ),
                             tFieldParameter.get< sint >( "field_file_time_index" ),
-                            tFieldParameter.get< sint >( "field_file_field_index" ) );
+                            tFieldParameter.get< sint >( "field_file_field_index" ),
+                            tFieldParameter.get< bool >( "field_file_update" ) );
                 }
 
                 if ( not tFieldParameter.get< std::string >( "IQI_Name" ).empty() )
@@ -1105,7 +1106,7 @@ namespace moris
         FEM_Model::create_material_models(
                 std::map< std::string, uint >            &aPropertyMap,
                 moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
-                moris::map< std::string, gen::PDV_Type >      &aDvTypeMap )
+                moris::map< std::string, gen::PDV_Type > &aDvTypeMap )
         {
             // create a constitutive model factory
             MM_Factory tMMFactory;
@@ -1123,8 +1124,7 @@ namespace moris
                 Parameter_List tMMParameter = tMMParameterList( iMM );
 
                 // get the constitutive type from parameter list
-                fem::Material_Type tMMType =
-                        static_cast< fem::Material_Type >( tMMParameter.get< uint >( "material_type" ) );
+                auto tMMType = tMMParameter.get< fem::Material_Type >( "material_type" );
 
                 // get the constitutive model name from parameter list
                 std::string tMMName =
@@ -1199,7 +1199,7 @@ namespace moris
         FEM_Model::create_constitutive_models(
                 std::map< std::string, uint >            &aPropertyMap,
                 moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
-                moris::map< std::string, gen::PDV_Type >      &aDvTypeMap )
+                moris::map< std::string, gen::PDV_Type > &aDvTypeMap )
         {
             // create a constitutive model factory
             CM_Factory tCMFactory;
@@ -1217,8 +1217,7 @@ namespace moris
                 Parameter_List tCMParameter = tCMParameterList( iCM );
 
                 // get the constitutive type from parameter list
-                fem::Constitutive_Type tCMType =
-                        static_cast< fem::Constitutive_Type >( tCMParameter.get< uint >( "constitutive_type" ) );
+                auto tCMType = tCMParameter.get< fem::Constitutive_Type >( "constitutive_type" );
 
                 // get the constitutive model name from parameter list
                 std::string tCMName =
@@ -1234,8 +1233,7 @@ namespace moris
                         tPhaseName.c_str() );
 
                 // get the model type
-                fem::Model_Type tCMModelType =
-                        static_cast< fem::Model_Type >( tCMParameter.get< uint >( "model_type" ) );
+                fem::Model_Type tCMModelType = tCMParameter.get< fem::Model_Type >( "model_type" );
 
                 // create a constitutive model pointer
                 std::shared_ptr< fem::Constitutive_Model > tCM =
@@ -1355,7 +1353,7 @@ namespace moris
                 std::map< std::string, uint >            &aSPMap,
                 std::map< std::string, uint >            &aPropertyMap,
                 moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
-                moris::map< std::string, gen::PDV_Type >      &aDvTypeMap )
+                moris::map< std::string, gen::PDV_Type > &aDvTypeMap )
         {
             // create a stabilization parameter factory
             SP_Factory tSPFactory;
@@ -1379,8 +1377,7 @@ namespace moris
                 std::string tSPName = tSPParameter.get< std::string >( "stabilization_name" );
 
                 // get the stabilization type from parameter list
-                fem::Stabilization_Type tSPType =
-                        static_cast< fem::Stabilization_Type >( tSPParameter.get< uint >( "stabilization_type" ) );
+                fem::Stabilization_Type tSPType = tSPParameter.get< fem::Stabilization_Type >( "stabilization_type" );
 
                 // create a stabilization parameter pointer
                 mSPs( iSP ) = tSPFactory.create_SP( tSPType );
@@ -1591,8 +1588,7 @@ namespace moris
                 std::string tIWGName = tIWGParameter.get< std::string >( "IWG_name" );
 
                 // get the treated IWG type
-                fem::IWG_Type tIWGType =
-                        static_cast< fem::IWG_Type >( tIWGParameter.get< uint >( "IWG_type" ) );
+                auto tIWGType = tIWGParameter.get< fem::IWG_Type >( "IWG_type" );
 
                 // get the ghost order from parameter list
                 uint tGhostOrder = tIWGParameter.get< uint >( "ghost_order" );
@@ -1611,8 +1607,7 @@ namespace moris
                         tFuncParameters );
 
                 // get the treated IWG bulk type
-                fem::Element_Type tIWGBulkType =
-                        static_cast< fem::Element_Type >( tIWGParameter.get< uint >( "IWG_bulk_type" ) );
+                auto tIWGBulkType = tIWGParameter.get< fem::Element_Type >( "IWG_bulk_type" );
 
                 // set flag for leader/follower
                 bool tLeaderFollower = ( tIWGBulkType == fem::Element_Type::DOUBLE_SIDESET );
@@ -1870,8 +1865,7 @@ namespace moris
                         tIQIParameter.get< std::string >( "IQI_name" );
 
                 // get the IQI type from parameter list
-                fem::IQI_Type tIQIType =
-                        static_cast< fem::IQI_Type >( tIQIParameter.get< uint >( "IQI_type" ) );
+                auto tIQIType = tIQIParameter.get< fem::IQI_Type >( "IQI_type" );
 
                 // get the quantity dof type from parameter list
                 Vector< moris::MSI::Dof_Type > tQuantityDofTypes;
@@ -1891,8 +1885,7 @@ namespace moris
                         tFuncParameters );
 
                 // get the treated IQI bulk type
-                fem::Element_Type tIQIBulkType =
-                        static_cast< fem::Element_Type >( tIQIParameter.get< uint >( "IQI_bulk_type" ) );
+                auto tIQIBulkType = tIQIParameter.get< fem::Element_Type >( "IQI_bulk_type" );
 
                 // set bool to true if double sideset
                 bool tLeaderFollower = ( tIQIBulkType == fem::Element_Type::DOUBLE_SIDESET );
@@ -2097,8 +2090,7 @@ namespace moris
                     tComputationParameterList.get< bool >( "is_analytical_forward" );
 
             // get enum for FD scheme for forward analysis
-            fem::FDScheme_Type tFDSchemeForFA = static_cast< fem::FDScheme_Type >(
-                    tComputationParameterList.get< uint >( "finite_difference_scheme_forward" ) );
+            auto tFDSchemeForFA = tComputationParameterList.get< fem::FDScheme_Type >( "finite_difference_scheme_forward" );
 
             // get perturbation size for FD for forward analysis
             real tFDPerturbationFA = tComputationParameterList.get< real >(
@@ -2110,16 +2102,14 @@ namespace moris
                     tComputationParameterList.get< bool >( "is_analytical_sensitivity" );
 
             // get enum for FD scheme for sensitivity analysis
-            fem::FDScheme_Type tFDSchemeForSA = static_cast< fem::FDScheme_Type >(
-                    tComputationParameterList.get< uint >( "finite_difference_scheme" ) );
+            auto tFDSchemeForSA = tComputationParameterList.get< fem::FDScheme_Type >( "finite_difference_scheme" );
 
             // get perturbation size for FD for sensitivity analysis
             real tFDPerturbationSA = tComputationParameterList.get< real >(
                     "finite_difference_perturbation_size" );
 
             // get enum for perturbation strategy for finite difference
-            fem::Perturbation_Type tPerturbationStrategy = static_cast< fem::Perturbation_Type >(
-                    tComputationParameterList.get< uint >( "finite_difference_perturbation_strategy" ) );
+            auto tPerturbationStrategy = tComputationParameterList.get< fem::Perturbation_Type >( "finite_difference_perturbation_strategy" );
 
             // create a map of the set
             std::map< std::tuple< std::string, bool, bool >, uint > tMeshToFemSet;
@@ -2362,12 +2352,12 @@ namespace moris
 
         void
         FEM_Model::get_mesh_set_names(
-                fem::Element_Type           aIWGBulkType,
-                std::string                 aLeaderPhaseName,
-                std::string                 aFollowerPhaseName,
-                std::string                 aFollowerPhaseString,
-                std::string                 aOrdinalString,
-                bool                        aIsGhost,
+                fem::Element_Type      aIWGBulkType,
+                std::string            aLeaderPhaseName,
+                std::string            aFollowerPhaseName,
+                std::string            aFollowerPhaseString,
+                std::string            aOrdinalString,
+                bool                   aIsGhost,
                 Vector< std::string > &aMeshSetNames )
         {
             // get the leader phase mesh index
@@ -2571,7 +2561,7 @@ namespace moris
                 std::map< std::string, uint >            &aMMMap,
                 std::map< std::string, uint >            &aPropertyMap,
                 moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
-                moris::map< std::string, gen::PDV_Type >      &aDvTypeMap )
+                moris::map< std::string, gen::PDV_Type > &aDvTypeMap )
         {
             // create a material model factory
             MM_Factory tMMFactory;
@@ -2589,8 +2579,7 @@ namespace moris
             for ( uint iMM = 0; iMM < tNumMMs; iMM++ )
             {
                 // get the material type from parameter list
-                fem::Material_Type tMMType =
-                        static_cast< fem::Material_Type >( tMMParameterList( iMM ).get< uint >( "material_type" ) );
+                fem::Material_Type tMMType = tMMParameterList( iMM ).get< fem::Material_Type >( "material_type" );
 
                 // create a material model pointer
                 mMMs( iMM ) = tMMFactory.create_MM( tMMType );
@@ -2655,7 +2644,7 @@ namespace moris
                 std::map< std::string, uint >            &aPropertyMap,
                 std::map< std::string, uint >            &aMMMap,
                 moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
-                moris::map< std::string, gen::PDV_Type >      &aDvTypeMap )
+                moris::map< std::string, gen::PDV_Type > &aDvTypeMap )
         {
             // create a constitutive model factory
             CM_Factory tCMFactory;
@@ -2673,8 +2662,7 @@ namespace moris
             for ( uint iCM = 0; iCM < tNumCMs; iCM++ )
             {
                 // get the constitutive type from parameter list
-                fem::Constitutive_Type tCMType =
-                        static_cast< fem::Constitutive_Type >( tCMParameterList( iCM ).get< uint >( "constitutive_type" ) );
+                auto tCMType = tCMParameterList( iCM ).get< fem::Constitutive_Type >( "constitutive_type" );
 
                 // create a constitutive model pointer
                 mCMs( iCM ) = tCMFactory.create_CM( tCMType );
@@ -2686,8 +2674,7 @@ namespace moris
                 aCMMap[ tCMParameterList( iCM ).get< std::string >( "constitutive_name" ) ] = iCM;
 
                 // set CM model type
-                fem::Model_Type tCMModelType =
-                        static_cast< fem::Model_Type >( tCMParameterList( iCM ).get< uint >( "model_type" ) );
+                auto tCMModelType = tCMParameterList( iCM ).get< fem::Model_Type >( "model_type" );
                 if ( tCMModelType != fem::Model_Type::UNDEFINED )
                 {
                     mCMs( iCM )->set_model_type( tCMModelType );
@@ -2787,7 +2774,7 @@ namespace moris
                 std::map< std::string, uint >            &aPropertyMap,
                 std::map< std::string, uint >            &aCMMap,
                 moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
-                moris::map< std::string, gen::PDV_Type >      &aDvTypeMap )
+                moris::map< std::string, gen::PDV_Type > &aDvTypeMap )
         {
             // create a stabilization parameter factory
             SP_Factory tSPFactory;
@@ -2808,8 +2795,7 @@ namespace moris
                 Parameter_List tSPParameter = tSPParameterList( iSP );
 
                 // get the stabilization type from parameter list
-                fem::Stabilization_Type tSPType =
-                        static_cast< fem::Stabilization_Type >( tSPParameter.get< uint >( "stabilization_type" ) );
+                auto tSPType = tSPParameter.get< fem::Stabilization_Type >( "stabilization_type" );
 
                 // create a stabilization parameter pointer
                 mSPs( iSP ) = tSPFactory.create_SP( tSPType );
@@ -2935,7 +2921,7 @@ namespace moris
                 std::map< std::string, uint >              &aSPMap,
                 std::map< std::string, uint >              &aFieldMap,
                 moris::map< std::string, MSI::Dof_Type >   &aMSIDofTypeMap,
-                moris::map< std::string, gen::PDV_Type >        &aDvTypeMap,
+                moris::map< std::string, gen::PDV_Type >   &aDvTypeMap,
                 moris::map< std::string, mtk::Field_Type > &aFieldTypeMap )
         {
             // create an IWG factory
@@ -2957,8 +2943,7 @@ namespace moris
                 Parameter_List tIWGParameter = tIWGParameterList( iIWG );
 
                 // get the IWG type from parameter list
-                fem::IWG_Type tIWGType =
-                        static_cast< fem::IWG_Type >( tIWGParameter.get< uint >( "IWG_type" ) );
+                auto tIWGType = tIWGParameter.get< fem::IWG_Type >( "IWG_type" );
 
                 // create an IWG pointer
                 mIWGs( iIWG ) = tIWGFactory.create_IWG( tIWGType );
@@ -3164,7 +3149,7 @@ namespace moris
                 std::map< std::string, uint >              &aSPMap,
                 std::map< std::string, uint >              &aFieldMap,
                 moris::map< std::string, MSI::Dof_Type >   &aMSIDofTypeMap,
-                moris::map< std::string, gen::PDV_Type >        &aDvTypeMap,
+                moris::map< std::string, gen::PDV_Type >   &aDvTypeMap,
                 moris::map< std::string, mtk::Field_Type > &aFieldTypeMap )
         {
             // create an IQI factory
@@ -3189,12 +3174,10 @@ namespace moris
                 std::string tIQIName = tIQIParameter.get< std::string >( "IQI_name" );
 
                 // get the IQI type from parameter list
-                fem::IQI_Type tIQIType =
-                        static_cast< fem::IQI_Type >( tIQIParameter.get< uint >( "IQI_type" ) );
+                auto tIQIType = tIQIParameter.get< fem::IQI_Type >( "IQI_type" );
 
                 // get the treated IQI bulk type
-                fem::Element_Type tIQIBulkType =
-                        static_cast< fem::Element_Type >( tIQIParameter.get< uint >( "IQI_bulk_type" ) );
+                auto tIQIBulkType = tIQIParameter.get< fem::Element_Type >( "IQI_bulk_type" );
 
                 // create an IQI pointer
                 mIQIs( iIQI ) = tIQIFactory.create_IQI( tIQIType );
@@ -3378,13 +3361,23 @@ namespace moris
             bool tPrintPhysics =
                     tComputationParameterList.get< bool >( "print_physics_model" );
 
+            // get bool for analytical/finite difference for dRdu and dQIdu
+            bool tIsAnalyticalFA =
+                    tComputationParameterList.get< bool >( "is_analytical_forward" );
+
+            // get enum for FD scheme for forward analysis
+            auto tFDSchemeForFA = tComputationParameterList.get< fem::FDScheme_Type >( "finite_difference_scheme_forward" );
+
+            // get perturbation size for FD for forward analysis
+            real tFDPerturbationFA = tComputationParameterList.get< real >(
+                    "finite_difference_perturbation_size_forward" );
+
             // get bool for analytical/finite difference for SA
             bool tIsAnalyticalSA =
                     tComputationParameterList.get< bool >( "is_analytical_sensitivity" );
 
             // get enum for FD scheme
-            fem::FDScheme_Type tFDSchemeForSA = static_cast< fem::FDScheme_Type >(
-                    tComputationParameterList.get< uint >( "finite_difference_scheme" ) );
+            auto tFDSchemeForSA = tComputationParameterList.get< fem::FDScheme_Type >( "finite_difference_scheme" );
 
             // get perturbation size for FD
             real tFDPerturbation = tComputationParameterList.get< real >(
@@ -3442,6 +3435,15 @@ namespace moris
 
                         // set its time boundary flag
                         aSetUserInfo.set_time_boundary( tTimeBoundary );
+
+                        // set its forward analysis type flag
+                        aSetUserInfo.set_is_analytical_forward_analysis( tIsAnalyticalFA );
+
+                        // set its FD scheme for forward analysis
+                        aSetUserInfo.set_finite_difference_scheme_for_forward_analysis( tFDSchemeForFA );
+
+                        // set its FD perturbation size for forward analysis
+                        aSetUserInfo.set_finite_difference_perturbation_size_for_forward_analysis( tFDPerturbationFA );
 
                         // set its sensitivity analysis type flag
                         aSetUserInfo.set_is_analytical_sensitivity_analysis( tIsAnalyticalSA );
@@ -3550,6 +3552,16 @@ namespace moris
                     mSetInfo( iSet ).print_names();
                     std::cout << "%-------------------------------------------------" << std::endl;
                 }
+            }
+        }
+
+        //-------------------------------------------------------------------------------------------------
+
+        void FEM_Model::update_fields()
+        {
+            for ( const auto &iField : mFields )
+            {
+                iField->update_field();
             }
         }
 
@@ -3702,8 +3714,8 @@ namespace moris
 
         void
         FEM_Model::set_vertex_xyz_active_flags(
-                moris_index                 aVertexIndex,
-                const Vector< Vector< bool > >& aIsActiveDv )
+                moris_index                     aVertexIndex,
+                const Vector< Vector< bool > > &aIsActiveDv )
         {
             // get num of pdv
             uint tNumXYZPdv = aIsActiveDv.size();
@@ -3719,7 +3731,7 @@ namespace moris
 
         void
         FEM_Model::set_vertex_xyz_pdv_ids(
-                moris_index                      aVertexIndex,
+                moris_index                 aVertexIndex,
                 Vector< Matrix< DDSMat > > &aXYZPvIds )
         {
             // get num of pdv

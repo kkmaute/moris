@@ -51,7 +51,7 @@ namespace moris::gen
         Tracer tTracer( "GEN", "Create geometry engine" );
 
         // Requested IQIs
-        mRequestedIQIs = string_to_cell< std::string >( aParameterLists( 0 )( 0 ).get< std::string >( "IQI_types" ) );
+        mRequestedIQIs = aParameterLists( 0 )( 0 ).get< Vector< std::string > >( "IQI_types" );
 
         // Geometries
         mGeometryFieldFile = aParameterLists( 0 )( 0 ).get< std::string >( "geometry_field_file" );
@@ -59,35 +59,34 @@ namespace moris::gen
         mTimeOffset        = aParameterLists( 0 )( 0 ).get< real >( "time_offset" );
 
         // Read ADVs
-        if ( aParameterLists( 0 )( 0 ).get< sint >( "advs_size" ) )
+        sint tADVsSize = aParameterLists( 0 )( 0 ).get< sint >( "advs_size" );
+        if ( tADVsSize )
         {
-            mInitialPrimitiveADVs = Matrix< DDRMat >( aParameterLists( 0 )( 0 ).get< sint >( "advs_size" ), 1, aParameterLists( 0 )( 0 ).get< real >( "initial_advs_fill" ) );
-            mLowerBounds          = Matrix< DDRMat >( aParameterLists( 0 )( 0 ).get< sint >( "advs_size" ), 1, aParameterLists( 0 )( 0 ).get< real >( "lower_bounds_fill" ) );
-            mUpperBounds          = Matrix< DDRMat >( aParameterLists( 0 )( 0 ).get< sint >( "advs_size" ), 1, aParameterLists( 0 )( 0 ).get< real >( "upper_bounds_fill" ) );
+            mInitialPrimitiveADVs.resize( tADVsSize, aParameterLists( 0 )( 0 ).get< real >( "initial_advs_fill" ) );
+            mADVManager.mLowerBounds.resize( tADVsSize, aParameterLists( 0 )( 0 ).get< real >( "lower_bounds_fill" ) );
+            mADVManager.mUpperBounds.resize( tADVsSize, aParameterLists( 0 )( 0 ).get< real >( "upper_bounds_fill" ) );
         }
         else
         {
-            mInitialPrimitiveADVs = string_to_mat< DDRMat >( aParameterLists( 0 )( 0 ).get< std::string >( "initial_advs" ) );
-            mLowerBounds          = string_to_mat< DDRMat >( aParameterLists( 0 )( 0 ).get< std::string >( "lower_bounds" ) );
-            mUpperBounds          = string_to_mat< DDRMat >( aParameterLists( 0 )( 0 ).get< std::string >( "upper_bounds" ) );
-
-            // check that advs and bounds are vectors
-            MORIS_ERROR( isvector( mInitialPrimitiveADVs ), "ADVs need to be of type vector.\n" );
-            MORIS_ERROR( isvector( mLowerBounds ), "ADV lower bounds need to be of type vector.\n" );
-            MORIS_ERROR( isvector( mUpperBounds ), "ADV upper bounds need to be of type vector.\n" );
-
-            // ensure that advs and bounds are column vectors
-            mInitialPrimitiveADVs = mInitialPrimitiveADVs.n_rows() == 1 ? trans( mInitialPrimitiveADVs ) : mInitialPrimitiveADVs;
-            mLowerBounds          = mLowerBounds.n_rows() == 1 ? trans( mLowerBounds ) : mLowerBounds;
-            mUpperBounds          = mUpperBounds.n_rows() == 1 ? trans( mUpperBounds ) : mUpperBounds;
+            mInitialPrimitiveADVs = aParameterLists( 0 )( 0 ).get< Vector< real > >( "initial_advs" );
+            mADVManager.mLowerBounds = aParameterLists( 0 )( 0 ).get< Vector< real > >( "lower_bounds" );
+            mADVManager.mUpperBounds = aParameterLists( 0 )( 0 ).get< Vector< real > >( "upper_bounds" );
         }
+        mADVManager.mADVs = mInitialPrimitiveADVs;
 
         // Create designs with the factory
         for ( uint iParameterIndex = 2; iParameterIndex < aParameterLists.size(); iParameterIndex++ )
         {
             aParameterLists( 1 ).append( aParameterLists( iParameterIndex ) );
         }
-        Design_Factory tDesignFactory( aParameterLists( 1 ), mInitialPrimitiveADVs, aLibrary, aMesh, mNodeManager );
+        Design_Factory tDesignFactory( aParameterLists( 1 ), mADVManager, aLibrary, aMesh, mNodeManager );
+
+        // FIXME make standard once old way of initializing ADVs is removed
+        if ( mADVManager.mADVs.size() > 0 )
+        {
+            mInitialPrimitiveADVs = mADVManager.mADVs;
+            mADVManager.mADVs.clear();
+        }
 
         // Get geometries and properties from the factory
         mGeometries = tDesignFactory.get_geometries();
@@ -97,7 +96,7 @@ namespace moris::gen
                 "Number of geometries exceeds MAX_GEOMETRIES, please change this in GEN_Data_Types.hpp" );
 
         // Set requested PDVs
-        Vector< std::string > tRequestedPDVNames = string_to_cell< std::string >( aParameterLists( 0 )( 0 ).get< std::string >( "PDV_types" ) );
+        Vector< std::string > tRequestedPDVNames = aParameterLists( 0 )( 0 ).get< Vector< std::string > >( "PDV_types" );
         Vector< PDV_Type >    tRequestedPDVTypes( tRequestedPDVNames.size() );
 
         map< std::string, PDV_Type > tPDVTypeMap = get_pdv_type_map();
@@ -127,7 +126,8 @@ namespace moris::gen
             , mGeometries( aParameters.mGeometries )
             , mProperties( aParameters.mProperties )
             , mPhaseTable( create_phase_table( aParameters.mGeometries.size(), aParameters.mBulkPhases ) )
-            , mInitialPrimitiveADVs( aParameters.mADVs )
+            , mADVManager( aParameters.mADVManager )
+            , mInitialPrimitiveADVs( aParameters.mADVManager.mADVs )
             , mTimeOffset( aParameters.mTimeOffset )
             , mPDVHostManager( mNodeManager )
     {
@@ -161,7 +161,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    Geometry_Engine::set_advs( const Matrix< DDRMat >& aNewADVs )
+    Geometry_Engine::set_advs( const Vector< real >& aNewADVs )
     {
         // Set new ADVs
         mOwnedADVs->vec_put_scalar( 0 );
@@ -182,7 +182,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix< DDRMat >&
+    Vector< real >&
     Geometry_Engine::get_advs()
     {
         // Create full ADVs
@@ -195,12 +195,12 @@ namespace moris::gen
         tFullVector->import_local_to_global( *mOwnedADVs );
 
         // Extract copy
-        tFullVector->extract_copy( mADVs );
+        tFullVector->extract_copy( mADVManager.mADVs );
 
         // Delete full ADVs/map
         delete tFullVector;
 
-        return mADVs;
+        return mADVManager.mADVs;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -234,18 +234,16 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix< DDRMat >&
-    Geometry_Engine::get_lower_bounds()
+    Vector< real >& Geometry_Engine::get_lower_bounds()
     {
-        return mLowerBounds;
+        return mADVManager.mLowerBounds;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix< DDRMat >&
-    Geometry_Engine::get_upper_bounds()
+    Vector< real >& Geometry_Engine::get_upper_bounds()
     {
-        return mUpperBounds;
+        return mADVManager.mUpperBounds;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -903,29 +901,29 @@ namespace moris::gen
         clock_t tStart_Owned_Shared_ADVs = clock();
 
         // Set primitive IDs
-        Matrix< DDSMat > tPrimitiveADVIds( mInitialPrimitiveADVs.length(), 1 );
-        for ( uint iADVIndex = 0; iADVIndex < mInitialPrimitiveADVs.length(); iADVIndex++ )
+        Vector< sint > tPrimitiveADVIds( mInitialPrimitiveADVs.size() );
+        for ( uint iADVIndex = 0; iADVIndex < mInitialPrimitiveADVs.size(); iADVIndex++ )
         {
             tPrimitiveADVIds( iADVIndex ) = iADVIndex;
         }
 
         // Start with primitive IDs for owned IDs on processor 0
-        Matrix< DDSMat > tOwnedADVIds( 0, 0 );
+        Vector< sint > tOwnedADVIds( 0, 0 );
         if ( par_rank() == 0 )
         {
             tOwnedADVIds = tPrimitiveADVIds;
         }
 
         // this is done to initialize primitive adv positions with gNoID
-        Matrix< IdMat > tOwnedijklIDs( tPrimitiveADVIds.numel(), 1, gNoID );
+        Matrix< IdMat > tOwnedijklIDs( tPrimitiveADVIds.size(), 1, gNoID );
 
         // Owned and shared ADVs per field
-        Vector< Matrix< DDSMat > > tSharedADVIds( tDesigns.size() );
-        Matrix< DDUMat >         tAllOffsetIDs( tDesigns.size(), 1 );
+        Vector< Vector< sint > > tSharedADVIds( tDesigns.size() );
+        Vector< uint > tAllOffsetIDs( tDesigns.size() );
         Vector< uint > tNumCoeff( tDesigns.size() );
 
         // Loop over all geometries to get number of new ADVs
-        sint tOffsetID = tPrimitiveADVIds.length();
+        sint tOffsetID = tPrimitiveADVIds.size();
         for ( uint iDesignIndex = 0; iDesignIndex < tDesigns.size(); iDesignIndex++ )
         {
             // Determine if level set will be created
@@ -1047,15 +1045,15 @@ namespace moris::gen
                 }
 
                 // Sizes of ID vectors
-                uint tNumOwnedADVs         = tOwnedADVIds.length();
+                uint tNumOwnedADVs         = tOwnedADVIds.size();
                 uint tNumOwnedCoefficients = tOwnedCoefficients.numel();
 
                 // Resize ID lists and bounds
-                tOwnedADVIds.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
-                mLowerBounds.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
-                mUpperBounds.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
+                tOwnedADVIds.resize( tNumOwnedADVs + tNumOwnedCoefficients );
+                mADVManager.mLowerBounds.resize( tNumOwnedADVs + tNumOwnedCoefficients );
+                mADVManager.mUpperBounds.resize( tNumOwnedADVs + tNumOwnedCoefficients );
                 tOwnedijklIDs.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
-                tSharedADVIds( iDesignIndex ).resize( tAllCoefIds.length(), 1 );
+                tSharedADVIds( iDesignIndex ).resize( tAllCoefIds.length() );
 
                 // Add owned coefficients to lists
                 for ( uint iOwnedCoefficient = 0; iOwnedCoefficient < tNumOwnedCoefficients; iOwnedCoefficient++ )
@@ -1070,8 +1068,8 @@ namespace moris::gen
                     MORIS_ASSERT( tADVId - tOffsetID == tAllCoefIds( tOwnedCoefficients( iOwnedCoefficient ) ), "check if this is a problem" );
 
                     tOwnedADVIds( tNumOwnedADVs + iOwnedCoefficient ) = tADVId;
-                    mLowerBounds( tNumOwnedADVs + iOwnedCoefficient ) = tDesigns( iDesignIndex )->get_discretization_lower_bound();
-                    mUpperBounds( tNumOwnedADVs + iOwnedCoefficient ) = tDesigns( iDesignIndex )->get_discretization_upper_bound();
+                    mADVManager.mLowerBounds( tNumOwnedADVs + iOwnedCoefficient ) = tDesigns( iDesignIndex )->get_discretization_lower_bound();
+                    mADVManager.mUpperBounds( tNumOwnedADVs + iOwnedCoefficient ) = tDesigns( iDesignIndex )->get_discretization_upper_bound();
 
                     if ( tMesh->get_mesh_type() == mtk::MeshType::HMR )
                     {
@@ -1113,9 +1111,9 @@ namespace moris::gen
         if ( mPrimitiveADVs )
         {
             // Assign old primitive ADVs to initial vector
-            for ( uint iADVIndex = 0; iADVIndex < mInitialPrimitiveADVs.length(); iADVIndex++ )
+            for ( uint iADVIndex = 0; iADVIndex < mInitialPrimitiveADVs.size(); iADVIndex++ )
             {
-                mInitialPrimitiveADVs( iADVIndex ) = mPrimitiveADVs->operator()( iADVIndex, 0 );
+                mInitialPrimitiveADVs( iADVIndex ) = mPrimitiveADVs->operator()( iADVIndex );
             }
         }
         else
@@ -1138,7 +1136,7 @@ namespace moris::gen
         mPrimitiveADVs->import_local_to_global( *tNewOwnedADVs );
 
         // Set field ADVs using distributed vector
-        if ( mInitialPrimitiveADVs.length() > 0 )
+        if ( mInitialPrimitiveADVs.size() > 0 )
         {
             for ( uint tDesignIndex = 0; tDesignIndex < tDesigns.size(); tDesignIndex++ )
             {
@@ -1237,23 +1235,25 @@ namespace moris::gen
         clock_t tStart_Communicate_ADV_IDs = clock();
 
         // Sending mats
-        Vector< Matrix< DDSMat > > tSendingIDs( 0 );
-        Vector< Matrix< DDRMat > > tSendingLowerBounds( 0 );
-        Vector< Matrix< DDRMat > > tSendingUpperBounds( 0 );
+        Vector< Vector< sint > > tSendingIDs( 0 );
+        Vector< Vector< real > > tSendingLowerBounds( 0 );
+        Vector< Vector< real > > tSendingUpperBounds( 0 );
         Vector< Matrix< DDSMat > > tSendingijklIDs( 0 );
 
         // Receiving mats
-        Vector< Matrix< DDSMat > > tReceivingIDs( 0 );
-        Vector< Matrix< DDRMat > > tReceivingLowerBounds( 0 );
-        Vector< Matrix< DDRMat > > tReceivingUpperBounds( 0 );
+        Vector< Vector< sint > > tReceivingIDs( 0 );
+        Vector< Vector< real > > tReceivingLowerBounds( 0 );
+        Vector< Vector< real > > tReceivingUpperBounds( 0 );
         Vector< Matrix< DDSMat > > tReceivingjklIDs( 0 );
 
         // Set up communication list for communicating ADV IDs
-        Matrix< IdMat > tCommunicationList( 1, 1, 0 );
+        Vector< sint > tCommunicationList( 1, 0 );
+        Matrix< IdMat > tCommunicationListMat( 1, 1, 0 );
         if ( par_rank() == 0 )
         {
             // Resize communication list and sending mats
-            tCommunicationList.resize( par_size() - 1, 1 );
+            tCommunicationList.resize( par_size() - 1 );
+            tCommunicationListMat.resize( par_size() - 1, 1 );
             tSendingIDs.resize( par_size() - 1 );
             tSendingLowerBounds.resize( par_size() - 1 );
             tSendingUpperBounds.resize( par_size() - 1 );
@@ -1263,23 +1263,24 @@ namespace moris::gen
             for ( uint tProcessorIndex = 1; tProcessorIndex < (uint)par_size(); tProcessorIndex++ )
             {
                 tCommunicationList( tProcessorIndex - 1 ) = tProcessorIndex;
+                tCommunicationListMat( tProcessorIndex - 1 ) = tProcessorIndex;
             }
         }
         else
         {
             tSendingIDs         = { tOwnedADVIds };
-            tSendingLowerBounds = { mLowerBounds };
-            tSendingUpperBounds = { mUpperBounds };
+            tSendingLowerBounds = { mADVManager.mLowerBounds };
+            tSendingUpperBounds = { mADVManager.mUpperBounds };
             tSendingijklIDs     = { tOwnedijklIDs };
         }
 
         // Communicate mats
-        communicate_mats( tCommunicationList, tSendingIDs, tReceivingIDs );
-        communicate_mats( tCommunicationList, tSendingLowerBounds, tReceivingLowerBounds );
-        communicate_mats( tCommunicationList, tSendingUpperBounds, tReceivingUpperBounds );
+        communicate_cells( tCommunicationList, tSendingIDs, tReceivingIDs );
+        communicate_cells( tCommunicationList, tSendingLowerBounds, tReceivingLowerBounds );
+        communicate_cells( tCommunicationList, tSendingUpperBounds, tReceivingUpperBounds );
         if ( tMesh->get_mesh_type() == mtk::MeshType::HMR )
         {
-            communicate_mats( tCommunicationList, tSendingijklIDs, tReceivingjklIDs );
+            communicate_mats( tCommunicationListMat, tSendingijklIDs, tReceivingjklIDs );
         }
 
         MORIS_LOG_INFO( "Time to communicate ADV IDs: %f sec", ( moris::real )( clock() - tStart_Communicate_ADV_IDs ) / CLOCKS_PER_SEC );
@@ -1304,14 +1305,14 @@ namespace moris::gen
             for ( uint tProcessorIndex = 1; tProcessorIndex < (uint)par_size(); tProcessorIndex++ )
             {
                 // Get number of received ADVs
-                uint tFullADVsFilled    = mFullADVIds.length();
+                uint tFullADVsFilled    = mFullADVIds.size();
                 uint tFullijklIDsFilled = mFullijklIDs.length();
-                uint tNumReceivedADVs   = tReceivingIDs( tProcessorIndex - 1 ).length();
+                uint tNumReceivedADVs   = tReceivingIDs( tProcessorIndex - 1 ).size();
 
                 // Resize full ADV IDs and bounds
-                mFullADVIds.resize( tFullADVsFilled + tNumReceivedADVs, 1 );
-                mLowerBounds.resize( tFullADVsFilled + tNumReceivedADVs, 1 );
-                mUpperBounds.resize( tFullADVsFilled + tNumReceivedADVs, 1 );
+                mFullADVIds.resize( tFullADVsFilled + tNumReceivedADVs );
+                mADVManager.mLowerBounds.resize( tFullADVsFilled + tNumReceivedADVs );
+                mADVManager.mUpperBounds.resize( tFullADVsFilled + tNumReceivedADVs );
                 if ( tMesh->get_mesh_type() == mtk::MeshType::HMR )
                 {
                     mFullijklIDs.resize( tFullijklIDsFilled + tNumReceivedADVs, 1 );
@@ -1321,9 +1322,9 @@ namespace moris::gen
                 for ( uint tADVIndex = 0; tADVIndex < tNumReceivedADVs; tADVIndex++ )
                 {
                     mFullADVIds( tFullADVsFilled + tADVIndex ) = tReceivingIDs( tProcessorIndex - 1 )( tADVIndex );
-                    mLowerBounds( tFullADVsFilled + tADVIndex ) =
+                    mADVManager.mLowerBounds( tFullADVsFilled + tADVIndex ) =
                             tReceivingLowerBounds( tProcessorIndex - 1 )( tADVIndex );
-                    mUpperBounds( tFullADVsFilled + tADVIndex ) =
+                    mADVManager.mUpperBounds( tFullADVsFilled + tADVIndex ) =
                             tReceivingUpperBounds( tProcessorIndex - 1 )( tADVIndex );
 
                     if ( tMesh->get_mesh_type() == mtk::MeshType::HMR )
@@ -1336,8 +1337,8 @@ namespace moris::gen
         }
         else
         {
-            mLowerBounds.set_size( 0, 0 );
-            mUpperBounds.set_size( 0, 0 );
+            mADVManager.mLowerBounds.clear();
+            mADVManager.mUpperBounds.clear();
             mFullijklIDs.set_size( 0, 0 );
         }
 

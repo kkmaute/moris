@@ -11,7 +11,6 @@
 #include <memory>
 
 #include "catch.hpp"
-#include "fn_Parsing_Tools.hpp"
 #include "fn_trans.hpp"
 #include "cl_GEN_User_Defined_Field.hpp"
 #include "cl_GEN_Design_Factory.hpp"
@@ -25,7 +24,6 @@
 
 namespace moris
 {
-
     //------------------------------------------------------------------------------------------------------------------
 
     uint
@@ -167,24 +165,25 @@ namespace moris::gen
 
     TEST_CASE( "Circle", "[gen], [field], [distributed advs], [circle]" )
     {
-        // Set up geometry
-        Parameter_List tCircle1ParameterList = prm::create_level_set_geometry_parameter_list();
-        tCircle1ParameterList.set( "field_type", "circle" );
-        tCircle1ParameterList.set( "field_variable_indices", "all" );
-        tCircle1ParameterList.set( "adv_indices", "0, 1, 3" );
+        // Design variable for x-component of circle centers, which will be shared.
+        Design_Variable tCenterX( 0.0, 0.0, 0.0 );
 
-        Parameter_List tCircle2ParameterList = prm::create_level_set_geometry_parameter_list();
-        tCircle2ParameterList.set( "field_type", "circle" );
-        tCircle2ParameterList.set( "field_variable_indices", "all" );
-        tCircle2ParameterList.set( "adv_indices", "0, 2, 4" );
+        // Set up circle 1
+        Parameter_List tCircle1ParameterList = prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE );
+        tCircle1ParameterList.set( "center_x", tCenterX );
+        tCircle1ParameterList.set( "center_y", 1.0, 1.0, 1.0 );
+        tCircle1ParameterList.set( "radius", 1.0, 1.0, 1.0 );
 
-        // ADV vector
-        Matrix< DDRMat > tADVs;
+        // Set up circle 2
+        Parameter_List tCircle2ParameterList = prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE );
+        tCircle2ParameterList.set( "center_x", tCenterX );
+        tCircle2ParameterList.set( "center_y", 2.0, 2.0, 2.0 );
+        tCircle2ParameterList.set( "radius", 2.0, 2.0, 2.0 );
 
         // Distributed ADVs
         sol::Matrix_Vector_Factory tDistributedFactory;
 
-        Matrix< DDSMat >  tADVIds          = { { 0 }, { 1 }, { 2 }, { 3 }, { 4 } };
+        Vector< sint >  tADVIds          = { 0, 1, 2, 3, 4 };
         sol::Dist_Map*    tADVMap          = tDistributedFactory.create_map( tADVIds );
         sol::Dist_Vector* tDistributedADVs = tDistributedFactory.create_vector( tADVMap, 1, false, true );
 
@@ -195,14 +194,14 @@ namespace moris::gen
         // Loop over ADV types
         for ( bool tDistributed : { false, true } )
         {
-            // Set ADVs
-            tADVs = { { 0.0, 1.0, 2.0, 1.0, 2.0 } };
-            tDistributedADVs->replace_global_values( tADVIds, tADVs );
-
             // Create circles
-            Design_Factory tDesignFactory( { tCircle1ParameterList, tCircle2ParameterList }, tADVs );
+            ADV_Manager tADVManager;
+            Design_Factory tDesignFactory( { tCircle1ParameterList, tCircle2ParameterList }, tADVManager );
             tCircle1 = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
             tCircle2 = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 1 ) );
+
+            // Set ADVs
+            tDistributedADVs->replace_global_values( tADVIds, tADVManager.mADVs );
 
             // Set distributed ADVs
             if ( tDistributed )
@@ -233,8 +232,8 @@ namespace moris::gen
             CHECK_EQUAL( tCircle2->get_dfield_dadvs( 0, tCoordinates2 ), Matrix< DDRMat >( { { -1.0, 0.0, -1.0 } } ), );
 
             // Change ADVs and coordinates
-            tADVs = { { 1.0, 1.0, 2.0, 2.0, 3.0 } };
-            tDistributedADVs->replace_global_values( tADVIds, tADVs );
+            tADVManager.mADVs = { 1.0, 1.0, 2.0, 2.0, 3.0 };
+            tDistributedADVs->replace_global_values( tADVIds, tADVManager.mADVs );
             tCoordinates0( 0 ) = 1.0;
             tCoordinates0( 1 ) = -1.0;
             tCoordinates1( 0 ) = 3.0;
@@ -267,15 +266,17 @@ namespace moris::gen
 
     TEST_CASE( "Superellipse", "[gen], [field], [superellipse]" )
     {
-        // Set up geometry
-        Parameter_List tSuperellipseParameterList = prm::create_level_set_geometry_parameter_list();
-        tSuperellipseParameterList.set( "field_type", "superellipse" );
-        tSuperellipseParameterList.set( "field_variable_indices", "all" );
-        tSuperellipseParameterList.set( "adv_indices", "all" );
+        // Set up field parameters
+        Parameter_List tSuperellipseParameterList = prm::create_level_set_geometry_parameter_list( gen::Field_Type::SUPERELLIPSE );
+        tSuperellipseParameterList.set( "center_x", 3.0 );
+        tSuperellipseParameterList.set( "center_y", 4.0 );
+        tSuperellipseParameterList.set( "semidiameter_x", 1.0 );
+        tSuperellipseParameterList.set( "semidiameter_y", 2.0 );
+        tSuperellipseParameterList.set( "exponent", 2.0 );
 
-        // Create circles
-        Matrix< DDRMat >                      tADVs = { { 3.0, 4.0, 1.0, 2.0, 2.0, 1.0, 0.0, 0.0 } };
-        Design_Factory                        tDesignFactory( { tSuperellipseParameterList }, tADVs );
+        // Create superellipse
+        ADV_Manager tADVManager;
+        Design_Factory                        tDesignFactory( { tSuperellipseParameterList }, tADVManager );
         std::shared_ptr< Level_Set_Geometry > tSuperellipse = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
 
         // Set coordinates for checking
@@ -297,7 +298,6 @@ namespace moris::gen
                         -3.535533905932738e-01,    //
                         MORIS_REAL_MAX,
                         MORIS_REAL_MAX,
-                        MORIS_REAL_MAX,
                         MORIS_REAL_MAX } } ), );
 
         CHECK_EQUAL( tSuperellipse->get_dfield_dadvs( 0, tCoordinates1 ),
@@ -306,7 +306,6 @@ namespace moris::gen
                         5.000000000000000e-01,
                         -0.000000000000000e+00,
                         -2.500000000000000e-01,
-                        MORIS_REAL_MAX,
                         MORIS_REAL_MAX,
                         MORIS_REAL_MAX,
                         MORIS_REAL_MAX } } ), );
@@ -319,11 +318,22 @@ namespace moris::gen
                         -0.000000000000000e+00,
                         MORIS_REAL_MAX,
                         MORIS_REAL_MAX,
-                        MORIS_REAL_MAX,
                         MORIS_REAL_MAX } } ), );
 
-        // Change ADVs and coordinates
-        tADVs         = { { 2.0, 1.0, 4.0, 3.0, 4.0, 1.0, 0.0, 0.0 } };
+        // Create new field parameters
+        tSuperellipseParameterList = prm::create_level_set_geometry_parameter_list( gen::Field_Type::SUPERELLIPSE );
+        tSuperellipseParameterList.set( "center_x", 2.0 );
+        tSuperellipseParameterList.set( "center_y", 1.0 );
+        tSuperellipseParameterList.set( "semidiameter_x", 4.0 );
+        tSuperellipseParameterList.set( "semidiameter_y", 3.0 );
+        tSuperellipseParameterList.set( "exponent", 4.0 );
+
+        // Create new superellipse
+        tADVManager = ADV_Manager();
+        tDesignFactory = Design_Factory( { tSuperellipseParameterList }, tADVManager );
+        tSuperellipse = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
+
+        // Change coordinates
         tCoordinates0 = { { -2.0, 1.0 } };
         tCoordinates1 = { { 0.0, 2.5 } };
         tCoordinates2 = { { 2.0, 5.0 } };
@@ -342,7 +352,6 @@ namespace moris::gen
                         0.0,
                         MORIS_REAL_MAX,
                         MORIS_REAL_MAX,
-                        MORIS_REAL_MAX,
                         MORIS_REAL_MAX } } ), );
 
         CHECK_EQUAL( tSuperellipse->get_dfield_dadvs( 0, tCoordinates1 ),
@@ -351,7 +360,6 @@ namespace moris::gen
                         -pow( 2.0, -0.75 ) / 3.0,
                         -pow( 2.0, -0.75 ) / 8.0,
                         -pow( 2.0, -0.75 ) / 6.0,
-                        MORIS_REAL_MAX,
                         MORIS_REAL_MAX,
                         MORIS_REAL_MAX,
                         MORIS_REAL_MAX } } ), );
@@ -364,7 +372,6 @@ namespace moris::gen
                         -4.0 / 9.0,
                         MORIS_REAL_MAX,
                         MORIS_REAL_MAX,
-                        MORIS_REAL_MAX,
                         MORIS_REAL_MAX } } ), );
     }
 
@@ -373,14 +380,15 @@ namespace moris::gen
     TEST_CASE( "Sphere", "[gen], [field], [sphere]" )
     {
         // Set up geometry
-        Parameter_List tSphereParameterList = prm::create_level_set_geometry_parameter_list();
-        tSphereParameterList.set( "field_type", "sphere" );
-        tSphereParameterList.set( "field_variable_indices", "all" );
-        tSphereParameterList.set( "adv_indices", "all" );
+        Parameter_List tSphereParameterList = prm::create_level_set_geometry_parameter_list( gen::Field_Type::SPHERE );
+        tSphereParameterList.set( "center_x", -1.0, -1.0, -1.0 );
+        tSphereParameterList.set( "center_y", 0.0, 0.0, 0.0 );
+        tSphereParameterList.set( "center_z", 1.0, 1.0, 1.0 );
+        tSphereParameterList.set( "radius", 2.0, 2.0, 2.0 );
 
         // Create sphere
-        Matrix< DDRMat >                      tADVs = { { -1.0, 0.0, 1.0, 2.0 } };
-        Design_Factory                        tDesignFactory( { tSphereParameterList }, tADVs );
+        ADV_Manager tADVManager;
+        Design_Factory                        tDesignFactory( { tSphereParameterList }, tADVManager );
         std::shared_ptr< Level_Set_Geometry > tSphere = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
 
         // Set coordinates for checking
@@ -399,7 +407,7 @@ namespace moris::gen
         CHECK_EQUAL( tSphere->get_dfield_dadvs( 0, tCoordinates2 ), Matrix< DDRMat >( { { -3.0 / sqrt( 14.0 ), -sqrt( 2.0 / 7.0 ), -1.0 / sqrt( 14.0 ), -1.0 } } ), );
 
         // Change ADVs and coordinates
-        tADVs         = { { 0.0, 0.0, 1.0, 1.0 } };
+        tADVManager.mADVs = { { 0.0, 0.0, 1.0, 1.0 } };
         tCoordinates1 = { { 1.0, 1.0, -1.0 } };
         tCoordinates2 = { { 2.0, -2.0, 2.0 } };
 
@@ -418,15 +426,19 @@ namespace moris::gen
 
     TEST_CASE( "Superellipsoid", "[gen], [field], [superellipsoid]" )
     {
-        // Set up geometry
-        Parameter_List tSuperellipsoidParameterList = prm::create_level_set_geometry_parameter_list();
-        tSuperellipsoidParameterList.set( "field_type", "superellipsoid" );
-        tSuperellipsoidParameterList.set( "field_variable_indices", "all" );
-        tSuperellipsoidParameterList.set( "adv_indices", "all" );
+        // Set up field parameters
+        Parameter_List tSuperellipsoidParameterList = prm::create_level_set_geometry_parameter_list( gen::Field_Type::SUPERELLIPSOID );
+        tSuperellipsoidParameterList.set( "center_x", 3.0 );
+        tSuperellipsoidParameterList.set( "center_y", 4.0 );
+        tSuperellipsoidParameterList.set( "center_z", 5.0 );
+        tSuperellipsoidParameterList.set( "semidiameter_x", 1.0 );
+        tSuperellipsoidParameterList.set( "semidiameter_y", 2.0 );
+        tSuperellipsoidParameterList.set( "semidiameter_z", 4.0 );
+        tSuperellipsoidParameterList.set( "exponent", 2.0 );
 
         // Create superellipsoid
-        Matrix< DDRMat >                      tADVs = { { 3.0, 4.0, 5.0, 1.0, 2.0, 4.0, 2.0 } };
-        Design_Factory                        tDesignFactory( { tSuperellipsoidParameterList }, tADVs );
+        ADV_Manager tADVManager;
+        Design_Factory tDesignFactory( { tSuperellipsoidParameterList }, tADVManager );
         std::shared_ptr< Level_Set_Geometry > tSuperellipsoid = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
 
         // Set coordinates for checking
@@ -470,8 +482,22 @@ namespace moris::gen
                         0.0,
                         0.0 } } ), );
 
-        // Change ADVs and coordinates
-        tADVs         = { { 2.0, 1.0, 0.0, 5.0, 4.0, 3.0, 4.0 } };
+        // Create new field parameters
+        tSuperellipsoidParameterList = prm::create_level_set_geometry_parameter_list( gen::Field_Type::SUPERELLIPSOID );
+        tSuperellipsoidParameterList.set( "center_x", 2.0 );
+        tSuperellipsoidParameterList.set( "center_y", 1.0 );
+        tSuperellipsoidParameterList.set( "center_z", 0.0 );
+        tSuperellipsoidParameterList.set( "semidiameter_x", 5.0 );
+        tSuperellipsoidParameterList.set( "semidiameter_y", 4.0 );
+        tSuperellipsoidParameterList.set( "semidiameter_z", 3.0 );
+        tSuperellipsoidParameterList.set( "exponent", 4.0 );
+
+        // Create new superellipsoid
+        tADVManager = ADV_Manager();
+        tDesignFactory = Design_Factory( { tSuperellipsoidParameterList }, tADVManager );
+        tSuperellipsoid = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
+
+        // Change coordinates
         tCoordinates0 = { { 2.0, -3.0, 0.0 } };
         tCoordinates1 = { { 2.0, -1.0, 1.5 } };
         tCoordinates2 = { { 2.0, 1.0, 4.0 } };
@@ -517,15 +543,17 @@ namespace moris::gen
 
     TEST_CASE( "User-defined Geometry", "[gen], [field], [user-defined field]" )
     {
-        // Create user-defined geometry
-        Matrix< DDRMat > tADVs                = { { -1.0, 0.5 } };
-        auto tUserDefinedField    = std::make_shared< User_Defined_Field >(
+        // Create ADVs
+        ADV_Manager tADVManager( 2 );
+        Vector< ADV > tADVs = {
+            tADVManager.create_adv( { 0.5, 0.5, 0.5 } ),
+            tADVManager.create_adv( { -1.0, -1.0, -1.0 } ) };
+
+        // Create user-defined field
+        auto tUserDefinedField = std::make_shared< User_Defined_Field >(
                 &user_defined_geometry_field,
                 &user_defined_geometry_sensitivity,
-                tADVs,
-                Matrix< DDUMat >( { { 1, 0 } } ),
-                Matrix< DDUMat >( { { 0, 1 } } ),
-                Matrix< DDRMat >( { {} } ) );
+                tADVs );
 
         // Set coordinates for checking
         Matrix< DDRMat > tCoordinates1 = { { 1.0, 1.0 } };
@@ -540,7 +568,7 @@ namespace moris::gen
         CHECK_EQUAL( tUserDefinedField->get_dfield_dadvs( tCoordinates2 ), Matrix< DDRMat >( { { 2.0, 6.0 } } ), );
 
         // Change ADVs and coordinates
-        tADVs         = { { 2.0, 0.5 } };
+        tADVManager.mADVs = { 0.5, 2.0 };
         tCoordinates1 = { { 0.0, 1.0 } };
         tCoordinates2 = { { 2.0, -1.0 } };
         tUserDefinedField->import_advs( nullptr );
@@ -559,8 +587,8 @@ namespace moris::gen
     TEST_CASE( "B-spline Geometry", "[gen], [field], [distributed advs], [B-spline geometry]" )
     {
         // Set up 2 B-spline geometries
-        Matrix< DDRMat >                    tADVs( 0, 0 );
-        Matrix< DDRMat >                    tRadii = { { 0.5, 0.25 } };
+        Vector< real > tADVs;
+        Matrix< DDRMat > tRadii = { { 0.5, 0.25 } };
         Vector< std::shared_ptr< Geometry > > tBSplineGeometries( 2 );
 
         // Loop over possible cases
@@ -573,15 +601,17 @@ namespace moris::gen
                     // Create circles
                     for ( uint tGeometryIndex = 0; tGeometryIndex < 2; tGeometryIndex++ )
                     {
-                        Parameter_List tCircleParameterList = prm::create_level_set_geometry_parameter_list();
-                        tCircleParameterList.set( "field_type", "circle" );
-                        tCircleParameterList.set( "constant_parameters", "0.0, 0.0, " + std::to_string( tRadii( tGeometryIndex ) ) );
+                        Parameter_List tCircleParameterList = prm::create_level_set_geometry_parameter_list(  gen::Field_Type::CIRCLE );
+                        tCircleParameterList.set( "center_x", 0.0 );
+                        tCircleParameterList.set( "center_y", 0.0 );
+                        tCircleParameterList.set( "radius", tRadii( tGeometryIndex ) );
                         tCircleParameterList.set( "discretization_mesh_index", 0 );
                         tCircleParameterList.set( "discretization_lower_bound", -1.0 );
                         tCircleParameterList.set( "discretization_upper_bound", 1.0 );
 
                         // Set up geometry
-                        Design_Factory tDesignFactory( { tCircleParameterList }, tADVs );
+                        ADV_Manager tADVManager;
+                        Design_Factory tDesignFactory( { tCircleParameterList }, tADVManager );
                         tBSplineGeometries( tGeometryIndex ) = tDesignFactory.get_geometries()( 0 );
                     }
 
@@ -600,9 +630,9 @@ namespace moris::gen
                     Geometry_Engine_Test tGeometryEngine( tMesh, tGeometryEngineParameters );
 
                     // Get ADVs and upper/lower bounds
-                    tADVs                         = tGeometryEngine.get_advs();
-                    Matrix< DDRMat > tLowerBounds = tGeometryEngine.get_lower_bounds();
-                    Matrix< DDRMat > tUpperBounds = tGeometryEngine.get_upper_bounds();
+                    tADVs                       = tGeometryEngine.get_advs();
+                    Vector< real > tLowerBounds = tGeometryEngine.get_lower_bounds();
+                    Vector< real > tUpperBounds = tGeometryEngine.get_upper_bounds();
 
                     // Set epsilon for checking
                     real tEpsilon = std::numeric_limits< real >::epsilon() * 10;
@@ -611,9 +641,9 @@ namespace moris::gen
                     if ( par_rank() == 0 )
                     {
                         uint tNumADVs = pow( tNumElementsPerDimension * pow( 2, tRefinement ) + tBSplineOrder, 2 ) * 2;
-                        REQUIRE( tADVs.length() == tNumADVs );
-                        REQUIRE( tLowerBounds.length() == tNumADVs );
-                        REQUIRE( tUpperBounds.length() == tNumADVs );
+                        REQUIRE( tADVs.size() == tNumADVs );
+                        REQUIRE( tLowerBounds.size() == tNumADVs );
+                        REQUIRE( tUpperBounds.size() == tNumADVs );
                         for ( uint tBSplineIndex = 0; tBSplineIndex < tNumADVs; tBSplineIndex++ )
                         {
                             CHECK( tLowerBounds( tBSplineIndex ) == Approx( -1.0 ) );
@@ -622,9 +652,9 @@ namespace moris::gen
                     }
                     else
                     {
-                        REQUIRE( tADVs.length() == 0 );
-                        REQUIRE( tLowerBounds.length() == 0 );
-                        REQUIRE( tUpperBounds.length() == 0 );
+                        REQUIRE( tADVs.size() == 0 );
+                        REQUIRE( tLowerBounds.size() == 0 );
+                        REQUIRE( tUpperBounds.size() == 0 );
                     }
 
                     // Epsilon for field value checks must be larger for a quadratic Lagrange mesh
@@ -665,15 +695,22 @@ namespace moris::gen
                                 if ( (uint)par_rank() == tMesh->get_entity_owner( tNodeIndex, mtk::EntityRank::NODE, 0 ) )
                                 {
                                     Matrix< DDRMat > tMatrix = trans( tMesh->get_t_matrix_of_node_loc_ind( tNodeIndex, 0 ) );
-                                    Matrix< DDSMat > tIDs    = trans( tMesh->get_coefficient_IDs_of_node( tNodeIndex, 0 ) )
-                                                          + tOffset;
+                                    Matrix< DDSMat > tIDs    = trans( tMesh->get_coefficient_IDs_of_node( tNodeIndex, 0 ) );
+                                    Vector< sint > tIDVector( tIDs.length() );
+                                    for ( uint iIndex = 0; iIndex < tIDVector.size(); iIndex++ )
+                                    {
+                                        tIDVector( iIndex ) = tIDs( iIndex ) + tOffset;
+                                    }
                                     CHECK_EQUAL( tBSplineGeometry->get_dfield_dadvs( tNodeIndex, { {} } ), tMatrix, );
-                                    CHECK_EQUAL( tBSplineGeometry->get_determining_adv_ids( tNodeIndex, { {} } ), tIDs, );
+                                    CHECK_EQUAL( tBSplineGeometry->get_determining_adv_ids( tNodeIndex, { {} } ), tIDVector, );
                                 }
                             }
 
                             // Set new ADVs
-                            tADVs = tADVs + ( tRadii( tGeometryIndex ) / 2.0 );
+                            for ( uint iADVIndex = 0; iADVIndex < tADVs.size(); iADVIndex++ )
+                            {
+                                tADVs( iADVIndex ) = tADVs( iADVIndex ) + ( tRadii( tGeometryIndex ) / 2.0 );
+                            }
                             tGeometryEngine.set_advs( tADVs );
 
                             // Check field values at all nodes again
@@ -693,7 +730,10 @@ namespace moris::gen
                             }
 
                             // Reset ADVs for next geometry
-                            tADVs = tADVs - ( tRadii( tGeometryIndex ) / 2.0 );
+                            for ( uint iADVIndex = 0; iADVIndex < tADVs.size(); iADVIndex++ )
+                            {
+                                tADVs( iADVIndex ) = tADVs( iADVIndex ) - ( tRadii( tGeometryIndex ) / 2.0 );
+                            }
                             tGeometryEngine.set_advs( tADVs );
                         }
 
@@ -713,15 +753,15 @@ namespace moris::gen
         mtk::Interpolation_Mesh* tMesh = create_simple_mesh( 6, 6 );
 
         // Level set circle parameter list
-        Parameter_List tCircleParameterList = prm::create_level_set_geometry_parameter_list();
-        tCircleParameterList.set( "field_type", "circle" );
-        tCircleParameterList.set( "field_variable_indices", "0, 1, 2" );
-        tCircleParameterList.set( "adv_indices", "0, 1, 2" );
+        Parameter_List tCircleParameterList = prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE );
+        tCircleParameterList.set( "center_x", 0.0, 0.0, 0.0 );
+        tCircleParameterList.set( "center_y", 0.0, 0.0, 0.0 );
+        tCircleParameterList.set( "radius", 0.5, 0.5, 0.5 );
         tCircleParameterList.set( "discretization_mesh_index", -1 );
 
         // Set up geometry
-        Matrix< DDRMat >                      tADVs = { { 0.0, 0.0, 0.5 } };
-        Design_Factory                        tDesignFactory( { tCircleParameterList }, tADVs );
+        ADV_Manager tADVManager;
+        Design_Factory tDesignFactory( { tCircleParameterList }, tADVManager );
         std::shared_ptr< Level_Set_Geometry > tCircle = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
 
         // Create geometry engine
@@ -752,8 +792,8 @@ namespace moris::gen
         }
 
         // Set new ADVs
-        tADVs = { { 1.0, 1.0, 1.0 } };
-        tGeometryEngine.set_advs( tADVs );
+        tADVManager.mADVs = { { 1.0, 1.0, 1.0 } };
+        tGeometryEngine.set_advs( tADVManager.mADVs );
         tGeometryEngine.reset_mesh_information( tMesh );
 
         // Check field values at all nodes again
@@ -784,33 +824,29 @@ namespace moris::gen
 
     TEST_CASE( "Combined Field", "[gen], [field], [combined field]" )
     {
-        // ADV indices
-        std::string      tADVIndices1    = "0, 1, 3";
-        std::string      tADVIndices2    = "0, 2, 4";
-        Matrix< DDSMat > tADVIndicesMat1 = string_to_mat< DDSMat >( tADVIndices1 );
-        Matrix< DDSMat > tADVIndicesMat2 = string_to_mat< DDSMat >( tADVIndices2 );
+        // Design variable for x-component of circle centers, which will be shared.
+        Design_Variable tCenterX( 0.0, 0.0, 0.0 );
 
         // Set up 2 circles
         Vector< Parameter_List > tParameterLists( 3 );
-        tParameterLists( 0 ) = prm::create_field_parameter_list();
-        tParameterLists( 0 ).set( "field_type", "circle" );
-        tParameterLists( 0 ).set( "field_variable_indices", "all" );
-        tParameterLists( 0 ).set( "adv_indices", tADVIndices1 );
+        tParameterLists( 0 ) = prm::create_field_parameter_list( Field_Type::CIRCLE );
+        tParameterLists( 0 ).set( "center_x", tCenterX );
+        tParameterLists( 0 ).set( "center_y", 1.0, 1.0, 1.0 );
+        tParameterLists( 0 ).set( "radius", 1.0, 1.0, 1.0 );
         tParameterLists( 0 ).set( "name", "Circle 1" );
 
-        tParameterLists( 1 ) = prm::create_field_parameter_list();
-        tParameterLists( 1 ).set( "field_type", "circle" );
-        tParameterLists( 1 ).set( "field_variable_indices", "all" );
-        tParameterLists( 1 ).set( "adv_indices", tADVIndices2 );
+        tParameterLists( 1 ) = prm::create_field_parameter_list( Field_Type::CIRCLE );
+        tParameterLists( 1 ).set( "center_x", tCenterX );
+        tParameterLists( 1 ).set( "center_y", 2.0, 2.0, 2.0 );
+        tParameterLists( 1 ).set( "radius", 2.0, 2.0, 2.0 );
         tParameterLists( 1 ).set( "name", "Circle 2" );
 
-        tParameterLists( 2 ) = prm::create_level_set_geometry_parameter_list();
-        tParameterLists( 2 ).set( "field_type", "combined_fields" );
-        tParameterLists( 2 ).set( "dependencies", "Circle 1, Circle 2" );
+        tParameterLists( 2 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::COMBINED_FIELDS );
+        tParameterLists( 2 ).set( "dependencies", "Circle 1", "Circle 2" );
 
         // Create combined fields
-        Matrix< DDRMat >                    tADVs = { { 0.0, 1.0, 2.0, 1.0, 2.0 } };
-        Design_Factory                      tDesignFactory( tParameterLists, tADVs );
+        ADV_Manager tADVManager;
+        Design_Factory                      tDesignFactory( tParameterLists, tADVManager );
         Vector< std::shared_ptr< Geometry > > tGeometries = tDesignFactory.get_geometries();
 
         // Should be only one total geometry
@@ -833,9 +869,9 @@ namespace moris::gen
         CHECK_EQUAL( tCombinedField->get_dfield_dadvs( 0, tCoordinates2 ), Matrix< DDRMat >( { { -1.0, 0.0, -1.0 } } ), );
 
         // Change ADVs and coordinates
-        tADVs( 0 )         = 1.0;
-        tADVs( 3 )         = 2.0;
-        tADVs( 4 )         = 3.0;
+        tADVManager.mADVs( 0 ) = 1.0;
+        tADVManager.mADVs( 3 ) = 2.0;
+        tADVManager.mADVs( 4 ) = 3.0;
         tCoordinates0( 0 ) = 1.0;
         tCoordinates0( 1 ) = -1.0;
         tCoordinates1( 0 ) = 3.0;
@@ -863,8 +899,7 @@ namespace moris::gen
             for ( bool tUseADVs : { false, true } )
             {
                 // Create swiss cheese
-                Parameter_List tSwissCheeseParameterList = prm::create_field_array_parameter_list();
-                tSwissCheeseParameterList.set( "field_type", "circle" );
+                Parameter_List tSwissCheeseParameterList = prm::create_field_array_parameter_list( gen::Field_Type::CIRCLE );
                 tSwissCheeseParameterList.set( "lower_bound_x", -2.0 );
                 tSwissCheeseParameterList.set( "upper_bound_x", 2.0 );
                 tSwissCheeseParameterList.set( "lower_bound_y", -1.0 );
@@ -874,18 +909,16 @@ namespace moris::gen
                 tSwissCheeseParameterList.set( "offset_per_row_x", 1.0 );
                 if ( tUseADVs )
                 {
-                    tSwissCheeseParameterList.set( "field_variable_indices", "2" );
-                    tSwissCheeseParameterList.set( "adv_indices", "0" );
-                    tSwissCheeseParameterList.set( "constant_parameters", "0.0, 0.0" );
+                    tSwissCheeseParameterList.set( "radius", 0.1, 0.1, 0.1 );
                 }
                 else
                 {
-                    tSwissCheeseParameterList.set( "constant_parameters", "0.0, 0.0, 0.1" );
+                    tSwissCheeseParameterList.set( "radius", 0.1 );
                 }
 
                 // Create swiss cheese
-                Matrix< DDRMat >                      tADVs = { { 0.1 } };
-                Design_Factory                        tDesignFactory( { tSwissCheeseParameterList }, tADVs );
+                ADV_Manager tADVManager;
+                Design_Factory tDesignFactory( { tSwissCheeseParameterList }, tADVManager );
                 std::shared_ptr< Level_Set_Geometry > tSwissCheese = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
 
                 // Radii to check
@@ -902,7 +935,10 @@ namespace moris::gen
                 // Check holes
                 for ( real tR : tRadii )
                 {
-                    tADVs( 0 ) = tR;
+                    if ( tUseADVs )
+                    {
+                        tADVManager.mADVs( 0 ) = tR;
+                    }
                     check_swiss_cheese( tSwissCheese, -2.0, -1.0, tR, tR );
                     check_swiss_cheese( tSwissCheese, -1.0, -0.5, tR, tR );
                     check_swiss_cheese( tSwissCheese, -2.0, 0.0, tR, tR );
@@ -935,21 +971,20 @@ namespace moris::gen
         SECTION( "Superellipse Field Array (Spacing)" )
         {
             // Create swiss cheese
-            Parameter_List tSwissCheeseParameterList = prm::create_field_array_parameter_list();
-            tSwissCheeseParameterList.set( "field_type", "superellipse" );
+            Parameter_List tSwissCheeseParameterList = prm::create_field_array_parameter_list( gen::Field_Type::SUPERELLIPSE );
+            tSwissCheeseParameterList.set( "semidiameter_x", 0.2, 0.25, 0.3 );
+            tSwissCheeseParameterList.set( "semidiameter_y", 0.75, 1.0, 1.25 );
+            tSwissCheeseParameterList.set( "exponent", 4.0 );
             tSwissCheeseParameterList.set( "lower_bound_x", -3.0 );
             tSwissCheeseParameterList.set( "upper_bound_x", 3.0 );
             tSwissCheeseParameterList.set( "lower_bound_y", -1.0 );
             tSwissCheeseParameterList.set( "upper_bound_y", 1.0 );
             tSwissCheeseParameterList.set( "minimum_spacing_x", 0.9 );
             tSwissCheeseParameterList.set( "minimum_spacing_y", 2.5 );
-            tSwissCheeseParameterList.set( "field_variable_indices", "2, 3" );
-            tSwissCheeseParameterList.set( "adv_indices", "0, 1" );
-            tSwissCheeseParameterList.set( "constant_parameters", "0.0, 0.0, 4.0, 1.0, 0.0, 0.0" );
 
             // Create swiss cheese
-            Matrix< DDRMat >                      tADVs = { { 0.3, 1.0 } };
-            Design_Factory                        tDesignFactory( { tSwissCheeseParameterList }, tADVs );
+            ADV_Manager tADVManager;
+            Design_Factory                        tDesignFactory( { tSwissCheeseParameterList }, tADVManager );
             std::shared_ptr< Level_Set_Geometry > tSwissCheese = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
 
             // Check holes
@@ -957,8 +992,8 @@ namespace moris::gen
             {
                 for ( real tSemiDY : { 0.75, 1.25 } )
                 {
-                    tADVs( 0 ) = tSemiDX;
-                    tADVs( 1 ) = tSemiDY;
+                    tADVManager.mADVs( 0 ) = tSemiDX;
+                    tADVManager.mADVs( 1 ) = tSemiDY;
                     check_swiss_cheese( tSwissCheese, -3.0, -1.0, tSemiDX, tSemiDY, false );
                     check_swiss_cheese( tSwissCheese, -3.0, 0.0, tSemiDX, tSemiDY );
                     check_swiss_cheese( tSwissCheese, -3.0, 1.0, tSemiDX, tSemiDY, false );
@@ -987,8 +1022,11 @@ namespace moris::gen
         SECTION( "Superellipsoid Field Array (Number + Spacing)" )
         {
             // Create swiss cheese
-            Parameter_List tSwissCheeseParameterList = prm::create_field_array_parameter_list();
-            tSwissCheeseParameterList.set( "field_type", "superellipsoid" );
+            Parameter_List tSwissCheeseParameterList = prm::create_field_array_parameter_list( gen::Field_Type::SUPERELLIPSOID );
+            tSwissCheeseParameterList.set( "semidiameter_x", 0.2 );
+            tSwissCheeseParameterList.set( "semidiameter_y", 0.4 );
+            tSwissCheeseParameterList.set( "semidiameter_z", 0.6 );
+            tSwissCheeseParameterList.set( "exponent", 4.0 );
             tSwissCheeseParameterList.set( "lower_bound_x", 1.0 );
             tSwissCheeseParameterList.set( "upper_bound_x", 2.0 );
             tSwissCheeseParameterList.set( "lower_bound_y", -2.0 );
@@ -1000,13 +1038,12 @@ namespace moris::gen
             tSwissCheeseParameterList.set( "minimum_spacing_y", 1.4 );
             tSwissCheeseParameterList.set( "number_of_fields_z", 5 );
             tSwissCheeseParameterList.set( "minimum_spacing_z", 1.4 );
-            tSwissCheeseParameterList.set( "constant_parameters", "0.0, 0.0, 0.0, 0.2, 0.4, 0.6, 4.0" );
             tSwissCheeseParameterList.set( "offset_per_row_y", 0.1 );
             tSwissCheeseParameterList.set( "offset_per_row_z", -0.1 );
 
             // Create swiss cheese
-            Matrix< DDRMat >                      tADVs = { { 0.3, 1.0 } };
-            Design_Factory                        tDesignFactory( { tSwissCheeseParameterList }, tADVs );
+            ADV_Manager tADVManager;
+            Design_Factory tDesignFactory( { tSwissCheeseParameterList }, tADVManager );
             std::shared_ptr< Level_Set_Geometry > tSwissCheese = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
 
             // Check holes

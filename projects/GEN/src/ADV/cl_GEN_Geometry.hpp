@@ -150,7 +150,7 @@ namespace moris::gen
         virtual void discretize(
                 mtk::Mesh_Pair          aMeshPair,
                 sol::Dist_Vector*       aOwnedADVs,
-                const Matrix< DDSMat >& aSharedADVIds,
+                const Vector< sint >& aSharedADVIds,
                 uint                    aADVOffsetID ) = 0;
 
         /**
@@ -165,7 +165,7 @@ namespace moris::gen
                 std::shared_ptr< mtk::Field > aMTKField,
                 mtk::Mesh_Pair                aMeshPair,
                 sol::Dist_Vector*             aOwnedADVs,
-                const Matrix< DDSMat >&       aSharedADVIds,
+                const Vector< sint >&       aSharedADVIds,
                 uint                          aADVOffsetID ) = 0;
     };
 }    // namespace moris::gen

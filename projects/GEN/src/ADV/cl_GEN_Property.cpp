@@ -19,7 +19,6 @@ namespace moris::gen
     Property_Parameters::Property_Parameters( const Parameter_List& aParameterList )
             : Field_Parameters( aParameterList )
             , Design_Parameters( aParameterList )
-            , mDependencyNames( aParameterList.get_cell< std::string >( "dependencies" ) )
             , mPDVType( get_pdv_type_map()[ aParameterList.get< std::string >( "pdv_type" ) ] )
             , mInterpolationPDV( aParameterList.get< std::string >( "pdv_mesh_type" ) == "interpolation" )
             , mPDVMeshSetIndices( aParameterList.get_cell< uint >( "pdv_mesh_set_indices" ) )
@@ -48,26 +47,17 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Property::update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedFields )
+    void Property::update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedDesigns )
     {
-        // Set up dependency fields
-        uint                             tNumDependencies = mParameters.mDependencyNames.size();
-        Vector< std::shared_ptr< Field > > tDependencyFields( tNumDependencies );
-
-        // Grab dependencies
-        for ( uint tDependencyIndex = 0; tDependencyIndex < tNumDependencies; tDependencyIndex++ )
+        // Get fields from designs
+        Vector< std::shared_ptr< Field > > tUpdatedFields( aAllUpdatedDesigns.size() );
+        for ( uint iFieldIndex = 0; iFieldIndex < tUpdatedFields.size(); iFieldIndex++ )
         {
-            for ( uint tFieldIndex = 0; tFieldIndex < aAllUpdatedFields.size(); tFieldIndex++ )
-            {
-                if ( aAllUpdatedFields( tFieldIndex )->get_name() == mParameters.mDependencyNames( tDependencyIndex ) )
-                {
-                    tDependencyFields( tDependencyIndex ) = aAllUpdatedFields( tFieldIndex )->get_field();
-                }
-            }
+            tUpdatedFields( iFieldIndex ) = aAllUpdatedDesigns( iFieldIndex )->get_field();
         }
 
-        // Set dependencies
-        this->get_field()->set_dependencies( tDependencyFields );
+        // Update fields
+        Design_Field::update_dependencies( tUpdatedFields );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -155,4 +145,7 @@ namespace moris::gen
     {
         return mParameters.mDiscretizationUpperBound;
     }
+
+    //--------------------------------------------------------------------------------------------------------------
+
 }    // namespace moris::gen

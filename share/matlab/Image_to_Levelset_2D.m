@@ -20,6 +20,11 @@ function Image_to_Levelset_2D
 % output
 %
 %        1. signed distance level set field (hdf5 format)
+%
+% Note: to trim off white areas use:
+%
+%       mogrify -trim -type truecolor <image_file_name>
+%
 %==========================================================================
 
 close all
@@ -107,7 +112,7 @@ if size(im,3) > 1
     image=rgb2gray(im);
     imageinv=255-image;
 else
-    error('Incorrect image type - needs to be RGB');
+    imageinv=im;
 end
 
 imshow(imageinv)

@@ -29,7 +29,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    PDV_Host_Manager::set_owned_adv_ids( Matrix< DDSMat > aOwnedADVIds )
+    PDV_Host_Manager::set_owned_adv_ids( const Vector< sint >& aOwnedADVIds )
     {
         mOwnedADVIds = aOwnedADVIds;
         mADVIdsSet   = true;
@@ -530,7 +530,7 @@ namespace moris::gen
 
     void
     PDV_Host_Manager::remove_sensitivities_of_unused_variables(
-            Matrix< DDSMat >& aADVIds,
+            Vector< sint >&   aADVIds,
             Matrix< DDRMat >& aHostADVSensitivities )
     {
         // get number of ADV entries and number of sensitivities per IDs
@@ -538,10 +538,10 @@ namespace moris::gen
         uint tNumSens = aHostADVSensitivities.n_rows();
 
         // check for consistent lengths of ID vector and matrix of sensitivities
-        MORIS_ERROR( aADVIds.n_cols() == tNumADVs,
+        MORIS_ERROR( aADVIds.size() == tNumADVs,
                 "PDV_Host_Manager::compute_diqi_dadv - inconsistent number of ADVs (%d) vs. sensitivity values for interpolation PDVs (%zu)",
                 tNumADVs,
-                aADVIds.n_cols() );
+                aADVIds.size() );
 
         // skip of ADV vector is empty
         if ( tNumADVs == 0 ) return;
@@ -553,7 +553,7 @@ namespace moris::gen
         uint tCounter = 0;
 
         // loop over all ADV IDs
-        for ( uint iv = 0; iv < aADVIds.numel(); ++iv )
+        for ( uint iv = 0; iv < aADVIds.size(); ++iv )
         {
             // check for valid ID
             if ( aADVIds( iv ) >= 0 )
@@ -570,14 +570,14 @@ namespace moris::gen
         }
 
         // resize ID vector and matrix of sensitivities
-        aADVIds.resize( 1, tCounter );
+        aADVIds.resize( tCounter );
         aHostADVSensitivities.resize( tNumSens, tCounter );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDRMat >
-    PDV_Host_Manager::compute_diqi_dadv( const Matrix< DDSMat >& aFullADVIds )
+    PDV_Host_Manager::compute_diqi_dadv( const Vector< sint >& aFullADVIds )
     {
         Tracer tTracer( "GEN", "PDV Host Manager", "compute dQi/dadv" );
 
@@ -630,7 +630,7 @@ namespace moris::gen
                                     mIpPDVHosts( tPDVHostIndex )->get_sensitivities( tPDVIndex );
 
                             // Get ADV IDs
-                            Matrix< DDSMat > tADVIds =
+                            Vector< sint > tADVIds =
                                     mIpPDVHosts( tPDVHostIndex )->get_determining_adv_ids( tPDVIndex );
 
                             // remove sensitivities wrt unused variables
@@ -668,7 +668,7 @@ namespace moris::gen
                 tHostADVSensitivities.set_size( 0.0, 0.0 );
                 eye( tNumCoordinates, tNumCoordinates, tI );
                 mNodeManager.append_dcoordinate_dadv_from_derived_node( iNodeIndex, tHostADVSensitivities, tI );
-                Matrix< DDSMat > tADVIds = mNodeManager.get_coordinate_determining_adv_ids_from_derived_node( iNodeIndex );
+                Vector< sint > tADVIds = mNodeManager.get_coordinate_determining_adv_ids_from_derived_node( iNodeIndex );
 
                 // remove sensitivities wrt unused variables
                 this->remove_sensitivities_of_unused_variables( tADVIds, tHostADVSensitivities );

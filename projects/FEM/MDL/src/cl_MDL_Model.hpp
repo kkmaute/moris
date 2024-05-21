@@ -299,9 +299,14 @@ namespace moris
                  * @param[ in ] aCloseFile    boolean indicating the closing of the exodus file
                  */
                 void output_solution(
-                        const uint aVisMeshIndex,
-                        const real aTime,
-                        const bool aCloseFile );
+                        uint aVisMeshIndex,
+                        real aTime,
+                        bool aCloseFile );
+
+                /**
+                 * Updates this problem.
+                 */
+                void update_model();
 
                 //------------------------------------------------------------------------------
 

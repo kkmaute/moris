@@ -63,7 +63,7 @@ namespace moris::gen
          *
          * @return ADV IDs
          */
-        Matrix< DDSMat > get_determining_adv_ids(
+        Vector< sint > get_determining_adv_ids(
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates ) override;
     };

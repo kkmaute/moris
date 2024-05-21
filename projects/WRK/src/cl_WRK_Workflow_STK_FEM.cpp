@@ -72,17 +72,17 @@ namespace moris
 
         void
         Workflow_STK_FEM::initialize(
-                Matrix< DDRMat >& aADVs,
-                Matrix< DDRMat >& aLowerBounds,
-                Matrix< DDRMat >& aUpperBounds,
-                Matrix< IdMat >&  aIjklIDs )
+                Vector< real >& aADVs,
+                Vector< real >& aLowerBounds,
+                Vector< real >& aUpperBounds,
+                Matrix< IdMat >& aIjklIDs )
         {
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix< DDRMat >
-        Workflow_STK_FEM::perform( Matrix< DDRMat >& aNewADVs )
+        Vector< real >
+        Workflow_STK_FEM::perform( Vector< real >& aNewADVs )
         {
 
             // Stage 1: MDL perform ---------------------------------------------------------------------
@@ -100,14 +100,14 @@ namespace moris
                 tVal( iIQIIndex )( 0 ) = sum_all( tVal( iIQIIndex )( 0 ) );
             }
 
-            moris::Matrix< DDRMat > tMat( tVal.size(), 1, 0.0 );
+            Vector< real > tCriteria( tVal.size(), 0.0 );
 
-            for ( uint Ik = 0; Ik < tVal.size(); Ik++ )
+            for ( uint iCriteriaIndex = 0; iCriteriaIndex < tVal.size(); iCriteriaIndex++ )
             {
-                tMat( Ik ) = tVal( Ik )( 0 );
+                tCriteria( iCriteriaIndex ) = tVal( iCriteriaIndex )( 0 );
             }
 
-            return tMat;
+            return tCriteria;
         }
 
         //--------------------------------------------------------------------------------------------------------------

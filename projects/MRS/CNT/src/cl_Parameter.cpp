@@ -12,83 +12,81 @@
 
 namespace moris
 {
+    //--------------------------------------------------------------------------------------------------------------
+
+    // Forward declare design variable validator
+    class Design_Variable_Validator;
 
     //--------------------------------------------------------------------------------------------------------------
 
-    std::string convert_variant_to_string( Variant aVariant )
+    Parameter::Parameter( const Parameter& aParameter )
+            : mValue( aParameter.mValue )
+            , mExternalValidator( aParameter.mExternalValidator )
     {
-        std::stringstream tStringStream;
-
-        if ( boost::get< bool >( &aVariant ) != nullptr )
+        if ( aParameter.mValidator )
         {
-            tStringStream << boost::get< bool >( aVariant );
-        }
-        else if ( boost::get< uint >( &aVariant ) != nullptr )
-        {
-            tStringStream << boost::get< uint >( aVariant );
-        }
-        else if ( boost::get< sint >( &aVariant ) != nullptr )
-        {
-            tStringStream << boost::get< sint >( aVariant );
-        }
-        else if ( boost::get< real >( &aVariant ) != nullptr )
-        {
-            tStringStream << boost::get< real >( aVariant );
-        }
-        else if ( boost::get< std::string >( &aVariant ) != nullptr )
-        {
-            tStringStream << boost::get< std::string >( aVariant );
-        }
-        else if ( boost::get< std::pair< std::string, std::string > >( &aVariant ) != nullptr )
-        {
-            std::pair< std::string, std::string > tPair = boost::get< std::pair< std::string, std::string > >( aVariant );
-            tStringStream << tPair.first << "," << tPair.second;
+            mValidator = aParameter.mValidator->copy();
         }
         else
         {
-            MORIS_ERROR( false, "Variant conversion error." );
+            mValidator = nullptr;
         }
+    }
 
-        return tStringStream.str();
+    //--------------------------------------------------------------------------------------------------------------
+
+    Parameter::~Parameter()
+    {
+        delete mValidator;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    const Variant& Parameter::get_value() const
+    {
+        return mValue;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    std::string Parameter::get_string() const
+    {
+        return convert_variant_to_string( mValue );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    uint Parameter::index() const
+    {
+        return mValue.index();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    const External_Validator& Parameter::get_external_validator() const
+    {
+        return mExternalValidator;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     template<>
-    Variant Parameter::make_variant( std::string aParameter )
+    Parameter::Parameter(
+            const char*         aString,
+            Validation_Type     aExternalValidationType,
+            std::string         aExternalParameterName,
+            Parameter_List_Type aExternalParameterListType,
+            uint                aExternalParameterListIndex )
+            : Parameter( std::string( aString ), aExternalValidationType, std::move( aExternalParameterName ), aExternalParameterListType, aExternalParameterListIndex )
     {
-        // remove whitespaces from string
-        split_trim_string( aParameter, ",;" );
-        return aParameter;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    template<>
-    Variant Parameter::make_variant( std::pair< std::string, std::string > aParameterValue )
+    bool Parameter::operator==( const Parameter& aOther )
     {
-        // extract elements of pair
-        std::string tFirst  = aParameterValue.first;
-        std::string tSecond = aParameterValue.second;
-
-        // trim off leading and trailing whitespaces
-        split_trim_string( tFirst, ",;" );
-        split_trim_string( tSecond, ",;" );
-
-        // Return new pair
-        return std::make_pair( tFirst, tSecond );
+        return this->mValue == aOther.mValue;
     }
 
     //--------------------------------------------------------------------------------------------------------------
-
-    template<>
-    Variant Parameter::make_variant( const char* aParameterValue )
-    {
-        // Convert to a string
-        std::string tString( aParameterValue );
-        return make_variant( tString );
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
 }

@@ -630,6 +630,13 @@ namespace moris
         {
             MORIS_ERROR( false, "Solver_Interface::compute_sparsity_pattern(), not implemented for base class" );
         };
+
+        /**
+         * Updates the underlying problem being solved.
+         */
+        virtual void update_problem()
+        {
+        };
     };
 }    // namespace moris
 

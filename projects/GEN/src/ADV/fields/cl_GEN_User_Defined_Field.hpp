@@ -29,7 +29,7 @@ namespace moris::gen
     {
 
       private:
-        Vector< real >         mFieldVariables;
+        Vector< real >       mFieldVariables;
         Field_Function       get_field_value_user_defined;
         Sensitivity_Function get_dfield_dadvs_user_defined;
 
@@ -37,7 +37,7 @@ namespace moris::gen
         /**
          * Constructor, sets the pointers to advs and constant parameters for evaluations.
          *
-         * @param aFieldFunction User-defined function for evaluating the field field
+         * @param aFieldFunction User-defined function for evaluating the field
          * @param aSensitivityFunction User-defined function for evaluating the field sensitivities
          * @param aADVs ADV vector
          * @param aFieldVariableIndices Indices of field variables to be filled by the ADVs
@@ -50,7 +50,7 @@ namespace moris::gen
                 Sensitivity_Function aSensitivityFunction,
                 ADV_ARG_TYPES )
                 : Field_Analytic< 0 >( ADV_ARGS )
-                , mFieldVariables( aFieldVariableIndices.length() + aConstants.length() )
+                , mFieldVariables( aFieldVariableIndices.size() + aConstants.size() )
                 , get_field_value_user_defined( aFieldFunction )
                 , get_dfield_dadvs_user_defined( aSensitivityFunction )
         {
@@ -59,14 +59,30 @@ namespace moris::gen
         }
 
         /**
-         * Constructor with only constants and no sensitivities.
+         * Constructor with both a user-defined field and user-defined sensitivity function.
          *
-         * @param aConstants The constant field variables not filled by ADVs
-         * @param aFieldFunction User-defined function for evaluating the field field
+         * @param aFieldFunction User-defined function for evaluating the field
+         * @param aSensitivityFunction User-defined function for evaluating the field sensitivities
+         * @param aADVs The parameters that define this field and may be changed as a part of a design
+         * @param aName Name of this field
+         */
+        User_Defined_Field(
+                Field_Function       aFieldFunction,
+                Sensitivity_Function aSensitivityFunction,
+                const Vector< ADV >& aADVs = {},
+                std::string          aName = "" );
+
+        /**
+         * Constructor with only a user-defined field function.
+         *
+         * @param aFieldFunction User-defined function for evaluating the field
+         * @param aADVs The parameters that define this field and may be changed as a part of a design
+         * @param aName Name of this field
          */
         explicit User_Defined_Field(
-                Field_Function          aFieldFunction,
-                const Matrix< DDRMat >& aConstants = { {} } );
+                Field_Function       aFieldFunction,
+                const Vector< ADV >& aADVs = {},
+                std::string          aName = "" );
 
         /**
          * For the specific case of a user-defined field, this function indicates that new field variables must be set for the user-defined function calls.
@@ -114,7 +130,7 @@ namespace moris::gen
          */
         static void no_sensitivities(
                 const Matrix< DDRMat >& aCoordinates,
-                const Vector< real >&     aParameters,
+                const Vector< real >&   aParameters,
                 Matrix< DDRMat >&       aSensitivities );
     };
 }

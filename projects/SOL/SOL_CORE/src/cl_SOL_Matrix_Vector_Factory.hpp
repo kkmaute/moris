@@ -78,7 +78,15 @@ namespace moris
              * @param aMyGlobalIds Owned global IDs
              * @return Distributed map
              */
-            Dist_Map *create_map( const moris::Matrix< DDSMat > &aMyGlobalIds );
+            Dist_Map* create_map( const moris::Matrix< DDSMat >& aMyGlobalIds );
+
+            /**
+             * Creates a distributed vector/matrix map
+             *
+             * @param aMyGlobalIds Owned global IDs
+             * @return Distributed map
+             */
+            Dist_Map* create_map( const Vector< sint >& aMyGlobalIds );
 
             /**
              * Creates a distributed vector map specifically for full vector

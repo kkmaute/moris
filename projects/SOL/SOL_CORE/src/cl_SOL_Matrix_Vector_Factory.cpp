@@ -268,6 +268,38 @@ namespace moris
         //-------------------------------------------------------------------------------------------------
 
         Dist_Map*
+        sol::Matrix_Vector_Factory::create_map( const Vector< sint >& aMyGlobalIds )
+        {
+            Dist_Map* tMap = nullptr;
+
+            switch ( mMapType )
+            {
+                case MapType::Epetra:
+                {
+                    tMap = new Map_Epetra( aMyGlobalIds );
+                    break;
+                }
+                case MapType::Petsc:
+                {
+#ifdef MORIS_HAVE_PETSC
+                    tMap = new Map_PETSc( aMyGlobalIds );
+#else
+                    MORIS_ERROR( false, "MORIS is configured with out PETSC support." );
+#endif
+                    break;
+                }
+                default:
+                {
+                    MORIS_ERROR( false, "No map type specified" );
+                    break;
+                }
+            }
+            return tMap;
+        }
+
+        //-------------------------------------------------------------------------------------------------
+
+        Dist_Map*
         sol::Matrix_Vector_Factory::create_full_map(
                 const moris::Matrix< DDSMat >& aMyGlobalOwnedIds,
                 const moris::Matrix< DDSMat >& aMyGlobalOwnedAndSharedIds )

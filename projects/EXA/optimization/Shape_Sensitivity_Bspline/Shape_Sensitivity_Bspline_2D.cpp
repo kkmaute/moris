@@ -78,7 +78,7 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDRMat >
-    compute_objectives( Matrix< DDRMat > aADVs, Matrix< DDRMat > aCriteria )
+    compute_objectives( const Vector< real >& aADVs, const Vector< real >& aCriteria )
     {
         Matrix< DDRMat > tObjectives = { { aCriteria( 0 ) } };
 
@@ -88,7 +88,7 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDRMat >
-    compute_constraints( Matrix< DDRMat > aADVs, Matrix< DDRMat > aCriteria )
+    compute_constraints( const Vector< real >& aADVs, const Vector< real >& aCriteria )
     {
         Matrix< DDRMat > tConstraints = { { aCriteria( 1 ) } };
 
@@ -98,9 +98,9 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDRMat >
-    compute_dobjective_dadv( Matrix< DDRMat > aADVs, Matrix< DDRMat > aCriteria )
+    compute_dobjective_dadv( const Vector< real >& aADVs, const Vector< real >& aCriteria )
     {
-        Matrix< DDRMat > tDObjectiveDADV( 1, aADVs.numel(), 0.0 );
+        Matrix< DDRMat > tDObjectiveDADV( 1, aADVs.size(), 0.0 );
 
         return tDObjectiveDADV;
     }
@@ -108,7 +108,7 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDRMat >
-    compute_dobjective_dcriteria( Matrix< DDRMat > aADVs, Matrix< DDRMat > aCriteria )
+    compute_dobjective_dcriteria( const Vector< real >& aADVs, const Vector< real >& aCriteria )
     {
         Matrix< DDRMat > tDObjectiveDCriteria( 1, 2 );
         tDObjectiveDCriteria( 0 ) = 1;
@@ -120,9 +120,9 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDRMat >
-    compute_dconstraint_dadv( Matrix< DDRMat > aADVs, Matrix< DDRMat > aCriteria )
+    compute_dconstraint_dadv( const Vector< real >& aADVs, const Vector< real >& aCriteria )
     {
-        Matrix< DDRMat > tDConstraintDADV( 1, aADVs.numel(), 0.0 );
+        Matrix< DDRMat > tDConstraintDADV( 1, aADVs.size(), 0.0 );
 
         return tDConstraintDADV;
     }
@@ -130,7 +130,7 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDRMat >
-    compute_dconstraint_dcriteria( Matrix< DDRMat > aADVs, Matrix< DDRMat > aCriteria )
+    compute_dconstraint_dcriteria( const Vector< real >& aADVs, const Vector< real >& aCriteria )
     {
         Matrix< DDRMat > tDConstraintDCriteria( 1, 2 );
         tDConstraintDCriteria( 0 ) = 0;
@@ -222,112 +222,52 @@ namespace moris
         tParameterlist.resize( 3 );
         tParameterlist( 0 ).resize( 1 );
         tParameterlist( 0 )( 0 ) = moris::prm::create_gen_parameter_list();
-        tParameterlist( 0 )( 0 ).set( "initial_advs", "" );
-        tParameterlist( 0 )( 0 ).set( "lower_bounds", "" );
-        tParameterlist( 0 )( 0 ).set( "upper_bounds", "" );
-        tParameterlist( 0 )( 0 ).set( "IQI_types", "IQIBulkStrainEnergy,IQIBulkVolume" );
-        tParameterlist( 0 )( 0 ).set( "PDV_types", "" );
+        tParameterlist( 0 )( 0 ).set( "IQI_types", "IQIBulkStrainEnergy", "IQIBulkVolume" );
         tParameterlist( 0 )( 0 ).set( "output_mesh_file", "gen_shape_sensitivities.exo" );
-
-        tParameterlist( 0 )( 0 ).set( "initial_advs", "" );
-        tParameterlist( 0 )( 0 ).set( "lower_bounds", "" );
-        tParameterlist( 0 )( 0 ).set( "upper_bounds", "" );
-
-        switch ( tGeoModel )
-        {
-            case 0:
-                tParameterlist( 0 )( 0 ).set( "initial_advs", "0.20" );
-                tParameterlist( 0 )( 0 ).set( "lower_bounds", "0.00" );
-                tParameterlist( 0 )( 0 ).set( "upper_bounds", "1.00" );
-                break;
-            case 1:
-                tParameterlist( 0 )( 0 ).set( "initial_advs", "0.65" );
-                tParameterlist( 0 )( 0 ).set( "lower_bounds", "0.00" );
-                tParameterlist( 0 )( 0 ).set( "upper_bounds", "1.00" );
-                break;
-            case 2:
-                tParameterlist( 0 )( 0 ).set( "initial_advs", "0.20,0.65" );
-                tParameterlist( 0 )( 0 ).set( "lower_bounds", "0.00,0.00" );
-                tParameterlist( 0 )( 0 ).set( "upper_bounds", "1.00,1.00" );
-                break;
-            case 3:
-                tParameterlist( 0 )( 0 ).set( "initial_advs", "0.65,0.20" );
-                tParameterlist( 0 )( 0 ).set( "lower_bounds", "0.00,0.00" );
-                tParameterlist( 0 )( 0 ).set( "upper_bounds", "1.00,1.00" );
-                break;
-        }
 
         // Geometry parameter lists
         tParameterlist( 1 ).resize( 2 );
 
-        tParameterlist( 1 )( 0 ) = prm::create_level_set_geometry_parameter_list();
-        tParameterlist( 1 )( 0 ).set( "field_type", "plane" );
+        tParameterlist( 1 )( 0 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE );
+        tParameterlist( 1 )( 0 ).set( "center_y", -1.0 );
+        tParameterlist( 1 )( 0 ).set( "normal_x", 1.0 );
+        tParameterlist( 1 )( 0 ).set( "normal_y", 0.0 );
         switch ( tGeoModel )
         {
             case 0:
-                tParameterlist( 1 )( 0 ).set( "constant_parameters", "-1.0, 1.0, 0.0" );
-                tParameterlist( 1 )( 0 ).set( "field_variable_indices", "0" );
-                tParameterlist( 1 )( 0 ).set( "adv_indices", "0" );
+            case 2:
+                tParameterlist( 1 )( 0 ).set( "center_x", 0.0, 0.2, 1.0 );
                 break;
             case 1:
-                tParameterlist( 1 )( 0 ).set( "constant_parameters", "0.2, -1.0, 1.0, 0.0" );
-                break;
-            case 2:
-                tParameterlist( 1 )( 0 ).set( "constant_parameters", "-1.0, 1.0, 0.0" );
-                tParameterlist( 1 )( 0 ).set( "field_variable_indices", "0" );
-                tParameterlist( 1 )( 0 ).set( "adv_indices", "0" );
+            case 4:
+                tParameterlist( 1 )( 0 ).set( "center_x", 0.2 );
                 break;
             case 3:
-                tParameterlist( 1 )( 0 ).set( "constant_parameters", "-1.0, 1.0, 0.0" );
-                tParameterlist( 1 )( 0 ).set( "field_variable_indices", "0" );
-                tParameterlist( 1 )( 0 ).set( "adv_indices", "1" );
-                break;
-            case 4:
-                tParameterlist( 1 )( 0 ).set( "constant_parameters", "0.2, -1.0, 1.0, 0.0" );
-                tParameterlist( 1 )( 0 ).set( "discretization_mesh_index", 0 );
-                break;
             case 5:
-                tParameterlist( 1 )( 0 ).set( "constant_parameters", "0.2, -1.0, 1.0, 0.0" );
-                break;
-            case 6:
-                tParameterlist( 1 )( 0 ).set( "constant_parameters", "0.2, -1.0, 1.0, 0.0" );
+                tParameterlist( 1 )( 0 ).set( "center_x", 0.2 );
                 tParameterlist( 1 )( 0 ).set( "discretization_mesh_index", 0 );
                 break;
             default:
                 MORIS_ERROR( false, "geometric model not implemented in test case" );
         }
 
-        tParameterlist( 1 )( 1 ) = prm::create_level_set_geometry_parameter_list();
-        tParameterlist( 1 )( 1 ).set( "field_type", "plane" );
+        tParameterlist( 1 )( 1 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE );
+        tParameterlist( 1 )( 1 ).set( "center_y", -1.0 );
+        tParameterlist( 1 )( 1 ).set( "normal_x", .707106781 );
+        tParameterlist( 1 )( 1 ).set( "normal_y", .707106781 );
         switch ( tGeoModel )
         {
             case 0:
-                tParameterlist( 1 )( 1 ).set( "constant_parameters", "0.65, -1.0, .707106781, .707106781" );
+            case 3:
+                tParameterlist( 1 )( 1 ).set( "center_x", 0.65 );
                 break;
             case 1:
-                tParameterlist( 1 )( 1 ).set( "constant_parameters", " -1.0, .707106781, .707106781" );
-                tParameterlist( 1 )( 1 ).set( "field_variable_indices", "0" );
-                tParameterlist( 1 )( 1 ).set( "adv_indices", "0" );
-                break;
             case 2:
-                tParameterlist( 1 )( 1 ).set( "constant_parameters", " -1.0, .707106781, .707106781" );
-                tParameterlist( 1 )( 1 ).set( "field_variable_indices", "0" );
-                tParameterlist( 1 )( 1 ).set( "adv_indices", "1" );
-                break;
-            case 3:
-                tParameterlist( 1 )( 1 ).set( "constant_parameters", " -1.0, .707106781, .707106781" );
-                tParameterlist( 1 )( 1 ).set( "field_variable_indices", "0" );
-                tParameterlist( 1 )( 1 ).set( "adv_indices", "0" );
+                tParameterlist( 1 )( 1 ).set( "center_x", 0.0, 0.65, 1.0 );
                 break;
             case 4:
-                tParameterlist( 1 )( 1 ).set( "constant_parameters", "0.65, -1.0, .707106781, .707106781" );
-                break;
             case 5:
-                tParameterlist( 1 )( 1 ).set( "constant_parameters", "0.65, -1.0, .707106781, .707106781" );
-                tParameterlist( 1 )( 1 ).set( "discretization_mesh_index", 0 );
-                break;
-            case 6:
-                tParameterlist( 1 )( 1 ).set( "constant_parameters", "0.65, -1.0, .707106781, .707106781" );
+                tParameterlist( 1 )( 1 ).set( "center_x", 0.65 );
                 tParameterlist( 1 )( 1 ).set( "discretization_mesh_index", 0 );
                 break;
             default:
@@ -396,7 +336,7 @@ namespace moris
         // create parameter list for constitutive model 1
         tParameterList( 1 ).push_back( prm::create_constitutive_model_parameter_list() );
         tParameterList( 1 )( tCMCounter ).set( "constitutive_name", "CMStrucLinIso1" );
-        tParameterList( 1 )( tCMCounter ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::STRUC_LIN_ISO ) );
+        tParameterList( 1 )( tCMCounter ).set( "constitutive_type",  fem::Constitutive_Type::STRUC_LIN_ISO ) ;
         tParameterList( 1 )( tCMCounter ).set( "dof_dependencies", std::pair< std::string, std::string >( "UX,UY", "Displacement" ) );
         tParameterList( 1 )( tCMCounter ).set( "properties", "PropYoungs,YoungsModulus;PropPoisson,PoissonRatio" );
 
@@ -407,7 +347,7 @@ namespace moris
         // create parameter list for stabilization parameter 1
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name", "SPNitscheTemp" );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::DIRICHLET_NITSCHE ) );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  fem::Stabilization_Type::DIRICHLET_NITSCHE ) ;
         tParameterList( 2 )( tSPCounter ).set( "function_parameters", "100.0" );
         tParameterList( 2 )( tSPCounter ).set( "leader_properties", "PropYoungs,Material" );
 
@@ -418,7 +358,7 @@ namespace moris
         // create parameter list for IWG 1
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGBulkU_1" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_BULK ) );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_BULK ) ;
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMStrucLinIso1,ElastLinIso" );
@@ -428,7 +368,7 @@ namespace moris
         // create parameter list for IWG 2
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGDirichletU" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE ) );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE ) ;
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropDirichletU,Dirichlet" );
@@ -440,7 +380,7 @@ namespace moris
         // create parameter list for IWG 3
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGTraction" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_NEUMANN ) );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_NEUMANN ) ;
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropTraction,Traction" );
@@ -453,7 +393,7 @@ namespace moris
         // create parameter list for IQI 4
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIDisp" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::DOF ) );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::DOF ) ;
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "UX,UY" );
         tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "UX,UY" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 0 );
@@ -463,7 +403,7 @@ namespace moris
         // create parameter list for IQI 4
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkStrainEnergy" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::STRAIN_ENERGY ) );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::STRAIN_ENERGY ) ;
         tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "UX,UY" );
         tParameterList( 4 )( tIQICounter ).set( "leader_constitutive_models", "CMStrucLinIso1,Elast" );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tMeshSets );
@@ -472,7 +412,7 @@ namespace moris
         // create parameter list for IQI 4
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkVolume" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::VOLUME ) );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::VOLUME ) ;
         tParameterList( 4 )( tIQICounter ).set( "leader_properties", "PropDensity,Density" );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tMeshSets );
 
@@ -539,7 +479,7 @@ namespace moris
 
         tParameterlist( 0 )( 0 ) = prm::create_vis_parameter_list();
         tParameterlist( 0 )( 0 ).set( "File_Name", std::pair< std::string, std::string >( "./", "shape_sensitivities.exo" ) );
-        tParameterlist( 0 )( 0 ).set( "Mesh_Type", static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
+        tParameterlist( 0 )( 0 ).set( "Mesh_Type",  vis::VIS_Mesh_Type::STANDARD ) ;
         tParameterlist( 0 )( 0 ).set( "Set_Names", tMeshSets );
         tParameterlist( 0 )( 0 ).set( "Field_Names", "U" );
         tParameterlist( 0 )( 0 ).set( "Field_Type", "NODAL" );

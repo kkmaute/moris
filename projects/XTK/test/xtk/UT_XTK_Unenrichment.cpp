@@ -29,7 +29,7 @@
 #include "cl_HMR.hpp"
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Sphere.hpp"
-#include "cl_GEN_Plane.hpp"
+#include "cl_GEN_Line.hpp"
 #include "fn_PRM_HMR_Parameters.hpp"
 #include "fn_PRM_XTK_Parameters.hpp"
 #include "cl_MTK_Intersection_Detect.hpp"
@@ -98,7 +98,7 @@ namespace moris::xtk
             tXTKParameters.set( "write_cell_enrichments_levels", false );
 
             // define the sphere such that it is non interacting
-            auto                                              tPlane    = std::make_shared< moris::gen::Plane >( 1.5, 0.5, 1.0, 0.0 );
+            auto                                              tPlane    = std::make_shared< moris::gen::Line >( 1.5, 0.5, 1.0, 0.0 );
             Vector< std::shared_ptr< moris::gen::Geometry > > tGeometry = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
             // define ge engine

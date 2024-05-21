@@ -77,7 +77,7 @@
 
 #include "fn_norm.hpp"
 
-#include "cl_GEN_Plane.hpp"
+#include "cl_GEN_Line.hpp"
 
 moris::real
 PlaneMatVoidMDL( const moris::Matrix< moris::DDRMat >& aPoint )
@@ -156,7 +156,7 @@ TEST_CASE( "XTK HMR Material Void Bar Intersected By Plane", "[XTK_HMR_PLANE_BAR
 
         hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-        auto tPlane = std::make_shared< moris::gen::Plane >( 0.9545459, 0.11, 1.0, 0.0 );
+        auto tPlane = std::make_shared< moris::gen::Line >( 0.9545459, 0.11, 1.0, 0.0 );
         Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
         size_t                                tModelDimension = 2;

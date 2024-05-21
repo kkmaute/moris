@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef PROJECTS_MRS_IOS_SRC_FN_STRINGIFY_MATRIX_HPP_
-#define PROJECTS_MRS_IOS_SRC_FN_STRINGIFY_MATRIX_HPP_
+#pragma once
 
 #include <iostream>
 #include <sstream>
@@ -93,6 +92,41 @@ namespace moris
 
             // end matrix with square bracket
             out << "]";
+
+            // return string stream as string
+            return out.str();
+        }
+
+        // ----------------------------------------------------------------------------
+
+        template< typename T >
+        std::string stringify_log( const Vector< T > aVector )
+        {
+            // check matrix size being printed
+            if ( aVector.size() > LOGGER_MAX_NUMEL_MATRIX_PRINT )
+            {
+                return "[Vector has too many elements to print.]";
+            }
+
+            // initialize string stream
+            std::ostringstream out;
+            out << "(";
+
+            if ( aVector.size() > 0 )
+            {
+                for ( uint iIndex = 0; iIndex < aVector.size(); iIndex++ )
+                {
+                    if ( iIndex > 0 )
+                    {
+                        out << ", ";
+                    }
+
+                    out << aVector( iIndex );
+                }
+            }
+
+            // end vector
+            out << ")";
 
             // return string stream as string
             return out.str();
@@ -186,5 +220,3 @@ namespace moris
 
     }    // end namespace ios
 }    // end namespace moris
-
-#endif /* PROJECTS_MRS_IOS_SRC_FN_STRINGIFY_MATRIX_HPP_ */

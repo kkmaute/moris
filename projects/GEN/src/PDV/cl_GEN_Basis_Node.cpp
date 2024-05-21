@@ -80,7 +80,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix< DDSMat > Basis_Node::get_coordinate_determining_adv_ids() const
+    Vector< sint > Basis_Node::get_coordinate_determining_adv_ids() const
     {
         return mNode.get_coordinate_determining_adv_ids();
     }

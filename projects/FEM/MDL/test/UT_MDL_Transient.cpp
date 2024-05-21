@@ -89,7 +89,7 @@
 // PRM
 #include "fn_PRM_HMR_Parameters.hpp"
 #include "fn_PRM_SOL_Parameters.hpp"
-#include "cl_GEN_Plane.hpp"
+#include "cl_GEN_Line.hpp"
 
 #include "fn_norm.hpp"
 
@@ -427,8 +427,8 @@ namespace moris
         //-----------------------------------------------------------------------------------------------
 
         Cell< std::shared_ptr< moris::gen::Geometry > > tGeometry0( 2 );
-        tGeometry0( 0 ) = std::make_shared< moris::gen::Plane >( tPlaneLeft, 0.0, 1.0, 0.0 );
-        tGeometry0( 1 ) = std::make_shared< moris::gen::Plane >( tPlaneRight, 0.0, 1.0, 0.0 );
+        tGeometry0( 0 ) = std::make_shared< moris::gen::Line >( tPlaneLeft, 0.0, 1.0, 0.0 );
+        tGeometry0( 1 ) = std::make_shared< moris::gen::Line >( tPlaneRight, 0.0, 1.0, 0.0 );
 
         size_t                     tModelDimension = 2;
         moris::gen::Geometry_Engine tGENGeometryEngine0( tGeometry0, tModelDimension );

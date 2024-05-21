@@ -44,7 +44,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix< DDSMat > Node::get_coordinate_determining_adv_ids() const
+    Vector< sint > Node::get_coordinate_determining_adv_ids() const
     {
         return {};
     }

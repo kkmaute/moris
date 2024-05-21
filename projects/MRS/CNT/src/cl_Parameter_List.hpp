@@ -47,7 +47,7 @@ namespace moris
     {
 
       private:
-        std::map< std::string, std::shared_ptr< Parameter >, moris::containers::strcmp > mParamMap;
+        std::map< std::string, Parameter, moris::containers::strcmp > mParamMap;
 
       public:
 
@@ -62,63 +62,112 @@ namespace moris
         ~Parameter_List() = default;
 
         /**
-         * @brief Extends an existing container by the element inserted.
+         * Adds a new parameter to this parameter list. This parameter may be validated against other parameters.
+         * If no parameter list type is given, then only the parameter type will be validated upon being set.
          *
-         * @param[in] aKey Key corresponding to the mapped value that
-         *            needs to be accessed; should not contain trailing or leading whitespaces
-         * @param[in] aValue Value corresponding to aKey; if value is a string,
-         *            pair of strings, or character array leading and trailing whitespaces
-         *            are trimmed off
+         * @tparam T Parameter type
+         * @param aName Parameter name
+         * @param aDefaultValue Default parameter value
+         * @param aExternalValidationType Type of external validation to perform
+         * @param aExternalParameterName Name of external parameter to validate with
+         * @param aExternalParameterListType External parameter list type to validate with
+         * @param aExternalParameterListIndex Index of given parameter list type to search
          */
         template< typename T >
-        void insert( const std::string& aKey, T aValue )
+        void insert(
+                const std::string&  aName,
+                T                   aDefaultValue,
+                Validation_Type     aExternalValidationType = Validation_Type::NONE,
+                std::string         aExternalParameterName = "",
+                Parameter_List_Type aExternalParameterListType = Parameter_List_Type::END_ENUM,
+                uint                aExternalParameterListIndex = 0 )
         {
-            // check for leading and trailing whitespaces in key
-            std::string tKeyWithoutSpaces = aKey;
+            // Check for leading and trailing whitespaces in key
+            std::string tKeyWithoutSpaces = aName;
             split_trim_string( tKeyWithoutSpaces, "" );
-            MORIS_ERROR( aKey == tKeyWithoutSpaces,
+            MORIS_ERROR( aName == tKeyWithoutSpaces,
                     "Param_List::insert - key contains whitespaces" );
 
             // Insert new value
-            auto tParameter = std::make_shared< Parameter >( aValue );
-            mParamMap.insert( { aKey, tParameter } );
+            Parameter tParameter( aDefaultValue, aExternalValidationType, aExternalParameterName, aExternalParameterListType, aExternalParameterListIndex );
+            mParamMap.insert( { aName, tParameter } );
+        }
+
+        /**
+         * Adds a new string parameter to this parameter list. The parameter must be set from a selection of values.
+         *
+         * @param aName Parameter name
+         * @param aDefaultValue Default parameter value
+         * @param aValidSelections Valid values the parameter can be set to
+         */
+        void insert(
+                const std::string&             aName,
+                const std::string&             aDefaultValue,
+                const std::set< std::string >& aValidSelections );
+
+        /**
+         * Adds a new parameter to this parameter list. This parameter must be set with a valid range.
+         *
+         * @tparam T Parameter type
+         * @param aName Parameter name
+         * @param aDefaultValue Default parameter value
+         * @param aMinimumValue Maximum permitted parameter value
+         * @param aMaximumValue Minimum permitted parameter value
+         */
+        template< typename T >
+        void insert(
+                const std::string& aName,
+                T                  aDefaultValue,
+                T                  aMinimumValue,
+                T                  aMaximumValue )
+        {
+            // Delegate to private implementation overload, depending on if T is an enum
+            this->convert_and_insert( aName, aDefaultValue, aMinimumValue, aMaximumValue, std::is_enum< T >() );
         }
 
         /**
          * Removes the specified key and its associated value from the map
          *
-         * @param aKey the key to be erased
+         * @param aName the key to be erased
          */
         void
-        erase( const std::string& aKey );
+        erase( const std::string& aName );
 
         /**
-         * @brief Sets an element to a value if it exists, otherwise an error is thrown
+         * Sets an element to a value if it exists, otherwise an error is thrown
          *        whitespaces in key and value string will be removed
          *
-         * @param[in] aKey Key corresponding to the mapped value that
-         *            needs to be accessed; spaces will be removed
-         * @param[in] aValue Value corresponding to aKey; if values is a string, pair of
-         *            strings or character array, whitespaces will be removed
+         * @param aName Parameter name
+         * @param aValue Parameter value
+         * @param aLockValue If the set value is to be locked, and unable to be set again.
          */
         template< typename T >
-        void set( const std::string& aKey, T aValue )
+        void set(
+                const std::string& aName,
+                T                  aValue,
+                bool               aLockValue = true )
         {
-            // create copy of key string such that tIterator can be manipulated
-            std::string tKey = aKey;
+            // Delegate to private implementation overload, depending on if T is an enum
+            this->convert_and_set( aName, aValue, aLockValue, std::is_enum< T >() );
+        }
 
-            // remove spurious whitespaces from key string
-            split_trim_string( tKey, "" );
-
-            // find key in map
-            auto tIterator = mParamMap.find( tKey );
-
-            // if key does not exist in map
-            MORIS_ERROR( tIterator != mParamMap.end(),
-                    "The requested parameter %s can not be set because it does not exist.\n",
-                    tKey.c_str() );
-
-            tIterator->second->set_value( aKey, aValue );
+        /**
+         * Sets an element to a moris vector using a parameter pack
+         *
+         * @param aName Parameter name
+         * @param aFirstValue First value to put into the vector
+         * @param aSecondValue Second value to put into the vector
+         * @param aMoreValues Parameter pack of more values
+         */
+        template< typename T, typename... Arg_Types >
+        void set(
+                const std::string& aName,
+                T                  aFirstValue,
+                T                  aSecondValue,
+                Arg_Types...       aMoreValues )
+        {
+            // Delegate to private implementation overload, with lock on
+            this->convert_and_set( aName, Vector< T >( { aFirstValue, aSecondValue, aMoreValues... } ), true, std::false_type() );
         }
 
         /**
@@ -133,55 +182,54 @@ namespace moris
         /**
          * Checks whether or not the given key exists. Useful for when a parameter may or may not have been inserted.
          *
-         * @param aKey Key in the map
+         * @param aName Key in the map
          * @return whether or not this key is in the map with a corresponding value
          */
-        [[nodiscard]] bool exists( const std::string& aKey ) const;
+        [[nodiscard]] bool exists( const std::string& aName ) const;
 
         /**
          * @brief Determine the underlying type of the entry.
          *
-         * @param[in] aKey Key corresponding to the mapped value that
+         * @param[in] aName Key corresponding to the mapped value that
          *            needs to be accessed
          *
          * @return The index of the type as ordered in the variant entry
          *         of mParamMap
          */
-        sint which( const std::string& aKey );
+        uint index( const std::string& aName );
 
         /**
-         * @brief Get the value corresponding to a given key.
+         * Gets the parameter value corresponding to a given key.
          *
-         * @param[in] aKey Key corresponding to the mapped value that
-         *            needs to be accessed
-         *
-         * @return The value corresponding to aKey.
+         * @param[in] aName Name of the parameter to get
+         * @return The value corresponding to aName
          */
         template< typename T >
-        const T&
-        get( const std::string& aKey ) const
+        const T& get( const std::string& aName ) const
         {
-            auto tIterator = mParamMap.find( aKey );
-
-            // check if key exists
-            MORIS_ERROR( tIterator != mParamMap.end(),
-                    "The requested parameter %s does not exist.\n",
-                    aKey.c_str() );
-
-            return tIterator->second->get_value< T >();
+            // Delegate to private implementation overload, depending on if T is an enum
+            return this->get< T >( aName, std::is_enum< T >() );
         }
+
+        /**
+         * Gets the parameter value corresponding to a given name, as a variant.
+         *
+         * @param aName Name of the parameter to get
+         * @return The variant corresponding to aName
+         */
+        const Variant& get( const std::string& aName ) const;
 
         /**
          * Gets a cell from a paramter that is stored as a std::string
          *
          * @tparam T Cell data type
-         * @param aKey Key corresponding to mapped string
+         * @param aName Key corresponding to mapped string
          * @return Cell of values
          */
         template< typename T >
-        Vector< T > get_cell( const std::string& aKey ) const
+        Vector< T > get_cell( const std::string& aName ) const
         {
-            return string_to_cell< T >( this->get< std::string >( aKey ) );
+            return string_to_cell< T >( this->get< std::string >( aName ) );
         }
 
         /**
@@ -213,6 +261,119 @@ namespace moris
          * @return size_t number of entries in the parameter list
          */
         size_t size();
+
+      private:
+
+        /**
+         * Adds a new parameter to this parameter list (private implementation).
+         *
+         * @param[in] aName Key corresponding to the mapped value that
+         *            needs to be accessed; should not contain trailing or leading whitespaces
+         * @param[in] aValue Value corresponding to aName; if value is a string,
+         *            pair of strings, or character array leading and trailing whitespaces
+         *            are trimmed off
+         */
+        template< typename T >
+        void convert_and_insert( const std::string& aName, T aValue, T aMinimumValue, T aMaximumValue, std::false_type )
+        {
+            // Check for leading and trailing whitespaces in key
+            std::string tKeyWithoutSpaces = aName;
+            split_trim_string( tKeyWithoutSpaces, "" );
+            MORIS_ERROR( aName == tKeyWithoutSpaces,
+                    "Param_List::insert - key contains whitespaces" );
+
+            // Insert new value
+            Parameter tParameter( aValue, aMinimumValue, aMaximumValue );
+            mParamMap.insert( { aName, tParameter } );
+        }
+
+        /**
+         * Insert function overload, for static casting enums to a uint.
+         */
+        template< typename T >
+        void convert_and_insert( const std::string& aName, T aValue, T aMinimumValue, T aMaximumValue, std::true_type )
+        {
+            this->convert_and_insert(
+                    aName,
+                    static_cast< uint >( aValue ),
+                    static_cast< uint >( aMinimumValue ),
+                    static_cast< uint >( aMaximumValue ),
+                    std::false_type() );
+        }
+
+        /**
+         * Sets an element to a value if it exists (private implementation)
+         *
+         * @param aName Parameter name
+         * @param aValue Parameter value
+         * @param aLockValue If the set value is to be locked, and unable to be set again.
+         */
+        template< typename T >
+        void convert_and_set(
+                const std::string& aName,
+                T                  aValue,
+                bool               aLockValue,
+                std::false_type )
+        {
+            // create copy of key string such that tIterator can be manipulated
+            std::string tKey = aName;
+
+            // remove spurious whitespaces from key string
+            split_trim_string( tKey, "" );
+
+            // find key in map
+            auto tIterator = mParamMap.find( tKey );
+
+            // if key does not exist in map
+            MORIS_ERROR( tIterator != mParamMap.end(),
+                    "The requested parameter %s can not be set because it does not exist.\n",
+                    tKey.c_str() );
+
+            tIterator->second.set_value( aName, aValue, aLockValue );
+        }
+
+        /**
+         * Set function overload, for static casting enums to a uint.
+         */
+        template< typename T >
+        void convert_and_set(
+                const std::string& aName,
+                T                  aValue,
+                bool               aLockValue,
+                std::true_type )
+        {
+            this->convert_and_set( aName, static_cast< uint >( aValue ), aLockValue, std::false_type() );
+        }
+
+        /**
+         * Gets the parameter value corresponding to a given key (private implementation)
+         *
+         * @param[in] aName Key corresponding to the mapped value that
+         *            needs to be accessed
+         *
+         * @return The value corresponding to aName.
+         */
+        template< typename T >
+        const T& get( const std::string& aName, std::false_type ) const
+        {
+            auto tIterator = mParamMap.find( aName );
+
+            // check if key exists
+            MORIS_ERROR( tIterator != mParamMap.end(),
+                    "The requested parameter %s does not exist.\n",
+                    aName.c_str() );
+
+            return tIterator->second.get_value< T >();
+        }
+
+        /**
+         * Get function overload, for static casting uints to a requested enum.
+         */
+        template< typename T >
+        const T& get( const std::string& aName, std::true_type ) const
+        {
+            return ( const T& ) this->get< uint >( aName, std::false_type() );
+        }
     };
 
     //------------------------------------------------------------------------------

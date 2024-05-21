@@ -73,10 +73,19 @@ namespace moris
                 const moris::Matrix< DDRMat >& aValues,
                 const uint&                    aVectorIndex = 0 );
 
+        void sum_into_global_values(
+                const Vector< sint >&          aGlobalIds,
+                const moris::Matrix< DDRMat >& aValues,
+                const uint&                    aVectorIndex = 0 );
+
         void replace_global_values(
                 const moris::Matrix< DDSMat >& aGlobalIds,
                 const moris::Matrix< DDRMat >& aValues,
                 const uint&                    aVectorIndex = 0 );
+
+        void replace_global_values(
+                const Vector< sint >& aGlobalIds,
+                const Vector< real >& aValues );
 
         void vector_global_assembly();
 
@@ -103,6 +112,8 @@ namespace moris
         Vector< moris::real > vec_norm2();
 
         void extract_copy( moris::Matrix< DDRMat >& LHSValues );
+
+        void extract_copy( Vector< real >& aVector );
 
         void extract_my_values( const moris::uint&      aNumIndices,
                 const moris::Matrix< DDSMat >&          aGlobalBlockRows,

@@ -58,6 +58,11 @@ namespace moris
                     moris::Matrix< IdMat >&       aIdsOut,
                     const bool&                   aIsBuildGraph = true ) = 0;
 
+            virtual void translate_ids_to_free_point_ids(
+                    const Vector< sint >& aIdsIn,
+                    Vector< sint >&       aIdsOut,
+                    bool                  aIsBuildGraph = true ) = 0;
+
             // ---------------------------------------------------------------------------------------------------------
 
             virtual void print() = 0;

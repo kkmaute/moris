@@ -69,7 +69,11 @@ namespace moris
                 if ( par_rank() == 0 )
                 {
                     REQUIRE( std::abs( tManager.get_objectives()( 0 ) ) < 2E-7 );    // check value of objective
-                    REQUIRE( norm( tManager.get_advs() - 1.0 ) < 1E-4 );             // check value of design variables
+                    Vector< real > tADVs = tManager.get_advs();
+                    for ( auto iADV : tADVs )
+                    {
+                        REQUIRE( std::abs( iADV - 1.0 ) < 1E-4 );
+                    }
                 }
             }
 
@@ -114,7 +118,11 @@ namespace moris
                 if ( par_rank() == 0 )
                 {
                     REQUIRE( std::abs( tManager.get_objectives()( 0 ) ) < 2E-7 );    // check value of objective
-                    REQUIRE( norm( tManager.get_advs() - 1.0 ) < 1E-4 );             // check value of design variables
+                    Vector< real > tADVs = tManager.get_advs();
+                    for ( auto iADV : tADVs )
+                    {
+                        REQUIRE( std::abs( iADV - 1.0 ) < 1E-4 );
+                    }
                 }
             }
 #endif
@@ -156,7 +164,11 @@ namespace moris
                 if ( par_rank() == 0 )
                 {
                     REQUIRE( std::abs( tManager.get_objectives()( 0 ) ) < 5E-4 );    // check value of objective
-                    REQUIRE( norm( tManager.get_advs() - 1.0 ) < 1E-3 );             // check value of design variables
+                    Vector< real > tADVs = tManager.get_advs();
+                    for ( auto iADV : tADVs )
+                    {
+                        REQUIRE( std::abs( iADV - 1.0 ) < 1E-3 );
+                    }
                 }
             }
 #endif
@@ -207,7 +219,11 @@ namespace moris
                 if ( par_rank() == 0 )
                 {
                     REQUIRE( std::abs( tManager.get_objectives()( 0 ) ) < 2E-7 );    // check value of objective
-                    REQUIRE( norm( tManager.get_advs() - 1.0 ) < 1E-4 );             // check value of design variables
+                    Vector< real > tADVs = tManager.get_advs();
+                    for ( auto iADV : tADVs )
+                    {
+                        REQUIRE( std::abs( iADV - 1.0 ) < 1E-4 );
+                    }
                 }
             }
 #endif
@@ -332,9 +348,9 @@ namespace moris
                             tInterfaces );
 
                     // Test manager in parallel
-                    Matrix< DDRMat > tADVs;
-                    Matrix< DDRMat > tLowerBounds;
-                    Matrix< DDRMat > tUpperBounds;
+                    Vector< real > tADVs;
+                    Vector< real > tLowerBounds;
+                    Vector< real > tUpperBounds;
                     Matrix< IdMat >  tDummy;
                     tInterface->initialize( tADVs, tLowerBounds, tUpperBounds, tDummy );
                     for ( uint tADVIndex = 0; tADVIndex < 8; tADVIndex++ )
