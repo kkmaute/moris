@@ -51,15 +51,16 @@ namespace moris::gen
         bool mBasesComputed = false;
 
         Surface_Mesh_Parameters mParameters;
-        mtk::Mesh*              mMesh;
         Node_Manager*           mNodeManager;
         std::string             mName;
 
-        Vector< uint >                     mFixedVertexIndices;                // Indices of surface mesh vertices that are unaffected by ADVs
-        Vector< std::shared_ptr< Field > > mPerturbationFields;                // Vector of perturbation fields
-        Matrix< DDRMat >                   mVertexBases;                       // Basis function values for each vertex <number of fields> x <number of vertices>
-        Vector< moris_index >              mVertexBackgroundElementIndices;    // Index of the background element the facet vertex was in on construction
-        Vector< Vector< real > >           mOriginalVertexCoordinates;         // All vertex coordinates as they were upon construction <dimension> x <number of vertices>
+        // Optimization variables
+        mtk::Mesh*                         mMesh = nullptr;               // Pointer to lagrange interpolation mesh
+        Vector< uint >                     mFixedVertexIndices;           // Indices of surface mesh vertices that are unaffected by ADVs
+        Vector< std::shared_ptr< Field > > mPerturbationFields;           // Vector of perturbation fields
+        Matrix< DDRMat >                   mVertexBases;                  // Basis function values for each vertex <number of fields> x <number of vertices>
+        Vector< mtk::Cell* >               mVertexBackgroundElements;     // Index of the background element the facet vertex was in on construction
+        Vector< Vector< real > >           mOriginalVertexCoordinates;    // All vertex coordinates as they were upon construction <dimension> x <number of vertices>
 
 
       public:
@@ -367,16 +368,15 @@ namespace moris::gen
          *
          * @return Index of the element in which aCoordinates resides. If no element is found, -1 is returned
          */
-        moris_index find_background_element_from_global_coordinates(
-                const Matrix< DDRMat >& aCoordinate );
+        mtk::Cell* find_background_element_from_global_coordinates( const Matrix< DDRMat >& aCoordinate );
 
         /**
          * Gets the bounding box of a requested mtk::Cell
          *
-         * @param aElementIndex the mtk::Cell index of which to get the bounding box
+         * @param aElement mtk::Cell of which to get the bounding box
          * @return Vector< Vector< real > > 2 x dim 2D vector. First index is the minimum second is the maximum for each dimension
          */
-        Vector< Vector< real > > determine_mtk_cell_bounding_box( uint aElementIndex );
+        Vector< Vector< real > > determine_mtk_cell_bounding_box( mtk::Cell* aElement );
 
         /**
          * @brief Computes the basis functions at a given point in the background element.
