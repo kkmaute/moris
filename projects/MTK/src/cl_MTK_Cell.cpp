@@ -136,7 +136,7 @@ namespace moris
         Matrix< IdMat >
         Cell::get_vertex_ids() const
         {
-            uint                   tNumVertices = this->get_number_of_vertices();
+            uint              tNumVertices = this->get_number_of_vertices();
             Vector< Vertex* > tVertices    = this->get_vertex_pointers();
 
             Matrix< IdMat > tVertexIds( 1, tNumVertices );
@@ -152,7 +152,7 @@ namespace moris
         Matrix< IndexMat >
         Cell::get_vertex_inds() const
         {
-            uint                   tNumVertices = this->get_number_of_vertices();
+            uint              tNumVertices = this->get_number_of_vertices();
             Vector< Vertex* > tVertices    = this->get_vertex_pointers();
 
             Matrix< IdMat > tVertexInds( 1, tNumVertices );
@@ -196,7 +196,7 @@ namespace moris
         Matrix< IndexMat >
         Cell::get_vertex_owners() const
         {
-            uint                   tNumVertices = this->get_number_of_vertices();
+            uint              tNumVertices = this->get_number_of_vertices();
             Vector< Vertex* > tVertices    = this->get_vertex_pointers();
 
             Matrix< IdMat > tVertexOwners( 1, tNumVertices );
@@ -212,7 +212,7 @@ namespace moris
         Vector< mtk::Vertex_Interpolation* >
         Cell::get_vertex_interpolations( const uint aOrder ) const
         {
-            uint                                      tNumVerts       = this->get_number_of_vertices();
+            uint                                 tNumVerts       = this->get_number_of_vertices();
             Vector< mtk::Vertex* >               tVertexPointers = this->get_vertex_pointers();
             Vector< mtk::Vertex_Interpolation* > tVertexInterp( tNumVerts );
 
@@ -357,17 +357,17 @@ namespace moris
             Matrix< DDRMat > tOutwardNormal;
 
             // for 2D just get the normal for an edge
-            if( tVertexCoords.n_cols() == 2 )
+            if ( tVertexCoords.n_cols() == 2 )
             {
-                moris_index tFirstNode = tEdgeNodesForNormal( 0 );
+                moris_index tFirstNode  = tEdgeNodesForNormal( 0 );
                 moris_index tSecondNode = tEdgeNodesForNormal( 1 );
-                real tX1 = tVertexCoords( tFirstNode, 0 );
-                real tX2 = tVertexCoords( tSecondNode, 0 ); 
-                real tY1 = tVertexCoords( tFirstNode, 1 );
-                real tY2 = tVertexCoords( tSecondNode, 1 ); 
-                tOutwardNormal = { { tY2 - tY1 }, { tX2 - tX1 } };
+                real        tX1         = tVertexCoords( tFirstNode, 0 );
+                real        tX2         = tVertexCoords( tSecondNode, 0 );
+                real        tY1         = tVertexCoords( tFirstNode, 1 );
+                real        tY2         = tVertexCoords( tSecondNode, 1 );
+                tOutwardNormal          = { { tY2 - tY1 }, { tX2 - tX1 } };
             }
-            
+
             // for 3D get the normal to the plane spanned by two edges
             else
             {
@@ -496,6 +496,6 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        
+
     }    // namespace mtk
 }    // namespace moris

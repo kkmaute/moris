@@ -672,7 +672,6 @@ namespace moris::gen
 
                 mNodeManager.append_dcoordinate_dadv_from_derived_node( iNodeIndex, tHostADVSensitivities, tI );
 
-
                 // remove sensitivities wrt unused variables
                 this->remove_sensitivities_of_unused_variables( tADVIds, tHostADVSensitivities );
 

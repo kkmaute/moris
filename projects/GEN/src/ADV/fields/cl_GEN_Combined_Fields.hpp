@@ -19,7 +19,7 @@ namespace moris::gen
 
       private:
         Vector< std::shared_ptr< Field > > mFields;
-        real                             mScale;
+        real                               mScale;
 
       public:
         /**
@@ -30,8 +30,8 @@ namespace moris::gen
          */
         Combined_Fields(
                 Vector< std::shared_ptr< Field > > aFields,
-                bool                             aUseMinimum = true,
-                std::string                      aName = "" );
+                bool                               aUseMinimum = true,
+                std::string                        aName       = "" );
 
         /**
          * Given a node coordinate, returns the minimum (or maximum) field value of all fields that have been combined.
@@ -121,4 +121,4 @@ namespace moris::gen
          */
         std::shared_ptr< mtk::Field > get_mtk_field() override;
     };
-}
+}    // namespace moris::gen
