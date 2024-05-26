@@ -125,7 +125,7 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     size_t
-    Parameter_List::size()
+    Parameter_List::size() const
     {
         return mParamMap.size();
     }
