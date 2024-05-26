@@ -94,6 +94,15 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
+        MSI_Solver_Interface::set_eigen_values( std::shared_ptr< Vector<real> > aEigenValues )
+        {
+            mEigenValues = std::move(aEigenValues);
+            mMSI->mEquationModel->set_eigen_values( mEigenValues );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
         MSI_Solver_Interface::postmultiply_implicit_dQds()
         {
             mMSI->mEquationModel->compute_explicit_and_implicit_dQIdp();
