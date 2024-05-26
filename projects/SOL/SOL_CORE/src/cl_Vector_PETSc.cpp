@@ -454,6 +454,27 @@ Vector_PETSc::import_local_to_global( sol::Dist_Vector& aSourceVec )
 }
 
 //-----------------------------------------------------------------------------
+// this is only used if the local vector is full vector and source vector is vector of only owned dofs
+
+void
+Vector_PETSc::import_local_to_global( Vec aSourceVec )
+{
+    // get list of target petsc ids of from map
+    IS tPetscTargetIds = mMap->get_petsc_ids();
+
+    // create scatter object
+    VecScatter tVecScatter;
+    VecScatterCreate( aSourceVec, tPetscTargetIds, mPetscVector, NULL, &tVecScatter );
+
+    // perform scattering
+    VecScatterBegin( tVecScatter, aSourceVec, mPetscVector, INSERT_VALUES, SCATTER_FORWARD );
+    VecScatterEnd( tVecScatter, aSourceVec, mPetscVector, INSERT_VALUES, SCATTER_FORWARD );
+
+    // destroy the scatter vector object
+    VecScatterDestroy( &tVecScatter );
+}
+
+//-----------------------------------------------------------------------------
 
 void
 Vector_PETSc::extract_my_values(
