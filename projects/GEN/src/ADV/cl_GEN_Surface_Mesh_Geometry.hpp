@@ -21,20 +21,20 @@
 namespace moris::gen
 {
     // User-defined function that determines which indices are fixed or not
-    typedef bool ( *FIXED_VERTEX_FUNCTION )( const uint aFacetVertexIndex, const Matrix< DDRMat >& aFacetVertexCoordinates );
-
+    using VERTEX_FACTOR_FUNCTION = real ( * )( const uint aFacetVertexIndex, const Matrix< DDRMat >& aFacetVertexCoordinates, const uint aDimension );
+    
     /**
      * This is a struct used to simplify \ref moris::gen::Surface_Mesh_Geometry constructors. It contains all field and surface mesh parameters.
      */
     struct Surface_Mesh_Parameters : public Field_Parameters
             , public Design_Parameters
     {
-        Vector< real > mOffsets;                    // Initial shift of surface mesh coordinates
-        Vector< real > mScale;                      // Option to scale each axis of the surface mesh
-        std::string    mFilePath;                   // Surface mesh file path
-        real           mIntersectionTolerance;      // Interface tolerance based on intersection distance
-        Vector< uint > mADVIndices;                 // Indices of the ADVs that the surface mesh depends on
-        std::string    mFixedVertexFunctionName;    // Name of the user-defined function that determines which vertices are fixed or not
+        Vector< real > mOffsets;                     // Initial shift of surface mesh coordinates
+        Vector< real > mScale;                       // Option to scale each axis of the surface mesh
+        std::string    mFilePath;                    // Surface mesh file path
+        real           mIntersectionTolerance;       // Interface tolerance based on intersection distance
+        Vector< uint > mADVIndices;                  // Indices of the ADVs that the surface mesh depends on
+        std::string    mVertexFactorFunctionName;    // Name of the user-defined function that provides a scaling factor for the facet vertex sensitivities
         /**
          * Constructor with a given parameter list
          *
@@ -55,12 +55,13 @@ namespace moris::gen
         std::string             mName;
 
         // Optimization variables
-        mtk::Mesh*                         mMesh = nullptr;               // Pointer to lagrange interpolation mesh
-        Vector< uint >                     mFixedVertexIndices;           // Indices of surface mesh vertices that are unaffected by ADVs
-        Vector< std::shared_ptr< Field > > mPerturbationFields;           // Vector of perturbation fields
-        Matrix< DDRMat >                   mVertexBases;                  // Basis function values for each vertex <number of fields> x <number of vertices>
-        Vector< mtk::Cell* >               mVertexBackgroundElements;     // Index of the background element the facet vertex was in on construction
-        Vector< Vector< real > >           mOriginalVertexCoordinates;    // All vertex coordinates as they were upon construction <dimension> x <number of vertices>
+        VERTEX_FACTOR_FUNCTION             mVertexFactorFunction = nullptr;
+        mtk::Mesh*                         mMesh                 = nullptr;    // Pointer to lagrange interpolation mesh
+        Vector< uint >                     mFixedVertexIndices;                // Indices of surface mesh vertices that are unaffected by ADVs
+        Vector< std::shared_ptr< Field > > mPerturbationFields;                // Vector of perturbation fields
+        Matrix< DDRMat >                   mVertexBases;                       // Basis function values for each vertex <number of fields> x <number of vertices>
+        Vector< mtk::Cell* >               mVertexBackgroundElements;          // Index of the background element the facet vertex was in on construction
+        Vector< Vector< real > >           mOriginalVertexCoordinates;         // All vertex coordinates as they were upon construction <dimension> x <number of vertices>
 
 
       public:

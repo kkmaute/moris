@@ -37,7 +37,7 @@ namespace moris::gen
             , Design_Parameters( aParameterList )
             , mFilePath( aParameterList.get< std::string >( "file_path" ) )
             , mIntersectionTolerance( aParameterList.get< real >( "intersection_tolerance" ) )
-            , mFixedVertexFunctionName( aParameterList.get< std::string >( "fixed_vertex_function_name" ) )
+            , mVertexFactorFunctionName( aParameterList.get< std::string >( "vertex_factor_function_name" ) )
     {
         string_to_cell( aParameterList.get< std::string >( "offset" ), mOffsets );
         string_to_cell( aParameterList.get< std::string >( "scale" ), mScale );
@@ -86,28 +86,11 @@ namespace moris::gen
         // store original vertex coordinates, determine which facet vertices are fixed, and compute the bases for all vertices
         if ( this->depends_on_advs() )
         {
-
             // STEP 1: Determine which facet vertices are fixed
-            if ( not mParameters.mFixedVertexFunctionName.empty() )
+            if ( not mParameters.mVertexFactorFunctionName.empty() )
             {
                 // Get pointer to function
-                FIXED_VERTEX_FUNCTION tFunction = aLibrary->load_function< FIXED_VERTEX_FUNCTION >( mParameters.mFixedVertexFunctionName );
-
-                // Loop over all vertices and determine if they are fixed
-                for ( uint iFacetVertexIndex = 0; iFacetVertexIndex < Object::mVertices.size(); iFacetVertexIndex++ )
-                {
-                    // Check if the vertex is fixed
-                    if ( tFunction( iFacetVertexIndex, Object::mVertices( iFacetVertexIndex )->get_coords() ) )
-                    {
-                        // Add the vertex to the list of fixed vertices
-                        mFixedVertexIndices.push_back( iFacetVertexIndex );
-                    }
-                }
-            }
-            // No vertices are fixed
-            else
-            {
-                mFixedVertexIndices.resize( 0 );
+                mVertexFactorFunction = aLibrary->load_function< VERTEX_FACTOR_FUNCTION >( mParameters.mVertexFactorFunctionName );
             }
 
             // STEP 2: Construct perturbation fields
@@ -371,8 +354,11 @@ namespace moris::gen
             // STEP 2: Apply field value to surface mesh nodes
             for ( uint iVertexIndex = 0; iVertexIndex < Object::mVertices.size(); iVertexIndex++ )
             {
+                // Get the factor that scales this vertex's movement
+                real tFactor = mVertexFactorFunction == nullptr ? 1.0 : mVertexFactorFunction( iVertexIndex, Object::mVertices( iVertexIndex )->get_coords(), iFieldIndex );
+
                 // Move vertex if needed
-                if ( this->facet_vertex_depends_on_advs( iVertexIndex ) )
+                if ( tFactor != 0.0 and mVertexBackgroundElements( iVertexIndex ) != nullptr )
                 {
                     // Interpolate the bspline field value at the facet vertex location
                     real tInterpolatedPerturbation = this->interpolate_perturbation_from_background_element(
@@ -381,7 +367,7 @@ namespace moris::gen
                             iVertexIndex );
 
                     // Displace the vertex by the total perturbation
-                    Object::mVertices( iVertexIndex )->set_node_coord( mOriginalVertexCoordinates( iVertexIndex )( iFieldIndex ) + tInterpolatedPerturbation, iFieldIndex );
+                    Object::mVertices( iVertexIndex )->set_node_coord( mOriginalVertexCoordinates( iVertexIndex )( iFieldIndex ) + tFactor * tInterpolatedPerturbation, iFieldIndex );
                 }
             }
         }
@@ -578,23 +564,31 @@ namespace moris::gen
     bool
     Surface_Mesh_Geometry::facet_vertex_depends_on_advs( uint aFacetVertexIndex )
     {
-        // check if the whole surface mesh depends on advs
-        if ( !this->depends_on_advs() )
+        // check if the whole surface mesh depends on advs or the vertex is outside the domain
+        if ( !this->depends_on_advs() or mVertexBackgroundElements( aFacetVertexIndex ) == nullptr )
         {
             return false;
         }
 
         // check if this node was specified to be fixed
-        for ( auto iFacetVertex : mFixedVertexIndices )
+        if ( mVertexFactorFunction == nullptr )
         {
-            if ( aFacetVertexIndex == iFacetVertex )
-            {
-                return false;
-            }
+            return true;
         }
+        else
+        {
+            bool tVertexDependsOnADVs = false;
+            for ( uint iDimension = 0; iDimension < Object::mDimension; iDimension++ )
+            {
+                if ( mVertexFactorFunction( aFacetVertexIndex, Object::mVertices( aFacetVertexIndex )->get_coords(), iDimension ) != 0.0 )
+                {
+                    tVertexDependsOnADVs = true;
+                    break;
+                }
+            }
 
-        // return whether or not the node is in the mesh domain or not
-        return !( mVertexBackgroundElements( aFacetVertexIndex ) == nullptr );
+            return tVertexDependsOnADVs;
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -602,6 +596,18 @@ namespace moris::gen
     Matrix< DDRMat >
     Surface_Mesh_Geometry::get_dvertex_dadv( uint aFacetVertexIndex )
     {
+        // Determine which directions the vertex can move in
+        Vector< bool > tVertexDependsOnADVs( Object::mDimension );
+        uint           tNumDimsDependOnADVs = 0;
+        for ( uint iDimension = 0; iDimension < Object::mDimension; iDimension++ )
+        {
+            tVertexDependsOnADVs( iDimension ) = mVertexFactorFunction == nullptr ? true : mVertexFactorFunction( aFacetVertexIndex, Object::mVertices( aFacetVertexIndex )->get_coords(), iDimension ) != 0.0;
+            if ( tVertexDependsOnADVs( iDimension ) )
+            {
+                tNumDimsDependOnADVs++;
+            }
+        }
+
         // Get the vertex indices and coordinates of the background element
         Matrix< DDRMat >   tVertexCoordinates = mVertexBackgroundElements( aFacetVertexIndex )->get_vertex_coords();
         Matrix< IndexMat > tVertexIndices     = mVertexBackgroundElements( aFacetVertexIndex )->get_vertex_inds();
@@ -615,21 +621,34 @@ namespace moris::gen
             // Get length before adding sensitivities for this node
             uint tNumVertexSensitivities = tVertexSensitivity.n_cols();
 
+            bool tVertexSensitivitySizeDetermined = false;
+            uint tDimensionSensitivitiesAdded = 0;
+
             // Loop over spatial dimension
             for ( uint iDimensionIndex = 0; iDimensionIndex < Object::mDimension; iDimensionIndex++ )
             {
-                Matrix< DDRMat > tNodeSensitivity = mVertexBases( iNodeIndex, aFacetVertexIndex ) * mPerturbationFields( iDimensionIndex )->get_dfield_dadvs( tVertexIndices( iNodeIndex ), tVertexCoordinates.get_row( iNodeIndex ) );
+                // Get the sensitivity factor of the node in this direction
+                real tFactor = mVertexFactorFunction == nullptr ? 1.0 : mVertexFactorFunction( aFacetVertexIndex, Object::mVertices( aFacetVertexIndex )->get_coords(), iDimensionIndex );
 
-                // set size of sensitivity matrix
-                if ( iDimensionIndex == 0 )
+                // Check that the vertex depends on ADVs in this direction
+                if ( tFactor != 0.0 )
                 {
-                    tVertexSensitivity.resize( Object::mDimension, tNumVertexSensitivities + Object::mDimension * tNodeSensitivity.numel() );
-                }
+                    Matrix< DDRMat > tNodeSensitivity = tFactor * mVertexBases( iNodeIndex, aFacetVertexIndex ) * mPerturbationFields( iDimensionIndex )->get_dfield_dadvs( tVertexIndices( iNodeIndex ), tVertexCoordinates.get_row( iNodeIndex ) );
 
-                // Each sensitivity is a separate index
-                for ( uint iADVIndex = 0; iADVIndex < tNodeSensitivity.numel(); iADVIndex++ )
-                {
-                    tVertexSensitivity( iDimensionIndex, tNumVertexSensitivities + tNodeSensitivity.length() * iDimensionIndex + iADVIndex ) = tNodeSensitivity( iADVIndex );
+                    // set size of sensitivity matrix
+                    if ( not tVertexSensitivitySizeDetermined )
+                    {
+                        tVertexSensitivity.resize( Object::mDimension, tNumVertexSensitivities + tNumDimsDependOnADVs * tNodeSensitivity.numel()  );
+                        tVertexSensitivitySizeDetermined = true;
+                    }
+
+                    // Each sensitivity is a separate index
+                    for ( uint iADVIndex = 0; iADVIndex < tNodeSensitivity.numel(); iADVIndex++ )
+                    {
+                        tVertexSensitivity( iDimensionIndex, tNumVertexSensitivities + tNodeSensitivity.length() * tDimensionSensitivitiesAdded + iADVIndex ) = tNodeSensitivity( iADVIndex );
+                    }
+                    
+                    tDimensionSensitivitiesAdded++;
                 }
             }
         }
@@ -642,6 +661,18 @@ namespace moris::gen
     Matrix< DDSMat >
     Surface_Mesh_Geometry::get_vertex_adv_ids( uint aFacetVertexIndex )
     {
+        // Determine which directions the vertex can move in
+        Vector< bool > tVertexDependsOnADVs( Object::mDimension );
+        uint           tNumDimsDependOnADVs = 0;
+        for ( uint iDimension = 0; iDimension < Object::mDimension; iDimension++ )
+        {
+            tVertexDependsOnADVs( iDimension ) = mVertexFactorFunction == nullptr ? true : mVertexFactorFunction( aFacetVertexIndex, Object::mVertices( aFacetVertexIndex )->get_coords(), iDimension ) != 0.0;
+            if ( tVertexDependsOnADVs( iDimension ) )
+            {
+                tNumDimsDependOnADVs++;
+            }
+        }
+
         // Initialize matrix to be filled
         Matrix< DDSMat > tVertexADVIds;
 
@@ -660,12 +691,20 @@ namespace moris::gen
             uint tIDLength = tVertexADVIds.length();
 
             // Resize to add new ADV IDs
-            tVertexADVIds.resize( 1, tVertexADVIds.length() + tNodeIDs.length() );
+            tVertexADVIds.resize( 1, tVertexADVIds.length() + ( tNodeIDs.length() * tNumDimsDependOnADVs ) / Object::mDimension );
 
-            // Place IDs in output matrix
-            for ( uint iADVIndex = 0; iADVIndex < tNodeIDs.length(); iADVIndex++ )
+            // Join the IDs
+            uint tADVsAdded = 0;
+            for ( uint iDimension = 0; iDimension < Object::mDimension; iDimension++ )
             {
-                tVertexADVIds( tIDLength + iADVIndex ) = tNodeIDs( iADVIndex );
+                if ( tVertexDependsOnADVs( iDimension ) )
+                {
+                    for ( uint iADVIndex = 0; iADVIndex < tNodeIDs.length() / Object::mDimension; iADVIndex++ )
+                    {
+                        tVertexADVIds( tIDLength + tADVsAdded ) = tNodeIDs( ( iDimension * tNodeIDs.length() ) / Object::mDimension + iADVIndex );
+                        tADVsAdded++;
+                    }
+                }
             }
         }
 

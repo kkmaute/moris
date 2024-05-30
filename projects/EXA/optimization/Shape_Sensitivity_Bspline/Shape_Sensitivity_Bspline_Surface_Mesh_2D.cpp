@@ -157,6 +157,19 @@ namespace moris
         }
     }
 
+    real
+    Facet_Vertex_Factor( const uint aFacetVertexIndex, const Matrix< DDRMat > & aCoordinates, const uint aDimension )
+    {                
+        if ( aFacetVertexIndex == 3  and aDimension == 0 )
+        {
+            return 0.0;
+        }
+        else
+        {
+            return 1.0;
+        }
+    }
+
     //--------------------------------------------------------------------------------------------------------------
 
     void
@@ -239,12 +252,10 @@ namespace moris
         switch ( tGeoModel )
         {
             case 0:
-                // tParameterlist( 1 )( 0 ).set( "fixed_vertex_indices", "0" );
-                // tParameterlist( 1 )( 0 ).set( "adv_indices", "0,1" );
                 tParameterlist( 1 )( 0 ).set( "discretization_mesh_index", 0 );
                 break;
             case 1:
-                // tParameterlist( 1 )( 0 ).set("fixed_vertex_indices", "0");
+                tParameterlist( 1 )( 0 ).set( "vertex_factor_function_name", "Facet_Vertex_Factor" );
                 tParameterlist( 1 )( 0 ).set( "discretization_mesh_index", 0 );
                 break;
             default:
