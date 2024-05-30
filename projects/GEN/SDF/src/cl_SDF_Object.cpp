@@ -86,9 +86,9 @@ namespace moris
                     // for the first line only, determine the number of columns
                     if ( !tDimsDetermined )
                     {
-                        for ( char c : tBuffer( k ) )
+                        for ( uint iCharacter = 0; iCharacter < tBuffer( k ).length(); iCharacter++ )
                         {
-                            if ( c == ' ' or c == '\t' )
+                            if ( ( tBuffer( k )[ iCharacter ] == ' ' or tBuffer( k )[ iCharacter ] == '\t' ) && iCharacter != tBuffer( k ).length() - 1 )
                             {
                                 mDimension++;
                             }
@@ -408,7 +408,7 @@ namespace moris
                 Matrix< IdMat > tIndices = iFacet->get_vertex_inds();
                 for ( uint iDimension = 0; iDimension < mDimension; iDimension++ )
                 {
-                    tFile << tIndices( iDimension ) << " ";
+                    tFile << tIndices( iDimension ) + 1 << " ";
                 }
                 tFile << std::endl;
             }

@@ -61,7 +61,7 @@ namespace moris
             Parameter_List tParameterList;
 
             tParameterList.insert( "field_type", "user_defined" );    // OPT Interface class type
-            tParameterList.insert( "library", "" );             // Path to a shared object file for user-defined functions
+            tParameterList.insert( "library", "" );                   // Path to a shared object file for user-defined functions
 
             return tParameterList;
         }

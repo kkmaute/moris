@@ -388,6 +388,9 @@ namespace moris::gen
 
         // STEP 3: Update all facet data
         this->update_all_facets();
+
+        // this->write_to_obj_file( mName + "_" + std::to_string( mIteration ) + ".txt" );
+        // mIteration++;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -799,7 +802,7 @@ namespace moris::gen
         // Loop through each mtk::Cell
         for ( uint iCellIndex = 0; iCellIndex < mMesh->get_num_elems(); iCellIndex++ )
         {
-            // get this Cell's bounding box
+            // get this Cell's bounding box BRENDAN CAN MAKE THIS EASIER ASSUMING COORDINATES IN THE CORRECT ORDER
             Vector< Vector< real > > tBoundingBox = this->determine_mtk_cell_bounding_box( &mMesh->get_mtk_cell( iCellIndex ) );
 
             // assume the point is in this bounding box
@@ -866,7 +869,7 @@ namespace moris::gen
             mVertexBackgroundElements.resize( Object::mVertices.size() );
         }
 
-        // Compute the bases for all vertices
+        // Compute the bases for all facet vertices
         for ( uint iVertexIndex = 0; iVertexIndex < Object::mVertices.size(); iVertexIndex++ )
         {
             Matrix< DDRMat > tVertexParametricCoordinates( Object::mDimension, 1 );
@@ -912,7 +915,7 @@ namespace moris::gen
         real tPerturbation = 0.0;
 
         // get perturbation values at the vertices
-        for ( uint iBackgroundNodeIndex = 0; iBackgroundNodeIndex < aBackgroundElement->get_number_of_vertices(); ++iBackgroundNodeIndex )
+        for ( uint iBackgroundNodeIndex = 0; iBackgroundNodeIndex < aBackgroundElement->get_number_of_vertices(); iBackgroundNodeIndex++ )
         {
             // add this vertex's field value to the value
             tPerturbation += mVertexBases.get_column( aFacetVertexIndex )( iBackgroundNodeIndex ) * mPerturbationFields( aFieldIndex )->get_field_value( tVertexIndices( iBackgroundNodeIndex ), { {} } );
