@@ -36,8 +36,7 @@ namespace moris::fem
         for ( uint iMM = 0; iMM < tNumMMs; iMM++ )
         {
             // get the material type from parameter list
-            fem::Material_Type tMMType =
-                    static_cast< fem::Material_Type >( tMMParameterList( iMM ).get< uint >( "material_type" ) );
+            auto tMMType = tMMParameterList( iMM ).get< fem::Material_Type >( "material_type" );
 
             // create a material model pointer
             mMaterialModels( iMM ) = tMMFactory.create_MM( tMMType );
@@ -111,8 +110,7 @@ namespace moris::fem
         for ( uint iCM = 0; iCM < tNumCMs; iCM++ )
         {
             // get the constitutive type from parameter list
-            fem::Constitutive_Type tCMType =
-                    static_cast< fem::Constitutive_Type >( tCMParameterList( iCM ).get< uint >( "constitutive_type" ) );
+            auto tCMType = tCMParameterList( iCM ).get< fem::Constitutive_Type >( "constitutive_type" );
 
             // create a constitutive model pointer
             mConstitutiveModels( iCM ) = tCMFactory.create_CM( tCMType );
@@ -124,8 +122,7 @@ namespace moris::fem
             mConstitutiveModelMap[ tCMParameterList( iCM ).get< std::string >( "constitutive_name" ) ] = iCM;
 
             // set CM model type
-            fem::Model_Type tCMModelType =
-                    static_cast< fem::Model_Type >( tCMParameterList( iCM ).get< uint >( "model_type" ) );
+            auto tCMModelType = tCMParameterList( iCM ).get< fem::Model_Type >( "model_type" );
             if ( tCMModelType != fem::Model_Type::UNDEFINED )
             {
                 mConstitutiveModels( iCM )->set_model_type( tCMModelType );
@@ -238,8 +235,7 @@ namespace moris::fem
             Parameter_List tSPParameter = tSPParameterList( iSP );
 
             // get the stabilization type from parameter list
-            fem::Stabilization_Type tSPType =
-                    static_cast< fem::Stabilization_Type >( tSPParameter.get< uint >( "stabilization_type" ) );
+            fem::Stabilization_Type tSPType = tSPParameter.get< fem::Stabilization_Type >( "stabilization_type" );
 
             // create a stabilization parameter pointer
             mStabilizationParameters( iSP ) = tSPFactory.create_SP( tSPType );
@@ -366,8 +362,7 @@ namespace moris::fem
             // get the treated IWG parameter list
             Parameter_List const tIWGParameter = tIWGParameterList( iIWG );
 
-            fem::IWG_Type const tIWGType =
-                    static_cast< fem::IWG_Type >( tIWGParameter.get< uint >( "IWG_type" ) );
+            auto const tIWGType = tIWGParameter.get< fem::IWG_Type >( "IWG_type" );
 
             auto tIWG = tIWGFactory.create_IWG( tIWGType );
 
@@ -584,12 +579,10 @@ namespace moris::fem
             std::string tIQIName = tIQIParameter.get< std::string >( "IQI_name" );
 
             // get the IQI type from parameter list
-            fem::IQI_Type tIQIType =
-                    static_cast< fem::IQI_Type >( tIQIParameter.get< uint >( "IQI_type" ) );
+            auto tIQIType = tIQIParameter.get< fem::IQI_Type >( "IQI_type" );
 
             // get the treated IQI bulk type
-            fem::Element_Type tIQIBulkType =
-                    static_cast< fem::Element_Type >( tIQIParameter.get< uint >( "IQI_bulk_type" ) );
+            auto tIQIBulkType = tIQIParameter.get< fem::Element_Type >( "IQI_bulk_type" );
 
             // create an IQI pointer
             mIQIs( iIQI ) = tIQIFactory.create_IQI( tIQIType );
@@ -768,16 +761,16 @@ namespace moris::fem
         Parameter_List const tComputationParameterList = mParameterList( 5 )( 0 );
 
         // forward analysis
-        bool const         tIsAnalyticalFA   = tComputationParameterList.get< bool >( "is_analytical_forward" );
-        fem::FDScheme_Type tFDSchemeForFA    = static_cast< fem::FDScheme_Type >( tComputationParameterList.get< uint >( "finite_difference_scheme_forward" ) );
-        real               tFDPerturbationFA = tComputationParameterList.get< real >( "finite_difference_perturbation_size_forward" );
+        bool const tIsAnalyticalFA   = tComputationParameterList.get< bool >( "is_analytical_forward" );
+        auto       tFDSchemeForFA    = tComputationParameterList.get< fem::FDScheme_Type >( "finite_difference_scheme_forward" );
+        real       tFDPerturbationFA = tComputationParameterList.get< real >( "finite_difference_perturbation_size_forward" );
 
         // sensitivity analysis
         bool const tIsAnalyticalSA = tComputationParameterList.get< bool >( "is_analytical_sensitivity" );
-        auto const tFDSchemeForSA  = static_cast< fem::FDScheme_Type >( tComputationParameterList.get< uint >( "finite_difference_scheme" ) );
+        auto const tFDSchemeForSA  = tComputationParameterList.get< fem::FDScheme_Type >( "finite_difference_scheme" );
         real const tFDPerturbation = tComputationParameterList.get< real >( "finite_difference_perturbation_size" );
 
-        fem::Perturbation_Type tPerturbationStrategy = static_cast< fem::Perturbation_Type >( tComputationParameterList.get< uint >( "finite_difference_perturbation_strategy" ) );
+        auto tPerturbationStrategy = tComputationParameterList.get< fem::Perturbation_Type >( "finite_difference_perturbation_strategy" );
 
         Vector< Parameter_List > tIWGParameterLists = this->mParameterList( 3 );
         for ( uint iIWG = 0; iIWG < tIWGParameterLists.size(); iIWG++ )
@@ -843,16 +836,16 @@ namespace moris::fem
         Parameter_List const tComputationParameterList = mParameterList( 5 )( 0 );
 
         // forward analysis
-        bool const         tIsAnalyticalFA   = tComputationParameterList.get< bool >( "is_analytical_forward" );
-        fem::FDScheme_Type tFDSchemeForFA    = static_cast< fem::FDScheme_Type >( tComputationParameterList.get< uint >( "finite_difference_scheme_forward" ) );
-        real               tFDPerturbationFA = tComputationParameterList.get< real >( "finite_difference_perturbation_size_forward" );
+        bool const tIsAnalyticalFA   = tComputationParameterList.get< bool >( "is_analytical_forward" );
+        auto       tFDSchemeForFA    = tComputationParameterList.get< fem::FDScheme_Type >( "finite_difference_scheme_forward" );
+        real       tFDPerturbationFA = tComputationParameterList.get< real >( "finite_difference_perturbation_size_forward" );
 
         // sensitivity analysis
         bool const tIsAnalyticalSA = tComputationParameterList.get< bool >( "is_analytical_sensitivity" );
-        auto const tFDSchemeForSA  = static_cast< fem::FDScheme_Type >( tComputationParameterList.get< uint >( "finite_difference_scheme" ) );
+        auto const tFDSchemeForSA  = tComputationParameterList.get< fem::FDScheme_Type >( "finite_difference_scheme" );
         real const tFDPerturbation = tComputationParameterList.get< real >( "finite_difference_perturbation_size" );
 
-        fem::Perturbation_Type tPerturbationStrategy = static_cast< fem::Perturbation_Type >( tComputationParameterList.get< uint >( "finite_difference_perturbation_strategy" ) );
+        auto tPerturbationStrategy = tComputationParameterList.get< fem::Perturbation_Type >( "finite_difference_perturbation_strategy" );
 
         Vector< Parameter_List > tIQIParameterLists = this->mParameterList( 4 );
         for ( uint iIQI = 0; iIQI < tIQIParameterLists.size(); iIQI++ )
