@@ -51,6 +51,7 @@ extern "C" {
 //------------------------------------------------------------------------------
 namespace moris
 {
+    void create_trilinos_parameter_list( Vector< Vector< Parameter_List > >& ), create_petsc_parameter_list( Vector< Vector< Parameter_List > >& );
     /* ------------------------------------------------------------------------ */
     // General
 
@@ -116,7 +117,7 @@ namespace moris
 
     /* ------------------------------------------------------------------------ */
     // Output Config
-    std::string tOutputFileName = ( gPrecSolver == "Amesos_Pardiso" ) ? tName + "_Pardiso" + ".exo" : tName + "_Umfpack" + ".exo";
+    std::string tOutputFileName = tName + "_"+ gPrecSolver + ".exo" ;
 
     std::string tLibraryName     = tName + ".so";
     std::string tHDF5Path        = tName + ".hdf5";
@@ -508,7 +509,7 @@ namespace moris
         // init IQI counter
         uint tIQICounter = 0;
 
-        //         Volume IQI - TotalDomain - use once to find total volume to compute max dof
+        //Volume IQI - TotalDomain - use once to find total volume to compute max dof
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQITotalVolume" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::VOLUME ) ;
@@ -559,63 +560,8 @@ namespace moris
             tParameterlist( Ik ).resize( 1 );
         }
 
-        tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::EIGEN_SOLVER );
-        tParameterlist( 0 )( 0 ).set( "Eigen_Algorithm", "EIGALG_BLOCK_DAVIDSON" );
-        tParameterlist( 0 )( 0 ).set( "Verbosity", false );
-        tParameterlist( 0 )( 0 ).set( "Which", "SM" );
-        tParameterlist( 0 )( 0 ).set( "Block_Size", 5 );          // Block Size should be same as Number of Eigen values
-        tParameterlist( 0 )( 0 ).set( "NumFreeDofs", 1000 );      // For 2D problem of rectangular elements number of free dofs = 2*node_x*node_y
-        tParameterlist( 0 )( 0 ).set( "Num_Eig_Vals", 5 );        // Number of Eigen values should be same as Block Size
-        tParameterlist( 0 )( 0 ).set( "Num_Blocks", 2 );          // Number of Blocks should satisfy : Num_Blocks*Block_Size < InitVec Length
-        tParameterlist( 0 )( 0 ).set( "MaxSubSpaceDims", 75 );    // Max Subspace Dimension = 3*Block_Size*Num_Eig_Vals
-        tParameterlist( 0 )( 0 ).set( "Initial_Guess", 0 );
-        tParameterlist( 0 )( 0 ).set( "MaxRestarts", 20 );
-        tParameterlist( 0 )( 0 ).set( "Convergence_Tolerance", 1e-05 );
-        tParameterlist( 0 )( 0 ).set( "Relative_Convergence_Tolerance", true );
-        tParameterlist( 0 )( 0 ).set( "preconditioners", "0" );
+        gPrecSolver == "Slepc" ? create_petsc_parameter_list( tParameterlist ) : create_trilinos_parameter_list( tParameterlist );
 
-        // Ml Preconditioner parameters
-        // tParameterlist( 0 )( 0 ).set( "ml_prec_type", "NSSA"); // options: SA, NSSA, DD, DD-ML
-
-        // Print eigenvector parameter
-        //tParameterlist( 0 )( 0 ).set( "Print_vector", "LINSOL_EXPORT_MATLAB" );
-
-        tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
-        tParameterlist( 1 )( 0 ).set( "DLA_Linear_solver_algorithms", "0" );
-        tParameterlist( 1 )( 0 ).set( "RHS_Matrix_Type", "MassMat" );    // MassMat or IdentityMat
-
-        tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
-        tParameterlist( 2 )( 0 ).set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
-        tParameterlist( 2 )( 0 ).set( "NLA_relaxation_parameter", tNLA_relaxation_parameter );
-        tParameterlist( 2 )( 0 ).set( "NLA_max_iter", tNLA_max_iter );
-        tParameterlist( 2 )( 0 ).set( "NLA_combined_res_jac_assembly", false );
-
-        tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
-        tParameterlist( 3 )( 0 ).set( "NLA_DofTypes", "UX,UY" );
-
-
-        tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
-        tParameterlist( 4 )( 0 ).set( "TSA_Num_Time_Steps", tTSA_Num_Time_Steps );
-        tParameterlist( 4 )( 0 ).set( "TSA_Time_Frame", tTSA_Time_Frame );
-
-        tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
-        tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "UX,UY" );
-        tParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec", "UX,0.0;UY,0.0" );
-        tParameterlist( 5 )( 0 ).set( "TSA_Output_Indices", "0" );
-        tParameterlist( 5 )( 0 ).set( "TSA_Output_Criteria", "Output_Criterion" );
-        tParameterlist( 5 )( 0 ).set( "TSA_time_level_per_type", "UX,1;UY,1" );
-
-
-        tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
-        tParameterlist( 6 )( 0 ).set( "SOL_save_operator_to_matlab", "MassMat" );
-
-        tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list(sol::PreconditionerType::IFPACK);
-        // Ifpack Preconditioner parameters
-        tParameterlist( 7 )( 0 ).set( "ifpack_prec_type", "Amesos" );
-        tParameterlist( 7 )( 0 ).set( "amesos: solver type", gPrecSolver );    // Amesos_Umfpack or Amesos_Pardiso
-        // Preconditioner parameters
-        tParameterlist( 7 )( 0 ).set( "overlap-level", 0 );
-        tParameterlist( 7 )( 0 ).set( "schwarz: combine mode", "add" );    // for Amesos_Umfpack and Amesos_Pardiso provide this parameter with "add" mode
     }
 
     void
@@ -652,6 +598,130 @@ namespace moris
     void
     MORISGENERALParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
+    }
+
+    //------------------------------------------------------------------------------
+    void
+    create_trilinos_parameter_list(Vector< Vector< Parameter_List > >& aParameterlist)
+    {
+        aParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::EIGEN_SOLVER );
+        aParameterlist( 0 )( 0 ).set( "Eigen_Algorithm", "EIGALG_BLOCK_DAVIDSON" );
+        aParameterlist( 0 )( 0 ).set( "Verbosity", false );
+        aParameterlist( 0 )( 0 ).set( "Which", "SM" );
+        aParameterlist( 0 )( 0 ).set( "Block_Size", 5 );          // Block Size should be same as Number of Eigen values
+        aParameterlist( 0 )( 0 ).set( "NumFreeDofs", 1000 );      // For 2D problem of rectangular elements number of free dofs = 2*node_x*node_y
+        aParameterlist( 0 )( 0 ).set( "Num_Eig_Vals", 5 );        // Number of Eigen values should be same as Block Size
+        aParameterlist( 0 )( 0 ).set( "Num_Blocks", 2 );          // Number of Blocks should satisfy : Num_Blocks*Block_Size < InitVec Length
+        aParameterlist( 0 )( 0 ).set( "MaxSubSpaceDims", 75 );    // Max Subspace Dimension = 3*Block_Size*Num_Eig_Vals
+        aParameterlist( 0 )( 0 ).set( "Initial_Guess", 0 );
+        aParameterlist( 0 )( 0 ).set( "MaxRestarts", 20 );
+        aParameterlist( 0 )( 0 ).set( "Convergence_Tolerance", 1e-05 );
+        aParameterlist( 0 )( 0 ).set( "Relative_Convergence_Tolerance", true );
+        aParameterlist( 0 )( 0 ).set( "preconditioners", "0" );
+
+        // Ml Preconditioner parameters
+        // tParameterlist( 0 )( 0 ).set( "ml_prec_type", "NSSA"); // options: SA, NSSA, DD, DD-ML
+
+        // Print eigenvector parameter
+        //tParameterlist( 0 )( 0 ).set( "Print_vector", "LINSOL_EXPORT_MATLAB" );
+
+        aParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
+        aParameterlist( 1 )( 0 ).set( "DLA_Linear_solver_algorithms", "0" );
+        aParameterlist( 1 )( 0 ).set( "RHS_Matrix_Type", "MassMat" );    // MassMat or IdentityMat
+
+        aParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+        aParameterlist( 2 )( 0 ).set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
+        aParameterlist( 2 )( 0 ).set( "NLA_relaxation_parameter", tNLA_relaxation_parameter );
+        aParameterlist( 2 )( 0 ).set( "NLA_max_iter", tNLA_max_iter );
+        aParameterlist( 2 )( 0 ).set( "NLA_combined_res_jac_assembly", false );
+
+        aParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
+        aParameterlist( 3 )( 0 ).set( "NLA_DofTypes", "UX,UY" );
+
+
+        aParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
+        aParameterlist( 4 )( 0 ).set( "TSA_Num_Time_Steps", tTSA_Num_Time_Steps );
+        aParameterlist( 4 )( 0 ).set( "TSA_Time_Frame", tTSA_Time_Frame );
+
+        aParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
+        aParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "UX,UY" );
+        aParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec", "UX,0.0;UY,0.0" );
+        aParameterlist( 5 )( 0 ).set( "TSA_Output_Indices", "0" );
+        aParameterlist( 5 )( 0 ).set( "TSA_Output_Criteria", "Output_Criterion" );
+        aParameterlist( 5 )( 0 ).set( "TSA_time_level_per_type", "UX,1;UY,1" );
+
+
+        aParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+        aParameterlist( 6 )( 0 ).set( "SOL_save_operator_to_matlab", "MassMat" );
+
+        aParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list(sol::PreconditionerType::IFPACK);
+        // Ifpack Preconditioner parameters
+        aParameterlist( 7 )( 0 ).set( "ifpack_prec_type", "Amesos" );
+        aParameterlist( 7 )( 0 ).set( "amesos: solver type", gPrecSolver );    // Amesos_Umfpack or Amesos_Pardiso
+        // Preconditioner parameters
+        aParameterlist( 7 )( 0 ).set( "overlap-level", 0 );
+        aParameterlist( 7 )( 0 ).set( "schwarz: combine mode", "add" );    // for Amesos_Umfpack and Amesos_Pardiso provide this parameter with "add" mode
+    }
+
+    //---------------------------------------------------------------------------
+
+    void
+    create_petsc_parameter_list(Vector<Vector<Parameter_List>> & aParameterlist)
+    {
+
+        // 1 slpec solver and the associated linear solver object
+        aParameterlist( 0 ).resize( 2 );
+        aParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::PETSC );
+        aParameterlist( 0 )( 0 ).set( "KSPType", "gmres" );
+        aParameterlist( 0 )( 0 ).set( "preconditioners", "0" );    // 10 shift_invert
+
+        // find max eigen value
+        aParameterlist( 0 )( 1 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::SLEPC_SOLVER );
+        aParameterlist( 0 )( 1 ).set( "Eigen_Algorithm", "krylovschur" );
+        aParameterlist( 0 )( 1 ).set( "Which", std::string( "LM" ) );
+        aParameterlist( 0 )( 1 ).set( "Num_Eig_Vals", 5 );
+        aParameterlist( 0 )( 1 ).set( "STType", "shift_invert" );
+        aParameterlist( 0 )( 1 ).set( "sub_linear_solver", "0" );    // 10 shift_invert
+        aParameterlist( 0 )( 1 ).set( "is_symmetric", true );       // 10 shift_invert
+        aParameterlist( 0 )( 1 ).set( "Update_Flag", true );         // 10 shift_invert
+        aParameterlist( 0 )( 1 ).set( "Verbosity", true ); 
+
+        // precondioerr
+        aParameterlist( 7 ).resize( 1 );
+        aParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::PETSC );
+        aParameterlist( 7 )( 0 ).set( "PCType", "mumps" );
+
+
+        aParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
+        aParameterlist( 1 )( 0 ).set( "DLA_Linear_solver_algorithms", "1" );
+        aParameterlist( 1 )( 0 ).set( "RHS_Matrix_Type", "MassMat" );    // MassMat or IdentityMat
+
+        aParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+        aParameterlist( 2 )( 0 ).set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
+        aParameterlist( 2 )( 0 ).set( "NLA_relaxation_parameter", tNLA_relaxation_parameter );
+        aParameterlist( 2 )( 0 ).set( "NLA_max_iter", tNLA_max_iter );
+        aParameterlist( 2 )( 0 ).set( "NLA_combined_res_jac_assembly", false );
+
+        aParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
+        aParameterlist( 3 )( 0 ).set( "NLA_DofTypes", "UX,UY" );
+
+
+        aParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
+        aParameterlist( 4 )( 0 ).set( "TSA_Num_Time_Steps", tTSA_Num_Time_Steps );
+        aParameterlist( 4 )( 0 ).set( "TSA_Time_Frame", tTSA_Time_Frame );
+
+        aParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
+        aParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "UX,UY" );
+        aParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec", "UX,0.0;UY,0.0" );
+        aParameterlist( 5 )( 0 ).set( "TSA_Output_Indices", "0" );
+        aParameterlist( 5 )( 0 ).set( "TSA_Output_Criteria", "Output_Criterion" );
+        aParameterlist( 5 )( 0 ).set( "TSA_time_level_per_type", "UX,1;UY,1" );
+
+
+        aParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+        aParameterlist( 6 )( 0 ).set( "SOL_save_operator_to_matlab", "MassMat" );
+        aParameterlist( 6 )( 0 ).set( "SOL_TPL_Type",  sol::MapType::Petsc ) ;
+
     }
 
     /* ------------------------------------------------------------------------ */
