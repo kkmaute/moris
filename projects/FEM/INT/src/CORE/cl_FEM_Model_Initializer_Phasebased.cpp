@@ -974,9 +974,6 @@ namespace moris::fem
         // get fem computation type parameter list
         Parameter_List tComputationParameterList = mParameterList( 5 )( 0 );
 
-        // get bool for printing physics model
-        bool const tPrintPhysics = tComputationParameterList.get< bool >( "print_physics_model" );
-
         // get bool for analytical/finite difference for dRdu and dQIdu
         bool const tIsAnalyticalFA = tComputationParameterList.get< bool >( "is_analytical_forward" );
 
