@@ -384,7 +384,7 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         void
-        Object::write_to_obj_file( std::string aFilePath )
+        Object::write_to_file( std::string aFilePath )
         {
             // Open file for writing
             std::ofstream tFile;

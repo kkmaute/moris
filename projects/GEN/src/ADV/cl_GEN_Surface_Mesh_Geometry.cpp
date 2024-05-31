@@ -102,6 +102,7 @@ namespace moris::gen
                 Matrix< DDUMat > tADVIndices;
                 Matrix< DDRMat > tConstants;
                 Matrix< DDUMat > tFieldVariableIndices;
+
                 // construct field to be discretized into a bspline field eventually
                 if ( aParameters.mDiscretizationIndex > -1 )
                 {
@@ -375,7 +376,7 @@ namespace moris::gen
         // STEP 3: Update all facet data
         this->update_all_facets();
 
-        // this->write_to_obj_file( mName + "_" + std::to_string( mIteration ) + ".txt" );
+        // this->write_to_file( mName + "_" + std::to_string( mIteration ) + ".txt" );
         // mIteration++;
     }
 

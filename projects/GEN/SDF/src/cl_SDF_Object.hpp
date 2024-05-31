@@ -147,7 +147,7 @@ namespace moris
              * @param aFilePath the desired file name and location
              */
             void
-            write_to_obj_file( std::string aFilePath );
+            write_to_file( std::string aFilePath );
 
 
             //-------------------------------------------------------------------------------
