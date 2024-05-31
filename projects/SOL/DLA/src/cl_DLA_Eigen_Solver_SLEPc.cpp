@@ -23,6 +23,8 @@
 #include "cl_Tracer.hpp"
 #include "slepceps.h"
 
+#include "cl_Vector_PETSc_Multi.hpp"
+
 using namespace moris;
 using namespace dla;
 
@@ -136,11 +138,6 @@ Eigen_Solver_SLEPc::solve_linear_system(
     // set whcih eigenvalues to solve for
     EPSSetWhichEigenpairs( mEps, mStringToEPSWhich.find( mParameterList.get< std::string >( "Which" ) )->second );
 
-    std::string tRHSType = aLinearSystem->get_rhs_matrix_type();
-
-    // set the operators based on the problem type
-    tRHSType == "IdentityMat" ? EPSSetOperators( mEps, aLinearSystem->get_matrix()->get_petsc_matrix(), NULL ) : EPSSetOperators( mEps, aLinearSystem->get_matrix()->get_petsc_matrix(), aLinearSystem->get_mass_matrix()->get_petsc_matrix() );
-
     // request number of eigenvalues from parameterlist
     moris::sint tNumEigVals = mParameterList.get< moris::sint >( "Num_Eig_Vals" );
     EPSSetDimensions( mEps, (PetscInt)tNumEigVals, PETSC_DEFAULT, PETSC_DEFAULT );
@@ -179,6 +176,7 @@ Eigen_Solver_SLEPc::solve_linear_system(
 
     moris::moris_id tNumConvergedEigVals;
     EPSGetConverged( mEps, &tNumConvergedEigVals );
+    MORIS_LOG_INFO( "Number of converged eigenvalues: %d", tNumConvergedEigVals );
 
     // iterate over the number of converged eigenvalues and get the corresponding eigenvalues
     for ( moris_id iEigenIndex = 0; iEigenIndex < tNumConvergedEigVals; iEigenIndex++ )
@@ -188,24 +186,31 @@ Eigen_Solver_SLEPc::solve_linear_system(
         EPSComputeError( mEps, iEigenIndex, EPS_ERROR_RELATIVE, &tError );
 
         MORIS_LOG_INFO( "Eigenvalue %d : %f + %fi , Error : %f", iEigenIndex, tEigenValueReal, tEigenValueImag, tError );
-        
-        mEigenValues.push_back( tEigenValueReal );
-        
-        if ( !mParameterList.get< bool >( "Update_Flag" ) ) return 0;
 
-        sol::Dist_Vector *tDistVec           = aLinearSystem->get_solver_input()->get_eigen_solution_vector();
-        Vector_PETSc     *tDestinationVector = static_cast< Vector_PETSc     *>( tDistVec );
+        mEigenValues.push_back( tEigenValueReal );
+
+        if(aLinearSystem->get_solver_input() not_eq nullptr)
+        {
+        std::shared_ptr< Vector< real > > &tEigenValues = aLinearSystem->get_solver_input()->get_eigen_values();
+        tEigenValues->push_back( tEigenValueReal );
+        }
+    }
+
+    if ( !mParameterList.get< bool >( "Update_Flag" ) ) return 0;
+
+    Vec tSourceVec;    // petsc vector
+    for ( moris_id iEigenIndex = 0; iEigenIndex < tNumEigVals; iEigenIndex++ )
+    {
+        sol::Dist_Vector  *tDistVec           = aLinearSystem->get_solver_input()->get_eigen_solution_vector();
+        MultiVector_PETSc *tDestinationVector = static_cast< MultiVector_PETSc * >( tDistVec );
 
         // get the eigen vector
-        Vec tSourceVec;    // petsc vector
         MatCreateVecs( aLinearSystem->get_matrix()->get_petsc_matrix(), NULL, &tSourceVec );
         EPSGetEigenvector( mEps, iEigenIndex, tSourceVec, NULL );
 
-        tDestinationVector->import_local_to_global( tSourceVec );
-
-        std::shared_ptr< Vector< real > > &tEigenValues = aLinearSystem->get_solver_input()->get_eigen_values();
-        tEigenValues->push_back( tEigenValueReal );
+        tDestinationVector->import_local_to_global( tSourceVec,iEigenIndex  );
     }
+
 
     return 0;
 }
@@ -225,10 +230,13 @@ Eigen_Solver_SLEPc::determine_problem_type( Linear_Problem *aLinearSystem )
     // determine the problem type based on symmetry and right hand side type
     if ( tRHSType == "IdentityMat" )
     {
+        EPSSetOperators( mEps, aLinearSystem->get_matrix()->get_petsc_matrix(), NULL );
         return tAssumeSymmetric ? EPS_HEP : EPS_NHEP;
     }
     else if ( tRHSType == "MassMat" )
     {
+        aLinearSystem->assemble_rhs_matrix();
+        EPSSetOperators( mEps, aLinearSystem->get_matrix()->get_petsc_matrix(), aLinearSystem->get_mass_matrix()->get_petsc_matrix() );
         return tAssumeSymmetric ? EPS_GHEP : EPS_GNHEP;
     }
     else
@@ -431,6 +439,21 @@ void Eigen_Solver_SLEPc::set_eps_type_and_params()
     else if ( tSolverType == "lapack" )
     {
         EPSSetType( mEps, EPSLAPACK );
+        if ( tUseDefualt ) return;
+    }
+    else if( tSolverType == "arpack")
+    {
+        EPSSetType( mEps, EPSARPACK );
+        if ( tUseDefualt ) return;
+    }
+    else if( tSolverType == "lapack")
+    {
+        EPSSetType( mEps, EPSLAPACK );
+        if ( tUseDefualt ) return;
+    }
+    else if ( tSolverType == "lyapii")
+    {
+        EPSSetType( mEps, EPSLYAPII );
         if ( tUseDefualt ) return;
     }
     else

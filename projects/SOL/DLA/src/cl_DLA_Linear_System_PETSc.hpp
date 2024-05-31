@@ -78,6 +78,15 @@ namespace moris
             moris::sint solve_linear_system();
 
             void get_solution( Matrix< DDRMat >& LHSValues );
+
+            //--------------------------------------------------------------------------
+
+            /**
+             * @brief construct right hand side matrix for eigen problem
+             * Identity, Mass, Geometric stigness
+             * 
+             */
+            virtual void construct_rhs_matrix() override;
         };
     }    // namespace dla
 }    // namespace moris
