@@ -37,8 +37,7 @@ namespace moris
                 Nonlinear_Solver* aNonLinSolverManager )
         {
             // get relaxation strategy
-            mTimeStepStrategy = static_cast< sol::SolverPseudoTimeControlType >(
-                    aParameterListNonlinearSolver.get< uint >( "NLA_pseudo_time_control_strategy" ) );
+            mTimeStepStrategy = aParameterListNonlinearSolver.get< sol::SolverPseudoTimeControlType >( "NLA_pseudo_time_control_strategy" );
 
             // skip setting remaining parameters if no pseudo time step control is used
             if ( mTimeStepStrategy == sol::SolverPseudoTimeControlType::None )
@@ -69,6 +68,9 @@ namespace moris
 
             // number of initial iterations without time step size control at constant time step
             mInitialIterations = aParameterListNonlinearSolver.get< sint >( "NLA_pseudo_time_initial_steps" );
+
+            // iteration index at which reference norm is set
+            mRefIterationID = aParameterListNonlinearSolver.get< sint >( "NLA_ref_iter" );
 
             // strategy depending parameters
             switch ( mTimeStepStrategy )
@@ -517,6 +519,7 @@ namespace moris
                         if ( mTimeStepCounter < 2 )
                         {
                             mPrevStepSize = mConstantStepSize;
+                            mPrevRelResNorm = 1.0;
                         }
 
                         // initialize new time step
@@ -537,7 +540,7 @@ namespace moris
                         }
 
                         // perform update only if static residual has not increased by more than 25%
-                        if ( aRelResNorm > 1.25 * mPrevRelResNorm )
+                        if ( aRelResNorm > 1.25 * mPrevRelResNorm && aIterationId > mRefIterationID )
                         {
                             tPerformUpdate = false;
 

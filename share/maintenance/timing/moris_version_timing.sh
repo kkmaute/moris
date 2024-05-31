@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #=================================================================================
 #
 # script to perform timing test for moris 
@@ -12,41 +12,53 @@
 # start of user input
 #=================================================================================
 
-# overwrite MORISROOT with director of moris git version
-export MORISROOT=$HOME/codes/moris
+# overwrite MORISROOT with directory of moris git version
+export MORISROOTORG=$HOME/codes/moris
 
 # build directory
-here=$MORISROOT/build_opt
+here=$MORISROOTORG/build_opt
 
 # branch: master or xtk_refactor or main
 branch=main
 
 # file with list of examples 
-exalist=$MORISROOT/share/maintenance/timing/TimingExampleList
+exalist=$MORISROOTORG/share/maintenance/timing/TimingExampleList
+
+# set current version (t13 or t15)
+ctvers=t15
+
+# resource file for current and old versions
+bashrc_t13=$HOME/BASHRC_MORIS_T13
+bashrc_t15=$HOME/.bashrc_moris
 
 # file with git versions to processed in additon to current one; leave empty 
 # if only current git version should be checked
-gitlist=$MORISROOT/share/maintenance/timing/CheckGitList_github
+gitlist=$MORISROOTORG/share/maintenance/timing/CheckGitList_github
 #gitlist=
 
 #=================================================================================
 # end of user input
 #=================================================================================
 
-cd $MORISROOT
+cd $MORISROOTORG
 
 git checkout $branch
 
 if [ $gitlist ];then
-    vlist=`cat $gitlist`
+    vlist=`cat $gitlist | awk '{print $1}'`
+    ulist=`cat $gitlist | awk '{print $2}'`
     vlist=$vlist" "`git log | head -1 | awk '{print $2}'`
+    ulist=$ulist" "`echo $ctvers`
 else
     vlist=`git log | head -1 | awk '{print $2}'`
+    ulist=`echo $ctvers`
 fi
 
 id=0
 
 cd $here
+
+cp $MORISROOTORG/share/cmake/find_modules/FindOPENBLAS.cmake /tmp/FindOPENBLAS.cmake 
 
 if [ ! -d "TimingResults" ];then
     mkdir TimingResults
@@ -57,6 +69,8 @@ if [ ! "$1" = "skip" ];then
     for vers in $vlist;do
 
         id=`expr $id + 1`
+        
+        urs=`echo $ulist | awk -v id=$id '{split($0, list);print list[id]}'`
 
         make clean >& /dev/null
 
@@ -82,24 +96,61 @@ if [ ! "$1" = "skip" ];then
         echo " processing $id ( $vers / $date )"
 
         echo " ==============================================="
-                
-        git checkout $vers
+                        
+        doskip=0
         
-        rm -r -f cmake CMakeCache.txt CMakeDoxyfile.in CMakeDoxygenDefaults.cmake
-        rm -r -f CMakeFiles cmake_install.cmake CTestTestfile.cmake generated
-        rm -r -f lib Makefile share
+        if [ "$urs" = "t13" ]; then    
+            if [ ! -f $bashrc_t13 ]; then
+                echo "bashrc_t13: $bashrc_t13 does not exist"
+                echo "skipping timing test for $vers"
+                doskip=1
+            else
+                echo "trilinos version 13"
+                source $bashrc_t13
+                echo $Trilinos_DIR
+            fi
+        fi
+         
+        if [ "$urs" = "t15" ]; then    
+            if [ ! -f $bashrc_t15 ]; then
+                echo "bashrc_t15: $bashrc_t15 does not exist"
+                echo "skipping timing test for $vers"
+                doskip=1
+            else
+                echo "trilinos version 15"
+                source $bashrc_t15
+                echo $Trilinos_DIR
+            fi
+        fi
+        
+        if [ "$doskip" = "0" ];then
+        
+            git checkout $vers
+        
+            rm -r -f cmake CMakeCache.txt CMakeDoxyfile.in CMakeDoxygenDefaults.cmake
+            rm -r -f CMakeFiles cmake_install.cmake CTestTestfile.cmake generated
+            rm -r -f lib Makefile share
+            
+            mv $MORISROOTORG/share/cmake/find_modules/FindOPENBLAS.cmake /tmp/FindOPENBLAS.cmake.current
 
-        cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON ..  >& /dev/null
-        cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON ..  >& /dev/null
+            cp /tmp/FindOPENBLAS.cmake $MORISROOTORG/share/cmake/find_modules/FindOPENBLAS.cmake
         
-        echo "MORIS compilation log for $vers at $date"  > TimingResults/compile.$date
-        echo " "                                        >> TimingResults/compile.$date
-        make -j 5                                       >> TimingResults/compile.$date 2>&1
+            echo "MORIS cmake for $vers at $date"            > TimingResults/cmake.$date
+            echo " "                                        >> TimingResults/cmake.$date
+            cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON .. >> TimingResults/cmake.$date 2>&1
+            cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON .. >> TimingResults/cmake.$date 2>&1 
+        
+            echo "MORIS compilation log for $vers at $date"  > TimingResults/compile.$date
+            echo " "                                        >> TimingResults/compile.$date
+            make -j 5                                       >> TimingResults/compile.$date 2>&1
               
-        echo "MORIS ctest for $vers at $date"  > TimingResults/ctest.$date
-        echo " "                              >> TimingResults/ctest.$date
-        ctest -V                              >> TimingResults/ctest.$date 2>&1
-        
+            echo "MORIS ctest for $vers at $date"  > TimingResults/ctest.$date
+            echo " "                              >> TimingResults/ctest.$date
+            ctest -V                              >> TimingResults/ctest.$date 2>&1            
+            
+            mv /tmp/FindOPENBLAS.cmake.current $MORISROOTORG/share/cmake/find_modules/FindOPENBLAS.cmake
+            
+        fi        
     done
     
     git checkout $branch

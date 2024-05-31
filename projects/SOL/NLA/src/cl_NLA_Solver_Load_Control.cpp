@@ -27,8 +27,7 @@ namespace moris
         Solver_Load_Control::Solver_Load_Control( Parameter_List& aParameterListNonlinearSolver )
         {
             // get relaxation strategy
-            mLoadControlStrategy = static_cast< sol::SolverLoadControlType >(
-                    aParameterListNonlinearSolver.get< uint >( "NLA_load_control_strategy" ) );
+            mLoadControlStrategy = aParameterListNonlinearSolver.get< sol::SolverLoadControlType >( "NLA_load_control_strategy" );
 
             // get initial relaxation parameter
             mInitialLoadFactor = aParameterListNonlinearSolver.get< real >( "NLA_load_control_factor" );

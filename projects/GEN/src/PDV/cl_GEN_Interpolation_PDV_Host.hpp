@@ -182,7 +182,7 @@ namespace moris::gen
          * @param aPDVIndex PDV index
          * @return ADV IDs
          */
-        Matrix< DDSMat > get_determining_adv_ids( uint aPDVIndex );
+        Vector< sint > get_determining_adv_ids( uint aPDVIndex );
 
         /**
          * Gets coordinates stored with host.

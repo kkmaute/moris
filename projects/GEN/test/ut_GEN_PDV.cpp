@@ -19,6 +19,7 @@
 #include "fn_PRM_GEN_Parameters.hpp"
 #include "cl_GEN_Background_Node.hpp"
 #include "cl_GEN_Parent_Node.hpp"
+#include "cl_GEN_ADV_Manager.hpp"
 
 #define protected public
 #define private public
@@ -331,12 +332,12 @@ namespace moris::gen
         if ( par_size() == 2 )
         {
             // Create circle
-            Matrix< DDRMat >            tADVs   = { { 0.0, 0.0, 1.0 } };
+            Vector< real > tADVs = { { 0.0, 0.0, 1.0 } };
             auto tCircleField = std::make_shared< Circle >(
                     tADVs,
-                    Matrix< DDUMat >( { { 0, 1, 2 } } ),
-                    Matrix< DDUMat >( { { 0, 1, 2 } } ),
-                    Matrix< DDRMat >( { {} } ) );
+                    Vector< uint >( { 0, 1, 2 } ),
+                    Vector< uint >( { 0, 1, 2 } ),
+                    Vector< real >() );
 
             auto tCircleGeometry = std::make_shared< Level_Set_Geometry >( tCircleField );
 
@@ -464,15 +465,15 @@ namespace moris::gen
             }
 
             // Set owned ADV IDs
-            Matrix< DDSMat > tOwnedADVIds( 0, 0 );
+            Vector< sint > tOwnedADVIds( 0 );
             if ( par_rank() == 0 )
             {
-                tOwnedADVIds = { { 0 }, { 1 }, { 2 } };
+                tOwnedADVIds = { 0, 1, 2 };
             }
             tPDVHostManager.set_owned_adv_ids( tOwnedADVIds );
 
             // Get sensitivities
-            Matrix< DDSMat > tFullADVIds( 0, 0 );
+            Vector< sint > tFullADVIds( 0, 0 );
             if ( par_rank() == 0 )
             {
                 tFullADVIds = tOwnedADVIds;
@@ -504,24 +505,23 @@ namespace moris::gen
         tPDVHostManager.mPDVTypeMap.set_size( 10, 1, -1 );
         tPDVHostManager.mPDVTypeMap( 3 ) = 0;
 
-        // Constant property parameter list
-        Parameter_List tParameterList = moris::prm::create_gen_property_parameter_list();
-        tParameterList.set( "field_type", "constant" );
-        tParameterList.set( "field_variable_indices", "0" );
-        tParameterList.set( "pdv_type", "DENSITY" );
-
         // Create ADVs
         uint             tNumADVs = 2 * par_size();
-        Matrix< DDRMat > tADVs( tNumADVs, 1 );
 
         // Create constant properties
-        Vector< std::shared_ptr< Property > > tProperties( tNumADVs );
-        for ( uint tPropertyIndex = 0; tPropertyIndex < tNumADVs; tPropertyIndex++ )
+        Vector< Parameter_List > tPropertyParameterLists;
+        for ( uint iPropertyIndex = 0; iPropertyIndex < tNumADVs; iPropertyIndex++ )
         {
-            tParameterList.set( "adv_indices", std::to_string( tPropertyIndex ) );
-            Design_Factory tDesignFactory( { tParameterList }, tADVs );
-            tProperties( tPropertyIndex ) = tDesignFactory.get_properties()( 0 );
+            // Constant property parameter list
+            tPropertyParameterLists.push_back( moris::prm::create_gen_property_parameter_list( gen::Field_Type::CONSTANT ) );
+            tPropertyParameterLists( iPropertyIndex ).set( "pdv_type", "DENSITY" );
+            tPropertyParameterLists( iPropertyIndex ).set( "constant", 0.0, 0.0, 0.0 );
         }
+
+        // Create properties
+        ADV_Manager tADVManager;
+        Design_Factory tDesignFactory( tPropertyParameterLists, tADVManager );
+        Vector< std::shared_ptr< Property > > tProperties = tDesignFactory.get_properties();
 
         // Node indices, IDs, ownership and coordinates per set
         Vector< Vector< uint > > tNodeIndicesPerSet( 1 );
@@ -576,13 +576,13 @@ namespace moris::gen
         tPDVHostManager.create_pdv_ids();
 
         // Owned ADV IDs
-        tPDVHostManager.set_owned_adv_ids( { { 2 * par_rank() }, { 2 * par_rank() + 1 } } );
+        tPDVHostManager.set_owned_adv_ids( { 2 * par_rank(), 2 * par_rank() + 1 } );
 
         // Full ADV IDs
-        Matrix< DDSMat > tFullADVIds( 0, 0 );
+        Vector< sint > tFullADVIds;
         if ( par_rank() == 0 )
         {
-            tFullADVIds.resize( tNumADVs, 1 );
+            tFullADVIds.resize( tNumADVs );
             for ( uint tADVIndex = 0; tADVIndex < tNumADVs; tADVIndex++ )
             {
                 tFullADVIds( tADVIndex ) = tADVIndex;

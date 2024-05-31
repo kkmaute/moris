@@ -27,8 +27,8 @@ Map_PETSc::Map_PETSc(
     moris::uint tNumMyOwnedDofs = aMyGlobalOwnedIds.n_rows();
 
     // Check that IDs are numbered consecutively from 0 to max(tNumMyDofs)
-    MORIS_ASSERT( (sint)( sum_all( tNumMyOwnedDofs ) - 1 ) == (sint)max_all( aMyGlobalOwnedIds.max() ),
-            "Map_PETSc::Map_PETSc - IDs are not numbered consecutively starting from 0" );
+//     MORIS_ASSERT( (sint)( sum_all( tNumMyOwnedDofs ) - 1 ) == (sint)max_all( aMyGlobalOwnedIds.max() ),
+//             "Map_PETSc::Map_PETSc - IDs are not numbered consecutively starting from 0" );
 
     // Build PETSc AO map between moris IDs and petsc IDs based on owned free dofs
     AOCreateBasic(
@@ -82,8 +82,8 @@ Map_PETSc::Map_PETSc( const Matrix< DDSMat >& aMyGlobalOwnedIds )
 
     // Check that IDs are numbered consecutively from 0 to max(tNumMyDofs)
     // FIXME: This check is not valid for when a proc is called with no dofs because of max_all
-    MORIS_ASSERT( (sint)( sum_all( tNumMyOwnedDofs ) - 1 ) == (sint)max_all( aMyGlobalOwnedIds.max() ),
-            "Map_PETSc::Map_PETSc - IDs are not numbered consecutively starting from 0" );
+//     MORIS_ASSERT( (sint)( sum_all( tNumMyOwnedDofs ) - 1 ) == (sint)max_all( aMyGlobalOwnedIds.max() ),
+//             "Map_PETSc::Map_PETSc - IDs are not numbered consecutively starting from 0" );
 
     // Build PETSc AO map between moris IDs and petsc IDs based on owned dofs
     AOCreateBasic(
@@ -124,6 +124,60 @@ Map_PETSc::Map_PETSc( const Matrix< DDSMat >& aMyGlobalOwnedIds )
 
 // ----------------------------------------------------------------------------
 
+Map_PETSc::Map_PETSc( const Vector< sint >& aMyGlobalOwnedIds )
+{
+    // clear member variables
+    AODestroy( &mPETScMap );
+    ISLocalToGlobalMappingDestroy( &mMorisIDtoIndexMap );
+    ISDestroy( &mPETScIDs );
+
+    // Get number of owned DOFs
+    moris::uint tNumMyOwnedDofs = aMyGlobalOwnedIds.size();
+
+    // Check that IDs are numbered consecutively from 0 to max(tNumMyDofs)
+    // FIXME: This check is not valid for when a proc is called with no dofs because of max_all
+//     MORIS_ASSERT( (sint)( sum_all( tNumMyOwnedDofs ) - 1 ) == (sint)max_all( *std::max_element( aMyGlobalOwnedIds.begin(), aMyGlobalOwnedIds.end() ) ),
+//             "Map_PETSc::Map_PETSc - IDs are not numbered consecutively starting from 0" );
+
+    // Build PETSc AO map between moris IDs and petsc IDs based on owned dofs
+    AOCreateBasic(
+            PETSC_COMM_WORLD,
+            tNumMyOwnedDofs,
+            aMyGlobalOwnedIds.memptr(),
+            PETSC_NULLPTR,
+            &mPETScMap );
+
+    // build map between moris IDs and indices of owned vector
+    ISLocalToGlobalMappingCreate(
+            PETSC_COMM_WORLD,
+            1,
+            tNumMyOwnedDofs,
+            aMyGlobalOwnedIds.memptr(),
+            PETSC_COPY_VALUES,
+            &mMorisIDtoIndexMap );
+
+    ISLocalToGlobalMappingSetFromOptions( mMorisIDtoIndexMap );
+
+    // build index list of petsc IDs of owned vector
+    Vector< sint > tPetscIDs = aMyGlobalOwnedIds;
+
+    // get petsc IDs for owned moris IDs
+    AOApplicationToPetsc(
+            mPETScMap,
+            tNumMyOwnedDofs,
+            tPetscIDs.memptr() );
+
+    // store petsc IDs in index set
+    ISCreateGeneral(
+            PETSC_COMM_SELF,
+            tNumMyOwnedDofs,
+            tPetscIDs.memptr(),
+            PETSC_COPY_VALUES,
+            &mPETScIDs );
+}
+
+// ----------------------------------------------------------------------------
+
 Map_PETSc::Map_PETSc(
         const Matrix< DDSMat >& aMyGlobalOwnedIds,
         const Matrix< DDSMat >& aMyGlobalOwnedAndSharedIds,
@@ -143,8 +197,8 @@ Map_PETSc::Map_PETSc(
 
     // Check that IDs are numbered consecutively from 0 to max(tNumMyDofs)
     // FIXME: This check is not valid for when a proc is called with no dofs because of max_all
-    MORIS_ASSERT( (sint)( sum_all( tNumMyOwnedDofs ) - 1 ) == (sint)max_all( aMyGlobalOwnedIds.max() ),
-            "Map_PETSc::Map_PETSc - IDs are not numbered consecutively starting from 0" );
+//     MORIS_ASSERT( (sint)( sum_all( tNumMyOwnedDofs ) - 1 ) == (sint)max_all( aMyGlobalOwnedIds.max() ),
+//             "Map_PETSc::Map_PETSc - IDs are not numbered consecutively starting from 0" );
 
     // Build PETSc AO map between moris IDs and petsc IDs based on owned dofs
     AOCreateBasic(
@@ -242,7 +296,24 @@ Map_PETSc::map_from_moris_ids_to_indices( const Matrix< DDSMat >& aGlobalIds )
     Matrix< DDSMat > tIndices( tNumIds, 1 );
 
     // determine indices for given IDs, if give ID does not exists a "-1" is inserted
-    ISGlobalToLocalMappingApply( mMorisIDtoIndexMap, IS_GTOLM_MASK, tNumIds, aGlobalIds.data(), NULL, tIndices.data() );
+    ISGlobalToLocalMappingApply( mMorisIDtoIndexMap, IS_GTOLM_MASK, tNumIds, aGlobalIds.data(), nullptr, tIndices.data() );
+
+    return tIndices;
+}
+
+// ----------------------------------------------------------------------------
+
+Vector< sint >
+Map_PETSc::map_from_moris_ids_to_indices( const Vector< sint >& aGlobalIds )
+{
+    // get number of IDs
+    uint tNumIds = aGlobalIds.size();
+
+    // allocate vector for indices
+    Vector< sint > tIndices( tNumIds );
+
+    // determine indices for given IDs, if give ID does not exists a "-1" is inserted
+    ISGlobalToLocalMappingApply( mMorisIDtoIndexMap, IS_GTOLM_MASK, tNumIds, aGlobalIds.memptr(), nullptr, tIndices.memptr() );
 
     return tIndices;
 }

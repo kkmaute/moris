@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef PROJECTS_FEM_MDL_SRC_CL_WRK_WORKFLOW_HPP_
-#define PROJECTS_FEM_MDL_SRC_CL_WRK_WORKFLOW_HPP_
+#pragma once
 
 #include "cl_OPT_Criteria_Interface.hpp"
 #include "moris_typedefs.hpp"    //MRS/COR/src
@@ -82,36 +81,7 @@ namespace moris
              */
             ~Workflow(){};
 
-            //------------------------------------------------------------------------------
-            /**
-             * Initializes the vectors of ADV values, lower bounds, and upper bounds
-             */
-            virtual void initialize(
-                    Matrix< DDRMat >& aADVs,
-                    Matrix< DDRMat >& aLowerBounds,
-                    Matrix< DDRMat >& aUpperBounds,
-                    Matrix< IdMat >&  aIjklIDs ) = 0;
-
-            //------------------------------------------------------------------------------
-            /**
-             * Gets the criteria values given a new set of ADVs
-             *
-             * @return vector of criteria
-             */
-            virtual Matrix< DDRMat >
-            perform( Matrix< DDRMat >& aNewADVs ) = 0;
-
-            //------------------------------------------------------------------------------
-            /**
-             * Gets the derivative of the criteria with respect to the advs
-             *
-             * @return matrix d(criteria)_i/d(adv)_j
-             */
-            virtual Matrix< DDRMat >
-            compute_dcriteria_dadv() = 0;
         };
         //------------------------------------------------------------------------------
     }    // namespace wrk
 } /* namespace moris */
-
-#endif /* PROJECTS_FEM_MDL_SRC_CL_WRK_PERFORMER_MANAGER_HPP_ */

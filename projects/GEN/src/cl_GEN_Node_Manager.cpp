@@ -211,7 +211,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix< DDSMat > Node_Manager::get_coordinate_determining_adv_ids_from_derived_node( uint aNodeIndex )
+    Vector< sint > Node_Manager::get_coordinate_determining_adv_ids_from_derived_node( uint aNodeIndex )
     {
         return this->get_derived_node( aNodeIndex ).get_coordinate_determining_adv_ids();
     }

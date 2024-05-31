@@ -10,55 +10,54 @@
 #ifndef SRC_DISTLINALG_CL_SOL_ENUMS_HPP_
 #define SRC_DISTLINALG_CL_SOL_ENUMS_HPP_
 
-namespace moris
+namespace moris::sol
 {
-    namespace sol
+    enum class SolverType
     {
-        enum class SolverType
-        {
-            AZTEC_IMPL,      //< Wrapper around Aztec Solver
-            AMESOS_IMPL,     //< Wrapper around Amesos Solver
-            BELOS_IMPL,      //< Wrapper around Belos Solver
-            PETSC,           //< Wrapper around Petsc Solver
-            EIGEN_SOLVER,
-            ML,    //< Wrapper around ML Preconditioner as a solver
-            END_ENUM
-        };
+        AZTEC_IMPL,     //< Wrapper around Aztec Solver
+        AMESOS_IMPL,    //< Wrapper around Amesos Solver
+        BELOS_IMPL,     //< Wrapper around Belos Solver
+        PETSC,          //< Wrapper around Petsc Solver
+        EIGEN_SOLVER,
+        SLEPC_SOLVER,
+        ML,    //< Wrapper around ML Preconditioner as a solver
+        END_ENUM
+    };
 
-        enum class EigSolMethod
-        {
-            LINSOL_AMESOS_KLU,
-            LINSOL_AMESOS_UMFPACK,
-            LINSOL_AMESOS_DSCPACK,
-            LINSOL_AMESOS_MUMPS,
-            LINSOL_AMESOS_LAPACK,
-            LINSOL_AMESOS_SCALAPACK,
-            LINSOL_AMESOS_PARDISO,
-            END_ENUM
-        };
+    enum class EigSolMethod
+    {
+        LINSOL_AMESOS_KLU,
+        LINSOL_AMESOS_UMFPACK,
+        LINSOL_AMESOS_DSCPACK,
+        LINSOL_AMESOS_MUMPS,
+        LINSOL_AMESOS_LAPACK,
+        LINSOL_AMESOS_SCALAPACK,
+        LINSOL_AMESOS_PARDISO,
+        END_ENUM
+    };
 
-        enum class MapType
-        {
-            Epetra,    // Indicates the Vector/Matrix/Map type
-            Petsc      // Indicates the Vector/Matrix/Map type
-        };
+    enum class MapType
+    {
+        Epetra,    // Indicates the Vector/Matrix/Map type
+        Petsc      // Indicates the Vector/Matrix/Map type
+    };
 
-        enum class SolverRelaxationType
-        {
-            Constant,             // Constant relaxation parameter
-            InvResNorm,           // Relaxation parameter proportional to inverse of residual norm
-            InvResNormAdaptive    // Relaxation parameter proportional to inverse of residual norm with adaptation
-        };
+    enum class SolverRelaxationType
+    {
+        Constant,             // Constant relaxation parameter
+        InvResNorm,           // Relaxation parameter proportional to inverse of residual norm
+        InvResNormAdaptive    // Relaxation parameter proportional to inverse of residual norm with adaptation
+    };
 
-        enum class SolverLoadControlType
-        {
-            Constant,       // Constant load control parameter
-            Linear,         // Linear growth
+    enum class SolverLoadControlType
+    {
+        Constant,       // Constant load control parameter
+        Linear,         // Linear growth
             Exponential,    // Exponential growth
             UserDefined     // User defined strategy
         };
 
-        enum class SolverRaytracingStrategy
+    enum class SolverRaytracingStrategy
         {
             None,                                 // No (re-)ray tracing
             EveryNthIteration,                    // Ray tracing after every Nth newton iteration
@@ -82,24 +81,36 @@ namespace moris
             Comsol                 // COMSOL ( see COMSOL_CFDModuleUsersGuide 6.0, page 92, 241)
         };
 
-        // enum for the type of preconditioner
-        enum class PreconditionerType
-        {
-            NONE,
-            IFPACK,    // Ifpack
-            ML,        // ML
-            PETSC,     // Petsc
-            END_ENUM
-        };
+    // enum for the type of preconditioner
+    enum class PreconditionerType
+    {
+        NONE,
+        IFPACK,    // Ifpack
+        ML,        // ML
+        PETSC,     // Petsc
+        END_ENUM
+    };
 
-        enum class EiegnSolverType
-        {
-            NONE,
-            ANASAZI,    // Anasazi
-            SLEPC,      // SLEPc
-            END_ENUM
-        };
-    }    // namespace sol
-}    // namespace moris
+    enum class EiegnSolverType
+    {
+        NONE,
+        ANASAZI,    // Anasazi
+        SLEPC,      // SLEPc
+        END_ENUM
+    };
+
+    enum class STTypeSlepc
+    {
+        NONE,
+        STSHELL,
+        STSHIFT,
+        STSINVERT,
+        STCAYLEY,
+        STPRECOND,
+        STFILTER,
+        END_ENUM
+    };
+
+}    // namespace moris::sol
 
 #endif /* SRC_DISTLINALG_CL_DLA_ENUMS_HPP_ */

@@ -187,7 +187,7 @@ namespace moris::gen
          * @param aIDsToAdd IDs to add
          */
         static void join_adv_ids(
-                Matrix< DDSMat >&       aCombinedIDs,
-                const Matrix< DDSMat >& aIDsToAdd );
+                Vector< sint >&       aCombinedIDs,
+                const Vector< sint >& aIDsToAdd );
     };
 }

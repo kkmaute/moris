@@ -178,14 +178,14 @@ namespace moris
             csave[ 60 ] = '\0';
 
             // get optimization variables
-            Matrix< DDRMat >& tAdvs = mProblem->get_advs();
+            Vector< real >& tAdvs = mProblem->get_advs();
 
             // upper and lower bounds (fixed and prescribed)
-            const Matrix< DDRMat >& tLowerBounds = mProblem->get_lower_bounds();
-            const Matrix< DDRMat >& tUpperBounds = mProblem->get_upper_bounds();
+            const Vector< real >& tLowerBounds = mProblem->get_lower_bounds();
+            const Vector< real >& tUpperBounds = mProblem->get_upper_bounds();
 
             // check for consistent length of variable and bound vectors
-            MORIS_ERROR( tAdvs.numel() == tLowerBounds.numel() && tAdvs.numel() == tUpperBounds.numel(),
+            MORIS_ERROR( tAdvs.size() == tLowerBounds.size() && tAdvs.size() == tUpperBounds.size(),
                     "Algorithm_LBFGS::lbfgs_solve - inconsistent length of ADV and lower/upper bound vectors." );
 
             // create arrays for temporary upper and lower bounds
@@ -234,7 +234,7 @@ namespace moris
                 }
 
                 // extract pointers for optimization variables and temporary upper and lower bounds
-                double* x = tAdvs.data();
+                double* x = tAdvs.memptr();
                 double* l = tTmpLowerBounds.data();
                 double* u = tTmpUpperBounds.data();
 
@@ -401,7 +401,11 @@ namespace moris
         Algorithm_LBFGS::func( int aIter, double* aAdv, double& aObjval )
         {
             // Update the ADV matrix
-            Matrix< DDRMat > tADVs( aAdv, mProblem->get_num_advs(), 1, false, true );
+            Vector< real > tADVs( mProblem->get_num_advs() );
+            for ( uint iADVIndex = 0; iADVIndex < tADVs.size(); iADVIndex++ )
+            {
+                tADVs( iADVIndex ) = aAdv[ iADVIndex ];
+            }
 
             // Write restart file
             this->write_advs_to_file( tADVs );
@@ -421,7 +425,11 @@ namespace moris
                 double* aD_Obj )
         {
             // Update the ADV matrix
-            Matrix< DDRMat > tADVs( aAdv, mProblem->get_num_advs(), 1, false, true );
+            Vector< real > tADVs( mProblem->get_num_advs() );
+            for ( uint iADVIndex = 0; iADVIndex < tADVs.size(); iADVIndex++ )
+            {
+                tADVs( iADVIndex ) = aAdv[ iADVIndex ];
+            }
 
             // Compute design criteria gradients
             this->compute_design_criteria_gradients( tADVs );

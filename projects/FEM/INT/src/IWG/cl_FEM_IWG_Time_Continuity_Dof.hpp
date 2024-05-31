@@ -39,6 +39,7 @@ namespace moris
                 WEIGHT_RESIDUAL,
                 INITIAL_CONDITION,
                 THICKNESS,
+                LUMP,
                 MAX_ENUM
             };
 

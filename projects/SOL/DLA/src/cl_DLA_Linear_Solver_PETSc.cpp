@@ -22,7 +22,7 @@
 #include "cl_Tracer.hpp"
 
 #ifdef MORIS_HAVE_SLEPC
-#include "slepceps.h"
+#include <slepceps.h>
 #endif
 
 using namespace moris;

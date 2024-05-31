@@ -58,6 +58,8 @@ namespace moris
 
             mdl::Model* mModel = nullptr;
 
+            std::shared_ptr< Vector<real> >  mEigenValues;
+
           public:
             MSI_Solver_Interface()
             {
@@ -91,6 +93,10 @@ namespace moris
             //------------------------------------------------------------------------------
 
             void set_eigen_solution_vector( sol::Dist_Vector* aSolutionVector );
+
+            //--------------------------------------------------------------------------------
+
+            void set_eigen_values(std::shared_ptr< Vector<real> > aEigenValues ); 
 
             //------------------------------------------------------------------------------
 
@@ -129,6 +135,19 @@ namespace moris
             {
                 return mEigenSolutionVector;
             }
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * get previous solution vector
+             * @param[ out ] aSolutionVector previous distributed solution vector
+             */
+            std::shared_ptr< Vector<real> > &
+            get_eigen_values()
+            {
+                return mEigenValues;
+            }
+
 
             //------------------------------------------------------------------------------
 

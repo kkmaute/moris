@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef MORIS_FN_CHECK_EQUAL_HPP
-#define MORIS_FN_CHECK_EQUAL_HPP
+#pragma once
 
 #include "cl_Matrix.hpp"
 #include "catch.hpp"
@@ -46,11 +45,11 @@ namespace moris
     check_equal(
             Matrix< Matrix_Type > aMatrix1,
             Matrix< Matrix_Type > aMatrix2,
-            real aErrorFactor = 1.0E+06,
-            std::string aMatrix1Name = "",
-            std::string aMatrix2Name = "",
-            std::string aFile = "",
-            uint aLine = 0 )
+            real                  aErrorFactor = 1.0E+06,
+            std::string           aMatrix1Name = "",
+            std::string           aMatrix2Name = "",
+            std::string           aFile        = "",
+            uint                  aLine        = 0 )
     {
         // Require rows and columns to be equal before checking values
         REQUIRE( aMatrix1.n_rows() == aMatrix2.n_rows() );
@@ -71,7 +70,7 @@ namespace moris
                     }
 
                     // Print the entry location and the values of each matrix
-                    std::cout << std::setprecision( 16 - ( int ) log10( aErrorFactor ) );
+                    std::cout << std::setprecision( 16 - (int)log10( aErrorFactor ) );
                     std::cout << "  ( " << iRowIndex << ", " << iColumnIndex << " ) value does not match:" << std::endl;
                     std::cout << "    " << aMatrix1( iRowIndex, iColumnIndex ) << " from " << aMatrix1Name << std::endl;
                     std::cout << "    " << aMatrix2( iRowIndex, iColumnIndex ) << " from " << aMatrix2Name << std::endl;
@@ -84,6 +83,56 @@ namespace moris
         }
         CHECK( tAllMatrixEntriesEqual );
     }
-}
 
-#endif    // MORIS_FN_CHECK_EQUAL_HPP
+    /**
+     * Checks for moris vectors being equal using catch.
+     *
+     * @tparam T Vector data type
+     * @param aVector1 Comparison vector 1
+     * @param aVector2 Comparison vector 2
+     * @param aErrorFactor Error factor for approximate floating point value comparison
+     */
+    template< typename T >
+    void
+    check_equal(
+            Vector< T > aVector1,
+            Vector< T > aVector2,
+            real        aErrorFactor = 1.0E+06,
+            std::string aVector1Name = "",
+            std::string aVector2Name = "",
+            std::string aFile        = "",
+            uint        aLine        = 0 )
+    {
+        // Require rows and columns to be equal before checking values
+        if ( aVector1.size() != aVector2.size() )
+        {
+            std::cout << "CHECK_EQUAL() failed at " << aFile << ":" << aLine << std::endl;
+        }
+        REQUIRE( aVector1.size() == aVector2.size() );
+
+        // Check if each entry is equal (approximately in the case of floating point numbers)
+        bool tAllVectorEntriesEqual = true;
+        for ( uint iVectorIndex = 0; iVectorIndex < aVector1.size(); iVectorIndex++ )
+        {
+            if ( !equal_to( aVector1( iVectorIndex ), aVector2( iVectorIndex ), aErrorFactor ) )
+            {
+                // If this is first value check to fail, print where this function was called from
+                if ( tAllVectorEntriesEqual )
+                {
+                    std::cout << "CHECK_EQUAL() failed at " << aFile << ":" << aLine << std::endl;
+                }
+
+                // Print the entry location and the values of each matrix
+                std::cout << std::setprecision( 16 - (int)log10( aErrorFactor ) );
+                std::cout << "  ( " << iVectorIndex << " ) value does not match:" << std::endl;
+                std::cout << "    " << aVector1( iVectorIndex ) << " from " << aVector1Name << std::endl;
+                std::cout << "    " << aVector2( iVectorIndex ) << " from " << aVector2Name << std::endl;
+                std::cout << std::setprecision( -1 );
+
+                // Check should fail
+                tAllVectorEntriesEqual = false;
+            }
+        }
+        CHECK( tAllVectorEntriesEqual );
+    }
+}

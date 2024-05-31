@@ -38,7 +38,7 @@ TEST_CASE( "WRK_sensitivity_test", "[moris],[WRK_sensitivity_test]" )
         wrk::Performer_Manager tPerformerManager( tLibrary );
         wrk::Workflow_HMR_XTK  tWorkflow( &tPerformerManager );
 
-        Matrix< DDRMat > tDummy( 1, 1, 0.0 );
+        Vector< real > tDummy( 1, 0.0 );
         Matrix< IdMat >  tDummy1( 1, 1, 0.0 );
         tWorkflow.initialize( tDummy, tDummy, tDummy, tDummy1 );
         tWorkflow.perform( tDummy );

@@ -180,6 +180,7 @@ namespace moris
             GAP,
             DOF,
             EIGEN_VECTOR,
+            EIGEN_VALUE,
             ALM_DOF,
             MAX_DOF,
             PROPERTY,

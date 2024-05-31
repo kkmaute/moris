@@ -82,6 +82,7 @@
 #include "cl_TSA_Time_Solver.hpp"
 
 #include "cl_GEN_Circle.hpp"
+#include "cl_GEN_Line.hpp"
 #include "cl_GEN_Plane.hpp"
 #include "cl_GEN_User_Defined_Field.hpp"
 #include "fn_norm.hpp"
@@ -288,7 +289,7 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole", "[XTK_HMR_PLA
 
         Vector< std::shared_ptr< gen::Geometry > > tGeometryVector( 2 );
         auto tCircle = std::make_shared< gen::Circle >( 0.01, 0.01, 0.47334 );
-        auto tPlane = std::make_shared< gen::Plane >( 0.1, 0.1, 1.0, 0.0 );
+        auto tPlane = std::make_shared< gen::Line >( 0.1, 0.1, 1.0, 0.0 );
         tGeometryVector( 0 ) = { std::make_shared< gen::Level_Set_Geometry >( tCircle ) };
         tGeometryVector( 1 ) = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 

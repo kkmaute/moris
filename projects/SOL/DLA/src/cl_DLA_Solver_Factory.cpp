@@ -21,6 +21,7 @@
 #ifdef MORIS_HAVE_PETSC
 #include "cl_DLA_Linear_System_PETSc.hpp"
 #include "cl_DLA_Linear_Solver_PETSc.hpp"
+#include "cl_DLA_Eigen_Solver_SLEPc.hpp"
 #endif
 
 #include "cl_DLA_Linear_Solver_Algorithm.hpp"
@@ -45,7 +46,7 @@ Solver_Factory::~Solver_Factory()
 Preconditioner*
 Solver_Factory::create_preconditioner( const Parameter_List& aParameterList )
 {
-    switch ( static_cast< sol::PreconditionerType >( aParameterList.get< uint >( "Preconditioner_Implementation" ) ) )
+    switch ( aParameterList.get< sol::PreconditionerType >( "Preconditioner_Implementation" ) )
     {
         case ( sol::PreconditionerType::NONE ):
             return nullptr;
@@ -68,7 +69,7 @@ Solver_Factory::create_solver(
 {
     std::shared_ptr< Linear_Solver_Algorithm > tLinSol;
 
-    switch ( static_cast< sol::SolverType >( aParameterlist.get< uint >( "Solver_Implementation" ) ) )
+    switch ( aParameterlist.get< sol::SolverType >( "Solver_Implementation" ) )
     {
         case ( sol::SolverType::AZTEC_IMPL ):
             tLinSol = std::make_shared< Linear_Solver_Aztec >( aParameterlist );
@@ -94,6 +95,13 @@ Solver_Factory::create_solver(
             break;
         case ( sol::SolverType::ML ):
             tLinSol = std::make_shared< Linear_Solver_ML >( aParameterlist );
+            break;
+        case ( sol::SolverType::SLEPC_SOLVER ):
+#ifdef MORIS_HAVE_SLEPC
+            tLinSol = std::make_shared< Eigen_Solver_SLEPc >(aParameterlist);
+#else
+            MORIS_ERROR( false, "MORIS is configured with out PETSC support." );
+#endif
             break;
         default:
             MORIS_ERROR( false, "No solver type specified" );

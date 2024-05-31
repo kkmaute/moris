@@ -41,7 +41,7 @@
 #include "fn_PRM_HMR_Parameters.hpp"
 
 #include "cl_GEN_Circle.hpp"
-#include "cl_GEN_Plane.hpp"
+#include "cl_GEN_Line.hpp"
 #include "cl_GEN_User_Defined_Field.hpp"
 #include "fn_norm.hpp"
 
@@ -271,7 +271,7 @@ namespace moris::xtk
 
             Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector( 2 );
             auto                                              tCircle = std::make_shared< moris::gen::Circle >( 0.01, 0.01, 0.61 );
-            auto                                              tPlane  = std::make_shared< moris::gen::Plane >( 0.01, 0.01, 1.0, 0.0 );
+            auto                                              tPlane  = std::make_shared< moris::gen::Line >( 0.01, 0.01, 1.0, 0.0 );
             tGeometryVector( 0 )                                      = std::make_shared< gen::Level_Set_Geometry >( tCircle );
             tGeometryVector( 1 )                                      = std::make_shared< gen::Level_Set_Geometry >( tPlane );
 
@@ -357,7 +357,7 @@ namespace moris::xtk
 
             Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector( 2 );
             auto                                              tCircle = std::make_shared< moris::gen::Circle >( 0.01, 0.01, 0.61 );
-            auto                                              tPlane  = std::make_shared< moris::gen::Plane >( 0.01, 0.01, 1.0, 0.0 );
+            auto                                              tPlane  = std::make_shared< moris::gen::Line >( 0.01, 0.01, 1.0, 0.0 );
             tGeometryVector( 0 )                                      = std::make_shared< gen::Level_Set_Geometry >( tCircle );
             tGeometryVector( 1 )                                      = std::make_shared< gen::Level_Set_Geometry >( tPlane );
 

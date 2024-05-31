@@ -17,7 +17,7 @@
 
 #include "AztecOO.h"
 
-//#include "Ifpack.h"
+// #include "Ifpack.h"
 #include "Teuchos_SerialDenseMatrix.hpp"
 
 #include "Epetra_Operator.h"
@@ -51,6 +51,15 @@ namespace moris
           protected:
 
           public:
+            //--------------------------------------------------------------------------
+
+            /**
+             * @brief Construct a new Linear_System_PETSc object
+             * 
+             */
+            Linear_System_PETSc(){};
+
+            //--------------------------------------------------------------------------
             Linear_System_PETSc(
                     Solver_Interface* aInput,
                     const bool        aNotCreatedByNonLinSolver = false );

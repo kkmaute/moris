@@ -745,6 +745,26 @@ namespace moris
             mVector.emplace_back( std::forward< _Args >( __args )... );
         }
 
+        /**
+         * Gets the minimum value in this vector.
+         *
+         * @return Minimum value according to min_element
+         */
+        T min() const
+        {
+            return *std::min_element( mVector.begin(), mVector.end() );
+        }
+
+        /**
+         * Gets the minimum value in this vector.
+         *
+         * @return Minimum value according to min_element
+         */
+        T max() const
+        {
+            return *std::max_element( mVector.begin(), mVector.end() );
+        }
+
         //------------------------------------------------------------------
 
     };    // class Vector

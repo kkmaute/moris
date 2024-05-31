@@ -380,6 +380,8 @@ Time_Solver::solve()
 
         // set eigen vector in interface
         mSolverInterface->set_eigen_solution_vector( mFullEigenVector( 0 ) );
+
+        mSolverInterface->set_eigen_values(std::make_shared<Vector<real>>());
     }
 
     // initialize solution vector and prev solution vector

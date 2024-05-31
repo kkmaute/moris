@@ -235,6 +235,7 @@ set(HEADERS
 	IQI/cl_FEM_IQI_Gap.hpp
 	IQI/cl_FEM_IQI_Dof.hpp
     IQI/cl_FEM_IQI_Eigen_Vector.hpp
+    IQI/cl_FEM_IQI_Eigen_Value.hpp
     IQI/cl_FEM_IQI_ALM_Dof.hpp
     IQI/cl_FEM_IQI_Max_Dof.hpp
     IQI/cl_FEM_IQI_Max_Stress.hpp
@@ -483,6 +484,7 @@ set(LIB_SOURCES
 	IQI/cl_FEM_IQI_Gap.cpp
 	IQI/cl_FEM_IQI_Dof.cpp
     IQI/cl_FEM_IQI_Eigen_Vector.cpp
+    IQI/cl_FEM_IQI_Eigen_Value.cpp
     IQI/cl_FEM_IQI_ALM_Dof.cpp
     IQI/cl_FEM_IQI_Max_Dof.cpp
     IQI/cl_FEM_IQI_Max_Stress.cpp

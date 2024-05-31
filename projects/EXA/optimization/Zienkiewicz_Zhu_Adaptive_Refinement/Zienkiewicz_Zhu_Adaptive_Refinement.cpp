@@ -685,7 +685,7 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
     /*
-Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria)
+Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< real >& aCriteria )
 {
     Matrix<DDRMat> tObjectives( 1, 1 );
 
@@ -716,7 +716,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDRMat >
-    compute_objectives( Matrix< DDRMat > aADVs, Matrix< DDRMat > aCriteria )
+    compute_objectives( const Vector< real >& aADVs, const Vector< real >& aCriteria )
     {
         Matrix< DDRMat > tObjectives( 1, 1 );
 
@@ -756,7 +756,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDRMat >
-    compute_constraints( Matrix< DDRMat > aADVs, Matrix< DDRMat > aCriteria )
+    compute_constraints( const Vector< real >& aADVs, const Vector< real >& aCriteria )
     {
         Matrix< DDRMat > tConstraints( 1, 1 );
         tConstraints( 0 ) = aCriteria( 5 );
@@ -772,9 +772,9 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDRMat >
-    compute_dobjective_dadv( Matrix< DDRMat > aADVs, Matrix< DDRMat > aCriteria )
+    compute_dobjective_dadv( const Vector< real >& aADVs, const Vector< real >& aCriteria )
     {
-        Matrix< DDRMat > tDObjectiveDADV( 1, aADVs.numel(), 0.0 );
+        Matrix< DDRMat > tDObjectiveDADV( 1, aADVs.size(), 0.0 );
 
         return tDObjectiveDADV;
     }
@@ -783,10 +783,10 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
 
     Matrix< DDRMat >
     compute_dobjective_dcriteria(
-            Matrix< DDRMat > aADVs,
-            Matrix< DDRMat > aCriteria )
+            const Vector< real >& aADVs,
+            const Vector< real >& aCriteria )
     {
-        Matrix< DDRMat > tDObjectiveDCriteria( 1, aCriteria.numel(), 0.0 );
+        Matrix< DDRMat > tDObjectiveDCriteria( 1, aCriteria.size(), 0.0 );
 
         tDObjectiveDCriteria( 0 ) = tStrainEnergyPen * 1.0 / tInitialStrainEnergy;
         tDObjectiveDCriteria( 1 ) = tStrainEnergyPen * 1.0 / tInitialStrainEnergy;
@@ -803,10 +803,10 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
 
     Matrix< DDRMat >
     compute_dconstraint_dadv(
-            Matrix< DDRMat > aADVs,
-            Matrix< DDRMat > aCriteria )
+            const Vector< real >& aADVs,
+            const Vector< real >& aCriteria )
     {
-        Matrix< DDRMat > tDConstraintDADV( 1, aADVs.numel(), 0.0 );
+        Matrix< DDRMat > tDConstraintDADV( 1, aADVs.size(), 0.0 );
 
         return tDConstraintDADV;
     }
@@ -815,10 +815,10 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
 
     Matrix< DDRMat >
     compute_dconstraint_dcriteria(
-            Matrix< DDRMat > aADVs,
-            Matrix< DDRMat > aCriteria )
+            const Vector< real >& aADVs,
+            const Vector< real >& aCriteria )
     {
-        Matrix< DDRMat > tDConstraintDCriteria( 1, aCriteria.numel(), 0.0 );
+        Matrix< DDRMat > tDConstraintDCriteria( 1, aCriteria.size(), 0.0 );
 
         tDConstraintDCriteria( 5 ) = 1.0;
 
@@ -933,7 +933,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterlist.resize( 3 );
         tParameterlist( 0 ).resize( 1 );
         tParameterlist( 0 )( 0 ) = moris::prm::create_gen_parameter_list();
-        tParameterlist( 0 )( 0 ).set( "IQI_types", "IQIBulkStrainEnergy_Frame,IQIBulkStrainEnergy,IQIBulkVolume,IQIPerimeter_InterfaceVoid,IQIHeatMethodPenalty,IQIMaxStress" );
+        tParameterlist( 0 )( 0 ).set( "IQI_types", "IQIBulkStrainEnergy_Frame", "IQIBulkStrainEnergy", "IQIBulkVolume", "IQIPerimeter_InterfaceVoid", "IQIHeatMethodPenalty", "IQIMaxStress" );
         // tParameterlist(0)(0).set("output_mesh_file", tGENOutputFile );
         tParameterlist( 0 )( 0 ).set( "time_offset", 10.0 );
         // FIXME     this has to change
@@ -962,7 +962,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         uint tGeoCounter = 0;
 
         // outer frame
-        tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "general_shape_outer" );
         // tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", "0,0" );
         // tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0,1" );
@@ -971,7 +971,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterlist( 1 )( tGeoCounter ).set( "name", "Outer_shape" );
         tGeoCounter++;
 
-        tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Hole_inner" );
         // tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", "0,0" );
         // tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0,1" );
@@ -980,7 +980,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterlist( 1 )( tGeoCounter ).set( "name", "Inner_Holes" );
         tGeoCounter++;
 
-        tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Hole_outer" );
         // tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", "0,0" );
         // tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0,1" );
@@ -990,7 +990,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tGeoCounter++;
 
         // initialize fins as swiss cheese geometry
-        tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Const_Geometry" );
         tParameterlist( 1 )( tGeoCounter ).set( "name", "Level_Set_Field" );
         // tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", "0,0" );
@@ -1008,11 +1008,10 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tGeoCounter++;
 
         uint tParamCounter = 0;
-        tParameterlist( 2 ).push_back( moris::prm::create_gen_property_parameter_list() );
+        tParameterlist( 2 ).push_back( moris::prm::create_gen_property_parameter_list( gen::Field_Type::SCALED_FIELD ) );
         tParameterlist( 2 )( tParamCounter ).set( "name", "LvL_Set_Field" );
         tParameterlist( 2 )( tParamCounter ).set( "dependencies", "Level_Set_Field" );
-        tParameterlist( 2 )( tParamCounter ).set( "field_type", "scaled_field" );
-        tParameterlist( 2 )( tParamCounter ).set( "constant_parameters", "1.0" );
+        tParameterlist( 2 )( tParamCounter ).set( "scaling_factor", 1.0 );
         tParameterlist( 2 )( tParamCounter ).set( "pdv_type", "LS1" );
         // tParameterlist( 2 )( tParamCounter ).set("discretization_mesh_index",   -1);
         // tParameterlist( 2 )( tParamCounter ).set("discretization_lower_bound", 0.001);
@@ -1246,7 +1245,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         // create parameter list for constitutive model 1
         tParameterList( 1 ).push_back( prm::create_constitutive_model_parameter_list() );
         tParameterList( 1 )( tCMCounter ).set( "constitutive_name", "CMStrucLinIso" );
-        tParameterList( 1 )( tCMCounter ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::STRUC_LIN_ISO ) );
+        tParameterList( 1 )( tCMCounter ).set( "constitutive_type",  fem::Constitutive_Type::STRUC_LIN_ISO ) ;
         tParameterList( 1 )( tCMCounter ).set( "dof_dependencies", std::pair< std::string, std::string >( "UX,UY", "Displacement" ) );
         tParameterList( 1 )( tCMCounter ).set( "properties", "PropYoungs,YoungsModulus;PropPoisson,PoissonRatio" );
         tCMCounter++;
@@ -1254,7 +1253,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         // create parameter list for constitutive model 1
         tParameterList( 1 ).push_back( prm::create_constitutive_model_parameter_list() );
         tParameterList( 1 )( tCMCounter ).set( "constitutive_name", "CMStrucLinIsoFrame" );
-        tParameterList( 1 )( tCMCounter ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::STRUC_LIN_ISO ) );
+        tParameterList( 1 )( tCMCounter ).set( "constitutive_type",  fem::Constitutive_Type::STRUC_LIN_ISO ) ;
         tParameterList( 1 )( tCMCounter ).set( "dof_dependencies", std::pair< std::string, std::string >( "UX,UY", "Displacement" ) );
         tParameterList( 1 )( tCMCounter ).set( "properties", "PropYoungsFrame,YoungsModulus;PropPoisson,PoissonRatio" );
         tCMCounter++;
@@ -1262,7 +1261,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         // create parameter list for constitutive model - Theta problem
         tParameterList( 1 ).push_back( prm::create_constitutive_model_parameter_list() );
         tParameterList( 1 )( tCMCounter ).set( "constitutive_name", "CMDiffusionTheta" );
-        tParameterList( 1 )( tCMCounter ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::DIFF_LIN_ISO ) );
+        tParameterList( 1 )( tCMCounter ).set( "constitutive_type",  fem::Constitutive_Type::DIFF_LIN_ISO ) ;
         tParameterList( 1 )( tCMCounter ).set( "dof_dependencies", std::pair< std::string, std::string >( "THETA", "Temperature" ) );
         tParameterList( 1 )( tCMCounter ).set( "properties",
                 "PropConductivity      , Conductivity;"
@@ -1273,7 +1272,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         // create parameter list for constitutive model - Phi problem
         tParameterList( 1 ).push_back( prm::create_constitutive_model_parameter_list() );
         tParameterList( 1 )( tCMCounter ).set( "constitutive_name", "CMDiffusionPhi" );
-        tParameterList( 1 )( tCMCounter ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::DIFF_LIN_ISO ) );
+        tParameterList( 1 )( tCMCounter ).set( "constitutive_type",  fem::Constitutive_Type::DIFF_LIN_ISO ) ;
         tParameterList( 1 )( tCMCounter ).set( "dof_dependencies", std::pair< std::string, std::string >( "PHID;THETA", "Temperature,Theta" ) );
         tParameterList( 1 )( tCMCounter ).set( "properties",
                 "PropConductivity    , Conductivity;"
@@ -1291,14 +1290,14 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         // create parameter list for stabilization parameter 1
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name", "SPNitscheDirichletBC" );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::DIRICHLET_NITSCHE ) );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  fem::Stabilization_Type::DIRICHLET_NITSCHE ) ;
         tParameterList( 2 )( tSPCounter ).set( "function_parameters", "100.0" );
         tParameterList( 2 )( tSPCounter ).set( "leader_properties", "PropYoungsFrame,Material" );
         tSPCounter++;
 
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name", std::string( "SPNitscheFrameInteriorInterface" ) );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::NITSCHE_INTERFACE ) );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  fem::Stabilization_Type::NITSCHE_INTERFACE ) ;
         tParameterList( 2 )( tSPCounter ).set( "function_parameters", std::string( "100.0" ) );
         tParameterList( 2 )( tSPCounter ).set( "leader_properties", std::string( "PropYoungs,Material" ) );
         tParameterList( 2 )( tSPCounter ).set( "follower_properties", std::string( "PropYoungsFrame,Material" ) );
@@ -1306,7 +1305,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
 
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name", std::string( "SPGhost" ) );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  fem::Stabilization_Type::GHOST_DISPL ) ;
         tParameterList( 2 )( tSPCounter ).set( "function_parameters", std::string( "0.005" ) );
         tParameterList( 2 )( tSPCounter ).set( "leader_properties", std::string( "PropYoungs,Material" ) );
         tParameterList( 2 )( tSPCounter ).set( "follower_properties", std::string( "PropYoungs,Material" ) );
@@ -1314,7 +1313,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
 
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name", std::string( "SPGhostFrame" ) );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  fem::Stabilization_Type::GHOST_DISPL ) ;
         tParameterList( 2 )( tSPCounter ).set( "function_parameters", std::string( "0.001" ) );
         tParameterList( 2 )( tSPCounter ).set( "leader_properties", std::string( "PropYoungsFrame,Material" ) );
         tParameterList( 2 )( tSPCounter ).set( "follower_properties", std::string( "PropYoungsFrame,Material" ) );
@@ -1322,9 +1321,8 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
 
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name", "SPGhost_VM" );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  fem::Stabilization_Type::GHOST_DISPL ) ;
         tParameterList( 2 )( tSPCounter ).set( "function_parameters", std::to_string( tStressGhost ) + "/0" );
-        tParameterList( 2 )( tSPCounter ).set( "leader_properties", std::string( "PropYoungsFrame,Material" ) );
         tParameterList( 2 )( tSPCounter ).set( "follower_properties", std::string( "PropYoungsFrame,Material" ) );
         tParameterList( 2 )( tSPCounter ).set( "leader_properties", "PropUnitValue,Material" );
         tSPCounter++;
@@ -1332,7 +1330,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         // create parameter list for ghost stabilization parameter for theta and phi problems
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name", "SPGPTemp" );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  fem::Stabilization_Type::GHOST_DISPL ) ;
         tParameterList( 2 )( tSPCounter ).set( "function_parameters", "0.001" );
         tParameterList( 2 )( tSPCounter ).set( "leader_properties", "PropConductivity,Material" );
         tParameterList( 2 )( tSPCounter ).set( "follower_properties", "PropConductivity,Material" );
@@ -1341,7 +1339,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         // create parameter list for DBC on interface for theta problem
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name", "SPNitscheTemp" );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::DIRICHLET_NITSCHE ) );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  fem::Stabilization_Type::DIRICHLET_NITSCHE ) ;
         tParameterList( 2 )( tSPCounter ).set( "function_parameters", "100.0" );
         tParameterList( 2 )( tSPCounter ).set( "leader_properties", "PropConductivity,Material" );
         tSPCounter++;
@@ -1353,7 +1351,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         // create IWG  - bulk diffusion
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGDiffusionThetaBulk" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::SPATIALDIFF_BULK ) );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::SPATIALDIFF_BULK ) ;
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "THETA" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "THETA;PHID" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMDiffusionTheta,Diffusion" );
@@ -1363,7 +1361,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         // create parameter list for single side interface condition
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGSurfaceInnerTheta" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE ) );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE ) ;
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "THETA" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "THETA;PHID" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropPrescTheta,Dirichlet" );
@@ -1375,7 +1373,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         // create parameter list for single side interface condition
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGSurfaceOuterTheta" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE ) );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE ) ;
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "THETA" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "THETA;PHID" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropPrescTheta,Dirichlet" );
@@ -1386,7 +1384,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
 
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGTimeContinuityThetaInterior" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::TIME_CONTINUITY_DOF ) );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::TIME_CONTINUITY_DOF ) ;
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "THETA" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "THETA;PHID;UX,UY;STRESS_DOF" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_properties",
@@ -1399,7 +1397,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
 
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGTimeContinuityThetaVoid" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::TIME_CONTINUITY_DOF ) );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::TIME_CONTINUITY_DOF ) ;
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "THETA" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "THETA;PHID" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_properties",
@@ -1413,7 +1411,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         // create IWG - bulk diffusion
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGDiffusionOuterBulk" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::SPATIALDIFF_BULK ) );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::SPATIALDIFF_BULK ) ;
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "PHID" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "THETA;PHID" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMDiffusionPhi,Diffusion" );
@@ -1423,7 +1421,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         // create parameter list for single side interface condition
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGSurfaceInnerPhi" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE ) );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE ) ;
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "PHID" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "THETA;PHID" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropPrescPhi,Dirichlet" );
@@ -1435,7 +1433,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         // create parameter list for single side interface condition
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGSurfaceOuterPhi" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE ) );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE ) ;
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "PHID" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "THETA;PHID" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropPrescPhi,Dirichlet" );
@@ -1446,7 +1444,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
 
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGBulkU" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_BULK ) );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_BULK ) ;
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMStrucLinIso,ElastLinIso" );
@@ -1456,7 +1454,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
 
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGBulkUFrame" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_BULK ) );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_BULK ) ;
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMStrucLinIsoFrame,ElastLinIso" );
@@ -1465,7 +1463,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
 
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGDirichletU" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE ) );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE ) ;
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropDirichletU,Dirichlet;PropSelect,Select" );
@@ -1476,7 +1474,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
 
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGTraction" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_NEUMANN ) );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_NEUMANN ) ;
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropTraction,Traction" );
@@ -1485,7 +1483,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
 
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", std::string( "IWGFrameInteriorInterface" ) );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_INTERFACE_UNSYMMETRIC_NITSCHE ) );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_INTERFACE_UNSYMMETRIC_NITSCHE ) ;
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY" );
         tParameterList( 3 )( tIWGCounter ).set( "follower_dof_dependencies", "UX,UY" );
@@ -1499,7 +1497,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
 
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGStress" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_VON_MISES_STRESS ) );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::STRUC_VON_MISES_STRESS ) ;
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "STRESS_DOF" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "STRESS_DOF" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMStrucLinIso,ElastLinIso" );
@@ -1510,7 +1508,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         {
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name", std::string( "IWGGhostDisp" ) );
-            tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
             tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY" );
             tParameterList( 3 )( tIWGCounter ).set( "follower_dof_dependencies", "UX,UY" );
@@ -1523,7 +1521,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
 
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name", std::string( "IWGGhostFrame" ) );
-            tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
             tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY" );
             tParameterList( 3 )( tIWGCounter ).set( "follower_dof_dependencies", "UX,UY" );
@@ -1534,7 +1532,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
 
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name", std::string( "IWGGSStress" ) );
-            tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "STRESS_DOF" );
             tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "STRESS_DOF" );
             tParameterList( 3 )( tIWGCounter ).set( "follower_dof_dependencies", "STRESS_DOF" );
@@ -1545,7 +1543,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
 
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name", std::string( "IWGGhostPhi" ) );
-            tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "PHID" );
             tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "PHID" );
             tParameterList( 3 )( tIWGCounter ).set( "follower_dof_dependencies", "PHID" );
@@ -1556,7 +1554,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
 
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name", std::string( "IWGGhostTemp" ) );
-            tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "THETA" );
             tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "THETA" );
             tParameterList( 3 )( tIWGCounter ).set( "follower_dof_dependencies", "THETA" );
@@ -1572,7 +1570,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
 
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkUX" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::DOF ) );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::DOF ) ;
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "UX,UY" );
         tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "UX,UY" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 0 );
@@ -1581,7 +1579,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
 
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkUY" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::DOF ) );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::DOF ) ;
         tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "UX,UY" );
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "UX,UY" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 1 );
@@ -1590,7 +1588,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
 
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkStress" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::DOF ) );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::DOF ) ;
         tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "STRESS_DOF" );
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "STRESS_DOF" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 0 );
@@ -1599,7 +1597,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
 
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkStrainEnergy" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::STRAIN_ENERGY ) );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::STRAIN_ENERGY ) ;
         tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "UX,UY" );
         tParameterList( 4 )( tIQICounter ).set( "leader_constitutive_models", "CMStrucLinIso,Elast" );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tBulkSets );
@@ -1607,7 +1605,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
 
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkStrainEnergy_Frame" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::STRAIN_ENERGY ) );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::STRAIN_ENERGY ) ;
         tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "UX,UY" );
         tParameterList( 4 )( tIQICounter ).set( "leader_constitutive_models", "CMStrucLinIsoFrame,Elast" );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tFrameSets );
@@ -1615,14 +1613,14 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
 
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkVolume" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::VOLUME ) );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::VOLUME ) ;
         tParameterList( 4 )( tIQICounter ).set( "leader_properties", "PropDensity,Density" );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tBulkSets );
         tIQICounter++;
 
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIPerimeter_InterfaceVoid" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::VOLUME ) );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::VOLUME ) ;
         tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "UX,UY" );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tInterfaceVoidSets );
         tIQICounter++;
@@ -1630,28 +1628,28 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         // smooth fuction
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQILevelSet" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::PROPERTY ) );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::PROPERTY ) ;
         tParameterList( 4 )( tIQICounter ).set( "leader_properties", "PropLevelSetReal,Property" );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tTotalDomain );
         tIQICounter++;
 
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQITruncPHID" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::PROPERTY ) );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::PROPERTY ) ;
         tParameterList( 4 )( tIQICounter ).set( "leader_properties", "PropTruncPHID,Property" );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tTotalDomain );
         tIQICounter++;
 
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQILevelSetHeatMethod" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::PROPERTY ) );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::PROPERTY ) ;
         tParameterList( 4 )( tIQICounter ).set( "leader_properties", "PropLevelSet,Property" );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tTotalDomain );
         tIQICounter++;
 
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkTHETA" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::DOF ) );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::DOF ) ;
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "THETA" );
         tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "THETA" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 0 );
@@ -1661,7 +1659,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         // Nodal PHID IQI
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkPHID" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::DOF ) );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::DOF ) ;
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "PHID" );
         tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "PHID" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 0 );
@@ -1671,7 +1669,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         // H1 Error if reference is constant
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIH1ErrorConst" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::H1_ERROR ) );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::H1_ERROR ) ;
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "PHID" );
         tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "THETA;PHID" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 0 );
@@ -1683,7 +1681,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         // H1 Error if reference is design dependent
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIH1Error" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::H1_ERROR ) );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::H1_ERROR ) ;
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "PHID" );
         tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "THETA;PHID" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 0 );
@@ -1695,7 +1693,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         // H1 Error if reference is design dependent
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIHeatMethodPenalty" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::HEAT_METHOD_PENALTY ) );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::HEAT_METHOD_PENALTY ) ;
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "PHID" );
         tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "THETA;PHID" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 0 );
@@ -1706,7 +1704,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
 
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIMaxStress" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::MAX_DOF ) );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::MAX_DOF ) ;
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "STRESS_DOF" );
         tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "STRESS_DOF" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 0 );
@@ -1716,7 +1714,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
 
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkZienkiewiczZhu" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::ZIENKIEWICZ_ZHU_VON_MISES_STRESS ) );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::ZIENKIEWICZ_ZHU_VON_MISES_STRESS ) ;
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "STRESS_DOF" );
         tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "STRESS_DOF" );
         tParameterList( 4 )( tIQICounter ).set( "leader_constitutive_models", "CMStrucLinIso,ElastLinIso" );
@@ -1728,8 +1726,8 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
     tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name",                   "IQIMaxStress2");
     tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name",          "PhaseLBracket" );
     tParameterList( tIQIIndex )( tIQICounter ).set( "neighbor_phases",            "PhaseVoid2" );
-    tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_bulk_type",              static_cast< uint >( fem::Element_Type::SIDESET ) );
-    tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::MAX_DOF ) );
+    tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_bulk_type",               fem::Element_Type::SIDESET ) ;
+    tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type",                    fem::IQI_Type::MAX_DOF ) ;
     tParameterList( tIQIIndex )( tIQICounter ).set( "dof_quantity",               "STRESS_DOF");
     tParameterList( tIQIIndex )( tIQICounter ).set( "leader_dof_dependencies",    "STRESS_DOF");
     tParameterList( tIQIIndex )( tIQICounter ).set( "vectorial_field_index",      0 );
@@ -1803,36 +1801,36 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
 
         tParameterlist( 2 ).resize( 6 );
         tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();    // nonlinear algorithm index 0
-        tParameterlist( 2 )( 0 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) );
+        tParameterlist( 2 )( 0 ).set( "NLA_Solver_Implementation",  moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) ;
         tParameterlist( 2 )( 0 ).set( "NLA_rel_res_norm_drop", 1.0e-7 );
         tParameterlist( 2 )( 0 ).set( "NLA_relaxation_parameter", 1.0 );
         tParameterlist( 2 )( 0 ).set( "NLA_max_iter", 1 );
 
         tParameterlist( 2 )( 1 ) = moris::prm::create_nonlinear_algorithm_parameter_list();    // nonlinear algorithm index 0
-        tParameterlist( 2 )( 1 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) );
+        tParameterlist( 2 )( 1 ).set( "NLA_Solver_Implementation",  moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) ;
         tParameterlist( 2 )( 1 ).set( "NLA_rel_res_norm_drop", 1.0e-7 );
         tParameterlist( 2 )( 1 ).set( "NLA_relaxation_parameter", 1.0 );
         tParameterlist( 2 )( 1 ).set( "NLA_max_iter", 1 );
 
         tParameterlist( 2 )( 2 ) = moris::prm::create_nonlinear_algorithm_parameter_list();    // nonlinear algorithm index 1
-        tParameterlist( 2 )( 2 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER ) );
+        tParameterlist( 2 )( 2 ).set( "NLA_Solver_Implementation",  moris::NLA::NonlinearSolverType::NLBGS_SOLVER ) ;
         tParameterlist( 2 )( 2 ).set( "NLA_rel_res_norm_drop", 1.0e-7 );
         tParameterlist( 2 )( 2 ).set( "NLA_max_iter", 1 );
 
         tParameterlist( 2 )( 3 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
-        tParameterlist( 2 )( 3 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) );
+        tParameterlist( 2 )( 3 ).set( "NLA_Solver_Implementation",  moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) ;
         tParameterlist( 2 )( 3 ).set( "NLA_rel_res_norm_drop", 1.0e-7 );
         tParameterlist( 2 )( 3 ).set( "NLA_relaxation_parameter", 1.0 );
         tParameterlist( 2 )( 3 ).set( "NLA_max_iter", 1 );
 
         tParameterlist( 2 )( 4 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
-        tParameterlist( 2 )( 4 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) );
+        tParameterlist( 2 )( 4 ).set( "NLA_Solver_Implementation",  moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) ;
         tParameterlist( 2 )( 4 ).set( "NLA_rel_res_norm_drop", 1.0e-7 );
         tParameterlist( 2 )( 4 ).set( "NLA_relaxation_parameter", 1.0 );
         tParameterlist( 2 )( 4 ).set( "NLA_max_iter", 1 );
 
         tParameterlist( 2 )( 5 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
-        tParameterlist( 2 )( 5 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) );
+        tParameterlist( 2 )( 5 ).set( "NLA_Solver_Implementation",  moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) ;
         tParameterlist( 2 )( 5 ).set( "NLA_rel_res_norm_drop", 1.0e-7 );
         tParameterlist( 2 )( 5 ).set( "NLA_relaxation_parameter", 1.0 );
         tParameterlist( 2 )( 5 ).set( "NLA_max_iter", 1 );
@@ -1841,37 +1839,37 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
 
         tParameterlist( 3 ).resize( 6 );
         tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();    // nonlinear solver index 0
-        tParameterlist( 3 )( 0 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) );
+        tParameterlist( 3 )( 0 ).set( "NLA_Solver_Implementation",  moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) ;
         tParameterlist( 3 )( 0 ).set( "NLA_Nonlinear_solver_algorithms", "0" );             // set nonlinear algorithm with index 0
         tParameterlist( 3 )( 0 ).set( "NLA_DofTypes", "THETA" );
         tParameterlist( 3 )( 0 ).set( "NLA_Secondary_DofTypes", "" );
 
         tParameterlist( 3 )( 1 ) = moris::prm::create_nonlinear_solver_parameter_list();    // nonlinear solver index 1
-        tParameterlist( 3 )( 1 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) );
+        tParameterlist( 3 )( 1 ).set( "NLA_Solver_Implementation",  moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) ;
         tParameterlist( 3 )( 1 ).set( "NLA_Nonlinear_solver_algorithms", "1" );             // set nonlinear algorithm with index 0
         tParameterlist( 3 )( 1 ).set( "NLA_DofTypes", "PHID" );
         tParameterlist( 3 )( 1 ).set( "NLA_Secondary_DofTypes", "" );
 
         tParameterlist( 3 )( 2 ) = moris::prm::create_nonlinear_solver_parameter_list();
-        tParameterlist( 3 )( 2 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) );
+        tParameterlist( 3 )( 2 ).set( "NLA_Solver_Implementation",  moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) ;
         tParameterlist( 3 )( 2 ).set( "NLA_Nonlinear_solver_algorithms", "3" );    // set nonlinear algorithm with index 0
         tParameterlist( 3 )( 2 ).set( "NLA_DofTypes", "UX,UY" );
         tParameterlist( 3 )( 2 ).set( "NLA_Secondary_DofTypes", "STRESS_DOF" );
 
         tParameterlist( 3 )( 3 ) = moris::prm::create_nonlinear_solver_parameter_list();
-        tParameterlist( 3 )( 3 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) );
+        tParameterlist( 3 )( 3 ).set( "NLA_Solver_Implementation",  moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) ;
         tParameterlist( 3 )( 3 ).set( "NLA_Nonlinear_solver_algorithms", "4" );    // set nonlinear algorithm with index 0
         tParameterlist( 3 )( 3 ).set( "NLA_DofTypes", "STRESS_DOF" );
         tParameterlist( 3 )( 3 ).set( "NLA_Secondary_DofTypes", "" );
 
         tParameterlist( 3 )( 4 ) = moris::prm::create_nonlinear_solver_parameter_list();    // nonlinear solver index 2
-        tParameterlist( 3 )( 4 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER ) );
+        tParameterlist( 3 )( 4 ).set( "NLA_Solver_Implementation",  moris::NLA::NonlinearSolverType::NLBGS_SOLVER ) ;
         tParameterlist( 3 )( 4 ).set( "NLA_Nonlinear_solver_algorithms", "2" );             // set nonlinear algorithm with index 1.
         tParameterlist( 3 )( 4 ).set( "NLA_Sub_Nonlinear_Solver", "0,1,2,3" );              // set sub nonlinear solvers with index 0 and 1
         tParameterlist( 3 )( 4 ).set( "NLA_DofTypes", "THETA;PHID;UX,UY;STRESS_DOF" );
 
         tParameterlist( 3 )( 5 ) = moris::prm::create_nonlinear_solver_parameter_list();    // nonlinear solver index 2
-        tParameterlist( 3 )( 5 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER ) );
+        tParameterlist( 3 )( 5 ).set( "NLA_Solver_Implementation",  moris::NLA::NonlinearSolverType::NLBGS_SOLVER ) ;
         tParameterlist( 3 )( 5 ).set( "NLA_Nonlinear_solver_algorithms", "2" );             // set nonlinear algorithm with index 1.
         tParameterlist( 3 )( 5 ).set( "NLA_Sub_Nonlinear_Solver", "2,3" );                  // set sub nonlinear solvers with index 0 and 1
         tParameterlist( 3 )( 5 ).set( "NLA_DofTypes", "UX,UY;STRESS_DOF" );
@@ -1916,7 +1914,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
 
         tParameterlist( 0 )( 0 ) = prm::create_vis_parameter_list();
         tParameterlist( 0 )( 0 ).set( "File_Name", std::pair< std::string, std::string >( "./", tOutputFileName ) );
-        tParameterlist( 0 )( 0 ).set( "Mesh_Type", static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
+        tParameterlist( 0 )( 0 ).set( "Mesh_Type",  vis::VIS_Mesh_Type::STANDARD ) ;
         tParameterlist( 0 )( 0 ).set( "Set_Names", tTotalDomain + "," + tFrameSets );
 
         tParameterlist( 0 )( 0 ).set( "Field_Names", std::string( "UX,UY,VOL,PHID,THETA,LVLSET,HEATMETHOD,LEVELSETHEAT,TRUNCPHID,STRESS,ZienKiewiczZhu" ) );

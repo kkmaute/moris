@@ -14,6 +14,7 @@
 #include "cl_FEM_Enums.hpp"
 // LINALG/src
 #include "fn_trans.hpp"
+#include "fn_diag_mat.hpp"
 
 namespace moris
 {
@@ -39,6 +40,7 @@ namespace moris
             mPropertyMap[ "InitialCondition" ] = static_cast< uint >( IWG_Property_Type::INITIAL_CONDITION );
             mPropertyMap[ "WeightResidual" ]   = static_cast< uint >( IWG_Property_Type::WEIGHT_RESIDUAL );
             mPropertyMap[ "Thickness" ]        = static_cast< uint >( IWG_Property_Type::THICKNESS );
+            mPropertyMap[ "Lump" ]             = static_cast< uint >( IWG_Property_Type::LUMP );
         }
 
         //------------------------------------------------------------------------------
@@ -78,9 +80,17 @@ namespace moris
             const std::shared_ptr< Property >& tPropWeightResidual =
                     mLeaderProp( static_cast< uint >( IWG_Property_Type::WEIGHT_RESIDUAL ) );
 
+            // get initial condition property
+            const std::shared_ptr< Property >& tPropInitialCondition =
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::INITIAL_CONDITION ) );
+
             // get thickness property
             const std::shared_ptr< Property >& tPropThickness =
                     mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+
+            // get lumping property
+            const std::shared_ptr< Property >& tPropLump =
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::LUMP ) );
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
@@ -93,10 +103,21 @@ namespace moris
                 tResWeight = tPropWeightResidual->val()( 0 );
             }
 
+            // lumping parameter
+            real tConsistent = 1.0;
+            real tLump       = 0.0;
+
+            if ( tPropLump != nullptr )
+            {
+                // compute weights for lumped and consistent terms
+                tLump       = tPropLump->val()( 0 );
+                tConsistent = 1.0 - tLump;
+            }
+
             // FIXME set initial time
             real tInitTime = 0.0;
 
-            // init jump in time
+            // initialize jump in time
             Matrix< DDRMat > tJump = tPropWeightCurrent->val()( 0 ) * tFICurrent->val();
 
             // if not the first time step
@@ -108,10 +129,6 @@ namespace moris
             // if first time step
             else
             {
-                // get initial condition property
-                const std::shared_ptr< Property >& tPropInitialCondition =
-                        mLeaderProp( static_cast< uint >( IWG_Property_Type::INITIAL_CONDITION ) );
-
                 // compute the jump
                 tJump -= tPropWeightPrevious->val()( 0 ) * tPropInitialCondition->val();
             }
@@ -119,7 +136,33 @@ namespace moris
             // add contribution to residual
             mSet->get_residual()( 0 )(
                     { tLeaderResStartIndex, tLeaderResStopIndex } ) +=
-                    aWStar * tResWeight * ( tFICurrent->N_trans() * tJump );
+                    aWStar * tResWeight * tConsistent * ( tFICurrent->N_trans() * tJump );
+
+            // consider lumping
+            if ( tLump > 0.0 )
+            {
+                // generate lumped matrix
+                Matrix< DDRMat > tLumpCurrent = sum( tFICurrent->N_trans() * tFICurrent->N(), 1 );
+
+                if ( mLeaderFIManager->get_IP_geometry_interpolator()->valt()( 0 ) > tInitTime )
+                {
+                    Matrix< DDRMat > tLumpPrevious = sum( tFICurrent->N_trans() * tFIPrevious->N(), 1 );
+
+                    mSet->get_residual()( 0 )(
+                            { tLeaderResStartIndex, tLeaderResStopIndex } ) +=
+                            aWStar * tResWeight * tLump * (                                                                   //
+                                    tPropWeightCurrent->val()( 0 ) * tLumpCurrent % vectorize( tFICurrent->get_coeff() ) -    //
+                                    tPropWeightPrevious->val()( 0 ) * tLumpPrevious % vectorize( tFIPrevious->get_coeff() ) );
+                }
+                else
+                {
+                    mSet->get_residual()( 0 )(
+                            { tLeaderResStartIndex, tLeaderResStopIndex } ) +=
+                            aWStar * tResWeight * tLump * (                                                                   //
+                                    tPropWeightCurrent->val()( 0 ) * tLumpCurrent % vectorize( tFICurrent->get_coeff() ) -    //
+                                    tPropWeightPrevious->val()( 0 ) * tFICurrent->N_trans() * tPropInitialCondition->val() );
+                }
+            }
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
@@ -167,8 +210,28 @@ namespace moris
             const std::shared_ptr< Property >& tPropThickness =
                     mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
 
+            // get lumping property
+            const std::shared_ptr< Property >& tPropLump =
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::LUMP ) );
+
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
+
+            // lumping parameter
+            real tConsistent = 1.0;
+            real tLump       = 0.0;
+
+            Matrix< DDRMat > tLumpCurrent;
+
+            if ( tPropLump != nullptr )
+            {
+                // compute weights for lumped and consistent terms
+                tLump       = tPropLump->val()( 0 );
+                tConsistent = 1.0 - tLump;
+
+                // generate lumped mass matrix
+                tLumpCurrent = diag_mat( sum( tFICurrent->N_trans() * tFICurrent->N(), 1 ) );
+            }
 
             // get the number of leader dof type dependencies
             uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
@@ -194,7 +257,16 @@ namespace moris
                     mSet->get_jacobian()(
                             { tLeaderResStartIndex, tLeaderResStopIndex },
                             { tLeaderDepStartIndex, tLeaderDepStopIndex } ) +=
-                            aWStar * ( tFICurrent->N_trans() * tPropWeightCurrent->val()( 0 ) * tFICurrent->N() );
+                            aWStar * tConsistent * tPropWeightCurrent->val()( 0 ) * ( tFICurrent->N_trans() * tFICurrent->N() );
+
+                    // consider lumping
+                    if ( tLump > 0.0 )
+                    {
+                        mSet->get_jacobian()(
+                                { tLeaderResStartIndex, tLeaderResStopIndex },
+                                { tLeaderDepStartIndex, tLeaderDepStopIndex } ) +=
+                                aWStar * tLump * tPropWeightCurrent->val()( 0 ) * tLumpCurrent;
+                    }
                 }
 
                 // if current weight property has dependency on the dof type
@@ -204,7 +276,18 @@ namespace moris
                     mSet->get_jacobian()(
                             { tLeaderResStartIndex, tLeaderResStopIndex },
                             { tLeaderDepStartIndex, tLeaderDepStopIndex } ) +=
-                            aWStar * ( tFICurrent->N_trans() * tFICurrent->val() * tPropWeightCurrent->dPropdDOF( tDofType ) );
+                            aWStar * tConsistent *    //
+                            ( tFICurrent->N_trans() * tFICurrent->val() * tPropWeightCurrent->dPropdDOF( tDofType ) );
+
+                    // consider lumping
+                    if ( tLump > 0.0 )
+                    {
+                        mSet->get_jacobian()(
+                                { tLeaderResStartIndex, tLeaderResStopIndex },
+                                { tLeaderDepStartIndex, tLeaderDepStopIndex } ) +=
+                                aWStar * tLump *    //
+                                ( tLumpCurrent * vectorize( tFICurrent->get_coeff() ) * tPropWeightCurrent->dPropdDOF( tDofType ) );
+                    }
                 }
 
                 // if previous weight property has dependency on the dof type
@@ -216,15 +299,36 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tLeaderResStartIndex, tLeaderResStopIndex },
                                 { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -=
-                                aWStar * ( tFICurrent->N_trans() * tFIPrevious->val() * tPropWeightPrevious->dPropdDOF( tDofType ) );
+                                aWStar * tConsistent *    //
+                                ( tFICurrent->N_trans() * tFIPrevious->val() * tPropWeightPrevious->dPropdDOF( tDofType ) );
+
+                        // consider lumping
+                        if ( tLump > 0.0 )
+                        {
+                            Matrix< DDRMat > tLumpPrevious = trans( sum( tFICurrent->N_trans() * tFIPrevious->N(), 1 ) );
+
+                            mSet->get_jacobian()(
+                                    { tLeaderResStartIndex, tLeaderResStopIndex },
+                                    { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -=
+                                    aWStar * tLump *    //
+                                    ( tLumpPrevious * vectorize( tFIPrevious->get_coeff() ) * tPropWeightPrevious->dPropdDOF( tDofType ) );
+                        }
                     }
                     else
                     {
+                        // Note: lumped and non lumped are combined
                         mSet->get_jacobian()(
                                 { tLeaderResStartIndex, tLeaderResStopIndex },
                                 { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -=
                                 aWStar * ( tFICurrent->N_trans() * tPropInitialCondition->val() * tPropWeightPrevious->dPropdDOF( tDofType ) );
                     }
+                }
+
+                // if initial condition property has dependency on the dof type
+                if ( tPropInitialCondition->check_dof_dependency( tDofType ) )
+                {
+                    MORIS_ERROR( false,
+                            " IWG_Time_Continuity_Dof::compute_jacobian - Dof dependence of initial conditions not implemented." );
                 }
             }
             // FIXME add derivative for initial conditions?
@@ -277,12 +381,40 @@ namespace moris
             const std::shared_ptr< Property >& tPropWeightPrevious =
                     mLeaderProp( static_cast< uint >( IWG_Property_Type::WEIGHT_PREVIOUS ) );
 
+            // get thickness property
+            const std::shared_ptr< Property >& tPropThickness =
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+
+            // get lumping property
+            const std::shared_ptr< Property >& tPropLump =
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::LUMP ) );
+
+            // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
+            aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
+
+            // lumping parameter
+            real tConsistent = 1.0;
+            real tLump       = 0.0;
+
+            Matrix< DDRMat > tLumpPrevious;
+
+            if ( tPropLump != nullptr )
+            {
+                // compute weights for lumped and consistent terms
+                tLump       = tPropLump->val()( 0 );
+                tConsistent = 1.0 - tLump;
+
+                // generate lumped mass matrix
+                tLumpPrevious = diag_mat( sum( tFICurrent->N_trans() * tFIPrevious->N(), 1 ) );
+            }
+
             // get the number of leader dof type dependencies
             uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
 
             // FIXME if not first time step
-            // if( mLeaderFIManager->get_IP_geometry_interpolator()->valt()( 0 ) > 0.0 )
-            //{
+            //            MORIS_ASSERT( mLeaderFIManager->get_IP_geometry_interpolator()->valt()( 0 ) > 0.0,
+            //                    "IWG_Time_Continuity_Dof::compute_jacobian_previous - should only be called after first time step" );
+
             // loop over leader dof type dependencies
             for ( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
@@ -301,7 +433,17 @@ namespace moris
                     // add contribution to Jacobian
                     mSet->get_jacobian()(
                             { tLeaderResStartIndex, tLeaderResStopIndex },
-                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -= aWStar * ( tFICurrent->N_trans() * tPropWeightPrevious->val()( 0 ) * tFIPrevious->N() );
+                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -=
+                            aWStar * tConsistent * tPropWeightPrevious->val()( 0 ) * ( tFICurrent->N_trans() * tFIPrevious->N() );
+
+                    // consider lumping
+                    if ( tLump > 0.0 )
+                    {
+                        mSet->get_jacobian()(
+                                { tLeaderResStartIndex, tLeaderResStopIndex },
+                                { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -=
+                                aWStar * tLump * tPropWeightPrevious->val()( 0 ) * tLumpPrevious;
+                    }
                 }
 
                 // if current weight property has dependency on the dof type
@@ -310,9 +452,19 @@ namespace moris
                     // add contribution to Jacobian
                     mSet->get_jacobian()(
                             { tLeaderResStartIndex, tLeaderResStopIndex },
-                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -= aWStar * ( tFICurrent->N_trans() * tFIPrevious->val() * tPropWeightPrevious->dPropdDOF( tDofType ) );
+                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -=
+                            aWStar * ( tFICurrent->N_trans() * tFIPrevious->val() * tPropWeightPrevious->dPropdDOF( tDofType ) );
+
+                    // consider lumping
+                    if ( tLump > 0.0 )
+                    {
+                        mSet->get_jacobian()(
+                                { tLeaderResStartIndex, tLeaderResStopIndex },
+                                { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -=
+                                aWStar * tLump *    //
+                                ( tLumpPrevious * vectorize( tFIPrevious->get_coeff() ) * tPropWeightPrevious->dPropdDOF( tDofType ) );
+                    }
                 }
-                //}
             }
         }
 

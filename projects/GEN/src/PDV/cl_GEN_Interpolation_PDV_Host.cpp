@@ -326,7 +326,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix< DDSMat >
+    Vector< sint >
     Interpolation_PDV_Host::get_determining_adv_ids( uint aPDVIndex )
     {
         // If PDV exists and is active, ask it for depending ADV IDs; Otherwise, return zero matrix
@@ -335,7 +335,7 @@ namespace moris::gen
             return mPDVs( aPDVIndex )->get_determining_adv_ids( mNodeIndex, mCoordinates );
         }
 
-        return Matrix< DDSMat >( 0, 0 );
+        return {};
     }
 
     //--------------------------------------------------------------------------------------------------------------

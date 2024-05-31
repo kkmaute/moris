@@ -74,6 +74,24 @@ Map_Epetra::Map_Epetra( const Matrix< DDSMat >& aMyGlobalIds )
 
 // ----------------------------------------------------------------------------------------------------------------------
 
+Map_Epetra::Map_Epetra( const Vector< sint >& aMyGlobalIds )
+{
+    // Minimum index value used for arrays that use this map. Typically 0 for C/C++ and 1 for Fortran.
+    moris::uint tIndexBase = 0;
+
+    // build maps
+    mEpetraMap = new Epetra_Map(
+            -1,
+            aMyGlobalIds.size(),
+            aMyGlobalIds.memptr(),
+            tIndexBase,
+            *mEpetraComm.get_epetra_comm() );
+
+    this->build_point_map();
+}
+
+// ----------------------------------------------------------------------------------------------------------------------
+
 Map_Epetra::~Map_Epetra()
 {
     delete mEpetraMap;
@@ -215,6 +233,54 @@ Map_Epetra::translate_ids_to_free_point_ids(
     uint tNumIds = aIdsIn.numel();
 
     aIdsOut.set_size( tNumIds, 1, MORIS_ID_MAX );
+
+    MORIS_ASSERT( mFullOverlappingMap != nullptr,
+            "Map_Epetra::translate_ids_to_free_point_ids(), mFullOverlappingMap not set.\n");
+
+    // Loop over all DoFs of the current element
+    for ( uint Ik = 0; Ik < tNumIds; Ik++ )
+    {
+        // Get local index
+        moris_index tLocalIndex = mFullOverlappingMap->LID( aIdsIn( Ik ) );
+
+        MORIS_ASSERT( mFullToFreePoint->MyLength() > tLocalIndex,
+                "Map_Epetra::translate_ids_to_free_point_ids(), tLocalIndex out of bounds.\n" );
+
+        // FIXME temporary workaround for tLocalIndex < 0
+        moris::real tIdOut;
+
+        if ( tLocalIndex >= 0 )
+        {
+            tIdOut = mFullToFreePoint->Values()[ tLocalIndex ];
+        }
+        else
+        {
+            tIdOut = -1;
+        }
+
+        // FIXME: comment needed
+        if ( !aIsBuildGraph and tIdOut == -1 )
+        {
+            aIdsOut( Ik ) = MORIS_ID_MAX;
+        }
+        else
+        {
+            aIdsOut( Ik ) = tIdOut;
+        }
+    }
+}
+
+// ----------------------------------------------------------------------------------------------------------------------
+
+void
+Map_Epetra::translate_ids_to_free_point_ids(
+        const Vector< sint >& aIdsIn,
+        Vector< sint >&       aIdsOut,
+        bool                  aIsBuildGraph )
+{
+    uint tNumIds = aIdsIn.size();
+
+    aIdsOut.resize( tNumIds, MORIS_ID_MAX );
 
     MORIS_ASSERT( mFullOverlappingMap != nullptr,
             "Map_Epetra::translate_ids_to_free_point_ids(), mFullOverlappingMap not set.\n");

@@ -232,4 +232,10 @@ echo ""
 echo "creating $HOME/.bashrc_moris"
 
 sed -rn 's/^\s*setenv\s+(\S+)\s+/export \1=/p' $HOME/.cshrc_moris > $HOME/.bashrc_moris
+
+echo ""
+echo "saving copy of .cshrc_moris and .bashrc_moris to $WORKSPACE: CSHRC_MORIS and BASHRC_MORIS"
+cp $HOME/.bashrc_moris $WORKSPACE/BASHRC_MORIS
+cp $HOME/.cshrc_moris  $WORKSPACE/CSHRC_MORIS
+
 echo ""

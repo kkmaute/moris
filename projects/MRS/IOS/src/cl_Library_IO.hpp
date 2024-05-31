@@ -269,7 +269,21 @@ namespace moris
             return aUserFunction;
         }
 
-        // -----------------------------------------------------------------------------
+        /**
+         * Checks all parameters by running external validations. Called during finalize().
+         */
+        void check_parameters();
+
+        /**
+         * Gets all of the external options for a parameter based on its external validator.
+         *
+         * @param aExternalValidator External validator of a parameter
+         * @param aContainingParameterList Parameter list that contains the parameter with the external validator
+         * @return Valid external options: If size zero, all options are valid.
+         */
+        Vector< Variant > get_external_variants(
+                const External_Validator& aExternalValidator,
+                const Parameter_List&     aContainingParameterList );
 
         /**
          * @brief Checks whether a string has a certain ending. Good for checking file types.

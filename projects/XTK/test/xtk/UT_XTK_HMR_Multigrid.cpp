@@ -44,7 +44,7 @@
 #include "cl_HMR_Lagrange_Mesh_Base.hpp"    //HMR/src
 #include "cl_HMR_Parameters.hpp"            //HMR/src
 
-#include "cl_GEN_Plane.hpp"
+#include "cl_GEN_Line.hpp"
 
 #include "fn_norm.hpp"
 
@@ -136,7 +136,7 @@ namespace moris::xtk
             hmr::Interpolation_Mesh_HMR *tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
             Vector< std::shared_ptr< moris::gen::Level_Set_Geometry > > tGeometryVector( 1 );
-            tGeometryVector( 0 ) = std::make_shared< moris::gen::Plane >( 0.511, 0.0, 1.0, 0.0 );
+            tGeometryVector( 0 ) = std::make_shared< moris::gen::Line >( 0.511, 0.0, 1.0, 0.0 );
 
             size_t                                 tModelDimension = 2;
             moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;

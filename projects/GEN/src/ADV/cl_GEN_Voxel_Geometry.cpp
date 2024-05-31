@@ -246,7 +246,7 @@ namespace moris::gen
     void Voxel_Geometry::discretize(
             mtk::Mesh_Pair          aMeshPair,
             sol::Dist_Vector*       aOwnedADVs,
-            const Matrix< DDSMat >& aSharedADVIds,
+            const Vector< sint >&   aSharedADVIds,
             uint                    aADVOffsetID )
     {
     }
@@ -257,7 +257,7 @@ namespace moris::gen
             std::shared_ptr< mtk::Field > aMTKField,
             mtk::Mesh_Pair                aMeshPair,
             sol::Dist_Vector*             aOwnedADVs,
-            const Matrix< DDSMat >&       aSharedADVIds,
+            const Vector< sint >&       aSharedADVIds,
             uint                          aADVOffsetID )
     {
     }
@@ -268,6 +268,12 @@ namespace moris::gen
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates,
             Vector< real >&           aOutputDesignInfo )
+    {
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Voxel_Geometry::update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedDesigns )
     {
     }
 

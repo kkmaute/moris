@@ -12,21 +12,19 @@
 #include "cl_GEN_Derived_Node.hpp"
 #include "cl_GEN_Basis_Node.hpp"
 #include "cl_MTK_Field_Discrete.hpp"
-#include <utility>
 
 namespace moris::gen
 {
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Field::Field(
-            Matrix< DDRMat >& aADVs,
-            Matrix< DDUMat >  aFieldVariableIndices,
-            Matrix< DDUMat >  aADVIndices,
-            Matrix< DDRMat >  aConstants,
-            std::string       aName )
-            : mADVManager( aADVs, aFieldVariableIndices, aADVIndices, aConstants )
-            , mSensitivities( 1, aFieldVariableIndices.length() + aConstants.length() )
+    Field::Field( Vector< real >& aADVs,
+            const Vector< uint >& aFieldVariableIndices,
+            const Vector< uint >& aADVIndices,
+            const Vector< real >& aConstants,
+            std::string           aName )
+            : mADVHandler( aADVs, aFieldVariableIndices, aADVIndices, aConstants )
+            , mSensitivities( 1, aFieldVariableIndices.size() + aConstants.size() )
             , mName( std::move( aName ) )
     {
         this->verify_name();
@@ -35,11 +33,11 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Field::Field(
-            Matrix< DDRMat > aConstants,
-            std::string      aName )
-            : mADVManager( aConstants )
-            , mSensitivities( 1, aConstants.length(), 0.0 )
-            , mName( aName )
+            const Vector< ADV >& aADVs,
+            std::string          aName )
+            : mADVHandler( aADVs )
+            , mSensitivities( 1, aADVs.size(), 0.0 )
+            , mName( std::move( aName ) )
     {
         this->verify_name();
     }
@@ -47,10 +45,10 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
     
     Field::Field(
-            const Matrix< DDSMat >& aSharedADVIds,
-            std::string             aName)
-            : mADVManager( aSharedADVIds )
-            , mSensitivities( 1, aSharedADVIds.length() )
+            const Vector< sint >& aSharedADVIds,
+            std::string           aName)
+            : mADVHandler( aSharedADVIds )
+            , mSensitivities( 1, aSharedADVIds.size() )
             , mName( std::move( aName ) )
     {
         this->verify_name();
@@ -61,7 +59,7 @@ namespace moris::gen
     Field::Field( const Field& aCopy,
             const Vector< uint >& aReplaceVariables,
             const Vector< real >& aNewConstants )
-            : mADVManager( aCopy.mADVManager, aReplaceVariables, aNewConstants )
+            : mADVHandler( aCopy.mADVHandler, aReplaceVariables, aNewConstants )
             , mSensitivities( aCopy.mSensitivities )
             , mName( aCopy.mName )
     {
@@ -81,7 +79,7 @@ namespace moris::gen
 
     void Field::import_advs( sol::Dist_Vector* aOwnedADVs )
     {
-        mADVManager.import_advs( aOwnedADVs );
+        mADVHandler.import_advs( aOwnedADVs );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -163,17 +161,17 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix< DDSMat > Field::get_determining_adv_ids(
+    Vector< sint > Field::get_determining_adv_ids(
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates )
     {
-        return mADVManager.get_determining_adv_ids();
+        return mADVHandler.get_determining_adv_ids();
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     void Field::get_determining_adv_ids(
-            Matrix< DDSMat >& aDeterminingADVIDs,
+            Vector< sint >&     aDeterminingADVIDs,
             const Derived_Node& aDerivedNode,
             const Node_Manager& aNodeManager )
     {
@@ -183,9 +181,9 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
     
     void Field::append_interpolated_determining_adv_ids(
-            Matrix< DDSMat >&         aInterpolatedADVIDs,
+            Vector< sint >&             aInterpolatedADVIDs,
             const Vector< Basis_Node >& aBasisNodes,
-            const Node_Manager&       aNodeManager )
+            const Node_Manager&         aNodeManager )
     {
         // Add contributions from each basis node
         for ( auto iBasisNode : aBasisNodes )
@@ -194,16 +192,16 @@ namespace moris::gen
             if ( aNodeManager.is_background_node( iBasisNode.get_index() ) )
             {
                 // Get locator sensitivities
-                Matrix< DDSMat > tBasisNodeADVIDs = this->get_determining_adv_ids( iBasisNode.get_index(), iBasisNode.get_global_coordinates() );
+                Vector< sint > tBasisNodeADVIDs = this->get_determining_adv_ids( iBasisNode.get_index(), iBasisNode.get_global_coordinates() );
 
                 // Get current joined ADV ID length
-                uint tJoinedADVIDLength = aInterpolatedADVIDs.length();
+                uint tJoinedADVIDLength = aInterpolatedADVIDs.size();
 
                 // Have to do a resize, since each basis node can depend on different number of ADVs
-                aInterpolatedADVIDs.resize( 1, tJoinedADVIDLength + tBasisNodeADVIDs.length() );
+                aInterpolatedADVIDs.resize( tJoinedADVIDLength + tBasisNodeADVIDs.size() );
 
                 // Append to current list
-                for ( uint iBasisNodeADV = 0; iBasisNodeADV < tBasisNodeADVIDs.length(); iBasisNodeADV++ )
+                for ( uint iBasisNodeADV = 0; iBasisNodeADV < tBasisNodeADVIDs.size(); iBasisNodeADV++ )
                 {
                     aInterpolatedADVIDs( tJoinedADVIDLength + iBasisNodeADV ) = tBasisNodeADVIDs( iBasisNodeADV );
                 }
@@ -223,12 +221,12 @@ namespace moris::gen
 
     bool Field::has_advs()
     {
-        return mADVManager.has_advs();
+        return mADVHandler.has_advs();
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Field::set_dependencies( Vector< std::shared_ptr< Field > > aDependencyFields )
+    void Field::update_dependencies( Vector< std::shared_ptr< Field > > aUpdatedFields )
     {
     }
 

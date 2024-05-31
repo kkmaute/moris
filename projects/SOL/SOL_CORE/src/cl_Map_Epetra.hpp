@@ -66,6 +66,8 @@ namespace moris
 
             Map_Epetra( const Matrix< DDSMat > & aMyGlobalIds );
 
+            Map_Epetra( const Vector< sint >& aMyGlobalIds );
+
             //-------------------------------------------------------------------------------------------------------------
             /** Destructor */
             ~Map_Epetra();
@@ -95,6 +97,11 @@ namespace moris
                     const moris::Matrix< IdMat > & aIdsIn,
                     moris::Matrix< IdMat >       & aIdsOut,
                     const bool                   & aIsBuildGraph = true );
+
+            void translate_ids_to_free_point_ids(
+                    const Vector< sint >& aIdsIn,
+                    Vector< sint >&       aIdsOut,
+                    bool                  aIsBuildGraph = true );
 
             //-------------------------------------------------------------------------------------------------------------
 

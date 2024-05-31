@@ -79,14 +79,30 @@ namespace moris
 
             moris::sint mNumSensitivityAnalysisRHS = -1;
 
+            //------------------------------------------------------------------------------
+
+            std::shared_ptr< Vector<real> > mEigenValues = nullptr;
+
+            //------------------------------------------------------------------------------
 
           public:
-            Equation_Model() = default;
+            //------------------------------------------------------------------------------
+            /**
+             * constructor
+             */
+            Equation_Model(){};
 
+            //------------------------------------------------------------------------------
+            /**
+             * destructor
+             */
             virtual ~Equation_Model();
+
+            //------------------------------------------------------------------------------
 
             virtual void free_memory() = 0;
 
+            //------------------------------------------------------------------------------
             /**
              * @brief get equation sets for test
              */
@@ -180,6 +196,19 @@ namespace moris
                 mEigenSolutionVector = aEigenSolutionVector;
             }
 
+            //------------------------------------------------------------------------------
+            /**
+             * @brief Set the eigen values object
+             *
+             * @param aEigenValues
+             */
+
+            void set_eigen_values( std::shared_ptr< Vector<real> > aEigenValues )
+            {
+                mEigenValues = std::move(aEigenValues);
+            }
+
+            //------------------------------------------------------------------------------
             /**
              * @brief get previous solution vector
              * @returns aSolutionVector previous distributed solution vector
@@ -190,6 +219,19 @@ namespace moris
                 return mEigenSolutionVector;
             }
 
+            //------------------------------------------------------------------------------
+            /**
+             * get previous solution vector
+             * @param[ out ] aSolutionVector previous distributed solution vector
+             */
+
+            std::shared_ptr< Vector< real > >&
+            get_eigen_values()
+            {
+                return mEigenValues;
+            }
+
+            //------------------------------------------------------------------------------
             /**
              * @brief set sensitivity solution vector
              * @param[ in ] aSensitivitySolutionVector distributed solution vector for sensitivity
