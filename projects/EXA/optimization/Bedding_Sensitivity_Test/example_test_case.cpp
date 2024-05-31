@@ -468,4 +468,22 @@ TEST_CASE( "Bedding_Sensitivity_Test",
             check_results( "Bedding_Sensitivity_Test_11.exo.e-s.0001", "Bedding_Sensitivity_Test_11_SEN.hdf5", gTestCaseIndex );
         }
     }
+
+#ifdef MORIS_HAVE_SLEPC
+    // This cass tests the optimzation problemw with petsc solver
+    if ( par_size() == 4 )
+    {
+        // set test case index
+        gTestCaseIndex = 21;
+
+        // call to performance manager main interface
+        fn_WRK_Workflow_Main_Interface( argc, argv );
+
+        if ( par_rank() == 0 )
+        {
+            // perform check for Test Case 3
+            check_results( "Bedding_Sensitivity_Test_21.exo.e-s.0001", "Bedding_Sensitivity_Test_21_SEN.hdf5", gTestCaseIndex );
+        }
+    }
+#endif
 }

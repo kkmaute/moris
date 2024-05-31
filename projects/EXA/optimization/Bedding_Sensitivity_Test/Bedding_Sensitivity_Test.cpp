@@ -50,6 +50,8 @@ extern "C" {
 
 namespace moris
 {
+    // forward declare the funtions for petsc and trilinos
+    void create_trilinos_parameter_list( Vector< Vector< Parameter_List > >& ), create_petsc_parameter_list( Vector< Vector< Parameter_List > >& );
     //------------------------------------------------------------------------------
     // Main problem parameters
 
@@ -120,9 +122,9 @@ namespace moris
     // Constant function for properties
     void
     Func_Const(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         aPropMatrix = aParameters( 0 );
     }
@@ -397,7 +399,7 @@ namespace moris
         // create parameter list for bedding property
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
         tParameterList( 0 )( tPropCounter ).set( "property_name", "PropBedding" );
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters", "2.0e-3" );
+        tParameterList( 0 )( tPropCounter ).set( "function_parameters", "2.0e-1" );
         tParameterList( 0 )( tPropCounter ).set( "value_function", "Func_Const" );
         tPropCounter++;
 
@@ -429,7 +431,7 @@ namespace moris
         // create parameter list for constitutive model
         tParameterList( 1 ).push_back( prm::create_constitutive_model_parameter_list() );
         tParameterList( 1 )( tCMCounter ).set( "constitutive_name", "CMStrucLinIso_Material" );
-        tParameterList( 1 )( tCMCounter ).set( "constitutive_type",  fem::Constitutive_Type::STRUC_LIN_ISO ) ;
+        tParameterList( 1 )( tCMCounter ).set( "constitutive_type", fem::Constitutive_Type::STRUC_LIN_ISO );
         tParameterList( 1 )( tCMCounter ).set( "dof_dependencies", std::pair< std::string, std::string >( tDofStrg, "Displacement" ) );
         tParameterList( 1 )( tCMCounter ).set( "properties", "PropYoungs,YoungsModulus;PropPoisson,PoissonRatio" );
         tCMCounter++;
@@ -441,14 +443,14 @@ namespace moris
         // create parameter list for stabilization parameter 1
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name", "SPNitscheDirichletBC" );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  fem::Stabilization_Type::DIRICHLET_NITSCHE ) ;
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_type", fem::Stabilization_Type::DIRICHLET_NITSCHE );
         tParameterList( 2 )( tSPCounter ).set( "function_parameters", std::to_string( tNitschePenalty ) );
         tParameterList( 2 )( tSPCounter ).set( "leader_properties", "PropYoungs,Material" );
         tSPCounter++;
 
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name", std::string( "SPGhost_Material" ) );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  fem::Stabilization_Type::GHOST_DISPL ) ;
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_type", fem::Stabilization_Type::GHOST_DISPL );
         tParameterList( 2 )( tSPCounter ).set( "function_parameters", std::string( "0.005" ) );
         tParameterList( 2 )( tSPCounter ).set( "leader_properties", std::string( "PropYoungs,Material" ) );
         tSPCounter++;
@@ -459,7 +461,7 @@ namespace moris
 
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGBulkMaterial" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_BULK ) ;
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", fem::IWG_Type::STRUC_LINEAR_BULK );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", tDofStrg );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", tDofStrg );
         tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMStrucLinIso_Material,ElastLinIso" );
@@ -469,7 +471,7 @@ namespace moris
 
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGDirichletU" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE ) ;
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", tDofStrg );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", tDofStrg );
         tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropDirichletU,Dirichlet" );
@@ -482,7 +484,7 @@ namespace moris
         {
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name", std::string( "IWGGhostMaterial" ) );
-            tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_type", fem::IWG_Type::GHOST_NORMAL_FIELD );
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual", tDofStrg );
             tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", tDofStrg );
             tParameterList( 3 )( tIWGCounter ).set( "follower_dof_dependencies", tDofStrg );
@@ -498,7 +500,7 @@ namespace moris
 
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkUX" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::DOF ) ;
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type", fem::IQI_Type::DOF );
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", tDofStrg );
         tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", tDofStrg );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 0 );
@@ -507,7 +509,7 @@ namespace moris
 
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkUY" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::DOF ) ;
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type", fem::IQI_Type::DOF );
         tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", tDofStrg );
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", tDofStrg );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 1 );
@@ -518,7 +520,7 @@ namespace moris
         {
             tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
             tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkUZ" );
-            tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::DOF ) ;
+            tParameterList( 4 )( tIQICounter ).set( "IQI_type", fem::IQI_Type::DOF );
             tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", tDofStrg );
             tParameterList( 4 )( tIQICounter ).set( "dof_quantity", tDofStrg );
             tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 2 );
@@ -528,7 +530,7 @@ namespace moris
 
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkStrainEnergy" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::STRAIN_ENERGY ) ;
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type", fem::IQI_Type::STRAIN_ENERGY );
         tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", tDofStrg );
         tParameterList( 4 )( tIQICounter ).set( "leader_constitutive_models", "CMStrucLinIso_Material,Elast" );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tMaterialSets );
@@ -536,7 +538,7 @@ namespace moris
 
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkStrainEnergyWithBedding" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::STRAIN_ENERGY ) ;
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type", fem::IQI_Type::STRAIN_ENERGY );
         tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", tDofStrg );
         tParameterList( 4 )( tIQICounter ).set( "leader_constitutive_models", "CMStrucLinIso_Material,Elast" );
         tParameterList( 4 )( tIQICounter ).set( "leader_properties", "PropBedding,Bedding" );
@@ -545,7 +547,7 @@ namespace moris
 
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkVolume" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::VOLUME ) ;
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type", fem::IQI_Type::VOLUME );
         tParameterList( 4 )( tIQICounter ).set( "leader_properties", "PropDensity,Density" );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tMaterialSets );
         tIQICounter++;
@@ -570,7 +572,8 @@ namespace moris
             tParameterlist( Ik ).resize( 1 );
         }
 
-        tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
+
+        ( gTestCaseIndex == 21 ) ? create_petsc_parameter_list( tParameterlist ) : create_trilinos_parameter_list( tParameterlist );
 
         tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
 
@@ -589,10 +592,6 @@ namespace moris
         tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", tDofStrg );
         tParameterlist( 5 )( 0 ).set( "TSA_Output_Indices", "0" );
         tParameterlist( 5 )( 0 ).set( "TSA_Output_Criteria", "Output_Criterion" );
-
-        tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
-        
-        tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -622,7 +621,7 @@ namespace moris
 
         tParameterlist( 0 )( 0 ) = prm::create_vis_parameter_list();
         tParameterlist( 0 )( 0 ).set( "File_Name", std::pair< std::string, std::string >( "./", tOutputFileName ) );
-        tParameterlist( 0 )( 0 ).set( "Mesh_Type",  vis::VIS_Mesh_Type::STANDARD ) ;
+        tParameterlist( 0 )( 0 ).set( "Mesh_Type", vis::VIS_Mesh_Type::STANDARD );
         tParameterlist( 0 )( 0 ).set( "Set_Names", tTotalDomainSets );
 
         if ( tIs3D )
@@ -644,9 +643,39 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "Time_Offset", 10.0 );
     }
 
+    //--------------------------------------------------------------------------------------------------------------
+
     void
     MORISGENERALParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+    void create_petsc_parameter_list( Vector< Vector< Parameter_List > > & aParameterlist )
+    {
+
+        aParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::PETSC );
+        aParameterlist( 0 )( 0 ).set( "KSPType", "fgmres " );
+        aParameterlist( 0 )( 0 ).set( "preconditioners", "0" );
+        aParameterlist( 0 )( 0 ).set( "KSPTol", 1e-24 );
+
+        aParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+        aParameterlist( 6 )( 0 ).set( "SOL_TPL_Type", sol::MapType::Petsc );
+        aParameterlist( 6 )( 0 ).set( "SOL_save_operator_to_matlab", "jacc_par" );
+
+        aParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::PETSC );
+        aParameterlist( 7 )( 0 ).set( "PCType", "mumps" );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void create_trilinos_parameter_list( Vector< Vector< Parameter_List > > & aParameterlist )
+    {
+        aParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
+
+        aParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+
+        aParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE );
     }
 
     //--------------------------------------------------------------------------------------------------------------
