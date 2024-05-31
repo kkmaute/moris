@@ -21,8 +21,12 @@
 #ifdef MORIS_HAVE_PETSC
 #include "cl_DLA_Linear_System_PETSc.hpp"
 #include "cl_DLA_Linear_Solver_PETSc.hpp"
+#endif
+
+#ifdef MORIS_HAVE_SLEPC
 #include "cl_DLA_Eigen_Solver_SLEPc.hpp"
 #endif
+
 
 #include "cl_DLA_Linear_Solver_Algorithm.hpp"
 #include "cl_DLA_Preconditioner_Trilinos.hpp"

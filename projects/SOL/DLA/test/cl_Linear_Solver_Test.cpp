@@ -34,6 +34,9 @@
 
 #ifdef MORIS_HAVE_PETSC
 #include "cl_DLA_Preconditioner_PETSc.hpp"
+#endif
+
+#ifdef MORIS_HAVE_SLEPC
 #include "cl_DLA_Eigen_Solver_SLEPc.hpp"
 #endif
 
