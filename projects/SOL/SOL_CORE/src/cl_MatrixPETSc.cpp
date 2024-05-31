@@ -9,6 +9,7 @@
  */
 
 #include "cl_MatrixPETSc.hpp"
+#include "cl_Vector_PETSc_Multi.hpp"
 
 #include <cstddef>
 #include <cassert>
@@ -349,4 +350,26 @@ Matrix_PETSc::build_graph(
 
     // note: if there is a problem with this routine turn this option off at the cost of performance
     // MatSetOption(mPETScMat,  MAT_NEW_NONZERO_ALLOCATION_ERR, PETSC_FALSE);
+}
+
+// ----------------------------------------------------------------------------
+
+void Matrix_PETSc::mat_vec_product(
+        const moris::sol::Dist_Vector& aInputVec,
+        moris::sol::Dist_Vector&       aResult,
+        const bool                     aUseTranspose )
+{
+        //check if the bool value if false
+    MORIS_ASSERT( aUseTranspose == false, "Sparse_Matrix_EpetraFECrs::mat_vec_product: aUseTranspose must be false" );
+    
+    //case the input and output vector into the petsc multivector(Mat) object
+    // cast source vector to MultiVector_PETSc
+    const MultiVector_PETSc& tPetscSourceVec = dynamic_cast< const MultiVector_PETSc& >( aInputVec );
+    Mat tPetscSourceMultiVec = tPetscSourceVec.get_petsc_vector();
+
+    MultiVector_PETSc& tPetscResultVec = dynamic_cast< MultiVector_PETSc& >( aResult );
+    Mat tPetscResultMultiVec = tPetscResultVec.get_petsc_vector();
+
+    //perform the matrix vector multiplication
+    MatMatMult(mPETScMat, tPetscSourceMultiVec, MAT_INITIAL_MATRIX, PETSC_DEFAULT, &tPetscResultMultiVec);
 }

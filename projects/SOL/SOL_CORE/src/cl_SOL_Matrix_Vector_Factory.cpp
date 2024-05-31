@@ -18,6 +18,7 @@
 #ifdef MORIS_HAVE_PETSC
 #include "cl_MatrixPETSc.hpp"
 #include "cl_Vector_PETSc.hpp"
+#include "cl_Vector_PETSc_Multi.hpp"
 #include "cl_Map_PETSc.hpp"
 #endif
 
@@ -152,9 +153,7 @@ namespace moris
                 case MapType::Petsc:
                 {
 #ifdef MORIS_HAVE_PETSC
-                    MORIS_ERROR( aNumVectors == 1, "Multivector not implemented for petsc" );
-
-                    tDistVector = new Vector_PETSc( aInput, aMap, aNumVectors, aManageMap );
+                    tDistVector = new MultiVector_PETSc( aInput, aMap, aNumVectors, aManageMap );
 #else
                     MORIS_ERROR( false, "MORIS is configured with out PETSC support." );
 #endif
