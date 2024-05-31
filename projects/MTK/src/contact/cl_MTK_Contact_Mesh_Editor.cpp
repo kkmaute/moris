@@ -360,6 +360,15 @@ namespace moris::mtk
 
         // std::cout << "Number of nonconformal side clusters: " << tNumNonconformalSideClusters << std::endl;
 
+        // every possible nonconformal set has to be (at leas) created (even if it does not contain any clusters)
+        // We therefore take all candidate pairs and remove the ones that will be created based on the mapping.
+        // the remaining set pairs will be used to create empty nonconformal side sets.
+        std::set< SetPair > tAllPossibleSetPairs;
+        for ( auto const &tPair : mCandidatePairs )
+        {
+            tAllPossibleSetPairs.insert( tPair );
+        }
+
         // the number of nonconformal side clusters that get stored in the IGMesh has to be reserved beforehand.
         // If a reallocation of memory would be necessary, the pointers to the nonconformal side clusters would be invalidated, which would
         // lead to wrong references being stored in the nonconformal side sets.
@@ -367,9 +376,20 @@ namespace moris::mtk
         // each group of unique source- and target side set-pairs will be stored in a nonconformal side set
         for ( auto const &[ tSetPair, tNonconformalSideClusters ] : tConvertedResults )
         {
+            tAllPossibleSetPairs.erase(tSetPair);
             mIGMesh->add_nonconformal_side_set(
                     this->get_nonconformal_side_set_name( tSetPair ),
                     tNonconformalSideClusters,
+                    mSideSets( tSetPair.first )->get_set_colors()    // TODO: Is this correct? Just using the color of the first set...
+            );
+        }
+
+        // create empty nonconformal side sets for the remaining candidate pairs
+        for ( auto const &tSetPair : tAllPossibleSetPairs )
+        {
+            mIGMesh->add_nonconformal_side_set(
+                    this->get_nonconformal_side_set_name( tSetPair ),
+                    Vector< Nonconformal_Side_Cluster >{},
                     mSideSets( tSetPair.first )->get_set_colors()    // TODO: Is this correct? Just using the color of the first set...
             );
         }
