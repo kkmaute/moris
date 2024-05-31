@@ -456,15 +456,6 @@ namespace moris
                 tNodalDisplacements.merge( tNewNodes );
             }
 
-
-            // TODO @ff: Remove! Debug only
-            //            mtk::Json_Debug_Output tDebugOutput( mMeshManager->get_integration_mesh( 0 ) );
-            //            tDebugOutput.set_ig_vertex_displacements( tNodalDisplacements );
-            //            uint const        tIteration = gLogger.get_iteration( "NonLinearAlgorithm", "Newton", "Solve" );
-            //            std::string const tFileName  = "debug_mesh_" + std::to_string( tIteration ) + ".json";
-            //            tDebugOutput.write_to_json( tFileName );
-
-
             // store the names of the mesh sets that are stored in each FEM set. This is necessary to update the newly created
             // nonconformal sets.
             Vector< std::string > tMeshSetNames;
@@ -1203,10 +1194,6 @@ namespace moris
             }
 
             auto *tIGMesh = dynamic_cast< mtk::Integration_Mesh_DataBase_IG * >( aIGMesh );
-
-            // TODO @ff: remove! Only for Debug.
-            //            std::string const tFileName = "debug_mesh_0.json";
-            //            mtk::Json_Debug_Output( tIGMesh ).write_to_json( tFileName );
 
             auto const &[ tSetNames, tCandidatePairs ] = prepare_nonconformal_candidate_pairs();
 

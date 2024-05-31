@@ -2478,28 +2478,6 @@ namespace moris
             else
             {
                 // TODO @ff: What can I do in this case?
-#ifdef MORIS_HAVE_DEBUG
-                // get iteration
-                uint const        tIteration = gLogger.get_iteration( "NonLinearAlgorithm", "Newton", "Solve" );
-                std::stringstream tStream;
-                tStream << "Iteration " << tIteration << ": Perturbed point with coordinates (" << Matrix< DDRMat >( tLeaderCoordsPerturbed.get_row( 0 ) ) << ") could not be mapped in FD scheme.";
-                MORIS_LOG_WARNING( "%s", tStream.str().c_str() );
-
-                // TODO @ff: Remove! Only for Debug
-//                std::stringstream tDbg;
-//                tDbg << std::setprecision( 15 )
-//                     << "FailedFD:"
-//                     << tIteration << ","
-//                     << Matrix< DDRMat >( tLeaderCoordsPerturbed.get_row( 0 ) ) << ","
-//                     << Matrix< DDRMat >( tLeaderCoordsPerturbed.get_row( 1 ) ) << ","
-//                     << Matrix< DDRMat >( tFollowerCoordinates.get_row( 0 ) ) << ","
-//                     << Matrix< DDRMat >( tFollowerCoordinates.get_row( 1 ) ) << ","
-//                     << tIGPointPerturbed << ","
-//                     << tFollowerPhysical << ","
-//                     << tNormalCur << ","
-//                     << tNormalPerturbed << "\n";
-//                std::cout << tDbg.str();
-#endif
             }
 
             return tFollowerSpaceTime;

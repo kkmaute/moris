@@ -38,29 +38,9 @@
 
 namespace moris::fem
 {
-    // TODO @ff: REMOVE
-    [[maybe_unused]] std::string pmat( const Matrix< DDRMat >& aMatrix )
-    {
-        std::stringstream tStream;
-        // set the precision of the stream
-        tStream.precision( 10 );
-
-        for ( uint i = 0; i < aMatrix.numel(); i++ )
-        {
-            tStream << aMatrix( i );
-            if ( i < aMatrix.numel() - 1 )
-            {
-                tStream << ",";
-            }
-        }
-        return tStream.str();
-    }
-
-    //------------------------------------------------------------------------------
-
     IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::IWG_Isotropic_Struc_Nonlinear_Contact_Mlika( sint aBeta )
-            : mBeta( aBeta )      // sign for symmetric/unsymmetric Nitsche
-            , mTheta( -mBeta )    // TODO @ff check that the conversion is correct... check what mBeta stands for!
+            : mBeta( aBeta )    // sign for symmetric/unsymmetric Nitsche
+            , mTheta( -mBeta )
     {
         // set size for the property pointer cell
         mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );

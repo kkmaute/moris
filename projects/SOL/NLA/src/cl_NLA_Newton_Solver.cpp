@@ -135,7 +135,6 @@ void Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProble
 
         if ( tRemappingStrategy.requires_remapping( It, mMyNonLinSolverManager, tLoadFactor ) )
         {
-//            mMyNonLinSolverManager->get_solver_interface()->initiate_output( 0, 0, true );    // save current solution with the load factor // TODO @ff remove
             mNonlinearProblem->update_fem_model();
         }
 
@@ -203,9 +202,6 @@ void Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProble
 
             // Solve linear system
             this->solve_linear_system( It, tHardBreak );
-
-            // save current solution with the load factor
-            // mMyNonLinSolverManager->get_solver_interface()->initiate_output( 0, tLoadFactor, false ); // TODO @ff remove
 
             // Determine load factor
             tLoadControlStrategy.eval(

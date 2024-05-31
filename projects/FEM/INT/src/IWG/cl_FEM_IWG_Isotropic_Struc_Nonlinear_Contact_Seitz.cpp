@@ -299,7 +299,6 @@ namespace moris::fem
         // gap between points in current configuration
         const real tGap = dot( ( txF - txL ), tNormalL );
 
-        // TODO @ff: This Jump is not correct (dummy value)
         const real tJump = tGap;
 
         // evaluate traction and their pressure equivalent (normal component)
@@ -355,7 +354,6 @@ namespace moris::fem
                 Matrix< DDRMat > const tTangentialProjector = tIdentity - tNormalL * trans( tNormalL );    // ( 2 x 2 )
 
                 // compute the derivative of the normal w.r.t the variation of the displacement (Mlika (2018) Eq. (4.12))
-                // TODO @ff: Can you interchange the variation of the displacement and the actual displacement?
                 Matrix< DDRMat > const tNormal_dU    = -tTangentialProjector * trans( inv( tFL ) ) * trans( tGrad_UL ) * tNormalL;    // TODO @ff: Why is this matrix (2x1) and not (2x2)?
                 Matrix< DDRMat > const tNormal_ddelU = -tTangentialProjector * trans( inv( tFL ) ) * tGrad_dUL * tNormalL;            // TODO @ff: tGrad_dUL is (2x4) but required is (2x2)
 
