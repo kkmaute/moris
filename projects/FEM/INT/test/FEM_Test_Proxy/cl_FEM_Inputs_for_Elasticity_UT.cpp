@@ -15,7 +15,10 @@
 #include "fn_dot.hpp"
 #include "fn_norm.hpp"
 
+#include "cl_FEM_Enums.hpp"
+#include "cl_FEM_Field_Interpolator.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
+#include "fn_trans.hpp"
 
 using namespace moris;
 
@@ -1091,23 +1094,58 @@ fill_xhat_simple_Elast(
         moris::uint                     aSpaceDim,
         moris::uint                     aInterpOrder )
 {
+    mtk::Geometry_Type       tGeoType;
+    mtk::Interpolation_Order tInterpType;
+
     switch ( aSpaceDim )
     {
         case 2:
         {
-            switch ( aInterpOrder )
-            {
-                case 1:
-                    tXHat = { //
-                        { 0.0, 0.0 },
-                        { 1.0, 0.0 },
-                        { 1.0, 1.0 },
-                        { 0.0, 1.0 }
-                    };
-                    break;
-            }
+            tGeoType = mtk::Geometry_Type::QUAD;
+            break;
         }
+        case 3:
+        {
+            tGeoType = mtk::Geometry_Type::HEX;
+            break;
+        }
+        default:
+            MORIS_ERROR( false, "Spatial dimension needs to be 2 or 3" );
     }
+
+    switch ( aInterpOrder )
+    {
+        case 1:
+        {
+            tInterpType = mtk::Interpolation_Order::LINEAR;
+            break;
+        }
+        case 2:
+        {
+            tInterpType = mtk::Interpolation_Order::QUADRATIC;
+            break;
+        }
+        case 3:
+        {
+            tInterpType = mtk::Interpolation_Order::CUBIC;
+            break;
+        }
+        default:
+            MORIS_ERROR( false, "Interpolation order needs to be 1, 2 or 3" );
+    }
+
+    mtk::Interpolation_Rule tInterpolationRule(
+            tGeoType,
+            mtk::Interpolation_Type::LAGRANGE,
+            tInterpType,
+            mtk::Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Order::LINEAR );
+
+    mtk::Interpolation_Function_Base* tInterpFunction = tInterpolationRule.create_space_interpolation_function();
+
+    tInterpFunction->get_param_coords( tXHat );
+
+    tXHat.inplace_trans();
 }
 
 inline void
@@ -1116,21 +1154,21 @@ fill_uhat_const_time_Elast(
         moris::uint                     aSpaceDim,
         moris::uint                     aInterpOrder )
 {
-    switch ( aSpaceDim )
+    Matrix< DDRMat > tXHat;
+    fill_xhat_simple_Elast( tXHat, aSpaceDim, aInterpOrder );
+
+    tUHat.set_size( tXHat.n_rows(), tXHat.n_cols(), 0.0 );
+
+    const real tMagnitude = -0.1;
+
+    // generate linear varying displacement field in aSpaceDim direction
+
+    for ( uint i = 0; i < tXHat.n_rows(); ++i )
     {
-        case 2:
-        {
-            switch ( aInterpOrder )
-            {
-                case 1:
-                    tUHat = {
-                        { 0, 0 },
-                        { 0, 0 },
-                        { 0, -1e-1 },
-                        { 0, -1e-1 }
-                    };
-                    break;
-            }
-        }
+        // get scaling factor
+        real tScaling = tMagnitude * 0.5 * ( tXHat( i, aSpaceDim - 1 ) + 1.0 );
+
+        // set displacement value
+        tUHat( i, aSpaceDim - 1 ) = tScaling;
     }
 }
