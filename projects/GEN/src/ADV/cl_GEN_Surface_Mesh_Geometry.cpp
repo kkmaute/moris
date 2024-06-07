@@ -352,32 +352,66 @@ namespace moris::gen
             // STEP 1: Import advs to field
             mPerturbationFields( iFieldIndex )->import_advs( aOwnedADVs );
 
+            Vector< uint > tOwnedVertexIndices;
             // STEP 2: Apply field value to surface mesh nodes
             for ( uint iVertexIndex = 0; iVertexIndex < Object::mVertices.size(); iVertexIndex++ )
             {
-                // Get the factor that scales this vertex's movement
-                real tFactor = mVertexFactorFunction == nullptr ? 1.0 : mVertexFactorFunction( iVertexIndex, Object::mVertices( iVertexIndex )->get_coords(), iFieldIndex );
-
-                // Move vertex if needed
-                if ( tFactor != 0.0 and mVertexBackgroundElements( iVertexIndex ) != nullptr )
+                // update the facet vertex if the vertex is owned by this processor
+                if ( mVertexBackgroundElements( iVertexIndex ) != nullptr and mVertexBackgroundElements( iVertexIndex )->get_owner() == par_rank() )
                 {
-                    // Interpolate the bspline field value at the facet vertex location
-                    real tInterpolatedPerturbation = this->interpolate_perturbation_from_background_element(
-                            mVertexBackgroundElements( iVertexIndex ),
-                            iFieldIndex,
-                            iVertexIndex );
+                    // Add this vertex index to the list of owned vertices for this processor
+                    tOwnedVertexIndices.push_back( iVertexIndex );
 
-                    // Displace the vertex by the total perturbation
-                    Object::mVertices( iVertexIndex )->set_node_coord( mOriginalVertexCoordinates( iVertexIndex )( iFieldIndex ) + tFactor * tInterpolatedPerturbation, iFieldIndex );
+                    // Get the factor that scales this vertex's movement
+                    real tFactor = mVertexFactorFunction == nullptr ? 1.0 : mVertexFactorFunction( iVertexIndex, Object::mVertices( iVertexIndex )->get_coords(), iFieldIndex );
+
+                    // Move vertex if needed
+                    if ( tFactor != 0.0 )
+                    {
+                        // Interpolate the bspline field value at the facet vertex location
+                        real tInterpolatedPerturbation = this->interpolate_perturbation_from_background_element(
+                                mVertexBackgroundElements( iVertexIndex ),
+                                iFieldIndex,
+                                iVertexIndex );
+
+                        // Displace the vertex by the total perturbation
+                        Object::mVertices( iVertexIndex )->set_node_coord( mOriginalVertexCoordinates( iVertexIndex )( iFieldIndex ) + tFactor * tInterpolatedPerturbation, iFieldIndex );
+                    }
                 }
             }
+
+            // Get the coordinates of the owned vertices to communicate to other processors
+            Vector< real > tOwnedVertexCoordinates;    // flattened coordinate vector containing coords for each owned vertex index
         }
 
-        // STEP 3: Update all facet data
-        this->update_all_facets();
+        // Send and receive the owned vertex coordinates to/from root processor
+        if ( par_rank() == 0 )
+        {
+            // receive
+            // all_gather_vector();
+        }
+        else
+        {
+            // send
+            // all_scatter_vector();
+        }    // should be in mpi function
 
-        // this->write_to_file( mName + "_" + std::to_string( mIteration ) + ".txt" );
-        // mIteration++;
+
+        if ( par_rank() == 0 )
+        {
+            // STEP 3: Update all facet data
+
+            // send the updated facet data to all processors
+        }
+        else
+        {
+            // receive the updated facet data from root processor
+        }
+
+        this->update_all_facets(); // BRENDAN put this on proc 0
+
+        this->write_to_file( mName + "_" + std::to_string( mIteration )  + "_" + std::to_string( par_rank() ) + ".txt" );
+        mIteration++;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -623,7 +657,7 @@ namespace moris::gen
             uint tNumVertexSensitivities = tVertexSensitivity.n_cols();
 
             bool tVertexSensitivitySizeDetermined = false;
-            uint tDimensionSensitivitiesAdded = 0;
+            uint tDimensionSensitivitiesAdded     = 0;
 
             // Loop over spatial dimension
             for ( uint iDimensionIndex = 0; iDimensionIndex < Object::mDimension; iDimensionIndex++ )
@@ -639,7 +673,7 @@ namespace moris::gen
                     // set size of sensitivity matrix
                     if ( not tVertexSensitivitySizeDetermined )
                     {
-                        tVertexSensitivity.resize( Object::mDimension, tNumVertexSensitivities + tNumDimsDependOnADVs * tNodeSensitivity.numel()  );
+                        tVertexSensitivity.resize( Object::mDimension, tNumVertexSensitivities + tNumDimsDependOnADVs * tNodeSensitivity.numel() );
                         tVertexSensitivitySizeDetermined = true;
                     }
 
@@ -648,7 +682,7 @@ namespace moris::gen
                     {
                         tVertexSensitivity( iDimensionIndex, tNumVertexSensitivities + tNodeSensitivity.length() * tDimensionSensitivitiesAdded + iADVIndex ) = tNodeSensitivity( iADVIndex );
                     }
-                    
+
                     tDimensionSensitivitiesAdded++;
                 }
             }
