@@ -160,6 +160,7 @@ set(HEADERS
     IWG/cl_FEM_IWG_Nonlocal_Interface.hpp
     
     IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Bulk.hpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Geometric_Stiffness.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Dirichlet.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Interface.hpp
 
@@ -390,6 +391,7 @@ set(LIB_SOURCES
     IWG/cl_FEM_IWG_Nonlocal_Interface.cpp
     
     IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Bulk.cpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Geometric_Stiffness.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Dirichlet.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Interface.cpp
     

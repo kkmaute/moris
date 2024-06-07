@@ -15,14 +15,14 @@
 #include "cl_FEM_IWG_Factory.hpp"
 #include "cl_FEM_IWG_L2.hpp"
 
-//#include "cl_FEM_IWG_Helmholtz_Bulk.hpp"
-//#include "cl_FEM_IWG_Helmholtz_Bulk2.hpp"
-//#include "cl_FEM_IWG_Helmholtz_Interface.hpp"
-//#include "cl_FEM_IWG_Hamilton_Jacobi_Bulk.hpp"
-//#include "cl_FEM_IWG_Hamilton_Jacobi_Bulk2.hpp"
-//#include "cl_FEM_IWG_LSNormal_Bulk.hpp"
-//#include "cl_FEM_IWG_Olsson_CLS_Bulk.hpp"
-//#include "cl_FEM_IWG_Olsson_CLS_Interface.hpp"
+// #include "cl_FEM_IWG_Helmholtz_Bulk.hpp"
+// #include "cl_FEM_IWG_Helmholtz_Bulk2.hpp"
+// #include "cl_FEM_IWG_Helmholtz_Interface.hpp"
+// #include "cl_FEM_IWG_Hamilton_Jacobi_Bulk.hpp"
+// #include "cl_FEM_IWG_Hamilton_Jacobi_Bulk2.hpp"
+// #include "cl_FEM_IWG_LSNormal_Bulk.hpp"
+// #include "cl_FEM_IWG_Olsson_CLS_Bulk.hpp"
+// #include "cl_FEM_IWG_Olsson_CLS_Interface.hpp"
 #include "cl_FEM_IWG_Hamilton_Jacobi_Bulk_Test.hpp"
 #include "cl_FEM_IWG_Nonlocal_Bulk.hpp"
 #include "cl_FEM_IWG_Nonlocal_Interface.hpp"
@@ -84,6 +84,8 @@
 #include "cl_FEM_IWG_FS_Struc_Interface.hpp"
 // Time continuity
 #include "cl_FEM_IWG_Time_Continuity_Dof.hpp"
+// Geometric Stiffness
+#include "cl_FEM_IWG_Isotropic_Struc_Nonlinear_Geometric_Stiffness.hpp"
 // Turbulence
 #include "cl_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.hpp"
 #include "cl_FEM_IWG_Spalart_Allmaras_Turbulence_Dirichlet.hpp"
@@ -197,19 +199,19 @@ namespace moris
                 case IWG_Type::STRUC_LINEAR_INTERFACE_UNSYMMETRIC_NITSCHE:
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Interface >( 1 );
 
-                case IWG_Type::Struc_Linear_Interface_SLM_Constraint :
+                case IWG_Type::Struc_Linear_Interface_SLM_Constraint:
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Interface_SLM_Constraint >();
 
-                case IWG_Type::Struc_Linear_Interface_SLM_L2 :
+                case IWG_Type::Struc_Linear_Interface_SLM_L2:
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Interface_SLM_L2 >();
 
-                case IWG_Type::Struc_Linear_Interface_SLM_Mixed :
+                case IWG_Type::Struc_Linear_Interface_SLM_Mixed:
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Interface_SLM_Mixed >();
 
-                case IWG_Type::Struc_Linear_Interface_SLM_LMJump :
+                case IWG_Type::Struc_Linear_Interface_SLM_LMJump:
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Interface_SLM_LMJump >();
 
-                case IWG_Type::STRUC_LINEAR_NEUMANN :
+                case IWG_Type::STRUC_LINEAR_NEUMANN:
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Neumann >();
 
                 case IWG_Type::STRUC_LINEAR_VW_GHOST:
@@ -249,6 +251,9 @@ namespace moris
 
                 case IWG_Type::STRUC_NON_LINEAR_BULK_SE:
                     return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Bulk >( CM_Function_Type::PK2, CM_Function_Type::LAGRANGIAN );
+
+                case IWG_Type::STRUC_NON_LINEAR_GEOMETRIC_STIFFNESS:
+                    return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Geometric_Stiffness >( CM_Function_Type::PK2, CM_Function_Type::LAGRANGIAN );
 
                 case IWG_Type::STRUC_NON_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE_SE:
                     return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Dirichlet >( CM_Function_Type::PK2, CM_Function_Type::LAGRANGIAN, -1 );
@@ -428,4 +433,3 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-

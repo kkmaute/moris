@@ -189,10 +189,10 @@ Eigen_Solver_SLEPc::solve_linear_system(
 
         mEigenValues.push_back( tEigenValueReal );
 
-        if(aLinearSystem->get_solver_input() not_eq nullptr)
+        if ( aLinearSystem->get_solver_input() not_eq nullptr )
         {
-        std::shared_ptr< Vector< real > > &tEigenValues = aLinearSystem->get_solver_input()->get_eigen_values();
-        tEigenValues->push_back( tEigenValueReal );
+            std::shared_ptr< Vector< real > > &tEigenValues = aLinearSystem->get_solver_input()->get_eigen_values();
+            tEigenValues->push_back( tEigenValueReal );
         }
     }
 
@@ -208,7 +208,7 @@ Eigen_Solver_SLEPc::solve_linear_system(
         MatCreateVecs( aLinearSystem->get_matrix()->get_petsc_matrix(), NULL, &tSourceVec );
         EPSGetEigenvector( mEps, iEigenIndex, tSourceVec, NULL );
 
-        tDestinationVector->import_local_to_global( tSourceVec,iEigenIndex  );
+        tDestinationVector->import_local_to_global( tSourceVec, iEigenIndex );
     }
 
 
@@ -234,6 +234,12 @@ Eigen_Solver_SLEPc::determine_problem_type( Linear_Problem *aLinearSystem )
         return tAssumeSymmetric ? EPS_HEP : EPS_NHEP;
     }
     else if ( tRHSType == "MassMat" )
+    {
+        aLinearSystem->assemble_rhs_matrix();
+        EPSSetOperators( mEps, aLinearSystem->get_matrix()->get_petsc_matrix(), aLinearSystem->get_mass_matrix()->get_petsc_matrix() );
+        return tAssumeSymmetric ? EPS_GHEP : EPS_GNHEP;
+    }
+    else if ( tRHSType == "GeomStiffMat" )
     {
         aLinearSystem->assemble_rhs_matrix();
         EPSSetOperators( mEps, aLinearSystem->get_matrix()->get_petsc_matrix(), aLinearSystem->get_mass_matrix()->get_petsc_matrix() );
@@ -441,17 +447,17 @@ void Eigen_Solver_SLEPc::set_eps_type_and_params()
         EPSSetType( mEps, EPSLAPACK );
         if ( tUseDefualt ) return;
     }
-    else if( tSolverType == "arpack")
+    else if ( tSolverType == "arpack" )
     {
         EPSSetType( mEps, EPSARPACK );
         if ( tUseDefualt ) return;
     }
-    else if( tSolverType == "lapack")
+    else if ( tSolverType == "lapack" )
     {
         EPSSetType( mEps, EPSLAPACK );
         if ( tUseDefualt ) return;
     }
-    else if ( tSolverType == "lyapii")
+    else if ( tSolverType == "lyapii" )
     {
         EPSSetType( mEps, EPSLYAPII );
         if ( tUseDefualt ) return;

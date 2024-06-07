@@ -85,6 +85,7 @@ namespace moris
             STRUC_VON_MISES_STRESS,
 
             STRUC_NON_LINEAR_BULK_SE,                                    // nonlinear elasticity bulk, based on S and E work conjugates
+            STRUC_NON_LINEAR_GEOMETRIC_STIFFNESS,                        // nonlinear elasticity bulk, geometric stiffness matrix
             STRUC_NON_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE_SE,             // nonlinear elasticity sym Dirichlet (Nitsche), based on S and E work conjugates
             STRUC_NON_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE_SE,           // nonlinear elasticity nonsym Dirichlet (Nitsche), based on S and E work conjugates
             STRUC_NON_LINEAR_INTERFACE_SYMMETRIC_NITSCHE_SE,             // nonlinear elasticity sym Interface (Nitsche), based on S and E work conjugates
@@ -137,6 +138,7 @@ namespace moris
 
             FS_STRUC_INTERFACE,
             TIME_CONTINUITY_DOF,
+
             SPALART_ALLMARAS_TURBULENCE_BULK,
             SPALART_ALLMARAS_TURBULENCE_DIRICHLET_SYMMETRIC_NITSCHE,
             SPALART_ALLMARAS_TURBULENCE_DIRICHLET_UNSYMMETRIC_NITSCHE,
@@ -407,6 +409,7 @@ namespace moris
             INV_LEFT_CAUCHY_GREEN,
             LAGRANGIAN,
             EULERIAN,
+            INFINITESIMAL,
             END_CM_FUNCTION_TYPE
         };
 
@@ -417,6 +420,7 @@ namespace moris
             DEFAULT,
             TIME_CONTINUITY_ONLY,
             NO_TIME_CONTINUITY,
+            GEOMETRIC_STIFFNESS_ONLY,
             END_TIME_CONTINUITY_FLAG,
         };
 

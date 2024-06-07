@@ -41,14 +41,14 @@ namespace moris
             Constitutive_Model::reset_eval_flags();
 
             // reset the deformation related flags
-            mDefGradEval   = true;
+            mDefGradEval      = true;
             mRCGStrainEval    = true;
             mInvRCGStrainEval = true;
             mLCGStrainEval    = true;
             mInvLCGStrainEval = true;
-            mLGStrainEval  = true;
-            mEAStrainEval  = true;
-            mDGStrainEval  = true;
+            mLGStrainEval     = true;
+            mEAStrainEval     = true;
+            mDGStrainEval     = true;
 
             mTestDefGradEval = true;
             mdDefGradduEval.fill( true );
@@ -92,6 +92,8 @@ namespace moris
             md1PKTestTractionduEval.fill( true );
             md2PKTestTractionduEval.fill( true );
             mdCauchyTestTractionduEval.fill( true );
+
+            mGeometricStiffnessEval.fill( true );
         }
 
         //------------------------------------------------------------------------------
@@ -132,6 +134,8 @@ namespace moris
             md1PKTestTractionduEval.set_size( tNumDirectDofTypes, tNumGlobalDofTypes, true );
             md2PKTestTractionduEval.set_size( tNumDirectDofTypes, tNumGlobalDofTypes, true );
             mdCauchyTestTractionduEval.set_size( tNumDirectDofTypes, tNumGlobalDofTypes, true );
+
+            mGeometricStiffnessEval.set_size( tNumGlobalDofTypes, 1, true );
 
             // init deformation related storage
             mdDefGraddu.resize( tNumGlobalDofTypes );
@@ -227,7 +231,7 @@ namespace moris
                     m_eval_volume_change_jacobian                    = &CM_Struc_Nonlinear_Isotropic::eval_volume_change_jacobian_2d;
                     m_eval_test_deformation_gradient                 = &CM_Struc_Nonlinear_Isotropic::eval_test_deformation_gradient_2d;
                     m_eval_inv_right_cauchy_green_deformation_tensor = &CM_Struc_Nonlinear_Isotropic::eval_inv_right_cauchy_green_deformation_tensor_2d;
-                    m_eval_inv_left_cauchy_green_deformation_tensor = &CM_Struc_Nonlinear_Isotropic::eval_inv_left_cauchy_green_deformation_tensor_2d;
+                    m_eval_inv_left_cauchy_green_deformation_tensor  = &CM_Struc_Nonlinear_Isotropic::eval_inv_left_cauchy_green_deformation_tensor_2d;
 
                     m_eval_dLGStraindDOF = &CM_Struc_Nonlinear_Isotropic::eval_dLGStraindDOF_2d;
                     m_eval_dEAStraindDOF = &CM_Struc_Nonlinear_Isotropic::eval_dEAStraindDOF_2d;
@@ -258,7 +262,7 @@ namespace moris
                     m_eval_volume_change_jacobian                    = &CM_Struc_Nonlinear_Isotropic::eval_volume_change_jacobian_3d;
                     m_eval_test_deformation_gradient                 = &CM_Struc_Nonlinear_Isotropic::eval_test_deformation_gradient_3d;
                     m_eval_inv_right_cauchy_green_deformation_tensor = &CM_Struc_Nonlinear_Isotropic::eval_inv_right_cauchy_green_deformation_tensor_3d;
-                    m_eval_inv_left_cauchy_green_deformation_tensor = &CM_Struc_Nonlinear_Isotropic::eval_inv_left_cauchy_green_deformation_tensor_3d;
+                    m_eval_inv_left_cauchy_green_deformation_tensor  = &CM_Struc_Nonlinear_Isotropic::eval_inv_left_cauchy_green_deformation_tensor_3d;
 
                     m_eval_dLGStraindDOF = &CM_Struc_Nonlinear_Isotropic::eval_dLGStraindDOF_3d;
                     m_eval_dEAStraindDOF = &CM_Struc_Nonlinear_Isotropic::eval_dEAStraindDOF_3d;
@@ -899,7 +903,7 @@ namespace moris
         {
             MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::eval_testStrain_eulerian_almansi_strain - Unknown strain type." );
         }
-        
+
         //------------------------------------------------------------------------------
 
         const Matrix< DDRMat >&
@@ -1644,7 +1648,7 @@ namespace moris
         const Matrix< DDRMat >&
         CM_Struc_Nonlinear_Isotropic::dFluxdDOF(
                 const Vector< MSI::Dof_Type >& aDofType,
-                enum CM_Function_Type               aCMFunctionType )
+                enum CM_Function_Type          aCMFunctionType )
         {
             // get the dof index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
@@ -1776,8 +1780,8 @@ namespace moris
         const Matrix< DDRMat >&
         CM_Struc_Nonlinear_Isotropic::dTractiondDOF(
                 const Vector< MSI::Dof_Type >& aDofType,
-                const Matrix< DDRMat >&             aNormal,
-                enum CM_Function_Type               aCMFunctionType )
+                const Matrix< DDRMat >&        aNormal,
+                enum CM_Function_Type          aCMFunctionType )
         {
             // get the dof index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
@@ -1842,9 +1846,9 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Struc_Nonlinear_Isotropic::testTraction(
-                const Matrix< DDRMat >&             aNormal,
+                const Matrix< DDRMat >&        aNormal,
                 const Vector< MSI::Dof_Type >& aTestDofTypes,
-                enum CM_Function_Type               aCMFunctionType )
+                enum CM_Function_Type          aCMFunctionType )
         {
             // get test dof type index
             uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
@@ -1910,10 +1914,10 @@ namespace moris
         const Matrix< DDRMat >&
         CM_Struc_Nonlinear_Isotropic::dTestTractiondDOF(
                 const Vector< MSI::Dof_Type >& aDofTypes,
-                const Matrix< DDRMat >&             aNormal,
-                const Matrix< DDRMat >&             aJump,
+                const Matrix< DDRMat >&        aNormal,
+                const Matrix< DDRMat >&        aJump,
                 const Vector< MSI::Dof_Type >& aTestDofTypes,
-                enum CM_Function_Type               aCMFunctionType )
+                enum CM_Function_Type          aCMFunctionType )
         {
             // get the test dof index
             uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
@@ -1973,6 +1977,42 @@ namespace moris
                 {
                     MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::dTestTractiondDOF - Unknown stress type." );
                     return mdTestTractiondDof( tTestDofIndex )( tDofIndex );
+                }
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+
+        const Matrix< DDRMat >&
+        CM_Struc_Nonlinear_Isotropic::GeometricStiffness(
+                const Vector< MSI::Dof_Type >& aDofTypes,
+                enum CM_Function_Type          aCMFunctionType )
+        {
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            switch ( aCMFunctionType )
+            {
+                // second Piola-Kirchhoff stress
+                case CM_Function_Type::PK2:
+                {
+                    // if the derivative of the test traction based on second Piola_Kirchhoff stress was not evaluated
+                    if ( mGeometricStiffnessEval( tDofIndex ) )
+                    {
+                        // evaluate the traction based on second Piola_Kirchhoff stress
+                        this->eval_geometric_stiffness_second_piola_kirchhoff( aDofTypes );
+
+                        // set bool for evaluation
+                        mGeometricStiffnessEval( tDofIndex ) = false;
+                    }
+                    // return the traction based on second Piola_Kirchhoff stress
+                    return mGeometricStiffness;
+                }
+                default:
+                {
+                    MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::GeometricStiffness - Only PK2 implemented." );
+                    return mGeometricStiffness;
                 }
             }
         }
