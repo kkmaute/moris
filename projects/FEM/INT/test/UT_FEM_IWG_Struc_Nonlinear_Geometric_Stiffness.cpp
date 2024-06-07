@@ -36,8 +36,7 @@
 using namespace moris;
 using namespace fem;
 
-TEST_CASE( "IWG_Struc_NL_Elasticity_Geometric_Stiffness",
-        "[moris],[fem],[IWG_Struc_NL_Elasticity_Geometric_Stiffness]" )
+void Geometric_Stiffness_Test( const std::string& aStressType )
 {
     // init geometry inputs
     //------------------------------------------------------------------------------
@@ -75,8 +74,16 @@ TEST_CASE( "IWG_Struc_NL_Elasticity_Geometric_Stiffness",
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMLeaderStrucNonlinIso =
-            tCMFactory.create_CM( Constitutive_Type::STRUC_NON_LIN_ISO_SAINT_VENANT_KIRCHHOFF );
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderStrucNonlinIso;
+
+    if ( aStressType == "PK2" )
+    {
+        tCMLeaderStrucNonlinIso = tCMFactory.create_CM( Constitutive_Type::STRUC_NON_LIN_ISO_SAINT_VENANT_KIRCHHOFF );
+    }
+    else
+    {
+        tCMLeaderStrucNonlinIso = tCMFactory.create_CM( Constitutive_Type::STRUC_LIN_ISO );
+    }
     tCMLeaderStrucNonlinIso->set_dof_type_list( { tDispDofTypes } );
     tCMLeaderStrucNonlinIso->set_property( tPropEMod, "YoungsModulus" );
     tCMLeaderStrucNonlinIso->set_property( tPropNu, "PoissonRatio" );
@@ -110,8 +117,7 @@ TEST_CASE( "IWG_Struc_NL_Elasticity_Geometric_Stiffness",
     tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
 
     // loop on the space dimension
-    // FIXME - implement 3D   for ( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
-    for ( uint iSpaceDim = 2; iSpaceDim < 3; iSpaceDim++ )
+    for ( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
     {
         // set geometry inputs
         //------------------------------------------------------------------------------
@@ -142,8 +148,7 @@ TEST_CASE( "IWG_Struc_NL_Elasticity_Geometric_Stiffness",
         tCMLeaderStrucNonlinIso->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
-        // FIXME  - implement higher order     for ( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
-        for ( uint iInterpOrder = 1; iInterpOrder < 2; iInterpOrder++ )
+        for ( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
         {
             // create an interpolation order
             mtk::Interpolation_Order tGIInterpolationOrder = tInterpolationOrders( iInterpOrder - 1 );
@@ -284,12 +289,27 @@ TEST_CASE( "IWG_Struc_NL_Elasticity_Geometric_Stiffness",
                 tIWG->compute_jacobian( tWStar );
             }
 
-            print( tIWG->mSet->mJacobian, "Geometric Stiffness Matrix" );
+            // FIXME - needs more specific check against reference solution
+            CHECK( isfinite( tIWG->mSet->mJacobian ) );
 
             // clean up
             tLeaderFIs.clear();
         }
     }
+}
 
-    //---------------------------------------------------------------------------------------------
-} /* END_TEST_CASE */
+//---------------------------------------------------------------------------------------------
+
+TEST_CASE( "IWG_Struc_NL_Elasticity_Geometric_Stiffness_Linear_Stress",
+        "[moris],[fem],[IWG_Struc_NL_Elasticity_Geometric_Stiffness]" )
+{
+    Geometric_Stiffness_Test( "Linear" );
+}
+
+//---------------------------------------------------------------------------------------------
+
+TEST_CASE( "IWG_Struc_NL_Elasticity_Geometric_Stiffness_PK2_Stress",
+        "[moris],[fem],[IWG_Struc_NL_Elasticity_Geometric_Stiffness]" )
+{
+    Geometric_Stiffness_Test( "PK2" );
+}
