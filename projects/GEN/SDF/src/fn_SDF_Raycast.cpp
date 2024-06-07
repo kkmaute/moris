@@ -125,7 +125,7 @@ namespace moris::sdf
         // remove intersection locations that are behind the point
         for ( int iIntersection = tIntersectionCoordinates.size() - 1; iIntersection > -1; iIntersection-- )
         {
-            if ( tIntersectionCoordinates( iIntersection ) < 0.0 )
+            if ( tIntersectionCoordinates( iIntersection ) < aPoint( aAxis ) )
             {
                 tIntersectionCoordinates.erase( iIntersection );
                 aIntersectedFacets.erase( iIntersection );

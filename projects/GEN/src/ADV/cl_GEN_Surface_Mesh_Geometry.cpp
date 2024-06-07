@@ -228,7 +228,7 @@ namespace moris::gen
         // augment with zero if 2D
         if ( tParentVector.numel() == 2 )
         {
-            tParentVector.resize( 3, 1 );
+            tParentVector.reshape( 3, 1 );
         }
 
         real tParentVectorNorm = norm( tParentVector );
@@ -269,17 +269,17 @@ namespace moris::gen
         }
 
         // rotate the object
-        this->rotate( -tRotationMatrix );
+        this->rotate( tRotationMatrix );
 
         // Compute the distance to the facets
-        Matrix< DDRMat >      tCastPoint = -tRotationMatrix * trans( aFirstParentNode.get_global_coordinates() );
+        Matrix< DDRMat >      tCastPoint = tRotationMatrix * trans( aFirstParentNode.get_global_coordinates() );
         Vector< sdf::Facet* > tIntersectionFacets;
         Vector< real >        tLocalCoordinate = sdf::compute_distance_to_facets( *this, tCastPoint, 0, tIntersectionFacets );
 
         // Put the intersections in the local coordinate frame
         for ( uint iIntersection = 0; iIntersection < tLocalCoordinate.size(); iIntersection++ )
         {
-            tLocalCoordinate( iIntersection ) = 2.0 / norm( aSecondParentNode.get_global_coordinates() - aFirstParentNode.get_global_coordinates() ) * tLocalCoordinate( iIntersection ) - 1.0;
+            tLocalCoordinate( iIntersection ) = 2.0 / norm( aSecondParentNode.get_global_coordinates() - aFirstParentNode.get_global_coordinates() ) * ( tLocalCoordinate( iIntersection ) - tCastPoint( 0 ) ) - 1.0;
         }
 
         // reset the object to the vertex coordinates at the current design iteration

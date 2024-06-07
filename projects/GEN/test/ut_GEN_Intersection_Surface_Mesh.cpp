@@ -18,6 +18,9 @@
 #include "cl_GEN_Design_Factory.hpp"
 #include "fn_GEN_create_simple_mesh.hpp"
 #include "cl_GEN_Intersection_Node.hpp"
+#include "fn_PRM_GEN_Parameters.hpp"
+#include "cl_GEN_Background_Node.hpp"
+#include "cl_GEN_Parent_Node.hpp"
 
 #include "cl_HMR.hpp"
 #include "cl_HMR_Mesh.hpp"
@@ -25,13 +28,20 @@
 #include "cl_HMR_Mesh_Integration.hpp"
 #include "fn_PRM_HMR_Parameters.hpp"
 
-#include "fn_PRM_GEN_Parameters.hpp"
+#include "fn_check_equal.hpp"
 
-#include "cl_GEN_Background_Node.hpp"
-#include "cl_GEN_Parent_Node.hpp"
 
 namespace moris::gen
 {
+    //--------------------------------------------------------------------------------------------------------------
+
+    static Vector< Matrix< DDRMat > > tQuadParametricCoordinates = {
+        { { -1.0, -1.0 } },
+        { { 1.0, -1.0 } },
+        { { 1.0, 1.0 } },
+        { { -1.0, 1.0 } }
+    };
+
     //--------------------------------------------------------------------------------------------------------------
 
     TEST_CASE( "Surface Mesh Intersections", "[gen], [pdv], [intersection], [surface mesh intersection]" )
@@ -129,14 +139,14 @@ namespace moris::gen
             Matrix< DDRMat > tADVs = { {} };
 
             // surface mesh
-            Parameter_List tRhombusParameterList = prm::create_surface_mesh_geometry_parameter_list();
-            tRhombusParameterList.set( "file_path", tMorisRoot + "projects/GEN/test/data/triangle_sensitivity_oblique.obj" );
-            tRhombusParameterList.set( "intersection_tolerance", 1e-9 );
+            Parameter_List tSurfaceMeshParameterList = prm::create_surface_mesh_geometry_parameter_list();
+            tSurfaceMeshParameterList.set( "file_path", tMorisRoot + "projects/GEN/test/data/triangle_sensitivity_oblique.obj" );
+            tSurfaceMeshParameterList.set( "intersection_tolerance", 1e-9 );
 
             // Create geometry engine
             Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mADVs = tADVs;
-            Design_Factory tDesignFactory( { tRhombusParameterList }, tADVs );
+            Design_Factory tDesignFactory( { tSurfaceMeshParameterList }, tADVs );
             tGeometryEngineParameters.mGeometries = tDesignFactory.get_geometries();
             Geometry_Engine tGeometryEngine( tMesh, tGeometryEngineParameters );
 
@@ -147,33 +157,79 @@ namespace moris::gen
             };
 
             // Intersection local coordinates solutions
-            Matrix< DDRMat > tIntersectionLocalCoordinates = { { 0.5, 0.5625, -0.8333333 } };
+            Matrix< DDRMat > tIntersectionLocalCoordinates = { { 0.5, 0.5625, -5.0 / 6.0, -0.5625 } };
 
             // Intersection global coordinates solutions
             Vector< Matrix< DDRMat > > tIntersectionGlobalCoordinates = {
                 { { 0.75, 0.0 } },
                 { { 1.0, 0.78125 } },
-                { { 1.083333, 0.0 } }
+                { { 13.0 / 12.0, 0.0 } },
+                { { 1.0, 0.78125 } }
             };
 
+            uint tIntersectionCount = 0;
             for ( uint iElementIndex = 0; iElementIndex < 2; iElementIndex++ )
             {
                 // Node indices per element
                 Matrix< IndexMat > tSignedNodeIndices = tMesh->get_nodes_connected_to_element_loc_inds( iElementIndex );
+                Matrix< DDUMat >   tNodeIndices( 4, 1 );
+                for ( uint iNode = 0; iNode < 4; iNode++ )
+                {
+                    tNodeIndices( iNode ) = tSignedNodeIndices( iNode );
+                }
 
                 for ( uint iNodeNumber = 0; iNodeNumber < 4; iNodeNumber++ )
                 {
-                    // Node coordinates
+                    // // Node coordinates
                     Matrix< DDRMat > tFirstNodeCoordinates  = tMesh->get_node_coordinate( tSignedNodeIndices( iNodeNumber ) );
-                    Matrix< DDRMat > tSecondNodeCoordinates = tMesh->get_node_coordinate( tSignedNodeIndices( ( iNodeNumber + 1 ) % 4 ) );
+                    Matrix< DDRMat > tSecondNodeCoordinates = tMesh->get_node_coordinate( tSignedNodeIndices( ( iNodeNumber + 1 ) % 4 ) ); // BRENDAN DELETE
 
+                    // Get the geometry engine result
                     bool tIntersected = tGeometryEngine.is_intersected_by_active_geometry( { { tSignedNodeIndices( iNodeNumber ), tSignedNodeIndices( ( iNodeNumber + 1 ) % 4 ) } } );
 
-                    CHECK( tIntersected == tIsEdgeIntersected( iElementIndex )( iNodeNumber ) );
+                    // check that these are equal
+                    REQUIRE( tIntersected == tIsEdgeIntersected( iElementIndex )( iNodeNumber ) );
+
+                    // Check queued intersection
+                    if ( tIntersected )
+                    {
+                        // Queue intersection
+                        bool tQueryIntersected = tGeometryEngine.queue_intersection(
+                                tSignedNodeIndices( iNodeNumber ),
+                                tSignedNodeIndices( ( iNodeNumber + 1 ) % 4 ),
+                                tQuadParametricCoordinates( iNodeNumber ),
+                                tQuadParametricCoordinates( ( iNodeNumber + 1 ) % 4 ),
+                                tNodeIndices,
+                                mtk::Geometry_Type::QUAD,
+                                mtk::Interpolation_Order::LINEAR );
+
+                        // Check that the query was successful
+                        CHECK( tQueryIntersected == tIsEdgeIntersected( iElementIndex )( iNodeNumber ) );
+
+                        // Check parents
+                        bool tFirstParentOnInterface  = false;
+                        bool tSecondParentOnInterface = false;
+
+                        CHECK( tGeometryEngine.queued_intersection_first_parent_on_interface() == tFirstParentOnInterface );
+                        CHECK( tGeometryEngine.queued_intersection_second_parent_on_interface() == tSecondParentOnInterface );
+
+                        // See if local coordinate is a number
+                        real tLocalCoordinate = tGeometryEngine.get_queued_intersection_local_coordinate();
+
+                        // Ensure the local coordinate is a number
+                        REQUIRE( !std::isnan( tLocalCoordinate ) );
+
+                        CHECK( tLocalCoordinate == Approx( tIntersectionLocalCoordinates( tIntersectionCount ) ).margin( 1e-9 ) );
+
+                        // Check global coordinates
+                        CHECK_EQUAL( tGeometryEngine.get_queued_intersection_global_coordinates(), tIntersectionGlobalCoordinates( tIntersectionCount ), );
+
+                        // Admit intersection
+                        tGeometryEngine.admit_queued_intersection();
+                        tIntersectionCount++;
+                    }
                 }
             }
         }
     }
-    //--------------------------------------------------------------------------------------------------------------
-
 }    // namespace moris::gen
