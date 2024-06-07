@@ -218,19 +218,68 @@ namespace moris::gen
             const Parent_Node&                aSecondParentNode,
             sdf::Facet*&                      aParentFacet )
     {
-        // transform the interface geometry to local coordinates
-        this->transform_surface_mesh_to_local_coordinate( aFirstParentNode, aSecondParentNode );
+        // ------------------------------------------------------
+        // STEP 1: Rotate the surface mesh so the parent edge is aligned with the x-axis
+        // ------------------------------------------------------
+
+        // Get the unit vector from the first parent to the second parent
+        Matrix< DDRMat > tParentVector = aSecondParentNode.get_global_coordinates() - aFirstParentNode.get_global_coordinates();
+
+        // augment with zero if 2D
+        if ( tParentVector.numel() == 2 )
+        {
+            tParentVector.resize( 3, 1 );
+        }
+
+        real tParentVectorNorm = norm( tParentVector );
+
+        tParentVector = tParentVector / tParentVectorNorm;
+
+        // Initialize rotation matrix
+        Matrix< DDRMat > tRotationMatrix( 3, 1 );
+        Matrix< DDRMat > tCastAxis = { { 1.0 }, { 0.0 }, { 0.0 } };
+
+        // If the parent vector is in the -x direction, make the rotation matrix a relfection about the yz plane
+        if ( norm( tParentVector + tCastAxis ) < this->get_intersection_tolerance() )
+        {
+            tRotationMatrix = { { -1.0, 0.0, 0.0 }, { 0.0, 1.0, 0.0 }, { 0.0, 0.0, 1.0 } };
+        }
+        // otherwise compute the rotation matrix with Rodrigues' rotation formula
+        else
+        {
+            Matrix< DDRMat > tAntisymmetricCrossProduct = { { 0, tParentVector( 1 ), tParentVector( 2 ) },
+                { -tParentVector( 1 ), 0.0, 0.0 },
+                { -tParentVector( 2 ), 0.0, 0.0 } };
+
+            Matrix< DDRMat > tAntisymmetricCrossProductSquared = { { -std::pow( tParentVector( 1 ), 2 ) - std::pow( tParentVector( 2 ), 2 ), 0.0, 0.0 },
+                { 0.0, -std::pow( tParentVector( 1 ), 2 ), -tParentVector( 1 ) * tParentVector( 2 ) },
+                { 0.0, -tParentVector( 1 ) * tParentVector( 2 ), -std::pow( tParentVector( 2 ), 2 ) } };
+
+            tRotationMatrix = eye( 3, 3 ) + tAntisymmetricCrossProduct + ( 1 / ( 1 + tParentVector( 0 ) ) ) * tAntisymmetricCrossProductSquared;
+        }
+
+        // check that the rotation matrix is correct by ensuring the parent vector was rotated to the x axis
+        MORIS_ASSERT( norm( tRotationMatrix * tParentVector - tCastAxis ) < this->get_intersection_tolerance(),
+                "Rotation matrix should rotate the parent vector to the x axis." );
+
+        // trim the transformation matrix if 2D
+        if ( Object::mDimension == 2 )
+        {
+            tRotationMatrix.resize( 2, 2 );
+        }
+
+        // rotate the object
+        this->rotate( -tRotationMatrix );
 
         // Compute the distance to the facets
-        Matrix< DDRMat > tCastPoint( Object::mDimension, 1 );
-        tCastPoint.fill( 0.0 );
+        Matrix< DDRMat >      tCastPoint = -tRotationMatrix * trans( aFirstParentNode.get_global_coordinates() );
         Vector< sdf::Facet* > tIntersectionFacets;
         Vector< real >        tLocalCoordinate = sdf::compute_distance_to_facets( *this, tCastPoint, 0, tIntersectionFacets );
 
-        // shift local coordinate to be between -1 and 1
+        // Put the intersections in the local coordinate frame
         for ( uint iIntersection = 0; iIntersection < tLocalCoordinate.size(); iIntersection++ )
         {
-            tLocalCoordinate( iIntersection ) += -1.0;
+            tLocalCoordinate( iIntersection ) = 2.0 / norm( aSecondParentNode.get_global_coordinates() - aFirstParentNode.get_global_coordinates() ) * tLocalCoordinate( iIntersection ) - 1.0;
         }
 
         // reset the object to the vertex coordinates at the current design iteration
@@ -269,16 +318,18 @@ namespace moris::gen
             const Parent_Node& aFirstParentNode,
             const Parent_Node& aSecondParentNode )
     {
+
+        // BRENDAN DEPRECATED?
         // STEP 1: shift the object so the first parent is at the origin
-        Matrix< DDRMat > tFirstParentNodeGlobalCoordinates = aFirstParentNode.get_global_coordinates();
-        Vector< real >   tShift( Object::mDimension );
-        MORIS_ASSERT( tFirstParentNodeGlobalCoordinates.numel() == tShift.size(),
-                "Intersection Node Surface Mesh::transform_mesh_to_local_coordinates() inconsistent parent node and interface geometry dimensions." );
-        for ( uint iCoord = 0; iCoord < tShift.size(); iCoord++ )
-        {
-            tShift( iCoord ) = -1.0 * tFirstParentNodeGlobalCoordinates( iCoord );
-        }
-        this->shift( tShift );
+        // Matrix< DDRMat > tFirstParentNodeGlobalCoordinates = aFirstParentNode.get_global_coordinates();
+        // Vector< real >   tShift( Object::mDimension );
+        // MORIS_ASSERT( tFirstParentNodeGlobalCoordinates.numel() == tShift.size(),
+        //         "Intersection Node Surface Mesh::transform_mesh_to_local_coordinates() inconsistent parent node and interface geometry dimensions." );
+        // for ( uint iCoord = 0; iCoord < tShift.size(); iCoord++ )
+        // {
+        //     tShift( iCoord ) = -1.0 * tFirstParentNodeGlobalCoordinates( iCoord );
+        // }
+        // this->shift( tShift );
 
         // STEP 2: rotate the object
         // get unit axis to rotate to
@@ -295,8 +346,7 @@ namespace moris::gen
 
         tParentVector = tParentVector / tParentVectorNorm;
 
-        // create vector orthogonal to parent vector and cast axis
-        // in 2D, this vector is the z axis
+        // Initialize matrix
         Matrix< DDRMat > tRotationMatrix( 3, 1 );
         Matrix< DDRMat > tCastAxis = { { 1.0 }, { 0.0 }, { 0.0 } };
 
@@ -328,11 +378,11 @@ namespace moris::gen
         }
 
         // rotate the object
-        this->rotate( tRotationMatrix );
+        this->rotate( -tRotationMatrix );
 
-        // STEP 3: scale the object
-        Vector< real > tScaling( Object::mDimension, 2.0 / tParentVectorNorm );
-        this->scale( tScaling );
+        // // STEP 3: scale the object
+        // Vector< real > tScaling( Object::mDimension, 2.0 / tParentVectorNorm );
+        // this->scale( tScaling );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -376,8 +426,8 @@ namespace moris::gen
         // STEP 3: Update all facet data
         this->update_all_facets();
 
-        // this->write_to_file( mName + "_" + std::to_string( mIteration ) + ".txt" );
-        // mIteration++;
+        this->write_to_file( mName + "_" + std::to_string( mIteration ) + ".txt" );
+        mIteration++;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -623,7 +673,7 @@ namespace moris::gen
             uint tNumVertexSensitivities = tVertexSensitivity.n_cols();
 
             bool tVertexSensitivitySizeDetermined = false;
-            uint tDimensionSensitivitiesAdded = 0;
+            uint tDimensionSensitivitiesAdded     = 0;
 
             // Loop over spatial dimension
             for ( uint iDimensionIndex = 0; iDimensionIndex < Object::mDimension; iDimensionIndex++ )
@@ -639,7 +689,7 @@ namespace moris::gen
                     // set size of sensitivity matrix
                     if ( not tVertexSensitivitySizeDetermined )
                     {
-                        tVertexSensitivity.resize( Object::mDimension, tNumVertexSensitivities + tNumDimsDependOnADVs * tNodeSensitivity.numel()  );
+                        tVertexSensitivity.resize( Object::mDimension, tNumVertexSensitivities + tNumDimsDependOnADVs * tNodeSensitivity.numel() );
                         tVertexSensitivitySizeDetermined = true;
                     }
 
@@ -648,7 +698,7 @@ namespace moris::gen
                     {
                         tVertexSensitivity( iDimensionIndex, tNumVertexSensitivities + tNodeSensitivity.length() * tDimensionSensitivitiesAdded + iADVIndex ) = tNodeSensitivity( iADVIndex );
                     }
-                    
+
                     tDimensionSensitivitiesAdded++;
                 }
             }

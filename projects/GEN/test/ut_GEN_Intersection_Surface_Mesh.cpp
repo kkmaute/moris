@@ -19,6 +19,12 @@
 #include "fn_GEN_create_simple_mesh.hpp"
 #include "cl_GEN_Intersection_Node.hpp"
 
+#include "cl_HMR.hpp"
+#include "cl_HMR_Mesh.hpp"
+#include "cl_HMR_Mesh_Interpolation.hpp"
+#include "cl_HMR_Mesh_Integration.hpp"
+#include "fn_PRM_HMR_Parameters.hpp"
+
 #include "fn_PRM_GEN_Parameters.hpp"
 
 #include "cl_GEN_Background_Node.hpp"
@@ -39,7 +45,7 @@ namespace moris::gen
 
             // create surface mesh geometry
             Matrix< DDRMat > tADVs;
-            Parameter_List tParameters = prm::create_surface_mesh_geometry_parameter_list();
+            Parameter_List   tParameters = prm::create_surface_mesh_geometry_parameter_list();
             tParameters.set( "file_path", moris::get_base_moris_dir() + "projects/GEN/SDF/test/data/rhombus.obj" );
             Surface_Mesh_Parameters                  tSurfaceMeshParameters( tParameters );
             std::shared_ptr< Surface_Mesh_Geometry > tSurfaceMeshPointer = std::make_shared< Surface_Mesh_Geometry >( tMesh, tADVs, tSurfaceMeshParameters );
@@ -90,14 +96,41 @@ namespace moris::gen
             std::string tMorisRoot = moris::get_base_moris_dir();
 
             // Create mesh
-            mtk::Interpolation_Mesh* tMesh = create_simple_mesh( 2, 2 );
+            Parameter_List tHMRParameters = prm::create_hmr_parameter_list();
+
+            tHMRParameters.set( "number_of_elements_per_dimension", "2,1" );
+            tHMRParameters.set( "domain_dimensions", "2, 1" );
+            tHMRParameters.set( "domain_offset", "0.0, 0.0" );
+            tHMRParameters.set( "domain_sidesets", "1,2,3,4" );
+            tHMRParameters.set( "lagrange_output_meshes", "0" );
+
+            tHMRParameters.set( "lagrange_orders", "1" );
+            tHMRParameters.set( "lagrange_pattern", "0" );
+            tHMRParameters.set( "bspline_orders", "1" );
+            tHMRParameters.set( "bspline_pattern", "0" );
+            tHMRParameters.set( "lagrange_to_bspline", "0" );
+
+            tHMRParameters.set( "initial_refinement", "0" );
+            tHMRParameters.set( "truncate_bsplines", 1 );
+            tHMRParameters.set( "refinement_buffer", 1 );
+            tHMRParameters.set( "staircase_buffer", 1 );
+
+            tHMRParameters.set( "severity_level", 2 );
+
+            hmr::HMR tHMR( tHMRParameters );
+
+            // initial refinement
+            tHMR.perform_initial_refinement();
+            tHMR.finalize();
+
+            mtk::Interpolation_Mesh* tMesh = tHMR.create_interpolation_mesh( 0 );
 
             // Set up geometry
             Matrix< DDRMat > tADVs = { {} };
 
             // surface mesh
             Parameter_List tRhombusParameterList = prm::create_surface_mesh_geometry_parameter_list();
-            tRhombusParameterList.set( "file_path", tMorisRoot + "projects/GEN/SDF/test/data/tetrahedron.obj" );
+            tRhombusParameterList.set( "file_path", tMorisRoot + "projects/GEN/test/data/triangle_sensitivity_oblique.obj" );
             tRhombusParameterList.set( "intersection_tolerance", 1e-9 );
 
             // Create geometry engine
@@ -106,6 +139,39 @@ namespace moris::gen
             Design_Factory tDesignFactory( { tRhombusParameterList }, tADVs );
             tGeometryEngineParameters.mGeometries = tDesignFactory.get_geometries();
             Geometry_Engine tGeometryEngine( tMesh, tGeometryEngineParameters );
+
+            // Solution to is_intersected per element, per edge
+            Vector< Vector< bool > > tIsEdgeIntersected = {
+                { true, true, false, false },    // Element 0
+                { true, false, false, true }     // Element 1
+            };
+
+            // Intersection local coordinates solutions
+            Matrix< DDRMat > tIntersectionLocalCoordinates = { { 0.5, 0.5625, -0.8333333 } };
+
+            // Intersection global coordinates solutions
+            Vector< Matrix< DDRMat > > tIntersectionGlobalCoordinates = {
+                { { 0.75, 0.0 } },
+                { { 1.0, 0.78125 } },
+                { { 1.083333, 0.0 } }
+            };
+
+            for ( uint iElementIndex = 0; iElementIndex < 2; iElementIndex++ )
+            {
+                // Node indices per element
+                Matrix< IndexMat > tSignedNodeIndices = tMesh->get_nodes_connected_to_element_loc_inds( iElementIndex );
+
+                for ( uint iNodeNumber = 0; iNodeNumber < 4; iNodeNumber++ )
+                {
+                    // Node coordinates
+                    Matrix< DDRMat > tFirstNodeCoordinates  = tMesh->get_node_coordinate( tSignedNodeIndices( iNodeNumber ) );
+                    Matrix< DDRMat > tSecondNodeCoordinates = tMesh->get_node_coordinate( tSignedNodeIndices( ( iNodeNumber + 1 ) % 4 ) );
+
+                    bool tIntersected = tGeometryEngine.is_intersected_by_active_geometry( { { tSignedNodeIndices( iNodeNumber ), tSignedNodeIndices( ( iNodeNumber + 1 ) % 4 ) } } );
+
+                    CHECK( tIntersected == tIsEdgeIntersected( iElementIndex )( iNodeNumber ) );
+                }
+            }
         }
     }
     //--------------------------------------------------------------------------------------------------------------

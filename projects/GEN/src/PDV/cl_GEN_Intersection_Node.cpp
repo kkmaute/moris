@@ -19,13 +19,13 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Intersection_Node::Intersection_Node(
-            uint                        aNodeIndex,
+            uint                              aNodeIndex,
             const Vector< Background_Node* >& aBackgroundNodes,
-            const Parent_Node&          aFirstParentNode,
-            const Parent_Node&          aSecondParentNode,
-            real                        aLocalCoordinate,
-            mtk::Geometry_Type          aBackgroundGeometryType,
-            mtk::Interpolation_Order    aBackgroundInterpolationOrder )
+            const Parent_Node&                aFirstParentNode,
+            const Parent_Node&                aSecondParentNode,
+            real                              aLocalCoordinate,
+            mtk::Geometry_Type                aBackgroundGeometryType,
+            mtk::Interpolation_Order          aBackgroundInterpolationOrder )
             : Derived_Node(
                     aNodeIndex,
                     aBackgroundNodes,
@@ -163,7 +163,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void Intersection_Node::join_adv_ids(
-            Matrix< DDSMat >&       aCombinedIDs, 
+            Matrix< DDSMat >&       aCombinedIDs,
             const Matrix< DDSMat >& aIDsToAdd )
     {
         // Resize IDs
@@ -179,4 +179,4 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-}    // namespace moris::ge
+}    // namespace moris::gen

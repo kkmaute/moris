@@ -158,9 +158,9 @@ namespace moris
     }
 
     real
-    Facet_Vertex_Factor( const uint aFacetVertexIndex, const Matrix< DDRMat > & aCoordinates, const uint aDimension )
-    {                
-        if ( aFacetVertexIndex == 3  and aDimension == 0 )
+    Facet_Vertex_Factor( const uint aFacetVertexIndex, const Matrix< DDRMat >& aCoordinates, const uint aDimension )
+    {
+        if ( aFacetVertexIndex == 3 and aDimension == 0 )
         {
             return 0.0;
         }

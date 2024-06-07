@@ -28,8 +28,8 @@ namespace moris
         class Dof_Manager
         {
           private:
-            Vector< Pdof_Host* >           mPdofHostList;              // List of all pdof hosts
-            Vector< Adof* >                mAdofList;                  // List of all adofs
+            Vector< Pdof_Host* > mPdofHostList;    // List of all pdof hosts
+            Vector< Adof* >      mAdofList;        // List of all adofs
 
             // outer cell : type-time identifier of adof, inner cell: local index of the adof
             Vector< Vector< Adof* > > mAdofListOwned;    // List of all owned adofs
@@ -37,16 +37,16 @@ namespace moris
             Vector< Vector< Adof* > > mAdofListOwnedAndShared;    // List of all owned and shared adofs
 
             Vector< enum Dof_Type > mPdofTypeList;    // List containing all used unique dof types.
-            Matrix< DDSMat >             mPdofTypeMap;     // Map which maps the unique dof types onto consecutive values.
+            Matrix< DDSMat >        mPdofTypeMap;     // Map which maps the unique dof types onto consecutive values.
 
             Matrix< DDUMat > mPdofHostTimeLevelList;    // List containing the number of time levels per dof type.
             Matrix< DDUMat > mTimeLevelOffsets;         // Type offsets  created through time levels
             Matrix< IdMat >  mCommTable;                // Communication table. As and input from the model.
 
             Model_Solver_Interface* mModelSolverInterface = nullptr;    // Model solver interface pointer
-            
+
             // outer cell : discretization mesh index
-            // inner map: key[first] : adof external id,  value[second] adof id 
+            // inner map: key[first] : adof external id,  value[second] adof id
             // note: adof external id is "one-based" index system while adof id is zero-based
             Vector< moris::map< moris::moris_id, moris::moris_index > > mAdofGlobaltoLocalMap;
 
@@ -118,7 +118,7 @@ namespace moris
             void
             communicate_check_if_owned_adof_exists(
                     Vector< Vector< Adof* > >& tAdofListofTypes,
-                    Matrix< IndexMat > const &           aDiscretizationIndexPerTypeAndTime );
+                    Matrix< IndexMat > const & aDiscretizationIndexPerTypeAndTime );
 
             //------------------------------------------------------------------------------
             /**
@@ -140,9 +140,9 @@ namespace moris
              */
             void communicate_shared_adof_ids(
                     Vector< Vector< Adof* > > const & aAdofListofTypes,
-                    Matrix< IndexMat > const &                  aDiscretizationIndexPerTypeAndTime,
-                    Vector< Matrix< DDUMat > >&            aListSharedAdofIds,
-                    Vector< Matrix< DDUMat > >&            aListSharedAdofPos );
+                    Matrix< IndexMat > const &        aDiscretizationIndexPerTypeAndTime,
+                    Vector< Matrix< DDUMat > >&       aListSharedAdofIds,
+                    Vector< Matrix< DDUMat > >&       aListSharedAdofPos );
 
             //------------------------------------------------------------------------------
             /**
@@ -163,7 +163,7 @@ namespace moris
              */
             void set_owned_adofs_ids(
                     const Vector< Vector< Adof* > >& aAdofListofTypes,
-                    const uint&                                aAdofOffsets );
+                    const uint&                      aAdofOffsets );
 
             //------------------------------------------------------------------------------
             /**
@@ -175,7 +175,7 @@ namespace moris
              */
             void set_owned_adofs_ids_by_type(
                     const Vector< Vector< Adof* > >& aAdofListofTypes,
-                    const uint&                                aAdofOffsets );
+                    const uint&                      aAdofOffsets );
 
             //------------------------------------------------------------------------------
             /**
@@ -188,7 +188,7 @@ namespace moris
              */
             void set_owned_adofs_ids_by_host(
                     const Vector< Vector< Adof* > >& aAdofListofTypes,
-                    const uint&                                aAdofOffsets );
+                    const uint&                      aAdofOffsets );
 
             //------------------------------------------------------------------------------
 

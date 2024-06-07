@@ -188,7 +188,7 @@ namespace moris::gen
         {
             if ( mInterfaceGeometry.facet_vertex_depends_on_advs( iParentFacetVertexIndex ) )
             {
-                Matrix< DDRMat > tDVertexDAdv        = mInterfaceGeometry.get_dvertex_dadv( iParentFacetVertexIndex );    // brendan can delete later and move to next line
+                Matrix< DDRMat > tDVertexDAdv        = mInterfaceGeometry.get_dvertex_dadv( iParentFacetVertexIndex );
                 Matrix< DDRMat > tSensitivitiesToAdd = .5 * aSensitivityFactor * tParentVector * ( trans( tLocalCoordinateFacetVertexSensitivities.get_column( tLocalFacetVertexIndex ) ) * tDVertexDAdv );
 
                 // Resize sensitivities

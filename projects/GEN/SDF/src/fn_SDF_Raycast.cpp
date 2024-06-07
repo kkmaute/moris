@@ -63,10 +63,10 @@ namespace moris::sdf
 
     Vector< real >
     compute_distance_to_facets(
-            Object&           aObject,
-            Matrix< DDRMat >& aPoint,
-            uint              aAxis,
-            Vector< Facet* >& aIntersectedFacets )
+            Object&                 aObject,
+            const Matrix< DDRMat >& aPoint,
+            const uint              aAxis,
+            Vector< Facet* >&       aIntersectedFacets )
     {
         MORIS_ASSERT( aObject.get_dimension() == aPoint.numel(),
                 "SDF-Raycast::compute_distance_to_facets(): Dimension mismatch. Object dimension: %d Point dimension: %lu",
@@ -125,7 +125,7 @@ namespace moris::sdf
         // remove intersection locations that are behind the point
         for ( int iIntersection = tIntersectionCoordinates.size() - 1; iIntersection > -1; iIntersection-- )
         {
-            if ( tIntersectionCoordinates( iIntersection ) < aPoint( aAxis ) )
+            if ( tIntersectionCoordinates( iIntersection ) < 0.0 )
             {
                 tIntersectionCoordinates.erase( iIntersection );
                 aIntersectedFacets.erase( iIntersection );
@@ -134,7 +134,6 @@ namespace moris::sdf
 
         return tIntersectionCoordinates;
     }
-
 
     Object_Region
     voxelize(
@@ -216,9 +215,9 @@ namespace moris::sdf
 
     Vector< uint >
     preselect_triangles(
-            Object&           aObject,
-            Matrix< DDRMat >& aPoint,
-            uint              aAxis )
+            Object&                 aObject,
+            const Matrix< DDRMat >& aPoint,
+            uint                    aAxis )
     {
         // select the axes that are not being cast in to preselect along (for a cast in the i-dir, preselect in j and k-dir)
         uint tFirstAxis;
@@ -402,10 +401,10 @@ namespace moris::sdf
 
     Vector< Facet* >
     intersect_triangles(
-            Vector< uint >&   aCandidateFacets,
-            Object&           aObject,
-            Matrix< DDRMat >& aPoint,
-            uint              aAxis )
+            Vector< uint >&         aCandidateFacets,
+            Object&                 aObject,
+            const Matrix< DDRMat >& aPoint,
+            uint                    aAxis )
     {
 
         // get number of candidate triangles
@@ -528,15 +527,15 @@ namespace moris::sdf
 
             // sort the indices of the array based on the intersection values
             std::sort( tCoordsIndices.begin(), tCoordsIndices.end(), [ &tCoordsK ]( uint i, uint j ) {
-                return tCoordsK( i ) < tCoordsK( j ) ;
-            } ); 
+                return tCoordsK( i ) < tCoordsK( j );
+            } );
 
             // rearrange both tCoordsK and the facets based on the sort
-            Vector< real > tCoordsKSorted( tCoordsK.size() );
+            Vector< real >   tCoordsKSorted( tCoordsK.size() );
             Vector< Facet* > tIntersectedFacetsSorted( aIntersectedFacets.size() );
-            for( uint iIntersectionIndex = 0; iIntersectionIndex < tCoordsK.size(); iIntersectionIndex++)
+            for ( uint iIntersectionIndex = 0; iIntersectionIndex < tCoordsK.size(); iIntersectionIndex++ )
             {
-                tCoordsKSorted( iIntersectionIndex ) = tCoordsK( tCoordsIndices( iIntersectionIndex ) );
+                tCoordsKSorted( iIntersectionIndex )           = tCoordsK( tCoordsIndices( iIntersectionIndex ) );
                 tIntersectedFacetsSorted( iIntersectionIndex ) = aIntersectedFacets( tCoordsIndices( iIntersectionIndex ) );
             }
 
@@ -547,8 +546,8 @@ namespace moris::sdf
             Vector< real > tIntersectionCoords( tCount );
 
             // set first entry
-            tIntersectionCoords( tCountUnique ) = tCoordsKSorted( 0 );
-            aIntersectedFacets( tCountUnique++) = tIntersectedFacetsSorted( 0 );
+            tIntersectionCoords( tCountUnique )  = tCoordsKSorted( 0 );
+            aIntersectedFacets( tCountUnique++ ) = tIntersectedFacetsSorted( 0 );
 
             // find unique entries
             for ( uint k = 1; k < tCount; ++k )
@@ -556,7 +555,7 @@ namespace moris::sdf
                 if ( std::abs( tCoordsKSorted( k ) - tCoordsKSorted( k - 1 ) ) > 10 * MORIS_REAL_EPS )
                 {
                     tIntersectionCoords( tCountUnique ) = tCoordsKSorted( k );
-                    aIntersectedFacets( tCountUnique ) = tIntersectedFacetsSorted( k );
+                    aIntersectedFacets( tCountUnique )  = tIntersectedFacetsSorted( k );
 
                     tCountUnique++;
                 }

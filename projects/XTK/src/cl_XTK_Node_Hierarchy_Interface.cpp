@@ -193,7 +193,7 @@ namespace moris::xtk
         tGeometricQuery.set_associated_vertex_group( aVertexGroups );
 
         mDecompositionData->mHasSecondaryIdentifier = true;
-
+        
         // iterate through the edges in aEdgeConnectivity ask the geometry engine if we are intersected
         for ( uint iEdge = 0; iEdge < tNumEdges; iEdge++ )
         {

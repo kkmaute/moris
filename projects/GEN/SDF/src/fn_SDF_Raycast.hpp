@@ -45,10 +45,10 @@ namespace moris::sdf
      */
     Vector< real >
     compute_distance_to_facets(
-            Object&           aObject,
-            Matrix< DDRMat >& aPoint,
-            uint              aAxis,
-            Vector< Facet* >& aIntersectedFacets );
+            Object&                 aObject,
+            const Matrix< DDRMat >& aPoint,
+            const uint              aAxis,
+            Vector< Facet* >&       aIntersectedFacets );
 
     //-------------------------------------------------------------------------------
 
@@ -85,9 +85,9 @@ namespace moris::sdf
      */
     Vector< uint >
     preselect_triangles(
-            Object&           aObject,
-            Matrix< DDRMat >& aPoint,
-            uint              aAxis );
+            Object&                 aObject,
+            const Matrix< DDRMat >& aPoint,
+            uint                    aAxis );
 
     //-------------------------------------------------------------------------------
 
@@ -125,10 +125,10 @@ namespace moris::sdf
      */
     Vector< Facet* >
     intersect_triangles(
-            Vector< uint >&   aCandidateFacets,
-            Object&           aObject,
-            Matrix< DDRMat >& aPoint,
-            uint              aAxis );
+            Vector< uint >&         aCandidateFacets,
+            Object&                 aObject,
+            const Matrix< DDRMat >& aPoint,
+            uint                    aAxis );
 
     //-------------------------------------------------------------------------------
 
