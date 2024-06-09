@@ -65,9 +65,9 @@ get_property(INT_SRC_LIST GLOBAL PROPERTY INT_SRC_LIST)
 get_property(MTK_SRC_LIST GLOBAL PROPERTY MTK_SRC_LIST)
 
 SET(SO_INCLUDES
-	${MORIS_BOOST_INCLUDE_DIRS}
-	${MORIS_TRILINOS_INCLUDE_DIRS}
-	${MORIS_PACKAGE_DIR}/ALG/src
+    ${MORIS_BOOST_INCLUDE_DIRS}
+    ${MORIS_TRILINOS_INCLUDE_DIRS}
+    ${MORIS_PACKAGE_DIR}/ALG/src
     ${INT_SRC_LIST}
     ${MTK_SRC_LIST}
     ${MORIS_PACKAGE_DIR}/FEM/MSI/src 
@@ -91,7 +91,6 @@ foreach(TPL ${SO_TPLS})
     list(APPEND SO_INCLUDES ${MORIS_${TPL}_INCLUDE_DIRS})
 endforeach()
 
-
 # create dynamically linked .so files
 foreach(EXAMPLE_FILE ${EXAMPLE_FILES})
     dynamic_link_input(${EXAMPLE_FILE} ${EXAMPLE_FILE} ${EXAMPLE_FILE}.cpp ${SO_INCLUDES})
@@ -100,7 +99,7 @@ endforeach()
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
     foreach(PROCS ${EXAMPLE_PROCS})
-        add_test(NAME ${EXAMPLE_FILE}-${PROCS}-procs
+        add_test(NAME Column_Buckling-${PROCS}-procs
         COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS_EXA} $<TARGET_FILE:${EXAMPLE_MAIN}>
         WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     endforeach()

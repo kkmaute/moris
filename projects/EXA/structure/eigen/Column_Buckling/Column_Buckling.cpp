@@ -69,10 +69,10 @@ namespace moris
     bool tUsePetsc = true;
 
     // Traction load
-    std::string tTraction = tDim == 3 ? "0.0,-1.0,0.0" : "0.0,-1.0";
+    std::string tTraction = tDim == 3 ? "0.0;-1.0;0.0" : "0.0;-1.0";
 
     // Prescribed displacements
-    std::string tDirichlet = tDim == 3 ? "0.0,0.0,0.0" : "0.0,0.0";
+    std::string tDirichlet = tDim == 3 ? "0.0;0.0;0.0" : "0.0;0.0";
 
     // Number of eigenvectors
     sint tNumEigenVectors = 5;
