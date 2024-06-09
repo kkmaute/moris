@@ -183,7 +183,7 @@ namespace moris
                 }
 
                 // Communicate local criteria
-                communicate_cells( tCommunicationList, tSendVectors, tReceiveVectors );
+                communicate_vectors( tCommunicationList, tSendVectors, tReceiveVectors );
 
                 // Only use necessary info if I was rank 0
                 if ( !tKey )

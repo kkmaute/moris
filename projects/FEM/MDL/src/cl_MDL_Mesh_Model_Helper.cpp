@@ -249,7 +249,7 @@ namespace moris
     {
 //        // Get list containing the number of owned nodes of each processor
 //        Matrix< DDUMat > tNumOwnedNodeList;
-//        comm_gather_and_broadcast( aNumOwnedAdofs, tNumOwnedNodeList );
+//        allgather_scalar( aNumOwnedAdofs, tNumOwnedNodeList );
 //
 //        Matrix< DDUMat > tOwnedANodesOffsetList( tNumOwnedNodeList.length(), 1, 0 );
 //

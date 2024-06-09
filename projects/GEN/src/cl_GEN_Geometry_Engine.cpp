@@ -1275,9 +1275,9 @@ namespace moris::gen
         }
 
         // Communicate mats
-        communicate_cells( tCommunicationList, tSendingIDs, tReceivingIDs );
-        communicate_cells( tCommunicationList, tSendingLowerBounds, tReceivingLowerBounds );
-        communicate_cells( tCommunicationList, tSendingUpperBounds, tReceivingUpperBounds );
+        communicate_vectors( tCommunicationList, tSendingIDs, tReceivingIDs );
+        communicate_vectors( tCommunicationList, tSendingLowerBounds, tReceivingLowerBounds );
+        communicate_vectors( tCommunicationList, tSendingUpperBounds, tReceivingUpperBounds );
         if ( tMesh->get_mesh_type() == mtk::MeshType::HMR )
         {
             communicate_mats( tCommunicationListMat, tSendingijklIDs, tReceivingjklIDs );
@@ -1912,7 +1912,7 @@ namespace moris::gen
                     Vector< Vector< sint > > tOwnedNodeIdsOnSet( tCommunicationTable.size() );
 
                     // Communicate IDs of shared nodes to the owning processor
-                    communicate_cells(
+                    communicate_vectors(
                             tCommunicationTable,
                             tSharedNodeIdsOnSet,
                             tOwnedNodeIdsOnSet );

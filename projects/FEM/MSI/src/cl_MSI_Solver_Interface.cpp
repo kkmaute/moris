@@ -487,7 +487,7 @@ namespace moris
 
             // communicate shared row ids to all neighboring processors
             Vector< Vector< uint > > tSharedRowsIdsReceive;
-            communicate_cells( tCommCell, tSharedRowsIds, tSharedRowsIdsReceive );
+            communicate_vectors( tCommCell, tSharedRowsIds, tSharedRowsIdsReceive );
 
             /* ---------------------------------------------------------------------------------------- */
             /* Step 5: analyze the communicated data based and put in the on and off diagonal parts  */
@@ -646,8 +646,8 @@ namespace moris
             barrier();
 
             // communicate cells
-            communicate_cells( aCommCell, tAdofConnectivitySend, aAdofConnectivityReceive );
-            communicate_cells( aCommCell, tAdofConnectivityOffsetSend, aAdofConnectivityOffsetReceive );
+            communicate_vectors( aCommCell, tAdofConnectivitySend, aAdofConnectivityReceive );
+            communicate_vectors( aCommCell, tAdofConnectivityOffsetSend, aAdofConnectivityOffsetReceive );
         }
 
     }    // namespace MSI

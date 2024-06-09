@@ -337,7 +337,7 @@ Vector_PETSc::extract_copy( Matrix< DDRMat >& LHSValues )
 
     // Get list containing the number of owned adofs of each processor
     Matrix< DDUMat > tNumOwnedList;
-    comm_gather_and_broadcast( tVecLocSize, tNumOwnedList );
+    allgather_scalar( tVecLocSize, tNumOwnedList );
 
     Matrix< DDUMat > tOwnedOffsetList( tNumOwnedList.length(), 1, 0 );
 
@@ -369,7 +369,7 @@ void Vector_PETSc::extract_copy( Vector< real >& aVector )
 
     // Get list containing the number of owned adofs of each processor
     Matrix< DDUMat > tNumOwnedList;
-    comm_gather_and_broadcast( tVecLocSize, tNumOwnedList );
+    allgather_scalar( tVecLocSize, tNumOwnedList );
 
     Matrix< DDUMat > tOwnedOffsetList( tNumOwnedList.length(), 1, 0 );
 

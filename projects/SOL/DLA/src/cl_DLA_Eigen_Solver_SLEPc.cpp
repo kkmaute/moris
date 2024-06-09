@@ -397,7 +397,7 @@ void Eigen_Solver_SLEPc::build_preconditioner( Linear_Problem *aLinearProblem )
 void Eigen_Solver_SLEPc::set_eps_type_and_params()
 {
     std::string tSolverType = mParameterList.get< std::string >( "Eigen_Algorithm" );
-    bool        tUseDefualt = mParameterList.get< bool >( "use_slepc_defualt_params" );
+    bool        tUseDefualt = mParameterList.get< bool >( "use_slepc_default_params" );
 
     if ( tSolverType == "power" )
     {

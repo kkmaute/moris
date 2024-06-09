@@ -11,7 +11,7 @@
 #include <catch.hpp>
 
 #include "moris_typedefs.hpp"    // COR/src
-#include "banner.hpp"      // COR/src
+#include "banner.hpp"            // COR/src
 
 #include "cl_Communication_Tools.hpp"      // COM/src
 #include "cl_Communication_Manager.hpp"    // COM/src
@@ -26,94 +26,8 @@
 
 namespace moris
 {
-    TEST_CASE( "moris::send_mat_to_proc",
-            "[comm]" )
-    {
 
-        /*SECTION( "moris::Mat send and receive test" )
-    {
-        // a vector to be communicated
-        Matrix<DDUMat> tVec;
-
-        // a matrix to be communicated
-        Matrix< DDRMat > tMat;
-
-        // task for first proc
-        if ( moris::par_rank() == 0 )
-        {
-            // create vector to send
-            tVec.resize( 6, 1 );
-            tVec( 0 ) =  4;
-            tVec( 1 ) =  8;
-            tVec( 2 ) = 15;
-            tVec( 3 ) = 16;
-            tVec( 4 ) = 23;
-            tVec( 5 ) = 42;
-
-            // send vector to last proc
-            send_mat_to_proc( tVec, moris::par_size() - 1 );
-
-            // receive matrix from last proc
-            recv_mat_from_proc( tMat, moris::par_size() - 1 );
-        }
-
-        /// task for last proc
-        if ( moris::par_rank() == moris::par_size() - 1 )
-        {
-
-            std::cout<<" last"<<std::endl;
-            // create matrix to send
-            tMat.resize( 3, 2 );
-            tMat( 0, 0 ) =  3;
-            tMat( 1, 0 ) =  5;
-            tMat( 2, 0 ) =  7;
-            tMat( 0, 1 ) = 11;
-            tMat( 1, 1 ) = 13;
-            tMat( 2, 1 ) = 17;
-
-            // create expected solution for vector to receive
-            Matrix<DDUMat> tSolution(6, 1);
-            tSolution( 0 ) =  4;
-            tSolution( 1 ) =  8;
-            tSolution( 2 ) = 15;
-            tSolution( 3 ) = 16;
-            tSolution( 4 ) = 23;
-            tSolution( 5 ) = 42;
-
-            send_mat_to_proc( tMat, 0 );
-            recv_mat_from_proc( tVec, 0 );
-
-            // calculate error vector
-            Matrix<DDUMat> tError = tVec - tSolution;
-
-            // make sure that received vector is correct
-            REQUIRE( tError.max() == 0 && tError.min() == 0 );
-        }
-
-        // wait for all procs to be done
-        moris::barrier();
-
-        // check if matrix is correct
-        if ( moris::par_rank() == 0 )
-        {
-            // create expected solution for matrix to receive
-            Matrix< DDRMat > tSolution( 3, 2 );
-            tSolution( 0, 0 ) =  3;
-            tSolution( 1, 0 ) =  5;
-            tSolution( 2, 0 ) =  7;
-            tSolution( 0, 1 ) = 11;
-            tSolution( 1, 1 ) = 13;
-            tSolution( 2, 1 ) = 17;
-
-            // calculate error matrix
-            Matrix< DDRMat > tError = tMat - tSolution;
-
-            // make sure that received matrix is correct
-            REQUIRE( tError.max() == 0 && tError.min() == 0 );
-        }
-
-    } */
-    }
+    //------------------------------------------------------------------------------
 
     TEST_CASE( "moris::sum_min_max",
             "[comm],[allreduce]" )
@@ -140,6 +54,8 @@ namespace moris
 
         REQUIRE( norm( tGlobalRealMatSum - tCheckRealMat ) < 1e-12 );
     }
+
+    //------------------------------------------------------------------------------
 
     TEST_CASE( "moris::proc_cart",
             "[comm],[proc_cart]" )
@@ -208,4 +124,110 @@ namespace moris
             }
         }
     }
+
+    //------------------------------------------------------------------------------
+
+    TEST_CASE( "moris::gatherv_mats",
+            "[comm],[gather_mats]" )
+    {
+        // a matrix to be communicated
+        Matrix< DDRMat > tMat;
+
+        // vector of matrices to be gathered
+        Vector< Matrix< DDRMat > > tAllMats;
+
+        // task for first proc
+        if ( moris::par_rank() == 0 )
+        {
+            // create vector to send
+            tMat = { { 11, 12 }, { 21, 22 }, { 31, 32 } };
+        }
+        else
+        {
+            tMat.set_size( 2, par_rank(), (real)par_rank() );
+        }
+
+        gatherv_mats( tMat, tAllMats );
+
+        // make sure that received matrix is correct
+        if ( moris::par_rank() == 0 )
+        {
+            // check for size of vector of matrices
+            REQUIRE( tAllMats.size() == (uint)par_size() );
+
+            // check first matrix
+            REQUIRE( norm( tMat - tAllMats( 0 ) ) < 1e-12 );
+
+            // check last matrix
+            for ( sint i = 1; i < par_size(); ++i )
+            {
+                Matrix< DDRMat > tOffProcMat( 2, i, (real)i );
+
+                REQUIRE( norm( tOffProcMat - tAllMats( i ) ) < 1e-12 );
+            }
+        }
+    }
+
+    //------------------------------------------------------------------------------
+
+    TEST_CASE( "moris::scatter_mats",
+            "[comm],[scatter_mats]" )
+    {
+        // a matrix to be communicated
+        Matrix< DDRMat > tMat;
+
+        Vector< Matrix< DDRMat > > tAllMats;
+
+        if ( moris::par_rank() == 0 )
+        {
+            // vector of matrices to be gathered
+            tAllMats.resize( par_size() );
+
+            // create vector to send
+            tAllMats( 0 ) = { { 11, 12 }, { 21, 22 }, { 31, 32 } };
+
+            for ( sint i = 1; i < par_size(); ++i )
+            {
+                tAllMats( i ).set_size( 2, i, (real)i );
+            }
+        }
+
+        scatterv_mats( tAllMats, tMat );
+
+        if ( moris::par_rank() == 0 )
+        {
+            Matrix< DDRMat > tReference = { { 11, 12 }, { 21, 22 }, { 31, 32 } };
+
+            // check first matrix
+            REQUIRE( norm( tMat - tReference ) < 1e-12 );
+        }
+        else
+        {
+            Matrix< DDRMat > tReference( 2, par_rank(), (real)par_rank() );
+
+            REQUIRE( norm( tMat - tReference ) < 1e-12 );
+        }
+    }
+
+    //------------------------------------------------------------------------------
+
+    TEST_CASE( "moris::braodcast_mat",
+            "[comm],[braodcast_mat]" )
+    {
+        // a matrix to be communicated
+        Matrix< DDRMat > tMat;
+
+        Matrix< DDRMat > tReference = { { 11, 12 }, { 21, 22 }, { 31, 32 } };
+
+        if ( moris::par_rank() == 0 )
+        {
+            // create vector to send
+            tMat = tReference;
+        }
+
+        broadcast_mat( tMat );
+
+        REQUIRE( norm( tMat - tReference ) < 1e-12 );
+    }
+
 }    // namespace moris

@@ -608,7 +608,7 @@ namespace moris::hmr
         {
             // check number of flagged elements per proc
             Matrix< DDLUMat > tCountersOfAllProcs;
-            comm_gather_and_broadcast( tCount, tCountersOfAllProcs );
+            allgather_scalar( tCount, tCountersOfAllProcs );
 
             // return true if at least one proc wants to refine
             return tCountersOfAllProcs.max() > 0;
@@ -699,7 +699,7 @@ namespace moris::hmr
             tElementCountOld = tElementCount;
 
             // broadcast element count
-            comm_gather_and_broadcast( tNumberOfElementsToBeRefined, tElementCount );
+            allgather_scalar( tNumberOfElementsToBeRefined, tElementCount );
 
             // make sure that element count is the same
             if ( all_true( tElementCount == tElementCountOld ) )
@@ -1148,7 +1148,7 @@ namespace moris::hmr
 
         // communicate number of elements with other procs
         Matrix< DDLUMat > tElementsPerProc;
-        comm_gather_and_broadcast( tNumberOfElements, tElementsPerProc );
+        allgather_scalar( tNumberOfElements, tElementsPerProc );
 
         // get number of procs
         luint tNumberOfProcs = par_size();

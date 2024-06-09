@@ -402,7 +402,7 @@ namespace moris
 
             mEigAlgoParameterList.insert( "STType", "shift" );
             mEigAlgoParameterList.insert( "ShiftValue", 0.0 );
-            mEigAlgoParameterList.insert( "use_slepc_defualt_params", true );
+            mEigAlgoParameterList.insert( "use_slepc_default_params", true );
 
             // power method paramaters
             // mEigAlgoParameterList.insert( "Eigen_Algorithm", std::string( "" ) ); "power"
