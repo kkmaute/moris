@@ -320,10 +320,22 @@ namespace moris
             /* ---------------------------------------------------------------------------------------- */
             /* Step 1: get the necessary information and build initial data to store the desired data structures  */
 
-            // get the owned and owned/shared adof ids on this processor
-            Matrix< DDSMat >      tOwnedAdofIndexToIdMap = this->get_my_local_global_map();
-            Matrix< DDSMat >      tAdofIndexToIdMap      = this->get_my_local_global_overlapping_map();
-            Vector< Adof* >& tAdofs                 = mDofMgn->get_adofs();
+            Matrix< DDSMat > tOwnedAdofIndexToIdMap;
+            Matrix< DDSMat > tAdofIndexToIdMap;
+            Vector< Adof* >  tAdofs;
+            if ( mListOfDofTypes.size() > 0 )
+            {
+                // get the owned and owned/shared adof ids on this processor
+                tOwnedAdofIndexToIdMap = this->get_my_local_global_map( mListOfDofTypes );
+                tAdofIndexToIdMap      = this->get_my_local_global_overlapping_map( mListOfDofTypes );
+                tAdofs                 = mDofMgn->get_adofs( mListOfDofTypes );
+            }
+            else
+            {
+                tOwnedAdofIndexToIdMap = this->get_my_local_global_map();
+                tAdofIndexToIdMap      = this->get_my_local_global_overlapping_map();
+                tAdofs                 = mDofMgn->get_adofs();
+            }
 
             // Cache for reassembled entries on owned and shared rows
             // Outer cell is the the row number
