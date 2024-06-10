@@ -120,6 +120,14 @@ namespace moris
         };
 
         //------------------------------------------------------------------------------
+        
+        virtual void
+        set_eigen_values(std::shared_ptr< Vector<real> > aEigenValues )
+        {
+            MORIS_ERROR( false, "Solver_Interface::set_eigen_values: not set." );
+        };
+
+        //------------------------------------------------------------------------------
 
         virtual void
         set_adjoint_solution_vector( sol::Dist_Vector* aSolutionVector )
@@ -169,6 +177,15 @@ namespace moris
         {
             MORIS_ERROR( false, "Solver_Interface::get_eigen_solution_vector: not set." );
             return nullptr;
+        }
+
+        //------------------------------------------------------------------------------
+
+        virtual std::shared_ptr< Vector<real> > &
+        get_eigen_values()
+        {
+            MORIS_ERROR( false, "Solver_Interface::get_eigen_solution_vector: not set." );
+            return  *(new std::shared_ptr< Vector<real> >());
         }
 
         //------------------------------------------------------------------------------

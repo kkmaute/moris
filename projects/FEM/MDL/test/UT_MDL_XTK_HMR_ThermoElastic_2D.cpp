@@ -95,7 +95,7 @@
 
 #include "fn_norm.hpp"
 
-#include "cl_GEN_Plane.hpp"
+#include "cl_GEN_Line.hpp"
 
 #include "fn_PRM_SOL_Parameters.hpp"
 
@@ -218,7 +218,7 @@ namespace moris
 
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            auto tPlane = std::make_shared< moris::gen::Plane >( -500.0, 0.0, 1.0, 0.0 );
+            auto tPlane = std::make_shared< moris::gen::Line >( -500.0, 0.0, 1.0, 0.0 );
             Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
             size_t tModelDimension = 2;
@@ -692,7 +692,7 @@ namespace moris
 
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            auto tPlane = std::make_shared< moris::gen::Plane >( -500.0, 0.0, 1.0, 0.0 );
+            auto tPlane = std::make_shared< moris::gen::Line >( -500.0, 0.0, 1.0, 0.0 );
             Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
             size_t tModelDimension = 2;

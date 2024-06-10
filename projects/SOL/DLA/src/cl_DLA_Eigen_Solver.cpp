@@ -192,9 +192,6 @@ void Eigen_Solver::build_linearized_system( Linear_Problem* aLinearSystem )
     // sparse-mass matrix of Teuchos::RCP type
     mSPmassmat = Teuchos::RCP( mMassMat, false );
 
-    // request number of DOFs from parameterlist
-    moris::sint tNumFreeDofs = mParameterList.get< moris::sint >( "NumFreeDofs" );
-
     // request block-size from parameterlist
     moris::sint tBlockSize = mParameterList.get< moris::sint >( "Block_Size" );
 
@@ -209,12 +206,6 @@ void Eigen_Solver::build_linearized_system( Linear_Problem* aLinearSystem )
 
     // create eigen solver vector of Vector_Epetra class
     mFreeSolVec = new Vector_Epetra( mMap, 1, false, false );
-
-    // Make sure that the number of blocks and eigenvalues does not exceed NumFreeDofs
-    if ( tBlockSize > tNumFreeDofs || tNumEigVals > tNumFreeDofs )
-    {
-        MORIS_ERROR( false, "EigenSolver::BuildLinearSystem: Number of blocks and/or number of eigenvalues can not exceed NumFreeDofs\n" );
-    }
 
     // Create initial vector for the solver
     mIvec = Teuchos::RCP( new Epetra_MultiVector( mSPmat->OperatorDomainMap(), tBlockSize ) );
@@ -408,11 +399,14 @@ int Eigen_Solver::solve_block_davidson_system( Linear_Problem* aLinearSystem )
 
     // Output computed eigenvalues and their direct residuals
     {
+        std::shared_ptr<Vector<real>>& tEigenValues  = aLinearSystem->get_solver_input()->get_eigen_values();
         MORIS_LOG_INFO( "------------------------------------------------" );
         for ( int i = 0; i < mSol.numVecs; i++ )
         {
             MORIS_LOG_INFO( "EigenValue: %16f ", evals[ i ].realpart );
             MORIS_LOG_INFO( "Direct Residual: %18e ", normR[ i ] / evals[ i ].realpart );
+
+            tEigenValues->push_back( evals[ i ].realpart );
         }
     }
 
@@ -655,6 +649,9 @@ int Eigen_Solver::solve_generalized_davidson_system( Linear_Problem* aLinearSyst
             }
         }
 
+         std::shared_ptr<Vector<real>>& tEigenValues  = aLinearSystem->get_solver_input()->get_eigen_values();
+       
+
         // Output computed eigenvalues and their direct residuals
         MORIS_LOG_INFO( "===============================================" );
         for ( int j = 0; j < mNumReturnedEigVals; j++ )
@@ -662,6 +659,8 @@ int Eigen_Solver::solve_generalized_davidson_system( Linear_Problem* aLinearSyst
             MORIS_LOG_INFO( "Real Part: %16f ", evals[ j ].realpart );
             MORIS_LOG_INFO( "Imaginary Part: %16f", evals[ j ].imagpart );
             MORIS_LOG_INFO( "Direct Residual: %18e ", normR[ j ] );
+
+             tEigenValues->push_back( evals[ j ].realpart );
         }
     }
 
@@ -858,12 +857,16 @@ int Eigen_Solver::solve_block_krylov_schur_system( Linear_Problem* aLinearSystem
     }
 
     // Output computed eigenvalues and their direct residuals
+     std::shared_ptr<Vector<real>>& tEigenValues  = aLinearSystem->get_solver_input()->get_eigen_values();
+      
 
     MORIS_LOG_INFO( "===============================================" );
     for ( int i = 0; i < mSol.numVecs; i++ )
     {
         MORIS_LOG_INFO( "EigenValue: %16f", 1 / evals[ i ].realpart );
         MORIS_LOG_INFO( "Direct Residual: %18e", normR[ i ] / evals[ i ].realpart );
+
+          tEigenValues->push_back( 1 / evals[ i ].realpart );
     }
 
 
@@ -1072,12 +1075,15 @@ int Eigen_Solver::solve_block_krylov_schur_amesos_system( Linear_Problem* aLinea
         i++;
     }
 
+     std::shared_ptr<Vector<real>>& tEigenValues  = aLinearSystem->get_solver_input()->get_eigen_values();
+      
     // Output computed eigenvalues and their direct residuals
     MORIS_LOG_INFO( "------------------------------------------------" );
     for ( int i = 0; i < mSol.numVecs; i++ )
     {
         MORIS_LOG_INFO( "EigenValue: %16f", 1.0 / evals[ i ].realpart );
         MORIS_LOG_INFO( "Direct Residual: %18e", normR[ i ] * evals[ i ].realpart );
+        tEigenValues->push_back( 1.0 / evals[ i ].realpart );
     }
 
     // print eigen vector

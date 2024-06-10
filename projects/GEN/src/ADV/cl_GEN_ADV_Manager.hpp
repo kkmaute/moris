@@ -10,116 +10,53 @@
 
 #pragma once
 
+#include "cl_Design_Variable.hpp"
 #include "cl_GEN_ADV.hpp"
 #include "cl_Matrix.hpp"
-#include "cl_SOL_Dist_Vector.hpp"
 
 namespace moris::gen
 {
     class ADV_Manager
     {
-
       private:
-        Vector< ADV >     mADVs;
-        Matrix< DDSMat >  mDeterminingADVIds;
-        bool              mHasADVs;
-        sol::Dist_Vector* mSharedADVs = nullptr;
+        Vector< char > mParameterIDs;
+        bool mParameterIDsFinalized = false;
 
+      // TODO manage data privately
       public:
-        /**
-         * Constructor, sets the field variable pointers to ADVs and constant parameters for evaluations.
-         *
-         * @param aADVs ADV vector
-         * @param aVariableIndices Indices of field variables to be filled by the ADVs
-         * @param aADVIndices The indices of the ADV vector to fill in the field variables
-         * @param aConstants The constant field variables not filled by ADVs
-         * @param aParameters Additional parameters
-         */
-        ADV_Manager(
-                Matrix< DDRMat >&       aADVs,
-                const Matrix< DDUMat >& aVariableIndices,
-                const Matrix< DDUMat >& aADVIndices,
-                const Matrix< DDRMat >& aConstants );
+        Vector< real > mADVs;
+        Vector< real > mLowerBounds;
+        Vector< real > mUpperBounds;
 
         /**
-         * Constructor using only constants (no ADVs).
-         *
-         * @param aConstants The parameters that define this field
+         * Default constructor.
          */
-        explicit ADV_Manager( const Matrix< DDRMat >& aConstants );
+        ADV_Manager() = default;
 
         /**
-         * Constructor, sets variables as consecutive ADVs. Assumes the use of distributed ADVs.
+         * Constructor where all ADVs are assumed to be associated with unique parameter IDs.
          *
-         * @param aVariableIndices Variable indices for assigning the shared ADV IDs
-         * @param aSharedADVIds Shared ADV IDs needed
+         * @param aNumberOfADVs Number of ADVs
          */
-        ADV_Manager( const Matrix< DDSMat >& aSharedADVIds );
+        explicit ADV_Manager( uint aNumberOfADVs );
 
         /**
-         * Copy constructor, with optional arguments for replacing constant values.
+         * Registers the given unique parameter IDs in the ADV manager's vector of IDs.
          *
-         * @param aCopyADVManager ADV manager to copy
-         * @param aReplaceVariables Indices of constants to replace
-         * @param aNewConstants New constant values
+         * @param aParameterIDs
          */
-        ADV_Manager(
-                const ADV_Manager&    aCopyADVManager,
-                const Vector< uint >& aReplaceVariables = {},
-                const Vector< real >& aNewConstants     = { {} } );
+        void register_parameter_ids( const Vector< char >& aParameterIDs );
 
         /**
-         * Destructor
+         * Finalizes the parameter IDs such that ADVs and bounds can be reserved properly.
          */
-        ~ADV_Manager();
+        void finalize_parameter_ids();
 
         /**
-         * Sets the ADVs and grabs the relevant variables needed from the ADV vector
+         * Adds a design variable to the ADV manager, if it is active.
          *
-         * @tparam Vector_Type Type of vector where ADVs are stored
-         * @param aADVs ADVs
+         * @param aDesignVariable Design variable
          */
-        template< typename Vector_Type >
-        void set_advs( Vector_Type& aADVs );
-
-        /**
-         * Gets the value of a specific design variable so it can be used as a part of a design discretization.
-         *
-         * @param aVariableIndex Index of the variable in this manager to reference
-         * @return Design variable value
-         */
-        real get_variable( uint aVariableIndex );
-
-        /**
-         * Imports the local ADVs required from the full owned ADV distributed vector.
-         *
-         * @param aOwnedADVs Full owned distributed ADV vector
-         */
-        void import_advs( sol::Dist_Vector* aOwnedADVs );
-
-        /**
-         * Gets the IDs of ADVs that this manager depends on for evaluations.
-         *
-         * @return Determining ADV IDs at this node
-         */
-        Matrix< DDSMat > get_determining_adv_ids();
-
-        /**
-         * Gets if this manager has ADVs (at least one non-constant parameter)
-         *
-         * @return if this manager has ADVs
-         */
-        bool has_advs();
-
-      private:
-        /**
-         * Creates the ADVs managed by this object.
-         *
-         * @param aADVs ADV vector
-         * @param aConstants Constants to fill in other values
-         */
-        void create_advs(
-                Matrix< DDRMat >&       aADVs,
-                const Matrix< DDRMat >& aConstants );
+        ADV create_adv( const Design_Variable& aDesignVariable );
     };
 }    // namespace moris::gen

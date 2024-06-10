@@ -135,9 +135,6 @@ namespace moris::gen
 
             mtk::Interpolation_Mesh* tMesh = tHMR.create_interpolation_mesh( 0 );
 
-            // Set up geometry
-            Matrix< DDRMat > tADVs = { {} };
-
             // surface mesh
             Parameter_List tSurfaceMeshParameterList = prm::create_surface_mesh_geometry_parameter_list();
             tSurfaceMeshParameterList.set( "file_path", tMorisRoot + "projects/GEN/test/data/triangle_sensitivity_oblique.obj" );
@@ -145,8 +142,8 @@ namespace moris::gen
 
             // Create geometry engine
             Geometry_Engine_Parameters tGeometryEngineParameters;
-            tGeometryEngineParameters.mADVs = tADVs;
-            Design_Factory tDesignFactory( { tSurfaceMeshParameterList }, tADVs );
+            ADV_Manager tADVManager;
+            Design_Factory tDesignFactory( { tRhombusParameterList }, tADVManager );
             tGeometryEngineParameters.mGeometries = tDesignFactory.get_geometries();
             Geometry_Engine tGeometryEngine( tMesh, tGeometryEngineParameters );
 

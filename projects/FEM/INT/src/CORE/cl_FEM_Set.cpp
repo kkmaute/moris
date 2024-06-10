@@ -30,9 +30,9 @@ namespace moris
         //------------------------------------------------------------------------------
 
         Set::Set(
-                fem::FEM_Model*                  aFemModel,
-                moris::mtk::Set*                 aMeshSet,
-                const fem::Set_User_Info&        aSetInfo,
+                fem::FEM_Model*             aFemModel,
+                moris::mtk::Set*            aMeshSet,
+                const fem::Set_User_Info&   aSetInfo,
                 const Vector< Node_Base* >& aIPNodes )
                 : mFemModel( aFemModel )
                 , mMeshSet( aMeshSet )
@@ -375,7 +375,7 @@ namespace moris
             {
                 // get an IWG non unique dof and dv types
                 Vector< Vector< MSI::Dof_Type > >   tActiveDofType;
-                Vector< Vector< gen::PDV_Type > >        tActiveDvType;
+                Vector< Vector< gen::PDV_Type > >   tActiveDvType;
                 Vector< Vector< mtk::Field_Type > > tActiveFieldType;
 
                 tIWG->get_non_unique_dof_dv_and_field_types( tActiveDofType, tActiveDvType, tActiveFieldType );
@@ -394,7 +394,7 @@ namespace moris
             {
                 // get an IWG non unique dof and dv types
                 Vector< Vector< MSI::Dof_Type > >   tActiveDofType;
-                Vector< Vector< gen::PDV_Type > >        tActiveDvType;
+                Vector< Vector< gen::PDV_Type > >   tActiveDvType;
                 Vector< Vector< mtk::Field_Type > > tActiveFieldType;
 
                 tIQI->get_non_unique_dof_dv_and_field_types( tActiveDofType, tActiveDvType, tActiveFieldType );
@@ -429,7 +429,7 @@ namespace moris
             {
                 // get non unique dof and dv types
                 Vector< Vector< MSI::Dof_Type > >   tActiveDofType;
-                Vector< Vector< gen::PDV_Type > >        tActiveDvType;
+                Vector< Vector< gen::PDV_Type > >   tActiveDvType;
                 Vector< Vector< mtk::Field_Type > > tActiveFieldType;
 
                 tIWG->get_non_unique_dof_dv_and_field_types( tActiveDofType, tActiveDvType, tActiveFieldType );
@@ -455,7 +455,7 @@ namespace moris
             {
                 // get non unique dof and dv types
                 Vector< Vector< MSI::Dof_Type > >   tActiveDofType;
-                Vector< Vector< gen::PDV_Type > >        tActiveDvType;
+                Vector< Vector< gen::PDV_Type > >   tActiveDvType;
                 Vector< Vector< mtk::Field_Type > > tActiveFieldType;
 
                 tIQI->get_non_unique_dof_dv_and_field_types( tActiveDofType, tActiveDvType, tActiveFieldType );
@@ -2198,7 +2198,7 @@ namespace moris
 
                 }    // end for: each IG vertex
 
-            }        // end for: each PDV type
+            }    // end for: each PDV type
 
             if ( tActiveGeoPdvCounter > 0 )
             {
@@ -2263,10 +2263,19 @@ namespace moris
                                         mRequestedIWGs.push_back( mIWGs( iIWG ) );
                                     }
                                 }
+                                else if ( aTimeContinuityOnlyFlag == Time_Continuity_Flag::GEOMETRIC_STIFFNESS_ONLY )
+                                {
+                                    if ( mIWGs( iIWG )->get_IWG_type() == IWG_Type::STRUC_NON_LINEAR_GEOMETRIC_STIFFNESS )
+                                    {
+                                        mRequestedIWGs.push_back( mIWGs( iIWG ) );
+                                    }
+                                }
                                 else if ( aTimeContinuityOnlyFlag == Time_Continuity_Flag::DEFAULT )
                                 {
-                                    // add the IWG to the requested IWG list
-                                    mRequestedIWGs.push_back( mIWGs( iIWG ) );
+                                    if ( mIWGs( iIWG )->get_IWG_type() != IWG_Type::STRUC_NON_LINEAR_GEOMETRIC_STIFFNESS )
+                                    {
+                                        mRequestedIWGs.push_back( mIWGs( iIWG ) );
+                                    }
                                 }
 
                                 // mark IWG as active
@@ -3444,14 +3453,14 @@ namespace moris
 
             }    // end for: clusters on (dbl) side set
 
-        }        // end function: fem::Set::construct_facet_assembly_map_for_VIS_set()
+        }    // end function: fem::Set::construct_facet_assembly_map_for_VIS_set()
 
         //------------------------------------------------------------------------------
 
         void
         Set::compute_quantity_of_interest_nodal(
-                const uint                        aVisMeshIndex,
-                Matrix< DDRMat >*                 aNodalFieldValues,
+                const uint                   aVisMeshIndex,
+                Matrix< DDRMat >*            aNodalFieldValues,
                 const Vector< std::string >& aQINames )
         {
             // FEM mesh index is VIS mesh index +1
@@ -3499,8 +3508,8 @@ namespace moris
 
         void
         Set::compute_quantity_of_interest_global(
-                const uint                        aVisMeshIndex,
-                Matrix< DDRMat >*                 aGlobalFieldValues,
+                const uint                   aVisMeshIndex,
+                Matrix< DDRMat >*            aGlobalFieldValues,
                 const Vector< std::string >& aQINames )
         {
             // FEM mesh index is VIS mesh index +1
@@ -3548,10 +3557,10 @@ namespace moris
 
         void
         Set::compute_quantity_of_interest_elemental(
-                const uint                        aVisMeshIndex,
-                Matrix< DDRMat >*                 aElementalFieldValues,
+                const uint                   aVisMeshIndex,
+                Matrix< DDRMat >*            aElementalFieldValues,
                 const Vector< std::string >& aQINames,
-                const bool                        aOutputAverageValue )
+                const bool                   aOutputAverageValue )
         {
             // FEM mesh index is VIS mesh index +1
             moris_index tFemMeshIndex = aVisMeshIndex + 1;
@@ -3755,7 +3764,7 @@ namespace moris
         void
         Set::get_ip_dv_types_for_set(
                 Vector< Vector< enum gen::PDV_Type > >& aMatPdvType,
-                mtk::Leader_Follower                         aIsLeader )
+                mtk::Leader_Follower                    aIsLeader )
         {
             // choose based on the leader, follower type
             // the output here is gather from fem

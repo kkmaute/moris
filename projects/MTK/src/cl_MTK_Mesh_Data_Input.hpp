@@ -238,7 +238,7 @@ namespace mtk
         }
 
         void
-        print_cell_to_node()
+        print_vector_to_node()
         {
             for(moris::uint  iType = 0; iType < ElemConn.size(); iType++)
             {
@@ -285,7 +285,7 @@ namespace mtk
         }
 
         void
-        print_cell_clusters()
+        print_vector_clusters()
         {
             if(CellClusterInput != nullptr)
             {
@@ -319,13 +319,13 @@ namespace mtk
             std::cout<<"\n-------------------------------------------------------------------------"<<std::endl;
             print_vertex_sharing();
             std::cout<<"\n-------------------------------------------------------------------------"<<std::endl;
-            print_cell_to_node();
+            print_vector_to_node();
             std::cout<<"\n-------------------------------------------------------------------------"<<std::endl;
             print_sets();
             std::cout<<"\n-------------------------------------------------------------------------"<<std::endl;
             print_fields();
             std::cout<<"\n-------------------------------------------------------------------------"<<std::endl;
-            print_cell_clusters();
+            print_vector_clusters();
             std::cout<<"\n-------------------------------------------------------------------------"<<std::endl;
             print_side_cluster();
             std::cout<<"\n-------------------------------------------------------------------------"<<std::endl;

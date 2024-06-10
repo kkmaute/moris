@@ -430,7 +430,7 @@ namespace moris
 
             // Get list containing the number of owned adofs of each processor
             Matrix< DDUMat > tNumOwnedAdofsList;
-            comm_gather_and_broadcast( aNumOwnedAdofs, tNumOwnedAdofsList );
+            allgather_scalar( aNumOwnedAdofs, tNumOwnedAdofsList );
 
             Matrix< DDUMat > tOwnedAdofsOffsetList( tNumOwnedAdofsList.numel(), 1, 0 );
 

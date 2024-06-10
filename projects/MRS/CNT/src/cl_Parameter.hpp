@@ -10,43 +10,105 @@
 
 #pragma once
 
-#include <boost/variant.hpp>
+#include <utility>
+
 #include "moris_typedefs.hpp"
 #include "cl_Validator.hpp"
+#include "cl_Library_Enums.hpp"
 #include "fn_Parsing_Tools.hpp"
 
 namespace moris
 {
+    enum class Validation_Type
+    {
+        NONE,
+        SELECTION,
+        SIZE
+    };
+
     /**
-     * Gets a string of the value stored inside of a variant.
-     *
-     * @param aVariant Input variant
-     * @return Value as a string
+     * For validation after all parameters have been set.
      */
-    std::string convert_variant_to_string( Variant aVariant );
+    struct External_Validator
+    {
+        Validation_Type     mValidationType     = Validation_Type::NONE;
+        std::string         mParameterName;
+        Parameter_List_Type mParameterListType  = Parameter_List_Type::END_ENUM;
+        uint                mParameterListIndex = 0;
+    };
 
     class Parameter
     {
       private:
         Variant mValue;
         Validator* mValidator;
+        External_Validator mExternalValidator;
 
       public:
         /**
-         * Constructor for general parameter type
+         * Constructor for a parameter with a type validator.
          *
          * @tparam T Input parameter type
-         * @param aParameterName Parameter name, for error reporting
          * @param aParameterValue Default value
+         * @param aExternalValidationType Type of external validation to perform
+         * @param aExternalParameterName Name of external parameter to validate with
+         * @param aExternalParameterListType External parameter list type to validate with
+         * @param aExternalParameterListIndex Index of given parameter list type to search
          */
         template< typename T >
-        explicit Parameter( T aParameterValue )
+        explicit Parameter(
+                T                   aParameterValue,
+                Validation_Type     aExternalValidationType,
+                std::string         aExternalParameterListName,
+                Parameter_List_Type aExternalParameterListType,
+                uint                aExternalParameterListIndex )
         {
             // Set default value without validation
-            mValue = this->make_variant( aParameterValue );
+            mValue = make_variant( aParameterValue );
 
-            // Create validator with default
-            mValidator = new Validator( mValue );
+            // Create type validator
+            mValidator = new Type_Validator< T >();
+
+            // Set external validator
+            mExternalValidator.mValidationType = aExternalValidationType;
+            mExternalValidator.mParameterName = std::move( aExternalParameterListName );
+            mExternalValidator.mParameterListType = aExternalParameterListType;
+            mExternalValidator.mParameterListIndex = aExternalParameterListIndex;
+        }
+        
+        /**
+         * Constructor for a parameter with a range validator.
+         *
+         * @tparam T Input parameter type
+         * @param aParameterValue Default value
+         * @param aMinimumValue Maximum permitted parameter value
+         * @param aMaximumValue Minimum permitted parameter value
+         */
+        template< typename T >
+        Parameter( T aParameterValue, T aMinimumValue, T aMaximumValue )
+        {
+            // Set default value without validation
+            mValue = make_variant( aParameterValue );
+            
+            // Create range validator
+            mValidator = new Range_Validator( aMinimumValue, aMaximumValue );
+        }
+
+        /**
+         * Constructor for a parameter with a selection validator.
+         *
+         * @tparam T Input parameter type
+         * @param aParameterValue Default value
+         * @param aValidSelections Set of valid values
+         */
+        template< typename T >
+        Parameter( T aParameterValue, const std::set< T >& aValidSelections )
+        {
+            // Set default value without validation
+            mValue = make_variant( aParameterValue );
+
+            // Create selection validator
+            mValidator = new Selection_Validator( aValidSelections );
         }
 
         /**
@@ -59,10 +121,7 @@ namespace moris
         /**
          * Parameter destructor, deletes the validator.
          */
-        ~Parameter()
-        {
-            delete mValidator;
-        }
+        ~Parameter();
 
         /**
          * Sets the value of this parameter
@@ -70,22 +129,38 @@ namespace moris
          * @tparam T Input parameter type
          * @param aParameterName Parameter name, for error reporting
          * @param aParameterValue Input value
+         * @param aLockValue If this value should be locked after setting
          */
         template< typename T >
-        void set_value( const std::string& aParameterName, T aParameterValue )
+        void set_value(
+                const std::string& aParameterName,
+                T                  aParameterValue,
+                bool               aLockValue = true )
         {
+            // Make sure parameter is not locked
+            MORIS_ERROR( mValidator,
+                    "Parameter %s has already been set and locked, it cannot be set again.",
+                    aParameterName.c_str() );
+
             // Make value into a variant
-            Variant tParameterVariant = this->make_variant( aParameterValue );
+            Variant tParameterVariant = make_variant( aParameterValue );
 
             // Validate the variant
-            mValidator->check_parameter_type( aParameterName, tParameterVariant );
-            MORIS_ERROR( mValidator->is_parameter_valid( tParameterVariant ),
-                    "Parameter %s was set with an invalid value. Valid values are: %s.",
+            MORIS_ERROR( mValidator->make_valid_parameter( tParameterVariant ),
+                    "Parameter %s was set incorrectly as %s. Valid values are: %s.",
                     aParameterName.c_str(),
+                    convert_variant_to_string( tParameterVariant ).c_str(),
                     mValidator->get_valid_values().c_str() );
 
             // Set the value
             mValue = tParameterVariant;
+
+            // Lock the parameter by deleting the validator
+            if ( aLockValue )
+            {
+                delete mValidator;
+                mValidator = nullptr;
+            }
         }
 
         /**
@@ -97,48 +172,48 @@ namespace moris
         template< typename T >
         const T& get_value() const
         {
-            return boost::get< T >( mValue );
+            return std::get< T >( mValue );
         }
 
         /**
-         * Takes the input value and converts it to a variant type.
+         * Gets the value of this parameter, as a variant.
          *
-         * @tparam T Input parameter type
-         * @param aParameterValue Input parameter
+         * @return Stored variant
          */
-        template< typename T >
-        Variant make_variant( T aParameterValue )
-        {
-            return aParameterValue;
-        }
+        const Variant& get_value() const;
 
         /**
          * Gets this parameter value as a string
          *
          * @return Parameter string
          */
-        [[nodiscard]] std::string get_string() const
-        {
-            return convert_variant_to_string( mValue );
-        }
+        [[nodiscard]] std::string get_string() const;
 
         /**
          * Gets the underlying type index of this parameter variant.
          *
          * @return Variant index
          */
-        [[nodiscard]] sint which() const
-        {
-            return mValue.which();
-        }
+        [[nodiscard]] uint index() const;
+
+        /**
+         * Gets the external validator from this parameter, for validation after all parameter have been set.
+         *
+         * @return External validator
+         */
+        const External_Validator& get_external_validator() const;
+
+        /**
+         * Equality operator for parameters, comparing if their stored variants are the same.
+         *
+         * @param aOther Other parameter argument
+         * @return If parameters are equal
+         */
+        bool operator==( const Parameter& aOther );
     };
 
     //--------------------------------------------------------------------------------------------------------------
 
-    // Declare template specializations making variants
-    template<> Variant Parameter::make_variant( std::string aParameter );
-    template<> Variant Parameter::make_variant( std::pair< std::string, std::string > aParameterValue );
-    template<> Variant Parameter::make_variant( const char* aParameterValue );
-
-    //--------------------------------------------------------------------------------------------------------------
+    // Declare template specializations of the Parameter constructor
+    template<> Parameter::Parameter( const char*, Validation_Type, std::string, Parameter_List_Type, uint );
 }

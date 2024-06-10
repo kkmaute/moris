@@ -60,6 +60,8 @@ namespace moris
         // constructor for map of owned dofs
         Map_PETSc( const Matrix< DDSMat >& aMyGlobalOwnedIds );
 
+        Map_PETSc( const Vector< sint >& aMyGlobalOwnedIds );
+
         // constructor for map of owned dofs with constrained dofs
         Map_PETSc(
                 const Matrix< DDSMat >& aMyGlobalOwnedIds,
@@ -77,6 +79,9 @@ namespace moris
 
         Matrix< DDSMat >
         map_from_moris_ids_to_indices( const Matrix< DDSMat >& aGlobalIds );
+
+        Vector< sint >
+        map_from_moris_ids_to_indices( const Vector< sint >& aGlobalIds );
 
         // ---------------------------------------------------------------------------------------------------------------
 
@@ -126,6 +131,14 @@ namespace moris
         {
             MORIS_ERROR( false, "not implemented for petsc yet" );
         };
+
+        void translate_ids_to_free_point_ids(
+                const Vector< sint >& aIdsIn,
+                Vector< sint >&       aIdsOut,
+                bool                  aIsBuildGraph = true )
+        {
+            MORIS_ERROR( false, "not implemented for petsc yet" );
+        }
 
         // ---------------------------------------------------------------------------------------------------------------
 

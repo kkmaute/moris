@@ -12,8 +12,6 @@
 #include <vector>
 #include "catch.hpp"
 
-#include "cl_MPI_Tools.hpp"
-
 #include <cl_XTK_Cell.hpp>
 #include "xtk_typedefs.hpp"
 #include "cl_XTK_Matrix_Base_Utilities.hpp"

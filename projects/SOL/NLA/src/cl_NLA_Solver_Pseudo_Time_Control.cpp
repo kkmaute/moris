@@ -37,8 +37,7 @@ namespace moris
                 Nonlinear_Solver* aNonLinSolverManager )
         {
             // get relaxation strategy
-            mTimeStepStrategy = static_cast< sol::SolverPseudoTimeControlType >(
-                    aParameterListNonlinearSolver.get< uint >( "NLA_pseudo_time_control_strategy" ) );
+            mTimeStepStrategy = aParameterListNonlinearSolver.get< sol::SolverPseudoTimeControlType >( "NLA_pseudo_time_control_strategy" );
 
             // skip setting remaining parameters if no pseudo time step control is used
             if ( mTimeStepStrategy == sol::SolverPseudoTimeControlType::None )

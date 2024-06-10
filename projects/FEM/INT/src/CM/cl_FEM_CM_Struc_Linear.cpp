@@ -39,7 +39,7 @@ namespace moris
         void
         CM_Struc_Linear::set_dof_type_list(
                 Vector< Vector< MSI::Dof_Type > > aDofTypes,
-                Vector< std::string >           aDofStrings )
+                Vector< std::string >             aDofStrings )
         {
             // set dof type list
             Constitutive_Model::set_dof_type_list( aDofTypes );
@@ -76,6 +76,17 @@ namespace moris
                             tDofString.c_str() );
                 }
             }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
+        CM_Struc_Linear::build_global_dof_type_list()
+        {
+            // build list from parent class
+            Constitutive_Model::build_global_dof_type_list();
+
+            mGeometricStiffnessEval.set_size( mGlobalDofTypes.size(), 1, true );
         }
 
         //------------------------------------------------------------------------------
@@ -260,6 +271,17 @@ namespace moris
             }
         }
 
+        //------------------------------------------------------------------------------
+
+        void
+        CM_Struc_Linear::reset_eval_flags()
+        {
+            // reset flag from parent class
+            Constitutive_Model::reset_eval_flags();
+
+            mGeometricStiffnessEval.fill( true );
+        }
+
         //--------------------------------------------------------------------------------------------------------------
 
         void
@@ -304,7 +326,7 @@ namespace moris
 
         void
         CM_Struc_Linear::eval_testTraction(
-                const Matrix< DDRMat >      &aNormal,
+                const Matrix< DDRMat >        &aNormal,
                 const Vector< MSI::Dof_Type > &aTestDofTypes )
         {
             // get test dof type index
@@ -675,7 +697,7 @@ namespace moris
         void
         CM_Struc_Linear::eval_dTractiondDOF(
                 const Vector< MSI::Dof_Type > &aDofTypes,
-                const Matrix< DDRMat >      &aNormal )
+                const Matrix< DDRMat >        &aNormal )
         {
             // get the dof type as a uint
             const uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -696,8 +718,8 @@ namespace moris
         void
         CM_Struc_Linear::eval_dTestTractiondDOF(
                 const Vector< MSI::Dof_Type > &aDofTypes,
-                const Matrix< DDRMat >      &aNormal,
-                const Matrix< DDRMat >      &aJump,
+                const Matrix< DDRMat >        &aNormal,
+                const Matrix< DDRMat >        &aJump,
                 const Vector< MSI::Dof_Type > &aTestDofTypes )
         {
             // get test dof type index
@@ -948,6 +970,113 @@ namespace moris
         CM_Struc_Linear::deviatoric_3d( std::initializer_list< const real > &&tParams )
         {
             MORIS_ERROR( 0, "deviatoric_3d function not implemented in the base class CM_Struc_Linear" );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > &
+        CM_Struc_Linear::GeometricStiffness(
+                const Vector< MSI::Dof_Type > &aDofTypes,
+                enum CM_Function_Type          aCMFunctionType )
+        {
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            switch ( aCMFunctionType )
+            {
+                // second Piola-Kirchhoff stress
+                case CM_Function_Type::DEFAULT:
+                {
+                    // if the derivative of the test traction based on second Piola_Kirchhoff stress was not evaluated
+                    if ( mGeometricStiffnessEval( tDofIndex ) )
+                    {
+                        // evaluate the traction based on second Piola_Kirchhoff stress
+                        this->eval_geometric_stiffness( aDofTypes );
+
+                        // set bool for evaluation
+                        mGeometricStiffnessEval( tDofIndex ) = false;
+                    }
+                    // return the traction based on second Piola_Kirchhoff stress
+                    return mGeometricStiffness;
+                }
+                default:
+                {
+                    MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::GeometricStiffness - Only PK2 implemented." );
+                    return mGeometricStiffness;
+                }
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void
+        CM_Struc_Linear::eval_geometric_stiffness( const Vector< MSI::Dof_Type > &aDofTypes )
+        {
+            // call to evaluate stress
+            this->eval_flux();
+
+            // convert to stress matrix
+            Matrix< DDRMat > tStressMatrix( mSpaceDim, mSpaceDim );
+
+            if ( mSpaceDim == 2 )
+            {
+                tStressMatrix.set_size( mSpaceDim, mSpaceDim );
+                tStressMatrix( 0, 0 ) = mFlux( 0 );
+                tStressMatrix( 1, 1 ) = mFlux( 1 );
+                tStressMatrix( 0, 1 ) = mFlux( 2 );
+                tStressMatrix( 1, 0 ) = mFlux( 2 );
+            }
+            else
+            {
+                tStressMatrix( 0, 0 ) = mFlux( 0 );
+                tStressMatrix( 1, 1 ) = mFlux( 1 );
+                tStressMatrix( 2, 2 ) = mFlux( 2 );
+                tStressMatrix( 1, 2 ) = mFlux( 3 );
+                tStressMatrix( 2, 1 ) = mFlux( 3 );
+                tStressMatrix( 0, 2 ) = mFlux( 4 );
+                tStressMatrix( 2, 0 ) = mFlux( 4 );
+                tStressMatrix( 0, 1 ) = mFlux( 5 );
+                tStressMatrix( 1, 0 ) = mFlux( 5 );
+            }
+
+            // get the dof FI
+            Field_Interpolator *tFI =
+                    mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+            // get the derivative of the displacement shape functions
+            const Matrix< DDRMat > &tdnNdxn =
+                    mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->dnNdxn( 1 );
+
+            // init mdFluxdDof
+            mGeometricStiffness.set_size( tFI->get_number_of_space_time_coefficients(), tFI->get_number_of_space_time_coefficients(), 0.0 );
+
+            // get number of coefficients
+            uint tNumSpaceBases = tFI->get_number_of_space_bases();
+
+            MORIS_ASSERT( tFI->get_number_of_space_time_coefficients() == tNumSpaceBases * mSpaceDim,
+                    "CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_geometric_stiffness_second_piola_kirchhoff_2d -"
+                    "number of spatial bases does not match; check for time interpolation order; should be constant" );
+
+            // see MORIS - theory on OneDrive for derivation leading to geometric stiffness below
+            uint tOffset = 0;
+
+            for ( uint q = 0; q < mSpaceDim; ++q )
+            {
+                for ( uint p = 0; p < tNumSpaceBases; ++p )
+                {
+                    for ( uint s = 0; s < tNumSpaceBases; ++s )
+                    {
+                        for ( uint i = 0; i < mSpaceDim; ++i )
+                        {
+                            for ( uint j = 0; j < mSpaceDim; ++j )
+                            {
+                                mGeometricStiffness( tOffset + p, tOffset + s ) += tdnNdxn( i, p ) * tdnNdxn( j, s ) * tStressMatrix( i, j );
+                            }
+                        }
+                    }
+                }
+                tOffset += tNumSpaceBases;
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------

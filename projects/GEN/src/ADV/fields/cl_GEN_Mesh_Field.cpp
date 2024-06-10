@@ -21,7 +21,7 @@ namespace moris::gen
             mtk::Mesh*  aMesh,
             std::string aFieldName,
             mtk::EntityRank  aEntityRank )
-             : Field_Discrete_Integration( Matrix< DDRMat >{{}}, aMesh->get_num_nodes())
+             : Field_Discrete_Integration( {}, aFieldName )
              , mMesh(aMesh)
              , mFieldName(aFieldName)
              , mEntityRank(aEntityRank)
@@ -37,7 +37,7 @@ namespace moris::gen
             std::string aFileFormat,
             real        aOffset,
             mtk::EntityRank  aEntityRank )
-            : Field_Discrete_Integration( Matrix< DDRMat>{{}}, aMesh == nullptr ? 0 : aMesh->get_num_nodes())
+            : Field_Discrete_Integration( {}, aFieldName )
             , mMesh(aMesh)
             , mFieldName(aFieldName)
             , mOffset(aOffset)

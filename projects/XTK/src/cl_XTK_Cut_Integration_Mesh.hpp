@@ -1595,7 +1595,7 @@ namespace moris::xtk
         void
         print()
         {
-            this->print_cells();
+            this->print_vectors();
             this->print_vertices();
             this->print_block_sets();
             this->print_groupings();
@@ -1605,7 +1605,7 @@ namespace moris::xtk
         // ----------------------------------------------------------------------------------
 
         void
-        print_cells(
+        print_vectors(
                 bool        aOmitIndex = false,
                 std::string aFile      = "" );
 

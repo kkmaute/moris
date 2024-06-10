@@ -52,7 +52,7 @@ check_results(
     moris::mtk::Exodus_IO_Helper tExoIO( aExoFileName.c_str(), 0, true, false );
 
     // define reference node IDs
-    Vector< uint > tReferenceNodeId = { 14, 43 };
+    Vector< uint > tReferenceNodeId = { 14, 43, 43 };
 
     if ( gPrintReferenceValues )
     {
@@ -79,9 +79,9 @@ check_results(
     }
 
     // define reference values for dimension, number of nodes and number of elements
-    Vector< uint > tReferenceNumDims  = { 2, 2 };
-    Vector< uint > tReferenceNumNodes = { 49241, 49241 };
-    Vector< uint > tReferenceNumElems = { 48000, 48000 };
+    Vector< uint > tReferenceNumDims  = { 2, 2 , 2  };
+    Vector< uint > tReferenceNumNodes = { 49241, 49241, 49241 };
+    Vector< uint > tReferenceNumElems = { 48000, 48000, 48000 };
 
     // check dimension, number of nodes and number of elements
     uint tNumDims  = tExoIO.get_number_of_dimensions();
@@ -110,6 +110,7 @@ check_results(
 
     tReferenceCoordinate.push_back( { { 0.00175 }, { 0.00000 } } );
     tReferenceCoordinate.push_back( { { 0.00525 }, { 0.00025 } } );
+    tReferenceCoordinate.push_back( { { 0.00525 }, { 0.00025 } } );
 
     // check nodal coordinates
     Matrix< DDRMat > tActualCoordinate = tExoIO.get_nodal_coordinate( tReferenceNodeId( aTestCaseIndex ) );
@@ -130,16 +131,9 @@ check_results(
     // check temperature at node aNodeId in first time step (displacements are 3,4,5th nodal fields, first time step has index 0)
     Vector< Matrix< DDRMat > > tReferenceDisplacement;
 
-    if ( aTestCaseIndex == 0 )
-    {
-        tReferenceDisplacement.push_back( { { -1.42942084733364e-06 }, { 6.46851986039073e-08 } } );
-        tReferenceDisplacement.push_back( { { 0.000993543881481338 }, { -0.000532691066062199 } } );
-    }
-    else if ( aTestCaseIndex == 1 )
-    {
-        tReferenceDisplacement.push_back( { { -1.42942084733364e-06 }, { 6.46851986039073e-08 } } );
-        tReferenceDisplacement.push_back( { { 0.000993543881481338 }, { -0.000532691066062199 } } );
-    }
+    tReferenceDisplacement.push_back( { { -1.42942084733364e-06 }, { 6.46851986039073e-08 } } );
+    tReferenceDisplacement.push_back( { { 0.000993543881481338 }, { -0.000532691066062199 } } );
+    tReferenceDisplacement.push_back( { { 0.000993543881481338 }, { -0.000532691066062199 } } );
 
     Matrix< DDRMat > tActualDisplacement = {
         { tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 2, 0 ) },
@@ -195,7 +189,7 @@ TEST_CASE( "Cantilever_Eigen_Pardiso",
     REQUIRE( tRet == 0 );
 
     // Perform check results for test-case 0
-    check_results( "Cantilever_Eigen_Pardiso.exo", gTestCaseIndex );
+    check_results( "Cantilever_Eigen_Amesos_Pardiso.exo", gTestCaseIndex );
 }
 
 //------------------------------------------------------------------------------------------------------------------------------------------------
@@ -231,5 +225,41 @@ TEST_CASE( "Cantilever_Eigen_Umfpack",
     REQUIRE( tRet == 0 );
 
     // Perform check results for test-case 0
-    check_results( "Cantilever_Eigen_Umfpack.exo", gTestCaseIndex );
+    check_results( "Cantilever_Eigen_Amesos_Umfpack.exo", gTestCaseIndex );
+}
+
+#ifdef MORIS_HAVE_SLEPC
+TEST_CASE( "Cantilever_Eigen_Slepc",
+        "[moris],[example],[structure],[slepc]" )
+{
+    // define command line call
+    int argc = 2;
+
+    char tString1[] = "";
+    char tString2[] = "./Cantilever_Eigen.so";
+
+    char* argv[ 2 ] = { tString1, tString2 };
+
+    // set interpolation order
+    gOrder = 1;
+
+    MORIS_LOG_INFO( " " );
+    MORIS_LOG_INFO( "Executing EigenProblem: Interpolation order 1 - %i Processors.", par_size() );
+    MORIS_LOG_INFO( " " );
+
+    // set eigen algorithm
+    gPrecSolver = "Slepc";
+
+    // set test-case index
+    gTestCaseIndex = 2;
+
+    // call to performance manager main interface
+    int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
+
+    // check test statement should follow
+    REQUIRE( tRet == 0 );
+
+    // Perform check results for test-case 0
+    check_results( "Cantilever_Eigen_Slepc.exo", gTestCaseIndex );
+#endif
 }

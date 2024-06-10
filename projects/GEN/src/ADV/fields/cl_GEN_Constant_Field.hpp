@@ -22,6 +22,16 @@ namespace moris::gen
         ANALYTIC_FIELD_ADV_CONSTRUCTOR( Constant_Field, 0, 1, { mSensitivities = { { 1.0 } }; } )
 
         /**
+         * Constructor
+         *
+         * @param aConstant Constant to set this field to
+         * @param aName Name of this field
+         */
+        Constant_Field(
+                const ADV& aConstant,
+                std::string aName );
+
+        /**
          * Given a node index, returns the field value.
          *
          * @param aNodeIndex Node index

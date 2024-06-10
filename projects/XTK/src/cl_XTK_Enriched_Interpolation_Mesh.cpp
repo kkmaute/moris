@@ -1034,9 +1034,9 @@ namespace moris::xtk
 
     void
     Enriched_Interpolation_Mesh::add_basis_functions(
-            moris_index const & aMeshIndex,
-            Vector< moris_id > const & aBfIdsToAdd,
-            Vector< moris_id > const & aBfOwners,
+            moris_index const &           aMeshIndex,
+            Vector< moris_id > const &    aBfIdsToAdd,
+            Vector< moris_id > const &    aBfOwners,
             Vector< moris_index > const & aBfBulkPhases )
     {
         // perform some checks on the inputs
@@ -1046,26 +1046,26 @@ namespace moris::xtk
                 "Input arrays not of equal size" );
 
         // get the discretization mesh index
-        moris_index tLocMesh  = this->get_local_mesh_index_xtk( aMeshIndex );
+        moris_index tLocMesh       = this->get_local_mesh_index_xtk( aMeshIndex );
         moris_index tFirstNewIndex = mEnrichCoeffLocToGlob( tLocMesh ).numel();
 
         // add a size of 1
         mEnrichCoeffLocToGlob( tLocMesh ).resize( 1, tFirstNewIndex + tNumBfs );
         mEnrichCoeffOwnership( tLocMesh ).resize( 1, tFirstNewIndex + tNumBfs );
-        mEnrichCoeffBulkPhase( tLocMesh ).resize( 1, tFirstNewIndex + tNumBfs ); 
+        mEnrichCoeffBulkPhase( tLocMesh ).resize( 1, tFirstNewIndex + tNumBfs );
 
-        for ( uint iBf = 0; iBf< tNumBfs; iBf++ )
+        for ( uint iBf = 0; iBf < tNumBfs; iBf++ )
         {
             // get the current BF's index
             moris_index tBfIndex = tFirstNewIndex + iBf;
 
             // get the info
-            moris_id tBfId = aBfIdsToAdd( iBf );
-            moris_id tBfOwner = aBfOwners( iBf );
+            moris_id    tBfId        = aBfIdsToAdd( iBf );
+            moris_id    tBfOwner     = aBfOwners( iBf );
             moris_index tBfBulkPhase = aBfBulkPhases( iBf );
 
             // check that the BF doesn't already exist
-            MORIS_ASSERT( 
+            MORIS_ASSERT(
                     !this->basis_exists_on_partition( aMeshIndex, tBfId ),
                     "Enriched_Interpolation_Mesh::add_basis_functions() - "
                     "The basis function (ID: %i) to be added already exists in this mesh.",
@@ -1080,7 +1080,7 @@ namespace moris::xtk
             mGlobalToLocalBasisMaps( tLocMesh )[ tBfId ] = tBfIndex;
         }
 
-    } // end function: Enriched_Interpolation_Mesh::add_basis_functions()
+    }    // end function: Enriched_Interpolation_Mesh::add_basis_functions()
 
     // ----------------------------------------------------------------------------
 
@@ -2271,7 +2271,7 @@ namespace moris::xtk
 
         }    // end if: parallel
 
-    }        // end function: Enriched_Interpolation_Mesh::assign_ip_vertex_ids
+    }    // end function: Enriched_Interpolation_Mesh::assign_ip_vertex_ids
 
     // ----------------------------------------------------------------------------
 
@@ -2513,7 +2513,7 @@ namespace moris::xtk
 
         }    // end for: each proc communicated with
 
-    }        // end function: Enriched_Interpolation_Mesh::prepare_requests_for_not_owned_unzipped_vertex_IDs()
+    }    // end function: Enriched_Interpolation_Mesh::prepare_requests_for_not_owned_unzipped_vertex_IDs()
 
     // ----------------------------------------------------------------------------
 
@@ -2597,9 +2597,9 @@ namespace moris::xtk
 
             }    // end for: communication for each entity with current processor
 
-        }        // end for: communication list for each processor
+        }    // end for: communication list for each processor
 
-    }            // end function: Enriched_Interpolation_Mesh::prepare_answers_for_owned_unzipped_vertex_IDs()
+    }    // end function: Enriched_Interpolation_Mesh::prepare_answers_for_owned_unzipped_vertex_IDs()
 
     // ----------------------------------------------------------------------------
 
@@ -2637,7 +2637,7 @@ namespace moris::xtk
 
         }    // end for: each processor communicated with
 
-    }        // end function: Enriched_Interpolation_Mesh::handle_requested_unzipped_vertex_ID_answers()
+    }    // end function: Enriched_Interpolation_Mesh::handle_requested_unzipped_vertex_ID_answers()
 
     // ----------------------------------------------------------------------------
 
@@ -2701,7 +2701,7 @@ namespace moris::xtk
 
         tNumIdsRequested( 0 ) = (moris::moris_id)aNumReqs;
 
-        moris::gather( tNumIdsRequested, aGatheredInfo );
+        moris::gather_vector( tNumIdsRequested, aGatheredInfo );
 
         Vector< moris::moris_id > tProcFirstID( tProcSize );
 
@@ -2718,7 +2718,7 @@ namespace moris::xtk
             }
         }
 
-        moris::scatter( tProcFirstID, tFirstId );
+        moris::scatter_vector( tProcFirstID, tFirstId );
 
         return tFirstId( 0 );
     }

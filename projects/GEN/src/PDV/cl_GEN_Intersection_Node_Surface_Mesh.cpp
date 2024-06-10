@@ -229,18 +229,18 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix< DDSMat >
+    Vector< sint >
     Intersection_Node_Surface_Mesh::get_coordinate_determining_adv_ids() const
     {
         // Initialize ADV IDs
-        Matrix< DDSMat > tCoordinateDeterminingADVIDs;
+        Vector< sint > tCoordinateDeterminingADVIDs;
 
         // Get ADV IDs from facet parents
         for ( uint tParentFacetVertex : mParentFacet->get_vertex_inds() )
         {
             if ( mInterfaceGeometry.facet_vertex_depends_on_advs( tParentFacetVertex ) )
             {    // Get the IDs for this vertex
-                Matrix< DDSMat > tVertexADVIds = mInterfaceGeometry.get_vertex_adv_ids( tParentFacetVertex );
+                Vector< sint > tVertexADVIds = mInterfaceGeometry.get_vertex_adv_ids( tParentFacetVertex );
 
                 // Join IDs
                 Intersection_Node::join_adv_ids( tCoordinateDeterminingADVIDs, tVertexADVIds );

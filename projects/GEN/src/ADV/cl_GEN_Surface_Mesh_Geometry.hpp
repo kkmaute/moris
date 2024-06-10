@@ -186,8 +186,10 @@ namespace moris::gen
          * @param aFieldIndex For geometries that have multiple fields, which field to discretize
          */
         void discretize(
-                mtk::Mesh_Pair    aMeshPair,
-                sol::Dist_Vector* aOwnedADVs ) override;
+                mtk::Mesh_Pair        aMeshPair,
+                sol::Dist_Vector*     aOwnedADVs,
+                const Vector< sint >& aSharedADVIds,
+                uint                  aADVOffsetID ) override;
 
         /**
          * If intended for this field, maps the field to B-spline coefficients or stores the nodal field values in a stored field object.
@@ -201,7 +203,9 @@ namespace moris::gen
         void discretize(
                 std::shared_ptr< mtk::Field > aMTKField,
                 mtk::Mesh_Pair                aMeshPair,
-                sol::Dist_Vector*             aOwnedADVs ) override;
+                sol::Dist_Vector*             aOwnedADVs,
+                const Vector< sint >&         aSharedADVIds,
+                uint                          aADVOffsetID ) override;
 
         /**
          * Used to print geometry information to exodus files and print debug information.
@@ -276,21 +280,29 @@ namespace moris::gen
          *
          * @return Mesh index
          */
-        virtual moris_index get_discretization_mesh_index() override;
+        moris_index get_discretization_mesh_index() override;
 
         /**
          * Gets the lower bound for a discretized field.
          *
          * @return Lower bound
          */
-        virtual real get_discretization_lower_bound() override;
+        real get_discretization_lower_bound() override;
 
         /**
          * Get the upper bound for a discretized field.
          *
          * @return Upper bound
          */
-        virtual real get_discretization_upper_bound() override;
+        real get_discretization_upper_bound() override;
+
+        /**
+         * Updates the dependencies of this design based on the given designs
+         * (fields may have been mapped/updated).
+         *
+         * @param aAllUpdatedDesigns All designs (this design will take fields from the ones it needs)
+         */
+        void update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedDesigns ) override;
 
         /**
          * Gets the intersection tolerance for creating intersection nodes

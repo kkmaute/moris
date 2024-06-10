@@ -28,7 +28,7 @@ namespace moris::gen
     BSpline_Field::BSpline_Field(
             mtk::Mesh_Pair           aMeshPair,
             sol::Dist_Vector*        aOwnedADVs,
-            const Matrix< DDSMat >&  aSharedADVIds,
+            const Vector< sint >&    aSharedADVIds,
             uint                     aADVOffsetID,
             uint                     aDiscretizationIndex,
             std::shared_ptr< Field > aField )
@@ -44,14 +44,14 @@ namespace moris::gen
         this->distribute_coeffs(
                 tTargetField,
                 aOwnedADVs,
-                aSharedADVIds.length() );
+                aSharedADVIds.size() );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     BSpline_Field::BSpline_Field(
             sol::Dist_Vector*             aOwnedADVs,
-            const Matrix< DDSMat >&       aSharedADVIds,
+            const Vector< sint >&       aSharedADVIds,
             uint                          aADVOffsetID,
             uint                          aDiscretizationIndex,
             std::shared_ptr< mtk::Field > aMTKField,
@@ -68,7 +68,7 @@ namespace moris::gen
         this->distribute_coeffs(
                 tTargetField,
                 aOwnedADVs,
-                aSharedADVIds.length() );
+                aSharedADVIds.size() );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -183,7 +183,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix< DDSMat >
+    Vector< sint >
     BSpline_Field::get_determining_adv_ids( uint aNodeIndex )
     {
         mtk::Mesh* tMesh = mMeshPair.get_interpolation_mesh();
@@ -192,13 +192,19 @@ namespace moris::gen
 
         if ( tVertex.has_interpolation( mDiscretizationIndex ) )
         {
-            return trans( tMesh->get_coefficient_IDs_of_node( aNodeIndex, mDiscretizationIndex ) ) + mADVOffsetID;
+            Matrix< DDSMat > tCoefficientIDs = tMesh->get_coefficient_IDs_of_node( aNodeIndex, mDiscretizationIndex );
+            Vector< sint > tADVIDs( tCoefficientIDs.length() );
+            for ( uint iADVIndex = 0; iADVIndex < tADVIDs.size(); iADVIndex++ )
+            {
+                tADVIDs( iADVIndex ) = tCoefficientIDs( iADVIndex ) + mADVOffsetID;
+            }
+            return tADVIDs;
         }
         else
         {
             // return empty matrix when no T-matrix has been found
             // FIXME better solution: ensure that all T-matrices are available
-            return Matrix< DDSMat >( 0, 0 );
+            return {};
         }
     }
 
@@ -208,17 +214,17 @@ namespace moris::gen
     BSpline_Field::import_advs( sol::Dist_Vector* aOwnedADVs )
     {
         // Import ADVs as usual
-        mADVManager.import_advs( aOwnedADVs );
+        mADVHandler.import_advs( aOwnedADVs );
 
         // Reset evaluated field
         mOwnedNodalValues->vec_put_scalar( 0 );
 
-        // Evaluate into matrix TODO just make the field accept a vector to begin with
-        uint tNumberOfCoefficients = mADVManager.get_determining_adv_ids().length();
+        // Evaluate into matrix TODO just make the field accept a cell to begin with
+        uint tNumberOfCoefficients = mADVHandler.get_determining_adv_ids().size();
         moris::Matrix< DDRMat > tCoeff( tNumberOfCoefficients, 1 );
         for ( uint Ik = 0; Ik < tNumberOfCoefficients; Ik++ )
         {
-            tCoeff( Ik ) = mADVManager.get_variable( Ik );
+            tCoeff( Ik ) = mADVHandler.get_variable( Ik );
         }
 
         // Create field
@@ -267,11 +273,11 @@ namespace moris::gen
         auto tMTKField = std::make_shared< mtk::Field_Discrete >( mMeshPair, mDiscretizationIndex );
 
         // Set coefficient vector TODO vector instead of matrix, like above
-        uint tNumberOfCoefficients = mADVManager.get_determining_adv_ids().length();
+        uint tNumberOfCoefficients = mADVHandler.get_determining_adv_ids().size();
         moris::Matrix< DDRMat > tCoefficients( tNumberOfCoefficients, 1 );
         for ( uint iCoefficientIndex = 0; iCoefficientIndex < tNumberOfCoefficients; iCoefficientIndex++ )
         {
-            tCoefficients( iCoefficientIndex ) = mADVManager.get_variable( iCoefficientIndex );
+            tCoefficients( iCoefficientIndex ) = mADVHandler.get_variable( iCoefficientIndex );
         }
 
         // Set coefficients

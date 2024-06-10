@@ -27,12 +27,12 @@ namespace moris::wrk
             /**
              * Constructor
              */
-            Performer()=default;
+            Performer() = default;
 
             /**
              * Destructor
              */
-            ~Performer()=default;
+            virtual ~Performer() = default;
 
             /**
              * Return the number of fields that can be used for refinement

@@ -671,7 +671,7 @@ namespace moris
 
                 moris::real tTimeRatio = tTimeForSolve / tTimeForInv;
 
-                MORIS_LOG_INFO( "Time for %i solves verses inverse of matrix of size %i and RHS of size %i: ratio = %5.2f : solve = %5.2f milliseconds inverse = %5.2f  (difference in results = %5.2f perc).",
+                MORIS_LOG_INFO( "Time for %i solves versus inverse of matrix of size %i and RHS of size %i: ratio = %5.2f : solve = %5.2f milliseconds inverse = %5.2f  (difference in results = %5.2f perc).",
                         tNumRepetitions,
                         imat,
                         irhs,

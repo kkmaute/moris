@@ -65,7 +65,7 @@ namespace moris
              *
              * @return Vector of current advs
              */
-            Matrix<DDRMat> get_advs();
+            Vector< real > get_advs();
 
             /**
              * Gets the objectives from the problem

@@ -537,13 +537,13 @@ namespace moris::gen
     Level_Set_Geometry::get_field_names()
     {
         Vector< std::string > tFieldNames( 1 );
-        
+
         // Assign a default if this geometry does not have a name
         this->get_name() == "" ? tFieldNames( 0 ) = "Level Set Geometry: " + std::to_string( mOffsetID ) : tFieldNames( 0 ) = this->get_name();
-        
+
         return tFieldNames;
     }
-    
+
     //--------------------------------------------------------------------------------------------------------------
 
     void
@@ -564,8 +564,10 @@ namespace moris::gen
 
     void
     Level_Set_Geometry::discretize(
-            mtk::Mesh_Pair    aMeshPair,
-            sol::Dist_Vector* aOwnedADVs )
+            mtk::Mesh_Pair        aMeshPair,
+            sol::Dist_Vector*     aOwnedADVs,
+            const Vector< sint >& aSharedADVIds,
+            uint                  aADVOffsetID )
     {
 
         if ( mSharedADVIDs.size() == 0 )
@@ -587,7 +589,9 @@ namespace moris::gen
     Level_Set_Geometry::discretize(
             std::shared_ptr< mtk::Field > aMTKField,
             mtk::Mesh_Pair                aMeshPair,
-            sol::Dist_Vector*             aOwnedADVs )
+            sol::Dist_Vector*             aOwnedADVs,
+            const Vector< sint >&         aSharedADVIds,
+            uint                          aADVOffsetID )
     {
 
         if ( aMTKField->get_label() == this->get_name() )
@@ -648,5 +652,22 @@ namespace moris::gen
     {
         return mParameters.mDiscretizationUpperBound;
     }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Level_Set_Geometry::update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedDesigns )
+    {
+        // Get fields from designs
+        Vector< std::shared_ptr< Field > > tUpdatedFields( aAllUpdatedDesigns.size() );
+        for ( uint iFieldIndex = 0; iFieldIndex < tUpdatedFields.size(); iFieldIndex++ )
+        {
+            tUpdatedFields( iFieldIndex ) = aAllUpdatedDesigns( iFieldIndex )->get_field();
+        }
+
+        // Update fields
+        Design_Field::update_dependencies( tUpdatedFields );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
 
 }    // namespace moris::gen

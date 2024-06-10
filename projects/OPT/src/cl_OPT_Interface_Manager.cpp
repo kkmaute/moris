@@ -51,20 +51,20 @@ namespace moris
 
         void
         Interface_Manager::initialize(
-                Matrix< DDRMat >& aGlobalADVs,
-                Matrix< DDRMat >& aGlobalLowerBounds,
-                Matrix< DDRMat >& aGlobalUpperBounds,
+                Vector< real >& aGlobalADVs,
+                Vector< real >& aGlobalLowerBounds,
+                Vector< real >& aGlobalUpperBounds,
                 Matrix< IdMat >& )
         {
             // Set up ADVs
             Matrix< IdMat > tDummy;
             mInterfaces( 0 )->initialize( aGlobalADVs, aGlobalLowerBounds, aGlobalUpperBounds, tDummy );
 
-            uint tCurrentGlobalADV = aGlobalADVs.length();
+            uint tCurrentGlobalADV = aGlobalADVs.size();
 
-            Matrix< DDRMat > tLocalADVs;
-            Matrix< DDRMat > tLocalLowerBounds;
-            Matrix< DDRMat > tLocalUpperBounds;
+            Vector< real > tLocalADVs;
+            Vector< real > tLocalLowerBounds;
+            Vector< real > tLocalUpperBounds;
 
             // ADVs per interface
             mNumADVsPerInterface.set_size( mNumInterfaces, 1, 0 );
@@ -97,7 +97,7 @@ namespace moris
                     // Get the local ADVs and bounds
                     Matrix< IdMat > tDummy;
                     mInterfaces( tInterfaceIndex )->initialize( tLocalADVs, tLocalLowerBounds, tLocalUpperBounds, tDummy );
-                    mNumADVsPerInterface( tInterfaceIndex ) = tLocalADVs.length();
+                    mNumADVsPerInterface( tInterfaceIndex ) = tLocalADVs.size();
 
                     // Put into the global ADVs
                     aGlobalADVs.resize( tCurrentGlobalADV + mNumADVsPerInterface( tInterfaceIndex ), 1 );
@@ -119,22 +119,22 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
 
-        Matrix< DDRMat >
-        Interface_Manager::perform( Matrix< DDRMat >& aNewADVs )
+        Vector< real >
+        Interface_Manager::perform( Vector< real >& aNewADVs )
         {
             // Set up global criteria
-            Matrix< DDRMat > tGlobalCriteria( 1, 1 );
-            Matrix< DDRMat > tLocalCriteria;
+            Vector< real > tGlobalCriteria( 1 );
+            Vector< real > tLocalCriteria;
 
             uint tCurrentGlobalCriteria = 0;
 
             mNumCriteriaPerInterface.set_size( mNumInterfaces, 1 );
 
             // Local ADVs
-            Matrix< DDRMat > tLocalADVs( 0, 0 );
+            Vector< real > tLocalADVs( 0, 0 );
 
             // Get criteria in parallel if requested
-            Vector< Matrix< DDRMat > > tReceiveMats;
+            Vector< Vector< real > > tReceiveVectors;
             if ( mParallel )
             {
                 // Assign new comm color and rank
@@ -156,17 +156,17 @@ namespace moris
                 comm_join();
 
                 // Set up communication list and cells of mats
-                Matrix< IdMat >          tCommunicationList( 0, 0 );
-                Vector< Matrix< DDRMat > > tSendMats( 0 );
+                Vector< sint >           tCommunicationList( 0 );
+                Vector< Vector< real > > tSendVectors( 0 );
 
                 // Send to other procs if I was rank 0 after split
                 if ( !tKey )
                 {
-                    tCommunicationList.resize( par_size(), 1 );
-                    tSendMats.resize( par_size() );
+                    tCommunicationList.resize( par_size() );
+                    tSendVectors.resize( par_size() );
                     for ( int tParRank = 0; tParRank < par_size(); tParRank++ )
                     {
-                        tSendMats( tParRank )          = tLocalCriteria;
+                        tSendVectors( tParRank )          = tLocalCriteria;
                         tCommunicationList( tParRank ) = tParRank;
                     }
                 }
@@ -174,8 +174,8 @@ namespace moris
                 // Otherwise just receive from rank 0 procs
                 else
                 {
-                    tCommunicationList.resize( mNumInterfaces, 1 );
-                    tSendMats.resize( mNumInterfaces );
+                    tCommunicationList.resize( mNumInterfaces );
+                    tSendVectors.resize( mNumInterfaces );
                     for ( uint tInterfaceIndex = 0; tInterfaceIndex < mNumInterfaces; tInterfaceIndex++ )
                     {
                         tCommunicationList( tInterfaceIndex ) = mProcessorBoundaries( tInterfaceIndex ) - 1;
@@ -183,27 +183,27 @@ namespace moris
                 }
 
                 // Communicate local criteria
-                communicate_mats( tCommunicationList, tSendMats, tReceiveMats );
+                communicate_vectors( tCommunicationList, tSendVectors, tReceiveVectors );
 
                 // Only use necessary info if I was rank 0
                 if ( !tKey )
                 {
                     for ( uint tInterfaceIndex = 0; tInterfaceIndex < mNumInterfaces; tInterfaceIndex++ )
                     {
-                        tReceiveMats( tInterfaceIndex ) = tReceiveMats( mProcessorBoundaries( tInterfaceIndex ) - 1 );
+                        tReceiveVectors( tInterfaceIndex ) = tReceiveVectors( mProcessorBoundaries( tInterfaceIndex ) - 1 );
                     }
-                    tReceiveMats( tColor ) = tLocalCriteria;
+                    tReceiveVectors( tColor ) = tLocalCriteria;
                 }
             }
 
             // Get criteria in serial
             else
             {
-                tReceiveMats.resize( mNumInterfaces );
+                tReceiveVectors.resize( mNumInterfaces );
                 for ( uint tInterfaceIndex = 0; tInterfaceIndex < mNumInterfaces; tInterfaceIndex++ )
                 {
                     tLocalADVs                      = get_local_advs( aNewADVs, tInterfaceIndex );
-                    tReceiveMats( tInterfaceIndex ) = mInterfaces( tInterfaceIndex )->get_criteria( tLocalADVs );
+                    tReceiveVectors( tInterfaceIndex ) = mInterfaces( tInterfaceIndex )->get_criteria( tLocalADVs );
                 }
             }
 
@@ -211,8 +211,8 @@ namespace moris
             for ( uint tInterfaceIndex = 0; tInterfaceIndex < mNumInterfaces; tInterfaceIndex++ )
             {
                 // Get the local criteria
-                tLocalCriteria                              = tReceiveMats( tInterfaceIndex );
-                mNumCriteriaPerInterface( tInterfaceIndex ) = tLocalCriteria.length();
+                tLocalCriteria                              = tReceiveVectors( tInterfaceIndex );
+                mNumCriteriaPerInterface( tInterfaceIndex ) = tLocalCriteria.size();
 
                 // Put into the global criteria
                 tGlobalCriteria.resize( tCurrentGlobalCriteria + mNumCriteriaPerInterface( tInterfaceIndex ), 1 );
@@ -338,12 +338,12 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
 
-        Matrix< DDRMat >
+        Vector< real >
         Interface_Manager::get_local_advs(
-                Matrix< DDRMat > aGlobalADVs,
-                uint             tThisInterface )
+                Vector< real > aGlobalADVs,
+                uint           tThisInterface )
         {
-            Matrix< DDRMat > tLocalADVs( 0, 0 );
+            Vector< real > tLocalADVs( 0, 0 );
 
             // ADVs are shared
             if ( mSharedADVs )

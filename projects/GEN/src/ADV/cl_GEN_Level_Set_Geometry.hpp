@@ -31,7 +31,7 @@ namespace moris::gen
          *
          * @param aParameterList Parameter list with level set geometry parameters
          */
-        explicit Level_Set_Parameters( const Parameter_List& aParameterList = prm::create_level_set_geometry_parameter_list() );
+        explicit Level_Set_Parameters( const Parameter_List& aParameterList = prm::create_level_set_geometry_parameter_list( gen::Field_Type::NONE ) );
     };
 
     class Level_Set_Geometry : public Geometry
@@ -173,8 +173,10 @@ namespace moris::gen
          * @param aOwnedADVs Pointer to the owned distributed ADVs
          */
         void discretize(
-                mtk::Mesh_Pair          aMeshPair,
-                sol::Dist_Vector*       aOwnedADVs ) override;
+                mtk::Mesh_Pair        aMeshPair,
+                sol::Dist_Vector*     aOwnedADVs,
+                const Vector< sint >& aSharedADVIds,
+                uint                  aADVOffsetID ) override;
 
         /**
          * If intended for this field, maps the field to B-spline coefficients or stores the nodal field values in a stored field object.
@@ -186,7 +188,9 @@ namespace moris::gen
         void discretize(
                 std::shared_ptr< mtk::Field > aMTKField,
                 mtk::Mesh_Pair                aMeshPair,
-                sol::Dist_Vector*             aOwnedADVs ) override;
+                sol::Dist_Vector*             aOwnedADVs,
+                const Vector< sint >&         aSharedADVIds,
+                uint                          aADVOffsetID ) override;
 
         /**
          * Used to print geometry information to exodus files and print debug information.
@@ -255,6 +259,14 @@ namespace moris::gen
          * @return Upper bound
          */
         real get_discretization_upper_bound() override;
+
+        /**
+         * Updates the dependencies of this design based on the given designs
+         * (fields may have been mapped/updated).
+         *
+         * @param aAllUpdatedDesigns All designs (this design will take fields from the ones it needs)
+         */
+        void update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedDesigns ) override;
 
       private:
         /**

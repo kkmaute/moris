@@ -46,7 +46,7 @@
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
-#include "cl_GEN_Plane.hpp"
+#include "cl_GEN_Line.hpp"
 #include "cl_VIS_Factory.hpp"
 
 #include "cl_MTK_Writer_Exodus.hpp"
@@ -162,7 +162,7 @@ namespace moris
 
                 hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-                auto                                    tField          = std::make_shared< moris::gen::Plane >( 0.11, 0.11, 1.0, 0.0 );
+                auto                                    tField          = std::make_shared< moris::gen::Line >( 0.11, 0.11, 1.0, 0.0 );
                 Vector< std::shared_ptr< gen::Geometry > > tGeometryVector = { std::make_shared< gen::Level_Set_Geometry >( tField ) };
 
                 size_t                                tModelDimension = 2;

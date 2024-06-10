@@ -51,10 +51,10 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void Design_Field::discretize(
-            mtk::Mesh_Pair          aMeshPair,
-            sol::Dist_Vector*       aOwnedADVs,
-            const Matrix< DDSMat >& aSharedADVIds,
-            uint                    aADVOffsetID )
+            mtk::Mesh_Pair        aMeshPair,
+            sol::Dist_Vector*     aOwnedADVs,
+            const Vector< sint >& aSharedADVIds,
+            uint                  aADVOffsetID )
     {
         if ( mParameters.mDiscretizationIndex >= 0 )
         {
@@ -86,7 +86,7 @@ namespace moris::gen
             std::shared_ptr< mtk::Field > aMTKField,
             mtk::Mesh_Pair                aMeshPair,
             sol::Dist_Vector*             aOwnedADVs,
-            const Matrix< DDSMat >&       aSharedADVIds,
+            const Vector< sint >&         aSharedADVIds,
             uint                          aADVOffsetID )
     {
         if ( mParameters.mDiscretizationIndex >= 0 )
@@ -188,7 +188,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix< DDSMat > Design_Field::get_determining_adv_ids(
+    Vector< sint > Design_Field::get_determining_adv_ids(
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates )
     {
@@ -200,7 +200,7 @@ namespace moris::gen
         else
         {
             // Derived node, so we might need interpolation
-            mInterpolatedADVIDs.set_size( 0, 0 );
+            mInterpolatedADVIDs.clear();
 
             // Get derived node
             const Node_Manager& tNodeManager = *mNodeManager;
@@ -257,6 +257,13 @@ namespace moris::gen
     bool Design_Field::use_multilinear_interpolation() const
     {
         return mParameters.mUseMultilinearInterpolation;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Design_Field::update_dependencies( Vector< std::shared_ptr< Field > > aUpdatedFields )
+    {
+        mField->update_dependencies( aUpdatedFields );
     }
 
     //--------------------------------------------------------------------------------------------------------------

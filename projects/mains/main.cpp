@@ -41,7 +41,7 @@ moris_pause( int& argc, char* argv[] )
             pid_t tPId = getpid();
 
             Matrix< DDSMat > tPIdVec;
-            comm_gather_and_broadcast( tPId, tPIdVec );
+            allgather_scalar( tPId, tPIdVec );
 
             if ( par_rank() == 0 )
             {

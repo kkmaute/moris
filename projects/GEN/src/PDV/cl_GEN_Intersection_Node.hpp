@@ -187,8 +187,8 @@ namespace moris::gen
          * @param aIDsToAdd IDs to add
          */
         static void join_adv_ids(
-                Matrix< DDSMat >&       aCombinedIDs,
-                const Matrix< DDSMat >& aIDsToAdd );
+                Vector< sint >&       aCombinedIDs,
+                const Vector< sint >& aIDsToAdd );
 
         /**
          * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global

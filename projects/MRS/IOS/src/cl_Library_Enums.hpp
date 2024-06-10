@@ -7,8 +7,7 @@
  * cl_Library_Enums.hpp
  *
  */
-#ifndef SRC_cl_Library_Enums
-#define SRC_cl_Library_Enums
+#pragma once
 
 #include <string>
 #include "moris_typedefs.hpp"
@@ -139,5 +138,3 @@ namespace moris
     // -----------------------------------------------------------------------------
 
 }    // namespace moris
-
-#endif /* cl_Library_Enums.hpp */

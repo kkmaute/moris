@@ -163,15 +163,15 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void Intersection_Node::join_adv_ids(
-            Matrix< DDSMat >&       aCombinedIDs,
-            const Matrix< DDSMat >& aIDsToAdd )
+            Vector< sint >&       aCombinedIDs,
+            const Vector< sint >& aIDsToAdd )
     {
         // Resize IDs
-        uint tJoinedSensitivityLength = aCombinedIDs.n_cols();
-        aCombinedIDs.resize( 1, tJoinedSensitivityLength + aIDsToAdd.length() );
+        uint tJoinedSensitivityLength = aCombinedIDs.size();
+        aCombinedIDs.resize( tJoinedSensitivityLength + aIDsToAdd.size() );
 
         // Join IDs
-        for ( uint tAddedSensitivity = 0; tAddedSensitivity < aIDsToAdd.length(); tAddedSensitivity++ )
+        for ( uint tAddedSensitivity = 0; tAddedSensitivity < aIDsToAdd.size(); tAddedSensitivity++ )
         {
             aCombinedIDs( tJoinedSensitivityLength + tAddedSensitivity ) = aIDsToAdd( tAddedSensitivity );
         }

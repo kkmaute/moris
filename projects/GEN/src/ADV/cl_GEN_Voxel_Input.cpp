@@ -20,16 +20,14 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Voxel_Input::Voxel_Input(
-            std::string      aVoxelFileName,
-            Matrix< DDRMat > aDomainDimensions,
-            Matrix< DDRMat > aDomainOffset,
-            Matrix< DDRMat > aGrainIdToValueMap,
-            Node_Manager&    aNodeManager )
+            const std::string&    aVoxelFileName,
+            const Vector< real >& aDomainDimensions,
+            const Vector< real >& aDomainOffset,
+            Node_Manager&         aNodeManager )
             : mVoxelFileName( aVoxelFileName )
             , mNodeManager( aNodeManager )
             , mDomainDimensions( aDomainDimensions )
             , mDomainOffset( aDomainOffset )
-            , mGrainIdToValueMap( aGrainIdToValueMap )
     {
         this->read_voxel_data( aVoxelFileName );
     }
@@ -52,8 +50,8 @@ namespace moris::gen
 
     uint Voxel_Input::get_voxel_ID( const Matrix< DDRMat >& aCoordinates )
     {
-        // set pointer to correct field value function
-        if ( mDomainDimensions.numel() == 3 )
+        // Use correct field value function
+        if ( mDomainDimensions.size() == 3 )
         {
             return get_voxel_ID_3d( aCoordinates );
         }
@@ -67,9 +65,9 @@ namespace moris::gen
 
     uint Voxel_Input::get_voxel_ID_3d( const Matrix< DDRMat >& aCoordinates )
     {
-        moris::real tVoxelSizeX = mDomainDimensions( 0 ) / mVoxelsInX;
-        moris::real tVoxelSizeY = mDomainDimensions( 1 ) / mVoxelsInY;
-        moris::real tVoxelSizeZ = mDomainDimensions( 2 ) / mVoxelsInZ;
+        real tVoxelSizeX = mDomainDimensions( 0 ) / mVoxelsInX;
+        real tVoxelSizeY = mDomainDimensions( 1 ) / mVoxelsInY;
+        real tVoxelSizeZ = mDomainDimensions( 2 ) / mVoxelsInZ;
 
         MORIS_ASSERT(
                 aCoordinates( 0 ) - mDomainOffset( 0 ) >= 0.0               //
@@ -77,11 +75,11 @@ namespace moris::gen
                         && aCoordinates( 1 ) - mDomainOffset( 2 ) >= 0.0,
                 "Voxel_Input::get_voxel_ID_3d() - invalid domain dimensions; check offset.\n" );
 
-        moris::uint tI = std::floor( ( aCoordinates( 0 ) - mDomainOffset( 0 ) ) / tVoxelSizeX );    // K
-        moris::uint tJ = std::floor( ( aCoordinates( 1 ) - mDomainOffset( 1 ) ) / tVoxelSizeY );
-        moris::uint tK = std::floor( ( aCoordinates( 2 ) - mDomainOffset( 2 ) ) / tVoxelSizeZ );    // I
+        uint tI = std::floor( ( aCoordinates( 0 ) - mDomainOffset( 0 ) ) / tVoxelSizeX );    // K
+        uint tJ = std::floor( ( aCoordinates( 1 ) - mDomainOffset( 1 ) ) / tVoxelSizeY );
+        uint tK = std::floor( ( aCoordinates( 2 ) - mDomainOffset( 2 ) ) / tVoxelSizeZ );    // I
 
-        moris::real tEpsilon = 1E-12;
+        real tEpsilon = 1E-12;
 
         if ( aCoordinates( 0 ) >= mDomainDimensions( 0 ) + mDomainOffset( 0 ) - tEpsilon )
         {
@@ -97,7 +95,7 @@ namespace moris::gen
         }
 
         // mVoxelInput columns are ordered - VoxelIndex - GainsId - I - J - K
-        moris::uint tRow =
+        uint tRow =
                 tI * mVoxelsInY * mVoxelsInZ + tJ * mVoxelsInZ + tK;
 
         return mVoxelField( tRow, 1 );
@@ -115,13 +113,13 @@ namespace moris::gen
                 && aCoordinates( 1 ) - mDomainOffset( 1 ) >= 0.0                           //
                 && mDomainOffset( 1 ) + mDomainDimensions( 1 ) - aCoordinates( 1 ) >= 0 )
         {
-            moris::real tVoxelSizeX = mDomainDimensions( 0 ) / mVoxelsInX;
-            moris::real tVoxelSizeY = mDomainDimensions( 1 ) / mVoxelsInY;
+            real tVoxelSizeX = mDomainDimensions( 0 ) / mVoxelsInX;
+            real tVoxelSizeY = mDomainDimensions( 1 ) / mVoxelsInY;
 
-            moris::uint tI = std::floor( ( aCoordinates( 0 ) - mDomainOffset( 0 ) ) / tVoxelSizeX );
-            moris::uint tJ = std::floor( ( aCoordinates( 1 ) - mDomainOffset( 1 ) ) / tVoxelSizeY );
+            uint tI = std::floor( ( aCoordinates( 0 ) - mDomainOffset( 0 ) ) / tVoxelSizeX );
+            uint tJ = std::floor( ( aCoordinates( 1 ) - mDomainOffset( 1 ) ) / tVoxelSizeY );
 
-            moris::real tEpsilon = 1E-12;
+            real tEpsilon = 1E-12;
 
             if ( aCoordinates( 0 ) >= mDomainDimensions( 0 ) + mDomainOffset( 0 ) - tEpsilon )
             {
@@ -133,19 +131,13 @@ namespace moris::gen
             }
 
             // mVoxelInput columns are ordered - VoxelIndex - GainsId - I - J
-            moris::uint tRow = tI * mVoxelsInY + tJ;
+            uint tRow = tI * mVoxelsInY + tJ;
 
             tGrainID = mVoxelField( tRow, 1 );
         }
         else
         {
             tGrainID = mNumGrainInd + 1;
-        }
-
-        // return mapped value if map exists
-        if ( mGrainIdToValueMap.numel() > 0 )
-        {
-            return mGrainIdToValueMap( tGrainID - 1 );
         }
 
         return tGrainID;
@@ -157,13 +149,13 @@ namespace moris::gen
     Voxel_Input::read_voxel_data( std::string aVoxelFieldName )
     {
         // build Ascii reader
-        moris::Ascii tAsciiReader( aVoxelFieldName, moris::FileMode::OPEN_RDONLY );
+        Ascii tAsciiReader( aVoxelFieldName, FileMode::OPEN_RDONLY );
 
         // get number of lines in asci file
-        moris::uint tNumLines = tAsciiReader.length();
+        uint tNumLines = tAsciiReader.length();
 
         // get number of spatial dimensions
-        uint tNumSpaceDim = mDomainDimensions.numel();
+        uint tNumSpaceDim = mDomainDimensions.size();
 
         // set matrix for voxel field
         mVoxelField.set_size( tNumLines, tNumSpaceDim + 2, MORIS_UINT_MAX );

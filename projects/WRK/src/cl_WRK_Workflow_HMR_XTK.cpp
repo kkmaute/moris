@@ -108,10 +108,10 @@ namespace moris
 
         void
         Workflow_HMR_XTK::initialize(
-                Matrix< DDRMat >& aADVs,
-                Matrix< DDRMat >& aLowerBounds,
-                Matrix< DDRMat >& aUpperBounds,
-                Matrix< IdMat >&  aIjklIDs )
+                Vector< real >& aADVs,
+                Vector< real >& aLowerBounds,
+                Vector< real >& aUpperBounds,
+                Matrix< IdMat >& aIjklIDs )
         {
             // Trace & log this function
             Tracer tTracer( "WRK", "HMR-XTK Workflow", "Initialize" );
@@ -208,8 +208,8 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix< DDRMat >
-        Workflow_HMR_XTK::perform( Matrix< DDRMat >& aNewADVs )
+        Vector< real >
+        Workflow_HMR_XTK::perform( Vector< real >& aNewADVs )
         {
             // get optimization iteration
             sint tOptIter = gLogger.get_iteration( "OPT", "Manager", "Perform" );
@@ -223,9 +223,9 @@ namespace moris
             {
                 mInitializeOptimizationRestart = true;
 
-                moris::Matrix< DDRMat > tMat( mNumCriteria, 1, std::numeric_limits< real >::quiet_NaN() );
+                Vector< real > tVector( mNumCriteria, std::numeric_limits< real >::quiet_NaN() );
 
-                return tMat;
+                return tVector;
             }
 
             // Stage *: Re-initialization of the adv field
@@ -266,9 +266,9 @@ namespace moris
                 {
 
                     // allocate auxiliary arrays
-                    Matrix< DDRMat > tADVs;
-                    Matrix< DDRMat > tLowerBounds;
-                    Matrix< DDRMat > tUpperBounds;
+                    Vector< real > tADVs;
+                    Vector< real > tLowerBounds;
+                    Vector< real > tUpperBounds;
                     Matrix< IdMat >  tIjklIDs;
 
                     // initialize HMR and GEN
@@ -322,7 +322,7 @@ namespace moris
                         "Workflow_HMR_XTK::perform() problem with mNumCriteria. "
                         "This can happen if the xtk interface interfaces different refinement level in the first optimization iteration" );
 
-                moris::Matrix< DDRMat > tMat( mNumCriteria, 1, std::numeric_limits< real >::quiet_NaN() );
+                Vector< real > tVector( mNumCriteria, std::numeric_limits< real >::quiet_NaN() );
 
                 if ( tDeleteXTK )
                 {
@@ -330,7 +330,7 @@ namespace moris
                     delete tXTKPerformer;
                 }
 
-                return tMat;
+                return tVector;
             }
 
             // store whether the new ghost has been used
@@ -364,9 +364,9 @@ namespace moris
                 MORIS_LOG( "------------------------------------------------------------------------------" );
                 MORIS_LOG( "Only output of the foreground mesh requested. Stopping workflow after XTK/MTK." );
                 MORIS_LOG( "------------------------------------------------------------------------------" );
-                moris::Matrix< DDRMat > tMat( 1, 1, std::numeric_limits< real >::quiet_NaN() );
+                Vector< real > tVector( 1, std::numeric_limits< real >::quiet_NaN() );
                 delete tXTKPerformer;
-                return tMat;
+                return tVector;
             }
 
             // output T-matrices and/or MPCs if requested
@@ -378,9 +378,9 @@ namespace moris
                 MORIS_LOG( "----------------------------------------------------------------------------------------------------" );
                 MORIS_LOG( "T-Matrix output or triangulation of all elements in post requested. Stopping workflow after XTK/MTK." );
                 MORIS_LOG( "----------------------------------------------------------------------------------------------------" );
-                moris::Matrix< DDRMat > tMat( 1, 1, std::numeric_limits< real >::quiet_NaN() );
+                Vector< real > tVector( 1, std::numeric_limits< real >::quiet_NaN() );
                 delete tXTKPerformer;
-                return tMat;
+                return tVector;
             }
 
             if ( tDeleteXTK )
@@ -475,18 +475,17 @@ namespace moris
             }
 
             // build vector of design criteria
-            moris::Matrix< DDRMat > tMat( mNumCriteria, 1, 0.0 );
-
-            for ( uint Ik = 0; Ik < mNumCriteria; Ik++ )
+            Vector< real > tVector( mNumCriteria, 0.0 );
+            for ( uint iCriteriaIndex = 0; iCriteriaIndex < mNumCriteria; iCriteriaIndex++ )
             {
-                tMat( Ik ) = tVal( Ik )( 0 );
+                tVector( iCriteriaIndex ) = tVal( iCriteriaIndex )( 0 );
             }
 
             // increment optimization iteration counter
             mIter++;
 
             // return vector of design criteria
-            return tMat;
+            return tVector;
         }
 
         //--------------------------------------------------------------------------------------------------------------

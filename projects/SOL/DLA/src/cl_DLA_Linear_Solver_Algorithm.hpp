@@ -52,6 +52,8 @@ namespace moris
 
           public:
 
+
+            //-----------------------------------------------------------------------------------
             Linear_Solver_Algorithm( const moris::Parameter_List& aParameterlist )
                     : mParameterList( aParameterlist ){};
 
@@ -81,6 +83,17 @@ namespace moris
              */
 
             virtual void set_left_hand_side_preconditioner( Preconditioner* aPreconditioner ){};
+
+            //-----------------------------------------------------------------------------------
+
+            /**
+             * @brief Set the sublinear solver options object
+             * 
+             * @param aParameterlistsubSolver linear solver needed for inverse
+             * @param aParameterlistPreconditioner precondioner for the linear solver
+             */
+            
+            virtual void set_sublinear_solver_options( const Parameter_List* aParameterlistsubSolver, const Parameter_List* aParameterlistPreconditioner){};
 
             //-----------------------------------------------------------------------------------
 

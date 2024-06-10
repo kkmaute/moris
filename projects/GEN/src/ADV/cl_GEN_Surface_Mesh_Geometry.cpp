@@ -467,8 +467,10 @@ namespace moris::gen
 
     void
     Surface_Mesh_Geometry::discretize(
-            mtk::Mesh_Pair    aMeshPair,
-            sol::Dist_Vector* aOwnedADVs )
+            mtk::Mesh_Pair        aMeshPair,
+            sol::Dist_Vector*     aOwnedADVs,
+            const Vector< sint >& aSharedADVIds,
+            uint                  aADVOffsetID )
     {
         MORIS_ASSERT( Design::mSharedADVIDs.size() == Object::mDimension or Design::mSharedADVIDs.size() == 0,
                 "mSharedADVIDs should have as many entries as dimensions. Size = %ld",
@@ -512,7 +514,9 @@ namespace moris::gen
     void Surface_Mesh_Geometry::discretize(
             std::shared_ptr< mtk::Field > aMTKField,
             mtk::Mesh_Pair                aMeshPair,
-            sol::Dist_Vector*             aOwnedADVs )
+            sol::Dist_Vector*     aOwnedADVs,
+            const Vector< sint >& aSharedADVIds,
+            uint                  aADVOffsetID )
     {
         MORIS_ERROR( false, "Surface mesh bspline fields cannot be remeshed for now" );
         for ( uint iFieldIndex = 0; iFieldIndex < Object::mDimension; iFieldIndex++ )
@@ -670,7 +674,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix< DDSMat >
+    Vector< sint >
     Surface_Mesh_Geometry::get_vertex_adv_ids( uint aFacetVertexIndex )
     {
         // Determine which directions the vertex can move in
@@ -686,7 +690,7 @@ namespace moris::gen
         }
 
         // Initialize matrix to be filled
-        Matrix< DDSMat > tVertexADVIds;
+        Vector< sint > tVertexADVIds;
 
         // Get the vertex indices and coordinates of the background element
         Matrix< DDRMat >   tVertexCoordinates = mVertexBackgroundElements( aFacetVertexIndex )->get_vertex_coords();
@@ -700,10 +704,10 @@ namespace moris::gen
 
             // Join the ADV IDs to the output
             // Get the original length
-            uint tIDLength = tVertexADVIds.length();
+            uint tIDLength = tVertexADVIds.size();
 
             // Resize to add new ADV IDs
-            tVertexADVIds.resize( 1, tVertexADVIds.length() + ( tNodeIDs.length() * tNumDimsDependOnADVs ) / Object::mDimension );
+            tVertexADVIds.resize( 1, tVertexADVIds.size() + ( tNodeIDs.length() * tNumDimsDependOnADVs ) / Object::mDimension );
 
             // Join the IDs
             uint tADVsAdded = 0;
@@ -725,16 +729,16 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix< DDSMat >
+    Vector< sint >
     Surface_Mesh_Geometry::get_determining_adv_ids(
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates )
     {
-        Matrix< DDSMat > tADVIDs;
+        Vector< sint > tADVIDs;
         for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
         {
             // Get the ADV IDs for this field
-            Matrix< DDSMat > tFieldADVIDs;
+            Vector< sint > tFieldADVIDs;
             if ( mNodeManager->is_background_node( aNodeIndex ) )
             {
                 tFieldADVIDs = mPerturbationFields( iFieldIndex )->get_determining_adv_ids( aNodeIndex, aCoordinates );
@@ -748,11 +752,11 @@ namespace moris::gen
 
             // Append the ADV IDs to the output matrix
             // Resize IDs
-            uint tJoinedIDLength = tADVIDs.n_cols();
-            tADVIDs.resize( 1, tJoinedIDLength + tFieldADVIDs.length() );
+            uint tJoinedIDLength = tADVIDs.size();
+            tADVIDs.resize( 1, tJoinedIDLength + tFieldADVIDs.size() );
 
             // Join IDs
-            for ( uint tAddedSensitivity = 0; tAddedSensitivity < tFieldADVIDs.length(); tAddedSensitivity++ )
+            for ( uint tAddedSensitivity = 0; tAddedSensitivity < tFieldADVIDs.size(); tAddedSensitivity++ )
             {
                 tADVIDs( tJoinedIDLength + tAddedSensitivity ) = tFieldADVIDs( tAddedSensitivity );
             }
@@ -810,6 +814,12 @@ namespace moris::gen
         return mParameters.mDiscretizationUpperBound;
     }
 
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Surface_Mesh_Geometry::update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedDesigns )
+    {
+    }
+    
     //--------------------------------------------------------------------------------------------------------------
 
     Vector< Vector< real > >

@@ -23,7 +23,6 @@
 #include "cl_XTK_Model.hpp"
 // #include "cl_XTK_Integration_Mesh_Generator.hpp"
 #include "cl_Communication_Tools.hpp"
-#include "cl_MPI_Tools.hpp"
 #include "cl_XTK_Cell_No_CM.hpp"
 #include "fn_determine_cell_topology.hpp"
 using namespace moris;
@@ -415,7 +414,7 @@ namespace moris::xtk
             std::string tVertDiagFile    = mXTKModel->get_diagnostic_file_name( std::string( "Vertex_On_Init" ) );
             std::string tGENVertDiagFile = mXTKModel->get_diagnostic_file_name( std::string( "Vertex_On_Init_GEN" ) );
             std::string tGroupDiagFile   = mXTKModel->get_diagnostic_file_name( std::string( "Groups_On_Init" ) );
-            this->print_cells( false, tCellDiagFile );
+            this->print_vectors( false, tCellDiagFile );
             this->print_vertices( false, tVertDiagFile );
             this->print_groupings( tGroupDiagFile );
             mXTKModel->get_geom_engine()->print_gen_vertices( tGENVertDiagFile, this );
@@ -1048,7 +1047,7 @@ namespace moris::xtk
 
         tNumIdsRequested( 0 ) = (moris_id)aNumIdsToAllocate;
 
-        moris::gather( tNumIdsRequested, aGatheredInfo );
+        moris::gather_vector( tNumIdsRequested, aGatheredInfo );
 
         Vector< moris_id > tProcFirstID( tProcSize );
 
@@ -1077,7 +1076,7 @@ namespace moris::xtk
             }
         }
 
-        moris::scatter( tProcFirstID, tFirstId );
+        moris::scatter_vector( tProcFirstID, tFirstId );
 
         return tFirstId( 0 );
     }
@@ -1100,7 +1099,7 @@ namespace moris::xtk
         tNumIdsRequested( 0 ) = (moris_id)aNumIdsToAllocate;
 
         // hand ID range size request to root processor
-        moris::gather( tNumIdsRequested, aGatheredInfo );
+        moris::gather_vector( tNumIdsRequested, aGatheredInfo );
 
         // initialize list holding the first ID in range for each processor
         Vector< moris_id > tProcFirstID( tProcSize );
@@ -1124,7 +1123,7 @@ namespace moris::xtk
 
         // on proc 0: split up the list of first IDs for every proc and send it to every other proc
         // on all procs: receive the assigned first SP ID as tFirstId
-        moris::scatter( tProcFirstID, tFirstId );
+        moris::scatter_vector( tProcFirstID, tFirstId );
 
         // return the first SP ID assigned
         return tFirstId( 0 );
@@ -1809,7 +1808,7 @@ namespace moris::xtk
     // ----------------------------------------------------------------------------------
 
     void
-    Cut_Integration_Mesh::print_cells(
+    Cut_Integration_Mesh::print_vectors(
             bool        aOmitIndex,
             std::string aFile )
     {
@@ -2328,7 +2327,7 @@ namespace moris::xtk
 
         }    // end if: parallel
 
-    }        // end function: Cut_Integration_Mesh::assign_controlled_ig_cell_ids()
+    }    // end function: Cut_Integration_Mesh::assign_controlled_ig_cell_ids()
 
     // ----------------------------------------------------------------------------------
 
@@ -2517,7 +2516,7 @@ namespace moris::xtk
                     aFirstIgCellIdsInCellGroups( iProcInCommTable )( iIgCellGroup ) = MORIS_ID_MAX;
                 }
             }    // end for: each IG cell group communicated with the current processor
-        }        // end for: each proc communicated with
+        }    // end for: each proc communicated with
     }
 
     // ----------------------------------------------------------------------------------
@@ -2599,9 +2598,9 @@ namespace moris::xtk
 
             }    // end for: loop over IG cell groups for each proc that were communicated
 
-        }        // end for: loop over procs ID answers are received from
+        }    // end for: loop over procs ID answers are received from
 
-    }            // end function: Cut_Integration_Mesh::handle_requested_IG_cell_ID_answers()
+    }    // end function: Cut_Integration_Mesh::handle_requested_IG_cell_ID_answers()
 
     // ----------------------------------------------------------------------------------
     // ----------------------------------------------------------------------------------

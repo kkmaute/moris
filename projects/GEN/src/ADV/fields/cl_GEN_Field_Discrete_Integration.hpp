@@ -23,13 +23,14 @@ namespace moris::gen
       public:
 
         /**
-         * Constructor using only constants (no ADVs).
+         * Constructor using created ADVs.
          *
-         * @param aConstants The parameters that define this field
+         * @param aADVs The parameters that define this field and may be changed as a part of a design
+         * @param aName Name of this field
          */
         Field_Discrete_Integration(
-                Matrix< DDRMat > aConstants,
-                uint             aNumOriginalNodes );
+                const Vector< ADV >& aADVs,
+                std::string          aName );
 
         /**
          * Constructor that sets all field variables as consecutive ADVs. Assumes the use of distributed ADVs.
@@ -39,9 +40,9 @@ namespace moris::gen
          * @param aName Name of this field
          */
         Field_Discrete_Integration(
-                const Matrix< DDSMat >& aSharedADVIds,
-                mtk::Mesh_Pair          aMeshPair,
-                std::string             aName );
+                const Vector< sint >& aSharedADVIds,
+                mtk::Mesh_Pair        aMeshPair,
+                std::string           aName );
 
         /**
          * Given a node index or coordinate, returns the field value.
@@ -111,7 +112,7 @@ namespace moris::gen
          * @param aCoordinates Node coordinates
          * @return Determining ADV IDs at this node
          */
-        Matrix< DDSMat > get_determining_adv_ids(
+        Vector< sint > get_determining_adv_ids(
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates ) final;
 
@@ -123,7 +124,7 @@ namespace moris::gen
          * @param aNodeManager Node manager
          */
         void get_determining_adv_ids(
-                Matrix< DDSMat >&   aDeterminingADVIDs,
+                Vector< sint >&   aDeterminingADVIDs,
                 const Derived_Node& aDerivedNode,
                 const Node_Manager& aNodeManager ) final;
 
@@ -133,7 +134,7 @@ namespace moris::gen
          * @param aNodeIndex Node index
          * @return Determining ADV IDs at this node
          */
-        virtual Matrix< DDSMat > get_determining_adv_ids( uint aNodeIndex );
+        virtual Vector< sint > get_determining_adv_ids( uint aNodeIndex );
 
         /**
          * Given a node index or coordinates, returns a vector of the field derivatives with respect to the nodal

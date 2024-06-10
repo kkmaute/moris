@@ -11,7 +11,7 @@
 #pragma once
 
 #include "fn_PRM_GEN_Parameters.hpp"
-#include "cl_GEN_ADV_Manager.hpp"
+#include "cl_GEN_ADV_Handler.hpp"
 #include "cl_GEN_Field.hpp"
 namespace moris::gen
 {
@@ -178,5 +178,13 @@ namespace moris::gen
          * @param aADVs ADVs
          */
         virtual void set_advs( sol::Dist_Vector* aADVs ) = 0;
+
+        /**
+         * Updates the dependencies of this design based on the given designs
+         * (fields may have been mapped/updated).
+         *
+         * @param aAllUpdatedDesigns All designs (this design will take fields from the ones it needs)
+         */
+        virtual void update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedDesigns ) = 0;
     };
 }    // namespace moris::gen

@@ -39,6 +39,12 @@ list( APPEND HEADERS
     )
 endif()
 
+if(${MORIS_HAVE_SLEPC})
+list( APPEND HEADERS
+    cl_DLA_Eigen_Solver_SLEPc.hpp
+    )
+endif()
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # distlinalg Library
 
@@ -63,6 +69,12 @@ list( APPEND LIB_SOURCES
     cl_DLA_Linear_System_PETSc.cpp
     cl_DLA_Linear_Solver_PETSc.cpp
     cl_DLA_Preconditioner_PETSc.cpp
+    )
+endif()
+
+if(${MORIS_HAVE_SLEPC})
+list( APPEND LIB_SOURCES
+    cl_DLA_Eigen_Solver_SLEPc.cpp
     )
 endif()
 

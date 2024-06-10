@@ -145,8 +145,10 @@ namespace moris::gen
          * @param aSharedADVIds All owned and shared ADV IDs for this B-spline field
          */
         virtual void discretize(
-                mtk::Mesh_Pair          aMeshPair,
-                sol::Dist_Vector*       aOwnedADVs ) = 0;
+                mtk::Mesh_Pair        aMeshPair,
+                sol::Dist_Vector*     aOwnedADVs,
+                const Vector< sint >& aSharedADVIds,
+                uint                  aADVOffsetID ) = 0;
 
         /**
          * If intended for this field, maps the field to B-spline coefficients or stores the nodal field values in a stored field object.
@@ -158,7 +160,9 @@ namespace moris::gen
         virtual void discretize(
                 std::shared_ptr< mtk::Field > aMTKField,
                 mtk::Mesh_Pair                aMeshPair,
-                sol::Dist_Vector*             aOwnedADVs ) = 0;
+                sol::Dist_Vector*             aOwnedADVs,
+                const Vector< sint >&         aSharedADVIds,
+                uint                          aADVOffsetID ) = 0;
 
         /**
          * Used to print geometry information to exodus files and print debug information.

@@ -37,7 +37,7 @@ test_pause()
     pid_t tPId = getpid();
 
     moris::Matrix< moris::DDSMat > tPIdVec;
-    comm_gather_and_broadcast( tPId, tPIdVec );
+    allgather_scalar( tPId, tPIdVec );
 
     if ( moris::par_rank() == 0 )
     {

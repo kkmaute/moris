@@ -36,10 +36,10 @@ extern "C" {
 //------------------------------------------------------------------------------
 namespace moris
 {
-    std::string sFluid      = "HMR_dummy_n_p1,HMR_dummy_c_p1";
-    std::string sFluidGhost = "ghost_p1";
-    std::string sIn         = "iside_b0_1_b1_3";
-    std::string sOut        = "iside_b0_1_b1_0";
+    std::string sFluid      = "HMR_dummy_n_p2,HMR_dummy_c_p2";
+    std::string sFluidGhost = "ghost_p2";
+    std::string sIn         = "iside_b0_2_b1_0";
+    std::string sOut        = "iside_b0_2_b1_3";
 
     std::string sInterfaces = sIn + "," + sOut;
 
@@ -122,20 +122,6 @@ namespace moris
         return true;
     }
 
-    moris::real
-    Func_Cylinder(
-            const moris::Matrix< DDRMat >&     aCoordinates,
-            const Vector< real >& aGeometryParameters )
-    {
-        moris::real tR       = aGeometryParameters( 0 );
-        moris::real tXCenter = aGeometryParameters( 1 );
-        moris::real tYCenter = aGeometryParameters( 2 );
-
-        moris::real aReturnValue = tR - std::pow( std::pow( aCoordinates( 0 ) - tXCenter, 2.0 ) + std::pow( aCoordinates( 1 ) - tYCenter, 2.0 ), 0.5 );
-
-        return aReturnValue;
-    }
-
     void
     OPTParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
@@ -211,14 +197,12 @@ namespace moris
         uint tGeoCounter = 0;
 
         // Geometry parameter lists
-        tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
-        tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Cylinder" );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "1.0,0.0,0.0" );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE ) );
+        tParameterlist( 1 )( tGeoCounter ).set( "radius", 1.0 );
         tGeoCounter++;
 
-        tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
-        tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Cylinder" );
-        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "2.0,0.0,0.0" );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE ) );
+        tParameterlist( 1 )( tGeoCounter ).set( "radius", 2.0 );
     }
 
     void
@@ -274,7 +258,7 @@ namespace moris
         // create parameter list for constitutive model 1
         tParameterList( 1 ).push_back( prm::create_constitutive_model_parameter_list() );
         tParameterList( 1 )( tCMCounter ).set( "constitutive_name", "CMFluid" );
-        tParameterList( 1 )( tCMCounter ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::FLUID_INCOMPRESSIBLE ) );
+        tParameterList( 1 )( tCMCounter ).set( "constitutive_type",  fem::Constitutive_Type::FLUID_INCOMPRESSIBLE ) ;
         tParameterList( 1 )( tCMCounter ).set( "dof_dependencies", std::pair< std::string, std::string >( "VX,VY;P", "Velocity,Pressure" ) );
         tParameterList( 1 )( tCMCounter ).set( "properties", "PropViscosity,Viscosity;PropDensity,Density" );
         tCMCounter++;
@@ -288,7 +272,7 @@ namespace moris
         // create parameter list for stabilization parameter 1
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name", "SPIncFlow" );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::INCOMPRESSIBLE_FLOW ) );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  fem::Stabilization_Type::INCOMPRESSIBLE_FLOW ) ;
         tParameterList( 2 )( tSPCounter ).set( "function_parameters", "36.0" );
         tParameterList( 2 )( tSPCounter ).set( "leader_properties", "PropViscosity,Viscosity;PropDensity,Density" );
         tParameterList( 2 )( tSPCounter ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY;P", "Velocity,Pressure" ) );
@@ -297,7 +281,7 @@ namespace moris
         // create parameter list for stabilization parameter 2
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name", "SPDirichletNitscheU" );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE ) );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE ) ;
         tParameterList( 2 )( tSPCounter ).set( "function_parameters", "100.0/1.0" );
         tParameterList( 2 )( tSPCounter ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
         tParameterList( 2 )( tSPCounter ).set( "leader_properties", "PropViscosity,Viscosity;PropDensity,Density" );
@@ -306,7 +290,7 @@ namespace moris
         // create parameter list for stabilization parameter 3
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name", "SPGPViscosity" );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::VISCOUS_GHOST ) );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  fem::Stabilization_Type::VISCOUS_GHOST ) ;
         tParameterList( 2 )( tSPCounter ).set( "function_parameters", "0.05" );
         tParameterList( 2 )( tSPCounter ).set( "leader_properties", "PropViscosity,Viscosity" );
         tSPCounter++;
@@ -314,7 +298,7 @@ namespace moris
         // create parameter list for stabilization parameter 4
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name", "SPGPVelocity" );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::CONVECTIVE_GHOST ) );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  fem::Stabilization_Type::CONVECTIVE_GHOST ) ;
         tParameterList( 2 )( tSPCounter ).set( "function_parameters", "0.05" );
         tParameterList( 2 )( tSPCounter ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
         tParameterList( 2 )( tSPCounter ).set( "leader_properties", "PropDensity,Density" );
@@ -323,7 +307,7 @@ namespace moris
         // create parameter list for stabilization parameter 5
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name", "SPGPPressure" );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::PRESSURE_GHOST ) );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  fem::Stabilization_Type::PRESSURE_GHOST ) ;
         tParameterList( 2 )( tSPCounter ).set( "function_parameters", "0.005/1.0" );
         tParameterList( 2 )( tSPCounter ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
         tParameterList( 2 )( tSPCounter ).set( "leader_properties", "PropViscosity,Viscosity;PropDensity,Density" );
@@ -338,7 +322,7 @@ namespace moris
         // create parameter list for IWG 1
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGVelocityBulk" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK ) );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK ) ;
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "VX,VY" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "VX,VY;P" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
@@ -349,7 +333,7 @@ namespace moris
         // create parameter list for IWG 2
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGPressureBulk" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK ) );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK ) ;
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "P" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "VX,VY;P" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
@@ -360,7 +344,7 @@ namespace moris
         // create parameter list for IWG 3
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGInVelocity" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE ) );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE ) ;
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "VX,VY" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "VX,VY;P" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropDirichletInU,Dirichlet" );
@@ -372,7 +356,7 @@ namespace moris
         // create parameter list for IWG 4
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGInPressure" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE ) );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE ) ;
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "P" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "VX,VY;P" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropDirichletInU,Dirichlet" );
@@ -383,7 +367,7 @@ namespace moris
         // create parameter list for IWG 5
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGOutVelocity" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE ) );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE ) ;
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "VX,VY" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "VX,VY;P" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropDirichletOutU,Dirichlet" );
@@ -395,7 +379,7 @@ namespace moris
         // create parameter list for IWG 6
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGOutPressure" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE ) );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE ) ;
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "P" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "VX,VY;P" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropDirichletOutU,Dirichlet" );
@@ -406,7 +390,7 @@ namespace moris
         // create parameter list for IWG 7
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGGPViscous" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "VX,VY" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "VX,VY;P" );
         tParameterList( 3 )( tIWGCounter ).set( "follower_dof_dependencies", "VX,VY;P" );
@@ -417,7 +401,7 @@ namespace moris
         // create parameter list for IWG 8
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGGPConvective" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "VX,VY" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "VX,VY;P" );
         tParameterList( 3 )( tIWGCounter ).set( "follower_dof_dependencies", "VX,VY;P" );
@@ -428,7 +412,7 @@ namespace moris
         // create parameter list for IWG 9
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGGPPressure" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "P" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "VX,VY;P" );
         tParameterList( 3 )( tIWGCounter ).set( "follower_dof_dependencies", "VX,VY;P" );
@@ -445,7 +429,7 @@ namespace moris
         // create parameter list for IQI 1
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkVX" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::DOF ) );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::DOF ) ;
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "VX,VY" );
         tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "VX,VY" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 0 );
@@ -455,7 +439,7 @@ namespace moris
         // create parameter list for IQI 2
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkVY" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::DOF ) );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::DOF ) ;
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "VX,VY" );
         tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "VX,VY" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 1 );
@@ -465,7 +449,7 @@ namespace moris
         // create parameter list for IQI 3
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkP" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::DOF ) );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::DOF ) ;
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "P" );
         tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "P" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 0 );
@@ -475,7 +459,7 @@ namespace moris
         // create parameter list for IQI 4
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkL2Error" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::L2_ERROR_ANALYTIC ) );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::L2_ERROR_ANALYTIC ) ;
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "VX,VY" );
         tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "VX,VY" );
         tParameterList( 4 )( tIQICounter ).set( "leader_properties", "PropDirichletInU,L2Check" );
@@ -485,7 +469,7 @@ namespace moris
         // create parameter list for IQI 5
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkH1Error" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::H1_ERROR_ANALYTIC ) );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::H1_ERROR_ANALYTIC ) ;
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "VX,VY" );
         tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "VX,VY" );
         tParameterList( 4 )( tIQICounter ).set( "leader_properties", "PropdUdx,H1Check" );
@@ -549,7 +533,7 @@ namespace moris
 
         tParameterlist( 0 )( 0 ) = prm::create_vis_parameter_list();
         tParameterlist( 0 )( 0 ).set( "File_Name", std::pair< std::string, std::string >( "./", "Couette_Flow_Static.exo" ) );
-        tParameterlist( 0 )( 0 ).set( "Mesh_Type", static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
+        tParameterlist( 0 )( 0 ).set( "Mesh_Type",  vis::VIS_Mesh_Type::STANDARD ) ;
         tParameterlist( 0 )( 0 ).set( "Set_Names", sFluid + "," + sInterfaces );
         tParameterlist( 0 )( 0 ).set( "Field_Names", "VX,VY,P,L2_ERROR_ANALYTIC,H1_ERROR_ANALYTIC" );
         tParameterlist( 0 )( 0 ).set( "Field_Type", "NODAL,NODAL,NODAL,NODAL,NODAL" );

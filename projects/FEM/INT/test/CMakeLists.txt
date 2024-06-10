@@ -95,6 +95,7 @@ set(TEST_SOURCES
     UT_FEM_IWG_Struc_Linear_Axisymmetric_Virtual_Work_Ghost.cpp
     
     UT_FEM_IWG_Struc_Nonlinear_Bulk.cpp
+    UT_FEM_IWG_Struc_Nonlinear_Geometric_Stiffness.cpp
     UT_FEM_IWG_Struc_Nonlinear_Dirichlet.cpp
     UT_FEM_IWG_Struc_Nonlinear_Interface.cpp
     

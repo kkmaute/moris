@@ -31,8 +31,8 @@ namespace moris
         uint mNumSpatialDims = 0;
 
         // determine mesh refinements in background mesh parameterlist, but apply in GEN, hence store it
-        std::string mGenRefineMeshIndices = "";
-        std::string mGenNumRefinements    = "";
+        Vector< uint > mGenRefineMeshIndices;
+        Vector< uint > mGenNumRefinements;
 
         // -----------------------------------------------------------------------------
 

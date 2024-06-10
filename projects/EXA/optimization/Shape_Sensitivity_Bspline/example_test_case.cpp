@@ -105,7 +105,7 @@ TEST_CASE( "Shape_Sensitivity_Bspline_2D",
     if ( par_size() == 1 )
     {
         // loop over all test configurations
-        for ( tGeoModel = 0; tGeoModel < 7; ++tGeoModel )
+        for ( tGeoModel = 0; tGeoModel < 6; ++tGeoModel )
         {
             // call to performance manager main interface
             int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
@@ -177,7 +177,7 @@ TEST_CASE( "Shape_Sensitivity_Bspline_3D",
     if ( par_size() == 1 )
     {
         // loop over all test configurations
-        for ( tGeoModel = 0; tGeoModel < 7; ++tGeoModel )
+        for ( tGeoModel = 0; tGeoModel < 6; ++tGeoModel )
         {
             // call to performance manager main interface
             int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );

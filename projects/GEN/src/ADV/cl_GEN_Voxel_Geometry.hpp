@@ -63,12 +63,12 @@ namespace moris::gen
          * @return Voxel intersection node
          */
         Intersection_Node* create_intersection_node(
-                uint                     aNodeIndex,
+                uint                              aNodeIndex,
                 const Vector< Background_Node* >& aBackgroundNodes,
-                const Parent_Node&       aFirstParentNode,
-                const Parent_Node&       aSecondParentNode,
-                mtk::Geometry_Type       aBackgroundGeometryType,
-                mtk::Interpolation_Order aBackgroundInterpolationOrder ) override;
+                const Parent_Node&                aFirstParentNode,
+                const Parent_Node&                aSecondParentNode,
+                mtk::Geometry_Type                aBackgroundGeometryType,
+                mtk::Interpolation_Order          aBackgroundInterpolationOrder ) override;
 
         /**
          * Computes the local coordinate along a parent edge of an intersection node created using this geometry.
@@ -80,8 +80,8 @@ namespace moris::gen
          */
         real compute_intersection_local_coordinate(
                 const Vector< Background_Node* >& aBackgroundNodes,
-                const Parent_Node&   aFirstParentNode,
-                const Parent_Node&   aSecondParentNode );
+                const Parent_Node&                aFirstParentNode,
+                const Parent_Node&                aSecondParentNode );
 
         /**
          * A voxel geometry has no relevant MTK fields for remeshing, so this returns an empty vector.
@@ -89,24 +89,24 @@ namespace moris::gen
          * @return Empty vector
          */
         Vector< std::shared_ptr< mtk::Field > > get_mtk_fields() override;
-        
+
         /**
          * Gets the number of fields that the design has
-         * 
+         *
          * @return Number of fields
          */
         uint get_num_fields() override;
-        
+
         /**
          * Gets the name of the geometry
-         * 
+         *
          * @return geometry name
          */
         std::string get_name() override;
 
         /**
          * Gets the names of all the fields associated with this geometry
-         * 
+         *
          * @return Vector< std::string > empty array, as voxel geometries do not have fields
          */
         virtual Vector< std::string > get_field_names() override;
@@ -152,14 +152,14 @@ namespace moris::gen
          * @param aADVs ADVs
          */
         void set_advs( sol::Dist_Vector* aADVs ) override;
-        
+
         /**
          * Imports the local ADVs required from the full owned ADV distributed vector.
          *
          * @param aOwnedADVs Full owned distributed ADV vector
          */
         void import_advs( sol::Dist_Vector* aOwnedADVs ) override;
-        
+
         /**
          * Resets all nodal information, including child nodes. This should be called when a new XTK mesh is being
          * created.
@@ -175,8 +175,10 @@ namespace moris::gen
          * @param aOwnedADVs Pointer to the owned distributed ADVs
          */
         void discretize(
-                mtk::Mesh_Pair          aMeshPair,
-                sol::Dist_Vector*       aOwnedADVs ) override;
+                mtk::Mesh_Pair        aMeshPair,
+                sol::Dist_Vector*     aOwnedADVs,
+                const Vector< sint >& aSharedADVIds,
+                uint                  aADVOffsetID ) override;
 
         /**
          * If intended for this field, maps the field to B-spline coefficients or stores the nodal field values in a stored field object.
@@ -188,7 +190,9 @@ namespace moris::gen
         void discretize(
                 std::shared_ptr< mtk::Field > aMTKField,
                 mtk::Mesh_Pair                aMeshPair,
-                sol::Dist_Vector*             aOwnedADVs ) override;
+                sol::Dist_Vector*             aOwnedADVs,
+                const Vector< sint >&         aSharedADVIds,
+                uint                          aADVOffsetID ) override;
 
         /**
          * Used to print geometry information to exodus files and print debug information.
@@ -200,6 +204,14 @@ namespace moris::gen
         void get_design_info(
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates,
-                Vector< real >&           aOutputDesignInfo ) override;
+                Vector< real >&         aOutputDesignInfo ) override;
+
+        /**
+         * Updates the dependencies of this design based on the given designs
+         * (fields may have been mapped/updated).
+         *
+         * @param aAllUpdatedDesigns All designs (this design will take fields from the ones it needs)
+         */
+        void update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedDesigns ) override;
     };
-}
+}    // namespace moris::gen

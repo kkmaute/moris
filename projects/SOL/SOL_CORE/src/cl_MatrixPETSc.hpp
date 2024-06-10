@@ -122,15 +122,21 @@ namespace moris
             MORIS_ERROR( false, "not yet implemented for petsc" );
         };
 
+        //----------------------------------------------------------------------------------------
+
+        /**
+         * @brief Multiply the input multivector and store it in the result multivector
+         * 
+         * @param aInputVec 
+         * @param aResult 
+         * @param aUseTranspose 
+         */
         virtual void
         mat_vec_product(
                 const moris::sol::Dist_Vector& aInputVec,
                 moris::sol::Dist_Vector&       aResult,
-                const bool                     aUseTranspose )
-        {
-            MORIS_ERROR( false, "not yet implemented for petsc" );
-        };
-
+                const bool                     aUseTranspose );
+        //----------------------------------------------------------------------------------------
         void print() const;
 
         void save_matrix_to_matlab_file( const char* aFilename );

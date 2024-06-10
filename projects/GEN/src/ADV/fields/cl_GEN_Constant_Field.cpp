@@ -14,16 +14,26 @@ namespace moris::gen
 {
     //--------------------------------------------------------------------------------------------------------------
 
-    real
-    Constant_Field::get_field_value(const Matrix<DDRMat>& aCoordinates)
+    Constant_Field::Constant_Field(
+            const ADV&  aConstant,
+            std::string aName )
+            : Field_Analytic< 0 >( { aConstant }, std::move( aName ) )
     {
-        return mADVManager.get_variable( 0 );
+        mSensitivities = { { 1.0 } };
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Matrix<DDRMat>&
-    Constant_Field::get_dfield_dadvs(const Matrix<DDRMat>& aCoordinates)
+    real
+    Constant_Field::get_field_value( const Matrix< DDRMat >& aCoordinates )
+    {
+        return mADVHandler.get_variable( 0 );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    const Matrix< DDRMat >&
+    Constant_Field::get_dfield_dadvs( const Matrix< DDRMat >& aCoordinates )
     {
         return mSensitivities;
     }
@@ -32,12 +42,11 @@ namespace moris::gen
 
     void
     Constant_Field::get_dfield_dcoordinates(
-            const Matrix<DDRMat>& aCoordinates,
-            Matrix<DDRMat>&       aSensitivities)
+            const Matrix< DDRMat >& aCoordinates,
+            Matrix< DDRMat >&       aSensitivities )
     {
-        MORIS_ERROR(false, "get_dfield_dcoordinates not implemented for constant field.");
+        MORIS_ERROR( false, "get_dfield_dcoordinates not implemented for constant field." );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 }
-
