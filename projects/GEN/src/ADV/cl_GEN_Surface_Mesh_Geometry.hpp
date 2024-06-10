@@ -350,16 +350,16 @@ namespace moris::gen
          * @param aFacetVertexIndex Vertex index of the surface mesh
          * @return Matrix< DDSMat > ADV IDs that the vertex depends on
          */
-        Matrix< DDSMat > get_vertex_adv_ids( uint aFacetVertexIndex );
+        Vector< sint > get_vertex_adv_ids( uint aFacetVertexIndex );
 
         /**
          * Gets the IDs of the ADVs that the given node depends on
          *
          * @param aNodeIndex the query node index on the integration mesh for which ADVs to retrieve
          * @param aCoordinates the query node coordinates for which ADVs to retrieve
-         * @return Matrix< DDSMat >
+         * @return Vector< sint > ADV IDs that the query node depends on
          */
-        Matrix< DDSMat > get_determining_adv_ids(
+        Vector< sint > get_determining_adv_ids(
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates );
 
