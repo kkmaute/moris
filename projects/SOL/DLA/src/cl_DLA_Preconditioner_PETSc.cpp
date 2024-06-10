@@ -534,6 +534,34 @@ void Preconditioner_PETSc::build_schwarz_preconditioner( Linear_Problem *aLinear
 
 //----------------------------------------------------------------------------------------
 
+void  
+Preconditioner_PETSc::build_algebaric_multigrid_preconditioner( Linear_Problem *aLinearSystem )
+{
+    // write preconditioner to log file
+    MORIS_LOG_INFO( "KSP Preconditioner: amg" );
+
+    // Set PC type
+    PCSetType( mpc, PCGAMG );
+
+    // get number of pde equaitons for each grid
+    sint tNumPDEEquaitons = mParameterList.get< moris::sint >( "num_pde_equations" );
+    MatSetBlockSize( aLinearSystem->get_matrix()->get_petsc_matrix(), tNumPDEEquaitons );
+
+    // see if the defualt values should be used then skip
+    if ( mParameterList.get< bool >( "use_gamg_defaults" ) ) return;
+
+    // set the values from the parameter list
+    PCGAMGSetType( mpc, mParameterList.get< std::string >( "amg_type" ).c_str() );
+    // real tThreshold = mParameterList.get< real >( "amg_threshold" );
+    // PCGAMGSetThreshold( mpc,&tThreshold );
+
+    // loop over the levels and set the smoothers(KSP,PC) for each level
+    //KSPChebyshevEstEigGetKSP( mpc, &tKSPBlock( 0 ) );
+}
+
+
+//----------------------------------------------------------------------------------------
+
 void Preconditioner_PETSc::build_preconditioner( Linear_Problem *aLinearSystem, KSP aPetscKSPProblem )
 {   
     // get preconditioner
@@ -607,6 +635,10 @@ void Preconditioner_PETSc::build_preconditioner( Linear_Problem *aLinearSystem, 
     {
         // build schwarz preconditioner
         this->build_schwarz_preconditioner( aLinearSystem );
+    }
+    else if ( !strcmp( mParameterList.get< std::string >( "PCType" ).c_str(), "gamg" ) )
+    {
+        this->build_algebaric_multigrid_preconditioner( aLinearSystem );
     }
     else if ( !strcmp( mParameterList.get< std::string >( "PCType" ).c_str(), "none" ) )
     {

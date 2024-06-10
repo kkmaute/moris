@@ -188,7 +188,7 @@ namespace moris
             aParameterlist.set( "Preconditioner_Implementation", sol::PreconditionerType::PETSC );
 
             // Set default preconditioner
-            aParameterlist.insert( "PCType", std::string( "ilu" ) );    // "superlu-dist", "mumps", "ilu", "mg", "asm", "mat", "none"
+            aParameterlist.insert( "PCType", std::string( "ilu" ) );    // "superlu-dist", "mumps", "ilu", "mg", "asm", "mat", "gamg", "none"
 
             // Sets the number of levels of fill to use for ILU
             aParameterlist.insert( "ILUFill", 0 );
@@ -210,6 +210,12 @@ namespace moris
 
             // blocks in addtive Schwartz algorthim
             aParameterlist.insert( "ASM_blocks_output_filename", "" );
+
+
+            //GAMG preconditioner
+            aParameterlist.insert( "num_pde_equations", (sint)1 );
+            aParameterlist.insert( "amg_type", "agg" );
+            aParameterlist.insert( "use_gamg_defaults", true );
         }
 
         //------------------------------------------------------------------------------
