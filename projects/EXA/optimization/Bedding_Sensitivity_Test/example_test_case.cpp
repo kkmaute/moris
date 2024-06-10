@@ -44,14 +44,13 @@ int fn_WRK_Workflow_Main_Interface( int argc, char* argv[] );
 
 //------------------------------------------------------------------------------------
 
-void
-test_pause()
+void test_pause()
 {
     // communicate process ids
     pid_t tPId = getpid();
 
     moris::Matrix< moris::DDSMat > tPIdVec;
-    comm_gather_and_broadcast( tPId, tPIdVec );
+    allgather_scalar( tPId, tPIdVec );
 
     if ( moris::par_rank() == 0 )
     {
@@ -401,7 +400,7 @@ TEST_CASE( "Bedding_Sensitivity_Test",
     gDim = 2;
 
     MORIS_LOG_INFO( " " );
-    MORIS_LOG_INFO( "Executing Contact Sensitivity Test - 2D - %i Processors.", par_size() );
+    MORIS_LOG_INFO( "Executing Bedding Sensitivity Test - 2D - %i Processors.", par_size() );
     MORIS_LOG_INFO( " " );
 
     if ( par_size() == 2 )
@@ -439,7 +438,7 @@ TEST_CASE( "Bedding_Sensitivity_Test",
     gDim = 3;
 
     MORIS_LOG_INFO( " " );
-    MORIS_LOG_INFO( "Executing Contact Sensitivity Test - 3D - %i Processors.", par_size() );
+    MORIS_LOG_INFO( "Executing Bedding Sensitivity Test - 3D - %i Processors.", par_size() );
     MORIS_LOG_INFO( " " );
 
     if ( par_size() == 1 )
@@ -468,4 +467,22 @@ TEST_CASE( "Bedding_Sensitivity_Test",
             check_results( "Bedding_Sensitivity_Test_11.exo.e-s.0001", "Bedding_Sensitivity_Test_11_SEN.hdf5", gTestCaseIndex );
         }
     }
+
+#ifdef MORIS_HAVE_SLEPC
+    // This cass tests the optimzation problemw with petsc solver
+    if ( par_size() == 4 )
+    {
+        // set test case index
+        gTestCaseIndex = 21;
+
+        // call to performance manager main interface
+        fn_WRK_Workflow_Main_Interface( argc, argv );
+
+        if ( par_rank() == 0 )
+        {
+            // perform check for Test Case 3
+            check_results( "Bedding_Sensitivity_Test_21.exo.e-s.0001", "Bedding_Sensitivity_Test_21_SEN.hdf5", gTestCaseIndex );
+        }
+    }
+#endif
 }

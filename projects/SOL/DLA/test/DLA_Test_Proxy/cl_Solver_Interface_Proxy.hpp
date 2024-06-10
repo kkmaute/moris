@@ -42,6 +42,7 @@ namespace moris
         uint mSwitchToEigenProblem = 0;
 
         sol::Dist_Vector* mEigVector;
+        std::shared_ptr< Vector<real> >  mEigenValues = std::make_shared< Vector<real> >();
 
       public:
         // ----------------------------------------------------------------------------------------------
@@ -317,6 +318,15 @@ namespace moris
         {
             return mEigVector;
         }
+
+        // ---------------------------------------------------------------------------------------------
+
+        std::shared_ptr< Vector< real > >&
+        get_eigen_values()
+        {
+            return mEigenValues;
+        }
     };
+    
 }    // namespace moris
 #endif /* SRC_DISTLINALG_CL_SOLVER_INPUT_TEST_HPP_ */

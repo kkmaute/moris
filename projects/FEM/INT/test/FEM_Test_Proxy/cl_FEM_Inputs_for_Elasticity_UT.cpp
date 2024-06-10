@@ -15,15 +15,18 @@
 #include "fn_dot.hpp"
 #include "fn_norm.hpp"
 
+#include "cl_FEM_Enums.hpp"
+#include "cl_FEM_Field_Interpolator.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
+#include "fn_trans.hpp"
 
 using namespace moris;
 
 inline void
 tConstValFunc_Elast(
-        moris::Matrix< moris::DDRMat >&                aPropMatrix,
+        moris::Matrix< moris::DDRMat >&           aPropMatrix,
         Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-        moris::fem::Field_Interpolator_Manager*        aFIManager )
+        moris::fem::Field_Interpolator_Manager*   aFIManager )
 {
     aPropMatrix = aParameters( 0 );
 }
@@ -32,9 +35,9 @@ tConstValFunc_Elast(
 // and the radius so aPropMatrix = {{2*pi*r},{r},{n1},{n2}}
 inline void
 tAxisymRotAxisFunc_Elast(
-        moris::Matrix< moris::DDRMat >&                aPropMatrix,
+        moris::Matrix< moris::DDRMat >&           aPropMatrix,
         Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-        moris::fem::Field_Interpolator_Manager*        aFIManager )
+        moris::fem::Field_Interpolator_Manager*   aFIManager )
 {
     MORIS_ASSERT( aParameters( 0 ).n_cols() == 2 and aParameters( 0 ).n_rows() == 2,
             "Axisymmetric rotation axis incorrectly defined. use {{x1,y1},{x2,y2}}." );
@@ -72,9 +75,9 @@ tAxisymRotAxisFunc_Elast(
 
 inline void
 tUXFIValFunc_Elast(
-        moris::Matrix< moris::DDRMat >&                aPropMatrix,
+        moris::Matrix< moris::DDRMat >&           aPropMatrix,
         Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-        moris::fem::Field_Interpolator_Manager*        aFIManager )
+        moris::fem::Field_Interpolator_Manager*   aFIManager )
 {
     moris::fem::Field_Interpolator* tFIVelocity =
             aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::UX );
@@ -84,9 +87,9 @@ tUXFIValFunc_Elast(
 
 inline void
 tUXFIDerFunc_Elast(
-        moris::Matrix< moris::DDRMat >&                aPropMatrix,
+        moris::Matrix< moris::DDRMat >&           aPropMatrix,
         Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-        moris::fem::Field_Interpolator_Manager*        aFIManager )
+        moris::fem::Field_Interpolator_Manager*   aFIManager )
 {
     moris::fem::Field_Interpolator* tFIVelocity =
             aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::UX );
@@ -101,44 +104,44 @@ tUXFIDerFunc_Elast(
 
 inline void
 tPFIValFunc_Elast(
-        moris::Matrix< moris::DDRMat >&                aPropMatrix,
+        moris::Matrix< moris::DDRMat >&           aPropMatrix,
         Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-        moris::fem::Field_Interpolator_Manager*        aFIManager )
+        moris::fem::Field_Interpolator_Manager*   aFIManager )
 {
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::P )->val();
 }
 
 inline void
 tPFIDerFunc_Elast(
-        moris::Matrix< moris::DDRMat >&                aPropMatrix,
+        moris::Matrix< moris::DDRMat >&           aPropMatrix,
         Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-        moris::fem::Field_Interpolator_Manager*        aFIManager )
+        moris::fem::Field_Interpolator_Manager*   aFIManager )
 {
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::P )->N();
 }
 
 inline void
 tTEMPFIValFunc_Elast(
-        moris::Matrix< moris::DDRMat >&                aPropMatrix,
+        moris::Matrix< moris::DDRMat >&           aPropMatrix,
         Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-        moris::fem::Field_Interpolator_Manager*        aFIManager )
+        moris::fem::Field_Interpolator_Manager*   aFIManager )
 {
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val();
 }
 
 inline void
 tTEMPFIDerFunc_Elast(
-        moris::Matrix< moris::DDRMat >&                aPropMatrix,
+        moris::Matrix< moris::DDRMat >&           aPropMatrix,
         Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-        moris::fem::Field_Interpolator_Manager*        aFIManager )
+        moris::fem::Field_Interpolator_Manager*   aFIManager )
 {
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
 }
 
 inline void
-tMValFunc_Elast( moris::Matrix< moris::DDRMat >&       aPropMatrix,
+tMValFunc_Elast( moris::Matrix< moris::DDRMat >&  aPropMatrix,
         Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-        moris::fem::Field_Interpolator_Manager*        aFIManager )
+        moris::fem::Field_Interpolator_Manager*   aFIManager )
 {
     eye( aParameters( 0 )( 0 ), aParameters( 0 )( 0 ), aPropMatrix );
 }
@@ -1083,4 +1086,89 @@ fill_phat_Elast(
             break;
     }
     tPHat = trans( tPHat );
+}
+
+inline void
+fill_xhat_simple_Elast(
+        moris::Matrix< moris::DDRMat >& tXHat,
+        moris::uint                     aSpaceDim,
+        moris::uint                     aInterpOrder )
+{
+    mtk::Geometry_Type       tGeoType;
+    mtk::Interpolation_Order tInterpType;
+
+    switch ( aSpaceDim )
+    {
+        case 2:
+        {
+            tGeoType = mtk::Geometry_Type::QUAD;
+            break;
+        }
+        case 3:
+        {
+            tGeoType = mtk::Geometry_Type::HEX;
+            break;
+        }
+        default:
+            MORIS_ERROR( false, "Spatial dimension needs to be 2 or 3" );
+    }
+
+    switch ( aInterpOrder )
+    {
+        case 1:
+        {
+            tInterpType = mtk::Interpolation_Order::LINEAR;
+            break;
+        }
+        case 2:
+        {
+            tInterpType = mtk::Interpolation_Order::QUADRATIC;
+            break;
+        }
+        case 3:
+        {
+            tInterpType = mtk::Interpolation_Order::CUBIC;
+            break;
+        }
+        default:
+            MORIS_ERROR( false, "Interpolation order needs to be 1, 2 or 3" );
+    }
+
+    mtk::Interpolation_Rule tInterpolationRule(
+            tGeoType,
+            mtk::Interpolation_Type::LAGRANGE,
+            tInterpType,
+            mtk::Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Order::LINEAR );
+
+    mtk::Interpolation_Function_Base* tInterpFunction = tInterpolationRule.create_space_interpolation_function();
+
+    tInterpFunction->get_param_coords( tXHat );
+
+    tXHat.inplace_trans();
+}
+
+inline void
+fill_uhat_const_time_Elast(
+        moris::Matrix< moris::DDRMat >& tUHat,
+        moris::uint                     aSpaceDim,
+        moris::uint                     aInterpOrder )
+{
+    Matrix< DDRMat > tXHat;
+    fill_xhat_simple_Elast( tXHat, aSpaceDim, aInterpOrder );
+
+    tUHat.set_size( tXHat.n_rows(), tXHat.n_cols(), 0.0 );
+
+    const real tMagnitude = -0.1;
+
+    // generate linear varying displacement field in aSpaceDim direction
+
+    for ( uint i = 0; i < tXHat.n_rows(); ++i )
+    {
+        // get scaling factor
+        real tScaling = tMagnitude * 0.5 * ( tXHat( i, aSpaceDim - 1 ) + 1.0 );
+
+        // set displacement value
+        tUHat( i, aSpaceDim - 1 ) = tScaling;
+    }
 }

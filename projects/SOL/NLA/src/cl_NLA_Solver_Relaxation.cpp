@@ -27,8 +27,7 @@ namespace moris
         Solver_Relaxation::Solver_Relaxation( Parameter_List& aParameterListNonlinearSolver )
         {
             // get relaxation strategy
-            mRelaxationStrategy = static_cast< sol::SolverRelaxationType >(
-                    aParameterListNonlinearSolver.get< uint >( "NLA_relaxation_strategy" ) );
+            mRelaxationStrategy = aParameterListNonlinearSolver.get< sol::SolverRelaxationType >( "NLA_relaxation_strategy" );
 
             // get initial relaxation parameter
             mRelaxation = aParameterListNonlinearSolver.get< real >( "NLA_relaxation_parameter" );

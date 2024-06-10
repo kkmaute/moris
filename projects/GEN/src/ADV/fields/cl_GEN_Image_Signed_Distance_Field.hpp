@@ -30,8 +30,8 @@ namespace moris::gen
          */
 
       private:
-        Matrix< DDRMat > mDomainDimensions;    /// physical dimension of image
-        Matrix< DDRMat > mDomainOffset;        /// offset of image
+        Vector< real > mDomainDimensions;    /// physical dimension of image
+        Vector< real > mDomainOffset;        /// offset of image
 
         Matrix< DDRMat > mSdfField;    /// SDF field (single column)
 
@@ -61,14 +61,14 @@ namespace moris::gen
          * @param aSdfDefault Default SDF field outside of the domain
          */
         Image_Signed_Distance_Field(
-                std::string               aImageFileName,
-                Matrix< DDRMat >          aDomainDimensions,
-                Matrix< DDRMat >          aDomainOffset,
-                real                      aSdfScaling,
-                real                      aSdfShift,
-                real                      aSdfDefault,
-                bool                      aSdfInterpolate )
-                : Field_Analytic< 0 >( {} )
+                const std::string&    aImageFileName,
+                const Vector< real >& aDomainDimensions,
+                const Vector< real >& aDomainOffset,
+                real                  aSdfScaling,
+                real                  aSdfShift,
+                real                  aSdfDefault,
+                bool                  aSdfInterpolate )
+                : Field_Analytic< 0 >( {}, aImageFileName )
                 , mDomainDimensions( aDomainDimensions )
                 , mDomainOffset( aDomainOffset )
                 , mSdfScaling( aSdfScaling )
@@ -85,7 +85,7 @@ namespace moris::gen
          * @param aCoordinates Coordinate values
          * @return Distance to the interface
          */
-        real get_field_value( const Matrix< DDRMat >& aCoordinates );
+        real get_field_value( const Matrix< DDRMat >& aCoordinates ) override;
 
         /**
          * Given a node coordinate, evaluates the sensitivity of the field with respect to all of the
@@ -94,7 +94,7 @@ namespace moris::gen
          * @param aCoordinates Coordinate values
          * @return Vector of sensitivities
          */
-        const Matrix< DDRMat >& get_dfield_dadvs( const Matrix< DDRMat >& aCoordinates );
+        const Matrix< DDRMat >& get_dfield_dadvs( const Matrix< DDRMat >& aCoordinates ) override;
 
         /**
          * Given nodal coordinates, returns a vector of the field derivatives with respect to the nodal
@@ -105,7 +105,7 @@ namespace moris::gen
          */
         void get_dfield_dcoordinates(
                 const Matrix< DDRMat >& aCoordinates,
-                Matrix< DDRMat >&       aSensitivities );
+                Matrix< DDRMat >&       aSensitivities ) override;
 
       private:
         void read_image_sdf_data( std::string aImageFileName );

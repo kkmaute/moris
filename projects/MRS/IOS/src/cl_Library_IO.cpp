@@ -509,5 +509,188 @@ namespace moris
     }
 
     //------------------------------------------------------------------------------------------------------------------
+    void Library_IO::check_parameters()
+    {
+        // Loop over all modules
+        for ( uint iModuleIndex = 0; iModuleIndex < mParameterLists.size(); iModuleIndex++ )
+        {
+            // Loop over module sub-vectors
+            for ( uint iOuterIndex = 0; iOuterIndex < mParameterLists( iModuleIndex ).size(); iOuterIndex++ )
+            {
+                // Loop over parameter lists in sub-vector
+                for ( uint iInnerIndex = 0; iInnerIndex < mParameterLists( iModuleIndex )( iOuterIndex ).size(); iInnerIndex++ )
+                {
+                    // Get parameter list
+                    const Parameter_List& tParameterList = mParameterLists( iModuleIndex )( iOuterIndex )( iInnerIndex );
+
+                    // Loop over mapped parameters
+                    for ( const auto& iParameterPair : tParameterList )
+                    {
+                        // Get external validator
+                        const External_Validator& tExternalValidator = iParameterPair.second.get_external_validator();
+
+                        // Go through validation cases
+                        switch ( tExternalValidator.mValidationType )
+                        {
+                            case Validation_Type::NONE:
+                            {
+                                // Do nothing
+                                break;
+                            }
+                            case Validation_Type::SELECTION:
+                            {
+                                // Build internal variants that need to be checked
+                                Vector< Variant > iInternalVariants = split_variant( iParameterPair.second.get_value() );
+
+                                // Get valid external variants
+                                Vector< Variant > tExternalVariants = this->get_external_variants( tExternalValidator, tParameterList );
+
+                                // Loop over all internal variants
+                                bool tAllMatchesFound = true;
+                                std::string tInternalVariantNotFound;
+                                for ( const Variant& iInternalOption : iInternalVariants )
+                                {
+                                    // Check options for a match
+                                    bool tMatchFound = false;
+                                    for ( const Variant& iExternalOption : tExternalVariants )
+                                    {
+                                        if ( iInternalOption == iExternalOption )
+                                        {
+                                            tMatchFound = true;
+                                            break;
+                                        }
+                                    }
+
+                                    // If match not found, exit
+                                    if ( not tMatchFound )
+                                    {
+                                        tInternalVariantNotFound = convert_variant_to_string( iInternalOption );
+                                        tAllMatchesFound = false;
+                                        break;
+                                    }
+                                }
+
+                                // Error if no match was found
+                                if ( not tAllMatchesFound )
+                                {
+                                    // Comma-separated list of options
+                                    std::string tExternalOptionList;
+                                    std::string tDelimiter;
+                                    for ( const Variant& iExternalOption : tExternalVariants )
+                                    {
+                                        tExternalOptionList += tDelimiter + convert_variant_to_string( iExternalOption );
+                                        tDelimiter = ", ";
+                                    }
+
+                                    // Additional info about where the checked options came from
+                                    std::string tExternalValidatorString =
+                                            "These selections are taken from parameter " + tExternalValidator.mParameterName + ", located in the ";
+                                    if ( tExternalValidator.mParameterListType == Parameter_List_Type::END_ENUM )
+                                    {
+                                        tExternalValidatorString +=
+                                                convert_parameter_list_enum_to_string( (Parameter_List_Type) iModuleIndex )
+                                                + " parameters with outer vector index " + std::to_string( iOuterIndex ) + " and inner vector index " + std::to_string( iInnerIndex );
+                                    }
+                                    else
+                                    {
+                                        tExternalValidatorString +=
+                                                convert_parameter_list_enum_to_string( tExternalValidator.mParameterListType )
+                                                + " parameters with outer vector index " + std::to_string( tExternalValidator.mParameterListIndex );
+                                    }
+
+                                    // Execute error
+                                    MORIS_ERROR( tAllMatchesFound,
+                                            "Parameter %s was set with an invalid value, %s. It requires one of the following selections:\n\t%s\n(%s)",
+                                            iParameterPair.first.c_str(),
+                                            tInternalVariantNotFound.c_str(),
+                                            tExternalOptionList.c_str(),
+                                            tExternalValidatorString.c_str() );
+                                }
+                                break;
+                            }
+                            case Validation_Type::SIZE:
+                            {
+                                // Get valid external variants
+                                Vector< Variant > tExternalVariants = this->get_external_variants( tExternalValidator, tParameterList );
+
+                                // Check that we have single external variant (for now, this can be changed in the future)
+                                MORIS_ERROR( tExternalVariants.size() == 1,
+                                        "%lu variants were found for the external size validation of parameter %s.",
+                                        tExternalVariants.size(),
+                                        iParameterPair.first.c_str() );
+
+                                bool tSizeMatch = get_size( iParameterPair.second.get_value() ) == get_size( tExternalVariants( 0 ) );
+                                if ( not tSizeMatch )
+                                {
+                                    // Additional info about where the checked options came from
+                                    std::string tExternalValidatorString =
+                                            "This size is based on parameter " + tExternalValidator.mParameterName + ", located in the ";
+                                    if ( tExternalValidator.mParameterListType == Parameter_List_Type::END_ENUM )
+                                    {
+                                        tExternalValidatorString +=
+                                                convert_parameter_list_enum_to_string( (Parameter_List_Type) iModuleIndex )
+                                                + " parameters with outer vector index " + std::to_string( iOuterIndex ) + " and inner vector index " + std::to_string( iInnerIndex );
+                                    }
+                                    else
+                                    {
+                                        tExternalValidatorString +=
+                                                convert_parameter_list_enum_to_string( tExternalValidator.mParameterListType )
+                                                + " parameters with outer vector index " + std::to_string( tExternalValidator.mParameterListIndex );
+                                    }
+
+                                    // Execute error
+                                    MORIS_ERROR( tSizeMatch,
+                                            "Parameter %s was set with an invalid value, %s. It requires a size of %u.\n(%s)",
+                                            iParameterPair.first.c_str(),
+                                            iParameterPair.second.get_string().c_str(),
+                                            get_size( tExternalVariants( 0 ) ),
+                                            tExternalValidatorString.c_str() );
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    Vector< Variant > Library_IO::get_external_variants(
+            const External_Validator& aExternalValidator,
+            const Parameter_List&     aContainingParameterList )
+    {
+        // Start with empty vector
+        Vector< Variant > tExternalOptions;
+
+        // Check if external validation is required
+        if ( aExternalValidator.mParameterListType == Parameter_List_Type::END_ENUM )
+        {
+            // Return single parameter
+            tExternalOptions = { aContainingParameterList.get( aExternalValidator.mParameterName ) };
+        }
+        else
+        {
+            // Check if parameter list exists
+            if ( mParameterLists( ( uint )aExternalValidator.mParameterListType ).size() > 0 )
+            {
+                // Loop over parameter lists in external module sub-vector
+                for ( const auto& iExternalParameterList : mParameterLists( (uint)aExternalValidator.mParameterListType )( aExternalValidator.mParameterListIndex ) )
+                {
+                    // Check if external parameter exists here
+                    if ( iExternalParameterList.exists( aExternalValidator.mParameterName ) )
+                    {
+                        tExternalOptions.push_back( iExternalParameterList.get( aExternalValidator.mParameterName ) );
+                    }
+                }
+            }
+        }
+
+        // Return options
+        return tExternalOptions;
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
 
 } // namespace moris

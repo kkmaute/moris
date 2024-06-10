@@ -97,15 +97,36 @@ namespace moris
                     const uint&                    aVectorIndex = 0 ) = 0;
 
             /**
+             * Replace global vector entries using moris vectors
+             *
+             * @param aGlobalIds Global IDs
+             * @param aValues Values to replace
+             */
+            virtual void replace_global_values(
+                    const Vector< sint >& aGlobalIds,
+                    const Vector< real >& aValues ) = 0;
+
+            /**
              * Add global valued to the distributed vector.
              *
              * @param[in] aNumMyDof            Number of entries which will be inserted.
-             * @param[in] aEleDofConnectivity   Position where to place the entries.
+             * @param[in] aEleDofConnectivity  Position where to place the entries.
              * @param[in] aRHSVal              Array with values.
-             *
              */
             virtual void sum_into_global_values(
                     const moris::Matrix< DDSMat >& aGlobalIds,
+                    const moris::Matrix< DDRMat >& aValues,
+                    const uint&                    aVectorIndex = 0 ) = 0;
+
+            /**
+             * Add global valued to the distributed vector.
+             *
+             * @param[in] aNumMyDof            Number of entries which will be inserted.
+             * @param[in] aEleDofConnectivity  Position where to place the entries.
+             * @param[in] aRHSVal              Array with values.
+             */
+            virtual void sum_into_global_values(
+                    const Vector< sint >&          aGlobalIds,
                     const moris::Matrix< DDRMat >& aValues,
                     const uint&                    aVectorIndex = 0 ) = 0;
 
@@ -218,6 +239,13 @@ namespace moris
              * @param LHSValues Matrix to extract into
              */
             virtual void extract_copy( moris::Matrix< DDRMat >& LHSValues ) = 0;
+
+            /**
+             * Extracts a full copy of this vector into a moris vector format
+             *
+             * @param aVector Vector to extract into
+             */
+            virtual void extract_copy( Vector< real >& aVector ) = 0;
 
             /**
              * Extracts owned values in this vector into a DDRMat.

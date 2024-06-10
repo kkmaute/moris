@@ -620,7 +620,7 @@ namespace moris::hmr
             // communicate number of owned and active basis with other procs
             Matrix< DDLUMat > tActiveBasisCount;
 
-            comm_gather_and_broadcast( tActiveCount, tActiveBasisCount );
+            allgather_scalar( tActiveCount, tActiveBasisCount );
 
             // get my offset
             moris_id tMyActiveOffset = 0;
@@ -635,7 +635,7 @@ namespace moris::hmr
 
             if ( mParameters->use_multigrid() )
             {
-                comm_gather_and_broadcast( tRefinedCount, tRefinedBasisCount );
+                allgather_scalar( tRefinedCount, tRefinedBasisCount );
                 for ( moris_id p = 1; p <= tMyRank; ++p )
                 {
                     tMyRefinedOffset += tRefinedBasisCount( p - 1 );

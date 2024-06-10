@@ -33,8 +33,8 @@ namespace moris::gen
         bool                       mGenMeshMapIsInitialized = false;
 
         // ADV IDs
-        Matrix< DDSMat > mOwnedADVIds;
-        bool             mADVIdsSet = false;
+        Vector< sint > mOwnedADVIds;
+        bool           mADVIdsSet = false;
 
         // PDV type map
         Vector< PDV_Type > mPDVTypeList;    // List containing all used unique dv types.
@@ -107,7 +107,7 @@ namespace moris::gen
          *
          * @param aOwnedADVIds Owned ADV IDs
          */
-        void set_owned_adv_ids( Matrix< DDSMat > aOwnedADVIds );
+        void set_owned_adv_ids( const Vector< sint >& aOwnedADVIds );
 
         //-------------------------------------------------------------------------------
 
@@ -288,7 +288,7 @@ namespace moris::gen
          */
         void
         remove_sensitivities_of_unused_variables(
-                Matrix< DDSMat >& aADVIds,
+                Vector< sint >&   aADVIds,
                 Matrix< DDRMat >& aHostADVSensitivities );
 
         /**
@@ -342,7 +342,7 @@ namespace moris::gen
          *
          * @return Matrix of optimization sensitivities
          */
-        Matrix< DDRMat > compute_diqi_dadv( const Matrix< DDSMat >& aFullADVIds );
+        Matrix< DDRMat > compute_diqi_dadv( const Vector< sint >& aFullADVIds );
 
         void communicate_dof_types( Vector< enum PDV_Type >& aPDVTypeList );
 

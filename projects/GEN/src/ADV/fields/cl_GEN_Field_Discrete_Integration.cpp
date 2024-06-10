@@ -19,24 +19,22 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Field_Discrete_Integration::Field_Discrete_Integration(
-            Matrix< DDRMat > aConstants,
-            uint             aNumOriginalNodes )
-            : Field( aConstants, "" )
+            const Vector< ADV >& aADVs,
+            std::string          aName )
+            : Field( aADVs, aName )
             , mMeshPair( nullptr, nullptr ) // FIXME
     {
-        mNumOriginalNodes = aNumOriginalNodes;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     Field_Discrete_Integration::Field_Discrete_Integration(
-            const Matrix< DDSMat >& aSharedADVIds,
-            mtk::Mesh_Pair          aMeshPair,
-            std::string             aName )
+            const Vector< sint >& aSharedADVIds,
+            mtk::Mesh_Pair        aMeshPair,
+            std::string           aName )
             : Field( aSharedADVIds, aName )
             , mMeshPair( aMeshPair )
     {
-        mNumOriginalNodes = mMeshPair.get_interpolation_mesh()->get_num_nodes();
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -84,7 +82,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix<DDSMat> Field_Discrete_Integration::get_determining_adv_ids(
+    Vector< sint > Field_Discrete_Integration::get_determining_adv_ids(
             uint                  aNodeIndex,
             const Matrix<DDRMat>& aCoordinates)
     {
@@ -94,7 +92,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void Field_Discrete_Integration::get_determining_adv_ids(
-            Matrix< DDSMat >&   aDeterminingADVIDs,
+            Vector< sint >&   aDeterminingADVIDs,
             const Derived_Node& aDerivedNode,
             const Node_Manager& aNodeManager )
     {
@@ -116,7 +114,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix< DDSMat > Field_Discrete_Integration::get_determining_adv_ids( uint aNodeIndex )
+    Vector< sint > Field_Discrete_Integration::get_determining_adv_ids( uint aNodeIndex )
     {
         return Field::get_determining_adv_ids( aNodeIndex, {{}} );
     }

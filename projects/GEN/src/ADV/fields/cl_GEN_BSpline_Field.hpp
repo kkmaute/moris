@@ -38,14 +38,14 @@ namespace moris::gen
         BSpline_Field(
                 mtk::Mesh_Pair           aMeshPair,
                 sol::Dist_Vector*        aOwnedADVs,
-                const Matrix<DDSMat>&    aSharedADVIds,
+                const Vector< sint >&    aSharedADVIds,
                 uint                     aADVOffsetID,
                 uint                     aDiscretizationIndex,
                 std::shared_ptr< Field > aField );
 
         BSpline_Field(
                 sol::Dist_Vector*             aOwnedADVs,
-                const Matrix<DDSMat>&         aSharedADVIds,
+                const Vector< sint >&         aSharedADVIds,
                 uint                          aADVOffsetID,
                 uint                          aDiscretizationIndex,
                 std::shared_ptr< mtk::Field > aMTKField,
@@ -80,7 +80,7 @@ namespace moris::gen
          * @param aCoordinates Node coordinates
          * @return Determining ADV IDs at this node
          */
-        Matrix< DDSMat > get_determining_adv_ids( uint aNodeIndex ) override;
+        Vector< sint > get_determining_adv_ids( uint aNodeIndex ) override;
 
         /**
          * Imports the local ADVs required from the full owned ADV distributed vector, and recomputes nodal values.

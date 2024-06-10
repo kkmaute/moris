@@ -78,6 +78,11 @@ namespace moris
             uint mNumNormalStress = MORIS_UINT_MAX;
             uint mNumNormalStrain = MORIS_UINT_MAX;
 
+            // geometric stiffness
+            Matrix< DDRMat > mGeometricStiffness;
+
+            moris::Matrix< DDBMat > mGeometricStiffnessEval;
+
             //--------------------------------------------------------------------------------------------------------------
 
           public:
@@ -103,6 +108,29 @@ namespace moris
             }
 
             //------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------------------------------------
+            /**
+             * evaluate geometric jacobian
+             * @param[ in ] aDofTypes a dof type wrt which the jacobian is evaluated
+             * @param[out ] mGeometricStiffness geometric stiffness contribution to jacobian
+             */
+            const Matrix< DDRMat >& GeometricStiffness(
+                    const Vector< MSI::Dof_Type >& aDofTypes,
+                    enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
+
+            //------------------------------------------------------------------------------
+            /**
+             * reset local evaluation flags
+             */
+            void reset_eval_flags();
+
+            //------------------------------------------------------------------------------
+            /**
+             * create a global dof type list including local constitutive dependencies
+             */
+            void build_global_dof_type_list();
+
+            //------------------------------------------------------------------------------
             /**
              * set constitutive model dof types
              * @param[ in ] aDofTypes a list of group of dof types
@@ -110,7 +138,7 @@ namespace moris
              */
             void set_dof_type_list(
                     Vector< Vector< MSI::Dof_Type > > aDofTypes,
-                    Vector< std::string >           aDofStrings );
+                    Vector< std::string >             aDofStrings );
 
             //------------------------------------------------------------------------------
             /**
@@ -121,7 +149,7 @@ namespace moris
             void
             set_dv_type_list(
                     Vector< Vector< gen::PDV_Type > > aDvTypes,
-                    Vector< std::string >      aDvStrings )
+                    Vector< std::string >             aDvStrings )
             {
                 Constitutive_Model::set_dv_type_list( aDvTypes );
             }
@@ -226,7 +254,7 @@ namespace moris
              * @param[ in ] aNormal   normal
              */
             void eval_testTraction(
-                    const Matrix< DDRMat >&      aNormal,
+                    const Matrix< DDRMat >&        aNormal,
                     const Vector< MSI::Dof_Type >& aTestDofTypes );
 
             //--------------------------------------------------------------------------------------------------------------
@@ -254,6 +282,8 @@ namespace moris
             void eval_teststrain_2d();
             void eval_teststrain_3d();
 
+            void eval_geometric_stiffness( const Vector< MSI::Dof_Type >& aDofTypes );
+
             //--------------------------------------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model flux derivative wrt to a dof type
@@ -269,7 +299,7 @@ namespace moris
              */
             void eval_dTractiondDOF(
                     const Vector< MSI::Dof_Type >& aDofTypes,
-                    const Matrix< DDRMat >&      aNormal );
+                    const Matrix< DDRMat >&        aNormal );
 
             //--------------------------------------------------------------------------------------------------------------
             /**
@@ -279,8 +309,8 @@ namespace moris
              */
             virtual void eval_dTestTractiondDOF(
                     const Vector< MSI::Dof_Type >& aDofTypes,
-                    const Matrix< DDRMat >&      aNormal,
-                    const Matrix< DDRMat >&      aJump,
+                    const Matrix< DDRMat >&        aNormal,
+                    const Matrix< DDRMat >&        aJump,
                     const Vector< MSI::Dof_Type >& aTestDofTypes );
 
             //--------------------------------------------------------------------------------------------------------------
@@ -411,4 +441,3 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_FEM_CM_STRUC_LINEAR_ISOTROPIC_HPP_ */
-

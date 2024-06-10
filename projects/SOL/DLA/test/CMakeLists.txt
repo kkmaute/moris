@@ -24,6 +24,12 @@ set(TEST_SOURCES
     matrix.mtx
     vector.mtx )
 
+if(${MORIS_HAVE_SLEPC})
+list( APPEND TEST_SOURCES
+    cl_Eigen_Solver_Slepc.cpp
+    )
+endif()
+
 # List test dependencies
 set(TEST_DEPENDENCIES
     test-libs

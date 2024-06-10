@@ -227,7 +227,7 @@ namespace moris::gen
     Surface_Mesh_Geometry::discretize(
             mtk::Mesh_Pair          aMeshPair,
             sol::Dist_Vector*       aOwnedADVs,
-            const Matrix< DDSMat >& aSharedADVIds,
+            const Vector< sint >& aSharedADVIds,
             uint                    aADVOffsetID )
     {
         // TODO BRENDAN
@@ -240,7 +240,7 @@ namespace moris::gen
             std::shared_ptr< mtk::Field > aMTKField,
             mtk::Mesh_Pair                aMeshPair,
             sol::Dist_Vector*             aOwnedADVs,
-            const Matrix< DDSMat >&       aSharedADVIds,
+            const Vector< sint >&       aSharedADVIds,
             uint                          aADVOffsetID )
     {
         // TODO BRENDAN
@@ -290,6 +290,12 @@ namespace moris::gen
     Surface_Mesh_Geometry::get_discretization_upper_bound()
     {
         return mParameters.mDiscretizationUpperBound;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Surface_Mesh_Geometry::update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedDesigns )
+    {
     }
     
     //--------------------------------------------------------------------------------------------------------------

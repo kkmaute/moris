@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "cl_GEN_Field_Discrete_Interpolation.hpp"
+#include "cl_GEN_Field.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 
 namespace moris::gen
@@ -41,6 +41,18 @@ namespace moris::gen
             VARIABLE_CHECK( 1 );
             MORIS_ERROR( mField, "A scaled field must be given an input field." );
         }
+
+        /**
+         * Constructor using created ADVs.
+         *
+         * @param aField Given field that this field will scale
+         * @param aScalingFactor Scaling factor for the given field
+         * @param aName Name of this field
+         */
+        Scaled_Field(
+                std::shared_ptr< Field > aField,
+                const ADV&               aScalingFactor,
+                std::string              aName );
 
         /**
          * Given a node index, returns the field value.
@@ -95,7 +107,7 @@ namespace moris::gen
          * @param aCoordinates Node coordinates
          * @return Determining ADV IDs at this node
          */
-        Matrix<DDSMat> get_determining_adv_ids(
+        Vector< sint > get_determining_adv_ids(
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates ) override;
 
@@ -107,7 +119,7 @@ namespace moris::gen
          * @param aNodeManager Node manager
          */
         void get_determining_adv_ids(
-                Matrix< DDSMat >&   aDeterminingADVIDs,
+                Vector< sint >&   aDeterminingADVIDs,
                 const Derived_Node& aDerivedNode,
                 const Node_Manager& aNodeManager ) override;
 
@@ -129,7 +141,7 @@ namespace moris::gen
          *
          * @param aDependencyFields Fields that this field depends on.
          */
-        void set_dependencies( Vector< std::shared_ptr< Field > > aDependencyFields ) override;
+        void update_dependencies( Vector< std::shared_ptr< Field > > aDependencyFields ) override;
 
         /**
          * Gets an MTK field, if this field needs to be remapped to a new mesh

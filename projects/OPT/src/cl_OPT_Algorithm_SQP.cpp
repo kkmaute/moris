@@ -235,7 +235,7 @@ namespace moris
                 // skip over non-SQP specific parameters
                 if ( it->first == "restart_index" ) continue;
 
-                sint tParamType = aParameterList.which( it->first );    // get the underlying parameter type
+                uint tParamType = aParameterList.index( it->first );    // get the underlying parameter type
 
                 // call Fortran subroutine based on parameter type
                 switch ( tParamType )
@@ -409,9 +409,9 @@ namespace moris
             double A;
 
             // extract design variables including their lower and upper bounds
-            auto x    = mProblem->get_advs().data();
-            auto xlow = mProblem->get_lower_bounds().data();
-            auto xupp = mProblem->get_upper_bounds().data();
+            auto x    = mProblem->get_advs().memptr();
+            auto xlow = mProblem->get_lower_bounds().memptr();
+            auto xupp = mProblem->get_upper_bounds().memptr();
 
             char* Fnames = 0;
             char* xnames = 0;
@@ -594,13 +594,17 @@ namespace moris
         Algorithm_SQP::func_grad( int n, double* x, int needG )
         {
             // get ADVs from problem
-            auto tAdvVec = mProblem->get_advs().data();
+            auto tAdvVec = mProblem->get_advs().memptr();
 
             // check whether criteria need to be evaluated
             if ( mOptIter == 0 or !std::equal( x, x + n, tAdvVec ) )
             {
                 // update the vector of design variables
-                Matrix< DDRMat > tADVs( x, mProblem->get_num_advs(), 1 );
+                Vector< real > tADVs( mProblem->get_num_advs() );
+                for ( uint iADVIndex = 0; iADVIndex < tADVs.size(); iADVIndex++ )
+                {
+                    tADVs( iADVIndex ) = x[ iADVIndex ];
+                }
 
                 // Write restart file
                 this->write_advs_to_file( tADVs );

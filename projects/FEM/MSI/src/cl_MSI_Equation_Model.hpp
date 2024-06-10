@@ -83,8 +83,8 @@ namespace moris
             moris::sint mNumSensitivityAnalysisRHS = -1;
 
             //------------------------------------------------------------------------------
-            // Dummy Variables
-            Vector< std::string > mDummy;
+            
+            std::shared_ptr< Vector<real> > mEigenValues = nullptr;
 
             //------------------------------------------------------------------------------
 
@@ -219,6 +219,18 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
+             * @brief Set the eigen values object
+             * 
+             * @param aEigenValues 
+             */
+
+            void set_eigen_values( std::shared_ptr< Vector<real> > aEigenValues )
+            {
+                mEigenValues = std::move(aEigenValues);
+            }
+
+            //------------------------------------------------------------------------------
+            /**
              * get previous solution vector
              * @param[ out ] aSolutionVector previous distributed solution vector
              */
@@ -226,6 +238,18 @@ namespace moris
             get_eigen_solution_vector()
             {
                 return mEigenSolutionVector;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * get previous solution vector
+             * @param[ out ] aSolutionVector previous distributed solution vector
+             */
+
+            std::shared_ptr< Vector< real > >&
+            get_eigen_values()
+            {
+                return mEigenValues;
             }
 
             //------------------------------------------------------------------------------
@@ -387,7 +411,7 @@ namespace moris
             get_requested_IQI_names()
             {
                 MORIS_ERROR( false, "Equation_Model::get_requested_IQI_names - not implemented for base class." );
-                return mDummy;
+                return *(new Vector< std::string >());
             }
 
             //------------------------------------------------------------------------------

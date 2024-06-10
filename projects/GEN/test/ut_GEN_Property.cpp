@@ -23,15 +23,11 @@ namespace moris::gen
 
     TEST_CASE( "Constant property", "[gen], [property], [constant property]" )
     {
-        // Create ADVs
-        Matrix< DDRMat > tADVs = { { 0.0 } };
-
         // Set up property
-        Parameter_List tConstantPropertyParameterList = prm::create_gen_property_parameter_list();
-        tConstantPropertyParameterList.set( "field_type", "constant" );
-        tConstantPropertyParameterList.set( "field_variable_indices", "0" );
-        tConstantPropertyParameterList.set( "adv_indices", "0" );
-        Design_Factory              tDesignFactory( { tConstantPropertyParameterList }, tADVs );
+        Parameter_List tConstantPropertyParameterList = prm::create_gen_property_parameter_list( gen::Field_Type::CONSTANT );
+        tConstantPropertyParameterList.set( "constant", 0.0, 0.0, 0.0 );
+        ADV_Manager tADVManager;
+        Design_Factory              tDesignFactory( { tConstantPropertyParameterList }, tADVManager );
         std::shared_ptr< Property > tConstantProperty = tDesignFactory.get_properties()( 0 );
 
         // Random distribution
@@ -41,7 +37,7 @@ namespace moris::gen
         for ( uint tTestRun = 0; tTestRun < 4; tTestRun++ )
         {
             // Create scaled field
-            tADVs( 0 ) = tUniform( tEngine );
+            tADVManager.mADVs( 0 ) = tUniform( tEngine );
 
             // Loop over coordinate checks
             for ( uint tCoordinateCheck = 0; tCoordinateCheck < 4; tCoordinateCheck++ )
@@ -50,7 +46,7 @@ namespace moris::gen
                 Matrix< DDRMat > tCoordinates( { { tUniform( tEngine ), tUniform( tEngine ) } } );
 
                 // Checks
-                CHECK( tConstantProperty->get_field_value( 0, tCoordinates ) == Approx( tADVs( 0 ) ) );
+                CHECK( tConstantProperty->get_field_value( 0, tCoordinates ) == Approx( tADVManager.mADVs( 0 ) ) );
                 CHECK_EQUAL( tConstantProperty->get_dfield_dadvs( 0, tCoordinates ), { { 1.0 } }, );
             }
         }
@@ -60,19 +56,15 @@ namespace moris::gen
 
     TEST_CASE( "Scaled field property", "[gen], [property], [scaled field]" )
     {
-        // Create ADVs
-        Matrix< DDRMat > tADVs = { { 0.0, 0.0, 0.5 } };
-
         // Set up and create geometry
-        Parameter_List tCircleParameterList = prm::create_level_set_geometry_parameter_list();
-        tCircleParameterList.set( "field_type", "circle" );
+        Parameter_List tCircleParameterList = prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE );
+        tCircleParameterList.set( "center_x", 0.0, 0.0, 0.0 );
+        tCircleParameterList.set( "center_y", 0.0, 0.0, 0.0 );
+        tCircleParameterList.set( "radius", 0.5, 0.5, 0.5 );
         tCircleParameterList.set( "name", "My Circle" );
-        tCircleParameterList.set( "field_variable_indices", "0, 1, 2" );
-        tCircleParameterList.set( "adv_indices", "0, 1, 2" );
 
         // Set up property
-        Parameter_List tScaledFieldParameterList = prm::create_gen_property_parameter_list();
-        tScaledFieldParameterList.set( "field_type", "scaled_field" );
+        Parameter_List tScaledFieldParameterList = prm::create_gen_property_parameter_list( gen::Field_Type::SCALED_FIELD );
         tScaledFieldParameterList.set( "dependencies", "My Circle" );
 
         // Random distribution
@@ -83,8 +75,9 @@ namespace moris::gen
         {
             // Create scaled field
             real tScale = tUniform( tEngine );
-            tScaledFieldParameterList.set( "constant_parameters", std::to_string( tScale ) );
-            Design_Factory                        tDesignFactory( { tCircleParameterList, tScaledFieldParameterList }, tADVs );
+            tScaledFieldParameterList.set( "scaling_factor", tScale, false );
+            ADV_Manager tADVManager;
+            Design_Factory                        tDesignFactory( { tCircleParameterList, tScaledFieldParameterList }, tADVManager );
             std::shared_ptr< Level_Set_Geometry > tCircle     = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
             auto                                  tProperties = tDesignFactory.get_properties();
 
@@ -114,9 +107,8 @@ namespace moris::gen
     TEST_CASE( "B-spline Property", "[gen], [property], [distributed advs], [B-spline property]" )
     {
         // Constant B-spline parameter list
-        Parameter_List tPropertyParameterList = prm::create_gen_property_parameter_list();
-        tPropertyParameterList.set( "field_type", "constant" );
-        tPropertyParameterList.set( "constant_parameters", "1.0" );
+        Parameter_List tPropertyParameterList = prm::create_gen_property_parameter_list( gen::Field_Type::CONSTANT );
+        tPropertyParameterList.set( "constant", 1.0 );
         tPropertyParameterList.set( "discretization_mesh_index", 0 );
         tPropertyParameterList.set( "discretization_lower_bound", -2.0 );
         tPropertyParameterList.set( "discretization_upper_bound", 2.0 );
@@ -160,8 +152,8 @@ namespace moris::gen
                     tBSplineOrder );
 
             // Set up property
-            Matrix< DDRMat > tADVs( 0, 0 );
-            Design_Factory   tDesignFactory( { tPropertyParameterList }, tADVs );
+            ADV_Manager tADVManager;
+            Design_Factory   tDesignFactory( { tPropertyParameterList }, tADVManager );
             auto             tBSplineProperty = tDesignFactory.get_properties()( 0 );
 
             // Create geometry engine
@@ -170,17 +162,17 @@ namespace moris::gen
             Geometry_Engine_Test tGeometryEngine( tMesh, tGeometryEngineParameters );
 
             // Get ADVs and upper/lower bounds
-            tADVs                         = tGeometryEngine.get_advs();
-            Matrix< DDRMat > tLowerBounds = tGeometryEngine.get_lower_bounds();
-            Matrix< DDRMat > tUpperBounds = tGeometryEngine.get_upper_bounds();
+            Vector< real > tADVs = tGeometryEngine.get_advs();
+            Vector< real > tLowerBounds = tGeometryEngine.get_lower_bounds();
+            Vector< real > tUpperBounds = tGeometryEngine.get_upper_bounds();
 
             // Check that ADVs were created and L2 was performed
             if ( par_rank() == 0 )
             {
                 uint tNumADVs = pow( tNumElementsPerDimension + tBSplineOrder, 2 );
-                REQUIRE( tADVs.length() == tNumADVs );
-                REQUIRE( tLowerBounds.length() == tNumADVs );
-                REQUIRE( tUpperBounds.length() == tNumADVs );
+                REQUIRE( tADVs.size() == tNumADVs );
+                REQUIRE( tLowerBounds.size() == tNumADVs );
+                REQUIRE( tUpperBounds.size() == tNumADVs );
                 for ( uint tBSplineIndex = 0; tBSplineIndex < tNumADVs; tBSplineIndex++ )
                 {
                     CHECK( tLowerBounds( tBSplineIndex ) == Approx( -2.0 ) );
@@ -189,9 +181,9 @@ namespace moris::gen
             }
             else
             {
-                REQUIRE( tADVs.length() == 0 );
-                REQUIRE( tLowerBounds.length() == 0 );
-                REQUIRE( tUpperBounds.length() == 0 );
+                REQUIRE( tADVs.size() == 0 );
+                REQUIRE( tLowerBounds.size() == 0 );
+                REQUIRE( tUpperBounds.size() == 0 );
             }
 
             // Get property back
@@ -208,13 +200,21 @@ namespace moris::gen
                 {
                     Matrix< DDRMat > tMatrix = trans( tMesh->get_t_matrix_of_node_loc_ind( tNodeIndex, 0 ) );
                     Matrix< DDSMat > tIDs    = trans( tMesh->get_coefficient_IDs_of_node( tNodeIndex, 0 ) );
+                    Vector< sint > tIDVector( tIDs.length() );
+                    for ( uint iIndex = 0; iIndex < tIDVector.size(); iIndex++ )
+                    {
+                        tIDVector( iIndex ) = tIDs( iIndex );
+                    }
                     CHECK_EQUAL( tBSplineProperty->get_dfield_dadvs( tNodeIndex, { {} } ), tMatrix, );
-                    CHECK_EQUAL( tBSplineProperty->get_determining_adv_ids( tNodeIndex, { {} } ), tIDs, );
+                    CHECK_EQUAL( tBSplineProperty->get_determining_adv_ids( tNodeIndex, { {} } ), tIDVector, );
                 }
             }
 
             // Set new ADVs
-            tADVs = tADVs * 2;
+            for ( uint iADVIndex = 0; iADVIndex < tADVs.size(); iADVIndex++ )
+            {
+                tADVs( iADVIndex ) = tADVs( iADVIndex ) * 2;
+            }
             tGeometryEngine.set_advs( tADVs );
 
             // Check field values at all nodes again

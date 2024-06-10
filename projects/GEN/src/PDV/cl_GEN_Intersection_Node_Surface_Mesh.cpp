@@ -60,12 +60,12 @@ namespace moris::gen
     
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix< DDSMat >
+    Vector< sint >
     Intersection_Node_Surface_Mesh::get_coordinate_determining_adv_ids() const
     {
         // TODO
         MORIS_ERROR( false, "Intersection_Node_Surface_Mesh - get_coordinate_determining_adv_ids() not implemented yet." );
-        return { { -1 } };
+        return { -1 };
     }
     
     //--------------------------------------------------------------------------------------------------------------

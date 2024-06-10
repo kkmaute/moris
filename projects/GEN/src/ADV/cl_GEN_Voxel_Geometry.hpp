@@ -172,7 +172,7 @@ namespace moris::gen
         void discretize(
                 mtk::Mesh_Pair          aMeshPair,
                 sol::Dist_Vector*       aOwnedADVs,
-                const Matrix< DDSMat >& aSharedADVIds,
+                const Vector< sint >& aSharedADVIds,
                 uint                    aADVOffsetID ) override;
 
         /**
@@ -187,7 +187,7 @@ namespace moris::gen
                 std::shared_ptr< mtk::Field > aMTKField,
                 mtk::Mesh_Pair                aMeshPair,
                 sol::Dist_Vector*             aOwnedADVs,
-                const Matrix< DDSMat >&       aSharedADVIds,
+                const Vector< sint >&       aSharedADVIds,
                 uint                          aADVOffsetID ) override;
 
         /**
@@ -201,5 +201,13 @@ namespace moris::gen
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates,
                 Vector< real >&           aOutputDesignInfo ) override;
+
+        /**
+         * Updates the dependencies of this design based on the given designs
+         * (fields may have been mapped/updated).
+         *
+         * @param aAllUpdatedDesigns All designs (this design will take fields from the ones it needs)
+         */
+        void update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedDesigns ) override;
     };
 }

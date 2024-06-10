@@ -55,29 +55,35 @@ namespace moris::gen
             mtk::Interpolation_Mesh* tMesh = create_simple_mesh( 2, 2 );
 
             // Set up geometry
-            Matrix< DDRMat > tADVs = { { 0.25, 0.0, 1.0, 0.0 } };
+            Vector< real > tADVs = { 0.25, 0.0, 1.0, 0.0 };
 
             // Circle
-            Parameter_List tCircleParameterList = prm::create_level_set_geometry_parameter_list();
-            tCircleParameterList.set( "field_type", "circle" );
-            tCircleParameterList.set( "constant_parameters", "-0.25, 0.0, 0.7499999999" );    // Not close enough to snap
+            Parameter_List tCircleParameterList = prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE );
+            tCircleParameterList.set( "center_x", -0.25 );
+            tCircleParameterList.set( "center_y", 0.0 );
+            tCircleParameterList.set( "radius", 0.7499999999 );
             tCircleParameterList.set( "discretization_mesh_index", 0 );
 
             // Plane 1
-            Parameter_List tPlane1ParameterList = prm::create_level_set_geometry_parameter_list();
-            tPlane1ParameterList.set( "field_type", "plane" );
-            tPlane1ParameterList.set( "field_variable_indices", "all" );
-            tPlane1ParameterList.set( "adv_indices", "all" );
+            Parameter_List tPlane1ParameterList = prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE );
+            tPlane1ParameterList.set( "center_x", 0.25, 0.25, 0.25 );
+            tPlane1ParameterList.set( "center_y", 0.0, 0.0, 0.0 );
+            tPlane1ParameterList.set( "normal_x", 1.0, 1.0, 1.0 );
+            tPlane1ParameterList.set( "normal_y", 0.0, 0.0, 0.0 );
 
             // Plane 2
-            Parameter_List tPlane2ParameterList = prm::create_level_set_geometry_parameter_list();
-            tPlane2ParameterList.set( "field_type", "plane" );
-            tPlane2ParameterList.set( "constant_parameters", "1.0, 0.0, 1.0, 0.0" );
+            Parameter_List tPlane2ParameterList = prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE );
+            tPlane2ParameterList.set( "center_x", 1.0 );
+            tPlane2ParameterList.set( "center_y", 0.0 );
+            tPlane2ParameterList.set( "normal_x", 1.0 );
+            tPlane2ParameterList.set( "normal_y", 0.0 );
 
             // Create geometry engine
             Geometry_Engine_Parameters tGeometryEngineParameters;
-            tGeometryEngineParameters.mADVs = tADVs;
-            Design_Factory tDesignFactory( { tCircleParameterList, tPlane1ParameterList, tPlane2ParameterList }, tADVs );
+            ADV_Manager tADVManager;
+            tADVManager.mADVs = tADVs;
+            Design_Factory tDesignFactory( { tCircleParameterList, tPlane1ParameterList, tPlane2ParameterList }, tADVManager );
+            tGeometryEngineParameters.mADVManager = tADVManager;
             tGeometryEngineParameters.mGeometries = tDesignFactory.get_geometries();
             Geometry_Engine_Test tGeometryEngine( tMesh, tGeometryEngineParameters );
 
@@ -356,21 +362,21 @@ namespace moris::gen
                 { { 0.5, 0.0, -0.125, 0.0, 0.5, 0.0, 0.125, -( 1 + sqrt( 17 ) ) / 16, 0.0, 0.0, 0.0, 0.0 }, { -( 1 + sqrt( 17 ) ) / 8, 0.0, ( 1 + sqrt( 17 ) ) / 32, 0.0, -( 1 + sqrt( 17 ) ) / 8, 0.0, -( 1 + sqrt( 17 ) ) / 32, ( 9 + sqrt( 17 ) ) / 32, -( 1 + sqrt( 17 ) ) / 16, -( 1 + sqrt( 17 ) ) / 16, -( 3 * sqrt( 17 ) - 5 ) / 32, -( 9 + sqrt( 17 ) ) / 32 } }
             };
 
-            Vector< Matrix< DDSMat > > tIntersectionIDs = {
-                { { 6, 9 } },
-                { { 9, 8 } },
-                { { 10, 9 } },
-                { { 9, 6 } },
-                { { 8, 9 } },
-                { { 9, 12 } },
-                { { 9, 10 } },
-                { { 12, 9 } },
-                { { 0, 1, 2, 3, 0, 1, 2, 3 } },
-                { { 0, 1, 2, 3, 0, 1, 2, 3 } },
-                { { 0, 1, 2, 3, 0, 1, 2, 3 } },
-                { { 0, 1, 2, 3, 0, 1, 2, 3 } },
-                { { 0, 1, 2, 3, 0, 1, 2, 3, 6, 9, 10, 9 } },
-                { { 0, 1, 2, 3, 0, 1, 2, 3, 10, 9, 9, 12 } }
+            Vector< Vector< sint > > tIntersectionIDs = {
+                { 6, 9 },
+                { 9, 8 },
+                { 10, 9 },
+                { 9, 6 },
+                { 8, 9 },
+                { 9, 12 },
+                { 9, 10 },
+                { 12, 9 },
+                { 0, 1, 2, 3, 0, 1, 2, 3 },
+                { 0, 1, 2, 3, 0, 1, 2, 3 },
+                { 0, 1, 2, 3, 0, 1, 2, 3 },
+                { 0, 1, 2, 3, 0, 1, 2, 3 },
+                { 0, 1, 2, 3, 0, 1, 2, 3, 6, 9, 10, 9 },
+                { 0, 1, 2, 3, 0, 1, 2, 3, 10, 9, 9, 12 }
             };
 
             Matrix< DDRMat > tHostADVSensitivities;
@@ -551,16 +557,17 @@ namespace moris::gen
             mtk::Interpolation_Mesh* tMesh = create_simple_mesh( 2, 2 );
 
             // Set up circle
-            Parameter_List tCircleParameterList = prm::create_level_set_geometry_parameter_list();
-            tCircleParameterList.set( "field_type", "circle" );
-            tCircleParameterList.set( "constant_parameters", "-0.25, 0.0, 0.7499999999" );
+            Parameter_List tCircleParameterList = prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE );
+            tCircleParameterList.set( "center_x", -0.25 );
+            tCircleParameterList.set( "center_y", 0.0 );
+            tCircleParameterList.set( "radius", 0.7499999999 );
             tCircleParameterList.set( "discretization_mesh_index", 0 );
             tCircleParameterList.set( "use_multilinear_interpolation", true );
-            Matrix< DDRMat > tADVs( 0, 0 );
 
             // Create geometry engine
             Geometry_Engine_Parameters tGeometryEngineParameters;
-            Design_Factory             tDesignFactory( { tCircleParameterList }, tADVs );
+            ADV_Manager tADVManager;
+            Design_Factory tDesignFactory( { tCircleParameterList }, tADVManager );
             tGeometryEngineParameters.mGeometries = tDesignFactory.get_geometries();
             Geometry_Engine_Test tGeometryEngine( tMesh, tGeometryEngineParameters );
 
@@ -647,12 +654,12 @@ namespace moris::gen
                         // Check sensitivities
                         tHostADVSensitivities.set_size( 0.0, 0.0 );
                         tNodeManager.append_dcoordinate_dadv_from_derived_node( 9 + tIntersectionCount, tHostADVSensitivities, tI );
-                        Matrix< DDSMat > tADVIDs = tNodeManager.get_coordinate_determining_adv_ids_from_derived_node( 9 + tIntersectionCount );
+                        Vector< sint > tADVIDs = tNodeManager.get_coordinate_determining_adv_ids_from_derived_node( 9 + tIntersectionCount );
 
                         // Finite difference sensitivities by queueing dummy nodes
                         Matrix< DDRMat > tFDSensitivities( tHostADVSensitivities.n_rows(), tHostADVSensitivities.n_cols(), 0.0 );
-                        tADVs = tGeometryEngine.get_advs();
-                        for ( uint iADVIndex = 0; iADVIndex < tADVIDs.length(); iADVIndex++ )
+                        Vector< real > tADVs = tGeometryEngine.get_advs();
+                        for ( uint iADVIndex = 0; iADVIndex < tADVIDs.size(); iADVIndex++ )
                         {
                             // Get ADV ID
                             sint tADVID = tADVIDs( iADVIndex );

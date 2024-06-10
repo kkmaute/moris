@@ -76,6 +76,6 @@ namespace moris::gen
          *
          * @return ADV IDs
          */
-        virtual Matrix< DDSMat > get_determining_adv_ids( uint aNodeIndex, const Matrix< DDRMat >& aCoordinates ) = 0;
+        virtual Vector< sint > get_determining_adv_ids( uint aNodeIndex, const Matrix< DDRMat >& aCoordinates ) = 0;
     };
 }

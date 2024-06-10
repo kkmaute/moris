@@ -169,7 +169,7 @@ namespace moris::xtk
             std::string tVertDiagFile    = mXTKModel->get_diagnostic_file_name( std::string( "Vertex" ) );
             std::string tGroupDiagFile   = mXTKModel->get_diagnostic_file_name( std::string( "Groups" ) );
             std::string tGENVertDiagFile = mXTKModel->get_diagnostic_file_name( std::string( "Vertex_GEN" ) );
-            tCutIntegrationMesh->print_cells( false, tCellDiagFile );
+            tCutIntegrationMesh->print_vectors( false, tCellDiagFile );
             tCutIntegrationMesh->print_vertices( false, tVertDiagFile );
             tCutIntegrationMesh->print_groupings( tGroupDiagFile );
             mXTKModel->get_geom_engine()->print_gen_vertices( tGENVertDiagFile, tCutIntegrationMesh.get() );

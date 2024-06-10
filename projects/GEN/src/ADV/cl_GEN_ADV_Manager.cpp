@@ -9,172 +9,88 @@
  */
 
 #include "cl_GEN_ADV_Manager.hpp"
-#include "cl_SOL_Matrix_Vector_Factory.hpp"
-#include "cl_SOL_Dist_Map.hpp"
 
 namespace moris::gen
 {
     //--------------------------------------------------------------------------------------------------------------
 
-    ADV_Manager::ADV_Manager(
-            Matrix< DDRMat >&       aADVs,
-            const Matrix< DDUMat >& aVariableIndices,
-            const Matrix< DDUMat >& aADVIndices,
-            const Matrix< DDRMat >& aConstants )
-            : mDeterminingADVIds( aVariableIndices.length() + aConstants.length(), 1, gNoID )
-            , mHasADVs( aADVIndices.length() )
+    ADV_Manager::ADV_Manager( uint aNumberOfADVs )
+            : mParameterIDsFinalized( true )
     {
-        // Check that the number of field variables indices equals the number of ADV indices
-        MORIS_ERROR( aVariableIndices.length() == aADVIndices.length(),
-                "Number of field variables indices must equal the number of ADV indices in a GEN ADV_Manager." );
+        mADVs.reserve( aNumberOfADVs );
+        mLowerBounds.reserve( aNumberOfADVs );
+        mUpperBounds.reserve( aNumberOfADVs );
+    }
 
-        // Set ADV dependencies
-        for ( uint tADVFillIndex = 0; tADVFillIndex < aVariableIndices.length(); tADVFillIndex++ )
+    //--------------------------------------------------------------------------------------------------------------
+
+    void ADV_Manager::register_parameter_ids( const Vector< char >& aParameterIDs )
+    {
+        // Check for finalization
+        MORIS_ASSERT( not mParameterIDsFinalized, "The ADV manager cannot add additional parameter IDs after they have already been finalized." );
+
+        // Loop over new parameter IDs
+        for ( auto iParameterID : aParameterIDs )
         {
-            mDeterminingADVIds( aVariableIndices( tADVFillIndex ) ) = aADVIndices( tADVFillIndex );
-        }
-
-        // Fill with pointers to ADVs
-        this->create_advs( aADVs, aConstants );
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    ADV_Manager::ADV_Manager(
-            const Matrix< DDRMat >& aConstants )
-            : mDeterminingADVIds( aConstants.length(), 1, gNoID )
-            , mHasADVs( false )
-    {
-        // Set ADVs
-        Matrix< DDRMat > tDummyADVs( 0, 0 );
-        this->create_advs( tDummyADVs, aConstants );
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    ADV_Manager::ADV_Manager( const Matrix< DDSMat >& aSharedADVIds )
-            : mDeterminingADVIds( aSharedADVIds )
-            , mHasADVs( true )
-    {
-        // Create shared distributed vector
-        sol::Matrix_Vector_Factory tDistributedFactory;
-        sol::Dist_Map* tSharedADVMap = tDistributedFactory.create_map( aSharedADVIds );
-        mSharedADVs = tDistributedFactory.create_vector( tSharedADVMap, 1, false, true );
-
-        // Set variables from ADVs
-        uint tNumSharedADVs = aSharedADVIds.length();
-        mADVs.reserve( tNumSharedADVs );
-        for ( uint iVariableIndex = 0; iVariableIndex < tNumSharedADVs; iVariableIndex++ )
-        {
-            mADVs.emplace_back( mSharedADVs, aSharedADVIds( iVariableIndex ) );
-        }
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    ADV_Manager::ADV_Manager(
-            const ADV_Manager& aCopyADVManager,
-            const Vector< uint >& aReplaceVariables,
-            const Vector< real >& aNewConstants )
-            : mADVs( aCopyADVManager.mADVs )
-            , mDeterminingADVIds( aCopyADVManager.mDeterminingADVIds )
-            , mHasADVs( aCopyADVManager.mHasADVs )
-            , mSharedADVs( aCopyADVManager.mSharedADVs )
-    {
-        // Ensure the number of replacement variables equals the number of new constants
-        MORIS_ERROR( aReplaceVariables.size() == aNewConstants.size(),
-                "ADV copy constructor must be given same amount of variable indices to replace and new constants." );
-
-        // Replace constant variables
-        for ( uint iReplacementIndex = 0; iReplacementIndex < aReplaceVariables.size(); iReplacementIndex++ )
-        {
-            mADVs( aReplaceVariables( iReplacementIndex ) ).replace_constant( aNewConstants( iReplacementIndex ) );
-        }
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    ADV_Manager::~ADV_Manager()
-    {
-        delete mSharedADVs;
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    template< typename Vector_Type >
-    void
-    ADV_Manager::set_advs( Vector_Type& aADVs )
-    {
-        for ( uint iVariableIndex = 0; iVariableIndex < mDeterminingADVIds.length(); iVariableIndex++ )
-        {
-            if ( mDeterminingADVIds( iVariableIndex ) >= 0 )
+            // Add ID if it doesn't exist already
+            auto tFindID = std::find( mParameterIDs.begin(), mParameterIDs.end(), iParameterID );
+            if ( tFindID == mParameterIDs.end() )
             {
-                mADVs( iVariableIndex ) = ADV( aADVs, mDeterminingADVIds( iVariableIndex ) );
+                mParameterIDs.push_back( iParameterID );
             }
         }
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real ADV_Manager::get_variable( uint aVariableIndex )
+    void ADV_Manager::finalize_parameter_ids()
     {
-        return mADVs( aVariableIndex ).get_value();
+        // Check for finalization
+        MORIS_ASSERT( not mParameterIDsFinalized, "The ADV manager can only finalize parameter IDs once." );
+
+        // Reserve space
+        mADVs.reserve( mParameterIDs.size() );
+        mLowerBounds.reserve( mParameterIDs.size() );
+        mUpperBounds.reserve( mParameterIDs.size() );
+
+        // Set flag
+        mParameterIDsFinalized = true;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void ADV_Manager::import_advs( sol::Dist_Vector* aOwnedADVs )
+    ADV ADV_Manager::create_adv( const Design_Variable& aDesignVariable )
     {
-        if ( mSharedADVs )
+        // Check for finalization
+        MORIS_ASSERT( mParameterIDsFinalized, "ADVs can only be created if the parameter IDs are finalized." );
+
+        if ( aDesignVariable.is_constant() )
         {
-            mSharedADVs->import_local_to_global( *aOwnedADVs );
+            // Constant ADV
+            return ADV( aDesignVariable.get_value() );
         }
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    Matrix< DDSMat > ADV_Manager::get_determining_adv_ids()
-    {
-        return mDeterminingADVIds;
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    bool ADV_Manager::has_advs()
-    {
-        return mHasADVs;
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    void ADV_Manager::create_advs(
-            Matrix< DDRMat >& aADVs,
-            const Matrix< DDRMat >& aConstants )
-    {
-        // Reserve ADVs
-        mADVs.reserve( mDeterminingADVIds.length() );
-
-        // Create ADVs
-        uint tConstantIndex = 0;
-        for ( uint iVariableIndex = 0; iVariableIndex < mDeterminingADVIds.length(); iVariableIndex++ )
+        else
         {
-            if ( mDeterminingADVIds( iVariableIndex ) >= 0 )
+            // Find ID in the list
+            auto tFindID = std::find( mParameterIDs.begin(), mParameterIDs.end(), aDesignVariable.get_id() );
+            uint tFindIndex = tFindID - mParameterIDs.begin();
+
+            // Determine what to do
+            if ( tFindIndex >= mADVs.size() or tFindID == mParameterIDs.end() )
             {
-                mADVs.emplace_back( aADVs, mDeterminingADVIds( iVariableIndex ) );
+                // New ADV
+                mADVs.push_back( aDesignVariable.get_value() );
+                mLowerBounds.push_back( aDesignVariable.get_lower_bound() );
+                mUpperBounds.push_back( aDesignVariable.get_upper_bound() );
+                return ADV( mADVs, mADVs.size() - 1 );
             }
             else
             {
-                mADVs.emplace_back( aConstants( tConstantIndex++ ) );
+                // ADV that has the same value as a previously added ADV
+                return ADV( mADVs, tFindIndex );
             }
         }
     }
-
-    //--------------------------------------------------------------------------------------------------------------
-    // Explicit template instantiation
-    //--------------------------------------------------------------------------------------------------------------
-
-    template void ADV_Manager::set_advs( Matrix< DDRMat >& aADVs );
-    template void ADV_Manager::set_advs( sol::Dist_Vector*& aADVs );
 
     //--------------------------------------------------------------------------------------------------------------
 }

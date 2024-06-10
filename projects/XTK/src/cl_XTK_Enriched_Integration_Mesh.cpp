@@ -185,7 +185,7 @@ namespace moris::xtk
     // ----------------------------------------------------------------------------
 
     moris_index
-    Enriched_Integration_Mesh::get_local_mesh_index_xtk( moris_index const & aDiscretizationMeshIndex ) const
+    Enriched_Integration_Mesh::get_local_mesh_index_xtk( moris_index const &aDiscretizationMeshIndex ) const
     {
         auto tIter = mMeshIndexToLocMeshIndex.find( aDiscretizationMeshIndex );
 
@@ -2175,7 +2175,7 @@ namespace moris::xtk
     //------------------------------------------------------------------------------
 
     void
-    Enriched_Integration_Mesh::print_cell_clusters( uint aVerbosityLevel ) const
+    Enriched_Integration_Mesh::print_vector_clusters( uint aVerbosityLevel ) const
     {
         std::cout << "\nCell Clusters:" << std::endl;
         for ( uint i = 0; i < mCellClusters.size(); i++ )
@@ -2310,7 +2310,7 @@ namespace moris::xtk
                 {
                     std::cout << "\n      Leader Interpolation Cell: " << std::setw( 9 ) <<    //
                             mDoubleSideSets( iSS )( i )->get_interpolation_cell( mtk::Leader_Follower::LEADER ).get_id();
-                    std::cout << " | Follower Interpolation Cell: " << std::setw( 9 ) <<       //
+                    std::cout << " | Follower Interpolation Cell: " << std::setw( 9 ) <<    //
                             mDoubleSideSets( iSS )( i )->get_interpolation_cell( mtk::Leader_Follower::FOLLOWER ).get_id();
                 }
             }
@@ -2546,7 +2546,7 @@ namespace moris::xtk
 
         tNumIdsRequested( 0 ) = (moris_id)aNumReqs;
 
-        moris::gather( tNumIdsRequested, aGatheredInfo );
+        moris::gather_vector( tNumIdsRequested, aGatheredInfo );
 
         Vector< moris_id > tProcFirstID( tProcSize );
 
@@ -2563,7 +2563,7 @@ namespace moris::xtk
             }
         }
 
-        moris::scatter( tProcFirstID, tFirstId );
+        moris::scatter_vector( tProcFirstID, tFirstId );
 
         return tFirstId( 0 );
     }
@@ -2707,7 +2707,7 @@ namespace moris::xtk
 
         }    // end switch: set type
 
-    }        // end function: Enriched_Integration_Mesh::communicate_sets_of_type()
+    }    // end function: Enriched_Integration_Mesh::communicate_sets_of_type()
 
     //------------------------------------------------------------------------------
 
@@ -2937,8 +2937,8 @@ namespace moris::xtk
                     mCellClusters( tEnrIpCellIndex )->set_void_integration_cell_groups( tVoidSubphases );
 
                 }    // end: construction of valid clusters
-            }        // end: loop over enriched IP cells associated with the IP cell
-        }            // end: loop over base IP cells
+            }    // end: loop over enriched IP cells associated with the IP cell
+        }    // end: loop over base IP cells
     }
 
     //------------------------------------------------------------------------------
@@ -3491,7 +3491,7 @@ namespace moris::xtk
 
                 }    // end for: each side cluster in set
 
-            }        // end for: each side set
+            }    // end for: each side set
 
             // go through SPGs and collect side cluster groups related to each one
             for ( uint iSPG = 0; iSPG < tNumSPGs; iSPG++ )
@@ -3852,9 +3852,9 @@ namespace moris::xtk
                         }
                     }    // end for: each follower cluster group constructed on the current SPG
 
-                }        // end for: each SPG on current B-spline mesh
+                }    // end for: each SPG on current B-spline mesh
 
-            }            // end for: each dbl sided side set
+            }    // end for: each dbl sided side set
 
             // free unused memory
             mDblSideClusterGroups( tDMI ).shrink_to_fit();
@@ -3963,7 +3963,7 @@ namespace moris::xtk
 
         }    // end for: each side set
 
-    }        // end function: Enriched_Integration_Mesh::visualize_cluster_measures()
+    }    // end function: Enriched_Integration_Mesh::visualize_cluster_measures()
 
     //------------------------------------------------------------------------------
 
@@ -4103,7 +4103,7 @@ namespace moris::xtk
 
             }    // end for: each B-spline mesh
 
-        }        // end for: each side set
+        }    // end for: each side set
 
         //----------------------------------------------------------------
         // Generate and write SPG fields

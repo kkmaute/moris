@@ -36,8 +36,6 @@ private:
 
 protected:
 public:
-    Linear_Solver_Belos();
-
     Linear_Solver_Belos( const moris::Parameter_List& aParameterlist = prm::create_linear_algorithm_parameter_list_belos() );
 
     Linear_Solver_Belos( Linear_Problem * aLinearSystem  );

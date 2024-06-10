@@ -484,7 +484,7 @@ namespace moris::xtk
         //------------------------------------------------------------------------------
         void print() const;
         void print_general() const;
-        void print_cell_clusters( moris::uint aVerbosityLevel = 0 ) const;
+        void print_vector_clusters( moris::uint aVerbosityLevel = 0 ) const;
         void print_block_sets( moris::uint aVerbosityLevel = 0 ) const;
         void print_side_sets( moris::uint aVerbosityLevel = 0 ) const;
         void print_double_side_sets( moris::uint aVerbosityLevel = 0 ) const;

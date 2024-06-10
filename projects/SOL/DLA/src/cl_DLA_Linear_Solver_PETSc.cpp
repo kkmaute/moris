@@ -22,7 +22,7 @@
 #include "cl_Tracer.hpp"
 
 #ifdef MORIS_HAVE_SLEPC
-#include "slepceps.h"
+#include <slepceps.h>
 #endif
 
 using namespace moris;
@@ -96,11 +96,24 @@ Linear_Solver_PETSc::solve_linear_system(
 
     this->compute_eigenspectrum( aLinearSystem );
 
-    // Solve System
-    KSPSolve(
-            mPetscKSPProblem,
-            static_cast< Vector_PETSc * >( aLinearSystem->get_solver_RHS() )->get_petsc_vector(),
-            static_cast< Vector_PETSc * >( aLinearSystem->get_free_solver_LHS() )->get_petsc_vector() );
+    Mat tRHSVecs = static_cast< MultiVector_PETSc* >( aLinearSystem->get_solver_RHS() )->get_petsc_vector();
+    Mat tLHSVecs = static_cast< MultiVector_PETSc* >( aLinearSystem->get_free_solver_LHS() )->get_petsc_vector();
+
+    for ( uint iNumRHS = 0; iNumRHS < mSolverInterface->get_num_rhs(); iNumRHS++ )
+    {
+        Vec tRHSVec, tLHSVec;
+        MatDenseGetColumnVec( tRHSVecs, iNumRHS, &tRHSVec );
+        MatDenseGetColumnVec( tLHSVecs, iNumRHS, &tLHSVec );
+
+        VecAssemblyBegin( tRHSVec );
+        VecAssemblyEnd( tRHSVec );
+        VecAssemblyBegin( tLHSVec );
+        VecAssemblyEnd( tLHSVec );
+
+        KSPSolve( mPetscKSPProblem,tRHSVec,tLHSVec );
+        MatDenseRestoreColumnVec( tRHSVecs, iNumRHS, &tRHSVec );
+        MatDenseRestoreColumnVec( tLHSVecs, iNumRHS, &tLHSVec );
+    }
 
     // for debugging: print lhs after solve
     // VecView( static_cast< Vector_PETSc * >( aLinearSystem->get_free_solver_LHS() )->get_petsc_vector(), PETSC_VIEWER_STDOUT_WORLD );

@@ -15,8 +15,8 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    PDV_Value::PDV_Value(real aValue)
-            : mValue(aValue)
+    PDV_Value::PDV_Value( real aValue )
+            : mValue( aValue )
     {
     }
 
@@ -29,23 +29,23 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real PDV_Value::get_value(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
+    real PDV_Value::get_value( uint aNodeIndex, const Matrix< DDRMat >& aCoordinates )
     {
         return mValue;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix<DDRMat> PDV_Value::get_sensitivities(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
+    Matrix< DDRMat > PDV_Value::get_sensitivities( uint aNodeIndex, const Matrix< DDRMat >& aCoordinates )
     {
-        return {{}};
+        return { {} };
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix<DDSMat> PDV_Value::get_determining_adv_ids(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
+    Vector< sint > PDV_Value::get_determining_adv_ids( uint aNodeIndex, const Matrix< DDRMat >& aCoordinates )
     {
-        return {{}};
+        return {};
     }
 
     //--------------------------------------------------------------------------------------------------------------

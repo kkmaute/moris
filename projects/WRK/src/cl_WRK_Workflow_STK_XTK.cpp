@@ -88,9 +88,9 @@ namespace moris
 
         void
         Workflow_STK_XTK::initialize(
-                Matrix< DDRMat >& aADVs,
-                Matrix< DDRMat >& aLowerBounds,
-                Matrix< DDRMat >& aUpperBounds,
+                Vector< real >& aADVs,
+                Vector< real >& aLowerBounds,
+                Vector< real >& aUpperBounds,
                 Matrix< IdMat >&  aIjklIDs )
         {
             // Stage 2: Initialize Level set field in GEN -----------------------------------------------
@@ -108,8 +108,8 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix< DDRMat >
-        Workflow_STK_XTK::perform( Matrix< DDRMat >& aNewADVs )
+        Vector< real >
+        Workflow_STK_XTK::perform( Vector< real >& aNewADVs )
         {
             // Set new advs in GE
             mPerformerManager->mGENPerformer( 0 )->set_advs( aNewADVs );
@@ -154,14 +154,13 @@ namespace moris
                 tVal( iIQIIndex )( 0 ) = sum_all( tVal( iIQIIndex )( 0 ) );
             }
 
-            moris::Matrix< DDRMat > tMat( tVal.size(), 1, 0.0 );
-
-            for ( uint Ik = 0; Ik < tVal.size(); Ik++ )
+            Vector< real > tVector( tVal.size(), 0.0 );
+            for ( uint iCriteriaIndex = 0; iCriteriaIndex < tVal.size(); iCriteriaIndex++ )
             {
-                tMat( Ik ) = tVal( Ik )( 0 );
+                tVector( iCriteriaIndex ) = tVal( iCriteriaIndex )( 0 );
             }
 
-            return tMat;
+            return tVector;
         }
 
         //--------------------------------------------------------------------------------------------------------------

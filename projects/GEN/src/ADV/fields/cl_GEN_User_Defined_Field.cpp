@@ -15,15 +15,27 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     User_Defined_Field::User_Defined_Field(
-            Field_Function          aFieldFunction,
-            const Matrix< DDRMat >& aConstants )
-            : Field_Analytic( aConstants )
-            , mFieldVariables( aConstants.length() )
+            Field_Function       aFieldFunction,
+            Sensitivity_Function aSensitivityFunction,
+            const Vector< ADV >& aADVs,
+            std::string          aName )
+            : Field_Analytic< 0 >( aADVs, std::move( aName ) )
+            , mFieldVariables( aADVs.size() )
             , get_field_value_user_defined( aFieldFunction )
-            , get_dfield_dadvs_user_defined( nullptr )
+            , get_dfield_dadvs_user_defined( aSensitivityFunction )
     {
         this->import_advs( nullptr );
         this->validate_user_defined_functions();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    User_Defined_Field::User_Defined_Field(
+            Field_Function       aFieldFunction,
+            const Vector< ADV >& aADVs,
+            std::string          aName )
+            : User_Defined_Field( aFieldFunction, nullptr, aADVs, std::move( aName ) )
+    {
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -33,7 +45,7 @@ namespace moris::gen
         // Set new variables for the user-defined function calls
         for ( uint iVariableIndex = 0; iVariableIndex < mFieldVariables.size(); iVariableIndex++ )
         {
-            mFieldVariables( iVariableIndex ) = mADVManager.get_variable( iVariableIndex );
+            mFieldVariables( iVariableIndex ) = mADVHandler.get_variable( iVariableIndex );
         }
     }
 
@@ -94,7 +106,11 @@ namespace moris::gen
         if ( get_dfield_dadvs_user_defined == nullptr )
         {
             // Sensitivity function was not provided
+            MORIS_ERROR( not this->has_advs(),
+                    "A sensitivity evaluation function was not provided to a user-defined field. "
+                    "Please make sure that you provide this function, or that sensitivities are not required." );
             get_dfield_dadvs_user_defined = &( User_Defined_Field::no_sensitivities );
+            mSensitivities.set_size( 1, this->mFieldVariables.size(), 0.0 );
         }
         else
         {
@@ -126,12 +142,9 @@ namespace moris::gen
     void
     User_Defined_Field::no_sensitivities(
             const Matrix< DDRMat >& aCoordinates,
-            const Vector< real >&    aParameters,
+            const Vector< real >&   aParameters,
             Matrix< DDRMat >&       aSensitivities )
     {
-        MORIS_ERROR( false,
-                "A sensitivity evaluation function was not provided to a user-defined field. "
-                "Please make sure that you provide this function, or that sensitivities are not required." );
     }
 
     //--------------------------------------------------------------------------------------------------------------

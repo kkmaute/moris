@@ -536,8 +536,6 @@ void Preconditioner_PETSc::build_schwarz_preconditioner( Linear_Problem *aLinear
 
 void Preconditioner_PETSc::build_preconditioner( Linear_Problem *aLinearSystem, KSP aPetscKSPProblem )
 {   
-    std::cout << "mPetscKSPProblem_" + std::to_string(par_rank()) + ": " << aPetscKSPProblem << std::endl;
-
     // get preconditioner
     KSPGetPC( aPetscKSPProblem, &mpc );
 

@@ -39,7 +39,8 @@ set(HEADERS
 
 	# ADV
 	ADV/cl_GEN_ADV.hpp
-    ADV/cl_GEN_ADV_Manager.hpp
+	ADV/cl_GEN_ADV_Handler.hpp
+	ADV/cl_GEN_ADV_Manager.hpp
 	ADV/cl_GEN_Design_Factory.hpp
 	ADV/cl_GEN_Design_Field.hpp
 	ADV/cl_GEN_Design.hpp
@@ -54,11 +55,11 @@ set(HEADERS
 	ADV/fields/cl_GEN_Field.hpp
 	ADV/fields/cl_GEN_Field_Analytic.hpp
 	ADV/fields/cl_GEN_Field_Discrete_Integration.hpp
-	ADV/fields/cl_GEN_Field_Discrete_Interpolation.hpp
 	ADV/fields/cl_GEN_Constant_Field.hpp
 	ADV/fields/cl_GEN_Scaled_Field.hpp
 	ADV/fields/cl_GEN_BSpline_Field.hpp
 	ADV/fields/cl_GEN_Circle.hpp
+	ADV/fields/cl_GEN_Line.hpp
 	ADV/fields/cl_GEN_Superellipse.hpp
 	ADV/fields/cl_GEN_Sphere.hpp
 	ADV/fields/cl_GEN_Superellipsoid.hpp
@@ -101,6 +102,7 @@ set(LIB_SOURCES
 
 	# ADV
 	ADV/cl_GEN_ADV.cpp
+	ADV/cl_GEN_ADV_Handler.cpp
 	ADV/cl_GEN_ADV_Manager.cpp
 	ADV/cl_GEN_Design_Factory.cpp
 	ADV/cl_GEN_Design_Field.cpp
@@ -115,12 +117,12 @@ set(LIB_SOURCES
 	# ADV/fields
 	ADV/fields/cl_GEN_Field.cpp
 	ADV/fields/cl_GEN_Field_Discrete_Integration.cpp
-	ADV/fields/cl_GEN_Field_Discrete_Interpolation.cpp
 	ADV/fields/cl_GEN_Constant_Field.cpp
 	ADV/fields/cl_GEN_Scaled_Field.cpp
 	ADV/fields/cl_GEN_BSpline_Field.cpp
 	ADV/fields/cl_GEN_Circle.cpp
 	ADV/fields/cl_GEN_Superellipse.cpp
+	ADV/fields/cl_GEN_Line.cpp
 	ADV/fields/cl_GEN_Sphere.cpp
 	ADV/fields/cl_GEN_Superellipsoid.cpp
 	ADV/fields/cl_GEN_Plane.cpp

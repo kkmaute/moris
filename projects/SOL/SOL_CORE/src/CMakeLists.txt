@@ -29,6 +29,7 @@ list( APPEND HEADERS
     "cl_Map_PETSc.hpp"
     "cl_MatrixPETSc.hpp"
     "cl_Vector_PETSc.hpp"
+    "cl_Vector_PETSc_Multi.hpp"
     )
 endif()
 
@@ -52,6 +53,7 @@ list( APPEND LIB_SOURCES
     "cl_Map_PETSc.cpp"
     "cl_MatrixPETSc.cpp"
     "cl_Vector_PETSc.cpp"
+    "cl_Vector_PETSc_Multi.cpp"
     )
 endif()
 

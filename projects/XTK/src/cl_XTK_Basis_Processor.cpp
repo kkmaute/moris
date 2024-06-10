@@ -1323,7 +1323,7 @@ namespace moris::xtk
         Vector< Vector< moris_id > > tReceivedSPGIds;
 
         // communicate information
-        moris::communicate_cells( tCommCell, tSendSPGIds, tReceivedSPGIds );
+        moris::communicate_vectors( tCommCell, tSendSPGIds, tReceivedSPGIds );
 
         // clear memory not needed anymore
         tSendSPGIds.clear();
@@ -1354,8 +1354,8 @@ namespace moris::xtk
         Vector< Vector< moris_id > > tReceivedSubphaseGroupRootOwners;
 
         // communicate answers
-        moris::communicate_cells( tCommCell, tSendSubphaseGroupRootIds, tReceivedSubphaseGroupRootIds );
-        moris::communicate_cells( tCommCell, tSendSubphaseGroupRootOwners, tReceivedSubphaseGroupRootOwners );
+        moris::communicate_vectors( tCommCell, tSendSubphaseGroupRootIds, tReceivedSubphaseGroupRootIds );
+        moris::communicate_vectors( tCommCell, tSendSubphaseGroupRootOwners, tReceivedSubphaseGroupRootOwners );
 
         // clear unused memory
         tSendSubphaseGroupRootIds.clear();
@@ -1696,7 +1696,7 @@ namespace moris::xtk
         Vector< Vector< moris_id > > tReceivedSPGIds;
 
         // communicate information
-        moris::communicate_cells( mCommTable, tSendSPGIds, tReceivedSPGIds );
+        moris::communicate_vectors( mCommTable, tSendSPGIds, tReceivedSPGIds );
 
         // clear memory not needed anymore
         tSendSPGIds.clear();
@@ -1729,9 +1729,9 @@ namespace moris::xtk
         Vector< Vector< moris_id > > tReceivedSubphaseGroupRootBsplineBasisOwners;
 
         // communicate answers
-        moris::communicate_cells( mCommTable, tSendSubphaseGroupRootBsplineElementIds, tReceivedSubphaseGroupRootBsplineElementIds );
-        moris::communicate_cells( mCommTable, tSendSubphaseGroupRootBsplineBasisIds, tReceivedSubphaseGroupRootBsplineBasisIds );
-        moris::communicate_cells( mCommTable, tSendSubphaseGroupRootBsplineBasisOwners, tReceivedSubphaseGroupRootBsplineBasisOwners );
+        moris::communicate_vectors( mCommTable, tSendSubphaseGroupRootBsplineElementIds, tReceivedSubphaseGroupRootBsplineElementIds );
+        moris::communicate_vectors( mCommTable, tSendSubphaseGroupRootBsplineBasisIds, tReceivedSubphaseGroupRootBsplineBasisIds );
+        moris::communicate_vectors( mCommTable, tSendSubphaseGroupRootBsplineBasisOwners, tReceivedSubphaseGroupRootBsplineBasisOwners );
 
         // clear unused memory
         tSendSubphaseGroupRootBsplineElementIds.clear();
@@ -2240,7 +2240,7 @@ namespace moris::xtk
         Vector< Vector< moris_id > > tReceivedBasisIds;
 
         // communicate information
-        moris::communicate_cells( tCommCell, tSendBasisIds, tReceivedBasisIds );
+        moris::communicate_vectors( tCommCell, tSendBasisIds, tReceivedBasisIds );
 
         //  clear memory not needed anymore
         tSendBasisIds.clear();
@@ -2277,10 +2277,10 @@ namespace moris::xtk
         Vector< Vector< moris_id > > tReceivedFollowerToLeaderOffset;
 
         // communicate answers
-        moris::communicate_cells( tCommCell, tSendFollowerToLeaderBasisIds, tReceivedFollowerToLeaderBasisIds );
-        moris::communicate_cells( tCommCell, tSendFollowerToLeaderBasisOwners, tReceivedFollowerToLeaderBasisOwners );
-        moris::communicate_cells( tCommCell, tSendFollowerToLeaderBasisWeights, tReceivedFollowerToLeaderBasisWeights );
-        moris::communicate_cells( tCommCell, tSendFollowerToLeaderOffset, tReceivedFollowerToLeaderOffset );
+        moris::communicate_vectors( tCommCell, tSendFollowerToLeaderBasisIds, tReceivedFollowerToLeaderBasisIds );
+        moris::communicate_vectors( tCommCell, tSendFollowerToLeaderBasisOwners, tReceivedFollowerToLeaderBasisOwners );
+        moris::communicate_vectors( tCommCell, tSendFollowerToLeaderBasisWeights, tReceivedFollowerToLeaderBasisWeights );
+        moris::communicate_vectors( tCommCell, tSendFollowerToLeaderOffset, tReceivedFollowerToLeaderOffset );
 
         // clear unused memory
         tSendFollowerToLeaderBasisWeights.clear();

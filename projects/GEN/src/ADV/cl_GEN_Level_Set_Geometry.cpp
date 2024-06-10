@@ -552,10 +552,10 @@ namespace moris::gen
 
     void
     Level_Set_Geometry::discretize(
-            mtk::Mesh_Pair          aMeshPair,
-            sol::Dist_Vector*       aOwnedADVs,
-            const Matrix< DDSMat >& aSharedADVIds,
-            uint                    aADVOffsetID )
+            mtk::Mesh_Pair        aMeshPair,
+            sol::Dist_Vector*     aOwnedADVs,
+            const Vector< sint >& aSharedADVIds,
+            uint                  aADVOffsetID )
     {
         Design_Field::discretize( aMeshPair, aOwnedADVs, aSharedADVIds, aADVOffsetID );
     }
@@ -567,7 +567,7 @@ namespace moris::gen
             std::shared_ptr< mtk::Field > aMTKField,
             mtk::Mesh_Pair                aMeshPair,
             sol::Dist_Vector*             aOwnedADVs,
-            const Matrix< DDSMat >&       aSharedADVIds,
+            const Vector< sint >&         aSharedADVIds,
             uint                          aADVOffsetID )
     {
         Design_Field::discretize( aMTKField, aMeshPair, aOwnedADVs, aSharedADVIds, aADVOffsetID );
@@ -615,5 +615,22 @@ namespace moris::gen
     {
         return mParameters.mDiscretizationUpperBound;
     }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Level_Set_Geometry::update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedDesigns )
+    {
+        // Get fields from designs
+        Vector< std::shared_ptr< Field > > tUpdatedFields( aAllUpdatedDesigns.size() );
+        for ( uint iFieldIndex = 0; iFieldIndex < tUpdatedFields.size(); iFieldIndex++ )
+        {
+            tUpdatedFields( iFieldIndex ) = aAllUpdatedDesigns( iFieldIndex )->get_field();
+        }
+
+        // Update fields
+        Design_Field::update_dependencies( tUpdatedFields );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
 
 }    // namespace moris::gen

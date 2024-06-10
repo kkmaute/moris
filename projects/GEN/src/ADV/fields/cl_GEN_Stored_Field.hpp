@@ -57,7 +57,7 @@ namespace moris::gen
          * @param aNodeIndex Node index
          * @return Determining ADV IDs at this node
          */
-        Matrix<DDSMat> get_determining_adv_ids(uint aNodeIndex);
+        Vector< sint > get_determining_adv_ids( uint aNodeIndex );
 
         /**
          * Resets all nodal information about field values.
