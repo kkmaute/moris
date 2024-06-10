@@ -4,7 +4,7 @@
  *
  *------------------------------------------------------------------------------------
  *
- * Shape_Sensitivity_Bspline.cpp
+ * Shape_Sensitivity_Bspline_Surface_Mesh_2D.cpp
  *
  */
 
@@ -27,18 +27,8 @@
 #include "fn_PRM_XTK_Parameters.hpp"
 #include "fn_PRM_OPT_Parameters.hpp"
 #include "fn_equal_to.hpp"
-
 #include "AztecOO.h"
 
-// Geometry model setup
-//         vertical cut         |  oblique cut
-// case 0: var: 0   + analytic  |  fixed                  dArea/ds = 0.45
-// case 1: fixed                |  var: 0    + analytic   dArea/ds = 1.2
-// case 2: var: 0   + analytic  |  var: 1    + analytic   dArea/ds = 0.45; 1.2
-// case 3: var: 1   + analytic  |  var: 0    + analytic   dArea/ds = 1.2; 0.45
-// case 4: var: 0-8 + b-spline  |  var: na
-// case 5: na                   |  var: 0-8  + b-spline
-// case 6: var: 0-8 + b-spline  |  var: 9-15 + b-spline
 extern uint tGeoModel;
 
 #ifdef __cplusplus
@@ -158,15 +148,15 @@ namespace moris
     }
 
     real
-    Facet_Vertex_Factor( const uint aFacetVertexIndex, const Matrix< DDRMat >& aCoordinates, const uint aDimension )
+    Facet_Vertex_Factor( const uint aFacetVertexIndex, const Matrix< DDRMat >& aCoordinates, const uint aDirection )
     {
-        if ( aFacetVertexIndex == 3 and aDimension == 0 )
+        if ( aFacetVertexIndex == 3 and aDirection == 0 )
         {
-            return 0.0;
+            return 0.5;
         }
         else
         {
-            return 1.0;
+            return 1.2;
         }
     }
 
@@ -248,7 +238,8 @@ namespace moris
 
         tParameterlist( 1 ).resize( 1 );
         tParameterlist( 1 )( 0 ) = prm::create_surface_mesh_geometry_parameter_list();
-        tParameterlist( 1 )( 0 ).set( "file_path", "/home/chong/work/SP24/Input_Files/triangle_sensitivity_oblique.obj" );    // BRENDAN FIXME
+        tParameterlist( 1 )( 0 ).set( "file_path", "/home/chong/codes/moris/projects/GEN/test/data/triangle_sensitivity_oblique.obj" );    // BRENDAN FIXME
+        
         switch ( tGeoModel )
         {
             case 0:
