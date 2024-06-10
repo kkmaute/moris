@@ -1187,5 +1187,51 @@ namespace moris
 
             return tAdofIndMap;
         }
+
+        //-----------------------------------------------------------------------------------------------------------
+
+        Vector<Adof*>
+        Dof_Manager::get_adofs(const Vector< enum Dof_Type >& aListOfDofTypes)
+        {
+            uint tCounter = 0;
+
+            for ( uint Ik = 0; Ik < aListOfDofTypes.size(); Ik++ )
+            {
+                sint tPdofIndex = this->get_pdof_index_for_type( aListOfDofTypes( Ik ) );
+
+                uint tTimeLevelOffsetForDofType = mTimeLevelOffsets( tPdofIndex );
+
+                uint tTimeLevelPerType = mPdofHostTimeLevelList( tPdofIndex );
+
+                for ( uint Ij = 0; Ij < tTimeLevelPerType; Ij++ )
+                {
+                    tCounter += mAdofListOwnedAndShared( tTimeLevelOffsetForDofType + Ij ).size();
+                }
+            }
+
+            Vector<Adof*> tAdofs; 
+            tAdofs.reserve( tCounter );
+            
+            for ( uint Ik = 0; Ik < aListOfDofTypes.size(); Ik++ )
+            {
+                sint tPdofIndex = this->get_pdof_index_for_type( aListOfDofTypes( Ik ) );
+
+                uint tTimeLevelOffsetForDofType = mTimeLevelOffsets( tPdofIndex );
+
+                uint tTimeLevelPerType = mPdofHostTimeLevelList( tPdofIndex );
+
+                for ( uint Ij = 0; Ij < tTimeLevelPerType; Ij++ )
+                {
+                    std::copy(mAdofListOwnedAndShared( tTimeLevelOffsetForDofType + Ij ).cbegin(),
+                     mAdofListOwnedAndShared( tTimeLevelOffsetForDofType + Ij ).cend(), std::back_inserter(tAdofs));
+                    // for ( uint Ia = 0; Ia < mAdofListOwnedAndShared( tTimeLevelOffsetForDofType + Ij ).size(); Ia++ )
+                    // {
+                    //     tLocalAdofIds( tCounter++ ) = mAdofListOwnedAndShared( tTimeLevelOffsetForDofType + Ij )( Ia )->get_adof_id();
+                    // }
+                }
+            }
+
+            return tAdofs;
+        }
     }    // namespace MSI
 }    // namespace moris

@@ -70,6 +70,8 @@ namespace moris
 
             //-----------------------------------------------------------------------------------
 
+            void build_algebaric_multigrid_preconditioner( Linear_Problem* aLinearSystem );
+
             /**
              * @brief compute the preconditioner based on the type of preconditioner
              *

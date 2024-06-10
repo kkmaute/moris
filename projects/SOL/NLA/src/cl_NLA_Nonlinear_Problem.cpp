@@ -65,7 +65,8 @@ Nonlinear_Problem::Nonlinear_Problem(
             sum_all( aSolverInterface->get_my_local_global_map( tRequestedDofTypes ).numel() ) );
 
     // create map object FIXME ask linear problem for map
-    mMap = tMatFactory.create_map( aSolverInterface->get_my_local_global_map( tRequestedDofTypes ) );
+    mMap = tMatFactory.create_map( aSolverInterface->get_my_local_global_map( tRequestedDofTypes ), 
+    aSolverInterface->get_my_local_global_overlapping_map( tRequestedDofTypes ) );
 
     // create map object FIXME ask linear problem for map
     mMapFull = tMatFactory.create_full_map(

@@ -126,6 +126,8 @@ Eigen_Solver_SLEPc::solve_linear_system(
 {
     Tracer tTracer( "LinearSolver", "SLEPc", "Solve" );
 
+    // set solver interface (used by preconditioners)
+    mSolverInterface = aLinearSystem->get_solver_input();
 
     // cteate the eigen problem solve object
     EPSCreate( PETSC_COMM_WORLD, &mEps );
@@ -171,7 +173,7 @@ Eigen_Solver_SLEPc::solve_linear_system(
     EPSGetConvergedReason( mEps, &reason );
     MORIS_LOG_INFO( " Finished - converged reason = %s \n", mConvergenceReasonToString.find( reason )->second.c_str() );
 
-    EPSView( mEps, PETSC_VIEWER_STDOUT_WORLD );
+    // EPSView( mEps, PETSC_VIEWER_STDOUT_WORLD );
     if ( mParameterList.get< bool >( "Verbosity" ) ) print_slepc_determined_solver_paramaters();
 
     moris::moris_id tNumConvergedEigVals;
@@ -198,6 +200,12 @@ Eigen_Solver_SLEPc::solve_linear_system(
 
     if ( !mParameterList.get< bool >( "Update_Flag" ) ) return 0;
 
+    Matrix< DDSMat > tOwnedDofs          = mSolverInterface->get_my_local_global_map( mSolverInterface->get_requested_dof_types() );
+    Matrix< DDSMat > tOwnedAndSharedDofs = mSolverInterface->get_my_local_global_overlapping_map( mSolverInterface->get_requested_dof_types() );
+
+    // create a new map that is not full and call it the source mao
+    Dist_Map_Custom *tSourceMap = new Dist_Map_Custom( tOwnedDofs, tOwnedAndSharedDofs );
+
     Vec tSourceVec;    // petsc vector
     for ( moris_id iEigenIndex = 0; iEigenIndex < tNumEigVals; iEigenIndex++ )
     {
@@ -208,8 +216,11 @@ Eigen_Solver_SLEPc::solve_linear_system(
         MatCreateVecs( aLinearSystem->get_matrix()->get_petsc_matrix(), NULL, &tSourceVec );
         EPSGetEigenvector( mEps, iEigenIndex, tSourceVec, NULL );
 
-        tDestinationVector->import_local_to_global( tSourceVec, iEigenIndex );
+
+        tDestinationVector->import_local_to_global( tSourceVec, iEigenIndex, tSourceMap );
     }
+
+    delete tSourceMap;
 
 
     return 0;
@@ -511,7 +522,7 @@ void Eigen_Solver_SLEPc::print_slepc_determined_solver_paramaters()
     else if ( tSolverType == "krylovschur" )
     {
         MORIS_LOG_INFO( "Eiegn solver defualt paramater is not implemenetd use slepc documenation!" );
-        EPSView( mEps, PETSC_VIEWER_STDOUT_WORLD );
+        // EPSView( mEps, PETSC_VIEWER_STDOUT_WORLD );
     }
     else
     {

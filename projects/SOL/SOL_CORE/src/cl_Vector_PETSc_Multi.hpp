@@ -19,13 +19,14 @@
 #include "cl_SOL_Dist_Map.hpp"
 
 #include "cl_Map_PETSc.hpp"
+#include "cl_SOL_Dist_Map_Custom.hpp"
 
 namespace moris
 {
     class MultiVector_PETSc : public moris::sol::Dist_Vector
     {
       private:
-        Map_PETSc* mMap;
+        Dist_Map_Custom* mMap;
 
         Mat mPetscVector = nullptr;
 
@@ -56,11 +57,6 @@ namespace moris
             return dynamic_cast< sol::Dist_Map* >( mMap );
         }
 
-        Map_PETSc*
-        get_petsc_map()
-        {
-            return mMap;
-        }
 
         /**
          * Gets a value in the distributed vector based on a given ID.
@@ -110,9 +106,10 @@ namespace moris
          * 
          * @param aSourceVec 
          */
-        void import_local_to_global(
-                Vec aSourceVec, uint aSourceVecIndex = 0 );
+        void import_local_to_global( Vec aSourceVec, uint aVecIndex, Dist_Map_Custom* tSourceMap );
 
+        //-----------------------------------------------------------------------------
+        
         void vec_put_scalar( const moris::real& aValue );
 
         void random();

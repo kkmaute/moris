@@ -154,7 +154,17 @@ namespace moris
 
                 return mMyGlobalElementsOverlapping;
             };
+            // ----------------------------------------------------------------------------------------------
 
+            moris::Matrix< DDSMat >
+            get_my_local_global_overlapping_map( const Vector< enum MSI::Dof_Type >& aListOfDofTypes)
+            {
+                mMyGlobalElementsOverlapping.resize( 2, 1 );
+                mMyGlobalElementsOverlapping( 0, 0 ) = 0;
+                mMyGlobalElementsOverlapping( 1, 0 ) = 1;
+
+                return mMyGlobalElementsOverlapping;
+            };
             // ----------------------------------------------------------------------------------------------
             // number of elements on processor
             uint

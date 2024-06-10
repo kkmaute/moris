@@ -684,7 +684,7 @@ namespace moris
         aParameterlist( 0 )( 1 ).set( "sub_linear_solver", "0" );    // 10 shift_invert
         aParameterlist( 0 )( 1 ).set( "is_symmetric", true );       // 10 shift_invert
         aParameterlist( 0 )( 1 ).set( "Update_Flag", true );         // 10 shift_invert
-        aParameterlist( 0 )( 1 ).set( "Verbosity", true ); 
+        aParameterlist( 0 )( 1 ).set( "Verbosity", false ); 
 
         // precondioerr
         aParameterlist( 7 ).resize( 1 );
@@ -719,7 +719,7 @@ namespace moris
 
 
         aParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
-        aParameterlist( 6 )( 0 ).set( "SOL_save_operator_to_matlab", "MassMat" );
+        // aParameterlist( 6 )( 0 ).set( "SOL_save_operator_to_matlab", "MassMat" );
         aParameterlist( 6 )( 0 ).set( "SOL_TPL_Type",  sol::MapType::Petsc ) ;
 
     }

@@ -1135,14 +1135,20 @@ namespace moris::xtk
         // if user requests to keep XTK output for all iterations, add iteration count to output file name
         if ( aParamList->get< bool >( "keep_all_opt_iters" ) )
         {
-            // get optimization iteration ( function returns zero if no optimization )
+            // get optimization iteration
             uint tOptIter = gLogger.get_opt_iteration();
+
+            // set name
+            std::string tOptIterStr = std::to_string( tOptIter );
+            std::string tMeshFileName = tOutputFile + ".e-s." + std::string( 4 - tOptIterStr.length(), '0' ) + tOptIterStr;
+
+            // get optimization iteration ( function returns zero if no optimization )
 
             tExodusWriter.write_mesh(
                     "",
-                    tOutputPath + tOutputBase + "." + std::to_string( tOptIter ) + tOutputExt,
+                    tMeshFileName,
                     "",
-                    tOutputPath + "xtk_temp." + std::to_string( tOptIter ) + tOutputExt );
+                    tMeshFileName );
         }
         // otherwise, proceed as usual and overwrite xtk_temp.exo each iteration
         else

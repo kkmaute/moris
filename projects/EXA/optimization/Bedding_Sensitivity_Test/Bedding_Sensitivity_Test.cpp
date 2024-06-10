@@ -399,7 +399,7 @@ namespace moris
         // create parameter list for bedding property
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
         tParameterList( 0 )( tPropCounter ).set( "property_name", "PropBedding" );
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters", "2.0e-1" );
+        tParameterList( 0 )( tPropCounter ).set( "function_parameters", "2.0e-2" );
         tParameterList( 0 )( tPropCounter ).set( "value_function", "Func_Const" );
         tPropCounter++;
 
@@ -656,11 +656,11 @@ namespace moris
         aParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::PETSC );
         aParameterlist( 0 )( 0 ).set( "KSPType", "fgmres " );
         aParameterlist( 0 )( 0 ).set( "preconditioners", "0" );
-        aParameterlist( 0 )( 0 ).set( "KSPTol", 1e-24 );
+        aParameterlist( 0 )( 0 ).set( "KSPTol", 1e-10 );
 
         aParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
         aParameterlist( 6 )( 0 ).set( "SOL_TPL_Type", sol::MapType::Petsc );
-        aParameterlist( 6 )( 0 ).set( "SOL_save_operator_to_matlab", "jacc_par" );
+        // aParameterlist( 6 )( 0 ).set( "SOL_save_operator_to_matlab", "jacc_par" );
 
         aParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::PETSC );
         aParameterlist( 7 )( 0 ).set( "PCType", "mumps" );

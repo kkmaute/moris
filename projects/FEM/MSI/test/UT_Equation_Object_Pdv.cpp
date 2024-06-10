@@ -298,7 +298,8 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
 
         //
         sol::Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
-        sol::Dist_Map*  mVectorMap = tMatFactory.create_map( {{ 0},{1},{2},{3}}, {{}} );
+        Matrix<DDSMat> tDummyMat; 
+        sol::Dist_Map*  mVectorMap = tMatFactory.create_map( {{ 0},{1},{2},{3}}, tDummyMat);
         sol::Dist_Vector * mVector = tMatFactory.create_vector( nullptr, mVectorMap, 1 );
 
         mVector->sum_into_global_values( Matrix< DDSMat >( {{ 0},{1},{2},{3}} ), Matrix< DDRMat >( {{ 1},{2},{3},{4}} ) );
