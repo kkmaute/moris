@@ -572,7 +572,6 @@ namespace moris
             tParameterlist( Ik ).resize( 1 );
         }
 
-
         ( gTestCaseIndex == 21 ) ? create_petsc_parameter_list( tParameterlist ) : create_trilinos_parameter_list( tParameterlist );
 
         tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();

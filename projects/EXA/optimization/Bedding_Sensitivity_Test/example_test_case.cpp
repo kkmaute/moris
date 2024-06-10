@@ -44,8 +44,7 @@ int fn_WRK_Workflow_Main_Interface( int argc, char* argv[] );
 
 //------------------------------------------------------------------------------------
 
-void
-test_pause()
+void test_pause()
 {
     // communicate process ids
     pid_t tPId = getpid();
@@ -401,7 +400,7 @@ TEST_CASE( "Bedding_Sensitivity_Test",
     gDim = 2;
 
     MORIS_LOG_INFO( " " );
-    MORIS_LOG_INFO( "Executing Contact Sensitivity Test - 2D - %i Processors.", par_size() );
+    MORIS_LOG_INFO( "Executing Bedding Sensitivity Test - 2D - %i Processors.", par_size() );
     MORIS_LOG_INFO( " " );
 
     if ( par_size() == 2 )
@@ -439,7 +438,7 @@ TEST_CASE( "Bedding_Sensitivity_Test",
     gDim = 3;
 
     MORIS_LOG_INFO( " " );
-    MORIS_LOG_INFO( "Executing Contact Sensitivity Test - 3D - %i Processors.", par_size() );
+    MORIS_LOG_INFO( "Executing Bedding Sensitivity Test - 3D - %i Processors.", par_size() );
     MORIS_LOG_INFO( " " );
 
     if ( par_size() == 1 )
