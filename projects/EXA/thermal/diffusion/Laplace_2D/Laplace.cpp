@@ -732,6 +732,17 @@ namespace moris
                 "PropCapacity    ,HeatCapacity" );
         tCMCounter++;
 
+        tParameterList( tCMIndex ).push_back( prm::create_constitutive_model_parameter_list() );
+        tParameterList( tCMIndex )( tCMCounter ).set( "constitutive_name", "CMDiffusionL2" );
+        tParameterList( tCMIndex )( tCMCounter ).set( "phase_name", "PhaseSolid" );
+        tParameterList( tCMIndex )( tCMCounter ).set( "constitutive_type", fem::Constitutive_Type::DIFF_LIN_ISO );
+        tParameterList( tCMIndex )( tCMCounter ).set( "dof_dependencies", std::pair< std::string, std::string >( "L2", "Temperature" ) );
+        tParameterList( tCMIndex )( tCMCounter ).set( "properties",
+                "PropConductivity,Conductivity;"
+                "PropDensity     ,Density;"
+                "PropCapacity    ,HeatCapacity" );
+        tCMCounter++;
+
         //------------------------------------------------------------------------------
         // fill the stabilization parameter part of the parameter list
 
@@ -773,6 +784,16 @@ namespace moris
         tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_constitutive_models", "CMDiffusion,Diffusion" );
         tIWGCounter++;
 
+        //--------------------------------------------------------------------------------
+        tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name", "IWGDiffusionBulk" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name", "PhaseSolid" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type", fem::IWG_Type::SPATIALDIFF_BULK );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual", "L2" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_properties", "PropVolumetricHeatFlux,Load" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_constitutive_models", "CMDiffusionL2,Diffusion" );
+        tIWGCounter++;
+
         // Inlet BC IWG ----------------------------------------------------------------
 
         //
@@ -801,7 +822,36 @@ namespace moris
         tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_constitutive_models", "CMDiffusion,Diffusion" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters", "SPNitsche,DirichletNitsche" );
         tIWGCounter++;
+        
 
+              // Inlet BC IWG ----------------------------------------------------------------
+
+        //
+        tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name", "IWGInletTempTopBottom" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type", fem::Element_Type::SIDESET );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name", "PhaseSolid" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "side_ordinals", "1,3" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type", fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual", "L2" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_properties", "PropInletTemp,Dirichlet" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_constitutive_models", "CMDiffusionL2,Diffusion" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters", "SPNitsche,DirichletNitsche" );
+        tIWGCounter++;
+
+        //--------------------------------------------------------------------------------
+
+        tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name", "IWGInletTempRight" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type", fem::Element_Type::SIDESET );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name", "PhaseSolid" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "neighbor_phases", "PhaseVoid" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type", fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual", "L2" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_properties", "PropInletTemp2,Dirichlet" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_constitutive_models", "CMDiffusionL2,Diffusion" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters", "SPNitsche,DirichletNitsche" );
+        tIWGCounter++;
         // Outlet BC IWG ----------------------------------------------------------------
 
 
@@ -838,6 +888,17 @@ namespace moris
             tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters", "SPGPTemp,GhostSP" );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "ghost_order", (uint)tDispOrder );
             tIWGCounter++;
+
+            tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name", "IWGGPTemp" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type", fem::Element_Type::DOUBLE_SIDESET );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name", "PhaseSolid" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "follower_phase_name", "PhaseSolid" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type", fem::IWG_Type::GHOST_NORMAL_FIELD );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual", "L2" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters", "SPGPTemp,GhostSP" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "ghost_order", (uint)tDispOrder );
+            tIWGCounter++;
         }
 
         //------------------------------------------------------------------------------
@@ -861,6 +922,14 @@ namespace moris
         tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name", "PhaseSolid" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type", fem::IQI_Type::DOF );
         tParameterList( tIQIIndex )( tIQICounter ).set( "dof_quantity", "TEMP" );
+        tParameterList( tIQIIndex )( tIQICounter ).set( "vectorial_field_index", 0 );
+        tIQICounter++;
+
+        tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
+        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name", "IQIBulkL2" );
+        tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name", "PhaseSolid" );
+        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type", fem::IQI_Type::DOF );
+        tParameterList( tIQIIndex )( tIQICounter ).set( "dof_quantity", "L2" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "vectorial_field_index", 0 );
         tIQICounter++;
 
@@ -986,6 +1055,7 @@ namespace moris
         tParameterlist( 0 )( 0 ) = prm::create_msi_parameter_list();
         tParameterlist( 0 )( 0 ).set( "TEMP", 0 );
         tParameterlist( 0 )( 0 ).set( "number_eigen_vectors", gTestIndex == 0 ? 5 : 1 );
+        tParameterlist( 0 )( 0 ).set( "order_adofs_by_host", true );
     }
 
     void
@@ -998,9 +1068,9 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "File_Name", std::pair< std::string, std::string >( "./", tExoFile ) );
         tParameterlist( 0 )( 0 ).set( "Mesh_Type", vis::VIS_Mesh_Type::STANDARD );
         tParameterlist( 0 )( 0 ).set( "Set_Names", tAllPhaseInterfaces );
-        tParameterlist( 0 )( 0 ).set( "Field_Names", "TEMP,HEAT,TEMP_A,L2Nodal,L2Glob,DiffLower,EigenVec,EigenVal" );
-        tParameterlist( 0 )( 0 ).set( "Field_Type", "NODAL,NODAL,NODAL,NODAL,GLOBAL,GLOBAL,NODAL,NODAL" );
-        tParameterlist( 0 )( 0 ).set( "IQI_Names", "IQIBulkTEMP,IQIInputThermalEnergy,IQIAnalTemp,IQIBulkL2Error,IQIBulkL2Error,IQIDiffusiveLower,IQIBulkEigen,IQIBulkEigenVal" );
+        tParameterlist( 0 )( 0 ).set( "Field_Names", "TEMP,HEAT,TEMP_A,L2Nodal,L2Glob,DiffLower,EigenVec,EigenVal,TEMPL" );
+        tParameterlist( 0 )( 0 ).set( "Field_Type", "NODAL,NODAL,NODAL,NODAL,GLOBAL,GLOBAL,NODAL,NODAL,NODAL" );
+        tParameterlist( 0 )( 0 ).set( "IQI_Names", "IQIBulkTEMP,IQIInputThermalEnergy,IQIAnalTemp,IQIBulkL2Error,IQIBulkL2Error,IQIDiffusiveLower,IQIBulkEigen,IQIBulkEigenVal,IQIBulkL2" );
         tParameterlist( 0 )( 0 ).set( "Save_Frequency", 1 );
         tParameterlist( 0 )( 0 ).set( "Time_Offset", 10.0 );
     }
@@ -1080,7 +1150,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        tParameterlist( 2 ).resize( 3 );
+        tParameterlist( 2 ).resize( 4 );
 
         tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();    // nonlinear algorithm index 0
         tParameterlist( 2 )( 0 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
@@ -1103,19 +1173,35 @@ namespace moris
         tParameterlist( 2 )( 2 ).set( "NLA_max_iter", tNLA_max_iter );
         tParameterlist( 2 )( 2 ).set( "NLA_is_eigen_problem", true );
 
+        tParameterlist( 2 )( 3 ) = moris::prm::create_nonlinear_algorithm_parameter_list();    // nonlinear algorithm index 1
+        tParameterlist( 2 )( 3 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER ) );
+        tParameterlist( 2 )( 3 ).set( "NLA_rel_res_norm_drop", 1.0e-9 );
+        tParameterlist( 2 )( 3 ).set( "NLA_max_iter", 1 );
+
         //------------------------------------------------------------------------------
 
-        tParameterlist( 3 ).resize( 1 );
+        tParameterlist( 3 ).resize( 3 );
         tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();    // 1: thermal subproblem
-        tParameterlist( 3 )( 0 ).set( "NLA_Nonlinear_solver_algorithms", "0,1,2" );         // set nonlinear algorithm with index 0
+        tParameterlist( 3 )( 0 ).set( "NLA_Nonlinear_solver_algorithms", "0,1" );         // set nonlinear algorithm with index 0
         tParameterlist( 3 )( 0 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         tParameterlist( 3 )( 0 ).set( "NLA_DofTypes", "TEMP" );
+
+        tParameterlist( 3 )( 1 ) = moris::prm::create_nonlinear_solver_parameter_list();    // 1: thermal subproblem
+        tParameterlist( 3 )( 1 ).set( "NLA_Nonlinear_solver_algorithms", "0" );         // set nonlinear algorithm with index 0
+        tParameterlist( 3 )( 1 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
+        tParameterlist( 3 )( 1 ).set( "NLA_DofTypes", "L2" );
+
+        tParameterlist(3)(2) = moris::prm::create_nonlinear_solver_parameter_list(); // nonlinear solver index 2
+        tParameterlist(3)(2).set("NLA_Solver_Implementation", static_cast<uint>(moris::NLA::NonlinearSolverType::NLBGS_SOLVER));
+        tParameterlist(3)(2).set("NLA_Nonlinear_solver_algorithms", "3"); // set nonlinear algorithm with index 1.
+        tParameterlist(3)(2).set("NLA_Sub_Nonlinear_Solver", "0,1");  // set sub nonlinear solvers with index 0 and 1
+        tParameterlist(3)(2).set("NLA_DofTypes", "TEMP;L2");
 
         // ----------------------------------------------------------
 
         tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
-        tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_solver", 0 );                      // using NLBGS for forward problem
-        tParameterlist( 4 )( 0 ).set( "TSA_nonlinear_solver_for_adjoint_solve", 0 );    // using monlithic for sensitivity problem
+        tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_solver", 2 );                      // using NLBGS for forward problem
+        tParameterlist( 4 )( 0 ).set( "TSA_nonlinear_solver_for_adjoint_solve", 2 );    // using monlithic for sensitivity problem
 
         if ( tUseTimeContinuity )
         {
@@ -1126,8 +1212,8 @@ namespace moris
         //------------------------------------------------------------------------------
 
         tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
-        tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "TEMP" );
-        tParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec", "TEMP,0.0" );
+        tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "TEMP;L2" );
+        // tParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec", "TEMP,0.0" );
         tParameterlist( 5 )( 0 ).set( "TSA_Output_Indices", "0" );
         tParameterlist( 5 )( 0 ).set( "TSA_Output_Criteria", "Output_Criterion" );
 
