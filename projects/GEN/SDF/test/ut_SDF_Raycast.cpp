@@ -96,7 +96,7 @@ namespace moris::sdf
 
                 // compute the intersection locations and ensure they are correct
                 Vector< real > tIntersectionCoordinatesExpected = { 0.408248, 0.88055620439 };
-                Vector< real > tIntersectionCoordinates         = intersect_ray_with_facets( tIntersectedTriangles, tTestPoint, Preselection_Result::SUCCESS, 2 );
+                Vector< real > tIntersectionCoordinates         = intersect_ray_with_facets( tIntersectedTriangles, tTestPoint, 2 );
                 REQUIRE( tIntersectionCoordinates.size() == 2 );
                 CHECK( std::abs( tIntersectionCoordinates( 0 ) - tIntersectionCoordinatesExpected( 0 ) ) < tObject.get_intersection_tolerance() );
                 CHECK( std::abs( tIntersectionCoordinates( 1 ) - tIntersectionCoordinatesExpected( 1 ) ) < tObject.get_intersection_tolerance() );
@@ -140,7 +140,7 @@ namespace moris::sdf
 
                 // although two facets are intersected, one of them should produce an error and be removed
                 tIntersectionCoordinatesExpected = { 0.715517872727636, 1.284482127272365 };
-                tIntersectionCoordinates         = intersect_ray_with_facets( tIntersectedTriangles, tTestPoint, Preselection_Result::SUCCESS, 0 );
+                tIntersectionCoordinates         = intersect_ray_with_facets( tIntersectedTriangles, tTestPoint, 0 );
 
 
                 REQUIRE( tIntersectionCoordinates.size() == 2 );
@@ -210,7 +210,7 @@ namespace moris::sdf
                 REQUIRE( tIntersectedLines.size() == 0 );
                 CHECK( *tCandidateLines( 0 ) == tObject.get_facet( 1 ) );
 
-                tIntersectionCoordinates        = intersect_ray_with_facets( tCandidateLines, tTestPoint, Preselection_Result::SUCCESS, 1 );
+                tIntersectionCoordinates        = intersect_ray_with_facets( tCandidateLines, tTestPoint, 1 );
                 tIntersectionCoordinateExpected = 0.25;
 
                 REQUIRE( tIntersectionCoordinates.size() == 1 );

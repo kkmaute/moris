@@ -145,8 +145,9 @@ namespace moris::sdf
     intersect_ray_with_facets(
             Vector< Facet* >&       aIntersectedFacets,
             const Matrix< DDRMat >& aPoint,
-            Preselection_Result     aRayOnVertex,
-            uint                    aAxis );
+            uint                    aAxis,
+            Preselection_Result     aRayOnVertex = SUCCESS
+             );
 
     //-------------------------------------------------------------------------------
 

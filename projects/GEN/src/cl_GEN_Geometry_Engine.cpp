@@ -281,7 +281,7 @@ namespace moris::gen
         Geometric_Region tFirstNodeGeometricRegion = mGeometries( mActiveGeometryIndex )->get_geometric_region( aNodeIndices( 0 ), mNodeManager.get_node( aNodeIndices( 0 ) ).get_global_coordinates() );
 
         // Test nodes for other geometric regions
-        for ( uint iNodeInEntityIndex = 1; iNodeInEntityIndex < aNodeIndices.length(); iNodeInEntityIndex++ ) // BRENDAN started at 0
+        for ( uint iNodeInEntityIndex = 1; iNodeInEntityIndex < aNodeIndices.length(); iNodeInEntityIndex++ )
         {
             // Get test geometric region
             Geometric_Region tTestGeometricRegion = mGeometries( mActiveGeometryIndex )->get_geometric_region( aNodeIndices( iNodeInEntityIndex ), mNodeManager.get_node( aNodeIndices( iNodeInEntityIndex ) ).get_global_coordinates() );

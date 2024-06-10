@@ -120,7 +120,7 @@ namespace moris::sdf
         }
 
         // compute intersection locations
-        Vector< real > tIntersectionCoordinates = intersect_ray_with_facets( aIntersectedFacets, aPoint, Preselection_Result::SUCCESS, aAxis );
+        Vector< real > tIntersectionCoordinates = intersect_ray_with_facets( aIntersectedFacets, aPoint, aAxis );
 
         // remove intersection locations that are behind the point
         for ( int iIntersection = tIntersectionCoordinates.size() - 1; iIntersection > -1; iIntersection-- )
@@ -172,7 +172,7 @@ namespace moris::sdf
                         }
 
                         // compute intersection coordinates if the point is inside a line's bounding box
-                        moris::Vector< real > tIntersectionCoords = intersect_ray_with_facets( tCandidateFacets, aPoint, tPreselectionResult, aAxis );
+                        moris::Vector< real > tIntersectionCoords = intersect_ray_with_facets( tCandidateFacets, aPoint, aAxis, tPreselectionResult );
 
                         // check if the node is inside the polygon
                         return check_if_node_is_inside_lines( aObject, tIntersectionCoords, tIntersectedFacets, aPoint, aAxis );
@@ -197,8 +197,7 @@ namespace moris::sdf
                     if ( tIntersectedFacets.size() > 0 )
                     {
                         // FIXME: handle casting onto vertices by changing intersect_triangles to return a preselection result
-                        moris::Vector< real > tIntersectionCoords =
-                                intersect_ray_with_facets( tIntersectedFacets, aPoint, Preselection_Result::SUCCESS, aAxis );
+                        moris::Vector< real > tIntersectionCoords = intersect_ray_with_facets( tIntersectedFacets, aPoint, aAxis );
 
                         return check_if_node_is_inside_triangles( tIntersectionCoords, aPoint, aAxis );
                     }
@@ -463,8 +462,8 @@ namespace moris::sdf
     intersect_ray_with_facets(
             Vector< Facet* >&       aIntersectedFacets,
             const Matrix< DDRMat >& aPoint,
-            Preselection_Result     tRayOnVertex,
-            uint                    aAxis )
+            uint                    aAxis,
+            Preselection_Result     tRayOnVertex )
     {
         // return nothing if there are no intersected facets
         if ( aIntersectedFacets.size() == 0 )

@@ -180,10 +180,6 @@ namespace moris::gen
 
                 for ( uint iNodeNumber = 0; iNodeNumber < 4; iNodeNumber++ )
                 {
-                    // // Node coordinates
-                    Matrix< DDRMat > tFirstNodeCoordinates  = tMesh->get_node_coordinate( tSignedNodeIndices( iNodeNumber ) );
-                    Matrix< DDRMat > tSecondNodeCoordinates = tMesh->get_node_coordinate( tSignedNodeIndices( ( iNodeNumber + 1 ) % 4 ) ); // BRENDAN DELETE
-
                     // Get the geometry engine result
                     bool tIntersected = tGeometryEngine.is_intersected_by_active_geometry( { { tSignedNodeIndices( iNodeNumber ), tSignedNodeIndices( ( iNodeNumber + 1 ) % 4 ) } } );
 

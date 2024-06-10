@@ -314,79 +314,6 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Surface_Mesh_Geometry::transform_surface_mesh_to_local_coordinate(
-            const Parent_Node& aFirstParentNode,
-            const Parent_Node& aSecondParentNode )
-    {
-
-        // BRENDAN DEPRECATED?
-        // STEP 1: shift the object so the first parent is at the origin
-        // Matrix< DDRMat > tFirstParentNodeGlobalCoordinates = aFirstParentNode.get_global_coordinates();
-        // Vector< real >   tShift( Object::mDimension );
-        // MORIS_ASSERT( tFirstParentNodeGlobalCoordinates.numel() == tShift.size(),
-        //         "Intersection Node Surface Mesh::transform_mesh_to_local_coordinates() inconsistent parent node and interface geometry dimensions." );
-        // for ( uint iCoord = 0; iCoord < tShift.size(); iCoord++ )
-        // {
-        //     tShift( iCoord ) = -1.0 * tFirstParentNodeGlobalCoordinates( iCoord );
-        // }
-        // this->shift( tShift );
-
-        // STEP 2: rotate the object
-        // get unit axis to rotate to
-        Matrix< DDRMat > tParentVector = aSecondParentNode.get_global_coordinates() - aFirstParentNode.get_global_coordinates();
-
-        // augment with zero if 2D
-        if ( tParentVector.numel() == 2 )
-        {
-            tParentVector.reshape( 3, 1 );
-            tParentVector( 2, 0 ) = 0.0;
-        }
-
-        real tParentVectorNorm = norm( tParentVector );
-
-        tParentVector = tParentVector / tParentVectorNorm;
-
-        // Initialize matrix
-        Matrix< DDRMat > tRotationMatrix( 3, 1 );
-        Matrix< DDRMat > tCastAxis = { { 1.0 }, { 0.0 }, { 0.0 } };
-
-        if ( norm( tParentVector + tCastAxis ) < this->get_intersection_tolerance() )
-        {
-            tRotationMatrix = { { -1.0, 0.0, 0.0 }, { 0.0, 1.0, 0.0 }, { 0.0, 0.0, 1.0 } };
-        }
-        else
-        {
-            Matrix< DDRMat > tAntisymmetricCrossProduct = { { 0, tParentVector( 1 ), tParentVector( 2 ) },
-                { -tParentVector( 1 ), 0.0, 0.0 },
-                { -tParentVector( 2 ), 0.0, 0.0 } };
-
-            Matrix< DDRMat > tAntisymmetricCrossProductSquared = { { -std::pow( tParentVector( 1 ), 2 ) - std::pow( tParentVector( 2 ), 2 ), 0.0, 0.0 },
-                { 0.0, -std::pow( tParentVector( 1 ), 2 ), -tParentVector( 1 ) * tParentVector( 2 ) },
-                { 0.0, -tParentVector( 1 ) * tParentVector( 2 ), -std::pow( tParentVector( 2 ), 2 ) } };
-
-            tRotationMatrix = eye( 3, 3 ) + tAntisymmetricCrossProduct + ( 1 / ( 1 + tParentVector( 0 ) ) ) * tAntisymmetricCrossProductSquared;
-        }
-
-        // check that the rotation matrix is correct by ensuring the parent vector was rotated to the x axis
-        MORIS_ASSERT( norm( tRotationMatrix * tParentVector - tCastAxis ) < this->get_intersection_tolerance(),
-                "Rotation matrix should rotate the parent vector to the x axis." );
-
-        // trim the transformation matrix if 2D
-        if ( Object::mDimension == 2 )
-        {
-            tRotationMatrix.resize( 2, 2 );
-        }
-
-        // rotate the object
-        this->rotate( -tRotationMatrix );
-
-        // // STEP 3: scale the object
-        // Vector< real > tScaling( Object::mDimension, 2.0 / tParentVectorNorm );
-        // this->scale( tScaling );
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
     Vector< std::shared_ptr< mtk::Field > > Surface_Mesh_Geometry::get_mtk_fields()
     {
         return {};
@@ -458,9 +385,9 @@ namespace moris::gen
             // receive the updated facet data from root processor
         }
 
-        this->update_all_facets(); // BRENDAN put this on proc 0
+        this->update_all_facets();    // BRENDAN put this on proc 0
 
-        this->write_to_file( mName + "_" + std::to_string( mIteration )  + "_" + std::to_string( par_rank() ) + ".txt" );
+        this->write_to_file( mName + "_" + std::to_string( mIteration ) + "_" + std::to_string( par_rank() ) + ".txt" );
         mIteration++;
     }
 
@@ -926,7 +853,7 @@ namespace moris::gen
         // Loop through each mtk::Cell
         for ( uint iCellIndex = 0; iCellIndex < mMesh->get_num_elems(); iCellIndex++ )
         {
-            // get this Cell's bounding box BRENDAN CAN MAKE THIS EASIER ASSUMING COORDINATES IN THE CORRECT ORDER
+            // get this Cell's bounding box
             Vector< Vector< real > > tBoundingBox = this->determine_mtk_cell_bounding_box( &mMesh->get_mtk_cell( iCellIndex ) );
 
             // assume the point is in this bounding box
@@ -1032,8 +959,6 @@ namespace moris::gen
         // get the indices and coordinates of the background element vertices
         Matrix< IndexMat > tVertexIndices        = aBackgroundElement->get_vertex_inds();
         Matrix< DDRMat >   tAllVertexCoordinates = aBackgroundElement->get_vertex_coords();
-
-        // Vector< mtk::Vertex_Interpolation* > tBsplineToLagrange = aBackgroundElement->get_vertex_interpolations( mParameters.mDiscretizationIndex ); BRENDAN this is how to get T matrices for a cell, idk if needed
 
         // initialize field value at the node location
         real tPerturbation = 0.0;

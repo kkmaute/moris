@@ -22,7 +22,7 @@ namespace moris::gen
 {
     // User-defined function that determines which indices are fixed or not
     using VERTEX_FACTOR_FUNCTION = real ( * )( const uint aFacetVertexIndex, const Matrix< DDRMat >& aFacetVertexCoordinates, const uint aDimension );
-    
+
     /**
      * This is a struct used to simplify \ref moris::gen::Surface_Mesh_Geometry constructors. It contains all field and surface mesh parameters.
      */
@@ -325,7 +325,7 @@ namespace moris::gen
          * Computes and returns the sensitivity of a facet vertex with respect to the ADVs
          * NOTE: This function assumes that the facet vertex depends on ADVs. Check this with facet_vertex_depends_on_advs() if unsure
          *
-         * @return Matrix< DDRMat >
+         * @return Matrix< DDRMat > derivative of global vertex location with respect to each ADV. Size is <dimension> x <number of ADVs>
          */
         Matrix< DDRMat > get_dvertex_dadv( uint aFacetVertexIndex );
 
@@ -352,15 +352,6 @@ namespace moris::gen
                 const Matrix< DDRMat >& aCoordinates );
 
       private:
-        /**
-         * Puts the entire surface mesh geometry in a local coordinate frame. The x axis is specified as the vector between the parent nodes.
-         * Used to compute local coordinates for intersection nodes.
-         *
-         * @param aFirstParentNode First parent node, which has a local coordinate value of -1
-         * @param aSecondParentNode Second parent node, which has a local coordinate value of 1
-         */
-        void transform_surface_mesh_to_local_coordinate( const Parent_Node& aFirstParentNode, const Parent_Node& aSecondParentNode );
-
         /**
          * Finds the background elemenent in aField that contains aCoordinates
          *
