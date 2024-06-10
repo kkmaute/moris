@@ -29,13 +29,13 @@ MultiVector_PETSc::MultiVector_PETSc(
         : sol::Dist_Vector( aManageMap ), mNumVectors( aNumVectors )
 {
     // store map as PETSc map
-    mMap = reinterpret_cast< Map_PETSc* >( aMap );
+    mMap = reinterpret_cast< Dist_Map_Custom* >( aMap );
 
     // build either vector of only owned or vector of owned and shared DOFs, i.e., full vector
     if ( mMap->is_full_map() )
     {
         // get number of owned and shared DOFs on this processor
-        uint tMyNumOwnedAndSharedDofs = aInput->get_my_local_global_overlapping_map().n_rows();
+        uint tMyNumOwnedAndSharedDofs = mMap->get_moris_ids_owned_and_shared().n_rows();
 
         MatCreate( PETSC_COMM_SELF, &mPetscVector );
         MatSetSizes( mPetscVector, tMyNumOwnedAndSharedDofs, aNumVectors, PETSC_DECIDE, PETSC_DECIDE );
@@ -47,10 +47,10 @@ MultiVector_PETSc::MultiVector_PETSc(
     else
     {
         // get number of owned Dofs on this processor
-        uint tMyNumOwnedDofs = aInput->get_my_local_global_map().n_rows();
+        uint tMyNumOwnedDofs = mMap->get_moris_ids_owned().n_rows();
 
         // get owned Dof Ids on this processor
-        Matrix< DDSMat > tMyDofIds = aInput->get_my_local_global_map();
+        Matrix< DDSMat > tMyDofIds = mMap->get_moris_ids_owned();
 
         // get constrained Dof Ids on this processor
         Matrix< DDUMat > tMyConstrainedDofIds = aInput->get_constrained_Ids();
@@ -115,18 +115,19 @@ MultiVector_PETSc::sum_into_global_values(
     // create copy of vector with moris IDs; will be overwritten in AOApplicationToPetsc
     Matrix< DDSMat > tTempElemDofs = aGlobalIds;
 
+    Dist_Map_Custom* tCustomMap = dynamic_cast< Dist_Map_Custom* >( mMap );
+    tCustomMap->map_from_moris_ids_to_petsc_ids( tTempElemDofs);
+
     // loop over elemental dofs
     for ( uint Ij = 0; Ij < tNumMyDofs; Ij++ )
     {
         // set constrDof to neg value
-        if ( mDirichletBCVec( aGlobalIds( Ij, 0 ), 0 ) == 1 )
+        if ( mDirichletBCVec( tTempElemDofs( Ij, 0 ), 0 ) == 1 )
         {
             tTempElemDofs( Ij, 0 ) = -1;
         }
     }
 
-    // map moris IDs into petsc IDs
-    AOApplicationToPetsc( mMap->get_petsc_map(), tNumMyDofs, tTempElemDofs.data() );
 
     // create vector of column indices
     std::vector<sint> tColumnIndices(tNumMyDofs,aVectorIndex);
@@ -166,6 +167,9 @@ MultiVector_PETSc::replace_global_values(
     // create copy of vector with moris IDs; will be overwritten in AOApplicationToPetsc
     Matrix< DDSMat > tTempElemDofs = aGlobalIds;
 
+    Dist_Map_Custom* tCustomMap = dynamic_cast< Dist_Map_Custom* >( mMap );
+    tCustomMap->map_from_moris_ids_to_petsc_ids( tTempElemDofs);
+
     // loop over elemental dofs
     for ( uint Ij = 0; Ij < tNumMyDofs; Ij++ )
     {
@@ -176,8 +180,6 @@ MultiVector_PETSc::replace_global_values(
         }
     }
 
-    // map moris IDs into petsc IDs
-    AOApplicationToPetsc( mMap->get_petsc_map(), tNumMyDofs, tTempElemDofs.data() );
 
     // create vector of column indices
     std::vector<sint> tColumnIndices(tNumMyDofs,aVectorIndex);
@@ -362,72 +364,32 @@ void MultiVector_PETSc::extract_copy( Vector< real >& aVector )
 void
 MultiVector_PETSc::import_local_to_global( sol::Dist_Vector& aSourceVec )
 {
+        // MORIS_ASSERT( false, "import_local_to_global() not implemented for petsc" );
     // cast source vector to MultiVector_PETSc
     MultiVector_PETSc& tPetscSourceVec = dynamic_cast< MultiVector_PETSc& >( aSourceVec );
 
     // get raw multi vector of source vector
     Mat tSourceVec = tPetscSourceVec.get_petsc_vector();
 
-    // get petsc map of source vector
-    Map_PETSc* tSourceMap = tPetscSourceVec.get_petsc_map();
+    // // get petsc map of source vector
+    Dist_Map_Custom* tSourceMap = dynamic_cast<Dist_Map_Custom*>(tPetscSourceVec.get_map());
 
-    // get list of source petsc ids of from map
-    IS tPetscSourceIds = tSourceMap->get_petsc_ids();
-
-    // get list of target petsc ids of from map
-    IS tPetscTargetIds = mMap->get_petsc_ids();
-
-    // if source vector is full vector and local vector is vector of only owned dofs
-    if ( tSourceMap->is_full_map() )
+    // the case where one imnports a full vector(sequntail) to a paralle vector
+    if ( tSourceMap->is_full_map() and !mMap->is_full_map() ) 
     {
-        // check that target vector is owned vector
-        MORIS_ERROR( !mMap->is_full_map(),
-                "MultiVector_PETSc::import_local_to_global - target and source vectors are both full vectors: case not implemented." );
+        // create the IS objects to do the scatter
+        IS tFrom,tTo; 
 
-        // get number of source dofs
-        PetscInt tNumSourceIds;
-        ISGetLocalSize( tPetscSourceIds, &tNumSourceIds );
+        // the data is transfred from the parallel owned and shared 
+        Matrix< DDSMat > tOwnedMorisIds = mMap->get_moris_ids_owned();
+        Matrix< DDSMat > tSequantalVectorIndex = tSourceMap->map_from_moris_ids_to_indices( tOwnedMorisIds );
+        ISCreateGeneral( PETSC_COMM_WORLD, tSequantalVectorIndex.numel(), tSequantalVectorIndex.data(), PETSC_USE_POINTER, &tFrom );
 
-        // get list of source petsc IDs
-        const PetscInt* tSourceIdList;
-        ISGetIndices( tPetscSourceIds, &tSourceIdList );
+        //
+        Matrix< DDSMat > tOwnedMorisIdsDest    = mMap->get_moris_ids_owned();
+        mMap->map_from_moris_ids_to_petsc_ids( tOwnedMorisIdsDest );
+        ISCreateGeneral( PETSC_COMM_WORLD, tOwnedMorisIdsDest.numel(), tOwnedMorisIdsDest.data(), PETSC_USE_POINTER, &tTo );
 
-        // loop over every multi-vector and set values in target vector
-        for ( uint iVecIndex = 0; iVecIndex < mNumVectors; iVecIndex++ )
-        {
-            Vec tSourceVecSingle;
-            MatDenseGetColumnVec( tSourceVec, iVecIndex, &tSourceVecSingle );
-
-            Vec mPetscVectorSingle;
-            MatDenseGetColumnVec( mPetscVector, iVecIndex, &mPetscVectorSingle );
-
-            // get array from source petsc vector
-            PetscScalar* tSourceValues;
-            VecGetArray( tSourceVecSingle, &tSourceValues );
-
-            // set values in target vector
-            // VecSetValues( mPetscVectorSingle, tNumSourceIds, tSourceIdList, tSourceValues, INSERT_VALUES );
-            // create vector of column indices
-            std::vector<sint> tColumnIndices(tNumSourceIds,iVecIndex);
-            
-            // add values into matrix, negative values are ignored
-            MatSetValues( mPetscVector, tNumSourceIds, tSourceIdList, 1 , tColumnIndices.data(), tSourceValues, INSERT_VALUES );
-
-            // free memory allocated in petsc calls
-            VecRestoreArray( tSourceVecSingle, &tSourceValues );
-            MatDenseRestoreColumnVec( tSourceVec, iVecIndex, &tSourceVecSingle );
-            MatDenseRestoreColumnVec( mPetscVector, iVecIndex, &mPetscVectorSingle );
-
-            // Flush the assembly
-            MatAssemblyBegin( mPetscVector, MAT_FLUSH_ASSEMBLY );
-            MatAssemblyEnd( mPetscVector, MAT_FLUSH_ASSEMBLY );
-        }
-
-        ISRestoreIndices( tPetscSourceIds, &tSourceIdList );
-    }
-    else
-    {
-        // loop over the multivector indices and import the local vector to the global vector
         for ( uint iVecIndex = 0; iVecIndex < mNumVectors; iVecIndex++ )
         {
             Vec tSourceVecSingle;
@@ -437,7 +399,7 @@ MultiVector_PETSc::import_local_to_global( sol::Dist_Vector& aSourceVec )
             MatDenseGetColumnVec( mPetscVector, iVecIndex, &mPetscVectorSingle );
 
             VecScatter tVecScatter;
-            VecScatterCreate( tSourceVecSingle, tPetscTargetIds, mPetscVectorSingle, NULL, &tVecScatter );
+            VecScatterCreate( tSourceVecSingle, tFrom, mPetscVectorSingle, tTo, &tVecScatter );
 
             // perform scattering
             VecScatterBegin( tVecScatter, tSourceVecSingle, mPetscVectorSingle, INSERT_VALUES, SCATTER_FORWARD );
@@ -450,26 +412,82 @@ MultiVector_PETSc::import_local_to_global( sol::Dist_Vector& aSourceVec )
             MatDenseRestoreColumnVec( tSourceVec, iVecIndex, &tSourceVecSingle );
             MatDenseRestoreColumnVec( mPetscVector, iVecIndex, &mPetscVectorSingle );
         }
+
+        ISDestroy( &tFrom );
+        ISDestroy( &tTo );
+
     }
 
-    this->vector_global_assembly();
+    // the case where one imnports a parallel vector(source) to a full vector(sequntail)
+    if ( mMap->is_full_map() and !tSourceMap->is_full_map() )
+    {
+        // create the IS objects to do the scatter
+        IS tFrom,tTo; 
+
+        // the data is transfred from the parallel owned and shared 
+        Matrix< DDSMat > tOwnedMorisIds = tSourceMap->get_moris_ids_owned_and_shared();
+        tSourceMap->map_from_moris_ids_to_petsc_ids( tOwnedMorisIds );
+        ISCreateGeneral( PETSC_COMM_WORLD, tOwnedMorisIds.numel(), tOwnedMorisIds.data(), PETSC_USE_POINTER, &tFrom );
+
+        //
+        Matrix< DDSMat > tOwnedMorisIdsDest    = tSourceMap->get_moris_ids_owned_and_shared();  // changed from mMap
+        Matrix< DDSMat > tSequantalVectorIndex = mMap->map_from_moris_ids_to_indices( tOwnedMorisIdsDest );
+        ISCreateGeneral( PETSC_COMM_WORLD, tSequantalVectorIndex.numel(), tSequantalVectorIndex.data(), PETSC_USE_POINTER, &tTo );
+
+        for ( uint iVecIndex = 0; iVecIndex < mNumVectors; iVecIndex++ )
+        {
+            Vec tSourceVecSingle;
+            MatDenseGetColumnVec( tSourceVec, iVecIndex, &tSourceVecSingle );
+
+            Vec mPetscVectorSingle;
+            MatDenseGetColumnVec( mPetscVector, iVecIndex, &mPetscVectorSingle );
+
+            VecScatter tVecScatter;
+            VecScatterCreate( tSourceVecSingle, tFrom, mPetscVectorSingle, tTo, &tVecScatter );
+
+            // perform scattering
+            VecScatterBegin( tVecScatter, tSourceVecSingle, mPetscVectorSingle, INSERT_VALUES, SCATTER_FORWARD );
+            VecScatterEnd( tVecScatter, tSourceVecSingle, mPetscVectorSingle, INSERT_VALUES, SCATTER_FORWARD );
+
+            // destroy the scatter vector object
+            VecScatterDestroy( &tVecScatter );
+
+            // free the petsc memoery objects
+            MatDenseRestoreColumnVec( tSourceVec, iVecIndex, &tSourceVecSingle );
+            MatDenseRestoreColumnVec( mPetscVector, iVecIndex, &mPetscVectorSingle );
+        }
+
+        ISDestroy( &tFrom );
+        ISDestroy( &tTo );
+    }
+
 }
 
 //-----------------------------------------------------------------------------
 // this is only used if the local vector is full vector and source vector is vector of only owned dofs
 
-void
-MultiVector_PETSc::import_local_to_global( Vec aSourceVec, uint aVecIndex )
+void MultiVector_PETSc::import_local_to_global( Vec aSourceVec, uint aVecIndex, Dist_Map_Custom* tSourceMap )
 {
+
+    // create the IS objects to do the scatter
+    IS tFrom, tTo;
+
+    // the data is transfred from the parallel owned and shared
+    Matrix< DDSMat > tOwnedMorisIds = tSourceMap->get_moris_ids_owned_and_shared();
+    tSourceMap->map_from_moris_ids_to_petsc_ids( tOwnedMorisIds );
+    ISCreateGeneral( PETSC_COMM_WORLD, tOwnedMorisIds.numel(), tOwnedMorisIds.data(), PETSC_USE_POINTER, &tFrom );
+
+    //
+    Matrix< DDSMat > tOwnedMorisIdsDest    = tSourceMap->get_moris_ids_owned_and_shared();    // changed from mMap
+    Matrix< DDSMat > tSequantalVectorIndex = mMap->map_from_moris_ids_to_indices( tOwnedMorisIdsDest );
+    ISCreateGeneral( PETSC_COMM_WORLD, tSequantalVectorIndex.numel(), tSequantalVectorIndex.data(), PETSC_USE_POINTER, &tTo );
+
+
     Vec mPetscVectorSingle;
     MatDenseGetColumnVec( mPetscVector, aVecIndex, &mPetscVectorSingle );
 
-    // get list of target petsc ids of from map
-    IS tPetscTargetIds = mMap->get_petsc_ids();
-
-    // create scatter object
     VecScatter tVecScatter;
-    VecScatterCreate( aSourceVec, tPetscTargetIds, mPetscVectorSingle, NULL, &tVecScatter );
+    VecScatterCreate( aSourceVec, tFrom, mPetscVectorSingle, tTo, &tVecScatter );
 
     // perform scattering
     VecScatterBegin( tVecScatter, aSourceVec, mPetscVectorSingle, INSERT_VALUES, SCATTER_FORWARD );
@@ -480,6 +498,10 @@ MultiVector_PETSc::import_local_to_global( Vec aSourceVec, uint aVecIndex )
 
     // free the petsc memoery objects
     MatDenseRestoreColumnVec( mPetscVector, aVecIndex, &mPetscVectorSingle );
+
+
+    ISDestroy( &tFrom );
+    ISDestroy( &tTo );
 }
 
 //-----------------------------------------------------------------------------
@@ -491,7 +513,7 @@ MultiVector_PETSc::extract_my_values(
         const uint&               aBlockRowOffsets,
         Vector< Matrix< DDRMat > >& ExtractedValues )
 {
-
+    // MORIS_ASSERT( false, "extract_my_values() not implemented for petsc" );
     ExtractedValues.resize( mNumVectors );
 
     for ( moris::uint Ik = 0; Ik < mNumVectors; ++Ik )
@@ -502,6 +524,8 @@ MultiVector_PETSc::extract_my_values(
     // moris::sint tVecLength = this->vec_local_length();
 
     // get map from moris id to indices in vector
+    MORIS_ASSERT( mMap->is_full_map(), "MultiVector_PETSc::extract_my_values - full map required" );
+
     Matrix< DDSMat > tIndices = mMap->map_from_moris_ids_to_indices( aGlobalBlockRows );
 
     for ( moris::uint Ik = 0; Ik < mNumVectors; ++Ik )

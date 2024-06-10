@@ -30,6 +30,7 @@ list( APPEND HEADERS
     "cl_MatrixPETSc.hpp"
     "cl_Vector_PETSc.hpp"
     "cl_Vector_PETSc_Multi.hpp"
+    "cl_SOL_Dist_Map_Custom.hpp"
     )
 endif()
 
@@ -54,6 +55,7 @@ list( APPEND LIB_SOURCES
     "cl_MatrixPETSc.cpp"
     "cl_Vector_PETSc.cpp"
     "cl_Vector_PETSc_Multi.cpp"
+    "cl_SOL_Dist_Map_Custom.cpp"
     )
 endif()
 

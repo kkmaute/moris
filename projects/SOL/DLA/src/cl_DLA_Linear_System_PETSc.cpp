@@ -54,23 +54,23 @@ Linear_System_PETSc::Linear_System_PETSc(
         // create map object
         mMap = tMatFactory.create_map(
                 aInput->get_my_local_global_map(),
-                aInput->get_constrained_Ids() );    // FIXME: should be full map?
+                aInput->get_my_local_global_overlapping_map()  );   
 
-        mMapFree = tMatFactory.create_map(
+        mMapFree = tMatFactory.create_full_map(
                 aInput->get_my_local_global_map(),
-                aInput->get_constrained_Ids() );    // FIXME
+                aInput->get_my_local_global_overlapping_map() );    
 
         // Build matrix
-        mMat = tMatFactory.create_matrix( aInput, mMapFree );
+        mMat = tMatFactory.create_matrix( aInput, mMap );
 
         // Build RHS/LHS vector
-        mFreeVectorLHS = tMatFactory.create_vector( aInput, mMapFree, 1 );
+        mFreeVectorLHS = tMatFactory.create_vector( aInput, mMap, 1 );
 
 
-        mPointVectorRHS = tMatFactory.create_vector( aInput, mMapFree, 1 );
-        mPointVectorLHS = tMatFactory.create_vector( aInput, mMapFree, 1 );
+        mPointVectorRHS = tMatFactory.create_vector( aInput, mMap, 1 );
+        mPointVectorLHS = tMatFactory.create_vector( aInput, mMap, 1 );
 
-        mFullVectorLHS = tMatFactory.create_vector( aInput, mMap, 1 );    // FIXME: should be full map?
+        mFullVectorLHS = tMatFactory.create_vector( aInput, mMapFree, 1 );    // FIXME: should be full map?
 
         // FIXME: graph not useful for petsc; needs to be done differently
         mSolverInterface->build_graph( mMat );

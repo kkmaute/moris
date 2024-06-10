@@ -30,6 +30,9 @@
 #include <petscviewer.h>
 #include <petsclog.h>
 
+#include "cl_Communicator_Epetra.hpp"
+#include "Epetra_Map.h"
+
 namespace moris
 {
     class Map_PETSc : public moris::sol::Dist_Map
@@ -37,15 +40,20 @@ namespace moris
       private:
         // flag for full vector maps
         bool mIsFullMap = false;
-
-        // map between moris IDs and Petsc IDs
-        AO mPETScMap = nullptr;
-
+        
+        // map between moris IDs and Petsc IDs for the local sub problem, it contains only owned ones
+        // used by not full maps
+        Communicator_Epetra      mEpetraComm;
+        Epetra_Map * mEpetraMap; 
+   
         // map from moris IDs to local indices (used by full maps only)
         ISLocalToGlobalMapping mMorisIDtoIndexMap = nullptr;
 
+        // list of owned and shared moris IDs ( both for full and not full maps)
+        Matrix<DDSMat>  mMorisIDsOwnedAndShared;
+
         // list of Petsc IDs corresponding to moris ids (used by full maps only)
-        IS mPETScIDs = nullptr;
+        Matrix<DDSMat> mMorisIDsOwned;
 
         void translator(
                 const moris::uint&             aNumMaxDofs,
@@ -57,8 +65,8 @@ namespace moris
       protected:
 
       public:
-        // constructor for map of owned dofs
-        Map_PETSc( const Matrix< DDSMat >& aMyGlobalOwnedIds );
+        // constructor for map of owned  and shared dofs (used for sub probnlems)
+        Map_PETSc( const Matrix< DDSMat >& aMyGlobalOwnedIds, const Matrix< DDSMat >& aMyGlobalOwnedAndSharedIds );
 
         Map_PETSc( const Vector< sint >& aMyGlobalOwnedIds );
 
@@ -77,11 +85,40 @@ namespace moris
 
         ~Map_PETSc();
 
+        // ---------------------------------------------------------------------------------------------------------------
+
+        /**
+         * @brief These two function are exclusive for extract my values where they get values from the full vector ( sequnetial )
+         * 
+         * @param aGlobalIds 
+         * @return Matrix< DDSMat > 
+         */
         Matrix< DDSMat >
         map_from_moris_ids_to_indices( const Matrix< DDSMat >& aGlobalIds );
 
+        // ---------------------------------------------------------------------------------------------------------------
+
+        /**
+         * @brief maps from moris id to petsc ids, used for sub problems, for parallel vectors and matrices
+         * 
+         * @param aGlobalIds 
+         * @return Matrix< DDSMat > 
+         */
+
         Vector< sint >
         map_from_moris_ids_to_indices( const Vector< sint >& aGlobalIds );
+
+        // ---------------------------------------------------------------------------------------------------------------
+
+        /**
+         * @brief maps from moris id to petsc ids, used for sub problems, for parallel vectors and matrices
+         * 
+         * @param aGlobalIds 
+         * @return Matrix< DDSMat > 
+         */
+
+        Matrix< DDSMat >
+        map_from_moris_ids_to_petsc_ids( const Matrix< DDSMat >& aGlobalIds );
 
         // ---------------------------------------------------------------------------------------------------------------
 
@@ -98,7 +135,14 @@ namespace moris
         IS
         get_petsc_ids()
         {
-            return mPETScIDs;
+            IS tPetscIDs;
+            ISCreateGeneral(
+                    PETSC_COMM_SELF,
+                    mMorisIDsOwned.n_rows(),
+                    mMorisIDsOwned.data(),
+                    PETSC_COPY_VALUES,
+                    &tPetscIDs );
+            return tPetscIDs;
         }
 
         // ---------------------------------------------------------------------------------------------------------------
@@ -132,6 +176,8 @@ namespace moris
             MORIS_ERROR( false, "not implemented for petsc yet" );
         };
 
+        // ---------------------------------------------------------------------------------------------------------------
+        
         void translate_ids_to_free_point_ids(
                 const Vector< sint >& aIdsIn,
                 Vector< sint >&       aIdsOut,
@@ -145,19 +191,35 @@ namespace moris
         void
         print()
         {
-            AOView( mPETScMap, PETSC_VIEWER_STDOUT_WORLD );
+            //AOView( mPETScMap, PETSC_VIEWER_STDOUT_WORLD );
         };
 
         AO
         get_petsc_map()
         {
-            return mPETScMap;
+            AO tPetscMap;
+              Matrix< DDSMat > tPetscIDs = mMorisIDsOwnedAndShared;
+                AOCreateBasic( PETSC_COMM_WORLD,4,tPetscIDs.data(), tPetscIDs.data(),  &tPetscMap );
+            //    AOApplicationToPetsc(
+            //             tPetscMap,
+            //             mMorisIDsOwnedAndShared.n_rows(),
+            //             mMorisIDsOwnedAndShared.data() );
+            return tPetscMap;
+           // return mPETScMap;
         }
 
         AO
         get_petsc_map() const
         {
-            return mPETScMap;
+                AO tPetscMap;
+                Matrix< DDSMat > tPetscIDs = mMorisIDsOwnedAndShared;
+                AOCreateBasic( PETSC_COMM_WORLD,4,tPetscIDs.data(), tPetscIDs.data(),  &tPetscMap );
+                // AOApplicationToPetsc(
+                //         tPetscMap,
+                //         mMorisIDsOwnedAndShared.n_rows(),
+                //         tPetscIDs.data() );
+            return tPetscMap;
+           // return mPETScMap;
         }
     };
 

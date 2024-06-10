@@ -34,7 +34,9 @@
 
 #ifdef MORIS_HAVE_PETSC
 #include "cl_DLA_Preconditioner_PETSc.hpp"
+#ifdef MORIS_HAVE_SLEPC
 #include "cl_DLA_Eigen_Solver_SLEPc.hpp"
+#endif
 #endif
 
 #define private public
@@ -78,6 +80,12 @@ namespace moris::dla
             // Set solution vector
             moris::Matrix< DDRMat > tSol;
             tLinProblem->get_solution( tSol );
+
+
+            tLinProblem->get_free_solver_LHS()->print();
+            tLinProblem->get_matrix()->save_matrix_to_matlab_file( "matrixnew" );
+            tLinProblem->get_matrix()->print();
+            tLinProblem->get_solver_RHS()->print();
 
             print( tSol, "tSol" );
 
@@ -311,6 +319,10 @@ namespace moris::dla
             moris::Matrix< DDRMat > tSol;
             tLinProblem->get_solution( tSol );
 
+            tLinProblem->get_free_solver_LHS()->print();
+            tLinProblem->get_matrix()->save_matrix_to_matlab_file( "matrixnew" );
+            tLinProblem->get_matrix()->print();
+            tLinProblem->get_solver_RHS()->print();
             // Check if solution corresponds to given solution
             if ( par_rank() == 0 )
             {

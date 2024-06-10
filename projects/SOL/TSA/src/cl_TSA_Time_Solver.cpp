@@ -583,7 +583,8 @@ Time_Solver::initialize_sol_vec()
             // create map object
             sol::Matrix_Vector_Factory tMatFactory( mSolverWarehouse->get_tpl_type() );
 
-            sol::Dist_Map* tFeeMap = tMatFactory.create_map( mSolverInterface->get_my_local_global_map() );
+            sol::Dist_Map* tFeeMap = tMatFactory.create_map( mSolverInterface->get_my_local_global_map(), 
+            mSolverInterface->get_my_local_global_overlapping_map() );
 
             uint tNumRHMS = mSolverInterface->get_num_rhs();
 
