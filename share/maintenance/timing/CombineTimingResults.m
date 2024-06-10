@@ -40,13 +40,23 @@ for i=1:length(testcases)
     num_github=size(mat_github,1);
     
     timings=[mat_titan;mat_titan_xtk_refactor;mat_github];
+
+    dates=timings(:,1);
+    times=timings(:,2);
+
+    days=convdate(dates);
+    [~,index]=sort(days,'ascend');
+    dates=dates(index);
+    times=times(index);
     
     figure(1)
     clf
-    plot(timings(:,2)); hold on
-    plot( [num_titan num_titan],[0 max(timings(:,2))],'k-'); hold on
-    plot( [num_titan+num_titan_xtk_refactor num_titan+num_titan_xtk_refactor],[0 max(timings(:,2))],'k-');
+    plot(times,'b-s'); hold on
+    plot( [num_titan num_titan],[0 max(times)],'k-'); hold on
+    plot( [num_titan+num_titan_xtk_refactor num_titan+num_titan_xtk_refactor],[0 max(times)],'k-');
     title(replace(testcases{i},'_','-'));
+
+    set(gca, 'XTick', 1:length(days), 'XTickLabel', dates)
     saveas(gcf, ['plots/', testcases{i}, '_F1.png']);
     
     figure(2)

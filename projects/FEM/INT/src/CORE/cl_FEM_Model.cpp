@@ -1083,7 +1083,7 @@ namespace moris
                             tFieldParameter.get< std::string >( "field_create_from_file" ),
                             tFieldParameter.get< sint >( "field_file_time_index" ),
                             tFieldParameter.get< sint >( "field_file_field_index" ),
-                            tFieldParameter.get< bool >( "field_file_update_time_index" ) );
+                            tFieldParameter.get< bool >( "field_file_update" ) );
                 }
 
                 if ( not tFieldParameter.get< std::string >( "IQI_Name" ).empty() )
@@ -3379,6 +3379,18 @@ namespace moris
             bool tPrintPhysics =
                     tComputationParameterList.get< bool >( "print_physics_model" );
 
+            // get bool for analytical/finite difference for dRdu and dQIdu
+            bool tIsAnalyticalFA =
+                    tComputationParameterList.get< bool >( "is_analytical_forward" );
+
+            // get enum for FD scheme for forward analysis
+            fem::FDScheme_Type tFDSchemeForFA = static_cast< fem::FDScheme_Type >(
+                    tComputationParameterList.get< uint >( "finite_difference_scheme_forward" ) );
+
+            // get perturbation size for FD for forward analysis
+            real tFDPerturbationFA = tComputationParameterList.get< real >(
+                    "finite_difference_perturbation_size_forward" );
+
             // get bool for analytical/finite difference for SA
             bool tIsAnalyticalSA =
                     tComputationParameterList.get< bool >( "is_analytical_sensitivity" );
@@ -3443,6 +3455,15 @@ namespace moris
 
                         // set its time boundary flag
                         aSetUserInfo.set_time_boundary( tTimeBoundary );
+
+                        // set its forward analysis type flag
+                        aSetUserInfo.set_is_analytical_forward_analysis( tIsAnalyticalFA );
+
+                        // set its FD scheme for forward analysis
+                        aSetUserInfo.set_finite_difference_scheme_for_forward_analysis( tFDSchemeForFA );
+
+                        // set its FD perturbation size for forward analysis
+                        aSetUserInfo.set_finite_difference_perturbation_size_for_forward_analysis( tFDPerturbationFA );
 
                         // set its sensitivity analysis type flag
                         aSetUserInfo.set_is_analytical_sensitivity_analysis( tIsAnalyticalSA );

@@ -47,7 +47,7 @@ namespace moris
     {
 
       private:
-        std::map< std::string, std::shared_ptr< Parameter >, moris::containers::strcmp > mParamMap;
+        std::map< std::string, Parameter, moris::containers::strcmp > mParamMap;
 
       public:
 
@@ -80,7 +80,7 @@ namespace moris
                     "Param_List::insert - key contains whitespaces" );
 
             // Insert new value
-            auto tParameter = std::make_shared< Parameter >( aValue );
+            Parameter tParameter( aValue );
             mParamMap.insert( { aKey, tParameter } );
         }
 
@@ -118,7 +118,7 @@ namespace moris
                     "The requested parameter %s can not be set because it does not exist.\n",
                     tKey.c_str() );
 
-            tIterator->second->set_value( aKey, aValue );
+            tIterator->second.set_value( aKey, aValue );
         }
 
         /**
@@ -168,7 +168,7 @@ namespace moris
                     "The requested parameter %s does not exist.\n",
                     aKey.c_str() );
 
-            return tIterator->second->get_value< T >();
+            return tIterator->second.get_value< T >();
         }
 
         /**

@@ -853,7 +853,10 @@ namespace moris
         void
         Exodus_IO_Helper::reload_nodal_fields()
         {
-            MORIS_ERROR( mTimeStepIndex < mNumTimeSteps, "Requested time step does not exist." );
+            MORIS_ERROR( mTimeStepIndex < mNumTimeSteps, "Requested time step %d does not exist in file %s (contains %d time steps).",
+                    mTimeStepIndex,
+                    mTitle.c_str(),
+                    mNumTimeSteps );
 
             for ( int i = 0; i < mNumNodalVars; ++i )
             {
@@ -929,7 +932,10 @@ namespace moris
         void
         Exodus_IO_Helper::reload_global_variables()
         {
-            MORIS_ERROR( mTimeStepIndex < mNumTimeSteps, "Requested time step does not exist." );
+            MORIS_ERROR( mTimeStepIndex < mNumTimeSteps, "Requested time step %d does not exist in file %s (contains %d time steps).",
+                    mTimeStepIndex,
+                    mTitle.c_str(),
+                    mNumTimeSteps );
 
             mErrFlag = ex_get_var(
                     mExoFileId,

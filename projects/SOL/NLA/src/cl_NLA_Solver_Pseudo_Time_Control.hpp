@@ -82,6 +82,9 @@ namespace moris
             // number of initial iterations without time step size control
             uint mInitialIterations = 1;
 
+            // iteration index at which reference norm is set
+            uint mRefIterationID = 1;
+
             // relative static residual norm for switching to steady state computation
             real mSteadyStateRelRes = -1.0;
 

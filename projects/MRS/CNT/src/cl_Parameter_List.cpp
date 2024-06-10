@@ -63,7 +63,7 @@ namespace moris
                 "The requested parameter %s does not exist.\n",
                 aKey.c_str() );
 
-        return tIterator->second->which();
+        return tIterator->second.which();
     }
 
     //--------------------------------------------------------------------------------------------------------------

@@ -185,7 +185,7 @@ namespace moris::sdf
                 CHECK( tCandidateLines( 0 ) == &tObject.get_facet( 2 ) );
 
                 // intersect the candidate facets and determine the intersection location
-                Vector< real > tIntersectionCoordinates        = intersect_ray_with_facets( tCandidateLines, tTestPoint, Preselection_Result::SUCCESS, 0 );
+                Vector< real > tIntersectionCoordinates        = intersect_ray_with_facets( tCandidateLines, tTestPoint, 0 );
                 real           tIntersectionCoordinateExpected = -0.2;
 
                 REQUIRE( tIntersectionCoordinates.size() == 1 );
@@ -302,4 +302,4 @@ namespace moris::sdf
             }
         }
     }
-};    // namespace moris::sdf
+}    // namespace moris::sdf

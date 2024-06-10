@@ -45,7 +45,7 @@ namespace moris
             std::string mInputFilePath;
             std::string mOutputFilePath;
             uint mTimeIndex = 0;
-            bool mUpdateTimeIndex = false;
+            bool mUpdateFromFile = false;
 
             // ! bool indicating if field shall be populated with the help of an IQI
             bool mPopulateFieldWithIQI = false;
