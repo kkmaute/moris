@@ -53,19 +53,8 @@ namespace moris::gen
         Vector< std::shared_ptr< Field > > tUpdatedFields( aAllUpdatedDesigns.size() );
         for ( uint iFieldIndex = 0; iFieldIndex < tUpdatedFields.size(); iFieldIndex++ )
         {
-            tUpdatedFields( iFieldIndex ) = aAllUpdatedDesigns( iFieldIndex )->get_field();
+            tUpdatedFields.append( aAllUpdatedDesigns( iFieldIndex )->get_fields() );
         }
-        // // Grab dependencies
-        // for ( uint tDependencyIndex = 0; tDependencyIndex < tNumDependencies; tDependencyIndex++ )
-        // {
-        //     for ( uint tFieldIndex = 0; tFieldIndex < aAllUpdatedFields.size(); tFieldIndex++ )
-        //     {
-        //         if ( aAllUpdatedFields( tFieldIndex )->get_name() == mParameters.mDependencyNames( tDependencyIndex ) )
-        //         {
-        //             tDependencyFields( tDependencyIndex ) = aAllUpdatedFields( tFieldIndex )->get_field();
-        //         }
-        //     }
-        // } BRENDAN
 
         // Update fields
         Design_Field::update_dependencies( tUpdatedFields );

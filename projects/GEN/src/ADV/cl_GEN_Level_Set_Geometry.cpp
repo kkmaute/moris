@@ -661,7 +661,7 @@ namespace moris::gen
         Vector< std::shared_ptr< Field > > tUpdatedFields( aAllUpdatedDesigns.size() );
         for ( uint iFieldIndex = 0; iFieldIndex < tUpdatedFields.size(); iFieldIndex++ )
         {
-            tUpdatedFields( iFieldIndex ) = aAllUpdatedDesigns( iFieldIndex )->get_field();
+            tUpdatedFields.append( aAllUpdatedDesigns( iFieldIndex )->get_fields() );
         }
 
         // Update fields
