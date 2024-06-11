@@ -418,5 +418,5 @@ TEST_CASE( "Column_Buckling_Immersed_3D",
     {
         check_results( tOutputFileName, tTestCase );
     }
-#endif
 }
+#endif

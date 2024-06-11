@@ -261,5 +261,5 @@ TEST_CASE( "Cantilever_Eigen_Slepc",
 
     // Perform check results for test-case 0
     check_results( "Cantilever_Eigen_Slepc.exo", gTestCaseIndex );
-#endif
 }
+#endif
