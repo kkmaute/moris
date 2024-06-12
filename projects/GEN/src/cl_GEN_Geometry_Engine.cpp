@@ -68,7 +68,7 @@ namespace moris::gen
         }
         else
         {
-            mInitialPrimitiveADVs = aParameterLists( 0 )( 0 ).get< Vector< real > >( "initial_advs" );
+            mInitialPrimitiveADVs    = aParameterLists( 0 )( 0 ).get< Vector< real > >( "initial_advs" );
             mADVManager.mLowerBounds = aParameterLists( 0 )( 0 ).get< Vector< real > >( "lower_bounds" );
             mADVManager.mUpperBounds = aParameterLists( 0 )( 0 ).get< Vector< real > >( "upper_bounds" );
         }
@@ -908,7 +908,7 @@ namespace moris::gen
         }
 
         // Start with primitive IDs for owned IDs on processor 0
-        Vector< sint > tOwnedADVIds( 0, 0 );
+        Vector< sint > tOwnedADVIds;
         if ( par_rank() == 0 )
         {
             tOwnedADVIds = tPrimitiveADVIds;
@@ -917,177 +917,17 @@ namespace moris::gen
         // this is done to initialize primitive adv positions with gNoID
         Matrix< IdMat > tOwnedijklIDs( tPrimitiveADVIds.size(), 1, gNoID );
 
-        // Owned and shared ADVs per field
-        Vector< Vector< sint > > tSharedADVIds( tDesigns.size() );
-        Vector< uint > tAllOffsetIDs( tDesigns.size() );
-        Vector< uint > tNumCoeff( tDesigns.size() );
-
         // Loop over all geometries to get number of new ADVs
         sint tOffsetID = tPrimitiveADVIds.size();
         for ( uint iDesignIndex = 0; iDesignIndex < tDesigns.size(); iDesignIndex++ )
         {
-            // Determine if level set will be created
-            if ( tDesigns( iDesignIndex )->intended_discretization() )
-            {
-                // Get discretization mesh index
-                uint tDiscretizationMeshIndex = tDesigns( iDesignIndex )->get_discretization_mesh_index();
-
-                uint tMaxNumberOfCoefficients = tMesh->get_max_num_coeffs_on_proc( tDiscretizationMeshIndex );
-
-                Matrix< IdMat >    tAllCoefIds( tMaxNumberOfCoefficients, 1, gNoID );
-                Matrix< IndexMat > tAllCoefIndices( tMaxNumberOfCoefficients, 1, gNoIndex );
-                Matrix< IdMat >    tAllCoefOwners( tMaxNumberOfCoefficients, 1, gNoID );
-                Matrix< IdMat >    tAllCoefijklIDs( tMaxNumberOfCoefficients, 1, gNoID );
-
-                for ( uint iNodeIndex = 0; iNodeIndex < tMesh->get_num_nodes(); iNodeIndex++ )
-                {
-                    // check whether node has an underlying discretization on this processor
-                    bool tNodeHasDiscretization =
-                            tMesh->get_mtk_vertex( iNodeIndex ).has_interpolation( tDiscretizationMeshIndex );
-
-                    // process only nodes that have discretization
-                    if ( tNodeHasDiscretization )
-                    {
-                        // get indices and IDs from mtk mesh - FIXME: should return const &
-                        const Matrix< IndexMat > tCoefIndices = tMesh->get_coefficient_indices_of_node(
-                                iNodeIndex,
-                                tDiscretizationMeshIndex );
-
-                        const Matrix< IdMat > tCoefIds = tMesh->get_coefficient_IDs_of_node(
-                                iNodeIndex,
-                                tDiscretizationMeshIndex );
-
-                        const Matrix< IdMat > tCoefOwners = tMesh->get_coefficient_owners_of_node(
-                                iNodeIndex,
-                                tDiscretizationMeshIndex );
-
-                        Matrix< IdMat > tCoeffijklIDs;
-
-                        if ( mtk::MeshType::HMR == tMesh->get_mesh_type() )
-                        {
-                            tCoeffijklIDs = tMesh->get_coefficient_ijkl_IDs_of_node(
-                                    iNodeIndex,
-                                    tDiscretizationMeshIndex );
-                        }
-
-                        // check that number of indices and ids are the same
-                        MORIS_ASSERT( tCoefIds.numel() == tCoefIndices.numel(),
-                                "distribute_advs - numbers of coefficients and ids do not match.\n" );
-
-                        // get number of coefficients for current node
-                        uint tNumCoefOfNode = tCoefIds.numel();
-
-                        for ( uint tCoefIndex = 0; tCoefIndex < tNumCoefOfNode; ++tCoefIndex )
-                        {
-                            // get coefficient index
-                            moris_index tCurrentIndex = tCoefIndices( tCoefIndex );
-
-                            // check whether mesh coefficient has already been set
-                            if ( tAllCoefIds( tCurrentIndex ) == -1 )
-                            {
-                                // increase field coefficient count
-                                tNumCoeff( iDesignIndex )++;
-
-                                // populate mesh index to mesh coefficient id map
-                                tAllCoefIds( tCurrentIndex ) = tCoefIds( tCoefIndex );
-
-                                tAllCoefOwners( tCurrentIndex ) = tCoefOwners( tCoefIndex );
-
-                                if ( tMesh->get_mesh_type() == mtk::MeshType::HMR )
-                                {
-                                    tAllCoefijklIDs( tCurrentIndex ) = tCoeffijklIDs( tCoefIndex );
-                                }
-                            }
-                            else
-                            {
-                                // check for consistency
-                                MORIS_ASSERT( tAllCoefIds( tCurrentIndex ) == tCoefIds( tCoefIndex ),
-                                        "distribute_advs - inconsistent index and ids.\n" );
-                            }
-                        }
-                    }
-                }
-
-                if ( par_size() > 1 )
-                {
-                    Geometry_Engine::communicate_missing_owned_coefficients(
-                            aMeshPair,
-                            tAllCoefIds,
-                            tAllCoefOwners,
-                            tAllCoefijklIDs,
-                            tNumCoeff,
-                            iDesignIndex,
-                            tDiscretizationMeshIndex,
-                            tMesh->get_mesh_type() );
-                }
-
-                // Count number of owned coefficients
-                uint tOwnedCounter = 0;
-                for ( uint iCoefficientIndex = 0; iCoefficientIndex < tAllCoefIds.numel(); iCoefficientIndex++ )
-                {
-                    if ( tAllCoefIds( iCoefficientIndex ) != gNoID && tAllCoefOwners( iCoefficientIndex ) == par_rank() )
-                    {
-                        tOwnedCounter++;
-                    }
-                }
-
-                // Create vectors of owned coefficients
-                Matrix< DDUMat > tOwnedCoefficients( tOwnedCounter, 1 );
-
-                // Set owned coefficients
-                tOwnedCounter = 0;
-                for ( uint Ik = 0; Ik < tAllCoefIds.numel(); Ik++ )
-                {
-                    if ( tAllCoefIds( Ik ) != gNoID && tAllCoefOwners( Ik ) == par_rank() )
-                    {
-                        tOwnedCoefficients( tOwnedCounter++ ) = Ik;
-                    }
-                }
-
-                // Sizes of ID vectors
-                uint tNumOwnedADVs         = tOwnedADVIds.size();
-                uint tNumOwnedCoefficients = tOwnedCoefficients.numel();
-
-                // Resize ID lists and bounds
-                tOwnedADVIds.resize( tNumOwnedADVs + tNumOwnedCoefficients );
-                mADVManager.mLowerBounds.resize( tNumOwnedADVs + tNumOwnedCoefficients );
-                mADVManager.mUpperBounds.resize( tNumOwnedADVs + tNumOwnedCoefficients );
-                tOwnedijklIDs.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
-                tSharedADVIds( iDesignIndex ).resize( tAllCoefIds.length() );
-
-                // Add owned coefficients to lists
-                for ( uint iOwnedCoefficient = 0; iOwnedCoefficient < tNumOwnedCoefficients; iOwnedCoefficient++ )
-                {
-                    // Set the ADV ID as the offset plus the entity ID
-                    sint tADVId = tOffsetID
-                                + tMesh->get_glb_entity_id_from_entity_loc_index(
-                                        tOwnedCoefficients( iOwnedCoefficient ),
-                                        aADVEntityRank,
-                                        tDiscretizationMeshIndex );
-
-                    MORIS_ASSERT( tADVId - tOffsetID == tAllCoefIds( tOwnedCoefficients( iOwnedCoefficient ) ), "check if this is a problem" );
-
-                    tOwnedADVIds( tNumOwnedADVs + iOwnedCoefficient ) = tADVId;
-                    mADVManager.mLowerBounds( tNumOwnedADVs + iOwnedCoefficient ) = tDesigns( iDesignIndex )->get_discretization_lower_bound();
-                    mADVManager.mUpperBounds( tNumOwnedADVs + iOwnedCoefficient ) = tDesigns( iDesignIndex )->get_discretization_upper_bound();
-
-                    if ( tMesh->get_mesh_type() == mtk::MeshType::HMR )
-                    {
-                        tOwnedijklIDs( tNumOwnedADVs + iOwnedCoefficient ) = tAllCoefijklIDs( tOwnedCoefficients( iOwnedCoefficient ) );
-                    }
-                }
-
-                // Add shared coefficients to field-specific list
-                for ( uint iSharedCoefficientIndex = 0; iSharedCoefficientIndex < tAllCoefIds.length(); iSharedCoefficientIndex++ )
-                {
-                    // Set the ADV ID as the offset plus the entity ID
-                    tSharedADVIds( iDesignIndex )( iSharedCoefficientIndex ) = tOffsetID + tAllCoefIds( iSharedCoefficientIndex );
-                }
-
-                // Update offset based on maximum ID
-                tAllOffsetIDs( iDesignIndex ) = tOffsetID;
-                tOffsetID += tMesh->get_max_entity_id( aADVEntityRank, tDiscretizationMeshIndex );
-            }
+            tOffsetID = tDesigns( iDesignIndex )->append_adv_info(    //
+                    aMeshPair.get_interpolation_mesh(),
+                    tOwnedADVIds,
+                    tOwnedijklIDs,
+                    tOffsetID,
+                    mADVManager.mLowerBounds,
+                    mADVManager.mUpperBounds );
         }
 
         // Set owned ADV IDs
@@ -1232,19 +1072,19 @@ namespace moris::gen
         clock_t tStart_Communicate_ADV_IDs = clock();
 
         // Sending mats
-        Vector< Vector< sint > > tSendingIDs( 0 );
-        Vector< Vector< real > > tSendingLowerBounds( 0 );
-        Vector< Vector< real > > tSendingUpperBounds( 0 );
+        Vector< Vector< sint > >   tSendingIDs( 0 );
+        Vector< Vector< real > >   tSendingLowerBounds( 0 );
+        Vector< Vector< real > >   tSendingUpperBounds( 0 );
         Vector< Matrix< DDSMat > > tSendingijklIDs( 0 );
 
         // Receiving mats
-        Vector< Vector< sint > > tReceivingIDs( 0 );
-        Vector< Vector< real > > tReceivingLowerBounds( 0 );
-        Vector< Vector< real > > tReceivingUpperBounds( 0 );
+        Vector< Vector< sint > >   tReceivingIDs( 0 );
+        Vector< Vector< real > >   tReceivingLowerBounds( 0 );
+        Vector< Vector< real > >   tReceivingUpperBounds( 0 );
         Vector< Matrix< DDSMat > > tReceivingjklIDs( 0 );
 
         // Set up communication list for communicating ADV IDs
-        Vector< sint > tCommunicationList( 1, 0 );
+        Vector< sint >  tCommunicationList( 1, 0 );
         Matrix< IdMat > tCommunicationListMat( 1, 1, 0 );
         if ( par_rank() == 0 )
         {
@@ -1259,7 +1099,7 @@ namespace moris::gen
             // Assign communication list
             for ( uint tProcessorIndex = 1; tProcessorIndex < (uint)par_size(); tProcessorIndex++ )
             {
-                tCommunicationList( tProcessorIndex - 1 ) = tProcessorIndex;
+                tCommunicationList( tProcessorIndex - 1 )    = tProcessorIndex;
                 tCommunicationListMat( tProcessorIndex - 1 ) = tProcessorIndex;
             }
         }

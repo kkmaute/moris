@@ -252,9 +252,7 @@ namespace moris::gen
 
     void Voxel_Geometry::discretize(
             mtk::Mesh_Pair        aMeshPair,
-            sol::Dist_Vector*     aOwnedADVs,
-            const Vector< sint >& aSharedADVIds,
-            uint                  aADVOffsetID )
+            sol::Dist_Vector*     aOwnedADVs )
     {
     }
 
@@ -263,9 +261,7 @@ namespace moris::gen
     void Voxel_Geometry::discretize(
             std::shared_ptr< mtk::Field > aMTKField,
             mtk::Mesh_Pair                aMeshPair,
-            sol::Dist_Vector*             aOwnedADVs,
-            const Vector< sint >&         aSharedADVIds,
-            uint                          aADVOffsetID )
+            sol::Dist_Vector*             aOwnedADVs )
     {
     }
 

@@ -184,7 +184,7 @@ namespace moris::gen
                         {
                             mGeometries( tGeometryIndex++ ) = std::make_shared< Surface_Mesh_Geometry >(
                                     aMesh,
-                                    aADVs,
+                                    aADVManager,
                                     Surface_Mesh_Parameters( iParameterList ),
                                     aNodeManager,
                                     aLibrary );

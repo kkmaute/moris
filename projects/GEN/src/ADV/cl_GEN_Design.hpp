@@ -44,8 +44,8 @@ namespace moris::gen
         Design_Parameters mParameters;
 
       protected:
-        uint                       mOffsetID;        // Offset of the global ADVs to this Design's ADVs
-        Vector< Matrix< DDSMat > > mSharedADVIDs;    // IDs of the ADVs that this design shares. Size = number of fields
+        uint                     mOffsetID;        // Offset of the global ADVs to this Design's ADVs
+        Vector< Vector< sint > > mSharedADVIDs;    // IDs of the ADVs that this design shares. Size = number of fields
 
       public:
         /**
@@ -157,11 +157,11 @@ namespace moris::gen
          */
         virtual sint append_adv_info(
                 mtk::Interpolation_Mesh* aMesh,
-                Matrix< DDSMat >&        aOwnedADVIds,
+                Vector< sint >&          aOwnedADVIds,
                 Matrix< IdMat >&         aOwnedijklIDs,
                 sint                     aOffsetID,
-                Matrix< DDRMat >&        aLowerBounds,
-                Matrix< DDRMat >&        aUpperBounds );
+                Vector< real >&          aLowerBounds,
+                Vector< real >&          aUpperBounds );
 
         static void communicate_missing_owned_coefficients(
                 mtk::Interpolation_Mesh* aMesh,

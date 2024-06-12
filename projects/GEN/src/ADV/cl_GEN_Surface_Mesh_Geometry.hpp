@@ -15,6 +15,7 @@
 #include "cl_GEN_Design_Field.hpp"
 #include "cl_GEN_Field.hpp"
 #include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_ADV_Manager.hpp"
 #include "GEN_Data_Types.hpp"
 #include "cl_Library_IO.hpp"
 
@@ -73,7 +74,7 @@ namespace moris::gen
          */
         Surface_Mesh_Geometry(
                 mtk::Mesh*                    aMesh,
-                Matrix< DDRMat >              aADVs,
+                ADV_Manager&                  aADVManager,
                 Surface_Mesh_Parameters       aParameters  = Surface_Mesh_Parameters(),
                 Node_Manager&                 aNodeManager = Node_Manager::get_trivial_instance(),
                 std::shared_ptr< Library_IO > aLibrary     = nullptr );
@@ -186,10 +187,8 @@ namespace moris::gen
          * @param aFieldIndex For geometries that have multiple fields, which field to discretize
          */
         void discretize(
-                mtk::Mesh_Pair        aMeshPair,
-                sol::Dist_Vector*     aOwnedADVs,
-                const Vector< sint >& aSharedADVIds,
-                uint                  aADVOffsetID ) override;
+                mtk::Mesh_Pair    aMeshPair,
+                sol::Dist_Vector* aOwnedADVs ) override;
 
         /**
          * If intended for this field, maps the field to B-spline coefficients or stores the nodal field values in a stored field object.
@@ -203,9 +202,7 @@ namespace moris::gen
         void discretize(
                 std::shared_ptr< mtk::Field > aMTKField,
                 mtk::Mesh_Pair                aMeshPair,
-                sol::Dist_Vector*             aOwnedADVs,
-                const Vector< sint >&         aSharedADVIds,
-                uint                          aADVOffsetID ) override;
+                sol::Dist_Vector*             aOwnedADVs ) override;
 
         /**
          * Used to print geometry information to exodus files and print debug information.
@@ -233,11 +230,11 @@ namespace moris::gen
          */
         virtual sint append_adv_info(
                 mtk::Interpolation_Mesh* aMesh,
-                Matrix< DDSMat >&        aOwnedADVIds,
+                Vector< sint >&          aOwnedADVIds,
                 Matrix< IdMat >&         aOwnedijklIDs,
                 sint                     aOffsetID,
-                Matrix< DDRMat >&        aLowerBounds,
-                Matrix< DDRMat >&        aUpperBounds ) override;
+                Vector< real >&          aLowerBounds,
+                Vector< real >&          aUpperBounds ) override;
 
         /**
          * Gets the number of fields the surface mesh has

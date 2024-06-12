@@ -54,11 +54,11 @@ namespace moris::gen
             mtk::Interpolation_Mesh* tMesh = create_simple_mesh( 2, 2 );
 
             // create surface mesh geometry
-            Matrix< DDRMat > tADVs;
-            Parameter_List   tParameters = prm::create_surface_mesh_geometry_parameter_list();
+            ADV_Manager    tADVManager;
+            Parameter_List tParameters = prm::create_surface_mesh_geometry_parameter_list();
             tParameters.set( "file_path", moris::get_base_moris_dir() + "projects/GEN/SDF/test/data/rhombus.obj" );
             Surface_Mesh_Parameters                  tSurfaceMeshParameters( tParameters );
-            std::shared_ptr< Surface_Mesh_Geometry > tSurfaceMeshPointer = std::make_shared< Surface_Mesh_Geometry >( tMesh, tADVs, tSurfaceMeshParameters );
+            std::shared_ptr< Surface_Mesh_Geometry > tSurfaceMeshPointer = std::make_shared< Surface_Mesh_Geometry >( tMesh, tADVManager, tSurfaceMeshParameters );
 
             // initialize counter for nodes
             moris_index tNodeIndex = 0;
@@ -142,8 +142,8 @@ namespace moris::gen
 
             // Create geometry engine
             Geometry_Engine_Parameters tGeometryEngineParameters;
-            ADV_Manager tADVManager;
-            Design_Factory tDesignFactory( { tRhombusParameterList }, tADVManager );
+            ADV_Manager                tADVManager;
+            Design_Factory             tDesignFactory( { tSurfaceMeshParameterList }, tADVManager );
             tGeometryEngineParameters.mGeometries = tDesignFactory.get_geometries();
             Geometry_Engine tGeometryEngine( tMesh, tGeometryEngineParameters );
 

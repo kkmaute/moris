@@ -40,6 +40,14 @@ namespace moris::gen
             , mParentFacet( aParentFacet )
             , mInterfaceGeometry( aInterfaceGeometry )
     {
+        // BRENDAN whole lotta debug prints
+        std::cout << "Intersection Node Index: " << aNodeIndex << std::endl;
+        PRINT( this->get_global_coordinates() );
+        std::cout << "Parent facet index: " << mParentFacet->get_index() << std::endl;
+        PRINT( aFirstParentNode.get_global_coordinates() );
+        PRINT( aSecondParentNode.get_global_coordinates() );
+        std::cout << std::endl;
+
     }
 
     Matrix< DDRMat >

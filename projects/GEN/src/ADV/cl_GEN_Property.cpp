@@ -50,10 +50,10 @@ namespace moris::gen
     void Property::update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedDesigns )
     {
         // Get fields from designs
-        Vector< std::shared_ptr< Field > > tUpdatedFields( aAllUpdatedDesigns.size() );
-        for ( uint iFieldIndex = 0; iFieldIndex < tUpdatedFields.size(); iFieldIndex++ )
+        Vector< std::shared_ptr< Field > > tUpdatedFields;
+        for ( uint iDesignIndex = 0; iDesignIndex < aAllUpdatedDesigns.size(); iDesignIndex++ )
         {
-            tUpdatedFields.append( aAllUpdatedDesigns( iFieldIndex )->get_fields() );
+            tUpdatedFields.append( aAllUpdatedDesigns( iDesignIndex )->get_fields() );
         }
 
         // Update fields
@@ -153,7 +153,7 @@ namespace moris::gen
     }
 
     //--------------------------------------------------------------------------------------------------------------
-    
+
     std::string
     Property::get_name()
     {
@@ -161,7 +161,7 @@ namespace moris::gen
     }
 
     //--------------------------------------------------------------------------------------------------------------
-    
+
     Vector< std::string >
     Property::get_field_names()
     {

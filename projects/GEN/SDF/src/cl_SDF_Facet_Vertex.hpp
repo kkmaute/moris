@@ -74,6 +74,17 @@ namespace moris
             //-------------------------------------------------------------------------------
 
             /**
+             * Sets the coordinates of this node (Matrix version). 
+             * Also changes mIterationNodeCoords. As such, this function should ONLY be called between design iterations.
+             *
+             * @param aCoordinates new coordinates to be set to
+             */
+            void
+            set_node_coords( const Matrix< DDRMat >& aCoordinates );
+
+            //-------------------------------------------------------------------------------
+
+            /**
              * Sets only the aDimension index of this nodes coordinates. 
              * Also changes mIterationNodeCoords. As such, this function should ONLY be called between design iterations.
              * 

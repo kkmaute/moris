@@ -564,10 +564,8 @@ namespace moris::gen
 
     void
     Level_Set_Geometry::discretize(
-            mtk::Mesh_Pair        aMeshPair,
-            sol::Dist_Vector*     aOwnedADVs,
-            const Vector< sint >& aSharedADVIds,
-            uint                  aADVOffsetID )
+            mtk::Mesh_Pair    aMeshPair,
+            sol::Dist_Vector* aOwnedADVs )
     {
 
         if ( mSharedADVIDs.size() == 0 )
@@ -589,9 +587,7 @@ namespace moris::gen
     Level_Set_Geometry::discretize(
             std::shared_ptr< mtk::Field > aMTKField,
             mtk::Mesh_Pair                aMeshPair,
-            sol::Dist_Vector*             aOwnedADVs,
-            const Vector< sint >&         aSharedADVIds,
-            uint                          aADVOffsetID )
+            sol::Dist_Vector*             aOwnedADVs )
     {
 
         if ( aMTKField->get_label() == this->get_name() )

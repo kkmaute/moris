@@ -68,7 +68,7 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDRMat >
-    compute_objectives( Matrix< DDRMat > aADVs, Matrix< DDRMat > aCriteria )
+    compute_objectives( const Vector< real >& aADVs, const Vector< real >& aCriteria )
     {
         Matrix< DDRMat > tObjectives = { { aCriteria( 0 ) } };
 
@@ -78,7 +78,7 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDRMat >
-    compute_constraints( Matrix< DDRMat > aADVs, Matrix< DDRMat > aCriteria )
+    compute_constraints( const Vector< real >& aADVs, const Vector< real >& aCriteria )
     {
         Matrix< DDRMat > tConstraints = { { aCriteria( 1 ) } };
 
@@ -88,9 +88,9 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDRMat >
-    compute_dobjective_dadv( Matrix< DDRMat > aADVs, Matrix< DDRMat > aCriteria )
+    compute_dobjective_dadv( const Vector< real >& aADVs, const Vector< real >& aCriteria )
     {
-        Matrix< DDRMat > tDObjectiveDADV( 1, aADVs.numel(), 0.0 );
+        Matrix< DDRMat > tDObjectiveDADV( 1, aADVs.size(), 0.0 );
 
         return tDObjectiveDADV;
     }
@@ -98,7 +98,7 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDRMat >
-    compute_dobjective_dcriteria( Matrix< DDRMat > aADVs, Matrix< DDRMat > aCriteria )
+    compute_dobjective_dcriteria( const Vector< real >& aADVs, const Vector< real >& aCriteria )
     {
         Matrix< DDRMat > tDObjectiveDCriteria( 1, 2 );
         tDObjectiveDCriteria( 0 ) = 1;
@@ -110,9 +110,9 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDRMat >
-    compute_dconstraint_dadv( Matrix< DDRMat > aADVs, Matrix< DDRMat > aCriteria )
+    compute_dconstraint_dadv( const Vector< real >& aADVs, const Vector< real >& aCriteria )
     {
-        Matrix< DDRMat > tDConstraintDADV( 1, aADVs.numel(), 0.0 );
+        Matrix< DDRMat > tDConstraintDADV( 1, aADVs.size(), 0.0 );
 
         return tDConstraintDADV;
     }
@@ -120,7 +120,7 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDRMat >
-    compute_dconstraint_dcriteria( Matrix< DDRMat > aADVs, Matrix< DDRMat > aCriteria )
+    compute_dconstraint_dcriteria( const Vector< real >& aADVs, const Vector< real >& aCriteria )
     {
         Matrix< DDRMat > tDConstraintDCriteria( 1, 2 );
         tDConstraintDCriteria( 0 ) = 0;
@@ -222,24 +222,19 @@ namespace moris
     void
     GENParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
+        std::cout << "GEOMODEL" << tGeoModel << std::endl;
+        
         tParameterlist.resize( 3 );
         tParameterlist( 0 ).resize( 1 );
         tParameterlist( 0 )( 0 ) = moris::prm::create_gen_parameter_list();
-        tParameterlist( 0 )( 0 ).set( "initial_advs", "" );
-        tParameterlist( 0 )( 0 ).set( "lower_bounds", "" );
-        tParameterlist( 0 )( 0 ).set( "upper_bounds", "" );
-        tParameterlist( 0 )( 0 ).set( "IQI_types", "IQIBulkStrainEnergy,IQIBulkVolume" );
+        tParameterlist( 0 )( 0 ).set( "IQI_types", "IQIBulkStrainEnergy", "IQIBulkVolume" );
         tParameterlist( 0 )( 0 ).set( "PDV_types", "" );
         tParameterlist( 0 )( 0 ).set( "output_mesh_file", "gen_shape_sensitivities.exo" );
-
-        tParameterlist( 0 )( 0 ).set( "initial_advs", "" );
-        tParameterlist( 0 )( 0 ).set( "lower_bounds", "" );
-        tParameterlist( 0 )( 0 ).set( "upper_bounds", "" );
 
         tParameterlist( 1 ).resize( 1 );
         tParameterlist( 1 )( 0 ) = prm::create_surface_mesh_geometry_parameter_list();
         tParameterlist( 1 )( 0 ).set( "file_path", "/home/chong/codes/moris/projects/GEN/test/data/triangle_sensitivity_oblique.obj" );    // BRENDAN FIXME
-        
+
         switch ( tGeoModel )
         {
             case 0:

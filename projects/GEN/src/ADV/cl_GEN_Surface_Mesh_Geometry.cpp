@@ -35,20 +35,20 @@ namespace moris::gen
     Surface_Mesh_Parameters::Surface_Mesh_Parameters( const Parameter_List& aParameterList )
             : Field_Parameters( aParameterList )
             , Design_Parameters( aParameterList )
+            , mOffsets( aParameterList.get< Vector< real > >( "offset" ) )
+            , mScale( aParameterList.get< Vector< real > >( "scale" ) )
             , mFilePath( aParameterList.get< std::string >( "file_path" ) )
             , mIntersectionTolerance( aParameterList.get< real >( "intersection_tolerance" ) )
+            , mADVIndices( aParameterList.get< Vector< uint > >( "adv_indices" ) )
             , mVertexFactorFunctionName( aParameterList.get< std::string >( "vertex_factor_function_name" ) )
     {
-        string_to_cell( aParameterList.get< std::string >( "offset" ), mOffsets );
-        string_to_cell( aParameterList.get< std::string >( "scale" ), mScale );
-        string_to_cell( aParameterList.get< std::string >( "adv_indices" ), mADVIndices );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     Surface_Mesh_Geometry::Surface_Mesh_Geometry(
             mtk::Mesh*                    aMesh,
-            Matrix< DDRMat >              aADVs,
+            ADV_Manager&                  aADVManager,
             Surface_Mesh_Parameters       aParameters,
             Node_Manager&                 aNodeManager,
             std::shared_ptr< Library_IO > aLibrary )
@@ -99,33 +99,33 @@ namespace moris::gen
             // build perturbation fields
             for ( uint iFieldIndex = 0; iFieldIndex < Object::get_dimension(); iFieldIndex++ )
             {
-                Matrix< DDUMat > tADVIndices;
-                Matrix< DDRMat > tConstants;
-                Matrix< DDUMat > tFieldVariableIndices;
+                Vector< uint > tADVIndices;
+                Vector< real > tConstants;
+                Vector< uint > tFieldVariableIndices;
 
                 // construct field to be discretized into a bspline field eventually
                 if ( aParameters.mDiscretizationIndex > -1 )
                 {
                     // allocate space for contants information
-                    tConstants.resize( 1, 1 );
+                    tConstants.resize( 1 );
 
                     // set constants
-                    tConstants( 0, 0 ) = 0.0;
+                    tConstants( 0 ) = 0.0;
                 }
                 // construct constant field with an ADV to rigidly displace the surface mesh
                 else
                 {
                     // allocate space for ADV information
-                    tADVIndices.resize( 1, 1 );
-                    tFieldVariableIndices.resize( 1, 1 );
+                    tADVIndices.resize( 1 );
+                    tFieldVariableIndices.resize( 1 );
 
                     // set ADV information
-                    tADVIndices( 0, 0 )           = mParameters.mADVIndices( iFieldIndex );
-                    tFieldVariableIndices( 0, 0 ) = 0;
+                    tADVIndices( 0 )           = mParameters.mADVIndices( iFieldIndex );
+                    tFieldVariableIndices( 0 ) = 0;
                 }
                 // Build field
                 mPerturbationFields( iFieldIndex ) = std::make_shared< Constant_Field >(
-                        aADVs,
+                        aADVManager.mADVs,
                         tFieldVariableIndices,
                         tADVIndices,
                         tConstants,
@@ -218,9 +218,9 @@ namespace moris::gen
             const Parent_Node&                aSecondParentNode,
             sdf::Facet*&                      aParentFacet )
     {
-        // ------------------------------------------------------
+        // -------------------------------------------------------------------------------------
         // STEP 1: Rotate the surface mesh so the parent edge is aligned with the x-axis
-        // ------------------------------------------------------
+        // -------------------------------------------------------------------------------------
 
         // Get the unit vector from the first parent to the second parent
         Matrix< DDRMat > tParentVector = aSecondParentNode.get_global_coordinates() - aFirstParentNode.get_global_coordinates();
@@ -271,7 +271,9 @@ namespace moris::gen
         // rotate the object
         this->rotate( tRotationMatrix );
 
-        // Compute the distance to the facets
+        // -------------------------------------------------------------------------------------
+        // STEP 2: Compute the distance to from the first parent to all the facets
+        // -------------------------------------------------------------------------------------
         Matrix< DDRMat >      tCastPoint = tRotationMatrix * trans( aFirstParentNode.get_global_coordinates() );
         Vector< sdf::Facet* > tIntersectionFacets;
         Vector< real >        tLocalCoordinate = sdf::compute_distance_to_facets( *this, tCastPoint, 0, tIntersectionFacets );
@@ -284,6 +286,11 @@ namespace moris::gen
 
         // reset the object to the vertex coordinates at the current design iteration
         this->reset_coordinates();
+
+
+        // -------------------------------------------------------------------------------------
+        // STEP 3: Process the intersection information and determine if the surface mesh intersects the parent edge
+        // -------------------------------------------------------------------------------------
 
         // check number of intersections along parent edge
         uint tNumberOfParentEdgeIntersections = 0;
@@ -324,77 +331,87 @@ namespace moris::gen
     void
     Surface_Mesh_Geometry::import_advs( sol::Dist_Vector* aOwnedADVs )
     {
+        // Get the coordinates of the owned vertices to communicate to other processors (first rows = coordinates, last row = owned flag)
+        Matrix< DDRMat > tOwnedVertexCoordinates( Object::mDimension + 1, Object::mVertices.size() );
+
         for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
         {
-            // STEP 1: Import advs to field
+            // Import advs to field
             mPerturbationFields( iFieldIndex )->import_advs( aOwnedADVs );
 
-            Vector< uint > tOwnedVertexIndices;
-            // STEP 2: Apply field value to surface mesh nodes
+            // Add this vertex's movement to the owned vertex coordinates
             for ( uint iVertexIndex = 0; iVertexIndex < Object::mVertices.size(); iVertexIndex++ )
             {
-                // update the facet vertex if the vertex is owned by this processor
-                if ( mVertexBackgroundElements( iVertexIndex ) != nullptr and mVertexBackgroundElements( iVertexIndex )->get_owner() == par_rank() )
+                // update the facet vertex if it can move and is owned by this processor
+                if ( this->facet_vertex_depends_on_advs( iVertexIndex ) and mVertexBackgroundElements( iVertexIndex )->get_owner() == par_rank() )
                 {
-                    // Add this vertex index to the list of owned vertices for this processor
-                    tOwnedVertexIndices.push_back( iVertexIndex );
-
                     // Get the factor that scales this vertex's movement
                     real tFactor = mVertexFactorFunction == nullptr ? 1.0 : mVertexFactorFunction( iVertexIndex, Object::mVertices( iVertexIndex )->get_coords(), iFieldIndex );
 
-                    // Move vertex if needed
-                    if ( tFactor != 0.0 )
-                    {
-                        // Interpolate the bspline field value at the facet vertex location
-                        real tInterpolatedPerturbation = this->interpolate_perturbation_from_background_element(
-                                mVertexBackgroundElements( iVertexIndex ),
-                                iFieldIndex,
-                                iVertexIndex );
+                    // Interpolate the bspline field value at the facet vertex location
+                    real tInterpolatedPerturbation = this->interpolate_perturbation_from_background_element(
+                            mVertexBackgroundElements( iVertexIndex ),
+                            iFieldIndex,
+                            iVertexIndex );
 
-                        // Displace the vertex by the total perturbation
-                        Object::mVertices( iVertexIndex )->set_node_coord( mOriginalVertexCoordinates( iVertexIndex )( iFieldIndex ) + tFactor * tInterpolatedPerturbation, iFieldIndex );
+                    // build the matrix for new coordinates
+                    tOwnedVertexCoordinates( Object::mDimension, iVertexIndex ) = 1.0;    // says that this vertex is owned by this proc
+                    tOwnedVertexCoordinates( iFieldIndex, iVertexIndex )        = mOriginalVertexCoordinates( iVertexIndex )( iFieldIndex ) + tFactor * tInterpolatedPerturbation;
+                }
+            }
+        }
+
+        // Get the vertex coordinates from all processors and put in a vector of mats on base proc
+        Vector< Matrix< DDRMat > > tAllVertexCoordinates;
+        gatherv_mats( tOwnedVertexCoordinates, tAllVertexCoordinates );
+
+        // Build matrix with all vertex coordinates on base proc
+        Matrix< DDRMat > tCombinedVertexCoordinates( Object::mDimension + 1, Object::mVertices.size() );
+        if ( par_rank() == 0 )
+        {
+            for ( uint iProcessor = 0; iProcessor < tAllVertexCoordinates.size(); iProcessor++ )
+            {
+                for ( uint iVertexIndex = 0; iVertexIndex < Object::mVertices.size(); iVertexIndex++ )
+                {
+                    // TODO: check if vertices are shared and if so that the coordinates are the same
+
+                    // Check to see if the vertex was owned by proc iProcessor
+                    if ( (uint)tAllVertexCoordinates( iProcessor )( Object::mDimension, iVertexIndex ) == 1 )
+                    {
+                        // If so, set the node coordinates in the combined matrix
+                        tCombinedVertexCoordinates.set_column( iVertexIndex, tAllVertexCoordinates( iProcessor ).get_column( iVertexIndex ) );
                     }
                 }
             }
-
-            // Get the coordinates of the owned vertices to communicate to other processors
-            Vector< real > tOwnedVertexCoordinates;    // flattened coordinate vector containing coords for each owned vertex index
         }
 
-        // Send and receive the owned vertex coordinates to/from root processor
-        if ( par_rank() == 0 )
-        {
-            // receive
-            // all_gather_vector();
-        }
-        else
-        {
-            // send
-            // all_scatter_vector();
-        }    // should be in mpi function
+        // Give all the processors the new combined vertex coordinates assembled by base proc
+        broadcast_mat( tCombinedVertexCoordinates );
 
-
-        if ( par_rank() == 0 )
+        // Update the surface mesh vertex coordinates
+        for ( uint iVertexIndex = 0; iVertexIndex < Object::mVertices.size(); iVertexIndex++ )
         {
-            // STEP 3: Update all facet data
-
-            // send the updated facet data to all processors
-        }
-        else
-        {
-            // receive the updated facet data from root processor
+            // Check if this vertex was updated by any processor
+            if ( (uint)tCombinedVertexCoordinates( Object::mDimension, iVertexIndex ) == 1 )
+            {
+                for ( uint iDimension = 0; iDimension < Object::mDimension; iDimension++ )
+                {
+                    Object::mVertices( iVertexIndex )->set_node_coord( tCombinedVertexCoordinates( iDimension, iVertexIndex ), iDimension );
+                }
+            }
         }
 
-        this->update_all_facets();    // BRENDAN put this on proc 0
+        // Update the facet's information based on the new vertex coordinates
+        this->update_all_facets();
 
-        this->write_to_file( mName + "_" + std::to_string( mIteration ) + "_" + std::to_string( par_rank() ) + ".txt" );
-        mIteration++;
+        // Write the surface mesh to a file
+        // this->write_to_file( mName + "_" + std::to_string( mIteration ) + "_" + std::to_string( par_rank() ) + ".txt" );
+        // mIteration++;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    Surface_Mesh_Geometry::set_advs( sol::Dist_Vector* aADVs )
+    void Surface_Mesh_Geometry::set_advs( sol::Dist_Vector* aADVs )
     {
         // Have each field import the advs
         for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
@@ -405,14 +422,13 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    sint
-    Surface_Mesh_Geometry::append_adv_info(
+    sint Surface_Mesh_Geometry::append_adv_info(
             mtk::Interpolation_Mesh* aMesh,
-            Matrix< DDSMat >&        aOwnedADVIds,
+            Vector< sint >&          aOwnedADVIds,
             Matrix< IdMat >&         aOwnedijklIDs,
             sint                     aOffsetID,
-            Matrix< DDRMat >&        aLowerBounds,
-            Matrix< DDRMat >&        aUpperBounds )
+            Vector< real >&          aLowerBounds,
+            Vector< real >&          aUpperBounds )
     {
         // Get the original offset ID
         sint tOriginalOffsetID = aOffsetID;
@@ -436,16 +452,14 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    bool
-    Surface_Mesh_Geometry::depends_on_advs() const
+    bool Surface_Mesh_Geometry::depends_on_advs() const
     {
         return mParameters.mADVIndices.size() > 0 or mParameters.mDiscretizationIndex > -1;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    Surface_Mesh_Geometry::reset_nodal_data( mtk::Interpolation_Mesh* aInterpolationMesh )
+    void Surface_Mesh_Geometry::reset_nodal_data( mtk::Interpolation_Mesh* aInterpolationMesh )
     {
         // update the perturbation fields with the new mesh
         for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
@@ -465,12 +479,9 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    Surface_Mesh_Geometry::discretize(
-            mtk::Mesh_Pair        aMeshPair,
-            sol::Dist_Vector*     aOwnedADVs,
-            const Vector< sint >& aSharedADVIds,
-            uint                  aADVOffsetID )
+    void Surface_Mesh_Geometry::discretize(
+            mtk::Mesh_Pair    aMeshPair,
+            sol::Dist_Vector* aOwnedADVs )
     {
         MORIS_ASSERT( Design::mSharedADVIDs.size() == Object::mDimension or Design::mSharedADVIDs.size() == 0,
                 "mSharedADVIDs should have as many entries as dimensions. Size = %ld",
@@ -514,9 +525,7 @@ namespace moris::gen
     void Surface_Mesh_Geometry::discretize(
             std::shared_ptr< mtk::Field > aMTKField,
             mtk::Mesh_Pair                aMeshPair,
-            sol::Dist_Vector*     aOwnedADVs,
-            const Vector< sint >& aSharedADVIds,
-            uint                  aADVOffsetID )
+            sol::Dist_Vector*             aOwnedADVs )
     {
         MORIS_ERROR( false, "Surface mesh bspline fields cannot be remeshed for now" );
         for ( uint iFieldIndex = 0; iFieldIndex < Object::mDimension; iFieldIndex++ )
@@ -577,34 +586,18 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    bool
-    Surface_Mesh_Geometry::facet_vertex_depends_on_advs( uint aFacetVertexIndex )
+    bool Surface_Mesh_Geometry::facet_vertex_depends_on_advs( uint aFacetVertexIndex )
     {
-        // check if the whole surface mesh depends on advs or the vertex is outside the domain
-        if ( !this->depends_on_advs() or mVertexBackgroundElements( aFacetVertexIndex ) == nullptr )
-        {
-            return false;
-        }
+        // Build vector of dimensions
+        Vector< uint > tDimensions( Object::mDimension );
+        std::iota( tDimensions.begin(), tDimensions.end(), 0 );
 
-        // check if this node was specified to be fixed
-        if ( mVertexFactorFunction == nullptr )
-        {
-            return true;
-        }
-        else
-        {
-            bool tVertexDependsOnADVs = false;
-            for ( uint iDimension = 0; iDimension < Object::mDimension; iDimension++ )
-            {
-                if ( mVertexFactorFunction( aFacetVertexIndex, Object::mVertices( aFacetVertexIndex )->get_coords(), iDimension ) != 0.0 )
-                {
-                    tVertexDependsOnADVs = true;
-                    break;
-                }
-            }
-
-            return tVertexDependsOnADVs;
-        }
+        // Return true if this surface mesh can move, its movement was not fixed in all directions by the user, and it lies in the Lagrange mesh domain
+        return this->depends_on_advs()
+           and mVertexBackgroundElements( aFacetVertexIndex ) != nullptr
+           and ( mVertexFactorFunction == nullptr or                       //
+                   std::all_of( tDimensions.begin(), tDimensions.end(),    //
+                           [ & ]( const uint aDimension ) { return mVertexFactorFunction( aFacetVertexIndex, Object::mVertices( aFacetVertexIndex )->get_coords(), aDimension ) != 0.0; } ) );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -700,14 +693,14 @@ namespace moris::gen
         for ( uint iNodeIndex = 0; iNodeIndex < tVertexCoordinates.n_rows(); iNodeIndex++ )
         {
             // Get the ADV IDs for this node
-            Matrix< DDSMat > tNodeIDs = this->get_determining_adv_ids( tVertexIndices( iNodeIndex ), tVertexCoordinates.get_row( iNodeIndex ) );
+            Vector< sint > tNodeIDs = this->get_determining_adv_ids( tVertexIndices( iNodeIndex ), tVertexCoordinates.get_row( iNodeIndex ) );
 
             // Join the ADV IDs to the output
             // Get the original length
             uint tIDLength = tVertexADVIds.size();
 
             // Resize to add new ADV IDs
-            tVertexADVIds.resize( 1, tVertexADVIds.size() + ( tNodeIDs.length() * tNumDimsDependOnADVs ) / Object::mDimension );
+            tVertexADVIds.resize( tVertexADVIds.size() + ( tNodeIDs.size() * tNumDimsDependOnADVs ) / Object::mDimension );
 
             // Join the IDs
             uint tADVsAdded = 0;
@@ -715,9 +708,9 @@ namespace moris::gen
             {
                 if ( tVertexDependsOnADVs( iDimension ) )
                 {
-                    for ( uint iADVIndex = 0; iADVIndex < tNodeIDs.length() / Object::mDimension; iADVIndex++ )
+                    for ( uint iADVIndex = 0; iADVIndex < tNodeIDs.size() / Object::mDimension; iADVIndex++ )
                     {
-                        tVertexADVIds( tIDLength + tADVsAdded ) = tNodeIDs( ( iDimension * tNodeIDs.length() ) / Object::mDimension + iADVIndex );
+                        tVertexADVIds( tIDLength + tADVsAdded ) = tNodeIDs( ( iDimension * tNodeIDs.size() ) / Object::mDimension + iADVIndex );
                         tADVsAdded++;
                     }
                 }
@@ -753,7 +746,7 @@ namespace moris::gen
             // Append the ADV IDs to the output matrix
             // Resize IDs
             uint tJoinedIDLength = tADVIDs.size();
-            tADVIDs.resize( 1, tJoinedIDLength + tFieldADVIDs.size() );
+            tADVIDs.resize( tJoinedIDLength + tFieldADVIDs.size() );
 
             // Join IDs
             for ( uint tAddedSensitivity = 0; tAddedSensitivity < tFieldADVIDs.size(); tAddedSensitivity++ )
@@ -819,7 +812,7 @@ namespace moris::gen
     void Surface_Mesh_Geometry::update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedDesigns )
     {
     }
-    
+
     //--------------------------------------------------------------------------------------------------------------
 
     Vector< Vector< real > >
@@ -920,8 +913,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    Surface_Mesh_Geometry::update_vertex_basis_data()
+    void Surface_Mesh_Geometry::update_vertex_basis_data()
     {
         // Set size if it has not been set already
         if ( mVertexBases.n_cols() != Object::mVertices.size() )

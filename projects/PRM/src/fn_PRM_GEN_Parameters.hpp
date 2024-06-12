@@ -290,13 +290,12 @@ namespace moris::prm
     {
         Parameter_List tSurfaceMeshParameterList = create_geometry_parameter_list();           // Inserts all geometry parameters
         insert_design_field_parameters( tSurfaceMeshParameterList, gen::Field_Type::NONE );    // Inserts all design parameters
-        tSurfaceMeshParameterList.insert( "offset", "0,0,0" );                                 // offset all points in the geometry by this much
-        tSurfaceMeshParameterList.insert( "scale", "1.0,1.0,1.0" );                            // scaling factor for all points in the geometry
+        tSurfaceMeshParameterList.insert( "offset", Vector< real >( 3, 0.0 ) );                // offset all points in the geometry by this much
+        tSurfaceMeshParameterList.insert( "scale", Vector< real >( 3, 1.0 ) );                 // scaling factor for all points in the geometry
         tSurfaceMeshParameterList.insert( "file_path", "" );                                   // path to .obj file
         tSurfaceMeshParameterList.insert( "vertex_factor_function_name", "" );                 // function name that determines which nodes are fixed
         tSurfaceMeshParameterList.set( "geometry_type", "surface_mesh" );                      // set the geometry type to surface mesh
-        tSurfaceMeshParameterList.erase( "field_type" );
-
+        tSurfaceMeshParameterList.insert( "adv_indices", Vector< uint >() );                   // ADVs used to fill in variables
 
         return tSurfaceMeshParameterList;
     }

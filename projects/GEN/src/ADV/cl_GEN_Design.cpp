@@ -66,11 +66,11 @@ namespace moris::gen
     sint
     Design::append_adv_info(
             mtk::Interpolation_Mesh* aMesh,
-            Matrix< DDSMat >&        aOwnedADVIds,
+            Vector< sint >&          aOwnedADVIds,
             Matrix< IdMat >&         aOwnedijklIDs,
             sint                     aOffsetID,
-            Matrix< DDRMat >&        aLowerBounds,
-            Matrix< DDRMat >&        aUpperBounds )
+            Vector< real >&          aLowerBounds,
+            Vector< real >&          aUpperBounds )
     {
         // Store the ADV offset ID for this design
         mOffsetID = aOffsetID;
@@ -196,15 +196,15 @@ namespace moris::gen
             }
 
             // Sizes of ID vectors
-            uint tNumOwnedADVs         = aOwnedADVIds.length();
+            uint tNumOwnedADVs         = aOwnedADVIds.size();
             uint tNumOwnedCoefficients = tOwnedCoefficients.numel();
 
             // Resize ID lists and bounds
-            aOwnedADVIds.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
-            aLowerBounds.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
-            aUpperBounds.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
+            aOwnedADVIds.resize( tNumOwnedADVs + tNumOwnedCoefficients );
+            aLowerBounds.resize( tNumOwnedADVs + tNumOwnedCoefficients );
+            aUpperBounds.resize( tNumOwnedADVs + tNumOwnedCoefficients );
             aOwnedijklIDs.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
-            Matrix< DDSMat > tSharedADVIds( tAllCoefIds.length(), 1 );
+            Vector< sint > tSharedADVIds( tAllCoefIds.length() );
 
             // Add owned coefficients to lists
             for ( uint iOwnedCoefficient = 0; iOwnedCoefficient < tNumOwnedCoefficients; iOwnedCoefficient++ )

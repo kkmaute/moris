@@ -174,9 +174,7 @@ namespace moris::gen
          */
         void discretize(
                 mtk::Mesh_Pair        aMeshPair,
-                sol::Dist_Vector*     aOwnedADVs,
-                const Vector< sint >& aSharedADVIds,
-                uint                  aADVOffsetID ) override;
+                sol::Dist_Vector*     aOwnedADVs ) override;
 
         /**
          * If intended for this field, maps the field to B-spline coefficients or stores the nodal field values in a stored field object.
@@ -188,9 +186,7 @@ namespace moris::gen
         void discretize(
                 std::shared_ptr< mtk::Field > aMTKField,
                 mtk::Mesh_Pair                aMeshPair,
-                sol::Dist_Vector*             aOwnedADVs,
-                const Vector< sint >&         aSharedADVIds,
-                uint                          aADVOffsetID ) override;
+                sol::Dist_Vector*             aOwnedADVs ) override;
 
         /**
          * Used to print geometry information to exodus files and print debug information.
