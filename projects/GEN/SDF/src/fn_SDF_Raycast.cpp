@@ -32,8 +32,11 @@ namespace moris::sdf
         bool tRotation = false;
         while ( tPointIsInside == UNSURE )
         {
-            // loop over dimensions
-            for ( uint iAxis = 0; iAxis < aObject.get_dimension(); iAxis++ )
+            // resolve the region of the point by calling voxelizing algorithm in x direction
+            tPointIsInside = voxelize( aObject, aPoint, 0 );
+
+            // loop over the remaining axes
+            for ( uint iAxis = 1; iAxis < aObject.get_dimension(); iAxis++ )
             {
                 // check to make sure the region was not determined by the previous iteration
                 if ( tPointIsInside == UNSURE )
@@ -41,21 +44,21 @@ namespace moris::sdf
                     // resolve the region of the point by calling voxelizing algorithm in iAxis direction
                     tPointIsInside = voxelize( aObject, aPoint, iAxis );
                 }
+                else
+                {
+                    // reset the coordinates back to the orginal frame if they were rotated
+                    if ( tRotation )
+                    {
+                        aObject.reset_coordinates();
+                    }
+
+                    return tPointIsInside;
+                }
             }
 
             // if still unsure, rotate and cast again
-            if ( tPointIsInside == UNSURE )
-            {
-                tRotation = true;
-
-                random_rotation( aObject, aPoint );
-            }
-        }
-
-        // reset the coordinates back to the orginal frame if they were rotated
-        if ( tRotation )
-        {
-            aObject.reset_coordinates();
+            tRotation = true;
+            random_rotation( aObject, aPoint );
         }
 
         return tPointIsInside;
