@@ -295,7 +295,6 @@ namespace moris::prm
         tSurfaceMeshParameterList.insert( "file_path", "" );                                   // path to .obj file
         tSurfaceMeshParameterList.insert( "vertex_factor_function_name", "" );                 // function name that determines which nodes are fixed
         tSurfaceMeshParameterList.set( "geometry_type", "surface_mesh" );                      // set the geometry type to surface mesh
-        tSurfaceMeshParameterList.insert( "adv_indices", Vector< uint >() );                   // ADVs used to fill in variables
 
         return tSurfaceMeshParameterList;
     }

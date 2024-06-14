@@ -161,10 +161,10 @@ namespace moris::gen
             case 3:    // 3D surface mesh
             {
                 // Compute the normal vector (not unit)
-                Matrix< DDRMat > tNormal = cross( tVertexCoordinates.get_row( 1 ) - tVertexCoordinates.get_row( 0 ), tVertexCoordinates.get_row( 2 ) - tVertexCoordinates.get_row( 0 ) )
+                Matrix< DDRMat > tNormal = cross( tVertexCoordinates.get_row( 1 ) - tVertexCoordinates.get_row( 0 ), tVertexCoordinates.get_row( 2 ) - tVertexCoordinates.get_row( 0 ) );
 
-                        // magnitude of the normal vector
-                        real tNormalVectorNorm = norm( tNormal );
+                // magnitude of the normal vector
+                real tNormalVectorNorm = norm( tNormal );
 
                 // jacobians of the normal vector wrt to the facet vertices
                 tNormalVectorSensitivities( 0 ) = { { 0.0, tVertexCoordinates( 2, 2 ) - tVertexCoordinates( 1, 2 ), tVertexCoordinates( 1, 1 ) - tVertexCoordinates( 2, 1 ) }, { tVertexCoordinates( 1, 2 ) - tVertexCoordinates( 2, 2 ), 0.0, tVertexCoordinates( 2, 0 ) - tVertexCoordinates( 1, 0 ) }, { tVertexCoordinates( 2, 1 ) - tVertexCoordinates( 1, 1 ), tVertexCoordinates( 1, 0 ) - tVertexCoordinates( 2, 0 ), 0.0 } };

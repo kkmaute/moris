@@ -158,10 +158,10 @@ namespace moris::gen
 
             // Intersection global coordinates solutions
             Vector< Matrix< DDRMat > > tIntersectionGlobalCoordinates = {
-                { { 0.75, 0.0 } },
-                { { 1.0, 0.78125 } },
-                { { 13.0 / 12.0, 0.0 } },
-                { { 1.0, 0.78125 } }
+                { { 0.75 }, { 0.0 } },
+                { { 1.0 }, { 0.78125 } },
+                { { 13.0 / 12.0 }, { 0.0 } },
+                { { 1.0 }, { 0.78125 } }
             };
 
             uint tIntersectionCount = 0;

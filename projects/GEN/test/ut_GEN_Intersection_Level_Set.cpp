@@ -80,7 +80,7 @@ namespace moris::gen
 
             // Create geometry engine
             Geometry_Engine_Parameters tGeometryEngineParameters;
-            ADV_Manager tADVManager;
+            ADV_Manager                tADVManager;
             tADVManager.mADVs = tADVs;
             Design_Factory tDesignFactory( { tCircleParameterList, tPlane1ParameterList, tPlane2ParameterList }, tADVManager );
             tGeometryEngineParameters.mADVManager = tADVManager;
@@ -122,26 +122,26 @@ namespace moris::gen
             Matrix< DDRMat > tIntersectionLocalCoordinates = { { -tFrac, 1.0, 0.0, tFrac, -1.0, tFrac, 0.0, -tFrac, -0.5, 0.5, -0.5, 0.5, 0.0000000002, -0.0000000002, 1.0, 0.0, -1.0, 1.0, 0.0, -1.0 } };
 
             Vector< Matrix< DDRMat > > tIntersectionGlobalCoordinates = {
-                { { 0.0, -0.5 - ( tFrac / 2.0 ) } },
-                { { -1.0, 0.0 } },
-                { { 0.5, 0.0 } },
-                { { 0.0, -0.5 - ( tFrac / 2.0 ) } },
-                { { -1.0, 0.0 } },
-                { { 0.0, 0.5 + ( tFrac / 2.0 ) } },
-                { { 0.5, 0.0 } },
-                { { 0.0, 0.5 + ( tFrac / 2.0 ) } },
-                { { 0.25, -1.0 } },
-                { { 0.25, 0.0 } },
-                { { 0.25, 0.0 } },
-                { { 0.25, 1.0 } },
-                { { 0.25, -0.25 - tFrac / 4.0 } },
-                { { 0.25, 0.25 + tFrac / 4.0 } },
-                { { 1.0, -1.0 } },
-                { { 1.0, -1.0 } },
-                { { 1.0, 0.0 } },
-                { { 1.0, 0.0 } },
-                { { 1.0, 0.0 } },
-                { { 1.0, 1.0 } }
+                { { 0.0 }, { -0.5 - ( tFrac / 2.0 ) } },
+                { { -1.0 }, { 0.0 } },
+                { { 0.5 }, { 0.0 } },
+                { { 0.0 }, { -0.5 - ( tFrac / 2.0 ) } },
+                { { -1.0 }, { 0.0 } },
+                { { 0.0 }, { 0.5 + ( tFrac / 2.0 ) } },
+                { { 0.5 }, { 0.0 } },
+                { { 0.0 }, { 0.5 + ( tFrac / 2.0 ) } },
+                { { 0.25 }, { -1.0 } },
+                { { 0.25 }, { 0.0 } },
+                { { 0.25 }, { 0.0 } },
+                { { 0.25 }, { 1.0 } },
+                { { 0.25 }, { -0.25 - tFrac / 4.0 } },
+                { { 0.25 }, { 0.25 + tFrac / 4.0 } },
+                { { 1.0 }, { -1.0 } },
+                { { 1.0 }, { -1.0 } },
+                { { 1.0 }, { 0.0 } },
+                { { 1.0 }, { 0.0 } },
+                { { 1.0 }, { 0.0 } },
+                { { 1.0 }, { 1.0 } }
             };
 
             // Check element intersections
@@ -309,7 +309,7 @@ namespace moris::gen
 
             // Test that the new intersections have been added to the PDV host manager, but ONLY for the circle
             Vector< Matrix< DDRMat > > tPDVValues( 0 );
-            Vector< Vector< bool > >     tIsActive( 0 );
+            Vector< Vector< bool > >   tIsActive( 0 );
             tPDVHostManager->get_ig_pdv_value(
                     { { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28 } },
                     { PDV_Type::X_COORDINATE, PDV_Type::Y_COORDINATE },
@@ -565,8 +565,8 @@ namespace moris::gen
 
             // Create geometry engine
             Geometry_Engine_Parameters tGeometryEngineParameters;
-            ADV_Manager tADVManager;
-            Design_Factory tDesignFactory( { tCircleParameterList }, tADVManager );
+            ADV_Manager                tADVManager;
+            Design_Factory             tDesignFactory( { tCircleParameterList }, tADVManager );
             tGeometryEngineParameters.mGeometries = tDesignFactory.get_geometries();
             Geometry_Engine_Test tGeometryEngine( tMesh, tGeometryEngineParameters );
 
@@ -657,7 +657,7 @@ namespace moris::gen
 
                         // Finite difference sensitivities by queueing dummy nodes
                         Matrix< DDRMat > tFDSensitivities( tHostADVSensitivities.n_rows(), tHostADVSensitivities.n_cols(), 0.0 );
-                        Vector< real > tADVs = tGeometryEngine.get_advs();
+                        Vector< real >   tADVs = tGeometryEngine.get_advs();
                         for ( uint iADVIndex = 0; iADVIndex < tADVIDs.size(); iADVIndex++ )
                         {
                             // Get ADV ID
@@ -719,8 +719,8 @@ namespace moris::gen
             CHECK( tGeometryEngine.get_geometric_region( 0, 16, { {} } ) == Geometric_Region::INTERFACE );
 
             // Get full element info for element 0
-            Matrix< IndexMat >       tSignedNodeIndices = tMesh->get_nodes_connected_to_element_loc_inds( 0 );
-            Matrix< DDUMat >         tNodeIndices( 4, 1 );
+            Matrix< IndexMat >         tSignedNodeIndices = tMesh->get_nodes_connected_to_element_loc_inds( 0 );
+            Matrix< DDUMat >           tNodeIndices( 4, 1 );
             Vector< Matrix< DDRMat > > tNodeCoordinates( 4 );
             for ( uint tNodeNumber = 0; tNodeNumber < 4; tNodeNumber++ )
             {
@@ -812,7 +812,7 @@ namespace moris::gen
             tMeshData->add_mesh_field_real_scalar_data_loc_inds( tLSFName, mtk::EntityRank::NODE, tLevelsetVal );
 
             Vector< std::shared_ptr< gen::Geometry > > tGeometry( 1 );
-            Level_Set_Parameters                     tLevelSetParameters;
+            Level_Set_Parameters                       tLevelSetParameters;
             tLevelSetParameters.mUseMultilinearInterpolation = true;
             tLevelSetParameters.mIsocontourThreshold         = 0.5;
             tLevelSetParameters.mIsocontourTolerance         = 1E-13;

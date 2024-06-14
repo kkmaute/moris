@@ -21,11 +21,11 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Derived_Node::Derived_Node(
-            uint                     aIndex,
+            uint                              aIndex,
             const Vector< Background_Node* >& aBackgroundNodes,
-            const Matrix< DDRMat >&  aParametricCoordinates,
-            mtk::Geometry_Type       aGeometryType,
-            mtk::Interpolation_Order aInterpolationOrder )
+            const Matrix< DDRMat >&           aParametricCoordinates,
+            mtk::Geometry_Type                aGeometryType,
+            mtk::Interpolation_Order          aInterpolationOrder )
             : Node( aIndex )
             , mParametricCoordinates( aParametricCoordinates )
     {
@@ -40,7 +40,7 @@ namespace moris::gen
 
         // Create interpolator
         mtk::Interpolation_Function_Factory tInterpolationFactory;
-        mtk::Interpolation_Function_Base* tInterpolation = tInterpolationFactory.create_interpolation_function(
+        mtk::Interpolation_Function_Base*   tInterpolation = tInterpolationFactory.create_interpolation_function(
                 aGeometryType,
                 mtk::Interpolation_Type::LAGRANGE,
                 aInterpolationOrder );
@@ -60,7 +60,7 @@ namespace moris::gen
         }
 
         // Size global coordinates based on first locator
-        mGlobalCoordinates = Matrix< DDRMat >( 1, mBackgroundNodes( 0 ).get_global_coordinates().length(), 0.0 );
+        mGlobalCoordinates = Matrix< DDRMat >( mBackgroundNodes( 0 ).get_global_coordinates().length(), 1, 0.0 );
         delete tInterpolation;
 
         // Add contributions from all locators
@@ -104,55 +104,55 @@ namespace moris::gen
     {
         return false;
     }
-    
+
     //--------------------------------------------------------------------------------------------------------------
-    
+
     real Derived_Node::get_coordinate_value( uint aCoordinateIndex ) const
     {
         return mGlobalCoordinates( aCoordinateIndex );
     }
-        
+
     //--------------------------------------------------------------------------------------------------------------
-    
+
     uint Derived_Node::get_num_pdvs()
     {
         return 0;
     }
-    
+
     //--------------------------------------------------------------------------------------------------------------
-    
+
     void Derived_Node::set_starting_pdv_id( moris_id aPDVStartingID )
     {
     }
 
     //--------------------------------------------------------------------------------------------------------------
-    
+
     moris_id Derived_Node::get_starting_pdv_id()
     {
         return -1;
     }
 
     //--------------------------------------------------------------------------------------------------------------
-    
+
     void Derived_Node::set_id( moris_id aNodeID )
     {
     }
-    
+
     //--------------------------------------------------------------------------------------------------------------
-    
+
     void Derived_Node::set_owner( moris_index aNodeOwner )
     {
     }
-    
+
     //--------------------------------------------------------------------------------------------------------------
-    
+
     moris_id Derived_Node::get_id() const
     {
         return -1;
     }
 
     //--------------------------------------------------------------------------------------------------------------
-    
+
     moris_index Derived_Node::get_owner()
     {
         return par_rank();
@@ -167,4 +167,4 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-}
+}    // namespace moris::gen

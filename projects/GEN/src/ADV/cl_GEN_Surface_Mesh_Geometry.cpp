@@ -39,7 +39,6 @@ namespace moris::gen
             , mScale( aParameterList.get< Vector< real > >( "scale" ) )
             , mFilePath( aParameterList.get< std::string >( "file_path" ) )
             , mIntersectionTolerance( aParameterList.get< real >( "intersection_tolerance" ) )
-            , mADVIndices( aParameterList.get< Vector< uint > >( "adv_indices" ) )
             , mVertexFactorFunctionName( aParameterList.get< std::string >( "vertex_factor_function_name" ) )
     {
     }
@@ -62,13 +61,6 @@ namespace moris::gen
             , mVertexBackgroundElements( 0 )
             , mOriginalVertexCoordinates( Object::mVertices.size(), Object::mDimension )
     {
-        // Check the correct number of ADVs are provided (either as many as dimensions or zero)
-        MORIS_ERROR( aParameters.mADVIndices.size() == Object::mDimension
-                             or aParameters.mADVIndices.size() == 0,
-                "GEN - %ld ADV Indices provided to surface mesh. Should be %d or 0 (for now).",
-                aParameters.mADVIndices.size(),
-                Object::mDimension );
-
         // parse the file path and extract the file name
         mName = aParameters.mFilePath.substr( aParameters.mFilePath.find_last_of( "/" ) + 1,
                 aParameters.mFilePath.find_last_of( "." ) - aParameters.mFilePath.find_last_of( "/" ) - 1 );
@@ -100,29 +92,9 @@ namespace moris::gen
             for ( uint iFieldIndex = 0; iFieldIndex < Object::get_dimension(); iFieldIndex++ )
             {
                 Vector< uint > tADVIndices;
-                Vector< real > tConstants;
+                Vector< real > tConstants( 1 );
                 Vector< uint > tFieldVariableIndices;
 
-                // construct field to be discretized into a bspline field eventually
-                if ( aParameters.mDiscretizationIndex > -1 )
-                {
-                    // allocate space for contants information
-                    tConstants.resize( 1 );
-
-                    // set constants
-                    tConstants( 0 ) = 0.0;
-                }
-                // construct constant field with an ADV to rigidly displace the surface mesh
-                else
-                {
-                    // allocate space for ADV information
-                    tADVIndices.resize( 1 );
-                    tFieldVariableIndices.resize( 1 );
-
-                    // set ADV information
-                    tADVIndices( 0 )           = mParameters.mADVIndices( iFieldIndex );
-                    tFieldVariableIndices( 0 ) = 0;
-                }
                 // Build field
                 mPerturbationFields( iFieldIndex ) = std::make_shared< Constant_Field >(
                         aADVManager.mADVs,
@@ -153,6 +125,8 @@ namespace moris::gen
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aNodeCoordinates )
     {
+        PRINT( aNodeCoordinates );
+        
         // Raycast from the point
         sdf::Object_Region tRegion = raycast_point( *this, aNodeCoordinates );
 
@@ -223,6 +197,8 @@ namespace moris::gen
         // -------------------------------------------------------------------------------------
 
         // Get the unit vector from the first parent to the second parent
+        PRINT( aFirstParentNode.get_global_coordinates() );
+        PRINT( aSecondParentNode.get_global_coordinates() ); // BRENDAN
         Matrix< DDRMat > tParentVector = aSecondParentNode.get_global_coordinates() - aFirstParentNode.get_global_coordinates();
 
         // augment with zero if 2D
@@ -274,7 +250,7 @@ namespace moris::gen
         // -------------------------------------------------------------------------------------
         // STEP 2: Compute the distance to from the first parent to all the facets
         // -------------------------------------------------------------------------------------
-        Matrix< DDRMat >      tCastPoint = tRotationMatrix * trans( aFirstParentNode.get_global_coordinates() );
+        Matrix< DDRMat >      tCastPoint = tRotationMatrix * aFirstParentNode.get_global_coordinates();
         Vector< sdf::Facet* > tIntersectionFacets;
         Vector< real >        tLocalCoordinate = sdf::compute_distance_to_facets( *this, tCastPoint, 0, tIntersectionFacets );
 
@@ -328,8 +304,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    Surface_Mesh_Geometry::import_advs( sol::Dist_Vector* aOwnedADVs )
+    void Surface_Mesh_Geometry::import_advs( sol::Dist_Vector* aOwnedADVs )
     {
         // Get the coordinates of the owned vertices to communicate to other processors (first rows = coordinates, last row = owned flag)
         Matrix< DDRMat > tOwnedVertexCoordinates( Object::mDimension + 1, Object::mVertices.size() );
@@ -454,7 +429,7 @@ namespace moris::gen
 
     bool Surface_Mesh_Geometry::depends_on_advs() const
     {
-        return mParameters.mADVIndices.size() > 0 or mParameters.mDiscretizationIndex > -1;
+        return mParameters.mDiscretizationIndex > -1;
     }
 
     //--------------------------------------------------------------------------------------------------------------
