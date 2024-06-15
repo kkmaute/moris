@@ -4,7 +4,7 @@
  *
  *------------------------------------------------------------------------------------
  *
- * UT_FEM_IWG_Nonlocal_Bulk.cpp
+ * UT_FEM_IWG_L2_Damage_Bulk.cpp
  *
  */
 
@@ -21,7 +21,7 @@
 #include "cl_FEM_IWG.hpp"
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_CM_Struc_Linear_Isotropic_Damage.hpp"
-#include "cl_FEM_IWG_Nonlocal_Bulk.hpp"
+#include "cl_FEM_IWG_L2_Damage_Bulk.hpp"
 #undef protected
 #undef private
 // LINALG/src
@@ -40,13 +40,15 @@
 using namespace moris;
 using namespace fem;
 
-TEST_CASE( "IWG_Nonlocal_Bulk", "[IWG_Nonlocal_Bulk]" )
+void Test_IWG_L2_Damage_Bulk(
+        fem::IWG_Type               aIWGType,
+        Vector< Matrix< DDRMat > >& aParameters )
 {
     // define an epsilon environment
-    real tEpsilon = 1E-5;
+    real tEpsilon = 5E-5;
 
     // define a perturbation relative size
-    real tPerturbation = 1E-4;
+    real tPerturbation = 1E-6;
 
     // init geometry inputs
     //------------------------------------------------------------------------------
@@ -57,14 +59,14 @@ TEST_CASE( "IWG_Nonlocal_Bulk", "[IWG_Nonlocal_Bulk]" )
     Matrix< DDRMat > tXHat;
 
     // create list of interpolation orders
-    Vector< mtk::Interpolation_Order > tInterpolationOrders = {
+    moris::Vector< mtk::Interpolation_Order > tInterpolationOrders = {
         mtk::Interpolation_Order::LINEAR,
         mtk::Interpolation_Order::QUADRATIC,
         mtk::Interpolation_Order::CUBIC
     };
 
     // create list of integration orders
-    Vector< mtk::Integration_Order > tIntegrationOrders = {
+    moris::Vector< mtk::Integration_Order > tIntegrationOrders = {
         mtk::Integration_Order::QUAD_2x2,
         mtk::Integration_Order::HEX_2x2x2
     };
@@ -73,11 +75,11 @@ TEST_CASE( "IWG_Nonlocal_Bulk", "[IWG_Nonlocal_Bulk]" )
     Matrix< DDRMat > tNumCoeffs = { { 8, 18, 32 }, { 16, 54, 128 } };
 
     // dof type list
-    Vector< MSI::Dof_Type > tDisplDofTypes = { MSI::Dof_Type::UX };
-
-    Vector< Vector< MSI::Dof_Type > > tNlEqStrainDofTypes = { { MSI::Dof_Type::NLEQSTRAIN } };
-    Vector< Vector< MSI::Dof_Type > > tHistoryDofTypes    = { { MSI::Dof_Type::HISTORY } };
-    Vector< Vector< MSI::Dof_Type > > tDofTypes           = { tDisplDofTypes, tNlEqStrainDofTypes( 0 ), tHistoryDofTypes( 0 ) };
+    moris::Vector< moris::Vector< MSI::Dof_Type > > tDisplDofTypes      = { { MSI::Dof_Type::UX } };
+    moris::Vector< moris::Vector< MSI::Dof_Type > > tNlEqStrainDofTypes = { { MSI::Dof_Type::NLEQSTRAIN } };
+    moris::Vector< moris::Vector< MSI::Dof_Type > > tHistoryDofTypes    = { { MSI::Dof_Type::HISTORY } };
+    moris::Vector< moris::Vector< MSI::Dof_Type > > tDamageDofTypes     = { { MSI::Dof_Type::L2 } };
+    moris::Vector< moris::Vector< MSI::Dof_Type > > tDofTypes           = { tDisplDofTypes( 0 ), tNlEqStrainDofTypes( 0 ), tHistoryDofTypes( 0 ), tDamageDofTypes( 0 ) };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -86,14 +88,11 @@ TEST_CASE( "IWG_Nonlocal_Bulk", "[IWG_Nonlocal_Bulk]" )
     // Local equivalent strain - 0 - energy release rate
     // Damage law - 2 - smooth exponential
     // Smoothing law - 0 - no smoothing
-    Vector< Matrix< DDRMat > > tDamageParameters = { //
-        { { 0.0 } },                                      //
-        { { 2.0, 1.0e-3, 10.0 } },                        //
+    moris::Vector< Matrix< DDRMat > > tDamageParameters = { //
+        { { 0.0 } },                                        //
+        { { 2.0, 1.0e-3, 10.0 } },                          //
         { { 0.0 } }
     };
-
-    // damage characteristic length
-    Vector< Matrix< DDRMat > > tDamageCharactLength = { { { 0.1 } }, { { 3.0 } } };
 
     // create the properties
     std::shared_ptr< fem::Property > tPropEMod = std::make_shared< fem::Property >();
@@ -104,6 +103,9 @@ TEST_CASE( "IWG_Nonlocal_Bulk", "[IWG_Nonlocal_Bulk]" )
 
     std::shared_ptr< fem::Property > tPropWeight = std::make_shared< fem::Property >();
     tPropWeight->set_parameters( { { { 1.0 } } } );
+
+    std::shared_ptr< fem::Property > tPropLump = std::make_shared< fem::Property >();
+    tPropLump->set_parameters( { { { 0.5 } } } );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
@@ -119,13 +121,16 @@ TEST_CASE( "IWG_Nonlocal_Bulk", "[IWG_Nonlocal_Bulk]" )
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
-    std::shared_ptr< fem::IWG > tIWG =
-            tIWGFactory.create_IWG( fem::IWG_Type::NONLOCAL_BULK );
-    tIWG->set_residual_dof_type( tNlEqStrainDofTypes );
+    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( aIWGType );
+    tIWG->set_residual_dof_type( tDamageDofTypes );
     tIWG->set_dof_type_list( tDofTypes, mtk::Leader_Follower::LEADER );
     tIWG->set_property( tPropWeight, "Weight" );
+    tIWG->set_property( tPropLump, "Lump" );
     tIWG->set_constitutive_model( tCMLeader, "ElasticDamage" );
-    tIWG->set_parameters( tDamageCharactLength );
+    if ( aIWGType == fem::IWG_Type::L2_EQSTRAIN_BULK )
+    {
+        tIWG->set_parameters( aParameters );
+    }
 
     // init set info
     //------------------------------------------------------------------------------
@@ -142,12 +147,14 @@ TEST_CASE( "IWG_Nonlocal_Bulk", "[IWG_Nonlocal_Bulk]" )
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )         = 0;
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::NLEQSTRAIN ) ) = 1;
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::HISTORY ) )    = 2;
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::L2 ) )         = 3;
 
     // set size and populate the set leader dof type map
     tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )         = 0;
     tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::NLEQSTRAIN ) ) = 1;
     tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::HISTORY ) )    = 2;
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::L2 ) )         = 3;
 
     // loop on the space dimension
     for ( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -169,7 +176,7 @@ TEST_CASE( "IWG_Nonlocal_Bulk", "[IWG_Nonlocal_Bulk]" )
                     { 0.0, 1.0 } };
 
                 // set displacement dof types
-                tDisplDofTypes = { MSI::Dof_Type::UX, MSI::Dof_Type::UY };
+                tDisplDofTypes = { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } };
                 break;
             }
             case 3:
@@ -188,7 +195,7 @@ TEST_CASE( "IWG_Nonlocal_Bulk", "[IWG_Nonlocal_Bulk]" )
                     { 0.0, 1.0, 1.0 } };
 
                 // set displacement dof types
-                tDisplDofTypes = { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ };
+                tDisplDofTypes = { { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } };
                 break;
             }
             default:
@@ -222,6 +229,10 @@ TEST_CASE( "IWG_Nonlocal_Bulk", "[IWG_Nonlocal_Bulk]" )
         // loop on the interpolation order
         for ( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
         {
+
+            // set parameters for IWG
+            tIWG->set_parameters( { { { 2.0 } }, { { static_cast< real >( iInterpOrder ) } } } );
+
             // integration points
             //------------------------------------------------------------------------------
             // get an integration order
@@ -255,6 +266,7 @@ TEST_CASE( "IWG_Nonlocal_Bulk", "[IWG_Nonlocal_Bulk]" )
             int tNumDofDispl      = tNumCoeff * iSpaceDim;
             int tNumDofNlEqStrain = tNumCoeff;
             int tNumDofHistory    = tNumCoeff;
+            int tNumDofDamage	  = tNumCoeff;
 
             // create a space time interpolation rule
             mtk::Interpolation_Rule tFIRule( tGeometryType,
@@ -270,12 +282,14 @@ TEST_CASE( "IWG_Nonlocal_Bulk", "[IWG_Nonlocal_Bulk]" )
             fill_phat_Elast( tLeaderDOFHatNlEqStrain, iSpaceDim, iInterpOrder );
             Matrix< DDRMat > tLeaderDOFHatHistory;
             fill_phat_Elast( tLeaderDOFHatHistory, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDOFHatDamage;
+            fill_phat_Elast( tLeaderDOFHatDamage, iSpaceDim, iInterpOrder );
 
-            // create a cell of field interpolators for IWG
+            // create a Vector of field interpolators for IWG
             Vector< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator displacement
-            tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDisplDofTypes );
+            tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDisplDofTypes( 0 ) );
             tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatDispl );
 
             // create the field interpolator nonlocal equivalent strain
@@ -286,27 +300,35 @@ TEST_CASE( "IWG_Nonlocal_Bulk", "[IWG_Nonlocal_Bulk]" )
             tLeaderFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tHistoryDofTypes( 0 ) );
             tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatHistory );
 
+            // create the field interpolator damage
+            tLeaderFIs( 3 ) = new Field_Interpolator( 1, tFIRule, &tGI, tDamageDofTypes( 0 ) );
+            tLeaderFIs( 3 )->set_coeff( tLeaderDOFHatDamage );
+
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
             tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofDispl - 1 } };
             tIWG->mSet->mResDofAssemblyMap( 1 ) = { { tNumDofDispl, tNumDofDispl + tNumDofNlEqStrain - 1 } };
             tIWG->mSet->mResDofAssemblyMap( 2 ) = { { tNumDofDispl + tNumDofNlEqStrain, tNumDofDispl + tNumDofNlEqStrain + tNumDofHistory - 1 } };
+            tIWG->mSet->mResDofAssemblyMap( 3 ) = { { tNumDofDispl + tNumDofNlEqStrain + tNumDofHistory, tNumDofDispl + tNumDofNlEqStrain + tNumDofHistory + tNumDofDamage - 1 } };
 
             // set size and fill the set jacobian assembly map
             Matrix< DDSMat > tJacAssembly = {
                 { 0, tNumDofDispl - 1 },
                 { tNumDofDispl, tNumDofDispl + tNumDofNlEqStrain - 1 },
-                { tNumDofDispl + tNumDofNlEqStrain, tNumDofDispl + tNumDofNlEqStrain + tNumDofHistory - 1 }
+                { tNumDofDispl + tNumDofNlEqStrain, tNumDofDispl + tNumDofNlEqStrain + tNumDofHistory - 1 },
+                { tNumDofDispl + tNumDofNlEqStrain + tNumDofHistory, tNumDofDispl + tNumDofNlEqStrain + tNumDofHistory + tNumDofDamage - 1}
             };
             tIWG->mSet->mJacDofAssemblyMap.resize( tDofTypes.size() );
             tIWG->mSet->mJacDofAssemblyMap( 0 ) = tJacAssembly;
             tIWG->mSet->mJacDofAssemblyMap( 1 ) = tJacAssembly;
             tIWG->mSet->mJacDofAssemblyMap( 2 ) = tJacAssembly;
+            tIWG->mSet->mJacDofAssemblyMap( 3 ) = tJacAssembly;
 
             // set size and init the set residual and jacobian
             tIWG->mSet->mResidual.resize( 1 );
-            tIWG->mSet->mResidual( 0 ).set_size( tNumDofDispl + tNumDofNlEqStrain + tNumDofHistory, 1, 0.0 );
-            tIWG->mSet->mJacobian.set_size( tNumDofDispl + tNumDofNlEqStrain + tNumDofHistory, tNumDofDispl + tNumDofNlEqStrain + tNumDofHistory, 0.0 );
+            tIWG->mSet->mResidual( 0 ).set_size( tNumDofDispl + tNumDofNlEqStrain + tNumDofHistory + tNumDofDamage, 1, 0.0 );
+            tIWG->mSet->mJacobian.set_size( tNumDofDispl + tNumDofNlEqStrain + tNumDofHistory + tNumDofDamage, tNumDofDispl + tNumDofNlEqStrain + tNumDofHistory + tNumDofDamage, 0.0 );
+
 
             // build global dof type list
             tIWG->get_global_dof_type_list();
@@ -315,8 +337,8 @@ TEST_CASE( "IWG_Nonlocal_Bulk", "[IWG_Nonlocal_Bulk]" )
             tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            Vector< Vector< enum gen::PDV_Type > >        tDummyDv;
-            Vector< Vector< enum mtk::Field_Type > > tDummyField;
+            moris::Vector< moris::Vector< enum gen::PDV_Type > >   tDummyDv;
+            moris::Vector< moris::Vector< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
@@ -373,19 +395,55 @@ TEST_CASE( "IWG_Nonlocal_Bulk", "[IWG_Nonlocal_Bulk]" )
                 if ( !tCheckJacobian )
                 {
                     std::cout << "Case: Geometry " << iSpaceDim
-                              << " Order " << iInterpOrder
-                              << " iGP " << iGP << std::endl;
+                            << " Order " << iInterpOrder
+                            << " iGP " << iGP << std::endl;
                 }
 
-                    // require check is true
-                    REQUIRE( tCheckJacobian );
-                    }
+                // require check is true
+                REQUIRE( tCheckJacobian );
+            }
 
-                    // clean up
-                    tLeaderFIs.clear();
-                    //}
-                    //}
+            // clean up
+            tLeaderFIs.clear();
         }
     }
+}
+
+TEST_CASE( "IWG_L2_EqStrain_Bulk_Order1", "[moris],[fem],[IWG_L2_EqStrain_Bulk_Order1]" )
+{
+    moris::Vector< Matrix< DDRMat > > tParameters = { { { 0.25 } }, { { 1.0 } } };
+
+    Test_IWG_L2_Damage_Bulk( fem::IWG_Type::L2_EQSTRAIN_BULK, tParameters );
 } /*END_TEST_CASE*/
 
+TEST_CASE( "IWG_L2_EqStrain_Bulk_Order2", "[moris],[fem],[IWG_L2_EqStrain_Bulk_Order2]" )
+{
+    moris::Vector< Matrix< DDRMat > > tParameters = { { { 0.25 } }, { { 2.0 } } };
+
+    Test_IWG_L2_Damage_Bulk( fem::IWG_Type::L2_EQSTRAIN_BULK, tParameters );
+} /*END_TEST_CASE*/
+
+TEST_CASE( "IWG_L2_EqStrain_Bulk_Order3", "[moris],[fem],[IWG_L2_EqStrain_Bulk_Order3]" )
+{
+    moris::Vector< Matrix< DDRMat > > tParameters = { { { 0.25 } }, { { 3.0 } } };
+
+    Test_IWG_L2_Damage_Bulk( fem::IWG_Type::L2_EQSTRAIN_BULK, tParameters );
+} /*END_TEST_CASE*/
+
+TEST_CASE( "IWG_L2_History_Bulk", "[moris],[fem],[IWG_L2_History_Bulk]" )
+{
+    moris::Vector< Matrix< DDRMat > > tParameters;
+
+    Test_IWG_L2_Damage_Bulk( fem::IWG_Type::L2_HISTORY_BULK, tParameters );
+} /*END_TEST_CASE*/
+
+TEST_CASE( "IWG_L2_Damage_Bulk", "[moris],[fem],[IWG_L2_Damage_Bulk]" )
+{
+    moris::Vector< Matrix< DDRMat > > tParameters;
+
+    Test_IWG_L2_Damage_Bulk( fem::IWG_Type::L2_DAMAGE_BULK, tParameters );
+} /*END_TEST_CASE*/
+
+//---------------------------------------------------------------------------------------------
+
+/*END_TEST_CASE*/
