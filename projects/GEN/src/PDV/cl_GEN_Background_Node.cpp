@@ -22,6 +22,10 @@ namespace moris::gen
             : Node( aIndex )
             , mCoordinates( aCoordinates )
     {
+        if ( aCoordinates.n_cols() == 1 )
+        {
+            std::cout << " you idiot\n";
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------

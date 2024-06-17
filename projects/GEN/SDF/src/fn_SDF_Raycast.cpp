@@ -198,7 +198,7 @@ namespace moris::sdf
                 // FIXME: handle casting onto vertices by changing intersect_triangles to return a preselection result
                 Vector< real > tIntersectionCoords = intersect_ray_with_facets( tIntersectedFacets, aPoint, aAxis );
 
-                return check_if_node_is_inside_triangles( tIntersectionCoords, aPoint, aAxis );
+                return check_if_node_is_inside_triangles( tIntersectionCoords, aPoint, aAxis, aObject.get_intersection_tolerance() );
 
                 // if there are no candidates, the point is outside
                 return OUTSIDE;
@@ -384,22 +384,20 @@ namespace moris::sdf
         // initialize counter for intersected triangles
         uint tCount = 0;
 
+        // Vector to check each edge
+        Vector< uint > tEdges = { 0, 1, 2 };
+
         // loop over all candidates
         for ( uint iCandidateFacetIndex : aCandidateFacets )
         {
             // get reference to triangle
             Facet& tFacet = aObject.get_facet( iCandidateFacetIndex );
 
-            if ( tFacet.check_edge( 0, aAxis, aPoint ) )
+            // check each edge of the triangle and flag it if the point is on the correct side for every edge
+            if ( std::all_of( tEdges.begin(), tEdges.end(), [ &tFacet, aAxis, &aPoint ]( uint iEdge ) { return tFacet.check_edge( iEdge, aAxis, aPoint ); } ) )
             {
-                if ( tFacet.check_edge( 1, aAxis, aPoint ) )
-                {
-                    if ( tFacet.check_edge( 2, aAxis, aPoint ) )
-                    {
-                        tFacet.flag();
-                        ++tCount;
-                    }
-                }
+                tFacet.flag();
+                ++tCount;
             }
         }
 
@@ -547,22 +545,29 @@ namespace moris::sdf
     check_if_node_is_inside_triangles(
             Vector< real >&   aIntersectionCoords,
             Matrix< DDRMat >& aPoint,
-            uint              aAxis )
+            uint              aAxis,
+            const real&       aIntersectionTolerance )
     {
         uint tNumCoordsK = aIntersectionCoords.size();
 
-        uint tNodeIsInside = 2;
+        uint tNodeIsInside = 3;
 
         // If the ray intersected no facets, the point is outside
         if ( tNumCoordsK == 0 )
         {
             return Object_Region::OUTSIDE;
         }
+        // Check if any of the intersections are very close to the point
+        else if ( std::any_of( aIntersectionCoords.begin(), aIntersectionCoords.end(), [ &aIntersectionCoords, aIntersectionTolerance ]( real aIntersection ) { return std::abs( aIntersection ) < aIntersectionTolerance; } ) )
+        {
+            return Object_Region::INTERFACE;
+        }
         // only even number of intersections is considered
         else if ( tNumCoordsK % 2 == 0 )
         {
             for ( uint iIntersectionIndex = 0; iIntersectionIndex < tNumCoordsK / 2; ++iIntersectionIndex )
             {
+                // check if the point is in between two intersections
                 tNodeIsInside = ( aPoint( aAxis ) > aIntersectionCoords( 2 * iIntersectionIndex ) )
                             and ( aPoint( aAxis ) < aIntersectionCoords( 2 * iIntersectionIndex + 1 ) );
             }
@@ -603,8 +608,7 @@ namespace moris::sdf
         return static_cast< Object_Region >( ( tIntersectionsRightOfPoint + aCandidateFacets.size() ) % 2 );
     }
 
-    void
-    random_rotation(
+    void random_rotation(
             Object&           aObject,
             Matrix< DDRMat >& aPoint )
     {

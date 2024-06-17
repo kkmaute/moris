@@ -102,7 +102,7 @@ namespace moris::sdf
                 CHECK( std::abs( tIntersectionCoordinates( 1 ) - tIntersectionCoordinatesExpected( 1 ) ) < tObject.get_intersection_tolerance() );
 
                 // check if the point is inside and compare it to expectations
-                Object_Region tPointIsInside = check_if_node_is_inside_triangles( tIntersectionCoordinates, tTestPoint, 2 );
+                Object_Region tPointIsInside = check_if_node_is_inside_triangles( tIntersectionCoordinates, tTestPoint, 2, 1e-8 );
 
                 CHECK( tPointIsInside == INSIDE );
 
@@ -147,7 +147,7 @@ namespace moris::sdf
                 CHECK( std::abs( tIntersectionCoordinates( 0 ) - tIntersectionCoordinatesExpected( 0 ) ) < tObject.get_intersection_tolerance() );
                 CHECK( std::abs( tIntersectionCoordinates( 1 ) - tIntersectionCoordinatesExpected( 1 ) ) < tObject.get_intersection_tolerance() );
 
-                tPointIsInside = check_if_node_is_inside_triangles( tIntersectionCoordinates, tTestPoint, 0 );
+                tPointIsInside = check_if_node_is_inside_triangles( tIntersectionCoordinates, tTestPoint, 0, 1e-8 );
 
                 CHECK( tPointIsInside == OUTSIDE );
 

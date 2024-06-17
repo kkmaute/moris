@@ -163,7 +163,8 @@ namespace moris::sdf
     check_if_node_is_inside_triangles(
             Vector< real >&   aIntersectionCoords,
             Matrix< DDRMat >& aPoint,
-            uint              aAxis );
+            uint              aAxis,
+            const real&       aIntersectionTolerance = 1e-8 );
 
     //-------------------------------------------------------------------------------
 

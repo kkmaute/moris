@@ -137,7 +137,7 @@ namespace moris::hmr
          */
         Matrix< DDRMat > get_coords() const
         {
-            Matrix< DDRMat > aCoords( N, 1 );
+            Matrix< DDRMat > aCoords( 1, N );
             for ( uint k = 0; k < N; ++k )
             {
                 aCoords( k ) = mXYZ[ k ];

@@ -126,7 +126,7 @@ namespace moris::gen
             const Matrix< DDRMat >& aNodeCoordinates )
     {
         PRINT( aNodeCoordinates );
-        
+
         // Raycast from the point
         sdf::Object_Region tRegion = raycast_point( *this, aNodeCoordinates );
 
@@ -198,7 +198,7 @@ namespace moris::gen
 
         // Get the unit vector from the first parent to the second parent
         PRINT( aFirstParentNode.get_global_coordinates() );
-        PRINT( aSecondParentNode.get_global_coordinates() ); // BRENDAN
+        PRINT( aSecondParentNode.get_global_coordinates() );    // BRENDAN
         Matrix< DDRMat > tParentVector = aSecondParentNode.get_global_coordinates() - aFirstParentNode.get_global_coordinates();
 
         // augment with zero if 2D
@@ -250,7 +250,7 @@ namespace moris::gen
         // -------------------------------------------------------------------------------------
         // STEP 2: Compute the distance to from the first parent to all the facets
         // -------------------------------------------------------------------------------------
-        Matrix< DDRMat >      tCastPoint = tRotationMatrix * aFirstParentNode.get_global_coordinates();
+        Matrix< DDRMat >      tCastPoint = tRotationMatrix * trans( aFirstParentNode.get_global_coordinates() );
         Vector< sdf::Facet* > tIntersectionFacets;
         Vector< real >        tLocalCoordinate = sdf::compute_distance_to_facets( *this, tCastPoint, 0, tIntersectionFacets );
 
