@@ -64,13 +64,13 @@ namespace moris::gen
             moris_index tNodeIndex = 0;
 
             // create base nodes with parent coordinates
-            Matrix< DDRMat > tFirstParentGlobalCoordinates  = { { 0.2, 0.35 } };
-            Matrix< DDRMat > tSecondParentGlobalCoordinates = { { 0.3, 0.15 } };
+            Matrix< DDRMat > tFirstParentGlobalCoordinates  = { { 0.2 }, { 0.35 } };
+            Matrix< DDRMat > tSecondParentGlobalCoordinates = { { 0.3 }, { 0.15 } };
 
             Background_Node            tFirstBase( tNodeIndex++, tFirstParentGlobalCoordinates );
             Background_Node            tSecondBase( tNodeIndex++, tSecondParentGlobalCoordinates );
-            Background_Node            tThirdBase( tNodeIndex++, { { 0.25, 0.15 } } );
-            Background_Node            tFourthBase( tNodeIndex++, { { 0.1, 0.2 } } );
+            Background_Node            tThirdBase( tNodeIndex++, { { 0.25 }, { 0.15 } } );
+            Background_Node            tFourthBase( tNodeIndex++, { { 0.1 }, { 0.2 } } );
             Vector< Background_Node* > tBackgroundNodes = { &tFirstBase, &tSecondBase, &tThirdBase, &tFourthBase };
 
             Matrix< DDRMat > tFirstParentParametricCoordinates  = { { -1.0, 1.0 } };

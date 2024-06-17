@@ -734,11 +734,11 @@ namespace moris
             // Get coordinates of node n
             double* fieldValue = static_cast< double* >( stk::mesh::field_data( *coord, tNodeEntity ) );
 
-            Matrix< DDRMat > tNodeCoord( 1, get_spatial_dim() );
+            Matrix< DDRMat > tNodeCoord( get_spatial_dim(), 1 );
 
             for ( uint dim = 0; dim < get_spatial_dim(); dim++ )
             {
-                tNodeCoord( 0, dim ) = fieldValue[ dim ];
+                tNodeCoord( dim ) = fieldValue[ dim ];
             }
 
             return tNodeCoord;
