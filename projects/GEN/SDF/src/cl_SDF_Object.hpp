@@ -28,7 +28,6 @@ namespace moris
             const real                                mMeshHighPass = 1e-9;
             moris::Vector< std::shared_ptr< Facet > > mFacets;
 
-            uint mNumberOfFacets;
 
             real mIntersectionTolerance = 1e-8;    // tolerance for interfaces when raycasting with this Object
 
@@ -105,7 +104,7 @@ namespace moris
             uint
             get_num_facets()
             {
-                return mNumberOfFacets;
+                return mFacets.size();
             }
 
             //-------------------------------------------------------------------------------

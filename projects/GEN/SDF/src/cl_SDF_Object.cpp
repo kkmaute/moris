@@ -30,7 +30,7 @@ namespace moris::sdf
             real                       aIntersectionTolerance,
             const Vector< real >&      aOffsets,
             const Vector< real >&      aScale )
-            : mNumberOfFacets( 0 )
+            : mIntersectionTolerance( aIntersectionTolerance )
     {
         MORIS_ERROR( aOffsets.size() > 0, "SDF - Object(): Null offset matrix provided. If no offset is needed, use the default value" );
 
@@ -49,7 +49,6 @@ namespace moris::sdf
         {
             MORIS_ERROR( false, "sdf::Object(), file type of %s is not supported", tFileExt.c_str() );
         }
-        MORIS_ASSERT( mNumberOfFacets == mFacets.size(), "SDF - Object(): number of facets not consistent" );
     }
 
     //-------------------------------------------------------------------------------
@@ -216,14 +215,14 @@ namespace moris::sdf
                 {
                     case 2:
                     {
-                        mFacets( tCount ) = std::make_shared< Line >( tCount, tNodes );
-                        mNumberOfFacets++;
+                        // FIXME: The intersection tolerance is the same for every facet, therefore it should be necessary member data in Line
+                        mFacets( tCount ) = std::make_shared< Line >( tCount, tNodes, mIntersectionTolerance );
                         break;
                     }
                     case 3:
                     {
-                        mFacets( tCount ) = std::make_shared< Triangle >( tCount, tNodes );
-                        mNumberOfFacets++;
+                        // FIXME: The intersection tolerance is the same for every facet, therefore it should be necessary member data in Line
+                        mFacets( tCount ) = std::make_shared< Triangle >( tCount, tNodes, mIntersectionTolerance );
                         break;
                     }
                     default:
@@ -376,7 +375,6 @@ namespace moris::sdf
 
             // create triangle pointer
             mFacets( iTriangle ) = std::make_shared< Triangle >( iTriangle, tNodes );
-            mNumberOfFacets++;
         }
     }
 

@@ -192,19 +192,14 @@ namespace moris::sdf
                 Vector< uint > tCandidateFacets = preselect_triangles( aObject, aPoint, aAxis );
 
                 // from the candidate triangles, perform intersection
-                if ( tCandidateFacets.size() > 0 )
-                {
-                    Vector< Facet* > tIntersectedFacets = intersect_triangles( tCandidateFacets, aObject, aPoint, aAxis );
+                Vector< Facet* > tIntersectedFacets = intersect_triangles( tCandidateFacets, aObject, aPoint, aAxis );
 
-                    // intersect ray with triangles and check if node is inside
-                    if ( tIntersectedFacets.size() > 0 )
-                    {
-                        // FIXME: handle casting onto vertices by changing intersect_triangles to return a preselection result
-                        moris::Vector< real > tIntersectionCoords = intersect_ray_with_facets( tIntersectedFacets, aPoint, aAxis );
+                // intersect ray with triangles and check if node is inside
+                // FIXME: handle casting onto vertices by changing intersect_triangles to return a preselection result
+                Vector< real > tIntersectionCoords = intersect_ray_with_facets( tIntersectedFacets, aPoint, aAxis );
 
-                        return check_if_node_is_inside_triangles( tIntersectionCoords, aPoint, aAxis );
-                    }
-                }
+                return check_if_node_is_inside_triangles( tIntersectionCoords, aPoint, aAxis );
+
                 // if there are no candidates, the point is outside
                 return OUTSIDE;
             }
@@ -584,8 +579,13 @@ namespace moris::sdf
 
         uint tNodeIsInside = 2;
 
+        // If the ray intersected no facets, the point is outside
+        if ( tNumCoordsK == 0 )
+        {
+            return Object_Region::OUTSIDE;
+        }
         // only even number of intersections is considered
-        if ( tNumCoordsK % 2 == 0 )
+        else if ( tNumCoordsK % 2 == 0 )
         {
             for ( uint iIntersectionIndex = 0; iIntersectionIndex < tNumCoordsK / 2; ++iIntersectionIndex )
             {

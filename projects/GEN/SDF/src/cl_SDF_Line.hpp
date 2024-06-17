@@ -38,7 +38,8 @@ namespace moris::sdf
 
         Line(
                 moris_index                                aIndex,
-                Vector< std::shared_ptr< Facet_Vertex > >& aVertices );
+                Vector< std::shared_ptr< Facet_Vertex > >& aVertices,
+                real                                       aIntersectionTolerance = 1e-8 );
 
         //-------------------------------------------------------------------------------
 

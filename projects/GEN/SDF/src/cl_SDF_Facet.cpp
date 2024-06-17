@@ -27,10 +27,10 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         Facet::Facet(
-                moris_index                                     aIndex,
+                moris_index                                aIndex,
                 Vector< std::shared_ptr< Facet_Vertex > >& aVertices,
-                uint                                            aDimension,
-                real                                            aIntersectionTolerance )
+                uint                                       aDimension,
+                real                                       aIntersectionTolerance )
                 : mIndex( aIndex )
                 , mVertices( aVertices )
                 , mCenter( aDimension, 1 )
@@ -86,7 +86,7 @@ namespace moris
         Vector< mtk::Vertex* >
         Facet::get_vertex_pointers() const
         {
-            uint                        tDimension = get_number_of_vertices();
+            uint                   tDimension = get_number_of_vertices();
             Vector< mtk::Vertex* > tVertices( tDimension, nullptr );
 
             for ( uint k = 0; k < tDimension; ++k )

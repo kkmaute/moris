@@ -25,8 +25,9 @@ namespace moris
 
         Triangle::Triangle(
                 moris_index                                aIndex,
-                Vector< std::shared_ptr< Facet_Vertex > >& aVertices )
-                : Facet( aIndex, aVertices, 3 )
+                Vector< std::shared_ptr< Facet_Vertex > >& aVertices,
+                real                                       aIntersectionTolerance )
+                : Facet( aIndex, aVertices, 3, aIntersectionTolerance )
                 , mPredictY( 3, 3 )
                 , mPredictYRA( 3, 3 )
                 , mPredictYRB( 3, 3 )

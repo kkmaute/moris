@@ -24,8 +24,9 @@ namespace moris::sdf
 
     Line::Line(
             moris_index                                aIndex,
-            Vector< std::shared_ptr< Facet_Vertex > >& aVertices )
-            : Facet( aIndex, aVertices, 2 )
+            Vector< std::shared_ptr< Facet_Vertex > >& aVertices,
+            real                                       aIntersectionTolerance )
+            : Facet( aIndex, aVertices, 2, aIntersectionTolerance )
     {
         this->update_data();
     }
