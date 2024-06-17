@@ -169,7 +169,7 @@ namespace moris
             {
                 uint i;
                 uint j;
-                TrianglePermutation( k, i, j );
+                triangle_permutation( k, i, j );
                 for ( uint l = 0; l < 2; ++l )
                 {
                     mBarycentric.mLocalEdgeDirectionVectors( l, k ) = mBarycentric.mLocalNodeCoordsInPlane( l, j )
@@ -197,11 +197,11 @@ namespace moris
             uint q;
             for ( moris::uint k = 0; k < 3; ++k )
             {
-                TrianglePermutation( k, i, j );
+                triangle_permutation( k, i, j );
 
                 for ( uint r = 0; r < 3; ++r )
                 {
-                    TrianglePermutation( r, p, q );
+                    triangle_permutation( r, p, q );
                     real tDelta = mVertices( p )->get_coord( i ) - mVertices( q )->get_coord( i );
                     if ( std::abs( tDelta ) < mIntersectionTolerance )
                     {
@@ -237,21 +237,23 @@ namespace moris
             uint tQ;
 
             // permutation parameter for axis
-            TrianglePermutation( aAxis, tI, tJ );
+            triangle_permutation( aAxis, tI, tJ );
 
             // permutation parameter for edge
-            TrianglePermutation( aEdge, tP, tQ );
+            triangle_permutation( aEdge, tP, tQ );
 
             // R
             real tPredictYR = mPredictYRA( aEdge, aAxis ) * aPoint( tI ) + mPredictYRB( aEdge, aAxis );
 
+            Matrix< DDRMat > tNodeCoords = this->get_vertex_coords();
+
             // check if point is within all three projected edges
-            return ( ( mPredictY( aEdge, aAxis ) > mVertices( aEdge )->get_coord( tJ ) )
+            return ( ( mPredictY( aEdge, aAxis ) > tNodeCoords( aEdge, tJ ) )
                            && ( tPredictYR + mIntersectionTolerance > aPoint( tJ ) ) )
-                || ( ( mPredictY( aEdge, aAxis ) < mVertices( aEdge )->get_coord( tJ ) )
+                || ( ( mPredictY( aEdge, aAxis ) < tNodeCoords( aEdge, tJ ) )
                         && ( tPredictYR - mIntersectionTolerance < aPoint( tJ ) ) )
-                || ( std::abs( ( mVertices( tP )->get_coord( tJ ) - mVertices( tQ )->get_coord( tJ ) )
-                               * ( mVertices( tP )->get_coord( tI ) - aPoint( tI ) ) )
+                || ( std::abs( ( tNodeCoords( tP, tJ ) - tNodeCoords( tQ, tJ ) )
+                               * ( tNodeCoords( tP, tI ) - aPoint( tI ) ) )
                         < mIntersectionTolerance );
         }
 
@@ -303,7 +305,7 @@ namespace moris
             uint j;
 
             // permutation parameter of current edge
-            TrianglePermutation( aEdge, i, j );
+            triangle_permutation( aEdge, i, j );
 
             // calculate projection of point on edge
 

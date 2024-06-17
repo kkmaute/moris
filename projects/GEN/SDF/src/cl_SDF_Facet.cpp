@@ -140,17 +140,18 @@ namespace moris
         Matrix< DDRMat >
         Facet::get_vertex_coords() const
         {
-            uint             tDimension = get_number_of_vertices();
+            uint             tDimension = this->get_number_of_vertices();
             Matrix< DDRMat > tCoords( tDimension, tDimension );
 
             for ( uint iVertex = 0; iVertex < tDimension; ++iVertex )
             {
-                for ( uint iDimensionIndex = 0; iDimensionIndex < tDimension; iDimensionIndex++ )
-                    tCoords( iVertex, iDimensionIndex ) = mVertices( iVertex )->get_coord( iDimensionIndex );
+                tCoords.set_row( iVertex, mVertices( iVertex )->get_coords() );
             }
 
             return tCoords;
         }
+
+        //-------------------------------------------------------------------------------
 
         mtk::Geometry_Type
         Facet::get_geometry_type() const

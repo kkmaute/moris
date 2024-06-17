@@ -219,33 +219,7 @@ namespace moris::sdf
         // select the axes that are not being cast in to preselect along (for a cast in the i-dir, preselect in j and k-dir)
         uint tFirstAxis;
         uint tSecondAxis;
-        switch ( aAxis )
-        {
-            case 0:
-            {
-                tFirstAxis  = 2;
-                tSecondAxis = 1;
-                break;
-            }
-            case 1:
-            {
-                tFirstAxis  = 0;
-                tSecondAxis = 2;
-                break;
-            }
-            case 2:
-            {
-                tFirstAxis  = 1;
-                tSecondAxis = 0;
-                break;
-            }
-            default:
-            {
-                tFirstAxis  = 0;
-                tSecondAxis = 0;
-                MORIS_ERROR( false, "Raycasting axis must be given an index 0, 1, or 2. Given: %d", aAxis );
-            }
-        }
+        triangle_permutation( aAxis, tFirstAxis, tSecondAxis );
 
         uint           tCountJ = 0;
         Vector< uint > tCandJ( aObject.get_num_facets() );
@@ -411,10 +385,10 @@ namespace moris::sdf
         uint tCount = 0;
 
         // loop over all candidates
-        for ( uint iCandidateFacetIndex = 0; iCandidateFacetIndex < tNumberOfCandidateFacets; ++iCandidateFacetIndex )
+        for ( uint iCandidateFacetIndex : aCandidateFacets )
         {
             // get reference to triangle
-            Facet& tFacet = aObject.get_facet( aCandidateFacets( iCandidateFacetIndex ) );
+            Facet& tFacet = aObject.get_facet( iCandidateFacetIndex );
 
             if ( tFacet.check_edge( 0, aAxis, aPoint ) )
             {
