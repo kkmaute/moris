@@ -116,7 +116,7 @@ namespace moris
             }
 
             // make sure that everything is OK
-            MORIS_ASSERT( tSurfaceCount = mSurfaceElements,
+            MORIS_ASSERT( tSurfaceCount == mSurfaceElements,
                     "Number of surface elements does not match" );
         }
 
@@ -138,49 +138,13 @@ namespace moris
 
             for ( uint iNodeIndex = 0; iNodeIndex < tNumberOfNodes; ++iNodeIndex )
             {
-                if ( mMesh.get_vertex( iNodeIndex )->is_flagged() )
-                {
-                    // get node coordinate
-                    const Matrix< DDRMat >& tPoint = mMesh.get_node_coordinate( iNodeIndex );
+                // get node coordinate
+                const Matrix< DDRMat >& tPoint = mMesh.get_node_coordinate( iNodeIndex );
 
-                    // raycast on this point until the point is determined
-                    Object_Region tPointRegion = raycast_point( mObject, tPoint );
-
-                    switch ( tPointRegion )
-                    {
-                        case OUTSIDE:
-                        {
-                            mMesh.get_vertex( iNodeIndex )->unset_inside_flag();
-                            mMesh.get_vertex( iNodeIndex )->unflag();
-                            break;
-                        }
-                        case INSIDE:
-                        {
-                            mMesh.get_vertex( iNodeIndex )->set_inside_flag();
-                            mMesh.get_vertex( iNodeIndex )->unflag();
-                            break;
-                        }
-                        case UNSURE:
-                        {
-                            mMesh.get_vertex( iNodeIndex )->flag();
-                            break;
-                        }
-                        case INTERFACE:
-                        {
-                            // FIXME: Treating all interface nodes as inside
-                            // SDF::mesh needs additional functionality to handle interface conditions properly
-                            mMesh.get_vertex( iNodeIndex )->set_inside_flag();
-                            mMesh.get_vertex( iNodeIndex )->unflag();
-                            break;
-                        }
-
-                        default:
-                        {
-                            MORIS_ERROR( false, "SDF_Core - raycast_mesh(): Unexpected inside condition returned from Raycast . Inside condition = %u, should be [0,2]", tPointRegion );
-                        }
-                    }
-                }
+                // raycast on this point until the point is determined
+                mMesh.get_vertex( iNodeIndex )->set_region( raycast_point( mObject, tPoint ) );
             }
+
 
             this->calculate_candidate_points_and_buffer_diagonal();
         }
@@ -192,7 +156,7 @@ namespace moris
         {
             this->raycast_mesh();
 
-            Vector< Vertex* > tCandidateList;          //========================================
+            Vector< Vertex* > tCandidateList;               //========================================
             tCandidateList = this->set_candidate_list();    //===================================
 
             this->calculate_udf( tCandidateList );
@@ -210,7 +174,7 @@ namespace moris
         {
             this->calculate_raycast( aElementsAtSurface, aElementsInVolume );
 
-            Vector< Vertex* > tCandidateList;          //========================================
+            Vector< Vertex* > tCandidateList;               //========================================
             tCandidateList = this->set_candidate_list();    //===================================
 
             this->calculate_udf( tCandidateList );
@@ -290,16 +254,16 @@ namespace moris
                 uint tNumberOfNodes = tNodes.size();
 
                 // get first sign
-                bool tIsInside = tNodes( 0 )->is_inside();
+                sdf::Object_Region tRegion = tNodes( 0 )->get_region();
 
                 // assume element is not intersected
-                bool tIsIntersected = false;
+                bool tIsIntersected = tRegion == Object_Region::INTERFACE;
 
                 // loop over all other nodes
                 for ( uint k = 1; k < tNumberOfNodes; ++k )
                 {
                     // check of sign is the same
-                    if ( tNodes( k )->is_inside() != tIsInside )
+                    if ( tNodes( k )->get_region() != tRegion )
                     {
                         // sign is not same
                         tIsIntersected = true;
@@ -334,7 +298,7 @@ namespace moris
                         tNodes( k )->set_candidate_flag();
                     }
                 }
-                else if ( tIsInside )
+                else if ( tRegion == Object_Region::INSIDE )
                 {
                     // flag this element as volume element
                     tElement->unset_surface_flag();
@@ -369,21 +333,8 @@ namespace moris
                         // get number of nodes
                         uint tNumberOfNodes = tNodes.size();
 
-                        bool tIsCandidate = false;
-
-                        // test if at least one node of this element is flagged
-                        // as candidate
-                        for ( uint k = 0; k < tNumberOfNodes; ++k )
-                        {
-                            if ( tNodes( k )->is_candidate() )
-                            {
-                                tIsCandidate = true;
-                                break;
-                            }
-                        }
-
                         // test if candidtae flag is set
-                        if ( tIsCandidate )
+                        if ( std::any_of( tNodes.begin(), tNodes.end(), []( const Vertex* aNode ) { return aNode->is_candidate(); } ) )
                         {
                             // update buffer diagonal
                             mBufferDiagonal = std::max(
@@ -434,7 +385,7 @@ namespace moris
 
         void
         Core::get_nodes_withing_bounding_box_of_triangle(
-                Facet&                  aFacet,
+                Facet&             aFacet,
                 Vector< Vertex* >& aNodes,
                 Vector< Vertex* >& aCandList )    //===========================================
         {
@@ -611,10 +562,11 @@ namespace moris
                     // write value
                     aSDF( tVertex->get_index() ) = tSDF;
 
-                    if ( tVertex->is_inside() )
+                    if ( tVertex->get_region() == Object_Region::INSIDE )
                     {
                         tMinSDF = std::min( tMinSDF, tSDF );
                     }
+                    // FIXME: This assumes nodes on the interface are outside. An extra else if may be needed
                     else
                     {
                         tMaxSDF = std::max( tMaxSDF, tSDF );
@@ -646,10 +598,11 @@ namespace moris
                 // test if vertex does not have an SDF
                 if ( !tVertex->has_sdf() )
                 {
-                    if ( tVertex->is_inside() )
+                    if ( tVertex->get_region() == Object_Region::INSIDE )
                     {
                         aSDF( tVertex->get_index() ) = tMinSDF;
                     }
+                    // FIXME: This assumes nodes on the interface are outside. An extra else if may be needed
                     else
                     {
                         aSDF( tVertex->get_index() ) = tMaxSDF;
@@ -846,10 +799,11 @@ namespace moris
             tFile << "LOOKUP_TABLE default" << std::endl;
             for ( uint k = 0; k < tNumberOfNodes; ++k )
             {
-                if ( mMesh.get_vertex( k )->is_inside() )
+                if ( mMesh.get_vertex( k )->get_region() == Object_Region::INSIDE )
                 {
                     tIChar = swap_byte_endian( (int)1 );
                 }
+                // FIXME: This assumes nodes on the interface are outside. An extra else if may be needed
                 else
                 {
                     tIChar = swap_byte_endian( (int)0 );
@@ -1039,10 +993,11 @@ namespace moris
                 {
                     tIChar = swap_byte_endian( (int)0 );
                 }
-                else if ( mMesh.get_vertex( k )->is_inside() )
+                else if ( mMesh.get_vertex( k )->get_region() == Object_Region::INSIDE )
                 {
                     tIChar = swap_byte_endian( (int)-1 );
                 }
+                // FIXME: This assumes nodes on the interface are outside. An extra else if may be needed
                 else
                 {
                     tIChar = swap_byte_endian( (int)1 );

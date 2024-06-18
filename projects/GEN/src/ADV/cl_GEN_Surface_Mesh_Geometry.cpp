@@ -199,12 +199,12 @@ namespace moris::gen
         // Get the unit vector from the first parent to the second parent
         PRINT( aFirstParentNode.get_global_coordinates() );
         PRINT( aSecondParentNode.get_global_coordinates() );    // BRENDAN
-        Matrix< DDRMat > tParentVector = aSecondParentNode.get_global_coordinates() - aFirstParentNode.get_global_coordinates();
+        Matrix< DDRMat > tParentVector = trans( aSecondParentNode.get_global_coordinates() - aFirstParentNode.get_global_coordinates() );
 
         // augment with zero if 2D
         if ( tParentVector.numel() == 2 )
         {
-            tParentVector.reshape( 3, 1 );
+            tParentVector.resize( 3, 1 );
         }
 
         real tParentVectorNorm = norm( tParentVector );

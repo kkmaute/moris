@@ -39,7 +39,8 @@ namespace moris
             OUTSIDE,
             INSIDE,
             INTERFACE,
-            UNSURE
+            UNSURE,
+            END_ENUM
         };
 
         /**
