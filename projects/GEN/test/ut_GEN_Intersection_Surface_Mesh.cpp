@@ -42,6 +42,32 @@ namespace moris::gen
         { { -1.0, 1.0 } }
     };
 
+    static Vector< Matrix< DDRMat > > tHexParametricCoordinates = {
+        { { -1.0, -1.0, -1.0 } },
+        { { 1.0, -1.0, -1.0 } },
+        { { 1.0, 1.0, -1.0 } },
+        { { -1.0, 1.0, -1.0 } },
+        { { -1.0, -1.0, 1.0 } },
+        { { 1.0, -1.0, 1.0 } },
+        { { 1.0, 1.0, 1.0 } },
+        { { -1.0, 1.0, 1.0 } }
+    };
+
+    static Vector< Vector< uint > > tEdgeOrder = {
+        { 0, 1 },
+        { 1, 2 },
+        { 2, 3 },
+        { 3, 0 },
+        { 4, 5 },
+        { 5, 6 },
+        { 6, 7 },
+        { 7, 4 },
+        { 0, 4 },
+        { 1, 5 },
+        { 2, 6 },
+        { 3, 7 },
+    };
+
     //--------------------------------------------------------------------------------------------------------------
 
     TEST_CASE( "Surface Mesh Intersections", "[gen], [pdv], [intersection], [surface mesh intersection]" )
@@ -98,7 +124,7 @@ namespace moris::gen
         }
     }
 
-    TEST_CASE( "Engine Surface Mesh Intersections", "[gen], [pdv], [intersection], [surface mesh geometry]," )
+    TEST_CASE( "Engine 2D Surface Mesh Intersections", "[gen], [pdv], [intersection], [surface mesh geometry 2d]," )
     {
         if ( par_size() == 1 )
         {
@@ -178,7 +204,7 @@ namespace moris::gen
                 for ( uint iNodeNumber = 0; iNodeNumber < 4; iNodeNumber++ )
                 {
                     // Get the geometry engine result
-                    bool tIntersected = tGeometryEngine.is_intersected_by_active_geometry( { { tSignedNodeIndices( iNodeNumber ), tSignedNodeIndices( ( iNodeNumber + 1 ) % 4 ) } } );
+                    bool tIntersected = tGeometryEngine.is_intersected_by_active_geometry( { { tSignedNodeIndices( iNodeNumber ), tSignedNodeIndices( ( iNodeNumber + 1 ) % 8 ) } } );
 
                     // check that these are equal
                     REQUIRE( tIntersected == tIsEdgeIntersected( iElementIndex )( iNodeNumber ) );
@@ -221,6 +247,151 @@ namespace moris::gen
                         tGeometryEngine.admit_queued_intersection();
                         tIntersectionCount++;
                     }
+                }
+            }
+        }
+    }
+    TEST_CASE( "Engine 3D Surface Mesh Intersections", "[gen], [pdv], [intersection], [surface mesh geometry 3d]," )
+    {
+        // get root from environment
+        std::string tMorisRoot = moris::get_base_moris_dir();
+
+        // HMR parameters
+        Parameter_List tHMRParameters = prm::create_hmr_parameter_list();
+
+        tHMRParameters.set( "number_of_elements_per_dimension", "2,2,2" );
+        tHMRParameters.set( "domain_dimensions", "2,2,2" );
+        tHMRParameters.set( "domain_sidesets", "1,2,3,4,5,6" );
+        tHMRParameters.set( "domain_offset", "0.0,0.0,0.0" );
+        tHMRParameters.set( "lagrange_output_meshes", "0" );
+
+        tHMRParameters.set( "lagrange_orders", "1" );
+        tHMRParameters.set( "lagrange_pattern", "0" );
+        tHMRParameters.set( "bspline_orders", "1" );
+        tHMRParameters.set( "bspline_pattern", "0" );
+
+        tHMRParameters.set( "lagrange_to_bspline", "0" );
+
+        tHMRParameters.set( "truncate_bsplines", 1 );
+        tHMRParameters.set( "refinement_buffer", 1 );
+        tHMRParameters.set( "staircase_buffer", 1 );
+        tHMRParameters.set( "initial_refinement", "0" );
+        tHMRParameters.set( "initial_refinement_pattern", "0" );
+
+        tHMRParameters.set( "severity_level", 2 );
+
+        // Create HMR
+        hmr::HMR tHMR( tHMRParameters );
+
+        // initial refinement
+        tHMR.perform_initial_refinement();
+        tHMR.finalize();
+
+        mtk::Interpolation_Mesh* tMesh = tHMR.create_interpolation_mesh( 0 );
+
+        // surface mesh
+        Parameter_List tSurfaceMeshParameterList = prm::create_surface_mesh_geometry_parameter_list();
+        tSurfaceMeshParameterList.set( "file_path", tMorisRoot + "projects/GEN/test/data/tetra.obj" );
+        tSurfaceMeshParameterList.set( "intersection_tolerance", 1e-8 );
+
+        // Create geometry engine
+        Geometry_Engine_Parameters tGeometryEngineParameters;
+        ADV_Manager                tADVManager;
+        Design_Factory             tDesignFactory( { tSurfaceMeshParameterList }, tADVManager );
+        tGeometryEngineParameters.mGeometries = tDesignFactory.get_geometries();
+        Geometry_Engine tGeometryEngine( tMesh, tGeometryEngineParameters );
+
+        // Solution to is_intersected per element, per edge
+        Vector< Vector< bool > > tIsEdgeIntersected = {
+            { false, false, false, false, false, false, false, false, false, false, false, false },    // Element 0
+            { false, false, false, false, false, false, false, false, false, false, false, false },    // Element 1
+            { false, false, false, false, false, false, false, false, false, false, false, false },    // Element 2
+            { false, true, true, false, false, false, false, false, false, false, true, false },       // Element 3
+            { false, false, false, false, false, false, false, false, false, false, false, false },    // Element 4
+            { false, false, false, false, false, false, false, false, false, false, false, false },    // Element 5
+            { false, false, false, false, false, false, false, false, false, false, false, false },    // Element 6
+            { false, false, false, false, false, false, false, false, false, false, false, false },    // Element 7
+        };
+
+        // Intersection local coordinates solutions
+        Matrix< DDRMat > tIntersectionLocalCoordinates = { { 0.045454545454545454, 0.291666666666667, -0.642857142857142 } };
+
+        // Intersection global coordinates solutions
+        Vector< Matrix< DDRMat > > tIntersectionGlobalCoordinates = {
+            { { 2.0, 1.522727272727272727272727, 0.0 } },
+            { { 1.354166666666666666, 2.0, 0.0 } },
+            { { 2.0, 2.0, 0.178571428571429 } }
+        };
+
+        uint tIntersectionCount = 0;
+        for ( uint iElementIndex = 0; iElementIndex < 8; iElementIndex++ )
+        {
+            // Node indices per element
+            Matrix< IndexMat > tSignedNodeIndices = tMesh->get_nodes_connected_to_element_loc_inds( iElementIndex );
+            Matrix< DDUMat >   tNodeIndices( 8, 1 );
+            for ( uint iNode = 0; iNode < 8; iNode++ )
+            {
+                tNodeIndices( iNode ) = tSignedNodeIndices( iNode );
+            }
+
+            for ( uint iEdgeNumber = 0; iEdgeNumber < 12; iEdgeNumber++ )
+            {
+
+                if ( ( iElementIndex == 3 and ( iEdgeNumber == 1 or iEdgeNumber == 2 or iEdgeNumber == 10 ) ) )
+                {
+                    std::cout << "The intersected one\n";
+                }
+                // Node coordinates
+                Matrix< DDRMat > tFirstNodeCoordinates  = tMesh->get_node_coordinate( tSignedNodeIndices( tEdgeOrder( iEdgeNumber )( 0 ) ) );
+                Matrix< DDRMat > tSecondNodeCoordinates = tMesh->get_node_coordinate( tSignedNodeIndices( tEdgeOrder( iEdgeNumber )( 1 ) ) );
+                // PRINT( tFirstNodeCoordinates );
+                // PRINT( tSecondNodeCoordinates ); BRENDAN DELETE AFTER
+
+                // Get the geometry engine result
+                bool tIntersected = tGeometryEngine.is_intersected_by_active_geometry( { { tSignedNodeIndices( tEdgeOrder( iEdgeNumber )( 0 ) ), tSignedNodeIndices( tEdgeOrder( iEdgeNumber )( 1 ) ) } } );
+
+                // check that these are equal
+                REQUIRE( tIntersected == tIsEdgeIntersected( iElementIndex )( iEdgeNumber ) );
+
+                // Check queued intersection
+                if ( tIntersected )
+                {
+                    // Queue intersection
+                    bool tQueryIntersected = tGeometryEngine.queue_intersection(
+                            tSignedNodeIndices( tEdgeOrder( iEdgeNumber )( 0 ) ),
+                            tSignedNodeIndices( tEdgeOrder( iEdgeNumber )( 1 ) ),
+                            tHexParametricCoordinates( tEdgeOrder( iEdgeNumber )( 0 ) ),
+                            tHexParametricCoordinates( tEdgeOrder( iEdgeNumber )( 1 ) ),
+                            tNodeIndices,
+                            mtk::Geometry_Type::QUAD,
+                            mtk::Interpolation_Order::LINEAR );
+
+                    // Check that the query was successful
+                    CHECK( tQueryIntersected == tIsEdgeIntersected( iElementIndex )( iEdgeNumber ) );
+
+                    // Check parents
+                    bool tFirstParentOnInterface  = false;
+                    bool tSecondParentOnInterface = false;
+
+                    CHECK( tGeometryEngine.queued_intersection_first_parent_on_interface() == tFirstParentOnInterface );
+                    CHECK( tGeometryEngine.queued_intersection_second_parent_on_interface() == tSecondParentOnInterface );
+
+                    // See if local coordinate is a number
+                    real tLocalCoordinate = tGeometryEngine.get_queued_intersection_local_coordinate();
+
+                    // Ensure the local coordinate is a number
+                    REQUIRE( !std::isnan( tLocalCoordinate ) );
+
+                    CHECK( tLocalCoordinate == Approx( tIntersectionLocalCoordinates( tIntersectionCount ) ).margin( 1e-9 ) );
+
+                    // Check global coordinates
+                    Matrix< DDRMat > tGlobalCoords = tGeometryEngine.get_queued_intersection_global_coordinates();
+                    PRINT( tGlobalCoords );
+                    CHECK_EQUAL( tGeometryEngine.get_queued_intersection_global_coordinates(), tIntersectionGlobalCoordinates( tIntersectionCount ), );
+
+                    // Admit intersection
+                    tGeometryEngine.admit_queued_intersection();
+                    tIntersectionCount++;
                 }
             }
         }

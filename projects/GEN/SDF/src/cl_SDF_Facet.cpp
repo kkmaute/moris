@@ -241,12 +241,10 @@ namespace moris
         bool
         Facet::operator==( const Facet& aRHS ) const
         {
-            if ( mVertices.size() != aRHS.get_number_of_vertices() )
-            {
-                return false;
-            }
-
-            return all_true( this->get_vertex_ids() == aRHS.get_vertex_ids() ) && all_true( mNormal == aRHS.get_normal() ) && std::abs( mHesse - aRHS.get_hesse() ) < mIntersectionTolerance;
+            return mVertices.size() != aRHS.get_number_of_vertices()
+                && all_true( this->get_vertex_ids() == aRHS.get_vertex_ids() )
+                && all_true( mNormal == aRHS.get_normal() )
+                && std::abs( mHesse - aRHS.get_hesse() ) < mIntersectionTolerance;
         }
     } /* namespace sdf */
 } /* namespace moris */

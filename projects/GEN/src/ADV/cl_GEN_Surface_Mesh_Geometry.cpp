@@ -125,8 +125,6 @@ namespace moris::gen
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aNodeCoordinates )
     {
-        PRINT( aNodeCoordinates );
-
         // Raycast from the point
         sdf::Object_Region tRegion = raycast_point( *this, aNodeCoordinates );
 
@@ -193,12 +191,10 @@ namespace moris::gen
             sdf::Facet*&                      aParentFacet )
     {
         // -------------------------------------------------------------------------------------
-        // STEP 1: Rotate the surface mesh so the parent edge is aligned with the x-axis
+        // STEP 1: Determine if the parent edge is along an axis and if so cast along that axis. If not, rotate the object so the parent edge is along the x axis
         // -------------------------------------------------------------------------------------
-
+        
         // Get the unit vector from the first parent to the second parent
-        PRINT( aFirstParentNode.get_global_coordinates() );
-        PRINT( aSecondParentNode.get_global_coordinates() );    // BRENDAN
         Matrix< DDRMat > tParentVector = trans( aSecondParentNode.get_global_coordinates() - aFirstParentNode.get_global_coordinates() );
 
         // augment with zero if 2D

@@ -20,7 +20,6 @@ namespace moris::sdf
             Object&          aObject,
             Matrix< DDRMat > aPoint )
     {
-        // initialize return value to unsure
         Object_Region tPointIsInside = UNSURE;
 
         MORIS_ASSERT( aPoint.numel() == aObject.get_dimension(),
@@ -32,33 +31,29 @@ namespace moris::sdf
         bool tRotation = false;
         while ( tPointIsInside == UNSURE )
         {
-            // resolve the region of the point by calling voxelizing algorithm in x direction
-            tPointIsInside = voxelize( aObject, aPoint, 0 );
+            tPointIsInside = voxelize( aObject, aPoint, 1 );
 
-            // loop over the remaining axes
-            for ( uint iAxis = 1; iAxis < aObject.get_dimension(); iAxis++ )
+            if ( tPointIsInside == UNSURE )
             {
-                // check to make sure the region was not determined by the previous iteration
-                if ( tPointIsInside == UNSURE )
+                tPointIsInside = voxelize( aObject, aPoint, 0 );
+                if ( tPointIsInside == UNSURE and aObject.get_dimension() == 3 )
                 {
-                    // resolve the region of the point by calling voxelizing algorithm in iAxis direction
-                    tPointIsInside = voxelize( aObject, aPoint, iAxis );
-                }
-                else
-                {
-                    // reset the coordinates back to the orginal frame if they were rotated
-                    if ( tRotation )
-                    {
-                        aObject.reset_coordinates();
-                    }
+                    tPointIsInside = voxelize( aObject, aPoint, 2 );
 
-                    return tPointIsInside;
+                    if ( tPointIsInside == UNSURE )
+                    {
+                        // if still unsure, rotate and cast again
+                        tRotation = true;
+                        random_rotation( aObject, aPoint );
+                    }
                 }
             }
+        }
 
-            // if still unsure, rotate and cast again
-            tRotation = true;
-            random_rotation( aObject, aPoint );
+        // reset the coordinates back to the orginal frame if they were rotated
+        if ( tRotation )
+        {
+            aObject.reset_coordinates();
         }
 
         return tPointIsInside;
@@ -445,7 +440,7 @@ namespace moris::sdf
         uint tNumberOfFacets = aIntersectedFacets.size();
 
         // initialize vector with coords in axis
-        Vector< real > tCoordsK( tNumberOfFacets, 1 );
+        Vector< real > tCoordsK( tNumberOfFacets );
 
         uint tCount = 0;
 
