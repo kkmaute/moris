@@ -160,7 +160,7 @@ namespace moris::gen
             const Parent_Node&                aSecondParentNode,
             mtk::Geometry_Type                aBackgroundGeometryType,
             mtk::Interpolation_Order          aBackgroundInterpolationOrder )
-    {
+    {        
         // Determine the local coordinate of the intersection and the facet that intersects the parent edge
         sdf::Facet* tParentFacet     = nullptr;
         real        tLocalCoordinate = this->compute_intersection_local_coordinate( aBackgroundNodes, aFirstParentNode, aSecondParentNode, tParentFacet );
@@ -193,19 +193,23 @@ namespace moris::gen
         // -------------------------------------------------------------------------------------
         // STEP 1: Determine if the parent edge is along an axis and if so cast along that axis. If not, rotate the object so the parent edge is along the x axis
         // -------------------------------------------------------------------------------------
-        
+
+        // Flag that is true if the parent edge is along a negative axis, meaning the local coordinate needs to be negated after computation
+        // bool tReflectionRequired = false;
+
+        // // Axis to cast along
+        // uint tAxis = 0;
+
         // Get the unit vector from the first parent to the second parent
         Matrix< DDRMat > tParentVector = trans( aSecondParentNode.get_global_coordinates() - aFirstParentNode.get_global_coordinates() );
-
+        real tParentVectorNorm = norm( tParentVector );
+        tParentVector = tParentVector / tParentVectorNorm;
+        
         // augment with zero if 2D
         if ( tParentVector.numel() == 2 )
         {
             tParentVector.resize( 3, 1 );
         }
-
-        real tParentVectorNorm = norm( tParentVector );
-
-        tParentVector = tParentVector / tParentVectorNorm;
 
         // Initialize rotation matrix
         Matrix< DDRMat > tRotationMatrix( 3, 1 );

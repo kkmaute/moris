@@ -40,6 +40,21 @@ namespace moris::gen
             , mParentFacet( aParentFacet )
             , mInterfaceGeometry( aInterfaceGeometry )
     {
+        // debug checks to make sure the intersection node is being created in the right spot
+        // for ( uint iDimension = 0; iDimension < mInterfaceGeometry.get_dimension(); iDimension++ )
+        // {
+        //     bool tIsBetween = ( this->get_global_coordinates()( iDimension ) - aFirstParentNode.get_global_coordinates()( iDimension ) ) * ( this->get_global_coordinates()( iDimension ) - aSecondParentNode.get_global_coordinates()( iDimension ) ) < 1e-6;
+        //     if ( not tIsBetween )
+        //     {
+        //         PRINT( this->get_global_coordinates() );
+        //         PRINT( aFirstParentNode.get_global_coordinates() );
+        //         PRINT( aSecondParentNode.get_global_coordinates() );
+        //         std::cout << "First parent node index: " << aFirstParentNode.get_index() << std::endl;
+        //         std::cout << "Second parent node index: " << aSecondParentNode.get_index() << std::endl;
+        //     }
+
+        //     MORIS_ASSERT( tIsBetween, "Intersection node coordinate %d is not between the parent nodes' coordinates.", iDimension );
+        // }
     }
 
     Matrix< DDRMat >

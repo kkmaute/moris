@@ -341,11 +341,6 @@ namespace moris::gen
                 {
                     std::cout << "The intersected one\n";
                 }
-                // Node coordinates
-                Matrix< DDRMat > tFirstNodeCoordinates  = tMesh->get_node_coordinate( tSignedNodeIndices( tEdgeOrder( iEdgeNumber )( 0 ) ) );
-                Matrix< DDRMat > tSecondNodeCoordinates = tMesh->get_node_coordinate( tSignedNodeIndices( tEdgeOrder( iEdgeNumber )( 1 ) ) );
-                // PRINT( tFirstNodeCoordinates );
-                // PRINT( tSecondNodeCoordinates ); BRENDAN DELETE AFTER
 
                 // Get the geometry engine result
                 bool tIntersected = tGeometryEngine.is_intersected_by_active_geometry( { { tSignedNodeIndices( tEdgeOrder( iEdgeNumber )( 0 ) ), tSignedNodeIndices( tEdgeOrder( iEdgeNumber )( 1 ) ) } } );
@@ -363,7 +358,7 @@ namespace moris::gen
                             tHexParametricCoordinates( tEdgeOrder( iEdgeNumber )( 0 ) ),
                             tHexParametricCoordinates( tEdgeOrder( iEdgeNumber )( 1 ) ),
                             tNodeIndices,
-                            mtk::Geometry_Type::QUAD,
+                            mtk::Geometry_Type::HEX,
                             mtk::Interpolation_Order::LINEAR );
 
                     // Check that the query was successful
@@ -385,8 +380,6 @@ namespace moris::gen
                     CHECK( tLocalCoordinate == Approx( tIntersectionLocalCoordinates( tIntersectionCount ) ).margin( 1e-9 ) );
 
                     // Check global coordinates
-                    Matrix< DDRMat > tGlobalCoords = tGeometryEngine.get_queued_intersection_global_coordinates();
-                    PRINT( tGlobalCoords );
                     CHECK_EQUAL( tGeometryEngine.get_queued_intersection_global_coordinates(), tIntersectionGlobalCoordinates( tIntersectionCount ), );
 
                     // Admit intersection

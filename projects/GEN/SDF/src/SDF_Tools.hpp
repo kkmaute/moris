@@ -59,7 +59,7 @@ namespace moris
         inline void
         triangle_permutation( const uint aZ, uint& aX, uint& aY )
         {
-            switch( aZ )
+            switch ( aZ )
             {
                 case 0:
                     // y-z

@@ -96,15 +96,8 @@ namespace moris::sdf
                 // preselect triangles in positive and negative aAxis directions for intersection test
                 Vector< uint > tCandidateFacets = preselect_triangles( aObject, aPoint, aAxis );
 
-                // filter out facets that are definitely in the negative aAxis direction from the point
-                // FIXME: a different preselection function could be written to avoid extra checks
-                for ( uint iCandidate = 0; iCandidate < tCandidateFacets.size(); iCandidate++ )
-                {
-                    if ( aObject.get_facet_max_coord( iCandidate, aAxis ) < aPoint( aAxis ) )
-                    {
-                        tCandidateFacets.erase( iCandidate );
-                    }
-                }
+                // FIXME: preselect_triangles() also gives triangles that are behind the cast point. 
+                // These can be removed to avoid unnecessary computations in intersect_triangles() and intersect_ray_with_facets()
 
                 // from the candidate triangles, see which triangles will actually be intersected
                 aIntersectedFacets = intersect_triangles( tCandidateFacets, aObject, aPoint, aAxis );
@@ -121,7 +114,7 @@ namespace moris::sdf
         Vector< real > tIntersectionCoordinates = intersect_ray_with_facets( aIntersectedFacets, aPoint, aAxis );
 
         // remove intersection locations that are behind the point
-        for ( int iIntersection = tIntersectionCoordinates.size() - 1; iIntersection > -1; iIntersection-- )
+        for ( sint iIntersection = tIntersectionCoordinates.size() - 1; iIntersection > -1; iIntersection-- )
         {
             if ( tIntersectionCoordinates( iIntersection ) < aPoint( aAxis ) )
             {
@@ -547,13 +540,15 @@ namespace moris::sdf
 
         uint tNodeIsInside = 3;
 
+        real tAxisCastPoint = aPoint( aAxis );
+
         // If the ray intersected no facets, the point is outside
         if ( tNumCoordsK == 0 )
         {
             return Object_Region::OUTSIDE;
         }
         // Check if any of the intersections are very close to the point
-        else if ( std::any_of( aIntersectionCoords.begin(), aIntersectionCoords.end(), [ &aIntersectionCoords, aIntersectionTolerance ]( real aIntersection ) { return std::abs( aIntersection ) < aIntersectionTolerance; } ) )
+        else if ( std::any_of( aIntersectionCoords.begin(), aIntersectionCoords.end(), [ &, aIntersectionCoords, aIntersectionTolerance, tAxisCastPoint ]( real aIntersection ) { return std::abs( aIntersection - tAxisCastPoint ) < aIntersectionTolerance; } ) )
         {
             return Object_Region::INTERFACE;
         }
