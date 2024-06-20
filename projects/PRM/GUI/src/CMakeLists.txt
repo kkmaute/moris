@@ -25,7 +25,7 @@ set(PROJECT_SOURCES
        )
 
 set(HEADERS
-       main_gui.h
+       main_gui.hpp
 )
  
  # List include directories
