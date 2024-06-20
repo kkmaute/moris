@@ -4,7 +4,7 @@
  *
  *------------------------------------------------------------------------------------
  *
- * Shape_Sensitivity_Bspline_Surface_Mesh_2D.cpp
+ * Shape_Sensitivity_Bspline_3D.cpp
  *
  */
 
@@ -27,7 +27,18 @@
 #include "fn_PRM_XTK_Parameters.hpp"
 #include "fn_PRM_OPT_Parameters.hpp"
 #include "fn_equal_to.hpp"
+
 #include "AztecOO.h"
+
+// Geometry model setup
+//         vertical cut         |  oblique cut
+// case 0: var: 0   + analytic  |  fixed                  dArea/ds = 0.45
+// case 1: fixed                |  var: 0    + analytic   dArea/ds = 1.2
+// case 2: var: 0   + analytic  |  var: 1    + analytic   dArea/ds = 0.45; 1.2
+// case 3: var: 1   + analytic  |  var: 0    + analytic   dArea/ds = 1.2; 0.45
+// case 4: var: 0-8 + b-spline  |  var: na
+// case 5: na                   |  var: 0-8  + b-spline
+// case 6: var: 0-8 + b-spline  |  var: 9-15 + b-spline
 
 extern uint tGeoModel;
 
@@ -42,9 +53,9 @@ namespace moris
 
     // Constant function for properties
     void
-    Func_Const( moris::Matrix< moris::DDRMat >&       aPropMatrix,
+    Func_Const( moris::Matrix< moris::DDRMat >&            aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*   aFIManager )
+            moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         aPropMatrix = aParameters( 0 );
     }
@@ -131,18 +142,20 @@ namespace moris
 
     void
     Func_Traction_U(
-            moris::Matrix< moris::DDRMat >&           aPropMatrix,
+            moris::Matrix< moris::DDRMat >&                aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*   aFIManager )
+            moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         if ( aFIManager->get_IG_geometry_interpolator()->valx()( 1 ) < 0.2 )
         {
             aPropMatrix = { { 0.0 },
-                { aParameters( 0 )( 0 ) } };
+                { aParameters( 0 )( 0 ) },
+                { 0.0 } };
         }
         else
         {
             aPropMatrix = { { 0.0 },
+                { 0.0 },
                 { 0.0 } };
         }
     }
@@ -170,24 +183,24 @@ namespace moris
 
         tParameterlist( 0 )( 0 ) = prm::create_hmr_parameter_list();
 
-        tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", "2, 1" );
-        tParameterlist( 0 )( 0 ).set( "domain_dimensions", "2.0, 1.0" );
-        tParameterlist( 0 )( 0 ).set( "domain_offset", "0.0, 0.0" );
-        tParameterlist( 0 )( 0 ).set( "domain_sidesets", "1,2,3,4" );
+        tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", "2, 2, 2" );
+        tParameterlist( 0 )( 0 ).set( "domain_dimensions", "2.0, 2.0, 2.0" );
+        tParameterlist( 0 )( 0 ).set( "domain_offset", "0.0, 0.0, 0.0" );
+        tParameterlist( 0 )( 0 ).set( "domain_sidesets", "1,2,3,4,5,6" );
         tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes", "0" );
 
         tParameterlist( 0 )( 0 ).set( "lagrange_orders", "1" );
         tParameterlist( 0 )( 0 ).set( "lagrange_pattern", "0" );
-        tParameterlist( 0 )( 0 ).set( "bspline_orders", "1,2" );
-        tParameterlist( 0 )( 0 ).set( "bspline_pattern", "0,1" );
+        tParameterlist( 0 )( 0 ).set( "bspline_orders", "1" );
+        tParameterlist( 0 )( 0 ).set( "bspline_pattern", "0" );
 
-        tParameterlist( 0 )( 0 ).set( "lagrange_to_bspline", "0,1" );
+        tParameterlist( 0 )( 0 ).set( "lagrange_to_bspline", "0" );
 
         tParameterlist( 0 )( 0 ).set( "truncate_bsplines", 1 );
         tParameterlist( 0 )( 0 ).set( "refinement_buffer", 3 );
         tParameterlist( 0 )( 0 ).set( "staircase_buffer", 3 );
-        tParameterlist( 0 )( 0 ).set( "initial_refinement", "0,0" );
-        tParameterlist( 0 )( 0 ).set( "initial_refinement_pattern", "0,1" );
+        tParameterlist( 0 )( 0 ).set( "initial_refinement", "0" );
+        tParameterlist( 0 )( 0 ).set( "initial_refinement_pattern", "0" );
 
         tParameterlist( 0 )( 0 ).set( "use_multigrid", 0 );
         // tParameterlist( 0 )( 0 ).set( "severity_level", 1 );
@@ -221,7 +234,7 @@ namespace moris
 
     void
     GENParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
-    {        
+    {
         tParameterlist.resize( 3 );
         tParameterlist( 0 ).resize( 1 );
         tParameterlist( 0 )( 0 ) = moris::prm::create_gen_parameter_list();
@@ -231,7 +244,7 @@ namespace moris
 
         tParameterlist( 1 ).resize( 1 );
         tParameterlist( 1 )( 0 ) = prm::create_surface_mesh_geometry_parameter_list();
-        tParameterlist( 1 )( 0 ).set( "file_path", "/home/chong/codes/moris/projects/GEN/test/data/triangle_sensitivity_oblique.obj" );    // BRENDAN FIXME
+        tParameterlist( 1 )( 0 ).set( "file_path", "/home/chong/work/SU24/Input_Files/Surface_Meshes/tetra.obj" );    // BRENDAN FIXME
 
         switch ( tGeoModel )
         {
@@ -284,7 +297,7 @@ namespace moris
         // create parameter list for property 4
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
         tParameterList( 0 )( tPropCounter ).set( "property_name", "PropDirichletU" );
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters", "0.0;0.0" );
+        tParameterList( 0 )( tPropCounter ).set( "function_parameters", "0.0;0.0;0.0" );
         tParameterList( 0 )( tPropCounter ).set( "value_function", "Func_Const" );
         tPropCounter++;
 
@@ -308,8 +321,8 @@ namespace moris
         // create parameter list for constitutive model 1
         tParameterList( 1 ).push_back( prm::create_constitutive_model_parameter_list() );
         tParameterList( 1 )( tCMCounter ).set( "constitutive_name", "CMStrucLinIso1" );
-        tParameterList( 1 )( tCMCounter ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::STRUC_LIN_ISO ) );
-        tParameterList( 1 )( tCMCounter ).set( "dof_dependencies", std::pair< std::string, std::string >( "UX,UY", "Displacement" ) );
+        tParameterList( 1 )( tCMCounter ).set( "constitutive_type",  fem::Constitutive_Type::STRUC_LIN_ISO ) ;
+        tParameterList( 1 )( tCMCounter ).set( "dof_dependencies", std::pair< std::string, std::string >( "UX,UY,UZ", "Displacement" ) );
         tParameterList( 1 )( tCMCounter ).set( "properties", "PropYoungs,YoungsModulus;PropPoisson,PoissonRatio" );
 
         //------------------------------------------------------------------------------
@@ -319,7 +332,7 @@ namespace moris
         // create parameter list for stabilization parameter 1
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name", "SPNitscheTemp" );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::DIRICHLET_NITSCHE ) );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  fem::Stabilization_Type::DIRICHLET_NITSCHE ) ;
         tParameterList( 2 )( tSPCounter ).set( "function_parameters", "100.0" );
         tParameterList( 2 )( tSPCounter ).set( "leader_properties", "PropYoungs,Material" );
 
@@ -330,9 +343,9 @@ namespace moris
         // create parameter list for IWG 1
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGBulkU_1" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_BULK ) );
-        tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
-        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY" );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_BULK ) ;
+        tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY,UZ" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY,UZ" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMStrucLinIso1,ElastLinIso" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tMeshSets );
         tIWGCounter++;
@@ -340,9 +353,9 @@ namespace moris
         // create parameter list for IWG 2
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGDirichletU" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE ) );
-        tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
-        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY" );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE ) ;
+        tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY,UZ" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY,UZ" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropDirichletU,Dirichlet" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMStrucLinIso1,ElastLinIso" );
         tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters", "SPNitscheTemp,DirichletNitsche" );
@@ -352,9 +365,9 @@ namespace moris
         // create parameter list for IWG 3
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGTraction" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_NEUMANN ) );
-        tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
-        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY" );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_NEUMANN ) ;
+        tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY,UZ" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY,UZ" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropTraction,Traction" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", "" );
 
@@ -362,37 +375,55 @@ namespace moris
         // init IQI counter
         uint tIQICounter = 0;
 
-        // create parameter list for IQI 1
+        // create parameter list for IQI 4
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIDisp" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::DOF ) );
-        tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "UX,UY" );
-        tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "UX,UY" );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIDispX" );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::DOF ) ;
+        tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "UX,UY,UZ" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "UX,UY,UZ" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 0 );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tMeshSets );
         tIQICounter++;
 
-        // create parameter list for IQI 2
+        tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIDispY" );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::DOF ) ;
+        tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "UX,UY,UZ" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "UX,UY,UZ" );
+        tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 1 );
+        tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tMeshSets );
+        tIQICounter++;
+
+        tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIDispZ" );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::DOF ) ;
+        tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "UX,UY,UZ" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "UX,UY,UZ" );
+        tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 2 );
+        tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tMeshSets );
+        tIQICounter++;
+
+        // create parameter list for IQI 4
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkStrainEnergy" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::STRAIN_ENERGY ) );
-        tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "UX,UY" );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::STRAIN_ENERGY ) ;
+        tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "UX,UY,UZ" );
         tParameterList( 4 )( tIQICounter ).set( "leader_constitutive_models", "CMStrucLinIso1,Elast" );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tMeshSets );
         tIQICounter++;
 
-        // create parameter list for IQI 3
+        // create parameter list for IQI 4
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkVolume" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::VOLUME ) );
-        // tParameterList( 4 )( tIQICounter ).set( "leader_properties", "PropDensity,Density" );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::VOLUME ) ;
+        tParameterList( 4 )( tIQICounter ).set( "leader_properties", "PropDensity,Density" );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tMeshSets );
 
         //------------------------------------------------------------------------------
         // fill the computation part of the parameter list
         tParameterList( 5 ).resize( 1 );
         tParameterList( 5 )( 0 ) = prm::create_computation_parameter_list();
-        tParameterList( 5 )( 0 ).set( "finite_difference_scheme", (uint)( fem::FDScheme_Type::POINT_3_CENTRAL ) );
+        // tParameterList( 5 )( 0 ).set("finite_difference_scheme",  fem::FDScheme_Type::POINT_3_CENTRAL ) ;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -415,14 +446,14 @@ namespace moris
         tParameterlist( 2 )( 0 ).set( "NLA_max_iter", 1 );
 
         tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
-        tParameterlist( 3 )( 0 ).set( "NLA_DofTypes", "UX,UY" );
+        tParameterlist( 3 )( 0 ).set( "NLA_DofTypes", "UX,UY,UZ" );
 
         tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
         tParameterlist( 4 )( 0 ).set( "TSA_Num_Time_Steps", 1 );
         tParameterlist( 4 )( 0 ).set( "TSA_Time_Frame", 1.0 );
 
         tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
-        tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "UX,UY" );
+        tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "UX,UY,UZ" );
         tParameterlist( 5 )( 0 ).set( "TSA_Output_Indices", "0" );
         tParameterlist( 5 )( 0 ).set( "TSA_Output_Criteria", "Output_Criterion" );
 
@@ -438,7 +469,6 @@ namespace moris
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
-
         tParameterlist( 0 )( 0 ) = prm::create_msi_parameter_list();
     }
 
@@ -451,12 +481,12 @@ namespace moris
         tParameterlist( 0 ).resize( 1 );
 
         tParameterlist( 0 )( 0 ) = prm::create_vis_parameter_list();
-        tParameterlist( 0 )( 0 ).set( "File_Name", std::pair< std::string, std::string >( "./", "shape_sensitivities.exo" ) );
-        tParameterlist( 0 )( 0 ).set( "Mesh_Type", static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
+        tParameterlist( 0 )( 0 ).set( "File_Name", std::pair< std::string, std::string >( "./", "shape_sensitivities_3D.exo" ) );
+        tParameterlist( 0 )( 0 ).set( "Mesh_Type",  vis::VIS_Mesh_Type::STANDARD ) ;
         tParameterlist( 0 )( 0 ).set( "Set_Names", tMeshSets );
-        tParameterlist( 0 )( 0 ).set( "Field_Names", "U" );
-        tParameterlist( 0 )( 0 ).set( "Field_Type", "NODAL" );
-        tParameterlist( 0 )( 0 ).set( "IQI_Names", "IQIDisp" );
+        tParameterlist( 0 )( 0 ).set( "Field_Names", "UX,UY,UZ" );
+        tParameterlist( 0 )( 0 ).set( "Field_Type", "NODAL,NODAL,NODAL" );
+        tParameterlist( 0 )( 0 ).set( "IQI_Names", "IQIDispX,IQIDispY,IQIDispZ" );
         tParameterlist( 0 )( 0 ).set( "Save_Frequency", 1 );
     }
 
@@ -473,17 +503,18 @@ namespace moris
         tParameterlist( 0 )( 0 ) = moris::prm::create_opt_problem_parameter_list();
         tParameterlist( 0 )( 0 ).set( "is_optimization_problem", true );
         tParameterlist( 0 )( 0 ).set( "problem", "user_defined" );
-        tParameterlist( 0 )( 0 ).set( "library", "Shape_Sensitivity_Bspline_Surface_Mesh_2D.so" );
+        tParameterlist( 0 )( 0 ).set( "library", "Shape_Sensitivity_Bspline_Surface_Mesh_3D.so" );
 
         tParameterlist( 2 )( 0 ) = moris::prm::create_sweep_parameter_list();
-        tParameterlist( 2 )( 0 ).set( "hdf5_path", "shape_opt_test_surface_mesh_2D.hdf5" );
+        tParameterlist( 2 )( 0 ).set( "finite_difference_epsilons", "1E-6" );
+        tParameterlist( 2 )( 0 ).set( "hdf5_path", "shape_opt_test_surface_mesh_3D.hdf5" );
         tParameterlist( 2 )( 0 ).set( "evaluate_objective_gradients", true );
         tParameterlist( 2 )( 0 ).set( "evaluate_constraint_gradients", true );
-        tParameterlist( 2 )( 0 ).set( "finite_difference_epsilons", "1E-8" );
         tParameterlist( 2 )( 0 ).set( "num_evaluations_per_adv", "1" );
         tParameterlist( 2 )( 0 ).set( "include_bounds", false );
         tParameterlist( 2 )( 0 ).set( "finite_difference_type", "all" );
     }
+
     //--------------------------------------------------------------------------------------------------------------
 
     void
