@@ -4,7 +4,7 @@
  *
  *------------------------------------------------------------------------------------
  *
- * Shape_Sensitivity_Bspline_3D.cpp
+ * Shape_Sensitivity_Bspline_Surface_Mesh_3D.cpp
  *
  */
 
@@ -29,16 +29,6 @@
 #include "fn_equal_to.hpp"
 
 #include "AztecOO.h"
-
-// Geometry model setup
-//         vertical cut         |  oblique cut
-// case 0: var: 0   + analytic  |  fixed                  dArea/ds = 0.45
-// case 1: fixed                |  var: 0    + analytic   dArea/ds = 1.2
-// case 2: var: 0   + analytic  |  var: 1    + analytic   dArea/ds = 0.45; 1.2
-// case 3: var: 1   + analytic  |  var: 0    + analytic   dArea/ds = 1.2; 0.45
-// case 4: var: 0-8 + b-spline  |  var: na
-// case 5: na                   |  var: 0-8  + b-spline
-// case 6: var: 0-8 + b-spline  |  var: 9-15 + b-spline
 
 extern uint tGeoModel;
 

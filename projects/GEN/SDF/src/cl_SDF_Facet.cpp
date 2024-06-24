@@ -240,11 +240,11 @@ namespace moris
 
         bool
         Facet::operator==( const Facet& aRHS ) const
-        {
-            return mVertices.size() != aRHS.get_number_of_vertices()
+        {            
+            return mVertices.size() == aRHS.get_number_of_vertices()
                 && all_true( this->get_vertex_ids() == aRHS.get_vertex_ids() )
-                && all_true( mNormal == aRHS.get_normal() )
-                && std::abs( mHesse - aRHS.get_hesse() ) < mIntersectionTolerance;
+                && std::abs( mHesse - aRHS.get_hesse() ) < mIntersectionTolerance
+                && this->get_id() == aRHS.get_id();
         }
     } /* namespace sdf */
 } /* namespace moris */

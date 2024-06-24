@@ -116,7 +116,7 @@ namespace moris::sdf
         // remove intersection locations that are behind the point
         for ( sint iIntersection = tIntersectionCoordinates.size() - 1; iIntersection > -1; iIntersection-- )
         {
-            if ( tIntersectionCoordinates( iIntersection ) < aPoint( aAxis ) )
+            if ( tIntersectionCoordinates( iIntersection ) + aObject.get_intersection_tolerance() < aPoint( aAxis )) // brendan added intersection tolerance in here
             {
                 tIntersectionCoordinates.erase( iIntersection );
                 aIntersectedFacets.erase( iIntersection );
@@ -216,7 +216,7 @@ namespace moris::sdf
             // check bounding box in J-direction
             if ( ( aPoint( tFirstAxis ) - aObject.get_facet_min_coord( iFacetIndex, tFirstAxis ) )
                             * ( aObject.get_facet_max_coord( iFacetIndex, tFirstAxis ) - aPoint( tFirstAxis ) )
-                    > -MORIS_REAL_EPS )
+                    > aObject.get_intersection_tolerance() )
             {
                 // remember this triangle
                 tCandJ( tCountJ ) = iFacetIndex;
@@ -238,7 +238,7 @@ namespace moris::sdf
             // check bounding box in I-direction
             if ( ( aPoint( tSecondAxis ) - aObject.get_facet_min_coord( tCandJ( k ), tSecondAxis ) )
                             * ( aObject.get_facet_max_coord( tCandJ( k ), tSecondAxis ) - aPoint( tSecondAxis ) )
-                    > -MORIS_REAL_EPS )
+                    > aObject.get_intersection_tolerance() )
             {
                 tCandidateFacets( tCount ) = tCandJ( k );
                 ++tCount;

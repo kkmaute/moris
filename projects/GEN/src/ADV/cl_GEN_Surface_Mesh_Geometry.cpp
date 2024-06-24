@@ -160,7 +160,7 @@ namespace moris::gen
             const Parent_Node&                aSecondParentNode,
             mtk::Geometry_Type                aBackgroundGeometryType,
             mtk::Interpolation_Order          aBackgroundInterpolationOrder )
-    {        
+    {
         // Determine the local coordinate of the intersection and the facet that intersects the parent edge
         sdf::Facet* tParentFacet     = nullptr;
         real        tLocalCoordinate = this->compute_intersection_local_coordinate( aBackgroundNodes, aFirstParentNode, aSecondParentNode, tParentFacet );
@@ -201,10 +201,10 @@ namespace moris::gen
         // uint tAxis = 0;
 
         // Get the unit vector from the first parent to the second parent
-        Matrix< DDRMat > tParentVector = trans( aSecondParentNode.get_global_coordinates() - aFirstParentNode.get_global_coordinates() );
-        real tParentVectorNorm = norm( tParentVector );
-        tParentVector = tParentVector / tParentVectorNorm;
-        
+        Matrix< DDRMat > tParentVector     = trans( aSecondParentNode.get_global_coordinates() - aFirstParentNode.get_global_coordinates() );
+        real             tParentVectorNorm = norm( tParentVector );
+        tParentVector                      = tParentVector / tParentVectorNorm;
+
         // augment with zero if 2D
         if ( tParentVector.numel() == 2 )
         {
