@@ -77,6 +77,13 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
 
+    bool Parameter::needs_linking() const
+    {
+        return mNeedsLinking;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     const External_Validator& Parameter::get_external_validator() const
     {
         return mExternalValidator;

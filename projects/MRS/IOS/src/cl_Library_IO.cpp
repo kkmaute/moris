@@ -529,8 +529,8 @@ namespace moris
                         // Get external validator
                         const External_Validator& tExternalValidator = iParameterPair.second.get_external_validator();
 
-                        // Check if another parameter list was given
-                        if ( tExternalValidator.mParameterListType != Parameter_List_Type::END_ENUM )
+                        // Check if parameter needs linking (has not been cross-validated yet)
+                        if ( iParameterPair.second.needs_linking() )
                         {
                             // Go through entry types
                             switch ( iParameterPair.second.get_entry_type() )
@@ -611,7 +611,7 @@ namespace moris
                                     }
                                     break;
                                 }
-                                case Entry_Type::FIXED_SIZE_VECTOR:
+                                case Entry_Type::LINKED_SIZE_VECTOR:
                                 {
                                     // Get valid external variants
                                     Vector< Variant > tExternalVariants = this->get_external_variants( tExternalValidator, tParameterList );

@@ -23,7 +23,7 @@ namespace moris
     {
         FREE,
         SELECTION,
-        FIXED_SIZE_VECTOR
+        LINKED_SIZE_VECTOR
     };
 
     /**
@@ -43,6 +43,7 @@ namespace moris
         Entry_Type mEntryType = Entry_Type::FREE;
         uint mNumberOfEntries = 1;
         Validator* mValidator;
+        bool mNeedsLinking = false;
         External_Validator mExternalValidator;
 
       public:
@@ -60,55 +61,17 @@ namespace moris
         Parameter(
                 T                   aParameterValue,
                 Entry_Type          aExternalValidationType,
-                std::string         aExternalParameterListName,
+                std::string         aExternalParameterName,
                 Parameter_List_Type aExternalParameterListType,
                 uint                aExternalParameterListIndex )
+                : mValue( make_variant( aParameterValue ) )
+                , mEntryType( aExternalValidationType )
+                , mNumberOfEntries( split_variant( mValue ).size() )
+                , mValidator( new Type_Validator< T >() )
+                , mNeedsLinking( aExternalValidationType != Entry_Type::FREE )
         {
-            // Set default value without validation
-            mValue = make_variant( aParameterValue );
-
-            // Create type validator
-            mValidator = new Type_Validator< T >();
-
-            // Set type
-            mEntryType = aExternalValidationType;
-
             // Set external validator
-            mExternalValidator.mParameterName = std::move( aExternalParameterListName );
-            mExternalValidator.mParameterListType = aExternalParameterListType;
-            mExternalValidator.mParameterListIndex = aExternalParameterListIndex;
-        }
-
-        /**
-         * Constructor for a vector parameter with a type validator.
-         *
-         * @tparam T Input parameter type
-         * @param aParameterValue Default value
-         * @param aExternalValidationType Type of external validation to perform
-         * @param aExternalParameterName Name of external parameter to validate with
-         * @param aExternalParameterListType External parameter list type to validate with
-         * @param aExternalParameterListIndex Index of given parameter list type to search
-         */
-        template< typename T >
-        Parameter(
-                Vector< T >         aParameterValue,
-                Entry_Type          aExternalValidationType,
-                std::string         aExternalParameterListName,
-                Parameter_List_Type aExternalParameterListType,
-                uint                aExternalParameterListIndex )
-                : mNumberOfEntries( 0 )
-        {
-            // Set default value without validation
-            mValue = make_variant( aParameterValue );
-
-            // Create type validator
-            mValidator = new Vector_Validator< T >();
-
-            // Set entry type
-            mEntryType = aExternalValidationType;
-
-            // Set external validator
-            mExternalValidator.mParameterName = std::move( aExternalParameterListName );
+            mExternalValidator.mParameterName = std::move( aExternalParameterName );
             mExternalValidator.mParameterListType = aExternalParameterListType;
             mExternalValidator.mParameterListIndex = aExternalParameterListIndex;
         }
@@ -247,6 +210,13 @@ namespace moris
          * @return Number of entries, or 0 if resizable
          */
         uint get_number_of_entries() const;
+
+        /**
+         * If this parameter needs to be linked to another parameter for validation.
+         *
+         * @return If linking is required
+         */
+        bool needs_linking() const;
 
         /**
          * Gets the external validator from this parameter, for validation after all parameter have been set.

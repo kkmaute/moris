@@ -230,7 +230,7 @@ namespace moris::prm
         tDesignParameterList.insert( "design_type", "" );                            // Insert the design type parameter
         tDesignParameterList.insert( "number_of_refinements", Vector< uint >() );    // Number of refinement steps using HMR
         tDesignParameterList.insert( "refinement_mesh_index", Vector< uint >(),      // Refinement pattern
-                Entry_Type::FIXED_SIZE_VECTOR,
+                Entry_Type::LINKED_SIZE_VECTOR,
                 "number_of_refinements" );
         tDesignParameterList.insert( "refinement_function_index", -1 );    // Index of user-defined refinement function (-1 = default)
 
