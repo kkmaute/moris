@@ -19,11 +19,11 @@
 
 namespace moris
 {
-    enum class Validation_Type
+    enum class Entry_Type
     {
-        NONE,
+        FREE,
         SELECTION,
-        SIZE
+        FIXED_SIZE_VECTOR
     };
 
     /**
@@ -31,7 +31,6 @@ namespace moris
      */
     struct External_Validator
     {
-        Validation_Type     mValidationType     = Validation_Type::NONE;
         std::string         mParameterName;
         Parameter_List_Type mParameterListType  = Parameter_List_Type::END_ENUM;
         uint                mParameterListIndex = 0;
@@ -41,6 +40,8 @@ namespace moris
     {
       private:
         Variant mValue;
+        Entry_Type mEntryType = Entry_Type::FREE;
+        uint mNumberOfEntries = 1;
         Validator* mValidator;
         External_Validator mExternalValidator;
 
@@ -56,9 +57,9 @@ namespace moris
          * @param aExternalParameterListIndex Index of given parameter list type to search
          */
         template< typename T >
-        explicit Parameter(
+        Parameter(
                 T                   aParameterValue,
-                Validation_Type     aExternalValidationType,
+                Entry_Type          aExternalValidationType,
                 std::string         aExternalParameterListName,
                 Parameter_List_Type aExternalParameterListType,
                 uint                aExternalParameterListIndex )
@@ -69,8 +70,44 @@ namespace moris
             // Create type validator
             mValidator = new Type_Validator< T >();
 
+            // Set type
+            mEntryType = aExternalValidationType;
+
             // Set external validator
-            mExternalValidator.mValidationType = aExternalValidationType;
+            mExternalValidator.mParameterName = std::move( aExternalParameterListName );
+            mExternalValidator.mParameterListType = aExternalParameterListType;
+            mExternalValidator.mParameterListIndex = aExternalParameterListIndex;
+        }
+
+        /**
+         * Constructor for a vector parameter with a type validator.
+         *
+         * @tparam T Input parameter type
+         * @param aParameterValue Default value
+         * @param aExternalValidationType Type of external validation to perform
+         * @param aExternalParameterName Name of external parameter to validate with
+         * @param aExternalParameterListType External parameter list type to validate with
+         * @param aExternalParameterListIndex Index of given parameter list type to search
+         */
+        template< typename T >
+        Parameter(
+                Vector< T >         aParameterValue,
+                Entry_Type          aExternalValidationType,
+                std::string         aExternalParameterListName,
+                Parameter_List_Type aExternalParameterListType,
+                uint                aExternalParameterListIndex )
+                : mNumberOfEntries( 0 )
+        {
+            // Set default value without validation
+            mValue = make_variant( aParameterValue );
+
+            // Create type validator
+            mValidator = new Vector_Validator< T >();
+
+            // Set entry type
+            mEntryType = aExternalValidationType;
+
+            // Set external validator
             mExternalValidator.mParameterName = std::move( aExternalParameterListName );
             mExternalValidator.mParameterListType = aExternalParameterListType;
             mExternalValidator.mParameterListIndex = aExternalParameterListIndex;
@@ -103,6 +140,7 @@ namespace moris
          */
         template< typename T >
         Parameter( T aParameterValue, const std::set< T >& aValidSelections )
+                : mEntryType( Entry_Type::SELECTION )
         {
             // Set default value without validation
             mValue = make_variant( aParameterValue );
@@ -197,6 +235,20 @@ namespace moris
         [[nodiscard]] uint index() const;
 
         /**
+         * Gets the type of entry for this parameter.
+         *
+         * @return Parameter type
+         */
+        Entry_Type get_entry_type() const;
+
+        /**
+         * Gets the number of entries this parameter requires.
+         *
+         * @return Number of entries, or 0 if resizable
+         */
+        uint get_number_of_entries() const;
+
+        /**
          * Gets the external validator from this parameter, for validation after all parameter have been set.
          *
          * @return External validator
@@ -215,5 +267,5 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     // Declare template specializations of the Parameter constructor
-    template<> Parameter::Parameter( const char*, Validation_Type, std::string, Parameter_List_Type, uint );
+    template<> Parameter::Parameter( const char*, Entry_Type, std::string, Parameter_List_Type, uint );
 }
