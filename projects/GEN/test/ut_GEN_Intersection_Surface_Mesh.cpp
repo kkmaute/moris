@@ -180,7 +180,7 @@ namespace moris::gen
             };
 
             // Intersection local coordinates solutions
-            Matrix< DDRMat > tIntersectionLocalCoordinates = { { 0.5, 0.5625, -5.0 / 6.0, -0.5625 } };
+            Vector< real > tIntersectionLocalCoordinates = { { 0.5, 0.5625, -5.0 / 6.0, -0.5625 } };
 
             // Intersection global coordinates solutions
             Vector< Matrix< DDRMat > > tIntersectionGlobalCoordinates = {
@@ -314,7 +314,7 @@ namespace moris::gen
         };
 
         // Intersection local coordinates solutions
-        Matrix< DDRMat > tIntersectionLocalCoordinates = { { 0.045454545454545454, 0.291666666666667, -0.642857142857142 } };
+        Vector< real > tIntersectionLocalCoordinates = { 0.045454545454545454, 0.291666666666667, -0.642857142857142 };
 
         // Intersection global coordinates solutions
         Vector< Matrix< DDRMat > > tIntersectionGlobalCoordinates = {
@@ -336,11 +336,6 @@ namespace moris::gen
 
             for ( uint iEdgeNumber = 0; iEdgeNumber < 12; iEdgeNumber++ )
             {
-
-                if ( ( iElementIndex == 3 and ( iEdgeNumber == 1 or iEdgeNumber == 2 or iEdgeNumber == 10 ) ) )
-                {
-                    std::cout << "The intersected one\n";
-                }
 
                 // Get the geometry engine result
                 bool tIntersected = tGeometryEngine.is_intersected_by_active_geometry( { { tSignedNodeIndices( tEdgeOrder( iEdgeNumber )( 0 ) ), tSignedNodeIndices( tEdgeOrder( iEdgeNumber )( 1 ) ) } } );

@@ -102,19 +102,6 @@ namespace moris::gen
                 mtk::Geometry_Type                aBackgroundGeometryType,
                 mtk::Interpolation_Order          aBackgroundInterpolationOrder ) = 0;
 
-        // /**
-        //  * Computes the local coordinate along a parent edge of an intersection node created using this geometry.
-        //  *
-        //  * @param aBackgroundNodes Background nodes of the element where the intersection lies
-        //  * @param aFirstParentNode Node marking the starting point of the intersection edge
-        //  * @param aSecondParentNode Node marking the ending point of the intersection edge
-        //  * @return Parent edge local coordinate, between -1 and 1
-        //  */
-        // virtual real compute_intersection_local_coordinate(
-        //         const Vector< Background_Node* >& aBackgroundNodes,
-        //         const Parent_Node&                aFirstParentNode,
-        //         const Parent_Node&                aSecondParentNode ) = 0; BRENDAN
-
         /**
          * Gets an MTK field, if this geometry uses one that needs to be remapped to a new mesh
          *

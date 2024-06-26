@@ -234,14 +234,14 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "PDV_types", "" );
         tParameterlist( 0 )( 0 ).set( "output_mesh_file", "gen_shape_sensitivities.exo" );
 
-        // Matrix< DDUMat > tPhaseMap( 2, 1, 0 );
-        // tPhaseMap( 0 ) = 1;
-        // tPhaseMap( 1 ) = 0;
-        // tParameterlist( 0 )( 0 ).set( "phase_table", moris::ios::stringify( tPhaseMap ) ); BRENDAN do I want this?
+        Matrix< DDUMat > tPhaseMap( 2, 1, 0 );
+        tPhaseMap( 0 ) = 1;
+        tPhaseMap( 1 ) = 0;
+        tParameterlist( 0 )( 0 ).set( "phase_table", moris::ios::stringify( tPhaseMap ) );
 
         tParameterlist( 1 ).resize( 1 );
         tParameterlist( 1 )( 0 ) = prm::create_surface_mesh_geometry_parameter_list();
-        tParameterlist( 1 )( 0 ).set( "file_path", "/home/chong/work/SU24/Input_Files/Surface_Meshes/tetra.obj" );    // BRENDAN FIXME
+        tParameterlist( 1 )( 0 ).set( "file_path", "/home/chong/codes/moris/projects/GEN/test/data/tetra.obj" );    // BRENDAN FIXME
 
         switch ( tGeoModel )
         {

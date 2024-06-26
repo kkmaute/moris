@@ -94,7 +94,7 @@ namespace moris::sdf
             case 3:
             {
                 // preselect triangles in positive and negative aAxis directions for intersection test
-                Vector< uint > tCandidateFacets = preselect_triangles( aObject, aPoint, aAxis );
+                Vector< uint > tCandidateFacets = preselect_triangles( aObject, aPoint, aAxis, true );
 
                 // FIXME: preselect_triangles() also gives triangles that are behind the cast point.
                 // These can be removed to avoid unnecessary computations in intersect_triangles() and intersect_ray_with_facets()
@@ -116,7 +116,7 @@ namespace moris::sdf
         // remove intersection locations that are behind the point
         for ( sint iIntersection = tIntersectionCoordinates.size() - 1; iIntersection > -1; iIntersection-- )
         {
-            if ( tIntersectionCoordinates( iIntersection ) + aObject.get_intersection_tolerance() < aPoint( aAxis ) )    // brendan added intersection tolerance in here
+            if ( tIntersectionCoordinates( iIntersection ) + aObject.get_intersection_tolerance() < aPoint( aAxis ) )
             {
                 tIntersectionCoordinates.erase( iIntersection );
                 aIntersectedFacets.erase( iIntersection );
@@ -177,7 +177,7 @@ namespace moris::sdf
             case 3:
             {
                 // preselect triangles for intersection test
-                Vector< uint > tCandidateFacets = preselect_triangles( aObject, aPoint, aAxis );
+                Vector< uint > tCandidateFacets = preselect_triangles( aObject, aPoint, aAxis, false );
 
                 // from the candidate triangles, perform intersection
                 Vector< Facet* > tIntersectedFacets = intersect_triangles( tCandidateFacets, aObject, aPoint, aAxis );
@@ -202,8 +202,11 @@ namespace moris::sdf
     preselect_triangles(
             Object&                 aObject,
             const Matrix< DDRMat >& aPoint,
-            uint                    aAxis )
+            uint                    aAxis,
+            bool                    aCaptureEdges )
     {
+        real tToleranceSign = aCaptureEdges ? -1.0 : 1.0;
+
         // select the axes that are not being cast in to preselect along (for a cast in the i-dir, preselect in j and k-dir)
         uint tFirstAxis;
         uint tSecondAxis;
@@ -216,7 +219,7 @@ namespace moris::sdf
             // check bounding box in J-direction
             if ( ( aPoint( tFirstAxis ) - aObject.get_facet_min_coord( iFacetIndex, tFirstAxis ) )
                             * ( aObject.get_facet_max_coord( iFacetIndex, tFirstAxis ) - aPoint( tFirstAxis ) )
-                    > aObject.get_intersection_tolerance() )
+                    > tToleranceSign * MORIS_REAL_EPS )
             {
                 // remember this triangle
                 tCandJ( tCountJ ) = iFacetIndex;
@@ -238,7 +241,7 @@ namespace moris::sdf
             // check bounding box in I-direction
             if ( ( aPoint( tSecondAxis ) - aObject.get_facet_min_coord( tCandJ( k ), tSecondAxis ) )
                             * ( aObject.get_facet_max_coord( tCandJ( k ), tSecondAxis ) - aPoint( tSecondAxis ) )
-                    > aObject.get_intersection_tolerance() )
+                    > tToleranceSign * MORIS_REAL_EPS )
             {
                 tCandidateFacets( tCount ) = tCandJ( k );
                 ++tCount;

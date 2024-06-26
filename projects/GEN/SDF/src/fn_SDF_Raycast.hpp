@@ -77,17 +77,17 @@ namespace moris::sdf
      * These triangles are returned. Helps speed up the raycast by avoiding checking intersections with unrelated facets.
      *
      * @param aObject water tight collection of facets to cast on to
-     * @param aFacetMinCoords minimum bounding coordinates of aObject
-     * @param aFacetMaxCoords maximum bounding coordinates of aObject
      * @param aPoint Point in space that lies within the bounding plane of the candidate triangles
      * @param aAxis direction in which the ray is cast
+     * @param aCaptureEdges whether to capture the edges of the object. Doing so ensures intersections will be computed on them, but could cause improper region determination
      * @return facet indices which could be intersected by the ray
      */
     Vector< uint >
     preselect_triangles(
             Object&                 aObject,
             const Matrix< DDRMat >& aPoint,
-            uint                    aAxis );
+            uint                    aAxis,
+            bool                    aCaptureEdges = false );
 
     //-------------------------------------------------------------------------------
 

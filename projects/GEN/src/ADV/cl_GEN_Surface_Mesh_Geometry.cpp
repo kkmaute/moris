@@ -125,10 +125,6 @@ namespace moris::gen
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aNodeCoordinates )
     {
-        if ( aNodeIndex == 69 )
-        {
-            PRINT( aNodeCoordinates );
-        }
         // Raycast from the point
         sdf::Object_Region tRegion = raycast_point( *this, aNodeCoordinates );
 
@@ -165,17 +161,6 @@ namespace moris::gen
             mtk::Geometry_Type                aBackgroundGeometryType,
             mtk::Interpolation_Order          aBackgroundInterpolationOrder )
     {
-        // if ( aNodeIndex == 119 or aNodeIndex == 972 or aNodeIndex == 984 or aNodeIndex == 1052 or aNodeIndex == 1193 ) // BRENDAN problematic nodes
-        if ( aNodeIndex == 1052 )
-        {
-            std::cout << "First parent node index: " << aFirstParentNode.get_index() << std::endl;
-            PRINT( aFirstParentNode.get_global_coordinates() );
-            sdf::Object_Region tFirstParentNodeRegion = raycast_point( *this, aFirstParentNode.get_global_coordinates() );
-            std::cout << "First parent node region: " << tFirstParentNodeRegion << std::endl;
-            std::cout << "Second parent node index: " << aSecondParentNode.get_index() << std::endl;
-            PRINT( aSecondParentNode.get_global_coordinates() );
-        }
-
         // Determine the local coordinate of the intersection and the facet that intersects the parent edge
         sdf::Facet* tParentFacet     = nullptr;
         real        tLocalCoordinate = this->compute_intersection_local_coordinate( aBackgroundNodes, aFirstParentNode, aSecondParentNode, tParentFacet );
@@ -313,7 +298,7 @@ namespace moris::gen
         }
 
         // reset the object to the vertex coordinates at the current design iteration if the surface mesh was rotated
-        if ( tIsAnAxis )
+        if ( not tIsAnAxis )
         {
             this->reset_coordinates();
         }
@@ -340,7 +325,7 @@ namespace moris::gen
         }
         else if ( tNumberOfParentEdgeIntersections > 1 )
         {
-            MORIS_LOG_WARNING( "Multiple facet intersections detected along parent edge. Using first intersection." );
+            MORIS_LOG_WARNING( "Multiple facet intersections detected along parent edge. Using first intersection." );    // BRENDAN remove
         }
 
         // Set return values for intersection location and associated facet
