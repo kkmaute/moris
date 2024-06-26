@@ -132,8 +132,8 @@ namespace moris::xtk
 
             // define a generic lambda function to check if two values are equal within a threshold ( works for moris_index and real types)
             auto isEqualLambda = []( const auto& a, const auto& b ) {
-                moris::real const & error_factor = 1.0;
-                return moris::equal_to( a, b, error_factor );
+                moris::real const & tErrorFactor = 1.0;
+                return moris::equal_to( a, b, tErrorFactor );
             };
 
             CHECK( std::equal( tExpectedWeights.begin(), tExpectedWeights.end(), tBasisWeightsBeforeExtension->begin(), isEqualLambda ) );

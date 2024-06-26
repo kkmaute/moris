@@ -204,7 +204,7 @@ namespace moris::gen
                 for ( uint iNodeNumber = 0; iNodeNumber < 4; iNodeNumber++ )
                 {
                     // Get the geometry engine result
-                    bool tIntersected = tGeometryEngine.is_intersected_by_active_geometry( { { tSignedNodeIndices( iNodeNumber ), tSignedNodeIndices( ( iNodeNumber + 1 ) % 8 ) } } );
+                    bool tIntersected = tGeometryEngine.is_intersected_by_active_geometry( { { tSignedNodeIndices( iNodeNumber ), tSignedNodeIndices( ( iNodeNumber + 1 ) % 4 ) } } );
 
                     // check that these are equal
                     REQUIRE( tIntersected == tIsEdgeIntersected( iElementIndex )( iNodeNumber ) );

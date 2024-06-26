@@ -96,7 +96,7 @@ namespace moris::sdf
                 // preselect triangles in positive and negative aAxis directions for intersection test
                 Vector< uint > tCandidateFacets = preselect_triangles( aObject, aPoint, aAxis );
 
-                // FIXME: preselect_triangles() also gives triangles that are behind the cast point. 
+                // FIXME: preselect_triangles() also gives triangles that are behind the cast point.
                 // These can be removed to avoid unnecessary computations in intersect_triangles() and intersect_ray_with_facets()
 
                 // from the candidate triangles, see which triangles will actually be intersected
@@ -116,7 +116,7 @@ namespace moris::sdf
         // remove intersection locations that are behind the point
         for ( sint iIntersection = tIntersectionCoordinates.size() - 1; iIntersection > -1; iIntersection-- )
         {
-            if ( tIntersectionCoordinates( iIntersection ) + aObject.get_intersection_tolerance() < aPoint( aAxis )) // brendan added intersection tolerance in here
+            if ( tIntersectionCoordinates( iIntersection ) + aObject.get_intersection_tolerance() < aPoint( aAxis ) )    // brendan added intersection tolerance in here
             {
                 tIntersectionCoordinates.erase( iIntersection );
                 aIntersectedFacets.erase( iIntersection );
@@ -375,7 +375,7 @@ namespace moris::sdf
         // Vector to check each edge
         Vector< uint > tEdges = { 0, 1, 2 };
 
-        // loop over all candidates
+        // Determine how many facets are intersected and flag them accordingly
         for ( uint iCandidateFacetIndex : aCandidateFacets )
         {
             // get reference to triangle

@@ -191,18 +191,21 @@ namespace moris
         Triangle::calculate_prediction_helpers()
         {
             // values for cross prediction
-            uint i;
-            uint j;
-            uint p;
-            uint q;
-            for ( moris::uint k = 0; k < 3; ++k )
+            uint i;    // first off axis
+            uint j;    // second off axis
+            uint p;    // first off vertex
+            uint q;    // second off vertex
+            for ( moris::uint iAxis = 0; iAxis < 3; ++iAxis )
             {
-                triangle_permutation( k, i, j );
+                // get the other two axes (i,j) for the current axis k
+                triangle_permutation( iAxis, i, j );
 
-                for ( uint r = 0; r < 3; ++r )
+                for ( uint iVertex = 0; iVertex < 3; ++iVertex )
                 {
-                    triangle_permutation( r, p, q );
+                    // get the other two axes (p,q) for the current axis r
+                    triangle_permutation( iVertex, p, q );
                     real tDelta = mVertices( p )->get_coord( i ) - mVertices( q )->get_coord( i );
+                    // check if the delta is too small, and set accordingly if so
                     if ( std::abs( tDelta ) < mIntersectionTolerance )
                     {
                         if ( tDelta < 0 )
@@ -211,12 +214,9 @@ namespace moris
                             tDelta = mIntersectionTolerance;
                     }
 
-                    mPredictYRA( r, k ) = ( mVertices( p )->get_coord( j ) - mVertices( q )->get_coord( j ) ) / tDelta;
-
-                    mPredictY( r, k ) = mVertices( p )->get_coord( j )
-                                      + mPredictYRA( r, k ) * ( mVertices( r )->get_coord( i ) - mVertices( p )->get_coord( i ) );
-
-                    mPredictYRB( r, k ) = mVertices( p )->get_coord( j ) - mVertices( p )->get_coord( i ) * mPredictYRA( r, k );
+                    mPredictYRA( iVertex, iAxis ) = ( mVertices( p )->get_coord( j ) - mVertices( q )->get_coord( j ) ) / tDelta;
+                    mPredictY( iVertex, iAxis )   = mVertices( p )->get_coord( j ) + mPredictYRA( iVertex, iAxis ) * ( mVertices( iVertex )->get_coord( i ) - mVertices( p )->get_coord( i ) );
+                    mPredictYRB( iVertex, iAxis ) = mVertices( p )->get_coord( j ) - mVertices( p )->get_coord( i ) * mPredictYRA( iVertex, iAxis );
                 }
             }
         }
@@ -231,10 +231,10 @@ namespace moris
                 const uint              aAxis,
                 const Matrix< DDRMat >& aPoint )
         {
-            uint tI;
-            uint tJ;
-            uint tP;
-            uint tQ;
+            uint tI;    // first off axis
+            uint tJ;    // second off axis
+            uint tP;    // first off vertex
+            uint tQ;    // second off vertex
 
             // permutation parameter for axis
             triangle_permutation( aAxis, tI, tJ );

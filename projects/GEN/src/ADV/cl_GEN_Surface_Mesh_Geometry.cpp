@@ -125,6 +125,10 @@ namespace moris::gen
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aNodeCoordinates )
     {
+        if ( aNodeIndex == 69 )
+        {
+            PRINT( aNodeCoordinates );
+        }
         // Raycast from the point
         sdf::Object_Region tRegion = raycast_point( *this, aNodeCoordinates );
 
@@ -161,11 +165,22 @@ namespace moris::gen
             mtk::Geometry_Type                aBackgroundGeometryType,
             mtk::Interpolation_Order          aBackgroundInterpolationOrder )
     {
+        // if ( aNodeIndex == 119 or aNodeIndex == 972 or aNodeIndex == 984 or aNodeIndex == 1052 or aNodeIndex == 1193 ) // BRENDAN problematic nodes
+        if ( aNodeIndex == 1052 )
+        {
+            std::cout << "First parent node index: " << aFirstParentNode.get_index() << std::endl;
+            PRINT( aFirstParentNode.get_global_coordinates() );
+            sdf::Object_Region tFirstParentNodeRegion = raycast_point( *this, aFirstParentNode.get_global_coordinates() );
+            std::cout << "First parent node region: " << tFirstParentNodeRegion << std::endl;
+            std::cout << "Second parent node index: " << aSecondParentNode.get_index() << std::endl;
+            PRINT( aSecondParentNode.get_global_coordinates() );
+        }
+
         // Determine the local coordinate of the intersection and the facet that intersects the parent edge
         sdf::Facet* tParentFacet     = nullptr;
         real        tLocalCoordinate = this->compute_intersection_local_coordinate( aBackgroundNodes, aFirstParentNode, aSecondParentNode, tParentFacet );
 
-        MORIS_ERROR( tParentFacet == nullptr or ( tLocalCoordinate < 1 + this->get_intersection_tolerance() and tLocalCoordinate > -1 - this->get_intersection_tolerance() ),
+        MORIS_ERROR( tParentFacet == nullptr or ( tLocalCoordinate < 1.0 + this->get_intersection_tolerance() and tLocalCoordinate > -1.0 - this->get_intersection_tolerance() ),
                 "Intersection node local coordinate is not between -1 and 1 or parent facet is null. Local coordinate = %f",
                 tLocalCoordinate );
 
@@ -191,78 +206,117 @@ namespace moris::gen
             sdf::Facet*&                      aParentFacet )
     {
         // -------------------------------------------------------------------------------------
-        // STEP 1: Determine if the parent edge is along an axis and if so cast along that axis. If not, rotate the object so the parent edge is along the x axis
+        // STEP 1: Determine if the parent edge is along an axis and if so cast along that axis.
+        //         If not, rotate the object so the parent edge is along the x axis
         // -------------------------------------------------------------------------------------
 
-        // Flag that is true if the parent edge is along a negative axis, meaning the local coordinate needs to be negated after computation
-        // bool tReflectionRequired = false;
+        // Axis to perform raycast along
+        uint tAxis;
 
-        // // Axis to cast along
-        // uint tAxis = 0;
+        // Point to originate ray from
+        Matrix< DDRMat > tCastPoint( Object::mDimension, 1 );
+
+        // Sign to flip the intersection coordinates
+        real tSign;
 
         // Get the unit vector from the first parent to the second parent
-        Matrix< DDRMat > tParentVector     = trans( aSecondParentNode.get_global_coordinates() - aFirstParentNode.get_global_coordinates() );
-        real             tParentVectorNorm = norm( tParentVector );
-        tParentVector                      = tParentVector / tParentVectorNorm;
+        Matrix< DDRMat > tParentVector = trans( aSecondParentNode.get_global_coordinates() - aFirstParentNode.get_global_coordinates() );
 
-        // augment with zero if 2D
-        if ( tParentVector.numel() == 2 )
+        // See if the parent vector is along an axis by determining the number of non-zero components
+        bool tIsAnAxis = std::count_if( tParentVector.cbegin(), tParentVector.cend(), [ this ]( real aValue ) -> bool { return std::abs( aValue ) > this->get_intersection_tolerance(); } ) == 1;
+
+        // the parent vector lies along an axis, get which axis it lies on
+        if ( not tIsAnAxis )
         {
-            tParentVector.resize( 3, 1 );
-        }
+            // Rotate the object so the parent edge is along the x axis
+            tAxis      = 0;
+            tSign      = 1.0;
+            tCastPoint = trans( aFirstParentNode.get_global_coordinates() );
 
-        // Initialize rotation matrix
-        Matrix< DDRMat > tRotationMatrix( 3, 1 );
-        Matrix< DDRMat > tCastAxis = { { 1.0 }, { 0.0 }, { 0.0 } };
+            real tParentVectorNorm = norm( tParentVector );
+            tParentVector          = tParentVector / tParentVectorNorm;
 
-        // If the parent vector is in the -x direction, make the rotation matrix a relfection about the yz plane
-        if ( norm( tParentVector + tCastAxis ) < this->get_intersection_tolerance() )
-        {
-            tRotationMatrix = { { -1.0, 0.0, 0.0 }, { 0.0, 1.0, 0.0 }, { 0.0, 0.0, 1.0 } };
+            // augment with zero if 2D
+            if ( tParentVector.numel() == 2 )
+            {
+                tParentVector.resize( 3, 1 );
+            }
+
+            // Initialize rotation matrix
+            Matrix< DDRMat > tRotationMatrix( 3, 1 );
+            Matrix< DDRMat > tCastAxis = { { 1.0 }, { 0.0 }, { 0.0 } };
+
+            // If the parent vector is in the -x direction, make the rotation matrix a relfection about the yz plane
+            if ( norm( tParentVector + tCastAxis ) < this->get_intersection_tolerance() )
+            {
+                tRotationMatrix = { { -1.0, 0.0, 0.0 }, { 0.0, 1.0, 0.0 }, { 0.0, 0.0, 1.0 } };
+            }
+            // otherwise compute the rotation matrix with Rodrigues' rotation formula
+            else
+            {
+                Matrix< DDRMat > tAntisymmetricCrossProduct = { { 0, tParentVector( 1 ), tParentVector( 2 ) },
+                    { -tParentVector( 1 ), 0.0, 0.0 },
+                    { -tParentVector( 2 ), 0.0, 0.0 } };
+
+                Matrix< DDRMat > tAntisymmetricCrossProductSquared = { { -std::pow( tParentVector( 1 ), 2 ) - std::pow( tParentVector( 2 ), 2 ), 0.0, 0.0 },
+                    { 0.0, -std::pow( tParentVector( 1 ), 2 ), -tParentVector( 1 ) * tParentVector( 2 ) },
+                    { 0.0, -tParentVector( 1 ) * tParentVector( 2 ), -std::pow( tParentVector( 2 ), 2 ) } };
+
+                tRotationMatrix = eye( 3, 3 ) + tAntisymmetricCrossProduct + ( 1 / ( 1 + tParentVector( 0 ) ) ) * tAntisymmetricCrossProductSquared;
+            }
+
+            // check that the rotation matrix is correct by ensuring the parent vector was rotated to the x axis
+            MORIS_ASSERT( norm( tRotationMatrix * tParentVector - tCastAxis ) < this->get_intersection_tolerance(),
+                    "Rotation matrix should rotate the parent vector to the x axis." );
+
+            // trim the transformation matrix if 2D
+            if ( Object::mDimension == 2 )
+            {
+                tRotationMatrix.resize( 2, 2 );
+            }
+
+            // rotate the object
+            this->rotate( tRotationMatrix );
+
+            // rotate the cast point
+            tCastPoint = tRotationMatrix * tCastPoint;
         }
-        // otherwise compute the rotation matrix with Rodrigues' rotation formula
         else
         {
-            Matrix< DDRMat > tAntisymmetricCrossProduct = { { 0, tParentVector( 1 ), tParentVector( 2 ) },
-                { -tParentVector( 1 ), 0.0, 0.0 },
-                { -tParentVector( 2 ), 0.0, 0.0 } };
+            // Get the index of the nonzero axis
+            auto tNonZeroValueLambda = [ this ]( real aValue ) -> bool { return std::abs( aValue ) > this->get_intersection_tolerance(); };
+            tAxis                    = std::distance( tParentVector.cbegin(), std::find_if( tParentVector.cbegin(), tParentVector.cend(), tNonZeroValueLambda ) );
 
-            Matrix< DDRMat > tAntisymmetricCrossProductSquared = { { -std::pow( tParentVector( 1 ), 2 ) - std::pow( tParentVector( 2 ), 2 ), 0.0, 0.0 },
-                { 0.0, -std::pow( tParentVector( 1 ), 2 ), -tParentVector( 1 ) * tParentVector( 2 ) },
-                { 0.0, -tParentVector( 1 ) * tParentVector( 2 ), -std::pow( tParentVector( 2 ), 2 ) } };
-
-            tRotationMatrix = eye( 3, 3 ) + tAntisymmetricCrossProduct + ( 1 / ( 1 + tParentVector( 0 ) ) ) * tAntisymmetricCrossProductSquared;
+            // Get the sign of the axis
+            if ( tParentVector( tAxis ) > 0 )
+            {
+                tSign      = 1.0;
+                tCastPoint = aFirstParentNode.get_global_coordinates();
+            }
+            else
+            {
+                tSign      = -1.0;
+                tCastPoint = aSecondParentNode.get_global_coordinates();
+            }
         }
 
-        // check that the rotation matrix is correct by ensuring the parent vector was rotated to the x axis
-        MORIS_ASSERT( norm( tRotationMatrix * tParentVector - tCastAxis ) < this->get_intersection_tolerance(),
-                "Rotation matrix should rotate the parent vector to the x axis." );
-
-        // trim the transformation matrix if 2D
-        if ( Object::mDimension == 2 )
-        {
-            tRotationMatrix.resize( 2, 2 );
-        }
-
-        // rotate the object
-        this->rotate( tRotationMatrix );
-
         // -------------------------------------------------------------------------------------
-        // STEP 2: Compute the distance to from the first parent to all the facets
+        // STEP 2: Compute the distance from the first parent to all the facets
         // -------------------------------------------------------------------------------------
-        Matrix< DDRMat >      tCastPoint = tRotationMatrix * trans( aFirstParentNode.get_global_coordinates() );
         Vector< sdf::Facet* > tIntersectionFacets;
-        Vector< real >        tLocalCoordinate = sdf::compute_distance_to_facets( *this, tCastPoint, 0, tIntersectionFacets );
+        Vector< real >        tLocalCoordinate = sdf::compute_distance_to_facets( *this, tCastPoint, tAxis, tIntersectionFacets );
 
         // Put the intersections in the local coordinate frame
         for ( uint iIntersection = 0; iIntersection < tLocalCoordinate.size(); iIntersection++ )
         {
-            tLocalCoordinate( iIntersection ) = 2.0 / norm( aSecondParentNode.get_global_coordinates() - aFirstParentNode.get_global_coordinates() ) * ( tLocalCoordinate( iIntersection ) - tCastPoint( 0 ) ) - 1.0;
+            tLocalCoordinate( iIntersection ) = tSign * ( 2.0 / norm( aSecondParentNode.get_global_coordinates() - aFirstParentNode.get_global_coordinates() ) * ( tLocalCoordinate( iIntersection ) - tCastPoint( tAxis ) ) - 1.0 );
         }
 
-        // reset the object to the vertex coordinates at the current design iteration
-        this->reset_coordinates();
-
+        // reset the object to the vertex coordinates at the current design iteration if the surface mesh was rotated
+        if ( tIsAnAxis )
+        {
+            this->reset_coordinates();
+        }
 
         // -------------------------------------------------------------------------------------
         // STEP 3: Process the intersection information and determine if the surface mesh intersects the parent edge

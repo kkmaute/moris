@@ -25,7 +25,7 @@ namespace moris::sdf
      * Conducts a raycast to determine if aPoint is inside or outside of the object. Casts rays in each coordinate direction until the point is resolved.
      * Also determines intersection locations along the coordinate axes of aPoint with each facet.
      *
-     * @param aPoint coordinate point in which the ray will originate
+     * @param aPoint coordinate point in which the ray will originate. Passed by value to avoid modifying the original point if rotations are necessary
      */
     Object_Region
     raycast_point(
