@@ -5,7 +5,7 @@ close all
 %% User Inputs
 
 % Surface mesh inputs
-fileName = "/home/chong/work/SU24/Input_Files/Sphere/sphere";   % File name including full path but NOT extension
+fileName = "";   % string for file name including full path but NOT extension
 iterations = 0;                                                 % Optimization iteration you wish to plot
 
 % FEM Mesh inputs
