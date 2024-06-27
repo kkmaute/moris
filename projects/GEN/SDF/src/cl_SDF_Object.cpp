@@ -177,26 +177,26 @@ namespace moris::sdf
             {
                 // temporary container for vertices
                 Vector< std::shared_ptr< Facet_Vertex > > tNodes( mDimension, nullptr );
-                Matrix< DDUMat >                          tNodeIndices( 3, 1 );
-                // read facet topology
-                if ( mDimension == 3 )
+                Vector< uint >                            tNodeIndices( mDimension );
+
+                // get the facet indices excluding any texture and normal vector information. Facets are formatted as "f v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3"
+                // note: the indices are one-based
+                moris::size_t tStart = 2;
+                moris::size_t tEnd   = tBuffer( k ).find( "/" ) == std::string::npos ? tBuffer( k ).find( " ", tStart ) : tBuffer( k ).find( "/", tStart );
+
+                for ( uint iVertex = 0; iVertex < mDimension; iVertex++ )
                 {
-                    std::sscanf( tBuffer( k ).substr( 2, tBuffer( k ).length() ).c_str(),
-                            "%u %u %u",
-                            &tNodeIndices( 0 ),
-                            &tNodeIndices( 1 ),
-                            &tNodeIndices( 2 ) );
-                }
-                else if ( mDimension == 2 )
-                {
-                    std::sscanf( tBuffer( k ).substr( 2, tBuffer( k ).length() ).c_str(),
-                            "%u %u",
-                            &tNodeIndices( 0 ),
-                            &tNodeIndices( 1 ) );
-                }
-                else
-                {
-                    MORIS_ERROR( false, "SDF Object() - .obj files with %d dimensions not supported.", mDimension );
+                    // Parse the v1 part of vertex
+                    tNodeIndices( iVertex ) = std::stoi( tBuffer( k ).substr( tStart, tEnd - tStart ) );
+
+                    // Move indices to the next vertex
+                    tStart = tBuffer( k ).find( " ", tEnd );
+                    if ( tStart == std::string::npos )
+                    {
+                        break;
+                    }
+                    tStart++;
+                    tEnd = tBuffer( k ).find( "/", tStart ) == std::string::npos ? tBuffer( k ).find( " ", tStart ) : tBuffer( k ).find( "/", tStart );
                 }
 
                 // assign vertices with facet
