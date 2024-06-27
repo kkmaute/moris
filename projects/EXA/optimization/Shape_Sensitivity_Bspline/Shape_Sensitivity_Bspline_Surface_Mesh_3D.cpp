@@ -155,7 +155,7 @@ namespace moris
     real
     Facet_Vertex_Factor( const uint aFacetVertexIndex, const Matrix< DDRMat >& aCoordinates, const uint aDirection )
     {
-        if ( aFacetVertexIndex == 3 and aDirection == 0 )
+        if ( aFacetVertexIndex == 2 and aDirection == 0 )
         {
             return 0.5;
         }
@@ -198,6 +198,7 @@ namespace moris
         // tParameterlist( 0 )( 0 ).set( "severity_level", 1 );
 
         tParameterlist( 0 )( 0 ).set( "adaptive_refinement_level", 1 );
+        tParameterlist( 0 )( 0 ).set( "use_advanced_T_matrix_scheme", 1 );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -242,6 +243,7 @@ namespace moris
         tParameterlist( 1 ).resize( 1 );
         tParameterlist( 1 )( 0 ) = prm::create_surface_mesh_geometry_parameter_list();
         tParameterlist( 1 )( 0 ).set( "file_path", "/home/chong/codes/moris/projects/GEN/test/data/tetra.obj" );    // BRENDAN FIXME
+        tParameterlist( 1 )( 0 ).set( "offset", -0.6, -0.6, 0.0 );
 
         switch ( tGeoModel )
         {

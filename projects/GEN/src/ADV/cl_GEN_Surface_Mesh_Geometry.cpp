@@ -609,8 +609,8 @@ namespace moris::gen
         // Return true if this surface mesh can move, its movement was not fixed in all directions by the user, and it lies in the Lagrange mesh domain
         return this->depends_on_advs()
            and mVertexBackgroundElements( aFacetVertexIndex ) != nullptr
-           and ( mVertexFactorFunction == nullptr or                       //
-                   std::all_of( tDimensions.begin(), tDimensions.end(),    //
+           and ( mVertexFactorFunction == nullptr or                         //
+                   std::any_of( tDimensions.cbegin(), tDimensions.cend(),    //
                            [ & ]( const uint aDimension ) { return mVertexFactorFunction( aFacetVertexIndex, Object::mVertices( aFacetVertexIndex )->get_coords(), aDimension ) != 0.0; } ) );
     }
 
