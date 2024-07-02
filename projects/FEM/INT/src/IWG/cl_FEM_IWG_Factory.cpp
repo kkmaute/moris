@@ -24,9 +24,8 @@
 // #include "cl_FEM_IWG_Olsson_CLS_Bulk.hpp"
 // #include "cl_FEM_IWG_Olsson_CLS_Interface.hpp"
 #include "cl_FEM_IWG_Hamilton_Jacobi_Bulk_Test.hpp"
-#include "cl_FEM_IWG_Nonlocal_Bulk.hpp"
 #include "cl_FEM_IWG_Nonlocal_Interface.hpp"
-#include "cl_FEM_IWG_History_Bulk.hpp"
+#include "cl_FEM_IWG_L2_Damage_Bulk.hpp"
 // Diffusion
 #include "cl_FEM_IWG_Diffusion_Bulk.hpp"
 #include "cl_FEM_IWG_Diffusion_Dirichlet_Nitsche.hpp"
@@ -120,17 +119,20 @@ namespace moris
                 case IWG_Type::HJTEST:
                     return std::make_shared< IWG_Hamilton_Jacobi_Bulk_Test >();
 
-                case IWG_Type::NONLOCAL_BULK:
-                    return std::make_shared< IWG_Nonlocal_Bulk >();
-
                 case IWG_Type::NONLOCAL_INTERFACE_SYMMETRIC_NITSCHE:
                     return std::make_shared< IWG_Nonlocal_Interface >( -1 );
 
                 case IWG_Type::NONLOCAL_INTERFACE_UNSYMMETRIC_NITSCHE:
                     return std::make_shared< IWG_Nonlocal_Interface >( 1 );
 
-                case IWG_Type::HISTORY_BULK:
-                    return std::make_shared< IWG_History_Bulk >();
+                case IWG_Type::L2_EQSTRAIN_BULK:
+                    return std::make_shared< IWG_L2_Damage_Bulk >( 0 );
+
+                case IWG_Type::L2_HISTORY_BULK:
+                    return std::make_shared< IWG_L2_Damage_Bulk >( 1 );
+
+                case IWG_Type::L2_DAMAGE_BULK:
+                    return std::make_shared< IWG_L2_Damage_Bulk >( 2 );
 
                     //                case IWG_Type::HELMHOLTZ :
                     //                    return std::make_shared< IWG_Helmholtz_Bulk >();

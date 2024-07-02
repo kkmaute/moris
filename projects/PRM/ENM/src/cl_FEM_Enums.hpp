@@ -42,12 +42,13 @@ namespace moris
             HELMHOLTZ,    // Helmholtz
             HELMHOLTZ_INTERFACE_SYMMETRIC_NITSCHE,
             HELMHOLTZ_INTERFACE_UNSYMMETRIC_NITSCHE,
-            LSNORMAL,         // LS normal
-            OLSSON,           // Olsson et al. (2007) reinitialization
-            NONLOCAL_BULK,    // Nonlocal
-            HISTORY_BULK,     // History
+            LSNORMAL,    // LS normal
+            OLSSON,      // Olsson et al. (2007) reinitialization
             NONLOCAL_INTERFACE_SYMMETRIC_NITSCHE,
             NONLOCAL_INTERFACE_UNSYMMETRIC_NITSCHE,
+            L2_EQSTRAIN_BULK,
+            L2_HISTORY_BULK,
+            L2_DAMAGE_BULK,
 
             SPATIALDIFF_BULK,                             // spatial diffusion bulk
             SPATIALDIFF_PC_BULK,                          // spatial diffusion bulk with phase change
