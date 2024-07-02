@@ -86,8 +86,7 @@ namespace moris::sdf
     preselect_triangles(
             Object&                 aObject,
             const Matrix< DDRMat >& aPoint,
-            uint                    aAxis,
-            bool                    aCaptureEdges = false );
+            uint                    aAxis );
 
     //-------------------------------------------------------------------------------
 
