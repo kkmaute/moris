@@ -18,7 +18,6 @@ namespace moris
 {
     namespace fem
     {
-
         //------------------------------------------------------------------------------
 
         enum class Element_Type
@@ -144,12 +143,17 @@ namespace moris
             SPALART_ALLMARAS_TURBULENCE_DIRICHLET_UNSYMMETRIC_NITSCHE,
             SPALART_ALLMARAS_TURBULENCE_INTERFACE_SYMMETRIC_NITSCHE,
             SPALART_ALLMARAS_TURBULENCE_INTERFACE_UNSYMMETRIC_NITSCHE,
+
             STRUC_LINEAR_CONTACT_SYMMETRIC_NITSCHE,
             STRUC_LINEAR_CONTACT_UNSYMMETRIC_NITSCHE,
             STRUC_LINEAR_CONTACT_GAP_SYMMETRIC_NITSCHE,
             STRUC_LINEAR_CONTACT_GAP_UNSYMMETRIC_NITSCHE,
             STRUC_LINEAR_CONTACT_PENALTY,
+
             GHOST_NORMAL_FIELD,
+
+            USER_DEFINED,
+
             END_IWG_TYPE
         };
 
@@ -440,7 +444,7 @@ namespace moris
             HISTORY,
             END_CM_REQUEST_TYPE
         };
-    } /* namespace fem */
-} /* namespace moris */
+    }    // namespace fem
+}    // namespace moris
 
 #endif /* SRC_FEM_CL_FEM_ENUMS_HPP_ */
