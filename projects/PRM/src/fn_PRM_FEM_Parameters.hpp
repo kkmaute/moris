@@ -158,7 +158,7 @@ namespace moris
 
             tParameterList.insert( "IWG_name", "undefined" );
             tParameterList.insert( "IWG_bulk_type", fem::Element_Type::BULK, fem::Element_Type::BULK, fem::Element_Type::TIME_BOUNDARY );
-            tParameterList.insert( "IWG_type", fem::IWG_Type::UNDEFINED, fem::IWG_Type::L2, fem::IWG_Type::GHOST_NORMAL_FIELD );
+            tParameterList.insert( "IWG_type", fem::IWG_Type::UNDEFINED, fem::IWG_Type::L2, fem::IWG_Type::USER_DEFINED );
             tParameterList.insert( "dof_residual", "" );
 
             tParameterList.insert( "leader_phase_name", "" );
