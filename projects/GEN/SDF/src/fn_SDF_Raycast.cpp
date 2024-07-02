@@ -31,21 +31,21 @@ namespace moris::sdf
         bool tRotation = false;
         while ( tPointIsInside == UNSURE )
         {
-            tPointIsInside = voxelize( aObject, aPoint, 1 );
+            tPointIsInside = voxelize( aObject, aPoint, 0 );
 
             if ( tPointIsInside == UNSURE )
             {
-                tPointIsInside = voxelize( aObject, aPoint, 0 );
-                if ( tPointIsInside == UNSURE and aObject.get_dimension() == 3 )
+                tPointIsInside = voxelize( aObject, aPoint, 1 );
+                if ( aObject.get_dimension() == 3 )
                 {
                     tPointIsInside = voxelize( aObject, aPoint, 2 );
+                }
 
-                    if ( tPointIsInside == UNSURE )
-                    {
-                        // if still unsure, rotate and cast again
-                        tRotation = true;
-                        random_rotation( aObject, aPoint );
-                    }
+                if ( tPointIsInside == UNSURE )
+                {
+                    // if still unsure, rotate and cast again
+                    tRotation = true;
+                    random_rotation( aObject, aPoint );
                 }
             }
         }
@@ -94,7 +94,7 @@ namespace moris::sdf
             case 3:
             {
                 // preselect triangles in positive and negative aAxis directions for intersection test
-                Vector< uint > tCandidateFacets = preselect_triangles( aObject, aPoint, aAxis, true );
+                Vector< uint > tCandidateFacets = preselect_triangles( aObject, aPoint, aAxis );
 
                 // FIXME: preselect_triangles() also gives triangles that are behind the cast point.
                 // These can be removed to avoid unnecessary computations in intersect_triangles() and intersect_ray_with_facets()
@@ -177,7 +177,7 @@ namespace moris::sdf
             case 3:
             {
                 // preselect triangles for intersection test
-                Vector< uint > tCandidateFacets = preselect_triangles( aObject, aPoint, aAxis, false );
+                Vector< uint > tCandidateFacets = preselect_triangles( aObject, aPoint, aAxis );
 
                 // from the candidate triangles, perform intersection
                 Vector< Facet* > tIntersectedFacets = intersect_triangles( tCandidateFacets, aObject, aPoint, aAxis );
@@ -187,9 +187,6 @@ namespace moris::sdf
                 Vector< real > tIntersectionCoords = intersect_ray_with_facets( tIntersectedFacets, aPoint, aAxis );
 
                 return check_if_node_is_inside_triangles( tIntersectionCoords, aPoint, aAxis, aObject.get_intersection_tolerance() );
-
-                // if there are no candidates, the point is outside
-                return OUTSIDE;
             }
             default:
             {
@@ -202,11 +199,8 @@ namespace moris::sdf
     preselect_triangles(
             Object&                 aObject,
             const Matrix< DDRMat >& aPoint,
-            uint                    aAxis,
-            bool                    aCaptureEdges )
+            uint                    aAxis )
     {
-        real tToleranceSign = aCaptureEdges ? -1.0 : 1.0;
-
         // select the axes that are not being cast in to preselect along (for a cast in the i-dir, preselect in j and k-dir)
         uint tFirstAxis;
         uint tSecondAxis;
@@ -219,7 +213,7 @@ namespace moris::sdf
             // check bounding box in J-direction
             if ( ( aPoint( tFirstAxis ) - aObject.get_facet_min_coord( iFacetIndex, tFirstAxis ) )
                             * ( aObject.get_facet_max_coord( iFacetIndex, tFirstAxis ) - aPoint( tFirstAxis ) )
-                    > tToleranceSign * MORIS_REAL_EPS )
+                    > -aObject.get_intersection_tolerance() )
             {
                 // remember this triangle
                 tCandJ( tCountJ ) = iFacetIndex;
@@ -241,7 +235,7 @@ namespace moris::sdf
             // check bounding box in I-direction
             if ( ( aPoint( tSecondAxis ) - aObject.get_facet_min_coord( tCandJ( k ), tSecondAxis ) )
                             * ( aObject.get_facet_max_coord( tCandJ( k ), tSecondAxis ) - aPoint( tSecondAxis ) )
-                    > tToleranceSign * MORIS_REAL_EPS )
+                    > -aObject.get_intersection_tolerance() )
             {
                 tCandidateFacets( tCount ) = tCandJ( k );
                 ++tCount;
@@ -282,33 +276,21 @@ namespace moris::sdf
         // loop over all lines in the aAxis direction
         for ( uint iLineIndex = 0; iLineIndex < aObject.get_num_facets(); iLineIndex++ )
         {
-            // Get the coordinates of the vertices of this facet
-            real tVertex1AxisCoordinate    = aObject.get_facet( iLineIndex ).get_vertex_coord( 0, aAxis );
-            real tVertex1OffAxisCoordinate = aObject.get_facet( iLineIndex ).get_vertex_coord( 0, tOtherAxis );
-
-            real tVertex2AxisCoordinate    = aObject.get_facet( iLineIndex ).get_vertex_coord( 1, aAxis );
-            real tVertex2OffAxisCoordinate = aObject.get_facet( iLineIndex ).get_vertex_coord( 1, tOtherAxis );
-
-            // Determine the bounding box of the facet
-            real tMaxAxisCoordinate = tVertex1AxisCoordinate > tVertex2AxisCoordinate ? tVertex1AxisCoordinate : tVertex2AxisCoordinate;
-            real tMinAxisCoordinate = tVertex1AxisCoordinate < tVertex2AxisCoordinate ? tVertex1AxisCoordinate : tVertex2AxisCoordinate;
-
-            real tMaxOffAxisCoordinate = tVertex1OffAxisCoordinate > tVertex2OffAxisCoordinate ? tVertex1OffAxisCoordinate : tVertex2OffAxisCoordinate;
-            real tMinOffAxisCoordinate = tVertex1OffAxisCoordinate < tVertex2OffAxisCoordinate ? tVertex1OffAxisCoordinate : tVertex2OffAxisCoordinate;
+            Facet& tLine = aObject.get_facet( iLineIndex );
 
             // get the difference of the cast point and the facet min and max coords in the !aAxis direction
-            real tMaxCoordOffAxisDifference = tMaxOffAxisCoordinate - aPoint( tOtherAxis );
-            real tMinCoordOffAxisDifference = tMinOffAxisCoordinate - aPoint( tOtherAxis );
+            real tMaxCoordOffAxisDifference = tLine.get_max_coord( tOtherAxis ) - aPoint( tOtherAxis );
+            real tMinCoordOffAxisDifference = tLine.get_min_coord( tOtherAxis ) - aPoint( tOtherAxis );
 
             // get the difference of the cast point and the facet min and max coords in the aAxis direction
-            real tMaxCoordAxisDifference = tMaxAxisCoordinate - aPoint( aAxis );
-            real tMinCoordAxisDifference = tMinAxisCoordinate - aPoint( aAxis );
+            real tMaxCoordAxisDifference = tLine.get_max_coord( aAxis ) - aPoint( aAxis );
+            real tMinCoordAxisDifference = tLine.get_min_coord( aAxis ) - aPoint( aAxis );
 
             // the cast point is very close to a vertex
-            if ( ( std::abs( tVertex1AxisCoordinate - aPoint( aAxis ) ) < aObject.get_intersection_tolerance()
-                         and std::abs( tVertex1OffAxisCoordinate - aPoint( tOtherAxis ) ) < aObject.get_intersection_tolerance() )
-                    or ( std::abs( tVertex2AxisCoordinate - aPoint( aAxis ) ) < aObject.get_intersection_tolerance()
-                            and std::abs( tVertex2OffAxisCoordinate - aPoint( tOtherAxis ) ) < aObject.get_intersection_tolerance() ) )
+            if ( ( std::abs( tLine.get_vertex_coord( 0, aAxis ) - aPoint( aAxis ) ) < aObject.get_intersection_tolerance()
+                         and std::abs( tLine.get_vertex_coord( 0, tOtherAxis ) - aPoint( tOtherAxis ) ) < aObject.get_intersection_tolerance() )
+                    or ( std::abs( tLine.get_vertex_coord( 1, aAxis ) - aPoint( aAxis ) ) < aObject.get_intersection_tolerance()
+                            and std::abs( tLine.get_vertex_coord( 1, tOtherAxis ) - aPoint( tOtherAxis ) ) < aObject.get_intersection_tolerance() ) )
             {
                 // give only the facet whose vertex the cast point lies on
                 aCandidateFacets( 0 ) = &aObject.get_facet( iLineIndex );
