@@ -133,7 +133,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            enum Element_Type
+            Element_Type
             get_element_type() const
             {
                 return mElementType;
@@ -269,10 +269,10 @@ namespace moris
              * @param[ in ] aIQIIndex IQI index
              */
             void compute_quantity_of_interest(
-                    Matrix< DDRMat >           &aValues,
+                    Matrix< DDRMat >      &aValues,
                     mtk::Field_Entity_Type aFieldType,
-                    uint                        aIQIIndex,
-                    real                       &aSpaceTimeVolume );
+                    uint                   aIQIIndex,
+                    real                  &aSpaceTimeVolume );
 
             //------------------------------------------------------------------------------
             /**
