@@ -529,124 +529,128 @@ namespace moris
                         // Get external validator
                         const External_Validator& tExternalValidator = iParameterPair.second.get_external_validator();
 
-                        // Go through validation cases
-                        switch ( tExternalValidator.mValidationType )
+                        // Check if parameter needs linking (has not been cross-validated yet)
+                        if ( iParameterPair.second.needs_linking() )
                         {
-                            case Validation_Type::NONE:
+                            // Go through entry types
+                            switch ( iParameterPair.second.get_entry_type() )
                             {
-                                // Do nothing
-                                break;
-                            }
-                            case Validation_Type::SELECTION:
-                            {
-                                // Build internal variants that need to be checked
-                                Vector< Variant > iInternalVariants = split_variant( iParameterPair.second.get_value() );
-
-                                // Get valid external variants
-                                Vector< Variant > tExternalVariants = this->get_external_variants( tExternalValidator, tParameterList );
-
-                                // Loop over all internal variants
-                                bool tAllMatchesFound = true;
-                                std::string tInternalVariantNotFound;
-                                for ( const Variant& iInternalOption : iInternalVariants )
+                                case Entry_Type::FREE:
                                 {
-                                    // Check options for a match
-                                    bool tMatchFound = false;
-                                    for ( const Variant& iExternalOption : tExternalVariants )
+                                    // Do nothing
+                                    break;
+                                }
+                                case Entry_Type::SELECTION:
+                                {
+                                    // Build internal variants that need to be checked
+                                    Vector< Variant > iInternalVariants = split_variant( iParameterPair.second.get_value() );
+
+                                    // Get valid external variants
+                                    Vector< Variant > tExternalVariants = this->get_external_variants( tExternalValidator, tParameterList );
+
+                                    // Loop over all internal variants
+                                    bool        tAllMatchesFound = true;
+                                    std::string tInternalVariantNotFound;
+                                    for ( const Variant& iInternalOption : iInternalVariants )
                                     {
-                                        if ( iInternalOption == iExternalOption )
+                                        // Check options for a match
+                                        bool tMatchFound = false;
+                                        for ( const Variant& iExternalOption : tExternalVariants )
                                         {
-                                            tMatchFound = true;
+                                            if ( iInternalOption == iExternalOption )
+                                            {
+                                                tMatchFound = true;
+                                                break;
+                                            }
+                                        }
+
+                                        // If match not found, exit
+                                        if ( not tMatchFound )
+                                        {
+                                            tInternalVariantNotFound = convert_variant_to_string( iInternalOption );
+                                            tAllMatchesFound         = false;
                                             break;
                                         }
                                     }
 
-                                    // If match not found, exit
-                                    if ( not tMatchFound )
+                                    // Error if no match was found
+                                    if ( not tAllMatchesFound )
                                     {
-                                        tInternalVariantNotFound = convert_variant_to_string( iInternalOption );
-                                        tAllMatchesFound = false;
-                                        break;
-                                    }
-                                }
+                                        // Comma-separated list of options
+                                        std::string tExternalOptionList;
+                                        std::string tDelimiter;
+                                        for ( const Variant& iExternalOption : tExternalVariants )
+                                        {
+                                            tExternalOptionList += tDelimiter + convert_variant_to_string( iExternalOption );
+                                            tDelimiter = ", ";
+                                        }
 
-                                // Error if no match was found
-                                if ( not tAllMatchesFound )
+                                        // Additional info about where the checked options came from
+                                        std::string tExternalValidatorString =
+                                                "These selections are taken from parameter " + tExternalValidator.mParameterName + ", located in the ";
+                                        if ( tExternalValidator.mParameterListType == Parameter_List_Type::END_ENUM )
+                                        {
+                                            tExternalValidatorString +=
+                                                    convert_parameter_list_enum_to_string( (Parameter_List_Type)iModuleIndex )
+                                                    + " parameters with outer vector index " + std::to_string( iOuterIndex ) + " and inner vector index " + std::to_string( iInnerIndex );
+                                        }
+                                        else
+                                        {
+                                            tExternalValidatorString +=
+                                                    convert_parameter_list_enum_to_string( tExternalValidator.mParameterListType )
+                                                    + " parameters with outer vector index " + std::to_string( tExternalValidator.mParameterListIndex );
+                                        }
+
+                                        // Execute error
+                                        MORIS_ERROR( tAllMatchesFound,
+                                                "Parameter %s was set with an invalid value, %s. It requires one of the following selections:\n\t%s\n(%s)",
+                                                iParameterPair.first.c_str(),
+                                                tInternalVariantNotFound.c_str(),
+                                                tExternalOptionList.c_str(),
+                                                tExternalValidatorString.c_str() );
+                                    }
+                                    break;
+                                }
+                                case Entry_Type::LINKED_SIZE_VECTOR:
                                 {
-                                    // Comma-separated list of options
-                                    std::string tExternalOptionList;
-                                    std::string tDelimiter;
-                                    for ( const Variant& iExternalOption : tExternalVariants )
-                                    {
-                                        tExternalOptionList += tDelimiter + convert_variant_to_string( iExternalOption );
-                                        tDelimiter = ", ";
-                                    }
+                                    // Get valid external variants
+                                    Vector< Variant > tExternalVariants = this->get_external_variants( tExternalValidator, tParameterList );
 
-                                    // Additional info about where the checked options came from
-                                    std::string tExternalValidatorString =
-                                            "These selections are taken from parameter " + tExternalValidator.mParameterName + ", located in the ";
-                                    if ( tExternalValidator.mParameterListType == Parameter_List_Type::END_ENUM )
-                                    {
-                                        tExternalValidatorString +=
-                                                convert_parameter_list_enum_to_string( (Parameter_List_Type) iModuleIndex )
-                                                + " parameters with outer vector index " + std::to_string( iOuterIndex ) + " and inner vector index " + std::to_string( iInnerIndex );
-                                    }
-                                    else
-                                    {
-                                        tExternalValidatorString +=
-                                                convert_parameter_list_enum_to_string( tExternalValidator.mParameterListType )
-                                                + " parameters with outer vector index " + std::to_string( tExternalValidator.mParameterListIndex );
-                                    }
+                                    // Check that we have single external variant (for now, this can be changed in the future)
+                                    MORIS_ERROR( tExternalVariants.size() == 1,
+                                            "%lu variants were found for the external size validation of parameter %s.",
+                                            tExternalVariants.size(),
+                                            iParameterPair.first.c_str() );
 
-                                    // Execute error
-                                    MORIS_ERROR( tAllMatchesFound,
-                                            "Parameter %s was set with an invalid value, %s. It requires one of the following selections:\n\t%s\n(%s)",
-                                            iParameterPair.first.c_str(),
-                                            tInternalVariantNotFound.c_str(),
-                                            tExternalOptionList.c_str(),
-                                            tExternalValidatorString.c_str() );
+                                    bool tSizeMatch = get_size( iParameterPair.second.get_value() ) == get_size( tExternalVariants( 0 ) );
+                                    if ( not tSizeMatch )
+                                    {
+                                        // Additional info about where the checked options came from
+                                        std::string tExternalValidatorString =
+                                                "This size is based on parameter " + tExternalValidator.mParameterName + ", located in the ";
+                                        if ( tExternalValidator.mParameterListType == Parameter_List_Type::END_ENUM )
+                                        {
+                                            tExternalValidatorString +=
+                                                    convert_parameter_list_enum_to_string( (Parameter_List_Type)iModuleIndex )
+                                                    + " parameters with outer vector index " + std::to_string( iOuterIndex ) + " and inner vector index " + std::to_string( iInnerIndex );
+                                        }
+                                        else
+                                        {
+                                            tExternalValidatorString +=
+                                                    convert_parameter_list_enum_to_string( tExternalValidator.mParameterListType )
+                                                    + " parameters with outer vector index " + std::to_string( tExternalValidator.mParameterListIndex );
+                                        }
+
+                                        // Execute error
+                                        MORIS_ERROR( tSizeMatch,
+                                                "Parameter %s was set with an invalid value, %s. It requires a size of %u.\n(%s)",
+                                                iParameterPair.first.c_str(),
+                                                iParameterPair.second.get_string().c_str(),
+                                                get_size( tExternalVariants( 0 ) ),
+                                                tExternalValidatorString.c_str() );
+                                    }
+                                    break;
                                 }
-                                break;
-                            }
-                            case Validation_Type::SIZE:
-                            {
-                                // Get valid external variants
-                                Vector< Variant > tExternalVariants = this->get_external_variants( tExternalValidator, tParameterList );
-
-                                // Check that we have single external variant (for now, this can be changed in the future)
-                                MORIS_ERROR( tExternalVariants.size() == 1,
-                                        "%lu variants were found for the external size validation of parameter %s.",
-                                        tExternalVariants.size(),
-                                        iParameterPair.first.c_str() );
-
-                                bool tSizeMatch = get_size( iParameterPair.second.get_value() ) == get_size( tExternalVariants( 0 ) );
-                                if ( not tSizeMatch )
-                                {
-                                    // Additional info about where the checked options came from
-                                    std::string tExternalValidatorString =
-                                            "This size is based on parameter " + tExternalValidator.mParameterName + ", located in the ";
-                                    if ( tExternalValidator.mParameterListType == Parameter_List_Type::END_ENUM )
-                                    {
-                                        tExternalValidatorString +=
-                                                convert_parameter_list_enum_to_string( (Parameter_List_Type) iModuleIndex )
-                                                + " parameters with outer vector index " + std::to_string( iOuterIndex ) + " and inner vector index " + std::to_string( iInnerIndex );
-                                    }
-                                    else
-                                    {
-                                        tExternalValidatorString +=
-                                                convert_parameter_list_enum_to_string( tExternalValidator.mParameterListType )
-                                                + " parameters with outer vector index " + std::to_string( tExternalValidator.mParameterListIndex );
-                                    }
-
-                                    // Execute error
-                                    MORIS_ERROR( tSizeMatch,
-                                            "Parameter %s was set with an invalid value, %s. It requires a size of %u.\n(%s)",
-                                            iParameterPair.first.c_str(),
-                                            iParameterPair.second.get_string().c_str(),
-                                            get_size( tExternalVariants( 0 ) ),
-                                            tExternalValidatorString.c_str() );
-                                }
-                                break;
                             }
                         }
                     }

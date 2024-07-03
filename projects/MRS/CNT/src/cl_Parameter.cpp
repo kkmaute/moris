@@ -63,6 +63,27 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
 
+    Entry_Type Parameter::get_entry_type() const
+    {
+        return mEntryType;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    uint Parameter::get_number_of_entries() const
+    {
+        return mNumberOfEntries;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    bool Parameter::needs_linking() const
+    {
+        return mNeedsLinking;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     const External_Validator& Parameter::get_external_validator() const
     {
         return mExternalValidator;
@@ -73,7 +94,7 @@ namespace moris
     template<>
     Parameter::Parameter(
             const char*         aString,
-            Validation_Type     aExternalValidationType,
+            Entry_Type          aExternalValidationType,
             std::string         aExternalParameterName,
             Parameter_List_Type aExternalParameterListType,
             uint                aExternalParameterListIndex )

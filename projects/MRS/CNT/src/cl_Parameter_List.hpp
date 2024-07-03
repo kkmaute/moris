@@ -77,7 +77,7 @@ namespace moris
         void insert(
                 const std::string&  aName,
                 T                   aDefaultValue,
-                Validation_Type     aExternalValidationType = Validation_Type::NONE,
+                Entry_Type          aExternalValidationType = Entry_Type::FREE,
                 std::string         aExternalParameterName = "",
                 Parameter_List_Type aExternalParameterListType = Parameter_List_Type::END_ENUM,
                 uint                aExternalParameterListIndex = 0 )
