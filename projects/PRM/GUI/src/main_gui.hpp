@@ -60,9 +60,7 @@ class Moris_Gui : public QWidget
     QStringList          get_inner_sub_parameter_list( moris::Parameter_List_Type aModule, int aIndex );
 
     void set_form_visible( int, int, int, bool );
-
     void add_elements( int, int, int );
-
     void add_more_props();
     void remove_props();
 
@@ -96,5 +94,8 @@ class Moris_Gui : public QWidget
     // Element related objects
     QList< QList< QList< QList< QLineEdit * > > > > mLineEdit;
     QList< QList< QList< int > > >                  mCountProps;
+
+    
+    moris::Parameter_List mParam = moris::prm::create_gcmma_parameter_list();
 };
 #endif

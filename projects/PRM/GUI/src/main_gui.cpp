@@ -11,14 +11,15 @@
 
 #include "main_gui.hpp"
 
-moris::Comm_Manager gMorisComm;
-moris::Logger       gLogger;
+
+// moris::Comm_Manager gMorisComm;
+// moris::Logger       gLogger;
 
 Moris_Gui::Moris_Gui( QWidget *parent )
         : QWidget( parent )
 {
     mLayout->addLayout( mSidePanel );
-
+    
     mTreeWidget->setColumnCount( 1 );
 
     mProjectNames = { "OPT", "HMR", "STK", "XTK", "GEN", "FEM", "SQL", "MSI", "VIS", "MIG", "WRK", "MORISGENERAL" };

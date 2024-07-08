@@ -1,20 +1,31 @@
+#include <QApplication>
+#include <QMainWindow>
+#include <QVBoxLayout>
+#include <QPushButton>
+
+#include "moris_line_edit.hpp"
+#include "moris_combo_box.hpp"
 #include "main_gui.hpp"
+#include "TestWindow.hpp"
 
-int main( int argc, char *argv[] )
+
+#include "main.moc"
+
+moris::Comm_Manager gMorisComm;
+moris::Logger       gLogger;
+
+int main(int argc, char *argv[])
 {
-    QApplication app( argc, argv );
+    gMorisComm = moris::Comm_Manager( &argc, &argv );
 
-    // to test access to parameter lists
-    // moris::Parameter_List tList = moris::prm::create_property_parameter_list();
+    QApplication app(argc, argv);
 
-    // for ( auto it = tList.begin(); it != tList.end(); ++it )
-    // {
-    //     std::cout << it->first << "\n";
-    // }
-
-    // simple window
-    Moris_Gui widget;
-    widget.show();
+    TestWindow mainWindow;
+    mainWindow.show();
 
     return app.exec();
 }
+
+
+//Moris_Gui moris_gui;
+//moris_gui.show();
