@@ -157,15 +157,18 @@ namespace moris
             // add consistent contribution
             tRes += aWStar * tWeight * tConsistent * tFI->N_trans() * tFI->val();
 
-            // FIXME for now only implemented for the specific case of equivalent strain
-            // loop over the interpolation order
-            for ( uint iOrder = 1; iOrder <= mOrder; iOrder++ )
+            // diffusion only implemented for the specific case of equivalent strain
+            if ( mSourceType == 0 )
             {
-                // compute diffusion coefficient
-                real tDiffusion = std::pow( mCharacteristicLength, 2.0 * iOrder ) / mOrderCoeff( iOrder - 1.0 );
+                // loop over the interpolation order
+                for ( uint iOrder = 1; iOrder <= mOrder; iOrder++ )
+                {
+                    // compute diffusion coefficient
+                    real tDiffusion = std::pow( mCharacteristicLength, 2.0 * iOrder ) / mOrderCoeff( iOrder - 1.0 );
 
-                // compute the residual
-                tRes += aWStar * tWeight * tDiffusion * trans( tFI->dnNdxn( iOrder ) ) * tFI->gradx( iOrder );
+                    // compute the residual
+                    tRes += aWStar * tWeight * tDiffusion * trans( tFI->dnNdxn( iOrder ) ) * tFI->gradx( iOrder );
+                }
             }
 
             // check for nan, infinity
@@ -254,15 +257,18 @@ namespace moris
                     // add consistent contribution to the Jacobian
                     tJac += aWStar * tWeight * tConsistent * ( tFI->N_trans() * tFI->N() );
 
-                    // FIXME for now only implemented for the specific case of equivalent strain
-                    // loop over the interpolation order
-                    for ( uint iOrder = 1; iOrder <= mOrder; iOrder++ )
+                    // diffusion only implemented for the specific case of equivalent strain
+                    if ( mSourceType == 0 )
                     {
-                        // compute diffusion coefficient
-                        real tDiffusion = std::pow( mCharacteristicLength, 2.0 * iOrder ) / mOrderCoeff( iOrder - 1.0 );
+                        // loop over the interpolation order
+                        for ( uint iOrder = 1; iOrder <= mOrder; iOrder++ )
+                        {
+                            // compute diffusion coefficient
+                            real tDiffusion = std::pow( mCharacteristicLength, 2.0 * iOrder ) / mOrderCoeff( iOrder - 1.0 );
 
-                        // compute the jacobian
-                        tJac += aWStar * tWeight * tDiffusion * trans( tFI->dnNdxn( iOrder ) ) * tFI->dnNdxn( iOrder );
+                            // compute the jacobian
+                            tJac += aWStar * tWeight * tDiffusion * trans( tFI->dnNdxn( iOrder ) ) * tFI->dnNdxn( iOrder );
+                        }
                     }
                 }
 

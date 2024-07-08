@@ -30,10 +30,10 @@ namespace moris
         //------------------------------------------------------------------------------
 
         Interpolation_Element::Interpolation_Element(
-                const Element_Type               aElementType,
-                const Vector< const mtk::Cell* >&  aInterpolationCell,
-                const Vector< Node_Base* >& aNodes,
-                Set*                             aSet )
+                const Element_Type                aElementType,
+                const Vector< const mtk::Cell* >& aInterpolationCell,
+                const Vector< Node_Base* >&       aNodes,
+                Set*                              aSet )
                 : MSI::Equation_Object( aSet )
                 , mSet( aSet )
                 , mElementType( aElementType )
@@ -715,7 +715,7 @@ namespace moris
             this->fill_mat_pdv_assembly_vector();
 
             // make sure this is done on the FEM clusters and not on the VIS clusters
-            MORIS_ASSERT( !mFemCluster( 0 )->is_VIS_cluster(), 
+            MORIS_ASSERT( !mFemCluster( 0 )->is_VIS_cluster(),
                     "FEM::Set::compute_dQIdp_explicit_implicit() - "
                     "Trying to compute sensitivities on a VIS cluster. This shouldn't happen." );
 
@@ -1170,7 +1170,7 @@ namespace moris
             if ( aFieldType == vis::Field_Type::NODAL )
             {
                 // get the type of the current cluster
-                enum fem::Element_Type tElementType = mFemCluster( aFemMeshIndex )->get_element_type();
+                fem::Element_Type tElementType = mFemCluster( aFemMeshIndex )->get_element_type();
 
                 // compute the nodal values of the requested QIs
                 // double sided clusters require additional treatment of the follower side and therefore need special consideration
@@ -1290,7 +1290,7 @@ namespace moris
 
             }    // end for: vertices on cluster
 
-        }        // end function: Interpolation_Element::compute_nodal_QIs()
+        }    // end function: Interpolation_Element::compute_nodal_QIs()
 
         //------------------------------------------------------------------------------
 
@@ -1338,23 +1338,23 @@ namespace moris
                 Matrix< DDRMat > tNodalPointFollowerLocalCoords = tFollowerVertexLocalCoords.get_row( iVertex );
 
                 // add the time local coordinate and set it to -1 (beginning of time slab)
-                tNodalPointLeaderLocalCoords.resize( 1, tNumSpatialDims + 1 ); // add time dimension
+                tNodalPointLeaderLocalCoords.resize( 1, tNumSpatialDims + 1 );    // add time dimension
                 tNodalPointFollowerLocalCoords.resize( 1, tNumSpatialDims + 1 );
-                tNodalPointLeaderLocalCoords( tNumSpatialDims ) = -1.0; // set time location to -1
+                tNodalPointLeaderLocalCoords( tNumSpatialDims )   = -1.0;    // set time location to -1
                 tNodalPointFollowerLocalCoords( tNumSpatialDims ) = -1.0;
 
                 // field interpolator takes the transpose
-                tNodalPointLeaderLocalCoords = trans( tNodalPointLeaderLocalCoords );
+                tNodalPointLeaderLocalCoords   = trans( tNodalPointLeaderLocalCoords );
                 tNodalPointFollowerLocalCoords = trans( tNodalPointFollowerLocalCoords );
 
                 // set vertex coordinates for field interpolators on the leader and follower sides
-                mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER  )->set_space_time( tNodalPointLeaderLocalCoords );
+                mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER )->set_space_time( tNodalPointLeaderLocalCoords );
                 mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )->set_space_time( tNodalPointFollowerLocalCoords );
 
                 // set vertex coordinates for field interpolator of eigen vectors
                 if ( mSet->mNumEigenVectors )
                 {
-                    mSet->get_field_interpolator_manager_eigen_vectors( mtk::Leader_Follower::LEADER  )
+                    mSet->get_field_interpolator_manager_eigen_vectors( mtk::Leader_Follower::LEADER )
                             ->set_space_time( tNodalPointLeaderLocalCoords );
                     mSet->get_field_interpolator_manager_eigen_vectors( mtk::Leader_Follower::FOLLOWER )
                             ->set_space_time( tNodalPointFollowerLocalCoords );
@@ -1384,7 +1384,7 @@ namespace moris
                     Matrix< DDRMat > tQINodal( 1, 1, 0.0 );
                     tReqIQI->compute_QI( tQINodal );
 
-                    // assemble the nodal QI value on the set 
+                    // assemble the nodal QI value on the set
                     // NOTE: output of the dbl. sided elements by the VIS mesh is defined on the leader side; hence, the nodal value is outputted to the leader vertex
                     ( *mSet->mSetNodalValues )( tLeaderVertexIndex, tGlobalIqiIndex ) = tQINodal( 0 );
                 }
@@ -1499,7 +1499,7 @@ namespace moris
 
             }    // end for: each requested IQIs for field output
 
-        }        // end function: Interpolation_Element::populate_fields()
+        }    // end function: Interpolation_Element::populate_fields()
 
         //------------------------------------------------------------------------------
     } /* namespace fem */

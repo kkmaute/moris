@@ -37,7 +37,7 @@ namespace moris
 
             // FIXME for now only implemented for the specific case of equivalent strain
             // parameters
-            real             mCharacteristicLength = 1.0;
+            real             mCharacteristicLength = 0.0;
             uint             mOrder                = 1;
             Matrix< DDRMat > mOrderCoeff           = { { 2.0 }, { 8.0 }, { 48.0 } };
 

@@ -115,7 +115,7 @@ namespace moris
             Vector< moris_index >            mRequestedFieldIQIsGlobalIndices;
 
             // enum for element type
-            enum fem::Element_Type mElementType = fem::Element_Type::UNDEFINED;
+            fem::Element_Type mElementType = fem::Element_Type::UNDEFINED;
 
             // integration points
             Matrix< DDRMat > mIntegPoints;
@@ -129,8 +129,8 @@ namespace moris
             Matrix< DDSMat > mUniqueFieldTypeMap;
 
             // map visualization cell id to position in vector
-            Vector< Matrix< DDSMat > > mCellAssemblyMap;     // input: VIS mesh index, VIS cell index || output: position of cell within list of cells on VIS set
-            Vector< uint >             mNumIgCellsOnSet;     // input: VIS mesh index || output: number of IG cells in that VIS set
+            Vector< Matrix< DDSMat > > mCellAssemblyMap;    // input: VIS mesh index, VIS cell index || output: position of cell within list of cells on VIS set
+            Vector< uint >             mNumIgCellsOnSet;    // input: VIS mesh index || output: number of IG cells in that VIS set
 
             Vector< Matrix< DDSMat > > mFacetAssemblyMap;    // input: VIS mesh index, IG cell index, side ordinal  || output: position of facet within the output (dbl) side set
             Vector< uint >             mNumFacetsOnSet;      // input: VIS mesh index || output: number of facets in that VIS (dbl) side set
@@ -208,9 +208,9 @@ namespace moris
              * @param[ in ] aIPNodes  cell of node pointers
              */
             Set(
-                    fem::FEM_Model*                  aFemModel,
-                    moris::mtk::Set*                 aMeshSet,
-                    const fem::Set_User_Info&        aSetInfo,
+                    fem::FEM_Model*             aFemModel,
+                    moris::mtk::Set*            aMeshSet,
+                    const fem::Set_User_Info&   aSetInfo,
                     const Vector< Node_Base* >& aIPNodes );
 
             //------------------------------------------------------------------------------
@@ -298,7 +298,7 @@ namespace moris
              * get the element on the set
              * @param[ out ] aElementType element type for the set
              */
-            enum fem::Element_Type
+            fem::Element_Type
             get_element_type() const
             {
                 return mElementType;
@@ -938,8 +938,8 @@ namespace moris
              * @param[ in ] aQINames          list of IQI names to be evaluated
              */
             void compute_quantity_of_interest_nodal(
-                    const uint                        aVisMeshIndex,
-                    Matrix< DDRMat >*                 aNodalFieldValues,
+                    const uint                   aVisMeshIndex,
+                    Matrix< DDRMat >*            aNodalFieldValues,
                     const Vector< std::string >& aQINames );
 
             //------------------------------------------------------------------------------
@@ -970,8 +970,8 @@ namespace moris
              * @param[ in ] aQINames           list of IQI names to be evaluated
              */
             void compute_quantity_of_interest_global(
-                    const uint                        aVisMeshIndex,
-                    Matrix< DDRMat >*                 aGlobalFieldValues,
+                    const uint                   aVisMeshIndex,
+                    Matrix< DDRMat >*            aGlobalFieldValues,
                     const Vector< std::string >& aQINames );
 
             //------------------------------------------------------------------------------
@@ -1003,10 +1003,10 @@ namespace moris
              * @param[ in ] aOutputAverageValue   whether the value is an average on the element, or the integrated quantity on the element
              */
             void compute_quantity_of_interest_elemental(
-                    const uint                        aVisMeshIndex,
-                    Matrix< DDRMat >*                 aElementalFieldValues,
+                    const uint                   aVisMeshIndex,
+                    Matrix< DDRMat >*            aElementalFieldValues,
                     const Vector< std::string >& aQINames,
-                    const bool                        aOutputAverageValue = true );
+                    const bool                   aOutputAverageValue = true );
 
             //------------------------------------------------------------------------------
             /**

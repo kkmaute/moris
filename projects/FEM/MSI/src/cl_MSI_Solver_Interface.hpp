@@ -58,7 +58,7 @@ namespace moris
 
             mdl::Model* mModel = nullptr;
 
-            std::shared_ptr< Vector<real> >  mEigenValues;
+            std::shared_ptr< Vector< real > > mEigenValues;
 
           public:
             MSI_Solver_Interface()
@@ -96,7 +96,7 @@ namespace moris
 
             //--------------------------------------------------------------------------------
 
-            void set_eigen_values(std::shared_ptr< Vector<real> > aEigenValues ); 
+            void set_eigen_values( std::shared_ptr< Vector< real > > aEigenValues );
 
             //------------------------------------------------------------------------------
 
@@ -142,7 +142,7 @@ namespace moris
              * get previous solution vector
              * @param[ out ] aSolutionVector previous distributed solution vector
              */
-            std::shared_ptr< Vector<real> > &
+            std::shared_ptr< Vector< real > >&
             get_eigen_values()
             {
                 return mEigenValues;
@@ -291,7 +291,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            enum fem::Element_Type
+            fem::Element_Type
             get_set_type( uint aMyEquSetInd )
             {
                 return mMSI->get_equation_set( aMyEquSetInd )->get_element_type();
@@ -415,7 +415,7 @@ namespace moris
 
             void
             get_equation_object_rhs(
-                    const moris::uint&        aMyElementInd,
+                    const moris::uint&          aMyElementInd,
                     Vector< Matrix< DDRMat > >& aElementRHS )
             {
                 mMSI->get_eqn_obj( aMyElementInd )->get_equation_obj_residual( aElementRHS );
@@ -425,8 +425,8 @@ namespace moris
 
             void
             get_equation_object_rhs(
-                    const moris::uint&        aMyEquSetInd,
-                    const moris::uint&        aMyElementInd,
+                    const moris::uint&          aMyEquSetInd,
+                    const moris::uint&          aMyElementInd,
                     Vector< Matrix< DDRMat > >& aElementRHS )
             {
                 mMSI->get_equation_set( aMyEquSetInd )->get_equation_object_list()( aMyElementInd )->get_equation_obj_residual( aElementRHS );
@@ -434,8 +434,8 @@ namespace moris
 
             void
             get_equation_object_staggered_rhs(
-                    const moris::uint&        aMyEquSetInd,
-                    const moris::uint&        aMyElementInd,
+                    const moris::uint&          aMyEquSetInd,
+                    const moris::uint&          aMyElementInd,
                     Vector< Matrix< DDRMat > >& aElementRHS )
             {
                 mMSI->get_equation_set( aMyEquSetInd )->get_equation_object_list()( aMyElementInd )->get_staggered_equation_obj_residual( aElementRHS );
@@ -445,8 +445,8 @@ namespace moris
 
             void
             get_equation_object_off_diag_rhs(
-                    const moris::uint&        aMyEquSetInd,
-                    const moris::uint&        aMyElementInd,
+                    const moris::uint&          aMyEquSetInd,
+                    const moris::uint&          aMyElementInd,
                     Vector< Matrix< DDRMat > >& aElementRHS )
             {
                 mMSI->get_equation_set( aMyEquSetInd )->get_equation_object_list()( aMyElementInd )->get_equation_obj_off_diagonal_residual( aElementRHS );
@@ -456,8 +456,8 @@ namespace moris
 
             void
             get_equation_object_operator_and_rhs(
-                    const moris::uint&        aMyElementInd,
-                    Matrix< DDRMat >&         aElementMatrix,
+                    const moris::uint&          aMyElementInd,
+                    Matrix< DDRMat >&           aElementMatrix,
                     Vector< Matrix< DDRMat > >& aElementRHS )
             {
                 // mMSI->get_eqn_obj( aMyElementInd )->set_time( mTime );
@@ -468,9 +468,9 @@ namespace moris
 
             void
             get_equation_object_operator_and_rhs(
-                    const moris::uint&        aMyEquSetInd,
-                    const moris::uint&        aMyElementInd,
-                    Matrix< DDRMat >&         aElementMatrix,
+                    const moris::uint&          aMyEquSetInd,
+                    const moris::uint&          aMyElementInd,
+                    Matrix< DDRMat >&           aElementMatrix,
                     Vector< Matrix< DDRMat > >& aElementRHS )
             {
                 // mMSI->get_equation_set( aMyEquSetInd )->get_equation_object_list()( aMyElementInd )->set_time( mTime );
@@ -606,9 +606,9 @@ namespace moris
 
             void communicate_shared_adof_connectivity(
                     Vector< Vector< Vector< uint > > > const & aSharedAdofConn,
-                    Vector< Vector< uint > >&                       aAdofConnectivityReceive,
-                    Vector< Vector< uint > >&                       aAdofConnectivityOffsetReceive,
-                    Vector< moris_index > const &                        aCommCell );
+                    Vector< Vector< uint > >&                  aAdofConnectivityReceive,
+                    Vector< Vector< uint > >&                  aAdofConnectivityOffsetReceive,
+                    Vector< moris_index > const &              aCommCell );
         };
     }    // namespace MSI
 }    // namespace moris

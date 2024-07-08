@@ -96,6 +96,8 @@
 // Ghost
 #include "cl_FEM_IWG_Ghost_Normal_Field.hpp"
 #include "cl_FEM_IWG_Struc_Stress.hpp"
+// User defined
+#include "cl_FEM_IWG_User_Defined.hpp"
 
 namespace moris
 {
@@ -426,6 +428,9 @@ namespace moris
 
                 case IWG_Type::GHOST_NORMAL_FIELD:
                     return std::make_shared< IWG_Ghost_Normal_Field >();
+
+                case IWG_Type::USER_DEFINED:
+                    return std::make_shared< IWG_User_Defined >();
 
                 default:
                     MORIS_ERROR( false, " IWG_Factory::create_IWGs - IWG type specified is not defined. " );
