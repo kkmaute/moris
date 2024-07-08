@@ -22,6 +22,9 @@ int main(int argc, char *argv[])
 
     TestWindow mainWindow;
     mainWindow.show();
+        
+    Moris_Gui widget;
+    widget.show();
 
     return app.exec();
 }

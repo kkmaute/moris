@@ -19,11 +19,11 @@
 
 namespace moris
 {
-    enum class Validation_Type
+    enum class Entry_Type
     {
-        NONE,
+        FREE,
         SELECTION,
-        SIZE
+        LINKED_SIZE_VECTOR
     };
 
     /**
@@ -31,7 +31,6 @@ namespace moris
      */
     struct External_Validator
     {
-        Validation_Type     mValidationType     = Validation_Type::NONE;
         std::string         mParameterName;
         Parameter_List_Type mParameterListType  = Parameter_List_Type::END_ENUM;
         uint                mParameterListIndex = 0;
@@ -41,7 +40,10 @@ namespace moris
     {
       private:
         Variant mValue;
+        Entry_Type mEntryType = Entry_Type::FREE;
+        uint mNumberOfEntries = 1;
         Validator* mValidator;
+        bool mNeedsLinking = false;
         External_Validator mExternalValidator;
 
       public:
@@ -56,22 +58,20 @@ namespace moris
          * @param aExternalParameterListIndex Index of given parameter list type to search
          */
         template< typename T >
-        explicit Parameter(
+        Parameter(
                 T                   aParameterValue,
-                Validation_Type     aExternalValidationType,
-                std::string         aExternalParameterListName,
+                Entry_Type          aExternalValidationType,
+                std::string         aExternalParameterName,
                 Parameter_List_Type aExternalParameterListType,
                 uint                aExternalParameterListIndex )
+                : mValue( make_variant( aParameterValue ) )
+                , mEntryType( aExternalValidationType )
+                , mNumberOfEntries( split_variant( mValue ).size() )
+                , mValidator( new Type_Validator< T >() )
+                , mNeedsLinking( aExternalValidationType != Entry_Type::FREE )
         {
-            // Set default value without validation
-            mValue = make_variant( aParameterValue );
-
-            // Create type validator
-            mValidator = new Type_Validator< T >();
-
             // Set external validator
-            mExternalValidator.mValidationType = aExternalValidationType;
-            mExternalValidator.mParameterName = std::move( aExternalParameterListName );
+            mExternalValidator.mParameterName = std::move( aExternalParameterName );
             mExternalValidator.mParameterListType = aExternalParameterListType;
             mExternalValidator.mParameterListIndex = aExternalParameterListIndex;
         }
@@ -103,6 +103,7 @@ namespace moris
          */
         template< typename T >
         Parameter( T aParameterValue, const std::set< T >& aValidSelections )
+                : mEntryType( Entry_Type::SELECTION )
         {
             // Set default value without validation
             mValue = make_variant( aParameterValue );
@@ -197,6 +198,27 @@ namespace moris
         [[nodiscard]] uint index() const;
 
         /**
+         * Gets the type of entry for this parameter.
+         *
+         * @return Parameter type
+         */
+        Entry_Type get_entry_type() const;
+
+        /**
+         * Gets the number of entries this parameter requires.
+         *
+         * @return Number of entries, or 0 if resizable
+         */
+        uint get_number_of_entries() const;
+
+        /**
+         * If this parameter needs to be linked to another parameter for validation.
+         *
+         * @return If linking is required
+         */
+        bool needs_linking() const;
+
+        /**
          * Gets the external validator from this parameter, for validation after all parameter have been set.
          *
          * @return External validator
@@ -215,5 +237,5 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     // Declare template specializations of the Parameter constructor
-    template<> Parameter::Parameter( const char*, Validation_Type, std::string, Parameter_List_Type, uint );
+    template<> Parameter::Parameter( const char*, Entry_Type, std::string, Parameter_List_Type, uint );
 }

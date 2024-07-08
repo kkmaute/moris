@@ -18,8 +18,8 @@ namespace moris
 
     // Static constants
     const std::string PARAM_LIST_FUNC_NAME_ENDING = "ParameterList";
-    const std::string XML_PARAMETER_FILE_ROOT = "ParameterLists";
-    const std::string PRINT_ERROR = "print_error";
+    const std::string XML_PARAMETER_FILE_ROOT     = "ParameterLists";
+    const std::string PRINT_ERROR                 = "print_error";
 
     // -----------------------------------------------------------------------------
 
@@ -76,6 +76,90 @@ namespace moris
         END_ENUM
     };
 
+    enum class OPT_SubModule
+    {
+        OPTIMIZATION_PROBLEMS,
+        INTERFACE,
+        ALGORITHMS,
+        END_ENUM
+    };
+
+    enum class HMR_SubModule
+    {
+        GENERAL,
+        END_ENUM
+    };
+
+    enum class STK_SubModule
+    {
+        GENERAL,
+        END_ENUM
+    };
+
+    enum class XTK_SubModule
+    {
+        GENERAL,
+        END_ENUM
+    };
+
+    enum class GEN_SubModule
+    {
+        GENERAL,
+        GEOMETRIES,
+        PROPERTIES,
+        END_ENUM
+    };
+
+    enum class FEM_SubModule
+    {
+        PROPERTIES,
+        CONSTITUTIVE_MODELS,
+        STABILIZATION_PARAMETER,
+        IWG,
+        IQI,
+        COMPUTATION_PARAMETERS,
+        FIELDS,
+        MATERIAL_MODELS,
+        END_ENUM
+    };
+
+    enum class SOL_SubModule
+    {
+        LINEAR_ALGORITHMS,
+        LINEAR_SOLVERS,
+        NONLINEAR_ALGORITHMS,
+        NONLINEAR_SOLVERS,
+        TIME_SOLVER_ALGORITHMS,
+        TIME_SOLVERS,
+        SOLVER_WAREHOUSE,
+        PRECONDITIONERS,
+        END_ENUM
+    };
+
+    enum class MSI_SubModule
+    {
+        GENERAL,
+        END_ENUM
+    };
+
+    enum class VIS_SubModule
+    {
+        OUTPUT_MESHES,
+        END_ENUM
+    };
+
+    enum class MIG_SubModule
+    {
+        GENERAL,
+        END_ENUM
+    };
+
+    enum class WRK_SubModule
+    {
+        GENERAL,
+        END_ENUM
+    };
+
     // -----------------------------------------------------------------------------
 
     /**
@@ -102,7 +186,7 @@ namespace moris
 
     /**
      * @brief Get the number of sub parameter lists that can be defined in a given module
-     * 
+     *
      * @param aModule the module
      * @return uint number of sub parameter lists in Module
      */
@@ -112,14 +196,14 @@ namespace moris
     // -----------------------------------------------------------------------------
 
     std::string
-    get_outer_sub_parameter_list_name( 
+    get_outer_sub_parameter_list_name(
             Parameter_List_Type aModule,
             uint                aParamListIndex );
 
     // -----------------------------------------------------------------------------
-    
+
     std::string
-    get_inner_sub_parameter_list_name( 
+    get_inner_sub_parameter_list_name(
             Parameter_List_Type aModule,
             uint                aParamListIndex );
 
