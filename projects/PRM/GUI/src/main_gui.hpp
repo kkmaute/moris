@@ -140,7 +140,9 @@ class Moris_Gui : public QWidget
       GEN (Project) -> Geometries (child) has the same functionality as OPT (Project) -> Algorithm (child)
     */
     QList< QList< QList< QList< QLineEdit * > > > > mLineEdit;
-    QList< QList< QList< uint > > >                 mCountProps;
+    QList< QList< QList< uint > > >                  mCountProps;
+    QComboBox                                      *mOPTAlgorithmComboBox  = new QComboBox;
+    QComboBox                                      *mGENGeometriesComboBox = new QComboBox;
     QList< QList< QComboBox * > >                   mComboBox;
 };
 #endif

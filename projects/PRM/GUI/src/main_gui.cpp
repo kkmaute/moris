@@ -11,6 +11,10 @@
 
 #include "main_gui.hpp"
 
+
+// moris::Comm_Manager gMorisComm;
+// moris::Logger       gLogger;
+
 Moris_Gui::Moris_Gui( QWidget *parent )
         : QWidget( parent )
 {

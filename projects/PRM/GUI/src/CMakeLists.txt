@@ -22,10 +22,22 @@ message("QT version: ${QT_VERSION_MAJOR}")
 set(PROJECT_SOURCES
        main_gui.cpp
        main.cpp 
+       moris_line_edit.cpp
+       moris_combo_box.cpp
+       TestWindow.cpp
+       input_parameters.cpp
+       moris_double_spin_box.cpp
+       moris_int_spin_box.cpp
        )
 
 set(HEADERS
        main_gui.hpp
+       moris_line_edit.hpp
+       moris_combo_box.hpp
+       TestWindow.hpp
+       input_parameters.hpp
+       moris_double_spin_box.hpp
+       moris_int_spin_box.hpp
 )
  
  # List include directories
