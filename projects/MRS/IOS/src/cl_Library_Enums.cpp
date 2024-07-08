@@ -69,7 +69,7 @@ namespace moris
         switch ( aModule )
         {
             case Parameter_List_Type::OPT:
-                return 1;
+                return 3;
 
             case Parameter_List_Type::HMR:
                 return 1;

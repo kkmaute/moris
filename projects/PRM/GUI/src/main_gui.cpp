@@ -11,9 +11,6 @@
 
 #include "main_gui.hpp"
 
-moris::Comm_Manager gMorisComm;
-moris::Logger       gLogger;
-
 Moris_Gui::Moris_Gui( QWidget *parent )
         : QWidget( parent )
 {
@@ -24,7 +21,11 @@ Moris_Gui::Moris_Gui( QWidget *parent )
     mTreeWidget->setColumnCount( 1 );
 
     // Project names to be added to mTreeWidget
-    mProjectNames = { "OPT", "HMR", "STK", "XTK", "GEN", "FEM", "SOL", "MSI", "VIS", "MIG", "WRK", "MORISGENERAL" };
+    // Redo compilation error for ENUM vs uint
+    for ( uint iProject = 0; iProject < (uint)( moris::Parameter_List_Type::END_ENUM ); iProject++ )
+    {
+        mProjectNames.append( QString::fromStdString( moris::convert_parameter_list_enum_to_string( ( moris::Parameter_List_Type )( iProject ) ) ) );
+    }
 
     // Initialize combo boxes structure
     mComboBox.resize( mProjectNames.size() );
@@ -43,16 +44,21 @@ Moris_Gui::Moris_Gui( QWidget *parent )
     mScrollArea.resize( mProjectNames.size() );
     mLineEdit.resize( mProjectNames.size() );
     mCountProps.resize( mProjectNames.size() );
+    mSubFormCheck.resize( mProjectNames.size() );
 
 
     /* The following for loop loops through the Projects,
     getting the respective outer and inner sub-modules
     and resizing all the lists in that size */
 
-    for ( int iRoot = 0; iRoot < mProjectNames.size(); iRoot++ )
+    for ( uint iRoot = 0; iRoot < mProjectNames.size(); iRoot++ )
     {
-
-        tStringList = get_outer_sub_parameter_list( tModule );
+        tStringList.clear();
+        for ( uint iList = 0; iList < moris::get_number_of_sub_parameter_lists_in_module( tModule ); iList++ )
+        {
+            tStringList.append( QString::fromStdString( moris::get_outer_sub_parameter_list_name( tModule, iList ) ) );
+        }
+        // tStringList = get_outer_sub_parameter_list( tModule );
 
         // Setting the mTreeWidgetItems with the project names
         mTreeWidgetItems[ iRoot ] = new QTreeWidgetItem;
@@ -67,14 +73,15 @@ Moris_Gui::Moris_Gui( QWidget *parent )
         mLineEdit[ iRoot ].resize( tStringList.size() );
         mCountProps[ iRoot ].resize( tStringList.size() );
         mComboBox[ iRoot ].resize( tStringList.size() );
+        mSubFormCheck[ iRoot ].resize( tStringList.size() );
 
-        for ( int iChildren = 0; iChildren < tStringList.size(); iChildren++ )
+        for ( uint iChildren = 0; iChildren < tStringList.size(); iChildren++ )
         {
             /*
             Resizing all the lists for the child index to 1 element for the inner sub-modules.
             Every sub-module only has 1 form but some sub-modules may have more sub-forms (i.e. GEN/Geometries or OPT/Algorithms or SOL/LinearAlgorithms)
             For every sub-module the 0th form will correspond to the main form (i.e. OPT/Algorithms)
-                and the rest will correspond to the inner sub-modules (i.e. OPT/Algorithms/gcmma, OPT/Algorithms/lbfgs, etc.
+                and the rest will correspond to the inner sub-modules (i.e. OPT/Algorithms/gcmma, OPT/Algorithms/lbfgs, etc.)
             */
             mTreeWidgetChildren[ iRoot ][ iChildren ] = new QTreeWidgetItem;
             mTreeWidgetChildren[ iRoot ][ iChildren ]->setText( 0, tStringList[ iChildren ] );
@@ -94,17 +101,18 @@ Moris_Gui::Moris_Gui( QWidget *parent )
             Adding all the items to the combo boxes for the respective sub-module
             */
 
-            QList< int > tCountPropsSubChildList;
+            QList< uint > tCountPropsSubChildList;
 
-            if ( iRoot == static_cast< int >( moris::Parameter_List_Type::OPT ) && iChildren == static_cast< int >( moris::OPT_SubModule::ALGORITHMS ) )
+            if ( iRoot == (uint)( moris::Parameter_List_Type::OPT ) && iChildren == (uint)( moris::OPT_SubModule::ALGORITHMS ) )
             {
                 // Adding the OPT/Algorithms to its combo box
 
                 mComboBox[ iRoot ][ iChildren ]->addItems( { "gcmma", "lbfgs", "sql", "sweep" } );
-                int tComboBoxCount = mComboBox[ iRoot ][ iChildren ]->count();
+                uint tComboBoxCount = mComboBox[ iRoot ][ iChildren ]->count();
                 tCountPropsSubChildList.resize( tComboBoxCount + 1 );
+                mSubFormCheck[ iRoot ][ iChildren ] = true;
             }
-            else if ( iRoot == static_cast< int >( moris::Parameter_List_Type::GEN ) && iChildren == static_cast< int >( moris::GEN_SubModule::GEOMETRIES ) )
+            else if ( iRoot == (uint)( moris::Parameter_List_Type::GEN ) && iChildren == (uint)( moris::GEN_SubModule::GEOMETRIES ) )
             {
                 // Adding the GEN/Geometries to its combo box
 
@@ -125,26 +133,29 @@ Moris_Gui::Moris_Gui( QWidget *parent )
                         "USER_DEFINED",
                         "SURFACE_MESH",
                         "VOXEL" } );
-                int tComboBoxCount = mComboBox[ iRoot ][ iChildren ]->count();
+                uint tComboBoxCount = mComboBox[ iRoot ][ iChildren ]->count();
                 tCountPropsSubChildList.resize( tComboBoxCount + 1 );
+                mSubFormCheck[ iRoot ][ iChildren ] = true;
             }
-            else if ( iRoot == static_cast< int >( moris::Parameter_List_Type::SOL ) && iChildren == static_cast< int >( moris::SOL_SubModule::LINEAR_ALGORITHMS ) )
+            else if ( iRoot == (uint)( moris::Parameter_List_Type::SOL ) && iChildren == (uint)( moris::SOL_SubModule::LINEAR_ALGORITHMS ) )
             {
                 // Adding the SOL/LinearAlgorithms to its combo box
 
                 mComboBox[ iRoot ][ iChildren ]->addItems( { "Aztec", "Amesos", "Belos", "PETSC", "EigenSolver", "ML", "Slepc_Solver" } );
-                int tComboBoxCount = mComboBox[ iRoot ][ iChildren ]->count();
+                uint tComboBoxCount = mComboBox[ iRoot ][ iChildren ]->count();
                 tCountPropsSubChildList.resize( tComboBoxCount + 1 );
+                mSubFormCheck[ iRoot ][ iChildren ] = true;
             }
             else
             {
                 // If the sub-module does not have any sub-forms (i.e. gcmma), then only 1 element is added to mCountProps
 
                 tCountPropsSubChildList.resize( 1 );
+                mSubFormCheck[ iRoot ][ iChildren ] = false;
             }
 
             // Initializing all the mCountProps to 0
-            for ( int &tVal : tCountPropsSubChildList )
+            for ( uint &tVal : tCountPropsSubChildList )
             {
                 tVal = 0;
             }
@@ -154,7 +165,7 @@ Moris_Gui::Moris_Gui( QWidget *parent )
             setup_scroll_widget( iRoot, iChildren, 0 );
 
             // Adding elements to the first form layout to show up upon opening the GUI
-            if ( iRoot == static_cast< int >( moris::Parameter_List_Type::OPT ) && iChildren == static_cast< int >( moris::OPT_SubModule::OPTIMIZATION_PROBLEMS ) )
+            if ( iRoot == (uint)( moris::Parameter_List_Type::OPT ) && iChildren == (uint)( moris::OPT_SubModule::OPTIMIZATION_PROBLEMS ) )
             {
                 set_form_visible( iRoot, iChildren, 0, true );
                 add_elements( 0, 0, 0 );
@@ -170,7 +181,7 @@ Moris_Gui::Moris_Gui( QWidget *parent )
         mTreeWidgetItems[ iRoot ]->addChildren( mTreeWidgetChildren[ iRoot ] );
 
         // Incrementing the module to get the next project name
-        tModule = static_cast< moris::Parameter_List_Type >( static_cast< int >( tModule ) + 1 );
+        tModule = ( moris::Parameter_List_Type )( (uint)( tModule ) + 1 );
     }
 
     // Adding the root items to the tree widget and setting the header label
@@ -192,7 +203,7 @@ Moris_Gui::Moris_Gui( QWidget *parent )
     this is to check if a treeWidgetItem without any form associated (i.e. Project names) is clicked
     */
 
-    int tOldSelection = 0;
+    uint tOldSelection = 0;
     mOldSelection.append( tOldSelection );
     mOldSelection.append( tOldSelection );
     mOldSelection.append( tOldSelection );
@@ -208,15 +219,15 @@ Moris_Gui::Moris_Gui( QWidget *parent )
     connect( mRemoveButton, SIGNAL( clicked() ), this, SLOT( remove_props() ) );
 }
 
-void Moris_Gui::setup_scroll_widget( int aRoot, int aChild, int aSubChild )
+void Moris_Gui::setup_scroll_widget( uint aRoot, uint aChild, uint aSubChild )
 {
 
     /*
     function name: setup_scroll_widget
     parameters:
-      int aRoot -> this gives the project name index
-      int aChild -> gives the child index
-      int aSubChild -> gives the Sub-Child (inner sub-module) index
+      uint aRoot -> this gives the project name index
+      uint aChild -> gives the child index
+      uint aSubChild -> gives the Sub-Child (inner sub-module) index
     returns:
         NONE
     description: This function sets up the scroll functionality for the form layout. Called when a new form is added.
@@ -233,111 +244,20 @@ void Moris_Gui::setup_scroll_widget( int aRoot, int aChild, int aSubChild )
     mLayout->addWidget( mScrollArea[ aRoot ][ aChild ][ aSubChild ] );
 }
 
-QStringList Moris_Gui::get_outer_sub_parameter_list( moris::Parameter_List_Type aModule )
-{
-
-    /*
-    function name: get_outer_sub_parameter_list
-    parameters:
-      moris::Parameter_List_Type aModule (ENUM) -> this gives the project name
-    returns:
-        QStringList:
-            The list of sub-modules corresponding to the input module is return
-    */
-
-    // initialize the names with the standard
-    QStringList tNames = { "General" };
-
-    // get the names of the sub-parameter lists for each of the modules
-    switch ( aModule )
-    {
-        case moris::Parameter_List_Type::OPT:
-            tNames = { "OptimizationProblems", "Interface", "Algorithms" };
-            break;
-
-        case moris::Parameter_List_Type::HMR:
-            break;    // standard name
-
-        case moris::Parameter_List_Type::STK:
-            break;    // standard name
-
-        case moris::Parameter_List_Type::XTK:
-            break;    // standard name
-
-        case moris::Parameter_List_Type::GEN:
-            tNames = { "General", "Geometries", "Properties" };
-            break;
-
-        case moris::Parameter_List_Type::FEM:
-            tNames = {
-                "Properties",                 // 0
-                "ConstitutiveModels",         // 1
-                "StabilizationParameters",    // 2
-                "IWG",                        // 3
-                "IQI",                        // 4
-                "ComputationParameters",      // 5
-                "Fields",                     // 6
-                //"Materials",                  // 7
-                "MaterialModels"    // 8
-            };
-            break;
-
-        case moris::Parameter_List_Type::SOL:
-            tNames = {
-                "LinearAlgorithms",        // 0
-                "LinearSolvers",           // 1
-                "NonLinearAlgorithms",     // 2
-                "NonLinearSolvers",        // 3
-                "TimeSolverAlgorithms",    // 4
-                "TimeSolvers",             // 5
-                "SolverWarehouse",         // 6
-                "Preconditioners"          // 7
-            };
-            break;
-
-        case moris::Parameter_List_Type::MSI:
-            break;    // standard name
-
-        case moris::Parameter_List_Type::VIS:
-            tNames = { "OutputMeshes" };
-            break;
-
-        case moris::Parameter_List_Type::MIG:
-            break;    // standard name
-
-        case moris::Parameter_List_Type::WRK:
-            break;    // standard name
-
-        case moris::Parameter_List_Type::MORISGENERAL:
-            // tNames = { "Remeshing", "Refinement", "Mapping" };
-            break;
-
-        default:
-            // MORIS_ERROR( false, "Library_Enums::convert_enum_to_string() - Parameter list type enum unknown." );
-            break;
-    }
-
-    // check validity of the input
-    // uint tNumSubParamLists = tNames.size();
-
-    // retrieve the name for the specific sub-parameter list requested
-    return tNames;
-}
-
-void Moris_Gui::set_form_visible( int aRoot, int aChildren, int aSubChildren, bool aCheck )
+void Moris_Gui::set_form_visible( uint aRoot, uint aChildren, uint aSubChildren, bool aCheck )
 {
     /*
     function name: set_form_visible
     parameters:
-      int aRoot -> this gives the project name index
-      int aChild -> gives the child index
-      int aSubChild -> gives the Sub-Child (inner sub-module) index
+      uint aRoot -> this gives the project name index
+      uint aChild -> gives the child index
+      uint aSubChild -> gives the Sub-Child (inner sub-module) index
     returns:
         NONE
     */
 
 
-    for ( int i = 0; i < mFormLayout[ aRoot ][ aChildren ][ aSubChildren ]->rowCount(); i++ )
+    for ( uint i = 0; i < (uint)mFormLayout[ aRoot ][ aChildren ][ aSubChildren ]->rowCount(); i++ )
     {
         mFormLayout[ aRoot ][ aChildren ][ aSubChildren ]->setRowVisible( i, aCheck );
     }
@@ -345,14 +265,14 @@ void Moris_Gui::set_form_visible( int aRoot, int aChildren, int aSubChildren, bo
     mScrollArea[ aRoot ][ aChildren ][ aSubChildren ]->setVisible( aCheck );
 }
 
-QList< QStringList > Moris_Gui::get_parameter_list( moris::Parameter_List_Type aModule, int aChild, int aSubChild )
+QList< QStringList > Moris_Gui::get_parameter_list( moris::Parameter_List_Type aModule, uint aChild, uint aSubChild )
 {
     /*
     function name: get_parameter_list
     parameters:
       moris::Parameter_List_Type aModule (ENUM) -> this gives the project name
-      int aChild -> gives the child index
-      int aSubChild -> gives the Sub-Child (inner sub-module) index
+      uint aChild -> gives the child index
+      uint aSubChild -> gives the Sub-Child (inner sub-module) index
     returns:
         QList <QStringList>
             the create_function returns a ParameterList object that is a type of map
@@ -452,7 +372,7 @@ QList< QStringList > Moris_Gui::get_parameter_list( moris::Parameter_List_Type a
 
                 case 1:
                 {
-                    int aRoot = static_cast< int >( aModule );
+                    uint aRoot = (uint)( aModule );
                     if ( mComboBox[ aRoot ][ aChild ]->currentIndex() <= 14 )
                     {
                         tParameterList = convert_parameters_to_QStringList( moris::prm::create_level_set_geometry_parameter_list( static_cast< moris::gen::Field_Type >( mComboBox[ aRoot ][ aChild ]->currentIndex() ) ) );
@@ -522,6 +442,10 @@ QList< QStringList > Moris_Gui::get_parameter_list( moris::Parameter_List_Type a
                     break;
 
                 case 7:
+                    tParameterList = convert_parameters_to_QStringList( moris::prm::create_phase_parameter_list() );
+                    break;
+
+                case 8:
                     tParameterList = convert_parameters_to_QStringList( moris::prm::create_material_model_parameter_list() );
                     break;
 
@@ -641,15 +565,15 @@ QList< QStringList > Moris_Gui::get_parameter_list( moris::Parameter_List_Type a
     return tParameterList;
 }
 
-void Moris_Gui::add_elements( int aRoot, int aChild, int aSubChild )
+void Moris_Gui::add_elements( uint aRoot, uint aChild, uint aSubChild )
 {
 
     /*
     function name: add_elements
     parameters:
-      int aRoot -> this gives the project name index
-      int aChild -> gives the child index
-      int aSubChild -> gives the Sub-Child (inner sub-module) index
+      uint aRoot -> this gives the project name index
+      uint aChild -> gives the child index
+      uint aSubChild -> gives the Sub-Child (inner sub-module) index
     returns:
         NONE
     description: This function actually adds elements like when given the index where to put
@@ -660,10 +584,7 @@ void Moris_Gui::add_elements( int aRoot, int aChild, int aSubChild )
      If it is, then it adds a combo box with the respective options,
      if not then it adds the respective QLineEdit fields by calling get_parameter_list.
     */
-    if ( ( ( aRoot == static_cast< int >( moris::Parameter_List_Type::OPT ) && aChild == static_cast< int >( moris::OPT_SubModule::ALGORITHMS ) && aSubChild == 0 )
-                 || ( aRoot == static_cast< int >( moris::Parameter_List_Type::GEN ) && aChild == static_cast< int >( moris::GEN_SubModule::GEOMETRIES ) && aSubChild == 0 )
-                 || ( aRoot == static_cast< int >( moris::Parameter_List_Type::SOL ) && aChild == static_cast< int >( moris::SOL_SubModule::LINEAR_ALGORITHMS ) && aSubChild == 0 ) )
-            && mCountProps[ aRoot ][ aChild ][ aSubChild ] == 0 )
+    if ( ( mSubFormCheck[ aRoot ][ aChild ] ) && aSubChild == 0 && mCountProps[ aRoot ][ aChild ][ aSubChild ] == 0 )
     {
         // Adding a row with the combo box to the form layout for OPT/Algorithm, GEN/Geometries, SOL/LinearAlgorithms
         mFormLayout[ aRoot ][ aChild ][ aSubChild ]->addRow( "Please select:", mComboBox[ aRoot ][ aChild ] );
@@ -675,19 +596,17 @@ void Moris_Gui::add_elements( int aRoot, int aChild, int aSubChild )
     {
         // Get the parameter list for the respective module, child and sub-child
 
-        moris::Parameter_List_Type aModule     = static_cast< moris::Parameter_List_Type >( aRoot );
+        moris::Parameter_List_Type aModule     = ( moris::Parameter_List_Type )( aRoot );
         QList< QStringList >       tStringList = get_parameter_list( aModule, aChild, aSubChild );
 
         // Check the number of elements already present in mLineEdit
-        int tCounter = mLineEdit[ aRoot ][ aChild ][ aSubChild ].size();
+        uint tCounter = mLineEdit[ aRoot ][ aChild ][ aSubChild ].size();
 
         // If the index is for OPT/Algorithm or GEN/Geometries or SOL/LinearAlgorithms, then add a new sub-child form associated elements for the layout
         // and then add the QLineEdit fields to the sub-form layout
 
         // If not then only the QLineEdit fields are added to the respective form layout
-        if ( ( aRoot == static_cast< int >( moris::Parameter_List_Type::OPT ) && aChild == static_cast< int >( moris::OPT_SubModule::ALGORITHMS ) )
-                || ( aRoot == static_cast< int >( moris::Parameter_List_Type::GEN ) && aChild == static_cast< int >( moris::GEN_SubModule::GEOMETRIES ) )
-                || ( aRoot == static_cast< int >( moris::Parameter_List_Type::SOL ) && aChild == static_cast< int >( moris::SOL_SubModule::LINEAR_ALGORITHMS ) ) )
+        if ( mSubFormCheck[ aRoot ][ aChild ] )
         {
             /*
             In ths case we are in the OPT/Algorithm, GEN/Geometries, SOL/LinearAlgorithms sub-modules and adding a new form base on the combo box selection
@@ -733,7 +652,7 @@ void Moris_Gui::add_elements( int aRoot, int aChild, int aSubChild )
             mCountProps[ aRoot ][ aChild ][ aSubChild ]++;
         }
 
-        for ( int iElements = 0; iElements < tStringList[ 0 ].size(); iElements++ )
+        for ( uint iElements = 0; iElements < tStringList[ 0 ].size(); iElements++ )
         {
             // Create a temp lineEdit field, set placeholder to that and then append to the list
             mLineEdit[ aRoot ][ aChild ][ aSubChild ].append( new QLineEdit() );
@@ -747,7 +666,7 @@ void Moris_Gui::add_elements( int aRoot, int aChild, int aSubChild )
             // Adding the line edit field to the form layout,
             // if it is one of the "special" cases the it is added to the last form layout
             // if it is one of the general cases then it is added to the current form layout selected
-            if ( ( aRoot == 0 && aChild == 2 ) || ( aRoot == 4 && aChild == 1 ) || ( aRoot == 6 && aChild == 0 ) )
+            if ( mSubFormCheck[ aRoot ][ aChild ] )
             {
                 mFormLayout[ aRoot ][ aChild ][ mFormLayout[ aRoot ][ aChild ].size() - 1 ]->addRow( tStringList[ 0 ][ iElements ], mLineEdit[ aRoot ][ aChild ][ aSubChild ][ iElements + tCounter ] );
             }
@@ -774,8 +693,8 @@ void Moris_Gui::parameter_selected( QTreeWidgetItem *aNewItem, QTreeWidgetItem *
     It checks the new and old indices by calling get_tree_index, checks if there is a corresponding layout for the previous/new item and calls the mOldSelection as needed
     */
 
-    QList< int > tNewIndex = get_tree_index( aNewItem );
-    QList< int > tOldIndex;
+    QList< uint > tNewIndex = get_tree_index( aNewItem );
+    QList< uint > tOldIndex;
 
     if ( aOldItem )
     {
@@ -797,15 +716,13 @@ void Moris_Gui::parameter_selected( QTreeWidgetItem *aNewItem, QTreeWidgetItem *
     // then add the elements to the form.
     if ( !tNewIndex.isEmpty()
             && mCountProps[ tNewIndex[ 0 ] ][ tNewIndex[ 1 ] ][ tNewIndex[ 2 ] ] == 0
-            && !( ( tNewIndex[ 0 ] == static_cast< int >( moris::Parameter_List_Type::OPT ) && tNewIndex[ 1 ] == static_cast< int >( moris::OPT_SubModule::ALGORITHMS ) && tNewIndex[ 2 ] != 0 )
-                    || ( tNewIndex[ 0 ] == static_cast< int >( moris::Parameter_List_Type::GEN ) && tNewIndex[ 1 ] == static_cast< int >( moris::GEN_SubModule::GEOMETRIES ) && tNewIndex[ 2 ] != 0 )
-                    || ( tNewIndex[ 0 ] == static_cast< int >( moris::Parameter_List_Type::SOL ) && tNewIndex[ 1 ] == static_cast< int >( moris::SOL_SubModule::LINEAR_ALGORITHMS ) && tNewIndex[ 2 ] != 0 ) ) )
+            && !( mSubFormCheck[ tNewIndex[ 0 ] ][ tNewIndex[ 1 ] ] && tNewIndex[ 2 ] != 0 ) )
     {
         add_elements( tNewIndex[ 0 ], tNewIndex[ 1 ], tNewIndex[ 2 ] );
     }
 
-    int tNewRoot = 0, tNewChild = 0, tNewSubChild = 0;
-    int tOldRoot = 0, tOldChild = 0, tOldSubChild = 0;
+    uint tNewRoot = 0, tNewChild = 0, tNewSubChild = 0;
+    uint tOldRoot = 0, tOldChild = 0, tOldSubChild = 0;
 
     if ( !tOldIndex.isEmpty() )
     {
@@ -837,7 +754,7 @@ void Moris_Gui::parameter_selected( QTreeWidgetItem *aNewItem, QTreeWidgetItem *
     set_form_visible( tNewRoot, tNewChild, tNewSubChild, true );
 }
 
-QList< int > Moris_Gui::get_tree_index( QTreeWidgetItem *tItem )
+QList< uint > Moris_Gui::get_tree_index( QTreeWidgetItem *tItem )
 {
 
     /*
@@ -845,19 +762,19 @@ QList< int > Moris_Gui::get_tree_index( QTreeWidgetItem *tItem )
     parameters:
       tItem (QTreeWidgetItem) -> the QTreeWidgetItem selected from mTreeWidget
     returns:
-        QList <int> tIndex;
+        QList <uint> tIndex;
     description: This function returns the 3D index (format: root, sub-child, inner sub-child) of the item passed into the function
         tIndex[0] -> gives the root
         tIndex[1] -> gives the sub-child
         tIndex[2] -> gives the inner sub-child
     */
 
-    QList< int > tIndex;
+    QList< uint > tIndex;
 
     // Checking across the root and children items. If the item is still not found then checking the sub-children
-    for ( int iRoot = 0; iRoot < mTreeWidgetChildren.size(); iRoot++ )
+    for ( uint iRoot = 0; iRoot < mTreeWidgetChildren.size(); iRoot++ )
     {
-        for ( int iChildren = 0; iChildren < mTreeWidgetChildren[ iRoot ].size(); iChildren++ )
+        for ( uint iChildren = 0; iChildren < mTreeWidgetChildren[ iRoot ].size(); iChildren++ )
         {
             // Check if the current item is the direct child
             if ( tItem == mTreeWidgetChildren[ iRoot ][ iChildren ] )
@@ -869,7 +786,7 @@ QList< int > Moris_Gui::get_tree_index( QTreeWidgetItem *tItem )
             }
 
             // Check if there are subChildren and look for the item among them
-            for ( int iSubChildren = 0; iSubChildren < mTreeWidgetSubChildren[ iRoot ][ iChildren ].size(); iSubChildren++ )
+            for ( uint iSubChildren = 0; iSubChildren < mTreeWidgetSubChildren[ iRoot ][ iChildren ].size(); iSubChildren++ )
             {
                 if ( tItem == mTreeWidgetSubChildren[ iRoot ][ iChildren ][ iSubChildren ] )
                 {
@@ -882,19 +799,16 @@ QList< int > Moris_Gui::get_tree_index( QTreeWidgetItem *tItem )
         }
     }
 
-
-    qDebug() << "No matching index found.";
-
     return tIndex;
 }
 
-QList< QStringList > Moris_Gui::convert_parameters_to_QStringList( moris::Parameter_List tList )
+QList< QStringList > Moris_Gui::convert_parameters_to_QStringList( moris::Parameter_List aList )
 {
 
     /*
     function name: convert_parameters_to_QStringList
     parameters:
-      tList (moris::Parameter_List) -> takes in the Parameter_List map object from MORIS
+      aList (moris::Parameter_List) -> takes in the Parameter_List map object from MORIS
     returns:
         QList <QStringList> tQtList;
     description: takes in the Parameter_List object from MORIS and converts it into a QList <QStringList> where
@@ -907,7 +821,7 @@ QList< QStringList > Moris_Gui::convert_parameters_to_QStringList( moris::Parame
     tQtList.append( tStringList );
     tQtList.append( tStringList );
 
-    for ( auto it = tList.begin(); it != tList.end(); ++it )
+    for ( auto it = aList.begin(); it != aList.end(); ++it )
     {
         tQtList[ 0 ].append( QString::fromStdString( it->first ) );
         tQtList[ 1 ].append( QString::fromStdString( it->second.get_string() ) );
@@ -930,14 +844,21 @@ void Moris_Gui::add_more_props()
         the function checks the index and then depending on where we are in the index it runs add_elements
     */
 
-    QList< int > tIndex = get_tree_index( mTreeWidget->currentItem() );
+    QList< uint > tIndex = get_tree_index( mTreeWidget->currentItem() );
 
-    if ( ( tIndex[ 0 ] == static_cast< int >( moris::Parameter_List_Type::OPT ) && tIndex[ 1 ] == static_cast< int >( moris::OPT_SubModule::ALGORITHMS ) )
-            || ( tIndex[ 0 ] == static_cast< int >( moris::Parameter_List_Type::GEN ) && tIndex[ 1 ] == static_cast< int >( moris::GEN_SubModule::GEOMETRIES ) )
-            || ( tIndex[ 0 ] == static_cast< int >( moris::Parameter_List_Type::SOL ) && tIndex[ 1 ] == static_cast< int >( moris::SOL_SubModule::LINEAR_ALGORITHMS ) ) )
+    if ( mSubFormCheck[ tIndex[ 0 ] ][ tIndex[ 1 ] ] )
     {
-        // If we are in the special cases then we need to add a new form based on the combo box selection, so the tIndex[2] is set to the combo box index
-        tIndex[ 2 ] = mComboBox[ tIndex[ 0 ] ][ tIndex[ 1 ] ]->currentIndex() + 1;
+
+        if ( tIndex[ 2 ] != 0 )
+        {
+            QMessageBox::warning( this, "Error", "Cannot add more props here." );
+            return;
+        }
+        else
+        {
+            // If we are in the special cases then we need to add a new form based on the combo box selection, so the tIndex[2] is set to the combo box index
+            tIndex[ 2 ] = mComboBox[ tIndex[ 0 ] ][ tIndex[ 1 ] ]->currentIndex() + 1;
+        }
 
         add_elements( tIndex[ 0 ], tIndex[ 1 ], tIndex[ 2 ] );
     }
@@ -953,7 +874,7 @@ void Moris_Gui::add_more_props()
 void Moris_Gui::remove_props()
 {
 
-    QList< int > tIndex = get_tree_index( mTreeWidget->currentItem() );
+    QList< uint > tIndex = get_tree_index( mTreeWidget->currentItem() );
 
     if ( tIndex.isEmpty() || tIndex.size() < 3 )
     {
@@ -961,9 +882,9 @@ void Moris_Gui::remove_props()
         return;
     }
 
-    int tRoot     = tIndex[ 0 ];
-    int tChild    = tIndex[ 1 ];
-    int tSubChild = tIndex[ 2 ];
+    uint tRoot     = tIndex[ 0 ];
+    uint tChild    = tIndex[ 1 ];
+    uint tSubChild = tIndex[ 2 ];
 
     qDebug() << "subChild index" << tSubChild;
 
@@ -974,12 +895,10 @@ void Moris_Gui::remove_props()
         tCurrentItemName.chop( 1 );    // Remove the last character
     }
 
-    int tCorrectSubChild = tSubChild;
+    uint tCorrectSubChild = tSubChild;
 
     // Special cases for OPT/Algorithm, GEN/Geometries, SOL/LinearAlgorithms
-    if ( ( tRoot == static_cast< int >( moris::Parameter_List_Type::OPT ) && tChild == static_cast< int >( moris::OPT_SubModule::ALGORITHMS ) )
-            || ( tRoot == static_cast< int >( moris::Parameter_List_Type::GEN ) && tChild == static_cast< int >( moris::GEN_SubModule::GEOMETRIES ) )
-            || ( tRoot == static_cast< int >( moris::Parameter_List_Type::SOL ) && tChild == static_cast< int >( moris::SOL_SubModule::LINEAR_ALGORITHMS ) ) )
+    if ( mSubFormCheck[ tRoot ][ tChild ] )
     {
         if ( tSubChild == 0 )
         {
@@ -991,7 +910,7 @@ void Moris_Gui::remove_props()
         // Finding the index of the form to be removed in the combo box to keep track of number of elements
         // tSubChild is the form to be deleted and tCorrectSubChild is the index of the item in the combo box to modify mCountProps
 
-        for ( int i = 0; i < mComboBox[ tRoot ][ tChild ]->count(); ++i )
+        for ( uint i = 0; i < (uint)mComboBox[ tRoot ][ tChild ]->count(); ++i )
         {
             if ( mComboBox[ tRoot ][ tChild ]->itemText( i ) == tCurrentItemName )
             {
@@ -1024,7 +943,7 @@ void Moris_Gui::remove_props()
         // Make sure the indices are still valid after removal
         if ( tSubChild > 0 )
         {
-            QList< int > tNewIndex = get_tree_index( mTreeWidget->currentItem() );
+            QList< uint > tNewIndex = get_tree_index( mTreeWidget->currentItem() );
             set_form_visible( tNewIndex[ 0 ], tNewIndex[ 1 ], tNewIndex[ 2 ], true );
         }
     }
@@ -1037,8 +956,8 @@ void Moris_Gui::remove_props()
             return;
         }
 
-        int tIterator = mLineEdit[ tRoot ][ tChild ][ tSubChild ].size() / mCountProps[ tRoot ][ tChild ][ tSubChild ];
-        for ( int iRemove = 0; iRemove < tIterator; iRemove++ )
+        uint tIterator = mLineEdit[ tRoot ][ tChild ][ tSubChild ].size() / mCountProps[ tRoot ][ tChild ][ tSubChild ];
+        for ( uint iRemove = 0; iRemove < tIterator; iRemove++ )
         {
             mFormLayout[ tRoot ][ tChild ][ tSubChild ]->removeRow( mFormLayout[ tRoot ][ tChild ][ tSubChild ]->rowCount() - 1 );
             mLineEdit[ tRoot ][ tChild ][ tSubChild ].removeLast();

@@ -59,20 +59,19 @@ class Moris_Gui : public QWidget
 
     // Explain the inputs and outputs of the functions
 
-    QList< QStringList > get_parameter_list( moris::Parameter_List_Type, int, int );
-    QStringList          get_outer_sub_parameter_list( moris::Parameter_List_Type aModule );
+    QList< QStringList > get_parameter_list( moris::Parameter_List_Type, uint, uint );
 
-    void set_form_visible( int, int, int, bool );
+    void set_form_visible( uint, uint, uint, bool );
 
-    void add_elements( int, int, int );
+    void add_elements( uint, uint, uint );
 
     // CM_Struc_Linear_Isotropic::CM_Struc_Linear_Isotropic();
 
-    void setup_scroll_widget( int, int, int );
+    void setup_scroll_widget( uint, uint, uint );
     void add_more_props();
     void remove_props();
 
-    QList< int > get_tree_index( QTreeWidgetItem * );
+    QList< uint > get_tree_index( QTreeWidgetItem * );
 
     void parameter_selected( QTreeWidgetItem *, QTreeWidgetItem * );
 
@@ -124,7 +123,8 @@ class Moris_Gui : public QWidget
     QList< QTreeWidgetItem * >                   mTreeWidgetItems;
     QList< QList< QTreeWidgetItem * > >          mTreeWidgetChildren;
     QList< QList< QList< QTreeWidgetItem * > > > mTreeWidgetSubChildren;
-    QList< int >                                 mOldSelection;
+    QList< uint >                                mOldSelection;
+    QList< QList< bool > >                       mSubFormCheck;
 
     // Element related objects
 
@@ -140,9 +140,7 @@ class Moris_Gui : public QWidget
       GEN (Project) -> Geometries (child) has the same functionality as OPT (Project) -> Algorithm (child)
     */
     QList< QList< QList< QList< QLineEdit * > > > > mLineEdit;
-    QList< QList< QList< int > > >                  mCountProps;
-    QComboBox                                      *mOPTAlgorithmComboBox  = new QComboBox;
-    QComboBox                                      *mGENGeometriesComboBox = new QComboBox;
+    QList< QList< QList< uint > > >                 mCountProps;
     QList< QList< QComboBox * > >                   mComboBox;
 };
 #endif

@@ -160,6 +160,14 @@ namespace moris
         END_ENUM
     };
 
+    enum class MORISGENERAL_SubModule
+    {
+        REMESHING,
+        REFINEMENT,
+        MAPPING,
+        END_ENUM
+    };
+
     // -----------------------------------------------------------------------------
 
     /**
