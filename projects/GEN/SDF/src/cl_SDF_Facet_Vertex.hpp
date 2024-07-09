@@ -74,7 +74,7 @@ namespace moris
             //-------------------------------------------------------------------------------
 
             /**
-             * Sets the coordinates of this node (Matrix version). 
+             * Sets the coordinates of this node (Matrix version).
              * Also changes mIterationNodeCoords. As such, this function should ONLY be called between design iterations.
              *
              * @param aCoordinates new coordinates to be set to
@@ -85,9 +85,9 @@ namespace moris
             //-------------------------------------------------------------------------------
 
             /**
-             * Sets only the aDimension index of this nodes coordinates. 
+             * Sets only the aDimension index of this nodes coordinates.
              * Also changes mIterationNodeCoords. As such, this function should ONLY be called between design iterations.
-             * 
+             *
              * @param aCoordinate new coordinates to be set to
              * @param aDimension spatial dimension of the coordinate to be set
              */
@@ -112,6 +112,12 @@ namespace moris
              */
             void
             reset_node_coords();
+
+            //-------------------------------------------------------------------------------
+
+            Matrix< DDRMat > const &
+            get_coords_reference() const;
+
 
             //-------------------------------------------------------------------------------
             // MTK API functions

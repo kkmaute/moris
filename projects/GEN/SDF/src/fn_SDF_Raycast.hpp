@@ -79,14 +79,15 @@ namespace moris::sdf
      * @param aObject water tight collection of facets to cast on to
      * @param aPoint Point in space that lies within the bounding plane of the candidate triangles
      * @param aAxis direction in which the ray is cast
-     * @param aCaptureEdges whether to capture the edges of the object. Doing so ensures intersections will be computed on them, but could cause improper region determination
-     * @return facet indices which could be intersected by the ray
+     * @param aCandidateFacets return variable, facet indices which aPoint lies in the bounding box of, and intersection coordinates need to be computed to determine intersection
+     * @return Detection of pathological preselection cases, like a ray cast directly onto a vertex or the cast point being on a vertex
      */
-    Vector< uint >
+    Preselection_Result
     preselect_triangles(
             Object&                 aObject,
             const Matrix< DDRMat >& aPoint,
-            uint                    aAxis );
+            uint                    aAxis,
+            Vector< uint >&         aCandidateFacets );
 
     //-------------------------------------------------------------------------------
 
@@ -100,7 +101,7 @@ namespace moris::sdf
      * @param aAxis direction in which the ray is cast
      * @param aIntersectedFacets return variable, facets which are for sure intersected by the ray
      * @param aCandidateFacets return variable, facets which aPoint lies in the bounding box of, and intersection coordinates need to be computed to determine intersection
-     * @return true if the preselection did not find any facets whose vertex would be hit by cast, false otherwise
+     * @return Detection of pathological preselection cases, like a ray cast directly onto a vertex or the cast point being on a vertex
      */
     Preselection_Result
     preselect_lines(
@@ -145,7 +146,8 @@ namespace moris::sdf
             Vector< Facet* >&       aIntersectedFacets,
             const Matrix< DDRMat >& aPoint,
             uint                    aAxis,
-            Preselection_Result     aRayOnVertex = SUCCESS );
+            bool                    aIgnoreErrors = false,
+            Preselection_Result     aRayOnVertex  = SUCCESS );
 
     //-------------------------------------------------------------------------------
 

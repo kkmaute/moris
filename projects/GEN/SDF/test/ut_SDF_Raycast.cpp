@@ -60,27 +60,31 @@ namespace moris::sdf
                 };
 
                 // preselect in x direction and ensure they are correct
-                Vector< uint > tCandidatesExpected = { 0, 1, 2 };
-                Vector< uint > tCandidateTriangles = preselect_triangles( tObject, tTestPoint, 0 );
+                Vector< uint >      tCandidatesExpected = { 0, 1, 2 };
+                Vector< uint >      tCandidateTriangles;
+                Preselection_Result tPreselection = preselect_triangles( tObject, tTestPoint, 0, tCandidateTriangles );
 
                 REQUIRE( tCandidateTriangles.size() == 3 );
+                REQUIRE( tPreselection == Preselection_Result::SUCCESS );
                 CHECK( tCandidatesExpected( 0 ) == tCandidateTriangles( 0 ) );
                 CHECK( tCandidatesExpected( 1 ) == tCandidateTriangles( 1 ) );
                 CHECK( tCandidatesExpected( 2 ) == tCandidateTriangles( 2 ) );
 
                 // repeat for y direction
                 tCandidatesExpected = { 0, 1 };
-                tCandidateTriangles = preselect_triangles( tObject, tTestPoint, 1 );
+                tPreselection       = preselect_triangles( tObject, tTestPoint, 1, tCandidateTriangles );
 
                 REQUIRE( tCandidateTriangles.size() == 2 );
+                REQUIRE( tPreselection == Preselection_Result::SUCCESS );
                 CHECK( tCandidatesExpected( 0 ) == tCandidateTriangles( 0 ) );
                 CHECK( tCandidatesExpected( 1 ) == tCandidateTriangles( 1 ) );
 
                 // repeat for z direction
                 tCandidatesExpected = { 0, 1, 3 };
-                tCandidateTriangles = preselect_triangles( tObject, tTestPoint, 2 );
+                tPreselection       = preselect_triangles( tObject, tTestPoint, 2, tCandidateTriangles );
 
                 REQUIRE( tCandidateTriangles.size() == 3 );
+                REQUIRE( tPreselection == Preselection_Result::SUCCESS );
                 CHECK( tCandidatesExpected( 0 ) == tCandidateTriangles( 0 ) );
                 CHECK( tCandidatesExpected( 1 ) == tCandidateTriangles( 1 ) );
                 CHECK( tCandidatesExpected( 2 ) == tCandidateTriangles( 2 ) );
@@ -118,12 +122,14 @@ namespace moris::sdf
                     { 0.7 }
                 };
 
-                tCandidateTriangles = preselect_triangles( tObject, tTestPoint, 2 );
+                tPreselection = preselect_triangles( tObject, tTestPoint, 2, tCandidateTriangles );
 
                 REQUIRE( tCandidateTriangles.size() == 0 );
+                REQUIRE( tPreselection == Preselection_Result::SUCCESS );
 
                 tCandidatesExpected = { 0, 1, 2 };
-                tCandidateTriangles = preselect_triangles( tObject, tTestPoint, 0 );
+                tPreselection       = preselect_triangles( tObject, tTestPoint, 0, tCandidateTriangles );
+                REQUIRE( tPreselection == Preselection_Result::SUCCESS );
 
                 REQUIRE( tCandidateTriangles.size() == 3 );
                 CHECK( tCandidateTriangles( 0 ) == tCandidatesExpected( 0 ) );

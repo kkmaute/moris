@@ -125,6 +125,12 @@ namespace moris::gen
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aNodeCoordinates )
     {
+        if ( aNodeIndex == 56160 )
+        {
+            std::cout << "points of interest\n";
+        }
+
+        std::cout << "Raycasting Node " << aNodeIndex << std::endl;
         // Raycast from the point
         sdf::Object_Region tRegion = raycast_point( *this, aNodeCoordinates );
 
@@ -161,6 +167,13 @@ namespace moris::gen
             mtk::Geometry_Type                aBackgroundGeometryType,
             mtk::Interpolation_Order          aBackgroundInterpolationOrder )
     {
+        if ( aNodeIndex == 56365 )
+        {
+            std::cout << "node of interest\n";
+            PRINT( aFirstParentNode.get_global_coordinates() );
+            PRINT( aSecondParentNode.get_global_coordinates() );
+        }
+
         // Determine the local coordinate of the intersection and the facet that intersects the parent edge
         sdf::Facet* tParentFacet     = nullptr;
         real        tLocalCoordinate = this->compute_intersection_local_coordinate( aBackgroundNodes, aFirstParentNode, aSecondParentNode, tParentFacet );
@@ -214,9 +227,9 @@ namespace moris::gen
         if ( not tIsAnAxis )
         {
             // Rotate the object so the parent edge is along the x axis
-            tAxis      = 0;
-            tSign      = 1.0;
-            tCastPoint = trans( aFirstParentNode.get_global_coordinates() );
+            tAxis = 0;
+            tSign = 1.0;
+
 
             real tParentVectorNorm = norm( tParentVector );
             tParentVector          = tParentVector / tParentVectorNorm;
@@ -264,7 +277,7 @@ namespace moris::gen
             this->rotate( tRotationMatrix );
 
             // rotate the cast point
-            tCastPoint = tRotationMatrix * tCastPoint;
+            tCastPoint = tRotationMatrix * trans( aFirstParentNode.get_global_coordinates() );
         }
         else
         {
@@ -331,6 +344,18 @@ namespace moris::gen
         // Set return values for intersection location and associated facet
         MORIS_ASSERT( tIntersectionFacets.size() == tLocalCoordinate.size(), "Inconsistent size of facet vector (size %lu) and local coordinate vector (size %lu)", tIntersectionFacets.size(), tLocalCoordinate.size() );
         aParentFacet = tIntersectionFacets( 0 );
+
+        // BRENDAN
+        if ( tLocalCoordinate( 0 ) > 1.0 + this->get_intersection_tolerance() or tLocalCoordinate( 0 ) < -1.0 - this->get_intersection_tolerance() )
+        {
+            std::cout << "1st Parent Node with index " << aFirstParentNode.get_index() << " has coordinates \n";
+            PRINT( aFirstParentNode.get_global_coordinates() );
+            std::cout << "2nd Parent Node with index " << aSecondParentNode.get_index() << " has coordinates \n";
+            PRINT( aSecondParentNode.get_global_coordinates() );
+            PRINT( tCastPoint );
+            MORIS_ASSERT( false, "bad local coordinate of %f", tLocalCoordinate( 0 ) );
+        }
+
         return tLocalCoordinate( 0 );
     }
 

@@ -60,7 +60,7 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         void
-        Facet_Vertex::set_node_coords( const Matrix< DDRMat >& aCoordinates )
+        Facet_Vertex::set_node_coords( const Matrix< DDRMat > &aCoordinates )
         {
             for ( uint iAxis = 0; iAxis < mNodeCoords.numel(); iAxis++ )
             {
@@ -104,6 +104,17 @@ namespace moris
         {
             return mNodeCoords;
         }
+
+        //-------------------------------------------------------------------------------
+
+        Matrix< DDRMat > const &
+        Facet_Vertex::get_coords_reference() const
+        {
+            return mNodeCoords;
+        }
+
+        //-------------------------------------------------------------------------------
+
 
     } /* namespace sdf */
 } /* namespace moris */

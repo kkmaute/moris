@@ -55,7 +55,7 @@ namespace moris
         {
             if ( std::abs( mNormal( aAxis ) ) < mIntersectionTolerance )
             {
-                aCoordinate = 0;
+                aCoordinate = std::numeric_limits< real >::quiet_NaN();
                 aError      = true;
             }
             else
@@ -74,6 +74,14 @@ namespace moris
         }
 
         //-------------------------------------------------------------------------------
+
+        const Vector< std::shared_ptr< sdf::Facet_Vertex > >&
+        Facet::get_facet_vertex_pointers() const
+        {
+            return mVertices;
+        }
+
+        //-------------------------------------------------------------------------------
         // MTK Interface
         //-------------------------------------------------------------------------------
         uint
@@ -81,6 +89,8 @@ namespace moris
         {
             return mVertices.size();
         }
+
+        //-------------------------------------------------------------------------------
 
 
         Vector< mtk::Vertex* >
@@ -240,7 +250,7 @@ namespace moris
 
         bool
         Facet::operator==( const Facet& aRHS ) const
-        {            
+        {
             return mVertices.size() == aRHS.get_number_of_vertices()
                 && all_true( this->get_vertex_ids() == aRHS.get_vertex_ids() )
                 && std::abs( mHesse - aRHS.get_hesse() ) < mIntersectionTolerance

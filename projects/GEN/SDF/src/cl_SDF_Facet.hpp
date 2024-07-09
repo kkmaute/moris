@@ -199,6 +199,11 @@ namespace moris
             get_vertex_coord( uint aVertexIndex, uint aAxis );
 
             //-------------------------------------------------------------------------------
+
+            const Vector< std::shared_ptr< sdf::Facet_Vertex > >&
+            get_facet_vertex_pointers() const;
+
+            //-------------------------------------------------------------------------------
             // MTK API functions
             //-------------------------------------------------------------------------------
 

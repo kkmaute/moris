@@ -28,7 +28,7 @@ namespace moris
     {
       private:
         /**
-         * MORIS cell
+         * MORIS vector
          */
         std::vector< T > mVector;
 
@@ -493,6 +493,21 @@ namespace moris
         //------------------------------------------------------------------
 
         /**
+         * @brief Removes specified element from the container
+         *
+         * @param[in] pos std::iterator to the element to be removed
+         * @return std::iterator to the element following the last removed element
+         */
+
+        typename std::vector< value_type >::iterator
+        erase( typename std::vector< value_type >::iterator const & it )
+        {
+            return mVector.erase( it );
+        }
+
+        //------------------------------------------------------------------
+
+        /**
          * @brief Removes specified element from the container lying in the range
          *        [ pos1, pos2 ).
          *
@@ -500,13 +515,28 @@ namespace moris
          * @param[in] pos2 Position(not index) of last element to be removed + 1
          *
          */
-
         void
         erase_range(
                 moris::size_t const & pos1,
                 moris::size_t const & pos2 )
         {
             mVector.erase( mVector.begin() + pos1, mVector.begin() + pos2 );
+        }
+
+        //------------------------------------------------------------------
+
+        /**
+         * @brief Removes specified element from the container lying in the range
+         *        [ pos1, it2 ).
+         *
+         * @param[in] it1 iterator of first element to be removed
+         * @param[in] it2 iterator of last element to be removed + 1
+         *
+         */
+        void erase_by_iterators( typename std::vector< value_type >::iterator const & it1,
+                typename std::vector< value_type >::iterator const &                  it2 )
+        {
+            mVector.erase( it1, it2 );
         }
 
         //------------------------------------------------------------------

@@ -94,7 +94,8 @@ namespace moris::sdf
             case 3:
             {
                 // preselect triangles in positive and negative aAxis directions for intersection test
-                Vector< uint > tCandidateFacets = preselect_triangles( aObject, aPoint, aAxis );
+                Vector< uint > tCandidateFacets;
+                preselect_triangles( aObject, aPoint, aAxis, tCandidateFacets );
 
                 // FIXME: preselect_triangles() also gives triangles that are behind the cast point.
                 // These can be removed to avoid unnecessary computations in intersect_triangles() and intersect_ray_with_facets()
@@ -111,15 +112,31 @@ namespace moris::sdf
         }
 
         // compute intersection locations
-        Vector< real > tIntersectionCoordinates = intersect_ray_with_facets( aIntersectedFacets, aPoint, aAxis );
+        Vector< real > tIntersectionCoordinates = intersect_ray_with_facets( aIntersectedFacets, aPoint, aAxis, true );
 
-        // remove intersection locations that are behind the point
-        for ( sint iIntersection = tIntersectionCoordinates.size() - 1; iIntersection > -1; iIntersection-- )
+        // --------------------------------------------------------------
+        // remove intersections that are behind the cast point
+        // --------------------------------------------------------------
+
+        // Get the locations of the first entries of the coordinates and facets
+        auto tItCoord = tIntersectionCoordinates.begin();
+        auto tItFacet = aIntersectedFacets.begin();
+
+        // Get the value of the point in the axis direction and the object's intersection tolerance
+        real tPointAxisValue        = aPoint( aAxis );
+        real tIntersectionTolerance = aObject.get_intersection_tolerance();
+
+        while ( tItCoord != tIntersectionCoordinates.end() )
         {
-            if ( tIntersectionCoordinates( iIntersection ) + aObject.get_intersection_tolerance() < aPoint( aAxis ) )
+            if ( *tItCoord + tIntersectionTolerance < tPointAxisValue )
             {
-                tIntersectionCoordinates.erase( iIntersection );
-                aIntersectedFacets.erase( iIntersection );
+                tItCoord = tIntersectionCoordinates.erase( tItCoord );
+                tItFacet = aIntersectedFacets.erase( tItFacet );
+            }
+            else
+            {
+                ++tItCoord;
+                ++tItFacet;
             }
         }
 
@@ -151,17 +168,12 @@ namespace moris::sdf
                     {    // the ray originates from a vertex, return interface
                         return INTERFACE;
                     }
-                    case FAIL_ON_FACET:
+                    case FAIL_ON_EDGE:
                     {    // the facet is along an axis, and the cast point is on it
                         return INTERFACE;
                     }
                     case SUCCESS:
-                    {    // the ray will hit nothing and the does not originate from inside a facet's bounding box
-                        if ( tIntersectedFacets.size() == 0 && tCandidateFacets.size() == 0 )
-                        {
-                            return OUTSIDE;
-                        }
-
+                    {    // no pathological case was detected in preselection
                         // compute intersection coordinates if the point is inside a line's bounding box
                         moris::Vector< real > tIntersectionCoords = intersect_ray_with_facets( tCandidateFacets, aPoint, aAxis, tPreselectionResult );
 
@@ -177,16 +189,38 @@ namespace moris::sdf
             case 3:
             {
                 // preselect triangles for intersection test
-                Vector< uint > tCandidateFacets = preselect_triangles( aObject, aPoint, aAxis );
+                Vector< uint >      tCandidateFacets;
+                Preselection_Result tPreselection = preselect_triangles( aObject, aPoint, aAxis, tCandidateFacets );
 
-                // from the candidate triangles, perform intersection
-                Vector< Facet* > tIntersectedFacets = intersect_triangles( tCandidateFacets, aObject, aPoint, aAxis );
+                switch ( tPreselection )
+                {
+                    case FAIL_CAST_TO_VERTEX:    // the ray will intersect a vertex, cast again in another direction
+                    case FAIL_CAST_TO_EDGE:      // the ray will intersect an edge, cast again in another direction
+                    case FAIL_ON_VERTEX:         // the ray originates from a vertex, return interface
+                    {
+                        return INTERFACE;
+                    }
+                    case FAIL_ON_EDGE:    // the cast point is along the edge of a triangle
+                    {
+                        return INTERFACE;
+                    }
+                    case SUCCESS:   // no pathological case was detected in preselection
+                    {
+                        // From the candidate triangles, determine which will actually be intersected
+                        // (removes triangles where the ray passes through the bounding box, but not the triangle itself)
+                        Vector< Facet* > tIntersectedFacets = intersect_triangles( tCandidateFacets, aObject, aPoint, aAxis );
 
-                // intersect ray with triangles and check if node is inside
-                // FIXME: handle casting onto vertices by changing intersect_triangles to return a preselection result
-                Vector< real > tIntersectionCoords = intersect_ray_with_facets( tIntersectedFacets, aPoint, aAxis );
+                        // intersect ray with triangles and check if node is inside
+                        // FIXME: handle casting onto vertices by changing intersect_triangles to return a preselection result
+                        Vector< real > tIntersectionCoords = intersect_ray_with_facets( tIntersectedFacets, aPoint, aAxis, tPreselection );
 
-                return check_if_node_is_inside_triangles( tIntersectionCoords, aPoint, aAxis, aObject.get_intersection_tolerance() );
+                        return check_if_node_is_inside_triangles( tIntersectionCoords, aPoint, aAxis, aObject.get_intersection_tolerance() );
+                    }
+                    default:
+                    {
+                        return UNSURE;
+                    }
+                }
             }
             default:
             {
@@ -195,31 +229,64 @@ namespace moris::sdf
         }
     }
 
-    Vector< uint >
+    Preselection_Result
     preselect_triangles(
             Object&                 aObject,
             const Matrix< DDRMat >& aPoint,
-            uint                    aAxis )
+            uint                    aAxis,
+            Vector< uint >&         aCandidateFacets )
     {
+        Preselection_Result tPreselectionSuccessful = SUCCESS;
+
         // select the axes that are not being cast in to preselect along (for a cast in the i-dir, preselect in j and k-dir)
         uint tFirstAxis;
         uint tSecondAxis;
         triangle_permutation( aAxis, tFirstAxis, tSecondAxis );
 
+        // Get the intersection tolerance for this Object
+        real tEpsilon = aObject.get_intersection_tolerance();
+
         uint           tCountJ = 0;
         Vector< uint > tCandJ( aObject.get_num_facets() );
         for ( uint iFacetIndex = 0; iFacetIndex < aObject.get_num_facets(); ++iFacetIndex )
         {
-            // check bounding box in J-direction
-            if ( ( aPoint( tFirstAxis ) - aObject.get_facet_min_coord( iFacetIndex, tFirstAxis ) )
-                            * ( aObject.get_facet_max_coord( iFacetIndex, tFirstAxis ) - aPoint( tFirstAxis ) )
-                    > -aObject.get_intersection_tolerance() )
+            // Get the difference of the cast point and the facet min and max coords in the J direction
+            real tJDirectionPreselection = ( aPoint( tFirstAxis ) - aObject.get_facet_min_coord( iFacetIndex, tFirstAxis ) )
+                                         * ( aObject.get_facet_max_coord( iFacetIndex, tFirstAxis ) - aPoint( tFirstAxis ) );
+
+            // check if the point is inside the bounding box of the triangle
+            if ( tJDirectionPreselection > -tEpsilon )
             {
                 // remember this triangle
                 tCandJ( tCountJ ) = iFacetIndex;
 
                 // increment counter
                 ++tCountJ;
+
+                // check that the point is not close to an edge or vertex
+                if ( std::abs( tJDirectionPreselection ) < 3.0 * tEpsilon )
+                {
+                    const Vector< std::shared_ptr< sdf::Facet_Vertex > >& tVertices = aObject.get_facet( iFacetIndex ).get_facet_vertex_pointers();
+
+                    // determine which is the case, edge or vertex
+                    if ( std::any_of( tVertices.begin(), tVertices.end(), [ &aPoint, &tEpsilon ]( std::shared_ptr< Facet_Vertex > aVertex ) {
+                             const Matrix< DDRMat >& tVertexCoordinates = aVertex->get_coords_reference();
+                             return std::all_of( tVertexCoordinates.begin(), tVertexCoordinates.end(), [ & ]( size_t aIndex ) {
+                                 return std::abs( tVertexCoordinates( aIndex ) - aPoint( aIndex ) ) < tEpsilon;
+                             } );
+                         } ) )
+                    {
+                        return FAIL_ON_VERTEX;
+                    }
+                    else if ( aObject.get_facet( iFacetIndex ).get_distance_to_point( aPoint ) < tEpsilon )
+                    {
+                        return FAIL_ON_EDGE;
+                    }
+                    else
+                    {
+                        tPreselectionSuccessful = FAIL_CAST_TO_EDGE;
+                    }
+                }
             }
         }
 
@@ -227,24 +294,31 @@ namespace moris::sdf
         uint tCount = 0;
 
         // reset candidate size
-        Vector< uint > tCandidateFacets( aObject.get_num_facets() );
+        aCandidateFacets.resize( aObject.get_num_facets() );
 
         // loop over remaining triangles in I-direction
         for ( uint k = 0; k < tCountJ; ++k )
         {
-            // check bounding box in I-direction
-            if ( ( aPoint( tSecondAxis ) - aObject.get_facet_min_coord( tCandJ( k ), tSecondAxis ) )
-                            * ( aObject.get_facet_max_coord( tCandJ( k ), tSecondAxis ) - aPoint( tSecondAxis ) )
-                    > -aObject.get_intersection_tolerance() )
+            // Get the difference of the cast point and the facet min and max coords in the K direction
+            real tKDirectionPreselection = ( aPoint( tSecondAxis ) - aObject.get_facet_min_coord( tCandJ( k ), tSecondAxis ) )
+                                         * ( aObject.get_facet_max_coord( tCandJ( k ), tSecondAxis ) - aPoint( tSecondAxis ) );
+
+            // see if the point is inside the bounding box of the triangle
+            if ( tKDirectionPreselection > -aObject.get_intersection_tolerance() )
             {
-                tCandidateFacets( tCount ) = tCandJ( k );
+                aCandidateFacets( tCount ) = tCandJ( k );
                 ++tCount;
+
+                // check if the point is close to the edge
+                if ( std::abs( tKDirectionPreselection ) < 3.0 * aObject.get_intersection_tolerance() )
+                {
+                    tPreselectionSuccessful = FAIL_CAST_TO_EDGE;
+                }
             }
         }
 
-        tCandidateFacets.resize( tCount );
-
-        return tCandidateFacets;
+        aCandidateFacets.resize( tCount );
+        return tPreselectionSuccessful;
     }
 
 
@@ -301,11 +375,16 @@ namespace moris::sdf
             }
             // the facet is along an axis, and the point is on it
             else if ( ( std::abs( tMaxCoordAxisDifference ) < aObject.get_intersection_tolerance()
-                              and std::abs( tMinCoordAxisDifference ) < aObject.get_intersection_tolerance() )
+                              and std::abs( tMinCoordAxisDifference ) < aObject.get_intersection_tolerance() and tMaxCoordOffAxisDifference * tMinCoordOffAxisDifference < MORIS_REAL_EPS )
                       or ( std::abs( tMinCoordOffAxisDifference ) < aObject.get_intersection_tolerance()
-                              and std::abs( tMaxCoordOffAxisDifference ) < aObject.get_intersection_tolerance() ) )
+                              and std::abs( tMaxCoordOffAxisDifference ) < aObject.get_intersection_tolerance() and tMaxCoordAxisDifference * tMinCoordAxisDifference < MORIS_REAL_EPS ) )
             {
-                return FAIL_ON_FACET;
+                // give only the facet whose vertex the cast point lies on
+                aCandidateFacets( 0 ) = &aObject.get_facet( iLineIndex );
+                aCandidateFacets.resize( 1 );
+                aIntersectedFacets.resize( 0 );
+
+                return FAIL_ON_EDGE;
             }
 
             // the ray will hit a vertex, but the cast point is not on a vertex
@@ -406,7 +485,8 @@ namespace moris::sdf
             Vector< Facet* >&       aIntersectedFacets,
             const Matrix< DDRMat >& aPoint,
             uint                    aAxis,
-            Preselection_Result     tRayOnVertex )
+            bool                    aIgnoreErrors,
+            Preselection_Result     aPreselection )
     {
         // return nothing if there are no intersected facets
         if ( aIntersectedFacets.size() == 0 )
@@ -429,7 +509,7 @@ namespace moris::sdf
             real tCoordK;
 
             // calculate intersection coordinate
-            if ( tRayOnVertex == Preselection_Result::FAIL_ON_VERTEX )
+            if ( aPreselection == Preselection_Result::FAIL_ON_VERTEX )
             {
                 // the cast point is on a vertex, return its coordinate
                 tCoordK = aPoint( aAxis );
@@ -443,9 +523,14 @@ namespace moris::sdf
 
             // error meant we would have divided by zero. This triangle is ignored
             // otherwise, the value is written into the result vector
-            if ( !tError )
+            if ( not tError )
             {
                 tCoordsK( tCount++ ) = std::round( tCoordK / MORIS_REAL_EPS ) * MORIS_REAL_EPS;
+            }
+            else if ( aIgnoreErrors )
+            {
+                // remove the facet from the list
+                aIntersectedFacets( iFacetIndex ) = nullptr;
             }
             else
             {
@@ -453,62 +538,66 @@ namespace moris::sdf
             }
         }
 
-        if ( tError )
+        if ( tError and not aIgnoreErrors )
         {
             // this way, the matrix is ignored
             return { 0.0 };
         }
-        else
+
+        if ( aIgnoreErrors )
         {
-            // resize coord array
-            tCoordsK.resize( tCount, 1 );
-
-            // Get the indices of the coordinate array
-            Vector< uint > tCoordsIndices( tCoordsK.size() );
-            std::iota( tCoordsIndices.begin(), tCoordsIndices.end(), 0 );
-
-            // sort the indices of the array based on the intersection values
-            std::sort( tCoordsIndices.begin(), tCoordsIndices.end(), [ &tCoordsK ]( uint i, uint j ) {
-                return tCoordsK( i ) < tCoordsK( j );
-            } );
-
-            // rearrange both tCoordsK and the facets based on the sort
-            Vector< real >   tCoordsKSorted( tCoordsK.size() );
-            Vector< Facet* > tIntersectedFacetsSorted( aIntersectedFacets.size() );
-            for ( uint iIntersectionIndex = 0; iIntersectionIndex < tCoordsK.size(); iIntersectionIndex++ )
-            {
-                tCoordsKSorted( iIntersectionIndex )           = tCoordsK( tCoordsIndices( iIntersectionIndex ) );
-                tIntersectedFacetsSorted( iIntersectionIndex ) = aIntersectedFacets( tCoordsIndices( iIntersectionIndex ) );
-            }
-
-            // make result unique
-            uint tCountUnique = 0;
-
-            // initialize return vector
-            Vector< real > tIntersectionCoords( tCount );
-
-            // set first entry
-            tIntersectionCoords( tCountUnique )  = tCoordsKSorted( 0 );
-            aIntersectedFacets( tCountUnique++ ) = tIntersectedFacetsSorted( 0 );
-
-            // find unique entries
-            for ( uint k = 1; k < tCount; ++k )
-            {
-                if ( std::abs( tCoordsKSorted( k ) - tCoordsKSorted( k - 1 ) ) > 10 * MORIS_REAL_EPS )
-                {
-                    tIntersectionCoords( tCountUnique ) = tCoordsKSorted( k );
-                    aIntersectedFacets( tCountUnique )  = tIntersectedFacetsSorted( k );
-
-                    tCountUnique++;
-                }
-            }
-
-            // chop vector
-            tIntersectionCoords.resize( tCountUnique );
-            aIntersectedFacets.resize( tCountUnique );
-
-            return tIntersectionCoords;
+            // erase the nullptr entries of aIntersectedFacets
+            auto tItFacet = std::remove_if( aIntersectedFacets.begin(), aIntersectedFacets.end(), []( Facet* aFacet ) { return aFacet == nullptr; } );
+            aIntersectedFacets.erase_by_iterators( tItFacet, aIntersectedFacets.end() );
         }
+        // resize coord array
+        tCoordsK.resize( tCount );
+
+        // Get the indices of the coordinate array
+        Vector< uint > tCoordsIndices( tCoordsK.size() );
+        std::iota( tCoordsIndices.begin(), tCoordsIndices.end(), 0 );
+
+        // sort the indices of the array based on the intersection values
+        std::sort( tCoordsIndices.begin(), tCoordsIndices.end(), [ &tCoordsK ]( uint i, uint j ) {
+            return tCoordsK( i ) < tCoordsK( j );
+        } );
+
+        // rearrange both tCoordsK and the facets based on the sort
+        Vector< real >   tCoordsKSorted( tCoordsK.size() );
+        Vector< Facet* > tIntersectedFacetsSorted( aIntersectedFacets.size() );
+        for ( uint iIntersectionIndex = 0; iIntersectionIndex < tCoordsK.size(); iIntersectionIndex++ )
+        {
+            tCoordsKSorted( iIntersectionIndex )           = tCoordsK( tCoordsIndices( iIntersectionIndex ) );
+            tIntersectedFacetsSorted( iIntersectionIndex ) = aIntersectedFacets( tCoordsIndices( iIntersectionIndex ) );
+        }
+
+        // make result unique
+        uint tCountUnique = 0;
+
+        // initialize return vector
+        Vector< real > tIntersectionCoords( tCount );
+
+        // set first entry
+        tIntersectionCoords( tCountUnique )  = tCoordsKSorted( 0 );
+        aIntersectedFacets( tCountUnique++ ) = tIntersectedFacetsSorted( 0 );
+
+        // find unique entries
+        for ( uint k = 1; k < tCount; ++k )
+        {
+            if ( std::abs( tCoordsKSorted( k ) - tCoordsKSorted( k - 1 ) ) > 10 * MORIS_REAL_EPS )
+            {
+                tIntersectionCoords( tCountUnique ) = tCoordsKSorted( k );
+                aIntersectedFacets( tCountUnique )  = tIntersectedFacetsSorted( k );
+
+                tCountUnique++;
+            }
+        }
+
+        // chop vector
+        tIntersectionCoords.resize( tCountUnique );
+        aIntersectedFacets.resize( tCountUnique );
+
+        return tIntersectionCoords;
     }
 
     //-------------------------------------------------------------------------------
@@ -564,6 +653,12 @@ namespace moris::sdf
     {
         // get length of the number of intersections computed
         uint tNumCoordsK = aIntersectionCoords.size();
+
+        // if the ray intersected no facets, the point is outside
+        if ( tNumCoordsK == 0 and aCandidateFacets.size() == 0 )
+        {
+            return OUTSIDE;
+        }
 
         // check if the location of the intersection is greater than the location of the coordinate
         uint tIntersectionsRightOfPoint = 0;

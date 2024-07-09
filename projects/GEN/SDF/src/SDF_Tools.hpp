@@ -51,7 +51,8 @@ namespace moris
             SUCCESS,
             FAIL_ON_VERTEX,
             FAIL_CAST_TO_VERTEX,
-            FAIL_ON_FACET
+            FAIL_ON_EDGE,
+            FAIL_CAST_TO_EDGE,
         };
 
         //-------------------------------------------------------------------------------

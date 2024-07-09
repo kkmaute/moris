@@ -142,14 +142,6 @@ namespace moris::gen
     Matrix< DDRMat >
     Intersection_Node_Surface_Mesh::compute_dxi_dfacet() const
     {
-        if ( this->get_id() == 53 )
-        {
-            std::cout << "BRENDAN node of interest\n";
-        }
-
-        PRINT( this->get_first_parent_node().get_global_coordinates() );
-        PRINT( this->get_second_parent_node().get_global_coordinates() );
-
         // Get the parent vector and its norm from the intersection node
         Matrix< DDRMat > tParentVector     = this->get_second_parent_node().get_global_coordinates() - this->get_first_parent_node().get_global_coordinates();
         real             tParentVectorNorm = norm( tParentVector );
@@ -187,7 +179,7 @@ namespace moris::gen
             case 3:    // 3D surface mesh
             {
                 Vector< Matrix< DDRMat > > tNormalVectorNormSensitivity( mInterfaceGeometry.get_dimension() );
-                
+
                 // Compute the normal vector (not unit)
                 Matrix< DDRMat > tNormal = cross( tVertexCoordinates.get_row( 1 ) - tVertexCoordinates.get_row( 0 ), tVertexCoordinates.get_row( 2 ) - tVertexCoordinates.get_row( 0 ) );
 
@@ -195,7 +187,6 @@ namespace moris::gen
                 real tNormalVectorNorm = norm( tNormal );
 
                 // jacobians of the normal vector wrt to the facet vertices
-                std::cout << "(2,1) = " << tVertexCoordinates( 2, 1 ) << "\n";
                 tNormalVectorSensitivities( 0 ) = { { 0.0, tVertexCoordinates( 1, 2 ) - tVertexCoordinates( 2, 2 ), tVertexCoordinates( 2, 1 ) - tVertexCoordinates( 1, 1 ) }, { tVertexCoordinates( 2, 2 ) - tVertexCoordinates( 1, 2 ), 0.0, tVertexCoordinates( 1, 0 ) - tVertexCoordinates( 2, 0 ) }, { tVertexCoordinates( 1, 1 ) - tVertexCoordinates( 2, 1 ), tVertexCoordinates( 2, 0 ) - tVertexCoordinates( 1, 0 ), 0.0 } };
                 tNormalVectorSensitivities( 1 ) = { { 0.0, tVertexCoordinates( 2, 2 ) - tVertexCoordinates( 0, 2 ), tVertexCoordinates( 0, 1 ) - tVertexCoordinates( 2, 1 ) }, { tVertexCoordinates( 0, 2 ) - tVertexCoordinates( 2, 2 ), 0.0, tVertexCoordinates( 2, 0 ) - tVertexCoordinates( 0, 0 ) }, { tVertexCoordinates( 2, 1 ) - tVertexCoordinates( 0, 1 ), tVertexCoordinates( 0, 0 ) - tVertexCoordinates( 2, 0 ), 0.0 } };
                 tNormalVectorSensitivities( 2 ) = { { 0.0, tVertexCoordinates( 0, 2 ) - tVertexCoordinates( 1, 2 ), tVertexCoordinates( 1, 1 ) - tVertexCoordinates( 0, 1 ) }, { tVertexCoordinates( 1, 2 ) - tVertexCoordinates( 0, 2 ), 0.0, tVertexCoordinates( 0, 0 ) - tVertexCoordinates( 1, 0 ) }, { tVertexCoordinates( 0, 1 ) - tVertexCoordinates( 1, 1 ), tVertexCoordinates( 1, 0 ) - tVertexCoordinates( 0, 0 ), 0.0 } };
