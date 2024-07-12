@@ -33,7 +33,6 @@ namespace moris
             //-------------------------------------------------------------------------------
 
             Matrix< DDRMat > mNodeCoords;             // can be changed through coordinate transformations in raycasts and design iterations
-            Matrix< DDRMat > mIterationNodeCoords;    // Can only be changed by design iterations
 
             //-------------------------------------------------------------------------------
 

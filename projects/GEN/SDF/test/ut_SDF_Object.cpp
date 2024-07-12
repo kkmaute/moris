@@ -63,8 +63,12 @@ namespace moris::sdf
         // check shift
         CHECK( all_true( abs( tFacetCoords - tShiftCoordsExpected ) < tEpsilon ) );
 
-        // reset
+        // reset and get first facet coordinates
         tObject.reset_coordinates();
+        tFacetCoords = tObject.get_facet( 0 ).get_vertex_coords();
+
+        // check reset
+        CHECK( all_true( abs( tFacetCoords - tResetCoordsExpected ) < tEpsilon ) );
 
         // scale the object and get the third facet
         Vector< real > tScale = { 2.0, 0.5 };
@@ -74,7 +78,12 @@ namespace moris::sdf
         // check scale
         CHECK( all_true( abs( tFacetCoords - tScaleCoordsExpected ) < tEpsilon ) );
 
-        // reset
+        // reset and get first facet coordinates
         tObject.reset_coordinates();
+        tFacetCoords = tObject.get_facet( 0 ).get_vertex_coords();
+
+        // check reset
+        CHECK( all_true( abs( tFacetCoords - tResetCoordsExpected ) < tEpsilon ) );
+
     }
 }    // namespace moris::sdf

@@ -22,7 +22,6 @@ namespace moris
                 const Matrix< DDRMat > &aNodeCoords )
                 : mIndex( aIndex )
                 , mNodeCoords( aNodeCoords )
-                , mIterationNodeCoords( aNodeCoords )
         {
         }
 
@@ -53,7 +52,6 @@ namespace moris
             for ( uint iAxis = 0; iAxis < mNodeCoords.numel(); iAxis++ )
             {
                 mNodeCoords( iAxis )          = aCoordinates( iAxis );
-                mIterationNodeCoords( iAxis ) = aCoordinates( iAxis );
             }
         }
 
@@ -65,7 +63,6 @@ namespace moris
             for ( uint iAxis = 0; iAxis < mNodeCoords.numel(); iAxis++ )
             {
                 mNodeCoords( iAxis )          = aCoordinates( iAxis );
-                mIterationNodeCoords( iAxis ) = aCoordinates( iAxis );
             }
         }
 
@@ -75,7 +72,6 @@ namespace moris
         Facet_Vertex::set_node_coord( const real aCoordinate, uint aDimension )
         {
             mNodeCoords( aDimension )          = aCoordinate;
-            mIterationNodeCoords( aDimension ) = aCoordinate;
         }
 
         //-------------------------------------------------------------------------------
@@ -87,14 +83,6 @@ namespace moris
             {
                 mNodeCoords( iAxis ) += aShift( iAxis );
             }
-        }
-
-        //-------------------------------------------------------------------------------
-
-        void
-        Facet_Vertex::reset_node_coords()
-        {
-            mNodeCoords = mIterationNodeCoords;
         }
 
         //-------------------------------------------------------------------------------

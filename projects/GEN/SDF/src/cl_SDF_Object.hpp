@@ -25,16 +25,17 @@ namespace moris
         //-------------------------------------------------------------------------------
         class Object
         {
-            const real                                mMeshHighPass = 1e-9;
-            moris::Vector< std::shared_ptr< Facet > > mFacets;
-
-
-            real mIntersectionTolerance = 1e-8;    // tolerance for interfaces when raycasting with this Object
-
           protected:
             uint                                      mDimension;
             Vector< std::shared_ptr< Facet_Vertex > > mVertices;    // vertices of all facets, can be modified by ADVs
+            moris::Vector< std::shared_ptr< Facet > > mFacets;
 
+          private:
+            real             mIntersectionTolerance = 1e-8;    // tolerance for interfaces when raycasting with this Object
+            const real       mMeshHighPass          = 1e-9;
+            Matrix< DDRMat > mRotation;    // current rotation of the object
+            Matrix< DDRMat > mShift;       // current shift of the object, does not include shift on construction
+            Matrix< DDRMat > mScale;       // current scale of the object, does not include scale on construction
 
             //-------------------------------------------------------------------------------
 
@@ -142,12 +143,11 @@ namespace moris
 
             /**
              * Outputs the surface mesh to a .obj file
-             * 
+             *
              * @param aFilePath the desired file name and location
              */
             void
             write_to_file( std::string aFilePath );
-
 
             //-------------------------------------------------------------------------------
             // MTK

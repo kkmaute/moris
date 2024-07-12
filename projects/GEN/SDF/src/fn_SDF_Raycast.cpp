@@ -261,18 +261,20 @@ namespace moris::sdf
                 ++tCountJ;
 
                 // check that the point is not close to an edge or vertex
-                if ( std::abs( tJDirectionPreselection ) < 2.0 * tEpsilon )
+                if ( std::abs( tJDirectionPreselection ) < 1.2 * tEpsilon )
                 {
                     const Vector< std::shared_ptr< sdf::Facet_Vertex > >& tVertices = aObject.get_facet( iFacetIndex ).get_facet_vertex_pointers();
 
+                    // lambda function that determines if the point is on any of the vertices
+                    auto tPointOnVertex = [ &aPoint, &tEpsilon ]( std::shared_ptr< Facet_Vertex > aVertex ) {
+                        const Matrix< DDRMat >& tVertexCoordinates = aVertex->get_coords_reference();
+                        return std::equal( tVertexCoordinates.cbegin(), tVertexCoordinates.cend(), aPoint.cbegin(), [ & ]( real tCoord, real tPoint ) {
+                            return std::abs( tCoord - tPoint ) < 1.2 * tEpsilon;
+                        } );
+                    };
+
                     // determine which is the case, edge or vertex
-                    if ( std::any_of( tVertices.begin(), tVertices.end(), [ &aPoint, &tEpsilon ]( std::shared_ptr< Facet_Vertex > aVertex ) {
-                             const Matrix< DDRMat >& tVertexCoordinates = aVertex->get_coords_reference();
-                             auto                    tPointIt           = aPoint.begin();
-                             return std::all_of( tVertexCoordinates.begin(), tVertexCoordinates.end(), [ & ]( real tCoord ) {
-                                 return std::abs( tCoord - *tPointIt++ ) < 2.0 * tEpsilon;
-                             } );
-                         } ) )
+                    if ( std::any_of( tVertices.cbegin(), tVertices.cend(), tPointOnVertex ) )
                     {
                         aCandidateFacets.resize( 1 );
                         aCandidateFacets( 0 ) = iFacetIndex;
@@ -454,7 +456,7 @@ namespace moris::sdf
             Facet& tFacet = aObject.get_facet( iCandidateFacetIndex );
 
             // check each edge of the triangle and flag it if the point is on the correct side for every edge
-            if ( std::all_of( tEdges.begin(), tEdges.end(), [ &tFacet, aAxis, &aPoint ]( uint iEdge ) { return tFacet.check_edge( iEdge, aAxis, aPoint ); } ) )
+            if ( std::all_of( tEdges.cbegin(), tEdges.cend(), [ &tFacet, aAxis, &aPoint ]( uint iEdge ) { return tFacet.check_edge( iEdge, aAxis, aPoint ); } ) )
             {
                 tFacet.flag();
                 ++tCount;

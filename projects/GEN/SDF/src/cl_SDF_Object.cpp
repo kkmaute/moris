@@ -17,6 +17,9 @@
 #include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
+#include "fn_inv.hpp"
+#include "fn_eye.hpp"
+#include "op_elemwise_div.hpp"
 
 #include "SDF_Tools.hpp"
 #include "cl_SDF_Facet_Vertex.hpp"
@@ -49,6 +52,10 @@ namespace moris::sdf
         {
             MORIS_ERROR( false, "sdf::Object(), file type of %s is not supported", tFileExt.c_str() );
         }
+
+        mRotation = eye( mDimension, mDimension );
+        mShift.set_size( mDimension, 1, 0.0 );
+        mScale.set_size( mDimension, 1, 1.0 );
     }
 
     //-------------------------------------------------------------------------------
@@ -428,11 +435,16 @@ namespace moris::sdf
     void
     Object::rotate( const Matrix< DDRMat >& aRotationMatrix )
     {
+        // rotate each vertex
         for ( uint iVertexIndex = 0; iVertexIndex < mVertices.size(); iVertexIndex++ )
         {
             mVertices( iVertexIndex )->rotate_node_coords( aRotationMatrix );
         }
 
+        // update the object's rotation matrix to include the new rotation
+        mRotation = aRotationMatrix * mRotation;
+
+        // update the facet normals/centers/hesse/etc.
         this->update_all_facets();
     }
 
@@ -441,13 +453,16 @@ namespace moris::sdf
     void
     Object::scale( const Vector< real >& aScaling )
     {
-        MORIS_ASSERT( aScaling.size() == mDimension, "SDF_Object: scale_object() - Scaling factors must be equal to object dimension." );
-
+        // scale each facet vertex
         for ( uint iVertexIndex = 0; iVertexIndex < mVertices.size(); iVertexIndex++ )
         {
             mVertices( iVertexIndex )->scale_node_coords( aScaling );
         }
 
+        // update the object's scale vector by multiplying the new scale
+        std::transform( mScale.begin(), mScale.end(), aScaling.cbegin(), mScale.begin(), std::multiplies< real >() );
+
+        // update the facet normals/centers/hesse/etc.
         this->update_all_facets();
     }
 
@@ -456,13 +471,16 @@ namespace moris::sdf
     void
     Object::shift( const Vector< real >& aShift )
     {
-        MORIS_ASSERT( aShift.size() == mDimension, "SDF_Object::shift_object() - Shift must be equal to object dimension." );
-
+        // move each facet vertex
         for ( uint iVertexIndex = 0; iVertexIndex < mVertices.size(); iVertexIndex++ )
         {
             mVertices( iVertexIndex )->shift_node_coords_from_current( aShift );
         }
 
+        // update the object's total shift vector by adding the new shift
+        std::transform( mShift.begin(), mShift.end(), aShift.cbegin(), mShift.begin(), std::plus< real >() );
+
+        // update the facet normals/centers/hesse/etc.
         this->update_all_facets();
     }
 
@@ -470,11 +488,24 @@ namespace moris::sdf
 
     void Object::reset_coordinates()
     {
+        // Get the inverse of the rotation matrix
+        Matrix< DDRMat > tInverseRotation = inv( mRotation );
+
         for ( uint iVertex = 0; iVertex < mVertices.size(); iVertex++ )
         {
-            mVertices( iVertex )->reset_node_coords();
+            mVertices( iVertex )->set_node_coords( tInverseRotation * ( mVertices( iVertex )->get_coords_reference() - mShift ) / mScale );
         }
 
+        // reset the object's rotation matrix
+        mRotation = eye( mDimension, mDimension );
+
+        // reset the object's shift
+        std::fill( mShift.begin(), mShift.end(), 0.0 );
+
+        // reset the object's scale
+        std::fill( mScale.begin(), mScale.end(), 1.0 );
+
+        // update the facet normals/centers/hesse/etc.
         this->update_all_facets();
     }
 
