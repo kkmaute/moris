@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2022 University of Colorado 
- * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details. 
- * 
- * ------------------------------------------------------------------------------------ 
- * 
- * parameters.hpp  
- * 
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ * ------------------------------------------------------------------------------------
+ *
+ * parameters.hpp
+ *
  */
 
 #ifndef SRC_parameters
@@ -26,6 +26,5 @@
 #include "fn_PRM_XTK_Parameters.hpp"
 
 #include "fn_PRM_print.hpp"
-
 
 #endif /* parameters.hpp */

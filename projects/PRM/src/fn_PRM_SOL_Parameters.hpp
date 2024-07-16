@@ -211,8 +211,7 @@ namespace moris
             // blocks in addtive Schwartz algorthim
             aParameterlist.insert( "ASM_blocks_output_filename", "" );
 
-
-            //GAMG preconditioner
+            // GAMG preconditioner
             aParameterlist.insert( "num_pde_equations", (sint)1 );
             aParameterlist.insert( "amg_type", "agg" );
             aParameterlist.insert( "use_gamg_defaults", true );
@@ -401,7 +400,6 @@ namespace moris
             mEigAlgoParameterList.insert( "Convergence_Tolerance", 1e-08 );
             mEigAlgoParameterList.insert( "max_iter", std::numeric_limits< uint >::max() );
 
-
             // Update flag for vismesh
             mEigAlgoParameterList.insert( "Update_Flag", true );
             mEigAlgoParameterList.insert( "is_symmetric", true );
@@ -414,7 +412,6 @@ namespace moris
             // mEigAlgoParameterList.insert( "Eigen_Algorithm", std::string( "" ) ); "power"
             mEigAlgoParameterList.insert( "shift_type", "constant" );    // options : "constant", "rayleigh", "wilkinson"   // can find the max and minim eigenvalue
 
-
             // the Generalized Davidson method
             // mEigAlgoParameterList.insert( "Eigen_Algorithm", std::string( "" ) ); "gd"
             mEigAlgoParameterList.insert( "krylov_start", false );
@@ -424,7 +421,6 @@ namespace moris
             mEigAlgoParameterList.insert( "number_of_vectors_saved_from_previous_restart", (sint)-2 );
             mEigAlgoParameterList.insert( "use_B_ortho", true );
             mEigAlgoParameterList.insert( "dynamic", false );
-
 
             // krylov schur solver
             // see krlovschur.c file in slepc documentation
@@ -436,7 +432,6 @@ namespace moris
             mEigAlgoParameterList.insert( "number_eigenvalues", 1 );
             mEigAlgoParameterList.insert( "subspace_dim", -2 );             // the value is PETSC dedualt which is -2
             mEigAlgoParameterList.insert( "maximum_projected_dim", -2 );    // the value is PETSC dedualt which is -2
-
 
             return mEigAlgoParameterList;
         }
@@ -870,6 +865,23 @@ namespace moris
 
             // Determines Newton maxits multiplier
             tNonLinAlgorithmParameterList.insert( "NLA_is_eigen_problem", false );
+
+            // Determine with which strategy remapping of nonconformal meshes (raytracing) should be performed
+            tNonLinAlgorithmParameterList.insert( "NLA_remap_strategy", (uint)sol::SolverRaytracingStrategy::None );
+
+            // If "NLA_remap_strategy" is set to "EveryNthIteration", "EveryNthLoadStepOrNthIteration, or "MixedNthLoadStepAndNthIteration",
+            // this parameter determines the frequency of remapping inside the newton iterations
+            tNonLinAlgorithmParameterList.insert( "NLA_remap_iteration_frequency", 1 );
+
+            // If "NLA_remap_strategy" is set to "EveryNthLoadStep", "EveryNthLoadStepOrNthIteration, "MixedNthLoadStepAndResidualChange" or "MixedNthLoadStepAndNthIteration",
+            // this parameter determines the frequency of remapping in the load stepping iterations
+            tNonLinAlgorithmParameterList.insert( "NLA_remap_load_step_frequency", 1 );
+
+            // If "NLA_remap_strategy" is set to "ResidualChange" or "MixedNthLoadStepAndResidualChange",
+            // this parameter determines the limit of the change in the residual above which the remapping is preformed.
+            // E.g. if this is set to -1e-2, the remapping will be performed if the change between the previous and current iterations residual is greater than -1e-2
+            // (either it is almost converged in the current configuration or the residual grows)
+            tNonLinAlgorithmParameterList.insert( "NLA_remap_residual_change_tolerance", -1e-2 );
 
             return tNonLinAlgorithmParameterList;
         }
