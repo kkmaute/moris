@@ -24,7 +24,5 @@ erfEta = erf(eta);
 % compute result  
 T = Tw + (T0 - Tw) * erfEta;
 
-
 end
-
 
