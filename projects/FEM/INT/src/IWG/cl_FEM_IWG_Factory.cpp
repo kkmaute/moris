@@ -93,6 +93,10 @@
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Penalty.hpp"
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Nitsche.hpp"
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche.hpp"
+#include "cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche_Unbiased.hpp"
+#include "cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Normal_Nitsche_Unbiased.hpp"
+#include "cl_FEM_IWG_Isotropic_Struc_Nonlinear_Contact_Mlika.hpp"
+#include "cl_FEM_IWG_Isotropic_Struc_Nonlinear_Contact_Seitz.hpp"
 // Ghost
 #include "cl_FEM_IWG_Ghost_Normal_Field.hpp"
 #include "cl_FEM_IWG_Struc_Stress.hpp"
@@ -242,6 +246,21 @@ namespace moris
                 case IWG_Type::STRUC_LINEAR_CONTACT_GAP_UNSYMMETRIC_NITSCHE:
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche >( 1 );
 
+                case IWG_Type::STRUC_LINEAR_CONTACT_GAP_SYMMETRIC_NITSCHE_UNBIASED:
+                    return std::make_shared< IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche_Unbiased >( -1 );
+
+                case IWG_Type::STRUC_LINEAR_CONTACT_GAP_UNSYMMETRIC_NITSCHE_UNBIASED:
+                    return std::make_shared< IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche_Unbiased >( 1 );
+
+                case IWG_Type::STRUC_LINEAR_CONTACT_NORMAL_SYMMETRIC_NITSCHE_UNBIASED:
+                    return std::make_shared< IWG_Isotropic_Struc_Linear_Contact_Normal_Nitsche_Unbiased >( -1 );
+
+                case IWG_Type::STRUC_LINEAR_CONTACT_NORMAL_UNSYMMETRIC_NITSCHE_UNBIASED:
+                    return std::make_shared< IWG_Isotropic_Struc_Linear_Contact_Normal_Nitsche_Unbiased >( 1 );
+
+                case IWG_Type::STRUC_LINEAR_CONTACT_NORMAL_NEUTRAL_NITSCHE_UNBIASED:
+                    return std::make_shared< IWG_Isotropic_Struc_Linear_Contact_Normal_Nitsche_Unbiased >( 0 );
+
                 case IWG_Type::STRUC_LINEAR_CONTACT_PENALTY:
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Contact_Penalty >();
 
@@ -301,6 +320,23 @@ namespace moris
                 case IWG_Type::STRUC_NON_LINEAR_INTERFACE_UNSYMMETRIC_NITSCHE_CAUCHYEPS:
                     return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Interface >( CM_Function_Type::CAUCHY, CM_Function_Type::EULERIAN, 1 );
 
+                case IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_SYMMETRIC:
+                    return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Contact_Mlika >( -1 );
+
+                case IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_UNSYMMETRIC:
+                    return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Contact_Mlika >( 1 );
+
+                case IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_NEUTRAL:
+                    return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Contact_Mlika >( 0 );
+
+                case IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_SYMMETRIC:
+                    return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Contact_Seitz >( -1 );
+
+                case IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_UNSYMMETRIC:
+                    return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Contact_Seitz >( 1 );
+
+                case IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_NEUTRAL:
+                    return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Contact_Seitz >( 0 );
                     //------------------------------------------------------------------------------
 
                 case IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK:

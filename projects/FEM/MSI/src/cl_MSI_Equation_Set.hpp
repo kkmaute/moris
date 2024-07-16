@@ -17,7 +17,10 @@
 #include "cl_MTK_Enums.hpp"
 #include "cl_FEM_Enums.hpp"
 #include "GEN_Data_Types.hpp"
+#include "cl_MSI_Equation_Object.hpp"
 
+#include <unordered_set>
+#include <unordered_map>
 
 namespace moris
 {
@@ -40,7 +43,6 @@ namespace moris
     namespace MSI
     {
         class Model_Solver_Interface;
-        class Equation_Object;
         class Design_Variable_Interface;
         class Equation_Model;
         enum class Dof_Type;
@@ -91,8 +93,9 @@ namespace moris
             moris::Matrix< DDSMat > mFollowerFieldTypeMap;
 
             // map of leader and follower mat pdv types for assembly
-            Vector< moris::Matrix< DDSMat > >                         mPdvMatAssemblyMap;
-            moris::Matrix< DDSMat >                                   mPdvMatAssemblyVector;
+            Vector< moris::Matrix< DDSMat > > mPdvMatAssemblyMap;
+            moris::Matrix< DDSMat >           mPdvMatAssemblyVector;
+
             std::map< std::pair< moris_index, gen::PDV_Type >, uint > mPdvGeoAssemblyMap;
             moris::Matrix< DDSMat >                                   mPdvGeoAssemblyVector;
             bool                                                      mPdvGeoAssemblyFlag = false;
@@ -111,6 +114,9 @@ namespace moris
 
             // bool for time continuity
             bool mIsStaggered = false;
+
+            // flag whether the set needs to be updated in every newton iteration
+            bool mIsUpdateRequired = false;
 
             Matrix< DDRMat > mTime;
 
@@ -183,12 +189,17 @@ namespace moris
             }
 
             //------------------------------------------------------------------------------
+            [[nodiscard]] bool is_empty_set() const { return mIsEmptySet; }
 
             MSI::Equation_Model*
             get_equation_model()
             {
                 return mEquationModel;
             }
+
+            //------------------------------------------------------------------------------
+
+            [[nodiscard]] bool get_is_update_required() const { return mIsUpdateRequired; }
 
             //------------------------------------------------------------------------------
             /**
@@ -321,6 +332,21 @@ namespace moris
             {
                 MORIS_ERROR( false, "Equation_Set::initialize_set - not implemented for virtual member function" );
             }
+
+            /**
+             * \brief Get the displacement for every node in the set.
+             * \return A map from the node index to the displacement vector.
+             */
+            virtual std::unordered_map< moris_index, Vector< real > > get_nodal_displacements( std::unordered_set< moris_index > aRequestedNodes )
+            {
+                MORIS_ERROR( false, "Equation_Set::get_nodal_displacements - not implemented for virtual member function" );
+                return {};
+            };
+
+            virtual void update()
+            {
+                MORIS_ERROR( false, "Equation_Set::update - not implemented for virtual member function" );
+            };
 
             //-------------------------------------------------------------------------------------------------
             /**

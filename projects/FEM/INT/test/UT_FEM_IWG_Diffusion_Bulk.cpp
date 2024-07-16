@@ -36,54 +36,54 @@ using namespace fem;
 
 inline void
 tConstValFunction_UTIWGDIFFBULK(
-        moris::Matrix< moris::DDRMat >&                aPropMatrix,
+        moris::Matrix< moris::DDRMat >&           aPropMatrix,
         Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-        moris::fem::Field_Interpolator_Manager*        aFIManager )
+        moris::fem::Field_Interpolator_Manager*   aFIManager )
 {
     aPropMatrix = aParameters( 0 );
 }
 
 inline void
 tGeoValFunction_UTIWGDIFFBULK(
-        moris::Matrix< moris::DDRMat >&                aPropMatrix,
+        moris::Matrix< moris::DDRMat >&           aPropMatrix,
         Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-        moris::fem::Field_Interpolator_Manager*        aFIManager )
+        moris::fem::Field_Interpolator_Manager*   aFIManager )
 {
     aPropMatrix = aParameters( 0 ) * aFIManager->get_IP_geometry_interpolator()->valx()( 0 );
 }
 
 inline void
 tFIValFunction_UTIWGDIFFBULK(
-        moris::Matrix< moris::DDRMat >&                aPropMatrix,
+        moris::Matrix< moris::DDRMat >&           aPropMatrix,
         Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-        moris::fem::Field_Interpolator_Manager*        aFIManager )
+        moris::fem::Field_Interpolator_Manager*   aFIManager )
 {
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val();
 }
 
 inline void
 tFIDerFunction_UTIWGDIFFBULK(
-        moris::Matrix< moris::DDRMat >&                aPropMatrix,
+        moris::Matrix< moris::DDRMat >&           aPropMatrix,
         Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-        moris::fem::Field_Interpolator_Manager*        aFIManager )
+        moris::fem::Field_Interpolator_Manager*   aFIManager )
 {
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
 }
 
 inline void
 tFIValDvFunction_UTIWGDIFFBULK(
-        moris::Matrix< moris::DDRMat >&                aPropMatrix,
+        moris::Matrix< moris::DDRMat >&           aPropMatrix,
         Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-        moris::fem::Field_Interpolator_Manager*        aFIManager )
+        moris::fem::Field_Interpolator_Manager*   aFIManager )
 {
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::gen::PDV_Type::DENSITY )->val();
 }
 
 inline void
 tFIDerDvFunction_UTIWGDIFFBULK(
-        moris::Matrix< moris::DDRMat >&                aPropMatrix,
+        moris::Matrix< moris::DDRMat >&           aPropMatrix,
         Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-        moris::fem::Field_Interpolator_Manager*        aFIManager )
+        moris::fem::Field_Interpolator_Manager*   aFIManager )
 {
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::gen::PDV_Type::DENSITY )->N();
 }
@@ -227,7 +227,7 @@ test_IWG_Diffusion_Bulk(
 
     // create a field interpolator manager
     Vector< Vector< enum MSI::Dof_Type > > tDummy;
-    Field_Interpolator_Manager                       tFIManager( tDummy, tSet );
+    Field_Interpolator_Manager             tFIManager( tDummy, tSet );
 
     // populate the field interpolator manager
     tFIManager.mFI                     = tFIs;
@@ -645,7 +645,7 @@ TEST_CASE( "IWG_Diffusion_Bulk_Geo_Prop", "[moris],[fem],[IWG_Diff_Bulk_Geo_Prop
     tIWG->mRequestedLeaderGlobalDofTypes = { { MSI::Dof_Type::TEMP } };
 
     Vector< Vector< enum MSI::Dof_Type > > tDummy;
-    Field_Interpolator_Manager                       tFIManager( tDummy, tSet );
+    Field_Interpolator_Manager             tFIManager( tDummy, tSet );
 
     tFIManager.mFI                     = tFIs;
     tFIManager.mIPGeometryInterpolator = &tGI;
@@ -762,7 +762,7 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
     //    tDOFHat = 10.0 * tMatrix;
     //
     //    // create a cell of field interpolators for IWG
-    //    Cell< Field_Interpolator* > tFIs( 1 );
+    //    Vector< Field_Interpolator* > tFIs( 1 );
     //
     //    // create the field interpolator
     //    tFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, { MSI::Dof_Type::TEMP } );
@@ -780,7 +780,7 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
     //    tDvHat = 10.0 * tDvMatrix;
     //
     //    // create a cell of dv field interpolators for IWG
-    //    Cell< Field_Interpolator* > tDvFIs( 1 );
+    //    Vector< Field_Interpolator* > tDvFIs( 1 );
     //
     //    // create the field interpolator
     //    tDvFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, { gen::PDV_Type::DENSITY0 } );
@@ -843,9 +843,9 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
     //    // check evaluation of drdpdv  by FD
     //    //------------------------------------------------------------------------------
     //    // init the jacobian for IWG and FD evaluation
-    //    Cell< Matrix< DDRMat > > tdRdpMatFD;
-    //    Cell< Matrix< DDRMat > > tdRdpGeoFD;
-    //    Cell< Matrix< DDSMat > > tIsActive = { {{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 }},
+    //    Vector< Matrix< DDRMat > > tdRdpMatFD;
+    //    Vector< Matrix< DDRMat > > tdRdpGeoFD;
+    //    Vector< Matrix< DDSMat > > tIsActive = { {{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 }},
     //                                           {{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 }},
     //                                           {{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 },{ 1 }} };
     //

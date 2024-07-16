@@ -92,5 +92,4 @@ namespace moris
     } /* end namespace fem */
 } /* end namespace moris */
 
-
 #endif /* PROJECTS_FEM_INT_SRC_IQI_CL_FEM_IQI_Jump_Traction_HPP_ */

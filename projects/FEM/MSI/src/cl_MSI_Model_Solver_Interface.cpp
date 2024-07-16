@@ -27,7 +27,7 @@ namespace moris
                 std::shared_ptr< MSI::Equation_Model > aEquationModel,
                 mtk::Mesh*                             aMesh )
                 : mMSIParameterList( aMSIParameterList )
-                , mEquationBlocks( aEquationModel->get_equation_sets() )
+                , mEquationSets( aEquationModel->get_equation_sets() )
                 , mDofMgn( aMesh->get_communication_table(), this )
                 , mMesh( aMesh )
                 , mEquationModel( aEquationModel )
@@ -46,7 +46,7 @@ namespace moris
             mDofMgn.set_max_num_adofs( tNumCoeffs );
 
             // create list of all pdof types used in equation objects
-            mDofMgn.initialize_pdof_type_list( mEquationBlocks );
+            mDofMgn.initialize_pdof_type_list( mEquationSets );
         }
 
         //------------------------------------------------------------------------------
@@ -72,9 +72,9 @@ namespace moris
                 }
             }
 
-            for ( luint Ik = 0; Ik < mEquationBlocks.size(); ++Ik )
+            for ( luint Ik = 0; Ik < mEquationSets.size(); ++Ik )
             {
-                mEquationBlocks( Ik )->set_model_solver_interface( this );
+                mEquationSets( Ik )->set_model_solver_interface( this );
             }
 
             mDofMgn.initialize_pdof_host_list( mEquationObjectList );
@@ -85,13 +85,13 @@ namespace moris
             // set T matrix
             mDofMgn.set_pdof_t_matrix();
 
-            for ( Equation_Object* tElement : mEquationObjectList )
+            for ( Equation_Object* tEquationObject : mEquationObjectList )
             {
-                tElement->create_my_pdof_list();
+                tEquationObject->create_my_pdof_list();
 
-                tElement->create_my_list_of_adof_ids();
+                tEquationObject->create_my_list_of_adof_ids();
 
-                tElement->set_unique_adof_map();
+                tEquationObject->set_unique_adof_map();
             }
 
             if ( mMSIParameterList.get< bool >( "multigrid" ) )
@@ -166,9 +166,9 @@ namespace moris
         void
         Model_Solver_Interface::pdof_host_checker()
         {
-            for ( luint Ik = 0; Ik < mEquationBlocks.size(); ++Ik )
+            for ( luint Ik = 0; Ik < mEquationSets.size(); ++Ik )
             {
-                Vector< MSI::Equation_Object* >& tEquationObj = mEquationBlocks( Ik )->get_equation_object_list();
+                Vector< MSI::Equation_Object* >& tEquationObj = mEquationSets( Ik )->get_equation_object_list();
 
                 // variables used for number of system check.
                 uint tNumEquationSys    = 0;

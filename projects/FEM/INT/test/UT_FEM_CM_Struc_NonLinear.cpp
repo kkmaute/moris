@@ -283,7 +283,6 @@ TEST_CASE( "CM_Struc_NonLinear",
                     // derivative dof type
                     Vector< MSI::Dof_Type > tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
 
-
                     // strain
                     //------------------------------------------------------------------------------
                     //                    // evaluate the deformation gradient
@@ -736,7 +735,6 @@ TEST_CASE( "CM_Struc_NonLinear_EigenStrain",
                 {
                     // derivative dof type
                     Vector< MSI::Dof_Type > tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
-
 
                     // strain
                     //------------------------------------------------------------------------------

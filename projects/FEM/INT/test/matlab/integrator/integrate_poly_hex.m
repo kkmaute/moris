@@ -31,7 +31,6 @@ tCount = 0;
 
 tExponents = zeros( tDimension, tNumberOfCoeffs );
 
-
 % walk through Pascal's triangle
 for( k = 0:tOrder )
     a = k;
@@ -87,7 +86,6 @@ for ( k = 1:tNumberOfCoeffs )
              * zeta^tExponents( 3, k );
 end
 
-
 %% create random coefficoents
 
 tCoeffs = zeros( 1, tNumberOfCoeffs );
@@ -134,5 +132,4 @@ end
 
 %% save data file
 save_matrix_to_binary( tData, tPath );
-
 

@@ -18,9 +18,9 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & Cluster_Measure::val()
+        const Matrix< DDRMat > &Cluster_Measure::val()
         {
-            MORIS_ERROR( mMEAEval, "Cluster_Measure::val -- Cluster measure was not initiated.");
+            MORIS_ERROR( mMEAEval, "Cluster_Measure::val -- Cluster measure was not initiated." );
 
             // return the cluster measure value
             return mMEAVal;
@@ -30,9 +30,9 @@ namespace moris
 
         void Cluster_Measure::eval_cluster_measure()
         {
-            switch( mMeasureType )
+            switch ( mMeasureType )
             {
-                case fem::Measure_Type::CELL_MEASURE :
+                case fem::Measure_Type::CELL_MEASURE:
                 {
                     // evaluate cell measure from the cluster
                     mMEAVal = mCluster->compute_cluster_cell_measure(
@@ -44,7 +44,7 @@ namespace moris
 
                     break;
                 }
-                case fem::Measure_Type::CELL_SIDE_MEASURE :
+                case fem::Measure_Type::CELL_SIDE_MEASURE:
                 {
                     // evaluate cell side measure from the cluster
                     mMEAVal = mCluster->compute_cluster_cell_side_measure(
@@ -56,7 +56,7 @@ namespace moris
 
                     break;
                 }
-                case fem::Measure_Type::CELL_LENGTH_MEASURE :
+                case fem::Measure_Type::CELL_LENGTH_MEASURE:
                 {
                     // evaluate cell length measure from the cluster
                     mMEAVal = mCluster->compute_cluster_cell_length_measure(
@@ -78,18 +78,16 @@ namespace moris
         void Cluster_Measure::perturb_cluster_measure( moris::real aDeltaH )
         {
             // check that the cluste measure was initiated
-            MORIS_ERROR( mMEAEval, "Cluster_Measure::perturb_cluster_measure -- Cluster measure was not initiated.");
-
+            MORIS_ERROR( mMEAEval, "Cluster_Measure::perturb_cluster_measure -- Cluster measure was not initiated." );
             // update the cluster measure with perturbation
-            mMEAVal += {{aDeltaH}};
+            mMEAVal += { { aDeltaH } };
         }
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & Cluster_Measure::dMEAdPDV()
+        const Matrix< DDRMat > &Cluster_Measure::dMEAdPDV()
         {
-            MORIS_ERROR( mdMEAdPDVEval, "Cluster_Measure::dMEAdPDV -- Cluster measure derivatives were not evaluated.");
-
+            MORIS_ERROR( mdMEAdPDVEval, "Cluster_Measure::dMEAdPDV -- Cluster measure derivatives were not evaluated." );
             // return the cluster measure derivatives value
             return mdMEAdPDV;
         }
@@ -98,9 +96,9 @@ namespace moris
 
         void Cluster_Measure::eval_cluster_measure_derivatives()
         {
-            switch( mMeasureType )
+            switch ( mMeasureType )
             {
-                case fem::Measure_Type::CELL_MEASURE :
+                case fem::Measure_Type::CELL_MEASURE:
                 {
                     // evaluate cell measure from the cluster
                     mdMEAdPDV = mCluster->compute_cluster_cell_measure_derivative(
@@ -111,7 +109,7 @@ namespace moris
                     mdMEAdPDVEval = true;
                     break;
                 }
-                case fem::Measure_Type::CELL_SIDE_MEASURE :
+                case fem::Measure_Type::CELL_SIDE_MEASURE:
                 {
                     // evaluate cell side measure from the cluster
                     mdMEAdPDV = mCluster->compute_cluster_cell_side_measure_derivative(
@@ -122,7 +120,7 @@ namespace moris
                     mdMEAdPDVEval = true;
                     break;
                 }
-                case fem::Measure_Type::CELL_LENGTH_MEASURE :
+                case fem::Measure_Type::CELL_LENGTH_MEASURE:
                 {
                     // evaluate cell length measure from the cluster
                     mdMEAdPDV = mCluster->compute_cluster_cell_length_measure_derivative(
@@ -139,6 +137,5 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-    }/*end_fem_namespace */
-}/*end_moris_namespace */
-
+    }    // namespace fem
+}    // namespace moris
