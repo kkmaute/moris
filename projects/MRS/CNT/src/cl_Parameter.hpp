@@ -113,6 +113,13 @@ namespace moris
         }
 
         /**
+         * Constructor for a parameter with an enum validator.
+         *
+         * @param aEnumStrings Vector of valid enum strings
+         */
+        Parameter( const Vector< std::string >& aEnumStrings );
+
+        /**
          * Custom copy constructor, used to ensure each parameter has a validator.
          *
          * @param aParameter Parameter to copy
@@ -217,13 +224,6 @@ namespace moris
          * @return If linking is required
          */
         bool needs_linking() const;
-
-        /**
-         * Gets if this parameter has selections that need to be chosen from.
-         *
-         * @return Selection boolean
-         */
-        bool has_selections() const;
 
         /**
          * Gets the valid selections available for this parameter.

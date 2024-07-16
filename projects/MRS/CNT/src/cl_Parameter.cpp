@@ -14,8 +14,16 @@ namespace moris
 {
     //--------------------------------------------------------------------------------------------------------------
 
-    // Forward declare design variable validator
-    class Design_Variable_Validator;
+    Parameter::Parameter( const Vector< std::string >& aEnumStrings )
+            : mEntryType( Entry_Type::SELECTION )
+    {
+        // Set default value without validation
+        uint tValue = 0;
+        mValue = make_variant( tValue );
+
+        // Create selection validator
+        mValidator = new Enum_Validator( aEnumStrings );
+    }
 
     //--------------------------------------------------------------------------------------------------------------
 
@@ -80,13 +88,6 @@ namespace moris
     bool Parameter::needs_linking() const
     {
         return mNeedsLinking;
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    bool Parameter::has_selections() const
-    {
-        return this->get_selection_names().size();
     }
 
     //--------------------------------------------------------------------------------------------------------------

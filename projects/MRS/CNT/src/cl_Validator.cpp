@@ -277,8 +277,8 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Enum_Validator::Enum_Validator()
-            : mEnumStrings() // TODO get from class
+    Enum_Validator::Enum_Validator( const Vector< std::string >& aEnumStrings )
+            : mEnumStrings( aEnumStrings )
     {
     }
 
@@ -339,7 +339,7 @@ namespace moris
 
     Validator* Enum_Validator::copy()
     {
-        return new Enum_Validator();
+        return new Enum_Validator( mEnumStrings );
     }
 
     //--------------------------------------------------------------------------------------------------------------

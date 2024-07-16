@@ -94,18 +94,6 @@ namespace moris
         }
 
         /**
-         * Adds a new string parameter to this parameter list. The parameter must be set from a selection of values.
-         *
-         * @param aName Parameter name
-         * @param aDefaultValue Default parameter value
-         * @param aValidSelections Valid values the parameter can be set to
-         */
-        void insert(
-                const std::string&           aName,
-                const std::string&           aDefaultValue,
-                const Vector< std::string >& aValidSelections );
-
-        /**
          * Adds a new parameter to this parameter list. This parameter must be set with a valid range.
          *
          * @tparam T Parameter type
@@ -124,6 +112,29 @@ namespace moris
             // Delegate to private implementation overload, depending on if T is an enum
             this->convert_and_insert( aName, aDefaultValue, aMinimumValue, aMaximumValue, std::is_enum< T >() );
         }
+
+        /**
+         * Adds a new string parameter to this parameter list. The parameter must be set from a selection of values.
+         *
+         * @param aName Parameter name
+         * @param aDefaultValue Default parameter value
+         * @param aValidSelections Valid values the parameter can be set to
+         */
+        void insert(
+                const std::string&           aName,
+                const std::string&           aDefaultValue,
+                const Vector< std::string >& aValidSelections );
+
+        /**
+         * Adds a new enum parameter to this parameter list. The parameter can be set
+         * as an enum directly or with one of the names provided.
+         *
+         * @param aName Parameter name
+         * @param aEnumStrings Valid enum strings (must not be empty)
+         */
+        void insert(
+                const std::string&           aName,
+                const Vector< std::string >& aEnumStrings );
 
         /**
          * Removes the specified key and its associated value from the map

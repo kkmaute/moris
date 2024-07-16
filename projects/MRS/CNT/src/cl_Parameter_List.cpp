@@ -34,6 +34,23 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
 
+    void Parameter_List::insert(
+            const std::string&           aName,
+            const Vector< std::string >& aEnumStrings )
+    {
+        // Check for leading and trailing whitespaces in key
+        std::string tKeyWithoutSpaces = aName;
+        split_trim_string( tKeyWithoutSpaces, "" );
+        MORIS_ERROR( aName == tKeyWithoutSpaces,
+                "Param_List::insert - key contains whitespaces" );
+
+        // Insert new value
+        Parameter tParameter( aEnumStrings );
+        mParamMap.insert( { aName, tParameter } );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     void
     Parameter_List::erase( const std::string& aName )
     {

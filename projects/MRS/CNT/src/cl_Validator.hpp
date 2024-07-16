@@ -212,8 +212,10 @@ namespace moris
       public:
         /**
          * Enum validator constructor
+         *
+         * @param aEnumStrings Enum strings for validation
          */
-        Enum_Validator();
+        Enum_Validator( const Vector< std::string >& aEnumStrings );
 
         /**
          * Gets the names of valid selections stored in the selection validator
