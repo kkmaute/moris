@@ -26,7 +26,6 @@ namespace moris
             Vector< moris::mtk::Cell const * > mPrimaryIntegrationCells;
             Vector< moris::mtk::Cell const * > mVoidIntegrationCells;
 
-
             moris_index mSideClusterIndex;
             mtk::Mesh*  mMesh = nullptr;
 
@@ -123,7 +122,6 @@ namespace moris
             virtual Vector< moris::mtk::Vertex const * >
             get_vertices_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const override;
 
-
             // ----------------------------------------------------------------------------------
             // Local Coordinate Access
             // ----------------------------------------------------------------------------------
@@ -157,7 +155,6 @@ namespace moris
 
             virtual moris_index
             get_dim_of_param_coord( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const override;
-
 
             // ----------------------------------------------------------------------------------
 
@@ -198,7 +195,6 @@ namespace moris
             get_vertex_ordinal_on_facet(
                     moris_index                aCellIndexInCluster,
                     moris::mtk::Vertex const * aVertex ) const override;
-
 
             //---------------------------------------------------------------------------------------
 

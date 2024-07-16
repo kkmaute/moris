@@ -196,4 +196,4 @@ namespace moris::mtk
         else
             return moris::mtk::CellTopology::UNDEFINED;
     }
-}
+}    // namespace moris::mtk

@@ -130,9 +130,9 @@ namespace moris
                 moris::mtk::Integration_Mesh *tIntegrationMesh = mMeshManager->get_integration_mesh( mMeshIndex );
 
                 // prerequisite offset vector and sets on each periodic surface
-                moris::Matrix< DDRMat >    tOffsetVector;
-                Vector< std::string > tFirstSideSetNames;
-                Vector< std::string > tSecondSideSetNames;
+                moris::Matrix< DDRMat > tOffsetVector;
+                Vector< std::string >   tFirstSideSetNames;
+                Vector< std::string >   tSecondSideSetNames;
 
                 // find the offset of two surfaces
                 this->offset_vector( tOffsetVector, tFirstSideSetNames, tSecondSideSetNames, tPairCount );
@@ -431,7 +431,7 @@ namespace moris
 
                         // initialize the cut polygons and their respective indices that come from their parent element
                         Vector< moris::Matrix< DDRMat > > tCutPolygons;
-                        moris::Matrix< moris::IndexMat >       tCutPolygonIdentifier;
+                        moris::Matrix< moris::IndexMat >  tCutPolygonIdentifier;
 
                         // Polygon clipping algorithm
                         this->elementwise_bruteforce_search(
@@ -483,10 +483,10 @@ namespace moris
         void
         Intersection_Detect_2D::create_dbl_sided_cluster( Vector< Matrix< DDRMat > > tP,
                 Vector< moris_index >                                               &aIndicesinCutCell,
-                moris::mtk::Cell const                                                   &aInterpCell1,
-                moris::mtk::Cell const                                                   &aInterpCell2,
-                uint                                                                      aPairCount,
-                moris_index                                                               aPhaseToPhase )
+                moris::mtk::Cell const                                              &aInterpCell1,
+                moris::mtk::Cell const                                              &aInterpCell2,
+                uint                                                                 aPairCount,
+                moris_index                                                          aPhaseToPhase )
         {
 
             // convert to desired form
@@ -797,8 +797,8 @@ namespace moris
 
             // each cluster has only 2 vertices
             Vector< moris::mtk::Vertex const * > tSecondVertices      = tSecondCells( 0 )->get_vertices_on_side_ordinal( tSecondCellOrds( 0 ) );
-            moris::Matrix< moris::DDRMat >            tSecondVertexCoords1 = tSecondVertices( 0 )->get_coords();
-            moris::Matrix< moris::DDRMat >            tSecondVertexCoords2 = tSecondVertices( 1 )->get_coords();
+            moris::Matrix< moris::DDRMat >       tSecondVertexCoords1 = tSecondVertices( 0 )->get_coords();
+            moris::Matrix< moris::DDRMat >       tSecondVertexCoords2 = tSecondVertices( 1 )->get_coords();
 
             // calculate the normal of the right segment,  need something better than std::abs to determine the outward
             moris::real                    tMagnitude    = norm( tSecondVertexCoords2 - tSecondVertexCoords1 );
@@ -1009,7 +1009,7 @@ namespace moris
 
         void
         Intersection_Detect_2D::generate_identifier( Vector< mtk::Cluster const * > &aSideClusters,
-                uint                                                                     &aPairCount,
+                uint                                                                &aPairCount,
                 std::unordered_map< moris::moris_index, Vector< moris_index > >     &aBackgroundCellToSideClusterMap ) const
         {
             // reserve memory for output matrix
@@ -1038,11 +1038,11 @@ namespace moris
         void
         Intersection_Detect_2D::elementwise_bruteforce_search(
                 Vector< Matrix< moris::DDRMat > > const &aParamCoordsCell1,
-                moris::Matrix< IndexMat > const              &aIGCellToSideClusterMap1,
+                moris::Matrix< IndexMat > const         &aIGCellToSideClusterMap1,
                 Vector< Matrix< moris::DDRMat > > const &aParamCoordsCell2,
-                moris::Matrix< IndexMat > const              &aIGCellToSideClusterMap2,
+                moris::Matrix< IndexMat > const         &aIGCellToSideClusterMap2,
                 Vector< Matrix< moris::DDRMat > >       &aIntersectedAreas,
-                moris::Matrix< IndexMat >                    &aIntersectedAreasIdentifier ) const
+                moris::Matrix< IndexMat >               &aIntersectedAreasIdentifier ) const
         {
             // multiplier used to assign an id to each cut surfaces based on the parent cells
             uint tMultiplier = std::max( aParamCoordsCell1.size(), aParamCoordsCell2.size() );
@@ -1109,7 +1109,7 @@ namespace moris
 
         void
         Intersection_Detect_2D::group_cut_cells( moris::Matrix< IndexMat > const &aCutTrianglesIdentifier,
-                std::unordered_map< moris_index, Vector< moris_index > >    &aCutCellIdentifierToCutCellIndex ) const
+                std::unordered_map< moris_index, Vector< moris_index > >         &aCutCellIdentifierToCutCellIndex ) const
         {
             // loop over all the cut cells
             for ( uint iI = 0; iI < aCutTrianglesIdentifier.n_rows(); iI++ )

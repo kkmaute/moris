@@ -20,12 +20,12 @@ namespace moris
     class Cell_Cluster_Proxy : public mtk::Cell_Cluster
     {
       public:
-        bool                                      mTrivial;
-        moris::mtk::Cell                         *mInterpolationCell;
+        bool                                 mTrivial;
+        moris::mtk::Cell                    *mInterpolationCell;
         Vector< moris::mtk::Cell const * >   mPrimaryIntegrationCells;
         Vector< moris::mtk::Cell const * >   mVoidIntegrationCells;
         Vector< moris::mtk::Vertex const * > mVerticesInCluster;
-        moris::Matrix< moris::DDRMat >            mVertexParamCoords;
+        moris::Matrix< moris::DDRMat >       mVertexParamCoords;
 
       public:
         Cell_Cluster_Proxy(){};

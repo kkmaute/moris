@@ -23,13 +23,13 @@
 namespace moris
 {
     // User-defined field functions
-    typedef real ( *Analytic_Field_Function ) (
-            const moris::Matrix< DDRMat > & aCoordinates,
-            const moris::Matrix< DDRMat > & aParameters );   // evaluates function given coordinates and coefficients
-    typedef void ( *Analytic_Derivative_Function ) (
-            const moris::Matrix< DDRMat > & aCoordinates,
-            const moris::Matrix< DDRMat > & aParameters,
-            moris::Matrix< DDRMat >       & aReturnValue);   // evaluates derivative of function given coordinates and coefficients
+    typedef real ( *Analytic_Field_Function )(
+            const moris::Matrix< DDRMat > &aCoordinates,
+            const moris::Matrix< DDRMat > &aParameters );    // evaluates function given coordinates and coefficients
+    typedef void ( *Analytic_Derivative_Function )(
+            const moris::Matrix< DDRMat > &aCoordinates,
+            const moris::Matrix< DDRMat > &aParameters,
+            moris::Matrix< DDRMat >       &aReturnValue );    // evaluates derivative of function given coordinates and coefficients
 
     namespace mtk
     {
@@ -43,56 +43,53 @@ namespace moris
          *
          * Note: the value and derivative function operate on the same coefficient vector !
          * */
-
         class Field_Analytic : public Field
         {
-            protected:
-                Vector<Analytic_Field_Function>      mAnalyticFieldValueFunction;
-                Vector<Analytic_Derivative_Function> mAnalyticDerivativeFunction;
+          protected:
+            Vector< Analytic_Field_Function >      mAnalyticFieldValueFunction;
+            Vector< Analytic_Derivative_Function > mAnalyticDerivativeFunction;
 
-            public :
+          public:
+            Field_Analytic(
+                    Vector< Analytic_Field_Function >      aFunction,
+                    Vector< Analytic_Derivative_Function > aDerivativeFunction,
+                    moris::Matrix< DDRMat > const         &aCoefficients,
+                    Mesh_Pair                              aMeshPairs,
+                    uint const                            &aNumberOfFields = 1 );
 
-                Field_Analytic(
-                        Vector<Analytic_Field_Function>       aFunction,
-                        Vector<Analytic_Derivative_Function>  aDerivativeFunction,
-                        moris::Matrix<DDRMat>              const & aCoefficients,
-                        Mesh_Pair                                  aMeshPairs,
-                        uint                               const & aNumberOfFields = 1);
+            // ----------------------------------------------------------------------------------------------
 
-                // ----------------------------------------------------------------------------------------------
+            Field_Analytic(
+                    Analytic_Field_Function        aFunction,
+                    Analytic_Derivative_Function   aDerivativeFunction,
+                    moris::Matrix< DDRMat > const &aCoefficients,
+                    Mesh_Pair                      aMeshPairs,
+                    uint const                    &aNumberOfFields = 1 );
 
-                Field_Analytic(
-                        Analytic_Field_Function        aFunction,
-                        Analytic_Derivative_Function   aDerivativeFunction,
-                        moris::Matrix<DDRMat>  const & aCoefficients,
-                        Mesh_Pair                      aMeshPairs,
-                        uint                   const & aNumberOfFields = 1);
+            // ----------------------------------------------------------------------------------------------
 
-                // ----------------------------------------------------------------------------------------------
+            ~Field_Analytic();
 
-                ~Field_Analytic();
+            // ----------------------------------------------------------------------------------------------
 
-                // ----------------------------------------------------------------------------------------------
+            /**
+             * @brief child class implementation: computes and stores nodal values
+             */
+            virtual void compute_nodal_values();
 
-                /**
-                 * @brief child class implementation: computes and stores nodal values
-                 */
-                virtual void compute_nodal_values();
+            // ----------------------------------------------------------------------------------------------
 
-                // ----------------------------------------------------------------------------------------------
+            /**
+             * @brief child class implementation: computes derivatives of nodal values
+             */
+            virtual void compute_derivatives_of_field_value(
+                    Matrix< DDRMat >   &aDerivatives,
+                    Matrix< IndexMat > &aCoefIndices,
+                    uint const         &aNodeIndex,
+                    uint const         &aFieldIndex );
 
-                /**
-                 * @brief child class implementation: computes derivatives of nodal values
-                 */
-                virtual void compute_derivatives_of_field_value(
-                        Matrix< DDRMat >       & aDerivatives,
-                        Matrix< IndexMat >     & aCoefIndices,
-                        uint             const & aNodeIndex,
-                        uint             const & aFieldIndex);
-
-                // ----------------------------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------------------------
         };
-    }
-}
+    }    // namespace mtk
+}    // namespace moris
 #endif /* SRC_MTK_FIELD_ANALYTIC_HPP_ */
-

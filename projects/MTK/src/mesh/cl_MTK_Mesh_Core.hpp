@@ -42,8 +42,7 @@ namespace moris
         class Mesh : public std::enable_shared_from_this< Mesh >
         {
           protected:
-
-            Vector<moris_index> mMesh_GEN_map;
+            Vector< moris_index > mMesh_GEN_map;
 
             // FIXME these members are here only to allow for throwing, should be removed later
             mtk::Vertex* mDummyVertex = nullptr;
@@ -59,7 +58,6 @@ namespace moris
             // ----------------------------------------------------------------------------
 
           public:
-
             // ----------------------------------------------------------------------------
             // Verbose flag
             bool mVerbose = false;
@@ -78,11 +76,11 @@ namespace moris
              */
             virtual ~Mesh();
 
-            //##############################################
-            // 1.) General mesh information access
-            //##############################################
+            // ##############################################
+            //  1.) General mesh information access
+            // ##############################################
 
-            virtual void get_Mesh_GEN_map(Vector<moris_index> &aMesh_GEN_map);
+            virtual void get_Mesh_GEN_map( Vector< moris_index >& aMesh_GEN_map );
 
             // ----------------------------------------------------------------------------
 
@@ -141,8 +139,8 @@ namespace moris
              * @param aCells output: list of Lagrange elements as mtk::cells that sit inside the B-spline element
              */
             virtual void get_elements_in_bspline_element(
-                    moris_index const          aBspElementIndex,
-                    moris_index const          aDiscretizationMeshIndex,
+                    moris_index const     aBspElementIndex,
+                    moris_index const     aDiscretizationMeshIndex,
                     Vector< mtk::Cell* >& aCells );
 
             // -----------------------------------------------------------------------------
@@ -156,12 +154,12 @@ namespace moris
              */
             virtual void
             get_lagrange_elements_in_bspline_elements(
-                    moris_index const                          aDiscretizationMeshIndex,
+                    moris_index const                aDiscretizationMeshIndex,
                     Vector< Vector< mtk::Cell* > >&  aCells,
                     Vector< Vector< moris_index > >& aCellIndices,
-                    Vector< moris_index >&                aLagToBspCellIndices,
-                    Vector< uint >&                       aBspCellRefineLevels,
-                    Vector< mtk::Cell* >&                 aBspCells );
+                    Vector< moris_index >&           aLagToBspCellIndices,
+                    Vector< uint >&                  aBspCellRefineLevels,
+                    Vector< mtk::Cell* >&            aBspCells );
 
             // -----------------------------------------------------------------------------
 
@@ -169,7 +167,7 @@ namespace moris
              * @brief Get the bspline element ijk and level
              *
              * @param aDiscretizationMeshIndex discretization mesh index
-             * @param aBsplineElementIndex 
+             * @param aBsplineElementIndex
              * @param aIJK
              * @param aLevel
              */
@@ -193,11 +191,11 @@ namespace moris
 
             virtual void
             get_extended_t_matrix(
-                    moris_index                                 aDiscretizationMeshIndex,
-                    moris_index                                 aBSplineCellIndex,
-                    moris::mtk::Cell&                           aLagrangeCell,
+                    moris_index                       aDiscretizationMeshIndex,
+                    moris_index                       aBSplineCellIndex,
+                    moris::mtk::Cell&                 aLagrangeCell,
                     Vector< Vector< mtk::Vertex* > >& tBsplineBasis,
-                    Vector< Matrix< DDRMat > >&            tWeights );
+                    Vector< Matrix< DDRMat > >&       tWeights );
 
             // -----------------------------------------------------------------------------
 
@@ -205,7 +203,7 @@ namespace moris
              * @brief Get the L2 projection matrix object
              *
              * @param aDiscretizationMeshIndex discretization mesh index
-             * @param aRootBSplineCellIndex 
+             * @param aRootBSplineCellIndex
              * @param aExtendedBSplineCellIndex
              * @param tRootBsplineBasis
              * @param tExtendedBsplineBasis
@@ -214,12 +212,12 @@ namespace moris
 
             virtual void
             get_L2_projection_matrix(
-                    moris_index                                 aDiscretizationMeshIndex,
-                    const mtk::Cell*                            aRootBSplineCell,
-                    const mtk::Cell*                            aExtendedBSplineCell,
+                    moris_index                             aDiscretizationMeshIndex,
+                    const mtk::Cell*                        aRootBSplineCell,
+                    const mtk::Cell*                        aExtendedBSplineCell,
                     Vector< Vector< const mtk::Vertex* > >& tRootBsplineBasis,
-                    Vector< const mtk::Vertex* >&                tExtendedBsplineBasis,
-                    Vector< Matrix< DDRMat > >&            tWeights );
+                    Vector< const mtk::Vertex* >&           tExtendedBsplineBasis,
+                    Vector< Matrix< DDRMat > >&             tWeights );
 
             // ----------------------------------------------------------------------------
 
@@ -232,8 +230,8 @@ namespace moris
              * @return Lagrange elements
              */
             virtual void get_elements_in_interpolation_cluster(
-                    moris_index                aElementIndex,
-                    moris_index                aDiscretizationMeshIndex,
+                    moris_index           aElementIndex,
+                    moris_index           aDiscretizationMeshIndex,
                     Vector< mtk::Cell* >& tCells );
 
             // ----------------------------------------------------------------------------
@@ -249,9 +247,9 @@ namespace moris
              */
             virtual void
             get_elements_in_bspline_element_and_side_ordinal(
-                    moris_index const          aBsplineElementIndex,
-                    moris_index const          aDiscretizationMeshIndex,
-                    moris_index const          aSideOrdinal,
+                    moris_index const     aBsplineElementIndex,
+                    moris_index const     aDiscretizationMeshIndex,
+                    moris_index const     aSideOrdinal,
                     Vector< mtk::Cell* >& aCells );
 
             // ----------------------------------------------------------------------------
@@ -266,9 +264,9 @@ namespace moris
              * @return Lagrange elements
              */
             virtual void get_elements_in_interpolation_cluster_and_side_ordinal(
-                    moris_index const          aElementIndex,
-                    moris_index const          aDiscretizationMeshIndex,
-                    moris_index const          aSideOrdinal,
+                    moris_index const     aElementIndex,
+                    moris_index const     aDiscretizationMeshIndex,
+                    moris_index const     aSideOrdinal,
                     Vector< mtk::Cell* >& aCells );
 
             //------------------------------------------------------------------------------
@@ -287,9 +285,9 @@ namespace moris
              */
             virtual bool
             get_elements_connected_to_element_through_face_ord(
-                    moris_index                 aBaseElementIndex,
-                    moris_index                 aMySideOrdinal,
-                    moris_index&                aMyRefineLevel,
+                    moris_index            aBaseElementIndex,
+                    moris_index            aMySideOrdinal,
+                    moris_index&           aMyRefineLevel,
                     Vector< moris_index >& aNeighborElements,
                     Vector< moris_index >& aNeighborElementSideOrdinals,
                     Vector< moris_index >& aTransitionLocations,
@@ -317,7 +315,7 @@ namespace moris
                     const moris_index aIndex = 0 ) const = 0;
 
             // ----------------------------------------------------------------------------
-            
+
             /**
              * Get the number of sets on this mesh.
              *
@@ -326,18 +324,18 @@ namespace moris
             virtual moris::uint get_num_sets() const;
 
             // ----------------------------------------------------------------------------
-            
+
             virtual Set* get_set_by_index( moris_index aSetIndex ) const;
 
             // ----------------------------------------------------------------------------
-            
+
             virtual moris::mtk::Set* get_set_by_name( std::string aSetLabel ) const;
 
             // end of pure virtual functions in section 1
             // all functions below this line need to be able to have a default implementation
 
             // ----------------------------------------------------------------------------
-            
+
             // FIXME pure virtual
             /**
              * Gets the number of nodes on this mesh.
@@ -347,7 +345,7 @@ namespace moris
             virtual uint get_num_nodes() const;
 
             // ----------------------------------------------------------------------------
-            
+
             // FIXME pure virtual
             /**
              * Gets the number of edges on this mesh.
@@ -357,7 +355,7 @@ namespace moris
             virtual uint get_num_edges() const;
 
             // ----------------------------------------------------------------------------
-            
+
             // FIXME pure virtual
             /**
              * Gets the number of faces on this mesh.
@@ -367,7 +365,7 @@ namespace moris
             virtual uint get_num_faces() const;
 
             // ----------------------------------------------------------------------------
-            
+
             // FIXME pure virtual
             /**
              * Gets the number of elements on this mesh.
@@ -376,12 +374,12 @@ namespace moris
              */
             virtual uint get_num_elems() const;
 
-            //##############################################
-            // 2.) Access Mesh Data by index Functions
-            //##############################################
-            //##############################################
-            // 2.a.) Access standard mesh data
-            //##############################################
+            // ##############################################
+            //  2.) Access Mesh Data by index Functions
+            // ##############################################
+            // ##############################################
+            //  2.a.) Access standard mesh data
+            // ##############################################
 
             // FIXME this should be default, not pure virtual. Individual calls should be pure virtual.
             /**
@@ -402,7 +400,7 @@ namespace moris
                     const moris_index aDiscretizationIndex = 0 ) const = 0;
 
             // ----------------------------------------------------------------------------
-            
+
             /**
              * Since the connectivity between entities of the same rank are considered
              * invalid by STK standards, we need a separate function for element to element
@@ -419,7 +417,7 @@ namespace moris
             get_elements_connected_to_element_and_face_ord_loc_inds( moris_index aElementIndex ) const;
 
             // ----------------------------------------------------------------------------
-            
+
             /**
              * @brief Since the connectivity between entities of the same rank are considered
              *        invalid by STK standards, we need a separate function for element to element
@@ -438,7 +436,7 @@ namespace moris
             }
 
             // ----------------------------------------------------------------------------
-            
+
             // FIXME Remove access to vertex
             /**
              * Deprecated
@@ -449,7 +447,7 @@ namespace moris
             // end of pure virtual functions in section 2.1
 
             // ----------------------------------------------------------------------------
-            
+
             // FIXME pure virtual
             /**
              * Get all element indices connected to a node.
@@ -461,7 +459,7 @@ namespace moris
             get_elements_connected_to_node_loc_inds( moris_index aNodeIndex ) const;
 
             // ----------------------------------------------------------------------------
-            
+
             // FIXME pure virtual
             /**
              * Get all face indices connected to a node.
@@ -556,13 +554,13 @@ namespace moris
             virtual Matrix< IndexMat >
             get_nodes_connected_to_element_loc_inds( moris_index aElementIndex ) const;
 
-            //##############################################
-            // 2.a.) Access mesh data from ids
-            //##############################################
+            // ##############################################
+            //  2.a.) Access mesh data from ids
+            // ##############################################
 
-            //##############################################
-            // global id functions
-            //##############################################
+            // ##############################################
+            //  global id functions
+            // ##############################################
 
             /**
              * Get a global entity ID from an entity rank and local index.
@@ -821,9 +819,9 @@ namespace moris
             virtual Matrix< DDRMat >
             get_node_coordinate( moris_index aNodeIndex ) const = 0;
 
-            //##############################################
-            // Field Access
-            //##############################################
+            // ##############################################
+            //  Field Access
+            // ##############################################
 
             // TODO: introduce a concept of field indices to prevent accessing via a name which
             // TODO: involves a string comparison
@@ -843,17 +841,17 @@ namespace moris
                     const enum EntityRank&  aFieldEntityRank,
                     const Matrix< DDRMat >& aFieldData );
 
-            //##############################################
-            // Facet Access
-            //##############################################
+            // ##############################################
+            //  Facet Access
+            // ##############################################
 
             // FIXME remove access to facet
             virtual moris::mtk::Facet*
                     get_facet( moris_index );
 
-            //##############################################
-            // Cell and Vertex Pointer Functions
-            //##############################################
+            // ##############################################
+            //  Cell and Vertex Pointer Functions
+            // ##############################################
 
             // FIXME remove access to cell
             virtual mtk::Cell&
@@ -887,9 +885,9 @@ namespace moris
              */
             uint get_base_node_index( uint aNodeIndex );
 
-            //##############################################
-            // For FEM
-            //##############################################
+            // ##############################################
+            //  For FEM
+            // ##############################################
 
             // FIXME remove access to cell, add set functions for cell instead
             virtual mtk::Cell&
@@ -909,9 +907,9 @@ namespace moris
             get_max_entity_id( enum EntityRank aEntityRank,
                     const moris_index          aDiscretizationIndex = 0 ) const;
 
-            //##############################################
-            // Entity Ownership Functions
-            //##############################################
+            // ##############################################
+            //  Entity Ownership Functions
+            // ##############################################
 
             /**
              * Gets the owner of a node.
@@ -978,9 +976,9 @@ namespace moris
                     enum EntityRank aEntityRank,
                     bool            aSendFlag ) const;
 
-            //##############################################
-            // Communication Tables
-            //##############################################
+            // ##############################################
+            //  Communication Tables
+            // ##############################################
 
             // FIXME: THIS FUNCTION DESCRIPTION NEEDS TO BE IMPROVED
             // FIXME: Also, a unit test (not clear what needs to be provided)
@@ -1002,9 +1000,9 @@ namespace moris
             virtual Vector< Matrix< IdMat > >
             get_communication_vertex_pairing() const;
 
-            //##############################################
-            //  Output Mesh To a File
-            //##############################################
+            // ##############################################
+            //   Output Mesh To a File
+            // ##############################################
 
             // FIXME default implementation with exodus writer, or remove
             /**
@@ -1022,9 +1020,9 @@ namespace moris
                     std::string& aFileName,
                     bool         aAddElemCmap = false );
 
-            //##############################################
-            //  Field Functions TODO sort out which of these need to be in the base
-            //##############################################
+            // ##############################################
+            //   Field Functions TODO sort out which of these need to be in the base
+            // ##############################################
 
             /**
              * Return the number of fields on this mesh.
@@ -1131,9 +1129,9 @@ namespace moris
                     const enum EntityRank aEntityRank,
                     const moris_index     aDiscretizationMeshIndex = 0 );
 
-            //##############################################
-            //  Multigrid
-            //##############################################
+            // ##############################################
+            //   Multigrid
+            // ##############################################
 
             /**
              * Gets the max level of an entity.
@@ -1438,9 +1436,9 @@ namespace moris
              * Deprecated
              */
             virtual void get_sideset_cells_and_ords(
-                    const std::string&                aSetName,
+                    const std::string&           aSetName,
                     Vector< mtk::Cell const * >& aCells,
-                    Matrix< IndexMat >&               aSidesetOrdinals ) const;
+                    Matrix< IndexMat >&          aSidesetOrdinals ) const;
 
             // ----------------------------------------------------------------------------
 
@@ -1473,12 +1471,12 @@ namespace moris
             // FIXME remove access to cell
             void
             get_mtk_cells(
-                    Matrix< IndexMat >                       aCellInds,
+                    Matrix< IndexMat >                  aCellInds,
                     Vector< moris::mtk::Cell const * >& aCells );
 
-            //##############################################
-            // Multigrid acessor functions FIXME default implementation for non-multigrid + documentation
-            //##############################################
+            // ##############################################
+            //  Multigrid acessor functions FIXME default implementation for non-multigrid + documentation
+            // ##############################################
 
             virtual uint get_num_interpolations();
 
@@ -1606,14 +1604,14 @@ namespace moris
 
             virtual mtk::Cell* const *
             get_ig_cells_in_cluster( enum ClusterType aClusterType,
-                    Primary_Void            aPrimaryOrVoid,
+                    Primary_Void                      aPrimaryOrVoid,
                     moris_index                       aClusterIndex ) const;
 
             //--------------------------------------------------------------------------------------------------------------
 
             virtual uint
             get_num_cells_in_cluster( enum ClusterType aClusterType,
-                    Primary_Void             aPrimaryOrVoid,
+                    Primary_Void                       aPrimaryOrVoid,
                     moris_index                        aClusterIndex ) const;
 
             //--------------------------------------------------------------------------------------------------------------
@@ -1674,7 +1672,7 @@ namespace moris
 
             //--------------------------------------------------------------------------------------------------------------
 
-        }; // class mtk::Mesh
+        };    // class mtk::Mesh
 
         //--------------------------------------------------------------------------------------------------------------
 

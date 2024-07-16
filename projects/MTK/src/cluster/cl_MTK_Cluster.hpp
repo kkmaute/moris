@@ -22,7 +22,6 @@ namespace moris
         class Cluster
         {
           private:
-            Vector< moris::mtk::Cell const * > mDummCellCell;
 
           public:
             Cluster(){};
@@ -35,20 +34,6 @@ namespace moris
 
             virtual bool
             is_trivial( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const = 0;
-
-            virtual bool
-            is_void() const
-            {
-                MORIS_ERROR( false, "Cluster::is_void() - not implemented in base class" );
-                return false;
-            }
-
-            virtual bool
-            is_invalid() const
-            {
-                MORIS_ERROR( false, "Cluster::is_invalid() - not implemented in base class" );
-                return false;
-            }
 
             // ##############################################
             //  Cell/Vertex Access
@@ -103,7 +88,10 @@ namespace moris
             get_void_cells_in_cluster() const
             {
                 MORIS_ERROR( false, "get_void_cells_in_cluster(): not implemented for this cluster type" );
-                return mDummCellCell;
+
+                // Create a static dummy object and return a reference to it.
+                static Vector< moris::mtk::Cell const * > tDummyCell;
+                return tDummyCell;
             }
 
             virtual moris::mtk::Cell const &
@@ -273,7 +261,6 @@ namespace moris
                     const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const = 0;
 
             //------------------------------------------------------------------------------
-
 
             /*
              * Compute the measure of individual IG cells (volume 3d or area 2d) in the void or primary phase
@@ -589,7 +576,7 @@ namespace moris
 
         };    // class MTK_Cluster
 
-              //----------------------------------------------------------------
+        //----------------------------------------------------------------
 
     }    // namespace mtk
 }    // namespace moris

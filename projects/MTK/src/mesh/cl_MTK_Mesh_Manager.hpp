@@ -31,26 +31,25 @@ namespace moris
 
         class Mesh_Manager : public std::enable_shared_from_this< Mesh_Manager >
         {
-        private:
+          private:
             // list of mesh pairs
-            Vector<Mesh_Pair>                     mMeshPairs;
+            Vector< Mesh_Pair > mMeshPairs;
 
             // mesh pair to index map
-            moris::map< std::string, moris_index >     mMeshPairNameToIndexMap;
+            moris::map< std::string, moris_index > mMeshPairNameToIndexMap;
 
             // pointer to HMR performer
-            std::weak_ptr<hmr::HMR>                    mHMRPerformer ;
+            std::weak_ptr< hmr::HMR > mHMRPerformer;
 
             // list of registered fields
             Vector< std::weak_ptr< mtk::Field > > mFields;
 
             // mesh pair to index map
-            moris::map< std::string, moris_index >     mFieldLabelToIndexMap;
+            moris::map< std::string, moris_index > mFieldLabelToIndexMap;
 
-            Vector< Vector< moris_index > >  mMeshPairToFieldIndexMap;
+            Vector< Vector< moris_index > > mMeshPairToFieldIndexMap;
 
-        public:
-
+          public:
             Mesh_Manager();
 
             //--------------------------------------------------------------------
@@ -69,7 +68,7 @@ namespace moris
             uint register_mesh_pair(
                     Interpolation_Mesh* aInterpolationMesh,
                     Integration_Mesh*   aIntegrationMesh,
-                    bool                aIsOwned = false,
+                    bool                aIsOwned      = false,
                     std::string const & aMeshPairName = "" );
 
             //--------------------------------------------------------------------
@@ -80,7 +79,7 @@ namespace moris
              * @param aMeshPair Mesh pair
              * @return Mesh pair index
              */
-            uint register_mesh_pair(Mesh_Pair& aMeshPair);
+            uint register_mesh_pair( Mesh_Pair& aMeshPair );
 
             //--------------------------------------------------------------------
 
@@ -90,7 +89,7 @@ namespace moris
              * @param aPairIndex Mesh pair index
              * @return Mesh pair
              */
-            const Mesh_Pair & get_mesh_pair(moris_index aPairIndex);
+            const Mesh_Pair& get_mesh_pair( moris_index aPairIndex );
 
             //--------------------------------------------------------------------
 
@@ -100,7 +99,7 @@ namespace moris
              * @param aPairIndex Mesh pair name
              * @return Mesh pair
              */
-            const Mesh_Pair & get_mesh_pair( const std::string & aMeshPairName );
+            const Mesh_Pair& get_mesh_pair( const std::string& aMeshPairName );
 
             //--------------------------------------------------------------------
 
@@ -109,48 +108,36 @@ namespace moris
              *
              * @param aPairIndex Mesh pair name
              */
-            void remove_mesh_pair( const std::string & aMeshPairName );
+            void remove_mesh_pair( const std::string& aMeshPairName );
 
             //-------------------------------------------------------------------------
 
-            void update_mesh_pairs( const Vector< std::string > & aMeshPairNames );
+            void update_mesh_pairs( const Vector< std::string >& aMeshPairNames );
 
             //--------------------------------------------------------------------
 
             void
             get_mesh_pair(
-                    moris_index            aPairIndex,
-                    Interpolation_Mesh * & aInterpolationMesh,
-                    Integration_Mesh   * & aIntegrationMesh);
+                    moris_index          aPairIndex,
+                    Interpolation_Mesh*& aInterpolationMesh,
+                    Integration_Mesh*&   aIntegrationMesh );
 
             //--------------------------------------------------------------------
 
             Interpolation_Mesh*
-            get_interpolation_mesh(moris_index aMeshIndex);
+            get_interpolation_mesh( moris_index aMeshIndex );
 
             //--------------------------------------------------------------------
 
             Integration_Mesh*
-            get_integration_mesh(moris_index aMeshIndex);
-
-            //--------------------------------------------------------------------
-
-            std::shared_ptr< Mesh_Manager > get_pointer()
-            {
-                return shared_from_this();
-            }
+            get_integration_mesh( moris_index aMeshIndex );
 
             //--------------------------------------------------------------------
 
             void register_field( std::shared_ptr< mtk::Field > aField );
 
             //--------------------------------------------------------------------
-
-            //--------------------------------------------------------------------
-
-            //--------------------------------------------------------------------
         };
-    }
-}
+    }    // namespace mtk
+}    // namespace moris
 #endif /* PROJECTS_MTK_SRC_CL_MTK_MESH_MANAGER_HPP_ */
-

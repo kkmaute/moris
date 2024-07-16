@@ -32,7 +32,7 @@ namespace moris
             // FIXME: MOVE THESE TO THE APPROPRIATE CHILD CLASSES
             // FIXME: BY HAVING MEMBER DATA HERE WE IMPOSE A DATA
             // FIXME: STRUCTURE ON ALL IMPLEMENTATIONS.
-            Vector< mtk::Vertex* >    mCoefficients;
+            Vector< mtk::Vertex* >         mCoefficients;
             moris::Matrix< moris::DDRMat > mWeights;
 
             //------------------------------------------------------------------------------
@@ -138,7 +138,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
         };    // class Vertex_Interpolation
-    }         // namespace mtk
+    }    // namespace mtk
 }    // namespace moris
 
 #endif /* PROJECTS_MTK_SRC_CL_MTK_VERTEX_INTERPOLATION_HPP_ */

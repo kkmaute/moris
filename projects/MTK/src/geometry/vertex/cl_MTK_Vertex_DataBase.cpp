@@ -18,8 +18,9 @@ namespace moris::mtk
 {
     //------------------------------------------------------------------------------
 
-    Vertex_DataBase::Vertex_DataBase( moris_index aVertexIndex,
-            mtk::Mesh* const &                    aMesh )
+    Vertex_DataBase::Vertex_DataBase(
+            moris_index        aVertexIndex,
+            mtk::Mesh* const & aMesh )
             : mVertexIndex( aVertexIndex )
             , mMesh( aMesh )
     {

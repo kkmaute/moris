@@ -30,7 +30,7 @@ namespace moris
             moris::moris_index mIndex = gNoIndex;
             moris::moris_id    mOwner = gNoID;
 
-            Vector< Vertex * >  mVertices;
+            Vector< Vertex * >       mVertices;
             moris::uint              mSpatialDim   = 3;
             enum Geometry_Type       mGeometryType = Geometry_Type::UNDEFINED;
             enum Interpolation_Order mInterpOrder  = Interpolation_Order::UNDEFINED;
@@ -112,7 +112,7 @@ namespace moris
             }
 
             //------------------------------------------------------------------------------
-            
+
             // TODO MESHCLEANUP
             void
             remove_vertex_pointer( moris_index aIndex )
@@ -209,7 +209,7 @@ namespace moris
             }
 
             //------------------------------------------------------------------------------
-            
+
             moris::real
             compute_cell_measure() const
             {
@@ -246,11 +246,11 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-        }; // class Cell_Proxy
+        };    // class Cell_Proxy
 
         //------------------------------------------------------------------------------
-        
-    } // namespace
+
+    }    // namespace mtk
 }    // namespace moris
 
 #endif /* PROJECTS_MTK_TEST_CL_MTK_CELL_PROXY_HPP_ */

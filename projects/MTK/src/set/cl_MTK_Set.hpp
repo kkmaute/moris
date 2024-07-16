@@ -13,8 +13,8 @@
 
 #include <string>
 
-#include "moris_typedefs.hpp"     //MRS/COR/src
-#include "fn_unique.hpp"    //MRS/COR/src
+#include "moris_typedefs.hpp"    //MRS/COR/src
+#include "fn_unique.hpp"         //MRS/COR/src
 #include "cl_Map.hpp"
 #include "cl_MTK_Vertex.hpp"    //MTK/src
 #include "cl_MTK_Cell.hpp"      //MTK/src
@@ -87,10 +87,10 @@ namespace moris
             //------------------------------------------------------------------------------
 
             Set(
-                    std::string const                    &aName,
+                    std::string const               &aName,
                     Vector< Cluster const * > const &aBlockSetClusters,
-                    Matrix< IndexMat > const             &aColors,
-                    uint const                           &aSpatialDim )
+                    Matrix< IndexMat > const        &aColors,
+                    uint const                      &aSpatialDim )
                     : mSetName( aName )
                     , mSpatialDim( aSpatialDim )
                     , mSetColors( aColors )
@@ -152,7 +152,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             moris_index
-            get_set_index()
+            get_set_index() const
             {
                 MORIS_ASSERT( mSetIndex != MORIS_INDEX_MAX, "Set::get_set_index(), Set index not set" );
                 return mSetIndex;
@@ -169,7 +169,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             CellTopology
-            get_cell_topology()
+            get_cell_topology() const
             {
                 MORIS_ASSERT( mCellTopology != CellTopology::UNDEFINED, "Set::get_cell_topology(), Cell topology not set" );
                 return mCellTopology;
@@ -194,7 +194,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             CellShape
-            get_IG_cell_shape()
+            get_IG_cell_shape() const
             {
                 MORIS_ASSERT( mIGCellShape != CellShape::UNDEFINED, "Set::get_IG_cell_shape(), Cell shape not set" );
                 return mIGCellShape;
@@ -203,7 +203,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             CellShape
-            get_IP_cell_shape()
+            get_IP_cell_shape() const
             {
                 MORIS_ASSERT( mIPCellShape != CellShape::UNDEFINED, "Set::get_IG_cell_shape(), Cell shape not set" );
                 return mIPCellShape;
@@ -212,7 +212,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             Matrix< IndexMat > const &
-            get_set_colors()
+            get_set_colors() const
             {
                 return mSetColors;
             }
@@ -258,7 +258,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             mtk::Geometry_Type
-            get_interpolation_cell_geometry_type()
+            get_interpolation_cell_geometry_type() const
             {
                 return mIPGeometryType;
             }
@@ -266,7 +266,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             mtk::Geometry_Type
-            get_integration_cell_geometry_type()
+            get_integration_cell_geometry_type() const
             {
                 return mIGGeometryType;
             }
@@ -274,7 +274,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             mtk::Interpolation_Order
-            get_interpolation_cell_interpolation_order()
+            get_interpolation_cell_interpolation_order() const
             {
                 return mIPSpaceInterpolationOrder;
             }
@@ -282,7 +282,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             mtk::Interpolation_Order
-            get_integration_cell_interpolation_order()
+            get_integration_cell_interpolation_order() const
             {
                 return mIGSpaceInterpolationOrder;
             }
@@ -319,7 +319,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             mtk::Geometry_Type
-            get_auto_side_geometry_type( const mtk::Geometry_Type aGeometryType )
+            get_auto_side_geometry_type( const mtk::Geometry_Type aGeometryType ) const
             {
                 mtk::Geometry_Type tSideGeometryType;
 
@@ -365,7 +365,7 @@ namespace moris
             mtk::Interpolation_Order
             get_auto_interpolation_order(
                     const moris::uint        aNumVertices,
-                    const mtk::Geometry_Type aGeometryType )
+                    const mtk::Geometry_Type aGeometryType ) const
             {
                 switch ( aGeometryType )
                 {
@@ -559,7 +559,6 @@ namespace moris
             }
 
             //------------------------------------------------------------------------------
-
 
             // FIXME should be user-defined in FEM
             void

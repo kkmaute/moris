@@ -37,104 +37,100 @@ namespace moris
 
         class Field_Discrete : public Field
         {
-            protected:
+          protected:
+            //! Map from mesh indices to field coefficient indices
+            Matrix< IndexMat > mMeshToFieldCoefficientIndexMap;
 
-                //! Map from mesh indices to field coefficient indices
-                Matrix < IndexMat > mMeshToFieldCoefficientIndexMap;
+            //! Discretization Index
+            moris_index mDiscretizationMeshIndex = -1;
 
-                //! Discretization Index
-                moris_index mDiscretizationMeshIndex = -1;
+            //! Maximum number of coefficients used by mesh
+            uint mMaxNumberOfCoefficients = 0;
 
-                //! Maximum number of coefficients used by mesh
-                uint mMaxNumberOfCoefficients = 0;
+            //! Flag whether coefficient vector is initialized
+            bool mCoefficientsAreInitialized = false;
 
-                //! Flag whether coefficient vector is initialized
-                bool mCoefficientsAreInitialized = false;
+            //! Distributed vector of owned nodal values
+            sol::Dist_Vector* mOwnedNodalValues = nullptr;
 
-                //! Distributed vector of owned nodal values
-                sol::Dist_Vector* mOwnedNodalValues = nullptr;
+            //! distributed vector of shared nodal values
+            sol::Dist_Vector* mSharedNodalValues = nullptr;
 
-                //! distributed vector of shared nodal values
-                sol::Dist_Vector* mSharedNodalValues = nullptr;
+          public:
+            // ----------------------------------------------------------------------------------------------
 
-            public :
+            Field_Discrete(
+                    mtk::Mesh_Pair aMeshPairs,
+                    uint const &   aDiscretizationMeshIndex = 0,
+                    uint const &   mNumberOfFields          = 1 );
 
-                // ----------------------------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------------------------
 
-                Field_Discrete(
-                        mtk::Mesh_Pair   aMeshPairs,
-                        uint     const & aDiscretizationMeshIndex = 0,
-                        uint     const & mNumberOfFields = 1);
+            ~Field_Discrete();
 
-                // ----------------------------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------------------------
 
-                ~Field_Discrete();
+            /**
+             * @brief child class implementation: updates internal data associated with coefficients
+             */
 
-                // ----------------------------------------------------------------------------------------------
+            void update_coefficient_data();
 
-                /**
-                 * @brief child class implementation: updates internal data associated with coefficients
-                 */
+            // ----------------------------------------------------------------------------------------------
 
-                void update_coefficient_data();
+            /**
+             * @brief child class implementation: returns order of discretization
+             */
+            uint get_discretization_order() const;
 
-                // ----------------------------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------------------------
 
-                /**
-                 * @brief child class implementation: returns order of discretization
-                 */
-                uint get_discretization_order() const;
+            /**
+             * @brief child class implementation: returns discretization mesh index
+             */
+            moris_index get_discretization_mesh_index() const;
 
-                // ----------------------------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------------------------
 
-                /**
-                 * @brief child class implementation: returns discretization mesh index
-                 */
-                moris_index get_discretization_mesh_index() const;
+            /**
+             * @brief child class implementation: fills coefficient vector
+             *
+             * @param[in]  vector of coefficients
+             */
+            void set_coefficient_vector( const Matrix< DDRMat >& aCoefficients );
 
-                // ----------------------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
 
-                /**
-                 * @brief child class implementation: fills coefficient vector
-                 *
-                 * @param[in]  vector of coefficients
-                 */
-                void set_coefficient_vector(const Matrix< DDRMat > & aCoefficients);
+            /**
+             * @brief child class implementation: get IDs of used coefficients of underlying discretization
+             */
+            const Matrix< IdMat >& get_coefficient_id_and_owner_vector();
 
-                //------------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------------------------
 
-                /**
-                 * @brief child class implementation: get IDs of used coefficients of underlying discretization
-                 */
-                const Matrix<IdMat> & get_coefficient_id_and_owner_vector();
+            /**
+             * @brief child class implementation: computes and stores nodal values
+             */
+            virtual void compute_nodal_values();
 
-                // ----------------------------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------------------------
 
-                /**
-                 * @brief child class implementation: computes and stores nodal values
-                 */
-                virtual void compute_nodal_values();
+            /**
+             * @brief child class implementation: computes derivatives of nodal values
+             */
+            virtual void compute_derivatives_of_field_value(
+                    Matrix< DDRMat >&   aDerivatives,
+                    Matrix< IndexMat >& aCoefIndices,
+                    uint const &        aNodeIndex,
+                    uint const &        aFieldIndex );
 
-                // ----------------------------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------------------------
 
-                /**
-                 * @brief child class implementation: computes derivatives of nodal values
-                 */
-                virtual void compute_derivatives_of_field_value(
-                        Matrix< DDRMat >       & aDerivatives,
-                        Matrix< IndexMat >     & aCoefIndices,
-                        uint             const & aNodeIndex,
-                        uint             const & aFieldIndex);
-
-                // ----------------------------------------------------------------------------------------------
-
-            private:
-                void communicate_missing_owned_coefficients(
-                        Matrix< IdMat > & aAllCoefIds,
-                        Matrix< IdMat > & aAllCoefOwners );
-
+          private:
+            void communicate_missing_owned_coefficients(
+                    Matrix< IdMat >& aAllCoefIds,
+                    Matrix< IdMat >& aAllCoefOwners );
         };
-    }
-}
+    }    // namespace mtk
+}    // namespace moris
 #endif /* SRC_MTK_FIELD_ANALYTIC_HPP_ */
-

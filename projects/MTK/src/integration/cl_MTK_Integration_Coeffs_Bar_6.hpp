@@ -11,12 +11,12 @@
 #ifndef SRC_MTK_CL_MTK_INTEGRATION_COEFFS_BAR_6_HPP_
 #define SRC_MTK_CL_MTK_INTEGRATION_COEFFS_BAR_6_HPP_
 
-//MRS/COR/src
+// MRS/COR/src
 #include "moris_typedefs.hpp"
-//LINALG/src
+// LINALG/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-//MTK/src
+// MTK/src
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Integration_Coeffs.hpp"
 
@@ -30,8 +30,8 @@ namespace moris
         template<>
         uint
         Integration_Coeffs<
-        Integration_Type::GAUSS,
-        Integration_Order::BAR_6>::get_number_of_dimensions()
+                Integration_Type::GAUSS,
+                Integration_Order::BAR_6 >::get_number_of_dimensions()
         {
             return 1;
         }
@@ -41,8 +41,8 @@ namespace moris
         template<>
         uint
         Integration_Coeffs<
-        Integration_Type::GAUSS,
-        Integration_Order::BAR_6>::get_number_of_points()
+                Integration_Type::GAUSS,
+                Integration_Order::BAR_6 >::get_number_of_points()
         {
             return 6;
         }
@@ -52,19 +52,16 @@ namespace moris
         template<>
         void
         Integration_Coeffs<
-        Integration_Type::GAUSS,
-        Integration_Order::BAR_6>::get_points( Matrix< DDRMat > & aIntegrationPoints )
+                Integration_Type::GAUSS,
+                Integration_Order::BAR_6 >::get_points( Matrix< DDRMat > &aIntegrationPoints )
         {
-            aIntegrationPoints =
-            {
-                    {
-                            -0.932469514203152,
-                            -0.661209386466265,
-                            -0.238619186083197,
-                            0.238619186083197,
-                            0.661209386466265,
-                            0.932469514203152
-                    }
+            aIntegrationPoints = {
+                { -0.932469514203152,
+                        -0.661209386466265,
+                        -0.238619186083197,
+                        0.238619186083197,
+                        0.661209386466265,
+                        0.932469514203152 }
             };
         }
 
@@ -73,19 +70,16 @@ namespace moris
         template<>
         void
         Integration_Coeffs<
-        Integration_Type::GAUSS,
-        Integration_Order::BAR_6 >::get_weights( Matrix< DDRMat > & aIntegrationWeights )
+                Integration_Type::GAUSS,
+                Integration_Order::BAR_6 >::get_weights( Matrix< DDRMat > &aIntegrationWeights )
         {
-            aIntegrationWeights =
-            {
-                    {
-                            0.171324492379170,
-                            0.360761573048139,
-                            0.467913934572691,
-                            0.467913934572691,
-                            0.360761573048139,
-                            0.171324492379170
-                    }
+            aIntegrationWeights = {
+                { 0.171324492379170,
+                        0.360761573048139,
+                        0.467913934572691,
+                        0.467913934572691,
+                        0.360761573048139,
+                        0.171324492379170 }
             };
         }
 

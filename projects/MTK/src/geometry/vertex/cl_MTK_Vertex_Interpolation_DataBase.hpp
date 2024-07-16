@@ -33,8 +33,8 @@ namespace moris
             //------------------------------------------------------------------------------
 
             Vertex_Interpolation_DataBase( moris_index aVertexIndex,
-                moris_index                            aVertexOrder,
-                mtk::Mesh*                             aMesh );
+                    moris_index                        aVertexOrder,
+                    mtk::Mesh*                         aMesh );
 
             //------------------------------------------------------------------------------
 
@@ -44,8 +44,7 @@ namespace moris
             /**
              * returns the IDs of the interpolation coefficients
              */
-            virtual
-            Matrix< IdMat >
+            virtual Matrix< IdMat >
             get_ids() const override;
 
             //------------------------------------------------------------------------------
@@ -53,8 +52,7 @@ namespace moris
             /**
              * returns the indices of the interpolation coefficients
              */
-            virtual
-            Matrix< IndexMat >
+            virtual Matrix< IndexMat >
             get_indices() const override;
 
             //------------------------------------------------------------------------------
@@ -62,16 +60,14 @@ namespace moris
             /**
              * returns the proc owners of the IDs of this vertex
              */
-            virtual
-            Matrix< IdMat >
+            virtual Matrix< IdMat >
             get_owners() const override;
 
             //------------------------------------------------------------------------------
             /**
              * set the interpolation weights
              */
-            virtual
-            void
+            virtual void
             set_weights( const moris::Matrix< DDRMat >& aWeights ) override;
 
             //------------------------------------------------------------------------------
@@ -79,8 +75,7 @@ namespace moris
             /**
              * returns the interpolation weights
              */
-            virtual
-            const Matrix< DDRMat >*
+            virtual const Matrix< DDRMat >*
             get_weights() const override;
 
             //------------------------------------------------------------------------------
@@ -95,8 +90,7 @@ namespace moris
             /**
              * returns the pointers to the coefficient objects
              */
-            virtual
-            Vector< Vertex* >&
+            virtual Vector< Vertex* >&
             get_coefficients() override;
 
             //------------------------------------------------------------------------------
@@ -104,8 +98,7 @@ namespace moris
             /**
              * returns the pointers to the coefficient objects (const version)
              */
-            virtual
-            const Vector< Vertex* >&
+            virtual const Vector< Vertex* >&
             get_coefficients() const override;
 
             //------------------------------------------------------------------------------
@@ -113,8 +106,7 @@ namespace moris
             /**
              * returns the number of coefficients attributed to this basis
              */
-            virtual
-            uint
+            virtual uint
             get_number_of_coefficients() const override;
 
             //------------------------------------------------------------------------------
@@ -138,7 +130,7 @@ namespace moris
             size_t
             capacity();
         };
-    }// namespace mtk
-}// namespace moris
+    }    // namespace mtk
+}    // namespace moris
 
 #endif /* cl_MTK_Vertex_Interpolation_DataBase.hpp */

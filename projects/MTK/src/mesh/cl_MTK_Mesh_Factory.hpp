@@ -33,9 +33,9 @@ namespace moris
          */
         Interpolation_Mesh* create_interpolation_mesh(
                 enum MeshType aMeshType,
-                std::string aFileName,
-                MtkMeshData *aSuppMeshData = nullptr,
-                const bool aCreateFacesAndEdges = true);
+                std::string   aFileName,
+                MtkMeshData*  aSuppMeshData        = nullptr,
+                const bool    aCreateFacesAndEdges = true );
 
         /**
          * Create an interpolation mesh from mesh data.
@@ -46,7 +46,7 @@ namespace moris
          */
         Interpolation_Mesh* create_interpolation_mesh(
                 enum MeshType aMeshType,
-                MtkMeshData aMeshData);
+                MtkMeshData   aMeshData );
 
         /**
          * Create an integration mesh from an Exodus file.
@@ -59,9 +59,9 @@ namespace moris
          */
         Integration_Mesh* create_integration_mesh(
                 enum MeshType aMeshType,
-                std::string aFileName,
-                MtkMeshData *aSuppMeshData = nullptr,
-                const bool aCreateFacesAndEdges = true);
+                std::string   aFileName,
+                MtkMeshData*  aSuppMeshData        = nullptr,
+                const bool    aCreateFacesAndEdges = true );
 
         /**
          * Create an integration mesh from mesh data.
@@ -72,7 +72,7 @@ namespace moris
          */
         Integration_Mesh* create_integration_mesh(
                 enum MeshType aMeshType,
-                MtkMeshData aMeshData);
+                MtkMeshData   aMeshData );
 
         /**
          * Create an integration mesh from mesh data with a link to an interpolation mesh.
@@ -83,9 +83,9 @@ namespace moris
          * @return Created integration mesh
          */
         Integration_Mesh* create_integration_mesh(
-                enum MeshType aMeshType,
-                MtkMeshData aMeshData,
-                Interpolation_Mesh *aInterpMesh);
+                enum MeshType       aMeshType,
+                MtkMeshData         aMeshData,
+                Interpolation_Mesh* aInterpMesh );
 
         /**
          * Create an integration mesh from an existing interpolation mesh.
@@ -96,13 +96,12 @@ namespace moris
          * @return Created integration mesh
          */
         Integration_Mesh* create_integration_mesh_from_interpolation_mesh(
-                enum MeshType aMeshType,
-                Interpolation_Mesh *aInterpMesh,
-                uint                aMeshIndex = 0,
-                Cell_Cluster_Input *aCellClusterData = nullptr);
+                enum MeshType       aMeshType,
+                Interpolation_Mesh* aInterpMesh,
+                uint                aMeshIndex       = 0,
+                Cell_Cluster_Input* aCellClusterData = nullptr );
 
-    }
-}
+    }    // namespace mtk
+}    // namespace moris
 
 #endif /* PROJECTS_MTK_SRC_CL_MESH_FACTORY_HPP_ */
-

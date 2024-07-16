@@ -18,14 +18,15 @@ namespace moris
         // ----------------------------------------------------------------------------------
         // Constructor/Deconstructor Source code
         // ----------------------------------------------------------------------------------
-        Cell_ISC::Cell_ISC(moris::moris_id                       aCellId,
-                moris::moris_index              aCellIndex,
-                moris::moris_id                 aCellOwner,
-                std::shared_ptr<mtk::Cell_Info> aCellInfo,
-                Vector< mtk::Vertex* >     aVertices)
-                                           : Cell(aCellId,aCellIndex,aCellOwner, aCellInfo),
-                                             mCellVertices(aVertices)
-                                             {}
+        Cell_ISC::Cell_ISC( moris::moris_id       aCellId,
+                moris::moris_index                aCellIndex,
+                moris::moris_id                   aCellOwner,
+                std::shared_ptr< mtk::Cell_Info > aCellInfo,
+                Vector< mtk::Vertex* >            aVertices )
+                : Cell( aCellId, aCellIndex, aCellOwner, aCellInfo )
+                , mCellVertices( aVertices )
+        {
+        }
 
         // ----------------------------------------------------------------------------------
         // Cell get functions
@@ -33,21 +34,20 @@ namespace moris
         Matrix< DDRMat >
         Cell_ISC::get_vertex_coords() const
         {
-            size_t tNumVertices = this->get_number_of_vertices();
+            size_t           tNumVertices = this->get_number_of_vertices();
             Matrix< DDRMat > tVertexCoords;
-            for(size_t i = 0; i<tNumVertices; i++)
+            for ( size_t i = 0; i < tNumVertices; i++ )
             {
-                Matrix<DDRMat> tVertCoord = mCellVertices(i)->get_coords();
+                Matrix< DDRMat > tVertCoord = mCellVertices( i )->get_coords();
 
-                if(i == 0 )
+                if ( i == 0 )
                 {
-                    tVertexCoords.resize(tNumVertices,tVertCoord.numel());
+                    tVertexCoords.resize( tNumVertices, tVertCoord.numel() );
                 }
 
-                tVertexCoords.set_row(i,tVertCoord);
+                tVertexCoords.set_row( i, tVertCoord );
             }
             return tVertexCoords;
         }
-    }
-}
-
+    }    // namespace mtk
+}    // namespace moris

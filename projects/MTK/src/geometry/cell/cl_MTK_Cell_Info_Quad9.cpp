@@ -469,7 +469,7 @@ namespace moris
                             return Vector< moris_index >( 0 );
                         }
                     }    // end: switch: aOtherEntityRank
-                }        // end: case: edge ordinal 0
+                }    // end: case: edge ordinal 0
 
                 // edge 1
                 case 1:
@@ -504,7 +504,7 @@ namespace moris
                             return Vector< moris_index >( 0 );
                         }
                     }    // end: switch: aOtherEntityRank
-                }        // end: case: edge ordinal 1
+                }    // end: case: edge ordinal 1
 
                 // edge 2
                 case 2:
@@ -539,7 +539,7 @@ namespace moris
                             return Vector< moris_index >( 0 );
                         }
                     }    // end: switch: aOtherEntityRank
-                }        // end: case: edge ordinal 2
+                }    // end: case: edge ordinal 2
 
                 // edge 3
                 case 3:
@@ -574,7 +574,7 @@ namespace moris
                             return Vector< moris_index >( 0 );
                         }
                     }    // end: switch: aOtherEntityRank
-                }        // end: case: edge ordinal 3
+                }    // end: case: edge ordinal 3
 
                 default:
                 {
@@ -802,4 +802,3 @@ namespace moris
         }
     }    // namespace mtk
 }    // namespace moris
-

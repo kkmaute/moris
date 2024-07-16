@@ -11,19 +11,23 @@
 #include "cl_MTK_Integration_Rule.hpp"
 #include "cl_MTK_Integration_Coeffs.hpp"
 #include "cl_MTK_Integration_Coeffs_Point.hpp"
-//bar
+// bar
 #include "cl_MTK_Integration_Coeffs_Bar_1.hpp"
 #include "cl_MTK_Integration_Coeffs_Bar_2.hpp"
 #include "cl_MTK_Integration_Coeffs_Bar_3.hpp"
 #include "cl_MTK_Integration_Coeffs_Bar_4.hpp"
 #include "cl_MTK_Integration_Coeffs_Bar_5.hpp"
 #include "cl_MTK_Integration_Coeffs_Bar_6.hpp"
-//quad
+#include "cl_MTK_Integration_Coeffs_Bar_16.hpp"
+#include "cl_MTK_Integration_Coeffs_Bar_32.hpp"
+#include "cl_MTK_Integration_Coeffs_Bar_64.hpp"
+
+// quad
 #include "cl_MTK_Integration_Coeffs_Quad_2x2.hpp"
 #include "cl_MTK_Integration_Coeffs_Quad_3x3.hpp"
 #include "cl_MTK_Integration_Coeffs_Quad_4x4.hpp"
 #include "cl_MTK_Integration_Coeffs_Quad_5x5.hpp"
-//tri
+// tri
 #include "cl_MTK_Integration_Coeffs_Tri_1.hpp"
 #include "cl_MTK_Integration_Coeffs_Tri_3.hpp"
 #include "cl_MTK_Integration_Coeffs_Tri_4.hpp"
@@ -34,7 +38,7 @@
 #include "cl_MTK_Integration_Coeffs_Tri_16.hpp"
 #include "cl_MTK_Integration_Coeffs_Tri_19.hpp"
 #include "cl_MTK_Integration_Coeffs_Tri_25.hpp"
-//tet
+// tet
 #include "cl_MTK_Integration_Coeffs_Tet_1.hpp"
 #include "cl_MTK_Integration_Coeffs_Tet_4.hpp"
 #include "cl_MTK_Integration_Coeffs_Tet_5.hpp"
@@ -43,7 +47,7 @@
 #include "cl_MTK_Integration_Coeffs_Tet_20.hpp"
 #include "cl_MTK_Integration_Coeffs_Tet_35.hpp"
 #include "cl_MTK_Integration_Coeffs_Tet_56.hpp"
-//hex
+// hex
 #include "cl_MTK_Integration_Coeffs_Hex_2x2x2.hpp"
 #include "cl_MTK_Integration_Coeffs_Hex_3x3x3.hpp"
 #include "cl_MTK_Integration_Coeffs_Hex_4x4x4.hpp"
@@ -56,37 +60,39 @@ namespace moris
         //------------------------------------------------------------------------------
 
         Integration_Rule::Integration_Rule(
-                const Geometry_Type & aGeometryType,
-                const Integration_Type   & aSpaceIntegrationType,
-                const Integration_Order  & aSpaceIntegrationOrder,
-                const Integration_Type   & aTimeIntegrationType,
-                const Integration_Order  & aTimeIntegrationOrder )
-        : mGeometryType( aGeometryType ),
-          mSpaceIntegrationType( aSpaceIntegrationType ),
-          mSpaceIntegrationOrder( aSpaceIntegrationOrder ),
-          mTimeGeometryType( Geometry_Type::LINE ),
-          mTimeIntegrationType( aTimeIntegrationType ),
-          mTimeIntegrationOrder( aTimeIntegrationOrder )
-        {}
+                const Geometry_Type     &aGeometryType,
+                const Integration_Type  &aSpaceIntegrationType,
+                const Integration_Order &aSpaceIntegrationOrder,
+                const Integration_Type  &aTimeIntegrationType,
+                const Integration_Order &aTimeIntegrationOrder )
+                : mGeometryType( aGeometryType )
+                , mSpaceIntegrationType( aSpaceIntegrationType )
+                , mSpaceIntegrationOrder( aSpaceIntegrationOrder )
+                , mTimeGeometryType( Geometry_Type::LINE )
+                , mTimeIntegrationType( aTimeIntegrationType )
+                , mTimeIntegrationOrder( aTimeIntegrationOrder )
+        {
+        }
 
         Integration_Rule::Integration_Rule(
-                const Geometry_Type & aGeometryType,
-                const Integration_Type   & aSpaceIntegrationType,
-                const Integration_Order  & aSpaceIntegrationOrder,
-                const Geometry_Type & aTimeGeometryType,
-                const Integration_Type   & aTimeIntegrationType,
-                const Integration_Order  & aTimeIntegrationOrder )
-        : mGeometryType( aGeometryType ),
-          mSpaceIntegrationType( aSpaceIntegrationType ),
-          mSpaceIntegrationOrder( aSpaceIntegrationOrder ),
-          mTimeGeometryType( aTimeGeometryType ),
-          mTimeIntegrationType( aTimeIntegrationType ),
-          mTimeIntegrationOrder( aTimeIntegrationOrder )
-        {}
+                const Geometry_Type     &aGeometryType,
+                const Integration_Type  &aSpaceIntegrationType,
+                const Integration_Order &aSpaceIntegrationOrder,
+                const Geometry_Type     &aTimeGeometryType,
+                const Integration_Type  &aTimeIntegrationType,
+                const Integration_Order &aTimeIntegrationOrder )
+                : mGeometryType( aGeometryType )
+                , mSpaceIntegrationType( aSpaceIntegrationType )
+                , mSpaceIntegrationOrder( aSpaceIntegrationOrder )
+                , mTimeGeometryType( aTimeGeometryType )
+                , mTimeIntegrationType( aTimeIntegrationType )
+                , mTimeIntegrationOrder( aTimeIntegrationOrder )
+        {
+        }
 
         //------------------------------------------------------------------------------
 
-        Integration_Coeffs_Base * Integration_Rule::create_space_coeffs() const
+        std::unique_ptr< Integration_Coeffs_Base > Integration_Rule::create_space_coeffs() const
         {
             return this->create_coeffs(
                     mGeometryType,
@@ -96,7 +102,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        Integration_Coeffs_Base * Integration_Rule::create_time_coeffs() const
+        std::unique_ptr< Integration_Coeffs_Base > Integration_Rule::create_time_coeffs() const
         {
             return this->create_coeffs(
                     mTimeGeometryType,
@@ -106,45 +112,44 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        Integration_Coeffs_Base * Integration_Rule::create_coeffs(
-                const Geometry_Type & aGeometryType,
-                const Integration_Type   & aIntegrationType,
-                const Integration_Order  & aIntegrationOrder ) const
+        std::unique_ptr< Integration_Coeffs_Base > Integration_Rule::create_coeffs(
+                const Geometry_Type     &aGeometryType,
+                const Integration_Type  &aIntegrationType,
+                const Integration_Order &aIntegrationOrder ) const
         {
-            switch( aIntegrationType )
+            switch ( aIntegrationType )
             {
-                case Integration_Type::GAUSS :
+                case Integration_Type::GAUSS:
                 {
-                    switch( aGeometryType )
+                    switch ( aGeometryType )
                     {
-                        case Geometry_Type::POINT :
+                        case Geometry_Type::POINT:
                             return this->create_coeffs_gauss_point( aIntegrationOrder );
 
-                        case Geometry_Type::LINE :
+                        case Geometry_Type::LINE:
                             return this->create_coeffs_gauss_bar( aIntegrationOrder );
 
-                        case Geometry_Type::QUAD :
+                        case Geometry_Type::QUAD:
                             return this->create_coeffs_gauss_quad( aIntegrationOrder );
 
-                        case Geometry_Type::HEX :
+                        case Geometry_Type::HEX:
                             return this->create_coeffs_gauss_hex( aIntegrationOrder );
 
-                        case Geometry_Type::TRI :
+                        case Geometry_Type::TRI:
                             return this->create_coeffs_gauss_tri( aIntegrationOrder );
 
-                        case Geometry_Type::TET :
+                        case Geometry_Type::TET:
                             return this->create_coeffs_gauss_tet( aIntegrationOrder );
 
-                        default :
-                            MORIS_ERROR( false, " Integration_Rule::create_coeffs - unknown geometry type. ");
+                        default:
+                            MORIS_ERROR( false, " Integration_Rule::create_coeffs - unknown geometry type. " );
                             return nullptr;
-
                     }
                     break;
                 }
-                default :
+                default:
                 {
-                    MORIS_ERROR( false, " Integration_Rule::create_coeffs - unknown integration type. ");
+                    MORIS_ERROR( false, " Integration_Rule::create_coeffs - unknown integration type. " );
                     return nullptr;
                 }
             }
@@ -152,253 +157,267 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        Integration_Coeffs_Base * Integration_Rule::create_coeffs_gauss_point(
-                const Integration_Order & aIntegrationOrder ) const
+        std::unique_ptr< Integration_Coeffs_Base > Integration_Rule::create_coeffs_gauss_point(
+                const Integration_Order &aIntegrationOrder ) const
         {
-            return new Integration_Coeffs<
+            return std::make_unique< Integration_Coeffs<
                     Integration_Type::GAUSS,
-                    Integration_Order::POINT >();
+                    Integration_Order::POINT > >();
         }
 
         //------------------------------------------------------------------------------
 
-        Integration_Coeffs_Base * Integration_Rule::create_coeffs_gauss_bar(
-                const Integration_Order & aIntegrationOrder ) const
+        std::unique_ptr< Integration_Coeffs_Base > Integration_Rule::create_coeffs_gauss_bar(
+                const Integration_Order &aIntegrationOrder ) const
         {
-            switch( aIntegrationOrder )
+            switch ( aIntegrationOrder )
             {
-                case Integration_Order::BAR_1 :
-                    return new Integration_Coeffs<
+                case Integration_Order::BAR_1:
+                    return std::make_unique< Integration_Coeffs<
                             Integration_Type::GAUSS,
-                            Integration_Order::BAR_1 >();
+                            Integration_Order::BAR_1 > >();
 
-                case Integration_Order::BAR_2 :
-                    return new Integration_Coeffs<
+                case Integration_Order::BAR_2:
+                    return std::make_unique< Integration_Coeffs<
                             Integration_Type::GAUSS,
-                            Integration_Order::BAR_2 >();
+                            Integration_Order::BAR_2 > >();
 
-                case Integration_Order::BAR_3 :
-                    return new Integration_Coeffs<
+                case Integration_Order::BAR_3:
+                    return std::make_unique< Integration_Coeffs<
                             Integration_Type::GAUSS,
-                            Integration_Order::BAR_3 >();
+                            Integration_Order::BAR_3 > >();
 
-                case Integration_Order::BAR_4 :
-                    return new Integration_Coeffs<
+                case Integration_Order::BAR_4:
+                    return std::make_unique< Integration_Coeffs<
                             Integration_Type::GAUSS,
-                            Integration_Order::BAR_4 >();
+                            Integration_Order::BAR_4 > >();
 
-                case Integration_Order::BAR_5 :
-                    return new Integration_Coeffs<
+                case Integration_Order::BAR_5:
+                    return std::make_unique< Integration_Coeffs<
                             Integration_Type::GAUSS,
-                            Integration_Order::BAR_5 >();
+                            Integration_Order::BAR_5 > >();
 
-                case Integration_Order::BAR_6 :
-                    return new Integration_Coeffs<
+                case Integration_Order::BAR_6:
+                    return std::make_unique< Integration_Coeffs<
                             Integration_Type::GAUSS,
-                            Integration_Order::BAR_6 >();
+                            Integration_Order::BAR_6 > >();
 
-                default :
-                    MORIS_ERROR( false, "Integration_Rule::create_coeffs_gauss_bar - integration order not implemented/allowed for bar.");
+                case Integration_Order::BAR_16:
+                    return std::make_unique< Integration_Coeffs<
+                            Integration_Type::GAUSS,
+                            Integration_Order::BAR_16 > >();
+
+                case Integration_Order::BAR_32:
+                    return std::make_unique< Integration_Coeffs<
+                            Integration_Type::GAUSS,
+                            Integration_Order::BAR_32 > >();
+
+                case Integration_Order::BAR_64:
+                    return std::make_unique< Integration_Coeffs<
+                            Integration_Type::GAUSS,
+                            Integration_Order::BAR_64 > >();
+
+                default:
+                    MORIS_ERROR( false, "Integration_Rule::create_coeffs_gauss_bar - integration order not implemented/allowed for bar." );
                     return nullptr;
             }
         }
 
         //------------------------------------------------------------------------------
 
-        Integration_Coeffs_Base * Integration_Rule::create_coeffs_gauss_quad(
-                const Integration_Order & aIntegrationOrder ) const
+        std::unique_ptr< Integration_Coeffs_Base > Integration_Rule::create_coeffs_gauss_quad(
+                const Integration_Order &aIntegrationOrder ) const
         {
-            switch( aIntegrationOrder )
+            switch ( aIntegrationOrder )
             {
-                case Integration_Order::QUAD_2x2 :
-                    return new Integration_Coeffs<
+                case Integration_Order::QUAD_2x2:
+                    return std::make_unique< Integration_Coeffs<
                             Integration_Type::GAUSS,
-                            Integration_Order::QUAD_2x2 >();
+                            Integration_Order::QUAD_2x2 > >();
 
-                case Integration_Order::QUAD_3x3 :
-                    return new Integration_Coeffs<
+                case Integration_Order::QUAD_3x3:
+                    return std::make_unique< Integration_Coeffs<
                             Integration_Type::GAUSS,
-                            Integration_Order::QUAD_3x3 >();
+                            Integration_Order::QUAD_3x3 > >();
 
-                case Integration_Order::QUAD_4x4 :
-                    return new Integration_Coeffs<
+                case Integration_Order::QUAD_4x4:
+                    return std::make_unique< Integration_Coeffs<
                             Integration_Type::GAUSS,
-                            Integration_Order::QUAD_4x4 >();
+                            Integration_Order::QUAD_4x4 > >();
 
-                case Integration_Order::QUAD_5x5 :
-                    return new Integration_Coeffs<
+                case Integration_Order::QUAD_5x5:
+                    return std::make_unique< Integration_Coeffs<
                             Integration_Type::GAUSS,
-                            Integration_Order::QUAD_5x5 >();
+                            Integration_Order::QUAD_5x5 > >();
 
-                default :
-                    MORIS_ERROR( false, "Integration_Rule::create_coeffs_gauss_quad - integration order not implemented/allowed for quad.");
+                default:
+                    MORIS_ERROR( false, "Integration_Rule::create_coeffs_gauss_quad - integration order not implemented/allowed for quad." );
                     return nullptr;
             }
         }
 
         //------------------------------------------------------------------------------
 
-        Integration_Coeffs_Base * Integration_Rule::create_coeffs_gauss_hex
-        ( const Integration_Order & aIntegrationOrder ) const
+        std::unique_ptr< Integration_Coeffs_Base > Integration_Rule::create_coeffs_gauss_hex( const Integration_Order &aIntegrationOrder ) const
         {
-            switch( aIntegrationOrder )
+            switch ( aIntegrationOrder )
             {
-                case Integration_Order::HEX_2x2x2 :
-                    return new Integration_Coeffs<
+                case Integration_Order::HEX_2x2x2:
+                    return std::make_unique< Integration_Coeffs<
                             Integration_Type::GAUSS,
-                            Integration_Order::HEX_2x2x2 >();
+                            Integration_Order::HEX_2x2x2 > >();
 
-                case Integration_Order::HEX_3x3x3 :
-                    return new Integration_Coeffs<
+                case Integration_Order::HEX_3x3x3:
+                    return std::make_unique< Integration_Coeffs<
                             Integration_Type::GAUSS,
-                            Integration_Order::HEX_3x3x3 >();
+                            Integration_Order::HEX_3x3x3 > >();
 
-                case Integration_Order::HEX_4x4x4 :
-                    return new Integration_Coeffs<
+                case Integration_Order::HEX_4x4x4:
+                    return std::make_unique< Integration_Coeffs<
                             Integration_Type::GAUSS,
-                            Integration_Order::HEX_4x4x4 >();
+                            Integration_Order::HEX_4x4x4 > >();
 
-                case Integration_Order::HEX_5x5x5 :
-                    return new Integration_Coeffs<
+                case Integration_Order::HEX_5x5x5:
+                    return std::make_unique< Integration_Coeffs<
                             Integration_Type::GAUSS,
-                            Integration_Order::HEX_5x5x5 >();
+                            Integration_Order::HEX_5x5x5 > >();
 
-                default :
-                    MORIS_ERROR( false, " Integration_Rule::create_coeffs_gauss_hex - integration order not implemented/allowed for hex.");
+                default:
+                    MORIS_ERROR( false, " Integration_Rule::create_coeffs_gauss_hex - integration order not implemented/allowed for hex." );
                     return nullptr;
             }
         }
 
         //------------------------------------------------------------------------------
 
-        Integration_Coeffs_Base * Integration_Rule::create_coeffs_gauss_tri(
-                const Integration_Order & aIntegrationOrder ) const
+        std::unique_ptr< Integration_Coeffs_Base > Integration_Rule::create_coeffs_gauss_tri(
+                const Integration_Order &aIntegrationOrder ) const
         {
-            switch( aIntegrationOrder )
+            switch ( aIntegrationOrder )
             {
                 // for polynomial order 1
-                case Integration_Order::TRI_1 :
-                    return new Integration_Coeffs<
+                case Integration_Order::TRI_1:
+                    return std::make_unique< Integration_Coeffs<
                             Integration_Type::GAUSS,
-                            Integration_Order::TRI_1 >();
+                            Integration_Order::TRI_1 > >();
 
                     // for polynomial order 2
-                case Integration_Order::TRI_3 :
-                    return new Integration_Coeffs<
+                case Integration_Order::TRI_3:
+                    return std::make_unique< Integration_Coeffs<
                             Integration_Type::GAUSS,
-                            Integration_Order::TRI_3 >();
+                            Integration_Order::TRI_3 > >();
 
                     // for polynomial order 3
-                case Integration_Order::TRI_4 :
-                    return new Integration_Coeffs<
+                case Integration_Order::TRI_4:
+                    return std::make_unique< Integration_Coeffs<
                             Integration_Type::GAUSS,
-                            Integration_Order::TRI_4 >();
+                            Integration_Order::TRI_4 > >();
 
                     // for polynomial order 4
-                case Integration_Order::TRI_6 :
-                    return new Integration_Coeffs<
+                case Integration_Order::TRI_6:
+                    return std::make_unique< Integration_Coeffs<
                             Integration_Type::GAUSS,
-                            Integration_Order::TRI_6 >();
+                            Integration_Order::TRI_6 > >();
 
                     // for polynomial order 5
-                case Integration_Order::TRI_7 :
-                    return new Integration_Coeffs<
+                case Integration_Order::TRI_7:
+                    return std::make_unique< Integration_Coeffs<
                             Integration_Type::GAUSS,
-                            Integration_Order::TRI_7 >();
+                            Integration_Order::TRI_7 > >();
 
                     // for polynomial order 6
-                case Integration_Order::TRI_12 :
-                    return new Integration_Coeffs<
+                case Integration_Order::TRI_12:
+                    return std::make_unique< Integration_Coeffs<
                             Integration_Type::GAUSS,
-                            Integration_Order::TRI_12 >();
+                            Integration_Order::TRI_12 > >();
 
                     // for polynomial order 7
-                case Integration_Order::TRI_13 :
-                    return new Integration_Coeffs<
+                case Integration_Order::TRI_13:
+                    return std::make_unique< Integration_Coeffs<
                             Integration_Type::GAUSS,
-                            Integration_Order::TRI_13 >();
+                            Integration_Order::TRI_13 > >();
 
                     // for polynomial order 8
-                case Integration_Order::TRI_16 :
-                    return new Integration_Coeffs<
+                case Integration_Order::TRI_16:
+                    return std::make_unique< Integration_Coeffs<
                             Integration_Type::GAUSS,
-                            Integration_Order::TRI_16 >();
+                            Integration_Order::TRI_16 > >();
 
                     // for polynomial order 9
-                case Integration_Order::TRI_19 :
-                    return new Integration_Coeffs<
+                case Integration_Order::TRI_19:
+                    return std::make_unique< Integration_Coeffs<
                             Integration_Type::GAUSS,
-                            Integration_Order::TRI_19 >();
+                            Integration_Order::TRI_19 > >();
 
                     // for polynomial order 10
-                case Integration_Order::TRI_25 :
-                    return new Integration_Coeffs<
+                case Integration_Order::TRI_25:
+                    return std::make_unique< Integration_Coeffs<
                             Integration_Type::GAUSS,
-                            Integration_Order::TRI_25 >();
+                            Integration_Order::TRI_25 > >();
 
-                default :
-                    MORIS_ERROR( false, " Integration_Rule::create_coeffs_gauss_tri - integration order not implemented/allowed for tri.");
+                default:
+                    MORIS_ERROR( false, " Integration_Rule::create_coeffs_gauss_tri - integration order not implemented/allowed for tri." );
                     return nullptr;
             }
         }
 
         //------------------------------------------------------------------------------
 
-        Integration_Coeffs_Base * Integration_Rule::create_coeffs_gauss_tet(
-                const Integration_Order & aIntegrationOrder ) const
+        std::unique_ptr< Integration_Coeffs_Base > Integration_Rule::create_coeffs_gauss_tet(
+                const Integration_Order &aIntegrationOrder ) const
         {
-            switch( aIntegrationOrder )
+            switch ( aIntegrationOrder )
             {
                 // for polynomial order 1
-                case Integration_Order::TET_1 :
-                    return new Integration_Coeffs<
+                case Integration_Order::TET_1:
+                    return std::make_unique< Integration_Coeffs<
                             Integration_Type::GAUSS,
-                            Integration_Order::TET_1 >();
+                            Integration_Order::TET_1 > >();
 
                     // for polynomial order 2
-                case Integration_Order::TET_4 :
-                    return new Integration_Coeffs<
+                case Integration_Order::TET_4:
+                    return std::make_unique< Integration_Coeffs<
                             Integration_Type::GAUSS,
-                            Integration_Order::TET_4 >();
+                            Integration_Order::TET_4 > >();
 
                     // for polynomial order 3
-                case Integration_Order::TET_5 :
-                    return new Integration_Coeffs<
+                case Integration_Order::TET_5:
+                    return std::make_unique< Integration_Coeffs<
                             Integration_Type::GAUSS,
-                            Integration_Order::TET_5 >();
+                            Integration_Order::TET_5 > >();
 
                     // for polynomial order 4
-                case Integration_Order::TET_11 :
-                    return new Integration_Coeffs<
+                case Integration_Order::TET_11:
+                    return std::make_unique< Integration_Coeffs<
                             Integration_Type::GAUSS,
-                            Integration_Order::TET_11 >();
+                            Integration_Order::TET_11 > >();
 
                     // for polynomial order 5
-                case Integration_Order::TET_15 :
-                    return new Integration_Coeffs<
+                case Integration_Order::TET_15:
+                    return std::make_unique< Integration_Coeffs<
                             Integration_Type::GAUSS,
-                            Integration_Order::TET_15 >();
+                            Integration_Order::TET_15 > >();
 
                     // for polynomial order 6
-                case Integration_Order::TET_20 :
-                    return new Integration_Coeffs<
+                case Integration_Order::TET_20:
+                    return std::make_unique< Integration_Coeffs<
                             Integration_Type::GAUSS,
-                            Integration_Order::TET_20 >();
+                            Integration_Order::TET_20 > >();
 
                     // for polynomial order 7
-                case Integration_Order::TET_35 :
-                    return new Integration_Coeffs<
+                case Integration_Order::TET_35:
+                    return std::make_unique< Integration_Coeffs<
                             Integration_Type::GAUSS,
-                            Integration_Order::TET_35 >();
+                            Integration_Order::TET_35 > >();
 
                     // for polynomial order 9
-                case Integration_Order::TET_56 :
-                    return new Integration_Coeffs<
+                case Integration_Order::TET_56:
+                    return std::make_unique< Integration_Coeffs<
                             Integration_Type::GAUSS,
-                            Integration_Order::TET_56 >();
+                            Integration_Order::TET_56 > >();
 
-                default :
-                    MORIS_ERROR( false, " Integration_Rule::create_coeffs_gauss_tet - integration order not implemented/allowed for tet.");
+                default:
+                    MORIS_ERROR( false, " Integration_Rule::create_coeffs_gauss_tet - integration order not implemented/allowed for tet." );
                     return nullptr;
             }
         }

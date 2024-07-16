@@ -93,4 +93,4 @@ namespace moris::mtk
         CellTopology get_cell_topology( char* aElementType );
     };
 
-}
+}    // namespace moris::mtk

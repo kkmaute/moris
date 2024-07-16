@@ -22,19 +22,19 @@ namespace moris
         Mesh_Pair::Mesh_Pair(
                 Interpolation_Mesh* aInterpolationMesh,
                 Integration_Mesh*   aIntegrationMesh,
-                bool                aIsOwned)
-                : mInterpolationMesh(aInterpolationMesh)
-                , mIntegrationMesh(aIntegrationMesh)
-                , mIsOwned(aIsOwned)
+                bool                aIsOwned )
+                : mInterpolationMesh( aInterpolationMesh )
+                , mIntegrationMesh( aIntegrationMesh )
+                , mIsOwned( aIsOwned )
         {
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Mesh_Pair::Mesh_Pair(const Mesh_Pair& aMeshPair)
-                : mInterpolationMesh(aMeshPair.mInterpolationMesh)
-                , mIntegrationMesh(aMeshPair.mIntegrationMesh)
-                , mIsOwned(false)
+        Mesh_Pair::Mesh_Pair( const Mesh_Pair& aMeshPair )
+                : mInterpolationMesh( aMeshPair.mInterpolationMesh )
+                , mIntegrationMesh( aMeshPair.mIntegrationMesh )
+                , mIsOwned( false )
         {
         }
 
@@ -42,7 +42,7 @@ namespace moris
 
         Mesh_Pair::~Mesh_Pair()
         {
-            if (mIsOwned)
+            if ( mIsOwned )
             {
                 delete mInterpolationMesh;
                 delete mIntegrationMesh;
@@ -53,7 +53,7 @@ namespace moris
 
         Interpolation_Mesh* Mesh_Pair::get_interpolation_mesh() const
         {
-            MORIS_ASSERT(mInterpolationMesh, "Interpolation mesh does not exist.");
+            MORIS_ASSERT( mInterpolationMesh, "Interpolation mesh does not exist." );
             return mInterpolationMesh;
         }
 
@@ -61,11 +61,11 @@ namespace moris
 
         Integration_Mesh* Mesh_Pair::get_integration_mesh() const
         {
-            MORIS_ASSERT(mIntegrationMesh, "Integration mesh does not exist.");
+            MORIS_ASSERT( mIntegrationMesh, "Integration mesh does not exist." );
             return mIntegrationMesh;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-    }
-}
+    }    // namespace mtk
+}    // namespace moris

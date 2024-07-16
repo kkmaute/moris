@@ -32,7 +32,7 @@ namespace moris
           private:
             // Interpolation_Mesh_DataBase* mIPDataBase;
             const mtk::Interpolation_Mesh& mBackgroundMesh;
-            uint mSpatilDim;
+            uint                           mSpatilDim;
 
             // Vertex Information
             Vector< Vertex_DataBase > mVertices;
@@ -57,7 +57,7 @@ namespace moris
             Vector< moris_index >  mCellToVertexOffSet;
 
             // Cell Information
-            Vector< Cell_DataBase >             mCells;
+            Vector< Cell_DataBase >                  mCells;
             std::shared_ptr< moris::mtk::Cell_Info > mCellInfo;
 
             // Communication table

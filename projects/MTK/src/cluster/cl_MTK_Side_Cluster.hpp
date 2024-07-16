@@ -94,7 +94,7 @@ namespace moris
              */
             virtual moris_index
             get_cell_side_ordinal( moris::moris_index aCellIndexInCluster,
-                    const mtk::Leader_Follower           aIsLeader = mtk::Leader_Follower::LEADER ) const = 0;
+                    const mtk::Leader_Follower        aIsLeader = mtk::Leader_Follower::LEADER ) const = 0;
 
             // ----------------------------------------------------------------------------------
 
@@ -122,8 +122,8 @@ namespace moris
              */
             virtual moris::Matrix< moris::DDRMat >
             get_vertex_local_coordinate_wrt_interp_cell(
-                    moris::mtk::Vertex const *aVertex,
-                    const mtk::Leader_Follower   aIsLeader = mtk::Leader_Follower::LEADER ) const = 0;
+                    moris::mtk::Vertex const  *aVertex,
+                    const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const = 0;
 
             //----------------------------------------------------------------
 
@@ -155,10 +155,10 @@ namespace moris
 
             // ----------------------------------------------------------------------------------
 
-            //##############################################
-            // Size Access
-            //##############################################
-            // ----------------------------------------------------------------------------------
+            // ##############################################
+            //  Size Access
+            // ##############################################
+            //  ----------------------------------------------------------------------------------
             /*!
              * @return Size of the xsi vector in this side cluster
              */
@@ -173,15 +173,15 @@ namespace moris
              */
             moris::real
             compute_cluster_cell_measure(
-                    const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                    const mtk::Primary_Void    aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                     const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const;
 
             //------------------------------------------------------------------------------
 
             virtual moris::real
             compute_cluster_group_cell_measure(
-                    const moris_index       aDiscretizationMeshIndex,
-                    const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                    const moris_index          aDiscretizationMeshIndex,
+                    const mtk::Primary_Void    aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                     const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const
             {
                 MORIS_ERROR( false, "mtk::Side_Cluster::compute_cluster_group_cell_measure() - Only implemented in child xtk::Side_Cluster" );
@@ -196,7 +196,7 @@ namespace moris
              */
             Matrix< DDRMat >
             compute_cluster_ig_cell_measures(
-                    const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                    const mtk::Primary_Void    aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                     const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const;
 
             // ----------------------------------------------------------------------------------
@@ -209,19 +209,19 @@ namespace moris
              */
             moris::real
             compute_cluster_cell_measure_derivative(
-                    const Matrix< DDRMat > &aPerturbedVertexCoords,
-                    uint                    aDirection,
-                    const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                    const Matrix< DDRMat >    &aPerturbedVertexCoords,
+                    uint                       aDirection,
+                    const mtk::Primary_Void    aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                     const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const;
 
             //------------------------------------------------------------------------------
 
             virtual moris::real
             compute_cluster_group_cell_measure_derivative(
-                    const moris_index       aDiscretizationMeshIndex,
-                    const Matrix< DDRMat > &aPerturbedVertexCoords,
-                    uint                    aDirection,
-                    const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                    const moris_index          aDiscretizationMeshIndex,
+                    const Matrix< DDRMat >    &aPerturbedVertexCoords,
+                    uint                       aDirection,
+                    const mtk::Primary_Void    aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                     const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const
             {
                 MORIS_ERROR( false, "mtk::Side_Cluster::compute_cluster_group_cell_measure_derivative() - Only implemented in child xtk::Side_Cluster" );
@@ -236,15 +236,15 @@ namespace moris
              */
             virtual moris::real
             compute_cluster_cell_side_measure(
-                    const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                    const mtk::Primary_Void    aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                     const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const;
 
             //------------------------------------------------------------------------------
 
             virtual moris::real
             compute_cluster_group_cell_side_measure(
-                    const moris_index       aDiscretizationMeshIndex,
-                    const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                    const moris_index          aDiscretizationMeshIndex,
+                    const mtk::Primary_Void    aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                     const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const
             {
                 MORIS_ERROR( false, "mtk::Side_Cluster::compute_cluster_group_cell_side_measure() - Only implemented in child xtk::Side_Cluster" );
@@ -259,7 +259,7 @@ namespace moris
              */
             virtual Matrix< DDRMat >
             compute_cluster_ig_cell_side_measures(
-                    const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                    const mtk::Primary_Void    aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                     const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const;
 
             // ----------------------------------------------------------------------------------
@@ -272,19 +272,19 @@ namespace moris
              */
             virtual moris::real
             compute_cluster_cell_side_measure_derivative(
-                    const Matrix< DDRMat > &aPerturbedVertexCoords,
-                    uint                    aDirection,
-                    const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                    const Matrix< DDRMat >    &aPerturbedVertexCoords,
+                    uint                       aDirection,
+                    const mtk::Primary_Void    aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                     const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const;
 
             //------------------------------------------------------------------------------
 
             virtual moris::real
             compute_cluster_group_cell_side_measure_derivative(
-                    const moris_index       aDiscretizationMeshIndex,
-                    const Matrix< DDRMat > &aPerturbedVertexCoords,
-                    uint                    aDirection,
-                    const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                    const moris_index          aDiscretizationMeshIndex,
+                    const Matrix< DDRMat >    &aPerturbedVertexCoords,
+                    uint                       aDirection,
+                    const mtk::Primary_Void    aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                     const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const
             {
                 MORIS_ERROR( false, "mtk::Side_Cluster::compute_cluster_group_cell_side_measure_derivative() - Only implemented in child xtk::Side_Cluster" );
@@ -354,7 +354,7 @@ namespace moris
              */
             virtual moris::Matrix< moris::DDRMat >
             get_cell_local_coords_on_side_wrt_interp_cell(
-                    moris::moris_index      aClusterLocalIndex,
+                    moris::moris_index         aClusterLocalIndex,
                     const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
             // ----------------------------------------------------------------------------------
@@ -366,7 +366,7 @@ namespace moris
              */
             virtual moris::Matrix< moris::DDRMat >
             get_primary_cell_local_coords_on_side_wrt_interp_cell(
-                    moris::moris_index      aPrimaryCellClusterIndex,
+                    moris::moris_index         aPrimaryCellClusterIndex,
                     const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
             // ----------------------------------------------------------------------------------

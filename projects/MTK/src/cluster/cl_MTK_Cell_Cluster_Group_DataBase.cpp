@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2022 University of Colorado 
- * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details. 
- * 
- * ------------------------------------------------------------------------------------ 
- * 
- * cl_MTK_Cell_Cluster_Group_DataBase.cpp  
- * 
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ * ------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Cell_Cluster_Group_DataBase.cpp
+ *
  */
 
 #include "cl_MTK_Cell_Cluster_Group_DataBase.hpp"
@@ -17,9 +17,9 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        Cell_Cluster_Group_DataBase::Cell_Cluster_Group_DataBase( 
-                const moris_index                  aDiscretizationMeshIndex,
-                Vector< mtk::Cluster const* > aClusters )
+        Cell_Cluster_Group_DataBase::Cell_Cluster_Group_DataBase(
+                const moris_index              aDiscretizationMeshIndex,
+                Vector< mtk::Cluster const * > aClusters )
                 : mtk::Cell_Cluster_Group( aDiscretizationMeshIndex )
                 , mClusters( aClusters )
         {
@@ -28,7 +28,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const Vector< mtk::Cluster const* >
+        const Vector< mtk::Cluster const * >
         Cell_Cluster_Group_DataBase::get_clusters_in_group() const
         {
             return mClusters;
@@ -36,5 +36,5 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-    } // namespace mtk
-} // namespace moris
+    }    // namespace mtk
+}    // namespace moris

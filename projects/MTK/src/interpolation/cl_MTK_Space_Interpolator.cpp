@@ -1399,9 +1399,9 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        Space_Interpolator::update_local_coordinates(
-                Matrix< DDRMat >& aPhysCoordinates,
-                Matrix< DDRMat >& aParamCoordinates )
+        Space_Interpolator::update_parametric_coordinates(
+                Matrix< DDRMat > const & aPhysCoordinates,
+                Matrix< DDRMat >&        aParamCoordinates )
         {
             // set max iteration
             const uint tMaxIter = 5;
@@ -1434,7 +1434,7 @@ namespace moris
             }
 
             // getting here means that iterations exceeded maximum number
-            MORIS_ASSERT( true, "Space_Interpolator::update_local_coordinates - No convergence." );
+            MORIS_ASSERT( true, "Space_Interpolator::update_parametric_coordinates - No convergence." );
         }
 
         //------------------------------------------------------------------------------

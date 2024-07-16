@@ -36,6 +36,5 @@ namespace moris::mtk
             MORIS_LOG_WARNING( "A background mesh was requested from an interpolation mesh which doesn't yet return one. Assuming it is already a background mesh." );
             return *this;
         };
-
     };
-}
+}    // namespace moris::mtk

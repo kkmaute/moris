@@ -1003,9 +1003,9 @@ namespace moris
 
         void
         Mesh::get_sideset_cells_and_ords(
-                const std::string&           aSetName,
+                const std::string&      aSetName,
                 Vector< Cell const * >& aCells,
-                Matrix< IndexMat >&          aSidesetOrdinals ) const
+                Matrix< IndexMat >&     aSidesetOrdinals ) const
         {
             Matrix< IndexMat > tElemIndices;
             this->get_sideset_elems_loc_inds_and_ords( aSetName, tElemIndices, aSidesetOrdinals );
@@ -1082,7 +1082,7 @@ namespace moris
 
         void
         Mesh::get_mtk_cells(
-                Matrix< IndexMat >           aCellInds,
+                Matrix< IndexMat >      aCellInds,
                 Vector< Cell const * >& aCells )
         {
             aCells = Vector< Cell const * >( aCellInds.numel() );
@@ -1179,7 +1179,7 @@ namespace moris
         uint Mesh::get_order()
         {
             Vector< std::string > tSetNames = this->get_set_names( EntityRank::ELEMENT );
-            return get_order_from_topology( this->get_blockset_topology( tSetNames(0) ) );
+            return get_order_from_topology( this->get_blockset_topology( tSetNames( 0 ) ) );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -1212,8 +1212,8 @@ namespace moris
 
         void
         Mesh::get_elements_in_bspline_element(
-                moris_index const          aBspElementIndex,
-                moris_index const          aDiscretizationMeshIndex,
+                moris_index const     aBspElementIndex,
+                moris_index const     aDiscretizationMeshIndex,
                 Vector< mtk::Cell* >& aCells )
         {
             MORIS_ERROR( false, "Mesh::get_elements_in_bspline_element() -  not implemented in mtk base class" );
@@ -1223,17 +1223,17 @@ namespace moris
 
         void
         Mesh::get_lagrange_elements_in_bspline_elements(
-                moris_index const                          aDiscretizationMeshIndex,
+                moris_index const                aDiscretizationMeshIndex,
                 Vector< Vector< mtk::Cell* > >&  aCells,
                 Vector< Vector< moris_index > >& aCellIndices,
-                Vector< moris_index >&                aLagToBspCellIndices,
-                Vector< uint >&                       aBspCellRefineLevels,
-                Vector< mtk::Cell* >&                 aBspCells )
+                Vector< moris_index >&           aLagToBspCellIndices,
+                Vector< uint >&                  aBspCellRefineLevels,
+                Vector< mtk::Cell* >&            aBspCells )
         {
             MORIS_ERROR( false, "Mesh::get_lagrange_elements_in_bspline_elements() -  not implemented in mtk base class" );
         }
 
-         //--------------------------------------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
 
         const luint*
         Mesh::get_bspline_element_ijk_level(
@@ -1242,18 +1242,18 @@ namespace moris
                 uint&            aLevel )
         {
             MORIS_ERROR( false, "Mesh::get_bspline_element_ijk_level() -  not implemented in mtk base class" );
-            return new luint[0];
+            return new luint[ 0 ];
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         void
         Mesh::get_extended_t_matrix(
-                moris_index                                 aDiscretizationMeshIndex,
-                moris_index                                 aBSplineCellIndex,
-                moris::mtk::Cell&                           aLagrangeCell,
+                moris_index                       aDiscretizationMeshIndex,
+                moris_index                       aBSplineCellIndex,
+                moris::mtk::Cell&                 aLagrangeCell,
                 Vector< Vector< mtk::Vertex* > >& tBsplineBasis,
-                Vector< Matrix< DDRMat > >&            tWeights )
+                Vector< Matrix< DDRMat > >&       tWeights )
         {
             MORIS_ERROR( false, "Mesh::get_extended_t_matrix() -  not implemented in mtk base class" );
         }
@@ -1262,12 +1262,12 @@ namespace moris
 
         void
         Mesh::get_L2_projection_matrix(
-                moris_index                                 aDiscretizationMeshIndex,
-                const mtk::Cell*                            aRootBSplineCell,
-                const mtk::Cell*                            aExtendedBSplineCell,
+                moris_index                             aDiscretizationMeshIndex,
+                const mtk::Cell*                        aRootBSplineCell,
+                const mtk::Cell*                        aExtendedBSplineCell,
                 Vector< Vector< const mtk::Vertex* > >& tRootBsplineBasis,
-                Vector< const mtk::Vertex* >&                tExtendedBsplineBasis,
-                Vector< Matrix< DDRMat > >&            tWeights )
+                Vector< const mtk::Vertex* >&           tExtendedBsplineBasis,
+                Vector< Matrix< DDRMat > >&             tWeights )
         {
             MORIS_ERROR( false, "Mesh::get_L2_projection_matrix() -  not implemented in mtk base class" );
         }
@@ -1276,8 +1276,8 @@ namespace moris
 
         void
         Mesh::get_elements_in_interpolation_cluster(
-                moris_index                aElementIndex,
-                moris_index                aDiscretizationMeshIndex,
+                moris_index           aElementIndex,
+                moris_index           aDiscretizationMeshIndex,
                 Vector< mtk::Cell* >& tCells )
         {
             MORIS_ERROR( false, "Mesh::get_elements_in_interpolation_cluster() -  not implemented in mtk base class" );
@@ -1287,9 +1287,9 @@ namespace moris
 
         void
         Mesh::get_elements_in_bspline_element_and_side_ordinal(
-                moris_index const          aBsplineElementIndex,
-                moris_index const          aDiscretizationMeshIndex,
-                moris_index const          aSideOrdinal,
+                moris_index const     aBsplineElementIndex,
+                moris_index const     aDiscretizationMeshIndex,
+                moris_index const     aSideOrdinal,
                 Vector< mtk::Cell* >& aCells )
         {
             MORIS_ERROR( false, "Mesh::get_elements_in_bspline_element_and_side_ordinal() -  not implemented in mtk base class" );
@@ -1299,9 +1299,9 @@ namespace moris
 
         void
         Mesh::get_elements_in_interpolation_cluster_and_side_ordinal(
-                moris_index const          aElementIndex,
-                moris_index const          aDiscretizationMeshIndex,
-                moris_index const          aSideOrdinal,
+                moris_index const     aElementIndex,
+                moris_index const     aDiscretizationMeshIndex,
+                moris_index const     aSideOrdinal,
                 Vector< mtk::Cell* >& aCells )
         {
             MORIS_ERROR( false, "Mesh::get_elements_in_interpolation_cluster_and_side_ordinal() -  not implemented in mtk base class" );

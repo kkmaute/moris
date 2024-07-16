@@ -29,18 +29,12 @@ namespace moris
         //----------------------------------------------------------------------------------
 
         Double_Side_Cluster::Double_Side_Cluster(
-                moris::mtk::Cluster const                       *aLeaderSideCluster,
-                moris::mtk::Cluster const                       *aFollowerSideCluster,
+                moris::mtk::Cluster const                  *aLeaderSideCluster,
+                moris::mtk::Cluster const                  *aFollowerSideCluster,
                 Vector< moris::mtk::Vertex const * > const &aLeftToRightVertexPair )
                 : mLeaderSideCluster( aLeaderSideCluster )
                 , mFollowerSideCluster( aFollowerSideCluster )
         {
-            // This check prohibits the construction of double side interfaces between child meshes therefore it is being removed.
-            // if(!this->is_leader_trivial())
-            // {
-            // MORIS_ASSERT(this->get_leader_num_vertices_in_cluster() == this->get_follower_num_vertices_in_cluster(),"Number of vertices mismatch in double cluster");
-            // }
-
             mLeaderToFollowerVertexPairs.append( aLeftToRightVertexPair );
         }
 
@@ -113,7 +107,6 @@ namespace moris
             }
         }
 
-
         //----------------------------------------------------------------------------------
 
         moris::mtk::Vertex const *
@@ -135,9 +128,7 @@ namespace moris
             return mLeaderToFollowerVertexPairs;
         }
 
-
         //----------------------------------------------------------------------------------
-
 
         moris_index
         Double_Side_Cluster::get_vertex_cluster_index(
@@ -158,7 +149,6 @@ namespace moris
                 return 0;
             }
         }
-
 
         //----------------------------------------------------------------------------------
 
@@ -190,7 +180,6 @@ namespace moris
         {
             return this->get_leader_side_cluster().get_interpolation_cell();
         }
-
 
         //----------------------------------------------------------------------------------
 
@@ -307,7 +296,6 @@ namespace moris
         {
             return this->get_follower_side_cluster().get_cell_side_ordinals();
         }
-
 
         //----------------------------------------------------------------------------------
 
@@ -436,8 +424,7 @@ namespace moris
 
             }    // end switch: Leader_Follower enum
 
-        }        // end function: Double_Side_Cluster::get_vertex_indices_in_cluster()
-
+        }    // end function: Double_Side_Cluster::get_vertex_indices_in_cluster()
 
         //----------------------------------------------------------------------------------
 
@@ -460,7 +447,6 @@ namespace moris
             }
         }
 
-
         //----------------------------------------------------------------------------------
 
         Matrix< DDRMat >
@@ -476,7 +462,6 @@ namespace moris
         {
             return this->get_follower_side_cluster().get_vertices_local_coordinates_wrt_interp_cell();
         }
-
 
         //----------------------------------------------------------------------------------
 
@@ -741,9 +726,7 @@ namespace moris
             return this->get_follower_side_cluster().get_dim_of_param_coord();
         }
 
-
         //----------------------------------------------------------------------------------
-
 
         uint
         Double_Side_Cluster::get_leader_num_vertices_in_cluster() const

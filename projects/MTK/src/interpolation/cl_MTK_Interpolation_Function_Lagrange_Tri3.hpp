@@ -12,7 +12,7 @@
 #define SRC_MTK_CL_MTK_INTERPOLATION_FUNCTION_LAGRANGE_TRI3_HPP_
 
 #include "assert.h"
-#include "moris_typedefs.hpp"                         //MRS/COR/src
+#include "moris_typedefs.hpp"                   //MRS/COR/src
 #include "cl_MTK_Enums.hpp"                     //MTK/src
 #include "cl_MTK_Interpolation_Function.hpp"    //MTK/src
 
@@ -129,4 +129,3 @@ namespace moris
     } /* namespace mtk */
 } /* namespace moris */
 #endif /* SRC_MTK_CL_MTK_INTERPOLATION_FUNCTION_LAGRANGE_TRI3_HPP_ */
-

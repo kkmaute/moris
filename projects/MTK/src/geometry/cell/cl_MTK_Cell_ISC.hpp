@@ -48,7 +48,7 @@ namespace moris
                     moris::moris_index                aCellIndex,
                     moris::moris_id                   aCellOwner,
                     std::shared_ptr< mtk::Cell_Info > aCellInfo,
-                    Vector< mtk::Vertex* >       aVertices );
+                    Vector< mtk::Vertex* >            aVertices );
 
             //------------------------------------------------------------------------------
 

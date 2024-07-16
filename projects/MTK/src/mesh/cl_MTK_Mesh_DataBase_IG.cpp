@@ -5,7 +5,7 @@
  *------------------------------------------------------------------------------------
  *
  * cl_MTK_Mesh_DataBase_IG.cpp
- * 
+ *
  */
 
 #include "cl_MTK_Mesh_DataBase_IG.hpp"
@@ -20,12 +20,17 @@
 #include "cl_Tracer.hpp"
 
 #include "cl_MTK_Mesh_DataBase_IP.hpp"
+#include <iostream>
 
 namespace moris::mtk
 {
 
     //-----------------------------------------------------------------------------
-    Integration_Mesh_DataBase_IG::Integration_Mesh_DataBase_IG( Integration_Mesh_DataBase* aIGDataBase, mtk::Integration_Mesh& aIGMesh, Interpolation_Mesh_Analysis& aIPMesh )                                                                                                                                                                        // mIGDataBase( aIGDataBase ), mIGMesh( aIGMesh ), mIPMesh( aIPMesh )
+
+    Integration_Mesh_DataBase_IG::Integration_Mesh_DataBase_IG(
+            Integration_Mesh_DataBase*   aIGDataBase,
+            mtk::Integration_Mesh&       aIGMesh,
+            Interpolation_Mesh_Analysis& aIPMesh )    // mIGDataBase( aIGDataBase ), mIGMesh( aIGMesh ), mIPMesh( aIPMesh )
     {
     }
 
@@ -47,10 +52,59 @@ namespace moris::mtk
 
     //-----------------------------------------------------------------------------
 
+    void Integration_Mesh_DataBase_IG::reserve_nonconformal_side_clusters( uint aNumNonconformalSideClusters )
+    {
+        mNonconformalSideClusters.reserve( aNumNonconformalSideClusters );
+    }
+
+    //-----------------------------------------------------------------------------
+
+    void Integration_Mesh_DataBase_IG::add_nonconformal_side_set(
+            std::string const &                         aName,
+            Vector< Nonconformal_Side_Cluster > const & aClusters,
+            Matrix< IndexMat > const &                  aColors )
+    {
+        size_t tNumClustersBefore = mNonconformalSideClusters.size();
+        mNonconformalSideClusters.append( aClusters );
+
+        // get the new clusters as general pointers...
+        // this is only necessary because sets are not generic w.r.t. the type of clusters they contain
+        // we need to get the pointers of the clusters in the mNonconformalSideClusters vector and not
+        // the pointers of the clusters in the aClusters vector (since they have different addresses)
+        Vector< Cluster const * > tClusterPointers;
+
+        std::transform(
+                mNonconformalSideClusters.begin() + tNumClustersBefore,
+                mNonconformalSideClusters.end(),
+                std::back_inserter( tClusterPointers ),
+                []( auto const & aCluster ) -> Cluster const * { return &aCluster; } );
+
+        // create the nonconformal side set
+        mListOfNonconformalSideSets.push_back( new Nonconformal_Side_Set( aName, tClusterPointers, aColors, this->get_spatial_dim() ) );
+
+        this->collect_all_sets();
+    }
+
+    //-----------------------------------------------------------------------------
+
+    void Integration_Mesh_DataBase_IG::reset_nonconformal_side_set()
+    {
+        for ( auto const & tNonconformalSideSet : mListOfNonconformalSideSets )
+        {
+            delete tNonconformalSideSet;
+        }
+
+        mNonconformalSideClusters.clear();
+
+        mListOfNonconformalSideSets.clear();
+    }
+
+    //-----------------------------------------------------------------------------
+
     uint
     Integration_Mesh_DataBase_IG::get_num_entities(
-        enum EntityRank   aEntityRank,
-        const moris_index aIndex ) const
+            enum EntityRank   aEntityRank,
+            const moris_index aIndex ) const
     {
         switch ( aEntityRank )
         {
@@ -94,10 +148,10 @@ namespace moris::mtk
 
     Matrix< IndexMat >
     Integration_Mesh_DataBase_IG::get_entity_connected_to_entity_loc_inds(
-        moris_index       aEntityIndex,
-        enum EntityRank   aInputEntityRank,
-        enum EntityRank   aOutputEntityRank,
-        const moris_index aDiscretizationIndex ) const
+            moris_index       aEntityIndex,
+            enum EntityRank   aInputEntityRank,
+            enum EntityRank   aOutputEntityRank,
+            const moris_index aDiscretizationIndex ) const
     {
         MORIS_ERROR( 0, "get_entity_connected_to_entity_loc_inds not implemented for Integration_Mesh_DataBase_IG" );
         return { {} };
@@ -178,15 +232,16 @@ namespace moris::mtk
         // chceck if we have the same toplogy as the old mesh
         // MORIS_ASSERT( mCellTopologyToNameMap[aSetName] == mIGMesh.get_blockset_topology( aSetName ), "No the Same Cell Topo" );
 
-        return mCellTopologyToNameMap[aSetName];
+        return mNameToCellTopologyMap[ aSetName ];
     }
 
     // ----------------------------------------------------------------------------
+
     enum CellShape
     Integration_Mesh_DataBase_IG::get_IG_blockset_shape( const std::string& aSetName )
     {
         // get the clusters in the set
-        Vector< mtk::Cluster const* > tSetClusters = this->get_set_by_name( aSetName )->get_clusters_on_set();
+        Vector< mtk::Cluster const * > tSetClusters = this->get_set_by_name( aSetName )->get_clusters_on_set();
 
         // init cell shape
         CellShape tCellShape = CellShape::EMPTY;
@@ -195,17 +250,17 @@ namespace moris::mtk
         if ( tSetClusters.size() > 0 )
         {
             // get the cells in the first cluster
-            Vector< moris::mtk::Cell const* > tClusterCells = tSetClusters( 0 )->get_primary_cells_in_cluster();
+            Vector< moris::mtk::Cell const * > tClusterCells = tSetClusters( 0 )->get_primary_cells_in_cluster();
 
             // compute the cell shape based on the first cell
-            if( tClusterCells.size() > 0 )
+            if ( tClusterCells.size() > 0 )
             {
                 tCellShape = tClusterCells( 0 )->get_cell_info()->compute_cell_shape( tClusterCells( 0 ) );
             }
-            else // in case there are void clusters, look at the void cells
+            else    // in case there are void clusters, look at the void cells
             {
                 tClusterCells = tSetClusters( 0 )->get_void_cells_in_cluster();
-                tCellShape =tClusterCells( 0 )->get_cell_info()->compute_cell_shape( tClusterCells( 0 ) );
+                tCellShape    = tClusterCells( 0 )->get_cell_info()->compute_cell_shape( tClusterCells( 0 ) );
             }
         }
 
@@ -213,19 +268,19 @@ namespace moris::mtk
 #ifdef MORIS_HAVE_DEBUG
 
         // skip check for sets only used for visualization purposes
-        if( !std::strstr( aSetName.c_str(), "Vis" ) )
+        if ( !std::strstr( aSetName.c_str(), "Vis" ) )
         {
             // checking all clusters in set
             for ( uint iCluster = 0; iCluster < tSetClusters.size(); iCluster++ )
             {
                 // get cell of cells in the cluster
-                Vector< moris::mtk::Cell const* > tClusterCellsCheck = tSetClusters( iCluster )->get_primary_cells_in_cluster();
+                Vector< moris::mtk::Cell const * > tClusterCellsCheck = tSetClusters( iCluster )->get_primary_cells_in_cluster();
 
                 // looping through the cells in the cluster
                 for ( uint iCheckCell = 0; iCheckCell < tClusterCellsCheck.size(); iCheckCell++ )
                 {
                     MORIS_ASSERT( tClusterCellsCheck( iCheckCell )->get_cell_info()->compute_cell_shape( tClusterCellsCheck( iCheckCell ) ) == tCellShape,
-                        "Integration_Mesh_DataBase_IG::get_IG_blockset_shape - cell shape is not consistent in the block" );
+                            "Integration_Mesh_DataBase_IG::get_IG_blockset_shape - cell shape is not consistent in the block" );
                 }
             }
         }
@@ -244,7 +299,7 @@ namespace moris::mtk
         // return mIGMesh.get_IP_blockset_shape( aSetName );
 
         // get the clusters in the set
-        Vector< mtk::Cluster const* > tSetClusters = this->get_set_by_name( aSetName )->get_clusters_on_set();
+        Vector< mtk::Cluster const * > tSetClusters = this->get_set_by_name( aSetName )->get_clusters_on_set();
 
         // init cell shape
         CellShape tCellShape = CellShape::EMPTY;
@@ -253,7 +308,7 @@ namespace moris::mtk
         if ( tSetClusters.size() > 0 )
         {
             // get the cells in the first cluster
-            mtk::Cell const& tClusterCell = tSetClusters( 0 )->get_interpolation_cell();
+            mtk::Cell const & tClusterCell = tSetClusters( 0 )->get_interpolation_cell();
 
             // compute the cell shape of the first cell
             tCellShape = tClusterCell.get_cell_info()->compute_cell_shape( &tClusterCell );
@@ -265,7 +320,7 @@ namespace moris::mtk
         for ( uint iCluster = 1; iCluster < tSetClusters.size(); iCluster++ )
         {
             MORIS_ASSERT( tSetClusters( iCluster )->get_interpolation_cell().get_cell_info()->compute_cell_shape( &tSetClusters( iCluster )->get_interpolation_cell() ) == tCellShape,
-                "Enriched_Integration_Mesh::get_IP_blockset_shape - cell shape is not consistent in the block" );
+                    "Enriched_Integration_Mesh::get_IP_blockset_shape - cell shape is not consistent in the block" );
         }
 
         return tCellShape;
@@ -301,7 +356,7 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Vertex const&
+    Vertex const &
     Integration_Mesh_DataBase_IG::get_mtk_vertex( moris_index aVertexIndex ) const
     {
         // check vertex indices bound
@@ -322,8 +377,8 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Cell_Cluster const&
-    Integration_Mesh_DataBase_IG::get_cell_cluster( Cell const& aInterpCell ) const
+    Cell_Cluster const &
+    Integration_Mesh_DataBase_IG::get_cell_cluster( Cell const & aInterpCell ) const
     {
         MORIS_ASSERT( aInterpCell.get_index() < (moris_index)mCellClusters.size(), "Interpolation cell index is out of bounds." );
         return mCellClusters( aInterpCell.get_index() );
@@ -331,13 +386,12 @@ namespace moris::mtk
 
     // ----------------------------------------------------------------------------
 
-    Cell_Cluster const&
+    Cell_Cluster const &
     Integration_Mesh_DataBase_IG::get_cell_cluster( moris_index aInterpCellIndex ) const
     {
         MORIS_ASSERT( aInterpCellIndex < (moris_index)mCellClusters.size(), "Interpolation Cell index out of bounds" );
         return mCellClusters( aInterpCellIndex );
     }
-
 
     // ----------------------------------------------------------------------------
 
@@ -351,7 +405,7 @@ namespace moris::mtk
 
     // ----------------------------------------------------------------------------
 
-    Vector< Cluster const* >
+    Vector< Cluster const * >
     Integration_Mesh_DataBase_IG::get_cell_clusters_in_set( moris_index aBlockSetOrdinal ) const
     {
         MORIS_ERROR( 0, "get_cell_clusters_in_set not implemented for Integration_Mesh_DataBase_IG" );
@@ -361,7 +415,7 @@ namespace moris::mtk
 
     // ----------------------------------------------------------------------------
 
-    Vector< Cluster const* >
+    Vector< Cluster const * >
     Integration_Mesh_DataBase_IG::get_side_set_cluster( moris_index aSideSetOrdinal ) const
     {
         MORIS_ERROR( 0, "get_side_set_cluster not implemented for Integration_Mesh_DataBase_IG" );
@@ -378,7 +432,6 @@ namespace moris::mtk
         return 0;
         // return mIGMesh.get_num_side_sets();
     }
-
 
     // ----------------------------------------------------------------------------
 
@@ -422,7 +475,7 @@ namespace moris::mtk
 
     // ----------------------------------------------------------------------------
 
-    Vector< Cluster const* >
+    Vector< Cluster const * >
     Integration_Mesh_DataBase_IG::get_double_side_set_cluster( moris_index aSideSetOrdinal ) const
     {
         MORIS_ERROR( 0, "get_double_side_set_cluster not implemented for Integration_Mesh_DataBase_IG" );
@@ -441,7 +494,7 @@ namespace moris::mtk
 
     // ----------------------------------------------------------------------------
 
-    mtk::Cell const&
+    mtk::Cell const &
     Integration_Mesh_DataBase_IG::get_mtk_cell( moris_index aCellIndex ) const
     {
         MORIS_ASSERT( aCellIndex < (moris_index)mCells.size(), "index of the vertex specified exceeds the bounds" );
@@ -478,7 +531,7 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
-    moris_id 
+    moris_id
     Integration_Mesh_DataBase_IG::get_entity_owner( enum EntityRank aEntityRank, moris_index aEntityIndex ) const
     {
         switch ( aEntityRank )
@@ -522,7 +575,6 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
-
     Vertex**
     Integration_Mesh_DataBase_IG::get_cell_vertices( moris_index aCellIndex )
     {
@@ -531,7 +583,7 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
-    mtk::Cell* 
+    mtk::Cell*
     Integration_Mesh_DataBase_IG::get_ip_cell_in_cluster( enum ClusterType aClusterType, moris_index aClusterIndex ) const
     {
         switch ( aClusterType )
@@ -565,7 +617,7 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
-    mtk::Cell* const*
+    mtk::Cell* const *
     Integration_Mesh_DataBase_IG::get_ig_cells_in_cluster( enum ClusterType aClusterType, Primary_Void aPrimaryOrVoid, moris_index aClusterIndex ) const
     {
         switch ( aClusterType )
@@ -615,7 +667,7 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
-    uint 
+    uint
     Integration_Mesh_DataBase_IG::get_num_cells_in_cluster( enum ClusterType aClusterType, Primary_Void aPrimaryOrVoid, moris_index aClusterIndex ) const
     {
         switch ( aClusterType )
@@ -713,7 +765,7 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Vertex* const*
+    Vertex* const *
     Integration_Mesh_DataBase_IG::get_vertices_in_cluster( enum ClusterType aClusterType, moris_index aClusterIndex ) const
     {
         switch ( aClusterType )
@@ -827,14 +879,13 @@ namespace moris::mtk
                 if ( aClusterIndex < (moris_index)mSideClusters.size() )
                 {
                     if ( aClusterIndex < (moris_index)mNumSideClusters )
-                    {       
+                    {
                         return mCellClusterIndexToRowNumber.at( mSideClusterToIPCell( aClusterIndex ) );
-                    }    
+                    }
                     else
                     {
-                         return mSideClusterIndexToRowNumber.at( aClusterIndex );
+                        return mSideClusterIndexToRowNumber.at( aClusterIndex );
                     }
-                       
                 }
                 else
                 {
@@ -854,7 +905,7 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
-    mtk::Cell_Cluster const*
+    mtk::Cell_Cluster const *
     Integration_Mesh_DataBase_IG::get_associated_cell_cluster( moris_index aClusterIndex ) const
     {
         if ( aClusterIndex < (moris_index)mSideClusters.size() )
@@ -970,5 +1021,4 @@ namespace moris::mtk
     {
     }
 
-
-}// namespace moris::mtk
+}    // namespace moris::mtk

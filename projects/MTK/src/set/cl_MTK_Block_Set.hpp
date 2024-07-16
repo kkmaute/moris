@@ -13,8 +13,8 @@
 
 #include <string>
 
-#include "moris_typedefs.hpp"     //MRS/COR/src
-#include "fn_unique.hpp"    //MRS/COR/src
+#include "moris_typedefs.hpp"    //MRS/COR/src
+#include "fn_unique.hpp"         //MRS/COR/src
 #include "cl_Map.hpp"
 #include "cl_MTK_Vertex.hpp"    //MTK/src
 #include "cl_MTK_Cell.hpp"      //MTK/src
@@ -190,10 +190,10 @@ namespace moris
             /**
              * trivial constructor
              */
-            Block_Set( std::string const                     &aName,
+            Block_Set( std::string const            &aName,
                     Vector< Cluster const * > const &aBlockSetClusters,
-                    Matrix< IndexMat > const             &aColors,
-                    uint const                           &aSpatialDim )
+                    Matrix< IndexMat > const        &aColors,
+                    uint const                      &aSpatialDim )
                     : Set( aName, aBlockSetClusters, aColors, aSpatialDim )
             {
                 mSetType = SetType::BULK;

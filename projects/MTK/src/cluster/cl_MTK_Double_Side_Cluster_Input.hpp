@@ -22,11 +22,11 @@ namespace moris
         {
 
           public:
-            Vector< Side_Set_Cluster_Data >                         mLeftSideClusters;  /*all side cluster data for a given side set*/
-            Vector< Side_Set_Cluster_Data >                         mRightSideClusters; /*all side cluster data for a given side set*/
+            Vector< Side_Set_Cluster_Data >                    mLeftSideClusters;  /*all side cluster data for a given side set*/
+            Vector< Side_Set_Cluster_Data >                    mRightSideClusters; /*all side cluster data for a given side set*/
             Vector< Vector< moris::Matrix< moris::IdMat >* > > mVertexPairing;     /*vertex pairing for a given cluster*/
 
-            Vector< std::string >                     mDoubleSideSetLabel;
+            Vector< std::string >                          mDoubleSideSetLabel;
             std::unordered_map< std::string, moris_index > mSideSetLabelToOrd;
 
             moris_index
@@ -105,4 +105,3 @@ namespace moris
 }    // namespace moris
 
 #endif /* PROJECTS_MTK_SRC_CL_MTK_DOUBLE_SIDE_CLUSTER_INPUT_HPP_ */
-

@@ -15,62 +15,63 @@ namespace moris
 {
     namespace mtk
     {
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         template<>
         uint
         Integration_Coeffs<
-        Integration_Type::GAUSS,
-        Integration_Order::QUAD_2x2>::get_number_of_dimensions()
+                Integration_Type::GAUSS,
+                Integration_Order::QUAD_2x2 >::get_number_of_dimensions()
         {
             return 2;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         template<>
         uint
         Integration_Coeffs<
-            Integration_Type::GAUSS,
-            Integration_Order::QUAD_2x2>::get_number_of_points()
-            {
-                return 4;
-            }
+                Integration_Type::GAUSS,
+                Integration_Order::QUAD_2x2 >::get_number_of_points()
+        {
+            return 4;
+        }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         template<>
         void
         Integration_Coeffs<
                 Integration_Type::GAUSS,
-                Integration_Order::QUAD_2x2>::get_points( Matrix< DDRMat > & aIntegrationPoints )
+                Integration_Order::QUAD_2x2 >::get_points( Matrix< DDRMat > &aIntegrationPoints )
         {
             aIntegrationPoints = {
-                    { -0.577350269189626,
-                       0.577350269189626,
-                       0.577350269189626,
-                      -0.577350269189626 },
-                    { -0.577350269189626,
-                      -0.577350269189626,
-                       0.577350269189626,
-                       0.577350269189626 } };
-         }
+                { -0.577350269189626,
+                        0.577350269189626,
+                        0.577350269189626,
+                        -0.577350269189626 },
+                { -0.577350269189626,
+                        -0.577350269189626,
+                        0.577350269189626,
+                        0.577350269189626 }
+            };
+        }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-            template<>
-            void
-            Integration_Coeffs<
+        template<>
+        void
+        Integration_Coeffs<
                 Integration_Type::GAUSS,
-                Integration_Order::QUAD_2x2 >::get_weights( Matrix< DDRMat > & aIntegrationWeights )
-            {
-                aIntegrationWeights = { { 1.000000000000000,
-                                          1.000000000000000,
-                                          1.000000000000000,
-                                          1.000000000000000} };
-            }
+                Integration_Order::QUAD_2x2 >::get_weights( Matrix< DDRMat > &aIntegrationWeights )
+        {
+            aIntegrationWeights = { { 1.000000000000000,
+                    1.000000000000000,
+                    1.000000000000000,
+                    1.000000000000000 } };
+        }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     } /* namespace mtk */
 } /* namespace moris */
 

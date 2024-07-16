@@ -13,7 +13,7 @@
 
 #include "assert.h"
 
-#include "moris_typedefs.hpp"                         //MRS/COR/src
+#include "moris_typedefs.hpp"                   //MRS/COR/src
 #include "cl_MTK_Enums.hpp"                     //MTK/src
 #include "cl_MTK_Interpolation_Function.hpp"    //MTK/src
 

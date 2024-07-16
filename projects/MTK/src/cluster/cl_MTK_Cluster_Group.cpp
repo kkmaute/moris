@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2022 University of Colorado 
- * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details. 
- * 
- * ------------------------------------------------------------------------------------ 
- * 
- * cl_MTK_Cluster_Group.cpp  
- * 
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ * ------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Cluster_Group.cpp
+ *
  */
 
 #include "cl_MTK_Cluster_Group.hpp"
@@ -17,7 +17,7 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        Cluster_Group::Cluster_Group( const moris_index  aDiscretizationMeshIndex )
+        Cluster_Group::Cluster_Group( const moris_index aDiscretizationMeshIndex )
                 : mDiscretizationMeshIndex( aDiscretizationMeshIndex )
         {
             // only initialize member variables
@@ -25,7 +25,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris_index 
+        moris_index
         Cluster_Group::get_discretization_mesh_index_for_cluster_group() const
         {
             return mDiscretizationMeshIndex;
@@ -41,5 +41,5 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-    } // namespace moris
-} // namespace mtk
+    }    // namespace mtk
+}    // namespace moris

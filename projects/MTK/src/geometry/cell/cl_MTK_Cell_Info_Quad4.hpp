@@ -22,135 +22,135 @@ namespace moris
     {
         class Cell_Info_Quad4 : public mtk::Cell_Info
         {
-        public:
+          public:
             // ----------------------------------------------------------------------------------
 
             enum Geometry_Type
-            get_cell_geometry() const;
+            get_cell_geometry() const override;
 
             // ----------------------------------------------------------------------------------
 
             enum CellTopology
-            get_cell_topology() const;
+            get_cell_topology() const override;
 
             // ----------------------------------------------------------------------------------
 
             enum Interpolation_Order
-            get_cell_interpolation_order() const;
+            get_cell_interpolation_order() const override;
 
             // ----------------------------------------------------------------------------------
 
             enum Integration_Order
-            get_cell_integration_order() const;
+            get_cell_integration_order() const override;
 
             //-----------------------------------------------------------------------------
 
             enum CellShape
-            compute_cell_shape(moris::mtk::Cell const *aCell) const;
+            compute_cell_shape( moris::mtk::Cell const *aCell ) const override;
 
             // ----------------------------------------------------------------------------------
 
             uint
-            get_num_verts() const;
+            get_num_verts() const override;
 
             // ----------------------------------------------------------------------------------
 
             uint
-            get_num_facets() const;
+            get_num_facets() const override;
 
             // ----------------------------------------------------------------------------------
 
             uint
-            get_num_edges() const;
+            get_num_edges() const override;
 
             // ----------------------------------------------------------------------------------
 
             uint
-            get_num_verts_per_facet() const;
+            get_num_verts_per_facet() const override;
 
             // ----------------------------------------------------------------------------------
 
             uint
-            get_loc_coord_dim() const;
+            get_loc_coord_dim() const override;
 
             // ----------------------------------------------------------------------------------
 
-            moris::Matrix<moris::IndexMat>
-            get_node_to_face_map() const;
+            moris::Matrix< moris::IndexMat >
+            get_node_to_face_map() const override;
 
             // ----------------------------------------------------------------------------------
 
-            moris::Matrix<moris::IndexMat>
-            get_node_to_edge_map() const;
+            moris::Matrix< moris::IndexMat >
+            get_node_to_edge_map() const override;
 
             // ----------------------------------------------------------------------------------
 
-            moris::Matrix<moris::IndexMat>
-            get_node_to_facet_map() const;
+            moris::Matrix< moris::IndexMat >
+            get_node_to_facet_map() const override;
 
             // ----------------------------------------------------------------------------------
 
-            moris::Matrix<moris::IndexMat>
-            get_node_to_face_map(moris::uint aSideOrdinal) const;
+            moris::Matrix< moris::IndexMat >
+            get_node_to_face_map( moris::uint aSideOrdinal ) const override;
 
             // ----------------------------------------------------------------------------------
 
-            moris::Matrix<moris::IndexMat>
-            get_node_to_edge_map(moris::uint aEdgeOrdinal) const;
+            moris::Matrix< moris::IndexMat >
+            get_node_to_edge_map( moris::uint aEdgeOrdinal ) const override;
 
             // ----------------------------------------------------------------------------------
 
-            moris::Matrix<moris::IndexMat>
-            get_node_to_facet_map(moris::uint aSideOrdinal) const;
+            moris::Matrix< moris::IndexMat >
+            get_node_to_facet_map( moris::uint aSideOrdinal ) const override;
 
             // ----------------------------------------------------------------------------------
 
-            moris::Matrix<moris::IndexMat>
-            get_geometric_node_to_facet_map() const;
+            moris::Matrix< moris::IndexMat >
+            get_geometric_node_to_facet_map() const override;
 
             // ----------------------------------------------------------------------------------
 
-            moris::Matrix<moris::IndexMat>
-            get_geometric_node_to_facet_map(moris::uint aSideOrdinal) const;
+            moris::Matrix< moris::IndexMat >
+            get_geometric_node_to_facet_map( moris::uint aSideOrdinal ) const override;
 
             // ----------------------------------------------------------------------------------
 
-            moris::Matrix<moris::IndexMat>
-            get_node_map_outward_normal(moris::uint aSideOrdinal) const;
+            moris::Matrix< moris::IndexMat >
+            get_node_map_outward_normal( moris::uint aSideOrdinal ) const override;
 
             // ----------------------------------------------------------------------------------
 
             moris::uint
-            get_adjacent_side_ordinal(moris::uint aSideOrdinal) const;
+            get_adjacent_side_ordinal( moris::uint aSideOrdinal ) const override;
 
             // ----------------------------------------------------------------------------------
 
-            Vector<moris_index>
+            Vector< moris_index >
             get_vertex_path_to_entity_rank_and_ordinal(
-                moris_index aVertexOrdinal,
-                moris_index aOtherEntityOrdinal,
-                moris_index aOtherEntityRank) const;
+                    moris_index aVertexOrdinal,
+                    moris_index aOtherEntityOrdinal,
+                    moris_index aOtherEntityRank ) const override;
 
             // ----------------------------------------------------------------------------------
 
-            Vector<moris_index>
+            Vector< moris_index >
             get_edge_path_to_entity_rank_and_ordinal(
-                moris_index aEdgeOrdinal,
-                moris_index aOtherEntityOrdinal,
-                moris_index aOtherEntityRank) const;
+                    moris_index aEdgeOrdinal,
+                    moris_index aOtherEntityOrdinal,
+                    moris_index aOtherEntityRank ) const override;
 
             // ----------------------------------------------------------------------------------
 
             bool
             is_entity_connected_to_facet(
-                moris_index aFacetOrdinal,
-                moris_index aOtherEntityOrdinal,
-                moris_index aOtherEntityRank) const;
+                    moris_index aFacetOrdinal,
+                    moris_index aOtherEntityOrdinal,
+                    moris_index aOtherEntityRank ) const override;
 
             // ----------------------------------------------------------------------------------
 
-            Matrix<DDRMat>
-            get_vertex_loc_coord(moris_index const &aVertexOrdinal) const;
+            Matrix< DDRMat >
+            get_vertex_loc_coord( moris_index const &aVertexOrdinal ) const override;
 
             // ----------------------------------------------------------------------------------
 
@@ -159,9 +159,9 @@ namespace moris
              * @param[in] aCell          MTK cell to compute size of.
              *
              * @return return the cell size.
-            */
+             */
             moris::real
-            compute_cell_size_special(moris::mtk::Cell const *aCell) const;
+            compute_cell_size_special( moris::mtk::Cell const *aCell ) const override;
 
             // ----------------------------------------------------------------------------------
 
@@ -170,9 +170,9 @@ namespace moris
              * @param[in] aCell          MTK cell to compute size of.
              *
              * @return return the cell size.
-            */
+             */
             moris::real
-            compute_cell_size_straight(moris::mtk::Cell const *aCell) const;
+            compute_cell_size_straight( moris::mtk::Cell const *aCell ) const override;
 
             // ----------------------------------------------------------------------------------
 
@@ -183,15 +183,15 @@ namespace moris
              * @param[in] aDirection      Direction to take derivative (0,1, or 2).
              *
              * @return return the cell size.
-            */
+             */
             moris::real
-            compute_cell_size_deriv(moris::mtk::Cell const *aCell, uint aLocalVertexID, uint aDirection) const;
+            compute_cell_size_deriv( moris::mtk::Cell const *aCell, uint aLocalVertexID, uint aDirection ) const override;
 
             // ----------------------------------------------------------------------------------
 
             moris::real
-            compute_cell_side_size(moris::mtk::Cell const *aCell,
-                                   moris_index const &aSideOrd) const;
+            compute_cell_side_size( moris::mtk::Cell const *aCell,
+                    moris_index const                      &aSideOrd ) const override;
 
             // ----------------------------------------------------------------------------------
 
@@ -200,16 +200,15 @@ namespace moris
                     moris::mtk::Cell const *aCell,
                     moris_index const      &aSideOrd,
                     uint                    aLocalVertexID,
-                    uint                    aDirection ) const;
+                    uint                    aDirection ) const override;
 
             // ----------------------------------------------------------------------------------
 
             void
-            eval_N(const Matrix<DDRMat> &aXi,
-                   Matrix<DDRMat> &aNXi) const;
+            eval_N( const Matrix< DDRMat > &aXi,
+                    Matrix< DDRMat >       &aNXi ) const override;
         };
-    } // namespace mtk
-} // namespace moris
+    }    // namespace mtk
+}    // namespace moris
 
 #endif /* PROJECTS_MTK_SRC_CL_MTK_QUAD4_CELL_INFO_HPP_ */
-

@@ -27,11 +27,11 @@ namespace moris
 
         // ----------------------------------------------------------------------------------
 
-        Side_Cluster::Side_Cluster(){}
+        Side_Cluster::Side_Cluster() {}
 
         // ----------------------------------------------------------------------------------
 
-        Vector<mtk::Cell const *> const &
+        Vector< mtk::Cell const * > const &
         Side_Cluster::get_primary_cells_in_cluster( const mtk::Leader_Follower aIsLeader ) const
         {
             return this->get_cells_in_side_cluster();
@@ -41,25 +41,25 @@ namespace moris
 
         moris::real
         Side_Cluster::compute_cluster_cell_measure(
-                const mtk::Primary_Void aPrimaryOrVoid,
-                const mtk::Leader_Follower aIsLeader     ) const
+                const mtk::Primary_Void    aPrimaryOrVoid,
+                const mtk::Leader_Follower aIsLeader ) const
         {
             moris::real tVolume = 0.0;
 
-            Vector<moris::mtk::Cell const *> const* tCells = nullptr;
+            Vector< moris::mtk::Cell const * > const *tCells = nullptr;
 
-            if(aPrimaryOrVoid == mtk::Primary_Void::PRIMARY)
+            if ( aPrimaryOrVoid == mtk::Primary_Void::PRIMARY )
             {
                 tCells = &this->get_primary_cells_in_cluster();
             }
             else
             {
-                tCells = & this->get_void_cells_in_cluster();
+                tCells = &this->get_void_cells_in_cluster();
             }
 
-            for(auto iC = tCells->cbegin(); iC < tCells->cend(); iC++)
+            for ( auto iC = tCells->cbegin(); iC < tCells->cend(); iC++ )
             {
-                tVolume += (*iC)->compute_cell_measure();
+                tVolume += ( *iC )->compute_cell_measure();
             }
 
             return tVolume;
@@ -67,27 +67,27 @@ namespace moris
 
         // ----------------------------------------------------------------------------------
 
-        Matrix<DDRMat>
+        Matrix< DDRMat >
         Side_Cluster::compute_cluster_ig_cell_measures(
-                const mtk::Primary_Void  aPrimaryOrVoid,
-                const mtk::Leader_Follower  aIsLeader     ) const
+                const mtk::Primary_Void    aPrimaryOrVoid,
+                const mtk::Leader_Follower aIsLeader ) const
         {
-            Vector<moris::mtk::Cell const *> const* tCells = nullptr;
+            Vector< moris::mtk::Cell const * > const *tCells = nullptr;
 
-            if(aPrimaryOrVoid == mtk::Primary_Void::PRIMARY)
+            if ( aPrimaryOrVoid == mtk::Primary_Void::PRIMARY )
             {
                 tCells = &this->get_primary_cells_in_cluster();
             }
             else
             {
-                tCells = & this->get_void_cells_in_cluster();
+                tCells = &this->get_void_cells_in_cluster();
             }
 
-            Matrix<DDRMat> tMeasureVec(tCells->size(),1);
+            Matrix< DDRMat > tMeasureVec( tCells->size(), 1 );
 
-            for(uint iC = 0; iC < tCells->size(); iC++)
+            for ( uint iC = 0; iC < tCells->size(); iC++ )
             {
-                tMeasureVec(iC) = (*tCells)(iC)->compute_cell_measure();
+                tMeasureVec( iC ) = ( *tCells )( iC )->compute_cell_measure();
             }
 
             return tMeasureVec;
@@ -97,33 +97,34 @@ namespace moris
 
         moris::real
         Side_Cluster::compute_cluster_cell_measure_derivative(
-                const Matrix< DDRMat > & aPerturbedVertexCoords,
-                uint aDirection,
-                const mtk::Primary_Void aPrimaryOrVoid,
+                const Matrix< DDRMat >    &aPerturbedVertexCoords,
+                uint                       aDirection,
+                const mtk::Primary_Void    aPrimaryOrVoid,
                 const mtk::Leader_Follower aIsLeader ) const
         {
             moris::real tDerivative = 0.0;
 
-            Vector<moris::mtk::Cell const *> const* tCells = nullptr;
+            Vector< moris::mtk::Cell const * > const *tCells = nullptr;
 
-            if(aPrimaryOrVoid == mtk::Primary_Void::PRIMARY)
+            if ( aPrimaryOrVoid == mtk::Primary_Void::PRIMARY )
             {
                 tCells = &this->get_primary_cells_in_cluster();
             }
             else
             {
-                tCells = & this->get_void_cells_in_cluster();
+                tCells = &this->get_void_cells_in_cluster();
             }
 
             // loop over the ig cells in cluster
-            for(auto iC = tCells->cbegin(); iC < tCells->cend(); iC++)
+            for ( auto iC = tCells->cbegin(); iC < tCells->cend(); iC++ )
             {
                 // get the cell coordinates
                 Matrix< DDRMat > tCellCoords =
-                        (*iC)->get_vertex_coords();;
+                        ( *iC )->get_vertex_coords();
+                ;
 
                 // check if this cell in cluster is affected by the perturbed node
-                uint tNumNodesInCell = tCellCoords.n_rows(); // number of nodes in this cell
+                uint tNumNodesInCell = tCellCoords.n_rows();    // number of nodes in this cell
 
                 // FIXME could be done with node index
                 // check if this cell in cluster is affected by the perturbed node
@@ -134,13 +135,13 @@ namespace moris
                 uint tLocalVertexID = UINT_MAX;
 
                 // loop over the nodes of the cell
-                for( uint iCellNode = 0; iCellNode < tNumNodesInCell; iCellNode++ )
+                for ( uint iCellNode = 0; iCellNode < tNumNodesInCell; iCellNode++ )
                 {
                     // check if perturbed cluster node affects this cell by using the distance between two nodes
                     tIsAffected = tIsAffected || ( moris::norm( aPerturbedVertexCoords - tCellCoords.get_row( iCellNode ) ) < 1e-12 );
 
                     // if the cell is affected by perturbed cluster node
-                    if( tIsAffected == true )
+                    if ( tIsAffected == true )
                     {
                         // get cell local node index
                         tLocalVertexID = iCellNode;
@@ -151,10 +152,10 @@ namespace moris
                 }
 
                 // if the cell is affected by perturbed cluster node
-                if( tIsAffected == true )
+                if ( tIsAffected == true )
                 {
                     // add contribution from the cell to the cluster side measure
-                    tDerivative += (*iC)->compute_cell_measure_deriv(
+                    tDerivative += ( *iC )->compute_cell_measure_deriv(
                             tLocalVertexID,
                             aDirection );
                 }
@@ -167,21 +168,21 @@ namespace moris
 
         moris::real
         Side_Cluster::compute_cluster_cell_side_measure(
-                const mtk::Primary_Void aPrimaryOrVoid,
-                const mtk::Leader_Follower aIsLeader     ) const
+                const mtk::Primary_Void    aPrimaryOrVoid,
+                const mtk::Leader_Follower aIsLeader ) const
         {
-            MORIS_ASSERT(aPrimaryOrVoid == mtk::Primary_Void::PRIMARY,
-                    "Side cluster only operates on primary cells.");
+            MORIS_ASSERT( aPrimaryOrVoid == mtk::Primary_Void::PRIMARY,
+                    "Side cluster only operates on primary cells." );
 
             moris::real tMeasure = 0.0;
 
-            Vector<mtk::Cell const *> const & tCells = this->get_primary_cells_in_cluster();
+            Vector< mtk::Cell const * > const &tCells = this->get_primary_cells_in_cluster();
 
-            moris::Matrix<IndexMat> tSideOrds = this->get_cell_side_ordinals(aIsLeader);
+            moris::Matrix< IndexMat > tSideOrds = this->get_cell_side_ordinals( aIsLeader );
 
-            for(moris::uint iC = 0 ; iC < tCells.size(); iC++)
+            for ( moris::uint iC = 0; iC < tCells.size(); iC++ )
             {
-                tMeasure += tCells(iC)->compute_cell_side_measure(tSideOrds(iC));
+                tMeasure += tCells( iC )->compute_cell_side_measure( tSideOrds( iC ) );
             }
 
             return tMeasure;
@@ -189,23 +190,23 @@ namespace moris
 
         // ----------------------------------------------------------------------------------
 
-        Matrix<DDRMat>
+        Matrix< DDRMat >
         Side_Cluster::compute_cluster_ig_cell_side_measures(
-                const mtk::Primary_Void aPrimaryOrVoid,
-                const mtk::Leader_Follower aIsLeader     ) const
+                const mtk::Primary_Void    aPrimaryOrVoid,
+                const mtk::Leader_Follower aIsLeader ) const
         {
-            MORIS_ASSERT(aPrimaryOrVoid == mtk::Primary_Void::PRIMARY,
-                    "Side cluster only operates on primary cells.");
+            MORIS_ASSERT( aPrimaryOrVoid == mtk::Primary_Void::PRIMARY,
+                    "Side cluster only operates on primary cells." );
 
-            Vector<mtk::Cell const *> const & tCells = this->get_primary_cells_in_cluster();
+            Vector< mtk::Cell const * > const &tCells = this->get_primary_cells_in_cluster();
 
-            Matrix<DDRMat> tMeasureVec(tCells.size(),1);
+            Matrix< DDRMat > tMeasureVec( tCells.size(), 1 );
 
-            moris::Matrix<IndexMat> tSideOrds = this->get_cell_side_ordinals(aIsLeader);
+            moris::Matrix< IndexMat > tSideOrds = this->get_cell_side_ordinals( aIsLeader );
 
-            for(moris::uint iC = 0 ; iC < tCells.size(); iC++)
+            for ( moris::uint iC = 0; iC < tCells.size(); iC++ )
             {
-                tMeasureVec(iC) = tCells(iC)->compute_cell_side_measure(tSideOrds(iC));
+                tMeasureVec( iC ) = tCells( iC )->compute_cell_side_measure( tSideOrds( iC ) );
             }
 
             return tMeasureVec;
@@ -215,26 +216,26 @@ namespace moris
 
         moris::real
         Side_Cluster::compute_cluster_cell_side_measure_derivative(
-                const Matrix< DDRMat > & aPerturbedVertexCoords,
-                uint aDirection,
-                const mtk::Primary_Void aPrimaryOrVoid,
+                const Matrix< DDRMat >    &aPerturbedVertexCoords,
+                uint                       aDirection,
+                const mtk::Primary_Void    aPrimaryOrVoid,
                 const mtk::Leader_Follower aIsLeader ) const
         {
             moris::real tDerivative = 0.0;
 
-            Vector<mtk::Cell const *> const & tCells = this->get_primary_cells_in_cluster();
+            Vector< mtk::Cell const * > const &tCells = this->get_primary_cells_in_cluster();
 
-            moris::Matrix<IndexMat> tSideOrds = this->get_cell_side_ordinals(aIsLeader);
+            moris::Matrix< IndexMat > tSideOrds = this->get_cell_side_ordinals( aIsLeader );
 
             // loop over the ig cells in cluster
-            for( moris::uint iC = 0 ; iC < tCells.size(); iC++ )
+            for ( moris::uint iC = 0; iC < tCells.size(); iC++ )
             {
                 // get the cell coordinates
                 Matrix< DDRMat > tCellCoords =
-                        tCells( iC )->get_cell_physical_coords_on_side_ordinal(tSideOrds(iC));
+                        tCells( iC )->get_cell_physical_coords_on_side_ordinal( tSideOrds( iC ) );
 
                 // check if this cell in cluster is affected by the perturbed node
-                uint tNumNodesInCell = tCellCoords.n_rows(); // number of nodes in this cell
+                uint tNumNodesInCell = tCellCoords.n_rows();    // number of nodes in this cell
 
                 // FIXME could be done with node index
                 // check if this cell in cluster is affected by the perturbed node
@@ -245,13 +246,13 @@ namespace moris
                 uint tLocalVertexID = UINT_MAX;
 
                 // loop over the nodes of the cell
-                for( uint iCellNode = 0; iCellNode < tNumNodesInCell; iCellNode++ )
+                for ( uint iCellNode = 0; iCellNode < tNumNodesInCell; iCellNode++ )
                 {
                     // check if perturbed cluster node affects this cell by using the distance between two nodes
                     tIsAffected = tIsAffected || ( moris::norm( aPerturbedVertexCoords - tCellCoords.get_row( iCellNode ) ) < 1e-12 );
 
                     // if the cell is affected by perturbed cluster node
-                    if( tIsAffected == true )
+                    if ( tIsAffected == true )
                     {
                         // get cell local node index
                         tLocalVertexID = iCellNode;
@@ -262,13 +263,13 @@ namespace moris
                 }
 
                 // if the cell is affected by perturbed cluster node
-                if( tIsAffected == true )
+                if ( tIsAffected == true )
                 {
                     // add contribution from the cell to the cluster side measure
                     tDerivative += tCells( iC )->compute_cell_side_measure_deriv(
-                                    tSideOrds( iC ),
-                                    tLocalVertexID,
-                                    aDirection );
+                            tSideOrds( iC ),
+                            tLocalVertexID,
+                            aDirection );
                 }
             }
 
@@ -277,22 +278,22 @@ namespace moris
 
         // ----------------------------------------------------------------------------------
 
-        moris::Matrix<moris::IndexMat>
+        moris::Matrix< moris::IndexMat >
         Side_Cluster::get_cell_indices_in_cluster() const
         {
             // number of cells in cluster
             moris::uint tNumCells = this->get_num_sides_in_cluster();
 
             // cell access
-            Vector<moris::mtk::Cell const *> const & tCells = this->get_cells_in_side_cluster();
+            Vector< moris::mtk::Cell const * > const &tCells = this->get_cells_in_side_cluster();
 
             // initialize output
-            moris::Matrix<moris::IndexMat> tCellIndices(1,tNumCells);
+            moris::Matrix< moris::IndexMat > tCellIndices( 1, tNumCells );
 
             // get cell indices and store
-            for(moris::uint i = 0 ; i < tNumCells; i++)
+            for ( moris::uint i = 0; i < tNumCells; i++ )
             {
-                tCellIndices(i) = tCells(i)->get_index();
+                tCellIndices( i ) = tCells( i )->get_index();
             }
 
             return tCellIndices;
@@ -300,7 +301,7 @@ namespace moris
 
         // ----------------------------------------------------------------------------------
 
-        moris::Matrix<moris::IndexMat>
+        moris::Matrix< moris::IndexMat >
         Side_Cluster::get_primary_cell_indices_in_cluster() const
         {
             return this->get_cell_indices_in_cluster();
@@ -316,22 +317,22 @@ namespace moris
 
         // ----------------------------------------------------------------------------------
 
-        moris::Matrix<moris::IndexMat>
-        Side_Cluster::get_vertex_indices_in_cluster( mtk::Leader_Follower aLeaderFollower) const
+        moris::Matrix< moris::IndexMat >
+        Side_Cluster::get_vertex_indices_in_cluster( mtk::Leader_Follower aLeaderFollower ) const
         {
             // number of cells in cluster
             moris::uint tNumVertices = this->get_num_vertices_in_cluster();
 
             // cell access
-            Vector<moris::mtk::Vertex const *> tVertices = this->get_vertices_in_cluster();
+            Vector< moris::mtk::Vertex const * > tVertices = this->get_vertices_in_cluster();
 
             // initialize output
-            moris::Matrix<moris::IndexMat> tVertexIndices(1,tNumVertices);
+            moris::Matrix< moris::IndexMat > tVertexIndices( 1, tNumVertices );
 
             // get cell indices and store
-            for(moris::uint i = 0 ; i < tNumVertices; i++)
+            for ( moris::uint i = 0; i < tNumVertices; i++ )
             {
-                tVertexIndices(i) = tVertices(i)->get_index();
+                tVertexIndices( i ) = tVertices( i )->get_index();
             }
 
             return tVertexIndices;
@@ -339,22 +340,22 @@ namespace moris
 
         // ----------------------------------------------------------------------------------
 
-        moris::Matrix<moris::IdMat>
+        moris::Matrix< moris::IdMat >
         Side_Cluster::get_cell_ids_in_cluster() const
         {
             // number of cells in cluster
             moris::uint tNumCells = this->get_num_sides_in_cluster();
 
             // cell access
-            Vector<moris::mtk::Cell const *> const & tCells = this->get_cells_in_side_cluster();
+            Vector< moris::mtk::Cell const * > const &tCells = this->get_cells_in_side_cluster();
 
             // initialize output
-            moris::Matrix<moris::IdMat> tCellIds(1,tNumCells);
+            moris::Matrix< moris::IdMat > tCellIds( 1, tNumCells );
 
             // get cell indices and store
-            for(moris::uint i = 0 ; i < tNumCells; i++)
+            for ( moris::uint i = 0; i < tNumCells; i++ )
             {
-                tCellIds(i) = tCells(i)->get_id();
+                tCellIds( i ) = tCells( i )->get_id();
             }
 
             return tCellIds;
@@ -362,7 +363,7 @@ namespace moris
 
         // ----------------------------------------------------------------------------------
 
-        moris::Matrix<moris::IdMat>
+        moris::Matrix< moris::IdMat >
         Side_Cluster::get_primary_cell_ids_in_cluster() const
         {
             return this->get_cell_ids_in_cluster();
@@ -370,22 +371,22 @@ namespace moris
 
         // ----------------------------------------------------------------------------------
 
-        moris::Matrix<moris::IndexMat>
+        moris::Matrix< moris::IndexMat >
         Side_Cluster::get_vertex_ids_in_cluster() const
         {
             // number of cells in cluster
             moris::uint tNumVertices = this->get_num_vertices_in_cluster();
 
             // cell access
-            Vector<moris::mtk::Vertex const *> tVertices = this->get_vertices_in_cluster();
+            Vector< moris::mtk::Vertex const * > tVertices = this->get_vertices_in_cluster();
 
             // initialize output
-            moris::Matrix<moris::IndexMat> tVertexIds(1,tNumVertices);
+            moris::Matrix< moris::IndexMat > tVertexIds( 1, tNumVertices );
 
             // get cell indices and store
-            for(moris::uint i = 0 ; i < tNumVertices; i++)
+            for ( moris::uint i = 0; i < tNumVertices; i++ )
             {
-                tVertexIds(i) = tVertices(i)->get_id();
+                tVertexIds( i ) = tVertices( i )->get_id();
             }
 
             return tVertexIds;
@@ -393,35 +394,35 @@ namespace moris
 
         // ----------------------------------------------------------------------------------
 
-        moris::Matrix<moris::DDRMat>
+        moris::Matrix< moris::DDRMat >
         Side_Cluster::get_cell_local_coords_on_side_wrt_interp_cell(
-                moris::moris_index      aClusterLocalIndex,
+                moris::moris_index         aClusterLocalIndex,
                 const mtk::Leader_Follower aIsLeader ) const
         {
-            MORIS_ASSERT(aClusterLocalIndex < (moris_index)this->get_num_sides_in_cluster(),
-                    "Integration Cell Cluster index out of bounds");
+            MORIS_ASSERT( aClusterLocalIndex < (moris_index)this->get_num_sides_in_cluster(),
+                    "Integration Cell Cluster index out of bounds" );
 
             // get side ordinal of interest
-            moris_index tSideOrdinal = this->get_cell_side_ordinal(aClusterLocalIndex);
+            moris_index tSideOrdinal = this->get_cell_side_ordinal( aClusterLocalIndex );
 
             // get the integration cell of interest
-            moris::mtk::Cell const * tIntegrationCell =
-                    this->get_cells_in_side_cluster()(aClusterLocalIndex);
+            moris::mtk::Cell const *tIntegrationCell =
+                    this->get_cells_in_side_cluster()( aClusterLocalIndex );
 
             // get the vertex pointers on the side
-            Vector<moris::mtk::Vertex const *> tVerticesOnSide =
-                    tIntegrationCell->get_vertices_on_side_ordinal(tSideOrdinal);
+            Vector< moris::mtk::Vertex const * > tVerticesOnSide =
+                    tIntegrationCell->get_vertices_on_side_ordinal( tSideOrdinal );
 
             // allocate output (nnode x dim_xsi)
-            moris::Matrix<moris::DDRMat> tVertexParamCoords(
+            moris::Matrix< moris::DDRMat > tVertexParamCoords(
                     tVerticesOnSide.size(),
-                    this->get_dim_of_param_coord());
+                    this->get_dim_of_param_coord() );
 
             // iterate through vertices and collect local coordinates
-            for(moris::uint i = 0; i < tVerticesOnSide.size(); i++)
+            for ( moris::uint i = 0; i < tVerticesOnSide.size(); i++ )
             {
-                tVertexParamCoords.get_row(i) =
-                        this->get_vertex_local_coordinate_wrt_interp_cell(tVerticesOnSide(i)).get_row(0);
+                tVertexParamCoords.get_row( i ) =
+                        this->get_vertex_local_coordinate_wrt_interp_cell( tVerticesOnSide( i ) ).get_row( 0 );
             }
 
             return tVertexParamCoords;
@@ -429,12 +430,12 @@ namespace moris
 
         // ----------------------------------------------------------------------------------
 
-        moris::Matrix<moris::DDRMat>
+        moris::Matrix< moris::DDRMat >
         Side_Cluster::get_primary_cell_local_coords_on_side_wrt_interp_cell(
-                moris::moris_index      aPrimaryCellClusterIndex,
+                moris::moris_index         aPrimaryCellClusterIndex,
                 const mtk::Leader_Follower aIsLeader ) const
         {
-            return this ->get_cell_local_coords_on_side_wrt_interp_cell( aPrimaryCellClusterIndex );
+            return this->get_cell_local_coords_on_side_wrt_interp_cell( aPrimaryCellClusterIndex );
         }
 
         // ----------------------------------------------------------------------------------
@@ -463,28 +464,27 @@ namespace moris
 
         // ----------------------------------------------------------------------------------
 
-        moris::Matrix<moris::DDRMat>
+        moris::Matrix< moris::DDRMat >
         Side_Cluster::get_vertex_coords_in_cluster() const
         {
             // number of cells in cluster
             moris::uint tNumVertices = this->get_num_vertices_in_cluster();
 
             // cell access
-            Vector<moris::mtk::Vertex const *> tVertices = this->get_vertices_in_cluster();
+            Vector< moris::mtk::Vertex const * > tVertices = this->get_vertices_in_cluster();
 
             // initialize output
-            moris::Matrix<moris::DDRMat> tVertexCoords(tNumVertices,this->get_dim_of_param_coord());
+            moris::Matrix< moris::DDRMat > tVertexCoords( tNumVertices, this->get_dim_of_param_coord() );
 
             // get cell indices and store
-            for(moris::uint i = 0 ; i < tNumVertices; i++)
+            for ( moris::uint i = 0; i < tNumVertices; i++ )
             {
-                tVertexCoords.get_row(i) = tVertices(i)->get_coords().get_row(0);
+                tVertexCoords.get_row( i ) = tVertices( i )->get_coords().get_row( 0 );
             }
 
             return tVertexCoords;
         }
 
         // ----------------------------------------------------------------------------------
-    }
-}
-
+    }    // namespace mtk
+}    // namespace moris

@@ -40,7 +40,6 @@ namespace moris::mtk
         //------------------------------------------------------------------------------
 
       private:
-
         //------------------------------------------------------------------------------
 
         // pointer to the mtk mesh which is written to EXODUS
@@ -94,7 +93,6 @@ namespace moris::mtk
         //------------------------------------------------------------------------------
 
       public:
-
         //------------------------------------------------------------------------------
         /**
          * Constructor
@@ -308,13 +306,12 @@ namespace moris::mtk
          *  @param aVariableValues vector of values of the global variables
          */
         void write_global_variables(
-                Vector< std::string >& aVariableNames,
-                const Matrix< DDRMat >&     aVariableValues );
+                Vector< std::string >&  aVariableNames,
+                const Matrix< DDRMat >& aVariableValues );
 
         //------------------------------------------------------------------------------
 
       private:
-
         //------------------------------------------------------------------------------
         /**
          * Creates an Exodus database at the given file path and string
@@ -423,4 +420,4 @@ namespace moris::mtk
 
     //------------------------------------------------------------------------------
 
-}
+}    // namespace moris::mtk

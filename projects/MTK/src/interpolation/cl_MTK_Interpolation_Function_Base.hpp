@@ -167,4 +167,3 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_MTK_CL_MTK_INTERPOLATION_FUNCTION_BASE_HPP_ */
-

@@ -32,23 +32,29 @@ namespace moris::mtk
 
     Integration_Mesh::~Integration_Mesh()
     {
-        for ( auto tListofBlocks : mListOfBlocks )
+        for ( auto tBlockSet : mListOfBlocks )
         {
-            delete tListofBlocks;
+            delete tBlockSet;
         }
         mListOfBlocks.clear();
 
-        for ( auto tListofSideSets : mListOfSideSets )
+        for ( auto tSideSet : mListOfSideSets )
         {
-            delete tListofSideSets;
+            delete tSideSet;
         }
         mListOfSideSets.clear();
 
-        for ( auto tListofDoubleSideSets : mListOfDoubleSideSets )
+        for ( auto tDoubleSideSet : mListOfDoubleSideSets )
         {
-            delete tListofDoubleSideSets;
+            delete tDoubleSideSet;
         }
         mListOfDoubleSideSets.clear();
+
+        for ( auto tNonconformalSideSet : mListOfNonconformalSideSets )
+        {
+            delete tNonconformalSideSet;
+        }
+        mListOfNonconformalSideSets.clear();
 
         for ( auto p : mDoubleSideClusters )
         {
@@ -80,6 +86,11 @@ namespace moris::mtk
     moris::mtk::Set *
     Integration_Mesh::get_set_by_name( std::string aSetLabel ) const
     {
+        if ( !mSetNameToIndexMap.key_exists( aSetLabel ) )
+        {
+            MORIS_ERROR( false, "Integration_Mesh::get_set_by_name - Set with name does not exists: %s", aSetLabel.c_str() );
+        }
+
         moris_index tSetIndex = mSetNameToIndexMap.find( aSetLabel );
 
         return mListOfAllSets( tSetIndex );
@@ -119,7 +130,7 @@ namespace moris::mtk
 
     void
     Integration_Mesh::get_block_set_names_with_color(
-            moris_index const          &aColor,
+            moris_index const     &aColor,
             Vector< std::string > &aSetNames )
     {
         MORIS_ASSERT( aColor <= mMaxColor, "Color above maximum color value" );
@@ -152,7 +163,6 @@ namespace moris::mtk
 
     // ----------------------------------------------------------------------------
 
-
     Vector< moris::mtk::Set * > const &
     Integration_Mesh::get_all_sets_with_color( moris_index const &aColor )
     {
@@ -161,6 +171,7 @@ namespace moris::mtk
     }
 
     // ----------------------------------------------------------------------------
+
     void
     Integration_Mesh::print_sets_by_colors()
     {
@@ -186,6 +197,7 @@ namespace moris::mtk
             }
         }
     }
+
     // ----------------------------------------------------------------------------
 
     std::string
@@ -237,7 +249,6 @@ namespace moris::mtk
         return 0;
     }
 
-
     // ----------------------------------------------------------------------------
 
     void
@@ -260,32 +271,24 @@ namespace moris::mtk
         mSetNameToIndexMap.clear();
 
         // reserve enough space
-        mListOfAllSets.reserve( mListOfBlocks.size() + mListOfSideSets.size() + mListOfDoubleSideSets.size() );
-
-        uint tCounter = 0;
+        uint tNumSets = mListOfBlocks.size() + mListOfSideSets.size() + mListOfDoubleSideSets.size() + mListOfNonconformalSideSets.size();
+        mListOfAllSets.reserve( tNumSets );
 
         // Append block sets to list of all sets
-        std::copy(
-                mListOfBlocks.begin(),
-                mListOfBlocks.end(),
-                std::back_inserter( mListOfAllSets ) );
+        std::copy( mListOfBlocks.begin(), mListOfBlocks.end(), std::back_inserter( mListOfAllSets ) );
 
         // Append side sets to list of all sets
-        std::copy(
-                mListOfSideSets.begin(),
-                mListOfSideSets.end(),
-                std::back_inserter( mListOfAllSets ) );
-
-        // FIXME implement cell topology for side set
+        std::copy( mListOfSideSets.begin(), mListOfSideSets.end(), std::back_inserter( mListOfAllSets ) );
 
         // Append double side sets to list of all sets
-        std::copy(
-                mListOfDoubleSideSets.begin(),
-                mListOfDoubleSideSets.end(),
-                std::back_inserter( mListOfAllSets ) );
+        std::copy( mListOfDoubleSideSets.begin(), mListOfDoubleSideSets.end(), std::back_inserter( mListOfAllSets ) );
 
+        // Append nonconformal side sets to list of all sets
+        std::copy( mListOfNonconformalSideSets.begin(), mListOfNonconformalSideSets.end(), std::back_inserter( mListOfAllSets ) );
 
         // iterate through all sets and register their index in the map
+        uint tCounter = 0;
+
         for ( moris_index Ik = 0; Ik < static_cast< moris_index >( mListOfAllSets.size() ); Ik++ )
         {
             mListOfAllSets( Ik )->set_set_index( Ik );
@@ -329,19 +332,44 @@ namespace moris::mtk
                 mListOfAllSets( tCounter )->set_IG_cell_shape( CellShape::STRAIGHT );
                 mListOfAllSets( tCounter++ )->set_IP_cell_shape( CellShape::STRAIGHT );
             }
+
+            // add the cell topology to the set
+            for ( uint Ik = 0; Ik < mListOfNonconformalSideSets.size(); Ik++ )
+            {
+                std::string tSetName = mListOfAllSets( tCounter )->get_set_name();
+
+                // set the sideset cell topology and shape
+                mListOfAllSets( tCounter )->set_IG_cell_shape( CellShape::STRAIGHT );
+                mListOfAllSets( tCounter++ )->set_IP_cell_shape( CellShape::STRAIGHT );
+            }
         }
 
         // setup color to set data
-        this->setup_set_to_color();
+        this->collect_color_to_set_info();
     }
 
     // ----------------------------------------------------------------------------
+
     void
-    Integration_Mesh::setup_set_to_color()
+    Integration_Mesh::collect_color_to_set_info()
+    {
+        this->determine_max_color();
+
+        this->populate_color_to_set_list( mListOfBlocks, mColorToBlockSet );
+        this->populate_color_to_set_list( mListOfSideSets, mColorToSideSet );
+        this->populate_color_to_set_list( mListOfDoubleSideSets, mColorToDoubleSideSet );
+        this->populate_color_to_set_list( mListOfNonconformalSideSets, mColorToNonconformalSideSet );
+        this->populate_color_to_set_list( mListOfAllSets, mColorToAllSets );
+    }
+
+    // ----------------------------------------------------------------------------
+
+    void Integration_Mesh::determine_max_color()
     {
         // determine maximum color for the sets (for data sizing)
         mMaxColor = 0;
-        for ( moris::uint i = 0; i < mListOfAllSets.size(); i++ )
+
+        for ( uint i = 0; i < mListOfAllSets.size(); i++ )
         {
             Matrix< IndexMat > const &tSetColors = mListOfAllSets( i )->get_set_colors();
 
@@ -356,60 +384,10 @@ namespace moris::mtk
                 }
             }
         }
-
-        // clear old data
-        mColorToBlockSet.clear();
-        mColorToSideSet.clear();
-        mColorToDoubleSideSet.clear();
-        mColorToAllSets.clear();
-
-        // size outer cell size of member data
-        mColorToBlockSet.resize( mMaxColor + 1 );
-        mColorToSideSet.resize( mMaxColor + 1 );
-        mColorToDoubleSideSet.resize( mMaxColor + 1 );
-        mColorToAllSets.resize( mMaxColor + 1 );
-
-        // iterate through block sets
-        for ( moris::uint i = 0; i < mListOfBlocks.size(); i++ )
-        {
-            Matrix< IndexMat > const &tSetColors = mListOfBlocks( i )->get_set_colors();
-
-            // iterate through the colors and add to related color grouping
-            for ( moris::uint j = 0; j < tSetColors.numel(); j++ )
-            {
-                mColorToBlockSet( tSetColors( j ) ).push_back( mListOfBlocks( i ) );
-                mColorToAllSets( tSetColors( j ) ).push_back( mListOfBlocks( i ) );
-            }
-        }
-
-        // iterate through side sets
-        for ( moris::uint i = 0; i < mListOfSideSets.size(); i++ )
-        {
-            Matrix< IndexMat > const &tSetColors = mListOfSideSets( i )->get_set_colors();
-
-            // iterate through the colors and add to related color grouping
-            for ( moris::uint j = 0; j < tSetColors.numel(); j++ )
-            {
-                mColorToSideSet( tSetColors( j ) ).push_back( mListOfSideSets( i ) );
-                mColorToAllSets( tSetColors( j ) ).push_back( mListOfSideSets( i ) );
-            }
-        }
-
-        // iterate through double side sets
-        for ( moris::uint i = 0; i < mListOfDoubleSideSets.size(); i++ )
-        {
-            Matrix< IndexMat > const &tSetColors = mListOfDoubleSideSets( i )->get_set_colors();
-
-            // iterate through the colors and add to related color grouping
-            for ( moris::uint j = 0; j < tSetColors.numel(); j++ )
-            {
-                mColorToDoubleSideSet( tSetColors( j ) ).push_back( mListOfDoubleSideSets( i ) );
-                mColorToAllSets( tSetColors( j ) ).push_back( mListOfDoubleSideSets( i ) );
-            }
-        }
     }
 
     // ----------------------------------------------------------------------------
+
     void
     Integration_Mesh::add_double_sided_cluster( mtk::Double_Side_Cluster *aDblSidedCluster )
     {
@@ -429,8 +407,8 @@ namespace moris::mtk
 
         Matrix< IdMat > tIdentifierMat( tNumVertices, 1, -1 );
 
-        Matrix< IdMat >                 tBSToIPMap( this->get_num_basis_functions( 0 ), 1, gNoID );
-        Matrix< IdMat >                 tIPToIGMap( tNumVertices, 1, gNoID );
+        Matrix< IdMat >            tBSToIPMap( this->get_num_basis_functions( 0 ), 1, gNoID );
+        Matrix< IdMat >            tIPToIGMap( tNumVertices, 1, gNoID );
         Vector< Matrix< IdMat > >  tBSToIPIds( tNumVertices );
         Vector< Matrix< DDRMat > > tBSToIPWeights( tNumVertices );
 
@@ -480,7 +458,6 @@ namespace moris::mtk
 
                     Matrix< IdMat > tIdMat( tIGVertices.size(), 1, 0 );
 
-
                     for ( uint Iv = 0; Iv < tIPVertices.size(); Iv++ )
                     {
                         if ( tIPVertices( Iv )->get_interpolation( 0 )->get_ids().numel() > 1 )
@@ -501,7 +478,6 @@ namespace moris::mtk
                             tHangingNodeIdentifier( tHangingNodeIndices( Iv ) ) = 1;
                         }
                     }
-
 
                     // epsilon to count T-Matrix
                     real tEpsilon = 1e-12;
@@ -706,8 +682,8 @@ namespace moris::mtk
     Integration_Mesh::build_hanging_node_MPC(
             Vector< Matrix< IdMat > >  &tBSToIPIds,
             Vector< Matrix< DDRMat > > &tBSToIPWeights,
-            const Matrix< IdMat >           &tBSToIPMap,
-            const Matrix< IdMat >           &tIPToIGMap )
+            const Matrix< IdMat >      &tBSToIPMap,
+            const Matrix< IdMat >      &tIPToIGMap )
     {
         // loop over all bulk sets
         for ( uint Ik = 0; Ik < this->get_num_blocks(); Ik++ )
@@ -753,74 +729,32 @@ namespace moris::mtk
         }
     }
 
+    // ----------------------------------------------------------------------------
+
     Vector< moris::mtk::Block_Set * > const &Integration_Mesh::get_block_sets() const
     {
         return mListOfBlocks;
     }
 
+    // ----------------------------------------------------------------------------
 
     Vector< moris::mtk::Side_Set * > const &Integration_Mesh::get_side_sets() const
     {
         return mListOfSideSets;
     }
 
+    // ----------------------------------------------------------------------------
+
     Vector< moris::mtk::Double_Side_Set * > const &Integration_Mesh::get_double_side_sets() const
     {
         return mListOfDoubleSideSets;
     }
 
+    // ----------------------------------------------------------------------------
+
     Vector< moris::mtk::Set * > const &Integration_Mesh::get_sets() const
     {
         return mListOfAllSets;
-    }
-
-    Vector< moris::mtk::Set * > const &
-    Integration_Mesh::get_list_of_sets( SetType aSetType ) const
-    {
-        // Determine the set type
-        switch ( aSetType )
-        {
-            // Bulk sets
-            case SetType::BULK:
-            {
-                MORIS_LOG_WARNING(
-                        "You are using the deprecated function Integration_Mesh::get_sets( SetType::BULK )"
-                        "Consider using get_block_sets() instead" );
-                return (Vector< Set * > const &)this->get_block_sets();
-            }
-
-            // Side Sets
-            case SetType::SIDESET:
-            {
-                MORIS_LOG_WARNING(
-                        "You are using the deprecated function Integration_Mesh::get_sets( SetType::SIDESET )"
-                        "Consider using get_side_sets() instead" );
-                return (Vector< Set * > const &)this->get_side_sets();
-            }
-
-            // Double Sided Sets
-            case SetType::DOUBLE_SIDED_SIDESET:
-            {
-                MORIS_LOG_WARNING(
-                        "You are using the deprecated function Integration_Mesh::get_sets( SetType::DOUBLE_SIDED_SIDESET )"
-                        "Consider using get_double_side_sets() instead" );
-                return (Vector< Set * > const &)this->get_double_side_sets();
-            }
-
-            // All sets
-            case SetType::UNDEFINED:
-            {
-                return mListOfAllSets;
-            }
-
-            // Incorrect Input
-            default:
-            {
-                MORIS_ERROR( 0, "Incorrect aSetType" );
-                auto *tDummyCell = new Vector< moris::mtk::Set * >( 0 );
-                return *tDummyCell;
-            }
-        }
     }
 
     // ----------------------------------------------------------------------------
@@ -831,6 +765,7 @@ namespace moris::mtk
         return mColorToBlockSet;
     }
 
+    // ----------------------------------------------------------------------------
 
     Vector< Vector< moris::mtk::Side_Set * > > const &
     Integration_Mesh::get_color_to_side_sets() const
@@ -838,11 +773,15 @@ namespace moris::mtk
         return mColorToSideSet;
     }
 
+    // ----------------------------------------------------------------------------
+
     Vector< Vector< moris::mtk::Double_Side_Set * > > const &
     Integration_Mesh::get_color_to_double_side_sets() const
     {
         return mColorToDoubleSideSet;
     }
+
+    // ----------------------------------------------------------------------------
 
     Vector< Vector< moris::mtk::Set * > > const &
     Integration_Mesh::get_color_to_sets() const

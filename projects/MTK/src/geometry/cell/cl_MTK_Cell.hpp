@@ -48,7 +48,7 @@ namespace moris
             moris_id mCellId;
             moris_id mCellIndex;
             moris_id mCellOwner;
-            
+
             //------------------------------------------------------------------------------
 
           public:
@@ -417,10 +417,10 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-        }; // class mtk::Cell
+        };    // class mtk::Cell
 
         //------------------------------------------------------------------------------
-        
+
         // operators for printing
         inline std::ostream &
         operator<<( std::ostream &os, const mtk::Cell &dt )
@@ -431,7 +431,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        
+
         inline std::ostream &
         operator<<( std::ostream &os, mtk::Cell const *const &dt )
         {

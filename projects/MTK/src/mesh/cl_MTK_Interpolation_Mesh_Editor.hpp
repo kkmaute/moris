@@ -23,10 +23,10 @@ namespace moris::mtk
     struct Interpolation_Mesh_Info
     {
         // mMTK mesh vertices which is being copied here for convience
-        Vector< mtk::Vertex const* > mVertices;
+        Vector< mtk::Vertex const * > mVertices;
 
         // they are stored consecutively for each vertex
-        Vector< mtk::Vertex_Interpolation const* > mVertexInterpolations;
+        Vector< mtk::Vertex_Interpolation const * > mVertexInterpolations;
 
         // cell to vertex connectivity for lagrange cells
         Vector< moris_index > mCellToVertexIndicies;
@@ -39,7 +39,7 @@ namespace moris::mtk
 
         uint mNumLocalInterpolations;
     };
-}// namespace moris::mtk
+}    // namespace moris::mtk
 
 namespace moris::mtk
 {
@@ -203,57 +203,57 @@ namespace moris::mtk
         void
         create_adof_map();
 
-          ////////----------------------------------------------------------------------------
-            // Checking and debugging functions
-            ////////----------------------------------------------------------------------------
+        ////////----------------------------------------------------------------------------
+        // Checking and debugging functions
+        ////////----------------------------------------------------------------------------
 
-            // ----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------
 
-            /**
-             * @brief check the maps are equal
-             *
-             */
+        /**
+         * @brief check the maps are equal
+         *
+         */
 
-            bool
-            check_maps();
+        bool
+        check_maps();
 
-            // ----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------
 
-            /**
-             * @brief check the vertices are equal
-             *
-             */
+        /**
+         * @brief check the vertices are equal
+         *
+         */
 
-            bool
-            check_vertices();
+        bool
+        check_vertices();
 
-            // ----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------
 
-            /**
-             * @brief check the t-matrices are equal
-             *
-             */
+        /**
+         * @brief check the t-matrices are equal
+         *
+         */
 
-            bool
-            check_t_matrices();
+        bool
+        check_t_matrices();
 
-            // ----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------
 
-            /**
-             * @brief check the cell are equal
-             *
-             */
+        /**
+         * @brief check the cell are equal
+         *
+         */
 
-            bool
-            check_cells();
+        bool
+        check_cells();
 
-            // ----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------
 
-            /**
-             * @brief checks the vertices, cells and t-matrices
-             *
-             */
-            void
-            check_input_output_mesh();
+        /**
+         * @brief checks the vertices, cells and t-matrices
+         *
+         */
+        void
+        check_input_output_mesh();
     };
-}// namespace moris::mtk
+}    // namespace moris::mtk

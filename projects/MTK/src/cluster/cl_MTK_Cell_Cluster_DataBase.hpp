@@ -53,7 +53,6 @@ namespace moris
                     moris_index aCellClusterIndex,
                     mtk::Mesh*  aMesh );
 
-
             //------------------------------------------------------------------------------
 
             /**
@@ -62,7 +61,6 @@ namespace moris
              */
 
             ~Cell_Cluster_DataBase() = default;
-
 
             //------------------------------------------------------------------------------
 
@@ -252,8 +250,7 @@ namespace moris
 
         };    // class Cell_Cluster_DataBase
 
-    }         // namespace mtk
+    }    // namespace mtk
 }    // namespace moris
-
 
 #endif /* cl_MTK_Cell_Cluster_DataBase.hpp */

@@ -300,7 +300,6 @@ namespace moris::mtk
          *
          */
 
-
         void
         generate_ghost_data();
 
@@ -324,7 +323,6 @@ namespace moris::mtk
 
         void
         free_memory();
-
 
         /**
          * @brief Create the vertices lagrange
@@ -369,7 +367,6 @@ namespace moris::mtk
 
         void
         create_block_sets();
-
 
         // ----------------------------------------------------------------------------
 
@@ -459,7 +456,7 @@ namespace moris::mtk
         void
         add_vertices(
                 Vector< Vector< moris_index > >& aSideClusterToVertexIndices,
-                Matrix< DDRMat >                           aVerticesCoords );
+                Matrix< DDRMat >                 aVerticesCoords );
 
         // ----------------------------------------------------------------------------
 
@@ -474,20 +471,6 @@ namespace moris::mtk
 
         // ----------------------------------------------------------------------------
 
-        virtual void
-        construct_periodic_data_base(
-                Vector< Vector< moris_index > >& aSideClusterToVertexIndices,
-                Matrix< DDRMat >                           aVerticesCoords,
-                Vector< Vector< moris_index > >& aSideClusterToCells,
-                Vector< Vector< moris_index > >& aCellToVertexIndices,
-                Vector< moris_index >&                aSideClusterToIPCell,
-                Matrix< DDRMat >&                          aVertexParametricCoords,
-                Vector< moris_index >&                aDoubleSidedClustersIndex,
-                uint                                       mNumDblSideCluster,
-                uint                                       aNumGeometry );
-
-        // ----------------------------------------------------------------------------
-
         void
         create_parallel_consistent_new_vertex_ids( moris_index tNumPreviousVertices );
 
@@ -496,15 +479,15 @@ namespace moris::mtk
         void
         add_side_clusters(
                 Vector< Vector< moris_index > >& aSideClusterToCells,
-                Vector< moris_index >&                aSideClusterToIPCell,
-                Matrix< DDRMat >&                          aVertexParametricCoords,
+                Vector< moris_index >&           aSideClusterToIPCell,
+                Matrix< DDRMat >&                aVertexParametricCoords,
                 Vector< Vector< moris_index > >& aSideClusterToVertexIndices );
 
         // ----------------------------------------------------------------------------
 
         void
         add_double_sided_clusters(
-                uint                                       mNumDblSideCluster,
+                uint                             mNumDblSideCluster,
                 Vector< Vector< moris_index > >& aSideClusterToVertexIndices );
 
         // ----------------------------------------------------------------------------
@@ -512,17 +495,7 @@ namespace moris::mtk
         void
         add_double_sided_set(
                 Vector< moris_index >& aDoubleSidedClustersIndex,
-                uint                        aNumGeometry );
-
-        // ----------------------------------------------------------------------------
-
-        void
-        reconstruct_connectivity();
-
-        // ----------------------------------------------------------------------------
-
-        void
-        merge_meshes();
+                uint                   aNumGeometry );
 
         // ----------------------------------------------------------------------------
 
@@ -532,7 +505,7 @@ namespace moris::mtk
         // ----------------------------------------------------------------------------
 
         void
-        create_parallel_consistnet_cell_ids( moris_index aNumNewCells );
+        create_parallel_consistent_cell_ids( moris_index aNumNewCells );
 
         // ----------------------------------------------------------------------------
 
@@ -611,6 +584,5 @@ namespace moris::mtk
     };
 
 }    // namespace moris::mtk
-
 
 #endif /* cl_MTK_Integration_Mesh_Editor.hpp */

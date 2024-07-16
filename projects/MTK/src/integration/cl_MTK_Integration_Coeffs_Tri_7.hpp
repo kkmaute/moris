@@ -96,4 +96,3 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_MTK_CL_MTK_INTEGRATION_COEFFS_TRI_7_HPP_ */
-

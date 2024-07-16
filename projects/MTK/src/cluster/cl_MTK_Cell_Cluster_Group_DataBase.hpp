@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2022 University of Colorado 
- * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details. 
- * 
- * ------------------------------------------------------------------------------------ 
- * 
- * cl_MTK_Cell_Cluster_Group_DataBase.hpp  
- * 
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ * ------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Cell_Cluster_Group_DataBase.hpp
+ *
  */
 #ifndef SRC_cl_MTK_Cell_Cluster_Group_DataBase
 #define SRC_cl_MTK_Cell_Cluster_Group_DataBase
@@ -27,8 +27,7 @@ namespace moris
         {
             //------------------------------------------------------------------------------
 
-        protected:
-        
+          protected:
             // pointer to parent mesh holding information
             mtk::Mesh* mMesh;
 
@@ -36,54 +35,52 @@ namespace moris
             moris_index mClusterGroupIndex;
 
             // list of clusters in group
-            Vector< mtk::Cluster const* > mClusters;
+            Vector< mtk::Cluster const * > mClusters;
 
             //------------------------------------------------------------------------------
 
             /**
              * @brief Get a the list of clusters in the cluster group (how the clusters are accessed is handled by the children)
-             * 
+             *
              * @return Vector< Cluster const* > const& list of clusters in the cluster group
              */
-            const Vector< mtk::Cluster const* >
+            const Vector< mtk::Cluster const * >
             get_clusters_in_group() const;
 
             //------------------------------------------------------------------------------
 
-        public:
-
+          public:
             //------------------------------------------------------------------------------
 
             /**
              * @brief Construct a new Cell_Cluster_Group object
-             * 
-             * @param aDiscretizationMeshIndex discretization mesh index (in MSI) that the cluster group is associated with 
+             *
+             * @param aDiscretizationMeshIndex discretization mesh index (in MSI) that the cluster group is associated with
              * @param aClusters cell of pointers to the clusters in the group
              */
-            Cell_Cluster_Group_DataBase( 
-                    const moris_index                  aDiscretizationMeshIndex,
-                    Vector< mtk::Cluster const* > aClusters );
+            Cell_Cluster_Group_DataBase(
+                    const moris_index              aDiscretizationMeshIndex,
+                    Vector< mtk::Cluster const * > aClusters );
 
             //------------------------------------------------------------------------------
 
             /**
              * @brief default constructor initializing nothing
-             * 
+             *
              */
             Cell_Cluster_Group_DataBase() = default;
 
             /**
              * @brief Default Destructor
-             * 
+             *
              */
-            virtual
-            ~Cell_Cluster_Group_DataBase(){};
+            virtual ~Cell_Cluster_Group_DataBase(){};
 
             //------------------------------------------------------------------------------
 
-        }; // class mtk::Cell_Cluster_Group_DataBase
+        };    // class mtk::Cell_Cluster_Group_DataBase
 
-    } // namespace xtk
-} // namespace moris
+    }    // namespace mtk
+}    // namespace moris
 
 #endif /* cl_MTK_Cell_Cluster_Group_DataBase.hpp */

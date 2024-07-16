@@ -24,379 +24,376 @@ namespace moris
         class Intersection_Detect
         {
 
-            private:
+          private:
+            std::shared_ptr< moris::mtk::Mesh_Manager > mMeshManager;
+            moris::moris_index                          mMeshIndex;
+            Vector< Vector< std::string > >             mMeshSideSetPairs;
+            moris::uint                                 mNumBulkPhases;
 
-                std::shared_ptr<moris::mtk::Mesh_Manager>             mMeshManager;
-                moris::moris_index                                    mMeshIndex;
-                Vector< Vector< std::string > >             mMeshSideSetPairs;
-                moris::uint                                           mNumBulkPhases;
+            // To keep track of id and index of added data
+            Mesh_Intersection_Data mIntersectedMeshData;
 
-                // To keep track of id and index of added data
-                Mesh_Intersection_Data                                mIntersectedMeshData;
+            // All the double sided cluster
+            Vector< moris::mtk::Cluster const * > mDoubleSidedClusters;
+            Vector< moris::mtk::Cluster const * > mLeaderSidedClusters;
+            Vector< moris::mtk::Cluster const * > mFollowerSidedClusters;
 
-                // All the double sided cluster
-                Vector<moris::mtk::Cluster const* >              mDoubleSidedClusters;
-                Vector<moris::mtk::Cluster const* >              mLeaderSidedClusters;
-                Vector<moris::mtk::Cluster const* >              mFollowerSidedClusters;
+            // Index of double sided cluster ( relevant indices of each cluster )
+            // Each index shows a distinct interaction between leader phases and salve phases
+            Vector< moris::moris_index > mDoubleSidedClustersIndex;
 
-                // Index of double sided cluster ( relevant indices of each cluster )
-                // Each index shows a distinct interaction between leader phases and salve phases
-                Vector<moris::moris_index >                      mDoubleSidedClustersIndex;
+            // Double side sets
+            Vector< Vector< mtk::Cluster const * > > mDoubleSideSets;
+            Vector< Vector< mtk::Cluster const * > > mLeaderSideSets;
 
-                // Double side sets
-                Vector<Vector<mtk::Cluster const*> >        mDoubleSideSets;
-                Vector<Vector<mtk::Cluster const*> >        mLeaderSideSets;
+            // Local to global Id Entity Matrix
+            // The outer cell is the entity rank
+            // The inner cell contains Ids
+            Vector< Vector< moris::moris_index > > mEntityLocaltoGlobalMap;
+            // Vector<std::unordered_map< moris::moris_index, moris::moris_id >> mEntityLocaltoGlobalMap;
 
-                // Local to global Id Entity Matrix
-                // The outer cell is the entity rank
-                // The inner cell contains Ids
-                Vector<Vector<moris::moris_index>>           mEntityLocaltoGlobalMap;
-                //Vector<std::unordered_map< moris::moris_index, moris::moris_id >> mEntityLocaltoGlobalMap;
+            // Vertex constructed by the decomposition process
+            std::unordered_map< moris_id, moris_index > mVertexGlbToLocalMap;
 
-                // Vertex constructed by the decomposition process
-                std::unordered_map< moris_id, moris_index>             mVertexGlbToLocalMap;
+            // coordinates of new nodes
+            Vector< Matrix< DDRMat > > mNewNodeCoords;
 
-                //coordinates of new nodes
-                Vector< Matrix<DDRMat> >                          mNewNodeCoords;
+            // Side Set labels and a corresponding map
+            std::unordered_map< std::string, moris_index > mSideSideSetLabelToOrd;
+            Vector< std::string >                          mSideSetLabels;
 
-                // Side Set labels and a corresponding map
-                std::unordered_map<std::string, moris_index>           mSideSideSetLabelToOrd;
-                Vector<std::string>                               mSideSetLabels;
+            // block set labels and a corresponding map
+            Vector< std::string >                          mBlockSetLabels;
+            std::unordered_map< std::string, moris_index > mBlockSetLabelToOrd;
 
-                // block set labels and a corresponding map
-                Vector<std::string>                                mBlockSetLabels;
-                std::unordered_map<std::string, moris_index>            mBlockSetLabelToOrd;
+            // All the leader side cells created in the intersection process
+            Vector< moris::mtk::Cell const * > mLeaderSideCells;
+            Vector< moris::mtk::Cell const * > mFollowerSideCells;
 
-                // All the leader side cells created in the intersection process
-                Vector<moris::mtk::Cell const *>                   mLeaderSideCells;
-                Vector<moris::mtk::Cell const *>                   mFollowerSideCells;
+            Vector< moris::mtk::Vertex const * > mLeaderVertices;
+            Vector< moris::mtk::Vertex const * > mFollowerVertices;
 
-                Vector<moris::mtk::Vertex const *>                 mLeaderVertices;
-                Vector<moris::mtk::Vertex const *>                 mFollowerVertices;
+            // A map from cell index to index of the cell containing all the mtk::cells ( mLeaderSideCells );
+            std::unordered_map< moris_index, moris_index > mLeaderCellIndextoCellMap;
 
-                // A map from cell index to index of the cell containing all the mtk::cells ( mLeaderSideCells );
-                std::unordered_map<moris_index, moris_index >           mLeaderCellIndextoCellMap;
+            // Visualization flag for the intersection mesh
+            bool mVisFlag = true;
 
-                //Visualization flag for the intersection mesh
-                bool                                                    mVisFlag=true;
+          public:
+            // ----------------------------------------------------------------------------
+            /*
+             * Default constructor
+             */
+            Intersection_Detect( std::shared_ptr< moris::mtk::Mesh_Manager > aMeshManager,
+                    moris::moris_index                                       aMeshIndex,
+                    moris::Parameter_List                                   &aParameterList,
+                    moris::uint                                              aNumBulkPhases );
 
-            public:
+            // ----------------------------------------------------------------------------
+            /*
+             * Default deconstructor
+             */
+            ~Intersection_Detect();
+            // ----------------------------------------------------------------------------
+            /*
+             * the main performer which creates cluster and double sided side sets
+             */
+            void
+            perform();
 
-                // ----------------------------------------------------------------------------
-                /*
-                 * Default constructor
-                 */
-                Intersection_Detect( std::shared_ptr<moris::mtk::Mesh_Manager> aMeshManager,
-                        moris::moris_index                                     aMeshIndex,
-                        moris::Parameter_List                                   &                                 aParameterList,
-                        moris::uint                                            aNumBulkPhases);
+            // ----------------------------------------------------------------------------
+            /*
+             * computes the edge intersection of two triangles
+             * @param[ in ]  aFirstTRICoords coordinates of first triangle
+             * @param[ in ]  aSecondTRICoords coordinates of second triangle
+             * @param[ out ] aIntersectedPoints intersection points and
+             * @param[ out ] aIntersectVecintersection vector showing which neighbors of first
+             *  are also intersecting the second triangle
+             */
+            void
+            EdgeIntersect(
+                    moris::Matrix< moris::DDRMat > const &aFirstTRICoords,
+                    moris::Matrix< moris::DDRMat > const &aSecondTRICoords,
+                    moris::Matrix< moris::DDRMat >       &aIntersectedPoints,
+                    moris::Matrix< moris::DDUMat >       &aIntersectVec ) const;
 
-                // ----------------------------------------------------------------------------
-                /*
-                 * Default deconstructor
-                 */
-                ~Intersection_Detect();
-                // ----------------------------------------------------------------------------
-                /*
-                 * the main performer which creates cluster and double sided side sets
-                 */
-                void
-                perform();
+            // ----------------------------------------------------------------------------
+            /*
+             * finds corners of one triangle within another one
+             * computes for the two given triangles
+             * @param[ in ]  aFirstTRICoords coordinates of first triangle
+             * @param[ in ]  aSecondTRICoords coordinates of second triangle
+             * @param[ out ] aIntersectedPoints intersection points and
+             * @note (point coordinates are stored column-wise, in counter clock
+             *order) the corners of first which lie in the interior of second.
+             */
+            void PointsXInY(
+                    moris::Matrix< moris::DDRMat > const &aFirstTRICoords,
+                    moris::Matrix< moris::DDRMat > const &aSecondTRICoords,
+                    moris::Matrix< moris::DDRMat >       &aIntersectedPoints ) const;
 
-                // ----------------------------------------------------------------------------
-                /*
-                 * computes the edge intersection of two triangles
-                 * @param[ in ]  aFirstTRICoords coordinates of first triangle
-                 * @param[ in ]  aSecondTRICoords coordinates of second triangle
-                 * @param[ out ] aIntersectedPoints intersection points and
-                 * @param[ out ] aIntersectVecintersection vector showing which neighbors of first
-                 *  are also intersecting the second triangle
-                 */
-                void
-                EdgeIntersect(
-                        moris::Matrix < moris::DDRMat >  const &  aFirstTRICoords,
-                        moris::Matrix < moris::DDRMat  > const &  aSecondTRICoords,
-                        moris::Matrix < moris::DDRMat  > &        aIntersectedPoints,
-                        moris::Matrix < moris::DDUMat  > &        aIntersectVec) const;
+            // ----------------------------------------------------------------------------
+            /*
+             * sort points and remove duplicates
+             * orders polygon corners in counterclock wise and removes duplicates
+             * @param[ in ] aIntersectedPoints polygon points, not ordered
+             * @param[ out ] aIntersectedPoints polygon points, ordered
+             */
+            void
+            SortAndRemove( moris::Matrix< moris::DDRMat > &aIntersectedPoints ) const;
 
-                // ----------------------------------------------------------------------------
-                /*
-                 * finds corners of one triangle within another one
-                 * computes for the two given triangles
-                 * @param[ in ]  aFirstTRICoords coordinates of first triangle
-                 * @param[ in ]  aSecondTRICoords coordinates of second triangle
-                 * @param[ out ] aIntersectedPoints intersection points and
-                 * @note (point coordinates are stored column-wise, in counter clock
-                 *order) the corners of first which lie in the interior of second.
-                 */
-                void  PointsXInY(
-                        moris::Matrix < moris::DDRMat >  const &  aFirstTRICoords,
-                        moris::Matrix < moris::DDRMat  > const &  aSecondTRICoords,
-                        moris::Matrix < moris::DDRMat  > &        aIntersectedPoints) const;
+            // ----------------------------------------------------------------------------
+            /*
+             * All intersection points of two triangles
+             * @param[ in ]  aFirstTRICoords coordinates of first triangle
+             * @param[ in ]  aSecondTRICoords coordinates of second triangle
+             * @param[ out ] aIntersectedPoints intersection points and
+             * @param[ out ] aIntersectVecintersection vector showing which neighbors of first
+             *  are also intersecting the second triangle
+             */
+            void
+            Intersect(
+                    moris::Matrix< moris::DDRMat > const &aFirstTRICoords,
+                    moris::Matrix< moris::DDRMat > const &aSecondTRICoords,
+                    moris::Matrix< moris::DDRMat >       &aIntersectedPoints,
+                    moris::Matrix< moris::DDUMat >       &aIntersectVec ) const;
 
-                // ----------------------------------------------------------------------------
-                /*
-                 * sort points and remove duplicates
-                 * orders polygon corners in counterclock wise and removes duplicates
-                 * @param[ in ] aIntersectedPoints polygon points, not ordered
-                 * @param[ out ] aIntersectedPoints polygon points, ordered
-                 */
-                void
-                SortAndRemove ( moris::Matrix < moris::DDRMat  > & aIntersectedPoints ) const;
+            // ----------------------------------------------------------------------------
+            /*
+             * @ the main function in the intersection algorithm which takes 2 surfaces and return
+             * @ their intersection
+             * @param[ in ]  aFirstTRICoords coordinates of first triangle
+             * @param[ in ]  aSecondTRICoords coordinates of second triangle
+             * @param[ in ]  aFirstTRINodeIndex Local indices of the first TRI mesh
+             * @param[ in ]  aSecondTRINodeIndex Local indices of the second TRI mesh
+             */
 
-                // ----------------------------------------------------------------------------
-                /*
-                 * All intersection points of two triangles
-                 * @param[ in ]  aFirstTRICoords coordinates of first triangle
-                 * @param[ in ]  aSecondTRICoords coordinates of second triangle
-                 * @param[ out ] aIntersectedPoints intersection points and
-                 * @param[ out ] aIntersectVecintersection vector showing which neighbors of first
-                 *  are also intersecting the second triangle
-                 */
-                void
-                Intersect(
-                        moris::Matrix < moris::DDRMat >  const &  aFirstTRICoords,
-                        moris::Matrix < moris::DDRMat  > const &  aSecondTRICoords,
-                        moris::Matrix < moris::DDRMat  > &        aIntersectedPoints,
-                        moris::Matrix < moris::DDUMat  > &        aIntersectVec) const;
+            void
+            elementwise_bruteforce_search(
+                    Vector< moris::Matrix< DDRMat > > const &tParamCoordsCell,
+                    moris::Matrix< moris::IndexMat > const  &tIGCellToSideClusterMap,
+                    Vector< moris::Matrix< DDRMat > > const &tParamCoordsCell2,
+                    moris::Matrix< moris::IndexMat > const  &tIGCellToSideClusterMap2,
+                    Vector< moris::Matrix< DDRMat > >       &tCutTriangles,
+                    moris::Matrix< moris::IndexMat >        &tCutTrianglesIdentifier ) const;
 
-                // ----------------------------------------------------------------------------
-                /*
-                 * @ the main function in the intersection algorithm which takes 2 surfaces and return
-                 * @ their intersection
-                 * @param[ in ]  aFirstTRICoords coordinates of first triangle
-                 * @param[ in ]  aSecondTRICoords coordinates of second triangle
-                 * @param[ in ]  aFirstTRINodeIndex Local indices of the first TRI mesh
-                 * @param[ in ]  aSecondTRINodeIndex Local indices of the second TRI mesh
-                 */
+            // ----------------------------------------------------------------------------
+            /*
+             * @ makes new pairs of side cluster and associated double sided cluster
+             * @param[in] tP cell containing vertices of triangles/polygons created
+             * @param[in] aRightInterpCell follower interpolation cell
+             * @param[in] aLeftInterpCell leader interpolation cell
+             * @param[in] aPairCount number of the pair in the periodic side set pair
+             * @param[in] tPhaseToPhaseIndex a index showing interaction of leader-side and follower-side phases
+             */
+            void
+            create_dbl_sided_cluster(
+                    Vector< Matrix< DDRMat > > &tP,
+                    Vector< moris_index >      &tIndicesinCutCell,
+                    moris::mtk::Cell const     &aRightInterpCell,
+                    moris::mtk::Cell const     &aLeftInterpCell,
+                    uint                       &aPairCount,
+                    moris_index                &aPhaseToPhaseIndex );
 
-                void
-                elementwise_bruteforce_search (
-                        Vector< moris::Matrix <DDRMat> >  const &  tParamCoordsCell,
-                        moris::Matrix< moris::IndexMat>  const &         tIGCellToSideClusterMap,
-                        Vector< moris::Matrix <DDRMat> >  const &  tParamCoordsCell2,
-                        moris::Matrix< moris::IndexMat>  const &         tIGCellToSideClusterMap2,
-                        Vector< moris::Matrix <DDRMat> > &         tCutTriangles,
-                        moris::Matrix< moris::IndexMat> &                tCutTrianglesIdentifier) const;
+            // ----------------------------------------------------------------------------
+            /**
+             * @ creates a leader Integration cell
+             * @param [ in ] tLeaderVertices all the leader vertices created from intersection of two side clusters
+             * @param [ in ] tP indices of the tLeaderVertices which create a cell
+             * @param [ in ] aLeaderInterpCell interpolation cell of the leader side clsuter
+             */
+            moris::mtk::Cell const *
+            create_leader_ig_cell( Vector< moris::mtk::Vertex * > aLeaderVertices,
+                    Matrix< IndexMat >                            aP,
+                    moris::mtk::Cell const                       &aLeaderInterpCell,
+                    uint                                          aPairCount );
 
-                // ----------------------------------------------------------------------------
-                /*
-                 * @ makes new pairs of side cluster and associated double sided cluster
-                 * @param[in] tP cell containing vertices of triangles/polygons created
-                 * @param[in] aRightInterpCell follower interpolation cell
-                 * @param[in] aLeftInterpCell leader interpolation cell
-                 * @param[in] aPairCount number of the pair in the periodic side set pair
-                 * @param[in] tPhaseToPhaseIndex a index showing interaction of leader-side and follower-side phases
-                 */
-                void
-                create_dbl_sided_cluster(
-                        Vector< Matrix < DDRMat> > &   tP,
-                        Vector<moris_index> &          tIndicesinCutCell,
-                        moris::mtk::Cell const &            aRightInterpCell,
-                        moris::mtk::Cell const &            aLeftInterpCell,
-                        uint &                              aPairCount,
-                        moris_index  &                      aPhaseToPhaseIndex);
+            // ----------------------------------------------------------------------------
+            /*
+             * @ creates a leader Integration cell
+             * @param [ in ] tFollowerVertices all the leader vertices created from intersection of two side clusters
+             * @param [ in ] tP indices of the tFollowerVertices which create a cell
+             * @param [ in ] aLeaderInterpCell interpolation cell of the leader side clsuter
+             */
+            moris::mtk::Cell const *
+            create_follower_ig_cell( Vector< moris::mtk::Vertex * > aFollowerVertices,
+                    Matrix< IndexMat >                              aP,
+                    moris::mtk::Cell const                         &aFollowerInterpCell,
+                    uint                                            aPairCount );
 
-                // ----------------------------------------------------------------------------
-                /**
-                 * @ creates a leader Integration cell
-                 * @param [ in ] tLeaderVertices all the leader vertices created from intersection of two side clusters
-                 * @param [ in ] tP indices of the tLeaderVertices which create a cell
-                 * @param [ in ] aLeaderInterpCell interpolation cell of the leader side clsuter
-                 */
-                moris::mtk::Cell const *
-                create_leader_ig_cell(Vector<moris::mtk::Vertex *> aLeaderVertices,
-                        Matrix<IndexMat>                                aP ,
-                        moris::mtk::Cell const &                        aLeaderInterpCell,
-                        uint                                            aPairCount);
+            // ----------------------------------------------------------------------------
+            /*
+             * @ construct and add double sided set
+             * @param[ in ] tPhaseInteractionTable a matrix specifying an index to each phase to phase interaction
+             */
+            void
+            construct_add_dbl_sided_set( moris::Matrix< IndexMat > const &aPhaseInteractionTable );
 
-                // ----------------------------------------------------------------------------
-                /*
-                 * @ creates a leader Integration cell
-                 * @param [ in ] tFollowerVertices all the leader vertices created from intersection of two side clusters
-                 * @param [ in ] tP indices of the tFollowerVertices which create a cell
-                 * @param [ in ] aLeaderInterpCell interpolation cell of the leader side clsuter
-                 */
-                moris::mtk::Cell const *
-                create_follower_ig_cell(Vector<moris::mtk::Vertex *> aFollowerVertices,
-                        Matrix<IndexMat>                               aP ,
-                        moris::mtk::Cell const &                       aFollowerInterpCell,
-                        uint                                           aPairCount );
+            // ----------------------------------------------------------------------------
+            /**
+             * Calculate the offset vector between two surfaces and all the side sets attached to two surfaces
+             * @param[ out ] tOffsetVector A row vector specifying offset for each pair
+             * @param[ out ] tFirstSideSetNames Side set names of the first side in the pair
+             * @param[ out ] tSecondSideSetNames Side set names of the second side in the pair
+             * @param[ in ] aPairCount Number of the pair in the periodic side set pair
+             */
+            void
+            offset_vector(
+                    moris::Matrix< DDRMat > &tOffsetVector,
+                    Vector< std::string >   &tFirstSideSetNames,
+                    Vector< std::string >   &tSecondSideSetNames,
+                    uint                     aPairCount );
 
-                // ----------------------------------------------------------------------------
-                /*
-                 * @ construct and add double sided set
-                 * @param[ in ] tPhaseInteractionTable a matrix specifying an index to each phase to phase interaction
-                 */
-                void
-                construct_add_dbl_sided_set (moris::Matrix < IndexMat > const & aPhaseInteractionTable);
+            // ----------------------------------------------------------------------------
+            /**
+             * construct vertices based on the given coordinates
+             * @param[ in ] aSurfaceNodesCoordinates 3D physical coordinates on the surface
+             * @param[ in ] aLeaderInterpCell Leader interpolation cell
+             * @param[ in ] aPairCount Number of the pair in the periodic side set pair
+             * @param[ in ] aTopNodeCoordinates head node of tetrahedran physical coordinates
+             */
+            void
+            create_leader_vertices( Vector< moris::mtk::Vertex * > &aLeaderVertices,
+                    Matrix< DDRMat >                               &aSurfaceNodesCoordinates,
+                    moris::mtk::Cell const                         &aLeaderInterpCell,
+                    uint                                            aPairCount,
+                    Matrix< DDRMat >                               &aTopNodeCoordinates );
 
-                // ----------------------------------------------------------------------------
-                /**
-                 * Calculate the offset vector between two surfaces and all the side sets attached to two surfaces
-                 * @param[ out ] tOffsetVector A row vector specifying offset for each pair
-                 * @param[ out ] tFirstSideSetNames Side set names of the first side in the pair
-                 * @param[ out ] tSecondSideSetNames Side set names of the second side in the pair
-                 * @param[ in ] aPairCount Number of the pair in the periodic side set pair
-                 */
-                void
-                offset_vector(
-                        moris::Matrix<DDRMat > &      tOffsetVector,
-                        Vector< std::string > &  tFirstSideSetNames,
-                        Vector< std::string > &  tSecondSideSetNames,
-                        uint                           aPairCount);
+            // ----------------------------------------------------------------------------
+            /**
+             * construct vertices based on the given coordinates
+             * @param[ in ] aSurfaceNodesCoordinates Unique coordinates obtained from intersecting two side clusters
+             * @param[ in ] aFollowerInterpCell Follower interpolation cell
+             * @param[ in ] aPairCount Number of the pair in the periodic side set pair
+             * @param[ in ] tTopNodeCoordinates head node of tetrahedran physical coordinates
+             */
+            void
+            create_follower_vertices( Vector< moris::mtk::Vertex * > &aFollowerVertices,
+                    Matrix< DDRMat >                                 &aSurfaceNodesCoordinates,
+                    moris::mtk::Cell const                           &aFollowerInterpCell,
+                    uint                                              aPairCount,
+                    Matrix< DDRMat >                                 &aTopNodeCoordinates );
 
-                // ----------------------------------------------------------------------------
-                /**
-                 * construct vertices based on the given coordinates
-                 * @param[ in ] aSurfaceNodesCoordinates 3D physical coordinates on the surface
-                 * @param[ in ] aLeaderInterpCell Leader interpolation cell
-                 * @param[ in ] aPairCount Number of the pair in the periodic side set pair
-                 * @param[ in ] aTopNodeCoordinates head node of tetrahedran physical coordinates
-                 */
-                 void
-                create_leader_vertices(Vector< moris::mtk::Vertex *> & aLeaderVertices,
-                        Matrix < DDRMat> &                                  aSurfaceNodesCoordinates,
-                        moris::mtk::Cell const &                            aLeaderInterpCell,
-                        uint                                                aPairCount,
-                        Matrix < DDRMat> &                                  aTopNodeCoordinates);
+            // ----------------------------------------------------------------------------
+            /*
+             * Gives the rotation matrix and inverse roation matrix
+             * InverseRotation matrix converts 3d coordinates to sudo-2d
+             * Rotation matrix converts sudo-2d coordinates 3d
+             * @param[ in ] aPairCount Number of the pair in the periodic side set pair
+             * @param[ out ] aRotation Rotation matrix
+             * @param[ out ] aInverseRotation Inverse rotation matrix
+             */
+            void
+            rotation_matrix(
+                    moris::Matrix< DDRMat > &aRotation,
+                    moris::Matrix< DDRMat > &aInverseRotation,
+                    uint                     aPairCount ) const;
 
-                // ----------------------------------------------------------------------------
-                /**
-                 * construct vertices based on the given coordinates
-                 * @param[ in ] aSurfaceNodesCoordinates Unique coordinates obtained from intersecting two side clusters
-                 * @param[ in ] aFollowerInterpCell Follower interpolation cell
-                 * @param[ in ] aPairCount Number of the pair in the periodic side set pair
-                 * @param[ in ] tTopNodeCoordinates head node of tetrahedran physical coordinates
-                 */
-                 void
-                 create_follower_vertices(Vector< moris::mtk::Vertex *> & aFollowerVertices,
-                         Matrix < DDRMat> &                                 aSurfaceNodesCoordinates,
-                         moris::mtk::Cell const &                           aFollowerInterpCell,
-                         uint                                               aPairCount,
-                         Matrix < DDRMat> &                                 aTopNodeCoordinates);
+            // ----------------------------------------------------------------------------
+            /*
+             * Builds the necessary data for intersection algorithm
+             * @param[ in ] aSideCluster Side Cluster
+             * @param[ in ] aInverseRotation Inverse rotation matrix
+             * @param[ out ] aUniqueParamCoords List of all coordinates
+             * @param[ out ] aLocalElemToNode Element to node number map
+             * @param[ out ] aElemToElemLocal Element to element connectivity
+             */
+            void
+            build_input_data_for_intersection(
+                    mtk::Cluster const            *aSideCluster,
+                    moris::Matrix< DDRMat >       &aInverseRotation,
+                    moris::Matrix< DDRMat >       &aUniqueParamCoords,
+                    moris::Matrix< moris::IdMat > &aLocalElemToNode );
 
-                // ----------------------------------------------------------------------------
-                /*
-                 * Gives the rotation matrix and inverse roation matrix
-                 * InverseRotation matrix converts 3d coordinates to sudo-2d
-                 * Rotation matrix converts sudo-2d coordinates 3d
-                 * @param[ in ] aPairCount Number of the pair in the periodic side set pair
-                 * @param[ out ] aRotation Rotation matrix
-                 * @param[ out ] aInverseRotation Inverse rotation matrix
-                 */
-                void
-                rotation_matrix(
-                        moris::Matrix< DDRMat > & aRotation,
-                        moris::Matrix< DDRMat > & aInverseRotation,
-                        uint                      aPairCount) const;
+            // ----------------------------------------------------------------------------
+            /**
+             * Check if two clusters align
+             * @param[ in ] aFirstSideCluster First side cluster
+             * @param[ in ] aSecondSideCluster Second side cluste
+             * @param[ in ] aPairCount Number of the pair in the periodic side set pair
+             */
+            bool
+            clusters_align(
+                    mtk::Cluster const            *aFirstSideCluster,
+                    mtk::Cluster const            *aSecondSideCluster,
+                    uint                           aPaircount,
+                    moris::Matrix< DDRMat > const &aOffsetMatrix ) const;
 
-                // ----------------------------------------------------------------------------
-                /*
-                 * Builds the necessary data for intersection algorithm
-                 * @param[ in ] aSideCluster Side Cluster
-                 * @param[ in ] aInverseRotation Inverse rotation matrix
-                 * @param[ out ] aUniqueParamCoords List of all coordinates
-                 * @param[ out ] aLocalElemToNode Element to node number map
-                 * @param[ out ] aElemToElemLocal Element to element connectivity
-                 */
-                void
-                build_input_data_for_intersection(
-                        mtk::Cluster const *                          aSideCluster,
-                        moris::Matrix< DDRMat >   &                   aInverseRotation,
-                        moris::Matrix<DDRMat>  &                      aUniqueParamCoords,
-                        moris::Matrix<moris::IdMat> &                 aLocalElemToNode);
+            // ----------------------------------------------------------------------------
+            /**
+             * @ the main function in the intersection algorithm which takes 2 surfaces and return
+             * @ their intersection
+             * @param[ in ]  aFirstTRICoords coordinates of first triangle
+             * @param[ in ]  aSecondTRICoords coordinates of second triangle
+             * @param[ in ]  aFirstTRINodeIndex Local indices of the first TRI mesh
+             * @param[ in ]  aSecondTRINodeIndex Local indices of the second TRI mesh
+             * @param[ in ]  aFirstTRIConnect Connection map of the first side cluster
+             * @param[ in ]  aSecondTRIConnect Connection map of the second side cluster
+             */
+            Vector< moris::Matrix< moris::DDRMat > >
+            elementwise_intersection_search(
+                    moris::Matrix< moris::DDRMat > const   &aFirstTRICoords,
+                    moris::Matrix< moris::DDRMat > const   &aSecondTRICoords,
+                    moris::Matrix< moris::IdMat > const    &aFirstTRINodeIndex,
+                    moris::Matrix< moris::IdMat > const    &aSecondTRINodeIndex,
+                    moris::Matrix< moris::IndexMat > const &aFirstTRIConnect,
+                    moris::Matrix< moris::IndexMat > const &aSecondTRIConnect );
 
-                // ----------------------------------------------------------------------------
-                /**
-                 * Check if two clusters align
-                 * @param[ in ] aFirstSideCluster First side cluster
-                 * @param[ in ] aSecondSideCluster Second side cluste
-                 * @param[ in ] aPairCount Number of the pair in the periodic side set pair
-                 */
-                bool
-                clusters_align(
-                        mtk::Cluster const *                          aFirstSideCluster,
-                        mtk::Cluster const *                          aSecondSideCluster,
-                        uint                                          aPaircount,
-                        moris::Matrix< DDRMat > const &               aOffsetMatrix) const;
+            // ----------------------------------------------------------------------------
+            /**
+             * @brief this function generates a unique identifier( a number) based on the ijk position of the background cell
+             *  All the clusters that are contained in the background cell will have the same identifier
+             * @param[ in ]  aSideClusters all the clusters on 1 side
+             * @param[ in ]  aPairCount Number of the pair in the periodic side set pair
+             * @param[ out ] aIdentifierMatrix an identifying number for every cluster calculated based on the background cell
+             * @param[ out ] aMap map relating the background cells to the side clusters
+             */
+            void
+            generate_identifier( Vector< mtk::Cluster const * >                     &aSideClusters,
+                    uint                                                            &aPairCount,
+                    Matrix< IndexMat >                                              &aIdentifierMatrix,
+                    std::unordered_map< moris::moris_index, Vector< moris_index > > &aMap ) const;
 
-                // ----------------------------------------------------------------------------
-                /**
-                 * @ the main function in the intersection algorithm which takes 2 surfaces and return
-                 * @ their intersection
-                 * @param[ in ]  aFirstTRICoords coordinates of first triangle
-                 * @param[ in ]  aSecondTRICoords coordinates of second triangle
-                 * @param[ in ]  aFirstTRINodeIndex Local indices of the first TRI mesh
-                 * @param[ in ]  aSecondTRINodeIndex Local indices of the second TRI mesh
-                 * @param[ in ]  aFirstTRIConnect Connection map of the first side cluster
-                 * @param[ in ]  aSecondTRIConnect Connection map of the second side cluster
-                 */
-                Vector< moris::Matrix < moris::DDRMat > >
-                elementwise_intersection_search(
-                        moris::Matrix < moris::DDRMat >   const &  aFirstTRICoords,
-                        moris::Matrix < moris::DDRMat >   const &  aSecondTRICoords,
-                        moris::Matrix < moris::IdMat >    const &  aFirstTRINodeIndex,
-                        moris::Matrix < moris::IdMat >    const &  aSecondTRINodeIndex,
-                        moris::Matrix < moris::IndexMat > const &  aFirstTRIConnect,
-                        moris::Matrix < moris::IndexMat > const &  aSecondTRIConnect);
+            // ----------------------------------------------------------------------------
 
-                // ----------------------------------------------------------------------------
-                /**
-                 * @brief this function generates a unique identifier( a number) based on the ijk position of the background cell
-                 *  All the clusters that are contained in the background cell will have the same identifier
-                 * @param[ in ]  aSideClusters all the clusters on 1 side
-                 * @param[ in ]  aPairCount Number of the pair in the periodic side set pair
-                 * @param[ out ] aIdentifierMatrix an identifying number for every cluster calculated based on the background cell
-                 * @param[ out ] aMap map relating the background cells to the side clusters
-                 */
-                void
-                generate_identifier( Vector< mtk::Cluster const * > & aSideClusters,
-                        uint &                                  aPairCount,
-                        Matrix<IndexMat>               &        aIdentifierMatrix,
-                        std::unordered_map< moris::moris_index, Vector<moris_index> > & aMap) const ;
+            /**
+             * This function returns a pair specifying which indices should be converted from 3d coordinates to 2d coordinates
+             * In order to generate surfaces.
+             * @param[ in ] aPairCount Number of the pair in the periodic side set pair
+             * @param[ out ] indices which we should use
+             */
+            std::pair< moris_id, moris_id >
+            permutation_pair( uint const &aPairCount ) const;
 
-                // ----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
 
-                /**
-                 * This function returns a pair specifying which indices should be converted from 3d coordinates to 2d coordinates
-                 * In order to generate surfaces.
-                 * @param[ in ] aPairCount Number of the pair in the periodic side set pair
-                 * @param[ out ] indices which we should use
-                 */
-                std::pair< moris_id, moris_id >
-                permutation_pair(uint const & aPairCount) const;
+            /**
+             * This function returns a pair specifying which indices should be converted from 3d coordinates to 2d coordinates
+             * In order to generate surfaces.
+             * @param[ in ] aPairCount Number of the pair in the periodic side set pair
+             * @param[ out ] indices which we should use
+             */
+            void
+            group_cut_cells( moris::Matrix< IndexMat > const                 &aCutCellIndetiferMatrix,
+                    std::unordered_map< moris_index, Vector< moris_index > > &aCutCellIdentifierToCutCellIndex ) const;
 
-                 // ----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
 
-                /**
-                 * This function returns a pair specifying which indices should be converted from 3d coordinates to 2d coordinates
-                 * In order to generate surfaces.
-                 * @param[ in ] aPairCount Number of the pair in the periodic side set pair
-                 * @param[ out ] indices which we should use
-                 */
-                void
-                group_cut_cells(moris::Matrix< IndexMat> const & aCutCellIndetiferMatrix,
-                std::unordered_map< moris_index , Vector< moris_index > > & aCutCellIdentifierToCutCellIndex) const;
+            /**
+             * This function returns a pair specifying which indices should be converted from 3d coordinates to 2d coordinates
+             * In order to generate surfaces.
+             * @param[ in ] aPairCount Number of the pair in the periodic side set pair
+             * @param[ out ] indices which we should use
+             */
 
-                // ----------------------------------------------------------------------------
+            void set_vis_flag( bool aVisRequested )
+            {
+                mVisFlag = aVisRequested;
+            }
 
-                /**
-                 * This function returns a pair specifying which indices should be converted from 3d coordinates to 2d coordinates
-                 * In order to generate surfaces.
-                 * @param[ in ] aPairCount Number of the pair in the periodic side set pair
-                 * @param[ out ] indices which we should use
-                 */
-
-                void set_vis_flag(bool aVisRequested)
-                {
-                mVisFlag =aVisRequested ;
-                }
-
-                friend class Intersection_Mesh;
+            friend class Intersection_Mesh;
         };
-    }
-}
+    }    // namespace mtk
+}    // namespace moris
 
 #endif /* PROJECTS_MTK_SRC_CL_MTK_INTERSECTION_DETECT_HPP_ */
-

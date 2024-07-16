@@ -18,35 +18,33 @@
 
 namespace moris
 {
-namespace mtk
-{
-
-    /*
-     * Takes a matrix of entity indices and entity rank, and returns
-     * a matrix of entity glb ids.
-     */
-    inline
-    Matrix< IdMat >
-    convert_entity_indices_to_ids(
-                    Matrix< IndexMat > aEntityIndices,
-                    EntityRank         aEntityRank,
-                    Mesh*              aMesh)
+    namespace mtk
     {
-        Matrix< IdMat > tEntityIds ( aEntityIndices.n_rows(), aEntityIndices.n_cols());
 
-        for( uint  i = 0; i < aEntityIndices.n_rows(); i++)
+        /*
+         * Takes a matrix of entity indices and entity rank, and returns
+         * a matrix of entity glb ids.
+         */
+        inline Matrix< IdMat >
+        convert_entity_indices_to_ids(
+                Matrix< IndexMat > aEntityIndices,
+                EntityRank         aEntityRank,
+                Mesh*              aMesh )
         {
-            for( uint  j = 0; j < aEntityIndices.n_cols(); j++)
+            Matrix< IdMat > tEntityIds( aEntityIndices.n_rows(), aEntityIndices.n_cols() );
+
+            for ( uint i = 0; i < aEntityIndices.n_rows(); i++ )
             {
-                tEntityIds(i,j) = aMesh->get_glb_entity_id_from_entity_loc_index(aEntityIndices(i,j),aEntityRank);
+                for ( uint j = 0; j < aEntityIndices.n_cols(); j++ )
+                {
+                    tEntityIds( i, j ) = aMesh->get_glb_entity_id_from_entity_loc_index( aEntityIndices( i, j ), aEntityRank );
+                }
             }
+
+            return tEntityIds;
         }
 
-        return tEntityIds;
-    }
-
-}
-}
+    }    // namespace mtk
+}    // namespace moris
 
 #endif /* PROJECTS_MTK_SRC_CL_MTK_MESH_TOOLS_HPP_ */
-

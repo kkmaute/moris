@@ -18,12 +18,13 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        Vertex_Interpolation_DataBase::Vertex_Interpolation_DataBase( moris_index aVertexIndex,
-            moris_index                                                           aVertexOrder,
-            mtk::Mesh*                                                            aMesh ) :
-            mVertexIndex( aVertexIndex ),
-            mVertexOrder( aVertexOrder ),
-            mMesh( aMesh )
+        Vertex_Interpolation_DataBase::Vertex_Interpolation_DataBase(
+                moris_index aVertexIndex,
+                moris_index aVertexOrder,
+                mtk::Mesh*  aMesh )
+                : mVertexIndex( aVertexIndex )
+                , mVertexOrder( aVertexOrder )
+                , mMesh( aMesh )
         {
             this->set_outward_data();
         }
@@ -149,5 +150,5 @@ namespace moris
 
             return tCapacity;
         }
-    }// namespace mtk
-}// namespace moris
+    }    // namespace mtk
+}    // namespace moris

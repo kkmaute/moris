@@ -16,29 +16,27 @@
 
 namespace moris
 {
-namespace mtk
-{
-class Cell_Info;
-class Cell_Info_Factory
-{
-public:
-    moris::mtk::Cell_Info*
-    create_cell_info(enum CellTopology aCellTopo);
+    namespace mtk
+    {
+        class Cell_Info;
+        class Cell_Info_Factory
+        {
+          public:
+            moris::mtk::Cell_Info*
+            create_cell_info( enum CellTopology aCellTopo );
 
-    std::shared_ptr<moris::mtk::Cell_Info>
-    create_cell_info_sp(enum CellTopology aCellTopo);
+            std::shared_ptr< moris::mtk::Cell_Info >
+            create_cell_info_sp( enum CellTopology aCellTopo );
 
-    moris::mtk::Cell_Info*
-    create_cell_info(enum Geometry_Type       aCellGeom,
-                     enum Interpolation_Order aInterpOrder);
+            moris::mtk::Cell_Info*
+            create_cell_info( enum Geometry_Type aCellGeom,
+                    enum Interpolation_Order     aInterpOrder );
 
-    std::shared_ptr<moris::mtk::Cell_Info>
-    create_cell_info_sp(enum Geometry_Type       aCellGeom,
-                        enum Interpolation_Order aInterpOrder);
-
-};
-}
-}
+            std::shared_ptr< moris::mtk::Cell_Info >
+            create_cell_info_sp( enum Geometry_Type aCellGeom,
+                    enum Interpolation_Order        aInterpOrder );
+        };
+    }    // namespace mtk
+}    // namespace moris
 
 #endif /* PROJECTS_MTK_SRC_CL_MTK_Cell_Info_Factory_HPP_ */
-

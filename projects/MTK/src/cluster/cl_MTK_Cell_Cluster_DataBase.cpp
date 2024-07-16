@@ -20,9 +20,9 @@ namespace moris::mtk
     //------------------------------------------------------------------------------
 
     Cell_Cluster_DataBase::Cell_Cluster_DataBase( moris_index aCellClusterIndex,
-        mtk::Mesh*                                            aMesh ) :
-        mCellClusterIndex( aCellClusterIndex ),
-        mMesh( aMesh )
+            mtk::Mesh*                                        aMesh )
+            : mCellClusterIndex( aCellClusterIndex )
+            , mMesh( aMesh )
     {
         // populate the data that is returned by reference
         this->set_outward_data();
@@ -38,7 +38,7 @@ namespace moris::mtk
 
     //------------------------------------------------------------------------------
 
-    Vector< moris::mtk::Cell const* > const&
+    Vector< moris::mtk::Cell const * > const &
     Cell_Cluster_DataBase::get_primary_cells_in_cluster( const mtk::Leader_Follower aIsLeader ) const
     {
         return mPrimaryIntegrationCells;
@@ -46,7 +46,7 @@ namespace moris::mtk
 
     //------------------------------------------------------------------------------
 
-    Vector< moris::mtk::Cell const* > const&
+    Vector< moris::mtk::Cell const * > const &
     Cell_Cluster_DataBase::get_void_cells_in_cluster() const
     {
         return mVoidIntegrationCells;
@@ -54,7 +54,7 @@ namespace moris::mtk
 
     //------------------------------------------------------------------------------
 
-    moris::mtk::Cell const&
+    moris::mtk::Cell const &
     Cell_Cluster_DataBase::get_interpolation_cell( const mtk::Leader_Follower aIsLeader ) const
     {
         // defer the call to the mesh
@@ -66,15 +66,15 @@ namespace moris::mtk
 
     //------------------------------------------------------------------------------
 
-    Vector< moris::mtk::Vertex const* >
+    Vector< moris::mtk::Vertex const * >
     Cell_Cluster_DataBase::get_vertices_in_cluster( const mtk::Leader_Follower aIsLeader ) const
     {
         // extract the vertices and number of them
-        Vertex* const* tVertices  = mMesh->get_vertices_in_cluster( ClusterType::CELL, mCellClusterIndex );
-        uint           tNumVertex = mMesh->get_num_vertices_in_cluster( ClusterType::CELL, mCellClusterIndex );
+        Vertex* const * tVertices  = mMesh->get_vertices_in_cluster( ClusterType::CELL, mCellClusterIndex );
+        uint            tNumVertex = mMesh->get_num_vertices_in_cluster( ClusterType::CELL, mCellClusterIndex );
 
         // initialize the ouput
-        Vector< moris::mtk::Vertex const* > tVerticesInCluster;
+        Vector< moris::mtk::Vertex const * > tVerticesInCluster;
 
         // insert vertex pointers in the cell
         tVerticesInCluster.insert( 0, tVertices, tVertices + tNumVertex );
@@ -106,7 +106,7 @@ namespace moris::mtk
         else
         {
             // get the interpolation cell's connectivity information
-            moris::mtk::Cell_Info const* tCellInfo = this->get_interpolation_cell().get_cell_info();
+            moris::mtk::Cell_Info const * tCellInfo = this->get_interpolation_cell().get_cell_info();
 
             // local coordinate matrix
             Matrix< DDRMat > tXi;
@@ -121,15 +121,16 @@ namespace moris::mtk
     //------------------------------------------------------------------------------
 
     moris::Matrix< moris::DDRMat >
-    Cell_Cluster_DataBase::get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const* aVertex,
-        const mtk::Leader_Follower                                                                   aIsLeader ) const
+    Cell_Cluster_DataBase::get_vertex_local_coordinate_wrt_interp_cell(
+            moris::mtk::Vertex const * aVertex,
+            const mtk::Leader_Follower aIsLeader ) const
     {
         // get list of vertices and number of them
-        Vertex* const* tVertices  = mMesh->get_vertices_in_cluster( ClusterType::CELL, mCellClusterIndex );
-        uint           tNumVertex = mMesh->get_num_vertices_in_cluster( ClusterType::CELL, mCellClusterIndex );
+        Vertex* const * tVertices  = mMesh->get_vertices_in_cluster( ClusterType::CELL, mCellClusterIndex );
+        uint            tNumVertex = mMesh->get_num_vertices_in_cluster( ClusterType::CELL, mCellClusterIndex );
 
         // lambda function to iterate through vertices and find the vertex ordinal
-        auto tVertexOrdinalFinder = [aVertex]( mtk::Vertex* aVertices ) { return aVertices->get_index() == aVertex->get_index(); };
+        auto tVertexOrdinalFinder = [ aVertex ]( mtk::Vertex* aVertices ) { return aVertices->get_index() == aVertex->get_index(); };
 
         // define the iterator to find the  ordinal
         auto itr = std::find_if( tVertices, tVertices + tNumVertex, tVertexOrdinalFinder );
@@ -178,7 +179,7 @@ namespace moris::mtk
             MORIS_ASSERT( aPrimaryCellClusterIndex < (moris_index)this->get_num_primary_cells(), "Integration Cell Cluster index out of bounds" );
 
             // get the integration cell of interest
-            moris::mtk::Cell const* tIntegrationCell = this->get_primary_cells_in_cluster()( aPrimaryCellClusterIndex );
+            moris::mtk::Cell const * tIntegrationCell = this->get_primary_cells_in_cluster()( aPrimaryCellClusterIndex );
 
             // get the vertex pointers on the side
             Vector< moris::mtk::Vertex* > tVerticesOnCell = tIntegrationCell->get_vertex_pointers();
@@ -201,21 +202,21 @@ namespace moris::mtk
     void
     Cell_Cluster_DataBase::set_outward_data()
     {
-        //clear the data in the cells
+        // clear the data in the cells
         mPrimaryIntegrationCells.clear();
         mVoidIntegrationCells.clear();
 
         // get primary cell data
-        mtk::Cell* const* tPrimaryCells    = mMesh->get_ig_cells_in_cluster( ClusterType::CELL, mtk::Primary_Void::PRIMARY, mCellClusterIndex );
-        uint              tNumPrimaryCells = mMesh->get_num_cells_in_cluster( ClusterType::CELL, mtk::Primary_Void::PRIMARY, mCellClusterIndex );
+        mtk::Cell* const * tPrimaryCells    = mMesh->get_ig_cells_in_cluster( ClusterType::CELL, mtk::Primary_Void::PRIMARY, mCellClusterIndex );
+        uint               tNumPrimaryCells = mMesh->get_num_cells_in_cluster( ClusterType::CELL, mtk::Primary_Void::PRIMARY, mCellClusterIndex );
 
         // populate the primary cell
         mPrimaryIntegrationCells.reserve( tNumPrimaryCells );
         mPrimaryIntegrationCells.insert( 0, tPrimaryCells, tPrimaryCells + tNumPrimaryCells );
 
         // get primary cell data
-        mtk::Cell* const* tVoidCells    = mMesh->get_ig_cells_in_cluster( ClusterType::CELL, mtk::Primary_Void::VOID, mCellClusterIndex );
-        uint              tNumVoidCells = mMesh->get_num_cells_in_cluster( ClusterType::CELL, mtk::Primary_Void::VOID, mCellClusterIndex );
+        mtk::Cell* const * tVoidCells    = mMesh->get_ig_cells_in_cluster( ClusterType::CELL, mtk::Primary_Void::VOID, mCellClusterIndex );
+        uint               tNumVoidCells = mMesh->get_num_cells_in_cluster( ClusterType::CELL, mtk::Primary_Void::VOID, mCellClusterIndex );
 
         // populate the primary cell
         mVoidIntegrationCells.reserve( tNumVoidCells );
@@ -239,5 +240,4 @@ namespace moris::mtk
         return tCapacity;
     }
 
-}// namespace moris::mtk
-
+}    // namespace moris::mtk

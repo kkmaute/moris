@@ -110,12 +110,12 @@ namespace moris
             }
 
           private:
-            Vector< moris::uint >                       mTrivialFlag;
-            Vector< mtk::Cell * >                       mInterpolationCells;
-            Vector< moris::Matrix< IndexMat > const * > mCellIdsAndSideOrdinals;
-            Vector< moris::Matrix< IndexMat > const * > mVerticesIdsInCluster;
-            Vector< moris::Matrix< DDRMat > const * >   mLocalCoordsRelativeToInterpCell;
-            std::unordered_map< moris_index, moris_index >   mInterpCellIndexToIndex;
+            Vector< moris::uint >                          mTrivialFlag;
+            Vector< mtk::Cell * >                          mInterpolationCells;
+            Vector< moris::Matrix< IndexMat > const * >    mCellIdsAndSideOrdinals;
+            Vector< moris::Matrix< IndexMat > const * >    mVerticesIdsInCluster;
+            Vector< moris::Matrix< DDRMat > const * >      mLocalCoordsRelativeToInterpCell;
+            std::unordered_map< moris_index, moris_index > mInterpCellIndexToIndex;
         };
 
         class Side_Cluster_Input
@@ -212,4 +212,3 @@ namespace moris
     }    // namespace mtk
 }    // namespace moris
 #endif /* PROJECTS_MTK_SRC_CL_MTK_SIDE_CLUSTER_INPUT_HPP_ */
-

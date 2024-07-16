@@ -13,8 +13,8 @@
 
 #include <string>
 
-#include "moris_typedefs.hpp"     //MRS/COR/src
-#include "fn_unique.hpp"    //MRS/COR/src
+#include "moris_typedefs.hpp"    //MRS/COR/src
+#include "fn_unique.hpp"         //MRS/COR/src
 #include "cl_Map.hpp"
 #include "cl_MTK_Vertex.hpp"    //MTK/src
 #include "cl_MTK_Cell.hpp"      //MTK/src
@@ -122,10 +122,10 @@ namespace moris::mtk
          * trivial constructor
          */
         Double_Side_Set(
-                std::string const                    &aName,
+                std::string const               &aName,
                 Vector< Cluster const * > const &aDoubleSideSetClusters,
-                Matrix< IndexMat > const             &aColors,
-                uint const                           &aSpatialDim )
+                Matrix< IndexMat > const        &aColors,
+                uint const                      &aSpatialDim )
                 : Set( aName, aDoubleSideSetClusters, aColors, aSpatialDim )
         {
             mSetType = mtk::SetType::DOUBLE_SIDED_SIDESET;

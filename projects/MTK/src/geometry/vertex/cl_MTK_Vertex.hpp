@@ -85,9 +85,9 @@ namespace moris
             //------------------------------------------------------------------------------
 
             /**
-             * @brief returns the base vertex of an mtk vertex. 
+             * @brief returns the base vertex of an mtk vertex.
              * Specifically, in XTK enriched meshes this returns the vertex index in the background;
-             * and in VIS it returns the MTK vertex a given VIS vertex was constructed from 
+             * and in VIS it returns the MTK vertex a given VIS vertex was constructed from
              */
             virtual mtk::Vertex const *
             get_base_vertex() const
@@ -175,7 +175,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-        }; // class mtk::Vertex
+        };    // class mtk::Vertex
 
         //------------------------------------------------------------------------------
 
@@ -193,7 +193,7 @@ namespace moris
     }
 
     //------------------------------------------------------------------------------
-    
+
     inline std::ostream&
     operator<<( std::ostream& os, mtk::Vertex const * const & dt )
     {
@@ -203,7 +203,7 @@ namespace moris
     }
 
     //------------------------------------------------------------------------------
-    
+
     inline bool
     comparePtrToVertexIdBased(
             moris::mtk::Vertex* a,

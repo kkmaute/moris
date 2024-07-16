@@ -584,8 +584,8 @@ namespace moris::mtk
 
     void
     Writer_Exodus::write_global_variables(
-            Vector< std::string >& aVariableNames,
-            const Matrix< DDRMat >&     aVariableValues )
+            Vector< std::string >&  aVariableNames,
+            const Matrix< DDRMat >& aVariableValues )
     {
         // number of global variables
         uint tNumVariables = aVariableNames.size();
@@ -1299,4 +1299,4 @@ namespace moris::mtk
                 return 0;
         }
     }
-}
+}    // namespace moris::mtk

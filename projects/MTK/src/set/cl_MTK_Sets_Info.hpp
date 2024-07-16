@@ -18,119 +18,119 @@
 namespace moris
 {
 
-namespace mtk
-{
-///////////////////////////////
-// STRUC FOR SETS CONTAINER  //
-///////////////////////////////
-
-struct MtkSetsInfo
-{
-    Vector< MtkNodeSetInfo*  > NodeSetsInfo;
-    Vector< MtkSideSetInfo*  > SideSetsInfo;
-    Vector< MtkBlockSetInfo* > BlockSetsInfo;
-
-    MtkSetsInfo():
-        NodeSetsInfo( 0, nullptr),
-        SideSetsInfo( 0, nullptr),
-        BlockSetsInfo(0, nullptr){}
-
-    //------------------------------------------------
-    // Add sets to data structure
-    //------------------------------------------------
-
-    void
-    add_node_set(MtkNodeSetInfo* aNodeSet)
+    namespace mtk
     {
-        NodeSetsInfo.push_back(aNodeSet);
-    }
+        ///////////////////////////////
+        // STRUC FOR SETS CONTAINER  //
+        ///////////////////////////////
 
-    void
-    add_side_set(MtkSideSetInfo* aSideSet)
-    {
-        SideSetsInfo.push_back(aSideSet);
-    }
+        struct MtkSetsInfo
+        {
+            Vector< MtkNodeSetInfo* >  NodeSetsInfo;
+            Vector< MtkSideSetInfo* >  SideSetsInfo;
+            Vector< MtkBlockSetInfo* > BlockSetsInfo;
 
-    void
-    add_block_set(MtkBlockSetInfo* aBlockSet)
-    {
-        BlockSetsInfo.push_back(aBlockSet);
-    }
+            MtkSetsInfo()
+                    : NodeSetsInfo( 0, nullptr )
+                    , SideSetsInfo( 0, nullptr )
+                    , BlockSetsInfo( 0, nullptr )
+            {
+            }
 
-    //------------------------------------------------
-    // Node set access
-    //------------------------------------------------
-    uint
-    get_num_node_sets() const
-    {
-        return NodeSetsInfo.size();
-    }
+            //------------------------------------------------
+            // Add sets to data structure
+            //------------------------------------------------
 
-    Vector< MtkNodeSetInfo* > const &
-    get_node_sets() const
-    {
-        return NodeSetsInfo;
-    }
+            void
+            add_node_set( MtkNodeSetInfo* aNodeSet )
+            {
+                NodeSetsInfo.push_back( aNodeSet );
+            }
 
-    MtkNodeSetInfo*
-    get_node_set(uint aNodeSetIndex) const
-    {
-        return NodeSetsInfo(aNodeSetIndex);
-    }
+            void
+            add_side_set( MtkSideSetInfo* aSideSet )
+            {
+                SideSetsInfo.push_back( aSideSet );
+            }
 
-    //------------------------------------------------
-    // Side set access
-    //------------------------------------------------
-    uint
-    get_num_side_sets() const
-    {
-        return SideSetsInfo.size();
-    }
+            void
+            add_block_set( MtkBlockSetInfo* aBlockSet )
+            {
+                BlockSetsInfo.push_back( aBlockSet );
+            }
 
-    Vector< MtkSideSetInfo* > const &
-    get_side_sets() const
-    {
-        return SideSetsInfo;
-    }
+            //------------------------------------------------
+            // Node set access
+            //------------------------------------------------
+            uint
+            get_num_node_sets() const
+            {
+                return NodeSetsInfo.size();
+            }
 
-    MtkSideSetInfo*
-    get_side_set(uint aSideSetIndex) const
-    {
-        return SideSetsInfo(aSideSetIndex);
-    }
+            Vector< MtkNodeSetInfo* > const &
+            get_node_sets() const
+            {
+                return NodeSetsInfo;
+            }
 
-    //------------------------------------------------
-    // Block set access
-    //------------------------------------------------
-    uint
-    get_num_block_sets() const
-    {
-        return BlockSetsInfo.size();
-    }
+            MtkNodeSetInfo*
+            get_node_set( uint aNodeSetIndex ) const
+            {
+                return NodeSetsInfo( aNodeSetIndex );
+            }
 
-    Vector< MtkBlockSetInfo* > const &
-    get_block_sets() const
-    {
-        return BlockSetsInfo;
-    }
+            //------------------------------------------------
+            // Side set access
+            //------------------------------------------------
+            uint
+            get_num_side_sets() const
+            {
+                return SideSetsInfo.size();
+            }
 
-    MtkBlockSetInfo*
-    get_block_set(uint aBlockSetIndex) const
-    {
-        return BlockSetsInfo(aBlockSetIndex);
-    }
+            Vector< MtkSideSetInfo* > const &
+            get_side_sets() const
+            {
+                return SideSetsInfo;
+            }
 
-    void
-    print()
-    {
-        moris::print(NodeSetsInfo, "Vertex set information");
-        moris::print(SideSetsInfo, "Side set information");
-        moris::print(BlockSetsInfo,"Block set Information");
-    }
+            MtkSideSetInfo*
+            get_side_set( uint aSideSetIndex ) const
+            {
+                return SideSetsInfo( aSideSetIndex );
+            }
 
-};
-}
-}
+            //------------------------------------------------
+            // Block set access
+            //------------------------------------------------
+            uint
+            get_num_block_sets() const
+            {
+                return BlockSetsInfo.size();
+            }
+
+            Vector< MtkBlockSetInfo* > const &
+            get_block_sets() const
+            {
+                return BlockSetsInfo;
+            }
+
+            MtkBlockSetInfo*
+            get_block_set( uint aBlockSetIndex ) const
+            {
+                return BlockSetsInfo( aBlockSetIndex );
+            }
+
+            void
+            print()
+            {
+                moris::print( NodeSetsInfo, "Vertex set information" );
+                moris::print( SideSetsInfo, "Side set information" );
+                moris::print( BlockSetsInfo, "Block set Information" );
+            }
+        };
+    }    // namespace mtk
+}    // namespace moris
 
 #endif /* PROJECTS_MTK_SRC_CL_MTK_SETS_INFO_HPP_ */
-
