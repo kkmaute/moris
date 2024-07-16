@@ -34,7 +34,7 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Parameter_List::insert(
+    void Parameter_List::insert_enum(
             const std::string&           aName,
             const Vector< std::string >& aEnumStrings )
     {

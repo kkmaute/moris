@@ -132,7 +132,7 @@ namespace moris
          * @param aName Parameter name
          * @param aEnumStrings Valid enum strings (must not be empty)
          */
-        void insert(
+        void insert_enum(
                 const std::string&           aName,
                 const Vector< std::string >& aEnumStrings );
 
