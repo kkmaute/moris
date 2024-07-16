@@ -505,7 +505,7 @@ namespace moris
 
         // create IWG - Dirichlet temp
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGDirichletTemp" );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGDirichletTempInner" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "TEMP" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "TEMP" );
@@ -516,7 +516,7 @@ namespace moris
         tIWGCounter++;
 
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGDirichletTemp" );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGDirichletTempOuter" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "TEMP" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "TEMP" );
