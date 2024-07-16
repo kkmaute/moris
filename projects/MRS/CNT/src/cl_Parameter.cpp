@@ -84,6 +84,20 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
 
+    bool Parameter::has_selections() const
+    {
+        return this->get_selection_names().size();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    const Vector< std::string >& Parameter::get_selection_names() const
+    {
+        return mValidator->get_selection_names();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     const External_Validator& Parameter::get_external_validator() const
     {
         return mExternalValidator;

@@ -219,6 +219,20 @@ namespace moris
         bool needs_linking() const;
 
         /**
+         * Gets if this parameter has selections that need to be chosen from.
+         *
+         * @return Selection boolean
+         */
+        bool has_selections() const;
+
+        /**
+         * Gets the valid selections available for this parameter.
+         *
+         * @return Vector of valid selections
+         */
+        const Vector< std::string >& get_selection_names() const;
+
+        /**
          * Gets the external validator from this parameter, for validation after all parameter have been set.
          *
          * @return External validator

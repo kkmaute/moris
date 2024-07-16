@@ -15,7 +15,7 @@
 
 #define VALIDATOR_OVERRIDES                                         \
     bool        make_valid_parameter( Variant& aVariant ) override; \
-    std::string get_validation_message() override;                        \
+    std::string get_validation_message() override;                  \
     Validator*  copy() override;
 
 namespace moris
@@ -33,6 +33,13 @@ namespace moris
          * Validator destructor
          */
         virtual ~Validator() = default;
+        
+        /**
+         * Gets the valid selections available based on this validator.
+         * 
+         * @return Vector of valid selections
+         */
+        virtual const Vector< std::string >& get_selection_names();
 
         /**
          * Makes a parameter into a valid 
@@ -170,6 +177,13 @@ namespace moris
          * @param aValidSelections Valid values for this parameter
          */
         Selection_Validator( const Vector< T >& aValidSelections );
+        
+        /**
+         * Gets the names of valid selections stored in the selection validator
+         * 
+         * @return Vector of valid selections
+         */
+        const Vector< std::string >& get_selection_names() override;
 
         VALIDATOR_OVERRIDES
     };

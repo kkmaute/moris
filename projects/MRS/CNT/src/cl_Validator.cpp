@@ -18,6 +18,13 @@ namespace moris
     {
         return "\"" + aValue + "\"";
     }
+    
+    //--------------------------------------------------------------------------------------------------------------
+    
+    const Vector< std::string >& Validator::get_selection_names()
+    {
+        return {};
+    }
 
     //--------------------------------------------------------------------------------------------------------------
 
@@ -203,6 +210,14 @@ namespace moris
     Validator* Range_Validator< T >::copy()
     {
         return new Range_Validator( mMinimumValue, mMaximumValue );
+    }
+    
+    //--------------------------------------------------------------------------------------------------------------
+    
+    template< typename T >
+    const Vector< std::string >& Selection_Validator< T >::get_selection_names()
+    {
+        return mValidSelections;
     }
 
     //--------------------------------------------------------------------------------------------------------------
