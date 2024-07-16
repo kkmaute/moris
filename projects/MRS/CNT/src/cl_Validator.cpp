@@ -303,10 +303,12 @@ namespace moris
         {
             // Check that given variant is a valid enum name
             std::string aParameter = std::get< std::string >( aVariant );
-            for ( const auto& iEnumString : mEnumStrings )
+            for ( uint iEnumIndex = 0; iEnumIndex < mEnumStrings.size(); iEnumIndex++ )
             {
-                if ( aParameter == iEnumString )
+                // Check specific enum string at this index
+                if ( aParameter == mEnumStrings( iEnumIndex ) )
                 {
+                    aVariant = make_variant( iEnumIndex );
                     return true;
                 }
             }
