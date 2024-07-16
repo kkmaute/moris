@@ -151,7 +151,7 @@ namespace moris
                     "Parameter %s was set incorrectly as %s. Valid values are: %s.",
                     aParameterName.c_str(),
                     convert_variant_to_string( tParameterVariant ).c_str(),
-                    mValidator->get_valid_values().c_str() );
+                    mValidator->get_validation_message().c_str() );
 
             // Set the value
             mValue = tParameterVariant;

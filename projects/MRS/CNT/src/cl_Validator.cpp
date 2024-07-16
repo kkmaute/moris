@@ -59,7 +59,7 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     template< typename T >
-    std::string Type_Validator< T >::get_valid_values()
+    std::string Type_Validator< T >::get_validation_message()
     {
         return get_type_name< T >();
     }
@@ -166,7 +166,7 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     template< typename T >
-    std::string Vector_Validator< T >::get_valid_values()
+    std::string Vector_Validator< T >::get_validation_message()
     {
         return get_type_name< Vector< T > >();
     }
@@ -192,7 +192,7 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     template< typename T >
-    std::string Range_Validator< T >::get_valid_values()
+    std::string Range_Validator< T >::get_validation_message()
     {
         return get_type_name< T >() + ", [" + std::to_string( mMinimumValue ) + ", " + std::to_string( mMaximumValue ) + "]";
     }
@@ -231,7 +231,7 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     template< typename T >
-    std::string Selection_Validator< T >::get_valid_values()
+    std::string Selection_Validator< T >::get_validation_message()
     {
         // Use std::to_string for valid arguments
         using namespace std;
@@ -308,7 +308,7 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     template<>
-    std::string Type_Validator< Design_Variable >::get_valid_values()
+    std::string Type_Validator< Design_Variable >::get_validation_message()
     {
         return "Constant value (real) or lower bound, initial value, upper bound (3 reals)";
     }
@@ -316,9 +316,9 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     template<>
-    std::string Range_Validator< Design_Variable >::get_valid_values()
+    std::string Range_Validator< Design_Variable >::get_validation_message()
     {
-        return Type_Validator< Design_Variable >().get_valid_values()
+        return Type_Validator< Design_Variable >().get_validation_message()
              + ", [" + std::to_string( mMinimumValue.get_value() ) + ", " + std::to_string( mMaximumValue.get_value() ) + "]";
     }
 

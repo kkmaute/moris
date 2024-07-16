@@ -15,7 +15,7 @@
 
 #define VALIDATOR_OVERRIDES                                         \
     bool        make_valid_parameter( Variant& aVariant ) override; \
-    std::string get_valid_values() override;                        \
+    std::string get_validation_message() override;                        \
     Validator*  copy() override;
 
 namespace moris
@@ -47,7 +47,7 @@ namespace moris
          *
          * @return Valid values, represented with a string
          */
-        virtual std::string get_valid_values() = 0;
+        virtual std::string get_validation_message() = 0;
 
         /**
          * Copies this validator and returns a new pointer.
@@ -193,8 +193,8 @@ namespace moris
      */
     template<> bool Type_Validator< Design_Variable >::make_valid_parameter( Variant& aVariant );
     template<> bool Range_Validator< Design_Variable >::make_valid_parameter( Variant& aVariant );
-    template<> std::string Type_Validator< Design_Variable >::get_valid_values();
-    template<> std::string Range_Validator< Design_Variable >::get_valid_values();
+    template<> std::string Type_Validator< Design_Variable >::get_validation_message();
+    template<> std::string Range_Validator< Design_Variable >::get_validation_message();
     template class Type_Validator< Design_Variable >;
     template class Range_Validator< Design_Variable >;
 
