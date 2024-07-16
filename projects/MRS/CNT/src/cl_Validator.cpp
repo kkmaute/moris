@@ -14,6 +14,10 @@ namespace moris
 {
     //--------------------------------------------------------------------------------------------------------------
 
+    static Vector< std::string > gNoSelections;
+
+    //--------------------------------------------------------------------------------------------------------------
+
     std::string to_string( const std::string& aValue )
     {
         return "\"" + aValue + "\"";
@@ -23,7 +27,7 @@ namespace moris
     
     const Vector< std::string >& Validator::get_selection_names()
     {
-        return {};
+        return gNoSelections;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -269,6 +273,71 @@ namespace moris
     Validator* Selection_Validator< T >::copy()
     {
         return new Selection_Validator( mValidSelections );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Enum_Validator::Enum_Validator()
+            : mEnumStrings() // TODO get from class
+    {
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    const Vector< std::string >& Enum_Validator::get_selection_names()
+    {
+        return mEnumStrings;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    bool Enum_Validator::make_valid_parameter( Variant& aVariant )
+    {
+        // Check if uint was given directly
+        if ( aVariant.index() == variant_index< uint >() )
+        {
+            // Check if index lies within vector size
+            return std::get< uint >( aVariant ) < mEnumStrings.size();
+        }
+        else if ( aVariant.index() == variant_index< std::string >() )
+        {
+            // Check that given variant is a valid enum name
+            std::string aParameter = std::get< std::string >( aVariant );
+            for ( const auto& iEnumString : mEnumStrings )
+            {
+                if ( aParameter == iEnumString )
+                {
+                    return true;
+                }
+            }
+        }
+
+        // Index not correct or valid selection not found
+        return false;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    std::string Enum_Validator::get_validation_message()
+    {
+        // Create message from enum strings
+        std::string tMessage;
+        std::string tDelimiter;
+        for ( const auto& iEnumString : mEnumStrings )
+        {
+            tMessage += tDelimiter + iEnumString;
+            tDelimiter = ", ";
+        }
+
+        // Return string
+        return tMessage;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Validator* Enum_Validator::copy()
+    {
+        return new Enum_Validator();
     }
 
     //--------------------------------------------------------------------------------------------------------------
