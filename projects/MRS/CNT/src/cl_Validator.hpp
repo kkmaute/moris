@@ -161,7 +161,7 @@ namespace moris
     class Selection_Validator : public Validator
     {
       private:
-        std::set< T > mValidSelections;
+        Vector< T > mValidSelections;
 
       public:
         /**
@@ -169,14 +169,14 @@ namespace moris
          *
          * @param aValidSelections Valid values for this parameter
          */
-        Selection_Validator( const std::set< T >& aValidSelections );
+        Selection_Validator( const Vector< T >& aValidSelections );
 
         VALIDATOR_OVERRIDES
     };
 
     template< typename T >
     Selection_Validator< T >::Selection_Validator(
-            const std::set< T >& aValidSelections )
+            const Vector< T >& aValidSelections )
             : mValidSelections( aValidSelections )
     {
     }

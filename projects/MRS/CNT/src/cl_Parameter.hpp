@@ -99,10 +99,10 @@ namespace moris
          *
          * @tparam T Input parameter type
          * @param aParameterValue Default value
-         * @param aValidSelections Set of valid values
+         * @param aValidSelections Vector of valid values
          */
         template< typename T >
-        Parameter( T aParameterValue, const std::set< T >& aValidSelections )
+        Parameter( T aParameterValue, const Vector< T >& aValidSelections )
                 : mEntryType( Entry_Type::SELECTION )
         {
             // Set default value without validation

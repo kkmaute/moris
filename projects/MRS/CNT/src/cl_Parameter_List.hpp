@@ -101,9 +101,9 @@ namespace moris
          * @param aValidSelections Valid values the parameter can be set to
          */
         void insert(
-                const std::string&             aName,
-                const std::string&             aDefaultValue,
-                const std::set< std::string >& aValidSelections );
+                const std::string&           aName,
+                const std::string&           aDefaultValue,
+                const Vector< std::string >& aValidSelections );
 
         /**
          * Adds a new parameter to this parameter list. This parameter must be set with a valid range.

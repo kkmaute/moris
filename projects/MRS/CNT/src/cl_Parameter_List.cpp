@@ -17,9 +17,9 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     void Parameter_List::insert(
-            const std::string&             aName,
-            const std::string&             aDefaultValue,
-            const std::set< std::string >& aValidSelections )
+            const std::string&           aName,
+            const std::string&           aDefaultValue,
+            const Vector< std::string >& aValidSelections )
     {
         // Check for leading and trailing whitespaces in key
         std::string tKeyWithoutSpaces = aName;

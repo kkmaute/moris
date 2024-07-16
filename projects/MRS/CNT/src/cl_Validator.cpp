@@ -210,8 +210,22 @@ namespace moris
     template< typename T >
     bool Selection_Validator< T >::make_valid_parameter( Variant& aVariant )
     {
-        return aVariant.index() == variant_index< T >() and
-               mValidSelections.find( std::get< T >( aVariant ) ) != mValidSelections.end();
+        // Check if index is correct
+        if ( aVariant.index() == variant_index< T >() )
+        {
+            // Check that given variant is in valid selections
+            T aParameter = std::get< T >( aVariant );
+            for ( const auto& iValidSelection : mValidSelections )
+            {
+                if ( aParameter == iValidSelection )
+                {
+                    return true;
+                }
+            }
+        }
+
+        // Index not correct or valid selection not found
+        return false;
     }
 
     //--------------------------------------------------------------------------------------------------------------
