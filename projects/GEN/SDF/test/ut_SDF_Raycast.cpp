@@ -142,7 +142,6 @@ namespace moris::sdf
                 tIntersectionCoordinatesExpected = { 0.715517872727636, 1.284482127272365 };
                 tIntersectionCoordinates         = intersect_ray_with_facets( tIntersectedTriangles, tTestPoint, 0 );
 
-
                 REQUIRE( tIntersectionCoordinates.size() == 2 );
                 CHECK( std::abs( tIntersectionCoordinates( 0 ) - tIntersectionCoordinatesExpected( 0 ) ) < gSDFepsilon );
                 CHECK( std::abs( tIntersectionCoordinates( 1 ) - tIntersectionCoordinatesExpected( 1 ) ) < gSDFepsilon );

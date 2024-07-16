@@ -233,7 +233,6 @@ namespace moris
                         }
                     }
 
-
                     // increment counter
                     ++tCount;
                 }
@@ -459,7 +458,6 @@ namespace moris
         }
 
         //-------------------------------------------------------------------------------
-
 
         void
         Object::reset_coordinates()

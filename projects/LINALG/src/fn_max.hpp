@@ -14,7 +14,6 @@
 // MORIS library header files.
 #include "cl_Matrix.hpp"
 
-
 #ifdef MORIS_USE_ARMA
 #include "fn_max_Arma.hpp"
 #endif

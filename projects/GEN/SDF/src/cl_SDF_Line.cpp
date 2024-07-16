@@ -22,7 +22,7 @@ namespace moris::sdf
     //-------------------------------------------------------------------------------
 
     Line::Line(
-            moris_index                   aIndex,
+            moris_index                                aIndex,
             Vector< std::shared_ptr< Facet_Vertex > >& aVertices )
             : Facet( aIndex, aVertices, 2 )
     {
@@ -36,7 +36,7 @@ namespace moris::sdf
     {
         // step 1: compute center
         this->compute_center();
-        
+
         // step 2: compute the bounding box
         this->compute_min_and_max_coordinates();
 
@@ -72,7 +72,7 @@ namespace moris::sdf
             const uint              aAxis,
             const Matrix< DDRMat >& aPoint )
     {
-        MORIS_ERROR( false, "SDF_Line()::check_edge() not implemented for Lines yet.");
+        MORIS_ERROR( false, "SDF_Line()::check_edge() not implemented for Lines yet." );
         return false;
     }
 
@@ -82,7 +82,7 @@ namespace moris::sdf
     Line::get_distance_to_point(
             const Matrix< DDRMat >& aPoint )
     {
-        MORIS_ERROR( false, "SDF_Line()::get_distance_to_point() not implemented for Lines yet.");
+        MORIS_ERROR( false, "SDF_Line()::get_distance_to_point() not implemented for Lines yet." );
         return -1.0;
     }
 
