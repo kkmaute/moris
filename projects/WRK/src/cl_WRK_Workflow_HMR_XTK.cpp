@@ -406,7 +406,6 @@ namespace moris
             // mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0).get_integration_mesh()->save_MPC_to_hdf5();
             // mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0).get_integration_mesh()->save_IG_global_T_matrix_to_file();
 
-
             // get the MIG parameter list
             ModuleParameterList tMIGParameterList = mPerformerManager->mLibrary->get_parameters_for_module( Parameter_List_Type::MIG );
 
