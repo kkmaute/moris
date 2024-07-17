@@ -224,6 +224,8 @@ for exa in $exalist; do
    END{print file": min-id = "mid" mxt = "mxt" cid = "cid" cur = "cur" delta = "cur-mxt" ratio [%] = "(cur-mxt)/(1e-12+cur)*100} ' 
 done
 
+cd $here
+
 chmod -R -w TimingResults
 
   
