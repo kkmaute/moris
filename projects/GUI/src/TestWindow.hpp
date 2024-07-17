@@ -1,18 +1,21 @@
 #ifndef TESTWINDOW_HPP
 #define TESTWINDOW_HPP
 
+#include <QMainWindow>
+#include <QVBoxLayout>
+#include <QPushButton>
+#include <QDebug>
+
+#include "cl_Parameter_List.hpp"
 #include "moris_line_edit.hpp"
 #include "moris_combo_box.hpp"
 #include "moris_double_spin_box.hpp"
 #include "moris_int_spin_box.hpp"
-#include "cl_Parameter_List.hpp"
-#include "cl_Library_IO.hpp"
-#include "input_parameters.hpp"
 
-#include <QMainWindow>
-#include <QVBoxLayout>
-#include <QPushButton>
-#include <QString>
+class Moris_Line_Edit;
+class Moris_Combo_Box;
+class Moris_Double_Spin_Box;
+class Moris_Int_Spin_Box;
 
 class TestWindow : public QMainWindow
 {
@@ -20,24 +23,23 @@ class TestWindow : public QMainWindow
 
   public:
     // Constructor
-    TestWindow( QWidget *parent = nullptr );
+    TestWindow( QWidget *parent = nullptr, const moris::Parameter_List &parameterList = {} );
 
   private slots:
-    // Slots to handle user input changes
+    // Slots for updating input values
     void updateInput( const QString &name, const QString &text );
     void updateComboBox( const QString &name, int index );
-    void updateDoubleSpinBox( const QString &name, const QVariant &value );    // Updated to QVariant
-    void updateIntSpinBox( const QString &name, const QVariant &value );       // Slot for integer spin box
+    void updateDoubleSpinBox( const QString &name, double value );
+    void updateIntSpinBox( const QString &name, int value );
+
+    // Slot for saving and printing inputs
     void saveAndPrintInputs();
 
   private:
-    Input_Parameters      currentInputs;    // Stores current user inputs
-    moris::Parameter_List parameterList;    // Stores final parameters to save and print
-
-    Moris_Combo_Box                   *comboBox;         // Pointer to the combo box instance
-    QMap< QString, Moris_Line_Edit * > lineEdits;        // Map to store line edits dynamically
-    Moris_Double_Spin_Box             *doubleSpinBox;    // Pointer to the double spin box instance
-    Moris_Int_Spin_Box                *intSpinBox;       // Pointer to the integer spin box instance
+    Moris_Combo_Box                         *comboBox = nullptr;    // Pointer to ComboBox widget
+    QMap< QString, Moris_Line_Edit * >       lineEdits;             // Map to store LineEdit widgets
+    QMap< QString, Moris_Double_Spin_Box * > doubleSpinBoxes;       // Map to store DoubleSpinBox widgets
+    QMap< QString, Moris_Int_Spin_Box * >    intSpinBoxes;          // Map to store IntSpinBox widgets
 };
 
 #endif    // TESTWINDOW_HPP

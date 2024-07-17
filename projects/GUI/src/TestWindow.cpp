@@ -1,183 +1,153 @@
-#include <QVBoxLayout>
-#include <QPushButton>
-#include <QDebug>
-
 #include "TestWindow.hpp"
-#include "moris_line_edit.hpp"
-#include "moris_combo_box.hpp"
-#include "moris_double_spin_box.hpp"
-#include "moris_int_spin_box.hpp"
 
-TestWindow::TestWindow( QWidget *parent )
+TestWindow::TestWindow( QWidget *parent, const moris::Parameter_List &parameterList )
         : QMainWindow( parent )
+        , comboBox( nullptr )
 {
+    // Create central widget and layout for the main window
     auto *centralWidget = new QWidget( this );
     auto *layout        = new QVBoxLayout( centralWidget );
 
-    // Create line edits and add them to the layout
-    for ( int i = 1; i < 6; ++i )
+    // Iterate through the parameter list to create UI elements
+    for ( auto it = parameterList.begin(); it != parameterList.end(); ++it )
     {
-        auto *lineEdit = new Moris_Line_Edit( this );
-        lineEdit->setObjectName( QString( "lineEdit%1" ).arg( i ) );
-        layout->addWidget( lineEdit );
+        const std::string      &paramName = it->first;
+        const moris::Parameter &param     = it->second;
 
-        // Connect lineEdit's textChanged signal to updateInput slot
-        connect( lineEdit, &Moris_Line_Edit::textChanged, this, &TestWindow::updateInput );
-
-        // Store lineEdit in lineEdits map
-        lineEdits.insert( lineEdit->objectName(), lineEdit );
-
-        // Insert initial empty parameters into parameterList
-        parameterList.insert( lineEdit->objectName().toStdString(), "" );
-    }
-
-    // Create combo box and add it to the layout
-    comboBox = new Moris_Combo_Box( this );
-    comboBox->setObjectName( "comboBox1" );
-    comboBox->addItem( "Option 1" );
-    comboBox->addItem( "Option 2" );
-    comboBox->addItem( "Option 3" );
-    layout->addWidget( comboBox );
-
-    // Connect comboBox's currentIndexChanged signal to updateComboBox slot
-    connect( comboBox, &Moris_Combo_Box::currentIndexChanged, this, &TestWindow::updateComboBox );
-
-    // Insert combo box into parameterList with an empty initial value
-    parameterList.insert( comboBox->objectName().toStdString(), "" );
-
-    // Create double spin box and add it to the layout
-    doubleSpinBox = new Moris_Double_Spin_Box( this );
-    doubleSpinBox->setObjectName( "doubleSpinBox1" );
-    layout->addWidget( doubleSpinBox );
-
-    // Connect doubleSpinBox's valueChanged signal to updateDoubleSpinBox slot
-    connect( doubleSpinBox, QOverload< const QString &, const QVariant & >::of( &Moris_Double_Spin_Box::valueChanged ), this, &TestWindow::updateDoubleSpinBox );
-
-    // Insert double spin box into parameterList with an empty initial value
-    parameterList.insert( doubleSpinBox->objectName().toStdString(), "" );
-
-    // Create integer spin box and add it to the layout
-    intSpinBox = new Moris_Int_Spin_Box( this );
-    intSpinBox->setObjectName( "intSpinBox1" );
-    layout->addWidget( intSpinBox );
-
-    // Connect intSpinBox's valueChanged signal to updateIntSpinBox slot
-    connect( intSpinBox, QOverload< const QString &, const QVariant & >::of( &Moris_Int_Spin_Box::valueChanged ), this, &TestWindow::updateIntSpinBox );
-
-    // Insert integer spin box into parameterList with an empty initial value
-    parameterList.insert( intSpinBox->objectName().toStdString(), "" );
-
-    // Create button to save and print inputs
-    auto *printButton = new QPushButton( "Save and Print Inputs", this );
-    layout->addWidget( printButton );
-
-    // Connect button's clicked signal to saveAndPrintInputs slot
-    connect( printButton, &QPushButton::clicked, this, &TestWindow::saveAndPrintInputs );
-
-    // Set central widget for the main window
-    setCentralWidget( centralWidget );
-}
-
-// Slot to update currentInputs with line edit text changes
-void TestWindow::updateInput( const QString &name, const QString &text )
-{
-    currentInputs.setParameter( name, text );    // Set parameter in currentInputs
-}
-
-// Slot to update currentInputs with combo box selection changes
-void TestWindow::updateComboBox( const QString &name, int index )
-{
-    QString selectedItem = comboBox->itemText( index );    // Get selected item text
-    currentInputs.setParameter( name, selectedItem );      // Set parameter in currentInputs
-}
-
-// Slot to update currentInputs with double spin box value changes
-void TestWindow::updateDoubleSpinBox( const QString &name, const QVariant &value )
-{
-    currentInputs.setParameter( name, value );    // Set parameter in currentInputs
-}
-
-// Slot to update currentInputs with integer spin box value changes
-void TestWindow::updateIntSpinBox( const QString &name, const QVariant &value )
-{
-    currentInputs.setParameter( name, value );    // Set parameter in currentInputs
-}
-
-// Slot to save inputs from currentInputs to parameterList and print them
-void TestWindow::saveAndPrintInputs()
-{
-    bool allInputsAdded = true;
-
-    // Transfer inputs from currentInputs to parameterList
-    for ( const auto &key : currentInputs.allParameters().keys() )
-    {
-        QVariant variantValue = currentInputs.parameter( key );
-
-        // Convert QVariant to the appropriate type
-        QString stringValue;
-        if ( variantValue.canConvert< QString >() )
+        if ( paramName == "comboBox1" )
         {
-            stringValue = variantValue.toString();
+            // Create a combo box if the parameter name matches "comboBox1"
+            comboBox = new Moris_Combo_Box( this, const_cast< moris::Parameter * >( &param ) );
+            comboBox->setObjectName( QString::fromStdString( paramName ) );
+            comboBox->addItem( "Option 1" );
+            comboBox->addItem( "Option 2" );
+            comboBox->addItem( "Option 3" );
+            layout->addWidget( comboBox );
+
+            // Connect combo box signal to updateComboBox slot
+            connect( comboBox, &Moris_Combo_Box::indexChanged, this, &TestWindow::updateComboBox );
         }
-        else if ( variantValue.canConvert< int >() )
+        else if ( paramName == "doubleSpinBox1" )
         {
-            int intValue = variantValue.toInt();
-            stringValue  = QString::number( intValue );
+            // Create a double spin box if the parameter name matches "doubleSpinBox1"
+            auto *doubleSpinBox = new Moris_Double_Spin_Box( this, const_cast< moris::Parameter * >( &param ) );
+            doubleSpinBox->setObjectName( QString::fromStdString( paramName ) );
+            layout->addWidget( doubleSpinBox );
+
+            // Store the double spin box in a map for later access
+            doubleSpinBoxes.insert( doubleSpinBox->objectName(), doubleSpinBox );
+            // Connect double spin box signal to updateDoubleSpinBox slot
+            connect( doubleSpinBox, &Moris_Double_Spin_Box::valueChanged, this, &TestWindow::updateDoubleSpinBox );
         }
-        else if ( variantValue.canConvert< double >() )
+        else if ( paramName == "intSpinBox1" )
         {
-            double doubleValue = variantValue.toDouble();
-            stringValue        = QString::number( doubleValue, 'g', 15 );    // 'g' format for double
+            // Create an integer spin box if the parameter name matches "intSpinBox1"
+            auto *intSpinBox = new Moris_Int_Spin_Box( this, const_cast< moris::Parameter * >( &param ) );
+            intSpinBox->setObjectName( QString::fromStdString( paramName ) );
+            layout->addWidget( intSpinBox );
+
+            // Store the integer spin box in a map for later access
+            intSpinBoxes.insert( intSpinBox->objectName(), intSpinBox );
+            // Connect integer spin box signal to updateIntSpinBox slot
+            connect( intSpinBox, &Moris_Int_Spin_Box::valueChanged, this, &TestWindow::updateIntSpinBox );
         }
         else
         {
-            qDebug() << "Unsupported data type for parameter" << key;
-            continue;    // Skip unsupported types
-        }
+            // Create a line edit for other parameters
+            auto *lineEdit = new Moris_Line_Edit( this, const_cast< moris::Parameter * >( &param ) );
+            lineEdit->setObjectName( QString::fromStdString( paramName ) );
+            layout->addWidget( lineEdit );
 
-        // Set the parameter in parameterList, unlocking after setting
-        try
-        {
-            parameterList.set( key.toStdString(), stringValue.toStdString(), false );
-        } catch ( const std::runtime_error &e )
-        {
-            qDebug() << "Error setting parameter" << key << ": " << e.what();
-            allInputsAdded = false;
+            // Store the line edit in a map for later access
+            lineEdits.insert( lineEdit->objectName(), lineEdit );
+            // Connect line edit signal to updateInput slot
+            connect( lineEdit, &Moris_Line_Edit::textChanged, this, &TestWindow::updateInput );
         }
     }
 
-    // Print all parameters in parameterList
+    // Create a button to save and print inputs
+    auto *printButton = new QPushButton( "Save and Print Inputs", this );
+    layout->addWidget( printButton );
+
+    // Connect button click signal to saveAndPrintInputs slot
+    connect( printButton, &QPushButton::clicked, this, &TestWindow::saveAndPrintInputs );
+
+    // Set the central widget for the main window
+    setCentralWidget( centralWidget );
+}
+
+void TestWindow::updateInput( const QString &name, const QString &text )
+{
+    // Update the text of a line edit widget based on its name
+    auto lineEdit = lineEdits.value( name );
+    if ( lineEdit )
+    {
+        lineEdit->setText( text );
+    }
+}
+
+void TestWindow::updateComboBox( const QString &name, int index )
+{
+    // Update the current index of the combo box widget based on its name
+    if ( comboBox && comboBox->objectName() == name )
+    {
+        comboBox->setCurrentIndex( index );
+    }
+}
+
+void TestWindow::updateDoubleSpinBox( const QString &name, double value )
+{
+    // Update the value of a double spin box widget based on its name
+    auto doubleSpinBox = doubleSpinBoxes.value( name );
+    if ( doubleSpinBox )
+    {
+        doubleSpinBox->setValue( value );
+    }
+}
+
+void TestWindow::updateIntSpinBox( const QString &name, int value )
+{
+    // Update the value of an integer spin box widget based on its name
+    auto intSpinBox = intSpinBoxes.value( name );
+    if ( intSpinBox )
+    {
+        intSpinBox->setValue( value );
+    }
+}
+
+void TestWindow::saveAndPrintInputs()
+{
     qDebug() << "Saved Input Set:";
-    for ( const auto &param : parameterList )
+
+    // Print inputs for LineEdits
+    for ( auto it = lineEdits.begin(); it != lineEdits.end(); ++it )
     {
-        std::string paramName  = param.first;
-        std::string paramValue = param.second.get_string();
-
-        // Remove surrounding double quotes if they exist
-        if ( !paramValue.empty() && paramValue.front() == '"' && paramValue.back() == '"' )
-        {
-            paramValue = paramValue.substr( 1, paramValue.size() - 2 );
-        }
-
-        qDebug() << QString::fromStdString( paramName ) << ": " << QString::fromStdString( paramValue );
+        const QString &name = it.key();
+        const QString &text = it.value()->text();
+        qDebug() << name << ": " << text;
     }
 
-    // Check if all inputs from currentInputs have been successfully allocated to parameterList
-    for ( const auto &key : currentInputs.allParameters().keys() )
+    // Print inputs for ComboBoxes
+    for ( auto it = comboBoxes.begin(); it != comboBoxes.end(); ++it )
     {
-        if ( !parameterList.exists( key.toStdString() ) )
-        {
-            qDebug() << "Input " << key << " is missing in parameterList.";
-            allInputsAdded = false;
-        }
+        const QString &name  = it.key();
+        const int      index = it.value()->currentIndex();
+        qDebug() << name << ": " << index;
     }
 
-    if ( allInputsAdded )
+    // Print inputs for DoubleSpinBoxes
+    for ( auto it = doubleSpinBoxes.begin(); it != doubleSpinBoxes.end(); ++it )
     {
-        qDebug() << "All inputs have been successfully allocated to parameterList.";
+        const QString &name  = it.key();
+        const double   value = it.value()->value();
+        qDebug() << name << ": " << value;
     }
-    else
+
+    // Print inputs for IntSpinBoxes
+    for ( auto it = intSpinBoxes.begin(); it != intSpinBoxes.end(); ++it )
     {
-        qDebug() << "Inputs are missing in parameterList.";
+        const QString &name  = it.key();
+        const int      value = it.value()->value();
+        qDebug() << name << ": " << value;
     }
 }

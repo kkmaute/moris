@@ -2,51 +2,51 @@
 #define MORIS_DOUBLE_SPIN_BOX_HPP
 
 #include <QDoubleSpinBox>
-#include <QVariant>
-#include <QMap>
+#include "cl_Parameter.hpp"    
 
+// Moris_Double_Spin_Box
+// Custom QDoubleSpinBox widget for handling double value input and linking to moris::Parameter objects.
+// This class extends QDoubleSpinBox to provide additional functionality for managing double input parameters.
+// It emits a custom signal when the value changes, which includes the name and the new double value.
 class Moris_Double_Spin_Box : public QDoubleSpinBox
 {
     Q_OBJECT
 
   public:
-    // Constructor
+    // Constructor for Moris_Double_Spin_Box.
     // Inputs:
-    // - parent: The parent widget (QWidget *)
-    explicit Moris_Double_Spin_Box( QWidget *parent = nullptr );
+    // - parent: Pointer to the parent widget (default is nullptr).
+    // - parameter: Pointer to a moris::Parameter object to be linked with this widget (default is nullptr).
+    explicit Moris_Double_Spin_Box( QWidget *parent = nullptr, moris::Parameter *parameter = nullptr );
 
-    // Destructor
-    ~Moris_Double_Spin_Box();
-
-    // Sets a parameter key-value pair
+    // Destructor for Moris_Double_Spin_Box.
     // Inputs:
-    // - key: The parameter key (QString)
-    // - value: The parameter value (QVariant)
-    // Outputs: None
-    void setParameter( const QString &key, const QVariant &value );
-
-    // Retrieves the value for a given parameter key
-    // Inputs:
-    // - key: The parameter key (QString)
+    // - None.
     // Outputs:
-    // - Returns the value associated with the key (QVariant)
-    QVariant parameter( const QString &key ) const;
+    // - None.
+    ~Moris_Double_Spin_Box() override;
+
+    // Getter for the associated moris::Parameter object
+    moris::Parameter *getParameter() const;
 
   signals:
-    // Signal emitted when the value changes
-    // Outputs:
-    // - name: The name of the spin box object (QString)
-    // - new_value: The new value of the spin box (QVariant)
-    void valueChanged( const QString &name, const QVariant &new_value );
+    // Signal emitted when the value changes.
+    // Inputs:
+    // - name: Name associated with the widget.
+    // - value: New double value input in the widget.
+    void valueChanged( const QString &name, double value );
 
   private slots:
-    // Slot to handle value changes in the spin box
+    // Slot to handle value changes.
+    // This slot is connected to the valueChanged(double) signal of QDoubleSpinBox and updates the linked moris::Parameter object.
     // Inputs:
-    // - new_value: The new value of the spin box (double)
-    void onValueChanged( double new_value );
+    // - value: New double value input in the widget.
+    // Outputs:
+    // - None.
+    void onValueChanged( double value );
 
   private:
-    QMap< QString, QVariant > parameters;    // Store parameters as key-value pairs
+    moris::Parameter *mParameter;    // Pointer to the associated moris::Parameter object
 };
 
 #endif    // MORIS_DOUBLE_SPIN_BOX_HPP

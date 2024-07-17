@@ -1,47 +1,44 @@
 #include "moris_combo_box.hpp"
 
 // Constructor for Moris_Combo_Box
-// Initializes the combo box and sets up the signal-slot connection for index changes
-Moris_Combo_Box::Moris_Combo_Box( QWidget *parent )
+// Inputs:
+// - parent: Pointer to the parent widget (default is nullptr).
+// - parameter: Pointer to a moris::Parameter object to be linked with this widget (default is nullptr).
+Moris_Combo_Box::Moris_Combo_Box( QWidget *parent, moris::Parameter *parameter )
         : QComboBox( parent )
+        , mParameter( parameter )
 {
-    // Connect the QComboBox's currentIndexChanged signal to the onCurrentIndexChanged slot
-    connect( this, QOverload< int >::of( &QComboBox::currentIndexChanged ), this, &Moris_Combo_Box::onCurrentIndexChanged );
+    // Connect the currentIndexChanged(int) signal of QComboBox to the onIndexChanged slot
+    connect( this, QOverload< int >::of( &QComboBox::currentIndexChanged ), this, &Moris_Combo_Box::onIndexChanged );
 
-    // Setting a parameter
-    setParameter( "Key", "Value" );
+    // If parameter is not null, set the initial index from the parameter value
+    if ( mParameter )
+    {
+        setCurrentIndex( mParameter->get_value< int >() );
+    }
 }
 
 // Destructor for Moris_Combo_Box
-// Uses the default destructor
 Moris_Combo_Box::~Moris_Combo_Box() = default;
 
-// Sets a parameter key-value pair
-// Inputs:
-// - key: The parameter key (QString)
-// - value: The parameter value (QVariant)
-// Outputs: None
-void Moris_Combo_Box::setParameter( const QString &key, const QVariant &value )
+// Getter for the associated moris::Parameter object
+moris::Parameter *Moris_Combo_Box::getParameter() const
 {
-    parameters.insert( key, value );
+    return mParameter;
 }
 
-// Retrieves the value for a given parameter key
+// Slot to handle index changes
+// This slot is connected to the currentIndexChanged(int) signal of QComboBox and updates the linked moris::Parameter object.
 // Inputs:
-// - key: The parameter key (QString)
-// Outputs:
-// - Returns the value associated with the key (QVariant)
-QVariant Moris_Combo_Box::parameter( const QString &key ) const
+// - index: New index selected in the widget.
+void Moris_Combo_Box::onIndexChanged( int index )
 {
-    return parameters.value( key );
-}
+    // If parameter is not null, update the parameter value with the new index
+    if ( mParameter )
+    {
+        mParameter->set_value( objectName().toStdString(), index, false );
+    }
 
-// Slot that handles the combo box's index change
-// Inputs:
-// - index: The new selected index (int)
-// Outputs: None
-void Moris_Combo_Box::onCurrentIndexChanged( int index )
-{
-    // Emit the custom currentIndexChanged signal with the object name and the new index
-    emit currentIndexChanged( objectName(), index );
+    // Emit the custom indexChanged signal with the widget's name and the new index
+    emit indexChanged( objectName(), index );
 }

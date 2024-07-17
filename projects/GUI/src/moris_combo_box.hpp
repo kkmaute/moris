@@ -2,48 +2,51 @@
 #define MORIS_COMBO_BOX_HPP
 
 #include <QComboBox>
-#include <QVariant>
-#include <QMap>
-#include <QDebug>
+#include "cl_Parameter.hpp"  
 
+// Moris_Combo_Box
+// Custom QComboBox widget for handling index changes and linking to moris::Parameter objects.
+// This class extends QComboBox to provide additional functionality for managing combo box index parameters.
+// It emits a custom signal when the index changes, which includes the name and the new index value.
 class Moris_Combo_Box : public QComboBox
 {
     Q_OBJECT
 
   public:
-    explicit Moris_Combo_Box( QWidget *parent = nullptr );    // Constructor with optional parent widget
-    ~Moris_Combo_Box();                                       // Destructor
-
-    // Sets a parameter key-value pair
+    // Constructor for Moris_Combo_Box.
     // Inputs:
-    // - key: The parameter key (QString)
-    // - value: The parameter value (QVariant)
-    // Outputs: None
-    void setParameter( const QString &key, const QVariant &value );
+    // - parent: Pointer to the parent widget (default is nullptr).
+    // - parameter: Pointer to a moris::Parameter object to be linked with this widget (default is nullptr).
+    explicit Moris_Combo_Box( QWidget *parent = nullptr, moris::Parameter *parameter = nullptr );
 
-    // Retrieves the value for a given parameter key
+    // Destructor for Moris_Combo_Box.
     // Inputs:
-    // - key: The parameter key (QString)
+    // - None.
     // Outputs:
-    // - Returns the value associated with the key (QVariant)
-    QVariant parameter( const QString &key ) const;
+    // - None.
+    ~Moris_Combo_Box() override;
+
+    // Getter for the associated moris::Parameter object
+    moris::Parameter* getParameter() const;
 
   signals:
-    // Signal emitted when the combo box index changes
+    // Signal emitted when the index changes.
     // Inputs:
-    // - name: The name associated with the combo box
-    // - index: The new index of the combo box
-    void currentIndexChanged( const QString &name, int index );
+    // - name: Name associated with the widget.
+    // - index: New index selected in the widget.
+    void indexChanged( const QString &name, int index );
 
   private slots:
-    // Slot to handle index changes in the combo box
+    // Slot to handle index changes.
+    // This slot is connected to the currentIndexChanged(int) signal of QComboBox and updates the linked moris::Parameter object.
     // Inputs:
-    // - index: The new selected index (int)
-    // Outputs: None
-    void onCurrentIndexChanged( int index );
+    // - index: New index selected in the widget.
+    // Outputs:
+    // - None.
+    void onIndexChanged( int index );
 
   private:
-    QMap< QString, QVariant > parameters;    // Map to store parameters
+    moris::Parameter *mParameter;    // Pointer to the associated moris::Parameter object
 };
 
 #endif    // MORIS_COMBO_BOX_HPP

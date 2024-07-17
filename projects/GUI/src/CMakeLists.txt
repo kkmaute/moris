@@ -25,7 +25,6 @@ set(PROJECT_SOURCES
        moris_line_edit.cpp
        moris_combo_box.cpp
        TestWindow.cpp
-       input_parameters.cpp
        moris_double_spin_box.cpp
        moris_int_spin_box.cpp
        )
@@ -35,7 +34,6 @@ set(HEADERS
        moris_line_edit.hpp
        moris_combo_box.hpp
        TestWindow.hpp
-       input_parameters.hpp
        moris_double_spin_box.hpp
        moris_int_spin_box.hpp
 )
