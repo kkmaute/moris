@@ -19,7 +19,6 @@
 #include "HMR_Globals.hpp"
 #include "cl_HMR_Background_Element_Base.hpp"
 
-
 using namespace moris;
 
 namespace moris::xtk
@@ -516,7 +515,6 @@ namespace moris::xtk
         return mL2ProjectionMatrix;
     }
 
-
     //------------------------------------------------------------------------------------
     Vector< moris_id >&
     HMR_Helper::get_enriched_basis_indicies_of_cell( const mtk::Cell* aCell, moris_index aSPGIndex )
@@ -589,6 +587,5 @@ namespace moris::xtk
         // return the ijk
         return tIJK;
     }
-
 
 }    // namespace moris::xtk

@@ -26,9 +26,9 @@
 
 #include "cl_MTK_Mesh_Manager.hpp"
 
-#                               //include "cl_XTK_Periodic_Boundary_Condition_Helper.hpp"
+#//include "cl_XTK_Periodic_Boundary_Condition_Helper.hpp"
 #include "cl_MTK_Scalar_Field_Info.hpp"
-#include "cl_MTK_Set.hpp"       //MTK/src
+#include "cl_MTK_Set.hpp"    //MTK/src
 #include "cl_MTK_Side_Cluster.hpp"
 #include "cl_MTK_Vertex.hpp"    //MTK
 #include "cl_MTK_Writer_Exodus.hpp"
@@ -134,7 +134,7 @@ namespace moris::xtk
             tXTKModel.mVerbose = false;
 
             // Specify decomposition Method and Cut Mesh ---------------------------------------
-            Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
+            Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
             tXTKModel.decompose( tDecompositionMethods );
 
             tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 );

@@ -939,7 +939,6 @@ namespace moris::xtk
         std::unordered_map< moris_index, bool > tGhostVerticesWithInterpolationMap;
         std::unordered_map< moris_index, bool > tGhostVerticesWithOutInterpolationMap;
 
-
         // iterate through vertices and gather the
         for ( uint iS = 0; iS < tNumGhostSets; iS++ )
         {
@@ -2556,7 +2555,6 @@ namespace moris::xtk
         mtk::Cell_Info_Factory                   tCellInfoFactory;
         std::shared_ptr< moris::mtk::Cell_Info > tLinearCellInfo = tCellInfoFactory.create_cell_info_sp( aInterpCell->get_geometry_type(), mtk::Interpolation_Order::LINEAR );
 
-
         // create a new integration cell that does not have a child mesh association
         std::shared_ptr< xtk::Cell_XTK_No_CM > tIgCell = std::make_shared< xtk::Cell_XTK_No_CM >(
                 aCurrentId,
@@ -2564,7 +2562,6 @@ namespace moris::xtk
                 aInterpCell->get_owner(),
                 tLinearCellInfo,
                 tLinearVertices );
-
 
         // add to map
         aGhostSetupData.mLinearIgCellIndex[ aInterpCell->get_id() ] = (moris_index)aGhostSetupData.mLinearIgCells.size();
@@ -2580,7 +2577,6 @@ namespace moris::xtk
 
         return tIgCell.get();
     }
-
 
     // ----------------------------------------------------------------------------------
 

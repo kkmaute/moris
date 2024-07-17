@@ -225,7 +225,6 @@ namespace moris::xtk
         Matrix< IndexMat >
         get_block_entity_loc_inds( std::string aSetName ) const;
 
-
         //------------------------------------------------------------------------------
 
         /**
@@ -244,7 +243,6 @@ namespace moris::xtk
                 Vector< moris_index > aLeaderBulkPhaseIndex,
                 Vector< moris_index > aFollowerBulkPhaseIndex );
 
-
         //------------------------------------------------------------------------------
         // Output/ Viz Functions
         //------------------------------------------------------------------------------
@@ -262,7 +260,6 @@ namespace moris::xtk
          */
         void
         deactivate_empty_side_sets();
-
 
         //------------------------------------------------------------------------------
 
@@ -306,7 +303,6 @@ namespace moris::xtk
         write_mesh(
                 moris::Parameter_List *aParamList );
 
-
         void
         create_union_block(
                 Vector< std::string > const &aBlocks,
@@ -319,7 +315,6 @@ namespace moris::xtk
                 std::string                  aNewSideSet,
                 Matrix< IndexMat > const    &aNewSideSetColor );
 
-
         void
         deactivate_all_blocks_except_selected(
                 Vector< std::string > const &aBlockSetsToKeep );
@@ -327,7 +322,6 @@ namespace moris::xtk
         void
         deactivate_all_side_sets_except_selected(
                 Vector< std::string > const &aSideSetsToKeep );
-
 
         //------------------------------------------------------------------------------
         // Memory Map
@@ -338,7 +332,6 @@ namespace moris::xtk
          */
         moris::Memory_Map
         get_memory_usage();
-
 
         //------------------------------------------------------------------------------
         // Additional Field Functions
@@ -520,7 +513,6 @@ namespace moris::xtk
                 std::string const       &aBlockSetName,
                 mtk::CellTopology const &aCellTopo,
                 bool                     aCreateOnlyForVis = false );
-
 
         //------------------------------------------------------------------------------
 
@@ -795,10 +787,8 @@ namespace moris::xtk
                 const mtk::EntityRank    aEntityRank,
                 const moris::moris_index aSetOrdinal );
 
-
     };    // class Enriched_Integration_Mesh
 
 }    // namespace moris::xtk
-
 
 #endif /* PROJECTS_XTK_SRC_XTK_CL_XTK_ENRICHED_INTEGRATION_MESH_HPP_ */

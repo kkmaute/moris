@@ -152,9 +152,9 @@ namespace moris::xtk
             Geometry_Engine tGeometryEngine( tLevelSetMesh );
 
             // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
-            size_t                          tModelDimension       = 3;
-            Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
-            Model                           tXTKModel( tModelDimension, tMeshData, tGeometryEngine );
+            size_t                            tModelDimension       = 3;
+            Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
+            Model                             tXTKModel( tModelDimension, tMeshData, tGeometryEngine );
             tXTKModel.mVerbose = false;
 
             tXTKModel.set_HMR_mesh_ptr( tMesh );
