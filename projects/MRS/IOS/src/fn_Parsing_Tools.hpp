@@ -35,8 +35,8 @@ namespace moris
      */
     Vector< std::string >
     split_string(
-            const std::string  & aString,
-            const std::string  & aDelim);
+            const std::string &aString,
+            const std::string &aDelim );
 
     // -----------------------------------------------------------------------------
     /**
@@ -44,7 +44,7 @@ namespace moris
      *
      * @param s std::string
      */
-    void ltrim_string( std::string& aString );
+    void ltrim_string( std::string &aString );
 
     // -----------------------------------------------------------------------------
     /**
@@ -52,7 +52,7 @@ namespace moris
      *
      * @param aString std::string
      */
-    void rtrim_string( std::string& aString );
+    void rtrim_string( std::string &aString );
 
     // -----------------------------------------------------------------------------
     /**
@@ -60,7 +60,7 @@ namespace moris
      *
      * @param aString std::string
      */
-    void trim_string( std::string& aString );
+    void trim_string( std::string &aString );
 
     // -----------------------------------------------------------------------------
     /**
@@ -72,8 +72,8 @@ namespace moris
      * @param aDelimiter const std::string
      */
     void split_trim_string(
-            std::string       & aString,
-            const std::string & aDelimiter);
+            std::string       &aString,
+            const std::string &aDelimiter );
 
     // -----------------------------------------------------------------------------
     /**
@@ -137,7 +137,7 @@ namespace moris
             const std::string &aString,
             Matrix< T >       &aMat )
     {
-        if( !aString.empty() )
+        if ( !aString.empty() )
         {
             uint tCountRow = std::count( aString.begin(), aString.end(), ';' ) + 1;
             uint tCountCol = ( std::count( aString.begin(), aString.end(), ',' ) / tCountRow ) + 1;
@@ -253,10 +253,10 @@ namespace moris
     template< typename T >
     void
     string_to_cell_mat(
-            const std::string   &aString,
+            const std::string     &aString,
             Vector< Matrix< T > > &aCellMat )
     {
-        if( !aString.empty() )
+        if ( !aString.empty() )
         {
             uint tCellCount = std::count( aString.begin(), aString.end(), ';' ) + 1;
 
@@ -348,7 +348,7 @@ namespace moris
     template< typename T >
     inline void
     string_to_cell_mat_2(
-            const std::string   &aString,
+            const std::string     &aString,
             Vector< Matrix< T > > &aCellMat )
     {
         // if non-empty string
@@ -375,7 +375,6 @@ namespace moris
             {
                 // get the matrix string to stream over
                 std::istringstream tMatrixStringStream( tMatrixString );
-
 
                 // set the size of the matrix
                 uint tNumRows = std::count( tMatrixString.begin(), tMatrixString.end(), ';' ) + 1;
@@ -426,16 +425,25 @@ namespace moris
         }
     }
 
+    template< typename T >
+    [[nodiscard]] inline Vector< Matrix< T > >
+    string_to_cell_mat_2( const std::string &aString )
+    {
+        Vector< Matrix< T > > tCellMat;
+        string_to_cell_mat_2( aString, tCellMat );
+        return tCellMat;
+    }
+
     // -----------------------------------------------------------------------------
 
     template< typename T >
     void
     string_to_cell_of_cell(
-            const std::string               &aString,
-            Vector< Vector< T > > &aCellCell,
-            moris::map< std::string, T >    &aMap )
+            const std::string                  &aString,
+            Vector< Vector< T > >              &aCellCell,
+            moris::map< std::string, T > const &aMap )
     {
-        if( !aString.empty() )
+        if ( !aString.empty() )
         {
             uint tCellCount = std::count( aString.begin(), aString.end(), ';' ) + 1;
 
@@ -483,8 +491,8 @@ namespace moris
                         {
                             T tComponent                     = aMap.find( tStringMat.substr( 0, tPosSubString ) );
                             aCellCell( tCount )( tCount1++ ) = tComponent;
-                            tStringMat =  tStringMat.substr( tPosSubString+1, tStringMat.size() );
-                            tPosSubString = tStringMat.find( ',' );
+                            tStringMat                       = tStringMat.substr( tPosSubString + 1, tStringMat.size() );
+                            tPosSubString                    = tStringMat.find( ',' );
                         }
                     }
 
@@ -509,8 +517,8 @@ namespace moris
                         {
                             T tComponent                     = aMap.find( tString.substr( 0, tPosSubString ) );
                             aCellCell( tCount )( tCount1++ ) = tComponent;
-                            tString =  tString.substr( tPosSubString+1, tString.size() );
-                            tPosSubString = tString.find( ',' );
+                            tString                          = tString.substr( tPosSubString + 1, tString.size() );
+                            tPosSubString                    = tString.find( ',' );
                         }
                     }
 
@@ -527,15 +535,26 @@ namespace moris
         }
     }
 
+    template< typename T >
+    [[nodiscard]] Vector< Vector< T > >
+    string_to_cell_of_cell(
+            const std::string                  &aString,
+            moris::map< std::string, T > const &aMap )
+    {
+        Vector< Vector< T > > tCellCell;
+        string_to_cell_of_cell( aString, tCellCell, aMap );
+        return tCellCell;
+    }
+
     // -----------------------------------------------------------------------------
 
     template< typename T >
     void
     string_to_cell_of_cell(
-            const std::string               &aString,
+            const std::string     &aString,
             Vector< Vector< T > > &aCellCell )
     {
-        if( !aString.empty() )
+        if ( !aString.empty() )
         {
             uint tCellCount = std::count( aString.begin(), aString.end(), ';' ) + 1;
 
@@ -582,8 +601,8 @@ namespace moris
                         if ( tPosSubString < tStringMat.size() )
                         {
                             aCellCell( tCount )( tCount1++ ) = tStringMat.substr( 0, tPosSubString );
-                            tStringMat =  tStringMat.substr( tPosSubString+1, tStringMat.size() );
-                            tPosSubString = tStringMat.find( ',' );
+                            tStringMat                       = tStringMat.substr( tPosSubString + 1, tStringMat.size() );
+                            tPosSubString                    = tStringMat.find( ',' );
                         }
                     }
 
@@ -606,8 +625,8 @@ namespace moris
                         if ( tPosSubString < tString.size() )
                         {
                             aCellCell( tCount )( tCount1++ ) = tString.substr( 0, tPosSubString );
-                            tString = tString.substr( tPosSubString+1, tString.size() );
-                            tPosSubString = tString.find( ',' );
+                            tString                          = tString.substr( tPosSubString + 1, tString.size() );
+                            tPosSubString                    = tString.find( ',' );
                         }
                     }
 
@@ -623,16 +642,25 @@ namespace moris
         }
     }
 
+    template< typename T >
+    [[nodiscard]] Vector< Vector< T > >
+    string_to_cell_of_cell( const std::string &aString )
+    {
+        Vector< Vector< T > > tCellCell;
+        string_to_cell_of_cell( aString, tCellCell );
+        return tCellCell;
+    }
+
     // -----------------------------------------------------------------------------
 
     template< typename T >
     void
     string_to_cell(
-            const std::string            &aString,
-            Vector< T >             &aCell,
-            moris::map< std::string, T > &aMap )
+            const std::string                  &aString,
+            Vector< T >                        &aCell,
+            moris::map< std::string, T > const &aMap )
     {
-        if( !aString.empty() )
+        if ( !aString.empty() )
         {
             uint tCellCount = std::count( aString.begin(), aString.end(), ',' ) + 1;
 
@@ -693,6 +721,17 @@ namespace moris
         }
     }
 
+    template< typename T >
+    [[nodiscard]] Vector< T >
+    string_to_cell(
+            const std::string                  &aString,
+            moris::map< std::string, T > const &aMap )
+    {
+        Vector< T > tCell;
+        string_to_cell( aString, tCell, aMap );
+        return tCell;
+    }
+
     /**
      * Converts an input string into values to be pushed back into a cell with "," delimiter.
      *
@@ -700,10 +739,10 @@ namespace moris
      * @param aString Input string
      * @param aCell Cell of converted data
      */
-    template < typename T >
+    template< typename T >
     void string_to_cell(
-            const std::string& aString,
-            Vector< T > & aCell )
+            const std::string &aString,
+            Vector< T >       &aCell )
     {
         // convert string to string stream and a sub string
         std::stringstream tStringStream( aString );
@@ -730,10 +769,10 @@ namespace moris
      * @param aString Input string
      * @param aCell Cell of converted data
      */
-    template <>
+    template<>
     void string_to_cell< std::string >(
-            const std::string&          aString,
-            Vector< std::string >& aCell );
+            const std::string     &aString,
+            Vector< std::string > &aCell );
 
     /**
      * Converts an input string into a new cell to be returned.
@@ -742,8 +781,8 @@ namespace moris
      * @param aString Input string
      * @return Cell of converted data
      */
-    template < typename T >
-    Vector< T > string_to_cell( const std::string & aString )
+    template< typename T >
+    [[nodiscard]] Vector< T > string_to_cell( const std::string &aString )
     {
         Vector< T > tCell;
         string_to_cell( aString, tCell );
@@ -769,4 +808,4 @@ namespace moris
         return aOutValue;
     }
 
-}
+}    // namespace moris
