@@ -41,6 +41,9 @@ namespace moris
             /// parameters for exponential strategy
             real mExponent;
 
+            // check if the load stepping requirement (e.g. residual drop) is met
+            bool check_load_step_requirement( Nonlinear_Solver* aNonLinSolverManager );
+
           public:
             Solver_Load_Control( Parameter_List& aParameterListNonlinearSolver );
 

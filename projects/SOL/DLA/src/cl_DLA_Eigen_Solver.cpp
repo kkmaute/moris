@@ -30,7 +30,6 @@
 #include "AnasaziBasicOutputManager.hpp"
 #include "AnasaziEpetraAdapter.hpp"
 
-
 #ifdef HAVE_MPI
 #include "Epetra_MpiComm.h"
 #include "mpi.h"
@@ -44,7 +43,6 @@
 #include "Epetra_Export.h"
 #include "Epetra_LinearProblem.h"
 #include "Epetra_CrsMatrix.h"
-
 
 // Include header for AztecOO iterative linear solver, and
 // AztecOO_Operator.  The latter wraps an AztecOO solver in an
@@ -651,7 +649,6 @@ int Eigen_Solver::solve_generalized_davidson_system( Linear_Problem* aLinearSyst
 
          std::shared_ptr<Vector<real>>& tEigenValues  = aLinearSystem->get_solver_input()->get_eigen_values();
        
-
         // Output computed eigenvalues and their direct residuals
         MORIS_LOG_INFO( "===============================================" );
         for ( int j = 0; j < mNumReturnedEigVals; j++ )
@@ -859,7 +856,6 @@ int Eigen_Solver::solve_block_krylov_schur_system( Linear_Problem* aLinearSystem
     // Output computed eigenvalues and their direct residuals
      std::shared_ptr<Vector<real>>& tEigenValues  = aLinearSystem->get_solver_input()->get_eigen_values();
       
-
     MORIS_LOG_INFO( "===============================================" );
     for ( int i = 0; i < mSol.numVecs; i++ )
     {
@@ -868,7 +864,6 @@ int Eigen_Solver::solve_block_krylov_schur_system( Linear_Problem* aLinearSystem
 
           tEigenValues->push_back( 1 / evals[ i ].realpart );
     }
-
 
     // print eigen vector
     for ( int m = 0; m < mNumReturnedEigVals; m++ )
@@ -1014,7 +1009,6 @@ int Eigen_Solver::solve_block_krylov_schur_amesos_system( Linear_Problem* aLinea
             MORIS_ERROR( false, "Number of eigen vector and eigen value in parameterlist should be the same." );
         }
     }
-
 
     // Compute residuals.
     std::vector< double > normR( mSol.numVecs );
