@@ -1,54 +1,44 @@
-#include <QDebug>
-
 #include "moris_line_edit.hpp"
 
 // Constructor for Moris_Line_Edit
-// Initializes the line edit widget and sets up the signal-slot connection for text changes
 // Inputs:
-// - parent: Pointer to the parent widget, default is nullptr
-// Outputs: None
-Moris_Line_Edit::Moris_Line_Edit( QWidget *parent )
+// - parent: Pointer to the parent widget (default is nullptr).
+// - parameter: Pointer to a moris::Parameter object to be linked with this widget (default is nullptr).
+Moris_Line_Edit::Moris_Line_Edit( QWidget *parent, moris::Parameter *parameter )
         : QLineEdit( parent )
+        , mParameter( parameter )
 {
-    // Connect the QLineEdit's textChanged signal to the onTextChanged slot
+    // Connect the textChanged(const QString &) signal to the onTextChanged slot
     connect( this, &QLineEdit::textChanged, this, &Moris_Line_Edit::onTextChanged );
 
-    // Setting an example parameter for demonstration
-    setParameter( "exampleKey", "exampleValue" );
+    // If parameter is not null, set the initial text from the parameter value
+    if ( mParameter )
+    {
+        setText( QString::fromStdString( mParameter->get_string() ) );
+    }
 }
 
 // Destructor for Moris_Line_Edit
-// Currently, it uses the default destructor
-// Inputs: None
-// Outputs: None
 Moris_Line_Edit::~Moris_Line_Edit() = default;
 
-// Sets a parameter key-value pair
-// Inputs:
-// - key: The parameter key (QString)
-// - value: The parameter value (QVariant)
-// Outputs: None
-void Moris_Line_Edit::setParameter( const QString &key, const QVariant &value )
+// Getter for the associated moris::Parameter object
+moris::Parameter *Moris_Line_Edit::getParameter() const
 {
-    parameters.insert( key, value );
+    return mParameter;
 }
 
-// Retrieves the value for a given parameter key
+// Slot to handle text changes
+// This slot is connected to the textChanged signal of QLineEdit and updates the linked moris::Parameter object.
 // Inputs:
-// - key: The parameter key (QString)
-// Outputs:
-// - Returns the value associated with the key (QVariant)
-QVariant Moris_Line_Edit::parameter( const QString &key ) const
+// - new_text: New text input in the widget.
+void Moris_Line_Edit::onTextChanged( const QString &new_text )
 {
-    return parameters.value( key );
-}
+    // If parameter is not null, update the parameter value with the new text
+    if ( mParameter )
+    {
+        mParameter->set_value( objectName().toStdString(), new_text.toStdString(), false );
+    }
 
-// Slot that handles the line edit's text change
-// Inputs:
-// - text: The new text (QString)
-// Outputs: None
-void Moris_Line_Edit::onTextChanged( const QString &text )
-{
-    // Emit the custom textChanged signal with the object name and the new text
-    emit textChanged( objectName(), text );
+    // Emit the custom textChanged signal with the widget's name and new text
+    emit textChanged( objectName(), new_text );
 }

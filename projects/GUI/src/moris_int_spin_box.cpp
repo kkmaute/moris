@@ -1,33 +1,44 @@
 #include "moris_int_spin_box.hpp"
 
-// Constructor
-Moris_Int_Spin_Box::Moris_Int_Spin_Box( QWidget *parent )
+// Constructor for Moris_Int_Spin_Box
+// Inputs:
+// - parent: Pointer to the parent widget (default is nullptr).
+// - parameter: Pointer to a moris::Parameter object to be linked with this widget (default is nullptr).
+Moris_Int_Spin_Box::Moris_Int_Spin_Box( QWidget *parent, moris::Parameter *parameter )
         : QSpinBox( parent )
+        , mParameter( parameter )
 {
-    // Set the range for the spin box
-    setRange( 0, 100000 );    // Set the minimum to 0 and the maximum to 1000
-
-    // Connect the valueChanged(int) signal to the onValueChanged(int) slot
+    // Connect the valueChanged(int) signal of QSpinBox to the onValueChanged slot
     connect( this, QOverload< int >::of( &QSpinBox::valueChanged ), this, &Moris_Int_Spin_Box::onValueChanged );
+
+    // If parameter is not null, set the initial value from the parameter value
+    if ( mParameter )
+    {
+        setValue( mParameter->get_value< int >() );
+    }
 }
 
-// Destructor
+// Destructor for Moris_Int_Spin_Box
 Moris_Int_Spin_Box::~Moris_Int_Spin_Box() = default;
 
-// Sets a parameter key-value pair in the parameters map
-void Moris_Int_Spin_Box::setParameter( const QString &key, const QVariant &value )
+// Getter for the associated moris::Parameter object
+moris::Parameter *Moris_Int_Spin_Box::getParameter() const
 {
-    parameters.insert( key, value );
+    return mParameter;
 }
 
-// Retrieves the value for a given parameter key from the parameters map
-QVariant Moris_Int_Spin_Box::parameter( const QString &key ) const
+// Slot to handle value changes
+// This slot is connected to the valueChanged(int) signal of QSpinBox and updates the linked moris::Parameter object.
+// Inputs:
+// - value: New integer value input in the widget.
+void Moris_Int_Spin_Box::onValueChanged( int value )
 {
-    return parameters.value( key );
-}
+    // If parameter is not null, update the parameter value with the new integer value
+    if ( mParameter )
+    {
+        mParameter->set_value( objectName().toStdString(), value, false );
+    }
 
-// Slot to handle value changes in the spin box
-void Moris_Int_Spin_Box::onValueChanged( int new_value )
-{
-    emit valueChanged( objectName(), QVariant( new_value ) );    // Emit signal with new QVariant value
+    // Emit the custom valueChanged signal with the widget's name and the new integer value
+    emit valueChanged( objectName(), value );
 }
