@@ -313,7 +313,6 @@ namespace moris
                 mTPLType = aTPLType;
             }
 
-
             //--------------------------------------------------------------------------------------------------------
 
             /**
@@ -365,7 +364,6 @@ namespace moris
              */
             // Dist_Vector * get_full_vector(){ return mFullVector; };
         };
-
 
     }    // namespace sol
 }    // namespace moris

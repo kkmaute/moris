@@ -32,7 +32,6 @@
 #include "cl_Communicator_Epetra.hpp"
 #include "Epetra_Map.h"
 
-
 namespace moris
 {
     class Dist_Map_Custom : public sol::Dist_Map
