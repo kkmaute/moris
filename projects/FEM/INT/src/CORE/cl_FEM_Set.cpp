@@ -179,7 +179,10 @@ namespace moris
                 return;
             }
             mEquationObjList.clear();
-            mClusterMeasures.reset();    // force rebuild of cluster measures
+
+            // force rebuild of set of cluster measure specifications
+            mClusterMeasuresSpecs.clear();
+
             this->create_fem_clusters();
         }
         //------------------------------------------------------------------------------
@@ -1401,7 +1404,7 @@ namespace moris
             std::for_each( mIQIs.begin(), mIQIs.end(), tAppendSPs );
 
             // reset in case the fem set is rebuilt
-            mClusterMeasures = std::set< Cluster_Measure::ClusterMeasureSpecification >();
+            mClusterMeasuresSpecs.clear();
 
             // loop over all the stabilization parameters and populate the cluster measure set
             for ( auto const & tStabilizationParameter : tSPs )
@@ -1410,10 +1413,7 @@ namespace moris
                 {
                     for ( auto const & tClusterSpecification : tStabilizationParameter->get_cluster_measure_tuple_list() )
                     {
-                        MORIS_ASSERT( mClusterMeasures.has_value(),
-                                "The std::optional variable should have a underlying value at this point..." );
-
-                        mClusterMeasures->insert( tClusterSpecification );
+                        mClusterMeasuresSpecs.insert( tClusterSpecification );
                     }
                 }
             }
@@ -1424,12 +1424,12 @@ namespace moris
         std::set< Cluster_Measure::ClusterMeasureSpecification > const &
         Set::get_cluster_measure_specifications()
         {
-            // check that map was built
-            if ( !mClusterMeasures.has_value() )
+            // check that cluster measure specification set was built
+            if ( mClusterMeasuresSpecs.empty() )
             {
                 this->build_cluster_measure_specifications();
             }
-            return mClusterMeasures.value();
+            return mClusterMeasuresSpecs;
         }
 
         //------------------------------------------------------------------------------
@@ -3720,7 +3720,7 @@ namespace moris
                 case mtk::SetType::NONCONFORMAL_SIDESET:
                     mElementType = fem::Element_Type::NONCONFORMAL_SIDESET;
                     break;
-                    
+
                 default:
                     MORIS_ERROR( false, "Set::determine_set_type() - not defined for this set type. " );
             }

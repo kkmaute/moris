@@ -11,6 +11,8 @@
 #ifndef SRC_FEM_CL_FEM_SET_HPP_
 #define SRC_FEM_CL_FEM_SET_HPP_
 
+#include <set>
+
 #include "assert.h"
 #include "cl_Communication_Tools.hpp"
 
@@ -26,8 +28,6 @@
 #include "cl_FEM_Constitutive_Model.hpp"
 #include "cl_FEM_Stabilization_Parameter.hpp"
 #include <cl_FEM_Cluster_Measure.hpp>
-#include <set>
-#include <optional>
 #include "cl_FEM_Set_User_Info.hpp"
 #include "cl_FEM_IQI.hpp"
 // FEM/MSI/src
@@ -141,7 +141,9 @@ namespace moris
             Vector< Matrix< DDSMat > > mFacetAssemblyMap;    // input: VIS mesh index, IG cell index, side ordinal  || output: position of facet within the output (dbl) side set
             Vector< uint >             mNumFacetsOnSet;      // input: VIS mesh index || output: number of facets in that VIS (dbl) side set
 
-            std::optional< std::set< Cluster_Measure::ClusterMeasureSpecification > > mClusterMeasures;
+            std::set< Cluster_Measure::ClusterMeasureSpecification > mClusterMeasuresSpecs;
+
+            bool mEvalClusterMeasuresSpecs = true;
 
             // bool for time continuity
             bool mTimeContinuity = false;
