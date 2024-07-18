@@ -847,7 +847,7 @@ namespace moris
 
                     aFieldInterpolator->set_space_time( tSpaceTime );
 
-                    mDeformedNodes->set_row( iNode, tXhat.get_row( iNode ) + trans( aFieldInterpolator->val() ) );
+                    mDeformedNodes.set_row( iNode, tXhat.get_row( iNode ) + trans( aFieldInterpolator->val() ) );
                 }
 
                 // Reset the Field Interpolator to the previous space coordinates.
