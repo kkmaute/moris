@@ -103,6 +103,7 @@ namespace moris
                     break;
                 }
                 case fem::Element_Type::DOUBLE_SIDESET:
+                case fem::Element_Type::NONCONFORMAL_SIDESET:
                 {
                     m_compute_dQIdu_FD          = &IQI::select_dQIdu_FD;
                     m_compute_dQIdp_FD_material = &IQI::select_dQIdp_FD_material_double;
@@ -110,7 +111,7 @@ namespace moris
                     break;
                 }
                 default:
-                    MORIS_ERROR( false, "IWG::set_function_pointers - unknown element type." );
+                    MORIS_ERROR( false, "IQI::set_function_pointers - unknown element type." );
             }
 
             // switch on perturbation strategy
@@ -201,7 +202,7 @@ namespace moris
                 }
                 default:
                 {
-                    MORIS_ERROR( false, "IWG::set_phase_name - aIsLeader can only be leader or follower." );
+                    MORIS_ERROR( false, "IQI::set_phase_name - aIsLeader can only be leader or follower." );
                 }
             }
         }
@@ -223,7 +224,7 @@ namespace moris
                 }
                 default:
                 {
-                    MORIS_ERROR( false, "IWG::get_phase_name - aIsLeader can only be leader or follower." );
+                    MORIS_ERROR( false, "IQI::get_phase_name - aIsLeader can only be leader or follower." );
                     return mLeaderPhaseName;
                 }
             }
@@ -262,7 +263,7 @@ namespace moris
                 }
                 default:
                 {
-                    MORIS_ERROR( false, "IWG::set_field_interpolator_manager - can only be leader or follower" );
+                    MORIS_ERROR( false, "IQI::set_field_interpolator_manager - can only be leader or follower" );
                 }
             }
 
@@ -331,7 +332,7 @@ namespace moris
         void
         IQI::set_dof_type_list(
                 const Vector< Vector< MSI::Dof_Type > >& aDofTypes,
-                mtk::Leader_Follower                               aIsLeader )
+                mtk::Leader_Follower                     aIsLeader )
         {
             switch ( aIsLeader )
             {
@@ -429,7 +430,7 @@ namespace moris
         void
         IQI::set_dv_type_list(
                 const Vector< Vector< gen::PDV_Type > >& aDvTypes,
-                mtk::Leader_Follower                          aIsLeader )
+                mtk::Leader_Follower                     aIsLeader )
         {
             switch ( aIsLeader )
             {
@@ -558,7 +559,7 @@ namespace moris
                 // if none
                 default:
                 {
-                    MORIS_ASSERT( false, "IWG::get_global_field_type_list - can only be leader or follower." );
+                    MORIS_ASSERT( false, "IQI::get_global_field_type_list - can only be leader or follower." );
                     return mLeaderGlobalFieldTypes;
                 }
             }
@@ -569,7 +570,7 @@ namespace moris
         void
         IQI::set_field_type_list(
                 const Vector< Vector< mtk::Field_Type > >& aDofTypes,
-                mtk::Leader_Follower                                 aIsLeader )
+                mtk::Leader_Follower                       aIsLeader )
         {
             switch ( aIsLeader )
             {
@@ -763,7 +764,7 @@ namespace moris
         void
         IQI::get_non_unique_dof_dv_and_field_types(
                 Vector< Vector< MSI::Dof_Type > >&   aDofTypes,
-                Vector< Vector< gen::PDV_Type > >&        aDvTypes,
+                Vector< Vector< gen::PDV_Type > >&   aDvTypes,
                 Vector< Vector< mtk::Field_Type > >& aFieldTypes )
 
         {
@@ -818,7 +819,7 @@ namespace moris
                 {
                     // get property non unique dof and dv type list
                     Vector< MSI::Dof_Type >   tActiveDofTypes;
-                    Vector< gen::PDV_Type >        tActiveDvTypes;
+                    Vector< gen::PDV_Type >   tActiveDvTypes;
                     Vector< mtk::Field_Type > tActiveFieldTypes;
 
                     tProperty->get_non_unique_dof_dv_and_field_types(
@@ -840,7 +841,7 @@ namespace moris
                 {
                     // get property non unique dof and dv type lists
                     Vector< MSI::Dof_Type >   tActiveDofTypes;
-                    Vector< gen::PDV_Type >        tActiveDvTypes;
+                    Vector< gen::PDV_Type >   tActiveDvTypes;
                     Vector< mtk::Field_Type > tActiveFieldTypes;
 
                     tProperty->get_non_unique_dof_dv_and_field_types(
@@ -862,7 +863,7 @@ namespace moris
                 {
                     // get CM non unique dof and dv type lists
                     Vector< MSI::Dof_Type >   tActiveDofTypes;
-                    Vector< gen::PDV_Type >        tActiveDvTypes;
+                    Vector< gen::PDV_Type >   tActiveDvTypes;
                     Vector< mtk::Field_Type > tActiveFieldTypes;
                     tCM->get_non_unique_dof_dv_and_field_types(
                             tActiveDofTypes,
@@ -883,7 +884,7 @@ namespace moris
                 {
                     // get CM non unique dof and dv type lists
                     Vector< MSI::Dof_Type >   tActiveDofTypes;
-                    Vector< gen::PDV_Type >        tActiveDvTypes;
+                    Vector< gen::PDV_Type >   tActiveDvTypes;
                     Vector< mtk::Field_Type > tActiveFieldTypes;
                     tCM->get_non_unique_dof_dv_and_field_types(
                             tActiveDofTypes,
@@ -904,7 +905,7 @@ namespace moris
                 {
                     // get SP non unique dof type list
                     Vector< MSI::Dof_Type > tActiveDofTypes;
-                    Vector< gen::PDV_Type >      tActiveDvTypes;
+                    Vector< gen::PDV_Type > tActiveDvTypes;
                     tSP->get_non_unique_dof_and_dv_types(
                             tActiveDofTypes,
                             tActiveDvTypes );
@@ -977,7 +978,7 @@ namespace moris
                 {
                     // get property non unique dof and dv type list
                     Vector< MSI::Dof_Type >   tActiveDofTypes;
-                    Vector< gen::PDV_Type >        tActiveDvTypes;
+                    Vector< gen::PDV_Type >   tActiveDvTypes;
                     Vector< mtk::Field_Type > tActiveFieldTypes;
 
                     tProperty->get_non_unique_dof_dv_and_field_types(
@@ -999,7 +1000,7 @@ namespace moris
                 {
                     // get property non unique dof and dv type list
                     Vector< MSI::Dof_Type >   tActiveDofTypes;
-                    Vector< gen::PDV_Type >        tActiveDvTypes;
+                    Vector< gen::PDV_Type >   tActiveDvTypes;
                     Vector< mtk::Field_Type > tActiveFieldTypes;
 
                     tProperty->get_non_unique_dof_dv_and_field_types(
@@ -1021,7 +1022,7 @@ namespace moris
                 {
                     // get CM non unique dof and dv type lists
                     Vector< MSI::Dof_Type >   tActiveDofTypes;
-                    Vector< gen::PDV_Type >        tActiveDvTypes;
+                    Vector< gen::PDV_Type >   tActiveDvTypes;
                     Vector< mtk::Field_Type > tActiveFieldTypes;
 
                     tCM->get_non_unique_dof_dv_and_field_types(
@@ -1043,7 +1044,7 @@ namespace moris
                 {
                     // get CM non unique dof and dv type lists
                     Vector< MSI::Dof_Type >   tActiveDofTypes;
-                    Vector< gen::PDV_Type >        tActiveDvTypes;
+                    Vector< gen::PDV_Type >   tActiveDvTypes;
                     Vector< mtk::Field_Type > tActiveFieldTypes;
 
                     tCM->get_non_unique_dof_dv_and_field_types(
@@ -1068,7 +1069,7 @@ namespace moris
                 {
                     // get SP non unique leader dof type list
                     Vector< MSI::Dof_Type > tActiveDofTypes;
-                    Vector< gen::PDV_Type >      tActiveDvTypes;
+                    Vector< gen::PDV_Type > tActiveDvTypes;
 
                     tSP->get_non_unique_dof_and_dv_types(
                             tActiveDofTypes,
@@ -1898,7 +1899,7 @@ namespace moris
             MORIS_ERROR(
                     ( adQIdu.n_rows() == adQIduFD.n_rows() ) &&    //
                             ( adQIdu.n_cols() == adQIduFD.n_cols() ),
-                    "IWG::check_dQIdu - matrices to check do not share same dimensions." );
+                    "IQI::check_dQIdu - matrices to check do not share same dimensions." );
 
             // define a real for absolute difference
             real tAbsolute = 0.0;
@@ -2237,10 +2238,10 @@ namespace moris
 
         void
         IQI::select_dQIdp_FD_geometry_bulk(
-                moris::real                        aWStar,
-                moris::real                        aPerturbation,
-                fem::FDScheme_Type                 aFDSchemeType,
-                Matrix< DDSMat >&                  aGeoLocalAssembly,
+                moris::real                   aWStar,
+                moris::real                   aPerturbation,
+                fem::FDScheme_Type            aFDSchemeType,
+                Matrix< DDSMat >&             aGeoLocalAssembly,
                 Vector< Matrix< IndexMat > >& aVertexIndices )
         {
             // get the IQI index
@@ -2336,7 +2337,7 @@ namespace moris
                             Matrix< DDRMat > tXCoords  = tCoeffPert.get_row( iCoeffRow );
                             Matrix< DDRMat > tXiCoords = tParamCoeff.get_row( iCoeffRow );
 
-                            tIPGI->update_local_coordinates( tXCoords, tXiCoords );
+                            tIPGI->update_parametric_coordinates( tXCoords, tXiCoords );
 
                             Matrix< DDRMat > tParamCoeffPert     = tParamCoeff;
                             tParamCoeffPert.get_row( iCoeffRow ) = tXiCoords.matrix_data();
@@ -2393,10 +2394,10 @@ namespace moris
 
         void
         IQI::select_dQIdp_FD_geometry_sideset(
-                moris::real                        aWStar,
-                moris::real                        aPerturbation,
-                fem::FDScheme_Type                 aFDSchemeType,
-                Matrix< DDSMat >&                  aGeoLocalAssembly,
+                moris::real                   aWStar,
+                moris::real                   aPerturbation,
+                fem::FDScheme_Type            aFDSchemeType,
+                Matrix< DDSMat >&             aGeoLocalAssembly,
                 Vector< Matrix< IndexMat > >& aVertexIndices )
         {
             // get the IQI index
@@ -2502,7 +2503,7 @@ namespace moris
                             Matrix< DDRMat > tXCoords  = tCoeffPert.get_row( iCoeffRow );
                             Matrix< DDRMat > tXiCoords = tParamCoeff.get_row( iCoeffRow );
 
-                            tIPGI->update_local_coordinates( tXCoords, tXiCoords );
+                            tIPGI->update_parametric_coordinates( tXCoords, tXiCoords );
 
                             Matrix< DDRMat > tParamCoeffPert = tParamCoeff;
 
@@ -2596,13 +2597,9 @@ namespace moris
             // initialize perturbation of cluster measure
             real tDeltaCM = 0.0;
 
-            // loop over the cluster measures
-            for ( uint iCMEA = 0; iCMEA < mCluster->get_cluster_measures().size(); iCMEA++ )
+            // iterate through cluster measures (ignoring ClusterMeasureSpecification) in cluster measure map
+            for ( auto const& [ _, tClusterMeasure ] : mCluster->get_cluster_measures() )
             {
-                // get treated cluster measure
-                std::shared_ptr< Cluster_Measure >& tClusterMeasure =
-                        mCluster->get_cluster_measures()( iCMEA );
-
                 // evaluate the perturbation of cluster measure
                 tDeltaCM = this->build_perturbation_size(
                         aPerturbation,
