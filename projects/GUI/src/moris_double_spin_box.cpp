@@ -8,14 +8,14 @@ Moris_Double_Spin_Box::Moris_Double_Spin_Box( QWidget *parent, moris::Parameter 
         : QDoubleSpinBox( parent )
         , mParameter( parameter )
 {
-    // Connect the valueChanged(double) signal of QDoubleSpinBox to the onValueChanged slot
-    connect( this, QOverload< double >::of( &QDoubleSpinBox::valueChanged ), this, &Moris_Double_Spin_Box::onValueChanged );
 
     // If parameter is not null, set the initial value from the parameter value
     if ( mParameter )
     {
         setValue( mParameter->get_value< double >() );
     }
+    // Connect the valueChanged(double) signal of QDoubleSpinBox to the onValueChanged slot
+    connect( this, QOverload< double >::of( &QDoubleSpinBox::valueChanged ), this, &Moris_Double_Spin_Box::onValueChanged );
 }
 
 // Destructor for Moris_Double_Spin_Box

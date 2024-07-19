@@ -8,6 +8,9 @@ Moris_Combo_Box::Moris_Combo_Box( QWidget *parent, moris::Parameter *parameter )
         : QComboBox( parent )
         , mParameter( parameter )
 {
+    for ( const std::string& iSelectionOption : mParameter->get_selection_names() ) {
+        addItem( QString::fromStdString( iSelectionOption ) );
+    }
     // Connect the currentIndexChanged(int) signal of QComboBox to the onIndexChanged slot
     connect( this, QOverload< int >::of( &QComboBox::currentIndexChanged ), this, &Moris_Combo_Box::onIndexChanged );
 
@@ -36,7 +39,7 @@ void Moris_Combo_Box::onIndexChanged( int index )
     // If parameter is not null, update the parameter value with the new index
     if ( mParameter )
     {
-        mParameter->set_value( objectName().toStdString(), index, false );
+        mParameter->set_value( objectName().toStdString(), currentText().toStdString(), false );
     }
 
     // Emit the custom indexChanged signal with the widget's name and the new index

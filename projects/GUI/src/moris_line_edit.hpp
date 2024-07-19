@@ -24,6 +24,8 @@ class Moris_Line_Edit : public QLineEdit
 
     // Getter for the associated moris::Parameter object
     moris::Parameter *getParameter() const;
+    
+    void setParameter( moris::Parameter *parameter );
 
   signals:
     // Signal emitted when the text changes.
@@ -31,6 +33,7 @@ class Moris_Line_Edit : public QLineEdit
     // - name: Name associated with the widget.
     // - new_text: New text input in the widget.
     void textChanged( const QString &name, const QString &new_text );
+    void selectionChanged();
 
   private slots:
     // Slot to handle text changes.
@@ -38,6 +41,7 @@ class Moris_Line_Edit : public QLineEdit
     // Inputs:
     // - new_text: New text input in the widget.
     void onTextChanged( const QString &new_text );
+    //void onItemChanged();
 
   private:
     moris::Parameter *mParameter;    // Pointer to the associated moris::Parameter object

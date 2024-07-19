@@ -18,8 +18,8 @@ int main( int argc, char *argv[] )
 
     QApplication app( argc, argv );
 
-    TestWindow mainWindow;
-    mainWindow.show();
+    // TestWindow mainWindow;
+    // mainWindow.show();
 
     Moris_Gui widget;
     widget.show();

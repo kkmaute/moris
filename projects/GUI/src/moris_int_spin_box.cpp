@@ -8,14 +8,23 @@ Moris_Int_Spin_Box::Moris_Int_Spin_Box( QWidget *parent, moris::Parameter *param
         : QSpinBox( parent )
         , mParameter( parameter )
 {
-    // Connect the valueChanged(int) signal of QSpinBox to the onValueChanged slot
-    connect( this, QOverload< int >::of( &QSpinBox::valueChanged ), this, &Moris_Int_Spin_Box::onValueChanged );
 
     // If parameter is not null, set the initial value from the parameter value
-    if ( mParameter )
+    // if ( mParameter )
+    // {
+    //     setValue( mParameter->get_value< int >() );
+    // }
+
+    if ( mParameter->index() == moris::variant_index< uint >() )
+    {
+        setValue( mParameter->get_value< uint >() );
+    }
+    else
     {
         setValue( mParameter->get_value< int >() );
     }
+    // Connect the valueChanged(int) signal of QSpinBox to the onValueChanged slot
+    connect( this, QOverload< int >::of( &QSpinBox::valueChanged ), this, &Moris_Int_Spin_Box::onValueChanged );
 }
 
 // Destructor for Moris_Int_Spin_Box
@@ -36,7 +45,9 @@ void Moris_Int_Spin_Box::onValueChanged( int value )
     // If parameter is not null, update the parameter value with the new integer value
     if ( mParameter )
     {
+        std::cout << "int Spin Box: " << objectName().toStdString() << std::endl;
         mParameter->set_value( objectName().toStdString(), value, false );
+        std::cout << "here" << std::endl;
     }
 
     // Emit the custom valueChanged signal with the widget's name and the new integer value

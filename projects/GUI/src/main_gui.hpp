@@ -45,104 +45,121 @@
 #include "fn_PRM_MIG_Parameters.hpp"
 #include "fn_PRM_STK_Parameters.hpp"
 #include "fn_PRM_WRK_Parameters.hpp"
+#include "moris_tree_widget_item.hpp"
 
-
+// Using moris namespace
 class Moris_Gui : public QWidget
 {
     Q_OBJECT
 
   public:
     // Add argument that reads a parameter list
+
+    /**
+     * @brief Constructor for the Moris_Gui class
+     * @param QWidget *parent
+     * @note This constructor initializes the GUI, sets up the layout, the layout and elements related objects and connects the signals and slots
+    */
     Moris_Gui( QWidget *parent = nullptr );
 
   private slots:
 
-    // Explain the inputs and outputs of the functions
+    /**
+     * @brief Handles enabling/disabling of Moris_Tree_Widget_Items when a QTreeWidgetItem is selected 
+     * @note This function is called when a QTreeWidgetItem is selected in the mTreeWidget (It is the slot for itemSelectionChanged() signal of mTreeWidget)
+    */
+    void parameter_selected();
 
-    QList< QStringList > get_parameter_list( moris::Parameter_List_Type, uint, uint );
+    //--------------------------------------------------------------------------------------------------------------
 
-    void set_form_visible( uint, uint, uint, bool );
-
-    void add_elements( uint, uint, uint );
-
-    // CM_Struc_Linear_Isotropic::CM_Struc_Linear_Isotropic();
-
-    void setup_scroll_widget( uint, uint, uint );
+    /**
+     * @brief Function to add more parameters when the mAddButton is clicked
+     * @note This function is called when the mAddButton is clicked. It adds more parameters in a form or adds a new sub-form if the Moris_Tree_Widget_Item has a sub-form.
+    */
     void add_more_props();
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    /**
+     * @brief Function to remove parameters when the mRemoveButton is clicked
+     * @note This function is called when the mRemoveButton is clicked. It removes parameters in a form or removes a sub-form if the Moris_Tree_Widget_Item has sub-forms.
+    */
     void remove_props();
 
-    QList< uint > get_tree_index( QTreeWidgetItem * );
+    //--------------------------------------------------------------------------------------------------------------
 
-    void parameter_selected( QTreeWidgetItem *, QTreeWidgetItem * );
+  private:
+
+    /**
+     * @brief Function to get the parameter list for a given module, child, and sub-child
+     * @param moris::Parameter_List_Type aModule -> root index
+     * @param uint aChild -> child index
+     * @param uint aSubChild -> sub-child index (if applicable)
+     * @return Parameter_List 
+     * @note This function returns a List of QStringList where the 0th index of the list gives the key of the parameter_list and the 1st index gives the value of the parameter_list
+    */
+    
+    moris::Parameter_List get_parameter_list( moris::Parameter_List_Type, uint, uint );
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    /**
+     * @brief Function to convert the parameter list to a QList of QStringList
+     * @param moris::Parameter_List aParameterList
+     * @return QList< QStringList >
+     * @note This function converts the MORIS parameter list to a QList of QStringList where the 0th index of the list gives the key of the parameter_list and the 1st index gives the value of the parameter_list
+    */
 
     QList< QStringList > convert_parameters_to_QStringList( moris::Parameter_List );
 
-  private:
-    // Layout objects
-    /*
-    mLayout (QHBoxLayout) -> This is the main layout in the GUI
-    mSidePanel (QVBoxLayout) -> This is the layout on the leftmost side of mLayout to show the TreeWidget for navigation
-    mFormLayout -> This is a 2D list that navigates to the corresponding submodules
-      For e.g. mFormLayout[root][child][subchild]
-                root -> corresponds to the Project
-                child -> corresponds to the submodule in a certain peoject (root)
-                subchild -> some submodules (child) may have inner sub modules and this corresponds to that
-    mAddButton (QPushButton) -> Add button to add more parameters in a certain form
-    mRemoveButton (QPushButton) -> Remove button to remove parameters in a certain form
-    */
-    QHBoxLayout                             *mLayout    = new QHBoxLayout( this );
-    QVBoxLayout                             *mSidePanel = new QVBoxLayout();
-    QList< QList< QList< QFormLayout * > > > mFormLayout;
-    QPushButton                             *mAddButton    = new QPushButton;
-    QPushButton                             *mRemoveButton = new QPushButton;
+    //--------------------------------------------------------------------------------------------------------------
 
-    // Scrolling objects
-
-    /*
-    Adding the mFormLayout object to its corresponding mScrollWidget and mScrollArea enables scrolling for the form
+    /** Layout objects
+     * mLayout (QHBoxLayout) -> This is the main layout in the GUI
+     * mSidePanel (QVBoxLayout) -> This is the layout on the leftmost side of mLayout to show the TreeWidget for navigation
+     * mAddButton (QPushButton) -> Add button to add more parameters in a certain form
+     * mRemoveButton (QPushButton) -> Remove button to remove parameters in a certain form
     */
 
-    QList< QList< QList< QWidget * > > >     mScrollWidget;
-    QList< QList< QList< QScrollArea * > > > mScrollArea;
-
-    QStringList mProjectNames;
-
-    // Tree Widget items for navigation
-
-    /*
-    mTreeWidget (QTreeWidget) -> Tree widget in mSidePanel to enable navigation through the GUI
-    mTreeWidgetItems -> This list of QTreeWidgetItems (QTreeWidgetItems are items that are added to a QTreeWidget (mTreeWidget),
-      this keeps track of the root (Project) added to the treeWidget
-    mTreeWidgetChidren -> This 2D list of QTreeWidgetItems that keep track of the children (sub-module) items of a root (Project) added to mTreeWidget
-    mTreeWidgetSubChildren -> This is a 3D List of QTreeWidgetItems that keeps track of the SubChildren (inner sub-modules) added to mTreeWidget
-
-    mOldSelection -> QList of 3 ints keeps track of the oldSelection on the chance that the user selects
-      a QTreeWidgetItem that does not have a corresponding QFormLayout
+    QHBoxLayout *mLayout     = new QHBoxLayout( this );
+    QVBoxLayout *mSidePanel  = new QVBoxLayout();
+    QPushButton                                        *mAddButton    = new QPushButton;
+    QPushButton                                        *mRemoveButton = new QPushButton;
+    
+    //--------------------------------------------------------------------------------------------------------------
+    
+    /**
+     * mProjectNames (QStringList) -> This QStringList keeps the names of the projects
     */
-    QTreeWidget                                 *mTreeWidget = new QTreeWidget();
-    QList< QTreeWidgetItem * >                   mTreeWidgetItems;
-    QList< QList< QTreeWidgetItem * > >          mTreeWidgetChildren;
-    QList< QList< QList< QTreeWidgetItem * > > > mTreeWidgetSubChildren;
-    QList< uint >                                mOldSelection;
-    QList< QList< bool > >                       mSubFormCheck;
+    QStringList                                         mProjectNames;
+    
+    //--------------------------------------------------------------------------------------------------------------
+    
+    /** Element related objects
+     * mTreeWidgetItems (QList< Moris_Tree_Widget_Item * >) -> This list of Moris_Tree_Widget_Items (Moris_Tree_Widget_Item is a class that is used to create a form in the GUI)
+     * mTreeWidgetChildren (QList< QList< Moris_Tree_Widget_Item * > >) -> This 2D list of Moris_Tree_Widget_Items that keep track of the children (sub-module) items of a root (Project) added to mTreeWidget
+     * mTreeWidgetSubChildren (QList< QList< QList< Moris_Tree_Widget_Item * > > >) -> This is a 3D List of Moris_Tree_Widget_Items that keeps track of the sub-forms (inner sub-modules) added to mTreeWidget 
+    */    
+    QList< Moris_Tree_Widget_Item * >                   mTreeWidgetItems;
+    QList< QList< Moris_Tree_Widget_Item * > >          mTreeWidgetChildren;
+    QList< QList< QList< Moris_Tree_Widget_Item * > > > mTreeWidgetSubChildren;
+    
+    //--------------------------------------------------------------------------------------------------------------
 
-    // Element related objects
-
-    /*
-    mLineEdit -> This is a 4D QList of QLineEdit objects, the first 3 indices correspond to the root, children, subchildren
-      and the last index keeps track of the lineEdit fields inside the following QFormLayout
-    mCountProps -> This is a 3D QList of ints that keeps track of the number of parameters in a form
-    mOPTAlgorithmComboBox (QComboBox) -> this combo box keeps all the possible algorithms that can be selected.
-      OPT (Project) -> Algorithm (child) has a different structure,
-      normally the mAddButton, adds parameters (A bunch of rows containing QLineEdit objects) in the same form but in this case,
-      an algorithm is selected from the combo box and then in the Algorithms sub-modules, there is a new inner sub-module is added based on the selection
-    mOPTAlgorithmComboBox (QComboBox) -> this combo box keeps all the possible algorithms that can be selected.
-      GEN (Project) -> Geometries (child) has the same functionality as OPT (Project) -> Algorithm (child)
+    /** Tree Widget items for navigation
+     * mTreeWidget (QTreeWidget) -> Tree widget in mSidePanel to enable navigation through the GUI
+     * mQTreeWidgetItems -> This list of QTreeWidgetItems (QTreeWidgetItems are items that are added to a QTreeWidget (mTreeWidget),
+     *   this keeps track of the root (Project) added to the treeWidget
+     * mQTreeWidgetChidren -> This 2D list of QTreeWidgetItems that keep track of the children (sub-module) items of a root (Project) added to mTreeWidget
+     * mQTreeWidgetSubChildren -> This is a 3D List of QTreeWidgetItems that keeps track of the sub-forms (inner sub-modules) added to mTreeWidget
+     * mOldItem -> This is a pointer to the old item selected in the treeWidget so that if a Moris_Tree_Widget_Item is selected with no form associated, this can keep track of the old item
     */
-    QList< QList< QList< QList< QLineEdit * > > > > mLineEdit;
-    QList< QList< QList< uint > > >                  mCountProps;
-    QComboBox                                      *mOPTAlgorithmComboBox  = new QComboBox;
-    QComboBox                                      *mGENGeometriesComboBox = new QComboBox;
-    QList< QList< QComboBox * > >                   mComboBox;
+    QTreeWidget *mTreeWidget = new QTreeWidget();
+    QList< QTreeWidgetItem * >                          mQTreeWidgetItems;
+    QList< QList< QTreeWidgetItem * > >                 mQTreeWidgetChildren;
+    QList< QList< QList< QTreeWidgetItem * > > >        mQTreeWidgetSubChildren;
+    
+    QTreeWidgetItem                                    *mOldItem;
+
 };
 #endif

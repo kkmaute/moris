@@ -29,7 +29,7 @@ namespace moris
             Parameter_List tSolverWarehouseList;
 
             // TPL type. can be epetra or petsc
-            tSolverWarehouseList.insert( "SOL_TPL_Type", sol::MapType::Epetra, sol::MapType::Epetra, sol::MapType::Petsc );
+            tSolverWarehouseList.insert_enum( "SOL_TPL_Type", sol::MapType_String::values );
 
             // save operator to matlab file
             tSolverWarehouseList.insert( "SOL_save_operator_to_matlab", std::string( "" ) );
@@ -934,7 +934,7 @@ namespace moris
         {
             Parameter_List tTimeParameterList;
 
-            tTimeParameterList.insert( "TSA_TPL_Type", sol::MapType::Epetra, sol::MapType::Epetra, sol::MapType::Petsc );
+            tTimeParameterList.insert_enum( "TSA_TPL_Type", sol::MapType_String::values );
 
             tTimeParameterList.insert( "TSA_Solver_algorithms", "0" );
 
