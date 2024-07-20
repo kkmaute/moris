@@ -4,7 +4,7 @@
 // Inputs:
 // - parent: Pointer to the parent widget (default is nullptr).
 // - parameter: Pointer to a moris::Parameter object to be linked with this widget (default is nullptr).
-Moris_Int_Spin_Box::Moris_Int_Spin_Box( QWidget *parent, moris::Parameter *parameter )
+Moris_Int_Spin_Box::Moris_Int_Spin_Box( QWidget *parent, moris::Parameter &parameter )
         : QSpinBox( parent )
         , mParameter( parameter )
 {
@@ -12,9 +12,12 @@ Moris_Int_Spin_Box::Moris_Int_Spin_Box( QWidget *parent, moris::Parameter *param
     connect( this, QOverload< int >::of( &QSpinBox::valueChanged ), this, &Moris_Int_Spin_Box::onValueChanged );
 
     // If parameter is not null, set the initial value from the parameter value
-    if ( mParameter )
-    {
-        setValue( mParameter->get_value< int >() );
+    if (mParameter.index() == variant_index<uint> ()) {
+        setValue( mParameter.get_value< uint >() );
+    }
+    else {
+        setValue( mParameter.get_value< int >() );
+        
     }
 }
 
@@ -22,7 +25,7 @@ Moris_Int_Spin_Box::Moris_Int_Spin_Box( QWidget *parent, moris::Parameter *param
 Moris_Int_Spin_Box::~Moris_Int_Spin_Box() = default;
 
 // Getter for the associated moris::Parameter object
-moris::Parameter *Moris_Int_Spin_Box::getParameter() const
+moris::Parameter &Moris_Int_Spin_Box::getParameter()
 {
     return mParameter;
 }
@@ -34,10 +37,9 @@ moris::Parameter *Moris_Int_Spin_Box::getParameter() const
 void Moris_Int_Spin_Box::onValueChanged( int value )
 {
     // If parameter is not null, update the parameter value with the new integer value
-    if ( mParameter )
-    {
-        mParameter->set_value( objectName().toStdString(), value, false );
-    }
+
+        mParameter.set_value( objectName().toStdString(), value, false );
+
 
     // Emit the custom valueChanged signal with the widget's name and the new integer value
     emit valueChanged( objectName(), value );

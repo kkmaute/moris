@@ -27,6 +27,7 @@ set(PROJECT_SOURCES
        TestWindow.cpp
        moris_double_spin_box.cpp
        moris_int_spin_box.cpp
+       moris_pair_box.cpp
        )
 
 set(HEADERS
@@ -36,6 +37,7 @@ set(HEADERS
        TestWindow.hpp
        moris_double_spin_box.hpp
        moris_int_spin_box.hpp
+       moris_pair_box.hpp
 )
  
  # List include directories

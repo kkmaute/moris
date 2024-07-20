@@ -4,7 +4,7 @@
 // Inputs:
 // - parent: Pointer to the parent widget (default is nullptr).
 // - parameter: Pointer to a moris::Parameter object to be linked with this widget (default is nullptr).
-Moris_Double_Spin_Box::Moris_Double_Spin_Box( QWidget *parent, moris::Parameter *parameter )
+Moris_Double_Spin_Box::Moris_Double_Spin_Box( QWidget *parent, moris::Parameter &parameter )
         : QDoubleSpinBox( parent )
         , mParameter( parameter )
 {
@@ -12,17 +12,14 @@ Moris_Double_Spin_Box::Moris_Double_Spin_Box( QWidget *parent, moris::Parameter 
     connect( this, QOverload< double >::of( &QDoubleSpinBox::valueChanged ), this, &Moris_Double_Spin_Box::onValueChanged );
 
     // If parameter is not null, set the initial value from the parameter value
-    if ( mParameter )
-    {
-        setValue( mParameter->get_value< double >() );
-    }
+        setValue( mParameter.get_value< double >() );
 }
 
 // Destructor for Moris_Double_Spin_Box
 Moris_Double_Spin_Box::~Moris_Double_Spin_Box() = default;
 
 // Getter for the associated moris::Parameter object
-moris::Parameter* Moris_Double_Spin_Box::getParameter() const
+moris::Parameter& Moris_Double_Spin_Box::getParameter() 
 {
     return mParameter;
 }
@@ -34,10 +31,8 @@ moris::Parameter* Moris_Double_Spin_Box::getParameter() const
 void Moris_Double_Spin_Box::onValueChanged( double value )
 {
     // If parameter is not null, update the parameter value with the new double value
-    if ( mParameter )
-    {
-        mParameter->set_value( objectName().toStdString(), value, false );
-    }
+ mParameter.set_value( objectName().toStdString(), value, false );
+
 
     // Emit the custom valueChanged signal with the widget's name and the new double value
     emit valueChanged( objectName(), value );

@@ -17,7 +17,7 @@ class Moris_Combo_Box : public QComboBox
     // Inputs:
     // - parent: Pointer to the parent widget (default is nullptr).
     // - parameter: Pointer to a moris::Parameter object to be linked with this widget (default is nullptr).
-    explicit Moris_Combo_Box( QWidget *parent = nullptr, moris::Parameter *parameter = nullptr );
+    explicit Moris_Combo_Box( QWidget *parent, moris::Parameter &parameter );
 
     // Destructor for Moris_Combo_Box.
     // Inputs:
@@ -27,7 +27,7 @@ class Moris_Combo_Box : public QComboBox
     ~Moris_Combo_Box() override;
 
     // Getter for the associated moris::Parameter object
-    moris::Parameter* getParameter() const;
+    moris::Parameter& getParameter();
 
   signals:
     // Signal emitted when the index changes.
@@ -46,7 +46,7 @@ class Moris_Combo_Box : public QComboBox
     void onIndexChanged( int index );
 
   private:
-    moris::Parameter *mParameter;    // Pointer to the associated moris::Parameter object
+    moris::Parameter &mParameter;    // Pointer to the associated moris::Parameter object
 };
 
 #endif    // MORIS_COMBO_BOX_HPP

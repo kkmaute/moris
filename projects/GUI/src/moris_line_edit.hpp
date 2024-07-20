@@ -17,13 +17,13 @@ class Moris_Line_Edit : public QLineEdit
     // Inputs:
     // - parent: Pointer to the parent widget (default is nullptr).
     // - parameter: Pointer to a moris::Parameter object to be linked with this widget (default is nullptr).
-    explicit Moris_Line_Edit( QWidget *parent = nullptr, moris::Parameter *parameter = nullptr );
+    explicit Moris_Line_Edit( QWidget *parent, moris::Parameter &parameter );
 
     // Destructor for Moris_Line_Edit.
     ~Moris_Line_Edit() override;
 
     // Getter for the associated moris::Parameter object
-    moris::Parameter *getParameter() const;
+    moris::Parameter &getParameter();
 
   signals:
     // Signal emitted when the text changes.
@@ -40,7 +40,7 @@ class Moris_Line_Edit : public QLineEdit
     void onTextChanged( const QString &new_text );
 
   private:
-    moris::Parameter *mParameter;    // Pointer to the associated moris::Parameter object
+    moris::Parameter &mParameter;    // Pointer to the associated moris::Parameter object
 };
 
 #endif    // MORIS_LINE_EDIT_HPP

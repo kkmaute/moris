@@ -4,7 +4,7 @@
 // Inputs:
 // - parent: Pointer to the parent widget (default is nullptr).
 // - parameter: Pointer to a moris::Parameter object to be linked with this widget (default is nullptr).
-Moris_Combo_Box::Moris_Combo_Box( QWidget *parent, moris::Parameter *parameter )
+Moris_Combo_Box::Moris_Combo_Box( QWidget *parent, moris::Parameter &parameter )
         : QComboBox( parent )
         , mParameter( parameter )
 {
@@ -12,17 +12,16 @@ Moris_Combo_Box::Moris_Combo_Box( QWidget *parent, moris::Parameter *parameter )
     connect( this, QOverload< int >::of( &QComboBox::currentIndexChanged ), this, &Moris_Combo_Box::onIndexChanged );
 
     // If parameter is not null, set the initial index from the parameter value
-    if ( mParameter )
-    {
-        setCurrentIndex( mParameter->get_value< int >() );
-    }
+
+        setCurrentIndex( mParameter.get_value< uint >() );
+
 }
 
 // Destructor for Moris_Combo_Box
 Moris_Combo_Box::~Moris_Combo_Box() = default;
 
 // Getter for the associated moris::Parameter object
-moris::Parameter *Moris_Combo_Box::getParameter() const
+moris::Parameter &Moris_Combo_Box::getParameter()
 {
     return mParameter;
 }
@@ -34,10 +33,7 @@ moris::Parameter *Moris_Combo_Box::getParameter() const
 void Moris_Combo_Box::onIndexChanged( int index )
 {
     // If parameter is not null, update the parameter value with the new index
-    if ( mParameter )
-    {
-        mParameter->set_value( objectName().toStdString(), index, false );
-    }
+        mParameter.set_value( objectName().toStdString(), index, false );
 
     // Emit the custom indexChanged signal with the widget's name and the new index
     emit indexChanged( objectName(), index );

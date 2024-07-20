@@ -17,7 +17,7 @@ class Moris_Double_Spin_Box : public QDoubleSpinBox
     // Inputs:
     // - parent: Pointer to the parent widget (default is nullptr).
     // - parameter: Pointer to a moris::Parameter object to be linked with this widget (default is nullptr).
-    explicit Moris_Double_Spin_Box( QWidget *parent = nullptr, moris::Parameter *parameter = nullptr );
+    explicit Moris_Double_Spin_Box( QWidget *parent, moris::Parameter &parameter );
 
     // Destructor for Moris_Double_Spin_Box.
     // Inputs:
@@ -27,7 +27,7 @@ class Moris_Double_Spin_Box : public QDoubleSpinBox
     ~Moris_Double_Spin_Box() override;
 
     // Getter for the associated moris::Parameter object
-    moris::Parameter *getParameter() const;
+    moris::Parameter &getParameter();
 
   signals:
     // Signal emitted when the value changes.
@@ -46,7 +46,7 @@ class Moris_Double_Spin_Box : public QDoubleSpinBox
     void onValueChanged( double value );
 
   private:
-    moris::Parameter *mParameter;    // Pointer to the associated moris::Parameter object
+    moris::Parameter &mParameter;    // Pointer to the associated moris::Parameter object
 };
 
 #endif    // MORIS_DOUBLE_SPIN_BOX_HPP
