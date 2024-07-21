@@ -118,6 +118,22 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     auto
+    Parameter_List::begin() -> decltype( mParamMap.begin() )
+    {
+        return mParamMap.begin();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    auto
+    Parameter_List::end() -> decltype( mParamMap.end() )
+    {
+        return mParamMap.end();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    auto
     Parameter_List::begin() const -> decltype( mParamMap.begin() )
     {
         return mParamMap.begin();
