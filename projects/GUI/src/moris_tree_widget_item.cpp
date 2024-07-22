@@ -256,11 +256,11 @@ void Moris_Tree_Widget_Item::add_elements( moris::Parameter_List aParameters )
         uint tCounter = mWidget.size();
         uint tIndex = 0;
 
-        for ( auto const& iElements : aParameters )
+        for ( auto & iElements : aParameters )
         {
             if (iElements.second.get_entry_type() == moris::Entry_Type::SELECTION) {
                 qDebug() << "Selection";
-                Moris_Combo_Box *tComboBox = new Moris_Combo_Box(mScrollWidget, const_cast<moris::Parameter *>(&iElements.second));
+                Moris_Combo_Box *tComboBox = new Moris_Combo_Box(mScrollWidget, iElements.second);
                 //Moris_Combo_Box *tComboBox = new Moris_Combo_Box();
                 mWidget.append( tComboBox );
                 mFormLayout->addRow( QString::fromStdString(iElements.first), mWidget[tIndex + tCounter] );
@@ -278,20 +278,20 @@ void Moris_Tree_Widget_Item::add_elements( moris::Parameter_List aParameters )
                     mFormLayout->addRow( QString::fromStdString(iElements.first), mWidget[tIndex + tCounter] );
                 }
                 else if (iElements.second.index() == moris::variant_index <uint> ()) {
-                    Moris_Int_Spin_Box *tSpinBox = new Moris_Int_Spin_Box(mScrollWidget, const_cast<moris::Parameter *>(&iElements.second));
+                    Moris_Int_Spin_Box *tSpinBox = new Moris_Int_Spin_Box(mScrollWidget, iElements.second);
                     tSpinBox->setObjectName(QString::fromStdString(iElements.first)); 
                     mWidget.append( tSpinBox );
                     mFormLayout->addRow( QString::fromStdString(iElements.first), mWidget[tIndex + tCounter] );
                 }
                 else if (iElements.second.index() == moris::variant_index <moris::sint> ()) {
 
-                    Moris_Int_Spin_Box *tDoubleSpinBox = new Moris_Int_Spin_Box(mScrollWidget, const_cast<moris::Parameter *>(&iElements.second));
+                    Moris_Int_Spin_Box *tDoubleSpinBox = new Moris_Int_Spin_Box(mScrollWidget, iElements.second);
                     tDoubleSpinBox->setObjectName(QString::fromStdString(iElements.first)); 
                     mWidget.append( tDoubleSpinBox );
                     mFormLayout->addRow( QString::fromStdString(iElements.first), mWidget[tIndex + tCounter] );
                 }
                 else if (iElements.second.index() == moris::variant_index <moris::real> ()) {
-                    Moris_Double_Spin_Box *tDoubleSpinBox = new Moris_Double_Spin_Box(mScrollWidget, const_cast<moris::Parameter *>(&iElements.second));
+                    Moris_Double_Spin_Box *tDoubleSpinBox = new Moris_Double_Spin_Box(mScrollWidget, iElements.second);
                     tDoubleSpinBox->setObjectName(QString::fromStdString(iElements.first)); 
                     
                     mWidget.append( tDoubleSpinBox );
@@ -299,9 +299,9 @@ void Moris_Tree_Widget_Item::add_elements( moris::Parameter_List aParameters )
                 }
                 else {
 
-                    Moris_Line_Edit *tLineEdit = new Moris_Line_Edit(mScrollWidget, const_cast<moris::Parameter *>(&iElements.second)); 
+                    Moris_Line_Edit *tLineEdit = new Moris_Line_Edit(mScrollWidget, iElements.second); 
                     tLineEdit->setObjectName(QString::fromStdString(iElements.first)); 
-                    tLineEdit->setParameter(const_cast<moris::Parameter *>(&iElements.second));
+                    tLineEdit->setParameter(iElements.second);
                     mWidget.append( tLineEdit );
                     mFormLayout->addRow( QString::fromStdString(iElements.first), mWidget[tIndex + tCounter] );
                 }

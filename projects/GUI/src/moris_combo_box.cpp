@@ -8,7 +8,7 @@ Moris_Combo_Box::Moris_Combo_Box( QWidget *parent, moris::Parameter &parameter )
         : QComboBox( parent )
         , mParameter( parameter )
 {
-    for ( const std::string& iSelectionOption : mParameter->get_selection_names() ) {
+    for ( const std::string& iSelectionOption : mParameter.get_selection_names() ) {
         addItem( QString::fromStdString( iSelectionOption ) );
     }
     // Connect the currentIndexChanged(int) signal of QComboBox to the onIndexChanged slot

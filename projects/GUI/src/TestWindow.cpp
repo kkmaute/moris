@@ -7,10 +7,9 @@ TestWindow::TestWindow( QWidget *parent, moris::Parameter_List &parameterList )
     // Create central widget and layout for the main window
     auto *centralWidget = new QWidget( this );
     auto *layout        = new QVBoxLayout( centralWidget );
-    // std::cout << "here" << std::endl;
 
     // Loop through parameterList and initialize widgets
-    for ( std::pair< std::string, moris::Parameter >  &paramEntry : parameterList )
+    for ( std::pair< const std::string, moris::Parameter >  &paramEntry : parameterList )
     {
         const auto &paramName         = paramEntry.first;
 
