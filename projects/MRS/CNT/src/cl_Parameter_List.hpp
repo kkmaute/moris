@@ -244,17 +244,37 @@ namespace moris
         }
 
         /**
-         * @brief Get the beginning iterator of the underlying map.
+         * Gets the beginning iterator of the underlying map
+         * where parameters and their names are stored.
          *
-         * @return An iterator pointing to the beginning of mParamMap.
+         * @return An iterator pointing to the beginning of the map
+         */
+        auto
+        begin() -> decltype( mParamMap.begin() );
+
+        /**
+         * Get the ending iterator of the underlying map
+         * where parameters and their names are stored.
+         *
+         * @return An iterator pointing to the end of the map
+         */
+        auto
+        end() -> decltype( mParamMap.end() );
+
+        /**
+         * Gets the beginning const iterator of the underlying map
+         * where parameters and their names are stored.
+         *
+         * @return An iterator pointing to the beginning of the map
          */
         auto
         begin() const -> decltype( mParamMap.begin() );
 
         /**
-         * @brief Get the end iterator of the underlying map.
+         * Get the ending const iterator of the underlying map
+         * where parameters and their names are stored.
          *
-         * @return An iterator pointing to the end of mParamMap.
+         * @return An iterator pointing to the end of the map
          */
         auto
         end() const -> decltype( mParamMap.end() );

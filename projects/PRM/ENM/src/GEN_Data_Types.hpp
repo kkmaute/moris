@@ -12,6 +12,9 @@
 
 #include "cl_Bitset.hpp"
 #include "cl_Map.hpp"
+#include "fn_enum_macros.hpp"
+#include "assert.hpp"
+#include "cl_Vector.hpp"
 
 // Constants
 #define MAX_GEOMETRIES 500
@@ -21,9 +24,15 @@ namespace moris::gen
     // Typdefs
     typedef Bitset< MAX_GEOMETRIES > Geometry_Bitset;
 
+    // Geometry type enum
+
+    ENUM_MACRO( Geometry_Type,
+        LEVEL_SET,
+        SURFACE_MESH,
+        VOXEL )
+
     // Field type enum
-    enum class Field_Type
-    {
+    ENUM_MACRO ( Field_Type,
         NONE,
         CONSTANT,
         LINE,
@@ -38,12 +47,10 @@ namespace moris::gen
         NODAL_FROM_FILE,
         SIGNED_DISTANCE_OBJECT,
         SIGNED_DISTANCE_IMAGE,
-        USER_DEFINED
-    };
+        USER_DEFINED )
 
     // PDV type enum
-    enum class PDV_Type
-    {
+    ENUM_MACRO( PDV_Type,
         X_COORDINATE,
         Y_COORDINATE,
         Z_COORDINATE,
@@ -52,8 +59,7 @@ namespace moris::gen
         ELASTIC_MODULUS,
         LS1,
         LS2,
-        UNDEFINED
-    };
+        UNDEFINED )
 
     /**
      * Gets a map going from a std::string to a PDV_Type enum. Used to convert parameter list arguments.

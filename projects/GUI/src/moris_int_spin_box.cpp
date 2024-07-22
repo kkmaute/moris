@@ -8,17 +8,17 @@ Moris_Int_Spin_Box::Moris_Int_Spin_Box( QWidget *parent, moris::Parameter &param
         : QSpinBox( parent )
         , mParameter( parameter )
 {
-    // Connect the valueChanged(int) signal of QSpinBox to the onValueChanged slot
-    connect( this, QOverload< int >::of( &QSpinBox::valueChanged ), this, &Moris_Int_Spin_Box::onValueChanged );
 
     // If parameter is not null, set the initial value from the parameter value
-    if (mParameter.index() == variant_index<uint> ()) {
+    if (mParameter.index() == moris::variant_index<uint>()) {
         setValue( mParameter.get_value< uint >() );
     }
     else {
         setValue( mParameter.get_value< int >() );
         
     }
+    // Connect the valueChanged(int) signal of QSpinBox to the onValueChanged slot
+    connect( this, QOverload< int >::of( &QSpinBox::valueChanged ), this, &Moris_Int_Spin_Box::onValueChanged );
 }
 
 // Destructor for Moris_Int_Spin_Box
@@ -36,7 +36,6 @@ moris::Parameter &Moris_Int_Spin_Box::getParameter()
 // - value: New integer value input in the widget.
 void Moris_Int_Spin_Box::onValueChanged( int value )
 {
-    // If parameter is not null, update the parameter value with the new integer value
 
         mParameter.set_value( objectName().toStdString(), value, false );
 

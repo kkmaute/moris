@@ -29,6 +29,8 @@ namespace moris
 
     Parameter::Parameter( const Parameter& aParameter )
             : mValue( aParameter.mValue )
+            , mEntryType( aParameter.mEntryType )
+            , mNumberOfEntries( aParameter.mNumberOfEntries )
             , mExternalValidator( aParameter.mExternalValidator )
     {
         if ( aParameter.mValidator )

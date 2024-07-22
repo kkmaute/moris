@@ -10,10 +10,15 @@
 #ifndef SRC_DISTLINALG_CL_SOL_ENUMS_HPP_
 #define SRC_DISTLINALG_CL_SOL_ENUMS_HPP_
 
+#include "cl_Bitset.hpp"
+#include "cl_Map.hpp"
+#include "fn_enum_macros.hpp"
+#include "assert.hpp"
+#include "cl_Vector.hpp"
+
 namespace moris::sol
 {
-    enum class SolverType
-    {
+    ENUM_MACRO ( SolverType,
         AZTEC_IMPL,     //< Wrapper around Aztec Solver
         AMESOS_IMPL,    //< Wrapper around Amesos Solver
         BELOS_IMPL,     //< Wrapper around Belos Solver
@@ -21,8 +26,7 @@ namespace moris::sol
         EIGEN_SOLVER,
         SLEPC_SOLVER,
         ML,    //< Wrapper around ML Preconditioner as a solver
-        END_ENUM
-    };
+        END_ENUM )
 
     enum class EigSolMethod
     {
@@ -36,11 +40,9 @@ namespace moris::sol
         END_ENUM
     };
 
-    enum class MapType
-    {
-        Epetra,    // Indicates the Vector/Matrix/Map type
-        Petsc      // Indicates the Vector/Matrix/Map type
-    };
+    ENUM_MACRO ( MapType,
+        Epetra,
+        Petsc )
 
     enum class SolverRelaxationType
     {
