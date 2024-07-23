@@ -240,7 +240,7 @@ void Moris_Tree_Widget_Item::set_form_visible(bool aVisible)
 //     }
 // }
 
-void Moris_Tree_Widget_Item::add_elements( moris::Parameter_List aParameters )
+void Moris_Tree_Widget_Item::add_elements( moris::Parameter_List& aParameters )
 {
     /**
      * @brief Function to add elements to the form
@@ -272,7 +272,7 @@ void Moris_Tree_Widget_Item::add_elements( moris::Parameter_List aParameters )
 
                 if (iElements.second.index() == moris::variant_index <bool> ()) {
                     // Make a new boolean combo box
-                    Moris_Bool_Combo_Box *tComboBox = new Moris_Bool_Combo_Box(mScrollWidget, const_cast<moris::Parameter *>(&iElements.second));
+                    Moris_Bool_Combo_Box *tComboBox = new Moris_Bool_Combo_Box(mScrollWidget, iElements.second);
                     tComboBox->setObjectName(QString::fromStdString(iElements.first)); 
                     mWidget.append( tComboBox );
                     mFormLayout->addRow( QString::fromStdString(iElements.first), mWidget[tIndex + tCounter] );
@@ -301,7 +301,7 @@ void Moris_Tree_Widget_Item::add_elements( moris::Parameter_List aParameters )
 
                     Moris_Line_Edit *tLineEdit = new Moris_Line_Edit(mScrollWidget, iElements.second); 
                     tLineEdit->setObjectName(QString::fromStdString(iElements.first)); 
-                    tLineEdit->setParameter(iElements.second);
+                    //tLineEdit->setParameter(iElements.second);
                     mWidget.append( tLineEdit );
                     mFormLayout->addRow( QString::fromStdString(iElements.first), mWidget[tIndex + tCounter] );
                 }
