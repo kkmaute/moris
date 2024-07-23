@@ -11,18 +11,20 @@
 #ifndef SRC_DISTLINALG_CL_TSA_TIME_SOLVER_ENUMS_HPP_
 #define SRC_DISTLINALG_CL_TSA_TIME_SOLVER_ENUMS_HPP_
 
+#include "assert.hpp"
+#include "cl_Map.hpp"
+#include "fn_enum_macros.hpp"
+#include "cl_Vector.hpp"
+
 namespace moris
 {
     namespace tsa
     {
-        enum class TimeSolverType
-        {
-            MONOLITHIC,   //< Wrapper around Aztec Solver
-            STAGGERED,   //< Wrapper around Aztec Solver
-            END_ENUM
-        };
+        ENUM_MACRO( TimeSolverType,
+                MONOLITHIC,    //< Wrapper around Aztec Solver
+                STAGGERED,     //< Wrapper around Aztec Solver
+                END_ENUM )
     }
-}
+}    // namespace moris
 
 #endif /* SRC_DISTLINALG_CL_TSA_TIME_SOLVER_ENUMS_HPP_ */
-
