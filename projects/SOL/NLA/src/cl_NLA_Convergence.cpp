@@ -88,7 +88,7 @@ namespace moris
             if ( aIt > mRefIterationID )
             {
                 MORIS_LOG_SPEC( "RelResidualDrop", tResNorm / tRefNorm );
-                MORIS_LOG_SPEC( "ResidualChange", tResNorm - mPreviousNorm );
+                MORIS_LOG_SPEC( "RelResidualChange", ( tResNorm - mPreviousNorm ) / tRefNorm );
                 mPreviousNorm = tResNorm;
             }
 
