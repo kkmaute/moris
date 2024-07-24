@@ -8,8 +8,6 @@ Moris_Bool_Combo_Box::Moris_Bool_Combo_Box( QWidget* parent, moris::Parameter& p
         : QComboBox( parent )
         , mParameter( parameter )
 {
-    std::cout << "Construction index:" << mParameter.index() << std::endl;
-
     addItem( "true" );
     addItem( "false" );
     // Connect the currentIndexChanged(int) signal of QComboBox to the onIndexChanged slot

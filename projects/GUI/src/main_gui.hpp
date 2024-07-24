@@ -33,17 +33,7 @@
 #include "cl_Communication_Manager.hpp"    // COM/src
 #include "cl_Logger.hpp"                   // MRS/IOS/src
 
-#include "fn_PRM_FEM_Parameters.hpp"
-#include "fn_PRM_MSI_Parameters.hpp"
-#include "fn_PRM_SOL_Parameters.hpp"
-#include "fn_PRM_VIS_Parameters.hpp"
-#include "fn_PRM_HMR_Parameters.hpp"
-#include "fn_PRM_GEN_Parameters.hpp"
-#include "fn_PRM_XTK_Parameters.hpp"
-#include "fn_PRM_OPT_Parameters.hpp"
-#include "fn_PRM_MIG_Parameters.hpp"
-#include "fn_PRM_STK_Parameters.hpp"
-#include "fn_PRM_WRK_Parameters.hpp"
+#include "cl_Library_IO.hpp"    // MRS/IOS/src
 #include "moris_tree_widget_item.hpp"
 
 // Using moris namespace
@@ -164,6 +154,6 @@ namespace moris
      * @return Parameter_List
      * @note This function returns a List of QStringList where the 0th index of the list gives the key of the parameter_list and the 1st index gives the value of the parameter_list
      */
-    Parameter_List create_parameter_list( Parameter_List_Type aModule, uint aChild, uint aSubChild );
+    
 
 }    // namespace moris

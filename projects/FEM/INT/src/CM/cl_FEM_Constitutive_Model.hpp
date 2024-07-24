@@ -13,8 +13,8 @@
 
 // MRS/COR/src
 #include "moris_typedefs.hpp"
-//#include "linalg_typedefs.hpp"
-// MRS/CNT/src
+// #include "linalg_typedefs.hpp"
+//  MRS/CNT/src
 #include "cl_Vector.hpp"
 // LNA/src
 #include "cl_Matrix.hpp"
@@ -109,67 +109,67 @@ namespace moris
             uint mSpaceDim = 0;
 
             // storage for flux evaluation
-            Matrix< DDRMat >                mFlux;
+            Matrix< DDRMat >           mFlux;
             Vector< Matrix< DDRMat > > mdFluxdDof;
             Vector< Matrix< DDRMat > > mdFluxdDv;
             Vector< Matrix< DDRMat > > mdFluxdx;
 
             // storage for divergence of flux evaluation
-            Matrix< DDRMat >                mDivFlux;
+            Matrix< DDRMat >           mDivFlux;
             Vector< Matrix< DDRMat > > mddivfluxdu;
 
             // storage for energy evaluation
-            Matrix< DDRMat >                mEnergy;
+            Matrix< DDRMat >           mEnergy;
             Vector< Matrix< DDRMat > > mEnergyDof;
 
             // storage for gradient of energy evaluation
-            Matrix< DDRMat >                mGradEnergy;
+            Matrix< DDRMat >           mGradEnergy;
             Vector< Matrix< DDRMat > > mGradEnergyDof;
 
             // storage for energy rate evaluation
-            Matrix< DDRMat >                mEnergyDot;
+            Matrix< DDRMat >           mEnergyDot;
             Vector< Matrix< DDRMat > > mEnergyDotDof;
 
             // storage for gradient of energy rate evaluation
-            Matrix< DDRMat >                mGradEnergyDot;
+            Matrix< DDRMat >           mGradEnergyDot;
             Vector< Matrix< DDRMat > > mGradEnergyDotDof;
 
             // storage for gradient of div flux rate evaluation
-            Matrix< DDRMat >                mGradDivFlux;
+            Matrix< DDRMat >           mGradDivFlux;
             Vector< Matrix< DDRMat > > mGradDivFluxDof;
 
             // storage for traction evaluation
-            Matrix< DDRMat >                mTraction;
+            Matrix< DDRMat >           mTraction;
             Vector< Matrix< DDRMat > > mdTractiondDof;
             Vector< Matrix< DDRMat > > mdTractiondDv;
 
             // storage for test traction evaluation
-            Vector< Matrix< DDRMat > >                mTestTraction;
-            Vector< Matrix< DDRMat > >                mTestTractionTrans;
+            Vector< Matrix< DDRMat > >           mTestTraction;
+            Vector< Matrix< DDRMat > >           mTestTractionTrans;
             Vector< Vector< Matrix< DDRMat > > > mdTestTractiondDof;
             Vector< Vector< Matrix< DDRMat > > > mdTestTractiondDv;
 
             // storage for stress evaluation
-            Matrix< DDRMat >                mStress;
+            Matrix< DDRMat >           mStress;
             Vector< Matrix< DDRMat > > mdStressdDof;
 
             // storage for strain evaluation
-            Matrix< DDRMat >                mStrain;
+            Matrix< DDRMat >           mStrain;
             Vector< Matrix< DDRMat > > mdStraindDof;
             Vector< Matrix< DDRMat > > mdStraindDv;
             Vector< Matrix< DDRMat > > mdStraindx;
 
             // storage for divergence of strain evaluation
-            Matrix< DDRMat >                mDivStrain;
+            Matrix< DDRMat >           mDivStrain;
             Vector< Matrix< DDRMat > > mddivstraindu;
 
             // storage for test strain evaluation
-            Matrix< DDRMat >                mTestStrain;
-            Matrix< DDRMat >                mTestStrainTrans;
+            Matrix< DDRMat >           mTestStrain;
+            Matrix< DDRMat >           mTestStrainTrans;
             Vector< Matrix< DDRMat > > mdTestStraindDof;
 
             // storage for constitutive matrix evaluation
-            Matrix< DDRMat >                mConst;
+            Matrix< DDRMat >           mConst;
             Vector< Matrix< DDRMat > > mdConstdDof;
             Vector< Matrix< DDRMat > > mdConstdDv;
 
@@ -300,6 +300,17 @@ namespace moris
              * @param[ out ] tProperty       property shared pointer
              */
             std::shared_ptr< fem::Property >& get_property( std::string aPropertyString );
+
+            //------------------------------------------------------------------------------
+            /**
+             * get the entire property map
+             * @param[ out ]  mPropertyMap map of string to uint of properties
+             */
+            std::map< std::string, uint >&
+            get_property_map()
+            {
+                return mPropertyMap;
+            }
 
             //------------------------------------------------------------------------------
             /**
@@ -437,7 +448,7 @@ namespace moris
             virtual void
             set_dof_type_list(
                     Vector< Vector< MSI::Dof_Type > > aDofTypes,
-                    Vector< std::string >                  aDofStrings )
+                    Vector< std::string >             aDofStrings )
             {
                 MORIS_ERROR( false, "Constitutive_Model::set_dof_type_list - Not implemented for base class." );
             }
@@ -640,7 +651,7 @@ namespace moris
              */
             void get_non_unique_dof_dv_and_field_types(
                     Vector< MSI::Dof_Type >&   aDofTypes,
-                    Vector< gen::PDV_Type >&        aDvTypes,
+                    Vector< gen::PDV_Type >&   aDvTypes,
                     Vector< mtk::Field_Type >& aFieldTypes );
 
             //------------------------------------------------------------------------------
@@ -797,7 +808,7 @@ namespace moris
              */
             virtual const Matrix< DDRMat >& ddivfluxdu(
                     const Vector< MSI::Dof_Type >& aDofType,
-                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
+                    enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
             /**
@@ -826,7 +837,7 @@ namespace moris
              */
             virtual void
             eval_testTraction(
-                    const Matrix< DDRMat >&             aNormal,
+                    const Matrix< DDRMat >&        aNormal,
                     const Vector< MSI::Dof_Type >& aTestDofTypes )
             {
                 MORIS_ERROR( false, " Constitutive_Model::eval_testTraction - This function does nothing. " );
@@ -839,9 +850,9 @@ namespace moris
              *                             size nSpaceDim x nTestDof
              */
             virtual const Matrix< DDRMat >& testTraction(
-                    const Matrix< DDRMat >&             aNormal,
+                    const Matrix< DDRMat >&        aNormal,
                     const Vector< MSI::Dof_Type >& aTestDofTypes,
-                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
+                    enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
 
             /**
              * get the transpose of the constitutive model test traction
@@ -850,9 +861,9 @@ namespace moris
              *                                  size nSpaceDim x nTestDof
              */
             virtual const Matrix< DDRMat >& testTraction_trans(
-                    const Matrix< DDRMat >&             aNormal,
+                    const Matrix< DDRMat >&        aNormal,
                     const Vector< MSI::Dof_Type >& aTestDofTypes,
-                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
+                    enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
             /**
@@ -922,7 +933,7 @@ namespace moris
              */
             virtual const Matrix< DDRMat >& ddivstraindu(
                     const Vector< MSI::Dof_Type >& aDofType,
-                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
+                    enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
             /**
@@ -965,7 +976,7 @@ namespace moris
              */
             virtual const Matrix< DDRMat >& dTestStraindDOF(
                     const Vector< MSI::Dof_Type >& aDofTypes,
-                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
+                    enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
             /**
@@ -1021,7 +1032,7 @@ namespace moris
              */
             virtual const Matrix< DDRMat >& dFluxdDOF(
                     const Vector< MSI::Dof_Type >& aDofType,
-                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
+                    enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
             /**
@@ -1126,7 +1137,7 @@ namespace moris
              */
             virtual const Matrix< DDRMat >& dEnergydDOF(
                     const Vector< MSI::Dof_Type >& aDofType,
-                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
+                    enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
             /**
@@ -1147,7 +1158,7 @@ namespace moris
              */
             virtual const Matrix< DDRMat >& dEnergyDotdDOF(
                     const Vector< MSI::Dof_Type >& aDofType,
-                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
+                    enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
             /**
@@ -1168,7 +1179,7 @@ namespace moris
              */
             virtual const Matrix< DDRMat >& dGradEnergydDOF(
                     const Vector< MSI::Dof_Type >& aDofType,
-                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
+                    enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
             /**
@@ -1189,7 +1200,7 @@ namespace moris
              */
             virtual const Matrix< DDRMat >& dGradEnergyDotdDOF(
                     const Vector< MSI::Dof_Type >& aDofType,
-                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
+                    enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
             /**
@@ -1210,7 +1221,7 @@ namespace moris
              */
             virtual const Matrix< DDRMat >& dGradDivFluxdDOF(
                     const Vector< MSI::Dof_Type >& aDofType,
-                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
+                    enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
             /**
@@ -1221,7 +1232,7 @@ namespace moris
             virtual void
             eval_dTractiondDOF(
                     const Vector< MSI::Dof_Type >& aDofTypes,
-                    const Matrix< DDRMat >&             aNormal )
+                    const Matrix< DDRMat >&        aNormal )
             {
                 MORIS_ERROR( false, " Constitutive_Model::eval_dTractiondDOF - This function does nothing. " );
             }
@@ -1234,8 +1245,8 @@ namespace moris
              */
             virtual const Matrix< DDRMat >& dTractiondDOF(
                     const Vector< MSI::Dof_Type >& aDofType,
-                    const Matrix< DDRMat >&             aNormal,
-                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
+                    const Matrix< DDRMat >&        aNormal,
+                    enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
             /**
@@ -1246,7 +1257,7 @@ namespace moris
             virtual void
             eval_dTestTractiondDOF(
                     const Vector< MSI::Dof_Type >& aDofTypes,
-                    const Matrix< DDRMat >&             aNormal,
+                    const Matrix< DDRMat >&        aNormal,
                     const Vector< MSI::Dof_Type >& aTestDofTypes )
             {
                 MORIS_ERROR( false, " Constitutive_Model::eval_dTestTractiondDOF - This function does nothing. " );
@@ -1260,9 +1271,9 @@ namespace moris
              */
             virtual const Matrix< DDRMat >& dTestTractiondDOF(
                     const Vector< MSI::Dof_Type >& aDofType,
-                    const Matrix< DDRMat >&             aNormal,
+                    const Matrix< DDRMat >&        aNormal,
                     const Vector< MSI::Dof_Type >& aTestDofTypes,
-                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
+                    enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
             /**
@@ -1274,8 +1285,8 @@ namespace moris
             virtual void
             eval_dTestTractiondDOF(
                     const Vector< MSI::Dof_Type >& aDofTypes,
-                    const Matrix< DDRMat >&             aNormal,
-                    const Matrix< DDRMat >&             aJump,
+                    const Matrix< DDRMat >&        aNormal,
+                    const Matrix< DDRMat >&        aJump,
                     const Vector< MSI::Dof_Type >& aTestDofTypes )
             {
                 MORIS_ERROR( false, " Constitutive_Model::eval_dTestTractiondDOF - This function does nothing. " );
@@ -1290,10 +1301,10 @@ namespace moris
              */
             virtual const Matrix< DDRMat >& dTestTractiondDOF(
                     const Vector< MSI::Dof_Type >& aDofType,
-                    const Matrix< DDRMat >&             aNormal,
-                    const Matrix< DDRMat >&             aJump,
+                    const Matrix< DDRMat >&        aNormal,
+                    const Matrix< DDRMat >&        aJump,
                     const Vector< MSI::Dof_Type >& aTestDofTypes,
-                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
+                    enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
             /**
@@ -1332,7 +1343,7 @@ namespace moris
              */
             virtual const Matrix< DDRMat >& dStressdDOF(
                     const Vector< MSI::Dof_Type >& aDofType,
-                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
+                    enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
             /**
@@ -1352,7 +1363,7 @@ namespace moris
              */
             virtual const Matrix< DDRMat >& dStraindDOF(
                     const Vector< MSI::Dof_Type >& aDofType,
-                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
+                    enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
             /**
@@ -1372,7 +1383,7 @@ namespace moris
              */
             virtual const Matrix< DDRMat >& dConstdDOF(
                     const Vector< MSI::Dof_Type >& aDofType,
-                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
+                    enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
             /**
@@ -1447,15 +1458,15 @@ namespace moris
              * @param[ in ] aCMFunctionType
              */
             void eval_derivative_FD(
-                    enum CM_Request_Type                aCMRequestType,
-                    Matrix< DDRMat >&                   aDerivativeFD,
+                    enum CM_Request_Type           aCMRequestType,
+                    Matrix< DDRMat >&              aDerivativeFD,
                     const Vector< MSI::Dof_Type >& aDofTypes,
-                    real                                aPerturbation,
+                    real                           aPerturbation,
                     const Vector< MSI::Dof_Type >& aTestDofTypes,
-                    const Matrix< DDRMat >&             aNormal,
-                    const Matrix< DDRMat >&             aJump,
-                    fem::FDScheme_Type                  aFDSchemeType   = fem::FDScheme_Type::POINT_5,
-                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
+                    const Matrix< DDRMat >&        aNormal,
+                    const Matrix< DDRMat >&        aJump,
+                    fem::FDScheme_Type             aFDSchemeType   = fem::FDScheme_Type::POINT_5,
+                    enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
 
             /**
              * select derivative wrt to a dof type
@@ -1467,11 +1478,11 @@ namespace moris
              * Rem: implement specific version for child CM
              */
             virtual const Matrix< DDRMat >& select_derivative_FD(
-                    enum CM_Request_Type                aCMRequestType,
+                    enum CM_Request_Type           aCMRequestType,
                     const Vector< MSI::Dof_Type >& aTestDofTypes,
-                    const Matrix< DDRMat >&             aNormal,
-                    const Matrix< DDRMat >&             aJump,
-                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
+                    const Matrix< DDRMat >&        aNormal,
+                    const Matrix< DDRMat >&        aJump,
+                    enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
 
             /**
              * select derivative wrt to a dof type
@@ -1482,11 +1493,11 @@ namespace moris
              * Rem: implement specific version for child CM
              */
             virtual void set_derivative_FD(
-                    enum CM_Request_Type                aCMRequestType,
-                    Matrix< DDRMat >&                   aDerivativeFD,
+                    enum CM_Request_Type           aCMRequestType,
+                    Matrix< DDRMat >&              aDerivativeFD,
                     const Vector< MSI::Dof_Type >& aDofTypes,
                     const Vector< MSI::Dof_Type >& aTestDofTypes,
-                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
+                    enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
             /**
@@ -1498,10 +1509,10 @@ namespace moris
              */
             virtual void eval_dFluxdDOF_FD(
                     const Vector< MSI::Dof_Type >& aDofTypes,
-                    Matrix< DDRMat >&                   adFluxdDOF_FD,
-                    real                                aPerturbation,
-                    fem::FDScheme_Type                  aFDSchemeType   = fem::FDScheme_Type::POINT_5,
-                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
+                    Matrix< DDRMat >&              adFluxdDOF_FD,
+                    real                           aPerturbation,
+                    fem::FDScheme_Type             aFDSchemeType   = fem::FDScheme_Type::POINT_5,
+                    enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
             /**
@@ -1513,11 +1524,11 @@ namespace moris
              */
             void eval_dtractiondu_FD(
                     const Vector< MSI::Dof_Type >& aDofTypes,
-                    Matrix< DDRMat >&                   adtractiondu_FD,
-                    real                                aPerturbation,
-                    Matrix< DDRMat >&                   aNormal,
-                    fem::FDScheme_Type                  aFDSchemeType   = fem::FDScheme_Type::POINT_5,
-                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
+                    Matrix< DDRMat >&              adtractiondu_FD,
+                    real                           aPerturbation,
+                    Matrix< DDRMat >&              aNormal,
+                    fem::FDScheme_Type             aFDSchemeType   = fem::FDScheme_Type::POINT_5,
+                    enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
             /**
@@ -1532,12 +1543,12 @@ namespace moris
             void eval_dtesttractiondu_FD(
                     const Vector< MSI::Dof_Type >& aDofTypes,
                     const Vector< MSI::Dof_Type >& aTestDofTypes,
-                    Matrix< DDRMat >&                   adtesttractiondu_FD,
-                    real                                aPerturbation,
-                    const Matrix< DDRMat >&             aNormal,
-                    const Matrix< DDRMat >&             aJump,
-                    fem::FDScheme_Type                  aFDSchemeType   = fem::FDScheme_Type::POINT_5,
-                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
+                    Matrix< DDRMat >&              adtesttractiondu_FD,
+                    real                           aPerturbation,
+                    const Matrix< DDRMat >&        aNormal,
+                    const Matrix< DDRMat >&        aJump,
+                    fem::FDScheme_Type             aFDSchemeType   = fem::FDScheme_Type::POINT_5,
+                    enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
             /**
@@ -1551,11 +1562,11 @@ namespace moris
             void eval_dtesttractiondu_FD(
                     const Vector< MSI::Dof_Type >& aDofTypes,
                     const Vector< MSI::Dof_Type >& aTestDofTypes,
-                    Matrix< DDRMat >&                   adtesttractiondu_FD,
-                    real                                aPerturbation,
-                    const Matrix< DDRMat >&             aNormal,
-                    fem::FDScheme_Type                  aFDSchemeType   = fem::FDScheme_Type::POINT_5,
-                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
+                    Matrix< DDRMat >&              adtesttractiondu_FD,
+                    real                           aPerturbation,
+                    const Matrix< DDRMat >&        aNormal,
+                    fem::FDScheme_Type             aFDSchemeType   = fem::FDScheme_Type::POINT_5,
+                    enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
             /**
@@ -1566,10 +1577,10 @@ namespace moris
              */
             void eval_ddivfluxdu_FD(
                     const Vector< MSI::Dof_Type >& aDofTypes,
-                    Matrix< DDRMat >&                   ddivfluxdu_FD,
-                    real                                aPerturbation,
-                    fem::FDScheme_Type                  aFDSchemeType   = fem::FDScheme_Type::POINT_5,
-                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
+                    Matrix< DDRMat >&              ddivfluxdu_FD,
+                    real                           aPerturbation,
+                    fem::FDScheme_Type             aFDSchemeType   = fem::FDScheme_Type::POINT_5,
+                    enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
             /**
@@ -1580,10 +1591,10 @@ namespace moris
              */
             void eval_ddivstraindu_FD(
                     const Vector< MSI::Dof_Type >& aDofTypes,
-                    Matrix< DDRMat >&                   addivstraindu_FD,
-                    real                                aPerturbation,
-                    fem::FDScheme_Type                  aFDSchemeType   = fem::FDScheme_Type::POINT_5,
-                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
+                    Matrix< DDRMat >&              addivstraindu_FD,
+                    real                           aPerturbation,
+                    fem::FDScheme_Type             aFDSchemeType   = fem::FDScheme_Type::POINT_5,
+                    enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
             /**
@@ -1594,10 +1605,10 @@ namespace moris
              */
             void eval_dEnergydDOF_FD(
                     const Vector< MSI::Dof_Type >& aDofTypes,
-                    Matrix< DDRMat >&                   adEnergydDOF_FD,
-                    real                                aPerturbation,
-                    fem::FDScheme_Type                  aFDSchemeType   = fem::FDScheme_Type::POINT_5,
-                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
+                    Matrix< DDRMat >&              adEnergydDOF_FD,
+                    real                           aPerturbation,
+                    fem::FDScheme_Type             aFDSchemeType   = fem::FDScheme_Type::POINT_5,
+                    enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
             /**
@@ -1608,10 +1619,10 @@ namespace moris
              */
             void eval_dEnergyDotdDOF_FD(
                     const Vector< MSI::Dof_Type >& aDofTypes,
-                    Matrix< DDRMat >&                   adEnergyDotdDOF_FD,
-                    real                                aPerturbation,
-                    fem::FDScheme_Type                  aFDSchemeType   = fem::FDScheme_Type::POINT_5,
-                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
+                    Matrix< DDRMat >&              adEnergyDotdDOF_FD,
+                    real                           aPerturbation,
+                    fem::FDScheme_Type             aFDSchemeType   = fem::FDScheme_Type::POINT_5,
+                    enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
             /**
@@ -1622,10 +1633,10 @@ namespace moris
              */
             void eval_dGradEnergydDOF_FD(
                     const Vector< MSI::Dof_Type >& aDofTypes,
-                    Matrix< DDRMat >&                   adGradEnergydDOF_FD,
-                    real                                aPerturbation,
-                    fem::FDScheme_Type                  aFDSchemeType   = fem::FDScheme_Type::POINT_5,
-                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
+                    Matrix< DDRMat >&              adGradEnergydDOF_FD,
+                    real                           aPerturbation,
+                    fem::FDScheme_Type             aFDSchemeType   = fem::FDScheme_Type::POINT_5,
+                    enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
             /**
@@ -1636,10 +1647,10 @@ namespace moris
              */
             void eval_dGradEnergyDotdDOF_FD(
                     const Vector< MSI::Dof_Type >& aDofTypes,
-                    Matrix< DDRMat >&                   adGradEnergyDotdDOF_FD,
-                    real                                aPerturbation,
-                    fem::FDScheme_Type                  aFDSchemeType   = fem::FDScheme_Type::POINT_5,
-                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
+                    Matrix< DDRMat >&              adGradEnergyDotdDOF_FD,
+                    real                           aPerturbation,
+                    fem::FDScheme_Type             aFDSchemeType   = fem::FDScheme_Type::POINT_5,
+                    enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
             /**
@@ -1650,10 +1661,10 @@ namespace moris
              */
             void eval_dGradDivFluxdDOF_FD(
                     const Vector< MSI::Dof_Type >& aDofTypes,
-                    Matrix< DDRMat >&                   adGradDivFluxdDOF_FD,
-                    real                                aPerturbation,
-                    fem::FDScheme_Type                  aFDSchemeType   = fem::FDScheme_Type::POINT_5,
-                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
+                    Matrix< DDRMat >&              adGradDivFluxdDOF_FD,
+                    real                           aPerturbation,
+                    fem::FDScheme_Type             aFDSchemeType   = fem::FDScheme_Type::POINT_5,
+                    enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
             /**
@@ -1664,10 +1675,10 @@ namespace moris
              */
             void eval_dStraindDOF_FD(
                     const Vector< MSI::Dof_Type >& aDofTypes,
-                    Matrix< DDRMat >&                   adStraindDOF_FD,
-                    real                                aPerturbation,
-                    fem::FDScheme_Type                  aFDSchemeType   = fem::FDScheme_Type::POINT_5,
-                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
+                    Matrix< DDRMat >&              adStraindDOF_FD,
+                    real                           aPerturbation,
+                    fem::FDScheme_Type             aFDSchemeType   = fem::FDScheme_Type::POINT_5,
+                    enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
             /**
@@ -1779,7 +1790,7 @@ namespace moris
             virtual const Matrix< DDRMat >&
             dproductiontermdu(
                     const Vector< MSI::Dof_Type >& aDofType,
-                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT )
+                    enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT )
             {
                 MORIS_ERROR( false, " Constitutive_Model::dproductiontermdu - This function does nothing. " );
                 return mFlux;
@@ -1807,7 +1818,7 @@ namespace moris
             virtual const Matrix< DDRMat >&
             dproductioncoeffdu(
                     const Vector< MSI::Dof_Type >& aDofType,
-                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT )
+                    enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT )
             {
                 MORIS_ERROR( false, " Constitutive_Model::dproductioncoeffdu - This function does nothing. " );
                 return mFlux;
@@ -1835,7 +1846,7 @@ namespace moris
             virtual const Matrix< DDRMat >&
             dwalldestructiontermdu(
                     const Vector< MSI::Dof_Type >& aDofType,
-                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT )
+                    enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT )
             {
                 MORIS_ERROR( false, " Constitutive_Model::dwalldestructiontermdu - This function does nothing. " );
                 return mFlux;
@@ -1863,7 +1874,7 @@ namespace moris
             virtual const Matrix< DDRMat >&
             dwalldestructioncoeffdu(
                     const Vector< MSI::Dof_Type >& aDofType,
-                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT )
+                    enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT )
             {
                 MORIS_ERROR( false, " Constitutive_Model::dwalldestructioncoeffdu - This function does nothing. " );
                 return mFlux;
@@ -1891,7 +1902,7 @@ namespace moris
             virtual const Matrix< DDRMat >&
             ddiffusioncoeffdu(
                     const Vector< MSI::Dof_Type >& aDofType,
-                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT )
+                    enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT )
             {
                 MORIS_ERROR( false, " Constitutive_Model::ddiffusioncoeffdu - This function does nothing. " );
                 return mFlux;
@@ -1919,7 +1930,7 @@ namespace moris
             virtual const Matrix< DDRMat >&
             dmodvelocitydu(
                     const Vector< MSI::Dof_Type >& aDofType,
-                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT )
+                    enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT )
             {
                 MORIS_ERROR( false, " Constitutive_Model::dmodvelocitydu - This function does nothing. " );
                 return mFlux;
@@ -1947,7 +1958,7 @@ namespace moris
             virtual const Matrix< DDRMat >&
             dmodvelocitylinearizeddu(
                     const Vector< MSI::Dof_Type >& aDofType,
-                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT )
+                    enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT )
             {
                 MORIS_ERROR( false, " Constitutive_Model::dmodvelocitydu - This function does nothing. " );
                 return mFlux;
@@ -1960,4 +1971,3 @@ namespace moris
     } /* namespace fem */
 } /* namespace moris */
 #endif /* SRC_FEM_CL_FEM_CONSTITUTIVE_MODEL_HPP_ */
-

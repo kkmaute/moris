@@ -18,6 +18,8 @@ int main( int argc, char *argv[] )
 {
     gMorisComm = moris::Comm_Manager( &argc, &argv );
     QApplication app( argc, argv );
+
+    // Create a cl_Library_IO instance. 
         
  // Create a Parameter List and populate it with initial values
     moris::Parameter_List parameterList;
