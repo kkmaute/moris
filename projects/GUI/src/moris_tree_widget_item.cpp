@@ -272,7 +272,7 @@ void Moris_Tree_Widget_Item::add_elements( moris::Parameter_List aParameters )
 
                 if (iElements.second.index() == moris::variant_index <bool> ()) {
                     // Make a new boolean combo box
-                    Moris_Bool_Combo_Box *tComboBox = new Moris_Bool_Combo_Box(mScrollWidget, const_cast<moris::Parameter *>(&iElements.second));
+                    Moris_Bool_Combo_Box *tComboBox = new Moris_Bool_Combo_Box(mScrollWidget, iElements.second);
                     tComboBox->setObjectName(QString::fromStdString(iElements.first)); 
                     mWidget.append( tComboBox );
                     mFormLayout->addRow( QString::fromStdString(iElements.first), mWidget[tIndex + tCounter] );

@@ -14,7 +14,8 @@
 #include "moris_combo_box.hpp"
 #include "moris_pair_box.hpp"
 #include "cl_Parameter_List.hpp"
-
+#include "cl_XML_Parser.hpp"
+ 
 class TestWindow : public QMainWindow
 {
     Q_OBJECT
@@ -29,6 +30,7 @@ class TestWindow : public QMainWindow
     void updateIntSpinBox( const QString &name, int value );
     void updatePairBox( const QString &name, const QString &text );
     void saveAndPrintInputs();
+    void saveInputsToXML(const std::string& filePath);
 
   private:
     Moris_Line_Edit       *lineEdit;
@@ -37,10 +39,7 @@ class TestWindow : public QMainWindow
     Moris_Combo_Box       *comboBox;
     Moris_Pair_Box        *pairBox;
 
-    QMap< QString, Moris_Line_Edit * >       lineEdits;
-    QMap< QString, Moris_Int_Spin_Box * >    intSpinBoxes;
-    QMap< QString, Moris_Double_Spin_Box * > doubleSpinBoxes;
-    QMap< QString, Moris_Pair_Box * >        pairBoxes;
+    moris::Parameter_List &parameterList;
 };
 
 #endif    // TESTWINDOW_HPP

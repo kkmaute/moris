@@ -7,7 +7,7 @@
 // Moris_Int_Spin_Box
 // Custom QSpinBox widget for handling integer value input and linking to moris::Parameter objects.
 // This class extends QSpinBox to provide additional functionality for managing integer input parameters.
-// It emits a custom signal when the value changes, which includes the name and the new integer value.
+// It emits a custom signal when the value changes, including the widget's name and the new integer value.
 class Moris_Int_Spin_Box : public QSpinBox
 {
     Q_OBJECT
@@ -16,18 +16,17 @@ class Moris_Int_Spin_Box : public QSpinBox
     // Constructor for Moris_Int_Spin_Box.
     // Inputs:
     // - parent: Pointer to the parent widget (default is nullptr).
-    // - parameter: Pointer to a moris::Parameter object to be linked with this widget (default is nullptr).
+    // - parameter: Reference to a moris::Parameter object to be linked with this widget.
     explicit Moris_Int_Spin_Box( QWidget *parent, moris::Parameter &parameter );
 
     // Destructor for Moris_Int_Spin_Box.
-    // Inputs:
-    // - None.
-    // Outputs:
-    // - None.
+    // No special cleanup is required, so the destructor is defaulted.
     ~Moris_Int_Spin_Box() override;
 
-    // Getter for the associated moris::Parameter object
-    moris::Parameter &getParameter() ;
+    // Getter for the associated moris::Parameter object.
+    // Returns:
+    // - Reference to the moris::Parameter object linked with this widget.
+    moris::Parameter &getParameter();
 
   signals:
     // Signal emitted when the value changes.
@@ -41,12 +40,10 @@ class Moris_Int_Spin_Box : public QSpinBox
     // This slot is connected to the valueChanged(int) signal of QSpinBox and updates the linked moris::Parameter object.
     // Inputs:
     // - value: New integer value input in the widget.
-    // Outputs:
-    // - None.
     void onValueChanged( int value );
 
   private:
-    moris::Parameter &mParameter;    // Pointer to the associated moris::Parameter object
+    moris::Parameter &mParameter;    // Reference to the associated moris::Parameter object
 };
 
 #endif    // MORIS_INT_SPIN_BOX_HPP
