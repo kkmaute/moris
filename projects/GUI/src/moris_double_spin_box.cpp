@@ -1,25 +1,27 @@
 #include "moris_double_spin_box.hpp"
 
 // Constructor for Moris_Double_Spin_Box
+// Initializes the double spin box widget and sets up its signal-slot connections.
 // Inputs:
 // - parent: Pointer to the parent widget (default is nullptr).
-// - parameter: Pointer to a moris::Parameter object to be linked with this widget (default is nullptr).
+// - parameter: Reference to a moris::Parameter object to be linked with this widget.
 Moris_Double_Spin_Box::Moris_Double_Spin_Box( QWidget *parent, moris::Parameter &parameter )
         : QDoubleSpinBox( parent )
         , mParameter( parameter )
 {
-
-    // If parameter is not null, set the initial value from the parameter value
-        setValue( mParameter.get_value< double >() );
-        // Connect the valueChanged(double) signal of QDoubleSpinBox to the onValueChanged slot
+    // Connect the valueChanged(double) signal of QDoubleSpinBox to the onValueChanged slot
     connect( this, QOverload< double >::of( &QDoubleSpinBox::valueChanged ), this, &Moris_Double_Spin_Box::onValueChanged );
 }
 
 // Destructor for Moris_Double_Spin_Box
+// The destructor is defaulted as there are no specific cleanup requirements.
 Moris_Double_Spin_Box::~Moris_Double_Spin_Box() = default;
 
 // Getter for the associated moris::Parameter object
-moris::Parameter& Moris_Double_Spin_Box::getParameter() 
+// Returns the reference to the parameter linked with this widget.
+// Outputs:
+// - Reference to the moris::Parameter object.
+moris::Parameter &Moris_Double_Spin_Box::getParameter()
 {
     return mParameter;
 }
@@ -30,9 +32,8 @@ moris::Parameter& Moris_Double_Spin_Box::getParameter()
 // - value: New double value input in the widget.
 void Moris_Double_Spin_Box::onValueChanged( double value )
 {
-    // If parameter is not null, update the parameter value with the new double value
- mParameter.set_value( objectName().toStdString(), value, false );
-
+    // Update the parameter value with the new double value
+    mParameter.set_value( objectName().toStdString(), value, false );
 
     // Emit the custom valueChanged signal with the widget's name and the new double value
     emit valueChanged( objectName(), value );

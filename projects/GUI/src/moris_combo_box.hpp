@@ -2,7 +2,7 @@
 #define MORIS_COMBO_BOX_HPP
 
 #include <QComboBox>
-#include "cl_Parameter.hpp"  
+#include "cl_Parameter.hpp"
 
 // Moris_Combo_Box
 // Custom QComboBox widget for handling index changes and linking to moris::Parameter objects.
@@ -14,20 +14,25 @@ class Moris_Combo_Box : public QComboBox
 
   public:
     // Constructor for Moris_Combo_Box.
+    // Initializes the combo box widget and sets up its items and signal-slot connections.
     // Inputs:
     // - parent: Pointer to the parent widget (default is nullptr).
-    // - parameter: Pointer to a moris::Parameter object to be linked with this widget (default is nullptr).
+    // - parameter: Reference to a moris::Parameter object to be linked with this widget.
     explicit Moris_Combo_Box( QWidget *parent, moris::Parameter &parameter );
 
     // Destructor for Moris_Combo_Box.
+    // The destructor is defaulted as there are no specific cleanup requirements.
     // Inputs:
     // - None.
     // Outputs:
     // - None.
     ~Moris_Combo_Box() override;
 
-    // Getter for the associated moris::Parameter object
-    moris::Parameter& getParameter();
+    // Getter for the associated moris::Parameter object.
+    // Returns the reference to the parameter linked with this widget.
+    // Outputs:
+    // - Reference to the moris::Parameter object.
+    moris::Parameter &getParameter();
 
   signals:
     // Signal emitted when the index changes.
@@ -46,7 +51,7 @@ class Moris_Combo_Box : public QComboBox
     void onIndexChanged( int index );
 
   private:
-    moris::Parameter &mParameter;    // Pointer to the associated moris::Parameter object
+    moris::Parameter &mParameter;    // Reference to the associated moris::Parameter object
 };
 
 #endif    // MORIS_COMBO_BOX_HPP

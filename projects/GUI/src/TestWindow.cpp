@@ -1,212 +1,267 @@
 #include "TestWindow.hpp"
 
-
-TestWindow::TestWindow( QWidget *parent, moris::Parameter_List &parameterList )
-        : QMainWindow( parent )
+// Constructor for the TestWindow class
+TestWindow::TestWindow(QWidget *parent, moris::Parameter_List &parameterList)
+    : QMainWindow(parent), parameterList(parameterList)
 {
-    // Create central widget and layout for the main window
-    auto *centralWidget = new QWidget( this );
-    auto *layout        = new QVBoxLayout( centralWidget );
+    // Create central widget and layout
+    auto *centralWidget = new QWidget(this);
+    auto *layout = new QVBoxLayout(centralWidget);
 
-    // Loop through parameterList and initialize widgets
-    for ( std::pair< const std::string, moris::Parameter >  &paramEntry : parameterList )
+    // Iterate over each parameter in the parameter list to initialize GUI elements
+    for (std::pair<const std::string, moris::Parameter> &paramEntry : parameterList)
     {
-        const auto &paramName         = paramEntry.first;
+        const auto &paramName = paramEntry.first;
 
-        if ( paramName == "lineEdit" )
+        // Initialize Moris_Line_Edit if the parameter name matches
+        if (paramName == "lineEdit")
         {
-            std::cout << "line" << std::endl;
-            lineEdit = new Moris_Line_Edit( this, paramEntry.second );
-            lineEdit->setObjectName( QString::fromStdString( paramName ) );
-            lineEdit->setText( QString::fromStdString( paramEntry.second.get_value< std::string >(  ) ) );
-            layout->addWidget( lineEdit );
-            lineEdits.insert( lineEdit->objectName(), lineEdit );
-            connect( lineEdit, &Moris_Line_Edit::textChanged, this, &TestWindow::updateInput );
-
-            
+            lineEdit = new Moris_Line_Edit(this, paramEntry.second);
+            lineEdit->setObjectName(QString::fromStdString(paramName));
+            lineEdit->setText(QString::fromStdString(paramEntry.second.get_value<std::string>()));
+            layout->addWidget(lineEdit);
+            connect(lineEdit, &Moris_Line_Edit::textChanged, this, &TestWindow::updateInput);
         }
-        else if ( paramName == "comboBox" )
+        // Initialize Moris_Combo_Box if the parameter name matches
+        else if (paramName == "comboBox")
         {
-            std::cout << "comboBox" << std::endl;
-            comboBox = new Moris_Combo_Box( this, paramEntry.second );
-            comboBox->setObjectName( QString::fromStdString( paramName ) );
-            comboBox->addItem( "Option 1" );
-            comboBox->addItem( "Option 2" );
-            comboBox->addItem( "Option 3" );
-            comboBox->setCurrentIndex( paramEntry.second.get_value< moris::uint >(  ) );
-            layout->addWidget( comboBox );
-            connect( comboBox, &Moris_Combo_Box::indexChanged, this, &TestWindow::updateComboBox );
+            comboBox = new Moris_Combo_Box(this, paramEntry.second);
+            comboBox->setObjectName(QString::fromStdString(paramName));
+            comboBox->setCurrentIndex(paramEntry.second.get_value<moris::uint>());
+            layout->addWidget(comboBox);
+            connect(comboBox, &Moris_Combo_Box::indexChanged, this, &TestWindow::updateComboBox);
         }
-        else if ( paramName == "doubleSpinBox" )
+        // Initialize Moris_Double_Spin_Box if the parameter name matches
+        else if (paramName == "doubleSpinBox")
         {
-            std::cout << "dspinbox" << std::endl;
-            doubleSpinBox = new Moris_Double_Spin_Box( this,  paramEntry.second);
-            doubleSpinBox->setObjectName( QString::fromStdString( paramName ) );
-            doubleSpinBox->setValue( paramEntry.second.get_value< moris::real >( ) );
-            layout->addWidget( doubleSpinBox );
-            doubleSpinBoxes.insert( doubleSpinBox->objectName(), doubleSpinBox );
-            connect( doubleSpinBox, &Moris_Double_Spin_Box::valueChanged, this, &TestWindow::updateDoubleSpinBox );
+            doubleSpinBox = new Moris_Double_Spin_Box(this, paramEntry.second);
+            doubleSpinBox->setObjectName(QString::fromStdString(paramName));
+            doubleSpinBox->setValue(paramEntry.second.get_value<moris::real>());
+            layout->addWidget(doubleSpinBox);
+            connect(doubleSpinBox, &Moris_Double_Spin_Box::valueChanged, this, &TestWindow::updateDoubleSpinBox);
         }
-        else if ( paramName == "intSpinBox" )
+        // Initialize Moris_Int_Spin_Box if the parameter name matches
+        else if (paramName == "intSpinBox")
         {
-            std::cout << "intSpinbox" << std::endl;
-            intSpinBox = new Moris_Int_Spin_Box( this, paramEntry.second );
-            intSpinBox->setObjectName( QString::fromStdString( paramName ) );
-            intSpinBox->setValue( paramEntry.second.get_value< int >(  ) );
-            layout->addWidget( intSpinBox );
-            intSpinBoxes.insert( intSpinBox->objectName(), intSpinBox );
-            connect( intSpinBox, &Moris_Int_Spin_Box::valueChanged, this, &TestWindow::updateIntSpinBox );
+            intSpinBox = new Moris_Int_Spin_Box(this, paramEntry.second);
+            intSpinBox->setObjectName(QString::fromStdString(paramName));
+            intSpinBox->setValue(paramEntry.second.get_value<int>());
+            layout->addWidget(intSpinBox);
+            connect(intSpinBox, &Moris_Int_Spin_Box::valueChanged, this, &TestWindow::updateIntSpinBox);
         }
-        else if ( paramName == "pairBox" )
+        // Initialize Moris_Pair_Box if the parameter name matches
+        else if (paramName == "pairBox")
         {
-            pairBox = new Moris_Pair_Box( this, paramEntry.second, QStringList() << "Example 1" << "Example 2" << "Example 3" );
-            pairBox->setObjectName( QString::fromStdString( paramName ) );
-            layout->addWidget( pairBox );
-            pairBoxes.insert( pairBox->objectName(), pairBox );
-            connect( pairBox, &Moris_Pair_Box::comboBoxTextChanged, this, &TestWindow::updatePairBox );
-            connect( pairBox, &Moris_Pair_Box::lineEditTextChanged, this, &TestWindow::updatePairBox );
+            pairBox = new Moris_Pair_Box(this, paramEntry.second, QStringList() << "Example 1" << "Example 2" << "Example 3");
+            pairBox->setObjectName(QString::fromStdString(paramName));
+            layout->addWidget(pairBox);
+            connect(pairBox, &Moris_Pair_Box::comboBoxTextChanged, this, &TestWindow::updatePairBox);
+            connect(pairBox, &Moris_Pair_Box::lineEditTextChanged, this, &TestWindow::updatePairBox);
         }
     }
 
-    // Create a button to save and print inputs
-    auto *printButton = new QPushButton( "Save and Print Inputs", this );
-    layout->addWidget( printButton );
-    connect( printButton, &QPushButton::clicked, this, &TestWindow::saveAndPrintInputs );
+    // Create and add Save and Print Inputs button
+    auto *printButton = new QPushButton("Save and Print Inputs", this);
+    layout->addWidget(printButton);
+    connect(printButton, &QPushButton::clicked, this, &TestWindow::saveAndPrintInputs);
 
-    // Set the layout and central widget for the main window
-    centralWidget->setLayout( layout );
-    setCentralWidget( centralWidget );
+    // Set the central widget and layout
+    centralWidget->setLayout(layout);
+    setCentralWidget(centralWidget);
 }
 
-void TestWindow::updateInput( const QString &name, const QString &text )
+// Slot to update the text of Moris_Line_Edit
+void TestWindow::updateInput(const QString &name, const QString &text)
 {
-    auto lineEdit = lineEdits.value( name );
-    if ( lineEdit )
+    if (lineEdit && lineEdit->objectName() == name)
     {
-        lineEdit->setText( text );
+        lineEdit->setText(text);
     }
 }
 
-void TestWindow::updateComboBox( const QString &name, int index )
+// Slot to update the index of Moris_Combo_Box
+void TestWindow::updateComboBox(const QString &name, int index)
 {
-    if ( comboBox && comboBox->objectName() == name )
+    if (comboBox && comboBox->objectName() == name)
     {
-        comboBox->setCurrentIndex( index );
+        comboBox->setCurrentIndex(index);
     }
 }
 
-void TestWindow::updateDoubleSpinBox( const QString &name, double value )
+// Slot to update the value of Moris_Double_Spin_Box
+void TestWindow::updateDoubleSpinBox(const QString &name, double value)
 {
-    auto doubleSpinBox = doubleSpinBoxes.value( name );
-    if ( doubleSpinBox )
+    if (doubleSpinBox && doubleSpinBox->objectName() == name)
     {
-        doubleSpinBox->setValue( value );
+        doubleSpinBox->setValue(value);
     }
 }
 
-void TestWindow::updateIntSpinBox( const QString &name, int value )
+// Slot to update the value of Moris_Int_Spin_Box
+void TestWindow::updateIntSpinBox(const QString &name, int value)
 {
-    auto intSpinBox = intSpinBoxes.value( name );
-    if ( intSpinBox )
+    if (intSpinBox && intSpinBox->objectName() == name)
     {
-        intSpinBox->setValue( value );
+        intSpinBox->setValue(value);
     }
 }
 
-void TestWindow::updatePairBox( const QString &name, const QString &text )
+// Slot to update the Moris_Pair_Box values
+void TestWindow::updatePairBox(const QString &name, const QString &text)
 {
-    auto pairBox = pairBoxes.value( name );
-    if ( pairBox )
+    if (pairBox)
     {
-        if ( pairBox->morisPairComboBox->objectName() == name )
+        if (pairBox->morisPairComboBox->objectName() == name)
         {
-            pairBox->morisPairComboBox->setCurrentText( text );
+            pairBox->morisPairComboBox->setCurrentText(text);
         }
-        else if ( pairBox->morisPairLineEdit->objectName() == name )
+        else if (pairBox->morisPairLineEdit->objectName() == name)
         {
-            pairBox->morisPairLineEdit->setText( text );
+            pairBox->morisPairLineEdit->setText(text);
         }
-        qDebug() << "Pair Box updated:" << name << "=" << text;
     }
 }
 
+// Save all inputs to XML file
+void TestWindow::saveInputsToXML(const std::string &filePath)
+{
+    // Initialize the XML parser with write mode
+    moris::XML_Parser xmlParser(filePath, moris::XML_Mode::WRITE);
+
+    // Set the root element for XML
+    xmlParser.set("UserInputs", "");
+
+    // Iterate over each parameter in the parameter list and save the values to XML
+    for (const auto &paramEntry : parameterList)
+    {
+        const auto &paramName = paramEntry.first;
+
+        // Save value of Moris_Line_Edit
+        if (paramName == "lineEdit")
+        {
+            if (lineEdit)
+            {
+                xmlParser.set("UserInputs.LineEdit", lineEdit->text().toStdString());
+            }
+        }
+        // Save value of Moris_Combo_Box
+        else if (paramName == "comboBox")
+        {
+            if (comboBox)
+            {
+                xmlParser.set("UserInputs.ComboBox", comboBox->currentText().toStdString());
+            }
+        }
+        // Save value of Moris_Double_Spin_Box
+        else if (paramName == "doubleSpinBox")
+        {
+            if (doubleSpinBox)
+            {
+                xmlParser.set("UserInputs.DoubleSpinBox", std::to_string(doubleSpinBox->value()));
+            }
+        }
+        // Save value of Moris_Int_Spin_Box
+        else if (paramName == "intSpinBox")
+        {
+            if (intSpinBox)
+            {
+                xmlParser.set("UserInputs.IntSpinBox", std::to_string(intSpinBox->value()));
+            }
+        }
+        // Save combined values of Moris_Pair_Box
+        else if (paramName == "pairBox")
+        {
+            if (pairBox)
+            {
+                // Retrieve combined values from Moris_Pair_Box
+                std::pair<std::string, std::string> pairValue;
+                pairValue.first = pairBox->morisPairComboBox->currentText().toStdString();
+                pairValue.second = pairBox->morisPairLineEdit->text().toStdString();
+                xmlParser.set("UserInputs.PairBox.LineEdit", pairValue.second);
+                xmlParser.set("UserInputs.PairBox.ComboBox", pairValue.first);
+            }
+        }
+    }
+
+    // Save the XML file
+    xmlParser.save();
+    qDebug() << "Successfully saved inputs to XML.";
+}
+
+// Save and print all inputs
 void TestWindow::saveAndPrintInputs()
 {
+    std::string xmlFilePath = "user_inputs.xml";
+
+    // Save inputs to XML
+    saveInputsToXML(xmlFilePath);
+
+    // Print saved inputs to the terminal
     qDebug() << "Saved Input Set:";
 
-    // Print inputs for LineEdits
-    for ( auto it = lineEdits.begin(); it != lineEdits.end(); ++it )
+    for (const auto &paramEntry : parameterList)
     {
-        const QString   &name     = it.key();
-        Moris_Line_Edit *lineEdit = it.value();
-        if ( lineEdit )
-        {
-            const QString &text = lineEdit->text();
-            qDebug() << name << ": " << text;
-        }
-        else
-        {
-            qDebug() << name << ": LineEdit is null";
-        }
-    }
+        const auto &paramName = paramEntry.first;
 
-    // Print input for ComboBox
-    if ( comboBox )
-    {
-        const QString &name  = comboBox->objectName();
-        const int      index = comboBox->currentIndex();
-        qDebug() << name << ": " << index;
-    }
-    else
-    {
-        qDebug() << "ComboBox is null";
-    }
-
-    // Print inputs for DoubleSpinBoxes
-    for ( auto it = doubleSpinBoxes.begin(); it != doubleSpinBoxes.end(); ++it )
-    {
-        const QString         &name          = it.key();
-        Moris_Double_Spin_Box *doubleSpinBox = it.value();
-        if ( doubleSpinBox )
+        // Print value of Moris_Line_Edit
+        if (paramName == "lineEdit")
         {
-            const double value = doubleSpinBox->value();
-            qDebug() << name << ": " << value;
+            if (lineEdit)
+            {
+                qDebug() << QString::fromStdString(paramName) << ": " << lineEdit->text();
+            }
+            else
+            {
+                qDebug() << "LineEdit is null";
+            }
         }
-        else
+        // Print index of Moris_Combo_Box
+        else if (paramName == "comboBox")
         {
-            qDebug() << name << ": DoubleSpinBox is null";
+            if (comboBox)
+            {
+                qDebug() << QString::fromStdString(paramName) << ": " << comboBox->currentText();
+            }
+            else
+            {
+                qDebug() << "ComboBox is null";
+            }
         }
-    }
-
-    // Print inputs for IntSpinBoxes
-    for ( auto it = intSpinBoxes.begin(); it != intSpinBoxes.end(); ++it )
-    {
-        const QString      &name       = it.key();
-        Moris_Int_Spin_Box *intSpinBox = it.value();
-        if ( intSpinBox )
+        // Print value of Moris_Double_Spin_Box
+        else if (paramName == "doubleSpinBox")
         {
-            const int value = intSpinBox->value();
-            qDebug() << name << ": " << value;
+            if (doubleSpinBox)
+            {
+                qDebug() << QString::fromStdString(paramName) << ": " << doubleSpinBox->value();
+            }
+            else
+            {
+                qDebug() << "DoubleSpinBox is null";
+            }
         }
-        else
+        // Print value of Moris_Int_Spin_Box
+        else if (paramName == "intSpinBox")
         {
-            qDebug() << name << ": IntSpinBox is null";
+            if (intSpinBox)
+            {
+                qDebug() << QString::fromStdString(paramName) << ": " << intSpinBox->value();
+            }
+            else
+            {
+                qDebug() << "IntSpinBox is null";
+            }
         }
-    }
-
-    // Print inputs for PairBoxes (Moris_Pair_Box)
-    for ( auto it = pairBoxes.begin(); it != pairBoxes.end(); ++it )
-    {
-        const QString  &name    = it.key();
-        Moris_Pair_Box *pairBox = it.value();
-        if ( pairBox )
+        // Print values of Moris_Pair_Box
+        else if (paramName == "pairBox")
         {
-            const QString &text = pairBox->morisPairLineEdit->text();
-            qDebug() << name << ": " << text;
-        }
-        else
-        {
-            qDebug() << name << ": PairBox is null";
+            if (pairBox)
+            {
+                qDebug() << QString::fromStdString(paramName) << ": LineEdit:" << pairBox->morisPairLineEdit->text() << ", ComboBox:" << pairBox->morisPairComboBox->currentText();
+            }
+            else
+            {
+                qDebug() << "PairBox is null";
+            }
         }
     }
 }

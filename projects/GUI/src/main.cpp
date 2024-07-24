@@ -23,18 +23,18 @@ int main( int argc, char *argv[] )
         
  // Create a Parameter List and populate it with initial values
     moris::Parameter_List parameterList;
-    parameterList.insert("lineEdit", "Initial text", {});
-    parameterList.insert_enum("comboBox", {"Option 1", "Option 2", "Option 3"});
-    parameterList.insert("doubleSpinBox", "0.5", {});
-    parameterList.insert("intSpinBox", "10", {});
-    parameterList.insert_enum("pairBox", {"Example 1", "Example 2", "Example 3"});
+    parameterList.insert( "lineEdit", "Initial text", {} );
+    parameterList.insert_enum( "comboBox", { "Option 1", "Option 2", "Option 3" } );
+    parameterList.insert( "doubleSpinBox", 0.5, {} );
+    parameterList.insert( "intSpinBox", 10, {} );
+    parameterList.insert_enum( "pairBox", { "Example 1", "Example 2", "Example 3" } );
+    parameterList.insert_enum("boolBox", {"True", "False"});
 
     moris::Moris_Gui widget;
     widget.show();
 
-    // TestWindow mainWindow(nullptr, parameterList);
-    // mainWindow.show();
+    TestWindow mainWindow( nullptr, parameterList );
+    mainWindow.show();
 
     return app.exec();
 }
-
