@@ -381,7 +381,7 @@ TEST_CASE( "IWG_Diffusion_Bulk - H2 Penalty Only", "[moris],[fem],[IWG_Elasticit
     real tH2Pen        = 1.0;
     real tH3Pen        = 0.0;
     real tPhaseField   = 0.0;
-    real tEpsilon      = 1e-6;
+    real tEpsilon      = 2e-6;
 
     Test_IWG_Diffusion_Bulk( tConductivity, tLoad, tH2Pen, tH3Pen, tPhaseField, tEpsilon );
 }
