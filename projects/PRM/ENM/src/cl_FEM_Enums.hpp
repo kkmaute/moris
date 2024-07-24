@@ -151,7 +151,6 @@ namespace moris
                 STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_UNSYMMETRIC,
                 STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_NEUTRAL,
                 GHOST_NORMAL_FIELD,
-                DEBUG,
                 USER_DEFINED,
                 END_IWG_TYPE )
 
