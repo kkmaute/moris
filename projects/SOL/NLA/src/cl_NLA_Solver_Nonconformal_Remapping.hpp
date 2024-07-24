@@ -25,12 +25,15 @@ namespace moris::NLA
 
       private:
         sol::SolverRaytracingStrategy mStrategy;
-        uint                          mLoadStepFrequency{};
-        uint                          mIterationFrequency{};
-        real                          mResidualChangeTolerance{};
-        real                          mPreviousResidual{ -1.0 };
-        real                          mPreviousLoadFactor;
-        uint                          mLoadStepCounter;
+
+        real mResidualChangeTolerance{};
+        real mPreviousResidual{ -1.0 };
+        real mReferenceResidual{ -1.0 };
+        real mPreviousLoadFactor{ 0.0 };
+
+        uint mLoadStepFrequency{};
+        uint mIterationFrequency{};
+        uint mLoadStepCounter{ 0 };
 
         bool check_every_nth_load_step( real& aLoadFactor );
 

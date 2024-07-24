@@ -36,6 +36,9 @@
 // global variable for interpolation order
 extern uint gInterpolationOrder;
 
+// global variable for case index
+extern uint gCaseIndex;
+
 //---------------------------------------------------------------
 
 #ifdef __cplusplus
@@ -108,7 +111,8 @@ namespace moris
     /* ------------------------------------------------------------------------ */
     // Output Config
 
-    std::string tOutputFileName = "Pressure_Vessel_3D_Immersed.exo";
+    std::string tOutputFileName =
+            "Pressure_Vessel_3D_Case_" + std::to_string( gCaseIndex ) + ".exo";
 
     /* ------------------------------------------------------------------------ */
 
