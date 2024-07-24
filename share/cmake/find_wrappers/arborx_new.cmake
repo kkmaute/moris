@@ -11,6 +11,7 @@
 
 if (NOT ARBORX_FOUND_ONCE)
     set(ARBORX_ENV_VARS
+            $ENV{ARBX_DIR}
             $ENV{ARBORXDIR}
             $ENV{ARBORX_DIR}
             $ENV{ArborX_DIR}
