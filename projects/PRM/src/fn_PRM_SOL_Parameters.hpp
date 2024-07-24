@@ -212,7 +212,7 @@ namespace moris
             aParameterlist.insert( "ASM_blocks_output_filename", "" );
 
 
-            //GAMG preconditioner
+            // GAMG preconditioner
             aParameterlist.insert( "num_pde_equations", (sint)1 );
             aParameterlist.insert( "amg_type", "agg" );
             aParameterlist.insert( "use_gamg_defaults", true );
@@ -308,10 +308,8 @@ namespace moris
         create_algorithm_parameter_list()
         {
             Parameter_List tParameterList;
-            tParameterList.insert( "Solver_Implementation",
-                    sol::SolverType::END_ENUM,
-                    sol::SolverType::AZTEC_IMPL,
-                    sol::SolverType::ML );
+            tParameterList.insert_enum( "Solver_Implementation",
+                    sol::SolverType_String::values );
             return tParameterList;
         }
 
@@ -730,10 +728,8 @@ namespace moris
         {
             Parameter_List tNonLinAlgorithmParameterList;
 
-            tNonLinAlgorithmParameterList.insert( "NLA_Solver_Implementation",
-                    NLA::NonlinearSolverType::NEWTON_SOLVER,
-                    NLA::NonlinearSolverType::NEWTON_SOLVER,
-                    NLA::NonlinearSolverType::ARC_LENGTH_SOLVER );
+            tNonLinAlgorithmParameterList.insert_enum( "NLA_Solver_Implementation",
+                    NLA::NonlinearSolverType_String::values );
 
             tNonLinAlgorithmParameterList.insert( "NLA_Linear_solver", 0 );
 
@@ -761,10 +757,8 @@ namespace moris
             tNonLinAlgorithmParameterList.insert( "NLA_max_lin_solver_restarts", 0 );
 
             // Relaxation strategy
-            tNonLinAlgorithmParameterList.insert( "NLA_relaxation_strategy",
-                    sol::SolverRelaxationType::Constant,
-                    sol::SolverRelaxationType::Constant,
-                    sol::SolverRelaxationType::InvResNormAdaptive );
+            tNonLinAlgorithmParameterList.insert_enum( "NLA_relaxation_strategy",
+                    sol::SolverRelaxationType_String::values );
 
             // Relaxation parameter
             tNonLinAlgorithmParameterList.insert( "NLA_relaxation_parameter", 1.0 );
@@ -773,10 +767,8 @@ namespace moris
             tNonLinAlgorithmParameterList.insert( "NLA_relaxation_damping", 0.5 );
 
             // Load control strategy
-            tNonLinAlgorithmParameterList.insert( "NLA_load_control_strategy",
-                    sol::SolverLoadControlType::Constant,
-                    sol::SolverLoadControlType::Constant,
-                    sol::SolverLoadControlType::UserDefined );
+            tNonLinAlgorithmParameterList.insert_enum( "NLA_load_control_strategy",
+                    sol::SolverLoadControlType_String::values );
 
             // Initial load factor
             tNonLinAlgorithmParameterList.insert( "NLA_load_control_factor", 1.0 );
@@ -791,10 +783,8 @@ namespace moris
             tNonLinAlgorithmParameterList.insert( "NLA_load_control_exponent", 1.0 );
 
             // Pseudo time control strategy
-            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_control_strategy",
-                    sol::SolverPseudoTimeControlType::None,
-                    sol::SolverPseudoTimeControlType::None,
-                    sol::SolverPseudoTimeControlType::Comsol );
+            tNonLinAlgorithmParameterList.insert_enum( "NLA_pseudo_time_control_strategy",
+                    sol::SolverPseudoTimeControlType_String::values );
 
             // Constant time step size
             tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_constant", 0.0 );
@@ -909,10 +899,8 @@ namespace moris
         {
             Parameter_List tTimeAlgorithmParameterList;
 
-            tTimeAlgorithmParameterList.insert( "TSA_Solver_Implementation",
-                    tsa::TimeSolverType::MONOLITHIC,
-                    tsa::TimeSolverType::MONOLITHIC,
-                    tsa::TimeSolverType::STAGGERED );
+            tTimeAlgorithmParameterList.insert_enum( "TSA_Solver_Implementation",
+                    tsa::TimeSolverType_String::values );
 
             tTimeAlgorithmParameterList.insert( "TSA_Nonlinear_solver", 0 );
 
@@ -1046,10 +1034,8 @@ namespace moris
         {
             Parameter_List tParameterList;
 
-            tParameterList.insert( "Preconditioner_Implementation",
-                    sol::PreconditionerType::NONE,
-                    sol::PreconditionerType::IFPACK,
-                    sol::PreconditionerType::PETSC );
+            tParameterList.insert_enum( "Preconditioner_Implementation",
+                    sol::PreconditionerType_String::values );
 
             switch ( aPrecondionerType )
             {

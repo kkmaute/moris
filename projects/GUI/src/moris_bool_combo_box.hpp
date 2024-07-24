@@ -17,8 +17,8 @@ class Moris_Bool_Combo_Box : public QComboBox
     // Initializes the combo box widget and sets up its items and signal-slot connections.
     // Inputs:
     // - parent: Pointer to the parent widget (default is nullptr).
-    // - parameter: Reference to a moris::Parameter object to be linked with this widget.
-    explicit Moris_Bool_Combo_Box( QWidget *parent, moris::Parameter &parameter );
+    // - parameter: Pointer to a moris::Parameter object to be linked with this widget (default is nullptr).
+    explicit Moris_Bool_Combo_Box( QWidget* parent, moris::Parameter& parameter );
 
     // Destructor for Moris_Bool_Combo_Box
     // The destructor is defaulted as there are no specific cleanup requirements.

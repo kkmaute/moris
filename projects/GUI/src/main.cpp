@@ -28,8 +28,8 @@ int main( int argc, char *argv[] )
     parameterList.insert_enum( "pairBox", { "Example 1", "Example 2", "Example 3" } );
     parameterList.insert_enum("boolBox", {"True", "False"});
 
-    // Moris_Gui widget;
-    // widget.show();
+    moris::Moris_Gui widget;
+    widget.show();
 
     TestWindow mainWindow( nullptr, parameterList );
     mainWindow.show();

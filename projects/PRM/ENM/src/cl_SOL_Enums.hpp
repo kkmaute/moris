@@ -18,15 +18,15 @@
 
 namespace moris::sol
 {
-    ENUM_MACRO ( SolverType,
-        AZTEC_IMPL,     //< Wrapper around Aztec Solver
-        AMESOS_IMPL,    //< Wrapper around Amesos Solver
-        BELOS_IMPL,     //< Wrapper around Belos Solver
-        PETSC,          //< Wrapper around Petsc Solver
-        EIGEN_SOLVER,
-        SLEPC_SOLVER,
-        ML,    //< Wrapper around ML Preconditioner as a solver
-        END_ENUM )
+    ENUM_MACRO( SolverType,
+            AZTEC_IMPL,     //< Wrapper around Aztec Solver
+            AMESOS_IMPL,    //< Wrapper around Amesos Solver
+            BELOS_IMPL,     //< Wrapper around Belos Solver
+            PETSC,          //< Wrapper around Petsc Solver
+            EIGEN_SOLVER,
+            SLEPC_SOLVER,
+            ML,    //< Wrapper around ML Preconditioner as a solver
+            END_ENUM )
 
     enum class EigSolMethod
     {
@@ -40,46 +40,51 @@ namespace moris::sol
         END_ENUM
     };
 
-    ENUM_MACRO ( MapType,
-        Epetra,
-        Petsc )
+    ENUM_MACRO( MapType,
+            Epetra,
+            Petsc )
 
-    enum class SolverRelaxationType
-    {
-        Constant,             // Constant relaxation parameter
-        InvResNorm,           // Relaxation parameter proportional to inverse of residual norm
-        InvResNormAdaptive    // Relaxation parameter proportional to inverse of residual norm with adaptation
-    };
+    /**
+     * SolverRelaxationType notes
+     * Constant: Constant relaxation parameter
+     * InvResNorm: Relaxation parameter proportional to inverse of residual norm
+     * InvResNormAdaptive: Relaxation parameter proportional to inverse of residual norm with adaptation
+     */
+    ENUM_MACRO( SolverRelaxationType,
+            Constant,
+            InvResNorm,
+            InvResNormAdaptive )
 
-    enum class SolverLoadControlType
-    {
-        Constant,       // Constant load control parameter
-        Exponential,    // Exponential growth
-        UserDefined     // User defined strategy
-    };
+    /**
+     * SolverLoadControlType notes
+     * Constant: Constant load control parameter
+     * Exponential: Exponential growth
+     * UserDefined: User defined strategy
+     */
+    ENUM_MACRO( SolverLoadControlType,
+            Constant,
+            Exponential,
+            UserDefined )
 
-    enum class SolverPseudoTimeControlType
-    {
-        None,                  // No pseudo time step control
-        Polynomial,            // Time step index based strategy: polynomial growth
-        InvResNorm,            // Residual based strategy
-        Hybrid,                // Combined Polynomial and InvResNorm stratgies
-        Exponential,           // Time step index based strategy: exponential growth
-        SwitchedRelaxation,    // Switched relaxation (based on Ceze and Fidkowski, 2013)
-        ResidualDifference,    // Monotonic residual difference method (based on Ceze and Fidkowski, 2013)
-        Expur,                 // Exponential with under-relaxation (based on Ceze and Fidkowski, 2013)
-        Comsol                 // COMSOL ( see COMSOL_CFDModuleUsersGuide 6.0, page 92, 241)
-    };
+    ENUM_MACRO( SolverPseudoTimeControlType,
+            None,                  // No pseudo time step control
+            Polynomial,            // Time step index based strategy: polynomial growth
+            InvResNorm,            // Residual based strategy
+            Hybrid,                // Combined Polynomial and InvResNorm stratgies
+            Exponential,           // Time step index based strategy: exponential growth
+            SwitchedRelaxation,    // Switched relaxation (based on Ceze and Fidkowski, 2013)
+            ResidualDifference,    // Monotonic residual difference method (based on Ceze and Fidkowski, 2013)
+            Expur,                 // Exponential with under-relaxation (based on Ceze and Fidkowski, 2013)
+            Comsol                 // COMSOL ( see COMSOL_CFDModuleUsersGuide 6.0, page 92, 241)
+    )
 
     // enum for the type of preconditioner
-    enum class PreconditionerType
-    {
-        NONE,
-        IFPACK,    // Ifpack
-        ML,        // ML
-        PETSC,     // Petsc
-        END_ENUM
-    };
+    ENUM_MACRO( PreconditionerType,
+            NONE,
+            IFPACK,    // Ifpack
+            ML,        // ML
+            PETSC,     // Petsc
+            END_ENUM )
 
     enum class EiegnSolverType
     {

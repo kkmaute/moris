@@ -8,8 +8,9 @@ Moris_Line_Edit::Moris_Line_Edit( QWidget *parent, moris::Parameter &parameter )
         : QLineEdit( parent )
         , mParameter( parameter )
 {
-    // Set the initial text from the parameter value
-    setText( QString::fromStdString( mParameter.get_string() ) );
+    // If parameter is not null, set the initial text from the parameter value
+        setPlaceholderText( QString::fromStdString( mParameter.get_string() ) );
+        connect( this, &QLineEdit::textChanged, this, &Moris_Line_Edit::onTextChanged );
 
     // Connect the textChanged signal of QLineEdit to the onTextChanged slot
     connect( this, &QLineEdit::textChanged, this, &Moris_Line_Edit::onTextChanged );

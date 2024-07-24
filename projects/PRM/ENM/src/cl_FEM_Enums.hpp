@@ -319,81 +319,81 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        ENUM_MACRO ( FDScheme_Type,
-            UNDEFINED,
-            POINT_1_FORWARD,
-            POINT_1_BACKWARD,
-            POINT_3_CENTRAL,
-            POINT_5,
-            END_FD_SCHEME )
+        ENUM_MACRO( FDScheme_Type,
+                UNDEFINED,
+                POINT_1_FORWARD,
+                POINT_1_BACKWARD,
+                POINT_3_CENTRAL,
+                POINT_5,
+                END_FD_SCHEME )
 
         //------------------------------------------------------------------------------
 
-        ENUM_MACRO ( Perturbation_Type,
-            UNDEFINED,
-            RELATIVE,
-            ABSOLUTE,
-            END_PERTURBATION_TYPE )
+        ENUM_MACRO( Perturbation_Type,
+                UNDEFINED,
+                RELATIVE,
+                ABSOLUTE,
+                END_PERTURBATION_TYPE )
 
         //------------------------------------------------------------------------------
 
-        ENUM_MACRO ( Stress_Type, 
-            UNDEFINED,
-            NORMAL_STRESS,
-            SHEAR_STRESS,
-            VON_MISES_STRESS,
-            PRINCIPAL_STRESS,
-            MAX_SHEAR_STRESS,
-            STRESS_VECTOR,
-            END_STRESS_TYPE )
+        ENUM_MACRO( Stress_Type,
+                UNDEFINED,
+                NORMAL_STRESS,
+                SHEAR_STRESS,
+                VON_MISES_STRESS,
+                PRINCIPAL_STRESS,
+                MAX_SHEAR_STRESS,
+                STRESS_VECTOR,
+                END_STRESS_TYPE )
 
         //------------------------------------------------------------------------------
 
-        ENUM_MACRO ( CM_Function_Type, 
-            DEFAULT,
-            THERMAL,
-            FLUID,
-            MECHANICAL,
-            ENERGY,
-            WORK,
-            HEAT,
-            PRESSURE,
-            PK1,
-            PK2,
-            CAUCHY,
-            DEFORMATION_GRADIENT,
-            RIGHT_CAUCHY_GREEN,
-            INV_RIGHT_CAUCHY_GREEN,
-            LEFT_CAUCHY_GREEN,
-            INV_LEFT_CAUCHY_GREEN,
-            LAGRANGIAN,
-            EULERIAN,
-            INFINITESIMAL,
-            END_CM_FUNCTION_TYPE )
+        ENUM_MACRO( CM_Function_Type,
+                DEFAULT,
+                THERMAL,
+                FLUID,
+                MECHANICAL,
+                ENERGY,
+                WORK,
+                HEAT,
+                PRESSURE,
+                PK1,
+                PK2,
+                CAUCHY,
+                DEFORMATION_GRADIENT,
+                RIGHT_CAUCHY_GREEN,
+                INV_RIGHT_CAUCHY_GREEN,
+                LEFT_CAUCHY_GREEN,
+                INV_LEFT_CAUCHY_GREEN,
+                LAGRANGIAN,
+                EULERIAN,
+                INFINITESIMAL,
+                END_CM_FUNCTION_TYPE )
 
         //------------------------------------------------------------------------------
 
-        ENUM_MACRO ( Time_Continuity_Flag,
-            DEFAULT,
-            TIME_CONTINUITY_ONLY,
-            NO_TIME_CONTINUITY,
-            GEOMETRIC_STIFFNESS_ONLY,
-            END_TIME_CONTINUITY_FLAG )
+        ENUM_MACRO( Time_Continuity_Flag,
+                DEFAULT,
+                TIME_CONTINUITY_ONLY,
+                NO_TIME_CONTINUITY,
+                GEOMETRIC_STIFFNESS_ONLY,
+                END_TIME_CONTINUITY_FLAG )
 
         //------------------------------------------------------------------------------
 
-        ENUM_MACRO ( CM_Request_Type,
-            UNDEFINED,
-            STRAIN,
-            TEST_STRAIN,
-            FLUX,
-            TRACTION,
-            TEST_TRACTION,
-            DAMAGE,
-            SMOOTH_DAMAGE,
-            EQSTRAIN,
-            HISTORY,
-            END_CM_REQUEST_TYPE )
+        ENUM_MACRO( CM_Request_Type,
+                UNDEFINED,
+                STRAIN,
+                TEST_STRAIN,
+                FLUX,
+                TRACTION,
+                TEST_TRACTION,
+                DAMAGE,
+                SMOOTH_DAMAGE,
+                EQSTRAIN,
+                HISTORY,
+                END_CM_REQUEST_TYPE )
     }    // namespace fem
 } /* namespace moris */
 
