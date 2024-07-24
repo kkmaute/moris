@@ -171,8 +171,6 @@ namespace moris
 
         tParameterlist( 0 )( 0 ).set( "use_multigrid", 0 );
         tParameterlist( 0 )( 0 ).set( "severity_level", 0 );
-
-        tParameterlist( 0 )( 0 ).set( "write_lagrange_output_mesh_to_exodus", "LBAProblem.exo" );
     }
 
     /* ------------------------------------------------------------------------ */
@@ -310,7 +308,30 @@ namespace moris
     void FEMParameterList( Vector< Vector< Parameter_List > >& tParameterList )
     {
         // create a cell of cell of parameter list for fem
-        tParameterList.resize( 8 );
+        tParameterList.resize( 9 );
+
+        uint tPhaseCounter = 0;
+        uint tPhaseIndex   = 7;
+
+        tParameterList( tPhaseIndex ).push_back( prm::create_phase_parameter_list() );
+        tParameterList( tPhaseIndex )( tPhaseCounter ).set( "phase_name", std::string( "PhaseBulk" ) );
+        tParameterList( tPhaseIndex )( tPhaseCounter ).set( "phase_indices", "0" );
+        tPhaseCounter++;
+
+        tParameterList( tPhaseIndex ).push_back( prm::create_phase_parameter_list() );
+        tParameterList( tPhaseIndex )( tPhaseCounter ).set( "phase_name", std::string( "PhaseBottom" ) );
+        tParameterList( tPhaseIndex )( tPhaseCounter ).set( "phase_indices", "1" );
+        tPhaseCounter++;
+
+        tParameterList( tPhaseIndex ).push_back( prm::create_phase_parameter_list() );
+        tParameterList( tPhaseIndex )( tPhaseCounter ).set( "phase_name", std::string( "PhaseTop" ) );
+        tParameterList( tPhaseIndex )( tPhaseCounter ).set( "phase_indices", "2" );
+        tPhaseCounter++;
+
+        tParameterList( tPhaseIndex ).push_back( prm::create_phase_parameter_list() );
+        tParameterList( tPhaseIndex )( tPhaseCounter ).set( "phase_name", std::string( "PhaseSides" ) );
+        tParameterList( tPhaseIndex )( tPhaseCounter ).set( "phase_indices", "3" );
+        tPhaseCounter++;
 
         ////////////////////////////////////////////////////////////////////////////////
         // init property counter
@@ -362,7 +383,8 @@ namespace moris
         tParameterList( 1 )( tCMCounter ).set( "model_type", static_cast< uint >( fem::Model_Type::PLANE_STRESS ) );
         tParameterList( 1 )( tCMCounter ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::STRUC_LIN_ISO ) );
         tParameterList( 1 )( tCMCounter ).set( "dof_dependencies", std::pair< std::string, std::string >( tDofString, "Displacement" ) );
-        tParameterList( 1 )( tCMCounter ).set( "properties", std::string( "PropYoungsModulus,  YoungsModulus;" ) + std::string( "PropPoissonRatio,   PoissonRatio" ) );
+        tParameterList( 1 )( tCMCounter ).set( "properties", "PropYoungsModulus, YoungsModulus; PropPoissonRatio, PoissonRatio" );
+        tParameterList( 1 )( tCMCounter ).set( "phase_name", "PhaseBulk" );
         tCMCounter++;
 
         tParameterList( 1 ).push_back( prm::create_constitutive_model_parameter_list() );
@@ -370,7 +392,8 @@ namespace moris
         tParameterList( 1 )( tCMCounter ).set( "model_type", static_cast< uint >( fem::Model_Type::PLANE_STRESS ) );
         tParameterList( 1 )( tCMCounter ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::STRUC_NON_LIN_ISO_SAINT_VENANT_KIRCHHOFF ) );
         tParameterList( 1 )( tCMCounter ).set( "dof_dependencies", std::pair< std::string, std::string >( tDofString, "Displacement" ) );
-        tParameterList( 1 )( tCMCounter ).set( "properties", std::string( "PropYoungsModulus,  YoungsModulus;" ) + std::string( "PropPoissonRatio,   PoissonRatio" ) );
+        tParameterList( 1 )( tCMCounter ).set( "properties", "PropYoungsModulus, YoungsModulus; PropPoissonRatio, PoissonRatio" );
+        tParameterList( 1 )( tCMCounter ).set( "phase_name", "PhaseBulk" );
         tCMCounter++;
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -387,6 +410,7 @@ namespace moris
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::DIRICHLET_NITSCHE ) );
         tParameterList( 2 )( tSPCounter ).set( "function_parameters", "100.0" );
         tParameterList( 2 )( tSPCounter ).set( "leader_properties", "PropYoungsModulus,Material" );
+        tParameterList( 2 )( tSPCounter ).set( "leader_phase_name", "PhaseBulk" );
         tSPCounter++;
 
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
@@ -394,6 +418,8 @@ namespace moris
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
         tParameterList( 2 )( tSPCounter ).set( "function_parameters", std::string( "0.001" ) );
         tParameterList( 2 )( tSPCounter ).set( "leader_properties", std::string( "PropYoungsModulus,Material" ) );
+        tParameterList( 2 )( tSPCounter ).set( "leader_phase_name", "PhaseBulk" );
+        tParameterList( 2 )( tSPCounter ).set( "follower_phase_name", "PhaseBulk" );
         tSPCounter++;
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -402,17 +428,19 @@ namespace moris
 
         //------------------------------------------------------------------------------
         // BULK IWGs
+
         //------------------------------------------------------------------------------
 
         // linear elasticity
         ///*
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGStructBulk" );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_bulk_type", (uint)fem::Element_Type::BULK );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_phase_name", "PhaseBulk" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_BULK ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", tDofString );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", tDofString );
         tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMStrucLinIso,ElastLinIso" );
-        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tBulk );
         tIWGCounter++;
         //*/
 
@@ -420,6 +448,8 @@ namespace moris
 
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGStructBulkLBA" );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_bulk_type", (uint)fem::Element_Type::BULK );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_phase_name", "PhaseBulk" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_NON_LINEAR_GEOMETRIC_STIFFNESS ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", tDofString );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", tDofString );
@@ -431,7 +461,6 @@ namespace moris
         {
             tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMStrucLinIso,ElastLinIso" );
         }
-        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tBulk );
         tIWGCounter++;
 
         //------------------------------------------------------------------------------
@@ -441,11 +470,13 @@ namespace moris
         // Traction BC ( Compressive force at top )
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGNeumannTraction" );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_bulk_type", (uint)fem::Element_Type::SIDESET );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_phase_name", "PhaseBulk" );
+        tParameterList( 3 )( tIWGCounter ).set( "neighbor_phases", "PhaseTop" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_NEUMANN ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", tDofString );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", tDofString );
         tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropTraction,Traction" );
-        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tTop );
         tIWGCounter++;
 
         //------------------------------------------------------------------------------
@@ -454,13 +485,15 @@ namespace moris
         // Fixed bottom edge
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGDirichletStruct" );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_bulk_type", (uint)fem::Element_Type::SIDESET );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_phase_name", "PhaseBulk" );
+        tParameterList( 3 )( tIWGCounter ).set( "neighbor_phases", "PhaseBottom" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", tDofString );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", tDofString );
         tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropDirichletStruct,Dirichlet" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMStrucLinIso,ElastLinIso" );
         tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters", "SPNitscheStruc,DirichletNitsche" );
-        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tBottom );
         tIWGCounter++;
 
         //------------------------------------------------------------------------------
@@ -468,13 +501,15 @@ namespace moris
         //------------------------------------------------------------------------------
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", std::string( "IWGGhostMaterial" ) );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_bulk_type", (uint)fem::Element_Type::DOUBLE_SIDESET );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_phase_name", "PhaseBulk" );
+        tParameterList( 3 )( tIWGCounter ).set( "follower_phase_name", "PhaseBulk" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", tDofString );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", tDofString );
         tParameterList( 3 )( tIWGCounter ).set( "follower_dof_dependencies", tDofString );
         tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters", std::string( "SPGhost,GhostSP" ) );
         tParameterList( 3 )( tIWGCounter ).set( "ghost_order", (uint)std::stoi( tOrder ) );
-        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tBulkGhost );
         tIWGCounter++;
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -486,7 +521,7 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQITotalVolume" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::VOLUME ) );
         tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", tDofString );
-        tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tBulk );
+        tParameterList( 4 )( tIQICounter ).set( "leader_phase_name", "PhaseBulk" );
         tIQICounter++;
 
         // Eigen values and Eigenvectors
@@ -500,7 +535,7 @@ namespace moris
             tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", tDofString );
             tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", i );
             tParameterList( 4 )( tIQICounter ).set( "function_parameters", "0" );
-            tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tBulk );
+            tParameterList( 4 )( tIQICounter ).set( "leader_phase_name", "PhaseBulk" );
             tIQICounter++;
 
             // X-displacement
@@ -511,7 +546,7 @@ namespace moris
             tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", tDofString );
             tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 0 );
             tParameterList( 4 )( tIQICounter ).set( "function_parameters", std::to_string( i ) );
-            tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tBulk );
+            tParameterList( 4 )( tIQICounter ).set( "leader_phase_name", "PhaseBulk" );
             tIQICounter++;
 
             // Y-displacement
@@ -522,7 +557,7 @@ namespace moris
             tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", tDofString );
             tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 1 );
             tParameterList( 4 )( tIQICounter ).set( "function_parameters", std::to_string( i ) );
-            tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tBulk );
+            tParameterList( 4 )( tIQICounter ).set( "leader_phase_name", "PhaseBulk" );
             tIQICounter++;
 
             if ( tDim == 3 )
@@ -535,7 +570,7 @@ namespace moris
                 tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", tDofString );
                 tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 2 );
                 tParameterList( 4 )( tIQICounter ).set( "function_parameters", std::to_string( i ) );
-                tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tBulk );
+                tParameterList( 4 )( tIQICounter ).set( "leader_phase_name", "PhaseBulk" );
                 tIQICounter++;
             }
         }
@@ -544,6 +579,8 @@ namespace moris
         tParameterList( 5 ).resize( 1 );
         tParameterList( 5 )( 0 ) = prm::create_computation_parameter_list();
     }
+
+    /* ------------------------------------------------------------------------ */
 
     void
     SOLParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
@@ -563,6 +600,8 @@ namespace moris
             create_trilinos_parameter_list( tParameterlist );
         }
     }
+
+    //---------------------------------------------------------------------------------------------------------------------------------------
 
     void
     create_trilinos_parameter_list( Vector< Vector< Parameter_List > >& aParameterlist )
@@ -638,7 +677,7 @@ namespace moris
         //---------------------------------------------------------------------------------------------------------------------------------------
 
         aParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
-        aParameterlist( 6 )( 0 ).set( "SOL_save_operator_to_matlab", "LBAMat" );
+        // aParameterlist( 6 )( 0 ).set( "SOL_save_operator_to_matlab", "LBAMat" );
 
         //---------------------------------------------------------------------------------------------------------------------------------------
 
@@ -732,6 +771,8 @@ namespace moris
         aParameterlist( 6 )( 0 ).set( "SOL_TPL_Type", sol::MapType::Petsc );
     }
 
+    /* ------------------------------------------------------------------------ */
+
     void MSIParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
@@ -740,6 +781,8 @@ namespace moris
         tParameterlist( 0 )( 0 ) = prm::create_msi_parameter_list();
         tParameterlist( 0 )( 0 ).set( "number_eigen_vectors", tNumEigenVectors );
     }
+
+    /* ------------------------------------------------------------------------ */
 
     void VISParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
