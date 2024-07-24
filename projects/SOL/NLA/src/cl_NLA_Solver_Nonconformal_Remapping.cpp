@@ -17,13 +17,13 @@ namespace moris::NLA
 {
     Solver_Nonconformal_Remapping::Solver_Nonconformal_Remapping( Parameter_List &aParameterListNonlinearSolver )
             : mStrategy( static_cast< sol::SolverRaytracingStrategy >( aParameterListNonlinearSolver.get< uint >( "NLA_remap_strategy" ) ) )
+            , mResidualChangeTolerance( aParameterListNonlinearSolver.get< real >( "NLA_remap_residual_change_tolerance" ) )
             , mLoadStepFrequency( aParameterListNonlinearSolver.get< int >( "NLA_remap_load_step_frequency" ) )
             , mIterationFrequency( aParameterListNonlinearSolver.get< int >( "NLA_remap_iteration_frequency" ) )
-            , mResidualChangeTolerance( aParameterListNonlinearSolver.get< real >( "NLA_remap_residual_change_tolerance" ) )
-            , mPreviousLoadFactor( 0.0 )
-            , mLoadStepCounter( 0 )
     {
     }
+
+    //-------------------------------------------------------------------------------------------------
 
     bool Solver_Nonconformal_Remapping::requires_remapping( uint aIter, Nonlinear_Solver *aNonLinSolverManager, real &aLoadFactor )
     {
@@ -69,11 +69,14 @@ namespace moris::NLA
             }
             default:
             {
-                MORIS_ASSERT( false, "Solver_Nonconformal_Remapping::requires_remapping() - Invalid remapping strategy." );
+                MORIS_ASSERT( false,
+                        "Solver_Nonconformal_Remapping::requires_remapping() - Invalid remapping strategy." );
                 return false;
             }
         }
     }
+
+    //-------------------------------------------------------------------------------------------------
 
     bool Solver_Nonconformal_Remapping::check_every_nth_load_step( real &aLoadFactor )
     {
@@ -86,10 +89,14 @@ namespace moris::NLA
         return false;
     }
 
+    //-------------------------------------------------------------------------------------------------
+
     bool Solver_Nonconformal_Remapping::check_every_nth_iteration( uint aIter, uint aFrequency )
     {
         return ( aIter % aFrequency ) == 0 || aIter == 1;    // always remap at first iteration or every nth iteration
     }
+
+    //-------------------------------------------------------------------------------------------------
 
     bool Solver_Nonconformal_Remapping::check_relative_residual_change( Nonlinear_Solver *aNonLinSolverManager )
     {
@@ -105,12 +112,16 @@ namespace moris::NLA
 
         if ( mPreviousResidual < 0.0 )    // first iteration
         {
-            mPreviousResidual = aNonLinSolverManager->get_residual_norm();
+            mPreviousResidual  = tResidualNorm;
+            mReferenceResidual = tResidualNorm;
             return false;
         }
 
-        real const tResidualChange = tResidualNorm - mPreviousResidual;    // compute residual change
+        // compute residual change
+        const real tResidualChange = std::abs( tResidualNorm - mPreviousResidual );
         mPreviousResidual          = tResidualNorm;
-        return tResidualChange > mResidualChangeTolerance;
+
+        // remap if absolute of relative residual change is larger than user-defined threshold
+        return tResidualChange > mResidualChangeTolerance * mReferenceResidual;
     }
 }    // namespace moris::NLA
