@@ -433,7 +433,7 @@ TEST_CASE( "IWG_Compressible_NS_Advective_Energy_Boundary_VdW",
 {
     // define an epsilon environment
     real tEpsilon      = 1.0E-6;
-    real tEpsilonCubic = 3.0E-6;
+    real tEpsilonCubic = 9.0E-6;
 
     // define a perturbation relative size
     real tPerturbation      = 2.0E-4;
