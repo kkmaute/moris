@@ -105,13 +105,26 @@ namespace moris
             //-------------------------------------------------------------------------------
 
             /**
+             * @brief Moller trumbore algorithm for determining if the ray intersects the triangle.
+             *
+             * @param aAxis coordinate axis the ray is cast down
+             * @param aPoint origin point of the ray
+             * @return aAxis coordinate of the intersection
+             */
+            real
+            moller_trumbore(
+                    uint                    aAxis,
+                    const Matrix< DDRMat >& aPoint );
+
+            //-------------------------------------------------------------------------------
+
+            /**
              * @brief Projects a point on the local 2D coordinate system.
              *        The third entry contains a signed point-plane distance.
              * @param[in]  aPoint  point to project
              *
              */
-            moris::Matrix< F31RMat >
-            project_point_to_local_cartesian(
+            moris::Matrix< F31RMat > project_point_to_local_cartesian(
                     const moris::Matrix< F31RMat >& aPoint );
 
             //-------------------------------------------------------------------------------

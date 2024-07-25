@@ -13,6 +13,7 @@
 #include "assert.hpp"
 #include "fn_dot.hpp"
 #include "fn_norm.hpp"
+#include "fn_trans.hpp"
 #include "op_times.hpp"
 #include "SDF_Tools.hpp"
 #include "fn_stringify_matrix.hpp"
@@ -195,6 +196,9 @@ namespace moris
             uint j;    // second off axis
             uint p;    // first off vertex
             uint q;    // second off vertex
+
+            Matrix< DDRMat > tVertexCoordinates = this->get_vertex_coords();
+
             for ( moris::uint iAxis = 0; iAxis < 3; ++iAxis )
             {
                 // get the other two axes (i,j) for the current axis k
@@ -204,7 +208,7 @@ namespace moris
                 {
                     // get the other two axes (p,q) for the current axis r
                     triangle_permutation( iVertex, p, q );
-                    real tDelta = mVertices( p )->get_coord( i ) - mVertices( q )->get_coord( i );
+                    real tDelta = tVertexCoordinates( p, i ) - tVertexCoordinates( q, i );
                     // check if the delta is too small, and set accordingly if so
                     if ( std::abs( tDelta ) < mIntersectionTolerance )
                     {
@@ -214,9 +218,9 @@ namespace moris
                             tDelta = mIntersectionTolerance;
                     }
 
-                    mPredictYRA( iVertex, iAxis ) = ( mVertices( p )->get_coord( j ) - mVertices( q )->get_coord( j ) ) / tDelta;
-                    mPredictY( iVertex, iAxis )   = mVertices( p )->get_coord( j ) + mPredictYRA( iVertex, iAxis ) * ( mVertices( iVertex )->get_coord( i ) - mVertices( p )->get_coord( i ) );
-                    mPredictYRB( iVertex, iAxis ) = mVertices( p )->get_coord( j ) - mVertices( p )->get_coord( i ) * mPredictYRA( iVertex, iAxis );
+                    mPredictYRA( iVertex, iAxis ) = ( tVertexCoordinates( p, j ) - tVertexCoordinates( q, j ) ) / tDelta;
+                    mPredictY( iVertex, iAxis )   = tVertexCoordinates( p, j ) + mPredictYRA( iVertex, iAxis ) * ( tVertexCoordinates( iVertex, i ) - tVertexCoordinates( p, i ) );
+                    mPredictYRB( iVertex, iAxis ) = tVertexCoordinates( p, j ) - tVertexCoordinates( p, i ) * mPredictYRA( iVertex, iAxis );
                 }
             }
         }
@@ -255,6 +259,73 @@ namespace moris
                 || ( std::abs( ( tNodeCoords( tP, tJ ) - tNodeCoords( tQ, tJ ) )
                                * ( tNodeCoords( tP, tI ) - aPoint( tI ) ) )
                         < mIntersectionTolerance );
+        }
+
+        //-------------------------------------------------------------------------------
+
+        real
+        Triangle::moller_trumbore(
+                uint                    aAxis,
+                const Matrix< DDRMat >& aPoint )
+        {
+            // Build the cast direction vector
+            Matrix< DDRMat > tDirection( 3, 1, 0.0 );
+            tDirection( aAxis ) = 1.0;
+
+            // Build the edge vectors
+            Matrix< DDRMat > tEdge1 = mVertices( 1 )->get_coords() - mVertices( 0 )->get_coords();
+            Matrix< DDRMat > tEdge2 = mVertices( 2 )->get_coords() - mVertices( 0 )->get_coords();
+
+            // Compute the determinant of the edges and the cast direction
+            Matrix< DDRMat > tP   = cross( tDirection, tEdge2 );
+            real             tDet = dot( tEdge1, tP );
+
+            // If the determinant is close to zero, the ray is parallel to the triangle. Return NaN
+            if ( tDet > -mIntersectionTolerance and tDet < mIntersectionTolerance )
+            {
+                return std::numeric_limits< real >::quiet_NaN();
+            }
+
+            // compute the inverse of the determinant
+            real tInverseDeterminant = 1.0 / tDet;
+
+            // Compute the vector from the origin to the first vertex
+            Matrix< DDRMat > tT;
+            if ( aPoint.n_cols() == 1 )
+            {
+                tT = aPoint - mVertices( 0 )->get_coords();
+            }
+            else
+            {
+                tT = trans( aPoint ) - mVertices( 0 )->get_coords();
+            }
+
+            // Compute the u parameter
+            real tU = dot( tT, tP ) * tInverseDeterminant;
+
+            // If the u parameter is < 0.0 or > 1.0, the intersection is outside the triangle
+            if ( tU < 0.0 or tU > 1.0 )
+            {
+                return std::numeric_limits< real >::quiet_NaN();
+            }
+
+            // Compute the vector from the origin to the second vertex
+            Matrix< DDRMat > tQ = cross( tT, tEdge1 );
+
+            // Compute the v parameter
+            real tV = dot( tDirection, tQ ) * tInverseDeterminant;
+
+            // If the v parameter is < 0.0 or > 1.0, the intersection is outside the triangle
+            if ( tV < 0.0 or tU + tV > 1.0 )
+            {
+                return std::numeric_limits< real >::quiet_NaN();
+            }
+
+            // Compute the distance from the origin to the intersection point
+            real tDistance = dot( tEdge2, tQ ) * tInverseDeterminant;
+
+            // Return the distance
+            return aPoint( aAxis ) + tDistance;
         }
 
         //-------------------------------------------------------------------------------

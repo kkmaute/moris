@@ -53,11 +53,7 @@ namespace moris::sdf
                 Object      tObject( tObjectPath );
 
                 // define test point that is inside the object
-                Matrix< DDRMat > tTestPoint = {
-                    { 0.9 },
-                    { 0.6 },
-                    { 0.7 }
-                };
+                Matrix< DDRMat > tTestPoint = { { 0.9, 0.6, 0.7 } };
 
                 // preselect in x direction and ensure they are correct
                 Vector< uint >      tCandidatesExpected = { 0, 1, 2 };
@@ -83,30 +79,28 @@ namespace moris::sdf
                 tCandidatesExpected = { 0, 1, 3 };
                 tPreselection       = preselect_triangles( tObject, tTestPoint, 2, tCandidateTriangles );
 
+                // Check the preselection results
                 REQUIRE( tCandidateTriangles.size() == 3 );
                 REQUIRE( tPreselection == Preselection_Result::SUCCESS );
                 CHECK( tCandidatesExpected( 0 ) == tCandidateTriangles( 0 ) );
                 CHECK( tCandidatesExpected( 1 ) == tCandidateTriangles( 1 ) );
                 CHECK( tCandidatesExpected( 2 ) == tCandidateTriangles( 2 ) );
 
-                // check for intersection with facets and ensure they are correct
-                Vector< Facet* > tIntersectedTriangles           = intersect_triangles( tCandidateTriangles, tObject, tTestPoint, 2 );
-                Facet&           tFirstIntersectedFacetExpected  = tObject.get_facet( 0 );
-                Facet&           tSecondIntersectedFacetExpected = tObject.get_facet( 3 );
+                // check moller trumbore algorithm for proper intersection location and parent facet determination
+                Vector< real > tIntersectionCoordinatesExpected = { 0.408248, 0.88055613061054816 };
+                Facet&         tFirstIntersectedFacetExpected   = tObject.get_facet( 3 );
+                Facet&         tSecondIntersectedFacetExpected  = tObject.get_facet( 0 );
 
-                REQUIRE( tIntersectedTriangles.size() == 2 );
-                CHECK( &tFirstIntersectedFacetExpected == tIntersectedTriangles( 0 ) );
-                CHECK( &tSecondIntersectedFacetExpected == tIntersectedTriangles( 1 ) );
-
-                // compute the intersection locations and ensure they are correct
-                Vector< real > tIntersectionCoordinatesExpected = { 0.408248, 0.88055620439 };
-                Vector< real > tIntersectionCoordinates         = intersect_ray_with_facets( tIntersectedTriangles, tTestPoint, 2, Preselection_Result::SUCCESS );
-                REQUIRE( tIntersectionCoordinates.size() == 2 );
-                CHECK( std::abs( tIntersectionCoordinates( 0 ) - tIntersectionCoordinatesExpected( 0 ) ) < tObject.get_intersection_tolerance() );
-                CHECK( std::abs( tIntersectionCoordinates( 1 ) - tIntersectionCoordinatesExpected( 1 ) ) < tObject.get_intersection_tolerance() );
+                Vector< Facet* > tIntersectedFacets;
+                Vector< real >   tIntersections = intersect_triangles_moller_trumbore( tCandidateTriangles, tObject, tTestPoint, 2, tIntersectedFacets );
+                REQUIRE( tIntersectedFacets.size() == 2 );
+                CHECK( &tFirstIntersectedFacetExpected == tIntersectedFacets( 0 ) );
+                CHECK( &tSecondIntersectedFacetExpected == tIntersectedFacets( 1 ) );
+                CHECK( std::abs( tIntersections( 0 ) - tIntersectionCoordinatesExpected( 0 ) ) < tObject.get_intersection_tolerance() );
+                CHECK( std::abs( tIntersections( 1 ) - tIntersectionCoordinatesExpected( 1 ) ) < tObject.get_intersection_tolerance() );
 
                 // check if the point is inside and compare it to expectations
-                Object_Region tPointIsInside = check_if_node_is_inside_triangles( tIntersectionCoordinates, tTestPoint, 2, 1e-8 );
+                Object_Region tPointIsInside = check_if_node_is_inside_triangles( tIntersections, tTestPoint, 2, 1e-8 );
 
                 CHECK( tPointIsInside == INSIDE );
 
@@ -116,11 +110,10 @@ namespace moris::sdf
                 CHECK( tPointIsInside == INSIDE );
 
                 // repeat test for point that is outside
-                tTestPoint = {
-                    { 0.2 },
-                    { 0.6 },
-                    { 0.7 }
-                };
+                tTestPoint = { { 0.2, 0.6, 0.7 } };
+
+                // Expected results
+                tIntersectionCoordinatesExpected = { 0.715517872727636, 1.284482127272365 };
 
                 tPreselection = preselect_triangles( tObject, tTestPoint, 2, tCandidateTriangles );
 
@@ -136,24 +129,22 @@ namespace moris::sdf
                 CHECK( tCandidateTriangles( 1 ) == tCandidatesExpected( 1 ) );
                 CHECK( tCandidateTriangles( 2 ) == tCandidatesExpected( 2 ) );
 
-                tIntersectedTriangles           = intersect_triangles( tCandidateTriangles, tObject, tTestPoint, 0 );
-                tFirstIntersectedFacetExpected  = tObject.get_facet( 1 );
-                tSecondIntersectedFacetExpected = tObject.get_facet( 2 );
+                tIntersections = intersect_triangles_moller_trumbore( tCandidateTriangles, tObject, tTestPoint, 0, tIntersectedFacets );
 
-                REQUIRE( tIntersectedTriangles.size() == 2 );
-                CHECK( *( tIntersectedTriangles( 0 ) ) == tFirstIntersectedFacetExpected );
-                CHECK( *( tIntersectedTriangles( 1 ) ) == tSecondIntersectedFacetExpected );
+                // tIntersectedTriangles           = intersect_triangles( tCandidateTriangles, tObject, tTestPoint, 0 );
+
+                REQUIRE( tIntersectedFacets.size() == 2 );
+                CHECK( *( tIntersectedFacets( 0 ) ) == tObject.get_facet( 1 ) );
+                CHECK( *( tIntersectedFacets( 1 ) ) == tObject.get_facet( 2 ) );
 
                 // although two facets are intersected, one of them should produce an error and be removed
-                tIntersectionCoordinatesExpected = { 0.715517872727636, 1.284482127272365 };
-                tIntersectionCoordinates         = intersect_ray_with_facets( tIntersectedTriangles, tTestPoint, 0, Preselection_Result::SUCCESS );
+                // tIntersectionCoordinates         = intersect_ray_with_facets( tIntersectedTriangles, tTestPoint, 0, Preselection_Result::SUCCESS );
 
+                REQUIRE( tIntersections.size() == 2 );
+                CHECK( std::abs( tIntersections( 0 ) - tIntersectionCoordinatesExpected( 0 ) ) < tObject.get_intersection_tolerance() );
+                CHECK( std::abs( tIntersections( 1 ) - tIntersectionCoordinatesExpected( 1 ) ) < tObject.get_intersection_tolerance() );
 
-                REQUIRE( tIntersectionCoordinates.size() == 2 );
-                CHECK( std::abs( tIntersectionCoordinates( 0 ) - tIntersectionCoordinatesExpected( 0 ) ) < tObject.get_intersection_tolerance() );
-                CHECK( std::abs( tIntersectionCoordinates( 1 ) - tIntersectionCoordinatesExpected( 1 ) ) < tObject.get_intersection_tolerance() );
-
-                tPointIsInside = check_if_node_is_inside_triangles( tIntersectionCoordinates, tTestPoint, 0, 1e-8 );
+                tPointIsInside = check_if_node_is_inside_triangles( tIntersections, tTestPoint, 0, 1e-8 );
 
                 CHECK( tPointIsInside == OUTSIDE );
 
@@ -253,17 +244,13 @@ namespace moris::sdf
                 Object      tObject( tObjectPath );
 
                 // define test point that is inside the object
-                Matrix< DDRMat > tTestPoint = {
-                    { 0.9 },
-                    { 0.6 },
-                    { 0.7 }
-                };
+                Matrix< DDRMat > tTestPoint = { { 0.9, 0.6, 0.7 } };
 
                 Vector< Facet* > tIntersectionIndices;
 
-                real tLineDistanceXExpected = 1.284482127272365;    // facet index = 2
-                real tLineDistanceYExpected = 0.919532986470608;    // facet index = 1
-                real tLineDistanceZExpected = 0.88055620439;        // facet index = 0
+                real tLineDistanceXExpected = 1.2844821272723648;     // facet index = 2
+                real tLineDistanceYExpected = 0.91953300647060843;    // facet index = 1
+                real tLineDistanceZExpected = 0.88055613061054816;    // facet index = 0
 
                 // compute with raycast function
                 Vector< real > tLineDistanceX = compute_distance_to_facets( tObject, tTestPoint, 0, tIntersectionIndices );

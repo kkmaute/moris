@@ -101,7 +101,7 @@ namespace moris
     typedef unsigned int           uint;    // unsigned int in 32bit and 64bit.
     typedef double                 real;    // real
     typedef std::complex< double > cplx;    // complex
-#elif MORIS_USE_64BIT
+#else
     typedef long int                    lint;
     typedef int                         sint;
     typedef long unsigned int           uint;

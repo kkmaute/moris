@@ -120,29 +120,23 @@ namespace moris::sdf
                 // create matrix with coordinates
                 Matrix< DDRMat > tNodeCoords( mDimension, 1 );
 
-                float tX[ 3 ];
+                real tX[ 3 ];
 
-                if ( mDimension == 3 )
-                {
+#if MORIS_USE_32BIT
                     // read ascii data into coordinates
                     std::sscanf( tBuffer( k ).substr( 2, tBuffer( k ).length() ).c_str(),
-                            "%f %f %f",
+                            "%lf %lf %lf",
                             &tX[ 0 ],
                             &tX[ 1 ],
                             &tX[ 2 ] );
-                }
-                else if ( mDimension == 2 )
-                {
+#else
                     // read ascii data into coordinates
                     std::sscanf( tBuffer( k ).substr( 2, tBuffer( k ).length() ).c_str(),
-                            "%f %f",
+                            "%Lf %Lf %Lf",
                             &tX[ 0 ],
-                            &tX[ 1 ] );
-                }
-                else
-                {
-                    MORIS_ERROR( false, "SDF Object() - .obj files with %d dimensions not supported.", mDimension );
-                }
+                            &tX[ 1 ],
+                            &tX[ 2 ] );
+#endif
 
                 // test coordinates for highpass
                 for ( uint i = 0; i < mDimension; ++i )

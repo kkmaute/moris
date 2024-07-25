@@ -84,8 +84,8 @@ namespace moris::gen
     bool
     Intersection_Node::is_first_parent_on_interface()
     {
-        return this->get_interface_geometry().get_geometric_region( this->get_first_parent_node().get_index(), this->get_first_parent_node().get_global_coordinates() ) == Geometric_Region::INTERFACE
-            or std::abs( this->get_local_coordinate() + 1.0 ) < this->get_interface_geometry().get_intersection_tolerance();
+        return std::abs( this->get_local_coordinate() + 1.0 ) < this->get_interface_geometry().get_intersection_tolerance() 
+        or this->get_interface_geometry().get_geometric_region( this->get_first_parent_node().get_index(), this->get_first_parent_node().get_global_coordinates() ) == Geometric_Region::INTERFACE;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -93,8 +93,8 @@ namespace moris::gen
     bool
     Intersection_Node::is_second_parent_on_interface()
     {
-        return this->get_interface_geometry().get_geometric_region( this->get_second_parent_node().get_index(), this->get_second_parent_node().get_global_coordinates() ) == Geometric_Region::INTERFACE
-            or std::abs( this->get_local_coordinate() - 1.0 ) < this->get_interface_geometry().get_intersection_tolerance();
+        return std::abs( this->get_local_coordinate() - 1.0 ) < this->get_interface_geometry().get_intersection_tolerance() or 
+        this->get_interface_geometry().get_geometric_region( this->get_second_parent_node().get_index(), this->get_second_parent_node().get_global_coordinates() ) == Geometric_Region::INTERFACE;
     }
 
     //--------------------------------------------------------------------------------------------------------------

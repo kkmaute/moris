@@ -89,6 +89,25 @@ namespace moris::sdf
             uint                    aAxis,
             Vector< uint >&         aCandidateFacets );
 
+
+    /**
+     * @brief Takes a point in 3D space and determines which triangles
+     * in the positive and negative x direction the point could possibly intersect.
+     * These triangles are returned. Helps speed up the raycast by avoiding checking intersections with unrelated facets.
+     *
+     * @param aObject water tight collection of facets to cast on to
+     * @param aPoint Point in space that lies within the bounding plane of the candidate triangles
+     * @param aAxis direction in which the ray is cast
+     * @param aCandidateFacets return variable, facet indices which aPoint lies in the bounding box of, and intersection coordinates need to be computed to determine intersection
+     * @return Detection of pathological preselection cases, like a ray cast directly onto a vertex or the cast point being on a vertex
+     */
+    void
+    preselect_triangles_moller_trumbore(
+            Object&                 aObject,
+            const Matrix< DDRMat >& aPoint,
+            uint                    aAxis,
+            Vector< uint >&         aCandidateFacets );
+
     //-------------------------------------------------------------------------------
 
     /**
@@ -133,6 +152,24 @@ namespace moris::sdf
     //-------------------------------------------------------------------------------
 
     /**
+     * checks if the cast point will cast a ray that will actually intersect aCandidateFacets. If so, the facet is added to the return
+     *
+     * @param aCandidateFacets indices of facets which to determine intersection
+     * @param aObject water tight collection of facets to cast on to
+     * @param aPoint spatial location of the origin of the ray
+     * @param aAxis coordinate axis in which to cast from
+     */
+    Vector< real >
+    intersect_triangles_moller_trumbore(
+            Vector< uint >&         aCandidateFacets,
+            Object&                 aObject,
+            const Matrix< DDRMat >& aPoint,
+            uint                    aAxis,
+            Vector< Facet* >&       aIntersectedFacets );
+
+    //-------------------------------------------------------------------------------
+
+    /**
      * Takes all of potential facets (in aIntersectedFacets) and computes the coordinate axis intersection location
      * with the ray originating from aPoint. Does not handle cases where the ray intersects with the vertex
      *
@@ -162,10 +199,10 @@ namespace moris::sdf
      */
     Object_Region
     check_if_node_is_inside_triangles(
-            Vector< real >&   aIntersectionCoords,
-            Matrix< DDRMat >& aPoint,
-            uint              aAxis,
-            const real&       aIntersectionTolerance = 1e-8 );
+            Vector< real >&         aIntersectionCoords,
+            const Matrix< DDRMat >& aPoint,
+            uint                    aAxis,
+            const real&             aIntersectionTolerance = 1e-8 );
 
     //-------------------------------------------------------------------------------
 

@@ -50,8 +50,8 @@ namespace moris
             bool mFlag = true;
 
             // current node coords
-            Matrix< F31RMat > mNodeCoords;
-            Matrix< F31RMat > mOriginalNodeCoords;
+            Matrix< DDRMat > mNodeCoords;
+            Matrix< DDRMat > mOriginalNodeCoords;
 
             real   mSDF;
             Facet* mClosestFacet = nullptr;

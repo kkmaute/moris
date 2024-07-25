@@ -126,7 +126,7 @@ namespace moris::gen
     TEST_CASE( "Engine 2D Surface Mesh Intersections", "[gen], [pdv], [intersection], [surface mesh geometry 2d]," )
     {
         if ( par_size() == 1 )
-        {
+        {            
             // get root from environment
             std::string tMorisRoot = moris::get_base_moris_dir();
 
@@ -373,7 +373,6 @@ namespace moris::gen
 
                     CHECK( tLocalCoordinate == Approx( tIntersectionLocalCoordinates( tIntersectionCount ) ).margin( 1e-9 ) );
 
-                    // Check global coordinates
                     CHECK_EQUAL( tGeometryEngine.get_queued_intersection_global_coordinates(), tIntersectionGlobalCoordinates( tIntersectionCount ), );
 
                     // Admit intersection
