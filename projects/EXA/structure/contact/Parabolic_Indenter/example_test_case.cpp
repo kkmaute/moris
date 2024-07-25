@@ -163,6 +163,7 @@ extern "C" void check_results()
 TEST_CASE( "Parabolic_Indenter_Linear",
         "[moris],[example],[structure],[linear]" )
 {
+#ifdef MORIS_HAVE_ARBORX
     // check that run is serial; parallel not implemented yet
     MORIS_ERROR( par_size() == 1, "Contact not implemented for parallel computation yet" );
 
@@ -184,9 +185,16 @@ TEST_CASE( "Parabolic_Indenter_Linear",
     MORIS_LOG_INFO( "Executing Parabolic_Indenter_Linear: Interpolation order 1 - %i Processors.", par_size() );
     MORIS_LOG_INFO( " " );
 
+
     // call to performance manager main interface
     fn_WRK_Workflow_Main_Interface( argc, argv );
 
     // check results
     check_results();
+
+#else
+    MORIS_LOG_INFO( " " );
+    MORIS_LOG_INFO("Parabolic_Indenter_Linear: Example skipped as Arborx not installed");
+    MORIS_LOG_INFO( " " );
+#endif
 }
