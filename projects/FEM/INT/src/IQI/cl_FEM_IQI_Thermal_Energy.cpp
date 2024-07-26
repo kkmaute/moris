@@ -33,24 +33,24 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IQI_Thermal_Energy::compute_QI( Matrix< DDRMat > & aQI )
+        void IQI_Thermal_Energy::compute_QI( Matrix< DDRMat > &aQI )
         {
             // get the fluid CM
-            const std::shared_ptr< Constitutive_Model > & tCMFluid =
+            const std::shared_ptr< Constitutive_Model > &tCMFluid =
                     mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::FLUID ) );
 
             // get density from CM
-            const std::shared_ptr< Property > & tPropDensity =
+            const std::shared_ptr< Property > &tPropDensity =
                     tCMFluid->get_property( "Density" );
 
             // FIXME protect dof type
             // get velocity field interpolator
-            Field_Interpolator * tFIVelocity =
+            Field_Interpolator *tFIVelocity =
                     mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // FIXME protect dof type
             // get temperature field interpolator
-            Field_Interpolator * tFITemp =
+            Field_Interpolator *tFITemp =
                     mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP );
 
             // evaluate the QI
@@ -65,26 +65,26 @@ namespace moris
             sint tQIIndex = mSet->get_QI_assembly_index( mName );
 
             // get the fluid CM
-            const std::shared_ptr< Constitutive_Model > & tCMFluid =
+            const std::shared_ptr< Constitutive_Model > &tCMFluid =
                     mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::FLUID ) );
 
             // get density from CM
-            const std::shared_ptr< Property > & tPropDensity =
+            const std::shared_ptr< Property > &tPropDensity =
                     tCMFluid->get_property( "Density" );
 
             // FIXME protect dof type
             // get velocity field interpolator
-            Field_Interpolator * tFIVelocity =
+            Field_Interpolator *tFIVelocity =
                     mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // FIXME protect dof type
             // get temperature field interpolator
-            Field_Interpolator * tFITemp =
+            Field_Interpolator *tFITemp =
                     mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP );
 
             // evaluate the QI
-            mSet->get_QI()( tQIIndex ) += aWStar * (
-                    tPropDensity->val() * tFITemp->val() * tFIVelocity->val_trans() * mNormal );
+            mSet->get_QI()( tQIIndex ) +=
+                    aWStar * ( tPropDensity->val() * tFITemp->val() * tFIVelocity->val_trans() * mNormal );
         }
 
         //------------------------------------------------------------------------------
@@ -95,31 +95,31 @@ namespace moris
             sint tQIIndex = mSet->get_QI_assembly_index( mName );
 
             // get the fluid CM
-            const std::shared_ptr< Constitutive_Model > & tCMFluid =
+            const std::shared_ptr< Constitutive_Model > &tCMFluid =
                     mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::FLUID ) );
 
             // get density from CM
-            const std::shared_ptr< Property > & tPropDensity =
+            const std::shared_ptr< Property > &tPropDensity =
                     tCMFluid->get_property( "Density" );
 
             // FIXME protect dof type
             // get velocity field interpolator
-            Field_Interpolator * tFIVelocity =
+            Field_Interpolator *tFIVelocity =
                     mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // FIXME protect dof type
             // get temperature field interpolator
-            Field_Interpolator * tFITemp =
+            Field_Interpolator *tFITemp =
                     mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP );
 
             // get the number of leader dof type dependencies
             uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
 
             // compute dQIdu for indirect dof dependencies
-            for( uint iDof = 0; iDof < tNumDofDependencies; iDof++ )
+            for ( uint iDof = 0; iDof < tNumDofDependencies; iDof++ )
             {
                 // get the treated dof type
-                Cell< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDof );
+                Vector< MSI::Dof_Type > &tDofType = mRequestedLeaderGlobalDofTypes( iDof );
 
                 // get leader index for residual dof type, indices for assembly
                 uint tLeaderDofIndex      = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -132,9 +132,7 @@ namespace moris
                 {
                     mSet->get_residual()( tQIIndex )(
                             { tLeaderDepStartIndex, tLeaderDepStopIndex },
-                            { 0, 0 } ) += aWStar * (
-                                    tPropDensity->val()( 0 ) * tFITemp->val()( 0 ) *
-                                    tFIVelocity->N_trans() * mNormal );
+                            { 0, 0 } ) += aWStar * ( tPropDensity->val()( 0 ) * tFITemp->val()( 0 ) * tFIVelocity->N_trans() * mNormal );
                 }
                 // if dof type is temperature
                 // FIXME protect dof type
@@ -142,10 +140,7 @@ namespace moris
                 {
                     mSet->get_residual()( tQIIndex )(
                             { tLeaderDepStartIndex, tLeaderDepStopIndex },
-                            { 0, 0 } ) += aWStar * (
-                                    tPropDensity->val()( 0 ) *
-                                    dot( tFIVelocity->val(), mNormal ) *
-                                    tFITemp->N_trans() );
+                            { 0, 0 } ) += aWStar * ( tPropDensity->val()( 0 ) * dot( tFIVelocity->val(), mNormal ) * tFITemp->N_trans() );
                 }
 
                 // if density depends on dof type
@@ -154,10 +149,7 @@ namespace moris
                     // compute dQIdu
                     mSet->get_residual()( tQIIndex )(
                             { tLeaderDepStartIndex, tLeaderDepStopIndex },
-                            { 0, 0 } ) += aWStar * (
-                                    tFITemp->val()( 0 ) *
-                                    trans( tFIVelocity->val() ) * mNormal *
-                                    tPropDensity->dPropdDOF( tDofType ) );
+                            { 0, 0 } ) += aWStar * ( tFITemp->val()( 0 ) * trans( tFIVelocity->val() ) * mNormal * tPropDensity->dPropdDOF( tDofType ) );
                 }
             }
         }
@@ -165,25 +157,25 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void IQI_Thermal_Energy::compute_dQIdu(
-                Vector< MSI::Dof_Type > & aDofType,
-                Matrix< DDRMat >             & adQIdu )
+                Vector< MSI::Dof_Type > &aDofType,
+                Matrix< DDRMat >        &adQIdu )
         {
             // get the fluid CM
-            const std::shared_ptr< Constitutive_Model > & tCMFluid =
+            const std::shared_ptr< Constitutive_Model > &tCMFluid =
                     mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::FLUID ) );
 
             // get density from CM
-            const std::shared_ptr< Property > & tPropDensity =
+            const std::shared_ptr< Property > &tPropDensity =
                     tCMFluid->get_property( "Density" );
 
             // FIXME protect dof type
             // get velocity field interpolator
-            Field_Interpolator * tFIVelocity =
+            Field_Interpolator *tFIVelocity =
                     mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // FIXME protect dof type
             // get temperature field interpolator
-            Field_Interpolator * tFITemp =
+            Field_Interpolator *tFITemp =
                     mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP );
 
             // if dof type is velocity
@@ -191,17 +183,14 @@ namespace moris
             if ( aDofType( 0 ) == MSI::Dof_Type::VX )
             {
                 adQIdu +=
-                        tPropDensity->val()( 0 ) * tFITemp->val()( 0 ) *
-                        tFIVelocity->N_trans() * mNormal;
+                        tPropDensity->val()( 0 ) * tFITemp->val()( 0 ) * tFIVelocity->N_trans() * mNormal;
             }
             // if dof type is temperature
             // FIXME protect dof type
             else if ( aDofType( 0 ) == MSI::Dof_Type::TEMP )
             {
                 adQIdu +=
-                        tPropDensity->val()( 0 ) *
-                        tFIVelocity->val_trans() * mNormal *
-                        trans( tFITemp->N() );
+                        tPropDensity->val()( 0 ) * tFIVelocity->val_trans() * mNormal * trans( tFITemp->N() );
             }
 
             // if density depends on dof type
@@ -209,13 +198,10 @@ namespace moris
             {
                 // compute dQIdu
                 adQIdu +=
-                        tFITemp->val()( 0 ) *
-                        tFIVelocity->val_trans() * mNormal *
-                        tPropDensity->dPropdDOF( aDofType );
+                        tFITemp->val()( 0 ) * tFIVelocity->val_trans() * mNormal * tPropDensity->dPropdDOF( aDofType );
             }
         }
 
         //------------------------------------------------------------------------------
-    }/* end_namespace_fem */
-}/* end_namespace_moris */
-
+    }    // namespace fem
+}    // namespace moris

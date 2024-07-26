@@ -137,7 +137,6 @@ void Linear_Solver::solver_linear_system(
                 tMaxNumLinRestarts,
                 tSolVecNorm( 0 ) );
 
-
         // Re-solve scaled linear system with current solution as an initial guess
         tErrorStatus = mLinearSolverList( tTryRestartOnFailIt )->solve_linear_system( aLinearProblem, aIter );
 

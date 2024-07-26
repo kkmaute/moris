@@ -171,7 +171,7 @@
 //         tXTKModel.mVerbose  =  false;
 
 //         // Specify your decomposition methods and start cutting
-//         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8};
+//         Vector<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8};
 //         tXTKModel.decompose(tDecompositionMethods);
 //         moris::real tGoldVolume = 4;
 
@@ -229,7 +229,7 @@
 //         tXTKModel.mVerbose  =  false;
 
 //         // Specify your decomposition methods and start cutting
-//         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
+//         Vector<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
 //         tXTKModel.decompose(tDecompositionMethods);
 
 //         verify_child_mesh_ancestry(tXTKModel.get_background_mesh(),
@@ -289,7 +289,7 @@
 //             Model tXTKModel(tModelDimension,tMeshData,&tGeometryEngine);
 
 //             //Specify your decomposition methods and start cutting
-//             Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8};
+//             Vector<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8};
 //             tXTKModel.decompose(tDecompositionMethods);
 
 //             moris::Matrix<DDRMat> tNodeCoords = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();

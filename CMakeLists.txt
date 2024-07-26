@@ -64,7 +64,7 @@ set(FEM "FEM")
 set(GEN "GEN")
 set(GEN_CORE "GEN_CORE")
 set(GEN_MAIN "GEN_MAIN")
-set(HIA "Hierarchical")
+set(GUI "GUI")
 set(HMR "HMR")
 set(INT "INT")
 set(IOS "IOS")
@@ -215,6 +215,9 @@ option(MORIS_HAVE_SNOPT
 option(MORIS_HAVE_LBFGS
     "Build MORIS with support for LBFGS." ON )
 
+option(MORIS_HAVE_ARBORX
+    "Build MORIS with support for ArborX." OFF )
+    
 # option(MORIS_HAVE_PERF_MAT
 #     "Run matrix performance tests." OFF )
 #     
@@ -298,6 +301,8 @@ option(BUILD_NLA "Build the non-linear algebra executable." OFF)
 option(BUILD_OPT "Build the optimization executable." OFF)
 
 option(BUILD_PRM "Build the PRM executable." OFF)
+
+option(BUILD_GUI "Build the GUI executable." OFF)
 
 option(BUILD_SDF "Build the SDF executable." OFF)
 
@@ -968,6 +973,10 @@ endif()
 
 if(BUILD_GEN)
     include(${MORIS_DEPENDS_DIR}/GEN_Depends.cmake)
+endif()
+
+if(BUILD_GUI)
+    include(${MORIS_DEPENDS_DIR}/GUI_Depends.cmake)
 endif()
 
 if(BUILD_HMR)

@@ -70,7 +70,6 @@ namespace moris::xtk
          */
         ~Cell_Cluster_Group(){};
 
-
     };    // class xtk::Cell_Cluster_Group
 
 }    // namespace moris::xtk

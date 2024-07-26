@@ -47,7 +47,6 @@ namespace moris
                     const moris::Vector< real >& aOffsets               = { 0, 0, 0 },
                     const moris::Vector< real >& aScale                 = { 1.0, 1.0, 1.0 } );
 
-
             //-------------------------------------------------------------------------------
 
             /**
@@ -130,7 +129,6 @@ namespace moris
             get_facet_min_coord(
                     uint aFacetIndex,
                     uint aAxis );
-
 
             //-------------------------------------------------------------------------------
 

@@ -64,7 +64,6 @@ MultiVector_PETSc::MultiVector_PETSc(
         // build BC vector
         this->dirichlet_BC_vector( mDirichletBCVec, tMyConstrainedDofIds );
 
-
         MatCreate( PETSC_COMM_WORLD, &mPetscVector );
         MatSetSizes( mPetscVector, tMyNumOwnedDofs, aNumVectors, tNumGlobalDofs, aNumVectors );
         MatSetType(mPetscVector, MATDENSE);
@@ -128,7 +127,6 @@ MultiVector_PETSc::sum_into_global_values(
         }
     }
 
-
     // create vector of column indices
     std::vector<sint> tColumnIndices(tNumMyDofs,aVectorIndex);
     
@@ -149,7 +147,6 @@ MultiVector_PETSc::sum_into_global_values(
 }
 
 //-----------------------------------------------------------------------------
-
 
 void
 MultiVector_PETSc::replace_global_values(
@@ -179,7 +176,6 @@ MultiVector_PETSc::replace_global_values(
             tTempElemDofs( Ij, 0 ) = -1;
         }
     }
-
 
     // create vector of column indices
     std::vector<sint> tColumnIndices(tNumMyDofs,aVectorIndex);
@@ -482,7 +478,6 @@ void MultiVector_PETSc::import_local_to_global( Vec aSourceVec, uint aVecIndex, 
     Matrix< DDSMat > tSequantalVectorIndex = mMap->map_from_moris_ids_to_indices( tOwnedMorisIdsDest );
     ISCreateGeneral( PETSC_COMM_WORLD, tSequantalVectorIndex.numel(), tSequantalVectorIndex.data(), PETSC_USE_POINTER, &tTo );
 
-
     Vec mPetscVectorSingle;
     MatDenseGetColumnVec( mPetscVector, aVecIndex, &mPetscVectorSingle );
 
@@ -498,7 +493,6 @@ void MultiVector_PETSc::import_local_to_global( Vec aSourceVec, uint aVecIndex, 
 
     // free the petsc memoery objects
     MatDenseRestoreColumnVec( mPetscVector, aVecIndex, &mPetscVectorSingle );
-
 
     ISDestroy( &tFrom );
     ISDestroy( &tTo );

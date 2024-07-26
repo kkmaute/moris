@@ -267,7 +267,7 @@ namespace moris::hmr
         /**
          * return the DOF pointers
          */
-        // const Cell< mtk::Vertex* > & get_adof_pointers() const
+        // const Vector< mtk::Vertex* > & get_adof_pointers() const
         //{
         //    return mDOFs;
         //}
@@ -277,7 +277,7 @@ namespace moris::hmr
         /**
          * return the DOF pointers
          */
-        // Cell< mtk::Vertex* > & get_adof_pointers()
+        // Vector< mtk::Vertex* > & get_adof_pointers()
         //{
         //     return mDOFs;
         // }

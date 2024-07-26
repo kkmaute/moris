@@ -36,14 +36,14 @@ namespace moris
             mFollowerCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
-            mConstitutiveMap[ "ElastLinIso" ] =  static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
+            mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
 
             // set size for the stabilization parameter pointer cell
             mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
 
             // populate the stabilization map
-            mStabilizationMap[ "PenaltyContact" ]      =  static_cast< uint >( IWG_Stabilization_Type::PENALTY_CONTACT );
-            mStabilizationMap[ "StabPenaltyContact" ]  =  static_cast< uint >( IWG_Stabilization_Type::STAB_PENALTY_CONTACT );
+            mStabilizationMap[ "PenaltyContact" ]     = static_cast< uint >( IWG_Stabilization_Type::PENALTY_CONTACT );
+            mStabilizationMap[ "StabPenaltyContact" ] = static_cast< uint >( IWG_Stabilization_Type::STAB_PENALTY_CONTACT );
 
             //            mStabilizationMap[ "LeaderWeightInterface" ] = IWG_Stabilization_Type::LEADER_WEIGHT_INTERFACE;
             //            mStabilizationMap[ "FollowerWeightInterface" ]  = IWG_Stabilization_Type::FOLLOWER_WEIGHT_INTERFACE;
@@ -70,53 +70,51 @@ namespace moris
             uint tFollowerResStopIndex  = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 1 );
 
             // get leader field interpolator for the residual dof type
-            Field_Interpolator * tFILeader = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator *tFILeader = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get follower field interpolator for the residual dof type
-            Field_Interpolator * tFIFollower  = mFollowerFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator *tFIFollower = mFollowerFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the elasticity constitutive model
-            std::shared_ptr< Constitutive_Model > & tCMLeaderElasticity
-            = mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
-            std::shared_ptr< Constitutive_Model > & tCMFollowerElasticity
-            = mFollowerCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
+            std::shared_ptr< Constitutive_Model > &tCMLeaderElasticity =
+                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
+            std::shared_ptr< Constitutive_Model > &tCMFollowerElasticity =
+                    mFollowerCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
 
             // get the Nitsche stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > & tSPPenalty
-            = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::PENALTY_CONTACT ) );
+            std::shared_ptr< Stabilization_Parameter > &tSPPenalty = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::PENALTY_CONTACT ) );
 
             // get the Nitsche stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > & tSPStabPen
-            = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::STAB_PENALTY_CONTACT ) );
+            std::shared_ptr< Stabilization_Parameter > &tSPStabPen = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::STAB_PENALTY_CONTACT ) );
 
             // get thickness property
-            const std::shared_ptr< Property > & tPropThickness =
+            const std::shared_ptr< Property > &tPropThickness =
                     mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
-            aWStar *= (tPropThickness!=nullptr) ? tPropThickness->val()(0) : 1;
+            aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
             // evaluate average traction
             Matrix< DDRMat > tJumpTraction = tCMLeaderElasticity->traction( mNormal ) - tCMFollowerElasticity->traction( mNormal );
-            Matrix< DDRMat > tJumpPressure = trans(mNormal) * tJumpTraction;
+            Matrix< DDRMat > tJumpPressure = trans( mNormal ) * tJumpTraction;
 
             // moris::print( tJumpTraction, "tJumpTraction" );
 
             // evaluate gap
-            Matrix< DDRMat > tGap = trans(mNormal) * ( tFIFollower->val() - tFILeader->val()); // mNormal is normal on Leaderside
+            Matrix< DDRMat > tGap = trans( mNormal ) * ( tFIFollower->val() - tFILeader->val() );    // mNormal is normal on Leaderside
 
-            if ( tGap(0,0) > 0 )
+            if ( tGap( 0, 0 ) > 0 )
             {
-                tGap(0,0) = 0;
+                tGap( 0, 0 ) = 0;
             }
 
             // compute contact residual on follower side
-            mSet->get_residual()( 0 )( { tFollowerResStartIndex, tFollowerResStopIndex }, { 0, 0 } )
-                                         +=   tSPPenalty->val()( 0 ) * trans( tFIFollower -> N()) * mNormal * tGap(0,0) * aWStar;
+            mSet->get_residual()( 0 )( { tFollowerResStartIndex, tFollowerResStopIndex }, { 0, 0 } ) +=
+                    tSPPenalty->val()( 0 ) * trans( tFIFollower->N() ) * mNormal * tGap( 0, 0 ) * aWStar;
 
             // compute contact residual on leader side
-            mSet->get_residual()( 0 )( { tLeaderResStartIndex, tLeaderResStopIndex }, { 0, 0 } )
-                                         += (-1) * tSPPenalty->val()( 0 ) * trans( tFILeader -> N()) * mNormal * tGap(0,0) * aWStar;
+            mSet->get_residual()( 0 )( { tLeaderResStartIndex, tLeaderResStopIndex }, { 0, 0 } ) +=
+                    ( -1 ) * tSPPenalty->val()( 0 ) * trans( tFILeader->N() ) * mNormal * tGap( 0, 0 ) * aWStar;
 
             // if stabilized Penalty
             if ( tSPStabPen != nullptr )
@@ -134,7 +132,7 @@ namespace moris
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
-                    "IWG_Isotropic_Struc_Linear_Contact_Penalty::compute_residual - Residual contains NAN or INF, exiting!");
+                    "IWG_Isotropic_Struc_Linear_Contact_Penalty::compute_residual - Residual contains NAN or INF, exiting!" );
         }
 
         //------------------------------------------------------------------------------
@@ -175,52 +173,53 @@ namespace moris
             uint tFollowerResStopIndex  = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 1 );
 
             // get leader field interpolator for the residual dof type
-            Field_Interpolator * tFILeader = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator *tFILeader = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get follower field interpolator for the residual dof type
-            Field_Interpolator * tFIFollower  = mFollowerFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator *tFIFollower = mFollowerFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the elasticity constitutive model
-            std::shared_ptr< Constitutive_Model > & tCMLeaderElasticity
-            = mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
-            std::shared_ptr< Constitutive_Model > & tCMFollowerElasticity
-            = mFollowerCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
+            std::shared_ptr< Constitutive_Model > &tCMLeaderElasticity =
+                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
+            std::shared_ptr< Constitutive_Model > &tCMFollowerElasticity =
+                    mFollowerCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
 
             // get the Nitsche stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > & tSPPenalty
-            = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::PENALTY_CONTACT ) );
+            std::shared_ptr< Stabilization_Parameter > &tSPPenalty =
+                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::PENALTY_CONTACT ) );
 
             // get the Nitsche stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > & tSPStabPen
-            = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::STAB_PENALTY_CONTACT ) );
+            std::shared_ptr< Stabilization_Parameter > &tSPStabPen =
+                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::STAB_PENALTY_CONTACT ) );
 
             // get thickness property
-            const std::shared_ptr< Property > & tPropThickness =
+            const std::shared_ptr< Property > &tPropThickness =
                     mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
-            aWStar *= (tPropThickness!=nullptr) ? tPropThickness->val()(0) : 1;
+            aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
             // evaluate average traction
-            Matrix< DDRMat > tJumpTraction = tCMLeaderElasticity->traction( mNormal ) - tCMFollowerElasticity->traction( mNormal );
+            Matrix< DDRMat > tJumpTraction =
+                    tCMLeaderElasticity->traction( mNormal ) - tCMFollowerElasticity->traction( mNormal );
 
             // get number of leader dof dependencies
             uint tLeaderNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
 
             // create quadrature of normal
-            Matrix< DDRMat > tNormQ = mNormal * trans (mNormal);
+            Matrix< DDRMat > tNormQ = mNormal * trans( mNormal );
 
             // evaluate gap
-            Matrix< DDRMat > tGap = trans(mNormal) * ( tFIFollower->val() - tFILeader->val()); // mNormal is normal on Leader side
+            Matrix< DDRMat > tGap = trans( mNormal ) * ( tFIFollower->val() - tFILeader->val() );    // mNormal is normal on Leader side
 
-            if ( tGap(0,0) <= 0 )
+            if ( tGap( 0, 0 ) <= 0 )
             {
                 // hier
                 // compute the jacobian through leader constitutive models
-                for( uint iDOF = 0; iDOF < tLeaderNumDofDependencies; iDOF++ )
+                for ( uint iDOF = 0; iDOF < tLeaderNumDofDependencies; iDOF++ )
                 {
                     // get the dof type
-                    Vector< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                    Vector< MSI::Dof_Type > &tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
 
                     // get the index for the dof type
                     sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -231,23 +230,23 @@ namespace moris
                     if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                     {
                         mSet->get_jacobian()( { tLeaderResStartIndex, tLeaderResStopIndex },
-                                { tLeaderDepStartIndex, tLeaderDepStopIndex } )
-                                += tSPPenalty->val()( 0 ) * trans( tFILeader -> N()) * tNormQ * tFILeader -> N() * aWStar;
+                                { tLeaderDepStartIndex, tLeaderDepStopIndex } ) +=
+                                tSPPenalty->val()( 0 ) * trans( tFILeader->N() ) * tNormQ * tFILeader->N() * aWStar;
 
-                        mSet->get_jacobian()( { tFollowerResStartIndex,  tFollowerResStopIndex },
-                                { tLeaderDepStartIndex, tLeaderDepStopIndex } )
-                                += (-1) * tSPPenalty->val()( 0 ) * trans( tFILeader -> N()) * tNormQ * tFIFollower -> N() * aWStar;
+                        mSet->get_jacobian()( { tFollowerResStartIndex, tFollowerResStopIndex },
+                                { tLeaderDepStartIndex, tLeaderDepStopIndex } ) +=
+                                ( -1 ) * tSPPenalty->val()( 0 ) * trans( tFILeader->N() ) * tNormQ * tFIFollower->N() * aWStar;
                     }
                 }
 
                 // compute the jacobian through follower constitutive models
-                for( uint iDOF = 0; iDOF < tLeaderNumDofDependencies; iDOF++ )
+                for ( uint iDOF = 0; iDOF < tLeaderNumDofDependencies; iDOF++ )
                 {
                     // get the dof type
-                    Vector< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                    Vector< MSI::Dof_Type > &tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
 
                     // get the index for the dof type
-                    sint tDofDepIndex        = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::FOLLOWER );
+                    sint tDofDepIndex           = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::FOLLOWER );
                     uint tFollowerDepStartIndex = mSet->get_jac_dof_assembly_map()( tFollowerDofIndex )( tDofDepIndex, 0 );
                     uint tFollowerDepStopIndex  = mSet->get_jac_dof_assembly_map()( tFollowerDofIndex )( tDofDepIndex, 1 );
 
@@ -255,16 +254,16 @@ namespace moris
                     if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                     {
                         mSet->get_jacobian()( { tLeaderResStartIndex, tLeaderResStopIndex },
-                                { tFollowerDepStartIndex,  tFollowerDepStopIndex  } )
-                                += (-1) * tSPPenalty->val()( 0 ) * trans( tFIFollower -> N()) * tNormQ * tFILeader -> N() * aWStar;
+                                { tFollowerDepStartIndex, tFollowerDepStopIndex } ) +=
+                                ( -1 ) * tSPPenalty->val()( 0 ) * trans( tFIFollower->N() ) * tNormQ * tFILeader->N() * aWStar;
 
                         mSet->get_jacobian()( { tFollowerResStartIndex, tFollowerResStopIndex },
-                                { tFollowerDepStartIndex, tFollowerDepStopIndex } )
-                                += tSPPenalty->val()( 0 ) * trans( tFIFollower -> N()) * tNormQ * tFIFollower -> N() * aWStar;
+                                { tFollowerDepStartIndex, tFollowerDepStopIndex } ) +=
+                                tSPPenalty->val()( 0 ) * trans( tFIFollower->N() ) * tNormQ * tFIFollower->N() * aWStar;
                     }
                 }
 
-                //hier
+                // hier
 
                 //                 // compute the jacobian for direct dof dependencies
                 //                 if ( mResidualDofTypeRequested )
@@ -297,13 +296,13 @@ namespace moris
             // if stabilized Penalty
             if ( tSPStabPen != nullptr )
             {
-                //hier
+                // hier
 
                 // compute the jacobian for indirect dof dependencies through leader constitutive models
-                for( uint iDOF = 0; iDOF < tLeaderNumDofDependencies; iDOF++ )
+                for ( uint iDOF = 0; iDOF < tLeaderNumDofDependencies; iDOF++ )
                 {
                     // get the dof type
-                    Vector< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                    Vector< MSI::Dof_Type > &tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
 
                     // get the index for the dof type
                     sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -315,24 +314,26 @@ namespace moris
                     {
                         // add contribution to jacobian
                         mSet->get_jacobian()( { tLeaderResStartIndex, tLeaderResStopIndex },
-                                { tLeaderDepStartIndex, tLeaderDepStopIndex } ) += tSPStabPen->val()( 0 ) * tCMLeaderElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ) )
-                                                                                 * tNormQ * tCMLeaderElasticity->dTractiondDOF( tDofType, mNormal ) * aWStar;
+                                { tLeaderDepStartIndex, tLeaderDepStopIndex } ) +=
+                                tSPStabPen->val()( 0 ) * tCMLeaderElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ) )
+                                * tNormQ * tCMLeaderElasticity->dTractiondDOF( tDofType, mNormal ) * aWStar;
 
                         mSet->get_jacobian()( { tFollowerResStartIndex, tFollowerResStopIndex },
-                                { tLeaderDepStartIndex, tLeaderDepStopIndex } ) += tSPStabPen->val()( 0 ) * tCMLeaderElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ) )
-                                                                                 * tNormQ * tCMFollowerElasticity->dTractiondDOF( tDofType, mNormal ) * aWStar;
+                                { tLeaderDepStartIndex, tLeaderDepStopIndex } ) +=
+                                tSPStabPen->val()( 0 ) * tCMLeaderElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ) )
+                                * tNormQ * tCMFollowerElasticity->dTractiondDOF( tDofType, mNormal ) * aWStar;
                     }
                 }
 
                 // compute the jacobian for indirect dof dependencies through follower constitutive models
                 uint tFollowerNumDofDependencies = mRequestedFollowerGlobalDofTypes.size();
-                for( uint iDOF = 0; iDOF < tFollowerNumDofDependencies; iDOF++ )
+                for ( uint iDOF = 0; iDOF < tFollowerNumDofDependencies; iDOF++ )
                 {
                     // get the dof type
-                    Vector< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                    Vector< MSI::Dof_Type > &tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
 
                     // get the index for the dof type
-                    sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::FOLLOWER );
+                    sint tDofDepIndex           = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::FOLLOWER );
                     uint tFollowerDepStartIndex = mSet->get_jac_dof_assembly_map()( tFollowerDofIndex )( tDofDepIndex, 0 );
                     uint tFollowerDepStopIndex  = mSet->get_jac_dof_assembly_map()( tFollowerDofIndex )( tDofDepIndex, 1 );
 
@@ -341,22 +342,23 @@ namespace moris
                     {
                         // add contribution to jacobian
                         mSet->get_jacobian()( { tLeaderResStartIndex, tLeaderResStopIndex },
-                                { tFollowerDepStartIndex, tFollowerDepStopIndex } ) -= tSPStabPen->val()( 0 ) * tCMFollowerElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ) )
-                                                                               * tNormQ * tCMLeaderElasticity->dTractiondDOF( tDofType, mNormal ) * aWStar;
+                                { tFollowerDepStartIndex, tFollowerDepStopIndex } ) -=
+                                tSPStabPen->val()( 0 ) * tCMFollowerElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ) )
+                                * tNormQ * tCMLeaderElasticity->dTractiondDOF( tDofType, mNormal ) * aWStar;
 
                         mSet->get_jacobian()( { tFollowerResStartIndex, tFollowerResStopIndex },
-                                { tFollowerDepStartIndex, tFollowerDepStopIndex } ) -= tSPStabPen->val()( 0 ) * tCMFollowerElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ) )
-                                                                               * tNormQ * tCMFollowerElasticity->dTractiondDOF( tDofType, mNormal ) * aWStar;
+                                { tFollowerDepStartIndex, tFollowerDepStopIndex } ) -=
+                                tSPStabPen->val()( 0 ) * tCMFollowerElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ) )
+                                * tNormQ * tCMFollowerElasticity->dTractiondDOF( tDofType, mNormal ) * aWStar;
                     }
-
                 }
-                //hier ende
+                // hier ende
 
                 //                 // compute the jacobian for indirect dof dependencies through leader constitutive models
                 //                 for( uint iDOF = 0; iDOF < tLeaderNumDofDependencies; iDOF++ )
                 //                 {
                 //                     // get the dof type
-                //                     Cell< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                //                     Vector< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
                 //
                 //                     // get index for the dof type
                 //                     sint tIndexDep = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -386,7 +388,7 @@ namespace moris
                 //                 for( uint iDOF = 0; iDOF < tFollowerNumDofDependencies; iDOF++ )
                 //                 {
                 //                     // get dof type
-                //                     Cell< MSI::Dof_Type > tDofType = mRequestedFollowerGlobalDofTypes( iDOF );
+                //                     Vector< MSI::Dof_Type > tDofType = mRequestedFollowerGlobalDofTypes( iDOF );
                 //
                 //                     // get index for dof type
                 //                     sint tIndexDep = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::FOLLOWER );
@@ -411,25 +413,24 @@ namespace moris
             }
 
             // check for nan, infinity
-            MORIS_ASSERT( isfinite( mSet->get_jacobian() ) ,
-                    "IWG_Isotropic_Struc_Linear_Contact_Penalty::compute_jacobian - Jacobian contains NAN or INF, exiting!");
+            MORIS_ASSERT( isfinite( mSet->get_jacobian() ),
+                    "IWG_Isotropic_Struc_Linear_Contact_Penalty::compute_jacobian - Jacobian contains NAN or INF, exiting!" );
         }
 
         //------------------------------------------------------------------------------
 
         void IWG_Isotropic_Struc_Linear_Contact_Penalty::compute_jacobian_and_residual( real aWStar )
         {
-            MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Contact_Penalty::compute_jacobian_and_residual - This function does nothing.");
+            MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Contact_Penalty::compute_jacobian_and_residual - This function does nothing." );
         }
 
         //------------------------------------------------------------------------------
 
         void IWG_Isotropic_Struc_Linear_Contact_Penalty::compute_dRdp( real aWStar )
         {
-            MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Contact_Penalty::compute_dRdp - This function does nothing.");
+            MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Contact_Penalty::compute_dRdp - This function does nothing." );
         }
 
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-

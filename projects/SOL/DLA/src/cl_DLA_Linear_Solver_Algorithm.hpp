@@ -52,7 +52,6 @@ namespace moris
 
           public:
 
-
             //-----------------------------------------------------------------------------------
             Linear_Solver_Algorithm( const moris::Parameter_List& aParameterlist )
                     : mParameterList( aParameterlist ){};

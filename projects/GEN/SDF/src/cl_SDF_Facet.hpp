@@ -167,7 +167,6 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
-
             /**
              * Intersects the Line in a coordinate axis direction from aPoint
              *

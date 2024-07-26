@@ -62,7 +62,7 @@ namespace moris
             Vector< fem::Element * > mElements;
 
             // flag for all IG element whether or not to compute residual and QI (and derivatives)
-            Matrix< DDUMat > mComputeResidualAndIQI;
+            Vector< bool > mComputeResidualAndIQI;
 
             // pointer to the fem set
             Set *mSet = nullptr;
@@ -75,10 +75,7 @@ namespace moris
             const real mVolumeError = 1e-6;
 
             // cluster measures
-            Vector< std::shared_ptr< Cluster_Measure > > mClusterMEA;
-
-            // cluster measure map
-            std::map< std::tuple< fem::Measure_Type, mtk::Primary_Void, mtk::Leader_Follower >, uint > mClusterMEAMap;
+            std::map< Cluster_Measure::ClusterMeasureSpecification, std::shared_ptr< Cluster_Measure > > mClusterMeasures;
 
             // flag to easily differentiate between ACTUAL FEM and VIS clusters for debugging
             bool mIsVisCluster = false;
@@ -133,10 +130,16 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            enum Element_Type
+            Element_Type
             get_element_type() const
             {
                 return mElementType;
+            }
+
+            Vector< fem::Element * >
+            get_elements() const
+            {
+                return mElements;
             }
 
             //------------------------------------------------------------------------------
@@ -269,10 +272,10 @@ namespace moris
              * @param[ in ] aIQIIndex IQI index
              */
             void compute_quantity_of_interest(
-                    Matrix< DDRMat >           &aValues,
+                    Matrix< DDRMat >      &aValues,
                     mtk::Field_Entity_Type aFieldType,
-                    uint                        aIQIIndex,
-                    real                       &aSpaceTimeVolume );
+                    uint                   aIQIIndex,
+                    real                  &aSpaceTimeVolume );
 
             //------------------------------------------------------------------------------
             /**
@@ -308,7 +311,7 @@ namespace moris
             /**
              * get cluster measure
              */
-            std::shared_ptr< Cluster_Measure > &get_cluster_measure(
+            std::shared_ptr< Cluster_Measure > get_cluster_measure(
                     fem::Measure_Type    aMeasureType,
                     mtk::Primary_Void    aIsPrimary,
                     mtk::Leader_Follower aIsLeader );
@@ -317,10 +320,10 @@ namespace moris
             /**
              * get cluster measures
              */
-            Vector< std::shared_ptr< Cluster_Measure > > &
+            std::map< Cluster_Measure::ClusterMeasureSpecification, std::shared_ptr< Cluster_Measure > >
             get_cluster_measures()
             {
-                return mClusterMEA;
+                return mClusterMeasures;
             }
 
             //------------------------------------------------------------------------------
@@ -411,6 +414,37 @@ namespace moris
              */
             real compute_volume_in_fem();
 
+            /**
+             * @brief The cluster might have some mtk cells in their elements added multiple times to it (e.g. in a nonconformal set, a cell might have two different follower cells).
+             * This method will return only the unique cells that have been used in the elements of the cluster.
+             * @note  The (nonconformal) cluster contains cells [ 1, 2, 3 ] and the follower cluster contains cells [ 5, 6, 7 ].
+             * If the leader-follower pairing is as follows (the elements are stored at the 'local index' position in the vector of elements):
+             * @verbatim
+             *  Local | Leader | Follower
+             *  Index | Index  |  Index
+             *    0       1   ->   5
+             *    1       1   ->   6
+             *    2       2   ->   6
+             *    3       3   ->   7
+             *  @endverbatim
+             * Cells 1 and 6 will be used twice in the cluster (in the elements 0, 1 and 2) such that they would be counted twice e.g. in the volume computation.
+             * For the leader elements, the method would return the following map:
+             * @verbatim
+             * Cell 1 -> [ 0, 1 ]
+             * Cell 2 -> [ 2 ]
+             * Cell 3 -> [ 3 ]
+             * @endverbatim
+             * And for the follower elements, the method would return the following map:
+             * @verbatim
+             * Cell 5 -> [ 0 ]
+             * Cell 6 -> [ 1, 2 ]
+             * Cell 7 -> [ 3 ]
+             * @endverbatim
+             * @param aLeaderFollowerType whether to return the unique leader or follower elements
+             * @return A map from the cells in the cluster (unique) to the indices of the elements (possibly multiple) in the cluster that use the cell.
+             */
+            std::map< mtk::Cell const *, Vector< moris_index > > get_cell_to_element_map( mtk::Leader_Follower aLeaderFollowerType = mtk::Leader_Follower::LEADER ) const;
+
             //------------------------------------------------------------------------------
             /**
              * compute volume for each element in cluster relative to total volume of all elements;
@@ -437,7 +471,7 @@ namespace moris
              * @return threshold value
              */
             real compute_volume_drop_threshold(
-                    const Matrix< DDRMat > &tRelativeElementVolume,
+                    const Matrix< DDRMat > &tRelativeCellVolume,
                     const real             &tVolumeError );
 
             //------------------------------------------------------------------------------

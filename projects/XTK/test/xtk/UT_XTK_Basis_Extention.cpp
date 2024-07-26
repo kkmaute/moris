@@ -8,7 +8,6 @@
  *
  */
 
-
 #include "catch.hpp"
 #include "paths.hpp"
 #include "cl_Matrix.hpp"

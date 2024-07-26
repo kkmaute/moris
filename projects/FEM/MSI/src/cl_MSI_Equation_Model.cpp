@@ -155,7 +155,7 @@ namespace moris
             for ( uint tSetIndex = 0; tSetIndex < tNumSets; tSetIndex++ )
             {
                 // get access to the equation objects
-                Vector< MSI::Equation_Object * > & tEqnObjList = mFemSets( tSetIndex )->get_equation_object_list();
+                Vector< MSI::Equation_Object* >& tEqnObjList = mFemSets( tSetIndex )->get_equation_object_list();
 
                 // get number of equation object on treated equation set
                 uint tNumEqObjOnSet = tEqnObjList.size();
@@ -288,15 +288,6 @@ namespace moris
             // return dQIdp
             return mdQIdp;
         }
-
-        //-------------------------------------------------------------------------------------------------
-
-        void
-        Equation_Model::normalize_IQIs()
-        {
-        }
-
-        //-------------------------------------------------------------------------------------------------
 
     }    // namespace MSI
 }    // namespace moris

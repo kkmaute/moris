@@ -39,10 +39,10 @@ the following information can be inquired as well
 - owners of interpolation coefficients
 - interpolation weights
 
-<b>Cell</b><br>
+<b>Vector</b><br>
 
 The term <i>Element</i> is only to be used in context of a finite element model.
-In the context of a mesh, the term <i>Cell</i> is used to avoid confusion.
+In the context of a mesh, the term <i>Vector</i> is used to avoid confusion.
 A cell provides mesh topology information and is defined by
 
 - geometry type ( TRI, QUAD, TET, HEX, PENTA )

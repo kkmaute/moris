@@ -25,7 +25,8 @@ namespace moris
         class Convergence
         {
           private:
-            sint mRefIterationID = 1;    // iteration index at which reference norm is set
+            sint mRefIterationID = 1;      // iteration index at which reference norm is set
+            real mPreviousNorm   = 0.0;    // previous norm
 
           public:
             Convergence( sint aRefIterationID = 1 )

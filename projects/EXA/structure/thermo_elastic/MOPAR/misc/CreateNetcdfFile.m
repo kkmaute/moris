@@ -206,7 +206,6 @@ for i =1:1:num_el_blk
     eval([name_num_nod_per_el_dimID '= netcdf.defDim(ncid, num_nod_per_el_str,num_nod_per_el(i));']);
 end
 
-
 % create variables
 time_whole_varID = netcdf.defVar(ncid,'time_whole','double',time_step_dimID);
 qa_records_varID = netcdf.defVar(ncid,'qa_records','char',[len_string_dimID,four_dimID,num_qa_rec_dimID]);

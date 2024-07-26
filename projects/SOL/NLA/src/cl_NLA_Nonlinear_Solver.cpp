@@ -38,7 +38,7 @@ Nonlinear_Solver::Nonlinear_Solver(
         , mParameterListNonLinearSolver( aSolverParameterList )
 {
     // create solver object
-    Nonlinear_Solver_Factory tSolFactory;
+    Nonlinear_Solver_Factory               tSolFactory;
     std::shared_ptr< Nonlinear_Algorithm > tNonLinSolver = tSolFactory.create_nonlinear_solver( aAlgorithmParameterList );
     mNonlinearSolverAlgorithmList.resize( 1, nullptr );
     mNonlinearSolverAlgorithmList( 0 ) = tNonLinSolver;
@@ -50,7 +50,7 @@ Nonlinear_Solver::Nonlinear_Solver(
 
 Nonlinear_Solver::Nonlinear_Solver(
         Vector< std::shared_ptr< Nonlinear_Algorithm > >& aNonlinearSolverList,
-        const Parameter_List& aSolverParameterList )
+        const Parameter_List&                             aSolverParameterList )
         : mSecondaryDofTypeList( Vector< Vector< enum MSI::Dof_Type > >( 0 ) )
         , mParameterListNonLinearSolver( aSolverParameterList )
 {
@@ -66,8 +66,7 @@ Nonlinear_Solver::~Nonlinear_Solver()
 
 //--------------------------------------------------------------------------------------------------
 
-void
-Nonlinear_Solver::free_memory()
+void Nonlinear_Solver::free_memory()
 {
     if ( mNonlinearProblem != nullptr )
     {
@@ -79,18 +78,16 @@ Nonlinear_Solver::free_memory()
 
 //--------------------------------------------------------------------------------------------------
 
-void
-Nonlinear_Solver::set_dof_type_list(
+void Nonlinear_Solver::set_dof_type_list(
         const Vector< enum MSI::Dof_Type > aStaggeredDofTypeList,
-        const moris::sint                       aLevel )
+        const moris::sint                  aLevel )
 {
     mStaggeredDofTypeList.push_back( aStaggeredDofTypeList );
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void
-Nonlinear_Solver::set_secondary_dof_type_list( const Vector< enum MSI::Dof_Type > aStaggeredDofTypeList )
+void Nonlinear_Solver::set_secondary_dof_type_list( const Vector< enum MSI::Dof_Type > aStaggeredDofTypeList )
 {
     if ( mSecondaryDofTypeList.size() == 0 )
     {
@@ -102,8 +99,7 @@ Nonlinear_Solver::set_secondary_dof_type_list( const Vector< enum MSI::Dof_Type 
 
 //--------------------------------------------------------------------------------------------------
 
-void
-Nonlinear_Solver::set_nonlinear_algorithm( std::shared_ptr< Nonlinear_Algorithm > aNonLinSolver )
+void Nonlinear_Solver::set_nonlinear_algorithm( std::shared_ptr< Nonlinear_Algorithm > aNonLinSolver )
 {
     if ( mCallCounter == 0 )
     {
@@ -127,8 +123,7 @@ Nonlinear_Solver::set_nonlinear_algorithm( std::shared_ptr< Nonlinear_Algorithm 
 
 //-------------------------------------------------------------------------------------------------------
 
-void
-Nonlinear_Solver::set_nonlinear_algorithm(
+void Nonlinear_Solver::set_nonlinear_algorithm(
         std::shared_ptr< Nonlinear_Algorithm > aNonLinSolver,
         const moris::uint                      aListEntry )
 {
@@ -144,8 +139,7 @@ Nonlinear_Solver::set_nonlinear_algorithm(
 
 //-------------------------------------------------------------------------------------------------------
 
-void
-Nonlinear_Solver::set_sub_nonlinear_solver( Nonlinear_Solver* aNonLinSolver )
+void Nonlinear_Solver::set_sub_nonlinear_solver( Nonlinear_Solver* aNonLinSolver )
 {
     if ( mCallCounterNonlinearSolver == 0 )
     {
@@ -169,8 +163,7 @@ Nonlinear_Solver::set_sub_nonlinear_solver( Nonlinear_Solver* aNonLinSolver )
 
 //-------------------------------------------------------------------------------------------------------
 
-void
-Nonlinear_Solver::set_sub_nonlinear_solver(
+void Nonlinear_Solver::set_sub_nonlinear_solver(
         Nonlinear_Solver* aNonLinSolver,
         const moris::uint aListEntry )
 {
@@ -244,8 +237,7 @@ Nonlinear_Solver::get_sec_dof_type_union()
 
 //--------------------------------------------------------------------------------------------------
 
-void
-Nonlinear_Solver::set_solver_warehouse( sol::SOL_Warehouse* aSolverWarehouse )
+void Nonlinear_Solver::set_solver_warehouse( sol::SOL_Warehouse* aSolverWarehouse )
 {
     mSolverWarehouse = aSolverWarehouse;
 
@@ -254,8 +246,7 @@ Nonlinear_Solver::set_solver_warehouse( sol::SOL_Warehouse* aSolverWarehouse )
 
 //-------------------------------------------------------------------------------------------------------
 
-void
-Nonlinear_Solver::solve( sol::Dist_Vector* aFullVector )
+void Nonlinear_Solver::solve( sol::Dist_Vector* aFullVector )
 {
     Tracer tTracer( "NonLinearSolver", "NonlinearSolver", "Solve" );
 
@@ -293,7 +284,6 @@ Nonlinear_Solver::solve( sol::Dist_Vector* aFullVector )
 
     mNonlinearProblem->set_nonlinear_solver( this );
 
-
     map< enum MSI::Dof_Type, std::string > tDofTypeToNameMap = MSI::get_dof_type_name_map();
 
     std::string tDofTypeNames = "";
@@ -307,7 +297,7 @@ Nonlinear_Solver::solve( sol::Dist_Vector* aFullVector )
 
     MORIS_LOG_SPEC( "Nonlinear solver operates on DOF types: ", tDofTypeNames );
 
-    for( const auto & iNonLinearAlgorithm : mNonlinearSolverAlgorithmList)
+    for ( const auto& iNonLinearAlgorithm : mNonlinearSolverAlgorithmList )
     {
         iNonLinearAlgorithm->set_nonlinear_solver_manager( this );
         iNonLinearAlgorithm->solver_nonlinear_system( mNonlinearProblem );
@@ -318,8 +308,7 @@ Nonlinear_Solver::solve( sol::Dist_Vector* aFullVector )
 
 //-------------------------------------------------------------------------------------------------------
 
-void
-Nonlinear_Solver::solve( Nonlinear_Problem* aNonlinearProblem )
+void Nonlinear_Solver::solve( Nonlinear_Problem* aNonlinearProblem )
 {
     moris::sint tErrorStatus        = 0;
     moris::sint tMaxNumLinRestarts  = mParameterListNonLinearSolver.get< moris::sint >( "NLA_max_non_lin_solver_restarts" );
@@ -350,16 +339,14 @@ Nonlinear_Solver::solve( Nonlinear_Problem* aNonlinearProblem )
 
 //--------------------------------------------------------------------------------------------------------------------------
 
-void
-Nonlinear_Solver::get_full_solution( moris::Matrix< DDRMat >& LHSValues )
+void Nonlinear_Solver::get_full_solution( moris::Matrix< DDRMat >& LHSValues )
 {
     mNonlinearProblem->get_full_vector()->extract_copy( LHSValues );
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
 
-void
-Nonlinear_Solver::set_time_step_iter( const sint aTimeIter )
+void Nonlinear_Solver::set_time_step_iter( const sint aTimeIter )
 {
     mTimeIter = aTimeIter;
 }
@@ -380,8 +367,7 @@ Nonlinear_Solver::get_my_nonlin_problem()
 
 //--------------------------------------------------------------------------------------------------------------------------
 
-void
-Nonlinear_Solver::set_compute_static_residual_flag( bool aFlag )
+void Nonlinear_Solver::set_compute_static_residual_flag( bool aFlag )
 {
     mComputeStaticResidual = aFlag;
 
@@ -403,8 +389,7 @@ Nonlinear_Solver::set_compute_static_residual_flag( bool aFlag )
 
 //--------------------------------------------------------------------------------------------------------------------------
 
-bool
-Nonlinear_Solver::get_compute_static_residual_flag()
+bool Nonlinear_Solver::get_compute_static_residual_flag()
 {
     return mComputeStaticResidual;
 }

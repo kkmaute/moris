@@ -33,7 +33,6 @@ for i=1:n1
     D(i,:) = transpose(C(:,i));
  end
  
- 
  %Zp = sscanf(char(z),'%f');
  Z = transpose(z);
  
@@ -62,8 +61,6 @@ end
 
 Eledata_tri6(:,:) = str2double([ele_idx, block_id,N1, N2,N3,N4,N5,N6]);
 
-
-
 %% Quad8 Extraction
 % Quad8 input file has 11 columns. Element Index, Block-id, Node-1, Node-2,
 % Node-3,...,Node-6, "CONST",..,Node-8.
@@ -86,6 +83,5 @@ for k=1:length(idx3)
 end
 
 Eledata_quad8(:,:) = [ele_id2, block_id2, N11,N21,N31,N41,N51,N61,N71,N81];
-
 
 end

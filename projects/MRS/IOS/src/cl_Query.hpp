@@ -30,127 +30,125 @@
 
 namespace moris
 {
-namespace ios
-{
-
-//-----------------------------------------------------------------------------------------------------------//
-class Query
+    namespace ios
     {
-    private:
 
-    //-----------------------------------------------------------------------------------------------------------//
-    // PRIVATE MEMBERS
-    //-----------------------------------------------------------------------------------------------------------//
+        //-----------------------------------------------------------------------------------------------------------//
+        class Query
+        {
+          private:
+            //-----------------------------------------------------------------------------------------------------------//
+            // PRIVATE MEMBERS
+            //-----------------------------------------------------------------------------------------------------------//
 
-    // files for reading and writing
-    std::string mFileNameRead;
-    std::ifstream mLogFileRead;
+            // files for reading and writing
+            std::string   mFileNameRead;
+            std::ifstream mLogFileRead;
 
-    // number of lines in read file
-    uint mNumLines;
+            // number of lines in read file
+            uint mNumLines;
 
-    // cell arrays containing info from log file in memory
-    Vector<uint> mIndentLevels;
-    Vector<uint> mFunctionIDs;
-    Vector<enum EntityBase> mEntityBases;
-    Vector<enum EntityType> mEntityTypes;
-    Vector<enum EntityAction> mEntityActions;
-    Vector<enum OutputSpecifier> mOutputSpecifiers;
-    Vector<std::string> mOutputValues;
+            // cell arrays containing info from log file in memory
+            Vector< uint >                 mIndentLevels;
+            Vector< uint >                 mFunctionIDs;
+            Vector< enum EntityBase >      mEntityBases;
+            Vector< enum EntityType >      mEntityTypes;
+            Vector< enum EntityAction >    mEntityActions;
+            Vector< enum OutputSpecifier > mOutputSpecifiers;
+            Vector< std::string >          mOutputValues;
 
-    Vector< Vector<uint>> mInstanceStartEnd;
+            Vector< Vector< uint > > mInstanceStartEnd;
 
-    //-----------------------------------------------------------------------------------------------------------//
-    // PRIVATE METHODS
-    //-----------------------------------------------------------------------------------------------------------//
+            //-----------------------------------------------------------------------------------------------------------//
+            // PRIVATE METHODS
+            //-----------------------------------------------------------------------------------------------------------//
 
-    uint get_max_func_ID();
+            uint get_max_func_ID();
 
-    void isolate_functions();
+            void isolate_functions();
 
-    uint extract_info_from_log_file();
+            uint extract_info_from_log_file();
 
-    std::string create_empty_line(uint aIndentationLevel);
+            std::string create_empty_line( uint aIndentationLevel );
 
-    void copy_header(std::ofstream * aLogFileWrite);
+            void copy_header( std::ofstream *aLogFileWrite );
 
-    void skip_header();
+            void skip_header();
 
-    uint find_instances( Vector<uint> * aInstanceIDs,
-            Vector<uint> * aInstanceIndents,
-                        enum EntityBase aEntityBase,
-                        enum EntityType aEntityType,
-                        enum EntityAction aEntityAction);
+            uint find_instances( Vector< uint > *aInstanceIDs,
+                    Vector< uint >              *aInstanceIndents,
+                    enum EntityBase              aEntityBase,
+                    enum EntityType              aEntityType,
+                    enum EntityAction            aEntityAction );
 
-    Vector< Vector<uint>> split_instances_into_iterations(uint aCurrentInstanceID);
+            Vector< Vector< uint > > split_instances_into_iterations( uint aCurrentInstanceID );
 
-    void extract_iteration( Vector<enum EntityBase> * aListOfEntityBases,
-            Vector<enum EntityType> * aListOfEntityTypes,
-            Vector<enum EntityAction> * aListOfEntityActions,
-            Vector<enum OutputSpecifier> * aListOfOutputSpecs,
-            Vector<std::string> * aListOfOutputValues,
-                           const Vector< Vector<uint>> aIterationStartEnd,
-                           const uint aIteration,
-                           const uint aCurrentInstanceID);
+            void extract_iteration( Vector< enum EntityBase > *aListOfEntityBases,
+                    Vector< enum EntityType >                 *aListOfEntityTypes,
+                    Vector< enum EntityAction >               *aListOfEntityActions,
+                    Vector< enum OutputSpecifier >            *aListOfOutputSpecs,
+                    Vector< std::string >                     *aListOfOutputValues,
+                    const Vector< Vector< uint > >             aIterationStartEnd,
+                    const uint                                 aIteration,
+                    const uint                                 aCurrentInstanceID );
 
-    void merge_iteration_outputs( Vector<enum EntityBase>      * aRefListOfEntityBases,
-            Vector<enum EntityType>      * aRefListOfEntityTypes,
-            Vector<enum EntityAction>    * aRefListOfEntityActions,
-            Vector<enum OutputSpecifier> * aRefListOfOutputSpecs,
-            Vector< Vector<std::string>>    * aFullListOfOutputValues,
+            void merge_iteration_outputs( Vector< enum EntityBase > *aRefListOfEntityBases,
+                    Vector< enum EntityType >                       *aRefListOfEntityTypes,
+                    Vector< enum EntityAction >                     *aRefListOfEntityActions,
+                    Vector< enum OutputSpecifier >                  *aRefListOfOutputSpecs,
+                    Vector< Vector< std::string > >                 *aFullListOfOutputValues,
 
-            Vector<enum EntityBase>      aNewListOfEntityBases,
-            Vector<enum EntityType>      aNewListOfEntityTypes,
-            Vector<enum EntityAction>    aNewListOfEntityActions,
-            Vector<enum OutputSpecifier> aNewListOfOutputSpecs,
-            Vector<std::string>          aNewListOfOutputValues);
+                    Vector< enum EntityBase >      aNewListOfEntityBases,
+                    Vector< enum EntityType >      aNewListOfEntityTypes,
+                    Vector< enum EntityAction >    aNewListOfEntityActions,
+                    Vector< enum OutputSpecifier > aNewListOfOutputSpecs,
+                    Vector< std::string >          aNewListOfOutputValues );
 
-    void insert_empty_column( Vector< Vector<std::string>> * aCellMatrix, uint aColumnIndex);
+            void insert_empty_column( Vector< Vector< std::string > > *aCellMatrix, uint aColumnIndex );
 
-    void write_instance_table_header(std::ofstream * aLogFileWrite,
-            Vector<enum EntityBase> aRefListOfEntityBases,
-            Vector<enum EntityType> aRefListOfEntityTypes,
-            Vector<enum EntityAction> aRefListOfEntityActions,
-            Vector<enum OutputSpecifier> aRefListOfOutputSpecs);
+            void write_instance_table_header( std::ofstream *aLogFileWrite,
+                    Vector< enum EntityBase >                aRefListOfEntityBases,
+                    Vector< enum EntityType >                aRefListOfEntityTypes,
+                    Vector< enum EntityAction >              aRefListOfEntityActions,
+                    Vector< enum OutputSpecifier >           aRefListOfOutputSpecs );
 
-    //-----------------------------------------------------------------------------------------------------------//
-    // PUBLIC CONSTRUCTOR / DESTRUCTOR
-    //-----------------------------------------------------------------------------------------------------------//
-    public:
+            //-----------------------------------------------------------------------------------------------------------//
+            // PUBLIC CONSTRUCTOR / DESTRUCTOR
+            //-----------------------------------------------------------------------------------------------------------//
 
-    Query()
-    {
-    }
+          public:
+            Query()
+            {
+            }
 
-    ~Query()
-    {
-        // close file
-        mLogFileRead.close();
+            ~Query()
+            {
+                // close file
+                mLogFileRead.close();
 
-        std::cout << "Queried info dumped. \n";
-    }
+                std::cout << "Queried info dumped. \n";
+            }
 
-    //-----------------------------------------------------------------------------------------------------------//
-    // PUBLIC METHODS
-    //-----------------------------------------------------------------------------------------------------------//
+            //-----------------------------------------------------------------------------------------------------------//
+            // PUBLIC METHODS
+            //-----------------------------------------------------------------------------------------------------------//
 
-    void initialize(std::string aFileNameRead);
+            void initialize( std::string aFileNameRead );
 
-    void run(int  & argc, char * argv[] );
+            void run( int &argc, char *argv[] );
 
-    void tree_query(std::string aFileNameWrite, bool aSuppressText = true);
+            void tree_query( std::string aFileNameWrite, bool aSuppressText = true );
 
-    void table_query(std::string aFileNameWrite,
-                     enum EntityBase aEntityBase,
-                     enum EntityType aEntityType,
-                     enum EntityAction aEntityAction);
+            void table_query( std::string aFileNameWrite,
+                    enum EntityBase       aEntityBase,
+                    enum EntityType       aEntityType,
+                    enum EntityAction     aEntityAction );
 
-    //-----------------------------------------------------------------------------------------------------------//
-    }; // end class
+            //-----------------------------------------------------------------------------------------------------------//
+        };    // end class
 
-//-----------------------------------------------------------------------------------------------------------//
-} // namespace std
-} // namespace moris
+        //-----------------------------------------------------------------------------------------------------------//
+    }    // namespace ios
+}    // namespace moris
 
-#endif    /* MORIS_IOS_CL_QUERY_HPP_ */
-
+#endif /* MORIS_IOS_CL_QUERY_HPP_ */

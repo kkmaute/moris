@@ -172,7 +172,6 @@ Vector_PETSc::sum_into_global_values(
 
 //-----------------------------------------------------------------------------
 
-
 void
 Vector_PETSc::replace_global_values(
         const moris::Matrix< DDSMat >& aGlobalIds,
@@ -497,7 +496,6 @@ Vector_PETSc::extract_my_values(
     // check that aNumIndices equals size of tIndices
     MORIS_ASSERT( aNumIndices == tIndices.numel(),
             "Vector_PETSc::extract_my_values - number of indices does not match size of tIndices" );
-
 
     // allocate memory for extracted values
     ExtractedValues.resize( 1 );

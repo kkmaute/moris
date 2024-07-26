@@ -14,6 +14,7 @@
 #include "moris_typedefs.hpp"
 #include "cl_Communication_Tools.hpp"
 #include "assert.hpp"
+
 namespace moris
 {
     Memory_Map::Memory_Map()
@@ -22,8 +23,9 @@ namespace moris
 
     // ----------------------------------------------------------------------------------
 
-    Memory_Map::Memory_Map( Vector< std::string > const & aKeys,
-            Matrix< DDSTMat > const &                     aVals )
+    Memory_Map::Memory_Map(
+            Vector< std::string > const & aKeys,
+            Matrix< DDSTMat > const &     aVals )
     {
         MORIS_ERROR( aKeys.size() == aVals.numel(), "Dimension mismatch on allocation." );
         for ( moris::uint i = 0; i < aKeys.size(); i++ )
@@ -235,9 +237,10 @@ namespace moris
     // ----------------------------------------------------------------------------------
 
     void
-    Memory_Map::deserialize( Vector< Vector< std::string > >& aGatheredKeyCells,
-            Vector< Matrix< DDSTMat > >&                      aGatheredValCells,
-            Vector< Memory_Map >&                             aGatheredMemMaps )
+    Memory_Map::deserialize(
+            Vector< Vector< std::string > >& aGatheredKeyCells,
+            Vector< Matrix< DDSTMat > >&     aGatheredValCells,
+            Vector< Memory_Map >&            aGatheredMemMaps )
     {
         aGatheredMemMaps.resize( par_size() );
         for ( moris::uint i = 0; i < aGatheredKeyCells.size(); i++ )

@@ -14,7 +14,6 @@
 
 #include "cl_MatrixPETSc.hpp"
 
-
 #include "cl_DLA_Preconditioner.hpp"
 
 namespace moris

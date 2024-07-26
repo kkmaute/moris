@@ -510,7 +510,6 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "output_mesh_file", tGENOutputFile );
         tParameterlist( 0 )( 0 ).set( "time_offset", 10.0 );
 
-
         // init geometry counter
         uint tGeoCounter = 0;
 
@@ -553,7 +552,6 @@ namespace moris
         uint tIWGIndex  = 3;
         uint tIQIIndex  = 4;
         uint tFEMIndex  = 5;
-
 
         //------------------------------------------------------------------------------
         // fill the property part of the parameter list

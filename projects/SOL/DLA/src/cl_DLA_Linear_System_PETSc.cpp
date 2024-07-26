@@ -66,7 +66,6 @@ Linear_System_PETSc::Linear_System_PETSc(
         // Build RHS/LHS vector
         mFreeVectorLHS = tMatFactory.create_vector( aInput, mMap, 1 );
 
-
         mPointVectorRHS = tMatFactory.create_vector( aInput, mMap, 1 );
         mPointVectorLHS = tMatFactory.create_vector( aInput, mMap, 1 );
 
@@ -214,9 +213,7 @@ Linear_System_PETSc::solve_linear_system()
         VecAssemblyBegin( tLHSVec );
         VecAssemblyEnd( tLHSVec );
 
-
         KSPSolve( tPetscKSPProblem,tRHSVec,tLHSVec );
-
 
         MatDenseRestoreColumnVec( tRHSVecs, iNumRHS, &tRHSVec );
         MatDenseRestoreColumnVec( tLHSVecs, iNumRHS, &tLHSVec );

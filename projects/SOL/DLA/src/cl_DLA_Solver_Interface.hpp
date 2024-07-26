@@ -120,9 +120,9 @@ namespace moris
         };
 
         //------------------------------------------------------------------------------
-        
+
         virtual void
-        set_eigen_values(std::shared_ptr< Vector<real> > aEigenValues )
+        set_eigen_values( std::shared_ptr< Vector< real > > aEigenValues )
         {
             MORIS_ERROR( false, "Solver_Interface::set_eigen_values: not set." );
         };
@@ -181,11 +181,11 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        virtual std::shared_ptr< Vector<real> > &
+        virtual std::shared_ptr< Vector< real > >&
         get_eigen_values()
         {
             MORIS_ERROR( false, "Solver_Interface::get_eigen_solution_vector: not set." );
-            return  *(new std::shared_ptr< Vector<real> >());
+            return *( new std::shared_ptr< Vector< real > >() );
         }
 
         //------------------------------------------------------------------------------
@@ -224,7 +224,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        virtual void set_residual_norm( const real& aResNorm ){
+        virtual void set_residual_norm( const real& aResNorm ) {
             // MORIS_ERROR( false, "Solver_Interface::set_residual_norm: not set.");
         };
 
@@ -238,15 +238,19 @@ namespace moris
                 const uint                             aBlockInd,
                 const bool                             aIsStaggered                          = false,
                 const moris::fem::Time_Continuity_Flag aTimeContinuityOnlyFlag               = moris::fem::Time_Continuity_Flag::DEFAULT,
-                const bool                             aIsAdjointOffDiagonalTimeContribution = false ){};
+                const bool                             aIsAdjointOffDiagonalTimeContribution = false ) {};
 
         //------------------------------------------------------------------------------
 
-        virtual void report_beginning_of_assembly(){};
+        virtual void update_model() {};
 
         //------------------------------------------------------------------------------
 
-        virtual void report_end_of_assembly(){};
+        virtual void report_beginning_of_assembly() {};
+
+        //------------------------------------------------------------------------------
+
+        virtual void report_end_of_assembly() {};
 
         //------------------------------------------------------------------------------
 
@@ -304,7 +308,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         // number local elements blocks
-        virtual moris::uint get_num_my_blocks() = 0;
+        virtual moris::uint get_num_sets() = 0;
 
         //------------------------------------------------------------------------------
 
@@ -312,7 +316,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        virtual enum fem::Element_Type
+        virtual fem::Element_Type
         get_set_type( uint aMyEquSetInd )
         {
             MORIS_ERROR( false, "Solver_Interface::initiate_output: not set." );
@@ -651,8 +655,7 @@ namespace moris
         /**
          * Updates the underlying problem being solved.
          */
-        virtual void update_problem()
-        {
+        virtual void update_problem() {
         };
     };
 }    // namespace moris

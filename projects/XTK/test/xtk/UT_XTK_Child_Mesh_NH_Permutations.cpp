@@ -1304,8 +1304,8 @@ namespace moris::xtk
     //     moris::Matrix< IndexMat > tParentFaceInds({{0,1,2,3}});
     //     moris::Matrix< moris::DDSTMat > tParentFaceRanks(1,4,2);
     //
-    //     Cell<std::string> tCaseNames = {"pa","na","pb","nb","pc","nc"};
-    ////    Cell<std::string> tCaseNames = {"pa"};
+    //     Vector<std::string> tCaseNames = {"pa","na","pb","nb","pc","nc"};
+    ////    Vector<std::string> tCaseNames = {"pa"};
     //
     //    for(size_t iCase = 0; iCase<tCaseNames.size(); iCase++)
     //    {
@@ -1319,7 +1319,7 @@ namespace moris::xtk
     //        for(size_t iPerm2 = 0; iPerm2<tNumPermutations; iPerm2++)
     //        {
     //            // select template
-    //            Cell<size_t> tCurrentPermutation = tPermutations.get_permutation(iPerm2);
+    //            Vector<size_t> tCurrentPermutation = tPermutations.get_permutation(iPerm2);
     //
     //            // Edge ordinals
     //            moris::moris_index tEdgeOrdL2  = tCurrentPermutation(0);
@@ -1352,7 +1352,7 @@ namespace moris::xtk
     //                tChildMesh.add_node_ids(tNodeIds);
     //
     //                // select template
-    //                Cell<size_t> tCurrentPermutation = tPermutations.get_permutation(iPerm1);
+    //                Vector<size_t> tCurrentPermutation = tPermutations.get_permutation(iPerm1);
     //                moris::moris_index tEdgeL1  = tCurrentPermutation(0);
     //                moris::moris_index tEdgeML1 = tCurrentPermutation(1);
     //                moris::moris_index tEdgeMH1 = tCurrentPermutation(2);

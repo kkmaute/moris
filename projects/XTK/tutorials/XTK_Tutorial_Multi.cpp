@@ -222,7 +222,7 @@ int main( int argc,
      * Note: only the following two methods are implemented
      *
      * \code{.cpp}
-     *     xtk::Cell<enum Subdivision_Method> tDecompositionMethods
+     *     xtk::Vector<enum Subdivision_Method> tDecompositionMethods
      *                = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,
      *                   Subdivision_Method::C_HIERARCHY_TET4};
      * \endcode

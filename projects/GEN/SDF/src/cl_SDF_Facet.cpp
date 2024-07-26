@@ -92,7 +92,6 @@ namespace moris
 
         //-------------------------------------------------------------------------------
 
-
         Vector< mtk::Vertex* >
         Facet::get_vertex_pointers() const
         {

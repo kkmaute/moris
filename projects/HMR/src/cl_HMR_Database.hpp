@@ -11,7 +11,8 @@
 #ifndef PROJECTS_HMR_SRC_CL_HMR_DATABASE_HPP_
 #define PROJECTS_HMR_SRC_CL_HMR_DATABASE_HPP_
 
-#include <memory>    // <-- database is always a shared pointer, so we need std::memory
+// database is always a shared pointer, so we need std::memory
+#include <memory>
 #include <string>
 
 #include "cl_HMR_Factory.hpp"          //HMR/src
@@ -58,7 +59,7 @@ namespace moris::hmr
         bool mDeleteParametersOnDestruction = false;
 
         //! Side sets for input pattern
-        // Cell< Matrix< IdMat > >   mInputSideSets;
+        // Vector< Matrix< IdMat > >   mInputSideSets;
 
         //! Side sets for output pattern
         Vector< Side_Set > mOutputSideSets;
@@ -113,9 +114,9 @@ namespace moris::hmr
         // -----------------------------------------------------------------------------
 
         void load_refinement_pattern(
-                Matrix< DDLUMat >&                aElementCounterPerLevelAndPattern,
+                Matrix< DDLUMat >&           aElementCounterPerLevelAndPattern,
                 Vector< Matrix< DDLUMat > >& aElementPerPattern,
-                Matrix< DDUMat >&                 aPatternListUniqueMat );
+                Matrix< DDUMat >&            aPatternListUniqueMat );
 
         // -----------------------------------------------------------------------------
 

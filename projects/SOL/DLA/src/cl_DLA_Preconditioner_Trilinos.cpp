@@ -307,7 +307,6 @@ moris::sint Preconditioner_Trilinos::compute_ifpack_preconditioner( bool tRecomp
     real        tElapsedTime    = tTimer.toc< moris::chronos::milliseconds >().wall;
     moris::real tElapsedTimeMax = max_all( tElapsedTime );
 
-
     MORIS_LOG_INFO( "SOL: Total time to compute ifpack preconditioner is %5.3f seconds.",
             (double)tElapsedTimeMax / 1000 );
 
@@ -417,10 +416,8 @@ moris::sint Preconditioner_Trilinos::build_ml_preconditioner()
     real        tElapsedTime    = tTimer.toc< moris::chronos::milliseconds >().wall;
     moris::real tElapsedTimeMax = max_all( tElapsedTime );
 
-
     MORIS_LOG_INFO( "SOL: Total time to initialize ml preconditioner is %5.3f seconds.",
             (double)tElapsedTimeMax / 1000 );
-
 
     return 0;
 }
@@ -445,10 +442,8 @@ moris::sint Preconditioner_Trilinos::compute_ml_preconditioner( bool tRecompute 
     real        tElapsedTime    = tTimer.toc< moris::chronos::milliseconds >().wall;
     moris::real tElapsedTimeMax = max_all( tElapsedTime );
 
-
     MORIS_LOG_INFO( "SOL: Total time to compute ml preconditioner is %5.3f seconds.",
             (double)tElapsedTimeMax / 1000 );
-
 
     return 0;
 }

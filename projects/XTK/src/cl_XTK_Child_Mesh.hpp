@@ -787,12 +787,12 @@ namespace moris::xtk
 
         // ----------------------------------------------------------------------------------
 
-        Vector< Vector< moris_index > > const &
+        Vector<Vector< moris_index > > const &
         get_double_side_interface_cell_pairs( moris_index aDblSideCMIndex ) const;
 
         // ----------------------------------------------------------------------------------
 
-        Vector< Vector< moris_index > > const &
+        Vector<Vector< moris_index > > const &
         get_double_side_interface_cell_pairs_facet_ords( moris_index aDblSideCMIndex ) const;
 
         // ----------------------------------------------------------------------------------
@@ -995,9 +995,9 @@ namespace moris::xtk
         Vector< Vector< moris_index > > mSubphaseBasisEnrichmentLevel;
 
         // Double side set between subphases
-        Vector< Vector< moris_index > >           mDoubleSideSetSubphaseInds;
-        Vector< Vector< Vector< moris_index > > > mDoubleSideSetCellPairs;
-        Vector< Vector< Vector< moris_index > > > mDoubleSideSetFacetPairs;
+        Vector<Vector< moris_index > >           mDoubleSideSetSubphaseInds;
+        Vector<Vector<Vector< moris_index > > > mDoubleSideSetCellPairs;
+        Vector<Vector<Vector< moris_index > > > mDoubleSideSetFacetPairs;
 
         Matrix< IndexMat > mHangingNodes;
 

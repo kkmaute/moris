@@ -857,7 +857,6 @@ namespace moris::sdf
 
     //-------------------------------------------------------------------------------
 
-
     Object_Region
     check_if_node_is_inside_lines(
             Object&                 aObject,

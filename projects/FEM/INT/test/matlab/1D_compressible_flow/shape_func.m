@@ -57,11 +57,3 @@ numvec = [ a a a 0  1  0  1  0  1  ];
 
 BT_eval = double( subs( B', symvec, numvec ) )
 
-
-
-
-
-
-
-
-

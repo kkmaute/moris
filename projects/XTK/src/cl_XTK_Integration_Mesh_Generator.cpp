@@ -123,7 +123,6 @@ namespace moris::xtk
         // Integration_Mesh_Cleanup* MeshCleanup = new Integration_Mesh_Cleanup( tCutIntegrationMesh.get(), tFaceConnectivity.get() );
         // MeshCleanup->perform( tActiveIgCells, mGeometryEngine );
 
-
         // set the bulk phase of each cell
         this->compute_ig_cell_bulk_phase( tCutIntegrationMesh.get() );
 
@@ -944,7 +943,6 @@ namespace moris::xtk
         aInterfaces.shrink_to_fit();
     }
 
-
     // Note: this is an old version of the function above, will be removed if new way of deducting interfaces turns out more robust
     // void
     // Integration_Mesh_Generator::deduce_interfaces(
@@ -1526,7 +1524,6 @@ namespace moris::xtk
         aIgCellSideOrds.clear();
 
         Vector< std::shared_ptr< Vector< moris::moris_index > > > const & tBGFacetToChildFacet = aCutIntegrationMesh->get_background_facet_to_child_facet_connectivity();
-
 
         if ( tBGFacetToChildFacet( aBackgroundFacetIndex ) == nullptr )
         {
@@ -2301,7 +2298,6 @@ namespace moris::xtk
 
                         // Increase the number of phases set
                         tNumPhasesSet++;
-
 
                         // Add the elements other neighbors to the active front
                         bool tReplaced = false;
@@ -3138,7 +3134,6 @@ namespace moris::xtk
         Vector< moris::moris_index > tFacetVertexParentRanks;
         Vector< moris::moris_index > tFacetVertexParentOrds;
 
-
         // iterate through edges in the edge connectivity
         for ( uint iFacet = 0; iFacet < tNumFacets; iFacet++ )
         {
@@ -3338,7 +3333,6 @@ namespace moris::xtk
             moris_index tMinIndex = std::distance( tEdgeVertexParentRanks.data().begin(), tMinIter );
             moris_index tMaxIndex = std::distance( tEdgeVertexParentRanks.data().begin(), tMaxIter );
 
-
             // std::cout<<"\nVertex 0 = "<<tEdgeVertices(0)->get_id()
             //       <<" | Vertex 1 = "<<tEdgeVertices(1)->get_id()
             //       <<" | Min Rank = "<<*tMinIter
@@ -3356,7 +3350,6 @@ namespace moris::xtk
             {
                 tMinIndex = 0;
                 tMaxIndex = 1;
-
 
                 if ( tEdgeVertexParentInds( tMinIndex ) == tEdgeVertexParentInds( tMaxIndex ) )
                 {
@@ -3399,7 +3392,6 @@ namespace moris::xtk
                     tMaxIndex = 1;
                 }
 
-
                 // edge to edge or edge to facet
                 Matrix< IndexMat > tEntitiesConnectedToBaseCellMaxRank = aBackgroundMesh->get_entity_connected_to_entity_loc_inds(
                         aParentCellForDeduction( iEdge )->get_index(),
@@ -3423,7 +3415,6 @@ namespace moris::xtk
                     }
                 }
 
-
                 for ( uint iEnt = 0; iEnt < tEntitiesConnectedToBaseCellMinRank.numel(); iEnt++ )
                 {
                     if ( tEntitiesConnectedToBaseCellMinRank( iEnt ) == tEdgeVertexParentInds( tMinIndex ) )
@@ -3432,7 +3423,6 @@ namespace moris::xtk
                         break;
                     }
                 }
-
 
                 MORIS_ASSERT( *tMinIter == 1, "Not an edge" );
                 Vector< moris::moris_index > tParentOrdinalAndRank =
@@ -3574,7 +3564,6 @@ namespace moris::xtk
             aCutIntegrationMesh->mIgVertexParentEntityIndex( aDecompositionData->tNewNodeIndex( iV ) ) =
                     (moris_index)aDecompositionData->tNewNodeParentIndex( iV );
         }
-
 
         // iterate through child meshes and commit the vertices to their respective vertex groups
         for ( auto& iCell : aMeshGenerationData->mAllIntersectedBgCellInds )
@@ -4104,7 +4093,6 @@ namespace moris::xtk
                     bool            tRequestExists = false;
                     moris_index     tRequestIndex  = MORIS_INDEX_MAX;
 
-
                     // swap out for hmr if needed (hmr calls edges in 2d faces)
                     if ( aBackgroundMesh->get_mesh_type() == mtk::MeshType::HMR )
                     {
@@ -4116,7 +4104,6 @@ namespace moris::xtk
                             }
                         }
                     }
-
 
                     if ( aDecompData.mHasSecondaryIdentifier )
                     {
@@ -4183,7 +4170,6 @@ namespace moris::xtk
     Integration_Mesh_Generator::remove_subphases_from_cut_mesh( Vector< moris_index > const & aSubphasesToRemove )
     {
     }
-
 
     // ----------------------------------------------------------------------------------
     // Functions for Constructing Subphase Groups and their neighborhood

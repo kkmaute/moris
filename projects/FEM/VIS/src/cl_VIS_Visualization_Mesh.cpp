@@ -15,7 +15,7 @@ namespace moris::vis
     // ----------------------------------------------------------------------------
 
     Visualization_Mesh::Visualization_Mesh( bool aOnlyPrimary )
-        : mOnlyPrimary( aOnlyPrimary )
+            : mOnlyPrimary( aOnlyPrimary )
     {
     }
 
@@ -58,7 +58,7 @@ namespace moris::vis
             }
         }
 
-        for ( const auto& iClustersOnSet : mLeaderSideClusters )
+        for ( const auto& iClustersOnSet : mLeaderDblSideClusters )
         {
             for ( auto iCluster : iClustersOnSet )
             {
@@ -66,7 +66,7 @@ namespace moris::vis
             }
         }
 
-        for ( const auto& iClustersOnSet : mFollowerSideClusters )
+        for ( const auto& iClustersOnSet : mFollowerDblSideClusters )
         {
             for ( auto iCluster : iClustersOnSet )
             {
@@ -75,6 +75,30 @@ namespace moris::vis
         }
 
         for ( const auto& iClustersOnSet : mClustersOnDoubleSideSets )
+        {
+            for ( auto iCluster : iClustersOnSet )
+            {
+                delete iCluster;
+            }
+        }
+
+        for ( const auto& iClustersOnSet : mLeaderNonconformalSideClusters )
+        {
+            for ( auto iCluster : iClustersOnSet )
+            {
+                delete iCluster;
+            }
+        }
+
+        for ( const auto& iClustersOnSet : mFollowerNonconformalSideClusters )
+        {
+            for ( auto iCluster : iClustersOnSet )
+            {
+                delete iCluster;
+            }
+        }
+
+        for ( const auto& iClustersOnSet : mClustersOnNonconformalSideSets )
         {
             for ( auto iCluster : iClustersOnSet )
             {
@@ -97,6 +121,7 @@ namespace moris::vis
             // concatenate list of side set and dbl side sets
             Vector< std::string > tAllOutputSideSetNames = mSideSetNames;
             tAllOutputSideSetNames.append( mDoubleSideSetNames );
+            tAllOutputSideSetNames.append( mNonconformalSideSetNames );
 
             // return the list of all side set names to be outputted
             return tAllOutputSideSetNames;
@@ -148,7 +173,7 @@ namespace moris::vis
                 aSetName.c_str() );
 
         // initialize list of cells on set to return
-        uint                            tNumCellsOnSet = tSet->get_num_cells_on_set( mOnlyPrimary );
+        uint                       tNumCellsOnSet = tSet->get_num_cells_on_set( mOnlyPrimary );
         Vector< const mtk::Cell* > tCellsOnSet( tNumCellsOnSet );
 
         // collect cells on set
@@ -462,7 +487,19 @@ namespace moris::vis
                 moris_index tDblSideSetIndex = mSetLocalToTypeIndex( tSetIndex );
 
                 // use the leader side sets for printing
-                tClustersOnSideSet = mLeaderSideClusters( tDblSideSetIndex );
+                tClustersOnSideSet = mLeaderDblSideClusters( tDblSideSetIndex );
+
+                // stop switch
+                break;
+            }
+
+            case mtk::SetType::NONCONFORMAL_SIDESET:
+            {
+                // get the index of the set in the list of double side sets
+                moris_index tNcSideSetIndex = mSetLocalToTypeIndex( tSetIndex );
+
+                // use the leader side sets for printing
+                tClustersOnSideSet = mLeaderNonconformalSideClusters( tNcSideSetIndex );
 
                 // stop switch
                 break;
@@ -506,7 +543,6 @@ namespace moris::vis
                 tFacetIndex++;
             }
         }
-
     }
 
     void
@@ -516,6 +552,7 @@ namespace moris::vis
         mListOfAllSets.append( mListOfBlocks );
         mListOfAllSets.append( mListOfSideSets );
         mListOfAllSets.append( mListOfDoubleSideSets );
+        mListOfAllSets.append( mListOfNonconformalSideSets );
 
         // construct map linking set name to position in list of all sets
         for ( uint iSet = 0; iSet < mListOfAllSets.size(); iSet++ )
@@ -557,8 +594,14 @@ namespace moris::vis
             moris_index tGlobalSetIndex             = mSetNameToIndexMap.find( tDblSideSetName );
             mSetLocalToTypeIndex( tGlobalSetIndex ) = iDblSideSet;
         }
+        for ( uint iNonconformalSideSet = 0; iNonconformalSideSet < mNonconformalSideSetNames.size(); iNonconformalSideSet++ )
+        {
+            std::string tNonconformalSideSetName    = mNonconformalSideSetNames( iNonconformalSideSet );
+            moris_index tGlobalSetIndex             = mSetNameToIndexMap.find( tNonconformalSideSetName );
+            mSetLocalToTypeIndex( tGlobalSetIndex ) = iNonconformalSideSet;
+        }
 
         // mark this mesh as finalized
         mMeshIsFinalized = true;
     }
-}
+}    // namespace moris::vis

@@ -28,7 +28,7 @@ using namespace dla;
 //----------------------------------------------------------------------------------------
 
 Preconditioner_PETSc::Preconditioner_PETSc(
-        const Parameter_List& aParameterList )
+        const Parameter_List &aParameterList )
         : Preconditioner( aParameterList )
 {
 }
@@ -201,7 +201,6 @@ void Preconditioner_PETSc::build_multigrid_preconditioner( Linear_Problem *aLine
             tCriteriaIds( Ik + tNumBlocksInitialBlocks ).set_size( 1, 1, tNotInBlock( Ik ) );
         }
 
-
         // construct string from output file name
         std::string tStrOutputFile = mParameterList.get< std::string >( "ASM_blocks_output_filename" );
 
@@ -346,7 +345,7 @@ void Preconditioner_PETSc::build_multigrid_preconditioner( Linear_Problem *aLine
 
 //----------------------------------------------------------------------------------------
 
-void Preconditioner_PETSc::build_schwarz_preconditioner_petsc(Linear_Problem* aLinearSystem, KSP aPetscKSPProblem )
+void Preconditioner_PETSc::build_schwarz_preconditioner_petsc( Linear_Problem *aLinearSystem, KSP aPetscKSPProblem )
 {
     // write preconditioner to log file
     MORIS_LOG_INFO( "KSP Preconditioner: asm" );
@@ -534,8 +533,7 @@ void Preconditioner_PETSc::build_schwarz_preconditioner( Linear_Problem *aLinear
 
 //----------------------------------------------------------------------------------------
 
-void  
-Preconditioner_PETSc::build_algebaric_multigrid_preconditioner( Linear_Problem *aLinearSystem )
+void Preconditioner_PETSc::build_algebaric_multigrid_preconditioner( Linear_Problem *aLinearSystem )
 {
     // write preconditioner to log file
     MORIS_LOG_INFO( "KSP Preconditioner: amg" );
@@ -556,14 +554,13 @@ Preconditioner_PETSc::build_algebaric_multigrid_preconditioner( Linear_Problem *
     // PCGAMGSetThreshold( mpc,&tThreshold );
 
     // loop over the levels and set the smoothers(KSP,PC) for each level
-    //KSPChebyshevEstEigGetKSP( mpc, &tKSPBlock( 0 ) );
+    // KSPChebyshevEstEigGetKSP( mpc, &tKSPBlock( 0 ) );
 }
-
 
 //----------------------------------------------------------------------------------------
 
 void Preconditioner_PETSc::build_preconditioner( Linear_Problem *aLinearSystem, KSP aPetscKSPProblem )
-{   
+{
     // get preconditioner
     KSPGetPC( aPetscKSPProblem, &mpc );
 
