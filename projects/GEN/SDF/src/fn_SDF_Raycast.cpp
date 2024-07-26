@@ -251,8 +251,6 @@ namespace moris::sdf
             uint                    aAxis,
             Vector< uint >&         aCandidateFacets )
     {
-        real tPreselectionEpsilon = 0.1;
-
         Preselection_Result tPreselection = SUCCESS;
 
         // select the axes that are not being cast in to preselect along (for a cast in the i-dir, preselect in j and k-dir)
@@ -273,7 +271,7 @@ namespace moris::sdf
                                          * ( aObject.get_facet_max_coord( iFacetIndex, tFirstAxis ) - aPoint( tFirstAxis ) );
 
             // check if the point is inside the bounding box of the triangle
-            if ( tJDirectionPreselection > -tPreselectionEpsilon )
+            if ( tJDirectionPreselection > -tEpsilon )
             {
                 // remember this triangle
                 tCandJ( tCountJ ) = iFacetIndex;
@@ -329,7 +327,7 @@ namespace moris::sdf
                                          * ( aObject.get_facet_max_coord( tCandJ( k ), tSecondAxis ) - aPoint( tSecondAxis ) );
 
             // see if the point is inside the bounding box of the triangle
-            if ( tKDirectionPreselection > -tPreselectionEpsilon )
+            if ( tKDirectionPreselection > -tEpsilon )
             {
                 aCandidateFacets( tCount ) = tCandJ( k );
                 ++tCount;
@@ -615,7 +613,7 @@ namespace moris::sdf
         for ( uint iCandidateFacet : aCandidateFacets )
         {
             // return the intersection coordinate from moller trumbore algorithm
-            real tIntersection = dynamic_cast< sdf::Triangle& >( aObject.get_facet( iCandidateFacet ) ).moller_trumbore( aAxis, aPoint );    // BRENDAN fixme dynamic cast
+            real tIntersection = dynamic_cast< sdf::Triangle& >( aObject.get_facet( iCandidateFacet ) ).moller_trumbore( aAxis, aPoint );
 
             // if the ray intersects the triangle, add the intersection to the list
             if ( not std::isnan( tIntersection ) )

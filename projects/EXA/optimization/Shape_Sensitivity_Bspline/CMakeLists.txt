@@ -15,6 +15,9 @@ set(EXAMPLE_SOURCES
     example_test_case.cpp
 )
 
+# Include functionality of paths
+include_directories( ${CMAKE_BINARY_DIR}/generated/ )
+
 # List include directories
 set(EXAMPLE_INCLUDES
     ${COM}

@@ -10,6 +10,7 @@
 
 #include <string>
 #include <iostream>
+#include "paths.hpp"
 #include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -242,7 +243,7 @@ namespace moris
 
         tParameterlist( 1 ).resize( 1 );
         tParameterlist( 1 )( 0 ) = prm::create_surface_mesh_geometry_parameter_list();
-        tParameterlist( 1 )( 0 ).set( "file_path", "/home/chong/codes/moris/projects/GEN/test/data/tetra.obj" );    // BRENDAN FIXME
+        tParameterlist( 1 )( 0 ).set( "file_path", moris::get_base_moris_dir() + "projects/GEN/test/data/tetra.obj" );    // BRENDAN FIXME
         tParameterlist( 1 )( 0 ).set( "offset", -0.6, -0.6, 0.0 );
 
         switch ( tGeoModel )

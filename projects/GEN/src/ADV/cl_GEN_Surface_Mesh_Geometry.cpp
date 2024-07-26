@@ -171,12 +171,12 @@ namespace moris::gen
             PRINT( aFirstParentNode.get_global_coordinates() );
             sdf::Object_Region tRegion = raycast_point( *this, aFirstParentNode.get_global_coordinates() );
             std::cout << "First parent region" << tRegion << std::endl;
-            
+
             std::cout << "Second Parent Index: " << aSecondParentNode.get_index() << std::endl;
             PRINT( aSecondParentNode.get_global_coordinates() );
             tRegion = raycast_point( *this, aSecondParentNode.get_global_coordinates() );
             std::cout << "Second parent region" << tRegion << std::endl;
-            
+
             MORIS_ERROR( tParentFacet != nullptr or ( tLocalCoordinate < 1.0 + this->get_intersection_tolerance() and tLocalCoordinate > -1.0 - this->get_intersection_tolerance() ),
                     "Intersection node local coordinate is not between -1 and 1 or parent facet is null. Local coordinate = %f",
                     tLocalCoordinate );
@@ -428,10 +428,6 @@ namespace moris::gen
 
         // Update the facet's information based on the new vertex coordinates
         this->update_all_facets();
-
-        // Write the surface mesh to a file
-        this->write_to_file( mName + "_" + std::to_string( mIteration ) + "_" + std::to_string( par_rank() ) + ".obj" );
-        mIteration++;
     }
 
     //--------------------------------------------------------------------------------------------------------------

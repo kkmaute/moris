@@ -8,6 +8,7 @@
  *
  */
 
+#include "paths.hpp"
 #include <string>
 #include <iostream>
 #include "moris_typedefs.hpp"
@@ -231,8 +232,7 @@ namespace moris
 
         tParameterlist( 1 ).resize( 1 );
         tParameterlist( 1 )( 0 ) = prm::create_surface_mesh_geometry_parameter_list();
-        tParameterlist( 1 )( 0 ).set( "file_path", "/home/chong/codes/moris/projects/GEN/test/data/triangle_sensitivity_oblique.obj" );    // BRENDAN FIXME
-
+        tParameterlist( 1 )( 0 ).set( "file_path", moris::get_base_moris_dir() + "projects/GEN/test/data/triangle_sensitivity_oblique.obj" );    // BRENDAN FIXME
         switch ( tGeoModel )
         {
             case 0:
