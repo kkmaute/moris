@@ -67,6 +67,12 @@ namespace moris
 
             // ----------------------------------------------------------------------------------------------
 
+            fem::Element_Type
+            get_set_type( uint aMyEquSetInd ) override
+            {
+                return fem::Element_Type::END_ELEMENT_TYPE;
+            }
+
             void set_solution_vector( sol::Dist_Vector* aSolutionVector ) override;
 
             void set_solution_vector_prev_time_step( sol::Dist_Vector* aSolutionVector ) override;

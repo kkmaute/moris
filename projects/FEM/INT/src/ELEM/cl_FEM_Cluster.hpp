@@ -68,7 +68,7 @@ namespace moris
             Set *mSet = nullptr;
 
             // element type
-            Element_Type mElementType = Element_Type::UNDEFINED;
+            Element_Type mElementType = Element_Type::END_ELEMENT_TYPE;
 
             // acceptable volume error
             // IG cells with a relative volume below this threshold are ignored
@@ -91,7 +91,7 @@ namespace moris
 
           public:
             //------------------------------------------------------------------------------
-            /**
+            /**g
              * constructor
              * @param[ in ] aElementType    enum for element type (BULK, SIDESET, ...)
              * @param[ in ] aMeshCluster    cluster pointer from mtk mesh

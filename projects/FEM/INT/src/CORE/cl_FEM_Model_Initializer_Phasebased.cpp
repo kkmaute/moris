@@ -201,7 +201,7 @@ namespace moris::fem
 
             // set CM model type. must come before "set_space_dim"
             // fixme: currently cannot set a plane type and tensor type at the same time from an input file
-            if ( tCMModelType != fem::Model_Type::UNDEFINED )
+            if ( tCMModelType != fem::Model_Type::END_MODEL_TYPE )
             {
                 tCM->set_model_type( tCMModelType );
             }

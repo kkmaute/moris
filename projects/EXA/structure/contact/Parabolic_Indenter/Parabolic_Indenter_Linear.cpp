@@ -694,7 +694,7 @@ namespace moris
 
         /* ------------------------------------- Contact Interface ------------------------------------ */
         // determine the requested contact type
-        IWG_Type tContactIWGType = IWG_Type::UNDEFINED;
+        IWG_Type tContactIWGType = IWG_Type::END_IWG_TYPE;
         if ( tContactType == "mlika" )
         {
             if ( tContactBias == "symmetric" )

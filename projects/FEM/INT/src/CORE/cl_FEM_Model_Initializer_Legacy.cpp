@@ -131,7 +131,7 @@ namespace moris::fem
 
             // set CM model type
             auto tCMModelType = tCMParameterList( iCM ).get< fem::Model_Type >( "model_type" );
-            if ( tCMModelType != fem::Model_Type::UNDEFINED )
+            if ( tCMModelType != fem::Model_Type::END_MODEL_TYPE )
             {
                 mConstitutiveModels( iCM )->set_model_type( tCMModelType );
             }

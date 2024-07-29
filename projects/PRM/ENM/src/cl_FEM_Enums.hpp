@@ -23,7 +23,6 @@ namespace moris
         //------------------------------------------------------------------------------
 
         ENUM_MACRO( Element_Type,
-                UNDEFINED,
                 BULK,
                 SIDESET,
                 DOUBLE_SIDESET,
@@ -35,7 +34,6 @@ namespace moris
         //------------------------------------------------------------------------------
 
         ENUM_MACRO( IWG_Type,
-                UNDEFINED,
                 L2,
                 HJ,
                 HJTEST,
@@ -157,7 +155,6 @@ namespace moris
         //------------------------------------------------------------------------------
 
         ENUM_MACRO( IQI_Type,
-                UNDEFINED,
                 VOLUME,
                 STRAIN_ENERGY,
                 VOLUME_FRACTION,
@@ -225,7 +222,6 @@ namespace moris
         //------------------------------------------------------------------------------
 
         ENUM_MACRO( Constitutive_Type,
-                UNDEFINED,
                 DIFF_LIN_ISO,
                 DIFF_LIN_ISO_PC,
                 DIFF_LIN_ISO_TURBULENCE,
@@ -248,7 +244,6 @@ namespace moris
         //------------------------------------------------------------------------------
 
         ENUM_MACRO( Material_Type,
-                UNDEFINED,
                 PERFECT_GAS,
                 VAN_DER_WAALS_FLUID,
                 END_MATERIAL_TYPE )
@@ -256,7 +251,6 @@ namespace moris
         //------------------------------------------------------------------------------
 
         ENUM_MACRO( Variable_Set,
-                UNDEFINED,
                 CONSERVATIVE,
                 DENSITY_PRIMITIVE,
                 PRESSURE_PRIMITIVE,
@@ -266,7 +260,6 @@ namespace moris
         //------------------------------------------------------------------------------
 
         ENUM_MACRO( Model_Type,
-                UNDEFINED,
                 PLANE_STRESS,
                 PLANE_STRAIN,
                 AXISYMMETRIC,
@@ -278,7 +271,6 @@ namespace moris
         //------------------------------------------------------------------------------
 
         ENUM_MACRO( Stabilization_Type,
-                UNDEFINED,
                 DIRICHLET_NITSCHE,
                 ROBIN_NITSCHE,
                 GGLS_DIFFUSION,
@@ -313,7 +305,6 @@ namespace moris
         //------------------------------------------------------------------------------
 
         ENUM_MACRO( Measure_Type,
-                UNDEFINED,
                 CELL_MEASURE,
                 CELL_SIDE_MEASURE,
                 CELL_LENGTH_MEASURE,
@@ -324,7 +315,6 @@ namespace moris
         {
             map< std::string, enum fem::Measure_Type > tFemMeasureTypeMap;
 
-            tFemMeasureTypeMap[ "UNDEFINED" ]           = fem::Measure_Type::UNDEFINED;
             tFemMeasureTypeMap[ "CELL_MEASURE" ]        = fem::Measure_Type::CELL_MEASURE;
             tFemMeasureTypeMap[ "CELL_SIDE_MEASURE" ]   = fem::Measure_Type::CELL_SIDE_MEASURE;
             tFemMeasureTypeMap[ "CELL_LENGTH_MEASURE" ] = fem::Measure_Type::CELL_LENGTH_MEASURE;
@@ -336,7 +326,6 @@ namespace moris
         //------------------------------------------------------------------------------
 
         ENUM_MACRO( FDScheme_Type,
-                UNDEFINED,
                 POINT_1_FORWARD,
                 POINT_1_BACKWARD,
                 POINT_3_CENTRAL,
@@ -346,7 +335,6 @@ namespace moris
         //------------------------------------------------------------------------------
 
         ENUM_MACRO( Perturbation_Type,
-                UNDEFINED,
                 RELATIVE,
                 ABSOLUTE,
                 END_PERTURBATION_TYPE )
@@ -354,7 +342,6 @@ namespace moris
         //------------------------------------------------------------------------------
 
         ENUM_MACRO( Stress_Type,
-                UNDEFINED,
                 NORMAL_STRESS,
                 SHEAR_STRESS,
                 VON_MISES_STRESS,
@@ -399,7 +386,6 @@ namespace moris
         //------------------------------------------------------------------------------
 
         ENUM_MACRO( CM_Request_Type,
-                UNDEFINED,
                 STRAIN,
                 TEST_STRAIN,
                 FLUX,
