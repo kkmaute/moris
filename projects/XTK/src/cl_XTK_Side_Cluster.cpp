@@ -145,7 +145,6 @@ namespace moris::xtk
         return mVertexGroup->get_vertex_group_ordinal( aVertex->get_index() );
     }
 
-
     //----------------------------------------------------------------
 
     moris_index

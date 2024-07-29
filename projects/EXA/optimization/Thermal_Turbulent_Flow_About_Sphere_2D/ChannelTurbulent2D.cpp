@@ -101,7 +101,6 @@ namespace moris
     real consolid = 150.0;
     real capsolid = 200.0;
 
-
     // reynolds number based on reference values and fluid properties see below
     real reynolds = lenref * velref / kinvisc;
 

@@ -157,7 +157,6 @@ namespace moris::xtk
     {
         mOwnedVertices.resize( mNumVerts, true );
 
-
         Vector< moris_index > tNotOwnedIgCells;
         tNotOwnedIgCells.reserve( mInputMesh->mIntegrationCells.size() );
 
@@ -190,7 +189,6 @@ namespace moris::xtk
             }
         }
 
-
         tNotOwnedIgCells.shrink_to_fit();
         mNotOwnedIgCellIds.shrink_to_fit();
 
@@ -203,7 +201,6 @@ namespace moris::xtk
     Integration_Mesh_Cleanup::set_child_mesh_boundary_flag()
     {
         mChildMeshBoundary.resize( mNumVerts, false );
-
 
         for ( moris_index iV = 0; (uint)iV < mNumVerts; iV++ )
         {
@@ -240,7 +237,6 @@ namespace moris::xtk
             }
         }
     }
-
 
     // ----------------------------------------------------------------------------
 
@@ -370,7 +366,6 @@ namespace moris::xtk
             return false;
         }
     }
-
 
     // ----------------------------------------------------------------------------
 
@@ -678,17 +673,14 @@ namespace moris::xtk
             }
         }
 
-
         // sort list of indices to merge by id
         // sorting by id ensures that different processors will merge vertices in the same order
         std::sort( mMergeInds.begin(), mMergeInds.end(), [ & ]( const auto& i, const auto& j ) { return mInputMesh->mIntegrationVertices( i )->get_id() < mInputMesh->mIntegrationVertices( j )->get_id(); } );
     }
 
-
     void
     Integration_Mesh_Cleanup::merge( moris_index Vert1, moris_index Vert2, Vector< moris::mtk::Cell* >& aActiveIgCells )
     {
-
 
         // Info on vertices to be merged ------------------------------------------------------------
         moris_index V1Ind = Vert1;
@@ -713,7 +705,6 @@ namespace moris::xtk
                 if ( ControlledVertsInd1 > -1 ) { break; }
             }
         }
-
 
         // replace vertex pointers of cells attached to Vert1 ---------------------------------------
 
@@ -740,12 +731,10 @@ namespace moris::xtk
             }
         }
 
-
         // merge vertices in connectivity
         Facet_Based_Connectivity* tOldFacetConnectivity = new Facet_Based_Connectivity;
         *tOldFacetConnectivity                          = *mInputFacetConnectivity;
         mInputFacetConnectivity->merge_vertices( V1Ind, V2Ind, mFacetMergeInds, tOldFacetConnectivity, mVertex2 );
-
 
         // Merge cells erased during merge -------------------------------------------
         for ( moris_index iC = 0; (uint)iC < mVertIndToCells( V1Ind ).size(); iC++ )
@@ -761,7 +750,6 @@ namespace moris::xtk
                 // index of cell in mControlledIgCells list
                 moris_index ControlledInd = mInputMesh->get_integration_cell_controlled_index( Ind );
 
-
                 // if cell contains two identical vertex indices
                 if ( !mInputMesh->mControlledIgCells( ControlledInd )->check_unique_vertex_inds() )
                 {
@@ -772,7 +760,6 @@ namespace moris::xtk
 
                     // set removed cell index in mControlledIgCells to max
                     mInputMesh->mControlledIgCells( ControlledInd )->set_index( MORIS_INDEX_MAX );
-
 
                     // set cell index in mVertIndToCells to max
                     Matrix< IndexMat > tVertInds = mInputMesh->mIntegrationCells( Ind )->get_vertex_inds();
@@ -796,10 +783,8 @@ namespace moris::xtk
                         }
                     }
 
-
                     // set cell index in mIntegrationCellBulkPhase to max
                     mInputMesh->mIntegrationCellBulkPhase( Ind ) = MORIS_INDEX_MAX;
-
 
                     // set index in mIntegrationCellToCellGroupIndex to max
                     mInputMesh->mIntegrationCellToCellGroupIndex( Ind ) = { MORIS_INDEX_MAX };
@@ -807,10 +792,8 @@ namespace moris::xtk
             }
         }
 
-
         // set vert1 index in mControlledIgVerts to max
         mInputMesh->mControlledIgVerts( ControlledVertsInd1 )->set_index( MORIS_INDEX_MAX );
-
 
         // transfer vertex-cell connectivity and set vertex index in mVertIndToCells to max
         for ( moris_index iC = 0; (uint)iC < mVertIndToCells( V1Ind ).size(); iC++ )
@@ -822,7 +805,6 @@ namespace moris::xtk
 
         // correct vertex-vertex connectivity to account for merge
         this->adjust_vertex_vertex_connectivity( V1Ind, V2Ind );
-
 
         // set vertex index from mIgVertexParentEntityIndex to max
         mInputMesh->mIgVertexParentEntityIndex( V1Ind ) = MORIS_INDEX_MAX;
@@ -839,7 +821,6 @@ namespace moris::xtk
     void
     Integration_Mesh_Cleanup::shift_indices( Vector< moris::mtk::Cell* >& aActiveIgCells )
     {
-
 
         // Cells ----------------------------------------------------------------------------------
 
@@ -859,7 +840,6 @@ namespace moris::xtk
         {
             tCellMergeIds( iC ) = mInputMesh->mIntegrationCells( mCellMergeInds( iC ) )->get_id();
         }
-
 
         // remove cell pointers from mActiveIgCells
         for ( moris_index iC = 0; (uint)iC < aActiveIgCells.size(); iC++ )
@@ -903,13 +883,11 @@ namespace moris::xtk
             }
         }
 
-
         // nullify cell pointer in mIntegrationCells
         for ( moris_index iC = 0; (uint)iC < mCellMergeInds.size(); iC++ )
         {
             mInputMesh->mIntegrationCells( mCellMergeInds( iC ) ) = NULL;
         }
-
 
         // adjust indices in mVertIndToCells
         moris_index tCellMergeMax = mCellMergeInds( mCellMergeInds.size() - 1 );
@@ -953,7 +931,6 @@ namespace moris::xtk
             }
         }
 
-
         // remove deallocated cell pointers from mIntegrationCellGroups
         moris_index tIndOffset = 0;
         for ( moris_index iC = 0; (uint)iC < mCellMergeInds.size(); iC++ )
@@ -971,7 +948,6 @@ namespace moris::xtk
             }
             tIndOffset++;
         }
-
 
         // remove cell from mNotOwnedIgCellIds
         for ( moris_index iC = 0; (uint)iC < mNotOwnedIgCellIds.size(); iC++ )
@@ -1002,7 +978,6 @@ namespace moris::xtk
         }
         MORIS_ASSERT( mInputMesh->mIntegrationCellIdToIndexMap.size() == mInputMesh->mIntegrationCells.size(), "Size issue" );
 
-
         // shift indices in mControlledIgCells
         moris_index offset = 0;
         for ( moris_index iC = 1; (uint)iC < mInputMesh->mControlledIgCells.size(); iC++ )
@@ -1021,7 +996,6 @@ namespace moris::xtk
             }
         }
 
-
         // deallocate and erase cells from mControlledIgCells
         for ( moris_index iC = 0; (uint)iC < mInputMesh->mControlledIgCells.size(); iC++ )
         {
@@ -1033,7 +1007,6 @@ namespace moris::xtk
             }
         }
 
-
         // Vertices ----------------------------------------------------------------------------------
 
         // remove vertex pointer from mIntegrationVertices
@@ -1043,7 +1016,6 @@ namespace moris::xtk
             mInputMesh->mIntegrationVertices.erase( mMergeInds( iV ) - tIndOffset );
             tIndOffset++;
         }
-
 
         // remove vertex pointer from mIntegrationVertexGroups
         tIndOffset = 0;
@@ -1063,7 +1035,6 @@ namespace moris::xtk
             tIndOffset++;
         }
 
-
         // remove deleted vertices from mVertIndToCells
         tIndOffset = 0;
         for ( moris_index iV = 0; (uint)iV < mMergeInds.size(); iV++ )
@@ -1078,7 +1049,6 @@ namespace moris::xtk
                 MORIS_ASSERT( false, "Error, list should be empty" );
             }
         }
-
 
         // remove deleted vertices from mVertIndToVerts
         for ( moris_index iV = 0; (uint)iV < mMergeIndsV2.size(); iV++ )
@@ -1153,7 +1123,6 @@ namespace moris::xtk
             }
         }
 
-
         // remove vertex index from mIgVertexParentEntitiyIndex
         mInputMesh->mIgVertexParentEntityIndex.remove( MORIS_INDEX_MAX );    // delete elems from mMergeInds instead?
 
@@ -1169,7 +1138,6 @@ namespace moris::xtk
             tIndOffset++;
         }
 
-
         // adjust vertex id to index map
         for ( auto it = mInputMesh->mIntegrationVertexIdToIndexMap.begin(); it != mInputMesh->mIntegrationVertexIdToIndexMap.end(); )
         {
@@ -1179,7 +1147,6 @@ namespace moris::xtk
             }
             else { ++it; }
         }
-
 
         MORIS_ASSERT( mInputMesh->mIntegrationVertexIdToIndexMap.size() == mInputMesh->mIntegrationVertices.size(), "Error size" );
         for ( moris_index iV = 0; (uint)iV < mInputMesh->mIntegrationVertices.size(); iV++ )
@@ -1220,9 +1187,7 @@ namespace moris::xtk
         // adjust mFirstControlledVertexIndex
         mInputMesh->mFirstControlledVertexIndex = mInputMesh->mControlledIgVerts( 0 )->get_index();
 
-
         // Facets ----------------------------------------------------------------------------------
-
 
         // new map of mInputFacetConnectivity->mCellIndexToCellOrdinal
         for ( moris_index iC = 0; (uint)iC < mCellMergeInds.size(); iC++ )
@@ -1253,7 +1218,6 @@ namespace moris::xtk
 
         Vector< moris_id > newKeys;
         newKeys.resize( newOrds.size(), -1 );
-
 
         moris_index i = 0;
         for ( std::pair< moris_id, moris_index > el : mInputFacetConnectivity->mCellIndexToCellOrdinal )    // todo: this is slow
@@ -1288,7 +1252,6 @@ namespace moris::xtk
         }
 
         mInputFacetConnectivity->mCellIndexToCellOrdinal = tNewMap;
-
 
         // erase cells from mCellToFacet
         // todo: could do this directly with mFacetMergeInds? mFacetMergeInds might also simplify the whole mCellIndexToCellOrdinal rewrite
@@ -1325,7 +1288,6 @@ namespace moris::xtk
                 }
             }
         }
-
 
         // mFacetToCellEdgeOrdinal
         for ( moris_index iF = 0; (uint)iF < mInputFacetConnectivity->mFacetToCellEdgeOrdinal.size(); iF++ )
@@ -1436,10 +1398,8 @@ namespace moris::xtk
             }
         }
 
-
         // index of max value in tAttachedVertsAngle
         moris_index maxAngleInd = std::max_element( tAttachedVertsAngle.begin(), tAttachedVertsAngle.end() ) - tAttachedVertsAngle.begin();
-
 
         if ( tAttachedVertsAngle( maxAngleInd ) == 0 )
         {
@@ -1450,7 +1410,6 @@ namespace moris::xtk
             // std::cout<<"Merge creates inverted tet"<<std::endl;
             return -1;
         }
-
 
         return attachedNodes( maxAngleInd );
     }
@@ -1465,7 +1424,6 @@ namespace moris::xtk
         {
             std::cout << "stp" << std::endl;
         }
-
 
         // add verts from aVert1 to aVert2 without duplicates
         for ( moris_index iV = 0; (uint)iV < mVertIndToVerts( aVert1 ).size(); iV++ )
@@ -1513,13 +1471,11 @@ namespace moris::xtk
             }
         }
 
-
         // set vertex itself to single element with max
         mVertIndToVerts( aVert1 ) = { MORIS_INDEX_MAX };
     }
 
     // ----------------------------------------------------------------------------
-
 
     void
     Integration_Mesh_Cleanup::communicate_merged_cells( Matrix< IdMat > aNotOwnedCellVerts )
@@ -1528,7 +1484,6 @@ namespace moris::xtk
         // get current proc's rank
         moris_id tMyRank   = par_rank();
         moris_id tCommSize = par_size();
-
 
         if ( tCommSize == 1 )    // serial
         {
@@ -1548,7 +1503,6 @@ namespace moris::xtk
 
             Vector< Matrix< IdMat > > tRequestNotOwnedCellIds( tCommSize );
             Vector< Matrix< IdMat > > tRequestNotOwnedCellVerts( tCommSize );
-
 
             int dim = mInputMesh->get_spatial_dim();
 
@@ -1572,7 +1526,6 @@ namespace moris::xtk
             // communicate between processors
             communicate_mats( tCommunicationList, tRequestNotOwnedCellIds, tReceivedNotOwnedCellIds );
             communicate_mats( tCommunicationList, tRequestNotOwnedCellVerts, tReceivedNotOwnedCellVerts );
-
 
             // compare
             for ( moris_index iProc = 0; iProc < tCommSize; iProc++ )
@@ -1633,7 +1586,6 @@ namespace moris::xtk
         mCellMergeInds.reserve( mMergeNum * 3 );
         mFacetMergeInds.reserve( mMergeNum * 3 );
 
-
         for ( uint iM = 0; iM < mMergeInds.size(); iM++ )
         {
             // set vertex being merged (Vert1), and vertex it is being "merged to" (aVert2)
@@ -1663,7 +1615,6 @@ namespace moris::xtk
         this->shift_indices( aActiveIgCells );
     }
 
-
     // ----------------------------------------------------------------------------
 
     void
@@ -1672,7 +1623,6 @@ namespace moris::xtk
 
         // mFlats = this->check_flats(); //checks for degenerate cells
         // std::cout<<"There are "<<mFlats.size()<<" flat tets before merge."<<std::endl;
-
 
         // sets mVertIndToCells, in: index of vertex || out: list of cells (indices) attached to vertex
         this->set_vertex_cell_connectivity();
@@ -1690,7 +1640,6 @@ namespace moris::xtk
         // sets mNotOwnedIgCellIds, list of not owned cell ids
         this->set_owned_verts_flag();
 
-
         // sets mMergeInds, indices of vertices not on bulk phase boundary and not on child mesh boundary (controls which verts are merged)
         this->num_merges();
 
@@ -1699,7 +1648,6 @@ namespace moris::xtk
 
         // merge the list of vertices set in num_merges()
         this->merge_list( aActiveIgCells );
-
 
         // store not owned cell vertex ids for parallel cross check
         int dim = mInputMesh->get_spatial_dim();
@@ -1714,7 +1662,6 @@ namespace moris::xtk
 
         // parallel cross check
         this->communicate_merged_cells( tNotOwnedCellVerts );
-
 
         // check for degenerate cells
         // mFlats = this->check_flats();

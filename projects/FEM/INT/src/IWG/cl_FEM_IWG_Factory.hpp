@@ -14,7 +14,7 @@
 #include "assert.hpp"
 
 #include "cl_Matrix.hpp"
-#include "cl_FEM_IWG.hpp" //FEM/INT/src
+#include "cl_FEM_IWG.hpp"    //FEM/INT/src
 
 namespace moris
 {
@@ -29,26 +29,20 @@ namespace moris
         class IWG_Factory
         {
 
-                //------------------------------------------------------------------------------
-            public:
-                //------------------------------------------------------------------------------
-                /**
-                 * constructor
-                 */
-                IWG_Factory(){};
+            //------------------------------------------------------------------------------
 
-                //------------------------------------------------------------------------------
-                /**
-                 * trivial destructor
-                 */
-                ~IWG_Factory(){};
+          public:
+            //------------------------------------------------------------------------------
+            /**
+             * constructor
+             */
+            IWG_Factory() = default;
 
-                //------------------------------------------------------------------------------
-                /**
-                 * create IWGs
-                 */
-                std::shared_ptr< IWG > create_IWG( IWG_Type aIWGType );
-
+            //------------------------------------------------------------------------------
+            /**
+             * create IWGs
+             */
+            std::shared_ptr< IWG > create_IWG( IWG_Type aIWGType );
         };
 
         //------------------------------------------------------------------------------
@@ -56,4 +50,3 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_FEM_IWG_FACTORY_HPP_ */
-

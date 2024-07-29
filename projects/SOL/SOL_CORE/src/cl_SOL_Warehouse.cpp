@@ -166,7 +166,6 @@ void SOL_Warehouse::create_linear_solver_algorithms()
             mLinearSolverAlgorithms( Ik )->set_preconditioner( mPreconditioners( tPrecIndex ) );
         }
 
-
         // get and set nonlinear sub-solvers for staggered methods
         tPreconditionerIndices.clear();
         string_to_cell( mParameterlist( 0 )( Ik ).get< std::string >( "preconditioners_linear_operator" ),

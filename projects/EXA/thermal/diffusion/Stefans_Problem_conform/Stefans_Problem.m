@@ -27,7 +27,6 @@ MatParams.Lh = 175.0e3;
 % melting temperature
 MatParams.Tm = 313.0;
 
-
 %% Problem Setup (Geometry & BCs)
 
 % wall temperature
@@ -45,14 +44,12 @@ tmax = 16 * 3600;
 % number of timesteps for evaluation
 nTimeSteps = 1;
 
-
 %% Compute Solution
 
 % initialize
 deltat = tmax / nTimeSteps;
 deltax = lengthBar / nElements;
 SolutionT = zeros(nTimeSteps+1,nElements+1);
-
 
 % for each time step
 for it = 1:nTimeSteps+1
@@ -72,7 +69,6 @@ for it = 1:nTimeSteps+1
     end
     
 end
-
 
 %% Plot Solution
 
@@ -108,6 +104,4 @@ for it = nTimeSteps+1:nTimeSteps+1
     xlabel('x');
            
 end
-
-
 

@@ -47,10 +47,10 @@ namespace moris
 
         void
         Equation_Object::create_my_pdof_hosts(
-                const uint                 aNumUsedDofTypes,
-                const Matrix< DDSMat >&    aPdofTypeMap,
-                const Matrix< DDUMat >&    aTimePerDofType,
-                Vector< Pdof_Host* >& aPdofHostList )
+                const uint              aNumUsedDofTypes,
+                const Matrix< DDSMat >& aPdofTypeMap,
+                const Matrix< DDUMat >& aTimePerDofType,
+                Vector< Pdof_Host* >&   aPdofHostList )
         {
             // Resize list containing this equations objects pdof hosts set
             mNumPdofSystems = mNodeObj.size();
@@ -120,6 +120,7 @@ namespace moris
             }
 
             // set size of vector containing this equation objects free pdofs
+            mFreePdofs.clear();
             mFreePdofs.reserve( tNumMyFreePdofs );
 
             // loop over pdof systems. Is one except for double sided clusters
@@ -148,6 +149,7 @@ namespace moris
             //----------------------------------------------------------------------------------------------------------
 
             // Ask the first pdof host for the number of pdof types //FIXME
+            mFreePdofList.clear();
             mFreePdofList.resize( mNumPdofSystems );
 
             for ( uint Ia = 0; Ia < mNumPdofSystems; Ia++ )
@@ -232,7 +234,7 @@ namespace moris
             }
 
             //---------------------------------------------------------------------------
-
+            mUniqueAdofTypeList.clear();
             mUniqueAdofTypeList.resize( mFreePdofList.size() );
 
             for ( uint Ik = 0; Ik < mFreePdofList.size(); Ik++ )
@@ -779,7 +781,7 @@ namespace moris
 
         void
         Equation_Object::get_egn_obj_jacobian_and_residual(
-                Matrix< DDRMat >&         aEqnObjMatrix,
+                Matrix< DDRMat >&           aEqnObjMatrix,
                 Vector< Matrix< DDRMat > >& aEqnObjRHS )
         {
             // compute Jacobian and residual
@@ -883,7 +885,7 @@ namespace moris
 
                             this->get_my_pdof_values( mEquationSet->mAdjointPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Leader_Follower::LEADER );
 
-                            uint                     tNumRHS = tCoeff_Original.size();
+                            uint                       tNumRHS = tCoeff_Original.size();
                             Vector< Matrix< DDRMat > > tCoeff( tNumRHS );
 
                             for ( uint Ik = 0; Ik < tNumRHS; Ik++ )
@@ -936,7 +938,7 @@ namespace moris
 
                             this->get_my_pdof_values( mEquationSet->mAdjointPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Leader_Follower::FOLLOWER );
 
-                            uint                     tNumRHS = tCoeff_Original.size();
+                            uint                       tNumRHS = tCoeff_Original.size();
                             Vector< Matrix< DDRMat > > tCoeff( tNumRHS );
 
                             // print(mEquationSet->get_jacobian(),"staggerd jac");
@@ -1000,7 +1002,7 @@ namespace moris
 
                             this->get_my_pdof_values( mEquationSet->mAdjointPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Leader_Follower::LEADER );
 
-                            uint                     tNumRHS = tCoeff_Original.size();
+                            uint                       tNumRHS = tCoeff_Original.size();
                             Vector< Matrix< DDRMat > > tCoeff( tNumRHS );
 
                             // print(mEquationSet->get_jacobian(),"staggerd jac");
@@ -1055,7 +1057,7 @@ namespace moris
 
                             this->get_my_pdof_values( mEquationSet->mAdjointPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Leader_Follower::FOLLOWER );
 
-                            uint                     tNumRHS = tCoeff_Original.size();
+                            uint                       tNumRHS = tCoeff_Original.size();
                             Vector< Matrix< DDRMat > > tCoeff( tNumRHS );
 
                             // print(mEquationSet->get_jacobian(),"staggerd jac");
@@ -1100,8 +1102,9 @@ namespace moris
             Vector< Matrix< DDRMat > > tMyValues;
 
             // Extract this equation objects adof values from solution vector
-            mEquationSet->mEquationModel->get_solution_vector()->    //
-                    extract_my_values(
+            mEquationSet->mEquationModel
+                    ->get_solution_vector()
+                    ->extract_my_values(
                             tTMatrix.n_cols(),
                             mUniqueAdofList,
                             0,
@@ -1273,7 +1276,7 @@ namespace moris
         //-------------------------------------------------------------------------------------------------
 
         //    void Equation_Object::get_my_pdof_values( const Vector< enum Dof_Type > & aRequestedDofTypes,
-        //                                                    Cell< Matrix< DDRMat > >     & aRequestedPdofValues )
+        //                                                    Vector< Matrix< DDRMat > >     & aRequestedPdofValues )
         //    {
         //        // Initialize list which contains the maximal number of time levels per dof type
         //        Matrix< DDSMat > tTimeLevelsPerDofType( aRequestedDofTypes.size(), 1, -1 );
@@ -1342,10 +1345,10 @@ namespace moris
 
         void
         Equation_Object::get_my_pdof_values(
-                const Vector< Matrix< DDRMat > >&   aPdofValues,
-                const Vector< enum Dof_Type >&      aRequestedDofTypes,
+                const Vector< Matrix< DDRMat > >&     aPdofValues,
+                const Vector< enum Dof_Type >&        aRequestedDofTypes,
                 Vector< Vector< Matrix< DDRMat > > >& aRequestedPdofValues,
-                const mtk::Leader_Follower                  aIsLeader )
+                const mtk::Leader_Follower            aIsLeader )
         {
             // check that leader or follower
             MORIS_ERROR( ( aIsLeader == mtk::Leader_Follower::LEADER ) || ( aIsLeader == mtk::Leader_Follower::FOLLOWER ),
@@ -1447,7 +1450,7 @@ namespace moris
         void
         Equation_Object::reshape_pdof_values(
                 const Vector< Matrix< DDRMat > >& aPdofValues,
-                Matrix< DDRMat >&               aReshapedPdofValues )
+                Matrix< DDRMat >&                 aReshapedPdofValues )
         {
             MORIS_ASSERT( aPdofValues.size() != 0,
                     "Equation_Object::reshape_pdof_values(), pdof value vector is empty" );
@@ -1469,7 +1472,7 @@ namespace moris
         void
         Equation_Object::reshape_pdof_values_vector(
                 const Vector< Matrix< DDRMat > >& aPdofValues,
-                Matrix< DDRMat >&               aReshapedPdofValues )
+                Matrix< DDRMat >&                 aReshapedPdofValues )
         {
             MORIS_ASSERT( aPdofValues.size() != 0,
                     "Equation_Object::reshape_pdof_values(), pdof value vector is empty" );

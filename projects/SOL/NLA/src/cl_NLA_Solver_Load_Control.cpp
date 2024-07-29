@@ -86,28 +86,22 @@ namespace moris
 
                     break;
                 }
+                case sol::SolverLoadControlType::Linear:
+                {
+                    if ( check_load_step_requirement( aNonLinSolverManager ) )
+                    {
+                        mLoadStepCounter++;
+                        aLoadFactor = mInitialLoadFactor + ( 1.0 - mInitialLoadFactor ) * std::min( 1.0, static_cast< real >( mLoadStepCounter ) / static_cast< real >( mNumLoadSteps ) );
+
+                        // log load factor
+                        MORIS_LOG_INFO( "Updated load factor (Linear): %7.5e in load step %d", aLoadFactor, mLoadStepCounter );
+                    }
+
+                    break;
+                }
                 case sol::SolverLoadControlType::Exponential:
                 {
-                    real tRefNorm = 1.0;
-                    real tResNorm = 1.0;
-
-                    // use static residual if available
-                    if ( aNonLinSolverManager->get_compute_static_residual_flag() )
-                    {
-                        tRefNorm = aNonLinSolverManager->get_static_ref_norm();
-                        tResNorm = aNonLinSolverManager->get_static_residual_norm();
-                    }
-                    else
-                    {
-                        tRefNorm = aNonLinSolverManager->get_ref_norm();
-                        tResNorm = aNonLinSolverManager->get_residual_norm();
-                    }
-
-                    // compute relative residual
-                    real tRelResNorm = tResNorm / tRefNorm;
-
-                    // update load factor if requirement on relative residual is satisfied
-                    if ( tRelResNorm < mRelativeResidualDropThreshold )
+                    if ( check_load_step_requirement( aNonLinSolverManager ) )
                     {
                         mLoadStepCounter++;
                         aLoadFactor = mInitialLoadFactor
@@ -129,6 +123,32 @@ namespace moris
                     MORIS_ERROR( false, "Solver_Load_Control::eval - strategy not implemented.\n" );
                 }
             }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------------------
+
+        bool Solver_Load_Control::check_load_step_requirement( Nonlinear_Solver* aNonLinSolverManager )
+        {
+            real tRefNorm = 1.0;
+            real tResNorm = 1.0;
+
+            // use static residual if available
+            if ( aNonLinSolverManager->get_compute_static_residual_flag() )
+            {
+                tRefNorm = aNonLinSolverManager->get_static_ref_norm();
+                tResNorm = aNonLinSolverManager->get_static_residual_norm();
+            }
+            else
+            {
+                tRefNorm = aNonLinSolverManager->get_ref_norm();
+                tResNorm = aNonLinSolverManager->get_residual_norm();
+            }
+
+            // compute relative residual
+            real tRelResNorm = tResNorm / tRefNorm;
+
+            // update load factor if requirement on relative residual is satisfied
+            return tRelResNorm < mRelativeResidualDropThreshold;
         }
     }    // namespace NLA
 }    // namespace moris

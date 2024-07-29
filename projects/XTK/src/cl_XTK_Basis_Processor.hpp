@@ -15,7 +15,6 @@
 #include "cl_Matrix.hpp"
 #include "cl_Parameter_List.hpp"
 
-
 using namespace moris;
 
 namespace moris::xtk
@@ -128,7 +127,6 @@ namespace moris::xtk
 
         // ----------------------------------------------------------------------------------
 
-
         /**
          * @brief This function generates basis block for schwartz smoothing methods using the assigned criteria
          *
@@ -145,7 +143,6 @@ namespace moris::xtk
          * This is an optimized version of the volume since
          *
          */
-
 
         void
         construct_follower_basis_using_basis_support( moris_index aMeshIndex );
@@ -167,7 +164,6 @@ namespace moris::xtk
          */
         void
         construct_follower_basis_using_volume( moris_index aMeshIndex );
-
 
         // ----------------------------------------------------------------------------------
 
@@ -366,7 +362,6 @@ namespace moris::xtk
          * @param aNotOwnedSpgsToProcs list of SPGS indices for each neighboring processor ( identifier that needs to be process the data upon receiving from neighboring processors )
          * @param aSPGIDs SPG ids that data is needed for to be able to extended the basis ( identifier that needs to be generated to request from neighboring processors )
          */
-
 
         void
         prepare_requests_for_not_owned_root_spg_projections( moris_index aMeshIndex,

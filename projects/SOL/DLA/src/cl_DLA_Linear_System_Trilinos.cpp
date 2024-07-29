@@ -115,10 +115,8 @@ Linear_System_Trilinos::Linear_System_Trilinos(
 
     aFreeMap->build_dof_translator( aInput->get_my_local_global_overlapping_map(), false );
 
-
     // Build matrix
     mMat = tMatFactory.create_matrix( aInput, aFreeMap, true, true );
-
 
     uint tNumRHS = aInput->get_num_rhs();
 
@@ -134,7 +132,6 @@ Linear_System_Trilinos::Linear_System_Trilinos(
     tic tTimer;
 
     mSolverInterface->build_graph( mMat );
-
 
     real tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
     MORIS_LOG_INFO( "Building matrix graph on processor %u took %5.3f seconds.", (uint)par_rank(), (double)tElapsedTime / 1000 );

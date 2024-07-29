@@ -35,7 +35,7 @@
 // namespace moris::xtk
 // {
 // moris::real
-// OctreeSphereGeom( const Matrix< DDRMat >& aPoint, const Cell< real* >& aParameters )
+// OctreeSphereGeom( const Matrix< DDRMat >& aPoint, const Vector< real* >& aParameters )
 // {
 //     const moris::real tCenterX = 1.0;
 //     const moris::real tCenterY = 1.0;
@@ -54,7 +54,7 @@
 // }
 
 // moris::real
-// OctreeSphereGeom2( const Matrix< DDRMat >& aPoint, const Cell< real* >& aParameters )
+// OctreeSphereGeom2( const Matrix< DDRMat >& aPoint, const Vector< real* >& aParameters )
 // {
 //     const moris::real tCenterX = 0.5;
 //     const moris::real tCenterY = 0.5;
@@ -73,7 +73,7 @@
 // }
 
 // moris::real
-// OctreeSphereGeom3( const Matrix< DDRMat >& aPoint, const Cell< real* >& aParameters )
+// OctreeSphereGeom3( const Matrix< DDRMat >& aPoint, const Vector< real* >& aParameters )
 // {
 //     const moris::real tCenterX = 0.0;
 //     const moris::real tCenterY = 0.0;
@@ -151,10 +151,10 @@
 
 //     moris::Matrix< DDRMat >
 //                                                    tGoldCoords( 0, 0 );
-//     Cell< moris_index >                            tGoldNumVertex( 0 );
+//     Vector< moris_index >                            tGoldNumVertex( 0 );
 //     std::unordered_map< moris_index, moris_index > tGoldVertexMap;
 //     moris::Matrix< IndexMat >               tGoldCellConn( 0, 0 );
-//     Cell< moris_index >                            tGoldNumCells( 0 );
+//     Vector< moris_index >                            tGoldNumCells( 0 );
 //     std::unordered_map< moris_index, moris_index > tGoldCellMap;
 
 //     if ( par_size() == 1 )

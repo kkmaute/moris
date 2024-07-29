@@ -160,7 +160,6 @@ namespace moris
         aPropMatrix = aParameters( 0 );
     }
 
-
     // initial structure
     void
     Func_Initial_Condition_Struct(
@@ -202,7 +201,6 @@ namespace moris
         return aReturnValue;
     }
 
-
     /* ------------------------------------------------------------------------ */
     // PARAMETER LISTS
     /* ------------------------------------------------------------------------ */
@@ -243,7 +241,6 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "truncate_bsplines", 1 );
 
         tParameterlist( 0 )( 0 ).set( "use_number_aura", 1 );
-
 
         tParameterlist( 0 )( 0 ).set( "initial_refinement", "0" );
 
@@ -638,7 +635,6 @@ namespace moris
         aParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
         aParameterlist( 3 )( 0 ).set( "NLA_DofTypes", "UX,UY" );
 
-
         aParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
         aParameterlist( 4 )( 0 ).set( "TSA_Num_Time_Steps", tTSA_Num_Time_Steps );
         aParameterlist( 4 )( 0 ).set( "TSA_Time_Frame", tTSA_Time_Frame );
@@ -649,7 +645,6 @@ namespace moris
         aParameterlist( 5 )( 0 ).set( "TSA_Output_Indices", "0" );
         aParameterlist( 5 )( 0 ).set( "TSA_Output_Criteria", "Output_Criterion" );
         aParameterlist( 5 )( 0 ).set( "TSA_time_level_per_type", "UX,1;UY,1" );
-
 
         aParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
         aParameterlist( 6 )( 0 ).set( "SOL_save_operator_to_matlab", "MassMat" );
@@ -691,7 +686,6 @@ namespace moris
         aParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::PETSC );
         aParameterlist( 7 )( 0 ).set( "PCType", "mumps" );
 
-
         aParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
         aParameterlist( 1 )( 0 ).set( "DLA_Linear_solver_algorithms", "1" );
         aParameterlist( 1 )( 0 ).set( "RHS_Matrix_Type", "MassMat" );    // MassMat or IdentityMat
@@ -705,7 +699,6 @@ namespace moris
         aParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
         aParameterlist( 3 )( 0 ).set( "NLA_DofTypes", "UX,UY" );
 
-
         aParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
         aParameterlist( 4 )( 0 ).set( "TSA_Num_Time_Steps", tTSA_Num_Time_Steps );
         aParameterlist( 4 )( 0 ).set( "TSA_Time_Frame", tTSA_Time_Frame );
@@ -716,7 +709,6 @@ namespace moris
         aParameterlist( 5 )( 0 ).set( "TSA_Output_Indices", "0" );
         aParameterlist( 5 )( 0 ).set( "TSA_Output_Criteria", "Output_Criterion" );
         aParameterlist( 5 )( 0 ).set( "TSA_time_level_per_type", "UX,1;UY,1" );
-
 
         aParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
         // aParameterlist( 6 )( 0 ).set( "SOL_save_operator_to_matlab", "MassMat" );

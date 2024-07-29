@@ -18,7 +18,7 @@ moris::Mat< moris::real > testCoords = {
         {1.0, 0.0   },    // glb id 18 // local cyl
         {2.0, 0.0   } };  // glb id 19 // local cyl
 
-moris::Cell<moris::Loc_Coord_Sys*> testVector =
+Vector<moris::Loc_Coord_Sys*> testVector =
     { &CrtSys, &CrtSys, &CrtSys, &CrtSys, &CrtSys,
       &CrtSys, &CylSys, &CylSys, &CylSys, &CylSys };
 

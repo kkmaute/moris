@@ -15,7 +15,6 @@
 #include "cl_Vector.hpp"
 #include "cl_HMR_Background_Element_Base.hpp"
 
-
 // forward declaration of the hmr mesh
 namespace moris::hmr
 {
@@ -103,7 +102,6 @@ namespace moris::xtk
 
         luint
         get_global_domain_id_of_cell( const mtk::Cell* aCell );
-
 
         //------------------------------------------------------------------------------------
 

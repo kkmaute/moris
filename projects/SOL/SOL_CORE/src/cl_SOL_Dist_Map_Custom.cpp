@@ -36,7 +36,6 @@ namespace moris
         // STEP 4: Allgather the data
         MPI_Allgatherv( aMyGlobalOwnedIds.data(), tSendCount, MPI_INT, tRecvBuf.memptr(), tRecvCounts.memptr(), tDispls.memptr(), MPI_INT, MPI_COMM_WORLD );
 
-
         // now put the data in a map
         for ( sint i = 0; i < tTotalCount; i++ )
         {
@@ -125,7 +124,6 @@ namespace moris
         // STEP 4: Allgather the data
         MPI_Allgatherv( aMyGlobalOwnedIds.data(), tSendCount, MPI_INT, tRecvBuf.memptr(), tRecvCounts.memptr(), tDispls.memptr(), MPI_INT, MPI_COMM_WORLD );
 
-
         // now put the data in a map
         for ( sint i = 0; i < tTotalCount; i++ )
         {
@@ -162,7 +160,6 @@ namespace moris
             id = (uint)mApplicationToPetsc[ id ];
         }
     }
-
 
     Matrix< DDSMat >
 Dist_Map_Custom::map_from_moris_ids_to_indices( const Matrix< DDSMat >& aGlobalIds )

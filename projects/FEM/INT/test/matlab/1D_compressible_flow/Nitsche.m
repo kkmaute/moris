@@ -130,9 +130,3 @@ matlabFunction(Resvec,Jacmat,'File','nitsche_func.m','Optimize',false, ...
 % matlabFunction(Resvec,Jacmat,JacmatAna,'File','nitsche_func.m','Optimize',false, ...
 %         'Vars',{dofvec,xA,xB,t1,t2,normal,beta,gam});
     
-
-
-
-
-
-

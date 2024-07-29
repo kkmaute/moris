@@ -210,7 +210,6 @@ for it=1:numstp
         sqrt(dvel)/norm(nvel)*100, ...
         sqrt(dtmp)/norm(ntmp)*100);
  
-    
     % compute local Mach and Reynolds numbers
     mach=zeros(numnod,1);
     reyn=zeros(numnod,1);
@@ -264,5 +263,4 @@ for it=1:numstp
     getframe(h);
     
 end
-
 

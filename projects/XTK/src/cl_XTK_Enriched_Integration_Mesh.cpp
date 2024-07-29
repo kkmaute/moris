@@ -1139,7 +1139,7 @@ namespace moris::xtk
             uint tOptIter = gLogger.get_opt_iteration();
 
             // set name
-            std::string tOptIterStr = std::to_string( tOptIter );
+            std::string tOptIterStr   = std::to_string( tOptIter );
             std::string tMeshFileName = tOutputFile + ".e-s." + std::string( 4 - tOptIterStr.length(), '0' ) + tOptIterStr;
 
             // get optimization iteration ( function returns zero if no optimization )
@@ -1172,7 +1172,7 @@ namespace moris::xtk
                 this->create_basis_support_fields( tProbeSpheres );
             }
 
-            // Cell<std::string> tEnrichmentFieldNames =  mModel->get_basis_enrichment().get_cell_enrichment_field_names();
+            // Vector<std::string> tEnrichmentFieldNames =  mModel->get_basis_enrichment().get_cell_enrichment_field_names();
             // tEnrichment.write_cell_enrichment_to_fields(tEnrichmentFieldNames, this);
 
             // place an element field in the mesh
@@ -3510,7 +3510,6 @@ namespace moris::xtk
                 Vector< moris_index >           tBinsForClusters( tNumClustersOnSpg, MORIS_INDEX_MAX );
                 map< moris_index, moris_index > tInterfaceClusterGroups;
                 map< moris_index, moris_index > tBoundaryClusterGroups;
-
 
                 // establish for which side ordinals and for which neighbor SPGs side cluster groups will need to be constructed
                 for ( uint iClusterOnSpg = 0; iClusterOnSpg < tNumClustersOnSpg; iClusterOnSpg++ )

@@ -31,7 +31,6 @@ domainRotXMax =  3.0;
 domainRotYMin = -3.0;
 domainRotYMax =  3.0;
 
-
 % Rotational speed in radian per second
 omega = 2 * pi;
 

@@ -54,7 +54,6 @@ for i=1:nproc
     ins=inx;
 end
 
-
 xplane = 0; 
 yplane = NaN;
 
@@ -71,7 +70,6 @@ for i = 1:numfenod
     node(i).elems = find(sum(ismember(fetopo(:,2:nnpe),i),2)>0);
     node(i).origInd = i;
 end
-
 
 % try to do x plane reflection
 if ~isnan(xplane)
@@ -129,11 +127,8 @@ for i = (numfenod+1):numTotalNodes
     end
 end
 
-
-
 % elem(maxNumElem).topo = [];
 % elemNodes = zeros(maxNumElem,1);
-
 
 % maxNodePerElem = 0;
 % for i = 1:numTotalNodes
@@ -162,7 +157,6 @@ for i = 1:maxNumElem
 end
 
 fetopoNew = [(1:maxNumElem)',fetopoNew];
-
 
 fecoordNew = zeros(numTotalNodes,3);
 nodeInd = zeros(numTotalNodes,1);
@@ -220,7 +214,6 @@ parfor ip=1:nproc
         
          ww=1/sum(ww)*ww; 
          
-         
          % combine ghost with their original nodes
          nodlistNew = unique(nodeInd(nodlist));
          nndlNew = length(nodlistNew);
@@ -243,7 +236,6 @@ parfor ip=1:nproc
                 fprintf(fid,'%1.7e ',wwNew(ii));
             end
 
-
             if ~((ip==nproc)&&(ik==nnpp(ip)))
                 fprintf(fid,'\n');
             end
@@ -256,7 +248,6 @@ parfor ip=1:nproc
     end
     
 end
-
 
 if saveFile
     cmd=['rm -f ',folderName,'disttable'];

@@ -23,6 +23,11 @@ set(MTK_TPL_DEPENDENCIES
     "trilinos"
     )
 
+# if ArborX is used, add it to the list of dependencies
+if(MORIS_HAVE_ARBORX)
+    list(APPEND MTK_TPL_DEPENDENCIES "arborx")
+endif()
+
 # Make sure needed moris libraries are built
 include(${MORIS_DEPENDS_DIR}/LINALG_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/COM_Depends.cmake)

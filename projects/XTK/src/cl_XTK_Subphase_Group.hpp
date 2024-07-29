@@ -106,7 +106,6 @@ namespace moris::xtk
             return mLocalIndex;
         }
 
-
         moris_index
         get_bspline_cell_index() const
         {

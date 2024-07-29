@@ -13,23 +13,23 @@
 #include "assert.hpp"
 
 #define protected public
-#define private   public
-//FEM//INT//src
+#define private public
+// FEM//INT//src
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IWG.hpp"
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Cluster.hpp"
 #undef protected
 #undef private
-//MTK/src
+// MTK/src
 #include "cl_MTK_Enums.hpp"
-//FEM//INT/src
+// FEM//INT/src
 #include "cl_FEM_Enums.hpp"
 #include "cl_FEM_IWG_Factory.hpp"
 #include "cl_FEM_CM_Factory.hpp"
 #include "cl_FEM_SP_Factory.hpp"
 #include "FEM_Test_Proxy/cl_FEM_Inputs_for_Elasticity_UT.cpp"
-//LINALG/src
+// LINALG/src
 #include "op_equal_equal.hpp"
 #include "fn_norm.hpp"
 
@@ -55,17 +55,19 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
 
     // create list of interpolation orders
     Vector< mtk::Interpolation_Order > tInterpolationOrders = {
-            mtk::Interpolation_Order::LINEAR,
-            mtk::Interpolation_Order::QUADRATIC,
-            mtk::Interpolation_Order::CUBIC };
+        mtk::Interpolation_Order::LINEAR,
+        mtk::Interpolation_Order::QUADRATIC,
+        mtk::Interpolation_Order::CUBIC
+    };
 
     // create list of integration orders
     Vector< mtk::Integration_Order > tIntegrationOrders = {
-            mtk::Integration_Order::QUAD_2x2,
-            mtk::Integration_Order::HEX_2x2x2 };
+        mtk::Integration_Order::QUAD_2x2,
+        mtk::Integration_Order::HEX_2x2x2
+    };
 
     // create list with number of coeffs
-    Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
+    Matrix< DDRMat > tNumCoeffs = { { 8, 18, 32 }, { 16, 54, 128 } };
 
     // dof type list
     Vector< Vector< MSI::Dof_Type > > tDispDofTypes = { { MSI::Dof_Type::UX } };
@@ -73,23 +75,23 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
     // init IWG
     //------------------------------------------------------------------------------
     // create the properties
-    std::shared_ptr< fem::Property > tPropLeaderYoungModulus = std::make_shared< fem::Property > ();
-    tPropLeaderYoungModulus->set_parameters( { {{ 1.0 }} } );
+    std::shared_ptr< fem::Property > tPropLeaderYoungModulus = std::make_shared< fem::Property >();
+    tPropLeaderYoungModulus->set_parameters( { { { 1.0 } } } );
     tPropLeaderYoungModulus->set_val_function( tConstValFunc_Elast );
-    //tPropLeaderYoungModulus->set_dof_type_list( { tDispDofTypes } );
-    //tPropLeaderYoungModulus->set_val_function( tUXFIValFunc_Elast );
-    //tPropLeaderYoungModulus->set_dof_derivative_functions( { tUXFIDerFunc_Elast } );
+    // tPropLeaderYoungModulus->set_dof_type_list( { tDispDofTypes } );
+    // tPropLeaderYoungModulus->set_val_function( tUXFIValFunc_Elast );
+    // tPropLeaderYoungModulus->set_dof_derivative_functions( { tUXFIDerFunc_Elast } );
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPGhost =
             tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
-    tSPGhost->set_parameters( {{{ 100.0 }} });
+    tSPGhost->set_parameters( { { { 100.0 } } } );
     tSPGhost->set_property( tPropLeaderYoungModulus, "Material", mtk::Leader_Follower::LEADER );
 
     // create a dummy fem cluster and set it to SP
-    fem::Cluster * tCluster = new fem::Cluster();
+    fem::Cluster* tCluster = new fem::Cluster();
     tSPGhost->set_cluster( tCluster );
 
     // define the IWGs
@@ -105,8 +107,8 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
     // init set info
     //------------------------------------------------------------------------------
     // set a fem set pointer
-    MSI::Equation_Set * tSet = new fem::Set();
-    static_cast<fem::Set*>(tSet)->set_set_type( fem::Element_Type::DOUBLE_SIDESET );
+    MSI::Equation_Set* tSet = new fem::Set();
+    static_cast< fem::Set* >( tSet )->set_set_type( fem::Element_Type::DOUBLE_SIDESET );
     tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
@@ -121,11 +123,11 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
     tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
 
     // set size and populate the set follower dof type map
-    tIWG->mSet->mFollowerDofTypeMap .set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mFollowerDofTypeMap ( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
+    tIWG->mSet->mFollowerDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mFollowerDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
 
     // loop on the space dimension
-    for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
+    for ( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
     {
         // create and set normal
         Matrix< DDRMat > tNormal( iSpaceDim, 1, 0.5 );
@@ -135,15 +137,15 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
         // set geometry inputs
         //------------------------------------------------------------------------------
         // switch on space dimension
-        switch( iSpaceDim )
+        switch ( iSpaceDim )
         {
-            case 2 :
+            case 2:
             {
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::QUAD;
                 break;
             }
-            case 3 :
+            case 3:
             {
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::HEX;
@@ -157,7 +159,7 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
         }
 
         // loop on the interpolation order
-        for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
+        for ( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
         {
             // create an interpolation order
             mtk::Interpolation_Order tGIInterpolationOrder = tInterpolationOrders( iInterpOrder - 1 );
@@ -175,7 +177,7 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
             Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
 
             // create time coeff tHat
-            Matrix< DDRMat > tTHat = {{ 0.0 }, { 1.0 }};
+            Matrix< DDRMat > tTHat = { { 0.0 }, { 1.0 } };
 
             Matrix< DDRMat > tXHat;
             fill_xhat_Elast( tXHat, iSpaceDim, iInterpOrder );
@@ -213,11 +215,11 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
             uint tNumCoeff = tNumCoeffs( iSpaceDim - 2, iInterpOrder - 1 );
 
             // get number of dof per type
-            int tNumDofDisp  = tNumCoeff * iSpaceDim;
+            int tNumDofDisp = tNumCoeff * iSpaceDim;
             int tNumDofP    = tNumCoeff;
 
-            //create a space time interpolation rule
-            mtk::Interpolation_Rule tFIRule ( tGeometryType,
+            // create a space time interpolation rule
+            mtk::Interpolation_Rule tFIRule( tGeometryType,
                     mtk::Interpolation_Type::LAGRANGE,
                     tInterpolationOrder,
                     mtk::Interpolation_Type::LAGRANGE,
@@ -228,7 +230,7 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
             fill_uhat_Elast( tLeaderDOFHatDisp, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tLeaderFIs( tDispDofTypes.size() );
+            Vector< Field_Interpolator* > tLeaderFIs( tDispDofTypes.size() );
 
             // create the field interpolator displacement
             tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
@@ -239,7 +241,7 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
             fill_uhat_Elast( tFollowerDOFHatDisp, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tFollowerFIs( tDispDofTypes.size() );
+            Vector< Field_Interpolator* > tFollowerFIs( tDispDofTypes.size() );
 
             // create the field interpolator displacement
             tFollowerFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
@@ -252,8 +254,9 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
 
             // set size and fill the set jacobian assembly map
             Matrix< DDSMat > tJacAssembly = {
-                    { 0, tNumDofDisp - 1 },
-                    { tNumDofDisp, 2 * tNumDofDisp - 1 } };
+                { 0, tNumDofDisp - 1 },
+                { tNumDofDisp, 2 * tNumDofDisp - 1 }
+            };
             tIWG->mSet->mJacDofAssemblyMap.resize( 2 );
             tIWG->mSet->mJacDofAssemblyMap( 0 ) = tJacAssembly;
             tIWG->mSet->mJacDofAssemblyMap( 1 ) = tJacAssembly;
@@ -267,25 +270,25 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
             tIWG->get_global_dof_type_list();
 
             // populate the requested leader dof type
-            tIWG->mRequestedLeaderGlobalDofTypes = tDispDofTypes;
-            tIWG->mRequestedFollowerGlobalDofTypes  = tDispDofTypes;
+            tIWG->mRequestedLeaderGlobalDofTypes   = tDispDofTypes;
+            tIWG->mRequestedFollowerGlobalDofTypes = tDispDofTypes;
 
             // create a field interpolator manager
-            Vector< Vector< enum gen::PDV_Type > > tDummyDv;
+            Vector< Vector< enum gen::PDV_Type > >   tDummyDv;
             Vector< Vector< enum mtk::Field_Type > > tDummyField;
-            Field_Interpolator_Manager tLeaderFIManager( tDispDofTypes, tDummyDv, tDummyField, tSet );
-            Field_Interpolator_Manager tFollowerFIManager( tDispDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager               tLeaderFIManager( tDispDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager               tFollowerFIManager( tDispDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tLeaderFIManager.mFI = tLeaderFIs;
-            tLeaderFIManager.mIPGeometryInterpolator = &tGI;
-            tLeaderFIManager.mIGGeometryInterpolator = &tGI;
-            tFollowerFIManager.mFI = tFollowerFIs;
+            tLeaderFIManager.mFI                       = tLeaderFIs;
+            tLeaderFIManager.mIPGeometryInterpolator   = &tGI;
+            tLeaderFIManager.mIGGeometryInterpolator   = &tGI;
+            tFollowerFIManager.mFI                     = tFollowerFIs;
             tFollowerFIManager.mIPGeometryInterpolator = &tGI;
             tFollowerFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tIWG->mSet->mLeaderFIManager = &tLeaderFIManager;
+            tIWG->mSet->mLeaderFIManager   = &tLeaderFIManager;
             tIWG->mSet->mFollowerFIManager = &tFollowerFIManager;
 
             // set IWG field interpolator manager
@@ -294,7 +297,7 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
 
             // loop over integration points
             uint tNumGPs = tIntegPoints.n_cols();
-            for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
+            for ( uint iGP = 0; iGP < tNumGPs; iGP++ )
             {
                 // reset IWG evaluation flags
                 tIWG->reset_eval_flags();
@@ -333,9 +336,9 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
                         true );
 
                 // print for debug
-                if( !tCheckJacobian )
+                if ( !tCheckJacobian )
                 {
-                    std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<" iGP "<<iGP<<std::endl;
+                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << " iGP " << iGP << std::endl;
                 }
 
                 // require check is true
@@ -347,5 +350,4 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
             tFollowerFIs.clear();
         }
     }
-}/* END_TEST_CASE */
-
+} /* END_TEST_CASE */

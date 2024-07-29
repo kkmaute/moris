@@ -341,7 +341,6 @@ namespace moris::xtk
 
         std::copy( mElementIndicesInBlock( aSetIndex ).begin(), mElementIndicesInBlock( aSetIndex ).end(), tElementIndices.begin() );
 
-
         return tElementIndices;
     }
 
@@ -1255,7 +1254,6 @@ namespace moris::xtk
     }
 
     // ----------------------------------------------------------------------------
-
 
     moris_index
     Enriched_Interpolation_Mesh::get_enr_basis_id_from_enr_basis_index(
@@ -3091,7 +3089,6 @@ namespace moris::xtk
             }
         }
 
-
         // iterate through primary cells
         for ( const auto& iUnzippedIPCell : mEnrichedInterpCells )
         {
@@ -3315,7 +3312,6 @@ namespace moris::xtk
                 return this->get_mtk_vertex( aEntityIndex ).get_owner();
             }
 
-
             default:
                 return 0;
                 break;
@@ -3488,7 +3484,6 @@ namespace moris::xtk
                 this->create_basis_function_fields( tProbeSpheres );
             }
         }
-
 
         Vector< std::string > tNodeFields = this->get_field_names( mtk::EntityRank::NODE );
         writer.set_nodal_fields( tNodeFields );

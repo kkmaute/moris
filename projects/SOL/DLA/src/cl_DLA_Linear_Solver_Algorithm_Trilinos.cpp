@@ -46,7 +46,6 @@ void Linear_Solver_Algorithm_Trilinos::compute_operator_condition_number_with_mo
         MORIS_ASSERT( false, "Computation mode fore the condition number not supported" );
     }
 
-
     // output the condition number
     MORIS_LOG_INFO( "Condition number of the operator is: %f ", tConditionNumber );
 }

@@ -25,7 +25,8 @@ namespace moris
     namespace sol
     {
         class SOL_Warehouse;
-    }
+        class Dist_Vector;
+    }    // namespace sol
     namespace tsa
     {
         class Time_Solver_Algorithm;
@@ -95,7 +96,7 @@ namespace moris
 
           public:
             Nonlinear_Solver(
-                    const Parameter_List& aSolverParameterList = prm::create_nonlinear_solver_parameter_list(),
+                    const Parameter_List& aSolverParameterList    = prm::create_nonlinear_solver_parameter_list(),
                     const Parameter_List& aAlgorithmParameterList = prm::create_nonlinear_solver_parameter_list() );
 
             //--------------------------------------------------------------------------------------------------
@@ -108,7 +109,7 @@ namespace moris
              */
             Nonlinear_Solver(
                     Vector< std::shared_ptr< Nonlinear_Algorithm > >& aNonlinearSolverList,
-                    const Parameter_List& aSolverParameterList = prm::create_nonlinear_solver_parameter_list() );
+                    const Parameter_List&                             aSolverParameterList = prm::create_nonlinear_solver_parameter_list() );
 
             //--------------------------------------------------------------------------------------------------
 
@@ -128,7 +129,7 @@ namespace moris
              */
             void set_dof_type_list(
                     const Vector< enum MSI::Dof_Type > aStaggeredDofTypeList,
-                    const sint                       aLevel = 0 );
+                    const sint                         aLevel = 0 );
 
             //--------------------------------------------------------------------------------------------------
 
@@ -454,7 +455,6 @@ namespace moris
             //--------------------------------------------------------------------------------------------------
 
             Nonlinear_Problem* get_my_nonlin_problem();
-
         };
     }    // namespace NLA
 }    // namespace moris
