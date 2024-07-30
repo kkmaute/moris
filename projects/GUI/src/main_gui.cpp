@@ -19,9 +19,18 @@ namespace moris
     Moris_Gui::Moris_Gui( QWidget *parent )
             : QWidget( parent )
     {
-        mParameterLists = read();
-        // mLayout is the main layout of the GUI
-        // mSidePanel is the side panel layout where the tree widget and buttons are placed
+        // load the parameter list from the xml file
+        mLibrary.load_parameter_list( "/home/sanghvi/Downloads/Parameter_Receipt.xml", File_Type::XML_FILE );
+
+        // Update mParameterLists (sitting in cl_Library_IO) with the parameter lists from the xml file
+        mLibrary.load_parameters_from_xml();
+
+        // Get mParameterLists from cl_Library_IO
+        //mLibrary.get_parameter_lists() = mLibrary.get_parameter_lists();
+
+        //  mLayout is the main layout of the GUI
+        //  mSidePanel is the side panel layout where the tree widget and buttons are placed
+
         mLayout->addLayout( mSidePanel );
         mTreeWidget->setColumnCount( 1 );
 
@@ -47,7 +56,7 @@ namespace moris
         mQTreeWidgetSubChildren.resize( mProjectNames.size() );
 
 
-        for ( uint iRoot = 0; iRoot < mProjectNames.size(); iRoot++ )
+        for ( uint iRoot = 0; iRoot < mLibrary.get_parameter_lists().size(); iRoot++ )
         {
             // Get the number of sub-parameter lists in the module
             tStringList.clear();
@@ -90,9 +99,8 @@ namespace moris
                 if ( iRoot == (uint)( moris::Parameter_List_Type::OPT ) && iChildren == (uint)( moris::OPT_SubModule::OPTIMIZATION_PROBLEMS ) )
                 {
                     // Setting the OPT/Optimization Problems form visible upon construction of the GUI
-                    std::cout << mParameterLists( iRoot )( iChildren ).size() << std::endl;
-
-                    mTreeWidgetChildren[ iRoot ][ iChildren ]->add_elements( mParameterLists( iRoot )( iChildren )( 0 ) );
+                    std::cout << mLibrary.get_parameter_lists()( iRoot )( iChildren ).size() << std::endl;
+                    mTreeWidgetChildren[ iRoot ][ iChildren ]->add_elements( mLibrary.get_parameter_lists()( iRoot )( iChildren )( 0 ) );
                     mTreeWidgetChildren[ iRoot ][ iChildren ]->setCountProps( 1 );
                     mTreeWidgetChildren[ iRoot ][ iChildren ]->set_form_visible( true );
                     mOldItem = mQTreeWidgetChildren[ iRoot ][ iChildren ];
@@ -101,13 +109,37 @@ namespace moris
                 {
                     // Adding the OPT/Algorithms to its combo box
                     mTreeWidgetChildren[ iRoot ][ iChildren ]->setSubFormCheck( true );
+                    // Hold
+                    mTreeWidgetChildren[ iRoot ][ iChildren ]->setSpecialFormStatus( true );
                     mTreeWidgetChildren[ iRoot ][ iChildren ]->setComboBoxItems( { "gcmma", "lbfgs", "sql", "sweep" } );
                     mTreeWidgetChildren[ iRoot ][ iChildren ]->set_form_visible( false );
+
+                    // If there are more than one algorithms from the xml file, add the respective forms to the GUI
+                    if ( mLibrary.get_parameter_lists()( iRoot )( iChildren ).size() > 1 )
+                    {
+                        for ( uint i = 0; i < mLibrary.get_parameter_lists()( iRoot )( iChildren ).size(); i++ )
+                        {
+                            mQTreeWidgetSubChildren[ iRoot ][ iChildren ].append( new QTreeWidgetItem( mQTreeWidgetChildren[ iRoot ][ iChildren ] ) );
+                            mQTreeWidgetChildren[ iRoot ][ iChildren ]->addChild( mQTreeWidgetSubChildren[ iRoot ][ iChildren ].last() );
+                            mQTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setText( 0, "Algorithm " + QString::number( i ) );
+
+                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].append( new Moris_Tree_Widget_Item() );
+                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setupScrollArea();
+                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setIndex( { iRoot, iChildren, (uint)mQTreeWidgetSubChildren[ iRoot ][ iChildren ].size() - 1 } );
+                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setSubFormType( -1 );
+                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->add_elements( mLibrary.get_parameter_lists()( iRoot )( iChildren )( i ) );
+                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->set_form_visible( false );
+                            mTreeWidget->setItemWidget( mQTreeWidgetSubChildren[ iRoot ][ iChildren ].last(), 0, mTreeWidgetSubChildren[ iRoot ][ iChildren ].last() );
+                            mLayout->addWidget( mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->getScrollArea() );
+                        }
+                    }
                 }
                 else if ( iRoot == (uint)( moris::Parameter_List_Type::GEN ) && iChildren == (uint)( moris::GEN_SubModule::GEOMETRIES ) )
                 {
                     // Adding the GEN/Geometries to its combo box
                     mTreeWidgetChildren[ iRoot ][ iChildren ]->setSubFormCheck( true );
+                    // Hold
+                    mTreeWidgetChildren[ iRoot ][ iChildren ]->setSpecialFormStatus( true );
                     QStringList tGENGeometriesList;
                     for ( uint iGeometries = 0; iGeometries < (uint)moris::gen::Geometry_Type_String::values.size(); iGeometries++ )
                     {
@@ -127,11 +159,32 @@ namespace moris
                     }
                     mTreeWidgetChildren[ iRoot ][ iChildren ]->setComboBoxItems( tGENGeometriesList );
                     mTreeWidgetChildren[ iRoot ][ iChildren ]->set_form_visible( false );
+
+                    if ( mLibrary.get_parameter_lists()( iRoot )( iChildren ).size() > 1 )
+                    {
+                        for ( uint i = 0; i < mLibrary.get_parameter_lists()( iRoot )( iChildren ).size(); i++ )
+                        {
+                            mQTreeWidgetSubChildren[ iRoot ][ iChildren ].append( new QTreeWidgetItem( mQTreeWidgetChildren[ iRoot ][ iChildren ] ) );
+                            mQTreeWidgetChildren[ iRoot ][ iChildren ]->addChild( mQTreeWidgetSubChildren[ iRoot ][ iChildren ].last() );
+                            mQTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setText( 0, "Geometry " + QString::number( i ) );
+
+                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].append( new Moris_Tree_Widget_Item() );
+                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setupScrollArea();
+                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setIndex( { iRoot, iChildren, (uint)mQTreeWidgetSubChildren[ iRoot ][ iChildren ].size() - 1 } );
+                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setSubFormType( -1 );
+                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->add_elements( mLibrary.get_parameter_lists()( iRoot )( iChildren )( i ) );
+                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->set_form_visible( false );
+                            mTreeWidget->setItemWidget( mQTreeWidgetSubChildren[ iRoot ][ iChildren ].last(), 0, mTreeWidgetSubChildren[ iRoot ][ iChildren ].last() );
+                            mLayout->addWidget( mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->getScrollArea() );
+                        }
+                    }
                 }
                 else if ( iRoot == (uint)( moris::Parameter_List_Type::SOL ) && iChildren == (uint)( moris::SOL_SubModule::LINEAR_ALGORITHMS ) )
                 {
                     // Adding the SOL/Linear Algorithms to its combo box
                     mTreeWidgetChildren[ iRoot ][ iChildren ]->setSubFormCheck( true );
+                    // Hold
+                    mTreeWidgetChildren[ iRoot ][ iChildren ]->setSpecialFormStatus( true );
                     QStringList tSolverList;
                     for ( uint iSolver = 0; iSolver < (uint)moris::sol::SolverType_String::values.size() - 1; iSolver++ )
                     {
@@ -139,12 +192,53 @@ namespace moris
                     }
                     mTreeWidgetChildren[ iRoot ][ iChildren ]->setComboBoxItems( tSolverList );
                     mTreeWidgetChildren[ iRoot ][ iChildren ]->set_form_visible( false );
+
+                    if ( mLibrary.get_parameter_lists()( iRoot )( iChildren ).size() > 1 )
+                    {
+                        for ( uint i = 0; i < mLibrary.get_parameter_lists()( iRoot )( iChildren ).size(); i++ )
+                        {
+                            mQTreeWidgetSubChildren[ iRoot ][ iChildren ].append( new QTreeWidgetItem( mQTreeWidgetChildren[ iRoot ][ iChildren ] ) );
+                            mQTreeWidgetChildren[ iRoot ][ iChildren ]->addChild( mQTreeWidgetSubChildren[ iRoot ][ iChildren ].last() );
+                            mQTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setText( 0, "Solver " + QString::number( i ) );
+
+                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].append( new Moris_Tree_Widget_Item() );
+                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setupScrollArea();
+                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setIndex( { iRoot, iChildren, (uint)mQTreeWidgetSubChildren[ iRoot ][ iChildren ].size() - 1 } );
+                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setSubFormType( -1 );
+                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->add_elements( mLibrary.get_parameter_lists()( iRoot )( iChildren )( i ) );
+                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->set_form_visible( false );
+                            mTreeWidget->setItemWidget( mQTreeWidgetSubChildren[ iRoot ][ iChildren ].last(), 0, mTreeWidgetSubChildren[ iRoot ][ iChildren ].last() );
+                            mLayout->addWidget( mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->getScrollArea() );
+                        }
+                    }
                 }
                 else
                 {
-                    // Adding the parameter_list elements to all the forms and setting the visibility to false
-                    mTreeWidgetChildren[ iRoot ][ iChildren ]->add_elements( mParameterLists( iRoot )( iChildren )( 0 ) );
-                    mTreeWidgetChildren[ iRoot ][ iChildren ]->setCountProps( 1 );
+                    if ( mLibrary.get_parameter_lists()( iRoot )( iChildren ).size() > 1 )
+                    {
+                        mTreeWidgetChildren[ iRoot ][ iChildren ]->setSubFormCheck( true );
+                        for ( uint i = 0; i < mLibrary.get_parameter_lists()( iRoot )( iChildren ).size(); i++ )
+                        {
+                            mQTreeWidgetSubChildren[ iRoot ][ iChildren ].append( new QTreeWidgetItem( mQTreeWidgetChildren[ iRoot ][ iChildren ] ) );
+                            mQTreeWidgetChildren[ iRoot ][ iChildren ]->addChild( mQTreeWidgetSubChildren[ iRoot ][ iChildren ].last() );
+                            mQTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setText( 0, QString::fromStdString( get_inner_sub_parameter_list_name( tModule, iChildren ) ) + QString::number( i ) );
+                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].append( new Moris_Tree_Widget_Item() );
+                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setupScrollArea();
+                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setIndex( { iRoot, iChildren, (uint)mQTreeWidgetSubChildren[ iRoot ][ iChildren ].size() - 1 } );
+                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setSubFormType( -1 );
+                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->add_elements( mLibrary.get_parameter_lists()( iRoot )( iChildren )( i ) );
+                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->set_form_visible( false );
+                            //mTreeWidgetChildren[ iRoot ][ iChildren ]->addSubFormCountProps();
+                            mTreeWidget->setItemWidget( mQTreeWidgetSubChildren[ iRoot ][ iChildren ].last(), 0, mTreeWidgetSubChildren[ iRoot ][ iChildren ].last() );
+                            mLayout->addWidget( mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->getScrollArea() );
+                        }
+                    }
+                    else
+                    {
+                        // Adding the parameter_list elements to all the forms and setting the visibility to false
+                        mTreeWidgetChildren[ iRoot ][ iChildren ]->add_elements( mLibrary.get_parameter_lists()( iRoot )( iChildren )( 0 ) );
+                        mTreeWidgetChildren[ iRoot ][ iChildren ]->setCountProps( 1 );
+                    }
                     mTreeWidgetChildren[ iRoot ][ iChildren ]->set_form_visible( false );
                 }
 
@@ -264,22 +358,34 @@ namespace moris
                 // Append a new QTreeWidgetItem and Moris_Tree_Widget_Item to the sub-children list of the current widget
                 // And set up the necessary elements
                 qDebug() << "Adding Sub Form";
-                mQTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].append( new QTreeWidgetItem( mQTreeWidgetChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ] ) );
-                mQTreeWidgetChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ]->addChild( mQTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last() );
-                mQTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last()->setText( 0, tCurrentWidget->getComboBox()->currentText() + QString::number( tCurrentWidget->getSubFormCountProps() ) );
 
+                mQTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].append( new QTreeWidgetItem( mQTreeWidgetChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ] ) );
                 mTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].append( new Moris_Tree_Widget_Item() );
 
+                mQTreeWidgetChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ]->addChild( mQTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last() );
+
                 // Reorganizing the count of the sub-forms from the item selection in the combo box
+                // All these depend on the item selection in the combo box
                 mTreeWidgetChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ]->addSubFormCountProps();
+                if ( mTreeWidgetChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ]->getComboBox()->count() == 0 )
+                {
+                    mQTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last()->setText( 0, mQTreeWidgetChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ]->text( 0 ) + QString::number( tCurrentWidget->getSubFormCountProps() ) );
+                    mTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last()->setSubFormType( -1 );
+                    mLibrary.get_parameter_lists()( tCurrentIndex[ 0 ] )( tCurrentIndex[ 1 ] ).push_back( create_parameter_list( (moris::Parameter_List_Type)tCurrentIndex[ 0 ], tCurrentIndex[ 1 ], 0 ) );
+                }
+                else
+                {
+                    mQTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last()->setText( 0, tCurrentWidget->getComboBox()->currentText() + QString::number( tCurrentWidget->getSubFormCountProps() ) );
+                    mTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last()->setSubFormType( tCurrentWidget->getComboBox()->currentIndex() );
+                    mLibrary.get_parameter_lists()( tCurrentIndex[ 0 ] )( tCurrentIndex[ 1 ] ).push_back( create_parameter_list( (moris::Parameter_List_Type)tCurrentIndex[ 0 ], tCurrentIndex[ 1 ], tCurrentWidget->getComboBox()->currentIndex() ) );
+                }
 
                 // Setting up the scroll area, index, saving type for the sub-forms
                 mTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last()->setupScrollArea();
                 mTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last()->setIndex( { tCurrentIndex[ 0 ], tCurrentIndex[ 1 ], (uint)mQTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].size() - 1 } );
-                mTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last()->setSubFormType( tCurrentWidget->getComboBox()->currentIndex() );
-                // Append to mParameterLists and pass it into add_elements
-                mParameterLists( tCurrentIndex[ 0 ] )( tCurrentIndex[ 1 ] ).push_back( create_parameter_list( (moris::Parameter_List_Type)tCurrentIndex[ 0 ], tCurrentIndex[ 1 ], tCurrentWidget->getComboBox()->currentIndex() ) );
-                mTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last()->add_elements( mParameterLists( tCurrentIndex[ 0 ] )( tCurrentIndex[ 1 ] ).back() );
+
+                // Append to mLibrary.get_parameter_lists() and pass it into add_elements
+                mTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last()->add_elements( mLibrary.get_parameter_lists()( tCurrentIndex[ 0 ] )( tCurrentIndex[ 1 ] ).back() );
                 mTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last()->set_form_visible( false );
 
                 // Connecting the QTreeWidgetItem to the Moris_Tree_Widget_Item
@@ -291,8 +397,8 @@ namespace moris
             else
             {
                 QList< uint > tCurrentIndex = tCurrentWidget->getIndex();
-                mParameterLists( tCurrentIndex[ 0 ] )( tCurrentIndex[ 1 ] ).push_back( create_parameter_list( (moris::Parameter_List_Type)tCurrentIndex[ 0 ], tCurrentIndex[ 1 ], 0 ) );
-                tCurrentWidget->add_elements( mParameterLists( tCurrentIndex[ 0 ] )( tCurrentIndex[ 1 ] )(mParameterLists( tCurrentIndex[ 0 ] )( tCurrentIndex[ 1 ] ).size() - 1) );
+                mLibrary.get_parameter_lists()( tCurrentIndex[ 0 ] )( tCurrentIndex[ 1 ] ).push_back( create_parameter_list( (moris::Parameter_List_Type)tCurrentIndex[ 0 ], tCurrentIndex[ 1 ], 0 ) );
+                tCurrentWidget->add_elements( mLibrary.get_parameter_lists()( tCurrentIndex[ 0 ] )( tCurrentIndex[ 1 ] )( mLibrary.get_parameter_lists()( tCurrentIndex[ 0 ] )( tCurrentIndex[ 1 ] ).size() - 1 ) );
             }
         }
     }
@@ -320,10 +426,13 @@ namespace moris
                 QList< uint > tCurrentIndex = tCurrentWidget->getIndex();
 
                 // Reorganizing the count of the sub-forms from the item selection in the combo box
-                mTreeWidgetChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ]->removeSubFormCountProps( tCurrentWidget->getSubFormType() );
+                if ( tCurrentWidget->getSubFormType() != -1 )
+                {
+                    mTreeWidgetChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ]->removeSubFormCountProps( tCurrentWidget->getSubFormType() );
+                }
 
                 // If the first form is selected then the user is redirected to the main form
-                if ( tCurrentIndex[ 2 ] == 0 )
+                if ( tCurrentIndex[ 2 ] == 0 && mLibrary.get_parameter_lists()( tCurrentIndex[ 0 ] )( tCurrentIndex[ 1 ] ).size() == 1 )
                 {
                     mTreeWidgetChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ]->set_form_visible( true );
                 }
@@ -335,12 +444,12 @@ namespace moris
                 // Removing the sub-form from the layout and deleting the associated objects
                 delete mQTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ][ tCurrentIndex[ 2 ] ];
                 delete mTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ][ tCurrentIndex[ 2 ] ];
-                mParameterLists( tCurrentIndex[ 0 ] )( tCurrentIndex[ 1 ] ).erase( tCurrentIndex[ 2 ] );
+                mLibrary.get_parameter_lists()( tCurrentIndex[ 0 ] )( tCurrentIndex[ 1 ] ).erase( tCurrentIndex[ 2 ] );
             }
             else
             {
                 // If the current widget is not a sub-form, then remove the elements from the form in the Moris_Tree_Widget_Item
-                mParameterLists( tCurrentWidget->getIndex()[ 0 ] )( tCurrentWidget->getIndex()[ 1 ] ).pop_back();
+                mLibrary.get_parameter_lists()( tCurrentWidget->getIndex()[ 0 ] )( tCurrentWidget->getIndex()[ 1 ] ).pop_back();
                 tCurrentWidget->remove_elements();
             }
         }
@@ -363,7 +472,8 @@ namespace moris
                         || ( iRoot == (uint)( moris::Parameter_List_Type::SOL ) && iChild == (uint)( moris::SOL_SubModule::LINEAR_ALGORITHMS ) ) )
                 {
                 }
-                else {
+                else
+                {
                     tParameterList( iRoot )( iChild ).push_back( create_parameter_list( (moris::Parameter_List_Type)iRoot, iChild, 0 ) );
                 }
             }
@@ -374,7 +484,6 @@ namespace moris
         return tParameterList;
     }
 
-    
 
 }    // namespace moris
 #include "main_gui.moc"

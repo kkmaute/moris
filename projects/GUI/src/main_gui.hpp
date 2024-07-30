@@ -33,7 +33,7 @@
 #include "cl_Communication_Manager.hpp"    // COM/src
 #include "cl_Logger.hpp"                   // MRS/IOS/src
 
-#include "cl_Library_IO.hpp"    // MRS/IOS/src
+#include "cl_Library_IO_Standard.hpp"    // MRS/IOS/src
 #include "moris_tree_widget_item.hpp"
 
 // Using moris namespace
@@ -43,6 +43,8 @@ namespace moris
     class Moris_Gui : public QWidget
     {
         Q_OBJECT
+
+        Library_IO_Standard mLibrary;
 
         //--------------------------------------------------------------------------------------------------------------
 
@@ -93,7 +95,7 @@ namespace moris
 
         QTreeWidgetItem *mOldItem;
 
-        Vector< Vector< Vector< Parameter_List > > > mParameterLists;
+        //Vector< Vector< Vector< Parameter_List > > > & mGUIParameterLists;
 
       public:
         // Add argument that reads a parameter list
@@ -146,14 +148,6 @@ namespace moris
 
 
     Vector< Vector< Vector< Parameter_List > > > read();
-    /**
-     * @brief Function to get the parameter list for a given module, child, and sub-child
-     * @param moris::Parameter_List_Type aModule -> root index
-     * @param uint aChild -> child index
-     * @param uint aSubChild -> sub-child index (if applicable)
-     * @return Parameter_List
-     * @note This function returns a List of QStringList where the 0th index of the list gives the key of the parameter_list and the 1st index gives the value of the parameter_list
-     */
     
 
 }    // namespace moris
