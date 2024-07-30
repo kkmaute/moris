@@ -4362,7 +4362,8 @@ namespace moris::xtk
 
                                 mDoubleSideClusters.push_back( tDblSideCluster );
                                 mDoubleSideSets( tDoubleSideSetIndex ).push_back( tDblSideCluster );
-                            }
+
+                            } // end if: side cluster has not already been constructed
 
                             // get the relevant side cluster indices
                             moris_index tLeaderToFollowerSideClusterIndex = tSubphaseToSubphaseSideClusterIndex( tLeaderSubphaseIndex ).find( tFollowerSubphaseIndex )->second;
@@ -4382,11 +4383,12 @@ namespace moris::xtk
                             // add integration cell pointers
                             tSideClusters( tLeaderToFollowerSideClusterIndex )->mIntegrationCells.push_back( tDblSideGroup->mLeaderIgCells( iDblFacet ) );
                             tSideClusters( tFollowerToLeaderSideClusterIndex )->mIntegrationCells.push_back( tDblSideGroup->mFollowerIgCells( iDblFacet ) );
-                        }
-                    }
-                }
-            }
-        }
+
+                        } // end if: is low-to-high side set
+                    } // end for: each double sided facet
+                } // end if: double sided interface exists / is not empty
+            } // end for: each secondary bulk phase
+        } // end for: each primary bulk phase
 
         // convert the cells of side ordinals to matrix and add to clusters
         for ( uint iSC = 0; iSC < tSideClusterSideOrdinals.size(); iSC++ )

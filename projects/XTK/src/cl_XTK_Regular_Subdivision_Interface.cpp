@@ -41,6 +41,8 @@ namespace moris::xtk
         return true;
     }
 
+    //--------------------------------------------------------------------------------------------------
+
     void
     Regular_Subdivision_Interface::perform_impl_vertex_requests(
             Integration_Mesh_Generation_Data* aMeshGenerationData,
@@ -110,6 +112,8 @@ namespace moris::xtk
         aDecompositionData->tSecondaryIdentifiers = Vector< moris_index >( aDecompositionData->tNewNodeParentIndex.size(), MORIS_INDEX_MAX );
     }
 
+    //--------------------------------------------------------------------------------------------------
+
     void
     Regular_Subdivision_Interface::perform_impl_generate_mesh(
             Integration_Mesh_Generation_Data* aMeshGenerationData,
@@ -122,7 +126,7 @@ namespace moris::xtk
         moris::mtk::Cell_Info_Factory            tFactory;
         std::shared_ptr< moris::mtk::Cell_Info > tIgCellInfo = tFactory.create_cell_info_sp( this->get_ig_cell_topology() );
 
-        // this is going to be the cell infor pointer for all new cells
+        // this is going to be the cell info pointer for all new cells
 
         // number of vertices per cell
         moris::uint tVerticesPerCell = tIgCellInfo->get_num_verts();
@@ -158,7 +162,7 @@ namespace moris::xtk
                     tCurrentCellIndex++;
                 }
             }
-
+            // if the child mesh has more than one cell, i.e. octree/quadtree refinement has been performed beforehand, the template needs to be applied repeatedly
             else
             {
                 std::shared_ptr< Generated_Regular_Subdivision_Template > tGeneratedTemplate = mGeneratedTemplate( tChildMesh->mIgCells->mIgCellGroup.size() );
@@ -182,14 +186,18 @@ namespace moris::xtk
                     tCurrentCellIndex++;
                 }
             }
-        }
-    }
+        }    // end for: each intersected background element
+    }        // end function: Regular_Subdivision_Interface::perform_impl_generate_mesh()
+
+    //--------------------------------------------------------------------------------------------------
 
     enum Decomposition_Algorithm_Type
     Regular_Subdivision_Interface::get_algorithm_type() const
     {
         return Decomposition_Algorithm_Type::REGULAR_TEMPLATE_NONCONFORMING;
     }
+
+    //--------------------------------------------------------------------------------------------------
 
     void
     Regular_Subdivision_Interface::make_new_vertex_requests(
@@ -233,6 +241,8 @@ namespace moris::xtk
         }
     }
 
+    //--------------------------------------------------------------------------------------------------
+
     void
     Regular_Subdivision_Interface::make_new_vertex_requests_trivial(
             Child_Mesh_Experimental*            aChildMesh,
@@ -242,53 +252,59 @@ namespace moris::xtk
             moris::mtk::Mesh*                   aBackgroundMesh,
             Decomposition_Data*                 aDecompositionData )
     {
-
+        // collect information from parent BG cell
         moris::mtk::Cell*             tParentCell     = aChildMesh->get_parent_cell();
         moris::mtk::Cell_Info const * tParentCellInfo = tParentCell->get_cell_info();
         Cell_Connectivity             tCellConn       = aCutIntegrationMesh->get_background_cell_connectivity( tParentCell->get_index() );
+        moris_index                   tChildMeshIndex = aChildMesh->get_child_mesh_index();
 
+        // process every node requested on a faces
         for ( moris::uint iVertsOnFaces = 0; iVertsOnFaces < aRegularSubdivisionInterfaceData->mNewNodesOnFaces.numel(); iVertsOnFaces++ )
         {
-            moris_index tNewNodeFaceOrdinal = aRegularSubdivisionInterfaceData->mNewNodesOnFacesOrd( iVertsOnFaces );
-            moris_index tRequestLoc         = MORIS_INDEX_MAX;
-            bool        tRequestExists      = aDecompositionData->request_exists( tCellConn.mCellFacesInds( tNewNodeFaceOrdinal ), mtk::EntityRank::FACE, tRequestLoc );
+            // gather template data
+            moris_index       tNewNodeFaceOrdinal = aRegularSubdivisionInterfaceData->mNewNodesOnFacesOrd( iVertsOnFaces );
+            moris_index       tNewNodeTemplateOrd = aRegularSubdivisionInterfaceData->mNewNodesOnFaces( iVertsOnFaces );
+            Matrix< DDRMat >& tNewNodeXi          = aRegularSubdivisionInterfaceData->mNewNodeXi( tNewNodeTemplateOrd );
 
-            moris_index tNewNodeTemplateOrd = aRegularSubdivisionInterfaceData->mNewNodesOnFaces( iVertsOnFaces );
+            // check whether a request on this entity (face) already exists
+            moris_index tRequestLoc    = MORIS_INDEX_MAX;
+            moris_id    tBgFacetIndex  = tCellConn.mCellFacesInds( tNewNodeFaceOrdinal );
+            bool        tRequestExists = aDecompositionData->request_exists( tBgFacetIndex, mtk::EntityRank::FACE, tRequestLoc );
+
+            // create a new request if it doesn't exist already
             if ( !tRequestExists )
             {
-                moris_index tOwner = aBackgroundMesh->get_entity_owner( tCellConn.mCellFacesInds( tNewNodeFaceOrdinal ), mtk::EntityRank::FACE );
+                moris_index tOwner = aBackgroundMesh->get_entity_owner( tBgFacetIndex, mtk::EntityRank::FACE );
 
                 // evaluate the shape functions at this point relative to the background cell
-                tParentCellInfo->eval_N( aRegularSubdivisionInterfaceData->mNewNodeXi( tNewNodeTemplateOrd ), aRegularSubdivisionInterfaceData->mNXi );
+                tParentCellInfo->eval_N( tNewNodeXi, aRegularSubdivisionInterfaceData->mNXi );
 
-                std::shared_ptr< Matrix< DDRMat > > tNewNodeXi =
-                        std::make_shared< Matrix< DDRMat > >( aRegularSubdivisionInterfaceData->mNewNodeXi( tNewNodeTemplateOrd ) );
-
-                Matrix< DDRMat > tNewNodeCoordinates = aRegularSubdivisionInterfaceData->mNXi * tParentCell->get_vertex_coords();
-
+                // create a new request
+                std::shared_ptr< Matrix< DDRMat > > tNewNodeXiPtr = std::make_shared< Matrix< DDRMat > >( tNewNodeXi );
+                Matrix< DDRMat > tNewNodePhysCoords = aRegularSubdivisionInterfaceData->mNXi * tParentCell->get_vertex_coords();
                 moris_index tNewNodeIndexInSubdivision = aDecompositionData->register_new_request(
-                        tCellConn.mCellFacesInds( tNewNodeFaceOrdinal ),
+                        tBgFacetIndex,
                         tOwner,
                         mtk::EntityRank::FACE,
-                        tNewNodeCoordinates,
+                        tNewNodePhysCoords,
                         tParentCell,
-                        tNewNodeXi );
+                        tNewNodeXiPtr );
 
-                aDecompositionData->tCMNewNodeParamCoord( aChildMesh->get_child_mesh_index() )( tNewNodeTemplateOrd ) =
-                        aRegularSubdivisionInterfaceData->mNewNodeXi( tNewNodeTemplateOrd );
-
-                aDecompositionData->tCMNewNodeLoc( aChildMesh->get_child_mesh_index() ).push_back( tNewNodeIndexInSubdivision );
+                // store the new node in the decomposition data
+                aDecompositionData->tCMNewNodeParamCoord( tChildMeshIndex )( tNewNodeTemplateOrd ) = tNewNodeXi;
+                aDecompositionData->tCMNewNodeLoc( tChildMeshIndex ).push_back( tNewNodeIndexInSubdivision );
             }
 
+            // if the request already exists, reference the request and add the location of the new node wrt. the current BG cell to the child mesh
             else
             {
-                aDecompositionData->tCMNewNodeLoc( aChildMesh->get_child_mesh_index() ).push_back( tRequestLoc );
-
-                aDecompositionData->tCMNewNodeParamCoord( aChildMesh->get_child_mesh_index() )( tNewNodeTemplateOrd ) =
-                        aRegularSubdivisionInterfaceData->mNewNodeXi( tNewNodeTemplateOrd );
+                aDecompositionData->tCMNewNodeLoc( tChildMeshIndex ).push_back( tRequestLoc );
+                aDecompositionData->tCMNewNodeParamCoord( tChildMeshIndex )( tNewNodeTemplateOrd ) = tNewNodeXi;
             }
-        }
 
+        }    // end for: iVertsOnFaces
+
+        // process nodes requested in BG cell interior
         Matrix< IndexMat > tElementIndices( 0, 0 );
         for ( moris::uint iVertsInCell = 0; iVertsInCell < aRegularSubdivisionInterfaceData->mNewNodesOnCells.numel(); iVertsInCell++ )
         {
@@ -329,8 +345,10 @@ namespace moris::xtk
                 aDecompositionData->tCMNewNodeParamCoord( aChildMesh->get_child_mesh_index() )( tNewNodeTemplateOrd ) =
                         aRegularSubdivisionInterfaceData->mNewNodeXi( tNewNodeTemplateOrd );
             }
-        }
-    }
+        }    // end for: iVertsInCell
+    }        // end function: Regular_Subdivision_Interface::make_new_vertex_requests()
+
+    //--------------------------------------------------------------------------------------------------
 
     void
     Regular_Subdivision_Interface::make_new_vertex_requests_octree(
@@ -505,7 +523,7 @@ namespace moris::xtk
                 mGeneratedTemplate( aNumIgCells )->mVertexHash( tNewVertexOrdinal )                                 = tNewVertexOrdinal;    // no special hashing needed here
                 tNewVertexOrdinal++;
 
-                // iterate through template and construc the new template cells
+                // iterate through template and construct the new template cells
                 for ( moris::moris_index iTemplateCells = 0; iTemplateCells < this->mRegularSubdivisionTemplate->get_num_ig_cells(); iTemplateCells++ )
                 {
                     for ( moris::moris_index iTemplateVert = 0; iTemplateVert < this->mRegularSubdivisionTemplate->get_num_verts_per_cell(); iTemplateVert++ )

@@ -71,7 +71,7 @@ namespace moris::xtk
         Vector< moris::mtk::Cell* > mIgCells;               // over allocated
         Vector< moris_index >       mIgCellSideOrdinals;    // over allocated
 
-    };                                                      // struct IG_Cell_Side_Group
+    };    // struct IG_Cell_Side_Group
 
     // ----------------------------------------------------------------------------------
 
@@ -79,8 +79,8 @@ namespace moris::xtk
     {
         IG_Cell_Double_Side_Group( moris_index aEstimatedNumCells );
 
-        Vector< moris::mtk::Cell* > mLeaderIgCells;                 // over allocated
-        Vector< moris_index >       mLeaderIgCellSideOrdinals;      // over allocated
+        Vector< moris::mtk::Cell* > mLeaderIgCells;               // over allocated
+        Vector< moris_index >       mLeaderIgCellSideOrdinals;    // over allocated
 
         Vector< moris::mtk::Cell* > mFollowerIgCells;               // over allocated
         Vector< moris_index >       mFollowerIgCellSideOrdinals;    // over allocated
@@ -170,7 +170,7 @@ namespace moris::xtk
     {
         Vector< Vector< moris::mtk::Vertex* > > mEdgeVertices;             // input: edge || output: list of vertices on edge
         Vector< Vector< moris::mtk::Cell* > >   mEdgeToCell;               // input: edge || output: list of cells attached to edge
-        Vector< Vector< moris_index > >         mEdgeToCellEdgeOrdinal;    // input: edge || output: ?
+        Vector< Vector< moris_index > >         mEdgeToCellEdgeOrdinal;    // input: edge || output: ordinal of the edge relative to the cells listed in mEdgeToCell
         Vector< Vector< moris_index > >         mCellToEdge;               // input: cell || output: list of edge indices on cell
     };
 
@@ -545,6 +545,12 @@ namespace moris::xtk
 
     struct Cell_Connectivity
     {
+        const Matrix< IndexMat > mCellVertexInds;
+        const Matrix< IndexMat > mCellEdgesInds;
+        const Matrix< IndexMat > mCellFacesInds;
+
+        //------------------------------------------------------
+
         Cell_Connectivity(){};
         Cell_Connectivity(
                 Matrix< IndexMat > const & aCellVertexInds,
@@ -555,6 +561,8 @@ namespace moris::xtk
                 , mCellFacesInds( aCellFacesInds )
         {
         }
+
+        //------------------------------------------------------
 
         moris_index
         get_entity_index(
@@ -578,6 +586,8 @@ namespace moris::xtk
                     break;
             }
         }
+
+        //------------------------------------------------------
 
         moris_index
         get_entity_ordinal(
@@ -626,10 +636,9 @@ namespace moris::xtk
             }
         }
 
-        const Matrix< IndexMat > mCellVertexInds;
-        const Matrix< IndexMat > mCellEdgesInds;
-        const Matrix< IndexMat > mCellFacesInds;
-    };
+        //------------------------------------------------------
+
+    };    // struct Cell_Connectivity
 
     // ----------------------------------------------------------------------------------
 

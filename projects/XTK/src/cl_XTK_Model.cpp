@@ -337,7 +337,8 @@ namespace moris::xtk
             moris::string_to_mat( mParameterList.get< std::string >( "unenriched_mesh_indices" ), tUnenrichedBsplineMeshIndices );
 
             this->perform_unenrichment( tUnenrichedBsplineMeshIndices );
-        }
+
+        } // end: enrichment
 
         if ( mParameterList.get< bool >( "identify_hanging_nodes" ) )
         {
