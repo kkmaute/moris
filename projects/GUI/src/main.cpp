@@ -8,7 +8,6 @@
 #include "main_gui.hpp"
 #include "TestWindow.hpp"
 #include "cl_Parameter_List.hpp"
-#include "moris_file_dialog.hpp"
 
 #include "main.moc"
 
@@ -20,14 +19,6 @@ int main( int argc, char *argv[] )
     gMorisComm = moris::Comm_Manager( &argc, &argv );
     QApplication app( argc, argv );
 
-    QString filePath = getMorisFilePath();
-    if (!filePath.isEmpty()) {
-    std::cout << "Selected file path: " << filePath.toStdString() << std::endl;
-    } else {
-    std::cout << "No file selected." << std::endl;
-    }
-
-
     // Create a Parameter List and populate it with initial test values
     moris::Parameter_List parameterList;
     parameterList.insert( "lineEdit", "Initial text", {} );
@@ -35,7 +26,7 @@ int main( int argc, char *argv[] )
     parameterList.insert( "doubleSpinBox", 0.5, {} );
     parameterList.insert( "intSpinBox", 10, {} );
     parameterList.insert_enum( "pairBox", { "Example 1", "Example 2", "Example 3" } );
-    parameterList.insert_enum("boolBox", {"True", "False"});
+    parameterList.insert_enum( "boolBox", { "True", "False" } );
 
     moris::Moris_Gui widget;
     widget.show();

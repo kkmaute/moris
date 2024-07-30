@@ -149,7 +149,7 @@ namespace moris
                     tParamsToMod.copy_parameters( tParamsToAdd );
                 }
             }    // end for: inner cells
-        }        // end for: outer cells
+        }    // end for: outer cells
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -394,7 +394,7 @@ namespace moris
                 if ( tInnerSubParamListName != "" )
                 {
                     size_t tInnerSubParamListCount = mXmlReader->count_keys_in_subtree( tInnerSubParamListRoot, tInnerSubParamListName );
-                    //tInnerSubParamListRoot         = tInnerSubParamListRoot + "." + tInnerSubParamListName;
+                    // tInnerSubParamListRoot         = tInnerSubParamListRoot + "." + tInnerSubParamListName;
 
                     if ( tInnerSubParamListCount == 1 )
                     {
@@ -429,12 +429,11 @@ namespace moris
                 else
                 {
                     // If there is no inner sub-parameter list, just adding the set parameter list from the xml file to the ModuleParameterList
-                    //mXmlReader->get_keys_from_subtree( tInnerSubParamListRoot, tInnerSubParamListName, 0, tKeys, tValues );
+                    // mXmlReader->get_keys_from_subtree( tInnerSubParamListRoot, tInnerSubParamListName, 0, tKeys, tValues );
                     mXmlReader->get_keys_from_subtree( tModuleRoot, tOuterSubParamListName, 0, tKeys, tValues );
 
                     tParameterList( iSubParamList ).push_back( create_and_set_parameter_list( tParamListType, iSubParamList, 0, tKeys, tValues ) );
                 }
-
             }
             // adding the ModuleParameterList to the mParameterLists (which is a vector of ModuleParameterLists)
             mParameterLists( iParamListType ) = tParameterList;
@@ -781,7 +780,7 @@ namespace moris
         uint tIndex = 0;
         if ( tInnerSubParamListName == "Geometry" )
         {
-            // Finding field_type in the keys of the XML file parameter list 
+            // Finding field_type in the keys of the XML file parameter list
             auto it = std::find( tKeys.begin(), tKeys.end(), "field_type" );
             if ( it != tKeys.end() )
             {
@@ -796,7 +795,7 @@ namespace moris
             std::string tAlgorithm;
 
             // Finding algorithm in the keys of the XML file parameter list
-            auto        it = std::find( tKeys.begin(), tKeys.end(), "algorithm" );
+            auto it = std::find( tKeys.begin(), tKeys.end(), "algorithm" );
             if ( it != tKeys.end() )
             {
                 tAlgorithm = tValues( std::distance( tKeys.begin(), it ) );
@@ -819,7 +818,6 @@ namespace moris
                     tIndex = 3;
                 }
             }
-
         }
         else if ( tInnerSubParamListName == "Linear_Algorithm" )
         {
@@ -830,7 +828,7 @@ namespace moris
             {
                 // Index is the value of solver_type
 
-                // solver_type returns a string name of the solver type 
+                // solver_type returns a string name of the solver type
                 tSolverType = tValues( std::distance( tKeys.begin(), it ) );
 
                 // Transforming the string to uppercase
@@ -855,8 +853,8 @@ namespace moris
     /**
      * @brief create_and_set_parameter_list - Calls the create_parameter_list function and sets the parameter list with the values from the XML file in the correct data type
      * @param aModule - Module in Parameter_List_Type enum type
-        * @param aChild - The index of the sub-module
-        * @param aSubChild - The index of the sub-module type for special forms like "GEN/Geometry", "OPT/Algorithm" and "SOL/Linear_Algorithm", if not these forms, then 0
+     * @param aChild - The index of the sub-module
+     * @param aSubChild - The index of the sub-module type for special forms like "GEN/Geometry", "OPT/Algorithm" and "SOL/Linear_Algorithm", if not these forms, then 0
      * @param tKeys - The keys of the XML file parameter list
      * @param tValues - The values of the XML file parameter list
      * @return Parameter_List - The parameter list with the set values from the XML file
@@ -873,12 +871,12 @@ namespace moris
         // Loop through the default parameter list
         for ( auto& iElements : tParameterList )
         {
-            //std::cout << "Parameter: " << iElements.first << " Value: " << iElements.second.get_string() << std::endl;
-            //std::cout << "Index: " << iElements.second.index() << std::endl;
-            // Cannot set locked parameters
+            // std::cout << "Parameter: " << iElements.first << " Value: " << iElements.second.get_string() << std::endl;
+            // std::cout << "Index: " << iElements.second.index() << std::endl;
+            //  Cannot set locked parameters
             if ( iElements.second.is_locked() )
             {
-                //std::cout << "Parameter " << iElements.first << " is locked and cannot be set." << std::endl;
+                // std::cout << "Parameter " << iElements.first << " is locked and cannot be set." << std::endl;
                 continue;
             }
 
@@ -887,7 +885,7 @@ namespace moris
 
             if ( tFind == aKeys.end() )
             {
-                //std::cout << "Parameter " << iElements.first << " not found in XML file." << std::endl;
+                // std::cout << "Parameter " << iElements.first << " not found in XML file." << std::endl;
                 continue;
             }
 
@@ -925,9 +923,8 @@ namespace moris
                 if ( tFind != aKeys.end() )
                 {
                     sint tSint = convert_parameter_from_string_to_type< sint >( aValues( std::distance( aKeys.begin(), tFind ) ) );
-                    
+
                     iElements.second.set_value( iElements.first, tSint, false );
-                    
                 }
             }
             else if ( iElements.second.index() == variant_index< real >() )
@@ -953,12 +950,14 @@ namespace moris
                 if ( tFind != aKeys.end() )
                 {
                     std::cout << iElements.first << std::endl;
-                    moris::Vector< std::string >          tVec  = moris::string_to_cell< std::string >( aValues( std::distance( aKeys.begin(), tFind ) ) );
-                    std::pair<std::string, std::string> tPair;
-                    if (tVec.size() < 2) {
-                        tPair = std::make_pair("", "");
+                    moris::Vector< std::string >          tVec = moris::string_to_cell< std::string >( aValues( std::distance( aKeys.begin(), tFind ) ) );
+                    std::pair< std::string, std::string > tPair;
+                    if ( tVec.size() < 2 )
+                    {
+                        tPair = std::make_pair( "", "" );
                     }
-                    else {
+                    else
+                    {
                         tPair = std::make_pair( tVec( 0 ), tVec( 1 ) );
                     }
                     iElements.second.set_value( iElements.first, tPair, false );
@@ -1003,8 +1002,7 @@ namespace moris
                 Design_Variable tDesignVariable = convert_parameter_from_string_to_type< real >( aValues( std::distance( aKeys.begin(), tFind ) ) );
                 iElements.second.set_value( iElements.first, tDesignVariable, false );
             }
-            //std::cout << "Parameter: " << iElements.first << " Value: " << iElements.second.get_string() << std::endl;
-
+            // std::cout << "Parameter: " << iElements.first << " Value: " << iElements.second.get_string() << std::endl;
         }
 
         return tParameterList;

@@ -19,14 +19,16 @@ namespace moris
     Moris_Gui::Moris_Gui( QWidget *parent )
             : QWidget( parent )
     {
+        QString tFilePath = getMorisFilePath();
+
         // load the parameter list from the xml file
-        mLibrary.load_parameter_list( "/home/sanghvi/Downloads/Parameter_Receipt.xml", File_Type::XML_FILE );
+        mLibrary.load_parameter_list( tFilePath.toStdString(), File_Type::XML_FILE );
 
         // Update mParameterLists (sitting in cl_Library_IO) with the parameter lists from the xml file
         mLibrary.load_parameters_from_xml();
 
         // Get mParameterLists from cl_Library_IO
-        //mLibrary.get_parameter_lists() = mLibrary.get_parameter_lists();
+        // mLibrary.get_parameter_lists() = mLibrary.get_parameter_lists();
 
         //  mLayout is the main layout of the GUI
         //  mSidePanel is the side panel layout where the tree widget and buttons are placed
@@ -100,7 +102,7 @@ namespace moris
                 {
                     // Setting the OPT/Optimization Problems form visible upon construction of the GUI
                     std::cout << mLibrary.get_parameter_lists()( iRoot )( iChildren ).size() << std::endl;
-                    mTreeWidgetChildren[ iRoot ][ iChildren ]->add_elements( mLibrary.get_parameter_lists()( iRoot )( iChildren )( 0 ) );
+                    mTreeWidgetChildren[ iRoot ][ iChildren ]->add_elements( mLibrary.get_parameter_lists()( iRoot )(iChildren)( 0 ) );
                     mTreeWidgetChildren[ iRoot ][ iChildren ]->setCountProps( 1 );
                     mTreeWidgetChildren[ iRoot ][ iChildren ]->set_form_visible( true );
                     mOldItem = mQTreeWidgetChildren[ iRoot ][ iChildren ];
@@ -127,7 +129,7 @@ namespace moris
                             mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setupScrollArea();
                             mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setIndex( { iRoot, iChildren, (uint)mQTreeWidgetSubChildren[ iRoot ][ iChildren ].size() - 1 } );
                             mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setSubFormType( -1 );
-                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->add_elements( mLibrary.get_parameter_lists()( iRoot )( iChildren )( i ) );
+                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->add_elements( mLibrary.get_parameter_lists()( iRoot )(iChildren)( i ) );
                             mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->set_form_visible( false );
                             mTreeWidget->setItemWidget( mQTreeWidgetSubChildren[ iRoot ][ iChildren ].last(), 0, mTreeWidgetSubChildren[ iRoot ][ iChildren ].last() );
                             mLayout->addWidget( mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->getScrollArea() );
@@ -172,7 +174,7 @@ namespace moris
                             mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setupScrollArea();
                             mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setIndex( { iRoot, iChildren, (uint)mQTreeWidgetSubChildren[ iRoot ][ iChildren ].size() - 1 } );
                             mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setSubFormType( -1 );
-                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->add_elements( mLibrary.get_parameter_lists()( iRoot )( iChildren )( i ) );
+                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->add_elements( mLibrary.get_parameter_lists()( iRoot )(iChildren)( i ) );
                             mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->set_form_visible( false );
                             mTreeWidget->setItemWidget( mQTreeWidgetSubChildren[ iRoot ][ iChildren ].last(), 0, mTreeWidgetSubChildren[ iRoot ][ iChildren ].last() );
                             mLayout->addWidget( mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->getScrollArea() );
@@ -205,7 +207,7 @@ namespace moris
                             mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setupScrollArea();
                             mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setIndex( { iRoot, iChildren, (uint)mQTreeWidgetSubChildren[ iRoot ][ iChildren ].size() - 1 } );
                             mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setSubFormType( -1 );
-                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->add_elements( mLibrary.get_parameter_lists()( iRoot )( iChildren )( i ) );
+                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->add_elements( mLibrary.get_parameter_lists()( iRoot )(iChildren)( i ) );
                             mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->set_form_visible( false );
                             mTreeWidget->setItemWidget( mQTreeWidgetSubChildren[ iRoot ][ iChildren ].last(), 0, mTreeWidgetSubChildren[ iRoot ][ iChildren ].last() );
                             mLayout->addWidget( mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->getScrollArea() );
@@ -226,9 +228,9 @@ namespace moris
                             mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setupScrollArea();
                             mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setIndex( { iRoot, iChildren, (uint)mQTreeWidgetSubChildren[ iRoot ][ iChildren ].size() - 1 } );
                             mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setSubFormType( -1 );
-                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->add_elements( mLibrary.get_parameter_lists()( iRoot )( iChildren )( i ) );
+                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->add_elements( mLibrary.get_parameter_lists()( iRoot )(iChildren)( i ) );
                             mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->set_form_visible( false );
-                            //mTreeWidgetChildren[ iRoot ][ iChildren ]->addSubFormCountProps();
+                            // mTreeWidgetChildren[ iRoot ][ iChildren ]->addSubFormCountProps();
                             mTreeWidget->setItemWidget( mQTreeWidgetSubChildren[ iRoot ][ iChildren ].last(), 0, mTreeWidgetSubChildren[ iRoot ][ iChildren ].last() );
                             mLayout->addWidget( mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->getScrollArea() );
                         }
@@ -236,7 +238,7 @@ namespace moris
                     else
                     {
                         // Adding the parameter_list elements to all the forms and setting the visibility to false
-                        mTreeWidgetChildren[ iRoot ][ iChildren ]->add_elements( mLibrary.get_parameter_lists()( iRoot )( iChildren )( 0 ) );
+                        mTreeWidgetChildren[ iRoot ][ iChildren ]->add_elements( mLibrary.get_parameter_lists()( iRoot )(iChildren)( 0 ) );
                         mTreeWidgetChildren[ iRoot ][ iChildren ]->setCountProps( 1 );
                     }
                     mTreeWidgetChildren[ iRoot ][ iChildren ]->set_form_visible( false );
@@ -290,7 +292,7 @@ namespace moris
         connect( mTreeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( parameter_selected() ) );
         connect( mAddButton, SIGNAL( clicked() ), this, SLOT( add_more_props() ) );
         connect( mRemoveButton, SIGNAL( clicked() ), this, SLOT( remove_props() ) );
-        connect ( m_save_to_xml_Button, SIGNAL( clicked() ), this, SLOT( write_to_xml() ) );
+        connect( m_save_to_xml_Button, SIGNAL( clicked() ), this, SLOT( write_to_xml() ) );
     }
 
     void Moris_Gui::parameter_selected()
@@ -467,18 +469,17 @@ namespace moris
     }
 
 
+    void Moris_Gui::write_to_xml()
+    {
+        /**
+         * @brief Function to save the current parameters to an XML file
+         * @note This function is called when the m_save_to_xml_Button is clicked. It writes the parameters to an XML file.
+         */
 
-void Moris_Gui::write_to_xml()
-{
-    /**
-     * @brief Function to save the current parameters to an XML file
-     * @note This function is called when the m_save_to_xml_Button is clicked. It writes the parameters to an XML file.
-     */
-
-  //  finalize();
-}
-
-
+        mLibrary.finalize();
+        QMessageBox::information( this, "Save to XML", "Parameters saved to the same XML file" );
+        QCoreApplication::quit();
+    }
 
 
     Vector< Vector< Vector< Parameter_List > > > read()
