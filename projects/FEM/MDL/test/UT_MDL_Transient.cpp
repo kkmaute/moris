@@ -89,7 +89,7 @@
 // PRM
 #include "fn_PRM_HMR_Parameters.hpp"
 #include "fn_PRM_SOL_Parameters.hpp"
-#include "cl_GEN_Plane.hpp"
+#include "cl_GEN_Line.hpp"
 
 #include "fn_norm.hpp"
 
@@ -99,7 +99,7 @@ namespace moris
     // define free function for properties
     inline void
     tPropConstFunc_MDLTransient( moris::Matrix< moris::DDRMat >& aPropMatrix,
-            Vector< moris::Matrix< moris::DDRMat > >&       aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >&            aParameters,
             moris::fem::Field_Interpolator_Manager*              aFIManager )
     {
         aPropMatrix = aParameters( 0 );
@@ -107,9 +107,9 @@ namespace moris
 
     inline void
     tPropTimeFunc_MDLTransient(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         real tTime  = aFIManager->get_IP_geometry_interpolator()->valt()( 0 );
         aPropMatrix = aParameters( 0 ) * tTime;
@@ -151,7 +151,7 @@ namespace moris
             tParameters.set_initial_refinement_patterns( { { 0 } } );
             tParameters.set_number_aura( true );
 
-            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
             tLagrangeToBSplineMesh( 0 ) = { { 0 } };
 
             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -387,7 +387,7 @@ namespace moris
 
         //    for( uint k=0; k<tNumRef; ++k )
         //    {
-        //        Cell< std::shared_ptr< moris::gen::Geometry > > tGeometry( 2 );
+        //        Vector< std::shared_ptr< moris::gen::Geometry > > tGeometry( 2 );
         //        tGeometry( 0 ) = std::make_shared< moris::gen::Plane >( tPlaneLeft, 0.0, 1.0, 0.0 );
         //        tGeometry( 1 ) = std::make_shared< moris::gen::Plane >( tPlaneRight, 0.0, 1.0, 0.0 );
         //
@@ -426,11 +426,11 @@ namespace moris
 
         //-----------------------------------------------------------------------------------------------
 
-        Cell< std::shared_ptr< moris::gen::Geometry > > tGeometry0( 2 );
-        tGeometry0( 0 ) = std::make_shared< moris::gen::Plane >( tPlaneLeft, 0.0, 1.0, 0.0 );
-        tGeometry0( 1 ) = std::make_shared< moris::gen::Plane >( tPlaneRight, 0.0, 1.0, 0.0 );
+        Vector< std::shared_ptr< moris::gen::Geometry > > tGeometry0( 2 );
+        tGeometry0( 0 ) = std::make_shared< moris::gen::Line >( tPlaneLeft, 0.0, 1.0, 0.0 );
+        tGeometry0( 1 ) = std::make_shared< moris::gen::Line >( tPlaneRight, 0.0, 1.0, 0.0 );
 
-        size_t                     tModelDimension = 2;
+        size_t                      tModelDimension = 2;
         moris::gen::Geometry_Engine tGENGeometryEngine0( tGeometry0, tModelDimension );
 
         // --------------------------------------------------------------------------------------
@@ -438,7 +438,7 @@ namespace moris
         tXTKModel.mVerbose = true;
 
         // Specify decomposition Method and Cut Mesh ---------------------------------------
-        Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
+        Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
         tXTKModel.decompose( tDecompositionMethods );
 
         tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 );

@@ -1472,7 +1472,7 @@ namespace moris
                     tSideOrdinalsOnBoundaries( iS ) = tSideOrdinal;
                     //                }
                 }    // Element loop
-            }        // side loop
+            }    // side loop
 
             // Query the exodus file about comm maps
 
@@ -2437,7 +2437,7 @@ namespace moris
             //            Matrix< DDNIMat >  tCompFound = find ( tDummy );
             //
             //
-            //            MORIS_ASSERT( !isempty( tCompFound ),
+            //            MORIS_ASSERT( !is_empty( tCompFound ),
             //                    "Number of components (columns) for all FieldsData should "
             //                    "match one of the supported sizes {1, 2, 3, 4, 9}.");
             //
@@ -2474,7 +2474,7 @@ namespace moris
                     uint tNumBlockSets = aMeshData.SetsInfo->get_num_block_sets();
 
                     // Communicate with other processors and see which one has the maximum
-                    uint tNumGlobalBlockSets         = gather_value_and_bcast_max( tNumBlockSets );
+                    uint tNumGlobalBlockSets         = max_all( tNumBlockSets );
                     mSTKMeshData->mSetRankFlags[ 2 ] = true;
                     mSTKMeshData->mSetNames[ 2 ].resize( tNumGlobalBlockSets );
 

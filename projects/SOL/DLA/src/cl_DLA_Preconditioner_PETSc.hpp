@@ -14,7 +14,6 @@
 
 #include "cl_MatrixPETSc.hpp"
 
-
 #include "cl_DLA_Preconditioner.hpp"
 
 namespace moris
@@ -43,28 +42,14 @@ namespace moris
           protected:
 
           public:
-            Preconditioner_PETSc();
-            // Preconditioner_PETSc( Linear_Solver_PETSc* aLinearSolverAlgoritm );
 
-            ~Preconditioner_PETSc(){
-                //            if( mPreconMat != nullptr )
-                //            {
-                //                delete mPreconMat;
-                //            }
-                //            if( mMapFree != nullptr )
-                //            {
-                //                delete mMapFree;
-                //            }
-            };
-
+            /**
+             * Constructor
+             *
+             * @param aParameterlist Parameter list
+             */
             Preconditioner_PETSc(
-                    moris::ParameterList* aParameterlist );
-
-            sol::Dist_Matrix*
-            get_preconditioner_matrix()
-            {
-                return mPreconMat;
-            };
+                    const Parameter_List& aParameterlist );
 
             //-----------------------------------------------------------------------------------
 
@@ -83,6 +68,8 @@ namespace moris
             void build_schwarz_preconditioner( Linear_Problem* aLinearSystem );
 
             //-----------------------------------------------------------------------------------
+
+            void build_algebaric_multigrid_preconditioner( Linear_Problem* aLinearSystem );
 
             /**
              * @brief compute the preconditioner based on the type of preconditioner

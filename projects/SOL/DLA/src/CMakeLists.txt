@@ -14,8 +14,7 @@ set(${DLA}_VERSION ${MORIS_VERSION})
 # List header files
 set(HEADERS
     cl_DLA_Eigen_Solver.hpp
-    cl_DLA_Linear_Solver_Amesos2.hpp
-    cl_DLA_Linear_Solver_Amesos.hpp
+	cl_DLA_Linear_Solver_Amesos.hpp
     cl_DLA_Linear_Solver_Aztec.hpp
     cl_DLA_Linear_Solver_ML.hpp
     cl_DLA_Linear_Solver_Belos.hpp
@@ -40,14 +39,19 @@ list( APPEND HEADERS
     )
 endif()
 
+if(${MORIS_HAVE_SLEPC})
+list( APPEND HEADERS
+    cl_DLA_Eigen_Solver_SLEPc.hpp
+    )
+endif()
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # distlinalg Library
 
 # List library source files
 set(LIB_SOURCES
     cl_DLA_Eigen_Solver.cpp
-    cl_DLA_Linear_Solver_Amesos2.cpp
-    cl_DLA_Linear_Solver_Amesos.cpp
+	cl_DLA_Linear_Solver_Amesos.cpp
     cl_DLA_Linear_Solver_Aztec.cpp
     cl_DLA_Linear_Solver_ML.cpp
     cl_DLA_Linear_Solver_Belos.cpp
@@ -57,8 +61,7 @@ set(LIB_SOURCES
     cl_DLA_Linear_Problem.cpp
     cl_DLA_Geometric_Multigrid.cpp
     cl_DLA_Solver_Interface.cpp
-    cl_DLA_Preconditioner.cpp
-    cl_DLA_Preconditioner_Trilinos.cpp
+	cl_DLA_Preconditioner_Trilinos.cpp
     cl_DLA_Solver_Factory.cpp)
 
 if(${MORIS_HAVE_PETSC})
@@ -66,6 +69,12 @@ list( APPEND LIB_SOURCES
     cl_DLA_Linear_System_PETSc.cpp
     cl_DLA_Linear_Solver_PETSc.cpp
     cl_DLA_Preconditioner_PETSc.cpp
+    )
+endif()
+
+if(${MORIS_HAVE_SLEPC})
+list( APPEND LIB_SOURCES
+    cl_DLA_Eigen_Solver_SLEPc.cpp
     )
 endif()
 

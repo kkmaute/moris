@@ -215,7 +215,7 @@ namespace moris
             Vector< MSI::Equation_Set* >& tEquationSet = tEquationModel->get_equation_sets();
             tEquationSet                               = tElementBlocks;
 
-            moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
+            moris::Parameter_List tMSIParameters = prm::create_msi_parameter_list();
             tMSIParameters.set( "L2", (sint)tBSplineMeshIndex );
             tMSIParameters.set( "multigrid", true );
 
@@ -237,7 +237,7 @@ namespace moris
 
             sol::SOL_Warehouse tSolverWarehouse( tSolverInterface );
 
-            Vector< Vector< moris::ParameterList > > tParameterlist( 8 );
+            Vector< Vector< moris::Parameter_List > > tParameterlist( 8 );
             for ( uint Ik = 0; Ik < 8; Ik++ )
             {
                 tParameterlist( Ik ).resize( 1 );
@@ -368,8 +368,8 @@ namespace moris
              fem::IWG_L2 * tIWG = new moris::fem::IWG_L2( );
 
              map< moris_id, moris_index >   tCoefficientsMap;
-             Cell< fem::Node_Base* >        tNodes;
-             Cell< MSI::Equation_Object* >  tElements;
+             Vector< fem::Node_Base* >        tNodes;
+             Vector< MSI::Equation_Object* >  tElements;
 
              // get map from mesh
              tMesh->get_adof_map( tOrder, tCoefficientsMap );
@@ -573,8 +573,8 @@ namespace moris
             //         fem::IWG_L2 * tIWG = new moris::fem::IWG_L2( );
             //
             //         map< moris_id, moris_index >   tCoefficientsMap;
-            //         Cell< fem::Node_Base* >        tNodes;
-            //         Cell< MSI::Equation_Object* >  tElements;
+            //         Vector< fem::Node_Base* >        tNodes;
+            //         Vector< MSI::Equation_Object* >  tElements;
             //
             //         // get map from mesh
             //         tMesh->get_adof_map( tOrder, tCoefficientsMap );
@@ -778,8 +778,8 @@ namespace moris
              fem::IWG_L2 * tIWG = new moris::fem::IWG_L2( );
 
              map< moris_id, moris_index >   tCoefficientsMap;
-             Cell< fem::Node_Base* >        tNodes;
-             Cell< MSI::Equation_Object* >  tElements;
+             Vector< fem::Node_Base* >        tNodes;
+             Vector< MSI::Equation_Object* >  tElements;
 
              // get map from mesh
              tMesh->get_adof_map( tOrder, tCoefficientsMap );

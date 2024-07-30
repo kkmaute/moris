@@ -24,7 +24,7 @@ namespace moris
         // -------------------------------------------------------------------------------------------------------------
 
         Manager::Manager(
-                const Vector< Vector<ParameterList>>           & aParameterLists,
+                const Vector< Vector< Parameter_List > >           & aParameterLists,
                 Vector<std::shared_ptr<Criteria_Interface>>   aInterfaces)
                 : Manager(
                         aParameterLists(2),
@@ -39,7 +39,7 @@ namespace moris
         // -------------------------------------------------------------------------------------------------------------
 
         Manager::Manager(
-                const Vector<ParameterList>& aAlgorithmParameterLists,
+                const Vector< Parameter_List >& aAlgorithmParameterLists,
                 std::shared_ptr<Problem>   aProblem)
                 : mProblem(aProblem)
         {
@@ -103,7 +103,7 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Manager::get_advs()
+        Vector< real > Manager::get_advs()
         {
             return mProblem->get_advs();
         }

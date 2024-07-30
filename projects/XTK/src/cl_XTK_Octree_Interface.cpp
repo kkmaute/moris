@@ -269,7 +269,7 @@ namespace moris::xtk
         return tVertexAncestry;
     }
 
-    Octree_Interface::Octree_Interface( ParameterList &aParameterList )
+    Octree_Interface::Octree_Interface( Parameter_List &aParameterList )
     {
         mOctreeRefinementLevel = std::stoi( aParameterList.get< std::string >( "octree_refinement_level" ) );
         std::cout << "mOctreeRefinementLevel = " << mOctreeRefinementLevel << std::endl;

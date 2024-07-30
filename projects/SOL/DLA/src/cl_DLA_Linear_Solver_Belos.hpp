@@ -15,6 +15,7 @@
 #include "Epetra_ConfigDefs.h"
 
 #include "cl_DLA_Linear_Solver_Algorithm_Trilinos.hpp"
+#include "fn_PRM_SOL_Parameters.hpp"
 
 #include "BelosConfigDefs.hpp"
 #include "BelosLinearProblem.hpp"
@@ -35,15 +36,11 @@ private:
 
 protected:
 public:
-    Linear_Solver_Belos();
-
-    Linear_Solver_Belos( const moris::ParameterList aParameterlist );
+    Linear_Solver_Belos( const moris::Parameter_List& aParameterlist = prm::create_linear_algorithm_parameter_list_belos() );
 
     Linear_Solver_Belos( Linear_Problem * aLinearSystem  );
 
     ~Linear_Solver_Belos();
-
-    void set_solver_parameters();
 
     //int SetSystemMatrix ( bool aUseTranspose );
 

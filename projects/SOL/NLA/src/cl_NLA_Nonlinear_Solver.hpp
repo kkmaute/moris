@@ -14,7 +14,7 @@
 #include "moris_typedefs.hpp"    // CON/src
 #include "cl_Vector.hpp"
 #include <memory>
-#include "cl_Param_List.hpp"
+#include "fn_PRM_SOL_Parameters.hpp"
 #include "cl_MSI_Dof_Type_Enums.hpp"
 
 #include "cl_NLA_Nonlinear_Solver_Enums.hpp"
@@ -25,7 +25,8 @@ namespace moris
     namespace sol
     {
         class SOL_Warehouse;
-    }
+        class Dist_Vector;
+    }    // namespace sol
     namespace tsa
     {
         class Time_Solver_Algorithm;
@@ -80,7 +81,7 @@ namespace moris
             //! Number of iterations of algorithm needed to converge / stop relative to maximum
             real mRelNumIterations = 0;
 
-            ParameterList mParameterListNonLinearSolver;
+            Parameter_List mParameterListNonLinearSolver;
 
             enum NonlinearSolverType mNonLinSolverType = NonlinearSolverType::END_ENUM;
 
@@ -91,20 +92,12 @@ namespace moris
 
             sint mTimeIter = 0;
 
-            tsa::Time_Solver_Algorithm* mMyTimeSolverAlgorithm = nullptr;
-            //        enum NonlinearSolverType mMyNonLinSolverType = NonlinearSolverType::UNDEFINED;
-
           protected:
 
           public:
-            /**
-             * @brief Constructor. Creates a default nonlinear solver
-             *
-             * @param[in] aNonLinSolverType Nonlinear solver type. Default is Newton
-             */
-            Nonlinear_Solver( const enum NonlinearSolverType aNonLinSolverType = NonlinearSolverType::NEWTON_SOLVER );
-
-            Nonlinear_Solver( const enum NonlinearSolverType aNonLinSolverType, const ParameterList aParameterlist );
+            Nonlinear_Solver(
+                    const Parameter_List& aSolverParameterList    = prm::create_nonlinear_solver_parameter_list(),
+                    const Parameter_List& aAlgorithmParameterList = prm::create_nonlinear_solver_parameter_list() );
 
             //--------------------------------------------------------------------------------------------------
 
@@ -116,7 +109,7 @@ namespace moris
              */
             Nonlinear_Solver(
                     Vector< std::shared_ptr< Nonlinear_Algorithm > >& aNonlinearSolverList,
-                    const enum NonlinearSolverType                  aNonLinSolverType = NonlinearSolverType::NEWTON_SOLVER );
+                    const Parameter_List&                             aSolverParameterList = prm::create_nonlinear_solver_parameter_list() );
 
             //--------------------------------------------------------------------------------------------------
 
@@ -136,7 +129,7 @@ namespace moris
              */
             void set_dof_type_list(
                     const Vector< enum MSI::Dof_Type > aStaggeredDofTypeList,
-                    const sint                       aLevel = 0 );
+                    const sint                         aLevel = 0 );
 
             //--------------------------------------------------------------------------------------------------
 
@@ -262,24 +255,6 @@ namespace moris
             //--------------------------------------------------------------------------------------------------
 
             Vector< enum MSI::Dof_Type > get_sec_dof_type_union();
-
-            //--------------------------------------------------------------------------------------------------
-
-            /**
-             * @brief Sets the index of this nonlinear solver manager
-             *
-             * @param[in] aNonlinearSolverManagerIndex Nonlinear solver manager index
-             */
-            void set_nonlinear_solver_manager_index( const sint aNonlinearSolverManagerIndex );
-
-            //--------------------------------------------------------------------------------------------------
-
-            /**
-             * @brief Get the nonlinear solver manager index
-             *
-             * @param[out] rNonlinearSolverManagerIndex Returns the nonlinear solver manager index
-             */
-            sint get_nonlinear_solver_manager_index();
 
             //--------------------------------------------------------------------------------------------------
 
@@ -471,10 +446,6 @@ namespace moris
 
             //--------------------------------------------------------------------------------------------------
 
-            void set_nonlinear_solver_manager_parameters();
-
-            //--------------------------------------------------------------------------------------------------
-
             void set_compute_static_residual_flag( bool aFlag );
 
             //--------------------------------------------------------------------------------------------------
@@ -484,20 +455,6 @@ namespace moris
             //--------------------------------------------------------------------------------------------------
 
             Nonlinear_Problem* get_my_nonlin_problem();
-
-            void set_nonlin_solver_type( enum NonlinearSolverType aNonLinSolverType );
-
-            enum NonlinearSolverType get_nonlin_solver_type();
-
-            void set_time_solver_type( tsa::Time_Solver_Algorithm* aTimeSolverAlgorithm );
-
-            //--------------------------------------------------------------------------------------------------
-
-            ParameterListTypes&
-            set_param( char const * aKey )
-            {
-                return mParameterListNonLinearSolver( aKey );
-            }
         };
     }    // namespace NLA
 }    // namespace moris

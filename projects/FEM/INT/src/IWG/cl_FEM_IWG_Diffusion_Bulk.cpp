@@ -27,10 +27,12 @@ namespace moris
             mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
-            mPropertyMap[ "Load" ]      = static_cast< uint >( IWG_Property_Type::BODY_LOAD );
-            mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
-            mPropertyMap[ "H2Penalty" ] = static_cast< uint >( IWG_Property_Type::H2_Penalty );
-            mPropertyMap[ "H3Penalty" ] = static_cast< uint >( IWG_Property_Type::H3_Penalty );
+            mPropertyMap[ "Load" ]       = static_cast< uint >( IWG_Property_Type::BODY_LOAD );
+            mPropertyMap[ "Thickness" ]  = static_cast< uint >( IWG_Property_Type::THICKNESS );
+            mPropertyMap[ "H2Penalty" ]  = static_cast< uint >( IWG_Property_Type::H2_PENALTY );
+            mPropertyMap[ "H3Penalty" ]  = static_cast< uint >( IWG_Property_Type::H3_PENALTY );
+            mPropertyMap[ "PhaseField" ] = static_cast< uint >( IWG_Property_Type::Phase_Field );
+            mPropertyMap[ "Select" ]     = static_cast< uint >( IWG_Property_Type::SELECT );
 
             // set size for the constitutive model pointer cell
             mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
@@ -67,6 +69,16 @@ namespace moris
             const std::shared_ptr< Property >& tPropLoad =
                     mLeaderProp( static_cast< uint >( IWG_Property_Type::BODY_LOAD ) );
 
+            // get select property
+            const std::shared_ptr< Property >& tPropSelect =
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
+
+            real tSelectValue = 1.0;
+            if ( tPropSelect != nullptr )
+            {
+                tSelectValue = tPropSelect->val()( 0 );
+            }
+
             // get the elasticity CM
             const std::shared_ptr< Constitutive_Model >& tCMDiffusion =
                     mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
@@ -81,11 +93,15 @@ namespace moris
 
             // get H2 penalty property
             const std::shared_ptr< Property >& tPropH2Pen =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::H2_Penalty ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::H2_PENALTY ) );
 
             // get H3 penalty property
             const std::shared_ptr< Property >& tPropH3Pen =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::H3_Penalty ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::H3_PENALTY ) );
+
+            // get phase field property
+            const std::shared_ptr< Property >& tPropPhaseField =
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::Phase_Field ) );
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
@@ -103,7 +119,7 @@ namespace moris
             if ( tPropLoad != nullptr )
             {
                 // compute contribution of body load to residual
-                tRes -= aWStar * ( tFITemp->N_trans() * tPropLoad->val()( 0 ) );
+                tRes -= aWStar * tSelectValue * ( tFITemp->N_trans() * tPropLoad->val()( 0 ) );
             }
 
             // if H2 penalty
@@ -118,6 +134,13 @@ namespace moris
             {
                 // compute contribution of body load to residual
                 tRes += aWStar * tPropH3Pen->val()( 0 ) * ( trans( tFITemp->dnNdxn( 3 ) ) * tFITemp->gradx( 3 ) );
+            }
+
+            // if phase field term
+            if ( tPropPhaseField )
+            {
+                tRes += aWStar * tPropPhaseField->val()( 0 ) * tFITemp->N_trans()    //
+                      * ( tFITemp->val()( 0 ) * ( 1.0 - tFITemp->val()( 0 ) ) * ( 1.0 - 2.0 * tFITemp->val()( 0 ) ) );
             }
 
             // if stabilization parameter is defined
@@ -156,6 +179,16 @@ namespace moris
             const std::shared_ptr< Property >& tPropLoad =
                     mLeaderProp( static_cast< uint >( IWG_Property_Type::BODY_LOAD ) );
 
+            // get select property
+            const std::shared_ptr< Property >& tPropSelect =
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
+
+            real tSelectValue = 1.0;
+            if ( tPropSelect != nullptr )
+            {
+                tSelectValue = tPropSelect->val()( 0 );
+            }
+
             // get the elasticity CM
             const std::shared_ptr< Constitutive_Model >& tCMDiffusion =
                     mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
@@ -170,11 +203,15 @@ namespace moris
 
             // get H2 penalty property
             const std::shared_ptr< Property >& tPropH2Pen =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::H2_Penalty ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::H2_PENALTY ) );
 
             // get H3 penalty property
             const std::shared_ptr< Property >& tPropH3Pen =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::H3_Penalty ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::H3_PENALTY ) );
+
+            // get phase field property
+            const std::shared_ptr< Property >& tPropPhaseField =
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::Phase_Field ) );
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
@@ -205,7 +242,7 @@ namespace moris
                     if ( tPropLoad->check_dof_dependency( tDofType ) )
                     {
                         // add contribution to Jacobian
-                        tJac -= aWStar * ( tFITemp->N_trans() * tPropLoad->dPropdDOF( tDofType ) );
+                        tJac -= aWStar * tSelectValue * ( tFITemp->N_trans() * tPropLoad->dPropdDOF( tDofType ) );
                     }
                 }
 
@@ -224,6 +261,16 @@ namespace moris
                     {
                         // compute contribution of body load to residual
                         tJac += aWStar * tPropH3Pen->val()( 0 ) * ( trans( tFITemp->dnNdxn( 3 ) ) * tFITemp->dnNdxn( 3 ) );
+                    }
+
+                    // if phase field term
+                    if ( tPropPhaseField )
+                    {
+                        tJac += aWStar * tPropPhaseField->val()( 0 ) * tFITemp->N_trans() * (                    //
+                                        ( ( 1.0 - tFITemp->val()( 0 ) ) * ( 1.0 - 2.0 * tFITemp->val()( 0 ) )    //
+                                                - tFITemp->val()( 0 ) * ( 1.0 - 2.0 * tFITemp->val()( 0 ) )      //
+                                                - 2.0 * tFITemp->val()( 0 ) * ( 1.0 - tFITemp->val()( 0 ) ) )    //
+                                        * tFITemp->N() );
                     }
                 }
 
@@ -328,7 +375,7 @@ namespace moris
             //            for( uint iDv = 0; iDv < tNumDvDependencies; iDv++ )
             //            {
             //                // get the treated dv type
-            //                Cell< gen::PDV_Type > tDvType = mLeaderGlobalDvTypes( iDv );
+            //                Vector< gen::PDV_Type > tDvType = mLeaderGlobalDvTypes( iDv );
             //
             //                // get the index for dof type, indices for assembly
             //                sint tDvDepIndex          = ;

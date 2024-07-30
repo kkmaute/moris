@@ -37,6 +37,7 @@ extern "C" {
 //------------------------------------------------------------------------------
 namespace moris
 {
+
     /* ------------------------------------------------------------------------ */
     // Bar Information
     moris::uint tNumBars  = 2;
@@ -91,8 +92,8 @@ namespace moris
     // Level set function for diamond shaped wedge
     moris::real
     Bars(
-            const moris::Matrix< DDRMat >&     aCoordinates,
-            const Vector< real >& aGeometryParameters )
+            const moris::Matrix< DDRMat >& aCoordinates,
+            const Vector< real >&          aGeometryParameters )
     {
         moris::Matrix< DDRMat > tXp = { { aCoordinates( 0 ) }, { aCoordinates( 1 ) }, { 0.0 } };
 
@@ -171,9 +172,9 @@ namespace moris
 
     void
     BarsGrad(
-            const moris::Matrix< DDRMat >&     aCoordinates,
-            const Vector< real >& aGeometryParameters,
-            moris::Matrix< DDRMat >&           aSensitivities )
+            const moris::Matrix< DDRMat >& aCoordinates,
+            const Vector< real >&          aGeometryParameters,
+            moris::Matrix< DDRMat >&       aSensitivities )
     {
         // create copy of geometry parameter cell
         Vector< real > tGeometryParameters = aGeometryParameters;
@@ -223,9 +224,9 @@ namespace moris
 
     void
     Func_Neumann(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         // Coordinates of pont
         moris::Matrix< moris::DDRMat > tXp = aFIManager->get_IP_geometry_interpolator()->valx();
@@ -252,9 +253,9 @@ namespace moris
     // Constant function for properties
     void
     Func_Const( moris::Matrix<
-                        moris::DDRMat >&                   aPropMatrix,
+                        moris::DDRMat >&              aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         aPropMatrix = aParameters( 0 );
     }
@@ -280,7 +281,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     Matrix< DDRMat >
-    compute_objectives( Matrix< DDRMat > aADVs, Matrix< DDRMat > aCriteria )
+    compute_objectives( const Vector< real >& aADVs, const Vector< real >& aCriteria )
     {
         Matrix< DDRMat > tObjectives( 1, 1 );
         tObjectives( 0 ) = aCriteria( 0 ) / 2.7;
@@ -291,7 +292,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     Matrix< DDRMat >
-    compute_constraints( Matrix< DDRMat > aADVs, Matrix< DDRMat > aCriteria )
+    compute_constraints( const Vector< real >& aADVs, const Vector< real >& aCriteria )
     {
         Matrix< DDRMat > tConstraints( 1, 1 );
         tConstraints( 0 ) = ( aCriteria( 1 ) / 1.9 ) - 1.0;
@@ -302,9 +303,9 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     Matrix< DDRMat >
-    compute_dobjective_dadv( Matrix< DDRMat > aADVs, Matrix< DDRMat > aCriteria )
+    compute_dobjective_dadv( const Vector< real >& aADVs, const Vector< real >& aCriteria )
     {
-        Matrix< DDRMat > tDObjectiveDADV( 1, aADVs.numel(), 0.0 );
+        Matrix< DDRMat > tDObjectiveDADV( 1, aADVs.size(), 0.0 );
 
         return tDObjectiveDADV;
     }
@@ -312,9 +313,9 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     Matrix< DDRMat >
-    compute_dobjective_dcriteria( Matrix< DDRMat > aADVs, Matrix< DDRMat > aCriteria )
+    compute_dobjective_dcriteria( const Vector< real >& aADVs, const Vector< real >& aCriteria )
     {
-        Matrix< DDRMat > tDObjectiveDCriteria( 1, aCriteria.numel(), 0.0 );
+        Matrix< DDRMat > tDObjectiveDCriteria( 1, aCriteria.size(), 0.0 );
         tDObjectiveDCriteria( 0 ) = 1.0 / 2.7;
 
         return tDObjectiveDCriteria;
@@ -323,9 +324,9 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     Matrix< DDRMat >
-    compute_dconstraint_dadv( Matrix< DDRMat > aADVs, Matrix< DDRMat > aCriteria )
+    compute_dconstraint_dadv( const Vector< real >& aADVs, const Vector< real >& aCriteria )
     {
-        Matrix< DDRMat > tDConstraintDADV( 1, aADVs.numel(), 0.0 );
+        Matrix< DDRMat > tDConstraintDADV( 1, aADVs.size(), 0.0 );
 
         return tDConstraintDADV;
     }
@@ -333,9 +334,9 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     Matrix< DDRMat >
-    compute_dconstraint_dcriteria( Matrix< DDRMat > aADVs, Matrix< DDRMat > aCriteria )
+    compute_dconstraint_dcriteria( const Vector< real >& aADVs, const Vector< real >& aCriteria )
     {
-        Matrix< DDRMat > tDConstraintDCriteria( 1, aCriteria.numel(), 0.0 );
+        Matrix< DDRMat > tDConstraintDCriteria( 1, aCriteria.size(), 0.0 );
         tDConstraintDCriteria( 1 ) = 1.0 / 1.9;
 
         return tDConstraintDCriteria;
@@ -344,7 +345,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     void
-    OPTParameterList( Vector< Vector< ParameterList > >& tParameterlist )
+    OPTParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 3 );
         tParameterlist( 0 ).resize( 1 );
@@ -369,7 +370,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     void
-    HMRParameterList( Vector< Vector< ParameterList > >& tParameterlist )
+    HMRParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -406,7 +407,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     void
-    XTKParameterList( Vector< Vector< ParameterList > >& tParameterlist )
+    XTKParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -428,78 +429,39 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     void
-    GENParameterList( Vector< Vector< ParameterList > >& tParameterlist )
+    GENParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 3 );
 
         // Main GEN parameter list
         tParameterlist( 0 ).push_back( prm::create_gen_parameter_list() );
 
-        tParameterlist( 0 )( 0 ).set( "initial_advs",
-                std::to_string( 0.0 ) + "," +            //
-                        std::to_string( 0.0 ) + "," +    //
-                        std::to_string( 0.1 ) + "," +    //
-                        std::to_string( 1.0 ) + "," +    //
-                        std::to_string( 0.5 ) + "," +    //
-                        std::to_string( 0.1 ) + "," +    //
-                        std::to_string( 0.0 ) + "," +    //
-                        std::to_string( 1.0 ) + "," +    //
-                        std::to_string( 0.1 ) + "," +    //
-                        std::to_string( 1.0 ) + "," +    //
-                        std::to_string( 0.5 ) + "," +    //
-                        std::to_string( 0.1 ) );
-
-        tParameterlist( 0 )( 0 ).set( "lower_bounds",
-                std::to_string( 0.0 ) + "," +            //
-                        std::to_string( 0.0 ) + "," +    //
-                        std::to_string( 0.1 ) + "," +    //
-                        std::to_string( 1.0 ) + "," +    //
-                        std::to_string( 0.5 ) + "," +    //
-                        std::to_string( 0.1 ) + "," +    //
-                        std::to_string( 0.0 ) + "," +    //
-                        std::to_string( 1.0 ) + "," +    //
-                        std::to_string( 0.1 ) + "," +    //
-                        std::to_string( 1.0 ) + "," +    //
-                        std::to_string( 0.5 ) + "," +    //
-                        std::to_string( 0.1 ) );
-
-        tParameterlist( 0 )( 0 ).set( "upper_bounds",
-                std::to_string( 0.0 ) + "," +            //
-                        std::to_string( 0.0 ) + "," +    //
-                        std::to_string( 0.1 ) + "," +    //
-                        std::to_string( 1.0 ) + "," +    //
-                        std::to_string( 0.5 ) + "," +    //
-                        std::to_string( 0.1 ) + "," +    //
-                        std::to_string( 0.0 ) + "," +    //
-                        std::to_string( 1.0 ) + "," +    //
-                        std::to_string( 0.1 ) + "," +    //
-                        std::to_string( 1.0 ) + "," +    //
-                        std::to_string( 0.5 ) + "," +    //
-                        std::to_string( 0.1 ) );
-
-        tParameterlist( 0 )( 0 ).set( "IQI_types", "IQIBulkStrainEnergy,IQIBulkVolume" );
-        tParameterlist( 0 )( 0 ).set( "PDV_types", "" );
+        tParameterlist( 0 )( 0 ).set( "IQI_types", "IQIBulkStrainEnergy", "IQIBulkVolume" );
 
         // Geometry parameter lists
-        tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
 
         // User defined geometry of bars
         tParameterlist( 1 )( 0 ).set( "field_function_name", "Bars" );
         tParameterlist( 1 )( 0 ).set( "sensitivity_function_name", "BarsGrad" );
-
-        tParameterlist( 1 )( 0 ).set( "field_variable_indices",
-                " 0,  1,  2,  3,  4,  5,  6,  7,"
-                " 8,  9, 10, 11" );
-
-        tParameterlist( 1 )( 0 ).set( "adv_indices",
-                " 0,  1,  2,  3,  4,  5,  6,  7,"
-                " 8,  9, 10, 11" );
+        tParameterlist( 1 )( 0 ).insert( "variable_01", Design_Variable( 0.0, 0.0, 0.0 ) );    // bar1_xa1
+        tParameterlist( 1 )( 0 ).insert( "variable_02", Design_Variable( 0.0, 0.0, 0.0 ) );    // bar1_xa2
+        tParameterlist( 1 )( 0 ).insert( "variable_03", Design_Variable( 0.1, 0.1, 0.1 ) );    // bar1_ra
+        tParameterlist( 1 )( 0 ).insert( "variable_04", Design_Variable( 1.0, 1.0, 1.0 ) );    // bar1_xb1
+        tParameterlist( 1 )( 0 ).insert( "variable_05", Design_Variable( 0.5, 0.5, 0.5 ) );    // bar1_xb2
+        tParameterlist( 1 )( 0 ).insert( "variable_06", Design_Variable( 0.1, 0.1, 0.1 ) );    // bar1_rb
+        tParameterlist( 1 )( 0 ).insert( "variable_07", Design_Variable( 0.0, 0.0, 0.0 ) );    // bar2_xa1
+        tParameterlist( 1 )( 0 ).insert( "variable_08", Design_Variable( 1.0, 1.0, 1.0 ) );    // bar2_xa2
+        tParameterlist( 1 )( 0 ).insert( "variable_09", Design_Variable( 0.1, 0.1, 0.1 ) );    // bar2_ra
+        tParameterlist( 1 )( 0 ).insert( "variable_10", Design_Variable( 1.0, 1.0, 1.0 ) );    // bar2_xb1
+        tParameterlist( 1 )( 0 ).insert( "variable_11", Design_Variable( 0.5, 0.5, 0.5 ) );    // bar2_xb2
+        tParameterlist( 1 )( 0 ).insert( "variable_12", Design_Variable( 0.1, 0.1, 0.1 ) );    // bar2_rb
     }
 
     /* ------------------------------------------------------------------------ */
 
     void
-    FEMParameterList( Vector< Vector< ParameterList > >& tParameterList )
+    FEMParameterList( Vector< Vector< Parameter_List > >& tParameterList )
     {
         // create a cell of cell of parameter list for fem
         tParameterList.resize( 8 );
@@ -556,7 +518,7 @@ namespace moris
         // create parameter list for constitutive model 1
         tParameterList( 1 ).push_back( prm::create_constitutive_model_parameter_list() );
         tParameterList( 1 )( tCMCounter ).set( "constitutive_name", "CMStrucLinIso1" );
-        tParameterList( 1 )( tCMCounter ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::STRUC_LIN_ISO ) );
+        tParameterList( 1 )( tCMCounter ).set( "constitutive_type", fem::Constitutive_Type::STRUC_LIN_ISO );
         tParameterList( 1 )( tCMCounter ).set( "dof_dependencies", std::pair< std::string, std::string >( "UX,UY", "Displacement" ) );
         tParameterList( 1 )( tCMCounter ).set( "properties", "PropYoungs,YoungsModulus;PropPoisson,PoissonRatio" );
         tCMCounter++;
@@ -568,7 +530,7 @@ namespace moris
         // create parameter list for stabilization parameter 1
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name", "SPNitsche" );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::DIRICHLET_NITSCHE ) );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_type", fem::Stabilization_Type::DIRICHLET_NITSCHE );
         tParameterList( 2 )( tSPCounter ).set( "function_parameters", "100.0" );
         tParameterList( 2 )( tSPCounter ).set( "leader_properties", "PropYoungs,Material" );
         tSPCounter++;
@@ -576,7 +538,7 @@ namespace moris
         // create parameter list for ghost stabilization parameter for outer material
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name", "SPGhost" );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_type", fem::Stabilization_Type::GHOST_DISPL );
         tParameterList( 2 )( tSPCounter ).set( "function_parameters", "0.01" );
         tParameterList( 2 )( tSPCounter ).set( "leader_properties", "PropYoungs,Material" );
         tSPCounter++;
@@ -588,7 +550,7 @@ namespace moris
         // create parameter list for IWG 1
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGBulkU_1" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_BULK ) );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", fem::IWG_Type::STRUC_LINEAR_BULK );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMStrucLinIso1,ElastLinIso" );
@@ -599,7 +561,7 @@ namespace moris
         // create parameter list for IWG 2
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGDirichletU" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE ) );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropDirichlet,Dirichlet" );
@@ -611,7 +573,7 @@ namespace moris
         // create parameter list for IWG 3
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGNeumannFlux" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_NEUMANN ) );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", fem::IWG_Type::STRUC_LINEAR_NEUMANN );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropNeumann,Traction" );
@@ -623,7 +585,7 @@ namespace moris
             // create IWG for outer material - ghost
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGGPInnerTemp" );
-            tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_type", fem::IWG_Type::GHOST_NORMAL_FIELD );
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
             tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY" );
             tParameterList( 3 )( tIWGCounter ).set( "follower_dof_dependencies", "UX,UY" );
@@ -638,7 +600,7 @@ namespace moris
 
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkDISPX" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::DOF ) );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type", fem::IQI_Type::DOF );
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "UX,UY" );
         tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "UX,UY" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 0 );
@@ -647,7 +609,7 @@ namespace moris
 
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkDISPY" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::DOF ) );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type", fem::IQI_Type::DOF );
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "UX,UY" );
         tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "UX,UY" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 1 );
@@ -656,7 +618,7 @@ namespace moris
 
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkStrainEnergy" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::STRAIN_ENERGY ) );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type", fem::IQI_Type::STRAIN_ENERGY );
         tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "UX,UY" );
         tParameterList( 4 )( tIQICounter ).set( "leader_constitutive_models", "CMStrucLinIso1,Elast" );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tBars );
@@ -665,7 +627,7 @@ namespace moris
         // Max UDisp
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIMaxDofUy" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::MAX_DOF ) );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type", fem::IQI_Type::MAX_DOF );
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "UX,UY" );
         tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "UX,UY" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 1 );
@@ -675,7 +637,7 @@ namespace moris
 
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkVolume" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::VOLUME ) );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type", fem::IQI_Type::VOLUME );
         tParameterList( 4 )( tIQICounter ).set( "leader_properties", "PropDensity,Density" );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tBars );
         tIQICounter++;
@@ -685,18 +647,18 @@ namespace moris
         tParameterList( 5 ).resize( 1 );
 
         tParameterList( 5 )( 0 ) = prm::create_computation_parameter_list();
-        tParameterList( 5 )( 0 ).set( "finite_difference_scheme", static_cast< uint >( fem::FDScheme_Type::POINT_3_CENTRAL ) );
+        tParameterList( 5 )( 0 ).set( "finite_difference_scheme", fem::FDScheme_Type::POINT_3_CENTRAL );
         tParameterList( 5 )( 0 ).set( "finite_difference_perturbation_size", 1e-4 );
     }
 
     void
-    SOLParameterList( Vector< Vector< ParameterList > >& tParameterlist )
+    SOLParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 8 );
 
         tParameterlist( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::BELOS_IMPL ) );
         tParameterlist( 0 )( 0 ).set( "preconditioners", "0" );
-        
+
         tParameterlist( 1 ).push_back( moris::prm::create_linear_solver_parameter_list() );
 
         tParameterlist( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );
@@ -721,7 +683,7 @@ namespace moris
     }
 
     void
-    MSIParameterList( Vector< Vector< ParameterList > >& tParameterlist )
+    MSIParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -730,14 +692,14 @@ namespace moris
     }
 
     void
-    VISParameterList( Vector< Vector< ParameterList > >& tParameterlist )
+    VISParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
 
         tParameterlist( 0 )( 0 ) = prm::create_vis_parameter_list();
         tParameterlist( 0 )( 0 ).set( "File_Name", std::pair< std::string, std::string >( "./", tOutputFileName ) );
-        tParameterlist( 0 )( 0 ).set( "Mesh_Type", static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
+        tParameterlist( 0 )( 0 ).set( "Mesh_Type", vis::VIS_Mesh_Type::STANDARD );
         tParameterlist( 0 )( 0 ).set( "Set_Names", tTotalDomain );
         tParameterlist( 0 )( 0 ).set( "Field_Names", "UX,UY,STRAIN_ENERGY,MAXUY,VOLUME" );
         tParameterlist( 0 )( 0 ).set( "Field_Type", "NODAL,NODAL,GLOBAL,GLOBAL,GLOBAL" );
@@ -746,7 +708,7 @@ namespace moris
     }
 
     void
-    MORISGENERALParameterList( Vector< Vector< ParameterList > >& tParameterlist )
+    MORISGENERALParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
     }
 
@@ -757,4 +719,3 @@ namespace moris
 #ifdef __cplusplus
 }
 #endif
-

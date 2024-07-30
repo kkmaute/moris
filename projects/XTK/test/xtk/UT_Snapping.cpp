@@ -22,7 +22,7 @@
 #include "fn_PRM_HMR_Parameters.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
 #include "fn_PRM_XTK_Parameters.hpp"
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 
 namespace moris::xtk
 {
@@ -39,7 +39,7 @@ namespace moris::xtk
             bool tBilinear = false;
 
             // XTK parameter list
-            Vector< Vector< moris::ParameterList > > tXTKParams( 1 );
+            Vector< Vector< moris::Parameter_List > > tXTKParams( 1 );
             tXTKParams( 0 ).resize( 1 );
             tXTKParams( 0 )( 0 ) = prm::create_xtk_parameter_list();
             tXTKParams( 0 )( 0 ).set( "decompose", true );
@@ -57,7 +57,7 @@ namespace moris::xtk
 
             // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             // GEN Parameters
-            Vector< Vector< moris::ParameterList > > tGENParams( 3 );
+            Vector< Vector< moris::Parameter_List > > tGENParams( 3 );
             tGENParams( 0 ).resize( 1 );
             tGENParams( 1 ).resize( 3 );
 
@@ -71,32 +71,29 @@ namespace moris::xtk
 
             // Geometry parameter lists
             moris::uint tGeoCounter        = 0;
-            tGENParams( 1 )( tGeoCounter ) = prm::create_level_set_geometry_parameter_list();
+            tGENParams( 1 )( tGeoCounter ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE );
             tGENParams( 1 )( tGeoCounter ).set( "isocontour_threshold", 1e-16 );
             tGENParams( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1e-12 );
             tGENParams( 1 )( tGeoCounter ).set( "intersection_tolerance", 1e-12 );
-            tGENParams( 1 )( tGeoCounter ).set( "field_type", "plane" );
-            tGENParams( 1 )( tGeoCounter ).set( "constant_parameters", "0.0, " + std::to_string( tOffset ) + ", " + std::to_string( tXNormal ) + ", " + std::to_string( tYNormal ) );
+            tGENParams( 1 )( tGeoCounter ).set( "constant_parameters", 0.0, tOffset, tXNormal, tYNormal );
             tGENParams( 1 )( tGeoCounter ).set( "use_multilinear_interpolation", tBilinear );
             tGeoCounter++;
 
             // Geometry parameter lists
-            tGENParams( 1 )( tGeoCounter ) = prm::create_level_set_geometry_parameter_list();
+            tGENParams( 1 )( tGeoCounter ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE );
             tGENParams( 1 )( tGeoCounter ).set( "isocontour_threshold", 1e-16 );
             tGENParams( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1e-12 );
             tGENParams( 1 )( tGeoCounter ).set( "intersection_tolerance", 1e-12 );
-            tGENParams( 1 )( tGeoCounter ).set( "field_type", "plane" );
-            tGENParams( 1 )( tGeoCounter ).set( "constant_parameters", "-0.5, 0.0, 1.0, 0.0" );
+            tGENParams( 1 )( tGeoCounter ).set( "constant_parameters", -0.5, 0.0, 1.0, 0.0 );
             tGENParams( 1 )( tGeoCounter ).set( "use_multilinear_interpolation", tBilinear );
             tGeoCounter++;
 
             // Geometry parameter lists
-            tGENParams( 1 )( tGeoCounter ) = prm::create_level_set_geometry_parameter_list();
+            tGENParams( 1 )( tGeoCounter ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE );
             tGENParams( 1 )( tGeoCounter ).set( "isocontour_threshold", 1e-16 );
             tGENParams( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1e-12 );
             tGENParams( 1 )( tGeoCounter ).set( "intersection_tolerance", 1e-12 );
-            tGENParams( 1 )( tGeoCounter ).set( "field_type", "plane" );
-            tGENParams( 1 )( tGeoCounter ).set( "constant_parameters", "1.0, 0.0, 1.0, 0.0" );
+            tGENParams( 1 )( tGeoCounter ).set( "constant_parameters", 1.0, 0.0, 1.0, 0.0 );
             tGENParams( 1 )( tGeoCounter ).set( "use_multilinear_interpolation", tBilinear );
             tGeoCounter++;
 
@@ -109,7 +106,7 @@ namespace moris::xtk
             std::string tInterpolationOrder = "1";
 
             int                                      tRefineBuffer = 1;
-            Vector< Vector< moris::ParameterList > > tHMRParams( 1 );
+            Vector< Vector< moris::Parameter_List > > tHMRParams( 1 );
             tHMRParams( 0 ).resize( 1 );
             tHMRParams( 0 )( 0 ) = prm::create_hmr_parameter_list();
             tHMRParams( 0 )( 0 ).set( "number_of_elements_per_dimension", tNumElemsPerDim );

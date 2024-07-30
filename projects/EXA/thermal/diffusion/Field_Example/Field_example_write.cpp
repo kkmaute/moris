@@ -147,7 +147,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     void
-    OPTParameterList( Vector< Vector< ParameterList > >& tParameterlist )
+    OPTParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -158,7 +158,7 @@ namespace moris
     }
 
     void
-    HMRParameterList( Vector< Vector< ParameterList > >& tParameterlist )
+    HMRParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -191,7 +191,7 @@ namespace moris
     }
 
     void
-    XTKParameterList( Vector< Vector< ParameterList > >& tParameterlist )
+    XTKParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -211,7 +211,7 @@ namespace moris
     }
 
     void
-    GENParameterList( Vector< Vector< ParameterList > >& tParameterlist )
+    GENParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 3 );
         tParameterlist( 0 ).resize( 1 );
@@ -223,16 +223,16 @@ namespace moris
         uint tGeoCounter = 0;
 
         // Geometry parameter lists
-        tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "LevelSetFunction" );
-        tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", "0" );
-        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );
+        tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", 0 );
+        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0 );
         tParameterlist( 1 )( tGeoCounter ).set( "discretization_mesh_index", 0 );
         tParameterlist( 1 )( tGeoCounter ).set( "use_multilinear_interpolation", true );
     }
 
     void
-    FEMParameterList( Vector< Vector< ParameterList > >& tParameterList )
+    FEMParameterList( Vector< Vector< Parameter_List > >& tParameterList )
     {
         // create a cell of cell of parameter list for fem
         tParameterList.resize( 8 );
@@ -266,7 +266,7 @@ namespace moris
         // create parameter list for constitutive model - Inclusion
         tParameterList( 1 ).push_back( prm::create_constitutive_model_parameter_list() );
         tParameterList( 1 )( tCMCounter ).set( "constitutive_name", "CMDiffusion" );
-        tParameterList( 1 )( tCMCounter ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::DIFF_LIN_ISO ) );
+        tParameterList( 1 )( tCMCounter ).set( "constitutive_type",  fem::Constitutive_Type::DIFF_LIN_ISO ) ;
         tParameterList( 1 )( tCMCounter ).set( "dof_dependencies", std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
         tParameterList( 1 )( tCMCounter ).set( "properties", "PropConductivity , Conductivity" );
         tCMCounter++;
@@ -278,7 +278,7 @@ namespace moris
         // Nitsche stabilization parameter for thermal problem
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name", "SPNitscheTemp" );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::DIRICHLET_NITSCHE ) );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  fem::Stabilization_Type::DIRICHLET_NITSCHE ) ;
         tParameterList( 2 )( tSPCounter ).set( "function_parameters", "100.0" );
         tParameterList( 2 )( tSPCounter ).set( "leader_properties", "PropConductivity,Material" );
         tSPCounter++;
@@ -288,7 +288,7 @@ namespace moris
             // Ghost stabilization parameter for thermal problem
             tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
             tParameterList( 2 )( tSPCounter ).set( "stabilization_name", "SPGhostTemp" );
-            tParameterList( 2 )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
+            tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  fem::Stabilization_Type::GHOST_DISPL ) ;
             tParameterList( 2 )( tSPCounter ).set( "function_parameters", "0.01" );
             tParameterList( 2 )( tSPCounter ).set( "leader_properties", "PropConductivity,Material" );
             tSPCounter++;
@@ -301,7 +301,7 @@ namespace moris
         // create IWG - bulk diffusion
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGBulkTemp" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::SPATIALDIFF_BULK ) );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::SPATIALDIFF_BULK ) ;
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "TEMP" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "TEMP" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMDiffusion,Diffusion" );
@@ -310,7 +310,7 @@ namespace moris
 
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGInletFlux" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::SPATIALDIFF_NEUMANN ) );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::SPATIALDIFF_NEUMANN ) ;
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "TEMP" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "TEMP" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropSurfaceFlux,Neumann" );
@@ -320,7 +320,7 @@ namespace moris
         // create IWG - Dirichlet temp
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGDirichletTemp" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE ) );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE ) ;
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "TEMP" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "TEMP" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropTemperature,Dirichlet" );
@@ -334,7 +334,7 @@ namespace moris
             // create IWG - ghost temp
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGGhostTemp" );
-            tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "TEMP" );
             tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "TEMP" );
             tParameterList( 3 )( tIWGCounter ).set( "follower_dof_dependencies", "TEMP" );
@@ -350,7 +350,7 @@ namespace moris
         // Nodal Temperature IQI
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkTEMP" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::DOF ) );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::DOF ) ;
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "TEMP" );
         tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "TEMP" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 0 );
@@ -360,7 +360,7 @@ namespace moris
         /*
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkL2Error") ;
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::L2_ERROR_ANALYTIC ) );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type",                    fem::IQI_Type::L2_ERROR_ANALYTIC ) ;
         tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies",    "TEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "leader_field_types",         "FIELD_1") ;
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tPhase1 );
@@ -387,7 +387,7 @@ namespace moris
     }
 
     void
-    SOLParameterList( Vector< Vector< ParameterList > >& tParameterlist )
+    SOLParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 8 );
         for ( uint Ik = 0; Ik < 8; Ik++ )
@@ -423,7 +423,7 @@ namespace moris
     }
 
     void
-    MSIParameterList( Vector< Vector< ParameterList > >& tParameterlist )
+    MSIParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -433,14 +433,14 @@ namespace moris
     }
 
     void
-    VISParameterList( Vector< Vector< ParameterList > >& tParameterlist )
+    VISParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
 
         tParameterlist( 0 )( 0 ) = prm::create_vis_parameter_list();
         tParameterlist( 0 )( 0 ).set( "File_Name", std::pair< std::string, std::string >( "./", tOutputFileName ) );
-        tParameterlist( 0 )( 0 ).set( "Mesh_Type", static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
+        tParameterlist( 0 )( 0 ).set( "Mesh_Type",  vis::VIS_Mesh_Type::STANDARD ) ;
         tParameterlist( 0 )( 0 ).set( "Set_Names", tPhase1 );
         tParameterlist( 0 )( 0 ).set( "Field_Names", "TEMP" );
         tParameterlist( 0 )( 0 ).set( "Field_Type", "NODAL" );
@@ -449,7 +449,7 @@ namespace moris
     }
 
     void
-    MORISGENERALParameterList( Vector< Vector< ParameterList > >& tParameterlist )
+    MORISGENERALParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
     }
 

@@ -95,7 +95,7 @@
 
 #include "fn_norm.hpp"
 
-#include "cl_GEN_Plane.hpp"
+#include "cl_GEN_Line.hpp"
 
 #include "fn_PRM_SOL_Parameters.hpp"
 
@@ -148,9 +148,9 @@ namespace moris
 
     inline void
     tConstValFunction(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         aPropMatrix = aParameters( 0 );
     }
@@ -168,7 +168,7 @@ namespace moris
             uint        tLagrangeMeshIndex = 0;
             std::string tFieldName         = "Cylinder";
 
-            ParameterList tParameters = prm::create_hmr_parameter_list();
+            Parameter_List tParameters = prm::create_hmr_parameter_list();
 
             tParameters.set( "number_of_elements_per_dimension", std::string( "2, 1" ) );
             tParameters.set( "domain_dimensions", "2, 2" );
@@ -218,7 +218,7 @@ namespace moris
 
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            auto tPlane = std::make_shared< moris::gen::Plane >( -500.0, 0.0, 1.0, 0.0 );
+            auto                                              tPlane          = std::make_shared< moris::gen::Line >( -500.0, 0.0, 1.0, 0.0 );
             Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
             size_t tModelDimension = 2;
@@ -441,7 +441,7 @@ namespace moris
 
             sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
-            Vector< Vector< moris::ParameterList > > tParameterlist( 8 );
+            Vector< Vector< moris::Parameter_List > > tParameterlist( 8 );
             for ( uint Ik = 0; Ik < 8; Ik++ )
             {
                 tParameterlist( Ik ).resize( 1 );
@@ -466,7 +466,7 @@ namespace moris
             tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "UX,UY;TEMP" );
 
             tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
-            
+
             tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::ML );
             tParameterlist( 7 )( 0 ).set( "ml_prec_type", "SA" );
 
@@ -603,7 +603,7 @@ namespace moris
     //         tXTKModel.mVerbose = false;
     //
     //         //Specify decomposition Method and Cut Mesh ---------------------------------------
-    //         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
+    //         Vector<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
     //         tXTKModel.decompose(tDecompositionMethods);
     //
     //         tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE,0);
@@ -642,7 +642,7 @@ namespace moris
             uint        tLagrangeMeshIndex = 0;
             std::string tFieldName         = "Cylinder";
 
-            ParameterList tParameters = prm::create_hmr_parameter_list();
+            Parameter_List tParameters = prm::create_hmr_parameter_list();
 
             tParameters.set( "number_of_elements_per_dimension", "2, 1" );
             tParameters.set( "domain_dimensions", "2, 2" );
@@ -692,7 +692,7 @@ namespace moris
 
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            auto tPlane = std::make_shared< moris::gen::Plane >( -500.0, 0.0, 1.0, 0.0 );
+            auto                                              tPlane          = std::make_shared< moris::gen::Line >( -500.0, 0.0, 1.0, 0.0 );
             Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
             size_t tModelDimension = 2;
@@ -918,7 +918,7 @@ namespace moris
 
             sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
-            Vector< Vector< moris::ParameterList > > tParameterlist( 8 );
+            Vector< Vector< moris::Parameter_List > > tParameterlist( 8 );
 
             tParameterlist( 0 ).resize( 3 );
             tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AZTEC_IMPL );
@@ -982,7 +982,7 @@ namespace moris
 
             tParameterlist( 6 ).resize( 1 );
             tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
-            
+
             tParameterlist( 7 ).resize( 2 );
             tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::ML );
             tParameterlist( 7 )( 0 ).set( "ml_prec_type", "SA" );
@@ -1006,13 +1006,13 @@ namespace moris
             //        dla::Solver_Factory  tSolFactory;
             //        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
             //
-            //        tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
-            //        tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
-            //        tLinearSolverAlgorithm->set_param("AZ_max_iter") = 10000;
-            //        tLinearSolverAlgorithm->set_param("AZ_solver") = AZ_gmres;
-            //        tLinearSolverAlgorithm->set_param("AZ_subdomain_solve") = AZ_ilu;
-            //        tLinearSolverAlgorithm->set_param("AZ_graph_fill") = 10;
-            ////        tLinearSolverAlgorithm->set_param("ml_prec_type") = "SA";
+            //        tLinearSolverParameterList.set( "AZ_diagnostics", AZ_none );
+            //        tLinearSolverParameterList.set( "AZ_output", AZ_none );
+            //        tLinearSolverParameterList.set( "AZ_max_iter", 10000 );
+            //        tLinearSolverParameterList.set( "AZ_solver", AZ_gmres );
+            //        tLinearSolverParameterList.set( "AZ_subdomain_solve", AZ_ilu );
+            //        tLinearSolverParameterList.set( "AZ_graph_fill", 10 );
+            ////        tLinearSolverParameterList.set( "ml_prec_type", "SA" );
             //
             //        dla::Linear_Solver tLinSolver;
             //        tLinSolver.set_linear_algorithm( 0, tLinearSolverAlgorithm );
@@ -1158,7 +1158,7 @@ namespace moris
     //          std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
     //
     //        //  create field
-    //        Cell<std::shared_ptr< moris::hmr::Field > > tHMRFields;
+    //        Vector<std::shared_ptr< moris::hmr::Field > > tHMRFields;
     //        tHMRFields.resize(2);
     //
     //        // create field
@@ -1194,7 +1194,7 @@ namespace moris
     //      xtk::Model           tXTKModel(tSpatialDimension,tInterpMesh.get(),&tGeometryEngine);
     //      tXTKModel.mVerbose = false;
     //
-    //      Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
+    //      Vector<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
     //      tXTKModel.decompose(tDecompositionMethods);
     //      tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE,0);
     //
@@ -1206,10 +1206,10 @@ namespace moris
     //      mtk::Mesh_Manager tMeshManager;
     //      tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
     //
-    //      Cell< fem::IWG_User_Defined_Info > tBulkIWG(1);
-    //      Cell< fem::IWG_User_Defined_Info > tDBCIWG(1);
-    //      Cell< fem::IWG_User_Defined_Info > tNBCIWG(1);
-    //      Cell< fem::IWG_User_Defined_Info > tIntIWG(1);
+    //      Vector< fem::IWG_User_Defined_Info > tBulkIWG(1);
+    //      Vector< fem::IWG_User_Defined_Info > tDBCIWG(1);
+    //      Vector< fem::IWG_User_Defined_Info > tNBCIWG(1);
+    //      Vector< fem::IWG_User_Defined_Info > tIntIWG(1);
     //
     //        // create IWG user defined info
     //      tBulkIWG( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::STRUC_LINEAR_BULK,
@@ -1232,13 +1232,13 @@ namespace moris
     //      tIntIWG( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::STRUC_LINEAR_INTERFACE_SYMMETRIC_NITSCHE,
     //                                                 { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ },
     //                                                 {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }},
-    //                                                 Cell< fem::Property_Type >( 0 ),
+    //                                                 Vector< fem::Property_Type >( 0 ),
     //                                                 {fem::Constitutive_Type::STRUC_LIN_ISO },
     //                                                 {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }},
-    //                                                 Cell< fem::Property_Type >( 0 ),
+    //                                                 Vector< fem::Property_Type >( 0 ),
     //                                                 {fem::Constitutive_Type::STRUC_LIN_ISO } );
     //
-    //        Cell< Cell< fem::IWG_User_Defined_Info > > tIWGUserDefinedInfo( 14 );
+    //        Vector< Vector< fem::IWG_User_Defined_Info > > tIWGUserDefinedInfo( 14 );
     //
     //        tIWGUserDefinedInfo( 0 )  = tBulkIWG;
     //        tIWGUserDefinedInfo( 1 )  = tBulkIWG;
@@ -1257,33 +1257,33 @@ namespace moris
     //
     //        // create property user defined info
     //        fem::Property_User_Defined_Info tYoungs_Modulus( fem::Property_Type::YOUNGS_MODULUS,
-    //                Cell< Cell< MSI::Dof_Type > >( 0 ),
+    //                Vector< Vector< MSI::Dof_Type > >( 0 ),
     //                {{{ 1.0 }}},
     //                tConstValFunction,
-    //                Cell< fem::PropertyFunc >( 0 ) );
+    //                Vector< fem::PropertyFunc >( 0 ) );
     //        fem::Property_User_Defined_Info tYoungs_Modulus2( fem::Property_Type::YOUNGS_MODULUS,
-    //                Cell< Cell< MSI::Dof_Type > >( 0 ),
+    //                Vector< Vector< MSI::Dof_Type > >( 0 ),
     //                {{{ 1.0 }}},
     //                tConstValFunction,
-    //                Cell< fem::PropertyFunc >( 0 ) );
+    //                Vector< fem::PropertyFunc >( 0 ) );
     //        fem::Property_User_Defined_Info tPoissons_Ratio( fem::Property_Type::POISSONS_RATIO,
-    //                Cell< Cell< MSI::Dof_Type > >( 0 ),
+    //                Vector< Vector< MSI::Dof_Type > >( 0 ),
     //                {{{ 0.0 }}},
     //                tConstValFunction,
-    //                Cell< fem::PropertyFunc >( 0 ) );
+    //                Vector< fem::PropertyFunc >( 0 ) );
     //        fem::Property_User_Defined_Info tStrucDirichlet( fem::Property_Type::STRUC_DIRICHLET,
-    //                Cell< Cell< MSI::Dof_Type > >( 0 ),
+    //                Vector< Vector< MSI::Dof_Type > >( 0 ),
     //                {{{ 0.0, 0.0, 0.0 }}},
     //                tConstValFunction,
-    //                Cell< fem::PropertyFunc >( 0 ) );
+    //                Vector< fem::PropertyFunc >( 0 ) );
     //        fem::Property_User_Defined_Info tStrucNeumann( fem::Property_Type::STRUC_NEUMANN,
-    //                Cell< Cell< MSI::Dof_Type > >( 0 ),
+    //                Vector< Vector< MSI::Dof_Type > >( 0 ),
     //                {{{ 1.0, 0.0, 0.0 }}},
     //                tConstValFunction,
-    //                Cell< fem::PropertyFunc >( 0 ) );
+    //                Vector< fem::PropertyFunc >( 0 ) );
     //
     //        // create property user defined info
-    //        Cell< Cell< Cell< fem::Property_User_Defined_Info > > > tPropertyUserDefinedInfo( 14 );
+    //        Vector< Vector< Vector< fem::Property_User_Defined_Info > > > tPropertyUserDefinedInfo( 14 );
     //        tPropertyUserDefinedInfo( 0 ).resize( 1 );
     //        tPropertyUserDefinedInfo( 0 )( 0 ).resize( 2 );
     //        tPropertyUserDefinedInfo( 0 )( 0 )( 0 ) = tYoungs_Modulus2;
@@ -1358,7 +1358,7 @@ namespace moris
     //                                                          { fem::Property_Type::YOUNGS_MODULUS, fem::Property_Type::POISSONS_RATIO } );
     //
     //        // create constitutive user defined info
-    //        Cell< Cell< Cell< fem::Constitutive_User_Defined_Info > > > tConstitutiveUserDefinedInfo( 14 );
+    //        Vector< Vector< Vector< fem::Constitutive_User_Defined_Info > > > tConstitutiveUserDefinedInfo( 14 );
     //        tConstitutiveUserDefinedInfo( 0 ).resize( 1 );
     //        tConstitutiveUserDefinedInfo( 0 )( 0 ).resize( 1 );
     //        tConstitutiveUserDefinedInfo( 0 )( 0 )( 0 ) = tStrucLinIso;
@@ -1462,15 +1462,15 @@ namespace moris
     //        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
     //        //            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::PETSC );
     //
-    //        tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
-    //        tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
-    //        tLinearSolverAlgorithm->set_param("AZ_max_iter") = 5000;
-    //        tLinearSolverAlgorithm->set_param("AZ_solver") = AZ_gmres_condnum;
-    //        tLinearSolverAlgorithm->set_param("AZ_subdomain_solve") = AZ_ilu;
-    //        tLinearSolverAlgorithm->set_param("AZ_ilut_fill") = 10.0;
-    //        tLinearSolverAlgorithm->set_param("rel_residual") = 1e-8;
+    //        tLinearSolverParameterList.set( "AZ_diagnostics", AZ_none );
+    //        tLinearSolverParameterList.set( "AZ_output", AZ_none );
+    //        tLinearSolverParameterList.set( "AZ_max_iter", 5000 );
+    //        tLinearSolverParameterList.set( "AZ_solver", AZ_gmres_condnum );
+    //        tLinearSolverParameterList.set( "AZ_subdomain_solve", AZ_ilu );
+    //        tLinearSolverParameterList.set( "AZ_ilut_fill", 10.0 );
+    //        tLinearSolverParameterList.set( "rel_residual", 1e-8 );
     //
-    ////            tLinearSolverAlgorithm->set_param("ml_prec_type") = "SA";
+    ////            tLinearSolverParameterList.set( "ml_prec_type", "SA" );
     //
     //        dla::Linear_Solver tLinSolver;
     //
@@ -1485,10 +1485,10 @@ namespace moris
     //        NLA::Nonlinear_Solver_Factory tNonlinFactory;
     //        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
     //
-    //        tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 2;
-    //        //        tNonlinearSolverAlgorithm->set_param("NLA_hard_break") = false;
-    //        //        tNonlinearSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;
-    //        //        tNonlinearSolverAlgorithm->set_param("NLA_rebuild_jacobian") = true;
+    //        tNonlinearSolverParameterList.set( "NLA_max_iter", 2 );
+    //        //        tNonlinearSolverParameterList.set( "NLA_hard_break", false );
+    //        //        tNonlinearSolverParameterList.set( "NLA_max_lin_solver_restarts", 2 );
+    //        //        tNonlinearSolverParameterList.set( "NLA_rebuild_jacobian", true );
     //
     //        tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
     //

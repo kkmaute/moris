@@ -101,7 +101,7 @@ namespace moris::xtk
 
     // ----------------------------------------------------------------------------------
 
-    Model::Model( moris::ParameterList const &aParameterList )
+    Model::Model( moris::Parameter_List const &aParameterList )
             : mParameterList( aParameterList )
             , mModelDimension( UINT_MAX )
             , mEnrichment( nullptr )
@@ -1124,7 +1124,7 @@ namespace moris::xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::ParameterList &
+    moris::Parameter_List &
     Model::get_parameter_list()
     {
         return mParameterList;

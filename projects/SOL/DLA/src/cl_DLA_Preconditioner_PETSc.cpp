@@ -25,19 +25,13 @@
 using namespace moris;
 using namespace dla;
 
-// Preconditioner_PETSc::Preconditioner_PETSc( Linear_Solver_PETSc *aLinearSolverAlgoritm )
-//         : mLinearSolverAlgorithm( aLinearSolverAlgoritm )
-// {
-// }
-
 //----------------------------------------------------------------------------------------
+
 Preconditioner_PETSc::Preconditioner_PETSc(
-        moris::ParameterList *aParameterlist )
+        const Parameter_List &aParameterList )
+        : Preconditioner( aParameterList )
 {
-    mParameterList = aParameterlist;
 }
-
-//----------------------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------------------
 
@@ -49,7 +43,7 @@ void Preconditioner_PETSc::build_ilu_preconditioner( Linear_Problem *aLinearSyst
 
     // write preconditioner to log file
     MORIS_LOG_INFO( "KSP Preconditioner: ilu(%d)",
-            mParameterList->get< moris::sint >( "ILUFill" ) );
+            mParameterList.get< moris::sint >( "ILUFill" ) );
 
     // Set PC type
     PCSetType( mpc, "ilu" );
@@ -63,12 +57,12 @@ void Preconditioner_PETSc::build_ilu_preconditioner( Linear_Problem *aLinearSyst
     // Set levels of fill for ILU
     PCFactorSetLevels(
             mpc,
-            mParameterList->get< moris::sint >( "ILUFill" ) );
+            mParameterList.get< moris::sint >( "ILUFill" ) );
 
     // Set drop tolerance for Ilu
     PCFactorSetDropTolerance(
             mpc,
-            mParameterList->get< moris::real >( "ILUTol" ),
+            mParameterList.get< moris::real >( "ILUTol" ),
             PETSC_DEFAULT,
             PETSC_DEFAULT );
 
@@ -84,7 +78,7 @@ void Preconditioner_PETSc::build_ilu_preconditioner( Linear_Problem *aLinearSyst
 void Preconditioner_PETSc::build_multigrid_preconditioner( Linear_Problem *aLinearSystem )
 {
     // get number of mg levels
-    sint tLevels = mParameterList->get< moris::sint >( "MultigridLevels" );
+    sint tLevels = mParameterList.get< moris::sint >( "MultigridLevels" );
 
     // write preconditioner to log file
     MORIS_LOG_INFO( "KSP Preconditioner: mg(%d)", tLevels );
@@ -156,13 +150,13 @@ void Preconditioner_PETSc::build_multigrid_preconditioner( Linear_Problem *aLine
     //                 Set schwarz preconditioner for finest level
     //----------------------------------------------------------------
 
-    if ( mParameterList->get< bool >( "MG_use_schwarz_smoother" ) )
+    if ( mParameterList.get< bool >( "MG_use_schwarz_smoother" ) )
     {
         // set schwarz preconditiiner domains based on criteria
         moris::real tVolumeFractionThreshold =    //
-                mParameterList->get< moris::real >( "ASM_volume_fraction_threshold" );
+                mParameterList.get< moris::real >( "ASM_volume_fraction_threshold" );
         moris::sint tSchwarzSmoothingIters =    //
-                mParameterList->get< moris::sint >( "MG_schwarz_smoothing_iters" );
+                mParameterList.get< moris::sint >( "MG_schwarz_smoothing_iters" );
 
         moris::Vector< moris::Matrix< IdMat > > tCriteriaIds;
         aLinearSystem->get_solver_input()->get_adof_ids_based_on_criteria( tCriteriaIds,
@@ -207,9 +201,8 @@ void Preconditioner_PETSc::build_multigrid_preconditioner( Linear_Problem *aLine
             tCriteriaIds( Ik + tNumBlocksInitialBlocks ).set_size( 1, 1, tNotInBlock( Ik ) );
         }
 
-
         // construct string from output file name
-        std::string tStrOutputFile = mParameterList->get< std::string >( "ASM_blocks_output_filename" );
+        std::string tStrOutputFile = mParameterList.get< std::string >( "ASM_blocks_output_filename" );
 
         // if not empty
         if ( tStrOutputFile != "" )
@@ -352,7 +345,7 @@ void Preconditioner_PETSc::build_multigrid_preconditioner( Linear_Problem *aLine
 
 //----------------------------------------------------------------------------------------
 
-void Preconditioner_PETSc::build_schwarz_preconditioner_petsc(Linear_Problem* aLinearSystem, KSP aPetscKSPProblem )
+void Preconditioner_PETSc::build_schwarz_preconditioner_petsc( Linear_Problem *aLinearSystem, KSP aPetscKSPProblem )
 {
     // write preconditioner to log file
     MORIS_LOG_INFO( "KSP Preconditioner: asm" );
@@ -361,7 +354,7 @@ void Preconditioner_PETSc::build_schwarz_preconditioner_petsc(Linear_Problem* aL
     PCSetType( mpc, "asm" );
 
     // set schwarz preconditioner domains based on criteria
-    moris::real tVolumeFractionThreshold = mParameterList->get< moris::real >( "ASM_volume_fraction_threshold" );
+    moris::real tVolumeFractionThreshold = mParameterList.get< moris::real >( "ASM_volume_fraction_threshold" );
 
     moris::Vector< moris::Matrix< IdMat > > tCriteriaIds;
     aLinearSystem->get_solver_input()->get_adof_ids_based_on_criteria( tCriteriaIds,
@@ -456,7 +449,7 @@ void Preconditioner_PETSc::build_schwarz_preconditioner( Linear_Problem *aLinear
     PCSetType( mpc, "mat" );
 
     // set schwarz preconditiiner domains based on criteria
-    moris::real tVolumeFractionThreshold = mParameterList->get< moris::real >( "ASM_volume_fraction_threshold" );
+    moris::real tVolumeFractionThreshold = mParameterList.get< moris::real >( "ASM_volume_fraction_threshold" );
 
     moris::Vector< moris::Matrix< IdMat > > tCriteriaIds;
     aLinearSystem->get_solver_input()->get_adof_ids_based_on_criteria( tCriteriaIds,
@@ -540,15 +533,39 @@ void Preconditioner_PETSc::build_schwarz_preconditioner( Linear_Problem *aLinear
 
 //----------------------------------------------------------------------------------------
 
-void Preconditioner_PETSc::build_preconditioner( Linear_Problem *aLinearSystem, KSP aPetscKSPProblem )
-{   
-    std::cout << "mPetscKSPProblem_" + std::to_string(par_rank()) + ": " << aPetscKSPProblem << std::endl;
+void Preconditioner_PETSc::build_algebaric_multigrid_preconditioner( Linear_Problem *aLinearSystem )
+{
+    // write preconditioner to log file
+    MORIS_LOG_INFO( "KSP Preconditioner: amg" );
 
+    // Set PC type
+    PCSetType( mpc, PCGAMG );
+
+    // get number of pde equaitons for each grid
+    sint tNumPDEEquaitons = mParameterList.get< moris::sint >( "num_pde_equations" );
+    MatSetBlockSize( aLinearSystem->get_matrix()->get_petsc_matrix(), tNumPDEEquaitons );
+
+    // see if the defualt values should be used then skip
+    if ( mParameterList.get< bool >( "use_gamg_defaults" ) ) return;
+
+    // set the values from the parameter list
+    PCGAMGSetType( mpc, mParameterList.get< std::string >( "amg_type" ).c_str() );
+    // real tThreshold = mParameterList.get< real >( "amg_threshold" );
+    // PCGAMGSetThreshold( mpc,&tThreshold );
+
+    // loop over the levels and set the smoothers(KSP,PC) for each level
+    // KSPChebyshevEstEigGetKSP( mpc, &tKSPBlock( 0 ) );
+}
+
+//----------------------------------------------------------------------------------------
+
+void Preconditioner_PETSc::build_preconditioner( Linear_Problem *aLinearSystem, KSP aPetscKSPProblem )
+{
     // get preconditioner
     KSPGetPC( aPetscKSPProblem, &mpc );
 
     // set direct solver: superlu-dist
-    if ( !strcmp( mParameterList->get< std::string >( "PCType" ).c_str(), "superlu-dist" ) )
+    if ( !strcmp( mParameterList.get< std::string >( "PCType" ).c_str(), "superlu-dist" ) )
     {
         // write solver to log file
         MORIS_LOG_INFO( "PC Solver: superlu-dist" );
@@ -564,7 +581,7 @@ void Preconditioner_PETSc::build_preconditioner( Linear_Problem *aLinearSystem, 
     }
 
     // set direct solver: mumps
-    else if ( !strcmp( mParameterList->get< std::string >( "PCType" ).c_str(), "mumps" ) )
+    else if ( !strcmp( mParameterList.get< std::string >( "PCType" ).c_str(), "mumps" ) )
     {
 #ifdef MORIS_USE_MUMPS
         // write solver to log file
@@ -598,25 +615,29 @@ void Preconditioner_PETSc::build_preconditioner( Linear_Problem *aLinearSystem, 
     }
 
     // set iterative solver: kspgmres
-    else if ( !strcmp( mParameterList->get< std::string >( "PCType" ).c_str(), "ilu" ) )
+    else if ( !strcmp( mParameterList.get< std::string >( "PCType" ).c_str(), "ilu" ) )
     {
         this->build_ilu_preconditioner( aLinearSystem );
     }
-    else if ( !strcmp( mParameterList->get< std::string >( "PCType" ).c_str(), "mg" ) )
+    else if ( !strcmp( mParameterList.get< std::string >( "PCType" ).c_str(), "mg" ) )
     {
         this->build_multigrid_preconditioner( aLinearSystem );
     }
-    else if ( !strcmp( mParameterList->get< std::string >( "PCType" ).c_str(), "asm" ) )
+    else if ( !strcmp( mParameterList.get< std::string >( "PCType" ).c_str(), "asm" ) )
     {
         // build schwarz preconditioner
         this->build_schwarz_preconditioner_petsc( aLinearSystem, aPetscKSPProblem );
     }
-    else if ( !strcmp( mParameterList->get< std::string >( "PCType" ).c_str(), "mat" ) )
+    else if ( !strcmp( mParameterList.get< std::string >( "PCType" ).c_str(), "mat" ) )
     {
         // build schwarz preconditioner
         this->build_schwarz_preconditioner( aLinearSystem );
     }
-    else if ( !strcmp( mParameterList->get< std::string >( "PCType" ).c_str(), "none" ) )
+    else if ( !strcmp( mParameterList.get< std::string >( "PCType" ).c_str(), "gamg" ) )
+    {
+        this->build_algebaric_multigrid_preconditioner( aLinearSystem );
+    }
+    else if ( !strcmp( mParameterList.get< std::string >( "PCType" ).c_str(), "none" ) )
     {
         // Set PC type to none
         PCSetType( mpc, "none" );

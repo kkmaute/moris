@@ -77,7 +77,7 @@
 
 #include "fn_norm.hpp"
 
-#include "cl_GEN_Plane.hpp"
+#include "cl_GEN_Line.hpp"
 
 moris::real
 PlaneMatVoidMDL( const moris::Matrix< moris::DDRMat >& aPoint )
@@ -156,7 +156,7 @@ TEST_CASE( "XTK HMR Material Void Bar Intersected By Plane", "[XTK_HMR_PLANE_BAR
 
         hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-        auto tPlane = std::make_shared< moris::gen::Plane >( 0.9545459, 0.11, 1.0, 0.0 );
+        auto tPlane = std::make_shared< moris::gen::Line >( 0.9545459, 0.11, 1.0, 0.0 );
         Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
         size_t                                tModelDimension = 2;
@@ -302,13 +302,13 @@ TEST_CASE( "XTK HMR Material Void Bar Intersected By Plane", "[XTK_HMR_PLANE_BAR
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         dla::Solver_Factory                             tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
-
-        tLinearSolverAlgorithm->set_param( "AZ_diagnostics" ) = AZ_none;
-        tLinearSolverAlgorithm->set_param( "AZ_output" )      = AZ_all;
-        tLinearSolverAlgorithm->set_param( "AZ_solver" )      = AZ_gmres_condnum;
-        tLinearSolverAlgorithm->set_param( "AZ_precond" )     = AZ_none;
-        tLinearSolverAlgorithm->set_param( "AZ_kspace" )      = 500;
+        Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_aztec();
+        tLinearSolverParameterList.set( "AZ_diagnostics", AZ_none );
+        tLinearSolverParameterList.set( "AZ_output", AZ_all );
+        tLinearSolverParameterList.set( "AZ_solver", AZ_gmres_condnum );
+        tLinearSolverParameterList.set( "AZ_precond", AZ_none );
+        tLinearSolverParameterList.set( "AZ_kspace", 500 );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( tLinearSolverParameterList );
 
         dla::Linear_Solver tLinSolver;
 
@@ -319,12 +319,9 @@ TEST_CASE( "XTK HMR Material Void Bar Intersected By Plane", "[XTK_HMR_PLANE_BAR
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         NLA::Nonlinear_Solver_Factory               tNonlinFactory;
-        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
-
-        tNonlinearSolverAlgorithm->set_param( "NLA_max_iter" ) = 3;
-        //        tNonlinearSolverAlgorithm->set_param("NLA_hard_break") = false;
-        //        tNonlinearSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;
-        //        tNonlinearSolverAlgorithm->set_param("NLA_rebuild_jacobian") = true;
+        Parameter_List tNonlinearSolverParameterList = prm::create_nonlinear_algorithm_parameter_list();
+        tNonlinearSolverParameterList.set( "NLA_max_iter", 3 );
+        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( tNonlinearSolverParameterList );
 
         tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
 

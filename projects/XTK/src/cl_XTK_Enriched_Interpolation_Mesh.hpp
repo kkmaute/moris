@@ -19,10 +19,9 @@
 #include "cl_XTK_Ghost_Stabilization.hpp"
 #include "cl_XTK_Vertex_Enrichment.hpp"
 #include "cl_XTK_Enrichment.hpp"
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 
 using namespace moris;
-
 
 namespace moris::xtk
 {
@@ -474,18 +473,17 @@ namespace moris::xtk
         /**
          * @brief Add a set of basis functions to the mesh. this is used by ghost to add basis functions in the aura returns the index
          *
-         * @param aMeshIndex 
-         * @param aBfIdsToAdd 
-         * @param aBfOwners 
-         * @param aBfBulkPhases 
+         * @param aMeshIndex
+         * @param aBfIdsToAdd
+         * @param aBfOwners
+         * @param aBfBulkPhases
          */
         void
         add_basis_functions(
-                moris_index const & aMeshIndex,
-                Vector< moris_id > const & aBfIdsToAdd,
-                Vector< moris_id > const & aBfOwners,
+                moris_index const &           aMeshIndex,
+                Vector< moris_id > const &    aBfIdsToAdd,
+                Vector< moris_id > const &    aBfOwners,
                 Vector< moris_index > const & aBfBulkPhases );
-
 
       protected:
         //------------------------------------------------------------------------------
@@ -573,7 +571,7 @@ namespace moris::xtk
          * @brief Returns a cell of not owned vertex indices. These vertices do not have vertex interpolations and
          * need to be handled differently for ghost stabilization
          *
-         * @return Cell< moris_index > const&
+         * @return Vector< moris_index > const&
          */
         Vector< moris_index > const &
         get_not_owned_vertex_indices() const;
@@ -607,7 +605,6 @@ namespace moris::xtk
 
         // not owned vertex functions
         void setup_not_owned_vertices();
-
 
         //------------------------------------------------------------------------------
         // Parallel functions
@@ -655,7 +652,6 @@ namespace moris::xtk
                 Vector< Vector< moris_index > >& aNotOwnedUIPVsToProcs,
                 Vector< Matrix< IdMat > >&       aBaseVertexIds,
                 Vector< Matrix< IdMat > >&       aUnzippedIpCellIds );
-
 
         //------------------------------------------------------------------------------
 
@@ -860,7 +856,6 @@ namespace moris::xtk
                 mtk::EntityRank   aEntityRank,
                 const moris_index aDiscretizationMeshIndex ) const;
 
-
         //------------------------------------------------------------------------------
         // Additional Field Functions
         //------------------------------------------------------------------------------
@@ -958,7 +953,7 @@ namespace moris::xtk
          */
 
         void
-        write_mesh( moris::ParameterList* aParamList );
+        write_mesh( moris::Parameter_List* aParamList );
 
         //------------------------------------------------------------------------------
 

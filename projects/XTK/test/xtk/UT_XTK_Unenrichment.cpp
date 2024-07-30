@@ -8,7 +8,6 @@
  *
  */
 
-
 #include "catch.hpp"
 #include "paths.hpp"
 #include "cl_Matrix.hpp"
@@ -29,7 +28,7 @@
 #include "cl_HMR.hpp"
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Sphere.hpp"
-#include "cl_GEN_Plane.hpp"
+#include "cl_GEN_Line.hpp"
 #include "fn_PRM_HMR_Parameters.hpp"
 #include "fn_PRM_XTK_Parameters.hpp"
 #include "cl_MTK_Intersection_Detect.hpp"
@@ -49,7 +48,7 @@ namespace moris::xtk
             uint tLagrangeMeshIndex = 0;
 
             // HMR parameter list
-            moris::ParameterList tParameters = moris::prm::create_hmr_parameter_list();
+            moris::Parameter_List tParameters = moris::prm::create_hmr_parameter_list();
 
             tParameters.set( "number_of_elements_per_dimension", "2, 1" );
             tParameters.set( "domain_dimensions", "2, 1" );
@@ -83,7 +82,7 @@ namespace moris::xtk
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
             // xtk parameter list
-            moris::ParameterList tXTKParameters = moris::prm::create_xtk_parameter_list();
+            moris::Parameter_List tXTKParameters = moris::prm::create_xtk_parameter_list();
             tXTKParameters.set( "decompose", true );
             tXTKParameters.set( "decomposition_type", "conformal" );
             tXTKParameters.set( "enrich", true );
@@ -98,7 +97,7 @@ namespace moris::xtk
             tXTKParameters.set( "write_cell_enrichments_levels", false );
 
             // define the sphere such that it is non interacting
-            auto                                              tPlane    = std::make_shared< moris::gen::Plane >( 1.5, 0.5, 1.0, 0.0 );
+            auto                                              tPlane    = std::make_shared< moris::gen::Line >( 1.5, 0.5, 1.0, 0.0 );
             Vector< std::shared_ptr< moris::gen::Geometry > > tGeometry = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
             // define ge engine
@@ -157,10 +156,8 @@ namespace moris::xtk
                         moris::Matrix< IdMat >         tBaseIds = tBaseVertex->get_ids();
                         moris::Matrix< IdMat > const & tIds     = iVertexEnrichment->get_basis_ids();
 
-
                         moris::Matrix< IdMat >         tBaseOwners = tBaseVertex->get_owners();
                         moris::Matrix< IdMat > const & tOwners     = iVertexEnrichment->get_owners();
-
 
                         bool tSameIndex = std::equal( tBaseIndices.begin(), tBaseIndices.end(), tIndices.begin(),    //
                                 []( moris_index aBaseIndex, moris_index aIndex ) -> bool { return aBaseIndex == aIndex; } );
@@ -168,10 +165,8 @@ namespace moris::xtk
                         bool tSameId = std::equal( tBaseIds.begin(), tBaseIds.end(), tIds.begin(),    //
                                 []( moris_id aBaseId, moris_id aId ) -> bool { return aBaseId == aId; } );
 
-
                         bool tSameOwner = std::equal( tBaseOwners.begin(), tBaseOwners.end(), tOwners.begin(),    //
                                 []( moris_id aBaseOwner, moris_id aOwner ) -> bool { return aBaseOwner == aOwner; } );
-
 
                         bool tItisOverwritten = tSameIndex and tSameId and tSameOwner;
 

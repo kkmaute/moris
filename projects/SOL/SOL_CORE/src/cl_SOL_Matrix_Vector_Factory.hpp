@@ -29,7 +29,8 @@ namespace moris
         class Matrix_Vector_Factory
         {
           private:
-            enum MapType mMapType = MapType::Epetra;
+            enum MapType            mMapType = MapType::Epetra;
+            static Matrix< DDSMat > mDummyMatrix;
 
           public:
             Matrix_Vector_Factory( const enum MapType aMapType = MapType::Epetra );
@@ -72,13 +73,26 @@ namespace moris
                     const moris::Matrix< DDSMat > &aMyGlobalIds,
                     const moris::Matrix< DDUMat > &aMyConstraintIds );
 
+            Dist_Map *create_map(
+                    const moris::Matrix< DDSMat > &aMyGlobalIds );
+
+            //------------------------------------------------------------------------------------
             /**
              * Creates a distributed vector/matrix map
              *
              * @param aMyGlobalIds Owned global IDs
              * @return Distributed map
              */
-            Dist_Map *create_map( const moris::Matrix< DDSMat > &aMyGlobalIds );
+            Dist_Map *create_map( const moris::Matrix< DDSMat > &aMyGlobalIds,
+                    const moris::Matrix< DDSMat >               &aMyGlobalOwnedAndSharedIds );
+            //------------------------------------------------------------------------------------
+            /**
+             * Creates a distributed vector/matrix map
+             *
+             * @param aMyGlobalIds Owned global IDs
+             * @return Distributed map
+             */
+            Dist_Map* create_map( const Vector< sint >& aMyGlobalIds );
 
             /**
              * Creates a distributed vector map specifically for full vector

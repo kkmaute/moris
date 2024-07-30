@@ -58,6 +58,8 @@ namespace moris
 
             mdl::Model* mModel = nullptr;
 
+            std::shared_ptr< Vector< real > > mEigenValues;
+
           public:
             MSI_Solver_Interface()
             {
@@ -91,6 +93,10 @@ namespace moris
             //------------------------------------------------------------------------------
 
             void set_eigen_solution_vector( sol::Dist_Vector* aSolutionVector );
+
+            //--------------------------------------------------------------------------------
+
+            void set_eigen_values( std::shared_ptr< Vector< real > > aEigenValues );
 
             //------------------------------------------------------------------------------
 
@@ -128,6 +134,18 @@ namespace moris
             get_eigen_solution_vector()
             {
                 return mEigenSolutionVector;
+            }
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * get previous solution vector
+             * @param[ out ] aSolutionVector previous distributed solution vector
+             */
+            std::shared_ptr< Vector< real > >&
+            get_eigen_values()
+            {
+                return mEigenValues;
             }
 
             //------------------------------------------------------------------------------
@@ -184,6 +202,10 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
+            void update_model() override;
+
+            //------------------------------------------------------------------------------
+
             void report_beginning_of_assembly();
 
             //------------------------------------------------------------------------------
@@ -196,6 +218,11 @@ namespace moris
                     const uint aOutputIndex,
                     const real aTime,
                     const bool aEndOfTimeIteration );
+
+            /**
+             * Updates the underlying problem via the model.
+             */
+            void update_problem() override;
 
             //------------------------------------------------------------------------------
 
@@ -243,9 +270,9 @@ namespace moris
 
             // number of elements blocks on proc
             moris::uint
-            get_num_my_blocks()
+            get_num_sets()
             {
-                return mMSI->get_num_eqn_blocks();
+                return mMSI->get_num_equation_sets();
             };
 
             //------------------------------------------------------------------------------
@@ -267,7 +294,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            enum fem::Element_Type
+            fem::Element_Type
             get_set_type( uint aMyEquSetInd )
             {
                 return mMSI->get_equation_set( aMyEquSetInd )->get_element_type();
@@ -343,7 +370,8 @@ namespace moris
                     const moris::uint& aMyElementInd,
                     Matrix< DDSMat >&  aElementTopology )
             {
-                mMSI->get_eqn_obj( aMyElementInd )->get_equation_obj_dof_ids( aElementTopology );
+                mMSI->get_eqn_obj( aMyElementInd )
+                        ->get_equation_obj_dof_ids( aElementTopology );
             };
 
             //------------------------------------------------------------------------------
@@ -353,7 +381,9 @@ namespace moris
                     const moris::uint& aMyElementInd,
                     Matrix< DDSMat >&  aElementTopology )
             {
-                mMSI->get_equation_set( aMyEquSetInd )->get_equation_object_list()( aMyElementInd )->get_equation_obj_dof_ids( aElementTopology );
+                mMSI->get_equation_set( aMyEquSetInd )
+                        ->get_equation_object_list()( aMyElementInd )
+                        ->get_equation_obj_dof_ids( aElementTopology );
             };
 
             //------------------------------------------------------------------------------
@@ -373,7 +403,8 @@ namespace moris
                     Matrix< DDRMat >&  aElementMatrix )
             {
                 // mMSI->get_eqn_obj( aMyElementInd )->set_time( mTime );
-                mMSI->get_eqn_obj( aMyElementInd )->get_egn_obj_jacobian( aElementMatrix );
+                mMSI->get_eqn_obj( aMyElementInd )
+                        ->get_egn_obj_jacobian( aElementMatrix );
             };
 
             //------------------------------------------------------------------------------
@@ -385,72 +416,84 @@ namespace moris
                     Matrix< DDRMat >&  aElementMatrix )
             {
                 // mMSI->get_equation_set( aMyEquSetInd )->get_equation_object_list()( aMyElementInd )->set_time( mTime );
-                mMSI->get_equation_set( aMyEquSetInd )->get_equation_object_list()( aMyElementInd )->get_egn_obj_jacobian( aElementMatrix );
+                mMSI->get_equation_set( aMyEquSetInd )
+                        ->get_equation_object_list()( aMyElementInd )
+                        ->get_egn_obj_jacobian( aElementMatrix );
             };
             //------------------------------------------------------------------------------
 
             void
             get_equation_object_rhs(
-                    const moris::uint&        aMyElementInd,
+                    const moris::uint&          aMyElementInd,
                     Vector< Matrix< DDRMat > >& aElementRHS )
             {
-                mMSI->get_eqn_obj( aMyElementInd )->get_equation_obj_residual( aElementRHS );
+                mMSI->get_eqn_obj( aMyElementInd )
+                        ->get_equation_obj_residual( aElementRHS );
             };
 
             //------------------------------------------------------------------------------
 
             void
             get_equation_object_rhs(
-                    const moris::uint&        aMyEquSetInd,
-                    const moris::uint&        aMyElementInd,
+                    const moris::uint&          aMyEquSetInd,
+                    const moris::uint&          aMyElementInd,
                     Vector< Matrix< DDRMat > >& aElementRHS )
             {
-                mMSI->get_equation_set( aMyEquSetInd )->get_equation_object_list()( aMyElementInd )->get_equation_obj_residual( aElementRHS );
+                mMSI->get_equation_set( aMyEquSetInd )
+                        ->get_equation_object_list()( aMyElementInd )
+                        ->get_equation_obj_residual( aElementRHS );
             };
 
             void
             get_equation_object_staggered_rhs(
-                    const moris::uint&        aMyEquSetInd,
-                    const moris::uint&        aMyElementInd,
+                    const moris::uint&          aMyEquSetInd,
+                    const moris::uint&          aMyElementInd,
                     Vector< Matrix< DDRMat > >& aElementRHS )
             {
-                mMSI->get_equation_set( aMyEquSetInd )->get_equation_object_list()( aMyElementInd )->get_staggered_equation_obj_residual( aElementRHS );
+                mMSI->get_equation_set( aMyEquSetInd )
+                        ->get_equation_object_list()( aMyElementInd )
+                        ->get_staggered_equation_obj_residual( aElementRHS );
             };
 
             //------------------------------------------------------------------------------
 
             void
             get_equation_object_off_diag_rhs(
-                    const moris::uint&        aMyEquSetInd,
-                    const moris::uint&        aMyElementInd,
+                    const moris::uint&          aMyEquSetInd,
+                    const moris::uint&          aMyElementInd,
                     Vector< Matrix< DDRMat > >& aElementRHS )
             {
-                mMSI->get_equation_set( aMyEquSetInd )->get_equation_object_list()( aMyElementInd )->get_equation_obj_off_diagonal_residual( aElementRHS );
+                mMSI->get_equation_set( aMyEquSetInd )
+                        ->get_equation_object_list()( aMyElementInd )
+                        ->get_equation_obj_off_diagonal_residual( aElementRHS );
             };
 
             //------------------------------------------------------------------------------
 
             void
             get_equation_object_operator_and_rhs(
-                    const moris::uint&        aMyElementInd,
-                    Matrix< DDRMat >&         aElementMatrix,
+                    const moris::uint&          aMyElementInd,
+                    Matrix< DDRMat >&           aElementMatrix,
                     Vector< Matrix< DDRMat > >& aElementRHS )
             {
                 // mMSI->get_eqn_obj( aMyElementInd )->set_time( mTime );
-                mMSI->get_eqn_obj( aMyElementInd )->get_egn_obj_jacobian_and_residual( aElementMatrix, aElementRHS );
+                mMSI->get_eqn_obj( aMyElementInd )
+                        ->get_egn_obj_jacobian_and_residual( aElementMatrix, aElementRHS );
             };
 
             //------------------------------------------------------------------------------
 
             void
             get_equation_object_operator_and_rhs(
-                    const moris::uint&        aMyEquSetInd,
-                    const moris::uint&        aMyElementInd,
-                    Matrix< DDRMat >&         aElementMatrix,
+                    const moris::uint&          aMyEquSetInd,
+                    const moris::uint&          aMyElementInd,
+                    Matrix< DDRMat >&           aElementMatrix,
                     Vector< Matrix< DDRMat > >& aElementRHS )
             {
                 // mMSI->get_equation_set( aMyEquSetInd )->get_equation_object_list()( aMyElementInd )->set_time( mTime );
-                mMSI->get_equation_set( aMyEquSetInd )->get_equation_object_list()( aMyElementInd )->get_egn_obj_jacobian_and_residual( aElementMatrix, aElementRHS );
+                mMSI->get_equation_set( aMyEquSetInd )
+                        ->get_equation_object_list()( aMyElementInd )
+                        ->get_egn_obj_jacobian_and_residual( aElementMatrix, aElementRHS );
             };
 
             //------------------------------------------------------------------------------
@@ -549,7 +592,6 @@ namespace moris
             void
             set_solver_warehouse( std::shared_ptr< sol::SOL_Warehouse > aSolverWarehouse );
 
-
             //------------------------------------------------------------------------------
 
             /**
@@ -582,9 +624,9 @@ namespace moris
 
             void communicate_shared_adof_connectivity(
                     Vector< Vector< Vector< uint > > > const & aSharedAdofConn,
-                    Vector< Vector< uint > >&                       aAdofConnectivityReceive,
-                    Vector< Vector< uint > >&                       aAdofConnectivityOffsetReceive,
-                    Vector< moris_index > const &                        aCommCell );
+                    Vector< Vector< uint > >&                  aAdofConnectivityReceive,
+                    Vector< Vector< uint > >&                  aAdofConnectivityOffsetReceive,
+                    Vector< moris_index > const &              aCommCell );
         };
     }    // namespace MSI
 }    // namespace moris

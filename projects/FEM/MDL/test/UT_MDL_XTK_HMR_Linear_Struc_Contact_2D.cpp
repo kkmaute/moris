@@ -64,7 +64,7 @@
 #include "fn_norm.hpp"
 
 #include "cl_GEN_Circle.hpp"
-#include "cl_GEN_Plane.hpp"
+#include "cl_GEN_Line.hpp"
 
 #include "fn_PRM_HMR_Parameters.hpp"
 
@@ -137,14 +137,14 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         Matrix<moris::DDRMat> tLeftCenters = {{ (tCenterPoint(0) + 0.01)  - ( tBlockL / 2.0 ) * std::cos(tAngle) ,
                                                 (tCenterPoint(1) + 0.01) - tBlockH / 2.0 * std::sin(tAngle) }};
         Matrix<moris::DDRMat> tLeftNormal  = {{-std::cos(tAngle),-std::sin(tAngle)}};
-        std::shared_ptr<moris::gen::Plane> tLeftPlane = std::make_shared<moris::gen::Plane>(tLeftCenters(0), tLeftCenters(1), tLeftNormal(0), tLeftNormal(1));
+        std::shared_ptr<moris::gen::Line> tLeftPlane = std::make_shared<moris::gen::Line>(tLeftCenters(0), tLeftCenters(1), tLeftNormal(0), tLeftNormal(1));
         auto tLeftPlaneFP = [&tLeftPlane] (moris::Matrix< moris::DDRMat > const & aCoordinates) { return tLeftPlane->get_field_value(aCoordinates); }; /*Lambda pointer for class */
 
         // Construct Right Plane
         Matrix<moris::DDRMat> tRightCenters = {{ (tCenterPoint(0) + 0.01)  + ( tBlockL / 2.0 ) * std::cos(tAngle) ,
                                                  (tCenterPoint(1) + 0.01) + tBlockH / 2.0 * std::sin(tAngle) }};
         Matrix<moris::DDRMat> tRightNormal  = {{std::cos(tAngle),std::sin(tAngle)}};
-        std::shared_ptr<moris::gen::Plane> tRightPlane = std::make_shared<moris::gen::Plane>(tRightCenters(0), tRightCenters(1), tRightNormal(0), tRightNormal(1));
+        std::shared_ptr<moris::gen::Line> tRightPlane = std::make_shared<moris::gen::Line>(tRightCenters(0), tRightCenters(1), tRightNormal(0), tRightNormal(1));
         auto tRightPlaneFP = [&tRightPlane] (moris::Matrix< moris::DDRMat > const & aCoordinates) { return tRightPlane->get_field_value(aCoordinates); }; /*Lambda pointer for class */
 
         // Construct Mid Plane
@@ -157,7 +157,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         Matrix<moris::DDRMat> tTopCenters = {{(tCenterPoint(0) + 0.01) - tBlockH / 2.0 * std::sin(tAngle) ,
                                               (tCenterPoint(1) + 0.01) + tBlockH / 2.0 * std::cos(tAngle)}};
         Matrix<moris::DDRMat> tTopNormal  = {{std::cos(tAngle) - 1,1-std::sin(tAngle)}};
-        std::shared_ptr<moris::gen::Plane> tTopPlane = std::make_shared<moris::gen::Plane>(tTopCenters(0), tTopCenters(1), tTopNormal(0), tTopNormal(1));
+        std::shared_ptr<moris::gen::Line> tTopPlane = std::make_shared<moris::gen::Line>(tTopCenters(0), tTopCenters(1), tTopNormal(0), tTopNormal(1));
         auto tTopPlaneFP = [&tTopPlane] (moris::Matrix< moris::DDRMat > const & aCoordinates) { return tTopPlane->get_field_value(aCoordinates); }; /*Lambda for class */
 
         // Construct Bottom Plane
@@ -165,7 +165,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
                                                  (tCenterPoint(1) + 0.01) - tBlockH / 2.0 * std::cos(tAngle)}};
 
         Matrix<moris::DDRMat> tBottomNormal  = {{1 - std::cos(tAngle),std::sin(tAngle) - 1}};
-        std::shared_ptr<moris::gen::Plane> tBottomPlane = std::make_shared<moris::gen::Plane>(tBottomCenters(0), tBottomCenters(1), tBottomNormal(0), tBottomNormal(1));
+        std::shared_ptr<moris::gen::Line> tBottomPlane = std::make_shared<moris::gen::Line>(tBottomCenters(0), tBottomCenters(1), tBottomNormal(0), tBottomNormal(1));
         auto tBottomPlaneFP = [&tBottomPlane] (moris::Matrix< moris::DDRMat > const & aCoordinates) { return tBottomPlane->get_field_value(aCoordinates); }; /*Lambda for class */
 
         if(tVerboseGeometry)
@@ -194,7 +194,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         std::string tTopFieldName    = "TopPlane";
         std::string tBottomFieldName = "BottomPlane";
 
-        ParameterList tParameters = prm::create_hmr_parameter_list();
+        Parameter_List tParameters = prm::create_hmr_parameter_list();
 
         tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY));
         tParameters.set( "domain_dimensions", std::to_string(tDomainLX) + "," + std::to_string(tDomainLY) );
@@ -541,15 +541,14 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         tDofTypesU( 1 ) = MSI::Dof_Type::UY;
 
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
-
-        tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
-        tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
-        tLinearSolverAlgorithm->set_param("AZ_max_iter") = 10000;
-        tLinearSolverAlgorithm->set_param("AZ_solver") = AZ_gmres;
-        tLinearSolverAlgorithm->set_param("AZ_subdomain_solve") = AZ_ilu;
-        tLinearSolverAlgorithm->set_param("AZ_graph_fill") = 10;
-        //        tLinearSolverAlgorithm->set_param("ml_prec_type") = "SA";
+        Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_aztec();
+        tLinearSolverParameterList.set( "AZ_diagnostics", AZ_none );
+        tLinearSolverParameterList.set( "AZ_output", AZ_none );
+        tLinearSolverParameterList.set( "AZ_max_iter", 10000 );
+        tLinearSolverParameterList.set( "AZ_solver", AZ_gmres );
+        tLinearSolverParameterList.set( "AZ_subdomain_solve", AZ_ilu );
+        tLinearSolverParameterList.set( "AZ_graph_fill", 10 );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( tLinearSolverParameterList );
 
         dla::Linear_Solver tLinSolver;
         tLinSolver.set_linear_algorithm( 0, tLinearSolverAlgorithm );
@@ -558,13 +557,9 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         // STEP 2: create nonlinear solver and algorithm
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         NLA::Nonlinear_Solver_Factory tNonlinFactory;
-        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
-        //        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithmMonolythicU = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
-
-        tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 3;
-        //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_hard_break") = false;
-        //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_max_lin_solver_restarts") = 2;
-        //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_rebuild_jacobian") = true;
+        Parameter_List tNonlinearSolverParameterList = prm::create_nonlinear_algorithm_parameter_list();
+        tNonlinearSolverParameterList.set( "NLA_max_iter", 3 );
+        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( tNonlinearSolverParameterList );
 
         tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
         //        tNonlinearSolverAlgorithmMonolythicU->set_linear_solver( &tLinSolver );

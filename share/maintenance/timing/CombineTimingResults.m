@@ -7,6 +7,8 @@ titan              =''; %'/home/maute/codes/moris_titan/build_opt';
 titan_xtk_refactor =''; %'/home/maute/codes/moris_titan_xtk_refactor/build_opt';
 github             = [getenv('MORISROOT'), '/build_opt/TimingResults'];
 
+system(['chmod -R +w ' github])
+
 cd(github)
 if not(isfolder('plots'))
     mkdir('plots')
@@ -40,13 +42,23 @@ for i=1:length(testcases)
     num_github=size(mat_github,1);
     
     timings=[mat_titan;mat_titan_xtk_refactor;mat_github];
+
+    dates=timings(:,1);
+    times=timings(:,2);
+
+    days=convdate(dates);
+    [~,index]=sort(days,'ascend');
+    dates=dates(index);
+    times=times(index);
     
     figure(1)
     clf
-    plot(timings(:,2)); hold on
-    plot( [num_titan num_titan],[0 max(timings(:,2))],'k-'); hold on
-    plot( [num_titan+num_titan_xtk_refactor num_titan+num_titan_xtk_refactor],[0 max(timings(:,2))],'k-');
+    plot(times,'b-s'); hold on
+    plot( [num_titan num_titan],[0 max(times)],'k-'); hold on
+    plot( [num_titan+num_titan_xtk_refactor num_titan+num_titan_xtk_refactor],[0 max(times)],'k-');
     title(replace(testcases{i},'_','-'));
+
+    set(gca, 'XTick', 1:length(days), 'XTickLabel', dates)
     saveas(gcf, ['plots/', testcases{i}, '_F1.png']);
     
     figure(2)
@@ -61,7 +73,12 @@ for i=1:length(testcases)
     title(replace(testcases{i},'_','-'));
     saveas(gcf, ['plots/', testcases{i}, '_F2.png']);
 end
+
+system(['chmod -R -w ' github])
+
 end
+
+%==========================================================================
 
 function plotdays(mat,str)
 

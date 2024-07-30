@@ -12,12 +12,12 @@
 #define SRC_HMR_CL_HMR_LAGRANGE_NODE_HPP_
 #include "cl_HMR_Basis.hpp"
 #include "cl_HMR_Lagrange_Node_Interpolation.hpp"
-#include "moris_typedefs.hpp" //COR/src
+#include "moris_typedefs.hpp"    //COR/src
 #include "cl_HMR_Lagrange_Node_Interpolation.hpp"
 
 namespace moris::hmr
 {
-// ----------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------
     /**
      * \brief Lagrange Node class, templated against dimension
      */
@@ -25,25 +25,26 @@ namespace moris::hmr
     class Lagrange_Node : public Basis
     {
         //! local ijk position on proc
-        luint         mIJK[ N ];
+        luint mIJK[ N ];
 
         //! global coordinates
-        real          mXYZ[ N ];
+        real mXYZ[ N ];
 
         //! the T-Matrix of this node
         // Matrix< DDRMat >   mTMatrix;
 
         //! interpolator object
-        Vector< Lagrange_Node_Interpolation * > mInterpolations;
+        Vector< Lagrange_Node_Interpolation* > mInterpolations;
 
         //! bitset telling if interpolation is set
         Bitset< gNumberOfMeshes > mHaveInterpolation;
 
         bool mHaveInterpolationContainer = false;
 
-// ----------------------------------------------------------------------------
-        public:
-// ----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------
+
+      public:
+        // ----------------------------------------------------------------------------
 
         /**
          * default constructor
@@ -54,20 +55,20 @@ namespace moris::hmr
          *
          */
         Lagrange_Node(
-                const luint        * aIJK,
-                const  uint        & aLevel,
-                const  uint        & aOwner) :
-                    Basis( aLevel, aOwner ),
-                    mInterpolations( gNumberOfMeshes, nullptr )
+                const luint* aIJK,
+                const uint&  aLevel,
+                const uint&  aOwner )
+                : Basis( aLevel, aOwner )
+                , mInterpolations( gNumberOfMeshes, nullptr )
         {
             // save ijk position in memory.
-            for( uint k=0; k<N; ++k )
+            for ( uint k = 0; k < N; ++k )
             {
                 mIJK[ k ] = aIJK[ k ];
             }
         }
 
-// ----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------
 
         /**
          * default destructor
@@ -84,17 +85,17 @@ namespace moris::hmr
             this->delete_facet_container();
 
             // delete edge container
-            if( N == 3 )
+            if ( N == 3 )
             {
                 this->delete_edge_container();
             }
 
-            if( mHaveInterpolationContainer )
+            if ( mHaveInterpolationContainer )
             {
                 // delete interpolation objects
-                for( uint k=0; k<gNumberOfMeshes; ++k )
+                for ( uint k = 0; k < gNumberOfMeshes; ++k )
                 {
-                    if( mHaveInterpolation.test( k ) )
+                    if ( mHaveInterpolation.test( k ) )
                     {
                         delete mInterpolations( k );
                     }
@@ -105,31 +106,31 @@ namespace moris::hmr
             }
         }
 
-// ----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------
 
-        bool has_interpolation(uint aBSplineMeshIndex)
+        bool has_interpolation( uint aBSplineMeshIndex )
         {
-           return mHaveInterpolation.test(aBSplineMeshIndex);
+            return mHaveInterpolation.test( aBSplineMeshIndex );
         }
 
-// ----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------
 
         void init_interpolation( uint aBSplineMeshIndex )
         {
-            if ( ! mHaveInterpolationContainer )
+            if ( !mHaveInterpolationContainer )
             {
-                mInterpolations.resize( gNumberOfMeshes, nullptr );    //FIXME make this size flexible to what is needed
+                mInterpolations.resize( gNumberOfMeshes, nullptr );    // FIXME make this size flexible to what is needed
                 mHaveInterpolationContainer = true;
             }
 
             MORIS_ASSERT( aBSplineMeshIndex < gNumberOfMeshes, "Number of BSpline meshes on this Lagrange mesh exceeds gNumberOfMeshes. Increase gNumberOfMeshes" );
-            MORIS_ASSERT( ! mHaveInterpolation.test( aBSplineMeshIndex ), "tried to intit an interpolation object that already exists" );    //FIXME Mathias
+            MORIS_ASSERT( !mHaveInterpolation.test( aBSplineMeshIndex ), "tried to intit an interpolation object that already exists" );    // FIXME Mathias
 
             mInterpolations( aBSplineMeshIndex ) = new Lagrange_Node_Interpolation;
             mHaveInterpolation.set( aBSplineMeshIndex );
         }
 
-// ----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------
 
         /**
          * MTK Interface: return the coords of this node as Moris::Mat
@@ -137,14 +138,14 @@ namespace moris::hmr
         Matrix< DDRMat > get_coords() const
         {
             Matrix< DDRMat > aCoords( 1, N );
-            for( uint k=0; k<N; ++k )
+            for ( uint k = 0; k < N; ++k )
             {
                 aCoords( k ) = mXYZ[ k ];
             }
             return aCoords;
         }
 
-// ----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------
         /**
          * Returns an array of size [N] telling the proc local ijk-position
          * of the node  on the current level.
@@ -152,12 +153,12 @@ namespace moris::hmr
          * @return luint pointer to array containing ijk-position
          *               careful: node must not go out of scope.
          */
-        const luint * get_ijk( ) const
+        const luint* get_ijk() const
         {
             return mIJK;
         }
 
-// ----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------
 
         /**
          * set XYZ coordinates
@@ -166,190 +167,191 @@ namespace moris::hmr
          *
          * @return void
          */
-         void set_xyz( const real * aXYZ )
-         {
-             // save ijk position in memory.
-             for( uint k=0; k<N; ++k )
-             {
-                 mXYZ[ k ] = aXYZ[ k ];
-             }
-         }
+        void set_xyz( const real* aXYZ )
+        {
+            // save ijk position in memory.
+            for ( uint k = 0; k < N; ++k )
+            {
+                mXYZ[ k ] = aXYZ[ k ];
+            }
+        }
 
-// ----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------
 
-         /**
-          * Returns an array of size [N] telling the xyz-position
-          * of the node
-          *
-          * @return double pointer to array containing xyz-position
-          *               careful: node must not go out of scope.
-          */
-         const real * get_xyz() const
-         {
-             return mXYZ;
-         }
+        /**
+         * Returns an array of size [N] telling the xyz-position
+         * of the node
+         *
+         * @return double pointer to array containing xyz-position
+         *               careful: node must not go out of scope.
+         */
+        const real* get_xyz() const
+        {
+            return mXYZ;
+        }
 
-// ----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------
 
-         /**
-          * set the T-Matrix coefficients
-          */
-         //void set_t_matrix( const Matrix< DDRMat > & aTMatrix )
-         //{
-         //    mTMatrix = aTMatrix;
-         //}
-
-// ----------------------------------------------------------------------------
-
-         /**
-          * set the DOFs
-          */
-         void set_coefficients( const uint                   aBSplineMeshIndex,
-                 Vector< mtk::Vertex* > & aDOFs )
-         {
-             mInterpolations( aBSplineMeshIndex )->set_coefficients( aDOFs );
-         }
-
-// ----------------------------------------------------------------------------
-
-         /**
-          * set the weights
-          */
-         void set_weights( const uint               aBSplineMeshIndex,
-                           const Matrix< DDRMat > & aWeights )
-         {
-             mInterpolations( aBSplineMeshIndex )->set_weights( aWeights );
-         }
-
-// ----------------------------------------------------------------------------
-
-         /**
-          * return a pointer to the interpolation object
-          */
-         mtk::Vertex_Interpolation * get_interpolation( const uint aBSplineMeshIndex )
-         {
-             MORIS_ASSERT( mHaveInterpolation.test( aBSplineMeshIndex),
-                      "tried to access an interpolation object for vertex ID %-5i and Index %-5i that does not exist"
-                      , this->get_id(), this->get_index() );
-
-             return mInterpolations( aBSplineMeshIndex );
-         }
-
-// ----------------------------------------------------------------------------
-
-         /**
-          * return a pointer to the interpolation object ( const version )
-          */
-         const mtk::Vertex_Interpolation * get_interpolation( const uint aBSplineMeshIndex ) const
-         {
-             MORIS_ASSERT( mHaveInterpolation.test( aBSplineMeshIndex),
-                      "tried to access an interpolation object for vertex ID %-5i and Index %-5i that does not exist"
-                      , this->get_id(), this->get_index() );
-
-             return mInterpolations( aBSplineMeshIndex );
-         }
-
-// ----------------------------------------------------------------------------
-
-         /**
-          * return the T-Matrix coefficients
-          */
-         //const Matrix< DDRMat > * get_t_matrix() const
-         //{
-         //    return & mTMatrix;
-         //}
-
-// ----------------------------------------------------------------------------
-
-         /**
-          * return the DOF pointers
-          */
-         // const Cell< mtk::Vertex* > & get_adof_pointers() const
-         //{
-         //    return mDOFs;
-         //}
-
-// ----------------------------------------------------------------------------
-
-         /**
-          * return the DOF pointers
-          */
-         //Cell< mtk::Vertex* > & get_adof_pointers()
-         //{
-         //    return mDOFs;
-         //}
-
-// ----------------------------------------------------------------------------
-
-         /**
-          * return the IDs of used basis
-          */
-         //Mat< moris_id > get_adof_ids() const
-         //{
-         //    // allocate matrix with IDs
-         //    uint tNumberOfDOFs = mDOFs.size();
-
-         //    // create output matrix
-         //    Mat< moris_id > aIDs( tNumberOfDOFs, 1 );
-         //
-         //    // write ids into matrix
-         //    for( uint k=0; k<tNumberOfDOFs; ++k )
-         //    {
-         //        aIDs( k ) = mDOFs( k )->get_id();
-         //    }
-         //
-         //    return aIDs;
+        /**
+         * set the T-Matrix coefficients
+         */
+        // void set_t_matrix( const Matrix< DDRMat > & aTMatrix )
+        //{
+        //     mTMatrix = aTMatrix;
         // }
 
-// ----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------
 
-         /**
-          * return the indices of used basis
-          */
-         //Mat< moris_index > get_adof_indices() const
-         //{
-         //    // allocate matrix with IDs
-         //    uint tNumberOfDOFs = mDOFs.size();
+        /**
+         * set the DOFs
+         */
+        void set_coefficients( const uint aBSplineMeshIndex,
+                Vector< mtk::Vertex* >&   aDOFs )
+        {
+            mInterpolations( aBSplineMeshIndex )->set_coefficients( aDOFs );
+        }
 
-         //    // create output matrix
-         //    Mat< moris_index > aIDs( tNumberOfDOFs, 1 );
+        // ----------------------------------------------------------------------------
 
-         //    // write ids into matrix
-         //    for( uint k=0; k<tNumberOfDOFs; ++k )
-         //    {
-         //        aIDs( k ) = mDOFs( k )->get_index();
-         //    }
+        /**
+         * set the weights
+         */
+        void set_weights( const uint    aBSplineMeshIndex,
+                const Matrix< DDRMat >& aWeights )
+        {
+            mInterpolations( aBSplineMeshIndex )->set_weights( aWeights );
+        }
 
-         //    return aIDs;
-         //}
+        // ----------------------------------------------------------------------------
 
-// ----------------------------------------------------------------------------
+        /**
+         * return a pointer to the interpolation object
+         */
+        mtk::Vertex_Interpolation* get_interpolation( const uint aBSplineMeshIndex )
+        {
+            MORIS_ASSERT( mHaveInterpolation.test( aBSplineMeshIndex ),
+                    "tried to access an interpolation object for vertex ID %-5i and Index %-5i that does not exist",
+                    this->get_id(),
+                    this->get_index() );
 
-         /**
-          * return the owners of used basis
-          */
-         // Matrix< DDUMat > get_adof_owners() const
-         // {
-         //    // allocate matrix with IDs
-         //    uint tNumberOfDOFs = mDOFs.size();
-         //
-         // create output matrix
-         // Matrix< DDUMat > aOwners( tNumberOfDOFs, 1 );
-         //
-         // write ids into matrix
-         // for( uint k=0; k<tNumberOfDOFs; ++k )
-         // {
-         //     aOwners( k ) = mDOFs( k )->get_owner();
-         // }
-         //
-         // return aOwners;
-         //}
+            return mInterpolations( aBSplineMeshIndex );
+        }
 
-// ----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------
+
+        /**
+         * return a pointer to the interpolation object ( const version )
+         */
+        const mtk::Vertex_Interpolation* get_interpolation( const uint aBSplineMeshIndex ) const
+        {
+            MORIS_ASSERT( mHaveInterpolation.test( aBSplineMeshIndex ),
+                    "tried to access an interpolation object for vertex ID %-5i and Index %-5i that does not exist",
+                    this->get_id(),
+                    this->get_index() );
+
+            return mInterpolations( aBSplineMeshIndex );
+        }
+
+        // ----------------------------------------------------------------------------
+
+        /**
+         * return the T-Matrix coefficients
+         */
+        // const Matrix< DDRMat > * get_t_matrix() const
+        //{
+        //     return & mTMatrix;
+        // }
+
+        // ----------------------------------------------------------------------------
+
+        /**
+         * return the DOF pointers
+         */
+        // const Vector< mtk::Vertex* > & get_adof_pointers() const
+        //{
+        //    return mDOFs;
+        //}
+
+        // ----------------------------------------------------------------------------
+
+        /**
+         * return the DOF pointers
+         */
+        // Vector< mtk::Vertex* > & get_adof_pointers()
+        //{
+        //     return mDOFs;
+        // }
+
+        // ----------------------------------------------------------------------------
+
+        /**
+         * return the IDs of used basis
+         */
+        // Mat< moris_id > get_adof_ids() const
+        //{
+        //     // allocate matrix with IDs
+        //     uint tNumberOfDOFs = mDOFs.size();
+
+        //    // create output matrix
+        //    Mat< moris_id > aIDs( tNumberOfDOFs, 1 );
+        //
+        //    // write ids into matrix
+        //    for( uint k=0; k<tNumberOfDOFs; ++k )
+        //    {
+        //        aIDs( k ) = mDOFs( k )->get_id();
+        //    }
+        //
+        //    return aIDs;
+        // }
+
+        // ----------------------------------------------------------------------------
+
+        /**
+         * return the indices of used basis
+         */
+        // Mat< moris_index > get_adof_indices() const
+        //{
+        //     // allocate matrix with IDs
+        //     uint tNumberOfDOFs = mDOFs.size();
+
+        //    // create output matrix
+        //    Mat< moris_index > aIDs( tNumberOfDOFs, 1 );
+
+        //    // write ids into matrix
+        //    for( uint k=0; k<tNumberOfDOFs; ++k )
+        //    {
+        //        aIDs( k ) = mDOFs( k )->get_index();
+        //    }
+
+        //    return aIDs;
+        //}
+
+        // ----------------------------------------------------------------------------
+
+        /**
+         * return the owners of used basis
+         */
+        // Matrix< DDUMat > get_adof_owners() const
+        // {
+        //    // allocate matrix with IDs
+        //    uint tNumberOfDOFs = mDOFs.size();
+        //
+        // create output matrix
+        // Matrix< DDUMat > aOwners( tNumberOfDOFs, 1 );
+        //
+        // write ids into matrix
+        // for( uint k=0; k<tNumberOfDOFs; ++k )
+        // {
+        //     aOwners( k ) = mDOFs( k )->get_owner();
+        // }
+        //
+        // return aOwners;
+        //}
+
+        // ----------------------------------------------------------------------------
     };
 
-// ----------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------
 
-} /* namespace moris */
+}    // namespace moris::hmr
 #endif /* SRC_HMR_CL_HMR_LAGRANGE_NODE_HPP_ */
-

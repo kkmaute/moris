@@ -168,7 +168,7 @@ namespace moris::xtk
             std::string tVertDiagFile    = mXTKModel->get_diagnostic_file_name( std::string( "Vertex" ) );
             std::string tGroupDiagFile   = mXTKModel->get_diagnostic_file_name( std::string( "Groups" ) );
             std::string tGENVertDiagFile = mXTKModel->get_diagnostic_file_name( std::string( "Vertex_GEN" ) );
-            tCutIntegrationMesh->print_cells( false, tCellDiagFile );
+            tCutIntegrationMesh->print_vectors( false, tCellDiagFile );
             tCutIntegrationMesh->print_vertices( false, tVertDiagFile );
             tCutIntegrationMesh->print_groupings( tGroupDiagFile );
             mXTKModel->get_geom_engine()->print_gen_vertices( tGENVertDiagFile, tCutIntegrationMesh.get() );
@@ -1532,7 +1532,6 @@ namespace moris::xtk
 
         Vector< std::shared_ptr< Vector< moris::moris_index > > > const & tBGFacetToChildFacet = aCutIntegrationMesh->get_background_facet_to_child_facet_connectivity();
 
-
         if ( tBGFacetToChildFacet( aBackgroundFacetIndex ) == nullptr )
         {
             return;
@@ -2306,7 +2305,6 @@ namespace moris::xtk
 
                         // Increase the number of phases set
                         tNumPhasesSet++;
-
 
                         // Add the elements other neighbors to the active front
                         bool tReplaced = false;
@@ -3360,7 +3358,6 @@ namespace moris::xtk
             moris_index tMinIndex = std::distance( tEdgeVertexParentRanks.data().begin(), tMinIter );
             moris_index tMaxIndex = std::distance( tEdgeVertexParentRanks.data().begin(), tMaxIter );
 
-
             // std::cout<<"\nVertex 0 = "<<tEdgeVertices(0)->get_id()
             //       <<" | Vertex 1 = "<<tEdgeVertices(1)->get_id()
             //       <<" | Min Rank = "<<*tMinIter
@@ -3378,7 +3375,6 @@ namespace moris::xtk
             {
                 tMinIndex = 0;
                 tMaxIndex = 1;
-
 
                 if ( tEdgeVertexParentInds( tMinIndex ) == tEdgeVertexParentInds( tMaxIndex ) )
                 {
@@ -3421,7 +3417,6 @@ namespace moris::xtk
                     tMaxIndex = 1;
                 }
 
-
                 // edge to edge or edge to facet
                 Matrix< IndexMat > tEntitiesConnectedToBaseCellMaxRank = aBackgroundMesh->get_entity_connected_to_entity_loc_inds(
                         aParentCellForDeduction( iEdge )->get_index(),
@@ -3445,7 +3440,6 @@ namespace moris::xtk
                     }
                 }
 
-
                 for ( uint iEnt = 0; iEnt < tEntitiesConnectedToBaseCellMinRank.numel(); iEnt++ )
                 {
                     if ( tEntitiesConnectedToBaseCellMinRank( iEnt ) == tEdgeVertexParentInds( tMinIndex ) )
@@ -3454,7 +3448,6 @@ namespace moris::xtk
                         break;
                     }
                 }
-
 
                 MORIS_ASSERT( *tMinIter == 1, "Not an edge" );
                 Vector< moris::moris_index > tParentOrdinalAndRank =
@@ -3597,7 +3590,6 @@ namespace moris::xtk
             aCutIntegrationMesh->mIgVertexParentEntityIndex( aDecompositionData->tNewNodeIndex( iV ) ) =
                     (moris_index)aDecompositionData->tNewNodeParentIndex( iV );
         }
-
 
         // iterate through child meshes and commit the vertices to their respective vertex groups
         for ( auto& iCell : aMeshGenerationData->mAllIntersectedBgCellInds )
@@ -4127,7 +4119,6 @@ namespace moris::xtk
                     bool            tRequestExists = false;
                     moris_index     tRequestIndex  = MORIS_INDEX_MAX;
 
-
                     // swap out for hmr if needed (hmr calls edges in 2d faces)
                     if ( aBackgroundMesh->get_mesh_type() == mtk::MeshType::HMR )
                     {
@@ -4139,7 +4130,6 @@ namespace moris::xtk
                             }
                         }
                     }
-
 
                     if ( aDecompData.mHasSecondaryIdentifier )
                     {
@@ -4206,7 +4196,6 @@ namespace moris::xtk
     Integration_Mesh_Generator::remove_subphases_from_cut_mesh( Vector< moris_index > const & aSubphasesToRemove )
     {
     }
-
 
     // ----------------------------------------------------------------------------------
     // Functions for Constructing Subphase Groups and their neighborhood

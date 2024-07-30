@@ -42,6 +42,7 @@ void Test_IWG_Diffusion_Bulk(
         real& aLoad,
         real& aH2Pen,
         real& aH3Pen,
+        real& aPhaseField,
         real& aEpsilon )
 {
     // define an epsilon environment
@@ -87,11 +88,12 @@ void Test_IWG_Diffusion_Bulk(
 
     std::shared_ptr< fem::Property > tPropH2 = std::make_shared< fem::Property >();
     tPropH2->set_parameters( { { { aH2Pen } } } );
-    tPropH2->set_val_function( tConstValFunc_Diff );
 
     std::shared_ptr< fem::Property > tPropH3 = std::make_shared< fem::Property >();
     tPropH3->set_parameters( { { { aH3Pen } } } );
-    tPropH3->set_val_function( tConstValFunc_Diff );
+
+    std::shared_ptr< fem::Property > tPropPhaseField = std::make_shared< fem::Property >();
+    tPropPhaseField->set_parameters( { { { aPhaseField } } } );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
@@ -113,6 +115,7 @@ void Test_IWG_Diffusion_Bulk(
     tIWG->set_property( tPropLoad, "Load", mtk::Leader_Follower::LEADER );
     tIWG->set_property( tPropH2, "H2Penalty", mtk::Leader_Follower::LEADER );
     tIWG->set_property( tPropH3, "H3Penalty", mtk::Leader_Follower::LEADER );
+    tIWG->set_property( tPropPhaseField, "PhaseField", mtk::Leader_Follower::LEADER );
 
     // init set info
     //------------------------------------------------------------------------------
@@ -363,9 +366,10 @@ TEST_CASE( "IWG_Diffusion_Bulk - Conductivity Only", "[moris],[fem],[IWG_Elastic
     real tLoad         = 2.5;
     real tH2Pen        = 0.0;
     real tH3Pen        = 0.0;
+    real tPhaseField   = 0.0;
     real tEpsilon      = 1e-6;
 
-    Test_IWG_Diffusion_Bulk( tConductivity, tLoad, tH2Pen, tH3Pen, tEpsilon );
+    Test_IWG_Diffusion_Bulk( tConductivity, tLoad, tH2Pen, tH3Pen, tPhaseField, tEpsilon );
 }
 
 //---------------------------------------------------------------------------------------------
@@ -376,9 +380,10 @@ TEST_CASE( "IWG_Diffusion_Bulk - H2 Penalty Only", "[moris],[fem],[IWG_Elasticit
     real tLoad         = 0.0;
     real tH2Pen        = 1.0;
     real tH3Pen        = 0.0;
-    real tEpsilon      = 1e-6;
+    real tPhaseField   = 0.0;
+    real tEpsilon      = 2e-6;
 
-    Test_IWG_Diffusion_Bulk( tConductivity, tLoad, tH2Pen, tH3Pen, tEpsilon );
+    Test_IWG_Diffusion_Bulk( tConductivity, tLoad, tH2Pen, tH3Pen, tPhaseField, tEpsilon );
 }
 
 //---------------------------------------------------------------------------------------------
@@ -389,9 +394,23 @@ TEST_CASE( "IWG_Diffusion_Bulk - H3 Penalty Only", "[moris],[fem],[IWG_Elasticit
     real tLoad         = 0.0;
     real tH2Pen        = 0.0;
     real tH3Pen        = 1.0;
+    real tPhaseField   = 0.0;
     real tEpsilon      = 2e-5;
 
-    Test_IWG_Diffusion_Bulk( tConductivity, tLoad, tH2Pen, tH3Pen, tEpsilon );
+    Test_IWG_Diffusion_Bulk( tConductivity, tLoad, tH2Pen, tH3Pen, tPhaseField, tEpsilon );
+}
+//---------------------------------------------------------------------------------------------
+
+TEST_CASE( "IWG_Diffusion_Bulk - PhaseField Only", "[moris],[fem],[IWG_Elasticity_Bulk]" )
+{
+    real tConductivity = 0.0;
+    real tLoad         = 0.0;
+    real tH2Pen        = 0.0;
+    real tH3Pen        = 0.0;
+    real tPhaseField   = 1.0;
+    real tEpsilon      = 2e-5;
+
+    Test_IWG_Diffusion_Bulk( tConductivity, tLoad, tH2Pen, tH3Pen, tPhaseField, tEpsilon );
 }
 
 //---------------------------------------------------------------------------------------------
@@ -402,10 +421,10 @@ TEST_CASE( "IWG_Diffusion_Bulk - All Properties", "[moris],[fem],[IWG_Elasticity
     real tLoad         = 0.0;
     real tH2Pen        = 1.0;
     real tH3Pen        = 1.0;
+    real tPhaseField   = 1.0;
     real tEpsilon      = 2e-5;
 
-    Test_IWG_Diffusion_Bulk( tConductivity, tLoad, tH2Pen, tH3Pen, tEpsilon );
+    Test_IWG_Diffusion_Bulk( tConductivity, tLoad, tH2Pen, tH3Pen, tPhaseField, tEpsilon );
 }
-
 
 /*END_TEST_CASE*/

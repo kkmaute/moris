@@ -12,7 +12,7 @@
 #define SRC_cl_WRK_Reinitialize_Performer
 
 #include <memory>
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_Library_IO.hpp"
 
@@ -112,7 +112,6 @@ namespace moris
                     Vector< std::shared_ptr< gen::Geometry_Engine > >& aGENPerformer,
                     Vector< std::shared_ptr< mtk::Mesh_Manager > >&   aMTKPerformer,
                     Vector< std::shared_ptr< mdl::Model > >           mMDLPerformer );
-
 
             //------------------------------------------------------------------------------
 

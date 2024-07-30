@@ -87,8 +87,8 @@ namespace moris::sdf
 
                 // check for intersection with facets and ensure they are correct
                 Vector< Facet* > tIntersectedTriangles           = intersect_triangles( tCandidateTriangles, tObject, tTestPoint, 2 );
-                Facet&         tFirstIntersectedFacetExpected  = tObject.get_facet( 0 );
-                Facet&         tSecondIntersectedFacetExpected = tObject.get_facet( 3 );
+                Facet&           tFirstIntersectedFacetExpected  = tObject.get_facet( 0 );
+                Facet&           tSecondIntersectedFacetExpected = tObject.get_facet( 3 );
 
                 REQUIRE( tIntersectedTriangles.size() == 2 );
                 CHECK( &tFirstIntersectedFacetExpected == tIntersectedTriangles( 0 ) );
@@ -142,7 +142,6 @@ namespace moris::sdf
                 tIntersectionCoordinatesExpected = { 0.715517872727636, 1.284482127272365 };
                 tIntersectionCoordinates         = intersect_ray_with_facets( tIntersectedTriangles, tTestPoint, 0 );
 
-
                 REQUIRE( tIntersectionCoordinates.size() == 2 );
                 CHECK( std::abs( tIntersectionCoordinates( 0 ) - tIntersectionCoordinatesExpected( 0 ) ) < gSDFepsilon );
                 CHECK( std::abs( tIntersectionCoordinates( 1 ) - tIntersectionCoordinatesExpected( 1 ) ) < gSDFepsilon );
@@ -168,7 +167,7 @@ namespace moris::sdf
                 Vector< uint >   tIntersectedLines;
                 Vector< Facet* > tCandidateLines;
                 preselect_lines( tObject, tTestPoint, 1, tIntersectedLines, tCandidateLines );
-                uint   tIntersectedLinesExpected = 1;
+                uint tIntersectedLinesExpected = 1;
 
                 REQUIRE( tIntersectedLines.size() == 1 );
                 REQUIRE( tCandidateLines.size() == 1 );
@@ -186,7 +185,7 @@ namespace moris::sdf
 
                 // intersect the candidate facets and determine the intersection location
                 Vector< real > tIntersectionCoordinates        = intersect_ray_with_facets( tCandidateLines, tTestPoint, 0 );
-                real         tIntersectionCoordinateExpected = -0.2;
+                real           tIntersectionCoordinateExpected = -0.2;
 
                 REQUIRE( tIntersectionCoordinates.size() == 1 );
                 CHECK( std::abs( tIntersectionCoordinates( 0 ) - tIntersectionCoordinateExpected ) < gSDFepsilon );
@@ -288,4 +287,4 @@ namespace moris::sdf
             }
         }
     }
-};    // namespace moris::sdf
+}    // namespace moris::sdf

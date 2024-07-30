@@ -75,6 +75,7 @@ set(HARDCODED_INPUT_FILE input_file)
 set(SO_TPLS
 "trilinos"
 ${ARMADILLO_EIGEN}
+"HDF5"
 )
 
 # List header dependencies in /FEM/INT/src                                                                                                                                                                                                                                                    
@@ -97,8 +98,19 @@ endforeach()
 
 # List header dependencies in /MTK/src                                                                                                                                                                                                                                                    
 set(MTK_INCLUDES
-    "IP"
-    "IG")
+        "cluster"
+        "contact"
+        "field"
+        "geometry"
+        "geometry/cell"
+        "geometry/vertex"
+        "integration"
+        "interpolation"
+        "intersection"
+        "io"
+        "mesh"
+        "set"
+)
 
 set(MTK_INTERNAL_INCLUDES)
 
@@ -133,7 +145,7 @@ SET(SO_INCLUDES
 # make SO_INCLUDES available as global list
 set_property(GLOBAL PROPERTY INT_SRC_LIST "${SO_INCLUDES}")
 set_property(GLOBAL PROPERTY MTK_SRC_LIST "${SO_INCLUDES}")
-    
+
 foreach(TPL ${SO_TPLS})
     string(TOUPPER ${TPL} TPL)
     list(APPEND SO_INCLUDES ${MORIS_${TPL}_INCLUDE_DIRS})

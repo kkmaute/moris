@@ -75,7 +75,7 @@
 #include "cl_TSA_Time_Solver.hpp"
 // GEN
 #include "cl_GEN_Circle.hpp"
-#include "cl_GEN_Plane.hpp"
+#include "cl_GEN_Line.hpp"
 #include <functional>
 
 namespace moris
@@ -84,18 +84,18 @@ namespace moris
     //-------------------------------------------------------------------------------------
     inline void
     ConstFuncVal_MDLFluidBench(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         aPropMatrix = aParameters( 0 );
     }
 
     inline void
     InletVelocityFunc_MDLFluidBench(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         // unpack parameters
         real tRadiusChannel = aParameters( 0 )( 0 );
@@ -114,9 +114,9 @@ namespace moris
 
     inline void
     FSVelocityFunc_MDLFluidBench(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         // get space dim
         uint tSpaceDim = aFIManager->get_IP_geometry_interpolator()->get_number_of_space_dimensions();
@@ -127,9 +127,9 @@ namespace moris
 
     inline void
     InletPressureFunc_MDLFluidBench(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         // set size for aPropMatrix
         aPropMatrix.set_size( 1, 1, aParameters( 0 )( 0 ) );
@@ -174,7 +174,7 @@ namespace moris
 
             uint tLagrangeMeshIndex = 0;
 
-            ParameterList tParameters = prm::create_hmr_parameter_list();
+            Parameter_List tParameters = prm::create_hmr_parameter_list();
             tParameters.set( "number_of_elements_per_dimension", std::to_string( tNumX ) + "," + std::to_string( tNumY ) );
             tParameters.set( "domain_dimensions", std::to_string( tDomainLX ) + "," + std::to_string( tDomainLY ) );
             tParameters.set( "domain_offset", std::to_string( -tDomainLX / 2 + tCenterPoint( 0 ) ) + "," + std::to_string( -tDomainLY / 2 + tCenterPoint( 1 ) ) );
@@ -205,14 +205,14 @@ namespace moris
 
             // Create geometry engine
             Vector< std::shared_ptr< gen::Geometry > > tGeometry( 4 );
-            auto tBottomPlane = std::make_shared< gen::Plane >( 0.0, tPlaneBottom, 0.0, 1.0 );
-            auto tTopPlane = std::make_shared< gen::Plane >( 0.0, tPlaneTop, 0.0, 1.0 );
-            auto tLeftPlane = std::make_shared< gen::Plane >( tPlaneLeft, 0.0, 1.0, 0.0 );
-            auto tRightPlane = std::make_shared< gen::Plane >( tPlaneRight, 0.0, 1.0, 0.0 );
-            tGeometry( 0 ) = std::make_shared< gen::Level_Set_Geometry >( tBottomPlane );
-            tGeometry( 1 ) = std::make_shared< gen::Level_Set_Geometry >( tTopPlane );
-            tGeometry( 2 ) = std::make_shared< gen::Level_Set_Geometry >( tLeftPlane );
-            tGeometry( 3 ) = std::make_shared< gen::Level_Set_Geometry >( tRightPlane );
+            auto                                       tBottomPlane = std::make_shared< gen::Line >( 0.0, tPlaneBottom, 0.0, 1.0 );
+            auto                                       tTopPlane    = std::make_shared< gen::Line >( 0.0, tPlaneTop, 0.0, 1.0 );
+            auto                                       tLeftPlane   = std::make_shared< gen::Line >( tPlaneLeft, 0.0, 1.0, 0.0 );
+            auto                                       tRightPlane  = std::make_shared< gen::Line >( tPlaneRight, 0.0, 1.0, 0.0 );
+            tGeometry( 0 )                                          = std::make_shared< gen::Level_Set_Geometry >( tBottomPlane );
+            tGeometry( 1 )                                          = std::make_shared< gen::Level_Set_Geometry >( tTopPlane );
+            tGeometry( 2 )                                          = std::make_shared< gen::Level_Set_Geometry >( tLeftPlane );
+            tGeometry( 3 )                                          = std::make_shared< gen::Level_Set_Geometry >( tRightPlane );
 
             // Perform additional refinement
             // tGENGeometryEngine.perform_refinement(tHMR);
@@ -466,7 +466,7 @@ namespace moris
 
             // create linear solver and algorithm
             // --------------------------------------------------------------------------------------
-            Vector< Vector< moris::ParameterList > > tSOLParameterlist( 8 );
+            Vector< Vector< moris::Parameter_List > > tSOLParameterlist( 8 );
             for ( uint Ik = 0; Ik < 8; Ik++ )
             {
                 tSOLParameterlist( Ik ).resize( 1 );
@@ -539,7 +539,7 @@ namespace moris
 
             moris::uint tLagrangeMeshIndex = 0;
 
-            ParameterList tParameters = prm::create_hmr_parameter_list();
+            Parameter_List tParameters = prm::create_hmr_parameter_list();
             tParameters.set( "number_of_elements_per_dimension", std::to_string( tNumX ) + "," + std::to_string( tNumY ) );
             tParameters.set( "domain_dimensions", std::to_string( tDomainLX ) + "," + std::to_string( tDomainLY ) );
             tParameters.set( "domain_offset", std::to_string( -tDomainLX / 2 + tCenterPoint( 0 ) ) + "," + std::to_string( -tDomainLY / 2 + tCenterPoint( 1 ) ) );
@@ -570,14 +570,14 @@ namespace moris
 
             // Create geometry engine
             Vector< std::shared_ptr< gen::Geometry > > tGeometry( 4 );
-            auto tBottomPlane = std::make_shared< gen::Plane >( 0.0, tPlaneBottom, 0.0, 1.0 );
-            auto tTopPlane = std::make_shared< gen::Plane >( 0.0, tPlaneTop, 0.0, 1.0 );
-            auto tLeftPlane = std::make_shared< gen::Plane >( tPlaneLeft, 0.0, 1.0, 0.0 );
-            auto tRightPlane = std::make_shared< gen::Plane >( tPlaneRight, 0.0, 1.0, 0.0 );
-            tGeometry( 0 ) = std::make_shared< gen::Level_Set_Geometry >( tBottomPlane );
-            tGeometry( 1 ) = std::make_shared< gen::Level_Set_Geometry >( tTopPlane );
-            tGeometry( 2 ) = std::make_shared< gen::Level_Set_Geometry >( tLeftPlane );
-            tGeometry( 3 ) = std::make_shared< gen::Level_Set_Geometry >( tRightPlane );
+            auto                                       tBottomPlane = std::make_shared< gen::Line >( 0.0, tPlaneBottom, 0.0, 1.0 );
+            auto                                       tTopPlane    = std::make_shared< gen::Line >( 0.0, tPlaneTop, 0.0, 1.0 );
+            auto                                       tLeftPlane   = std::make_shared< gen::Line >( tPlaneLeft, 0.0, 1.0, 0.0 );
+            auto                                       tRightPlane  = std::make_shared< gen::Line >( tPlaneRight, 0.0, 1.0, 0.0 );
+            tGeometry( 0 )                                          = std::make_shared< gen::Level_Set_Geometry >( tBottomPlane );
+            tGeometry( 1 )                                          = std::make_shared< gen::Level_Set_Geometry >( tTopPlane );
+            tGeometry( 2 )                                          = std::make_shared< gen::Level_Set_Geometry >( tLeftPlane );
+            tGeometry( 3 )                                          = std::make_shared< gen::Level_Set_Geometry >( tRightPlane );
 
             // Perform additional refinement
             // tGENGeometryEngine.perform_refinement(tHMR);
@@ -827,7 +827,7 @@ namespace moris
 
             // create linear solver and algorithm
             // --------------------------------------------------------------------------------------
-            Vector< Vector< moris::ParameterList > > tSOLParameterlist( 8 );
+            Vector< Vector< moris::Parameter_List > > tSOLParameterlist( 8 );
             for ( uint Ik = 0; Ik < 8; Ik++ )
             {
                 tSOLParameterlist( Ik ).resize( 1 );
@@ -1016,7 +1016,7 @@ namespace moris
     //        tXTKModel.mVerbose = true;
     //
     //        //Specify decomposition Method and Cut Mesh ---------------------------------------
-    //        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,
+    //        Vector<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,
     //                                                               Subdivision_Method::C_HIERARCHY_TET4};
     //        tXTKModel.decompose(tDecompositionMethods);
     //
@@ -2130,7 +2130,7 @@ namespace moris
 
     void
     RVelocityFunc_MDLFluidBench( moris::Matrix< moris::DDRMat >& aPropMatrix,
-            Vector< moris::Matrix< moris::DDRMat > >&       aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >&            aParameters,
             moris::fem::Field_Interpolator_Manager*              aFIManager )
     {
         // velocity magnitude
@@ -2150,7 +2150,7 @@ namespace moris
 
     void
     ImposedVelocityFunc_MDLFluidBench( moris::Matrix< moris::DDRMat >& aPropMatrix,
-            Vector< moris::Matrix< moris::DDRMat > >&             aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >&                  aParameters,
             moris::fem::Field_Interpolator_Manager*                    aFIManager )
     {
         // velocity magnitude
@@ -2173,7 +2173,7 @@ namespace moris
 
     void
     AnalyticdVelocitydxFunc_MDLFluidBench( moris::Matrix< moris::DDRMat >& aPropMatrix,
-            Vector< moris::Matrix< moris::DDRMat > >&                 aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >&                      aParameters,
             moris::fem::Field_Interpolator_Manager*                        aFIManager )
     {
         // velocity magnitude
@@ -2230,7 +2230,7 @@ namespace moris
 
             moris::uint tLagrangeMeshIndex = 0;
 
-            ParameterList tParameters = prm::create_hmr_parameter_list();
+            Parameter_List tParameters = prm::create_hmr_parameter_list();
 
             tParameters.set( "number_of_elements_per_dimension", std::to_string( tNumX ) + "," + std::to_string( tNumY ) );
             tParameters.set( "domain_dimensions", std::to_string( tDomainLX ) + "," + std::to_string( tDomainLY ) );
@@ -2262,10 +2262,10 @@ namespace moris
 
             // Create geometry engine
             Vector< std::shared_ptr< gen::Geometry > > tGeometry( 2 );
-            auto tOuterCircle = std::make_shared< gen::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tROut );
-            auto tInnerCircle = std::make_shared< gen::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRIn );
-            tGeometry( 0 ) = std::make_shared< gen::Level_Set_Geometry >( tOuterCircle );
-            tGeometry( 1 ) = std::make_shared< gen::Level_Set_Geometry >( tInnerCircle );
+            auto                                       tOuterCircle = std::make_shared< gen::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tROut );
+            auto                                       tInnerCircle = std::make_shared< gen::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRIn );
+            tGeometry( 0 )                                          = std::make_shared< gen::Level_Set_Geometry >( tOuterCircle );
+            tGeometry( 1 )                                          = std::make_shared< gen::Level_Set_Geometry >( tInnerCircle );
 
             // Perform additional refinement
             // tGENGeometryEngine.perform_refinement(tHMR);
@@ -2524,7 +2524,7 @@ namespace moris
 
             // create linear solver and algorithm
             // --------------------------------------------------------------------------------------
-            Vector< Vector< moris::ParameterList > > tSOLParameterlist( 8 );
+            Vector< Vector< moris::Parameter_List > > tSOLParameterlist( 8 );
             for ( uint Ik = 0; Ik < 8; Ik++ )
             {
                 tSOLParameterlist( Ik ).resize( 1 );

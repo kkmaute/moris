@@ -24,10 +24,10 @@ namespace moris::gen
         // Constructor to allow this field to be created with ADVs
         ANALYTIC_FIELD_ADV_CONSTRUCTOR( Superellipsoid, 3, 7,
         {
-            MORIS_ERROR( mADVManager.get_variable( 3 ) > 0 and mADVManager.get_variable( 4 ) > 0,
+            MORIS_ERROR( mADVHandler.get_variable( 3 ) > 0 and mADVHandler.get_variable( 4 ) > 0,
                     "A GEN Superellipsoid must be created with positive semi-diameters.");
 
-            MORIS_ERROR( std::abs( std::fmod( mADVManager.get_variable( 6 ), 2.0) ) < 1e-12,
+            MORIS_ERROR( std::abs( std::fmod( mADVHandler.get_variable( 6 ), 2.0) ) < 1e-12,
                     "A GEN Superellipsoid must be created with an even exponent.");
         } )
 
@@ -41,15 +41,17 @@ namespace moris::gen
          * @param aYSemidiameter Superellipsoid semi-diameter in the y direction
          * @param aZSemidiameter Superellipsoid semi-diameter in the z direction
          * @param aExponent Superellipsoid exponent
+         * @param aName Name of this field
          */
         Superellipsoid(
-                real aXCenter,
-                real aYCenter,
-                real aZCenter,
-                real aXSemidiameter,
-                real aYSemidiameter,
-                real aZSemidiameter,
-                real aExponent );
+                const ADV&  aXCenter,
+                const ADV&  aYCenter,
+                const ADV&  aZCenter,
+                const ADV&  aXSemidiameter,
+                const ADV&  aYSemidiameter,
+                const ADV&  aZSemidiameter,
+                real        aExponent,
+                std::string aName = "" );
 
         /**
          * Given a node coordinate, returns the field value.
@@ -57,7 +59,7 @@ namespace moris::gen
          * @param aCoordinates Coordinate values
          * @return Field value
          */
-        real get_field_value(const Matrix<DDRMat>& aCoordinates);
+        real get_field_value( const Matrix< DDRMat >& aCoordinates );
 
         /**
          * Given a node coordinate, evaluates the sensitivity of the field with respect to all of the
@@ -66,7 +68,7 @@ namespace moris::gen
          * @param aCoordinates Coordinate values
          * @return Vector of sensitivities
          */
-        const Matrix<DDRMat>& get_dfield_dadvs(const Matrix<DDRMat>& aCoordinates);
+        const Matrix< DDRMat >& get_dfield_dadvs( const Matrix< DDRMat >& aCoordinates );
 
         /**
          * Given nodal coordinates, returns a vector of the field derivatives with respect to the nodal
@@ -76,8 +78,7 @@ namespace moris::gen
          * @param aSensitivities Sensitivities to be filled with d(field value)/d(coordinate_j)
          */
         void get_dfield_dcoordinates(
-                const Matrix<DDRMat>& aCoordinates,
-                Matrix<DDRMat>&       aSensitivities);
-
+                const Matrix< DDRMat >& aCoordinates,
+                Matrix< DDRMat >&       aSensitivities );
     };
 }

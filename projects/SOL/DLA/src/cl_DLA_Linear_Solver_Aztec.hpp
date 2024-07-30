@@ -15,7 +15,7 @@
 #include "cl_DLA_Linear_Solver_Algorithm_Trilinos.hpp"
 #include "cl_DLA_Preconditioner_Trilinos.hpp"
 
-#include "cl_Param_List.hpp"    //CNT/src
+#include "fn_PRM_SOL_Parameters.hpp"
 
 namespace moris
 {
@@ -37,10 +37,6 @@ namespace moris
 
             // -----------------------------------------------------------------------------------
 
-            void set_solver_parameters();
-
-            // -----------------------------------------------------------------------------------
-
             bool build_external_preconditioner( const moris::sint &aIter = 1 );
 
             // -----------------------------------------------------------------------------------
@@ -48,11 +44,9 @@ namespace moris
           public:
             // -----------------------------------------------------------------------------------
 
-            Linear_Solver_Aztec();
-
             // -----------------------------------------------------------------------------------
 
-            Linear_Solver_Aztec( const moris::ParameterList aParameterlist );
+            Linear_Solver_Aztec( const moris::Parameter_List& aParameterlist = prm::create_linear_algorithm_parameter_list_aztec() );
 
             // -----------------------------------------------------------------------------------
 

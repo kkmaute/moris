@@ -73,7 +73,7 @@ namespace moris
         for ( moris::uint iOrder = 1; iOrder < 2; iOrder++ )
         {
 
-            Vector< Vector< ParameterList > > tParameterlist;
+            Vector< Vector< Parameter_List > > tParameterlist;
             tParameterlist.resize( 1 );
             tParameterlist( 0 ).resize( 1 );
             tParameterlist( 0 )( 0 ) = prm::create_hmr_parameter_list();
@@ -108,7 +108,7 @@ namespace moris
             tHMR->perform_initial_refinement();
             tHMR->perform();
 
-            auto                                       tField          = std::make_shared< moris::gen::User_Defined_Field >( &( LevelSetSphereCylinderGeometry ), Matrix< DDRMat >( 0, 0 ) );
+            auto                                       tField          = std::make_shared< moris::gen::User_Defined_Field >( &( LevelSetSphereCylinderGeometry ), Vector< gen::ADV >() );
             Vector< std::shared_ptr< gen::Geometry > > tGeometryVector = { std::make_shared< gen::Level_Set_Geometry >( tField ) };
 
             size_t                                 tModelDimension = 3;

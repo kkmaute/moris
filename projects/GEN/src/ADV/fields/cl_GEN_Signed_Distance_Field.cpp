@@ -21,7 +21,7 @@ namespace moris::gen
             std::string  aObjectPath,
             Vector< real > aObjectOffset,
             real         aSDFShift )
-            : Field_Discrete_Integration( Matrix< DDRMat >( 1, 1, 0.0 ), 0 )
+            : Field_Discrete_Integration( {}, aObjectPath )
     {
         mObjectPath = aObjectPath;
 

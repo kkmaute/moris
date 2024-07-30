@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "cl_GEN_ADV_Manager.hpp"
+#include "cl_GEN_ADV_Handler.hpp"
 #include "cl_GEN_Field.hpp"
 #include "cl_MTK_Mesh_Pair.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
@@ -33,7 +33,7 @@ namespace moris::gen
          *
          * @param aParameterList Design field parameter list
          */
-        explicit Field_Parameters( const ParameterList& aParameterList );
+        explicit Field_Parameters( const Parameter_List& aParameterList );
     };
 
     class Design_Field
@@ -45,7 +45,7 @@ namespace moris::gen
       private:
         Field_Parameters mParameters;
         Matrix< DDRMat > mInterpolatedSensitivities;
-        Matrix< DDSMat > mInterpolatedADVIDs;
+        Vector< sint > mInterpolatedADVIDs;
 
       public:
         /**
@@ -69,10 +69,10 @@ namespace moris::gen
          * @param aADVOffsetID Offset in the owned ADV IDs for pulling ADV IDs
          */
         void discretize(
-                mtk::Mesh_Pair          aMeshPair,
-                sol::Dist_Vector*       aOwnedADVs,
-                const Matrix< DDSMat >& aSharedADVIds,
-                uint                    aADVOffsetID );
+                mtk::Mesh_Pair        aMeshPair,
+                sol::Dist_Vector*     aOwnedADVs,
+                const Vector< sint >& aSharedADVIds,
+                uint                  aADVOffsetID );
 
         /**
          * If intended for this field, maps the field to B-spline coefficients or stores the nodal field values in a stored field object.
@@ -86,7 +86,7 @@ namespace moris::gen
                 std::shared_ptr< mtk::Field > aMTKField,
                 mtk::Mesh_Pair                aMeshPair,
                 sol::Dist_Vector*             aOwnedADVs,
-                const Matrix< DDSMat >&       aSharedADVIds,
+                const Vector< sint >&         aSharedADVIds,
                 uint                          aADVOffsetID );
 
         /**
@@ -107,7 +107,7 @@ namespace moris::gen
          * @param aCoordinates Node coordinates
          * @return Determining ADV IDs at this node
          */
-        Matrix< DDSMat > get_determining_adv_ids(
+        Vector< sint > get_determining_adv_ids(
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates );
 
@@ -160,6 +160,14 @@ namespace moris::gen
          * @return Multilinear interpolation flag
          */
         bool use_multilinear_interpolation() const;
+
+        /**
+         * Updates the dependencies of this design based on the given designs
+         * (fields may have been mapped/updated).
+         *
+         * @param aUpdatedFields All designs (this design will take fields from the ones it needs)
+         */
+        void update_dependencies( Vector< std::shared_ptr< Field > > aUpdatedFields );
 
         /**
          * Gets an MTK field, if this design field uses one that needs to be remapped to a new mesh

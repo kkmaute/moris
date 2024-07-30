@@ -111,26 +111,26 @@ namespace moris
     }
 
     inline void
-    tConstValFunction( moris::Matrix< moris::DDRMat >&     aPropMatrix,
-            Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+    tConstValFunction( moris::Matrix< moris::DDRMat >& aPropMatrix,
+            Vector< moris::Matrix< moris::DDRMat > >&  aParameters,
+            moris::fem::Field_Interpolator_Manager*    aFIManager )
     {
         aPropMatrix = aParameters( 0 );
     }
 
     inline void
-    tMValFunction( moris::Matrix< moris::DDRMat >&         aPropMatrix,
+    tMValFunction( moris::Matrix< moris::DDRMat >&    aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         aPropMatrix = { { aParameters( 0 )( 0 ), 0.0 },
             { 0.0, aParameters( 0 )( 1 ) } };
     }
 
     inline void
-    tMValFunction_3D( moris::Matrix< moris::DDRMat >&      aPropMatrix,
+    tMValFunction_3D( moris::Matrix< moris::DDRMat >& aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         aPropMatrix = { { aParameters( 0 )( 0 ), 0.0, 0.0 },
             { 0.0, aParameters( 0 )( 1 ), 0.0 },
@@ -174,7 +174,7 @@ namespace moris
             uint        tLagrangeMeshIndex = 0;
             std::string tFieldName         = "Cylinder";
 
-            moris::ParameterList tParameters = prm::create_hmr_parameter_list();
+            moris::Parameter_List tParameters = prm::create_hmr_parameter_list();
 
             tParameters.set( "number_of_elements_per_dimension", "20, 20" );
             tParameters.set( "domain_dimensions", "2, 2" );
@@ -224,7 +224,7 @@ namespace moris
 
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            auto tCircle = std::make_shared< moris::gen::Circle >( 0.0, 0.0, 0.2501 );
+            auto                                              tCircle   = std::make_shared< moris::gen::Circle >( 0.0, 0.0, 0.2501 );
             Vector< std::shared_ptr< moris::gen::Geometry > > tGeometry = { std::make_shared< gen::Level_Set_Geometry >( tCircle ) };
 
             moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
@@ -404,16 +404,16 @@ namespace moris
             tDofTypesU( 0 ) = MSI::Dof_Type::UX;
             tDofTypesU( 1 ) = MSI::Dof_Type::UY;
 
-            dla::Solver_Factory                             tSolFactory;
-            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
-
-            tLinearSolverAlgorithm->set_param( "AZ_diagnostics" )     = AZ_none;
-            tLinearSolverAlgorithm->set_param( "AZ_output" )          = AZ_none;
-            tLinearSolverAlgorithm->set_param( "AZ_max_iter" )        = 10000;
-            tLinearSolverAlgorithm->set_param( "AZ_solver" )          = AZ_gmres;
-            tLinearSolverAlgorithm->set_param( "AZ_subdomain_solve" ) = AZ_ilu;
-            tLinearSolverAlgorithm->set_param( "AZ_graph_fill" )      = 10;
-            //        tLinearSolverAlgorithm->set_param("ml_prec_type") = "SA";
+            dla::Solver_Factory tSolFactory;
+            Parameter_List      tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_aztec();
+            tLinearSolverParameterList.set( "AZ_diagnostics", AZ_none );
+            tLinearSolverParameterList.set( "AZ_output", AZ_none );
+            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( tLinearSolverParameterList );
+            tLinearSolverParameterList.set( "AZ_max_iter", 10000 );
+            tLinearSolverParameterList.set( "AZ_solver", AZ_gmres );
+            tLinearSolverParameterList.set( "AZ_subdomain_solve", AZ_ilu );
+            tLinearSolverParameterList.set( "AZ_graph_fill", 10 );
+            //        tLinearSolverParameterList.set( "ml_prec_type", "SA" );
 
             dla::Linear_Solver tLinSolver;
             tLinSolver.set_linear_algorithm( 0, tLinearSolverAlgorithm );
@@ -421,14 +421,10 @@ namespace moris
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 2: create nonlinear solver and algorithm
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            NLA::Nonlinear_Solver_Factory               tNonlinFactory;
-            std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
-            //        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithmMonolythicU = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
-
-            tNonlinearSolverAlgorithm->set_param( "NLA_max_iter" ) = 3;
-            //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_hard_break") = false;
-            //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_max_lin_solver_restarts") = 2;
-            //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_rebuild_jacobian") = true;
+            NLA::Nonlinear_Solver_Factory tNonlinFactory;
+            Parameter_List                tNonlinearSolverParameterList = prm::create_nonlinear_algorithm_parameter_list();
+            tNonlinearSolverParameterList.set( "NLA_max_iter", 3 );
+            std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( tNonlinearSolverParameterList );
 
             tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
             //        tNonlinearSolverAlgorithmMonolythicU->set_linear_solver( &tLinSolver );
@@ -517,7 +513,7 @@ namespace moris
         //
         //        moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
         //
-        //        Cell<std::shared_ptr<moris::gen::Level_Set_Geometry>> tGeometry(1);
+        //        Vector<std::shared_ptr<moris::gen::Level_Set_Geometry>> tGeometry(1);
         //        tGeometry(0) = std::make_shared<moris::gen::Circle>(100.0, 0.0, 0.2501);
         //
         //        moris::gen::Phase_Table tPhaseTable (1);
@@ -526,7 +522,7 @@ namespace moris
         //         xtk::Model tXTKModel(3, tInterpolationMesh, &tGeometryEngine);
         //
         //        //Specify decomposition Method and Cut Mesh ---------------------------------------
-        //        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
+        //        Vector<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
         //        tXTKModel.decompose(tDecompositionMethods);
         //
         //        tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE,0);
@@ -686,13 +682,13 @@ namespace moris
         //        dla::Solver_Factory  tSolFactory;
         //        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
         //
-        //        tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
-        //        tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
-        //        tLinearSolverAlgorithm->set_param("AZ_max_iter") = 10000;
-        //        tLinearSolverAlgorithm->set_param("AZ_solver") = AZ_gmres;
-        //        tLinearSolverAlgorithm->set_param("AZ_subdomain_solve") = AZ_ilu;
-        //        tLinearSolverAlgorithm->set_param("AZ_graph_fill") = 10;
-        //        //        tLinearSolverAlgorithm->set_param("ml_prec_type") = "SA";
+        //        tLinearSolverParameterList.set( "AZ_diagnostics", AZ_none );
+        //        tLinearSolverParameterList.set( "AZ_output", AZ_none );
+        //        tLinearSolverParameterList.set( "AZ_max_iter", 10000 );
+        //        tLinearSolverParameterList.set( "AZ_solver", AZ_gmres );
+        //        tLinearSolverParameterList.set( "AZ_subdomain_solve", AZ_ilu );
+        //        tLinearSolverParameterList.set( "AZ_graph_fill", 10 );
+        //        //        tLinearSolverParameterList.set( "ml_prec_type", "SA" );
         //
         //        dla::Linear_Solver tLinSolver;
         //        tLinSolver.set_linear_algorithm( 0, tLinearSolverAlgorithm );
@@ -704,7 +700,7 @@ namespace moris
         //        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
         //        //        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithmMonolythicU = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
         //
-        //        tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 3;
+        //        tNonlinearSolverParameterList.set( "NLA_max_iter", 3 );
         //        //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_hard_break") = false;
         //        //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_max_lin_solver_restarts") = 2;
         //        //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_rebuild_jacobian") = true;
@@ -755,7 +751,7 @@ namespace moris
             uint        tLagrangeMeshIndex = 0;
             std::string tFieldName         = "Cylinder";
 
-            moris::ParameterList tParameters = prm::create_hmr_parameter_list();
+            moris::Parameter_List tParameters = prm::create_hmr_parameter_list();
 
             tParameters.set( "number_of_elements_per_dimension", "20, 20" );
             tParameters.set( "domain_dimensions", "2, 2" );
@@ -805,7 +801,7 @@ namespace moris
 
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            auto tCircle = std::make_shared< moris::gen::Circle >( 0.0, 0.0, 0.2505 );
+            auto                                              tCircle   = std::make_shared< moris::gen::Circle >( 0.0, 0.0, 0.2505 );
             Vector< std::shared_ptr< moris::gen::Geometry > > tGeometry = { std::make_shared< gen::Level_Set_Geometry >( tCircle ) };
 
             moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
@@ -818,7 +814,7 @@ namespace moris
 
             // Specify decomposition Method and Cut Mesh ---------------------------------------
             Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
-            bool                            tSuccess              = tXTKModel.decompose( tDecompositionMethods );
+            bool                              tSuccess              = tXTKModel.decompose( tDecompositionMethods );
             CHECK( tSuccess );
 
             tXTKModel.perform_basis_enrichment( mtk::EntityRank::NODE, 0 );
@@ -1003,16 +999,16 @@ namespace moris
             tDofTypesU( 0 ) = MSI::Dof_Type::UX;
             tDofTypesU( 1 ) = MSI::Dof_Type::UY;
 
-            dla::Solver_Factory                             tSolFactory;
-            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
-
-            tLinearSolverAlgorithm->set_param( "AZ_diagnostics" )     = AZ_none;
-            tLinearSolverAlgorithm->set_param( "AZ_output" )          = AZ_none;
-            tLinearSolverAlgorithm->set_param( "AZ_max_iter" )        = 10000;
-            tLinearSolverAlgorithm->set_param( "AZ_solver" )          = AZ_gmres;
-            tLinearSolverAlgorithm->set_param( "AZ_subdomain_solve" ) = AZ_ilu;
-            tLinearSolverAlgorithm->set_param( "AZ_graph_fill" )      = 10;
-            //        tLinearSolverAlgorithm->set_param("ml_prec_type") = "SA";
+            dla::Solver_Factory tSolFactory;
+            Parameter_List      tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_aztec();
+            tLinearSolverParameterList.set( "AZ_diagnostics", AZ_none );
+            tLinearSolverParameterList.set( "AZ_output", AZ_none );
+            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( tLinearSolverParameterList );
+            tLinearSolverParameterList.set( "AZ_max_iter", 10000 );
+            tLinearSolverParameterList.set( "AZ_solver", AZ_gmres );
+            tLinearSolverParameterList.set( "AZ_subdomain_solve", AZ_ilu );
+            tLinearSolverParameterList.set( "AZ_graph_fill", 10 );
+            //        tLinearSolverParameterList.set( "ml_prec_type", "SA" );
 
             dla::Linear_Solver tLinSolver;
             tLinSolver.set_linear_algorithm( 0, tLinearSolverAlgorithm );
@@ -1020,14 +1016,10 @@ namespace moris
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 2: create nonlinear solver and algorithm
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            NLA::Nonlinear_Solver_Factory               tNonlinFactory;
-            std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
-            //        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithmMonolythicU = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
-
-            tNonlinearSolverAlgorithm->set_param( "NLA_max_iter" ) = 3;
-            //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_hard_break") = false;
-            //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_max_lin_solver_restarts") = 2;
-            //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_rebuild_jacobian") = true;
+            NLA::Nonlinear_Solver_Factory tNonlinFactory;
+            Parameter_List                tNonlinearSolverParameterList = prm::create_nonlinear_algorithm_parameter_list();
+            tNonlinearSolverParameterList.set( "NLA_max_iter", 3 );
+            std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( tNonlinearSolverParameterList );
 
             tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
             //        tNonlinearSolverAlgorithmMonolythicU->set_linear_solver( &tLinSolver );
@@ -1075,7 +1067,7 @@ namespace moris
             uint        tLagrangeMeshIndex = 0;
             std::string tFieldName         = "Cylinder";
 
-            moris::ParameterList tParameters = prm::create_hmr_parameter_list();
+            moris::Parameter_List tParameters = prm::create_hmr_parameter_list();
 
             tParameters.set( "number_of_elements_per_dimension", "20, 20" );
             tParameters.set( "domain_dimensions", "2, 2" );
@@ -1125,7 +1117,7 @@ namespace moris
 
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            auto tCircle = std::make_shared< moris::gen::Circle >( 0.0, 0.0, 0.2505 );
+            auto                                              tCircle   = std::make_shared< moris::gen::Circle >( 0.0, 0.0, 0.2505 );
             Vector< std::shared_ptr< moris::gen::Geometry > > tGeometry = { std::make_shared< gen::Level_Set_Geometry >( tCircle ) };
 
             moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
@@ -1262,16 +1254,16 @@ namespace moris
             tDofTypesU( 0 ) = MSI::Dof_Type::UX;
             tDofTypesU( 1 ) = MSI::Dof_Type::UY;
 
-            dla::Solver_Factory                             tSolFactory;
-            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
-
-            tLinearSolverAlgorithm->set_param( "AZ_diagnostics" )     = AZ_none;
-            tLinearSolverAlgorithm->set_param( "AZ_output" )          = AZ_none;
-            tLinearSolverAlgorithm->set_param( "AZ_max_iter" )        = 10000;
-            tLinearSolverAlgorithm->set_param( "AZ_solver" )          = AZ_gmres;
-            tLinearSolverAlgorithm->set_param( "AZ_subdomain_solve" ) = AZ_ilu;
-            tLinearSolverAlgorithm->set_param( "AZ_graph_fill" )      = 10;
-            //        tLinearSolverAlgorithm->set_param("ml_prec_type") = "SA";
+            dla::Solver_Factory tSolFactory;
+            Parameter_List      tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_aztec();
+            tLinearSolverParameterList.set( "AZ_diagnostics", AZ_none );
+            tLinearSolverParameterList.set( "AZ_output", AZ_none );
+            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( tLinearSolverParameterList );
+            tLinearSolverParameterList.set( "AZ_max_iter", 10000 );
+            tLinearSolverParameterList.set( "AZ_solver", AZ_gmres );
+            tLinearSolverParameterList.set( "AZ_subdomain_solve", AZ_ilu );
+            tLinearSolverParameterList.set( "AZ_graph_fill", 10 );
+            //        tLinearSolverParameterList.set( "ml_prec_type", "SA" );
 
             dla::Linear_Solver tLinSolver;
             tLinSolver.set_linear_algorithm( 0, tLinearSolverAlgorithm );
@@ -1279,14 +1271,10 @@ namespace moris
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 2: create nonlinear solver and algorithm
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            NLA::Nonlinear_Solver_Factory               tNonlinFactory;
-            std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
-            //        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithmMonolythicU = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
-
-            tNonlinearSolverAlgorithm->set_param( "NLA_max_iter" ) = 3;
-            //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_hard_break") = false;
-            //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_max_lin_solver_restarts") = 2;
-            //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_rebuild_jacobian") = true;
+            NLA::Nonlinear_Solver_Factory tNonlinFactory;
+            Parameter_List                tNonlinearSolverParameterList = prm::create_nonlinear_algorithm_parameter_list();
+            tNonlinearSolverParameterList.set( "NLA_max_iter", 3 );
+            std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( tNonlinearSolverParameterList );
 
             tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
             //        tNonlinearSolverAlgorithmMonolythicU->set_linear_solver( &tLinSolver );

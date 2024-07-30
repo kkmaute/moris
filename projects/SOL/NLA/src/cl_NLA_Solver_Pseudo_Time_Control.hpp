@@ -10,7 +10,7 @@
 #ifndef SRC_FEM_CL_NLA_SOLVER_PSEUDO_TIME_CONTROL_HPP_
 #define SRC_FEM_CL_NLA_SOLVER_PSEUDO_TIME_CONTROL_HPP_
 
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 
 #include "cl_SOL_Enums.hpp"
 
@@ -82,6 +82,9 @@ namespace moris
             // number of initial iterations without time step size control
             uint mInitialIterations = 1;
 
+            // iteration index at which reference norm is set
+            uint mRefIterationID = 1;
+
             // relative static residual norm for switching to steady state computation
             real mSteadyStateRelRes = -1.0;
 
@@ -117,7 +120,7 @@ namespace moris
 
           public:
             Solver_Pseudo_Time_Control(
-                    ParameterList&    aParameterListNonlinearSolver,
+                    Parameter_List&    aParameterListNonlinearSolver,
                     sol::Dist_Vector* aCurrentSolution,
                     Nonlinear_Solver* aNonLinSolverManager );
 

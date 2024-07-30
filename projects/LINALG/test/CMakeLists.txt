@@ -21,6 +21,7 @@ set(TEST_SOURCES
     fn_ctrans.cpp
     fn_det.cpp
     fn_diag.cpp
+    fn_diag_mat.cpp
     fn_dot.cpp
     fn_eig_gen.cpp
     fn_eig_sym.cpp

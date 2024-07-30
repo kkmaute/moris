@@ -82,6 +82,7 @@
 #include "cl_TSA_Time_Solver.hpp"
 
 #include "cl_GEN_Circle.hpp"
+#include "cl_GEN_Line.hpp"
 #include "cl_GEN_Plane.hpp"
 #include "cl_GEN_User_Defined_Field.hpp"
 #include "fn_norm.hpp"
@@ -288,7 +289,7 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole", "[XTK_HMR_PLA
 
         Vector< std::shared_ptr< gen::Geometry > > tGeometryVector( 2 );
         auto tCircle = std::make_shared< gen::Circle >( 0.01, 0.01, 0.47334 );
-        auto tPlane = std::make_shared< gen::Plane >( 0.1, 0.1, 1.0, 0.0 );
+        auto tPlane = std::make_shared< gen::Line >( 0.1, 0.1, 1.0, 0.0 );
         tGeometryVector( 0 ) = { std::make_shared< gen::Level_Set_Geometry >( tCircle ) };
         tGeometryVector( 1 ) = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
@@ -588,16 +589,16 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole", "[XTK_HMR_PLA
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         dla::Solver_Factory                             tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
-
-        tLinearSolverAlgorithm->set_param( "AZ_diagnostics" ) = AZ_none;
-        tLinearSolverAlgorithm->set_param( "AZ_output" )      = AZ_none;
-        tLinearSolverAlgorithm->set_param( "AZ_orthog" )      = 1;
-        tLinearSolverAlgorithm->set_param( "AZ_solver" )      = AZ_gmres_condnum;
-        tLinearSolverAlgorithm->set_param( "AZ_precond" )     = AZ_dom_decomp;
-        tLinearSolverAlgorithm->set_param( "AZ_ilut_fill" )   = 10.0;
-        tLinearSolverAlgorithm->set_param( "AZ_max_iter" )    = 100;
-        tLinearSolverAlgorithm->set_param( "rel_residual" )   = 1e-6;
+        Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_aztec();
+        tLinearSolverParameterList.set( "AZ_diagnostics", AZ_none );
+        tLinearSolverParameterList.set( "AZ_output", AZ_none );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( tLinearSolverParameterList );
+        tLinearSolverParameterList.set( "AZ_orthog", 1 );
+        tLinearSolverParameterList.set( "AZ_solver", AZ_gmres_condnum );
+        tLinearSolverParameterList.set( "AZ_precond", AZ_dom_decomp );
+        tLinearSolverParameterList.set( "AZ_ilut_fill", 10.0 );
+        tLinearSolverParameterList.set( "AZ_max_iter", 100 );
+        tLinearSolverParameterList.set( "rel_residual", 1e-6 );
 
         dla::Linear_Solver tLinSolver;
 
@@ -608,16 +609,16 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole", "[XTK_HMR_PLA
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         NLA::Nonlinear_Solver_Factory               tNonlinFactory;
-        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+        Parameter_List tNonlinearSolverParameterList = prm::create_nonlinear_algorithm_parameter_list();
+        tNonlinearSolverParameterList.set( "NLA_max_iter", 2 );
+        tNonlinearSolverParameterList.set( "NLA_hard_break", false );
+        tNonlinearSolverParameterList.set( "NLA_max_lin_solver_restarts", 2 );
+        tNonlinearSolverParameterList.set( "NLA_rebuild_jacobian", true );
+        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( tNonlinearSolverParameterList );
 
         tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
 
         NLA::Nonlinear_Solver tNonlinearSolver;
-        tNonlinearSolverAlgorithm->set_param( "NLA_max_iter" )                = 2;
-        tNonlinearSolverAlgorithm->set_param( "NLA_hard_break" )              = false;
-        tNonlinearSolverAlgorithm->set_param( "NLA_max_lin_solver_restarts" ) = 2;
-        tNonlinearSolverAlgorithm->set_param( "NLA_rebuild_jacobian" )        = true;
-
         tNonlinearSolver.set_nonlinear_algorithm( tNonlinearSolverAlgorithm, 0 );
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1031,10 +1032,10 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole 3D", "[XTK_HMR_
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         dla::Solver_Factory                             tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
-
-        tLinearSolverAlgorithm->set_param( "AZ_diagnostics" ) = AZ_none;
-        tLinearSolverAlgorithm->set_param( "AZ_output" )      = AZ_none;
+        Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_aztec();
+        tLinearSolverParameterList.set( "AZ_diagnostics", AZ_none );
+        tLinearSolverParameterList.set( "AZ_output", AZ_none );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( tLinearSolverParameterList );
 
         dla::Linear_Solver tLinSolver;
 
@@ -1045,7 +1046,7 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole 3D", "[XTK_HMR_
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         NLA::Nonlinear_Solver_Factory               tNonlinFactory;
-        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver();
 
         tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
 

@@ -24,17 +24,19 @@ namespace moris::gen
         ANALYTIC_FIELD_ADV_CONSTRUCTOR( Sphere, 3, 4, {} )
 
         /**
-         * Constructor with only constant parameters
+         * Constructor
          *
          * @param aXCenter x-coordinate of the center of the sphere
          * @param aYCenter y-coordiante of the center of the sphere
          * @param aZCenter z-coordinate of the center of the sphere
          * @param aRadius radius of the sphere
+         * @param aName Name of this field
          */
-        Sphere( real aXCenter,
-                real aYCenter,
-                real aZCenter,
-                real aRadius );
+        Sphere( const ADV&  aXCenter,
+                const ADV&  aYCenter,
+                const ADV&  aZCenter,
+                const ADV&  aRadius,
+                std::string aName = "" );
 
         /**
          * Given a node coordinate, returns the field value.
@@ -42,7 +44,7 @@ namespace moris::gen
          * @param aCoordinates Coordinate values
          * @return Field value
          */
-        real get_field_value(const Matrix<DDRMat>& aCoordinates);
+        real get_field_value( const Matrix< DDRMat >& aCoordinates );
 
         /**
          * Given a node coordinate, evaluates the sensitivity of the field with respect to all of the
@@ -51,7 +53,7 @@ namespace moris::gen
          * @param aCoordinates Coordinate values
          * @return Vector of sensitivities
          */
-        const Matrix<DDRMat>& get_dfield_dadvs(const Matrix<DDRMat>& aCoordinates);
+        const Matrix< DDRMat >& get_dfield_dadvs( const Matrix< DDRMat >& aCoordinates );
 
         /**
          * Given nodal coordinates, returns a vector of the field derivatives with respect to the nodal
@@ -61,8 +63,7 @@ namespace moris::gen
          * @param aSensitivities Sensitivities to be filled with d(field value)/d(coordinate_j)
          */
         void get_dfield_dcoordinates(
-                const Matrix<DDRMat>& aCoordinates,
-                Matrix<DDRMat>&       aSensitivities);
-
+                const Matrix< DDRMat >& aCoordinates,
+                Matrix< DDRMat >&       aSensitivities );
     };
 }

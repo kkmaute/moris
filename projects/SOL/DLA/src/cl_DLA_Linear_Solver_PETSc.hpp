@@ -13,12 +13,14 @@
 #include "core.hpp"
 #include "cl_DLA_Linear_Solver_Algorithm_Petsc.hpp"
 #include "cl_Vector_PETSc.hpp"
+#include "cl_Vector_PETSc_Multi.hpp"
 #include "cl_MatrixPETSc.hpp"
 
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
 
 #include "cl_DLA_Linear_Problem.hpp"
+#include "fn_PRM_SOL_Parameters.hpp"
 
 namespace moris::dla
 {
@@ -33,13 +35,10 @@ namespace moris::dla
       protected:
 
       public:
-        //------------------------------------------------------------------------------
-
-        Linear_Solver_PETSc();
 
         //------------------------------------------------------------------------------
 
-        Linear_Solver_PETSc( const moris::ParameterList aParameterlist );
+        Linear_Solver_PETSc( const moris::Parameter_List& aParameterlist = prm::create_linear_algorithm_parameter_list_petsc() );
 
         //------------------------------------------------------------------------------
 
@@ -52,10 +51,6 @@ namespace moris::dla
         //------------------------------------------------------------------------------
 
         ~Linear_Solver_PETSc();
-
-        //------------------------------------------------------------------------------
-
-        void set_solver_parameters();
 
         //------------------------------------------------------------------------------
 

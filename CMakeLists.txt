@@ -64,7 +64,7 @@ set(FEM "FEM")
 set(GEN "GEN")
 set(GEN_CORE "GEN_CORE")
 set(GEN_MAIN "GEN_MAIN")
-set(HIA "Hierarchical")
+set(GUI "GUI")
 set(HMR "HMR")
 set(INT "INT")
 set(IOS "IOS")
@@ -215,6 +215,9 @@ option(MORIS_HAVE_SNOPT
 option(MORIS_HAVE_LBFGS
     "Build MORIS with support for LBFGS." ON )
 
+option(MORIS_HAVE_ARBORX
+    "Build MORIS with support for ArborX." OFF )
+    
 # option(MORIS_HAVE_PERF_MAT
 #     "Run matrix performance tests." OFF )
 #     
@@ -298,6 +301,8 @@ option(BUILD_NLA "Build the non-linear algebra executable." OFF)
 option(BUILD_OPT "Build the optimization executable." OFF)
 
 option(BUILD_PRM "Build the PRM executable." OFF)
+
+option(BUILD_GUI "Build the GUI executable." OFF)
 
 option(BUILD_SDF "Build the SDF executable." OFF)
 
@@ -872,9 +877,17 @@ IF(CMAKE_CXX_COMPILER_ID MATCHES "^GNU$")
 
     # special case for gcc-10.2
     if( CMAKE_CXX_COMPILER_VERSION MATCHES "10.2.*")
-        check_cxx_compiler_flag("-Wno-type-limits" HAVE_PEDANTIC )
-        if (HAVE_PEDANTIC)
+        check_cxx_compiler_flag("-Wno-type-limits" HAVE_TYPE_LIMITS )
+        if (HAVE_TYPE_LIMITS)
             set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-type-limits" )
+        endif()
+        check_cxx_compiler_flag("-Wno-deprecated-declarations" HAVE_DEPREC )
+        if (HAVE_DEPREC)
+            set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-deprecated-declarations" )
+        endif()
+        check_cxx_compiler_flag("-Wno-maybe-uninitialized" HAVE_UNINITIALIZED )
+        if (HAVE_UNINITIALIZED)
+            set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-maybe-uninitialized" )
         endif()
     endif()
 endif()
@@ -960,6 +973,10 @@ endif()
 
 if(BUILD_GEN)
     include(${MORIS_DEPENDS_DIR}/GEN_Depends.cmake)
+endif()
+
+if(BUILD_GUI)
+    include(${MORIS_DEPENDS_DIR}/GUI_Depends.cmake)
 endif()
 
 if(BUILD_HMR)

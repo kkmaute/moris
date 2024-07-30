@@ -16,13 +16,13 @@ set(TEST_SOURCES
     ut_Vector.cpp
     cl_Dist_Map.cpp
     cl_Map.cpp
-    cl_Param_List.cpp
+    ut_Parameter_List.cpp
     cl_Tuple.cpp )
 
 # List test dependencies
 set(TEST_DEPENDENCIES
-	test-libs
-	${CNT}-lib
+    test-libs
+    ${CNT}-lib
     ${COM}-lib
     ${ALG}-lib
     ${MORIS_BASE_LIBS})
@@ -40,11 +40,11 @@ set_target_properties(${CNT_TEST} PROPERTIES OUTPUT_NAME ${CNT_TEST}${EXE_EXT})
 
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
-	set(CNT_TEST_PROCS ${MORIS_TEST_PROCS})
-	foreach(PROCS ${CNT_TEST_PROCS})
-		set(CNT_PARALLEL_TEST ${CNT_TEST}-${PROCS}-procs)
-		add_test(NAME ${CNT_PARALLEL_TEST} 
-			COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS} $<TARGET_FILE:${CNT_TEST}>)
-	endforeach()
+    set(CNT_TEST_PROCS ${MORIS_TEST_PROCS})
+    foreach(PROCS ${CNT_TEST_PROCS})
+        set(CNT_PARALLEL_TEST ${CNT_TEST}-${PROCS}-procs)
+        add_test(NAME ${CNT_PARALLEL_TEST} 
+            COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS} $<TARGET_FILE:${CNT_TEST}>)
+    endforeach()
 endif()
 

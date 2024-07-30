@@ -106,6 +106,31 @@ Vector_Epetra::replace_global_values(
 //----------------------------------------------------------------------------------------------
 
 void
+Vector_Epetra::replace_global_values(
+        const Vector< sint >& aGlobalIds,
+        const Vector< real >& aValues )
+{
+    // check for empty vector
+    if ( aGlobalIds.size() == 0 )
+    {
+        return;
+    }
+
+    // call native epetra function
+    int error = reinterpret_cast< Epetra_FEVector* >( mEpetraVector )->    //
+                ReplaceGlobalValues(                                       //
+                        aGlobalIds.size(),
+                        aGlobalIds.memptr(),
+                        aValues.memptr(),
+                        0 );
+
+    MORIS_ERROR( error == 0,
+            "Vector_Epetra::replace_global_values - failed" );
+}
+
+//----------------------------------------------------------------------------------------------
+
+void
 Vector_Epetra::sum_into_global_values(
         const moris::Matrix< DDSMat >& aGlobalIds,
         const moris::Matrix< DDRMat >& aValues,
@@ -145,6 +170,52 @@ Vector_Epetra::sum_into_global_values(
                     SumIntoGlobalValues(                                       //
                             aGlobalIds.numel(),
                             aGlobalIds.data(),
+                            aValues.data(),
+                            aVectorIndex );
+
+        MORIS_ERROR( error == 0,
+                "Vector_Epetra::sum_into_global_values - failed" );
+    }
+}
+
+//----------------------------------------------------------------------------------------------
+
+void
+Vector_Epetra::sum_into_global_values(
+        const Vector< sint >&   aGlobalIds,
+        const Matrix< DDRMat >& aValues,
+        const uint&             aVectorIndex )
+{
+    // check for empty vector
+    if ( aGlobalIds.size() == 0 )
+    {
+        return;
+    }
+
+    // call native epetra function
+    if ( mVecBuildWithPointMap )
+    {
+        Vector< sint > tPointFreeIds;
+        mMap->translate_ids_to_free_point_ids( aGlobalIds, tPointFreeIds, false );
+
+        // sum a number (aNumMyDofs) of values (mem_pointer( aRHSVal )) into given positions (mem_pointer( aElementTopology )) of the vector
+        int error = reinterpret_cast< Epetra_FEVector* >( mEpetraVector )->    //
+                    SumIntoGlobalValues(                                       //
+                            tPointFreeIds.size(),
+                            tPointFreeIds.memptr(),
+                            aValues.data(),
+                            aVectorIndex );
+
+        MORIS_ERROR( error == 0,
+                "Vector_Epetra::sum_into_global_values - failed" );
+    }
+    else
+    {
+        // sum a number (aNumMyDofs) of values (mem_pointer( aRHSVal )) into given positions (mem_pointer( aElementTopology )) of the vector
+        int error = reinterpret_cast< Epetra_FEVector* >( mEpetraVector )->    //
+                    SumIntoGlobalValues(                                       //
+                            aGlobalIds.size(),
+                            aGlobalIds.memptr(),
                             aValues.data(),
                             aVectorIndex );
 
@@ -365,6 +436,21 @@ Vector_Epetra::extract_copy( moris::Matrix< DDRMat >& LHSValues )
 
     // Get solution and output it in moris::Mat LHSValues
     mEpetraVector->ExtractCopy( LHSValues.data(), tMyLDA );
+}
+
+//----------------------------------------------------------------------------------------------
+
+void Vector_Epetra::extract_copy( Vector< real >& aVector )
+{
+    moris::sint tVectorLength = this->vec_local_length();
+
+    aVector.resize( tVectorLength );
+
+    // needed as offset parameter for Epetra. =tVectorLength
+    sint tMyLDA = tVectorLength;
+
+    // Get solution and output it in moris::Mat LHSValues
+    mEpetraVector->ExtractCopy( aVector.memptr(), tMyLDA );
 }
 
 //----------------------------------------------------------------------------------------------

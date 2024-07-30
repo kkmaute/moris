@@ -126,17 +126,17 @@ namespace moris
 
             // compute leader residual
             mSet->get_residual()( 0 )(
-            		{ tLeaderResStartIndex, tLeaderResStopIndex } ) +=
-            				aWStar * tWeight * ( -tFILeader->N_trans() * tTraction                                                                                                                        //
-            						+ mBeta * tLeaderWeight * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFILeader->dnNdxn( 1 ) ) * mNormal * tJump / mOrderCoeff( mOrder )    //
-									+ tNitsche * tFILeader->N_trans() * tJump );                                                                                                             //
+                    { tLeaderResStartIndex, tLeaderResStopIndex } ) +=
+                    aWStar * tWeight * ( -tFILeader->N_trans() * tTraction                                                                                                                        //
+                                         + mBeta * tLeaderWeight * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFILeader->dnNdxn( 1 ) ) * mNormal * tJump / mOrderCoeff( mOrder )    //
+                                         + tNitsche * tFILeader->N_trans() * tJump );                                                                                                             //
 
             // compute follower residual
             mSet->get_residual()( 0 )(
-            		{ tFollowerResStartIndex, tFollowerResStopIndex } ) +=
-            				aWStar * tWeight * ( +tFIFollower->N_trans() * tTraction                                                                                                                          //
-            						+ mBeta * tFollowerWeight * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFIFollower->dnNdxn( 1 ) ) * mNormal * tJump / mOrderCoeff( mOrder )    //
-									- tNitsche * tFIFollower->N_trans() * tJump );                                                                                                               //
+                    { tFollowerResStartIndex, tFollowerResStopIndex } ) +=
+                    aWStar * tWeight * ( +tFIFollower->N_trans() * tTraction                                                                                                                          //
+                                         + mBeta * tFollowerWeight * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFIFollower->dnNdxn( 1 ) ) * mNormal * tJump / mOrderCoeff( mOrder )    //
+                                         - tNitsche * tFIFollower->N_trans() * tJump );                                                                                                               //
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
@@ -227,14 +227,14 @@ namespace moris
                     // add contribution to leader
                     tJacLeader +=
                             aWStar * tWeight * ( -tFILeader->N_trans() * tTractionDer                                                                                                                              //
-                                                                 + mBeta * tLeaderWeight * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFILeader->dnNdxn( 1 ) ) * mNormal * tFILeader->N() / mOrderCoeff( mOrder )    //
-                                                                 + tNitsche * tFILeader->N_trans() * tFILeader->N() );
+                                                 + mBeta * tLeaderWeight * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFILeader->dnNdxn( 1 ) ) * mNormal * tFILeader->N() / mOrderCoeff( mOrder )    //
+                                                 + tNitsche * tFILeader->N_trans() * tFILeader->N() );
 
                     // add contribution to follower
                     tJacFollower +=
                             aWStar * tWeight * ( +tFIFollower->N_trans() * tTractionDer                                                                                                                                //
-                                                                 + mBeta * tFollowerWeight * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFIFollower->dnNdxn( 1 ) ) * mNormal * tFILeader->N() / mOrderCoeff( mOrder )    //
-                                                                 - tNitsche * tFIFollower->N_trans() * tFILeader->N() );
+                                                 + mBeta * tFollowerWeight * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFIFollower->dnNdxn( 1 ) ) * mNormal * tFILeader->N() / mOrderCoeff( mOrder )    //
+                                                 - tNitsche * tFIFollower->N_trans() * tFILeader->N() );
                 }
 
                 // if dependency of constitutive models on the dof type
@@ -263,12 +263,12 @@ namespace moris
 
                     // add contribution to Jacobian
                     tJacLeader += aWStar * tWeight * ( -tFILeader->N_trans() * tTractionDer                                                                                                                        //
-                                                                       + mBeta * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFILeader->dnNdxn( 1 ) ) * mNormal * tJump * tLeaderWeightDer / mOrderCoeff( mOrder )    //
-                                                                       + tFILeader->N_trans() * tJump * tNitscheDer );
+                                                       + mBeta * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFILeader->dnNdxn( 1 ) ) * mNormal * tJump * tLeaderWeightDer / mOrderCoeff( mOrder )    //
+                                                       + tFILeader->N_trans() * tJump * tNitscheDer );
 
                     tJacFollower += aWStar * tWeight * ( +tFIFollower->N_trans() * tTractionDer                                                                                                                          //
-                                                                         + mBeta * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFIFollower->dnNdxn( 1 ) ) * mNormal * tJump * tFollowerWeightDer / mOrderCoeff( mOrder )    //
-                                                                         - tFIFollower->N_trans() * tJump * tNitscheDer );
+                                                         + mBeta * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFIFollower->dnNdxn( 1 ) ) * mNormal * tJump * tFollowerWeightDer / mOrderCoeff( mOrder )    //
+                                                         - tFIFollower->N_trans() * tJump * tNitscheDer );
                 }
             }
 
@@ -305,12 +305,12 @@ namespace moris
 
                     // add contribution to leader
                     tJacLeader += aWStar * tWeight * ( -tFILeader->N_trans() * tTractionDer                                                                                                                                //
-                                                                       - mBeta * tLeaderWeight * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFILeader->dnNdxn( 1 ) ) * mNormal * tFIFollower->N() / mOrderCoeff( mOrder )    //
-                                                                       - tNitsche * tFILeader->N_trans() * tFIFollower->N() );
+                                                       - mBeta * tLeaderWeight * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFILeader->dnNdxn( 1 ) ) * mNormal * tFIFollower->N() / mOrderCoeff( mOrder )    //
+                                                       - tNitsche * tFILeader->N_trans() * tFIFollower->N() );
 
                     tJacFollower += aWStar * tWeight * ( +tFIFollower->N_trans() * tTractionDer                                                                                                                                  //
-                                                                         - mBeta * tFollowerWeight * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFIFollower->dnNdxn( 1 ) ) * mNormal * tFIFollower->N() / mOrderCoeff( mOrder )    //
-                                                                         + tNitsche * tFIFollower->N_trans() * tFIFollower->N() );
+                                                         - mBeta * tFollowerWeight * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFIFollower->dnNdxn( 1 ) ) * mNormal * tFIFollower->N() / mOrderCoeff( mOrder )    //
+                                                         + tNitsche * tFIFollower->N_trans() * tFIFollower->N() );
                 }
 
                 // if dependency on the dof type
@@ -339,12 +339,12 @@ namespace moris
 
                     // add contribution to Jacobian
                     tJacLeader += aWStar * tWeight * ( -tFILeader->N_trans() * tTractionDer                                                                                                                        //
-                                                                       + mBeta * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFILeader->dnNdxn( 1 ) ) * mNormal * tJump * tLeaderWeightDer / mOrderCoeff( mOrder )    //
-                                                                       + tFILeader->N_trans() * tJump * tNitscheDer );
+                                                       + mBeta * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFILeader->dnNdxn( 1 ) ) * mNormal * tJump * tLeaderWeightDer / mOrderCoeff( mOrder )    //
+                                                       + tFILeader->N_trans() * tJump * tNitscheDer );
 
                     tJacFollower += aWStar * tWeight * ( +tFIFollower->N_trans() * tTractionDer                                                                                                                          //
-                                                                         + mBeta * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFIFollower->dnNdxn( 1 ) ) * mNormal * tJump * tFollowerWeightDer / mOrderCoeff( mOrder )    //
-                                                                         - tFIFollower->N_trans() * tJump * tNitscheDer );
+                                                         + mBeta * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFIFollower->dnNdxn( 1 ) ) * mNormal * tJump * tFollowerWeightDer / mOrderCoeff( mOrder )    //
+                                                         - tFIFollower->N_trans() * tJump * tNitscheDer );
                 }
             }
 

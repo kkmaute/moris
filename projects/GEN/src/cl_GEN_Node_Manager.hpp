@@ -208,7 +208,7 @@ namespace moris::gen
          * @param aNodeIndex Node index
          * @return ADV ID vector
          */
-        Matrix< DDSMat > get_coordinate_determining_adv_ids_from_derived_node( uint aNodeIndex );
+        Vector< sint > get_coordinate_determining_adv_ids_from_derived_node( uint aNodeIndex );
 
         /**
          * Gets a trivial node manager. This is useful for allowing geometry construction before

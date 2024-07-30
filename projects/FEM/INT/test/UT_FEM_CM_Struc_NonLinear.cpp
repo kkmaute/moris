@@ -83,6 +83,8 @@ TEST_CASE( "CM_Struc_NonLinear",
     std::shared_ptr< fem::Constitutive_Model > tCMLeader =
             tCMFactory.create_CM( fem::Constitutive_Type::STRUC_NON_LIN_ISO_SAINT_VENANT_KIRCHHOFF );
     tCMLeader->set_dof_type_list( { tDispDofTypes } );
+    tCMLeader->set_property( tPropEMod, "YoungsModulus" );
+    tCMLeader->set_property( tPropNu, "PoissonRatio" );
     tCMLeader->set_local_properties();
 
     // set a fem set pointer
@@ -280,7 +282,6 @@ TEST_CASE( "CM_Struc_NonLinear",
                 {
                     // derivative dof type
                     Vector< MSI::Dof_Type > tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
-
 
                     // strain
                     //------------------------------------------------------------------------------
@@ -530,6 +531,8 @@ TEST_CASE( "CM_Struc_NonLinear_EigenStrain",
     std::shared_ptr< fem::Constitutive_Model > tCMLeader =
             tCMFactory.create_CM( fem::Constitutive_Type::STRUC_NON_LIN_ISO_SAINT_VENANT_KIRCHHOFF );
     tCMLeader->set_dof_type_list( { tDispDofTypes } );
+    tCMLeader->set_property( tPropEMod, "YoungsModulus" );
+    tCMLeader->set_property( tPropNu, "PoissonRatio" );
     tCMLeader->set_local_properties();
 
     // set a fem set pointer
@@ -732,7 +735,6 @@ TEST_CASE( "CM_Struc_NonLinear_EigenStrain",
                 {
                     // derivative dof type
                     Vector< MSI::Dof_Type > tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
-
 
                     // strain
                     //------------------------------------------------------------------------------

@@ -24,7 +24,7 @@
 
 #include "cl_WRK_perform_remeshing.hpp"
 #include "cl_WRK_perform_refinement.hpp"
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 
 // Logging package
 #include "cl_Logger.hpp"
@@ -40,7 +40,7 @@ namespace moris
     {
 
         Remeshing_Mini_Performer::Remeshing_Mini_Performer(
-                ParameterList&                aParameterlist,
+                Parameter_List&                aParameterlist,
                 std::shared_ptr< Library_IO > aLibrary )
                 : mLibrary( aLibrary )
         {
@@ -471,7 +471,7 @@ namespace moris
                             true );    // FIXME tPattern = DiscretizationMeshIndex
 
                     // create refinement parameter list
-                    moris::ParameterList tRefinementParameterlist;
+                    moris::Parameter_List tRefinementParameterlist;
                     this->create_refinement_input_list( tRefinementParameterlist, aTargetFields, tPattern );
 
                     // create refinement mini performer and perform refinement
@@ -506,7 +506,7 @@ namespace moris
                                 true );    // FIXME tPattern = DiscretizationMeshIndex
 
                         // create refinement parameter list
-                        moris::ParameterList tRefinementParameterlist;
+                        moris::Parameter_List tRefinementParameterlist;
                         this->create_refinement_input_list( tRefinementParameterlist, aSourceFields, tPattern );
 
                         // create refinement mini performer and perform refinement
@@ -546,7 +546,7 @@ namespace moris
                 uint tInitialPattern = mParameters.mRefinementPatternMode_1( Ik );
 
                 // create refinement parameterlist
-                moris::ParameterList tInitialRefinementParameterlist;
+                moris::Parameter_List tInitialRefinementParameterlist;
                 prm::create_refinement_parameterlist( tInitialRefinementParameterlist );
                 std::string tInitialFieldNames;
                 std::string tInitialPatterns;
@@ -604,7 +604,7 @@ namespace moris
                             true );    // FIXME tPattern = DiscretizationMeshiondex
 
                     // create refinement parameterlist
-                    moris::ParameterList tRefinementParameterlist;
+                    moris::Parameter_List tRefinementParameterlist;
                     prm::create_refinement_parameterlist( tRefinementParameterlist );
                     std::string tFieldNames;
                     std::string tPatterns;
@@ -650,7 +650,7 @@ namespace moris
             std::shared_ptr< hmr::Database > tHMRDatabase = aHMRPerformer->get_database();
 
             // create refinement parameter list
-            moris::ParameterList tRefinementParameterlist;
+            moris::Parameter_List tRefinementParameterlist;
             this->create_refinement_input_list_2( tRefinementParameterlist, aSourceFields );
 
             // create refinement mini performer and perform refinement
@@ -787,7 +787,7 @@ namespace moris
 
         void
         Remeshing_Mini_Performer::create_refinement_input_list(
-                moris::ParameterList&                  aRefinementParameterlist,
+                moris::Parameter_List&                  aRefinementParameterlist,
                 Vector< std::shared_ptr< mtk::Field > >& aFields,
                 uint                                   aPattern )
         {
@@ -817,7 +817,7 @@ namespace moris
 
         void
         Remeshing_Mini_Performer::create_refinement_input_list_2(
-                moris::ParameterList&                  aRefinementParameterlist,
+                moris::Parameter_List&                  aRefinementParameterlist,
                 Vector< std::shared_ptr< mtk::Field > >& aFields )
         {
             std::string tFieldNames               = "";

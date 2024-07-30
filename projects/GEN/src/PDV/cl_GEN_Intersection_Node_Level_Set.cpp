@@ -100,18 +100,18 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix< DDSMat >
+    Vector< sint >
     Intersection_Node_Level_Set::get_coordinate_determining_adv_ids() const
     {
         // Initialize ADV IDs
-        Matrix< DDSMat > tCoordinateDeterminingADVIDs;
+        Vector< sint > tCoordinateDeterminingADVIDs;
 
         // Get sensitivity values from other ancestors
         const Vector< Basis_Node >& tFieldBasisNodes = this->get_field_basis_nodes();
         for ( uint iFieldBasisNode = 0; iFieldBasisNode < tFieldBasisNodes.size(); iFieldBasisNode++ )
         {
             // Get geometry field sensitivity with respect to ADVs
-            const Matrix< DDSMat >& tAncestorADVIDs = mInterfaceGeometry.get_determining_adv_ids(
+            const Vector< sint >& tAncestorADVIDs = mInterfaceGeometry.get_determining_adv_ids(
                     tFieldBasisNodes( iFieldBasisNode ).get_index(),
                     tFieldBasisNodes( iFieldBasisNode ).get_global_coordinates() );
 

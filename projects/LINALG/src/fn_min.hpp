@@ -35,7 +35,6 @@ namespace moris
         return min( aA.matrix_data() );
     }
 
-
     /**
      * @brief
      *

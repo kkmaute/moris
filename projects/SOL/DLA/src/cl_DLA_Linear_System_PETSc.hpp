@@ -17,7 +17,7 @@
 
 #include "AztecOO.h"
 
-//#include "Ifpack.h"
+// #include "Ifpack.h"
 #include "Teuchos_SerialDenseMatrix.hpp"
 
 #include "Epetra_Operator.h"
@@ -36,7 +36,7 @@
 #include "cl_DLA_Linear_Problem.hpp"
 #include "cl_SOL_Dist_Map.hpp"
 
-#include "cl_Param_List.hpp"    // CON/src
+#include "cl_Parameter_List.hpp"    // CON/src
 
 namespace moris
 {
@@ -51,6 +51,15 @@ namespace moris
           protected:
 
           public:
+            //--------------------------------------------------------------------------
+
+            /**
+             * @brief Construct a new Linear_System_PETSc object
+             * 
+             */
+            Linear_System_PETSc(){};
+
+            //--------------------------------------------------------------------------
             Linear_System_PETSc(
                     Solver_Interface* aInput,
                     const bool        aNotCreatedByNonLinSolver = false );
@@ -69,6 +78,15 @@ namespace moris
             moris::sint solve_linear_system();
 
             void get_solution( Matrix< DDRMat >& LHSValues );
+
+            //--------------------------------------------------------------------------
+
+            /**
+             * @brief construct right hand side matrix for eigen problem
+             * Identity, Mass, Geometric stigness
+             * 
+             */
+            virtual void construct_rhs_matrix() override;
         };
     }    // namespace dla
 }    // namespace moris

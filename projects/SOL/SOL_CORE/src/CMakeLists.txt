@@ -26,9 +26,9 @@ set(HEADERS
 
 if (${MORIS_HAVE_PETSC})
 list( APPEND HEADERS
-    "cl_Map_PETSc.hpp"
     "cl_MatrixPETSc.hpp"
-    "cl_Vector_PETSc.hpp"
+    "cl_Vector_PETSc_Multi.hpp"
+    "cl_SOL_Dist_Map_Custom.hpp"
     )
 endif()
 
@@ -49,9 +49,9 @@ set(LIB_SOURCES
 
 if (${MORIS_HAVE_PETSC})
 list( APPEND LIB_SOURCES
-    "cl_Map_PETSc.cpp"
     "cl_MatrixPETSc.cpp"
-    "cl_Vector_PETSc.cpp"
+    "cl_Vector_PETSc_Multi.cpp"
+    "cl_SOL_Dist_Map_Custom.cpp"
     )
 endif()
 

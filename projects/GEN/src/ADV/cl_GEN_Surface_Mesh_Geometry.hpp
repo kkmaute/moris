@@ -32,7 +32,7 @@ namespace moris::gen
          *
          * @param aParameterList Parameter list with level set geometry parameters
          */
-        explicit Surface_Mesh_Parameters( const ParameterList& aParameterList = prm::create_surface_mesh_geometry_parameter_list() );
+        explicit Surface_Mesh_Parameters( const Parameter_List& aParameterList = prm::create_surface_mesh_geometry_parameter_list() );
     };
 
     class Surface_Mesh_Geometry : public Geometry, public sdf::Object
@@ -90,7 +90,7 @@ namespace moris::gen
          * @param aSecondParentNode Node marking the ending point of the intersection edge
          * @return Parent edge local coordinate, between -1 and 1
          */
-        virtual real compute_intersection_local_coordinate(
+        real compute_intersection_local_coordinate(
                 const Vector< Background_Node* >& aBackgroundNodes,
                 const Parent_Node&   aFirstParentNode,
                 const Parent_Node&   aSecondParentNode ) override;
@@ -101,7 +101,7 @@ namespace moris::gen
          *
          */
         bool
-        depends_on_advs() const
+        depends_on_advs() const override
         {
             // BRENDAN TODO
             return false;
@@ -146,7 +146,7 @@ namespace moris::gen
         void discretize(
                 mtk::Mesh_Pair          aMeshPair,
                 sol::Dist_Vector*       aOwnedADVs,
-                const Matrix< DDSMat >& aSharedADVIds,
+                const Vector< sint >& aSharedADVIds,
                 uint                    aADVOffsetID ) override;
 
         /**
@@ -161,7 +161,7 @@ namespace moris::gen
                 std::shared_ptr< mtk::Field > aMTKField,
                 mtk::Mesh_Pair                aMeshPair,
                 sol::Dist_Vector*             aOwnedADVs,
-                const Matrix< DDSMat >&       aSharedADVIds,
+                const Vector< sint >&       aSharedADVIds,
                 uint                          aADVOffsetID ) override;
 
         /**
@@ -189,7 +189,7 @@ namespace moris::gen
          *
          * @return Underlying field
          */
-        std::shared_ptr< Field > get_field()
+        std::shared_ptr< Field > get_field() override
         {
             // TODO BRENDAN
             return nullptr;
@@ -203,7 +203,6 @@ namespace moris::gen
         void set_advs( sol::Dist_Vector* aAVS ) override
         {
             // TODO BRENDAN
-            return;
         }
 
         /**
@@ -218,21 +217,29 @@ namespace moris::gen
          *
          * @return Mesh index
          */
-        virtual moris_index get_discretization_mesh_index() override;
+        moris_index get_discretization_mesh_index() override;
 
         /**
          * Gets the lower bound for a discretized field.
          *
          * @return Lower bound
          */
-        virtual real get_discretization_lower_bound() override;
+        real get_discretization_lower_bound() override;
 
         /**
          * Get the upper bound for a discretized field.
          *
          * @return Upper bound
          */
-        virtual real get_discretization_upper_bound() override;
+        real get_discretization_upper_bound() override;
+
+        /**
+         * Updates the dependencies of this design based on the given designs
+         * (fields may have been mapped/updated).
+         *
+         * @param aAllUpdatedDesigns All designs (this design will take fields from the ones it needs)
+         */
+        void update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedDesigns ) override;
 
       private:
 

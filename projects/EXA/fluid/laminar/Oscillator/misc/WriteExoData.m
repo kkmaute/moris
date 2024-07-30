@@ -48,7 +48,6 @@ num_nodes_id=netcdf.inqDimID(ncid,'num_nodes');
 
 [~, num_nodes] = netcdf.inqDim(ncid,num_nodes_id);
 
-
 % check if pseudo 3D mesh
 if LN ~= num_nodes
     if num_nodes == 2*LN
@@ -82,9 +81,6 @@ for varid = 0:1:nvars-1
     end
 end
 
-
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % create nodal variables that do not exist yet
 % => this should happen only the first time this function is called
@@ -117,7 +113,6 @@ if sum(nod_var_exist_flag) ~= sND
     % leave 'Def'-mode
     netcdf.endDef(ncid);
     
-    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Write variable names to 'name_nod_var'
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -141,7 +136,6 @@ end
 %%%%%%%%%%%
 varid = netcdf.inqVarID(ncid,'time_whole');
 netcdf.putVar(ncid,varid,TimeStep-1,Time);
-
 
 %%%%%%%%%%%%%%%%%%%%%%
 % fill nodal variables
@@ -233,7 +227,6 @@ if nargin > 5
         % leave 'Def'-mode
         netcdf.endDef(ncid);
         
-        
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % Write variable names to 'name_elem_var'
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -252,7 +245,6 @@ if nargin > 5
         
     end
     
-    
     %%%%%%%%%%%%%%%%%%%%%%%%%%
     % fill elemental variables
     %%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -268,6 +260,4 @@ end
 
 % close exodus file
 netcdf.close(ncid)
-
-
 

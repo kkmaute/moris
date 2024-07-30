@@ -13,8 +13,6 @@
 #include "cl_SOL_Dist_Vector.hpp"
 #include "cl_SOL_Dist_Matrix.hpp"
 
-#include "fn_PRM_SOL_Parameters.hpp"
-
 #include "Amesos_Umfpack.h"
 
 #include "cl_Tracer.hpp"
@@ -25,7 +23,7 @@ using namespace dla;
 //-----------------------------------------------------------------------------
 
 Linear_Solver_Amesos::Linear_Solver_Amesos(
-        const moris::ParameterList aParameterlist )
+        const moris::Parameter_List& aParameterlist )
         : Linear_Solver_Algorithm_Trilinos( aParameterlist )
 {
     // boolean for symbolic factorization after first solve
@@ -35,18 +33,10 @@ Linear_Solver_Amesos::Linear_Solver_Amesos(
 //-----------------------------------------------------------------------------
 
 Linear_Solver_Amesos::Linear_Solver_Amesos( Linear_Problem* aLinearSystem )
+        : Linear_Solver_Algorithm_Trilinos( prm::create_linear_algorithm_parameter_list_amesos() )
 {
     // boolean for symbolic factorization after first solve
     mIsPastFirstSolve = false;
-
-    // Set chosen solver options
-    this->set_solver_parameters();
-}
-
-Linear_Solver_Amesos::Linear_Solver_Amesos()
-{
-    // Set chosen solver options
-    this->set_solver_parameters();
 }
 
 //-----------------------------------------------------------------------------
@@ -55,14 +45,6 @@ Linear_Solver_Amesos::~Linear_Solver_Amesos()
 {
     delete mAmesosSolver;
     mAmesosSolver = nullptr;
-}
-
-//-----------------------------------------------------------------------------
-
-void
-Linear_Solver_Amesos::set_solver_parameters()
-{
-    mParameterList = prm::create_linear_algorithm_parameter_list_amesos();
 }
 
 //-----------------------------------------------------------------------------

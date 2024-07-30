@@ -84,7 +84,7 @@
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
 #include "cl_TSA_Time_Solver.hpp"
 #include "cl_SOL_Warehouse.hpp"
-#include "cl_GEN_Plane.hpp"
+#include "cl_GEN_Line.hpp"
 
 #include "fn_norm.hpp"
 
@@ -288,11 +288,8 @@ namespace moris
             // --------------------------------------------------------------------------------------
             // define linear solver and algorithm
             dla::Solver_Factory                             tSolFactory;
-            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
-
-            //       tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_all;
-            //       tLinearSolverAlgorithm->set_param("AZ_output") = AZ_all;
-            //       tLinearSolverAlgorithm->set_param("AZ_solver") = AZ_gmres_condnum;
+            Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_amesos();
+            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( tLinearSolverParameterList );
 
             dla::Linear_Solver tLinSolver;
 
@@ -301,7 +298,7 @@ namespace moris
             // --------------------------------------------------------------------------------------
             // define nonlinear solver and algorithm
             NLA::Nonlinear_Solver_Factory               tNonlinFactory;
-            std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+            std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver();
 
             tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
 
@@ -417,7 +414,7 @@ namespace moris
 
             hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            auto tPlane = std::make_shared< moris::gen::Plane >( 2.6, 0.0, 1.0, 0.0 );
+            auto tPlane = std::make_shared< moris::gen::Line >( 2.6, 0.0, 1.0, 0.0 );
             Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
             size_t                                tModelDimension = 3;
@@ -607,13 +604,13 @@ namespace moris
             tModel->set_output_manager( &tOutputData );
 
             dla::Solver_Factory                             tSolFactory;
-            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
-
-            tLinearSolverAlgorithm->set_param( "AZ_diagnostics" ) = AZ_none;
-            tLinearSolverAlgorithm->set_param( "AZ_output" )      = AZ_all;
-            tLinearSolverAlgorithm->set_param( "AZ_solver" )      = AZ_gmres_condnum;
-            tLinearSolverAlgorithm->set_param( "AZ_precond" )     = AZ_none;
-            // tLinearSolverAlgorithm->set_param("AZ_kspace") = 500;
+            Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_aztec();
+            tLinearSolverParameterList.set( "AZ_diagnostics", AZ_none );
+            tLinearSolverParameterList.set( "AZ_output", AZ_all );
+            tLinearSolverParameterList.set( "AZ_solver", AZ_gmres_condnum );
+            tLinearSolverParameterList.set( "AZ_precond", AZ_none );
+            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( tLinearSolverParameterList );
+            // tLinearSolverParameterList.set( "AZ_kspace", 500 );
 
             dla::Linear_Solver tLinSolver;
 
@@ -624,7 +621,7 @@ namespace moris
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
             NLA::Nonlinear_Solver_Factory               tNonlinFactory;
-            std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+            std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver();
 
             tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
 
@@ -739,7 +736,7 @@ namespace moris
 
             hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            auto tPlane = std::make_shared< moris::gen::Plane >( 2.6, 0.0, 1.0, 0.0 );
+            auto tPlane = std::make_shared< moris::gen::Line >( 2.6, 0.0, 1.0, 0.0 );
             Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
             size_t                                tModelDimension = 3;
@@ -952,12 +949,12 @@ namespace moris
             tModel->set_output_manager( &tOutputData );
 
             dla::Solver_Factory                             tSolFactory;
-            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
-
-            tLinearSolverAlgorithm->set_param( "AZ_diagnostics" ) = AZ_none;
-            tLinearSolverAlgorithm->set_param( "AZ_output" )      = AZ_all;
-            tLinearSolverAlgorithm->set_param( "AZ_solver" )      = AZ_gmres_condnum;
-            tLinearSolverAlgorithm->set_param( "AZ_precond" )     = AZ_none;
+            Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_aztec();
+            tLinearSolverParameterList.set( "AZ_diagnostics", AZ_none );
+            tLinearSolverParameterList.set( "AZ_output", AZ_all );
+            tLinearSolverParameterList.set( "AZ_solver", AZ_gmres_condnum );
+            tLinearSolverParameterList.set( "AZ_precond", AZ_none );
+            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( tLinearSolverParameterList );
 
             dla::Linear_Solver tLinSolver;
 
@@ -968,7 +965,7 @@ namespace moris
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
             NLA::Nonlinear_Solver_Factory               tNonlinFactory;
-            std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+            std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver();
 
             tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
 
@@ -1192,11 +1189,8 @@ namespace moris
             // --------------------------------------------------------------------------------------
             // define linear solver and algorithm
             dla::Solver_Factory                             tSolFactory;
-            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
-
-            //       tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_all;
-            //       tLinearSolverAlgorithm->set_param("AZ_output") = AZ_all;
-            //       tLinearSolverAlgorithm->set_param("AZ_solver") = AZ_gmres_condnum;
+            Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_amesos();
+            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( tLinearSolverParameterList );
 
             dla::Linear_Solver tLinSolver;
 
@@ -1205,7 +1199,7 @@ namespace moris
             // --------------------------------------------------------------------------------------
             // define nonlinear solver and algorithm
             NLA::Nonlinear_Solver_Factory               tNonlinFactory;
-            std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+            std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver();
 
             tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
 
@@ -1321,7 +1315,7 @@ namespace moris
 
             hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            auto tPlane = std::make_shared< moris::gen::Plane >( 2.6, 0.0, 1.0, 0.0 );
+            auto tPlane = std::make_shared< moris::gen::Line >( 2.6, 0.0, 1.0, 0.0 );
             Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
             size_t                                tModelDimension = 3;
@@ -1529,11 +1523,8 @@ namespace moris
             // --------------------------------------------------------------------------------------
             // define linear solver and algorithm
             dla::Solver_Factory                             tSolFactory;
-            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
-
-            //       tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_all;
-            //       tLinearSolverAlgorithm->set_param("AZ_output") = AZ_all;
-            //       tLinearSolverAlgorithm->set_param("AZ_solver") = AZ_gmres_condnum;
+            Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_amesos();
+            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( tLinearSolverParameterList );
 
             dla::Linear_Solver tLinSolver;
 
@@ -1542,7 +1533,7 @@ namespace moris
             // --------------------------------------------------------------------------------------
             // define nonlinear solver and algorithm
             NLA::Nonlinear_Solver_Factory               tNonlinFactory;
-            std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+            std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver();
 
             tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
 
@@ -1657,7 +1648,7 @@ namespace moris
 
             hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            auto tPlane = std::make_shared< moris::gen::Plane >( 2.6, 0.0, 1.0, 0.0 );
+            auto tPlane = std::make_shared< moris::gen::Line >( 2.6, 0.0, 1.0, 0.0 );
             Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
             size_t tModelDimension = 3;
@@ -1895,11 +1886,8 @@ namespace moris
             // --------------------------------------------------------------------------------------
             // define linear solver and algorithm
             dla::Solver_Factory                             tSolFactory;
-            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
-
-            //       tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_all;
-            //       tLinearSolverAlgorithm->set_param("AZ_output") = AZ_all;
-            //       tLinearSolverAlgorithm->set_param("AZ_solver") = AZ_gmres_condnum;
+            Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_amesos();
+            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( tLinearSolverParameterList );
 
             dla::Linear_Solver tLinSolver;
 
@@ -1908,7 +1896,7 @@ namespace moris
             // --------------------------------------------------------------------------------------
             // define nonlinear solver and algorithm
             NLA::Nonlinear_Solver_Factory               tNonlinFactory;
-            std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+            std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver();
 
             tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
 

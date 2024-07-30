@@ -10,7 +10,7 @@
 
 #include "cl_WRK_Performer_Manager.hpp"
 #include "cl_WRK_Workflow_STK_FEM.hpp"
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
@@ -72,17 +72,17 @@ namespace moris
 
         void
         Workflow_STK_FEM::initialize(
-                Matrix< DDRMat >& aADVs,
-                Matrix< DDRMat >& aLowerBounds,
-                Matrix< DDRMat >& aUpperBounds,
-                Matrix< IdMat >&  aIjklIDs )
+                Vector< real >& aADVs,
+                Vector< real >& aLowerBounds,
+                Vector< real >& aUpperBounds,
+                Matrix< IdMat >& aIjklIDs )
         {
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix< DDRMat >
-        Workflow_STK_FEM::perform( Matrix< DDRMat >& aNewADVs )
+        Vector< real >
+        Workflow_STK_FEM::perform( Vector< real >& aNewADVs )
         {
 
             // Stage 1: MDL perform ---------------------------------------------------------------------
@@ -100,14 +100,14 @@ namespace moris
                 tVal( iIQIIndex )( 0 ) = sum_all( tVal( iIQIIndex )( 0 ) );
             }
 
-            moris::Matrix< DDRMat > tMat( tVal.size(), 1, 0.0 );
+            Vector< real > tCriteria( tVal.size(), 0.0 );
 
-            for ( uint Ik = 0; Ik < tVal.size(); Ik++ )
+            for ( uint iCriteriaIndex = 0; iCriteriaIndex < tVal.size(); iCriteriaIndex++ )
             {
-                tMat( Ik ) = tVal( Ik )( 0 );
+                tCriteria( iCriteriaIndex ) = tVal( iCriteriaIndex )( 0 );
             }
 
-            return tMat;
+            return tCriteria;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -119,7 +119,7 @@ namespace moris
         }
 
         void
-        Workflow_STK_FEM::create_stk( Vector< Vector< ParameterList > >& aParameterLists )
+        Workflow_STK_FEM::create_stk( Vector< Vector< Parameter_List > >& aParameterLists )
         {
             Tracer            tTracer( "STK", "Mesh", "InitializeMesh" );
             std::string       tMeshFile     = aParameterLists( 0 )( 0 ).get< std::string >( "input_file" );

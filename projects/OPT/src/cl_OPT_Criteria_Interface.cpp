@@ -17,8 +17,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix< DDRMat >
-        Criteria_Interface::get_criteria( Matrix< DDRMat >& aNewADVs )
+        Vector< real > Criteria_Interface::get_criteria( Vector< real >& aNewADVs )
         {
             mEvaluated = false;
 

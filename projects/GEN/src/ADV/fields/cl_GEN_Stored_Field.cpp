@@ -17,10 +17,10 @@ namespace moris::gen
     Stored_Field::Stored_Field(
             mtk::Mesh*               aMesh,
             std::shared_ptr< Field > aField )
-            : Field_Discrete_Integration( Matrix< DDRMat >{{}}, aMesh->get_num_nodes() )
+            : Field_Discrete_Integration( {}, aField->get_name() )
             , mField( aField )
             , mMesh( aMesh )
-            , mFieldValues( aMesh->get_num_nodes(), 1 )
+            , mFieldValues( aMesh->get_num_nodes() )
     {
         this->evaluate_nodal_values();
     }
@@ -43,7 +43,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix<DDSMat>
+    Vector< sint >
     Stored_Field::get_determining_adv_ids(uint aNodeIndex)
     {
         return mField->get_determining_adv_ids( aNodeIndex, mMesh->get_node_coordinate( aNodeIndex ) );

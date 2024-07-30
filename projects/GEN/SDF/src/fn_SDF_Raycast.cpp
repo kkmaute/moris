@@ -144,7 +144,6 @@ namespace moris::sdf
         }
     }
 
-
     Object_Region
     voxelize(
             Object&           aObject,
@@ -282,7 +281,6 @@ namespace moris::sdf
 
         return tCandidateFacets;
     }
-
 
     //-------------------------------------------------------------------------------
 
@@ -528,7 +526,6 @@ namespace moris::sdf
     }
 
     //-------------------------------------------------------------------------------
-
 
     Object_Region
     check_if_node_is_inside_lines(

@@ -82,10 +82,10 @@ namespace moris
              * @param[ in ] aSet         a fem set
              */
             Interpolation_Element(
-                    const Element_Type                     aElementType,
+                    const Element_Type                aElementType,
                     const Vector< const mtk::Cell* >& aInterpolationCell,
                     const Vector< Node_Base* >&       aNodes,
-                    Set*                                   aSet );
+                    Set*                              aSet );
 
             //------------------------------------------------------------------------------
             /**
@@ -135,6 +135,13 @@ namespace moris
              * @ return   const reference to shared pointer of cluster
              */
             const std::shared_ptr< fem::Cluster >& get_cluster( const uint aIndex );
+
+            //------------------------------------------------------------------------------
+
+            size_t get_num_clusters() const
+            {
+                return mFemCluster.size();
+            };
 
             //------------------------------------------------------------------------------
             /**
@@ -230,6 +237,11 @@ namespace moris
             compute_nodal_QIs_double_sided( const uint aMeshIndex );
 
             //------------------------------------------------------------------------------
+
+            void
+            compute_nodal_QIs_nonconformal_side( uint const tMapElement );
+
+            //------------------------------------------------------------------------------
             /**
              * FIXME get rid of mNodalWeakBCs
              * gets the nodal values for the weak BCs
@@ -247,16 +259,12 @@ namespace moris
                     Vector< std::string > const &            tFieldIQINames );
 
             //------------------------------------------------------------------------------
-
-          protected:
-            //------------------------------------------------------------------------------
             /**
              * set the field interpolators coefficients
              */
             void set_field_interpolators_coefficients();
 
             //------------------------------------------------------------------------------
-
         };    // class FEM::Interpolation_Element
 
         //------------------------------------------------------------------------------

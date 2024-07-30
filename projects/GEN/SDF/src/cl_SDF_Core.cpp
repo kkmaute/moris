@@ -620,11 +620,11 @@ namespace moris
                 Matrix< DDRMat > tValues;
 
                 // communicate minimal value
-                comm_gather_and_broadcast( tMinSDF, tValues );
+                allgather_scalar( tMinSDF, tValues );
                 tMinSDF = tValues.min();
 
                 // communicate maximal value
-                comm_gather_and_broadcast( tMaxSDF, tValues );
+                allgather_scalar( tMaxSDF, tValues );
                 tMaxSDF = tValues.max();
             }
 

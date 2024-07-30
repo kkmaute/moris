@@ -18,7 +18,6 @@ matrices = full( spconvert( matrices ) );
 load matrices_left_nitsche.dat
 matrices_left_nitsche = full( spconvert( matrices_left_nitsche ) );
 
-
 %% Compare matrices
 
 figure;

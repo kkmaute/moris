@@ -218,7 +218,7 @@ namespace moris
 {
     namespace opt
     {
-        Algorithm_SQP::Algorithm_SQP( ParameterList aParameterList )
+        Algorithm_SQP::Algorithm_SQP( Parameter_List aParameterList )
         {
 #ifdef MORIS_HAVE_SNOPT
             // Initialize
@@ -235,12 +235,12 @@ namespace moris
                 // skip over non-SQP specific parameters
                 if ( it->first == "restart_index" ) continue;
 
-                sint tParamType = aParameterList.which( it->first );    // get the underlying parameter type
+                uint tParamType = aParameterList.index( it->first );    // get the underlying parameter type
 
                 // call Fortran subroutine based on parameter type
                 switch ( tParamType )
                 {
-                    case 1:    // set integer parameters
+                    case 2:    // set integer parameters
                     {
                         char* paramname = (char*)it->first.c_str();
                         int   tParamVal = aParameterList.get< sint >( paramname );
@@ -263,7 +263,7 @@ namespace moris
                         break;
                     }
 
-                    case 2:    // set double parameters
+                    case 3:    // set double parameters
                     {
                         char*  paramname = (char*)it->first.c_str();
                         double tParamVal = aParameterList.get< real >( paramname );
@@ -307,14 +307,12 @@ namespace moris
                     }
 
                     default:
-                        MORIS_LOG_ERROR( "No matching function call for underlying type." );
-                        assert::error( "In cl_Algorithm_SQP.cpp" );
+                        MORIS_ERROR( false, "No matching function call for underlying type." );
                 }
 
                 if ( tExit != 0 )
                 {
-                    MORIS_LOG_ERROR( "When calling SNOPT Fortran subroutine, unable to set parameter :  %s", it->first.c_str() );
-                    assert::error( "In cl_Algorithm_SQP.cpp" );
+                    MORIS_ERROR( false, "When calling SNOPT Fortran subroutine, unable to set parameter :  %s", it->first.c_str() );
                 }
             }
 #else
@@ -411,9 +409,9 @@ namespace moris
             double A;
 
             // extract design variables including their lower and upper bounds
-            auto x    = mProblem->get_advs().data();
-            auto xlow = mProblem->get_lower_bounds().data();
-            auto xupp = mProblem->get_upper_bounds().data();
+            auto x    = mProblem->get_advs().memptr();
+            auto xlow = mProblem->get_lower_bounds().memptr();
+            auto xupp = mProblem->get_upper_bounds().memptr();
 
             char* Fnames = 0;
             char* xnames = 0;
@@ -596,13 +594,17 @@ namespace moris
         Algorithm_SQP::func_grad( int n, double* x, int needG )
         {
             // get ADVs from problem
-            auto tAdvVec = mProblem->get_advs().data();
+            auto tAdvVec = mProblem->get_advs().memptr();
 
             // check whether criteria need to be evaluated
             if ( mOptIter == 0 or !std::equal( x, x + n, tAdvVec ) )
             {
                 // update the vector of design variables
-                Matrix< DDRMat > tADVs( x, mProblem->get_num_advs(), 1 );
+                Vector< real > tADVs( mProblem->get_num_advs() );
+                for ( uint iADVIndex = 0; iADVIndex < tADVs.size(); iADVIndex++ )
+                {
+                    tADVs( iADVIndex ) = x[ iADVIndex ];
+                }
 
                 // Write restart file
                 this->write_advs_to_file( tADVs );

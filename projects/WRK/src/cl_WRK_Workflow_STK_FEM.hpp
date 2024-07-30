@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef PROJECTS_FEM_MDL_SRC_CL_WRK_WORKFLOW_STK_FEM_HPP_
-#define PROJECTS_FEM_MDL_SRC_CL_WRK_WORKFLOW_STK_FEM_HPP_
+#pragma once
 
 #include "cl_WRK_Workflow.hpp"
 #include "moris_typedefs.hpp"                       //MRS/COR/src
@@ -54,10 +53,10 @@ namespace moris
                  * Initializes the vectors of ADV values, lower bounds, and upper bounds
                  */
                 void initialize(
-                        Matrix<DDRMat>& aADVs,
-                        Matrix<DDRMat>& aLowerBounds,
-                        Matrix<DDRMat>& aUpperBounds,
-                        Matrix< IdMat  >& aIjklIDs);
+                        Vector< real >& aADVs,
+                        Vector< real >& aLowerBounds,
+                        Vector< real >& aUpperBounds,
+                        Matrix< IdMat >& aIjklIDs );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -65,7 +64,7 @@ namespace moris
                  *
                  * @return vector of criteria
                  */
-                Matrix< DDRMat > perform( Matrix< DDRMat >& aNewADVs );
+                Vector< real > perform( Vector< real >& aNewADVs );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -73,14 +72,12 @@ namespace moris
                  *
                  * @return matrix d(criteria)_i/d(adv)_j
                  */
-                Matrix<DDRMat> compute_dcriteria_dadv();
+                Matrix< DDRMat > compute_dcriteria_dadv();
 
                 void
-                create_stk( Vector< Vector<ParameterList> > & aParameterLists);
+                create_stk( Vector< Vector< Parameter_List > > & aParameterLists);
 
         };
         //------------------------------------------------------------------------------
     } /* namespace mdl */
 } /* namespace moris */
-
-#endif /* PROJECTS_FEM_MDL_SRC_CL_WRK_WORKFLOW_STK_FEM_HPP_ */

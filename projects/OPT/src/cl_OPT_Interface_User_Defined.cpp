@@ -17,7 +17,7 @@ namespace moris
     {
         //--------------------------------------------------------------------------------------------------------------
 
-        Interface_User_Defined::Interface_User_Defined( ParameterList aParameterList )
+        Interface_User_Defined::Interface_User_Defined( Parameter_List aParameterList )
         {
             // Load library
             moris::Library_Factory tLibraryFactory;
@@ -29,7 +29,7 @@ namespace moris
             // Set user-defined functions
             initialize_user_defined             = mLibrary->load_function< Criteria_Initialize_Function >( "initialize" );
             get_criteria_user_defined           = mLibrary->load_function< Criteria_Function >( "get_criteria" );
-            compute_dcriteria_dadv_user_defined = mLibrary->load_function< Criteria_Function >( "get_dcriteria_dadv" );
+            compute_dcriteria_dadv_user_defined = mLibrary->load_function< Criteria_Gradient_Function >( "get_dcriteria_dadv" );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -37,7 +37,7 @@ namespace moris
         Interface_User_Defined::Interface_User_Defined(
                 Criteria_Initialize_Function aInitializationFunction,
                 Criteria_Function            aCriteriaEvaluationFunction,
-                Criteria_Function            aCriteriaGradientFunction )
+                Criteria_Gradient_Function   aCriteriaGradientFunction )
         {
             // Set user-defined functions
             initialize_user_defined             = aInitializationFunction;
@@ -49,9 +49,9 @@ namespace moris
 
         void
         Interface_User_Defined::initialize(
-                Matrix< DDRMat >& aADVs,
-                Matrix< DDRMat >& aLowerBounds,
-                Matrix< DDRMat >& aUpperBounds,
+                Vector< real >& aADVs,
+                Vector< real >& aLowerBounds,
+                Vector< real >& aUpperBounds,
                 Matrix< IdMat >& )
         {
             initialize_user_defined( aADVs, aLowerBounds, aUpperBounds );
@@ -59,8 +59,8 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix< DDRMat >
-        Interface_User_Defined::perform( Matrix< DDRMat >& aNewADVs )
+        Vector< real >
+        Interface_User_Defined::perform( Vector< real >& aNewADVs )
         {
             mADVs = aNewADVs;
 

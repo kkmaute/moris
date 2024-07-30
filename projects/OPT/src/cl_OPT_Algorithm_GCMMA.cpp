@@ -25,7 +25,7 @@ using namespace moris;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-OptAlgGCMMA::OptAlgGCMMA( ParameterList aParameterList )
+OptAlgGCMMA::OptAlgGCMMA( Parameter_List aParameterList )
         : mMaxInnerIterations( aParameterList.get< moris::sint >( "max_inner_its" ) )
         , mNormDrop( aParameterList.get< moris::real >( "norm_drop" ) )
         , mAsympAdapt0( aParameterList.get< moris::real >( "asymp_adapt0" ) )
@@ -94,7 +94,6 @@ OptAlgGCMMA::solve(
 
     this->printresult();    // print the result of the optimization algorithm
 
-
     uint tOptIter = gLogger.get_opt_iteration();
 
     gLogger.set_iteration( "OPT", "Manager", "Perform", tOptIter );
@@ -112,9 +111,9 @@ OptAlgGCMMA::gcmma_solve()
 
     // Note that these pointers are deleted by the the Arma and Eigen
     // libraries themselves.
-    auto tAdv         = mProblem->get_advs().data();
-    auto tUpperBounds = mProblem->get_upper_bounds().data();
-    auto tLowerBounds = mProblem->get_lower_bounds().data();
+    auto tAdv         = mProblem->get_advs().memptr();
+    auto tUpperBounds = mProblem->get_upper_bounds().memptr();
+    auto tLowerBounds = mProblem->get_lower_bounds().memptr();
 
     // create an object of type MMAgc solver
     MMAgc mmaAlg(
@@ -191,7 +190,11 @@ opt_alg_gcmma_func_wrap(
         double*      aConval )
 {
     // Update the ADV matrix
-    Matrix< DDRMat > tADVs( aAdv, aOptAlgGCMMA->mProblem->get_num_advs(), 1, false, true );
+    Vector< real > tADVs( aOptAlgGCMMA->mProblem->get_num_advs() );
+    for ( uint iADVIndex = 0; iADVIndex < tADVs.size(); iADVIndex++ )
+    {
+        tADVs( iADVIndex ) = aAdv[ iADVIndex ];
+    }
 
     // Write restart file
     aOptAlgGCMMA->write_advs_to_file( tADVs );
@@ -227,7 +230,11 @@ opt_alg_gcmma_grad_wrap(
     aOptAlgGCMMA->mActive = Matrix< DDSMat >( *aActive, aOptAlgGCMMA->mProblem->get_num_constraints(), 1 );
 
     // Update the ADV matrix
-    const Matrix< DDRMat > tADVs( aAdv, aOptAlgGCMMA->mProblem->get_num_advs(), 1 );
+    Vector< real > tADVs( aOptAlgGCMMA->mProblem->get_num_advs() );
+    for ( uint iADVIndex = 0; iADVIndex < tADVs.size(); iADVIndex++ )
+    {
+        tADVs( iADVIndex ) = aAdv[ iADVIndex ];
+    }
 
     // Update gradients
     aOptAlgGCMMA->compute_design_criteria_gradients( tADVs );

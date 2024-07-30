@@ -10,15 +10,21 @@
 
 #include <iostream>
 
+#include "cl_FEM_Cluster_Measure.hpp"
 #include "cl_FEM_Element.hpp"                       //FEM/INT/src
 #include "cl_FEM_Cluster.hpp"                       //FEM/INT/src
 #include "cl_FEM_Field_Interpolator_Manager.hpp"    //FEM/INT/src
 
 #include "cl_MSI_Equation_Model.hpp"
 
+#include "cl_MTK_PointPairs.hpp"
 #include "fn_norm.hpp"
 #include "fn_sort.hpp"
 #include "fn_sum.hpp"
+#include <algorithm>
+#include <cl_FEM_Element_Nonconformal_Sideset.hpp>
+#include <cl_MTK_Nonconformal_Side_Cluster.hpp>
+#include <memory>
 
 namespace moris
 {
@@ -63,7 +69,7 @@ namespace moris
                     for ( uint iIGCell = 0; iIGCell < tNumLeaderIGCells; iIGCell++ )
                     {
                         // create an element
-                        mElements( iIGCell ) = tElementFactory.create_element(
+                        mElements( iIGCell ) = tElementFactory.create_single_sided_element(
                                 mElementType,
                                 mLeaderIntegrationCells( iIGCell ),
                                 mSet,
@@ -81,7 +87,7 @@ namespace moris
                     for ( uint iIGCell = 0; iIGCell < tNumLeaderIGCells; iIGCell++ )
                     {
                         // create an element
-                        mElements( iIGCell ) = tElementFactory.create_element(
+                        mElements( iIGCell ) = tElementFactory.create_single_sided_element(
                                 mElementType,
                                 mLeaderIntegrationCells( iIGCell ),
                                 mSet,
@@ -103,13 +109,54 @@ namespace moris
                     for ( moris::uint iIGCell = 0; iIGCell < tNumLeaderIGCells; iIGCell++ )
                     {
                         // create element
-                        mElements( iIGCell ) = tElementFactory.create_element(
+                        mElements( iIGCell ) = tElementFactory.create_double_sided_element(
                                 mElementType,
                                 mLeaderIntegrationCells( iIGCell ),
                                 mFollowerIntegrationCells( iIGCell ),
                                 mSet,
                                 this,
                                 iIGCell );
+                    }
+                    break;
+                }
+                case fem::Element_Type::NONCONFORMAL_SIDESET:
+                {
+                    const auto *tNonconformalSideCluster = dynamic_cast< mtk::Nonconformal_Side_Cluster const * >( aMeshCluster );
+                    auto const  tIntegrationPointPairs   = tNonconformalSideCluster->get_integration_point_pairs();
+                    auto const  tNodalPointPairs         = tNonconformalSideCluster->get_nodal_point_pairs();
+
+                    // the same cells might be used multiple times (i.e. they are paired with multiple leader cells)
+                    mtk::Nonconformal_Side_Cluster::NonconformalCellPairing const &tNonconformalPairing = tNonconformalSideCluster->get_nonconformal_cell_pairing();
+
+                    // the nonconformal side set provides different cell-pairs (i.e. one follower-cell might be paired with multiple leader-cells)
+                    mElements.resize( tNonconformalPairing.size(), nullptr );
+
+                    // fill the follower integration cells
+                    mLeaderIntegrationCells   = tNonconformalSideCluster->get_primary_cells_in_cluster( mtk::Leader_Follower::LEADER );
+                    mFollowerIntegrationCells = tNonconformalSideCluster->get_primary_cells_in_cluster( mtk::Leader_Follower::FOLLOWER );
+
+                    // set the side ordinals for the leader and follower IG cells
+                    mLeaderListOfSideOrdinals   = tNonconformalSideCluster->get_cell_side_ordinals( mtk::Leader_Follower::LEADER );
+                    mFollowerListOfSideOrdinals = tNonconformalSideCluster->get_cell_side_ordinals( mtk::Leader_Follower::FOLLOWER );
+
+                    // loop over the nonconformal pairings
+                    size_t iElementIndex = 0;
+                    for ( auto const &tNonconformalPair : tNonconformalPairing )
+                    {
+                        auto [ tLeaderCellLocalIndex, tFollowerCellLocalIndex ] = tNonconformalPair.first;
+                        auto [ tIntegrationPairIndex, tNodalPairIndex ]         = tNonconformalPair.second;
+
+                        mElements( iElementIndex ) =
+                                new Element_Nonconformal_Sideset(
+                                        mLeaderIntegrationCells( tLeaderCellLocalIndex ),
+                                        mFollowerIntegrationCells( tFollowerCellLocalIndex ),
+                                        aSet,
+                                        this,
+                                        tLeaderCellLocalIndex,
+                                        tFollowerCellLocalIndex,
+                                        tIntegrationPairIndex == -1 ? mtk::IntegrationPointPairs() : tIntegrationPointPairs( tIntegrationPairIndex ),
+                                        tNodalPairIndex == -1 ? mtk::NodalPointPairs() : tNodalPointPairs( tNodalPairIndex ) );
+                        iElementIndex++;
                     }
                     break;
                 }
@@ -122,24 +169,13 @@ namespace moris
             this->determine_elements_for_residual_and_iqi_computation();
 
             // get cluster measure map from set
-            mClusterMEAMap = mSet->get_cluster_measure_map();
-
-            // get cluster measure tuples from set
-            Vector< std::tuple<
-                    fem::Measure_Type,
-                    mtk::Primary_Void,
-                    mtk::Leader_Follower > >
-                    tClusterMEATuples = mSet->get_cluster_measure_tuples();
+            std::set< Cluster_Measure::ClusterMeasureSpecification > const tClusterSpecifications =
+                    mSet->get_cluster_measure_specifications();
 
             // build the cluster measures from tuples
-            mClusterMEA.resize( tClusterMEATuples.size(), nullptr );
-            for ( uint iCMEA = 0; iCMEA < tClusterMEATuples.size(); iCMEA++ )
+            for ( auto const &tClusterSpec : tClusterSpecifications )
             {
-                mClusterMEA( iCMEA ) = std::make_shared< Cluster_Measure >(
-                        std::get< 0 >( tClusterMEATuples( iCMEA ) ),
-                        std::get< 1 >( tClusterMEATuples( iCMEA ) ),
-                        std::get< 2 >( tClusterMEATuples( iCMEA ) ),
-                        this );
+                mClusterMeasures[ tClusterSpec ] = std::make_shared< Cluster_Measure >( tClusterSpec, this );
             }
         }
 
@@ -147,35 +183,31 @@ namespace moris
 
         Cluster::Cluster()
         {
-            // FIXME could only collect from SP
-            // create default cluster measure
-            mClusterMEA.resize( 4, nullptr );
-            mClusterMEA( 0 ) = std::make_shared< Cluster_Measure >();
-            mClusterMEA( 1 ) = std::make_shared< Cluster_Measure >();
-            mClusterMEA( 2 ) = std::make_shared< Cluster_Measure >();
-            mClusterMEA( 3 ) = std::make_shared< Cluster_Measure >();
+            Vector< Cluster_Measure::ClusterMeasureSpecification > tClusterSpecifications;
 
-            // FIXME could only collect from SP
-            // fill the cluster measure access map
-            mClusterMEAMap[ std::make_tuple(
+            // create default cluster measure
+            tClusterSpecifications.push_back( std::make_tuple(
                     fem::Measure_Type::CELL_SIDE_MEASURE,
                     mtk::Primary_Void::PRIMARY,
-                    mtk::Leader_Follower::LEADER ) ] = 0;
-
-            mClusterMEAMap[ std::make_tuple(
+                    mtk::Leader_Follower::LEADER ) );
+            tClusterSpecifications.push_back( std::make_tuple(
                     fem::Measure_Type::CELL_MEASURE,
                     mtk::Primary_Void::PRIMARY,
-                    mtk::Leader_Follower::LEADER ) ] = 1;
-
-            mClusterMEAMap[ std::make_tuple(
+                    mtk::Leader_Follower::LEADER ) );
+            tClusterSpecifications.push_back( std::make_tuple(
                     fem::Measure_Type::CELL_MEASURE,
                     mtk::Primary_Void::PRIMARY,
-                    mtk::Leader_Follower::FOLLOWER ) ] = 2;
-
-            mClusterMEAMap[ std::make_tuple(
+                    mtk::Leader_Follower::FOLLOWER ) );
+            tClusterSpecifications.push_back( std::make_tuple(
                     fem::Measure_Type::CELL_LENGTH_MEASURE,
                     mtk::Primary_Void::PRIMARY,
-                    mtk::Leader_Follower::LEADER ) ] = 3;
+                    mtk::Leader_Follower::LEADER ) );
+
+            // build the cluster measures from tuples
+            for ( auto const &tClusterSpec : tClusterSpecifications )
+            {
+                mClusterMeasures[ tClusterSpec ] = std::make_shared< Cluster_Measure >();
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -233,7 +265,8 @@ namespace moris
             {
                 // for bulk and single-sided elements, get the leader vertices, for double-sided both leader and follower
                 mtk::Leader_Follower tLeaderFollower = mtk::Leader_Follower::LEADER;
-                if ( this->get_element_type() == Element_Type::DOUBLE_SIDESET )
+
+                if ( this->get_element_type() == Element_Type::DOUBLE_SIDESET || this->get_element_type() == Element_Type::NONCONFORMAL_SIDESET )
                 {
                     tLeaderFollower = mtk::Leader_Follower::UNDEFINED;
                 }
@@ -266,7 +299,10 @@ namespace moris
                 mtk::Leader_Follower aIsLeader )
         {
             // check that side cluster
-            MORIS_ASSERT( ( mElementType == fem::Element_Type::DOUBLE_SIDESET ) || ( mElementType == fem::Element_Type::SIDESET ),
+            MORIS_ASSERT(
+                    ( mElementType == fem::Element_Type::DOUBLE_SIDESET )
+                            || ( mElementType == fem::Element_Type::NONCONFORMAL_SIDESET )
+                            || ( mElementType == fem::Element_Type::SIDESET ),
                     "Cluster::get_cell_local_coords_on_side_wrt_interp_cell - not a side or double side cluster." );
 
             // check that the mesh cluster was set
@@ -328,7 +364,9 @@ namespace moris
                 moris::mtk::Vertex const *aLeftVertex )
         {
             // check that a double sided cluster
-            MORIS_ASSERT( mElementType == fem::Element_Type::DOUBLE_SIDESET,
+            MORIS_ASSERT(
+                    ( mElementType == fem::Element_Type::DOUBLE_SIDESET )
+                            || ( mElementType == fem::Element_Type::NONCONFORMAL_SIDESET ),
                     "Cluster::get_left_vertex_pair - not a double side cluster." );
 
             // check that the mesh cluster was set
@@ -347,7 +385,8 @@ namespace moris
                 moris::mtk::Vertex const *aVertex )
         {
             // check that a double sided cluster
-            MORIS_ASSERT( mElementType == fem::Element_Type::DOUBLE_SIDESET,
+            MORIS_ASSERT( ( mElementType == fem::Element_Type::DOUBLE_SIDESET )
+                                  || ( mElementType == fem::Element_Type::NONCONFORMAL_SIDESET ),
                     "Cluster::get_left_vertex_pair - not a double side cluster." );
 
             // check that the mesh cluster was set
@@ -555,10 +594,10 @@ namespace moris
 
         void
         Cluster::compute_quantity_of_interest(
-                Matrix< DDRMat >           &aValues,
+                Matrix< DDRMat >      &aValues,
                 mtk::Field_Entity_Type aFieldType,
-                uint                        aIQIIndex,
-                real                       &aSpaceTimeVolume )
+                uint                   aIQIIndex,
+                real                  &aSpaceTimeVolume )
         {
             // FIXME
             // cannot do it here cause vis mesh
@@ -579,32 +618,18 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        std::shared_ptr< Cluster_Measure > &
+        std::shared_ptr< Cluster_Measure >
         Cluster::get_cluster_measure(
                 fem::Measure_Type    aMeasureType,
                 mtk::Primary_Void    aIsPrimary,
                 mtk::Leader_Follower aIsLeader )
         {
-            // init cluster index
-            uint tClusterMEAIndex = UINT_MAX;
+            auto tClusterMeasure = mClusterMeasures.find( std::make_tuple( aMeasureType, aIsPrimary, aIsLeader ) );
 
-            // check if the cluster measure exists in map
-            if ( mClusterMEAMap.find( std::make_tuple(
-                         aMeasureType,
-                         aIsPrimary,
-                         aIsLeader ) )
-                    != mClusterMEAMap.end() )
-            {
-                // add the mesh set name map
-                tClusterMEAIndex = mClusterMEAMap[ std::make_tuple(
-                        aMeasureType,
-                        aIsPrimary,
-                        aIsLeader ) ];
-            }
+            MORIS_ASSERT( tClusterMeasure != mClusterMeasures.end(),
+                    "Cluster::get_cluster_measure - Cluster measure not found!" );
 
-            MORIS_ERROR( tClusterMEAIndex != UINT_MAX, "Cluster measure not found!" );
-
-            return mClusterMEA( tClusterMEAIndex );
+            return tClusterMeasure->second;
         }
 
         //------------------------------------------------------------------------------
@@ -612,11 +637,9 @@ namespace moris
         void
         Cluster::reset_cluster_measure()
         {
-            // loop over cluster measures
-            for ( uint iCMEA = 0; iCMEA < mClusterMEA.size(); iCMEA++ )
+            for ( auto &[ tClusterSpecification, tClusterMeasure ] : mClusterMeasures )
             {
-                // evaluate each cluster measure
-                mClusterMEA( iCMEA )->eval_cluster_measure();
+                tClusterMeasure->eval_cluster_measure();
             }
         }
 
@@ -625,11 +648,9 @@ namespace moris
         void
         Cluster::reset_cluster_measure_derivatives()
         {
-            // loop over cluster measures
-            for ( uint iCMEA = 0; iCMEA < mClusterMEA.size(); iCMEA++ )
+            for ( auto &[ tClusterSpecification, tClusterMeasure ] : mClusterMeasures )
             {
-                // evaluate each cluster measure
-                mClusterMEA( iCMEA )->eval_cluster_measure_derivatives();
+                tClusterMeasure->eval_cluster_measure_derivatives();
             }
         }
 
@@ -860,6 +881,7 @@ namespace moris
                 }
                 case fem::Element_Type::SIDESET:
                 case fem::Element_Type::DOUBLE_SIDESET:
+                case fem::Element_Type::NONCONFORMAL_SIDESET:
                 {
                     tVolume   = mMeshCluster->compute_cluster_cell_side_measure( aPrimaryOrVoid, aIsLeader );
                     tSpaceDim = tSpaceDim - 1;
@@ -929,6 +951,7 @@ namespace moris
                 }
                 case fem::Element_Type::SIDESET:
                 case fem::Element_Type::DOUBLE_SIDESET:
+                case fem::Element_Type::NONCONFORMAL_SIDESET:
                 {
                     tVolume      = mMeshCluster->compute_cluster_cell_side_measure( aPrimaryOrVoid, aIsLeader );
                     tDerivatives = this->compute_cluster_cell_side_measure_derivative( aPrimaryOrVoid, aIsLeader );
@@ -1034,6 +1057,7 @@ namespace moris
                 }
                 case fem::Element_Type::SIDESET:
                 case fem::Element_Type::DOUBLE_SIDESET:
+                case fem::Element_Type::NONCONFORMAL_SIDESET:
                 {
                     tClusterVolume = mMeshCluster->compute_cluster_cell_side_measure( tPrimaryOrVoid, tIsLeader );
                     break;
@@ -1074,6 +1098,7 @@ namespace moris
                 }
                 case fem::Element_Type::SIDESET:
                 case fem::Element_Type::DOUBLE_SIDESET:
+                case fem::Element_Type::NONCONFORMAL_SIDESET:
                 {
                     return mMeshCluster->compute_cluster_ig_cell_side_measures( tPrimaryOrVoid, tIsLeader );
                     break;
@@ -1119,11 +1144,28 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        std::map< mtk::Cell const *, Vector< moris_index > > Cluster::get_cell_to_element_map( mtk::Leader_Follower aLeaderFollowerType ) const
+        {
+            std::map< mtk::Cell const *, Vector< moris_index > > tUniqueElements;
+
+            for ( size_t iElement = 0; iElement < mElements.size(); ++iElement )
+            {
+                fem::Element    *tElement = mElements( iElement );
+                mtk::Cell const *tCell    = tElement->get_mtk_cell( aLeaderFollowerType );
+                tUniqueElements[ tCell ].push_back( iElement );
+            }
+            return tUniqueElements;
+        }
+
+        //------------------------------------------------------------------------------
+
         Matrix< DDRMat >
         Cluster::compute_relative_volume()
         {
-            // number of elements in cluster
-            uint tNumberOfElements = mElements.size();
+            // get (unique) cells in cluster
+            Vector< mtk::Cell const * > const tUniqueCells = mMeshCluster->get_primary_cells_in_cluster();
+
+            uint const tNumberOfCells = tUniqueCells.size();
 
             // initialize cluster volume
             real tClusterVolume = 0.0;
@@ -1132,17 +1174,17 @@ namespace moris
             Matrix< DDRMat > tRelativeVolume = this->compute_element_volumes();
 
             // check for correct number of IG cells
-            MORIS_ERROR( tRelativeVolume.numel() == tNumberOfElements,
+            MORIS_ERROR( tRelativeVolume.numel() == tNumberOfCells,
                     "Cluster::compute_relative_volume - inconsistent number of IG cells.\n" );
 
-            // loop over the IG elements and drop zero elements
-            for ( uint iElem = 0; iElem < tNumberOfElements; iElem++ )
+            // loop over the IG cells and drop zero elements
+            for ( uint iCell = 0; iCell < tNumberOfCells; iCell++ )
             {
                 // if it smaller than zero; set it to zero
-                tRelativeVolume( iElem ) = std::max( tRelativeVolume( iElem ), 0.0 );
+                tRelativeVolume( iCell ) = std::max( tRelativeVolume( iCell ), 0.0 );
 
                 // add volume contribution for the IG element
-                tClusterVolume += tRelativeVolume( iElem );
+                tClusterVolume += tRelativeVolume( iCell );
             }
 
             // check for consistent cluster volume computation
@@ -1176,45 +1218,57 @@ namespace moris
         void
         Cluster::determine_elements_for_residual_and_iqi_computation()
         {
-            // number of elements in cluster
-            uint tNumberOfElements = mElements.size();
+            // get (unique) cells in cluster
+            // we need to use cells instead of elements because elements can be repeated (e.g. in a nonconformal setting)
+            Vector< mtk::Cell const * > const tCells = mMeshCluster->get_primary_cells_in_cluster();
+
+            uint const tNumberOfCells = tCells.size();
 
             // initialize flags for computing residuals and IQIs (default: on)
-            mComputeResidualAndIQI.set_size( tNumberOfElements, 1, 1 );
+            // this is done per element, not per cell
+            mComputeResidualAndIQI.resize( mElements.size(), true );
 
             // skip remainder if there is only one element
-            if ( tNumberOfElements == 1 )
+            if ( tNumberOfCells == 1 )
             {
                 return;
             }
 
             // determine whether IG element should be used for computation of residual and and jacobian
-            Matrix< DDRMat > tRelativeElementVolume = this->compute_relative_volume();
+            Matrix< DDRMat > tRelativeCellVolume = this->compute_relative_volume();
 
             // check for degenerated element, i.e. all components of tRelativeElementVolume are negative
-            if ( tRelativeElementVolume( 0 ) < 0.0 )
+            if ( tRelativeCellVolume( 0 ) < 0.0 )    // if first element is negative, all elements are negative
             {
-                mComputeResidualAndIQI.fill( 0 );
+                for ( size_t iElement = 0; iElement < mElements.size(); ++iElement )
+                {
+                    mComputeResidualAndIQI( iElement ) = false;
+                }
                 return;
             }
 
             // get drop tolerance
-            real tElementDropTolerance = this->compute_volume_drop_threshold(
-                    tRelativeElementVolume,
-                    mVolumeError );
+            real const tCellDropTolerance = this->compute_volume_drop_threshold( tRelativeCellVolume, mVolumeError );
 
             // check that drop tolerance is positive
-            MORIS_ASSERT( tElementDropTolerance > -MORIS_REAL_MIN,
+            MORIS_ASSERT( tCellDropTolerance > -MORIS_REAL_MIN,
                     "Cluster::determine_elements_for_residual_and_iqi_computation - %s",
                     "drop tolerance is negative.\n" );
 
-            // loop over the IG elements
-            for ( uint iElem = 0; iElem < tNumberOfElements; iElem++ )
+            std::map< mtk::Cell const *, Vector< int > > tCellToElementMap = this->get_cell_to_element_map();
+
+            // loop over cells and deactivate all element that use this cell if necessary
+            for ( size_t iCell = 0; iCell < tCells.size(); ++iCell )
             {
-                // set flag to false (0) if element volume is smaller than threshold
-                if ( tRelativeElementVolume( iElem ) < tElementDropTolerance )
+                if ( tRelativeCellVolume( iCell ) < tCellDropTolerance )
                 {
-                    mComputeResidualAndIQI( iElem ) = 0;
+                    // if cell volume is smaller than threshold
+                    // set flag for computing residual and IQI to false
+                    // for all elements that use this cell
+                    for ( auto const &iElement : tCellToElementMap[ tCells( iCell ) ] )
+                    {
+                        mComputeResidualAndIQI( iElement ) = false;
+                    }
                 }
             }
         }
@@ -1223,30 +1277,30 @@ namespace moris
 
         real
         Cluster::compute_volume_drop_threshold(
-                const Matrix< DDRMat > &tRelativeElementVolume,
+                const Matrix< DDRMat > &tRelativeCellVolume,
                 const real             &tVolumeError )
         {
-            // create copy of vector of relative element volumes
-            Matrix< DDRMat > tSortedVolumes = tRelativeElementVolume;
+            // create copy of vector of relative cell volumes
+            Matrix< DDRMat > tSortedVolumes = tRelativeCellVolume;
 
             // sort volumes
-            sort( tRelativeElementVolume, tSortedVolumes, "descend", 0 );
+            sort( tRelativeCellVolume, tSortedVolumes, "descend", 0 );
 
             // initialize sum of relative volumes
             real tSum = 0;
 
             // find threshold
-            for ( uint iElem = 0; iElem < tRelativeElementVolume.numel(); ++iElem )
+            for ( uint iCell = 0; iCell < tRelativeCellVolume.numel(); ++iCell )
             {
                 // check if error criterion is satisfied and if so
-                // return current relative element volume as threshold
+                // return current relative cell volume as threshold
                 if ( 1.0 - tSum < tVolumeError )
                 {
-                    return tSortedVolumes( iElem );
+                    return tSortedVolumes( iCell );
                 }
 
                 // add to sum of relative element volumes
-                tSum += tSortedVolumes( iElem );
+                tSum += tSortedVolumes( iCell );
             }
 
             // if all elements are needed return 0

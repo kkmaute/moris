@@ -21,9 +21,8 @@ namespace moris::gen
      */
     struct Property_Parameters : public Field_Parameters, public Design_Parameters
     {
-        Vector< std::string > mDependencyNames;      //! Names of the dependencies of this property
-        PDV_Type            mPDVType;              //! The type of PDV that this property will be assigned to
-        bool                mInterpolationPDV;     //! If the PDV is defined on the interpolation mesh (always true for now)
+        PDV_Type              mPDVType;              //! The type of PDV that this property will be assigned to
+        bool                  mInterpolationPDV;     //! If the PDV is defined on the interpolation mesh (always true for now)
         Vector< uint >        mPDVMeshSetIndices;    //! Mesh set indices for assigning PDVs
         Vector< std::string > mPDVMeshSetNames;      //! Mesh set names for assigning PDVs
 
@@ -32,7 +31,7 @@ namespace moris::gen
          *
          * @param aParameterList
          */
-        explicit Property_Parameters( const ParameterList& aParameterList = prm::create_gen_property_parameter_list() );
+        explicit Property_Parameters( const Parameter_List& aParameterList = prm::create_gen_property_parameter_list( gen::Field_Type::NONE ) );
     };
 
     class Property : public Design_Field
@@ -62,12 +61,12 @@ namespace moris::gen
         void set_node_manager( Node_Manager& aNodeManager );
 
         /**
-         * Updates the dependencies of the underlying field based on the given fields which the property may depend on
+         * Updates the dependencies of this design based on the given designs
          * (fields may have been mapped/updated).
          *
-         * @param aAllUpdatedFields All fields (this property will take the ones it needs)
+         * @param aAllUpdatedDesigns All designs (this design will take fields from the ones it needs)
          */
-        void update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedFields );
+        void update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedDesigns ) override;
 
         /**
          * Gets the PDV type that this property defines.

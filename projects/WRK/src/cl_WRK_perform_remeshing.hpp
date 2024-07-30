@@ -40,8 +40,8 @@ namespace moris
             bool mOutputMeshes = false;
 
             // mode ab_initio
-            Vector< Matrix< DDSMat > >   mRefinementsMode_0;
-            Vector< Matrix< DDSMat > >   mRefinementPatternMode_0;
+            Vector< Matrix< DDSMat > > mRefinementsMode_0;
+            Vector< Matrix< DDSMat > > mRefinementPatternMode_0;
             std::string                mRefinementFunction;
 
             Matrix< DDSMat > mMaxRefinementsMode_1;
@@ -63,7 +63,7 @@ namespace moris
 
           public:
             Remeshing_Mini_Performer(
-                    ParameterList&                aParameterlist,
+                    Parameter_List&               aParameterlist,
                     std::shared_ptr< Library_IO > aLibrary = nullptr );
 
             //------------------------------------------------------------------------------
@@ -89,7 +89,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             void perform_refinement(
-                    std::shared_ptr< hmr::HMR >           aHMRPerformer,
+                    std::shared_ptr< hmr::HMR >             aHMRPerformer,
                     Vector< std::shared_ptr< mtk::Field > > aSourceFields );
 
             //------------------------------------------------------------------------------
@@ -101,19 +101,19 @@ namespace moris
              *
              */
             void perform_refinement_mode_0(
-                    std::shared_ptr< hmr::HMR >            aHMRPerformer,
+                    std::shared_ptr< hmr::HMR >              aHMRPerformer,
                     Vector< std::shared_ptr< mtk::Field > >& aSourceFields );
 
             //------------------------------------------------------------------------------
 
             void perform_refinement_mode_1(
-                    std::shared_ptr< hmr::HMR >           aHMRPerformer,
+                    std::shared_ptr< hmr::HMR >             aHMRPerformer,
                     Vector< std::shared_ptr< mtk::Field > > aSourceFields );
 
             //------------------------------------------------------------------------------
 
             void perform_refinement_mode_2(
-                    std::shared_ptr< hmr::HMR >           aHMRPerformer,
+                    std::shared_ptr< hmr::HMR >             aHMRPerformer,
                     Vector< std::shared_ptr< mtk::Field > > aSourceFields );
 
             //------------------------------------------------------------------------------
@@ -121,29 +121,29 @@ namespace moris
             void map_fields(
                     Vector< std::shared_ptr< mtk::Field > >& aSourceFields,
                     Vector< std::shared_ptr< mtk::Field > >& aTargetFields,
-                    mtk::Mesh_Pair&                        aMeshPair,
-                    uint                                   aDiscretizationMeshIndex,
-                    bool                                   aMapFields );
+                    mtk::Mesh_Pair&                          aMeshPair,
+                    uint                                     aDiscretizationMeshIndex,
+                    bool                                     aMapFields );
 
             //------------------------------------------------------------------------------
 
             void prepare_input_for_refinement(
-                    Vector< moris_index >&                       aPatternForRefinement,
-                    Vector< Vector< uint > >&        aRefinements,
-                    Vector< sint >&                       aMaxRefinementPerPattern );
+                    Vector< moris_index >&    aPatternForRefinement,
+                    Vector< Vector< uint > >& aRefinements,
+                    Vector< sint >&           aMaxRefinementPerPattern );
 
             //------------------------------------------------------------------------------
 
             void create_refinement_input_list(
-                    moris::ParameterList&                  aRefinementParameterlist,
+                    moris::Parameter_List&                   aRefinementParameterlist,
                     Vector< std::shared_ptr< mtk::Field > >& aFields,
-                    uint                                   aPattern );
+                    uint                                     aPattern );
 
             //------------------------------------------------------------------------------
 
             void create_refinement_input_list_2(
-                    moris::ParameterList&                  aRefinementParameterlist,
-                    Vector< std::shared_ptr< mtk::Field > >& aFields);
+                    moris::Parameter_List&                   aRefinementParameterlist,
+                    Vector< std::shared_ptr< mtk::Field > >& aFields );
 
             //------------------------------------------------------------------------------
 

@@ -19,6 +19,7 @@
 #include "fn_sum.hpp"
 #include "fn_diag_vec.hpp"
 #include "op_times.hpp"
+#include "cl_Vector.hpp"
 #include "op_equal_equal.hpp"
 #include "op_less_equal.hpp"
 #include "op_greater_equal.hpp"
@@ -36,10 +37,10 @@ namespace moris
         //------------------------------------------------------------------------------
 
         Field_Interpolator::Field_Interpolator(
-                const uint&                        aNumberOfFields,
-                const mtk::Interpolation_Rule&     aFieldInterpolationRule,
-                Geometry_Interpolator*             aGeometryInterpolator,
-                const Vector< MSI::Dof_Type > aDofType )
+                const uint&                    aNumberOfFields,
+                const mtk::Interpolation_Rule& aFieldInterpolationRule,
+                Geometry_Interpolator*         aGeometryInterpolator,
+                const Vector< MSI::Dof_Type >  aDofType )
                 : mNumberOfFields( aNumberOfFields )
                 , mGeometryInterpolator( aGeometryInterpolator )
                 , mDofType( aDofType )
@@ -122,9 +123,9 @@ namespace moris
         //------------------------------------------------------------------------------
 
         Field_Interpolator::Field_Interpolator(
-                const uint&                          aNumberOfFields,
-                const mtk::Interpolation_Rule&       aFieldInterpolationRule,
-                Geometry_Interpolator*               aGeometryInterpolator,
+                const uint&                     aNumberOfFields,
+                const mtk::Interpolation_Rule&  aFieldInterpolationRule,
+                Geometry_Interpolator*          aGeometryInterpolator,
                 const Vector< mtk::Field_Type > aFieldType )
                 : mNumberOfFields( aNumberOfFields )
                 , mGeometryInterpolator( aGeometryInterpolator )
@@ -1068,4 +1069,3 @@ namespace moris
 
     } /* namespace fem */
 } /* namespace moris */
-

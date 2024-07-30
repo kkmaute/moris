@@ -18,7 +18,7 @@
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_SOL_Enums.hpp"
 
-#include "cl_Param_List.hpp"    // CON/src
+#include "cl_Parameter_List.hpp"    // CON/src
 
 namespace moris
 {
@@ -46,16 +46,14 @@ namespace moris
 
             Solver_Interface* mSolverInterface = nullptr;
 
-            moris::ParameterList mParameterList;    // The Algorithm specific parameter list
+            moris::Parameter_List mParameterList;    // The Algorithm specific parameter list
 
             Linear_Problem* mLinearSystem = nullptr;
 
           public:
-            Linear_Solver_Algorithm(){};
 
             //-----------------------------------------------------------------------------------
-
-            Linear_Solver_Algorithm( const moris::ParameterList aParameterlist )
+            Linear_Solver_Algorithm( const moris::Parameter_List& aParameterlist )
                     : mParameterList( aParameterlist ){};
 
             //-----------------------------------------------------------------------------------
@@ -72,13 +70,6 @@ namespace moris
                     const moris::sint                                aIter = 1 ) = 0;
 
             //-----------------------------------------------------------------------------------
-            ParameterListTypes&
-            set_param( const std::string& aKey )
-            {
-                return mParameterList( aKey );
-            }
-
-            //-----------------------------------------------------------------------------------
             virtual void
             set_preconditioner( Preconditioner* aPreconditioner ){};
 
@@ -91,6 +82,17 @@ namespace moris
              */
 
             virtual void set_left_hand_side_preconditioner( Preconditioner* aPreconditioner ){};
+
+            //-----------------------------------------------------------------------------------
+
+            /**
+             * @brief Set the sublinear solver options object
+             * 
+             * @param aParameterlistsubSolver linear solver needed for inverse
+             * @param aParameterlistPreconditioner precondioner for the linear solver
+             */
+            
+            virtual void set_sublinear_solver_options( const Parameter_List* aParameterlistsubSolver, const Parameter_List* aParameterlistPreconditioner){};
 
             //-----------------------------------------------------------------------------------
 

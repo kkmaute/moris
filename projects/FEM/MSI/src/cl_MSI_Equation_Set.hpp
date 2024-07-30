@@ -17,7 +17,10 @@
 #include "cl_MTK_Enums.hpp"
 #include "cl_FEM_Enums.hpp"
 #include "GEN_Data_Types.hpp"
+#include "cl_MSI_Equation_Object.hpp"
 
+#include <unordered_set>
+#include <unordered_map>
 
 namespace moris
 {
@@ -40,7 +43,6 @@ namespace moris
     namespace MSI
     {
         class Model_Solver_Interface;
-        class Equation_Object;
         class Design_Variable_Interface;
         class Equation_Model;
         enum class Dof_Type;
@@ -56,10 +58,10 @@ namespace moris
           protected:
             Vector< MSI::Equation_Object* > mEquationObjList;
 
-            Vector< Matrix< DDRMat > >                mResidual;
-            Matrix< DDRMat >                               mJacobian;
-            Vector< Matrix< DDRMat > >                mQI;
-            Vector< Matrix< DDRMat > >                mdRdp;
+            Vector< Matrix< DDRMat > >           mResidual;
+            Matrix< DDRMat >                     mJacobian;
+            Vector< Matrix< DDRMat > >           mQI;
+            Vector< Matrix< DDRMat > >           mdRdp;
             Vector< Vector< Matrix< DDRMat > > > mdQIdp;
 
             // lists of leader and follower groups of dof types
@@ -91,11 +93,12 @@ namespace moris
             moris::Matrix< DDSMat > mFollowerFieldTypeMap;
 
             // map of leader and follower mat pdv types for assembly
-            Vector< moris::Matrix< DDSMat > >                      mPdvMatAssemblyMap;
-            moris::Matrix< DDSMat >                              mPdvMatAssemblyVector;
+            Vector< moris::Matrix< DDSMat > > mPdvMatAssemblyMap;
+            moris::Matrix< DDSMat >           mPdvMatAssemblyVector;
+
             std::map< std::pair< moris_index, gen::PDV_Type >, uint > mPdvGeoAssemblyMap;
-            moris::Matrix< DDSMat >                              mPdvGeoAssemblyVector;
-            bool                                                 mPdvGeoAssemblyFlag = false;
+            moris::Matrix< DDSMat >                                   mPdvGeoAssemblyVector;
+            bool                                                      mPdvGeoAssemblyFlag = false;
 
             // Map from requested IQI Name to index.
             // I do not know if this is slow because the map is called per gauss point.
@@ -112,16 +115,19 @@ namespace moris
             // bool for time continuity
             bool mIsStaggered = false;
 
+            // flag whether the set needs to be updated in every newton iteration
+            bool mIsUpdateRequired = false;
+
             Matrix< DDRMat > mTime;
 
             // unique list of dof and dv types
             Vector< Vector< enum MSI::Dof_Type > >   mUniqueDofTypeListLeaderFollower;
-            Vector< Vector< enum gen::PDV_Type > >        mUniqueDvTypeListLeaderFollower;
+            Vector< Vector< enum gen::PDV_Type > >   mUniqueDvTypeListLeaderFollower;
             Vector< Vector< enum mtk::Field_Type > > mUniqueFieldTypeListLeaderFollower;
 
             // unique list of dof and dv types. Leader and Follower are combined
             Vector< enum MSI::Dof_Type >   mUniqueDofTypeList;
-            Vector< enum gen::PDV_Type >        mUniqueDvTypeList;
+            Vector< enum gen::PDV_Type >   mUniqueDvTypeList;
             Vector< enum mtk::Field_Type > mUniqueFieldTypeList;
 
             // pointer to the model solver interface
@@ -183,12 +189,17 @@ namespace moris
             }
 
             //------------------------------------------------------------------------------
+            [[nodiscard]] bool is_empty_set() const { return mIsEmptySet; }
 
             MSI::Equation_Model*
             get_equation_model()
             {
                 return mEquationModel;
             }
+
+            //------------------------------------------------------------------------------
+
+            [[nodiscard]] bool get_is_update_required() const { return mIsUpdateRequired; }
 
             //------------------------------------------------------------------------------
             /**
@@ -216,8 +227,8 @@ namespace moris
              * @param[ out ] sint     consecutive index for dof type
              */
             sint get_dof_index_for_type(
-                    enum MSI::Dof_Type aDofType,
-                    mtk::Leader_Follower  aIsLeader = mtk::Leader_Follower::LEADER );
+                    enum MSI::Dof_Type   aDofType,
+                    mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
@@ -229,8 +240,8 @@ namespace moris
              * @param[ out ] sint      non-consecutive index for dof type
              */
             sint get_dof_index_for_type_1(
-                    enum MSI::Dof_Type aDofType,
-                    mtk::Leader_Follower  aIsLeader = mtk::Leader_Follower::LEADER );
+                    enum MSI::Dof_Type   aDofType,
+                    mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
@@ -258,7 +269,7 @@ namespace moris
              * @param[ out ] sint     consecutive index for dv type
              */
             sint get_dv_index_for_type(
-                    enum gen::PDV_Type     aDvType,
+                    enum gen::PDV_Type   aDvType,
                     mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
@@ -271,7 +282,7 @@ namespace moris
              * @param[ out ] sint      non-consecutive index for dv type
              */
             sint get_dv_index_for_type_1(
-                    enum gen::PDV_Type     aDvType,
+                    enum gen::PDV_Type   aDvType,
                     mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
@@ -300,8 +311,8 @@ namespace moris
              * @param[ out ] sint      non-consecutive index for field type
              */
             sint get_field_index_for_type_1(
-                    mtk::Field_Type aFieldType,
-                    mtk::Leader_Follower    aIsLeader = mtk::Leader_Follower::LEADER );
+                    mtk::Field_Type      aFieldType,
+                    mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //-------------------------------------------------------------------------------------------------
             /**
@@ -321,6 +332,21 @@ namespace moris
             {
                 MORIS_ERROR( false, "Equation_Set::initialize_set - not implemented for virtual member function" );
             }
+
+            /**
+             * \brief Get the displacement for every node in the set.
+             * \return A map from the node index to the displacement vector.
+             */
+            virtual std::unordered_map< moris_index, Vector< real > > get_nodal_displacements( std::unordered_set< moris_index > aRequestedNodes )
+            {
+                MORIS_ERROR( false, "Equation_Set::get_nodal_displacements - not implemented for virtual member function" );
+                return {};
+            };
+
+            virtual void update()
+            {
+                MORIS_ERROR( false, "Equation_Set::update - not implemented for virtual member function" );
+            };
 
             //-------------------------------------------------------------------------------------------------
             /**
@@ -388,7 +414,7 @@ namespace moris
              * get the element on the set
              * param[ out ] aElementType element type for the set
              */
-            virtual enum fem::Element_Type
+            virtual fem::Element_Type
             get_element_type() const
             {
                 MORIS_ERROR( false, "Equation_Set::get_element_type - not implemented for virtual member function" );
@@ -718,8 +744,8 @@ namespace moris
              */
             virtual void
             compute_quantity_of_interest_global(
-                    const uint                        aMeshIndex,
-                    Matrix< DDRMat >*                 aFieldValues,
+                    const uint                   aMeshIndex,
+                    Matrix< DDRMat >*            aFieldValues,
                     const Vector< std::string >& aQINames )
             {
                 MORIS_ASSERT( false, "Equation_Set::compute_quantity_of_interest_global - not implemented for base class." );
@@ -734,8 +760,8 @@ namespace moris
              */
             virtual void
             compute_quantity_of_interest_nodal(
-                    const uint                        aMeshIndex,
-                    Matrix< DDRMat >*                 aFieldValues,
+                    const uint                   aMeshIndex,
+                    Matrix< DDRMat >*            aFieldValues,
                     const Vector< std::string >& aQINames )
             {
                 MORIS_ASSERT( false, "Equation_Set::compute_quantity_of_interest_nodal - not implemented for base class." );
@@ -751,10 +777,10 @@ namespace moris
              */
             virtual void
             compute_quantity_of_interest_elemental(
-                    const uint                        aMeshIndex,
-                    Matrix< DDRMat >*                 aFieldValues,
+                    const uint                   aMeshIndex,
+                    Matrix< DDRMat >*            aFieldValues,
                     const Vector< std::string >& aQINames,
-                    const bool                        aOutputAverageValue = true  )
+                    const bool                   aOutputAverageValue = true )
             {
                 MORIS_ASSERT( false, "Equation_Set::compute_quantity_of_interest_elemental - not implemented for base class." );
             }

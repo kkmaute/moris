@@ -10,7 +10,7 @@
 
 #include <catch.hpp>
 #include "algorithms.hpp"
-#include "cl_Param_List.hpp" // CON/src
+#include "cl_Parameter_List.hpp"    // CON/src
 #include "cl_EqnManager.hpp" // MOD/src
 
 TEST_CASE("moris::model::EqnManager",

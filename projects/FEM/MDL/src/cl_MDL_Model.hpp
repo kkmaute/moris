@@ -19,7 +19,7 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_MTK_Enums.hpp"
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 
 namespace moris
 {
@@ -115,10 +115,10 @@ namespace moris
 
                 MSI::Design_Variable_Interface * mDesignVariableInterface = nullptr;
 
-                Vector< Vector< ParameterList > > mFEMParameterList;
-                Vector< Vector< ParameterList > > mMSIParameterList;
-                Vector< Vector< ParameterList > > mSOLParameterList;
-                Vector< Vector< ParameterList > > mVISParameterList;
+                Vector< Vector< Parameter_List > > mFEMParameterList;
+                Vector< Vector< Parameter_List > > mMSIParameterList;
+                Vector< Vector< Parameter_List > > mSOLParameterList;
+                Vector< Vector< Parameter_List > > mVISParameterList;
 
                 //------------------------------------------------------------------------------
             public:
@@ -299,9 +299,14 @@ namespace moris
                  * @param[ in ] aCloseFile    boolean indicating the closing of the exodus file
                  */
                 void output_solution(
-                        const uint aVisMeshIndex,
-                        const real aTime,
-                        const bool aCloseFile );
+                        uint aVisMeshIndex,
+                        real aTime,
+                        bool aCloseFile );
+
+                /**
+                 * Updates this problem.
+                 */
+                void update_model();
 
                 //------------------------------------------------------------------------------
 

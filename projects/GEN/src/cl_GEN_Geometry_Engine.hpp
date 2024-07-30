@@ -13,6 +13,7 @@
 // GEN
 #include "st_GEN_Geometry_Engine_Parameters.hpp"
 #include "cl_GEN_Phase_Table.hpp"
+#include "cl_GEN_ADV_Manager.hpp"
 #include "cl_GEN_Node_Manager.hpp"
 #include "cl_GEN_PDV_Host_Manager.hpp"
 
@@ -58,16 +59,12 @@ namespace moris::gen
         uint mNumSpatialDimensions;
 
         // ADVs
-        Matrix< DDRMat >  mInitialPrimitiveADVs;
-        Matrix< DDRMat >  mADVs;
-        Matrix< DDSMat >  mFullADVIds;
+        ADV_Manager       mADVManager;
+        Vector< real >    mInitialPrimitiveADVs;
+        Vector< sint >    mFullADVIds;
         Matrix< IdMat >   mFullijklIDs;
         sol::Dist_Vector* mOwnedADVs     = nullptr;
         sol::Dist_Vector* mPrimitiveADVs = nullptr;
-
-        // Bounds
-        Matrix< DDRMat > mLowerBounds;
-        Matrix< DDRMat > mUpperBounds;
 
         // IQIs
         Vector< std::string > mRequestedIQIs;
@@ -97,7 +94,7 @@ namespace moris::gen
          * @param aMesh Mesh for discrete or mesh based geomtries
          */
         explicit Geometry_Engine(
-                Vector< Vector< ParameterList > >        aParameterLists,
+                Vector< Vector< Parameter_List > >        aParameterLists,
                 const std::shared_ptr< Library_IO >& aLibrary = nullptr,
                 mtk::Mesh*                           aMesh    = nullptr );
 
@@ -121,14 +118,14 @@ namespace moris::gen
          *
          * @param aNewADVs vector of new advs to use
          */
-        void set_advs( const Matrix< DDRMat >& aNewADVs );
+        void set_advs( const Vector< real >& aNewADVs );
 
         /**
          * Gets the advs from the geometry engine
          *
          * @return vector of advs
          */
-        Matrix< DDRMat >& get_advs();
+        Vector< real >& get_advs();
 
         /**
          * Get vector with ijkl IDs. All Ids are on proc 0, all others return empty vec
@@ -142,14 +139,14 @@ namespace moris::gen
          *
          * @return vector of lower bounds
          */
-        Matrix< DDRMat >& get_lower_bounds();
+        Vector< real >& get_lower_bounds();
 
         /**
          * Gets the upper bounds from the geometry engine
          *
          * @return vector of upper bounds
          */
-        Matrix< DDRMat >& get_upper_bounds();
+        Vector< real >& get_upper_bounds();
 
         /**
          * Lets MDL know about the stored requested IQIs through the PDV host manager. This has to be done after
@@ -521,7 +518,7 @@ namespace moris::gen
          * @return Phase table
          */
         static Phase_Table create_phase_table(
-                const Vector< Vector< ParameterList > >& aParameterLists,
+                const Vector< Vector< Parameter_List > >& aParameterLists,
                 const std::shared_ptr< Library_IO >& aLibrary );
 
         /**

@@ -31,7 +31,6 @@
 
 #include "Teuchos_SerialDenseMatrix.hpp"
 
-
 // Include selected communicator class required by Epetra objects
 #ifdef EPETRA_MPI
 #include "Epetra_MpiComm.h"

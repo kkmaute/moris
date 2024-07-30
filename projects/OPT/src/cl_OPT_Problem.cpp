@@ -32,7 +32,7 @@ namespace moris
         // -------------------------------------------------------------------------------------------------------------
 
         Problem::Problem(
-                ParameterList&                         aParameterList,
+                Parameter_List&                         aParameterList,
                 std::shared_ptr< Criteria_Interface >& aInterface )
         {
             // Set interface
@@ -63,17 +63,9 @@ namespace moris
             this->override_advs();
 
             // Log number of optimization variables
-            MORIS_LOG_SPEC( "Number of optimization variables", mADVs.numel() );
+            MORIS_LOG_SPEC( "Number of optimization variables", mADVs.size() );
 
-            // Check for proper dimensions of ADV vector and its upper and lower bound vectors
-            MORIS_ERROR( mADVs.numel() > 0 ? mADVs.n_cols() == 1 : true,
-                    "ADVs vector needs to be column vector.\n" );
-            MORIS_ERROR( mLowerBounds.numel() > 0 ? mLowerBounds.n_cols() == 1 : true,
-                    "ADV lower bound vector needs to be column vector.\n" );
-            MORIS_ERROR( mUpperBounds.numel() > 0 ? mUpperBounds.n_cols() == 1 : true,
-                    "ADV lower bound vector needs to be column vector.\n" );
-
-            MORIS_ERROR( mADVs.n_rows() == mLowerBounds.n_rows() and mADVs.n_rows() == mUpperBounds.n_rows(),
+            MORIS_ERROR( mADVs.size() == mLowerBounds.size() and mADVs.size() == mUpperBounds.size(),
                     "ADVs and its lower and upper bound vectors need to have same length.\n" );
 
             // Read ADVs from restart file
@@ -184,14 +176,14 @@ namespace moris
         // -------------------------------------------------------------------------------------------------------------
 
         void
-        Problem::compute_design_criteria( Matrix< DDRMat >& aNewADVs )
+        Problem::compute_design_criteria( Vector< real >& aNewADVs )
         {
             // check for proper size of input ADV vector (on processor 0 only as all other processors
             // have zero-size ADV vector
             if ( par_rank() == 0 )
             {
                 // Check that input ADV vector has correct size
-                MORIS_ERROR( mADVs.n_rows() == aNewADVs.n_rows() && mADVs.n_cols() == aNewADVs.n_cols(),
+                MORIS_ERROR( mADVs.size() == aNewADVs.size(),
                         "Problem::compute_design_criteria - size of ADV vectors does not match.\n" );
             }
 
@@ -208,7 +200,7 @@ namespace moris
                 // log criteria and ADVs
                 MORIS_LOG_SPEC( "Criteria", ios::stringify_log( mCriteria ) );
 
-                if ( mADVs.numel() > 0 )
+                if ( mADVs.size() > 0 )
                 {
                     MORIS_LOG_SPEC( "MinADV", mADVs.min() );
                     MORIS_LOG_SPEC( "MaxADV", mADVs.max() );
@@ -235,15 +227,18 @@ namespace moris
         // -------------------------------------------------------------------------------------------------------------
 
         void
-        Problem::compute_design_criteria_gradients( const Matrix< DDRMat >& aNewADVs )
+        Problem::compute_design_criteria_gradients( const Vector< real >& aNewADVs )
         {
             // Check that input ADV vector is identical to the one stored in problem
             // as otherwise new criteria evaluation would be needed; this is done only
-            // on processor 0 only all other processors as have zero-size ADV vector
+            // on processor 0 only all other processors have zero-size ADV vector
             if ( par_rank() == 0 )
             {
-                MORIS_ERROR( norm( mADVs - aNewADVs ) <= mADVNormTolerance * norm( mADVs ),
-                        "Problem::compute_design_criteria_gradients - given ADV vector does not match ADVs used to compute design criteria.\n" );
+                for ( uint iADVIndex = 0; iADVIndex < mADVs.size(); iADVIndex++ )
+                {
+                    MORIS_ERROR( std::abs( mADVs( iADVIndex ) - aNewADVs( iADVIndex ) ) <= mADVNormTolerance,
+                            "Problem::compute_design_criteria_gradients - given ADV vector does not match ADVs used to compute design criteria.\n" );
+                }
             }
 
             // compute derivatives of design criteria
@@ -257,7 +252,7 @@ namespace moris
                         this->compute_dobjective_dadv() +    //
                         this->compute_dobjective_dcriteria() * mInterface->get_dcriteria_dadv();
 
-                MORIS_ASSERT( mObjectiveGradient.n_rows() == mNumObjectives and mObjectiveGradient.n_cols() == mADVs.numel(),
+                MORIS_ASSERT( mObjectiveGradient.n_rows() == mNumObjectives and mObjectiveGradient.n_cols() == mADVs.size(),
                         "Problem::compute_design_criteria_gradients  - gradient of objective matrix has incorrect size.\n." );
 
                 // compute gradients of constraints
@@ -265,7 +260,7 @@ namespace moris
                         this->compute_dconstraint_dadv() +    //
                         this->compute_dconstraint_dcriteria() * mInterface->get_dcriteria_dadv();
 
-                MORIS_ASSERT( mConstraintGradient.n_rows() == mNumConstraints and mConstraintGradient.n_cols() == mADVs.numel(),
+                MORIS_ASSERT( mConstraintGradient.n_rows() == mNumConstraints and mConstraintGradient.n_cols() == mADVs.size(),
                         "Problem::compute_design_criteria_gradients  - gradient of constraint matrix has incorrect size.\n." );
             }
         }
@@ -320,17 +315,17 @@ namespace moris
             hid_t tFileID = open_hdf5_file( mRestartFile, false );
 
             // Define matrix in which to read restart ADVs
-            Matrix< DDRMat > tRestartADVs;
-            Matrix< DDRMat > tRestartUpperBounds;
-            Matrix< DDRMat > tRestartLowerBounds;
+            Vector< real > tRestartADVs;
+            Vector< real > tRestartUpperBounds;
+            Vector< real > tRestartLowerBounds;
             Matrix< IdMat >  tIjklIdsFile;
             sint             tParSizeFile = 0;
 
             // Read ADVS from restart file
             herr_t tStatus = 0;
-            load_matrix_from_hdf5_file( tFileID, "ADVs", tRestartADVs, tStatus );
-            load_matrix_from_hdf5_file( tFileID, "UpperBounds", tRestartUpperBounds, tStatus );
-            load_matrix_from_hdf5_file( tFileID, "LowerBounds", tRestartLowerBounds, tStatus );
+            load_vector_from_hdf5_file( tFileID, "ADVs", tRestartADVs.data(), tStatus );
+            load_vector_from_hdf5_file( tFileID, "UpperBounds", tRestartUpperBounds.data(), tStatus );
+            load_vector_from_hdf5_file( tFileID, "LowerBounds", tRestartLowerBounds.data(), tStatus );
 
             load_scalar_from_hdf5_file( tFileID, "NumProcs", tParSizeFile, tStatus );
 
@@ -340,7 +335,7 @@ namespace moris
             {
                 load_matrix_from_hdf5_file( tFileID, "IjklIds", tIjklIdsFile, tStatus );
 
-                MORIS_ERROR( tIjklIdsFile.numel() == tRestartADVs.numel(), "restart adv vector and ijkl ID vector not of same size" );
+                MORIS_ERROR( tIjklIdsFile.numel() == tRestartADVs.size(), "restart adv vector and ijkl ID vector not of same size" );
                 MORIS_ERROR( tIjklIdsFile.numel() == mIjklIds.numel(), "restart ijkl ID vector and new ijkl ID vector not of same size" );
             }
 
@@ -348,16 +343,12 @@ namespace moris
             close_hdf5_file( tFileID );
 
             // Check for matching sizes
-            MORIS_ERROR( tRestartADVs.numel() == mADVs.numel(),
+            MORIS_ERROR( tRestartADVs.size() == mADVs.size(),
                     "Number of restart ADVS does not match.\n" );
-            MORIS_ERROR( tRestartUpperBounds.numel() == mUpperBounds.numel(),
+            MORIS_ERROR( tRestartUpperBounds.size() == mUpperBounds.size(),
                     "Number of restart upper bounds of ADVs does not match.\n" );
-            MORIS_ERROR( tRestartLowerBounds.numel() == mLowerBounds.numel(),
+            MORIS_ERROR( tRestartLowerBounds.size() == mLowerBounds.size(),
                     "Number of restart lower bounds of ADVs does not match.\n" );
-
-            MORIS_LOG_INFO( "Norm of ADV vector - before loading restart %e   after %e.\n",
-                    norm( mADVs ),
-                    norm( tRestartADVs ) );
 
             // reorder adv for new proc layout. FIXME see above
             if ( par_size() != tParSizeFile )
@@ -371,38 +362,26 @@ namespace moris
                     }
                 }
 
-                Matrix< DDRMat > tRestartADVsTemp;
-                Matrix< DDRMat > tRestartUpperBoundsTemp;
-                Matrix< DDRMat > tRestartLowerBoundsTemp;
-
-                tRestartADVsTemp        = tRestartADVs;
-                tRestartUpperBoundsTemp = tRestartUpperBounds;
-                tRestartLowerBoundsTemp = tRestartLowerBounds;
-
-                tRestartADVs.fill( MORIS_REAL_MAX );
-                tRestartUpperBounds.fill( MORIS_REAL_MAX );
-                tRestartLowerBounds.fill( MORIS_REAL_MAX );
-
                 for ( uint Ik = 0; Ik < tIjklIdsFile.numel(); Ik++ )
                 {
                     if ( tIjklIdToPosMap.key_exists( tIjklIdsFile( Ik ) ) )
                     {
                         sint tIndxed                   = tIjklIdToPosMap.find( tIjklIdsFile( Ik ) );
-                        tRestartADVs( tIndxed )        = tRestartADVsTemp( Ik );
-                        tRestartUpperBounds( tIndxed ) = tRestartUpperBoundsTemp( Ik );
-                        tRestartLowerBounds( tIndxed ) = tRestartLowerBoundsTemp( Ik );
+                        mADVs( tIndxed )        = tRestartADVs( Ik );
+                        mUpperBounds( tIndxed ) = tRestartUpperBounds( Ik );
+                        mLowerBounds( tIndxed ) = tRestartLowerBounds( Ik );
                     }
                     else
                     {
-                        tRestartADVs( Ik )        = tRestartADVsTemp( Ik );
-                        tRestartUpperBounds( Ik ) = tRestartUpperBoundsTemp( Ik );
-                        tRestartLowerBounds( Ik ) = tRestartLowerBoundsTemp( Ik );
+                        mADVs( Ik )        = tRestartADVs( Ik );
+                        mUpperBounds( Ik ) = tRestartUpperBounds( Ik );
+                        mLowerBounds( Ik ) = tRestartLowerBounds( Ik );
                     }
                 }
 
-                MORIS_ERROR( tRestartADVs.max() != MORIS_REAL_MAX, "Restart ADV is MORIS_REAL_MAX" );
-                MORIS_ERROR( tRestartUpperBounds.max() != MORIS_REAL_MAX, "Restart upper bound is MORIS_REAL_MAX" );
-                MORIS_ERROR( tRestartLowerBounds.max() != MORIS_REAL_MAX, "Restart lower bound is MORIS_REAL_MAX" );
+                MORIS_ERROR( mADVs.max() != MORIS_REAL_MAX, "Restart ADV is MORIS_REAL_MAX" );
+                MORIS_ERROR( mUpperBounds.max() != MORIS_REAL_MAX, "Restart upper bound is MORIS_REAL_MAX" );
+                MORIS_ERROR( mLowerBounds.max() != MORIS_REAL_MAX, "Restart lower bound is MORIS_REAL_MAX" );
             }
 
             // Copy restart vectors on member variables

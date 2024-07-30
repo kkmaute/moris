@@ -55,7 +55,7 @@ Time_Solver::Time_Solver( const enum TimeSolverType aTimeSolverType )
 //--------------------------------------------------------------------------------------------------
 
 Time_Solver::Time_Solver(
-        const ParameterList            aParameterlist,
+        const Parameter_List           aParameterlist,
         sol::SOL_Warehouse*            aSolverWarehouse,
         const enum tsa::TimeSolverType aTimeSolverType )
         : mParameterListTimeSolver( aParameterlist )
@@ -269,6 +269,14 @@ Time_Solver::set_output(
 
 //-------------------------------------------------------------------------------------------------------
 
+void Time_Solver::set_pause_function(
+        Void_Function aPauseFunction )
+{
+    mPauseFunction = aPauseFunction;
+}
+
+//-------------------------------------------------------------------------------------------------------
+
 void
 Time_Solver::check_for_outputs(
         const moris::real& aTime,
@@ -372,6 +380,8 @@ Time_Solver::solve()
 
         // set eigen vector in interface
         mSolverInterface->set_eigen_solution_vector( mFullEigenVector( 0 ) );
+
+        mSolverInterface->set_eigen_values(std::make_shared<Vector<real>>());
     }
 
     // initialize solution vector and prev solution vector
@@ -573,7 +583,8 @@ Time_Solver::initialize_sol_vec()
             // create map object
             sol::Matrix_Vector_Factory tMatFactory( mSolverWarehouse->get_tpl_type() );
 
-            sol::Dist_Map* tFeeMap = tMatFactory.create_map( mSolverInterface->get_my_local_global_map() );
+            sol::Dist_Map* tFeeMap = tMatFactory.create_map( mSolverInterface->get_my_local_global_map(), 
+            mSolverInterface->get_my_local_global_overlapping_map() );
 
             uint tNumRHMS = mSolverInterface->get_num_rhs();
 
@@ -707,6 +718,12 @@ Time_Solver::prepare_sol_vec_for_next_time_step()
 
         mFullVector( tNumSolVec - 1 )->vec_plus_vec( 1.0, *( mFullVector( tNumSolVec - 2 ) ), 0.0 );
         //        mFullVector( tNumSolVec-1 )->vec_put_scalar( 0.0 );
+
+        // Pause if needed
+        mPauseFunction();
+
+        // Update problem
+        mSolverInterface->update_problem();
     }
 }
 

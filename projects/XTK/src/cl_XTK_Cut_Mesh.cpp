@@ -11,7 +11,6 @@
 #include "cl_XTK_Cut_Mesh.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_XTK_Model.hpp"
-#include "cl_MPI_Tools.hpp"
 #include "cl_TOL_Memory_Map.hpp"
 namespace moris::xtk
 {

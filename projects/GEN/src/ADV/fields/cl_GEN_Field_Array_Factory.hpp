@@ -58,7 +58,7 @@ namespace moris::gen
          *
          * @param aFieldArrayParameters Field array parameter list
          */
-        explicit Field_Array_Factory( const ParameterList& aFieldArrayParameters = prm::create_field_array_parameter_list() );
+        explicit Field_Array_Factory( const Parameter_List& aFieldArrayParameters );
 
         /**
          * Sets the array parameters in the x direction

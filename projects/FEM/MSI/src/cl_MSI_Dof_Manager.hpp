@@ -363,6 +363,18 @@ namespace moris
             };
 
             //-----------------------------------------------------------------------------------------------------------
+            
+            /**
+             * @brief Get the adofs object get vector of adofs based on the dof type 
+             * 
+             * @param aListOfDofTypes 
+             * @return Vector< Adof* > 
+             */
+            
+            Vector< Adof* >
+            get_adofs(const Vector< enum Dof_Type >& aListOfDofTypes);
+
+            //-----------------------------------------------------------------------------------------------------------
             Matrix< DDSMat > get_local_adof_ids();
 
             //-----------------------------------------------------------------------------------------------------------

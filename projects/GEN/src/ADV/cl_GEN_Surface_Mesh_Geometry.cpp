@@ -20,7 +20,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Surface_Mesh_Parameters::Surface_Mesh_Parameters( const ParameterList& aParameterList )
+    Surface_Mesh_Parameters::Surface_Mesh_Parameters( const Parameter_List& aParameterList )
             : Field_Parameters( aParameterList )
             , Design_Parameters( aParameterList )
             , mFilePath( aParameterList.get< std::string >( "file_path" ) )
@@ -196,7 +196,6 @@ namespace moris::gen
         return tRotationAxis;
     }
     
-
     //--------------------------------------------------------------------------------------------------------------
 
     Vector< std::shared_ptr< mtk::Field > > Surface_Mesh_Geometry::get_mtk_fields()
@@ -227,7 +226,7 @@ namespace moris::gen
     Surface_Mesh_Geometry::discretize(
             mtk::Mesh_Pair          aMeshPair,
             sol::Dist_Vector*       aOwnedADVs,
-            const Matrix< DDSMat >& aSharedADVIds,
+            const Vector< sint >& aSharedADVIds,
             uint                    aADVOffsetID )
     {
         // TODO BRENDAN
@@ -240,7 +239,7 @@ namespace moris::gen
             std::shared_ptr< mtk::Field > aMTKField,
             mtk::Mesh_Pair                aMeshPair,
             sol::Dist_Vector*             aOwnedADVs,
-            const Matrix< DDSMat >&       aSharedADVIds,
+            const Vector< sint >&       aSharedADVIds,
             uint                          aADVOffsetID )
     {
         // TODO BRENDAN
@@ -290,6 +289,12 @@ namespace moris::gen
     Surface_Mesh_Geometry::get_discretization_upper_bound()
     {
         return mParameters.mDiscretizationUpperBound;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Surface_Mesh_Geometry::update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedDesigns )
+    {
     }
     
     //--------------------------------------------------------------------------------------------------------------

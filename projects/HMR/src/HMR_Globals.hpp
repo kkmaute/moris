@@ -13,7 +13,7 @@
 #include "moris_typedefs.hpp" //COR/src
 #include "cl_Communication_Manager.hpp" // COM/src
 #include "cl_Communication_Tools.hpp" // COM/src
-#include "cl_Param_List.hpp"       //CNT/src
+#include "cl_Parameter_List.hpp"      //CNT/src
 
 namespace moris::hmr
 {

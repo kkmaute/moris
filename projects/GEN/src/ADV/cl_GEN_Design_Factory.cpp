@@ -9,7 +9,7 @@
  */
 
 #include "cl_GEN_Design_Factory.hpp"
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_Library_IO.hpp"
 #include "fn_GEN_create_field.hpp"
@@ -21,17 +21,17 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Design_Factory::Design_Factory(
-            Vector< ParameterList >         aParameterLists,
-            Matrix< DDRMat >&             aADVs,
+            Vector< Parameter_List >      aParameterLists,
+            ADV_Manager&                  aADVManager,
             std::shared_ptr< Library_IO > aLibrary,
             mtk::Mesh*                    aMesh,
             Node_Manager&                 aNodeManager )
     {
-        // Count maximum number of possible designs
+        // Count maximum number of possible ADVs, fields, and designs
         uint tGeometryIndex = 0;
         uint tPropertyIndex = 0;
         uint tFieldIndex    = 0;
-        for ( const ParameterList& iParameterList : aParameterLists )
+        for ( const Parameter_List& iParameterList : aParameterLists )
         {
             // Count up the type of design
             if ( iParameterList.exists( "design_type" ) )
@@ -54,6 +54,7 @@ namespace moris::gen
             if ( iParameterList.exists( "field_type" ) )
             {
                 tFieldIndex++;
+                aADVManager.register_parameter_ids( get_active_parameter_ids( iParameterList ) );
             }
         }
 
@@ -62,6 +63,9 @@ namespace moris::gen
         mGeometries.resize( tGeometryIndex );
         mProperties.resize( tPropertyIndex );
         uint tNumberOfDesignsLeft = tGeometryIndex + tPropertyIndex;
+
+        // Allocate space for ADVs
+        aADVManager.finalize_parameter_ids();
 
         // Re-initialize counters
         tGeometryIndex = 0;
@@ -75,20 +79,20 @@ namespace moris::gen
             bool tSomethingHasBeenBuilt = false;
 
             // Loop over all designs
-            for ( ParameterList& iParameterList : aParameterLists )
+            for ( Parameter_List& iParameterList : aParameterLists )
             {
-                // If we can build this field or not
+                // If we can build this design or not
                 bool tCanBuild = true;
 
-                // Check if a field is required
-                if ( iParameterList.exists( "field_type" ) )
+                // Check for any dependencies
+                Vector< std::shared_ptr< Field > > tDependencyFields;
+                if ( iParameterList.exists( "dependencies" ) )
                 {
                     // Get field dependency names
-                    Vector< std::string > tDependencyNames =
-                            string_to_cell< std::string >( iParameterList.get< std::string >( "dependencies" ) );
+                    Vector< std::string > tDependencyNames = iParameterList.get< Vector< std::string > >( "dependencies" );
 
-                    // Cell of field dependencies
-                    Vector< std::shared_ptr< Field > > tDependencyFields( tDependencyNames.size() );
+                    // Resize dependencies
+                    tDependencyFields.resize( tDependencyNames.size() );
 
                     // Loop over dependencies
                     for ( uint iDependencyIndex = 0; iDependencyIndex < tDependencyNames.size(); iDependencyIndex++ )
@@ -115,19 +119,19 @@ namespace moris::gen
                             break;
                         }
                     }
+                }
 
-                    // Build field if we can
-                    if ( tCanBuild )
-                    {
-                        // Build field
-                        mFields( tFieldIndex++ ) = create_field( iParameterList, aADVs, tDependencyFields, aLibrary, aMesh );
+                // Build a new field if required
+                if ( iParameterList.exists( "field_type" ) and tCanBuild )
+                {
+                    // Build field
+                    mFields( tFieldIndex++ ) = create_field( iParameterList, aADVManager, tDependencyFields, aLibrary, aMesh );
 
-                        // Remove this parameter to signal we don't need to build again
-                        iParameterList.erase( "field_type" );
+                    // Remove this parameter to signal we don't need to build again
+                    iParameterList.erase( "field_type" );
 
-                        // Set that a field has been built, so it is fine if another outer loop is needed
-                        tSomethingHasBeenBuilt = true;
-                    }
+                    // Set that a field has been built, so it is fine if another outer loop is needed
+                    tSomethingHasBeenBuilt = true;
                 }
 
                 // Check if design needs building
@@ -150,17 +154,15 @@ namespace moris::gen
                         else if ( tGeometryType == "voxel" )
                         {
                             // Get voxel-specific info
-                            std::string      tVoxelFieldName    = iParameterList.get< std::string >( "voxel_field_file" );
-                            Matrix< DDRMat > tDomainDimensions  = string_to_mat< DDRMat >( iParameterList.get< std::string >( "domain_dimensions" ) );
-                            Matrix< DDRMat > tDomainOffset      = string_to_mat< DDRMat >( iParameterList.get< std::string >( "domain_offset" ) );
-                            Matrix< DDRMat > tGrainIdToValueMap = string_to_mat< DDRMat >( iParameterList.get< std::string >( "grain_id_value_map" ) );
+                            auto tVoxelFieldName   = iParameterList.get< std::string >( "voxel_field_file" );
+                            auto tDomainDimensions = iParameterList.get< Vector< real > >( "domain_dimensions" );
+                            auto tDomainOffset     = iParameterList.get< Vector< real > >( "domain_offset" );
 
                             // Create voxel input
                             auto tVoxelInput = std::make_shared< Voxel_Input >(
                                     tVoxelFieldName,
                                     tDomainDimensions,
                                     tDomainOffset,
-                                    tGrainIdToValueMap,
                                     aNodeManager );
 
                             // Get number of voxel IDs

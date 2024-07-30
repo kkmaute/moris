@@ -24,7 +24,7 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
 
-        Algorithm_Sweep::Algorithm_Sweep( ParameterList aParameterList )
+        Algorithm_Sweep::Algorithm_Sweep( Parameter_List aParameterList )
         {
             // define which quantities are evaluated
             mEvaluateObjectives  = aParameterList.get< bool >( "evaluate_objectives" );
@@ -128,9 +128,9 @@ namespace moris
                 }
 
                 // Check lower and upper bounds for equality
-                Matrix< DDRMat > tADVs        = mProblem->get_advs();
-                Matrix< DDRMat > tLowerBounds = mProblem->get_lower_bounds();
-                Matrix< DDRMat > tUpperBounds = mProblem->get_upper_bounds();
+                Vector< real > tADVs        = mProblem->get_advs();
+                Vector< real > tLowerBounds = mProblem->get_lower_bounds();
+                Vector< real > tUpperBounds = mProblem->get_upper_bounds();
 
                 for ( uint tADVIndex = 0; tADVIndex < tNumADVs; tADVIndex++ )
                 {
@@ -253,7 +253,11 @@ namespace moris
             for ( uint tEvaluationIndex = 0; tEvaluationIndex < tTotalEvaluations; tEvaluationIndex++ )
             {
                 // get the evaluation point
-                Matrix< DDRMat > tEvaluationPoint = mEvaluationPoints.get_column( tEvaluationIndex );
+                Vector< real > tEvaluationPoint( mEvaluationPoints.n_rows() );
+                for ( uint iADVIndex = 0; iADVIndex < tEvaluationPoint.size(); iADVIndex++ )
+                {
+                    tEvaluationPoint( iADVIndex ) = mEvaluationPoints( iADVIndex, tEvaluationIndex );
+                }
 
                 // Compute design criteria at current evaluation point
                 this->compute_design_criteria( tEvaluationPoint );
@@ -268,12 +272,10 @@ namespace moris
                 if ( mEvaluateObjectiveGradients or mEvaluateConstraintGradients )
                 {
                     // Get analytical gradients if requested
-                    if ( mFiniteDifferenceType == "none" || mFiniteDifferenceType == "all" )
+                    if ( mFiniteDifferenceType == "none" or mFiniteDifferenceType == "all" )
                     {
                         this->set_sensitivity_analysis_type( SA_Type::analytical );
-
-                        this->compute_design_criteria_gradients( mEvaluationPoints.get_column( tEvaluationIndex ) );
-
+                        this->compute_design_criteria_gradients( tEvaluationPoint );
                         this->evaluate_objective_gradients( tEvaluationName + " analytical" );
                         this->evaluate_constraint_gradients( tEvaluationName + " analytical" );
                     }
@@ -296,14 +298,14 @@ namespace moris
 
                             // Forward
                             this->set_sensitivity_analysis_type( SA_Type::forward );
-                            this->compute_design_criteria_gradients( mEvaluationPoints.get_column( tEvaluationIndex ) );
+                            this->compute_design_criteria_gradients( tEvaluationPoint );
 
                             Matrix< DDRMat > tForwardObjectiveGradient  = this->evaluate_objective_gradients( tEvaluationName + " fd_forward" );
                             Matrix< DDRMat > tForwardConstraintGradient = this->evaluate_constraint_gradients( tEvaluationName + " fd_forward" );
 
                             // Backward
                             this->set_sensitivity_analysis_type( SA_Type::backward );
-                            this->compute_design_criteria_gradients( mEvaluationPoints.get_column( tEvaluationIndex ) );
+                            this->compute_design_criteria_gradients( tEvaluationPoint );
 
                             Matrix< DDRMat > tBackwardObjectiveGradient  = this->evaluate_objective_gradients( tEvaluationName + " fd_backward" );
                             Matrix< DDRMat > tBackwardConstraintGradient = this->evaluate_constraint_gradients( tEvaluationName + " fd_backward" );

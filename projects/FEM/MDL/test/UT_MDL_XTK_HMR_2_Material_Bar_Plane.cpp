@@ -77,7 +77,7 @@
 
 #include "fn_norm.hpp"
 
-#include "cl_GEN_Plane.hpp"
+#include "cl_GEN_Line.hpp"
 
 moris::real
 Plane2MatMDL(const moris::Matrix< moris::DDRMat > & aPoint )
@@ -168,7 +168,7 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
 
         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        auto tPlane = std::make_shared<moris::gen::Plane>(0.11, 0.11, 1.0, 0.0);
+        auto tPlane = std::make_shared<moris::gen::Line>(0.11, 0.11, 1.0, 0.0);
         Vector< std::shared_ptr<moris::gen::Geometry> > tGeometryVector = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
         size_t tModelDimension = 2;
@@ -355,10 +355,10 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
-
-        tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
-        tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
+        Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_aztec();
+        tLinearSolverParameterList.set( "AZ_diagnostics", AZ_none );
+        tLinearSolverParameterList.set( "AZ_output", AZ_none );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( tLinearSolverParameterList );
 
         dla::Linear_Solver tLinSolver;
 
@@ -369,12 +369,9 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         NLA::Nonlinear_Solver_Factory tNonlinFactory;
-        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
-
-        tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 3;
-        //        tNonlinearSolverAlgorithm->set_param("NLA_hard_break") = false;
-        //        tNonlinearSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;
-        //        tNonlinearSolverAlgorithm->set_param("NLA_rebuild_jacobian") = true;
+        Parameter_List tNonlinearSolverParameterList = prm::create_nonlinear_algorithm_parameter_list();
+        tNonlinearSolverParameterList.set( "NLA_max_iter", 3 );
+        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( tNonlinearSolverParameterList );
 
         tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
 

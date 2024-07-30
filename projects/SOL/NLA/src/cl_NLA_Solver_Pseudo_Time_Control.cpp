@@ -32,13 +32,12 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------------------
 
         Solver_Pseudo_Time_Control::Solver_Pseudo_Time_Control(
-                ParameterList&    aParameterListNonlinearSolver,
+                Parameter_List&   aParameterListNonlinearSolver,
                 sol::Dist_Vector* aCurrentSolution,
                 Nonlinear_Solver* aNonLinSolverManager )
         {
             // get relaxation strategy
-            mTimeStepStrategy = static_cast< sol::SolverPseudoTimeControlType >(
-                    aParameterListNonlinearSolver.get< uint >( "NLA_pseudo_time_control_strategy" ) );
+            mTimeStepStrategy = aParameterListNonlinearSolver.get< sol::SolverPseudoTimeControlType >( "NLA_pseudo_time_control_strategy" );
 
             // skip setting remaining parameters if no pseudo time step control is used
             if ( mTimeStepStrategy == sol::SolverPseudoTimeControlType::None )
@@ -69,6 +68,9 @@ namespace moris
 
             // number of initial iterations without time step size control at constant time step
             mInitialIterations = aParameterListNonlinearSolver.get< sint >( "NLA_pseudo_time_initial_steps" );
+
+            // iteration index at which reference norm is set
+            mRefIterationID = aParameterListNonlinearSolver.get< sint >( "NLA_ref_iter" );
 
             // strategy depending parameters
             switch ( mTimeStepStrategy )
@@ -331,6 +333,19 @@ namespace moris
 
                 MORIS_LOG_INFO( "In initialization phase - using pseudo time step: %e", aTimeStep );
 
+                // output pseudo time step
+                if ( mTimeOffSet > 0.0 )
+                {
+                    // increment pseudo time for output
+                    mOutputTime += mTimeOffSet;
+
+                    // write current solution to output 0
+                    mSolverInterface->initiate_output( 0, mOutputTime, false );
+                }
+
+                // copy current solution onto "previous" solution
+                mPreviousSolution->vec_plus_vec( 1.0, *( aCurrentSolution ), 0.0 );
+
                 // return that time continuation has not finished yet
                 return false;
             }
@@ -516,7 +531,8 @@ namespace moris
                         // initialize previous step parameters
                         if ( mTimeStepCounter < 2 )
                         {
-                            mPrevStepSize = mConstantStepSize;
+                            mPrevStepSize   = mConstantStepSize;
+                            mPrevRelResNorm = 1.0;
                         }
 
                         // initialize new time step
@@ -537,7 +553,7 @@ namespace moris
                         }
 
                         // perform update only if static residual has not increased by more than 25%
-                        if ( aRelResNorm > 1.25 * mPrevRelResNorm )
+                        if ( aRelResNorm > 1.25 * mPrevRelResNorm && aIterationId > mRefIterationID )
                         {
                             tPerformUpdate = false;
 

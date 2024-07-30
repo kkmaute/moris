@@ -8,6 +8,8 @@
  *
  */
 
+#include "cl_FEM_Field_Interpolator.hpp"
+#include "cl_FEM_Field_Interpolator.hpp"
 #include "fn_norm.hpp"
 #include "fn_cross.hpp"
 #include "fn_dot.hpp"
@@ -17,6 +19,7 @@
 #include "fn_linsolve.hpp"
 
 #include "cl_FEM_Geometry_Interpolator.hpp"
+#include "cl_FEM_Field_Interpolator.hpp"
 
 namespace moris
 {
@@ -157,6 +160,8 @@ namespace moris
             mTimeDetJEval   = true;
             mTimeJacEval    = true;
             mInvTimeJacEval = true;
+
+            mDeformedNodesEval = true;
         }
 
         //------------------------------------------------------------------------------
@@ -756,11 +761,103 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        Matrix< DDRMat >
+        Geometry_Interpolator::get_normal()
+        {
+            // call space interpolator
+            Matrix< DDRMat > tNormal;
+
+            mSpaceInterpolator->get_normal( tNormal );
+
+            return tNormal;
+        }
+
+        //------------------------------------------------------------------------------
+
+        Matrix< DDRMat >
+        Geometry_Interpolator::get_normal_current( Field_Interpolator* aFieldInterpolator )
+        {
+            // store the previous geometry state, i.e., nodal positions
+            Matrix< DDRMat > const tPreviousSpaceCoeffs = mSpaceInterpolator->get_space_coeff();
+
+            // set the deformed nodal positions
+            mSpaceInterpolator->set_space_coeff( this->get_space_coeff_current( aFieldInterpolator ) );
+
+            // compute normal of deformed state
+            Matrix< DDRMat > tNormal;
+            mSpaceInterpolator->get_normal( tNormal );
+
+            // reset geometry state, i.e., nodal positions
+            mSpaceInterpolator->set_space_coeff( tPreviousSpaceCoeffs );
+
+            return tNormal;
+        }
+
+        //------------------------------------------------------------------------------
+
         const Matrix< DDRMat >&
         Geometry_Interpolator::valx()
         {
             // call space interpolator
             return mSpaceInterpolator->valx();
+        }
+
+        //------------------------------------------------------------------------------
+
+        Matrix< DDRMat > Geometry_Interpolator::valx_current( Field_Interpolator* aFieldInterpolator )
+        {
+            // get the current parametric space coordinate
+            Matrix< DDRMat > const tPreviousSpaceCoeffs = mSpaceInterpolator->get_space_coeff();
+
+            mSpaceInterpolator->set_space_coeff( this->get_space_coeff_current( aFieldInterpolator ) );
+
+            Matrix< DDRMat > const tXCurrent = mSpaceInterpolator->valx();
+
+            mSpaceInterpolator->set_space_coeff( tPreviousSpaceCoeffs );
+
+            return tXCurrent;
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat >&
+        Geometry_Interpolator::get_space_coeff_current( Field_Interpolator* aFieldInterpolator )
+        {
+            // calculate the current coordinates of the element nodes (if not cached)
+            if ( mDeformedNodesEval )
+            {
+                // Since the internal state of the field interpolator is changed for each evaluation of the element node,
+                // we have to store the previous state and restore it after the evaluation
+                Matrix< DDRMat > const tPreviousFIPoint = aFieldInterpolator->get_space_time();
+
+                // the physical coordinates of the element nodes (n_nodes x n_dim)
+                Matrix< DDRMat > const tXhat = mSpaceInterpolator->get_space_coeff();
+
+                // the parametric coordinates of the element nodes (n_nodes x n_dim)
+                Matrix< DDRMat > const tXiHat = mSpaceInterpolator->get_space_param_coeff();
+
+                mDeformedNodes.resize( tXhat.n_rows(), tXhat.n_cols() );
+
+                for ( size_t iNode = 0; iNode < tXhat.n_rows(); ++iNode )
+                {
+                    // Set the Field Interpolator to the parametric coordinates of the current node to get the value of the displacement field for this node.
+                    Matrix< DDRMat > tSpaceTime( tXiHat.n_cols() + 1, 1 );
+
+                    tSpaceTime( { 0, tXiHat.n_cols() - 1 }, { 0, 0 } ) = trans( tXiHat.get_row( iNode ) );
+
+                    aFieldInterpolator->set_space_time( tSpaceTime );
+
+                    mDeformedNodes.set_row( iNode, tXhat.get_row( iNode ) + trans( aFieldInterpolator->val() ) );
+                }
+
+                // Reset the Field Interpolator to the previous space coordinates.
+                aFieldInterpolator->set_space_time( tPreviousFIPoint );
+
+                // set evaluation flag to false
+                mDeformedNodesEval = false;
+            }
+
+            return mDeformedNodes;
         }
 
         //------------------------------------------------------------------------------
@@ -776,6 +873,9 @@ namespace moris
 
                 // evaluate the field
                 mValt = this->NTau() * mTHat;
+
+                // set bool for evaluation
+                mValtEval = false;
             }
 
             return mValt;
@@ -807,12 +907,12 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        Geometry_Interpolator::update_local_coordinates(
-                Matrix< DDRMat >& aPhysCoordinates,
-                Matrix< DDRMat >& aParamCoordinates )
+        Geometry_Interpolator::update_parametric_coordinates(
+                Matrix< DDRMat > const & aPhysCoordinates,
+                Matrix< DDRMat >&        aParamCoordinates ) const
         {
             // call space interpolator
-            mSpaceInterpolator->update_local_coordinates( aPhysCoordinates, aParamCoordinates );
+            mSpaceInterpolator->update_parametric_coordinates( aPhysCoordinates, aParamCoordinates );
         }
 
         //------------------------------------------------------------------------------
@@ -947,7 +1047,6 @@ namespace moris
                 }
             }
         }
-
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */

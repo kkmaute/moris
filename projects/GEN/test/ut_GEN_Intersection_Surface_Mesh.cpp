@@ -35,7 +35,7 @@ namespace moris::gen
             real tEpsilon = 1e-9;
 
             // create surface mesh geometry
-            ParameterList tParameters = prm::create_surface_mesh_geometry_parameter_list();
+            Parameter_List tParameters = prm::create_surface_mesh_geometry_parameter_list();
             tParameters.set( "file_path", moris::get_base_moris_dir() + "projects/GEN/SDF/test/data/rhombus.obj" );
             Surface_Mesh_Parameters                  tSurfaceMeshParameters( tParameters );
             Surface_Mesh_Geometry                    tSurfaceMesh( tSurfaceMeshParameters );
@@ -89,17 +89,14 @@ namespace moris::gen
             // Create mesh
             mtk::Interpolation_Mesh* tMesh = create_simple_mesh( 2, 2 );
 
-            // Set up geometry
-            Matrix< DDRMat > tADVs = { {} };
-
             // surface mesh
-            ParameterList tRhombusParameterList = prm::create_surface_mesh_geometry_parameter_list();
+            Parameter_List tRhombusParameterList = prm::create_surface_mesh_geometry_parameter_list();
             tRhombusParameterList.set( "file_path", tMorisRoot + "projects/GEN/SDF/test/data/tetrahedron.obj" );
 
             // Create geometry engine
             Geometry_Engine_Parameters tGeometryEngineParameters;
-            tGeometryEngineParameters.mADVs = tADVs;
-            Design_Factory tDesignFactory( { tRhombusParameterList }, tADVs );
+            ADV_Manager tADVManager;
+            Design_Factory tDesignFactory( { tRhombusParameterList }, tADVManager );
             tGeometryEngineParameters.mGeometries = tDesignFactory.get_geometries();
             Geometry_Engine tGeometryEngine( tMesh, tGeometryEngineParameters );
         }

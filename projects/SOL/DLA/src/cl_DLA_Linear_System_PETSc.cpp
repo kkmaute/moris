@@ -16,9 +16,11 @@
 #include "Epetra_RowMatrix.h"
 
 #include "cl_Vector_PETSc.hpp"
+#include "cl_Vector_PETSc_Multi.hpp"
 #include "cl_DLA_Linear_System_PETSc.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
 #include "cl_SOL_Enums.hpp"
+#include "cl_SOL_Warehouse.hpp"
 
 #include <petsc.h>
 #include <petscis.h>
@@ -52,23 +54,22 @@ Linear_System_PETSc::Linear_System_PETSc(
         // create map object
         mMap = tMatFactory.create_map(
                 aInput->get_my_local_global_map(),
-                aInput->get_constrained_Ids() );    // FIXME: should be full map?
+                aInput->get_my_local_global_overlapping_map()  );   
 
-        mMapFree = tMatFactory.create_map(
+        mMapFree = tMatFactory.create_full_map(
                 aInput->get_my_local_global_map(),
-                aInput->get_constrained_Ids() );    // FIXME
+                aInput->get_my_local_global_overlapping_map() );    
 
         // Build matrix
-        mMat = tMatFactory.create_matrix( aInput, mMapFree );
+        mMat = tMatFactory.create_matrix( aInput, mMap );
 
         // Build RHS/LHS vector
-        mFreeVectorLHS = tMatFactory.create_vector( aInput, mMapFree, 1 );
+        mFreeVectorLHS = tMatFactory.create_vector( aInput, mMap, 1 );
 
+        mPointVectorRHS = tMatFactory.create_vector( aInput, mMap, 1 );
+        mPointVectorLHS = tMatFactory.create_vector( aInput, mMap, 1 );
 
-        mPointVectorRHS = tMatFactory.create_vector( aInput, mMapFree, 1 );
-        mPointVectorLHS = tMatFactory.create_vector( aInput, mMapFree, 1 );
-
-        mFullVectorLHS = tMatFactory.create_vector( aInput, mMap, 1 );    // FIXME: should be full map?
+        mFullVectorLHS = tMatFactory.create_vector( aInput, mMapFree, 1 );    // FIXME: should be full map?
 
         // FIXME: graph not useful for petsc; needs to be done differently
         mSolverInterface->build_graph( mMat );
@@ -105,13 +106,15 @@ Linear_System_PETSc::Linear_System_PETSc(
     // Build matrix
     mMat = tMatFactory.create_matrix( aInput, aFreeMap );
 
+    uint tNumRHS = aInput->get_num_rhs();
+
     // Build RHS/LHS vector
-    mFreeVectorLHS = tMatFactory.create_vector( aInput, aFreeMap );
+    mFreeVectorLHS = tMatFactory.create_vector( aInput, aFreeMap, tNumRHS );
 
-    mPointVectorRHS = tMatFactory.create_vector( aInput, aFreeMap, 1 );
-    mPointVectorLHS = tMatFactory.create_vector( aInput, aFreeMap, 1 );
+    mPointVectorRHS = tMatFactory.create_vector( aInput, aFreeMap, tNumRHS );
+    mPointVectorLHS = tMatFactory.create_vector( aInput, aFreeMap, tNumRHS );
 
-    mFullVectorLHS = tMatFactory.create_vector( aInput, aFullMap );
+    mFullVectorLHS = tMatFactory.create_vector( aInput, aFullMap , tNumRHS);
 
     // start timer
     tic tTimer;
@@ -194,9 +197,27 @@ Linear_System_PETSc::solve_linear_system()
     // VecView( static_cast< Vector_PETSc* >( mPointVectorRHS )->get_petsc_vector(), PETSC_VIEWER_STDOUT_WORLD );
     // VecView( static_cast< Vector_PETSc* >( mPointVectorLHS )->get_petsc_vector(), PETSC_VIEWER_STDOUT_WORLD );
 
-    KSPSolve( tPetscKSPProblem,
-            static_cast< Vector_PETSc* >( mPointVectorRHS )->get_petsc_vector(),
-            static_cast< Vector_PETSc* >( mPointVectorLHS )->get_petsc_vector() );
+    Mat tRHSVecs = static_cast< MultiVector_PETSc* >( mPointVectorRHS )->get_petsc_vector();
+    Mat tLHSVecs = static_cast< MultiVector_PETSc* >( mPointVectorLHS )->get_petsc_vector();
+
+    for ( uint iNumRHS = 0; iNumRHS < mSolverInterface->get_num_rhs(); iNumRHS++ )
+    {
+        Vec tRHSVec, tLHSVec;
+        
+        MatDenseGetColumnVec( tRHSVecs, iNumRHS, &tRHSVec );
+        MatDenseGetColumnVec( tLHSVecs, iNumRHS, &tLHSVec );
+
+        // Create a new vector that has the same layout as the source vector
+        VecAssemblyBegin( tRHSVec );
+        VecAssemblyEnd( tRHSVec );
+        VecAssemblyBegin( tLHSVec );
+        VecAssemblyEnd( tLHSVec );
+
+        KSPSolve( tPetscKSPProblem,tRHSVec,tLHSVec );
+
+        MatDenseRestoreColumnVec( tRHSVecs, iNumRHS, &tRHSVec );
+        MatDenseRestoreColumnVec( tLHSVecs, iNumRHS, &tLHSVec );
+    }
 
     // VecView( static_cast< Vector_PETSc* >( mPointVectorLHS )->get_petsc_vector(), PETSC_VIEWER_STDOUT_WORLD );
     KSPDestroy( &tPetscKSPProblem );
@@ -209,38 +230,25 @@ Linear_System_PETSc::solve_linear_system()
 void
 Linear_System_PETSc::get_solution( Matrix< DDRMat >& LHSValues )
 {
-    // VecGetArray (tSolution, &  LHSValues.data());
-
-    moris::sint tVecLocSize;
-    VecGetLocalSize( static_cast< Vector_PETSc* >( mPointVectorLHS )->get_petsc_vector(), &tVecLocSize );
-
-    // FIXME replace with VecGetArray()
-    moris::Matrix< DDSMat > tVal( tVecLocSize, 1, 0 );
-    LHSValues.set_size( tVecLocSize, 1 );
-
-    // Get list containing the number of owned adofs of each processor
-    Matrix< DDUMat > tNumOwnedList;
-    comm_gather_and_broadcast( tVecLocSize, tNumOwnedList );
-
-    Matrix< DDUMat > tOwnedOffsetList( tNumOwnedList.length(), 1, 0 );
-
-    // Loop over all entries to create the offsets. Starting with 1
-    for ( moris::uint Ij = 1; Ij < tOwnedOffsetList.length(); Ij++ )
-    {
-        // Add the number of owned adofs of the previous processor to the offset of the previous processor
-        tOwnedOffsetList( Ij, 0 ) = tOwnedOffsetList( Ij - 1, 0 ) + tNumOwnedList( Ij - 1, 0 );
-    }
-
-    for ( moris::sint Ik = 0; Ik < tVecLocSize; Ik++ )
-    {
-        tVal( Ik, 0 ) = tOwnedOffsetList( par_rank(), 0 ) + Ik;
-    }
-
-    VecGetValues(
-            static_cast< Vector_PETSc* >( mPointVectorLHS )->get_petsc_vector(),
-            tVecLocSize,
-            tVal.data(),
-            LHSValues.data() );
+    mPointVectorLHS->extract_copy( LHSValues );
 }
 
 //------------------------------------------------------------------------------------------
+
+void Linear_System_PETSc::construct_rhs_matrix()
+{
+       //delete the previous mass matrix if it exits
+    if ( mMassMat != nullptr )
+    {
+        delete mMassMat;
+        mMassMat = nullptr;
+    }
+    
+    // use copy constructor to create mass matrix
+    sol::Matrix_Vector_Factory tMatFactory( mSolverWarehouse->get_tpl_type() );
+
+    // Build matrix
+    mMassMat = tMatFactory.create_matrix( mSolverInterface, mMat->get_map(), true, true );
+
+    mSolverInterface->build_graph( mMassMat, true );
+}

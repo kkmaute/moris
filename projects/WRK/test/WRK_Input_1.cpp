@@ -60,7 +60,7 @@ namespace moris
     }
 
     void
-    FEMParameterList( Vector< Vector< ParameterList > >& tParameterList )
+    FEMParameterList( Vector< Vector< Parameter_List > >& tParameterList )
     {
         // create a cell of cell of parameter list for fem
         tParameterList.resize( 8 );
@@ -260,7 +260,7 @@ namespace moris
     }
 
     void
-    SOLParameterList( Vector< Vector< ParameterList > >& tParameterlist )
+    SOLParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 8 );
         for ( uint Ik = 0; Ik < 8; Ik++ )
@@ -277,7 +277,6 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "AZ_graph_fill", 10 );
         tParameterlist( 0 )( 0 ).set( "preconditioners", "0" );
         
-
         tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
         tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
         tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
@@ -296,7 +295,7 @@ namespace moris
     }
 
     void
-    XTKParameterList( Vector< Vector< ParameterList > >& tParameterlist )
+    XTKParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -316,7 +315,7 @@ namespace moris
     }
 
     void
-    MSIParameterList( Vector< Vector< ParameterList > >& tParameterlist )
+    MSIParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -325,7 +324,7 @@ namespace moris
     }
 
     void
-    VISParameterList( Vector< Vector< ParameterList > >& tParameterlist )
+    VISParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -344,7 +343,7 @@ namespace moris
     }
 
     void
-    HMRParameterList( Vector< Vector< ParameterList > >& tParameterlist )
+    HMRParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -377,7 +376,7 @@ namespace moris
     }
 
     void
-    GENParameterList( Vector< Vector< ParameterList > >& tParameterlist )
+    GENParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 3 );
         tParameterlist( 0 ).resize( 1 );
@@ -387,14 +386,14 @@ namespace moris
         tParameterlist( 0 )( 0 ) = prm::create_gen_parameter_list();
 
         // Geometry parameter lists
-        tParameterlist( 1 )( 0 ) = prm::create_user_defined_geometry_parameter_list();
+        tParameterlist( 1 )( 0 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED );
         tParameterlist( 1 )( 0 ).set( "field_function_name", "Lvl_set_1" );
-        tParameterlist( 1 )( 0 ).set( "number_of_refinements", "2" );
-        tParameterlist( 1 )( 0 ).set( "refinement_mesh_index", "0" );
+        tParameterlist( 1 )( 0 ).set( "number_of_refinements", 2u );
+        tParameterlist( 1 )( 0 ).set( "refinement_mesh_index", 0u );
     }
 
     void
-    OPTParameterList( Vector< Vector< ParameterList > >& tParameterlist )
+    OPTParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 3 );
         tParameterlist( 0 ).resize( 1 );
@@ -406,7 +405,7 @@ namespace moris
     }
 
     void
-    MORISGENERALParameterList( Vector< Vector< ParameterList > >& tParameterlist )
+    MORISGENERALParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
     }
 

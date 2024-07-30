@@ -35,9 +35,6 @@ Monolithic_Time_Solver::solve_monolithic_time_system( Vector< sol::Dist_Vector* 
     this->finalize();
 
     moris::real tTime_Scalar    = 0.0;
-    sint        tTimeSteps      = mParameterListTimeSolver.get< moris::sint >( "TSA_Num_Time_Steps" );
-    moris::real tTimeFrame      = mParameterListTimeSolver.get< moris::real >( "TSA_Time_Frame" );
-    moris::real tTimeIncrements = tTimeFrame / tTimeSteps;
 
     bool tMaxTimeIterationReached = false;
 
@@ -47,15 +44,15 @@ Monolithic_Time_Solver::solve_monolithic_time_system( Vector< sol::Dist_Vector* 
     Matrix< DDRMat > tTimeInitial( 2, 1, 0.0 );
     tTimeFrames.push_back( tTimeInitial );
 
-    for ( sint Ik = 0; Ik < tTimeSteps; Ik++ )
+    for ( uint iTimeStep = 0; iTimeStep < mTimeSteps; iTimeStep++ )
     {
         // get solvec and prev solvec index
-        uint tSolVecIndex     = Ik + 1;
-        uint tPrevSolVecIndex = Ik;
+        uint tSolVecIndex     = iTimeStep + 1;
+        uint tPrevSolVecIndex = iTimeStep;
 
         // initialize time for time slab
         Matrix< DDRMat > tTime( 2, 1, tTime_Scalar );
-        tTime_Scalar += tTimeIncrements;
+        tTime_Scalar += mTimeIncrements;
         tTime( 1, 0 ) = tTime_Scalar;
 
         tTimeFrames.push_back( tTime );
@@ -73,15 +70,15 @@ Monolithic_Time_Solver::solve_monolithic_time_system( Vector< sol::Dist_Vector* 
         mSolverInterface->set_time( tTimeFrames( tSolVecIndex ) );
 
         // log time slap
-        MORIS_LOG_SPEC( "Forward Solve Time Slab", Ik + 1 );
-        MORIS_LOG_SPEC( "Time Slap Start Time", tTimeFrames( tSolVecIndex )( 0, 0 ) );
-        MORIS_LOG_SPEC( "Time Slap End Time", tTimeFrames( tSolVecIndex )( 1, 0 ) );
+        MORIS_LOG_SPEC( "Forward Solve Time Slab", iTimeStep + 1 );
+        MORIS_LOG_SPEC( "Time Slab Start Time", tTimeFrames( tSolVecIndex )( 0, 0 ) );
+        MORIS_LOG_SPEC( "Time Slab End Time", tTimeFrames( tSolVecIndex )( 1, 0 ) );
 
-        mNonlinearSolver->set_time_step_iter( Ik );
+        mNonlinearSolver->set_time_step_iter( iTimeStep );
 
         mNonlinearSolver->solve( aFullVector( tSolVecIndex ) );
 
-        if ( Ik == tTimeSteps - 1 )
+        if ( iTimeStep == mTimeSteps - 1 )
         {
             tMaxTimeIterationReached = true;
         }
@@ -129,17 +126,15 @@ Monolithic_Time_Solver::solve_implicit_DqDs( Vector< sol::Dist_Vector* >& aFullA
     // trace this solve
     Tracer tTracer( "TimeSolver", "Monolithic", "Solve" );
 
-    sint tTimeSteps = mParameterListTimeSolver.get< moris::sint >( "TSA_Num_Time_Steps" );
-
     // initialize time for time slab
     Vector< Matrix< DDRMat > >& tTimeFrames = mMyTimeSolver->get_time_frames();
 
-    sint tStopTimeStepIndex = 0;    // Only consider last time step
+    uint tStopTimeStepIndex = 0;    // Only consider last time step
 
     Vector< sol::Dist_Vector* >& tSolVec = mMyTimeSolver->get_solution_vectors();
 
     // Loop over all time iterations backwards
-    for ( sint Ik = tTimeSteps; Ik > tStopTimeStepIndex; --Ik )
+    for ( uint Ik = mTimeSteps; Ik > tStopTimeStepIndex; --Ik )
     {
         // get solvec and prev solvec index
         uint tSolVecIndex     = Ik;

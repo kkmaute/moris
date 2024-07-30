@@ -55,10 +55,10 @@ namespace moris
 
             // check that essential properties exist
             MORIS_ASSERT( mPropEMod,
-                    "CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::set_local_properties - Young's modulus property does not exist.\n");
+                    "CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::set_local_properties - Young's modulus property does not exist.\n" );
 
             MORIS_ASSERT( mPropPoisson,
-                    "CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::set_local_properties - Poisson ratio property does not exist.\n");
+                    "CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::set_local_properties - Poisson ratio property does not exist.\n" );
         }
 
         //------------------------------------------------------------------------------
@@ -69,91 +69,92 @@ namespace moris
             CM_Struc_Nonlinear_Isotropic::set_function_pointers();
 
             // switch on space dimension
-            switch( mSpaceDim )
+            switch ( mSpaceDim )
             {
-                case 2 :
+                case 2:
                 {
                     m_eval_d1PKStressdDOF = &CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_d1PKStressdDOF_2d;
                     m_d1PKNdFdF           = &CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_symbolic_d1PKNdFdF_2d;
 
-                    switch( mPlaneType )
+                    switch ( mPlaneType )
                     {
-                        case Model_Type::PLANE_STRESS :
+                        case Model_Type::PLANE_STRESS:
                         {
                             mConst.set_size( 3, 3, 0.0 );
 
-                            switch( mTensorType )
+                            switch ( mTensorType )
                             {
-                                case Model_Type::FULL :
+                                case Model_Type::FULL:
                                 {
                                     mConstFunc = &CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::full_plane_stress;
                                     break;
                                 }
-                                case Model_Type::DEVIATORIC :
+                                case Model_Type::DEVIATORIC:
                                 {
                                     mConstFunc = &CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::deviatoric_plane_stress;
                                     break;
                                 }
                                 default:
                                 {
-                                    MORIS_ERROR(false, "Only full and deviatoric tensors implemented for plane stress");
+                                    MORIS_ERROR( false, "Only full and deviatoric tensors implemented for plane stress" );
                                 }
                             }
                             break;
                         }
-                        case Model_Type::PLANE_STRAIN :
+                        case Model_Type::PLANE_STRAIN:
                         {
                             mConst.set_size( 3, 3, 0.0 );
 
-                            switch( mTensorType )
+                            switch ( mTensorType )
                             {
-                                case Model_Type::FULL :
+                                case Model_Type::FULL:
                                 {
                                     mConstFunc = &CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::full_plane_strain;
                                     break;
                                 }
-                                case Model_Type::DEVIATORIC :
+                                case Model_Type::DEVIATORIC:
                                 {
                                     mConstFunc = &CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::deviatoric_plane_strain;
                                     break;
                                 }
                                 default:
                                 {
-                                    MORIS_ERROR(false, "Only full and deviatoric tensors implemented for plane strain");
+                                    MORIS_ERROR( false, "Only full and deviatoric tensors implemented for plane strain" );
                                 }
                             }
                             break;
                         }
                         default:
                         {
-                            MORIS_ERROR(false, "Nonlinear isotropic elasticity in 2d requires "
-                                    "plane stress, plane strain models");
+                            MORIS_ERROR( false,
+                                    "Nonlinear isotropic elasticity in 2d requires "
+                                    "plane stress, plane strain models" );
                         }
                     }
                     break;
                 }
-                case 3 :
+                case 3:
                 {
                     m_eval_d1PKStressdDOF = &CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_d1PKStressdDOF_3d;
                     m_d1PKNdFdF           = &CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_symbolic_d1PKNdFdF_3d;
 
                     mConst.set_size( 6, 6, 0.0 );
 
-                    switch(mTensorType)
+                    switch ( mTensorType )
                     {
-                        case Model_Type::FULL :
+                        case Model_Type::FULL:
                         {
                             mConstFunc = &CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::full_3d;
                             break;
                         }
-                        case Model_Type::DEVIATORIC :
+                        case Model_Type::DEVIATORIC:
                         {
                             mConstFunc = &CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::deviatoric_3d;
                             break;
                         }
                         default:
                         {
-                            MORIS_ERROR(false, "Only full and deviatoric tensors implemented for plane strain");
+                            MORIS_ERROR( false, "Only full and deviatoric tensors implemented for plane strain" );
                         }
                     }
                     break;
@@ -219,7 +220,7 @@ namespace moris
 
         void
         CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_d1PKStressdDOF_2d(
-                const Vector< MSI::Dof_Type > & aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             const uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -228,32 +229,32 @@ namespace moris
             const uint tDofIndex = mGlobalDofTypeMap( tDofType );
 
             // get the dof FI
-            Field_Interpolator * tFI =
+            Field_Interpolator* tFI =
                     mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // init mdFluxdDof
-            md1PKStressdu( tDofIndex ).set_size(
+            md1PKStressdu( tDofIndex ).set_size(    //
                     4,
                     tFI->get_number_of_space_time_coefficients() );
 
             // if displacements dof
-            if( aDofTypes( 0 ) == mDofDispl )
+            if ( aDofTypes( 0 ) == mDofDispl )
             {
                 // get the PK2 stress
-                const Matrix< DDRMat > & t2PKStress = this->flux( CM_Function_Type::PK2 );
+                const Matrix< DDRMat >& t2PKStress = this->flux( CM_Function_Type::PK2 );
 
                 // get the derivative of the PK2 stress
-                const Matrix< DDRMat > & td2PKdu = this->dFluxdDOF( aDofTypes, CM_Function_Type::PK2 );
+                const Matrix< DDRMat >& td2PKdu = this->dFluxdDOF( aDofTypes, CM_Function_Type::PK2 );
 
                 // get the deformation gradient
-                const Matrix< DDRMat > & tF = this->deformation_gradient();
+                const Matrix< DDRMat >& tF = this->deformation_gradient();
 
                 // get the derivative of the deformation gradient
-                const Matrix< DDRMat > & tdFdu = this->test_deformation_gradient( aDofTypes );
+                const Matrix< DDRMat >& tdFdu = this->test_deformation_gradient( aDofTypes );
 
                 // compute derivative
                 md1PKStressdu( tDofIndex ).get_row( 0 ) =
-                          tF( 0, 0 ) * td2PKdu.get_row( 0 ) + tF( 0, 1 ) * td2PKdu.get_row( 2 )
+                        tF( 0, 0 ) * td2PKdu.get_row( 0 ) + tF( 0, 1 ) * td2PKdu.get_row( 2 )
                         + t2PKStress( 0 ) * tdFdu.get_row( 0 ) + t2PKStress( 2 ) * tdFdu.get_row( 1 );
 
                 md1PKStressdu( tDofIndex ).get_row( 1 ) =
@@ -272,19 +273,19 @@ namespace moris
             // if elastic modulus depends on dof type
             if ( mPropEMod->check_dof_dependency( aDofTypes ) )
             {
-                MORIS_ERROR(false, "CM_Struc_Nonlinear_Isotropic::eval_dFluxdDOF - elastic modulus dependency on DOF not implemented yet" );
+                MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::eval_dFluxdDOF - elastic modulus dependency on DOF not implemented yet" );
             }
 
             // if Poisson ratio depends on dof type
             if ( mPropPoisson->check_dof_dependency( aDofTypes ) )
             {
-                MORIS_ERROR(false, "CM_Struc_Nonlinear_Isotropic::eval_dFluxdDOF - Poisson's ratio dependency on DOF not implemented yet" );
+                MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::eval_dFluxdDOF - Poisson's ratio dependency on DOF not implemented yet" );
             }
         }
 
         void
         CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_d1PKStressdDOF_3d(
-        const Vector< MSI::Dof_Type > & aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             const uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -293,52 +294,52 @@ namespace moris
             const uint tDofIndex = mGlobalDofTypeMap( tDofType );
 
             // get the dof FI
-            Field_Interpolator * tFI =
+            Field_Interpolator* tFI =
                     mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // init mdFluxdDof
-            md1PKStressdu( tDofIndex ).set_size(
+            md1PKStressdu( tDofIndex ).set_size(    //
                     9,
                     tFI->get_number_of_space_time_coefficients() );
 
             // if displacements dof
-            if( aDofTypes( 0 ) == mDofDispl )
+            if ( aDofTypes( 0 ) == mDofDispl )
             {
                 // get the PK2 stress
-                const Matrix< DDRMat > & t2PKStress = this->flux( CM_Function_Type::PK2 );
+                const Matrix< DDRMat >& t2PKStress = this->flux( CM_Function_Type::PK2 );
 
                 // get the derivative of the PK2 stress
-                const Matrix< DDRMat > & td2PKdu = this->dFluxdDOF( aDofTypes, CM_Function_Type::PK2 );
+                const Matrix< DDRMat >& td2PKdu = this->dFluxdDOF( aDofTypes, CM_Function_Type::PK2 );
 
                 // get the deformation gradient
-                const Matrix< DDRMat > & tF = this->deformation_gradient();
+                const Matrix< DDRMat >& tF = this->deformation_gradient();
 
                 // get the derivative of the deformation gradient
-                const Matrix< DDRMat > & tdFdu = this->test_deformation_gradient( aDofTypes );
+                const Matrix< DDRMat >& tdFdu = this->test_deformation_gradient( aDofTypes );
 
                 // compute derivative
                 md1PKStressdu( tDofIndex ).get_row( 0 ) =
-                          tF( 0, 0 ) * td2PKdu.get_row( 0 ) + tF( 0, 1 ) * td2PKdu.get_row( 5 ) + tF( 0, 2 ) * td2PKdu.get_row( 4 )
+                        tF( 0, 0 ) * td2PKdu.get_row( 0 ) + tF( 0, 1 ) * td2PKdu.get_row( 5 ) + tF( 0, 2 ) * td2PKdu.get_row( 4 )
                         + t2PKStress( 0 ) * tdFdu.get_row( 0 ) + t2PKStress( 5 ) * tdFdu.get_row( 1 ) + t2PKStress( 4 ) * tdFdu.get_row( 2 );
 
                 md1PKStressdu( tDofIndex ).get_row( 1 ) =
-                        tF( 0, 0 ) * td2PKdu.get_row( 5 ) + tF( 0, 1 ) * td2PKdu.get_row( 1 )  + tF( 0, 2 ) * td2PKdu.get_row( 3 )
+                        tF( 0, 0 ) * td2PKdu.get_row( 5 ) + tF( 0, 1 ) * td2PKdu.get_row( 1 ) + tF( 0, 2 ) * td2PKdu.get_row( 3 )
                         + t2PKStress( 5 ) * tdFdu.get_row( 0 ) + t2PKStress( 1 ) * tdFdu.get_row( 1 ) + t2PKStress( 3 ) * tdFdu.get_row( 2 );
 
                 md1PKStressdu( tDofIndex ).get_row( 2 ) =
-                        tF( 0, 0 ) * td2PKdu.get_row( 4 ) + tF( 0, 1 ) * td2PKdu.get_row( 3 )  + tF( 0, 2 ) * td2PKdu.get_row( 2 )
+                        tF( 0, 0 ) * td2PKdu.get_row( 4 ) + tF( 0, 1 ) * td2PKdu.get_row( 3 ) + tF( 0, 2 ) * td2PKdu.get_row( 2 )
                         + t2PKStress( 4 ) * tdFdu.get_row( 0 ) + t2PKStress( 3 ) * tdFdu.get_row( 1 ) + t2PKStress( 2 ) * tdFdu.get_row( 2 );
 
                 md1PKStressdu( tDofIndex ).get_row( 3 ) =
-                          tF( 1, 0 ) * td2PKdu.get_row( 0 ) + tF( 1, 1 ) * td2PKdu.get_row( 5 ) + tF( 1, 2 ) * td2PKdu.get_row( 4 )
+                        tF( 1, 0 ) * td2PKdu.get_row( 0 ) + tF( 1, 1 ) * td2PKdu.get_row( 5 ) + tF( 1, 2 ) * td2PKdu.get_row( 4 )
                         + t2PKStress( 0 ) * tdFdu.get_row( 3 ) + t2PKStress( 5 ) * tdFdu.get_row( 4 ) + t2PKStress( 4 ) * tdFdu.get_row( 5 );
 
                 md1PKStressdu( tDofIndex ).get_row( 4 ) =
-                        tF( 1, 0 ) * td2PKdu.get_row( 5 ) + tF( 1, 1 ) * td2PKdu.get_row( 1 )  + tF( 1, 2 ) * td2PKdu.get_row( 3 )
+                        tF( 1, 0 ) * td2PKdu.get_row( 5 ) + tF( 1, 1 ) * td2PKdu.get_row( 1 ) + tF( 1, 2 ) * td2PKdu.get_row( 3 )
                         + t2PKStress( 5 ) * tdFdu.get_row( 3 ) + t2PKStress( 1 ) * tdFdu.get_row( 4 ) + t2PKStress( 3 ) * tdFdu.get_row( 5 );
 
                 md1PKStressdu( tDofIndex ).get_row( 5 ) =
-                        tF( 1, 0 ) * td2PKdu.get_row( 4 ) + tF( 1, 1 ) * td2PKdu.get_row( 3 )  + tF( 1, 2 ) * td2PKdu.get_row( 2 )
+                        tF( 1, 0 ) * td2PKdu.get_row( 4 ) + tF( 1, 1 ) * td2PKdu.get_row( 3 ) + tF( 1, 2 ) * td2PKdu.get_row( 2 )
                         + t2PKStress( 4 ) * tdFdu.get_row( 3 ) + t2PKStress( 3 ) * tdFdu.get_row( 4 ) + t2PKStress( 2 ) * tdFdu.get_row( 5 );
 
                 md1PKStressdu( tDofIndex ).get_row( 6 ) =
@@ -346,31 +347,30 @@ namespace moris
                         + t2PKStress( 0 ) * tdFdu.get_row( 6 ) + t2PKStress( 5 ) * tdFdu.get_row( 7 ) + t2PKStress( 4 ) * tdFdu.get_row( 8 );
 
                 md1PKStressdu( tDofIndex ).get_row( 7 ) =
-                        tF( 2, 0 ) * td2PKdu.get_row( 5 ) + tF( 2, 1 ) * td2PKdu.get_row( 1 )  + tF( 2, 2 ) * td2PKdu.get_row( 3 )
+                        tF( 2, 0 ) * td2PKdu.get_row( 5 ) + tF( 2, 1 ) * td2PKdu.get_row( 1 ) + tF( 2, 2 ) * td2PKdu.get_row( 3 )
                         + t2PKStress( 5 ) * tdFdu.get_row( 6 ) + t2PKStress( 1 ) * tdFdu.get_row( 7 ) + t2PKStress( 3 ) * tdFdu.get_row( 8 );
 
                 md1PKStressdu( tDofIndex ).get_row( 8 ) =
-                        tF( 2, 0 ) * td2PKdu.get_row( 4 ) + tF( 2, 1 ) * td2PKdu.get_row( 3 )  + tF( 2, 2 ) * td2PKdu.get_row( 2 )
+                        tF( 2, 0 ) * td2PKdu.get_row( 4 ) + tF( 2, 1 ) * td2PKdu.get_row( 3 ) + tF( 2, 2 ) * td2PKdu.get_row( 2 )
                         + t2PKStress( 4 ) * tdFdu.get_row( 6 ) + t2PKStress( 3 ) * tdFdu.get_row( 7 ) + t2PKStress( 2 ) * tdFdu.get_row( 8 );
-
             }
 
             // if elastic modulus depends on dof type
             if ( mPropEMod->check_dof_dependency( aDofTypes ) )
             {
-                MORIS_ERROR(false, "CM_Struc_Nonlinear_Isotropic::eval_dFluxdDOF - elastic modulus dependency on DOF not implemented yet" );
+                MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::eval_dFluxdDOF - elastic modulus dependency on DOF not implemented yet" );
             }
 
             // if Poisson ratio depends on dof type
             if ( mPropPoisson->check_dof_dependency( aDofTypes ) )
             {
-                MORIS_ERROR(false, "CM_Struc_Nonlinear_Isotropic::eval_dFluxdDOF - Poisson's ratio dependency on DOF not implemented yet" );
+                MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::eval_dFluxdDOF - Poisson's ratio dependency on DOF not implemented yet" );
             }
         }
 
         void
         CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_d2PKStressdDOF(
-                const Vector< MSI::Dof_Type > & aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             const uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -379,16 +379,16 @@ namespace moris
             const uint tDofIndex = mGlobalDofTypeMap( tDofType );
 
             // get the dof FI
-            Field_Interpolator * tFI =
+            Field_Interpolator* tFI =
                     mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // init mdFluxdDof
-            md2PKStressdu( tDofIndex ).set_size(
+            md2PKStressdu( tDofIndex ).set_size(    //
                     mConst.n_rows(),
                     tFI->get_number_of_space_time_coefficients() );
 
             // if displacements dof
-            if( aDofTypes( 0 ) == mDofDispl )
+            if ( aDofTypes( 0 ) == mDofDispl )
             {
                 // compute derivative
                 md2PKStressdu( tDofIndex ) =
@@ -398,19 +398,19 @@ namespace moris
             // if elastic modulus depends on dof type
             if ( mPropEMod->check_dof_dependency( aDofTypes ) )
             {
-                MORIS_ERROR(false, "CM_Struc_Nonlinear_Isotropic::eval_dFluxdDOF - elastic modulus dependency on DOF not implemented yet" );
+                MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::eval_dFluxdDOF - elastic modulus dependency on DOF not implemented yet" );
             }
 
             // if Poisson ratio depends on dof type
             if ( mPropPoisson->check_dof_dependency( aDofTypes ) )
             {
-                MORIS_ERROR(false, "CM_Struc_Nonlinear_Isotropic::eval_dFluxdDOF - Poisson's ratio dependency on DOF not implemented yet" );
+                MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::eval_dFluxdDOF - Poisson's ratio dependency on DOF not implemented yet" );
             }
         }
 
         void
         CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_dCauchyStressdDOF(
-                const Vector< MSI::Dof_Type > & aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             const uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -419,22 +419,22 @@ namespace moris
             const uint tDofIndex = mGlobalDofTypeMap( tDofType );
 
             // get the dof FI
-            Field_Interpolator * tFI =
+            Field_Interpolator* tFI =
                     mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // init mdFluxdDof
-            mdCauchyStressdu( tDofIndex ).set_size(
+            mdCauchyStressdu( tDofIndex ).set_size(    //
                     mConst.n_rows(),
                     tFI->get_number_of_space_time_coefficients() );
 
-            MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::eval_dCauchyStressdDOF - Not implemented yet.");
+            MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::eval_dCauchyStressdDOF - Not implemented yet." );
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         void
         CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_traction_first_piola_kirchhoff(
-                const Matrix< DDRMat > & aNormal )
+                const Matrix< DDRMat >& aNormal )
         {
             // get first Piola-Kirchhoff in full notation
             Matrix< DDRMat > t1PKStressFull;
@@ -446,7 +446,7 @@ namespace moris
 
         void
         CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_traction_cauchy(
-                const Matrix< DDRMat > & aNormal )
+                const Matrix< DDRMat >& aNormal )
         {
             // FIXME need to implement traction based on cauchy stress with normal in current config
             MORIS_ASSERT( false, "CM_Struc_Nonlinear_Isotropic::eval_traction_cauchy - Not implemented yet." );
@@ -456,8 +456,8 @@ namespace moris
 
         void
         CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_dTractiondDOF_first_piola_kirchhoff(
-                const Matrix< DDRMat >      & aNormal,
-                const Vector< MSI::Dof_Type > & aDofTypes )
+                const Matrix< DDRMat >&        aNormal,
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             const uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -465,7 +465,7 @@ namespace moris
             // get the dof type index
             const uint tDofIndex = mGlobalDofTypeMap( tDofType );
 
-           // flatten normal
+            // flatten normal
             Matrix< DDRMat > tFlatNormal;
             this->flatten_normal_nonsym( aNormal, tFlatNormal );
 
@@ -475,8 +475,8 @@ namespace moris
 
         void
         CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_dTractiondDOF_cauchy(
-                const Matrix< DDRMat >      & aNormal,
-                const Vector< MSI::Dof_Type > & aDofTypes )
+                const Matrix< DDRMat >&        aNormal,
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // FIXME need to implement traction based on cauchy stress with normal in current configuration
             MORIS_ASSERT( false, "CM_Struc_Nonlinear_Isotropic::eval_dTractiondDOF_cauchy - Not implemented yet." );
@@ -486,8 +486,8 @@ namespace moris
 
         void
         CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_testTraction_first_piola_kirchhoff(
-                const Matrix< DDRMat >      & aNormal,
-                const Vector< MSI::Dof_Type > & aTestDofTypes )
+                const Matrix< DDRMat >&        aNormal,
+                const Vector< MSI::Dof_Type >& aTestDofTypes )
         {
             // get test dof type index
             uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
@@ -497,13 +497,13 @@ namespace moris
             this->flatten_normal_nonsym( aNormal, tFlatNormal );
 
             // compute test traction wrt dof
-            m1PKTestTraction( tTestDofIndex ) =  this->dTractiondDOF( aTestDofTypes, aNormal, CM_Function_Type::PK1 );
+            m1PKTestTraction( tTestDofIndex ) = this->dTractiondDOF( aTestDofTypes, aNormal, CM_Function_Type::PK1 );
         }
 
         void
         CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_testTraction_cauchy(
-                const Matrix< DDRMat >      & aNormal,
-                const Vector< MSI::Dof_Type > & aTestDofTypes )
+                const Matrix< DDRMat >&        aNormal,
+                const Vector< MSI::Dof_Type >& aTestDofTypes )
         {
             // FIXME need to implement traction based on cauchy stress with normal in current configuration
             MORIS_ASSERT( false, "CM_Struc_Nonlinear_Isotropic::eval_testTraction_cauchy - Not implemented yet." );
@@ -513,10 +513,10 @@ namespace moris
 
         void
         CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_dTestTractiondDOF_first_piola_kirchhoff(
-                const Vector< MSI::Dof_Type > & aDofTypes,
-                const Matrix< DDRMat >      & aNormal,
-                const Matrix< DDRMat >      & aJump,
-                const Vector< MSI::Dof_Type > & aTestDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes,
+                const Matrix< DDRMat >&        aNormal,
+                const Matrix< DDRMat >&        aJump,
+                const Vector< MSI::Dof_Type >& aTestDofTypes )
         {
             // get test dof type index
             const uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
@@ -525,9 +525,9 @@ namespace moris
             const uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
             // init the dTestTractiondDof
-            md1PKTestTractiondu( tTestDofIndex )( tDofIndex ).set_size(
+            md1PKTestTractiondu( tTestDofIndex )( tDofIndex ).set_size(    //
                     mFIManager->get_field_interpolators_for_type( aTestDofTypes( 0 ) )->get_number_of_space_time_coefficients(),
-                    mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->get_number_of_space_time_coefficients());
+                    mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->get_number_of_space_time_coefficients() );
 
             // get the Poisson's ratio value
             const real tNu = mPropPoisson->val()( 0 );
@@ -558,10 +558,10 @@ namespace moris
 
         void
         CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_dTestTractiondDOF_cauchy(
-                const Vector< MSI::Dof_Type > & aDofTypes,
-                const Matrix< DDRMat >      & aNormal,
-                const Matrix< DDRMat >      & aJump,
-                const Vector< MSI::Dof_Type > & aTestDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes,
+                const Matrix< DDRMat >&        aNormal,
+                const Matrix< DDRMat >&        aJump,
+                const Vector< MSI::Dof_Type >& aTestDofTypes )
         {
             MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::eval_dTestTractiondDOF_cauchy - Not implemented." );
         }
@@ -570,7 +570,7 @@ namespace moris
 
         void
         CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_dConstdDOF(
-                const Vector< MSI::Dof_Type > & aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::eval_dConstdDOF - Not implemented." );
         }
@@ -583,7 +583,7 @@ namespace moris
         {
             // check that space dimension is 1, 2, 3
             MORIS_ERROR( aSpaceDim > 0 && aSpaceDim < 4,
-                    "Constitutive_Model::set_space_dim - wrong space dimension.");
+                    "Constitutive_Model::set_space_dim - wrong space dimension." );
 
             // set space dimension
             mSpaceDim = aSpaceDim;
@@ -596,8 +596,8 @@ namespace moris
 
         void
         CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::full_plane_stress(
-                const real & aEmod,
-                const real & aNu )
+                const real& aEmod,
+                const real& aNu )
         {
             const real tPre = aEmod / ( 1 - std::pow( aNu, 2 ) );
 
@@ -605,33 +605,33 @@ namespace moris
             mConst( 1, 1 ) = tPre;
             mConst( 0, 1 ) = tPre * aNu;
             mConst( 1, 0 ) = tPre * aNu;
-            mConst( 2, 2 ) = tPre * 0.5 * (1.0 - aNu );
+            mConst( 2, 2 ) = tPre * 0.5 * ( 1.0 - aNu );
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         void
         CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::deviatoric_plane_stress(
-                const real & aEmod,
-                const real & aNu )
+                const real& aEmod,
+                const real& aNu )
         {
-            const real tPre = aEmod / ((1 + aNu) * 2.0);
+            const real tPre = aEmod / ( ( 1 + aNu ) * 2.0 );
 
-            mConst( 0, 0 ) =  tPre;
-            mConst( 1, 1 ) =  tPre;
+            mConst( 0, 0 ) = tPre;
+            mConst( 1, 1 ) = tPre;
             mConst( 0, 1 ) = -tPre;
             mConst( 1, 0 ) = -tPre;
-            mConst( 2, 2 ) =  tPre;
+            mConst( 2, 2 ) = tPre;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         void
         CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::full_plane_strain(
-                const real & aEmod,
-                const real & aNu )
+                const real& aEmod,
+                const real& aNu )
         {
-            const real tPre = aEmod / (1.0 + aNu ) / (1.0 - 2.0 * aNu ) ;
+            const real tPre = aEmod / ( 1.0 + aNu ) / ( 1.0 - 2.0 * aNu );
 
             mConst( 0, 0 ) = tPre * ( 1.0 - aNu );
             mConst( 0, 1 ) = tPre * aNu;
@@ -648,10 +648,10 @@ namespace moris
 
         void
         CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::deviatoric_plane_strain(
-                const real & aEmod,
-                const real & aNu )
+                const real& aEmod,
+                const real& aNu )
         {
-            const real tPre = aEmod / (3.0 * (1.0 + aNu ) );
+            const real tPre = aEmod / ( 3.0 * ( 1.0 + aNu ) );
 
             mConst( 0, 0 ) = tPre * 4.0;
             mConst( 0, 1 ) = tPre;
@@ -669,10 +669,10 @@ namespace moris
 
         void
         CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::full_3d(
-                const real & aEmod,
-                const real & aNu )
+                const real& aEmod,
+                const real& aNu )
         {
-            const real tPre = aEmod / (1.0 + aNu ) / (1.0 - 2.0 * aNu );
+            const real tPre = aEmod / ( 1.0 + aNu ) / ( 1.0 - 2.0 * aNu );
 
             mConst( 0, 0 ) = tPre * ( 1.0 - aNu );
             mConst( 0, 1 ) = tPre * aNu;
@@ -692,8 +692,8 @@ namespace moris
 
         void
         CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::deviatoric_3d(
-                const real & aEmod,
-                const real & aNu )
+                const real& aEmod,
+                const real& aNu )
         {
             const real tPre = aEmod / ( 3.0 * ( 1.0 + aNu ) );
 
@@ -721,13 +721,13 @@ namespace moris
                 const Matrix< DDRMat >& aNorm )
         {
             //  unpack the components of the deformation gradient
-            real tF11 = this->strain(CM_Function_Type::DEFORMATION_GRADIENT)( 0, 0 );
-            real tF12 = this->strain(CM_Function_Type::DEFORMATION_GRADIENT)( 1, 0 );
-            real tF21 = this->strain(CM_Function_Type::DEFORMATION_GRADIENT)( 2, 0 );
-            real tF22 = this->strain(CM_Function_Type::DEFORMATION_GRADIENT)( 3, 0 );
+            real tF11 = this->strain( CM_Function_Type::DEFORMATION_GRADIENT )( 0, 0 );
+            real tF12 = this->strain( CM_Function_Type::DEFORMATION_GRADIENT )( 1, 0 );
+            real tF21 = this->strain( CM_Function_Type::DEFORMATION_GRADIENT )( 2, 0 );
+            real tF22 = this->strain( CM_Function_Type::DEFORMATION_GRADIENT )( 3, 0 );
 
             // compute combination of material parameters
-            real tPre           = aLame1 + 2.0 * aLame2;
+            real tPre = aLame1 + 2.0 * aLame2;
 
             // compute all necessary components of dPdFdF
             real td2P11dF11dF11 = 3.0 * tPre * tF11;
@@ -1513,6 +1513,56 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        void CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_geometric_stiffness_second_piola_kirchhoff( const Vector< MSI::Dof_Type >& aDofTypes )
+        {
+            // call to evaluate PK2 stress
+            this->eval_flux_second_piola_kirchhoff();
+
+            // convert to stress matrix
+            Matrix< DDRMat > t2PKStressMatrix;
+            this->voigt_to_full_sym_stress( m2PKStress, t2PKStressMatrix );
+
+            // get the dof FI
+            Field_Interpolator* tFI =
+                    mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+            // get the derivative of the displacement shape functions
+            const Matrix< DDRMat >& tdnNdxn =
+                    mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->dnNdxn( 1 );
+
+            // init mdFluxdDof
+            mGeometricStiffness.set_size( tFI->get_number_of_space_time_coefficients(), tFI->get_number_of_space_time_coefficients(), 0.0 );
+
+            // get number of coefficients
+            uint tNumSpaceBases = tFI->get_number_of_space_bases();
+
+            MORIS_ASSERT( tFI->get_number_of_space_time_coefficients() == tNumSpaceBases * mSpaceDim,
+                    "CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_geometric_stiffness_second_piola_kirchhoff_2d -"
+                    "number of spatial bases does not match; check for time interpolation order; should be constant" );
+
+            // see MORIS - theory on OneDrive for derivation leading to geometric stiffness below
+            uint tOffset = 0;
+
+            for ( uint q = 0; q < mSpaceDim; ++q )
+            {
+                for ( uint p = 0; p < tNumSpaceBases; ++p )
+                {
+                    for ( uint s = 0; s < tNumSpaceBases; ++s )
+                    {
+                        for ( uint i = 0; i < mSpaceDim; ++i )
+                        {
+                            for ( uint j = 0; j < mSpaceDim; ++j )
+                            {
+                                mGeometricStiffness( tOffset + p, tOffset + s ) += tdnNdxn( i, p ) * tdnNdxn( j, s ) * t2PKStressMatrix( i, j );
+                            }
+                        }
+                    }
+                }
+                tOffset += tNumSpaceBases;
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
     } /* namespace fem */
 } /* namespace moris */
-

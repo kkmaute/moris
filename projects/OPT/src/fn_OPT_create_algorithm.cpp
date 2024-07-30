@@ -19,7 +19,7 @@ namespace moris
     namespace opt
     {
         std::shared_ptr< Algorithm >
-        create_algorithm( ParameterList aAlgorithmParameterList )
+        create_algorithm( Parameter_List aAlgorithmParameterList )
         {
             std::string tAlgorithmName = aAlgorithmParameterList.get< std::string >( "algorithm" );
             if ( tAlgorithmName == "gcmma" )

@@ -138,11 +138,11 @@ unite_sdfs(
 
     // broadcast min
     Matrix< DDRMat > tValues;
-    comm_gather_and_broadcast( tUnion.min(), tValues );
+    allgather_scalar( tUnion.min(), tValues );
     real tMinVal = tValues.min();
 
     // broadcasst max
-    comm_gather_and_broadcast( tUnion.max(), tValues );
+    allgather_scalar( tUnion.max(), tValues );
     real tMaxVal = tValues.max();
 
     // write dummy value into fields without sdf
@@ -169,8 +169,8 @@ perform_calculation(
 {
 
     // step 1: load parameters
-    ParameterList tGlobalParameters;
-    Vector< ParameterList > tObjectParameters;
+    Parameter_List           tGlobalParameters;
+    Vector< Parameter_List > tObjectParameters;
 
     // load XML file
     load_sdf_parameter_list_from_xml(

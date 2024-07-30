@@ -185,7 +185,7 @@ namespace moris::xtk
     // ----------------------------------------------------------------------------
 
     moris_index
-    Enriched_Integration_Mesh::get_local_mesh_index_xtk( moris_index const & aDiscretizationMeshIndex ) const
+    Enriched_Integration_Mesh::get_local_mesh_index_xtk( moris_index const &aDiscretizationMeshIndex ) const
     {
         auto tIter = mMeshIndexToLocMeshIndex.find( aDiscretizationMeshIndex );
 
@@ -1113,7 +1113,7 @@ namespace moris::xtk
     //------------------------------------------------------------------------------
 
     void
-    Enriched_Integration_Mesh::write_mesh( moris::ParameterList *aParamList )
+    Enriched_Integration_Mesh::write_mesh( moris::Parameter_List *aParamList )
     {
         if ( aParamList->get< bool >( "deactivate_empty_sets" ) )
         {
@@ -1135,14 +1135,20 @@ namespace moris::xtk
         // if user requests to keep XTK output for all iterations, add iteration count to output file name
         if ( aParamList->get< bool >( "keep_all_opt_iters" ) )
         {
-            // get optimization iteration ( function returns zero if no optimization )
+            // get optimization iteration
             uint tOptIter = gLogger.get_opt_iteration();
+
+            // set name
+            std::string tOptIterStr   = std::to_string( tOptIter );
+            std::string tMeshFileName = tOutputFile + ".e-s." + std::string( 4 - tOptIterStr.length(), '0' ) + tOptIterStr;
+
+            // get optimization iteration ( function returns zero if no optimization )
 
             tExodusWriter.write_mesh(
                     "",
-                    tOutputPath + tOutputBase + "." + std::to_string( tOptIter ) + tOutputExt,
+                    tMeshFileName,
                     "",
-                    tOutputPath + "xtk_temp." + std::to_string( tOptIter ) + tOutputExt );
+                    tMeshFileName );
         }
         // otherwise, proceed as usual and overwrite xtk_temp.exo each iteration
         else
@@ -1166,7 +1172,7 @@ namespace moris::xtk
                 this->create_basis_support_fields( tProbeSpheres );
             }
 
-            // Cell<std::string> tEnrichmentFieldNames =  mModel->get_basis_enrichment().get_cell_enrichment_field_names();
+            // Vector<std::string> tEnrichmentFieldNames =  mModel->get_basis_enrichment().get_cell_enrichment_field_names();
             // tEnrichment.write_cell_enrichment_to_fields(tEnrichmentFieldNames, this);
 
             // place an element field in the mesh
@@ -2175,7 +2181,7 @@ namespace moris::xtk
     //------------------------------------------------------------------------------
 
     void
-    Enriched_Integration_Mesh::print_cell_clusters( uint aVerbosityLevel ) const
+    Enriched_Integration_Mesh::print_vector_clusters( uint aVerbosityLevel ) const
     {
         std::cout << "\nCell Clusters:" << std::endl;
         for ( uint i = 0; i < mCellClusters.size(); i++ )
@@ -2310,7 +2316,7 @@ namespace moris::xtk
                 {
                     std::cout << "\n      Leader Interpolation Cell: " << std::setw( 9 ) <<    //
                             mDoubleSideSets( iSS )( i )->get_interpolation_cell( mtk::Leader_Follower::LEADER ).get_id();
-                    std::cout << " | Follower Interpolation Cell: " << std::setw( 9 ) <<       //
+                    std::cout << " | Follower Interpolation Cell: " << std::setw( 9 ) <<    //
                             mDoubleSideSets( iSS )( i )->get_interpolation_cell( mtk::Leader_Follower::FOLLOWER ).get_id();
                 }
             }
@@ -2546,7 +2552,7 @@ namespace moris::xtk
 
         tNumIdsRequested( 0 ) = (moris_id)aNumReqs;
 
-        moris::gather( tNumIdsRequested, aGatheredInfo );
+        moris::gather_vector( tNumIdsRequested, aGatheredInfo );
 
         Vector< moris_id > tProcFirstID( tProcSize );
 
@@ -2563,7 +2569,7 @@ namespace moris::xtk
             }
         }
 
-        moris::scatter( tProcFirstID, tFirstId );
+        moris::scatter_vector( tProcFirstID, tFirstId );
 
         return tFirstId( 0 );
     }
@@ -2707,7 +2713,7 @@ namespace moris::xtk
 
         }    // end switch: set type
 
-    }        // end function: Enriched_Integration_Mesh::communicate_sets_of_type()
+    }    // end function: Enriched_Integration_Mesh::communicate_sets_of_type()
 
     //------------------------------------------------------------------------------
 
@@ -2937,8 +2943,8 @@ namespace moris::xtk
                     mCellClusters( tEnrIpCellIndex )->set_void_integration_cell_groups( tVoidSubphases );
 
                 }    // end: construction of valid clusters
-            }        // end: loop over enriched IP cells associated with the IP cell
-        }            // end: loop over base IP cells
+            }    // end: loop over enriched IP cells associated with the IP cell
+        }    // end: loop over base IP cells
     }
 
     //------------------------------------------------------------------------------
@@ -3491,7 +3497,7 @@ namespace moris::xtk
 
                 }    // end for: each side cluster in set
 
-            }        // end for: each side set
+            }    // end for: each side set
 
             // go through SPGs and collect side cluster groups related to each one
             for ( uint iSPG = 0; iSPG < tNumSPGs; iSPG++ )
@@ -3504,7 +3510,6 @@ namespace moris::xtk
                 Vector< moris_index >           tBinsForClusters( tNumClustersOnSpg, MORIS_INDEX_MAX );
                 map< moris_index, moris_index > tInterfaceClusterGroups;
                 map< moris_index, moris_index > tBoundaryClusterGroups;
-
 
                 // establish for which side ordinals and for which neighbor SPGs side cluster groups will need to be constructed
                 for ( uint iClusterOnSpg = 0; iClusterOnSpg < tNumClustersOnSpg; iClusterOnSpg++ )
@@ -3852,9 +3857,9 @@ namespace moris::xtk
                         }
                     }    // end for: each follower cluster group constructed on the current SPG
 
-                }        // end for: each SPG on current B-spline mesh
+                }    // end for: each SPG on current B-spline mesh
 
-            }            // end for: each dbl sided side set
+            }    // end for: each dbl sided side set
 
             // free unused memory
             mDblSideClusterGroups( tDMI ).shrink_to_fit();
@@ -3963,7 +3968,7 @@ namespace moris::xtk
 
         }    // end for: each side set
 
-    }        // end function: Enriched_Integration_Mesh::visualize_cluster_measures()
+    }    // end function: Enriched_Integration_Mesh::visualize_cluster_measures()
 
     //------------------------------------------------------------------------------
 
@@ -4103,7 +4108,7 @@ namespace moris::xtk
 
             }    // end for: each B-spline mesh
 
-        }        // end for: each side set
+        }    // end for: each side set
 
         //----------------------------------------------------------------
         // Generate and write SPG fields

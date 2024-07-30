@@ -35,18 +35,18 @@ namespace moris
 
         void
         Output_Manager::set_outputs(
-                const uint                            aOutputIndex,
-                const enum VIS_Mesh_Type              aMeshType,
-                const std::string&                    aMeshPath,
-                const std::string&                    aMeshName,
-                const std::string&                    aTempPath,
-                const std::string&                    aTempName,
+                const uint                       aOutputIndex,
+                const enum VIS_Mesh_Type         aMeshType,
+                const std::string&               aMeshPath,
+                const std::string&               aMeshName,
+                const std::string&               aTempPath,
+                const std::string&               aTempName,
                 const Vector< std::string >&     aBlockNames,
                 const Vector< std::string >&     aFieldNames,
                 const Vector< enum Field_Type >& aFieldType,
                 const Vector< std::string >&     aQINames,
-                const uint                            aSaveFrequency,
-                const real                            aTimeOffset )
+                const uint                       aSaveFrequency,
+                const real                       aTimeOffset )
         {
             // create output data object
             vis::Output_Data tOutputData;
@@ -84,7 +84,7 @@ namespace moris
         //-----------------------------------------------------------------------------------------------------------
 
         void
-        Output_Manager::set_outputs( moris::ParameterList aParameterlist )
+        Output_Manager::set_outputs( moris::Parameter_List aParameterlist )
         {
             // create output data object
             vis::Output_Data tOutputData;
@@ -138,7 +138,7 @@ namespace moris
             tOutputData.mFieldNames = tFieldNames;
 
             // read and check field types
-            Vector< enum vis::Field_Type >             tFieldTypes;
+            Vector< enum vis::Field_Type >                  tFieldTypes;
             moris::map< std::string, enum vis::Field_Type > tFieldTypeMap = get_vis_field_type_map();
             string_to_cell(
                     aParameterlist.get< std::string >( "Field_Type" ),
@@ -399,7 +399,7 @@ namespace moris
         {
             // get the field names
             const Vector< std::string > tFieldNames = mOutputData( aVisMeshIndex ).mFieldNames;
-            uint                      tNumFields  = tFieldNames.size();
+            uint                        tNumFields  = tFieldNames.size();
 
             // allocate cell for storing elemental field names; 3 default fields are added
             Vector< std::string > tElementalFieldNames( 3 + tNumFields );
@@ -666,7 +666,7 @@ namespace moris
             // initialize lists of IQIs and their output field names
             Vector< Vector< std::string > > tIQINames;
             Vector< Vector< std::string > > tFieldNames;
-            Vector< uint >                tNumIQIsForFieldType;
+            Vector< uint >                  tNumIQIsForFieldType;
             this->get_IQI_and_field_names(
                     aVisMeshIndex,
                     tIQINames,
@@ -791,10 +791,10 @@ namespace moris
 
         void
         Output_Manager::get_IQI_and_field_names(
-                const uint                   aVisMeshIndex,
+                const uint                       aVisMeshIndex,
                 Vector< Vector< std::string > >& aIQINames,
                 Vector< Vector< std::string > >& aFieldNames,
-                Vector< uint >&                aNumIQIsForFieldType )
+                Vector< uint >&                  aNumIQIsForFieldType )
         {
             // number of fields in vis mesh
             uint tNumFields = mOutputData( aVisMeshIndex ).mFieldNames.size();
@@ -838,12 +838,12 @@ namespace moris
 
         void
         Output_Manager::compute_fields_for_set(
-                const uint                          aVisMeshIndex,
-                MSI::Equation_Set*                  aFemSet,
+                const uint                              aVisMeshIndex,
+                MSI::Equation_Set*                      aFemSet,
                 Vector< Vector< std::string > > const & aIQINames,
                 Vector< Vector< std::string > > const & aFieldNames,
-                Matrix< DDRMat >*                   aGlobalFieldValues,
-                Matrix< DDRMat >*                   aNodalFieldValues )
+                Matrix< DDRMat >*                       aGlobalFieldValues,
+                Matrix< DDRMat >*                       aNodalFieldValues )
         {
             // compute fields for each type
             for ( uint iFieldType = 0; iFieldType < (uint)Field_Type::END_ENUM; iFieldType++ )
@@ -914,9 +914,9 @@ namespace moris
 
         void
         Output_Manager::compute_and_write_elemental_fields_on_set(
-                const uint                  aVisMeshIndex,
-                MSI::Equation_Set*          aFemSet,
-                const Field_Type            aFieldType,
+                const uint                    aVisMeshIndex,
+                MSI::Equation_Set*            aFemSet,
+                const Field_Type              aFieldType,
                 Vector< std::string > const & aIQINamesForType,
                 Vector< std::string > const & aFieldNamesForType )
         {
@@ -952,7 +952,9 @@ namespace moris
             const fem::Element_Type tSetType = aFemSet->get_element_type();
 
             // check if set is a faceted set
-            bool tIsFacetedSet = ( tSetType == fem::Element_Type::SIDESET ) || ( tSetType == fem::Element_Type::DOUBLE_SIDESET );
+            bool tIsFacetedSet = ( tSetType == fem::Element_Type::SIDESET )
+                              || ( tSetType == fem::Element_Type::DOUBLE_SIDESET )
+                              || ( tSetType == fem::Element_Type::NONCONFORMAL_SIDESET );
 
             // skip mis-matched sets, i.e. faceted fields are only outputted on side sets and elemental fields only on block sets
             if ( tIsFacetedFieldType != tIsFacetedSet )

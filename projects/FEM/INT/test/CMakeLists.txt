@@ -80,9 +80,8 @@ set(TEST_SOURCES
     UT_FEM_IWG_Struc_Linear_Interface_SLM_Constraint_and_Mixed.cpp
     UT_FEM_IWG_Struc_Linear_Interface_SLM_L2.cpp
     
-    UT_FEM_IWG_Nonlocal_Bulk.cpp
     UT_FEM_IWG_Nonlocal_Interface.cpp
-    UT_FEM_IWG_History_Bulk.cpp
+    UT_FEM_IWG_L2_Damage_Bulk.cpp
     
     #UT_FEM_IWG_Struc_Linear_Ghost.cpp
     UT_FEM_IWG_Struc_Linear_Virtual_Work_Ghost.cpp
@@ -95,6 +94,7 @@ set(TEST_SOURCES
     UT_FEM_IWG_Struc_Linear_Axisymmetric_Virtual_Work_Ghost.cpp
     
     UT_FEM_IWG_Struc_Nonlinear_Bulk.cpp
+    UT_FEM_IWG_Struc_Nonlinear_Geometric_Stiffness.cpp
     UT_FEM_IWG_Struc_Nonlinear_Dirichlet.cpp
     UT_FEM_IWG_Struc_Nonlinear_Interface.cpp
     
@@ -128,6 +128,8 @@ set(TEST_SOURCES
     UT_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.cpp
     UT_FEM_IWG_Spalart_Allmaras_Turbulence_Dirichlet.cpp
     UT_FEM_IWG_Spalart_Allmaras_Turbulence_Interface.cpp
+    
+    UT_FEM_IWG_Time_Continuity_Dof.cpp
     
     UT_FEM_IQI_Dof.cpp
     UT_FEM_IQI_Strain_Energy.cpp

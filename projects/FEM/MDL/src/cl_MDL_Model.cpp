@@ -90,7 +90,7 @@ namespace moris
                 Tracer tTracer( "MDL", "Model", "Create MSI" );
 
                 // create the MSI parameter list
-                moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
+                moris::Parameter_List tMSIParameters = prm::create_msi_parameter_list();
                 tMSIParameters.set( "multigrid", mUseMultigrid );
 
                 if ( tInterpolationMesh->get_mesh_type() == mtk::MeshType::HMR )
@@ -191,7 +191,7 @@ namespace moris
                 mtk::Interpolation_Mesh* tInterpolationMesh = mMeshManager->get_interpolation_mesh( mMeshPairIndex );
 
                 // create the MSI parameter list
-                moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
+                moris::Parameter_List tMSIParameters = prm::create_msi_parameter_list();
                 tMSIParameters.set( "multigrid", mUseMultigrid );
 
                 // create the model solver interface from the MSI parameter list
@@ -534,6 +534,13 @@ namespace moris
 
             // populate FEM fields if requested for output
             mEquationModel->populate_fields();
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Model::update_model()
+        {
+            mEquationModel->update_fields();
         }
 
         //------------------------------------------------------------------------------

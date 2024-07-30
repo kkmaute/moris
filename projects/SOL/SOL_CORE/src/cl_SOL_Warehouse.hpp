@@ -22,7 +22,7 @@
 #include "cl_NLA_Nonlinear_Solver_Enums.hpp"    //CNT/src
 #include "cl_TSA_Time_Solver_Enums.hpp"         //CNT/src
 
-#include "cl_Param_List.hpp"    //CNT/src
+#include "cl_Parameter_List.hpp"                //CNT/src
 
 namespace moris
 {
@@ -88,7 +88,7 @@ namespace moris
 
             //! Parameterlist for (0) Linear Algorithm (1) Linear Solver (2) nonlinear Algorithm (3)
             //! Nonlinear Solver (4) TimeSolver Algorithm (5) Time Solver (6) Warehouse
-            Vector< Vector< moris::ParameterList > > mParameterlist;
+            Vector< Vector< moris::Parameter_List > > mParameterlist;
 
             // pointer to dynamically linked library
             std::shared_ptr< Library_IO > mLibrary = nullptr;
@@ -116,9 +116,6 @@ namespace moris
 
             // load initial guess solution vector from file
             std::string mFilenameInitialGuess = std::string( "" );
-
-            // RHS Matrix Type
-            std::string mRHSMatType = std::string( "" );
 
             //--------------------------------------------------------------------------------------------------------
 
@@ -201,7 +198,7 @@ namespace moris
             //--------------------------------------------------------------------------------------------------------
 
             void
-            set_parameterlist( Vector< Vector< moris::ParameterList > > aParameterlist )
+            set_parameterlist( Vector< Vector< moris::Parameter_List > > aParameterlist )
             {
                 mParameterlist = aParameterlist;
             };
@@ -316,22 +313,6 @@ namespace moris
                 mTPLType = aTPLType;
             }
 
-            //-------------------------------------------------------------------------------
-
-            const std::string&
-            get_RHS_mat_type()
-            {
-                return mRHSMatType;
-            }
-
-            //-------------------------------------------------------------------------------
-
-            void
-            set_RHS_mat_type( std::string aRHSMatType )
-            {
-                mRHSMatType = aRHSMatType;
-            }
-
             //--------------------------------------------------------------------------------------------------------
 
             /**
@@ -383,7 +364,6 @@ namespace moris
              */
             // Dist_Vector * get_full_vector(){ return mFullVector; };
         };
-
 
     }    // namespace sol
 }    // namespace moris

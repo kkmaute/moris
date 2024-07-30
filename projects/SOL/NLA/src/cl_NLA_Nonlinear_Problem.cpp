@@ -65,7 +65,8 @@ Nonlinear_Problem::Nonlinear_Problem(
             sum_all( aSolverInterface->get_my_local_global_map( tRequestedDofTypes ).numel() ) );
 
     // create map object FIXME ask linear problem for map
-    mMap = tMatFactory.create_map( aSolverInterface->get_my_local_global_map( tRequestedDofTypes ) );
+    mMap = tMatFactory.create_map( aSolverInterface->get_my_local_global_map( tRequestedDofTypes ),
+            aSolverInterface->get_my_local_global_overlapping_map( tRequestedDofTypes ) );
 
     // create map object FIXME ask linear problem for map
     mMapFull = tMatFactory.create_full_map(
@@ -149,8 +150,7 @@ Nonlinear_Problem::Nonlinear_Problem(
 
 //-----------------------------------------------------------------------------
 
-void
-Nonlinear_Problem::set_interface( Solver_Interface* aSolverInterface )
+void Nonlinear_Problem::set_interface( Solver_Interface* aSolverInterface )
 {
 }
 
@@ -186,8 +186,7 @@ Nonlinear_Problem::~Nonlinear_Problem()
 
 //-----------------------------------------------------------------------------
 
-void
-Nonlinear_Problem::delete_pointers()
+void Nonlinear_Problem::delete_pointers()
 {
     delete ( mLinearProblem );
 
@@ -196,8 +195,14 @@ Nonlinear_Problem::delete_pointers()
 
 //-----------------------------------------------------------------------------
 
-void
-Nonlinear_Problem::build_linearized_problem(
+void Nonlinear_Problem::update_fem_model()
+{
+    mSolverInterface->update_model();
+}
+
+//-----------------------------------------------------------------------------
+
+void Nonlinear_Problem::build_linearized_problem(
         const bool& aRebuildJacobian,
         const bool& aCombinedResJacAssembly,
         const sint  aNonLinearIt )
@@ -245,8 +250,7 @@ Nonlinear_Problem::build_linearized_problem(
 
 //-----------------------------------------------------------------------------
 
-void
-Nonlinear_Problem::build_linearized_problem(
+void Nonlinear_Problem::build_linearized_problem(
         const bool& aRebuildJacobian,
         const sint  aNonLinearIt,
         const sint  aRestart )
@@ -273,11 +277,10 @@ Nonlinear_Problem::get_full_vector()
 
 //-----------------------------------------------------------------------------
 
-void
-Nonlinear_Problem::extract_my_values(
-        const moris::uint&                      aNumIndices,
-        const moris::Matrix< DDSMat >&          aGlobalBlockRows,
-        const moris::uint&                      aBlockRowOffsets,
+void Nonlinear_Problem::extract_my_values(
+        const moris::uint&                 aNumIndices,
+        const moris::Matrix< DDSMat >&     aGlobalBlockRows,
+        const moris::uint&                 aBlockRowOffsets,
         Vector< moris::Matrix< DDRMat > >& LHSValues )
 {
     mFullVector->extract_my_values(
@@ -289,8 +292,7 @@ Nonlinear_Problem::extract_my_values(
 
 //-----------------------------------------------------------------------------
 
-void
-Nonlinear_Problem::print_sol_vec( const sint aNonLinearIt )
+void Nonlinear_Problem::print_sol_vec( const sint aNonLinearIt )
 {
     char NonLinNum[ 100 ];
     std::sprintf( NonLinNum, "NonLIt.%04u", aNonLinearIt );
@@ -305,8 +307,7 @@ Nonlinear_Problem::print_sol_vec( const sint aNonLinearIt )
 
 //-----------------------------------------------------------------------------
 
-void
-Nonlinear_Problem::restart_from_sol_vec( const sint aRestart )
+void Nonlinear_Problem::restart_from_sol_vec( const sint aRestart )
 {
     char NonLinNum[ 100 ];
     std::sprintf( NonLinNum, "NonLIt.%04u", aRestart );
@@ -321,8 +322,7 @@ Nonlinear_Problem::restart_from_sol_vec( const sint aRestart )
 
 //--------------------------------------------------------------------------------------------------
 
-void
-Nonlinear_Problem::set_time_value(
+void Nonlinear_Problem::set_time_value(
         const moris::real& aLambda,
         moris::uint        aPos )
 {
@@ -331,8 +331,7 @@ Nonlinear_Problem::set_time_value(
 
 //--------------------------------------------------------------------------------------------------
 
-real
-Nonlinear_Problem::get_static_residual_norm()
+real Nonlinear_Problem::get_static_residual_norm()
 {
     return mLinearProblem->compute_static_residual_norm();
 }

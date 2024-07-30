@@ -34,7 +34,7 @@ namespace moris::hmr
     typedef int ( *MORIS_HMR_USER_FUNCTION )(
             Element                        *aElement,
             const Vector< Matrix< DDRMat > > &aElementLocalValues,
-            ParameterList                  &aParameters );
+            Parameter_List                   &aParameters );
 
     // -----------------------------------------------------------------------------
 

@@ -568,7 +568,7 @@ namespace moris::hmr
 
             // communicate number of owned nodes with other procs
             Matrix< DDLUMat > tNodesOwnedPerProc;
-            comm_gather_and_broadcast( mNumberOfUsedAndOwnedNodes, tNodesOwnedPerProc );
+            allgather_scalar( mNumberOfUsedAndOwnedNodes, tNodesOwnedPerProc );
 
             // get proc neighbors from background mesh
             auto tProcNeighbors = mBackgroundMesh->get_proc_neighbors();
@@ -2491,7 +2491,7 @@ namespace moris::hmr
 
         // communicate number of owned nodes with other procs
         Matrix< DDUMat > tFacetsOwnedPerProc;
-        comm_gather_and_broadcast( aOwnedCount, tFacetsOwnedPerProc );
+        allgather_scalar( aOwnedCount, tFacetsOwnedPerProc );
 
         // calculate node offset table
         Matrix< DDUMat > tFacetOffset( tNumberOfProcs, 1, 0 );
@@ -2704,7 +2704,7 @@ namespace moris::hmr
 
         // communicate number of owned nodes with other procs
         Matrix< DDUMat > tEdgesOwnedPerProc;
-        comm_gather_and_broadcast( aOwnedCount, tEdgesOwnedPerProc );
+        allgather_scalar( aOwnedCount, tEdgesOwnedPerProc );
 
         // calculate node offset table
         Matrix< DDUMat > tEdgeOffset( tNumberOfProcs, 1, 0 );

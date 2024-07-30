@@ -18,10 +18,10 @@ namespace moris
     {
 //-------------------------------------------------------------------------------
 
-        ParameterList
-        create_sdf_parameter_list()
+Parameter_List
+create_sdf_parameter_list()
         {
-            ParameterList aParameterList;
+            Parameter_List aParameterList;
 
             aParameterList.insert( "input_mesh", std::string( "Mesh.exo" ) );
             aParameterList.insert( "output_mesh", std::string( "Mesh.exo" ) );
@@ -31,10 +31,10 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-        ParameterList
+        Parameter_List
         create_sdf_object_parameter_list()
         {
-            ParameterList aParameterList;
+            Parameter_List aParameterList;
             aParameterList.insert( "label", std::string( "Object" ) );
             aParameterList.insert( "stl_file", std::string( "object.obj" ) );
             aParameterList.insert( "output_values", std::string( "" ) );
@@ -50,8 +50,8 @@ namespace moris
         void
         load_sdf_parameter_list_from_xml(
                 const std::string            & aFilePath,
-                ParameterList                & aGlobalParameters,
-                Vector< ParameterList > & aObjectParameters )
+                Parameter_List           & aGlobalParameters,
+                Vector< Parameter_List > & aObjectParameters )
         {
             // create temporary Parser object
             XML_Parser tParser( aFilePath );

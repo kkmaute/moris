@@ -54,7 +54,6 @@ switch size(fecoord,2)
         CoordName{3} = 'coordz';
 end
 
-
 % switch to 'Def'-mode 
 netcdf.reDef(ncid);
 
@@ -86,7 +85,6 @@ end
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % lvn = netcdf.defDim(ncid,'num_nod_var',length(VarName));
 % name_nod_var_id = netcdf.defVar(ncid,'name_nod_var','char',[0,lvn]);
-
 
 % leave 'Def'-mode
 netcdf.endDef(ncid);

@@ -347,7 +347,7 @@ namespace moris
             tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds = tAdofsId2;
 
             Vector< Equation_Object* >tListEqnObj;
-            moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
+            moris::Parameter_List     tMSIParameters = prm::create_msi_parameter_list();
             tDofMgn.mModelSolverInterface = new Model_Solver_Interface( tMSIParameters, tListEqnObj );
             tDofMgn.mModelSolverInterface->mDofMgn = tDofMgn;
             // end hardcoding stuff
@@ -447,7 +447,7 @@ namespace moris
         (tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 )) = new Pdof;
 
         Vector< Equation_Object* >tListEqnObj;
-        moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
+        moris::Parameter_List     tMSIParameters = prm::create_msi_parameter_list();
         tDofMgn.mModelSolverInterface = new Model_Solver_Interface( tMSIParameters, tListEqnObj );
         tDofMgn.mModelSolverInterface->mDofMgn = tDofMgn;
         // end hardcoding stuff
@@ -765,7 +765,7 @@ namespace moris
             tDofMgn.set_adof_map( &tMap );
 
             Vector< Equation_Object* >tListEqnObj;
-            moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
+            moris::Parameter_List     tMSIParameters = prm::create_msi_parameter_list();
             tDofMgn.mModelSolverInterface = new Model_Solver_Interface( tMSIParameters, tListEqnObj );
             tDofMgn.mModelSolverInterface->mDofMgn = tDofMgn;
             // end hardcoding stuff
@@ -959,7 +959,7 @@ namespace moris
             tDofMgn.set_adof_map( &tMap );
 
             Vector< Equation_Object* >tListEqnObj;
-            moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
+            moris::Parameter_List     tMSIParameters = prm::create_msi_parameter_list();
             tDofMgn.mModelSolverInterface = new Model_Solver_Interface( tMSIParameters, tListEqnObj );
             tDofMgn.mModelSolverInterface->mDofMgn = tDofMgn;
             // end hardcoding stuff

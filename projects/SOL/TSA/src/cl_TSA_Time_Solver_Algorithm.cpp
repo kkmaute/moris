@@ -31,18 +31,12 @@ using namespace tsa;
 
 //-------------------------------------------------------------------------------
 
-Time_Solver_Algorithm::Time_Solver_Algorithm( const enum sol::MapType aMapType )
-{
-    this->set_time_solver_parameters();
-}
-
-//-------------------------------------------------------------------------------
-
 Time_Solver_Algorithm::Time_Solver_Algorithm(
-        const ParameterList     aParameterlist,
-        const enum sol::MapType aMapType )
-        : mParameterListTimeSolver( aParameterlist )
+        const Parameter_List& aParameterlist )
 {
+    mTimeSteps      = aParameterlist.get< sint >( "TSA_Num_Time_Steps" );
+    real tTimeFrame = aParameterlist.get< real >( "TSA_Time_Frame" );
+    mTimeIncrements = tTimeFrame / mTimeSteps;
 }
 
 //-------------------------------------------------------------------------------
@@ -64,7 +58,7 @@ Time_Solver_Algorithm::delete_pointers()
 //-------------------------------------------------------------------------------
 
 moris::real
-Time_Solver_Algorithm::calculate_time_needed( const clock_t aTime )
+Time_Solver_Algorithm::calculate_time_needed( clock_t aTime )
 {
     moris::real tDeltaTime = ( moris::real )( clock() - aTime ) / CLOCKS_PER_SEC;
 
@@ -89,16 +83,4 @@ Time_Solver_Algorithm::finalize()
     mFullMap = tMatFactory.create_full_map(
             mSolverInterface->get_my_local_global_map(),
             mSolverInterface->get_my_local_global_overlapping_map() );
-}
-
-//-------------------------------------------------------------------------------
-
-void
-Time_Solver_Algorithm::set_time_solver_parameters()
-{
-    // Number of time steps
-    mParameterListTimeSolver.insert( "TSA_Num_Time_Steps", 1 );
-
-    // Time Frame
-    mParameterListTimeSolver.insert( "TSA_Time_Frame", 1.0 );
 }

@@ -74,8 +74,8 @@ namespace moris::MSI
 
             // print the data
             void ( *tPrintFunc )( Vector< moris_id > const &, std::string ) = print_as_row_vector;
-            print_cell< moris_id >( tDLASolInterface->mNonZeroDigonal, "mNonZeroDigonal", tPrintFunc );
-            print_cell< moris_id >( tDLASolInterface->mNonZeroOffDigonal, "mNonZeroOffDigonal", tPrintFunc );
+            print_vector< moris_id >( tDLASolInterface->mNonZeroDigonal, "mNonZeroDigonal", tPrintFunc );
+            print_vector< moris_id >( tDLASolInterface->mNonZeroOffDigonal, "mNonZeroOffDigonal", tPrintFunc );
 
             // set what data should be for each processor
             Vector< moris_id > tNonZeroDigonal;
