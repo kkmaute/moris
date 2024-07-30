@@ -39,11 +39,11 @@ namespace moris
     class Parameter
     {
       private:
-        Variant mValue;
-        Entry_Type mEntryType = Entry_Type::FREE;
-        uint mNumberOfEntries = 1;
-        Validator* mValidator;
-        bool mNeedsLinking = false;
+        Variant            mValue;
+        Entry_Type         mEntryType       = Entry_Type::FREE;
+        uint               mNumberOfEntries = 1;
+        Validator*         mValidator;
+        bool               mNeedsLinking = false;
         External_Validator mExternalValidator;
 
       public:
@@ -71,11 +71,11 @@ namespace moris
                 , mNeedsLinking( aExternalValidationType != Entry_Type::FREE )
         {
             // Set external validator
-            mExternalValidator.mParameterName = std::move( aExternalParameterName );
-            mExternalValidator.mParameterListType = aExternalParameterListType;
+            mExternalValidator.mParameterName      = std::move( aExternalParameterName );
+            mExternalValidator.mParameterListType  = aExternalParameterListType;
             mExternalValidator.mParameterListIndex = aExternalParameterListIndex;
         }
-        
+
         /**
          * Constructor for a parameter with a range validator.
          *
@@ -89,7 +89,7 @@ namespace moris
         {
             // Set default value without validation
             mValue = make_variant( aParameterValue );
-            
+
             // Create range validator
             mValidator = new Range_Validator( aMinimumValue, aMaximumValue );
         }
@@ -219,6 +219,13 @@ namespace moris
         uint get_number_of_entries() const;
 
         /**
+         * Gets if this parameter is currently locked.
+         *
+         * @return locked or not
+         */
+        bool is_locked() const;
+
+        /**
          * If this parameter needs to be linked to another parameter for validation.
          *
          * @return If linking is required
@@ -251,5 +258,6 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     // Declare template specializations of the Parameter constructor
-    template<> Parameter::Parameter( const char*, Entry_Type, std::string, Parameter_List_Type, uint );
-}
+    template<>
+    Parameter::Parameter( const char*, Entry_Type, std::string, Parameter_List_Type, uint );
+}    // namespace moris

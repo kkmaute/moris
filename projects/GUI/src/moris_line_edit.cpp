@@ -8,8 +8,17 @@ Moris_Line_Edit::Moris_Line_Edit( QWidget *parent, moris::Parameter &parameter )
         : QLineEdit( parent )
         , mParameter( parameter )
 {
+
+    if ( mParameter.index() == moris::variant_index< std::string >() )
+    {
+        setText( QString::fromStdString( mParameter.get_value< std::string >() ) );
+    }
+    else
+    {
+        setText( QString::fromStdString( mParameter.get_string() ) );
+    }
+
     // If parameter is not null, set the initial text from the parameter value
-    setPlaceholderText( QString::fromStdString( mParameter.get_string() ) );
 
     // Connect the textChanged signal of QLineEdit to the onTextChanged slot
     connect( this, &QLineEdit::textChanged, this, &Moris_Line_Edit::onTextChanged );
@@ -46,6 +55,7 @@ void Moris_Line_Edit::onTextChanged( const QString &new_text )
     if ( mParameter.index() == moris::variant_index< std::string >() )
     {
         mParameter.set_value( objectName().toStdString(), new_text.toStdString(), false );
+        std::cout << "Setting value to " << new_text.toStdString() << std::endl;
     }
     else if ( mParameter.index() == moris::variant_index< std::pair< std::string, std::string > >() )
     {

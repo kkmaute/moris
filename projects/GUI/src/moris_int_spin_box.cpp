@@ -14,12 +14,13 @@ Moris_Int_Spin_Box::Moris_Int_Spin_Box( QWidget *parent, moris::Parameter &param
     if ( mParameter.index() == moris::variant_index< uint >() )
     {
         setValue( mParameter.get_value< uint >() );
+        setRange( 0, INT_MAX );
     }
     else
     {
-        setValue( mParameter.get_value< int >() );
+        setRange( -INT_MAX, INT_MAX );
+        setValue( mParameter.get_value< moris::sint >() );
     }
-
     // Connect the valueChanged(int) signal of QSpinBox to the onValueChanged slot
     connect( this, QOverload< int >::of( &QSpinBox::valueChanged ), this, &Moris_Int_Spin_Box::onValueChanged );
 }

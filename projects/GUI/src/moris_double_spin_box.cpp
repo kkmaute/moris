@@ -9,6 +9,9 @@ Moris_Double_Spin_Box::Moris_Double_Spin_Box( QWidget *parent, moris::Parameter 
         : QDoubleSpinBox( parent )
         , mParameter( parameter )
 {
+    
+    setRange( -MORIS_REAL_MAX, MORIS_REAL_MAX );
+    setValue( mParameter.get_value< moris::real  >() );
     // Connect the valueChanged(double) signal of QDoubleSpinBox to the onValueChanged slot
     connect( this, QOverload< double >::of( &QDoubleSpinBox::valueChanged ), this, &Moris_Double_Spin_Box::onValueChanged );
 }

@@ -19,7 +19,7 @@ namespace moris
     {
         // Set default value without validation
         uint tValue = 0;
-        mValue = make_variant( tValue );
+        mValue      = make_variant( tValue );
 
         // Create selection validator
         mValidator = new Enum_Validator( aEnumStrings );
@@ -87,6 +87,13 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
 
+    bool Parameter::is_locked() const
+    {
+        return mValidator == nullptr;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     bool Parameter::needs_linking() const
     {
         return mNeedsLinking;
@@ -127,4 +134,4 @@ namespace moris
     }
 
     //--------------------------------------------------------------------------------------------------------------
-}
+}    // namespace moris

@@ -43,19 +43,19 @@ void Moris_Tree_Widget_Item::setComboBoxItems(QStringList aItems)
      * @brief Function to set the items passed in to the combo box
      * @param QStringList aItems
      * @return NONE
-     * @note If the associated form has an associated sub-form then the function sets the argument passed into mComboBox, adds mComboBox to the layout and sets up mSubFormCountProps 
+     * @note If the associated form has an associated sub-form then the function sets the argument passed into mComboBox, adds mComboBox to the layout and sets up mSubFormCountPropsVec 
     */
 
     if ( mHasSubFormCheck )
     {
         mComboBox->addItems(aItems);
         mFormLayout->addRow( "Please select: ", mComboBox );
-        mSubFormCountProps.resize( aItems.size() );
-        mSubFormCountProps.fill( 0 );
+        mSubFormCountPropsVec.resize( aItems.size() );
+        mSubFormCountPropsVec.fill( 0 );
     }
     else
     {
-        QMessageBox::warning( this, "Warning", "ComboBox is not allowed in this form. If you would like a sub-form, please set mSubFormCheck to true." );
+        QMessageBox::warning( this, "Warning", "ComboBox is not allowed in this form. If you would like a sub-form, please set setSubFormCheck to true." );
     }
 }
 
@@ -83,6 +83,15 @@ bool Moris_Tree_Widget_Item::hasForm()
 {
     return mCheckForm;
 }
+void Moris_Tree_Widget_Item::setSpecialFormStatus(bool aIsSpecialForm)
+{
+    mIsSpecialForm = aIsSpecialForm;
+}
+
+bool Moris_Tree_Widget_Item::isSpecialForm()
+{
+    return mIsSpecialForm;
+}
 
 void Moris_Tree_Widget_Item::setCountProps(int aCountProps)
 {
@@ -104,10 +113,11 @@ void Moris_Tree_Widget_Item::addSubFormCountProps()
     */
     if ( mHasSubFormCheck && mComboBox->count() > 0)
     {
-        mSubFormCountProps[ mComboBox->currentIndex() ]++;
+        mSubFormCountPropsVec[ mComboBox->currentIndex() ]++;
     }
-    else if (mComboBox->count() == 0) {
-        QMessageBox::warning( this, "Warning", "Please add items to the ComboBox before incrementing the count." );
+    else if (mComboBox->count() == 0 && mHasSubFormCheck) {
+        mSubFormCountProps++;
+        //QMessageBox::warning( this, "Warning", "Please add items to the ComboBox before incrementing the count." );
     }
     else
     {
@@ -127,10 +137,11 @@ void Moris_Tree_Widget_Item::removeSubFormCountProps(int aIndex)
 
     if ( mHasSubFormCheck && mComboBox->count() > 0)
     {
-        mSubFormCountProps[ aIndex ]--;
+        mSubFormCountPropsVec[ aIndex ]--;
     }
-    else if (mComboBox->count() == 0) {
-        QMessageBox::warning( this, "Warning", "Please add items to the ComboBox before decrementing the count." );
+    else if (mComboBox->count() == 0 && mHasSubFormCheck) {
+        mSubFormCountProps--;
+        // QMessageBox::warning( this, "Warning", "Please add items to the ComboBox before decrementing the count." );
     }
     else
     {
@@ -140,7 +151,13 @@ void Moris_Tree_Widget_Item::removeSubFormCountProps(int aIndex)
 
 uint Moris_Tree_Widget_Item::getSubFormCountProps()
 {
-    return mSubFormCountProps[ mComboBox->currentIndex() ];
+    if ( mHasSubFormCheck && mComboBox->count() > 0)
+    {
+        return mSubFormCountPropsVec[ mComboBox->currentIndex() ];
+    }
+    else {
+        return mSubFormCountProps;
+    }
 }
 
 void Moris_Tree_Widget_Item::setIndex(QList < uint > aIndex)
@@ -180,65 +197,6 @@ void Moris_Tree_Widget_Item::set_form_visible(bool aVisible)
     mScrollWidget->setVisible( aVisible );
     mScrollArea->setVisible( aVisible );
 }
-
-// void Moris_Tree_Widget_Item::add_elements( QList< QStringList > aParameters )
-// {
-//     /**
-//      * @brief Function to add elements to the form
-//      * @param QList< QStringList > aParameters
-//      * @return NONE
-//      * @note This function adds the parameters passed to it to the form.
-//     */
-    
-//     if ( mIsSubFormCheck && mCountProps > 0) {
-//         QMessageBox::warning( this, "Warning", "Cannot add a form here" );
-//     }
-//     else {
-//         uint tCounter = mWidget.size();
-
-//         for ( int iElements = 0; iElements < aParameters[0].size(); iElements++ )
-//         {
-//             if ( aParameters[0][iElements] == "constitutive_type" ) {
-//                 Moris_Combo_Box *tComboBox = new Moris_Combo_Box();
-//                 for ( const std::string& iConstitutiveType : moris::fem::Constitutive_Type_String::values ) {
-//                     tComboBox->addItem( QString::fromStdString( iConstitutiveType ) );
-//                 }
-//                 mWidget.append( tComboBox );
-//                 mFormLayout->addRow( aParameters[0][iElements], mWidget[iElements + tCounter] );
-//             }
-//             else if ( aParameters[0][iElements] == "pdv_type" )        
-//             {    
-//                 Moris_Combo_Box *tComboBox = new Moris_Combo_Box();
-//                 for ( const std::string& iPDVType : moris::gen::PDV_Type_String::values ) {
-//                     tComboBox->addItem( QString::fromStdString( iPDVType ) );
-//                 }
-//                 mWidget.append( tComboBox );
-//                 mFormLayout->addRow( aParameters[0][iElements], mWidget[iElements + tCounter] );
-//             }
-//             else if ( aParameters[0][iElements] == "IWG_type") {
-//                 Moris_Combo_Box *tComboBox = new Moris_Combo_Box();
-//                 for ( const std::string& iIWGType : moris::fem::IWG_Type_String::values ) {
-//                     tComboBox->addItem( QString::fromStdString( iIWGType ) );
-//                 }
-//                 mWidget.append( tComboBox );
-//                 mFormLayout->addRow( aParameters[0][iElements], mWidget[iElements + tCounter] );
-//             }
-//             else
-//             {   
-//                 Moris_Line_Edit *tLineEdit = new Moris_Line_Edit(); 
-//                 if ( aParameters[ 1 ][ iElements ].toStdString() != "\"\"" )
-//                 {+
-//                     tLineEdit->setPlaceholderText( aParameters[ 1 ][ iElements ] );
-//                 }
-//                 mWidget.append( tLineEdit );
-//                 mFormLayout->addRow( aParameters[0][iElements], mWidget[iElements + tCounter] );
-//             }
-//         }
-//         mCheckForm = true;
-//         mCountProps++;
-//         qDebug() << mCountProps;
-//     }
-// }
 
 void Moris_Tree_Widget_Item::add_elements( moris::Parameter_List& aParameters )
 {
@@ -283,6 +241,10 @@ void Moris_Tree_Widget_Item::add_elements( moris::Parameter_List& aParameters )
                     mFormLayout->addRow( QString::fromStdString(iElements.first), mWidget[tIndex + tCounter] );
                 }
                 else if (iElements.second.index() == moris::variant_index <moris::sint> ()) {
+
+                    if (iElements.first == "discretization_mesh_index") {
+                        std::cout << "Discretization Mesh Index: " << iElements.second.get_string() << std::endl;
+                    }
 
                     Moris_Int_Spin_Box *tDoubleSpinBox = new Moris_Int_Spin_Box(mScrollWidget, iElements.second);
                     tDoubleSpinBox->setObjectName(QString::fromStdString(iElements.first)); 

@@ -13,6 +13,9 @@
 
 #include <string>
 #include <set>
+#include <algorithm>
+#include <cctype>
+#include <sys/types.h>
 #include "dlfcn.h"
 #include "assert.hpp"
 
@@ -150,12 +153,12 @@ namespace moris
 
         // -----------------------------------------------------------------------------
 
-        Vector < ModuleParameterList >&
-        get_mParameterLists()
+        Vector< Vector < Vector < Parameter_List > > >&
+        get_parameter_lists()
         {
             return mParameterLists;
         }
-        
+
         // -----------------------------------------------------------------------------
 
         /**
@@ -327,11 +330,50 @@ namespace moris
 
     // -----------------------------------------------------------------------------
 
-    // FREE FUNCTION create_parameter_list
+    // FREE FUNCTIONS
+    // These are for reading parameter lists from xml files and set to the correct type
+
+    /**
+     * @brief get_subchild_index_from_xml_list - Get the index of the sub-module type from the XML file
+     * @param tInnerSubParamListName - The name of the inner sub-parameter list
+     * @param tKeys - The keys of the XML file parameter list
+     * @param tValues - The values of the XML file parameter list
+     * @return uint - The index of the sub-module type for special forms like "GEN/Geometry", "OPT/Algorithm" and "SOL/Linear_Algorithm", if not these forms, returns 0
+     */
+
+    uint get_subchild_index_from_xml_list( std::string tInnerSubParamListName, Vector< std::string >& aKeys, Vector< std::string >& aValues );
+
+    /**
+     * @brief convert_parameter_from_string_to_type - Converts the string value from the XML file to the correct data type
+     * @tparam T - The data type of the parameter
+     * @param aValue - The string value of the parameter from the XML file
+     * @return T - The value of the parameter in the correct data type
+     */
+    template< typename T >
+    T convert_parameter_from_string_to_type( const std::string& aString );
+
+    template<>
+    bool convert_parameter_from_string_to_type< bool >( const std::string& aString );
+
+    /**
+     * @brief create_and_set_parameter_list - Calls the create_parameter_list function and sets the parameter list with the values from the XML file in the correct data type
+     * @param aModule - Module in Parameter_List_Type enum type
+     * @param aChild - The index of the sub-module
+     * @param aSubChild - The index of the sub-module type for special forms like "GEN/Geometry", "OPT/Algorithm" and "SOL/Linear_Algorithm", if not these forms, then 0
+     * @param tKeys - The keys of the XML file parameter list
+     * @param tValues - The values of the XML file parameter list
+     * @return Parameter_List - The parameter list with the set values from the XML file
+     */
+
+    Parameter_List create_and_set_parameter_list( Parameter_List_Type aModule,
+            uint                                                      aChild,
+            uint                                                      aSubChild,
+            const Vector< std::string >&                              aKeys,
+            const Vector< std::string >&                              aValues );
 
     /**
      * @brief Create a parameter list for a given module, child, and sub-child
-     *
+     
      * @param aModule module to create the parameter list for
      * @param aChild child to create the parameter list for
      * @param aSubChild sub-child to create the parameter list for
@@ -339,6 +381,7 @@ namespace moris
      */
 
     Parameter_List create_parameter_list( Parameter_List_Type aModule, uint aChild, uint aSubChild );
+
 
 }    // namespace moris
 
