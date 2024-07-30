@@ -609,7 +609,6 @@ TEST_CASE( "IWG_Elasticity_Bulk_Mixed_Displacement", "[IWG_Elasticity_Bulk_Mixed
     }
 }/*END_TEST_CASE*/
 
-
 TEST_CASE( "IWG_Struc_Linear_Elasticity_Damage_Bulk",
         "[moris],[fem],[IWG_Struc_Linear_Elasticity_Damage_Bulk]" )
 {

@@ -106,7 +106,5 @@ end
 
 fprintf(fid,' numsplit 1 bias 1 depth 1 smooth');
 
-
 fclose(fid);
-
 

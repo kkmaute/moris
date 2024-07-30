@@ -253,7 +253,7 @@ namespace moris
             uint tUnionPattern  = tHMRDatabase->get_parameters()->get_union_pattern();
 
             uint tTargetBSPattern = dynamic_cast< hmr::Mesh* >( tSourceMesh )->get_lagrange_mesh()->    //
-                                    get_bspline_pattern(                      //
+                                    get_bspline_pattern(                                                //
                                             tDiscreteFieldSource->get_discretization_mesh_index() );
 
             // create union pattern
@@ -389,7 +389,7 @@ namespace moris
             Matrix< DDRMat > tElementSourceData( tNumberOfNodesPerElement, aFieldSource->get_number_of_fields() );
 
             // Create T-matrix
-            hmr::Factory tFactory( tTargetMesh->get_HMR_database()->get_parameters() );
+            hmr::Factory        tFactory( tTargetMesh->get_HMR_database()->get_parameters() );
             hmr::T_Matrix_Base* tTMatrix = tFactory.create_t_matrix( tTargetLagrangeMesh );
 
             // loop over all elements
@@ -495,7 +495,7 @@ namespace moris
             uint tNumberOfElements = tSourceLagrangeMesh->get_number_of_elements();
 
             // Create T-matrix
-            hmr::Factory tFactory( tSourceMesh->get_HMR_database()->get_parameters() );
+            hmr::Factory        tFactory( tSourceMesh->get_HMR_database()->get_parameters() );
             hmr::T_Matrix_Base* tTMatrix = tFactory.create_t_matrix( tSourceLagrangeMesh );
 
             // Get change order matrix from T-matrix
@@ -690,14 +690,14 @@ namespace moris
 #endif
                 }
 
-                tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list(sol::PreconditionerType::NONE);
+                tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE );
             }
             else
             {
                 tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::BELOS_IMPL );
-                tParameterlist( 0 )( 0 ).set( "preconditioners", "0"); 
-                
-                tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list(sol::PreconditionerType::IFPACK);
+                tParameterlist( 0 )( 0 ).set( "preconditioners", "0" );
+
+                tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::IFPACK );
 
                 tParameterlist( 7 )( 0 ).set( "ifpack_prec_type", "ILU" );
                 tParameterlist( 7 )( 0 ).set( "fact: level-of-fill", 1 );
@@ -1040,7 +1040,7 @@ namespace moris
         //                    tNode->flag();
         //
         //                    // cell containing neighbors
-        //                    Cell< Node * > tNeighbors;
+        //                    Vector< Node * > tNeighbors;
         //
         //                    tNode->get_nodes_in_proximity( tNode->get_coords(), aFilterRadius, tNeighbors );
         //

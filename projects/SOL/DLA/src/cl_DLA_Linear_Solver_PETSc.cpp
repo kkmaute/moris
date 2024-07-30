@@ -140,7 +140,6 @@ void Linear_Solver_PETSc::set_solver_analysis_options()
 void Linear_Solver_PETSc::construct_solver_and_preconditioner( Linear_Problem *aLinearSystem )
 {
 
-
     if ( !strcmp( mParameterList.get< std::string >( "KSPType" ).c_str(), "preonly" ) )
     {
         // write solver to log file
@@ -212,7 +211,6 @@ void Linear_Solver_PETSc::compute_eigenspectrum( Linear_Problem *aLinearSystem )
         return;
     }
 #ifdef MORIS_HAVE_SLEPC
-
 
     // declare the explict precondioied matrix
     ::Mat tBA;

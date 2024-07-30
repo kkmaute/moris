@@ -10,7 +10,6 @@
 #include "Epetra_CrsMatrix.h"
 #include "Epetra_Import.h"
 
-
 /**
  * @brief converts an implicit epetra operator to a matrix
  *
@@ -76,7 +75,6 @@ convert_epetra_operator_to_matrix(
 // forward declare the write the serial matrix function
 template< template< typename > class MatType, typename ElementType >
 void write_serial_matrix( Epetra_CrsMatrix const &aEpetraMatrix, MatType< ElementType > &aArmaMatrix );
-
 
 template< template< typename > class MatType, typename ElementType >
 MatType< ElementType > convert_epetra_operator_to_arma_sp_mat( Epetra_CrsMatrix const &aEpetraMatrix )
@@ -166,7 +164,6 @@ MatType< ElementType > convert_epetra_operator_to_arma_sp_mat( Epetra_CrsMatrix 
     }
     return tReturnMatrix;
 }
-
 
 template< template< typename > class MatType, typename ElementType >
 void write_serial_matrix( Epetra_CrsMatrix const &aEpetraMatrix, MatType< ElementType > &aArmaMatrix )

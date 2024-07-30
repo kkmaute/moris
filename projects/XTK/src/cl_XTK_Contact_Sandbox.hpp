@@ -142,11 +142,11 @@
 //     {
 //         // B_n = {b_n^1, b_n^2,..., b_n^k }
 //         Bounding_Box mAllVertsAABB;
-//         Cell<Bounding_Box> mIGVertexAABBs;
+//         Vector<Bounding_Box> mIGVertexAABBs;
 
 //         // B_f = {b_f^1, b_f^2,..., b_f^k }
 //         Bounding_Box mAllFacetClusterAABBs;
-//         Cell<Bounding_Box> mFacetClusterAABBs;
+//         Vector<Bounding_Box> mFacetClusterAABBs;
 
 //     };
 
@@ -293,7 +293,7 @@
 //                     moris::mtk::Set*   const & aSet,
 //                     Matrix<DDRMat>     const & aCurrentDispVec,
 //                     Matrix<DDRMat>     const & aPredictedDispVec,
-//                     Cell<Bounding_Box>       & aSideClusterBBs)
+//                     Vector<Bounding_Box>       & aSideClusterBBs)
 //         {
 //             // number of clusters
 //             moris::uint tNumClusters = aSet->get_num_clusters_on_set();
@@ -317,7 +317,7 @@
 //                     moris::mtk::Set*   const & aSet,
 //                     Matrix<DDRMat>     const & aCurrentDispVec,
 //                     Matrix<DDRMat>     const & aPredictedDispVec,
-//                     Cell<Bounding_Box>       & aVertexBBs)
+//                     Vector<Bounding_Box>       & aVertexBBs)
 //         {
 //             // get the set clusters
 //             Matrix< IndexMat > tSetIgVerts = aSet->get_ig_vertices_inds_on_block(true);
@@ -352,8 +352,8 @@
 //             moris::uint tNumNodes = aVerticesForBB.numel();
 
 //             // figure out bounding box
-//             Cell<real> tMins(tSpatialDim,MORIS_REAL_MAX);
-//             Cell<real> tMaxs(tSpatialDim,-MORIS_REAL_MAX);
+//             Vector<real> tMins(tSpatialDim,MORIS_REAL_MAX);
+//             Vector<real> tMaxs(tSpatialDim,-MORIS_REAL_MAX);
 
 //             moris::real tCurrentLoc = 0.0;
 //             moris::real tPredictedLoc = 0.0;
@@ -453,7 +453,7 @@
 
 //         void
 //         inflate_aabbs( moris::real const & aInflateVal,
-//                        Cell<Bounding_Box> & aAABBs)
+//                        Vector<Bounding_Box> & aAABBs)
 //         {
 //             for(moris::uint i = 0; i < aAABBs.size(); i++)
 //             {
@@ -462,7 +462,7 @@
 //         }
 
 //         Bounding_Box
-//         bounding_box_of_bounding_box(Cell<Bounding_Box> & aBoundingBoxes)
+//         bounding_box_of_bounding_box(Vector<Bounding_Box> & aBoundingBoxes)
 //         {
 
 //             moris::uint tSpatialDim = mIntegrationMesh->get_spatial_dim();
@@ -509,19 +509,19 @@
 //             std::string tAllClusterName = aFileBase + "_all_clust_AABB.vtk";
 //             std::string tClusterName    = aFileBase + "_clust_AABB.vtk";
 
-//             Cell<Bounding_Box const *> tAllVertsBB(1);
+//             Vector<Bounding_Box const *> tAllVertsBB(1);
 //             tAllVertsBB(0) = &aSetAABBs.mAllVertsAABB;
 
-//             Cell<Bounding_Box const *> tAllClusterBB(1);
+//             Vector<Bounding_Box const *> tAllClusterBB(1);
 //             tAllClusterBB(0) =  &aSetAABBs.mAllFacetClusterAABBs;
 
-//             Cell<Bounding_Box const *> tIGVertexAABBs(aSetAABBs.mIGVertexAABBs.size());
+//             Vector<Bounding_Box const *> tIGVertexAABBs(aSetAABBs.mIGVertexAABBs.size());
 //             for(moris::uint i = 0; i < aSetAABBs.mIGVertexAABBs.size() ; i++)
 //             {
 //                 tIGVertexAABBs(i) = &aSetAABBs.mIGVertexAABBs(i);
 //             }
 
-//             Cell<Bounding_Box const *> tFacetClusterAABBs(aSetAABBs.mFacetClusterAABBs.size());
+//             Vector<Bounding_Box const *> tFacetClusterAABBs(aSetAABBs.mFacetClusterAABBs.size());
 //             for(moris::uint i = 0; i < aSetAABBs.mFacetClusterAABBs.size() ; i++)
 //             {
 //                 tFacetClusterAABBs(i) = &aSetAABBs.mFacetClusterAABBs(i);
@@ -536,12 +536,12 @@
 //         void
 //         viz_overlap(
 //                 const std::string  & aFilePath,
-//                 Cell<Bounding_Box> & aBVHBoxes,
-//                 Cell<Bounding_Box> & aQueryBoxes,
+//                 Vector<Bounding_Box> & aBVHBoxes,
+//                 Vector<Bounding_Box> & aQueryBoxes,
 //                 Kokkos::View<int*, DeviceType> & aIndices,
 //                 Kokkos::View<int*, DeviceType> & aOffset)
 //         {
-//             Cell<Bounding_Box const *> tBoxToViz;
+//             Vector<Bounding_Box const *> tBoxToViz;
 
 //             // create kokkos::view around std::vector
 //             auto tHostViewIndices = Kokkos::create_mirror_view(aIndices);
@@ -563,7 +563,7 @@
 //         */
 //         void
 //         save_to_vtk(const std::string   & aFilePath,
-//                     Cell<Bounding_Box const *> & aBoxesToViz)
+//                     Vector<Bounding_Box const *> & aBoxesToViz)
 //         {
 //             // modify filename
 //             std::string tFilePath = parallelize_path( aFilePath );

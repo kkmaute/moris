@@ -109,7 +109,6 @@ Eigen_Solver_SLEPc::~Eigen_Solver_SLEPc()
     //    PCDestroy(&mpc);
 }
 
-
 //----------------------------------------------------------------------------------------
 moris::sint
 Eigen_Solver_SLEPc::solve_linear_system()
@@ -158,14 +157,12 @@ Eigen_Solver_SLEPc::solve_linear_system(
     }
     STSetType( mSt, mMorisSTToSTType.find( mParameterList.get< std::string >( "STType" ) )->second );
 
-
     // set the sub linear solver and preconditioner options
     this->set_sublinear_solver_and_preconditioner( aLinearSystem );
 
     real tTolerance = mParameterList.get< real >( "Convergence_Tolerance" );
     uint tMaxIter   = mParameterList.get< uint >( "max_iter" );
     EPSSetTolerances( mEps, tTolerance, tMaxIter );
-
 
     EPSSolve( mEps );
 
@@ -216,12 +213,10 @@ Eigen_Solver_SLEPc::solve_linear_system(
         MatCreateVecs( aLinearSystem->get_matrix()->get_petsc_matrix(), NULL, &tSourceVec );
         EPSGetEigenvector( mEps, iEigenIndex, tSourceVec, NULL );
 
-
         tDestinationVector->import_local_to_global( tSourceVec, iEigenIndex, tSourceMap );
     }
 
     delete tSourceMap;
-
 
     return 0;
 }
@@ -489,7 +484,6 @@ void Eigen_Solver_SLEPc::print_slepc_determined_solver_paramaters()
     {
         EPSPowerShiftType tShiftType;
         EPSPowerGetShiftType( mEps, &tShiftType );    // mMorisToPowerType.find( mParameterList.get<std::string>("shift_type") )->second );
-
 
         std::string shiftTypeString;
         for ( const auto &pair : mMorisToPowerType )

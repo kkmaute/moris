@@ -32,7 +32,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------------------
 
         Solver_Pseudo_Time_Control::Solver_Pseudo_Time_Control(
-                Parameter_List&    aParameterListNonlinearSolver,
+                Parameter_List&   aParameterListNonlinearSolver,
                 sol::Dist_Vector* aCurrentSolution,
                 Nonlinear_Solver* aNonLinSolverManager )
         {
@@ -333,6 +333,19 @@ namespace moris
 
                 MORIS_LOG_INFO( "In initialization phase - using pseudo time step: %e", aTimeStep );
 
+                // output pseudo time step
+                if ( mTimeOffSet > 0.0 )
+                {
+                    // increment pseudo time for output
+                    mOutputTime += mTimeOffSet;
+
+                    // write current solution to output 0
+                    mSolverInterface->initiate_output( 0, mOutputTime, false );
+                }
+
+                // copy current solution onto "previous" solution
+                mPreviousSolution->vec_plus_vec( 1.0, *( aCurrentSolution ), 0.0 );
+
                 // return that time continuation has not finished yet
                 return false;
             }
@@ -518,7 +531,7 @@ namespace moris
                         // initialize previous step parameters
                         if ( mTimeStepCounter < 2 )
                         {
-                            mPrevStepSize = mConstantStepSize;
+                            mPrevStepSize   = mConstantStepSize;
                             mPrevRelResNorm = 1.0;
                         }
 

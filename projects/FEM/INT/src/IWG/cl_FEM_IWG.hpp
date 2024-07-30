@@ -155,11 +155,15 @@ namespace moris
             // bool for ghost
             bool mIsGhost = false;
 
+            // compute the jacobian using finite differencing (independent on the setting for the whole FEM set)
+            bool mIsFDJacobian = false;
+
+          protected:
             // string for IWG name
             std::string mName;
 
             //! string for IWG name
-            enum moris::fem::IWG_Type mIWGType = moris::fem::IWG_Type::UNDEFINED;
+            enum moris::fem::IWG_Type mIWGType = moris::fem::IWG_Type::END_IWG_TYPE;
 
             // function pointers
             void ( IWG::*m_compute_jacobian_FD )(
@@ -323,6 +327,20 @@ namespace moris
              * print name
              */
             void print_names();
+
+            //------------------------------------------------------------------------------
+
+            bool is_fd_jacobian() const
+            {
+                return mIsFDJacobian;
+            };
+
+            //------------------------------------------------------------------------------
+
+            void set_is_fd_jacobian( bool aIsFDJacobian )
+            {
+                mIsFDJacobian = aIsFDJacobian;
+            };
 
             //------------------------------------------------------------------------------
             /*
@@ -875,6 +893,24 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
+             * \brief Applies the given perturbation amount on the coefficients of either follower or leader side and updates the geometry interpolators.
+             * \param aPerturbationAmount
+             * \param aCoefficients
+             * \param aParametricCoefficients
+             * \param aEvaluationPoint
+             * \param aNodeIndex
+             * \param aSpatialDirIndex
+             * \param aLeaderFollowerType
+             */
+            void perturb_and_update_geometry_interpolators(
+                    real const                 aPerturbationAmount,
+                    Matrix< DDRMat > const &   aCoefficients,
+                    Matrix< DDRMat > const &   aParametricCoefficients,
+                    uint const                 aNodeIndex,
+                    uint const                 aSpatialDirIndex,
+                    mtk::Leader_Follower const aLeaderFollowerType ) const;
+
+            /**
              * add the contribution of the cluster measure derivatives to the derivative of
              * the quantity of interest wrt to geometry dv by finite difference
              * @param[ in ] aWStar        weight associated to evaluation point
@@ -962,7 +998,7 @@ namespace moris
             /**
              * reset evaluation flags specific to child IWG
              */
-            virtual void reset_spec_eval_flags(){};
+            virtual void reset_spec_eval_flags() {};
 
             //------------------------------------------------------------------------------
             /**
@@ -970,6 +1006,10 @@ namespace moris
              * @param[ in ] aIsResidual bool true if residual evaluation
              */
             void build_requested_dof_type_list( const bool aIsStaggered );
+
+            //------------------------------------------------------------------------------
+
+            Matrix< DDRMat > remap_nonconformal_rays( Field_Interpolator* aLeaderFieldInterpolator, Field_Interpolator* aFollowerFieldInterpolator ) const;
         };
         //------------------------------------------------------------------------------
 

@@ -11,6 +11,8 @@
 #ifndef SRC_FEM_CL_FEM_SET_HPP_
 #define SRC_FEM_CL_FEM_SET_HPP_
 
+#include <set>
+
 #include "assert.h"
 #include "cl_Communication_Tools.hpp"
 
@@ -25,6 +27,7 @@
 #include "cl_FEM_Property.hpp"
 #include "cl_FEM_Constitutive_Model.hpp"
 #include "cl_FEM_Stabilization_Parameter.hpp"
+#include <cl_FEM_Cluster_Measure.hpp>
 #include "cl_FEM_Set_User_Info.hpp"
 #include "cl_FEM_IQI.hpp"
 // FEM/MSI/src
@@ -67,11 +70,14 @@ namespace moris
             // pointer to the corresponding mesh set
             moris::mtk::Set* mMeshSet = nullptr;
 
+          private:
             // interpolation mesh geometry type
             mtk::Geometry_Type mIPGeometryType = mtk::Geometry_Type::UNDEFINED;
 
             // integration mesh geometry type
             mtk::Geometry_Type mIGGeometryType = mtk::Geometry_Type::UNDEFINED;
+
+            Vector< Node_Base* > mIPNodes;
 
             // space interpolation order for IP cells
             mtk::Interpolation_Order mIPSpaceInterpolationOrder = mtk::Interpolation_Order::UNDEFINED;
@@ -115,7 +121,7 @@ namespace moris
             Vector< moris_index >            mRequestedFieldIQIsGlobalIndices;
 
             // enum for element type
-            fem::Element_Type mElementType = fem::Element_Type::UNDEFINED;
+            fem::Element_Type mElementType = fem::Element_Type::END_ELEMENT_TYPE;
 
             // integration points
             Matrix< DDRMat > mIntegPoints;
@@ -135,22 +141,9 @@ namespace moris
             Vector< Matrix< DDSMat > > mFacetAssemblyMap;    // input: VIS mesh index, IG cell index, side ordinal  || output: position of facet within the output (dbl) side set
             Vector< uint >             mNumFacetsOnSet;      // input: VIS mesh index || output: number of facets in that VIS (dbl) side set
 
-            // cluster measure specifications on set
-            Vector<
-                    std::tuple<
-                            fem::Measure_Type,
-                            mtk::Primary_Void,
-                            mtk::Leader_Follower > >
-                    mClusterMEATuples;
+            std::set< Cluster_Measure::ClusterMeasureSpecification > mClusterMeasuresSpecs;
 
-            // cluster measure specification map on set
-            std::map<
-                    std::tuple< fem::Measure_Type, mtk::Primary_Void, mtk::Leader_Follower >,
-                    uint >
-                    mClusterMEAMap;
-
-            // flag for cluster measure tuples and map
-            bool mBuildClusterMEA = false;
+            bool mEvalClusterMeasuresSpecs = true;
 
             // bool for time continuity
             bool mTimeContinuity = false;
@@ -162,7 +155,7 @@ namespace moris
             bool mIsAnalyticalFA = true;
 
             // enum for FD scheme used for FD SA
-            fem::FDScheme_Type mFDSchemeForFA = fem::FDScheme_Type::UNDEFINED;
+            fem::FDScheme_Type mFDSchemeForFA = fem::FDScheme_Type::END_FD_SCHEME;
 
             // real for FD perturbation size
             real mFDPerturbationFA = 0.0;
@@ -171,7 +164,7 @@ namespace moris
             bool mIsAnalyticalSA = false;
 
             // enum for FD scheme used for FD SA
-            fem::FDScheme_Type mFDSchemeForSA = fem::FDScheme_Type::UNDEFINED;
+            fem::FDScheme_Type mFDSchemeForSA = fem::FDScheme_Type::END_FD_SCHEME;
 
             // real for FD perturbation size
             real mFDPerturbation = 0.0;
@@ -185,6 +178,7 @@ namespace moris
             friend class Element_Sideset;
             friend class Element_Time_Sideset;
             friend class Element_Double_Sideset;
+            friend class Element_Nonconformal_Sideset;
             friend class Element_Time_Continuity;
             friend class Element_Time_Boundary;
             friend class Element;
@@ -199,6 +193,8 @@ namespace moris
             //------------------------------------------------------------------------------
 
           public:
+            void create_fem_clusters();
+
             //------------------------------------------------------------------------------
             /**
              * constructor
@@ -244,6 +240,8 @@ namespace moris
                     const bool                 aIsStaggered            = false,
                     const Time_Continuity_Flag aTimeContinuityOnlyFlag = Time_Continuity_Flag::DEFAULT );
 
+            void update() override;
+
             //------------------------------------------------------------------------------
 
             fem::FEM_Model*
@@ -273,6 +271,23 @@ namespace moris
             void create_integrator( MSI::Model_Solver_Interface* aModelSolverInterface );
 
             //------------------------------------------------------------------------------
+
+            void set_custom_integration_rule( MSI::Model_Solver_Interface* aModelSolverInterface );
+
+            //------------------------------------------------------------------------------
+
+            [[nodiscard]] moris::mtk::Set* get_mesh_set() const
+            {
+                return mMeshSet;
+            }
+
+            //------------------------------------------------------------------------------
+
+            void set_mesh_set( moris::mtk::Set* const aMeshSet )
+            {
+                mMeshSet = aMeshSet;
+            }
+            //------------------------------------------------------------------------------
             /**
              * set visualization mesh set
              * @param[ in ] aVisMeshSet a mesh set pointer for visualization
@@ -282,11 +297,15 @@ namespace moris
                     moris::mtk::Set* aVisMeshSet,
                     const bool       aOnlyPrimaryCells );
 
+            //------------------------------------------------------------------------------
+
             void
             construct_cell_assembly_map_for_VIS_set(
                     const uint       aMeshIndex,
                     moris::mtk::Set* aVisMeshSet,
                     const bool       aOnlyPrimaryCells );
+
+            //------------------------------------------------------------------------------
 
             void
             construct_facet_assembly_map_for_VIS_set(
@@ -492,7 +511,7 @@ namespace moris
             //------------------------------------------------------------------------------
             /**
              * create a unique dof type list for the solver
-             * Cell< MSI::Dof_Type >, no group of dof type
+             * Vector< MSI::Dof_Type >, no group of dof type
              * one for both leader and follower
              */
             void create_unique_dof_and_dv_type_lists();
@@ -500,7 +519,7 @@ namespace moris
             //------------------------------------------------------------------------------
             /**
              * create a unique group of dof type list for the set
-             * Cell< Cell< MSI::Dof_Type > > list of groups of dof type
+             * Vector< Vector< MSI::Dof_Type > > list of groups of dof type
              * one for the leader, one for the follower
              */
             void create_dof_and_dv_type_lists();
@@ -569,6 +588,11 @@ namespace moris
             void create_IQI_map();
 
             //------------------------------------------------------------------------------
+
+            std::unordered_map< moris_index, Vector< real > >
+            get_nodal_displacements( std::unordered_set< moris_index > aRequestedNodes ) override;
+
+            //------------------------------------------------------------------------------
             /**
              * building an IQI name to set local index map
              */
@@ -634,7 +658,7 @@ namespace moris
             /*
              * build cluster measure specification list and map required on set
              */
-            void build_cluster_measure_tuples_and_map();
+            void build_cluster_measure_specifications();
 
             //------------------------------------------------------------------------------
             /*
@@ -652,12 +676,8 @@ namespace moris
              * get cluster measures required on set
              * return cell of tuple with cluster measure specifications
              */
-            std::map< std::tuple<
-                              fem::Measure_Type,
-                              mtk::Primary_Void,
-                              mtk::Leader_Follower >,
-                    uint >&
-            get_cluster_measure_map();
+            std::set< Cluster_Measure::ClusterMeasureSpecification > const &
+            get_cluster_measure_specifications();
 
             //------------------------------------------------------------------------------
             /**
@@ -1073,8 +1093,9 @@ namespace moris
              * @param[ in ] aMatPdvType list of group of ip pdv types on set
              * @param[ in ] aIsLeader determine the leader / follower side, only for dbl sided set, is leader by default
              */
-
-            void get_ip_dv_types_for_set( Vector< Vector< enum gen::PDV_Type > >& aMatPdvType, mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
+            void get_ip_dv_types_for_set(
+                    Vector< Vector< enum gen::PDV_Type > >& aMatPdvType,
+                    mtk::Leader_Follower                    aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
 

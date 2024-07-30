@@ -250,7 +250,6 @@ namespace moris::xtk
             Vector< moris_index > tFacetInds = mCellToFacet( tCellOrdinal );
             tFacetInds.remove( MORIS_INDEX_MAX );
 
-
             moris_index FacetInd1 = tFacetInds( 1 );    // facet to delete
             moris_index FacetInd2 = tFacetInds( 0 );    // facet to keep
             for ( moris_index iV = 0; (uint)iV < mFacetVertices( tFacetInds( 0 ) ).size(); iV++ )
@@ -263,7 +262,6 @@ namespace moris::xtk
                 }
             }
 
-
             if ( tFacetInds.size() > 2 )
             {
                 std::cout << tFacetInds.size() << std::endl;
@@ -271,7 +269,6 @@ namespace moris::xtk
             }
 
             aFacetMergeInds.push_back( FacetInd1 );
-
 
             // mVertexFacets
             // remove FacetInd1 from all mVertexFacets lists
@@ -292,7 +289,6 @@ namespace moris::xtk
                 }
             }
 
-
             // mFacetVertices.erase(FacetInd1);
             if ( mFacetVertices( FacetInd1 ).size() == 2 )    // 2D
             {
@@ -307,7 +303,6 @@ namespace moris::xtk
                 MORIS_ASSERT( false, "Error in mFacetVertices" );
             }
 
-
             // copy references to cells from facet being deleted to the one being merged
             for ( moris_index iC = 0; (uint)iC < mFacetToCell( FacetInd1 ).size(); iC++ )
             {
@@ -321,7 +316,6 @@ namespace moris::xtk
                     }
                 }
             }
-
 
             // remove reference to deleted cell from mFacetToCell
             for ( moris_index iC = 0; (uint)iC < mFacetToCell( FacetInd2 ).size(); iC++ )
@@ -341,10 +335,8 @@ namespace moris::xtk
             // will eventually be deleted, but for merges necessary as reference
             mFacetToCell( FacetInd1 ) = mFacetToCell( FacetInd2 );
 
-
             // mFacetToCellEdgeOrdinal.erase(tFacetInds(0));
             mFacetToCellEdgeOrdinal( FacetInd1 ) = { MORIS_INDEX_MAX };
-
 
             // replace reference to facet
             for ( moris_index iC = 0; (uint)iC < mCellToFacet.size(); iC++ )
@@ -394,7 +386,6 @@ namespace moris::xtk
                 }
             }
 
-
             if ( tFacetList.size() == 0 )
             {
                 MORIS_ERROR( false, "Error: No facet found for two vertices." );
@@ -408,7 +399,6 @@ namespace moris::xtk
         {
             // facet indices being merged
             Vector< moris_index > aFacetIndices = this->verts_to_facets( aVInd1, aVInd2 );
-
 
             // fix mVertexFacets ----------------
 
@@ -447,7 +437,6 @@ namespace moris::xtk
 
             mVertexFacets( aVInd1 ) = {};
 
-
             // replace pointer to aVInd1 with pointer to aVInd2 in mFacetVertices
             for ( uint iFacet = 0; iFacet < aOldFacetConnectivity->mVertexFacets( aVInd1 ).size(); iFacet++ )
             {
@@ -464,7 +453,6 @@ namespace moris::xtk
                     }
                 }
             }
-
 
             // remove facets ------------------------------------------------------------
 

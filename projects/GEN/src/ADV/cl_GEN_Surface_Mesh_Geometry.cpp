@@ -196,7 +196,6 @@ namespace moris::gen
         return tRotationAxis;
     }
     
-
     //--------------------------------------------------------------------------------------------------------------
 
     Vector< std::shared_ptr< mtk::Field > > Surface_Mesh_Geometry::get_mtk_fields()

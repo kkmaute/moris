@@ -63,8 +63,19 @@ namespace moris::sol
      */
     ENUM_MACRO( SolverLoadControlType,
             Constant,
+            Linear,
             Exponential,
             UserDefined )
+
+    ENUM_MACRO( SolverRaytracingStrategy,
+        None,                                 // No (re-)ray tracing
+        EveryNthIteration,                    // Ray tracing after every Nth newton iteration
+        EveryNthLoadStep,                     // Ray tracing after every Nth load step
+        EveryNthLoadStepOrNthIteration,       // Ray tracing after every Nth load step or Nth iteration
+        ResidualChange,                       // Ray tracing if the change of the residual is below a certain threshold
+        MixedNthLoadStepAndResidualChange,    // Uses the nth load steps until full load is reached and then uses the relative residual change
+        MixedNthLoadStepAndNthIteration,      // Uses the nth load steps until full load is reached and then uses the nth iteration
+    )
 
     ENUM_MACRO( SolverPseudoTimeControlType,
             None,                  // No pseudo time step control

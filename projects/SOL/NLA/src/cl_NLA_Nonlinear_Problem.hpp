@@ -119,7 +119,11 @@ namespace moris
             set_nonlinear_solver( Nonlinear_Solver* aNonlinearSolver )
             {
                 mMyNonLinSolver = aNonlinearSolver;
-            };
+            }
+
+            //--------------------------------------------------------------------------------------------------
+
+            void update_fem_model();
 
             //--------------------------------------------------------------------------------------------------
 
@@ -158,9 +162,9 @@ namespace moris
             //--------------------------------------------------------------------------------------------------
 
             void extract_my_values(
-                    const moris::uint&                      aNumIndices,
-                    const moris::Matrix< DDSMat >&          aGlobalBlockRows,
-                    const moris::uint&                      aBlockRowOffsets,
+                    const moris::uint&                 aNumIndices,
+                    const moris::Matrix< DDSMat >&     aGlobalBlockRows,
+                    const moris::uint&                 aBlockRowOffsets,
                     Vector< moris::Matrix< DDRMat > >& LHSValues );
 
             //--------------------------------------------------------------------------------------------------

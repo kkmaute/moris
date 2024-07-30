@@ -1117,7 +1117,7 @@ namespace moris
                 enum CM_Function_Type               aCMFunctionType )
         {
             // check requested derivative
-            MORIS_ERROR( aCMRequestType != CM_Request_Type::UNDEFINED,
+            MORIS_ERROR( aCMRequestType != CM_Request_Type::END_CM_REQUEST_TYPE,
                     "Constitutive_Model::eval_derivative_FD - aCMRequestType needs to be defined." );
 
             // get the FD scheme info

@@ -269,6 +269,12 @@ namespace moris
         // Adding the tree widget to the side panel
         mSidePanel->addWidget( mTreeWidget );
 
+
+        // // Create an instance of Library_IO_Standard
+        // moris::Library_IO_Standard library;
+        // // Assign the mParameterLists from main_gui to the library instance
+        // library.mParameterLists = main_gui::mParameterLists;
+
         // Setting the text for the add and remove buttons
         mAddButton->setText( "Add" );
         mSidePanel->addWidget( mAddButton );
@@ -276,10 +282,15 @@ namespace moris
         mRemoveButton->setText( "Remove" );
         mSidePanel->addWidget( mRemoveButton );
 
+        // Setting the text for the Save to XML button
+        m_save_to_xml_Button->setText( "Save to XML" );
+        mSidePanel->addWidget( m_save_to_xml_Button );
+
         // Connecting the signals and slots
         connect( mTreeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( parameter_selected() ) );
         connect( mAddButton, SIGNAL( clicked() ), this, SLOT( add_more_props() ) );
         connect( mRemoveButton, SIGNAL( clicked() ), this, SLOT( remove_props() ) );
+        connect ( m_save_to_xml_Button, SIGNAL( clicked() ), this, SLOT( write_to_xml() ) );
     }
 
     void Moris_Gui::parameter_selected()
@@ -454,6 +465,20 @@ namespace moris
             }
         }
     }
+
+
+
+void Moris_Gui::write_to_xml()
+{
+    /**
+     * @brief Function to save the current parameters to an XML file
+     * @note This function is called when the m_save_to_xml_Button is clicked. It writes the parameters to an XML file.
+     */
+
+  //  finalize();
+}
+
+
 
 
     Vector< Vector< Vector< Parameter_List > > > read()

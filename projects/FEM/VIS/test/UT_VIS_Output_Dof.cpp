@@ -92,9 +92,9 @@ PlaneVisTest( const moris::Matrix< moris::DDRMat >& aPoint )
 }
 
 inline void
-tConstValFunc_OUTDOF( moris::Matrix< moris::DDRMat >&  aPropMatrix,
-        Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-        moris::fem::Field_Interpolator_Manager*        aFIManager )
+tConstValFunc_OUTDOF( moris::Matrix< moris::DDRMat >& aPropMatrix,
+        Vector< moris::Matrix< moris::DDRMat > >&     aParameters,
+        moris::fem::Field_Interpolator_Manager*       aFIManager )
 {
     aPropMatrix = aParameters( 0 );
 }
@@ -162,10 +162,12 @@ namespace moris
 
                 hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-                auto                                    tField          = std::make_shared< moris::gen::Line >( 0.11, 0.11, 1.0, 0.0 );
+                auto tField = std::make_shared< moris::gen::Line >( 0.11, 0.11, 1.0, 0.0 );
+
                 Vector< std::shared_ptr< gen::Geometry > > tGeometryVector = { std::make_shared< gen::Level_Set_Geometry >( tField ) };
 
-                size_t                                tModelDimension = 2;
+                size_t tModelDimension = 2;
+
                 moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
                 tGeometryEngineParameters.mGeometries = tGeometryVector;
                 moris::gen::Geometry_Engine tGeometryEngine( tInterpMesh, tGeometryEngineParameters );
@@ -362,8 +364,8 @@ namespace moris
                 tDofTypesU( 0 ) = MSI::Dof_Type::UX;
                 tDofTypesU( 1 ) = MSI::Dof_Type::UY;
 
-                dla::Solver_Factory                             tSolFactory;
-                Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_aztec();
+                dla::Solver_Factory tSolFactory;
+                Parameter_List      tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_aztec();
                 tLinearSolverParameterList.set( "AZ_diagnostics", AZ_none );
                 tLinearSolverParameterList.set( "AZ_output", AZ_none );
                 tLinearSolverParameterList.set( "AZ_max_iter", 10000 );
@@ -379,8 +381,8 @@ namespace moris
                 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
                 // STEP 2: create nonlinear solver and algorithm
                 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-                NLA::Nonlinear_Solver_Factory               tNonlinFactory;
-                Parameter_List tNonlinearSolverParameterList = prm::create_nonlinear_algorithm_parameter_list();
+                NLA::Nonlinear_Solver_Factory tNonlinFactory;
+                Parameter_List                tNonlinearSolverParameterList = prm::create_nonlinear_algorithm_parameter_list();
                 tNonlinearSolverParameterList.set( "NLA_max_iter", 3 );
                 std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( tNonlinearSolverParameterList );
 

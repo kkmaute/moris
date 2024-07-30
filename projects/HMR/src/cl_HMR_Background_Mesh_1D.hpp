@@ -184,5 +184,4 @@ namespace moris::hmr
     //-------------------------------------------------------------------------------
 }    // namespace moris::hmr
 
-
 #endif /* SRC_HMR_CL_HMR_BACKGROUND_MESH_1D_HPP_ */

@@ -13,7 +13,6 @@
 // TPL header files
 #include "cl_DLA_Linear_Solver_Algorithm.hpp"
 
-
 namespace moris::dla
 {
 

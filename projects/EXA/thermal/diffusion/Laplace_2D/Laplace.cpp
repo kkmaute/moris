@@ -528,7 +528,6 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "refinement_buffer", tRefineBuffer );
         tParameterlist( 0 )( 0 ).set( "staircase_buffer", tRefineBuffer );
 
-
         tParameterlist( 0 )( 0 ).set( "initial_refinement", tInitialRef );
         tParameterlist( 0 )( 0 ).set( "initial_refinement_pattern", "0,1" );
 
@@ -823,7 +822,6 @@ namespace moris
         tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters", "SPNitsche,DirichletNitsche" );
         tIWGCounter++;
         
-
               // Inlet BC IWG ----------------------------------------------------------------
 
         //
@@ -853,7 +851,6 @@ namespace moris
         tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters", "SPNitsche,DirichletNitsche" );
         tIWGCounter++;
         // Outlet BC IWG ----------------------------------------------------------------
-
 
         // Time continuity ----------------------------------------------------------------
 
@@ -949,7 +946,6 @@ namespace moris
         tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name", "PhaseSolid" );
         tIQICounter++;
 
-
         // input thermal energy
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name", "IQIInputThermalEnergySurface" );
@@ -1007,7 +1003,6 @@ namespace moris
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type", ( fem::IQI_Type::PROPERTY ) );
         tParameterList( tIQIIndex )( tIQICounter ).set( "leader_properties", "PropStoredThermalEnergy,Property" );
         tIQICounter++;
-
 
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkEigen" );
@@ -1114,7 +1109,6 @@ namespace moris
         tParameterlist( 0 )( 3 ).set( "sub_linear_solver", "1" );    // 10 shift_invert
         tParameterlist( 0 )( 3 ).set( "is_symmetric", false );       // 10 shift_invert
         tParameterlist( 0 )( 3 ).set( "Update_Flag", true );         // 10 shift_invert
-
 
         // find min eigen value
         tParameterlist( 0 )( 4 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::SLEPC_SOLVER );
@@ -1232,7 +1226,6 @@ namespace moris
         tParameterlist( 6 )( 0 ).set( "SOL_save_operator_to_matlab", "Jacobian_petsc" );
         tParameterlist( 6 )( 0 ).set( "SOL_TPL_Type", static_cast< uint >( sol::MapType::Petsc ) );
     }
-
 
     //------------------------------------------------------------------------------
     void

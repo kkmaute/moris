@@ -656,7 +656,6 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 0 );
         tIQICounter++;
 
-
         //------------------------------------------------------------------------------
         // fill the computation part of the parameter list
         tParameterList( 5 ).resize( 1 );

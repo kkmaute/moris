@@ -113,7 +113,6 @@ namespace moris
                     Vector< std::shared_ptr< mtk::Mesh_Manager > >&   aMTKPerformer,
                     Vector< std::shared_ptr< mdl::Model > >           mMDLPerformer );
 
-
             //------------------------------------------------------------------------------
 
             /**

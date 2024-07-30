@@ -20,7 +20,6 @@
 #include "cl_MTK_Field_Discrete.hpp"
 #include "fn_stringify_matrix.hpp"
 
-
 #include "cl_XTK_HMR_Helper.hpp"    // hmr helper
 
 using namespace moris;
@@ -66,7 +65,6 @@ namespace moris::xtk
                 this->construct_volumetric_clustering_of_basis();
                 break;
             }
-
 
             default:
             {
@@ -146,7 +144,7 @@ namespace moris::xtk
                 const Vector< moris_index >& tIGCellsInGroup = tSubphaseGroup->get_ig_cell_indices_in_group();
 
                 // compute the volume of the cell
-                real tVolume = std::accumulate( tIGCellsInGroup.begin(), tIGCellsInGroup.end(), 0.0, [ & ]( real aVol, int index ) { 
+                real tVolume = std::accumulate( tIGCellsInGroup.begin(), tIGCellsInGroup.end(), 0.0, [ & ]( real aVol, int index ) {
                                     const mtk::Cell & tCell = mXTKModelPtr->mCutIntegrationMesh->get_mtk_cell(index) ;
                                     return aVol + tCell.compute_cell_measure(); } );
 
@@ -434,7 +432,7 @@ namespace moris::xtk
                     const Vector< moris_index >& tIGCellsInGroup = tSubphaseGroup->get_ig_cell_indices_in_group();
 
                     // compute the volume of the cell
-                    real tVolume = std::accumulate( tIGCellsInGroup.begin(), tIGCellsInGroup.end(), 0.0, [ & ]( real aVol, int index ) { 
+                    real tVolume = std::accumulate( tIGCellsInGroup.begin(), tIGCellsInGroup.end(), 0.0, [ & ]( real aVol, int index ) {
                                     const mtk::Cell & tCell = mXTKModelPtr->mCutIntegrationMesh->get_mtk_cell(index) ;
                                     return aVol + tCell.compute_cell_measure(); } );
 
@@ -589,7 +587,7 @@ namespace moris::xtk
                 const Vector< moris_index >& tIGCellsInGroup = tSubphaseGroup->get_ig_cell_indices_in_group();
 
                 // compute the volume of the cell
-                real tVolume = std::accumulate( tIGCellsInGroup.begin(), tIGCellsInGroup.end(), 0.0, [ & ]( real aVol, int index ) { 
+                real tVolume = std::accumulate( tIGCellsInGroup.begin(), tIGCellsInGroup.end(), 0.0, [ & ]( real aVol, int index ) {
                                     const mtk::Cell & tCell = mXTKModelPtr->mCutIntegrationMesh->get_mtk_cell(index) ;
                                     return aVol + tCell.compute_cell_measure(); } );
 
@@ -1123,13 +1121,13 @@ namespace moris::xtk
 
                     }    // end if: there's a candidate root cell
 
-                }        // end if: no root SPG has been determined yet
+                }    // end if: no root SPG has been determined yet
 
-            }            // end for: each sub-phase group (i.e. unzipped B-spline elements)
+            }    // end for: each sub-phase group (i.e. unzipped B-spline elements)
 
-        }                // end while: stopping criteria is not fulfilled
+        }    // end while: stopping criteria is not fulfilled
 
-    }                    // end function: Basis_Processor::construct_cell_aggregates()
+    }    // end function: Basis_Processor::construct_cell_aggregates()
 
     //--------------------------------------------------------------------------------------------------
 
@@ -1492,7 +1490,7 @@ namespace moris::xtk
 
             }    // end for: communication for each entity with current processor
 
-        }        // end for: communication list for each processor
+        }    // end for: communication list for each processor
     }
 
     //----------------------------------------------------------------------------------------------
@@ -1959,9 +1957,8 @@ namespace moris::xtk
 
             }    // end for: communication for each entity with current processor
 
-        }        // end for: communication list for each processor
+        }    // end for: communication list for each processor
     }
-
 
     //--------------------------------------------------------------------------------------------------
 
@@ -2076,7 +2073,6 @@ namespace moris::xtk
         Vector< Vector< moris_index > > const & tEnrichedBasisInSubphaseGroup = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mEnrichedBasisInSubphaseGroup;
         Vector< Subphase_Group* > const &       tSPGs                         = tBsplineMeshInfo->mSubphaseGroups;
 
-
         // loop over the SPGs and determine if they are their own SPG , if not look for the neighbor, if the neighbor is complete then use it
         for ( uint iSPGIndex = 0; iSPGIndex < tSPGs.size(); iSPGIndex++ )
         {
@@ -2102,11 +2098,10 @@ namespace moris::xtk
         // Get a reference or a pointer to the required data
         Bspline_Mesh_Info*                      tBsplineMeshInfo              = mXTKModelPtr->mEnrichment->mBsplineMeshInfos( aMeshIndex );
         Vector< Vector< moris_index > > const & tEnrichedBasisInSubphaseGroup = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mEnrichedBasisInSubphaseGroup;
-        // Cell< Matrix< IndexMat > > const & tSubphaseGroupIndsInEnrichedBasis = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mSubphaseGroupIndsInEnrichedBasis;
+        // Vector< Matrix< IndexMat > > const & tSubphaseGroupIndsInEnrichedBasis = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mSubphaseGroupIndsInEnrichedBasis;
         Vector< Subphase_Group* > const &                  tSPGs                     = tBsplineMeshInfo->mSubphaseGroups;
         Vector< moris_index > const &                      tNonEnrBfIndForEnrBfInd   = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mNonEnrBfIndForEnrBfInd;
         std::unordered_map< moris_index, Vector< real > >& tAveragingWeightsSPGBased = mBasisData( aMeshIndex ).mAveragingWeightsSPGBased;
-
 
         // loop over the SPGs and find out the ones that need extension such that the root processor is within processor domain
         for ( uint iSPGIndex = 0; iSPGIndex < tSPGs.size(); iSPGIndex++ )
@@ -2262,7 +2257,6 @@ namespace moris::xtk
                 tSendFollowerToLeaderOffset,
                 tReceivedBasisIds );
 
-
         // clear memory from requests (the answers to which have been found)
         tReceivedBasisIds.clear();
         shrink_to_fit_all( tReceivedBasisIds );
@@ -2304,7 +2298,6 @@ namespace moris::xtk
                 tReceivedFollowerToLeaderOffset,
                 tBasisIndexToProcs );
     }
-
 
     //------------------------------------------------------------------------------------------------------------------------
 
@@ -2494,7 +2487,7 @@ namespace moris::xtk
                     aSendFollowerToLeaderBasisIds( iProc ).end(),              //
                     aSendFollowerToLeaderBasisIds( iProc ).begin(),            //
                     [ &tLocalToGlobalBasisMap ]( moris_index const & aIndex ) { return tLocalToGlobalBasisMap( aIndex ); } );
-        }                                                                      // end for: communication list for each processor
+        }    // end for: communication list for each processor
     }
 
     //--------------------------------------------------------------------------------------------------

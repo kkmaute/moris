@@ -105,7 +105,6 @@ namespace moris
                 std::cout << "In MTK Cell Proxy" << std::endl;
             }
 
-
             //------------------------------------------------------------------------------
 
             Matrix< IdMat >

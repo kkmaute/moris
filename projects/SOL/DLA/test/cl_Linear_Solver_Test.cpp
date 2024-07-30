@@ -81,7 +81,6 @@ namespace moris::dla
             moris::Matrix< DDRMat > tSol;
             tLinProblem->get_solution( tSol );
 
-
             tLinProblem->get_free_solver_LHS()->print();
             tLinProblem->get_matrix()->save_matrix_to_matlab_file( "matrixnew" );
             tLinProblem->get_matrix()->print();
@@ -229,7 +228,6 @@ namespace moris::dla
             tParamList.insert( "schwarz: reordering type", "rcm" );
             tParamList.insert( "overlap-level", 0 );
             tParamList.insert( "prec_reuse", false );
-
 
             // create preconditioner
             Preconditioner_Trilinos tPreconditioner( tParamList );

@@ -24,7 +24,7 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         Triangle::Triangle(
-                moris_index                      aIndex,
+                moris_index                                aIndex,
                 Vector< std::shared_ptr< Facet_Vertex > >& aVertices )
                 : Facet( aIndex, aVertices, 3 )
                 , mPredictY( 3, 3 )
@@ -41,7 +41,7 @@ namespace moris
         {
             // step 1: compute center of the triangle
             this->compute_center();
-            
+
             // step 2: determine the triangle's bounding box
             this->compute_min_and_max_coordinates();
 
@@ -141,13 +141,12 @@ namespace moris
                                               * ( mBarycentric.mLocalNodeCoordsInPlane( 0, 1 )
                                                       - mBarycentric.mLocalNodeCoordsInPlane( 0, 2 ) );
 
-            
             // warn if the the triangle has a volume close to zero
-            if( mBarycentric.mTwiceArea <= 2 * gSDFepsilon )
+            if ( mBarycentric.mTwiceArea <= 2 * gSDFepsilon )
             {
-                MORIS_LOG_WARNING( 
+                MORIS_LOG_WARNING(
                         "TRI/TET with ID %i is potentially degenerate and has a volume of V = %e. ",
-                        this->get_id(), 
+                        this->get_id(),
                         mBarycentric.mTwiceArea );
                 MORIS_LOG_WARNING( "Nodal coordinates = %s", ios::stringify_log( this->get_vertex_coords() ).c_str() );
             }
@@ -155,8 +154,8 @@ namespace moris
             // throw an error if an inverted triangle has been produced
             MORIS_ERROR( mBarycentric.mTwiceArea > -1.0 * MORIS_REAL_EPS,
                     "TRI/TET with ID %i is inverted and has a volume of V = %e. "
-                    "Nodal coordinates of the element are: %s", 
-                    this->get_id(), 
+                    "Nodal coordinates of the element are: %s",
+                    this->get_id(),
                     mBarycentric.mTwiceArea,
                     ios::stringify_log( this->get_vertex_coords() ).c_str() );
 
@@ -226,8 +225,8 @@ namespace moris
 
         bool
         Triangle::check_edge(
-                const uint               aEdge,
-                const uint               aAxis,
+                const uint              aEdge,
+                const uint              aAxis,
                 const Matrix< DDRMat >& aPoint )
         {
             uint tI;
@@ -247,7 +246,7 @@ namespace moris
             // check if point is within all three projected edges
             return ( ( mPredictY( aEdge, aAxis ) > mVertices( aEdge )->get_coord( tJ ) )
                            && ( tPredictYR + gSDFepsilon > aPoint( tJ ) ) )
-                || ( ( mPredictY( aEdge, aAxis ) < mVertices( aEdge)->get_coord( tJ ) )
+                || ( ( mPredictY( aEdge, aAxis ) < mVertices( aEdge )->get_coord( tJ ) )
                         && ( tPredictYR - gSDFepsilon < aPoint( tJ ) ) )
                 || ( std::abs( ( mVertices( tP )->get_coord( tJ ) - mVertices( tQ )->get_coord( tJ ) )
                                * ( mVertices( tP )->get_coord( tI ) - aPoint( tI ) ) )

@@ -254,7 +254,6 @@ check_results_xtk_mesh(
         return;
     }
 
-
     // define reference values for dimension, number of nodes and number of elements
     Vector< uint > tReferenceNumDims  = { 2, 2 };
     Vector< uint > tReferenceNumNodes = { 54, 60 };

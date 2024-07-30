@@ -11,7 +11,6 @@
 #ifndef PROJECTS_XTK_SRC_XTK_CL_XTK_GHOST_STABILIZATION_HPP_
 #define PROJECTS_XTK_SRC_XTK_CL_XTK_GHOST_STABILIZATION_HPP_
 
-
 #include "cl_XTK_Model.hpp"
 #include "cl_MTK_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
@@ -470,6 +469,5 @@ namespace moris::xtk
     };
 
 }    // namespace moris::xtk
-
 
 #endif /* PROJECTS_XTK_SRC_XTK_CL_XTK_GHOST_STABILIZATION_HPP_ */

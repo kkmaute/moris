@@ -8,8 +8,9 @@
  *
  */
 
-
 #pragma once
+
+#include "cl_Vector.hpp"
 
 namespace moris
 {

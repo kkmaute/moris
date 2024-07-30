@@ -148,9 +148,9 @@ namespace moris
 
     inline void
     tConstValFunction(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         aPropMatrix = aParameters( 0 );
     }
@@ -218,7 +218,7 @@ namespace moris
 
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            auto tPlane = std::make_shared< moris::gen::Line >( -500.0, 0.0, 1.0, 0.0 );
+            auto                                              tPlane          = std::make_shared< moris::gen::Line >( -500.0, 0.0, 1.0, 0.0 );
             Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
             size_t tModelDimension = 2;
@@ -466,7 +466,7 @@ namespace moris
             tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "UX,UY;TEMP" );
 
             tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
-            
+
             tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::ML );
             tParameterlist( 7 )( 0 ).set( "ml_prec_type", "SA" );
 
@@ -603,7 +603,7 @@ namespace moris
     //         tXTKModel.mVerbose = false;
     //
     //         //Specify decomposition Method and Cut Mesh ---------------------------------------
-    //         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
+    //         Vector<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
     //         tXTKModel.decompose(tDecompositionMethods);
     //
     //         tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE,0);
@@ -692,7 +692,7 @@ namespace moris
 
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            auto tPlane = std::make_shared< moris::gen::Line >( -500.0, 0.0, 1.0, 0.0 );
+            auto                                              tPlane          = std::make_shared< moris::gen::Line >( -500.0, 0.0, 1.0, 0.0 );
             Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
             size_t tModelDimension = 2;
@@ -982,7 +982,7 @@ namespace moris
 
             tParameterlist( 6 ).resize( 1 );
             tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
-            
+
             tParameterlist( 7 ).resize( 2 );
             tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::ML );
             tParameterlist( 7 )( 0 ).set( "ml_prec_type", "SA" );
@@ -1158,7 +1158,7 @@ namespace moris
     //          std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
     //
     //        //  create field
-    //        Cell<std::shared_ptr< moris::hmr::Field > > tHMRFields;
+    //        Vector<std::shared_ptr< moris::hmr::Field > > tHMRFields;
     //        tHMRFields.resize(2);
     //
     //        // create field
@@ -1194,7 +1194,7 @@ namespace moris
     //      xtk::Model           tXTKModel(tSpatialDimension,tInterpMesh.get(),&tGeometryEngine);
     //      tXTKModel.mVerbose = false;
     //
-    //      Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
+    //      Vector<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
     //      tXTKModel.decompose(tDecompositionMethods);
     //      tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE,0);
     //
@@ -1206,10 +1206,10 @@ namespace moris
     //      mtk::Mesh_Manager tMeshManager;
     //      tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
     //
-    //      Cell< fem::IWG_User_Defined_Info > tBulkIWG(1);
-    //      Cell< fem::IWG_User_Defined_Info > tDBCIWG(1);
-    //      Cell< fem::IWG_User_Defined_Info > tNBCIWG(1);
-    //      Cell< fem::IWG_User_Defined_Info > tIntIWG(1);
+    //      Vector< fem::IWG_User_Defined_Info > tBulkIWG(1);
+    //      Vector< fem::IWG_User_Defined_Info > tDBCIWG(1);
+    //      Vector< fem::IWG_User_Defined_Info > tNBCIWG(1);
+    //      Vector< fem::IWG_User_Defined_Info > tIntIWG(1);
     //
     //        // create IWG user defined info
     //      tBulkIWG( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::STRUC_LINEAR_BULK,
@@ -1232,13 +1232,13 @@ namespace moris
     //      tIntIWG( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::STRUC_LINEAR_INTERFACE_SYMMETRIC_NITSCHE,
     //                                                 { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ },
     //                                                 {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }},
-    //                                                 Cell< fem::Property_Type >( 0 ),
+    //                                                 Vector< fem::Property_Type >( 0 ),
     //                                                 {fem::Constitutive_Type::STRUC_LIN_ISO },
     //                                                 {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }},
-    //                                                 Cell< fem::Property_Type >( 0 ),
+    //                                                 Vector< fem::Property_Type >( 0 ),
     //                                                 {fem::Constitutive_Type::STRUC_LIN_ISO } );
     //
-    //        Cell< Cell< fem::IWG_User_Defined_Info > > tIWGUserDefinedInfo( 14 );
+    //        Vector< Vector< fem::IWG_User_Defined_Info > > tIWGUserDefinedInfo( 14 );
     //
     //        tIWGUserDefinedInfo( 0 )  = tBulkIWG;
     //        tIWGUserDefinedInfo( 1 )  = tBulkIWG;
@@ -1257,33 +1257,33 @@ namespace moris
     //
     //        // create property user defined info
     //        fem::Property_User_Defined_Info tYoungs_Modulus( fem::Property_Type::YOUNGS_MODULUS,
-    //                Cell< Cell< MSI::Dof_Type > >( 0 ),
+    //                Vector< Vector< MSI::Dof_Type > >( 0 ),
     //                {{{ 1.0 }}},
     //                tConstValFunction,
-    //                Cell< fem::PropertyFunc >( 0 ) );
+    //                Vector< fem::PropertyFunc >( 0 ) );
     //        fem::Property_User_Defined_Info tYoungs_Modulus2( fem::Property_Type::YOUNGS_MODULUS,
-    //                Cell< Cell< MSI::Dof_Type > >( 0 ),
+    //                Vector< Vector< MSI::Dof_Type > >( 0 ),
     //                {{{ 1.0 }}},
     //                tConstValFunction,
-    //                Cell< fem::PropertyFunc >( 0 ) );
+    //                Vector< fem::PropertyFunc >( 0 ) );
     //        fem::Property_User_Defined_Info tPoissons_Ratio( fem::Property_Type::POISSONS_RATIO,
-    //                Cell< Cell< MSI::Dof_Type > >( 0 ),
+    //                Vector< Vector< MSI::Dof_Type > >( 0 ),
     //                {{{ 0.0 }}},
     //                tConstValFunction,
-    //                Cell< fem::PropertyFunc >( 0 ) );
+    //                Vector< fem::PropertyFunc >( 0 ) );
     //        fem::Property_User_Defined_Info tStrucDirichlet( fem::Property_Type::STRUC_DIRICHLET,
-    //                Cell< Cell< MSI::Dof_Type > >( 0 ),
+    //                Vector< Vector< MSI::Dof_Type > >( 0 ),
     //                {{{ 0.0, 0.0, 0.0 }}},
     //                tConstValFunction,
-    //                Cell< fem::PropertyFunc >( 0 ) );
+    //                Vector< fem::PropertyFunc >( 0 ) );
     //        fem::Property_User_Defined_Info tStrucNeumann( fem::Property_Type::STRUC_NEUMANN,
-    //                Cell< Cell< MSI::Dof_Type > >( 0 ),
+    //                Vector< Vector< MSI::Dof_Type > >( 0 ),
     //                {{{ 1.0, 0.0, 0.0 }}},
     //                tConstValFunction,
-    //                Cell< fem::PropertyFunc >( 0 ) );
+    //                Vector< fem::PropertyFunc >( 0 ) );
     //
     //        // create property user defined info
-    //        Cell< Cell< Cell< fem::Property_User_Defined_Info > > > tPropertyUserDefinedInfo( 14 );
+    //        Vector< Vector< Vector< fem::Property_User_Defined_Info > > > tPropertyUserDefinedInfo( 14 );
     //        tPropertyUserDefinedInfo( 0 ).resize( 1 );
     //        tPropertyUserDefinedInfo( 0 )( 0 ).resize( 2 );
     //        tPropertyUserDefinedInfo( 0 )( 0 )( 0 ) = tYoungs_Modulus2;
@@ -1358,7 +1358,7 @@ namespace moris
     //                                                          { fem::Property_Type::YOUNGS_MODULUS, fem::Property_Type::POISSONS_RATIO } );
     //
     //        // create constitutive user defined info
-    //        Cell< Cell< Cell< fem::Constitutive_User_Defined_Info > > > tConstitutiveUserDefinedInfo( 14 );
+    //        Vector< Vector< Vector< fem::Constitutive_User_Defined_Info > > > tConstitutiveUserDefinedInfo( 14 );
     //        tConstitutiveUserDefinedInfo( 0 ).resize( 1 );
     //        tConstitutiveUserDefinedInfo( 0 )( 0 ).resize( 1 );
     //        tConstitutiveUserDefinedInfo( 0 )( 0 )( 0 ) = tStrucLinIso;

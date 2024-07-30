@@ -46,7 +46,6 @@ extern moris::Comm_Manager gMorisComm;
 namespace moris::dla
 {
 
-
     TEST_CASE( "Eigen Solver SLEPCv1", "[Eigen Solver SLEPC],[Eigen Solver], [EigSolveSLEPC]" )
     {
         if ( par_size() == 1 )
@@ -64,7 +63,6 @@ namespace moris::dla
             tLinearSolverParameterListLM.set( "Num_Eig_Vals", 1 );    // 2; 1
             tLinearSolverParameterListLM.set( "Update_Flag", false );
             tLinearSolverParameterListLM.set( "Verbosity", true );
-
 
             Parameter_List tLinearSolverParameterListSM = prm::create_slepc_algorithm_parameter_list();
             tLinearSolverParameterListSM.set( "Eigen_Algorithm", std::string( "power" ) );
@@ -134,7 +132,6 @@ namespace moris::dla
             tLinearSolverParameterListLM.set( "STType", "precond" );    // 10 shift_invert
             tLinearSolverParameterListLM.set( "Update_Flag", false );
 
-
             Parameter_List tLinearSolverParameterListSM = prm::create_slepc_algorithm_parameter_list();
             tLinearSolverParameterListSM.set( "Eigen_Algorithm", std::string( "gd" ) );
             tLinearSolverParameterListSM.set( "Which", std::string( "SM" ) );
@@ -181,7 +178,6 @@ namespace moris::dla
         }
     }
 
-
     TEST_CASE( "Eigen Solver SLEPC3v1", "[Eigen Solver SLEPC],[Eigen Solver], [EigSolveSLEPC]" )
     {
         if ( par_size() == 1 )
@@ -199,7 +195,6 @@ namespace moris::dla
             tLinearSolverParameterListLM.set( "Num_Eig_Vals", 1 );    // 2; 1
             tLinearSolverParameterListLM.set( "STType", "shift" );    // 10 shift_invert
             tLinearSolverParameterListLM.set( "Update_Flag", false );
-
 
             Parameter_List tLinearSolverParameterListSM = prm::create_slepc_algorithm_parameter_list();
             tLinearSolverParameterListSM.set( "Eigen_Algorithm", std::string( "krylovschur" ) );
@@ -238,7 +233,6 @@ namespace moris::dla
 
             Vector<real> const & tLargeEigenValues = std::dynamic_pointer_cast<Eigen_Solver_SLEPc>(tEigSolverLM)->get_eigenvalues();
             Vector<real> const & tSmallEigenValues = std::dynamic_pointer_cast<Eigen_Solver_SLEPc>(tEigSolverSM)->get_eigenvalues();
-
 
             CHECK( equal_to( tLargeEigenValues(0), 60.864058, 1.0e+08 ) );
             CHECK( equal_to( tSmallEigenValues(0), 0.0, 1.0e+08 ) );

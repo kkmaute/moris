@@ -173,7 +173,6 @@ void Matrix_PETSc::fill_matrix(
         }
     }
 
-
     // add values into matrix
     MatSetValues(
             mPETScMat,
@@ -203,7 +202,6 @@ void Matrix_PETSc::insert_values(
 
         Dist_Map_Custom* tCustomMap = dynamic_cast< Dist_Map_Custom* >( mMap );
         tCustomMap->map_from_moris_ids_to_petsc_ids( tTempRowIDs );
-
 
         tCustomMap->map_from_moris_ids_to_petsc_ids( tTempColumnIDs );
     }

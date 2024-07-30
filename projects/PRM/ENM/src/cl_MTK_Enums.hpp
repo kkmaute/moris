@@ -97,6 +97,7 @@ namespace moris::mtk
         BULK,                    // Bulk Set
         SIDESET,                 // SideSet
         DOUBLE_SIDED_SIDESET,    // DoubleSided SideSet
+        NONCONFORMAL_SIDESET,    // Nonconformal SideSet
         UNDEFINED                //
     };
 
@@ -122,7 +123,7 @@ namespace moris::mtk
      * @param aString String with enum name
      * @return EntityRank enum
      */
-    EntityRank get_entity_rank_from_str( std::string const & aString );
+    EntityRank get_entity_rank_from_str( std::string const &aString );
 
     /**
      * Gets the entity rank from a given index
@@ -135,9 +136,9 @@ namespace moris::mtk
 
     enum class Interpolation_Type
     {
-        CONSTANT, // constant interpolation
-        LAGRANGE, // the most common finite element types
-        BEZIER,   // Bezier type elements
+        CONSTANT,    // constant interpolation
+        LAGRANGE,    // the most common finite element types
+        BEZIER,      // Bezier type elements
         UNDEFINED
     };
 
@@ -146,7 +147,7 @@ namespace moris::mtk
     enum class Integration_Type
     {
         CONSTANT,
-        GAUSS, // Gauss ( Quad and Hex ), Dunavant ( Tri ), Hammer ( Tet )
+        GAUSS,    // Gauss ( Quad and Hex ), Dunavant ( Tri ), Hammer ( Tet )
         UNDEFINED
     };
 
@@ -161,6 +162,9 @@ namespace moris::mtk
         BAR_4,
         BAR_5,
         BAR_6,
+        BAR_16,
+        BAR_32,
+        BAR_64,
         QUAD_1x1,
         QUAD_2x2,
         QUAD_3x3,
@@ -197,36 +201,43 @@ namespace moris::mtk
 
     enum class Geometry_Type
     {
-            POINT, // point
-            LINE,  // 1D line or curve
-            QUAD,  // rectangle
-            TRI,   // triangle
-            HEX,   // quadrangle
-            TET,   // tetrahedron
-            PENTA, // pentahedron
-            UNDEFINED
+        POINT,    // point
+        LINE,     // 1D line or curve
+        QUAD,     // rectangle
+        TRI,      // triangle
+        HEX,      // quadrangle
+        TET,      // tetrahedron
+        PENTA,    // pentahedron
+        UNDEFINED
     };
 
     //------------------------------------------------------------------------------
 
     enum class Interpolation_Order
     {
-            CONSTANT,
-            LINEAR,
-            QUADRATIC,
-            SERENDIPITY,
-            CUBIC,
-            UNDEFINED
+        CONSTANT,
+        LINEAR,
+        QUADRATIC,
+        SERENDIPITY,
+        CUBIC,
+        UNDEFINED
     };
 
     //------------------------------------------------------------------------------
 
     enum class Leader_Follower
     {
-            LEADER,
-            FOLLOWER,
-            UNDEFINED
+        LEADER,
+        FOLLOWER,
+        UNDEFINED
     };
+
+    /**
+     * @brief Gets a string representing the given Leader_Follower enum
+     * @param aLeaderFollower
+     * @return 'leader' or 'follower'
+     */
+    std::string get_leader_follower_string( Leader_Follower aLeaderFollower );
 
     /**
      * Gets the map that can be used to go from a parameter list value to the internal enum Leader_Follower
@@ -247,10 +258,10 @@ namespace moris::mtk
 
     enum class Primary_Void
     {
-            PRIMARY,
-            VOID,
-            INTERP,
-            UNDEFINED
+        PRIMARY,
+        VOID,
+        INTERP,
+        UNDEFINED
     };
 
     /**
@@ -264,12 +275,12 @@ namespace moris::mtk
 
     enum class Field_Type
     {
-            FIELD_1,
-            FIELD_2,
-            FIELD_3,
-            FIELD_4,
-            FIELD_5,
-            UNDEFINED
+        FIELD_1,
+        FIELD_2,
+        FIELD_3,
+        FIELD_4,
+        FIELD_5,
+        UNDEFINED
     };
 
     /**
@@ -283,17 +294,17 @@ namespace moris::mtk
 
     enum class Field_Entity_Type
     {
-            NODAL,
-            ELEMENTAL,
-            UNDEFINED
+        NODAL,
+        ELEMENTAL,
+        UNDEFINED
     };
 
     enum class Field_Implementation
     {
-            MTK,
-            FEM,
-            GEN,
-            UNDEFINED
+        MTK,
+        FEM,
+        GEN,
+        UNDEFINED
     };
 
     /**
@@ -304,7 +315,6 @@ namespace moris::mtk
     moris::map< std::string, Field_Entity_Type > get_field_entity_type_map();
 
     //------------------------------------------------------------------------------
-}
+}    // namespace moris::mtk
 
 #endif /* SRC_MESH_CL_MTK_ENUMS_HPP_ */
-

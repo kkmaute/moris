@@ -497,7 +497,6 @@ else
   
 end % if strcmp(interpmethod,'linear');
 
-
 % ==========================================================
 function d = ipdm(data1,varargin)
 % ipdm: Inter-Point Distance Matrix
@@ -1646,7 +1645,4 @@ for i=1:n
   params = setfield(params,p_i,v_i); %#ok
 
 end
-
-
-
 

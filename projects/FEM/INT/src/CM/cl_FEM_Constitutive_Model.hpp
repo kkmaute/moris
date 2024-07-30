@@ -270,11 +270,7 @@ namespace moris
              * @return constitutive type
              */
             virtual Constitutive_Type
-            get_constitutive_type() const
-            {
-                // need to define this for every CM
-                return Constitutive_Type::UNDEFINED;
-            }
+            get_constitutive_type() const = 0;
 
             //------------------------------------------------------------------------------
             /**
@@ -580,7 +576,6 @@ namespace moris
             virtual void
             set_model_type( fem::Model_Type aModelType )
             {
-                MORIS_ERROR( false, "Constitutive_Model::set_model_type - Not implemented for base class." );
             }
 
             //------------------------------------------------------------------------------
@@ -590,7 +585,7 @@ namespace moris
             virtual Model_Type
             get_plane_type() const
             {
-                return Model_Type::UNDEFINED;
+                return Model_Type::FULL;
             }
 
             //------------------------------------------------------------------------------

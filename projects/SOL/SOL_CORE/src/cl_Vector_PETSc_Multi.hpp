@@ -57,7 +57,6 @@ namespace moris
             return dynamic_cast< sol::Dist_Map* >( mMap );
         }
 
-
         /**
          * Gets a value in the distributed vector based on a given ID.
          *
