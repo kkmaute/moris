@@ -29,18 +29,17 @@
 #include <QList>
 
 #include "moris_tree_widget_item.hpp"
-#include "moris_file_dialog.hpp"
+#include "moris_read_file_dialog.hpp"
+#include "moris_write_file_dialog.hpp"
 
 #include <iostream>
 
 #include "cl_Communication_Manager.hpp"    // COM/src
 #include "cl_Logger.hpp"                   // MRS/IOS/src
-#include "cl_Library_IO_Standard.hpp"    // MRS/IOS/src
+#include "cl_Library_IO_Standard.hpp"      // MRS/IOS/src
 #include "cl_XML_Parser.hpp"
 #include "cl_Library_IO.hpp"
 #include "cl_Library_IO_Standard.hpp"
-
-
 
 
 // Using moris namespace
@@ -103,7 +102,7 @@ namespace moris
 
         QTreeWidgetItem *mOldItem;
 
-        //Vector< Vector< Vector< Parameter_List > > > & mGUIParameterLists;
+        // Vector< Vector< Vector< Parameter_List > > > & mGUIParameterLists;
 
       public:
         // Add argument that reads a parameter list
@@ -165,6 +164,6 @@ namespace moris
 
 
     Vector< Vector< Vector< Parameter_List > > > read();
-    
+
 
 }    // namespace moris

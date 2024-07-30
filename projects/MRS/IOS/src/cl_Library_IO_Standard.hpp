@@ -45,7 +45,7 @@ namespace moris
          * @brief finishes the initialization of the library and locks it from modification
          */
         void
-        finalize() override;
+        finalize( std::string aFilePath );
 
         // -----------------------------------------------------------------------------
 

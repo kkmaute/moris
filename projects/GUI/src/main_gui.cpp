@@ -475,9 +475,8 @@ namespace moris
          * @brief Function to save the current parameters to an XML file
          * @note This function is called when the m_save_to_xml_Button is clicked. It writes the parameters to an XML file.
          */
-
-        mLibrary.finalize();
-        QMessageBox::information( this, "Save to XML", "Parameters saved to the same XML file" );
+        QString tFilePath = getMorisFilePathForWriting();
+        mLibrary.finalize( tFilePath.toStdString() );
         QCoreApplication::quit();
     }
 

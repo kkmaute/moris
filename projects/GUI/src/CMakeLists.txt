@@ -30,7 +30,8 @@ set(PROJECT_SOURCES
        moris_int_spin_box.cpp
        moris_pair_box.cpp
        moris_tree_widget_item.cpp
-       moris_file_dialog.cpp
+       moris_read_file_dialog.cpp
+       moris_write_file_dialog.cpp
        )
 
 set(HEADERS
@@ -43,7 +44,9 @@ set(HEADERS
        moris_int_spin_box.hpp
        moris_pair_box.hpp
        moris_tree_widget_item.hpp
-       moris_file_dialog.hpp
+       moris_read_file_dialog.hpp
+       moris_write_file_dialog.hpp
+
 )
  
  # List include directories

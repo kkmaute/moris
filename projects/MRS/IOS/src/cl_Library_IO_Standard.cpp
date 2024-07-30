@@ -17,7 +17,7 @@ namespace moris
     //------------------------------------------------------------------------------------------------------------------
 
     Library_IO_Standard::Library_IO_Standard()
-            : Library_IO() // initialize base class data as usual
+            : Library_IO()    // initialize base class data as usual
     {
         // set the type of this library
         mLibraryType = Library_Type::STANDARD;
@@ -35,7 +35,8 @@ namespace moris
             Parameter_List_Type::VIS,
             Parameter_List_Type::MIG,
             Parameter_List_Type::WRK,
-            Parameter_List_Type::MORISGENERAL };
+            Parameter_List_Type::MORISGENERAL
+        };
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -48,7 +49,7 @@ namespace moris
     //------------------------------------------------------------------------------------------------------------------
 
     void
-    Library_IO_Standard::finalize()
+    Library_IO_Standard::finalize( std::string aFilePath )
     {
         // check that an .xml input file has been specified
         MORIS_ERROR( mSoLibIsInitialized || mXmlParserIsInitialized,
@@ -59,15 +60,15 @@ namespace moris
         this->load_all_standard_parameters();
 
         // if an .so file has been parsed, first use its parameters (if any were defined in it) to overwrite or add to the standard parameters
-        if( mSoLibIsInitialized )
+        if ( mSoLibIsInitialized )
         {
             this->load_parameters_from_shared_object_library();
         }
 
         // load parameters from xml, overwrites parameters specified in either the standard parameters or an .so file if parsed
-        if( mXmlParserIsInitialized )
+        if ( mXmlParserIsInitialized )
         {
-            this->load_parameters_from_xml();
+            // this->load_parameters_from_xml();
         }
 
         // check the parameters for validity
@@ -77,7 +78,8 @@ namespace moris
         mLibraryIsFinalized = true;
 
         // print receipt of the finalized library
-        this->print_parameter_receipt( "./Parameter_Receipt.xml" ); // TODO: the file name and location should be user defineable
+        // this->print_parameter_receipt( "./Parameter_Receipt.xml" ); // TODO: the file name and location should be user defineable
+        this->print_parameter_receipt( aFilePath );    // TODO: the file name and location should be user defineable
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -88,7 +90,7 @@ namespace moris
     Library_IO_Standard::load_all_standard_parameters()
     {
         // go over all modules and check that
-        for( uint iModule = 0; iModule < (uint)( Parameter_List_Type::END_ENUM ); iModule++ )
+        for ( uint iModule = 0; iModule < (uint)( Parameter_List_Type::END_ENUM ); iModule++ )
         {
             // get the current module
             Parameter_List_Type tParamListType = (Parameter_List_Type)( iModule );
@@ -101,37 +103,37 @@ namespace moris
             tModuleParamList( 0 ).resize( 1 );
 
             // for each parameter list type, initialize it with a default
-            switch( tParamListType )
+            switch ( tParamListType )
             {
-                case Parameter_List_Type::OPT : 
+                case Parameter_List_Type::OPT:
                     tModuleParamList( 0 )( 0 ) = prm::create_opt_problem_parameter_list();
                     break;
 
-                case Parameter_List_Type::HMR :
+                case Parameter_List_Type::HMR:
                     tModuleParamList( 0 )( 0 ) = prm::create_hmr_parameter_list();
                     break;
 
-                case Parameter_List_Type::STK :
+                case Parameter_List_Type::STK:
                     tModuleParamList( 0 )( 0 ) = prm::create_stk_parameter_list();
                     break;
 
-                case Parameter_List_Type::XTK :
+                case Parameter_List_Type::XTK:
                     tModuleParamList( 0 )( 0 ) = prm::create_xtk_parameter_list();
                     break;
 
-                case Parameter_List_Type::GEN :
+                case Parameter_List_Type::GEN:
                     tModuleParamList.resize( 3 );
                     tModuleParamList( 0 ).resize( 1 );
                     tModuleParamList( 0 )( 0 ) = prm::create_gen_parameter_list();
                     break;
 
-                case Parameter_List_Type::FEM :
+                case Parameter_List_Type::FEM:
                     tModuleParamList.resize( 9 );
                     tModuleParamList( 5 ).resize( 1 );
                     tModuleParamList( 5 )( 0 ) = prm::create_computation_parameter_list();
                     break;
 
-                case Parameter_List_Type::SOL :
+                case Parameter_List_Type::SOL:
                     tModuleParamList.resize( 8 );
                     for ( uint i = 0; i < 8; i++ )
                     {
@@ -147,37 +149,39 @@ namespace moris
                     tModuleParamList( 7 )( 0 ) = prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE );
                     break;
 
-                case Parameter_List_Type::MSI :
+                case Parameter_List_Type::MSI:
                     tModuleParamList( 0 )( 0 ) = prm::create_msi_parameter_list();
                     break;
 
-                case Parameter_List_Type::VIS :
+                case Parameter_List_Type::VIS:
                     tModuleParamList( 0 )( 0 ) = prm::create_vis_parameter_list();
                     tModuleParamList( 0 )( 0 ).set( "Mesh_Type", static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
                     tModuleParamList( 0 )( 0 ).set( "Save_Frequency", 1 );
                     break;
 
-                case Parameter_List_Type::MIG :
+                case Parameter_List_Type::MIG:
                     tModuleParamList( 0 )( 0 ) = prm::create_mig_parameter_list();
                     break;
 
-                case Parameter_List_Type::WRK :
+                case Parameter_List_Type::WRK:
                     tModuleParamList( 0 )( 0 ) = prm::create_wrk_parameter_list();
                     break;
 
-                case Parameter_List_Type::MORISGENERAL :
+                case Parameter_List_Type::MORISGENERAL:
                     tModuleParamList.resize( 3 );
                     break;
 
-                case Parameter_List_Type::END_ENUM :
-                    MORIS_ERROR( false, "Library_IO_Standard::load_all_standard_parameters() - "
+                case Parameter_List_Type::END_ENUM:
+                    MORIS_ERROR( false,
+                            "Library_IO_Standard::load_all_standard_parameters() - "
                             "Parameter_List_Type is UNDEFINED. This loop shouldn't get here." );
                     break;
 
-                default : 
-                    MORIS_ERROR( false, "Library_IO_Standard::load_all_standard_parameters() - "
+                default:
+                    MORIS_ERROR( false,
+                            "Library_IO_Standard::load_all_standard_parameters() - "
                             "No standard library defined for module parameter list type #%i. "
-                            "Most likely a new enum has been defined that isn't used in this function.", 
+                            "Most likely a new enum has been defined that isn't used in this function.",
                             (uint)( tParamListType ) );
                     break;
             }
@@ -186,4 +190,4 @@ namespace moris
 
     //------------------------------------------------------------------------------------------------------------------
 
-} // namespace moris
+}    // namespace moris
