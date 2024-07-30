@@ -697,4 +697,336 @@ namespace moris
 
     //------------------------------------------------------------------------------------------------------------------
 
+    // FREE FUNCTION create_parameter_list
+    
+    /**
+     * @brief create_parameter_list - This function creates a parameter list for a given module, child, and sub-child 
+     * @param aModule - The project index
+     * @param aChild - The sub-module index 
+     * @param aSubChild - Should be 0 unless a sub-module has inner types (for instance GEN/Geometries, OPT/Algorithms and SOL/LinearAlgorithms)
+     * @return Parameter_List
+    */
+
+    Parameter_List create_parameter_list( Parameter_List_Type aModule, uint aChild, uint aSubChild )
+    {
+        /*
+        function name: get_parameter_list
+        parameters:
+          moris::Parameter_List_Type aModule (ENUM) -> this gives the project name
+          uint aChild -> gives the child index
+          uint aSubChild -> gives the Sub-Child (inner sub-module) index
+        returns:
+            QList <QStringList>
+                the create_function returns a ParameterList object that is a type of map
+                The 0th index of the QList gives the "keys" of the map
+                The 1st index of the QList gives the default "values" of the map
+        */
+
+
+        moris::Parameter_List tParameterList;
+
+        switch ( aModule )
+        {
+            case moris::Parameter_List_Type::OPT:
+                switch ( aChild )
+                {
+                    case 0:
+                        tParameterList = ( moris::prm::create_opt_problem_parameter_list() );
+                        break;
+
+                    case 1:
+                        tParameterList = ( moris::prm::create_opt_interface_parameter_list() );
+
+                        // Commented out the Interface manager for now
+
+                        // switch ( aSubChild )
+                        // {
+                        //     case 0:
+                        //         tParameterList = ( moris::prm::create_opt_interface_parameter_list() );
+
+                        //         break;
+
+                        //     case 1:
+                        //         tParameterList = ( moris::prm::create_opt_interface_manager_parameter_list() );
+
+                        //         break;
+
+                        //     default:
+                        //         break;
+                        // }
+
+                        break;
+
+                    case 2:
+                        switch ( aSubChild )
+                        {
+                            case 0:
+                                tParameterList = ( moris::prm::create_gcmma_parameter_list() );
+
+                                break;
+
+                            case 1:
+                                tParameterList = ( moris::prm::create_lbfgs_parameter_list() );
+                                break;
+
+                            case 2:
+                                tParameterList = ( moris::prm::create_sqp_parameter_list() );
+
+                                break;
+
+                            case 3:
+                                tParameterList = ( moris::prm::create_sweep_parameter_list() );
+
+                                break;
+                            default:
+                                break;
+                        }
+
+                        break;
+
+                    default:
+                        break;
+                }
+                // Free
+                break;
+
+            case moris::Parameter_List_Type::HMR:
+                tParameterList = ( moris::prm::create_hmr_parameter_list() );
+
+                break;
+
+            case moris::Parameter_List_Type::STK:
+                tParameterList = ( moris::prm::create_stk_parameter_list() );
+                break;
+
+            case moris::Parameter_List_Type::XTK:
+                tParameterList = ( moris::prm::create_xtk_parameter_list() );
+                break;
+
+            case moris::Parameter_List_Type::GEN:
+                switch ( aChild )
+                {
+                    case 0:
+                    {
+                        tParameterList = ( moris::prm::create_gen_parameter_list() );
+                        break;
+                    }
+
+                    case 1:
+                    {
+                        if ( aSubChild <= (uint)moris::gen::Field_Type::USER_DEFINED )
+                        {
+                            tParameterList = ( moris::prm::create_level_set_geometry_parameter_list( (moris::gen::Field_Type)aSubChild ) );
+                        }
+                        else if ( aSubChild == (uint)moris::gen::Field_Type::USER_DEFINED + 1 )
+                        {
+                            tParameterList = ( moris::prm::create_surface_mesh_geometry_parameter_list() );
+                        }
+                        else
+                        {
+                            tParameterList = ( moris::prm::create_voxel_geometry_parameter_list() );
+                        }
+                        break;
+                    }
+                    case 2:
+                    {
+                        tParameterList = ( moris::prm::create_gen_property_parameter_list( moris::gen::Field_Type::CONSTANT ) );
+                        break;
+                    }
+                    default:
+                    {
+                        break;
+                    }
+                }
+
+                break;
+
+            case moris::Parameter_List_Type::FEM:
+                /*
+                 * Set of Dropdowns for tParameterList[0] (property_name in FEM)
+                 * //Dropdown
+                 * PropDensity, PropYoungs, PropPoisson,
+                 * PropCTE, PropRefTemp, PropConductivity,
+                 * PropCapacity, PropDirichlet, PropSelectX,
+                 * PropSelectY, PropSelectZ, PropInnerPressureLoad,
+                 * Pro#include <QApplication>
+                 * pOuterPressureLoad, PropOuterTemperature
+                 */
+                switch ( aChild )
+                {
+                    case 0:
+                        tParameterList = ( moris::prm::create_property_parameter_list() );
+                        break;
+
+                    case 1:
+                        tParameterList = ( moris::prm::create_constitutive_model_parameter_list() );
+                        break;
+
+                    case 2:
+                        tParameterList = ( moris::prm::create_stabilization_parameter_parameter_list() );
+                        break;
+
+                    case 3:
+                        tParameterList = ( moris::prm::create_IWG_parameter_list() );
+                        break;
+
+                    case 4:
+                        tParameterList = ( moris::prm::create_IQI_parameter_list() );
+                        break;
+
+                    case 5:
+                        tParameterList = ( moris::prm::create_computation_parameter_list() );
+                        break;
+
+                    case 6:
+                        tParameterList = ( moris::prm::create_fem_field_parameter_list() );
+                        break;
+
+                    case 7:
+                        tParameterList = ( moris::prm::create_phase_parameter_list() );
+                        break;
+
+                    case 8:
+                        tParameterList = ( moris::prm::create_material_model_parameter_list() );
+                        break;
+
+                    default:
+                        break;
+                }
+
+
+                break;
+
+            case moris::Parameter_List_Type::SOL:
+                //            tParameterList.resize( 8 );
+
+                switch ( aChild )
+                {
+                    case 0:
+
+                        switch ( aSubChild )
+                        {
+                            case 0:
+                                tParameterList = ( moris::prm::create_linear_algorithm_parameter_list_aztec() );
+                                break;
+
+                            case 1:
+                                tParameterList = ( moris::prm::create_linear_algorithm_parameter_list_amesos() );
+                                break;
+
+                            case 2:
+                                tParameterList = ( moris::prm::create_linear_algorithm_parameter_list_belos() );
+                                break;
+
+                            case 3:
+                                tParameterList = ( moris::prm::create_linear_algorithm_parameter_list_petsc() );
+                                break;
+
+                            case 4:
+                                tParameterList = ( moris::prm::create_eigen_algorithm_parameter_list() );
+                                break;
+
+                            case 5:
+                                // Need to add ML here
+                                tParameterList = ( moris::prm::create_linear_algorithm_parameter_list_belos() );
+                                break;
+
+                            case 6:
+                                tParameterList = ( moris::prm::create_slepc_algorithm_parameter_list() );
+                                break;
+
+                            default:
+                                break;
+                        }
+                        break;
+
+                        break;
+
+                    case 1:
+                        tParameterList = ( moris::prm::create_linear_solver_parameter_list() );
+                        break;
+
+                    case 2:
+                        tParameterList = ( moris::prm::create_nonlinear_algorithm_parameter_list() );
+                        break;
+
+                    case 3:
+                        tParameterList = ( moris::prm::create_nonlinear_solver_parameter_list() );
+                        break;
+
+                    case 4:
+                        tParameterList = ( moris::prm::create_time_solver_algorithm_parameter_list() );
+                        break;
+
+                    case 5:
+                        tParameterList = ( moris::prm::create_time_solver_parameter_list() );
+                        break;
+
+                    case 6:
+                        tParameterList = ( moris::prm::create_solver_warehouse_parameterlist() );
+                        break;
+
+                    case 7:
+                        // Need to add Preconditioners
+                        tParameterList = ( moris::prm::create_material_model_parameter_list() );
+                        break;
+
+                    default:
+                        break;
+                }
+
+                break;
+
+            case moris::Parameter_List_Type::MSI:
+                tParameterList = ( moris::prm::create_msi_parameter_list() );
+                break;
+
+            case moris::Parameter_List_Type::VIS:
+                tParameterList = ( moris::prm::create_vis_parameter_list() );    //
+
+                break;
+
+            case moris::Parameter_List_Type::MIG:
+                tParameterList = ( moris::prm::create_mig_parameter_list() );
+
+                break;
+
+            case moris::Parameter_List_Type::WRK:
+                tParameterList = ( moris::prm::create_wrk_parameter_list() );
+                break;
+
+            case moris::Parameter_List_Type::MORISGENERAL:
+                switch ( aChild )
+                {
+                    case 0:
+                    {
+                        tParameterList = ( moris::prm::create_moris_general_parameter_list() );
+                    }
+                    break;
+
+                    case 1:
+                    {
+                        tParameterList = ( moris::prm::create_moris_general_parameter_list() );
+                    }
+                    break;
+
+                    case 2:
+                    {
+                        tParameterList = ( moris::prm::create_moris_general_parameter_list() );
+                    }
+                    break;
+
+                    default:
+                        break;
+                }
+                break;
+
+            default:
+                // MORIS_ERROR( false, "Library_Enums::get_number_of_sub_parameter_lists_in_module() - Parameter list type enum unknown." );
+                break;
+        }
+
+        return tParameterList;
+    }
+
 } // namespace moris

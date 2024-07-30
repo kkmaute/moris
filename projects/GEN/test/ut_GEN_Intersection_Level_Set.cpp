@@ -546,7 +546,6 @@ namespace moris::gen
         }
     }
 
-
     //--------------------------------------------------------------------------------------------------------------
 
     TEST_CASE( "Bilinear Intersections", "[gen], [pdv], [intersection], [bilinear intersection]" )

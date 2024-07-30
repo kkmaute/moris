@@ -42,25 +42,32 @@ namespace moris::vis
         Vector< moris::mtk::Set* > mListOfBlocks;
         Vector< moris::mtk::Set* > mListOfSideSets;
         Vector< moris::mtk::Set* > mListOfDoubleSideSets;
+        Vector< moris::mtk::Set* > mListOfNonconformalSideSets;
 
         /// @brief sequential list of all sets
         Vector< moris::mtk::Set* > mListOfAllSets;
-        Vector< moris_index >             mSetLocalToTypeIndex;
+        Vector< moris_index >      mSetLocalToTypeIndex;
 
         /// @brief Names of sets in mesh
         Vector< std::string > mAllSetNames;
         Vector< std::string > mBlockSetNames;
         Vector< std::string > mSideSetNames;
         Vector< std::string > mDoubleSideSetNames;
+        Vector< std::string > mNonconformalSideSetNames;
 
         /// @brief lists of clusters in sets for each type
         Vector< Vector< const mtk::Cluster* > > mClustersOnBlockSets;
         Vector< Vector< const mtk::Cluster* > > mClustersOnSideSets;
         Vector< Vector< const mtk::Cluster* > > mClustersOnDoubleSideSets;
+        Vector< Vector< const mtk::Cluster* > > mClustersOnNonconformalSideSets;
 
         /// @brief single side clusters that correspond to the double sided side clusters
-        Vector< Vector< const mtk::Cluster* > > mLeaderSideClusters;
-        Vector< Vector< const mtk::Cluster* > > mFollowerSideClusters;
+        Vector< Vector< const mtk::Cluster* > > mLeaderDblSideClusters;
+        Vector< Vector< const mtk::Cluster* > > mFollowerDblSideClusters;
+
+        /// @brief single side clusters that correspond to the nonconformal side clusters
+        Vector< Vector< const mtk::Cluster* > > mLeaderNonconformalSideClusters;
+        Vector< Vector< const mtk::Cluster* > > mFollowerNonconformalSideClusters;
 
         map< std::string, moris_index > mSetNameToIndexMap;
 
@@ -68,7 +75,6 @@ namespace moris::vis
         bool mMeshIsFinalized = false;
 
       public:
-
         /**
          * Constructor
          *
@@ -335,7 +341,6 @@ namespace moris::vis
                 Matrix< IndexMat >& aSidesetOrdinals ) const override;
 
       private:
-
         /**
          * Constructs a list of all sets as well as a map going from set name to position in the overall set list
          */
@@ -347,9 +352,8 @@ namespace moris::vis
          */
         void
         finalize();
-
     };
 
-}    // namespace moris
+}    // namespace moris::vis
 
 #endif /* PROJECTS_MTK_SRC_CL_VIS_VISUALIZATION_MESH_HPP_ */

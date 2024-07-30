@@ -40,7 +40,7 @@ namespace moris
             Parameter_List mMSIParameterList;
 
             //! List of equation blocks
-            Vector< MSI::Equation_Set* > mEquationBlocks;
+            Vector< MSI::Equation_Set* > mEquationSets;
 
             //! List of equation objects
             Vector< Equation_Object* > mEquationObjectList;
@@ -93,12 +93,12 @@ namespace moris
              */
             Model_Solver_Interface(
                     Parameter_List                                           aMSIParameterList,
-                    Vector< MSI::Equation_Set* >&                              aElementBlocks,
+                    Vector< MSI::Equation_Set* >&                            aElementBlocks,
                     const Matrix< IdMat >&                                   aCommTable,
                     const moris::map< moris::moris_id, moris::moris_index >& aAdofLocaltoGlobalMap,
                     const moris::uint                                        aNumMaxAdofs )
                     : mMSIParameterList( aMSIParameterList )
-                    , mEquationBlocks( aElementBlocks )
+                    , mEquationSets( aElementBlocks )
                     , mDofMgn( aCommTable, this )
             {
                 this->create_equation_object_list();
@@ -107,20 +107,20 @@ namespace moris
 
                 mDofMgn.set_max_num_adofs( aNumMaxAdofs );
 
-                mDofMgn.initialize_pdof_type_list( mEquationBlocks );
+                mDofMgn.initialize_pdof_type_list( mEquationSets );
             };
 
             //------------------------------------------------------------------------------
 
             Model_Solver_Interface(
                     Parameter_List                                           aMSIParameterList,
-                    Vector< MSI::Equation_Set* >&                              aElementBlocks,
+                    Vector< MSI::Equation_Set* >&                            aElementBlocks,
                     const Matrix< IdMat >&                                   aCommTable,
                     const moris::map< moris::moris_id, moris::moris_index >& aAdofLocaltoGlobalMap,
                     const moris::uint                                        aNumMaxAdofs,
                     mtk::Mesh*                                               aMesh )
                     : mMSIParameterList( aMSIParameterList )
-                    , mEquationBlocks( aElementBlocks )
+                    , mEquationSets( aElementBlocks )
                     , mDofMgn( aCommTable, this )
                     , mMesh( aMesh )
             {
@@ -130,7 +130,7 @@ namespace moris
 
                 mDofMgn.set_max_num_adofs( aNumMaxAdofs );
 
-                mDofMgn.initialize_pdof_type_list( mEquationBlocks );
+                mDofMgn.initialize_pdof_type_list( mEquationSets );
             };
 
             //------------------------------------------------------------------------------
@@ -155,18 +155,19 @@ namespace moris
             void
             create_equation_object_list()
             {
+                mEquationObjectList.clear();
                 moris::uint tNumEquationObj = 0;
 
-                for ( luint Ik = 0; Ik < mEquationBlocks.size(); ++Ik )
+                for ( luint Ik = 0; Ik < mEquationSets.size(); ++Ik )
                 {
-                    tNumEquationObj = tNumEquationObj + mEquationBlocks( Ik )->get_num_equation_objects();
+                    tNumEquationObj = tNumEquationObj + mEquationSets( Ik )->get_num_equation_objects();
                 }
 
                 mEquationObjectList.reserve( tNumEquationObj );
 
-                for ( luint Ik = 0; Ik < mEquationBlocks.size(); ++Ik )
+                for ( luint Ik = 0; Ik < mEquationSets.size(); ++Ik )
                 {
-                    mEquationObjectList.append( mEquationBlocks( Ik )->get_equation_object_list() );
+                    mEquationObjectList.append( mEquationSets( Ik )->get_equation_object_list() );
                 }
             };
 
@@ -177,9 +178,9 @@ namespace moris
             //------------------------------------------------------------------------------
 
             moris::uint
-            get_num_eqn_blocks()
+            get_num_equation_sets()
             {
-                return mEquationBlocks.size();
+                return mEquationSets.size();
             };
 
             //------------------------------------------------------------------------------
@@ -195,7 +196,7 @@ namespace moris
             moris::uint
             get_num_eqn_objs_on_block( moris::uint aBlockInd )
             {
-                return mEquationBlocks( aBlockInd )->get_num_equation_objects();
+                return mEquationSets( aBlockInd )->get_num_equation_objects();
             };
 
             //------------------------------------------------------------------------------
@@ -203,7 +204,7 @@ namespace moris
             Equation_Set*
             get_equation_set( const moris::uint& aMyEquSetInd )
             {
-                return mEquationBlocks( aMyEquSetInd );
+                return mEquationSets( aMyEquSetInd );
             };
 
             //------------------------------------------------------------------------------

@@ -305,7 +305,6 @@ namespace moris
                  */
                 void eval_deffdynviscdu( const Vector< MSI::Dof_Type > & aDofTypes );
 
-
                 //------------------------------------------------------------------------------
                 /**
                  * evaluate the effective dynamic viscosity derivative wrt to space and dof type

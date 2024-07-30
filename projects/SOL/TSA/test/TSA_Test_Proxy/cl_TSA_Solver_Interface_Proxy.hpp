@@ -63,52 +63,58 @@ namespace moris
             // TSA_Solver_Interface_Proxy_( std::shared_ptr< Nonlinear_Solver > aNewtonSolver ){};
 
             // ----------------------------------------------------------------------------------------------
-            ~TSA_Solver_Interface_Proxy(){};
+            ~TSA_Solver_Interface_Proxy() override{};
 
             // ----------------------------------------------------------------------------------------------
 
-            void set_solution_vector( sol::Dist_Vector* aSolutionVector );
+            fem::Element_Type
+            get_set_type( uint aMyEquSetInd ) override
+            {
+                return fem::Element_Type::END_ELEMENT_TYPE;
+            }
 
-            void set_solution_vector_prev_time_step( sol::Dist_Vector* aSolutionVector );
+            void set_solution_vector( sol::Dist_Vector* aSolutionVector ) override;
 
-            void free_block_memory( const uint aBlockInd ){};
+            void set_solution_vector_prev_time_step( sol::Dist_Vector* aSolutionVector ) override;
+
+            void free_block_memory( const uint aBlockInd ) override {};
 
             void
-            set_time( const Matrix< DDRMat >& aTime )
+            set_time( const Matrix< DDRMat >& aTime ) override
             {
                 mT = aTime;
             }
 
-            void compute_IQI(){};
+            void compute_IQI() override {};
 
             void
-            set_previous_time( const Matrix< DDRMat >& aTime )
+            set_previous_time( const Matrix< DDRMat >& aTime ) override
             {
                 mPreviousT = aTime;
             }
             // ----------------------------------------------------------------------------------------------
 
             void
-            set_requested_dof_types( const Vector< enum MSI::Dof_Type > aListOfDofTypes )
+            set_requested_dof_types( const Vector< enum MSI::Dof_Type > aListOfDofTypes ) override
             {
                 mListOfDofTypes = aListOfDofTypes;
             };
 
             const Vector< enum MSI::Dof_Type >&
-            get_requested_dof_types()
+            get_requested_dof_types() override
             {
                 return mListOfDofTypes;
             };
 
             void
-            set_secondary_dof_types( const Vector< enum MSI::Dof_Type > aListOfDofTypes )
+            set_secondary_dof_types( const Vector< enum MSI::Dof_Type > aListOfDofTypes ) override
             {
                 mListSecondaryOfDofTypes = aListOfDofTypes;
             };
 
             // local dimension of the problem
             uint
-            get_max_num_global_dofs()
+            get_max_num_global_dofs() override
             {
                 return 1;
             };
@@ -116,7 +122,7 @@ namespace moris
             // ----------------------------------------------------------------------------------------------
             // local dimension of the problem
             uint
-            get_num_my_dofs()
+            get_num_my_dofs() override
             {
                 return mNumMyDofs;
             };
@@ -124,7 +130,7 @@ namespace moris
             // ----------------------------------------------------------------------------------------------
             // local-to-global map
             Matrix< DDSMat >
-            get_my_local_global_map()
+            get_my_local_global_map() override
             {
                 mMyGlobalElements.resize( 1, 1 );
                 mMyGlobalElements( 0, 0 ) = 0;
@@ -135,7 +141,7 @@ namespace moris
             // ----------------------------------------------------------------------------------------------
             // local-to-global map
             moris::Matrix< DDSMat >
-            get_my_local_global_map( const Vector< enum MSI::Dof_Type >& aListOfDofTypes )
+            get_my_local_global_map( const Vector< enum MSI::Dof_Type >& aListOfDofTypes ) override
             {
                 mMyGlobalElements.resize( 1, 1 );
                 mMyGlobalElements( 0, 0 ) = 0;
@@ -146,7 +152,7 @@ namespace moris
             // ----------------------------------------------------------------------------------------------
 
             moris::Matrix< DDSMat >
-            get_my_local_global_overlapping_map()
+            get_my_local_global_overlapping_map() override
             {
                 mMyGlobalElementsOverlapping.resize( 2, 1 );
                 mMyGlobalElementsOverlapping( 0, 0 ) = 0;
@@ -157,7 +163,7 @@ namespace moris
             // ----------------------------------------------------------------------------------------------
 
             moris::Matrix< DDSMat >
-            get_my_local_global_overlapping_map( const Vector< enum MSI::Dof_Type >& aListOfDofTypes)
+            get_my_local_global_overlapping_map( const Vector< enum MSI::Dof_Type >& aListOfDofTypes )
             {
                 mMyGlobalElementsOverlapping.resize( 2, 1 );
                 mMyGlobalElementsOverlapping( 0, 0 ) = 0;
@@ -168,38 +174,38 @@ namespace moris
             // ----------------------------------------------------------------------------------------------
             // number of elements on processor
             uint
-            get_num_my_elements()
+            get_num_my_elements() override
             {
                 return mNumElements = 1;
             };
 
             uint
-            get_num_my_blocks()
+            get_num_sets() override
             {
                 return 1;
             };
 
             uint
-            get_num_equation_objects_on_set( uint aBlockInd )
+            get_num_equation_objects_on_set( uint aBlockInd ) override
             {
                 return mNumElements = 1;
             };
 
             // ----------------------------------------------------------------------------------------------
             void get_equation_object_operator( const uint& aMyElementInd,
-                    Matrix< DDRMat >&                      aElementMatrix );
+                    Matrix< DDRMat >&                      aElementMatrix ) override;
 
             void get_equation_object_operator(
                     const uint&       aMyBlockInd,
                     const uint&       aMyElementInd,
-                    Matrix< DDRMat >& aElementMatrix );
+                    Matrix< DDRMat >& aElementMatrix ) override;
 
             // ----------------------------------------------------------------------------------------------
 
             void
             get_element_topology(
                     const uint&       aMyElementInd,
-                    Matrix< DDSMat >& aElementTopology )
+                    Matrix< DDSMat >& aElementTopology ) override
             {
                 aElementTopology.resize( 1, 1 );
                 aElementTopology( 0, 0 ) = 0;
@@ -209,7 +215,7 @@ namespace moris
             get_element_topology(
                     const uint&       aMyBlockInd,
                     const uint&       aMyElementInd,
-                    Matrix< DDSMat >& aElementTopology )
+                    Matrix< DDSMat >& aElementTopology ) override
             {
                 aElementTopology.resize( 1, 1 );
                 aElementTopology( 0, 0 ) = 0;
@@ -218,38 +224,38 @@ namespace moris
             // ----------------------------------------------------------------------------------------------
 
             Matrix< DDUMat >
-            get_constrained_Ids()
+            get_constrained_Ids() override
             {
                 return mMyConstraintDofs;
             };
 
             // ----------------------------------------------------------------------------------------------
             void get_equation_object_rhs(
-                    const uint&               aMyElementInd,
-                    Vector< Matrix< DDRMat > >& aElementRHS );
+                    const uint&                 aMyElementInd,
+                    Vector< Matrix< DDRMat > >& aElementRHS ) override;
 
             void get_equation_object_rhs(
-                    const uint&               aMyBlockInd,
-                    const uint&               aMyElementInd,
-                    Vector< Matrix< DDRMat > >& aElementRHS );
+                    const uint&                 aMyBlockInd,
+                    const uint&                 aMyElementInd,
+                    Vector< Matrix< DDRMat > >& aElementRHS ) override;
 
             //------------------------------------------------------------------------------
 
             void get_equation_object_operator_and_rhs(
-                    const moris::uint&        aMyElementInd,
-                    Matrix< DDRMat >&         aElementMatrix,
-                    Vector< Matrix< DDRMat > >& aElementRHS );
+                    const moris::uint&          aMyElementInd,
+                    Matrix< DDRMat >&           aElementMatrix,
+                    Vector< Matrix< DDRMat > >& aElementRHS ) override;
 
             void get_equation_object_operator_and_rhs(
-                    const moris::uint&        aMyEquSetInd,
-                    const moris::uint&        aMyElementInd,
-                    Matrix< DDRMat >&         aElementMatrix,
-                    Vector< Matrix< DDRMat > >& aElementRHS );
+                    const moris::uint&          aMyEquSetInd,
+                    const moris::uint&          aMyElementInd,
+                    Matrix< DDRMat >&           aElementMatrix,
+                    Vector< Matrix< DDRMat > >& aElementRHS ) override;
 
             // ----------------------------------------------------------------------------------------------
 
             void
-            use_matrix_market_files()
+            use_matrix_market_files() override
             {
                 mUseMatrixMarketFiles = true;
             };
@@ -257,7 +263,7 @@ namespace moris
             // ----------------------------------------------------------------------------------------------
 
             const char*
-            get_matrix_market_path()
+            get_matrix_market_path() override
             {
                 if ( mUseMatrixMarketFiles == true )
                 {
@@ -273,7 +279,7 @@ namespace moris
             // ----------------------------------------------------------------------------------------------
 
             uint
-            get_num_rhs()
+            get_num_rhs() override
             {
                 return 1;
             }
@@ -281,7 +287,7 @@ namespace moris
             // ----------------------------------------------------------------------------------------------
 
             uint
-            get_num_eigen_vectors()
+            get_num_eigen_vectors() override
             {
                 return 0;
             }

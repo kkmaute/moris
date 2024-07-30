@@ -79,7 +79,7 @@ namespace moris::xtk
          * @brief Get parametric coords for new vertices wrt entity they are created on
          *
          * @param aEntityRank Entity Rank for which new vertices should be created
-         * @return Cell< Matrix< DDRMat > > list of parametric coords for vertices to be created per entity
+         * @return Vector< Matrix< DDRMat > > list of parametric coords for vertices to be created per entity
          */
         virtual Vector< Matrix< DDRMat > >
         get_new_vertex_parametric_coords_wrt_entity( mtk::EntityRank aEntityRank ) const = 0;

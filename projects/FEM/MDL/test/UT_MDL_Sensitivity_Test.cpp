@@ -27,21 +27,21 @@
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Writer_Exodus.hpp"
 
-#include "cl_Matrix.hpp"        //LINALG
+#include "cl_Matrix.hpp"    //LINALG
 #include "linalg_typedefs.hpp"
-#include "fn_equal_to.hpp" // ALG/src
+#include "fn_equal_to.hpp"    // ALG/src
 
-#include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
-#include "cl_FEM_IQI_Factory.hpp"              //FEM/INT/src
-#include "cl_FEM_SP_Factory.hpp"              //FEM/INT/src
-#include "cl_FEM_CM_Factory.hpp"              //FEM/INT/src
-#include "cl_FEM_Set_User_Info.hpp"              //FEM/INT/src
-#include "cl_FEM_Field_Interpolator_Manager.hpp"              //FEM/INT/src
+#include "cl_FEM_IWG_Factory.hpp"                   //FEM/INT/src
+#include "cl_FEM_IQI_Factory.hpp"                   //FEM/INT/src
+#include "cl_FEM_SP_Factory.hpp"                    //FEM/INT/src
+#include "cl_FEM_CM_Factory.hpp"                    //FEM/INT/src
+#include "cl_FEM_Set_User_Info.hpp"                 //FEM/INT/src
+#include "cl_FEM_Field_Interpolator_Manager.hpp"    //FEM/INT/src
 
 #include "cl_HMR_Mesh_Interpolation.hpp"
 #include "cl_HMR.hpp"
-#include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_Parameters.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Mesh_Base.hpp"    //HMR/src
+#include "cl_HMR_Parameters.hpp"            //HMR/src
 
 #include "cl_MSI_Solver_Interface.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
@@ -60,65 +60,62 @@
 #include "fn_PRM_HMR_Parameters.hpp"
 #include "fn_PRM_SOL_Parameters.hpp"
 
-real plane_evaluate_field_value(const moris::Matrix< DDRMat >    & aCoordinates,
-                                 const Vector< moris::real > & aParameters)
+real plane_evaluate_field_value( const moris::Matrix< DDRMat >& aCoordinates,
+        const Vector< moris::real >&                            aParameters )
 {
     moris::real mXC = 0.11;
     moris::real mYC = 0.11;
     moris::real mNx = 1.0;
     moris::real mNy = 0.0;
-    return (mNx*(aCoordinates(0)-mXC) + mNy*(aCoordinates(1)-mYC));
+    return ( mNx * ( aCoordinates( 0 ) - mXC ) + mNy * ( aCoordinates( 1 ) - mYC ) );
 }
 
-void evaluate_sensitivity(const moris::Matrix< DDRMat >    & aCoordinates,
-                                const Vector< moris::real > & aParameters,
-                                Matrix<DDRMat>& aSensitivities)
+void evaluate_sensitivity( const moris::Matrix< DDRMat >& aCoordinates,
+        const Vector< moris::real >&                      aParameters,
+        Matrix< DDRMat >&                                 aSensitivities )
 {
-    MORIS_ERROR( false, "sensitivities not implemented");
+    MORIS_ERROR( false, "sensitivities not implemented" );
 }
 
-void tConstValFunction2MatMDL
-( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager         * aFIManager )
+void tConstValFunction2MatMDL( moris::Matrix< moris::DDRMat >& aPropMatrix,
+        Vector< moris::Matrix< moris::DDRMat > >&              aParameters,
+        moris::fem::Field_Interpolator_Manager*                aFIManager )
 {
     aPropMatrix = aParameters( 0 );
 }
 
-void tFIValDvFunction_FDTest
-( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager         * aFIManager )
+void tFIValDvFunction_FDTest( moris::Matrix< moris::DDRMat >& aPropMatrix,
+        Vector< moris::Matrix< moris::DDRMat > >&             aParameters,
+        moris::fem::Field_Interpolator_Manager*               aFIManager )
 {
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( gen::PDV_Type::DENSITY )->val();
 }
 
-void tFIDerDvFunction_FDTest
-( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager         * aFIManager )
+void tFIDerDvFunction_FDTest( moris::Matrix< moris::DDRMat >& aPropMatrix,
+        Vector< moris::Matrix< moris::DDRMat > >&             aParameters,
+        moris::fem::Field_Interpolator_Manager*               aFIManager )
 {
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( gen::PDV_Type::DENSITY )->N();
 }
 
-real density_function_1(const Matrix<DDRMat>& aCoordinates, const Cell<real>& aPropertyVariables)
+real density_function_1( const Matrix< DDRMat >& aCoordinates, const Vector< real >& aPropertyVariables )
 {
     return 1.0;
 }
 
-real density_function_2(const Matrix<DDRMat>& aCoordinates, const Cell<real>& aPropertyVariables)
+real density_function_2( const Matrix< DDRMat >& aCoordinates, const Vector< real >& aPropertyVariables )
 {
     return 2.0;
 }
 
-TEST_CASE("Sensitivity test","[Sensitivity test]")
+TEST_CASE( "Sensitivity test", "[Sensitivity test]" )
 {
-    if(par_size() == 1)
+    if ( par_size() == 1 )
     {
         std::string tFieldName = "Geometry";
 
         moris::uint tLagrangeMeshIndex = 0;
-        moris::uint tBSplineMeshIndex = 0;
+        moris::uint tBSplineMeshIndex  = 0;
 
         ParameterList tParameters = prm::create_hmr_parameter_list();
 
@@ -147,118 +144,118 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
 
         hmr::HMR tHMR( tParameters );
 
-        //initial refinement
+        // initial refinement
         tHMR.perform_initial_refinement();
 
         std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
 
-//        for( uint k=0; k<tNumRef; ++k )
-//        {
-//            Cell<std::shared_ptr<moris::gen::Level_Set_Geometry>> tGeomVec(2);
-//            tGeomVec(0) = std::make_shared<moris::gen::Circle>(tCenterPoint(0), tCenterPoint(1), tROuter);
-//            tGeomVec(1) = std::make_shared<moris::gen::Circle>(tCenterPoint(0), tCenterPoint(1), tRInner);
-//
-//            moris::gen::Phase_Table     tPhaseTable( tGeomVec.size() );
-//            moris::gen::Geometry_Engine tGENGeometryEngine( tGeomVec, tPhaseTable, 2 );
-//
-//            moris_index tMeshIndex = tGENGeometryEngine.register_mesh( tMesh );
-//
-//            uint tNumIPNodes = tMesh->get_num_nodes();
-//            Matrix<DDRMat> tFieldData( tNumIPNodes,1 );
-//            Matrix<DDRMat> tFieldData0( tNumIPNodes,1 );
-//
-//            tGENGeometryEngine.initialize_geometry_objects_for_background_mesh_nodes( tNumIPNodes );
-//            Matrix< DDRMat > tCoords( tNumIPNodes, 2 );
-//            for( uint i = 0; i < tNumIPNodes; i++ )
-//            {
-//                tCoords.set_row( i, tMesh->get_mtk_vertex(i).get_coords() );
-//            }
-//
-//            tGENGeometryEngine.initialize_geometry_object_phase_values( tCoords );
-//
-//            for(uint i=0; i<tNumIPNodes; i++)
-//            {
-//                tFieldData( i )  = tGENGeometryEngine.get_entity_phase_val( i, 0 );
-//                tFieldData0( i ) = tGENGeometryEngine.get_entity_phase_val( i, 1 );
-//            }
-//
-//            tHMR.based_on_field_put_elements_on_queue( tFieldData, tLagrangeMeshIndex );
-//            tHMR.based_on_field_put_elements_on_queue( tFieldData0, tLagrangeMeshIndex );
-//
-//            tHMR.perform_refinement_based_on_working_pattern( 0, false );
-//        }
+        //        for( uint k=0; k<tNumRef; ++k )
+        //        {
+        //            Vector<std::shared_ptr<moris::gen::Level_Set_Geometry>> tGeomVec(2);
+        //            tGeomVec(0) = std::make_shared<moris::gen::Circle>(tCenterPoint(0), tCenterPoint(1), tROuter);
+        //            tGeomVec(1) = std::make_shared<moris::gen::Circle>(tCenterPoint(0), tCenterPoint(1), tRInner);
+        //
+        //            moris::gen::Phase_Table     tPhaseTable( tGeomVec.size() );
+        //            moris::gen::Geometry_Engine tGENGeometryEngine( tGeomVec, tPhaseTable, 2 );
+        //
+        //            moris_index tMeshIndex = tGENGeometryEngine.register_mesh( tMesh );
+        //
+        //            uint tNumIPNodes = tMesh->get_num_nodes();
+        //            Matrix<DDRMat> tFieldData( tNumIPNodes,1 );
+        //            Matrix<DDRMat> tFieldData0( tNumIPNodes,1 );
+        //
+        //            tGENGeometryEngine.initialize_geometry_objects_for_background_mesh_nodes( tNumIPNodes );
+        //            Matrix< DDRMat > tCoords( tNumIPNodes, 2 );
+        //            for( uint i = 0; i < tNumIPNodes; i++ )
+        //            {
+        //                tCoords.set_row( i, tMesh->get_mtk_vertex(i).get_coords() );
+        //            }
+        //
+        //            tGENGeometryEngine.initialize_geometry_object_phase_values( tCoords );
+        //
+        //            for(uint i=0; i<tNumIPNodes; i++)
+        //            {
+        //                tFieldData( i )  = tGENGeometryEngine.get_entity_phase_val( i, 0 );
+        //                tFieldData0( i ) = tGENGeometryEngine.get_entity_phase_val( i, 1 );
+        //            }
+        //
+        //            tHMR.based_on_field_put_elements_on_queue( tFieldData, tLagrangeMeshIndex );
+        //            tHMR.based_on_field_put_elements_on_queue( tFieldData0, tLagrangeMeshIndex );
+        //
+        //            tHMR.perform_refinement_based_on_working_pattern( 0, false );
+        //        }
         tHMR.finalize();
 
-//        tHMR.save_to_exodus( 0, "./xtk_exo/hmr_ip_mesh_for_sensitivity_test.e" );
+        //        tHMR.save_to_exodus( 0, "./xtk_exo/hmr_ip_mesh_for_sensitivity_test.e" );
 
-        hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
+        hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-        Vector< std::shared_ptr<moris::gen::Level_Set_Geometry> > tGeometryVector(1);
+        Vector< std::shared_ptr< moris::gen::Level_Set_Geometry > > tGeometryVector( 1 );
 
-        Matrix<DDRMat> tADVs( 0, 0 );
-        auto tField = std::make_shared<moris::gen::User_Defined_Field>(tADVs,
-                                                                     Matrix<DDUMat> (0, 0),
-                                                                     Matrix<DDUMat> (0, 0),
-                                                                     Matrix<DDRMat> (0, 0),
-                                                                            &plane_evaluate_field_value,
-                                                                            &evaluate_sensitivity);
-        tGeometryVector( 0 ) = std::make_shared< Level_Set_Field >( tField );
+        Matrix< DDRMat > tADVs( 0, 0 );
+        auto             tField = std::make_shared< moris::gen::User_Defined_Field >( tADVs,
+                Matrix< DDUMat >( 0, 0 ),
+                Matrix< DDUMat >( 0, 0 ),
+                Matrix< DDRMat >( 0, 0 ),
+                &plane_evaluate_field_value,
+                &evaluate_sensitivity );
+        tGeometryVector( 0 )    = std::make_shared< Level_Set_Field >( tField );
 
-        size_t tModelDimension = 2;
-        moris::gen::Geometry_Engine tGeometryEngine(tGeometryVector, tModelDimension);
-        xtk::Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
+        size_t                      tModelDimension = 2;
+        moris::gen::Geometry_Engine tGeometryEngine( tGeometryVector, tModelDimension );
+        xtk::Model                  tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );
         tXTKModel.mVerbose = false;
 
-        //Specify decomposition Method and Cut Mesh ---------------------------------------
-        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
-        tXTKModel.decompose(tDecompositionMethods);
+        // Specify decomposition Method and Cut Mesh ---------------------------------------
+        Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
+        tXTKModel.decompose( tDecompositionMethods );
 
-        tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE,0);
+        tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 );
         tXTKModel.construct_face_oriented_ghost_penalization_cells();
 
-        xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
-        xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
+        xtk::Enriched_Interpolation_Mesh& tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
+        xtk::Enriched_Integration_Mesh&   tEnrIntegMesh  = tXTKModel.get_enriched_integ_mesh();
 
         // Write mesh
-        moris::mtk::Writer_Exodus writer(&tEnrIntegMesh);
-        //writer.write_mesh("","./mdl_exo/xtk_ig_mesh_for_sensitivity_test.e", "", "temp.exo");
+        moris::mtk::Writer_Exodus writer( &tEnrIntegMesh );
+        // writer.write_mesh("","./mdl_exo/xtk_ig_mesh_for_sensitivity_test.e", "", "temp.exo");
 
         // Write the fields
-//        writer.set_time(0.0);
-//        writer.close_file();
+        //        writer.set_time(0.0);
+        //        writer.close_file();
 
         // place the pair in mesh manager
         std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
-        tMeshManager->register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
+        tMeshManager->register_mesh_pair( &tEnrInterpMesh, &tEnrIntegMesh );
 
         //------------------------------------------------------------------------------
         // create the properties
-        std::shared_ptr< fem::Property > tPropConductivity1 = std::make_shared< fem::Property > ();
-        tPropConductivity1->set_parameters( { {{ 1.0 }} } );
-        tPropConductivity1->set_dv_type_list( {{ gen::PDV_Type::DENSITY }} );
+        std::shared_ptr< fem::Property > tPropConductivity1 = std::make_shared< fem::Property >();
+        tPropConductivity1->set_parameters( { { { 1.0 } } } );
+        tPropConductivity1->set_dv_type_list( { { gen::PDV_Type::DENSITY } } );
         tPropConductivity1->set_val_function( tFIValDvFunction_FDTest );
         tPropConductivity1->set_dv_derivative_functions( { tFIDerDvFunction_FDTest } );
 
-        std::shared_ptr< fem::Property > tPropConductivity2 = std::make_shared< fem::Property > ();
-        tPropConductivity2->set_parameters( { {{ 1.0 }} } );
-        tPropConductivity2->set_dv_type_list( {{ gen::PDV_Type::DENSITY }} );
+        std::shared_ptr< fem::Property > tPropConductivity2 = std::make_shared< fem::Property >();
+        tPropConductivity2->set_parameters( { { { 1.0 } } } );
+        tPropConductivity2->set_dv_type_list( { { gen::PDV_Type::DENSITY } } );
         tPropConductivity2->set_val_function( tFIValDvFunction_FDTest );
         tPropConductivity2->set_dv_derivative_functions( { tFIDerDvFunction_FDTest } );
 
         std::shared_ptr< fem::Property > tPropDirichlet = std::make_shared< fem::Property >();
-        tPropDirichlet->set_parameters( { {{ 5.0 }} } );
+        tPropDirichlet->set_parameters( { { { 5.0 } } } );
         tPropDirichlet->set_val_function( tConstValFunction2MatMDL );
 
         std::shared_ptr< fem::Property > tPropNeumann = std::make_shared< fem::Property >();
-        tPropNeumann->set_parameters( { {{ 20.0 }} } );
+        tPropNeumann->set_parameters( { { { 20.0 } } } );
         tPropNeumann->set_val_function( tConstValFunction2MatMDL );
 
         std::shared_ptr< fem::Property > tPropTempLoad1 = std::make_shared< fem::Property >();
-        tPropTempLoad1->set_parameters( { {{ 100.0 }} } );
+        tPropTempLoad1->set_parameters( { { { 100.0 } } } );
         tPropTempLoad1->set_val_function( tConstValFunction2MatMDL );
 
         std::shared_ptr< fem::Property > tPropTempLoad2 = std::make_shared< fem::Property >();
-        tPropTempLoad2->set_parameters( { {{ 100.0 }} } );
+        tPropTempLoad2->set_parameters( { { { 100.0 } } } );
         tPropTempLoad2->set_val_function( tConstValFunction2MatMDL );
 
         // define constitutive models
@@ -266,28 +263,28 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
 
         std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso1 =
                 tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
-        tCMDiffLinIso1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tCMDiffLinIso1->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
         tCMDiffLinIso1->set_property( tPropConductivity1, "Conductivity" );
         tCMDiffLinIso1->set_space_dim( 2 );
         tCMDiffLinIso1->set_local_properties();
 
         std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso2 =
                 tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
-        tCMDiffLinIso2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tCMDiffLinIso2->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
         tCMDiffLinIso2->set_property( tPropConductivity2, "Conductivity" );
         tCMDiffLinIso2->set_space_dim( 2 );
         tCMDiffLinIso2->set_local_properties();
 
         // define stabilization parameters
-        fem::SP_Factory tSPFactory;
+        fem::SP_Factory                                 tSPFactory;
         std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche =
                 tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
-        tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
+        tSPDirichletNitsche->set_parameters( { { { 1.0 } } } );
         tSPDirichletNitsche->set_property( tPropConductivity2, "Material", mtk::Leader_Follower::LEADER );
 
         std::shared_ptr< fem::Stabilization_Parameter > tSPNitscheInterface =
                 tSPFactory.create_SP( fem::Stabilization_Type::NITSCHE_INTERFACE );
-        tSPNitscheInterface->set_parameters( { {{ 1.0 }} } );
+        tSPNitscheInterface->set_parameters( { { { 1.0 } } } );
         tSPNitscheInterface->set_property( tPropConductivity1, "Material", mtk::Leader_Follower::LEADER );
         tSPNitscheInterface->set_property( tPropConductivity2, "Material", mtk::Leader_Follower::FOLLOWER );
 
@@ -297,21 +294,21 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
         std::shared_ptr< fem::IWG > tIWGBulk1 =
                 tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
         tIWGBulk1->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
-        tIWGBulk1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tIWGBulk1->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
         tIWGBulk1->set_constitutive_model( tCMDiffLinIso1, "Diffusion", mtk::Leader_Follower::LEADER );
         tIWGBulk1->set_property( tPropTempLoad1, "Load", mtk::Leader_Follower::LEADER );
 
         std::shared_ptr< fem::IWG > tIWGBulk2 =
                 tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
         tIWGBulk2->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
-        tIWGBulk2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tIWGBulk2->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
         tIWGBulk2->set_constitutive_model( tCMDiffLinIso2, "Diffusion", mtk::Leader_Follower::LEADER );
         tIWGBulk2->set_property( tPropTempLoad2, "Load", mtk::Leader_Follower::LEADER );
 
         std::shared_ptr< fem::IWG > tIWGDirichlet =
                 tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
-        tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tIWGDirichlet->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
         tIWGDirichlet->set_constitutive_model( tCMDiffLinIso2, "Diffusion", mtk::Leader_Follower::LEADER );
         tIWGDirichlet->set_property( tPropDirichlet, "Dirichlet", mtk::Leader_Follower::LEADER );
@@ -319,14 +316,14 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
         std::shared_ptr< fem::IWG > tIWGNeumann =
                 tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_NEUMANN );
         tIWGNeumann->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
-        tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tIWGNeumann->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
         tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Leader_Follower::LEADER );
 
         std::shared_ptr< fem::IWG > tIWGInterface =
                 tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE );
         tIWGInterface->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
-        tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-        tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::TEMP }},mtk::Leader_Follower::FOLLOWER );
+        tIWGInterface->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
+        tIWGInterface->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Leader_Follower::FOLLOWER );
         tIWGInterface->set_stabilization_parameter( tSPNitscheInterface, "NitscheInterface" );
         tIWGInterface->set_constitutive_model( tCMDiffLinIso1, "Diffusion", mtk::Leader_Follower::LEADER );
         tIWGInterface->set_constitutive_model( tCMDiffLinIso2, "Diffusion", mtk::Leader_Follower::FOLLOWER );
@@ -335,28 +332,28 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
         // --------------------------------------------------------------------------------------
         fem::IQI_Factory tIQIFactory;
 
-        Cell<std::string> tRequestedIQINames(2);
-        tRequestedIQINames(0) = "IQI_StrainEnergy1";
-        tRequestedIQINames(1) = "IQI_StrainEnergy2";
+        Vector< std::string > tRequestedIQINames( 2 );
+        tRequestedIQINames( 0 ) = "IQI_StrainEnergy1";
+        tRequestedIQINames( 1 ) = "IQI_StrainEnergy2";
 
         std::shared_ptr< fem::IQI > tIQI_SE1 = tIQIFactory.create_IQI( fem::IQI_Type::STRAIN_ENERGY );
-        tIQI_SE1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Leader_Follower::LEADER );
+        tIQI_SE1->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Leader_Follower::LEADER );
         tIQI_SE1->set_constitutive_model( tCMDiffLinIso1, "Elast", mtk::Leader_Follower::LEADER );
-        tIQI_SE1->set_name(tRequestedIQINames(0));
+        tIQI_SE1->set_name( tRequestedIQINames( 0 ) );
 
         std::shared_ptr< fem::IQI > tIQI_SE2 = tIQIFactory.create_IQI( fem::IQI_Type::STRAIN_ENERGY );
-        tIQI_SE2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Leader_Follower::LEADER );
+        tIQI_SE2->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Leader_Follower::LEADER );
         tIQI_SE2->set_constitutive_model( tCMDiffLinIso2, "Elast", mtk::Leader_Follower::LEADER );
-        tIQI_SE2->set_name(tRequestedIQINames(1));
+        tIQI_SE2->set_name( tRequestedIQINames( 1 ) );
 
         std::shared_ptr< fem::IQI > tIQITEMP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
         tIQITEMP->set_quantity_dof_type( { MSI::Dof_Type::TEMP } );
         tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Leader_Follower::LEADER );
         tIQITEMP->set_output_type_index( 0 );
-        tIQITEMP->set_name("IQI_TEMP");
+        tIQITEMP->set_name( "IQI_TEMP" );
 
-        std::string tInterfaceSideSetName = tEnrIntegMesh.get_interface_side_set_name(0,0,1);
-        std::string tDblInterfaceSideSetName = tEnrIntegMesh.get_dbl_interface_side_set_name(0,1);
+        std::string tInterfaceSideSetName    = tEnrIntegMesh.get_interface_side_set_name( 0, 0, 1 );
+        std::string tDblInterfaceSideSetName = tEnrIntegMesh.get_dbl_interface_side_set_name( 0, 1 );
 
         // define set info
         fem::Set_User_Info tSetBulk1;
@@ -402,111 +399,109 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
         tSetInfo( 6 ) = tSetInterface;
 
         // create model
-        mdl::Model * tModel = new mdl::Model( tMeshManager,
-                                               0,
-                                               tSetInfo,
-                                               0, false );
+        mdl::Model* tModel = new mdl::Model( tMeshManager,
+                0,
+                tSetInfo,
+                0,
+                false );
 
         // output manager
         vis::Output_Manager tOutputData;
         tOutputData.set_outputs( 0,
-                                 vis::VIS_Mesh_Type::STANDARD, //STANDARD_WITH_OVERLAP
-                                 "./",
-                                 "MDL_Sensitivity_Test.exo",
-                                 "./",
-                                  "temp.exo",
-                                 { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1" },
-                                 {  "TEMP" },
-                                 {  vis::Field_Type::NODAL },
-                                 {  vis::Output_Type::TEMP } );
+                vis::VIS_Mesh_Type::STANDARD,    // STANDARD_WITH_OVERLAP
+                "./",
+                "MDL_Sensitivity_Test.exo",
+                "./",
+                "temp.exo",
+                { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1" },
+                { "TEMP" },
+                { vis::Field_Type::NODAL },
+                { vis::Output_Type::TEMP } );
         tModel->set_output_manager( &tOutputData );
 
         // PDVs and design variable interface
-        tGeometryEngine.register_mesh(&tMeshManager);
+        tGeometryEngine.register_mesh( &tMeshManager );
 
-        Cell<Cell<Cell<gen::PDV_Type>>> tPdvTypes(15);
-        Cell<Cell<Cell<gen::PDV_Type>>> tIGPdvTypes(100);
-        for (uint tBulkSetIndex = 0; tBulkSetIndex < 4; tBulkSetIndex++)
+        Vector< Vector< Vector< gen::PDV_Type > > > tPdvTypes( 15 );
+        Vector< Vector< Vector< gen::PDV_Type > > > tIGPdvTypes( 100 );
+        for ( uint tBulkSetIndex = 0; tBulkSetIndex < 4; tBulkSetIndex++ )
         {
-            tPdvTypes(tBulkSetIndex).resize(1);
-            tPdvTypes(tBulkSetIndex)(0).resize(1);
-            tPdvTypes(tBulkSetIndex)(0)(0) = gen::PDV_Type::DENSITY;
+            tPdvTypes( tBulkSetIndex ).resize( 1 );
+            tPdvTypes( tBulkSetIndex )( 0 ).resize( 1 );
+            tPdvTypes( tBulkSetIndex )( 0 )( 0 ) = gen::PDV_Type::DENSITY;
         }
-        tGeometryEngine.create_ip_pdv_hosts(tPdvTypes);
+        tGeometryEngine.create_ip_pdv_hosts( tPdvTypes );
 
-        Cell< gen::PDV_Type> tRequestedType( 1, gen::PDV_Type::DENSITY );
-        reinterpret_cast< gen::Pdv_Host_Manager* >(tGeometryEngine.get_design_variable_interface())->
-                create_ig_pdv_hosts(0,Cell< Matrix< DDSMat >>(100), tIGPdvTypes);
+        Vector< gen::PDV_Type > tRequestedType( 1, gen::PDV_Type::DENSITY );
+        reinterpret_cast< gen::Pdv_Host_Manager* >( tGeometryEngine.get_design_variable_interface() )->create_ig_pdv_hosts( 0, Vector< Matrix< DDSMat > >( 100 ), tIGPdvTypes );
         Vector< gen::PDV_Type > tMatPdvTypes = { gen::PDV_Type::DENSITY };
-        reinterpret_cast< gen::Pdv_Host_Manager* >(tGeometryEngine.get_design_variable_interface())->
-                set_ip_requested_dv_types( tMatPdvTypes );
+        reinterpret_cast< gen::Pdv_Host_Manager* >( tGeometryEngine.get_design_variable_interface() )->set_ip_requested_dv_types( tMatPdvTypes );
 
-        Matrix<DDRMat> tAdvs(1, 1, 0.0);
-        auto tDensityField1 = std::make_shared<gen::User_Defined_Field>(
+        Matrix< DDRMat > tAdvs( 1, 1, 0.0 );
+        auto             tDensityField1 = std::make_shared< gen::User_Defined_Field >(
                 tAdvs,
-                Matrix<DDUMat>(0, 0),
-                Matrix<DDUMat>(0, 0),
-                Matrix<DDRMat>(0, 0),
-                Cell<std::shared_ptr<gen::Property>>(0),
+                Matrix< DDUMat >( 0, 0 ),
+                Matrix< DDUMat >( 0, 0 ),
+                Matrix< DDRMat >( 0, 0 ),
+                Vector< std::shared_ptr< gen::Property > >( 0 ),
                 &density_function_1,
-                &evaluate_sensitivity);
+                &evaluate_sensitivity );
         auto tDensityProperty1 = std::make_shared< gen::Property >( tDensityField1 );
-        auto tDensityField2 = std::make_shared<gen::User_Defined_Field>(
+        auto tDensityField2    = std::make_shared< gen::User_Defined_Field >(
                 tAdvs,
-                Matrix<DDUMat>(0, 0),
-                Matrix<DDUMat>(0, 0),
-                Matrix<DDRMat>(0, 0),
-                Cell<std::shared_ptr<gen::Property>>(0),
+                Matrix< DDUMat >( 0, 0 ),
+                Matrix< DDUMat >( 0, 0 ),
+                Matrix< DDRMat >( 0, 0 ),
+                Vector< std::shared_ptr< gen::Property > >( 0 ),
                 &density_function_2,
-                &evaluate_sensitivity);
+                &evaluate_sensitivity );
         auto tDensityProperty2 = std::make_shared< gen::Property >( tDensityField2 );
-        tGeometryEngine.assign_ip_hosts_by_set_index(0, tDensityProperty1, gen::PDV_Type::DENSITY);
-        tGeometryEngine.assign_ip_hosts_by_set_index(1, tDensityProperty1, gen::PDV_Type::DENSITY);
-        tGeometryEngine.assign_ip_hosts_by_set_index(2, tDensityProperty2, gen::PDV_Type::DENSITY);
-        tGeometryEngine.assign_ip_hosts_by_set_index(3, tDensityProperty2, gen::PDV_Type::DENSITY);
+        tGeometryEngine.assign_ip_hosts_by_set_index( 0, tDensityProperty1, gen::PDV_Type::DENSITY );
+        tGeometryEngine.assign_ip_hosts_by_set_index( 1, tDensityProperty1, gen::PDV_Type::DENSITY );
+        tGeometryEngine.assign_ip_hosts_by_set_index( 2, tDensityProperty2, gen::PDV_Type::DENSITY );
+        tGeometryEngine.assign_ip_hosts_by_set_index( 3, tDensityProperty2, gen::PDV_Type::DENSITY );
 
-        tModel->set_design_variable_interface(tGeometryEngine.get_design_variable_interface());
+        tModel->set_design_variable_interface( tGeometryEngine.get_design_variable_interface() );
 
-//        Cell<Matrix<DDRMat>> tDvValues;
-//        Matrix<IndexMat> tNodeIndices(70, 1);
-//        for (uint tNodeIndex = 0; tNodeIndex < 70; tNodeIndex++)
-//        {
-//            tNodeIndices(tNodeIndex) = tNodeIndex;
-//        }
-//        tGeometryEngine.get_design_variable_interface()->get_ip_pdv_value(tNodeIndices, tPdvTypes(0)(0), tDvValues);
-//        moris::print(tDvValues, "vals");
-//        moris::print(tGeometryEngine.get_design_variable_interface()->get_my_local_global_map(), "map");
+        //        Vector<Matrix<DDRMat>> tDvValues;
+        //        Matrix<IndexMat> tNodeIndices(70, 1);
+        //        for (uint tNodeIndex = 0; tNodeIndex < 70; tNodeIndex++)
+        //        {
+        //            tNodeIndices(tNodeIndex) = tNodeIndex;
+        //        }
+        //        tGeometryEngine.get_design_variable_interface()->get_ip_pdv_value(tNodeIndices, tPdvTypes(0)(0), tDvValues);
+        //        moris::print(tDvValues, "vals");
+        //        moris::print(tGeometryEngine.get_design_variable_interface()->get_my_local_global_map(), "map");
 
         // Solver
-        std::shared_ptr< sol::SOL_Warehouse > tSolverWarehouse
-        = std::make_shared<sol::SOL_Warehouse>( tModel->get_solver_interface() );
+        std::shared_ptr< sol::SOL_Warehouse > tSolverWarehouse = std::make_shared< sol::SOL_Warehouse >( tModel->get_solver_interface() );
 
         Vector< Vector< moris::ParameterList > > tParameterlist( 7 );
-        for( uint Ik = 0; Ik < 7; Ik ++)
+        for ( uint Ik = 0; Ik < 7; Ik++ )
         {
-        tParameterlist( Ik ).resize(1);
+            tParameterlist( Ik ).resize( 1 );
         }
 
-        tParameterlist( 0 )(0) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::BELOS_IMPL );
-        tParameterlist( 0 )( 0 ).set( "ifpack_prec_type", "ILU");
+        tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::BELOS_IMPL );
+        tParameterlist( 0 )( 0 ).set( "ifpack_prec_type", "ILU" );
 
-        tParameterlist( 1 )(0) = moris::prm::create_linear_solver_parameter_list();
-        tParameterlist( 2 )(0) = moris::prm::create_nonlinear_algorithm_parameter_list();
-        tParameterlist( 2 )(0).set( "NLA_max_iter", 2 );
-        tParameterlist( 3 )(0) = moris::prm::create_nonlinear_solver_parameter_list();
-        tParameterlist( 3 )(0).set("NLA_DofTypes"      , "TEMP" );
+        tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
+        tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+        tParameterlist( 2 )( 0 ).set( "NLA_max_iter", 2 );
+        tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
+        tParameterlist( 3 )( 0 ).set( "NLA_DofTypes", "TEMP" );
 
-        tParameterlist( 4 )(0) = moris::prm::create_time_solver_algorithm_parameter_list();
-        tParameterlist( 5 )(0) = moris::prm::create_time_solver_parameter_list();
-        tParameterlist( 5 )(0).set("TSA_DofTypes"      , "TEMP" );
+        tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
+        tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
+        tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "TEMP" );
 
-        tParameterlist( 6 )(0) = moris::prm::create_solver_warehouse_parameterlist();
+        tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
 
         tSolverWarehouse->set_parameterlist( tParameterlist );
 
         tSolverWarehouse->initialize();
 
-        tsa::Time_Solver * tTimeSolver = tSolverWarehouse->get_main_time_solver();
+        tsa::Time_Solver* tTimeSolver = tSolverWarehouse->get_main_time_solver();
 
         tTimeSolver->set_output( 0, nullptr );
 
@@ -518,13 +513,11 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
         //                          Sensitivity analysis
         //--------------------------------------------------------------------------
 
-        tGeometryEngine.communicate_requested_IQIs(tRequestedIQINames);
+        tGeometryEngine.communicate_requested_IQIs( tRequestedIQINames );
 
         tModel->perform_sensitivity_analysis();
 
         delete tModel;
         delete tInterpMesh;
-
     }
 }
-

@@ -259,7 +259,6 @@ void Moris_Tree_Widget_Item::add_elements( moris::Parameter_List& aParameters )
         for ( auto & iElements : aParameters )
         {
             if (iElements.second.get_entry_type() == moris::Entry_Type::SELECTION) {
-                qDebug() << "Selection";
                 Moris_Combo_Box *tComboBox = new Moris_Combo_Box(mScrollWidget, iElements.second);
                 //Moris_Combo_Box *tComboBox = new Moris_Combo_Box();
                 mWidget.append( tComboBox );

@@ -13,8 +13,8 @@
 #include "assert.hpp"
 
 #define protected public
-#define private   public
- //FEM//INT//src
+#define private public
+// FEM//INT//src
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IWG.hpp"
 #include "cl_FEM_Set.hpp"
@@ -22,14 +22,14 @@
 #undef protected
 #undef private
 
-//MTK/src
+// MTK/src
 #include "cl_MTK_Enums.hpp"
-//FEM/INT/src
+// FEM/INT/src
 #include "cl_FEM_Enums.hpp"
 #include "cl_FEM_IWG_Factory.hpp"
 #include "cl_FEM_CM_Factory.hpp"
 #include "cl_FEM_SP_Factory.hpp"
-//LINALG
+// LINALG
 #include "op_equal_equal.hpp"
 
 using namespace moris;
@@ -47,7 +47,7 @@ TEST_CASE( "IWG_FS_Struc_Interface", "[moris],[fem],[IWG_FS_Struc_Interface]" )
     real tPerturbation = 1E-6;
 
     // loop on the space dimension
-    for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
+    for ( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
     {
         // set geometry inputs
         //------------------------------------------------------------------------------
@@ -67,61 +67,61 @@ TEST_CASE( "IWG_FS_Struc_Interface", "[moris],[fem],[IWG_FS_Struc_Interface]" )
         Matrix< DDRMat > tNormal;
 
         // dof type list
-        Cell< MSI::Dof_Type > tVisDofTypes = { MSI::Dof_Type::VISCOSITY };
+        Vector< MSI::Dof_Type > tVisDofTypes = { MSI::Dof_Type::VISCOSITY };
 
-        Cell<  Cell< MSI::Dof_Type > > tVelDofTypes;
-        Cell<  Cell< MSI::Dof_Type > > tPDofTypes   = { { MSI::Dof_Type::P } };
+        Vector< Vector< MSI::Dof_Type > > tVelDofTypes;
+        Vector< Vector< MSI::Dof_Type > > tPDofTypes = { { MSI::Dof_Type::P } };
 
-        switch( iSpaceDim )
+        switch ( iSpaceDim )
         {
-            case 2 :
+            case 2:
             {
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::QUAD;
 
                 // fill space coeff xHat
-                tXHat = {{ 0.0, 0.0 },
-                         { 1.0, 0.0 },
-                         { 1.0, 1.0 },
-                         { 0.0, 1.0 }};
+                tXHat = { { 0.0, 0.0 },
+                    { 1.0, 0.0 },
+                    { 1.0, 1.0 },
+                    { 0.0, 1.0 } };
 
-               // fill evaluation point xi, tau
-               tParamPoint = {{ 0.35}, {-0.25}, { 0.0 }};
+                // fill evaluation point xi, tau
+                tParamPoint = { { 0.35 }, { -0.25 }, { 0.0 } };
 
-               // number of coefficients
-               tNumCoeffs = {{ 4 },{ 9 },{ 16 }};
+                // number of coefficients
+                tNumCoeffs = { { 4 }, { 9 }, { 16 } };
 
-               // set the normal
-               tNormal = {{ 1.0 }, { 0.0 }};
+                // set the normal
+                tNormal = { { 1.0 }, { 0.0 } };
 
-               // set dof type list
-               tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
+                // set dof type list
+                tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
 
-               break;
+                break;
             }
-            case 3 :
+            case 3:
             {
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::HEX;
 
                 // fill space coeff xHat
-                tXHat = {{ 0.0, 0.0, 0.0 },
-                         { 1.0, 0.0, 0.0 },
-                         { 1.0, 1.0, 0.0 },
-                         { 0.0, 1.0, 0.0 },
-                         { 0.0, 0.0, 1.0 },
-                         { 1.0, 0.0, 1.0 },
-                         { 1.0, 1.0, 1.0 },
-                         { 0.0, 1.0, 1.0 }};
+                tXHat = { { 0.0, 0.0, 0.0 },
+                    { 1.0, 0.0, 0.0 },
+                    { 1.0, 1.0, 0.0 },
+                    { 0.0, 1.0, 0.0 },
+                    { 0.0, 0.0, 1.0 },
+                    { 1.0, 0.0, 1.0 },
+                    { 1.0, 1.0, 1.0 },
+                    { 0.0, 1.0, 1.0 } };
 
                 // fill evaluation point xi, tau
-                tParamPoint = {{ 0.35}, {-0.25}, { 0.75}, { 0.0 }};
+                tParamPoint = { { 0.35 }, { -0.25 }, { 0.75 }, { 0.0 } };
 
                 // number of coefficients
-                tNumCoeffs = {{ 8 },{ 27 },{ 64 }};
+                tNumCoeffs = { { 8 }, { 27 }, { 64 } };
 
                 // set the normal
-                tNormal = {{1.0},{0.0},{0.0}};
+                tNormal = { { 1.0 }, { 0.0 }, { 0.0 } };
 
                 // set dof type list
                 tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } };
@@ -139,16 +139,16 @@ TEST_CASE( "IWG_FS_Struc_Interface", "[moris],[fem],[IWG_FS_Struc_Interface]" )
         //------------------------------------------------------------------------------
         // create a space geometry interpolation rule
         mtk::Interpolation_Rule tGIRule( tGeometryType,
-                                    mtk::Interpolation_Type::LAGRANGE,
-                                    mtk::Interpolation_Order::LINEAR,
-                                    mtk::Interpolation_Type::LAGRANGE,
-                                    mtk::Interpolation_Order::LINEAR );
+                mtk::Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Order::LINEAR,
+                mtk::Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Order::LINEAR );
 
         // create a space time geometry interpolator
         Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
 
         // create time coeff tHat
-        Matrix< DDRMat > tTHat = {{ 0.0 }, { 1.0 }};
+        Matrix< DDRMat > tTHat = { { 0.0 }, { 1.0 } };
 
         // set the coefficients xHat, tHat
         tGI.set_coeff( tXHat, tTHat );
@@ -157,7 +157,7 @@ TEST_CASE( "IWG_FS_Struc_Interface", "[moris],[fem],[IWG_FS_Struc_Interface]" )
         tGI.set_space_time( tParamPoint );
 
         // loop on the interpolation order
-        for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
+        for ( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
         {
             // field interpolators
             //------------------------------------------------------------------------------
@@ -171,11 +171,11 @@ TEST_CASE( "IWG_FS_Struc_Interface", "[moris],[fem],[IWG_FS_Struc_Interface]" )
             arma::Mat< double > tFollowerMatrixP;
 
             // get number of dof
-            int tNumDofVel  = 0;
-            int tNumDofP    = 0;
+            int tNumDofVel = 0;
+            int tNumDofP   = 0;
 
             // switch on interpolation order
-            switch( iInterpOrder )
+            switch ( iInterpOrder )
             {
                 case ( 1 ):
                 {
@@ -233,17 +233,17 @@ TEST_CASE( "IWG_FS_Struc_Interface", "[moris],[fem],[IWG_FS_Struc_Interface]" )
                 }
                 default:
                 {
-                    MORIS_ERROR( false, "LINEAR, QUADRATIC or CUBIC only.");
+                    MORIS_ERROR( false, "LINEAR, QUADRATIC or CUBIC only." );
                     break;
                 }
             }
 
-            //create a space time interpolation rule
-            mtk::Interpolation_Rule tFIRule ( tGeometryType,
-                                         mtk::Interpolation_Type::LAGRANGE,
-                                         tInterpolationOrder,
-                                         mtk::Interpolation_Type::CONSTANT,
-                                         mtk::Interpolation_Order::CONSTANT );
+            // create a space time interpolation rule
+            mtk::Interpolation_Rule tFIRule( tGeometryType,
+                    mtk::Interpolation_Type::LAGRANGE,
+                    tInterpolationOrder,
+                    mtk::Interpolation_Type::CONSTANT,
+                    mtk::Interpolation_Order::CONSTANT );
 
             // fill random coefficients for leader FI
             Matrix< DDRMat > tLeaderDOFHatVel;
@@ -258,7 +258,7 @@ TEST_CASE( "IWG_FS_Struc_Interface", "[moris],[fem],[IWG_FS_Struc_Interface]" )
             tFollowerDOFHatP = 10.0 * tFollowerMatrixP;
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tLeaderFIs( 2 );
+            Vector< Field_Interpolator* > tLeaderFIs( 2 );
 
             // create the field interpolator
             tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
@@ -268,12 +268,12 @@ TEST_CASE( "IWG_FS_Struc_Interface", "[moris],[fem],[IWG_FS_Struc_Interface]" )
             tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatVel );
             tLeaderFIs( 1 )->set_coeff( tLeaderDOFHatP );
 
-            //set the evaluation point xi, tau
+            // set the evaluation point xi, tau
             tLeaderFIs( 0 )->set_space_time( tParamPoint );
             tLeaderFIs( 1 )->set_space_time( tParamPoint );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tFollowerFIs( 2 );
+            Vector< Field_Interpolator* > tFollowerFIs( 2 );
 
             // create the field interpolator
             tFollowerFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
@@ -283,7 +283,7 @@ TEST_CASE( "IWG_FS_Struc_Interface", "[moris],[fem],[IWG_FS_Struc_Interface]" )
             tFollowerFIs( 0 )->set_coeff( tFollowerDOFHatVel );
             tFollowerFIs( 1 )->set_coeff( tFollowerDOFHatP );
 
-            //set the evaluation point xi, tau
+            // set the evaluation point xi, tau
             tFollowerFIs( 0 )->set_space_time( tParamPoint );
             tFollowerFIs( 1 )->set_space_time( tParamPoint );
 
@@ -297,8 +297,8 @@ TEST_CASE( "IWG_FS_Struc_Interface", "[moris],[fem],[IWG_FS_Struc_Interface]" )
             tIWG->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ) }, mtk::Leader_Follower::FOLLOWER );
 
             // create and set the fem set for the IWG
-            MSI::Equation_Set * tSet = new fem::Set();
-            static_cast<fem::Set*>(tSet)->set_set_type( fem::Element_Type::DOUBLE_SIDESET );
+            MSI::Equation_Set* tSet = new fem::Set();
+            static_cast< fem::Set* >( tSet )->set_set_type( fem::Element_Type::DOUBLE_SIDESET );
 
             // set pointer for IWG
             tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
@@ -308,31 +308,32 @@ TEST_CASE( "IWG_FS_Struc_Interface", "[moris],[fem],[IWG_FS_Struc_Interface]" )
 
             // set size and populate the set dof type map
             tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-            tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
-            tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
+            tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
+            tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )  = 1;
 
             // set size and populate the set leader and follower dof type map
             tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-            tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
-            tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
+            tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
+            tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )  = 1;
 
-            tIWG->mSet->mFollowerDofTypeMap .set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-            tIWG->mSet->mFollowerDofTypeMap ( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
-            tIWG->mSet->mFollowerDofTypeMap ( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
+            tIWG->mSet->mFollowerDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+            tIWG->mSet->mFollowerDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
+            tIWG->mSet->mFollowerDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )  = 1;
 
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( 4 );
-            tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofVel-1 } };
+            tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofVel - 1 } };
             tIWG->mSet->mResDofAssemblyMap( 1 ) = { { tNumDofVel, tNumDofVel + tNumDofP - 1 } };
-            tIWG->mSet->mResDofAssemblyMap( 2 ) = { { tNumDofVel + tNumDofP , 2 * tNumDofVel + tNumDofP  -1 } };
+            tIWG->mSet->mResDofAssemblyMap( 2 ) = { { tNumDofVel + tNumDofP, 2 * tNumDofVel + tNumDofP - 1 } };
             tIWG->mSet->mResDofAssemblyMap( 3 ) = { { 2 * tNumDofVel + tNumDofP, 2 * tNumDofVel + 2 * tNumDofP - 1 } };
 
             // set size and fill the set jacobian assembly map
             Matrix< DDSMat > tJacAssembly = {
-                    { 0, tNumDofVel-1 },
-                    { tNumDofVel, tNumDofVel + tNumDofP - 1 },
-                    { tNumDofVel + tNumDofP, 2 * tNumDofVel + tNumDofP -1 },
-                    { 2 * tNumDofVel + tNumDofP, 2 * tNumDofVel + 2 * tNumDofP - 1 } };
+                { 0, tNumDofVel - 1 },
+                { tNumDofVel, tNumDofVel + tNumDofP - 1 },
+                { tNumDofVel + tNumDofP, 2 * tNumDofVel + tNumDofP - 1 },
+                { 2 * tNumDofVel + tNumDofP, 2 * tNumDofVel + 2 * tNumDofP - 1 }
+            };
             tIWG->mSet->mJacDofAssemblyMap.resize( 4 );
             tIWG->mSet->mJacDofAssemblyMap( 0 ) = tJacAssembly;
             tIWG->mSet->mJacDofAssemblyMap( 1 ) = tJacAssembly;
@@ -346,19 +347,19 @@ TEST_CASE( "IWG_FS_Struc_Interface", "[moris],[fem],[IWG_FS_Struc_Interface]" )
             tIWG->build_global_dof_dv_and_field_type_list();
 
             // populate the requested leader dof type
-            tIWG->mRequestedLeaderGlobalDofTypes = { tVelDofTypes, tPDofTypes };
-            tIWG->mRequestedFollowerGlobalDofTypes  = { tVelDofTypes, tPDofTypes };
+            tIWG->mRequestedLeaderGlobalDofTypes   = { tVelDofTypes, tPDofTypes };
+            tIWG->mRequestedFollowerGlobalDofTypes = { tVelDofTypes, tPDofTypes };
 
             // create a field interpolator manager
             Vector< Vector< enum MSI::Dof_Type > > tDummy;
-            Field_Interpolator_Manager tLeaderFIManager( tDummy, tSet, mtk::Leader_Follower::LEADER );
-            Field_Interpolator_Manager tFollowerFIManager( tDummy, tSet, mtk::Leader_Follower::FOLLOWER );
+            Field_Interpolator_Manager             tLeaderFIManager( tDummy, tSet, mtk::Leader_Follower::LEADER );
+            Field_Interpolator_Manager             tFollowerFIManager( tDummy, tSet, mtk::Leader_Follower::FOLLOWER );
 
             // populate the field interpolator manager
-            tLeaderFIManager.mFI = tLeaderFIs;
-            tLeaderFIManager.mIPGeometryInterpolator = &tGI;
-            tLeaderFIManager.mIGGeometryInterpolator = &tGI;
-            tFollowerFIManager.mFI  = tFollowerFIs;
+            tLeaderFIManager.mFI                       = tLeaderFIs;
+            tLeaderFIManager.mIPGeometryInterpolator   = &tGI;
+            tLeaderFIManager.mIGGeometryInterpolator   = &tGI;
+            tFollowerFIManager.mFI                     = tFollowerFIs;
             tFollowerFIManager.mIPGeometryInterpolator = &tGI;
             tFollowerFIManager.mIGGeometryInterpolator = &tGI;
 
@@ -369,7 +370,7 @@ TEST_CASE( "IWG_FS_Struc_Interface", "[moris],[fem],[IWG_FS_Struc_Interface]" )
             // reset residual and jacobian
             //------------------------------------------------------------------------------
             tIWG->mSet->mResidual.resize( 1 );
-            tIWG->mSet->mResidual( 0 ).set_size( 2 * ( tNumDofVel + tNumDofP ), 1 , 0.0 );
+            tIWG->mSet->mResidual( 0 ).set_size( 2 * ( tNumDofVel + tNumDofP ), 1, 0.0 );
             tIWG->mSet->mJacobian.set_size( 2 * ( tNumDofVel + tNumDofP ), 2 * ( tNumDofVel + tNumDofP ), 0.0 );
 
             // check evaluation of the residual
@@ -391,15 +392,15 @@ TEST_CASE( "IWG_FS_Struc_Interface", "[moris],[fem],[IWG_FS_Struc_Interface]" )
                     tJacobians,
                     tJacobiansFD );
 
-//            // print for debug
-//            print( tJacobians,"tJacobians");
-//            print( tJacobiansFD,"tJacobiansFD");
+            //            // print for debug
+            //            print( tJacobians,"tJacobians");
+            //            print( tJacobiansFD,"tJacobiansFD");
 
             // require check is true
             REQUIRE( tCheckJacobian );
 
-//            // print the treated case
-//            std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<std::endl;
+            //            // print the treated case
+            //            std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<std::endl;
 
             // clean up
             tLeaderFIs.clear();
@@ -407,5 +408,4 @@ TEST_CASE( "IWG_FS_Struc_Interface", "[moris],[fem],[IWG_FS_Struc_Interface]" )
         }
     }
 
-}/* END_TEST_CASE */
-
+} /* END_TEST_CASE */

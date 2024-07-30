@@ -33,7 +33,7 @@ namespace moris
 
           public:
             // stress type to evaluate
-            enum Stress_Type mStressType = Stress_Type::UNDEFINED;
+            enum Stress_Type mStressType = Stress_Type::END_STRESS_TYPE;
 
             enum class IWG_Property_Type
             {

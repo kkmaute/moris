@@ -36,6 +36,9 @@
 // global variable for interpolation order
 extern uint gInterpolationOrder;
 
+// global variable for case index
+extern uint gCaseIndex;
+
 //---------------------------------------------------------------
 
 #ifdef __cplusplus
@@ -108,7 +111,8 @@ namespace moris
     /* ------------------------------------------------------------------------ */
     // Output Config
 
-    std::string tOutputFileName = "Pressure_Vessel_3D_Immersed.exo";
+    std::string tOutputFileName =
+            "Pressure_Vessel_3D_Case_" + std::to_string( gCaseIndex ) + ".exo";
 
     /* ------------------------------------------------------------------------ */
 
@@ -505,7 +509,7 @@ namespace moris
 
         // create IWG - Dirichlet temp
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGDirichletTemp" );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGDirichletTempInner" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "TEMP" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "TEMP" );
@@ -516,7 +520,7 @@ namespace moris
         tIWGCounter++;
 
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGDirichletTemp" );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGDirichletTempOuter" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "TEMP" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "TEMP" );

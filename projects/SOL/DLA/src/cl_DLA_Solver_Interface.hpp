@@ -242,6 +242,10 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        virtual void update_model() {};
+
+        //------------------------------------------------------------------------------
+
         virtual void report_beginning_of_assembly() {};
 
         //------------------------------------------------------------------------------
@@ -304,7 +308,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         // number local elements blocks
-        virtual moris::uint get_num_my_blocks() = 0;
+        virtual moris::uint get_num_sets() = 0;
 
         //------------------------------------------------------------------------------
 
@@ -313,11 +317,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         virtual fem::Element_Type
-        get_set_type( uint aMyEquSetInd )
-        {
-            MORIS_ERROR( false, "Solver_Interface::initiate_output: not set." );
-            return fem::Element_Type::UNDEFINED;
-        };
+        get_set_type( uint aMyEquSetInd ) = 0;
 
         //------------------------------------------------------------------------------
 

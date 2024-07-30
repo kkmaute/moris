@@ -19,74 +19,65 @@ namespace moris
     namespace fem
     {
         class Set;
+
         //------------------------------------------------------------------------------
         /**
-         * \brief Element_Double_Sideset class
+         * @brief Element_Double_Sideset class
          */
         class Element_Double_Sideset : public Element
         {
 
-            //------------------------------------------------------------------------------
-
           public:
             //------------------------------------------------------------------------------
-
             /**
              * constructor
-             * @param[ in ] aLeftIGCell         pointer to mesh cell for leader element
-             * @param[ in ] aRightIGCell        pointer to mesh cell for follower element
+             * @param[ in ] aLeaderIGCell         pointer to mesh cell for leader element
+             * @param[ in ] aFollowerIGCell        pointer to mesh cell for follower element
              * @param[ in ] aSet                pointer to FEM set to which the elements belong
              * @param[ in ] aCluster            pointer to FEM cluster to which the elements belong
              * @param[ in ] aCellIndexInCluster index of the element in the cluster
              */
             Element_Double_Sideset(
-                    mtk::Cell const   *aLeftIGCell,
-                    mtk::Cell const   *aRightIGCell,
-                    Set               *aSet,
-                    Cluster           *aCluster,
-                    moris::moris_index aCellIndexInCluster );
+                    mtk::Cell const         *aLeaderIGCell,
+                    mtk::Cell const         *aFollowerIGCell,
+                    Set                     *aSet,
+                    Cluster                 *aCluster,
+                    moris::moris_index const aCellIndexInCluster );
 
             //------------------------------------------------------------------------------
 
-            /**
-             * destructor
-             */
-            ~Element_Double_Sideset();
+            ~Element_Double_Sideset() override = default;
 
             //------------------------------------------------------------------------------
-
             /**
              * compute residual over the element
              */
-            void compute_residual();
+            void compute_residual() override;
 
             //------------------------------------------------------------------------------
-
             /**
              * compute jacobian over the element
              */
-            void compute_jacobian();
-
-            //------------------------------------------------------------------------------
+            void compute_jacobian() override;
 
             /**
              * compute jacobian and residual over the element
              */
-            void compute_jacobian_and_residual();
+            void compute_jacobian_and_residual() override;
 
             //------------------------------------------------------------------------------
 
             /**
              * compute dRdp
              */
-            void compute_dRdp();
+            void compute_dRdp() override;
 
             //------------------------------------------------------------------------------
 
             /**
              * compute QI
              */
-            void compute_QI();
+            void compute_QI() override;
 
             //------------------------------------------------------------------------------
 
@@ -94,7 +85,7 @@ namespace moris
              * compute dQIdu
              */
             void
-            compute_dQIdu()
+            compute_dQIdu() override
             {
                 MORIS_ERROR( false, "Element_Double_Sideset::compute_dQIdu - not implemented." );
             }
@@ -105,7 +96,7 @@ namespace moris
              * compute dQIdp
              */
             void
-            compute_dQIdp_explicit()
+            compute_dQIdp_explicit() override
             {
                 MORIS_ERROR( false, "Element_Double_Sideset::compute_dQIdp_explicit - not implemented." );
             }
@@ -114,7 +105,7 @@ namespace moris
             /**
              * compute dRdp and dQIdp
              */
-            void compute_dRdp_and_dQIdp();
+            void compute_dRdp_and_dQIdp() override;
 
             //------------------------------------------------------------------------------
 
@@ -122,7 +113,7 @@ namespace moris
              * compute quantity of interest in a global way
              * @param[ in ] aFemMeshIndex mesh index for used IG mesh
              */
-            void compute_quantity_of_interest_global( const uint aFemMeshIndex );
+            void compute_quantity_of_interest_global( const uint aFemMeshIndex ) override;
 
             //------------------------------------------------------------------------------
 
@@ -133,7 +124,7 @@ namespace moris
              */
             void compute_quantity_of_interest_elemental(
                     const uint aFemMeshIndex,
-                    const bool aAverageOutput );
+                    const bool aAverageOutput ) override;
 
             //------------------------------------------------------------------------------
 
@@ -141,39 +132,63 @@ namespace moris
              * compute volume over the element
              * @param[ in ] aIsLeader enum for leader or follower
              */
-            real compute_volume( mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
+            real compute_volume( mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) override;
+
+            //------------------------------------------------------------------------------
+
+            void init_ig_geometry_interpolator() const;
 
             //------------------------------------------------------------------------------
 
           protected:
-            //------------------------------------------------------------------------------
-
             /**
              * initialize the geometry interpolator for the IG leader and follower element
              * @param[ in ] aLeaderSideOrdinal side ordinal for the leader element
              * @param[ in ] aFollowerSideOrdinal  side ordinal for the follower element
              */
-            void init_ig_geometry_interpolator(
-                    uint aLeaderSideOrdinal,
-                    uint aFollowerSideOrdinal );
+            virtual void initialize_leader_follower_ig_interpolator( mtk::Leader_Follower const aLeaderFollowerType ) const;
+
+            //------------------------------------------------------------------------------
+            Matrix< DDSMat > get_local_cluster_assembly_indices(
+                    moris_index const aLeaderSideOrdinal,
+                    moris_index const aFollowerSideOrdinal ) const;
+
+            //------------------------------------------------------------------------------
+            /**
+             * @brief Return the index at which the leader cell is stored in the vector of primary cells in the parent cluster.
+             * @details If the cluster contains cells [1, 3, 4, 7] and the cell is 4, then the index is 2.
+             * @return Index of the cell in the vector of primary cells in the parent cluster.
+             */
+            moris_index get_leader_local_cell_index() const;
+
+            //------------------------------------------------------------------------------
+            /**
+             * @brief Return the index at which the follower cell is stored in the vector of primary cells in the parent cluster.
+             * @attention For the double sideset element, this is the same as the leader cell index.
+             * This is not the case for the nonconformal sideset element which is derived from this class.
+             * @details If the cluster contains cells [1, 3, 4, 7] and the cell is 4, then the index is 2.
+             * @return Index of the cell in the vector of primary cells in the parent cluster.
+             */
+            virtual moris_index get_follower_local_cell_index() const;
 
             //------------------------------------------------------------------------------
 
+            virtual Matrix< DDRMat > get_leader_normal( uint aGPIndex ) const
+            {
+                moris_index const tLeaderSideOrd = mCluster->mLeaderListOfSideOrdinals( get_leader_local_cell_index() );
+                return mCluster->get_side_normal( mLeaderCell, tLeaderSideOrd );
+            }
+
+          private:
+            Matrix< DDRMat > get_follower_integration_point( uint aGPIndex ) const override;
+
+            //------------------------------------------------------------------------------
             /**
-             * initialize the geometry interpolator for the IG leader and follower element
-             * @param[ in ] aLeaderSideOrdinal side ordinal for the leader element
-             * @param[ in ] aFollowerSideOrdinal  side ordinal for the follower element
-             * @param[ in ] aGeoLocalAssembly  matrix with pdv local assembly indices
-             *                                 for leader element
-             *                                 ( NumVertexIndices x NumPdvTypes )
+             * @brief Get the leader and follower quadrature point coordinates and set the field interpolators to this coordinate
              */
-            void init_ig_geometry_interpolator(
-                    uint              aLeaderSideOrdinal,
-                    uint              aFollowerSideOrdinal,
-                    Matrix< DDSMat > &aGeoLocalAssembly );
+            void initialize_quadrature_point( uint iGP );
         };
 
-        //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
 

@@ -20,6 +20,19 @@
 #include "cl_Parameter_List.hpp"
 #include "cl_Vector.hpp"
 
+#include "fn_PRM_FEM_Parameters.hpp"
+#include "fn_PRM_MSI_Parameters.hpp"
+#include "fn_PRM_SOL_Parameters.hpp"
+#include "fn_PRM_VIS_Parameters.hpp"
+#include "fn_PRM_HMR_Parameters.hpp"
+#include "fn_PRM_GEN_Parameters.hpp"
+#include "fn_PRM_XTK_Parameters.hpp"
+#include "fn_PRM_OPT_Parameters.hpp"
+#include "fn_PRM_MIG_Parameters.hpp"
+#include "fn_PRM_STK_Parameters.hpp"
+#include "fn_PRM_WRK_Parameters.hpp"
+#include "fn_PRM_MORIS_GENERAL_Parameters.hpp"
+
 namespace moris
 {
     // -----------------------------------------------------------------------------
@@ -135,6 +148,14 @@ namespace moris
         virtual std::string
         get_path( File_Type aFileType ) const;
 
+        // -----------------------------------------------------------------------------
+
+        Vector < ModuleParameterList >&
+        get_mParameterLists()
+        {
+            return mParameterLists;
+        }
+        
         // -----------------------------------------------------------------------------
 
         /**
@@ -305,6 +326,19 @@ namespace moris
     };    // class Library_IO
 
     // -----------------------------------------------------------------------------
+
+    // FREE FUNCTION create_parameter_list
+
+    /**
+     * @brief Create a parameter list for a given module, child, and sub-child
+     *
+     * @param aModule module to create the parameter list for
+     * @param aChild child to create the parameter list for
+     * @param aSubChild sub-child to create the parameter list for
+     * @return Parameter_List
+     */
+
+    Parameter_List create_parameter_list( Parameter_List_Type aModule, uint aChild, uint aSubChild );
 
 }    // namespace moris
 

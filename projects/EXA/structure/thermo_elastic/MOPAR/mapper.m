@@ -8,7 +8,6 @@ exofile='test.e';
 scripts_dir = './misc';
 addpath(scripts_dir);
 
-
 [inpfecoord,inpfetopo,inpfeprop,inpfebc,inpnumfenod,inpnumfele]= LoadExoMesh(inputmesh,1);
 [outfecoord,outfetopo,outfeprop,outfebc,outnumfenod,outnumfele]= LoadExoMesh(outputmesh,2);
 
@@ -55,5 +54,3 @@ WriteExoData(exofile,{'Temp'},outTemp',1.0,0);
 
 WriteExoData(outputmesh,{'Temp'},outTemp',1.0,0);
 
-
- 

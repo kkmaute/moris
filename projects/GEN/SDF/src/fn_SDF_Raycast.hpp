@@ -121,7 +121,6 @@ namespace moris::sdf
 
     //-------------------------------------------------------------------------------
 
-
     /**
      * checks if the cast point will cast a ray that will actually intersect aCandidateFacets. If so, the facet is added to the return
      *

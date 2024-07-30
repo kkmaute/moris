@@ -143,10 +143,10 @@ namespace moris
              * @param[ in ] aDofType                  dof type for the interpolated fields
              */
             Field_Interpolator(
-                    const uint&                        aNumberOfFields,
-                    const mtk::Interpolation_Rule&     aFieldInterpolationRule,
-                    Geometry_Interpolator*             aGeometryInterpolator,
-                    const Vector< MSI::Dof_Type > aDofType );
+                    const uint&                    aNumberOfFields,
+                    const mtk::Interpolation_Rule& aFieldInterpolationRule,
+                    Geometry_Interpolator*         aGeometryInterpolator,
+                    const Vector< MSI::Dof_Type >  aDofType );
 
             /**
              * constructor
@@ -169,16 +169,16 @@ namespace moris
              * @param[ in ] aFieldType                field type for the interpolated fields
              */
             Field_Interpolator(
-                    const uint&                          aNumberOfFields,
-                    const mtk::Interpolation_Rule&       aFieldInterpolationRule,
-                    Geometry_Interpolator*               aGeometryInterpolator,
+                    const uint&                     aNumberOfFields,
+                    const mtk::Interpolation_Rule&  aFieldInterpolationRule,
+                    Geometry_Interpolator*          aGeometryInterpolator,
                     const Vector< mtk::Field_Type > aDvType );
 
             /**
              * trivial constructor for unit test
              */
             Field_Interpolator(
-                    const uint&                        aNumberOfFields,
+                    const uint&                   aNumberOfFields,
                     const Vector< MSI::Dof_Type > aDofType )
                     : mNumberOfFields( aNumberOfFields )
                     , mDofType( aDofType )
@@ -348,6 +348,19 @@ namespace moris
             get_time() const
             {
                 return mTau;
+            }
+
+            //------------------------------------------------------------------------------
+
+            Matrix< DDRMat > get_space_time() const
+            {
+                Matrix< DDRMat > tSpaceTime( mNSpaceParamDim + 1, 1 );
+
+                tSpaceTime( { 0, mNSpaceParamDim - 1 }, { 0, 0 } ) = mXi.matrix_data();
+
+                tSpaceTime( { mNSpaceParamDim, mNSpaceParamDim }, { 0, 0 } ) = mTau.matrix_data();
+
+                return tSpaceTime;
             }
 
             //------------------------------------------------------------------------------
@@ -557,4 +570,3 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_FEM_FIELD_INTERPOLATOR_HPP_ */
-

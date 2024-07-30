@@ -375,7 +375,7 @@ namespace moris
             //            for( uint iDv = 0; iDv < tNumDvDependencies; iDv++ )
             //            {
             //                // get the treated dv type
-            //                Cell< gen::PDV_Type > tDvType = mLeaderGlobalDvTypes( iDv );
+            //                Vector< gen::PDV_Type > tDvType = mLeaderGlobalDvTypes( iDv );
             //
             //                // get the index for dof type, indices for assembly
             //                sint tDvDepIndex          = ;

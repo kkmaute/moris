@@ -92,7 +92,6 @@ namespace moris::dla
 
         EPSProblemType determine_problem_type( Linear_Problem* aLinearSystem );
 
-
         //------------------------------------------------------------------------------
 
         virtual void set_sublinear_solver_options( const Parameter_List* aParameterlistsubSolver, const Parameter_List* aParameterlistPreconditioner ) override;

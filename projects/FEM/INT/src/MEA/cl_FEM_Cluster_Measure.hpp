@@ -8,168 +8,144 @@
  *
  */
 
-#ifndef SRC_FEM_CL_FEM_CLUSTER_MEASURE_HPP_
-#define SRC_FEM_CL_FEM_CLUSTER_MEASURE_HPP_
+#pragma once
 
-//MRS/COR/src
+// MRS/COR/src
 #include "moris_typedefs.hpp"
-//#include "linalg_typedefs.hpp"
 #include "cl_Vector.hpp"
-//LNA/src
+// LNA/src
 #include "cl_Matrix.hpp"
 #include "cl_FEM_Enums.hpp"
 #include "cl_MTK_Enums.hpp"
+#include <tuple>
+#include <utility>
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+    class Cluster;
+    class Set;
+
+    //------------------------------------------------------------------------------
+    /**
+     * Cluster Measure
+     * This class provides cluster measure mainly for stabilization purpose.
+     */
+    class Cluster_Measure
     {
-        class Cluster;
-        class Set;
+      public:
+        using ClusterMeasureSpecification = std::tuple< fem::Measure_Type, mtk::Primary_Void, mtk::Leader_Follower >;
 
         //------------------------------------------------------------------------------
         /**
-         * Cluster Measure
-         * This class provides cluster measure mainly for stabilization purpose.
+         * constructor
          */
-        class Cluster_Measure
+        Cluster_Measure(
+                Cluster_Measure::ClusterMeasureSpecification const &aClusterMeasureSpecification,
+                fem::Cluster *const                                 aCluster )
+                : mCluster( aCluster )
+                , mMeasureType( std::get< 0 >( aClusterMeasureSpecification ) )
+                , mIsPrimary( std::get< 1 >( aClusterMeasureSpecification ) )
+                , mIsLeader( std::get< 2 >( aClusterMeasureSpecification ) ){};
+
+        //------------------------------------------------------------------------------
+        /**
+         * trivial constructor for test purpose only
+         */
+        Cluster_Measure()
+                : mMEAEval( true )
         {
-                //------------------------------------------------------------------------------
-            protected :
-
-                //------------------------------------------------------------------------------
-
-                // cluster pointer
-                fem::Cluster * mCluster = nullptr;
-
-                // enum storage
-                fem::Measure_Type mMeasureType = fem::Measure_Type::UNDEFINED;
-                mtk::Primary_Void mIsPrimary = mtk::Primary_Void::UNDEFINED;
-                mtk::Leader_Follower mIsLeader = mtk::Leader_Follower::UNDEFINED;
-
-                // storage
-                Matrix< DDRMat > mMEAVal;
-                Matrix< DDRMat > mdMEAdPDV;
-
-                // flag for evaluation
-                bool mMEAEval     = false;
-                bool mdMEAdPDVEval = false;
-
-                //------------------------------------------------------------------------------
-            public :
-
-                //------------------------------------------------------------------------------
-                /**
-                 * constructor
-                 */
-                Cluster_Measure(
-                        fem::Measure_Type aMeasureType,
-                        mtk::Primary_Void aIsPrimary,
-                        mtk::Leader_Follower aIsLeader,
-                        fem::Cluster * aCluster )
-                : mCluster( aCluster ),
-                  mMeasureType( aMeasureType ),
-                  mIsPrimary( aIsPrimary ),
-                  mIsLeader( aIsLeader )
-                {};
-
-                /**
-                 * trivial constructor for test purpose only
-                 */
-                Cluster_Measure()
-                {
-                    mMEAEval = true;
-                    mMEAVal = {{1.0}};
-                };
-
-                //------------------------------------------------------------------------------
-                /**
-                 * virtual destructor
-                 */
-                virtual ~Cluster_Measure(){};
-
-                //------------------------------------------------------------------------------
-                /**
-                 * set cluster
-                 * @param[ in ] aCluster a fem cluster pointer
-                 */
-                void set_cluster( fem::Cluster * aCluster )
-                {
-                    // set a cluster
-                    mCluster = aCluster;
-
-                    // evaluate the cluster measure
-                    this->eval_cluster_measure();
-                }
-
-                //------------------------------------------------------------------------------
-                /**
-                 * get measure type
-                 * @return fem::Measure_Type describing the cluster measure
-                 */
-                fem::Measure_Type & get_measure_type()
-                {
-                    return  mMeasureType;
-                }
-
-                //------------------------------------------------------------------------------
-                /**
-                 * get primary type
-                 * @return mtk::Primary_Void describing the cluster measure
-                 */
-                mtk::Primary_Void & get_primary_type()
-                {
-                    return  mIsPrimary;
-                }
-
-                //------------------------------------------------------------------------------
-                /**
-                 * get leader type
-                 * @return mtk::Leader_Follower describing the cluster measure
-                 */
-                mtk::Leader_Follower & get_leader_type()
-                {
-                    return  mIsLeader;
-                }
-
-                //------------------------------------------------------------------------------
-                /**
-                 * get the stabilization parameter value
-                 * @param[ out ] mMEAVal stabilization parameter value
-                 */
-                const Matrix< DDRMat > & val();
-
-                //------------------------------------------------------------------------------
-                /**
-                 * evaluate cluster measure
-                 */
-                void eval_cluster_measure();
-
-                //------------------------------------------------------------------------------
-                /**
-                 * perturb cluster measure
-                 * param[ in ] aDeltaH perturbation size
-                 */
-                void perturb_cluster_measure( moris::real aDeltaH );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * get the cluster measure derivative wrt pdv
-                 * @return mdMEAdPDV cluster measure derivative wrt leader dv
-                 */
-                const Matrix< DDRMat > & dMEAdPDV();
-
-                //------------------------------------------------------------------------------
-                /**
-                 * evaluate the cluster measure derivatives wrt pdv
-                 */
-                void eval_cluster_measure_derivatives();
-
-                //------------------------------------------------------------------------------
+            mMEAVal = { { 1.0 } };
         };
 
         //------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
-#endif /* SRC_FEM_CL_FEM_CLUSTER_MEASURE_HPP_ */
+        /**
+         * set cluster
+         * @param[ in ] aCluster a fem cluster pointer
+         */
+        void set_cluster( fem::Cluster *const aCluster )
+        {
+            mCluster = aCluster;
+            this->eval_cluster_measure();
+        }
 
+        //------------------------------------------------------------------------------
+        /**
+         * get measure type
+         * @return fem::Measure_Type describing the cluster measure
+         */
+        fem::Measure_Type &get_measure_type()
+        {
+            return mMeasureType;
+        }
+
+        //------------------------------------------------------------------------------
+        /**
+         * get primary type
+         * @return mtk::Primary_Void describing the cluster measure
+         */
+        mtk::Primary_Void &get_primary_type()
+        {
+            return mIsPrimary;
+        }
+
+        //------------------------------------------------------------------------------
+        /**
+         * get leader type
+         * @return mtk::Leader_Follower describing the cluster measure
+         */
+        mtk::Leader_Follower &get_leader_type()
+        {
+            return mIsLeader;
+        }
+
+        //------------------------------------------------------------------------------
+        /**
+         * get the stabilization parameter value
+         * @param[ out ] mMEAVal stabilization parameter value
+         */
+        const Matrix< DDRMat > &val();
+
+        //------------------------------------------------------------------------------
+        /**
+         * evaluate cluster measure
+         */
+        void eval_cluster_measure();
+
+        //------------------------------------------------------------------------------
+        /**
+         * perturb cluster measure
+         * param[ in ] aDeltaH perturbation size
+         */
+        void perturb_cluster_measure( moris::real aDeltaH );
+
+        //------------------------------------------------------------------------------
+        /**
+         * get the cluster measure derivative wrt pdv
+         * @return mdMEAdPDV cluster measure derivative wrt leader dv
+         */
+        const Matrix< DDRMat > &dMEAdPDV();
+
+        //------------------------------------------------------------------------------
+        /**
+         * evaluate the cluster measure derivatives wrt pdv
+         */
+        void eval_cluster_measure_derivatives();
+
+      private:
+        // cluster pointer
+        fem::Cluster *mCluster;
+
+        // enum storage
+        fem::Measure_Type    mMeasureType = fem::Measure_Type::END_MEASURE_TYPE;
+        mtk::Primary_Void    mIsPrimary   = mtk::Primary_Void::UNDEFINED;
+        mtk::Leader_Follower mIsLeader    = mtk::Leader_Follower::UNDEFINED;
+
+        // storage
+        Matrix< DDRMat > mMEAVal;
+        Matrix< DDRMat > mdMEAdPDV;
+
+        // flag for evaluation
+        bool mMEAEval      = false;
+        bool mdMEAdPDVEval = false;
+    };
+}    // namespace moris::fem

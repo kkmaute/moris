@@ -40,7 +40,6 @@ namespace moris
                     const Vector< real >& aOffsets = { 0, 0, 0 },
                     const Vector< real>& aScale = { 1.0, 1.0, 1.0 } );
 
-
             //-------------------------------------------------------------------------------
 
             /**
@@ -116,14 +115,12 @@ namespace moris
                     uint aFacetIndex,
                     uint aAxis );
 
-
             //-------------------------------------------------------------------------------
 
             real
             get_facet_max_coord(
                     uint aFacetIndex,
                     uint aAxis );
-
 
             //-------------------------------------------------------------------------------
             // MTK

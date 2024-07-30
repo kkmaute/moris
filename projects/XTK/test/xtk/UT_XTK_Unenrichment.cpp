@@ -8,7 +8,6 @@
  *
  */
 
-
 #include "catch.hpp"
 #include "paths.hpp"
 #include "cl_Matrix.hpp"
@@ -157,10 +156,8 @@ namespace moris::xtk
                         moris::Matrix< IdMat >         tBaseIds = tBaseVertex->get_ids();
                         moris::Matrix< IdMat > const & tIds     = iVertexEnrichment->get_basis_ids();
 
-
                         moris::Matrix< IdMat >         tBaseOwners = tBaseVertex->get_owners();
                         moris::Matrix< IdMat > const & tOwners     = iVertexEnrichment->get_owners();
-
 
                         bool tSameIndex = std::equal( tBaseIndices.begin(), tBaseIndices.end(), tIndices.begin(),    //
                                 []( moris_index aBaseIndex, moris_index aIndex ) -> bool { return aBaseIndex == aIndex; } );
@@ -168,10 +165,8 @@ namespace moris::xtk
                         bool tSameId = std::equal( tBaseIds.begin(), tBaseIds.end(), tIds.begin(),    //
                                 []( moris_id aBaseId, moris_id aId ) -> bool { return aBaseId == aId; } );
 
-
                         bool tSameOwner = std::equal( tBaseOwners.begin(), tBaseOwners.end(), tOwners.begin(),    //
                                 []( moris_id aBaseOwner, moris_id aOwner ) -> bool { return aBaseOwner == aOwner; } );
-
 
                         bool tItisOverwritten = tSameIndex and tSameId and tSameOwner;
 

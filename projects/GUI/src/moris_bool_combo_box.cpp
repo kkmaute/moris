@@ -9,9 +9,7 @@ Moris_Bool_Combo_Box::Moris_Bool_Combo_Box( QWidget *parent, moris::Parameter &p
         : QComboBox( parent )
         , mParameter( parameter )
 {
-    // Debugging output to check the parameter index
-    std::cout << mParameter.index() << std::endl;
-
+    
     // Add boolean options to the combo box
     addItem( "true" );
     addItem( "false" );

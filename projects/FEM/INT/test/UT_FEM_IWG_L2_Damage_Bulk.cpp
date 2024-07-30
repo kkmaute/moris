@@ -329,7 +329,6 @@ void Test_IWG_L2_Damage_Bulk(
             tIWG->mSet->mResidual( 0 ).set_size( tNumDofDispl + tNumDofNlEqStrain + tNumDofHistory + tNumDofDamage, 1, 0.0 );
             tIWG->mSet->mJacobian.set_size( tNumDofDispl + tNumDofNlEqStrain + tNumDofHistory + tNumDofDamage, tNumDofDispl + tNumDofNlEqStrain + tNumDofHistory + tNumDofDamage, 0.0 );
 
-
             // build global dof type list
             tIWG->get_global_dof_type_list();
 

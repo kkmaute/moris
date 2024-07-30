@@ -42,7 +42,7 @@ The following block of code shows a reasonable set up with these settings in pla
 The mesh used to solve for DOFs is a linear mesh that has 2 initial refinements.
 The mesh used to discretize the geometry is a quadratic mesh that is not refined.
 
-    void HMRParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
+    void HMRParameterList( Vector< Vector< ParameterList > > & tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );

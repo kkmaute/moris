@@ -106,5 +106,4 @@ namespace moris::xtk
 
 }    // namespace moris::xtk
 
-
 #endif /* fn_XTK_match_normal_to_side_ordinal.hpp */

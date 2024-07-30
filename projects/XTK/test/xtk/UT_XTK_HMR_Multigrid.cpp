@@ -30,16 +30,16 @@
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Writer_Exodus.hpp"
 
-#include "cl_Matrix.hpp"      //LINALG
+#include "cl_Matrix.hpp"    //LINALG
 #include "linalg_typedefs.hpp"
 #include "fn_equal_to.hpp"    // ALG/src
 
 #include "cl_HMR_Mesh_Interpolation.hpp"
 #include "cl_HMR.hpp"
-#include "cl_HMR_Background_Mesh.hpp"       //HMR/src
-#include "cl_HMR_BSpline_Mesh_Base.hpp"     //HMR/src
-#include "cl_HMR_Element.hpp"               //HMR/src
-#include "cl_HMR_Factory.hpp"               //HMR/src
+#include "cl_HMR_Background_Mesh.hpp"      //HMR/src
+#include "cl_HMR_BSpline_Mesh_Base.hpp"    //HMR/src
+#include "cl_HMR_Element.hpp"              //HMR/src
+#include "cl_HMR_Factory.hpp"              //HMR/src
 #include "cl_HMR_Field.hpp"
 #include "cl_HMR_Lagrange_Mesh_Base.hpp"    //HMR/src
 #include "cl_HMR_Parameters.hpp"            //HMR/src
@@ -103,7 +103,7 @@ namespace moris::xtk
 
             tParameters.set_multigrid( true );
 
-            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
             tLagrangeToBSplineMesh( 0 ) = { { 0 } };
 
             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -146,7 +146,7 @@ namespace moris::xtk
             tXTKModel.mVerbose = false;
 
             // Specify decomposition Method and Cut Mesh ---------------------------------------
-            Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
+            Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
             tXTKModel.decompose( tDecompositionMethods );
 
             tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 );
@@ -253,7 +253,7 @@ namespace moris::xtk
                     tEnrIgMesh.create_block_set_from_cells_of_side_set(tSSIndex,"ghost_bs_p0", mtk::CellTopology::QUAD4);
 
                      // Declare the fields related to enrichment strategy in output options
-                     Cell<std::string> tEnrichmentFieldNames = tEnrichment.get_cell_enrichment_field_names();
+                     Vector<std::string> tEnrichmentFieldNames = tEnrichment.get_cell_enrichment_field_names();
 
                     // output solution and meshes
                     xtk::Output_Options tOutputOptions;
