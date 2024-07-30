@@ -8,6 +8,7 @@
 #include "main_gui.hpp"
 #include "TestWindow.hpp"
 #include "cl_Parameter_List.hpp"
+#include "moris_file_dialog.hpp"
 
 #include "main.moc"
 
@@ -18,6 +19,14 @@ int main( int argc, char *argv[] )
 {
     gMorisComm = moris::Comm_Manager( &argc, &argv );
     QApplication app( argc, argv );
+
+    QString filePath = getMorisFilePath();
+    if (!filePath.isEmpty()) {
+    std::cout << "Selected file path: " << filePath.toStdString() << std::endl;
+    } else {
+    std::cout << "No file selected." << std::endl;
+    }
+
 
     // Create a Parameter List and populate it with initial test values
     moris::Parameter_List parameterList;
@@ -31,8 +40,8 @@ int main( int argc, char *argv[] )
     moris::Moris_Gui widget;
     widget.show();
 
-    TestWindow mainWindow( nullptr, parameterList );
-    mainWindow.show();
+    // TestWindow mainWindow( nullptr, parameterList );
+    // mainWindow.show();
 
     return app.exec();
 }

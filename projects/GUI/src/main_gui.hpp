@@ -45,6 +45,12 @@
 #include "fn_PRM_STK_Parameters.hpp"
 #include "fn_PRM_WRK_Parameters.hpp"
 #include "moris_tree_widget_item.hpp"
+#include "cl_XML_Parser.hpp"
+#include "cl_Library_IO.hpp"
+#include "cl_Library_IO_Standard.hpp"
+
+
+
 
 // Using moris namespace
 
@@ -63,10 +69,11 @@ namespace moris
          * mRemoveButton (QPushButton) -> Remove button to remove parameters in a certain form
          */
 
-        QHBoxLayout *mLayout       = new QHBoxLayout( this );
-        QVBoxLayout *mSidePanel    = new QVBoxLayout();
-        QPushButton *mAddButton    = new QPushButton;
-        QPushButton *mRemoveButton = new QPushButton;
+        QHBoxLayout *mLayout              = new QHBoxLayout( this );
+        QVBoxLayout *mSidePanel           = new QVBoxLayout();
+        QPushButton *mAddButton           = new QPushButton;
+        QPushButton *mRemoveButton        = new QPushButton;
+        QPushButton *m_save_to_xml_Button = new QPushButton;
 
         //--------------------------------------------------------------------------------------------------------------
 
@@ -138,6 +145,15 @@ namespace moris
          * @note This function is called when the mRemoveButton is clicked. It removes parameters in a form or removes a sub-form if the Moris_Tree_Widget_Item has sub-forms.
          */
         void remove_props();
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        /**
+         * @brief Function to write the parameters into an xml file when the m_save_to_xml_Button is clicked
+         * @note This function is called when the m_save_to_xml_Button is clicked. It saves all the parameter names and their values to the xml file
+         */
+
+        void write_to_xml();
 
         //--------------------------------------------------------------------------------------------------------------
 
