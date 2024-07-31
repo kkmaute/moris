@@ -549,6 +549,12 @@ namespace moris::mtk
             tNumUsedFacets += mFacetUsedInExodus( tSideSetIndex )( iFacet );
         }
 
+        // if no facets are part of the exodus mesh, skip writing the field
+        if ( tNumUsedFacets == 0 )
+        {
+            return;
+        }
+
         // clean out field values which are not used
         Matrix< DDRMat > tUsedFieldValues( tNumUsedFacets, 1 );
         uint             tCounter = 0;
