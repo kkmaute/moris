@@ -3,8 +3,8 @@
 #include <QVBoxLayout>
 #include <QPushButton>
 
-#include "moris_line_edit.hpp"
-#include "moris_combo_box.hpp"
+#include "cl_line_edit.hpp"
+#include "cl_combo_box.hpp"
 #include "main_gui.hpp"
 #include "TestWindow.hpp"
 #include "cl_Parameter_List.hpp"

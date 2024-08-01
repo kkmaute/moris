@@ -19,7 +19,7 @@ namespace moris
     Moris_Gui::Moris_Gui( QWidget *parent )
             : QWidget( parent )
     {
-        QString tFilePath = getMorisFilePath();
+        QString tFilePath = get_moris_file_path();
 
         // load the parameter list from the xml file
         mLibrary.load_parameter_list( tFilePath.toStdString(), File_Type::XML_FILE );
@@ -475,7 +475,7 @@ namespace moris
          * @brief Function to save the current parameters to an XML file
          * @note This function is called when the m_save_to_xml_Button is clicked. It writes the parameters to an XML file.
          */
-        QString tFilePath = getMorisFilePathForWriting();
+        QString tFilePath = get_moris_file_path_for_writing();
         mLibrary.finalize( tFilePath.toStdString() );
         QCoreApplication::quit();
     }

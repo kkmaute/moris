@@ -28,9 +28,9 @@
 #include <QTreeWidget>
 #include <QList>
 
-#include "moris_tree_widget_item.hpp"
-#include "moris_read_file_dialog.hpp"
-#include "moris_write_file_dialog.hpp"
+#include "cl_tree_widget_item.hpp"
+#include "fn_read_file_dialog.hpp"
+#include "fn_write_file_dialog.hpp"
 
 #include <iostream>
 

@@ -22,30 +22,30 @@ message("QT version: ${QT_VERSION_MAJOR}")
 set(PROJECT_SOURCES
        main_gui.cpp
        main.cpp 
-       moris_line_edit.cpp
-       moris_combo_box.cpp
-       moris_bool_combo_box.cpp
+       cl_line_edit.cpp
+       cl_combo_box.cpp
+       cl_bool_combo_box.cpp
        TestWindow.cpp
-       moris_double_spin_box.cpp
-       moris_int_spin_box.cpp
-       moris_pair_box.cpp
-       moris_tree_widget_item.cpp
-       moris_read_file_dialog.cpp
-       moris_write_file_dialog.cpp
+       cl_double_spin_box.cpp
+       cl_int_spin_box.cpp
+       cl_pair_box.cpp
+       cl_tree_widget_item.cpp
+       fn_read_file_dialog.cpp
+       fn_write_file_dialog.cpp
        )
 
 set(HEADERS
        main_gui.hpp
-       moris_line_edit.hpp
-       moris_combo_box.hpp
-       moris_bool_combo_box.hpp
+       cl_line_edit.hpp
+       cl_combo_box.hpp
+       cl_bool_combo_box.hpp
        TestWindow.hpp
-       moris_double_spin_box.hpp
-       moris_int_spin_box.hpp
-       moris_pair_box.hpp
-       moris_tree_widget_item.hpp
-       moris_read_file_dialog.hpp
-       moris_write_file_dialog.hpp
+       cl_double_spin_box.hpp
+       cl_int_spin_box.hpp
+       cl_pair_box.hpp
+       cl_tree_widget_item.hpp
+       fn_read_file_dialog.hpp
+       fn_write_file_dialog.hpp
 
 )
  

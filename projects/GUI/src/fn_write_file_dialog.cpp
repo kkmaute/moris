@@ -3,7 +3,7 @@
 #include <QStandardPaths>
 #include <QDir>
 
-QString getMorisFilePathForWriting()
+QString get_moris_file_path_for_writing()
 {
     // Open a file dialog to select or input the name of the XML file
     QString filePath = QFileDialog::getSaveFileName(
