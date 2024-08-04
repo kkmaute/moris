@@ -6,13 +6,13 @@ namespace moris
     // Initializes the double spin box widget and sets up its signal-slot connections.
     // Inputs:
     // - a_parent: Pointer to the parent widget (default is nullptr).
-    // - a_parameter: Reference to a moris::Parameter object to be linked with this widget.
-    Moris_Double_Spin_Box::Moris_Double_Spin_Box( QWidget *a_parent, moris::Parameter &a_parameter )
+    // - a_parameter: Reference to a Parameter object to be linked with this widget.
+    Moris_Double_Spin_Box::Moris_Double_Spin_Box( QWidget *a_parent, Parameter &a_parameter )
             : QDoubleSpinBox( a_parent )
             , m_parameter( a_parameter )
     {
         setRange( -MORIS_REAL_MAX, MORIS_REAL_MAX );
-        setValue( m_parameter.get_value< moris::real >() );
+        setValue( m_parameter.get_value< real >() );
         // Connect the valueChanged(double) signal of QDoubleSpinBox to the on_value_changed slot
         connect( this, QOverload< double >::of( &QDoubleSpinBox::valueChanged ), this, &Moris_Double_Spin_Box::on_value_changed );
     }
@@ -21,17 +21,17 @@ namespace moris
     // The destructor is defaulted as there are no specific cleanup requirements.
     Moris_Double_Spin_Box::~Moris_Double_Spin_Box() = default;
 
-    // Getter for the associated moris::Parameter object
+    // Getter for the associated Parameter object
     // Returns the reference to the parameter linked with this widget.
     // Outputs:
-    // - Reference to the moris::Parameter object.
-    moris::Parameter &Moris_Double_Spin_Box::get_parameter()
+    // - Reference to the Parameter object.
+    Parameter &Moris_Double_Spin_Box::get_parameter()
     {
         return m_parameter;
     }
 
     // Slot to handle value changes
-    // This slot is connected to the valueChanged(double) signal of QDoubleSpinBox and updates the linked moris::Parameter object.
+    // This slot is connected to the valueChanged(double) signal of QDoubleSpinBox and updates the linked Parameter object.
     // Inputs:
     // - a_value: New double value input in the widget.
     void Moris_Double_Spin_Box::on_value_changed( double a_value )

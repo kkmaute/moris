@@ -1,5 +1,4 @@
-#ifndef CL_TREE_WIDGET_ITEM_H
-#define CL_TREE_WIDGET_ITEM_H
+#pragma once
 
 #include <QTreeWidgetItem>
 #include <QFormLayout>
@@ -207,7 +206,7 @@ namespace moris
          * @note This function adds the parameters passed to it to the form.
          */
         //   void add_elements(QList< QStringList > aParameters);
-        void add_elements( moris::Parameter_List &aParameters );
+        void add_elements( Parameter_List &aParameters );
 
         /**
          * @brief Function to remove elements from the form
@@ -267,5 +266,3 @@ namespace moris
     };
 
 }    // namespace moris
-
-#endif    // CL_TREE_WIDGET_ITEM_H

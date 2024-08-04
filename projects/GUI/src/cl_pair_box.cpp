@@ -5,9 +5,9 @@ namespace moris
     // Constructor for Moris_Pair_Box.
     // Inputs:
     // - a_parent: Pointer to the parent widget (default is nullptr).
-    // - a_param: Reference to a moris::Parameter object to be linked with this widget.
+    // - a_param: Reference to a Parameter object to be linked with this widget.
     // - a_options: QStringList containing options for the combo box.
-    Moris_Pair_Box::Moris_Pair_Box( QWidget *a_parent, moris::Parameter &a_param, const QStringList &a_options )
+    Moris_Pair_Box::Moris_Pair_Box( QWidget *a_parent, Parameter &a_param, const QStringList &a_options )
             : QWidget( a_parent )
             , moris_pair_combo_box( new QComboBox( this ) )
             , moris_pair_line_edit( new QLineEdit( this ) )
@@ -43,7 +43,7 @@ namespace moris
         emit line_edit_text_changed( objectName(), a_text );
     }
 
-    // Set the associated moris::Parameter with the combined value of the combo box and line edit
+    // Set the associated Parameter with the combined value of the combo box and line edit
     void Moris_Pair_Box::set_parameter()
     {
         std::pair< std::string, std::string > pair_value;

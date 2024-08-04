@@ -19,7 +19,7 @@ namespace moris
 {
     // Moris_Pair_Box
     // Custom widget that contains a QComboBox and a QLineEdit.
-    // It links to a moris::Parameter object and emits signals when the text or selection changes.
+    // It links to a Parameter object and emits signals when the text or selection changes.
     class Moris_Pair_Box : public QWidget
     {
         Q_OBJECT
@@ -28,9 +28,9 @@ namespace moris
         // Constructor
         // Inputs:
         // - a_parent: Pointer to the parent widget (default is nullptr).
-        // - a_param: Reference to a moris::Parameter object to be linked with this widget.
+        // - a_param: Reference to a Parameter object to be linked with this widget.
         // - a_options: QStringList containing options for the combo box (default is an empty list).
-        explicit Moris_Pair_Box( QWidget *a_parent, moris::Parameter &a_param, const QStringList &a_options = {} );
+        explicit Moris_Pair_Box( QWidget *a_parent, Parameter &a_param, const QStringList &a_options = {} );
 
         // Public member variables
         QComboBox *moris_pair_combo_box;
@@ -60,11 +60,11 @@ namespace moris
         // - a_text: New text entered in the line edit.
         void on_line_edit_text_changed( const QString &a_text );
 
-        // Slot to set the associated moris::Parameter with the combined value of the combo box and line edit
+        // Slot to set the associated Parameter with the combined value of the combo box and line edit
         void set_parameter();
 
       private:
-        moris::Parameter &parameter;    // Reference to the moris::Parameter object
+        Parameter &parameter;    // Reference to the Parameter object
     };
 
 }    // namespace moris

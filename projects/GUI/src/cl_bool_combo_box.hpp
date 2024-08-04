@@ -1,5 +1,4 @@
-#ifndef MORIS_BOOL_COMBO_BOX_HPP
-#define MORIS_BOOL_COMBO_BOX_HPP
+#pragma once
 
 #include <QComboBox>
 #include "cl_Parameter.hpp"
@@ -8,7 +7,7 @@ namespace moris
 {
 
     // Moris_Bool_Combo_Box
-    // Custom QComboBox widget for handling index changes and linking to moris::Parameter objects.
+    // Custom QComboBox widget for handling index changes and linking to Parameter objects.
     // This class extends QComboBox to provide additional functionality for managing combo box index parameters.
     // It emits a custom signal when the index changes, which includes the name and the new index value.
     class Moris_Bool_Combo_Box : public QComboBox
@@ -20,8 +19,8 @@ namespace moris
         // Initializes the combo box widget and sets up its items and signal-slot connections.
         // Inputs:
         // - a_parent: Pointer to the parent widget (default is nullptr).
-        // - a_parameter: Reference to a moris::Parameter object to be linked with this widget.
-        explicit Moris_Bool_Combo_Box( QWidget *a_parent, moris::Parameter &a_parameter );
+        // - a_parameter: Reference to a Parameter object to be linked with this widget.
+        explicit Moris_Bool_Combo_Box( QWidget *a_parent, Parameter &a_parameter );
 
         // Destructor for Moris_Bool_Combo_Box
         // The destructor is defaulted as there are no specific cleanup requirements.
@@ -31,11 +30,11 @@ namespace moris
         // - None.
         ~Moris_Bool_Combo_Box() override;
 
-        // Getter for the associated moris::Parameter object
+        // Getter for the associated Parameter object
         // Returns the reference to the parameter linked with this widget.
         // Outputs:
-        // - Reference to the moris::Parameter object.
-        moris::Parameter &get_parameter();
+        // - Reference to the Parameter object.
+        Parameter &get_parameter();
 
       signals:
         // Signal emitted when the index changes
@@ -46,7 +45,7 @@ namespace moris
 
       private slots:
         // Slot to handle index changes
-        // This slot is connected to the currentIndexChanged(int) signal of QComboBox and updates the linked moris::Parameter object.
+        // This slot is connected to the currentIndexChanged(int) signal of QComboBox and updates the linked Parameter object.
         // Inputs:
         // - a_index: New index selected in the widget.
         // Outputs:
@@ -54,9 +53,7 @@ namespace moris
         void on_index_changed( int a_index );
 
       private:
-        moris::Parameter &m_Parameter;    // Reference to the associated moris::Parameter object
+        Parameter &m_Parameter;    // Reference to the associated Parameter object
     };
 
 }    // namespace moris
-
-#endif    // MORIS_BOOL_COMBO_BOX_HPP

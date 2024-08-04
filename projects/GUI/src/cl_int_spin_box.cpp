@@ -7,13 +7,13 @@ namespace moris
     // Connects the valueChanged signal to the appropriate slot for handling changes.
     // Inputs:
     // - a_parent: Pointer to the parent widget (default is nullptr).
-    // - a_parameter: Reference to a moris::Parameter object to be linked with this widget.
-    Moris_Int_Spin_Box::Moris_Int_Spin_Box( QWidget *a_parent, moris::Parameter &a_parameter )
+    // - a_parameter: Reference to a Parameter object to be linked with this widget.
+    Moris_Int_Spin_Box::Moris_Int_Spin_Box( QWidget *a_parent, Parameter &a_parameter )
             : QSpinBox( a_parent )
             , m_parameter( a_parameter )
     {
         // Set the initial value from the parameter value based on its type
-        if ( m_parameter.index() == moris::variant_index< uint >() )
+        if ( m_parameter.index() == variant_index< uint >() )
         {
             setValue( m_parameter.get_value< uint >() );
             setRange( 0, INT_MAX );
@@ -21,7 +21,7 @@ namespace moris
         else
         {
             setRange( -INT_MAX, INT_MAX );
-            setValue( m_parameter.get_value< moris::sint >() );
+            setValue( m_parameter.get_value< sint >() );
         }
         // Connect the valueChanged(int) signal of QSpinBox to the on_value_changed slot
         connect( this, QOverload< int >::of( &QSpinBox::valueChanged ), this, &Moris_Int_Spin_Box::on_value_changed );
@@ -31,17 +31,17 @@ namespace moris
     // The destructor is defaulted as there are no specific cleanup requirements.
     Moris_Int_Spin_Box::~Moris_Int_Spin_Box() = default;
 
-    // Getter for the associated moris::Parameter object.
+    // Getter for the associated Parameter object.
     // Returns the reference to the parameter linked with this widget.
     // Outputs:
-    // - Reference to the moris::Parameter object.
-    moris::Parameter &Moris_Int_Spin_Box::get_parameter()
+    // - Reference to the Parameter object.
+    Parameter &Moris_Int_Spin_Box::get_parameter()
     {
         return m_parameter;
     }
 
     // Slot to handle value changes in the spin box.
-    // Updates the linked moris::Parameter object with the new value whenever the spin box value changes.
+    // Updates the linked Parameter object with the new value whenever the spin box value changes.
     // Inputs:
     // - a_value: The new integer value input in the widget.
     void Moris_Int_Spin_Box::on_value_changed( int a_value )

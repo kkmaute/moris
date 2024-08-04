@@ -1,5 +1,4 @@
-#ifndef CL_INT_SPIN_BOX_HPP
-#define CL_INT_SPIN_BOX_HPP
+#pragma once
 
 #include <QSpinBox>
 #include "cl_Parameter.hpp"
@@ -7,7 +6,7 @@
 namespace moris
 {
     // Moris_Int_Spin_Box
-    // Custom QSpinBox widget for handling integer value input and linking to moris::Parameter objects.
+    // Custom QSpinBox widget for handling integer value input and linking to Parameter objects.
     // This class extends QSpinBox to provide additional functionality for managing integer input parameters.
     // It emits a custom signal when the value changes, including the widget's name and the new integer value.
     class Moris_Int_Spin_Box : public QSpinBox
@@ -18,17 +17,17 @@ namespace moris
         // Constructor for Moris_Int_Spin_Box.
         // Inputs:
         // - a_parent: Pointer to the parent widget (default is nullptr).
-        // - a_parameter: Reference to a moris::Parameter object to be linked with this widget.
-        explicit Moris_Int_Spin_Box( QWidget *a_parent, moris::Parameter &a_parameter );
+        // - a_parameter: Reference to a Parameter object to be linked with this widget.
+        explicit Moris_Int_Spin_Box( QWidget *a_parent, Parameter &a_parameter );
 
         // Destructor for Moris_Int_Spin_Box.
         // No special cleanup is required, so the destructor is defaulted.
         ~Moris_Int_Spin_Box() override;
 
-        // Getter for the associated moris::Parameter object.
+        // Getter for the associated Parameter object.
         // Returns:
-        // - Reference to the moris::Parameter object linked with this widget.
-        moris::Parameter &get_parameter();
+        // - Reference to the Parameter object linked with this widget.
+        Parameter &get_parameter();
 
       signals:
         // Signal emitted when the value changes.
@@ -39,14 +38,13 @@ namespace moris
 
       private slots:
         // Slot to handle value changes.
-        // This slot is connected to the valueChanged(int) signal of QSpinBox and updates the linked moris::Parameter object.
+        // This slot is connected to the valueChanged(int) signal of QSpinBox and updates the linked Parameter object.
         // Inputs:
         // - a_value: New integer value input in the widget.
         void on_value_changed( int a_value );
 
       private:
-        moris::Parameter &m_parameter;    // Reference to the associated moris::Parameter object
+        Parameter &m_parameter;    // Reference to the associated Parameter object
     };
 
 }    // namespace moris
-#endif    // CL_INT_SPIN_BOX_HPP

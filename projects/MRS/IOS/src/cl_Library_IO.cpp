@@ -399,10 +399,7 @@ namespace moris
                     if ( tInnerSubParamListCount == 1 )
                     {
                         // tKeys and tValues are filled with the keys and values of the inner sub-parameter list
-                        std::cout << tInnerSubParamListRoot << std::endl;
-                        std::cout << "Name: " << tInnerSubParamListName << std::endl;
                         mXmlReader->get_keys_from_subtree( tInnerSubParamListRoot, tInnerSubParamListName, 0, tKeys, tValues );
-                        std::cout << tKeys.size() << std::endl;
 
                         // getting the index of the inner sub-module type by reading from the XML file parameter list (used for special forms like "GEN/Geometry", "OPT/Algorithm" and "SOL/Linear_Algorithm")
                         uint tIndex = get_subchild_index_from_xml_list( tInnerSubParamListName, tKeys, tValues );
@@ -871,12 +868,9 @@ namespace moris
         // Loop through the default parameter list
         for ( auto& iElements : tParameterList )
         {
-            // std::cout << "Parameter: " << iElements.first << " Value: " << iElements.second.get_string() << std::endl;
-            // std::cout << "Index: " << iElements.second.index() << std::endl;
             //  Cannot set locked parameters
             if ( iElements.second.is_locked() )
             {
-                // std::cout << "Parameter " << iElements.first << " is locked and cannot be set." << std::endl;
                 continue;
             }
 
@@ -885,7 +879,6 @@ namespace moris
 
             if ( tFind == aKeys.end() )
             {
-                // std::cout << "Parameter " << iElements.first << " not found in XML file." << std::endl;
                 continue;
             }
 
@@ -949,7 +942,6 @@ namespace moris
             {
                 if ( tFind != aKeys.end() )
                 {
-                    std::cout << iElements.first << std::endl;
                     moris::Vector< std::string >          tVec = moris::string_to_cell< std::string >( aValues( std::distance( aKeys.begin(), tFind ) ) );
                     std::pair< std::string, std::string > tPair;
                     if ( tVec.size() < 2 )
@@ -1002,7 +994,6 @@ namespace moris
                 Design_Variable tDesignVariable = convert_parameter_from_string_to_type< real >( aValues( std::distance( aKeys.begin(), tFind ) ) );
                 iElements.second.set_value( iElements.first, tDesignVariable, false );
             }
-            // std::cout << "Parameter: " << iElements.first << " Value: " << iElements.second.get_string() << std::endl;
         }
 
         return tParameterList;

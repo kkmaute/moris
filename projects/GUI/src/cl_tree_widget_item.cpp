@@ -200,7 +200,7 @@ namespace moris
         mScrollArea->setVisible( aVisible );
     }
 
-    void Moris_Tree_Widget_Item::add_elements( moris::Parameter_List &aParameters )
+    void Moris_Tree_Widget_Item::add_elements( Parameter_List &aParameters )
     {
         /**
          * @brief Function to add elements to the form
@@ -220,7 +220,7 @@ namespace moris
 
             for ( auto &iElements : aParameters )
             {
-                if ( iElements.second.get_entry_type() == moris::Entry_Type::SELECTION )
+                if ( iElements.second.get_entry_type() == Entry_Type::SELECTION )
                 {
                     Moris_Combo_Box *tComboBox = new Moris_Combo_Box( mScrollWidget, iElements.second );
                     // Moris_Combo_Box *tComboBox = new Moris_Combo_Box();
@@ -229,10 +229,7 @@ namespace moris
                 }
                 else
                 {
-                    // std::cout << iElements.first << std::endl;
-                    // std::cout << iElements.second.index() << std::endl;
-
-                    if ( iElements.second.index() == moris::variant_index< bool >() )
+                    if ( iElements.second.index() == variant_index< bool >() )
                     {
                         // Make a new boolean combo box
                         Moris_Bool_Combo_Box *tComboBox = new Moris_Bool_Combo_Box( mScrollWidget, iElements.second );
@@ -240,27 +237,21 @@ namespace moris
                         mWidget.append( tComboBox );
                         mFormLayout->addRow( QString::fromStdString( iElements.first ), mWidget[ tIndex + tCounter ] );
                     }
-                    else if ( iElements.second.index() == moris::variant_index< uint >() )
+                    else if ( iElements.second.index() == variant_index< uint >() )
                     {
                         Moris_Int_Spin_Box *tSpinBox = new Moris_Int_Spin_Box( mScrollWidget, iElements.second );
                         tSpinBox->setObjectName( QString::fromStdString( iElements.first ) );
                         mWidget.append( tSpinBox );
                         mFormLayout->addRow( QString::fromStdString( iElements.first ), mWidget[ tIndex + tCounter ] );
                     }
-                    else if ( iElements.second.index() == moris::variant_index< moris::sint >() )
+                    else if ( iElements.second.index() == variant_index< sint >() )
                     {
-
-                        if ( iElements.first == "discretization_mesh_index" )
-                        {
-                            std::cout << "Discretization Mesh Index: " << iElements.second.get_string() << std::endl;
-                        }
-
                         Moris_Int_Spin_Box *tDoubleSpinBox = new Moris_Int_Spin_Box( mScrollWidget, iElements.second );
                         tDoubleSpinBox->setObjectName( QString::fromStdString( iElements.first ) );
                         mWidget.append( tDoubleSpinBox );
                         mFormLayout->addRow( QString::fromStdString( iElements.first ), mWidget[ tIndex + tCounter ] );
                     }
-                    else if ( iElements.second.index() == moris::variant_index< moris::real >() )
+                    else if ( iElements.second.index() == variant_index< real >() )
                     {
                         Moris_Double_Spin_Box *tDoubleSpinBox = new Moris_Double_Spin_Box( mScrollWidget, iElements.second );
                         tDoubleSpinBox->setObjectName( QString::fromStdString( iElements.first ) );

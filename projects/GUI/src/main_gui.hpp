@@ -154,12 +154,12 @@ namespace moris
 
         /**
          * @brief Function to convert the parameter list to a QList of QStringList
-         * @param moris::Parameter_List aParameterList
+         * @param Parameter_List aParameterList
          * @return QList< QStringList >
          * @note This function converts the MORIS parameter list to a QList of QStringList where the 0th index of the list gives the key of the parameter_list and the 1st index gives the value of the parameter_list
          */
 
-        QList< QStringList > convert_parameters_to_QStringList( moris::Parameter_List );
+        QList< QStringList > convert_parameters_to_QStringList( Parameter_List );
     };
 
 
