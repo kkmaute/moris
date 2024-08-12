@@ -45,19 +45,29 @@ namespace moris::mtk
         // Mesh deformation methods
         // -------------------------------------------------------------------------------
 
-        virtual void set_displacement( Matrix< DDRMat > const & aDisplacements );
+        /**
+         * Sets the displacements for all facet vertices at once and updates the normal vectors accordingly
+         *
+         * @param aDisplacements <dimension> x <number of vertices> matrix containing displacment data for all vertices
+         */
+        virtual void set_all_displacements( const Matrix< DDRMat >& aDisplacements );
 
         /**
-         * @brief Multiplies the current stored rotation matrix with the argument rotation matrix, storing the total rotation
+         * Sets the displacement for ONE vertex
+         * NOTE: This method does NOT update the facet normals. Use set_all_displacements() to update the normals or ensure that the normals are updated manually by calling initialize_facet_normals()
+         *
+         * @param aVertexIndex vertex index to set displacement for
+         * @param aDisplacement <dimension > x < 1 > matrix containing vertex's displacment
          */
-        void append_rotation( const Matrix< DDRMat >& aRotationMatrix );
+        void set_vertex_displacement( const uint aVertexIndex, const Matrix< DDRMat >& aDisplacement );
 
         /**
-         * @brief Overrides any rotation currently applied and stores the argument rotation matrix
+         * Adds a displacement to the current displacement of the vertex
+         *
+         * @param aVertexIndex vertex index to add displacement to
+         * @param aDisplacement <dimension > x < 1 > matrix containing displacment to add
          */
-        void set_rotation( const Matrix< DDRMat >& aRotationMatrix );
-
-        void set_scale( const Matrix< DDRMat >& aScaling );
+        void append_vertex_displacement( const uint aVertexIndex, const Matrix< DDRMat >& aDisplacement );
 
         /**
          * @brief removes any displacement, rotation, and scaling applied to the surface mesh
@@ -73,7 +83,7 @@ namespace moris::mtk
         /**
          * @brief Gets the coordinates of a single vertex from the local index aVertexIndex
          */
-        [[nodiscard]] Matrix< DDRMat > get_vertex_coordinates( const uint aVertexIndex ) const;
+        [[nodiscard]] virtual Matrix< DDRMat > get_vertex_coordinates( const uint aVertexIndex ) const;
 
         /**
          * @brief Gets the indices to the vertices that form the facet with the local index aFacetIndex
@@ -104,8 +114,6 @@ namespace moris::mtk
         [[nodiscard]] Matrix< DDRMat > get_facet_normal( const uint aFacetIndex ) const;
 
         [[nodiscard]] virtual uint get_spatial_dimension() const;
-
-        [[nodiscard]] real get_intersection_tolerance() const;
 
         /**
          * @brief Returns the number of facets in the mesh
@@ -199,11 +207,20 @@ namespace moris::mtk
                 const Matrix< DDRMat >& aPoint,
                 const Matrix< DDRMat >& aDirection ) const;
 
+
         //-------------------------------------------------------------------------------
         // Initialization methods
         // -------------------------------------------------------------------------------
 
       protected:    // methods
+        /**
+         * @brief Set the specified vertex's coordinates
+         *
+         * @param aVertexIndex local index of the vertex
+         * @param aCoordinates desired coordinates for the vertex
+         */
+        void set_vertex_coordinates( const uint aVertexIndex, const Matrix< DDRMat >& aCoordinates );
+
         /**
          * @brief computes the facet normals and stores in mFacetNormals. mVertexCoordinates must be initialized first
          */
@@ -251,13 +268,20 @@ namespace moris::mtk
         // Member data
         // -------------------------------------------------------------------------------
 
-      protected:    // variables
+      private:    // variables
         /**
          * @brief Stores the coordinates of all vertices in the surface mesh. The indices are the indices of the vertices in the surface mesh.
          * size: < spatial dim x number of vertices >
          */
         Matrix< DDRMat > mVertexCoordinates = Matrix< DDRMat >( 0, 0 );
 
+        /**
+         * @brief Displacements of the surface mesh vertices <dimension> x <number of vertices>
+         *
+         */
+        Matrix< DDRMat > mDisplacements;
+
+      protected:    // variables
         /**
          * @brief List of cell indices that the vertex with the given index is part of. The indices are the indices of
          * the cell in the surface mesh
@@ -276,10 +300,6 @@ namespace moris::mtk
          * size: < spatial dim x number of facets >
          */
         Matrix< DDRMat > mFacetNormals = Matrix< DDRMat >( 0, 0 );
-
-        Matrix< DDRMat > mRotation;         // current rotation of the mesh
-        Matrix< DDRMat > mDisplacements;    // current shift of the mesh
-        Matrix< DDRMat > mScale;            // current scale of the mesh
 
         real mIntersectionTolerance = 1e-8;    // tolerance for interfaces when raycasting with this surface mesh
     };

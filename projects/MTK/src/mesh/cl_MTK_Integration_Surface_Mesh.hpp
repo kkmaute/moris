@@ -43,7 +43,7 @@ namespace moris::mtk
 
         // methods
 
-        virtual void set_displacement( Matrix< DDRMat > const & aDisplacements ) override;
+        void set_all_displacements( const Matrix< DDRMat > &aDisplacements ) override;
 
         /**
          * @brief Returns the indices of all neighboring vertices for each vertex in the surface mesh.
@@ -95,8 +95,6 @@ namespace moris::mtk
 
         [[nodiscard]] moris_index get_cluster_of_cell( moris_index aLocalCellIndex ) const;
 
-        [[nodiscard]] virtual Matrix< DDRMat > get_all_vertex_coordinates() const override;
-        
         /**
          * @brief Returns all local vertices that are part of the cell with the given local index.
          * @param aLocalCellIndex The local index of the cell in the surface mesh.
@@ -257,8 +255,6 @@ namespace moris::mtk
         Vector< mtk::Side_Set const * > mSideSets;
 
         Vector< Vector< moris_index > > mSideSetToClusterIndices;
-
-        moris::Matrix< DDRMat > mDisplacements;
 
         Vector< Vector< moris_index > > mClusterToCellIndices;
 

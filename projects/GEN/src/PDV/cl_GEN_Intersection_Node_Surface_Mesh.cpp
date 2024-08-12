@@ -85,7 +85,7 @@ namespace moris::gen
         MORIS_ASSERT( norm( tRotationMatrix * tParentVector - tCastAxis ) < mInterfaceGeometry.get_intersection_tolerance(), "Rotation matrix should rotate the parent vector to the x axis." );
 
         // trim the transformation matrix if 2D
-        if ( mInterfaceGeometry.get_dimension() == 2 )
+        if ( mInterfaceGeometry.get_spatial_dimension() == 2 )
         {
             tRotationMatrix.resize( 2, 2 );
         }
@@ -144,11 +144,11 @@ namespace moris::gen
         Matrix< DDRMat > tCenterPrime = 2.0 / tParentVectorNorm * tRotationMatrix * ( mInterfaceGeometry.get_facet_center( mParentFacet ) - trans( this->get_first_parent_node().get_global_coordinates() ) );
 
         // get the jacobian of the center vector wrt to the facet vertices (same for all vertices)
-        Matrix< DDRMat > tdCenterdVertices = 2.0 / ( (real)mInterfaceGeometry.get_dimension() * tParentVectorNorm ) * tRotationMatrix;
+        Matrix< DDRMat > tdCenterdVertices = 2.0 / ( (real)mInterfaceGeometry.get_spatial_dimension() * tParentVectorNorm ) * tRotationMatrix;
 
         // get the jacobians of the normal vector wrt to the facet vertices
-        Vector< Matrix< DDRMat > > tNormalVectorSensitivities( mInterfaceGeometry.get_dimension() );
-        switch ( mInterfaceGeometry.get_dimension() )
+        Vector< Matrix< DDRMat > > tNormalVectorSensitivities( mInterfaceGeometry.get_spatial_dimension() );
+        switch ( mInterfaceGeometry.get_spatial_dimension() )
         {
             case 2:    // 2D surface mesh
             {
@@ -163,7 +163,7 @@ namespace moris::gen
             }
             case 3:    // 3D surface mesh
             {
-                Vector< Matrix< DDRMat > > tNormalVectorNormSensitivity( mInterfaceGeometry.get_dimension() );
+                Vector< Matrix< DDRMat > > tNormalVectorNormSensitivity( mInterfaceGeometry.get_spatial_dimension() );
 
                 // Compute the normal vector (not unit)
                 Matrix< DDRMat > tNormal = cross( tVertexCoordinates.get_row( 1 ) - tVertexCoordinates.get_row( 0 ), tVertexCoordinates.get_row( 2 ) - tVertexCoordinates.get_row( 0 ) );
@@ -194,8 +194,8 @@ namespace moris::gen
         }
 
         // Compute the local coordinate sensitivity wrt the facet vertices
-        Matrix< DDRMat > tdXidFacet( mInterfaceGeometry.get_dimension(), mInterfaceGeometry.get_dimension() );
-        for ( uint iDimension = 0; iDimension < mInterfaceGeometry.get_dimension(); iDimension++ )
+        Matrix< DDRMat > tdXidFacet( mInterfaceGeometry.get_spatial_dimension(), mInterfaceGeometry.get_spatial_dimension() );
+        for ( uint iDimension = 0; iDimension < mInterfaceGeometry.get_spatial_dimension(); iDimension++ )
         {
             tdXidFacet.set_column( iDimension,
                     trans( tNormalVectorSensitivities( iDimension ) ) * tCenterPrime / tNormalPrime( 0 )

@@ -27,13 +27,12 @@ namespace moris::mtk
             Vector< Vector< moris_index > > aFacetConnnectivity,
             real                            aIntersectionTolerance )
             : mVertexCoordinates( aVertexCoordinates )
+            , mDisplacements( aVertexCoordinates.n_rows(), aVertexCoordinates.n_cols(), 0.0 )
             , mFacetConnectivity( aFacetConnnectivity )
             , mIntersectionTolerance( aIntersectionTolerance )
     {
         // Initialize distortion vectors/matrices
-        mRotation = eye( this->get_spatial_dimension(), this->get_spatial_dimension() );
-        mScale.set_size( this->get_spatial_dimension(), 1, 1.0 );
-        mDisplacements.set_size( this->get_spatial_dimension(), 1, 0.0 );
+        this->reset_coordinates();
 
         // Compute the normals of the facets
         this->initialize_facet_normals();
@@ -42,54 +41,46 @@ namespace moris::mtk
         this->construct_bvh();
     }
 
-    //--------------------------------------------------------------------------------------------------------------
-
-    void
-    Surface_Mesh::set_displacement( Matrix< DDRMat > const & aDisplacements )
+    void Surface_Mesh::set_all_displacements( const Matrix< DDRMat >& aDisplacements )
     {
+        MORIS_ASSERT( aDisplacements.n_rows() == this->get_spatial_dimension(), "Number of vertices in displacement matrix does not match number of vertices in mesh" );
+        MORIS_ASSERT( aDisplacements.n_cols() == this->get_number_of_vertices(), "Number of dimensions in displacement matrix does not match number of dimensions in mesh" );
+
         mDisplacements = aDisplacements;
+
+        // Update the normal vector for all the facets
+        this->initialize_facet_normals();
+
+        // Update the bounding volume hierarchy
+        this->construct_bvh();
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Surface_Mesh::append_rotation( const Matrix< DDRMat >& aRotationMatrix )
+    void Surface_Mesh::set_vertex_displacement( const uint aVertexIndex, const Matrix< DDRMat >& aDisplacement )
     {
-        mRotation = aRotationMatrix * mRotation;
+        mDisplacements.set_column( aVertexIndex, aDisplacement );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Surface_Mesh::set_rotation( const Matrix< DDRMat >& aRotationMatrix )
+    void Surface_Mesh::append_vertex_displacement( const uint aVertexIndex, const Matrix< DDRMat >& aDisplacement )
     {
-        mRotation = aRotationMatrix;
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    void Surface_Mesh::set_scale( const Matrix< DDRMat >& aScaling )
-    {
-        mScale = aScaling;
+        mDisplacements.set_column( aVertexIndex, mDisplacements.get_column( aVertexIndex ) + aDisplacement );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDRMat > Surface_Mesh::get_all_vertex_coordinates() const
     {
-        Matrix< DDRMat > tVertexCoordinates( this->get_spatial_dimension(), mVertexCoordinates.n_cols() );
-
-        for ( uint iVertexIndex = 0; iVertexIndex < mVertexCoordinates.n_cols(); iVertexIndex++ )
-        {
-            tVertexCoordinates.set_column( iVertexIndex, mRotation * ( mScale % mVertexCoordinates.get_column( iVertexIndex ) + mDisplacements ) );
-        }
-
-        return tVertexCoordinates;
+        return mVertexCoordinates + mDisplacements;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDRMat > Surface_Mesh::get_vertex_coordinates( uint aVertexIndex ) const
     {
-        return mRotation * ( mScale % mVertexCoordinates.get_column( aVertexIndex ) + mDisplacements );
+        return mVertexCoordinates.get_column( aVertexIndex ) + mDisplacements.get_column( aVertexIndex );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -141,13 +132,6 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real Surface_Mesh::get_intersection_tolerance() const
-    {
-        return mIntersectionTolerance;
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
     uint Surface_Mesh::get_number_of_facets() const
     {
         return mFacetConnectivity.size();
@@ -165,9 +149,7 @@ namespace moris::mtk
     void Surface_Mesh::reset_coordinates()
     {
         // Initialize distortion vectors/matrices
-        mRotation = eye( this->get_spatial_dimension(), this->get_spatial_dimension() );
-        mScale.set_size( this->get_spatial_dimension(), 1, 1.0 );
-        mDisplacements.set_size( this->get_spatial_dimension(), 1, 0.0 );
+        mDisplacements.set_size( this->get_spatial_dimension(), this->get_number_of_vertices(), 0.0 );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -472,7 +454,8 @@ namespace moris::mtk
 
     Vector< uint > Surface_Mesh::preselect_with_arborx( const Matrix< DDRMat >& aPoint, const Matrix< DDRMat >& aDirection ) const
     {
-        // Initialize the execution space (CPU or GPU, trivial for now as we only have CPU)
+        using ExecutionSpace = Kokkos::DefaultExecutionSpace;
+        using MemorySpace    = ExecutionSpace::memory_space;
         ExecutionSpace tExecutionSpace{};
 
         // Dummy cell index for the ray
@@ -504,6 +487,11 @@ namespace moris::mtk
     }
 
     //--------------------------------------------------------------------------------------------------------------
+
+    void Surface_Mesh::set_vertex_coordinates( const uint aVertexIndex, const Matrix< DDRMat >& aCoordinates )
+    {
+        mVertexCoordinates.set_column( aVertexIndex, aCoordinates );
+    }
 
     void Surface_Mesh::initialize_facet_normals()
     {

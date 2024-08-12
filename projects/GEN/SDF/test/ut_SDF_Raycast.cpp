@@ -39,6 +39,11 @@
 namespace moris::sdf
 {
 
+#ifdef MORIS_HAVE_ARBORX
+    // initialize Kokkos for the use in the spatial tree library ArborX
+    std::unique_ptr< Kokkos::ScopeGuard > guard = !Kokkos::is_initialized() && !Kokkos::is_finalized() ? std::make_unique< Kokkos::ScopeGuard >() : nullptr;
+#endif
+
     TEST_CASE(
             "gen::sdf::Raycast",
             "[geomeng],[sdf],[Raycaster]" )
@@ -50,6 +55,9 @@ namespace moris::sdf
         {
             SECTION( "SDF: Raycast Free Function Test - 3D" )
             {
+                // Tolerance for results
+                real tEpsilon = 1e-8;
+
                 // create triangle object from object file
                 std::string tObjectPath = tMorisRoot + "projects/GEN/SDF/test/data/tetrahedron.obj";
                 Object      tObject( tObjectPath );
@@ -61,8 +69,8 @@ namespace moris::sdf
                 Matrix< DDRMat > tDirection = { { 1.0 }, { 0.0 }, { 0.0 } };
 
                 // preselect in x direction and ensure they are correct
-                Vector< uint >      tCandidatesExpected = { 0, 1, 2 };
-                Vector< uint >      tCandidateTriangles = tObject.preselect_with_arborx( tTestPoint, tDirection );
+                Vector< uint > tCandidatesExpected = { 0, 1, 2 };
+                Vector< uint > tCandidateTriangles = tObject.preselect_with_arborx( tTestPoint, tDirection );
 
                 REQUIRE( tCandidateTriangles.size() == 3 );
                 // REQUIRE( tPreselection == Preselection_Result::SUCCESS );
@@ -100,8 +108,8 @@ namespace moris::sdf
                 {
                     tIntersections( iCandidate ) = tObject.moller_trumbore( iCandidate, tTestPoint, tDirection );
                 }
-                CHECK( std::abs( tIntersections( 0 ) - tIntersectionCoordinatesExpected( 0 ) ) < tObject.get_intersection_tolerance() );
-                CHECK( std::abs( tIntersections( 1 ) - tIntersectionCoordinatesExpected( 1 ) ) < tObject.get_intersection_tolerance() );
+                CHECK( std::abs( tIntersections( 0 ) - tIntersectionCoordinatesExpected( 0 ) ) < tEpsilon );
+                CHECK( std::abs( tIntersections( 1 ) - tIntersectionCoordinatesExpected( 1 ) ) < tEpsilon );
                 CHECK( std::isnan( tIntersections( 2 ) ) );    // this triangle should not intersect, throwing a nan
 
                 // check if the point is inside and compare it to expectations
@@ -150,8 +158,8 @@ namespace moris::sdf
 
                 REQUIRE( tIntersections.size() == 2 );
                 CHECK( std::abs( std::isnan( tIntersections( 0 ) ) ) );
-                CHECK( std::abs( tIntersections( 1 ) - tIntersectionCoordinatesExpected( 0 ) ) < tObject.get_intersection_tolerance() );
-                CHECK( std::abs( tIntersections( 2 ) - tIntersectionCoordinatesExpected( 1 ) ) < tObject.get_intersection_tolerance() );
+                CHECK( std::abs( tIntersections( 1 ) - tIntersectionCoordinatesExpected( 0 ) ) < tEpsilon );
+                CHECK( std::abs( tIntersections( 2 ) - tIntersectionCoordinatesExpected( 1 ) ) < tEpsilon );
 
                 // tPointIsInside = check_if_node_is_inside_triangles( tIntersections, tTestPoint, 0, 1e-8 );
 
@@ -163,6 +171,9 @@ namespace moris::sdf
             }
             SECTION( "SDF: Raycast Free Function Test - 2D" )
             {
+                // Tolerance for results
+                real tEpsilon = 1e-8;
+
                 // create object from object file
                 std::string tObjectPath = tMorisRoot + "projects/GEN/SDF/test/data/rhombus.obj";
                 Object      tObject( tObjectPath );
@@ -199,7 +210,7 @@ namespace moris::sdf
                 real tIntersectionCoordinateExpected = -0.2;
 
                 REQUIRE( tIntersections.size() == 2 );
-                CHECK( std::abs( tIntersections( 1 ) - tIntersectionCoordinateExpected ) < tObject.get_intersection_tolerance() );
+                CHECK( std::abs( tIntersections( 1 ) - tIntersectionCoordinateExpected ) < tEpsilon );
 
                 // // determine if the point is inside/outside and check expectation
                 // mtk::mtk::Mesh_Region tRegion = check_if_node_is_inside_lines( tObject, tIntersectionCoordinates, tIntersectedLines, tTestPoint, 0 ); brendan
@@ -229,7 +240,7 @@ namespace moris::sdf
                 tIntersectionCoordinateExpected = 0.25;
 
                 REQUIRE( tIntersections.size() == 1 );
-                CHECK( std::abs( tIntersections( 0 ) - tIntersectionCoordinateExpected ) < tObject.get_intersection_tolerance() );
+                CHECK( std::abs( tIntersections( 0 ) - tIntersectionCoordinateExpected ) < tEpsilon );
 
                 // tRegion = check_if_node_is_inside_lines( tObject, tIntersectionCoordinates, tIntersectedLines, tTestPoint, 1 );
 
@@ -257,6 +268,9 @@ namespace moris::sdf
             }
             SECTION( "SDF: Compute distance to facets test - 3D" )
             {
+                // Tolerance for results
+                real tEpsilon = 1e-8;
+
                 // create triangle object from object file
                 std::string tObjectPath = tMorisRoot + "projects/GEN/SDF/test/data/tetrahedron.obj";
                 Object      tObject( tObjectPath );
@@ -284,12 +298,15 @@ namespace moris::sdf
                 REQUIRE( tLineDistanceX.size() == 1 );
                 REQUIRE( tLineDistanceY.size() == 1 );
                 REQUIRE( tLineDistanceZ.size() == 1 );
-                CHECK( std::abs( tLineDistanceX( 0 ) - tLineDistanceXExpected ) < tObject.get_intersection_tolerance() );
-                CHECK( std::abs( tLineDistanceY( 0 ) - tLineDistanceYExpected ) < tObject.get_intersection_tolerance() );
-                CHECK( std::abs( tLineDistanceZ( 0 ) - tLineDistanceZExpected ) < tObject.get_intersection_tolerance() );
+                CHECK( std::abs( tLineDistanceX( 0 ) - tLineDistanceXExpected ) < tEpsilon );
+                CHECK( std::abs( tLineDistanceY( 0 ) - tLineDistanceYExpected ) < tEpsilon );
+                CHECK( std::abs( tLineDistanceZ( 0 ) - tLineDistanceZExpected ) < tEpsilon );
             }
             SECTION( "SDF: Compute distance to facets test - 2D" )
             {
+                // Tolerance for results
+                real tEpsilon = 1e-8;
+
                 // create triangle object from object file
                 std::string tObjectPath = tMorisRoot + "projects/GEN/SDF/test/data/rhombus.obj";
                 Object      tObject( tObjectPath );
@@ -315,10 +332,10 @@ namespace moris::sdf
                 // compare
                 REQUIRE( tLineDistanceX.size() == 2 );
                 REQUIRE( tLineDistanceY.size() == 2 );
-                CHECK( std::abs( tLineDistanceX( 0 ) - tLineDistanceXExpected( 0 ) ) < tObject.get_intersection_tolerance() );
-                CHECK( std::abs( tLineDistanceX( 1 ) - tLineDistanceXExpected( 1 ) ) < tObject.get_intersection_tolerance() );
-                CHECK( std::abs( tLineDistanceY( 0 ) - tLineDistanceYExpected( 0 ) ) < tObject.get_intersection_tolerance() );
-                CHECK( std::abs( tLineDistanceY( 1 ) - tLineDistanceYExpected( 1 ) ) < tObject.get_intersection_tolerance() );
+                CHECK( std::abs( tLineDistanceX( 0 ) - tLineDistanceXExpected( 0 ) ) < tEpsilon );
+                CHECK( std::abs( tLineDistanceX( 1 ) - tLineDistanceXExpected( 1 ) ) < tEpsilon );
+                CHECK( std::abs( tLineDistanceY( 0 ) - tLineDistanceYExpected( 0 ) ) < tEpsilon );
+                CHECK( std::abs( tLineDistanceY( 1 ) - tLineDistanceYExpected( 1 ) ) < tEpsilon );
             }
         }
     }

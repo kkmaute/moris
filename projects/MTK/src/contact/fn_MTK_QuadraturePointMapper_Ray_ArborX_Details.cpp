@@ -120,8 +120,17 @@ namespace moris::mtk::arborx
     template< typename T >
     T coordinate_to_arborx_point( Matrix< moris::DDRMat > const &aMatrix )
     {
-        MORIS_ASSERT( ( aMatrix.n_rows() == 3 || aMatrix.n_rows() == 2 ) && aMatrix.n_cols() == 1, "The input matrix must have 2 or 3 rows and 1 column." );
-        float tZCoord = aMatrix.n_rows() == 3 ? aMatrix( 2, 0 ) : 0.0;
-        return { static_cast< float >( aMatrix( 0, 0 ) ), static_cast< float >( aMatrix( 1, 0 ) ), tZCoord };
+        // handle row vector
+        if ( aMatrix.n_cols() != 1 )
+        {
+            float tZCoord = aMatrix.n_cols() == 3 ? aMatrix( 0, 2 ) : 0.0;
+            return { static_cast< float >( aMatrix( 0, 0 ) ), static_cast< float >( aMatrix( 0, 1 ) ), tZCoord };
+        }
+        // handle column vector
+        else
+        {
+            float tZCoord = aMatrix.n_rows() == 3 ? aMatrix( 2, 0 ) : 0.0;
+            return { static_cast< float >( aMatrix( 0, 0 ) ), static_cast< float >( aMatrix( 1, 0 ) ), tZCoord };
+        }
     }
 }    // namespace moris::mtk::arborx

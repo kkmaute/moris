@@ -196,11 +196,11 @@ namespace moris::mtk
     void Integration_Surface_Mesh::initialize_vertex_coordinates()
     {
         auto const tNumVertices = static_cast< moris::size_t >( mLocalToGlobalVertexIndex.size() );
-        uint const tDim         = this->get_spatial_dimension();
-        mVertexCoordinates.resize( tDim, tNumVertices );
+        // uint const tDim         = this->get_spatial_dimension();
+        // mVertexCoordinates.resize( tDim, tNumVertices );   // Dhyey update
         for ( moris::size_t i = 0; i < tNumVertices; i++ )
         {
-            mVertexCoordinates.set_column( i, mIGMesh->get_node_coordinate( mLocalToGlobalVertexIndex( i ) ) );
+            Surface_Mesh::set_vertex_coordinates( i, mIGMesh->get_node_coordinate( mLocalToGlobalVertexIndex( i ) ) );
         }
     }
 
@@ -282,16 +282,6 @@ namespace moris::mtk
         }
     }
 
-    Matrix< DDRMat >
-    Integration_Surface_Mesh::get_all_vertex_coordinates() const
-    {
-        if ( mDisplacements.n_cols() > 0 )
-        {
-            return mVertexCoordinates + mDisplacements;
-        }
-        return mVertexCoordinates;
-    }
-
     Vector< Vector< moris_index > > Integration_Surface_Mesh::get_vertex_neighbors() const
     {
         return mVertexNeighbors;
@@ -333,14 +323,12 @@ namespace moris::mtk
         return mGlobalToLocalCellIndex.at( aGlobalCellIndex );
     }
 
-    void Integration_Surface_Mesh::set_displacement( Matrix< DDRMat > const &aDisplacements )
+    void Integration_Surface_Mesh::set_all_displacements( Matrix< DDRMat > const &aDisplacements )
     {
-        MORIS_ASSERT( aDisplacements.n_rows() == this->get_spatial_dimension(), "Number of vertices in displacement matrix does not match number of vertices in mesh" );
-        MORIS_ASSERT( aDisplacements.n_cols() == mLocalToGlobalVertexIndex.size(), "Number of dimensions in displacement matrix does not match number of dimensions in mesh" );
-        mDisplacements = aDisplacements;
+        // Set the displacement of the vertices in the base class
+        Surface_Mesh::set_all_displacements( aDisplacements );
 
-        // the displacement on each vertex invalidates the facet and vertex normals as well as the facet measure.
-        this->initialize_facet_normals();
+        // the displacement on each vertex invalidates the facet and vertex normals as well as the facet measure, so update them.
         this->initialize_facet_measure();
         this->initialize_vertex_normals();
     }

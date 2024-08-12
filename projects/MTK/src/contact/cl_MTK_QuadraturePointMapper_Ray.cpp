@@ -135,7 +135,7 @@ namespace moris::mtk
                     tDisplacements( iDimension, iLocalVertexIndex ) = tDisplacement->second( iDimension );
                 }
             }
-            tSurfaceMesh.set_displacement( tDisplacements );
+            tSurfaceMesh.set_all_displacements( tDisplacements );
         }
     }
 }    // namespace moris::mtk

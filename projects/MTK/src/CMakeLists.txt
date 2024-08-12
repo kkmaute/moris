@@ -201,6 +201,7 @@ set(HEADERS
         mesh/cl_MTK_Mesh_Tools.hpp
         mesh/cl_MTK_Surface_Mesh.hpp
         mesh/cl_MTK_Integration_Surface_Mesh.hpp
+        mesh/fn_MTK_Load_External_Surface_Mesh.hpp
 
         set/cl_MTK_Block_Set.hpp
         set/cl_MTK_Block_Sets_Info.hpp
@@ -304,6 +305,7 @@ set(LIB_SOURCES
         mesh/cl_MTK_Mesh_Pair.cpp
         mesh/cl_MTK_Surface_Mesh.cpp
         mesh/cl_MTK_Integration_Surface_Mesh.cpp
+        mesh/fn_MTK_Load_External_Surface_Mesh.cpp
 
         set/cl_MTK_Set_Communicator.cpp
 

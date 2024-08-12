@@ -45,7 +45,7 @@ namespace moris::gen
     };
 
     class Surface_Mesh_Geometry : public Geometry
-            , public sdf::Object // FIXME: remove sdf::Object inheritance
+            , public mtk::Surface_Mesh    // FIXME: remove sdf::Object inheritance
     {
       private:
         bool mBasesComputed = false;
@@ -61,7 +61,6 @@ namespace moris::gen
         Vector< std::shared_ptr< Field > > mPerturbationFields;                // Vector of perturbation fields
         Matrix< DDRMat >                   mVertexBases;                       // Basis function values for each vertex <number of fields> x <number of vertices>
         Vector< mtk::Cell* >               mVertexBackgroundElements;          // Index of the background element the facet vertex was in on construction
-        Vector< Vector< real > >           mOriginalVertexCoordinates;         // All vertex coordinates as they were upon construction <dimension> x <number of vertices>
 
 
       public:
@@ -83,6 +82,22 @@ namespace moris::gen
          *
          */
         ~Surface_Mesh_Geometry();
+
+        /**
+         * loads an ascii file and creates vertex and facet objects
+         * Facets are either lines in 2D or triangles in 3D
+         */
+        Matrix< DDRMat >
+        load_vertices_from_object_file( const std::string& aFilePath, const Vector< real >& aOffsets, const Vector< real >& aScale );
+
+        //-------------------------------------------------------------------------------
+
+        /**
+         * loads an ascii file and creates vertex and facet objects
+         * Facets are either lines in 2D or triangles in 3D
+         */
+        Vector< Vector< moris_index > >
+        load_facets_from_object_file( const std::string& aFilePath );
 
         /**
          * Gets the geometric region of a node, based on this geometry.
@@ -301,29 +316,20 @@ namespace moris::gen
         void update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedDesigns ) override;
 
         /**
-         * Gets the intersection tolerance for creating intersection nodes
-         *
-         */
-        real get_intersection_tolerance() override
-        {
-            return this->Geometry::get_intersection_tolerance();
-        }
-
-        /**
          * Gets the center of the facet at the given local index
          *
          * @param aFacetIndex local index of the facet in the surface mesh
          * @return Matrix< DDRMat > center of the facet
          */
-       Matrix< DDRMat > get_facet_center( uint aFacetIndex );
-        
+        [[nodiscard]] Matrix< DDRMat > get_facet_center( const uint aFacetIndex );
+
         /**
          * Gets the basis functions for the specified vertex
          *
          * @param aVertexIndex Index of the vertex
          * @return Matrix< DDRMat > Basis functions for the vertex
          */
-        Matrix< DDRMat > get_vertex_bases( uint aVertexIndex )
+        [[nodiscard]] Matrix< DDRMat > get_vertex_bases( const uint aVertexIndex )
         {
             return mVertexBases.get_column( aVertexIndex );
         }
