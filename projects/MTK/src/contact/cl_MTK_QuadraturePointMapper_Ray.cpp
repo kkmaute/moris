@@ -18,7 +18,7 @@
 #include "cl_MTK_MappingResult.hpp"
 #include "cl_MTK_Space_Interpolator.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
-#include "cl_MTK_Surface_Mesh.hpp"
+#include "cl_MTK_Integration_Surface_Mesh.hpp"
 #include "cl_MTK_QuadraturePointMapper.hpp"
 #include "cl_MTK_QuadraturePointMapper_Ray.hpp"
 #include "cl_Tracer.hpp"
@@ -48,16 +48,16 @@ namespace moris::mtk
         write_json( tFileName, tSurfaceMeshes );
     }
 
-    Vector< Surface_Mesh > QuadraturePointMapper_Ray::initialize_surface_meshes(
+    Vector< Integration_Surface_Mesh > QuadraturePointMapper_Ray::initialize_surface_meshes(
             Integration_Mesh const           *aIGMesh,
             Vector< Side_Set const * > const &aSideSets )
     {
-        Vector< Surface_Mesh > tSurfaceMeshes;
+        Vector< Integration_Surface_Mesh > tSurfaceMeshes;
         for ( auto const &tSideSet : aSideSets )
         {
             // initialize one surface mesh per side set
             Vector< mtk::Side_Set const * > tSideSetCast{ tSideSet };
-            Surface_Mesh                    tSurfaceMesh( aIGMesh, tSideSetCast );
+            Integration_Surface_Mesh                    tSurfaceMesh( aIGMesh, tSideSetCast );
             tSurfaceMeshes.push_back( tSurfaceMesh );
         }
         return tSurfaceMeshes;
@@ -67,8 +67,8 @@ namespace moris::mtk
     {
         Tracer tTracer( "Quadrature Point Mapper", "Map", "Initialize Source Points" );
         MORIS_ASSERT( aSourceMeshIndex < static_cast< moris_index >( get_surface_meshes().size() ), "QuadraturePointMapper_Ray::initialize_source_points: Source mesh index %d out of range.", aSourceMeshIndex );
-        Surface_Mesh const &tSurfaceMesh          = get_surface_meshes()( aSourceMeshIndex );
-        Surface_Mesh const &tReferenceSurfaceMesh = get_reference_surface_meshes()( aSourceMeshIndex );
+        Integration_Surface_Mesh const &tSurfaceMesh          = get_surface_meshes()( aSourceMeshIndex );
+        Integration_Surface_Mesh const &tReferenceSurfaceMesh = get_reference_surface_meshes()( aSourceMeshIndex );
         Side_Set const     *tSideSet              = get_side_sets()( aSourceMeshIndex );
 
         Interpolation_Rule const tInterpolationRule(
@@ -80,7 +80,7 @@ namespace moris::mtk
 
         Space_Interpolator tInterpolator( tInterpolationRule );
         uint const         tDim            = tSideSet->get_spatial_dim();
-        uint const         tNumCells       = tSurfaceMesh.get_number_of_cells();
+        uint const         tNumCells       = tSurfaceMesh.get_number_of_facets();
         uint const         tNumRaysPerCell = aParametricCoordinates.n_cols();
         uint const         tTotalNumPoints = tNumCells * tNumRaysPerCell;
 
@@ -88,11 +88,11 @@ namespace moris::mtk
 
         for ( moris_index iCell = 0; iCell < static_cast< moris_index >( tNumCells ); iCell++ )
         {
-            Matrix< DDRMat > const tVertexCoordinates      = tSurfaceMesh.get_vertex_coordinates_of_cell( iCell );
+            Matrix< DDRMat > const tVertexCoordinates      = tSurfaceMesh.get_all_vertex_coordinates_of_facet( iCell );
             Matrix< DDRMat > const tVertexNormals          = tSurfaceMesh.get_vertex_normals_of_cell( iCell );
             Matrix< DDRMat > const tReferenceVertexNormals = tReferenceSurfaceMesh.get_vertex_normals_of_cell( iCell );
-            Matrix< DDRMat > const tNormals                = tSurfaceMesh.get_facet_normals();
-            Matrix< DDRMat > const tReferenceNormals       = tReferenceSurfaceMesh.get_facet_normals();
+            Matrix< DDRMat > const tNormals                = tSurfaceMesh.get_all_facet_normals();
+            Matrix< DDRMat > const tReferenceNormals       = tReferenceSurfaceMesh.get_all_facet_normals();
 
             moris_index const tStartIndex = iCell * tNumRaysPerCell;
             for ( uint iPoint = 0; iPoint < tNumRaysPerCell; iPoint++ )

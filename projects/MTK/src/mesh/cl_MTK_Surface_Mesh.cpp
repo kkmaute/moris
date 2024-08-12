@@ -9,448 +9,559 @@
  */
 
 #include "cl_MTK_Surface_Mesh.hpp"
-#include "cl_MTK_Mesh_DataBase_IG.hpp"
-#include "cl_MTK_Set.hpp"
-#include "cl_MTK_Cell_DataBase.hpp"
+
+#include <random>
+#include "fn_norm.hpp"
+#include "fn_dot.hpp"
+#include "fn_cross.hpp"
+#include "fn_eye.hpp"
 #include "fn_trans.hpp"
-#include "cl_MTK_Vertex_DataBase.hpp"
-#include "cl_Json_Object.hpp"
+#include "op_elemwise_mult.hpp"
 
 namespace moris::mtk
 {
-    Surface_Mesh::Surface_Mesh(
-            Integration_Mesh const      *aIGMesh,
-            const Vector< std::string > &aSideSetNames )
-            : Surface_Mesh( dynamic_cast< Integration_Mesh_DataBase_IG const * >( aIGMesh ), aSideSetNames )
-    {
-    }
+    //--------------------------------------------------------------------------------------------------------------
 
     Surface_Mesh::Surface_Mesh(
-            Integration_Mesh const     *aIGMesh,
-            Vector< Side_Set const * > &aSideSets )
-            : mIGMesh( dynamic_cast< Integration_Mesh_DataBase_IG const * >( aIGMesh ) )
+            Matrix< DDRMat >                aVertexCoordinates,
+            Vector< Vector< moris_index > > aFacetConnnectivity,
+            real                            aIntersectionTolerance )
+            : mVertexCoordinates( aVertexCoordinates )
+            , mFacetConnectivity( aFacetConnnectivity )
+            , mIntersectionTolerance( aIntersectionTolerance )
     {
-        this->initialize_from_side_sets( aSideSets );
-    }
+        // Initialize distortion vectors/matrices
+        mRotation = eye( this->get_spatial_dimension(), this->get_spatial_dimension() );
+        mScale.set_size( this->get_spatial_dimension(), 1, 1.0 );
+        mDisplacements.set_size( this->get_spatial_dimension(), 1, 0.0 );
 
-    Surface_Mesh::Surface_Mesh(
-            Integration_Mesh_DataBase_IG const *aIGMesh,
-            const Vector< std::string >        &aSideSetNames )
-    {
-        Vector< Side_Set const * > tSideSets;
-
-        auto tSideSetFromName = [ &aIGMesh ]( std::string const &aSideSetName ) {
-            return dynamic_cast< Side_Set * >( aIGMesh->get_set_by_name( aSideSetName ) );
-        };
-
-        std::transform( aSideSetNames.begin(), aSideSetNames.end(), std::back_inserter( tSideSets ), tSideSetFromName );
-
-        initialize_from_side_sets( tSideSets );
-    }
-
-    void Surface_Mesh::initialize_from_side_sets( Vector< Side_Set const * > const &aSideSets )
-    {
-        mSideSets = aSideSets;
-
-        // temporary map to store the neighbors of each vertex since we do not necessarily know the index of the
-        // vertex that we want to add as a neighbor at the time of creation.
-        map< moris_index, Vector< moris_index > > tTmpNeighborMap;
-
-        // loop over all side sets by name
-        for ( auto const &tSideSet : aSideSets )
-        {
-            this->initialize_side_set( tTmpNeighborMap, dynamic_cast< Set const * >( tSideSet ) );
-        }
-
-        // in a last step, the neighbors can actually be correctly assigned since all local indices are known
-        this->initialize_neighbors( tTmpNeighborMap );
-        this->initialize_vertex_coordinates();
+        // Compute the normals of the facets
         this->initialize_facet_normals();
-        this->initialize_facet_measure();
-        this->initialize_vertex_normals();
+
+        // Construct the ArborX BVH
+        this->construct_bvh();
     }
 
-    void Surface_Mesh::initialize_side_set(
-            map< moris_index, Vector< moris_index > > &aTmpNeighborMap,
-            Set const                                 *aSideSet )
-    {
-        // loop over all clusters that the side set consists of
+    //--------------------------------------------------------------------------------------------------------------
 
-        moris_index const tNumClustersOnSet = aSideSet->get_clusters_on_set().size();
-        mClusterToCellIndices.resize( tNumClustersOnSet, Vector< moris_index >() );
-        for ( moris_index tClusterIndex = 0; tClusterIndex < tNumClustersOnSet; tClusterIndex++ )
+    void
+    Surface_Mesh::set_displacement( Matrix< DDRMat > const & aDisplacements )
+    {
+        mDisplacements = aDisplacements;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Surface_Mesh::append_rotation( const Matrix< DDRMat >& aRotationMatrix )
+    {
+        mRotation = aRotationMatrix * mRotation;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Surface_Mesh::set_rotation( const Matrix< DDRMat >& aRotationMatrix )
+    {
+        mRotation = aRotationMatrix;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Surface_Mesh::set_scale( const Matrix< DDRMat >& aScaling )
+    {
+        mScale = aScaling;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Matrix< DDRMat > Surface_Mesh::get_all_vertex_coordinates() const
+    {
+        Matrix< DDRMat > tVertexCoordinates( this->get_spatial_dimension(), mVertexCoordinates.n_cols() );
+
+        for ( uint iVertexIndex = 0; iVertexIndex < mVertexCoordinates.n_cols(); iVertexIndex++ )
         {
-            Cluster const *tCluster = aSideSet->get_clusters_by_index( tClusterIndex );
-            this->initialize_cluster( aTmpNeighborMap, tCluster, tClusterIndex );
-        }    // end loop over clusters
+            tVertexCoordinates.set_column( iVertexIndex, mRotation * ( mScale % mVertexCoordinates.get_column( iVertexIndex ) + mDisplacements ) );
+        }
+
+        return tVertexCoordinates;
     }
 
-    void Surface_Mesh::initialize_cluster(
-            map< moris_index, Vector< moris_index > > &aTmpNeighborMap,
-            Cluster const *const                      &aCluster,
-            moris_index                                aClusterIndex )
+    //--------------------------------------------------------------------------------------------------------------
+
+    Matrix< DDRMat > Surface_Mesh::get_vertex_coordinates( uint aVertexIndex ) const
     {
-        Vector< const Cell * > tCells    = aCluster->get_primary_cells_in_cluster();
-        Matrix< IdMat >        tCellOrds = aCluster->get_cell_side_ordinals();
+        return mRotation * ( mScale % mVertexCoordinates.get_column( aVertexIndex ) + mDisplacements );
+    }
 
-        // Cell ordinals define, which side of the cell is actually on the side of the cluster.
-        // Each cell should have exactly one edge/facet on the side.
-        MORIS_ASSERT( tCells.size() == tCellOrds.size( 1 ), "Number of cells and cell ordinals do not match" );
+    //--------------------------------------------------------------------------------------------------------------
 
-        // loop over all cells to extract the vertex indices of the ordinals that are actually on the side
-        for ( uint i = 0; i < tCells.size(); i++ )
+    Vector< moris_index > Surface_Mesh::get_facets_vertex_indices( const uint aFacetIndex ) const
+    {
+        return mFacetConnectivity( aFacetIndex );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Matrix< DDRMat > Surface_Mesh::get_all_vertex_coordinates_of_facet( uint aFacetIndex ) const
+    {
+        // Get the facets vertex indices
+        Vector< moris_index > tVertices = mFacetConnectivity( aFacetIndex );
+
+        // Initialize return matrix
+        Matrix< DDRMat > tFacetCoordinates( this->get_spatial_dimension(), tVertices.size() );
+
+        // Fill the return matrix with the vertex coordinates
+        for ( uint iVertexIndex = 0; iVertexIndex < tVertices.size(); iVertexIndex++ )
         {
-            Cell const *tCurrentCell        = tCells( i );
-            int const   tCurrentCellOrdinal = tCellOrds( i );
+            tFacetCoordinates.set_column( iVertexIndex, this->get_vertex_coordinates( tVertices( iVertexIndex ) ) );
+        }
 
-            this->initialize_cell( aTmpNeighborMap, tCurrentCell, tCurrentCellOrdinal, aClusterIndex );
-        }    // end loop over cells
+        return tFacetCoordinates;
     }
 
-    void Surface_Mesh::initialize_cell(
-            map< moris_index, Vector< moris_index > > &aTmpNeighborMap,
-            const Cell                                *aCell,
-            int                                        aCellOrdinal,
-            moris_index                                aClusterIndex )
+    //--------------------------------------------------------------------------------------------------------------
+
+    uint Surface_Mesh::get_spatial_dimension() const
     {
-        MORIS_ASSERT( mGlobalToLocalCellIndex.count( aCell->get_index() ) == 0, "Cell added twice to surface mesh" );
-
-        auto const tCurrentLocalCellIndex = static_cast< moris_index >( this->mCellToVertexIndices.size() );
-
-        // local index (on the surface mesh, from 0 to n_surfacemesh), global index (in the integration mesh, arbitrary numbers between 0 and n_igmesh)
-        mLocalToGlobalCellIndex.push_back( aCell->get_index() );
-        mGlobalToLocalCellIndex[ aCell->get_index() ] = tCurrentLocalCellIndex;
-
-        // one cluster per cell but one cluster can have multiple cells
-        mCellToClusterIndices.push_back( aClusterIndex );
-        mClusterToCellIndices( aClusterIndex ).push_back( tCurrentLocalCellIndex );
-
-        // prepare the cell to vertex map
-        mCellToVertexIndices.push_back( Vector< moris_index >() );
-
-        // side ordinal holds the index of the side of the cell that is actually on the surface
-        mCellSideOrdinals.push_back( aCellOrdinal );
-
-        Vector< Vertex const * > tSideVertices = aCell->get_geometric_vertices_on_side_ordinal( aCellOrdinal );
-
-        for ( unsigned int j = 0; j < tSideVertices.size(); j++ )
-        {
-            Vertex const *tVertex = tSideVertices( j );
-            this->initialize_vertex( aTmpNeighborMap, tCurrentLocalCellIndex, tSideVertices, tVertex );
-        }
+        return mVertexCoordinates.n_rows();
     }
 
-    void Surface_Mesh::initialize_vertex(
-            map< moris_index, Vector< moris_index > > &aTmpNeighborMap,
-            moris_index                                aCurrentLocalCellIndex,
-            Vector< Vertex const * >                  &aSideVertices,
-            Vertex const                              *aVertex )
-    {
-        moris_index const tVertexIndex             = aVertex->get_index();
-        moris_index       tCurrentLocalVertexIndex = 0;
-        if ( this->mGlobalToLocalVertexIndex.key_exists( tVertexIndex ) )
-        {    // check if the vertex has already been added to the list of vertices. If so, use the local index of the vertex based on the global index.
-            tCurrentLocalVertexIndex = this->mGlobalToLocalVertexIndex[ tVertexIndex ];
-        }
-        else
-        {    // if the vertex has not been added to the list of vertices, add it and use the local index based on the current size of the list of vertices
-            tCurrentLocalVertexIndex = static_cast< moris_index >( this->mLocalToGlobalVertexIndex.size() );
-        }
+    // --------------------------------------------------------------------------------------------------------------
 
-        if ( this->mGlobalToLocalVertexIndex.count( tVertexIndex ) == 0 )
-        {    // check that the vertex has not already been added to the surface mesh
-            this->mGlobalToLocalVertexIndex[ tVertexIndex ] = tCurrentLocalVertexIndex;
-            this->mLocalToGlobalVertexIndex.push_back( tVertexIndex );
-            this->mVertexToCellIndices.push_back( Vector< moris_index >() );
-        }
-
-        // update the vertex to cell and cell to vertex map for this vertex
-        this->mVertexToCellIndices( tCurrentLocalVertexIndex ).push_back( aCurrentLocalCellIndex );
-        this->mCellToVertexIndices( aCurrentLocalCellIndex ).push_back( tCurrentLocalVertexIndex );
-
-        for ( auto const &tNeighbor : aSideVertices )
-        {    // update neighbors for this vertex for this cell
-            if ( tNeighbor != aVertex )
-            {
-                aTmpNeighborMap[ tVertexIndex ].push_back( tNeighbor->get_index() );
-            }
-        }
-    }
-
-    void Surface_Mesh::initialize_neighbors( map< moris_index, Vector< moris_index > > &aTmpNeighborMap )
-    {
-        // for each key (vertex in global indices) in the map, the neighbors are assigned.
-        mVertexNeighbors.resize( mLocalToGlobalVertexIndex.size() );
-        for ( auto const &[ tVertex, tNeighbor ] : aTmpNeighborMap )
-        {
-            auto const tLocalVertexIndex = mGlobalToLocalVertexIndex[ tVertex ];
-            for ( auto const &tNeighborIndex : tNeighbor )
-            {
-                this->mVertexNeighbors( tLocalVertexIndex ).push_back( mGlobalToLocalVertexIndex[ tNeighborIndex ] );
-            }
-        }
-    }
-
-    void Surface_Mesh::initialize_vertex_coordinates()
-    {
-        auto const tNumVertices = static_cast< moris::size_t >( mLocalToGlobalVertexIndex.size() );
-        uint const tDim         = this->get_spatial_dimension();
-        mVertexCoordinates.resize( tDim, tNumVertices );
-        for ( moris::size_t i = 0; i < tNumVertices; i++ )
-        {
-            mVertexCoordinates.set_column( i, mIGMesh->get_node_coordinate( mLocalToGlobalVertexIndex( i ) ) );
-        }
-    }
-
-    void Surface_Mesh::initialize_facet_normals()
-    {
-        auto const tNumCells = static_cast< moris::size_t >( mLocalToGlobalCellIndex.size() );
-        uint const tDim      = this->get_spatial_dimension();
-
-        MORIS_ASSERT( tDim == 2, "Surface Mesh facet normals only implemented for 2D meshes (Lines)" );
-
-        mFacetNormals.resize( tDim, tNumCells );
-
-        Matrix< DDRMat > tVertexCoordinates = this->get_vertex_coordinates();
-
-        for ( moris::size_t i = 0; i < tNumCells; i++ )
-        {
-            auto const tGlobalCellIndex = mLocalToGlobalCellIndex( i );
-
-            auto tCell =
-                    dynamic_cast< mtk::Cell_DataBase const & >( mIGMesh->get_mtk_cell( tGlobalCellIndex ) );
-
-            Matrix< DDRMat > tNormal( tDim, 1 );
-
-            Vector< moris_index > tVertices = mCellToVertexIndices( i );
-            Matrix< DDRMat >      tCoords( 2, 2 );
-            tCoords.set_column( 0, tVertexCoordinates.get_column( tVertices( 0 ) ) );
-            tCoords.set_column( 1, tVertexCoordinates.get_column( tVertices( 1 ) ) );
-
-            // { { tY2 - tY1  }, { tX1 - tX2 } }
-            tNormal( 0 ) = tCoords( 1, 1 ) - tCoords( 1, 0 );
-            tNormal( 1 ) = tCoords( 0, 0 ) - tCoords( 0, 1 );
-            tNormal      = tNormal / norm( tNormal );
-
-            mFacetNormals.set_column( i, tNormal );
-        }
-    }
-
-    void Surface_Mesh::initialize_facet_measure()
-    {
-        auto const       tNumCells          = static_cast< moris::size_t >( mLocalToGlobalCellIndex.size() );
-        Matrix< DDRMat > tVertexCoordinates = this->get_vertex_coordinates();
-        mFacetMeasure.resize( tNumCells, 1 );
-
-        for ( moris::size_t i = 0; i < tNumCells; i++ )
-        {
-            MORIS_ASSERT( get_spatial_dimension() == 2, "Surface Mesh facet measure only implemented for 2D meshes (Lines)" );
-            Vector< moris_index > tVertices = mCellToVertexIndices( i );
-            Matrix< DDRMat >      tCoords( 2, 2 );
-            // int const   tGlobalCellIndex = mLocalToGlobalCellIndex( i );
-            // int         tSideOrdinal     = mCellSideOrdinals( i );
-            // Cell const &tCell            = mIGMesh->get_mtk_cell( tGlobalCellIndex );
-            // real const  tMeasure         = tCell.compute_cell_side_measure( tSideOrdinal );
-            mFacetMeasure( i ) = norm( tVertexCoordinates.get_column( tVertices( 1 ) ) - tVertexCoordinates.get_column( tVertices( 0 ) ) );
-        }
-    }
-
-    void Surface_Mesh::initialize_vertex_normals()
-    {
-        auto const                    tNumVertices  = static_cast< moris::size_t >( mLocalToGlobalVertexIndex.size() );
-        uint const                    tDim          = this->get_spatial_dimension();
-        Matrix< arma::Mat< double > > tFacetNormals = this->get_facet_normals();
-        Matrix< arma::Mat< double > > tFacetMeasure = this->get_facet_measure();
-        mVertexNormals.resize( tDim, tNumVertices );
-
-        auto tNormal = Matrix< DDRMat >( tDim, 1 );
-        for ( moris::size_t i = 0; i < tNumVertices; i++ )
-        {
-            Vector< moris_index > tVertexCellNeighbors = mVertexToCellIndices( i );
-            auto const            tNumNeighbors        = static_cast< moris::size_t >( tVertexCellNeighbors.size() );
-            tNormal.fill( 0.0 );    // reset the current normal to zero for each vertex normal calculation
-
-            // compute the normal as the weighted average of the facet normals of the neighboring cells
-            for ( moris::size_t j = 0; j < tNumNeighbors; j++ )
-            {
-                int const tCellIndex = tVertexCellNeighbors( j );
-                tNormal += tFacetNormals.get_column( tCellIndex ) * tFacetMeasure( tCellIndex );
-            }
-            mVertexNormals.set_column( i, tNormal / norm( tNormal ) );
-        }
-    }
-
-    Matrix< DDRMat > Surface_Mesh::get_vertex_coordinates() const
-    {
-        if ( mDisplacements.n_cols() > 0 )
-        {
-            return mVertexCoordinates + mDisplacements;
-        }
-        return mVertexCoordinates;
-    }
-
-    Vector< Vector< moris_index > > Surface_Mesh::get_vertex_neighbors() const
-    {
-        return mVertexNeighbors;
-    }
-
-    Vector< moris_index > Surface_Mesh::get_vertex_neighbors( moris_index aLocalVertexIndex ) const
-    {
-        MORIS_ASSERT( aLocalVertexIndex < static_cast< moris_index >( mVertexNeighbors.size() ), "Vertex index out of bounds" );
-        return mVertexNeighbors( aLocalVertexIndex );
-    }
-
-    Matrix< DDRMat > Surface_Mesh::get_facet_normals() const
+    Matrix< DDRMat > Surface_Mesh::get_all_facet_normals() const
     {
         return mFacetNormals;
     }
 
-    Matrix< DDRMat > Surface_Mesh::get_facet_measure() const
+    //--------------------------------------------------------------------------------------------------------------
+
+    Matrix< DDRMat > Surface_Mesh::get_facet_normal( const uint aFacetIndex ) const
     {
-        return mFacetMeasure;
+        return mFacetNormals.get_column( aFacetIndex );
     }
 
-    Matrix< DDRMat > Surface_Mesh::get_vertex_normals() const
+    //--------------------------------------------------------------------------------------------------------------
+
+    real Surface_Mesh::get_intersection_tolerance() const
     {
-        return mVertexNormals;
+        return mIntersectionTolerance;
     }
 
-    moris_index Surface_Mesh::get_global_vertex_index( moris_index aLocalVertexIndex ) const
+    //--------------------------------------------------------------------------------------------------------------
+
+    uint Surface_Mesh::get_number_of_facets() const
     {
-        return mLocalToGlobalVertexIndex( aLocalVertexIndex );
+        return mFacetConnectivity.size();
     }
 
-    moris_index Surface_Mesh::get_global_cell_index( moris_index aLocalCellIndex ) const
-    {
-        return mLocalToGlobalCellIndex( aLocalCellIndex );
-    }
-
-    moris_index Surface_Mesh::get_local_vertex_index( moris_index aGlobalVertexIndex ) const
-    {
-        return mGlobalToLocalVertexIndex.at( aGlobalVertexIndex );
-    }
-
-    moris_index Surface_Mesh::get_local_cell_index( moris_index aGlobalCellIndex ) const
-    {
-        return mGlobalToLocalCellIndex.at( aGlobalCellIndex );
-    }
-
-    void Surface_Mesh::set_displacement( Matrix< DDRMat > const &aDisplacements )
-    {
-        MORIS_ASSERT( aDisplacements.n_rows() == this->get_spatial_dimension(), "Number of vertices in displacement matrix does not match number of vertices in mesh" );
-        MORIS_ASSERT( aDisplacements.n_cols() == mLocalToGlobalVertexIndex.size(), "Number of dimensions in displacement matrix does not match number of dimensions in mesh" );
-        mDisplacements = aDisplacements;
-
-        // the displacement on each vertex invalidates the facet and vertex normals as well as the facet measure.
-        this->initialize_facet_normals();
-        this->initialize_facet_measure();
-        this->initialize_vertex_normals();
-    }
-
-    moris_index Surface_Mesh::get_cluster_of_cell( moris_index aLocalCellIndex ) const
-    {
-        return mCellToClusterIndices( aLocalCellIndex );
-    }
-
-    Vector< moris_index > Surface_Mesh::get_vertices_of_cell( moris_index aLocalCellIndex ) const
-    {
-        return mCellToVertexIndices( aLocalCellIndex );
-    }
-
-    Vector< moris_index > Surface_Mesh::get_cells_of_vertex( moris_index aLocalVertexIndex ) const
-    {
-        return mVertexToCellIndices( aLocalVertexIndex );
-    }
-
-    uint Surface_Mesh::get_number_of_cells() const
-    {
-        return static_cast< uint >( mLocalToGlobalCellIndex.size() );
-    }
+    //--------------------------------------------------------------------------------------------------------------
 
     uint Surface_Mesh::get_number_of_vertices() const
     {
-        return static_cast< uint >( mLocalToGlobalVertexIndex.size() );
+        return mVertexCoordinates.n_cols();
     }
 
-    uint Surface_Mesh::get_spatial_dimension() const
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Surface_Mesh::reset_coordinates()
     {
-        return mIGMesh->get_spatial_dim();
+        // Initialize distortion vectors/matrices
+        mRotation = eye( this->get_spatial_dimension(), this->get_spatial_dimension() );
+        mScale.set_size( this->get_spatial_dimension(), 1, 1.0 );
+        mDisplacements.set_size( this->get_spatial_dimension(), 1, 0.0 );
     }
 
-    Matrix< DDRMat > Surface_Mesh::get_vertex_coordinates_of_cell( moris_index aLocalCellIndex ) const
+    //--------------------------------------------------------------------------------------------------------------
+
+    Mesh_Region
+    Surface_Mesh::raycast_point( const Matrix< DDRMat >& aPoint ) const
     {
-        Matrix< DDRMat >      tVertexCoordinates = this->get_vertex_coordinates();
-        Vector< moris_index > tVertexIndices     = this->get_vertices_of_cell( aLocalCellIndex );
-        size_t const          tDim               = tVertexCoordinates.n_rows();
-        size_t const          tNumVertices       = tVertexIndices.size();
-        Matrix< DDRMat >      tCellVertexCoordinates{ tDim, tNumVertices };
-        for ( moris::size_t i = 0; i < tNumVertices; i++ )
+        // Generator for random numbers BRENDAN remove once randu() is implemented for matrices
+        std::random_device                     tRandomDevice;
+        std::mt19937                           tRandomGenerator( tRandomDevice() );
+        std::uniform_real_distribution< real > tDistribution( -1.0, 1.0 );
+
+        // Initialize random ray direction vector
+        Matrix< DDRMat > tDirection( this->get_spatial_dimension(), 1 );
+        for ( uint iDimension = 0; iDimension < this->get_spatial_dimension(); iDimension++ )
         {
-            tCellVertexCoordinates.set_column( i, tVertexCoordinates.get_column( tVertexIndices( i ) ) );
+            tDirection( iDimension ) = tDistribution( tRandomGenerator );
         }
-        return tCellVertexCoordinates;
-    }
 
-    Matrix< DDRMat > Surface_Mesh::get_vertex_normals_of_cell( moris_index aLocalCellIndex ) const
-    {
-        Matrix< DDRMat >      tVertexNormals = this->get_vertex_normals();
-        Vector< moris_index > tVertexIndices = this->get_vertices_of_cell( aLocalCellIndex );
-        size_t const          tDim           = tVertexNormals.n_rows();
-        size_t const          tNumVertices   = tVertexIndices.size();
-        Matrix< DDRMat >      tCellVertexNormals{ tDim, tNumVertices };
-        for ( moris::size_t i = 0; i < tNumVertices; i++ )
+        // Initialize output
+        Mesh_Region tRegion = UNDEFINED;
+        while ( tRegion == UNDEFINED )
         {
-            tCellVertexNormals.set_column( i, tVertexNormals.get_column( tVertexIndices( i ) ) );
-        }
-        return tCellVertexNormals;
-    }
-
-    Json Surface_Mesh::to_json() const
-    {
-        Json tMesh;
-
-        Json tVertexMap;
-        for ( moris::size_t i = 0; i < mLocalToGlobalVertexIndex.size(); i++ )
-        {
-            moris_index const tGlobalIndex = mLocalToGlobalVertexIndex( i );
-            moris_id const    tGlobalID    = mIGMesh->get_mtk_vertex( tGlobalIndex ).get_id();
-            tVertexMap.add( std::to_string( tGlobalID ), i );
-        }
-        tMesh.put_child( "vertex_map", tVertexMap );
-
-        Json             tCoordinatesJson;
-        Matrix< DDRMat > tCoords = get_vertex_coordinates();
-        for ( size_t iVertex = 0; iVertex < get_number_of_vertices(); iVertex++ )
-        {
-            Json tArray;
-            for ( size_t iDim = 0; iDim < tCoords.n_rows(); ++iDim )
+            // Generate random ray direction FIXME BRENDAN implement fn_rand for matrices
+            for ( uint iDimension = 0; iDimension < this->get_spatial_dimension(); iDimension++ )
             {
-                Json tObj;
-                tObj.put( "", tCoords( iDim, iVertex ) );
-                tArray.push_back( { "", tObj } );
+                tDirection( iDimension ) = tDistribution( tRandomGenerator );
             }
-            tCoordinatesJson.put_child( std::to_string( iVertex ), tArray );
-        }
-        tMesh.put_child( "coordinates", tCoordinatesJson );
+            // tDirection.randu();
 
-        Json tCellMap;
-        for ( moris::size_t i = 0; i < mLocalToGlobalCellIndex.size(); i++ )
+            // Cast this ray and get the intersection locations
+            Vector< real > tIntersections = this->cast_single_ray( aPoint, tDirection );
+
+            // Determine the region based on the number of intersections or if any intersection is close to zero
+            tRegion = std::any_of( tIntersections.begin(), tIntersections.end(), [ this ]( real aCoord ) { return std::abs( aCoord ) < mIntersectionTolerance; } )
+                            ? Mesh_Region::INTERFACE
+                            : static_cast< Mesh_Region >( tIntersections.size() % 2 );
+        }
+
+        return tRegion;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Vector< real > Surface_Mesh::compute_ray_facet_intersections(
+            const Matrix< DDRMat >& aPoint,
+            const Matrix< DDRMat >& aDirection,
+            Vector< uint >&         aIntersectionFacetIndices ) const
+    {
+        // Get the facets that the ray could intersect
+        Vector< uint > tCandidateFacets = this->preselect_with_arborx( aPoint, aDirection );
+
+        // Cast the ray and find the intersection locations and corresponding facet indices
+        return cast_single_ray( aPoint, aDirection, aIntersectionFacetIndices );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+
+    Vector< real >
+    Surface_Mesh::cast_single_ray(
+            const Matrix< DDRMat >& aPoint,
+            const Matrix< DDRMat >& aDirection,
+            Vector< uint >&         aIntersectionFacetIndices ) const
+    {
+        // Get the facets that the ray could intersect
+        Vector< uint > tCandidateFacets = this->preselect_with_arborx( aPoint, aDirection );
+
+        // Resize return index vector
+        aIntersectionFacetIndices.resize( tCandidateFacets.size() );
+
+        // Initialize return vector that stores intersections and counter for number of valid intersections
+        Vector< real > tIntersections( tCandidateFacets.size() );
+        uint           tNumberOfValidIntersections = 0;
+
+        for ( uint iCandidate : tCandidateFacets )
         {
-            moris_index const tGlobalIndex = mLocalToGlobalCellIndex( i );
-            moris_id const    tGlobalID    = mIGMesh->get_mtk_cell( tGlobalIndex ).get_id();
-            tCellMap.add( std::to_string( tGlobalID ), i );
-        }
-        tMesh.put_child( "cell_map", tCellMap );
+            // Compute the intersection location
+            real tIntersection = this->moller_trumbore( iCandidate, aPoint, aDirection );
 
-        Json tSideSetMap;
-        for ( auto const &tSideSet : mSideSets )
+            // If it is valid, add it to the list
+            if ( not std::isnan( tIntersection ) )
+            {
+                tIntersections( tNumberOfValidIntersections )              = tIntersection;
+                aIntersectionFacetIndices( tNumberOfValidIntersections++ ) = iCandidate;
+            }
+        }
+
+        // Trim output vectors
+        tIntersections.resize( tNumberOfValidIntersections );
+        aIntersectionFacetIndices.resize( tNumberOfValidIntersections );
+
+        return tIntersections;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+
+    Vector< real >
+    Surface_Mesh::cast_single_ray(
+            const Matrix< DDRMat >& aPoint,
+            const Matrix< DDRMat >& aDirection ) const
+    {
+        // Get the facets that the ray could intersect
+        Vector< uint > tCandidateFacets = this->preselect_with_arborx( aPoint, aDirection );
+
+        // Initialize return vector that stores intersections and counter for number of valid intersections
+        Vector< real > tIntersections( tCandidateFacets.size() );
+        uint           tNumberOfValidIntersections = 0;
+
+        for ( uint iCandidate : tCandidateFacets )
         {
-            Json tObj;
-            tObj.put( "", tSideSet->get_set_name() );
-            tSideSetMap.push_back( { "", tObj } );
-        }
-        tMesh.put_child( "side_sets", tSideSetMap );
+            // Compute the intersection location
+            real tIntersection = this->moller_trumbore( iCandidate, aPoint, aDirection );
 
-        return tMesh;
+            // If it is valid, add it to the list
+            if ( not std::isnan( tIntersection ) )
+            {
+                tIntersections( tNumberOfValidIntersections ) = tIntersection;
+            }
+        }
+
+        // Trim output vector
+        tIntersections.resize( tNumberOfValidIntersections );
+
+        return tIntersections;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    real Surface_Mesh::moller_trumbore(
+            uint                    aFacet,
+            const Matrix< DDRMat >& aPoint,
+            const Matrix< DDRMat >& aDirection ) const
+    {
+        switch ( this->get_spatial_dimension() )
+        {
+            case 2:
+            {
+                return moller_trumbore_2D( aFacet, aPoint, aDirection );
+            }
+            case 3:
+            {
+                return moller_trumbore_3D( aFacet, aPoint, aDirection );
+            }
+            default:
+            {
+                MORIS_ERROR( false, "Surface Mesh moller trumbore only implemented for 2D (lines) or 3D (triangles) meshes" );
+                return std::numeric_limits< real >::quiet_NaN();
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    real Surface_Mesh::moller_trumbore_2D(
+            uint                    aFacet,
+            const Matrix< DDRMat >& aPoint,
+            const Matrix< DDRMat >& aDirection ) const
+    {
+        // Get the indices of the vertices for the requested facet
+        Vector< moris_index > tVertexIndices = mFacetConnectivity( aFacet );
+
+        // Get the vertex coordinates for the requested facet
+        Matrix< DDRMat > tFacetCoordinates = this->get_all_vertex_coordinates_of_facet( aFacet );
+
+        // Build the edge vector
+        Matrix< DDRMat > tEdge = tFacetCoordinates.get_column( 1 ) - tFacetCoordinates.get_column( 0 );
+
+        // Vector from the origin of the ray to the origin of the first vertex
+        Matrix< DDRMat > tRayToVertex = tFacetCoordinates.get_column( 0 ) - aPoint;
+
+        // Get the determinate of the edge and the cast direction
+        real tDet = aDirection( 0 ) * tEdge( 1 ) - aDirection( 1 ) * tEdge( 0 );
+
+        // If the determinant is close to zero, the ray is parallel or colinear to the line
+        if ( std::abs( tDet ) < mIntersectionTolerance )
+        {
+            // Check for colinearity
+            if ( std::abs( tRayToVertex( 0 ) * aDirection( 1 ) - tRayToVertex( 1 ) * aDirection( 0 ) ) < mIntersectionTolerance )
+            {
+                // Check if the point is in between the vertices
+                if ( ( tFacetCoordinates( 0, 0 ) - aPoint( 0 ) ) * ( tFacetCoordinates( 0, 1 ) - aPoint( 0 ) ) < 0.0 )
+                {
+                    return 0.0;
+                }
+                // Check if the facet is in the same direction as the ray (FIXME: technically not necessary if preselection works)
+                else if ( ( tFacetCoordinates( 0, 0 ) - aPoint( 0 ) ) * aDirection( 0 ) > 0.0 )
+                {
+                    // The ray will hit a vertex, return the closer one
+                    return ( tFacetCoordinates( 0, 0 ) - aPoint( 0 ) ) < ( tFacetCoordinates( 0, 1 ) - aPoint( 0 ) ) ? norm( tFacetCoordinates.get_column( 0 ) - aPoint ) : norm( tFacetCoordinates.get_column( 1 ) - aPoint );
+                }
+                // The ray and facet are colinear, but the facet is in the opposite direction of the ray, therefore no intersection
+                else
+                {
+                    return std::numeric_limits< real >::quiet_NaN();
+                }
+            }
+            else
+            {
+                // Lines are parallel, return nan
+                return std::numeric_limits< real >::quiet_NaN();
+            }
+        }
+
+        // Compute the inverse determinant
+        real tInverseDeterminant = 1.0 / tDet;
+
+        // Solve the 2D system
+        real tDistance = ( tRayToVertex( 0 ) * tEdge( 1 ) - tRayToVertex( 1 ) * tEdge( 0 ) ) * tInverseDeterminant;
+        real tU        = ( aDirection( 0 ) * tRayToVertex( 1 ) - aDirection( 1 ) * tRayToVertex( 0 ) ) * tInverseDeterminant;
+
+        // Check if the intersection is within the line segment
+        if ( tU < 0.0 or tU > 1.0 or tDistance < 0 )
+        {
+            return std::numeric_limits< real >::quiet_NaN();
+        }
+        // check if the ray originates from on the facet
+        else if ( std::abs( tDistance ) < mIntersectionTolerance )
+        {
+            // Snap to the facet
+            return 0.0;
+        }
+        else
+        {
+            return norm( tDistance * aDirection );
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    real
+    Surface_Mesh::moller_trumbore_3D(
+            uint                    aFacet,
+            const Matrix< DDRMat >& aPoint,
+            const Matrix< DDRMat >& aDirection ) const
+    {
+        // Get the indices of the vertices for the requested facet
+        Vector< moris_index > tVertexIndices = mFacetConnectivity( aFacet );
+
+        // Get the vertex coordinates for the requested facet
+        Matrix< DDRMat > tVertexCoordinates = this->get_all_vertex_coordinates_of_facet( aFacet );
+
+        // Build the edge vectors
+        Matrix< DDRMat > tEdge1 = tVertexCoordinates.get_column( 1 ) - tVertexCoordinates.get_column( 0 );
+        Matrix< DDRMat > tEdge2 = tVertexCoordinates.get_column( 2 ) - tVertexCoordinates.get_column( 0 );
+
+        // Compute the determinant of the edges and the cast direction
+        Matrix< DDRMat > tP   = cross( aDirection, tEdge2 );
+        real             tDet = dot( tEdge1, tP );
+
+        // If the determinant is close to zero, the ray is parallel to the triangle. Return NaN
+        if ( tDet > -mIntersectionTolerance and tDet < mIntersectionTolerance )
+        {
+            return std::numeric_limits< real >::quiet_NaN();
+        }
+
+        // compute the inverse of the determinant
+        real tInverseDeterminant = 1.0 / tDet;
+
+        // Compute the vector from the origin to the first vertex
+        Matrix< DDRMat > tT;
+        if ( aPoint.n_cols() == 1 )
+        {
+            tT = aPoint - tVertexCoordinates.get_column( tVertexIndices( 0 ) );
+        }
+        else
+        {
+            tT = trans( aPoint ) - tVertexCoordinates.get_column( tVertexIndices( 0 ) );
+        }
+
+        // Compute the u parameter
+        real tU = dot( tT, tP ) * tInverseDeterminant;
+
+        // If the u parameter is < 0.0 or > 1.0, the intersection is outside the triangle
+        if ( tU < 0.0 or tU > 1.0 )
+        {
+            return std::numeric_limits< real >::quiet_NaN();
+        }
+
+        // Compute the vector from the origin to the second vertex
+        Matrix< DDRMat > tQ = cross( tT, tEdge1 );
+
+        // Compute the v parameter
+        real tV = dot( aDirection, tQ ) * tInverseDeterminant;
+
+        // If the v parameter is < 0.0 or > 1.0, the intersection is outside the triangle
+        if ( tV < 0.0 or tU + tV > 1.0 )
+        {
+            return std::numeric_limits< real >::quiet_NaN();
+        }
+
+        // Compute the distance from the origin to the intersection point
+        real tDistance = dot( tEdge2, tQ ) * tInverseDeterminant;
+
+        // Return the distance
+        return norm( tDistance * aDirection );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+
+    Vector< uint > Surface_Mesh::preselect_with_arborx( const Matrix< DDRMat >& aPoint, const Matrix< DDRMat >& aDirection ) const
+    {
+        // Initialize the execution space (CPU or GPU, trivial for now as we only have CPU)
+        ExecutionSpace tExecutionSpace{};
+
+        // Dummy cell index for the ray
+        Kokkos::View< moris_index*, MemorySpace > tCellIndices( Kokkos::view_alloc( tExecutionSpace, Kokkos::WithoutInitializing, "view:cell_indices" ), 1 );
+        tCellIndices( 0 ) = 0;
+
+        // Build an ArborX ray from the origin and direction
+        Kokkos::View< ArborX::Experimental::Ray*, MemorySpace > tRay( Kokkos::view_alloc( tExecutionSpace, Kokkos::WithoutInitializing, "view:rays" ), 1 );
+        tRay( 0 ) = ArborX::Experimental::Ray{ arborx::coordinate_to_arborx_point< ArborX::Point >( aPoint ), arborx::coordinate_to_arborx_point< ArborX::Experimental::Vector >( aDirection ) };
+
+        // Build the query rays
+        arborx::QueryRays< MemorySpace > tQueryRays{ tRay };
+
+        // Initialize the results and offsets
+        Kokkos::View< arborx::QueryResult*, MemorySpace > tResults( "values", 0 );
+        Kokkos::View< int*, MemorySpace >                 tOffsets( "offsets", 0 );
+
+        // Query the BVH for the intersected facets
+        mBVH.query( tExecutionSpace, tQueryRays, arborx::IntersectionCallback< MemorySpace >{ tQueryRays }, tResults, tOffsets );
+
+        // Return the results as a vector of facet indices
+        Vector< uint > tFacetIndices( tResults.extent( 0 ) );
+        for ( size_t iIntersection = 0; iIntersection < tResults.extent( 0 ); ++iIntersection )
+        {
+            tFacetIndices( iIntersection ) = tResults( iIntersection ).mBoxIndex;
+        }
+
+        return tFacetIndices;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Surface_Mesh::initialize_facet_normals()
+    {
+        auto const tNumFacets = static_cast< moris::size_t >( mFacetConnectivity.size() );
+        uint const tDim       = this->get_spatial_dimension();
+
+        mFacetNormals.resize( tDim, tNumFacets );
+
+        switch ( tDim )
+        {
+            case 2:
+            {
+                for ( moris::size_t iFacetIndex = 0; iFacetIndex < tNumFacets; iFacetIndex++ )
+                {
+                    Matrix< DDRMat > tNormal( 2, 1 );
+
+                    Matrix< DDRMat > tCoords = this->get_all_vertex_coordinates_of_facet( iFacetIndex );
+
+                    // { { tY2 - tY1  }, { tX1 - tX2 } }
+                    tNormal( 0 ) = tCoords( 1, 1 ) - tCoords( 1, 0 );
+                    tNormal( 1 ) = tCoords( 0, 0 ) - tCoords( 0, 1 );
+                    tNormal      = tNormal / norm( tNormal );
+
+                    mFacetNormals.set_column( iFacetIndex, tNormal );
+                }
+                break;
+            }
+            case 3:
+            {
+                for ( moris::size_t iFacetIndex = 0; iFacetIndex < tNumFacets; iFacetIndex++ )
+                {
+                    Matrix< DDRMat > tCoords = this->get_all_vertex_coordinates_of_facet( iFacetIndex );
+
+                    Matrix< DDRMat > tNormal = cross( tCoords.get_column( 2 ) - tCoords.get_column( 0 ), tCoords.get_column( 1 ) - tCoords.get_column( 0 ) );
+
+                    mFacetNormals.set_column( iFacetIndex, tNormal );
+                }
+                break;
+            }
+            default:
+            {
+                MORIS_ERROR( false, "Surface Mesh facet normals only implemented for 2D (lines) or 3D (triangles) meshes" );
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Surface_Mesh::construct_bvh()
+    {
+        // Create dummy pair for surface mesh
+        Vector< std::pair< moris_index, Surface_Mesh > > tSurfaceMesh = { std::pair< moris_index, Surface_Mesh >( { 0, *this } ) };
+
+        // Construct the ArborX boxes from this mesh
+        ExecutionSpace                    tExecutionSpace{};
+        arborx::QueryBoxes< MemorySpace > tQueryBoxes = arborx::construct_query_boxes< MemorySpace >( tExecutionSpace, tSurfaceMesh );
+
+        // Build the bounding volume hierarchy from the boxes
+        mBVH = ArborX::BVH< MemorySpace >( tExecutionSpace, tQueryBoxes );
     }
 }    // namespace moris::mtk

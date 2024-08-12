@@ -200,6 +200,7 @@ set(HEADERS
         mesh/cl_MTK_Mesh_Pair.hpp
         mesh/cl_MTK_Mesh_Tools.hpp
         mesh/cl_MTK_Surface_Mesh.hpp
+        mesh/cl_MTK_Integration_Surface_Mesh.hpp
 
         set/cl_MTK_Block_Set.hpp
         set/cl_MTK_Block_Sets_Info.hpp
@@ -302,6 +303,7 @@ set(LIB_SOURCES
         mesh/cl_MTK_Mesh_Manager.cpp
         mesh/cl_MTK_Mesh_Pair.cpp
         mesh/cl_MTK_Surface_Mesh.cpp
+        mesh/cl_MTK_Integration_Surface_Mesh.cpp
 
         set/cl_MTK_Set_Communicator.cpp
 
@@ -317,11 +319,11 @@ set(LIB_SOURCES
 if (MORIS_HAVE_ARBORX)
     list(APPEND LIB_SOURCES
             contact/cl_MTK_QuadraturePointMapper_Ray_ArborX.cpp
-            contact/cl_MTK_QuadraturePointMapper_Ray_ArborX_Details.cpp
+            contact/fn_MTK_QuadraturePointMapper_Ray_ArborX_Details.cpp
     )
     list(APPEND HEADERS
             contact/cl_MTK_QuadraturePointMapper_Ray_ArborX.hpp
-            contact/cl_MTK_QuadraturePointMapper_Ray_ArborX_Details.hpp
+            contact/fn_MTK_QuadraturePointMapper_Ray_ArborX_Details.hpp
     )
 endif ()
 

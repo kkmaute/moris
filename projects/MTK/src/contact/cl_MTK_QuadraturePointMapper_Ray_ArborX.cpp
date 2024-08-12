@@ -11,7 +11,7 @@
 #include "cl_MTK_QuadraturePointMapper_Ray_ArborX.hpp"
 #include "cl_Logger.hpp"
 #include "cl_MTK_MappingResult.hpp"
-#include "cl_MTK_QuadraturePointMapper_Ray_ArborX_Details.hpp"
+#include "fn_MTK_QuadraturePointMapper_Ray_ArborX_Details.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_MTK_Ray_Line_Intersection.hpp"
 #include "moris_typedefs.hpp"
@@ -25,9 +25,9 @@ namespace moris::mtk
             real                    aMaxNegativeRayLength,
             real                    aMaxPositiveRayLength ) const
     {
-        Tracer                tTracer( "Quadrature Point Mapper", "Map", "Map Quadrature Points" );
-        Surface_Mesh const    tSurfaceMesh = get_surface_meshes()( aSourceMeshIndex );
-        Side_Set const *const tSideSet     = get_side_sets()( aSourceMeshIndex );
+        Tracer                         tTracer( "Quadrature Point Mapper", "Map", "Map Quadrature Points" );
+        Integration_Surface_Mesh const tSurfaceMesh = get_surface_meshes()( aSourceMeshIndex );
+        Side_Set const *const          tSideSet     = get_side_sets()( aSourceMeshIndex );
 
         // skip, if the side set is empty
         if ( tSideSet->get_num_clusters_on_set() == 0 )
@@ -55,12 +55,12 @@ namespace moris::mtk
         Tracer tTracer( "Quadrature Point Mapper", "Map", "Check Cell Intersections" );
         for ( auto const &[ tTargetMeshIndex, tTargetCells ] : tBoxRayMap )
         {
-            Surface_Mesh const &tTargetMesh = get_surface_meshes()( tTargetMeshIndex );
+            Integration_Surface_Mesh const &tTargetMesh = get_surface_meshes()( tTargetMeshIndex );
             for ( auto const &[ tTargetCellIndex, tRayIndices ] : tTargetCells )
             {
                 // get the basic information from the cell like the vertex coordinates and calculate the origin and direction of the cell facet
                 // i.e. the line segment between the first and second vertex which will be called "segment" in the following
-                Matrix< DDRMat > tTargetCellCoordinates = tTargetMesh.get_vertex_coordinates_of_cell( tTargetCellIndex );
+                Matrix< DDRMat > tTargetCellCoordinates = tTargetMesh.get_all_vertex_coordinates_of_facet( tTargetCellIndex );
 
                 /* Because the segments will always be oriented in opposing directions (e.g. the vertices of each triangle will be ordered counter-clockwise),
                  * the parametric coordinate will also be measured in opposing directions.

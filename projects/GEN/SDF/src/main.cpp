@@ -22,6 +22,7 @@
 #include "fn_save_matrix_to_binary_file.hpp"
 
 #include "cl_MTK_Mesh_Factory.hpp"
+#include "cl_MTK_Enums.hpp"
 
 #include "SDF_Tools.hpp"
 
@@ -260,7 +261,7 @@ void perform_calculation(
             // loop over all nodes and write -1 if node is inside
             for ( uint i = 0; i < tNumberOfNodes; ++i )
             {
-                if ( tMesh.get_vertex( i )->get_region() == Object_Region::INSIDE )
+                if ( tMesh.get_vertex( i )->get_region() == mtk::Mesh_Region::INSIDE )
                 {
                     tFieldValues( k )( i ) = -1.0;
                 }

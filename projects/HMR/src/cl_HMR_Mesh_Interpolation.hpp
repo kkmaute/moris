@@ -81,6 +81,7 @@ namespace moris::hmr
 
         ~Interpolation_Mesh_HMR()
         {
+                std::cout << "Interpolation mesh destroyed brendan\n";
         }
 
         //-------------------------------------------------------------------------------

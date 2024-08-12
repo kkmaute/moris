@@ -4,12 +4,11 @@
  *
  * ------------------------------------------------------------------------------------
  *
- * cl_MTK_QuadraturePointMapper_Ray_ArborX_Details.cpp
+ * fn_MTK_QuadraturePointMapper_Ray_ArborX_Details.cpp
  *
  */
-#include "cl_MTK_QuadraturePointMapper_Ray_ArborX_Details.hpp"
+#include "fn_MTK_QuadraturePointMapper_Ray_ArborX_Details.hpp"
 #include "cl_MTK_MappingResult.hpp"
-#include "cl_MTK_Surface_Mesh.hpp"
 #include "cl_Tracer.hpp"
 #include <unordered_map>
 #include <functional>
@@ -21,7 +20,7 @@ namespace moris::mtk::arborx
             ExecutionSpace const                                                      &aExecutionSpace,
             moris::Vector< std::pair< moris_index, moris::mtk::Surface_Mesh > > const &aTargetSurfaceMeshes )
     {
-        uint const tNumCells = std::accumulate( aTargetSurfaceMeshes.begin(), aTargetSurfaceMeshes.end(), 0, []( auto a, auto b ) { return a + b.second.get_number_of_cells(); } );
+        uint const tNumCells = std::accumulate( aTargetSurfaceMeshes.begin(), aTargetSurfaceMeshes.end(), 0, []( auto a, auto b ) { return a + b.second.get_number_of_facets(); } );
 
         Kokkos::View< ArborX::Box *, MemorySpace > tBoxes( Kokkos::view_alloc( aExecutionSpace, Kokkos::WithoutInitializing, "view:boxes" ), tNumCells );
         Kokkos::View< moris_index *, MemorySpace > tMeshIndices( Kokkos::view_alloc( aExecutionSpace, Kokkos::WithoutInitializing, "view:mesh_indices" ), tNumCells );
@@ -31,10 +30,10 @@ namespace moris::mtk::arborx
         for ( size_t iMeshIndex = 0; iMeshIndex < aTargetSurfaceMeshes.size(); ++iMeshIndex )
         {
             auto const &tSurfaceMesh = aTargetSurfaceMeshes( iMeshIndex ).second;
-            for ( size_t iCellIndex = 0; iCellIndex < tSurfaceMesh.get_number_of_cells(); ++iCellIndex )
+            for ( size_t iCellIndex = 0; iCellIndex < tSurfaceMesh.get_number_of_facets(); ++iCellIndex )
             {
                 ArborX::Box                    tBox;
-                moris::Matrix< moris::DDRMat > tVertices = tSurfaceMesh.get_vertex_coordinates_of_cell( iCellIndex );
+                moris::Matrix< moris::DDRMat > tVertices = tSurfaceMesh.get_all_vertex_coordinates_of_facet( iCellIndex );
                 for ( size_t iVertexIndex = 0; iVertexIndex < tVertices.n_cols(); ++iVertexIndex )
                 {
                     tBox += coordinate_to_arborx_point< ArborX::Point >( tVertices.get_column( iVertexIndex ) );
@@ -100,7 +99,7 @@ namespace moris::mtk::arborx
         Kokkos::View< QueryResult *, MemorySpace > tResults( "values", 0 );
         Kokkos::View< int *, MemorySpace >         tOffsets( "offsets", 0 );
 
-        tBoundingVolumeHierarchy.query( tExecutionSpace, tQueryRays, IntersectionCallback< MemorySpace >{ tQueryBoxes, tQueryRays }, tResults, tOffsets );
+        tBoundingVolumeHierarchy.query( tExecutionSpace, tQueryRays, IntersectionCallback< MemorySpace >{ tQueryRays }, tResults, tOffsets );
 
         // return the results as unordered map
         // the key determines the cell < mesh index, cluster index, cell index >

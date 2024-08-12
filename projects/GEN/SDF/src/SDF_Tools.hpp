@@ -29,22 +29,9 @@
 namespace moris
 {
     namespace sdf
-    {
-
+    {        
         /**
-         * Enum for raycast result
-         */
-        enum Object_Region
-        {
-            OUTSIDE,
-            INSIDE,
-            INTERFACE,
-            UNSURE,
-            END_ENUM
-        };
-
-        /**
-         * Enum for preselection result
+         * Enum for preselection result brendan deprecated
          */
         enum Preselection_Result
         {

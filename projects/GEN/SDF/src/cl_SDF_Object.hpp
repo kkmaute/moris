@@ -13,6 +13,8 @@
 #include <cl_SDF_Facet_Vertex.hpp>
 #include <string>
 
+#include "cl_MTK_Surface_Mesh.hpp"
+
 #include "moris_typedefs.hpp"
 #include "cl_Vector.hpp"
 #include "cl_SDF_Triangle.hpp"
@@ -23,7 +25,7 @@ namespace moris
     namespace sdf
     {
         //-------------------------------------------------------------------------------
-        class Object
+        class Object : public mtk::Surface_Mesh
         {
           protected:
             uint                                      mDimension;
@@ -31,11 +33,9 @@ namespace moris
             moris::Vector< std::shared_ptr< Facet > > mFacets;
 
           private:
-            real             mIntersectionTolerance = 1e-8;    // tolerance for interfaces when raycasting with this Object
+            // real             mIntersectionTolerance = 1e-8;    // tolerance for interfaces when raycasting with this Object brendan moved
             const real       mMeshHighPass          = 1e-9;
-            Matrix< DDRMat > mRotation;    // current rotation of the object
-            Matrix< DDRMat > mShift;       // current shift of the object, does not include shift on construction
-            Matrix< DDRMat > mScale;       // current scale of the object, does not include scale on construction
+            
 
             //-------------------------------------------------------------------------------
 
@@ -49,46 +49,46 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
-            /**
-             * Performs a coordinate rotation of the object's facets and vertices
-             * NOTE: This action itself can be undone by calling reset_coordinates(), but will remove any scaling or shift that may have occurred
-             *
-             * @param aRotationMatrix the direction cosine matrix defining the rotation
-             */
-            void
-            rotate( const Matrix< DDRMat >& aRotationMatrix );
+            // /**
+            //  * Performs a coordinate rotation of the object's facets and vertices brendan moved
+            //  * NOTE: This action itself can be undone by calling reset_coordinates(), but will remove any scaling or shift that may have occurred
+            //  *
+            //  * @param aRotationMatrix the direction cosine matrix defining the rotation
+            //  */
+            // void
+            // rotate( const Matrix< DDRMat >& aRotationMatrix );
+
+            // //-------------------------------------------------------------------------------
+
+            // /**
+            //  * Scales all the coordinates of the object. brendan moved
+            //  * NOTE: This action can be undone by calling reset_coordinates(), but will remove any shift or rotation that may have occurred
+            //  *
+            //  * @param aScaling factor to scale in each coordinate direction
+            //  */
+            // void
+            // scale( const Vector< real >& aScaling );
+
+            // //-------------------------------------------------------------------------------
+
+            // /**
+            //  * Moves the object's spatial position. brendan moved
+            //  * NOTE: This action can be undone by calling reset_coordinates(), but will remove any scaling or rotation that may have occurred
+            //  *
+            //  * @param aShift shift in each coordinate direction that is added to the objects coordinates.
+            //  */
+            // void
+            // shift( const Vector< real >& aShift );
 
             //-------------------------------------------------------------------------------
 
-            /**
-             * Scales all the coordinates of the object.
-             * NOTE: This action can be undone by calling reset_coordinates(), but will remove any shift or rotation that may have occurred
-             *
-             * @param aScaling factor to scale in each coordinate direction
-             */
-            void
-            scale( const Vector< real >& aScaling );
-
-            //-------------------------------------------------------------------------------
-
-            /**
-             * Moves the object's spatial position.
-             * NOTE: This action can be undone by calling reset_coordinates(), but will remove any scaling or rotation that may have occurred
-             *
-             * @param aShift shift in each coordinate direction that is added to the objects coordinates.
-             */
-            void
-            shift( const Vector< real >& aShift );
-
-            //-------------------------------------------------------------------------------
-
-            /**
-             * Resets the object back to its attitude when it was constructed,
-             * removing any rotation, scaling, or translation that was applied
-             *
-             */
-            void
-            reset_coordinates();
+            // /**
+            //  * Resets the object back to its attitude when it was constructed,
+            //  * removing any rotation, scaling, or translation that was applied
+            //  *
+            //  */
+            // void
+            // reset_coordinates(); brendan moved
 
             //-------------------------------------------------------------------------------
 
@@ -102,14 +102,6 @@ namespace moris
             //-------------------------------------------------------------------------------
 
             uint
-            get_num_facets()
-            {
-                return mFacets.size();
-            }
-
-            //-------------------------------------------------------------------------------
-
-            uint
             get_dimension() const
             {
                 return mDimension;
@@ -117,11 +109,11 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
-            real
-            get_intersection_tolerance()
-            {
-                return mIntersectionTolerance;
-            }
+            // real brendan moved
+            // get_intersection_tolerance()
+            // {
+            //     return mIntersectionTolerance;
+            // }
 
             //-------------------------------------------------------------------------------
 
@@ -173,6 +165,20 @@ namespace moris
              * loads an ascii file and creates vertex and facet objects
              * Facets are either lines in 2D or triangles in 3D
              */
+            Matrix< DDRMat >
+            load_vertices_from_object_file( const std::string& aFilePath, const Vector< real >& aOffsets, const Vector< real >& aScale );
+
+            //-------------------------------------------------------------------------------
+
+            /**
+             * loads an ascii file and creates vertex and facet objects
+             * Facets are either lines in 2D or triangles in 3D
+             */
+            Vector< Vector< moris_index > >
+            load_facets_from_object_file( const std::string& aFilePath );
+
+            //-------------------------------------------------------------------------------
+
             void
             load_from_object_file( const std::string& aFilePath, const Vector< real >& aOffsets, const Vector< real >& aScale );
 

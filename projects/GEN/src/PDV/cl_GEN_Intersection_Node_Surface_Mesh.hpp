@@ -25,7 +25,7 @@ namespace moris::gen
     class Intersection_Node_Surface_Mesh : public Intersection_Node
     {
       private:
-        sdf::Facet* mParentFacet;    // Pointer to the facet that intersected the edge to create this intersection node
+        uint mParentFacet;    // Index of the facet that intersected the edge to create this intersection node
 
       protected:
         Surface_Mesh_Geometry& mInterfaceGeometry;
@@ -48,7 +48,7 @@ namespace moris::gen
                 const Parent_Node&                aFirstParentNode,
                 const Parent_Node&                aSecondParentNode,
                 real                              aLocalCoordinate,
-                sdf::Facet*                       aParentFacet,
+                uint                              aParentFacet,
                 mtk::Geometry_Type                aBackgroundGeometryType,
                 mtk::Interpolation_Order          aBackgroundInterpolationOrder,
                 Surface_Mesh_Geometry&            aInterfaceGeometry );

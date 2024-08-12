@@ -567,6 +567,7 @@ namespace moris::gen
             mtk::Mesh_Pair    aMeshPair,
             sol::Dist_Vector* aOwnedADVs )
     {
+        std::cout << aMeshPair.get_interpolation_mesh()->get_num_nodes(); // brendan
 
         if ( mSharedADVIDs.size() == 0 )
         {
@@ -589,6 +590,7 @@ namespace moris::gen
             mtk::Mesh_Pair                aMeshPair,
             sol::Dist_Vector*             aOwnedADVs )
     {
+        std::cout << aMeshPair.get_interpolation_mesh()->get_num_nodes(); // brendan
 
         if ( aMTKField->get_label() == this->get_name() )
         {

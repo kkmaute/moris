@@ -15,6 +15,7 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "SDF_Tools.hpp"
+#include "cl_MTK_Enums.hpp"
 
 #include "cl_MTK_Vertex.hpp"
 
@@ -40,7 +41,7 @@ namespace moris
             const moris_index mIndex;
 
             //! flag telling if vertex is inside
-            Object_Region mRegion = Object_Region::UNSURE;
+            mtk::Mesh_Region mRegion = mtk::Mesh_Region::UNDEFINED;
 
             //! flag telling if an SDF has been calculated for this vertex
             bool mHasSDF = false;
@@ -94,14 +95,14 @@ namespace moris
             // -----------------------------------------------------------------------------
 
             void
-            set_region( const Object_Region aRegion )
+            set_region( const mtk::Mesh_Region aRegion )
             {
                 mRegion = aRegion;
             }
 
             // -----------------------------------------------------------------------------
 
-            Object_Region get_region() const
+            mtk::Mesh_Region get_region() const
             {
                 return mRegion;
             }
@@ -196,7 +197,7 @@ namespace moris
                 mFlag         = true;
                 mSDF          = std::numeric_limits< real >::max();
                 mClosestFacet = nullptr;
-                mRegion       = Object_Region::UNSURE;
+                mRegion       = mtk::Mesh_Region::UNDEFINED;
             }
 
             // -----------------------------------------------------------------------------
@@ -292,7 +293,7 @@ namespace moris
             real
             get_sdf() const
             {
-                if ( mRegion == Object_Region::INSIDE )
+                if ( mRegion == mtk::Mesh_Region::INSIDE )
                 {
                     return -mSDF;
                 }

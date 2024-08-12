@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "fn_SDF_Raycast.hpp"
+#include "cl_SDF_Object.hpp"
 
 #include "cl_GEN_Design_Field.hpp"
 #include "cl_GEN_Field.hpp"
@@ -45,7 +45,7 @@ namespace moris::gen
     };
 
     class Surface_Mesh_Geometry : public Geometry
-            , public sdf::Object
+            , public sdf::Object // FIXME: remove sdf::Object inheritance
     {
       private:
         bool mBasesComputed = false;
@@ -129,7 +129,7 @@ namespace moris::gen
                 const Vector< Background_Node* >& aBackgroundNodes,
                 const Parent_Node&                aFirstParentNode,
                 const Parent_Node&                aSecondParentNode,
-                sdf::Facet*&                      aParentFacet );
+                uint&                             aParentFacet );
 
         /**
          *
@@ -309,6 +309,14 @@ namespace moris::gen
             return this->Geometry::get_intersection_tolerance();
         }
 
+        /**
+         * Gets the center of the facet at the given local index
+         *
+         * @param aFacetIndex local index of the facet in the surface mesh
+         * @return Matrix< DDRMat > center of the facet
+         */
+       Matrix< DDRMat > get_facet_center( uint aFacetIndex );
+        
         /**
          * Gets the basis functions for the specified vertex
          *

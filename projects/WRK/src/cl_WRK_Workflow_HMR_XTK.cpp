@@ -192,6 +192,7 @@ namespace moris
             {
                 // retrieve the mesh pair
                 const mtk::Mesh_Pair& tMeshPair = mPerformerManager->mMTKPerformer( 0 )->get_mesh_pair( 0 );
+                std::cout << tMeshPair.get_interpolation_mesh()->get_num_nodes() << std::endl; // brendan
 
                 // initialize GEN
                 std::shared_ptr< gen::Geometry_Engine > tGeometryEngine = mPerformerManager->mGENPerformer( 0 );
@@ -231,8 +232,13 @@ namespace moris
             // Stage *: Re-initialization of the adv field
             if ( mPerformerManager->mReinitializePerformer.size() > 0 )
             {
+                std::cout << mPerformerManager->mMTKPerformer( 0 )->get_mesh_pair( 0 ).get_interpolation_mesh()->get_num_nodes() << std::endl; /// brendan
+                
                 // decide if the re-initialization would be required
                 sint tReinitFreq = mPerformerManager->mReinitializePerformer( 0 )->get_reinitialization_frequency();
+
+                std::cout << mPerformerManager->mMTKPerformer( 0 )->get_mesh_pair( 0 ).get_interpolation_mesh()->get_num_nodes() << std::endl; /// brendan
+
 
                 if ( tOptIter > 0 and tOptIter % tReinitFreq == 0 )
                 {
@@ -242,6 +248,9 @@ namespace moris
                     mPerformerManager->mGENPerformer( 0 )->distribute_advs(
                             mPerformerManager->mMTKPerformer( 0 )->get_mesh_pair( 0 ),
                             mPerformerManager->mReinitializePerformer( 0 )->get_mtk_fields() );
+
+                std::cout << mPerformerManager->mMTKPerformer( 0 )->get_mesh_pair( 0 ).get_interpolation_mesh()->get_num_nodes() << std::endl; /// brendan
+
 
                     // get advs from GE and overwrite them
                     aNewADVs = mPerformerManager->mGENPerformer( 0 )->get_advs();
@@ -254,6 +263,8 @@ namespace moris
             else
             {
                 // Set new advs in GE
+                std::cout << mPerformerManager->mMTKPerformer( 0 )->get_mesh_pair( 0 ).get_interpolation_mesh()->get_num_nodes() << std::endl; /// brendan
+
                 mPerformerManager->mGENPerformer( 0 )->set_advs( aNewADVs );
             }
 

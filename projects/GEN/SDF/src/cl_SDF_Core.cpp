@@ -13,6 +13,7 @@
 #include "cl_Stopwatch.hpp"
 #include "cl_Communication_Tools.hpp"
 #include "SDF_Tools.hpp"
+#include "cl_MTK_Enums.hpp"
 #include "cl_SDF_Core.hpp"
 #include "cl_Tracer.hpp"
 #include "fn_sort.hpp"
@@ -142,9 +143,8 @@ namespace moris
                 const Matrix< DDRMat >& tPoint = mMesh.get_node_coordinate( iNodeIndex );
 
                 // raycast on this point until the point is determined
-                mMesh.get_vertex( iNodeIndex )->set_region( raycast_point( mObject, tPoint ) );
+                mMesh.get_vertex( iNodeIndex )->set_region( static_cast< mtk::Mesh_Region >( mObject.raycast_point( tPoint ) ) );
             }
-
 
             this->calculate_candidate_points_and_buffer_diagonal();
         }
@@ -190,7 +190,7 @@ namespace moris
             Tracer tTracer( "SDF", "Compute UDF" );
 
             // get number of triangles
-            uint tNumberOfFacets = mObject.get_num_facets();
+            uint tNumberOfFacets = mObject.get_number_of_facets();
 
             // loop over all triangles
             for ( uint k = 0; k < tNumberOfFacets; ++k )
@@ -254,10 +254,10 @@ namespace moris
                 uint tNumberOfNodes = tNodes.size();
 
                 // get first sign
-                sdf::Object_Region tRegion = tNodes( 0 )->get_region();
+                mtk::Mesh_Region tRegion = tNodes( 0 )->get_region();
 
                 // assume element is not intersected
-                bool tIsIntersected = tRegion == Object_Region::INTERFACE;
+                bool tIsIntersected = tRegion == mtk::Mesh_Region::INTERFACE;
 
                 // loop over all other nodes
                 for ( uint k = 1; k < tNumberOfNodes; ++k )
@@ -298,7 +298,7 @@ namespace moris
                         tNodes( k )->set_candidate_flag();
                     }
                 }
-                else if ( tRegion == Object_Region::INSIDE )
+                else if ( tRegion == mtk::Mesh_Region::INSIDE )
                 {
                     // flag this element as volume element
                     tElement->unset_surface_flag();
@@ -562,7 +562,7 @@ namespace moris
                     // write value
                     aSDF( tVertex->get_index() ) = tSDF;
 
-                    if ( tVertex->get_region() == Object_Region::INSIDE )
+                    if ( tVertex->get_region() == mtk::Mesh_Region::INSIDE )
                     {
                         tMinSDF = std::min( tMinSDF, tSDF );
                     }
@@ -598,7 +598,7 @@ namespace moris
                 // test if vertex does not have an SDF
                 if ( !tVertex->has_sdf() )
                 {
-                    if ( tVertex->get_region() == Object_Region::INSIDE )
+                    if ( tVertex->get_region() == mtk::Mesh_Region::INSIDE )
                     {
                         aSDF( tVertex->get_index() ) = tMinSDF;
                     }
@@ -799,7 +799,7 @@ namespace moris
             tFile << "LOOKUP_TABLE default" << std::endl;
             for ( uint k = 0; k < tNumberOfNodes; ++k )
             {
-                if ( mMesh.get_vertex( k )->get_region() == Object_Region::INSIDE )
+                if ( mMesh.get_vertex( k )->get_region() == mtk::Mesh_Region::INSIDE )
                 {
                     tIChar = swap_byte_endian( (int)1 );
                 }
@@ -993,7 +993,7 @@ namespace moris
                 {
                     tIChar = swap_byte_endian( (int)0 );
                 }
-                else if ( mMesh.get_vertex( k )->get_region() == Object_Region::INSIDE )
+                else if ( mMesh.get_vertex( k )->get_region() == mtk::Mesh_Region::INSIDE )
                 {
                     tIChar = swap_byte_endian( (int)-1 );
                 }

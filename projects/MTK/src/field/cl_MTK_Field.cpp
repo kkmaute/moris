@@ -51,6 +51,7 @@ namespace moris
             if ( mFieldEntityType == Field_Entity_Type::NODAL )
             {
                 // size matrix of nodal values
+                std::cout << mMeshPair.get_interpolation_mesh()->get_num_nodes() << std::endl; // brendan
                 mValues.set_size( tIPmesh->get_num_nodes(), mNumberOfFields, MORIS_REAL_MIN );
             }
             else if ( mFieldEntityType == Field_Entity_Type::ELEMENTAL )

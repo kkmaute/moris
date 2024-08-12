@@ -4,7 +4,7 @@
  *
  * ------------------------------------------------------------------------------------
  *
- * cl_MTK_QuadraturePointMapper_Ray_ArborX_Details.hpp
+ * fn_MTK_QuadraturePointMapper_Ray_ArborX_Details.hpp
  *
  */
 #pragma once
@@ -25,6 +25,12 @@
 #include <unordered_map>
 
 using moris::moris_index;
+
+// Forward declare surface mesh class
+namespace moris::mtk
+{
+    class Surface_Mesh;
+}
 
 namespace moris::mtk::arborx
 {
@@ -79,7 +85,7 @@ namespace moris::mtk::arborx
     struct QueryRays
     {
         explicit QueryRays( Kokkos::View< ArborX::Experimental::Ray *, MemorySpace > aRays,
-                Kokkos::View< moris_index *, MemorySpace >                           aCellIndices )
+                Kokkos::View< moris_index *, MemorySpace >                           aCellIndices = {} )
                 : mRays( aRays )
                 , mCellIndices( aCellIndices )
         {
@@ -134,7 +140,7 @@ namespace moris::mtk::arborx
             //            std::cout << "Intersection found between ray " << predicate_index << " (" << tRayCellIndex << ") and box " << primitive_index << " (" << tBocCellIndex << " on mesh " << tBoxMeshIndex << ")" << std::endl;
             out( QueryResult{ tPointIndex, primitive_index } );
         }
-        QueryBoxes< MemorySpace > mQueryBoxes;    // TODO @ff: Not used. Remove?
+        // QueryBoxes< MemorySpace > mQueryBoxes;    // TODO @ff: Not used. Remove? brendan
         QueryRays< MemorySpace >  mQueryRays;
     };
 

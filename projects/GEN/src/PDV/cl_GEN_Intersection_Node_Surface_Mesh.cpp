@@ -25,7 +25,7 @@ namespace moris::gen
             const Parent_Node&                aFirstParentNode,
             const Parent_Node&                aSecondParentNode,
             real                              aLocalCoordinate,
-            sdf::Facet*                       aParentFacet,
+            uint                              aParentFacet,
             mtk::Geometry_Type                aBackgroundGeometryType,
             mtk::Interpolation_Order          aBackgroundInterpolationOrder,
             Surface_Mesh_Geometry&            aInterfaceGeometry )
@@ -112,7 +112,7 @@ namespace moris::gen
 
     bool Intersection_Node_Surface_Mesh::depends_on_advs() const
     {
-        Matrix< IndexMat > tFacetVertexIndices = mParentFacet->get_vertex_inds();
+        Vector< moris_index > tFacetVertexIndices = mInterfaceGeometry.get_facets_vertex_indices( mParentFacet );
 
         // Return true if either parent node depends on advs, or any of the parent facet's vertices depend on advs
         return this->get_first_parent_node().depends_on_advs()
@@ -135,13 +135,13 @@ namespace moris::gen
         Matrix< DDRMat > tRotationMatrix = this->get_rotation_matrix();
 
         // Get the facet vertices
-        Matrix< DDRMat > tVertexCoordinates = mParentFacet->get_vertex_coords();
+        Matrix< DDRMat > tVertexCoordinates = mInterfaceGeometry.get_all_vertex_coordinates_of_facet( mParentFacet );
 
         // get the normal vector rotated in the local coordinate frame
-        Matrix< DDRMat > tNormalPrime = tRotationMatrix * mParentFacet->get_normal();
+        Matrix< DDRMat > tNormalPrime = tRotationMatrix * mInterfaceGeometry.get_facet_normal( mParentFacet );
 
         // get the center vector in the local coordinate frame
-        Matrix< DDRMat > tCenterPrime = 2.0 / tParentVectorNorm * tRotationMatrix * ( mParentFacet->get_center() - trans( this->get_first_parent_node().get_global_coordinates() ) );
+        Matrix< DDRMat > tCenterPrime = 2.0 / tParentVectorNorm * tRotationMatrix * ( mInterfaceGeometry.get_facet_center( mParentFacet ) - trans( this->get_first_parent_node().get_global_coordinates() ) );
 
         // get the jacobian of the center vector wrt to the facet vertices (same for all vertices)
         Matrix< DDRMat > tdCenterdVertices = 2.0 / ( (real)mInterfaceGeometry.get_dimension() * tParentVectorNorm ) * tRotationMatrix;
@@ -186,7 +186,7 @@ namespace moris::gen
 
                 for ( uint iDimension = 0; iDimension < 3; iDimension++ )
                 {
-                    tNormalVectorSensitivities( iDimension ) = tRotationMatrix / tNormalVectorNorm * ( tNormalVectorSensitivities( iDimension ) - mParentFacet->get_normal() / tNormalVectorNorm * tNormalVectorNormSensitivity( iDimension ) );
+                    tNormalVectorSensitivities( iDimension ) = tRotationMatrix / tNormalVectorNorm * ( tNormalVectorSensitivities( iDimension ) - mInterfaceGeometry.get_facet_normal( mParentFacet ) / tNormalVectorNorm * tNormalVectorNormSensitivity( iDimension ) );
                 }
 
                 break;
@@ -226,7 +226,7 @@ namespace moris::gen
         uint tLocalFacetVertexIndex = 0;
 
         // Loop over the facet parents
-        for ( uint iParentFacetVertexIndex : mParentFacet->get_vertex_inds() )
+        for ( moris_index iParentFacetVertexIndex : mInterfaceGeometry.get_facets_vertex_indices( mParentFacet ) )
         {
             if ( mInterfaceGeometry.facet_vertex_depends_on_advs( iParentFacetVertexIndex ) )
             {
@@ -278,7 +278,7 @@ namespace moris::gen
         Vector< sint > tCoordinateDeterminingADVIDs;
 
         // Get ADV IDs from facet parents
-        for ( uint tParentFacetVertex : mParentFacet->get_vertex_inds() )
+        for ( moris_index tParentFacetVertex : mInterfaceGeometry.get_facets_vertex_indices( mParentFacet ) )
         {
             if ( mInterfaceGeometry.facet_vertex_depends_on_advs( tParentFacetVertex ) )
             {    // Get the IDs for this vertex

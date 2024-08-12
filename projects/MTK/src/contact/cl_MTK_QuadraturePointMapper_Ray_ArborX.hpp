@@ -9,7 +9,7 @@
  */
 #pragma once
 #include "cl_MTK_QuadraturePointMapper_Ray.hpp"
-#include "cl_MTK_QuadraturePointMapper_Ray_ArborX_Details.hpp"
+#include "fn_MTK_QuadraturePointMapper_Ray_ArborX_Details.hpp"
 
 namespace moris::mtk
 {

@@ -308,6 +308,19 @@ namespace moris::mtk
     };
 
     /**
+     * @brief Possible regions for surface meshes
+     * 
+     */
+    enum Mesh_Region
+    {
+        OUTSIDE,
+        INSIDE,
+        INTERFACE,
+        UNDEFINED,
+        END_ENUM
+    };
+
+    /**
      * Gets the map that can be used to go from a parameter list value to the internal enum Field_Entity_Type
      *
      * @return map from std::string to mtk::Field_Entity_Type
