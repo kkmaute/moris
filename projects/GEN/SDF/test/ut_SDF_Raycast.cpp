@@ -58,6 +58,9 @@ namespace moris::sdf
                 // Tolerance for results
                 real tEpsilon = 1e-8;
 
+                // number of random rays to cast to check result
+                uint tNumRays = 100;
+
                 // create triangle object from object file
                 std::string tObjectPath = tMorisRoot + "projects/GEN/SDF/test/data/tetrahedron.obj";
                 Object      tObject( tObjectPath );
@@ -69,7 +72,7 @@ namespace moris::sdf
                 Matrix< DDRMat > tDirection = { { 1.0 }, { 0.0 }, { 0.0 } };
 
                 // preselect in x direction and ensure they are correct
-                Vector< uint > tCandidatesExpected = { 0, 1, 2 };
+                Vector< uint > tCandidatesExpected = { 1, 0, 2 };
                 Vector< uint > tCandidateTriangles = tObject.preselect_with_arborx( tTestPoint, tDirection );
 
                 REQUIRE( tCandidateTriangles.size() == 3 );
@@ -80,7 +83,7 @@ namespace moris::sdf
 
                 // repeat for y direction
                 tDirection          = { { 0.0 }, { 1.0 }, { 0.0 } };
-                tCandidatesExpected = { 0, 1 };
+                tCandidatesExpected = { 1, 0 };
                 tCandidateTriangles = tObject.preselect_with_arborx( tTestPoint, tDirection );
 
                 REQUIRE( tCandidateTriangles.size() == 2 );
@@ -89,38 +92,40 @@ namespace moris::sdf
                 CHECK( tCandidatesExpected( 1 ) == tCandidateTriangles( 1 ) );
 
                 // repeat for z direction
-                tCandidatesExpected = { 0, 1, 3 };
+                tDirection          = { { 0.0 }, { 0.0 }, { 1.0 } };
+                tCandidatesExpected = { 1, 0 };
                 tCandidateTriangles = tObject.preselect_with_arborx( tTestPoint, tDirection );
                 // tPreselection       = preselect_triangles( tObject, tTestPoint, 2, tCandidateTriangles ); brendan
 
                 // Check the preselection results
-                REQUIRE( tCandidateTriangles.size() == 3 );
+                REQUIRE( tCandidateTriangles.size() == 2 );
                 // REQUIRE( tPreselection == Preselection_Result::SUCCESS ); brendan
                 CHECK( tCandidatesExpected( 0 ) == tCandidateTriangles( 0 ) );
                 CHECK( tCandidatesExpected( 1 ) == tCandidateTriangles( 1 ) );
-                CHECK( tCandidatesExpected( 2 ) == tCandidateTriangles( 2 ) );
 
                 // check moller trumbore algorithm for proper intersection location and parent facet determination
-                Vector< real > tIntersectionCoordinatesExpected = { 0.408248, 0.88055613061054816 };
+                Vector< real > tIntersectionCoordinatesExpected = { 0.1805561306105482 };
 
-                Vector< real > tIntersections( 3 );
-                for ( uint iCandidate : tCandidateTriangles )
+                Vector< real > tIntersections( 2 );
+                for ( uint iCandidate = 0; iCandidate < 2; ++iCandidate )
                 {
-                    tIntersections( iCandidate ) = tObject.moller_trumbore( iCandidate, tTestPoint, tDirection );
+                    tIntersections( iCandidate ) = tObject.moller_trumbore( tCandidateTriangles( iCandidate ), tTestPoint, tDirection );
                 }
-                CHECK( std::abs( tIntersections( 0 ) - tIntersectionCoordinatesExpected( 0 ) ) < tEpsilon );
-                CHECK( std::abs( tIntersections( 1 ) - tIntersectionCoordinatesExpected( 1 ) ) < tEpsilon );
-                CHECK( std::isnan( tIntersections( 2 ) ) );    // this triangle should not intersect, throwing a nan
+                CHECK( std::isnan( tIntersections( 0 ) ) );
+                CHECK( std::abs( tIntersections( 1 ) - tIntersectionCoordinatesExpected( 0 ) ) < tEpsilon );
 
                 // check if the point is inside and compare it to expectations
                 // mtk::mtk::Mesh_Region tPointIsInside = check_if_node_is_inside_triangles( tIntersections, tTestPoint, 2, 1e-8 );
 
                 // CHECK( tPointIsInside == INSIDE );
 
-                // check with the full raycast algorithm and see if they match
-                mtk::Mesh_Region tPointIsInside = tObject.raycast_point( tTestPoint );
-
-                CHECK( tPointIsInside == mtk::Mesh_Region::INSIDE );
+                // cast a bunch of random rays and ensure they all return the correct result
+                mtk::Mesh_Region tPointIsInside;
+                for ( uint i = 0; i < tNumRays; i++ )
+                {
+                    tPointIsInside = tObject.raycast_point( tTestPoint );
+                    REQUIRE( tPointIsInside == mtk::Mesh_Region::INSIDE );
+                }
 
                 // repeat test for point that is outside
                 tTestPoint = { { 0.2, 0.6, 0.7 } };
@@ -132,7 +137,7 @@ namespace moris::sdf
 
                 REQUIRE( tCandidateTriangles.size() == 0 );
 
-                tCandidatesExpected = { 0, 1, 2 };
+                tCandidatesExpected = { 1, 0, 2 };
                 tDirection          = { { 1.0 }, { 0.0 }, { 0.0 } };
                 tCandidateTriangles = tObject.preselect_with_arborx( tTestPoint, tDirection );
 
@@ -142,9 +147,9 @@ namespace moris::sdf
                 CHECK( tCandidateTriangles( 2 ) == tCandidatesExpected( 2 ) );
 
                 tIntersections.resize( 3 );
-                for ( uint iCandidate : tCandidateTriangles )
+                for ( uint iCandidate = 0; iCandidate < 3; ++iCandidate )
                 {
-                    tIntersections( iCandidate ) = tObject.moller_trumbore( iCandidate, tTestPoint, tDirection );
+                    tIntersections( iCandidate ) = tObject.moller_trumbore( tCandidateTriangles( iCandidate ), tTestPoint, tDirection );
                 }
 
                 // tIntersectedTriangles           = intersect_triangles( tCandidateTriangles, tObject, tTestPoint, 0 );
@@ -156,18 +161,18 @@ namespace moris::sdf
                 // although two facets are intersected, one of them should produce an error and be removed
                 // tIntersectionCoordinates         = intersect_ray_with_facets( tIntersectedTriangles, tTestPoint, 0, Preselection_Result::SUCCESS );
 
-                REQUIRE( tIntersections.size() == 2 );
-                CHECK( std::abs( std::isnan( tIntersections( 0 ) ) ) );
-                CHECK( std::abs( tIntersections( 1 ) - tIntersectionCoordinatesExpected( 0 ) ) < tEpsilon );
+                CHECK( std::abs( tIntersections( 0 ) - tIntersectionCoordinatesExpected( 0 ) ) < tEpsilon );
+                CHECK( std::isnan( tIntersections( 1 ) ) );
                 CHECK( std::abs( tIntersections( 2 ) - tIntersectionCoordinatesExpected( 1 ) ) < tEpsilon );
 
                 // tPointIsInside = check_if_node_is_inside_triangles( tIntersections, tTestPoint, 0, 1e-8 );
 
                 // CHECK( tPointIsInside == OUTSIDE );
-
-                tPointIsInside = tObject.raycast_point( tTestPoint );
-
-                CHECK( tPointIsInside == mtk::Mesh_Region::OUTSIDE );
+                for ( uint i = 0; i < tNumRays; i++ )
+                {
+                    tPointIsInside = tObject.raycast_point( tTestPoint );
+                    REQUIRE( tPointIsInside == mtk::Mesh_Region::OUTSIDE );
+                }
             }
             SECTION( "SDF: Raycast Free Function Test - 2D" )
             {
@@ -197,7 +202,7 @@ namespace moris::sdf
                 Vector< uint > tCandidateLines           = tObject.preselect_with_arborx( tTestPoint, tDirection );
                 Vector< uint > tIntersectedLinesExpected = { 2, 3 };
 
-                REQUIRE( tCandidateLines.size() == 1 );
+                REQUIRE( tCandidateLines.size() == 2 );
                 CHECK( tCandidateLines( 0 ) == tIntersectedLinesExpected( 0 ) );
                 CHECK( tCandidateLines( 0 ) == tIntersectedLinesExpected( 1 ) );
 
