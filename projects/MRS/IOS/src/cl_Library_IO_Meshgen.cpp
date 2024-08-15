@@ -622,8 +622,12 @@ namespace moris
                             "Number of entries in 'Normal' vector does not match number of spatial dimensions for the 'plane'." );
 
                     // set the parameters in the GEN parameter list
-                    Vector< real > tConstantParameters = string_to_cell< real >( tPoint + "," + tNormal );
-                    tGenParamList( 1 )( iGeom ).set( "constant_parameters", tConstantParameters );
+                    Vector< real > tPointVector = string_to_cell< real >( tPoint );
+                    Vector< real > tNormalVector = string_to_cell< real >( tNormal );
+                    tGenParamList( 1 )( iGeom ).set( "center_x", tPointVector( 0 ) );
+                    tGenParamList( 1 )( iGeom ).set( "center_y" , tPointVector( 1 ) );
+                    tGenParamList( 1 )( iGeom ).set( "normal_x", tNormalVector( 0 ) );
+                    tGenParamList( 1 )( iGeom ).set( "normal_y" , tNormalVector( 1 ) );
                 }
 
                 // -------------------------------- //
@@ -654,8 +658,10 @@ namespace moris
                             "All planes must have a parameter 'Radius' specified of format e.g.: '5.6'" );
 
                     // set the parameters in the GEN parameter list
-                    Vector< real > tConstantParameters = string_to_cell< real >( tPoint + "," + tRadius );
-                    tGenParamList( 1 )( iGeom ).set( "constant_parameters", tConstantParameters );
+                    Vector< real > tPointVector = string_to_cell< real >( tPoint );
+                    tGenParamList( 1 )( iGeom ).set( "center_x", tPointVector( 0 ) );
+                    tGenParamList( 1 )( iGeom ).set( "center_y" , tPointVector( 1 ) );
+                    tGenParamList( 1 )( iGeom ).set( "radius", std::stod( tRadius ) );
                 }
 
                 // -------------------------------- //
@@ -696,8 +702,13 @@ namespace moris
                     if ( tExponent == "" ) { tExponent = "2.0"; };
 
                     // set the parameters in the GEN parameter list
-                    Vector< real > tConstantParameters = string_to_cell< real >( tPoint + "," + tSemiDiameters + "," + tExponent + ",1.0,0.0,0.0" );
-                    tGenParamList( 1 )( iGeom ).set( "constant_parameters", tConstantParameters );
+                    Vector< real > tPointVector = string_to_cell< real >( tPoint );
+                    Vector< real > tSemidiameterVector = string_to_cell< real >( tSemiDiameters );
+                    tGenParamList( 1 )( iGeom ).set( "center_x", tPointVector( 0 ) );
+                    tGenParamList( 1 )( iGeom ).set( "center_y" , tPointVector( 1 ) );
+                    tGenParamList( 1 )( iGeom ).set( "semidiameter_x", tSemidiameterVector( 0 ) );
+                    tGenParamList( 1 )( iGeom ).set( "semidiameter_y" , tSemidiameterVector( 1 ) );
+                    tGenParamList( 1 )( iGeom ).set( "exponent", std::stod( tExponent ) );
                 }
 
                 else if ( tPreDefGeom == "plane" )
@@ -730,8 +741,14 @@ namespace moris
                             "Number of entries in 'Normal' vector does not match number of spatial dimensions for the 'plane'." );
 
                     // set the parameters in the GEN parameter list
-                    Vector< real > tConstantParameters = string_to_cell< real >( tPoint + "," + tNormal );
-                    tGenParamList( 1 )( iGeom ).set( "constant_parameters", tConstantParameters );
+                    Vector< real > tPointVector = string_to_cell< real >( tPoint );
+                    Vector< real > tNormalVector = string_to_cell< real >( tNormal );
+                    tGenParamList( 1 )( iGeom ).set( "center_x", tPointVector( 0 ) );
+                    tGenParamList( 1 )( iGeom ).set( "center_y" , tPointVector( 1 ) );
+                    tGenParamList( 1 )( iGeom ).set( "center_z" , tPointVector( 2 ) );
+                    tGenParamList( 1 )( iGeom ).set( "normal_x", tNormalVector( 0 ) );
+                    tGenParamList( 1 )( iGeom ).set( "normal_y" , tNormalVector( 1 ) );
+                    tGenParamList( 1 )( iGeom ).set( "normal_z" , tNormalVector( 2 ) );
                 }
 
                 // -------------------------------- //
@@ -767,8 +784,11 @@ namespace moris
                             "All planes must have a parameter 'Radius' specified of format e.g.: '5.6'" );
 
                     // set the parameters in the GEN parameter list
-                    Vector< real > tConstantParameters = string_to_cell< real >( tPoint + "," + tRadius );
-                    tGenParamList( 1 )( iGeom ).set( "constant_parameters", tConstantParameters );
+                    Vector< real > tPointVector = string_to_cell< real >( tPoint );
+                    tGenParamList( 1 )( iGeom ).set( "center_x", tPointVector( 0 ) );
+                    tGenParamList( 1 )( iGeom ).set( "center_y" , tPointVector( 1 ) );
+                    tGenParamList( 1 )( iGeom ).set( "center_z" , tPointVector( 2 ) );
+                    tGenParamList( 1 )( iGeom ).set( "radius", std::stod( tRadius ) );
                 }
 
                 // -------------------------------- //
@@ -814,8 +834,15 @@ namespace moris
                     if ( tExponent == "" ) { tExponent = "2.0"; };
 
                     // set the parameters in the GEN parameter list
-                    Vector< real > tConstantParameters = string_to_cell< real >( tPoint + "," + tSemiDiameters + "," + tExponent );
-                    tGenParamList( 1 )( iGeom ).set( "constant_parameters", tConstantParameters );
+                    Vector< real > tPointVector = string_to_cell< real >( tPoint );
+                    Vector< real > tSemidiameterVector = string_to_cell< real >( tSemiDiameters );
+                    tGenParamList( 1 )( iGeom ).set( "center_x", tPointVector( 0 ) );
+                    tGenParamList( 1 )( iGeom ).set( "center_y" , tPointVector( 1 ) );
+                    tGenParamList( 1 )( iGeom ).set( "center_z" , tPointVector( 2 ) );
+                    tGenParamList( 1 )( iGeom ).set( "semidiameter_x", tSemidiameterVector( 0 ) );
+                    tGenParamList( 1 )( iGeom ).set( "semidiameter_y" , tSemidiameterVector( 1 ) );
+                    tGenParamList( 1 )( iGeom ).set( "semidiameter_z" , tSemidiameterVector( 2 ) );
+                    tGenParamList( 1 )( iGeom ).set( "exponent", std::stod( tExponent ) );
                 }
 
                 // -------------------------------- //

@@ -75,7 +75,10 @@ namespace moris::xtk
             tGENParams( 1 )( tGeoCounter ).set( "isocontour_threshold", 1e-16 );
             tGENParams( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1e-12 );
             tGENParams( 1 )( tGeoCounter ).set( "intersection_tolerance", 1e-12 );
-            tGENParams( 1 )( tGeoCounter ).set( "constant_parameters", 0.0, tOffset, tXNormal, tYNormal );
+            tGENParams( 1 )( tGeoCounter ).set( "center_x", 0.0 );
+            tGENParams( 1 )( tGeoCounter ).set( "center_y", tOffset );
+            tGENParams( 1 )( tGeoCounter ).set( "normal_x", tXNormal );
+            tGENParams( 1 )( tGeoCounter ).set( "normal_y", tYNormal );
             tGENParams( 1 )( tGeoCounter ).set( "use_multilinear_interpolation", tBilinear );
             tGeoCounter++;
 
@@ -84,7 +87,10 @@ namespace moris::xtk
             tGENParams( 1 )( tGeoCounter ).set( "isocontour_threshold", 1e-16 );
             tGENParams( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1e-12 );
             tGENParams( 1 )( tGeoCounter ).set( "intersection_tolerance", 1e-12 );
-            tGENParams( 1 )( tGeoCounter ).set( "constant_parameters", -0.5, 0.0, 1.0, 0.0 );
+            tGENParams( 1 )( tGeoCounter ).set( "center_x", -0.5 );
+            tGENParams( 1 )( tGeoCounter ).set( "center_y", 0.0 );
+            tGENParams( 1 )( tGeoCounter ).set( "normal_x", 1.0 );
+            tGENParams( 1 )( tGeoCounter ).set( "normal_y", 0.0 );
             tGENParams( 1 )( tGeoCounter ).set( "use_multilinear_interpolation", tBilinear );
             tGeoCounter++;
 
@@ -93,7 +99,10 @@ namespace moris::xtk
             tGENParams( 1 )( tGeoCounter ).set( "isocontour_threshold", 1e-16 );
             tGENParams( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1e-12 );
             tGENParams( 1 )( tGeoCounter ).set( "intersection_tolerance", 1e-12 );
-            tGENParams( 1 )( tGeoCounter ).set( "constant_parameters", 1.0, 0.0, 1.0, 0.0 );
+            tGENParams( 1 )( tGeoCounter ).set( "center_x", 1.0 );
+            tGENParams( 1 )( tGeoCounter ).set( "center_y", 0.0 );
+            tGENParams( 1 )( tGeoCounter ).set( "normal_x", 1.0 );
+            tGENParams( 1 )( tGeoCounter ).set( "normal_y", 0.0 );
             tGENParams( 1 )( tGeoCounter ).set( "use_multilinear_interpolation", tBilinear );
             tGeoCounter++;
 
