@@ -40,9 +40,6 @@
 
 #include "cl_Tracer.hpp"
 
-// debug
-#include "cl_Stopwatch.hpp"    //CHR/src
-
 using namespace moris;
 
 namespace moris::xtk
@@ -1362,11 +1359,6 @@ namespace moris::xtk
             moris_index const &           aEnrichmentDataIndex,
             Vector< moris_index > const & aMaxEnrichmentLevel )
     {
-
-// debug
-Tracer tTracer( "XTK", "Enrichment", "assign_enriched_coefficients_identifiers" );
-tic tTimer;
-
         // get number of non-enriched BFs,  it is assumed that the enrichment index is the mesh index
         uint tNumNonEnrichedBFs = mBackgroundMeshPtr->get_num_basis_functions( aEnrichmentDataIndex );
 
@@ -1512,11 +1504,6 @@ tic tTimer;
                 aEnrichmentDataIndex,
                 tNotOwnedEnrichedBasisId,
                 tBasisIndexToBasisOwner );
-
-// debug
-real tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
-std::cout << "Proc #" << par_rank() << ": assign_enriched_coefficients_identifiers took " << tElapsedTime / 1000.0 << " seconds." << std::endl;
-
     }
 
     //-------------------------------------------------------------------------------------

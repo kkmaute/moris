@@ -26,9 +26,6 @@
 #include "cl_XTK_Cell_No_CM.hpp"
 #include "fn_determine_cell_topology.hpp"
 
-// debug
-#include "cl_Stopwatch.hpp"    //CHR/src
-
 using namespace moris;
 
 namespace moris::xtk
@@ -2232,10 +2229,6 @@ namespace moris::xtk
     void
     Cut_Integration_Mesh::assign_controlled_ig_cell_ids()
     {
-
-// debug
-tic tTimer;
-
         // log this function when verbose output is requested
         Tracer tTracer( "XTK", "Cut Integration Mesh", "assign IG cell IDs", mXTKModel->mVerboseLevel, 1 );
 
@@ -2334,10 +2327,6 @@ tic tTimer;
             this->handle_requested_IG_cell_ID_answers( tNotOwnedIgCellGroups, tReceivedFirstIgCellIdsInCellGroups );
 
         }    // end if: parallel
-
-// debug
-real tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
-std::cout << "Proc #" << par_rank() << ": assign_controlled_ig_cell_ids took " << tElapsedTime / 1000.0 << " seconds." << std::endl;
 
     }    // end function: Cut_Integration_Mesh::assign_controlled_ig_cell_ids()
 

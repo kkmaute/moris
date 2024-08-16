@@ -18,9 +18,6 @@
 #include "fn_XTK_Multiset_Operations.hpp"
 #include "fn_stringify_matrix.hpp"
 
-// debug
-#include "cl_Stopwatch.hpp"    //CHR/src
-
 using namespace moris;
 namespace moris::xtk
 {
@@ -105,10 +102,6 @@ namespace moris::xtk
 
         Vector< mtk::Cell* > tActiveIgCells;
         extract_cells_from_cell_groups( tActiveIgCellGroups, tActiveIgCells );
-
-// debug
-std::cout << "Number of active IG cells: " << tActiveIgCells.size() << std::endl;
-std::cout << "Number of IG cells: " << tCutIntegrationMesh->get_num_elems() << std::endl;
 
         // create facet connectivity in the mesh
         std::shared_ptr< Facet_Based_Connectivity > tFaceConnectivity = std::make_shared< Facet_Based_Connectivity >();
@@ -1573,10 +1566,6 @@ std::cout << "Number of IG cells: " << tCutIntegrationMesh->get_num_elems() << s
             Cut_Integration_Mesh* aCutIntegrationMesh,
             mtk::Mesh*            aBackgroundMesh )
     {
-
-// debug
-tic tTimer;
-
         // log this function when verbose output is requested
         Tracer tTracer( "XTK", "Integration Mesh Generator", "assign subphase IDs", mXTKModel->mVerboseLevel, 1 );
 
@@ -1692,10 +1681,6 @@ tic tTimer;
 
         // setup map relating the sub-phase indices on this processor to their IDs
         aCutIntegrationMesh->setup_glob_to_loc_subphase_map();
-
-// debug
-real tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
-std::cout << "Proc #" << par_rank() << ": assign_subphase_glob_ids took " << tElapsedTime / 1000.0 << " seconds." << std::endl;
 
     }    // end function: Cut_Integration_Mesh::assign_subphase_glob_ids()
 
@@ -2676,9 +2661,6 @@ std::cout << "Proc #" << par_rank() << ": assign_subphase_glob_ids took " << tEl
             Vector< Vector< uint > >&                       aVertexToFacet,         // list of facets (indices) attached to each vertex (by indexing in facet connectivity)
             Vector< Vector< mtk::Vertex* > >&               aFullFacetVertices )    // list of vertices attached to each facet
     {
-        // TODO: what does this function check?
-        // - checks if a facet made up by a list of vertices (aVerticesOnFacet) exists in the mesh
-        
         moris_index tFacetIndex = MORIS_INDEX_MAX;
 
         // number of vertices per facet
@@ -2764,9 +2746,6 @@ std::cout << "Proc #" << par_rank() << ": assign_subphase_glob_ids took " << tEl
         uint tNumCells = aCells.size();
         if ( tNumCells > 0 )
         {
-
-// debug
-tic tTimer1;
             // cell information
             mtk::Cell_Info const * tCellInfo = aCells( 0 )->get_cell_info();
 
@@ -2780,9 +2759,6 @@ tic tTimer1;
             uint                    tNumUsedVertices = 0;
             Vector< mtk::Vertex* >  tUsedVertices;
             Vector< moris_index >   tVertexIndexToLocalIndexMap( tNumVerticesInXtkMesh, MORIS_INDEX_MAX );
-
-            // TODO: replace this map with the vector above
-            // // std::unordered_map< moris_index, moris_index > tVertexIndexToLocalIndexMap;
 
             // reserve memory for list of vertex points
             tUsedVertices.reserve( tNumCells * tCellInfo->get_num_verts() );
@@ -2823,20 +2799,6 @@ tic tTimer1;
             // set size for cell to facet map
             aFaceConnectivity->mCellToFacet.resize( tNumCells );
 
-// debug - tVertexIndexToLocalIndexMap
-real tElapsedTime1 = tTimer1.toc< moris::chronos::milliseconds >().wall;
-std::cout << "Proc #" << par_rank() << ": Construction of the map took " << tElapsedTime1 / 1000.0 << " seconds." << std::endl;
-tic tTimer2;
-real tPushBackOperationTime = 0.0;
-real tFindOperationTime = 0.0;
-
-// TODO: construct these:
-// aFaceConnectivity->mCellToFacet             // local index of mtk::Cell -> list of facet-indices attached to it
-// aFaceConnectivity->mFacetToCell             // index of facet -> list of mtk::Cells (pointers) attached to facet
-// aFaceConnectivity->mFacetToCellEdgeOrdinal  // index of facet & how many-eth mtk::Cell attached to facet -> side ordinal (index) of this facet relative to this mtk::Cell
-// aFaceConnectivity->mFacetVertices           // index of facet -> list of vertices (pointers) living on facet
-// aFaceConnectivity->mCellIndexToCellOrdinal  // map relating Cell index in List to Cell index in Mesh
-
             // estimate how many facets there are in the mesh (most facets are shared between two elements, some are on the boundary and not shared )
             uint tEstNumFacets = std::floor( tNumCells * tNumFacesPerElem * ( 1.05 / 2.0 ) );
 
@@ -2857,10 +2819,6 @@ real tFindOperationTime = 0.0;
                 // get the current cell
                 mtk::Cell* tCellPtr = aCells( iCell );
                 moris_index tCellIndex = tCellPtr->get_index();
-
-                // // check that cell exits only once
-                // // MORIS_ERROR( aFaceConnectivity->mCellIndexToCellOrdinal.find( aCells( iCell )->get_index() ) == aFaceConnectivity->mCellIndexToCellOrdinal.end(),
-                // //         "Integration_Mesh_Generator::create_facet_from_element_to_node() - Duplicate cell in aCells provided" );
 
                 // set local cell index in map
                 aFaceConnectivity->mCellIndexToCellOrdinal[ tCellIndex ] = iCell;
@@ -2889,9 +2847,6 @@ real tFindOperationTime = 0.0;
                     // sort the vertices on the facet by their local index
                     std::sort( tLocalVertexIndicesOnFacet.data().begin(), tLocalVertexIndicesOnFacet.data().end() );
 
-// debug
-// tic tTimerFind;
-
                     // figure out if the facet exists and if so where
                     moris_index tFacetIndex = MORIS_INDEX_MAX;
                     Vector< moris_index > tFacetIndicesThisFacetCouldBe;
@@ -2908,9 +2863,6 @@ real tFindOperationTime = 0.0;
                             tFacetIndicesThisFacetCouldBe.resize( 0 );
                             break;
                         }
-
-                        // arrays need to be sorted for the set intersection algorithm to work // TODO: is this needed? The push-back operations onto the list happen as the facet indices ascend and therefore should be sorted from the get-go
-                        // std::sort( tFacetsThisVertexBelongsTo.begin(), tFacetsThisVertexBelongsTo.end() );
 
                         // if this is the first iteration, store the facets attached to the first vertex
                         if ( iVert == 0 )
@@ -2980,23 +2932,12 @@ real tFindOperationTime = 0.0;
                         }
 #endif
 
-                        // // if this is debug, check that the identified facet and the searched facet have the same vertices
-                        // MORIS_ASSERT(
-                        //         std::equal(
-                        //                 aFaceConnectivity->mFacetVertices( tFacetIndex ).begin(),
-                        //                 aFaceConnectivity->mFacetVertices( tFacetIndex ).end(),
-                        //                 tLocalVertexIndicesOnFacet.begin() ),
-                        //         "Integration_Mesh_Generator::create_facet_from_element_to_node() - Facet not correctly identified." );
                     }
                     else if ( tFacetIndicesThisFacetCouldBe.size() > 1 )
                     {
                         // if there are multiple facets that this facet could be, we have a problem
                         MORIS_ERROR( false, "Integration_Mesh_Generator::create_facet_from_element_to_node() - No unique facet index could be identified. Something went wrong." );
                     }
-
-// debug
-// tFindOperationTime += tTimerFind.toc< moris::chronos::milliseconds >().wall;
-// tic tTimerPushBack;
 
                     // add new facet if it doesn't exist already
                     if ( tFacetIndex == MORIS_INDEX_MAX )
@@ -3035,41 +2976,13 @@ real tFindOperationTime = 0.0;
                     aFaceConnectivity->mFacetToCell( tFacetIndex ).push_back( tCellPtr, 2 );
                     aFaceConnectivity->mFacetToCellEdgeOrdinal( tFacetIndex ).push_back( iFacet, 2 );
 
-// debug
-// tPushBackOperationTime += tTimerPushBack.toc< moris::chronos::milliseconds >().wall;
-
                 } // end for: each facet attached to the current IG cell
             } // end for: each IG cell in cut mesh
-
-// debug
-// tic tTimerShrink;
-// std::cout << "Originally estimated capacity: " << tEstNumFacets << std::endl;
-// std::cout << "aFaceConnectivity->mFacetVertices size: " << aFaceConnectivity->mFacetVertices.size() << std::endl;
-// std::cout << "aFaceConnectivity->mFacetVertices capacity: " << aFaceConnectivity->mFacetVertices.capacity() << std::endl;
-// std::cout << "aFaceConnectivity->mFacetToCell size: " << aFaceConnectivity->mFacetToCell.size() << std::endl;
-// std::cout << "aFaceConnectivity->mFacetToCell capacity: " << aFaceConnectivity->mFacetToCell.capacity() << std::endl;
-// std::cout << "aFaceConnectivity->mFacetToCellEdgeOrdinal size: " << aFaceConnectivity->mFacetToCellEdgeOrdinal.size() << std::endl;
-// std::cout << "aFaceConnectivity->mFacetToCellEdgeOrdinal capacity: " << aFaceConnectivity->mFacetToCellEdgeOrdinal.capacity() << std::endl;
 
             // trim outer cells
             aFaceConnectivity->mFacetVertices.shrink_to_fit();
             aFaceConnectivity->mFacetToCell.shrink_to_fit();
             aFaceConnectivity->mFacetToCellEdgeOrdinal.shrink_to_fit();
-
-            // // trim inner and outer cells
-            // // shrink_to_fit_all( aFaceConnectivity->mFacetVertices );
-            // // shrink_to_fit_all( aFaceConnectivity->mFacetToCell );
-            // // shrink_to_fit_all( aFaceConnectivity->mFacetToCellEdgeOrdinal );
-
-// debug
-// real tElapsedTimeShrink = tTimerShrink.toc< moris::chronos::milliseconds >().wall;
-// real tElapsedTime2 = tTimer2.toc< moris::chronos::milliseconds >().wall;
-// std::cout << "Actual facet creation took " << tElapsedTime2 / 1000.0 << " seconds." << std::endl;
-// std::cout << "Split into... " << std::endl;
-// std::cout << "Find operation: " << tFindOperationTime / 1000.0 << " seconds." << std::endl;
-// std::cout << "Push back operation: " << tPushBackOperationTime / 1000.0 << " seconds." << std::endl;
-// std::cout << "Shrink operation: " << tElapsedTimeShrink / 1000.0 << " seconds." << std::endl;
-// NOTE: testing shows this second part is much slower than the first part!
 
         } // end if: aCells.size() > 0
     } // end function: Integration_Mesh_Generator::create_facet_from_element_to_node()
@@ -4129,11 +4042,6 @@ real tFindOperationTime = 0.0;
             Cut_Integration_Mesh* aCutIntegrationMesh,
             mtk::Mesh*            aBackgroundMesh )
     {
-
-// debug
-Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Assign Node Requests Identifiers" );
-tic tTimer;
-
         moris_index tNodeIndex = aCutIntegrationMesh->get_first_available_index( mtk::EntityRank::NODE );
 
         for ( uint i = 0; i < aDecompData.tNewNodeIndex.size(); i++ )
@@ -4204,11 +4112,6 @@ tic tTimer;
         MORIS_ERROR( mXTKModel->verify_successful_node_assignment( aDecompData ),
                 "Integration_Mesh_Generator::assign_node_requests_identifiers() - "
                 "Unsuccessful node assignment detected." );
-
-// debug
-real tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
-std::cout << "Proc #" << par_rank() << ": Assigning node request identifiers took " << tElapsedTime / 1000.0 << " seconds." << std::endl;
-
     }
 
     // ----------------------------------------------------------------------------------
