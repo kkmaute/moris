@@ -24,6 +24,9 @@
 #include "fn_determine_cell_topology.hpp"
 #include <unordered_set>
 
+// debug
+#include "cl_Stopwatch.hpp"    //CHR/src
+
 namespace moris::xtk
 {
     Ghost_Stabilization::Ghost_Stabilization()
@@ -333,6 +336,10 @@ namespace moris::xtk
     void
     Ghost_Stabilization::identify_and_setup_aura_vertices_in_ghost( Ghost_Setup_Data& aGhostSetupData )
     {
+
+// debug
+tic tTimer;
+
         // log this function when verbose output is requested
         Tracer tTracer( "XTK", "Ghost", "identify and setup aura vertices in ghost" );
 
@@ -476,6 +483,10 @@ namespace moris::xtk
             }    // end if: parallel
 
         }        // end for: every B-spline mesh index
+
+// debug
+real tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
+std::cout << "Proc #" << par_rank() << ": identify_and_setup_aura_vertices_in_ghost took " << tElapsedTime / 1000.0 << " seconds." << std::endl;
 
     }            // end function: Ghost_Stabilization::identify_and_setup_aura_vertices_in_ghost
 

@@ -31,6 +31,9 @@
 #include "fn_XTK_match_normal_to_side_ordinal.hpp"
 #include "fn_stringify_matrix.hpp"
 
+// debug
+#include "cl_Stopwatch.hpp"    //CHR/src
+
 namespace moris::xtk
 {
     //------------------------------------------------------------------------------
@@ -2685,6 +2688,12 @@ namespace moris::xtk
     void
     Enriched_Integration_Mesh::communicate_sets_of_type( const mtk::SetType aSetType )
     {
+
+// debug
+std::string tString = "communicate_sets_of_type_" + std::to_string( (uint) aSetType );
+Tracer tTracer( "XTK", "Enriched_Integration_Mesh", tString );
+tic tTimer;
+
         switch ( aSetType )
         {
             case mtk::SetType::BULK:
@@ -2712,6 +2721,10 @@ namespace moris::xtk
             }
 
         }    // end switch: set type
+
+// debug
+real tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
+std::cout << "Proc #" << par_rank() << ": " << tString << " took " << tElapsedTime / 1000.0 << " seconds." << std::endl;
 
     }    // end function: Enriched_Integration_Mesh::communicate_sets_of_type()
 

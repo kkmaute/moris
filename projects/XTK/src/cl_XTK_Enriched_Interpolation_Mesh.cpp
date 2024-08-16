@@ -18,6 +18,9 @@
 #include "cl_MTK_Writer_Exodus.hpp"
 #include "cl_MTK_Field_Discrete.hpp"
 
+// debug
+#include "cl_Stopwatch.hpp"    //CHR/src
+
 namespace moris::xtk
 {
     // ----------------------------------------------------------------------------
@@ -2156,6 +2159,9 @@ namespace moris::xtk
         // log this function when verbose output is requested
         Tracer tTracer( "XTK", "Enriched Interpolation Mesh", "assign unzipped vertex IDs", mXTKModel->mVerboseLevel, 1 );
 
+// debug
+tic tTimer;
+
         /* ---------------------------------------------------------------------------------------- */
         /* Step 0: Sort into owned and not owned entities */
 
@@ -2268,6 +2274,10 @@ namespace moris::xtk
             this->handle_requested_unzipped_vertex_ID_answers( tNotOwnedUIPVsToProcs, tReceivedVertIds );
 
         }    // end if: parallel
+
+// debug
+real tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
+std::cout << "Proc #" << par_rank() << ": Enriched_Interpolation_Mesh::assign_ip_vertex_ids took " << tElapsedTime / 1000.0 << " seconds." << std::endl;
 
     }    // end function: Enriched_Interpolation_Mesh::assign_ip_vertex_ids
 
