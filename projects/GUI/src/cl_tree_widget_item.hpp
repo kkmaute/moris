@@ -13,6 +13,8 @@
 #include "cl_bool_combo_box.hpp"
 #include "cl_double_spin_box.hpp"
 #include "cl_int_spin_box.hpp"
+#include "cl_pair_box.hpp"
+#include "cl_group_box.hpp"
 
 #include "fn_PRM_FEM_Parameters.hpp"
 #include "fn_PRM_MSI_Parameters.hpp"

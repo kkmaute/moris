@@ -31,7 +31,7 @@ namespace moris
         void updateComboBox( const QString &name, int index );
         void updateDoubleSpinBox( const QString &name, double value );
         void updateIntSpinBox( const QString &name, int value );
-        void updatePairBox( const QString &name, const QString &text );
+        //void updatePairBox( const QString &name, const QString &text );
         void saveAndPrintInputs();
         void saveInputsToXML( const std::string &filePath );
 

@@ -160,6 +160,23 @@ namespace moris
          */
 
         QList< QStringList > convert_parameters_to_QStringList( Parameter_List );
+
+        /**
+         * @brief Function to check if a string ends with a certain substring
+         * @param std::string aString
+         * @param std::string aEnding
+         * @return bool
+        */
+        bool endswith( const std::string &aString, const std::string &aEnding );
+
+        /**
+         * @brief Function to add a project to the GUI
+         * @param uint aRoot
+         * @param uint aChild
+         * @param uint aSubChild
+         * @note Small function to add projects on construction; Handles form formatting, renaming and eliminates redundant code
+         */ 
+        void add_project( uint aRoot, uint aChild, uint aSubChild );
     };
 
 

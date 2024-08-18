@@ -40,12 +40,12 @@ namespace moris
 
         for ( uint iProject = 0; iProject < (uint)( Parameter_List_Type::END_ENUM ); iProject++ )
         {
-            mProjectNames.append( QString::fromStdString( convert_parameter_list_enum_to_string( ( Parameter_List_Type )( iProject ) ) ) );
+            mProjectNames.append( QString::fromStdString( convert_parameter_list_enum_to_string( (Parameter_List_Type)( iProject ) ) ) );
         }
 
         Parameter_List_Type tModule = Parameter_List_Type::OPT;
-        QStringList                tStringList;
-        QStringList                tSubChildrenList;
+        QStringList         tStringList;
+        QStringList         tSubChildrenList;
 
         // Initialize data structures for each project
         mTreeWidgetItems.resize( mProjectNames.size() );
@@ -120,18 +120,7 @@ namespace moris
                     {
                         for ( uint i = 0; i < mLibrary.get_parameter_lists()( iRoot )( iChildren ).size(); i++ )
                         {
-                            mQTreeWidgetSubChildren[ iRoot ][ iChildren ].append( new QTreeWidgetItem( mQTreeWidgetChildren[ iRoot ][ iChildren ] ) );
-                            mQTreeWidgetChildren[ iRoot ][ iChildren ]->addChild( mQTreeWidgetSubChildren[ iRoot ][ iChildren ].last() );
-                            mQTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setText( 0, "Algorithm " + QString::number( i ) );
-
-                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].append( new Moris_Tree_Widget_Item() );
-                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setupScrollArea();
-                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setIndex( { iRoot, iChildren, (uint)mQTreeWidgetSubChildren[ iRoot ][ iChildren ].size() - 1 } );
-                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setSubFormType( -1 );
-                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->add_elements( mLibrary.get_parameter_lists()( iRoot )(iChildren)( i ) );
-                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->set_form_visible( false );
-                            mTreeWidget->setItemWidget( mQTreeWidgetSubChildren[ iRoot ][ iChildren ].last(), 0, mTreeWidgetSubChildren[ iRoot ][ iChildren ].last() );
-                            mLayout->addWidget( mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->getScrollArea() );
+                            add_project( iRoot, iChildren, i );
                         }
                     }
                 }
@@ -165,18 +154,7 @@ namespace moris
                     {
                         for ( uint i = 0; i < mLibrary.get_parameter_lists()( iRoot )( iChildren ).size(); i++ )
                         {
-                            mQTreeWidgetSubChildren[ iRoot ][ iChildren ].append( new QTreeWidgetItem( mQTreeWidgetChildren[ iRoot ][ iChildren ] ) );
-                            mQTreeWidgetChildren[ iRoot ][ iChildren ]->addChild( mQTreeWidgetSubChildren[ iRoot ][ iChildren ].last() );
-                            mQTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setText( 0, "Geometry " + QString::number( i ) );
-
-                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].append( new Moris_Tree_Widget_Item() );
-                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setupScrollArea();
-                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setIndex( { iRoot, iChildren, (uint)mQTreeWidgetSubChildren[ iRoot ][ iChildren ].size() - 1 } );
-                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setSubFormType( -1 );
-                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->add_elements( mLibrary.get_parameter_lists()( iRoot )(iChildren)( i ) );
-                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->set_form_visible( false );
-                            mTreeWidget->setItemWidget( mQTreeWidgetSubChildren[ iRoot ][ iChildren ].last(), 0, mTreeWidgetSubChildren[ iRoot ][ iChildren ].last() );
-                            mLayout->addWidget( mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->getScrollArea() );
+                            add_project( iRoot, iChildren, i );
                         }
                     }
                 }
@@ -198,18 +176,7 @@ namespace moris
                     {
                         for ( uint i = 0; i < mLibrary.get_parameter_lists()( iRoot )( iChildren ).size(); i++ )
                         {
-                            mQTreeWidgetSubChildren[ iRoot ][ iChildren ].append( new QTreeWidgetItem( mQTreeWidgetChildren[ iRoot ][ iChildren ] ) );
-                            mQTreeWidgetChildren[ iRoot ][ iChildren ]->addChild( mQTreeWidgetSubChildren[ iRoot ][ iChildren ].last() );
-                            mQTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setText( 0, "Solver " + QString::number( i ) );
-
-                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].append( new Moris_Tree_Widget_Item() );
-                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setupScrollArea();
-                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setIndex( { iRoot, iChildren, (uint)mQTreeWidgetSubChildren[ iRoot ][ iChildren ].size() - 1 } );
-                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setSubFormType( -1 );
-                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->add_elements( mLibrary.get_parameter_lists()( iRoot )(iChildren)( i ) );
-                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->set_form_visible( false );
-                            mTreeWidget->setItemWidget( mQTreeWidgetSubChildren[ iRoot ][ iChildren ].last(), 0, mTreeWidgetSubChildren[ iRoot ][ iChildren ].last() );
-                            mLayout->addWidget( mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->getScrollArea() );
+                            add_project( iRoot, iChildren, i );
                         }
                     }
                 }
@@ -220,18 +187,7 @@ namespace moris
                         mTreeWidgetChildren[ iRoot ][ iChildren ]->setSubFormCheck( true );
                         for ( uint i = 0; i < mLibrary.get_parameter_lists()( iRoot )( iChildren ).size(); i++ )
                         {
-                            mQTreeWidgetSubChildren[ iRoot ][ iChildren ].append( new QTreeWidgetItem( mQTreeWidgetChildren[ iRoot ][ iChildren ] ) );
-                            mQTreeWidgetChildren[ iRoot ][ iChildren ]->addChild( mQTreeWidgetSubChildren[ iRoot ][ iChildren ].last() );
-                            mQTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setText( 0, QString::fromStdString( get_inner_sub_parameter_list_name( tModule, iChildren ) ) + QString::number( i ) );
-                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].append( new Moris_Tree_Widget_Item() );
-                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setupScrollArea();
-                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setIndex( { iRoot, iChildren, (uint)mQTreeWidgetSubChildren[ iRoot ][ iChildren ].size() - 1 } );
-                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->setSubFormType( -1 );
-                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->add_elements( mLibrary.get_parameter_lists()( iRoot )(iChildren)( i ) );
-                            mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->set_form_visible( false );
-                            // mTreeWidgetChildren[ iRoot ][ iChildren ]->addSubFormCountProps();
-                            mTreeWidget->setItemWidget( mQTreeWidgetSubChildren[ iRoot ][ iChildren ].last(), 0, mTreeWidgetSubChildren[ iRoot ][ iChildren ].last() );
-                            mLayout->addWidget( mTreeWidgetSubChildren[ iRoot ][ iChildren ].last()->getScrollArea() );
+                            add_project( iRoot, iChildren, i );
                         }
                     }
                     else
@@ -259,7 +215,7 @@ namespace moris
             // Connects the QTreeWidgetItems to the associated Moris_Tree_Widget_Item
             mTreeWidget->setItemWidget( mQTreeWidgetItems[ iRoot ], 0, mTreeWidgetItems[ iRoot ] );
 
-            tModule = ( Parameter_List_Type )( (uint)( tModule ) + 1 );
+            tModule = (Parameter_List_Type)( (uint)( tModule ) + 1 );
 
             // MORIS_ERROR( false, "error here" );
         }
@@ -476,6 +432,57 @@ namespace moris
         QString tFilePath = get_moris_file_path_for_writing();
         mLibrary.finalize( tFilePath.toStdString() );
         QCoreApplication::quit();
+    }
+
+    bool Moris_Gui::endswith( const std::string &aString, const std::string &aEnding )
+    {
+        /**
+         * @brief Function to check if a string ends with a particular substring
+         * @param const std::string &aString, const std::string &aEnding
+         * @return bool
+         * @note This function checks if a string ends with a particular substring
+         */
+        if ( aString.size() >= aEnding.size() )
+        {
+            // Compare the end of the string with the suffix
+            return aString.compare( aString.size() - aEnding.size(), aEnding.size(), aEnding ) == 0;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    void Moris_Gui::add_project( uint aRoot, uint aChild, uint aSubChild )
+    {
+        /**
+         * @brief Function to add a project to the tree widget
+         * @param uint aRoot, uint aChild, uint aSubChild, const std::string &aName
+         * @return NONE
+         * @note This function adds a project to the tree widget
+         */
+        QString tName = QString::fromStdString( get_inner_sub_parameter_list_name( (Parameter_List_Type)aRoot, aChild ) ) + " " + QString::number( aSubChild );
+
+        for ( auto &iFindName : mLibrary.get_parameter_lists()( aRoot )(aChild)( aSubChild ) )
+        {
+            if ( endswith( iFindName.first, "_name" ) )
+            {
+                tName = QString::fromStdString( iFindName.second.get_value< std::string >() );
+                break;
+            }
+        }
+        mQTreeWidgetSubChildren[ aRoot ][ aChild ].append( new QTreeWidgetItem( mQTreeWidgetChildren[ aRoot ][ aChild ] ) );
+        mQTreeWidgetChildren[ aRoot ][ aChild ]->addChild( mQTreeWidgetSubChildren[ aRoot ][ aChild ].last() );
+        mQTreeWidgetSubChildren[ aRoot ][ aChild ].last()->setText( 0, tName );
+
+        mTreeWidgetSubChildren[ aRoot ][ aChild ].append( new Moris_Tree_Widget_Item() );
+        mTreeWidgetSubChildren[ aRoot ][ aChild ].last()->setupScrollArea();
+        mTreeWidgetSubChildren[ aRoot ][ aChild ].last()->setIndex( { aRoot, aChild, (uint)mQTreeWidgetSubChildren[ aRoot ][ aChild ].size() - 1 } );
+        mTreeWidgetSubChildren[ aRoot ][ aChild ].last()->setSubFormType( -1 );
+        mTreeWidgetSubChildren[ aRoot ][ aChild ].last()->add_elements( mLibrary.get_parameter_lists()( aRoot )(aChild)( aSubChild ) );
+        mTreeWidgetSubChildren[ aRoot ][ aChild ].last()->set_form_visible( false );
+        mTreeWidget->setItemWidget( mQTreeWidgetSubChildren[ aRoot ][ aChild ].last(), 0, mTreeWidgetSubChildren[ aRoot ][ aChild ].last() );
+        mLayout->addWidget( mTreeWidgetSubChildren[ aRoot ][ aChild ].last()->getScrollArea() );
     }
 
 

@@ -54,14 +54,14 @@ namespace moris
                 connect( intSpinBox, &Moris_Int_Spin_Box::value_changed, this, &TestWindow::updateIntSpinBox );
             }
             // Initialize Moris_Pair_Box if the parameter name matches
-            else if ( paramName == "pairBox" )
-            {
-                pairBox = new Moris_Pair_Box( this, paramEntry.second, QStringList() << "Example 1" << "Example 2" << "Example 3" );
-                pairBox->setObjectName( QString::fromStdString( paramName ) );
-                layout->addWidget( pairBox );
-                connect( pairBox, &Moris_Pair_Box::combo_box_text_changed, this, &TestWindow::updatePairBox );
-                connect( pairBox, &Moris_Pair_Box::line_edit_text_changed, this, &TestWindow::updatePairBox );
-            }
+            // else if ( paramName == "pairBox" )
+            // {
+            //     pairBox = new Moris_Pair_Box( this, paramEntry.second, QStringList() << "Example 1" << "Example 2" << "Example 3" );
+            //     pairBox->setObjectName( QString::fromStdString( paramName ) );
+            //     layout->addWidget( pairBox );
+            //     connect( pairBox, &Moris_Pair_Box::combo_box_text_changed, this, &TestWindow::updatePairBox );
+            //     connect( pairBox, &Moris_Pair_Box::line_edit_text_changed, this, &TestWindow::updatePairBox );
+            // }
         }
 
         // Create and add Save and Print Inputs button
@@ -111,20 +111,20 @@ namespace moris
     }
 
     // Slot to update the Moris_Pair_Box values
-    void TestWindow::updatePairBox( const QString &name, const QString &text )
-    {
-        if ( pairBox )
-        {
-            if ( pairBox->moris_pair_combo_box->objectName() == name )
-            {
-                pairBox->moris_pair_combo_box->setCurrentText( text );
-            }
-            else if ( pairBox->moris_pair_line_edit->objectName() == name )
-            {
-                pairBox->moris_pair_line_edit->setText( text );
-            }
-        }
-    }
+    // void TestWindow::updatePairBox( const QString &name, const QString &text )
+    // {
+    //     if ( pairBox )
+    //     {
+    //         if ( pairBox->moris_pair_combo_box->objectName() == name )
+    //         {
+    //             pairBox->moris_pair_combo_box->setCurrentText( text );
+    //         }
+    //         else if ( pairBox->moris_pair_line_edit->objectName() == name )
+    //         {
+    //             pairBox->moris_pair_line_edit->setText( text );
+    //         }
+    //     }
+    // }
 
     // Save all inputs to XML file
     void TestWindow::saveInputsToXML( const std::string &filePath )
@@ -175,15 +175,15 @@ namespace moris
             // Save combined values of Moris_Pair_Box
             else if ( paramName == "pairBox" )
             {
-                if ( pairBox )
-                {
-                    // Retrieve combined values from Moris_Pair_Box
-                    std::pair< std::string, std::string > pairValue;
-                    pairValue.first  = pairBox->moris_pair_combo_box->currentText().toStdString();
-                    pairValue.second = pairBox->moris_pair_line_edit->text().toStdString();
-                    xmlParser.set( "UserInputs.PairBox.LineEdit", pairValue.second );
-                    xmlParser.set( "UserInputs.PairBox.ComboBox", pairValue.first );
-                }
+                // if ( pairBox )
+                // {
+                //     // Retrieve combined values from Moris_Pair_Box
+                //     std::pair< std::string, std::string > pairValue;
+                //     pairValue.first  = pairBox->moris_pair_combo_box->currentText().toStdString();
+                //     pairValue.second = pairBox->moris_pair_line_edit->text().toStdString();
+                //     xmlParser.set( "UserInputs.PairBox.LineEdit", pairValue.second );
+                //     xmlParser.set( "UserInputs.PairBox.ComboBox", pairValue.first );
+                // }
             }
         }
 
@@ -258,14 +258,14 @@ namespace moris
             // Print values of Moris_Pair_Box
             else if ( paramName == "pairBox" )
             {
-                if ( pairBox )
-                {
-                    qDebug() << QString::fromStdString( paramName ) << ": LineEdit:" << pairBox->moris_pair_line_edit->text() << ", ComboBox:" << pairBox->moris_pair_combo_box->currentText();
-                }
-                else
-                {
-                    qDebug() << "PairBox is null";
-                }
+                // if ( pairBox )
+                // {
+                //     qDebug() << QString::fromStdString( paramName ) << ": LineEdit:" << pairBox->moris_pair_line_edit->text() << ", ComboBox:" << pairBox->moris_pair_combo_box->currentText();
+                // }
+                // else
+                // {
+                //     qDebug() << "PairBox is null";
+                // }
             }
         }
     }

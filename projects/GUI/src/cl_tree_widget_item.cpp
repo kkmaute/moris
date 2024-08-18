@@ -223,6 +223,7 @@ namespace moris
                 if ( iElements.second.get_entry_type() == Entry_Type::SELECTION )
                 {
                     Moris_Combo_Box *tComboBox = new Moris_Combo_Box( mScrollWidget, iElements.second );
+                    tComboBox->setObjectName( QString::fromStdString( iElements.first ) );
                     // Moris_Combo_Box *tComboBox = new Moris_Combo_Box();
                     mWidget.append( tComboBox );
                     mFormLayout->addRow( QString::fromStdString( iElements.first ), mWidget[ tIndex + tCounter ] );
@@ -259,14 +260,28 @@ namespace moris
                         mWidget.append( tDoubleSpinBox );
                         mFormLayout->addRow( QString::fromStdString( iElements.first ), mWidget[ tIndex + tCounter ] );
                     }
+                    else if ( iElements.second.index() == variant_index< std::pair < std::string, std::string>> ()) {
+                        Moris_Pair_Box *tPairBox = new Moris_Pair_Box( mScrollWidget, iElements.second);
+                        tPairBox->setObjectName( QString::fromStdString( iElements.first ) );
+                        mWidget.append( tPairBox );
+                        mFormLayout->addRow( QString::fromStdString( iElements.first ), mWidget[ tIndex + tCounter ] );
+                    }
                     else
                     {
+                        if (iElements.first == "properties") {
+                            Moris_Group_Box *tGroupBox = new Moris_Group_Box(mScrollWidget, iElements.second);
+                            tGroupBox->setObjectName( QString::fromStdString( iElements.first ) );
+                        mWidget.append( tGroupBox );
+                        mFormLayout->addRow( QString::fromStdString( iElements.first ), mWidget[ tIndex + tCounter ] );
+                        }
+                        else {
 
                         Moris_Line_Edit *tLineEdit = new Moris_Line_Edit( mScrollWidget, iElements.second );
                         tLineEdit->setObjectName( QString::fromStdString( iElements.first ) );
                         // tLineEdit->setParameter(iElements.second);
                         mWidget.append( tLineEdit );
                         mFormLayout->addRow( QString::fromStdString( iElements.first ), mWidget[ tIndex + tCounter ] );
+                        }
                     }
                 }
                 tIndex++;

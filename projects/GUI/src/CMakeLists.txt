@@ -32,6 +32,7 @@ set(PROJECT_SOURCES
        cl_tree_widget_item.cpp
        fn_read_file_dialog.cpp
        fn_write_file_dialog.cpp
+       cl_group_box.cpp
        )
 
 set(HEADERS
@@ -46,6 +47,7 @@ set(HEADERS
        cl_tree_widget_item.hpp
        fn_read_file_dialog.hpp
        fn_write_file_dialog.hpp
+       cl_group_box.hpp
 
 )
  
