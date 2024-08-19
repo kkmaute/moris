@@ -463,6 +463,13 @@ namespace moris::xtk
         void
         create_facet_from_element_to_node(
                 Vector< moris::mtk::Cell* >&                aCells,
+                std::shared_ptr< Facet_Based_Connectivity > aFaceConnectivity,
+                const Cut_Integration_Mesh*                 aCutIntegrationMesh );
+        
+        [[deprecated]]
+        void
+        create_facet_from_element_to_node(
+                Vector< moris::mtk::Cell* >&                aCells,
                 std::shared_ptr< Facet_Based_Connectivity > aFaceConnectivity );
 
         // ----------------------------------------------------------------------------------

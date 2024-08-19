@@ -1352,7 +1352,8 @@ namespace moris::xtk
 
                 // add to the integration mesh
                 tEnrIntegMesh.mDoubleSideSets( aGhostSetupData.mDblSideSetIndexInMesh( iBulkPhase ) )( iGhostFacet ) = tDblSideCluster;
-            }
+
+            } // end for: each ghost facet
 
             tDoubleSideSetIndexList.push_back( aGhostSetupData.mDblSideSetIndexInMesh( iBulkPhase ) );
 
@@ -1360,14 +1361,16 @@ namespace moris::xtk
                     aGhostSetupData.mDblSideSetIndexInMesh( iBulkPhase ),
                     { { (moris_index)iBulkPhase } },
                     { { (moris_index)iBulkPhase } } );
-        }
+
+        } // end for: each bulk phase
 
         // commit and communicate the double side sets
         tEnrIntegMesh.commit_double_side_set( tDoubleSideSetIndexList );
         tEnrIntegMesh.communicate_sets_of_type( mtk::SetType::DOUBLE_SIDED_SIDESET );
 
         tEnrIntegMesh.collect_all_sets();
-    }
+
+    } // end function: Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh()
 
     // ----------------------------------------------------------------------------------
 

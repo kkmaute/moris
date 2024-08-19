@@ -105,7 +105,7 @@ namespace moris::xtk
 
         // create facet connectivity in the mesh
         std::shared_ptr< Facet_Based_Connectivity > tFaceConnectivity = std::make_shared< Facet_Based_Connectivity >();
-        this->create_facet_from_element_to_node( tActiveIgCells, tFaceConnectivity );
+        this->create_facet_from_element_to_node( tActiveIgCells, tFaceConnectivity, tCutIntegrationMesh.get() );
 
         // TODO: MESH-CLEANUP
         // this->create_vertex_facet_connectivity(tFaceConnectivity, tCutIntegrationMesh.get() );
@@ -636,8 +636,8 @@ namespace moris::xtk
                 // add the cell to a child mesh group only if we aren't
                 aCutIntegrationMesh->add_cell_to_cell_group( tNewCellIndex, tCellGroupIndex );
             }
-        }
-    }
+        } // end: iterate through the new cells to be added to the mesh
+    } // end function: Integration_Mesh_Generator::commit_new_ig_cells_to_cut_mesh()
 
     // ----------------------------------------------------------------------------------
 
@@ -943,7 +943,9 @@ namespace moris::xtk
         aInterfaces.shrink_to_fit();
     }
 
-    // Note: this is an old version of the function above, will be removed if new way of deducting interfaces turns out more robust
+    // ----------------------------------------------------------------------------------
+
+    // Note: this is an old version of the function above, will be removed if new way of deducing interfaces turns out more robust
     // void
     // Integration_Mesh_Generator::deduce_interfaces(
     //     Cut_Integration_Mesh*                       aCutIntegrationMesh,
@@ -1047,7 +1049,10 @@ namespace moris::xtk
             mtk::Cell* tParentCell = aCutIntegrationMesh->get_ig_cell_group_parent_cell( iCell );
 
             // make sure assumption that intersected Bg-Cell index is equal to child mesh index holds true
-            MORIS_ASSERT( tParentCell->get_index() == iCell, "Index mismatch parent index should align with parent cell index" );
+            MORIS_ASSERT( 
+                    tParentCell->get_index() == iCell, 
+                    "Integration_Mesh_Generator::identify_and_construct_subphases() - "
+                    "Index mismatch parent index should align with parent cell index" );
 
             // flood fill this group using the bulk phases
             Matrix< IndexMat > tLocalFloodFill =
@@ -1094,14 +1099,15 @@ namespace moris::xtk
                     aCutIntegrationMesh->mSubPhaseBulkPhase( tSPIndex ) =
                             aCutIntegrationMesh->get_cell_bulk_phase( tIgCellGroup->mIgCellGroup( iIgCell )->get_index() );
                 }
-            }
+            } // end for: each IG cell inside current Bg-cell
 
             // store sub-phases present on current Bg-cell to child mesh
             aCutIntegrationMesh->set_child_mesh_subphase( iCell, tSubphaseIndices );
 
             // clear list of sub-phases (indices) present on current Bg-cell
             tSubphaseIndices.clear();
-        }
+
+        } // end for: each intersected BG cell
 
         // iterate over background cells and make the subphase contain only them
         for ( moris::size_t iBgCell = 0; iBgCell < aBackgroundMesh->get_num_elems(); iBgCell++ )
@@ -1123,7 +1129,7 @@ namespace moris::xtk
                 aCutIntegrationMesh->mIntegrationCellToSubphaseIndex( iBgCell ) = iBgCell;
                 aCutIntegrationMesh->mParentCellHasChildren( iBgCell )          = ( moris_index ) false;
             }
-        }
+        } // end for: each BG cell
 
         // shrink to fit lists with sub-phase information (in case size was over-estimated on initialization)
         aCutIntegrationMesh->mSubPhaseCellGroups.shrink_to_fit();
@@ -1158,7 +1164,8 @@ namespace moris::xtk
 
         // give all sub-phases a global ID (across all procs)
         this->assign_subphase_glob_ids( aCutIntegrationMesh, aBackgroundMesh );
-    }
+
+    } // end function: Integration_Mesh_Generator::identify_and_construct_subphases()
 
     // ----------------------------------------------------------------------------------
 
@@ -1282,8 +1289,8 @@ namespace moris::xtk
                 Vector< moris_index > tRepresentativeIgCellsOrdinal( 0 );
                 this->collect_subphases_attached_to_facet_on_cell(
                         aCutIntegrationMesh,                         // mesh info
-                        tCurrentCell,                                // center cell 'connection from'
-                        tMyOrdinal,                                  // side ordinal of center cell the connection is coming from
+                        tCurrentCell,                                // center BG cell 'connection from'
+                        tMyOrdinal,                                  // side ordinal of center BG cell the connection is coming from
                         tFacetIndex,                                 // index of facet through which connection goes
                         aFacetConnectivity,                          // facet connectivity info
                         ( *aBgFacetToChildFacet )( tFacetIndex ),    // further facet connectivity info
@@ -1330,7 +1337,7 @@ namespace moris::xtk
                             }
                         }
                     }
-                }
+                } // end if: transition at refinement interface
 
                 // trivial case: no transition between refinement levels
                 else
@@ -1380,7 +1387,7 @@ namespace moris::xtk
                                     aSubphaseNeighborhood->mTransitionNeighborCellLocation( tMySubphaseIndex )->push_back( tTransitionCellLocation );
                                 }
                             }
-                        }
+                        } // end if: one of the Bg-cells is not cut
 
                         // case: both Bg-cells are cut
                         else
@@ -1493,9 +1500,9 @@ namespace moris::xtk
                             tSubphaseMap[ tSubphaseIndex ] = 1;
                         }
                     }
-                }
-            }
-        }
+                } // end for: each IG cell connected to current IG-cell facet
+            } // end for: each IG cell facet connected to current BG-cell facet
+        } // end if: BG element is intersected
 
         // case: cluster is trivial
         else
@@ -1509,7 +1516,7 @@ namespace moris::xtk
             aRepresentativeIgCells.push_back( aBGCell->get_index() );
             aRepresentativeIgCellsOrdinal.push_back( aFacetOrdinal );
         }
-    }
+    } // end function: Integration_Mesh_Generator::collect_subphases_attached_to_facet_on_cell()
 
     // ----------------------------------------------------------------------------------
 
@@ -2649,10 +2656,10 @@ namespace moris::xtk
 
     moris_index
     Integration_Mesh_Generator::facet_exists(
-            Vector< mtk::Vertex* >&                         aVerticesOnFacet,
-            std::unordered_map< moris_index, moris_index >& aLocaLVertexMap,
-            Vector< Vector< uint > >&                       aVertexToFacet,
-            Vector< Vector< mtk::Vertex* > >&               aFullFacetVertices )
+            Vector< mtk::Vertex* >&                         aVerticesOnFacet,       // (pointers to) vertices attached to the facet
+            std::unordered_map< moris_index, moris_index >& aLocaLVertexMap,        // map relating vertex indices in Cut IG mesh to vertex indices in facet connectivity
+            Vector< Vector< uint > >&                       aVertexToFacet,         // list of facets (indices) attached to each vertex (by indexing in facet connectivity)
+            Vector< Vector< mtk::Vertex* > >&               aFullFacetVertices )    // list of vertices attached to each facet
     {
         moris_index tFacetIndex = MORIS_INDEX_MAX;
 
@@ -2729,13 +2736,272 @@ namespace moris::xtk
     void
     Integration_Mesh_Generator::create_facet_from_element_to_node(
             Vector< mtk::Cell* >&                       aCells,
+            std::shared_ptr< Facet_Based_Connectivity > aFaceConnectivity,
+            const Cut_Integration_Mesh*                 aCutIntegrationMesh )
+    {
+        Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Creating Facets" );
+
+        // Note: this function assumes that all cells are of same type, i.e. have the same cell info
+
+        uint tNumCells = aCells.size();
+        if ( tNumCells > 0 )
+        {
+            // cell information
+            mtk::Cell_Info const * tCellInfo = aCells( 0 )->get_cell_info();
+
+            // node to facet map
+            Matrix< IdMat > tElementToFacetMap = tCellInfo->get_node_to_facet_map();
+
+            // get the number of vertices in the XTK integration mesh
+            uint tNumVerticesInXtkMesh = aCutIntegrationMesh->get_num_nodes();
+
+            // list of unique vertices
+            uint                    tNumUsedVertices = 0;
+            Vector< mtk::Vertex* >  tUsedVertices;
+            Vector< moris_index >   tVertexIndexToLocalIndexMap( tNumVerticesInXtkMesh, MORIS_INDEX_MAX );
+
+            // reserve memory for list of vertex points
+            tUsedVertices.reserve( tNumCells * tCellInfo->get_num_verts() );
+
+            // this stack of loops counts the number of unique vertices in the mesh
+            // go over all IG cells in the mesh
+            for ( uint iCell = 0; iCell < tNumCells; iCell++ )
+            {
+                // get access to the list of vertices on the current IG cell
+                Vector< mtk::Vertex* > tCellVerts = aCells( iCell )->get_vertex_pointers();
+
+                // go over all vertices on the current IG cell
+                for ( uint iVertex = 0; iVertex < tCellVerts.size(); iVertex++ )
+                {
+                    mtk::Vertex* tVertexPtr = tCellVerts( iVertex );
+                    moris_index tVertexIndexXtk = tVertexPtr->get_index();
+
+                    // check if vertex has already been assigned local vertex index
+                    if ( tVertexIndexToLocalIndexMap( tVertexIndexXtk ) == MORIS_INDEX_MAX )
+                    {
+                        // add local vertex index to map
+                        tVertexIndexToLocalIndexMap( tVertexIndexXtk ) = (moris_index)tNumUsedVertices;
+
+                        // store vertex pointer
+                        tUsedVertices.push_back( tVertexPtr );
+
+                        // increase node counter
+                        tNumUsedVertices++;
+                    }
+                }
+            }
+
+            // get some basic sizing information
+            uint tNumFacesPerElem  = tCellInfo->get_num_facets();
+            uint tNumNodesPerFacet = tElementToFacetMap.n_cols();
+            uint tNumFacetsPerElem = tElementToFacetMap.n_rows();
+
+            // set size for cell to facet map
+            aFaceConnectivity->mCellToFacet.resize( tNumCells );
+
+            // estimate how many facets there are in the mesh (most facets are shared between two elements, some are on the boundary and not shared )
+            uint tEstNumFacets = std::floor( tNumCells * tNumFacesPerElem * ( 1.05 / 2.0 ) );
+
+            // reserve memory for facet-based cells
+            aFaceConnectivity->mFacetToCell.reserve( tEstNumFacets );
+            aFaceConnectivity->mFacetToCellEdgeOrdinal.reserve( tEstNumFacets );
+            aFaceConnectivity->mFacetVertices.reserve( tEstNumFacets );          
+
+            // initialize vertex to facet map
+            Vector< Vector< moris_index > > tVertexToFacetIndex( tNumUsedVertices );
+
+            // initialize counter for facets
+            moris_index tNumFacets = 0;
+
+            // go through all IG cells on mesh
+            for ( uint iCell = 0; iCell < tNumCells; iCell++ )
+            {
+                // get the current cell
+                mtk::Cell* tCellPtr = aCells( iCell );
+                moris_index tCellIndex = tCellPtr->get_index();
+
+                // set local cell index in map
+                aFaceConnectivity->mCellIndexToCellOrdinal[ tCellIndex ] = iCell;
+
+                // get list of vertex pointers of cell
+                Vector< mtk::Vertex* > tCellVerts = tCellPtr->get_vertex_pointers();
+
+                // reserve memory for storing facets on cell
+                aFaceConnectivity->mCellToFacet( iCell ).reserve( tNumFacesPerElem );
+
+                // iterate through edges of cell
+                for ( uint iFacet = 0; iFacet < tNumFacetsPerElem; iFacet++ )
+                {
+                    // initialize list of vertices on the current facet
+                    Vector< moris_index > tLocalVertexIndicesOnFacet( tNumNodesPerFacet, MORIS_INDEX_MAX );
+
+                    // get the vertices on the facet
+                    for ( uint iVertOnFace = 0; iVertOnFace < tNumNodesPerFacet; iVertOnFace++ )
+                    {
+                        moris_index tVertIndexInCell = tElementToFacetMap( iFacet, iVertOnFace );
+                        moris_index tVertIndexInMesh = tCellVerts( tVertIndexInCell )->get_index();
+                        moris_index tLocalVertIndex = tVertexIndexToLocalIndexMap( tVertIndexInMesh );
+                        tLocalVertexIndicesOnFacet( iVertOnFace ) = tLocalVertIndex;
+                    }
+
+                    // sort the vertices on the facet by their local index
+                    std::sort( tLocalVertexIndicesOnFacet.data().begin(), tLocalVertexIndicesOnFacet.data().end() );
+
+                    // figure out if the facet exists and if so where
+                    moris_index tFacetIndex = MORIS_INDEX_MAX;
+                    Vector< moris_index > tFacetIndicesThisFacetCouldBe;
+
+                    // see which facets are attached to each of the vertices on the facet
+                    for ( uint iVert = 0; iVert < tNumNodesPerFacet; iVert++ )
+                    {
+                        moris_index tLocalVertIndex = tLocalVertexIndicesOnFacet( iVert );
+                        Vector< moris_index > tFacetsThisVertexBelongsTo = tVertexToFacetIndex( tLocalVertIndex );
+
+                        //  if any of the vertices is not assigned to a facet yet, we know for sure that the facet doesn't exist yet
+                        if ( tFacetsThisVertexBelongsTo.size() == 0 )
+                        {
+                            tFacetIndicesThisFacetCouldBe.resize( 0 );
+                            break;
+                        }
+
+                        // if this is the first iteration, store the facets attached to the first vertex
+                        if ( iVert == 0 )
+                        {
+                            tFacetIndicesThisFacetCouldBe = tFacetsThisVertexBelongsTo;
+                        }
+                        // if this is not the first iteration, take the set intersection of the facet indices this facet could be and the facet indices this vertex is attached to
+                        else
+                        {
+                            Vector< moris_index > tIntersection;
+                            std::set_intersection(
+                                    tFacetsThisVertexBelongsTo.begin(),
+                                    tFacetsThisVertexBelongsTo.end(),
+                                    tFacetIndicesThisFacetCouldBe.begin(),
+                                    tFacetIndicesThisFacetCouldBe.end(),
+                                    std::back_inserter( tIntersection ) );
+                            tFacetIndicesThisFacetCouldBe = tIntersection;
+                        }
+
+                        // if the intersection is empty, we know for sure that the facet doesn't exist yet
+                        if ( tFacetIndicesThisFacetCouldBe.size() == 0 )
+                        {
+                            break;
+                        }
+                    }
+
+                    // when exiting the loop, if the intersection is not empty, we know that the facet exists
+                    if ( tFacetIndicesThisFacetCouldBe.size() == 1 )
+                    {
+                        tFacetIndex = tFacetIndicesThisFacetCouldBe( 0 );
+
+#ifdef MORIS_HAVE_DEBUG
+                        bool tVerticesMatch = true;
+                        uint tNumFacetVertices = aFaceConnectivity->mFacetVertices( tFacetIndex ).size();
+                        MORIS_ASSERT( 
+                                tNumFacetVertices == tLocalVertexIndicesOnFacet.size(), 
+                                "Integration_Mesh_Generator::create_facet_from_element_to_node() - "
+                                "Facet not correctly identified. (Number of vertices do not match.)" );
+                        for ( uint iVert = 0; iVert < tNumFacetVertices; iVert++ )
+                        {
+                            mtk::Vertex* tRefVert = aFaceConnectivity->mFacetVertices( tFacetIndex )( iVert );
+                            moris_index tLocalVertIndex = tLocalVertexIndicesOnFacet( iVert );
+                            bool tVertexMatches = ( tRefVert->get_index() == tUsedVertices( tLocalVertIndex )->get_index() ); 
+                            tVerticesMatch = tVerticesMatch && tVertexMatches;                           
+                        }
+
+                        if ( !tVerticesMatch )
+                        {
+                            std::cout << "Facet index: " << tFacetIndex << " has stored vertex indices: [ ";
+                            for ( uint iVert = 0; iVert < tNumFacetVertices; iVert++ )
+                            {
+                                std::cout << aFaceConnectivity->mFacetVertices( tFacetIndex )( iVert )->get_index() << " ";
+                            }
+                            std::cout << "]" << std::endl;
+                            std::cout << "Current facet's vertex indices: [ ";
+                            for ( uint iVert = 0; iVert < tNumFacetVertices; iVert++ )
+                            {
+                                moris_index tLocalVertIndex = tLocalVertexIndicesOnFacet( iVert );
+                                std::cout << tUsedVertices( tLocalVertIndex )->get_index() << " ";
+                            }
+                            std::cout << "]" << std::endl;
+
+                            MORIS_ERROR( 
+                                    false, 
+                                    "Integration_Mesh_Generator::create_facet_from_element_to_node() - "
+                                    "Facet not correctly identified. (Number of vertices do not match.)" );
+                        }
+#endif
+
+                    }
+                    else if ( tFacetIndicesThisFacetCouldBe.size() > 1 )
+                    {
+                        // if there are multiple facets that this facet could be, we have a problem
+                        MORIS_ERROR( false, "Integration_Mesh_Generator::create_facet_from_element_to_node() - No unique facet index could be identified. Something went wrong." );
+                    }
+
+                    // add new facet if it doesn't exist already
+                    if ( tFacetIndex == MORIS_INDEX_MAX )
+                    {
+                        // set edge index
+                        tFacetIndex = tNumFacets++;
+
+                        // store facet index with the vertices
+                        // NOTE: tVertexToFacetIndex(i) are not sorted!
+                        Vector< mtk::Vertex* > tVertexPtrsOnFacet( tNumNodesPerFacet );
+                        for ( uint iVert = 0; iVert < tNumNodesPerFacet; iVert++ )
+                        {
+                            moris_index tLocalVertIndex = tLocalVertexIndicesOnFacet( iVert );
+                            tVertexToFacetIndex( tLocalVertIndex ).push_back( tFacetIndex );
+                            tVertexPtrsOnFacet( iVert ) = tUsedVertices( tLocalVertIndex );
+                        }
+
+                        // store pointers of vertices on facet (tLocalVertexIndicesOnFacet is a sorted array)
+                        aFaceConnectivity->mFacetVertices.push_back( tVertexPtrsOnFacet );
+
+                        // for current facet initialize list to store cells and cell ordinals
+                        aFaceConnectivity->mFacetToCell.push_back( Vector< mtk::Cell* >() );
+                        aFaceConnectivity->mFacetToCellEdgeOrdinal.push_back( Vector< moris::moris_index >() );
+
+                        // reserve memory for list storing cells and their side ordinal connected to facet
+                        // guess of cell size: number of facets per element
+                        aFaceConnectivity->mFacetToCell.back().reserve( tNumFacesPerElem );
+                        aFaceConnectivity->mFacetToCellEdgeOrdinal.back().reserve( tNumFacesPerElem );
+                    }
+
+                    // store facet index on cell
+                    aFaceConnectivity->mCellToFacet( iCell ).push_back( tFacetIndex );
+
+                    // store cell and cell ordinal with facet
+                    // if needed increase cell capacity by increments of number of faces per element
+                    aFaceConnectivity->mFacetToCell( tFacetIndex ).push_back( tCellPtr, 2 );
+                    aFaceConnectivity->mFacetToCellEdgeOrdinal( tFacetIndex ).push_back( iFacet, 2 );
+
+                } // end for: each facet attached to the current IG cell
+            } // end for: each IG cell in cut mesh
+
+            // trim outer cells
+            aFaceConnectivity->mFacetVertices.shrink_to_fit();
+            aFaceConnectivity->mFacetToCell.shrink_to_fit();
+            aFaceConnectivity->mFacetToCellEdgeOrdinal.shrink_to_fit();
+
+        } // end if: aCells.size() > 0
+    } // end function: Integration_Mesh_Generator::create_facet_from_element_to_node()
+
+    // ----------------------------------------------------------------------------------
+
+    //! OLD VERSION OF FUNCTION
+
+    void
+    Integration_Mesh_Generator::create_facet_from_element_to_node(
+            Vector< mtk::Cell* >&                       aCells,
             std::shared_ptr< Facet_Based_Connectivity > aFaceConnectivity )
     {
         Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Creating Facets" );
 
         // Note: this function assumes that all cells are of same type, i.e. have the same cell info
 
-        if ( aCells.size() > 0 )
+        uint tNumCells = aCells.size();
+        if ( tNumCells > 0 )
         {
             // cell information
             mtk::Cell_Info const * tCellInfo = aCells( 0 )->get_cell_info();
@@ -2749,11 +3015,11 @@ namespace moris::xtk
             std::unordered_map< moris_index, moris_index > tVertexIndexToLocalIndexMap;
 
             // reserve memory for list of vertex points
-            tVertices.reserve( aCells.size() );
+            tVertices.reserve( tNumCells );
 
             // this stack of loops counts the number of unique vertices in the mesh
             // go over all IG cells in the mesh
-            for ( uint iCell = 0; iCell < aCells.size(); iCell++ )
+            for ( uint iCell = 0; iCell < tNumCells; iCell++ )
             {
                 // get access to the list of vertices on the current IG cell
                 Vector< mtk::Vertex* > tCellVerts = aCells( iCell )->get_vertex_pointers();
@@ -2778,8 +3044,7 @@ namespace moris::xtk
 
             // Maximum faces per node
             uint tNumFacesPerElem  = tCellInfo->get_num_facets();
-            uint tNumElements      = aCells.size();
-            uint tMaxNumFacets     = tNumElements * tNumFacesPerElem;
+            uint tMaxNumFacets     = tNumCells * tNumFacesPerElem;
             uint tNumNodesPerFacet = tElementToFacetMap.n_cols();
 
             // set size for cell to facet map
@@ -2864,17 +3129,20 @@ namespace moris::xtk
                     // if needed increase cell capacity by increments of number of faces per element
                     aFaceConnectivity->mFacetToCell( tFacetIndex ).push_back( aCells( iCell ), tNumFacesPerElem );
                     aFaceConnectivity->mFacetToCellEdgeOrdinal( tFacetIndex ).push_back( iFacet, tNumFacesPerElem );
-                }
-            }
+
+                } // end for: each facet attached to the current IG cell
+            } // end for: each IG cell in cut mesh
 
             // trim inner and outer cells
             shrink_to_fit_all( aFaceConnectivity->mFacetVertices );
             shrink_to_fit_all( aFaceConnectivity->mFacetToCell );
             shrink_to_fit_all( aFaceConnectivity->mFacetToCellEdgeOrdinal );
-        }
-    }
+
+        } // end if: aCells.size() > 0
+    } // end function: Integration_Mesh_Generator::create_facet_from_element_to_node()
 
     // ----------------------------------------------------------------------------------
+
 
     void
     Integration_Mesh_Generator::generate_cell_neighborhood(
@@ -3101,9 +3369,9 @@ namespace moris::xtk
     Integration_Mesh_Generator::deduce_facet_ancestry(
             Cut_Integration_Mesh*                       aCutIntegrationMesh,
             mtk::Mesh*                                  aBackgroundMesh,
-            std::shared_ptr< Facet_Based_Connectivity > aIgCellGroupFacetConnectivity,
-            Vector< mtk::Cell* > const &                aParentCellForDeduction,
-            std::shared_ptr< Facet_Based_Ancestry >     aIgFacetAncestry )
+            std::shared_ptr< Facet_Based_Connectivity > aIgCellGroupFacetConnectivity, 
+            Vector< mtk::Cell* > const &                aParentCellForDeduction,        // for each facet, a BG cell it is part of
+            std::shared_ptr< Facet_Based_Ancestry >     aIgFacetAncestry )              // output: facet ancestry information
     {
         Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Facet Ancestry", mXTKModel->mVerboseLevel, 1 );
 
@@ -3112,132 +3380,149 @@ namespace moris::xtk
         aIgFacetAncestry->mFacetParentEntityRank.clear();
         aIgFacetAncestry->mFacetParentEntityOrdinalWrtBackgroundCell.clear();
 
-        // number of edges in the edge connectivity
+        // number of facets in the facet connectivity
         uint tNumFacets = aIgCellGroupFacetConnectivity->mFacetVertices.size();
+
+        // get the rank of facets (depends on whether we're in 2D or 3D)
+        uint tFacetRank = (uint) aCutIntegrationMesh->get_facet_rank();
 
         // allocate the data in the edge ancestry
         aIgFacetAncestry->mFacetParentEntityIndex.resize( tNumFacets );
         aIgFacetAncestry->mFacetParentEntityRank.resize( tNumFacets );
         aIgFacetAncestry->mFacetParentEntityOrdinalWrtBackgroundCell.resize( tNumFacets );
 
+        // TODO: what does this do?
         Vector< std::shared_ptr< Matrix< IndexMat > > > tEntityConnectedToParent( 4 );
         for ( uint iInit = 0; iInit < 4; iInit++ )
         {
             tEntityConnectedToParent( iInit ) = std::make_shared< Matrix< IndexMat > >( 0, 0 );
         }
 
+        // TODO: what does this do?
         Matrix< IndexMat > tActiveConnectivity( 1, 4, MORIS_INDEX_MAX );
 
+        // array collecting BG facets that a given IG vertex may be attached to
         Vector< moris_index > tCandidateFacetOrds;
-
-        Vector< moris::moris_index > tFacetVertexParentInds;
-        Vector< moris::moris_index > tFacetVertexParentRanks;
-        Vector< moris::moris_index > tFacetVertexParentOrds;
 
         // iterate through edges in the edge connectivity
         for ( uint iFacet = 0; iFacet < tNumFacets; iFacet++ )
         {
-
+            // reset // TODO: what do these arrays indicate
             tCandidateFacetOrds.clear();
             tActiveConnectivity.fill( MORIS_INDEX_MAX );
 
+            // get information about the parent cell (this includes, e.g., local facet- or edge-vertex connectivity information)
             mtk::Cell_Info const * tParentCellInfo = aParentCellForDeduction( iFacet )->get_cell_info();
 
-            // vertices of the facet
+            // vertices attached to the current facet
             Vector< mtk::Vertex* > const & tFacetVertices = aIgCellGroupFacetConnectivity->mFacetVertices( iFacet );
 
-            // get the parent of these vertices from the mesh
-            tFacetVertexParentInds.resize( tFacetVertices.size() );
-            tFacetVertexParentRanks.resize( tFacetVertices.size() );
-            tFacetVertexParentOrds.resize( tFacetVertices.size() );
+            // get the parent BG element we're considering
+            moris_index tFacetsParentBgCellIndex = aParentCellForDeduction( iFacet )->get_index();
 
-            // all we need to figure out is if the facet is a sub-facet or a interior to the cell in this case.
+            // all we need to figure out is if the facet is a sub-facet or in the interior of the cell in this case.
 
             // iterate through vertices
             for ( uint iV = 0; iV < tFacetVertices.size(); iV++ )
             {
-                tFacetVertexParentInds( iV )  = aCutIntegrationMesh->mIgVertexParentEntityIndex( tFacetVertices( iV )->get_index() );
-                tFacetVertexParentRanks( iV ) = aCutIntegrationMesh->mIgVertexParentEntityRank( tFacetVertices( iV )->get_index() );
+                moris_index tVertexIndex = tFacetVertices( iV )->get_index();
+                moris_index tVertexParentEntityIndex = aCutIntegrationMesh->mIgVertexParentEntityIndex( tVertexIndex );
+                moris_index tVertexParentEntityRank = aCutIntegrationMesh->mIgVertexParentEntityRank( tVertexIndex );
+                moris_index tVertexParentEntityOrdinal = MORIS_INDEX_MAX;
 
-                // interior background cell is the parent
-                if ( tFacetVertexParentRanks( iV ) == 3 )
+                // if the parent for any single vertex is the background cell, then the parent for the facet must also be the background cell
+                if ( tVertexParentEntityRank == 3 )
                 {
-                    // mark the entity parent as the deduction cell
-                    aIgFacetAncestry->mFacetParentEntityIndex( iFacet )                    = aParentCellForDeduction( iFacet )->get_index();
+                    aIgFacetAncestry->mFacetParentEntityIndex( iFacet )                    = tFacetsParentBgCellIndex;
                     aIgFacetAncestry->mFacetParentEntityRank( iFacet )                     = 3;
                     aIgFacetAncestry->mFacetParentEntityOrdinalWrtBackgroundCell( iFacet ) = 0;
                     tCandidateFacetOrds.clear();
                     break;
                 }
 
-                if ( tActiveConnectivity( tFacetVertexParentRanks( iV ) ) == MORIS_INDEX_MAX )
+                // if it hasn't already been computed, get a list of entities of the relevant type connected to the parent BG element
+                if ( tActiveConnectivity( tVertexParentEntityRank ) == MORIS_INDEX_MAX )
                 {
-                    ( *tEntityConnectedToParent( tFacetVertexParentRanks( iV ) ) ) =
+                    // all indices of the entities of the type of the vertex's parent connected to the parent BG element 
+                    // (e.g. all edges connected to the BG element, if the vertex is a descendant of the BG element's edge)
+                    ( *tEntityConnectedToParent( tVertexParentEntityRank ) ) =
                             aBackgroundMesh->get_entity_connected_to_entity_loc_inds(
-                                    aParentCellForDeduction( iFacet )->get_index(),
+                                    tFacetsParentBgCellIndex,
                                     mtk::EntityRank::ELEMENT,
-                                    mtk::get_entity_rank_from_index( tFacetVertexParentRanks( iV ) ) );
+                                    mtk::get_entity_rank_from_index( tVertexParentEntityRank ) );
                 }
 
-                // figure out the ordinal
-                for ( uint iE = 0; iE < tEntityConnectedToParent( tFacetVertexParentRanks( iV ) )->numel(); iE++ )
+                // figure out the ordinal of the BG vertex, edge, or facet the current facet vertex is a descendant of
+                for ( uint iEntityOrdinalOnBgElement = 0; iEntityOrdinalOnBgElement < tEntityConnectedToParent( tVertexParentEntityRank )->numel(); iEntityOrdinalOnBgElement++ )
                 {
-                    if ( ( *tEntityConnectedToParent( tFacetVertexParentRanks( iV ) ) )( iE ) == tFacetVertexParentInds( iV ) )
+                    if ( ( *tEntityConnectedToParent( tVertexParentEntityRank ) )( iEntityOrdinalOnBgElement ) == tVertexParentEntityIndex )
                     {
-                        tFacetVertexParentOrds( iV ) = iE;
+                        tVertexParentEntityOrdinal = iEntityOrdinalOnBgElement;
                         break;
                     }
                 }
 
-                // iterate through facets of cell
-                if ( iV == 0 )
+                // iterate through facets of BG cell, and see if the parent vertex, edge, or facet is connected to it
+                // store the facets connected to it in a list of candidates
+                if ( iV == 0 ) // for the first vertex attached to the current facet
                 {
                     for ( uint iCellFacets = 0; iCellFacets < tParentCellInfo->get_num_facets(); iCellFacets++ )
                     {
-                        if ( tParentCellInfo->is_entity_connected_to_facet( (moris_index)iCellFacets, tFacetVertexParentOrds( iV ), tFacetVertexParentRanks( iV ) ) )
+                        if ( tParentCellInfo->is_entity_connected_to_facet( (moris_index)iCellFacets, tVertexParentEntityOrdinal, tVertexParentEntityRank ) )
                         {
                             tCandidateFacetOrds.push_back( iCellFacets );
                         }
                     }
                 }
-                else
+
+                // for subsequent vertices, remove any facets that are not connected to the current vertex
+                else // of all other vertices attached to the current facet
                 {
                     for ( auto i = tCandidateFacetOrds.data().rbegin(); i != tCandidateFacetOrds.data().rend(); ++i )
                     {
-                        if ( !tParentCellInfo->is_entity_connected_to_facet( *i, tFacetVertexParentOrds( iV ), tFacetVertexParentRanks( iV ) ) )
+                        if ( !tParentCellInfo->is_entity_connected_to_facet( *i, tVertexParentEntityOrdinal, tVertexParentEntityRank ) )
                         {
                             *i = MORIS_INDEX_MAX;
                         }
                     }
                 }
 
-                tCandidateFacetOrds.data().erase( std::remove( tCandidateFacetOrds.data().begin(), tCandidateFacetOrds.data().end(), MORIS_INDEX_MAX ), tCandidateFacetOrds.data().end() );
-            }
+                // eliminate facets from candidate list that are not connected to the current vertex
+                tCandidateFacetOrds.data().erase( 
+                        std::remove( tCandidateFacetOrds.data().begin(), tCandidateFacetOrds.data().end(), MORIS_INDEX_MAX ), 
+                        tCandidateFacetOrds.data().end() );
 
+            } // end for: each vertex attached to the current facet
+
+            // check if there are any candidate facets left 
+            // if so, the parent is of the current IG cell facet is that BG facet
             if ( tCandidateFacetOrds.size() == 1 )
             {
-                if ( tActiveConnectivity( (uint)aCutIntegrationMesh->get_facet_rank() ) == MORIS_INDEX_MAX )
+                if ( tActiveConnectivity( tFacetRank ) == MORIS_INDEX_MAX )
                 {
-                    ( *tEntityConnectedToParent( (uint)aCutIntegrationMesh->get_facet_rank() ) ) =
+                    ( *tEntityConnectedToParent( tFacetRank ) ) =
                             aBackgroundMesh->get_entity_connected_to_entity_loc_inds(
-                                    aParentCellForDeduction( iFacet )->get_index(),
+                                    tFacetsParentBgCellIndex,
                                     mtk::EntityRank::ELEMENT,
                                     aCutIntegrationMesh->get_facet_rank() );
                 }
+
                 // mark the entity parent as the deduction cell
-                aIgFacetAncestry->mFacetParentEntityIndex( iFacet )                    = ( *tEntityConnectedToParent( (uint)aCutIntegrationMesh->get_facet_rank() ) )( tCandidateFacetOrds( 0 ) );
-                aIgFacetAncestry->mFacetParentEntityRank( iFacet )                     = (moris_index)aCutIntegrationMesh->get_facet_rank();
+                aIgFacetAncestry->mFacetParentEntityIndex( iFacet )                    = ( *tEntityConnectedToParent( tFacetRank ) )( tCandidateFacetOrds( 0 ) );
+                aIgFacetAncestry->mFacetParentEntityRank( iFacet )                     = (moris_index)tFacetRank;
                 aIgFacetAncestry->mFacetParentEntityOrdinalWrtBackgroundCell( iFacet ) = tCandidateFacetOrds( 0 );
             }
+
+            // if there are no candidate facets left, the facet must be interior to the cell
             else
             {
                 // mark the entity parent as the deduction cell
-                aIgFacetAncestry->mFacetParentEntityIndex( iFacet )                    = aParentCellForDeduction( iFacet )->get_index();
+                aIgFacetAncestry->mFacetParentEntityIndex( iFacet )                    = tFacetsParentBgCellIndex;
                 aIgFacetAncestry->mFacetParentEntityRank( iFacet )                     = 3;
                 aIgFacetAncestry->mFacetParentEntityOrdinalWrtBackgroundCell( iFacet ) = 0;
             }
-        }
-    }
+        } // end for: each facet in the connectivity
+    } // end function: deduce_facet_ancestry()
 
     // ----------------------------------------------------------------------------------
 
@@ -3245,7 +3530,7 @@ namespace moris::xtk
     Integration_Mesh_Generator::compute_bg_facet_to_child_facet_connectivity(
             Cut_Integration_Mesh*                                      aCutIntegrationMesh,
             mtk::Mesh*                                                 aBackgroundMesh,
-            std::shared_ptr< Facet_Based_Connectivity >                aIgCellGroupFacetConnectivity,
+            std::shared_ptr< Facet_Based_Connectivity >                aIgCellFacetConnectivity,
             std::shared_ptr< Facet_Based_Ancestry >                    aIgFacetAncestry,
             Vector< std::shared_ptr< Vector< moris::moris_index > > >& aBgFacetToIgFacet )
     {
@@ -3258,11 +3543,12 @@ namespace moris::xtk
         // std::cout<<"(moris_index)aCutIntegrationMesh->get_facet_rank() = "<<(moris_index)aCutIntegrationMesh->get_facet_rank()<<std::endl;
 
         // iterate through facets in the Facet_Based_Connectivity
-        for ( uint iFacet = 0; iFacet < aIgCellGroupFacetConnectivity->mFacetVertices.size(); iFacet++ )
+        for ( uint iFacet = 0; iFacet < aIgCellFacetConnectivity->mFacetVertices.size(); iFacet++ )
         {
             // std::cout<<"iFacet= "<<iFacet<<std::endl;
             moris_index tParentRank = aIgFacetAncestry->mFacetParentEntityRank( iFacet );
 
+            // check whether the parent is a facet
             if ( tParentRank == (moris_index)aCutIntegrationMesh->get_facet_rank() )
             {
                 moris_index tParentIndex = aIgFacetAncestry->mFacetParentEntityIndex( iFacet );
@@ -3526,11 +3812,12 @@ namespace moris::xtk
 
         // allocate new vertices
         uint tNumNewIgVertices = aDecompositionData->tNewNodeIndex.size();
+        uint tTotalNumIgVertices = aCutIntegrationMesh->mIntegrationVertices.size() + tNumNewIgVertices;
         aCutIntegrationMesh->mControlledIgVerts.resize( aCutIntegrationMesh->mControlledIgVerts.size() + tNumNewIgVertices );
-        aCutIntegrationMesh->mIntegrationVertices.resize( aCutIntegrationMesh->mIntegrationVertices.size() + tNumNewIgVertices );
-        aCutIntegrationMesh->mVertexCoordinates.resize( aCutIntegrationMesh->mIntegrationVertices.size(), nullptr );
-        aCutIntegrationMesh->mIgVertexParentEntityRank.resize( aCutIntegrationMesh->mIntegrationVertices.size(), MORIS_INDEX_MAX );
-        aCutIntegrationMesh->mIgVertexParentEntityIndex.resize( aCutIntegrationMesh->mIntegrationVertices.size(), MORIS_INDEX_MAX );
+        aCutIntegrationMesh->mIntegrationVertices.resize( tTotalNumIgVertices );
+        aCutIntegrationMesh->mVertexCoordinates.resize( tTotalNumIgVertices, nullptr );
+        aCutIntegrationMesh->mIgVertexParentEntityRank.resize( tTotalNumIgVertices, MORIS_INDEX_MAX );
+        aCutIntegrationMesh->mIgVertexParentEntityIndex.resize( tTotalNumIgVertices, MORIS_INDEX_MAX );
 
         // iterate and create new vertices
         for ( uint iV = 0; iV < aDecompositionData->tNewNodeId.size(); iV++ )
@@ -3755,7 +4042,6 @@ namespace moris::xtk
             Cut_Integration_Mesh* aCutIntegrationMesh,
             mtk::Mesh*            aBackgroundMesh )
     {
-
         moris_index tNodeIndex = aCutIntegrationMesh->get_first_available_index( mtk::EntityRank::NODE );
 
         for ( uint i = 0; i < aDecompData.tNewNodeIndex.size(); i++ )

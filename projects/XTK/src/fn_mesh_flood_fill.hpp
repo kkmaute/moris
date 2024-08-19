@@ -108,6 +108,7 @@ namespace moris::xtk
 
                 // Mark this element as set
                 tPhaseSet( 0, iE ) = 1;
+
                 // Update active front
                 for ( moris::size_t iN = 0; iN < tMaxNumNeighbors; iN++ )
                 {
@@ -130,8 +131,8 @@ namespace moris::xtk
                         tNeighborIndex = aElementToElement( tElementIndex, iN );
                     }
 
-                    // If this is an neighbor element to include in the subdomain, has not already
-                    // been set and its phase matches the current elements phase then
+                    // If this is a neighbor element to include in the subdomain, has not already
+                    // been set and its phase matches the current element's phase then
                     // add it to the active front and increment the count
                     if ( aElementsToInclude( 0, aElementToElement( tElementIndex, iN ) ) == 1 &&    //
                             tPhaseSet( 0, tNeighborIndex ) != 1 &&                                  //
@@ -140,7 +141,8 @@ namespace moris::xtk
                         tActiveFront( 0, tActiveFrontCount ) = aElementToElement( tElementIndex, iN );
                         tActiveFrontCount++;
                     }
-                }
+
+                } // end for: each neighbor of the current element
 
                 // Iterate through active front until there are no more elements in the active front
                 // We start at the end of the front and work backwards
@@ -237,22 +239,26 @@ namespace moris::xtk
                             }
                         }
                     }
-                    // Else if the phase doesn't match we remove that element from the active front
+
+                    // Else if: the phase doesn't match we remove that element from the active front
                     else
                     {
                         tActiveFront( 0, tActiveFrontCount - 1 ) = aDummyValue;
                         tActiveFrontCount--;
                     }
-                }
+
+                } // end while: active front is not empty
 
                 tCurrentSubphase++;
-            }
-        }
+
+            } // end if: enrichment level has not been determined yet
+        } // end for: all elements in graph
 
         aMaxValueAssigned = tCurrentSubphase - 1;
 
         return tElementSubphase;
-    }
-}    // namespace moris::xtk
+
+    } // end function: flood_fill()
+} // namespace moris::xtk
 
 #endif /* XTK_SRC_XTK_FN_MESH_FLOOD_FILL_HPP_ */

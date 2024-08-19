@@ -130,8 +130,8 @@ namespace moris
     // Level set function for diamond shaped wedge
     moris::real
     Inclusion(
-            const moris::Matrix< DDRMat >&     aCoordinates,
-            const Vector< real >& aGeometryParameters )
+            const moris::Matrix< DDRMat >& aCoordinates,
+            const Vector< real >&          aGeometryParameters )
     {
         // distance from sphere center
         moris::real tDx = aCoordinates( 0 ) - tCenterX;
@@ -149,19 +149,19 @@ namespace moris
 
     // Constant function for properties
     void
-    Func_Const( moris::Matrix<
-                        moris::DDRMat >&                   aPropMatrix,
+    Func_Const(
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         aPropMatrix = aParameters( 0 );
     }
 
     void
     Func_Exact_Temperature(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         // distance from sphere center
         moris::real tDx = aFIManager->get_IP_geometry_interpolator()->valx()( 0 ) - tCenterX;
@@ -185,9 +185,9 @@ namespace moris
 
     void
     Func_Exact_TemperatureGradient(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         // distance from sphere center
         moris::real tDx = aFIManager->get_IP_geometry_interpolator()->valx()( 0 ) - tCenterX;

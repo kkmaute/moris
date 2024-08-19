@@ -52,7 +52,8 @@ namespace moris::xtk
         moris_index tMaxSubphase = 0;
 
         // Run flood fill Algorithm
-        Matrix< IndexMat > tElementSubphase = flood_fill( aChildMesh.get_element_to_element(),
+        Matrix< IndexMat > tElementSubphase = flood_fill( 
+                aChildMesh.get_element_to_element(),
                 aChildMesh.get_element_phase_indices(),
                 tActiveElements,
                 tIncludedElementMarker,
