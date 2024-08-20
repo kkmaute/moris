@@ -88,8 +88,6 @@ namespace moris
             uint mCallCounter                = 0;
             uint mCallCounterNonlinearSolver = 0;
 
-            // sint mLevel = 0;
-
             sint mTimeIter = 0;
 
           protected:
