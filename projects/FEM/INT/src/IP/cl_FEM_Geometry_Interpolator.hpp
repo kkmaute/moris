@@ -29,6 +29,9 @@
 #include "fn_det.hpp"
 #include "fn_inv.hpp"
 
+// tolerance for check
+#define Geometry_Interpolator_Epsilon 1e-12
+
 namespace moris
 {
     namespace fem
@@ -40,9 +43,6 @@ namespace moris
          */
         class Geometry_Interpolator
         {
-            // tolerance for check
-            const real mEpsilon = 1e-12;
-
             // pointer to space interpolator object
             mtk::Space_Interpolator* mSpaceInterpolator = nullptr;
 

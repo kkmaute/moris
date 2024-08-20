@@ -256,7 +256,8 @@ namespace moris
                     case mtk::Geometry_Type::QUAD:
                     case mtk::Geometry_Type::HEX:
                     {
-                        MORIS_ASSERT( ( ( aParamPoint( Ik ) <= 1.0 + mEpsilon ) && ( aParamPoint( Ik ) >= -1.0 - mEpsilon ) ),
+                        MORIS_ASSERT( ( ( aParamPoint( Ik ) <= 1.0 + Field_Interpolator_Epsilon ) &&    //
+                                              ( aParamPoint( Ik ) >= -1.0 - Field_Interpolator_Epsilon ) ),
                                 "Field_Interpolator::set_space_time - Wrong input value space line/quad/hex ( aParamPoint ): %f \n",
                                 aParamPoint( Ik ) );
                         break;
@@ -265,7 +266,8 @@ namespace moris
                     case mtk::Geometry_Type::TRI:
                     case mtk::Geometry_Type::TET:
                     {
-                        MORIS_ASSERT( ( ( aParamPoint( Ik ) <= 1.0 + mEpsilon ) && ( aParamPoint( Ik ) >= 0.0 - mEpsilon ) ),
+                        MORIS_ASSERT( ( ( aParamPoint( Ik ) <= 1.0 + Field_Interpolator_Epsilon ) &&    //
+                                              ( aParamPoint( Ik ) >= 0.0 - Field_Interpolator_Epsilon ) ),
                                 "Field_Interpolator::set_space_time - Wrong input value space tri/tet ( aParamPoint ): %f \n",
                                 aParamPoint( Ik ) );
                         break;
@@ -276,7 +278,8 @@ namespace moris
                 }
             }
 
-            MORIS_ASSERT( ( ( aParamPoint( mNSpaceParamDim ) <= 1.0 + mEpsilon ) && ( aParamPoint( mNSpaceParamDim ) >= -1.0 - mEpsilon ) ),
+            MORIS_ASSERT( ( ( aParamPoint( mNSpaceParamDim ) <= 1.0 + Field_Interpolator_Epsilon )    //
+                                  && ( aParamPoint( mNSpaceParamDim ) >= -1.0 - Field_Interpolator_Epsilon ) ),
                     "Field_Interpolator::set_space_time - Wrong input value time line ( aParamPoint ) " );
 
             // set input values
