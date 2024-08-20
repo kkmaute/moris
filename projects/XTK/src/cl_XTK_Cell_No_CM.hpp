@@ -32,7 +32,6 @@ namespace moris::xtk
         //------------------------------------------------------------------------------
 
       private:
-        // mtk::Cell_Info const * mCellInfo = nullptr;
         Vector< mtk::Vertex* > mCellVertices;
 
         //------------------------------------------------------------------------------
