@@ -142,9 +142,6 @@ namespace moris
         Property::check_dof_dependency(
                 const Vector< MSI::Dof_Type >& aDofType )
         {
-            // throw error if property hasn't been initialized
-            MORIS_ASSERT( this != nullptr, "cl_FEM_Property - check_dof_dependency(): Property is nullptr." );
-
             // get the dof type index
             uint tDofIndex = static_cast< uint >( aDofType( 0 ) );
 
@@ -336,7 +333,7 @@ namespace moris
         void
         Property::get_non_unique_dof_dv_and_field_types(
                 Vector< MSI::Dof_Type >&   aDofTypes,
-                Vector< gen::PDV_Type >&        aDvTypes,
+                Vector< gen::PDV_Type >&   aDvTypes,
                 Vector< mtk::Field_Type >& aFieldTypes )
         {
             // init counter
@@ -433,9 +430,6 @@ namespace moris
         bool
         Property::check_space_dependency( const uint& aOrder )
         {
-            // throw error if property hasn't been initialized
-            MORIS_ASSERT( this != nullptr, "cl_FEM_Property - check_space_dependency(): Property is nullptr." );
-
             // return bool for set space derivative function
             return mSetSpaceDerFunctions( aOrder - 1 );
         }
@@ -579,4 +573,3 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-
