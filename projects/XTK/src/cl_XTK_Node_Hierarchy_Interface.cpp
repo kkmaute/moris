@@ -166,9 +166,6 @@ namespace moris::xtk
     {
         Tracer tTracer( "XTK", "Decomposition_Algorithm", "Determine Intersected Edges", mGenerator->verbosity_level(), 1 );
 
-        // get first unused index for nodes for numbering new nodes
-        // moris_index tNewNodeIndex = mCutIntegrationMesh->get_first_available_index( mtk::EntityRank::NODE );
-
         // get the number of edges to be treated
         uint tNumEdges = aEdgeConnectivity->mEdgeVertices.size();
 
@@ -278,7 +275,6 @@ namespace moris::xtk
                         mGeometryEngine->admit_queued_intersection();
 
                         // count number of new nodes created
-                        // tNewNodeIndex++;
                     }
                 }
             }
