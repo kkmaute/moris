@@ -11,10 +11,10 @@
 #ifndef SRC_FEM_CL_MSI_TEST_ELEMENT_HPP_
 #define SRC_FEM_CL_MSI_TEST_ELEMENT_HPP_
 
-#include "moris_typedefs.hpp"           //MRS/COR/src
+#include "moris_typedefs.hpp"    //MRS/COR/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "cl_FEM_Node.hpp"         //FEM/INT/src
+#include "cl_FEM_Node.hpp"    //FEM/INT/src
 #include "cl_MSI_Equation_Object.hpp"
 #include "cl_FEM_Set.hpp"
 #include "cl_SOL_Dist_Vector.hpp"
@@ -25,21 +25,19 @@ namespace moris
     {
         class Element_Proxy : public MSI::Equation_Object
         {
-        private:
+          private:
             Matrix< DDRMat > ( *mFunction )( Matrix< DDRMat > tMyValues, const moris::uint aEquationObjectInd );
 
-            fem::Set * mElementBlock;
-
-        protected:
-
-        public:
+          public:
             /**
              * constructor
              *
              */
-            Element_Proxy( const Vector< Vector< fem::Node_Base * > > & aNodeObjs,
-                           Matrix< DDRMat > ( *aFunction )(       Matrix< DDRMat > tMyValues,
-                                                                  const moris::uint      aEquationObjectInd  ) ) : Equation_Object( aNodeObjs )
+            Element_Proxy(
+                    const Vector< Vector< fem::Node_Base * > > &aNodeObjs,
+                    Matrix< DDRMat > ( *aFunction )( Matrix< DDRMat > tMyValues,
+                            const moris::uint                         aEquationObjectInd ) )
+                    : Equation_Object( aNodeObjs )
             {
                 mFunction = aFunction;
             };
@@ -54,13 +52,11 @@ namespace moris
 
             void compute_jacobian()
             {
-
             }
 
             //------------------------------------------------------------------------------
 
-            void compute_residual()
-            {
+            void compute_residual(){
                 //            Matrix< DDRMat > tTMatrix;
                 //            this->build_PADofMap( tTMatrix );
                 //
@@ -78,8 +74,7 @@ namespace moris
             };
         };
 
-    }
-}
+    }    // namespace MSI
+}    // namespace moris
 
 #endif /* SRC_FEM_CL_MSI_TEST_ELEMENT_HPP_ */
-
