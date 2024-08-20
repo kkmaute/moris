@@ -703,12 +703,11 @@ namespace moris::xtk
       private:
         std::shared_ptr< Elevate_Order_Template > mElevateOrderTemplate;
 
-        Integration_Mesh_Generation_Data* mMeshGenerationData;
-        Decomposition_Data*               mDecompositionData;
-        Cut_Integration_Mesh*             mCutIntegrationMesh;
-        moris::mtk::Mesh*                 mBackgroundMesh;
-        Integration_Mesh_Generator*       mGenerator;
-        // moris::uint                       mNumTotalCells = 0;
+        Integration_Mesh_Generation_Data* mMeshGenerationData = nullptr;
+        Decomposition_Data*               mDecompositionData  = nullptr;
+        Cut_Integration_Mesh*             mCutIntegrationMesh = nullptr;
+        moris::mtk::Mesh*                 mBackgroundMesh     = nullptr;
+        Integration_Mesh_Generator*       mGenerator          = nullptr;
 
         // -------------------------------------------------------------------------
 
