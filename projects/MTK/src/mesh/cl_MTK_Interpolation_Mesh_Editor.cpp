@@ -384,7 +384,8 @@ namespace moris::mtk
         // create the vertex map used in gen based on the new vertex
         for ( uint iCounter = 0; iCounter < mOutputMesh->mVertices.size(); ++iCounter )
         {
-            MORIS_ASSERT( mOutputMesh->mVertices( iCounter ).get_index() == iCounter, "Index alignment issue in vertices" );
+            MORIS_ASSERT( mOutputMesh->mVertices( iCounter ).get_index() == (moris_index)iCounter,
+                    "Index alignment issue in vertices" );
 
             mOutputMesh->mVertexGlobalIdToLocalIndex[ mOutputMesh->mVertices( iCounter ).get_id() ] = iCounter;
         }
