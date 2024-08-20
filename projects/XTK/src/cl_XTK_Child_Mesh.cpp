@@ -938,6 +938,7 @@ namespace moris::xtk
             if ( aEdgeIndex == tElemToEdge( aElementIndex, iEdge ) )
             {
                 tEdgeOrdinals = iEdge;
+                break;
             }
         }
 
