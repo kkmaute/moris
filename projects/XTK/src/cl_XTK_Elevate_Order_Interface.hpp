@@ -25,10 +25,11 @@ namespace moris::xtk
 {
 
     class Integration_Mesh_Generator;
-    class Integration_Mesh_Generation_Data;
-    class Decomposition_Data;
     class Cut_Integration_Mesh;
-    class IG_Cell_Group;
+
+    struct Integration_Mesh_Generation_Data;
+    struct Decomposition_Data;
+    struct IG_Cell_Group;
 
     // -------------------------------------------------------------------------
     // -------------------------------------------------------------------------
@@ -707,7 +708,7 @@ namespace moris::xtk
         Cut_Integration_Mesh*             mCutIntegrationMesh;
         moris::mtk::Mesh*                 mBackgroundMesh;
         Integration_Mesh_Generator*       mGenerator;
-        moris::uint                       mNumTotalCells = 0;
+        // moris::uint                       mNumTotalCells = 0;
 
         // -------------------------------------------------------------------------
 

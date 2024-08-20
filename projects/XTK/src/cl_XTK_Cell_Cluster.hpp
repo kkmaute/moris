@@ -25,8 +25,9 @@ namespace moris::xtk
 {
     class Interpolation_Cell_Unzipped;
     class Child_Mesh;
-    class IG_Vertex_Group;
-    class IG_Cell_Group;
+
+    struct IG_Cell_Group;
+    struct IG_Vertex_Group;
 
     class Cell_Cluster : public mtk::Cell_Cluster
     {

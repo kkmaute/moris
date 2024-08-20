@@ -25,10 +25,11 @@ namespace moris::xtk
         MAX_ENUM
     };
 
-    class Integration_Mesh_Generation_Data;
-    class Integration_Mesh_Generator;
-    class Decomposition_Data;
     class Cut_Integration_Mesh;
+    class Integration_Mesh_Generator;
+
+    struct Decomposition_Data;
+    struct Integration_Mesh_Generation_Data;
 
     class Decomposition_Algorithm
     {
