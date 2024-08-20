@@ -78,7 +78,7 @@ namespace moris::hmr
         std::string mUserFunction;
         std::string mUnionMesh;
 
-        sint mInitialBSplineRefinement     = -1;
+        // sint mInitialBSplineRefinement     = -1;
         sint mAdditionalLagrangeRefinement = -1;
 
         // -----------------------------------------------------------------------------
