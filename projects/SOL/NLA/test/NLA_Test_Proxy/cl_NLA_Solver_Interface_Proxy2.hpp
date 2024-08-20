@@ -42,9 +42,6 @@ namespace moris
             sol::Dist_Vector* mSolutionVector = nullptr;
             Matrix< DDRMat >  mMySolVec;
 
-            moris::sint mNX;
-            moris::sint mNY;
-
             Vector< enum MSI::Dof_Type > mListOfDofTypes;
 
           public:
@@ -64,7 +61,7 @@ namespace moris
 
             // ----------------------------------------------------------------------------------------------
 
-            void free_block_memory( const uint aBlockInd ) override {};
+            void free_block_memory( const uint aBlockInd ) override{};
 
             // ----------------------------------------------------------------------------------------------
 
@@ -82,8 +79,7 @@ namespace moris
 
             // ----------------------------------------------------------------------------------------------
 
-            void set_secondary_dof_types( const Vector< enum MSI::Dof_Type > aListOfDofTypes ) override {
-            };
+            void set_secondary_dof_types( const Vector< enum MSI::Dof_Type > aListOfDofTypes ) override{};
 
             // ----------------------------------------------------------------------------------------------
 

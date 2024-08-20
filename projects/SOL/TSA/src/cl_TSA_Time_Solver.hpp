@@ -68,7 +68,7 @@ namespace moris
 
             Vector< moris::uint >     mOutputIndices;
             Vector< Output_Criteria > mOutputCriteriaPointer;
-            Void_Function mPauseFunction = [](){};
+            Void_Function             mPauseFunction = []() {};
 
             moris::Parameter_List mParameterListTimeSolver;
 
@@ -78,12 +78,8 @@ namespace moris
             //! Pointer to solver interface
             Solver_Interface* mSolverInterface = nullptr;
 
-            enum TimeSolverType mTimeSolverType = TimeSolverType::END_ENUM;
-
             moris::uint mCallCounter           = 0;
             moris::uint mCallCounterTimeSolver = 0;
-
-            moris::sint mLevel = 0;
 
             bool mIsLeaderTimeSolver = false;
 
@@ -124,7 +120,7 @@ namespace moris
              */
             Time_Solver(
                     Vector< std::shared_ptr< Time_Solver_Algorithm > >& aTimeSolverList,
-                    const enum TimeSolverType                                aTimeSolverType = TimeSolverType::MONOLITHIC );
+                    const enum TimeSolverType                           aTimeSolverType = TimeSolverType::MONOLITHIC );
 
             //--------------------------------------------------------------------------------------------------
 
@@ -144,7 +140,7 @@ namespace moris
              */
             void set_dof_type_list(
                     const Vector< enum MSI::Dof_Type > aDofTypeList,
-                    const moris::sint                       aLevel = 0 );
+                    const moris::sint                  aLevel = 0 );
 
             //--------------------------------------------------------------------------------------------------
 
@@ -383,7 +379,6 @@ namespace moris
             //--------------------------------------------------------------------------------------------------
 
             void set_time_solver_parameters();
-
         };
     }    // namespace tsa
 }    // namespace moris
