@@ -2351,7 +2351,6 @@ namespace moris::xtk
 
         Vector< std::shared_ptr< mtk::Double_Side_Cluster > > &tDblSideClusters = mDoubleSideSets( aDblSideSetIndex );
 
-        // uint tCount = 0;
         for ( uint i = 0; i < tDblSideClusters.size(); i++ )
         {
             // get the index
@@ -2360,7 +2359,6 @@ namespace moris::xtk
 
             mSideSets( tSideSetIndex( 0 ) ).push_back( mDoubleSideSingleSideClusters( tLeaderIndex ) );
             mSideSets( tSideSetIndex( 0 ) ).push_back( mDoubleSideSingleSideClusters( tFollowerIndex ) );
-            // tCount++;
         }
 
         this->commit_side_set( tSideSetIndex( 0 ) );
