@@ -592,7 +592,7 @@ if (MORIS_HAVE_PEDANTIC)
 #    check_cxx_compiler_flag("-Wno-overloaded-virtual" HAVE_OVERLOAD_VIRTUAL )
 #    if (HAVE_OVERLOAD_VIRTUAL)
 #        set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-overloaded-virtual" )       
-    endif()
+#    endif()
     
     # clang flags
     # check_cxx_compiler_flag("-Wno-inconsistent-missing-override" HAVE_MISSING_OVERRIDE )
