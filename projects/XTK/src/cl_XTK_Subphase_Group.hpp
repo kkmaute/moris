@@ -466,7 +466,7 @@ namespace moris::xtk
         admit_extraction_cell_group( Vector< mtk::Cell* >& tExtractionCellsInBsplineCell )
         {
             // check if list L-to-B-map is initialized
-            MORIS_ASSERT( &mExtractionCellToBsplineCell != nullptr && mExtractionCellToBsplineCell.size() > 0,
+            MORIS_ASSERT( mExtractionCellToBsplineCell.size() > 0,
                     "Bspline_Mesh_Info::admit_extraction_cell_group() -mExtractionCellToBsplineCell has not been initialized." );
 
             // get size of extraction cell group
