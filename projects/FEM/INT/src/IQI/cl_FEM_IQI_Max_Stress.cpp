@@ -59,7 +59,7 @@ namespace moris
             }
 
             // initialize stress value
-            real tStressValue;
+            real tStressValue = 0.0;
 
             // switch for different stress types
             switch ( mStressType )
@@ -124,7 +124,7 @@ namespace moris
             }
 
             // initialize stress value
-            real tStressValue;
+            real tStressValue = 0.0;
 
             // switch for different stress types
             switch ( mStressType )
@@ -350,4 +350,3 @@ namespace moris
 
     }    // namespace fem
 }    // namespace moris
-
