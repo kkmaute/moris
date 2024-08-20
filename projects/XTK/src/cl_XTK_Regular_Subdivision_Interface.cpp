@@ -428,6 +428,8 @@ namespace moris::xtk
         }
     }
 
+    //--------------------------------------------------------------------------------------------------
+
     void
     Regular_Subdivision_Interface::generate_new_node_parent_information_ijk_mesh(
             Regular_Subdivision_Interface_Data* aRegularSubdivisionInterfaceData,
@@ -445,7 +447,10 @@ namespace moris::xtk
 
             // Start by getting the ancestry of each facet in the current child mesh
             std::shared_ptr< Facet_Based_Connectivity > tFaceConnectivity = std::make_shared< Facet_Based_Connectivity >();
-            mGenerator->create_facet_from_element_to_node( aChildMesh->mIgCells->mIgCellGroup, tFaceConnectivity );
+
+            // FIXME: the below method is deprecated, so is the whole octree interface
+            MORIS_ERROR( false, "Regular_Subdivision_Interface::generate_new_node_parent_information_ijk_mesh() - method is deprecated" );
+            // mGenerator->create_facet_from_element_to_node( aChildMesh->mIgCells->mIgCellGroup, tFaceConnectivity );
 
             std::shared_ptr< IG_Vertex_Group > tVertexGroup = aChildMesh->mIgVerts;
 
@@ -554,5 +559,7 @@ namespace moris::xtk
             }
         }
     }
+
+    //--------------------------------------------------------------------------------------------------
 
 }    // namespace moris::xtk

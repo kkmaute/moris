@@ -105,7 +105,7 @@ namespace moris::xtk
 
         // create facet connectivity in the mesh
         std::shared_ptr< Facet_Based_Connectivity > tFaceConnectivity = std::make_shared< Facet_Based_Connectivity >();
-        this->create_facet_from_element_to_node( tActiveIgCells, tFaceConnectivity );
+        this->create_facet_from_element_to_node( tActiveIgCells, tFaceConnectivity, tCutIntegrationMesh.get() );
 
         // TODO: MESH-CLEANUP
         // this->create_vertex_facet_connectivity(tFaceConnectivity, tCutIntegrationMesh.get() );
@@ -2196,9 +2196,6 @@ namespace moris::xtk
         // Number of elements within Lag-Bg-Element for the flood fill
         moris::size_t tNumElements = aIgCellGroup->mIgCellGroup.size();
 
-        // Number of Elements with Set Phases (This allows for early termination of code if every element has been set)
-        // moris::size_t tNumPhasesSet = 0;
-
         // Current Element Index
         moris::moris_index tElementIndex = 0;
 
@@ -2302,9 +2299,6 @@ namespace moris::xtk
 
                         // Mark element as set
                         tPhaseSet( 0, tNeighborOrd ) = 1;
-
-                        // Increase the number of phases set
-                        // tNumPhasesSet++;
 
                         // Add the elements other neighbors to the active front
                         bool tReplaced = false;
@@ -2656,10 +2650,10 @@ namespace moris::xtk
 
     moris_index
     Integration_Mesh_Generator::facet_exists(
-            Vector< mtk::Vertex* >&                         aVerticesOnFacet,
-            std::unordered_map< moris_index, moris_index >& aLocaLVertexMap,
-            Vector< Vector< uint > >&                       aVertexToFacet,
-            Vector< Vector< mtk::Vertex* > >&               aFullFacetVertices )
+            Vector< mtk::Vertex* >&                         aVerticesOnFacet,       // (pointers to) vertices attached to the facet
+            std::unordered_map< moris_index, moris_index >& aLocaLVertexMap,        // map relating vertex indices in Cut IG mesh to vertex indices in facet connectivity
+            Vector< Vector< uint > >&                       aVertexToFacet,         // list of facets (indices) attached to each vertex (by indexing in facet connectivity)
+            Vector< Vector< mtk::Vertex* > >&               aFullFacetVertices )    // list of vertices attached to each facet
     {
         moris_index tFacetIndex = MORIS_INDEX_MAX;
 
@@ -2736,13 +2730,272 @@ namespace moris::xtk
     void
     Integration_Mesh_Generator::create_facet_from_element_to_node(
             Vector< mtk::Cell* >&                       aCells,
+            std::shared_ptr< Facet_Based_Connectivity > aFaceConnectivity,
+            const Cut_Integration_Mesh*                 aCutIntegrationMesh )
+    {
+        Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Creating Facets" );
+
+        // Note: this function assumes that all cells are of same type, i.e. have the same cell info
+
+        uint tNumCells = aCells.size();
+        if ( tNumCells > 0 )
+        {
+            // cell information
+            mtk::Cell_Info const * tCellInfo = aCells( 0 )->get_cell_info();
+
+            // node to facet map
+            Matrix< IdMat > tElementToFacetMap = tCellInfo->get_node_to_facet_map();
+
+            // get the number of vertices in the XTK integration mesh
+            uint tNumVerticesInXtkMesh = aCutIntegrationMesh->get_num_nodes();
+
+            // list of unique vertices
+            uint                    tNumUsedVertices = 0;
+            Vector< mtk::Vertex* >  tUsedVertices;
+            Vector< moris_index >   tVertexIndexToLocalIndexMap( tNumVerticesInXtkMesh, MORIS_INDEX_MAX );
+
+            // reserve memory for list of vertex points
+            tUsedVertices.reserve( tNumCells * tCellInfo->get_num_verts() );
+
+            // this stack of loops counts the number of unique vertices in the mesh
+            // go over all IG cells in the mesh
+            for ( uint iCell = 0; iCell < tNumCells; iCell++ )
+            {
+                // get access to the list of vertices on the current IG cell
+                Vector< mtk::Vertex* > tCellVerts = aCells( iCell )->get_vertex_pointers();
+
+                // go over all vertices on the current IG cell
+                for ( uint iVertex = 0; iVertex < tCellVerts.size(); iVertex++ )
+                {
+                    mtk::Vertex* tVertexPtr = tCellVerts( iVertex );
+                    moris_index tVertexIndexXtk = tVertexPtr->get_index();
+
+                    // check if vertex has already been assigned local vertex index
+                    if ( tVertexIndexToLocalIndexMap( tVertexIndexXtk ) == MORIS_INDEX_MAX )
+                    {
+                        // add local vertex index to map
+                        tVertexIndexToLocalIndexMap( tVertexIndexXtk ) = (moris_index)tNumUsedVertices;
+
+                        // store vertex pointer
+                        tUsedVertices.push_back( tVertexPtr );
+
+                        // increase node counter
+                        tNumUsedVertices++;
+                    }
+                }
+            }
+
+            // get some basic sizing information
+            uint tNumFacesPerElem  = tCellInfo->get_num_facets();
+            uint tNumNodesPerFacet = tElementToFacetMap.n_cols();
+            uint tNumFacetsPerElem = tElementToFacetMap.n_rows();
+
+            // set size for cell to facet map
+            aFaceConnectivity->mCellToFacet.resize( tNumCells );
+
+            // estimate how many facets there are in the mesh (most facets are shared between two elements, some are on the boundary and not shared )
+            uint tEstNumFacets = std::floor( tNumCells * tNumFacesPerElem * ( 1.05 / 2.0 ) );
+
+            // reserve memory for facet-based cells
+            aFaceConnectivity->mFacetToCell.reserve( tEstNumFacets );
+            aFaceConnectivity->mFacetToCellEdgeOrdinal.reserve( tEstNumFacets );
+            aFaceConnectivity->mFacetVertices.reserve( tEstNumFacets );          
+
+            // initialize vertex to facet map
+            Vector< Vector< moris_index > > tVertexToFacetIndex( tNumUsedVertices );
+
+            // initialize counter for facets
+            moris_index tNumFacets = 0;
+
+            // go through all IG cells on mesh
+            for ( uint iCell = 0; iCell < tNumCells; iCell++ )
+            {
+                // get the current cell
+                mtk::Cell* tCellPtr = aCells( iCell );
+                moris_index tCellIndex = tCellPtr->get_index();
+
+                // set local cell index in map
+                aFaceConnectivity->mCellIndexToCellOrdinal[ tCellIndex ] = iCell;
+
+                // get list of vertex pointers of cell
+                Vector< mtk::Vertex* > tCellVerts = tCellPtr->get_vertex_pointers();
+
+                // reserve memory for storing facets on cell
+                aFaceConnectivity->mCellToFacet( iCell ).reserve( tNumFacesPerElem );
+
+                // iterate through edges of cell
+                for ( uint iFacet = 0; iFacet < tNumFacetsPerElem; iFacet++ )
+                {
+                    // initialize list of vertices on the current facet
+                    Vector< moris_index > tLocalVertexIndicesOnFacet( tNumNodesPerFacet, MORIS_INDEX_MAX );
+
+                    // get the vertices on the facet
+                    for ( uint iVertOnFace = 0; iVertOnFace < tNumNodesPerFacet; iVertOnFace++ )
+                    {
+                        moris_index tVertIndexInCell = tElementToFacetMap( iFacet, iVertOnFace );
+                        moris_index tVertIndexInMesh = tCellVerts( tVertIndexInCell )->get_index();
+                        moris_index tLocalVertIndex = tVertexIndexToLocalIndexMap( tVertIndexInMesh );
+                        tLocalVertexIndicesOnFacet( iVertOnFace ) = tLocalVertIndex;
+                    }
+
+                    // sort the vertices on the facet by their local index
+                    std::sort( tLocalVertexIndicesOnFacet.data().begin(), tLocalVertexIndicesOnFacet.data().end() );
+
+                    // figure out if the facet exists and if so where
+                    moris_index tFacetIndex = MORIS_INDEX_MAX;
+                    Vector< moris_index > tFacetIndicesThisFacetCouldBe;
+
+                    // see which facets are attached to each of the vertices on the facet
+                    for ( uint iVert = 0; iVert < tNumNodesPerFacet; iVert++ )
+                    {
+                        moris_index tLocalVertIndex = tLocalVertexIndicesOnFacet( iVert );
+                        Vector< moris_index > tFacetsThisVertexBelongsTo = tVertexToFacetIndex( tLocalVertIndex );
+
+                        //  if any of the vertices is not assigned to a facet yet, we know for sure that the facet doesn't exist yet
+                        if ( tFacetsThisVertexBelongsTo.size() == 0 )
+                        {
+                            tFacetIndicesThisFacetCouldBe.resize( 0 );
+                            break;
+                        }
+
+                        // if this is the first iteration, store the facets attached to the first vertex
+                        if ( iVert == 0 )
+                        {
+                            tFacetIndicesThisFacetCouldBe = tFacetsThisVertexBelongsTo;
+                        }
+                        // if this is not the first iteration, take the set intersection of the facet indices this facet could be and the facet indices this vertex is attached to
+                        else
+                        {
+                            Vector< moris_index > tIntersection;
+                            std::set_intersection(
+                                    tFacetsThisVertexBelongsTo.begin(),
+                                    tFacetsThisVertexBelongsTo.end(),
+                                    tFacetIndicesThisFacetCouldBe.begin(),
+                                    tFacetIndicesThisFacetCouldBe.end(),
+                                    std::back_inserter( tIntersection ) );
+                            tFacetIndicesThisFacetCouldBe = tIntersection;
+                        }
+
+                        // if the intersection is empty, we know for sure that the facet doesn't exist yet
+                        if ( tFacetIndicesThisFacetCouldBe.size() == 0 )
+                        {
+                            break;
+                        }
+                    }
+
+                    // when exiting the loop, if the intersection is not empty, we know that the facet exists
+                    if ( tFacetIndicesThisFacetCouldBe.size() == 1 )
+                    {
+                        tFacetIndex = tFacetIndicesThisFacetCouldBe( 0 );
+
+#ifdef MORIS_HAVE_DEBUG
+                        bool tVerticesMatch = true;
+                        uint tNumFacetVertices = aFaceConnectivity->mFacetVertices( tFacetIndex ).size();
+                        MORIS_ASSERT( 
+                                tNumFacetVertices == tLocalVertexIndicesOnFacet.size(), 
+                                "Integration_Mesh_Generator::create_facet_from_element_to_node() - "
+                                "Facet not correctly identified. (Number of vertices do not match.)" );
+                        for ( uint iVert = 0; iVert < tNumFacetVertices; iVert++ )
+                        {
+                            mtk::Vertex* tRefVert = aFaceConnectivity->mFacetVertices( tFacetIndex )( iVert );
+                            moris_index tLocalVertIndex = tLocalVertexIndicesOnFacet( iVert );
+                            bool tVertexMatches = ( tRefVert->get_index() == tUsedVertices( tLocalVertIndex )->get_index() ); 
+                            tVerticesMatch = tVerticesMatch && tVertexMatches;                           
+                        }
+
+                        if ( !tVerticesMatch )
+                        {
+                            std::cout << "Facet index: " << tFacetIndex << " has stored vertex indices: [ ";
+                            for ( uint iVert = 0; iVert < tNumFacetVertices; iVert++ )
+                            {
+                                std::cout << aFaceConnectivity->mFacetVertices( tFacetIndex )( iVert )->get_index() << " ";
+                            }
+                            std::cout << "]" << std::endl;
+                            std::cout << "Current facet's vertex indices: [ ";
+                            for ( uint iVert = 0; iVert < tNumFacetVertices; iVert++ )
+                            {
+                                moris_index tLocalVertIndex = tLocalVertexIndicesOnFacet( iVert );
+                                std::cout << tUsedVertices( tLocalVertIndex )->get_index() << " ";
+                            }
+                            std::cout << "]" << std::endl;
+
+                            MORIS_ERROR( 
+                                    false, 
+                                    "Integration_Mesh_Generator::create_facet_from_element_to_node() - "
+                                    "Facet not correctly identified. (Number of vertices do not match.)" );
+                        }
+#endif
+
+                    }
+                    else if ( tFacetIndicesThisFacetCouldBe.size() > 1 )
+                    {
+                        // if there are multiple facets that this facet could be, we have a problem
+                        MORIS_ERROR( false, "Integration_Mesh_Generator::create_facet_from_element_to_node() - No unique facet index could be identified. Something went wrong." );
+                    }
+
+                    // add new facet if it doesn't exist already
+                    if ( tFacetIndex == MORIS_INDEX_MAX )
+                    {
+                        // set edge index
+                        tFacetIndex = tNumFacets++;
+
+                        // store facet index with the vertices
+                        // NOTE: tVertexToFacetIndex(i) are not sorted!
+                        Vector< mtk::Vertex* > tVertexPtrsOnFacet( tNumNodesPerFacet );
+                        for ( uint iVert = 0; iVert < tNumNodesPerFacet; iVert++ )
+                        {
+                            moris_index tLocalVertIndex = tLocalVertexIndicesOnFacet( iVert );
+                            tVertexToFacetIndex( tLocalVertIndex ).push_back( tFacetIndex );
+                            tVertexPtrsOnFacet( iVert ) = tUsedVertices( tLocalVertIndex );
+                        }
+
+                        // store pointers of vertices on facet (tLocalVertexIndicesOnFacet is a sorted array)
+                        aFaceConnectivity->mFacetVertices.push_back( tVertexPtrsOnFacet );
+
+                        // for current facet initialize list to store cells and cell ordinals
+                        aFaceConnectivity->mFacetToCell.push_back( Vector< mtk::Cell* >() );
+                        aFaceConnectivity->mFacetToCellEdgeOrdinal.push_back( Vector< moris::moris_index >() );
+
+                        // reserve memory for list storing cells and their side ordinal connected to facet
+                        // guess of cell size: number of facets per element
+                        aFaceConnectivity->mFacetToCell.back().reserve( tNumFacesPerElem );
+                        aFaceConnectivity->mFacetToCellEdgeOrdinal.back().reserve( tNumFacesPerElem );
+                    }
+
+                    // store facet index on cell
+                    aFaceConnectivity->mCellToFacet( iCell ).push_back( tFacetIndex );
+
+                    // store cell and cell ordinal with facet
+                    // if needed increase cell capacity by increments of number of faces per element
+                    aFaceConnectivity->mFacetToCell( tFacetIndex ).push_back( tCellPtr, 2 );
+                    aFaceConnectivity->mFacetToCellEdgeOrdinal( tFacetIndex ).push_back( iFacet, 2 );
+
+                } // end for: each facet attached to the current IG cell
+            } // end for: each IG cell in cut mesh
+
+            // trim outer cells
+            aFaceConnectivity->mFacetVertices.shrink_to_fit();
+            aFaceConnectivity->mFacetToCell.shrink_to_fit();
+            aFaceConnectivity->mFacetToCellEdgeOrdinal.shrink_to_fit();
+
+        } // end if: aCells.size() > 0
+    } // end function: Integration_Mesh_Generator::create_facet_from_element_to_node()
+
+    // ----------------------------------------------------------------------------------
+
+    //! OLD VERSION OF FUNCTION
+
+    void
+    Integration_Mesh_Generator::create_facet_from_element_to_node(
+            Vector< mtk::Cell* >&                       aCells,
             std::shared_ptr< Facet_Based_Connectivity > aFaceConnectivity )
     {
         Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Creating Facets" );
 
         // Note: this function assumes that all cells are of same type, i.e. have the same cell info
 
-        if ( aCells.size() > 0 )
+        uint tNumCells = aCells.size();
+        if ( tNumCells > 0 )
         {
             // cell information
             mtk::Cell_Info const * tCellInfo = aCells( 0 )->get_cell_info();
@@ -2756,11 +3009,11 @@ namespace moris::xtk
             std::unordered_map< moris_index, moris_index > tVertexIndexToLocalIndexMap;
 
             // reserve memory for list of vertex points
-            tVertices.reserve( aCells.size() );
+            tVertices.reserve( tNumCells );
 
             // this stack of loops counts the number of unique vertices in the mesh
             // go over all IG cells in the mesh
-            for ( uint iCell = 0; iCell < aCells.size(); iCell++ )
+            for ( uint iCell = 0; iCell < tNumCells; iCell++ )
             {
                 // get access to the list of vertices on the current IG cell
                 Vector< mtk::Vertex* > tCellVerts = aCells( iCell )->get_vertex_pointers();
@@ -2785,8 +3038,7 @@ namespace moris::xtk
 
             // Maximum faces per node
             uint tNumFacesPerElem  = tCellInfo->get_num_facets();
-            uint tNumElements      = aCells.size();
-            uint tMaxNumFacets     = tNumElements * tNumFacesPerElem;
+            uint tMaxNumFacets     = tNumCells * tNumFacesPerElem;
             uint tNumNodesPerFacet = tElementToFacetMap.n_cols();
 
             // set size for cell to facet map
@@ -2871,17 +3123,20 @@ namespace moris::xtk
                     // if needed increase cell capacity by increments of number of faces per element
                     aFaceConnectivity->mFacetToCell( tFacetIndex ).push_back( aCells( iCell ), tNumFacesPerElem );
                     aFaceConnectivity->mFacetToCellEdgeOrdinal( tFacetIndex ).push_back( iFacet, tNumFacesPerElem );
-                }
-            }
+
+                } // end for: each facet attached to the current IG cell
+            } // end for: each IG cell in cut mesh
 
             // trim inner and outer cells
             shrink_to_fit_all( aFaceConnectivity->mFacetVertices );
             shrink_to_fit_all( aFaceConnectivity->mFacetToCell );
             shrink_to_fit_all( aFaceConnectivity->mFacetToCellEdgeOrdinal );
-        }
+
+        } // end if: aCells.size() > 0
     }    // end function: Integration_Mesh_Generator::create_facet_from_element_to_node()
 
     // ----------------------------------------------------------------------------------
+
 
     void
     Integration_Mesh_Generator::generate_cell_neighborhood(
@@ -3781,7 +4036,6 @@ namespace moris::xtk
             Cut_Integration_Mesh* aCutIntegrationMesh,
             mtk::Mesh*            aBackgroundMesh )
     {
-
         moris_index tNodeIndex = aCutIntegrationMesh->get_first_available_index( mtk::EntityRank::NODE );
 
         for ( uint i = 0; i < aDecompData.tNewNodeIndex.size(); i++ )
