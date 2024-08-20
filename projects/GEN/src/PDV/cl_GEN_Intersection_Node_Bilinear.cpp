@@ -22,13 +22,13 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Intersection_Node_Bilinear::Intersection_Node_Bilinear(
-            uint                     aNodeIndex,
+            uint                              aNodeIndex,
             const Vector< Background_Node* >& aBackgroundNodes,
-            const Parent_Node&       aFirstParentNode,
-            const Parent_Node&       aSecondParentNode,
-            mtk::Geometry_Type       aBackgroundGeometryType,
-            mtk::Interpolation_Order aBackgroundInterpolationOrder,
-            Level_Set_Geometry&      aInterfaceGeometry )
+            const Parent_Node&                aFirstParentNode,
+            const Parent_Node&                aSecondParentNode,
+            mtk::Geometry_Type                aBackgroundGeometryType,
+            mtk::Interpolation_Order          aBackgroundInterpolationOrder,
+            Level_Set_Geometry&               aInterfaceGeometry )
             : Intersection_Node_Level_Set(
                     aNodeIndex,
                     aBackgroundNodes,
@@ -54,7 +54,7 @@ namespace moris::gen
     Intersection_Node_Bilinear::get_dxi_dfield_from_ancestor( uint aAncestorIndex ) const
     {
         // number of nodes to be used for interpolation
-        uint tNumBases;
+        uint tNumBases = 0;
 
         // determine number of basis for bi or tri-linear interpolation based on spatial dimensions
         switch ( this->get_global_coordinates().length() )
@@ -87,7 +87,7 @@ namespace moris::gen
 
         // build interpolator
         mtk::Interpolation_Function_Factory tFactory;
-        mtk::Interpolation_Function_Base* tInterpolation;
+        mtk::Interpolation_Function_Base*   tInterpolation;
 
         // create interpolation function based on spatial dimension  of problem
         switch ( tNumBases )
@@ -169,4 +169,4 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-}
+}    // namespace moris::gen
