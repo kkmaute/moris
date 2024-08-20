@@ -19,8 +19,7 @@ namespace moris::mtk
             Integration_Mesh                                      *aIGMesh,
             Vector< Side_Set const * >                            &aSideSets,
             Vector< std::pair< moris_index, moris_index > > const &aCandidatePairs )
-            : mIGMesh( aIGMesh )
-            , mSideSets( aSideSets )
+            : mSideSets( aSideSets )
             , mCandidatePairs( aCandidatePairs )
     {
         MORIS_ASSERT( aSideSets.size() > 0, "The ContactMapper needs at least one SideSet!" );
