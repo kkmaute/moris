@@ -64,7 +64,7 @@ class Moris(CMakePackage):
     depends_on('superlu-dist@8.1')
     depends_on('suite-sparse@5.13.0')
    
-    depends_on('trilinos@15.0.0')
+    depends_on('trilinos@15.1.1')
     depends_on('trilinos+boost+hdf5+mpi+suite-sparse+superlu-dist+amesos+anasazi+aztec+belos+chaco+epetra+exodus+ifpack+ifpack2+ml+rol+stk+zoltan2')
     depends_on('trilinos+pardiso', when="+pardiso")
     depends_on('trilinos~pardiso', when="-pardiso")
