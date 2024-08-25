@@ -386,7 +386,7 @@ namespace moris
             while ( tCurrentLine != LOGGER_HEADER_END )
             {
                 std::getline( mLogFileRead, tCurrentLine );
-                MORIS_ASSERT( tLineCounter < 1000, "query::skip_header: Header not found, check header markers." );
+                MORIS_ERROR( tLineCounter < 1000, "query::skip_header: Header not found, check header markers." );
                 tLineCounter++;
             }
 

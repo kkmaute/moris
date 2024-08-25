@@ -73,7 +73,7 @@ namespace moris
                     "fn_FEM_IWG_Compressible_NS::convert_index_pair_to_flat() - indices out of bounds." );
 
             // initialize return value
-            uint tFlatIndex;
+            uint tFlatIndex = 0;
 
             // clang-format off
             // two cases: 2D and 3D

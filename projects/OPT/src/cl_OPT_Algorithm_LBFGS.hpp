@@ -22,7 +22,6 @@ namespace moris
         {
           private:
             uint mOptIter = 0;    // optimization iteration counter
-            uint mResFlag;        // Flag from L-BFGS describing result of optimization algorithm
 
             sint mMaxIt;         // Maximum number of optimization iterations
             sint mLBFGSprint;    // flag to control printing within LBFGS algorithm

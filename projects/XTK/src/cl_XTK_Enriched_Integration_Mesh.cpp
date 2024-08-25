@@ -2351,7 +2351,6 @@ namespace moris::xtk
 
         Vector< std::shared_ptr< mtk::Double_Side_Cluster > > &tDblSideClusters = mDoubleSideSets( aDblSideSetIndex );
 
-        uint tCount = 0;
         for ( uint i = 0; i < tDblSideClusters.size(); i++ )
         {
             // get the index
@@ -2360,7 +2359,6 @@ namespace moris::xtk
 
             mSideSets( tSideSetIndex( 0 ) ).push_back( mDoubleSideSingleSideClusters( tLeaderIndex ) );
             mSideSets( tSideSetIndex( 0 ) ).push_back( mDoubleSideSingleSideClusters( tFollowerIndex ) );
-            tCount++;
         }
 
         this->commit_side_set( tSideSetIndex( 0 ) );
@@ -2943,8 +2941,8 @@ namespace moris::xtk
                     mCellClusters( tEnrIpCellIndex )->set_void_integration_cell_groups( tVoidSubphases );
 
                 }    // end: construction of valid clusters
-            }    // end: loop over enriched IP cells associated with the IP cell
-        }    // end: loop over base IP cells
+            }        // end: loop over enriched IP cells associated with the IP cell
+        }            // end: loop over base IP cells
     }
 
     //------------------------------------------------------------------------------
@@ -4368,7 +4366,7 @@ namespace moris::xtk
                                 mDoubleSideClusters.push_back( tDblSideCluster );
                                 mDoubleSideSets( tDoubleSideSetIndex ).push_back( tDblSideCluster );
 
-                            } // end if: side cluster has not already been constructed
+                            }    // end if: side cluster has not already been constructed
 
                             // get the relevant side cluster indices
                             moris_index tLeaderToFollowerSideClusterIndex = tSubphaseToSubphaseSideClusterIndex( tLeaderSubphaseIndex ).find( tFollowerSubphaseIndex )->second;
@@ -4389,11 +4387,11 @@ namespace moris::xtk
                             tSideClusters( tLeaderToFollowerSideClusterIndex )->mIntegrationCells.push_back( tDblSideGroup->mLeaderIgCells( iDblFacet ) );
                             tSideClusters( tFollowerToLeaderSideClusterIndex )->mIntegrationCells.push_back( tDblSideGroup->mFollowerIgCells( iDblFacet ) );
 
-                        } // end if: is low-to-high side set
-                    } // end for: each double sided facet
-                } // end if: double sided interface exists / is not empty
-            } // end for: each secondary bulk phase
-        } // end for: each primary bulk phase
+                        }    // end if: is low-to-high side set
+                    }        // end for: each double sided facet
+                }            // end if: double sided interface exists / is not empty
+            }                // end for: each secondary bulk phase
+        }                    // end for: each primary bulk phase
 
         // convert the cells of side ordinals to matrix and add to clusters
         for ( uint iSC = 0; iSC < tSideClusterSideOrdinals.size(); iSC++ )

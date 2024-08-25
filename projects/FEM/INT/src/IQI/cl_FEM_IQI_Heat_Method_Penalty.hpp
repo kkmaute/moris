@@ -76,12 +76,6 @@ namespace moris
             //! initialization flag
             bool mIsInitialized = false;
 
-            //! weight of L2 contribution
-            real mL2Weight;
-
-            //! weight of H1 semi-norm contribution
-            real mH1SWeight;
-
             // Parameters from Markus,Coco paper
             real mPhiBound;
             real mPhiGamma;
@@ -93,9 +87,6 @@ namespace moris
 
             // Sign of level set function
             real mLevelSetSign = 1.0;
-
-            //! flag whether to skip computing dQIdu; skipping useful e.g. for level set regularization
-            bool mSkipComputeDQIDU = false;
 
             //------------------------------------------------------------------------------
             /**
@@ -132,7 +123,7 @@ namespace moris
              */
             void compute_dQIdu(
                     Vector< MSI::Dof_Type >& aDofType,
-                    Matrix< DDRMat >&             adQIdu );
+                    Matrix< DDRMat >&        adQIdu );
 
             //------------------------------------------------------------------------------
         };

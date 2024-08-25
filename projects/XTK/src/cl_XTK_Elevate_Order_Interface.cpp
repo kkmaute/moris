@@ -19,7 +19,9 @@ namespace moris::xtk
 {
     // ----------------------------------------------------------------------------------
 
-    Elevate_Order_Interface::Elevate_Order_Interface( Parameter_List& aParameterList, enum Subdivision_Method aSubdivisionMethod )
+    Elevate_Order_Interface::Elevate_Order_Interface(
+            Parameter_List&         aParameterList,
+            enum Subdivision_Method aSubdivisionMethod )
     {
         // get number of spatial dimensions and decide on subdivision template
         if ( aSubdivisionMethod == Subdivision_Method::P_ELEVATE_ORDER_TRI3_TRI6 )
@@ -159,8 +161,6 @@ namespace moris::xtk
         Tracer tTracer( "XTK", "Elevate_Order_Interface", "make vertex requests" );
 
         // get first unused index for nodes for numbering new nodes
-        moris::moris_index tNewNodeIndex = mCutIntegrationMesh->get_first_available_index( mtk::EntityRank::NODE );
-
         mDecompositionData->mHasSecondaryIdentifier = true;
 
         // range of indices
@@ -247,7 +247,7 @@ namespace moris::xtk
                                 tNewVertexCoords );
 
                         // count number of new nodes created
-                        tNewNodeIndex++;
+                        // tNewNodeIndex++;
                     }
                 }    // end: loop over new vertices inside each cell
             }        // end: new vertices inside element
@@ -312,7 +312,7 @@ namespace moris::xtk
                         tNewEdgeVertexIndicesInDecompData( iVert ) = tNewNodeIndexInDecompData;
 
                         // count number of new nodes created
-                        tNewNodeIndex++;
+                        // tNewNodeIndex++;
 
                     }    // end: loop over all new vertices on edge
 
@@ -408,7 +408,7 @@ namespace moris::xtk
                             tNewVertexCoords );
 
                     // count number of new nodes created
-                    tNewNodeIndex++;
+                    // tNewNodeIndex++;
                 }
             }    // end: loop over faces
         }        // end: new vertices on faces

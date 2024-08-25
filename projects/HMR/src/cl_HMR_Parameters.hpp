@@ -31,7 +31,7 @@ namespace moris::mtk
 {
     class Cell;
     class Field;
-}
+}    // namespace moris::mtk
 namespace moris::hmr
 {
     class Element;
@@ -53,7 +53,7 @@ namespace moris::hmr
     // fixme: to be deleted soon
     // creates a parameter list with default inputs
     void load_hmr_parameter_list_from_xml( const std::string& aFilePath,
-            Parameter_List&                                    aParameterList );
+            Parameter_List&                                   aParameterList );
 
     //--------------------------------------------------------------------------------
 
@@ -143,7 +143,7 @@ namespace moris::hmr
 
         //! Lagrange Meshes that are used for the output meshes
         Vector< Matrix< DDUMat > > mOutputMeshes     = { { { 0 } } };
-        Vector< std::string >      mOutputMesheNames = { { { "" } } };
+        Vector< std::string >      mOutputMesheNames = { "" };
 
         moris::map< std::string, moris_index > mOutputNameToIndexMap;
 
@@ -254,7 +254,7 @@ namespace moris::hmr
         /*
          * parameter list constructor
          */
-        Parameters( Parameter_List&                   aParameterList,
+        Parameters( Parameter_List&                  aParameterList,
                 std::shared_ptr< moris::Library_IO > aLibrary );
 
         //--------------------------------------------------------------------------------
@@ -1417,7 +1417,6 @@ namespace moris::hmr
     Parameter_List create_hmr_parameter_list( const Parameters* aParameters );
 
     // -----------------------------------------------------------------------------
-} /* namespace moris */
+}    // namespace moris::hmr
 
 #endif /* SRC_HMR_CL_HMR_PARAMETERS_HPP_ */
-

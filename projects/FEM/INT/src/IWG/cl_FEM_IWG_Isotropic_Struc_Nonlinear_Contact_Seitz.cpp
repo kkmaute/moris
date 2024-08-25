@@ -41,7 +41,7 @@ namespace moris::fem
     //------------------------------------------------------------------------------
 
     IWG_Isotropic_Struc_Nonlinear_Contact_Seitz::IWG_Isotropic_Struc_Nonlinear_Contact_Seitz( sint aBeta )
-            : mBeta( aBeta )    // sign for symmetric/unsymmetric Nitsche
+    // : mBeta( aBeta )    // sign for symmetric/unsymmetric Nitsche
     {
         // set size for the property pointer cell
         mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );

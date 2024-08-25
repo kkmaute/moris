@@ -40,11 +40,11 @@ namespace moris::hmr
     //------------------------------------------------------------------------------
 
     Lagrange_Mesh_Base::Lagrange_Mesh_Base(
-            Parameters const *          aParameters,
-            Background_Mesh_Base*       aBackgroundMesh,
+            Parameters const *            aParameters,
+            Background_Mesh_Base*         aBackgroundMesh,
             Vector< BSpline_Mesh_Base* >& aBSplineMeshes,
-            uint                        aOrder,
-            uint                        aActivationPattern )
+            uint                          aOrder,
+            uint                          aActivationPattern )
             : Mesh_Base( aParameters,
                     aBackgroundMesh,
                     aOrder,
@@ -607,7 +607,7 @@ namespace moris::hmr
             uint tNumberOfProcNeighbors = mBackgroundMesh->get_number_of_proc_neighbors();
 
             // create cell of matrices to send
-            Matrix< DDLUMat >         tEmpty;
+            Matrix< DDLUMat >           tEmpty;
             Vector< Matrix< DDLUMat > > tSendID( tNumberOfProcNeighbors, tEmpty );
 
             // loop over all proc neighbors
@@ -969,7 +969,7 @@ namespace moris::hmr
 
         if ( tNumberOfProcs == 1 )    // serial mode
         {
-            return;                   // Do nothing (because node sharing is only in parallel)
+            return;    // Do nothing (because node sharing is only in parallel)
         }
 
         if ( tNumberOfProcs > 1 )
@@ -986,7 +986,7 @@ namespace moris::hmr
             // Initialize an inverse aura flag
             Vector< Basis* > tAuraNodes;
             Vector< Basis* > tInverseAuraNodes;
-            bool           tInverseAuraFlag = true;
+            bool             tInverseAuraFlag = true;
 
             // Counter
             uint tCount = 0;
@@ -2293,11 +2293,11 @@ namespace moris::hmr
             }
 
             // create cell of matrices to send
-            Matrix< DDLUMat >         tEmptyLuint;
+            Matrix< DDLUMat >           tEmptyLuint;
             Vector< Matrix< DDLUMat > > tAncestorListSend;
             tAncestorListSend.resize( tNumberOfNeighbors, { tEmptyLuint } );
 
-            Matrix< DDUMat >         tEmptyUint;
+            Matrix< DDUMat >           tEmptyUint;
             Vector< Matrix< DDUMat > > tPedigreeListSend;
             tPedigreeListSend.resize( tNumberOfNeighbors, { tEmptyUint } );
 
@@ -2523,11 +2523,11 @@ namespace moris::hmr
         uint tNumberOfNeighbors = mBackgroundMesh->get_number_of_proc_neighbors();
 
         // create cell of matrices to send
-        Matrix< DDLUMat >         tEmptyLuint;
+        Matrix< DDLUMat >           tEmptyLuint;
         Vector< Matrix< DDLUMat > > tAncestorListSend;
         tAncestorListSend.resize( tNumberOfNeighbors, { tEmptyLuint } );
 
-        Matrix< DDUMat >         tEmptyUint;
+        Matrix< DDUMat >           tEmptyUint;
         Vector< Matrix< DDUMat > > tPedigreeListSend;
         tPedigreeListSend.resize( tNumberOfNeighbors, { tEmptyUint } );
 
@@ -2736,11 +2736,11 @@ namespace moris::hmr
         uint tNumberOfNeighbors = mBackgroundMesh->get_number_of_proc_neighbors();
 
         // create cell of matrices to send
-        Matrix< DDLUMat >         tEmptyLuint;
+        Matrix< DDLUMat >           tEmptyLuint;
         Vector< Matrix< DDLUMat > > tAncestorListSend;
         tAncestorListSend.resize( tNumberOfNeighbors, { tEmptyLuint } );
 
-        Matrix< DDUMat >         tEmptyUint;
+        Matrix< DDUMat >           tEmptyUint;
         Vector< Matrix< DDUMat > > tPedigreeListSend;
         tPedigreeListSend.resize( tNumberOfNeighbors, { tEmptyUint } );
 
@@ -3640,8 +3640,8 @@ namespace moris::hmr
 
     void
     Lagrange_Mesh_Base::get_elements_in_bspline_element(
-            moris_index const          aBspElementIndex,
-            moris_index const          aDiscretizationMeshIndex,
+            moris_index const     aBspElementIndex,
+            moris_index const     aDiscretizationMeshIndex,
             Vector< mtk::Cell* >& aCells )
     {
         // get pointer to b-spline and background elements
@@ -3677,12 +3677,12 @@ namespace moris::hmr
 
     void
     Lagrange_Mesh_Base::get_lagrange_elements_in_bspline_elements(
-            moris_index const                          aDiscretizationMeshIndex,
+            moris_index const                aDiscretizationMeshIndex,
             Vector< Vector< mtk::Cell* > >&  aCells,
             Vector< Vector< moris_index > >& aCellIndices,
-            Vector< moris_index >&                aLagToBspCellIndices,
-            Vector< uint >&                       aBspCellRefineLevels,
-            Vector< mtk::Cell* >&                 aBsplineCells )
+            Vector< moris_index >&           aLagToBspCellIndices,
+            Vector< uint >&                  aBspCellRefineLevels,
+            Vector< mtk::Cell* >&            aBsplineCells )
     {
         // get B-Spline pattern of this mesh
         uint tBSplinePattern = mBSplineMeshes( aDiscretizationMeshIndex )->get_activation_pattern();
@@ -3734,7 +3734,7 @@ namespace moris::hmr
             tBackgroundElement->get_number_of_active_descendants( tLagrangePattern, tNumActiveLagrangeElements );
 
             // collect the active Lagrange elements
-            luint                                   tNumActiveLagrangeElementsCheck = 0;
+            luint                              tNumActiveLagrangeElementsCheck = 0;
             Vector< Background_Element_Base* > tActiveElements( tNumActiveLagrangeElements, nullptr );
             tBackgroundElement->collect_active_descendants( tLagrangePattern, tActiveElements, tNumActiveLagrangeElementsCheck );
 
@@ -3771,8 +3771,8 @@ namespace moris::hmr
 
     void
     Lagrange_Mesh_Base::get_elements_in_interpolation_cluster(
-            moris_index const          aElementIndex,
-            moris_index const          aDiscretizationMeshIndex,
+            moris_index const     aElementIndex,
+            moris_index const     aDiscretizationMeshIndex,
             Vector< mtk::Cell* >& aCells )
     {
         // get B-Spline pattern of this mesh
@@ -3824,9 +3824,9 @@ namespace moris::hmr
 
     void
     Lagrange_Mesh_Base::get_elements_in_bspline_element_and_side_ordinal(
-            moris_index const          aBsplineElementIndex,
-            moris_index const          aDiscretizationMeshIndex,
-            moris_index const          aSideOrdinal,
+            moris_index const     aBsplineElementIndex,
+            moris_index const     aDiscretizationMeshIndex,
+            moris_index const     aSideOrdinal,
             Vector< mtk::Cell* >& aCells )
     {
         // get pattern of the current B-spline mesh
@@ -3956,9 +3956,9 @@ namespace moris::hmr
 
     void
     Lagrange_Mesh_Base::get_elements_in_interpolation_cluster_and_side_ordinal(
-            moris_index const          aElementIndex,
-            moris_index const          aDiscretizationMeshIndex,
-            moris_index const          aSideOrdinal,
+            moris_index const     aElementIndex,
+            moris_index const     aDiscretizationMeshIndex,
+            moris_index const     aSideOrdinal,
             Vector< mtk::Cell* >& aCells )
     {
         // get B-Spline pattern of this mesh
@@ -4084,8 +4084,7 @@ namespace moris::hmr
     {
         MORIS_ERROR( par_size() <= 1, "Lagrange_Mesh_Base::nodes_renumbering_hack_for_femdoc(), this function is intended to work only in serial" );
 
-        moris::uint tCounter  = 0;
-        moris::uint tCounter2 = 0;
+        moris::uint tCounter = 0;
 
         moris::sint tMaxID = 0;
 
@@ -4146,18 +4145,14 @@ namespace moris::hmr
 
                 tBasis->set_local_index( tLocalIDs( tIndex1, 0 ) );
                 tBasis->set_domain_index( tLocalIDs( tIndex1, 0 ) - 1 );
-
-                tCounter++;
             }
 
             else
             {
-                tNonBSplineBasis( tCounter2++ ) = tBasis;
+                tNonBSplineBasis( tCounter++ ) = tBasis;
             }
         }
-        tNonBSplineBasis.resize( tCounter2 );
-
-        //            uint tMaxID = tReverseIDMap.max();
+        tNonBSplineBasis.resize( tCounter );
 
         tReverseIndexMap.resize( tMaxID + tNonBSplineBasis.size() + 1, 1 );
         tReverseIDMap.resize( tMaxID + tNonBSplineBasis.size() + 1, 1 );
@@ -4170,7 +4165,6 @@ namespace moris::hmr
             tBasis->set_local_index( tMaxID );
             tBasis->set_domain_index( tMaxID );
 
-            tCounter++;
             tMaxID++;
         }
 

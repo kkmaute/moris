@@ -34,7 +34,8 @@ namespace moris
         class Side_Cluster_DataBase;
         class Interpolation_Mesh_Analysis;
         class Interpolation_Mesh_DataBase_IP;
-        class Integration_Mesh_Info;
+
+        struct Integration_Mesh_Info;
 
         class Integration_Mesh_DataBase_IG : public mtk::Integration_Mesh
         {

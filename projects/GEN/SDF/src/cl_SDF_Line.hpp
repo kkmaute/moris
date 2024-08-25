@@ -30,14 +30,12 @@ namespace moris::sdf
      */
     class Line : public Facet
     {
-        bool mFlag = false;
-        //-------------------------------------------------------------------------------
 
       public:
         //-------------------------------------------------------------------------------
 
         Line(
-                moris_index                   aIndex,
+                moris_index                                aIndex,
                 Vector< std::shared_ptr< Facet_Vertex > >& aVertices );
 
         //-------------------------------------------------------------------------------

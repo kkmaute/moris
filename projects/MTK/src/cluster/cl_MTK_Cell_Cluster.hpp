@@ -34,7 +34,7 @@ namespace moris
             // ##############################################
 
             virtual bool
-            is_trivial( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const = 0;
+            is_trivial( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const override = 0;
 
             // ##############################################
             //  Cell/Vertex Access
@@ -44,27 +44,27 @@ namespace moris
             //------------------------------------------------------------------------------
 
             virtual Vector< moris::mtk::Cell const * > const &
-            get_primary_cells_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const = 0;
+            get_primary_cells_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const override = 0;
 
             //------------------------------------------------------------------------------
 
             virtual Vector< moris::mtk::Cell const * > const &
-            get_void_cells_in_cluster() const = 0;
+            get_void_cells_in_cluster() const override = 0;
 
             //------------------------------------------------------------------------------
 
             virtual moris::mtk::Cell const &
-            get_interpolation_cell( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const = 0;
+            get_interpolation_cell( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const override = 0;
 
             //------------------------------------------------------------------------------
 
             virtual Vector< moris::mtk::Vertex const * >
-            get_vertices_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const = 0;
+            get_vertices_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const override = 0;
 
             //------------------------------------------------------------------------------
 
             virtual void
-            set_interpolation_cell( moris::mtk::Cell const *aInterpCell )
+            set_interpolation_cell( moris::mtk::Cell const *aInterpCell ) override
             {
                 MORIS_ERROR( false, "set_interpolation_cell(), not implemented for this class" );
             };
@@ -72,7 +72,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             virtual void
-            add_primary_integration_cell( Vector< moris::mtk::Cell const * > const &aIntegrationCell )
+            add_primary_integration_cell( Vector< moris::mtk::Cell const * > const &aIntegrationCell ) override
             {
                 MORIS_ERROR( false, "add_primary_integration_cell(), not implemented for this class" );
             };
@@ -80,7 +80,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             virtual void
-            add_void_integration_cell( Vector< moris::mtk::Cell const * > const &aIntegrationCell )
+            add_void_integration_cell( Vector< moris::mtk::Cell const * > const &aIntegrationCell ) override
             {
                 MORIS_ERROR( false, "add_primary_integration_cell(), not implemented for this class" );
             };
@@ -88,7 +88,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             virtual void
-            mark_as_nontrivial()
+            mark_as_nontrivial() override
             {
                 MORIS_ERROR( false, "mark_as_nontrivial(), not implemented for this class" );
             };
@@ -545,7 +545,7 @@ namespace moris
              * @param[in] - Local integration cell index with respect to the cluster (not proc local index)
              */
             virtual moris::Matrix< moris::DDRMat >
-            get_primary_cell_local_coords_on_side_wrt_interp_cell( moris::moris_index aPrimaryCellClusterIndex ) const
+            get_primary_cell_local_coords_on_side_wrt_interp_cell( moris::moris_index aPrimaryCellClusterIndex ) const override
             {
                 MORIS_ASSERT( aPrimaryCellClusterIndex < (moris_index)this->get_num_primary_cells(),
                         "Integration Cell Cluster index out of bounds" );

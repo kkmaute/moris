@@ -21,10 +21,10 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Material_Model::eval_EintDOF_FD(
-                const Vector< MSI::Dof_Type > & aDofTypes,
-                Matrix< DDRMat >                   & aEintDOF_FD,
-                real                                 aPerturbation,
-                fem::FDScheme_Type                   aFDSchemeType)
+                const Vector< MSI::Dof_Type >& aDofTypes,
+                Matrix< DDRMat >&              aEintDOF_FD,
+                real                           aPerturbation,
+                fem::FDScheme_Type             aFDSchemeType )
         {
             // get the FD scheme info
             Vector< Vector< real > > tFDScheme;
@@ -52,16 +52,16 @@ namespace moris
             uint tDofCounter = 0;
 
             // loop over coefficients columns
-            for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
+            for ( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
             {
                 // loop over coefficients rows
-                for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
+                for ( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
                 {
                     // compute the perturbation absolute value
                     real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
                     // check that perturbation is not zero
-                    if( std::abs( tDeltaH ) < 1e-12 )
+                    if ( std::abs( tDeltaH ) < 1e-12 )
                     {
                         tDeltaH = aPerturbation;
                     }
@@ -70,20 +70,19 @@ namespace moris
                     uint tStartPoint = 0;
 
                     // if backward or forward add unperturbed contribution
-                    if( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
-                            ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                    if ( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD )    //
+                            || ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                     {
                         // add unperturbed flux contribution to dfluxdu
                         aEintDOF_FD.get_column( tDofCounter ) +=
-                                tFDScheme( 1 )( 0 ) * tEint /
-                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                tFDScheme( 1 )( 0 ) * tEint / ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
                         // skip first point in FD
                         tStartPoint = 1;
                     }
 
                     // loop over the points for FD
-                    for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
+                    for ( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                     {
                         // reset the perturbed coefficients
                         Matrix< DDRMat > tCoeffPert = tCoeff;
@@ -99,8 +98,7 @@ namespace moris
 
                         // assemble the jacobian
                         aEintDOF_FD.get_column( tDofCounter ) +=
-                                        tFDScheme( 1 )( iPoint ) * this->Eint() /
-                                        ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                tFDScheme( 1 )( iPoint ) * this->Eint() / ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
                     // update dof counter
                     tDofCounter++;
@@ -113,10 +111,10 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Material_Model::eval_EintDotDOF_FD(
-                const Vector< MSI::Dof_Type > & aDofTypes,
-                Matrix< DDRMat >                   & aEintDotDOF_FD,
-                real                                 aPerturbation,
-                fem::FDScheme_Type                   aFDSchemeType)
+                const Vector< MSI::Dof_Type >& aDofTypes,
+                Matrix< DDRMat >&              aEintDotDOF_FD,
+                real                           aPerturbation,
+                fem::FDScheme_Type             aFDSchemeType )
         {
             // get the FD scheme info
             Vector< Vector< real > > tFDScheme;
@@ -144,16 +142,16 @@ namespace moris
             uint tDofCounter = 0;
 
             // loop over coefficients columns
-            for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
+            for ( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
             {
                 // loop over coefficients rows
-                for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
+                for ( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
                 {
                     // compute the perturbation absolute value
                     real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
                     // check that perturbation is not zero
-                    if( std::abs( tDeltaH ) < 1e-12 )
+                    if ( std::abs( tDeltaH ) < 1e-12 )
                     {
                         tDeltaH = aPerturbation;
                     }
@@ -162,20 +160,19 @@ namespace moris
                     uint tStartPoint = 0;
 
                     // if backward or forward add unperturbed contribution
-                    if( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
-                            ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                    if ( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD )    //
+                            || ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                     {
                         // add unperturbed flux contribution to dfluxdu
                         aEintDotDOF_FD.get_column( tDofCounter ) +=
-                                tFDScheme( 1 )( 0 ) * tEintDot /
-                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                tFDScheme( 1 )( 0 ) * tEintDot / ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
                         // skip first point in FD
                         tStartPoint = 1;
                     }
 
                     // loop over the points for FD
-                    for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
+                    for ( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                     {
                         // reset the perturbed coefficients
                         Matrix< DDRMat > tCoeffPert = tCoeff;
@@ -191,8 +188,7 @@ namespace moris
 
                         // assemble the jacobian
                         aEintDotDOF_FD.get_column( tDofCounter ) +=
-                                        tFDScheme( 1 )( iPoint ) * this->EintDot() /
-                                        ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                tFDScheme( 1 )( iPoint ) * this->EintDot() / ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
                     // update dof counter
                     tDofCounter++;
@@ -205,11 +201,11 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Material_Model::eval_dnEintdxnDOF_FD(
-                const Vector< MSI::Dof_Type > & aDofTypes,
-                Matrix< DDRMat >                   & adnEintdxnDOF_FD,
-                real                                 aPerturbation,
-                uint                                 aOrder,
-                fem::FDScheme_Type                   aFDSchemeType)
+                const Vector< MSI::Dof_Type >& aDofTypes,
+                Matrix< DDRMat >&              adnEintdxnDOF_FD,
+                real                           aPerturbation,
+                uint                           aOrder,
+                fem::FDScheme_Type             aFDSchemeType )
         {
             // get the FD scheme info
             Vector< Vector< real > > tFDScheme;
@@ -237,16 +233,16 @@ namespace moris
             uint tDofCounter = 0;
 
             // loop over coefficients columns
-            for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
+            for ( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
             {
                 // loop over coefficients rows
-                for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
+                for ( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
                 {
                     // compute the perturbation absolute value
                     real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
                     // check that perturbation is not zero
-                    if( std::abs( tDeltaH ) < 1e-12 )
+                    if ( std::abs( tDeltaH ) < 1e-12 )
                     {
                         tDeltaH = aPerturbation;
                     }
@@ -255,20 +251,19 @@ namespace moris
                     uint tStartPoint = 0;
 
                     // if backward or forward add unperturbed contribution
-                    if( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
-                            ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                    if ( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD )    //
+                            || ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                     {
                         // add unperturbed flux contribution to dfluxdu
                         adnEintdxnDOF_FD.get_column( tDofCounter ) +=
-                                tFDScheme( 1 )( 0 ) * tdnEintdxn /
-                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                tFDScheme( 1 )( 0 ) * tdnEintdxn / ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
                         // skip first point in FD
                         tStartPoint = 1;
                     }
 
                     // loop over the points for FD
-                    for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
+                    for ( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                     {
                         // reset the perturbed coefficients
                         Matrix< DDRMat > tCoeffPert = tCoeff;
@@ -284,8 +279,7 @@ namespace moris
 
                         // assemble the jacobian
                         adnEintdxnDOF_FD.get_column( tDofCounter ) +=
-                                        tFDScheme( 1 )( iPoint ) * this->dnEintdxn( aOrder ) /
-                                        ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                tFDScheme( 1 )( iPoint ) * this->dnEintdxn( aOrder ) / ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
                     // update dof counter
                     tDofCounter++;
@@ -299,11 +293,11 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Material_Model::eval_TDvarDOF_FD(
-                const Vector< MSI::Dof_Type > & aDofTypes,
-                Matrix< DDRMat >                   & aTDvarDOF_FD,
-                real                                 aPerturbation,
-                MSI::Dof_Type                        aTDvar,
-                fem::FDScheme_Type                   aFDSchemeType )
+                const Vector< MSI::Dof_Type >& aDofTypes,
+                Matrix< DDRMat >&              aTDvarDOF_FD,
+                real                           aPerturbation,
+                MSI::Dof_Type                  aTDvar,
+                fem::FDScheme_Type             aFDSchemeType )
         {
             // get the FD scheme info
             Vector< Vector< real > > tFDScheme;
@@ -319,7 +313,7 @@ namespace moris
             uint tDerNumFields = tFI->get_number_of_fields();
 
             // get dof index for thermodynamic variable
-            uint tTDvarIndex = static_cast< uint >( aTDvar );
+            uint             tTDvarIndex = static_cast< uint >( aTDvar );
             Matrix< DDRMat > tTDvarVal;
 
             // evaluate unperturbed variable
@@ -364,16 +358,16 @@ namespace moris
             uint tDofCounter = 0;
 
             // loop over coefficients columns
-            for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
+            for ( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
             {
                 // loop over coefficients rows
-                for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
+                for ( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
                 {
                     // compute the perturbation absolute value
                     real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
                     // check that perturbation is not zero
-                    if( std::abs( tDeltaH ) < 1e-12 )
+                    if ( std::abs( tDeltaH ) < 1e-12 )
                     {
                         tDeltaH = aPerturbation;
                     }
@@ -382,20 +376,19 @@ namespace moris
                     uint tStartPoint = 0;
 
                     // if backward or forward add unperturbed contribution
-                    if( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
-                            ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                    if ( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD )    //
+                            || ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                     {
                         // add unperturbed flux contribution to dfluxdu
                         aTDvarDOF_FD.get_column( tDofCounter ) +=
-                                tFDScheme( 1 )( 0 ) * tTDvarVal /
-                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                tFDScheme( 1 )( 0 ) * tTDvarVal / ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
                         // skip first point in FD
                         tStartPoint = 1;
                     }
 
                     // loop over the points for FD
-                    for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
+                    for ( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                     {
                         // reset the perturbed coefficients
                         Matrix< DDRMat > tCoeffPert = tCoeff;
@@ -444,8 +437,7 @@ namespace moris
 
                         // assemble the jacobian
                         aTDvarDOF_FD.get_column( tDofCounter ) +=
-                                        tFDScheme( 1 )( iPoint ) * tTDvarValPert /
-                                        ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                tFDScheme( 1 )( iPoint ) * tTDvarValPert / ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
                     // update dof counter
                     tDofCounter++;
@@ -458,11 +450,11 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Material_Model::eval_TDvarDotDOF_FD(
-                const Vector< MSI::Dof_Type > & aDofTypes,
-                Matrix< DDRMat >                   & aTDvarDotDOF_FD,
-                real                                 aPerturbation,
-                MSI::Dof_Type                        aTDvar,
-                fem::FDScheme_Type                   aFDSchemeType )
+                const Vector< MSI::Dof_Type >& aDofTypes,
+                Matrix< DDRMat >&              aTDvarDotDOF_FD,
+                real                           aPerturbation,
+                MSI::Dof_Type                  aTDvar,
+                fem::FDScheme_Type             aFDSchemeType )
         {
             // get the FD scheme info
             Vector< Vector< real > > tFDScheme;
@@ -478,7 +470,7 @@ namespace moris
             uint tDerNumFields = tFI->get_number_of_fields();
 
             // get dof index for thermodynamic variable
-            uint tTDvarIndex = static_cast< uint >( aTDvar );
+            uint             tTDvarIndex = static_cast< uint >( aTDvar );
             Matrix< DDRMat > tTDvarDotVal;
 
             // evaluate unperturbed variable
@@ -523,16 +515,16 @@ namespace moris
             uint tDofCounter = 0;
 
             // loop over coefficients columns
-            for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
+            for ( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
             {
                 // loop over coefficients rows
-                for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
+                for ( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
                 {
                     // compute the perturbation absolute value
                     real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
                     // check that perturbation is not zero
-                    if( std::abs( tDeltaH ) < 1e-12 )
+                    if ( std::abs( tDeltaH ) < 1e-12 )
                     {
                         tDeltaH = aPerturbation;
                     }
@@ -541,20 +533,19 @@ namespace moris
                     uint tStartPoint = 0;
 
                     // if backward or forward add unperturbed contribution
-                    if( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
-                            ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                    if ( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD )    //
+                            || ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                     {
                         // add unperturbed flux contribution to dfluxdu
                         aTDvarDotDOF_FD.get_column( tDofCounter ) +=
-                                tFDScheme( 1 )( 0 ) * tTDvarDotVal /
-                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                tFDScheme( 1 )( 0 ) * tTDvarDotVal / ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
                         // skip first point in FD
                         tStartPoint = 1;
                     }
 
                     // loop over the points for FD
-                    for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
+                    for ( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                     {
                         // reset the perturbed coefficients
                         Matrix< DDRMat > tCoeffPert = tCoeff;
@@ -603,8 +594,7 @@ namespace moris
 
                         // assemble the jacobian
                         aTDvarDotDOF_FD.get_column( tDofCounter ) +=
-                                        tFDScheme( 1 )( iPoint ) * tTDvarDotValPert /
-                                        ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                tFDScheme( 1 )( iPoint ) * tTDvarDotValPert / ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
                     // update dof counter
                     tDofCounter++;
@@ -617,12 +607,12 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Material_Model::eval_dnTDvardxnDOF_FD(
-                const Vector< MSI::Dof_Type > & aDofTypes,
-                Matrix< DDRMat >                   & adnTDvardxnDOF_FD,
-                real                                 aPerturbation,
-                MSI::Dof_Type                        aTDvar,
-                uint                                 aOrder,
-                fem::FDScheme_Type                   aFDSchemeType )
+                const Vector< MSI::Dof_Type >& aDofTypes,
+                Matrix< DDRMat >&              adnTDvardxnDOF_FD,
+                real                           aPerturbation,
+                MSI::Dof_Type                  aTDvar,
+                uint                           aOrder,
+                fem::FDScheme_Type             aFDSchemeType )
         {
             // get the FD scheme info
             Vector< Vector< real > > tFDScheme;
@@ -638,7 +628,7 @@ namespace moris
             uint tDerNumFields = tFI->get_number_of_fields();
 
             // get dof index for thermodynamic variable
-            uint tTDvarIndex = static_cast< uint >( aTDvar );
+            uint             tTDvarIndex = static_cast< uint >( aTDvar );
             Matrix< DDRMat > tdnTDvardxnVal;
 
             // evaluate unperturbed variable
@@ -683,16 +673,16 @@ namespace moris
             uint tDofCounter = 0;
 
             // loop over coefficients columns
-            for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
+            for ( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
             {
                 // loop over coefficients rows
-                for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
+                for ( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
                 {
                     // compute the perturbation absolute value
                     real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
                     // check that perturbation is not zero
-                    if( std::abs( tDeltaH ) < 1e-12 )
+                    if ( std::abs( tDeltaH ) < 1e-12 )
                     {
                         tDeltaH = aPerturbation;
                     }
@@ -701,20 +691,19 @@ namespace moris
                     uint tStartPoint = 0;
 
                     // if backward or forward add unperturbed contribution
-                    if( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
-                            ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                    if ( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD )    //
+                            || ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                     {
                         // add unperturbed flux contribution to dfluxdu
                         adnTDvardxnDOF_FD.get_column( tDofCounter ) +=
-                                tFDScheme( 1 )( 0 ) * tdnTDvardxnVal /
-                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                tFDScheme( 1 )( 0 ) * tdnTDvardxnVal / ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
                         // skip first point in FD
                         tStartPoint = 1;
                     }
 
                     // loop over the points for FD
-                    for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
+                    for ( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                     {
                         // reset the perturbed coefficients
                         Matrix< DDRMat > tCoeffPert = tCoeff;
@@ -763,8 +752,7 @@ namespace moris
 
                         // assemble the jacobian
                         adnTDvardxnDOF_FD.get_column( tDofCounter ) +=
-                                        tFDScheme( 1 )( iPoint ) * tdnTDvardxnValPert /
-                                        ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                tFDScheme( 1 )( iPoint ) * tdnTDvardxnValPert / ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
                     // update dof counter
                     tDofCounter++;
@@ -777,14 +765,15 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Material_Model::eval_QuantityDOF_FD(
-                const Vector< MSI::Dof_Type > & aDofTypes,
-                Matrix< DDRMat >                   & aQuantityDOF_FD,
-                std::string                          aQuantityString,
-                real                                 aPerturbation,
-                fem::FDScheme_Type                   aFDSchemeType )
+                const Vector< MSI::Dof_Type >& aDofTypes,
+                Matrix< DDRMat >&              aQuantityDOF_FD,
+                std::string                    aQuantityString,
+                real                           aPerturbation,
+                fem::FDScheme_Type             aFDSchemeType )
         {
             // set function pointer based on string
-            const Matrix< DDRMat > &  ( Material_Model:: * t_get_Quantity )();
+            const Matrix< DDRMat >& ( Material_Model::*t_get_Quantity )() = nullptr;
+
             if ( aQuantityString == "Cp" )
             {
                 t_get_Quantity = &Material_Model::Cp;
@@ -836,16 +825,16 @@ namespace moris
             uint tDofCounter = 0;
 
             // loop over coefficients columns
-            for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
+            for ( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
             {
                 // loop over coefficients rows
-                for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
+                for ( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
                 {
                     // compute the perturbation absolute value
                     real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
                     // check that perturbation is not zero
-                    if( std::abs( tDeltaH ) < 1e-12 )
+                    if ( std::abs( tDeltaH ) < 1e-12 )
                     {
                         tDeltaH = aPerturbation;
                     }
@@ -854,20 +843,18 @@ namespace moris
                     uint tStartPoint = 0;
 
                     // if backward or forward add unperturbed contribution
-                    if( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
-                            ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                    if ( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) || ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                     {
                         // add unperturbed flux contribution to dfluxdu
                         aQuantityDOF_FD.get_column( tDofCounter ) +=
-                                tFDScheme( 1 )( 0 ) * tQuantity /
-                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                tFDScheme( 1 )( 0 ) * tQuantity / ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
                         // skip first point in FD
                         tStartPoint = 1;
                     }
 
                     // loop over the points for FD
-                    for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
+                    for ( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                     {
                         // reset the perturbed coefficients
                         Matrix< DDRMat > tCoeffPert = tCoeff;
@@ -883,8 +870,7 @@ namespace moris
 
                         // assemble the jacobian
                         aQuantityDOF_FD.get_column( tDofCounter ) +=
-                                        tFDScheme( 1 )( iPoint ) * ( this->*t_get_Quantity )() /
-                                        ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                tFDScheme( 1 )( iPoint ) * ( this->*t_get_Quantity )() / ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
                     // update dof counter
                     tDofCounter++;
@@ -896,6 +882,5 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-    }/* end_fem_namespace */
-}/* end_moris_namespace */
-
+    }    // namespace fem
+}    // namespace moris

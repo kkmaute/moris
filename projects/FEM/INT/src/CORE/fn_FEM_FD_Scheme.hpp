@@ -35,10 +35,10 @@ namespace moris
                 case fem::FDScheme_Type::POINT_1_FORWARD :
                 {
                     // fill points
-                    aFDScheme( 0 ) = { { 0.0 }, { 1.0 } };
+                    aFDScheme( 0 ) = { 0.0, 1.0 };
 
                     // fill coeffs
-                    aFDScheme( 1 ) = { { -1.0 }, { 1.0 } };
+                    aFDScheme( 1 ) = { -1.0, 1.0 };
 
                     // fill deno
                     aFDScheme( 2 ) = { 1.0 };
@@ -48,10 +48,10 @@ namespace moris
                 case fem::FDScheme_Type::POINT_1_BACKWARD :
                 {
                     // fill points
-                    aFDScheme( 0 ) = { { 0.0 }, { -1.0 } };
+                    aFDScheme( 0 ) = { 0.0, -1.0 };
 
                     // fill coeffs
-                    aFDScheme( 1 ) = { { 1.0 }, { -1.0 } };
+                    aFDScheme( 1 ) = { 1.0, -1.0 };
 
                     // fill deno
                     aFDScheme( 2 ) = { 1.0 };
@@ -61,10 +61,10 @@ namespace moris
                 case fem::FDScheme_Type::POINT_3_CENTRAL :
                 {
                     // fill points
-                    aFDScheme( 0 ) = { { -1.0 }, { 1.0 } };
+                    aFDScheme( 0 ) = { -1.0, 1.0 };
 
                     // fill coeffs
-                    aFDScheme( 1 ) = { { -1.0 }, { 1.0 } };
+                    aFDScheme( 1 ) = { -1.0, 1.0 };
 
                     // fill deno
                     aFDScheme( 2 ) = { 2.0 };
@@ -74,10 +74,10 @@ namespace moris
                 case fem::FDScheme_Type::POINT_5 :
                 {
                     // fill points
-                    aFDScheme( 0 ) = { { -2.0 }, { -1.0 }, { 1.0 }, { 2.0 } };
+                    aFDScheme( 0 ) = { -2.0, -1.0, 1.0, 2.0 };
 
                     // fill coeffs
-                    aFDScheme( 1 ) = { { 1.0 }, { -8.0 }, { 8.0 }, { -1.0 } };
+                    aFDScheme( 1 ) = { 1.0, -8.0, 8.0, -1.0 };
 
                     // fill deno
                     aFDScheme( 2 ) = { 12.0 };
