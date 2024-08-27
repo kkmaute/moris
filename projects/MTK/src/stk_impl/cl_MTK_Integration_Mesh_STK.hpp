@@ -24,9 +24,9 @@ namespace moris
 
         class Interpolation_Mesh;
 
-        class MtkMeshData;
+        struct MtkMeshData;
 
-        class Cell_Cluster_Input;
+        struct Cell_Cluster_Input;
 
         class Side_Cluster_Input;
 
@@ -83,9 +83,9 @@ namespace moris
 
             ~Integration_Mesh_STK();
 
-            //##############################################
-            // Cell Cluster Access
-            //##############################################
+            // ##############################################
+            //  Cell Cluster Access
+            // ##############################################
 
             /*
              * Get a cell cluster related to an interpolation
@@ -105,9 +105,9 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
-            //##############################################
-            // Block set with cluster access
-            //##############################################
+            // ##############################################
+            //  Block set with cluster access
+            // ##############################################
             /*!
              * Returns the block set names
              */
@@ -135,9 +135,9 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
-            //##############################################
-            // Side Set Cluster Access
-            //##############################################
+            // ##############################################
+            //  Side Set Cluster Access
+            // ##############################################
 
             /*!
              * Return a side set containing clusters
@@ -163,9 +163,9 @@ namespace moris
             moris_index
             get_side_set_index( std::string aSideSetLabel ) const;
 
-            //##############################################
-            // Double Side Set Cluster Access
-            //##############################################
+            // ##############################################
+            //  Double Side Set Cluster Access
+            // ##############################################
 
             /*!
              * Returns the number of double sided side sets in the mesh
@@ -196,21 +196,21 @@ namespace moris
             Vector< Cell_Cluster_STK > mCellClusters;
 
             // Block sets containing Cell Clusters
-            std::unordered_map< std::string, moris_index >   mBlockSetLabelToOrd;
-            Vector< std::string >                       mPrimaryBlockSetNames;
-            Vector< Vector< moris::moris_index > > mPrimaryBlockSetClusters;
-            Vector< moris::moris_index >                mIpCellToBlockSetOrd;
+            std::unordered_map< std::string, moris_index > mBlockSetLabelToOrd;
+            Vector< std::string >                          mPrimaryBlockSetNames;
+            Vector< Vector< moris::moris_index > >         mPrimaryBlockSetClusters;
+            Vector< moris::moris_index >                   mIpCellToBlockSetOrd;
 
             // side sets
             std::unordered_map< std::string, moris_index > mSideSideSetLabelToOrd;
-            Vector< std::string >                     mSideSetLabels;
-            Vector< Vector< Side_Cluster_STK > > mSideSets;
+            Vector< std::string >                          mSideSetLabels;
+            Vector< Vector< Side_Cluster_STK > >           mSideSets;
 
             // double side sets
             std::unordered_map< std::string, moris_index > mDoubleSideSetLabelToOrd;
-            Vector< std::string >                     mDoubleSideSetLabels;
-            Vector< Vector< Cluster const * > >  mDoubleSideSets;
-            Vector< Side_Cluster_STK >                mDoubleSideSetSideClusters;
+            Vector< std::string >                          mDoubleSideSetLabels;
+            Vector< Vector< Cluster const * > >            mDoubleSideSets;
+            Vector< Side_Cluster_STK >                     mDoubleSideSetSideClusters;
 
             /*!
              * Setup the clustering interface
@@ -260,4 +260,3 @@ namespace moris
 }    // namespace moris
 
 #endif /* PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_INTEGRATION_MESH_STK_HPP_ */
-

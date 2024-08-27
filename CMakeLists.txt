@@ -522,7 +522,9 @@ else()
     
     check_cxx_compiler_flag(-flto HAVE_LTO_OPTIMISATION)
     if (HAVE_LTO_OPTIMISATION AND MORIS_USE_LTO)
-        set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -flto=4")
+        set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -flto")
+        # clang flag
+        # set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -flto=thin")
         # -ffat-lto-objects
     endif()
 endif()
@@ -587,11 +589,21 @@ if (MORIS_HAVE_PEDANTIC)
     if (HAVE_EXCEPTION)
         set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-unused-parameter" )
     endif()
-    check_cxx_compiler_flag("-Wno-overloaded-virtual" HAVE_OVERLOAD_VIRTUAL )
-    if (HAVE_NOFREE)
-        set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-overloaded-virtual" )       
-    endif()
-endif()
+#    check_cxx_compiler_flag("-Wno-overloaded-virtual" HAVE_OVERLOAD_VIRTUAL )
+#    if (HAVE_OVERLOAD_VIRTUAL)
+#        set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-overloaded-virtual" )       
+#    endif()
+    
+    # clang flags
+    # check_cxx_compiler_flag("-Wno-inconsistent-missing-override" HAVE_MISSING_OVERRIDE )
+    # if (HAVE_MISSING_OVERRIDE)
+    #     set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-inconsistent-missing-override" )       
+    # endif()
+    # check_cxx_compiler_flag("-Wno-keyword-macro" HAVE_KEYWORD_MACRO )
+    # if (HAVE_KEYWORD_MACRO)
+    #      set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-keyword-macro" )       
+    # endif()
+ endif()
 
 # Check for C++17 and lower version support.
 check_cxx_compiler_flag(-std=c++17 HAVE_STD_CPP17)

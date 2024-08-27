@@ -166,9 +166,6 @@ namespace moris::xtk
     {
         Tracer tTracer( "XTK", "Decomposition_Algorithm", "Determine Intersected Edges", mGenerator->verbosity_level(), 1 );
 
-        // get first unused index for nodes for numbering new nodes
-        moris_index tNewNodeIndex = mCutIntegrationMesh->get_first_available_index( mtk::EntityRank::NODE );
-
         // get the number of edges to be treated
         uint tNumEdges = aEdgeConnectivity->mEdgeVertices.size();
 
@@ -278,7 +275,6 @@ namespace moris::xtk
                         mGeometryEngine->admit_queued_intersection();
 
                         // count number of new nodes created
-                        tNewNodeIndex++;
                     }
                 }
             }
@@ -557,7 +553,7 @@ namespace moris::xtk
 
         }    // end for: each IG cell currently in the cut mesh
 
-    }        // end function: Node_Hierarchy_Interface::create_node_hierarchy_integration_cells()
+    }    // end function: Node_Hierarchy_Interface::create_node_hierarchy_integration_cells()
 
     // ----------------------------------------------------------------------------------
 
@@ -663,8 +659,8 @@ namespace moris::xtk
                 tNumNewIgCells = tNumNewIgCells + ( *aNHTemplate )( iCell )->mNumCells;
                 mNumNewCells   = mNumNewCells + ( *aNHTemplate )( iCell )->mNumCells - 1;
 
-            } // end if: the cell is intersected
-        } // end for: each IG cell
+            }    // end if: the cell is intersected
+        }        // end for: each IG cell
 
         return tNumNewIgCells;
     }

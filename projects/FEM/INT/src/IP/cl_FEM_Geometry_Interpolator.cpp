@@ -293,7 +293,8 @@ namespace moris
             // fixme what about TRI and TET
             for ( uint Ik = 0; Ik < mNumSpaceParamDim + mNumTimeDim; Ik++ )
             {
-                MORIS_ASSERT( ( ( aParamPoint( Ik ) <= 1.0 + mEpsilon ) && ( aParamPoint( Ik ) >= -1.0 - mEpsilon ) ),
+                MORIS_ASSERT( ( ( aParamPoint( Ik ) <= 1.0 + Geometry_Interpolator_Epsilon )    //
+                                      && ( aParamPoint( Ik ) >= -1.0 - Geometry_Interpolator_Epsilon ) ),
                         "Geometry_Interpolator::set_space_time - Wrong input value ( aParamPoint )." );
             }
 
@@ -345,7 +346,8 @@ namespace moris
             // fixme what about TRI and TET
             for ( uint Ik = 0; Ik < mNumTimeDim; Ik++ )
             {
-                MORIS_ASSERT( ( ( aTimeParamPoint( Ik ) <= 1.0 + mEpsilon ) && ( aTimeParamPoint( Ik ) >= -1.0 - mEpsilon ) ),
+                MORIS_ASSERT( ( ( aTimeParamPoint( Ik ) <= 1.0 + Geometry_Interpolator_Epsilon )    //
+                                      && ( aTimeParamPoint( Ik ) >= -1.0 - Geometry_Interpolator_Epsilon ) ),
                         "Geometry_Interpolator::set_time - Wrong input value ( aTimeParamPoint )." );
             }
 

@@ -108,7 +108,7 @@ namespace moris
             // get temperature
             real tTemp = aFieldInterpolator->val()( 0 );
 
-            real tdfdT;
+            real tdfdT = 0.0;
 
             switch ( aPCfunc )
             {
@@ -177,7 +177,7 @@ namespace moris
             // get temperature
             real tTemp = aFieldInterpolator->val()( 0 );
 
-            real td2fdT2;
+            real td2fdT2 = 0.0;
 
             switch ( aPCfunc )
             {
@@ -245,4 +245,3 @@ namespace moris
 }    // namespace moris
 
 #endif /* PROJECTS_FEM_INT_SRC_FN_FEM_CM_PHASE_STATE_FUNCTIONS_HPP_ */
-

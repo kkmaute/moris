@@ -432,8 +432,7 @@ namespace moris
 
         moris::Matrix< moris::DDRMat >
         Side_Cluster::get_primary_cell_local_coords_on_side_wrt_interp_cell(
-                moris::moris_index         aPrimaryCellClusterIndex,
-                const mtk::Leader_Follower aIsLeader ) const
+                moris::moris_index aPrimaryCellClusterIndex ) const
         {
             return this->get_cell_local_coords_on_side_wrt_interp_cell( aPrimaryCellClusterIndex );
         }

@@ -154,7 +154,6 @@ namespace moris::mtk
         PointMapper                                     mPointMapper;
         real                                            mMaxNegativeRayLength;
         real                                            mMaxPositiveRayLength;
-        int                                             mIteration = 0;
     };
 }    // namespace moris::mtk
 #endif    // MORIS_CL_MTK_CONTACT_MESH_EDITOR_HPP

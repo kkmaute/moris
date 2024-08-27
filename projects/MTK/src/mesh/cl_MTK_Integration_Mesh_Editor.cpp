@@ -1512,14 +1512,12 @@ namespace moris::mtk
         mOutputMesh->mVertexGlobalIdToLocalIndex.reserve( mOutputMesh->mVertices.size() );
 
         // create the vertex map used in gen based on the new vertex
-        moris_index iCounter = 0;
-        for ( const auto& iVertex : mOutputMesh->mVertices )
+        for ( uint iCounter = 0; iCounter < mOutputMesh->mVertices.size(); ++iCounter )
         {
-            MORIS_ASSERT( iVertex.get_index() == iCounter, "Index alignment issue in vertices" );
+            MORIS_ASSERT( mOutputMesh->mVertices( iCounter ).get_index() == (moris_index)iCounter,
+                    "Index alignment issue in vertices" );
 
-            mOutputMesh->mVertexGlobalIdToLocalIndex[ iVertex.get_id() ] = iVertex.get_index();
-
-            iCounter++;
+            mOutputMesh->mVertexGlobalIdToLocalIndex[ mOutputMesh->mVertices( iCounter ).get_id() ] = iCounter;
         }
     }
 

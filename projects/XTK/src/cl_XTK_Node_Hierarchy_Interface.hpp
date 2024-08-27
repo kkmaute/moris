@@ -27,12 +27,12 @@ namespace moris
 
 namespace moris::xtk
 {
-
     class Integration_Mesh_Generator;
-    class Integration_Mesh_Generation_Data;
-    class Decomposition_Data;
     class Cut_Integration_Mesh;
-    class IG_Cell_Group;
+
+    struct Integration_Mesh_Generation_Data;
+    struct Decomposition_Data;
+    struct IG_Cell_Group;
 
     struct Node_Hierarchy_Template
     {

@@ -38,9 +38,10 @@ namespace moris::xtk
     };
 
     class Integration_Mesh_Generator;
-    class Integration_Mesh_Generation_Data;
-    class Decomposition_Data;
     class Cut_Integration_Mesh;
+
+    struct Integration_Mesh_Generation_Data;
+    struct Decomposition_Data;
 
     // -------------------------------------------------------------------------
 

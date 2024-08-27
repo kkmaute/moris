@@ -52,7 +52,6 @@ namespace moris::xtk
         moris::size_t tNumElements = aActiveElements.n_cols();
 
         // Number of Elements with Set Phases (This allows for early termination of code if every element has been set)
-        moris::size_t tNumPhasesSet = 0;
 
         // Maximum number of neighbors per element
         moris::size_t tMaxNumNeighbors = aElementToElement.n_cols();
@@ -142,7 +141,7 @@ namespace moris::xtk
                         tActiveFrontCount++;
                     }
 
-                } // end for: each neighbor of the current element
+                }    // end for: each neighbor of the current element
 
                 // Iterate through active front until there are no more elements in the active front
                 // We start at the end of the front and work backwards
@@ -174,9 +173,6 @@ namespace moris::xtk
 
                         // Mark element as set
                         tPhaseSet( 0, tNeighborIndex ) = 1;
-
-                        // Increase the number of phases set
-                        tNumPhasesSet++;
 
                         // Add the elements other neighbors to the active front
                         bool tReplaced = false;
@@ -247,18 +243,18 @@ namespace moris::xtk
                         tActiveFrontCount--;
                     }
 
-                } // end while: active front is not empty
+                }    // end while: active front is not empty
 
                 tCurrentSubphase++;
 
-            } // end if: enrichment level has not been determined yet
-        } // end for: all elements in graph
+            }    // end if: enrichment level has not been determined yet
+        }        // end for: all elements in graph
 
         aMaxValueAssigned = tCurrentSubphase - 1;
 
         return tElementSubphase;
 
-    } // end function: flood_fill()
-} // namespace moris::xtk
+    }    // end function: flood_fill()
+}    // namespace moris::xtk
 
 #endif /* XTK_SRC_XTK_FN_MESH_FLOOD_FILL_HPP_ */

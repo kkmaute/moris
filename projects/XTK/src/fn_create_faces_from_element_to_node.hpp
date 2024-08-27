@@ -53,7 +53,6 @@ namespace moris::xtk
         moris::size_t tFaceIndex = 0;
         moris::size_t tNodeInd   = 0;
         moris::size_t tFirstInd  = 0;
-        moris::size_t tResize    = 0;
 
         // Allocate outputs
         aElementToFace.resize( tNumElements, tNumFacesPerElem );
@@ -130,7 +129,6 @@ namespace moris::xtk
                         if ( tCount >= aNodeToFace.n_cols() )
                         {
                             aNodeToFace.resize( aNumNodes, aNodeToFace.n_cols() + tMaxFacePerNode );
-                            tResize++;
                         }
 
                         if ( tCount > tMaxUsed )

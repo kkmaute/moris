@@ -32,7 +32,7 @@ namespace moris
         {
           private:
             // sign for symmetric/unsymmetric Nitsche
-            sint mBeta = 1;
+            //sint mBeta = 1;
 
             // the literature used for this implementation uses a different parameter to switch between symmetric and unsymmetric Nitsche.
             // to avoid confusion with other IWGs, mBeta will be used to switch between symmetric and unsymmetric Nitsche in the factory, and

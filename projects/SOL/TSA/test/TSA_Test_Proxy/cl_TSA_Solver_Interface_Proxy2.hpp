@@ -45,9 +45,6 @@ namespace moris
             Matrix< DDRMat >  mMySolVec;
             Matrix< DDRMat >  mMySolVecPrev;
 
-            moris::sint mNX;
-            moris::sint mNY;
-
             Vector< enum MSI::Dof_Type > mListOfDofTypes;
             Vector< enum MSI::Dof_Type > mListSecondaryOfDofTypes;
 
@@ -82,7 +79,7 @@ namespace moris
                 mPreviousT = aTime;
             }
 
-            void free_block_memory( const uint aBlockInd ) override {};
+            void free_block_memory( const uint aBlockInd ) override{};
             // ----------------------------------------------------------------------------------------------
 
             void set_requested_dof_types( const Vector< enum MSI::Dof_Type > aListOfDofTypes ) override

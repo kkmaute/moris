@@ -57,15 +57,13 @@ namespace moris
             Matrix< F31RMat > mMinCoord;
             Matrix< F31RMat > mMaxCoord;
 
-            bool mFlag = false;
-
             //-------------------------------------------------------------------------------
 
           public:
             //-------------------------------------------------------------------------------
 
             Triangle(
-                    moris_index                   aIndex,
+                    moris_index                                aIndex,
                     Vector< std::shared_ptr< Facet_Vertex > >& aVertices );
 
             //-------------------------------------------------------------------------------

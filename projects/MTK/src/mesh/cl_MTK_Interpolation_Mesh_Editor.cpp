@@ -25,6 +25,7 @@ namespace moris::mtk
             : mInputMesh( aMTKMesh )
     {
         mIPMeshInfo = new Interpolation_Mesh_Info;
+
         // copy the necessary data for the old mesh
         mIPMeshInfo->mVertices               = mInputMesh.get_all_vertices();
         mIPMeshInfo->mNumInterpolations      = mInputMesh.get_num_interpolations();
@@ -85,6 +86,7 @@ namespace moris::mtk
     }
 
     // ----------------------------------------------------------------------------
+
     void
     Interpolation_Mesh_Editor::initialize_vertex_data()
     {
@@ -221,8 +223,6 @@ namespace moris::mtk
 
         return mOutputMesh;
     }
-
-    // ----------------------------------------------------------------------------
 
     // ----------------------------------------------------------------------------
 
@@ -364,6 +364,8 @@ namespace moris::mtk
         }
     }
 
+    //-----------------------------------------------------------------------------
+
     void
     Interpolation_Mesh_Editor::create_communication_table()
     {
@@ -372,6 +374,7 @@ namespace moris::mtk
     }
 
     //--------------------------------------------------------------------------------------------------------------
+
     void
     Interpolation_Mesh_Editor::create_vertex_glb_id_to_loc_vertex_ind_map()
     {
@@ -379,16 +382,15 @@ namespace moris::mtk
         mOutputMesh->mVertexGlobalIdToLocalIndex.reserve( mIPMeshInfo->mVertices.size() );
 
         // create the vertex map used in gen based on the new vertex
-        moris_index iCounter = 0;
-        for ( const auto& iVertex : mOutputMesh->mVertices )
+        for ( uint iCounter = 0; iCounter < mOutputMesh->mVertices.size(); ++iCounter )
         {
-            MORIS_ASSERT( iVertex.get_index() == iCounter, "Index alignment issue in vertices" );
+            MORIS_ASSERT( mOutputMesh->mVertices( iCounter ).get_index() == (moris_index)iCounter,
+                    "Index alignment issue in vertices" );
 
-            mOutputMesh->mVertexGlobalIdToLocalIndex[ iVertex.get_id() ] = iVertex.get_index();
-
-            iCounter++;
+            mOutputMesh->mVertexGlobalIdToLocalIndex[ mOutputMesh->mVertices( iCounter ).get_id() ] = iCounter;
         }
     }
+
     //--------------------------------------------------------------------------------------------------------------
 
     void
@@ -447,6 +449,7 @@ namespace moris::mtk
 
         return tVertexMapEqual && tAdofMapEqual;
     }
+
     //--------------------------------------------------------------------------------------------------------------
 
     bool

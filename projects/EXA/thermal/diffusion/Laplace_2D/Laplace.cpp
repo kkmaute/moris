@@ -821,8 +821,8 @@ namespace moris
         tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_constitutive_models", "CMDiffusion,Diffusion" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters", "SPNitsche,DirichletNitsche" );
         tIWGCounter++;
-        
-              // Inlet BC IWG ----------------------------------------------------------------
+
+        // Inlet BC IWG ----------------------------------------------------------------
 
         //
         tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
@@ -1176,20 +1176,20 @@ namespace moris
 
         tParameterlist( 3 ).resize( 3 );
         tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();    // 1: thermal subproblem
-        tParameterlist( 3 )( 0 ).set( "NLA_Nonlinear_solver_algorithms", "0,1" );         // set nonlinear algorithm with index 0
+        tParameterlist( 3 )( 0 ).set( "NLA_Nonlinear_solver_algorithms", "0,1" );           // set nonlinear algorithm with index 0
         tParameterlist( 3 )( 0 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         tParameterlist( 3 )( 0 ).set( "NLA_DofTypes", "TEMP" );
 
         tParameterlist( 3 )( 1 ) = moris::prm::create_nonlinear_solver_parameter_list();    // 1: thermal subproblem
-        tParameterlist( 3 )( 1 ).set( "NLA_Nonlinear_solver_algorithms", "0" );         // set nonlinear algorithm with index 0
+        tParameterlist( 3 )( 1 ).set( "NLA_Nonlinear_solver_algorithms", "0" );             // set nonlinear algorithm with index 0
         tParameterlist( 3 )( 1 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         tParameterlist( 3 )( 1 ).set( "NLA_DofTypes", "L2" );
 
-        tParameterlist(3)(2) = moris::prm::create_nonlinear_solver_parameter_list(); // nonlinear solver index 2
-        tParameterlist(3)(2).set("NLA_Solver_Implementation", static_cast<uint>(moris::NLA::NonlinearSolverType::NLBGS_SOLVER));
-        tParameterlist(3)(2).set("NLA_Nonlinear_solver_algorithms", "3"); // set nonlinear algorithm with index 1.
-        tParameterlist(3)(2).set("NLA_Sub_Nonlinear_Solver", "0,1");  // set sub nonlinear solvers with index 0 and 1
-        tParameterlist(3)(2).set("NLA_DofTypes", "TEMP;L2");
+        tParameterlist( 3 )( 2 ) = moris::prm::create_nonlinear_solver_parameter_list();    // nonlinear solver index 2
+        tParameterlist( 3 )( 2 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER ) );
+        tParameterlist( 3 )( 2 ).set( "NLA_Nonlinear_solver_algorithms", "3" );    // set nonlinear algorithm with index 1.
+        tParameterlist( 3 )( 2 ).set( "NLA_Sub_Nonlinear_Solver", "0,1" );         // set sub nonlinear solvers with index 0 and 1
+        tParameterlist( 3 )( 2 ).set( "NLA_DofTypes", "TEMP;L2" );
 
         // ----------------------------------------------------------
 
