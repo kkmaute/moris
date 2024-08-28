@@ -13,6 +13,7 @@
 #include "core.hpp"
 #include "cl_DLA_Linear_Solver_Algorithm_Petsc.hpp"
 #include "cl_Vector_PETSc.hpp"
+#include "cl_Vector_PETSc_Multi.hpp"
 #include "cl_MatrixPETSc.hpp"
 
 #include "cl_SOL_Matrix_Vector_Factory.hpp"

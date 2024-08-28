@@ -1165,39 +1165,40 @@ namespace moris::xtk
 
         moris_index tBaseIndex = 0;
 
-        for ( uint iEnrLvl = 0; iEnrLvl < aSubPhaseBinEnrichment.size(); iEnrLvl++ )
+        // loop over non-enriched basis functions
+        for ( uint iBF = 0; iBF < aSubPhaseBinEnrichment.size(); iBF++ )
         {
             // get the maximum enrichment level in this basis support
-            moris_index tMaxEnrLev = aMaxEnrichmentLevel( iEnrLvl );
+            moris_index tMaxEnrLev = aMaxEnrichmentLevel( iBF );
 
             // counter
             Vector< moris_index > tCounter( tMaxEnrLev + 1, 0 );
 
             // allocate member data for these basis functions
-            for ( moris_index iEnr = tBaseIndex; iEnr < tBaseIndex + tMaxEnrLev + 1; iEnr++ )
+            for ( moris_index iEnrBF = tBaseIndex; iEnrBF < tBaseIndex + tMaxEnrLev + 1; iEnrBF++ )
             {
-                mEnrichmentData( aEnrichmentDataIndex ).mSubphaseIndsInEnrichedBasis( iEnr ).resize( 1, aSubphaseClusterIndicesInSupport( iEnrLvl ).numel() );
+                mEnrichmentData( aEnrichmentDataIndex ).mSubphaseIndsInEnrichedBasis( iEnrBF ).resize( 1, aSubphaseClusterIndicesInSupport( iBF ).numel() );
             }
 
             // iterate through subphases in support and add them to appropriate location in mSubphaseIndsInEnrichedBasis
-            for ( uint iSp = 0; iSp < aSubphaseClusterIndicesInSupport( iEnrLvl ).numel(); iSp++ )
+            for ( uint iSp = 0; iSp < aSubphaseClusterIndicesInSupport( iBF ).numel(); iSp++ )
             {
                 // get cluster enrichment level
-                moris_index tClusterEnrLev = aSubPhaseBinEnrichment( iEnrLvl )( iSp );
+                moris_index tClusterEnrLev = aSubPhaseBinEnrichment( iBF )( iSp );
 
                 // add to the member data
                 mEnrichmentData( aEnrichmentDataIndex ).mSubphaseIndsInEnrichedBasis( tBaseIndex + tClusterEnrLev )( tCounter( tClusterEnrLev ) ) =
-                        aSubphaseClusterIndicesInSupport( iEnrLvl )( iSp );
+                        aSubphaseClusterIndicesInSupport( iBF )( iSp );
 
                 // increment count
                 tCounter( tClusterEnrLev )++;
             }
 
             // size out unused space
-            for ( moris_index iEnr = 0; iEnr < tMaxEnrLev + 1; iEnr++ )
+            for ( moris_index iEnrLvl = 0; iEnrLvl < tMaxEnrLev + 1; iEnrLvl++ )
             {
-                moris_index tIndex = tBaseIndex + iEnr;
-                mEnrichmentData( aEnrichmentDataIndex ).mSubphaseIndsInEnrichedBasis( tIndex ).resize( 1, tCounter( iEnr ) );
+                moris_index tIndex = tBaseIndex + iEnrLvl;
+                mEnrichmentData( aEnrichmentDataIndex ).mSubphaseIndsInEnrichedBasis( tIndex ).resize( 1, tCounter( iEnrLvl ) );
 
                 // sort in ascending order (easier to find in MPI)
                 // if this sort is removed the function  subphase_is_in_support needs to be updated
@@ -1349,7 +1350,7 @@ namespace moris::xtk
 
         }    // end for: each non-enriched Basis function
 
-    }        // end function:
+    }    // end function:
 
     //-------------------------------------------------------------------------------------
 
@@ -1630,7 +1631,7 @@ namespace moris::xtk
 
         }    // end if: parallel
 
-    }        // end function: assign_enriched_coefficients_identifiers_new()
+    }    // end function: assign_enriched_coefficients_identifiers_new()
 
     //-------------------------------------------------------------------------------------
 
@@ -1755,7 +1756,7 @@ namespace moris::xtk
 
         }    // end for: each background (non-enriched) basis function
 
-    }        // end function: Enrichment::sort_enriched_coefficients_into_owned_and_not_owned()
+    }    // end function: Enrichment::sort_enriched_coefficients_into_owned_and_not_owned()
 
     //-------------------------------------------------------------------------------------
 
@@ -1799,7 +1800,7 @@ namespace moris::xtk
 
         }    // end for: each non-enriched basis function
 
-    }        // end function: Enrichment::assign_IDs_to_owned_enriched_coefficients()
+    }    // end function: Enrichment::assign_IDs_to_owned_enriched_coefficients()
 
     //-------------------------------------------------------------------------------------
 
@@ -1993,9 +1994,9 @@ namespace moris::xtk
 
             }    // end for: communicated entities from current proc
 
-        }        // end for: communication list for each processor
+        }    // end for: communication list for each processor
 
-    }            // end function: Enrichment::prepare_answers_for_owned_enriched_coefficient_IDs()
+    }    // end function: Enrichment::prepare_answers_for_owned_enriched_coefficient_IDs()
 
     //-------------------------------------------------------------------------------------
 
@@ -2037,7 +2038,7 @@ namespace moris::xtk
 
         }    // end for: each proc communicated with
 
-    }        // end function: Enrichment::handle_requested_unzipped_enriched_coefficient_answers()
+    }    // end function: Enrichment::handle_requested_unzipped_enriched_coefficient_answers()
 
     //-------------------------------------------------------------------------------------
 
@@ -2898,7 +2899,7 @@ namespace moris::xtk
 
             }    // end for: all B-spline mesh indices
 
-        }        // end for: all base IP cells
+        }    // end for: all base IP cells
 
         // store the number of enr. IP cells
         mNumEnrIpCells = (moris_index)tEnrIpCellCounter;
@@ -3113,8 +3114,8 @@ namespace moris::xtk
                     // TODO: is it better for efficiency to delete the map entry that is not needed anymore, to speed up subsequent find-calls?
                 }
             }    // end: loop over all SPGs on B-spline element
-        }        // end: loop over all B-spline elements
-    }            // end: function
+        }    // end: loop over all B-spline elements
+    }    // end: function
 
     // ----------------------------------------------------------------------------------
 
@@ -3248,7 +3249,7 @@ namespace moris::xtk
                                         tMeshIndex,
                                         tEnrInterpMesh->get_vertex_enrichment( tMeshIndex, tVertEnrichIndex ) );
                     }
-                }
+                } // end: loop over vertices of the IP cell
 
                 // create the unzipped interpolation cell on first go
                 /* Note: the Interpolation_Cell_Unzipped carries a list of Interpolation_Vertex_Unzipped (UIPV) which themselves get updated for every DMI
@@ -3275,7 +3276,7 @@ namespace moris::xtk
                     tCellIndex++;
                 }
             }    // end: loop over the Bspline meshes / discretization mesh indices
-        }        // end: loop over subphases
+        }    // end: loop over subphases
 
         // resize out aura cells
         tEnrInterpCellToVertex.resize( tCellIndex, tEnrInterpMesh->mNumVertsPerInterpCell );
@@ -3566,8 +3567,8 @@ namespace moris::xtk
                             ->set_SPG_and_BP_indices_for_DM_list_index( iBspMesh, tAssociatedSpgIndex, tBulkPhaseIndex );
 
                 }    // end: loop over enr. IP cells on base IP cell
-            }        // end: loop over IP cells on mesh
-        }            // end: loop over DMIs
+            }    // end: loop over IP cells on mesh
+        }    // end: loop over DMIs
 
         // resize out aura cells
         tEnrInterpCellToVertex.resize( mNumEnrIpCells, tEnrInterpMesh->mNumVertsPerInterpCell );
@@ -3992,7 +3993,7 @@ namespace moris::xtk
 
             }    // end for: basis interpolating into vertex
 
-        }        // end for: vertices on IP cell
+        }    // end for: vertices on IP cell
 
         // average the weights
         tAveragedWeights = tAveragedWeights / (real)tNumVertices;
@@ -4121,7 +4122,7 @@ namespace moris::xtk
 
         }    // end if: parallel
 
-    }        // end function: Enrichment::communicate_unzipped_ip_cells()
+    }    // end function: Enrichment::communicate_unzipped_ip_cells()
 
     //-------------------------------------------------------------------------------------
 
@@ -4261,7 +4262,7 @@ namespace moris::xtk
 
         }    // end for: each proc communicated with
 
-    }        // end function: Enrichment::assign_IDs_to_owned_unzipped_IP_cells()
+    }    // end function: Enrichment::assign_IDs_to_owned_unzipped_IP_cells()
 
     //-------------------------------------------------------------------------------------
 
@@ -4325,7 +4326,7 @@ namespace moris::xtk
 
         }    // end for: each proc communicated with
 
-    }        // end function: Enrichment::prepare_answers_for_owned_unzipped_IP_cell_IDs()
+    }    // end function: Enrichment::prepare_answers_for_owned_unzipped_IP_cell_IDs()
 
     //-------------------------------------------------------------------------------------
 
@@ -4363,7 +4364,7 @@ namespace moris::xtk
 
         }    // end for: each proc communicated with
 
-    }        // end function: Enrichment::handle_requested_unzipped_unzipped_IP_cell_answers()
+    }    // end function: Enrichment::handle_requested_unzipped_unzipped_IP_cell_answers()
 
     //-------------------------------------------------------------------------------------
 
@@ -4572,7 +4573,7 @@ namespace moris::xtk
 
         tNumIdsRequested( 0 ) = (moris_id)aNumIdsToAllocate;
 
-        moris::gather( tNumIdsRequested, aGatheredInfo );
+        moris::gather_vector( tNumIdsRequested, aGatheredInfo );
 
         Vector< moris_id > tProcFirstID( tProcSize );
 
@@ -4594,7 +4595,7 @@ namespace moris::xtk
             }
         }
 
-        moris::scatter( tProcFirstID, tFirstId );
+        moris::scatter_vector( tProcFirstID, tFirstId );
 
         return tFirstId( 0 );
     }

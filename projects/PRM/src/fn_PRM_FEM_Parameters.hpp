@@ -11,7 +11,6 @@
 #ifndef PROJECTS_PRM_SRC_FN_PRM_FEM_PARAMETERS_HPP_
 #define PROJECTS_PRM_SRC_FN_PRM_FEM_PARAMETERS_HPP_
 
-
 #include "cl_Parameter_List.hpp"
 
 #include "cl_FEM_Enums.hpp"
@@ -158,7 +157,7 @@ namespace moris
 
             tParameterList.insert( "IWG_name", "undefined" );
             tParameterList.insert( "IWG_bulk_type", fem::Element_Type::BULK, fem::Element_Type::BULK, fem::Element_Type::TIME_BOUNDARY );
-            tParameterList.insert( "IWG_type", fem::IWG_Type::UNDEFINED, fem::IWG_Type::L2, fem::IWG_Type::GHOST_NORMAL_FIELD );
+            tParameterList.insert( "IWG_type", fem::IWG_Type::UNDEFINED, fem::IWG_Type::L2, fem::IWG_Type::USER_DEFINED );
             tParameterList.insert( "dof_residual", "" );
 
             tParameterList.insert( "leader_phase_name", "" );
@@ -191,6 +190,8 @@ namespace moris
             tParameterList.insert( "follower_phase_name", "" );
             tParameterList.insert( "side_ordinals", "" );
             tParameterList.insert( "neighbor_phases", "" );
+
+            tParameterList.insert( "analytical_jacobian", true );
 
             tParameterList.insert( "time_continuity", false );
             tParameterList.insert( "time_boundary", false );
@@ -294,6 +295,18 @@ namespace moris
 
             // real for relative perturbation size for finite difference for forward analysis
             tParameterList.insert( "finite_difference_perturbation_size_forward", 1e-6 );
+
+            // integration order that should be used for the raytracing of nonconformal side sets
+            tParameterList.insert( "nonconformal_integration_order", static_cast< uint >( mtk::Integration_Order::UNDEFINED ) );
+
+            // Maximum length of a ray in the negative direction (w.r.t the outward pointing normal) that is used for the raytracing of nonconformal side sets.
+            // This prevents that rays of thin-walled bodies get mapped "through" the body itself on the other side.
+            // E.g. if you have two thin bars that are positioned on top of each other, the rays of the top-side of the upper bar should not be mapped to the lower bar.
+            // Setting this value to a very small value might lead to bodies penetrating each other without being detected (especially for large load stepping increments).
+            tParameterList.insert( "nonconformal_max_negative_ray_length", -0.05 );
+
+            // determine the maximum ray length in the positive direction. This prevents mapping of elements that are too far apart to be even considered as neighbors.
+            tParameterList.insert( "nonconformal_max_positive_ray_length", 0.1 );
 
             // bool true for analytical sensitivity analysis, false for finite difference
             // decide if dRdp and dQIdp are computed by A/FD

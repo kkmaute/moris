@@ -132,7 +132,6 @@ namespace moris::hmr
 
     //--------------------------------------------------------------------------------
 
-
     template<>
     inline void
     Background_Mesh< 3 >::calc_element_ids(

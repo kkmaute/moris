@@ -15,8 +15,10 @@
 #include "cl_FEM_IQI_Volume.hpp"
 #include "cl_FEM_IQI_Strain_Energy.hpp"
 #include "cl_FEM_IQI_Stress.hpp"
+#include "cl_FEM_IQI_Gap.hpp"
 #include "cl_FEM_IQI_Dof.hpp"
 #include "cl_FEM_IQI_Eigen_Vector.hpp"
+#include "cl_FEM_IQI_Eigen_Value.hpp"
 #include "cl_FEM_IQI_ALM_Dof.hpp"
 #include "cl_FEM_IQI_Max_Dof.hpp"
 #include "cl_FEM_IQI_Property.hpp"
@@ -49,10 +51,12 @@
 #include "cl_FEM_IQI_Res_SUPG_Incompressible_NS.hpp"
 #include "cl_FEM_IQI_SP_Crosswind_SA.hpp"
 #include "cl_FEM_IQI_Zienkiewicz_Zhu.hpp"
+#include "cl_FEM_IQI_Normal_Vector.hpp"
 #include "cl_FEM_IQI_Jump_Dof.hpp"
 #include "cl_FEM_IQI_Jump_Traction.hpp"
 #include "cl_FEM_IQI_Traction.hpp"
 #include "cl_FEM_IQI_Linear_Elasticity_Damage.hpp"
+#include "cl_FEM_IQI_Contact_Pressure.hpp"
 
 namespace moris
 {
@@ -69,6 +73,9 @@ namespace moris
 
                 case IQI_Type::EIGEN_VECTOR:
                     return std::make_shared< IQI_Eigen_Vector >();
+
+                case IQI_Type::EIGEN_VALUE:
+                    return std::make_shared< IQI_Eigen_Value >();
 
                 case IQI_Type::ALM_DOF:
                     return std::make_shared< IQI_ALM_Dof >();
@@ -190,13 +197,20 @@ namespace moris
 
                 case IQI_Type::ZIENKIEWICZ_ZHU_VON_MISES_STRESS:
                     return std::make_shared< IQI_Zienkiewicz_Zhu >( Stress_Type::VON_MISES_STRESS );
-
+                case IQI_Type::NORMAL_VECTOR:
+                    return std::make_shared< IQI_Normal_Vector >();
                 case IQI_Type::JUMP_DOF:
                     return std::make_shared< IQI_Jump_Dof >();
                 case IQI_Type::JUMP_TRACTION:
                     return std::make_shared< IQI_Jump_Traction >();
                 case IQI_Type::TRACTION:
                     return std::make_shared< IQI_Traction >();
+                case IQI_Type::CONTACT_PRESSURE_REFERENCE:
+                    return std::make_shared< IQI_Contact_Pressure >( true );
+                case IQI_Type::CONTACT_PRESSURE_CURRENT:
+                    return std::make_shared< IQI_Contact_Pressure >( false );
+                case IQI_Type::GAP:
+                    return std::make_shared< IQI_Gap >();
 
                 case IQI_Type::LINEAR_ELASTICITY_DAMAGE:
                     return std::make_shared< IQI_Linear_Elasticity_Damage >();

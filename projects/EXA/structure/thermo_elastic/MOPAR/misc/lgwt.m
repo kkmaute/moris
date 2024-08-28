@@ -34,7 +34,6 @@ y0=2;
 % Iterate until new points are uniformly within epsilon of old points
 while max(abs(y-y0))>eps
     
-    
     L(:,1)=1;
     Lp(:,1)=0;
     

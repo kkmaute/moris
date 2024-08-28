@@ -27,9 +27,6 @@
 
 #include "fn_TOL_Capacities.hpp"
 
-// XTKL: Linear Algebra Includes
-#include "cl_MPI_Tools.hpp"
-
 using namespace moris;
 
 #include "assert.hpp"
@@ -416,7 +413,7 @@ namespace moris::xtk
 
             tNumIdsRequested( 0 ) = (moris::moris_id)aNumIdstoAllocate;
 
-            moris::gather( tNumIdsRequested, aGatheredInfo );
+            moris::gather_vector( tNumIdsRequested, aGatheredInfo );
 
             Vector< moris::moris_id > tProcFirstID( tProcSize );
 
@@ -435,7 +432,7 @@ namespace moris::xtk
                 }
             }
 
-            moris::scatter( tProcFirstID, tFirstId );
+            moris::scatter_vector( tProcFirstID, tFirstId );
 
             return tFirstId( 0 );
         }

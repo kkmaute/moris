@@ -354,7 +354,6 @@ namespace moris
                 "PropPoisson,PoissonRatio" );
         tCMCounter++;
 
-
         //------------------------------------------------------------------------------
         // init SP counter
         uint tSPCounter = 0;

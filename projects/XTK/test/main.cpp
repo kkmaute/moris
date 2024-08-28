@@ -40,7 +40,7 @@ void pause( int& argc, char* argv[] )
             pid_t tPId = getpid();
 
             moris::Matrix< moris::DDSMat > tPIdVec;
-            moris::comm_gather_and_broadcast( tPId, tPIdVec );
+            moris::allgather_scalar( tPId, tPIdVec );
 
             if ( moris::par_rank() == 0 )
             {

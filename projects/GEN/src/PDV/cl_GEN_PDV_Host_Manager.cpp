@@ -882,7 +882,7 @@ namespace moris::gen
         Matrix< DDUMat > tNumOwnedIDsPerProcessor;
 
         // Broadcast number of owned IDs
-        comm_gather_and_broadcast( aNumOwnedIDs, tNumOwnedIDsPerProcessor );
+        allgather_scalar( aNumOwnedIDs, tNumOwnedIDsPerProcessor );
 
         // Create ID offset list
         Matrix< DDUMat > tOffsetList( tNumOwnedIDsPerProcessor.numel(), 1, 0 );
@@ -1516,7 +1516,6 @@ namespace moris::gen
                 }
             }
         }
-
 
         this->set_dQIdp_dist_vect( tdQIDp );
     }

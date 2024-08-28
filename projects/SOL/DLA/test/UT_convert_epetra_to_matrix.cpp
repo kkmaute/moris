@@ -27,7 +27,6 @@
 #include "Epetra_FECrsMatrix.h"
 #include "Epetra_FEVector.h"
 
-
 #include "fn_check_equal.hpp"
 
 namespace moris
@@ -107,8 +106,6 @@ namespace moris
             }
         }
 
-
-
         moris::Matrix< DDRMat > tMorisMatrixB = convert_epetra_operator_to_arma_sp_mat< moris::Matrix, DDRMat >( B );
         moris::Matrix< DDRMat > tMorisMatrixA = convert_epetra_operator_to_arma_sp_mat< moris::Matrix, DDRMat >( A );
 
@@ -124,6 +121,5 @@ namespace moris
         CHECK_EQUAL( tMorisMatrixB, tExpectedMatrix , );
         CHECK_EQUAL( tMorisMatrixA, tExpectedMatrix ,  );
     }
-
 
 }    // namespace moris

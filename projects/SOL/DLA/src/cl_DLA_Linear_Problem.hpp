@@ -67,6 +67,15 @@ namespace moris
             //------------------------------------------------------------------
 
           public:
+            //------------------------------------------------------------------    
+            
+            /**
+             * @brief Construct a new Linear_Problem object
+             * 
+             */
+            Linear_Problem(){};
+
+            //------------------------------------------------------------------
             Linear_Problem( Solver_Interface* aInput )
                     : mMat( NULL )
                     , mMassMat( NULL )
@@ -189,6 +198,14 @@ namespace moris
             set_rhs_matrix_type( std::string const & aRHSMatType )
             {
                 mRHSMatType = aRHSMatType;
+            }
+
+            //------------------------------------------------------------------
+
+            std::string const &
+            get_rhs_matrix_type( )
+            {
+                return mRHSMatType;
             }
         };
     }    // namespace dla

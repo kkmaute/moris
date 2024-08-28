@@ -100,6 +100,16 @@ namespace moris
 
         void import_local_to_global(
                 sol::Dist_Vector& aSourceVec );
+        
+        //-----------------------------------------------------------------------------
+        /**
+         * @brief function to add owned source vector to
+         * the full vector of the destination vector, used in slepc
+         * 
+         * @param aSourceVec 
+         */
+        void import_local_to_global(
+                Vec aSourceVec );
 
         void vec_put_scalar( const moris::real& aValue );
 

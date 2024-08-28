@@ -27,6 +27,8 @@ uint gInterpolationOrder;
 // flag to print reference values
 bool gPrintReferenceValues = false;
 
+uint gTestIndex;
+
 //---------------------------------------------------------------
 
 int fn_WRK_Workflow_Main_Interface( int argc, char *argv[] );
@@ -36,7 +38,8 @@ int fn_WRK_Workflow_Main_Interface( int argc, char *argv[] );
 extern "C" void
 check_results(
         std::string aExoFileName,
-        uint        aTestCaseIndex )
+        uint        aTestCaseIndex,
+        bool        aSolvewithPetsc = false )
 {
     MORIS_LOG_INFO( " " );
     MORIS_LOG_INFO( "Checking Results - Test Case %d on %i processor.", aTestCaseIndex, par_size() );
@@ -107,6 +110,7 @@ check_results(
 
     Vector< real > tL2ErrorReference       = { 6.65582e-07, 6.65582e-07 };
     Vector< real > tDiffusiveFluxReference = { 0.0504293, 0.0504293 };
+    Vector< real > tEigenValueRefrence     = { 1.371841, 1.371841 };
 
     real tRelL2Difference   = ( tL2ErrorActual - tL2ErrorReference( aTestCaseIndex ) ) / tL2ErrorReference( aTestCaseIndex );
     real tRelFluxDifference = ( tDiffusiveFluxActual - tDiffusiveFluxReference( aTestCaseIndex ) ) / tDiffusiveFluxReference( aTestCaseIndex );
@@ -123,32 +127,23 @@ check_results(
 
     CHECK( tRelL2Difference < 1.0e-6 );
     CHECK( tRelFluxDifference < 1.0e-6 );
+    if ( aSolvewithPetsc and aTestCaseIndex == 0 )
+    {
+        real tEigenValueActual   = tExoIO.get_nodal_field_value( 0, 7, 0 );
+        real tRelEigenDifference = ( tEigenValueActual - tEigenValueRefrence( aTestCaseIndex ) ) / tEigenValueRefrence( aTestCaseIndex );
+        MORIS_LOG_INFO( "Check eigenvalue:  reference %12.5e, actual %12.5e, percent error %12.5e.",
+                tEigenValueRefrence( aTestCaseIndex ),
+                tEigenValueActual,
+                tRelEigenDifference * 100.0 );
+
+        CHECK( tRelEigenDifference < 1.0e-6 );
+    }
 }
 
-TEST_CASE( "Laplace",
-        "[moris],[example],[thermal],[Laplace_2D],[Laplace]" )
+// free function to check the results fully
+extern "C" void
+check_results_serial_parallel( bool aSolvewithPetsc = false )
 {
-    // define command line call
-    int argc = 2;
-
-    char tString1[] = "";
-    char tString2[] = "./Laplace.so";
-
-    char *argv[ 2 ] = { tString1, tString2 };
-
-    // call to performance manager main interface
-    int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
-
-    // check
-    REQUIRE( tRet == 0 );
-
-    // set interpolation order
-    gInterpolationOrder = 1;
-
-    MORIS_LOG_INFO( " " );
-    MORIS_LOG_INFO( "Executing HeatConduction: Interpolation order 1 - %i Processors.", par_size() );
-    MORIS_LOG_INFO( " " );
-
     // check results
     switch ( par_size() )
     {
@@ -156,7 +151,7 @@ TEST_CASE( "Laplace",
         case 1:
         {
             // perform check
-            check_results( "Laplace.exo.e-s.0000", 0 );
+            check_results( "Laplace.exo.e-s.0000", 0, aSolvewithPetsc );
             break;
         }
         // Test Case 1
@@ -168,7 +163,7 @@ TEST_CASE( "Laplace",
                 gLogger.set_screen_output_rank( 1 );
 
                 // perform check
-                check_results( "Laplace.exo.e-s.0000", 1 );
+                check_results( "Laplace.exo.e-s.0000", 1, aSolvewithPetsc );
 
                 // reset screen output processor
                 gLogger.set_screen_output_rank( 0 );
@@ -181,3 +176,59 @@ TEST_CASE( "Laplace",
         }
     }
 }
+
+TEST_CASE( "Laplace_Anasazi",
+        "[moris],[example],[thermal],[Laplace_2D],[Laplace_Anasazi]" )
+{
+    // define command line call
+    int argc = 2;
+
+    gTestIndex          = 0;
+    gInterpolationOrder = 1;
+
+    char tString1[] = "";
+    char tString2[] = "./Laplace.so";
+
+    char *argv[ 2 ] = { tString1, tString2 };
+
+    // call to performance manager main interface
+    int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
+
+    // check
+    REQUIRE( tRet == 0 );
+
+    MORIS_LOG_INFO( " " );
+    MORIS_LOG_INFO( "Executing HeatConduction: Interpolation order 1 - %i Processors.", par_size() );
+    MORIS_LOG_INFO( " " );
+
+    check_results_serial_parallel( false );
+}
+
+#ifdef MORIS_HAVE_SLEPC
+TEST_CASE( "Laplace_Slepc",
+        "[moris],[example],[thermal],[Laplace_2D],[Laplace_Slepc]" )
+{
+    // define command line call
+    int argc = 2;
+
+    gTestIndex          = 1;
+    gInterpolationOrder = 1;
+
+    char tString1[] = "";
+    char tString2[] = "./Laplace.so";
+
+    char *argv[ 2 ] = { tString1, tString2 };
+
+    // call to performance manager main interface
+    int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
+
+    // check
+    REQUIRE( tRet == 0 );
+
+    MORIS_LOG_INFO( " " );
+    MORIS_LOG_INFO( "Executing HeatConduction: Interpolation order 1 - %i Processors.", par_size() );
+    MORIS_LOG_INFO( " " );
+
+    check_results_serial_parallel( true );
+}
+#endif

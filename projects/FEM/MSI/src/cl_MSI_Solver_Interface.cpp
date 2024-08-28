@@ -94,6 +94,15 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
+        MSI_Solver_Interface::set_eigen_values( std::shared_ptr< Vector< real > > aEigenValues )
+        {
+            mEigenValues = std::move( aEigenValues );
+            mMSI->mEquationModel->set_eigen_values( mEigenValues );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
         MSI_Solver_Interface::postmultiply_implicit_dQds()
         {
             mMSI->mEquationModel->compute_explicit_and_implicit_dQIdp();
@@ -249,6 +258,17 @@ namespace moris
             mMSI->get_equation_set( aMyEquSetInd )->initialize_set( aIsStaggered, aTimeContinuityOnlyFlag );
         }
 
+        //------------------------------------------------------------------------------
+
+        void MSI_Solver_Interface::update_model()
+        {
+            mMSI->get_equation_model()->update_equation_sets();
+            
+            mMSI->create_equation_object_list();
+            
+            mMSI->finalize();
+        };
+
         //-------------------------------------------------------------------------------------------------------
 
         void
@@ -312,9 +332,23 @@ namespace moris
             /* Step 1: get the necessary information and build initial data to store the desired data structures  */
 
             // get the owned and owned/shared adof ids on this processor
-            Matrix< DDSMat >      tOwnedAdofIndexToIdMap = this->get_my_local_global_map();
-            Matrix< DDSMat >      tAdofIndexToIdMap      = this->get_my_local_global_overlapping_map();
-            Vector< Adof* >& tAdofs                 = mDofMgn->get_adofs();
+            Matrix< DDSMat > tOwnedAdofIndexToIdMap;
+            Matrix< DDSMat > tAdofIndexToIdMap;
+            Vector< Adof* >  tAdofs;
+
+            if ( mListOfDofTypes.size() > 0 )
+            {
+                // get the owned and owned/shared adof ids on this processor
+                tOwnedAdofIndexToIdMap = this->get_my_local_global_map( mListOfDofTypes );
+                tAdofIndexToIdMap      = this->get_my_local_global_overlapping_map( mListOfDofTypes );
+                tAdofs                 = mDofMgn->get_adofs( mListOfDofTypes );
+            }
+            else
+            {
+                tOwnedAdofIndexToIdMap = this->get_my_local_global_map();
+                tAdofIndexToIdMap      = this->get_my_local_global_overlapping_map();
+                tAdofs                 = mDofMgn->get_adofs();
+            }
 
             // Cache for reassembled entries on owned and shared rows
             // Outer cell is the the row number
@@ -326,7 +360,6 @@ namespace moris
             // this is for cross-processor coupling
             moris::size_t tNumSharedRows = tAdofs.size() - tOwnedAdofIndexToIdMap.numel();
 
-
             // list of all shared adof ids in this processor
             Vector< Vector< uint > > tSharedRowsIds( tCommCell.size(), Vector< uint >( tNumSharedRows ) );
 
@@ -334,7 +367,6 @@ namespace moris
             // the outer cell is the processor rank
             // the inner cells are lits of adofs that are created
             Vector< Vector< Vector< uint > > > tSharedRowsOffProc( tCommCell.size(), Vector< Vector< uint > >( tNumSharedRows ) );
-
 
             /* ---------------------------------------------------------------------------------------- */
             /* Step 2: build the transpose of the maps and fill out the data strcuture needed to process  */
@@ -389,7 +421,6 @@ namespace moris
                 }
             }
 
-
             // get initial estimate
             uint tNumNonzero = this->estimate_number_of_nonzero_columns();
 
@@ -413,7 +444,7 @@ namespace moris
             /* Step 3: fill the on-processor part of the sparsity pattern and prepare the data for the off-processor  */
 
             // get number of blocks
-            moris::uint tNumEqBlocks = this->get_num_my_blocks();
+            moris::uint tNumEqBlocks = this->get_num_sets();
 
             // loop over number of blocks to the get the element topology (adof connectivity) and generate sparsity pattern
             for ( size_t iEqBlock = 0; iEqBlock < tNumEqBlocks; iEqBlock++ )
@@ -441,8 +472,8 @@ namespace moris
                             // sort through element topology and decide what adofs are in the diagonal block and what are in the off-diagonal block
                             std::partition_copy( tElementTopology.begin(), tElementTopology.end(),    //
                                     std::back_inserter( tOwnedRows( tIterator->second ) ),
-                                    std::back_inserter( tSharedRows( tIterator->second ) ),           //
-                                    [ &tOwnedAofIdToIndexMap ]( int aLocalAodfId ) {                  //
+                                    std::back_inserter( tSharedRows( tIterator->second ) ),    //
+                                    [ &tOwnedAofIdToIndexMap ]( int aLocalAodfId ) {           //
                                         // lambda function to check the the membership of the adof
                                         auto tIterator = tOwnedAofIdToIndexMap.find( aLocalAodfId );
                                         return tIterator != tOwnedAofIdToIndexMap.end();
@@ -478,7 +509,7 @@ namespace moris
 
             // communicate shared row ids to all neighboring processors
             Vector< Vector< uint > > tSharedRowsIdsReceive;
-            communicate_cells( tCommCell, tSharedRowsIds, tSharedRowsIdsReceive );
+            communicate_vectors( tCommCell, tSharedRowsIds, tSharedRowsIdsReceive );
 
             /* ---------------------------------------------------------------------------------------- */
             /* Step 5: analyze the communicated data based and put in the on and off diagonal parts  */
@@ -520,8 +551,8 @@ namespace moris
                         // grab the part in the connectivity adof list and parrtion it based on the diagonal and off-digonal data
                         std::partition_copy( tAdofConn.begin() + iAdofConnOffset( i ), tAdofConn.begin() + iAdofConnOffset( i + 1 ),    //
                                 std::back_inserter( tOwnedRows( tIterator->second ) ),
-                                std::back_inserter( tSharedRows( tIterator->second ) ),                                                 //
-                                [ &tOwnedAofIdToIndexMap ]( int aLocalAodfId ) {                                                        //
+                                std::back_inserter( tSharedRows( tIterator->second ) ),    //
+                                [ &tOwnedAofIdToIndexMap ]( int aLocalAodfId ) {           //
                                     auto tIterator = tOwnedAofIdToIndexMap.find( aLocalAodfId );
                                     return tIterator != tOwnedAofIdToIndexMap.end();
                                 } );
@@ -594,13 +625,12 @@ namespace moris
             return tNumNonZero * tSpatialDim;
         }
 
-
         void
         MSI_Solver_Interface::communicate_shared_adof_connectivity(
                 Vector< Vector< Vector< uint > > > const & aSharedAdofConn,
-                Vector< Vector< uint > >&                       aAdofConnectivityReceive,
-                Vector< Vector< uint > >&                       aAdofConnectivityOffsetReceive,
-                Vector< moris_index > const &                        aCommCell )
+                Vector< Vector< uint > >&                  aAdofConnectivityReceive,
+                Vector< Vector< uint > >&                  aAdofConnectivityOffsetReceive,
+                Vector< moris_index > const &              aCommCell )
         {
             // convert 3 times nested cell to 2 cells (data cell + offset cell)
             Vector< Vector< uint > > tAdofConnectivityOffsetSend( aSharedAdofConn.size() );
@@ -637,8 +667,8 @@ namespace moris
             barrier();
 
             // communicate cells
-            communicate_cells( aCommCell, tAdofConnectivitySend, aAdofConnectivityReceive );
-            communicate_cells( aCommCell, tAdofConnectivityOffsetSend, aAdofConnectivityOffsetReceive );
+            communicate_vectors( aCommCell, tAdofConnectivitySend, aAdofConnectivityReceive );
+            communicate_vectors( aCommCell, tAdofConnectivityOffsetSend, aAdofConnectivityOffsetReceive );
         }
 
     }    // namespace MSI

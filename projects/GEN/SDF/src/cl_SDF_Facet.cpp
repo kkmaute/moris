@@ -28,9 +28,9 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         Facet::Facet(
-                moris_index                                     aIndex,
+                moris_index                                aIndex,
                 Vector< std::shared_ptr< Facet_Vertex > >& aVertices,
-                uint                                            aDimension )
+                uint                                       aDimension )
                 : mIndex( aIndex )
                 , mVertices( aVertices )
                 , mCenter( aDimension, 1 )
@@ -134,11 +134,10 @@ namespace moris
             return mVertices.size();
         }
 
-
         Vector< mtk::Vertex* >
         Facet::get_vertex_pointers() const
         {
-            uint                        tDimension = get_number_of_vertices();
+            uint                   tDimension = get_number_of_vertices();
             Vector< mtk::Vertex* > tVertices( tDimension, nullptr );
 
             for ( uint k = 0; k < tDimension; ++k )
@@ -288,7 +287,7 @@ namespace moris
                 }
             }
         }
-    
+
         bool
         Facet::operator==( const Facet& aRHS ) const
         {
@@ -298,7 +297,6 @@ namespace moris
             }
 
             return all_true( this->get_vertex_ids() == aRHS.get_vertex_ids() ) && all_true( mNormal == aRHS.get_normal() ) && std::abs( mHesse - aRHS.get_hesse() ) < gSDFepsilon;
-
         }
     } /* namespace sdf */
 } /* namespace moris */

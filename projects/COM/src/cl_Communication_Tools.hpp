@@ -33,21 +33,26 @@ extern moris::Comm_Manager gMorisComm;
 namespace moris
 {
 
+    //------------------------------------------------------------------------------
+
     // value to be used if a proc has no neighbor at the
     // specified position
     const moris_id gNoProcID = MORIS_SINT_MAX;
 
-    //------------------------------------------------
+    //------------------------------------------------------------------------------
     //  GENERAL MPI FUNCTIONS
+    //------------------------------------------------------------------------------
 
+    //------------------------------------------------------------------------------
     /**
-     * Gets the current global communicator
+     *  Gets the current global communicator
      *
      * @return MPI_Comm, current global communicator
      */
     MPI_Comm
     get_comm();
 
+    //------------------------------------------------------------------------------
     /**
      * Splits the current communicator
      *
@@ -56,11 +61,13 @@ namespace moris
      */
     void comm_split( int color, int key, const std::string& aCommName );
 
+    //------------------------------------------------------------------------------
     /**
      * Returns to global communicator
      */
     void comm_join();
 
+    //------------------------------------------------------------------------------
     /**
      * Returns the current processor rank
      *
@@ -69,6 +76,7 @@ namespace moris
     moris::moris_id
     par_rank();
 
+    //------------------------------------------------------------------------------
     /**
      * Returns the size of the processor pool
      *
@@ -77,6 +85,7 @@ namespace moris
     moris::moris_id
     par_size();
 
+    //------------------------------------------------------------------------------
     /**
      * Holds all processors
      *
@@ -84,149 +93,68 @@ namespace moris
      */
     void barrier( std::string aBarrierName = " " );
 
+    //------------------------------------------------------------------------------
     /**
      * Broadcast a Message to all Procs
      *
      * @param[in] aMessage      A uint
-     *
      * @param[out] aMessage     The message of Proc 0
      *
      */
     void broadcast( uint& aMessage );
 
+    //------------------------------------------------------------------------------
     /**
      * Broadcast a Message to all Procs
      *
      * @param[in] aMessage      A string to broadcast
-     *
      * @param[out] aMessage     The message of Proc 0
      *
      */
     void broadcast( std::string& aMessage );
 
-    /**
-     * Broadcast a Message to all Procs
-     *
-     * @param[in] aMessage      A bitset
-     *
-     * @param[out] aMessage     The message of Proc 0
-     *
-     */
-    //    void broadcast(BoostBitset & aMessage);
-
-    /*
-     *  Scatters information from processor 0 to all processors
-     */
-    moris::size_t
-    scatter( std::vector< moris::size_t >& aMessage );
-
-    moris::uint gather_value_and_bcast_max( moris::uint aMessage );
-
-    /*
-     * Prints communication header to log
-     * @param[in]  CommType - Enum for communication type to be documented
-     */
-    void begin_log_communication( enum CommunicationType CommType );
-
-    /*
-     * Prints communication header to log
-     * @param[in]  CommType - Enum for communication type to be documented
-     */
-    void end_log_communication( enum CommunicationType CommType );
-
-    /*
-     * setup log sink should only be done once by proc 0
-     * @param[in]  CommType - Enum for communication type to be documented
-     */
-    void setup_log_sink( std::string aCommLogName );
-
-    /*
-     * Generates filename which is used as a filter for the specific log sink
-     *
-     * The filename is morisroot/log/comm_log/EnumInt_Count.log
-     */
-    std::string
-    generate_filename( enum CommunicationType CommType );
-
     //------------------------------------------------------------------------------
-    /**
+    /*
+     * @brief logical "and" statement across all processes
      *
-     * @brief creates a proc cart similar to MPI_CART, depending
-     *        on the number of dimensions specified.
-     *
-     * @param[in]  aDecompMethod         Decomposition method used. 0=User Defined.
-     *                   1=Min Proc Interface (MPI Cart). 2=Min Mesh Interface.
-     * @param[in]  aNumberOfDimensions   Must be 1, 2 or 3.
-     * @param[in,out] aProcDims          Dimensions of generated cart. Input used
-     *                   for aDecompMethod = 0 or 2. Output used for aDecompMethod = 1.
-     * @param[out] aProcCoords           Coordinates of current processor.
-     * @param[out] aProcNeighbors        Neighbors of current proc.
-     *                                   Contains UINT_MAX if no neighbor exists.
-     *
-     *  neighbor pattern as returned to aProcNeighbors:
-     *
-     *  <table>
-     *  <caption> 1D case </caption>
-     *  <tr><th> 0 </th><th> me </th><th> 2 </th></th></tr>
-     *  </table>
-     *  ( cols: i-direction )
-     *
-     *
-     *  <table>
-     *  <caption> 2D case</caption>
-     *  <tr><th> 6 </th><th> 7 </th><th> 8 </th></th></tr>
-     *  <tr><th> 3 </th><th> me </th><th> 5 </th></th></tr>
-     *  <tr><th> 0 </th><th> 1 </th><th> 2 </th></th></tr>
-     *  </table>
-     *  ( cols: i-direction, rows: j-direction )
-     *
-     *
-     *  <table>
-     *  <caption> 3D case</caption>
-     *  <tr>
-     *  <th>
-     *  <table>
-     *  <caption> layer k=-1</caption>
-     *  <tr><th> 6 </th><th> 7 </th><th> 8 </th></th></tr>
-     *  <tr><th> 3 </th><th> 4 </th><th> 5 </th></th></tr>
-     *  <tr><th> 0 </th><th> 1 </th><th> 2 </th></th></tr>
-     *  </table>
-     *  </th>
-     *  <th>
-     *  <table>
-     *  <caption> layer k=0</caption>
-     *  <tr><th> 15 </th><th> 16 </th><th> 17 </th></th></tr>
-     *  <tr><th> 12 </th><th> me </th><th> 14 </th></th></tr>
-     *  <tr><th> 9 </th><th> 10 </th><th> 11 </th></th></tr>
-     *  </table>
-     *  </th>
-     *  <th>
-     *  <table>
-     *  <caption> layer k=+1</caption>
-     *  <tr><th> 24 </th><th> 25 </th><th> 26 </th></th></tr>
-     *  <tr><th> 21 </th><th> 22 </th><th> 23 </th></th></tr>
-     *  <tr><th> 18 </th><th> 19 </th><th> 20 </th></th></tr>
-     *  </table>
-     *  </th>
-     *  </tr>
-     *  </table>
-     *  ( cols: i-direction, rows: j-direction )
-     *
+     * @param aMyBool
+     * @return true or false
      */
-
-    void create_proc_cart(
-            const uint&       aDecompMethod,
-            const uint&       aNumberOfDimensions,
-            Matrix< DDUMat >& aProcDims,
-            Matrix< DDUMat >& aProcCoords,
-            Matrix< IdMat >&  aProcNeighbors );
+    bool
+    all_land( bool aMyBool );
 
     //------------------------------------------------------------------------------
 
     /**
+     * @brief logical "or" statement across all processes
      *
-     * @brief                 returns an MPI enum defining the
-     *                        data type that is to be communicated.
+     * @param aMyBool
+     * @return true or false
+     */
+    bool
+    all_lor( bool aMyBool );
+
+    //------------------------------------------------------------------------------
+    /**
+     *
+     * @brief Communication tags are used within MPI to label
+     *        messages that are exchanged between to procs.
+     *        If this is not wanted, one can use MPI_ANY_TAG
+     *        instead.
+     *
+     * @param[in] aSource     rank of sending proc
+     * @param[in] aTraget     rank of receiving proc
+     */
+    int
+    create_comm_tag( const int& aSource, const int& aTarget );
+
+    //------------------------------------------------------------------------------
+    //  FUNCTIONS FOR DATA TYPE CONVERSION
+    //------------------------------------------------------------------------------
+
+    //------------------------------------------------------------------------------
+    /**
+     * @brief returns an MPI enum defining the data type that is to be communicated.
      *
      * @param[in]      primitive data type with arbitrary value
      *
@@ -236,54 +164,55 @@ namespace moris
     MPI_Datatype
     get_comm_datatype( const T& );
 
+    //------------------------------------------------------------------------------
     // moris::lint (32-bit)
-
     inline MPI_Datatype
     get_comm_datatype( const int& )
     {
         return MPI_INT;
     }
 
+    //------------------------------------------------------------------------------
     // moris::lint (64-bit)
-
     inline MPI_Datatype
     get_comm_datatype( const long int& )
     {
         return MPI_LONG;
     }
 
+    //------------------------------------------------------------------------------
     // moris::uint (32-bit)
-
     inline MPI_Datatype
     get_comm_datatype( const unsigned int& )
     {
         return MPI_UNSIGNED;
     }
 
+    //------------------------------------------------------------------------------
     // moris::uint (64-bit)
-
     inline MPI_Datatype
     get_comm_datatype( const long unsigned int& )
     {
         return MPI_UNSIGNED_LONG;
     }
 
+    //------------------------------------------------------------------------------
     // moris::real (32-bit)
-
     inline MPI_Datatype
     get_comm_datatype( const double& )
     {
         return MPI_DOUBLE;
     }
 
+    //------------------------------------------------------------------------------
     // moris::real (64-bit)
-
     inline MPI_Datatype
     get_comm_datatype( const long double& )
     {
         return MPI_LONG_DOUBLE;
     }
 
+    //------------------------------------------------------------------------------
     // MPI_CXX_DOUBLE_COMPLEX is supported since MPI-3.0
 #ifdef MPI_CXX_DOUBLE_COMPLEX
     // moris::cplx (32-bit)
@@ -295,6 +224,7 @@ namespace moris
     }
 #endif
 
+    //------------------------------------------------------------------------------
     // MPI_CXX_LONG_DOUBLE_COMPLEX is supported since MPI-3.0
 #ifdef MPI_CXX_LONG_DOUBLE_COMPLEX
     // moris::cplx (64-bit)
@@ -307,7 +237,79 @@ namespace moris
 #endif
 
     //------------------------------------------------------------------------------
+    //  FUNCTIONS FOR FILE HANDLING, LOGGING AND PRINTING
+    //------------------------------------------------------------------------------
 
+    //------------------------------------------------------------------------------
+    /*
+     * @brief Generates filename
+     * base path . number of procs . rank of this processor . file extension
+     *
+     * @param[in] aFilePath     string with base name including file extension
+     *
+     * @return    string of file name
+     */
+    inline std::string
+    parallelize_path( const std::string& aFilePath )
+    {
+        if ( par_size() == 1 || aFilePath.size() == 0 )
+        {
+            // leave path untouched
+            return aFilePath;
+        }
+        else
+        {
+            return aFilePath.substr( 0, aFilePath.find_last_of( "." ) )                      // base path
+                 + "." + std::to_string( par_size() )                                        // number of procs
+                 + "." + std::to_string( par_rank() )                                        // rank of this processor
+                 + aFilePath.substr( aFilePath.find_last_of( "." ), aFilePath.length() );    // file extension
+        }
+    }
+
+    //------------------------------------------------------------------------------
+    /*
+     * @brief print dots for nice output
+     */
+    inline std::string
+    proc_string()
+    {
+        std::string tString = "              ";
+
+        if ( par_size() > 1 )
+        {
+            uint tMyRank = par_rank();
+            tString      = "  proc " + std::to_string( tMyRank );
+
+            if ( tMyRank < 10 )
+            {
+                tString += " ... :";
+            }
+            else if ( tMyRank < 100 )
+            {
+                tString += " .. :";
+            }
+            else if ( tMyRank < 1000 )
+            {
+                tString += " . :";
+            }
+            else if ( tMyRank < 10000 )
+            {
+                tString += "  :";
+            }
+            else
+            {
+                tString += " :";
+            }
+        }
+
+        return tString;
+    }
+
+    //------------------------------------------------------------------------------
+    //  FUNCTIONS OPERATING ON BASIC DATA TYPES
+    //------------------------------------------------------------------------------
+
+    //------------------------------------------------------------------------------
     /*
      * @brief Determines sum of all local values on all processors
      *
@@ -325,63 +327,6 @@ namespace moris
     }
 
     //------------------------------------------------------------------------------
-
-    /*
-     * @brief Determines sum of all components of a matrix on all processors
-     *
-     * @param[in] aLocalInput     local matrix
-     *
-     * returns matrix with global sums
-     */
-
-    template< typename E >
-    E
-    sum_all_matrix( const E& aLocalMatrix )
-    {
-        E tGlobalMatrix( aLocalMatrix.n_rows(), aLocalMatrix.n_cols() );
-
-        void* aLocalPtr  = (void*)aLocalMatrix.data();
-        void* aGlobalPtr = (void*)tGlobalMatrix.data();
-
-        int tNumElems = aLocalMatrix.numel();
-
-        MPI_Datatype tType = get_comm_datatype( (typename E::Data_Type)0 );
-
-        MPI_Allreduce( aLocalPtr, aGlobalPtr, tNumElems, tType, MPI_SUM, MPI_COMM_WORLD );
-
-        return tGlobalMatrix;
-    }
-
-    //------------------------------------------------------------------------------
-
-    /*
-     * @brief Determines minimum of all components of a matrix on all processors
-     *
-     * @param[in] aLocalInput     local matrix
-     *
-     * returns matrix with global minimums
-     */
-
-    template< typename E >
-    E
-    min_all_matrix( const E& aLocalMatrix )
-    {
-        E tGlobalMatrix( aLocalMatrix.n_rows(), aLocalMatrix.n_cols() );
-
-        void* aLocalPtr  = (void*)aLocalMatrix.data();
-        void* aGlobalPtr = (void*)tGlobalMatrix.data();
-
-        int tNumElems = aLocalMatrix.numel();
-
-        MPI_Datatype tType = get_comm_datatype( (typename E::Data_Type)0 );
-
-        MPI_Allreduce( aLocalPtr, aGlobalPtr, tNumElems, tType, MPI_MIN, MPI_COMM_WORLD );
-
-        return tGlobalMatrix;
-    }
-
-    //------------------------------------------------------------------------------
-
     /*
      * @brief Determines maximal value of all local values
      *
@@ -398,7 +343,6 @@ namespace moris
     }
 
     //------------------------------------------------------------------------------
-
     /*
      * @brief Determines maximal value of all local values
      *
@@ -416,46 +360,65 @@ namespace moris
 
     //------------------------------------------------------------------------------
 
-    /*
-     * MPI_LAND is a predefined reduction operation that will calculate the logical and of the values reduced.
-     * https://www.rookiehpc.com/mpi/docs/mpi_land.php
-     */
-
-    bool
-    all_land( bool aMyBool );
-
-    //------------------------------------------------------------------------------
-
     /**
-     * @brief logical or statement reduction for all processes
+     * @brief Gathers scalar value from all processes and puts on each processor the
+     *        result into a moris::Matrix
      *
-     * @param aMyBool
-     * @return true
-     * @return false
-     */
-
-    bool
-    all_lor( bool aMyBool );
-
-    //------------------------------------------------------------------------------
-    /**
+     * @param[in] aValue    scalar value from current processor
      *
-     * @brief                 Communication tags are used within MPI to label
-     *                        messages that are exchanged between to procs.
-     *                        If this is not wanted, one can use MPI_ANY_TAG
-     *                        instead.
-     *
-     * @param[in] aSource     rank of sending proc
-     * @param[in] aTraget     rank of receiving proc
+     * @return  Mat<T>      matrix containing values from all processors
      *
      */
-    int
-    create_comm_tag( const int& aSource, const int& aTarget );
+    template< typename T >
+    void
+    allgather_scalar(
+            typename Matrix< T >::Data_Type aValue,
+            Matrix< T >&                    aMatrix )
+    {
+        // get number of processors
+        moris_id tParSize = par_size();
+
+        // set size of matrix to be populated
+        aMatrix.set_size( tParSize, 1 );
+
+        // communicate value
+        if ( tParSize > 1 )
+        {
+            // get data type
+            MPI_Datatype tDataType = get_comm_datatype( (typename Matrix< T >::Data_Type)0 );
+
+            // gather value over all procs
+            MPI_Allgather(
+                    &aValue,
+                    1,
+                    tDataType,
+                    aMatrix.data(),
+                    1,
+                    tDataType,
+                    gMorisComm.get_global_comm() );
+        }
+        else
+        {
+            aMatrix( 0 ) = aValue;
+        }
+    }
 
     //------------------------------------------------------------------------------
+    //  FUNCTIONS FOR PROCESS PARTITIONING AND PROCESS-TO-PROCESS COMMUNICATION
+    //------------------------------------------------------------------------------
 
+    //------------------------------------------------------------------------------
+    void create_proc_cart(
+            const uint&       aDecompMethod,
+            const uint&       aNumberOfDimensions,
+            Matrix< DDUMat >& aProcDims,
+            Matrix< DDUMat >& aProcCoords,
+            Matrix< IdMat >&  aProcNeighbors );
+
+    //------------------------------------------------------------------------------
     /**
-     * Builds a communication table map that
+     * @brief Builds a communication table map
+     *
      * @param aCommunicationTable List of processors to communicate with
      * @return Map going from processor to position in the communication table
      */
@@ -463,13 +426,43 @@ namespace moris
 
     //------------------------------------------------------------------------------
 
-    /**
+    /* @brief Computes offset for each processor given a local value
      *
-     * @brief sends and receives matrix to and from each processor in communication list
+     * @param aLocalInput  local value
+     *
+     * @ return            offset value (same type as input value)
+     */
+    template< typename T >
+    T get_processor_offset( const T& aLocalInput )
+    {
+        // get local rank
+        moris_id tMyPID = par_rank();
+
+        Matrix< DDRMat > tOutputMatrix;
+        allgather_scalar( aLocalInput, tOutputMatrix );
+
+        // compute local offset
+        T tOffset = 0;
+
+        for ( moris_id ip = 0; ip < tMyPID; ++ip )
+        {
+            tOffset += (T)tOutputMatrix( ip );
+        }
+
+        return tOffset;
+    }
+
+    //------------------------------------------------------------------------------
+    //  FUNCTIONS COMMUNICATING VECTORS
+    //------------------------------------------------------------------------------
+
+    //------------------------------------------------------------------------------
+    /**
+     * @brief sends and receives vectors to and from each processor in communication list
      *
      * @param[in] aCommunicationList List of ranks of communicating processors
-     * @param[in] aSend              Matrix of scalars to be sent to each processor
-     * @param[in] aReceive           Matrix to scalars be received from each processor
+     * @param[in] aSend              Vector of scalars to be sent to each processor
+     * @param[in] aReceive           Vector to scalars be received from each processor
      */
     template< typename T >
     void
@@ -547,10 +540,429 @@ namespace moris
 
     //------------------------------------------------------------------------------
     /**
+     * @brief print vector  in a sequential format
      *
-     * @brief                 Receives a moris::Mat<T> from the proc aSource.
-     *                        Sending proc must call send_mat_to_proc.
-     *                        Does nothing if MORIS is run in serial.
+     * @tparam T
+     * @param aCell
+     * @param aString
+     * @param aPrintFunc
+     */
+
+    template< typename T >
+    void print_vector(
+            const Vector< T >&                                        aCell,
+            std::string                                               aString,
+            std::function< void( Vector< T > const &, std::string ) > aPrintFunc = print )
+    {
+        // define tag
+        int tRowCommTag  = 10;
+        int tDataCommTag = 110;
+
+        // get the processr size and rank
+        moris_id tParSize = par_size();
+        moris_id tMyRank  = par_rank();
+
+        // get data type
+        MPI_Datatype tDataType = get_comm_datatype( (typename Vector< T >::value_type)0 );
+
+        // send everything to processor zero
+        if ( tMyRank == 0 )
+        {
+            // create the
+            Vector< Vector< T > > tCells( tParSize );
+            Vector< moris::uint > tCellSizes( tParSize );
+
+            tCellSizes( tMyRank ) = aCell.size();
+            tCells( tMyRank )     = aCell;
+
+            aPrintFunc( tCells( tMyRank ), aString + "_" + std::to_string( tMyRank ) );
+
+            // recive the info form all other processors
+            for ( int iProc = 1; iProc < tParSize; iProc++ )
+            {
+                // get number of rows
+                MPI_Recv( tCellSizes.memptr() + iProc, 1, tDataType, iProc, tRowCommTag, moris::get_comm(), MPI_STATUS_IGNORE );
+
+                tCells( iProc ).resize( tCellSizes( iProc ) );
+
+                // Receive the next value from the next processor
+                MPI_Recv( tCells( iProc ).memptr(), tCells( iProc ).size(), tDataType, iProc, tDataCommTag, moris::get_comm(), MPI_STATUS_IGNORE );
+
+                aPrintFunc( tCells( iProc ), aString + "_" + std::to_string( iProc ) );
+            }
+        }
+        else
+        {
+            size_t tSize = aCell.size();
+            // send number of rows
+            MPI_Send( &tSize, 1, tDataType, 0, tRowCommTag, moris::get_comm() );
+
+            // send data
+            MPI_Send( aCell.memptr(), (int)aCell.size(), tDataType, 0, tDataCommTag, moris::get_comm() );
+        }
+    }
+
+    //------------------------------------------------------------------------------
+    /**
+     * @brief Communicate vector version of the  matrix version above
+     *
+     * @param[in] aCommunicationList       Communication list
+     * @param[in] aCellsToSend             Vector to be communicated
+     * @param[in] aCellsToReceive          Vector to be received
+     *
+     */
+
+    // There is minimal change from the matrix version to diagnose and debug since matrix version is
+    // thoroughly tested
+    template< typename T >
+    void communicate_vectors(
+            const Vector< moris_index >& aCommunicationList,
+            const Vector< Vector< T > >& aCellsToSend,
+            Vector< Vector< T > >&       aCellsToReceive )
+    {
+        moris_id tParSize = par_size();
+        // only call this when we are in parallel mode
+        if ( tParSize > 1 )
+        {
+            // get number of procs to communicate with
+            moris_id tNumberOfProcs = aCommunicationList.size();
+
+            // get my ID
+            moris_id tMyRank = par_rank();
+
+            // Allocate memory for status/request vector
+            // These vectors will be used to determine if the exchange has been completed across all processors
+            MPI_Request* tSendRequest = (MPI_Request*)alloca( 2 * sizeof( MPI_Request ) * tNumberOfProcs );
+            MPI_Request* tRecvRequest = (MPI_Request*)alloca( 2 * sizeof( MPI_Request ) * tNumberOfProcs );
+
+            // nrows and ncols of mats to be sent
+            Matrix< DDUMat > tSendRowCols( tNumberOfProcs, 1, MORIS_UINT_MAX );
+
+            // nrows and ncols of mats to be received
+            Matrix< DDUMat > tRecvRowCols( tNumberOfProcs, 1, MORIS_UINT_MAX );
+
+            // loop over all procs
+            for ( moris_id k = 0; k < tNumberOfProcs; ++k )
+            {
+                // FIXME: function should only be called with proper communication list such that following assert can be activated
+                // MORIS_ASSERT( aCommunicationList( k ) < tParSize,
+                //         "communicate_mats - rank of communicating processor exceeds limit.");
+
+                // FIXME: function should only be called with proper communication list such that following assert can be activated
+                // MORIS_ASSERT( aCommunicationList( k ) != tMyRank,
+                //        "communicate_mats - processor wants to send matrices to itself.");
+
+                // only communicate if proc neighbor exists and is not me
+                if ( ( aCommunicationList( k ) < tParSize ) && ( aCommunicationList( k ) != tMyRank ) )
+                {
+                    tSendRowCols( k ) = aCellsToSend( k ).size();
+
+                    // make sure that MPI can send this data set
+                    MORIS_ASSERT( aCellsToSend( k ).size() < INT_MAX,
+                            "communicate_mats - matrix to be sent is too big." );
+                }
+            }
+
+            // determine MPI datatype
+            MPI_Datatype tRowsColsType = get_comm_datatype( (uint)0 );
+
+            // loop over all procs
+            for ( moris_id k = 0; k < tNumberOfProcs; ++k )
+            {
+                // only communicate if proc neighbor exists and is not me
+                if ( ( aCommunicationList( k ) < tParSize ) && ( aCommunicationList( k ) != tMyRank ) )
+                {
+                    // create tag
+                    int tSendTag = create_comm_tag( tMyRank, aCommunicationList( k ) );
+                    int tRecvTag = create_comm_tag( aCommunicationList( k ), tMyRank );
+
+                    // receive array size
+                    MPI_Irecv(
+                            tRecvRowCols.data() + k,
+                            1,
+                            tRowsColsType,
+                            aCommunicationList( k ),
+                            tRecvTag,
+                            gMorisComm.get_global_comm(),
+                            &tRecvRequest[ k ] );
+
+                    // send array size
+                    MPI_Isend(
+                            tSendRowCols.data() + k,
+                            1,
+                            tRowsColsType,
+                            aCommunicationList( k ),
+                            tSendTag,
+                            gMorisComm.get_global_comm(),
+                            &tSendRequest[ k ] );
+                }
+            }
+
+            // wait for all send and receive requests have been fulfilled
+            for ( moris_id k = 0; k < tNumberOfProcs; ++k )
+            {
+                // only communicate if proc neighbor exists and is not me
+                if ( ( aCommunicationList( k ) < tParSize ) && ( aCommunicationList( k ) != tMyRank ) )
+                {
+                    MPI_Wait( &tSendRequest[ k ], MPI_STATUS_IGNORE );
+                    MPI_Wait( &tRecvRequest[ k ], MPI_STATUS_IGNORE );
+                }
+            }
+
+            // clear output matrix
+            Vector< T > tEmpty;
+            aCellsToReceive.clear();
+            aCellsToReceive.resize( tNumberOfProcs, tEmpty );
+
+            // get data type
+            MPI_Datatype tDataType = get_comm_datatype( (typename Vector< T >::value_type)0 );
+
+            // send and receive matrices
+            for ( moris_id k = 0; k < tNumberOfProcs; ++k )
+            {
+                // only communicate if proc neighbor exists and is not me
+                if ( ( aCommunicationList( k ) < tParSize ) && ( aCommunicationList( k ) != tMyRank ) )
+                {
+                    // increment request counter
+                    uint kk = k + tNumberOfProcs;
+
+                    // calculate length of array to send
+                    int tSendLength = tSendRowCols( k );
+
+                    if ( tSendLength > 0 )
+                    {
+                        // create tag
+                        int tSendTag = create_comm_tag( tMyRank, aCommunicationList( k ) ) + 1;
+
+                        // send array
+                        MPI_Isend( aCellsToSend( k ).memptr(),
+                                tSendLength,
+                                tDataType,
+                                aCommunicationList( k ),
+                                tSendTag,
+                                gMorisComm.get_global_comm(),
+                                &tSendRequest[ kk ] );
+                    }
+
+                    // length of array to receive
+                    int tRecvLength = tRecvRowCols( k );
+
+                    if ( tRecvLength > 0 )
+                    {
+                        // assign memory for matrix
+                        aCellsToReceive( k ).resize( tRecvRowCols( k ) );
+
+                        // create tag
+                        int tRecvTag = create_comm_tag( aCommunicationList( k ), tMyRank ) + 1;
+
+                        // receive array size
+                        MPI_Irecv( aCellsToReceive( k ).memptr(),    // tRecvArray,
+                                tRecvLength,
+                                tDataType,
+                                aCommunicationList( k ),
+                                tRecvTag,
+                                gMorisComm.get_global_comm(),
+                                &tRecvRequest[ kk ] );
+                    }
+                }
+            }
+
+            // wait for all send and receive requests have been fulfilled
+            for ( moris_id k = 0; k < tNumberOfProcs; ++k )
+            {
+                // only communicate if proc neighbor exists and is not me
+                if ( ( aCommunicationList( k ) < tParSize ) && ( aCommunicationList( k ) != tMyRank ) )
+                {
+                    // increment request counter
+                    uint kk = k + tNumberOfProcs;
+
+                    // calculate length of array to send
+                    int tSendLength = tSendRowCols( k );
+
+                    // wait until both messages are complete
+                    if ( tSendLength > 0 )
+                    {
+                        MPI_Wait( &tSendRequest[ kk ], MPI_STATUS_IGNORE );
+                    }
+
+                    // length of array to receive
+                    int tRecvLength = tRecvRowCols( k );
+
+                    if ( tRecvLength > 0 )
+                    {
+                        MPI_Wait( &tRecvRequest[ kk ], MPI_STATUS_IGNORE );
+                    }
+                }
+            }
+        }
+    }
+
+    //------------------------------------------------------------------------------
+    /**
+     * @brief Gather vectors of type T of all processors on root processor (default: 0)
+     *         Note: cells need to have same size.
+     *         Note: only basic MPI data types possible such as real, unit, sint, ...
+     *
+     * @param aBuffer input cell
+     * @param aResult output cell (only valid on root processor)
+     */
+    template< typename T >
+    inline void gather_vector(
+            Vector< T >& aBuffer,
+            Vector< T >& aResult,
+            int          aRootProc = 0 )
+    {
+        // get processor rank and size
+        int tProcRank = 0;
+        int tProcSize = 0;
+
+        MPI_Comm_rank( moris::get_comm(), &tProcRank );
+        MPI_Comm_size( moris::get_comm(), &tProcSize );
+
+        // get data type of cell
+        MPI_Datatype tType = get_comm_datatype( (T)0 );
+
+        // allocate proper size for root processor
+        int tSizeofBuffer = aBuffer.size();
+        if ( tProcRank == aRootProc )
+        {
+            aResult.resize( tProcSize * tSizeofBuffer, 0 );
+        }
+
+        // check for equal size of cells across all processors
+        MORIS_ASSERT( max_all( tSizeofBuffer ) == tSizeofBuffer,
+                "gather - cell size differs across processors.\n" );
+
+        // mpi call
+        MPI_Gather(
+                aBuffer.data().data(),
+                tSizeofBuffer,
+                tType,
+                aResult.data().data(),
+                tSizeofBuffer,
+                tType,
+                aRootProc,
+                moris::get_comm() );
+    }
+
+    //------------------------------------------------------------------------------
+    /**
+     * @brief Scatter vectors of type T form root processor  (default: 0) to all processors
+     *        Note: cells need to have same size
+     *        Note: only basic MPI data types possible such as real, unit, sint, ...
+     *
+     * @param aBuffer input cell (only valid on root processor)
+     * @param aResult output cell (needs to be size correctly externally)
+     */
+    template< typename T >
+    inline void scatter_vector(
+            Vector< T >& aBuffer,
+            Vector< T >& aResult,
+            int          aRootProc = 0 )
+    {
+        // get processor rank and size
+        int tProcRank = 0;
+        int tProcSize = 0;
+
+        MPI_Comm_rank( moris::get_comm(), &tProcRank );
+        MPI_Comm_size( moris::get_comm(), &tProcSize );
+
+        // get data type of cell
+        MPI_Datatype tType = get_comm_datatype( (T)0 );
+
+        // get size of receive buffer (needs to be set externally)
+        int tSizeofBuffer = aResult.size();
+
+        // check for equal size of cells across all processors
+        MORIS_ASSERT( max_all( tSizeofBuffer ) == tSizeofBuffer,
+                "scatter - cell size differs across processors.\n" );
+
+        // check for correct size of cell to be scattered
+        MORIS_ASSERT( tProcRank == aRootProc ? aBuffer.size() == (uint)( tProcSize * tSizeofBuffer ) : true,
+                "scatter - inconsistent size of sending and receiving cells." );
+
+        MPI_Scatter(
+                aBuffer.data().data(),
+                tSizeofBuffer,
+                tType,
+                aResult.data().data(),
+                tSizeofBuffer,
+                tType,
+                aRootProc,
+                moris::get_comm() );
+    }
+
+    //------------------------------------------------------------------------------
+
+    /**
+     * @brief Gather vector of strings and put vector of vector of string on
+     *        base process
+     */
+    void gather_vector_of_str(
+            Vector< std::string > const &    aCellToGather,
+            Vector< Vector< std::string > >& aGatheredCells,
+            moris_index                      aTag,
+            moris_index                      aBaseProc = 0 );
+
+    //------------------------------------------------------------------------------
+    //  FUNCTIONS OPERATING ON / COMMUNICATING MORIS MATRICES
+    //------------------------------------------------------------------------------
+
+    //------------------------------------------------------------------------------
+    /*
+     * @brief Determines sum of all components of a matrix on all processors
+     *
+     * @param[in] aLocalInput     local matrix
+     *
+     * returns matrix with global sums
+     */
+    template< typename E >
+    E sum_all_matrix( const E& aLocalMatrix )
+    {
+        E tGlobalMatrix( aLocalMatrix.n_rows(), aLocalMatrix.n_cols() );
+
+        void* aLocalPtr  = (void*)aLocalMatrix.data();
+        void* aGlobalPtr = (void*)tGlobalMatrix.data();
+
+        int tNumElems = aLocalMatrix.numel();
+
+        MPI_Datatype tType = get_comm_datatype( (typename E::Data_Type)0 );
+
+        MPI_Allreduce( aLocalPtr, aGlobalPtr, tNumElems, tType, MPI_SUM, MPI_COMM_WORLD );
+
+        return tGlobalMatrix;
+    }
+
+    //------------------------------------------------------------------------------
+    /*
+     * @brief Determines minimum of all components of a matrix on all processors
+     *
+     * @param[in] aLocalInput     local matrix
+     *
+     * returns matrix with global minimums
+     */
+    template< typename E >
+    E min_all_matrix( const E& aLocalMatrix )
+    {
+        E tGlobalMatrix( aLocalMatrix.n_rows(), aLocalMatrix.n_cols() );
+
+        void* aLocalPtr  = (void*)aLocalMatrix.data();
+        void* aGlobalPtr = (void*)tGlobalMatrix.data();
+
+        int tNumElems = aLocalMatrix.numel();
+
+        MPI_Datatype tType = get_comm_datatype( (typename E::Data_Type)0 );
+
+        MPI_Allreduce( aLocalPtr, aGlobalPtr, tNumElems, tType, MPI_MIN, MPI_COMM_WORLD );
+
+        return tGlobalMatrix;
+    }
+
+    //------------------------------------------------------------------------------
+    /**
+     * @brief  Receives a moris::Matrix<T> from the proc aSource.
+     *         Sending proc must call send_mat_to_proc.
+     *         Does nothing if MORIS is run in serial.
      *
      * @param[in] aMatrix     matrix to be communicated
      * @param[in] aSource     rank of sending proc
@@ -559,7 +971,7 @@ namespace moris
     template< typename T >
     void
     communicate_mats(
-            const Matrix< IdMat >&     aCommunicationList,
+            const Matrix< IdMat >&       aCommunicationList,
             const Vector< Matrix< T > >& aMatsToSend,
             Vector< Matrix< T > >&       aMatsToReceive )
     {
@@ -744,255 +1156,285 @@ namespace moris
     //------------------------------------------------------------------------------
 
     /**
-     * This function collects the value aValue from all procs and puts
-     * the result in a moris::Mat
+     * @brief Gathers matrix from all processors on base processor.
+     *         Only aGatheredMats is populated on base processor.
+     *         Note: Matrices can have different sizes.
      *
-     * @param[in] aValue    scalar value from current processor
-     *
-     * @return  Mat<T>      matrix containing values from all processors
-     *
+     * @param[in]  aMatToGather   matrix
+     * @param[out] aGatheredMats  vector of matrices
+     * @param[in]  aBaseProc      base process
      */
-    template< typename T >
+    template< typename MatrixType >
     void
-    comm_gather_and_broadcast(
-            typename Matrix< T >::Data_Type aValue,
-            Matrix< T >&                    aMatrix )
+    gatherv_mats(
+            Matrix< MatrixType > const &    aMatToGather,
+            Vector< Matrix< MatrixType > >& aGatheredMats,
+            moris_index                     aBaseProc = 0 )
     {
-        // get number of processors
-        moris_id tParSize = par_size();
+        typename Matrix< MatrixType >::Data_Type tType = 1;
 
-        // set size of matrix to be populated
-        aMatrix.set_size( tParSize, 1 );
+        // communicate dimension of vectors
+        Matrix< DDSMat > tLocalDims = { { (sint)aMatToGather.n_rows(), (sint)aMatToGather.n_cols() } };
 
-        // communicate value
-        if ( tParSize > 1 )
+        Matrix< DDSMat > tMatrixtDim;
+        if ( par_rank() == aBaseProc )
         {
-            // get data type
-            MPI_Datatype tDataType = get_comm_datatype( (typename Matrix< T >::Data_Type)0 );
+            tMatrixtDim.set_size( par_size() * 2, 1 );
 
-            // gather value over all procs
-            MPI_Allgather(
-                    &aValue,
-                    1,
-                    tDataType,
-                    aMatrix.data(),
-                    1,
-                    tDataType,
-                    gMorisComm.get_global_comm() );
+            MPI_Gather(
+                    tLocalDims.data(),
+                    2,
+                    MPI_INT,
+                    tMatrixtDim.data(),
+                    2,
+                    MPI_INT,
+                    aBaseProc,
+                    MPI_COMM_WORLD );
         }
         else
         {
-            aMatrix( 0 ) = aValue;
+            MPI_Gather(
+                    tLocalDims.data(),
+                    2,
+                    MPI_INT,
+                    NULL,
+                    0,
+                    MPI_INT,
+                    aBaseProc,
+                    moris::get_comm() );
         }
-    }
 
-    //------------------------------------------------------------------------------
-
-    inline std::string
-    parallelize_path( const std::string& aFilePath )
-    {
-        if ( par_size() == 1 || aFilePath.size() == 0 )
+        // communicate matrices
+        if ( par_rank() == aBaseProc )
         {
-            // leave path untouched
-            return aFilePath;
+            // resize vector of matrices
+            aGatheredMats.resize( par_size() );
+
+            // build offset vector and initialize matrices
+            Matrix< DDSMat > tVecSize( par_size(), 1, 0 );
+            Matrix< DDSMat > tOffSetVector( par_size(), 1, 0 );
+
+            sint tOffSetCounter = 0;
+            for ( sint i = 0; i < par_size(); ++i )
+            {
+                tOffSetVector( i ) = tOffSetCounter;
+                tVecSize( i )      = tMatrixtDim( 2 * i ) * tMatrixtDim( 2 * i + 1 );
+                tOffSetCounter += tVecSize( i );
+
+                aGatheredMats( i ).set_size( tMatrixtDim( 2 * i ), tMatrixtDim( 2 * i + 1 ) );
+            }
+
+            // allocate buffer
+            Matrix< MatrixType > tBuffer( tOffSetCounter, 1 );
+
+            // gather vectors
+            MPI_Gatherv(
+                    aMatToGather.data(),
+                    (sint)aMatToGather.numel(),
+                    moris::get_comm_datatype( tType ),
+                    tBuffer.data(),
+                    tVecSize.data(),
+                    tOffSetVector.data(),
+                    moris::get_comm_datatype( tType ),
+                    aBaseProc,
+                    moris::get_comm() );
+
+            // fill matrices
+            for ( sint i = 0; i < par_size(); ++i )
+            {
+                std::copy_n(
+                        tBuffer.data() + tOffSetVector( i ),
+                        aGatheredMats( i ).numel(),
+                        aGatheredMats( i ).data() );
+            }
         }
         else
         {
-            return aFilePath.substr( 0, aFilePath.find_last_of( "." ) )                      // base path
-                 + "." + std::to_string( par_size() )                                        // rank of this processor
-                 + "." + std::to_string( par_rank() )                                        // number of procs
-                 + aFilePath.substr( aFilePath.find_last_of( "." ), aFilePath.length() );    // file extension
+            // clear vector of matrices
+            aGatheredMats.clear();
+
+            // send matrices
+            MPI_Gatherv(
+                    aMatToGather.data(),
+                    (sint)aMatToGather.numel(),
+                    moris::get_comm_datatype( tType ),
+                    NULL,
+                    NULL,
+                    NULL,
+                    moris::get_comm_datatype( tType ),
+                    aBaseProc,
+                    moris::get_comm() );
         }
-    }
-
-    //------------------------------------------------------------------------------
-    // print dots for nice output
-
-    inline std::string
-    proc_string()
-    {
-        std::string tString = "              ";
-
-        if ( par_size() > 1 )
-        {
-            uint tMyRank = par_rank();
-            tString      = "  proc " + std::to_string( tMyRank );
-
-            if ( tMyRank < 10 )
-            {
-                tString += " ... :";
-            }
-            else if ( tMyRank < 100 )
-            {
-                tString += " .. :";
-            }
-            else if ( tMyRank < 1000 )
-            {
-                tString += " . :";
-            }
-            else if ( tMyRank < 10000 )
-            {
-                tString += "  :";
-            }
-            else
-            {
-                tString += " :";
-            }
-        }
-
-        return tString;
     }
 
     //------------------------------------------------------------------------------
 
     /**
-     * @brief Gathers matrix from all processors on base processor
-     * Only aGatheredMats is populated on base processor
+     * @brief Scatters matrices to all processors from base processor.
+     *        Only aScatterMats needs to be populated on base processor.
+     *        Note: Matrices can have different sizes.
      *
-     * @param aMatToGather
-     * @param aGatheredMats
-     * @param aTag
-     * @param aFixedDim
+     * @param[in]  aScatterMats   vector of matrices
+     * @param[out] aLocalMat      matrix
+     * @param[in]  aBaseProc      base process
+     */
+    template< typename MatrixType >
+    void
+    scatterv_mats(
+            const Vector< Matrix< MatrixType > >& aScatterMats,
+            Matrix< MatrixType >&                 aLocalMat,
+            moris_index                           aBaseProc = 0 )
+    {
+        typename Matrix< MatrixType >::Data_Type tType = 1;
+
+        // communicate dimension of vectors
+        Matrix< DDSMat > tLocalDims( 2, 1 );
+
+        Matrix< DDSMat > tMatrixtDim;
+
+        if ( par_rank() == aBaseProc )
+        {
+            // check for correct size
+            MORIS_ASSERT( aScatterMats.size() == (uint)par_size(),
+                    "scatter_mats - incorrect size of vector of matrices to be scattered." );
+
+            // fill vector with dimensions of matrices
+            tMatrixtDim.set_size( par_size() * 2, 1 );
+
+            uint tCounter = 0;
+            for ( sint i = 0; i < par_size(); ++i )
+            {
+                tMatrixtDim( tCounter++ ) = aScatterMats( i ).n_rows();
+                tMatrixtDim( tCounter++ ) = aScatterMats( i ).n_cols();
+            }
+
+            // scatter dimensions of matrices
+            MPI_Scatter(
+                    tMatrixtDim.data(),
+                    2,
+                    MPI_INT,
+                    tLocalDims.data(),
+                    2,
+                    MPI_INT,
+                    aBaseProc,
+                    moris::get_comm() );
+        }
+        else
+        {
+            // receive dimensions of matrix to be scattered
+            MPI_Scatter(
+                    NULL,
+                    1,
+                    MPI_INT,
+                    tLocalDims.data(),
+                    2,
+                    MPI_INT,
+                    aBaseProc,
+                    moris::get_comm() );
+        }
+
+        // allocate matrix to be received
+        aLocalMat.set_size( tLocalDims( 0 ), tLocalDims( 1 ) );
+
+        // communicate matrices
+        if ( par_rank() == aBaseProc )
+        {
+            // build offset vector and initialize matrices
+            Matrix< DDSMat > tVecSize( par_size(), 1, 0 );
+            Matrix< DDSMat > tOffSetVector( par_size(), 1, 0 );
+
+            sint tOffSetCounter = 0;
+            for ( sint i = 0; i < par_size(); ++i )
+            {
+                tOffSetVector( i ) = tOffSetCounter;
+                tVecSize( i )      = tMatrixtDim( 2 * i ) * tMatrixtDim( 2 * i + 1 );
+                tOffSetCounter += tVecSize( i );
+            }
+
+            // allocate buffer and fill buffer
+            Matrix< MatrixType > tBuffer( tOffSetCounter, 1 );
+
+            // fill matrices
+            for ( sint i = 0; i < par_size(); ++i )
+            {
+                std::copy_n(
+                        aScatterMats( i ).data(),
+                        aScatterMats( i ).numel(),
+                        tBuffer.data() + tOffSetVector( i ) );
+            }
+
+            // gather matrices
+            MPI_Scatterv(
+                    tBuffer.data(),
+                    tVecSize.data(),
+                    tOffSetVector.data(),
+                    moris::get_comm_datatype( tType ),
+                    aLocalMat.data(),
+                    (sint)aLocalMat.numel(),
+                    moris::get_comm_datatype( tType ),
+                    aBaseProc,
+                    moris::get_comm() );
+        }
+        else
+        {
+            // receive matrix
+            MPI_Scatterv(
+                    NULL,
+                    NULL,
+                    NULL,
+                    moris::get_comm_datatype( tType ),
+                    aLocalMat.data(),
+                    (sint)aLocalMat.numel(),
+                    moris::get_comm_datatype( tType ),
+                    aBaseProc,
+                    moris::get_comm() );
+        }
+    }
+
+    //------------------------------------------------------------------------------
+
+    /**
+     * @brief Broadcast a single matrix to all processors from base processor.
+     *        Only aMatrix needs to be populated on base processor.
+     *
+     * @param aMatrix
      * @param aBaseProc
      * @return * template< typename MatrixType >
      */
     template< typename MatrixType >
     void
-    all_gather_vector(
-            Matrix< MatrixType > const &  aMatToGather,
-            Vector< Matrix< MatrixType > >& aGatheredMats,
-            moris_index                   aTag,
-            moris_index                   aFixedDim,
-            moris_index                   aBaseProc = 0 )
+    broadcast_mat(
+            Matrix< MatrixType >& aMatrix,
+            moris_index           aBaseProc = 0 )
     {
-        // if rows are fixed
-        moris_index tNumRow = 0;
-        moris_index tNumCol = 0;
-
         typename Matrix< MatrixType >::Data_Type tType = 1;
 
-        if ( aFixedDim == 0 )
-        {
+        // communicate dimension of vectors
+        Matrix< DDSMat > tLocalDims( 2, 1 );
 
-            tNumRow = aMatToGather.n_rows();
-        }
-        else
-        {
-            tNumCol = aMatToGather.n_cols();
-        }
-
-        MPI_Request tRequest;
-
-        // send the matrix via nonblocking request
-        MPI_Isend(
-                aMatToGather.data(),
-                aMatToGather.numel(),
-                moris::get_comm_datatype( tType ),
-                aBaseProc,
-                aTag,
-                moris::get_comm(),
-                &tRequest );
-
-        // FIXME: should not be needed as base processor issues blocking probe and receive requests
-        barrier();
-
-        // on base rank go ahead and receive the data
         if ( par_rank() == aBaseProc )
         {
-            aGatheredMats.resize( par_size() );
-
-            for ( int i = 0; i < par_size(); i++ )
-            {
-                // check and wait until message from processor "i" is ready
-                MPI_Status tStatus;
-                MPI_Probe( i, aTag, moris::get_comm(), &tStatus );
-
-                // get length of message
-                int tLength = 0;
-                MPI_Get_count(
-                        &tStatus,
-                        moris::get_comm_datatype( tType ),
-                        &tLength );
-
-                // compute number of rows or columns
-                if ( tLength != 0 )
-                {
-                    if ( aFixedDim == 0 )
-                    {
-                        tNumCol = tLength / tNumRow;
-                    }
-                    else
-                    {
-                        tNumRow = tLength / tNumCol;
-                    }
-                }
-
-                // check for correct rows or columns as incorrect rounding may happen
-                MORIS_ASSERT( tNumCol * tNumRow == tLength,
-                        "all_gather_vector - incorrect number of rows or columns." );
-
-                // Resize the matrix
-                aGatheredMats( i ).resize( tNumRow, tNumCol );
-
-                // receive matrix
-                MPI_Recv(
-                        aGatheredMats( i ).data(),
-                        tLength,
-                        moris::get_comm_datatype( tType ),
-                        i,
-                        aTag,
-                        moris::get_comm(),
-                        &tStatus );
-            }
+            tLocalDims = { { (sint)aMatrix.n_rows(), (sint)aMatrix.n_cols() } };
         }
 
-        // wait until send request has been processed
-        MPI_Wait( &tRequest, MPI_STATUS_IGNORE );
+        MPI_Bcast(
+                tLocalDims.data(),
+                2,
+                MPI_INT,
+                aBaseProc,
+                moris::get_comm() );
 
-        // FIXME: should not be needed as this point can only be reached if all
-        //        send and receive request have been processed
-        barrier();
-    }
-
-    //------------------------------------------------------------------------------
-
-    /*!
-     * Gather cell of strings
-     */
-    void
-    all_gather_cell_of_str(
-            Vector< std::string > const &  aCellToGather,
-            Vector< Vector< std::string > >& aGatheredCells,
-            moris_index                  aTag,
-            moris_index                  aBaseProc = 0 );
-
-    //------------------------------------------------------------------------------
-
-    /* computes offset for each processor given a local value
-     *
-     * @param aLocalInput  local value
-     *
-     * @ return            offset value (same type as input value)
-     */
-    template< typename T >
-    T
-    get_processor_offset( const T& aLocalInput )
-    {
-        // get local rank
-        moris_id tMyPID = par_rank();
-
-        Matrix< DDRMat > tOutputMatrix;
-        comm_gather_and_broadcast( aLocalInput, tOutputMatrix );
-
-        // compute local offset
-        T tOffset = 0;
-
-        for ( moris_id ip = 0; ip < tMyPID; ++ip )
+        if ( par_rank() != aBaseProc )
         {
-            tOffset += (T)tOutputMatrix( ip );
+            aMatrix.set_size( tLocalDims( 0 ), tLocalDims( 1 ) );
         }
 
-        return tOffset;
+        MPI_Bcast(
+                aMatrix.data(),
+                (sint)aMatrix.numel(),
+                moris::get_comm_datatype( tType ),
+                aBaseProc,
+                moris::get_comm() );
     }
 
     //------------------------------------------------------------------------------
@@ -1004,14 +1446,19 @@ namespace moris
      * @param aMat
      * @param aString
      * @param aPrintFunc
+     *
+     * How to use this function: because of the issue in the overload resolution template instantiation fails,
+     * thus type need to be specified explicitly
+     *
+     *  void (*func)(Matrix<T>, std::string) = print/ print_as_row_vector / print_fancy ; print_mat<T>(aMat, aString,func );
+     *
+     *  for example: void (*func)(Matrix<DDRMat>, std::string) = print_as_row_vector ; print_mat<DDRMat>(aMat, aString,func );
      */
-
-    // How to use this function: because of the issue in the overload resolution template instantiation fails, thus type need to be specified explicitly
-    // void (*func)(Matrix<T>, std::string) = print/ print_as_row_vector / print_fancy ; print_mat<T>(aMat, aString,func );
-    // for example: void (*func)(Matrix<DDRMat>, std::string) = print_as_row_vector ; print_mat<DDRMat>(aMat, aString,func );
     template< typename T >
-    void
-    print_mat( const Matrix< T >& aMat, std::string aString, std::function< void( Matrix< T >, std::string ) > aPrintFunc = print )
+    void print_mat(
+            const Matrix< T >&                                aMat,
+            std::string                                       aString,
+            std::function< void( Matrix< T >, std::string ) > aPrintFunc = print )
     {
         // define tag
         int tRowCommTag  = 10;
@@ -1078,266 +1525,6 @@ namespace moris
     }
 
     //------------------------------------------------------------------------------
-
-    /**
-     * @brief  the print cell version of the above function
-     *
-     * @tparam T
-     * @param aCell
-     * @param aString
-     * @param aPrintFunc
-     */
-
-
-    template< typename T >
-    void
-    print_cell( const Vector< T >& aCell, std::string aString, std::function< void( Vector< T > const &, std::string ) > aPrintFunc = print )
-    {
-        // define tag
-        int tRowCommTag  = 10;
-        int tDataCommTag = 110;
-
-        // get the processr size and rank
-        moris_id tParSize = par_size();
-        moris_id tMyRank  = par_rank();
-
-        // get data type
-        MPI_Datatype tDataType = get_comm_datatype( (typename Vector< T >::value_type)0 );
-
-        // send everything to processor zero
-        if ( tMyRank == 0 )
-        {
-            // create the
-            Vector< Vector< T > > tCells( tParSize );
-            Vector< moris::uint >      tCellSizes( tParSize );
-
-            tCellSizes( tMyRank ) = aCell.size();
-            tCells( tMyRank )     = aCell;
-
-            aPrintFunc( tCells( tMyRank ), aString + "_" + std::to_string( tMyRank ) );
-
-            // recive the info form all other processors
-            for ( int iProc = 1; iProc < tParSize; iProc++ )
-            {
-                // get number of rows
-                MPI_Recv( tCellSizes.memptr() + iProc, 1, tDataType, iProc, tRowCommTag, moris::get_comm(), MPI_STATUS_IGNORE );
-
-                tCells( iProc ).resize( tCellSizes( iProc ) );
-
-                // Receive the next value from the next processor
-                MPI_Recv( tCells( iProc ).memptr(), tCells( iProc ).size(), tDataType, iProc, tDataCommTag, moris::get_comm(), MPI_STATUS_IGNORE );
-
-                aPrintFunc( tCells( iProc ), aString + "_" + std::to_string( iProc ) );
-            }
-        }
-        else
-        {
-            size_t tSize = aCell.size();
-            // send number of rows
-            MPI_Send( &tSize, 1, tDataType, 0, tRowCommTag, moris::get_comm() );
-
-            // send data
-            MPI_Send( aCell.memptr(), (int)aCell.size(), tDataType, 0, tDataCommTag, moris::get_comm() );
-        }
-    }
-
-
-    //------------------------------------------------------------------------------
-
-    /**
-     *
-     * @brief                 Communicate cell version of the  matrix version above
-     *
-     * @param[in] aCell     matrix to be communicated
-     * @param[in] aSource     rank of sending proc
-     *
-     */
-
-    // There is minimal change from the matrix version to diagnose and debug since matrix version is
-    // thoroughly tested
-    template< typename T >
-    void
-    communicate_cells(
-            const Vector< moris_index >& aCommunicationList,
-            const Vector< Vector< T > >&   aCellsToSend,
-            Vector< Vector< T > >&         aCellsToReceive )
-    {
-        moris_id tParSize = par_size();
-        // only call this when we are in parallel mode
-        if ( tParSize > 1 )
-        {
-            // get number of procs to communicate with
-            moris_id tNumberOfProcs = aCommunicationList.size();
-
-            // get my ID
-            moris_id tMyRank = par_rank();
-
-            // Allocate memory for status/request vector
-            // These vectors will be used to determine if the exchange has been completed across all processors
-            MPI_Request* tSendRequest = (MPI_Request*)alloca( 2 * sizeof( MPI_Request ) * tNumberOfProcs );
-            MPI_Request* tRecvRequest = (MPI_Request*)alloca( 2 * sizeof( MPI_Request ) * tNumberOfProcs );
-
-            // nrows and ncols of mats to be sent
-            Matrix< DDUMat > tSendRowCols( tNumberOfProcs, 1, MORIS_UINT_MAX );
-
-            // nrows and ncols of mats to be received
-            Matrix< DDUMat > tRecvRowCols( tNumberOfProcs, 1, MORIS_UINT_MAX );
-
-            // loop over all procs
-            for ( moris_id k = 0; k < tNumberOfProcs; ++k )
-            {
-                // FIXME: function should only be called with proper communication list such that following assert can be activated
-                // MORIS_ASSERT( aCommunicationList( k ) < tParSize,
-                //         "communicate_mats - rank of communicating processor exceeds limit.");
-
-                // FIXME: function should only be called with proper communication list such that following assert can be activated
-                // MORIS_ASSERT( aCommunicationList( k ) != tMyRank,
-                //        "communicate_mats - processor wants to send matrices to itself.");
-
-                // only communicate if proc neighbor exists and is not me
-                if ( ( aCommunicationList( k ) < tParSize ) && ( aCommunicationList( k ) != tMyRank ) )
-                {
-                    tSendRowCols( k ) = aCellsToSend( k ).size();
-
-                    // make sure that MPI can send this data set
-                    MORIS_ASSERT( aCellsToSend( k ).size() < INT_MAX,
-                            "communicate_mats - matrix to be sent is too big." );
-                }
-            }
-
-            // determine MPI datatype
-            MPI_Datatype tRowsColsType = get_comm_datatype( (uint)0 );
-
-            // loop over all procs
-            for ( moris_id k = 0; k < tNumberOfProcs; ++k )
-            {
-                // only communicate if proc neighbor exists and is not me
-                if ( ( aCommunicationList( k ) < tParSize ) && ( aCommunicationList( k ) != tMyRank ) )
-                {
-                    // create tag
-                    int tSendTag = create_comm_tag( tMyRank, aCommunicationList( k ) );
-                    int tRecvTag = create_comm_tag( aCommunicationList( k ), tMyRank );
-
-                    // receive array size
-                    MPI_Irecv(
-                            tRecvRowCols.data() + k,
-                            1,
-                            tRowsColsType,
-                            aCommunicationList( k ),
-                            tRecvTag,
-                            gMorisComm.get_global_comm(),
-                            &tRecvRequest[ k ] );
-
-                    // send array size
-                    MPI_Isend(
-                            tSendRowCols.data() + k,
-                            1,
-                            tRowsColsType,
-                            aCommunicationList( k ),
-                            tSendTag,
-                            gMorisComm.get_global_comm(),
-                            &tSendRequest[ k ] );
-                }
-            }
-
-            // wait for all send and receive requests have been fulfilled
-            for ( moris_id k = 0; k < tNumberOfProcs; ++k )
-            {
-                // only communicate if proc neighbor exists and is not me
-                if ( ( aCommunicationList( k ) < tParSize ) && ( aCommunicationList( k ) != tMyRank ) )
-                {
-                    MPI_Wait( &tSendRequest[ k ], MPI_STATUS_IGNORE );
-                    MPI_Wait( &tRecvRequest[ k ], MPI_STATUS_IGNORE );
-                }
-            }
-
-            // clear output matrix
-            Vector< T > tEmpty;
-            aCellsToReceive.clear();
-            aCellsToReceive.resize( tNumberOfProcs, tEmpty );
-
-            // get data type
-            MPI_Datatype tDataType = get_comm_datatype( (typename Vector< T >::value_type)0 );
-
-            // send and receive matrices
-            for ( moris_id k = 0; k < tNumberOfProcs; ++k )
-            {
-                // only communicate if proc neighbor exists and is not me
-                if ( ( aCommunicationList( k ) < tParSize ) && ( aCommunicationList( k ) != tMyRank ) )
-                {
-                    // increment request counter
-                    uint kk = k + tNumberOfProcs;
-
-                    // calculate length of array to send
-                    int tSendLength = tSendRowCols( k );
-
-                    if ( tSendLength > 0 )
-                    {
-                        // create tag
-                        int tSendTag = create_comm_tag( tMyRank, aCommunicationList( k ) ) + 1;
-
-                        // send array
-                        MPI_Isend( aCellsToSend( k ).memptr(),
-                                tSendLength,
-                                tDataType,
-                                aCommunicationList( k ),
-                                tSendTag,
-                                gMorisComm.get_global_comm(),
-                                &tSendRequest[ kk ] );
-                    }
-
-                    // length of array to receive
-                    int tRecvLength = tRecvRowCols( k );
-
-                    if ( tRecvLength > 0 )
-                    {
-                        // assign memory for matrix
-                        aCellsToReceive( k ).resize( tRecvRowCols( k ) );
-
-                        // create tag
-                        int tRecvTag = create_comm_tag( aCommunicationList( k ), tMyRank ) + 1;
-
-                        // receive array size
-                        MPI_Irecv( aCellsToReceive( k ).memptr(),    // tRecvArray,
-                                tRecvLength,
-                                tDataType,
-                                aCommunicationList( k ),
-                                tRecvTag,
-                                gMorisComm.get_global_comm(),
-                                &tRecvRequest[ kk ] );
-                    }
-                }
-            }
-
-            // wait for all send and receive requests have been fulfilled
-            for ( moris_id k = 0; k < tNumberOfProcs; ++k )
-            {
-                // only communicate if proc neighbor exists and is not me
-                if ( ( aCommunicationList( k ) < tParSize ) && ( aCommunicationList( k ) != tMyRank ) )
-                {
-                    // increment request counter
-                    uint kk = k + tNumberOfProcs;
-
-                    // calculate length of array to send
-                    int tSendLength = tSendRowCols( k );
-
-                    // wait until both messages are complete
-                    if ( tSendLength > 0 )
-                    {
-                        MPI_Wait( &tSendRequest[ kk ], MPI_STATUS_IGNORE );
-                    }
-
-                    // length of array to receive
-                    int tRecvLength = tRecvRowCols( k );
-
-                    if ( tRecvLength > 0 )
-                    {
-                        MPI_Wait( &tRecvRequest[ kk ], MPI_STATUS_IGNORE );
-                    }
-                }
-            }
-        }
-    }
 }    // namespace moris
 
 #endif /* SRC_COMM_CL_COMMUNICATION_TOOLS_HPP_ */

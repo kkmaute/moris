@@ -215,9 +215,6 @@ Data.NVar      = NVar;
 Data.EVar      = EVar;
 Data.EleMap    = elem_map;
 
-
-
-
 % if specified save the data in a matlab file
 if nargin == 3
     save(savefile,'Data')

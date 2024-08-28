@@ -20,8 +20,8 @@ namespace moris
 
         Field_Interpolator_Manager::Field_Interpolator_Manager(
                 const Vector< Vector< enum MSI::Dof_Type > >& aDofTypes,
-                MSI::Equation_Set*                                      aEquationSet,
-                mtk::Leader_Follower                                       aIsLeader )
+                MSI::Equation_Set*                            aEquationSet,
+                mtk::Leader_Follower                          aIsLeader )
                 : mDofTypes( aDofTypes )
                 , mEquationSet( aEquationSet )
                 , mIsLeader( aIsLeader )
@@ -38,10 +38,10 @@ namespace moris
 
         Field_Interpolator_Manager::Field_Interpolator_Manager(
                 const Vector< Vector< enum MSI::Dof_Type > >&   aDofTypes,
-                const Vector< Vector< enum gen::PDV_Type > >&        aDvTypes,
+                const Vector< Vector< enum gen::PDV_Type > >&   aDvTypes,
                 const Vector< Vector< enum mtk::Field_Type > >& aFieldTypes,
-                MSI::Equation_Set*                                        aEquationSet,
-                mtk::Leader_Follower                                         aIsLeader )
+                MSI::Equation_Set*                              aEquationSet,
+                mtk::Leader_Follower                            aIsLeader )
                 : mDofTypes( aDofTypes )
                 , mEquationSet( aEquationSet )
                 , mIsLeader( aIsLeader )
@@ -66,9 +66,9 @@ namespace moris
 
         Field_Interpolator_Manager::Field_Interpolator_Manager(
                 const Vector< Vector< enum MSI::Dof_Type > >& aDofTypes,
-                MSI::Equation_Set*                                      aEquationSet,
-                MSI::Model_Solver_Interface*                            aModelSolverInterface,
-                mtk::Leader_Follower                                       aIsLeader )
+                MSI::Equation_Set*                            aEquationSet,
+                MSI::Model_Solver_Interface*                  aModelSolverInterface,
+                mtk::Leader_Follower                          aIsLeader )
                 : mDofTypes( aDofTypes )
                 , mEquationSet( aEquationSet )
                 , mIsLeader( aIsLeader )
@@ -502,7 +502,7 @@ namespace moris
 
         void
         Field_Interpolator_Manager::set_coeff_for_type(
-                enum gen::PDV_Type           aDvType,
+                enum gen::PDV_Type      aDvType,
                 const Matrix< DDRMat >& aCoeff )
         {
             // get field interpolator for dof type and set coefficients
@@ -513,7 +513,7 @@ namespace moris
 
         void
         Field_Interpolator_Manager::set_coeff_for_type(
-                mtk::Field_Type    aFieldType,
+                mtk::Field_Type         aFieldType,
                 const Matrix< DDRMat >& aCoeff )
         {
             // get field interpolator for dof type and set coefficients

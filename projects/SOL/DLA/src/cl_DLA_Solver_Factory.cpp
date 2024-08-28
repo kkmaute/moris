@@ -21,6 +21,9 @@
 #ifdef MORIS_HAVE_PETSC
 #include "cl_DLA_Linear_System_PETSc.hpp"
 #include "cl_DLA_Linear_Solver_PETSc.hpp"
+#ifdef MORIS_HAVE_SLEPC
+#include "cl_DLA_Eigen_Solver_SLEPc.hpp"
+#endif  
 #endif
 
 #include "cl_DLA_Linear_Solver_Algorithm.hpp"
@@ -94,6 +97,13 @@ Solver_Factory::create_solver(
             break;
         case ( sol::SolverType::ML ):
             tLinSol = std::make_shared< Linear_Solver_ML >( aParameterlist );
+            break;
+        case ( sol::SolverType::SLEPC_SOLVER ):
+#ifdef MORIS_HAVE_SLEPC
+            tLinSol = std::make_shared< Eigen_Solver_SLEPc >(aParameterlist);
+#else
+            MORIS_ERROR( false, "MORIS is configured with out PETSC support." );
+#endif
             break;
         default:
             MORIS_ERROR( false, "No solver type specified" );

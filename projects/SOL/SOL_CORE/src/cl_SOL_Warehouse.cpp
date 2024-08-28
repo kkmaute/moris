@@ -166,7 +166,6 @@ void SOL_Warehouse::create_linear_solver_algorithms()
             mLinearSolverAlgorithms( Ik )->set_preconditioner( mPreconditioners( tPrecIndex ) );
         }
 
-
         // get and set nonlinear sub-solvers for staggered methods
         tPreconditionerIndices.clear();
         string_to_cell( mParameterlist( 0 )( Ik ).get< std::string >( "preconditioners_linear_operator" ),
@@ -176,6 +175,27 @@ void SOL_Warehouse::create_linear_solver_algorithms()
         for ( auto tPrecIndex : tPreconditionerIndices )
         {
             mLinearSolverAlgorithms( Ik )->set_left_hand_side_preconditioner( mPreconditioners( tPrecIndex ) );
+        }
+
+        // get and set nonlinear sub-solvers for staggered methods
+        tPreconditionerIndices.clear();
+        string_to_cell( mParameterlist( 0 )( Ik ).get< std::string >( "sub_linear_solver" ),
+                tPreconditionerIndices );
+
+        // set the sub linear solver for the iegn problem
+        for ( auto tPrecIndex : tPreconditionerIndices )
+        {
+            MORIS_ASSERT( tPrecIndex < Ik, "SOL_Warehouse::create_linear_solver_algorithms - sub_linear_solver index %d is not defined yet", tPrecIndex );
+            
+            std::string tSubsolverPrec = mParameterlist( 0 )( tPrecIndex ).get< std::string >( "preconditioners" );
+
+            if(  tSubsolverPrec not_eq "" )
+            {
+                mLinearSolverAlgorithms( Ik )->set_sublinear_solver_options( &mParameterlist( 0 )( tPrecIndex ), &mParameterlist( 7 )( std::stoi(tSubsolverPrec) ) );
+                continue;
+            }
+
+            mLinearSolverAlgorithms( Ik )->set_sublinear_solver_options( &mParameterlist( 0 )( tPrecIndex ), nullptr );
         }
     }
 }
@@ -187,9 +207,6 @@ void SOL_Warehouse::create_linear_solvers()
     uint tNumLinSolvers = mParameterlist( 1 ).size();
 
     mLinearSolvers.resize( tNumLinSolvers );
-
-    // get RHS Matrix type from parameter list
-    mRHSMatType = mParameterlist( 1 )( 0 ).get< std::string >( "RHS_Matrix_Type" );
 
     for ( uint Ik = 0; Ik < tNumLinSolvers; Ik++ )
     {

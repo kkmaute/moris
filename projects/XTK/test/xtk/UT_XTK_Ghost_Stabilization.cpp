@@ -31,7 +31,7 @@
 //    moris::Matrix<DDRMat> tCenters = {{ 2.0,2.0,2.1 }};
 //    moris::Matrix<DDRMat> tNormals = {{ 1.0,1.0,1.0 }};
 //
-//    Cell<std::shared_ptr<moris::gen::Level_Set_Geometry>> tGeometry(1);
+//    Vector<std::shared_ptr<moris::gen::Level_Set_Geometry>> tGeometry(1);
 //    tGeometry(0) = std::make_shared<moris::gen::Plane>(tCenters(0), tCenters(1), tCenters(2), tNormals(0), tNormals(1), tNormals(2));
 //
 //    moris::gen::Phase_Table tPhaseTable (tGeometry.size());
@@ -47,7 +47,7 @@
 //    tXTKModel.mVerbose  =  true;
 //
 //    // decompose
-//    Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
+//    Vector<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
 //    tXTKModel.decompose(tDecompositionMethods);
 //
 //    tXTKModel.perform_basis_enrichment( mtk::EntityRank::NODE,0);

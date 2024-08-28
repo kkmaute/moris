@@ -31,10 +31,13 @@ ctvers=t15
 bashrc_t13=$HOME/BASHRC_MORIS_T13
 bashrc_t15=$HOME/.bashrc_moris
 
-# file with git versions to processed in additon to current one; leave empty 
-# if only current git version should be checked
-gitlist=$MORISROOTORG/share/maintenance/timing/CheckGitList_github
-#gitlist=
+# file with git versions to processed in additon to current git version one;  
+# leave empty if only current git version should be checked
+# set to "local" if local (not pushed) version should be checked
+
+#gitlist=$MORISROOTORG/share/maintenance/timing/CheckGitList_github
+#gitlist="current"
+gitlist="local"
 
 #=================================================================================
 # end of user input
@@ -42,16 +45,21 @@ gitlist=$MORISROOTORG/share/maintenance/timing/CheckGitList_github
 
 cd $MORISROOTORG
 
-git checkout $branch
-
-if [ $gitlist ];then
-    vlist=`cat $gitlist | awk '{print $1}'`
-    ulist=`cat $gitlist | awk '{print $2}'`
-    vlist=$vlist" "`git log | head -1 | awk '{print $2}'`
-    ulist=$ulist" "`echo $ctvers`
-else
+if [ $gitlist = "current" ];then
+    git checkout $branch
     vlist=`git log | head -1 | awk '{print $2}'`
     ulist=`echo $ctvers`
+else
+    if [ $gitlist = "local" ]; then
+        vlist="na"
+        ulist="na"
+    else
+        git checkout $branch
+        vlist=`cat $gitlist | awk '{print $1}'`
+        ulist=`cat $gitlist | awk '{print $2}'`
+        vlist=$vlist" "`git log | head -1 | awk '{print $2}'`
+        ulist=$ulist" "`echo $ctvers`
+   fi
 fi
 
 id=0
@@ -62,9 +70,11 @@ cp $MORISROOTORG/share/cmake/find_modules/FindOPENBLAS.cmake /tmp/FindOPENBLAS.c
 
 if [ ! -d "TimingResults" ];then
     mkdir TimingResults
+else
+    chmod -R +w TimingResults
 fi    
 
-if [ ! "$1" = "skip" ];then
+if [ ! "$vlist" = "na" ] && [ ! "$1" = "skip" ];then
 
     for vers in $vlist;do
 
@@ -158,6 +168,30 @@ if [ ! "$1" = "skip" ];then
     git pull
 fi  
 
+if [ "$gitlist" = "local" ] && [ ! "$1" = "skip" ]; then
+
+    echo "building local version"
+
+    date=`date +%m-%d-%Y`
+
+    rm -r -f cmake CMakeCache.txt CMakeDoxyfile.in CMakeDoxygenDefaults.cmake
+    rm -r -f CMakeFiles cmake_install.cmake CTestTestfile.cmake generated
+    rm -r -f lib Makefile share
+
+    echo "MORIS cmake for local version at $date"    > TimingResults/cmake.$date
+    echo " "                                        >> TimingResults/cmake.$date
+    cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON .. >> TimingResults/cmake.$date 2>&1
+    cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON .. >> TimingResults/cmake.$date 2>&1 
+    
+    echo "MORIS compilation log for $vers at $date"  > TimingResults/compile.$date
+    echo " "                                        >> TimingResults/compile.$date
+    make -j 5                                       >> TimingResults/compile.$date 2>&1
+      
+    echo "MORIS ctest for local version at $date"  > TimingResults/ctest.$date
+    echo " "                                      >> TimingResults/ctest.$date
+    ctest -V                                      >> TimingResults/ctest.$date 2>&1            
+fi
+
 cd TimingResults
 
 exalist=`cat $exalist`
@@ -189,6 +223,10 @@ for exa in $exalist; do
    }
    END{print file": min-id = "mid" mxt = "mxt" cid = "cid" cur = "cur" delta = "cur-mxt" ratio [%] = "(cur-mxt)/(1e-12+cur)*100} ' 
 done
+
+cd $here
+
+chmod -R -w TimingResults
 
   
 #   to extract timing data of a specific example use for example for test #86 and ctest.11-30-2022

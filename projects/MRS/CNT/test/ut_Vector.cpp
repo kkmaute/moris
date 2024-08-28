@@ -82,7 +82,6 @@ TEST_CASE( "moris::Vector" )
         REQUIRE( myCell1( 6 ) == 3 );
     }
 
-
     SECTION( "Vector print_as_row_vector" )
     {
         Vector< moris::uint >                     myCell1 = { 4, 5, 9, 8 };

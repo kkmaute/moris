@@ -260,7 +260,7 @@ namespace moris
          *
          * @return size_t number of entries in the parameter list
          */
-        size_t size();
+        size_t size() const;
 
       private:
 

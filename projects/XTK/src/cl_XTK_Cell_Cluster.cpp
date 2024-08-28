@@ -71,22 +71,6 @@ namespace moris::xtk
 
     //----------------------------------------------------------------
 
-    bool
-    Cell_Cluster::is_void() const
-    {
-        return mVoid;
-    }
-
-    //----------------------------------------------------------------
-
-    bool
-    Cell_Cluster::is_invalid() const
-    {
-        return mVoid;
-    }
-
-    //----------------------------------------------------------------
-
     Vector< moris::mtk::Cell const * > const &
     Cell_Cluster::get_primary_cells_in_cluster( const mtk::Leader_Follower aIsLeader ) const
     {
@@ -186,7 +170,6 @@ namespace moris::xtk
                 tVertexParamCoords.get_row( i ) = this->get_vertex_local_coordinate_wrt_interp_cell( tVerticesOnCell( i ) ).get_row( 0 );
             }
 
-
             return tVertexParamCoords;
         }
     }
@@ -281,7 +264,6 @@ namespace moris::xtk
             tCount = tCount + aVoidIgCells( i )->mIgCellGroup.size();
         }
 
-
         mVoidIntegrationCells.resize( tCount );
 
         tCount = 0;
@@ -311,7 +293,6 @@ namespace moris::xtk
             mLocalCoords.set_row( i, *mVertexGroup->get_vertex_local_coords( mVerticesInCluster( i )->get_index() ) );
         }
     }
-
 
     //----------------------------------------------------------------
 

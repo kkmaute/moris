@@ -94,7 +94,6 @@ OptAlgGCMMA::solve(
 
     this->printresult();    // print the result of the optimization algorithm
 
-
     uint tOptIter = gLogger.get_opt_iteration();
 
     gLogger.set_iteration( "OPT", "Manager", "Perform", tOptIter );

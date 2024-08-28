@@ -71,7 +71,7 @@ namespace moris::xtk
         Vector< moris::mtk::Cell* > mIgCells;               // over allocated
         Vector< moris_index >       mIgCellSideOrdinals;    // over allocated
 
-    };                                                      // struct IG_Cell_Side_Group
+    };    // struct IG_Cell_Side_Group
 
     // ----------------------------------------------------------------------------------
 
@@ -79,8 +79,8 @@ namespace moris::xtk
     {
         IG_Cell_Double_Side_Group( moris_index aEstimatedNumCells );
 
-        Vector< moris::mtk::Cell* > mLeaderIgCells;                 // over allocated
-        Vector< moris_index >       mLeaderIgCellSideOrdinals;      // over allocated
+        Vector< moris::mtk::Cell* > mLeaderIgCells;               // over allocated
+        Vector< moris_index >       mLeaderIgCellSideOrdinals;    // over allocated
 
         Vector< moris::mtk::Cell* > mFollowerIgCells;               // over allocated
         Vector< moris_index >       mFollowerIgCellSideOrdinals;    // over allocated
@@ -170,7 +170,7 @@ namespace moris::xtk
     {
         Vector< Vector< moris::mtk::Vertex* > > mEdgeVertices;             // input: edge || output: list of vertices on edge
         Vector< Vector< moris::mtk::Cell* > >   mEdgeToCell;               // input: edge || output: list of cells attached to edge
-        Vector< Vector< moris_index > >         mEdgeToCellEdgeOrdinal;    // input: edge || output: ?
+        Vector< Vector< moris_index > >         mEdgeToCellEdgeOrdinal;    // input: edge || output: ordinal of the edge relative to the cells listed in mEdgeToCell
         Vector< Vector< moris_index > >         mCellToEdge;               // input: cell || output: list of edge indices on cell
     };
 
@@ -250,7 +250,6 @@ namespace moris::xtk
             Vector< moris_index > tFacetInds = mCellToFacet( tCellOrdinal );
             tFacetInds.remove( MORIS_INDEX_MAX );
 
-
             moris_index FacetInd1 = tFacetInds( 1 );    // facet to delete
             moris_index FacetInd2 = tFacetInds( 0 );    // facet to keep
             for ( moris_index iV = 0; (uint)iV < mFacetVertices( tFacetInds( 0 ) ).size(); iV++ )
@@ -263,7 +262,6 @@ namespace moris::xtk
                 }
             }
 
-
             if ( tFacetInds.size() > 2 )
             {
                 std::cout << tFacetInds.size() << std::endl;
@@ -271,7 +269,6 @@ namespace moris::xtk
             }
 
             aFacetMergeInds.push_back( FacetInd1 );
-
 
             // mVertexFacets
             // remove FacetInd1 from all mVertexFacets lists
@@ -292,7 +289,6 @@ namespace moris::xtk
                 }
             }
 
-
             // mFacetVertices.erase(FacetInd1);
             if ( mFacetVertices( FacetInd1 ).size() == 2 )    // 2D
             {
@@ -307,7 +303,6 @@ namespace moris::xtk
                 MORIS_ASSERT( false, "Error in mFacetVertices" );
             }
 
-
             // copy references to cells from facet being deleted to the one being merged
             for ( moris_index iC = 0; (uint)iC < mFacetToCell( FacetInd1 ).size(); iC++ )
             {
@@ -321,7 +316,6 @@ namespace moris::xtk
                     }
                 }
             }
-
 
             // remove reference to deleted cell from mFacetToCell
             for ( moris_index iC = 0; (uint)iC < mFacetToCell( FacetInd2 ).size(); iC++ )
@@ -341,10 +335,8 @@ namespace moris::xtk
             // will eventually be deleted, but for merges necessary as reference
             mFacetToCell( FacetInd1 ) = mFacetToCell( FacetInd2 );
 
-
             // mFacetToCellEdgeOrdinal.erase(tFacetInds(0));
             mFacetToCellEdgeOrdinal( FacetInd1 ) = { MORIS_INDEX_MAX };
-
 
             // replace reference to facet
             for ( moris_index iC = 0; (uint)iC < mCellToFacet.size(); iC++ )
@@ -394,7 +386,6 @@ namespace moris::xtk
                 }
             }
 
-
             if ( tFacetList.size() == 0 )
             {
                 MORIS_ERROR( false, "Error: No facet found for two vertices." );
@@ -408,7 +399,6 @@ namespace moris::xtk
         {
             // facet indices being merged
             Vector< moris_index > aFacetIndices = this->verts_to_facets( aVInd1, aVInd2 );
-
 
             // fix mVertexFacets ----------------
 
@@ -447,7 +437,6 @@ namespace moris::xtk
 
             mVertexFacets( aVInd1 ) = {};
 
-
             // replace pointer to aVInd1 with pointer to aVInd2 in mFacetVertices
             for ( uint iFacet = 0; iFacet < aOldFacetConnectivity->mVertexFacets( aVInd1 ).size(); iFacet++ )
             {
@@ -464,7 +453,6 @@ namespace moris::xtk
                     }
                 }
             }
-
 
             // remove facets ------------------------------------------------------------
 
@@ -545,6 +533,12 @@ namespace moris::xtk
 
     struct Cell_Connectivity
     {
+        const Matrix< IndexMat > mCellVertexInds;
+        const Matrix< IndexMat > mCellEdgesInds;
+        const Matrix< IndexMat > mCellFacesInds;
+
+        //------------------------------------------------------
+
         Cell_Connectivity(){};
         Cell_Connectivity(
                 Matrix< IndexMat > const & aCellVertexInds,
@@ -555,6 +549,8 @@ namespace moris::xtk
                 , mCellFacesInds( aCellFacesInds )
         {
         }
+
+        //------------------------------------------------------
 
         moris_index
         get_entity_index(
@@ -578,6 +574,8 @@ namespace moris::xtk
                     break;
             }
         }
+
+        //------------------------------------------------------
 
         moris_index
         get_entity_ordinal(
@@ -626,10 +624,9 @@ namespace moris::xtk
             }
         }
 
-        const Matrix< IndexMat > mCellVertexInds;
-        const Matrix< IndexMat > mCellEdgesInds;
-        const Matrix< IndexMat > mCellFacesInds;
-    };
+        //------------------------------------------------------
+
+    };    // struct Cell_Connectivity
 
     // ----------------------------------------------------------------------------------
 
@@ -1595,7 +1592,7 @@ namespace moris::xtk
         void
         print()
         {
-            this->print_cells();
+            this->print_vectors();
             this->print_vertices();
             this->print_block_sets();
             this->print_groupings();
@@ -1605,7 +1602,7 @@ namespace moris::xtk
         // ----------------------------------------------------------------------------------
 
         void
-        print_cells(
+        print_vectors(
                 bool        aOmitIndex = false,
                 std::string aFile      = "" );
 

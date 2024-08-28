@@ -93,69 +93,6 @@ namespace moris
     }
 
     //------------------------------------------------------------------------------------------------------------------
-
-    void
-            begin_log_communication( enum CommunicationType )
-    {
-        // Get count integer
-        //    short_uint tCount = gMorisComm.get_comm()Counter((short_uint) CommType,0);
-
-        // Get integer corresponding to enum
-        //    uint tEnumInt  = (uint)CommType;
-
-        // Print horizontal line
-        // MORIS_LOG_INFO<< "========================================";
-        // MORIS_LOG_INFO<< "Begin Communication Type: "<< tEnumInt <<" Count:"<< tCount;
-    }
-
-    //------------------------------------------------------------------------------------------------------------------
-
-    void
-            end_log_communication( enum CommunicationType )
-    {
-        // Get count integer
-        //    short_uint tCount = gMorisComm.get_comm()Counter((short_uint) CommType,0);
-
-        // Get integer corresponding to enum
-        //    uint tEnumInt  = (uint)CommType;
-        // MORIS_LOG_INFO<< "End Communication Type: "<< tEnumInt <<" Count:"<< tCount;
-        // MORIS_LOG_INFO<< "======================================== \n";
-
-        // Advance counter for this type of communication
-        //        gMorisComm.get_comm()Counter((short_uint)CommType,0)++;
-    }
-
-    //------------------------------------------------------------------------------------------------------------------
-
-    uint
-    gather_value_and_bcast_max( uint aMessage )
-    {
-        int tProcSize = (int)par_size();
-        int tProcRank = (int)par_rank();
-        if ( tProcSize > 1 )
-        {
-            int  aMessageInt = (int)aMessage;
-            int* recvbuf;
-            recvbuf       = (int*)malloc( tProcSize * 1 * sizeof( int ) );
-            int tMaxValue = 0;
-            if ( tProcRank == 0 )
-            {
-                MPI_Gather( &aMessageInt, 1, MPI_INT, recvbuf, 1, MPI_INT, 0, gMorisComm.get_comm() );
-                tMaxValue = *std::max_element( recvbuf, recvbuf + tProcSize );
-                aMessage  = (uint)tMaxValue;
-            }
-            if ( tProcRank > 0 )
-            {
-                MPI_Gather( &aMessageInt, 1, MPI_INT, recvbuf, 1, MPI_INT, 0, gMorisComm.get_comm() );
-            }
-
-            broadcast( aMessage );
-        }
-
-        return aMessage;
-    }
-
-    //------------------------------------------------------------------------------------------------------------------
     void
     create_proc_cart(
             const uint&       aDecompMethod,
@@ -285,7 +222,7 @@ namespace moris
                 MORIS_ERROR( false, "create_proc_cart: Undefined decomposition method" );
                 break;
             }
-        } // end switch: domain decomposition method
+        }    // end switch: domain decomposition method
 
         // No periodic boundary conditions are needed
         int tPeriods[ 3 ] = { 0, 0, 0 };
@@ -364,7 +301,7 @@ namespace moris
                 // increment counter
                 ++tCount;
             }
-        } // end if: 1D
+        }    // end if: 1D
         else if ( aNumberOfDimensions == 2 )
         {
             // assign memory for neighbors
@@ -407,7 +344,7 @@ namespace moris
                     ++tCount;
                 }
             }
-        } // end if: 2D
+        }    // end if: 2D
         else if ( aNumberOfDimensions == 3 )
         {
             // assign memory for neighbors
@@ -456,13 +393,13 @@ namespace moris
                     }
                 }
             }
-        } // end if: 3D
+        }    // end if: 3D
         else
         {
             MORIS_ERROR( false, "Communication_Tools::create_proc_cart(): invalid number of dimensions." );
         }
 
-    } // end function: create_proc_cart()
+    }    // end function: create_proc_cart()
 
     //------------------------------------------------------------------------------
 
@@ -514,11 +451,11 @@ namespace moris
     //------------------------------------------------------------------------------
 
     void
-    all_gather_cell_of_str(
-            Vector< std::string > const &  aCellToGather,
+    gather_vector_of_str(
+            Vector< std::string > const &    aCellToGather,
             Vector< Vector< std::string > >& aGatheredCells,
-            moris_index                  aTag,
-            moris_index                  aBaseProc )
+            moris_index                      aTag,
+            moris_index                      aBaseProc )
     {
         MPI_Request tRequest;
 
@@ -616,7 +553,7 @@ namespace moris
     {
         // Each MPI process sends its rank to reduction, root MPI process collects the result
         bool tReductionResult = false;
-        MPI_Allreduce( &aMyBool, &tReductionResult, 1, MPI_CXX_BOOL, MPI_LOR, MPI_COMM_WORLD  );
+        MPI_Allreduce( &aMyBool, &tReductionResult, 1, MPI_CXX_BOOL, MPI_LOR, MPI_COMM_WORLD );
 
         return tReductionResult;
     }

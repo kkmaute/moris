@@ -7,6 +7,8 @@ titan              =''; %'/home/maute/codes/moris_titan/build_opt';
 titan_xtk_refactor =''; %'/home/maute/codes/moris_titan_xtk_refactor/build_opt';
 github             = [getenv('MORISROOT'), '/build_opt/TimingResults'];
 
+system(['chmod -R +w ' github])
+
 cd(github)
 if not(isfolder('plots'))
     mkdir('plots')
@@ -71,7 +73,12 @@ for i=1:length(testcases)
     title(replace(testcases{i},'_','-'));
     saveas(gcf, ['plots/', testcases{i}, '_F2.png']);
 end
+
+system(['chmod -R -w ' github])
+
 end
+
+%==========================================================================
 
 function plotdays(mat,str)
 

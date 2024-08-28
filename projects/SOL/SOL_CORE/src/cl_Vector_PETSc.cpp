@@ -172,7 +172,6 @@ Vector_PETSc::sum_into_global_values(
 
 //-----------------------------------------------------------------------------
 
-
 void
 Vector_PETSc::replace_global_values(
         const moris::Matrix< DDSMat >& aGlobalIds,
@@ -337,7 +336,7 @@ Vector_PETSc::extract_copy( Matrix< DDRMat >& LHSValues )
 
     // Get list containing the number of owned adofs of each processor
     Matrix< DDUMat > tNumOwnedList;
-    comm_gather_and_broadcast( tVecLocSize, tNumOwnedList );
+    allgather_scalar( tVecLocSize, tNumOwnedList );
 
     Matrix< DDUMat > tOwnedOffsetList( tNumOwnedList.length(), 1, 0 );
 
@@ -369,7 +368,7 @@ void Vector_PETSc::extract_copy( Vector< real >& aVector )
 
     // Get list containing the number of owned adofs of each processor
     Matrix< DDUMat > tNumOwnedList;
-    comm_gather_and_broadcast( tVecLocSize, tNumOwnedList );
+    allgather_scalar( tVecLocSize, tNumOwnedList );
 
     Matrix< DDUMat > tOwnedOffsetList( tNumOwnedList.length(), 1, 0 );
 
@@ -454,6 +453,27 @@ Vector_PETSc::import_local_to_global( sol::Dist_Vector& aSourceVec )
 }
 
 //-----------------------------------------------------------------------------
+// this is only used if the local vector is full vector and source vector is vector of only owned dofs
+
+void
+Vector_PETSc::import_local_to_global( Vec aSourceVec )
+{
+    // get list of target petsc ids of from map
+    IS tPetscTargetIds = mMap->get_petsc_ids();
+
+    // create scatter object
+    VecScatter tVecScatter;
+    VecScatterCreate( aSourceVec, tPetscTargetIds, mPetscVector, NULL, &tVecScatter );
+
+    // perform scattering
+    VecScatterBegin( tVecScatter, aSourceVec, mPetscVector, INSERT_VALUES, SCATTER_FORWARD );
+    VecScatterEnd( tVecScatter, aSourceVec, mPetscVector, INSERT_VALUES, SCATTER_FORWARD );
+
+    // destroy the scatter vector object
+    VecScatterDestroy( &tVecScatter );
+}
+
+//-----------------------------------------------------------------------------
 
 void
 Vector_PETSc::extract_my_values(
@@ -476,7 +496,6 @@ Vector_PETSc::extract_my_values(
     // check that aNumIndices equals size of tIndices
     MORIS_ASSERT( aNumIndices == tIndices.numel(),
             "Vector_PETSc::extract_my_values - number of indices does not match size of tIndices" );
-
 
     // allocate memory for extracted values
     ExtractedValues.resize( 1 );

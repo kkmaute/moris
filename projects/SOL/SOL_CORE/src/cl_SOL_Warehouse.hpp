@@ -117,9 +117,6 @@ namespace moris
             // load initial guess solution vector from file
             std::string mFilenameInitialGuess = std::string( "" );
 
-            // RHS Matrix Type
-            std::string mRHSMatType = std::string( "" );
-
             //--------------------------------------------------------------------------------------------------------
 
             /**
@@ -316,22 +313,6 @@ namespace moris
                 mTPLType = aTPLType;
             }
 
-            //-------------------------------------------------------------------------------
-
-            const std::string&
-            get_RHS_mat_type()
-            {
-                return mRHSMatType;
-            }
-
-            //-------------------------------------------------------------------------------
-
-            void
-            set_RHS_mat_type( std::string aRHSMatType )
-            {
-                mRHSMatType = aRHSMatType;
-            }
-
             //--------------------------------------------------------------------------------------------------------
 
             /**
@@ -383,7 +364,6 @@ namespace moris
              */
             // Dist_Vector * get_full_vector(){ return mFullVector; };
         };
-
 
     }    // namespace sol
 }    // namespace moris

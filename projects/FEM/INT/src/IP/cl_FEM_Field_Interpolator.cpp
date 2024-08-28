@@ -19,6 +19,7 @@
 #include "fn_sum.hpp"
 #include "fn_diag_vec.hpp"
 #include "op_times.hpp"
+#include "cl_Vector.hpp"
 #include "op_equal_equal.hpp"
 #include "op_less_equal.hpp"
 #include "op_greater_equal.hpp"
@@ -36,10 +37,10 @@ namespace moris
         //------------------------------------------------------------------------------
 
         Field_Interpolator::Field_Interpolator(
-                const uint&                        aNumberOfFields,
-                const mtk::Interpolation_Rule&     aFieldInterpolationRule,
-                Geometry_Interpolator*             aGeometryInterpolator,
-                const Vector< MSI::Dof_Type > aDofType )
+                const uint&                    aNumberOfFields,
+                const mtk::Interpolation_Rule& aFieldInterpolationRule,
+                Geometry_Interpolator*         aGeometryInterpolator,
+                const Vector< MSI::Dof_Type >  aDofType )
                 : mNumberOfFields( aNumberOfFields )
                 , mGeometryInterpolator( aGeometryInterpolator )
                 , mDofType( aDofType )
@@ -122,9 +123,9 @@ namespace moris
         //------------------------------------------------------------------------------
 
         Field_Interpolator::Field_Interpolator(
-                const uint&                          aNumberOfFields,
-                const mtk::Interpolation_Rule&       aFieldInterpolationRule,
-                Geometry_Interpolator*               aGeometryInterpolator,
+                const uint&                     aNumberOfFields,
+                const mtk::Interpolation_Rule&  aFieldInterpolationRule,
+                Geometry_Interpolator*          aGeometryInterpolator,
                 const Vector< mtk::Field_Type > aFieldType )
                 : mNumberOfFields( aNumberOfFields )
                 , mGeometryInterpolator( aGeometryInterpolator )
@@ -255,7 +256,8 @@ namespace moris
                     case mtk::Geometry_Type::QUAD:
                     case mtk::Geometry_Type::HEX:
                     {
-                        MORIS_ASSERT( ( ( aParamPoint( Ik ) <= 1.0 + mEpsilon ) && ( aParamPoint( Ik ) >= -1.0 - mEpsilon ) ),
+                        MORIS_ASSERT( ( ( aParamPoint( Ik ) <= 1.0 + Field_Interpolator_Epsilon ) &&    //
+                                              ( aParamPoint( Ik ) >= -1.0 - Field_Interpolator_Epsilon ) ),
                                 "Field_Interpolator::set_space_time - Wrong input value space line/quad/hex ( aParamPoint ): %f \n",
                                 aParamPoint( Ik ) );
                         break;
@@ -264,7 +266,8 @@ namespace moris
                     case mtk::Geometry_Type::TRI:
                     case mtk::Geometry_Type::TET:
                     {
-                        MORIS_ASSERT( ( ( aParamPoint( Ik ) <= 1.0 + mEpsilon ) && ( aParamPoint( Ik ) >= 0.0 - mEpsilon ) ),
+                        MORIS_ASSERT( ( ( aParamPoint( Ik ) <= 1.0 + Field_Interpolator_Epsilon ) &&    //
+                                              ( aParamPoint( Ik ) >= 0.0 - Field_Interpolator_Epsilon ) ),
                                 "Field_Interpolator::set_space_time - Wrong input value space tri/tet ( aParamPoint ): %f \n",
                                 aParamPoint( Ik ) );
                         break;
@@ -275,7 +278,8 @@ namespace moris
                 }
             }
 
-            MORIS_ASSERT( ( ( aParamPoint( mNSpaceParamDim ) <= 1.0 + mEpsilon ) && ( aParamPoint( mNSpaceParamDim ) >= -1.0 - mEpsilon ) ),
+            MORIS_ASSERT( ( ( aParamPoint( mNSpaceParamDim ) <= 1.0 + Field_Interpolator_Epsilon )    //
+                                  && ( aParamPoint( mNSpaceParamDim ) >= -1.0 - Field_Interpolator_Epsilon ) ),
                     "Field_Interpolator::set_space_time - Wrong input value time line ( aParamPoint ) " );
 
             // set input values
@@ -1068,4 +1072,3 @@ namespace moris
 
     } /* namespace fem */
 } /* namespace moris */
-

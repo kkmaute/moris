@@ -125,12 +125,12 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Intersection_Node* Level_Set_Geometry::create_intersection_node(
-            uint                     aNodeIndex,
+            uint                              aNodeIndex,
             const Vector< Background_Node* >& aBackgroundNodes,
-            const Parent_Node&       aFirstParentNode,
-            const Parent_Node&       aSecondParentNode,
-            mtk::Geometry_Type       aBackgroundGeometryType,
-            mtk::Interpolation_Order aBackgroundInterpolationOrder )
+            const Parent_Node&                aFirstParentNode,
+            const Parent_Node&                aSecondParentNode,
+            mtk::Geometry_Type                aBackgroundGeometryType,
+            mtk::Interpolation_Order          aBackgroundInterpolationOrder )
     {
         if ( this->use_multilinear_interpolation() )
         {
@@ -157,28 +157,28 @@ namespace moris::gen
                     *this );
         }
     }
-    
+
     //--------------------------------------------------------------------------------------------------------------
-    
+
     real Level_Set_Geometry::compute_intersection_local_coordinate(
             const Vector< Background_Node* >& aBackgroundNodes,
-            const Parent_Node&   aFirstParentNode,
-            const Parent_Node&   aSecondParentNode )
+            const Parent_Node&                aFirstParentNode,
+            const Parent_Node&                aSecondParentNode )
     {
         if ( this->use_multilinear_interpolation() )
         {
             // get isocontour threshold from geometry
             real tIsocontourThreshold = this->get_isocontour_threshold();
-            
+
             // spatial dimension
             uint tNumDims = aFirstParentNode.get_global_coordinates().length();
 
             // number of nodes to be used for interpolation
-            uint tNumBases;
+            uint tNumBases = 0;
 
             // build interpolator
             mtk::Interpolation_Function_Factory tFactory;
-            mtk::Interpolation_Function_Base* tInterpolation;
+            mtk::Interpolation_Function_Base*   tInterpolation;
 
             // create interpolation function based on spatial dimension of problem
             switch ( tNumDims )
@@ -223,7 +223,7 @@ namespace moris::gen
 
             // Scale element level set field such that norm equals 1.0
             real tPhiScaling = 1.0 / norm( tPhiBCNodes );
-            tPhiBCNodes = tPhiScaling * tPhiBCNodes;
+            tPhiBCNodes      = tPhiScaling * tPhiBCNodes;
             tIsocontourThreshold *= tPhiScaling;
 
             // Get scaled parent level set values
@@ -437,7 +437,7 @@ namespace moris::gen
             // Interface geometry values
             Matrix< DDRMat > tInterfaceGeometryValues = { { this->get_field_value( aFirstParentNode.get_index(), aFirstParentNode.get_global_coordinates() ) },
                 { this->get_field_value( aSecondParentNode.get_index(), aSecondParentNode.get_global_coordinates() ) } };
-            
+
             // Get isocontour threshold
             real tIsocontourThreshold = this->get_isocontour_threshold();
 
@@ -578,7 +578,7 @@ namespace moris::gen
     void Level_Set_Geometry::get_design_info(
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates,
-            Vector< real >&           aOutputDesignInfo )
+            Vector< real >&         aOutputDesignInfo )
     {
         aOutputDesignInfo.resize( 1 );
         aOutputDesignInfo( 0 ) = Design_Field::get_field_value( aNodeIndex, aCoordinates );

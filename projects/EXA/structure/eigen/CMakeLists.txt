@@ -4,8 +4,7 @@
 #
 #------------------------------------------------------------------------------------
 #
-
 message(STATUS "Added structures - eigen example sub-directory")
 
 add_subdirectory(Cantilever_Eigen)
-
+add_subdirectory(Column_Buckling)

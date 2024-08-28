@@ -16,7 +16,6 @@
 #ifndef SRC_cl_XTK_Integration_Mesh_Cleanup_HPP_
 #define SRC_cl_XTK_Integration_Mesh_Cleanup_HPP_
 
-
 using namespace moris;
 
 namespace moris::xtk
@@ -46,7 +45,6 @@ namespace moris::xtk
         Vector< moris_id > mNotOwnedIgCellIds;
 
         moris::uint mNumVerts;    // Total number of vertices
-
 
         Vector< std::shared_ptr< IG_Vertex_Group > > mVertexGroups;
         Vector< std::shared_ptr< IG_Cell_Group > >   mCellGroups;
@@ -81,7 +79,6 @@ namespace moris::xtk
         Integration_Mesh_Cleanup(
                 Cut_Integration_Mesh*     aXTKMesh,
                 Facet_Based_Connectivity* aFacetConnectivity );
-
 
         // ----------------------------------------------------------------------------
 
@@ -206,7 +203,6 @@ namespace moris::xtk
         calcInvert(
                 moris_index aVert1,
                 moris_index aVert2 );
-
 
         // ----------------------------------------------------------------------------
 

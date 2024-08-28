@@ -30,6 +30,7 @@
 // Logging package
 #include "cl_Logger.hpp"
 #include "cl_Tracer.hpp"
+#include "cl_NLA_Solver_Nonconformal_Remapping.hpp"
 
 using namespace moris;
 using namespace NLA;
@@ -90,6 +91,8 @@ void Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProble
     // set solver load control strategy
     Solver_Load_Control tLoadControlStrategy( mParameterListNonlinearSolver );
 
+    Solver_Nonconformal_Remapping tRemappingStrategy( mParameterListNonlinearSolver );
+
     // initialize flags
     bool tRebuildJacobian = true;
 
@@ -129,6 +132,11 @@ void Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProble
                 "LoadFactor",
                 tLoadFactor );
 
+        if ( tRemappingStrategy.requires_remapping( It, mMyNonLinSolverManager, tLoadFactor ) )
+        {
+            mNonlinearProblem->update_fem_model();
+        }
+
         // build residual and jacobian
         // restart and switch not clear
         if ( It == 1 && mParameterListNonlinearSolver.get< sint >( "NLA_restart" ) != 0 )
@@ -155,7 +163,6 @@ void Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProble
         if ( tIsConverged and tLoadFactor >= 1.0 )
         {
             MORIS_LOG_INFO( "Number of Iterations (Convergence): %d", It );
-
             break;
         }
 
@@ -163,7 +170,6 @@ void Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProble
         if ( tHardBreak or ( It == tMaxIts && tMaxIts > 1 ) )
         {
             MORIS_LOG_INFO( "Number of Iterations (Hard Stop): %d", It );
-
             break;
         }
 
@@ -247,9 +253,9 @@ void Newton_Solver::get_solution( Matrix< DDRMat >& LHSValues )
 //--------------------------------------------------------------------------------------------------------------------------
 
 void Newton_Solver::extract_my_values(
-        const uint&               aNumIndices,
-        const Matrix< DDSMat >&   aGlobalBlockRows,
-        const uint&               aBlockRowOffsets,
+        const uint&                 aNumIndices,
+        const Matrix< DDSMat >&     aGlobalBlockRows,
+        const uint&                 aBlockRowOffsets,
         Vector< Matrix< DDRMat > >& LHSValues )
 {
     mNonlinearProblem->get_full_vector()->extract_my_values( aNumIndices, aGlobalBlockRows, aBlockRowOffsets, LHSValues );

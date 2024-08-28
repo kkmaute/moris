@@ -46,8 +46,7 @@ namespace moris
         bool tIsFinite_1 = isfinite( a );
         bool tIsFinite_2 = isfinite( b );
 
-        CHECK( equal_to( tIsFinite_1, true ) );
-        CHECK( equal_to( tIsFinite_2, false ) );
+        REQUIRE( tIsFinite_1 );
+        REQUIRE( !tIsFinite_2 );
     }
 }    // namespace moris
-

@@ -41,14 +41,12 @@ tmax = 16.0/3.0 * 3600.0;
 % number of timesteps for evaluation
 nTimeSteps = 1;
 
-
 %% Compute Solution
 
 % initialize
 deltat = tmax / nTimeSteps;
 deltax = length / nElements;
 SolutionT = zeros(nTimeSteps+1,nElements+1);
-
 
 % for each time step
 for it = 1:nTimeSteps+1
@@ -68,7 +66,6 @@ for it = 1:nTimeSteps+1
     end
     
 end
-
 
 %% Plot Solution
 
@@ -100,6 +97,4 @@ for it = nTimeSteps+1:nTimeSteps+1
 %     legend('analytic','numeric');
            
 end
-
-
 

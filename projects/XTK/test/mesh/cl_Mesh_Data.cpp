@@ -438,7 +438,7 @@ namespace moris::xtk
         //    Matrix_Factory<real, size_t> tMatrixFactory;
         //
         //    // Create Mesh (w/o edge and face data)----------------------------------
-        //    Cell<std::string> tScalarFieldNames = {tFieldName1};
+        //    Vector<std::string> tScalarFieldNames = {tFieldName1};
         //    mesh::Mesh_Builder_Stk<real, size_t, xtk::DDRMat, xtk::moris::DDSTMat> tMeshBuilder;
         //
         //    // Setup geometry and discretize onto a levelset mesh--------------------
@@ -447,7 +447,7 @@ namespace moris::xtk
         //    real tYCenter = 10.0;
         //    real tZCenter = 10.0;
         //    Analytic_Level_Set_Sphere<real, size_t, xtk::DDRMat, xtk::moris::DDSTMat> tLevelsetSphere1(tRadius, tXCenter, tYCenter, tZCenter);
-        //    Cell<Geometry<real, size_t, xtk::DDRMat, xtk::moris::DDSTMat>*> tLevelSetFunctions = {&tLevelsetSphere1};
+        //    Vector<Geometry<real, size_t, xtk::DDRMat, xtk::moris::DDSTMat>*> tLevelSetFunctions = {&tLevelsetSphere1};
         //    Mesh_Field_Geometry<real,size_t, xtk::DDRMat, xtk::moris::DDSTMat> tLevelSetMeshManager(tMatrixFactory,tLevelSetFunctions,tFineMeshInput,tScalarFieldNames,tMeshBuilder);
         //
         //    // Build a coarse mesh which the levelset mesh will be transfered to-----

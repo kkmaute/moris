@@ -44,8 +44,6 @@ namespace moris
           public:
             // -----------------------------------------------------------------------------------
 
-            Linear_Solver_Aztec();
-
             // -----------------------------------------------------------------------------------
 
             Linear_Solver_Aztec( const moris::Parameter_List& aParameterlist = prm::create_linear_algorithm_parameter_list_aztec() );

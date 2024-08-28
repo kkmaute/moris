@@ -12,7 +12,6 @@
 
 #include "cl_Vector.hpp"
 #include "cl_MTK_Cell.hpp"
-#include "cl_MPI_Tools.hpp"
 
 using namespace moris;
 namespace moris::xtk
@@ -106,7 +105,6 @@ namespace moris::xtk
         {
             return mLocalIndex;
         }
-
 
         moris_index
         get_bspline_cell_index() const
@@ -468,7 +466,7 @@ namespace moris::xtk
         admit_extraction_cell_group( Vector< mtk::Cell* >& tExtractionCellsInBsplineCell )
         {
             // check if list L-to-B-map is initialized
-            MORIS_ASSERT( &mExtractionCellToBsplineCell != nullptr && mExtractionCellToBsplineCell.size() > 0,
+            MORIS_ASSERT( mExtractionCellToBsplineCell.size() > 0,
                     "Bspline_Mesh_Info::admit_extraction_cell_group() -mExtractionCellToBsplineCell has not been initialized." );
 
             // get size of extraction cell group
@@ -616,7 +614,7 @@ namespace moris::xtk
             tNumIdsRequested( 0 ) = (moris::moris_id)aNumIdsToAllocate;
 
             // hand ID range size request to root processor
-            moris::gather( tNumIdsRequested, aGatheredInfo );
+            moris::gather_vector( tNumIdsRequested, aGatheredInfo );
 
             // initialize list holding the first ID in range for each processor
             Vector< moris::moris_id > tProcFirstID( tProcSize );
@@ -637,7 +635,7 @@ namespace moris::xtk
 
             // on proc 0: split up the list of first IDs for every proc and send it to every other proc
             // on all procs: receive the assigned first SP ID as tFirstId
-            moris::scatter( tProcFirstID, tFirstId );
+            moris::scatter_vector( tProcFirstID, tFirstId );
 
             // return the first SP ID assigned
             return tFirstId( 0 );

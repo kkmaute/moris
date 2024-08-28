@@ -32,16 +32,17 @@ namespace moris
         moris::Matrix< DDRMat >           mElementMatrixValues;            // dense element matrix entries
         moris::uint                       mNumDofsPerElement;              // dofs per element
         moris::Matrix< DDUMat >           mMyConstraintDofs;               // constraint dofs
-        Vector< moris::Matrix< DDRMat > >   mMyRHSValues;                    // Vector with RHS values
+        Vector< moris::Matrix< DDRMat > > mMyRHSValues;                    // Vector with RHS values
         uint                              mNumRHS = 1;
-        Vector< enum MSI::Dof_Type > mDummyDofs;
+        Vector< enum MSI::Dof_Type >      mDummyDofs;
         moris::Matrix< DDRMat >           mElementMassMatrixValues;    // RHS Matrix for Eigen Problem
 
         bool mUseMatrixMarketFiles;    // determines is matrix and RHS comes from MatrixMarket files
 
         uint mSwitchToEigenProblem = 0;
 
-        sol::Dist_Vector* mEigVector;
+        sol::Dist_Vector*                 mEigVector;
+        std::shared_ptr< Vector< real > > mEigenValues = std::make_shared< Vector< real > >();
 
       public:
         // ----------------------------------------------------------------------------------------------
@@ -64,7 +65,7 @@ namespace moris
         // local dimension of the problem
 
         uint
-        get_num_my_dofs()
+        get_num_my_dofs() override
         {
             return mNumMyDofs;
         }
@@ -72,7 +73,7 @@ namespace moris
         // ----------------------------------------------------------------------------------------------
 
         uint
-        get_num_rhs()
+        get_num_rhs() override
         {
             return mNumRHS;
         }
@@ -80,7 +81,7 @@ namespace moris
         // ----------------------------------------------------------------------------------------------
 
         uint
-        get_num_eigen_vectors()
+        get_num_eigen_vectors() override
         {
             return 0;
         }
@@ -88,7 +89,7 @@ namespace moris
         // ----------------------------------------------------------------------------------------------
 
         uint
-        get_max_num_global_dofs()
+        get_max_num_global_dofs() override
         {
             moris::uint tNumMyDofs = mNumMyDofs;
 
@@ -100,17 +101,17 @@ namespace moris
 
         // ----------------------------------------------------------------------------------------------
 
-        void free_block_memory( const uint aBlockInd ){};
+        void free_block_memory( const uint aBlockInd ) override {};
 
         // ----------------------------------------------------------------------------------------------
 
-        void set_solution_vector( sol::Dist_Vector* aSolutionVector ){};
+        void set_solution_vector( sol::Dist_Vector* aSolutionVector ) override {};
 
         // ----------------------------------------------------------------------------------------------
         // local-to-global map
 
         Matrix< DDSMat >
-        get_my_local_global_map()
+        get_my_local_global_map() override
         {
             return mMyGlobalElements;
         }
@@ -118,7 +119,7 @@ namespace moris
         // ----------------------------------------------------------------------------------------------
 
         moris::Matrix< DDSMat >
-        get_my_local_global_overlapping_map()
+        get_my_local_global_overlapping_map() override
         {
             return mMyGlobalElementsOverlapping;
         };
@@ -127,7 +128,7 @@ namespace moris
         // number of elements on proc
 
         uint
-        get_num_my_blocks()
+        get_num_sets() override
         {
             return 1;
         }
@@ -136,7 +137,7 @@ namespace moris
 
         // number of elements on proc
         uint
-        get_num_my_elements()
+        get_num_my_elements() override
         {
             return mNumElements;
         }
@@ -145,7 +146,7 @@ namespace moris
 
         // number of elements on proc
         uint
-        get_num_equation_objects_on_set( uint aBlockInd )
+        get_num_equation_objects_on_set( uint aBlockInd ) override
         {
             return mNumElements;
         }
@@ -155,7 +156,7 @@ namespace moris
         void
         get_equation_object_operator(
                 const uint&       aMyElementInd,
-                Matrix< DDRMat >& aElementMatrix )
+                Matrix< DDRMat >& aElementMatrix ) override
         {
             aElementMatrix = mElementMatrixValues;
         };
@@ -166,7 +167,7 @@ namespace moris
         get_equation_object_operator(
                 const uint&       aMyBlockInd,
                 const uint&       aMyElementInd,
-                Matrix< DDRMat >& aElementMatrix )
+                Matrix< DDRMat >& aElementMatrix ) override
         {
             if ( mSwitchToEigenProblem < mNumElements * 1 )    // 1 refers to number of blocks
             {
@@ -185,7 +186,7 @@ namespace moris
         void
         get_element_topology(
                 const uint&       aMyElementInd,
-                Matrix< DDSMat >& aElementTopology )
+                Matrix< DDSMat >& aElementTopology ) override
         {
             aElementTopology = mEleDofConectivity.get_column( aMyElementInd );
         }
@@ -196,7 +197,7 @@ namespace moris
         get_element_topology(
                 const uint&       aMyBlockInd,
                 const uint&       aMyElementInd,
-                Matrix< DDSMat >& aElementTopology )
+                Matrix< DDSMat >& aElementTopology ) override
         {
             std::cout << aMyElementInd << std::endl;
             aElementTopology = mEleDofConectivity.get_column( aMyElementInd );
@@ -205,7 +206,7 @@ namespace moris
         // ----------------------------------------------------------------------------------------------
 
         Matrix< DDUMat >
-        get_constrained_Ids()
+        get_constrained_Ids() override
         {
             return mMyConstraintDofs;
         }
@@ -214,8 +215,8 @@ namespace moris
 
         void
         get_equation_object_rhs(
-                const uint&               aMyElementInd,
-                Vector< Matrix< DDRMat > >& aElementRHS )
+                const uint&                 aMyElementInd,
+                Vector< Matrix< DDRMat > >& aElementRHS ) override
         {
             aElementRHS.resize( mNumRHS );
 
@@ -229,9 +230,9 @@ namespace moris
 
         void
         get_equation_object_rhs(
-                const uint&               aMyBlockInd,
-                const uint&               aMyElementInd,
-                Vector< Matrix< DDRMat > >& aElementRHS )
+                const uint&                 aMyBlockInd,
+                const uint&                 aMyElementInd,
+                Vector< Matrix< DDRMat > >& aElementRHS ) override
         {
             aElementRHS.resize( mNumRHS );
 
@@ -245,9 +246,9 @@ namespace moris
 
         void
         get_equation_object_operator_and_rhs(
-                const moris::uint&        aMyElementInd,
-                Matrix< DDRMat >&         aElementMatrix,
-                Vector< Matrix< DDRMat > >& aElementRHS )
+                const moris::uint&          aMyElementInd,
+                Matrix< DDRMat >&           aElementMatrix,
+                Vector< Matrix< DDRMat > >& aElementRHS ) override
         {
             aElementMatrix = mElementMatrixValues;
 
@@ -263,10 +264,10 @@ namespace moris
 
         void
         get_equation_object_operator_and_rhs(
-                const moris::uint&        aMyEquSetInd,
-                const moris::uint&        aMyElementInd,
-                Matrix< DDRMat >&         aElementMatrix,
-                Vector< Matrix< DDRMat > >& aElementRHS )
+                const moris::uint&          aMyEquSetInd,
+                const moris::uint&          aMyElementInd,
+                Matrix< DDRMat >&           aElementMatrix,
+                Vector< Matrix< DDRMat > >& aElementRHS ) override
         {
             aElementMatrix = mElementMatrixValues;
 
@@ -281,7 +282,7 @@ namespace moris
         // ----------------------------------------------------------------------------------------------
 
         void
-        use_matrix_market_files()
+        use_matrix_market_files() override
         {
             mUseMatrixMarketFiles = true;
         }
@@ -289,7 +290,7 @@ namespace moris
         // ----------------------------------------------------------------------------------------------
 
         const char*
-        get_matrix_market_path()
+        get_matrix_market_path() override
         {
             if ( mUseMatrixMarketFiles == true )
             {
@@ -305,7 +306,7 @@ namespace moris
         // ----------------------------------------------------------------------------------------------
 
         virtual const Vector< enum MSI::Dof_Type >&
-        get_requested_dof_types()
+        get_requested_dof_types() override
         {
             return mDummyDofs;
         };
@@ -313,10 +314,19 @@ namespace moris
         // ---------------------------------------------------------------------------------------------
 
         sol::Dist_Vector*
-        get_eigen_solution_vector()
+        get_eigen_solution_vector() override
         {
             return mEigVector;
         }
+
+        // ---------------------------------------------------------------------------------------------
+
+        std::shared_ptr< Vector< real > >&
+        get_eigen_values()
+        {
+            return mEigenValues;
+        }
     };
+
 }    // namespace moris
 #endif /* SRC_DISTLINALG_CL_SOLVER_INPUT_TEST_HPP_ */

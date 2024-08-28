@@ -14,7 +14,6 @@
 
 #include "cl_MatrixPETSc.hpp"
 
-
 #include "cl_DLA_Preconditioner.hpp"
 
 namespace moris
@@ -69,6 +68,8 @@ namespace moris
             void build_schwarz_preconditioner( Linear_Problem* aLinearSystem );
 
             //-----------------------------------------------------------------------------------
+
+            void build_algebaric_multigrid_preconditioner( Linear_Problem* aLinearSystem );
 
             /**
              * @brief compute the preconditioner based on the type of preconditioner

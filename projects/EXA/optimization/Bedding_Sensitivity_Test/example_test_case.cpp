@@ -41,17 +41,15 @@ bool gPrintReferenceValues = false;
 
 int fn_WRK_Workflow_Main_Interface( int argc, char* argv[] );
 
-
 //------------------------------------------------------------------------------------
 
-void
-test_pause()
+void test_pause()
 {
     // communicate process ids
     pid_t tPId = getpid();
 
     moris::Matrix< moris::DDSMat > tPIdVec;
-    comm_gather_and_broadcast( tPId, tPIdVec );
+    allgather_scalar( tPId, tPIdVec );
 
     if ( moris::par_rank() == 0 )
     {
@@ -85,7 +83,7 @@ check_results(
     //    moris::mtk::Exodus_IO_Helper tExoIO(aExoFileName.c_str(),0,false,false);
     //
     //    // define reference node IDs
-    //    Cell<uint> tReferenceNodeId  = {79,613,28,85};
+    //    Vector<uint> tReferenceNodeId  = {79,613,28,85};
     //
     //    // perturbation of denominator when building relative error
     //    real tDeltaEps = 1.0e-14;
@@ -144,9 +142,9 @@ check_results(
     //    }
     //
     //    // define reference values for dimension, number of nodes and number of elements
-    //    Cell<uint> tReferenceNumDims  = {  2,     2,    2,   2};
-    //    Cell<uint> tReferenceNumNodes = { 654, 1043,  296, 413};
-    //    Cell<uint> tReferenceNumElems = { 443,  443,  195, 195};
+    //    Vector<uint> tReferenceNumDims  = {  2,     2,    2,   2};
+    //    Vector<uint> tReferenceNumNodes = { 654, 1043,  296, 413};
+    //    Vector<uint> tReferenceNumElems = { 443,  443,  195, 195};
     //
     //    // check dimension, number of nodes and number of elements
     //    uint tNumDims  = tExoIO.get_number_of_dimensions();
@@ -165,7 +163,7 @@ check_results(
     //    REQUIRE( tNumElems ==  tReferenceNumElems(aTestCaseIndex) );
     //
     //    // define reference coordinates for node aNodeId
-    //    Cell<Matrix< DDRMat >> tReferenceCoordinate;
+    //    Vector<Matrix< DDRMat >> tReferenceCoordinate;
     //
     //    tReferenceCoordinate.push_back( { {1.041666666666667e+00},{5.892857142857143e-01} } );
     //    tReferenceCoordinate.push_back( { {1.041666666666667e+00},{5.892857142857142e-01} } );
@@ -185,7 +183,7 @@ check_results(
     //    REQUIRE( tRelDiffNorm <  1.0e-8 );
     //
     //    // check time value for time step index 0
-    //    Cell<real> tReferenceTime;
+    //    Vector<real> tReferenceTime;
     //    tReferenceTime.push_back( 1.100000000000000e+01 );
     //    tReferenceTime.push_back( 1.100000000000000e+01 );
     //    tReferenceTime.push_back( 1.100000000000000e+01 );
@@ -201,7 +199,7 @@ check_results(
     //    REQUIRE( tRelTimeDifference <  1.0e-8 );
     //
     //    // check velocity at node aNodeId in first time step (velocities are 3rd and 4th  nodal field, first time step has index 0)
-    //    Cell<Matrix<DDRMat>> tReferenceVelocity;
+    //    Vector<Matrix<DDRMat>> tReferenceVelocity;
     //    tReferenceVelocity.push_back( { { 1.773958604669590e-01 } , {-5.709041615077051e-02} } );
     //    tReferenceVelocity.push_back( { { 1.082567779110537e-01 } , {-2.749907312681069e-02} } );
     //    tReferenceVelocity.push_back( { { 1.773958604669590e-01 } , {-5.709041615077050e-02} } );
@@ -219,7 +217,7 @@ check_results(
     //    REQUIRE(  tRelVelocityDifference < 1.0e-4);
     //
     //    // check pressure at node aNodeId in first time step (pressure is 5th nodal field, first time step has index 0)
-    //    Cell<real> tReferencePressure;
+    //    Vector<real> tReferencePressure;
     //    tReferencePressure.push_back( 8.794710548564350e-02 );
     //    tReferencePressure.push_back( 6.690311721734198e-02 );
     //    tReferencePressure.push_back( 8.794710548564350e-02 );
@@ -235,7 +233,7 @@ check_results(
     //    REQUIRE(  tRelPressureDifference < 1.0e-4);
     //
     //    // check temperature at node aNodeId in first time step (temperature is 6th nodal field, first time step has index 0)
-    //    Cell<real> tReferenceTemperature;
+    //    Vector<real> tReferenceTemperature;
     //    tReferenceTemperature.push_back( 2.920352898471725e-01);
     //    tReferenceTemperature.push_back( 4.357995793855248e-01 );
     //    tReferenceTemperature.push_back( 2.920352898471723e-01 );
@@ -260,7 +258,7 @@ check_results(
     //    Matrix<DDRMat> tConstraintsFD;
     //
     //    // Check constraint values
-    //    Cell<Matrix<DDRMat>> tReferenceConstraints;
+    //    Vector<Matrix<DDRMat>> tReferenceConstraints;
     //
     //    tReferenceConstraints.push_back( {
     //        {-3.768956983866792e-06},
@@ -401,7 +399,7 @@ TEST_CASE( "Bedding_Sensitivity_Test",
     gDim = 2;
 
     MORIS_LOG_INFO( " " );
-    MORIS_LOG_INFO( "Executing Contact Sensitivity Test - 2D - %i Processors.", par_size() );
+    MORIS_LOG_INFO( "Executing Bedding Sensitivity Test - 2D - %i Processors.", par_size() );
     MORIS_LOG_INFO( " " );
 
     if ( par_size() == 2 )
@@ -439,7 +437,7 @@ TEST_CASE( "Bedding_Sensitivity_Test",
     gDim = 3;
 
     MORIS_LOG_INFO( " " );
-    MORIS_LOG_INFO( "Executing Contact Sensitivity Test - 3D - %i Processors.", par_size() );
+    MORIS_LOG_INFO( "Executing Bedding Sensitivity Test - 3D - %i Processors.", par_size() );
     MORIS_LOG_INFO( " " );
 
     if ( par_size() == 1 )
@@ -468,4 +466,22 @@ TEST_CASE( "Bedding_Sensitivity_Test",
             check_results( "Bedding_Sensitivity_Test_11.exo.e-s.0001", "Bedding_Sensitivity_Test_11_SEN.hdf5", gTestCaseIndex );
         }
     }
+
+#ifdef MORIS_HAVE_SLEPC
+    // This cass tests the optimzation problemw with petsc solver
+    if ( par_size() == 4 )
+    {
+        // set test case index
+        gTestCaseIndex = 21;
+
+        // call to performance manager main interface
+        fn_WRK_Workflow_Main_Interface( argc, argv );
+
+        if ( par_rank() == 0 )
+        {
+            // perform check for Test Case 3
+            check_results( "Bedding_Sensitivity_Test_21.exo.e-s.0001", "Bedding_Sensitivity_Test_21_SEN.hdf5", gTestCaseIndex );
+        }
+    }
+#endif
 }

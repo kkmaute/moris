@@ -188,7 +188,7 @@ namespace moris
             aParameterlist.set( "Preconditioner_Implementation", sol::PreconditionerType::PETSC );
 
             // Set default preconditioner
-            aParameterlist.insert( "PCType", std::string( "ilu" ) );    // "superlu-dist", "mumps", "ilu", "mg", "asm", "mat", "none"
+            aParameterlist.insert( "PCType", std::string( "ilu" ) );    // "superlu-dist", "mumps", "ilu", "mg", "asm", "mat", "gamg", "none"
 
             // Sets the number of levels of fill to use for ILU
             aParameterlist.insert( "ILUFill", 0 );
@@ -210,6 +210,11 @@ namespace moris
 
             // blocks in addtive Schwartz algorthim
             aParameterlist.insert( "ASM_blocks_output_filename", "" );
+
+            // GAMG preconditioner
+            aParameterlist.insert( "num_pde_equations", (sint)1 );
+            aParameterlist.insert( "amg_type", "agg" );
+            aParameterlist.insert( "use_gamg_defaults", true );
         }
 
         //------------------------------------------------------------------------------
@@ -364,6 +369,69 @@ namespace moris
             mEigAlgoParameterList.insert( "Update_Flag", true );
 
             mEigAlgoParameterList.insert( "Amesos_Direct_Solver_Type", "Amesos_Klu" );
+
+            return mEigAlgoParameterList;
+        }
+
+        //------------------------------------------------------------------------------
+
+        inline Parameter_List
+        create_slepc_algorithm_parameter_list()
+        {
+            Parameter_List mEigAlgoParameterList;
+
+            enum moris::sol::SolverType tType = moris::sol::SolverType::SLEPC_SOLVER;
+
+            mEigAlgoParameterList.insert( "Solver_Implementation", static_cast< uint >( tType ) );
+            mEigAlgoParameterList.insert( "Eigen_Algorithm", std::string( "" ) );
+
+            // Verbosite flag, true or false
+            mEigAlgoParameterList.insert( "Verbosity", false );
+
+            // Which parameter sorts eigenvalues in increasing or decreasing order of magnitudes
+            // options are: SM: Increasing Order ; SR: Increasing order of real part ; SI: Increasing order of imaginary part
+            //              LM: Decreasing Order ; LR: Decreasing order of real part ; LI: Decreasing order of imaginary part
+            mEigAlgoParameterList.insert( "Which", "SM" );
+
+            // Request number of eigenvalues as integer type; Num_Eig_Vals = Block_Size
+            mEigAlgoParameterList.insert( "Num_Eig_Vals", INT_MAX );
+
+            // sets convergence tolerance for given algorithm
+            mEigAlgoParameterList.insert( "Convergence_Tolerance", 1e-08 );
+            mEigAlgoParameterList.insert( "max_iter", std::numeric_limits< uint >::max() );
+
+            // Update flag for vismesh
+            mEigAlgoParameterList.insert( "Update_Flag", true );
+            mEigAlgoParameterList.insert( "is_symmetric", true );
+
+            mEigAlgoParameterList.insert( "STType", "shift" );
+            mEigAlgoParameterList.insert( "ShiftValue", 0.0 );
+            mEigAlgoParameterList.insert( "use_slepc_default_params", true );
+
+            // power method paramaters
+            // mEigAlgoParameterList.insert( "Eigen_Algorithm", std::string( "" ) ); "power"
+            mEigAlgoParameterList.insert( "shift_type", "constant" );    // options : "constant", "rayleigh", "wilkinson"   // can find the max and minim eigenvalue
+
+            // the Generalized Davidson method
+            // mEigAlgoParameterList.insert( "Eigen_Algorithm", std::string( "" ) ); "gd"
+            mEigAlgoParameterList.insert( "krylov_start", false );
+            mEigAlgoParameterList.insert( "block_size", (uint)1 );
+            mEigAlgoParameterList.insert( "number_of_vectors_initial_search_subspace", (uint)0 );
+            mEigAlgoParameterList.insert( "number_of_vectors_after_restart", (uint)0 );
+            mEigAlgoParameterList.insert( "number_of_vectors_saved_from_previous_restart", (sint)-2 );
+            mEigAlgoParameterList.insert( "use_B_ortho", true );
+            mEigAlgoParameterList.insert( "dynamic", false );
+
+            // krylov schur solver
+            // see krlovschur.c file in slepc documentation
+            // mEigAlgoParameterList.insert( "Eigen_Algorithm", std::string( "" ) ); "KrylovSchur"
+            mEigAlgoParameterList.insert( "restart_paramater", 0.5 );    // Allowed values are in the range [0.1,0.9]. The default is 0.5.
+            mEigAlgoParameterList.insert( "lock_converged_eigenpairs", true );
+            mEigAlgoParameterList.insert( "partitions", 1 );
+            mEigAlgoParameterList.insert( "check_for_zeros", false );    // check for zeros, if partions > 1
+            mEigAlgoParameterList.insert( "number_eigenvalues", 1 );
+            mEigAlgoParameterList.insert( "subspace_dim", -2 );             // the value is PETSC dedualt which is -2
+            mEigAlgoParameterList.insert( "maximum_projected_dim", -2 );    // the value is PETSC dedualt which is -2
 
             return mEigAlgoParameterList;
         }
@@ -798,6 +866,23 @@ namespace moris
             // Determines Newton maxits multiplier
             tNonLinAlgorithmParameterList.insert( "NLA_is_eigen_problem", false );
 
+            // Determine with which strategy remapping of nonconformal meshes (raytracing) should be performed
+            tNonLinAlgorithmParameterList.insert( "NLA_remap_strategy", (uint)sol::SolverRaytracingStrategy::None );
+
+            // If "NLA_remap_strategy" is set to "EveryNthIteration", "EveryNthLoadStepOrNthIteration, or "MixedNthLoadStepAndNthIteration",
+            // this parameter determines the frequency of remapping inside the newton iterations
+            tNonLinAlgorithmParameterList.insert( "NLA_remap_iteration_frequency", 1 );
+
+            // If "NLA_remap_strategy" is set to "EveryNthLoadStep", "EveryNthLoadStepOrNthIteration, "MixedNthLoadStepAndResidualChange" or "MixedNthLoadStepAndNthIteration",
+            // this parameter determines the frequency of remapping in the load stepping iterations
+            tNonLinAlgorithmParameterList.insert( "NLA_remap_load_step_frequency", 1 );
+
+            // If "NLA_remap_strategy" is set to "ResidualChange" or "MixedNthLoadStepAndResidualChange",
+            // this parameter determines the limit of the change in the residual above which the remapping is preformed.
+            // E.g. if this is set to -1e-2, the remapping will be performed if the change between the previous and current iterations residual is greater than -1e-2
+            // (either it is almost converged in the current configuration or the residual grows)
+            tNonLinAlgorithmParameterList.insert( "NLA_remap_residual_change_tolerance", -1e-2 );
+
             return tNonLinAlgorithmParameterList;
         }
 
@@ -915,6 +1000,11 @@ namespace moris
                     tParameterList.set( "Solver_Implementation", moris::sol::SolverType::ML );
                     break;
                 }
+                case sol::SolverType::SLEPC_SOLVER:
+                {
+                    tParameterList = create_slepc_algorithm_parameter_list();
+                    break;
+                }
 
                 default:
                     MORIS_ERROR( false, "Parameter list for this solver not implemented yet" );
@@ -925,7 +1015,9 @@ namespace moris
             tParameterList.insert( "preconditioners", "" );
 
             // insert list of preconditioners, this preconditioner is used in eigen analysis to create a new preconditioned linear operator
+            // the second line is for slepc solver where to invert the matrix in eigen problem what solver will be used
             tParameterList.insert( "preconditioners_linear_operator", "" );
+            tParameterList.insert( "sub_linear_solver", "" );
 
             // return the parameter list
             return tParameterList;

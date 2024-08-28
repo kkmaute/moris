@@ -15,18 +15,17 @@
 #include "cl_FEM_IWG_Factory.hpp"
 #include "cl_FEM_IWG_L2.hpp"
 
-//#include "cl_FEM_IWG_Helmholtz_Bulk.hpp"
-//#include "cl_FEM_IWG_Helmholtz_Bulk2.hpp"
-//#include "cl_FEM_IWG_Helmholtz_Interface.hpp"
-//#include "cl_FEM_IWG_Hamilton_Jacobi_Bulk.hpp"
-//#include "cl_FEM_IWG_Hamilton_Jacobi_Bulk2.hpp"
-//#include "cl_FEM_IWG_LSNormal_Bulk.hpp"
-//#include "cl_FEM_IWG_Olsson_CLS_Bulk.hpp"
-//#include "cl_FEM_IWG_Olsson_CLS_Interface.hpp"
+// #include "cl_FEM_IWG_Helmholtz_Bulk.hpp"
+// #include "cl_FEM_IWG_Helmholtz_Bulk2.hpp"
+// #include "cl_FEM_IWG_Helmholtz_Interface.hpp"
+// #include "cl_FEM_IWG_Hamilton_Jacobi_Bulk.hpp"
+// #include "cl_FEM_IWG_Hamilton_Jacobi_Bulk2.hpp"
+// #include "cl_FEM_IWG_LSNormal_Bulk.hpp"
+// #include "cl_FEM_IWG_Olsson_CLS_Bulk.hpp"
+// #include "cl_FEM_IWG_Olsson_CLS_Interface.hpp"
 #include "cl_FEM_IWG_Hamilton_Jacobi_Bulk_Test.hpp"
-#include "cl_FEM_IWG_Nonlocal_Bulk.hpp"
 #include "cl_FEM_IWG_Nonlocal_Interface.hpp"
-#include "cl_FEM_IWG_History_Bulk.hpp"
+#include "cl_FEM_IWG_L2_Damage_Bulk.hpp"
 // Diffusion
 #include "cl_FEM_IWG_Diffusion_Bulk.hpp"
 #include "cl_FEM_IWG_Diffusion_Dirichlet_Nitsche.hpp"
@@ -84,6 +83,8 @@
 #include "cl_FEM_IWG_FS_Struc_Interface.hpp"
 // Time continuity
 #include "cl_FEM_IWG_Time_Continuity_Dof.hpp"
+// Geometric Stiffness
+#include "cl_FEM_IWG_Isotropic_Struc_Nonlinear_Geometric_Stiffness.hpp"
 // Turbulence
 #include "cl_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.hpp"
 #include "cl_FEM_IWG_Spalart_Allmaras_Turbulence_Dirichlet.hpp"
@@ -92,9 +93,15 @@
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Penalty.hpp"
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Nitsche.hpp"
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche.hpp"
+#include "cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche_Unbiased.hpp"
+#include "cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Normal_Nitsche_Unbiased.hpp"
+#include "cl_FEM_IWG_Isotropic_Struc_Nonlinear_Contact_Mlika.hpp"
+#include "cl_FEM_IWG_Isotropic_Struc_Nonlinear_Contact_Seitz.hpp"
 // Ghost
 #include "cl_FEM_IWG_Ghost_Normal_Field.hpp"
 #include "cl_FEM_IWG_Struc_Stress.hpp"
+// User defined
+#include "cl_FEM_IWG_User_Defined.hpp"
 
 namespace moris
 {
@@ -116,17 +123,20 @@ namespace moris
                 case IWG_Type::HJTEST:
                     return std::make_shared< IWG_Hamilton_Jacobi_Bulk_Test >();
 
-                case IWG_Type::NONLOCAL_BULK:
-                    return std::make_shared< IWG_Nonlocal_Bulk >();
-
                 case IWG_Type::NONLOCAL_INTERFACE_SYMMETRIC_NITSCHE:
                     return std::make_shared< IWG_Nonlocal_Interface >( -1 );
 
                 case IWG_Type::NONLOCAL_INTERFACE_UNSYMMETRIC_NITSCHE:
                     return std::make_shared< IWG_Nonlocal_Interface >( 1 );
 
-                case IWG_Type::HISTORY_BULK:
-                    return std::make_shared< IWG_History_Bulk >();
+                case IWG_Type::L2_EQSTRAIN_BULK:
+                    return std::make_shared< IWG_L2_Damage_Bulk >( 0 );
+
+                case IWG_Type::L2_HISTORY_BULK:
+                    return std::make_shared< IWG_L2_Damage_Bulk >( 1 );
+
+                case IWG_Type::L2_DAMAGE_BULK:
+                    return std::make_shared< IWG_L2_Damage_Bulk >( 2 );
 
                     //                case IWG_Type::HELMHOLTZ :
                     //                    return std::make_shared< IWG_Helmholtz_Bulk >();
@@ -197,19 +207,19 @@ namespace moris
                 case IWG_Type::STRUC_LINEAR_INTERFACE_UNSYMMETRIC_NITSCHE:
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Interface >( 1 );
 
-                case IWG_Type::Struc_Linear_Interface_SLM_Constraint :
+                case IWG_Type::Struc_Linear_Interface_SLM_Constraint:
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Interface_SLM_Constraint >();
 
-                case IWG_Type::Struc_Linear_Interface_SLM_L2 :
+                case IWG_Type::Struc_Linear_Interface_SLM_L2:
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Interface_SLM_L2 >();
 
-                case IWG_Type::Struc_Linear_Interface_SLM_Mixed :
+                case IWG_Type::Struc_Linear_Interface_SLM_Mixed:
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Interface_SLM_Mixed >();
 
-                case IWG_Type::Struc_Linear_Interface_SLM_LMJump :
+                case IWG_Type::Struc_Linear_Interface_SLM_LMJump:
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Interface_SLM_LMJump >();
 
-                case IWG_Type::STRUC_LINEAR_NEUMANN :
+                case IWG_Type::STRUC_LINEAR_NEUMANN:
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Neumann >();
 
                 case IWG_Type::STRUC_LINEAR_VW_GHOST:
@@ -236,6 +246,21 @@ namespace moris
                 case IWG_Type::STRUC_LINEAR_CONTACT_GAP_UNSYMMETRIC_NITSCHE:
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche >( 1 );
 
+                case IWG_Type::STRUC_LINEAR_CONTACT_GAP_SYMMETRIC_NITSCHE_UNBIASED:
+                    return std::make_shared< IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche_Unbiased >( -1 );
+
+                case IWG_Type::STRUC_LINEAR_CONTACT_GAP_UNSYMMETRIC_NITSCHE_UNBIASED:
+                    return std::make_shared< IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche_Unbiased >( 1 );
+
+                case IWG_Type::STRUC_LINEAR_CONTACT_NORMAL_SYMMETRIC_NITSCHE_UNBIASED:
+                    return std::make_shared< IWG_Isotropic_Struc_Linear_Contact_Normal_Nitsche_Unbiased >( -1 );
+
+                case IWG_Type::STRUC_LINEAR_CONTACT_NORMAL_UNSYMMETRIC_NITSCHE_UNBIASED:
+                    return std::make_shared< IWG_Isotropic_Struc_Linear_Contact_Normal_Nitsche_Unbiased >( 1 );
+
+                case IWG_Type::STRUC_LINEAR_CONTACT_NORMAL_NEUTRAL_NITSCHE_UNBIASED:
+                    return std::make_shared< IWG_Isotropic_Struc_Linear_Contact_Normal_Nitsche_Unbiased >( 0 );
+
                 case IWG_Type::STRUC_LINEAR_CONTACT_PENALTY:
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Contact_Penalty >();
 
@@ -249,6 +274,9 @@ namespace moris
 
                 case IWG_Type::STRUC_NON_LINEAR_BULK_SE:
                     return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Bulk >( CM_Function_Type::PK2, CM_Function_Type::LAGRANGIAN );
+
+                case IWG_Type::STRUC_NON_LINEAR_GEOMETRIC_STIFFNESS:
+                    return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Geometric_Stiffness >( CM_Function_Type::PK2, CM_Function_Type::LAGRANGIAN );
 
                 case IWG_Type::STRUC_NON_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE_SE:
                     return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Dirichlet >( CM_Function_Type::PK2, CM_Function_Type::LAGRANGIAN, -1 );
@@ -292,6 +320,23 @@ namespace moris
                 case IWG_Type::STRUC_NON_LINEAR_INTERFACE_UNSYMMETRIC_NITSCHE_CAUCHYEPS:
                     return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Interface >( CM_Function_Type::CAUCHY, CM_Function_Type::EULERIAN, 1 );
 
+                case IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_SYMMETRIC:
+                    return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Contact_Mlika >( -1 );
+
+                case IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_UNSYMMETRIC:
+                    return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Contact_Mlika >( 1 );
+
+                case IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_NEUTRAL:
+                    return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Contact_Mlika >( 0 );
+
+                case IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_SYMMETRIC:
+                    return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Contact_Seitz >( -1 );
+
+                case IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_UNSYMMETRIC:
+                    return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Contact_Seitz >( 1 );
+
+                case IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_NEUTRAL:
+                    return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Contact_Seitz >( 0 );
                     //------------------------------------------------------------------------------
 
                 case IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK:
@@ -420,6 +465,9 @@ namespace moris
                 case IWG_Type::GHOST_NORMAL_FIELD:
                     return std::make_shared< IWG_Ghost_Normal_Field >();
 
+                case IWG_Type::USER_DEFINED:
+                    return std::make_shared< IWG_User_Defined >();
+
                 default:
                     MORIS_ERROR( false, " IWG_Factory::create_IWGs - IWG type specified is not defined. " );
                     return nullptr;
@@ -428,4 +476,3 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-

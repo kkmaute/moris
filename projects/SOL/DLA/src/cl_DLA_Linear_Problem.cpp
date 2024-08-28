@@ -316,6 +316,13 @@ namespace moris
                     // assemble jacobian
                     mSolverInterface->assemble_jacobian( mMassMat, moris::fem::Time_Continuity_Flag::TIME_CONTINUITY_ONLY );
                 }
+                else if ( mRHSMatType == "GeomStiffMat" )
+                {
+                    mMassMat->mat_put_scalar( 0.0 );
+
+                    // assemble jacobian
+                    mSolverInterface->assemble_jacobian( mMassMat, moris::fem::Time_Continuity_Flag::GEOMETRIC_STIFFNESS_ONLY );
+                }
                 else if ( mRHSMatType == "IdentityMat" )
                 {
                     mMassMat->mat_put_scalar( 0.0 );

@@ -18,10 +18,16 @@
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Model.hpp"
 #include "cl_FEM_Field.hpp"
+#include "cl_FEM_Element_Nonconformal_Sideset.hpp"
 // SOL/src
+#include "cl_MTK_Nonconformal_Side_Cluster.hpp"
 #include "cl_SOL_Dist_Vector.hpp"
 // LINALG/src
 #include "fn_isfinite.hpp"
+
+#include <iterator>
+#include <map>
+#include <ml_utils.h>
 
 namespace moris
 {
@@ -30,10 +36,10 @@ namespace moris
         //------------------------------------------------------------------------------
 
         Interpolation_Element::Interpolation_Element(
-                const Element_Type               aElementType,
-                const Vector< const mtk::Cell* >&  aInterpolationCell,
-                const Vector< Node_Base* >& aNodes,
-                Set*                             aSet )
+                const Element_Type                aElementType,
+                const Vector< const mtk::Cell* >& aInterpolationCell,
+                const Vector< Node_Base* >&       aNodes,
+                Set*                              aSet )
                 : MSI::Equation_Object( aSet )
                 , mSet( aSet )
                 , mElementType( aElementType )
@@ -59,7 +65,9 @@ namespace moris
             }
 
             // if double sided sideset
-            if ( mElementType == fem::Element_Type::DOUBLE_SIDESET )
+            if (
+                    mElementType == fem::Element_Type::DOUBLE_SIDESET ||    //
+                    mElementType == fem::Element_Type::NONCONFORMAL_SIDESET )
             {
                 // fill the follower interpolation cell
                 mFollowerInterpolationCell = aInterpolationCell( 1 );
@@ -127,11 +135,10 @@ namespace moris
             // dof field interpolators------------------------------------------
 
             // get leader dof type list from set
-            Vector< Vector< MSI::Dof_Type > >& tLeaderDofTypeList =
-                    mSet->get_dof_type_list( mtk::Leader_Follower::LEADER );
+            Vector< Vector< MSI::Dof_Type > >& tLeaderDofTypeList = mSet->get_dof_type_list( mtk::Leader_Follower::LEADER );
 
             // get number of leader dof types
-            uint tLeaderNumDofTypes = tLeaderDofTypeList.size();
+            uint const tLeaderNumDofTypes = tLeaderDofTypeList.size();
 
             // loop on the leader dof types
             for ( uint iDOF = 0; iDOF < tLeaderNumDofTypes; iDOF++ )
@@ -190,11 +197,10 @@ namespace moris
             }
 
             // get follower dof type list from set
-            Vector< Vector< MSI::Dof_Type > >& tFollowerDofTypeList =
-                    mSet->get_dof_type_list( mtk::Leader_Follower::FOLLOWER );
+            Vector< Vector< MSI::Dof_Type > >& tFollowerDofTypeList = mSet->get_dof_type_list( mtk::Leader_Follower::FOLLOWER );
 
             // get number of follower dof types
-            uint tFollowerNumDofTypes = tFollowerDofTypeList.size();
+            uint const tFollowerNumDofTypes = tFollowerDofTypeList.size();
 
             // loop on the follower dof types
             for ( uint iDOF = 0; iDOF < tFollowerNumDofTypes; iDOF++ )
@@ -217,11 +223,10 @@ namespace moris
             // dv field interpolators------------------------------------------
 
             // get leader dv type list from set
-            const Vector< Vector< gen::PDV_Type > >& tLeaderDvTypeList =
-                    mSet->get_dv_type_list( mtk::Leader_Follower::LEADER );
+            const Vector< Vector< gen::PDV_Type > >& tLeaderDvTypeList = mSet->get_dv_type_list( mtk::Leader_Follower::LEADER );
 
             // get number of leader dv types
-            uint tLeaderNumDvTypes = tLeaderDvTypeList.size();
+            uint const tLeaderNumDvTypes = tLeaderDvTypeList.size();
 
             // loop on the leader dv types
             for ( uint iDv = 0; iDv < tLeaderNumDvTypes; iDv++ )
@@ -232,17 +237,22 @@ namespace moris
                 // get the pdv values for the ith dv type group
                 // FIXME: the underlying use of the base cell needs to be hidden within PDV
                 Vector< Matrix< DDRMat > > tCoeff_Original;
-                mSet->get_equation_model()->get_design_variable_interface()->get_ip_pdv_value(
-                        mLeaderInterpolationCell->get_base_cell()->get_vertex_inds(),
-                        tDvTypeGroup,
-                        tCoeff_Original );
+                mSet->get_equation_model()
+                        ->get_design_variable_interface()
+                        ->get_ip_pdv_value(
+                                mLeaderInterpolationCell->get_base_cell()->get_vertex_inds(),
+                                tDvTypeGroup,
+                                tCoeff_Original );
 
                 // reshape tCoeffs into the order the FI expects them
                 Matrix< DDRMat > tCoeff;
-                mSet->get_equation_model()->get_design_variable_interface()->reshape_pdv_values( tCoeff_Original, tCoeff );
+                mSet->get_equation_model()
+                        ->get_design_variable_interface()
+                        ->reshape_pdv_values( tCoeff_Original, tCoeff );
 
                 // set field interpolator coefficients
-                mSet->get_field_interpolator_manager()->set_coeff_for_type( tDvTypeGroup( 0 ), tCoeff );
+                mSet->get_field_interpolator_manager()
+                        ->set_coeff_for_type( tDvTypeGroup( 0 ), tCoeff );
             }
 
             // get follower dv type list from set
@@ -250,7 +260,7 @@ namespace moris
                     mSet->get_dv_type_list( mtk::Leader_Follower::FOLLOWER );
 
             // get number of follower dv types
-            uint tFollowerNumDvTypes = tFollowerDvTypeList.size();
+            uint const tFollowerNumDvTypes = tFollowerDvTypeList.size();
 
             // loop on the follower dv types
             for ( uint iDv = 0; iDv < tFollowerNumDvTypes; iDv++ )
@@ -260,17 +270,22 @@ namespace moris
 
                 // get the pdv values for the ith dv type group
                 Vector< Matrix< DDRMat > > tCoeff_Original;
-                mSet->get_equation_model()->get_design_variable_interface()->get_ip_pdv_value(
-                        mFollowerInterpolationCell->get_base_cell()->get_vertex_inds(),
-                        tDvTypeGroup,
-                        tCoeff_Original );
+                mSet->get_equation_model()
+                        ->get_design_variable_interface()
+                        ->get_ip_pdv_value(
+                                mFollowerInterpolationCell->get_base_cell()->get_vertex_inds(),
+                                tDvTypeGroup,
+                                tCoeff_Original );
 
                 // reshape tCoeffs into the order the FI expects them
                 Matrix< DDRMat > tCoeff;
-                mSet->get_equation_model()->get_design_variable_interface()->reshape_pdv_values( tCoeff_Original, tCoeff );
+                mSet->get_equation_model()
+                        ->get_design_variable_interface()
+                        ->reshape_pdv_values( tCoeff_Original, tCoeff );
 
                 // set the field coefficients
-                mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )->set_coeff_for_type( tDvTypeGroup( 0 ), tCoeff );
+                mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )
+                        ->set_coeff_for_type( tDvTypeGroup( 0 ), tCoeff );
             }
 
             // field field interpolators------------------------------------------
@@ -280,7 +295,7 @@ namespace moris
                     mSet->get_field_type_list( mtk::Leader_Follower::LEADER );
 
             // get number of leader field types
-            uint tLeaderNumFieldTypes = tLeaderFieldTypeList.size();
+            uint const tLeaderNumFieldTypes = tLeaderFieldTypeList.size();
 
             // loop on the leader field types
             for ( uint iFi = 0; iFi < tLeaderNumFieldTypes; iFi++ )
@@ -288,7 +303,7 @@ namespace moris
                 // get the field type group
                 const Vector< mtk::Field_Type >& tFieldTypeGroup = tLeaderFieldTypeList( iFi );
 
-                Matrix< IndexMat > tIPCellIndices = mLeaderInterpolationCell->get_vertex_inds();
+                Matrix< IndexMat > const tIPCellIndices = mLeaderInterpolationCell->get_vertex_inds();
 
                 Matrix< DDRMat > tCoeff;
                 mSet->get_fem_model()->get_field( tFieldTypeGroup( 0 ) )->get_values( tIPCellIndices, tCoeff, tFieldTypeGroup );
@@ -304,7 +319,7 @@ namespace moris
                     mSet->get_field_type_list( mtk::Leader_Follower::FOLLOWER );
 
             // get number of follower field types
-            uint tFollowerNumFieldTypes = tFollowerFieldTypeList.size();
+            uint const tFollowerNumFieldTypes = tFollowerFieldTypeList.size();
 
             // loop on the follower field types
             for ( uint iFi = 0; iFi < tFollowerNumFieldTypes; iFi++ )
@@ -312,7 +327,7 @@ namespace moris
                 // get the field type group
                 const Vector< mtk::Field_Type >& tFieldTypeGroup = tFollowerFieldTypeList( iFi );
 
-                Matrix< IndexMat > tIPCellIndices = mFollowerInterpolationCell->get_vertex_inds();
+                Matrix< IndexMat > const tIPCellIndices = mFollowerInterpolationCell->get_vertex_inds();
 
                 Matrix< DDRMat > tCoeff;
                 mSet->get_fem_model()->get_field( tFieldTypeGroup( 0 ) )->get_values( tIPCellIndices, tCoeff, tFieldTypeGroup );
@@ -325,32 +340,51 @@ namespace moris
 
             // geometry interpolators------------------------------------------
             // set the IP geometry interpolator physical space and time coefficients for the leader
-            mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER )->get_IP_geometry_interpolator()->set_space_coeff( mLeaderInterpolationCell->get_vertex_coords() );
-            mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER )->get_IP_geometry_interpolator()->set_param_coeff();
-            mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER )->get_IP_geometry_interpolator()->set_time_coeff( this->get_time() );
+            Geometry_Interpolator* tLeaderGeometryInterpolator =
+                    mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER )->get_IP_geometry_interpolator();
+
+            tLeaderGeometryInterpolator->set_space_coeff( mLeaderInterpolationCell->get_vertex_coords() );
+
+            tLeaderGeometryInterpolator->set_param_coeff();
+
+            tLeaderGeometryInterpolator->set_time_coeff( this->get_time() );
 
             // if double sideset
-            if ( mElementType == fem::Element_Type::DOUBLE_SIDESET )
+            if (
+                    ( mElementType == fem::Element_Type::DOUBLE_SIDESET ) ||    //
+                    ( mElementType == fem::Element_Type::NONCONFORMAL_SIDESET ) )
             {
                 // set the IP geometry interpolator physical space and time coefficients for the follower
-                mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )->get_IP_geometry_interpolator()->set_space_coeff( mFollowerInterpolationCell->get_vertex_coords() );
-                mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )->get_IP_geometry_interpolator()->set_time_coeff( this->get_time() );
+                Geometry_Interpolator* tFollowerGeometryInterpolator =
+                        mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )->get_IP_geometry_interpolator();
+
+                tFollowerGeometryInterpolator->set_space_coeff( mFollowerInterpolationCell->get_vertex_coords() );
+
+                tFollowerGeometryInterpolator->set_time_coeff( this->get_time() );
             }
 
             // if time sideset
             if ( mElementType == fem::Element_Type::TIME_SIDESET )
             {
                 // set the IP geometry interpolator physical space and time coefficients for the previous
-                mSet->get_field_interpolator_manager_previous_time( mtk::Leader_Follower::LEADER )->get_IP_geometry_interpolator()->set_space_coeff( mLeaderInterpolationCell->get_vertex_coords() );
-                mSet->get_field_interpolator_manager_previous_time( mtk::Leader_Follower::LEADER )->get_IP_geometry_interpolator()->set_time_coeff( this->get_previous_time() );
+                mSet->get_field_interpolator_manager_previous_time( mtk::Leader_Follower::LEADER )->    //
+                        get_IP_geometry_interpolator()
+                                ->set_space_coeff( mLeaderInterpolationCell->get_vertex_coords() );
+                mSet->get_field_interpolator_manager_previous_time( mtk::Leader_Follower::LEADER )->    //
+                        get_IP_geometry_interpolator()
+                                ->set_time_coeff( this->get_previous_time() );
             }
 
             // if eigen vectors
             if ( mSet->mEigenVectorPdofValues.size() > 0 )
             {
                 // set the IP geometry interpolator physical space and time coefficients for eigen vectors
-                mSet->get_field_interpolator_manager_eigen_vectors( mtk::Leader_Follower::LEADER )->get_IP_geometry_interpolator()->set_space_coeff( mLeaderInterpolationCell->get_vertex_coords() );
-                mSet->get_field_interpolator_manager_eigen_vectors( mtk::Leader_Follower::LEADER )->get_IP_geometry_interpolator()->set_time_coeff( this->get_time() );
+                mSet->get_field_interpolator_manager_eigen_vectors( mtk::Leader_Follower::LEADER )->    //
+                        get_IP_geometry_interpolator()
+                                ->set_space_coeff( mLeaderInterpolationCell->get_vertex_coords() );
+                mSet->get_field_interpolator_manager_eigen_vectors( mtk::Leader_Follower::LEADER )->    //
+                        get_IP_geometry_interpolator()
+                                ->set_time_coeff( this->get_time() );
             }
         }
 
@@ -406,7 +440,9 @@ namespace moris
             }
 
             // double sided
-            if ( mElementType == fem::Element_Type::DOUBLE_SIDESET )
+            if (
+                    ( mElementType == fem::Element_Type::DOUBLE_SIDESET ) ||    //
+                    ( mElementType == fem::Element_Type::NONCONFORMAL_SIDESET ) )
             {
                 // get follower vertices from cell
                 Matrix< IndexMat > tFollowerVerticesInds =
@@ -715,7 +751,7 @@ namespace moris
             this->fill_mat_pdv_assembly_vector();
 
             // make sure this is done on the FEM clusters and not on the VIS clusters
-            MORIS_ASSERT( !mFemCluster( 0 )->is_VIS_cluster(), 
+            MORIS_ASSERT( !mFemCluster( 0 )->is_VIS_cluster(),
                     "FEM::Set::compute_dQIdp_explicit_implicit() - "
                     "Trying to compute sensitivities on a VIS cluster. This shouldn't happen." );
 
@@ -1170,13 +1206,18 @@ namespace moris
             if ( aFieldType == vis::Field_Type::NODAL )
             {
                 // get the type of the current cluster
-                enum fem::Element_Type tElementType = mFemCluster( aFemMeshIndex )->get_element_type();
+                fem::Element_Type tElementType = mFemCluster( aFemMeshIndex )->get_element_type();
 
                 // compute the nodal values of the requested QIs
-                // double sided clusters require additional treatment of the follower side and therefore need special consideration
+                // double sided clusters require additional treatment of the follower side
+                // and therefore need special consideration
                 if ( tElementType == fem::Element_Type::DOUBLE_SIDESET )
                 {
                     this->compute_nodal_QIs_double_sided( aFemMeshIndex );
+                }
+                else if ( tElementType == fem::Element_Type::NONCONFORMAL_SIDESET )
+                {
+                    this->compute_nodal_QIs_nonconformal_side( aFemMeshIndex );
                 }
                 else    // on BULK or SIDESET elements use the default
                 {
@@ -1249,7 +1290,8 @@ namespace moris
                 Matrix< DDRMat > tNodalPointLocalCoords = tVertexLocalCoords.get_row( iVertex );
                 tNodalPointLocalCoords.resize( 1, tNodalPointLocalCoords.numel() + 1 );
                 tNodalPointLocalCoords( tNodalPointLocalCoords.numel() - 1 ) = -1.0;
-                tNodalPointLocalCoords                                       = trans( tNodalPointLocalCoords );
+
+                tNodalPointLocalCoords = trans( tNodalPointLocalCoords );
 
                 // set vertex coordinates for field interpolator
                 mSet->get_field_interpolator_manager()->set_space_time( tNodalPointLocalCoords );
@@ -1290,22 +1332,120 @@ namespace moris
 
             }    // end for: vertices on cluster
 
-        }        // end function: Interpolation_Element::compute_nodal_QIs()
+        }    // end function: Interpolation_Element::compute_nodal_QIs()
+
+        //------------------------------------------------------------------------------
+
+        void
+        Interpolation_Element::compute_nodal_QIs_nonconformal_side( const uint aFemMeshIndex )
+        {
+            uint tNumLocalIQIs = mSet->get_number_of_requested_nodal_IQIs_for_visualization();
+
+            std::shared_ptr< fem::Cluster > tVisCluster = mFemCluster( aFemMeshIndex );
+
+            Vector< Element* > const tElements = tVisCluster->get_elements();
+
+            std::map< std::pair< moris_index, moris_index >, Element* > tCellIndicesToElementMap;
+
+            for ( auto const & tElement : tVisCluster->get_elements() )
+            {
+                moris_index tLeaderIndex   = tElement->get_mtk_cell( mtk::Leader_Follower::LEADER )->get_index();
+                moris_index tFollowerIndex = tElement->get_mtk_cell( mtk::Leader_Follower::FOLLOWER )->get_index();
+
+                tCellIndicesToElementMap[ std::make_pair( tLeaderIndex, tFollowerIndex ) ] = tElement;
+            }
+
+            MORIS_ASSERT( tVisCluster->get_element_type() == fem::Element_Type::NONCONFORMAL_SIDESET,
+                    "Interpolation_Element::compute_nodal_QIs_nonconformal_side() - "
+                    "This function can only be called on nonconformal sideset clusters." );
+
+            const auto* const tNCSCluster = dynamic_cast< mtk::Nonconformal_Side_Cluster const * >( tVisCluster->get_mesh_cluster() );
+
+            // get the vertices' local coordinates and the indices on the respective mesh clusters (they are both ordered in the same way)
+            Matrix< IndexMat > const & tLeaderVisVertexIndices  = tNCSCluster->get_leader_vertex_indices_in_cluster();
+            Matrix< DDRMat > const &   tLeaderVertexLocalCoords = tNCSCluster->get_vertices_local_coordinates_wrt_interp_cell( mtk::Leader_Follower::LEADER );
+            //            uint const                 tNumSpatialDims          = tLeaderVertexLocalCoords.n_cols();
+
+            for ( auto const & tNodalPointPair : tNCSCluster->get_nodal_point_pairs() )
+            {
+                moris_index const &           tLeaderCellIndex   = tNodalPointPair.get_leader_cell_index();
+                Vector< moris_index > const & tLeaderNodeIndices = tNodalPointPair.get_leader_node_indices();
+                Matrix< DDRMat > const &      tLeaderCoordinates = tNodalPointPair.get_leader_coordinates();
+
+                moris_index const &      tFollowerCellIndex   = tNodalPointPair.get_follower_cell_index();
+                Matrix< DDRMat > const & tFollowerCoordinates = tNodalPointPair.get_follower_coordinates();
+
+                // prepare the geometry interpolators
+                auto const * tNCElement =
+                        dynamic_cast< Element_Nonconformal_Sideset const * >( tCellIndicesToElementMap.at( { tLeaderCellIndex, tFollowerCellIndex } ) );
+
+                tNCElement->init_ig_geometry_interpolator();
+
+                for ( size_t iNode = 0; iNode < tNodalPointPair.get_leader_node_indices().size(); iNode++ )
+                {
+                    // set vertex coordinates for field interpolator
+                    mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER )
+                            ->set_space_time_from_local_IG_point( tLeaderCoordinates.get_column( iNode ) );
+
+                    // the coordinate of the follower side is known from the mapper
+                    // it is not a IG point, but the method can still be used (a parametric point on the follower side geometry)
+                    mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )
+                            ->set_space_time_from_local_IG_point( tFollowerCoordinates.get_column( iNode ) );
+
+                    // set vertex coordinates for field interpolator of eigen vectors
+                    if ( mSet->mNumEigenVectors )
+                    {
+                        mSet->get_field_interpolator_manager_eigen_vectors( mtk::Leader_Follower::LEADER )
+                                ->set_space_time_from_local_IG_point( tLeaderCoordinates.get_column( iNode ) );
+                        mSet->get_field_interpolator_manager_eigen_vectors( mtk::Leader_Follower::FOLLOWER )
+                                ->set_space_time_from_local_IG_point( tFollowerCoordinates.get_column( iNode ) );
+                    }
+
+                    // loop over IQI
+                    for ( uint iIQI = 0; iIQI < tNumLocalIQIs; iIQI++ )
+                    {
+                        // get requested IQI
+                        const std::shared_ptr< IQI >& tReqIQI =
+                                mSet->get_requested_nodal_IQIs_for_visualization()( iIQI );
+
+                        // get IQI global index
+                        moris_index tGlobalIqiIndex =
+                                mSet->get_requested_nodal_IQIs_global_indices_for_visualization()( iIQI );
+
+                        // reset the requested IQI
+                        tReqIQI->reset_eval_flags();
+
+                        // compute quantity of interest at evaluation point
+                        Matrix< DDRMat > tQINodal( 1, 1, 0.0 );
+                        tReqIQI->compute_QI( tQINodal );
+
+                        // assemble the nodal QI value on the set
+                        // NOTE: output of the dbl. sided elements by the VIS mesh is defined on the leader side;
+                        // hence, the nodal value is outputted to the leader vertex
+                        ( *mSet->mSetNodalValues )( tLeaderNodeIndices( iNode ), tGlobalIqiIndex ) = tQINodal( 0 );
+                    }
+                }
+            }
+        }
 
         //------------------------------------------------------------------------------
 
         void
         Interpolation_Element::compute_nodal_QIs_double_sided( const uint aFemMeshIndex )
         {
-            // make sure this function is only called on double sided side clusters
-            MORIS_ASSERT(
-                    mFemCluster( aFemMeshIndex )->get_element_type() == fem::Element_Type::DOUBLE_SIDESET,
-                    "Interpolation_Element::compute_nodal_QIs_double_sided() - "
-                    "This function can only be called on double sided side clusters." );
+            // get number of active local IQIs
+            uint tNumLocalIQIs = mSet->get_number_of_requested_nodal_IQIs_for_visualization();
+
+            // skip if there are no IQIs to process
+            if ( tNumLocalIQIs == 0 )
+            {
+                return;
+            }
 
             // get the VIS vertex indices on the mesh cluster
             Matrix< IndexMat > tLeaderVisVertexIndices;
             Matrix< IndexMat > tFollowerVisVertexIndices;
+
             mFemCluster( aFemMeshIndex )
                     ->get_vertex_indices_in_cluster_for_visualization( tLeaderVisVertexIndices, mtk::Leader_Follower::LEADER );
             mFemCluster( aFemMeshIndex )
@@ -1338,23 +1478,23 @@ namespace moris
                 Matrix< DDRMat > tNodalPointFollowerLocalCoords = tFollowerVertexLocalCoords.get_row( iVertex );
 
                 // add the time local coordinate and set it to -1 (beginning of time slab)
-                tNodalPointLeaderLocalCoords.resize( 1, tNumSpatialDims + 1 ); // add time dimension
+                tNodalPointLeaderLocalCoords.resize( 1, tNumSpatialDims + 1 );    // add time dimension
                 tNodalPointFollowerLocalCoords.resize( 1, tNumSpatialDims + 1 );
-                tNodalPointLeaderLocalCoords( tNumSpatialDims ) = -1.0; // set time location to -1
+                tNodalPointLeaderLocalCoords( tNumSpatialDims )   = -1.0;    // set time location to -1
                 tNodalPointFollowerLocalCoords( tNumSpatialDims ) = -1.0;
 
                 // field interpolator takes the transpose
-                tNodalPointLeaderLocalCoords = trans( tNodalPointLeaderLocalCoords );
+                tNodalPointLeaderLocalCoords   = trans( tNodalPointLeaderLocalCoords );
                 tNodalPointFollowerLocalCoords = trans( tNodalPointFollowerLocalCoords );
 
                 // set vertex coordinates for field interpolators on the leader and follower sides
-                mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER  )->set_space_time( tNodalPointLeaderLocalCoords );
+                mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER )->set_space_time( tNodalPointLeaderLocalCoords );
                 mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )->set_space_time( tNodalPointFollowerLocalCoords );
 
                 // set vertex coordinates for field interpolator of eigen vectors
                 if ( mSet->mNumEigenVectors )
                 {
-                    mSet->get_field_interpolator_manager_eigen_vectors( mtk::Leader_Follower::LEADER  )
+                    mSet->get_field_interpolator_manager_eigen_vectors( mtk::Leader_Follower::LEADER )
                             ->set_space_time( tNodalPointLeaderLocalCoords );
                     mSet->get_field_interpolator_manager_eigen_vectors( mtk::Leader_Follower::FOLLOWER )
                             ->set_space_time( tNodalPointFollowerLocalCoords );
@@ -1362,9 +1502,6 @@ namespace moris
 
                 // get the current vertex's coordinates
                 moris_index tLeaderVertexIndex = tLeaderVisVertexIndices( iVertex );
-
-                // get number of active local IQIs
-                uint tNumLocalIQIs = mSet->get_number_of_requested_nodal_IQIs_for_visualization();
 
                 // loop over IQI
                 for ( uint iIQI = 0; iIQI < tNumLocalIQIs; iIQI++ )
@@ -1384,7 +1521,7 @@ namespace moris
                     Matrix< DDRMat > tQINodal( 1, 1, 0.0 );
                     tReqIQI->compute_QI( tQINodal );
 
-                    // assemble the nodal QI value on the set 
+                    // assemble the nodal QI value on the set
                     // NOTE: output of the dbl. sided elements by the VIS mesh is defined on the leader side; hence, the nodal value is outputted to the leader vertex
                     ( *mSet->mSetNodalValues )( tLeaderVertexIndex, tGlobalIqiIndex ) = tQINodal( 0 );
                 }
@@ -1481,7 +1618,8 @@ namespace moris
 
                     Matrix< DDRMat > tValues( 1, 1, 0.0 );
 
-                    MORIS_ASSERT( aFields( tGlobalIndex )->get_value( tIndex, 0 ) == MORIS_REAL_MIN, "elemental field values previously set." );
+                    MORIS_ASSERT( aFields( tGlobalIndex )->get_value( tIndex, 0 ) == MORIS_REAL_MIN,
+                            "elemental field values previously set." );
 
                     real tSpaceTimeVolume = 0.0;
 
@@ -1499,7 +1637,7 @@ namespace moris
 
             }    // end for: each requested IQIs for field output
 
-        }        // end function: Interpolation_Element::populate_fields()
+        }    // end function: Interpolation_Element::populate_fields()
 
         //------------------------------------------------------------------------------
     } /* namespace fem */

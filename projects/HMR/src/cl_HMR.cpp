@@ -20,10 +20,10 @@
 #include "cl_Map.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "op_times.hpp"           //LINALG/src
-#include "fn_trans.hpp"           //LINALG/src
-#include "fn_eye.hpp"             //LINALG/src
-#include "fn_unique.hpp"          //LINALG/src
+#include "op_times.hpp"     //LINALG/src
+#include "fn_trans.hpp"     //LINALG/src
+#include "fn_eye.hpp"       //LINALG/src
+#include "fn_unique.hpp"    //LINALG/src
 
 #include "cl_HMR_Database.hpp"    //HMR/src
 #include "cl_HMR_Background_Element_Base.hpp"
@@ -81,7 +81,7 @@ namespace moris::hmr
 
     // alternative constructor that uses parameter list
     HMR::HMR(
-            Parameter_List&                       aParameterList,
+            Parameter_List&                      aParameterList,
             std::shared_ptr< moris::Library_IO > aLibrary )
             : HMR( new Parameters( aParameterList, aLibrary ) )
     {
@@ -752,7 +752,7 @@ namespace moris::hmr
     void
     HMR::flag_elements_on_working_pattern(
             Vector< hmr::Element* >& aElements,
-            const uint             aMinRefinementLevel )
+            const uint               aMinRefinementLevel )
     {
         // get  working pattern
         uint tWorkingPattern = mParameters->get_working_pattern();
@@ -1393,7 +1393,7 @@ namespace moris::hmr
                 mDatabase->update_bspline_meshes( tPattern );
                 mDatabase->update_lagrange_meshes( tPattern );
             }
-        } // end for: each pattern which initial refinement is performed upon
+        }    // end for: each pattern which initial refinement is performed upon
 
         // call update in case there is no refinement for this pattern.
         // all meshes have to be updated in such that all meshes are updated with the maximal refined background mesh
@@ -1402,16 +1402,16 @@ namespace moris::hmr
 
         mDatabase->set_activation_pattern( tActivationPattern );
 
-    } // end function: HMR::perform_initial_refinement()
+    }    // end function: HMR::perform_initial_refinement()
 
     // ----------------------------------------------------------------------------
 
     void
     HMR::user_defined_flagging(
-            Vector< hmr::Element* >&  aCells,
-            Vector< hmr::Element* >&  aCandidates,
-            const Matrix< DDRMat >& aVertexValues,
-            uint                    aFunctionIndex )
+            Vector< hmr::Element* >& aCells,
+            Vector< hmr::Element* >& aCandidates,
+            const Matrix< DDRMat >&  aVertexValues,
+            uint                     aFunctionIndex )
     {
 
         // get number of elements from input mesh
@@ -1477,16 +1477,16 @@ namespace moris::hmr
 
         }    // end for: each element in input mesh
 
-    }        // end function: HMR::user_defined_flagging()
+    }    // end function: HMR::user_defined_flagging()
 
     // ----------------------------------------------------------------------------
 
     void
     HMR::user_defined_flagging(
-            Vector< hmr::Element* >&  aCells,
-            Vector< hmr::Element* >&  aCandidates,
-            const Matrix< DDRMat >& aVertexValues,
-            Refinement_Function     aRefinementFunction )
+            Vector< hmr::Element* >& aCells,
+            Vector< hmr::Element* >& aCandidates,
+            const Matrix< DDRMat >&  aVertexValues,
+            Refinement_Function      aRefinementFunction )
     {
 
         // get number of elements from input mesh
@@ -1566,7 +1566,7 @@ namespace moris::hmr
     void
     HMR::get_candidates_for_refinement(
             Vector< hmr::Element* >& aCandidates,
-            const uint             aLagrangeMeshIndex )
+            const uint               aLagrangeMeshIndex )
     {
         // reset candidate list
         aCandidates.clear();
@@ -1635,7 +1635,7 @@ namespace moris::hmr
     void
     HMR::get_candidates_for_refinement(
             Vector< hmr::Element* >& aCandidates,
-            Lagrange_Mesh_Base*    aMesh )
+            Lagrange_Mesh_Base*      aMesh )
     {
         // reset candidate list
         aCandidates.clear();
@@ -1697,7 +1697,7 @@ namespace moris::hmr
     void
     HMR::get_active_candidates_for_refinement(
             Vector< hmr::Element* >& aCandidates,
-            const uint             aLagrangeMeshIndex )
+            const uint               aLagrangeMeshIndex )
     {
         // reset candidate list
         aCandidates.clear();
@@ -1766,7 +1766,7 @@ namespace moris::hmr
     void
     HMR::get_active_candidates_for_refinement(
             Vector< hmr::Element* >& aCandidates,
-            Lagrange_Mesh_Base*    aMesh )
+            Lagrange_Mesh_Base*      aMesh )
     {
         // reset candidate list
         aCandidates.clear();
@@ -2316,11 +2316,11 @@ namespace moris::hmr
     //            // step 2: create union meshes and mappers
     //            // - - - - - - - - - - - - - - - - - - - - - -
     //            mtk::Mesh_Manager tMeshManager;
-    //            Cell< std::shared_ptr< Interpolation_Mesh_HMR > > tUnionInterpMeshes;
-    //            Cell< std::shared_ptr< Integration_Mesh_HMR > >   tUnionIntegMeshes;
-    //            Cell< std::shared_ptr< Interpolation_Mesh_HMR > > tInputInterpMeshes;
-    //            Cell< std::shared_ptr< Integration_Mesh_HMR > >   tInputIntegMeshes;
-    //            Cell< mapper::Mapper * > tMappers( tNumberOfMappers, nullptr );
+    //            Vector< std::shared_ptr< Interpolation_Mesh_HMR > > tUnionInterpMeshes;
+    //            Vector< std::shared_ptr< Integration_Mesh_HMR > >   tUnionIntegMeshes;
+    //            Vector< std::shared_ptr< Interpolation_Mesh_HMR > > tInputInterpMeshes;
+    //            Vector< std::shared_ptr< Integration_Mesh_HMR > >   tInputIntegMeshes;
+    //            Vector< mapper::Mapper * > tMappers( tNumberOfMappers, nullptr );
     //
     //            for( uint m=0; m<tNumberOfMappers; ++m )
     //            {
@@ -2625,11 +2625,11 @@ namespace moris::hmr
 
     void
     HMR::find_cells_intersected_by_levelset(
-            Vector< hmr::Element* >&  aCells,
-            Vector< hmr::Element* >&  aCandidates,
-            const Matrix< DDRMat >& aVertexValues,
-            const real              aLowerBound,
-            const real              aUpperBound )
+            Vector< hmr::Element* >& aCells,
+            Vector< hmr::Element* >& aCandidates,
+            const Matrix< DDRMat >&  aVertexValues,
+            const real               aLowerBound,
+            const real               aUpperBound )
     {
         // make sure that input makes sense
         MORIS_ASSERT( aLowerBound <= aUpperBound,
@@ -2680,11 +2680,11 @@ namespace moris::hmr
 
     void
     HMR::find_low_level_cells_intersected_by_levelset(
-            Vector< hmr::Element* >&  aCells,
-            Vector< hmr::Element* >&  aCandidates,
-            const Matrix< DDRMat >& aVertexValues,
-            const real              aLowerBound,
-            const real              aUpperBound )
+            Vector< hmr::Element* >& aCells,
+            Vector< hmr::Element* >& aCandidates,
+            const Matrix< DDRMat >&  aVertexValues,
+            const real               aLowerBound,
+            const real               aUpperBound )
     {
         // make sure that input makes sense
         MORIS_ASSERT( aLowerBound <= aUpperBound,
@@ -2740,10 +2740,10 @@ namespace moris::hmr
 
     void
     HMR::find_cells_within_levelset(
-            Vector< hmr::Element* >&  aCells,
-            Vector< hmr::Element* >&  aCandidates,
-            const Matrix< DDRMat >& aVertexValues,
-            const uint              aUpperBound )
+            Vector< hmr::Element* >& aCells,
+            Vector< hmr::Element* >& aCandidates,
+            const Matrix< DDRMat >&  aVertexValues,
+            const uint               aUpperBound )
     {
         // make sure that the field is a scalar field
         MORIS_ASSERT( aVertexValues.n_cols() == 1, "find_cells_within_levelset() can only be performed on scalar fields" );

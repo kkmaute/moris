@@ -29,4 +29,3 @@ function save_matrix_to_binary( aMatrix, aPath )
     fclose(tFileID);
 end
 
-
