@@ -79,7 +79,6 @@ namespace moris::hmr
                         "hmr::Factory::create_background_mesh(): unknown number of dimensions %u",
                         (unsigned int)tNumberOfDimensions );
                 exit( -1 );
-                break;
             }
         }
 

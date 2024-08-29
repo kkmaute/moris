@@ -19,101 +19,6 @@
 
 namespace moris::hmr
 {
-    //--------------------------------------------------------------------------------
-
-    // creates a parameter list with default inputs
-    void
-    load_hmr_parameter_list_from_xml( const std::string& aFilePath, Parameter_List& aParameterList )
-    {
-        // create temporary Parser object
-        XML_Parser          tParser( aFilePath );
-        Vector< std::string > tFirst;
-        Vector< std::string > tSecond;
-
-        tParser.get_keys_from_subtree( "moris.hmr", "parameters", 0, tFirst, tSecond );
-
-        for ( uint k = 0; k < tFirst.size(); ++k )
-        {
-            std::string tKey = tFirst( k );
-
-            if ( tKey == "number_of_elements_per_dimension" )
-            {
-                aParameterList.set( "number_of_elements_per_dimension", tSecond( k ) );
-            }
-            else if ( tKey == "processor_decomposition_method" )
-            {
-                aParameterList.set( "processor_decomposition_method", (sint)std::stoi( tSecond( k ) ) );
-            }
-            if ( tKey == "processor_dimensions" )
-            {
-                aParameterList.set( "processor_dimensions", tSecond( k ) );
-            }
-            else if ( tKey == "domain_dimensions" )
-            {
-                aParameterList.set( "domain_dimensions", tSecond( k ) );
-            }
-            else if ( tKey == "domain_offset" )
-            {
-                aParameterList.set( "domain_offset", tSecond( k ) );
-            }
-            else if ( tKey == "domain_sidesets" )
-            {
-                aParameterList.set( "domain_sidesets", tSecond( k ) );
-            }
-            else if ( tKey == "refinement_buffer" )
-            {
-                aParameterList.set( "refinement_buffer", (sint)std::stoi( tSecond( k ) ) );
-            }
-            else if ( tKey == "staircase_buffer" )
-            {
-                aParameterList.set( "staircase_buffer", (sint)std::stoi( tSecond( k ) ) );
-            }
-            else if ( tKey == "bspline_orders" )
-            {
-                aParameterList.set( "bspline_orders", tSecond( k ) );
-            }
-            else if ( tKey == "lagrange_orders" )
-            {
-                aParameterList.set( "lagrange_orders", tSecond( k ) );
-            }
-            //            else if( tKey == "initial_refinement" )
-            //            {
-            //                aParameterList.set( "initial_refinement", ( sint ) std::stoi( tSecond( k ) ) );
-            //            }
-            else if ( tKey == "severity_level" )
-            {
-                aParameterList.set( "severity_level", (sint)std::stoi( tSecond( k ) ) );
-            }
-            else if ( tKey == "truncate_bsplines" )
-            {
-                aParameterList.set( "truncate_bsplines", (sint)string_to_bool( tSecond( k ) ) );
-            }
-            else if ( tKey == "additional_lagrange_refinement" )
-            {
-                aParameterList.set( "additional_lagrange_refinement", (sint)std::stoi( tSecond( k ) ) );
-            }
-            else if ( tKey == "max_refinement_level" )
-            {
-                aParameterList.set( "max_refinement_level", (sint)std::stoi( tSecond( k ) ) );
-            }
-            else if ( tKey == "use_multigrid" )
-            {
-                aParameterList.set( "use_multigrid", (sint)string_to_bool( tSecond( k ) ) );
-            }
-            else if ( tKey == "use_refinement_interrelation" )
-            {
-                aParameterList.set( "use_refinement_interrelation", (sint)string_to_bool( tSecond( k ) ) );
-            }
-            else if ( tKey == "renumber_lagrange_nodes" )
-            {
-                aParameterList.set( "renumber_lagrange_nodes", (sint)string_to_bool( tSecond( k ) ) );
-            }
-            else if ( tKey == "use_number_aura" )
-            {
-                aParameterList.set( "use_number_aura", (sint)string_to_bool( tSecond( k ) ) );
-            }
-        }
-    }
 
     //--------------------------------------------------------------------------------
 
@@ -168,48 +73,48 @@ namespace moris::hmr
 
             if ( tOutputMeshSize == 1 )
             {
-                mOutputMesheNames.resize( 1, "HMR_Mesh_Main" );
+                mOutputMeshNames.resize( 1, "HMR_Mesh_Main" );
                 mOutputNameToIndexMap[ "HMR_Mesh_Main" ] = mOutputMeshes( 0 )( 0 );
             }
             else if ( tOutputMeshSize == 2 )
             {
                 uint tNumSecOutputMeshes = mOutputMeshes( 1 ).numel();
-                mOutputMesheNames.resize( 1 + tNumSecOutputMeshes );
+                mOutputMeshNames.resize( 1 + tNumSecOutputMeshes );
                 mOutputNameToIndexMap[ "HMR_Mesh_Main" ] = mOutputMeshes( 0 )( 0 );
 
-                mOutputMesheNames( 1 ) = "HMR_Mesh_Main";
+                mOutputMeshNames( 1 ) = "HMR_Mesh_Main";
                 for ( uint Ik = 1; Ik < tNumSecOutputMeshes + 1; Ik++ )
                 {
                     std::string tName              = "HMR_Sec_Mesh" + std::to_string( Ik );
-                    mOutputMesheNames( Ik )        = tName;
+                    mOutputMeshNames( Ik )        = tName;
                     mOutputNameToIndexMap[ tName ] = mOutputMeshes( 1 )( Ik - 1 );
                 }
             }
         }
         else
         {
-            string_to_cell( aParameterList.get< std::string >( "lagrange_output_mesh_names" ), mOutputMesheNames );
+            string_to_cell( aParameterList.get< std::string >( "lagrange_output_mesh_names" ), mOutputMeshNames );
 
             uint tOutputMeshSize = mOutputMeshes.size();
 
             if ( tOutputMeshSize == 1 )
             {
-                MORIS_ERROR( mOutputMesheNames.size() == 1,
+                MORIS_ERROR( mOutputMeshNames.size() == 1,
                         "Number of output mesh names must be the same than number of output meshes" );
 
-                mOutputNameToIndexMap[ mOutputMesheNames( 0 ) ] = mOutputMeshes( 0 )( 0 );
+                mOutputNameToIndexMap[ mOutputMeshNames( 0 ) ] = mOutputMeshes( 0 )( 0 );
             }
             else if ( tOutputMeshSize == 2 )
             {
                 uint tNumSecOutputMeshes = mOutputMeshes( 1 ).numel();
-                MORIS_ERROR( mOutputMesheNames.size() == ( 1 + tNumSecOutputMeshes ),
+                MORIS_ERROR( mOutputMeshNames.size() == ( 1 + tNumSecOutputMeshes ),
                         "Number of output mesh names must be the same than number of output meshes" );
 
-                mOutputNameToIndexMap[ mOutputMesheNames( 0 ) ] = mOutputMeshes( 0 )( 0 );
+                mOutputNameToIndexMap[ mOutputMeshNames( 0 ) ] = mOutputMeshes( 0 )( 0 );
 
                 for ( uint Ik = 0; Ik < mOutputMeshes( 1 ).numel(); Ik++ )
                 {
-                    mOutputNameToIndexMap[ mOutputMesheNames( Ik + 1 ) ] = mOutputMeshes( 1 )( Ik );
+                    mOutputNameToIndexMap[ mOutputMeshNames( Ik + 1 ) ] = mOutputMeshes( 1 )( Ik );
                 }
             }
         }
@@ -288,25 +193,10 @@ namespace moris::hmr
     //--------------------------------------------------------------------------------
 
     void
-    Parameters::error( const std::string& aMessage ) const
-    {
-        if ( par_rank() == 0 )
-        {
-            MORIS_ERROR( false, "%s", aMessage.c_str() );
-        }
-    }
-
-    //--------------------------------------------------------------------------------
-
-    void
     Parameters::error_if_locked( const std::string& aFunctionName ) const
     {
-        if ( mParametersAreLocked )
-        {
-            std::string tMessage = "Error: calling function Parameters->" + aFunctionName + "() is forbidden since parameters are locked.";
-
-            this->error( tMessage );
-        }
+        MORIS_ERROR( not mParametersAreLocked,
+                "Error: calling function Parameters->%s() is forbidden since parameters are locked.", aFunctionName.c_str() );
     }
 
     //--------------------------------------------------------------------------------
@@ -374,21 +264,6 @@ namespace moris::hmr
         this->error_if_locked( "set_processor_decomp_method" );
 
         mProcDecompMethod = aProcDecompMethod;
-    }
-
-    //--------------------------------------------------------------------------------
-
-    /**
-     * Sets processor dimensions.  Only matters for "user defined" decomp method
-     * only, mDecompMethod==0.
-     */
-    void
-    Parameters::set_processor_dimensions( const Matrix< DDUMat >& aProcessorDimensions )
-    {
-        // test if calling this function is allowed
-        this->error_if_locked( "set_processor_dimensions" );
-
-        mProcessorDimensions = aProcessorDimensions;
     }
 
     //--------------------------------------------------------------------------------

@@ -40,9 +40,6 @@ namespace moris::hmr
         // create background mesh object and initialize it with the coarsest level
         mBackgroundMesh = tFactory.create_background_mesh();
 
-        // fixme: this might already be done in set_activation_pattern
-        // during database update
-
         // update element table
         mBackgroundMesh->collect_active_elements();
 
@@ -63,8 +60,22 @@ namespace moris::hmr
     // -----------------------------------------------------------------------------
 
     Database::Database( const std::string& aPath )
-            : mParameters( create_hmr_parameters_from_hdf5_file( aPath ) )
     {
+        // create file object
+        File tHDF5;
+
+        // open file on disk
+        tHDF5.open( aPath );
+
+        // create new parameter pointer
+        mParameters = new Parameters;
+
+        // load settings
+        tHDF5.load_settings( mParameters );
+
+        // close file
+        tHDF5.close();
+
         // create factory
         Factory tFactory( mParameters );
 
@@ -77,7 +88,7 @@ namespace moris::hmr
             mBackgroundMesh->reset_pattern( k );
         }
 
-        this->load_pattern_from_hdf5_file( aPath, false );
+        this->load_pattern_from_hdf5_file( aPath );
 
         // initialize mesh objects
         this->create_meshes();
@@ -86,44 +97,6 @@ namespace moris::hmr
 
         // activate input pattern
         this->set_activation_pattern( mParameters->get_lagrange_input_pattern() );
-    }
-
-    // -----------------------------------------------------------------------------
-
-    Database::Database(
-            const std::string& aInputPath,
-            const std::string& aOutputPath )
-            : mParameters( create_hmr_parameters_from_hdf5_file( aOutputPath ) )
-    {
-        MORIS_ERROR( false, " Database(); constructor not updated yet" );
-        // create factory
-        Factory tFactory( mParameters );
-
-        // create background mesh object
-        mBackgroundMesh = tFactory.create_background_mesh();
-
-        // reset all patterns
-        for ( uint k = 0; k < gNumberOfPatterns; ++k )
-        {
-            mBackgroundMesh->reset_pattern( k );
-        }
-
-        this->load_pattern_from_hdf5_file( aInputPath, false );
-
-        this->load_pattern_from_hdf5_file( aOutputPath, true );
-
-        // create union mesh
-        //            this->create_union_pattern();  // FIXME
-
-        mHaveRefinedAtLeastOneElement = true;
-
-        // initialize mesh objects
-        this->create_meshes();
-
-        mAdditionalLagrangeMeshes.resize( gNumberOfPatterns );
-
-        // activate input pattern
-        this->set_activation_pattern( mParameters->get_lagrange_output_pattern() );
     }
 
     // -----------------------------------------------------------------------------
@@ -161,8 +134,7 @@ namespace moris::hmr
 
     void
     Database::load_pattern_from_hdf5_file(
-            const std::string& aPath,
-            const bool         aMode )
+            const std::string& aPath )
     {
         // create file object
         File tHDF5;
@@ -171,7 +143,7 @@ namespace moris::hmr
         tHDF5.open( aPath );
 
         // load input pattern into file
-        tHDF5.load_refinement_pattern( mBackgroundMesh, aMode );
+        tHDF5.load_refinement_pattern( mBackgroundMesh );
 
         // close hdf5 file
         tHDF5.close();
@@ -1046,9 +1018,6 @@ namespace moris::hmr
         {
             mBackgroundMesh->perform_refinement( aActivePattern );
         }
-
-        // update max level
-        tMaxLevel = mBackgroundMesh->get_max_level();
 
         // tidy up working pattern
         mBackgroundMesh->reset_pattern( tWorkingPattern );

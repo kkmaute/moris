@@ -92,15 +92,6 @@ namespace moris::hmr
         // -----------------------------------------------------------------------------
 
         /**
-         * alternative constructor which loads two patterns
-         */
-        Database(
-                const std::string& aInputPath,
-                const std::string& aOutputPath );
-
-        // -----------------------------------------------------------------------------
-
-        /**
          * destructor
          */
         ~Database();
@@ -108,8 +99,7 @@ namespace moris::hmr
         // -----------------------------------------------------------------------------
 
         void load_pattern_from_hdf5_file(
-                const std::string& aPath,
-                const bool         aMode );
+                const std::string& aPath );
 
         // -----------------------------------------------------------------------------
 
@@ -159,8 +149,8 @@ namespace moris::hmr
          * returns true if at least one element has been refined
          */
         void perform_refinement(
-                const uint aActivePattern,
-                const bool aResetPattern = true );
+                uint aActivePattern,
+                bool aResetPattern = true );
 
         // -----------------------------------------------------------------------------
 
@@ -168,10 +158,10 @@ namespace moris::hmr
          * aTarget must be a refined variant of aSource
          */
         void interpolate_field(
-                uint                           aSourcePattern,
-                const std::shared_ptr< Field > aSource,
-                uint                           aTargetPattern,
-                std::shared_ptr< Field >       aTarget );
+                uint                     aSourcePattern,
+                std::shared_ptr< Field > aSource,
+                uint                     aTargetPattern,
+                std::shared_ptr< Field > aTarget );
 
         // -----------------------------------------------------------------------------
 
@@ -331,7 +321,7 @@ namespace moris::hmr
 
         // -----------------------------------------------------------------------------
 
-        void create_extra_refinement_buffer_for_level( const uint aLevel );
+        void create_extra_refinement_buffer_for_level( uint aLevel );
 
         // -----------------------------------------------------------------------------
 

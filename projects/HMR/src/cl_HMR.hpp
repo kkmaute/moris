@@ -141,15 +141,6 @@ namespace moris::hmr
         // -----------------------------------------------------------------------------
 
         /**
-         * alternative constructor which loads input and output patterns from path
-         */
-        HMR(
-                const std::string& aInPath,
-                const std::string& aOutPath );
-
-        // -----------------------------------------------------------------------------
-
-        /**
          * default destructor of HMR
          */
         ~HMR();

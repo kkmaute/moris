@@ -109,35 +109,33 @@ namespace moris::hmr
 
     // -----------------------------------------------------------------------------
 
-    HMR::HMR(
-            const std::string& aInPath,
-            const std::string& aOutPath )
-    {
-        MORIS_ERROR( false, "HMR(); constructor not updated yet" );
-        mDatabase = std::make_shared< Database >( aInPath, aOutPath );
-
-        // set shared pointer of database to itself
-        mDatabase->set_parameter_owning_flag();
-
-        // set parameters of HMR object
-        mParameters = mDatabase->get_parameters();
-
-        // mDatabase->calculate_t_matrices_for_input();
-
-        // create union of input and output
-        //            mDatabase->create_union_pattern();
-
-        // update database
-        mDatabase->update_bspline_meshes();
-        mDatabase->update_lagrange_meshes();
-
-        // finalize database
-        this->finalize();
-
-        this->create_input_and_output_meshes();
-
-        mDatabase->set_activation_pattern( mParameters->get_lagrange_output_pattern() );
-    }
+//    HMR::HMR( const std::string& aPath )
+//    {
+//        // Create parameters
+//        mParameters = new Parameters;
+//
+//        // create file object
+//        File tHDF5;
+//
+//        // open file on disk
+//        tHDF5.open( aPath );
+//
+//        // load settings
+//        tHDF5.load_settings( mParameters );
+//
+//        // close file
+//        tHDF5.close();
+//
+//        // Create database
+//        mDatabase = std::make_shared< Database >( mParameters );
+//
+//        // set shared pointer of database to itself
+//        mDatabase->set_parameter_owning_flag();
+//
+//        this->create_input_and_output_meshes();
+//
+//        mDatabase->calculate_t_matrices_for_input();
+//    }
 
     // -----------------------------------------------------------------------------
 
@@ -313,7 +311,7 @@ namespace moris::hmr
         if ( not mParameters->get_restart_refinement_pattern_file().empty() )
         {
             // load refinement pattern from file. 2nd argument is just dummy for now.
-            mDatabase->load_pattern_from_hdf5_file( mParameters->get_restart_refinement_pattern_file(), true );
+            mDatabase->load_pattern_from_hdf5_file( mParameters->get_restart_refinement_pattern_file() );
 
             // update database
             mDatabase->update_bspline_meshes();

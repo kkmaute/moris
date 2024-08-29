@@ -214,7 +214,7 @@ namespace moris::hmr
                 mStatus );
 
         // set verbose flag
-        aParameters->set_severity_level( tValSint );
+        moris::hmr::Parameters::set_severity_level( tValSint );
 
         // load multigrid flag
         load_scalar_from_hdf5_file( mFileID,
@@ -629,157 +629,8 @@ namespace moris::hmr
 
     //------------------------------------------------------------------------------
 
-    void File::save_refinement_pattern(
-            Lagrange_Mesh_Base               * aLagrangeMesh,
-            const uint                         aDiscretizationMeshIndex,
-            Matrix< DDLUMat >                & aElementCounterPerLevelAndPattern,
-            Vector< Matrix< DDLUMat > > & aElementPerPattern )
-    {
-        Background_Mesh_Base * aBackgroundMesh = aLagrangeMesh->get_background_mesh();
-        // step 1: count how many elements need are refined on each level
-        uint tMaxLevel = aBackgroundMesh->get_max_level();
-
-        moris::Matrix< DDUMat > tPatterns( 2, 1 );
-
-        uint tSourceLagrangePattern = aLagrangeMesh->get_activation_pattern();
-        uint tSourceBSplinePattern = aLagrangeMesh ->get_bspline_pattern( aDiscretizationMeshIndex );
-
-        moris::Matrix< DDUMat > tPatternList;
-
-        if( tSourceLagrangePattern == tSourceBSplinePattern )
-        {
-            tPatternList = { {tSourceLagrangePattern} };
-        }
-        else
-        {
-            tPatternList = { {tSourceLagrangePattern}, { tSourceBSplinePattern } };
-        }
-
-        uint tNumPattern = tPatternList.numel();
-
-        // element counter
-        aElementCounterPerLevelAndPattern.set_size( tMaxLevel+1, tNumPattern, 0 );
-
-        // collect all elements that are flagged for refinement
-        for( uint l = 0; l < tMaxLevel; ++l )
-        {
-            // cell which contains elements
-            Vector< Background_Element_Base* > tElements;
-
-            // collect elements from this level
-            aBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tElements );
-
-            // loop over all elements
-            for( auto tElement : tElements )
-            {
-                for( uint Ik = 0; Ik < tNumPattern; ++Ik )
-                {
-                    // test if B-Spline Element is refined
-                    if( tElement->is_refined( tPatternList( Ik ) ) )
-                    {
-                        // increment counter
-                        ++aElementCounterPerLevelAndPattern ( l, Ik );
-                    }
-                }
-            }
-        }
-
-        aElementPerPattern.resize( tNumPattern );
-        Vector< luint > tElementPerPatternCount( tNumPattern, 0 );
-
-        for( uint Ik = 0; Ik < tNumPattern; ++Ik )
-        {
-            aElementPerPattern( Ik ).set_size( sum( aElementCounterPerLevelAndPattern.get_column( Ik ) ) , 1 );
-        }
-
-        for( uint l = 0; l < tMaxLevel; ++l )
-        {
-            // cell which contains elements
-            Vector< Background_Element_Base* > tElements;
-
-            // collect elements from this level
-            aBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tElements );
-
-            // loop over all elements
-            for( Background_Element_Base * tElement : tElements )
-            {
-                for( uint Ik = 0; Ik < tNumPattern; ++Ik )
-                {
-                    // test if element is refined
-                    if( tElement->is_refined( tPatternList( Ik ) ) )
-                    {
-                        aElementPerPattern( Ik )( tElementPerPatternCount( Ik )++ ) = tElement->get_hmr_id();
-                    }
-                }
-            }
-        }
-    }
-
-    //------------------------------------------------------------------------------
-
     void File::load_refinement_pattern(
-            Background_Mesh_Base             * aMesh,
-            Matrix< DDLUMat >                & aElementCounterPerLevelAndPattern,
-            Vector< Matrix< DDLUMat > > & aElementPerPattern)
-    {
-        uint tNumPattern = aElementPerPattern.size();
-
-        Matrix< DDUMat > tPatternListUniqueMat( tNumPattern, 1 );
-        tPatternListUniqueMat( 0 ) = 5;
-        if( tNumPattern == 2 )
-        {
-            tPatternListUniqueMat( 1 ) = 6;
-        }
-
-        // get number of levels
-        uint tNumberOfLevels = aElementCounterPerLevelAndPattern.n_rows();
-
-        for(uint Ik = 0; Ik<tNumPattern; Ik++)
-        {
-            // reset counter
-            luint tCount = 0;
-
-            // select B-Spline pattern
-            aMesh->set_activation_pattern( tPatternListUniqueMat( Ik ) );
-
-            // loop over all levels
-            for( uint l=0; l<tNumberOfLevels; ++l )
-            {
-                // cell which contains elements
-                Vector< Background_Element_Base* > tElements;
-
-                // collect elements from this level
-                aMesh->collect_elements_on_level_within_proc_domain( l, tElements );
-
-                // create a map with ids
-                map< moris_id, luint > tMap;
-
-                luint j = 0;
-                for( Background_Element_Base* tElement : tElements )
-                {
-                    tMap[ tElement->get_hmr_id() ] = j++;
-                }
-
-                luint tNumberOfElements = aElementCounterPerLevelAndPattern( l, Ik );
-
-                for( luint k=0; k<tNumberOfElements; ++k )
-                {
-                    tElements( tMap.find( aElementPerPattern( Ik )( tCount++ ) ) )->put_on_refinement_queue();
-                }
-
-                // refine mesh
-                aMesh->perform_refinement( tPatternListUniqueMat( Ik ) );
-            }
-        }
-
-        aMesh->update_database();
-    }
-
-    //------------------------------------------------------------------------------
-
-    void File::load_refinement_pattern(
-            Background_Mesh_Base * aMesh,
-            const bool             aMode )
+            Background_Mesh_Base * aMesh )
     {
         Matrix< DDUMat > tPatternListUniqueMat;
         load_matrix_from_hdf5_file( mFileID,
@@ -859,57 +710,6 @@ namespace moris::hmr
         }
 
         aMesh->update_database();
-    }
-
-    //-------------------------------------------------------------------------------
-
-    std::string File::parralize_filename( const std::string & aPath )
-    {
-        // test if running in parallel mode
-        if ( par_size() > 1 )
-        {
-            // get file extesion
-            auto tFileExt = aPath.substr( aPath.find_last_of("."),
-                    aPath.length() );
-
-            // get base path
-            auto tBasePath = aPath.substr( 0, aPath.find_last_of(".") );
-
-            // add proc number to path
-            std::string aParallelPath = tBasePath + "_" +  std::to_string( par_rank() ) + tFileExt;
-            return aParallelPath;
-        }
-        else
-        {
-            // do not modify path
-            return aPath;
-        }
-    }
-
-    //-------------------------------------------------------------------------------
-
-    /**
-     * free function needed by loading constructor
-     */
-    Parameters * create_hmr_parameters_from_hdf5_file( const std::string & aPath )
-    {
-        // create file object
-        File tHDF5;
-
-        // open file on disk
-        tHDF5.open( aPath );
-
-        // create new parameter pointer
-        Parameters * aParameters = new Parameters;
-
-        // load settings
-        tHDF5.load_settings( aParameters );
-
-        // close file
-        tHDF5.close();
-
-        // return pointer
-        return aParameters;
     }
 
 } /* namespace moris */

@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_HMR_CL_HMR_PARAMETERS_HPP_
-#define SRC_HMR_CL_HMR_PARAMETERS_HPP_
+#pragma once
 
 #include <string>
 #include <cstdio>
@@ -47,13 +46,6 @@ namespace moris::hmr
             std::shared_ptr< mtk::Field > aField,
             uint                          tActivationPattern,
             uint&                         aMaxLevel );
-
-    // -----------------------------------------------------------------------------
-
-    // fixme: to be deleted soon
-    // creates a parameter list with default inputs
-    void load_hmr_parameter_list_from_xml( const std::string& aFilePath,
-            Parameter_List&                                   aParameterList );
 
     //--------------------------------------------------------------------------------
 
@@ -114,10 +106,6 @@ namespace moris::hmr
         //! defines which B-Spline mesh is associated with which lagrange mesh
         Vector< Matrix< DDSMat > > mLagrangeToBSplineMesh;
 
-        //! maps input orders with B-Splines
-        //           Matrix< DDUMat> mBSplineInputMap;
-        //           Matrix< DDUMat> mBSplineOutputMap;
-
         //! default input pattern     //FIXME delete these
         const uint mBSplineInputPattern  = 0;
         const uint mLagrangeInputPattern = 1;
@@ -132,18 +120,9 @@ namespace moris::hmr
         //! default pattern for iterative refinement
         uint mWorkingPattern = gNumberOfPatterns - 2;
 
-        //! default pattern for output refinement
-        //           const      uint mRefinedOutputPattern = 5;
-
-        //! Map Lagrange Meshes that are used for the unity meshes
-        //! position 0: first order,
-        //! position 1: second order,
-        //! position 2: third order
-        Matrix< DDUMat > mUnionMeshes;
-
         //! Lagrange Meshes that are used for the output meshes
         Vector< Matrix< DDUMat > > mOutputMeshes     = { { { 0 } } };
-        Vector< std::string >      mOutputMesheNames = { "" };
+        Vector< std::string >      mOutputMeshNames  = { "" };
 
         moris::map< std::string, moris_index > mOutputNameToIndexMap;
 
@@ -166,15 +145,15 @@ namespace moris::hmr
 
         bool mAdvancedTMatrices = false;
 
-        std::string mWriteBackgroundMesh             = "";
-        std::string mWriteOutputLagrangeMesh         = "";
-        std::string mWriteOutputLagrangeMeshToExodus = "";
+        std::string mWriteBackgroundMesh;
+        std::string mWriteOutputLagrangeMesh;
+        std::string mWriteOutputLagrangeMeshToExodus;
 
-        std::string mBasisFunctionVtkFileName = "";
+        std::string mBasisFunctionVtkFileName;
 
         bool mWriteRefinementPatternFileFlag = false;
 
-        std::string mRestartfromRefinedPattern = "";
+        std::string mRestartfromRefinedPattern;
 
         //! maximum level for refinement. Default value is specified
         //! by global constant
@@ -232,38 +211,23 @@ namespace moris::hmr
         }
 
         //--------------------------------------------------------------------------------
+
         /**
-         * sets processor dimensions for manually defined processor decomposition
-         * method, (mProcDecompMethod==3). Matters for this case only.
-         *
-         * @param[in] aProcessorDimensions Matrix< DDUMat >
-         *
-         * @return void
-         */
-        void set_processor_dimensions( const Matrix< DDUMat >& aProcessorDimensions );
-
-        //--------------------------------------------------------------------------------
-
-        /*
-         * trivial constructor
-         */
-        Parameters(){};
-
-        //--------------------------------------------------------------------------------
-
-        /*
-         * parameter list constructor
+         * Constructor that loads parameters from a library
          */
         Parameters( Parameter_List&                  aParameterList,
                 std::shared_ptr< moris::Library_IO > aLibrary );
 
-        //--------------------------------------------------------------------------------
+        /**
+         * Trivial constructor
+         */
+        Parameters() = default;
 
-        /*
+        /**
          * trivial destructor
          */
-        ~Parameters(){};
-        //--------------------------------------------------------------------------------
+        ~Parameters() = default;
+
         /**
          * prints user settings passed to HMR
          *
@@ -279,16 +243,16 @@ namespace moris::hmr
          * @param[in] aSwitch    true or false
          * @return void
          */
-        void
-        set_severity_level( const sint aSwitch )
+        static void
+        set_severity_level( sint aSwitch )
         {
             gLogger.set_severity_level( aSwitch );
         }
 
         //--------------------------------------------------------------------------------
 
-        sint
-        get_severity_level() const
+        static sint
+        get_severity_level()
         {
             return gLogger.get_severity_level();
         };
@@ -487,7 +451,7 @@ namespace moris::hmr
          * returns an entry of mBSplineOrders
          */
         void
-        set_lagrange_to_bspline_mesh( const Vector< Matrix< DDSMat > > aLagrangeToBSplineMesh )
+        set_lagrange_to_bspline_mesh( const Vector< Matrix< DDSMat > >& aLagrangeToBSplineMesh )
         {
             mLagrangeToBSplineMesh = aLagrangeToBSplineMesh;
         }
@@ -518,16 +482,6 @@ namespace moris::hmr
         get_number_of_lagrange_meshes() const
         {
             return mLagrangeOrders.length();
-        }
-        //--------------------------------------------------------------------------------
-
-        /**
-         * returns the index of the defined Lagrange union mesh for a specified order
-         */
-        uint
-        get_union_mesh( uint aOrder ) const
-        {
-            return mUnionMeshes( aOrder - 1 );
         }
 
         //--------------------------------------------------------------------------------
@@ -566,7 +520,7 @@ namespace moris::hmr
             // test if calling this function is allowed
             this->error_if_locked( "set_output_meshes_names" );
 
-            mOutputMesheNames = aOutputMesheNames;
+            mOutputMeshNames = aOutputMesheNames;
         }
 
         //--------------------------------------------------------------------------------
@@ -577,7 +531,7 @@ namespace moris::hmr
         const Vector< std::string >&
         get_output_mesh_names() const
         {
-            return mOutputMesheNames;
+            return mOutputMeshNames;
         }
 
         //--------------------------------------------------------------------------------
@@ -610,7 +564,7 @@ namespace moris::hmr
         /**
          * checks if this mesh index belongs to an output mesh
          */
-        bool is_output_mesh( const uint aMeshIndex ) const;
+        bool is_output_mesh( uint aMeshIndex ) const;
 
         //--------------------------------------------------------------------------------
 
@@ -1353,12 +1307,6 @@ namespace moris::hmr
         //-------------------------------------------------------------------------------
 
       private:
-        //-------------------------------------------------------------------------------
-
-        /**
-         * returns an error message for an invalid parameter
-         */
-        void error( const std::string& aMessage ) const;
 
         //-------------------------------------------------------------------------------
 
@@ -1390,5 +1338,3 @@ namespace moris::hmr
     }; /* Parameters */
 
 }    // namespace moris::hmr
-
-#endif /* SRC_HMR_CL_HMR_PARAMETERS_HPP_ */
