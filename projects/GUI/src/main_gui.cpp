@@ -21,14 +21,18 @@ namespace moris
     {
         QString tFilePath = get_moris_file_path();
 
-        // load the parameter list from the xml file
-        mLibrary.load_parameter_list( tFilePath.toStdString(), File_Type::XML_FILE );
+        if ( tFilePath.isEmpty() )
+        {
+            mLibrary.create_new_module_parameterlist();
+        }
+        else
+        {
+            // load the parameter list from the xml file
+            mLibrary.load_parameter_list( tFilePath.toStdString(), File_Type::XML_FILE );
 
-        // Update mParameterLists (sitting in cl_Library_IO) with the parameter lists from the xml file
-        mLibrary.load_parameters_from_xml();
-
-        // Get mParameterLists from cl_Library_IO
-        // mLibrary.get_parameter_lists() = mLibrary.get_parameter_lists();
+            // Update mParameterLists (sitting in cl_Library_IO) with the parameter lists from the xml file
+            mLibrary.load_parameters_from_xml();
+        }
 
         //  mLayout is the main layout of the GUI
         //  mSidePanel is the side panel layout where the tree widget and buttons are placed
@@ -184,7 +188,6 @@ namespace moris
                 {
                     if ( mLibrary.get_parameter_lists()( iRoot )( iChildren ).size() > 1 )
                     {
-                        mTreeWidgetChildren[ iRoot ][ iChildren ]->setSubFormCheck( true );
                         for ( uint i = 0; i < mLibrary.get_parameter_lists()( iRoot )( iChildren ).size(); i++ )
                         {
                             add_project( iRoot, iChildren, i );
@@ -192,9 +195,16 @@ namespace moris
                     }
                     else
                     {
-                        // Adding the parameter_list elements to all the forms and setting the visibility to false
-                        mTreeWidgetChildren[ iRoot ][ iChildren ]->add_elements( mLibrary.get_parameter_lists()( iRoot )(iChildren)( 0 ) );
-                        mTreeWidgetChildren[ iRoot ][ iChildren ]->setCountProps( 1 );
+                        if ( iRoot == (uint)( Parameter_List_Type::FEM ) )
+                        {
+                            mTreeWidgetChildren[ iRoot ][ iChildren ]->setSubFormCheck( true );
+                        }
+                        else
+                        {
+                            // Adding the parameter_list elements to all the forms and setting the visibility to false
+                            mTreeWidgetChildren[ iRoot ][ iChildren ]->add_elements( mLibrary.get_parameter_lists()( iRoot )(iChildren)( 0 ) );
+                            mTreeWidgetChildren[ iRoot ][ iChildren ]->setCountProps( 1 );
+                        }
                     }
                     mTreeWidgetChildren[ iRoot ][ iChildren ]->set_form_visible( false );
                 }
@@ -471,10 +481,10 @@ namespace moris
                 break;
             }
         }
+        mTreeWidgetChildren[ aRoot ][ aChild ]->setSubFormCheck( true );
         mQTreeWidgetSubChildren[ aRoot ][ aChild ].append( new QTreeWidgetItem( mQTreeWidgetChildren[ aRoot ][ aChild ] ) );
         mQTreeWidgetChildren[ aRoot ][ aChild ]->addChild( mQTreeWidgetSubChildren[ aRoot ][ aChild ].last() );
         mQTreeWidgetSubChildren[ aRoot ][ aChild ].last()->setText( 0, tName );
-
         mTreeWidgetSubChildren[ aRoot ][ aChild ].append( new Moris_Tree_Widget_Item() );
         mTreeWidgetSubChildren[ aRoot ][ aChild ].last()->setupScrollArea();
         mTreeWidgetSubChildren[ aRoot ][ aChild ].last()->setIndex( { aRoot, aChild, (uint)mQTreeWidgetSubChildren[ aRoot ][ aChild ].size() - 1 } );
@@ -483,35 +493,6 @@ namespace moris
         mTreeWidgetSubChildren[ aRoot ][ aChild ].last()->set_form_visible( false );
         mTreeWidget->setItemWidget( mQTreeWidgetSubChildren[ aRoot ][ aChild ].last(), 0, mTreeWidgetSubChildren[ aRoot ][ aChild ].last() );
         mLayout->addWidget( mTreeWidgetSubChildren[ aRoot ][ aChild ].last()->getScrollArea() );
-    }
-
-
-    Vector< Vector< Vector< Parameter_List > > > read()
-    {
-
-        // Create the 3d vector
-        Vector< Vector< Vector< Parameter_List > > > tParameterList;
-        tParameterList.resize( (uint)( Parameter_List_Type::END_ENUM ) );
-        for ( uint iRoot = 0; iRoot < (uint)( Parameter_List_Type::END_ENUM ); iRoot++ )
-        {
-            tParameterList( iRoot ).resize( get_number_of_sub_parameter_lists_in_module( (Parameter_List_Type)iRoot ) );
-            for ( uint iChild = 0; iChild < get_number_of_sub_parameter_lists_in_module( (Parameter_List_Type)iRoot ); iChild++ )
-            {
-                if ( ( iRoot == (uint)( Parameter_List_Type::OPT ) && iChild == (uint)( OPT_SubModule::ALGORITHMS ) )
-                        || ( iRoot == (uint)( Parameter_List_Type::GEN ) && iChild == (uint)( GEN_SubModule::GEOMETRIES ) )
-                        || ( iRoot == (uint)( Parameter_List_Type::SOL ) && iChild == (uint)( SOL_SubModule::LINEAR_ALGORITHMS ) ) )
-                {
-                }
-                else
-                {
-                    tParameterList( iRoot )( iChild ).push_back( create_parameter_list( (Parameter_List_Type)iRoot, iChild, 0 ) );
-                }
-            }
-        }
-
-        // Resize based on the projects/sub-projects
-        // Populate based on the parameter_list
-        return tParameterList;
     }
 
 

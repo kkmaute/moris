@@ -262,6 +262,8 @@ namespace moris
          *
          */
         QList< QWidget * > mWidget;
+        //std::map < std::string, QWidget* > mWidget;
+
         QComboBox         *mComboBox = new QComboBox();
 
         QList< uint > mIndex;

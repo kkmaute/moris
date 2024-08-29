@@ -7,6 +7,7 @@
 #include "cl_FEM_Property.hpp"
 #include "cl_FEM_CM_Factory.hpp"
 #include "fn_FEM_Check.hpp"
+#include "cl_MTK_Mesh_Manager.hpp"
 
 #include <QWidget>
 #include <QComboBox>
@@ -36,7 +37,7 @@ namespace moris
         explicit Moris_Group_Box( QWidget *a_parent, Parameter &a_param );
 
         // Public member variables
-        std::map < std::string, QLineEdit* > mRows;
+        std::map < std::string, QLineEdit* > mWidget;
         QFormLayout *mFormLayout = new QFormLayout;
 
       public slots:
@@ -45,6 +46,9 @@ namespace moris
         // Inputs:
         // - a_text: New text entered in the line edit.
         void on_line_edit_text_changed( const QString &a_text );
+
+        void on_combo_box_selection_changed( const int a_index );
+        
 
         // Slot to set the associated Parameter with the combined value of the combo box and line edit
         //void set_parameter();

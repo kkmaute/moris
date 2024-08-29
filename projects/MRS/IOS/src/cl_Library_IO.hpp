@@ -36,6 +36,7 @@
 #include "fn_PRM_WRK_Parameters.hpp"
 #include "fn_PRM_MORIS_GENERAL_Parameters.hpp"
 
+
 namespace moris
 {
     // -----------------------------------------------------------------------------
@@ -211,6 +212,14 @@ namespace moris
         // -----------------------------------------------------------------------------
 
         /**
+         * @brief Uses the read() function to create a new module parameter list from scratch when no XML file is given
+         */
+        virtual void
+        create_new_module_parameterlist();
+
+        // -----------------------------------------------------------------------------
+
+        /**
          * @brief print a summary of all parameters after finalizing the library
          *
          * @param aOutputFileName name of the xml file to print the parameters to
@@ -381,6 +390,8 @@ namespace moris
      */
 
     Parameter_List create_parameter_list( Parameter_List_Type aModule, uint aChild, uint aSubChild );
+
+    Vector< Vector< Parameter_List > >  read(uint aRoot);
 
 
 }    // namespace moris
