@@ -100,7 +100,7 @@ namespace moris::hmr
             Background_Mesh_Base*      aBackgroundMesh,
             Vector< BSpline_Mesh_Base* > aBSplineMeshes,
             uint                       aActivationPattern,
-            luint                      aPolynomialDegree,
+            uint                       aPolynomialDegree,
             uint                       aMeshIndex )
     {
         // get number of dimensions from settings
@@ -205,134 +205,88 @@ namespace moris::hmr
 
     //-------------------------------------------------------------------------------
 
+#define SWITCH_ORDER_Z( x, y, z )                                                   \
+    switch ( z )                                                                    \
+    {                                                                               \
+        case 0:                                                                     \
+            return new BSpline_Mesh< x, y, 0 >(                                     \
+                    mParameters,                                                    \
+                    aBackgroundMesh,                                                \
+                    aPattern,                                                       \
+                    aMeshIndex );                                                   \
+        case 1:                                                                     \
+            return new BSpline_Mesh< x, y, 1 >(                                     \
+                    mParameters,                                                    \
+                    aBackgroundMesh,                                                \
+                    aPattern,                                                       \
+                    aMeshIndex );                                                   \
+        case 2:                                                                     \
+            return new BSpline_Mesh< x, y, 2 >(                                     \
+                    mParameters,                                                    \
+                    aBackgroundMesh,                                                \
+                    aPattern,                                                       \
+                    aMeshIndex );                                                   \
+        case 3:                                                                     \
+            return new BSpline_Mesh< x, y, 3 >(                                     \
+                    mParameters,                                                    \
+                    aBackgroundMesh,                                                \
+                    aPattern,                                                       \
+                    aMeshIndex );                                                   \
+        default:                                                                    \
+            MORIS_ERROR( false, "Cannot create B-spline mesh with z order %d", z ); \
+            return nullptr;                                                         \
+    }
+
+#define SWITCH_ORDER_Y( x, y, z )                                                   \
+    switch ( y )                                                                    \
+    {                                                                               \
+        case 0:                                                                     \
+            SWITCH_ORDER_Z( x, 0, z )                                               \
+        case 1:                                                                     \
+            SWITCH_ORDER_Z( x, 1, z )                                               \
+        case 2:                                                                     \
+            SWITCH_ORDER_Z( x, 2, z )                                               \
+        case 3:                                                                     \
+            SWITCH_ORDER_Z( x, 3, z )                                               \
+        default:                                                                    \
+            MORIS_ERROR( false, "Cannot create B-spline mesh with y order %d", y ); \
+            return nullptr;                                                         \
+    }
+
+    //-------------------------------------------------------------------------------
+
     BSpline_Mesh_Base*
     Factory::create_bspline_mesh(
             Background_Mesh_Base* aBackgroundMesh,
-            uint                  aActivationPattern,
-            luint                 aPolynomialDegree,
+            uint                  aPattern,
+            uint                  aPolynomialDegree,
             uint                  aMeshIndex )
     {
         // get number of dimensions from settings
         uint tNumberOfDimensions = mParameters->get_number_of_dimensions();
 
-        switch ( tNumberOfDimensions )
+        // Set B-spline order vector
+        Vector< uint > tBSplineOrders;
+        if ( tNumberOfDimensions == 2 )
         {
+            tBSplineOrders = { aPolynomialDegree, aPolynomialDegree, 0 };
+        }
+        else
+        {
+            tBSplineOrders = { aPolynomialDegree, aPolynomialDegree, aPolynomialDegree };
+        }
+
+        switch ( tBSplineOrders( 0 ) )
+        {
+            case ( 1 ):
+                SWITCH_ORDER_Y( 1, tBSplineOrders( 1 ), tBSplineOrders( 2 ) )
             case ( 2 ):
-            {
-                switch ( aPolynomialDegree )
-                {
-                    case ( 1 ):
-                    {
-                        return new BSpline_Mesh< 1, 1, 0 >(
-                                mParameters,
-                                aBackgroundMesh,
-                                aActivationPattern,
-                                aMeshIndex );
-                    }
-                    case ( 2 ):
-                    {
-                        return new BSpline_Mesh< 2, 2, 0 >(
-                                mParameters,
-                                aBackgroundMesh,
-                                aActivationPattern,
-                                aMeshIndex );
-                    }
-                    case ( 3 ):
-                    {
-                        return new BSpline_Mesh< 3, 3, 0 >(
-                                mParameters,
-                                aBackgroundMesh,
-                                aActivationPattern,
-                                aMeshIndex );
-                    }
-                    case ( 4 ):
-                    {
-                        return new BSpline_Mesh< 4, 4, 0 >(
-                                mParameters,
-                                aBackgroundMesh,
-                                aActivationPattern,
-                                aMeshIndex );
-                    }
-                    case ( 5 ):
-                    {
-                        return new BSpline_Mesh< 5, 5, 0 >(
-                                mParameters,
-                                aBackgroundMesh,
-                                aActivationPattern,
-                                aMeshIndex );
-                    }
-                    default:
-                    {
-                        MORIS_ERROR(
-                                false,
-                                "hmr::Factory::create_bspline_mesh(): unsupported polynomial degree %u for dimension %u",
-                                (unsigned int)aPolynomialDegree,
-                                (unsigned int)tNumberOfDimensions );
-                        return nullptr;
-                    }
-                }
-            }
+                SWITCH_ORDER_Y( 2, tBSplineOrders( 1 ), tBSplineOrders( 2 ) )
             case ( 3 ):
-            {
-                switch ( aPolynomialDegree )
-                {
-                    case ( 1 ):
-                    {
-                        return new BSpline_Mesh< 1, 1, 1 >(
-                                mParameters,
-                                aBackgroundMesh,
-                                aActivationPattern,
-                                aMeshIndex );
-                    }
-                    case ( 2 ):
-                    {
-                        return new BSpline_Mesh< 2, 2, 2 >(
-                                mParameters,
-                                aBackgroundMesh,
-                                aActivationPattern,
-                                aMeshIndex );
-                    }
-                    case ( 3 ):
-                    {
-                        return new BSpline_Mesh< 3, 3, 3 >(
-                                mParameters,
-                                aBackgroundMesh,
-                                aActivationPattern,
-                                aMeshIndex );
-                    }
-                    case ( 4 ):
-                    {
-                        return new BSpline_Mesh< 4, 4, 4 >(
-                                mParameters,
-                                aBackgroundMesh,
-                                aActivationPattern,
-                                aMeshIndex );
-                    }
-                    case ( 5 ):
-                    {
-                        return new BSpline_Mesh< 5, 5, 5 >(
-                                mParameters,
-                                aBackgroundMesh,
-                                aActivationPattern,
-                                aMeshIndex );
-                    }
-                    default:
-                    {
-                        MORIS_ERROR(
-                                false,
-                                "hmr::Factory::create_bspline_mesh(): unsupported polynomial degree %u for dimension %u",
-                                (unsigned int)aPolynomialDegree,
-                                (unsigned int)tNumberOfDimensions );
-                        return nullptr;
-                    }
-                }
-            }
+                SWITCH_ORDER_Y( 3, tBSplineOrders( 1 ), tBSplineOrders( 2 ) )
             default:
             {
-                MORIS_ERROR(
-                        false,
-                        "hmr::Factory::create_bspline_mesh(): unknown number of dimensions %u",
-                        (unsigned int)tNumberOfDimensions );
+                MORIS_ERROR( false, "Cannot create B-spline mesh with x order %d", tBSplineOrders( 0 ) );
                 return nullptr;
             }
         }
@@ -343,8 +297,8 @@ namespace moris::hmr
     BSpline_Mesh_Base*
     Factory::create_dummy_bspline_mesh(
             Background_Mesh_Base* aBackgroundMesh,
-            uint                  aBSplineOrder,
-            uint                  aBSplinePattern )
+            uint                  aOrder,
+            uint                  aPattern )
     {
         // get number of dimensions from settings
         uint tNumberOfDimensions = mParameters->get_number_of_dimensions();
@@ -353,14 +307,14 @@ namespace moris::hmr
         {
             case ( 2 ):
             {
-                switch ( aBSplineOrder )
+                switch ( aOrder )
                 {
                     case ( 1 ):
                     {
                         return new BSpline_Mesh< 1, 1, 0 >(
                                 mParameters,
                                 aBackgroundMesh,
-                                aBSplinePattern,
+                                aPattern,
                                 MORIS_UINT_MAX );
                     }
                     case ( 2 ):
@@ -368,7 +322,7 @@ namespace moris::hmr
                         return new BSpline_Mesh< 2, 2, 0 >(
                                 mParameters,
                                 aBackgroundMesh,
-                                aBSplinePattern,
+                                aPattern,
                                 MORIS_UINT_MAX );
                     }
                     case ( 3 ):
@@ -376,7 +330,7 @@ namespace moris::hmr
                         return new BSpline_Mesh< 3, 3, 0 >(
                                 mParameters,
                                 aBackgroundMesh,
-                                aBSplinePattern,
+                                aPattern,
                                 MORIS_UINT_MAX );
                     }
                     case ( 4 ):
@@ -384,7 +338,7 @@ namespace moris::hmr
                         return new BSpline_Mesh< 4, 4, 0 >(
                                 mParameters,
                                 aBackgroundMesh,
-                                aBSplinePattern,
+                                aPattern,
                                 MORIS_UINT_MAX );
                     }
                     case ( 5 ):
@@ -392,7 +346,7 @@ namespace moris::hmr
                         return new BSpline_Mesh< 5, 5, 0 >(
                                 mParameters,
                                 aBackgroundMesh,
-                                aBSplinePattern,
+                                aPattern,
                                 MORIS_UINT_MAX );
                     }
                     default:
@@ -400,7 +354,7 @@ namespace moris::hmr
                         MORIS_ERROR(
                                 false,
                                 "hmr::Factory::create_bspline_mesh(): unsupported polynomial degree %u for dimension %u",
-                                (unsigned int)aBSplineOrder,
+                                (unsigned int)aOrder,
                                 (unsigned int)tNumberOfDimensions );
                         return nullptr;
                     }
@@ -408,14 +362,14 @@ namespace moris::hmr
             }
             case ( 3 ):
             {
-                switch ( aBSplineOrder )
+                switch ( aOrder )
                 {
                     case ( 1 ):
                     {
                         return new BSpline_Mesh< 1, 1, 1 >(
                                 mParameters,
                                 aBackgroundMesh,
-                                aBSplinePattern,
+                                aPattern,
                                 MORIS_UINT_MAX );
                     }
                     case ( 2 ):
@@ -423,7 +377,7 @@ namespace moris::hmr
                         return new BSpline_Mesh< 2, 2, 2 >(
                                 mParameters,
                                 aBackgroundMesh,
-                                aBSplinePattern,
+                                aPattern,
                                 MORIS_UINT_MAX );
                     }
                     case ( 3 ):
@@ -431,7 +385,7 @@ namespace moris::hmr
                         return new BSpline_Mesh< 3, 3, 3 >(
                                 mParameters,
                                 aBackgroundMesh,
-                                aBSplinePattern,
+                                aPattern,
                                 MORIS_UINT_MAX );
                     }
                     case ( 4 ):
@@ -439,7 +393,7 @@ namespace moris::hmr
                         return new BSpline_Mesh< 4, 4, 4 >(
                                 mParameters,
                                 aBackgroundMesh,
-                                aBSplinePattern,
+                                aPattern,
                                 MORIS_UINT_MAX );
                     }
                     case ( 5 ):
@@ -447,7 +401,7 @@ namespace moris::hmr
                         return new BSpline_Mesh< 5, 5, 5 >(
                                 mParameters,
                                 aBackgroundMesh,
-                                aBSplinePattern,
+                                aPattern,
                                 MORIS_UINT_MAX );
                     }
                     default:
@@ -455,7 +409,7 @@ namespace moris::hmr
                         MORIS_ERROR(
                                 false,
                                 "hmr::Factory::create_bspline_mesh(): unsupported polynomial degree %u for dimension %u",
-                                (unsigned int)aBSplineOrder,
+                                (unsigned int)aOrder,
                                 (unsigned int)tNumberOfDimensions );
                         return nullptr;
                     }
@@ -470,40 +424,6 @@ namespace moris::hmr
                 return nullptr;
             }
         }
-    }
-
-    //-------------------------------------------------------------------------------
-
-#define CREATE_BSPLINE_MESH( x, y, z ) \
-    switch ( z )                                                                         \
-    {                                                                                    \
-        case 0:                                                                          \
-            return new BSpline_Mesh< x, y, 0 >(                                          \
-                    mParameters,                                                         \
-                    aBackgroundMesh,                                                     \
-                    tPattern,                                                            \
-                    aMeshIndex );                                                        \
-        case 1:                                                                          \
-            return new BSpline_Mesh< x, y, 1 >(                                          \
-                    mParameters,                                                         \
-                    aBackgroundMesh,                                                     \
-                    tPattern,                                                            \
-                    aMeshIndex );                                                        \
-        case 2:                                                                          \
-            return new BSpline_Mesh< x, y, 2 >(                                          \
-                    mParameters,                                                         \
-                    aBackgroundMesh,                                                     \
-                    tPattern,                                                            \
-                    aMeshIndex );                                                        \
-        case 3:                                                                          \
-            return new BSpline_Mesh< x, y, 3 >(                                          \
-                    mParameters,                                                         \
-                    aBackgroundMesh,                                                     \
-                    tPattern,                                                            \
-                    aMeshIndex );                                                        \
-        default:                                                                         \
-            MORIS_ERROR( false, "creating B-spline mesh with incorrect z order %d", z ); \
-            return nullptr;                                                              \
     }
 
     //-------------------------------------------------------------------------------

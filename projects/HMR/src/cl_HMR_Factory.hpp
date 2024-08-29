@@ -75,7 +75,7 @@ namespace moris::hmr
                 Background_Mesh_Base*      aBackgroundMesh,
                 Vector< BSpline_Mesh_Base* > aBSplineMeshes,
                 uint                       aActivationPattern,
-                luint                      aPolynomialDegree,
+                uint                       aPolynomialDegree,
                 uint                       aMeshIndex = MORIS_UINT_MAX );
 
         // ----------------------------------------------------------------------------
@@ -84,7 +84,7 @@ namespace moris::hmr
          * @brief creates a Lagrange mesh depending on the number of dimensions set
          *
          * @param[in] aBackgroundMesh       pointer to background mesh
-         * @param[in] aActivationPattern    pattern (i.e. grid) used for building the mesh
+         * @param[in] anPattern    pattern (i.e. grid) used for building the mesh
          * @param[in] aPolynomialDegree     degree of Lagrange mesh
          * @param[in] aMeshIndex            index to be assigned to the mesh
          *
@@ -93,23 +93,23 @@ namespace moris::hmr
         BSpline_Mesh_Base*
         create_bspline_mesh(
                 Background_Mesh_Base* aBackgroundMesh,
-                uint                  aActivationPattern,
-                luint                 aPolynomialDegree,
+                uint                  aPattern,
+                uint                  aPolynomialDegree,
                 uint                  aMeshIndex = MORIS_UINT_MAX );
 
         /**
          * Creates a dummy B-spline mesh, for L2 testing purposes.
          *
          * @param aBackgroundMesh Background mesh
-         * @param aBSplineOrder B-spline order
-         * @param aBsplinePattern B-spline pattern
+         * @param aOrder B-spline order
+         * @param aPattern B-spline pattern
          * @return New B-spline mesh
          */
         BSpline_Mesh_Base*
         create_dummy_bspline_mesh(
                 Background_Mesh_Base* aBackgroundMesh,
-                uint                  aBSplineOrder,
-                uint                  aBSplinePattern );
+                uint                  aOrder,
+                uint                  aPattern );
 
         // ----------------------------------------------------------------------------
 
