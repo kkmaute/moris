@@ -1008,21 +1008,6 @@ namespace moris::hmr
         }
 
         //-------------------------------------------------------------------------------
-        /**
-         * Copy selected parameters from other parameter object
-         * Note that not all parameters can be copied
-         */
-        void copy_selected_parameters( const Parameters& aParameters );
-
-        //-------------------------------------------------------------------------------
-
-        /**
-         * Copy selected parameters from other parameter list
-         * Note that not all parameters can be copied
-         */
-        void copy_selected_parameters( Parameter_List& aParameterList );
-
-        //-------------------------------------------------------------------------------
 
         /**
          * lock critical parameters
@@ -1404,19 +1389,6 @@ namespace moris::hmr
         //-------------------------------------------------------------------------------
     }; /* Parameters */
 
-    // -----------------------------------------------------------------------------
-
-    // creates a parameter list with default options
-    //        ParameterList create_hmr_parameter_list();
-
-    // -----------------------------------------------------------------------------
-
-    /**
-     * creates a parameter list from a parameter object
-     */
-    Parameter_List create_hmr_parameter_list( const Parameters* aParameters );
-
-    // -----------------------------------------------------------------------------
 }    // namespace moris::hmr
 
 #endif /* SRC_HMR_CL_HMR_PARAMETERS_HPP_ */

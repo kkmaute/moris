@@ -119,7 +119,7 @@ void state_refine_mesh( const Arguments & aArguments )
     HMR * tHMR = new HMR( tParams.get_input_db_path() );
 
     // copy parameters from parameter list into HMR object
-    tHMR->get_parameters()->copy_selected_parameters( tParams.get_parameter_list() );
+    //tHMR->get_parameters()->copy_selected_parameters( tParams.get_parameter_list() );
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // Step 3: Load user defined functions
@@ -200,7 +200,7 @@ void state_map_fields( const Arguments & aArguments )
             tParams.get_output_db_path() );
 
     // copy parameters from parameter list into HMR object
-    tHMR->get_parameters()->copy_selected_parameters( tParams.get_parameter_list() );
+    //tHMR->get_parameters()->copy_selected_parameters( tParams.get_parameter_list() );
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // Step 3: Initialize Fields
