@@ -12,31 +12,29 @@
 #include "cl_WRK_Workflow_HMR_XTK.hpp"
 #include "cl_WRK_Workflow_STK_XTK.hpp"
 #include "cl_WRK_Workflow_STK_FEM.hpp"
-namespace moris
+
+namespace moris::wrk
 {
-    namespace wrk
+    std::shared_ptr< wrk::Workflow >
+    create_workflow( std::string const &aWRKFlowType,
+            wrk::Performer_Manager     *aPerformerManager )
     {
-        std::shared_ptr< wrk::Workflow >
-        create_workflow( std::string const &aWRKFlowType,
-                wrk::Performer_Manager     *aPerformerManager )
+        if ( aWRKFlowType.compare( "HMR_XTK" ) == 0 )
         {
-            if ( aWRKFlowType.compare( "HMR_XTK" ) == 0 )
-            {
-                return std::make_shared< Workflow_HMR_XTK >( aPerformerManager );
-            }
-            else if ( aWRKFlowType.compare( "STK_XTK" ) == 0 )
-            {
-                return std::make_shared< Workflow_STK_XTK >( aPerformerManager );
-            }
-            else if ( aWRKFlowType.compare( "STK_FEM" ) == 0 )
-            {
-                return std::make_shared< Workflow_STK_FEM >( aPerformerManager );
-            }
-            else
-            {
-                MORIS_ERROR( 0, "Invalid Workflow Type" );
-                return nullptr;
-            }
+            return std::make_shared< Workflow_HMR_XTK >( aPerformerManager );
         }
-    }    // namespace wrk
-}    // namespace moris
+        else if ( aWRKFlowType.compare( "STK_XTK" ) == 0 )
+        {
+            return std::make_shared< Workflow_STK_XTK >( aPerformerManager );
+        }
+        else if ( aWRKFlowType.compare( "STK_FEM" ) == 0 )
+        {
+            return std::make_shared< Workflow_STK_FEM >( aPerformerManager );
+        }
+        else
+        {
+            MORIS_ERROR( 0, "Invalid Workflow Type" );
+            return nullptr;
+        }
+    }
+}    // namespace moris::wrk

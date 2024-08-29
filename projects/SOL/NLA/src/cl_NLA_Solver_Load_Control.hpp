@@ -14,55 +14,52 @@
 
 #include "cl_SOL_Enums.hpp"
 
-namespace moris
+namespace moris::NLA
 {
-    namespace NLA
+    class Nonlinear_Solver;
+
+    class Solver_Load_Control
     {
-        class Nonlinear_Solver;
+      private:
+        /// relaxation strategy
+        sol::SolverLoadControlType mLoadControlStrategy;
 
-        class Solver_Load_Control
-        {
-          private:
-            /// relaxation strategy
-            sol::SolverLoadControlType mLoadControlStrategy;
+        /// load step counter
+        uint mLoadStepCounter;
 
-            /// load step counter
-            uint mLoadStepCounter;
+        /// maximum number of load steps
+        uint mNumLoadSteps;
 
-            /// maximum number of load steps
-            uint mNumLoadSteps;
+        /// initial (constant) load factor
+        real mInitialLoadFactor;
 
-            /// initial (constant) load factor
-            real mInitialLoadFactor;
+        /// required relative residual drop to increase load factor
+        real mRelativeResidualDropThreshold;
 
-            /// required relative residual drop to increase load factor
-            real mRelativeResidualDropThreshold;
+        /// parameters for exponential strategy
+        real mExponent;
 
-            /// parameters for exponential strategy
-            real mExponent;
+        // check if the load stepping requirement (e.g. residual drop) is met
+        bool check_load_step_requirement( Nonlinear_Solver* aNonLinSolverManager );
 
-            // check if the load stepping requirement (e.g. residual drop) is met
-            bool check_load_step_requirement( Nonlinear_Solver* aNonLinSolverManager );
+      public:
+        Solver_Load_Control( Parameter_List& aParameterListNonlinearSolver );
 
-          public:
-            Solver_Load_Control( Parameter_List& aParameterListNonlinearSolver );
+        ~Solver_Load_Control(){};
 
-            ~Solver_Load_Control(){};
+        /*
+         *  evaluates the relaxation parameter
+         */
+        real get_initial_load_factor();
 
-            /*
-             *  evaluates the relaxation parameter
-             */
-            real get_initial_load_factor();
-
-            /*
-             *  evaluates the relaxation parameter
-             */
-            void eval(
-                    sint              aIter,
-                    Nonlinear_Solver* aNonLinSolverManager,
-                    real&             aLoadFactor );
-        };
-    }    // namespace NLA
-}    // namespace moris
+        /*
+         *  evaluates the relaxation parameter
+         */
+        void eval(
+                sint              aIter,
+                Nonlinear_Solver* aNonLinSolverManager,
+                real&             aLoadFactor );
+    };
+}    // namespace moris::NLA
 
 #endif /* SRC_FEM_CL_NLA_SOLVER_LOAD_CONTROL_HPP_ */

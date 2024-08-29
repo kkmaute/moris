@@ -143,7 +143,7 @@ namespace moris
             std::fprintf( stdout, "     Build Date   : %s at %s\n", __DATE__, __TIME__ );
 
             // When run
-            time_t tTimeStamp = time( NULL );
+            time_t tTimeStamp = time( nullptr );
             std::fprintf( stdout, "     Date of Run  : %s \n", ctime( &tTimeStamp ) );
 
             // What Matrix lib?

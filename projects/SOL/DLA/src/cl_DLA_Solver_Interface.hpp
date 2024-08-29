@@ -54,7 +54,7 @@ namespace moris
 
       public:
         /** Destructor */
-        virtual ~Solver_Interface(){};
+        virtual ~Solver_Interface() {};
 
         //------------------------------------------------------------------------------
         /**
@@ -122,7 +122,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         virtual void
-        set_eigen_values( std::shared_ptr< Vector< real > > aEigenValues )
+        set_eigen_values( const std::shared_ptr< Vector< real > >& aEigenValues )
         {
             MORIS_ERROR( false, "Solver_Interface::set_eigen_values: not set." );
         };
@@ -255,7 +255,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         virtual void
-        set_requested_dof_types( const Vector< enum MSI::Dof_Type > aListOfDofTypes )
+        set_requested_dof_types( const Vector< enum MSI::Dof_Type >& aListOfDofTypes )
         {
             MORIS_ERROR( false, "Solver_Interface::set_requested_dof_types: not set." );
         };
@@ -263,7 +263,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         virtual void
-        set_secondary_dof_types( const Vector< enum MSI::Dof_Type > aListOfDofTypes )
+        set_secondary_dof_types( const Vector< enum MSI::Dof_Type >& aListOfDofTypes )
         {
             MORIS_ERROR( false, "Solver_Interface::set_secondary_dof_types: not set." );
         };
@@ -474,7 +474,7 @@ namespace moris
         get_matrix_market_path()
         {
             // assert(0);
-            return NULL;
+            return nullptr;
         }
 
         //------------------------------------------------------------------------------
@@ -639,7 +639,7 @@ namespace moris
          */
 
         virtual void
-        set_solver_warehouse( std::shared_ptr< sol::SOL_Warehouse > aSolverWarehouse );
+        set_solver_warehouse( const std::shared_ptr< sol::SOL_Warehouse >& aSolverWarehouse );
 
         //------------------------------------------------------------------------------
 

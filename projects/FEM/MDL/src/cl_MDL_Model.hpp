@@ -11,6 +11,8 @@
 #ifndef PROJECTS_FEM_MDL_SRC_CL_MDL_MODEL_HPP_
 #define PROJECTS_FEM_MDL_SRC_CL_MDL_MODEL_HPP_
 
+#include <utility>
+
 #include "moris_typedefs.hpp"                       //MRS/COR/src
 #include "cl_Vector.hpp"                            //MRS/CNT/src
 
@@ -199,7 +201,7 @@ namespace moris
 
                 void set_solver_warehouse_hack( std::shared_ptr< sol::SOL_Warehouse > aSolverWarehouse)
                 {
-                    mSolverWarehouse = aSolverWarehouse;
+                    mSolverWarehouse = std::move( aSolverWarehouse );
                 };
 
                 //------------------------------------------------------------------------------

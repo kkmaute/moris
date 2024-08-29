@@ -72,15 +72,15 @@ namespace moris
             //------------------------------------------------------------------------------
 
           public:
-            Model_Solver_Interface(){};
+            Model_Solver_Interface() {};
 
             //------------------------------------------------------------------------------
 
             Model_Solver_Interface(
-                    Parameter_List              aMSIParameterList,
+                    const Parameter_List&       aMSIParameterList,
                     Vector< Equation_Object* >& aListEqnObj )
                     : mMSIParameterList( aMSIParameterList )
-                    , mEquationObjectList( aListEqnObj ){};
+                    , mEquationObjectList( aListEqnObj ) {};
 
             //------------------------------------------------------------------------------
 
@@ -92,7 +92,7 @@ namespace moris
              *
              */
             Model_Solver_Interface(
-                    Parameter_List                                           aMSIParameterList,
+                    const Parameter_List&                                    aMSIParameterList,
                     Vector< MSI::Equation_Set* >&                            aElementBlocks,
                     const Matrix< IdMat >&                                   aCommTable,
                     const moris::map< moris::moris_id, moris::moris_index >& aAdofLocaltoGlobalMap,
@@ -113,7 +113,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             Model_Solver_Interface(
-                    Parameter_List                                           aMSIParameterList,
+                    const Parameter_List&                                    aMSIParameterList,
                     Vector< MSI::Equation_Set* >&                            aElementBlocks,
                     const Matrix< IdMat >&                                   aCommTable,
                     const moris::map< moris::moris_id, moris::moris_index >& aAdofLocaltoGlobalMap,
@@ -136,15 +136,15 @@ namespace moris
             //------------------------------------------------------------------------------
 
             Model_Solver_Interface(
-                    Parameter_List                         aMSIParameterList,
-                    std::shared_ptr< MSI::Equation_Model > aEquationModel,
-                    mtk::Mesh*                             aMesh );
+                    const Parameter_List&                         aMSIParameterList,
+                    const std::shared_ptr< MSI::Equation_Model >& aEquationModel,
+                    mtk::Mesh*                                    aMesh );
 
             //------------------------------------------------------------------------------
 
             ~Model_Solver_Interface()
             {
-                if ( mMultigrid != NULL )
+                if ( mMultigrid != nullptr )
                 {
                     delete mMultigrid;
                 }
@@ -153,23 +153,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             void
-            create_equation_object_list()
-            {
-                mEquationObjectList.clear();
-                moris::uint tNumEquationObj = 0;
-
-                for ( luint Ik = 0; Ik < mEquationSets.size(); ++Ik )
-                {
-                    tNumEquationObj = tNumEquationObj + mEquationSets( Ik )->get_num_equation_objects();
-                }
-
-                mEquationObjectList.reserve( tNumEquationObj );
-
-                for ( luint Ik = 0; Ik < mEquationSets.size(); ++Ik )
-                {
-                    mEquationObjectList.append( mEquationSets( Ik )->get_equation_object_list() );
-                }
-            };
+            create_equation_object_list();
 
             //------------------------------------------------------------------------------
 

@@ -19,85 +19,81 @@
 #include "cl_Vector.hpp"                    //MRS/CNT/src
 #include "moris_typedefs.hpp"                     //MRS/COR/src
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+    //------------------------------------------------------------------------------
+
+    class IQI_Homogenized_Constitutive : public IQI
     {
+
+        enum class IQI_Property_Type
+        {
+            EIGEN_STRAIN,
+            MAX_ENUM
+        };
+
+        enum class IQI_Constitutive_Type
+        {
+            ELAST_LIN_ISO,
+            MAX_ENUM
+        };
+
+      public:
+        //------------------------------------------------------------------------------
+        /*
+         * constructor
+         */
+        IQI_Homogenized_Constitutive();
+
+        //------------------------------------------------------------------------------
+        /**
+         * trivial destructor
+         */
+        ~IQI_Homogenized_Constitutive() override{};
+
         //------------------------------------------------------------------------------
 
-        class IQI_Homogenized_Constitutive : public IQI
+      private:
+        //------------------------------------------------------------------------------
+        /**
+         * compute the quantity of interest
+         * @param[ in ] aWStar weight associated to the evaluation point
+         */
+        void compute_QI( real aWStar ) override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * Evaluate the quantity of interest and fill aQI with value
+         * @param[ in ] aQI IQI value at evaluation point
+         */
+        void compute_QI( Matrix< DDRMat > &aQI ) override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute the derivative of the quantity of interest wrt dof types
+         * @param[ in ] aWStar weight associated to the evaluation point
+         */
+        void compute_dQIdu( real aWStar ) override
         {
+            MORIS_ERROR( false, "IQI_Homogenized_Constitutive::compute_dQIdu - not implemented." );
+        }
 
-                enum class IQI_Property_Type
-                {
-                        EIGEN_STRAIN,
-                        MAX_ENUM
-                };
+        //------------------------------------------------------------------------------
+        /**
+         * compute the derivative of the quantity of interest wrt dof types
+         * @param[ in ] aDofType group of dof types wrt which derivatives are evaluated
+         * @param[ in ] adQIdu   derivative of quantity of interest matrix to fill
+         */
+        void compute_dQIdu(
+                Vector< MSI::Dof_Type > &aDofType,
+                Matrix< DDRMat >        &adQIdu ) override
+        {
+            MORIS_ERROR( false, "IQI_Homogenized_Constitutive::compute_dQIdu() - not implemented for a drag/lift coefficient IQI." );
+        }
 
-                enum class IQI_Constitutive_Type
-                {
-                        ELAST_LIN_ISO,
-                        MAX_ENUM
-                };
-
-            public:
-                //------------------------------------------------------------------------------
-                /*
-                 * constructor
-                 */
-                IQI_Homogenized_Constitutive();
-
-                //------------------------------------------------------------------------------
-                /**
-                 * trivial destructor
-                 */
-                ~IQI_Homogenized_Constitutive(){};
-
-                //------------------------------------------------------------------------------
-
-            private:
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the quantity of interest
-                 * @param[ in ] aWStar weight associated to the evaluation point
-                 */
-                void compute_QI( real aWStar );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * Evaluate the quantity of interest and fill aQI with value
-                 * @param[ in ] aQI IQI value at evaluation point
-                 */
-                void compute_QI( Matrix< DDRMat > & aQI );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the derivative of the quantity of interest wrt dof types
-                 * @param[ in ] aWStar weight associated to the evaluation point
-                 */
-                void compute_dQIdu( real aWStar )
-                {
-                    MORIS_ERROR( false, "IQI_Homogenized_Constitutive::compute_dQIdu - not implemented." );
-                }
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the derivative of the quantity of interest wrt dof types
-                 * @param[ in ] aDofType group of dof types wrt which derivatives are evaluated
-                 * @param[ in ] adQIdu   derivative of quantity of interest matrix to fill
-                 */
-                void compute_dQIdu(
-                        Vector< MSI::Dof_Type > & aDofType,
-                        Matrix< DDRMat >             & adQIdu )
-                {
-                    MORIS_ERROR( false, "IQI_Homogenized_Constitutive::compute_dQIdu() - not implemented for a drag/lift coefficient IQI.");
-                }
-
-                //------------------------------------------------------------------------------
-
-        };
-    }/* end namespace fem */
-} /* end namespace moris */
+        //------------------------------------------------------------------------------
+    };
+}    // namespace moris::fem
 
 #endif /* PROJECTS_FEM_INT_SRC_IQI_CL_FEM_IQI_HOMOGENIZED_CONSTITUTIVE_HPP_ */
 

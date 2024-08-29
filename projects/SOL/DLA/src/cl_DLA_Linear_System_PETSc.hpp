@@ -38,56 +38,54 @@
 
 #include "cl_Parameter_List.hpp"    // CON/src
 
-namespace moris
+namespace moris::dla
 {
-    namespace dla
+    class Linear_System_PETSc : public Linear_Problem
     {
-        class Linear_System_PETSc : public Linear_Problem
-        {
-          private:
-            // Flag for deconstructor. If PetscFinalize should be called in linear solver or in nonlinear
-            bool mNotCreatedByNonLinearSolver = false;
+      private:
+        // Flag for deconstructor. If PetscFinalize should be called in linear solver or in nonlinear
+        bool mNotCreatedByNonLinearSolver = false;
 
-          protected:
+      protected:
 
-          public:
-            //--------------------------------------------------------------------------
+      public:
+        //--------------------------------------------------------------------------
 
-            /**
-             * @brief Construct a new Linear_System_PETSc object
-             * 
-             */
-            Linear_System_PETSc(){};
+        /**
+         * @brief Construct a new Linear_System_PETSc object
+         *
+         */
+        Linear_System_PETSc() {};
 
-            //--------------------------------------------------------------------------
-            Linear_System_PETSc(
-                    Solver_Interface* aInput,
-                    const bool        aNotCreatedByNonLinSolver = false );
+        //--------------------------------------------------------------------------
+        Linear_System_PETSc(
+                Solver_Interface* aInput,
+                const bool        aNotCreatedByNonLinSolver = false );
 
-            Linear_System_PETSc(
-                    Solver_Interface*   aInput,
-                    sol::SOL_Warehouse* aSolverWarehouse,
-                    sol::Dist_Map*      aFreeMap,
-                    sol::Dist_Map*      aFullMap,
-                    const bool          aNotCreatedByNonLinSolver = false );
+        Linear_System_PETSc(
+                Solver_Interface*   aInput,
+                sol::SOL_Warehouse* aSolverWarehouse,
+                sol::Dist_Map*      aFreeMap,
+                sol::Dist_Map*      aFullMap,
+                const bool          aNotCreatedByNonLinSolver = false );
 
-            Linear_System_PETSc( const char* aString );
+        Linear_System_PETSc( const char* aString );
 
-            ~Linear_System_PETSc();
+        ~Linear_System_PETSc() override;
 
-            moris::sint solve_linear_system();
+        moris::sint solve_linear_system() override;
 
-            void get_solution( Matrix< DDRMat >& LHSValues );
+        void get_solution( Matrix< DDRMat >& LHSValues ) override;
 
-            //--------------------------------------------------------------------------
+        //--------------------------------------------------------------------------
 
-            /**
-             * @brief construct right hand side matrix for eigen problem
-             * Identity, Mass, Geometric stigness
-             * 
-             */
-            virtual void construct_rhs_matrix() override;
-        };
-    }    // namespace dla
-}    // namespace moris
+        /**
+         * @brief construct right hand side matrix for eigen problem
+         * Identity, Mass, Geometric stigness
+         *
+         */
+        void construct_rhs_matrix() override;
+    };
+}    // namespace moris::dla
+
 #endif /* SRC_DISTLINALG_CL_DLA_LINEAR_SYSTEM_PETSC_HPP_ */

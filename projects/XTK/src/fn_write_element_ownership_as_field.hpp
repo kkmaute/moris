@@ -17,7 +17,6 @@
 #include "cl_Vector.hpp"
 namespace moris::xtk
 {
-
     /*
      * Write the elemental owner data as a field in the output mesh, this function writes this data on the output mesh taking into account the
      * children elements created in the XTK decomposition. For visualization purposes the elemental field needs to be a moris::real type number rather
@@ -27,10 +26,10 @@ namespace moris::xtk
 
     inline void
     write_element_ownership_as_field(
-            std::string       aOwnerFieldName,
-            Background_Mesh&  aBackgroundMesh,
-            Cut_Mesh&         aCutMesh,
-            moris::mtk::Mesh& aOutputMesh )
+            const std::string& aOwnerFieldName,
+            Background_Mesh&   aBackgroundMesh,
+            Cut_Mesh&          aCutMesh,
+            moris::mtk::Mesh&  aOutputMesh )
     {
         // Get the background mesh
         moris::mtk::Mesh const & tBackgroundMeshData = aBackgroundMesh.get_mesh_data();

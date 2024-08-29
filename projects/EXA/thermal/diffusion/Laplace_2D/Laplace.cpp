@@ -22,7 +22,6 @@
 #include "fn_equal_to.hpp"
 
 #include "AztecOO.h"
-#include "AztecOO.h"
 #include "BelosConfigDefs.hpp"
 #include "BelosLinearProblem.hpp"
 #include "BelosEpetraAdapter.hpp"
@@ -1037,7 +1036,7 @@ namespace moris
     void
     SOLParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
-        std::cout << "gTestIndex_" + std::to_string( par_rank() ) + ": " << gTestIndex << std::endl;
+        std::cout << "gTestIndex_" + std::to_string( par_rank() ) + ": " << gTestIndex << '\n';
         gTestIndex == 0 ? create_trilinos_solver_parameter_list( tParameterlist ) : create_petsc_solver_parameter_list( tParameterlist );
     }
 

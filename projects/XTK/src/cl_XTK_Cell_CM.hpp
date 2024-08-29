@@ -64,7 +64,7 @@ namespace moris::xtk
         /**
          * Destructor
          */
-        ~Cell_XTK_CM();
+        ~Cell_XTK_CM() override ;
 
         //------------------------------------------------------------------------------
 
@@ -72,7 +72,7 @@ namespace moris::xtk
          * tells how many vertices are connected to this cell
          */
         uint
-        get_number_of_vertices() const;
+        get_number_of_vertices() const override ;
 
         //------------------------------------------------------------------------------
 
@@ -81,12 +81,12 @@ namespace moris::xtk
          */
         // FIXME: SDF's Facet_Vertex causes this to not be able to return a reference.
         Vector< mtk::Vertex * >
-        get_vertex_pointers() const;
+        get_vertex_pointers() const override ;
 
         //------------------------------------------------------------------------------
 
         void
-        remove_vertex_pointer( moris_index aIndex );
+        remove_vertex_pointer( moris_index aIndex ) override ;
 
         //------------------------------------------------------------------------------
 
@@ -94,7 +94,7 @@ namespace moris::xtk
          * returns a Mat with IDs of connected vertices
          */
         Matrix< IdMat >
-        get_vertex_ids() const;
+        get_vertex_ids() const override ;
 
         //------------------------------------------------------------------------------
 
@@ -102,7 +102,7 @@ namespace moris::xtk
          * returns a Mat with indices of connected vertices
          */
         Matrix< IndexMat >
-        get_vertex_inds() const;
+        get_vertex_inds() const override ;
 
         //------------------------------------------------------------------------------
 
@@ -111,14 +111,14 @@ namespace moris::xtk
          * < number of vertices * number of dimensions >
          */
         Matrix< DDRMat >
-        get_vertex_coords() const;
+        get_vertex_coords() const override ;
 
         //------------------------------------------------------------------------------
         /*!
          * @brief capacity of the cell
          */
         size_t
-        capacity();
+        capacity() override ;
         //------------------------------------------------------------------------------
 
       private:

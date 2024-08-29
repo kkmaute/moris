@@ -292,7 +292,7 @@ TEST_CASE( "CM_Fluid", "[CM_Fluid]" )
                 for( uint iRequestedDof = 0; iRequestedDof < tRequestedLeaderGlobalDofTypes.size(); iRequestedDof++ )
                 {
                     // derivative dof type
-                    Vector< MSI::Dof_Type > tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
+                    const Vector< MSI::Dof_Type >& tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
 
                     // flux
                     //------------------------------------------------------------------------------
@@ -339,7 +339,7 @@ TEST_CASE( "CM_Fluid", "[CM_Fluid]" )
                     for( uint iTestDof = 0; iTestDof < tLeaderDofTypes.size(); iTestDof++ )
                     {
                         // get the test dof type
-                        Vector< MSI::Dof_Type > tDofTest = tLeaderDofTypes( iTestDof );
+                        const Vector< MSI::Dof_Type >& tDofTest = tLeaderDofTypes( iTestDof );
 
                         // evaluate dtesttractiondu
                         Matrix< DDRMat > tdtesttractiondu = tCMLeaderFluid->dTestTractiondDOF(
@@ -684,7 +684,7 @@ TEST_CASE( "CM_Laminar_With_Turbulence", "[CM_Laminar_With_Turbulence]" )
                 for( uint iRequestedDof = 0; iRequestedDof < tRequestedLeaderGlobalDofTypes.size(); iRequestedDof++ )
                 {
                     // derivative dof type
-                    Vector< MSI::Dof_Type > tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
+                    const Vector< MSI::Dof_Type >& tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
 
                     // flux
                     //------------------------------------------------------------------------------
@@ -731,7 +731,7 @@ TEST_CASE( "CM_Laminar_With_Turbulence", "[CM_Laminar_With_Turbulence]" )
                     for( uint iTestDof = 0; iTestDof < tLeaderDofTypes.size(); iTestDof++ )
                     {
                         // get the test dof type
-                        Vector< MSI::Dof_Type > tDofTest = tLeaderDofTypes( iTestDof );
+                        const Vector< MSI::Dof_Type >& tDofTest = tLeaderDofTypes( iTestDof );
 
                         // evaluate dtesttractiondu
                         Matrix< DDRMat > tdtesttractiondu = tCMLeaderTurbulence->dTestTractiondDOF(
@@ -1077,7 +1077,7 @@ TEST_CASE( "CM_Laminar_Turbulence_Only", "[CM_Laminar_Turbulence_Only]" )
                 for( uint iRequestedDof = 0; iRequestedDof < tRequestedLeaderGlobalDofTypes.size(); iRequestedDof++ )
                 {
                     // derivative dof type
-                    Vector< MSI::Dof_Type > tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
+                    const Vector< MSI::Dof_Type >& tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
 
                     // flux
                     //------------------------------------------------------------------------------
@@ -1163,7 +1163,7 @@ TEST_CASE( "CM_Laminar_Turbulence_Only", "[CM_Laminar_Turbulence_Only]" )
                     for( uint iTestDof = 0; iTestDof < tLeaderDofTypes.size(); iTestDof++ )
                     {
                         // get the test dof type
-                        Vector< MSI::Dof_Type > tDofTest = tLeaderDofTypes( iTestDof );
+                        const Vector< MSI::Dof_Type >& tDofTest = tLeaderDofTypes( iTestDof );
 
                         // evaluate dtesttractiondu
                         Matrix< DDRMat > tdtesttractiondu = tCMLeaderTurbulence->dTestTractiondDOF(
@@ -1540,7 +1540,7 @@ TEST_CASE( "CM_Fluid_Turbulence", "[CM_Fluid_Turbulence]" )
                 for( uint iRequestedDof = 0; iRequestedDof < tRequestedLeaderGlobalDofTypes.size(); iRequestedDof++ )
                 {
                     // derivative dof type
-                    Vector< MSI::Dof_Type > tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
+                    const Vector< MSI::Dof_Type >& tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
 
                     // flux
                     //------------------------------------------------------------------------------
@@ -1587,7 +1587,7 @@ TEST_CASE( "CM_Fluid_Turbulence", "[CM_Fluid_Turbulence]" )
                     for( uint iTestDof = 0; iTestDof < tLeaderDofTypes.size(); iTestDof++ )
                     {
                         // get the test dof type
-                        Vector< MSI::Dof_Type > tDofTest = tLeaderDofTypes( iTestDof );
+                        const Vector< MSI::Dof_Type >& tDofTest = tLeaderDofTypes( iTestDof );
 
                         // evaluate dtesttractiondu
                         Matrix< DDRMat > tdtesttractiondu = tCMLeaderTurbulence->dTestTractiondDOF(

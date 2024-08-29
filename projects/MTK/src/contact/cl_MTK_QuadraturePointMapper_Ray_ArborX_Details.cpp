@@ -21,7 +21,7 @@ namespace moris::mtk::arborx
             ExecutionSpace const                                                      &aExecutionSpace,
             moris::Vector< std::pair< moris_index, moris::mtk::Surface_Mesh > > const &aTargetSurfaceMeshes )
     {
-        uint const tNumCells = std::accumulate( aTargetSurfaceMeshes.begin(), aTargetSurfaceMeshes.end(), 0, []( auto a, auto b ) { return a + b.second.get_number_of_cells(); } );
+        uint const tNumCells = std::accumulate( aTargetSurfaceMeshes.begin(), aTargetSurfaceMeshes.end(), 0, []( auto a, const auto &b ) { return a + b.second.get_number_of_cells(); } );
 
         Kokkos::View< ArborX::Box *, MemorySpace > tBoxes( Kokkos::view_alloc( aExecutionSpace, Kokkos::WithoutInitializing, "view:boxes" ), tNumCells );
         Kokkos::View< moris_index *, MemorySpace > tMeshIndices( Kokkos::view_alloc( aExecutionSpace, Kokkos::WithoutInitializing, "view:mesh_indices" ), tNumCells );
@@ -50,9 +50,7 @@ namespace moris::mtk::arborx
     }
 
     template< typename MemorySpace, typename ExecutionSpace >
-    QueryRays< MemorySpace > construct_query_rays(
-            ExecutionSpace const            &aExecutionSpace,
-            moris::mtk::MappingResult const &aMappingResult )
+    QueryRays< MemorySpace > construct_query_rays( ExecutionSpace const &aExecutionSpace, moris::mtk::MappingResult const &aMappingResult )
     {
         uint const tNumPoints = aMappingResult.mSourcePhysicalCoordinate.n_cols();
         // since rays are directional, we need to double the number of rays to store rays pointing in both directions (positive and negative)
@@ -84,9 +82,7 @@ namespace moris::mtk::arborx
     }
 
     cell_locator_map
-    map_rays_to_boxes(
-            moris::mtk::MappingResult const                                           &aMappingResult,
-            moris::Vector< std::pair< moris_index, moris::mtk::Surface_Mesh > > const &aTargetSurfaceMeshes )
+    map_rays_to_boxes( moris::mtk::MappingResult const &aMappingResult, moris::Vector< std::pair< moris_index, moris::mtk::Surface_Mesh > > const &aTargetSurfaceMeshes )
     {
         Tracer tTracer( "Quadrature Point Mapper", "Map", "Perform Raytracing with ArborX" );
         using ExecutionSpace = Kokkos::DefaultExecutionSpace;
@@ -125,11 +121,8 @@ namespace moris::mtk::arborx
     template< typename T >
     T coordinate_to_arborx_point( Matrix< moris::DDRMat > const &aMatrix )
     {
-        MORIS_ASSERT( ( aMatrix.n_rows() == 3 || aMatrix.n_rows() == 2 ) && aMatrix.n_cols() == 1,
-                "The input matrix must have 2 or 3 rows and 1 column." );
-
+        MORIS_ASSERT( ( aMatrix.n_rows() == 3 || aMatrix.n_rows() == 2 ) && aMatrix.n_cols() == 1, "The input matrix must have 2 or 3 rows and 1 column." );
         float tZCoord = aMatrix.n_rows() == 3 ? aMatrix( 2, 0 ) : 0.0;
-
         return { static_cast< float >( aMatrix( 0, 0 ) ), static_cast< float >( aMatrix( 1, 0 ) ), tZCoord };
     }
 }    // namespace moris::mtk::arborx

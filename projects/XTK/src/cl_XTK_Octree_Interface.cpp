@@ -272,7 +272,7 @@ namespace moris::xtk
     Octree_Interface::Octree_Interface( Parameter_List &aParameterList )
     {
         mOctreeRefinementLevel = std::stoi( aParameterList.get< std::string >( "octree_refinement_level" ) );
-        std::cout << "mOctreeRefinementLevel = " << mOctreeRefinementLevel << std::endl;
+        std::cout << "mOctreeRefinementLevel = " << mOctreeRefinementLevel << '\n';
     }
     // ----------------------------------------------------------------------------------
 
@@ -510,7 +510,7 @@ namespace moris::xtk
 
             const Matrix< IndexMat > *tCellTemplates = tTemplate->get_cells();
 
-            std::cout << "iCM = " << iCM << " | tChildMesh->get_parent_cell()->get_level() = " << tChildMesh->get_parent_cell()->get_level() << std::endl;
+            std::cout << "iCM = " << iCM << " | tChildMesh->get_parent_cell()->get_level() = " << tChildMesh->get_parent_cell()->get_level() << '\n';
 
             for ( moris::uint iNewCell = 0; iNewCell < tCellTemplates->n_rows(); iNewCell++ )
             {
@@ -547,18 +547,18 @@ namespace moris::xtk
         // iterate from low to high bounds
         for ( moris_index iBounds = 0; iBounds < mOctreeRefinementLevel; iBounds++ )
         {
-            std::cout << "iBounds = " << iBounds << std::endl;
+            std::cout << "iBounds = " << iBounds << '\n';
 
             tTemplate( iBounds ) = std::make_shared< Octree_Template const >( iBounds );
         }
 
-        std::cout << "tMaxLevel = " << tOctreeBounds( 1 ) << std::endl;
-        std::cout << "tMinLevel = " << tOctreeBounds( 0 ) << std::endl;
+        std::cout << "tMaxLevel = " << tOctreeBounds( 1 ) << '\n';
+        std::cout << "tMinLevel = " << tOctreeBounds( 0 ) << '\n';
 
         return tTemplate;
     }
 
-    Vector< moris_index > const
+    Vector< moris_index >
     Octree_Interface::determine_octree_bounds()
     {
         moris_index tMaxLevel = 0;
@@ -583,7 +583,7 @@ namespace moris::xtk
     mtk::CellTopology
     Octree_Interface::get_ig_cell_topology() const
     {
-        std::cout << " WARNING NEED ABSTRACTION " << std::endl;
+        std::cout << " WARNING NEED ABSTRACTION " << '\n';
         return mtk::CellTopology::HEX8;
     }
 

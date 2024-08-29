@@ -57,13 +57,13 @@ tDerFunctionCM_Diff_Lin_Iso(
 
 inline Vector< bool >
 test_diffusion_constitutive_model(
-        Matrix< DDRMat >        aXHat,
-        Matrix< DDRMat >        aTHat,
-        mtk::Interpolation_Rule aGeomInterpRule,
-        mtk::Interpolation_Rule aIPRule,
-        Matrix< DDRMat >        aUHat0,
-        Matrix< DDRMat >        aParametricPoint,
-        uint                    aSpatialDim = 2 )
+        const Matrix< DDRMat >&        aXHat,
+        const Matrix< DDRMat >&        aTHat,
+        const mtk::Interpolation_Rule& aGeomInterpRule,
+        const mtk::Interpolation_Rule& aIPRule,
+        const Matrix< DDRMat >&        aUHat0,
+        const Matrix< DDRMat >&        aParametricPoint,
+        uint                           aSpatialDim = 2 )
 {
     // real for check
     real tEpsilonRel = 2.0E-6;

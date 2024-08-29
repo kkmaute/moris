@@ -145,9 +145,9 @@ namespace moris
                         if ( Ii < tNumBulkPhasesHalf + 1 )
                         {
                             std::cout << "Ik: " << Ik << ""
-                                      << " Ii: " << Ii << std::endl;
+                                      << " Ii: " << Ii << '\n';
                             tInterface_21 = tInterface_21 + "dbl_iside_p0_" + std::to_string( Ik ) + "_p1_" + std::to_string( Ii ) + ",";
-                            std::cout << tInterface_21 << Ii << std::endl;
+                            std::cout << tInterface_21 << Ii << '\n';
                         }
                         else
                         {

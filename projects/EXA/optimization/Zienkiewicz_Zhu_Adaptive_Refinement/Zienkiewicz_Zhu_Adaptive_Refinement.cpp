@@ -196,10 +196,10 @@ namespace moris
     //------------------------------------------------------------------------------
     enum hmr::ElementalRefienmentIndicator
     refinement_function(
-            mtk::Cell*                    aElement,
-            std::shared_ptr< mtk::Field > aField,
-            uint                          tActivationPattern,
-            uint&                         aMaxLevel )
+            mtk::Cell*                           aElement,
+            const std::shared_ptr< mtk::Field >& aField,
+            uint                                 tActivationPattern,
+            uint&                                aMaxLevel )
     {
         // current refinement level of element
         uint tLevel = aElement->get_level();
@@ -270,10 +270,10 @@ namespace moris
     //------------------------------------------------------------------------------
     enum hmr::ElementalRefienmentIndicator
     refinement_function_stress(
-            mtk::Cell*                    aElement,
-            std::shared_ptr< mtk::Field > aField,
-            uint                          tActivationPattern,
-            uint&                         aMaxLevel )
+            mtk::Cell*                           aElement,
+            const std::shared_ptr< mtk::Field >& aField,
+            uint                                 tActivationPattern,
+            uint&                                aMaxLevel )
     {
         // current refinement level of element
         uint tLevel = aElement->get_level();
@@ -489,8 +489,8 @@ namespace moris
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
-        moris::Matrix< moris::DDRMat > tHCT  = aParameters( 0 );
-        moris::real                    tBeta = aParameters( 0 )( 1 );
+        const moris::Matrix< moris::DDRMat >& tHCT  = aParameters( 0 );
+        moris::real                           tBeta = aParameters( 0 )( 1 );
 
         real tLevelSet = aFIManager->get_field_interpolators_for_type( gen::PDV_Type::LS1 )->val()( 0 ) / 2.40;
 
@@ -512,8 +512,8 @@ namespace moris
             moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         MORIS_ERROR( false, "Do not need this one" );
-        moris::Matrix< moris::DDRMat > tHCT  = aParameters( 0 );
-        moris::real                    tBeta = aParameters( 0 )( 1 );
+        const moris::Matrix< moris::DDRMat >& tHCT  = aParameters( 0 );
+        moris::real                           tBeta = aParameters( 0 )( 1 );
 
         real tLevelSet = aFIManager->get_field_interpolators_for_type( gen::PDV_Type::LS1 )->val()( 0 );
 

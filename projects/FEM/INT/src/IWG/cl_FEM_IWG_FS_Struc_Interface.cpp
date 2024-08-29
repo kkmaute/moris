@@ -16,18 +16,16 @@
 #include "fn_eye.hpp"
 #include "fn_dot.hpp"
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+    //------------------------------------------------------------------------------
+
+    IWG_FS_Struc_Interface::IWG_FS_Struc_Interface() {}
+
+    //------------------------------------------------------------------------------
+
+    void IWG_FS_Struc_Interface::compute_residual( real aWStar )
     {
-        //------------------------------------------------------------------------------
-
-        IWG_FS_Struc_Interface::IWG_FS_Struc_Interface(){}
-
-        //------------------------------------------------------------------------------
-
-        void IWG_FS_Struc_Interface::compute_residual( real aWStar )
-        {
 #ifdef MORIS_HAVE_DEBUG
             // check leader and follower field interpolators
             this->check_field_interpolators( mtk::Leader_Follower::LEADER );
@@ -130,6 +128,4 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
-
+}    // namespace moris::fem

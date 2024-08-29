@@ -11,11 +11,9 @@
 #include "cl_MTK_Vertex.hpp"
 #include "cl_MTK_Vertex_Interpolation_STK.hpp"
 
-namespace moris
+namespace moris::mtk
 {
-    namespace mtk
-    {
-// ----------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------
 
     void
 	Vertex_Interpolation_STK::set_weights( const Matrix< DDRMat > & aTMatrix )
@@ -124,6 +122,4 @@ namespace moris
         // return id matrix
         return aOwners;
     }
-    } /* namespace hmr */
-} /* namespace moris */
-
+}    // namespace moris::mtk

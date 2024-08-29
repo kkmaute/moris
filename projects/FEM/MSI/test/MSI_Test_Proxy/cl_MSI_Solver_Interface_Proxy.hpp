@@ -302,13 +302,13 @@ namespace moris::MSI
             }
             else
             {
-                return NULL;
+                return nullptr;
             }
         }
 
         // ----------------------------------------------------------------------------------------------
 
-        virtual const Vector< enum MSI::Dof_Type >&
+        const Vector< enum MSI::Dof_Type >&
         get_requested_dof_types() override
         {
             return mDummyDofs;
@@ -325,7 +325,7 @@ namespace moris::MSI
         // ---------------------------------------------------------------------------------------------
 
         // return the dummy value of 5
-        virtual uint
+        uint
         estimate_number_of_nonzero_columns() override
         {
             // return 5, it is a mock number

@@ -170,21 +170,21 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
 
         if(tVerboseGeometry)
         {
-            std::cout<<"\nLeft Plane :"<<std::endl;
-            std::cout<<"    xc = "<<std::setw(16)<<tLeftCenters(0)<<std::setw(16)<<tLeftCenters(1)<<std::endl;
-            std::cout<<"    n  = "<<std::setw(16)<<tLeftNormal(0)<<std::setw(16)<<tLeftNormal(1)<<std::endl;
+            std::cout << "\nLeft Plane :" << '\n';
+            std::cout << "    xc = " << std::setw( 16 ) << tLeftCenters( 0 ) << std::setw( 16 ) << tLeftCenters( 1 ) << '\n';
+            std::cout << "    n  = " << std::setw( 16 ) << tLeftNormal( 0 ) << std::setw( 16 ) << tLeftNormal( 1 ) << '\n';
 
-            std::cout<<"\nRight Plane :"<<std::endl;
-            std::cout<<"    xc = "<<std::setw(16)<<tRightCenters(0)<<std::setw(16)<<tRightCenters(1)<<std::endl;
-            std::cout<<"    n  = "<<std::setw(16)<<tRightNormal(0)<<std::setw(16)<<tRightNormal(1)<<std::endl;
+            std::cout << "\nRight Plane :" << '\n';
+            std::cout << "    xc = " << std::setw( 16 ) << tRightCenters( 0 ) << std::setw( 16 ) << tRightCenters( 1 ) << '\n';
+            std::cout << "    n  = " << std::setw( 16 ) << tRightNormal( 0 ) << std::setw( 16 ) << tRightNormal( 1 ) << '\n';
 
-            std::cout<<"\nBottom Plane :"<<std::endl;
-            std::cout<<"    xc = "<<std::setw(16)<<tBottomCenters(0)<<std::setw(16)<<tBottomCenters(1)<<std::endl;
-            std::cout<<"    n  = "<<std::setw(16)<<tBottomNormal(0)<<std::setw(16)<<tBottomNormal(1)<<std::endl;
+            std::cout << "\nBottom Plane :" << '\n';
+            std::cout << "    xc = " << std::setw( 16 ) << tBottomCenters( 0 ) << std::setw( 16 ) << tBottomCenters( 1 ) << '\n';
+            std::cout << "    n  = " << std::setw( 16 ) << tBottomNormal( 0 ) << std::setw( 16 ) << tBottomNormal( 1 ) << '\n';
 
-            std::cout<<"\nTop Plane :"<<std::endl;
-            std::cout<<"    xc = "<<std::setw(16)<<tTopCenters(0)<<std::setw(16)<<tTopCenters(1)<<std::endl;
-            std::cout<<"    n  = "<<std::setw(16)<<tTopNormal(0)<<std::setw(16)<< tTopNormal(1)<<std::endl;
+            std::cout << "\nTop Plane :" << '\n';
+            std::cout << "    xc = " << std::setw( 16 ) << tTopCenters( 0 ) << std::setw( 16 ) << tTopCenters( 1 ) << '\n';
+            std::cout << "    n  = " << std::setw( 16 ) << tTopNormal( 0 ) << std::setw( 16 ) << tTopNormal( 1 ) << '\n';
         }
 
         uint tLagrangeMeshIndex = 0;
@@ -475,8 +475,8 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         tSetDirichlet6.set_mesh_set_name( "SideSet_1_n_p5" );
         tSetDirichlet6.set_IWGs( { tIWGDirichlet } );
 
-        std::cout<<"tEnrIntegMesh.get_interface_side_set_name(3,9,8) = "<<tEnrIntegMesh.get_interface_side_set_name(3,9,8)<<" Index = "<<tEnrIntegMesh.get_set_index_by_name(tEnrIntegMesh.get_interface_side_set_name(3,9,8))<<std::endl;
-        std::cout<<"tEnrIntegMesh.get_interface_side_set_name(3,5,4) = "<<tEnrIntegMesh.get_interface_side_set_name(3,5,4)<<tEnrIntegMesh.get_set_index_by_name(tEnrIntegMesh.get_interface_side_set_name(3,5,4))<<std::endl;
+        std::cout << "tEnrIntegMesh.get_interface_side_set_name(3,9,8) = " << tEnrIntegMesh.get_interface_side_set_name( 3, 9, 8 ) << " Index = " << tEnrIntegMesh.get_set_index_by_name( tEnrIntegMesh.get_interface_side_set_name( 3, 9, 8 ) ) << '\n';
+        std::cout << "tEnrIntegMesh.get_interface_side_set_name(3,5,4) = " << tEnrIntegMesh.get_interface_side_set_name( 3, 5, 4 ) << tEnrIntegMesh.get_set_index_by_name( tEnrIntegMesh.get_interface_side_set_name( 3, 5, 4 ) ) << '\n';
 
         fem::Set_User_Info tSetNeumann1;
         tSetNeumann1.set_mesh_set_name( tEnrIntegMesh.get_interface_side_set_name(2,0,2) );

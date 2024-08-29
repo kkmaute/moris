@@ -15,6 +15,7 @@
 #include "moris_typedefs.hpp"    // CON/src
 #include "cl_Vector.hpp"
 #include <memory>
+#include <utility>
 
 #include "cl_MSI_Dof_Type_Enums.hpp"
 #include "cl_SOL_Enums.hpp"
@@ -184,7 +185,7 @@ namespace moris
             SOL_Warehouse( moris::Solver_Interface* aSolverInterface,
                     std::shared_ptr< Library_IO >   aLibrary )
                     : mSolverInterface( aSolverInterface )
-                    , mLibrary( aLibrary ){};
+                    , mLibrary( std::move( aLibrary ) ) {};
 
             SOL_Warehouse(){};
 
@@ -198,7 +199,7 @@ namespace moris
             //--------------------------------------------------------------------------------------------------------
 
             void
-            set_parameterlist( Vector< Vector< moris::Parameter_List > > aParameterlist )
+            set_parameterlist( const Vector< Vector< moris::Parameter_List > >& aParameterlist )
             {
                 mParameterlist = aParameterlist;
             };

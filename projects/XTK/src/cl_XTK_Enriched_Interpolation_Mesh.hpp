@@ -114,40 +114,40 @@ namespace moris::xtk
       public:
         Enriched_Interpolation_Mesh( Model* aXTKModel );
 
-        ~Enriched_Interpolation_Mesh();
+        ~Enriched_Interpolation_Mesh() override;
 
         //------------------------------------------------------------------------------
         // MTK Mesh Core Impl (see base class mtk::Mesh for function descriptions)
         //------------------------------------------------------------------------------
-        mtk::MeshType                               get_mesh_type() const;
-        moris::uint                                 get_spatial_dim() const;
-        uint                                        get_num_entities( mtk::EntityRank aEntityRank, const moris_index aIndex = 0 ) const;
-        uint                                        get_max_num_coeffs_on_proc( const uint aBSplineMeshIndex ) const;
-        Matrix< IndexMat >                          get_entity_connected_to_entity_loc_inds( moris_index aEntityIndex, mtk::EntityRank aInputEntityRank, mtk::EntityRank aOutputEntityRank, const moris_index aIndex = 0 ) const;
-        Matrix< IndexMat >                          get_elements_connected_to_element_and_face_ind_loc_inds( moris_index aElementIndex ) const;
-        moris_id                                    get_glb_entity_id_from_entity_loc_index( moris_index aEntityIndex, mtk::EntityRank aEntityRank, const moris_index aIndex = 0 ) const;
-        moris_index                                 get_loc_entity_ind_from_entity_glb_id( moris_id aEntityId, mtk::EntityRank aEntityRank, const moris_index aIndex = 0 ) const;
+        mtk::MeshType                               get_mesh_type() const override;
+        moris::uint                                 get_spatial_dim() const override;
+        uint                                        get_num_entities( mtk::EntityRank aEntityRank, const moris_index aIndex = 0 ) const override;
+        uint                                        get_max_num_coeffs_on_proc( const uint aBSplineMeshIndex ) const override;
+        Matrix< IndexMat >                          get_entity_connected_to_entity_loc_inds( moris_index aEntityIndex, mtk::EntityRank aInputEntityRank, mtk::EntityRank aOutputEntityRank, const moris_index aIndex = 0 ) const override;
+        Matrix< IndexMat >                          get_elements_connected_to_element_and_face_ind_loc_inds( moris_index aElementIndex ) const override;
+        moris_id                                    get_glb_entity_id_from_entity_loc_index( moris_index aEntityIndex, mtk::EntityRank aEntityRank, const moris_index aIndex = 0 ) const override;
+        moris_index                                 get_loc_entity_ind_from_entity_glb_id( moris_id aEntityId, mtk::EntityRank aEntityRank, const moris_index aIndex = 0 ) const override;
         const mtk::Interpolation_Mesh&              get_background_mesh() override;
-        std::unordered_map< moris_id, moris_index > get_vertex_glb_id_to_loc_vertex_ind_map() const;
-        Vector< mtk::Vertex const * >               get_all_vertices() const;
-        Matrix< IdMat >                             get_entity_connected_to_entity_glob_ids( moris_id aEntityId, mtk::EntityRank aInputEntityRank, mtk::EntityRank aOutputEntityRank, const moris_index aIndex = 0 ) const;
-        Matrix< DDRMat >                            get_node_coordinate( moris_index aNodeIndex ) const;
+        std::unordered_map< moris_id, moris_index > get_vertex_glb_id_to_loc_vertex_ind_map() const override;
+        Vector< mtk::Vertex const * >               get_all_vertices() const override;
+        Matrix< IdMat >                             get_entity_connected_to_entity_glob_ids( moris_id aEntityId, mtk::EntityRank aInputEntityRank, mtk::EntityRank aOutputEntityRank, const moris_index aIndex = 0 ) const override;
+        Matrix< DDRMat >                            get_node_coordinate( moris_index aNodeIndex ) const override;
         Matrix< DDRMat >                            get_base_node_coordinate( moris_index aBaseNodeIndex ) const;
-        mtk::Vertex&                                get_mtk_vertex( moris_index aVertexIndex );
-        mtk::Vertex const &                         get_mtk_vertex( moris_index aVertexIndex ) const;
-        mtk::Cell const &                           get_mtk_cell( moris_index aElementIndex ) const;
-        mtk::Cell&                                  get_mtk_cell( moris_index aElementIndex );
-        mtk::Cell&                                  get_writable_mtk_cell( moris_index aElementIndex );
-        Matrix< IdMat >                             get_communication_table() const;
+        mtk::Vertex&                                get_mtk_vertex( moris_index aVertexIndex ) override;
+        mtk::Vertex const &                         get_mtk_vertex( moris_index aVertexIndex ) const override;
+        mtk::Cell const &                           get_mtk_cell( moris_index aElementIndex ) const override;
+        mtk::Cell&                                  get_mtk_cell( moris_index aElementIndex ) override;
+        mtk::Cell&                                  get_writable_mtk_cell( moris_index aElementIndex ) override;
+        Matrix< IdMat >                             get_communication_table() const override;
         uint                                        get_num_elements();
-        Matrix< IndexMat >                          get_element_indices_in_block_set( uint aSetIndex );
-        moris_id                                    get_max_entity_id( mtk::EntityRank aEntityRank, const moris_index aIndex = 0 ) const;
-        void                                        get_adof_map( const uint aBSplineIndex, map< moris_id, moris_index >& aAdofMap ) const;
-        mtk::CellTopology                           get_blockset_topology( const std::string& aSetName );
-        mtk::CellShape                              get_IG_blockset_shape( const std::string& aSetName );
-        mtk::CellShape                              get_IP_blockset_shape( const std::string& aSetName );
-        uint                                        get_node_owner( moris_index aNodeIndex ) const;
-        uint                                        get_element_owner( moris_index aElementIndex ) const;
+        Matrix< IndexMat >                          get_element_indices_in_block_set( uint aSetIndex ) override;
+        moris_id                                    get_max_entity_id( mtk::EntityRank aEntityRank, const moris_index aIndex = 0 ) const override;
+        void                                        get_adof_map( const uint aBSplineIndex, map< moris_id, moris_index >& aAdofMap ) const override;
+        mtk::CellTopology                           get_blockset_topology( const std::string& aSetName ) override;
+        mtk::CellShape                              get_IG_blockset_shape( const std::string& aSetName ) override;
+        mtk::CellShape                              get_IP_blockset_shape( const std::string& aSetName ) override;
+        uint                                        get_node_owner( moris_index aNodeIndex ) const override;
+        uint                                        get_element_owner( moris_index aElementIndex ) const override;
 
         //------------------------------------------------------------------------------
         // end mesh core functions
@@ -157,14 +157,14 @@ namespace moris::xtk
         // multi-grid accessor functions
         //------------------------------------------------------------------------------
 
-        uint             get_num_interpolations();
-        uint             get_max_level( const moris_index aInterpolationIndex );
-        uint             get_num_basis( const moris_index aInterpolationIndex );
-        uint             get_basis_level( const moris_index aInterpolationIndex, const moris_index aBasisIndex );
-        uint             get_num_coarse_basis_of_basis( const moris_index aInterpolationIndex, const moris_index aBasisIndex );
-        uint             get_coarse_basis_index_of_basis( const moris_index aInterpolationIndex, const moris_index aBasisIndex, const moris_index aCoarseParentIndex );
-        Matrix< DDSMat > get_fine_basis_inds_of_basis( const moris_index aInterpolationIndex, const moris_index aBasisIndex );
-        Matrix< DDRMat > get_fine_basis_weights_of_basis( const moris_index aInterpolationIndex, const moris_index aBasisIndex );
+        uint             get_num_interpolations() override;
+        uint             get_max_level( const moris_index aInterpolationIndex ) override;
+        uint             get_num_basis( const moris_index aInterpolationIndex ) override;
+        uint             get_basis_level( const moris_index aInterpolationIndex, const moris_index aBasisIndex ) override;
+        uint             get_num_coarse_basis_of_basis( const moris_index aInterpolationIndex, const moris_index aBasisIndex ) override;
+        uint             get_coarse_basis_index_of_basis( const moris_index aInterpolationIndex, const moris_index aBasisIndex, const moris_index aCoarseParentIndex ) override;
+        Matrix< DDSMat > get_fine_basis_inds_of_basis( const moris_index aInterpolationIndex, const moris_index aBasisIndex ) override;
+        Matrix< DDRMat > get_fine_basis_weights_of_basis( const moris_index aInterpolationIndex, const moris_index aBasisIndex ) override;
 
         //------------------------------------------------------------------------------
         // Accessor functions of XTK specific data structures
@@ -371,7 +371,7 @@ namespace moris::xtk
          * @return Matrix< IndexMat >
          */
         Matrix< IndexMat >
-        get_enriched_mesh_indices() const;
+        get_enriched_mesh_indices() const override;
 
         //------------------------------------------------------------------------------
 
@@ -383,8 +383,8 @@ namespace moris::xtk
          */
         void
         set_enriched_basis_to_bulkphase_map(
-                const moris_index aMeshIndex,
-                Matrix< IdMat >   aBulkPhaseInEnrichedBasis );
+                const moris_index      aMeshIndex,
+                const Matrix< IdMat >& aBulkPhaseInEnrichedBasis );
 
         //------------------------------------------------------------------------------
 
@@ -420,9 +420,9 @@ namespace moris::xtk
 
         // Print functions
         void write_diagnostics();
-        void print_enriched_cells( std::string aFile );
-        void print_enriched_verts( std::string aFile );
-        void print_enriched_verts_interpolation( const moris_index& aMeshIndex, std::string aFileName );
+        void print_enriched_cells( const std::string& aFile );
+        void print_enriched_verts( const std::string& aFile );
+        void print_enriched_verts_interpolation( const moris_index& aMeshIndex, const std::string& aFileName );
         void print_vertex_maps() const;
         void print_enriched_cell_maps() const;
         void print_basis_to_enriched_basis() const;
@@ -731,7 +731,7 @@ namespace moris::xtk
          */
 
         Vector< std::string >
-        get_set_names( mtk::EntityRank aSetEntityRank ) const;
+        get_set_names( mtk::EntityRank aSetEntityRank ) const override;
 
         //------------------------------------------------------------------------------
 
@@ -794,7 +794,7 @@ namespace moris::xtk
         Matrix< IndexMat >
         get_coefficient_indices_of_node(
                 uint aNodeIndex,
-                uint aDiscretizationMeshIndex );
+                uint aDiscretizationMeshIndex ) override;
 
         //------------------------------------------------------------------------------
 
@@ -809,7 +809,7 @@ namespace moris::xtk
         const Matrix< DDRMat >&
         get_t_matrix_of_node_loc_ind(
                 uint aNodeIndex,
-                uint aDiscretizationMeshIndex );
+                uint aDiscretizationMeshIndex ) override;
 
         //------------------------------------------------------------------------------
 
@@ -824,7 +824,7 @@ namespace moris::xtk
         Matrix< IdMat >
         get_coefficient_owners_of_node(
                 uint aNodeIndex,
-                uint aBSplineMeshIndex );
+                uint aBSplineMeshIndex ) override;
 
         //------------------------------------------------------------------------------
 
@@ -838,7 +838,7 @@ namespace moris::xtk
 
         Matrix< IdMat > get_coefficient_IDs_of_node(
                 uint aNodeIndex,
-                uint aDiscretizationIndex );
+                uint aDiscretizationIndex ) override;
 
         //------------------------------------------------------------------------------
 
@@ -854,7 +854,7 @@ namespace moris::xtk
         uint get_entity_owner(
                 moris_index       aEntityIndex,
                 mtk::EntityRank   aEntityRank,
-                const moris_index aDiscretizationMeshIndex ) const;
+                const moris_index aDiscretizationMeshIndex ) const override;
 
         //------------------------------------------------------------------------------
         // Additional Field Functions
@@ -881,9 +881,9 @@ namespace moris::xtk
          */
 
         moris::moris_index
-        create_field( std::string  aLabel,
-                mtk::EntityRank    aEntityRank,
-                moris::moris_index aBulkPhaseIndex = MORIS_INDEX_MAX );
+        create_field( const std::string& aLabel,
+                mtk::EntityRank          aEntityRank,
+                moris::moris_index       aBulkPhaseIndex = MORIS_INDEX_MAX );
 
         //------------------------------------------------------------------------------
 
@@ -893,8 +893,8 @@ namespace moris::xtk
          */
 
         moris::moris_index
-        get_field_index( std::string aLabel,
-                mtk::EntityRank      aEntityRank );
+        get_field_index( const std::string& aLabel,
+                mtk::EntityRank             aEntityRank );
 
         //------------------------------------------------------------------------------
 
@@ -941,8 +941,8 @@ namespace moris::xtk
          * @return  whether a field exists or not
          */
         bool
-        field_exists( std::string aLabel,
-                mtk::EntityRank   aEntityRank );
+        field_exists( const std::string& aLabel,
+                mtk::EntityRank          aEntityRank );
 
         //------------------------------------------------------------------------------
 
@@ -976,7 +976,7 @@ namespace moris::xtk
          */
 
         moris_index
-        get_block_set_index( std::string aString ) const;
+        get_block_set_index( const std::string& aBlockSetLabel ) const;
 
         //------------------------------------------------------------------------------
 
@@ -988,7 +988,7 @@ namespace moris::xtk
          */
 
         Vector< mtk::Cell const * >
-        get_set_cells( std::string aSetLabel ) const;
+        get_set_cells( const std::string& aSetLabel ) const override;
 
         //------------------------------------------------------------------------------
 

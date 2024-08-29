@@ -11,18 +11,15 @@
 #ifndef SRC_DISTLINALG_CL_TSA_TIME_SOLVER_ENUMS_HPP_
 #define SRC_DISTLINALG_CL_TSA_TIME_SOLVER_ENUMS_HPP_
 
-namespace moris
+namespace moris::tsa
 {
-    namespace tsa
+    enum class TimeSolverType
     {
-        enum class TimeSolverType
-        {
-            MONOLITHIC,   //< Wrapper around Aztec Solver
-            STAGGERED,   //< Wrapper around Aztec Solver
-            END_ENUM
-        };
+        MONOLITHIC,    //< Wrapper around Aztec Solver
+        STAGGERED,     //< Wrapper around Aztec Solver
+        END_ENUM
+    };
     }
-}
 
 #endif /* SRC_DISTLINALG_CL_TSA_TIME_SOLVER_ENUMS_HPP_ */
 

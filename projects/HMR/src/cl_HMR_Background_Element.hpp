@@ -143,7 +143,7 @@ namespace moris::hmr
          * Default element destructor.
          * Deletes children if children flag is set.
          */
-        ~Background_Element()
+        ~Background_Element() override
         {
             if ( mChildrenFlag )
             {
@@ -168,7 +168,7 @@ namespace moris::hmr
          *               careful: element must not go out of scope.
          */
         const luint*
-        get_ijk() const
+        get_ijk() const override
         {
             return mIJK;
         }
@@ -184,7 +184,7 @@ namespace moris::hmr
          * @return void
          */
         void
-        insert_child( Background_Element_Base* aChild )
+        insert_child( Background_Element_Base* aChild ) override
         {
             mChildrenFlag                          = true;
             mChildren[ aChild->get_child_index() ] = aChild;
@@ -201,7 +201,7 @@ namespace moris::hmr
          *                                *< number of children >
          * @return void
          */
-        void get_ijk_of_children( Matrix< DDLUMat >& aIJK ) const;
+        void get_ijk_of_children( Matrix< DDLUMat >& aIJK ) const override;
 
         //--------------------------------------------------------------------------------
 
@@ -216,7 +216,7 @@ namespace moris::hmr
          * @return void
          */
         void
-        get_number_of_active_descendants( uint aPattern, luint& aCount ) const;
+        get_number_of_active_descendants( uint aPattern, luint& aCount ) const override;
 
         //--------------------------------------------------------------------------------
         /**
@@ -228,7 +228,7 @@ namespace moris::hmr
          * @return void
          */
         void
-        get_number_of_descendants( luint& aCount ) const;
+        get_number_of_descendants( luint& aCount ) const override;
 
         //--------------------------------------------------------------------------------
 
@@ -246,7 +246,7 @@ namespace moris::hmr
         void
         collect_descendants(
                 Vector< Background_Element_Base* >& aElementList,
-                luint&                            aElementCount );
+                luint&                            aElementCount ) override;
 
         //--------------------------------------------------------------------------------
 
@@ -264,12 +264,12 @@ namespace moris::hmr
         void collect_active_descendants(
                 uint                              aPattern,
                 Vector< Background_Element_Base* >& aElementList,
-                luint&                            aElementCount );
+                luint&                            aElementCount ) override;
 
         void collect_active_descendants(
                 uint                                    aPattern,
                 Vector< const Background_Element_Base* >& aElementList,
-                luint&                                  aElementCount ) const;
+                luint&                                  aElementCount ) const override;
         //--------------------------------------------------------------------------------
 
         /**
@@ -288,7 +288,7 @@ namespace moris::hmr
                 uint               aPattern,
                 Matrix< DDLUMat >& aElementList,
                 luint&             aElementCount,
-                int                aNeighborIndex = -1 ) const;
+                int                aNeighborIndex = -1 ) const override;
 
         //--------------------------------------------------------------------------------
 
@@ -299,7 +299,7 @@ namespace moris::hmr
          * @return int neighbor side ordinal
          *
          */
-        int get_neighbor_side_ordinal( int aNeighborIndex ) const;
+        int get_neighbor_side_ordinal( int aNeighborIndex ) const override;
 
         //--------------------------------------------------------------------------------
 
@@ -312,12 +312,12 @@ namespace moris::hmr
          */
         void get_child_cell_ordinals_on_side(
                 int                 aSideOrdinal,
-                Matrix< IndexMat >& aChildCellOrdinals ) const;
+                Matrix< IndexMat >& aChildCellOrdinals ) const override;
 
         //--------------------------------------------------------------------------------
 
         uint
-        get_num_children() const
+        get_num_children() const override
         {
             return C;
         }
@@ -332,7 +332,7 @@ namespace moris::hmr
          * @return Background_Element_Base*  pointer to selected child
          */
         Background_Element_Base*
-        get_child( uint aIndex )
+        get_child( uint aIndex ) override
         {
             return mChildren[ aIndex ];
         }
@@ -347,7 +347,7 @@ namespace moris::hmr
          * @return Background_Element_Base*  pointer to selected child
          */
         Background_Element_Base*
-        get_child( uint aIndex ) const
+        get_child( uint aIndex ) const override
         {
             return mChildren[ aIndex ];
         }
@@ -366,7 +366,7 @@ namespace moris::hmr
         void
         insert_neighbor(
                 uint                     aIndex,
-                Background_Element_Base* aNeighbor )
+                Background_Element_Base* aNeighbor ) override
         {
             mNeighbors[ aIndex ] = aNeighbor;
         }
@@ -380,7 +380,7 @@ namespace moris::hmr
          * @return Background_Element_Base*  pointer to requested neighbor
          */
         Background_Element_Base*
-        get_neighbor( uint aIndex )
+        get_neighbor( uint aIndex ) override
         {
             return mNeighbors[ aIndex ];
         }
@@ -394,7 +394,7 @@ namespace moris::hmr
          * @return Background_Element_Base*  pointer to requested neighbor
          */
         const Background_Element_Base*
-        get_neighbor( uint aIndex ) const
+        get_neighbor( uint aIndex ) const override
         {
             return mNeighbors[ aIndex ];
         }
@@ -410,7 +410,7 @@ namespace moris::hmr
          */
         void count_elements_on_level(
                 uint   aLevel,
-                luint& aElementCount );
+                luint& aElementCount ) override;
         //--------------------------------------------------------------------------------
 
         /**
@@ -424,15 +424,15 @@ namespace moris::hmr
         void collect_elements_on_level(
                 uint                              aLevel,
                 Vector< Background_Element_Base* >& aElementList,
-                luint&                            aElementCount );
+                luint&                            aElementCount ) override;
         //--------------------------------------------------------------------------------
 
-        void collect_neighbors( uint aPattern );
+        void collect_neighbors( uint aPattern ) override;
 
         //--------------------------------------------------------------------------------
 
         uint
-        get_number_of_facets() const
+        get_number_of_facets() const override
         {
             return F;
         }
@@ -440,7 +440,7 @@ namespace moris::hmr
         //--------------------------------------------------------------------------------
 
         uint
-        get_number_of_edges() const
+        get_number_of_edges() const override
         {
             return E;
         }
@@ -455,7 +455,7 @@ namespace moris::hmr
          *
          */
         void
-        print_neighbors( uint aPattern )
+        print_neighbors( uint aPattern ) override
         {
             // print header
             std::fprintf( stdout, "\n Neighbors of Element %lu ( ID: %lu, mem:  %lu, child: %u ): \n\n", (long unsigned int)mDomainIndex( aPattern ), (long unsigned int)mDomainID, (long unsigned int)mMemoryIndex, (unsigned int)this->get_child_index() );
@@ -471,7 +471,7 @@ namespace moris::hmr
                     int tActive = mNeighbors[ k ]->is_active( aPattern );
 
                     // print index and id of neighbor
-                    std::fprintf( stdout, "    %2u   id: %5lu     a: %d\n", (unsigned int)k, (long unsigned int)tID, tActive );
+                    std::fprintf( stdout, "    %2u   id: %5lu     a: %d\n", (unsigned int)k, tID, tActive );
                 }
                 else
                 {
@@ -492,7 +492,7 @@ namespace moris::hmr
          * @return uint    index between 0 and 3 (2D) or 0 and 7 (3D)
          */
         uint
-        get_child_index() const
+        get_child_index() const override
         {
             return mChildBitset.to_ulong();
         }
@@ -507,7 +507,7 @@ namespace moris::hmr
          * @return bool
          */
         bool
-        test_child_index_bit( uint aBit ) const
+        test_child_index_bit( uint aBit ) const override
         {
             return mChildBitset.test( aBit );
         }
@@ -522,7 +522,7 @@ namespace moris::hmr
         encode_pedigree_path(
                 luint&            aAncestorID,
                 Matrix< DDUMat >& aPedigreeList,
-                luint&            aCounter )
+                luint&            aCounter ) override
         {
             // create bitset
             Bitset< gBitsetSize > tBitset;
@@ -597,7 +597,7 @@ namespace moris::hmr
         //--------------------------------------------------------------------------------
 
         luint
-        get_length_of_pedigree_path()
+        get_length_of_pedigree_path() override
         {
             return ceil( ( (real)( this->get_level() * N ) ) / 32 ) + 1;
         }
@@ -612,11 +612,11 @@ namespace moris::hmr
          * @param[ out ] aNeighbors   cell containing found neighbors
          */
         void get_neighbors_from_same_level( uint  aOrder,
-                Vector< Background_Element_Base* >& aNeighbors );
+                Vector< Background_Element_Base* >& aNeighbors ) override;
 
         //--------------------------------------------------------------------------------
         void
-        delete_facets()
+        delete_facets() override
         {
             // loop over all faces
             for ( uint f = 0; f < F; ++f )
@@ -635,7 +635,7 @@ namespace moris::hmr
         //--------------------------------------------------------------------------------
 
         void
-        delete_edges()
+        delete_edges() override
         {
             // loop over all edges
             for ( uint e = 0; e < E; ++e )
@@ -654,7 +654,7 @@ namespace moris::hmr
 
         //--------------------------------------------------------------------------------
         void
-        reset_neighbors()
+        reset_neighbors() override
         {
             // loop over all faces
             for ( uint f = 0; f < B; ++f )
@@ -670,7 +670,7 @@ namespace moris::hmr
          * create the faces of this element
          */
         void
-        create_facets()
+        create_facets() override
         {
             //                 this->delete_facets();
 
@@ -732,14 +732,14 @@ namespace moris::hmr
         /**
          * creates the edges ( 3D only )
          */
-        void create_edges();
+        void create_edges() override;
 
         //--------------------------------------------------------------------------------
 
         /**
          * reset the flags of the faces
          */
-        void reset_flags_of_facets();
+        void reset_flags_of_facets() override;
 
         //--------------------------------------------------------------------------------
 
@@ -747,7 +747,7 @@ namespace moris::hmr
          * returns a face of the background element
          */
         Background_Facet*
-        get_facet( uint aIndex )
+        get_facet( uint aIndex ) override
         {
             return mFacets[ aIndex ];
         }
@@ -758,7 +758,7 @@ namespace moris::hmr
          * inserts a face into the background element
          */
         void
-        insert_facet( Background_Facet* aFace, uint aIndex )
+        insert_facet( Background_Facet* aFace, uint aIndex ) override
         {
             MORIS_ASSERT( mFacets[ aIndex ] == nullptr, "tried to overwrite existing facet" );
             // copy face to slot
@@ -770,97 +770,97 @@ namespace moris::hmr
         /**
          * returns an edge of the background element ( 3D only )
          */
-        Background_Edge* get_edge( uint aIndex );
+        Background_Edge* get_edge( uint aIndex ) override;
 
         //--------------------------------------------------------------------------------
 
-        void insert_edge( Background_Edge* aEdge, uint aIndex );
+        void insert_edge( Background_Edge* aEdge, uint aIndex ) override;
 
         //-------------------------------------------------------------------------------
 
-        void reset_flags_of_edges();
+        void reset_flags_of_edges() override;
 
         //--------------------------------------------------------------------------------
 
         void get_number_of_active_descendants_on_side_1(
                 uint   aPattern,
-                luint& aCount );
+                luint& aCount ) override;
 
         //--------------------------------------------------------------------------------
 
         void get_number_of_active_descendants_on_side_2(
                 uint   aPattern,
-                luint& aCount );
+                luint& aCount ) override;
 
         //--------------------------------------------------------------------------------
 
         void get_number_of_active_descendants_on_side_3(
                 uint   aPattern,
-                luint& aCount );
+                luint& aCount ) override;
 
         //--------------------------------------------------------------------------------
 
         void get_number_of_active_descendants_on_side_4(
                 uint   aPattern,
-                luint& aCount );
+                luint& aCount ) override;
 
         //--------------------------------------------------------------------------------
 
         void get_number_of_active_descendants_on_side_5(
                 uint   aPattern,
-                luint& aCount );
+                luint& aCount ) override;
 
         //--------------------------------------------------------------------------------
 
         void get_number_of_active_descendants_on_side_6(
                 uint   aPattern,
-                luint& aCount );
+                luint& aCount ) override;
 
         //--------------------------------------------------------------------------------
 
         void collect_active_descendants_on_side_1(
                 uint                              aPattern,
                 Vector< Background_Element_Base* >& aElementList,
-                luint&                            aElementCount );
+                luint&                            aElementCount ) override;
 
         //--------------------------------------------------------------------------------
 
         void collect_active_descendants_on_side_2(
                 uint                              aPattern,
                 Vector< Background_Element_Base* >& aElementList,
-                luint&                            aElementCount );
+                luint&                            aElementCount ) override;
 
         //--------------------------------------------------------------------------------
 
         void collect_active_descendants_on_side_3(
                 uint                              aPattern,
                 Vector< Background_Element_Base* >& aElementList,
-                luint&                            aElementCount );
+                luint&                            aElementCount ) override;
 
         //--------------------------------------------------------------------------------
 
         void collect_active_descendants_on_side_4(
                 uint                              aPattern,
                 Vector< Background_Element_Base* >& aElementList,
-                luint&                            aElementCount );
+                luint&                            aElementCount ) override;
 
         //--------------------------------------------------------------------------------
 
         void collect_active_descendants_on_side_5(
                 uint                              aPattern,
                 Vector< Background_Element_Base* >& aElementList,
-                luint&                            aElementCount );
+                luint&                            aElementCount ) override;
 
         //--------------------------------------------------------------------------------
 
         void collect_active_descendants_on_side_6(
                 uint                              aPattern,
                 Vector< Background_Element_Base* >& aElementList,
-                luint&                            aElementCount );
+                luint&                            aElementCount ) override;
 
         //-------------------------------------------------------------------------------
 
-        void init_edge_container();
+        void init_edge_container() override;
 
         //--------------------------------------------------------------------------------
 

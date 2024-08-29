@@ -11,6 +11,8 @@
 #ifndef MORIS_CL_XTK_Integration_Mesh_Generator_HPP_
 #define MORIS_CL_XTK_Integration_Mesh_Generator_HPP_
 
+#include <utility>
+
 #include "cl_XTK_Model.hpp"
 #include "cl_GEN_Geometry_Engine.hpp"
 #include "cl_Matrix.hpp"
@@ -105,7 +107,7 @@ namespace moris::xtk
         void
         set_edge_connectivity( std::shared_ptr< Edge_Based_Connectivity > aEdgeConnectivity )
         {
-            mEdgeConnectivity = aEdgeConnectivity;
+            mEdgeConnectivity = std::move( aEdgeConnectivity );
         }
 
         void
@@ -156,7 +158,7 @@ namespace moris::xtk
         }
 
         void
-        set_query_edge_connectivity( std::shared_ptr< Edge_Based_Connectivity > aEdgeBasedConnectivity )
+        set_query_edge_connectivity( const std::shared_ptr< Edge_Based_Connectivity >& aEdgeBasedConnectivity )
         {
         }
 
@@ -267,8 +269,8 @@ namespace moris::xtk
         // ----------------------------------------------------------------------------------
 
         Integration_Mesh_Generator(
-                xtk::Model*                       aXTKModelPtr,
-                Vector< enum Subdivision_Method > aMethods );
+                xtk::Model*                              aXTKModelPtr,
+                const Vector< enum Subdivision_Method >& aMethods );
 
         // ----------------------------------------------------------------------------------
 
@@ -356,9 +358,9 @@ namespace moris::xtk
 
         void
         deduce_interfaces(
-                Cut_Integration_Mesh*                       aCutIntegrationMesh,
-                std::shared_ptr< Facet_Based_Connectivity > aFacetConnectivity,
-                Vector< moris_index >&                      aInterfaces );
+                Cut_Integration_Mesh*                              aCutIntegrationMesh,
+                const std::shared_ptr< Facet_Based_Connectivity >& aFacetConnectivity,
+                Vector< moris_index >&                             aInterfaces );
 
         // ----------------------------------------------------------------------------------
 
@@ -454,63 +456,63 @@ namespace moris::xtk
 
         void
         generate_cell_neighborhood(
-                Vector< moris::mtk::Cell* >&                      aCells,
-                std::shared_ptr< Facet_Based_Connectivity >       aFaceConnectivity,
-                std::shared_ptr< Cell_Neighborhood_Connectivity > aNeighborhood );
+                Vector< moris::mtk::Cell* >&                             aCells,
+                const std::shared_ptr< Facet_Based_Connectivity >&       aFaceConnectivity,
+                const std::shared_ptr< Cell_Neighborhood_Connectivity >& aNeighborhood );
 
         // ----------------------------------------------------------------------------------
 
         void
         create_facet_from_element_to_node(
-                Vector< moris::mtk::Cell* >&                aCells,
-                std::shared_ptr< Facet_Based_Connectivity > aFaceConnectivity,
-                const Cut_Integration_Mesh*                 aCutIntegrationMesh );
-        
+                Vector< moris::mtk::Cell* >&                       aCells,
+                const std::shared_ptr< Facet_Based_Connectivity >& aFaceConnectivity,
+                const Cut_Integration_Mesh*                        aCutIntegrationMesh );
+
         [[deprecated]]
         void
         create_facet_from_element_to_node(
-                Vector< moris::mtk::Cell* >&                aCells,
-                std::shared_ptr< Facet_Based_Connectivity > aFaceConnectivity );
+                Vector< moris::mtk::Cell* >&                       aCells,
+                const std::shared_ptr< Facet_Based_Connectivity >& aFaceConnectivity );
 
         // ----------------------------------------------------------------------------------
 
         void
         create_vertex_facet_connectivity(
-                std::shared_ptr< Facet_Based_Connectivity > aFaceConnectivity,
-                Cut_Integration_Mesh*                       aCutIntegrationMesh );
+                const std::shared_ptr< Facet_Based_Connectivity >& aFaceConnectivity,
+                Cut_Integration_Mesh*                              aCutIntegrationMesh );
 
         // ----------------------------------------------------------------------------------
 
         void
         create_edges_from_element_to_node(
-                Vector< moris::mtk::Cell* >                aCells,
-                std::shared_ptr< Edge_Based_Connectivity > aEdgeConnectivity );
+                Vector< moris::mtk::Cell* >                       aCells,
+                const std::shared_ptr< Edge_Based_Connectivity >& aEdgeConnectivity );
 
         // ----------------------------------------------------------------------------------
 
         void
         select_background_cell_for_edge(
-                std::shared_ptr< Edge_Based_Connectivity > aEdgeBasedConnectivity,
-                Cut_Integration_Mesh*                      aCutIntegrationMesh,
-                Vector< moris::mtk::Cell* >&               aBackgroundCellForEdge );
+                const std::shared_ptr< Edge_Based_Connectivity >& aEdgeBasedConnectivity,
+                Cut_Integration_Mesh*                             aCutIntegrationMesh,
+                Vector< moris::mtk::Cell* >&                      aBackgroundCellForEdge );
 
         // ----------------------------------------------------------------------------------
 
         void
         select_background_cell_for_facet(
-                std::shared_ptr< Facet_Based_Connectivity > aEdgeBasedConnectivity,
-                Cut_Integration_Mesh*                       aCutIntegrationMesh,
-                Vector< moris::mtk::Cell* >&                aBackgroundCellForEdge );
+                const std::shared_ptr< Facet_Based_Connectivity >& aEdgeBasedConnectivity,
+                Cut_Integration_Mesh*                              aCutIntegrationMesh,
+                Vector< moris::mtk::Cell* >&                       aBackgroundCellForEdge );
 
         // ----------------------------------------------------------------------------------
 
         void
         deduce_facet_ancestry(
-                Cut_Integration_Mesh*                       aCutIntegrationMesh,
-                moris::mtk::Mesh*                           aBackgroundMesh,
-                std::shared_ptr< Facet_Based_Connectivity > aIgCellGroupFacetConnectivity,
-                Vector< moris::mtk::Cell* > const &         aParentCellForDeduction,
-                std::shared_ptr< Facet_Based_Ancestry >     aIgFacetAncestry );
+                Cut_Integration_Mesh*                              aCutIntegrationMesh,
+                moris::mtk::Mesh*                                  aBackgroundMesh,
+                const std::shared_ptr< Facet_Based_Connectivity >& aIgCellGroupFacetConnectivity,
+                Vector< moris::mtk::Cell* > const &                aParentCellForDeduction,
+                const std::shared_ptr< Facet_Based_Ancestry >&     aIgFacetAncestry );
 
         // ----------------------------------------------------------------------------------
 
@@ -518,19 +520,19 @@ namespace moris::xtk
         compute_bg_facet_to_child_facet_connectivity(
                 Cut_Integration_Mesh*                                      aCutIntegrationMesh,
                 moris::mtk::Mesh*                                          aBackgroundMesh,
-                std::shared_ptr< Facet_Based_Connectivity >                aIgCellGroupFacetConnectivity,
-                std::shared_ptr< Facet_Based_Ancestry >                    aIgFacetAncestry,
+                const std::shared_ptr< Facet_Based_Connectivity >&         aIgCellGroupFacetConnectivity,
+                const std::shared_ptr< Facet_Based_Ancestry >&             aIgFacetAncestry,
                 Vector< std::shared_ptr< Vector< moris::moris_index > > >& aBgFacetToIgFacet );
 
         // ----------------------------------------------------------------------------------
 
         void
         deduce_edge_ancestry(
-                Cut_Integration_Mesh*                      aCutIntegrationMesh,
-                moris::mtk::Mesh*                          aBackgroundMesh,
-                std::shared_ptr< Edge_Based_Connectivity > aIgCellGroupEdgeConnectivity,
-                Vector< moris::mtk::Cell* > const &        aParentCellForDeduction,
-                std::shared_ptr< Edge_Based_Ancestry >     aIgEdgeAncestry );
+                Cut_Integration_Mesh*                             aCutIntegrationMesh,
+                moris::mtk::Mesh*                                 aBackgroundMesh,
+                const std::shared_ptr< Edge_Based_Connectivity >& aIgCellGroupEdgeConnectivity,
+                Vector< moris::mtk::Cell* > const &               aParentCellForDeduction,
+                const std::shared_ptr< Edge_Based_Ancestry >&     aIgEdgeAncestry );
 
         // ----------------------------------------------------------------------------------
 
@@ -563,10 +565,10 @@ namespace moris::xtk
 
         void
         identify_and_construct_subphases(
-                Integration_Mesh_Generation_Data*                 aMeshGenerationData,
-                Cut_Integration_Mesh*                             aCutIntegrationMesh,
-                moris::mtk::Mesh*                                 aBackgroundMesh,
-                std::shared_ptr< Cell_Neighborhood_Connectivity > aCutNeighborhood );
+                Integration_Mesh_Generation_Data*                        aMeshGenerationData,
+                Cut_Integration_Mesh*                                    aCutIntegrationMesh,
+                moris::mtk::Mesh*                                        aBackgroundMesh,
+                const std::shared_ptr< Cell_Neighborhood_Connectivity >& aCutNeighborhood );
 
         // ----------------------------------------------------------------------------------
 
@@ -580,25 +582,25 @@ namespace moris::xtk
 
         void
         construct_subphase_neighborhood(
-                Cut_Integration_Mesh*                                      aCutIntegrationMesh,
-                moris::mtk::Mesh*                                          aBackgroundMesh,
-                std::shared_ptr< Facet_Based_Connectivity >                aFacetConnectivity,
-                Vector< std::shared_ptr< Vector< moris::moris_index > > >* aBgFacetToChildFacet,
-                std::shared_ptr< Subphase_Neighborhood_Connectivity >      aSubphaseNeighborhood );
+                Cut_Integration_Mesh*                                        aCutIntegrationMesh,
+                moris::mtk::Mesh*                                            aBackgroundMesh,
+                const std::shared_ptr< Facet_Based_Connectivity >&           aFacetConnectivity,
+                Vector< std::shared_ptr< Vector< moris::moris_index > > >*   aBgFacetToChildFacet,
+                const std::shared_ptr< Subphase_Neighborhood_Connectivity >& aSubphaseNeighborhood );
 
         // ----------------------------------------------------------------------------------
 
         void
         collect_subphases_attached_to_facet_on_cell(
-                Cut_Integration_Mesh*                           aCutIntegrationMesh,
-                moris::mtk::Cell const *                        aBGCell,
-                moris::moris_index                              aFacetOrdinal,
-                moris::moris_index                              aSharedFacetIndex,
-                std::shared_ptr< Facet_Based_Connectivity >     aFacetConnectivity,
-                std::shared_ptr< Vector< moris::moris_index > > aBgFacetToChildrenFacets,
-                Vector< moris::moris_index >&                   aSubphaseIndices,
-                Vector< moris::moris_index >&                   aRepresentativeIgCells,
-                Vector< moris::moris_index >&                   aRepresentativeIgCellsOrdinal );
+                Cut_Integration_Mesh*                                  aCutIntegrationMesh,
+                moris::mtk::Cell const *                               aBGCell,
+                moris::moris_index                                     aFacetOrdinal,
+                moris::moris_index                                     aSharedFacetIndex,
+                const std::shared_ptr< Facet_Based_Connectivity >&     aFacetConnectivity,
+                const std::shared_ptr< Vector< moris::moris_index > >& aBgFacetToChildrenFacets,
+                Vector< moris::moris_index >&                          aSubphaseIndices,
+                Vector< moris::moris_index >&                          aRepresentativeIgCells,
+                Vector< moris::moris_index >&                          aRepresentativeIgCellsOrdinal );
 
         // ----------------------------------------------------------------------------------
 
@@ -774,10 +776,10 @@ namespace moris::xtk
          */
         Matrix< IndexMat >
         flood_fill_ig_cell_group(
-                Cut_Integration_Mesh*                             aCutIntegrationMesh,
-                std::shared_ptr< Cell_Neighborhood_Connectivity > aCutNeighborhood,
-                std::shared_ptr< IG_Cell_Group >                  aIgCellGroup,
-                moris_index&                                      aMaxValueAssigned );
+                Cut_Integration_Mesh*                                    aCutIntegrationMesh,
+                const std::shared_ptr< Cell_Neighborhood_Connectivity >& aCutNeighborhood,
+                const std::shared_ptr< IG_Cell_Group >&                  aIgCellGroup,
+                moris_index&                                             aMaxValueAssigned );
 
         // ----------------------------------------------------------------------------------
 
@@ -1053,7 +1055,7 @@ namespace moris::xtk
          * @param aMeshIndex discretization mesh index
          * @return const std::shared_ptr< Subphase_Neighborhood_Connectivity > pointer to the SPG Neighborhood Connectivity
          */
-        const std::shared_ptr< Subphase_Neighborhood_Connectivity >
+        std::shared_ptr< Subphase_Neighborhood_Connectivity >
         construct_subphase_group_neighborhood(
                 Cut_Integration_Mesh* aCutIntegrationMesh,
                 Bspline_Mesh_Info*    aBsplineMeshInfo,

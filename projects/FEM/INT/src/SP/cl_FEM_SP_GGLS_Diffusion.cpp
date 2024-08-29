@@ -15,240 +15,277 @@
 //LINALG/src
 #include "fn_norm.hpp"
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+    //------------------------------------------------------------------------------
+
+    SP_GGLS_Diffusion::SP_GGLS_Diffusion()
     {
-        //------------------------------------------------------------------------------
+        // set the property pointer cell size
+        mLeaderProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
 
-        SP_GGLS_Diffusion::SP_GGLS_Diffusion()
+        // populate the map
+        mPropertyMap[ "Conductivity" ]       = static_cast< uint >( Property_Type::CONDUCTIVITY );
+        mPropertyMap[ "Density" ]            = static_cast< uint >( Property_Type::DENSITY );
+        mPropertyMap[ "HeatCapacity" ]       = static_cast< uint >( Property_Type::HEAT_CAPACITY );
+        mPropertyMap[ "LatentHeat" ]         = static_cast< uint >( Property_Type::LATENT_HEAT );
+        mPropertyMap[ "PCTemp" ]             = static_cast< uint >( Property_Type::PC_TEMP );
+        mPropertyMap[ "PhaseStateFunction" ] = static_cast< uint >( Property_Type::PHASE_STATE_FUNCTION );
+        mPropertyMap[ "PhaseChangeConst" ]   = static_cast< uint >( Property_Type::PHASE_CHANGE_CONST );
+    }
+
+    //------------------------------------------------------------------------------
+
+    void SP_GGLS_Diffusion::set_dof_type_list(
+            Vector< Vector< MSI::Dof_Type > > &aDofTypes,
+            Vector< std::string >             &aDofStrings,
+            mtk::Leader_Follower               aIsLeader )
+    {
+
+        // switch on leader follower
+        switch ( aIsLeader )
         {
-            // set the property pointer cell size
-            mLeaderProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
-
-            // populate the map
-            mPropertyMap[ "Conductivity" ]       = static_cast< uint >( Property_Type::CONDUCTIVITY );
-            mPropertyMap[ "Density" ]            = static_cast< uint >( Property_Type::DENSITY );
-            mPropertyMap[ "HeatCapacity" ]       = static_cast< uint >( Property_Type::HEAT_CAPACITY );
-            mPropertyMap[ "LatentHeat" ]         = static_cast< uint >( Property_Type::LATENT_HEAT );
-            mPropertyMap[ "PCTemp" ]             = static_cast< uint >( Property_Type::PC_TEMP );
-            mPropertyMap[ "PhaseStateFunction" ] = static_cast< uint >( Property_Type::PHASE_STATE_FUNCTION );
-            mPropertyMap[ "PhaseChangeConst" ]   = static_cast< uint >( Property_Type::PHASE_CHANGE_CONST );
-        }
-
-        //------------------------------------------------------------------------------
-
-        void SP_GGLS_Diffusion::set_dof_type_list(
-                Vector< Vector< MSI::Dof_Type > > & aDofTypes,
-                Vector< std::string >                  & aDofStrings,
-                mtk::Leader_Follower                             aIsLeader )
-        {
-
-            // switch on leader follower
-            switch ( aIsLeader )
+            case mtk::Leader_Follower::LEADER:
             {
-                case mtk::Leader_Follower::LEADER :
-                {
-                    // set dof type list
-                    mLeaderDofTypes = aDofTypes;
+                // set dof type list
+                mLeaderDofTypes = aDofTypes;
 
-                    // loop on dof type
-                    for( uint iDof = 0; iDof < aDofTypes.size(); iDof++ )
+                // loop on dof type
+                for ( uint iDof = 0; iDof < aDofTypes.size(); iDof++ )
+                {
+                    // get dof string
+                    const std::string &tDofString = aDofStrings( iDof );
+
+                    // get dof type
+                    MSI::Dof_Type tDofType = aDofTypes( iDof )( 0 );
+
+                    // if velocity
+                    if ( tDofString == "Temperature" )
                     {
-                        // get dof string
-                        std::string tDofString = aDofStrings( iDof );
-
-                        // get dof type
-                        MSI::Dof_Type tDofType = aDofTypes( iDof )( 0 );
-
-                        // if velocity
-                        if( tDofString == "Temperature" )
-                        {
-                            mLeaderDofTemp = tDofType;
-                        }
-                        else
-                        {
-                            // error unknown dof string
-                            MORIS_ERROR( false ,
-                                    "SP_GGLS_Diffusion::set_dof_type_list - Unknown aDofString : %s \n",
-                                    tDofString.c_str() );
-                        }
+                        mLeaderDofTemp = tDofType;
                     }
-                    break;
+                    else
+                    {
+                        // error unknown dof string
+                        MORIS_ERROR( false,
+                                "SP_GGLS_Diffusion::set_dof_type_list - Unknown aDofString : %s \n",
+                                tDofString.c_str() );
+                    }
                 }
-
-                case mtk::Leader_Follower::FOLLOWER :
-                {
-                    // set dof type list
-                    mFollowerDofTypes = aDofTypes;
-                    break;
-                }
-
-                default:
-                    MORIS_ERROR( false, "SP_GGLS_Diffusion::set_dof_type_list - unknown leader follower type." );
+                break;
             }
-        }
 
-        //------------------------------------------------------------------------------
-
-        Vector< std::tuple<
-        fem::Measure_Type,
-        mtk::Primary_Void,
-        mtk::Leader_Follower > > SP_GGLS_Diffusion::get_cluster_measure_tuple_list()
-        {
-            return { mElementSizeTuple };
-        }
-
-        //------------------------------------------------------------------------------
-
-        void SP_GGLS_Diffusion::eval_SP()
-        {
-            // get element size cluster measure value
-            real tElementSize = mCluster->get_cluster_measure(
-                    std::get<0>( mElementSizeTuple ),
-                    std::get<1>( mElementSizeTuple ),
-                    std::get<2>( mElementSizeTuple ) )->val()( 0 );
-
-            // get the property values
-            real tConductivity = mLeaderProp( static_cast< uint >( Property_Type::CONDUCTIVITY ) )->val()( 0 );
-            real tDensity      = mLeaderProp( static_cast< uint >( Property_Type::DENSITY ) )->val()( 0 );
-            real tHeatCapacity = mLeaderProp( static_cast< uint >( Property_Type::HEAT_CAPACITY ) )->val()( 0 );
-
-            std::shared_ptr< Property > & tPropLatentHeat = mLeaderProp( static_cast< uint >( Property_Type::LATENT_HEAT ) );
-
-            // time step size
-            real tDeltat = mLeaderFIManager->get_IP_geometry_interpolator()->get_time_step();
-
-            // threshold product of conductivity and time step
-            real tProdCondDeltat = std::max(tConductivity * tDeltat, mEpsilon);
-
-            // get alpha
-            real tAlpha = 0.0;
-
-            // if there is a phase change
-            if (tPropLatentHeat != nullptr)
+            case mtk::Leader_Follower::FOLLOWER:
             {
-                // get values of properties
-                real tLatentHeat = tPropLatentHeat->val()( 0 );
-                real tMeltTemp   = mLeaderProp( static_cast< uint >( Property_Type::PC_TEMP ) )->val()( 0 );
-                real tPCconst    = mLeaderProp( static_cast< uint >( Property_Type::PHASE_CHANGE_CONST ) )->val()( 0 );
-                real tPSfunc     = mLeaderProp( static_cast< uint >( Property_Type::PHASE_STATE_FUNCTION ) )->val()( 0 );
-
-                // get the dof type FI
-                Field_Interpolator * tFITemp =
-                        mLeaderFIManager->get_field_interpolators_for_type( mLeaderDofTemp );
-
-                // get phase state function
-                moris::real tdfdT = eval_dFdTemp( tMeltTemp, tPCconst, tPSfunc, tFITemp );
-
-                tAlpha = ( tDensity * (tHeatCapacity + tLatentHeat * tdfdT) * std::pow(tElementSize, 2.0) ) / ( 6.0 * tProdCondDeltat );
-            }
-            // if there is no phase change
-            else
-            {
-                tAlpha = ( tDensity * tHeatCapacity * std::pow(tElementSize, 2.0) ) / ( 6.0 * tProdCondDeltat );
+                // set dof type list
+                mFollowerDofTypes = aDofTypes;
+                break;
             }
 
-            // compute xi-bar value (for tAlpha -> 0: tXibar = 0.5)
-            real tXibar = 0.5;
-
-            // check if tAlpha is close to zero
-            if ( tAlpha > mEpsilon )
-            {
-                tXibar = ( std::cosh( std::sqrt(6.0*tAlpha) ) + 2.0 ) / ( std::cosh( std::sqrt(6.0*tAlpha) ) - 1.0 )  -  (1.0/tAlpha);
-            }
-
-            // compute stabilization parameter value
-            mPPVal = {{  std::pow(tElementSize, 2.0) / 6.0  * tXibar }};
-
-            /* Note:
-             * the artificial GGLS conductivity is returned as the stabilization parameter,
-             * which is equal to k*tau_GGLS as defined in Alberto Pizzolato's Thesis,
-             * or equal to just tau as defined in Franca's 1988 paper on GGLS
-             */
+            default:
+                MORIS_ERROR( false, "SP_GGLS_Diffusion::set_dof_type_list - unknown leader follower type." );
         }
+    }
 
-        //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-        void SP_GGLS_Diffusion::eval_dSPdLeaderDOF(
-                const Vector< MSI::Dof_Type > & aDofTypes )
+    Vector< std::tuple<
+            fem::Measure_Type,
+            mtk::Primary_Void,
+            mtk::Leader_Follower > >
+    SP_GGLS_Diffusion::get_cluster_measure_tuple_list()
+    {
+        return { mElementSizeTuple };
+    }
+
+    //------------------------------------------------------------------------------
+
+    void SP_GGLS_Diffusion::eval_SP()
+    {
+        // get element size cluster measure value
+        real tElementSize = mCluster->get_cluster_measure(
+                                            std::get< 0 >( mElementSizeTuple ),
+                                            std::get< 1 >( mElementSizeTuple ),
+                                            std::get< 2 >( mElementSizeTuple ) )
+                                    ->val()( 0 );
+
+        // get the property values
+        real tConductivity = mLeaderProp( static_cast< uint >( Property_Type::CONDUCTIVITY ) )->val()( 0 );
+        real tDensity      = mLeaderProp( static_cast< uint >( Property_Type::DENSITY ) )->val()( 0 );
+        real tHeatCapacity = mLeaderProp( static_cast< uint >( Property_Type::HEAT_CAPACITY ) )->val()( 0 );
+
+        std::shared_ptr< Property > &tPropLatentHeat = mLeaderProp( static_cast< uint >( Property_Type::LATENT_HEAT ) );
+
+        // time step size
+        real tDeltat = mLeaderFIManager->get_IP_geometry_interpolator()->get_time_step();
+
+        // threshold product of conductivity and time step
+        real tProdCondDeltat = std::max( tConductivity * tDeltat, mEpsilon );
+
+        // get alpha
+        real tAlpha = 0.0;
+
+        // if there is a phase change
+        if ( tPropLatentHeat != nullptr )
         {
-            // get element size cluster measure value
-            real tElementSize = mCluster->get_cluster_measure(
-                    std::get<0>( mElementSizeTuple ),
-                    std::get<1>( mElementSizeTuple ),
-                    std::get<2>( mElementSizeTuple ) )->val()( 0 );
-
-            // get the properties
-            const std::shared_ptr< Property > & tPropConductivity = mLeaderProp( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
-            const std::shared_ptr< Property > & tPropDensity      = mLeaderProp( static_cast< uint >( Property_Type::DENSITY ) );
-            const std::shared_ptr< Property > & tPropHeatCapacity = mLeaderProp( static_cast< uint >( Property_Type::HEAT_CAPACITY ) );
-            const std::shared_ptr< Property > & tPropLatentHeat   = mLeaderProp( static_cast< uint >( Property_Type::LATENT_HEAT ) );
-            const std::shared_ptr< Property > & tPropMeltTemp     = mLeaderProp( static_cast< uint >( Property_Type::PC_TEMP ) );
-            const std::shared_ptr< Property > & tPropPCconst      = mLeaderProp( static_cast< uint >( Property_Type::PHASE_CHANGE_CONST ) );
-            const std::shared_ptr< Property > & tPropPSfunc       = mLeaderProp( static_cast< uint >( Property_Type::PHASE_STATE_FUNCTION ) );
-
-            // get the dof type index
-            uint tDofIndex = mLeaderGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+            // get values of properties
+            real tLatentHeat = tPropLatentHeat->val()( 0 );
+            real tMeltTemp   = mLeaderProp( static_cast< uint >( Property_Type::PC_TEMP ) )->val()( 0 );
+            real tPCconst    = mLeaderProp( static_cast< uint >( Property_Type::PHASE_CHANGE_CONST ) )->val()( 0 );
+            real tPSfunc     = mLeaderProp( static_cast< uint >( Property_Type::PHASE_STATE_FUNCTION ) )->val()( 0 );
 
             // get the dof type FI
-            Field_Interpolator * tFIDer = mLeaderFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+            Field_Interpolator *tFITemp =
+                    mLeaderFIManager->get_field_interpolators_for_type( mLeaderDofTemp );
 
-            // set size for dSPdLeaderDof
-            mdPPdLeaderDof( tDofIndex ).set_size( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
+            // get phase state function
+            moris::real tdfdT = eval_dFdTemp( tMeltTemp, tPCconst, tPSfunc, tFITemp );
 
-            // time step size
-            real tDeltat = mLeaderFIManager->get_IP_geometry_interpolator()->get_time_step();
+            tAlpha = ( tDensity * ( tHeatCapacity + tLatentHeat * tdfdT ) * std::pow( tElementSize, 2.0 ) ) / ( 6.0 * tProdCondDeltat );
+        }
+        // if there is no phase change
+        else
+        {
+            tAlpha = ( tDensity * tHeatCapacity * std::pow( tElementSize, 2.0 ) ) / ( 6.0 * tProdCondDeltat );
+        }
 
-            // initialize values
-            real tConductivity = tPropConductivity->val()( 0 );
-            real tDensity      = tPropDensity->val()( 0 );
-            real tHeatCapacity = tPropHeatCapacity->val()( 0 );
-            real tLatentHeat   = 0.0;
-            real tMeltTemp     = 0.0;
-            real tPCconst      = 0.0;
-            real tPSfunc       = 0.0;
-            real tAlpha        = 0.0;
-            real tdfdT         = 0.0;
+        // compute xi-bar value (for tAlpha -> 0: tXibar = 0.5)
+        real tXibar = 0.5;
 
-            // threshold product of conductivity and time step
-            real tProdCondDeltat = std::max(tConductivity * tDeltat, mEpsilon);
+        // check if tAlpha is close to zero
+        if ( tAlpha > mEpsilon )
+        {
+            tXibar = ( std::cosh( std::sqrt( 6.0 * tAlpha ) ) + 2.0 ) / ( std::cosh( std::sqrt( 6.0 * tAlpha ) ) - 1.0 ) - ( 1.0 / tAlpha );
+        }
 
-            // if there is a phase change
-            if (tPropLatentHeat != nullptr)
+        // compute stabilization parameter value
+        mPPVal = { { std::pow( tElementSize, 2.0 ) / 6.0 * tXibar } };
+
+        /* Note:
+         * the artificial GGLS conductivity is returned as the stabilization parameter,
+         * which is equal to k*tau_GGLS as defined in Alberto Pizzolato's Thesis,
+         * or equal to just tau as defined in Franca's 1988 paper on GGLS
+         */
+    }
+
+    //------------------------------------------------------------------------------
+
+    void SP_GGLS_Diffusion::eval_dSPdLeaderDOF(
+            const Vector< MSI::Dof_Type > &aDofTypes )
+    {
+        // get element size cluster measure value
+        real tElementSize = mCluster->get_cluster_measure(
+                                            std::get< 0 >( mElementSizeTuple ),
+                                            std::get< 1 >( mElementSizeTuple ),
+                                            std::get< 2 >( mElementSizeTuple ) )
+                                    ->val()( 0 );
+
+        // get the properties
+        const std::shared_ptr< Property > &tPropConductivity = mLeaderProp( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
+        const std::shared_ptr< Property > &tPropDensity      = mLeaderProp( static_cast< uint >( Property_Type::DENSITY ) );
+        const std::shared_ptr< Property > &tPropHeatCapacity = mLeaderProp( static_cast< uint >( Property_Type::HEAT_CAPACITY ) );
+        const std::shared_ptr< Property > &tPropLatentHeat   = mLeaderProp( static_cast< uint >( Property_Type::LATENT_HEAT ) );
+        const std::shared_ptr< Property > &tPropMeltTemp     = mLeaderProp( static_cast< uint >( Property_Type::PC_TEMP ) );
+        const std::shared_ptr< Property > &tPropPCconst      = mLeaderProp( static_cast< uint >( Property_Type::PHASE_CHANGE_CONST ) );
+        const std::shared_ptr< Property > &tPropPSfunc       = mLeaderProp( static_cast< uint >( Property_Type::PHASE_STATE_FUNCTION ) );
+
+        // get the dof type index
+        uint tDofIndex = mLeaderGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+        // get the dof type FI
+        Field_Interpolator *tFIDer = mLeaderFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+        // set size for dSPdLeaderDof
+        mdPPdLeaderDof( tDofIndex ).set_size( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
+
+        // time step size
+        real tDeltat = mLeaderFIManager->get_IP_geometry_interpolator()->get_time_step();
+
+        // initialize values
+        real tConductivity = tPropConductivity->val()( 0 );
+        real tDensity      = tPropDensity->val()( 0 );
+        real tHeatCapacity = tPropHeatCapacity->val()( 0 );
+        real tLatentHeat   = 0.0;
+        real tMeltTemp     = 0.0;
+        real tPCconst      = 0.0;
+        real tPSfunc       = 0.0;
+        real tAlpha        = 0.0;
+        real tdfdT         = 0.0;
+
+        // threshold product of conductivity and time step
+        real tProdCondDeltat = std::max( tConductivity * tDeltat, mEpsilon );
+
+        // if there is a phase change
+        if ( tPropLatentHeat != nullptr )
+        {
+            // get values of properties
+            tLatentHeat = tPropLatentHeat->val()( 0 );
+            tMeltTemp   = tPropMeltTemp->val()( 0 );
+            tPCconst    = tPropPCconst->val()( 0 );
+            tPSfunc     = tPropPSfunc->val()( 0 );
+
+            // get phase state function
+            tdfdT = eval_dFdTemp( tMeltTemp, tPCconst, tPSfunc, tFIDer );
+
+            tAlpha = ( tDensity * ( tHeatCapacity + tLatentHeat * tdfdT ) * std::pow( tElementSize, 2.0 ) ) / ( 6.0 * tProdCondDeltat );
+        }
+
+        // if there is no phase change
+        else
+        {
+            tAlpha = ( tDensity * tHeatCapacity * std::pow( tElementSize, 2.0 ) ) / ( 6.0 * tProdCondDeltat );
+        }
+
+        // compute derivatives if tAlpha is not thresholded
+        if ( tAlpha > mEpsilon )
+        {
+            // get derivative of SP wrt to alpha d(k*tau)/d(alpha)
+            real dXibardAlpha =
+                    ( 4.0 - 8.0 * std::cosh( std::sqrt( 6.0 * tAlpha ) ) + 4.0 * std::pow( std::cosh( std::sqrt( 6.0 * tAlpha ) ), 2.0 ) - std::pow( 6.0 * tAlpha, 1.5 ) * std::sinh( std::sqrt( 6.0 * tAlpha ) ) )
+                    / ( 4.0 * std::pow( tAlpha, 2.0 ) * std::pow( ( std::cosh( std::sqrt( 6.0 * tAlpha ) ) - 1.0 ), 2.0 ) );
+
+            real tdSPdAlpha = std::pow( tElementSize, 2.0 ) / 6.0 * dXibardAlpha;
+
+            // indirect contributions for both with and without phase change ---------------------------
+
+            // if indirect dependency on conductivity
+            if ( tPropConductivity->check_dof_dependency( aDofTypes ) )
             {
-                // get values of properties
-                tLatentHeat = tPropLatentHeat->val()( 0 );
-                tMeltTemp   = tPropMeltTemp->val()( 0 );
-                tPCconst    = tPropPCconst->val()( 0 );
-                tPSfunc     = tPropPSfunc->val()( 0 );
-
-                // get phase state function
-                tdfdT = eval_dFdTemp( tMeltTemp, tPCconst, tPSfunc, tFIDer );
-
-                tAlpha = ( tDensity * ( tHeatCapacity + tLatentHeat * tdfdT ) * std::pow(tElementSize, 2.0) ) / ( 6.0 * tProdCondDeltat );
+                if ( tProdCondDeltat > mEpsilon )
+                {
+                    mdPPdLeaderDof( tDofIndex ) -=
+                            tdSPdAlpha * ( tDensity * tHeatCapacity * std::pow( tElementSize, 2.0 ) / ( 6.0 * std::pow( tConductivity, 2.0 ) * tDeltat ) ) * tPropConductivity->dPropdDOF( aDofTypes );
+                }
             }
 
-            // if there is no phase change
-            else
+            // if indirect dependency on density
+            if ( tPropDensity->check_dof_dependency( aDofTypes ) )
             {
-                tAlpha = ( tDensity * tHeatCapacity * std::pow(tElementSize, 2.0) ) / ( 6.0 * tProdCondDeltat );
+                mdPPdLeaderDof( tDofIndex ) +=
+                        tdSPdAlpha * ( tHeatCapacity * std::pow( tElementSize, 2.0 ) / ( 6.0 * tProdCondDeltat ) ) * tPropDensity->dPropdDOF( aDofTypes );
             }
 
-            // compute derivatives if tAlpha is not thresholded
-            if ( tAlpha > mEpsilon )
+            // if indirect dependency on heat capacity
+            if ( tPropHeatCapacity->check_dof_dependency( aDofTypes ) )
             {
-                // get derivative of SP wrt to alpha d(k*tau)/d(alpha)
-                real dXibardAlpha =
-                        (4.0 -
-                                8.0 * std::cosh( std::sqrt(6.0*tAlpha) ) +
-                                4.0 * std::pow( std::cosh( std::sqrt(6.0*tAlpha) ) , 2.0 ) -
-                                std::pow( 6.0*tAlpha , 1.5 ) * std::sinh( std::sqrt(6.0*tAlpha) ) )
-                                / ( 4.0 * std::pow( tAlpha , 2.0 ) * std::pow( ( std::cosh( std::sqrt(6.0*tAlpha) ) - 1.0 ) , 2.0 ) );
+                mdPPdLeaderDof( tDofIndex ) +=
+                        tdSPdAlpha * ( tDensity * std::pow( tElementSize, 2.0 ) / ( 6.0 * tProdCondDeltat ) ) * tPropHeatCapacity->dPropdDOF( aDofTypes );
+            }
 
-                real tdSPdAlpha = std::pow(tElementSize, 2.0) / 6.0 * dXibardAlpha;
+            // if there is a phase change --------------------------------------------------------------
+            if ( tPropLatentHeat != nullptr )
+            {
+                // if dof type is temperature
+                if ( aDofTypes( 0 ) == mLeaderDofTemp )
+                {
+                    // get Dof-deriv of phase state function
+                    moris::Matrix< DDRMat > td2fdTdDOF =
+                            eval_dFdTempdDOF( tMeltTemp, tPCconst, tPSfunc, tFIDer );
 
-                // indirect contributions for both with and without phase change ---------------------------
+                    // derivative of tau wrt temperature DOFs
+                    mdPPdLeaderDof( tDofIndex ) +=
+                            tdSPdAlpha * ( tDensity * tLatentHeat * std::pow( tElementSize, 2.0 ) / ( 6.0 * tProdCondDeltat ) ) * td2fdTdDOF;
+                }
 
                 // if indirect dependency on conductivity
                 if ( tPropConductivity->check_dof_dependency( aDofTypes ) )
@@ -256,10 +293,7 @@ namespace moris
                     if ( tProdCondDeltat > mEpsilon )
                     {
                         mdPPdLeaderDof( tDofIndex ) -=
-                                tdSPdAlpha *
-                                ( tDensity * tHeatCapacity * std::pow(tElementSize, 2.0) /
-                                        ( 6.0 * std::pow(tConductivity, 2.0) * tDeltat ) ) *
-                                        tPropConductivity->dPropdDOF( aDofTypes );
+                                tdSPdAlpha * ( tDensity * tLatentHeat * tdfdT * std::pow( tElementSize, 2.0 ) / ( 6.0 * std::pow( tConductivity, 2.0 ) * tDeltat ) ) * tPropConductivity->dPropdDOF( aDofTypes );
                     }
                 }
 
@@ -267,69 +301,14 @@ namespace moris
                 if ( tPropDensity->check_dof_dependency( aDofTypes ) )
                 {
                     mdPPdLeaderDof( tDofIndex ) +=
-                            tdSPdAlpha *
-                            ( tHeatCapacity * std::pow(tElementSize, 2.0) /
-                                    ( 6.0 * tProdCondDeltat ) ) *
-                                    tPropDensity->dPropdDOF( aDofTypes );
-                }
-
-                // if indirect dependency on heat capacity
-                if ( tPropHeatCapacity->check_dof_dependency( aDofTypes ) )
-                {
-                    mdPPdLeaderDof( tDofIndex ) +=
-                            tdSPdAlpha *
-                            ( tDensity * std::pow(tElementSize, 2.0) /
-                                    ( 6.0 * tProdCondDeltat ) ) *
-                                    tPropHeatCapacity->dPropdDOF( aDofTypes );
-                }
-
-                // if there is a phase change --------------------------------------------------------------
-                if (tPropLatentHeat != nullptr)
-                {
-                    // if dof type is temperature
-                    if( aDofTypes( 0 ) == mLeaderDofTemp )
-                    {
-                        // get Dof-deriv of phase state function
-                        moris::Matrix<DDRMat> td2fdTdDOF =
-                                eval_dFdTempdDOF( tMeltTemp, tPCconst, tPSfunc, tFIDer);
-
-                        // derivative of tau wrt temperature DOFs
-                        mdPPdLeaderDof( tDofIndex ) +=
-                                tdSPdAlpha *
-                                ( tDensity * tLatentHeat * std::pow(tElementSize, 2.0) /
-                                        ( 6.0 * tProdCondDeltat ) ) *
-                                        td2fdTdDOF;
-                    }
-
-                    // if indirect dependency on conductivity
-                    if ( tPropConductivity->check_dof_dependency( aDofTypes ) )
-                    {
-                        if ( tProdCondDeltat > mEpsilon )
-                        {
-                            mdPPdLeaderDof( tDofIndex ) -=
-                                    tdSPdAlpha *
-                                    ( tDensity * tLatentHeat * tdfdT * std::pow(tElementSize, 2.0) /
-                                            ( 6.0 * std::pow(tConductivity, 2.0) * tDeltat ) ) *
-                                            tPropConductivity->dPropdDOF( aDofTypes );
-                        }
-                    }
-
-                    // if indirect dependency on density
-                    if ( tPropDensity->check_dof_dependency( aDofTypes ) )
-                    {
-                        mdPPdLeaderDof( tDofIndex ) +=
-                                tdSPdAlpha *
-                                ( tLatentHeat * tdfdT * std::pow(tElementSize, 2.0) /
-                                        ( 6.0 * tProdCondDeltat ) ) *
-                                        tPropDensity->dPropdDOF( aDofTypes );
-                    }
+                            tdSPdAlpha * ( tLatentHeat * tdfdT * std::pow( tElementSize, 2.0 ) / ( 6.0 * tProdCondDeltat ) ) * tPropDensity->dPropdDOF( aDofTypes );
                 }
             }
         }
+    }
 
-        //------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
+    //------------------------------------------------------------------------------
+}    // namespace moris::fem
 
 // BACKUP -----------------------------------------------
 // -1.0 * (4.0 * std::cosh(std::sqrt(6.0*tAlpha)) -

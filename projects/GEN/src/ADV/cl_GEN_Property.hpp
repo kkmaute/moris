@@ -19,7 +19,8 @@ namespace moris::gen
     /**
      * This struct contains additional parameters that are used by properties.
      */
-    struct Property_Parameters : public Field_Parameters, public Design_Parameters
+    struct Property_Parameters : public Field_Parameters
+            , public Design_Parameters
     {
         PDV_Type              mPDVType;              //! The type of PDV that this property will be assigned to
         bool                  mInterpolationPDV;     //! If the PDV is defined on the interpolation mesh (always true for now)
@@ -49,9 +50,9 @@ namespace moris::gen
          * @param aNodeManager Node manager from the geometry engine, if available
          */
         explicit Property(
-                std::shared_ptr< Field > aField,
-                Property_Parameters      aParameters  = Property_Parameters(),
-                Node_Manager&            aNodeManager = Node_Manager::get_trivial_instance() );
+                std::shared_ptr< Field >   aField,
+                const Property_Parameters& aParameters  = Property_Parameters(),
+                Node_Manager&              aNodeManager = Node_Manager::get_trivial_instance() );
 
         /**
          * Sets a new node manager (from the geometry engine, if it was created after this property)
@@ -66,7 +67,7 @@ namespace moris::gen
          *
          * @param aAllUpdatedDesigns All designs (this design will take fields from the ones it needs)
          */
-        void update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedDesigns ) override;
+        void update_dependencies( const Vector< std::shared_ptr< Design > >& aAllUpdatedDesigns ) override;
 
         /**
          * Gets the PDV type that this property defines.
@@ -92,7 +93,7 @@ namespace moris::gen
 
         /**
          * Used for writing to mtk meshes and printing for debug info
-         * 
+         *
          * @param aNodeIndex decides the point at which the field value is printed. If the node is a derived node, the value is interpolated from the parents.
          * @param aCoordinates The field location to get the value from.
          * @return the value of the property field at the requested location
@@ -100,11 +101,11 @@ namespace moris::gen
         void get_design_info(
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates,
-                Vector< real >& aOutputDesignInfo ) override;
+                Vector< real >&         aOutputDesignInfo ) override;
 
         /**
          * gets the number of fields the property has
-        */
+         */
         uint get_num_fields() override
         {
             return 1;
@@ -148,20 +149,20 @@ namespace moris::gen
          *
          * @return Mesh index
          */
-        virtual moris_index get_discretization_mesh_index() override;
+        moris_index get_discretization_mesh_index() override;
 
         /**
          * Gets the lower bound for a discretized field.
          *
          * @return Lower bound
          */
-        virtual real get_discretization_lower_bound() override;
+        real get_discretization_lower_bound() override;
 
         /**
          * Get the upper bound for a discretized field.
          *
          * @return Upper bound
          */
-        virtual real get_discretization_upper_bound() override;
+        real get_discretization_upper_bound() override;
     };
 }    // namespace moris::gen

@@ -19,94 +19,89 @@
 
 #include "cl_FEM_IQI.hpp"    //FEM/INT/src
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+    //------------------------------------------------------------------------------
+
+    class IQI_Jump_Dof : public IQI
     {
+        //! initialization flag
+        bool mIsInitialized = false;
+
+        //! spatial and time derivative information
+        uint mSpatialDerivativeDirection = 0;
+        uint mSpatialDerivativeOrder     = 0;
+        uint mTimeDerivativeOrder        = 0;
         //------------------------------------------------------------------------------
 
-        class IQI_Jump_Dof : public IQI
-        {
-            //! initialization flag
-            bool mIsInitialized = false;
+      public:
+        //------------------------------------------------------------------------------
+        /*
+         * constructor
+         */
+        IQI_Jump_Dof();
 
-            //! spatial and time derivative information
-            uint mSpatialDerivativeDirection = 0;
-            uint mSpatialDerivativeOrder     = 0;
-            uint mTimeDerivativeOrder        = 0;
-            //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+        /**
+         * trivial destructor
+         */
+        ~IQI_Jump_Dof() override{};
 
-          public:
+        //------------------------------------------------------------------------------
 
-            //------------------------------------------------------------------------------
-            /*
-             * constructor
-             */
-            IQI_Jump_Dof();
+      private:
+        //------------------------------------------------------------------------------
 
-            //------------------------------------------------------------------------------
-            /**
-             * trivial destructor
-             */
-            ~IQI_Jump_Dof(){};
+        /**
+         * @brief initialize the parameters
+         *
+         */
+        void initialize();
 
-            //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+        /**
+         * compute the quantity of interest
+         * @param[ in ] aWStar weight associated to the evaluation point
+         */
+        void compute_QI( Matrix< DDRMat >& aQI ) override;
 
-          private:
+        //------------------------------------------------------------------------------
+        /**
+         * Evaluate the quantity of interest and fill aQI with value
+         * @param[ in ] aQI IQI value at evaluation point
+         */
+        void compute_QI( real aWStar ) override;
 
-            //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-            /**
-             * @brief initialize the parameters
-             *
-             */
-            void initialize();
+        /**
+         * @brief evaluates IQI
+         *
+         * @param aMat IQI matrix
+         */
 
-            //------------------------------------------------------------------------------
-            /**
-             * compute the quantity of interest
-             * @param[ in ] aWStar weight associated to the evaluation point
-             */
-            void compute_QI( Matrix< DDRMat >& aQI );
+        void evaluate_QI( Matrix< DDRMat >& aMat );
 
-            //------------------------------------------------------------------------------
-            /**
-             * Evaluate the quantity of interest and fill aQI with value
-             * @param[ in ] aQI IQI value at evaluation point
-             */
-            void compute_QI( real aWStar );
+        //------------------------------------------------------------------------------
+        /**
+         * compute the derivative of the quantity of interest wrt dof types
+         * @param[ in ] aWStar weight associated to the evaluation point
+         */
+        void compute_dQIdu( real aWStar ) override;
 
-            //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+        /**
+         * compute the derivative of the quantity of interest wrt dof types
+         * @param[ in ] aDofType group of dof types wrt which derivatives are evaluated
+         * @param[ in ] adQIdu   derivative of quantity of interest matrix to fill
+         */
+        void compute_dQIdu(
+                Vector< MSI::Dof_Type >& aDofType,
+                Matrix< DDRMat >&        adQIdu ) override;
 
-            /**
-             * @brief evaluates IQI
-             *
-             * @param aMat IQI matrix
-             */
-
-            void evaluate_QI( Matrix< DDRMat > & aMat );
-
-            //------------------------------------------------------------------------------
-            /**
-             * compute the derivative of the quantity of interest wrt dof types
-             * @param[ in ] aWStar weight associated to the evaluation point
-             */
-            void compute_dQIdu( real aWStar );
-
-            //------------------------------------------------------------------------------
-            /**
-             * compute the derivative of the quantity of interest wrt dof types
-             * @param[ in ] aDofType group of dof types wrt which derivatives are evaluated
-             * @param[ in ] adQIdu   derivative of quantity of interest matrix to fill
-             */
-            void compute_dQIdu(
-                    Vector< MSI::Dof_Type >& aDofType,
-                    Matrix< DDRMat >&             adQIdu );
-
-            //------------------------------------------------------------------------------
-        };
-    } /* end namespace fem */
-} /* end namespace moris */
+        //------------------------------------------------------------------------------
+    };
+}    // namespace moris::fem
 
 #endif /* PROJECTS_FEM_INT_SRC_IQI_CL_FEM_IQI_Jump_Dof_HPP_ */
 

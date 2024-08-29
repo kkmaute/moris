@@ -17,24 +17,22 @@
 #include "fn_trans.hpp"    //LINALG/src
 #include "fn_dot.hpp"      //LINALG/src
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+    //------------------------------------------------------------------------------
+    IWG_User_Defined::IWG_User_Defined()
     {
-        //------------------------------------------------------------------------------
-        IWG_User_Defined::IWG_User_Defined()
-        {
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+        mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
-            // populate the property map
-            mPropertyMap[ "WeakForm" ]  = static_cast< uint >( IWG_Property_Type::IWG_FORMULATION );
-            mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
-        }
-        //------------------------------------------------------------------------------
+        // populate the property map
+        mPropertyMap[ "WeakForm" ]  = static_cast< uint >( IWG_Property_Type::IWG_FORMULATION );
+        mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
+    }
+    //------------------------------------------------------------------------------
 
-        void
-        IWG_User_Defined::compute_residual( real aWStar )
-        {
+    void
+    IWG_User_Defined::compute_residual( real aWStar )
+    {
 #ifdef MORIS_HAVE_DEBUG
             // check leader field interpolators
             this->check_field_interpolators();
@@ -130,5 +128,4 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
+}    // namespace moris::fem

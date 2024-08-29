@@ -45,10 +45,10 @@ namespace moris
          * @param aUpperBound Variable upper bound
          */
         Design_Variable(
-                real        aLowerBound,
-                real        aInitialValue,
-                real        aUpperBound,
-                std::string aName = "" );
+                real               aLowerBound,
+                real               aInitialValue,
+                real               aUpperBound,
+                const std::string& aName = "" );
 
         /**
          * Gets if this design variable is constant or not.

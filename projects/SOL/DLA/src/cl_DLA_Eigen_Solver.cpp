@@ -55,7 +55,6 @@
 #include "EpetraExt_MultiVectorOut.h"
 #include "EpetraExt_OperatorOut.h"
 #include "Epetra_ConfigDefs.h"
-#include "Epetra_LinearProblem.h"
 #include "Epetra_FEVector.h"
 #include "Epetra_RowMatrix.h"
 #include "Epetra_MultiVector.h"
@@ -86,16 +85,16 @@ using namespace dla;
 
 Eigen_Solver::Eigen_Solver( const Parameter_List* aParameterList )
         : Linear_Solver_Algorithm_Trilinos( *aParameterList )
-        , mMat( NULL )
-        , mMassMat( NULL )
+        , mMat( nullptr )
+        , mMassMat( nullptr )
         , mSolTime( 0.0 )
-        , mFreeSolVec( NULL )
+        , mFreeSolVec( nullptr )
         , mNumReturnedEigVals( 0 )
 {
     if ( mParameterList.get< bool >( "Verbosity" ) )
     {
-        mPrinter.stream( Anasazi::Errors ) << std::endl
-                                           << Anasazi::Anasazi_Version() << std::endl;
+        mPrinter.stream( Anasazi::Errors ) << '\n'
+                                           << Anasazi::Anasazi_Version() << '\n';
     }
 
     if ( mParameterList.get< std::string >( "Eigen_Algorithm" ) == "EIGALG_BLOCK_DAVIDSON" )

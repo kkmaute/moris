@@ -41,8 +41,8 @@ int fn_WRK_Workflow_Main_Interface( int argc, char *argv[] );
 
 extern "C" void
 check_results(
-        std::string aExoFileName,
-        uint        aTestCaseIndex )
+        const std::string &aExoFileName,
+        uint               aTestCaseIndex )
 {
 
     MORIS_LOG_INFO( " " );
@@ -56,21 +56,21 @@ check_results(
 
     if ( gPrintReferenceValues )
     {
-        std::cout << "Test case index: " << aTestCaseIndex << std::endl;
+        std::cout << "Test case index: " << aTestCaseIndex << '\n';
 
         uint tNumDims  = tExoIO.get_number_of_dimensions();
         uint tNumNodes = tExoIO.get_number_of_nodes();
         uint tNumElems = tExoIO.get_number_of_elements();
 
-        std::cout << "Number of dimensions: " << tNumDims << std::endl;
-        std::cout << "Number of nodes     : " << tNumNodes << std::endl;
-        std::cout << "Number of elements  : " << tNumElems << std::endl;
+        std::cout << "Number of dimensions: " << tNumDims << '\n';
+        std::cout << "Number of nodes     : " << tNumNodes << '\n';
+        std::cout << "Number of elements  : " << tNumElems << '\n';
 
         // coordinates of reference point
         moris::print( tExoIO.get_nodal_coordinate( tNodeId ), "Coordinates of reference point" );
 
         // solution of reference point at reference time step
-        std::cout << "Temperature at reference point: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_nodal_field_value( tNodeId, 2, 0 ) << std::endl;
+        std::cout << "Temperature at reference point: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_nodal_field_value( tNodeId, 2, 0 ) << '\n';
 
         return;
     }

@@ -22,6 +22,7 @@
 #include "cl_Library_IO.hpp"
 #include "cl_FEM_Set_User_Info.hpp"
 #include <string>
+#include <utility>
 
 namespace moris::fem
 {
@@ -30,7 +31,7 @@ namespace moris::fem
 
       public:
         Model_Initializer(
-                Vector< Vector< Parameter_List > >               aParameterList,
+                const Vector< Vector< Parameter_List > >        &aParameterList,
                 mtk::Mesh_Pair const                            *aMeshPair,
                 std::shared_ptr< Library_IO >                    aLibrary,
                 uint                                             aSpatialDimension,
@@ -38,10 +39,10 @@ namespace moris::fem
                 std::unordered_map< MSI::Dof_Type, moris_index > aDofTypeToBsplineMeshIndex )
                 : mParameterList( aParameterList )
                 , mMeshPair( aMeshPair )
-                , mLibrary( aLibrary )
+                , mLibrary( std::move( aLibrary ) )
                 , mSpatialDimension( aSpatialDimension )
                 , mUseNewGhostSets( aUseNewGhostSets )
-                , mDofTypeToBsplineMeshIndex( aDofTypeToBsplineMeshIndex ){};
+                , mDofTypeToBsplineMeshIndex( std::move( aDofTypeToBsplineMeshIndex ) ) {};
 
         virtual void initialize();
 

@@ -17,246 +17,243 @@
 #include "cl_MTK_Side_Cluster_STK.hpp"
 #include "cl_MTK_Double_Side_Cluster.hpp"
 
-namespace moris
+namespace moris::mtk
 {
-    namespace mtk
+
+    class Interpolation_Mesh;
+
+    struct MtkMeshData;
+
+    struct Cell_Cluster_Input;
+
+    class Side_Cluster_Input;
+
+    class Double_Side_Cluster_Input;
+
+    class Integration_Mesh_STK : public Mesh_Core_STK
+            , public Integration_Mesh
     {
+        // Functions only valid for interpolation mIntegrationMeshes
 
-        class Interpolation_Mesh;
+      public:
+        /*!
+         * Create STK integration mesh from an existing STK database
+         */
+        Integration_Mesh_STK( std::shared_ptr< Mesh_Data_STK > aSTKMeshData );
 
-        struct MtkMeshData;
+        // ----------------------------------------------------------------------------
 
-        struct Cell_Cluster_Input;
+        /*!
+         * Create a new integration mesh from file
+         */
+        Integration_Mesh_STK(
+                std::string  aFileName,
+                MtkMeshData *aSuppMeshData,
+                const bool   aCreateFacesAndEdges = true );
 
-        class Side_Cluster_Input;
+        // ----------------------------------------------------------------------------
 
-        class Double_Side_Cluster_Input;
+        /*!
+         * Create a new integration mesh from data structure
+         */
+        Integration_Mesh_STK( MtkMeshData &aMeshData );
 
-        class Integration_Mesh_STK : public Mesh_Core_STK
-                , public Integration_Mesh
-        {
-            // Functions only valid for interpolation mIntegrationMeshes
+        // ---------------------------------------------------------------------------
 
-          public:
-            /*!
-             * Create STK integration mesh from an existing STK database
-             */
-            Integration_Mesh_STK( std::shared_ptr< Mesh_Data_STK > aSTKMeshData );
+        /*!
+         * Create a new integration mesh from data structure
+         * with a link to an interpolation mesh
+         */
+        Integration_Mesh_STK(
+                MtkMeshData        &aMeshData,
+                Interpolation_Mesh *aInterpMesh );
 
-            // ----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------
 
-            /*!
-             * Create a new integration mesh from file
-             */
-            Integration_Mesh_STK(
-                    std::string  aFileName,
-                    MtkMeshData *aSuppMeshData,
-                    const bool   aCreateFacesAndEdges = true );
+        /*!
+         * Create a integration mesh from an existing interpolation mesh
+         */
+        explicit Integration_Mesh_STK(
+                Interpolation_Mesh &aInterpMesh,
+                Cell_Cluster_Input *aCellClusterInput );
 
-            // ----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------
 
-            /*!
-             * Create a new integration mesh from data structure
-             */
-            Integration_Mesh_STK( MtkMeshData &aMeshData );
+        ~Integration_Mesh_STK() override;
 
-            // ---------------------------------------------------------------------------
+        // ##############################################
+        //  Cell Cluster Access
+        // ##############################################
 
-            /*!
-             * Create a new integration mesh from data structure
-             * with a link to an interpolation mesh
-             */
-            Integration_Mesh_STK(
-                    MtkMeshData        &aMeshData,
-                    Interpolation_Mesh *aInterpMesh );
+        /*
+         * Get a cell cluster related to an interpolation
+         * cell
+         */
+        Cell_Cluster const &
+        get_cell_cluster( Cell const &aInterpCell ) const override;
 
-            // ----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------
 
-            /*!
-             * Create a integration mesh from an existing interpolation mesh
-             */
-            explicit Integration_Mesh_STK(
-                    Interpolation_Mesh &aInterpMesh,
-                    Cell_Cluster_Input *aCellClusterInput );
+        /*
+         * Get a cell cluster related to an interpolation
+         * cell
+         */
+        Cell_Cluster const &
+        get_cell_cluster( moris_index aInterpCellIndex ) const override;
 
-            // ----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------
 
-            ~Integration_Mesh_STK();
+        // ##############################################
+        //  Block set with cluster access
+        // ##############################################
+        /*!
+         * Returns the block set names
+         */
+        Vector< std::string >
+        get_block_set_names() const override;
 
-            // ##############################################
-            //  Cell Cluster Access
-            // ##############################################
+        // ----------------------------------------------------------------------------
 
-            /*
-             * Get a cell cluster related to an interpolation
-             * cell
-             */
-            Cell_Cluster const &
-            get_cell_cluster( Cell const &aInterpCell ) const;
+        Vector< Cluster const * >
+        get_cell_clusters_in_set( moris_index aBlockSetOrdinal ) const override;
 
-            // ----------------------------------------------------------------------------
+        /*!
+         * Returns the label
+         */
+        std::string
+        get_block_set_label( moris_index aBlockSetOrdinal ) const override;
 
-            /*
-             * Get a cell cluster related to an interpolation
-             * cell
-             */
-            Cell_Cluster const &
-            get_cell_cluster( moris_index aInterpCellIndex ) const;
+        // ----------------------------------------------------------------------------
 
-            // ----------------------------------------------------------------------------
+        /*!
+         * Returns the index given a label
+         */
+        moris_index
+        get_block_set_index( const std::string &aBlockSetLabel ) const override;
 
-            // ##############################################
-            //  Block set with cluster access
-            // ##############################################
-            /*!
-             * Returns the block set names
-             */
-            Vector< std::string >
-            get_block_set_names() const;
+        // ----------------------------------------------------------------------------
 
-            // ----------------------------------------------------------------------------
+        // ##############################################
+        //  Side Set Cluster Access
+        // ##############################################
 
-            Vector< Cluster const * >
-            get_cell_clusters_in_set( moris_index aBlockSetOrdinal ) const;
+        /*!
+         * Return a side set containing clusters
+         */
+        Vector< Cluster const * >
+        get_side_set_cluster( moris_index aSideSetOrdinal ) const override;
 
-            /*!
-             * Returns the label
-             */
-            std::string
-            get_block_set_label( moris_index aBlockSetOrdinal ) const;
+        /*!
+         * Retuns the number of side sets
+         */
+        uint
+        get_num_side_sets() const override;
 
-            // ----------------------------------------------------------------------------
+        /*!
+         * Returns the label
+         */
+        std::string
+        get_side_set_label( moris_index aSideSetOrdinal ) const override;
 
-            /*!
-             * Returns the index given a label
-             */
-            moris_index
-            get_block_set_index( std::string aBlockSetLabel ) const;
+        /*!
+         * Returns the index given a label
+         */
+        moris_index
+        get_side_set_index( std::string aSideSetLabel ) const override;
 
-            // ----------------------------------------------------------------------------
+        // ##############################################
+        //  Double Side Set Cluster Access
+        // ##############################################
 
-            // ##############################################
-            //  Side Set Cluster Access
-            // ##############################################
+        /*!
+         * Returns the number of double sided side sets in the mesh
+         */
+        uint
+        get_num_double_sided_sets() const override;
 
-            /*!
-             * Return a side set containing clusters
-             */
-            Vector< Cluster const * >
-            get_side_set_cluster( moris_index aSideSetOrdinal ) const;
+        /*!
+         * Returns the label
+         */
+        std::string
+        get_double_sided_set_label( moris_index aSideSetOrdinal ) const override;
 
-            /*!
-             * Retuns the number of side sets
-             */
-            uint
-            get_num_side_sets() const;
+        /*!
+         * Returns the index given a label
+         */
+        moris_index
+        get_double_sided_set_index( const std::string &aDoubleSideSetLabel ) const override;
 
-            /*!
-             * Returns the label
-             */
-            std::string
-            get_side_set_label( moris_index aSideSetOrdinal ) const;
+        /*!
+         * Returns the double side clusters in the side set
+         */
+        Vector< Cluster const * >
+        get_double_side_set_cluster( moris_index aSideSetOrdinal ) const override;
 
-            /*!
-             * Returns the index given a label
-             */
-            moris_index
-            get_side_set_index( std::string aSideSetLabel ) const;
+      private:
+        // Cell Clusters
+        Vector< Cell_Cluster_STK > mCellClusters;
 
-            // ##############################################
-            //  Double Side Set Cluster Access
-            // ##############################################
+        // Block sets containing Cell Clusters
+        std::unordered_map< std::string, moris_index > mBlockSetLabelToOrd;
+        Vector< std::string >                          mPrimaryBlockSetNames;
+        Vector< Vector< moris::moris_index > >         mPrimaryBlockSetClusters;
+        Vector< moris::moris_index >                   mIpCellToBlockSetOrd;
 
-            /*!
-             * Returns the number of double sided side sets in the mesh
-             */
-            uint
-            get_num_double_sided_sets() const;
+        // side sets
+        std::unordered_map< std::string, moris_index > mSideSideSetLabelToOrd;
+        Vector< std::string >                          mSideSetLabels;
+        Vector< Vector< Side_Cluster_STK > >           mSideSets;
 
-            /*!
-             * Returns the label
-             */
-            std::string
-            get_double_sided_set_label( moris_index aSideSetOrdinal ) const;
+        // double side sets
+        std::unordered_map< std::string, moris_index > mDoubleSideSetLabelToOrd;
+        Vector< std::string >                          mDoubleSideSetLabels;
+        Vector< Vector< Cluster const * > >            mDoubleSideSets;
+        Vector< Side_Cluster_STK >                     mDoubleSideSetSideClusters;
 
-            /*!
-             * Returns the index given a label
-             */
-            moris_index
-            get_double_sided_set_index( std::string aDoubleSideSetLabel ) const;
+        /*!
+         * Setup the clustering interface
+         */
+        void
+        setup_cell_clusters( Interpolation_Mesh &aInterpMesh,
+                Cell_Cluster_Input              *aCellClusterInput );
 
-            /*!
-             * Returns the double side clusters in the side set
-             */
-            Vector< Cluster const * >
-            get_double_side_set_cluster( moris_index aSideSetOrdinal ) const;
+        void setup_cell_clusters();
 
-          private:
-            // Cell Clusters
-            Vector< Cell_Cluster_STK > mCellClusters;
+        /*!
+         * Setup the blocksets which contain cell clusters
+         */
+        void
+        setup_blockset_with_cell_clusters();
 
-            // Block sets containing Cell Clusters
-            std::unordered_map< std::string, moris_index > mBlockSetLabelToOrd;
-            Vector< std::string >                          mPrimaryBlockSetNames;
-            Vector< Vector< moris::moris_index > >         mPrimaryBlockSetClusters;
-            Vector< moris::moris_index >                   mIpCellToBlockSetOrd;
+        void setup_blockset_with_cell_clusters_trivial();
 
-            // side sets
-            std::unordered_map< std::string, moris_index > mSideSideSetLabelToOrd;
-            Vector< std::string >                          mSideSetLabels;
-            Vector< Vector< Side_Cluster_STK > >           mSideSets;
+        /*
+         *  setup the side set cluster interface
+         */
+        void
+        setup_side_set_clusters(
+                Interpolation_Mesh &aInterpMesh,
+                Side_Cluster_Input *aSideClusterInput );
 
-            // double side sets
-            std::unordered_map< std::string, moris_index > mDoubleSideSetLabelToOrd;
-            Vector< std::string >                          mDoubleSideSetLabels;
-            Vector< Vector< Cluster const * > >            mDoubleSideSets;
-            Vector< Side_Cluster_STK >                     mDoubleSideSetSideClusters;
+        void setup_side_set_clusters_trivial();
 
-            /*!
-             * Setup the clustering interface
-             */
-            void
-            setup_cell_clusters( Interpolation_Mesh &aInterpMesh,
-                    Cell_Cluster_Input              *aCellClusterInput );
+        /*
+         *  setup the double side set cluster interface
+         */
+        void
+        setup_double_side_set_clusters(
+                Interpolation_Mesh        &aInterpMesh,
+                Double_Side_Cluster_Input *aSideClusterInput );
 
-            void setup_cell_clusters();
+        void
+        setup_double_side_set_clusters_all_trivial( Interpolation_Mesh &aInterpMesh );
 
-            /*!
-             * Setup the blocksets which contain cell clusters
-             */
-            void
-            setup_blockset_with_cell_clusters();
+        Vector< moris::mtk::Cell const * >
+        get_cell_pointers_from_ids( moris::Matrix< moris::IdMat > const &aCellIds ) const;
 
-            void setup_blockset_with_cell_clusters_trivial();
-
-            /*
-             *  setup the side set cluster interface
-             */
-            void
-            setup_side_set_clusters(
-                    Interpolation_Mesh &aInterpMesh,
-                    Side_Cluster_Input *aSideClusterInput );
-
-            void setup_side_set_clusters_trivial();
-
-            /*
-             *  setup the double side set cluster interface
-             */
-            void
-            setup_double_side_set_clusters(
-                    Interpolation_Mesh        &aInterpMesh,
-                    Double_Side_Cluster_Input *aSideClusterInput );
-
-            void
-            setup_double_side_set_clusters_all_trivial( Interpolation_Mesh &aInterpMesh );
-
-            Vector< moris::mtk::Cell const * >
-            get_cell_pointers_from_ids( moris::Matrix< moris::IdMat > const &aCellIds ) const;
-
-            Vector< moris::mtk::Vertex const * >
-            get_vertex_pointers_from_ids( moris::Matrix< moris::IdMat > const &aVertexIds ) const;
-        };
-    }    // namespace mtk
-}    // namespace moris
+        Vector< moris::mtk::Vertex const * >
+        get_vertex_pointers_from_ids( moris::Matrix< moris::IdMat > const &aVertexIds ) const;
+    };
+}    // namespace moris::mtk
 
 #endif /* PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_INTEGRATION_MESH_STK_HPP_ */

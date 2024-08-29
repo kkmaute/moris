@@ -30,10 +30,9 @@
 #undef private
 
 #include "fn_PRM_MSI_Parameters.hpp"
-namespace moris
+
+namespace moris::MSI
 {
-    namespace MSI
-    {
     TEST_CASE("Dof_Manager_Max_Pdof_Host","[MSI],[Dof_max_pdof_hosts]")
     {
         // Create node obj
@@ -991,5 +990,3 @@ namespace moris
     }
 
     }
-}
-

@@ -10,6 +10,8 @@
 
 #include "cl_MTK_Cell_DataBase.hpp"
 
+#include <utility>
+
 #include "cl_MTK_Mesh_Core.hpp"
 #include "fn_TOL_Capacities.hpp"
 
@@ -21,7 +23,7 @@ namespace moris::mtk
             std::shared_ptr< moris::mtk::Cell_Info > aCellInfo,
             moris_index                              aCellIndex2,
             mtk::Mesh*                               aMesh )
-            : Cell( aCell.get_id(), aCell.get_index(), aCell.get_owner(), aCellInfo )
+            : Cell( aCell.get_id(), aCell.get_index(), aCell.get_owner(), std::move( aCellInfo ) )
             , mBaseCell( aCell.get_base_cell() )
             , mCellIndex2( aCellIndex2 )
             , mMesh( aMesh )
@@ -73,7 +75,7 @@ namespace moris::mtk
     void
     Cell_DataBase::remove_vertex_pointer( moris_index aIndex )
     {
-        std::cout << "In Cell Database" << std::endl;
+        std::cout << "In Cell Database" << '\n';
     }
 
     //------------------------------------------------------------------------------

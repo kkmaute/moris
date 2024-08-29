@@ -16,9 +16,7 @@
 #include "cl_MTK_Scalar_Field_Info.hpp"
 #include "moris_typedefs.hpp"
 
-namespace moris
-{
-namespace mtk
+namespace moris::mtk
 {
 
 class Visualization_STK
@@ -107,7 +105,6 @@ private:
     Vector< Scalar_Field_Info<DDRMat>> mCellsOnProcFields;
 
 };
-}
 }
 
 #endif /* PROJECTS_MTK_SRC_STK_IMPL_CL_MTK__VISUALIZATION_STK_HPP_ */

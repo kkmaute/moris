@@ -13,26 +13,24 @@
 
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_Parameter_List.hpp"
-namespace moris
+
+namespace moris::mtk
 {
-    namespace mtk
+    class Periodic_Boundary_Condition_Helper
     {
-        class Periodic_Boundary_Condition_Helper
-        {
-            public:
-            Periodic_Boundary_Condition_Helper( std::shared_ptr<Mesh_Manager> aMeshManager,
-                                                moris_index                   aMeshIndex,
-                                                moris::Parameter_List                                      &        aParameterList);
+      public:
+        Periodic_Boundary_Condition_Helper( std::shared_ptr< Mesh_Manager > aMeshManager,
+                moris_index                                                 aMeshIndex,
+                moris::Parameter_List                                      &aParameterList );
 
-            void
-            setup_periodic_boundary_conditions();
+        void
+        setup_periodic_boundary_conditions();
 
-            private:
-            std::shared_ptr<Mesh_Manager>             mMeshManager;
-            moris_index                               mMeshIndex;
-            Vector< Vector< std::string > > mMeshSideSetPairs;
-        };
+      private:
+        std::shared_ptr< Mesh_Manager > mMeshManager;
+        moris_index                     mMeshIndex;
+        Vector< Vector< std::string > > mMeshSideSetPairs;
+    };
     }
-}
 
 #endif

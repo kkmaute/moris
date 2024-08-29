@@ -20,9 +20,7 @@
 #include "op_equal_equal.hpp"
 #include "cl_Communication_Tools.hpp"
 
-namespace moris
-{
-namespace mtk
+namespace moris::mtk
 {
 TEST_CASE("MTK Vertex","[MTK],[MTK_VERTEX],[STK_VERTEX]")
 {
@@ -30,7 +28,7 @@ TEST_CASE("MTK Vertex","[MTK],[MTK_VERTEX],[STK_VERTEX]")
     {
         // construct a mesh
         std::string tFilename = "generated:2x2x2";
-        Mesh_Core_STK tMesh1( tFilename, NULL );
+        Mesh_Core_STK tMesh1( tFilename, nullptr );
 
         uint tNodeInd = 3;
         uint tNodeId  = tMesh1.get_glb_entity_id_from_entity_loc_index(tNodeInd, EntityRank::NODE);
@@ -68,5 +66,3 @@ TEST_CASE("MTK Vertex","[MTK],[MTK_VERTEX],[STK_VERTEX]")
 }
 
 }
-}
-

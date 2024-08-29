@@ -17,7 +17,7 @@ using namespace moris;
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-const Matrix< DDRMat > get_reference_ResVelNitschePen()
+Matrix< DDRMat > get_reference_ResVelNitschePen()
 {
     // define reference value for unit test
     Matrix< DDRMat > tResVelNitschePen = {
@@ -100,7 +100,7 @@ const Matrix< DDRMat > get_reference_ResVelNitschePen()
 
 //------------------------------------------------------------------------------
 
-const Matrix< DDRMat > get_reference_JacVelNitschePen()
+Matrix< DDRMat > get_reference_JacVelNitschePen()
 {
     // define reference value for unit test
     Matrix< DDRMat > tJacVelNitschePen = {
@@ -184,7 +184,7 @@ const Matrix< DDRMat > get_reference_JacVelNitschePen()
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-const Matrix< DDRMat > get_reference_ResVelNitscheCon()
+Matrix< DDRMat > get_reference_ResVelNitscheCon()
 {
     // define reference value for unit test
     Matrix< DDRMat > tResVelNitscheCon = {
@@ -267,7 +267,7 @@ const Matrix< DDRMat > get_reference_ResVelNitscheCon()
 
 //------------------------------------------------------------------------------
 
-const Matrix< DDRMat > get_reference_JacVelNitscheCon()
+Matrix< DDRMat > get_reference_JacVelNitscheCon()
 {
     // define reference value for unit test
     Matrix< DDRMat > tJacVelNitscheCon = {
@@ -351,7 +351,7 @@ const Matrix< DDRMat > get_reference_JacVelNitscheCon()
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-const Matrix< DDRMat > get_reference_ResVelNitscheAdj()
+Matrix< DDRMat > get_reference_ResVelNitscheAdj()
 {
     // define reference value for unit test
     Matrix< DDRMat > tResVelNitscheAdj = {
@@ -434,7 +434,7 @@ const Matrix< DDRMat > get_reference_ResVelNitscheAdj()
 
 //------------------------------------------------------------------------------
 
-const Matrix< DDRMat > get_reference_JacVelNitscheAdj()
+Matrix< DDRMat > get_reference_JacVelNitscheAdj()
 {
     // define reference value for unit test
     Matrix< DDRMat > tJacVelNitscheAdj = {
@@ -519,7 +519,7 @@ const Matrix< DDRMat > get_reference_JacVelNitscheAdj()
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-const Matrix< DDRMat > get_reference_ResTmpNitschePen()
+Matrix< DDRMat > get_reference_ResTmpNitschePen()
 {
     // define reference value for unit test
     Matrix< DDRMat > tResTmpNitschePen = { { 0.0 } };
@@ -530,7 +530,7 @@ const Matrix< DDRMat > get_reference_ResTmpNitschePen()
 
 //------------------------------------------------------------------------------
 
-const Matrix< DDRMat > get_reference_JacTmpNitschePen()
+Matrix< DDRMat > get_reference_JacTmpNitschePen()
 {
     // define reference value for unit test
     Matrix< DDRMat > tJacTmpNitschePen = { { 0.0 } };
@@ -542,7 +542,7 @@ const Matrix< DDRMat > get_reference_JacTmpNitschePen()
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-const Matrix< DDRMat > get_reference_ResTmpNitscheCon()
+Matrix< DDRMat > get_reference_ResTmpNitscheCon()
 {
     // define reference value for unit test
     Matrix< DDRMat > tResTmpNitscheCon = { { 0.0 } };
@@ -553,7 +553,7 @@ const Matrix< DDRMat > get_reference_ResTmpNitscheCon()
 
 //------------------------------------------------------------------------------
 
-const Matrix< DDRMat > get_reference_JacTmpNitscheCon()
+Matrix< DDRMat > get_reference_JacTmpNitscheCon()
 {
     // define reference value for unit test
     Matrix< DDRMat > tJacTmpNitscheCon = { { 0.0 } };
@@ -565,7 +565,7 @@ const Matrix< DDRMat > get_reference_JacTmpNitscheCon()
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-const Matrix< DDRMat > get_reference_ResTmpNitscheAdj()
+Matrix< DDRMat > get_reference_ResTmpNitscheAdj()
 {
     // define reference value for unit test
     Matrix< DDRMat > tResTmpNitscheAdj = { { 0.0 } };
@@ -576,7 +576,7 @@ const Matrix< DDRMat > get_reference_ResTmpNitscheAdj()
 
 //------------------------------------------------------------------------------
 
-const Matrix< DDRMat > get_reference_JacTmpNitscheAdj()
+Matrix< DDRMat > get_reference_JacTmpNitscheAdj()
 {
     // define reference value for unit test
     Matrix< DDRMat > tJacTmpNitscheAdj = { { 0.0 } };
@@ -589,7 +589,7 @@ const Matrix< DDRMat > get_reference_JacTmpNitscheAdj()
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-const Matrix< DDRMat > get_reference_ResPrsUpwind()
+Matrix< DDRMat > get_reference_ResPrsUpwind()
 {
     // define reference value for unit test
     Matrix< DDRMat > tResPrsUpwind = {
@@ -672,7 +672,7 @@ const Matrix< DDRMat > get_reference_ResPrsUpwind()
 
 //------------------------------------------------------------------------------
 
-const Matrix< DDRMat > get_reference_JacPrsUpwind()
+Matrix< DDRMat > get_reference_JacPrsUpwind()
 {
     // define reference value for unit test
     Matrix< DDRMat > tJacPrsUpwind = {
@@ -757,7 +757,7 @@ const Matrix< DDRMat > get_reference_JacPrsUpwind()
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-const Matrix< DDRMat > get_reference_ResNitsche()
+Matrix< DDRMat > get_reference_ResNitsche()
 {
     // define reference value for unit test
     Matrix< DDRMat > tResNitsche = {
@@ -840,7 +840,7 @@ const Matrix< DDRMat > get_reference_ResNitsche()
 
 //------------------------------------------------------------------------------
 
-const Matrix< DDRMat > get_reference_JacNitsche()
+Matrix< DDRMat > get_reference_JacNitsche()
 {
     // define reference value for unit test
     Matrix< DDRMat > tJacNitsche = {

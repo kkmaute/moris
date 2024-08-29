@@ -14,6 +14,7 @@
 #include "cl_FEM_Model_Initializer.hpp"
 #include "cl_FEM_Phase_User_Info.hpp"
 #include <map>
+#include <utility>
 #include "cl_FEM_Set_User_Info.hpp"
 namespace moris::fem
 {
@@ -21,7 +22,7 @@ namespace moris::fem
     {
       public:
         Model_Initializer_Phasebased(
-                Vector< Vector< Parameter_List > >               aParameterList,
+                const Vector< Vector< Parameter_List > >        &aParameterList,
                 std::shared_ptr< Library_IO >                    aLibrary,
                 mtk::Mesh_Pair const                            *aMeshPair,
                 uint                                             aSpatialDimension,
@@ -30,10 +31,10 @@ namespace moris::fem
                 : Model_Initializer(
                           aParameterList,
                           aMeshPair,
-                          aLibrary,
+                          std::move( aLibrary ),
                           aSpatialDimension,
                           aUseNewGhostSets,
-                          aDofTypeToBsplineMeshIndex ){};
+                          std::move( aDofTypeToBsplineMeshIndex ) ) {};
 
       protected:
 

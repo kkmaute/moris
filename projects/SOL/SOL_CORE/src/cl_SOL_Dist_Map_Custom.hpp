@@ -78,7 +78,7 @@ namespace moris
 
         //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         //destructor
-        virtual ~Dist_Map_Custom(){}
+        ~Dist_Map_Custom() override{}
 
         //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -106,10 +106,10 @@ namespace moris
             // since all the processors have the same data, proc 0 prints it
             if ( par_rank() == 0 )
             {
-                std::cout<< " moris id" << " => " << "petsc id" << std::endl;
+                std::cout << " moris id" << " => " << "petsc id" << '\n';
                 for(auto it = mApplicationToPetsc.begin(); it != mApplicationToPetsc.end(); ++it)
                 {
-                    std::cout << it->first << " => " << it->second << std::endl;
+                    std::cout << it->first << " => " << it->second << '\n';
                 }
             }
             barrier();
@@ -133,7 +133,7 @@ namespace moris
 
                    // ---------------------------------------------------------------------------------------------------------
 
-            virtual moris::sint return_local_ind_of_global_Id( moris::uint aGlobalId ) const override
+            moris::sint return_local_ind_of_global_Id( moris::uint aGlobalId ) const override
             {
                 MORIS_ERROR( false, "return_local_ind_of_global_Id() function has no child implementation" );
                 return -1;
@@ -141,7 +141,7 @@ namespace moris
 
             // ---------------------------------------------------------------------------------------------------------
 
-            virtual void build_dof_translator(
+            void build_dof_translator(
                     const Matrix< IdMat >& aFullMap,
                     const bool             aFlag ) override
                     {
@@ -150,7 +150,7 @@ namespace moris
 
             // ---------------------------------------------------------------------------------------------------------
 
-            virtual void translate_ids_to_free_point_ids(
+            void translate_ids_to_free_point_ids(
                     const moris::Matrix< IdMat >& aIdsIn,
                     moris::Matrix< IdMat >&       aIdsOut,
                     const bool&                   aIsBuildGraph = true ) override
@@ -158,7 +158,7 @@ namespace moris
                         MORIS_ERROR( false, "translate_ids_to_free_point_ids() function has no child implementation" );
                     }
 
-            virtual void translate_ids_to_free_point_ids(
+            void translate_ids_to_free_point_ids(
                     const Vector< sint >& aIdsIn,
                     Vector< sint >&       aIdsOut,
                     bool                  aIsBuildGraph = true ) override

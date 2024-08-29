@@ -35,22 +35,21 @@ namespace moris
      * @include LNA/src/fn_det.inc
      *
      */
-    template< typename Matrix_Type >
-    auto
-    det( Matrix< Matrix_Type > const & aA )
-    -> decltype( det(aA.matrix_data()) ) const
-    {
-        return det(aA.matrix_data());
-    }
+    //    template< typename Matrix_Type >
+    //    auto
+    //    det( const Matrix< Matrix_Type > &aA )
+    //            -> decltype( det( aA.matrix_data() ) ) const
+    //    {
+    //        return det( aA.matrix_data() );
+    //    }
 
     template< typename Matrix_Type >
     auto
-    det( Matrix< Matrix_Type > & aA )
-    -> decltype( det(aA.matrix_data()) )
+    det( const Matrix< Matrix_Type > &aA )
+            -> decltype( det( aA.matrix_data() ) )
     {
-        return det(aA.matrix_data());
+        return det( aA.matrix_data() );
     }
-}
+}    // namespace moris
 
-#endif  /* MORIS_LINALG_FN_DET_HPP_ */
-
+#endif /* MORIS_LINALG_FN_DET_HPP_ */

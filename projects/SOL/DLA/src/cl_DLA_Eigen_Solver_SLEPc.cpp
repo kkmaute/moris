@@ -57,7 +57,7 @@ fn_EPSMonitorResidual( EPS eps, PetscInt its, PetscInt nconv, PetscScalar *eigr,
 
 //----------------------------------------------------------------------------------------
 
-Eigen_Solver_SLEPc::Eigen_Solver_SLEPc( const moris::Parameter_List aParameterlist )
+Eigen_Solver_SLEPc::Eigen_Solver_SLEPc( const moris::Parameter_List &aParameterlist )
         : Linear_Solver_Algorithm_Petsc( aParameterlist )
 {
     SlepcInitializeNoArguments();
@@ -143,7 +143,7 @@ Eigen_Solver_SLEPc::solve_linear_system(
     moris::sint tNumEigVals = mParameterList.get< moris::sint >( "Num_Eig_Vals" );
     EPSSetDimensions( mEps, (PetscInt)tNumEigVals, PETSC_DEFAULT, PETSC_DEFAULT );
 
-    if ( mParameterList.get< bool >( "Verbosity" ) ) EPSMonitorSet( mEps, fn_EPSMonitorResidual, NULL, 0 );
+    if ( mParameterList.get< bool >( "Verbosity" ) ) EPSMonitorSet( mEps, fn_EPSMonitorResidual, nullptr, nullptr );
 
     EPSGetST( mEps, &mSt );
     if ( mParameterList.get< std::string >( "STType" ) == "shift_invert" )
@@ -210,8 +210,8 @@ Eigen_Solver_SLEPc::solve_linear_system(
         MultiVector_PETSc *tDestinationVector = static_cast< MultiVector_PETSc * >( tDistVec );
 
         // get the eigen vector
-        MatCreateVecs( aLinearSystem->get_matrix()->get_petsc_matrix(), NULL, &tSourceVec );
-        EPSGetEigenvector( mEps, iEigenIndex, tSourceVec, NULL );
+        MatCreateVecs( aLinearSystem->get_matrix()->get_petsc_matrix(), nullptr, &tSourceVec );
+        EPSGetEigenvector( mEps, iEigenIndex, tSourceVec, nullptr );
 
         tDestinationVector->import_local_to_global( tSourceVec, iEigenIndex, tSourceMap );
     }
@@ -236,7 +236,7 @@ Eigen_Solver_SLEPc::determine_problem_type( Linear_Problem *aLinearSystem )
     // determine the problem type based on symmetry and right hand side type
     if ( tRHSType == "IdentityMat" )
     {
-        EPSSetOperators( mEps, aLinearSystem->get_matrix()->get_petsc_matrix(), NULL );
+        EPSSetOperators( mEps, aLinearSystem->get_matrix()->get_petsc_matrix(), nullptr );
         return tAssumeSymmetric ? EPS_HEP : EPS_NHEP;
     }
     else if ( tRHSType == "MassMat" )
@@ -318,7 +318,7 @@ void Eigen_Solver_SLEPc::set_sublinear_solver_and_preconditioner( Linear_Problem
         KSPGMRESSetHapTol( mKsp, mSubSolverParameterlist->get< moris::real >( "KSPGMRESHapTol" ) );
     }
 
-    if ( mParameterList.get< bool >( "Verbosity" ) ) KSPMonitorSet( mKsp, fn_KSPMonitorResidual, NULL, 0 );
+    if ( mParameterList.get< bool >( "Verbosity" ) ) KSPMonitorSet( mKsp, fn_KSPMonitorResidual, nullptr, nullptr );
 
     // set the preconditioner
     this->build_preconditioner( aLinearSystem );
@@ -345,7 +345,7 @@ void Eigen_Solver_SLEPc::build_preconditioner( Linear_Problem *aLinearProblem )
         // set factorization method in preconditioner
         PCFactorSetMatSolverType( mPc, MATSOLVERSUPERLU_DIST );
 
-        STGetOperator( mSt, NULL );
+        STGetOperator( mSt, nullptr );
 
         // set up the package to call for the factorization
         PCFactorSetUpMatSolverType( mPc );
@@ -364,7 +364,7 @@ void Eigen_Solver_SLEPc::build_preconditioner( Linear_Problem *aLinearProblem )
         // set factorization method in preconditioner
         PCFactorSetMatSolverType( mPc, MATSOLVERMUMPS );
 
-        STGetOperator( mSt, NULL );
+        STGetOperator( mSt, nullptr );
 
         // set up the package to call for the factorization
         PCFactorSetUpMatSolverType( mPc );

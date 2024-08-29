@@ -1068,10 +1068,10 @@ namespace moris::hmr
     // interpolate field values from source Lagrange to target Lagrange mesh
     void
     Database::interpolate_field(
-            uint                           aSourcePattern,
-            const std::shared_ptr< Field > aSource,
-            uint                           aTargetPattern,
-            std::shared_ptr< Field >       aTarget )
+            uint                            aSourcePattern,
+            const std::shared_ptr< Field >& aSource,
+            uint                            aTargetPattern,
+            const std::shared_ptr< Field >& aTarget )
     {
         // make sure that mesh orders match
         MORIS_ERROR( aSource->get_interpolation_order() == aTarget->get_interpolation_order(),
@@ -1234,8 +1234,8 @@ namespace moris::hmr
 
     void
     Database::change_field_order(
-            std::shared_ptr< Field > aSource,
-            std::shared_ptr< Field > aTarget )
+            const std::shared_ptr< Field >& aSource,
+            const std::shared_ptr< Field >& aTarget )
     {
         // pointer to in mesh
         Lagrange_Mesh_Base* tSourceMesh = aSource->get_mesh();

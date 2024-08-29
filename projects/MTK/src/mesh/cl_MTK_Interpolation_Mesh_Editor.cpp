@@ -16,7 +16,6 @@
 #include "cl_MTK_Cell_DataBase.hpp"
 #include "cl_MTK_Cell_Info_Factory.hpp"
 #include "cl_MTK_Cell_Info.hpp"
-#include "cl_Tracer.hpp"
 
 namespace moris::mtk
 {
@@ -460,13 +459,13 @@ namespace moris::mtk
         bool tVertexIdAndIndexEqual = std::equal( mOutputMesh->mVertices.begin(),
                 mOutputMesh->mVertices.end(),
                 mIPMeshInfo->mVertices.begin(),
-                []( Vertex_DataBase a, mtk::Vertex const * b ) -> bool { return a.get_id() == b->get_id() and a.get_index() == b->get_index(); } );
+                []( const Vertex_DataBase& a, mtk::Vertex const * b ) -> bool { return a.get_id() == b->get_id() and a.get_index() == b->get_index(); } );
 
         // check if old vertices and new vertices have the same coords
         bool tEqualCoords = std::equal( mOutputMesh->mVertices.begin(),
                 mOutputMesh->mVertices.end(),
                 mIPMeshInfo->mVertices.begin(),
-                []( Vertex_DataBase a, mtk::Vertex const * b ) -> bool {
+                []( const Vertex_DataBase& a, mtk::Vertex const * b ) -> bool {
                     return std::equal( a.get_coords().begin(), a.get_coords().end(), b->get_coords().begin() );
                 } );
 

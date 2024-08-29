@@ -123,7 +123,7 @@ namespace moris::vis
          * @return Found MTK cells
          */
         Vector< mtk::Cell const * >
-        get_set_cells( std::string aSetName ) const override;
+        get_set_cells( const std::string& aSetLabel ) const override;
 
         /**
          * Gets all vertices on this mesh
@@ -165,7 +165,7 @@ namespace moris::vis
          * @return moris::mtk::Set* set pointer
          */
         moris::mtk::Set*
-        get_set_by_name( std::string aSetLabel ) const override;
+        get_set_by_name( const std::string& aSetLabel ) const override;
 
         /**
          * Gets a set index by a given name

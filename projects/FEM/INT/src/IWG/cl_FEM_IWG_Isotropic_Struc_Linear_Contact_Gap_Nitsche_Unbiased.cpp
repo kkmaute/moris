@@ -23,44 +23,42 @@
 #include "fn_dot.hpp"
 #include <memory>
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+    //------------------------------------------------------------------------------
+
+    IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche_Unbiased::IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche_Unbiased( sint aBeta )
     {
-        //------------------------------------------------------------------------------
+        // sign for symmetric/unsymmetric Nitsche
+        mBeta = aBeta;
 
-        IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche_Unbiased::IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche_Unbiased( sint aBeta )
-        {
-            // sign for symmetric/unsymmetric Nitsche
-            mBeta = aBeta;
+        // set size for the property pointer cell
+        mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+        // populate the property map
+        mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
+        mPropertyMap[ "Gap" ]       = static_cast< uint >( IWG_Property_Type::GAP );
 
-            // populate the property map
-            mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
-            mPropertyMap[ "Gap" ]       = static_cast< uint >( IWG_Property_Type::GAP );
+        // set size for the constitutive model pointer cell
+        // .resize: gives aValue:(The value to initialize the new elements with) and aCount:(new size of the Cell)
+        mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+        mFollowerCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
-            // set size for the constitutive model pointer cell
-            // .resize: gives aValue:(The value to initialize the new elements with) and aCount:(new size of the Cell)
-            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
-            mFollowerCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+        // populate the constitutive map
+        mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
 
-            // populate the constitutive map
-            mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
+        // set size for the stabilization parameter pointer cell
+        mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
 
-            // set size for the stabilization parameter pointer cell
-            mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
+        // populate the stabilization map
+        mStabilizationMap[ "NitscheInterface" ] = static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE );
+    }
 
-            // populate the stabilization map
-            mStabilizationMap[ "NitscheInterface" ] = static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE );
-        }
+    //------------------------------------------------------------------------------
 
-        //------------------------------------------------------------------------------
-
-        void
-        IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche_Unbiased::compute_residual( real aWStar )
-        {
+    void
+    IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche_Unbiased::compute_residual( real aWStar )
+    {
 #ifdef MORIS_HAVE_DEBUG
             // check leader and follower field interpolators
             this->check_field_interpolators( mtk::Leader_Follower::LEADER );
@@ -356,5 +354,4 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
+}    // namespace moris::fem

@@ -12,60 +12,57 @@
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
 
-namespace moris
+namespace moris::mtk
 {
-    namespace mtk
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Mesh_Pair::Mesh_Pair(
+            Interpolation_Mesh* aInterpolationMesh,
+            Integration_Mesh*   aIntegrationMesh,
+            bool                aIsOwned )
+            : mInterpolationMesh( aInterpolationMesh )
+            , mIntegrationMesh( aIntegrationMesh )
+            , mIsOwned( aIsOwned )
     {
+    }
 
-        //--------------------------------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------------------------
 
-        Mesh_Pair::Mesh_Pair(
-                Interpolation_Mesh* aInterpolationMesh,
-                Integration_Mesh*   aIntegrationMesh,
-                bool                aIsOwned )
-                : mInterpolationMesh( aInterpolationMesh )
-                , mIntegrationMesh( aIntegrationMesh )
-                , mIsOwned( aIsOwned )
+    Mesh_Pair::Mesh_Pair( const Mesh_Pair& aMeshPair )
+            : mInterpolationMesh( aMeshPair.mInterpolationMesh )
+            , mIntegrationMesh( aMeshPair.mIntegrationMesh )
+            , mIsOwned( false )
+    {
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Mesh_Pair::~Mesh_Pair()
+    {
+        if ( mIsOwned )
         {
+            delete mInterpolationMesh;
+            delete mIntegrationMesh;
         }
+    }
 
-        //--------------------------------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------------------------
 
-        Mesh_Pair::Mesh_Pair( const Mesh_Pair& aMeshPair )
-                : mInterpolationMesh( aMeshPair.mInterpolationMesh )
-                , mIntegrationMesh( aMeshPair.mIntegrationMesh )
-                , mIsOwned( false )
-        {
-        }
+    Interpolation_Mesh* Mesh_Pair::get_interpolation_mesh() const
+    {
+        MORIS_ASSERT( mInterpolationMesh, "Interpolation mesh does not exist." );
+        return mInterpolationMesh;
+    }
 
-        //--------------------------------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------------------------
 
-        Mesh_Pair::~Mesh_Pair()
-        {
-            if ( mIsOwned )
-            {
-                delete mInterpolationMesh;
-                delete mIntegrationMesh;
-            }
-        }
+    Integration_Mesh* Mesh_Pair::get_integration_mesh() const
+    {
+        MORIS_ASSERT( mIntegrationMesh, "Integration mesh does not exist." );
+        return mIntegrationMesh;
+    }
 
-        //--------------------------------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------------------------
 
-        Interpolation_Mesh* Mesh_Pair::get_interpolation_mesh() const
-        {
-            MORIS_ASSERT( mInterpolationMesh, "Interpolation mesh does not exist." );
-            return mInterpolationMesh;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        Integration_Mesh* Mesh_Pair::get_integration_mesh() const
-        {
-            MORIS_ASSERT( mIntegrationMesh, "Integration mesh does not exist." );
-            return mIntegrationMesh;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-    }    // namespace mtk
-}    // namespace moris
+}    // namespace moris::mtk

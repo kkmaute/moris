@@ -20,90 +20,87 @@
 #include <iostream>
 #include <memory>
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+    //------------------------------------------------------------------------------
+
+    IQI_Contact_Pressure::IQI_Contact_Pressure( bool aInReferenceConfiguration )
+            : mInReferenceConfiguration( aInReferenceConfiguration )
     {
-        //------------------------------------------------------------------------------
+        mFEMIQIType = fem::IQI_Type::JUMP_TRACTION;
 
-        IQI_Contact_Pressure::IQI_Contact_Pressure( bool aInReferenceConfiguration )
-                : mInReferenceConfiguration( aInReferenceConfiguration )
+        // set size for the constitutive model pointer cell
+        mLeaderCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
+        mFollowerCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
+
+        // populate the constitutive map
+        mConstitutiveMap[ "TractionCM" ] = (uint)IQI_Constitutive_Type::TRACTION_CM;
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
+    IQI_Contact_Pressure::compute_QI( Matrix< DDRMat >& aQI )
+    {
+        MORIS_ASSERT( mNormal.numel() > 0,
+                "IQI_Contact_Pressure::compute_QI() - "
+                "Normal is not set. IQIs requiring a normal must be evaluated elementally "
+                "and averaged such that there is a well-defined normal." );
+
+        // get the constitutive model for computing the fluxes/tractions
+        const std::shared_ptr< Constitutive_Model >& tCMLeader = mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::TRACTION_CM ) );
+
+        Field_Interpolator*    tLeaderDofs     = mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
+        Geometry_Interpolator* tLeaderGeometry = mLeaderFIManager->get_IG_geometry_interpolator();
+
+        // get normal in undeformed configuration
+        Matrix< DDRMat > tNormal = tLeaderGeometry->get_normal_current( tLeaderDofs );
+        Matrix< DDRMat > tTraction;
+
+        // FIXME the distinction here is not correct; the difference is large vs small strains
+        if ( mInReferenceConfiguration )
         {
-            mFEMIQIType = fem::IQI_Type::JUMP_TRACTION;
-
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
-            mFollowerCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
-
-            // populate the constitutive map
-            mConstitutiveMap[ "TractionCM" ] = (uint)IQI_Constitutive_Type::TRACTION_CM;
+            // get the pressure in the reference configuration (small deformation)!
+            aQI = { dot( tCMLeader->traction( tNormal ), tNormal ) };
         }
-
-        //------------------------------------------------------------------------------
-
-        void
-        IQI_Contact_Pressure::compute_QI( Matrix< DDRMat >& aQI )
+        else
         {
-            MORIS_ASSERT( mNormal.numel() > 0,
-                    "IQI_Contact_Pressure::compute_QI() - "
-                    "Normal is not set. IQIs requiring a normal must be evaluated elementally "
-                    "and averaged such that there is a well-defined normal." );
-
-            // get the constitutive model for computing the fluxes/tractions
-            const std::shared_ptr< Constitutive_Model >& tCMLeader = mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::TRACTION_CM ) );
-
-            Field_Interpolator*    tLeaderDofs     = mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
-            Geometry_Interpolator* tLeaderGeometry = mLeaderFIManager->get_IG_geometry_interpolator();
-
-            // get normal in undeformed configuration
-            Matrix< DDRMat > tNormal = tLeaderGeometry->get_normal_current( tLeaderDofs );
-            Matrix< DDRMat > tTraction;
-
-            // FIXME the distinction here is not correct; the difference is large vs small strains
-            if ( mInReferenceConfiguration )
-            {
-                // get the pressure in the reference configuration (small deformation)!
-                aQI = { dot( tCMLeader->traction( tNormal ), tNormal ) };
-            }
-            else
-            {
-                // get the pressure in the current configuration (large deformation)!
-                aQI = { dot( tCMLeader->traction( tNormal, CM_Function_Type::PK1 ), tNormal ) };
-            }
+            // get the pressure in the current configuration (large deformation)!
+            aQI = { dot( tCMLeader->traction( tNormal, CM_Function_Type::PK1 ), tNormal ) };
         }
+    }
 
-        //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-        void
-        IQI_Contact_Pressure::compute_QI( real aWStar )
-        {
-            Matrix< DDRMat > tMat( 1, 1 );
-            this->compute_QI( tMat );
+    void
+    IQI_Contact_Pressure::compute_QI( real aWStar )
+    {
+        Matrix< DDRMat > tMat( 1, 1 );
+        this->compute_QI( tMat );
 
-            // add the contribution
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
-            mSet->get_QI()( tQIIndex ) += aWStar * tMat;
-        }
+        // add the contribution
+        sint tQIIndex = mSet->get_QI_assembly_index( mName );
+        mSet->get_QI()( tQIIndex ) += aWStar * tMat;
+    }
 
-        //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-        void
-        IQI_Contact_Pressure::compute_dQIdu( real aWStar )
-        {
-            MORIS_ERROR( false, "Not Implemented for pseudo error for double sided set " );
-        }
+    void
+    IQI_Contact_Pressure::compute_dQIdu( real aWStar )
+    {
+        MORIS_ERROR( false, "Not Implemented for pseudo error for double sided set " );
+    }
 
-        //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-        void
-        IQI_Contact_Pressure::compute_dQIdu(
-                Vector< MSI::Dof_Type >& aDofType,
-                Matrix< DDRMat >&        adQIdu )
-        {
-            MORIS_ERROR( false, "Not Implemented for pseudo error for double sided set " );
-        }
+    void
+    IQI_Contact_Pressure::compute_dQIdu(
+            Vector< MSI::Dof_Type >& aDofType,
+            Matrix< DDRMat >&        adQIdu )
+    {
+        MORIS_ERROR( false, "Not Implemented for pseudo error for double sided set " );
+    }
 
-        //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-    } /* end namespace fem */
-} /* end namespace moris */
+}    // namespace moris::fem

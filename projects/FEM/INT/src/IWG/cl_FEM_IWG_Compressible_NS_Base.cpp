@@ -21,212 +21,210 @@
 #include "paths.hpp"
 #include "HDF5_Tools.hpp"
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+
+    //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+
+    void
+    IWG_Compressible_NS_Base::reset_spec_eval_flags()
     {
+        // reset eval flags
+        mYEval      = true;
+        mdYdtEval   = true;
+        mdYdxEval   = true;
+        md2Ydx2Eval = true;
 
-        //------------------------------------------------------------------------------
-        //------------------------------------------------------------------------------
+        mWEval      = true;
+        mdWdtEval   = true;
+        mdWdxEval   = true;
+        md2Wdx2Eval = true;
 
-        void
-        IWG_Compressible_NS_Base::reset_spec_eval_flags()
+        mWtransEval    = true;
+        mdWtransdtEval = true;
+        mdWtransdxEval = true;
+
+        mAEval    = true;
+        mKEval    = true;
+        mKijiEval = true;
+
+        mCEval    = true;
+        mdCdYEval = true;
+
+        // reset flags for child
+        this->reset_child_eval_flags();
+    }
+
+    //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+
+    void
+    IWG_Compressible_NS_Base::assemble_residual( const Matrix< DDRMat >& aStdRes )
+    {
+        // check that the size of the passed in residual makes sense
+        MORIS_ASSERT( aStdRes.n_rows() == ( ( this->num_space_dims() + 2 ) * this->num_bases() ) and ( aStdRes.n_cols() == 1 ),
+                "IWG_Compressible_NS_Base::assemble_residual() - Size of residual vector passed in is incorrect." );
+
+        // check residual dof types
+        MORIS_ASSERT( check_residual_dof_types( mResidualDofType ),
+                "IWG_Compressible_NS_Base::assemble_residual() - Only pressure or density primitive variables supported for residual assembly." );
+
+        // loop over residual dof types
+        for ( uint iResDof = 0; iResDof < mResidualDofType.size(); iResDof++ )
         {
-            // reset eval flags
-            mYEval      = true;
-            mdYdtEval   = true;
-            mdYdxEval   = true;
-            md2Ydx2Eval = true;
+            // get index for residual dof types
+            uint tLeaderDofIndex = mSet->get_dof_index_for_type( mResidualDofType( iResDof )( 0 ), mtk::Leader_Follower::LEADER );
 
-            mWEval      = true;
-            mdWdtEval   = true;
-            mdWdxEval   = true;
-            md2Wdx2Eval = true;
+            // get residual entry indices for assembly
+            uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+            uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
-            mWtransEval    = true;
-            mdWtransdtEval = true;
-            mdWtransdxEval = true;
+            // get indices, where corresponding dof entries sit in standardized residual
+            uint tStdResStartIndex = this->get_assembly_indices( mResidualDofType( iResDof )( 0 ) )( 0 );
+            uint tStdResStopIndex  = this->get_assembly_indices( mResidualDofType( iResDof )( 0 ) )( 1 );
 
-            mAEval    = true;
-            mKEval    = true;
-            mKijiEval = true;
-
-            mCEval    = true;
-            mdCdYEval = true;
-
-            // reset flags for child
-            this->reset_child_eval_flags();
+            // assemble into set residual
+            mSet->get_residual()( 0 )( { tLeaderResStartIndex, tLeaderResStopIndex }, { 0, 0 } ) +=
+                    aStdRes( { tStdResStartIndex, tStdResStopIndex }, { 0, 0 } );
         }
+    }
 
-        //------------------------------------------------------------------------------
-        //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-        void
-        IWG_Compressible_NS_Base::assemble_residual( const Matrix< DDRMat >& aStdRes )
+    void
+    IWG_Compressible_NS_Base::assemble_jacobian( const Matrix< DDRMat >& aStdJac )
+    {
+        // check that the size of the passed in residual makes sense
+        MORIS_ASSERT( ( aStdJac.n_rows() == ( this->num_space_dims() + 2 ) * this->num_bases() ) and ( aStdJac.n_cols() == ( this->num_space_dims() + 2 ) * this->num_bases() ),
+                "IWG_Compressible_NS_Base::assemble_jacobian() - Size of Jacobian passed in is incorrect." );
+
+        // check residual dof types
+        MORIS_ASSERT( check_residual_dof_types( mResidualDofType ),
+                "IWG_Compressible_NS_Base::assemble_jacobian() - Only pressure or density primitive variables supported for jacobian assembly." );
+
+        // check DoF dependencies
+        MORIS_ASSERT( check_dof_dependencies( mSet, mResidualDofType, mRequestedLeaderGlobalDofTypes ),
+                "IWG_Compressible_NS_Base::assemble_jacobian() - Set of DoF dependencies not suppported." );
+
+        // loop over residual dof types
+        for ( uint iResDof = 0; iResDof < mResidualDofType.size(); iResDof++ )
         {
-            // check that the size of the passed in residual makes sense
-            MORIS_ASSERT( aStdRes.n_rows() == ( ( this->num_space_dims() + 2 ) * this->num_bases() ) and ( aStdRes.n_cols() == 1 ),
-                    "IWG_Compressible_NS_Base::assemble_residual() - Size of residual vector passed in is incorrect." );
+            // get index for residual dof types
+            uint tLeaderDofIndex = mSet->get_dof_index_for_type( mResidualDofType( iResDof )( 0 ), mtk::Leader_Follower::LEADER );
 
-            // check residual dof types
-            MORIS_ASSERT( check_residual_dof_types( mResidualDofType ),
-                    "IWG_Compressible_NS_Base::assemble_residual() - Only pressure or density primitive variables supported for residual assembly." );
+            // get residual entry indices for assembly
+            uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+            uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
-            // loop over residual dof types
-            for ( uint iResDof = 0; iResDof < mResidualDofType.size(); iResDof++ )
+            // get indices, where corresponding dof entries sit in standardized residual
+            uint tStdResStartIndex = this->get_assembly_indices( mResidualDofType( iResDof )( 0 ) )( 0 );
+            uint tStdResStopIndex  = this->get_assembly_indices( mResidualDofType( iResDof )( 0 ) )( 1 );
+
+            // loop over dependent dof types
+            for ( uint iDepDof = 0; iDepDof < mRequestedLeaderGlobalDofTypes.size(); iDepDof++ )
             {
-                // get index for residual dof types
-                uint tLeaderDofIndex = mSet->get_dof_index_for_type( mResidualDofType( iResDof )( 0 ), mtk::Leader_Follower::LEADER );
+                // get index for dependent dof types
+                sint tDepDofIndex =
+                        mSet->get_dof_index_for_type( mRequestedLeaderGlobalDofTypes( iDepDof )( 0 ), mtk::Leader_Follower::LEADER );
 
-                // get residual entry indices for assembly
-                uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
-                uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
+                // get dependent variable indices for assembly
+                uint tLeaderDepStartIndex = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDepDofIndex, 0 );
+                uint tLeaderDepStopIndex  = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDepDofIndex, 1 );
 
                 // get indices, where corresponding dof entries sit in standardized residual
-                uint tStdResStartIndex = this->get_assembly_indices( mResidualDofType( iResDof )( 0 ) )( 0 );
-                uint tStdResStopIndex  = this->get_assembly_indices( mResidualDofType( iResDof )( 0 ) )( 1 );
+                uint tStdDepStartIndex = this->get_assembly_indices( mRequestedLeaderGlobalDofTypes( iDepDof )( 0 ) )( 0 );
+                uint tStdDepStopIndex  = this->get_assembly_indices( mRequestedLeaderGlobalDofTypes( iDepDof )( 0 ) )( 1 );
 
-                // assemble into set residual
-                mSet->get_residual()( 0 )( { tLeaderResStartIndex, tLeaderResStopIndex }, { 0, 0 } ) +=
-                        aStdRes( { tStdResStartIndex, tStdResStopIndex }, { 0, 0 } );
+                // assemble into set jacobian
+                mSet->get_jacobian()( { tLeaderResStartIndex, tLeaderResStopIndex }, { tLeaderDepStartIndex, tLeaderDepStopIndex } ) +=
+                        aStdJac( { tStdResStartIndex, tStdResStopIndex }, { tStdDepStartIndex, tStdDepStopIndex } );
             }
         }
+    }
 
-        //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-        void
-        IWG_Compressible_NS_Base::assemble_jacobian( const Matrix< DDRMat >& aStdJac )
+    Matrix< DDSMat >&
+    IWG_Compressible_NS_Base::get_assembly_indices( const MSI::Dof_Type aDofType )
+    {
+        // initialize index vector
+        mAssemblyIndices = { { -1 }, { -1 } };
+
+        // get number of bases per DoF type
+        uint tNumBases = this->num_bases();
+
+        // get number of spatial dimensions
+        uint tNumSpaceDims = this->num_space_dims();
+
+        // check which Dof Type it is, and get corresponding indices
+        if ( aDofType == mFirstDof )    // P
         {
-            // check that the size of the passed in residual makes sense
-            MORIS_ASSERT( ( aStdJac.n_rows() == ( this->num_space_dims() + 2 ) * this->num_bases() ) and ( aStdJac.n_cols() == ( this->num_space_dims() + 2 ) * this->num_bases() ),
-                    "IWG_Compressible_NS_Base::assemble_jacobian() - Size of Jacobian passed in is incorrect." );
-
-            // check residual dof types
-            MORIS_ASSERT( check_residual_dof_types( mResidualDofType ),
-                    "IWG_Compressible_NS_Base::assemble_jacobian() - Only pressure or density primitive variables supported for jacobian assembly." );
-
-            // check DoF dependencies
-            MORIS_ASSERT( check_dof_dependencies( mSet, mResidualDofType, mRequestedLeaderGlobalDofTypes ),
-                    "IWG_Compressible_NS_Base::assemble_jacobian() - Set of DoF dependencies not suppported." );
-
-            // loop over residual dof types
-            for ( uint iResDof = 0; iResDof < mResidualDofType.size(); iResDof++ )
-            {
-                // get index for residual dof types
-                uint tLeaderDofIndex = mSet->get_dof_index_for_type( mResidualDofType( iResDof )( 0 ), mtk::Leader_Follower::LEADER );
-
-                // get residual entry indices for assembly
-                uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
-                uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
-
-                // get indices, where corresponding dof entries sit in standardized residual
-                uint tStdResStartIndex = this->get_assembly_indices( mResidualDofType( iResDof )( 0 ) )( 0 );
-                uint tStdResStopIndex  = this->get_assembly_indices( mResidualDofType( iResDof )( 0 ) )( 1 );
-
-                // loop over dependent dof types
-                for ( uint iDepDof = 0; iDepDof < mRequestedLeaderGlobalDofTypes.size(); iDepDof++ )
-                {
-                    // get index for dependent dof types
-                    sint tDepDofIndex =
-                            mSet->get_dof_index_for_type( mRequestedLeaderGlobalDofTypes( iDepDof )( 0 ), mtk::Leader_Follower::LEADER );
-
-                    // get dependent variable indices for assembly
-                    uint tLeaderDepStartIndex = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDepDofIndex, 0 );
-                    uint tLeaderDepStopIndex  = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDepDofIndex, 1 );
-
-                    // get indices, where corresponding dof entries sit in standardized residual
-                    uint tStdDepStartIndex = this->get_assembly_indices( mRequestedLeaderGlobalDofTypes( iDepDof )( 0 ) )( 0 );
-                    uint tStdDepStopIndex  = this->get_assembly_indices( mRequestedLeaderGlobalDofTypes( iDepDof )( 0 ) )( 1 );
-
-                    // assemble into set jacobian
-                    mSet->get_jacobian()( { tLeaderResStartIndex, tLeaderResStopIndex }, { tLeaderDepStartIndex, tLeaderDepStopIndex } ) +=
-                            aStdJac( { tStdResStartIndex, tStdResStopIndex }, { tStdDepStartIndex, tStdDepStopIndex } );
-                }
-            }
+            mAssemblyIndices( 0 ) = 0;
+            mAssemblyIndices( 1 ) = tNumBases - 1;
+        }
+        else if ( aDofType == mVectorDof )    // VX
+        {
+            mAssemblyIndices( 0 ) = tNumBases;
+            mAssemblyIndices( 1 ) = ( tNumSpaceDims + 1 ) * tNumBases - 1;
+        }
+        else if ( aDofType == mLastDof )    // TEMP
+        {
+            mAssemblyIndices( 0 ) = ( tNumSpaceDims + 1 ) * tNumBases;
+            mAssemblyIndices( 1 ) = ( tNumSpaceDims + 2 ) * tNumBases - 1;
+        }
+        else
+        {
+            MORIS_ERROR( false,
+                    "IWG_Compressible_NS_Base::get_assembly_indices - requested DoF type not part of variable set." );
         }
 
-        //------------------------------------------------------------------------------
+        // pass on vector with assembly indices
+        return mAssemblyIndices;
+    }
 
-        Matrix< DDSMat >&
-        IWG_Compressible_NS_Base::get_assembly_indices( const MSI::Dof_Type aDofType )
+    //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+
+    uint
+    IWG_Compressible_NS_Base::num_space_dims()
+    {
+        // get number of spatial dimensions from velocity, momentum, etc. field interpolator
+        return mLeaderFIManager->get_field_interpolators_for_type( mVectorDof )->get_number_of_fields();
+    }
+
+    //------------------------------------------------------------------------------
+
+    uint
+    IWG_Compressible_NS_Base::num_bases()
+    {
+        // get number of bases from first state var FI
+        return mLeaderFIManager->get_field_interpolators_for_type( mFirstDof )->get_number_of_space_time_bases();
+    }
+
+    //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+
+    const Matrix< DDRMat >&
+    IWG_Compressible_NS_Base::Y()
+    {
+        // check if the variable vectors have already been assembled
+        if ( !mYEval )
         {
-            // initialize index vector
-            mAssemblyIndices = { { -1 }, { -1 } };
-
-            // get number of bases per DoF type
-            uint tNumBases = this->num_bases();
-
-            // get number of spatial dimensions
-            uint tNumSpaceDims = this->num_space_dims();
-
-            // check which Dof Type it is, and get corresponding indices
-            if ( aDofType == mFirstDof )    // P
-            {
-                mAssemblyIndices( 0 ) = 0;
-                mAssemblyIndices( 1 ) = tNumBases - 1;
-            }
-            else if ( aDofType == mVectorDof )    // VX
-            {
-                mAssemblyIndices( 0 ) = tNumBases;
-                mAssemblyIndices( 1 ) = ( tNumSpaceDims + 1 ) * tNumBases - 1;
-            }
-            else if ( aDofType == mLastDof )    // TEMP
-            {
-                mAssemblyIndices( 0 ) = ( tNumSpaceDims + 1 ) * tNumBases;
-                mAssemblyIndices( 1 ) = ( tNumSpaceDims + 2 ) * tNumBases - 1;
-            }
-            else
-            {
-                MORIS_ERROR( false,
-                        "IWG_Compressible_NS_Base::get_assembly_indices - requested DoF type not part of variable set." );
-            }
-
-            // pass on vector with assembly indices
-            return mAssemblyIndices;
+            return mY;
         }
+        mYEval = false;
 
-        //------------------------------------------------------------------------------
-        //------------------------------------------------------------------------------
+        // check residual DoF types
+        MORIS_ASSERT( check_residual_dof_types( mResidualDofType ),
+                "IWG_Compressible_NS_Base::Y() - check for residual DoF types failed. See Error message above for more info." );
 
-        uint
-        IWG_Compressible_NS_Base::num_space_dims()
-        {
-            // get number of spatial dimensions from velocity, momentum, etc. field interpolator
-            return mLeaderFIManager->get_field_interpolators_for_type( mVectorDof )->get_number_of_fields();
-        }
+        // get field interpolators
+        Field_Interpolator* tFI1 = mLeaderFIManager->get_field_interpolators_for_type( mFirstDof );
+        Field_Interpolator* tFI2 = mLeaderFIManager->get_field_interpolators_for_type( mVectorDof );
+        Field_Interpolator* tFI3 = mLeaderFIManager->get_field_interpolators_for_type( mLastDof );
 
-        //------------------------------------------------------------------------------
-
-        uint
-        IWG_Compressible_NS_Base::num_bases()
-        {
-            // get number of bases from first state var FI
-            return mLeaderFIManager->get_field_interpolators_for_type( mFirstDof )->get_number_of_space_time_bases();
-        }
-
-        //------------------------------------------------------------------------------
-        //------------------------------------------------------------------------------
-
-        const Matrix< DDRMat >&
-        IWG_Compressible_NS_Base::Y()
-        {
-            // check if the variable vectors have already been assembled
-            if ( !mYEval )
-            {
-                return mY;
-            }
-            mYEval = false;
-
-            // check residual DoF types
-            MORIS_ASSERT( check_residual_dof_types( mResidualDofType ),
-                    "IWG_Compressible_NS_Base::Y() - check for residual DoF types failed. See Error message above for more info." );
-
-            // get field interpolators
-            Field_Interpolator* tFI1 = mLeaderFIManager->get_field_interpolators_for_type( mFirstDof );
-            Field_Interpolator* tFI2 = mLeaderFIManager->get_field_interpolators_for_type( mVectorDof );
-            Field_Interpolator* tFI3 = mLeaderFIManager->get_field_interpolators_for_type( mLastDof );
-
-            // clang-format off
+        // clang-format off
             // construct Y - vector based on the number of space dims
             switch ( this->num_space_dims() )
             {
@@ -258,38 +256,38 @@ namespace moris
                     break;
                 }
             }
-            // clang-format on
+        // clang-format on
 
-            // check that thermodynamic variables are not zero
-            MORIS_ASSERT( tFI1->val()( 0 ) != 0.0 and tFI3->val()( 0 ) != 0.0,
-                    "cl_FEM_IWG_Compressible_NS_Base::Y() - Pressure, Density, or Temperature is zero, exiting." );
+        // check that thermodynamic variables are not zero
+        MORIS_ASSERT( tFI1->val()( 0 ) != 0.0 and tFI3->val()( 0 ) != 0.0,
+                "cl_FEM_IWG_Compressible_NS_Base::Y() - Pressure, Density, or Temperature is zero, exiting." );
 
-            // return Y
-            return mY;
-        }
+        // return Y
+        return mY;
+    }
 
-        //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat >&
-        IWG_Compressible_NS_Base::dYdt()
+    const Matrix< DDRMat >&
+    IWG_Compressible_NS_Base::dYdt()
+    {
+        // check if the variable vectors have already been assembled
+        if ( !mdYdtEval )
         {
-            // check if the variable vectors have already been assembled
-            if ( !mdYdtEval )
-            {
-                return mdYdt;
-            }
-            mdYdtEval = false;
+            return mdYdt;
+        }
+        mdYdtEval = false;
 
-            // check residual DoF types
-            MORIS_ASSERT( check_residual_dof_types( mResidualDofType ),
-                    "IWG_Compressible_NS_Base::dYdt() - check for residual DoF types failed. See Error message above for more info." );
+        // check residual DoF types
+        MORIS_ASSERT( check_residual_dof_types( mResidualDofType ),
+                "IWG_Compressible_NS_Base::dYdt() - check for residual DoF types failed. See Error message above for more info." );
 
-            // get field interpolators
-            Field_Interpolator* tFI1 = mLeaderFIManager->get_field_interpolators_for_type( mFirstDof );
-            Field_Interpolator* tFI2 = mLeaderFIManager->get_field_interpolators_for_type( mVectorDof );
-            Field_Interpolator* tFI3 = mLeaderFIManager->get_field_interpolators_for_type( mLastDof );
+        // get field interpolators
+        Field_Interpolator* tFI1 = mLeaderFIManager->get_field_interpolators_for_type( mFirstDof );
+        Field_Interpolator* tFI2 = mLeaderFIManager->get_field_interpolators_for_type( mVectorDof );
+        Field_Interpolator* tFI3 = mLeaderFIManager->get_field_interpolators_for_type( mLastDof );
 
-            // clang-format off
+        // clang-format off
             // construct Y - vector based on the number of space dims
             switch ( this->num_space_dims() )
             {
@@ -323,34 +321,34 @@ namespace moris
                     break;
                 }
             }
-            // clang-format on
+        // clang-format on
 
-            // return dYdt
-            return mdYdt;
-        }
+        // return dYdt
+        return mdYdt;
+    }
 
-        //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat >&
-        IWG_Compressible_NS_Base::dYdx( const uint aSpatialDirection )
+    const Matrix< DDRMat >&
+    IWG_Compressible_NS_Base::dYdx( const uint aSpatialDirection )
+    {
+        // check if the variable vector has already been assembled
+        if ( !mdYdxEval )
         {
-            // check if the variable vector has already been assembled
-            if ( !mdYdxEval )
-            {
-                return mdYdx( aSpatialDirection );
-            }
-            mdYdxEval = false;
+            return mdYdx( aSpatialDirection );
+        }
+        mdYdxEval = false;
 
-            // check residual DoF types
-            MORIS_ASSERT( check_residual_dof_types( mResidualDofType ),
-                    "IWG_Compressible_NS_Base::dYdx() - check for residual DoF types failed. See Error message above for more info." );
+        // check residual DoF types
+        MORIS_ASSERT( check_residual_dof_types( mResidualDofType ),
+                "IWG_Compressible_NS_Base::dYdx() - check for residual DoF types failed. See Error message above for more info." );
 
-            // get field interpolators
-            Field_Interpolator* tFI1 = mLeaderFIManager->get_field_interpolators_for_type( mFirstDof );
-            Field_Interpolator* tFI2 = mLeaderFIManager->get_field_interpolators_for_type( mVectorDof );
-            Field_Interpolator* tFI3 = mLeaderFIManager->get_field_interpolators_for_type( mLastDof );
+        // get field interpolators
+        Field_Interpolator* tFI1 = mLeaderFIManager->get_field_interpolators_for_type( mFirstDof );
+        Field_Interpolator* tFI2 = mLeaderFIManager->get_field_interpolators_for_type( mVectorDof );
+        Field_Interpolator* tFI3 = mLeaderFIManager->get_field_interpolators_for_type( mLastDof );
 
-            // clang-format off
+        // clang-format off
             // construct Y - vector based on the number of space dims
             switch ( this->num_space_dims() )
             {
@@ -417,37 +415,37 @@ namespace moris
                     break;
                 }
             }
-            // clang-format on
+        // clang-format on
 
-            // return dYdt
-            return mdYdx( aSpatialDirection );
-        }
+        // return dYdt
+        return mdYdx( aSpatialDirection );
+    }
 
-        //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat >&
-        IWG_Compressible_NS_Base::d2Ydx2( const uint aI, const uint aJ )
+    const Matrix< DDRMat >&
+    IWG_Compressible_NS_Base::d2Ydx2( const uint aI, const uint aJ )
+    {
+        // convert the two indices into one for condensed tensor
+        uint tFlatIndex = convert_index_pair_to_flat( aI, aJ, this->num_space_dims() );
+
+        // check if the variable vectors have already been assembled
+        if ( !md2Ydx2Eval )
         {
-            // convert the two indices into one for condensed tensor
-            uint tFlatIndex = convert_index_pair_to_flat( aI, aJ, this->num_space_dims() );
+            return md2Ydx2( tFlatIndex );
+        }
+        md2Ydx2Eval = false;
 
-            // check if the variable vectors have already been assembled
-            if ( !md2Ydx2Eval )
-            {
-                return md2Ydx2( tFlatIndex );
-            }
-            md2Ydx2Eval = false;
+        // check residual DoF types
+        MORIS_ASSERT( check_residual_dof_types( mResidualDofType ),
+                "IWG_Compressible_NS_Base::d2Ydx2() - check for residual DoF types failed. See Error message above for more info." );
 
-            // check residual DoF types
-            MORIS_ASSERT( check_residual_dof_types( mResidualDofType ),
-                    "IWG_Compressible_NS_Base::d2Ydx2() - check for residual DoF types failed. See Error message above for more info." );
+        // get field interpolators
+        Field_Interpolator* tFI1 = mLeaderFIManager->get_field_interpolators_for_type( mFirstDof );
+        Field_Interpolator* tFI2 = mLeaderFIManager->get_field_interpolators_for_type( mVectorDof );
+        Field_Interpolator* tFI3 = mLeaderFIManager->get_field_interpolators_for_type( mLastDof );
 
-            // get field interpolators
-            Field_Interpolator* tFI1 = mLeaderFIManager->get_field_interpolators_for_type( mFirstDof );
-            Field_Interpolator* tFI2 = mLeaderFIManager->get_field_interpolators_for_type( mVectorDof );
-            Field_Interpolator* tFI3 = mLeaderFIManager->get_field_interpolators_for_type( mLastDof );
-
-            // clang-format off
+        // clang-format off
             // construct Y - vector based on the number of space dims
             switch ( this->num_space_dims() )
             {
@@ -865,7 +863,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & IWG_Compressible_NS_Base::dCdY_VR( const Matrix< DDRMat > aVR )
+        const Matrix< DDRMat > & IWG_Compressible_NS_Base::dCdY_VR( const Matrix< DDRMat >& aVR )
         {
             // get number of state variables
             uint tNumStateVars = this->num_space_dims() + 2;
@@ -944,7 +942,7 @@ namespace moris
         //------------------------------------------------------------------------------
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > IWG_Compressible_NS_Base::get_elemental_index_vector()
+        Matrix< DDRMat > IWG_Compressible_NS_Base::get_elemental_index_vector()
         {
             // get total number of bases
             real tTotNumBases = ( this->num_space_dims() + 2 ) * this->num_bases();
@@ -964,7 +962,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > IWG_Compressible_NS_Base::get_elemental_index_matrix()
+        Matrix< DDRMat > IWG_Compressible_NS_Base::get_elemental_index_matrix()
         {
             // get total number of bases
             real tTotNumBases = ( this->num_space_dims() + 2 ) * this->num_bases();
@@ -989,6 +987,5 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-    } /* namespace fem */
-} /* namespace moris */
+    } // namespace moris::fem
 

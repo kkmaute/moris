@@ -25,72 +25,70 @@
 #include "fn_sqrtmat.hpp"
 //#include "../test/FEM_Test_Proxy/fn_FEM_Convert_Dimensions.cpp"
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+
+    //------------------------------------------------------------------------------
+
+    IWG_Compressible_NS_Bulk::IWG_Compressible_NS_Bulk()
     {
+        // set size for the property pointer cell
+        mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
-        //------------------------------------------------------------------------------
+        // populate the property map
+        mPropertyMap[ "DynamicViscosity" ]    = static_cast< uint >( IWG_Property_Type::DYNAMIC_VISCOSITY );
+        mPropertyMap[ "ThermalConductivity" ] = static_cast< uint >( IWG_Property_Type::THERMAL_CONDUCTIVITY );
+        mPropertyMap[ "BodyForce" ]           = static_cast< uint >( IWG_Property_Type::BODY_FORCE );
+        mPropertyMap[ "BodyHeatLoad" ]        = static_cast< uint >( IWG_Property_Type::BODY_HEAT_LOAD );
 
-        IWG_Compressible_NS_Bulk::IWG_Compressible_NS_Bulk()
-        {
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+        // set size for the material model pointer cell
+        mLeaderMM.resize( static_cast< uint >( IWG_Material_Type::MAX_ENUM ), nullptr );
 
-            // populate the property map
-            mPropertyMap[ "DynamicViscosity" ]     = static_cast< uint >( IWG_Property_Type::DYNAMIC_VISCOSITY );
-            mPropertyMap[ "ThermalConductivity" ]  = static_cast< uint >( IWG_Property_Type::THERMAL_CONDUCTIVITY );
-            mPropertyMap[ "BodyForce" ]            = static_cast< uint >( IWG_Property_Type::BODY_FORCE );
-            mPropertyMap[ "BodyHeatLoad" ]         = static_cast< uint >( IWG_Property_Type::BODY_HEAT_LOAD );
+        // populate the material map
+        mMaterialMap[ "FluidMM" ] = static_cast< uint >( IWG_Material_Type::FLUID_MM );
 
-            // set size for the material model pointer cell
-            mLeaderMM.resize( static_cast< uint >( IWG_Material_Type::MAX_ENUM ), nullptr );
+        // set size for the constitutive model pointer cell
+        mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
-            // populate the material map
-            mMaterialMap[ "FluidMM" ] = static_cast< uint >( IWG_Material_Type::FLUID_MM );
+        // populate the constitutive map
+        mConstitutiveMap[ "FluidCM" ] = static_cast< uint >( IWG_Constitutive_Type::FLUID_CM );
 
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+        // set size for the stabilization parameter pointer cell
+        mStabilizationParam.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
-            // populate the constitutive map
-            mConstitutiveMap[ "FluidCM" ] = static_cast< uint >( IWG_Constitutive_Type::FLUID_CM );
+        // populate the stabilization parameter map
+        mStabilizationMap[ "GLS" ] = static_cast< uint >( IWG_Stabilization_Type::GLS );
+    }
 
-            // set size for the stabilization parameter pointer cell
-            mStabilizationParam.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+    //------------------------------------------------------------------------------
 
-            // populate the stabilization parameter map
-            mStabilizationMap[ "GLS" ] = static_cast< uint >( IWG_Stabilization_Type::GLS );
-        }
+    void IWG_Compressible_NS_Bulk::reset_child_eval_flags()
+    {
+        // reset eval flags specific to this child IWG
+        mLYEval    = true;
+        mLWEval    = true;
+        mLDofYEval = true;
 
-        //------------------------------------------------------------------------------
+        mGLSTestFuncEval = true;
 
-        void IWG_Compressible_NS_Bulk::reset_child_eval_flags()
-        {
-            // reset eval flags specific to this child IWG
-            mLYEval = true;
-            mLWEval = true;
-            mLDofYEval = true;
+        mA0invEval    = true;
+        mdA0invdYEval = true;
 
-            mGLSTestFuncEval = true;
+        mGEval = true;
 
-            mA0invEval = true;
-            mdA0invdYEval = true;
+        mMEval        = true;
+        mMinvEval     = true;
+        mSqrtMinvEval = true;
+        mdMdYEval     = true;
 
-            mGEval = true;
+        mTauEval = true;
+    }
 
-            mMEval = true;
-            mMinvEval = true;
-            mSqrtMinvEval = true;
-            mdMdYEval = true;
+    //------------------------------------------------------------------------------
 
-            mTauEval = true;
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IWG_Compressible_NS_Bulk::compute_residual( real aWStar )
-        {
-            // check leader field interpolators
+    void IWG_Compressible_NS_Bulk::compute_residual( real aWStar )
+    {
+        // check leader field interpolators
 #ifdef MORIS_HAVE_DEBUG
             this->check_field_interpolators();
 #endif
@@ -374,6 +372,4 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-    } /* namespace fem */
-} /* namespace moris */
-
+}    // namespace moris::fem

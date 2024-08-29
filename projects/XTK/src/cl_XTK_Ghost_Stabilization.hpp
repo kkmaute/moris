@@ -18,13 +18,11 @@
 #include "cl_TOL_Memory_Map.hpp"
 using namespace moris;
 
-namespace moris
+namespace moris::mtk
 {
-    namespace mtk
-    {
-        class Cell;
+    class Cell;
     }
-}    // namespace moris
+
 namespace moris::xtk
 {
     class Cell_XTK_No_CM;

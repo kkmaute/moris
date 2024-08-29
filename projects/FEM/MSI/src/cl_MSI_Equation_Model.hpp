@@ -94,7 +94,7 @@ namespace moris
             /**
              * constructor
              */
-            Equation_Model(){};
+            Equation_Model() {};
 
             //------------------------------------------------------------------------------
             /**

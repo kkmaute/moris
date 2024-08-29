@@ -357,7 +357,7 @@ void Sparse_Matrix_EpetraFECrs::mat_vec_product(
 
 void Sparse_Matrix_EpetraFECrs::print() const
 {
-    std::cout << *mEpetraMat << std::endl;
+    std::cout << *mEpetraMat << '\n';
 }
 
 // ----------------------------------------------------------------------------------------------------------------------

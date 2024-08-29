@@ -11,6 +11,7 @@
 #pragma once
 
 #include <iostream>
+#include <utility>
 
 // MORIS header files.
 #include "cl_Vector.hpp"
@@ -167,7 +168,7 @@ namespace moris
             void
             set_output_filename( std::string aOutputSolVecFileName )
             {
-                mOutputSolVecFileName = aOutputSolVecFileName;
+                mOutputSolVecFileName = std::move( aOutputSolVecFileName );
             };
 
             //-------------------------------------------------------------------------------

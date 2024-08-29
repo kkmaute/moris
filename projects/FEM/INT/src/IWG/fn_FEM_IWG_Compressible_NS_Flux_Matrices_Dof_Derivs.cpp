@@ -14,64 +14,62 @@
 #include "fn_norm.hpp"
 #include "fn_eye.hpp"
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+    //------------------------------------------------------------------------------
+
+    void eval_A0_DOF(
+            const std::shared_ptr< Material_Model >     &aMM,
+            const std::shared_ptr< Constitutive_Model > &aCM,
+            Field_Interpolator_Manager                  *aLeaderFIManager,
+            const Vector< Vector< MSI::Dof_Type > >     &aResidualDofTypes,
+            Vector< Matrix< DDRMat > >                  &adA0dDOF )
     {
-        //------------------------------------------------------------------------------
+        // check inputs
+        MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ),
+                "fn_FEM_IWG_Compressible_NS::eval_A0_DOF - list of aResidualDofTypes not supported, see messages above." );
+        MORIS_ASSERT( ( aMM != nullptr ) and ( aCM != nullptr ) and ( aLeaderFIManager != nullptr ),
+                "fn_FEM_IWG_Compressible_NS::eval_A0_DOF - nullptr provided in inputs check MM, CM, and FI Manager provided." );
 
-        void eval_A0_DOF(
-                std::shared_ptr< Material_Model >                   aMM,
-                std::shared_ptr< Constitutive_Model >               aCM,
-                Field_Interpolator_Manager                        * aLeaderFIManager,
-                const Vector< Vector< MSI::Dof_Type > > & aResidualDofTypes,
-                Vector< Matrix< DDRMat > >                   & adA0dDOF )
+        // get the velocity FI
+        Field_Interpolator *tFIVelocity = aLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+
+        // get number of Space dimensions
+        uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
+
+        // get number of bases for the elements used
+        uint tNumBases = tFIVelocity->get_number_of_space_time_bases();
+
+        // get commonly used values
+        real tRho    = aMM->density()( 0 );
+        real tAlphaP = aMM->AlphaP()( 0 );
+        real tBetaT  = aMM->BetaT()( 0 );
+        real tCv     = aMM->Cv()( 0 );
+        real tEtot   = aCM->Energy()( 0 );
+        real tUx     = tFIVelocity->val()( 0 );
+        real tUy     = tFIVelocity->val()( 1 );
+        real tUz     = 0.0;
+        if ( tNumSpaceDims == 3 )
         {
-            // check inputs
-            MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ),
-                    "fn_FEM_IWG_Compressible_NS::eval_A0_DOF - list of aResidualDofTypes not supported, see messages above." );
-            MORIS_ASSERT( ( aMM != nullptr ) and ( aCM != nullptr ) and ( aLeaderFIManager != nullptr ),
-                    "fn_FEM_IWG_Compressible_NS::eval_A0_DOF - nullptr provided in inputs check MM, CM, and FI Manager provided." );
+            tUz = tFIVelocity->val()( 2 );
+        }
 
-            // get the velocity FI
-            Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+        // divide the N-vector for the velocity
+        Matrix< DDRMat > tNUx = tFIVelocity->N()( { 0, 0 }, { 0, tNumBases - 1 } );
+        Matrix< DDRMat > tNUy = tFIVelocity->N()( { 1, 1 }, { tNumBases, 2 * tNumBases - 1 } );
+        Matrix< DDRMat > tNUz;
+        if ( tNumSpaceDims == 3 )
+        {
+            tNUz = tFIVelocity->N()( { 2, 2 }, { 2 * tNumBases, 3 * tNumBases - 1 } );
+        }
 
-            // get number of Space dimensions
-            uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
+        // variable index for the third variable depending on spatial dimension
+        uint tThirdVarIndex = tNumSpaceDims + 1;
 
-            // get number of bases for the elements used
-            uint tNumBases = tFIVelocity->get_number_of_space_time_bases();
-
-            // get commonly used values
-            real tRho    = aMM->density()( 0 );
-            real tAlphaP = aMM->AlphaP()( 0 );
-            real tBetaT  = aMM->BetaT()( 0 );
-            real tCv     = aMM->Cv()( 0 );
-            real tEtot   = aCM->Energy()( 0 );
-            real tUx     = tFIVelocity->val()( 0 );
-            real tUy     = tFIVelocity->val()( 1 );
-            real tUz     = 0.0;
-            if ( tNumSpaceDims == 3 )
-            {
-                tUz = tFIVelocity->val()( 2 );
-            }
-
-            // divide the N-vector for the velocity
-            Matrix< DDRMat > tNUx = tFIVelocity->N()( { 0, 0 }, { 0, tNumBases - 1 } );
-            Matrix< DDRMat > tNUy = tFIVelocity->N()( { 1, 1 }, { tNumBases, 2 * tNumBases - 1 } );
-            Matrix< DDRMat > tNUz;
-            if ( tNumSpaceDims == 3 )
-            {
-                tNUz = tFIVelocity->N()( { 2, 2 }, { 2 * tNumBases, 3 * tNumBases - 1 } );
-            }
-
-            // variable index for the third variable depending on spatial dimension
-            uint tThirdVarIndex = tNumSpaceDims + 1;
-
-            // =======================
-            // Assemble A0 derivatives
-            // =======================
-            // clang-format off
+        // =======================
+        // Assemble A0 derivatives
+        // =======================
+        // clang-format off
 
             // derivative matrix for FIRST ROW OF A0
 
@@ -198,63 +196,63 @@ namespace moris
                     tCv * aMM->DensityDOF( aResidualDofTypes( 2 ) ) + tRho * aMM->CpDOF( aResidualDofTypes( 2 ) ) -
                     tEtot * aMM->AlphaPDOF( aResidualDofTypes( 2 ) ) - tAlphaP * aCM->dEnergydDOF( aResidualDofTypes( 2 ) );
 
-            // clang-format on
+        // clang-format on
+    }
+
+    //------------------------------------------------------------------------------
+
+    void eval_A1_DOF(
+            const std::shared_ptr< Material_Model >     &aMM,
+            const std::shared_ptr< Constitutive_Model > &aCM,
+            Field_Interpolator_Manager                  *aLeaderFIManager,
+            const Vector< Vector< MSI::Dof_Type > >     &aResidualDofTypes,
+            Vector< Matrix< DDRMat > >                  &adA1dDOF )
+    {
+        // check inputs
+        MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ),
+                "fn_FEM_IWG_Compressible_NS::eval_A1_DOF - list of aResidualDofTypes not supported, see messages above." );
+        MORIS_ASSERT( ( aMM != nullptr ) and ( aCM != nullptr ) and ( aLeaderFIManager != nullptr ),
+                "fn_FEM_IWG_Compressible_NS::eval_A1_DOF - nullptr provided in inputs check MM, CM, and FI Manager provided." );
+
+        // get the velocity FI
+        Field_Interpolator *tFIVelocity = aLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+
+        // get number of Space dimensions
+        uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
+
+        // get number of bases for the elements used
+        uint tNumBases = tFIVelocity->get_number_of_space_time_bases();
+
+        // get commonly used values
+        real tRho    = aMM->density()( 0 );
+        real tAlphaP = aMM->AlphaP()( 0 );
+        real tBetaT  = aMM->BetaT()( 0 );
+        real tCv     = aMM->Cv()( 0 );
+        real tEtot   = aCM->Energy()( 0 );
+        real tUx     = tFIVelocity->val()( 0 );
+        real tUy     = tFIVelocity->val()( 1 );
+        real tUz     = 0.0;
+        if ( tNumSpaceDims == 3 )
+        {
+            tUz = tFIVelocity->val()( 2 );
         }
 
-        //------------------------------------------------------------------------------
-
-        void eval_A1_DOF(
-                std::shared_ptr< Material_Model >                   aMM,
-                std::shared_ptr< Constitutive_Model >               aCM,
-                Field_Interpolator_Manager                        * aLeaderFIManager,
-                const Vector< Vector< MSI::Dof_Type > > & aResidualDofTypes,
-                Vector< Matrix< DDRMat > >                   & adA1dDOF )
+        // divide the N-vector for the velocity
+        Matrix< DDRMat > tNUx = tFIVelocity->N()( { 0, 0 }, { 0, tNumBases - 1 } );
+        Matrix< DDRMat > tNUy = tFIVelocity->N()( { 1, 1 }, { tNumBases, 2 * tNumBases - 1 } );
+        Matrix< DDRMat > tNUz;
+        if ( tNumSpaceDims == 3 )
         {
-            // check inputs
-            MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ),
-                    "fn_FEM_IWG_Compressible_NS::eval_A1_DOF - list of aResidualDofTypes not supported, see messages above." );
-            MORIS_ASSERT( ( aMM != nullptr ) and ( aCM != nullptr ) and ( aLeaderFIManager != nullptr ),
-                    "fn_FEM_IWG_Compressible_NS::eval_A1_DOF - nullptr provided in inputs check MM, CM, and FI Manager provided." );
+            tNUz = tFIVelocity->N()( { 2, 2 }, { 2 * tNumBases, 3 * tNumBases - 1 } );
+        }
 
-            // get the velocity FI
-            Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+        // variable index for the third variable depending on spatial dimension
+        uint tThirdVarIndex = tNumSpaceDims + 1;
 
-            // get number of Space dimensions
-            uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
-
-            // get number of bases for the elements used
-            uint tNumBases = tFIVelocity->get_number_of_space_time_bases();
-
-            // get commonly used values
-            real tRho    = aMM->density()( 0 );
-            real tAlphaP = aMM->AlphaP()( 0 );
-            real tBetaT  = aMM->BetaT()( 0 );
-            real tCv     = aMM->Cv()( 0 );
-            real tEtot   = aCM->Energy()( 0 );
-            real tUx     = tFIVelocity->val()( 0 );
-            real tUy     = tFIVelocity->val()( 1 );
-            real tUz     = 0.0;
-            if ( tNumSpaceDims == 3 )
-            {
-                tUz = tFIVelocity->val()( 2 );
-            }
-
-            // divide the N-vector for the velocity
-            Matrix< DDRMat > tNUx = tFIVelocity->N()( { 0, 0 }, { 0, tNumBases - 1 } );
-            Matrix< DDRMat > tNUy = tFIVelocity->N()( { 1, 1 }, { tNumBases, 2 * tNumBases - 1 } );
-            Matrix< DDRMat > tNUz;
-            if ( tNumSpaceDims == 3 )
-            {
-                tNUz = tFIVelocity->N()( { 2, 2 }, { 2 * tNumBases, 3 * tNumBases - 1 } );
-            }
-
-            // variable index for the third variable depending on spatial dimension
-            uint tThirdVarIndex = tNumSpaceDims + 1;
-
-            // =======================
-            // Assemble A1 derivatives
-            // =======================
-            // clang-format off
+        // =======================
+        // Assemble A1 derivatives
+        // =======================
+        // clang-format off
 
             // derivative matrix for FIRST ROW OF A1
 
@@ -468,63 +466,63 @@ namespace moris
                     tUx * ( tCv * aMM->DensityDOF( aResidualDofTypes( 2 ) ) + tRho * aMM->CpDOF( aResidualDofTypes( 2 ) ) -
                     tEtot * aMM->AlphaPDOF( aResidualDofTypes( 2 ) ) - tAlphaP * aCM->dEnergydDOF( aResidualDofTypes( 2 ) ) );
 
-            // clang-format on
+        // clang-format on
+    }
+
+    //------------------------------------------------------------------------------
+
+    void eval_A2_DOF(
+            const std::shared_ptr< Material_Model >     &aMM,
+            const std::shared_ptr< Constitutive_Model > &aCM,
+            Field_Interpolator_Manager                  *aLeaderFIManager,
+            const Vector< Vector< MSI::Dof_Type > >     &aResidualDofTypes,
+            Vector< Matrix< DDRMat > >                  &adA2dDOF )
+    {
+        // check inputs
+        MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ),
+                "fn_FEM_IWG_Compressible_NS::eval_A2_DOF - list of aResidualDofTypes not supported, see messages above." );
+        MORIS_ASSERT( ( aMM != nullptr ) and ( aCM != nullptr ) and ( aLeaderFIManager != nullptr ),
+                "fn_FEM_IWG_Compressible_NS::eval_A2_DOF - nullptr provided in inputs check MM, CM, and FI Manager provided." );
+
+        // get the velocity FI
+        Field_Interpolator *tFIVelocity = aLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+
+        // get number of Space dimensions
+        uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
+
+        // get number of bases for the elements used
+        uint tNumBases = tFIVelocity->get_number_of_space_time_bases();
+
+        // get commonly used values
+        real tRho    = aMM->density()( 0 );
+        real tAlphaP = aMM->AlphaP()( 0 );
+        real tBetaT  = aMM->BetaT()( 0 );
+        real tCv     = aMM->Cv()( 0 );
+        real tEtot   = aCM->Energy()( 0 );
+        real tUx     = tFIVelocity->val()( 0 );
+        real tUy     = tFIVelocity->val()( 1 );
+        real tUz     = 0.0;
+        if ( tNumSpaceDims == 3 )
+        {
+            tUz = tFIVelocity->val()( 2 );
         }
 
-        //------------------------------------------------------------------------------
-
-        void eval_A2_DOF(
-                std::shared_ptr< Material_Model >                   aMM,
-                std::shared_ptr< Constitutive_Model >               aCM,
-                Field_Interpolator_Manager                        * aLeaderFIManager,
-                const Vector< Vector< MSI::Dof_Type > > & aResidualDofTypes,
-                Vector< Matrix< DDRMat > >                   & adA2dDOF )
+        // divide the N-vector for the velocity
+        Matrix< DDRMat > tNUx = tFIVelocity->N()( { 0, 0 }, { 0, tNumBases - 1 } );
+        Matrix< DDRMat > tNUy = tFIVelocity->N()( { 1, 1 }, { tNumBases, 2 * tNumBases - 1 } );
+        Matrix< DDRMat > tNUz;
+        if ( tNumSpaceDims == 3 )
         {
-            // check inputs
-            MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ),
-                    "fn_FEM_IWG_Compressible_NS::eval_A2_DOF - list of aResidualDofTypes not supported, see messages above." );
-            MORIS_ASSERT( ( aMM != nullptr ) and ( aCM != nullptr ) and ( aLeaderFIManager != nullptr ),
-                    "fn_FEM_IWG_Compressible_NS::eval_A2_DOF - nullptr provided in inputs check MM, CM, and FI Manager provided." );
+            tNUz = tFIVelocity->N()( { 2, 2 }, { 2 * tNumBases, 3 * tNumBases - 1 } );
+        }
 
-            // get the velocity FI
-            Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+        // variable index for the third variable depending on spatial dimension
+        uint tThirdVarIndex = tNumSpaceDims + 1;
 
-            // get number of Space dimensions
-            uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
-
-            // get number of bases for the elements used
-            uint tNumBases = tFIVelocity->get_number_of_space_time_bases();
-
-            // get commonly used values
-            real tRho    = aMM->density()( 0 );
-            real tAlphaP = aMM->AlphaP()( 0 );
-            real tBetaT  = aMM->BetaT()( 0 );
-            real tCv     = aMM->Cv()( 0 );
-            real tEtot   = aCM->Energy()( 0 );
-            real tUx     = tFIVelocity->val()( 0 );
-            real tUy     = tFIVelocity->val()( 1 );
-            real tUz     = 0.0;
-            if ( tNumSpaceDims == 3 )
-            {
-                tUz = tFIVelocity->val()( 2 );
-            }
-
-            // divide the N-vector for the velocity
-            Matrix< DDRMat > tNUx = tFIVelocity->N()( { 0, 0 }, { 0, tNumBases - 1 } );
-            Matrix< DDRMat > tNUy = tFIVelocity->N()( { 1, 1 }, { tNumBases, 2 * tNumBases - 1 } );
-            Matrix< DDRMat > tNUz;
-            if ( tNumSpaceDims == 3 )
-            {
-                tNUz = tFIVelocity->N()( { 2, 2 }, { 2 * tNumBases, 3 * tNumBases - 1 } );
-            }
-
-            // variable index for the third variable depending on spatial dimension
-            uint tThirdVarIndex = tNumSpaceDims + 1;
-
-            // =======================
-            // Assemble A2 derivatives
-            // =======================
-            // clang-format off
+        // =======================
+        // Assemble A2 derivatives
+        // =======================
+        // clang-format off
 
             // derivative matrix for FIRST ROW OF A2
 
@@ -738,59 +736,58 @@ namespace moris
                     tUy * ( tCv * aMM->DensityDOF( aResidualDofTypes( 2 ) ) + tRho * aMM->CpDOF( aResidualDofTypes( 2 ) ) -
                     tEtot * aMM->AlphaPDOF( aResidualDofTypes( 2 ) ) - tAlphaP * aCM->dEnergydDOF( aResidualDofTypes( 2 ) ) );
 
-            // clang-format on
+        // clang-format on
+    }
 
-        }
+    //------------------------------------------------------------------------------
 
-        //------------------------------------------------------------------------------
+    void eval_A3_DOF(
+            const std::shared_ptr< Material_Model >     &aMM,
+            const std::shared_ptr< Constitutive_Model > &aCM,
+            Field_Interpolator_Manager                  *aLeaderFIManager,
+            const Vector< Vector< MSI::Dof_Type > >     &aResidualDofTypes,
+            Vector< Matrix< DDRMat > >                  &adA3dDOF )
+    {
+        // check inputs
+        MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ),
+                "fn_FEM_IWG_Compressible_NS::eval_A3_DOF - list of aResidualDofTypes not supported, see messages above." );
+        MORIS_ASSERT( ( aMM != nullptr ) and ( aCM != nullptr ) and ( aLeaderFIManager != nullptr ),
+                "fn_FEM_IWG_Compressible_NS::eval_A3_DOF - nullptr provided in inputs check MM, CM, and FI Manager provided." );
 
-        void eval_A3_DOF(
-                std::shared_ptr< Material_Model >                   aMM,
-                std::shared_ptr< Constitutive_Model >               aCM,
-                Field_Interpolator_Manager                        * aLeaderFIManager,
-                const Vector< Vector< MSI::Dof_Type > > & aResidualDofTypes,
-                Vector< Matrix< DDRMat > >                   & adA3dDOF )
-        {
-            // check inputs
-            MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ),
-                    "fn_FEM_IWG_Compressible_NS::eval_A3_DOF - list of aResidualDofTypes not supported, see messages above." );
-            MORIS_ASSERT( ( aMM != nullptr ) and ( aCM != nullptr ) and ( aLeaderFIManager != nullptr ),
-                    "fn_FEM_IWG_Compressible_NS::eval_A3_DOF - nullptr provided in inputs check MM, CM, and FI Manager provided." );
+        // get the velocity FI
+        Field_Interpolator *tFIVelocity = aLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
-            // get the velocity FI
-            Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+        // get number of Space dimensions
+        uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
 
-            // get number of Space dimensions
-            uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
+        // get number of bases for the elements used
+        uint tNumBases = tFIVelocity->get_number_of_space_time_bases();
 
-            // get number of bases for the elements used
-            uint tNumBases = tFIVelocity->get_number_of_space_time_bases();
+        // check number of space dimensions
+        MORIS_ASSERT( tNumSpaceDims == 3, "fn_FEM_IWG_Compressible_NS::eval_A3_DOF - A3 only needed and defined for 3D." );
 
-            // check number of space dimensions
-            MORIS_ASSERT( tNumSpaceDims == 3, "fn_FEM_IWG_Compressible_NS::eval_A3_DOF - A3 only needed and defined for 3D." );
+        // get commonly used values
+        real tRho    = aMM->density()( 0 );
+        real tAlphaP = aMM->AlphaP()( 0 );
+        real tBetaT  = aMM->BetaT()( 0 );
+        real tCv     = aMM->Cv()( 0 );
+        real tEtot   = aCM->Energy()( 0 );
+        real tUx     = tFIVelocity->val()( 0 );
+        real tUy     = tFIVelocity->val()( 1 );
+        real tUz     = tFIVelocity->val()( 2 );
 
-            // get commonly used values
-            real tRho    = aMM->density()( 0 );
-            real tAlphaP = aMM->AlphaP()( 0 );
-            real tBetaT  = aMM->BetaT()( 0 );
-            real tCv     = aMM->Cv()( 0 );
-            real tEtot   = aCM->Energy()( 0 );
-            real tUx     = tFIVelocity->val()( 0 );
-            real tUy     = tFIVelocity->val()( 1 );
-            real tUz     = tFIVelocity->val()( 2 );
+        // divide the N-vector for the velocity
+        Matrix< DDRMat > tNUx = tFIVelocity->N()( { 0, 0 }, { 0, tNumBases - 1 } );
+        Matrix< DDRMat > tNUy = tFIVelocity->N()( { 1, 1 }, { tNumBases, 2 * tNumBases - 1 } );
+        Matrix< DDRMat > tNUz = tFIVelocity->N()( { 2, 2 }, { 2 * tNumBases, 3 * tNumBases - 1 } );
 
-            // divide the N-vector for the velocity
-            Matrix< DDRMat > tNUx = tFIVelocity->N()( { 0, 0 }, { 0, tNumBases - 1 } );
-            Matrix< DDRMat > tNUy = tFIVelocity->N()( { 1, 1 }, { tNumBases, 2 * tNumBases - 1 } );
-            Matrix< DDRMat > tNUz = tFIVelocity->N()( { 2, 2 }, { 2 * tNumBases, 3 * tNumBases - 1 } );
+        // variable index for the third variable depending on spatial dimension
+        uint tThirdVarIndex = tNumSpaceDims + 1;
 
-            // variable index for the third variable depending on spatial dimension
-            uint tThirdVarIndex = tNumSpaceDims + 1;
-
-            // =======================
-            // Assemble A3 derivatives
-            // =======================
-            // clang-format off
+        // =======================
+        // Assemble A3 derivatives
+        // =======================
+        // clang-format off
 
             // derivative matrix for FIRST ROW OF A3
 
@@ -999,57 +996,56 @@ namespace moris
                     tUz * ( tCv * aMM->DensityDOF( aResidualDofTypes( 2 ) ) + tRho * aMM->CpDOF( aResidualDofTypes( 2 ) ) -
                     tEtot * aMM->AlphaPDOF( aResidualDofTypes( 2 ) ) - tAlphaP * aCM->dEnergydDOF( aResidualDofTypes( 2 ) ) );
 
-            // clang-format on
+        // clang-format on
+    }
 
+    //------------------------------------------------------------------------------
+
+    void eval_KijYjDOF(
+            const std::shared_ptr< Constitutive_Model > &aCM,
+            Field_Interpolator_Manager                  *aLeaderFIManager,
+            const Vector< Vector< MSI::Dof_Type > >     &aResidualDofTypes,
+            const Vector< MSI::Dof_Type >               &aDofType,
+            Vector< Matrix< DDRMat > >                  &aKijYjDOF )
+    {
+        // check inputs
+        MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ),
+                "fn_FEM_IWG_Compressible_NS::eval_KijYjDOF_matrices - list of aResidualDofTypes not supported, see error messages above." );
+
+        // get the velocity FI
+        Field_Interpolator *tFIVelocity = aLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+
+        // get number of Space dimensions
+        uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
+
+        // get number of bases for the elements used
+        uint tNumBases = tFIVelocity->get_number_of_space_time_bases();
+        if ( aDofType( 0 ) == MSI::Dof_Type::VX )
+        {
+            tNumBases = tNumBases * tNumSpaceDims;
         }
 
-        //------------------------------------------------------------------------------
+        // initialize dKijYj/dDOF, each cell entry represents the dof derivs of one column of Kij*Y,j
+        aKijYjDOF.resize( tNumSpaceDims + 2 );
 
-        void eval_KijYjDOF(
-                std::shared_ptr< Constitutive_Model >               aCM,
-                Field_Interpolator_Manager                        * aLeaderFIManager,
-                const Vector< Vector< MSI::Dof_Type > > & aResidualDofTypes,
-                const Vector< MSI::Dof_Type >                & aDofType,
-                Vector< Matrix< DDRMat > >                   & aKijYjDOF )
+        // density / pressure residual - simply zero matrix
+        aKijYjDOF( 0 ).set_size( tNumSpaceDims, tNumBases, 0.0 );
+
+        // velocity residual
+        // get the viscous stress Dof Deriv
+        Matrix< DDRMat > tdTaudDOF = aCM->dFluxdDOF( aDofType, CM_Function_Type::MECHANICAL );
+
+        // check that sizes match
+        MORIS_ASSERT( ( tdTaudDOF.n_rows() == 3 * tNumSpaceDims - 3 ) and ( tdTaudDOF.n_cols() == tNumBases ),
+                "fn_FEM_IWG_Compressible_NS::eval_KijYjDOF_matrices - size of tdTaudDOF incorrect" );
+
+        // fill cells
+        for ( uint iCol = 0; iCol < tNumSpaceDims; iCol++ )
         {
-            // check inputs
-            MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ),
-                    "fn_FEM_IWG_Compressible_NS::eval_KijYjDOF_matrices - list of aResidualDofTypes not supported, see error messages above." );
+            aKijYjDOF( iCol + 1 ).set_size( tNumSpaceDims, tNumBases, 0.0 );
+        }
 
-            // get the velocity FI
-            Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
-
-            // get number of Space dimensions
-            uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
-
-            // get number of bases for the elements used
-            uint tNumBases = tFIVelocity->get_number_of_space_time_bases();
-            if( aDofType( 0 ) == MSI::Dof_Type::VX )
-            {
-                tNumBases = tNumBases * tNumSpaceDims;
-            }
-
-            // initialize dKijYj/dDOF, each cell entry represents the dof derivs of one column of Kij*Y,j
-            aKijYjDOF.resize( tNumSpaceDims + 2 );
-
-            // density / pressure residual - simply zero matrix
-            aKijYjDOF( 0 ).set_size( tNumSpaceDims, tNumBases, 0.0 );
-
-            // velocity residual
-            // get the viscous stress Dof Deriv
-            Matrix< DDRMat > tdTaudDOF = aCM->dFluxdDOF( aDofType, CM_Function_Type::MECHANICAL );
-
-            // check that sizes match
-            MORIS_ASSERT( ( tdTaudDOF.n_rows() == 3 * tNumSpaceDims - 3 ) and ( tdTaudDOF.n_cols() == tNumBases ),
-                    "fn_FEM_IWG_Compressible_NS::eval_KijYjDOF_matrices - size of tdTaudDOF incorrect" );
-
-            // fill cells
-            for ( uint iCol = 0; iCol < tNumSpaceDims; iCol++ )
-            {
-                aKijYjDOF( iCol + 1 ).set_size( tNumSpaceDims, tNumBases, 0.0 );
-            }
-
-            // clang-format off
+        // clang-format off
             // put dof derivatives of stress tensor entries into right places
             if ( tNumSpaceDims == 2 )
             {
@@ -1096,50 +1092,48 @@ namespace moris
                 MORIS_ERROR( false,
                         "fn_FEM_IWG_Compressible_NS::eval_KijYjDOF_matrices - number of spatial dimensions != {2,3}" );
             }
-            // clang-format on
+        // clang-format on
 
-            // temperature residual
-            aKijYjDOF( tNumSpaceDims + 1  ) =
-                    aCM->dFluxdDOF( aDofType, CM_Function_Type::WORK ) - aCM->dFluxdDOF( aDofType, CM_Function_Type::THERMAL );
-        }
+        // temperature residual
+        aKijYjDOF( tNumSpaceDims + 1 ) =
+                aCM->dFluxdDOF( aDofType, CM_Function_Type::WORK ) - aCM->dFluxdDOF( aDofType, CM_Function_Type::THERMAL );
+    }
 
-        //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-        void eval_KijYjiDOF(
-                std::shared_ptr< Constitutive_Model >               aCM,
-                Field_Interpolator_Manager                        * aLeaderFIManager,
-                const Vector< Vector< MSI::Dof_Type > > & aResidualDofTypes,
-                const Vector< MSI::Dof_Type >                & aDofType,
-                Matrix< DDRMat >                                  & aKijYjiDOF )
-        {
+    void eval_KijYjiDOF(
+            const std::shared_ptr< Constitutive_Model > &aCM,
+            Field_Interpolator_Manager                  *aLeaderFIManager,
+            const Vector< Vector< MSI::Dof_Type > >     &aResidualDofTypes,
+            const Vector< MSI::Dof_Type >               &aDofType,
+            Matrix< DDRMat >                            &aKijYjiDOF )
+    {
 
-            // check inputs
-            MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ),
-                    "fn_FEM_IWG_Compressible_NS::evaeval_KijYji_A_matrices - list of aResidualDofTypes not supported, see error messages above." );
+        // check inputs
+        MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ),
+                "fn_FEM_IWG_Compressible_NS::evaeval_KijYji_A_matrices - list of aResidualDofTypes not supported, see error messages above." );
 
-            // get the velocity FI
-            Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+        // get the velocity FI
+        Field_Interpolator *tFIVelocity = aLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
-            // get number of Space dimensions
-            uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
+        // get number of Space dimensions
+        uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
 
-            // get number of bases for the elements used
-            uint tNumBases = tFIVelocity->get_number_of_space_time_bases();
+        // get number of bases for the elements used
+        uint tNumBases = tFIVelocity->get_number_of_space_time_bases();
 
-            // initialize KijYj
-            aKijYjiDOF.set_size( tNumSpaceDims + 2, tNumBases, 0.0 );
+        // initialize KijYj
+        aKijYjiDOF.set_size( tNumSpaceDims + 2, tNumBases, 0.0 );
 
-            // velocity residual
-            aKijYjiDOF( { 1, tNumSpaceDims }, { 0, tNumBases - 1 } ) =
-                    aCM->ddivfluxdu( aDofType, CM_Function_Type::MECHANICAL ).matrix_data();
+        // velocity residual
+        aKijYjiDOF( { 1, tNumSpaceDims }, { 0, tNumBases - 1 } ) =
+                aCM->ddivfluxdu( aDofType, CM_Function_Type::MECHANICAL ).matrix_data();
 
-            // temperature residual
-            aKijYjiDOF( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { 0, tNumBases - 1 } ) =
-                    aCM->ddivfluxdu( aDofType, CM_Function_Type::WORK ) - aCM->ddivfluxdu( aDofType, CM_Function_Type::THERMAL );
-        }
+        // temperature residual
+        aKijYjiDOF( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { 0, tNumBases - 1 } ) =
+                aCM->ddivfluxdu( aDofType, CM_Function_Type::WORK ) - aCM->ddivfluxdu( aDofType, CM_Function_Type::THERMAL );
+    }
 
-        //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-    } /* namespace fem */
-} /* namespace moris */
-
+}    // namespace moris::fem

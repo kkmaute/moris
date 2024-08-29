@@ -79,7 +79,7 @@ namespace moris::mtk
          *
          */
 
-        ~Cell_DataBase() = default;
+        ~Cell_DataBase() override = default;
 
         //------------------------------------------------------------------------------
 
@@ -87,12 +87,12 @@ namespace moris::mtk
          * @return Ptrs of vertices connected to this cell
          */
 
-        virtual Vector< Vertex* >
+        Vector< Vertex* >
         get_vertex_pointers() const override;
 
         //------------------------------------------------------------------------------
 
-        virtual void
+        void
         remove_vertex_pointer( moris_index aIndex ) override;
 
         //------------------------------------------------------------------------------
@@ -102,7 +102,7 @@ namespace moris::mtk
          *
          * @return Matrix< DDRMat >  the matrix containing the cell coordinates with (NumVertices, SpatialDim )
          */
-        virtual Matrix< DDRMat >
+        Matrix< DDRMat >
         get_vertex_coords() const override;
 
         //------------------------------------------------------------------------------
@@ -114,7 +114,7 @@ namespace moris::mtk
          * @return uint
          */
 
-        virtual uint
+        uint
         get_level() const override;
 
         //------------------------------------------------------------------------------
@@ -125,7 +125,7 @@ namespace moris::mtk
          *
          * @return uint
          */
-        virtual mtk::Cell const *
+        mtk::Cell const *
         get_base_cell() const override;
 
         //------------------------------------------------------------------------------
@@ -136,7 +136,7 @@ namespace moris::mtk
          * @return mtk::Cell*
          */
 
-        virtual mtk::Cell*
+        mtk::Cell*
         get_base_cell() override;
 
         //------------------------------------------------------------------------------
@@ -147,7 +147,7 @@ namespace moris::mtk
          * @return mtk::Cell*
          */
 
-        virtual const luint*
+        const luint*
         get_ijk() const override;
 
         //------------------------------------------------------------------------------
@@ -159,7 +159,7 @@ namespace moris::mtk
          */
 
         size_t
-        capacity();
+        capacity() override;
 
         //------------------------------------------------------------------------------
 
@@ -169,7 +169,7 @@ namespace moris::mtk
          * @return mtk::Cell_Info const*
          */
 
-        virtual mtk::Cell_Info const *
+        mtk::Cell_Info const *
         get_cell_info() const override;
 
         //------------------------------------------------------------------------------
@@ -180,7 +180,7 @@ namespace moris::mtk
          * @return std::shared_ptr< mtk::Cell_Info >
          */
 
-        virtual std::shared_ptr< mtk::Cell_Info >
+        std::shared_ptr< mtk::Cell_Info >
         get_cell_info_sp() const override;
 
         //------------------------------------------------------------------------------
@@ -191,7 +191,7 @@ namespace moris::mtk
          * @return moris_id
          */
 
-        virtual moris_id
+        moris_id
         get_id() const override;
 
         //------------------------------------------------------------------------------
@@ -202,8 +202,8 @@ namespace moris::mtk
          * @return moris_index
          */
 
-        virtual moris_index
-        get_index() const;
+        moris_index
+        get_index() const override;
 
         //------------------------------------------------------------------------------
 
@@ -211,8 +211,8 @@ namespace moris::mtk
          * returns the proc id of the owner of this cell
          * ( this information is needed for STK )
          */
-        virtual moris_id
-        get_owner() const;
+        moris_id
+        get_owner() const override;
 
         //------------------------------------------------------------------------------
 

@@ -15,6 +15,8 @@
 #include "cl_SOL_Warehouse.hpp"
 
 #include "cl_TSA_Time_Solver.hpp"
+
+#include <utility>
 #include "cl_TSA_Time_Solver_Factory.hpp"
 #include "cl_TSA_Time_Solver_Algorithm.hpp"
 
@@ -54,7 +56,7 @@ Time_Solver::Time_Solver( const enum TimeSolverType aTimeSolverType )
 //--------------------------------------------------------------------------------------------------
 
 Time_Solver::Time_Solver(
-        const Parameter_List           aParameterlist,
+        const Parameter_List&          aParameterlist,
         sol::SOL_Warehouse*            aSolverWarehouse,
         const enum tsa::TimeSolverType aTimeSolverType )
         : mParameterListTimeSolver( aParameterlist )
@@ -120,15 +122,15 @@ void Time_Solver::delete_pointers()
 //--------------------------------------------------------------------------------------------------
 
 void Time_Solver::set_dof_type_list(
-        const Vector< enum MSI::Dof_Type > aDofTypeList,
-        const moris::sint                  aLevel )
+        const Vector< enum MSI::Dof_Type >& aDofTypeList,
+        const moris::sint                   aLevel )
 {
     mDofTypeList.push_back( aDofTypeList );
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void Time_Solver::set_time_solver_algorithm( std::shared_ptr< Time_Solver_Algorithm > aTimeSolver )
+void Time_Solver::set_time_solver_algorithm( const std::shared_ptr< Time_Solver_Algorithm >& aTimeSolver )
 {
     if ( mCallCounter == 0 )
     {
@@ -164,7 +166,7 @@ void Time_Solver::set_time_solver_algorithm(
     }
 
     // Set nonlinear solver on entry
-    mTimeSolverAlgorithmList( aListEntry ) = aTimeSolver;
+    mTimeSolverAlgorithmList( aListEntry ) = std::move( aTimeSolver );
 }
 
 //-------------------------------------------------------------------------------------------------------
@@ -249,8 +251,8 @@ void Time_Solver::set_solver_warehouse( sol::SOL_Warehouse* aSolverWarehouse )
 //-------------------------------------------------------------------------------------------------------
 
 void Time_Solver::set_output(
-        const uint      aOutputIndex,
-        Output_Criteria aOutputCriteria )
+        const uint             aOutputIndex,
+        const Output_Criteria& aOutputCriteria )
 {
     mOutputIndices.push_back( aOutputIndex );
     mOutputCriteriaPointer.push_back( aOutputCriteria );
@@ -275,7 +277,7 @@ void Time_Solver::check_for_outputs(
         uint tCounter = 0;
 
         // loop over all outputs and check if it is triggered
-        for ( Output_Criteria tOutputCriteria : mOutputCriteriaPointer )
+        for ( const Output_Criteria& tOutputCriteria : mOutputCriteriaPointer )
         {
             bool tIsOutput = false;
 
@@ -387,7 +389,7 @@ void Time_Solver::solve()
         const std::string& tSolVecPath = mSolverWarehouse->get_load_sol_vec_from_file();
 
         // detect file type
-        const std::string tType = tSolVecPath.substr( tSolVecPath.find_last_of( "." ) + 1, tSolVecPath.length() );
+        const std::string tType = tSolVecPath.substr( tSolVecPath.find_last_of( '.' ) + 1, tSolVecPath.length() );
 
         // get number of vectors to be processed as time steps
         sint tTimeSteps = mSolverWarehouse->get_load_sol_vec_num_vec();
@@ -438,7 +440,7 @@ void Time_Solver::solve()
             std::string tSolVecPath = mSolverWarehouse->get_save_final_sol_vec_to_file();
 
             // detect file type
-            std::string tType = tSolVecPath.substr( tSolVecPath.find_last_of( "." ) + 1, tSolVecPath.length() );
+            std::string tType = tSolVecPath.substr( tSolVecPath.find_last_of( '.' ) + 1, tSolVecPath.length() );
 
             if ( tType == "hdf5" || tType == "h5" )
             {
@@ -491,7 +493,7 @@ void Time_Solver::solve_sensitivity()
         std::string tSolVecPath = mSolverWarehouse->get_save_final_adjoint_vec_to_file();
 
         // detect file type
-        std::string tType = tSolVecPath.substr( tSolVecPath.find_last_of( "." ) + 1, tSolVecPath.length() );
+        std::string tType = tSolVecPath.substr( tSolVecPath.find_last_of( '.' ) + 1, tSolVecPath.length() );
 
         if ( tType == "hdf5" || tType == "h5" )
         {
@@ -525,7 +527,7 @@ void Time_Solver::initialize_sol_vec()
     else
     {
         // check if file name with type is specified
-        std::string tType = tStrInitialGuess.substr( tStrInitialGuess.find_last_of( "." ) + 1, tStrInitialGuess.length() );
+        std::string tType = tStrInitialGuess.substr( tStrInitialGuess.find_last_of( '.' ) + 1, tStrInitialGuess.length() );
 
         // if .hdf5 is defined as initial guess
         if ( tType == "hdf5" || tType == "h5" )

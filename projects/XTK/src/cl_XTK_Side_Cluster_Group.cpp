@@ -18,9 +18,9 @@ namespace moris::xtk
     //------------------------------------------------------------------------------
 
     Side_Cluster_Group::Side_Cluster_Group(
-            const moris_index                         aDiscretizationMeshIndex,
-            Vector< std::shared_ptr< mtk::Cluster > > aClusters,
-            std::shared_ptr< mtk::Cluster_Group >     aAssociatedCellClusterGroup )
+            const moris_index                                aDiscretizationMeshIndex,
+            const Vector< std::shared_ptr< mtk::Cluster > >& aClusters,
+            const std::shared_ptr< mtk::Cluster_Group >&     aAssociatedCellClusterGroup )
             : mtk::Side_Cluster_Group( aDiscretizationMeshIndex )
             , mSideClusters( aClusters )
     {
@@ -34,7 +34,7 @@ namespace moris::xtk
 
     //------------------------------------------------------------------------------
 
-    const Vector< mtk::Cluster const * >
+    Vector< mtk::Cluster const * >
     Side_Cluster_Group::get_side_clusters_in_group() const
     {
         // get the number of cluster and initialize a list of raw pointers with this

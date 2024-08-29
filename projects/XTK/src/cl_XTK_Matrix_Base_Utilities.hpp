@@ -118,7 +118,7 @@ namespace moris::xtk
 
                 if ( tSame )
                 {
-                    std::cout << "i = " << i << " j = " << j << std::endl;
+                    std::cout << "i = " << i << " j = " << j << '\n';
                     return false;
                 }
             }

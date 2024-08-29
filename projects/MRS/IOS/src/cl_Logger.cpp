@@ -21,6 +21,7 @@
 #include <sstream>
 #include <iomanip>
 #include <limits>
+#include <utility>
 
 #include "moris_typedefs.hpp"
 #include "IO_Tools.hpp"
@@ -112,7 +113,7 @@ namespace moris
 
             if ( mMemoryOutput > 0 )
             {
-                std::cout << tMemUsage << std::endl
+                std::cout << tMemUsage << '\n'
                           << std::flush;
             }
         }
@@ -124,9 +125,9 @@ namespace moris
 
     void
     Logger::sign_in(
-            std::string aEntityBase,
-            std::string aEntityType,
-            std::string aEntityAction )
+            const std::string& aEntityBase,
+            const std::string& aEntityType,
+            const std::string& aEntityAction )
     {
         // pass save info to clock
         mGlobalClock.sign_in( aEntityBase, aEntityType, aEntityAction );
@@ -161,7 +162,7 @@ namespace moris
                     {
                         std::cout << print_empty_line( mGlobalClock.mIndentationLevel - 1 )
                                   << "__"
-                                  << tMemoryUsage << std::endl
+                                  << tMemoryUsage << '\n'
                                   << std::flush;
                     }
                 }
@@ -175,16 +176,16 @@ namespace moris
 
                     if ( mMemoryOutput )
                     {
-                        std::cout << tMemoryUsage << std::endl
+                        std::cout << tMemoryUsage << '\n'
                                   << std::flush;
                     }
                 }
 
             }    // end if: message is of sufficient severity for console output
 
-        }        // end if: current proc is output proc
+        }    // end if: current proc is output proc
 
-    }            // end function: Logger::sign_in(
+    }    // end function: Logger::sign_in(
 
     // -----------------------------------------------------------------------------
 
@@ -274,7 +275,7 @@ namespace moris
                     if ( mMemoryOutput )
                     {
                         std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_"
-                                  << tMemoryUsage << std::endl
+                                  << tMemoryUsage << '\n'
                                   << std::flush;
                     }
 
@@ -287,19 +288,19 @@ namespace moris
 
                     if ( mMemoryOutput )
                     {
-                        std::cout << tMemoryUsage << std::endl
+                        std::cout << tMemoryUsage << '\n'
                                   << std::flush;
                     }
                 }
 
-            } // end if: sufficient output severity
+            }    // end if: sufficient output severity
 
-        } // end if: current proc is output rank
+        }    // end if: current proc is output rank
 
         // decrement clock
         mGlobalClock.sign_out();
 
-    } // end function: Logger::sign_out()
+    }    // end function: Logger::sign_out()
 
     //------------------------------------------------------------------------------
 
@@ -497,7 +498,7 @@ namespace moris
             }
 
             // throw error as instance was not found
-            std::cout << "Logger::get_action_data - action key not found: " << aEntityDataKey << std::endl;
+            std::cout << "Logger::get_action_data - action key not found: " << aEntityDataKey << '\n';
             throw;
         }
 
@@ -574,7 +575,7 @@ namespace moris
         else
         {
             // throw error as instance was not found
-            std::cout << "Logger::set_action_data - instance not found." << std::endl;
+            std::cout << "Logger::set_action_data - instance not found." << '\n';
             throw;
         }
     }
@@ -641,27 +642,27 @@ namespace moris
     // logging operations for specific types of output texts
 
     void
-    Logger::log_to_file( std::string aOutputString )
+    Logger::log_to_file( const std::string& aOutputString )
     {
         this->log_to_file( "FreeText", aOutputString );
     }
     void
-    Logger::log_to_file_info( std::string aOutputString )
+    Logger::log_to_file_info( const std::string& aOutputString )
     {
         this->log_to_file( "InfoText", aOutputString );
     }
     void
-    Logger::log_to_file_debug( std::string aOutputString )
+    Logger::log_to_file_debug( const std::string& aOutputString )
     {
         this->log_to_file( "DebugText", aOutputString );
     }
     void
-    Logger::log_to_file_warning( std::string aOutputString )
+    Logger::log_to_file_warning( const std::string& aOutputString )
     {
         this->log_to_file( "Warning", aOutputString );
     }
     void
-    Logger::log_to_file_error( std::string aOutputString )
+    Logger::log_to_file_error( const std::string& aOutputString )
     {
         this->log_to_file( "Error", aOutputString );
     }
@@ -677,7 +678,7 @@ namespace moris
         mStream << LOGGER_HEADER_BEGIN;
 
         // get date and time at runtime
-        time_t tTimeStamp = time( NULL );
+        time_t tTimeStamp = time( nullptr );
 
         // print info about test
         mStream << "\n--- RUN ---\n";

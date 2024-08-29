@@ -51,14 +51,14 @@ namespace moris::xtk
                 moris::moris_index                aElementIndex,
                 moris::moris_index                aElementOwner,
                 std::shared_ptr< mtk::Cell_Info > aCellInfo,
-                Vector< mtk::Vertex* >            aVertices );
+                const Vector< mtk::Vertex* >&     aVertices );
 
         //------------------------------------------------------------------------------
 
         /**
          * Destructor. Must be virtual.
          */
-        ~Cell_XTK_No_CM(){};
+        ~Cell_XTK_No_CM() override{};
 
         //------------------------------------------------------------------------------
 
@@ -66,7 +66,7 @@ namespace moris::xtk
          * tells how many vertices are connected to this cell
          */
         uint
-        get_number_of_vertices() const
+        get_number_of_vertices() const override
         {
             return mCellVertices.size();
         }
@@ -78,7 +78,7 @@ namespace moris::xtk
          */
         // FIXME: SDF's Facet_Vertex causes this to not be able to return a reference.
         Vector< mtk::Vertex* >
-        get_vertex_pointers() const
+        get_vertex_pointers() const override
         {
             return mCellVertices;
         }
@@ -102,7 +102,7 @@ namespace moris::xtk
         //------------------------------------------------------------------------------
 
         void
-        remove_vertex_pointer( moris_index aIndex )
+        remove_vertex_pointer( moris_index aIndex ) override
         {
             mCellVertices.erase( aIndex );
         }
@@ -114,7 +114,7 @@ namespace moris::xtk
          * < number of vertices * number of dimensions >
          */
         Matrix< DDRMat >
-        get_vertex_coords() const;
+        get_vertex_coords() const override;
 
         //------------------------------------------------------------------------------
 

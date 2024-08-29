@@ -10,14 +10,16 @@
 
 #include "cl_GEN_Geometry_Engine_Test.hpp"
 
+#include <utility>
+
 namespace moris::gen
 {
     //--------------------------------------------------------------------------------------------------------------
 
     Geometry_Engine_Test::Geometry_Engine_Test(
             mtk::Interpolation_Mesh*   aMesh,
-            Geometry_Engine_Parameters aParameters)
-            : Geometry_Engine(aMesh, aParameters)
+            Geometry_Engine_Parameters aParameters )
+            : Geometry_Engine( aMesh, std::move( aParameters ) )
     {
     }
 

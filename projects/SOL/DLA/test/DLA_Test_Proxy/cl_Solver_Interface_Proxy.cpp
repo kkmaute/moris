@@ -280,14 +280,14 @@ Solver_Interface_Proxy::Solver_Interface_Proxy( uint aNumRHS )
 
 // ---------------------------------------------------------------------------------------------
 
-Solver_Interface_Proxy::Solver_Interface_Proxy( std::string aProblem )
+Solver_Interface_Proxy::Solver_Interface_Proxy( const std::string& aProblem )
 {
-    std::cout << "Problem is:" << aProblem << std::endl;
+    std::cout << "Problem is:" << aProblem << '\n';
 
     // Determine process rank
     size_t size = par_size();
 
-    std::cout << size << std::endl;
+    std::cout << size << '\n';
 
     mUseMatrixMarketFiles = false;
 

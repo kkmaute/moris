@@ -20,106 +20,103 @@
 
 #include "cl_FEM_IWG.hpp"                   //FEM/INT/src
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+    //------------------------------------------------------------------------------
+
+    class IWG_Advection_Bulk : public IWG
     {
+
         //------------------------------------------------------------------------------
 
-        class IWG_Advection_Bulk : public IWG
+      public:
+        // local property enums
+        enum class IWG_Property_Type
         {
-
-                //------------------------------------------------------------------------------
-            public:
-
-                // local property enums
-                enum class IWG_Property_Type
-                {
-                    BODY_LOAD,
-                    MAX_ENUM
-                };
-
-                // local constitutive enums
-                enum class IWG_Constitutive_Type
-                {
-                    DIFFUSION,
-                    MAX_ENUM
-                };
-
-                // local stabilization enums
-                enum class IWG_Stabilization_Type
-                {
-                    SUPG,
-                    YZBETA,
-                    DIFFUSION_CROSSWIND,
-                    DIFFUSION_ISOTROPIC,
-                    MAX_ENUM
-                };
-
-                //------------------------------------------------------------------------------
-                /*
-                 *  constructor
-                 */
-                IWG_Advection_Bulk();
-
-                //------------------------------------------------------------------------------
-                /**
-                 * trivial destructor
-                 */
-                ~IWG_Advection_Bulk(){};
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the residual
-                 * @param[ in ] aWStar weight associated to the evaluation point
-                 */
-                void compute_residual( real aWStar );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the jacobian
-                 * @param[ in ] aWStar weight associated to the evaluation point
-                 */
-                void compute_jacobian( real aWStar );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the residual and the jacobian
-                 * @param[ in ] aWStar weight associated to the evaluation point
-                 */
-                void compute_jacobian_and_residual( real aWStar );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the derivative of the residual wrt design variables
-                 * @param[ in ] aWStar weight associated to the evaluation point
-                 */
-                void compute_dRdp( real aWStar );
-
-            private:
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the residual strong form
-                 * @param[ in ] aRT a matrix to fill with RM
-                 */
-                void compute_residual_strong_form( Matrix< DDRMat > & aRT );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the residual strong form
-                 * @param[ in ] aDofTypes a list of dof type wrt which
-                 *                        the derivative is requested
-                 * @param[ in ] aJT       a matrix to fill with dRMdDof
-                 */
-                void compute_jacobian_strong_form(
-                        const Vector< MSI::Dof_Type > & aDofTypes,
-                        Matrix< DDRMat >                   & aJT );
-
-                //------------------------------------------------------------------------------
+            BODY_LOAD,
+            MAX_ENUM
         };
+
+        // local constitutive enums
+        enum class IWG_Constitutive_Type
+        {
+            DIFFUSION,
+            MAX_ENUM
+        };
+
+        // local stabilization enums
+        enum class IWG_Stabilization_Type
+        {
+            SUPG,
+            YZBETA,
+            DIFFUSION_CROSSWIND,
+            DIFFUSION_ISOTROPIC,
+            MAX_ENUM
+        };
+
         //------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
+        /*
+         *  constructor
+         */
+        IWG_Advection_Bulk();
+
+        //------------------------------------------------------------------------------
+        /**
+         * trivial destructor
+         */
+        ~IWG_Advection_Bulk() override{};
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute the residual
+         * @param[ in ] aWStar weight associated to the evaluation point
+         */
+        void compute_residual( real aWStar ) override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute the jacobian
+         * @param[ in ] aWStar weight associated to the evaluation point
+         */
+        void compute_jacobian( real aWStar ) override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute the residual and the jacobian
+         * @param[ in ] aWStar weight associated to the evaluation point
+         */
+        void compute_jacobian_and_residual( real aWStar ) override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute the derivative of the residual wrt design variables
+         * @param[ in ] aWStar weight associated to the evaluation point
+         */
+        void compute_dRdp( real aWStar ) override;
+
+      private:
+        //------------------------------------------------------------------------------
+        /**
+         * compute the residual strong form
+         * @param[ in ] aRT a matrix to fill with RM
+         */
+        void compute_residual_strong_form( Matrix< DDRMat > &aRT );
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute the residual strong form
+         * @param[ in ] aDofTypes a list of dof type wrt which
+         *                        the derivative is requested
+         * @param[ in ] aJT       a matrix to fill with dRMdDof
+         */
+        void compute_jacobian_strong_form(
+                const Vector< MSI::Dof_Type > &aDofTypes,
+                Matrix< DDRMat >              &aJT );
+
+        //------------------------------------------------------------------------------
+    };
+    //------------------------------------------------------------------------------
+}    // namespace moris::fem
 
 #endif /* SRC_FEM_CL_FEM_IWG_ADVECTION_BULK_HPP_ */
 

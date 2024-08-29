@@ -34,7 +34,6 @@
 #include "cl_MTK_Mesh_Tools.hpp"
 #include "cl_MTK_Mesh_Data_Input.hpp"
 #include "cl_MTK_Scalar_Field_Info.hpp"
-#include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_MTK_Interpolation_Mesh_STK.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
@@ -50,9 +49,7 @@
 
 #include "fn_PRM_MSI_Parameters.hpp"                      //FEM/INT/src
 
-namespace moris
-{
-namespace MSI
+namespace moris::MSI
 {
 TEST_CASE( "MSI_SPace_Time", "[moris],[MSI],[MSI_Space_Time]" )
 {
@@ -62,7 +59,7 @@ TEST_CASE( "MSI_SPace_Time", "[moris],[MSI],[MSI_Space_Time]" )
         std::string tInterpString = "generated:1x1x1";
 
         // construct the interpolation and the integration meshes
-        mtk::Interpolation_Mesh* tInterpMesh = mtk::create_interpolation_mesh( mtk::MeshType::STK, tInterpString, NULL );
+        mtk::Interpolation_Mesh* tInterpMesh = mtk::create_interpolation_mesh( mtk::MeshType::STK, tInterpString, nullptr );
         mtk::Integration_Mesh*   tIntegMesh  = mtk::create_integration_mesh_from_interpolation_mesh( mtk::MeshType::STK, tInterpMesh );
 
         // construct a mesh manager
@@ -181,5 +178,3 @@ TEST_CASE( "MSI_SPace_Time", "[moris],[MSI],[MSI_Space_Time]" )
     }/* if( par_size() */
 }/* TEST_CASE */
 }
-}
-

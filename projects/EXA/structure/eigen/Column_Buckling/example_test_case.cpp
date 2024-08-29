@@ -44,8 +44,8 @@ int fn_WRK_Workflow_Main_Interface( int argc, char* argv[] );
 
 extern "C" void
 check_results(
-        std::string aExoFileName,
-        uint        aTestCaseIndex )
+        const std::string& aExoFileName,
+        uint               aTestCaseIndex )
 {
     MORIS_LOG_INFO( " " );
     MORIS_LOG_INFO( "Checking Results - Test Case %d on %i processor.", aTestCaseIndex, par_size() );
@@ -57,24 +57,24 @@ check_results(
 
     if ( gPrintReferenceValues )
     {
-        std::cout << "Test case index: " << aTestCaseIndex << std::endl;
+        std::cout << "Test case index: " << aTestCaseIndex << '\n';
 
         uint tNumDims  = tExoIO.get_number_of_dimensions();
         uint tNumNodes = tExoIO.get_number_of_nodes();
         uint tNumElems = tExoIO.get_number_of_elements();
 
-        std::cout << "Number of dimensions: " << tNumDims << std::endl;
-        std::cout << "Number of nodes     : " << tNumNodes << std::endl;
-        std::cout << "Number of elements  : " << tNumElems << std::endl;
+        std::cout << "Number of dimensions: " << tNumDims << '\n';
+        std::cout << "Number of nodes     : " << tNumNodes << '\n';
+        std::cout << "Number of elements  : " << tNumElems << '\n';
 
         // coordinates of reference point
         real tVolume = tExoIO.get_global_variable( 0, 0 );
-        std::cout << "Volume:        " << tVolume << std::endl;
-        std::cout << "Eigen value 1: " << tExoIO.get_global_variable( 1, 0 ) / tVolume << std::endl;
-        std::cout << "Eigen value 2: " << tExoIO.get_global_variable( 2, 0 ) / tVolume << std::endl;
-        std::cout << "Eigen value 3: " << tExoIO.get_global_variable( 3, 0 ) / tVolume << std::endl;
-        std::cout << "Eigen value 4: " << tExoIO.get_global_variable( 4, 0 ) / tVolume << std::endl;
-        std::cout << "Eigen value 5: " << tExoIO.get_global_variable( 5, 0 ) / tVolume << std::endl;
+        std::cout << "Volume:        " << tVolume << '\n';
+        std::cout << "Eigen value 1: " << tExoIO.get_global_variable( 1, 0 ) / tVolume << '\n';
+        std::cout << "Eigen value 2: " << tExoIO.get_global_variable( 2, 0 ) / tVolume << '\n';
+        std::cout << "Eigen value 3: " << tExoIO.get_global_variable( 3, 0 ) / tVolume << '\n';
+        std::cout << "Eigen value 4: " << tExoIO.get_global_variable( 4, 0 ) / tVolume << '\n';
+        std::cout << "Eigen value 5: " << tExoIO.get_global_variable( 5, 0 ) / tVolume << '\n';
 
         return;
     }
@@ -129,7 +129,7 @@ check_results(
 
     // clang-format off
     // test case                  0         1         2         3         4         5         6         7         8         9        10         11
-    tReferenceEval.push_back( { { 0.208264, 0.208264, 0.209892, 0.209892, 0.204191, 0.204191, 0.209678, 0.209678, 0.208056, 0.208056, 0.209338, 0.209338 } } );
+   tReferenceEval.push_back(  { { 0.208264, 0.208264, 0.209892, 0.209892, 0.204191, 0.204191, 0.209678, 0.209678, 0.208056, 0.208056, 0.209338, 0.209338 } } );
     tReferenceEval.push_back( { { 1.76392,  1.76392,  1.77737,  1.77737,  1.72616,  1.72616,  0.209678, 0.209678, 1.76131,  1.76131,  0.209338, 0.209338 } } );
     tReferenceEval.push_back( { { 4.39768,  4.39768,  4.42993,  4.42993,  4.28966,  4.28966,  1.77607,  1.77607,  4.38765,  4.38765,  1.77238,  1.77238  } } );
     tReferenceEval.push_back( { { 7.51133,  7.51133,  7.56415,  7.56415,  7.29788,  7.29788,  1.77607,  1.77607,  7.48695,  7.48695,  1.77238,  1.77238  } } );

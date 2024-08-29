@@ -34,16 +34,16 @@ namespace moris::xtk
         }
 
         // Required Interface Functions
-        enum Topology_Type get_topology_type() const
+        enum Topology_Type get_topology_type() const override
         {
             return Topology_Type::EDGE;
         }
-        Matrix< IndexMat > const &get_node_indices() const
+        Matrix< IndexMat > const &get_node_indices() const override
         {
             return mNodeIndices;
         }
 
-        Basis_Function const &get_basis_function() const
+        Basis_Function const &get_basis_function() const override
         {
             return mBasisFunction;
         }
@@ -55,7 +55,7 @@ namespace moris::xtk
             mNodeIndices = aNodeIndices.copy();
         }
 
-        std::shared_ptr< Topology > copy() const
+        std::shared_ptr< Topology > copy() const override
         {
             std::shared_ptr< Topology > tTopologyCopy;
             tTopologyCopy = std::make_shared< Edge_Topology >( mNodeIndices );

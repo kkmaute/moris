@@ -46,9 +46,9 @@ namespace moris
             Matrix< Matrix_Type > aMatrix1,
             Matrix< Matrix_Type > aMatrix2,
             real                  aErrorFactor = 1.0E+06,
-            std::string           aMatrix1Name = "",
-            std::string           aMatrix2Name = "",
-            std::string           aFile        = "",
+            const std::string&    aMatrix1Name = "",
+            const std::string&    aMatrix2Name = "",
+            const std::string&    aFile        = "",
             uint                  aLine        = 0 )
     {
         // Require rows and columns to be equal before checking values
@@ -66,12 +66,12 @@ namespace moris
                     // If this is first value check to fail, print where this function was called from
                     if ( tAllMatrixEntriesEqual )
                     {
-                        std::cout << "CHECK_EQUAL() failed at " << aFile << ":" << aLine << std::endl;
+                        std::cout << "CHECK_EQUAL() failed at " << aFile << ":" << aLine << '\n';
                     }
 
                     // Print the entry location and the values of each matrix
                     std::cout << std::setprecision( 16 - (int)log10( aErrorFactor ) );
-                    std::cout << "  ( " << iRowIndex << ", " << iColumnIndex << " ) value does not match:" << std::endl;
+                    std::cout << "  ( " << iRowIndex << ", " << iColumnIndex << " ) value does not match:" << '\n';
                     std::cout << "    " << aMatrix1( iRowIndex, iColumnIndex ) << " from " << aMatrix1Name << std::endl;
                     std::cout << "    " << aMatrix2( iRowIndex, iColumnIndex ) << " from " << aMatrix2Name << std::endl;
                     std::cout << std::setprecision( -1 );
@@ -95,18 +95,18 @@ namespace moris
     template< typename T >
     void
     check_equal(
-            Vector< T > aVector1,
-            Vector< T > aVector2,
-            real        aErrorFactor = 1.0E+06,
-            std::string aVector1Name = "",
-            std::string aVector2Name = "",
-            std::string aFile        = "",
-            uint        aLine        = 0 )
+            Vector< T >        aVector1,
+            Vector< T >        aVector2,
+            real               aErrorFactor = 1.0E+06,
+            const std::string& aVector1Name = "",
+            const std::string& aVector2Name = "",
+            const std::string& aFile        = "",
+            uint               aLine        = 0 )
     {
         // Require rows and columns to be equal before checking values
         if ( aVector1.size() != aVector2.size() )
         {
-            std::cout << "CHECK_EQUAL() failed at " << aFile << ":" << aLine << std::endl;
+            std::cout << "CHECK_EQUAL() failed at " << aFile << ":" << aLine << '\n';
         }
         REQUIRE( aVector1.size() == aVector2.size() );
 
@@ -119,12 +119,12 @@ namespace moris
                 // If this is first value check to fail, print where this function was called from
                 if ( tAllVectorEntriesEqual )
                 {
-                    std::cout << "CHECK_EQUAL() failed at " << aFile << ":" << aLine << std::endl;
+                    std::cout << "CHECK_EQUAL() failed at " << aFile << ":" << aLine << '\n';
                 }
 
                 // Print the entry location and the values of each matrix
                 std::cout << std::setprecision( 16 - (int)log10( aErrorFactor ) );
-                std::cout << "  ( " << iVectorIndex << " ) value does not match:" << std::endl;
+                std::cout << "  ( " << iVectorIndex << " ) value does not match:" << '\n';
                 std::cout << "    " << aVector1( iVectorIndex ) << " from " << aVector1Name << std::endl;
                 std::cout << "    " << aVector2( iVectorIndex ) << " from " << aVector2Name << std::endl;
                 std::cout << std::setprecision( -1 );

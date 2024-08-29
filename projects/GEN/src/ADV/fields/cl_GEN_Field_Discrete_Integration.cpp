@@ -9,6 +9,8 @@
  */
 
 #include "cl_GEN_Field_Discrete_Integration.hpp"
+
+#include <utility>
 #include "cl_MTK_Field_Discrete.hpp"
 #include "cl_GEN_Intersection_Node_Linear.hpp"
 #include "cl_GEN_Basis_Node.hpp"
@@ -21,8 +23,8 @@ namespace moris::gen
     Field_Discrete_Integration::Field_Discrete_Integration(
             const Vector< ADV >& aADVs,
             std::string          aName )
-            : Field( aADVs, aName )
-            , mMeshPair( nullptr, nullptr ) // FIXME
+            : Field( aADVs, std::move( aName ) )
+            , mMeshPair( nullptr, nullptr )    // FIXME
     {
     }
 
@@ -30,9 +32,9 @@ namespace moris::gen
 
     Field_Discrete_Integration::Field_Discrete_Integration(
             const Vector< sint >& aSharedADVIds,
-            mtk::Mesh_Pair        aMeshPair,
+            const mtk::Mesh_Pair& aMeshPair,
             std::string           aName )
-            : Field( aSharedADVIds, aName )
+            : Field( aSharedADVIds, std::move( aName ) )
             , mMeshPair( aMeshPair )
     {
     }

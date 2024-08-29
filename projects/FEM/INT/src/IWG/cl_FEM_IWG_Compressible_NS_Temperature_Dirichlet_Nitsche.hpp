@@ -21,91 +21,88 @@
 //FEM/INT/src
 #include "cl_FEM_IWG.hpp"
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+    //------------------------------------------------------------------------------
+
+    class IWG_Compressible_NS_Temperature_Dirichlet_Nitsche : public IWG
     {
+
         //------------------------------------------------------------------------------
 
-        class IWG_Compressible_NS_Temperature_Dirichlet_Nitsche : public IWG
+      public:
+        // sign for symmetric/unsymmetric Nitsche
+        sint mBeta;
+
+        // default dof types
+        MSI::Dof_Type mDofDensity     = MSI::Dof_Type::RHO;
+        MSI::Dof_Type mDofVelocity    = MSI::Dof_Type::VX;
+        MSI::Dof_Type mDofTemperature = MSI::Dof_Type::TEMP;
+
+        enum class IWG_Property_Type
         {
-
-                //------------------------------------------------------------------------------
-            public:
-
-                // sign for symmetric/unsymmetric Nitsche
-                sint mBeta;
-
-                // default dof types
-                MSI::Dof_Type mDofDensity     = MSI::Dof_Type::RHO;
-                MSI::Dof_Type mDofVelocity    = MSI::Dof_Type::VX;
-                MSI::Dof_Type mDofTemperature = MSI::Dof_Type::TEMP;
-
-                enum class IWG_Property_Type
-                {
-                        PRESCRIBED_VALUE,
-                        MAX_ENUM
-                };
-
-                // local constitutive enums
-                enum class IWG_Constitutive_Type
-                {
-                        FLUID,
-                        MAX_ENUM
-                };
-
-                // local stabilization enums
-                enum class IWG_Stabilization_Type
-                {
-                        NITSCHE_PENALTY_PARAMETER,
-                        MAX_ENUM
-                };
-
-                //------------------------------------------------------------------------------
-                /*
-                 *  constructor
-                 */
-                IWG_Compressible_NS_Temperature_Dirichlet_Nitsche( sint aBeta );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * trivial destructor
-                 */
-                ~IWG_Compressible_NS_Temperature_Dirichlet_Nitsche(){};
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the residual
-                 * @param[ in ] aWStar weight associated to the evaluation point
-                 */
-                void compute_residual( real aWStar );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the jacobian
-                 * @param[ in ] aWStar weight associated to the evaluation point
-                 */
-                void compute_jacobian( real aWStar );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the residual and the jacobian
-                 * @param[ in ] aWStar weight associated to the evaluation point
-                 */
-                void compute_jacobian_and_residual( real aWStar );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the derivative of the residual wrt design variables
-                 * @param[ in ] aWStar weight associated to the evaluation point
-                 */
-                void compute_dRdp( real aWStar );
-
-                //------------------------------------------------------------------------------
+            PRESCRIBED_VALUE,
+            MAX_ENUM
         };
+
+        // local constitutive enums
+        enum class IWG_Constitutive_Type
+        {
+            FLUID,
+            MAX_ENUM
+        };
+
+        // local stabilization enums
+        enum class IWG_Stabilization_Type
+        {
+            NITSCHE_PENALTY_PARAMETER,
+            MAX_ENUM
+        };
+
         //------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
+        /*
+         *  constructor
+         */
+        IWG_Compressible_NS_Temperature_Dirichlet_Nitsche( sint aBeta );
+
+        //------------------------------------------------------------------------------
+        /**
+         * trivial destructor
+         */
+        ~IWG_Compressible_NS_Temperature_Dirichlet_Nitsche() override{};
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute the residual
+         * @param[ in ] aWStar weight associated to the evaluation point
+         */
+        void compute_residual( real aWStar ) override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute the jacobian
+         * @param[ in ] aWStar weight associated to the evaluation point
+         */
+        void compute_jacobian( real aWStar ) override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute the residual and the jacobian
+         * @param[ in ] aWStar weight associated to the evaluation point
+         */
+        void compute_jacobian_and_residual( real aWStar ) override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute the derivative of the residual wrt design variables
+         * @param[ in ] aWStar weight associated to the evaluation point
+         */
+        void compute_dRdp( real aWStar ) override;
+
+        //------------------------------------------------------------------------------
+    };
+    //------------------------------------------------------------------------------
+}    // namespace moris::fem
 
 #endif /* SRC_FEM_CL_FEM_IWG_COMPRESSIBLE_NS_TEMPERATURE_DIRICHLET_NITSCHE_HPP_ */
 

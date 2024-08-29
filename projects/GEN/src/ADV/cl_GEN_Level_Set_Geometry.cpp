@@ -9,6 +9,8 @@
  */
 
 #include "cl_GEN_Level_Set_Geometry.hpp"
+
+#include <utility>
 #include "cl_GEN_Intersection_Node_Linear.hpp"
 #include "cl_GEN_Intersection_Node_Bilinear.hpp"
 #include "cl_GEN_Derived_Node.hpp"
@@ -36,11 +38,11 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Level_Set_Geometry::Level_Set_Geometry(
-            std::shared_ptr< Field > aField,
-            Level_Set_Parameters     aParameters,
-            Node_Manager&            aNodeManager )
+            std::shared_ptr< Field >    aField,
+            const Level_Set_Parameters& aParameters,
+            Node_Manager&               aNodeManager )
             : Geometry( aParameters )
-            , Design_Field( aField, aParameters, aNodeManager )
+            , Design_Field( std::move( aField ), aParameters, aNodeManager )
             , mParameters( aParameters )
     {
     }
@@ -618,7 +620,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Level_Set_Geometry::update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedDesigns )
+    void Level_Set_Geometry::update_dependencies( const Vector< std::shared_ptr< Design > >& aAllUpdatedDesigns )
     {
         // Get fields from designs
         Vector< std::shared_ptr< Field > > tUpdatedFields( aAllUpdatedDesigns.size() );

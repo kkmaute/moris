@@ -480,7 +480,7 @@ namespace moris::xtk
 
             // generate the template
             // place vertices on each new facet and evaluate the local coordinates
-            std::cout << "TODO:GENERATE PROPER HASHES" << std::endl;
+            std::cout << "TODO:GENERATE PROPER HASHES" << '\n';
             for ( moris::uint iFacet = 0; iFacet < tFaceConnectivity->mFacetVertices.size(); iFacet++ )
             {
                 tLocalCoords.fill( 0.0 );

@@ -75,7 +75,7 @@ namespace moris::hmr
         //-------------------------------------------------------------------------------
 
         // destructor
-        ~T_Matrix()
+        ~T_Matrix() override
         {
         }
 

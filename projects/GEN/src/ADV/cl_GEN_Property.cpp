@@ -9,6 +9,8 @@
  */
 
 #include "cl_GEN_Property.hpp"
+
+#include <utility>
 #include "cl_MTK_Integration_Mesh.hpp"
 
 namespace moris::gen
@@ -29,10 +31,10 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Property::Property(
-            std::shared_ptr< Field > aField,
-            Property_Parameters      aParameters,
-            Node_Manager&            aNodeManager )
-            : Design_Field( aField, aParameters, aNodeManager )
+            std::shared_ptr< Field >   aField,
+            const Property_Parameters& aParameters,
+            Node_Manager&              aNodeManager )
+            : Design_Field( std::move( aField ), aParameters, aNodeManager )
             , Design( aParameters )
             , mParameters( aParameters )
     {
@@ -47,7 +49,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Property::update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedDesigns )
+    void Property::update_dependencies( const Vector< std::shared_ptr< Design > >& aAllUpdatedDesigns )
     {
         // Get fields from designs
         Vector< std::shared_ptr< Field > > tUpdatedFields( aAllUpdatedDesigns.size() );
@@ -102,7 +104,7 @@ namespace moris::gen
     void Property::get_design_info(
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates,
-            Vector< real >& aOutputDesignInfo )
+            Vector< real >&         aOutputDesignInfo )
     {
         aOutputDesignInfo.resize( 1 );
         aOutputDesignInfo( 0 ) = Design_Field::get_field_value( aNodeIndex, aCoordinates );
@@ -114,7 +116,7 @@ namespace moris::gen
         return Design_Field::get_name();
     }
 
-        bool Property::intended_discretization()
+    bool Property::intended_discretization()
     {
         return ( mParameters.mDiscretizationIndex >= 0 );
     }

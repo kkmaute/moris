@@ -34,9 +34,9 @@ namespace moris::gen
          * @param aMesh Mesh with the level set fields
          * @param aFieldNames Names of the fields
          */
-        Signed_Distance_Field( std::string aObjectPath,
-                Vector< real >               aObjectOffset,
-                real                       aSDFShift = 0 );
+        Signed_Distance_Field( const std::string& aObjectPath,
+                Vector< real >                    aObjectOffset,
+                real                              aSDFShift = 0 );
 
         /**
          * Given a node index, returns the field value.
@@ -44,7 +44,7 @@ namespace moris::gen
          * @param aNodeIndex Node index
          * @return Field value
          */
-        real get_field_value( uint aNodeIndex );
+        real get_field_value( uint aNodeIndex ) override;
 
         void evaluate_nodal_values();
 
@@ -53,10 +53,10 @@ namespace moris::gen
          *
          * @param aMesh New interpolation mesh for evaluating nodal values
          */
-        void reset_nodal_data( mtk::Interpolation_Mesh* aMesh );
+        void reset_nodal_data( mtk::Interpolation_Mesh* aMesh ) override;
 
         const Matrix< DDRMat >&
-        get_dfield_dadvs( uint aNodeIndex );
+        get_dfield_dadvs( uint aNodeIndex ) override;
 
       private:
         /**

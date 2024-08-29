@@ -227,12 +227,12 @@ namespace moris
     {
         if ( par_rank() == 0 )
         {
-            std::cout << "===============================================================" << std::endl;
-            std::cout << "Reynolds number = " << moris_to_string( tReynolds ) << std::endl;
-            std::cout << "Time scale = " << moris_to_string( tTimeScale ) << std::endl;
-            std::cout << "Effective viscosity = " << tMu << std::endl;
-            std::cout << "Effective density = " << tRho << std::endl;
-            std::cout << "===============================================================" << std::endl;
+            std::cout << "===============================================================" << '\n';
+            std::cout << "Reynolds number = " << moris_to_string( tReynolds ) << '\n';
+            std::cout << "Time scale = " << moris_to_string( tTimeScale ) << '\n';
+            std::cout << "Effective viscosity = " << tMu << '\n';
+            std::cout << "Effective density = " << tRho << '\n';
+            std::cout << "===============================================================" << '\n';
         }
 
         // create a cell of cell of parameter list for fem

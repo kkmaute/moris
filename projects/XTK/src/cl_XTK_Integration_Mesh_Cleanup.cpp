@@ -446,7 +446,7 @@ namespace moris::xtk
     // ----------------------------------------------------------------------------
 
     double_t
-    Integration_Mesh_Cleanup::minAngle2D( Matrix< DDRMat > C1, Matrix< DDRMat > C2, Matrix< DDRMat > C3 )
+    Integration_Mesh_Cleanup::minAngle2D( const Matrix< DDRMat >& C1, const Matrix< DDRMat >& C2, const Matrix< DDRMat >& C3 )
     {
         double_t A1 = angle( C2 - C1, C3 - C1 );
         double_t A2 = angle( C3 - C2, C1 - C2 );
@@ -457,10 +457,10 @@ namespace moris::xtk
     // ----------------------------------------------------------------------------
 
     double_t
-    Integration_Mesh_Cleanup::minAngle3D( Matrix< DDRMat > C1,
-            Matrix< DDRMat >                               C2,
-            Matrix< DDRMat >                               C3,
-            Matrix< DDRMat >                               C4 )
+    Integration_Mesh_Cleanup::minAngle3D( const Matrix< DDRMat >& C1,
+            const Matrix< DDRMat >&                               C2,
+            const Matrix< DDRMat >&                               C3,
+            const Matrix< DDRMat >&                               C4 )
     {
 
         double_t sA1 = solidAngle( C1, C2, C3, C4 );
@@ -474,10 +474,10 @@ namespace moris::xtk
     // --------------------------------------------------------------------------------------
 
     double_t
-    Integration_Mesh_Cleanup::solidAngle( Matrix< DDRMat > nodeO,
-            Matrix< DDRMat >                               nodeA,
-            Matrix< DDRMat >                               nodeB,
-            Matrix< DDRMat >                               nodeC )
+    Integration_Mesh_Cleanup::solidAngle( const Matrix< DDRMat >& nodeO,
+            const Matrix< DDRMat >&                               nodeA,
+            const Matrix< DDRMat >&                               nodeB,
+            const Matrix< DDRMat >&                               nodeC )
     {
         MORIS_ASSERT( nodeO.numel() == 3, "solid angle only for 3d points" );
 
@@ -573,7 +573,7 @@ namespace moris::xtk
 
     // merges all coincident vertices
     void
-    Integration_Mesh_Cleanup::check_coinc_verts( Vector< moris_index > aFlats, Vector< moris::mtk::Cell* >& aActiveIgCells )
+    Integration_Mesh_Cleanup::check_coinc_verts( const Vector< moris_index >& aFlats, Vector< moris::mtk::Cell* >& aActiveIgCells )
     {
         // Vector<Vector<moris_index>> MergeVerts;
         // MergeVerts.reserve(mInputMesh->mIntegrationCells.size());
@@ -606,7 +606,7 @@ namespace moris::xtk
     // ---------------------------------------------------------------------------
 
     double_t
-    Integration_Mesh_Cleanup::dist( Matrix< DDRMat > aV1, Matrix< DDRMat > aV2 )
+    Integration_Mesh_Cleanup::dist( const Matrix< DDRMat >& aV1, const Matrix< DDRMat >& aV2 )
     {
         return norm( aV1 - aV2 );
     }
@@ -830,7 +830,7 @@ namespace moris::xtk
         for ( moris_index iV = 0; (uint)iV < mMergeInds.size(); iV++ )
         {
             tMergeIds( iV )                                      = mInputMesh->mIntegrationVertices( mMergeInds( iV ) )->get_id();
-            mInputMesh->mIntegrationVertices( mMergeInds( iV ) ) = NULL;
+            mInputMesh->mIntegrationVertices( mMergeInds( iV ) ) = nullptr;
         }
 
         // get merged cell ids
@@ -886,7 +886,7 @@ namespace moris::xtk
         // nullify cell pointer in mIntegrationCells
         for ( moris_index iC = 0; (uint)iC < mCellMergeInds.size(); iC++ )
         {
-            mInputMesh->mIntegrationCells( mCellMergeInds( iC ) ) = NULL;
+            mInputMesh->mIntegrationCells( mCellMergeInds( iC ) ) = nullptr;
         }
 
         // adjust indices in mVertIndToCells
@@ -974,7 +974,7 @@ namespace moris::xtk
         }
         for ( moris_index icC = 0; (uint)icC < mInputMesh->mIntegrationCells.size(); icC++ )
         {
-            mInputMesh->mIntegrationCellIdToIndexMap[ mInputMesh->mIntegrationCells( icC )->get_id() ] = (moris_index)icC;
+            mInputMesh->mIntegrationCellIdToIndexMap[ mInputMesh->mIntegrationCells( icC )->get_id() ] = icC;
         }
         MORIS_ASSERT( mInputMesh->mIntegrationCellIdToIndexMap.size() == mInputMesh->mIntegrationCells.size(), "Size issue" );
 
@@ -1151,7 +1151,7 @@ namespace moris::xtk
         MORIS_ASSERT( mInputMesh->mIntegrationVertexIdToIndexMap.size() == mInputMesh->mIntegrationVertices.size(), "Error size" );
         for ( moris_index iV = 0; (uint)iV < mInputMesh->mIntegrationVertices.size(); iV++ )
         {
-            mInputMesh->mIntegrationVertexIdToIndexMap[ mInputMesh->mIntegrationVertices( iV )->get_id() ] = (moris_index)iV;
+            mInputMesh->mIntegrationVertexIdToIndexMap[ mInputMesh->mIntegrationVertices( iV )->get_id() ] = iV;
         }
         MORIS_ASSERT( mInputMesh->mIntegrationVertexIdToIndexMap.size() == mInputMesh->mIntegrationVertices.size(), "Error size" );
 
@@ -1326,7 +1326,7 @@ namespace moris::xtk
         {
             for ( moris_index iC = 0; (uint)iC < mInputFacetConnectivity->mFacetToCell( iF ).size(); iC++ )
             {
-                if ( mInputFacetConnectivity->mFacetToCell( iF )( iC ) == NULL )
+                if ( mInputFacetConnectivity->mFacetToCell( iF )( iC ) == nullptr )
                 {
                     mInputFacetConnectivity->mFacetToCell( iF ).erase( iC );
                     iC--;
@@ -1337,9 +1337,9 @@ namespace moris::xtk
         // mFacetVertices
         for ( moris_index iF = 0; (uint)iF < mInputFacetConnectivity->mFacetVertices.size(); iF++ )
         {
-            if ( mInputFacetConnectivity->mFacetVertices( iF )( 0 ) == NULL )    // todo: replace with mFacetVertices(iF) == {NULL, NULL}
+            if ( mInputFacetConnectivity->mFacetVertices( iF )( 0 ) == nullptr )    // todo: replace with mFacetVertices(iF) == {NULL, NULL}
             {
-                MORIS_ASSERT( mInputFacetConnectivity->mFacetVertices( iF )( 1 ) == NULL, "Error" );
+                MORIS_ASSERT( mInputFacetConnectivity->mFacetVertices( iF )( 1 ) == nullptr, "Error" );
                 mInputFacetConnectivity->mFacetVertices.erase( iF );
                 iF--;
             }
@@ -1347,7 +1347,7 @@ namespace moris::xtk
             {
                 for ( moris_index iV = 0; (uint)iV < mInputFacetConnectivity->mFacetVertices( iF ).size(); iV++ )
                 {
-                    if ( mInputFacetConnectivity->mFacetVertices( iF )( iV ) == NULL )
+                    if ( mInputFacetConnectivity->mFacetVertices( iF )( iV ) == nullptr )
                     {
                         MORIS_ASSERT( false, "Error" );
                         mInputFacetConnectivity->mFacetVertices( iF ).erase( iV );
@@ -1422,7 +1422,7 @@ namespace moris::xtk
 
         if ( aVert2 == 784 )
         {
-            std::cout << "stp" << std::endl;
+            std::cout << "stp" << '\n';
         }
 
         // add verts from aVert1 to aVert2 without duplicates

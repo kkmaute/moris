@@ -14,20 +14,18 @@
 #include "fn_norm.hpp"
 #include "fn_eye.hpp"
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+
+    //------------------------------------------------------------------------------
+
+    Matrix< DDRMat >
+    unfold_flat_tensor( const Matrix< DDRMat >& aFlattenedTensor )
     {
+        // get length of the flattened tensor
+        uint tLength = aFlattenedTensor.length();
 
-        //------------------------------------------------------------------------------
-
-        Matrix< DDRMat >
-        unfold_flat_tensor( const Matrix< DDRMat >& aFlattenedTensor )
-        {
-            // get length of the flattened tensor
-            uint tLength = aFlattenedTensor.length();
-
-            // clang-format off
+        // clang-format off
             switch ( tLength )
             {
                 // 2D: convert 3x1 flattened tensor back to 2x2 matrix
@@ -57,25 +55,25 @@ namespace moris
                     break;
                 }
             }
-            // clang-format on
-        }
+        // clang-format on
+    }
 
-        //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-        uint
-        convert_index_pair_to_flat(
-                const uint aI,
-                const uint aJ,
-                const uint aNumSpaceDims )
-        {
-            // check that indices are not out of bounds
-            MORIS_ASSERT( ( aI < aNumSpaceDims ) and ( aJ < aNumSpaceDims ),
-                    "fn_FEM_IWG_Compressible_NS::convert_index_pair_to_flat() - indices out of bounds." );
+    uint
+    convert_index_pair_to_flat(
+            const uint aI,
+            const uint aJ,
+            const uint aNumSpaceDims )
+    {
+        // check that indices are not out of bounds
+        MORIS_ASSERT( ( aI < aNumSpaceDims ) and ( aJ < aNumSpaceDims ),
+                "fn_FEM_IWG_Compressible_NS::convert_index_pair_to_flat() - indices out of bounds." );
 
-            // initialize return value
-            uint tFlatIndex = 0;
+        // initialize return value
+        uint tFlatIndex = 0;
 
-            // clang-format off
+        // clang-format off
             // two cases: 2D and 3D
             switch ( aNumSpaceDims )
             {
@@ -137,13 +135,12 @@ namespace moris
                 }
 
             } // end switch statement
-            // clang-format on
+        // clang-format on
 
-            // return index
-            return tFlatIndex;
-        }
+        // return index
+        return tFlatIndex;
+    }
 
-        //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-    } /* namespace fem */
-} /* namespace moris */
+}    // namespace moris::fem

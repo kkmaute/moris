@@ -146,7 +146,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    Voxel_Input::read_voxel_data( std::string aVoxelFieldName )
+    Voxel_Input::read_voxel_data( const std::string& aVoxelFieldName )
     {
         // build Ascii reader
         Ascii tAsciiReader( aVoxelFieldName, FileMode::OPEN_RDONLY );
@@ -166,7 +166,7 @@ namespace moris::gen
         for ( uint Ik = 0; Ik < tNumLines; Ik++ )
         {
             // get line from ascii file
-            std::string tFileLine = tAsciiReader.line( Ik );
+            const std::string& tFileLine = tAsciiReader.line( Ik );
 
             // convert line into numerical values
             delimited_string_to_mat( tFileLine, " ", tMatrix );

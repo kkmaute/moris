@@ -51,7 +51,7 @@ namespace moris::xtk
 
         // Create Mesh --------------------------------------------------------------------
         std::string                     tMeshFileName = "generated:1x1x4";
-        moris::mtk::Interpolation_Mesh* tMeshData     = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshFileName, NULL );
+        moris::mtk::Interpolation_Mesh* tMeshData     = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshFileName, nullptr );
 
         moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
         tGeometryEngineParameters.mGeometries = tGeometry;
@@ -580,7 +580,7 @@ namespace moris::xtk
 
         // Create Mesh --------------------------------------------------------------------
         std::string                     tMeshFileName = "generated:1x1x4";
-        moris::mtk::Interpolation_Mesh* tMeshData     = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshFileName, NULL );
+        moris::mtk::Interpolation_Mesh* tMeshData     = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshFileName, nullptr );
 
         moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
         tGeometryEngineParameters.mGeometries = tGeometry;
@@ -1235,7 +1235,7 @@ namespace moris::xtk
 
         // Create Mesh --------------------------------------------------------------------
         std::string                     tMeshFileName = "generated:1x1x4";
-        moris::mtk::Interpolation_Mesh* tMeshData     = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshFileName, NULL );
+        moris::mtk::Interpolation_Mesh* tMeshData     = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshFileName, nullptr );
 
         moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
         tGeometryEngineParameters.mGeometries = tGeometry;

@@ -95,8 +95,8 @@ namespace moris::xtk
         // cut integration mesh
         Cut_Integration_Mesh* tCutIgMesh = mModel->get_cut_integration_mesh();
 
-        std::cout << "Num Child Meshes = " << tCutIgMesh->get_num_child_meshes() << std::endl;
-        std::cout << "Num Background Cells = " << mModel->get_background_mesh().get_num_elems() << std::endl;
+        std::cout << "Num Child Meshes = " << tCutIgMesh->get_num_child_meshes() << '\n';
+        std::cout << "Num Background Cells = " << mModel->get_background_mesh().get_num_elems() << '\n';
         // iterate through ig cell groups
         for ( moris::uint iCM = 0; iCM < tCutIgMesh->get_num_child_meshes(); iCM++ )
         {
@@ -105,10 +105,10 @@ namespace moris::xtk
             // 1 here ignores the child meshes that are empty for non-intersecte background cells
             if ( tChildMesh->get_num_subphase_cell_groups() == 1 )
             {
-                std::cout << "(tChildMesh->get_num_subphase_cell_groups() = " << tChildMesh->get_num_subphase_cell_groups() << std::endl;
+                std::cout << "(tChildMesh->get_num_subphase_cell_groups() = " << tChildMesh->get_num_subphase_cell_groups() << '\n';
                 std::shared_ptr< IG_Cell_Group > tSubphaseIgCells = tChildMesh->get_subphase_cell_group( 0 );
 
-                std::cout << "tSubphaseIgCells size = " << tSubphaseIgCells->mIgCellGroup.size() << std::endl;
+                std::cout << "tSubphaseIgCells size = " << tSubphaseIgCells->mIgCellGroup.size() << '\n';
                 aRemoveChildMeshes[ iCM ] = 1;
             }
         }

@@ -38,10 +38,8 @@
 #include "cl_MSI_Element_Proxy.hpp"
 #include "cl_FEM_Set.hpp"
 
-namespace moris
+namespace moris::MSI
 {
-    namespace MSI
-    {
     Matrix< DDRMat > test_residual(       Matrix< DDRMat > tMyValues,
                                     const moris::uint   aEquationObjectInd )
     {
@@ -563,5 +561,3 @@ namespace moris
 //        }
 //    }
     }
-}
-

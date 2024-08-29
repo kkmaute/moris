@@ -36,9 +36,7 @@
 #include "cl_SOL_Warehouse.hpp"
 #include "cl_NLA_Nonlinear_Solver.hpp"
 
-namespace moris
-{
-namespace tsa
+namespace moris::tsa
 {
     TEST_CASE("TimeSolverStaggered","[TSA],[TimeSolverStaggered]")
     {
@@ -309,5 +307,3 @@ namespace tsa
 //        }
     }
 }
-}
-

@@ -85,40 +85,40 @@ namespace moris::xtk
         void print_geom()
         {
             // TODO: support discrete with a field name
-            std::cout << "Geometry:  " << mGeometryName << std::endl;
+            std::cout << "Geometry:  " << mGeometryName << '\n';
             for ( moris::uint i = 0; i < mRealGeomParams.size(); i++ )
             {
-                std::cout << "    " << mRealGeomLabels( i ) << " = " << mRealGeomParams( i ) << std::endl;
+                std::cout << "    " << mRealGeomLabels( i ) << " = " << mRealGeomParams( i ) << '\n';
             }
         }
 
         void print_operations()
         {
-            std::cout << "Operations to Perform:" << std::endl;
+            std::cout << "Operations to Perform:" << '\n';
 
             for ( moris::uint i = 0; i < mSubdivisionStrings.size(); i++ )
             {
-                std::cout << "    " << mSubdivisionStrings( i ) << std::endl;
+                std::cout << "    " << mSubdivisionStrings( i ) << '\n';
             }
 
             if ( mComputeSens )
             {
-                std::cout << "    Sensitivity Computation" << std::endl;
+                std::cout << "    Sensitivity Computation" << '\n';
             }
 
             if ( mUnzip )
             {
-                std::cout << "    Unzip Interface" << std::endl;
+                std::cout << "    Unzip Interface" << '\n';
             }
 
             if ( mEnrich )
             {
-                std::cout << "    Basis Enrichment" << std::endl;
+                std::cout << "    Basis Enrichment" << '\n';
             }
 
             if ( mGhost )
             {
-                std::cout << "    Ghost Penalization" << std::endl;
+                std::cout << "    Ghost Penalization" << '\n';
             }
         }
     };

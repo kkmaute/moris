@@ -12,131 +12,126 @@
 #define SRC_FEM_CL_FEM_SP_CROSSWIND_HPP_
 
 #include <map>
-//MRS/CNT/src
+// MRS/CNT/src
 #include "moris_typedefs.hpp"
 #include "cl_Vector.hpp"
-//LINALG/src
+// LINALG/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-//FEM/INT/src
+// FEM/INT/src
 #include "cl_FEM_Field_Interpolator.hpp"
 #include "cl_FEM_Constitutive_Model.hpp"
 #include "cl_FEM_Stabilization_Parameter.hpp"
 #include "cl_FEM_Cluster.hpp"
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+    //------------------------------------------------------------------------------
+    /*
+     * Stabilization parameter for crosswind stabilization
+     * from Shadid et al. (2016) DOI:
+     * see also: Codina (1992) DOI:
+     *
+     *
+     * Note: contribution from strong form of residual is applied in IWG
+     */
+    class SP_Crosswind : public Stabilization_Parameter
     {
+
+        //------------------------------------------------------------------------------
+
+      private:
+        /*
+         * Rem: mParameters( 0 ) - C = 0.70, for linear,
+         *                             0.35, for quadratic.
+         * see: Codina (1992) DOI:
+         *
+         *      mParameters( 1 ) - epsilon = 1.0e-10, default
+         *      check against zero
+         */
+
+        // constant for crosswind stabilization
+        real mC = 0.0;
+
+        // internal threshold for zero
+        real mEpsilon = 1.0e-10;
+
+      public:
         //------------------------------------------------------------------------------
         /*
-         * Stabilization parameter for crosswind stabilization
-         * from Shadid et al. (2016) DOI:
-         * see also: Codina (1992) DOI:
-         *
-         *
-         * Note: contribution from strong form of residual is applied in IWG
+         * constructor
          */
-        class SP_Crosswind : public Stabilization_Parameter
-        {
+        SP_Crosswind();
 
-                //------------------------------------------------------------------------------
-            private:
-
-                /*
-                 * Rem: mParameters( 0 ) - C = 0.70, for linear,
-                 *                             0.35, for quadratic.
-                 * see: Codina (1992) DOI:
-                 *
-                 *      mParameters( 1 ) - epsilon = 1.0e-10, default
-                 *      check against zero
-                 */
-
-                // constant for crosswind stabilization
-                real mC = 0.0;
-
-                // internal threshold for zero
-                real mEpsilon = 1.0e-10;
-
-            public:
-
-                //------------------------------------------------------------------------------
-                /*
-                 * constructor
-                 */
-                SP_Crosswind();
-
-                //------------------------------------------------------------------------------
-                /**
-                 * trivial destructor
-                 */
-                ~SP_Crosswind(){}
-
-                //------------------------------------------------------------------------------
-                /**
-                 * set dof types
-                 * @param[ in ] aDofTypes a cell of cell of dof types
-                 * @param[ in ] aDofStrings list of strings describing the dof types
-                 * @param[ in ] aIsLeader enum for leader or follower
-                 */
-                void
-                set_dof_type_list(
-                        Vector< Vector< MSI::Dof_Type > >& aDofTypes,
-                        Vector< std::string >&                  aDofStrings,
-                        mtk::Leader_Follower                            aIsLeader = mtk::Leader_Follower::LEADER )
-                {
-                    Stabilization_Parameter::set_dof_type_list( aDofTypes, aIsLeader );
-                }
-
-                //------------------------------------------------------------------------------
-                /**
-                 * set dv types
-                 * @param[ in ] aDvTypes   a cell of group of dv types
-                 * @param[ in ] aDvStrings list of strings describing the dv types
-                 * @param[ in ] aIsLeader enum for leader or follower
-                 */
-                void set_dv_type_list(
-                        Vector< Vector< gen::PDV_Type > > & aDvTypes,
-                        Vector< std::string >             & aDvStrings,
-                        mtk::Leader_Follower                        aIsLeader = mtk::Leader_Follower::LEADER )
-                {
-                    Stabilization_Parameter::set_dv_type_list( aDvTypes, aIsLeader );
-                }
-
-                //------------------------------------------------------------------------------
-                /**
-                 * set parameters
-                 */
-                void set_parameters( Vector< Matrix< DDRMat > > aParameters );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * evaluate the stabilization parameter value
-                 */
-                void eval_SP();
-
-                //------------------------------------------------------------------------------
-                /**
-                 * evaluate the stabilization parameter derivative wrt to a leader dof type
-                 * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
-                 */
-                void eval_dSPdLeaderDOF( const Vector< MSI::Dof_Type > & aDofTypes );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * evaluate the penalty parameter derivative wrt to a leader dv type
-                 * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
-                 */
-                void eval_dSPdLeaderDV( const Vector< gen::PDV_Type > & aDvTypes )
-                {
-                    MORIS_ERROR( false, "SP_Crosswind::eval_dSPdLeaderDV - not implemented." );
-                }
-
-                //------------------------------------------------------------------------------
-        };
         //------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
+        /**
+         * trivial destructor
+         */
+        ~SP_Crosswind() override {}
+
+        //------------------------------------------------------------------------------
+        /**
+         * set dof types
+         * @param[ in ] aDofTypes a cell of cell of dof types
+         * @param[ in ] aDofStrings list of strings describing the dof types
+         * @param[ in ] aIsLeader enum for leader or follower
+         */
+        void
+        set_dof_type_list(
+                Vector< Vector< MSI::Dof_Type > >& aDofTypes,
+                Vector< std::string >&             aDofStrings,
+                mtk::Leader_Follower               aIsLeader = mtk::Leader_Follower::LEADER ) override
+        {
+            Stabilization_Parameter::set_dof_type_list( aDofTypes, aIsLeader );
+        }
+
+        //------------------------------------------------------------------------------
+        /**
+         * set dv types
+         * @param[ in ] aDvTypes   a cell of group of dv types
+         * @param[ in ] aDvStrings list of strings describing the dv types
+         * @param[ in ] aIsLeader enum for leader or follower
+         */
+        void set_dv_type_list(
+                Vector< Vector< gen::PDV_Type > >& aDvTypes,
+                Vector< std::string >&             aDvStrings,
+                mtk::Leader_Follower               aIsLeader = mtk::Leader_Follower::LEADER ) override
+        {
+            Stabilization_Parameter::set_dv_type_list( aDvTypes, aIsLeader );
+        }
+
+        //------------------------------------------------------------------------------
+        /**
+         * set parameters
+         */
+        void set_parameters( const Vector< Matrix< DDRMat > >& aParameters ) override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * evaluate the stabilization parameter value
+         */
+        void eval_SP() override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * evaluate the stabilization parameter derivative wrt to a leader dof type
+         * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+         */
+        void eval_dSPdLeaderDOF( const Vector< MSI::Dof_Type >& aDofTypes ) override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * evaluate the penalty parameter derivative wrt to a leader dv type
+         * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
+         */
+        void eval_dSPdLeaderDV( const Vector< gen::PDV_Type >& aDvTypes ) override
+        {
+            MORIS_ERROR( false, "SP_Crosswind::eval_dSPdLeaderDV - not implemented." );
+        }
+
+        //------------------------------------------------------------------------------
+    };
+    //------------------------------------------------------------------------------
+}    // namespace moris::fem
 
 #endif /* SRC_FEM_CL_FEM_SP_CROSSWIND_HPP_ */
-

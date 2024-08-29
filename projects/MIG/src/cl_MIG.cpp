@@ -9,6 +9,8 @@
  */
 
 #include "cl_MIG.hpp"
+
+#include <utility>
 #include "cl_GEN_Geometry_Engine.hpp"
 #include "cl_MIG_Mesh_Editor.hpp"
 #include "cl_MIG_Periodic_2D.hpp"
@@ -21,9 +23,9 @@ namespace moris::mig
     // ----------------------------------------------------------------------------
     MIG::MIG(
             std::shared_ptr< moris::mtk::Mesh_Manager > aMeshManager,
-            moris::Parameter_List&                       aParameterList,
-            moris::gen::Geometry_Engine*                 aGeometryEngine )
-            : mMeshManager( aMeshManager )
+            moris::Parameter_List&                      aParameterList,
+            moris::gen::Geometry_Engine*                aGeometryEngine )
+            : mMeshManager( std::move( aMeshManager ) )
             , mParameterList( aParameterList )
             , mGeometryEngine( aGeometryEngine )
     {

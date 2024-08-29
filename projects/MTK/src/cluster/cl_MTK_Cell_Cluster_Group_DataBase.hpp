@@ -12,75 +12,72 @@
 
 #include "cl_MTK_Cell_Cluster_Group.hpp"
 
-namespace moris
+namespace moris::mtk
 {
-    namespace mtk
+    //------------------------------------------------------------------------------
+
+    class Mesh;
+    class Cluster;
+
+    //------------------------------------------------------------------------------
+
+    class Cell_Cluster_Group_DataBase : public Cell_Cluster_Group
     {
         //------------------------------------------------------------------------------
 
-        class Mesh;
-        class Cluster;
+      protected:
+        // pointer to parent mesh holding information
+        mtk::Mesh* mMesh;
+
+        // cluster group index in list of cluster groups for its B-spline mesh
+        moris_index mClusterGroupIndex;
+
+        // list of clusters in group
+        Vector< mtk::Cluster const * > mClusters;
 
         //------------------------------------------------------------------------------
 
-        class Cell_Cluster_Group_DataBase : public Cell_Cluster_Group
-        {
-            //------------------------------------------------------------------------------
+        /**
+         * @brief Get a the list of clusters in the cluster group (how the clusters are accessed is handled by the children)
+         *
+         * @return Vector< Cluster const* > const& list of clusters in the cluster group
+         */
+        Vector< mtk::Cluster const * >
+        get_clusters_in_group() const override;
 
-          protected:
-            // pointer to parent mesh holding information
-            mtk::Mesh* mMesh;
+        //------------------------------------------------------------------------------
 
-            // cluster group index in list of cluster groups for its B-spline mesh
-            moris_index mClusterGroupIndex;
+      public:
+        //------------------------------------------------------------------------------
 
-            // list of clusters in group
-            Vector< mtk::Cluster const * > mClusters;
+        /**
+         * @brief Construct a new Cell_Cluster_Group object
+         *
+         * @param aDiscretizationMeshIndex discretization mesh index (in MSI) that the cluster group is associated with
+         * @param aClusters cell of pointers to the clusters in the group
+         */
+        Cell_Cluster_Group_DataBase(
+                const moris_index                     aDiscretizationMeshIndex,
+                const Vector< mtk::Cluster const * >& aClusters );
 
-            //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-            /**
-             * @brief Get a the list of clusters in the cluster group (how the clusters are accessed is handled by the children)
-             *
-             * @return Vector< Cluster const* > const& list of clusters in the cluster group
-             */
-            const Vector< mtk::Cluster const * >
-            get_clusters_in_group() const;
+        /**
+         * @brief default constructor initializing nothing
+         *
+         */
+        Cell_Cluster_Group_DataBase() = default;
 
-            //------------------------------------------------------------------------------
+        /**
+         * @brief Default Destructor
+         *
+         */
+        ~Cell_Cluster_Group_DataBase() override {};
 
-          public:
-            //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-            /**
-             * @brief Construct a new Cell_Cluster_Group object
-             *
-             * @param aDiscretizationMeshIndex discretization mesh index (in MSI) that the cluster group is associated with
-             * @param aClusters cell of pointers to the clusters in the group
-             */
-            Cell_Cluster_Group_DataBase(
-                    const moris_index              aDiscretizationMeshIndex,
-                    Vector< mtk::Cluster const * > aClusters );
+    };    // class mtk::Cell_Cluster_Group_DataBase
 
-            //------------------------------------------------------------------------------
-
-            /**
-             * @brief default constructor initializing nothing
-             *
-             */
-            Cell_Cluster_Group_DataBase() = default;
-
-            /**
-             * @brief Default Destructor
-             *
-             */
-            virtual ~Cell_Cluster_Group_DataBase(){};
-
-            //------------------------------------------------------------------------------
-
-        };    // class mtk::Cell_Cluster_Group_DataBase
-
-    }    // namespace mtk
-}    // namespace moris
+}    // namespace moris::mtk
 
 #endif /* cl_MTK_Cell_Cluster_Group_DataBase.hpp */

@@ -85,7 +85,7 @@ namespace moris
              * @param aLibrary
              */
 
-            Reinitialize_Performer( std::shared_ptr< Library_IO > aLibrary );
+            Reinitialize_Performer( const std::shared_ptr< Library_IO >& aLibrary );
 
             //------------------------------------------------------------------------------
 

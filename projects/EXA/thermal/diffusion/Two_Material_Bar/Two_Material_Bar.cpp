@@ -76,9 +76,6 @@ namespace moris
     /* ------------------------------------------------------------------------ */
     // geometry parameters
 
-    // dimensionality 2D or 3D
-    uint gDim = 3;
-
     // general
     moris::real sL  = 10.0;    // total length
     moris::real sL1 = 4.1;

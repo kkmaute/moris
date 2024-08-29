@@ -18,8 +18,8 @@ namespace moris::xtk
     //------------------------------------------------------------------------------
 
     Cell_Cluster_Group::Cell_Cluster_Group(
-            const moris_index                         aDiscretizationMeshIndex,
-            Vector< std::shared_ptr< mtk::Cluster > > aClusters )
+            const moris_index                                aDiscretizationMeshIndex,
+            const Vector< std::shared_ptr< mtk::Cluster > >& aClusters )
             : mtk::Cell_Cluster_Group( aDiscretizationMeshIndex )
             , mClusters( aClusters )
     {
@@ -28,11 +28,12 @@ namespace moris::xtk
 
     //------------------------------------------------------------------------------
 
-    const Vector< mtk::Cluster const * >
+    Vector< mtk::Cluster const * >
     Cell_Cluster_Group::get_clusters_in_group() const
     {
         // get the number of cluster and initialize a list of raw pointers with this
-        uint                           tNumClustersInGroup = mClusters.size();
+        uint tNumClustersInGroup = mClusters.size();
+
         Vector< mtk::Cluster const * > tClusters( tNumClustersInGroup );
 
         // fill list with raw cluster pointers

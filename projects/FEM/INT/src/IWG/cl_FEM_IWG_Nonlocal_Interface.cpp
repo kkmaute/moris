@@ -16,63 +16,61 @@
 #include "fn_eye.hpp"
 #include "fn_dot.hpp"
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+    //------------------------------------------------------------------------------
+
+    IWG_Nonlocal_Interface::IWG_Nonlocal_Interface( sint aBeta )
     {
-        //------------------------------------------------------------------------------
+        // set sint for symmetric/unsymmetric Nitsche
+        mBeta = aBeta;
 
-        IWG_Nonlocal_Interface::IWG_Nonlocal_Interface( sint aBeta )
-        {
-            // set sint for symmetric/unsymmetric Nitsche
-            mBeta = aBeta;
+        // set size for the property pointer cell
+        mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+        mFollowerProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
-            mFollowerProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+        // populate the property map
+        mPropertyMap[ "Weight" ] = static_cast< uint >( IWG_Property_Type::WEIGHT );
 
-            // populate the property map
-            mPropertyMap[ "Weight" ] = static_cast< uint >( IWG_Property_Type::WEIGHT );
+        // set size for the stabilization parameter pointer cell
+        mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
 
-            // set size for the stabilization parameter pointer cell
-            mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
+        // populate the stabilization map
+        mStabilizationMap[ "NitscheInterface" ] = static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE );
+    }
 
-            // populate the stabilization map
-            mStabilizationMap[ "NitscheInterface" ] = static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE );
-        }
+    //------------------------------------------------------------------------------
 
-        //------------------------------------------------------------------------------
+    void
+    IWG_Nonlocal_Interface::set_parameters( const Vector< Matrix< DDRMat > >& aParameters )
+    {
+        // set parameters
+        mParameters = aParameters;
 
-        void
-        IWG_Nonlocal_Interface::set_parameters( const Vector< Matrix< DDRMat > >& aParameters )
-        {
-            // set parameters
-            mParameters = aParameters;
+        // check characteristic length provided
+        MORIS_ERROR( mParameters.size() >= 1 && mParameters.size() < 3,
+                "IWG_Nonlocal_Interface::set_parameters - requires a characteristic length.\n" );
 
-            // check characteristic length provided
-            MORIS_ERROR( mParameters.size() >= 1 && mParameters.size() < 3,
-                    "IWG_Nonlocal_Interface::set_parameters - requires a characteristic length.\n" );
+        // set a characteristic length
+        mCharacteristicLength = aParameters( 0 )( 0 );
 
-            // set a characteristic length
-            mCharacteristicLength = aParameters( 0 )( 0 );
+        // FIXME add higher order
+        //            // set a order if provided by default 1
+        //            if ( mParameters.size() > 1 )
+        //            {
+        //                mOrder = static_cast< uint >( aParameters( 1 )( 0 ) );
+        //            }
 
-            // FIXME add higher order
-            //            // set a order if provided by default 1
-            //            if ( mParameters.size() > 1 )
-            //            {
-            //                mOrder = static_cast< uint >( aParameters( 1 )( 0 ) );
-            //            }
+        //            // FIXME for now only 1st order model supported
+        //            MORIS_ERROR( mOrder < 2.0,
+        //                    "IWG_Nonlocal_Interface::set_parameters - higher order model not supported.\n" );
+    }
 
-            //            // FIXME for now only 1st order model supported
-            //            MORIS_ERROR( mOrder < 2.0,
-            //                    "IWG_Nonlocal_Interface::set_parameters - higher order model not supported.\n" );
-        }
+    //------------------------------------------------------------------------------
 
-        //------------------------------------------------------------------------------
-
-        void
-        IWG_Nonlocal_Interface::compute_residual( real aWStar )
-        {
+    void
+    IWG_Nonlocal_Interface::compute_residual( real aWStar )
+    {
 #ifdef MORIS_HAVE_DEBUG
             // check Leader and follower field interpolators
             this->check_field_interpolators( mtk::Leader_Follower::LEADER );
@@ -370,6 +368,4 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
-
+}    // namespace moris::fem

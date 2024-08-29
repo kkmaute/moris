@@ -20,8 +20,8 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    Field::Field( mtk::Mesh_Pair        aMeshPair,
-            mtk::Field_Entity_Type aFieldEntityType,
+    Field::Field( const mtk::Mesh_Pair& aMeshPair,
+            mtk::Field_Entity_Type      aFieldEntityType,
             uint                        aDiscretizationMeshIndex )
             : mtk::Field( aMeshPair, 1, aFieldEntityType )
     {
@@ -43,7 +43,7 @@ namespace moris::fem
         if ( not mInputFilePath.empty() and mUpdateFromFile )
         {
             // detect file type
-            std::string tType = mInputFilePath.substr( mInputFilePath.find_last_of( "." ) + 1, mInputFilePath.length() );
+            std::string tType = mInputFilePath.substr( mInputFilePath.find_last_of( '.' ) + 1, mInputFilePath.length() );
 
             if ( tType == "hdf5" || tType == "h5" )
             {
@@ -155,7 +155,7 @@ namespace moris::fem
         if ( not mOutputFilePath.empty() )
         {
             // detect file type
-            std::string tType = mOutputFilePath.substr( mOutputFilePath.find_last_of( "." ) + 1, mOutputFilePath.length() );
+            std::string tType = mOutputFilePath.substr( mOutputFilePath.find_last_of( '.' ) + 1, mOutputFilePath.length() );
 
             if ( tType == "hdf5" || tType == "h5" )
             {

@@ -18,44 +18,42 @@
 #include "fn_eye.hpp"
 #include "fn_dot.hpp"
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+    //------------------------------------------------------------------------------
+
+    IWG_Diffusion_Robin_Nitsche::IWG_Diffusion_Robin_Nitsche( sint aBeta )
     {
-        //------------------------------------------------------------------------------
+        // set sign for symmetric/unsymmetric Nitsche
+        mBeta = aBeta;
 
-        IWG_Diffusion_Robin_Nitsche::IWG_Diffusion_Robin_Nitsche( sint aBeta )
-        {
-            // set sign for symmetric/unsymmetric Nitsche
-            mBeta = aBeta;
+        // set size for the property pointer cell
+        mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+        // populate the property map
+        mPropertyMap[ "Dirichlet" ]      = static_cast< uint >( IWG_Property_Type::DIRICHLET );
+        mPropertyMap[ "NeumannPenalty" ] = static_cast< uint >( IWG_Property_Type::NEUMANN_PENALTY );
+        mPropertyMap[ "Traction" ]       = static_cast< uint >( IWG_Property_Type::TRACTION );
 
-            // populate the property map
-            mPropertyMap[ "Dirichlet" ]      = static_cast< uint >( IWG_Property_Type::DIRICHLET );
-            mPropertyMap[ "NeumannPenalty" ] = static_cast< uint >( IWG_Property_Type::NEUMANN_PENALTY );
-            mPropertyMap[ "Traction" ]       = static_cast< uint >( IWG_Property_Type::TRACTION );
+        // set size for the constitutive model pointer cell
+        mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+        // populate the constitutive map
+        mConstitutiveMap[ "Diffusion" ] = static_cast< uint >( IWG_Constitutive_Type::DIFFUSION );
 
-            // populate the constitutive map
-            mConstitutiveMap[ "Diffusion" ] = static_cast< uint >( IWG_Constitutive_Type::DIFFUSION );
+        // set size for the stabilization parameter pointer cell
+        mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
 
-            // set size for the stabilization parameter pointer cell
-            mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
+        // populate the stabilization map
+        mStabilizationMap[ "RobinNitsche" ] = static_cast< uint >( IWG_Stabilization_Type::ROBIN_NITSCHE );
+    }
 
-            // populate the stabilization map
-            mStabilizationMap[ "RobinNitsche" ] = static_cast< uint >( IWG_Stabilization_Type::ROBIN_NITSCHE );
-        }
+    //------------------------------------------------------------------------------
 
-        //------------------------------------------------------------------------------
-
-        void
-        IWG_Diffusion_Robin_Nitsche::compute_residual( real aWStar )
-        {
-            // check leader field interpolators
+    void
+    IWG_Diffusion_Robin_Nitsche::compute_residual( real aWStar )
+    {
+        // check leader field interpolators
 #ifdef MORIS_HAVE_DEBUG
             this->check_field_interpolators();
 #endif
@@ -315,5 +313,4 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
+}    // namespace moris::fem

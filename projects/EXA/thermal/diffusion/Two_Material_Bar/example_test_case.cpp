@@ -42,8 +42,8 @@ int fn_WRK_Workflow_Main_Interface( int argc, char *argv[] );
 
 extern "C" void
 check_results(
-        std::string aExoFileName,
-        uint        aTestCaseIndex )
+        const std::string &aExoFileName,
+        uint               aTestCaseIndex )
 {
 
     MORIS_LOG_INFO( " " );
@@ -58,28 +58,28 @@ check_results(
 
     if ( gPrintReferenceValues )
     {
-        std::cout << "Test case index: " << aTestCaseIndex << std::endl;
+        std::cout << "Test case index: " << aTestCaseIndex << '\n';
 
         uint tNumDims  = tExoIO.get_number_of_dimensions();
         uint tNumNodes = tExoIO.get_number_of_nodes();
         uint tNumElems = tExoIO.get_number_of_elements();
 
-        std::cout << "Number of dimensions: " << tNumDims << std::endl;
-        std::cout << "Number of nodes     : " << tNumNodes << std::endl;
-        std::cout << "Number of elements  : " << tNumElems << std::endl;
+        std::cout << "Number of dimensions: " << tNumDims << '\n';
+        std::cout << "Number of nodes     : " << tNumNodes << '\n';
+        std::cout << "Number of elements  : " << tNumElems << '\n';
 
         // coordinates of reference point
         moris::print( tExoIO.get_nodal_coordinate( tReferenceNodeId( aTestCaseIndex ) ), "Coordinates of reference point" );
 
         // time value for reference time step
-        std::cout << "Time value: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_time_value() << std::endl;
+        std::cout << "Time value: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_time_value() << '\n';
 
         // solution of reference point at reference time step
-        std::cout << "Temperature at reference point: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 2, 0 ) << std::endl;
+        std::cout << "Temperature at reference point: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 2, 0 ) << '\n';
 
         // value of IQI at reference time step
-        std::cout << "IQI 0 value: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_global_variable( 0, 0 ) << std::endl;
-        std::cout << "IQI 1 value: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_global_variable( 1, 0 ) << std::endl;
+        std::cout << "IQI 0 value: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_global_variable( 0, 0 ) << '\n';
+        std::cout << "IQI 1 value: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_global_variable( 1, 0 ) << '\n';
         return;
     }
 
@@ -215,8 +215,8 @@ check_results(
 
 extern "C" void
 check_results_xtk_mesh(
-        std::string aExoFileNameIG,
-        std::string aExoFileNameIP )
+        const std::string &aExoFileNameIG,
+        const std::string &aExoFileNameIP )
 {
     MORIS_LOG_INFO( " " );
     MORIS_LOG_INFO( "Checking Results - Test Case on %i processor.", par_size() );
@@ -239,13 +239,13 @@ check_results_xtk_mesh(
         uint tNumNodesIP = tExoIOIPMesh.get_number_of_nodes();
         uint tNumElemsIP = tExoIOIPMesh.get_number_of_elements();
 
-        std::cout << "Number of dimensions IG mesh : " << tNumDimsIG << std::endl;
-        std::cout << "Number of nodes IG mesh      : " << tNumNodesIG << std::endl;
-        std::cout << "Number of elements IG mesh   : " << tNumElemsIG << std::endl;
+        std::cout << "Number of dimensions IG mesh : " << tNumDimsIG << '\n';
+        std::cout << "Number of nodes IG mesh      : " << tNumNodesIG << '\n';
+        std::cout << "Number of elements IG mesh   : " << tNumElemsIG << '\n';
 
-        std::cout << "Number of dimensions IP mesh : " << tNumDimsIP << std::endl;
-        std::cout << "Number of nodes IP mesh      : " << tNumNodesIP << std::endl;
-        std::cout << "Number of elements IP mesh   : " << tNumElemsIP << std::endl;
+        std::cout << "Number of dimensions IP mesh : " << tNumDimsIP << '\n';
+        std::cout << "Number of nodes IP mesh      : " << tNumNodesIP << '\n';
+        std::cout << "Number of elements IP mesh   : " << tNumElemsIP << '\n';
 
         // coordinates of reference point
         moris::print( tExoIOIGMesh.get_nodal_coordinate( tReferenceNodeId( 0 ) ), "Coordinates of reference point IG mesh" );
