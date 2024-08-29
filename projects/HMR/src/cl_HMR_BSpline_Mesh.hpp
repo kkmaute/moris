@@ -182,7 +182,7 @@ namespace moris::hmr
         void
         evaluate_child_matrices(
                 const Matrix< DDUMat >&   aBasisIndices,
-                Vector< Matrix< DDRMat > >& aChildMatrices )
+                Vector< Matrix< DDRMat > >& aChildMatrices ) override
         {
             // Number of children per element
             uint tNumberOfChildren = std::pow( 2, N );
