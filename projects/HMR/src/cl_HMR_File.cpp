@@ -124,9 +124,14 @@ namespace moris::hmr
                 mStatus );
 
         // save bspline mesh associations
-        save_matrix_to_hdf5_file( mFileID,
+        Vector< uint > tBSplineOrders( aParameters->get_number_of_bspline_meshes() );
+        for ( uint iMeshIndex = 0; iMeshIndex < aParameters->get_number_of_bspline_meshes(); iMeshIndex++ )
+        {
+            tBSplineOrders( iMeshIndex ) = aParameters->get_bspline_order( iMeshIndex );
+        }
+        save_vector_to_hdf5_file( mFileID,
                 "BSplineOrders",
-                aParameters->get_bspline_orders(),
+                tBSplineOrders.data(),
                 mStatus );
 
         // save bspline mesh associations

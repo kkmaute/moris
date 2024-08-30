@@ -1003,7 +1003,7 @@ namespace moris::hmr
         return this->create_field(
                 aLabel,
                 mParameters->get_lagrange_orders().max(),
-                mParameters->get_bspline_orders().max() );
+                mParameters->get_max_bspline_order() );
     }
 
     // -----------------------------------------------------------------------------

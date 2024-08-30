@@ -308,6 +308,13 @@ namespace moris::hmr
 
     //--------------------------------------------------------------------------------
 
+    uint Parameters::get_max_bspline_order() const
+    {
+        return mBSplineOrders.max();
+    }
+
+    //--------------------------------------------------------------------------------
+
     void
     Parameters::update_max_polynomial_and_truncated_buffer()
     {

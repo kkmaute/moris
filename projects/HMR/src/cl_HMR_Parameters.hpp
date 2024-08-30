@@ -342,18 +342,6 @@ namespace moris::hmr
             return mLagrangeOrders;
         }
 
-        //--------------------------------------------------------------------------------
-
-        /**
-         * returns a matrix with mesh orders
-         */
-        auto
-        get_bspline_orders() const
-                -> decltype( mBSplineOrders )
-        {
-            return mBSplineOrders;
-        }
-
         //-------------------------------------------------------------------------------
 
         /**
@@ -445,7 +433,12 @@ namespace moris::hmr
             return mBSplineOrders( aIndex );
         }
 
-        //--------------------------------------------------------------------------------
+        /**
+         * Gets the maximum B-spline order of any mesh.
+         *
+         * @return Maximum B-spline order
+         */
+        uint get_max_bspline_order() const;
 
         /**
          * returns an entry of mBSplineOrders

@@ -182,53 +182,53 @@ void state_refine_mesh( const Arguments & aArguments )
 }
 // -----------------------------------------------------------------------------
 
-void state_map_fields( const Arguments & aArguments )
-{
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    // Step 1: Load Parameter Lists
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    // create parameter file
-    Paramfile tParams(  aArguments.get_parameter_path(), aArguments.get_state() );
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    // Step 2: Initialize HMR Object
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    // create new HMR object from parameter list
-    HMR * tHMR = new HMR(
-            tParams.get_input_db_path(),
-            tParams.get_output_db_path() );
-
-    // copy parameters from parameter list into HMR object
-    //tHMR->get_parameters()->copy_selected_parameters( tParams.get_parameter_list() );
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    // Step 3: Initialize Fields
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    // initialize fields
-    Vector< std::shared_ptr< Field > > tInputFields;
-    initialize_fields( aArguments, tParams, tHMR, tInputFields );
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    // Step 4: Map Fields and Dump Output
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    // reserve cell for output fields
-    Vector< std::shared_ptr< Field > > tOutputFields;
-
-    // call mapper
-    perform_mapping( aArguments, tParams, tHMR, tInputFields, tOutputFields );
-
-    // write meshes
-    dump_meshes( aArguments, tParams, tHMR );
-
-    // write fields
-    dump_fields( tParams, tOutputFields );
-
-    // delete HMR object
-    delete tHMR;
-}
+//void state_map_fields( const Arguments & aArguments )
+//{
+//    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//    // Step 1: Load Parameter Lists
+//    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//    // create parameter file
+//    Paramfile tParams(  aArguments.get_parameter_path(), aArguments.get_state() );
+//
+//    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//    // Step 2: Initialize HMR Object
+//    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//
+//    // create new HMR object from parameter list
+//    HMR * tHMR = new HMR(
+//            tParams.get_input_db_path(),
+//            tParams.get_output_db_path() );
+//
+//    // copy parameters from parameter list into HMR object
+//    //tHMR->get_parameters()->copy_selected_parameters( tParams.get_parameter_list() );
+//
+//    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//    // Step 3: Initialize Fields
+//    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//
+//    // initialize fields
+//    Vector< std::shared_ptr< Field > > tInputFields;
+//    initialize_fields( aArguments, tParams, tHMR, tInputFields );
+//
+//    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//    // Step 4: Map Fields and Dump Output
+//    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//
+//    // reserve cell for output fields
+//    Vector< std::shared_ptr< Field > > tOutputFields;
+//
+//    // call mapper
+//    perform_mapping( aArguments, tParams, tHMR, tInputFields, tOutputFields );
+//
+//    // write meshes
+//    dump_meshes( aArguments, tParams, tHMR );
+//
+//    // write fields
+//    dump_fields( tParams, tOutputFields );
+//
+//    // delete HMR object
+//    delete tHMR;
+//}
 
 // -----------------------------------------------------------------------------
 
@@ -279,7 +279,7 @@ main(
         }
         case( State::MAP_FIELDS ) :
         {
-            state_map_fields( tArguments );
+            //state_map_fields( tArguments );
             break;
         }
         default :
