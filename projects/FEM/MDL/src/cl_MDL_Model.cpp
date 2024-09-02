@@ -45,8 +45,8 @@
 
 #include "cl_Library_IO.hpp"
 
-    // Parameter function
-    // typedef void ( *Parameter_Function ) ( Vector< Vector< moris::ParameterList > > & aParameterList );
+// Parameter function
+// typedef void ( *Parameter_Function ) ( Vector< Vector< moris::ParameterList > > & aParameterList );
 
 namespace moris::mdl
 {
@@ -436,10 +436,16 @@ namespace moris::mdl
     void
     Model::perform_sensitivity_analysis()
     {
-        mEquationModel->set_is_sensitivity_analysis();
+        // get type of sensitivity analysis
+        bool tIsAdjointSensitivityAnalysis = mSolverWarehouse->is_adjoint_sensitivity_analysis();
 
+        // activate sensitivity analysis and set type of sensitivity analysis
+        mEquationModel->set_sensitivity_analysis_type( tIsAdjointSensitivityAnalysis );
+
+        // initialize computation of dQdp
         mEquationModel->initialize_explicit_and_implicit_dQIdp();
 
+        // compute sensitivities
         mSolverWarehouse->get_main_time_solver()->solve_sensitivity();
     }
 

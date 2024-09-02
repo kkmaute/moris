@@ -208,7 +208,7 @@ namespace moris::fem
             }
 
             // get bool for sensitivity analysis evaluation type
-            bool tIsAnalyticalSA = mSet->get_is_analytical_sensitivity_analysis();
+            bool tIsAnalyticalSA = mSet->is_analytical_sensitivity_analysis();
 
             if ( tIsAnalyticalSA )
             {

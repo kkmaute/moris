@@ -210,7 +210,7 @@ namespace moris::fem
          * get flag for sensitivity analysis on the set (analytical or finite difference)
          * @param[ in ] aIsAnalyticalSA bool for sensitivity analysis computation type
          */
-        const bool &get_is_analytical_sensitivity_analysis() const
+        const bool &is_analytical_sensitivity_analysis() const
         {
             return mIsAnalyticalSA;
         }

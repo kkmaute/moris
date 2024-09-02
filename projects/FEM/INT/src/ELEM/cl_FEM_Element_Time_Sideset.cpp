@@ -9,11 +9,11 @@
  */
 
 #include <iostream>
-//FEM/INT/src
+// FEM/INT/src
 #include "cl_FEM_Element_Time_Sideset.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_Set.hpp"
-//FEM/MSI/src
+// FEM/MSI/src
 #include "cl_MSI_Equation_Model.hpp"
 #include "cl_MSI_Design_Variable_Interface.hpp"
 
@@ -241,6 +241,8 @@ namespace moris::fem
 
                 if ( mSet->mEquationModel->get_is_adjoint_off_diagonal_time_contribution() )
                 {
+                    std::cout << "need fix in Element_Time_Sideset::compute_jacobian \n";
+
                     tReqIWG->compute_jacobian_previous( tWStar );
                 }
                 else
@@ -304,7 +306,7 @@ namespace moris::fem
                 // reset IWG
                 tReqIWG->reset_eval_flags();
 
-                if ( mSet->mEquationModel->get_is_forward_analysis() )
+                if ( mSet->mEquationModel->is_forward_analysis() )
                 {
                     // compute Jacobian at evaluation point
                     tReqIWG->compute_residual( tWStar );

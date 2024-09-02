@@ -70,7 +70,7 @@ namespace moris::fem
         /**
          * trivial constructor
          */
-        Interpolation_Element(){};
+        Interpolation_Element() {};
 
         /**
          * constructor
@@ -89,7 +89,7 @@ namespace moris::fem
         /**
          * trivial destructor
          */
-        ~Interpolation_Element() override{};
+        ~Interpolation_Element() override {};
 
         //------------------------------------------------------------------------------
         /**
@@ -215,12 +215,22 @@ namespace moris::fem
                 enum vis::Field_Type aFieldType ) override;
 
         //------------------------------------------------------------------------------
+        /**
+         * Reorder adjoint solution vector to fit odering used within elements
+         *
+         * @param[ out ] aAdjointPdofValuesReordered reordered adjoint for current RHS index
+         * @param[in]    aRhsIndex                   index of RHS, i.e. requested IQI index
+         */
+        void reorder_adjoint_pdofs(
+                Matrix< DDRMat >& aAdjointPdofValuesReordered,
+                uint              aRhsIndex );
+
+        //------------------------------------------------------------------------------
 
         /**
          * @brief compute elemental coefficients and set FIs for evaluating IQIs
          */
-        void
-        setup_IQI_computation();
+        void setup_IQI_computation();
 
         //------------------------------------------------------------------------------
 

@@ -411,7 +411,7 @@ namespace moris
              *                                    false if finite difference
              */
             bool
-            get_is_analytical_sensitivity_analysis() const
+            is_analytical_sensitivity_analysis() const
             {
                 return mIsAnalyticalSA;
             }

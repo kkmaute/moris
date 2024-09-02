@@ -2783,8 +2783,8 @@ namespace moris
         // ----------------------------------------------------------
 
         tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
-        tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_solver", 6 );                      // using NLBGS for forward problem
-        tParameterlist( 4 )( 0 ).set( "TSA_nonlinear_solver_for_adjoint_solve", 8 );    // using NLBGS for sensitivity problem
+        tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_Solver", 6 );                // using NLBGS for forward problem
+        tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_Sensitivity_Solver", 8 );    // using NLBGS for sensitivity problem
 
         //------------------------------------------------------------------------------
 

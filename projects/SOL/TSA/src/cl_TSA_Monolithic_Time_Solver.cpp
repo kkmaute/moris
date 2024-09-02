@@ -26,15 +26,14 @@ using namespace moris;
 using namespace tsa;
 //-------------------------------------------------------------------------------
 
-void
-Monolithic_Time_Solver::solve_monolithic_time_system( Vector< sol::Dist_Vector* >& aFullVector )
+void Monolithic_Time_Solver::solve_monolithic_time_system( Vector< sol::Dist_Vector* >& aFullVector )
 {
     // trace this solve
     Tracer tTracer( "Time Solver Algorithm", "Monolithic", "Solve" );
 
     this->finalize();
 
-    moris::real tTime_Scalar    = 0.0;
+    moris::real tTime_Scalar = 0.0;
 
     bool tMaxTimeIterationReached = false;
 
@@ -120,8 +119,7 @@ Monolithic_Time_Solver::solve_monolithic_time_system( Vector< sol::Dist_Vector* 
 
 //-------------------------------------------------------------------------------
 
-void
-Monolithic_Time_Solver::solve_implicit_DqDs( Vector< sol::Dist_Vector* >& aFullAdjointVector )
+void Monolithic_Time_Solver::solve_implicit_DqDs( Vector< sol::Dist_Vector* >& aFullAdjointVector )
 {
     // trace this solve
     Tracer tTracer( "TimeSolver", "Monolithic", "Solve" );
@@ -146,6 +144,8 @@ Monolithic_Time_Solver::solve_implicit_DqDs( Vector< sol::Dist_Vector* >& aFullA
         mSolverInterface->set_solution_vector( tSolVec( tSolVecIndex ) );
         mSolverInterface->set_solution_vector_prev_time_step( tSolVec( tPrevSolVecIndex ) );
 
+        std::cout << "need fix in Monolithic_Time_Solver::solve_implicit_DqDs \n";
+
         mSolverInterface->set_adjoint_solution_vector( aFullAdjointVector( 0 ) );
         mSolverInterface->set_previous_adjoint_solution_vector( aFullAdjointVector( 1 ) );
 
@@ -158,9 +158,9 @@ Monolithic_Time_Solver::solve_implicit_DqDs( Vector< sol::Dist_Vector* >& aFullA
         MORIS_LOG_SPEC( "Time Slab Start Time", tTimeFrames( tSolVecIndex )( 0, 0 ) );
         MORIS_LOG_SPEC( "Time Slab End Time", tTimeFrames( tSolVecIndex )( 1, 0 ) );
 
-        mNonlinearSolverForAdjoint->set_time_step_iter( Ik );
+        mNonlinearSolverForSensitivityAnalysis->set_time_step_iter( Ik );
 
-        mNonlinearSolverForAdjoint->solve( aFullAdjointVector( 0 ) );
+        mNonlinearSolverForSensitivityAnalysis->solve( aFullAdjointVector( 0 ) );
 
         Vector< enum MSI::Dof_Type > tDofTypeUnion = mMyTimeSolver->get_dof_type_union();
 
@@ -174,10 +174,10 @@ Monolithic_Time_Solver::solve_implicit_DqDs( Vector< sol::Dist_Vector* >& aFullA
 
 //-------------------------------------------------------------------------------
 
-void
-Monolithic_Time_Solver::solve( Vector< sol::Dist_Vector* >& aFullVector )
+void Monolithic_Time_Solver::solve( Vector< sol::Dist_Vector* >& aFullVector )
 {
-    if ( mMyTimeSolver->get_is_forward_analysis() )
+	// switch between forward and sensitivity analysis
+    if ( mMyTimeSolver->is_forward_analysis() )
     {
         this->solve_monolithic_time_system( aFullVector );
     }
@@ -189,8 +189,7 @@ Monolithic_Time_Solver::solve( Vector< sol::Dist_Vector* >& aFullVector )
 
 //-------------------------------------------------------------------------------
 
-void
-Monolithic_Time_Solver::set_lambda_increment( moris::real aLambdaInc )
+void Monolithic_Time_Solver::set_lambda_increment( moris::real aLambdaInc )
 {
     mNonlinearSolver->get_my_nonlin_problem()->set_time_value( aLambdaInc );
     mLambdaInc = aLambdaInc;

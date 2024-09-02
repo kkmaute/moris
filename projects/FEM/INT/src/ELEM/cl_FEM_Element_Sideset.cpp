@@ -320,7 +320,7 @@ namespace moris::fem
                 // set the normal for the IWG
                 tReqIWG->set_normal( tNormal );
 
-                if ( mSet->mEquationModel->get_is_forward_analysis() )
+                if ( mSet->mEquationModel->is_forward_analysis() )
                 {
                     // compute residual at integration point
                     tReqIWG->compute_residual( tWStar );
@@ -330,7 +330,7 @@ namespace moris::fem
                 ( this->*m_compute_jacobian )( tReqIWG, tWStar );
             }
 
-            if ( ( !mSet->mEquationModel->get_is_forward_analysis() ) && ( tNumIQIs > 0 ) )
+            if ( ( !mSet->mEquationModel->is_forward_analysis() ) && ( tNumIQIs > 0 ) )
             {
                 // loop over the IQIs
                 for ( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )

@@ -459,14 +459,17 @@ void Time_Solver::solve()
 void Time_Solver::solve_sensitivity()
 {
     Tracer tTracer( "TimeSolver", "Sensitivity Analysis", "Solve" );
+
     mIsForwardSolve = false;
 
     // create map object
     sol::Matrix_Vector_Factory tMatFactory( mSolverWarehouse->get_tpl_type() );
 
-    uint tNumRHMS = mSolverInterface->get_num_rhs();
+    // set type of sensitivity analysis
+    mSolverInterface->set_sensitivity_analysis_type( mSolverWarehouse->is_adjoint_sensitivity_analysis() );
 
-    mSolverInterface->set_is_sensitivity_analysis();
+    // get number of RHS for sensitivity analysis
+    uint tNumRHMS = mSolverInterface->get_num_rhs();
 
     // full vector and previous full vector
     mFullVectorSensitivity.resize( 2, nullptr );
@@ -475,6 +478,8 @@ void Time_Solver::solve_sensitivity()
 
     mFullVectorSensitivity( 0 )->vec_put_scalar( 0.0 );
     mFullVectorSensitivity( 1 )->vec_put_scalar( 0.0 );
+
+    std::cout << "need fix in Time_Solver::solve_sensitivity \n";
 
     mSolverInterface->set_adjoint_solution_vector( mFullVectorSensitivity( 0 ) );
     mSolverInterface->set_previous_adjoint_solution_vector( mFullVectorSensitivity( 1 ) );
@@ -488,8 +493,12 @@ void Time_Solver::solve_sensitivity()
     mTimeSolverAlgorithmList( 0 )->solve( mFullVectorSensitivity );
 
     // output solution vector to file
+    std::cout << "need fix in Time_Solver::solve_sensitivity - 2\n";
+
     if ( not mSolverWarehouse->get_save_final_adjoint_vec_to_file().empty() )
     {
+        MORIS_ERROR( mSolverWarehouse->is_adjoint_sensitivity_analysis(), "not adjoint sensitivity analysis" );
+
         std::string tSolVecPath = mSolverWarehouse->get_save_final_adjoint_vec_to_file();
 
         // detect file type

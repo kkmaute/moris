@@ -44,10 +44,14 @@ namespace moris::MSI
     {
         if ( !mIsForwardAnalysis )
         {
-            mNumSensitivityAnalysisRHS = this->get_requested_IQI_names().size();
-
-            MORIS_ASSERT( mNumSensitivityAnalysisRHS > 0,
-                    "MSI::Equation_Model::get_num_rhs(), num rhs not set for sensitivity analysis" );
+            if ( mIsAdjointSensitivityAnalysis )
+            {
+                mNumSensitivityAnalysisRHS = this->get_requested_IQI_names().size();
+            }
+            else
+            {
+                mNumSensitivityAnalysisRHS = mDesignVariableInterface->get_my_local_global_map().n_rows();
+            }
 
             return mNumSensitivityAnalysisRHS;
         }
@@ -123,7 +127,7 @@ namespace moris::MSI
         mdQIdpMap = tMatFactory.create_map(
                 mDesignVariableInterface->get_my_local_global_map() );
 
-        // get number of RHS
+        // get number of RHS for either adjoint or direct method
         uint tNumRHMS = this->get_num_rhs();
 
         // create vector for dQIdp implicit and explicit contributions
@@ -187,77 +191,77 @@ namespace moris::MSI
 
     //------------------------------------------------------------------------------
 
-    void
-    Equation_Model::compute_implicit_dQIdp()
-    {
-        // Trace this function
-        Tracer tTracer( "MSI", "EquationModel", "Compute_dQIdp_Impl" );
-
-        // get local number of equation sets
-        uint tNumSets = mFemSets.size();
-
-        // loop over local equation sets
-        for ( uint tSetIndex = 0; tSetIndex < tNumSets; tSetIndex++ )
-        {
-            // get number of equation object on treated equation set
-            uint tNumEquationObjectOnSet =
-                    mFemSets( tSetIndex )->get_num_equation_objects();
-
-            // initialize treated equation set //FIXME????
-            mFemSets( tSetIndex )->initialize_set();
-
-            // loop over equation objects on treated equation set
-            for ( uint tEquationObjectIndex = 0; tEquationObjectIndex < tNumEquationObjectOnSet; tEquationObjectIndex++ )
-            {
-                // compute dQIdp implicit
-                mFemSets( tSetIndex )->get_equation_object_list()( tEquationObjectIndex )->compute_dQIdp_implicit();
-            }
-            // free memory on treated equation set
-            mFemSets( tSetIndex )->free_matrix_memory();
-        }
-
-        // global assembly to switch entries to the right processor
-        mImplicitdQidp->vector_global_assembly();
-    }
-
-    //------------------------------------------------------------------------------
-
-    void
-    Equation_Model::compute_explicit_dQIdp()
-    {
-        // Trace this function
-        Tracer tTracer( "MSI", "EquationModel", "Compute_dQIdp_Expl" );
-
-        // get local number of equation sets
-        uint tNumSets = mFemSets.size();
-
-        // loop over local equation sets
-        for ( uint iSet = 0; iSet < tNumSets; iSet++ )
-        {
-            // get number of equation objects on treated equation set
-            uint tNumEquationObjectOnSet =
-                    mFemSets( iSet )->get_num_equation_objects();
-
-            // initialize treated equation set //FIXME????
-            mFemSets( iSet )->initialize_set();
-
-            // if some IQI are requested on treated equation set
-            if ( mFemSets( iSet )->get_number_of_requested_IQIs() > 0 )
-            {
-                // loop over equation objects on treated equation set
-                for ( uint iEqObj = 0; iEqObj < tNumEquationObjectOnSet; iEqObj++ )
-                {
-                    // compute dQIdp explicit
-                    mFemSets( iSet )->get_equation_object_list()( iEqObj )->compute_dQIdp_explicit();
-                }
-                // free memory on treated equation set
-                mFemSets( iSet )->free_matrix_memory();
-            }
-        }
-
-        // global assembly to switch entries to the right processor
-        mExplicitdQidp->vector_global_assembly();
-    }
+    //    void
+    //    Equation_Model::compute_implicit_dQIdp()
+    //    {
+    //        // Trace this function
+    //        Tracer tTracer( "MSI", "EquationModel", "Compute_dQIdp_Impl" );
+    //
+    //        // get local number of equation sets
+    //        uint tNumSets = mFemSets.size();
+    //
+    //        // loop over local equation sets
+    //        for ( uint tSetIndex = 0; tSetIndex < tNumSets; tSetIndex++ )
+    //        {
+    //            // get number of equation object on treated equation set
+    //            uint tNumEquationObjectOnSet =
+    //                    mFemSets( tSetIndex )->get_num_equation_objects();
+    //
+    //            // initialize treated equation set //FIXME????
+    //            mFemSets( tSetIndex )->initialize_set();
+    //
+    //            // loop over equation objects on treated equation set
+    //            for ( uint tEquationObjectIndex = 0; tEquationObjectIndex < tNumEquationObjectOnSet; tEquationObjectIndex++ )
+    //            {
+    //                // compute dQIdp implicit
+    //                mFemSets( tSetIndex )->get_equation_object_list()( tEquationObjectIndex )->compute_dQIdp_implicit();
+    //            }
+    //            // free memory on treated equation set
+    //            mFemSets( tSetIndex )->free_matrix_memory();
+    //        }
+    //
+    //        // global assembly to switch entries to the right processor
+    //        mImplicitdQidp->vector_global_assembly();
+    //    }
+    //
+    //    //------------------------------------------------------------------------------
+    //
+    //    void
+    //    Equation_Model::compute_explicit_dQIdp()
+    //    {
+    //        // Trace this function
+    //        Tracer tTracer( "MSI", "EquationModel", "Compute_dQIdp_Expl" );
+    //
+    //        // get local number of equation sets
+    //        uint tNumSets = mFemSets.size();
+    //
+    //        // loop over local equation sets
+    //        for ( uint iSet = 0; iSet < tNumSets; iSet++ )
+    //        {
+    //            // get number of equation objects on treated equation set
+    //            uint tNumEquationObjectOnSet =
+    //                    mFemSets( iSet )->get_num_equation_objects();
+    //
+    //            // initialize treated equation set //FIXME????
+    //            mFemSets( iSet )->initialize_set();
+    //
+    //            // if some IQI are requested on treated equation set
+    //            if ( mFemSets( iSet )->get_number_of_requested_IQIs() > 0 )
+    //            {
+    //                // loop over equation objects on treated equation set
+    //                for ( uint iEqObj = 0; iEqObj < tNumEquationObjectOnSet; iEqObj++ )
+    //                {
+    //                    // compute dQIdp explicit
+    //                    mFemSets( iSet )->get_equation_object_list()( iEqObj )->compute_dQIdp_explicit();
+    //                }
+    //                // free memory on treated equation set
+    //                mFemSets( iSet )->free_matrix_memory();
+    //            }
+    //        }
+    //
+    //        // global assembly to switch entries to the right processor
+    //        mExplicitdQidp->vector_global_assembly();
+    //    }
 
     //-------------------------------------------------------------------------------------------------
 

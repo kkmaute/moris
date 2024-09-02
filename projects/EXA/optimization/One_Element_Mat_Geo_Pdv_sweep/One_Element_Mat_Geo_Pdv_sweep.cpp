@@ -671,7 +671,7 @@ namespace moris
         tParameterlist( 3 )( 0 ).set( "NLA_Secondary_DofTypes", "" );
 
         tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
-        tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_solver", 0 );
+        tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_Solver", 0 );
 
         tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
         tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "UX,UY" );

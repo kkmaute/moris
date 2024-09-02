@@ -46,7 +46,8 @@ namespace moris
       private:
         // Dummy member variable
 
-        bool mIsForwardAnalysis = true;
+        bool mIsForwardAnalysis            = true;
+        bool mIsAdjointSensitivityAnalysis = true;
 
       protected:
         Vector< moris_id > mNonZeroDigonal;
@@ -61,9 +62,10 @@ namespace moris
          * indicated that this equation model is used for the sensitivity analysis
          */
         void
-        set_is_sensitivity_analysis()
+        set_sensitivity_analysis_type( bool tIsAdjointSensitivityAnalysis )
         {
-            mIsForwardAnalysis = false;
+            mIsForwardAnalysis            = false;
+            mIsAdjointSensitivityAnalysis = tIsAdjointSensitivityAnalysis;
         };
 
         //------------------------------------------------------------------------------
@@ -82,7 +84,7 @@ namespace moris
          * @param[ out ] mIsForwardAnalysis
          */
         bool
-        get_is_forward_analysis()
+        is_forward_analysis()
         {
             return mIsForwardAnalysis;
         };

@@ -95,6 +95,7 @@ namespace moris
             // map of leader and follower mat pdv types for assembly
             Vector< moris::Matrix< DDSMat > > mPdvMatAssemblyMap;
             moris::Matrix< DDSMat >           mPdvMatAssemblyVector;
+            bool                              mPdvMatAssemblyFlag = false;
 
             std::map< std::pair< moris_index, gen::PDV_Type >, uint > mPdvGeoAssemblyMap;
             moris::Matrix< DDSMat >                                   mPdvGeoAssemblyVector;

@@ -159,7 +159,7 @@ namespace moris
              * @brief Accessor function to determine if this is forward or sensitivity analysis
              */
             bool
-            get_is_forward_analysis()
+            is_forward_analysis()
             {
                 return mIsForwardSolve;
             };

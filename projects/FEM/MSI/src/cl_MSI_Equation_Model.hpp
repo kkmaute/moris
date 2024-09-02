@@ -79,6 +79,7 @@ namespace moris
             MSI::Design_Variable_Interface* mDesignVariableInterface = nullptr;
 
             bool mIsForwardAnalysis             = true;
+            bool mIsAdjointSensitivityAnalysis  = true;
             bool mIsOffDiagonalTimeContribution = false;
 
             moris::sint mNumSensitivityAnalysisRHS = -1;
@@ -254,6 +255,8 @@ namespace moris
             void
             set_adjoint_solution_vector( sol::Dist_Vector* aSolutionVector )
             {
+                std::cout << "need fix in set_adjoint_solution_vector \n";
+
                 mAdjointSolutionVector = aSolutionVector;
             }
 
@@ -265,6 +268,8 @@ namespace moris
             void
             set_previous_adjoint_solution_vector( sol::Dist_Vector* aSolutionVector )
             {
+                std::cout << "need fix in set_previous_adjoint_solution_vector \n";
+
                 mPreviousAdjointSolutionVector = aSolutionVector;
             }
 
@@ -276,6 +281,8 @@ namespace moris
             sol::Dist_Vector*
             get_adjoint_solution_vector()
             {
+                std::cout << "need fix in set_adjoint_solution_vector \n";
+
                 return mAdjointSolutionVector;
             }
 
@@ -287,6 +294,8 @@ namespace moris
             sol::Dist_Vector*
             get_previous_adjoint_solution_vector()
             {
+                std::cout << "need fix in get_previous_adjoint_solution_vector \n";
+
                 return mPreviousAdjointSolutionVector;
             }
 
@@ -413,11 +422,12 @@ namespace moris
              * @brief indicated that this equation model is used for the sensitivity analysis
              */
             void
-            set_is_sensitivity_analysis()
+            set_sensitivity_analysis_type( bool tIsAdjointSensitivityAnalysis )
             {
                 this->reset();
 
-                mIsForwardAnalysis = false;
+                mIsForwardAnalysis            = false;
+                mIsAdjointSensitivityAnalysis = tIsAdjointSensitivityAnalysis;
             }
 
             //------------------------------------------------------------------------------
@@ -450,9 +460,20 @@ namespace moris
              * @returns mIsForwardAnalysis bool true if forward analysis
              */
             bool
-            get_is_forward_analysis() const
+            is_forward_analysis() const
             {
                 return mIsForwardAnalysis;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * @brief returns if adjoint sensitivity analysis is used; if not it is direct
+             * @returns mIsForwardAnalysis bool true if forward analysis
+             */
+            bool
+            is_adjoint_sensitivity_analysis() const
+            {
+                return mIsAdjointSensitivityAnalysis;
             }
 
             //------------------------------------------------------------------------------
@@ -463,6 +484,8 @@ namespace moris
             set_is_adjoint_off_diagonal_time_contribution(
                     const bool aIsOffDiagonalTimeContribution )
             {
+                std::cout << "need fix in set_is_adjoint_off_diagonal_time_contribution \n";
+
                 mIsOffDiagonalTimeContribution = aIsOffDiagonalTimeContribution;
             }
 
@@ -474,6 +497,8 @@ namespace moris
             bool
             get_is_adjoint_off_diagonal_time_contribution() const
             {
+                std::cout << "need fix in get_is_adjoint_off_diagonal_time_contribution \n";
+
                 return mIsOffDiagonalTimeContribution;
             }
 
@@ -487,13 +512,13 @@ namespace moris
             /**
              * compute implicit dQidp
              */
-            void compute_implicit_dQIdp();
+            //            void compute_implicit_dQIdp();
 
             //------------------------------------------------------------------------------
             /**
              * compute explicit dQidp
              */
-            void compute_explicit_dQIdp();
+            //            void compute_explicit_dQIdp();
 
             //------------------------------------------------------------------------------
             /**

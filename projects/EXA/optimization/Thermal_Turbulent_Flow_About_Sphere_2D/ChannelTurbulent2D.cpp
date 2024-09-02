@@ -288,8 +288,8 @@ namespace moris
 
     moris::real
     Func_Sphere(
-            const moris::Matrix< DDRMat >&     aCoordinates,
-            const Vector< real >& aGeometryParameters )
+            const moris::Matrix< DDRMat >& aCoordinates,
+            const Vector< real >&          aGeometryParameters )
     {
         // get coordinates
         real tX = aCoordinates( 0 );
@@ -304,9 +304,9 @@ namespace moris
 
     void
     Func_Sphere_Deriv(
-            const moris::Matrix< moris::DDRMat >&                aCoordinates,
+            const moris::Matrix< moris::DDRMat >&           aCoordinates,
             const Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::Matrix< DDRMat >&                             aFieldSensitivity )
+            moris::Matrix< DDRMat >&                        aFieldSensitivity )
     {
         // derivative of level set function wrt sphere radius
         aFieldSensitivity = { { 1.0 } };
@@ -317,8 +317,8 @@ namespace moris
 
     moris::real
     Func_Plane(
-            const moris::Matrix< DDRMat >&     aCoordinates,
-            const Vector< real >& aGeometryParameters )
+            const moris::Matrix< DDRMat >& aCoordinates,
+            const Vector< real >&          aGeometryParameters )
     {
         // get coordinates
         real tX = aCoordinates( 0 );
@@ -343,9 +343,9 @@ namespace moris
     // inlet viscosity function
     void
     Func_Inlet_V(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         aPropMatrix.set_size( 1, 1, 0.0 );
 
@@ -357,9 +357,9 @@ namespace moris
 
     // wall distance function
     void
-    Func_Wall_Distance( moris::Matrix< moris::DDRMat >&    aPropMatrix,
-            Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+    Func_Wall_Distance( moris::Matrix< moris::DDRMat >& aPropMatrix,
+            Vector< moris::Matrix< moris::DDRMat > >&   aParameters,
+            moris::fem::Field_Interpolator_Manager*     aFIManager )
     {
         aPropMatrix = aFIManager->get_field_interpolators_for_type( MSI::Dof_Type::PHID )->val();
     }
@@ -367,7 +367,7 @@ namespace moris
     // Wall distance derivative function
     void
     Func_Wall_Distance_Der( moris::Matrix< moris::DDRMat >& aPropMatrix,
-            Vector< moris::Matrix< moris::DDRMat > >&  aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >&       aParameters,
             moris::fem::Field_Interpolator_Manager*         aFIManager )
     {
         aPropMatrix = aFIManager->get_field_interpolators_for_type( MSI::Dof_Type::PHID )->N();
@@ -621,9 +621,17 @@ namespace moris
 
         tParameterlist( 0 ).push_back( prm::create_gen_parameter_list() );
         tParameterlist( 0 )( 0 ).set( "IQI_types",
-                "IQIOutletThermalEnergy", "IQIInletTotalPressure", "IQIOutletTotalPressure", "IQIPerimeterItf",
-                "IQIInletMassFlow", "IQIOutletMassFlow", "IQIMaxTemp", "IQISolidVolume", "IQIInletPowDisp",
-                "IQIOutletPowDisp", "IQIVolumePowDisp" );
+                "IQIOutletThermalEnergy",
+                "IQIInletTotalPressure",
+                "IQIOutletTotalPressure",
+                "IQIPerimeterItf",
+                "IQIInletMassFlow",
+                "IQIOutletMassFlow",
+                "IQIMaxTemp",
+                "IQISolidVolume",
+                "IQIInletPowDisp",
+                "IQIOutletPowDisp",
+                "IQIVolumePowDisp" );
 
         tParameterlist( 0 )( 0 ).set( "number_of_phases", 5 );
         tParameterlist( 0 )( 0 ).set( "phase_function_name", "get_phase_index" );
@@ -1227,7 +1235,7 @@ namespace moris
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name", "SPGPViscosity" );
         tParameterList( tSPIndex )( tSPCounter ).set( "leader_phase_name", "PhaseFluid" );
         tParameterList( tSPIndex )( tSPCounter ).set( "follower_phase_name", "PhaseFluid" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type",  fem::Stabilization_Type::GHOST_DISPL ) ;
+        tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type", fem::Stabilization_Type::GHOST_DISPL );
         tParameterList( tSPIndex )( tSPCounter ).set( "function_parameters", "0.05" );
         tParameterList( tSPIndex )( tSPCounter ).set( "leader_properties", "PropFluidKinViscosity,Material" );
         tSPCounter++;
@@ -1767,7 +1775,7 @@ namespace moris
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name", "IQIBulkVISCOSITY" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::DOF ) ;
+        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type", fem::IQI_Type::DOF );
         tParameterList( tIQIIndex )( tIQICounter ).set( "dof_quantity", "VISCOSITY" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "vectorial_field_index", 0 );
         tIQICounter++;
@@ -1776,7 +1784,7 @@ namespace moris
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name", "IQIBulkTHETA" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::DOF ) ;
+        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type", fem::IQI_Type::DOF );
         tParameterList( tIQIIndex )( tIQICounter ).set( "dof_quantity", "THETA" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "vectorial_field_index", 0 );
         tIQICounter++;
@@ -1785,7 +1793,7 @@ namespace moris
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name", "IQIBulkPHID" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::DOF ) ;
+        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type", fem::IQI_Type::DOF );
         tParameterList( tIQIIndex )( tIQICounter ).set( "dof_quantity", "PHID" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "vectorial_field_index", 0 );
         tIQICounter++;
@@ -1975,7 +1983,7 @@ namespace moris
         tParameterlist( 2 )( 0 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         tParameterlist( 2 )( 0 ).set( "NLA_Linear_solver", 0 );
         tParameterlist( 2 )( 0 ).set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
-        tParameterlist( 2 )( 0 ).set( "NLA_relaxation_strategy",  sol::SolverRelaxationType::InvResNormAdaptive ) ;
+        tParameterlist( 2 )( 0 ).set( "NLA_relaxation_strategy", sol::SolverRelaxationType::InvResNormAdaptive );
         tParameterlist( 2 )( 0 ).set( "NLA_relaxation_parameter", 0.5 );
         tParameterlist( 2 )( 0 ).set( "NLA_relaxation_damping", 0.5 );
         tParameterlist( 2 )( 0 ).set( "NLA_max_iter", 100 );
@@ -2039,8 +2047,8 @@ namespace moris
         tParameterlist( 4 ).resize( 1 );
 
         tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
-        tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_solver", 4 );                      // using NLBGS for forward problem
-        tParameterlist( 4 )( 0 ).set( "TSA_nonlinear_solver_for_adjoint_solve", 6 );    // using monlithic for sensitivity problem
+        tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_Solver", 4 );                // using NLBGS for forward problem
+        tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_Sensitivity_Solver", 6 );    // using monlithic for sensitivity problem
 
         //------------------------------------------------------------------------------
 

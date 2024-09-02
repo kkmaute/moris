@@ -302,7 +302,7 @@ namespace moris::fem
                     // reset IWG
                     tReqIWG->reset_eval_flags();
 
-                    if ( mSet->mEquationModel->get_is_forward_analysis() )
+                    if ( mSet->mEquationModel->is_forward_analysis() )
                     {
                         // compute residual at evaluation point
                         tReqIWG->compute_residual( tWStar );

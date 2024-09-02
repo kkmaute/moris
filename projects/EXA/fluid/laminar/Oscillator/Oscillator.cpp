@@ -528,8 +528,8 @@ namespace moris
         // ----------------------------------------------------------
 
         tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
-        tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_solver", 0 );
-        tParameterlist( 4 )( 0 ).set( "TSA_nonlinear_solver_for_adjoint_solve", 0 );
+        tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_Solver", 0 );
+        tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_Sensitivity_Solver", 0 );
         if ( tUseTimeContinuity )
         {
             tParameterlist( 4 )( 0 ).set( "TSA_Num_Time_Steps", tTimeSteps );

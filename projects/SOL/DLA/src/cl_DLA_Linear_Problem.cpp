@@ -59,8 +59,10 @@ namespace moris::dla
         mSolverInterface->assemble_RHS( mPointVectorRHS );
 
         // additional contributions for adjoint sensitivities
-        if ( !mSolverInterface->get_is_forward_analysis() )
+        if ( !mSolverInterface->is_forward_analysis() )
         {
+            std::cout << "need fix in Linear_Problem::assemble_residual() \n";
+
             mSolverInterface->assemble_additional_DqDs_RHS_contribution( mPointVectorRHS );
 
             this->compute_residual_for_adjoint_solve();
@@ -138,8 +140,10 @@ namespace moris::dla
         mSolverInterface->fill_matrix_and_RHS( mMat, mPointVectorRHS );
 
         // additional contributions for adjoint sensitivities
-        if ( !mSolverInterface->get_is_forward_analysis() )
+        if ( !mSolverInterface->is_forward_analysis() )
         {
+            std::cout << "need fix in Linear_Problem::assemble_residual_and_jacobian \n";
+
             mSolverInterface->assemble_additional_DqDs_RHS_contribution( mPointVectorRHS );
 
             this->compute_residual_for_adjoint_solve();
@@ -228,6 +232,8 @@ namespace moris::dla
     void
     Linear_Problem::compute_residual_for_adjoint_solve()
     {
+        std::cout << "need fix in Linear_Problem::compute_residual_for_adjoint_solve \n";
+
         // create factor to create distributed vector
         sol::Matrix_Vector_Factory tMatFactory( mTplType );
 

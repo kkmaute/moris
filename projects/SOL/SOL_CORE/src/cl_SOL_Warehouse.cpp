@@ -101,6 +101,11 @@ void SOL_Warehouse::initialize()
 
     mSaveFinalAdjointVecToFile = mParameterlist( 6 )( 0 ).get< std::string >( "SOL_save_final_adjoint_vec_to_file" );
 
+    sol::SensitivityAnalysisType tSensitivityAnalysisType =
+            static_cast< sol::SensitivityAnalysisType >( mParameterlist( 6 )( 0 ).get< moris::uint >( "Sensitivity_Analysis_Type" ) );
+
+    mIsAdjointSensitivityAnalysis = tSensitivityAnalysisType == sol::SensitivityAnalysisType::ADJOINT;
+
 #ifdef MORIS_HAVE_PETSC
     if ( mTPLType == moris::sol::MapType::Petsc )
     {
@@ -108,7 +113,7 @@ void SOL_Warehouse::initialize()
     }
 #endif
 
-    // create the requested precondioer
+    // create the requested preconditioner
     this->create_preconditioner_algorithms();
 
     // build solvers and solver algorithms
@@ -186,12 +191,12 @@ void SOL_Warehouse::create_linear_solver_algorithms()
         for ( auto tPrecIndex : tPreconditionerIndices )
         {
             MORIS_ASSERT( tPrecIndex < Ik, "SOL_Warehouse::create_linear_solver_algorithms - sub_linear_solver index %d is not defined yet", tPrecIndex );
-            
+
             std::string tSubsolverPrec = mParameterlist( 0 )( tPrecIndex ).get< std::string >( "preconditioners" );
 
-            if(  tSubsolverPrec not_eq "" )
+            if ( tSubsolverPrec not_eq "" )
             {
-                mLinearSolverAlgorithms( Ik )->set_sublinear_solver_options( &mParameterlist( 0 )( tPrecIndex ), &mParameterlist( 7 )( std::stoi(tSubsolverPrec) ) );
+                mLinearSolverAlgorithms( Ik )->set_sublinear_solver_options( &mParameterlist( 0 )( tPrecIndex ), &mParameterlist( 7 )( std::stoi( tSubsolverPrec ) ) );
                 continue;
             }
 
@@ -365,15 +370,15 @@ void SOL_Warehouse::create_time_solver_algorithms()
                 tTimeSolverFactory.create_time_solver( static_cast< moris::tsa::TimeSolverType >( mParameterlist( 4 )( Ik ).get< moris::uint >( "TSA_Solver_Implementation" ) ),
                         mParameterlist( 4 )( Ik ) );
 
-        mTimeSolverAlgorithms( Ik )->set_nonlinear_solver( mNonlinearSolvers( mParameterlist( 4 )( Ik ).get< moris::sint >( "TSA_Nonlinear_solver" ) ) );
+        mTimeSolverAlgorithms( Ik )->set_nonlinear_solver( mNonlinearSolvers( mParameterlist( 4 )( Ik ).get< moris::sint >( "TSA_Nonlinear_Solver" ) ) );
 
-        if ( mParameterlist( 4 )( Ik ).get< moris::sint >( "TSA_nonlinear_solver_for_adjoint_solve" ) == -1 )
+        if ( mParameterlist( 4 )( Ik ).get< moris::sint >( "TSA_Nonlinear_Sensitivity_Solver" ) == -1 )
         {
-            mTimeSolverAlgorithms( Ik )->set_nonlinear_solver_for_adjoint_solve( mNonlinearSolvers( mParameterlist( 4 )( Ik ).get< moris::sint >( "TSA_Nonlinear_solver" ) ) );
+            mTimeSolverAlgorithms( Ik )->set_nonlinear_solver_for_sensitivity_analysis( mNonlinearSolvers( mParameterlist( 4 )( Ik ).get< moris::sint >( "TSA_Nonlinear_Solver" ) ) );
         }
         else
         {
-            mTimeSolverAlgorithms( Ik )->set_nonlinear_solver_for_adjoint_solve( mNonlinearSolvers( mParameterlist( 4 )( Ik ).get< moris::sint >( "TSA_nonlinear_solver_for_adjoint_solve" ) ) );
+            mTimeSolverAlgorithms( Ik )->set_nonlinear_solver_for_sensitivity_analysis( mNonlinearSolvers( mParameterlist( 4 )( Ik ).get< moris::sint >( "TSA_Nonlinear_Sensitivity_Solver" ) ) );
         }
 
         // set output file names

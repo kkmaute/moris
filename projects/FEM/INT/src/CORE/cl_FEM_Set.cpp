@@ -46,7 +46,7 @@ namespace moris::fem
             , mIsAnalyticalFA( aSetInfo.get_is_analytical_forward_analysis() )
             , mFDSchemeForFA( aSetInfo.get_finite_difference_scheme_for_forward_analysis() )
             , mFDPerturbationFA( aSetInfo.get_finite_difference_perturbation_size_for_forward_analysis() )
-            , mIsAnalyticalSA( aSetInfo.get_is_analytical_sensitivity_analysis() )
+            , mIsAnalyticalSA( aSetInfo.is_analytical_sensitivity_analysis() )
             , mFDSchemeForSA( aSetInfo.get_finite_difference_scheme_for_sensitivity_analysis() )
             , mFDPerturbation( aSetInfo.get_finite_difference_perturbation_size() )
             , mPerturbationStrategy( aSetInfo.get_perturbation_strategy() )
@@ -2072,9 +2072,6 @@ namespace moris::fem
             // get treated geo pdv type
             gen::PDV_Type tGeoPdvType = tRequestedDvTypes( iGeoPdv );
 
-            // get treated geo pdv type index
-            // moris_index tGeoPdvIndex = static_cast< uint >( tGeoPdvType );
-
             // loop over the ig nodes on cluster
             for ( uint iIGNode = 0; iIGNode < tNumIGNodes; iIGNode++ )
             {
@@ -2134,7 +2131,7 @@ namespace moris::fem
         // reserve max size for requested IWG list
         mRequestedIWGs.reserve( mIWGs.size() );
 
-        if ( mEquationModel->get_is_forward_analysis() )
+        if ( mEquationModel->is_forward_analysis() )
         {
             // create identifier list, marking which IWGs are active
             Matrix< DDBMat > tActiveIWGs( mIWGs.size(), 1, false );
@@ -2221,6 +2218,8 @@ namespace moris::fem
                         {
                             if ( mEquationModel->get_is_adjoint_off_diagonal_time_contribution() )
                             {
+                                std::cout << "need fix in Set::create_requested_IWG_list \n";
+
                                 if ( mIWGs( iIWG )->get_IWG_type() == moris::fem::IWG_Type::TIME_CONTINUITY_DOF )
                                 {
                                     // add the IWg to the requested IWG list

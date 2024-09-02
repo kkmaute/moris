@@ -45,6 +45,8 @@ namespace moris::prm
         tSolverWarehouseList.insert( "SOL_load_sol_vec_num_vec", (sint)1 );
 
         // save final adjoint vector to file
+        std::cout << "need fix in create_solver_warehouse_parameterlist \n";
+
         tSolverWarehouseList.insert( "SOL_save_final_adjoint_vec_to_file", std::string( "" ) );
 
         // initial SOLUTION (i.e. initial condition / previous time step)
@@ -52,6 +54,11 @@ namespace moris::prm
 
         // flag to save solution vectors of various time steps to hdf5 file
         tSolverWarehouseList.insert( "TSA_Save_Sol_Vecs_to_file", "" );
+
+        tSolverWarehouseList.insert( "Sensitivity_Analysis_Type",
+                sol::SensitivityAnalysisType::ADJOINT,
+                sol::SensitivityAnalysisType::ADJOINT,
+                sol::SensitivityAnalysisType::DIRECT );
 
         return tSolverWarehouseList;
     }
@@ -551,535 +558,537 @@ namespace moris::prm
         tLinAlgorithmParameterList.set( "Solver_Implementation", sol::SolverType::AMESOS_IMPL );
 
 #ifdef MORIS_USE_PARDISO
-            tLinAlgorithmParameterList.insert( "Solver_Type", "Amesos_Pardiso" );
+        tLinAlgorithmParameterList.insert( "Solver_Type", "Amesos_Pardiso" );
 #else
-            tLinAlgorithmParameterList.insert( "Solver_Type", "Amesos_Umfpack" );
+        tLinAlgorithmParameterList.insert( "Solver_Type", "Amesos_Umfpack" );
 #endif
 
-            tLinAlgorithmParameterList.insert( "PrintStatus", false );
+        tLinAlgorithmParameterList.insert( "PrintStatus", false );
 
-            tLinAlgorithmParameterList.insert( "PrintTiming", false );
+        tLinAlgorithmParameterList.insert( "PrintTiming", false );
 
-            tLinAlgorithmParameterList.insert( "ComputeVectorNorms", false );
+        tLinAlgorithmParameterList.insert( "ComputeVectorNorms", false );
 
-            tLinAlgorithmParameterList.insert( "ComputeTrueResidual", false );
+        tLinAlgorithmParameterList.insert( "ComputeTrueResidual", false );
 
-            tLinAlgorithmParameterList.insert( "Reindex", false );
+        tLinAlgorithmParameterList.insert( "Reindex", false );
 
-            tLinAlgorithmParameterList.insert( "Refactorize", false );
+        tLinAlgorithmParameterList.insert( "Refactorize", false );
 
-            tLinAlgorithmParameterList.insert( "AddZeroToDiag", false );
+        tLinAlgorithmParameterList.insert( "AddZeroToDiag", false );
 
-            tLinAlgorithmParameterList.insert( "RcondThreshold", -1.0 );
+        tLinAlgorithmParameterList.insert( "RcondThreshold", -1.0 );
 
-            tLinAlgorithmParameterList.insert( "OutputLevel", INT_MAX );
+        tLinAlgorithmParameterList.insert( "OutputLevel", INT_MAX );
 
-            tLinAlgorithmParameterList.insert( "DebugLevel", INT_MAX );
+        tLinAlgorithmParameterList.insert( "DebugLevel", INT_MAX );
 
-            tLinAlgorithmParameterList.insert( "ComputeConditionNumber", false );
+        tLinAlgorithmParameterList.insert( "ComputeConditionNumber", false );
 
-            return tLinAlgorithmParameterList;
-        }
+        return tLinAlgorithmParameterList;
+    }
 
-        //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-        // creates a parameter list with default inputs
-        inline Parameter_List
-        create_linear_algorithm_parameter_list_belos()
+    // creates a parameter list with default inputs
+    inline Parameter_List
+    create_linear_algorithm_parameter_list_belos()
+    {
+        Parameter_List tLinAlgorithmParameterList = create_algorithm_parameter_list();
+
+        tLinAlgorithmParameterList.set( "Solver_Implementation", sol::SolverType::BELOS_IMPL );
+
+        // ASSIGN DEFAULT PARAMETER VALUES
+        // https://docs.trilinos.org/dev/packages/belos/doc/html/classBelos_1_1SolverFactory.html#ad86e61fb180a73c6dd5dbf458df6a86f
+
+        // Examples
+        // https://docs.trilinos.org/dev/packages/belos/doc/html/examples.html
+
+        // Determine which solver is used by string
+        // options are: GMRES, Flexible GMRES, Block CG , PseudoBlockCG, Stochastic CG, Recycling GMRES, Recycling CG, MINRES, LSQR, TFQMR
+        //              Pseudoblock TFQMR, Seed GMRES, Seed CG
+        tLinAlgorithmParameterList.insert( "Solver Type", "GMRES" );
+
+        // Level of output details
+        // Belos::Errors + Belos::Warnings + Belos::TimingDetails + Belos::StatusTestDetails
+        tLinAlgorithmParameterList.insert( "Verbosity", INT_MAX );
+
+        // Maximum number of blocks in Krylov factorization
+        tLinAlgorithmParameterList.insert( "Num Blocks", INT_MAX );
+
+        // Block size to be used by iterative solver
+        tLinAlgorithmParameterList.insert( "Block Size", INT_MAX );
+
+        // Allowable Belos solver iterations
+        tLinAlgorithmParameterList.insert( "Maximum Iterations", INT_MAX );
+
+        // Allowable Belos solver iterations
+        tLinAlgorithmParameterList.insert( "Maximum Restarts", INT_MAX );
+
+        // set convergence criteria
+        tLinAlgorithmParameterList.insert( "Convergence Tolerance", 1e-08 );
+
+        // left or right preconditioner
+        tLinAlgorithmParameterList.insert( "Left-right Preconditioner", "left" );
+
+        // frequency of output
+        tLinAlgorithmParameterList.insert( "Output Frequency", -1 );
+
+        return tLinAlgorithmParameterList;
+    }
+
+    //------------------------------------------------------------------------------
+
+    // creates a parameter list with default inputs
+    inline Parameter_List
+    create_linear_algorithm_parameter_list_petsc()
+    {
+        Parameter_List tLinAlgorithmParameterList = create_algorithm_parameter_list();
+
+        tLinAlgorithmParameterList.set( "Solver_Implementation", sol::SolverType::PETSC );
+
+        // Set KSP type
+        tLinAlgorithmParameterList.insert( "KSPType", std::string( "gmres" ) );    //  "gmres" , "fgmres", "preonly"
+
+        // Set default preconditioner
+        tLinAlgorithmParameterList.insert( "PCType", std::string( "none" ) );
+
+        // Sets maximal iters for KSP
+        tLinAlgorithmParameterList.insert( "KSPMaxits", 1000 );
+
+        // Sets KSP gmres restart
+        tLinAlgorithmParameterList.insert( "KSPMGMRESRestart", 500 );
+
+        // Sets tolerance for determining happy breakdown in GMRES, FGMRES and LGMRES
+        tLinAlgorithmParameterList.insert( "KSPGMRESHapTol", 1e-10 );
+
+        // Sets tolerance for KSP
+        tLinAlgorithmParameterList.insert( "KSPTol", 1e-10 );
+
+        // Sets the number of levels of fill to use for ILU
+        tLinAlgorithmParameterList.insert( "ILUFill", 0 );
+
+        // Sets drop tolerance for ilu
+        tLinAlgorithmParameterList.insert( "ILUTol", 1e-6 );
+
+        // Set multigrid levels
+        tLinAlgorithmParameterList.insert( "MultigridLevels", 3 );
+
+        // Schwarz preconditioner volume fraction threshold
+        tLinAlgorithmParameterList.insert( "MG_use_schwarz_smoother", false );
+
+        // Schwarz smoothing iterations
+        tLinAlgorithmParameterList.insert( "MG_schwarz_smoothing_iters", 1 );
+
+        // Schwarz preconditioner volume fraction threshold
+        tLinAlgorithmParameterList.insert( "ASM_volume_fraction_threshold", 0.1 );
+
+        // number of eigen values to be outputted
+        tLinAlgorithmParameterList.insert( "ouput_eigenspectrum", (uint)0 );
+
+        // blocks in addtive Schwartz algorthim
+        tLinAlgorithmParameterList.insert( "ASM_blocks_output_filename", "" );
+
+        return tLinAlgorithmParameterList;
+    }
+
+    //------------------------------------------------------------------------------
+
+    inline Parameter_List
+    create_linear_solver_parameter_list()
+    {
+        Parameter_List tLinSolverParameterList;
+
+        tLinSolverParameterList.insert( "DLA_Linear_solver_algorithms", "0" );
+
+        // Maximal number of linear solver restarts on fail
+        tLinSolverParameterList.insert( "DLA_max_lin_solver_restarts", 0 );
+
+        // Maximal number of linear solver restarts on fail
+        tLinSolverParameterList.insert( "DLA_hard_break", true );
+
+        // Determines if linear solve should restart on fail
+        tLinSolverParameterList.insert( "DLA_rebuild_lin_solver_on_fail", false );
+
+        // output left hand side in linear solver, if specified by user
+        tLinSolverParameterList.insert( "DLA_LHS_output_filename", "" );
+
+        // Flag for RHS Matrix Type if Eigen Solver is set to true
+        tLinSolverParameterList.insert( "RHS_Matrix_Type", std::string( "" ) );
+
+        // operaotr and precondioned opeartor condition number with arma/eigen
+        tLinSolverParameterList.insert( "DLA_operator_condition_number_with_moris", "" );         // "" : do not compute, "dense", "sparse"
+        tLinSolverParameterList.insert( "DLA_prec_operator_condition_number_with_moris", "" );    // "" : do not compute, "dense", "sparse"
+
+        return tLinSolverParameterList;
+    }
+
+    //------------------------------------------------------------------------------
+
+    inline Parameter_List
+    create_nonlinear_algorithm_parameter_list()
+    {
+        Parameter_List tNonLinAlgorithmParameterList;
+
+        tNonLinAlgorithmParameterList.insert( "NLA_Solver_Implementation",
+                NLA::NonlinearSolverType::NEWTON_SOLVER,
+                NLA::NonlinearSolverType::NEWTON_SOLVER,
+                NLA::NonlinearSolverType::ARC_LENGTH_SOLVER );
+
+        tNonLinAlgorithmParameterList.insert( "NLA_Linear_solver", 0 );
+
+        std::cout << "need fix in create_nonlinear_algorithm_parameter_list \n";
+
+        tNonLinAlgorithmParameterList.insert( "NLA_linear_solver_for_adjoint_solve", -1 );
+
+        // Allowable Newton solver iterations
+        tNonLinAlgorithmParameterList.insert( "NLA_max_iter", 10 );
+
+        // Allowable Newton solver iterations
+        tNonLinAlgorithmParameterList.insert( "NLA_restart", 0 );
+
+        // Newton solver iteration at which reference norm is computed
+        tNonLinAlgorithmParameterList.insert( "NLA_ref_iter", 1 );
+
+        // Desired total residual norm drop
+        tNonLinAlgorithmParameterList.insert( "NLA_rel_res_norm_drop", 1e-08 );
+
+        // Desired total residual norm
+        tNonLinAlgorithmParameterList.insert( "NLA_tot_res_norm", 1e-12 );
+
+        // Maximal residual norm
+        tNonLinAlgorithmParameterList.insert( "NLA_max_rel_res_norm", 1e12 );
+
+        // Maximal number of linear solver restarts on fail
+        tNonLinAlgorithmParameterList.insert( "NLA_max_lin_solver_restarts", 0 );
+
+        // Relaxation strategy
+        tNonLinAlgorithmParameterList.insert( "NLA_relaxation_strategy",
+                sol::SolverRelaxationType::Constant,
+                sol::SolverRelaxationType::Constant,
+                sol::SolverRelaxationType::InvResNormAdaptive );
+
+        // Relaxation parameter
+        tNonLinAlgorithmParameterList.insert( "NLA_relaxation_parameter", 1.0 );
+
+        // Relaxation parameter
+        tNonLinAlgorithmParameterList.insert( "NLA_relaxation_damping", 0.5 );
+
+        // Load control strategy
+        tNonLinAlgorithmParameterList.insert( "NLA_load_control_strategy",
+                sol::SolverLoadControlType::Constant,
+                sol::SolverLoadControlType::Constant,
+                sol::SolverLoadControlType::UserDefined );
+
+        // Initial load factor
+        tNonLinAlgorithmParameterList.insert( "NLA_load_control_factor", 1.0 );
+
+        // Maximum number of load steps
+        tNonLinAlgorithmParameterList.insert( "NLA_load_control_steps", 1 );
+
+        // Required relative residual norm for load factor to be increased
+        tNonLinAlgorithmParameterList.insert( "NLA_load_control_relres", 0.0 );
+
+        // Exponent for exponential load factor growth strategy
+        tNonLinAlgorithmParameterList.insert( "NLA_load_control_exponent", 1.0 );
+
+        // Pseudo time control strategy
+        tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_control_strategy",
+                sol::SolverPseudoTimeControlType::None,
+                sol::SolverPseudoTimeControlType::None,
+                sol::SolverPseudoTimeControlType::Comsol );
+
+        // Constant time step size
+        tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_constant", 0.0 );
+
+        // Constant time step size
+        tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_initial", 1.0e18 );
+
+        // Number of pseudo time step initialization steps
+        tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_initial_steps", 1 );
+
+        // Pre-factor for time step index-based increase of time step
+        tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_step_index_factor", 0.0 );
+
+        // Exponent for time step index-based increase
+        tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_step_index_exponent", 1.0 );
+
+        // Pre-factor for residual-based increase of time step
+        tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_residual_factor", 0.0 );
+
+        // Exponent for time step index-based increase
+        tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_residual_exponent", 1.0 );
+
+        // Comsol parameter (laminar: 20, 2D turbulent: 25, 3D turbulent: 30)
+        tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_comsol_1", 20.0 );
+
+        // Comsol parameter (laminar: 40, 2D turbulent: 50, 3D turbulent: 60)
+        tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_comsol_2", 40.0 );
+
+        // Maximum number of pseudo time step size
+        tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_max_num_steps", 1 );
+
+        // Maximum time step size
+        tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_max_step_size", MORIS_REAL_MAX );
+
+        // Required pseudo time step size needed for convergence
+        tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_rel_res_norm_drop", -1.0 );
+
+        // Required relative residual norm for time step to be updated
+        tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_rel_res_norm_update", -1.0 );
+
+        // Relative static residual norm for switching to steady state computation
+        tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_steady_rel_res_norm", -1.0 );
+
+        // Time step size used once maximum number of step has been reached
+        tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_steady_step_size", MORIS_REAL_MAX );
+
+        // Time offsets for outputting pseudo time steps; if offset is zero no output is written
+        tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_offset", 0.0 );
+
+        // Maximal number of linear solver restarts on fail
+        tNonLinAlgorithmParameterList.insert( "NLA_hard_break", false );
+
+        // Determines if linear solve should restart on fail
+        tNonLinAlgorithmParameterList.insert( "NLA_rebuild_lin_solv_on_fail", false );
+
+        // Determines if jacobian is rebuild for every nonlinear iteration
+        tNonLinAlgorithmParameterList.insert( "NLA_rebuild_jacobian", true );
+
+        // Determines if linear solve should restart on fail
+        tNonLinAlgorithmParameterList.insert( "NLA_combined_res_jac_assembly", true );
+
+        // Determines if Newton should restart on fail
+        tNonLinAlgorithmParameterList.insert( "NLA_rebuild_nonlin_solv_on_fail", false );
+
+        // Specifying the number of Newton retries
+        tNonLinAlgorithmParameterList.insert( "NLA_num_nonlin_rebuild_iterations", 1 );
+
+        // Determines relaxation multiplier
+        tNonLinAlgorithmParameterList.insert( "NLA_relaxation_multiplier_on_fail", 0.5 );
+
+        // Determines Newton maxits multiplier
+        tNonLinAlgorithmParameterList.insert( "NLA_maxits_multiplier_on_fail", 2 );
+
+        // Determines Newton maxits multiplier
+        tNonLinAlgorithmParameterList.insert( "NLA_is_eigen_problem", false );
+
+        // Determine with which strategy remapping of nonconformal meshes (raytracing) should be performed
+        tNonLinAlgorithmParameterList.insert( "NLA_remap_strategy", (uint)sol::SolverRaytracingStrategy::None );
+
+        // If "NLA_remap_strategy" is set to "EveryNthIteration", "EveryNthLoadStepOrNthIteration, or "MixedNthLoadStepAndNthIteration",
+        // this parameter determines the frequency of remapping inside the newton iterations
+        tNonLinAlgorithmParameterList.insert( "NLA_remap_iteration_frequency", 1 );
+
+        // If "NLA_remap_strategy" is set to "EveryNthLoadStep", "EveryNthLoadStepOrNthIteration, "MixedNthLoadStepAndResidualChange" or "MixedNthLoadStepAndNthIteration",
+        // this parameter determines the frequency of remapping in the load stepping iterations
+        tNonLinAlgorithmParameterList.insert( "NLA_remap_load_step_frequency", 1 );
+
+        // If "NLA_remap_strategy" is set to "ResidualChange" or "MixedNthLoadStepAndResidualChange",
+        // this parameter determines the limit of the change in the residual above which the remapping is preformed.
+        // E.g. if this is set to -1e-2, the remapping will be performed if the change between the previous and current iterations residual is greater than -1e-2
+        // (either it is almost converged in the current configuration or the residual grows)
+        tNonLinAlgorithmParameterList.insert( "NLA_remap_residual_change_tolerance", -1e-2 );
+
+        return tNonLinAlgorithmParameterList;
+    }
+
+    //------------------------------------------------------------------------------
+
+    inline Parameter_List
+    create_nonlinear_solver_parameter_list()
+    {
+        Parameter_List tNonLinSolverParameterList;
+
+        enum moris::NLA::NonlinearSolverType tNonlinearSolverType = moris::NLA::NonlinearSolverType::NEWTON_SOLVER;
+
+        tNonLinSolverParameterList.insert( "NLA_Solver_Implementation",
+                tNonlinearSolverType,
+                NLA::NonlinearSolverType::NEWTON_SOLVER,
+                NLA::NonlinearSolverType::ARC_LENGTH_SOLVER );
+
+        tNonLinSolverParameterList.insert( "NLA_DofTypes", "UNDEFINED" );
+
+        tNonLinSolverParameterList.insert( "NLA_Secondary_DofTypes", "UNDEFINED" );
+
+        tNonLinSolverParameterList.insert( "NLA_Sub_Nonlinear_Solver", "" );
+
+        tNonLinSolverParameterList.insert( "NLA_Nonlinear_solver_algorithms", "0" );
+
+        // Maximal number of linear solver restarts on fail
+        tNonLinSolverParameterList.insert( "NLA_max_non_lin_solver_restarts", 0 );
+
+        return tNonLinSolverParameterList;
+    }
+
+    //------------------------------------------------------------------------------
+
+    inline Parameter_List
+    create_time_solver_algorithm_parameter_list()
+    {
+        Parameter_List tTimeAlgorithmParameterList;
+
+        tTimeAlgorithmParameterList.insert( "TSA_Solver_Implementation",
+                tsa::TimeSolverType::MONOLITHIC,
+                tsa::TimeSolverType::MONOLITHIC,
+                tsa::TimeSolverType::STAGGERED );
+
+        tTimeAlgorithmParameterList.insert( "TSA_Nonlinear_Solver", 0 );
+
+        tTimeAlgorithmParameterList.insert( "TSA_Nonlinear_Sensitivity_Solver", -1 );
+
+        // Number of time steps
+        tTimeAlgorithmParameterList.insert( "TSA_Num_Time_Steps", 1 );
+
+        // Time Frame
+        tTimeAlgorithmParameterList.insert( "TSA_Time_Frame", 1.0 );
+
+        return tTimeAlgorithmParameterList;
+    }
+
+    //------------------------------------------------------------------------------
+
+    inline Parameter_List
+    create_time_solver_parameter_list()
+    {
+        Parameter_List tTimeParameterList;
+
+        tTimeParameterList.insert( "TSA_TPL_Type", sol::MapType::Epetra, sol::MapType::Epetra, sol::MapType::Petsc );
+
+        tTimeParameterList.insert( "TSA_Solver_algorithms", "0" );
+
+        tTimeParameterList.insert( "TSA_DofTypes", "UNDEFINED" );
+
+        // Maximal number of linear solver restarts on fail
+        tTimeParameterList.insert( "TSA_Max_Time_Solver_Restarts", 0 );
+
+        tTimeParameterList.insert( "TSA_Output_Indices", "0" );
+        tTimeParameterList.insert( "TSA_Output_Criteria", "Default_Output_Criterion" );
+        tTimeParameterList.insert( "TSA_Pause_Function", "" );
+
+        tTimeParameterList.insert( "TSA_Initialize_Sol_Vec", "" );    // initial GUESS
+
+        tTimeParameterList.insert( "TSA_time_level_per_type", "" );
+
+        return tTimeParameterList;
+    }
+
+    //------------------------------------------------------------------------------
+
+    // creates a parameter list with default inputs
+    inline Parameter_List
+    create_linear_algorithm_parameter_list(
+            moris::sol::SolverType aSolverType )
+    {
+        Parameter_List tParameterList;
+
+        switch ( aSolverType )
         {
-            Parameter_List tLinAlgorithmParameterList = create_algorithm_parameter_list();
-
-            tLinAlgorithmParameterList.set( "Solver_Implementation", sol::SolverType::BELOS_IMPL );
-
-            // ASSIGN DEFAULT PARAMETER VALUES
-            // https://docs.trilinos.org/dev/packages/belos/doc/html/classBelos_1_1SolverFactory.html#ad86e61fb180a73c6dd5dbf458df6a86f
-
-            // Examples
-            // https://docs.trilinos.org/dev/packages/belos/doc/html/examples.html
-
-            // Determine which solver is used by string
-            // options are: GMRES, Flexible GMRES, Block CG , PseudoBlockCG, Stochastic CG, Recycling GMRES, Recycling CG, MINRES, LSQR, TFQMR
-            //              Pseudoblock TFQMR, Seed GMRES, Seed CG
-            tLinAlgorithmParameterList.insert( "Solver Type", "GMRES" );
-
-            // Level of output details
-            // Belos::Errors + Belos::Warnings + Belos::TimingDetails + Belos::StatusTestDetails
-            tLinAlgorithmParameterList.insert( "Verbosity", INT_MAX );
-
-            // Maximum number of blocks in Krylov factorization
-            tLinAlgorithmParameterList.insert( "Num Blocks", INT_MAX );
-
-            // Block size to be used by iterative solver
-            tLinAlgorithmParameterList.insert( "Block Size", INT_MAX );
-
-            // Allowable Belos solver iterations
-            tLinAlgorithmParameterList.insert( "Maximum Iterations", INT_MAX );
-
-            // Allowable Belos solver iterations
-            tLinAlgorithmParameterList.insert( "Maximum Restarts", INT_MAX );
-
-            // set convergence criteria
-            tLinAlgorithmParameterList.insert( "Convergence Tolerance", 1e-08 );
-
-            // left or right preconditioner
-            tLinAlgorithmParameterList.insert( "Left-right Preconditioner", "left" );
-
-            // frequency of output
-            tLinAlgorithmParameterList.insert( "Output Frequency", -1 );
-
-            return tLinAlgorithmParameterList;
-        }
-
-        //------------------------------------------------------------------------------
-
-        // creates a parameter list with default inputs
-        inline Parameter_List
-        create_linear_algorithm_parameter_list_petsc()
-        {
-            Parameter_List tLinAlgorithmParameterList = create_algorithm_parameter_list();
-
-            tLinAlgorithmParameterList.set( "Solver_Implementation", sol::SolverType::PETSC );
-
-            // Set KSP type
-            tLinAlgorithmParameterList.insert( "KSPType", std::string( "gmres" ) );    //  "gmres" , "fgmres", "preonly"
-
-            // Set default preconditioner
-            tLinAlgorithmParameterList.insert( "PCType", std::string( "none" ) );
-
-            // Sets maximal iters for KSP
-            tLinAlgorithmParameterList.insert( "KSPMaxits", 1000 );
-
-            // Sets KSP gmres restart
-            tLinAlgorithmParameterList.insert( "KSPMGMRESRestart", 500 );
-
-            // Sets tolerance for determining happy breakdown in GMRES, FGMRES and LGMRES
-            tLinAlgorithmParameterList.insert( "KSPGMRESHapTol", 1e-10 );
-
-            // Sets tolerance for KSP
-            tLinAlgorithmParameterList.insert( "KSPTol", 1e-10 );
-
-            // Sets the number of levels of fill to use for ILU
-            tLinAlgorithmParameterList.insert( "ILUFill", 0 );
-
-            // Sets drop tolerance for ilu
-            tLinAlgorithmParameterList.insert( "ILUTol", 1e-6 );
-
-            // Set multigrid levels
-            tLinAlgorithmParameterList.insert( "MultigridLevels", 3 );
-
-            // Schwarz preconditioner volume fraction threshold
-            tLinAlgorithmParameterList.insert( "MG_use_schwarz_smoother", false );
-
-            // Schwarz smoothing iterations
-            tLinAlgorithmParameterList.insert( "MG_schwarz_smoothing_iters", 1 );
-
-            // Schwarz preconditioner volume fraction threshold
-            tLinAlgorithmParameterList.insert( "ASM_volume_fraction_threshold", 0.1 );
-
-            // number of eigen values to be outputted
-            tLinAlgorithmParameterList.insert( "ouput_eigenspectrum", (uint)0 );
-
-            // blocks in addtive Schwartz algorthim
-            tLinAlgorithmParameterList.insert( "ASM_blocks_output_filename", "" );
-
-            return tLinAlgorithmParameterList;
-        }
-
-        //------------------------------------------------------------------------------
-
-        inline Parameter_List
-        create_linear_solver_parameter_list()
-        {
-            Parameter_List tLinSolverParameterList;
-
-            tLinSolverParameterList.insert( "DLA_Linear_solver_algorithms", "0" );
-
-            // Maximal number of linear solver restarts on fail
-            tLinSolverParameterList.insert( "DLA_max_lin_solver_restarts", 0 );
-
-            // Maximal number of linear solver restarts on fail
-            tLinSolverParameterList.insert( "DLA_hard_break", true );
-
-            // Determines if linear solve should restart on fail
-            tLinSolverParameterList.insert( "DLA_rebuild_lin_solver_on_fail", false );
-
-            // output left hand side in linear solver, if specified by user
-            tLinSolverParameterList.insert( "DLA_LHS_output_filename", "" );
-
-            // Flag for RHS Matrix Type if Eigen Solver is set to true
-            tLinSolverParameterList.insert( "RHS_Matrix_Type", std::string( "" ) );
-
-            // operaotr and precondioned opeartor condition number with arma/eigen
-            tLinSolverParameterList.insert( "DLA_operator_condition_number_with_moris", "" );         // "" : do not compute, "dense", "sparse"
-            tLinSolverParameterList.insert( "DLA_prec_operator_condition_number_with_moris", "" );    // "" : do not compute, "dense", "sparse"
-
-            return tLinSolverParameterList;
-        }
-
-        //------------------------------------------------------------------------------
-
-        inline Parameter_List
-        create_nonlinear_algorithm_parameter_list()
-        {
-            Parameter_List tNonLinAlgorithmParameterList;
-
-            tNonLinAlgorithmParameterList.insert( "NLA_Solver_Implementation",
-                    NLA::NonlinearSolverType::NEWTON_SOLVER,
-                    NLA::NonlinearSolverType::NEWTON_SOLVER,
-                    NLA::NonlinearSolverType::ARC_LENGTH_SOLVER );
-
-            tNonLinAlgorithmParameterList.insert( "NLA_Linear_solver", 0 );
-
-            tNonLinAlgorithmParameterList.insert( "NLA_linear_solver_for_adjoint_solve", -1 );
-
-            // Allowable Newton solver iterations
-            tNonLinAlgorithmParameterList.insert( "NLA_max_iter", 10 );
-
-            // Allowable Newton solver iterations
-            tNonLinAlgorithmParameterList.insert( "NLA_restart", 0 );
-
-            // Newton solver iteration at which reference norm is computed
-            tNonLinAlgorithmParameterList.insert( "NLA_ref_iter", 1 );
-
-            // Desired total residual norm drop
-            tNonLinAlgorithmParameterList.insert( "NLA_rel_res_norm_drop", 1e-08 );
-
-            // Desired total residual norm
-            tNonLinAlgorithmParameterList.insert( "NLA_tot_res_norm", 1e-12 );
-
-            // Maximal residual norm
-            tNonLinAlgorithmParameterList.insert( "NLA_max_rel_res_norm", 1e12 );
-
-            // Maximal number of linear solver restarts on fail
-            tNonLinAlgorithmParameterList.insert( "NLA_max_lin_solver_restarts", 0 );
-
-            // Relaxation strategy
-            tNonLinAlgorithmParameterList.insert( "NLA_relaxation_strategy",
-                    sol::SolverRelaxationType::Constant,
-                    sol::SolverRelaxationType::Constant,
-                    sol::SolverRelaxationType::InvResNormAdaptive );
-
-            // Relaxation parameter
-            tNonLinAlgorithmParameterList.insert( "NLA_relaxation_parameter", 1.0 );
-
-            // Relaxation parameter
-            tNonLinAlgorithmParameterList.insert( "NLA_relaxation_damping", 0.5 );
-
-            // Load control strategy
-            tNonLinAlgorithmParameterList.insert( "NLA_load_control_strategy",
-                    sol::SolverLoadControlType::Constant,
-                    sol::SolverLoadControlType::Constant,
-                    sol::SolverLoadControlType::UserDefined );
-
-            // Initial load factor
-            tNonLinAlgorithmParameterList.insert( "NLA_load_control_factor", 1.0 );
-
-            // Maximum number of load steps
-            tNonLinAlgorithmParameterList.insert( "NLA_load_control_steps", 1 );
-
-            // Required relative residual norm for load factor to be increased
-            tNonLinAlgorithmParameterList.insert( "NLA_load_control_relres", 0.0 );
-
-            // Exponent for exponential load factor growth strategy
-            tNonLinAlgorithmParameterList.insert( "NLA_load_control_exponent", 1.0 );
-
-            // Pseudo time control strategy
-            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_control_strategy",
-                    sol::SolverPseudoTimeControlType::None,
-                    sol::SolverPseudoTimeControlType::None,
-                    sol::SolverPseudoTimeControlType::Comsol );
-
-            // Constant time step size
-            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_constant", 0.0 );
-
-            // Constant time step size
-            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_initial", 1.0e18 );
-
-            // Number of pseudo time step initialization steps
-            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_initial_steps", 1 );
-
-            // Pre-factor for time step index-based increase of time step
-            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_step_index_factor", 0.0 );
-
-            // Exponent for time step index-based increase
-            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_step_index_exponent", 1.0 );
-
-            // Pre-factor for residual-based increase of time step
-            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_residual_factor", 0.0 );
-
-            // Exponent for time step index-based increase
-            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_residual_exponent", 1.0 );
-
-            // Comsol parameter (laminar: 20, 2D turbulent: 25, 3D turbulent: 30)
-            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_comsol_1", 20.0 );
-
-            // Comsol parameter (laminar: 40, 2D turbulent: 50, 3D turbulent: 60)
-            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_comsol_2", 40.0 );
-
-            // Maximum number of pseudo time step size
-            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_max_num_steps", 1 );
-
-            // Maximum time step size
-            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_max_step_size", MORIS_REAL_MAX );
-
-            // Required pseudo time step size needed for convergence
-            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_rel_res_norm_drop", -1.0 );
-
-            // Required relative residual norm for time step to be updated
-            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_rel_res_norm_update", -1.0 );
-
-            // Relative static residual norm for switching to steady state computation
-            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_steady_rel_res_norm", -1.0 );
-
-            // Time step size used once maximum number of step has been reached
-            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_steady_step_size", MORIS_REAL_MAX );
-
-            // Time offsets for outputting pseudo time steps; if offset is zero no output is written
-            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_offset", 0.0 );
-
-            // Maximal number of linear solver restarts on fail
-            tNonLinAlgorithmParameterList.insert( "NLA_hard_break", false );
-
-            // Determines if linear solve should restart on fail
-            tNonLinAlgorithmParameterList.insert( "NLA_rebuild_lin_solv_on_fail", false );
-
-            // Determines if jacobian is rebuild for every nonlinear iteration
-            tNonLinAlgorithmParameterList.insert( "NLA_rebuild_jacobian", true );
-
-            // Determines if linear solve should restart on fail
-            tNonLinAlgorithmParameterList.insert( "NLA_combined_res_jac_assembly", true );
-
-            // Determines if Newton should restart on fail
-            tNonLinAlgorithmParameterList.insert( "NLA_rebuild_nonlin_solv_on_fail", false );
-
-            // Specifying the number of Newton retries
-            tNonLinAlgorithmParameterList.insert( "NLA_num_nonlin_rebuild_iterations", 1 );
-
-            // Determines relaxation multiplier
-            tNonLinAlgorithmParameterList.insert( "NLA_relaxation_multiplier_on_fail", 0.5 );
-
-            // Determines Newton maxits multiplier
-            tNonLinAlgorithmParameterList.insert( "NLA_maxits_multiplier_on_fail", 2 );
-
-            // Determines Newton maxits multiplier
-            tNonLinAlgorithmParameterList.insert( "NLA_is_eigen_problem", false );
-
-            // Determine with which strategy remapping of nonconformal meshes (raytracing) should be performed
-            tNonLinAlgorithmParameterList.insert( "NLA_remap_strategy", (uint)sol::SolverRaytracingStrategy::None );
-
-            // If "NLA_remap_strategy" is set to "EveryNthIteration", "EveryNthLoadStepOrNthIteration, or "MixedNthLoadStepAndNthIteration",
-            // this parameter determines the frequency of remapping inside the newton iterations
-            tNonLinAlgorithmParameterList.insert( "NLA_remap_iteration_frequency", 1 );
-
-            // If "NLA_remap_strategy" is set to "EveryNthLoadStep", "EveryNthLoadStepOrNthIteration, "MixedNthLoadStepAndResidualChange" or "MixedNthLoadStepAndNthIteration",
-            // this parameter determines the frequency of remapping in the load stepping iterations
-            tNonLinAlgorithmParameterList.insert( "NLA_remap_load_step_frequency", 1 );
-
-            // If "NLA_remap_strategy" is set to "ResidualChange" or "MixedNthLoadStepAndResidualChange",
-            // this parameter determines the limit of the change in the residual above which the remapping is preformed.
-            // E.g. if this is set to -1e-2, the remapping will be performed if the change between the previous and current iterations residual is greater than -1e-2
-            // (either it is almost converged in the current configuration or the residual grows)
-            tNonLinAlgorithmParameterList.insert( "NLA_remap_residual_change_tolerance", -1e-2 );
-
-            return tNonLinAlgorithmParameterList;
-        }
-
-        //------------------------------------------------------------------------------
-
-        inline Parameter_List
-        create_nonlinear_solver_parameter_list()
-        {
-            Parameter_List tNonLinSolverParameterList;
-
-            enum moris::NLA::NonlinearSolverType tNonlinearSolverType = moris::NLA::NonlinearSolverType::NEWTON_SOLVER;
-
-            tNonLinSolverParameterList.insert( "NLA_Solver_Implementation",
-                    tNonlinearSolverType,
-                    NLA::NonlinearSolverType::NEWTON_SOLVER,
-                    NLA::NonlinearSolverType::ARC_LENGTH_SOLVER );
-
-            tNonLinSolverParameterList.insert( "NLA_DofTypes", "UNDEFINED" );
-
-            tNonLinSolverParameterList.insert( "NLA_Secondary_DofTypes", "UNDEFINED" );
-
-            tNonLinSolverParameterList.insert( "NLA_Sub_Nonlinear_Solver", "" );
-
-            tNonLinSolverParameterList.insert( "NLA_Nonlinear_solver_algorithms", "0" );
-
-            // Maximal number of linear solver restarts on fail
-            tNonLinSolverParameterList.insert( "NLA_max_non_lin_solver_restarts", 0 );
-
-            return tNonLinSolverParameterList;
-        }
-
-        //------------------------------------------------------------------------------
-
-        inline Parameter_List
-        create_time_solver_algorithm_parameter_list()
-        {
-            Parameter_List tTimeAlgorithmParameterList;
-
-            tTimeAlgorithmParameterList.insert( "TSA_Solver_Implementation",
-                    tsa::TimeSolverType::MONOLITHIC,
-                    tsa::TimeSolverType::MONOLITHIC,
-                    tsa::TimeSolverType::STAGGERED );
-
-            tTimeAlgorithmParameterList.insert( "TSA_Nonlinear_solver", 0 );
-
-            tTimeAlgorithmParameterList.insert( "TSA_nonlinear_solver_for_adjoint_solve", -1 );
-
-            // Number of time steps
-            tTimeAlgorithmParameterList.insert( "TSA_Num_Time_Steps", 1 );
-
-            // Time Frame
-            tTimeAlgorithmParameterList.insert( "TSA_Time_Frame", 1.0 );
-
-            return tTimeAlgorithmParameterList;
-        }
-
-        //------------------------------------------------------------------------------
-
-        inline Parameter_List
-        create_time_solver_parameter_list()
-        {
-            Parameter_List tTimeParameterList;
-
-            tTimeParameterList.insert( "TSA_TPL_Type", sol::MapType::Epetra, sol::MapType::Epetra, sol::MapType::Petsc );
-
-            tTimeParameterList.insert( "TSA_Solver_algorithms", "0" );
-
-            tTimeParameterList.insert( "TSA_DofTypes", "UNDEFINED" );
-
-            // Maximal number of linear solver restarts on fail
-            tTimeParameterList.insert( "TSA_Max_Time_Solver_Restarts", 0 );
-
-            tTimeParameterList.insert( "TSA_Output_Indices", "0" );
-            tTimeParameterList.insert( "TSA_Output_Criteria", "Default_Output_Criterion" );
-            tTimeParameterList.insert( "TSA_Pause_Function", "" );
-
-            tTimeParameterList.insert( "TSA_Initialize_Sol_Vec", "" );    // initial GUESS
-
-            tTimeParameterList.insert( "TSA_time_level_per_type", "" );
-
-            return tTimeParameterList;
-        }
-
-        //------------------------------------------------------------------------------
-
-        // creates a parameter list with default inputs
-        inline Parameter_List
-        create_linear_algorithm_parameter_list(
-                moris::sol::SolverType aSolverType )
-        {
-            Parameter_List tParameterList;
-
-            switch ( aSolverType )
+            case sol::SolverType::AZTEC_IMPL:
+                tParameterList = create_linear_algorithm_parameter_list_aztec();
+                break;
+            case sol::SolverType::AMESOS_IMPL:
+                tParameterList = create_linear_algorithm_parameter_list_amesos();
+                break;
+            case sol::SolverType::BELOS_IMPL:
+                tParameterList = create_linear_algorithm_parameter_list_belos();
+                break;
+            case sol::SolverType::PETSC:
+                tParameterList = create_linear_algorithm_parameter_list_petsc();
+                break;
+            case sol::SolverType::EIGEN_SOLVER:
+                tParameterList = create_eigen_algorithm_parameter_list();
+                break;
+            case sol::SolverType::ML:
             {
-                case sol::SolverType::AZTEC_IMPL:
-                    tParameterList = create_linear_algorithm_parameter_list_aztec();
-                    break;
-                case sol::SolverType::AMESOS_IMPL:
-                    tParameterList = create_linear_algorithm_parameter_list_amesos();
-                    break;
-                case sol::SolverType::BELOS_IMPL:
-                    tParameterList = create_linear_algorithm_parameter_list_belos();
-                    break;
-                case sol::SolverType::PETSC:
-                    tParameterList = create_linear_algorithm_parameter_list_petsc();
-                    break;
-                case sol::SolverType::EIGEN_SOLVER:
-                    tParameterList = create_eigen_algorithm_parameter_list();
-                    break;
-                case sol::SolverType::ML:
-                {
-                    create_ml_preconditioner_parameterlist( tParameterList );
-                    tParameterList.insert( "Max_Iter", 100 );
-                    tParameterList.insert( "Convergence_Tolerance", 1e-9 );
-                    tParameterList.set( "Solver_Implementation", moris::sol::SolverType::ML );
-                    break;
-                }
-                case sol::SolverType::SLEPC_SOLVER:
-                {
-                    tParameterList = create_slepc_algorithm_parameter_list();
-                    break;
-                }
-
-                default:
-                    MORIS_ERROR( false, "Parameter list for this solver not implemented yet" );
-                    break;
+                create_ml_preconditioner_parameterlist( tParameterList );
+                tParameterList.insert( "Max_Iter", 100 );
+                tParameterList.insert( "Convergence_Tolerance", 1e-9 );
+                tParameterList.set( "Solver_Implementation", moris::sol::SolverType::ML );
+                break;
+            }
+            case sol::SolverType::SLEPC_SOLVER:
+            {
+                tParameterList = create_slepc_algorithm_parameter_list();
+                break;
             }
 
-            // insert list of preconditioners, this preconditioner is used in the linear solver to solve the system
-            tParameterList.insert( "preconditioners", "" );
-
-            // insert list of preconditioners, this preconditioner is used in eigen analysis to create a new preconditioned linear operator
-            // the second line is for slepc solver where to invert the matrix in eigen problem what solver will be used
-            tParameterList.insert( "preconditioners_linear_operator", "" );
-            tParameterList.insert( "sub_linear_solver", "" );
-
-            // return the parameter list
-            return tParameterList;
+            default:
+                MORIS_ERROR( false, "Parameter list for this solver not implemented yet" );
+                break;
         }
 
-        //------------------------------------------------------------------------------
+        // insert list of preconditioners, this preconditioner is used in the linear solver to solve the system
+        tParameterList.insert( "preconditioners", "" );
 
-        // inline
-        //    // creates a parameter list with default inputs
-        //    ParameterList create_nonlinear_algorithm_parameter_list( const enum moris::NLA::NonlinearSolverType aSolverType,
-        //                                                             const uint                        aIndex = 0 )
-        //    {
-        //        ParameterList tParameterList;
-        //
-        //        switch( aSolverType )
-        //        {
-        //        case ( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ):
-        //            return create_linear_algorithm_parameter_list_aztec( );
-        //            break;
-        //        case ( moris::NLA::NonlinearSolverType::NLBGS_SOLVER ):
-        //    		MORIS_ERROR( false, "No implemented yet" );
-        //            break;
-        //
-        //        default:
-        //            MORIS_ERROR( false, "Parameterlist for this solver not implemented yet" );
-        //            break;
-        //        }
-        //
-        //    return tParameterList;
-        //}
+        // insert list of preconditioners, this preconditioner is used in eigen analysis to create a new preconditioned linear operator
+        // the second line is for slepc solver where to invert the matrix in eigen problem what solver will be used
+        tParameterList.insert( "preconditioners_linear_operator", "" );
+        tParameterList.insert( "sub_linear_solver", "" );
 
-        //------------------------------------------------------------------------------
+        // return the parameter list
+        return tParameterList;
+    }
 
-        // creates a parameter list with default inputs
-        inline Parameter_List
-        create_preconditioner_parameter_list(
-                const enum moris::sol::PreconditionerType& aPrecondionerType )
+    //------------------------------------------------------------------------------
+
+    // inline
+    //    // creates a parameter list with default inputs
+    //    ParameterList create_nonlinear_algorithm_parameter_list( const enum moris::NLA::NonlinearSolverType aSolverType,
+    //                                                             const uint                        aIndex = 0 )
+    //    {
+    //        ParameterList tParameterList;
+    //
+    //        switch( aSolverType )
+    //        {
+    //        case ( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ):
+    //            return create_linear_algorithm_parameter_list_aztec( );
+    //            break;
+    //        case ( moris::NLA::NonlinearSolverType::NLBGS_SOLVER ):
+    //    		MORIS_ERROR( false, "No implemented yet" );
+    //            break;
+    //
+    //        default:
+    //            MORIS_ERROR( false, "Parameterlist for this solver not implemented yet" );
+    //            break;
+    //        }
+    //
+    //    return tParameterList;
+    //}
+
+    //------------------------------------------------------------------------------
+
+    // creates a parameter list with default inputs
+    inline Parameter_List
+    create_preconditioner_parameter_list(
+            const enum moris::sol::PreconditionerType& aPrecondionerType )
+    {
+        Parameter_List tParameterList;
+
+        tParameterList.insert( "Preconditioner_Implementation",
+                sol::PreconditionerType::NONE,
+                sol::PreconditionerType::IFPACK,
+                sol::PreconditionerType::PETSC );
+
+        switch ( aPrecondionerType )
         {
-            Parameter_List tParameterList;
-
-            tParameterList.insert( "Preconditioner_Implementation",
-                    sol::PreconditionerType::NONE,
-                    sol::PreconditionerType::IFPACK,
-                    sol::PreconditionerType::PETSC );
-
-            switch ( aPrecondionerType )
-            {
-                case sol::PreconditionerType::NONE:
-                    break;
-                case sol::PreconditionerType::IFPACK:
-                    create_ifpack_preconditioner_parameterlist( tParameterList );
-                    break;
-                case sol::PreconditionerType::ML:
-                    create_ml_preconditioner_parameterlist( tParameterList );
-                    break;
-                case sol::PreconditionerType::PETSC:
-                    create_petsc_preconditioner_parameterlist( tParameterList );
-                    break;
-                default:
-                    MORIS_ERROR( false, "Parameter list for this solver not implemented yet" );
-                    break;
-            }
-            return tParameterList;
+            case sol::PreconditionerType::NONE:
+                break;
+            case sol::PreconditionerType::IFPACK:
+                create_ifpack_preconditioner_parameterlist( tParameterList );
+                break;
+            case sol::PreconditionerType::ML:
+                create_ml_preconditioner_parameterlist( tParameterList );
+                break;
+            case sol::PreconditionerType::PETSC:
+                create_petsc_preconditioner_parameterlist( tParameterList );
+                break;
+            default:
+                MORIS_ERROR( false, "Parameter list for this solver not implemented yet" );
+                break;
         }
+        return tParameterList;
+    }
 
 }    // namespace moris::prm
 

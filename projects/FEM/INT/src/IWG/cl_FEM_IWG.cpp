@@ -3118,6 +3118,8 @@ namespace moris::fem
                         this->compute_residual( tWStarPert );
 
                         // evaluate dRdpGeo
+                        Matrix< DDRMat >& tDrDpgeo = mSet->get_drdpgeo();
+                        print( tDrDpgeo, "mSet->get_drdpgeo()" );
                         mSet->get_drdpgeo()(
                                 { tResDofAssemblyStart, tResDofAssemblyStop },
                                 { tPdvAssemblyIndex, tPdvAssemblyIndex } ) +=
@@ -4042,6 +4044,19 @@ namespace moris::fem
             moris::real        aPerturbation,
             fem::FDScheme_Type aFDSchemeType )
     {
+        // get the requested ip pdv types
+        Vector< Vector< gen::PDV_Type > > tRequestedPdvTypes;
+        mSet->get_ip_dv_types_for_set( tRequestedPdvTypes );
+
+        // get number of requested dv types
+        uint tNumDvType = tRequestedPdvTypes.size();
+
+        // skip remainder if no dv types active on element
+        if ( tNumDvType == 0 )
+        {
+            return;
+        }
+
         // storage residual value
         Matrix< DDRMat > tResidualStore = mSet->get_residual()( 0 );
 
@@ -4049,13 +4064,6 @@ namespace moris::fem
         Vector< Vector< real > > tFDScheme;
         fd_scheme( aFDSchemeType, tFDScheme );
         uint tNumFDPoints = tFDScheme( 0 ).size();
-
-        // get the requested ip pdv types
-        Vector< Vector< gen::PDV_Type > > tRequestedPdvTypes;
-        mSet->get_ip_dv_types_for_set( tRequestedPdvTypes );
-
-        // get number of requested dv types
-        uint tNumDvType = tRequestedPdvTypes.size();
 
         // get the residual dof type index in the set
         uint tResDofIndex = mSet->get_dof_index_for_type(
@@ -4183,6 +4191,19 @@ namespace moris::fem
             moris::real        aPerturbation,
             fem::FDScheme_Type aFDSchemeType )
     {
+        // get the requested ip pdv types
+        Vector< Vector< gen::PDV_Type > > tRequestedPdvTypes;
+        mSet->get_ip_dv_types_for_set( tRequestedPdvTypes );
+
+        // get number of requested dv types
+        uint tNumDvType = tRequestedPdvTypes.size();
+
+        // skip remainder if no dv types active on element
+        if ( tNumDvType == 0 )
+        {
+            return;
+        }
+
         // storage residual value
         Matrix< DDRMat > tResidualStore = mSet->get_residual()( 0 );
 
@@ -4190,13 +4211,6 @@ namespace moris::fem
         Vector< Vector< real > > tFDScheme;
         fd_scheme( aFDSchemeType, tFDScheme );
         uint tNumFDPoints = tFDScheme( 0 ).size();
-
-        // get the requested ip pdv types
-        Vector< Vector< gen::PDV_Type > > tRequestedPdvTypes;
-        mSet->get_ip_dv_types_for_set( tRequestedPdvTypes );
-
-        // get number of requested dv types
-        uint tNumDvType = tRequestedPdvTypes.size();
 
         // get the leader residual dof type index in the set
         uint tLeaderResDofIndex         = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );

@@ -122,7 +122,7 @@ void NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem* aNonlin
                 tLoadFactor );
 
         // switch between forward and backward system
-        if ( mMyNonLinSolverManager->get_solver_interface()->get_is_forward_analysis() )
+        if ( mMyNonLinSolverManager->get_solver_interface()->is_forward_analysis() )
         {
             // Loop over all non-linear systems
             for ( uint Ik = tNonLinSysStartIt; Ik < tNumNonLinSystems; Ik++ )
@@ -146,6 +146,8 @@ void NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem* aNonlin
         }
         else
         {
+            std::cout << "need fix in NonLinBlockGaussSeidel::solver_nonlinear_system\n";
+
             // Loop over all non-linear systems backwards
             for ( sint Ik = tNumNonLinSystems; Ik > (sint)tNonLinSysStartIt; Ik-- )
             {

@@ -270,7 +270,8 @@ namespace moris::fem
         }
 
         // set physical and parametric space and time coefficients for IG element
-        this->init_ig_geometry_interpolator();
+        Matrix< DDSMat > tGeoLocalAssembly;
+        this->init_ig_geometry_interpolator( tGeoLocalAssembly );
 
         // loop over integration points
         uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -309,7 +310,7 @@ namespace moris::fem
                 tReqIWG->set_nodal_weak_bcs(
                         mCluster->mInterpolationElement->get_weak_bcs() );
 
-                if ( mSet->mEquationModel->get_is_forward_analysis() )
+                if ( mSet->mEquationModel->is_forward_analysis() )
                 {
                     // compute residual at evaluation point
                     tReqIWG->compute_residual( tWStar );
@@ -317,10 +318,20 @@ namespace moris::fem
 
                 // compute Jacobian at evaluation point
                 ( this->*m_compute_jacobian )( tReqIWG, tWStar );
+
+                // compute dRdp if direct sensitivity analysis
+                if ( !mSet->mEquationModel->is_forward_analysis() &&    //
+                        !mSet->mEquationModel->is_adjoint_sensitivity_analysis() )
+                {
+                    Vector< Matrix< IndexMat > > tVertexIndices( 0 );
+                    ( this->*m_compute_dRdp )( tReqIWG, tWStar, tGeoLocalAssembly, tVertexIndices );
+                }
             }
 
-            // if sensitivity analysis and requested IQIs
-            if ( ( !mSet->mEquationModel->get_is_forward_analysis() ) && ( tNumIQIs > 0 ) )
+            // if adjoint sensitivity analysis is used and IQIs exists
+            if ( ( !mSet->mEquationModel->is_forward_analysis() ) &&              //
+                    mSet->mEquationModel->is_adjoint_sensitivity_analysis() &&    //
+                    ( tNumIQIs > 0 ) )
             {
                 // loop over the IQIs
                 for ( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )

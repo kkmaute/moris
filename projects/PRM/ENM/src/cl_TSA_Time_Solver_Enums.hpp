@@ -15,11 +15,10 @@ namespace moris::tsa
 {
     enum class TimeSolverType
     {
-        MONOLITHIC,    //< Wrapper around Aztec Solver
-        STAGGERED,     //< Wrapper around Aztec Solver
+        MONOLITHIC,
+        STAGGERED,
         END_ENUM
     };
-    }
+}    // namespace moris::tsa
 
 #endif /* SRC_DISTLINALG_CL_TSA_TIME_SOLVER_ENUMS_HPP_ */
-

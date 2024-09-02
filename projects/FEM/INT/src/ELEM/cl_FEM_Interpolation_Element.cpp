@@ -547,7 +547,7 @@ namespace moris::fem
         // set cluster for stabilization parameter
         mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
 
-        if ( mSet->mEquationModel->get_is_forward_analysis() )
+        if ( mSet->mEquationModel->is_forward_analysis() )
         {
             // FIXME should not be like this
             mSet->set_IWG_field_interpolator_managers();
@@ -558,16 +558,35 @@ namespace moris::fem
             // ask cluster to compute residual
             mFemCluster( 0 )->compute_residual();
         }
-        else if ( ( !mSet->mEquationModel->get_is_forward_analysis() ) && ( mSet->get_number_of_requested_IQIs() > 0 ) )
+        else
         {
-            // FIXME should not be like this
-            mSet->set_IQI_field_interpolator_managers();
+            // compute RHS of adjoint sensitivity analysis
+            if ( mSet->mEquationModel->is_adjoint_sensitivity_analysis() )
+            {
+                // check whether of IQIs; if none skip dQIdu computation
+                if ( mSet->get_number_of_requested_IQIs() > 0 )
+                {
+                    // FIXME should not be like this
+                    mSet->set_IQI_field_interpolator_managers();
 
-            // set cluster for stabilization parameter
-            mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+                    // set cluster for stabilization parameter
+                    mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
 
-            // ask cluster to compute jacobian
-            mFemCluster( 0 )->compute_dQIdu();
+                    // ask cluster to compute jacobian
+                    mFemCluster( 0 )->compute_dQIdu();
+                }
+            }
+            else
+            {
+                // FIXME should not be like this
+                mSet->set_IWG_field_interpolator_managers();
+
+                // set cluster for stabilization parameter
+                mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+
+                // ask cluster to compute residual
+                mFemCluster( 0 )->compute_dRdp();
+            }
         }
     }
 
@@ -602,13 +621,31 @@ namespace moris::fem
         // set cluster for stabilization parameter
         mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
 
-        if ( ( !mSet->mEquationModel->get_is_forward_analysis() ) && ( mSet->get_number_of_requested_IQIs() > 0 ) )
+        if ( !mSet->mEquationModel->is_forward_analysis() )
         {
-            // FIXME should not be like this
-            mSet->set_IQI_field_interpolator_managers();
+            if ( mSet->mEquationModel->is_adjoint_sensitivity_analysis() )
+            {
+                if ( mSet->get_number_of_requested_IQIs() > 0 )
+                {
+                    // FIXME should not be like this
+                    mSet->set_IQI_field_interpolator_managers();
 
-            // set cluster for stabilization parameter
-            mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+                    // set cluster for stabilization parameter
+                    mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+                }
+            }
+            else
+            {
+                // fill IP pdv assembly vector
+                this->fill_mat_pdv_assembly_vector();
+
+                // init IG pdv assembly map
+                mSet->create_geo_pdv_assembly_map( mFemCluster( 0 ) );
+
+                // init dRdp
+                mSet->initialize_mdRdpMat();
+                mSet->initialize_mdRdpGeo( mFemCluster( 0 ) );
+            }
         }
 
         // ask cluster to compute Jacobian and residual
@@ -746,13 +783,13 @@ namespace moris::fem
     void
     Interpolation_Element::compute_dQIdp_explicit_implicit()
     {
-        // fill IP pdv assembly vector
-        this->fill_mat_pdv_assembly_vector();
-
         // make sure this is done on the FEM clusters and not on the VIS clusters
         MORIS_ASSERT( !mFemCluster( 0 )->is_VIS_cluster(),
                 "FEM::Set::compute_dQIdp_explicit_implicit() - "
                 "Trying to compute sensitivities on a VIS cluster. This shouldn't happen." );
+
+        // fill IP pdv assembly vector
+        this->fill_mat_pdv_assembly_vector();
 
         // init IG pdv assembly map
         mSet->create_geo_pdv_assembly_map( mFemCluster( 0 ) );
@@ -772,19 +809,17 @@ namespace moris::fem
         }
 
         // init dRdp
-        mSet->initialize_mdRdpMat();
+        mSet->initialize_mdRdpMat();    // xxx Can this be skipped if tLocalToGlobalIdsIGPdv is empty?
         mSet->initialize_mdRdpGeo( mFemCluster( 0 ) );
 
         // initialize dQIdp
         mSet->initialize_mdQIdpMat();
         mSet->initialize_mdQIdpGeo( mFemCluster( 0 ) );
 
-        // as long as dRdp is computed with FD,
-        // we need to init the residual storage
+        // as long as dRdp is computed with FD, we need to initialize the residual storage
         mSet->initialize_mResidual();
 
         // compute pdof values
-        // FIXME do this only once
         this->compute_my_pdof_values();
 
         // if time continuity set
@@ -810,13 +845,18 @@ namespace moris::fem
         // set cluster for stabilization parameter
         mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
 
-        // ask cluster to compute jacobian
+        // ask cluster to compute explicit derivatives of residual and IQI wrt. PDOFs
         mFemCluster( 0 )->compute_dRdp_and_dQIdp();
 
         // get reference to computed dRdp
-        Vector< Matrix< DDRMat > >& tdRdp = mEquationSet->get_drdp();
+        const Vector< Matrix< DDRMat > >& tdRdp = mEquationSet->get_drdp();
+
+        print( tdRdp( 0 ), "dRdp for IP DVs" );
+        print( tdRdp( 1 ), "dRdp for IG DVs" );
 
         // extract adjoint values for this equation object
+        std::cout << "need fix in Interpolation_Element::compute_dQIdp_explicit_implicit - 1 \n";
+
         this->compute_my_adjoint_values();
 
         // get number of RHS
@@ -825,84 +865,24 @@ namespace moris::fem
         // get number of pdof values
         uint tNumPdofValues = tdRdp( 0 ).n_rows();
 
-        // reorder adjoint values following the requested dof types order
-        Matrix< DDRMat > tAdjointPdofValuesReordered;
+        // set size for reordered adjoint values
+        Matrix< DDRMat > tAdjointPdofValuesReordered( tNumPdofValues, 1 );
 
-        // get leader dof type list from set
-        const Vector< Vector< MSI::Dof_Type > >& tLeaderDofTypeGroup =
-                mSet->get_dof_type_list( mtk::Leader_Follower::LEADER );
-
-        // get number of leader dof types
-        uint tNumLeaderDofTypes = tLeaderDofTypeGroup.size();
-
-        // get follower dof type list from set
-        const Vector< Vector< MSI::Dof_Type > >& tFollowerDofTypeGroup =
-                mSet->get_dof_type_list( mtk::Leader_Follower::FOLLOWER );
-
-        // get number of follower dof types
-        uint tNumFollowerDofTypes = tFollowerDofTypeGroup.size();
-
-        // loop over the RHS
+        // loop over the RHS, i.e. IQIs
         for ( uint Ik = 0; Ik < tNumRHS; Ik++ )
         {
-            // set size for reordered adjoint values
-            tAdjointPdofValuesReordered.set_size( tNumPdofValues, 1, 0.0 );
+            // reorder adjoint values following the requested dof types order
+            this->reorder_adjoint_pdofs( tAdjointPdofValuesReordered, Ik );
 
-            // loop over the leader dof types
-            for ( uint Ia = 0; Ia < tNumLeaderDofTypes; Ia++ )
-            {
-                // get the adjoint values for the ith dof type group
-                Vector< Vector< Matrix< DDRMat > > > tLeaderAdjointOriginal;
-                this->get_my_pdof_values(
-                        mSet->mAdjointPdofValues,
-                        tLeaderDofTypeGroup( Ia ),
-                        tLeaderAdjointOriginal,
-                        mtk::Leader_Follower::LEADER );
-
-                // reshape adjoint values
-                Matrix< DDRMat > tLeaderAdjointCoeff;
-                this->reshape_pdof_values_vector( tLeaderAdjointOriginal( Ik ), tLeaderAdjointCoeff );
-
-                // get indices for begin and end
-                uint tDofIndex   = mSet->get_dof_index_for_type( tLeaderDofTypeGroup( Ia )( 0 ), mtk::Leader_Follower::LEADER );
-                uint tStartIndex = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
-                uint tStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
-
-                // fill reordered adjoint pdof values
-                tAdjointPdofValuesReordered( { tStartIndex, tStopIndex } ) =
-                        tLeaderAdjointCoeff.matrix_data();
-            }
-
-            // loop over the follower dof types
-            for ( uint Ia = 0; Ia < tNumFollowerDofTypes; Ia++ )
-            {
-                // get the adjoint values for the ith dof type group
-                Vector< Vector< Matrix< DDRMat > > > tFollowerAdjointOriginal;
-                this->get_my_pdof_values(
-                        mSet->mAdjointPdofValues,
-                        tFollowerDofTypeGroup( Ia ),
-                        tFollowerAdjointOriginal,
-                        mtk::Leader_Follower::FOLLOWER );
-
-                // reshape adjoint values
-                Matrix< DDRMat > tFollowerAdjointCoeff;
-                this->reshape_pdof_values_vector( tFollowerAdjointOriginal( Ik ), tFollowerAdjointCoeff );
-
-                // get indices for begin and end
-                uint tDofIndex   = mSet->get_dof_index_for_type( tFollowerDofTypeGroup( Ia )( 0 ), mtk::Leader_Follower::FOLLOWER );
-                uint tStartIndex = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
-                uint tStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
-
-                // fill reordered adjoint pdof values
-                tAdjointPdofValuesReordered( { tStartIndex, tStopIndex } ) =
-                        tFollowerAdjointCoeff.matrix_data();
-            }
+            std::string tStr = "reordered adjoint for QI " + std::to_string( Ik );
+            print( tAdjointPdofValuesReordered, tStr );
 
             // Assembly for the IP pdv
-            //----------------------------------------------------------------------------------------
-            // if the assembly vector is not empty
             if ( tLocalToGlobalIdsIPPdv.numel() != 0 )
             {
+                std::string tStr = "for IP DVs: dQdp " + std::to_string( Ik );
+                print( mSet->mdQIdp( 0 )( Ik ), tStr );
+
                 // assemble explicit dQIdpMat into multivector
                 mEquationSet->get_equation_model()->get_explicit_dQidp()->sum_into_global_values(
                         tLocalToGlobalIdsIPPdv,
@@ -921,10 +901,11 @@ namespace moris::fem
             }
 
             // Assembly for the IG pdv
-            //----------------------------------------------------------------------------------------
-            // if assembly vector is not empty
             if ( tLocalToGlobalIdsIGPdv.numel() != 0 )
             {
+                std::string tStr = "for IG DVs: dQdp " + std::to_string( Ik );
+                print( mSet->mdQIdp( 1 )( Ik ), tStr );
+
                 // assemble explicit dQIdpGeo into multivector
                 mEquationSet->get_equation_model()->get_explicit_dQidp()->sum_into_global_values(
                         tLocalToGlobalIdsIGPdv,
@@ -946,8 +927,81 @@ namespace moris::fem
 
     //-------------------------------------------------------------------------------------------------
 
-    void
-    Interpolation_Element::compute_dQIdp_implicit()
+    void Interpolation_Element::reorder_adjoint_pdofs(
+            Matrix< DDRMat >& aAdjointPdofValuesReordered,
+            uint              aRhsIndex )
+    {
+        // initialize vector with adjoint pdof values
+        aAdjointPdofValuesReordered.fill( 0.0 );
+
+        // get leader dof type list from set
+        const Vector< Vector< MSI::Dof_Type > >& tLeaderDofTypeGroup =
+                mSet->get_dof_type_list( mtk::Leader_Follower::LEADER );
+
+        // get number of leader dof types
+        uint tNumLeaderDofTypes = tLeaderDofTypeGroup.size();
+
+        // loop over the leader dof types
+        for ( uint Ia = 0; Ia < tNumLeaderDofTypes; Ia++ )
+        {
+            // get the adjoint values for the ith dof type group
+            Vector< Vector< Matrix< DDRMat > > > tLeaderAdjointOriginal;
+            this->get_my_pdof_values(
+                    mSet->mAdjointPdofValues,
+                    tLeaderDofTypeGroup( Ia ),
+                    tLeaderAdjointOriginal,
+                    mtk::Leader_Follower::LEADER );
+
+            // reshape adjoint values
+            Matrix< DDRMat > tLeaderAdjointCoeff;
+            this->reshape_pdof_values_vector( tLeaderAdjointOriginal( aRhsIndex ), tLeaderAdjointCoeff );
+
+            // get indices for begin and end
+            uint tDofIndex   = mSet->get_dof_index_for_type( tLeaderDofTypeGroup( Ia )( 0 ), mtk::Leader_Follower::LEADER );
+            uint tStartIndex = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
+            uint tStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
+
+            // fill reordered adjoint pdof values
+            aAdjointPdofValuesReordered( { tStartIndex, tStopIndex } ) =
+                    tLeaderAdjointCoeff.matrix_data();
+        }
+
+        // get follower dof type list from set
+        const Vector< Vector< MSI::Dof_Type > >& tFollowerDofTypeGroup =
+                mSet->get_dof_type_list( mtk::Leader_Follower::FOLLOWER );
+
+        // get number of follower dof types
+        uint tNumFollowerDofTypes = tFollowerDofTypeGroup.size();
+
+        // loop over the follower dof types
+        for ( uint Ia = 0; Ia < tNumFollowerDofTypes; Ia++ )
+        {
+            // get the adjoint values for the ith dof type group
+            Vector< Vector< Matrix< DDRMat > > > tFollowerAdjointOriginal;
+            this->get_my_pdof_values(
+                    mSet->mAdjointPdofValues,
+                    tFollowerDofTypeGroup( Ia ),
+                    tFollowerAdjointOriginal,
+                    mtk::Leader_Follower::FOLLOWER );
+
+            // reshape adjoint values
+            Matrix< DDRMat > tFollowerAdjointCoeff;
+            this->reshape_pdof_values_vector( tFollowerAdjointOriginal( aRhsIndex ), tFollowerAdjointCoeff );
+
+            // get indices for begin and end
+            uint tDofIndex   = mSet->get_dof_index_for_type( tFollowerDofTypeGroup( Ia )( 0 ), mtk::Leader_Follower::FOLLOWER );
+            uint tStartIndex = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
+            uint tStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
+
+            // fill reordered adjoint pdof values
+            aAdjointPdofValuesReordered( { tStartIndex, tStopIndex } ) =
+                    tFollowerAdjointCoeff.matrix_data();
+        }
+    }
+
+    //-------------------------------------------------------------------------------------------------
+
+    void Interpolation_Element::compute_dQIdp_implicit()
     {
         // fill IP pdv assembly vector
         this->fill_mat_pdv_assembly_vector();
@@ -1005,6 +1059,8 @@ namespace moris::fem
         Vector< Matrix< DDRMat > >& tdRdp = mEquationSet->get_drdp();
 
         // extract adjoint values for this equation object
+        std::cout << "need fix in Interpolation_Element::compute_dQIdp_implicit - 1\n";
+
         this->compute_my_adjoint_values();
 
         // get number of  RHS
@@ -1033,6 +1089,8 @@ namespace moris::fem
         // loop over the RHS
         for ( uint Ik = 0; Ik < tNumRHS; Ik++ )
         {
+            std::cout << "need fix in Interpolation_Element::compute_dQIdp_implicit - 2\n";
+
             // set size for reordered adjoint values
             tAdjointPdofValuesReordered.set_size( tNumPdofValues, 1, 0.0 );
 
@@ -1061,6 +1119,8 @@ namespace moris::fem
                         tLeaderAdjointCoeff.matrix_data();
             }
 
+            std::cout << "need fix in Interpolation_Element::compute_dQIdp_implicit - 3\n";
+
             // loop over the follower dof types
             for ( uint Ia = 0; Ia < tNumFollowerDofTypes; Ia++ )
             {
@@ -1086,6 +1146,8 @@ namespace moris::fem
                         tFollowerAdjointCoeff.matrix_data();
             }
 
+            std::cout << "need fix in Interpolation_Element::compute_dQIdp_implicit - 3\n";
+
             // Assembly for the IP pdv
             //----------------------------------------------------------------------------------------
             // if the assembly vector is not empty
@@ -1101,6 +1163,8 @@ namespace moris::fem
                         tLocalIPdQiDp,
                         Ik );
             }
+
+            std::cout << "need fix in Interpolation_Element::compute_dQIdp_implicit - 4\n";
 
             // Assembly for the IG pdv
             //----------------------------------------------------------------------------------------
@@ -1122,8 +1186,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    Interpolation_Element::compute_dQIdu()
+    void Interpolation_Element::compute_dQIdu()
     {
         // compute pdof values
         // FIXME do this only once
@@ -1152,8 +1215,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    Interpolation_Element::compute_QI()
+    void Interpolation_Element::compute_QI()
     {
         // compute pdof values
         // FIXME do this only once
@@ -1193,8 +1255,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    Interpolation_Element::compute_quantity_of_interest(
+    void Interpolation_Element::compute_quantity_of_interest(
             const uint           aFemMeshIndex,
             enum vis::Field_Type aFieldType )
     {
@@ -1234,8 +1295,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    Interpolation_Element::setup_IQI_computation()
+    void Interpolation_Element::setup_IQI_computation()
     {
         // compute pdof values
         this->compute_my_pdof_values();    // FIXME: do this only once
@@ -1266,8 +1326,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    Interpolation_Element::compute_nodal_QIs_standard(
+    void Interpolation_Element::compute_nodal_QIs_standard(
             const uint           aFemMeshIndex,
             mtk::Leader_Follower aLeaderOrFollowerSide )
     {
@@ -1335,8 +1394,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    Interpolation_Element::compute_nodal_QIs_nonconformal_side( const uint aFemMeshIndex )
+    void Interpolation_Element::compute_nodal_QIs_nonconformal_side( const uint aFemMeshIndex )
     {
         uint tNumLocalIQIs = mSet->get_number_of_requested_nodal_IQIs_for_visualization();
 
@@ -1429,8 +1487,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    Interpolation_Element::compute_nodal_QIs_double_sided( const uint aFemMeshIndex )
+    void Interpolation_Element::compute_nodal_QIs_double_sided( const uint aFemMeshIndex )
     {
         // get number of active local IQIs
         uint tNumLocalIQIs = mSet->get_number_of_requested_nodal_IQIs_for_visualization();
@@ -1530,8 +1587,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    Interpolation_Element::populate_fields(
+    void Interpolation_Element::populate_fields(
             Vector< std::shared_ptr< fem::Field > >& aFields,
             Vector< std::string > const &            tFieldIQINames )
     {
