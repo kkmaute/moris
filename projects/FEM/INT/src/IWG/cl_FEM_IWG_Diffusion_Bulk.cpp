@@ -14,45 +14,43 @@
 // LINALG/src
 #include "fn_trans.hpp"
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+
+    //------------------------------------------------------------------------------
+
+    IWG_Diffusion_Bulk::IWG_Diffusion_Bulk()
     {
+        // set size for the property pointer cell
+        mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
-        //------------------------------------------------------------------------------
+        // populate the property map
+        mPropertyMap[ "Load" ]       = static_cast< uint >( IWG_Property_Type::BODY_LOAD );
+        mPropertyMap[ "Thickness" ]  = static_cast< uint >( IWG_Property_Type::THICKNESS );
+        mPropertyMap[ "H2Penalty" ]  = static_cast< uint >( IWG_Property_Type::H2_PENALTY );
+        mPropertyMap[ "H3Penalty" ]  = static_cast< uint >( IWG_Property_Type::H3_PENALTY );
+        mPropertyMap[ "PhaseField" ] = static_cast< uint >( IWG_Property_Type::Phase_Field );
+        mPropertyMap[ "Select" ]     = static_cast< uint >( IWG_Property_Type::SELECT );
 
-        IWG_Diffusion_Bulk::IWG_Diffusion_Bulk()
-        {
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+        // set size for the constitutive model pointer cell
+        mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
-            // populate the property map
-            mPropertyMap[ "Load" ]       = static_cast< uint >( IWG_Property_Type::BODY_LOAD );
-            mPropertyMap[ "Thickness" ]  = static_cast< uint >( IWG_Property_Type::THICKNESS );
-            mPropertyMap[ "H2Penalty" ]  = static_cast< uint >( IWG_Property_Type::H2_PENALTY );
-            mPropertyMap[ "H3Penalty" ]  = static_cast< uint >( IWG_Property_Type::H3_PENALTY );
-            mPropertyMap[ "PhaseField" ] = static_cast< uint >( IWG_Property_Type::Phase_Field );
-            mPropertyMap[ "Select" ]     = static_cast< uint >( IWG_Property_Type::SELECT );
+        // populate the constitutive map
+        mConstitutiveMap[ "Diffusion" ] = static_cast< uint >( IWG_Constitutive_Type::DIFFUSION );
 
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+        // set size for the stabilization parameter pointer cell
+        mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
 
-            // populate the constitutive map
-            mConstitutiveMap[ "Diffusion" ] = static_cast< uint >( IWG_Constitutive_Type::DIFFUSION );
+        // populate the stabilization map
+        mStabilizationMap[ "GGLSParam" ] = static_cast< uint >( IWG_Stabilization_Type::GGLS_DIFFUSION );
+    }
 
-            // set size for the stabilization parameter pointer cell
-            mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
+    //------------------------------------------------------------------------------
 
-            // populate the stabilization map
-            mStabilizationMap[ "GGLSParam" ] = static_cast< uint >( IWG_Stabilization_Type::GGLS_DIFFUSION );
-        }
-
-        //------------------------------------------------------------------------------
-
-        void
-        IWG_Diffusion_Bulk::compute_residual( real aWStar )
-        {
-            // check leader field interpolators
+    void
+    IWG_Diffusion_Bulk::compute_residual( real aWStar )
+    {
+        // check leader field interpolators
 #ifdef MORIS_HAVE_DEBUG
             this->check_field_interpolators();
 #endif
@@ -410,5 +408,4 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
+}    // namespace moris::fem

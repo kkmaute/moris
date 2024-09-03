@@ -44,14 +44,14 @@ namespace moris::hmr
     //------------------------------------------------------------------------------
 
     void
-    Edge::set_index( const moris_index& aIndex )
+    Edge::set_index( const moris_index aIndex )
     {
         mIndex = aIndex;
     }
     //------------------------------------------------------------------------------
 
     void
-    Edge::set_id( const moris_id& aID )
+    Edge::set_id( const moris_id aID )
     {
         mID = aID;
     }
@@ -69,7 +69,7 @@ namespace moris::hmr
     //------------------------------------------------------------------------------
 
     void
-    Edge::set_owner( const moris_id& aOwner )
+    Edge::set_owner( const moris_id aOwner )
     {
         mOwner = aOwner;
     }
@@ -88,7 +88,7 @@ namespace moris::hmr
     void
     Edge::remove_vertex_pointer( moris_index aIndex )
     {
-        std::cout << "in HMR edge" << std::endl;
+        std::cout << "in HMR edge" << '\n';
     }
 
     //------------------------------------------------------------------------------
@@ -314,4 +314,4 @@ namespace moris::hmr
 
     //------------------------------------------------------------------------------
 
-} /* namespace moris */
+}    // namespace moris::hmr

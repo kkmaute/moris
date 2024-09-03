@@ -168,16 +168,16 @@ namespace moris::hmr
          * aTarget must be a refined variant of aSource
          */
         void interpolate_field(
-                uint                           aSourcePattern,
-                const std::shared_ptr< Field > aSource,
-                uint                           aTargetPattern,
-                std::shared_ptr< Field >       aTarget );
+                uint                            aSourcePattern,
+                const std::shared_ptr< Field >& aSource,
+                uint                            aTargetPattern,
+                const std::shared_ptr< Field >& aTarget );
 
         // -----------------------------------------------------------------------------
 
         void change_field_order(
-                std::shared_ptr< Field > aSource,
-                std::shared_ptr< Field > aTarget );
+                const std::shared_ptr< Field >& aSource,
+                const std::shared_ptr< Field >& aTarget );
 
         // -----------------------------------------------------------------------------
 

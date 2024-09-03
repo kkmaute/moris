@@ -18,7 +18,7 @@ namespace moris::mtk
     std::pair< moris_index, moris_index > get_leader_follower_index_pair(
             std::map< moris_index, moris_index > aLeaderCellIndexToStoringIndex,
             std::map< moris_index, moris_index > aFollowerCellIndexToStoringIndex,
-            MappingPointPairs                    aMappingPointPairs )
+            const MappingPointPairs             &aMappingPointPairs )
     {
         moris_index const tLeaderCellIndex    = aMappingPointPairs.get_leader_cell_index();
         moris_index const tFollowerCellIndex  = aMappingPointPairs.get_follower_cell_index();

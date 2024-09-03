@@ -153,11 +153,11 @@ namespace moris::xtk
         }
         if ( mInterpolation( aOrder ) != nullptr )
         {
-            std::cout << "aOrder = " << aOrder << std::endl;
+            std::cout << "aOrder = " << aOrder << '\n';
             std::cout << "Old = \n"
-                      << *mInterpolation( aOrder ) << std::endl;
+                      << *mInterpolation( aOrder ) << '\n';
             std::cout << "New = \n"
-                      << *aVertexInterp << std::endl;
+                      << *aVertexInterp << '\n';
         }
         MORIS_ASSERT( mInterpolation( aOrder ) == nullptr,
                 "Interpolation_Vertex_Unzipped::add_vertex_interpolation() - Vertex interpolation for this order already set" );
@@ -177,9 +177,9 @@ namespace moris::xtk
     void
     Interpolation_Vertex_Unzipped::print() const
     {
-        std::cout << "\n-------------------------------------------------------------" << std::endl;
-        std::cout << "Unzipped IP vertex #" << mVertexIndex << " (ID = " << mVertexId << ")" << std::endl;
-        std::cout << "Number of enriched T-matrices (reserved): " << mInterpolation.size() << std::endl;
+        std::cout << "\n-------------------------------------------------------------" << '\n';
+        std::cout << "Unzipped IP vertex #" << mVertexIndex << " (ID = " << mVertexId << ")" << '\n';
+        std::cout << "Number of enriched T-matrices (reserved): " << mInterpolation.size() << '\n';
         for ( uint iTMat = 0; iTMat < mInterpolation.size(); iTMat++ )
         {
             if ( mInterpolation( iTMat ) != nullptr )
@@ -188,11 +188,11 @@ namespace moris::xtk
             }
             else
             {
-                std::cout << "Enriched T-matrix #" << iTMat << " is nullptr." << std::endl;
+                std::cout << "Enriched T-matrix #" << iTMat << " is nullptr." << '\n';
             }
         }
         std::cout << "-------------------------------------------------------------\n"
-                  << std::endl;
+                  << '\n';
     }
 
     //------------------------------------------------------------------------------

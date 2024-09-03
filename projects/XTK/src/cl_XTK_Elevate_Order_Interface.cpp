@@ -19,7 +19,9 @@ namespace moris::xtk
 {
     // ----------------------------------------------------------------------------------
 
-    Elevate_Order_Interface::Elevate_Order_Interface( Parameter_List& aParameterList, enum Subdivision_Method aSubdivisionMethod )
+    Elevate_Order_Interface::Elevate_Order_Interface(
+            Parameter_List&         aParameterList,
+            enum Subdivision_Method aSubdivisionMethod )
     {
         // get number of spatial dimensions and decide on subdivision template
         if ( aSubdivisionMethod == Subdivision_Method::P_ELEVATE_ORDER_TRI3_TRI6 )
@@ -151,16 +153,14 @@ namespace moris::xtk
 
     bool
     Elevate_Order_Interface::make_vertex_requests(
-            std::shared_ptr< Edge_Based_Connectivity > aEdgeConnectivity,
-            std::shared_ptr< Edge_Based_Ancestry >     aIgEdgeAncestry,
-            Vector< moris::mtk::Cell* >*               aIgCells,
-            Vector< Vector< moris_index > >*           aCellToNewLocalVertexIndices )
+            const std::shared_ptr< Edge_Based_Connectivity >& aEdgeConnectivity,
+            const std::shared_ptr< Edge_Based_Ancestry >&     aIgEdgeAncestry,
+            Vector< moris::mtk::Cell* >*                      aIgCells,
+            Vector< Vector< moris_index > >*                  aCellToNewLocalVertexIndices )
     {
         Tracer tTracer( "XTK", "Elevate_Order_Interface", "make vertex requests" );
 
         // get first unused index for nodes for numbering new nodes
-        moris::moris_index tNewNodeIndex = mCutIntegrationMesh->get_first_available_index( mtk::EntityRank::NODE );
-
         mDecompositionData->mHasSecondaryIdentifier = true;
 
         // range of indices
@@ -247,7 +247,7 @@ namespace moris::xtk
                                 tNewVertexCoords );
 
                         // count number of new nodes created
-                        tNewNodeIndex++;
+                        // tNewNodeIndex++;
                     }
                 }    // end: loop over new vertices inside each cell
             }        // end: new vertices inside element
@@ -312,7 +312,7 @@ namespace moris::xtk
                         tNewEdgeVertexIndicesInDecompData( iVert ) = tNewNodeIndexInDecompData;
 
                         // count number of new nodes created
-                        tNewNodeIndex++;
+                        // tNewNodeIndex++;
 
                     }    // end: loop over all new vertices on edge
 
@@ -408,7 +408,7 @@ namespace moris::xtk
                             tNewVertexCoords );
 
                     // count number of new nodes created
-                    tNewNodeIndex++;
+                    // tNewNodeIndex++;
                 }
             }    // end: loop over faces
         }        // end: new vertices on faces
@@ -423,10 +423,10 @@ namespace moris::xtk
 
     bool
     Elevate_Order_Interface::associate_new_vertices_with_cell_groups(
-            std::shared_ptr< Edge_Based_Connectivity > aEdgeConnectivity,
-            std::shared_ptr< Edge_Based_Ancestry >     aIgEdgeAncestry,
-            Vector< moris::mtk::Cell* >*               aBackgroundCellForEdge,
-            Vector< moris::mtk::Cell* >*               aIgCells )
+            const std::shared_ptr< Edge_Based_Connectivity >& aEdgeConnectivity,
+            const std::shared_ptr< Edge_Based_Ancestry >&     aIgEdgeAncestry,
+            Vector< moris::mtk::Cell* >*                      aBackgroundCellForEdge,
+            Vector< moris::mtk::Cell* >*                      aIgCells )
     {
         // trace this function
         Tracer tTracer( "XTK", "Decomposition_Algorithm", "Vertex Associations" );
@@ -512,10 +512,10 @@ namespace moris::xtk
 
     void
     Elevate_Order_Interface::create_higher_order_integration_cells(
-            std::shared_ptr< Edge_Based_Connectivity > aEdgeConnectivity,
-            std::shared_ptr< Edge_Based_Ancestry >     aIgEdgeAncestry,
-            Vector< moris::mtk::Cell* >*               aIgCells,
-            Vector< Vector< moris_index > >*           aCellToNewLocalVertexIndices )
+            const std::shared_ptr< Edge_Based_Connectivity >& aEdgeConnectivity,
+            const std::shared_ptr< Edge_Based_Ancestry >&     aIgEdgeAncestry,
+            Vector< moris::mtk::Cell* >*                      aIgCells,
+            Vector< Vector< moris_index > >*                  aCellToNewLocalVertexIndices )
     {
         // time/log function
         Tracer tTracer( "XTK", "Elevate_Order_Interface", "Create Higher Order Integration Cells" );
@@ -667,7 +667,7 @@ namespace moris::xtk
     Matrix< DDRMat >
     Elevate_Order_Interface::compute_tri_vertex_global_coordinates(
             Vector< moris::mtk::Vertex* > const & aTriVertices,
-            Matrix< DDRMat >                      aTriCoords )
+            const Matrix< DDRMat >&               aTriCoords )
     {
         MORIS_ERROR( false, "Elevate_Order_Interface::compute_tri_vertex_global_coordinates() - function not implemented yet." );
         return { { 0.0 } };
@@ -678,7 +678,7 @@ namespace moris::xtk
     Matrix< DDRMat >
     Elevate_Order_Interface::compute_tet_vertex_global_coordinates(
             Vector< moris::mtk::Vertex* > const & aTriVertices,
-            Matrix< DDRMat >                      aTriCoords )
+            const Matrix< DDRMat >&               aTriCoords )
     {
         MORIS_ERROR( false, "Elevate_Order_Interface::compute_tet_vertex_global_coordinates() - function not implemented yet." );
         return { { 0.0 } };

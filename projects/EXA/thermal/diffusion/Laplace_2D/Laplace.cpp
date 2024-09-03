@@ -22,7 +22,6 @@
 #include "fn_equal_to.hpp"
 
 #include "AztecOO.h"
-#include "AztecOO.h"
 #include "BelosConfigDefs.hpp"
 #include "BelosLinearProblem.hpp"
 #include "BelosEpetraAdapter.hpp"
@@ -821,8 +820,8 @@ namespace moris
         tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_constitutive_models", "CMDiffusion,Diffusion" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters", "SPNitsche,DirichletNitsche" );
         tIWGCounter++;
-        
-              // Inlet BC IWG ----------------------------------------------------------------
+
+        // Inlet BC IWG ----------------------------------------------------------------
 
         //
         tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
@@ -1037,7 +1036,7 @@ namespace moris
     void
     SOLParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
-        std::cout << "gTestIndex_" + std::to_string( par_rank() ) + ": " << gTestIndex << std::endl;
+        std::cout << "gTestIndex_" + std::to_string( par_rank() ) + ": " << gTestIndex << '\n';
         gTestIndex == 0 ? create_trilinos_solver_parameter_list( tParameterlist ) : create_petsc_solver_parameter_list( tParameterlist );
     }
 
@@ -1176,26 +1175,26 @@ namespace moris
 
         tParameterlist( 3 ).resize( 3 );
         tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();    // 1: thermal subproblem
-        tParameterlist( 3 )( 0 ).set( "NLA_Nonlinear_solver_algorithms", "0,1" );         // set nonlinear algorithm with index 0
+        tParameterlist( 3 )( 0 ).set( "NLA_Nonlinear_solver_algorithms", "0,1" );           // set nonlinear algorithm with index 0
         tParameterlist( 3 )( 0 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         tParameterlist( 3 )( 0 ).set( "NLA_DofTypes", "TEMP" );
 
         tParameterlist( 3 )( 1 ) = moris::prm::create_nonlinear_solver_parameter_list();    // 1: thermal subproblem
-        tParameterlist( 3 )( 1 ).set( "NLA_Nonlinear_solver_algorithms", "0" );         // set nonlinear algorithm with index 0
+        tParameterlist( 3 )( 1 ).set( "NLA_Nonlinear_solver_algorithms", "0" );             // set nonlinear algorithm with index 0
         tParameterlist( 3 )( 1 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         tParameterlist( 3 )( 1 ).set( "NLA_DofTypes", "L2" );
 
-        tParameterlist(3)(2) = moris::prm::create_nonlinear_solver_parameter_list(); // nonlinear solver index 2
-        tParameterlist(3)(2).set("NLA_Solver_Implementation", static_cast<uint>(moris::NLA::NonlinearSolverType::NLBGS_SOLVER));
-        tParameterlist(3)(2).set("NLA_Nonlinear_solver_algorithms", "3"); // set nonlinear algorithm with index 1.
-        tParameterlist(3)(2).set("NLA_Sub_Nonlinear_Solver", "0,1");  // set sub nonlinear solvers with index 0 and 1
-        tParameterlist(3)(2).set("NLA_DofTypes", "TEMP;L2");
+        tParameterlist( 3 )( 2 ) = moris::prm::create_nonlinear_solver_parameter_list();    // nonlinear solver index 2
+        tParameterlist( 3 )( 2 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER ) );
+        tParameterlist( 3 )( 2 ).set( "NLA_Nonlinear_solver_algorithms", "3" );    // set nonlinear algorithm with index 1.
+        tParameterlist( 3 )( 2 ).set( "NLA_Sub_Nonlinear_Solver", "0,1" );         // set sub nonlinear solvers with index 0 and 1
+        tParameterlist( 3 )( 2 ).set( "NLA_DofTypes", "TEMP;L2" );
 
         // ----------------------------------------------------------
 
         tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
-        tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_solver", 2 );                      // using NLBGS for forward problem
-        tParameterlist( 4 )( 0 ).set( "TSA_nonlinear_solver_for_adjoint_solve", 2 );    // using monlithic for sensitivity problem
+        tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_Solver", 2 );                // using NLBGS for forward problem
+        tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_Sensitivity_Solver", 2 );    // using monlithic for sensitivity problem
 
         if ( tUseTimeContinuity )
         {
@@ -1504,8 +1503,8 @@ namespace moris
         // ----------------------------------------------------------
 
         tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
-        tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_solver", 0 );                      // using NLBGS for forward problem
-        tParameterlist( 4 )( 0 ).set( "TSA_nonlinear_solver_for_adjoint_solve", 0 );    // using monlithic for sensitivity problem
+        tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_Solver", 0 );                // using NLBGS for forward problem
+        tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_Sensitivity_Solver", 0 );    // using monlithic for sensitivity problem
 
         if ( tUseTimeContinuity )
         {

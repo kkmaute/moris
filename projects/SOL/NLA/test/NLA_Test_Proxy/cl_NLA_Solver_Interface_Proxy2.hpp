@@ -42,9 +42,6 @@ namespace moris
             sol::Dist_Vector* mSolutionVector = nullptr;
             Matrix< DDRMat >  mMySolVec;
 
-            moris::sint mNX;
-            moris::sint mNY;
-
             Vector< enum MSI::Dof_Type > mListOfDofTypes;
 
           public:
@@ -52,11 +49,11 @@ namespace moris
 
             // ----------------------------------------------------------------------------------------------
 
-            NLA_Solver_Interface_Proxy_II( std::shared_ptr< Nonlinear_Algorithm > aNewtonSolver ){};
+            NLA_Solver_Interface_Proxy_II( const std::shared_ptr< Nonlinear_Algorithm >& aNewtonSolver ) {};
 
             // ----------------------------------------------------------------------------------------------
 
-            ~NLA_Solver_Interface_Proxy_II() override{};
+            ~NLA_Solver_Interface_Proxy_II() override {};
 
             // ----------------------------------------------------------------------------------------------
 
@@ -68,7 +65,7 @@ namespace moris
 
             // ----------------------------------------------------------------------------------------------
 
-            void set_requested_dof_types( const Vector< enum MSI::Dof_Type > aListOfDofTypes ) override
+            void set_requested_dof_types( const Vector< enum MSI::Dof_Type >& aListOfDofTypes ) override
             {
                 mListOfDofTypes = aListOfDofTypes;
             };
@@ -82,8 +79,7 @@ namespace moris
 
             // ----------------------------------------------------------------------------------------------
 
-            void set_secondary_dof_types( const Vector< enum MSI::Dof_Type > aListOfDofTypes ) override {
-            };
+            void set_secondary_dof_types( const Vector< enum MSI::Dof_Type >& aListOfDofTypes ) override {};
 
             // ----------------------------------------------------------------------------------------------
 
@@ -271,7 +267,7 @@ namespace moris
                 }
                 else
                 {
-                    return NULL;
+                    return nullptr;
                 }
             };
 

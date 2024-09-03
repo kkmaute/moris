@@ -337,7 +337,7 @@ TEST_CASE( "IWG_Struc_Dirichlet_Symmetric_Nitsche",
                 // print for debug
                 if( !tCheckJacobian )
                 {
-                    std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<"iGP "<<iGP<<std::endl;
+                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << "iGP " << iGP << '\n';
                 }
 
                 // require check is true
@@ -649,7 +649,7 @@ TEST_CASE( "IWG_Struc_Dirichlet_Unsymmetric_Nitsche",
                 // print for debug
                 if( !tCheckJacobian )
                 {
-                    std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<"iGP "<<iGP<<std::endl;
+                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << "iGP " << iGP << '\n';
                 }
 
                 // require check is true
@@ -977,7 +977,7 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Displacement_Symmetric_Nitsche",
                 // print for debug
                 if( !tCheckJacobian )
                 {
-                    std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<"iGP "<<iGP<<std::endl;
+                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << "iGP " << iGP << '\n';
                 }
 
                 // require check is true
@@ -1305,7 +1305,7 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Displacement_Unsymmetric_Nitsche",
                 // print for debug
                 if( !tCheckJacobian )
                 {
-                    std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<"iGP "<<iGP<<std::endl;
+                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << "iGP " << iGP << '\n';
                 }
 
                 // require check is true
@@ -1643,7 +1643,7 @@ TEST_CASE( "IWG_Struc_Thermo_Elastic_Dirichlet_Symmetric_Nitsche",
                 // print for debug
                 if( !tCheckJacobian )
                 {
-                    std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<"iGP "<<iGP<<std::endl;
+                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << "iGP " << iGP << '\n';
                 }
 
                 // require check is true
@@ -1981,7 +1981,7 @@ TEST_CASE( "IWG_Struc_Thermo_Elastic_Dirichlet_Unsymmetric_Nitsche",
                 // print for debug
                 if( !tCheckJacobian )
                 {
-                    std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<"iGP "<<iGP<<std::endl;
+                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << "iGP " << iGP << '\n';
                 }
 
                 // require check is true
@@ -2335,7 +2335,7 @@ TEST_CASE( "IWG_Struc_Linear_Elasticity_Damage_Dirichlet_Symmetric_Nitsche",
                 // print for debug
                 if( !tCheckJacobian )
                 {
-                    std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<"iGP "<<iGP<<std::endl;
+                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << "iGP " << iGP << '\n';
                 }
 
                 // require check is true

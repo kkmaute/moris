@@ -33,33 +33,33 @@ namespace moris::hmr
 
 // ----------------------------------------------------------------------------
 
-        ~Lagrange_Edge(){};
+        ~Lagrange_Edge() override{};
 
 // ----------------------------------------------------------------------------
         inline
-        uint get_number_of_vertices() const
+        uint get_number_of_vertices() const override
         {
             return D;
         }
 
 // ----------------------------------------------------------------------------
 
-        mtk::Interpolation_Order get_interpolation_order() const;
+        mtk::Interpolation_Order get_interpolation_order() const override;
 
 // ----------------------------------------------------------------------------
 
-        mtk::Integration_Order get_integration_order() const;
+        mtk::Integration_Order get_integration_order() const override;
 
 // ----------------------------------------------------------------------------
         inline
-        const Basis * get_basis( const uint aIndex ) const
+        const Basis * get_basis( const uint aIndex ) const override
         {
             return mVertices[ aIndex ];
         }
 
 // ----------------------------------------------------------------------------
         inline
-        Basis * get_basis( const uint aIndex )
+        Basis * get_basis( const uint aIndex ) override
         {
             return mVertices[ aIndex ];
         }
@@ -67,7 +67,7 @@ namespace moris::hmr
 // ----------------------------------------------------------------------------
     protected:
 // ----------------------------------------------------------------------------
-        void copy_vertex_pointers();
+        void copy_vertex_pointers() override;
 
 // ----------------------------------------------------------------------------
     };

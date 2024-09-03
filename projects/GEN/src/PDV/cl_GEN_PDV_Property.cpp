@@ -10,12 +10,14 @@
 
 #include "cl_GEN_PDV_Property.hpp"
 
+#include <utility>
+
 namespace moris::gen
 {
     //--------------------------------------------------------------------------------------------------------------
 
     PDV_Property::PDV_Property( std::shared_ptr< Property > aPropertyPointer )
-            : mProperty( aPropertyPointer )
+            : mProperty( std::move( aPropertyPointer ) )
     {
     }
 

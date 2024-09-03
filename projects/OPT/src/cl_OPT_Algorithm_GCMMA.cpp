@@ -25,7 +25,7 @@ using namespace moris;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-OptAlgGCMMA::OptAlgGCMMA( Parameter_List aParameterList )
+OptAlgGCMMA::OptAlgGCMMA( const Parameter_List& aParameterList )
         : mMaxInnerIterations( aParameterList.get< moris::sint >( "max_inner_its" ) )
         , mNormDrop( aParameterList.get< moris::real >( "norm_drop" ) )
         , mAsympAdapt0( aParameterList.get< moris::real >( "asymp_adapt0" ) )
@@ -131,7 +131,7 @@ OptAlgGCMMA::gcmma_solve()
             mAsympExpand,
             mStepSize,
             mPenalty,
-            NULL,
+            nullptr,
             mPrint,
             mIvers );
 

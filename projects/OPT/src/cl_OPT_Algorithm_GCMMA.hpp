@@ -61,34 +61,34 @@ public:
     /**
      * Constructor
      */
-    OptAlgGCMMA(moris::Parameter_List aParameterList);
+  OptAlgGCMMA( const moris::Parameter_List& aParameterList );
 
-    /**
-     * Destructor
-     */
-    ~OptAlgGCMMA();
+  /**
+   * Destructor
+   */
+  ~OptAlgGCMMA() override;
 
-    /**
-     * @brief MORIS interface for solving of optimization problem using
-     *        GCMMA
-     *
-     * @param[in] aCurrentOptAlgInd index of optimization algorithm
-     * @param[in] aOptProb Object of type Problem containing relevant
-     *            data regarding ADVs, the objective and constraints
-     */
-    uint solve(
-            uint                                 aCurrentOptAlgInd,
-            std::shared_ptr<moris::opt::Problem> aOptProb );
+  /**
+   * @brief MORIS interface for solving of optimization problem using
+   *        GCMMA
+   *
+   * @param[in] aCurrentOptAlgInd index of optimization algorithm
+   * @param[in] aOptProb Object of type Problem containing relevant
+   *            data regarding ADVs, the objective and constraints
+   */
+  uint solve(
+          uint                                   aCurrentOptAlgInd,
+          std::shared_ptr< moris::opt::Problem > aOptProb ) override;
 
-    /**
-     *@brief Run GCMMA algorithm
-     */
-    void gcmma_solve();
+  /**
+   *@brief Run GCMMA algorithm
+   */
+  void gcmma_solve();
 
-    /**
-     *@brief Prints result of the GCMMA algorithm based on mStopFlag
-     */
-    void printresult( );
+  /**
+   *@brief Prints result of the GCMMA algorithm based on mStopFlag
+   */
+  void printresult();
 };
 
 #endif /* MORIS_CL_OPT_ALGORITHM_GCMMA_HPP_ */

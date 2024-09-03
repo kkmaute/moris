@@ -27,7 +27,6 @@
 // MORIS header files.
 #include "cl_Communication_Tools.hpp"    // COM/src
 #include "cl_Logger.hpp"                 // MRS/IOS/src
-#include "cl_Matrix.hpp"
 
 moris::Comm_Manager gMorisComm;
 moris::Logger       gLogger;

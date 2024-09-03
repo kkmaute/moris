@@ -51,11 +51,11 @@ namespace moris
 
           public:
             Field_Analytic(
-                    Vector< Analytic_Field_Function >      aFunction,
-                    Vector< Analytic_Derivative_Function > aDerivativeFunction,
-                    moris::Matrix< DDRMat > const         &aCoefficients,
-                    Mesh_Pair                              aMeshPairs,
-                    uint const                            &aNumberOfFields = 1 );
+                    const Vector< Analytic_Field_Function >      &aFunction,
+                    const Vector< Analytic_Derivative_Function > &aDerivativeFunction,
+                    moris::Matrix< DDRMat > const                &aCoefficients,
+                    const Mesh_Pair                              &aMeshPairs,
+                    uint const                                   &aNumberOfFields = 1 );
 
             // ----------------------------------------------------------------------------------------------
 
@@ -63,30 +63,30 @@ namespace moris
                     Analytic_Field_Function        aFunction,
                     Analytic_Derivative_Function   aDerivativeFunction,
                     moris::Matrix< DDRMat > const &aCoefficients,
-                    Mesh_Pair                      aMeshPairs,
+                    const Mesh_Pair               &aMeshPairs,
                     uint const                    &aNumberOfFields = 1 );
 
             // ----------------------------------------------------------------------------------------------
 
-            ~Field_Analytic();
+            ~Field_Analytic() override;
 
             // ----------------------------------------------------------------------------------------------
 
             /**
              * @brief child class implementation: computes and stores nodal values
              */
-            virtual void compute_nodal_values();
+            void compute_nodal_values() override;
 
             // ----------------------------------------------------------------------------------------------
 
             /**
              * @brief child class implementation: computes derivatives of nodal values
              */
-            virtual void compute_derivatives_of_field_value(
+            void compute_derivatives_of_field_value(
                     Matrix< DDRMat >   &aDerivatives,
                     Matrix< IndexMat > &aCoefIndices,
                     uint const         &aNodeIndex,
-                    uint const         &aFieldIndex );
+                    uint const         &aFieldIndex ) override;
 
             // ----------------------------------------------------------------------------------------------
         };

@@ -911,15 +911,15 @@ namespace moris::hmr
             Vector< Background_Element_Base* > tAllElements;
             this->collect_all_elements( tAllElements );
             luint tCount0 = 0;
-            std::cout << "Active Pattern: " << mActivePattern << std::endl;
+            std::cout << "Active Pattern: " << mActivePattern << '\n';
             for ( auto tElement : tAllElements )
             {
                 if ( !tElement->is_padding() )
                 {
-                    std::cout << "#Element " << tCount0++ << " " << tElement->get_hmr_id() << " " << tElement->is_active( mActivePattern ) << std::endl;
+                    std::cout << "#Element " << tCount0++ << " " << tElement->get_hmr_id() << " " << tElement->is_active( mActivePattern ) << '\n';
                 }
             }
-            std::cout << std::endl;
+            std::cout << '\n';
         }
 
         //--------------------------------------------------------------------------------

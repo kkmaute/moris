@@ -17,27 +17,25 @@
 #include "fn_trans.hpp"    //LINALG/src
 #include "fn_dot.hpp"      //LINALG/src
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+    //------------------------------------------------------------------------------
+    IWG_L2::IWG_L2()
     {
-        //------------------------------------------------------------------------------
-        IWG_L2::IWG_L2()
-        {
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+        mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
-            // populate the property map
-            mPropertyMap[ "L2coefficient" ] = static_cast< uint >( IWG_Property_Type::L2COEFFICIENT );
-            mPropertyMap[ "H1coefficient" ] = static_cast< uint >( IWG_Property_Type::H1COEFFICIENT );
-            mPropertyMap[ "Diffusion" ]     = static_cast< uint >( IWG_Property_Type::DIFFUSION );
-            mPropertyMap[ "Source" ]        = static_cast< uint >( IWG_Property_Type::SOURCE );
-            mPropertyMap[ "Thickness" ]     = static_cast< uint >( IWG_Property_Type::THICKNESS );
-        }
-        //------------------------------------------------------------------------------
+        // populate the property map
+        mPropertyMap[ "L2coefficient" ] = static_cast< uint >( IWG_Property_Type::L2COEFFICIENT );
+        mPropertyMap[ "H1coefficient" ] = static_cast< uint >( IWG_Property_Type::H1COEFFICIENT );
+        mPropertyMap[ "Diffusion" ]     = static_cast< uint >( IWG_Property_Type::DIFFUSION );
+        mPropertyMap[ "Source" ]        = static_cast< uint >( IWG_Property_Type::SOURCE );
+        mPropertyMap[ "Thickness" ]     = static_cast< uint >( IWG_Property_Type::THICKNESS );
+    }
+    //------------------------------------------------------------------------------
 
-        void
-        IWG_L2::compute_residual( real aWStar )
-        {
+    void
+    IWG_L2::compute_residual( real aWStar )
+    {
 #ifdef MORIS_HAVE_DEBUG
             // check leader field interpolators
             this->check_field_interpolators();
@@ -254,5 +252,4 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
+}    // namespace moris::fem

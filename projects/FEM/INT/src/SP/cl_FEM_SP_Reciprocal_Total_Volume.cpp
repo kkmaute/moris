@@ -18,61 +18,57 @@
 #include "fn_dot.hpp"
 #include "op_div.hpp"
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+    //------------------------------------------------------------------------------
+
+    Vector< std::tuple<
+            fem::Measure_Type,
+            mtk::Primary_Void,
+            mtk::Leader_Follower > >
+    SP_Reciprocal_Total_Volume::get_cluster_measure_tuple_list()
     {
-        //------------------------------------------------------------------------------
+        return { mLeaderVolumeTuple, mFollowerVolumeTuple };
+    }
 
-        Vector< std::tuple<
-                fem::Measure_Type,
-                mtk::Primary_Void,
-                mtk::Leader_Follower > >
-        SP_Reciprocal_Total_Volume::get_cluster_measure_tuple_list()
-        {
-            return { mLeaderVolumeTuple, mFollowerVolumeTuple };
-        }
+    //------------------------------------------------------------------------------
 
-        //------------------------------------------------------------------------------
+    void
+    SP_Reciprocal_Total_Volume::eval_SP()
+    {
+        // get leader volume cluster measure value
+        real tLeaderVolume = mCluster->get_cluster_measure(
+                                             std::get< 0 >( mLeaderVolumeTuple ),
+                                             std::get< 1 >( mLeaderVolumeTuple ),
+                                             std::get< 2 >( mLeaderVolumeTuple ) )
+                                     ->val()( 0 );
 
-        void
-        SP_Reciprocal_Total_Volume::eval_SP()
-        {
-            // get leader volume cluster measure value
-            real tLeaderVolume = mCluster->get_cluster_measure(
-                                                 std::get< 0 >( mLeaderVolumeTuple ),
-                                                 std::get< 1 >( mLeaderVolumeTuple ),
-                                                 std::get< 2 >( mLeaderVolumeTuple ) )
-                                         ->val()( 0 );
+        // get follower volume cluster measure value
+        real tFollowerVolume = mCluster->get_cluster_measure(
+                                               std::get< 0 >( mFollowerVolumeTuple ),
+                                               std::get< 1 >( mFollowerVolumeTuple ),
+                                               std::get< 2 >( mFollowerVolumeTuple ) )
+                                       ->val()( 0 );
 
-            // get follower volume cluster measure value
-            real tFollowerVolume = mCluster->get_cluster_measure(
-                                                std::get< 0 >( mFollowerVolumeTuple ),
-                                                std::get< 1 >( mFollowerVolumeTuple ),
-                                                std::get< 2 >( mFollowerVolumeTuple ) )
-                                        ->val()( 0 );
+        // compute stabilization parameter value
+        mPPVal = { { 1.0 / ( tLeaderVolume + tFollowerVolume ) } };
+    }
 
-            // compute stabilization parameter value
-            mPPVal = { { 1.0 / ( tLeaderVolume + tFollowerVolume ) } };
-        }
+    //------------------------------------------------------------------------------
 
-        //------------------------------------------------------------------------------
+    void
+    SP_Reciprocal_Total_Volume::eval_dSPdLeaderDOF( const Vector< MSI::Dof_Type >& aDofTypes )
+    {
+        MORIS_ERROR( false, "SP_Volume_Fraction::eval_dSPdLeaderDOF(), not implemented for this SP" );
+    }
 
-        void
-        SP_Reciprocal_Total_Volume::eval_dSPdLeaderDOF( const Vector< MSI::Dof_Type >& aDofTypes )
-        {
-            MORIS_ERROR( false, "SP_Volume_Fraction::eval_dSPdLeaderDOF(), not implemented for this SP" );
-        }
+    //------------------------------------------------------------------------------
 
-        //------------------------------------------------------------------------------
+    void
+    SP_Reciprocal_Total_Volume::eval_dSPdFollowerDOF( const Vector< MSI::Dof_Type >& aDofTypes )
+    {
+        MORIS_ERROR( false, "SP_Volume_Fraction::eval_dSPdFollowerDOF(), not implemented for this SP" );
+    }
 
-        void
-        SP_Reciprocal_Total_Volume::eval_dSPdFollowerDOF( const Vector< MSI::Dof_Type >& aDofTypes )
-        {
-            MORIS_ERROR( false, "SP_Volume_Fraction::eval_dSPdFollowerDOF(), not implemented for this SP" );
-        }
-
-        //------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
-
+    //------------------------------------------------------------------------------
+}    // namespace moris::fem

@@ -19,208 +19,204 @@
 #include "cl_MTK_Vertex.hpp"
 #include "cl_Vector.hpp"
 
-namespace moris
+namespace moris::mapper
 {
-    namespace mapper
+    //------------------------------------------------------------------------------
+
+    class Node
     {
-//------------------------------------------------------------------------------
+        // ref to vertex on MTK mesh
+        const mtk::Vertex *mVertex;
 
-        class Node
+        //! multi purpose flag
+        bool mFlag;
+
+        uint             mNeighborCounter = 0;
+        Vector< Node * > mNeighbors;
+
+        real               mDistance;
+        Matrix< DDRMat >   mCoords;
+        Matrix< DDRMat >   mWeights;
+        Matrix< IndexMat > mNodeIndices;
+
+        //------------------------------------------------------------------------------
+
+      public:
+        //------------------------------------------------------------------------------
+
+        Node( const mtk::Vertex *aVertex )
+                : mVertex( aVertex )
+                , mCoords( aVertex->get_coords() )
         {
-            // ref to vertex on MTK mesh
-            const mtk::Vertex * mVertex;
+        }
 
-            //! multi purpose flag
-            bool mFlag;
+        //------------------------------------------------------------------------------
 
-            uint mNeighborCounter = 0;
-            Vector< Node * > mNeighbors;
+        ~Node()
+        {
+            mNeighbors.clear();
+        };
 
-            real mDistance;
-            Matrix< DDRMat >   mCoords;
-            Matrix< DDRMat >   mWeights;
-            Matrix< IndexMat > mNodeIndices;
+        //------------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
-        public:
-//------------------------------------------------------------------------------
+        void
+        flag()
+        {
+            mFlag = true;
+        }
 
-            Node( const mtk::Vertex * aVertex ) :
-                mVertex( aVertex ),
-                mCoords( aVertex->get_coords() )
+        //------------------------------------------------------------------------------
+
+        void
+        unflag()
+        {
+            mFlag = false;
+        }
+
+        //------------------------------------------------------------------------------
+
+        bool
+        is_flagged() const
+        {
+            return mFlag;
+        }
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * Return level of node. Returns zero if not HMR
+         */
+        uint
+        get_level() const
+        {
+            return mVertex->get_level();
+        }
+
+        //------------------------------------------------------------------------------
+
+        moris_index
+        get_index() const
+        {
+            return mVertex->get_index();
+        }
+
+        //------------------------------------------------------------------------------
+
+        moris_id
+        get_id() const
+        {
+            return mVertex->get_id();
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
+        init_neighbor_container( const uint aNumberOfNeighbors )
+        {
+            mNeighbors.resize( aNumberOfNeighbors, nullptr );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
+        insert_neighbor( Node *aNeighbor )
+        {
+            mNeighbors( mNeighborCounter++ ) = aNeighbor;
+        }
+
+        //------------------------------------------------------------------------------
+
+        uint
+        get_number_of_neighbors() const
+        {
+            return mNeighborCounter;
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > &
+        get_coords()
+        {
+            return mCoords;
+        }
+
+        //------------------------------------------------------------------------------
+
+        Matrix< DDRMat > &
+        get_weights()
+        {
+            return mWeights;
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > &
+        get_weights() const
+        {
+            return mWeights;
+        }
+
+        //------------------------------------------------------------------------------
+
+        Matrix< IndexMat > &
+        get_node_indices()
+        {
+            return mNodeIndices;
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< IndexMat > &
+        get_node_indices() const
+        {
+            return mNodeIndices;
+        }
+
+        //------------------------------------------------------------------------------
+
+        real
+        get_distance( const Matrix< DDRMat > &aCoords )
+        {
+            mDistance = norm( aCoords - mCoords );
+            return mDistance;
+        }
+
+        //------------------------------------------------------------------------------
+
+        real
+        get_distance()
+        {
+            return mDistance;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
+        get_nodes_in_proximity(
+                const Matrix< DDRMat > &aCoords,
+                const real             &aDistance,
+                Vector< Node * >       &aNodes )
+        {
+            for ( Node *tNeighbor : mNeighbors )
             {
-            }
-
-//------------------------------------------------------------------------------
-
-            ~Node()
-            {
-                mNeighbors.clear();
-            };
-
-//------------------------------------------------------------------------------
-
-            void
-            flag()
-            {
-                mFlag = true;
-            }
-
-//------------------------------------------------------------------------------
-
-            void
-            unflag()
-            {
-                mFlag = false;
-            }
-
-//------------------------------------------------------------------------------
-
-            bool
-            is_flagged() const
-            {
-                return mFlag;
-            }
-
-//------------------------------------------------------------------------------
-
-            /**
-             * Return level of node. Returns zero if not HMR
-             */
-            uint
-            get_level() const
-            {
-                return mVertex->get_level();
-            }
-
-//------------------------------------------------------------------------------
-
-            moris_index
-            get_index() const
-            {
-                return mVertex->get_index();
-            }
-
-//------------------------------------------------------------------------------
-
-            moris_id
-            get_id() const
-            {
-                return mVertex->get_id();
-            }
-
-//------------------------------------------------------------------------------
-
-            void
-            init_neighbor_container( const uint aNumberOfNeighbors )
-            {
-                mNeighbors.resize( aNumberOfNeighbors, nullptr );
-            }
-
-//------------------------------------------------------------------------------
-
-            void
-            insert_neighbor( Node * aNeighbor )
-            {
-                mNeighbors( mNeighborCounter++ ) = aNeighbor;
-            }
-
-//------------------------------------------------------------------------------
-
-            uint
-            get_number_of_neighbors() const
-            {
-                return mNeighborCounter;
-            }
-
-//------------------------------------------------------------------------------
-
-            const Matrix< DDRMat > &
-            get_coords()
-            {
-                return mCoords;
-            }
-
-//------------------------------------------------------------------------------
-
-            Matrix< DDRMat > &
-            get_weights()
-            {
-                return mWeights;
-            }
-
-//------------------------------------------------------------------------------
-
-            const Matrix< DDRMat > &
-            get_weights() const
-            {
-                return mWeights;
-            }
-
-//------------------------------------------------------------------------------
-
-            Matrix< IndexMat >  &
-            get_node_indices()
-            {
-                return mNodeIndices;
-            }
-
-//------------------------------------------------------------------------------
-
-            const Matrix< IndexMat >  &
-            get_node_indices() const
-            {
-                return mNodeIndices;
-            }
-
-//------------------------------------------------------------------------------
-
-            real
-            get_distance( const Matrix< DDRMat > & aCoords )
-            {
-                mDistance = norm ( aCoords - mCoords );
-                return mDistance;
-            }
-
-//------------------------------------------------------------------------------
-
-            real
-            get_distance()
-            {
-                return mDistance;
-            }
-
-//------------------------------------------------------------------------------
-
-            void
-            get_nodes_in_proximity(
-                    const Matrix< DDRMat > & aCoords,
-                    const             real & aDistance,
-                    Vector< Node * > & aNodes )
-            {
-                for( Node * tNeighbor : mNeighbors )
+                // test if neighbor is flagged
+                if ( !tNeighbor->is_flagged() )
                 {
-                    // test if neighbor is flagged
-                    if( ! tNeighbor->is_flagged() )
+                    if ( tNeighbor->get_distance( aCoords ) <= aDistance )
                     {
-                        if( tNeighbor->get_distance( aCoords ) <= aDistance )
-                        {
-                            tNeighbor->flag();
-                            aNodes.push_back( tNeighbor );
-                            tNeighbor->get_nodes_in_proximity(
-                                    aCoords,
-                                    aDistance,
-                                    aNodes );
-                        }
+                        tNeighbor->flag();
+                        aNodes.push_back( tNeighbor );
+                        tNeighbor->get_nodes_in_proximity(
+                                aCoords,
+                                aDistance,
+                                aNodes );
                     }
                 }
             }
+        }
+    };
 
-        };
-
-//------------------------------------------------------------------------------
-    }
-}
+    //------------------------------------------------------------------------------
+}    // namespace moris::mapper
 
 #endif /* PROJECTS_MTK_MAP_SRC_CL_MTK_MAPPER_NODE_HPP_ */
-

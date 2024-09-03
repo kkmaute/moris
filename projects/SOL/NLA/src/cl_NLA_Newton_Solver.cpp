@@ -117,7 +117,7 @@ void Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProble
         }
 
         // For sensitivity analysis only: set current solution to LHS of linear system as residual is defined by A x - b
-        if ( !mMyNonLinSolverManager->get_solver_interface()->get_is_forward_analysis() )
+        if ( !mMyNonLinSolverManager->get_solver_interface()->is_forward_analysis() )
         {
             mNonlinearProblem->get_linearized_problem()->set_free_solver_LHS( mNonlinearProblem->get_full_vector() );
         }
@@ -180,7 +180,7 @@ void Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProble
                 tRelaxationParameter );
 
         // Check that constant relaxation strategy with relaxation equals 1 is used in case of sensitivity analysis
-        if ( !mMyNonLinSolverManager->get_solver_interface()->get_is_forward_analysis() )
+        if ( !mMyNonLinSolverManager->get_solver_interface()->is_forward_analysis() )
         {
             MORIS_ERROR( tComputeSearchDirection && std::abs( tRelaxationParameter - 1.0 ) < 1e-12,
                     "Newton_Solver::solver_nonlinear_system - Incorrect relaxation strategy used for sensitivity analysis.\n" );
@@ -190,7 +190,7 @@ void Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProble
         if ( tComputeSearchDirection )
         {
             // For forward analysis only: Use current solution as initial guess of linear solver
-            if ( mMyNonLinSolverManager->get_solver_interface()->get_is_forward_analysis() )
+            if ( mMyNonLinSolverManager->get_solver_interface()->is_forward_analysis() )
             {
                 mNonlinearProblem->get_linearized_problem()->set_free_solver_LHS( mNonlinearProblem->get_full_vector() );
             }
@@ -224,7 +224,7 @@ void Newton_Solver::solve_linear_system(
         sint& aIter,
         bool& aHardBreak )
 {
-    if ( !( mMyNonLinSolverManager->get_solver_interface()->get_is_forward_analysis() ) )
+    if ( !( mMyNonLinSolverManager->get_solver_interface()->is_forward_analysis() ) )
     {
         // Solve linear system
         mLinSolverManagerForAdjoint->solver_linear_system( mNonlinearProblem->get_linearized_problem(), aIter );

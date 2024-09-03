@@ -57,62 +57,62 @@ class Amesos_GenOp : public virtual Epetra_Operator
             const bool                               tUseTranspose = false );
 
     // Virtual Destructor
-    virtual ~Amesos_GenOp() {}
+    ~Amesos_GenOp() override {}
 
-    int Apply( const Epetra_MultiVector& X, Epetra_MultiVector& Y ) const;
+    int Apply( const Epetra_MultiVector& X, Epetra_MultiVector& Y ) const override;
 
     // The Operator's (human-readable) label.
     const char*
-    Label() const
+    Label() const override
     {
         return "Operator that applies K^{-1} M or M K^{-T}";
     }
 
     // Whether to apply \f$K^{-1} M\f$ (false) or \f$K^{-T} M\f$ (true).
     bool
-    UseTranspose() const
+    UseTranspose() const override
     {
         return mUseTranspose;
     };
 
-    int SetUseTranspose( bool tUseTranspose );
+    int SetUseTranspose( bool tUseTranspose ) override;
 
     // The Operator's communicator.
     const Epetra_Comm&
-    Comm() const
+    Comm() const override
     {
         return mSolver->Comm();
     }
 
     // The Operator's domain Map.
     const Epetra_Map&
-    OperatorDomainMap() const
+    OperatorDomainMap() const override
     {
         return mMassMatrix->OperatorDomainMap();
     }
 
     // The Operator's range Map.
     const Epetra_Map&
-    OperatorRangeMap() const
+    OperatorRangeMap() const override
     {
         return mMassMatrix->OperatorRangeMap();
     }
 
     int
-    ApplyInverse( const Epetra_MultiVector& X, Epetra_MultiVector& Y ) const
+    ApplyInverse( const Epetra_MultiVector& X, Epetra_MultiVector& Y ) const override
     {
         return -1;
     };
 
     // NOT IMPLEMENTED: Whether this Operator can compute its infinity norm.
     bool
-    HasNormInf() const
+    HasNormInf() const override
     {
         return false;
     }
 
     double
-    NormInf() const
+    NormInf() const override
     {
         return -1.0;
     }

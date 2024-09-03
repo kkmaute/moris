@@ -51,14 +51,13 @@ namespace moris
             Linear_Problem* mLinearSystem = nullptr;
 
           public:
-
             //-----------------------------------------------------------------------------------
             Linear_Solver_Algorithm( const moris::Parameter_List& aParameterlist )
-                    : mParameterList( aParameterlist ){};
+                    : mParameterList( aParameterlist ) {};
 
             //-----------------------------------------------------------------------------------
 
-            virtual ~Linear_Solver_Algorithm(){};
+            virtual ~Linear_Solver_Algorithm() {};
 
             //-----------------------------------------------------------------------------------
 
@@ -71,7 +70,7 @@ namespace moris
 
             //-----------------------------------------------------------------------------------
             virtual void
-            set_preconditioner( Preconditioner* aPreconditioner ){};
+            set_preconditioner( Preconditioner* aPreconditioner ) {};
 
             //-----------------------------------------------------------------------------------
 
@@ -81,18 +80,18 @@ namespace moris
              * @param aPreconditioner
              */
 
-            virtual void set_left_hand_side_preconditioner( Preconditioner* aPreconditioner ){};
+            virtual void set_left_hand_side_preconditioner( Preconditioner* aPreconditioner ) {};
 
             //-----------------------------------------------------------------------------------
 
             /**
              * @brief Set the sublinear solver options object
-             * 
+             *
              * @param aParameterlistsubSolver linear solver needed for inverse
              * @param aParameterlistPreconditioner precondioner for the linear solver
              */
-            
-            virtual void set_sublinear_solver_options( const Parameter_List* aParameterlistsubSolver, const Parameter_List* aParameterlistPreconditioner){};
+
+            virtual void set_sublinear_solver_options( const Parameter_List* aParameterlistsubSolver, const Parameter_List* aParameterlistPreconditioner ) {};
 
             //-----------------------------------------------------------------------------------
 
@@ -101,7 +100,7 @@ namespace moris
              *
              */
 
-            virtual void compute_operator_condition_number_with_moris( std::string tComputationMode ){};
+            virtual void compute_operator_condition_number_with_moris( const std::string& tComputationMode ) {};
 
             //-----------------------------------------------------------------------------------
 
@@ -110,7 +109,7 @@ namespace moris
              *
              */
 
-            virtual void compute_preconditioned_operator_condition_number_with_moris( std::string tComputationMode ){};
+            virtual void compute_preconditioned_operator_condition_number_with_moris( const std::string& tComputationMode ) {};
         };
     }    // namespace dla
 }    // namespace moris

@@ -48,7 +48,8 @@ namespace moris
     }    // namespace vis
     namespace MSI
     {
-        class Pdof;
+        struct Pdof;
+
         class Pdof_Host;
         class Pdv;
         class Pdv_Host;
@@ -63,12 +64,12 @@ namespace moris
             Vector< Vector< fem::Node_Base* > > mNodeObj;
             Vector< Vector< Pdof_Host* > >      mMyPdofHosts;    // Pointer to the pdof hosts of this equation object
 
-            Vector< Pdof* >                               mFreePdofs;       // List of the pdof pointers of this equation obj
+            Vector< Pdof* >                     mFreePdofs;       // List of the pdof pointers of this equation obj
             Vector< Vector< Vector< Pdof* > > > mFreePdofList;    // FIXME list of free pdofs ordered after their dof type . mFreePdofs or mFreePdofList should be deleted
 
-            Matrix< DDSMat >                               mUniqueAdofList;    // Unique adof list for this equation object
+            Matrix< DDSMat >                     mUniqueAdofList;    // Unique adof list for this equation object
             Vector< Vector< Matrix< DDSMat > > > mUniqueAdofTypeList;
-            moris::map< uint, uint >                       mUniqueAdofMap;    // Map to
+            moris::map< uint, uint >             mUniqueAdofMap;    // Map to
 
             Vector< Vector< moris::map< uint, uint > > > mUniqueAdofMapList;    // Map to
 
@@ -95,7 +96,7 @@ namespace moris
             /**
              * trivial constructor
              */
-            Equation_Object(){};
+            Equation_Object() {};
 
             //------------------------------------------------------------------------------
             /**
@@ -103,7 +104,7 @@ namespace moris
              * @param[ in ] aElementBlock equation set pointer
              */
             Equation_Object( Equation_Set* aEquationSet )
-                    : mEquationSet( aEquationSet ){};
+                    : mEquationSet( aEquationSet ) {};
 
             //------------------------------------------------------------------------------
             /**
@@ -119,7 +120,7 @@ namespace moris
             /**
              * trivial destructor
              */
-            virtual ~Equation_Object(){};
+            virtual ~Equation_Object() {};
 
             //------------------------------------------------------------------------------
             /**
@@ -178,10 +179,10 @@ namespace moris
              *
              */
             void create_my_pdof_hosts(
-                    const uint                 aNumUsedDofTypes,
-                    const Matrix< DDSMat >&    aPdofTypeMap,
-                    const Matrix< DDUMat >&    aTimePerDofType,
-                    Vector< Pdof_Host* >& aPdofHostList );
+                    const uint              aNumUsedDofTypes,
+                    const Matrix< DDSMat >& aPdofTypeMap,
+                    const Matrix< DDUMat >& aTimePerDofType,
+                    Vector< Pdof_Host* >&   aPdofHostList );
 
             //------------------------------------------------------------------------------
 
@@ -266,10 +267,10 @@ namespace moris
              * @param[ in ] aIsLeader             enum for leader or follower
              */
             void get_my_pdof_values(
-                    const Vector< Matrix< DDRMat > >& aPdofValues,
-                    const Vector< enum Dof_Type >&    aRequestedDofTypes,
-                    Vector< Vector< Matrix< DDRMat > > >&      aRequestedPdofValues,
-                    const mtk::Leader_Follower                aIsLeader = mtk::Leader_Follower::LEADER );
+                    const Vector< Matrix< DDRMat > >&     aPdofValues,
+                    const Vector< enum Dof_Type >&        aRequestedDofTypes,
+                    Vector< Vector< Matrix< DDRMat > > >& aRequestedPdofValues,
+                    const mtk::Leader_Follower            aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
@@ -281,7 +282,7 @@ namespace moris
              */
             void reshape_pdof_values(
                     const Vector< Matrix< DDRMat > >& aPdofValues,
-                    Matrix< DDRMat >&               aReshapedPdofValues );
+                    Matrix< DDRMat >&                 aReshapedPdofValues );
 
             //------------------------------------------------------------------------------
             /**
@@ -292,7 +293,7 @@ namespace moris
              */
             void reshape_pdof_values_vector(
                     const Vector< Matrix< DDRMat > >& aPdofValues,
-                    Matrix< DDRMat >&               aReshapedPdofValues );
+                    Matrix< DDRMat >&                 aReshapedPdofValues );
 
             //------------------------------------------------------------------------------
             /**
@@ -335,7 +336,7 @@ namespace moris
              * @param[ in ] aEqnObjRHS list of matrices to fill with RHS on equation object
              */
             void get_egn_obj_jacobian_and_residual(
-                    Matrix< DDRMat >&         aEqnObjMatrix,
+                    Matrix< DDRMat >&           aEqnObjMatrix,
                     Vector< Matrix< DDRMat > >& aEqnObjRHS );
 
             //-------------------------------------------------------------------------------------------------
@@ -514,8 +515,8 @@ namespace moris
              */
             virtual moris::real
             get_element_nodal_pdof_value(
-                    moris_index                  aVertexIndex,
-                    Vector< MSI::Dof_Type > aDofType )
+                    moris_index                    aVertexIndex,
+                    const Vector< MSI::Dof_Type >& aDofType )
             {
                 MORIS_ERROR( false, "Equation_Object::get_element_nodal_pdof_value - this function does nothing" );
                 return 0.0;

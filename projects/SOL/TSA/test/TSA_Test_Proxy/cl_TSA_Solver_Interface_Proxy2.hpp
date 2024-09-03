@@ -45,9 +45,6 @@ namespace moris
             Matrix< DDRMat >  mMySolVec;
             Matrix< DDRMat >  mMySolVecPrev;
 
-            moris::sint mNX;
-            moris::sint mNY;
-
             Vector< enum MSI::Dof_Type > mListOfDofTypes;
             Vector< enum MSI::Dof_Type > mListSecondaryOfDofTypes;
 
@@ -64,7 +61,7 @@ namespace moris
 
             // ----------------------------------------------------------------------------------------------
 
-            ~TSA_Solver_Interface_Proxy_II(){};
+            ~TSA_Solver_Interface_Proxy_II() override {};
 
             // ----------------------------------------------------------------------------------------------
 
@@ -85,7 +82,7 @@ namespace moris
             void free_block_memory( const uint aBlockInd ) override {};
             // ----------------------------------------------------------------------------------------------
 
-            void set_requested_dof_types( const Vector< enum MSI::Dof_Type > aListOfDofTypes ) override
+            void set_requested_dof_types( const Vector< enum MSI::Dof_Type >& aListOfDofTypes ) override
             {
                 mListOfDofTypes = aListOfDofTypes;
             };
@@ -95,7 +92,7 @@ namespace moris
                 return mListOfDofTypes;
             };
 
-            void set_secondary_dof_types( const Vector< enum MSI::Dof_Type > aListOfDofTypes ) override
+            void set_secondary_dof_types( const Vector< enum MSI::Dof_Type >& aListOfDofTypes ) override
             {
                 mListSecondaryOfDofTypes = aListOfDofTypes;
             };
@@ -267,7 +264,7 @@ namespace moris
                 }
                 else
                 {
-                    return NULL;
+                    return nullptr;
                 }
             };
 

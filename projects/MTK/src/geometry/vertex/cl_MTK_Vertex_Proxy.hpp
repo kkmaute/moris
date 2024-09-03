@@ -15,106 +15,103 @@
 #include "cl_MTK_Vertex.hpp"
 #include "cl_MTK_Vertex_Interpolation.hpp"
 
-namespace moris
+namespace moris::mtk
 {
-    namespace mtk
+    //------------------------------------------------------------------------------
+    class Vertex_Proxy : public Vertex
     {
+      public:
+        moris_id    mVertexId  = gNoID;
+        moris_index mVertexInd = gNoIndex;
+        moris_id    mOwner     = gNoID;
+
+        Matrix< DDRMat >      mVertexCoord;
+        Vertex_Interpolation* mVertexInterpolation = nullptr;
+
         //------------------------------------------------------------------------------
-        class Vertex_Proxy : public Vertex
+
+      public:
+        //------------------------------------------------------------------------------
+
+        /**
+         *  constructor
+         */
+        Vertex_Proxy() {};
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * destructor
+         */
+        ~Vertex_Proxy() override {};
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * returns a moris::Matrix with node coordinates
+         */
+        Matrix< DDRMat >
+        get_coords() const override
         {
-          public:
-            moris_id    mVertexId  = gNoID;
-            moris_index mVertexInd = gNoIndex;
-            moris_id    mOwner     = gNoID;
+            return mVertexCoord;
+        }
 
-            Matrix< DDRMat >      mVertexCoord;
-            Vertex_Interpolation* mVertexInterpolation = nullptr;
+        //------------------------------------------------------------------------------
 
-            //------------------------------------------------------------------------------
+        /**
+         * returns the domain wide id of this vertex
+         */
+        moris_id
+        get_id() const override
+        {
+            MORIS_ASSERT( mVertexId != gNoID, "Vertex ID not initialized" );
 
-          public:
-            //------------------------------------------------------------------------------
+            return mVertexId;
+        }
 
-            /**
-             *  constructor
-             */
-            Vertex_Proxy(){};
+        //------------------------------------------------------------------------------
 
-            //------------------------------------------------------------------------------
+        /**
+         * returns the domain wide id of this vertex
+         */
+        moris_index
+        get_index() const override
+        {
+            MORIS_ASSERT( mVertexInd != gNoIndex, "Vertex ID not initialized" );
 
-            /**
-             * destructor
-             */
-            ~Vertex_Proxy(){};
+            return mVertexInd;
+        }
 
-            //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-            /**
-             * returns a moris::Matrix with node coordinates
-             */
-            Matrix< DDRMat >
-            get_coords() const
-            {
-                return mVertexCoord;
-            }
+        /**
+         * returns the id of the proc that owns this vertex
+         */
+        moris_id
+        get_owner() const override
+        {
+            MORIS_ASSERT( mOwner != gNoID, "Vertex ownership not initialized" );
 
-            //------------------------------------------------------------------------------
+            return mOwner;
+        }
 
-            /**
-             * returns the domain wide id of this vertex
-             */
-            moris_id
-            get_id() const
-            {
-                MORIS_ASSERT( mVertexId != gNoID, "Vertex ID not initialized" );
+        //------------------------------------------------------------------------------
+        Vertex_Interpolation* get_interpolation( const uint aBSplineMeshIndex ) override
+        {
+            // MORIS_ERROR(0," Vertex interpolation not implemented");
+            return mVertexInterpolation;
+        }
 
-                return mVertexId;
-            }
+        //------------------------------------------------------------------------------
+        const Vertex_Interpolation* get_interpolation( const uint aBSplineMeshIndex ) const override
+        {
+            // MORIS_ERROR(0," Vertex interpolation not implemented - const");
+            return mVertexInterpolation;
+        }
 
-            //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+    };
 
-            /**
-             * returns the domain wide id of this vertex
-             */
-            moris_index
-            get_index() const
-            {
-                MORIS_ASSERT( mVertexInd != gNoIndex, "Vertex ID not initialized" );
-
-                return mVertexInd;
-            }
-
-            //------------------------------------------------------------------------------
-
-            /**
-             * returns the id of the proc that owns this vertex
-             */
-            moris_id
-            get_owner() const
-            {
-                MORIS_ASSERT( mOwner != gNoID, "Vertex ownership not initialized" );
-
-                return mOwner;
-            }
-
-            //------------------------------------------------------------------------------
-            Vertex_Interpolation* get_interpolation( const uint aBSplineMeshIndex )
-            {
-                // MORIS_ERROR(0," Vertex interpolation not implemented");
-                return mVertexInterpolation;
-            }
-
-            //------------------------------------------------------------------------------
-            const Vertex_Interpolation* get_interpolation( const uint aBSplineMeshIndex ) const
-            {
-                // MORIS_ERROR(0," Vertex interpolation not implemented - const");
-                return mVertexInterpolation;
-            }
-
-            //------------------------------------------------------------------------------
-        };
-
-    } /* namespace mtk */
-}    // namespace moris
+}    // namespace moris::mtk
 
 #endif /* PROJECTS_MTK_TEST_CL_MTK_VERTEX_PROXY_HPP_ */

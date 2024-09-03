@@ -414,7 +414,7 @@ TEST_CASE( "GI_3rd_Derivatives_Analytic", "[moris],[fem],[GI_3rd_Derivatives_Ana
             Matrix< DDRMat > tXNode = tGeomInterpolator.valx();
             if( norm( tXNode - tXNodeNominal ) > tEpsilon )
             {
-                std::cout << "Incorrect spatial position of nodal point #" << iNode << std::endl;
+                std::cout << "Incorrect spatial position of nodal point #" << iNode << '\n';
                 moris::print_as_row_vector( tXNodeNominal, "tXNodeNominal" );
                 moris::print_as_row_vector( tXNode, "tXNode" );
             }
@@ -439,7 +439,7 @@ TEST_CASE( "GI_3rd_Derivatives_Analytic", "[moris],[fem],[GI_3rd_Derivatives_Ana
         // check that the interpolated physical point position is correct
         if( norm( tX - tXNominal ) > tEpsilon )
         {
-            std::cout << "Incorrect spatial point: " << std::endl;
+            std::cout << "Incorrect spatial point: " << '\n';
             moris::print_as_row_vector( tXNominal, "tXNominal" );
             moris::print_as_row_vector( tX, "tX" );
         }
@@ -494,7 +494,7 @@ TEST_CASE( "GI_3rd_Derivatives_Analytic", "[moris],[fem],[GI_3rd_Derivatives_Ana
                 // print what entries are wrong
                 if( !tCheckEntry )
                 {
-                    std::cout << "2D: Incorrect Jacobian entry: J3a( " << i << ", " << j << " ) = " << tJ3a( i, j ) << " but should be: " << tJ3aNominal( i, j ) << std::endl;
+                    std::cout << "2D: Incorrect Jacobian entry: J3a( " << i << ", " << j << " ) = " << tJ3a( i, j ) << " but should be: " << tJ3aNominal( i, j ) << '\n';
                 }
             }
         }
@@ -511,7 +511,7 @@ TEST_CASE( "GI_3rd_Derivatives_Analytic", "[moris],[fem],[GI_3rd_Derivatives_Ana
                 // print what entries are wrong
                 if( !tCheckEntry )
                 {
-                    std::cout << "2D: Incorrect Jacobian entry: J3b( " << i << ", " << j << " ) = " << tJ3b( i, j ) << " but should be: " << tJ3bNominal( i, j ) << std::endl;
+                    std::cout << "2D: Incorrect Jacobian entry: J3b( " << i << ", " << j << " ) = " << tJ3b( i, j ) << " but should be: " << tJ3bNominal( i, j ) << '\n';
                 }
             }
         }
@@ -528,7 +528,7 @@ TEST_CASE( "GI_3rd_Derivatives_Analytic", "[moris],[fem],[GI_3rd_Derivatives_Ana
                 // print what entries are wrong
                 if( !tCheckEntry )
                 {
-                    std::cout << "2D: Incorrect Jacobian entry: J3c( " << i << ", " << j << " ) = " << tJ3c( i, j ) << " but should be: " << tJ3cNominal( i, j ) << std::endl;
+                    std::cout << "2D: Incorrect Jacobian entry: J3c( " << i << ", " << j << " ) = " << tJ3c( i, j ) << " but should be: " << tJ3cNominal( i, j ) << '\n';
                 }
             }
         }
@@ -706,7 +706,7 @@ TEST_CASE( "GI_3rd_Derivatives_Analytic", "[moris],[fem],[GI_3rd_Derivatives_Ana
             Matrix< DDRMat > tXNode = tGeomInterpolator.valx();
             if( norm( tXNode - tXNodeNominal ) > tEpsilon )
             {
-                std::cout << "Incorrect spatial position of nodal point #" << iNode << std::endl;
+                std::cout << "Incorrect spatial position of nodal point #" << iNode << '\n';
                 moris::print_as_row_vector( tXNodeNominal, "tXNodeNominal" );
                 moris::print_as_row_vector( tXNode, "tXNode" );
             }
@@ -733,7 +733,7 @@ TEST_CASE( "GI_3rd_Derivatives_Analytic", "[moris],[fem],[GI_3rd_Derivatives_Ana
         // check that the interpolated physical point position is correct
         if( norm( tX - tXNominal ) > tEpsilon )
         {
-            std::cout << "Incorrect spatial point: " << std::endl;
+            std::cout << "Incorrect spatial point: " << '\n';
             moris::print_as_row_vector( tXNominal, "tXNominal" );
             moris::print_as_row_vector( tX, "tX" );
         }
@@ -806,7 +806,7 @@ TEST_CASE( "GI_3rd_Derivatives_Analytic", "[moris],[fem],[GI_3rd_Derivatives_Ana
                 // print what entries are wrong
                 if( !tCheckEntry )
                 {
-                    std::cout << "3D: Incorrect Jacobian entry: J3a( " << i << ", " << j << " ) = " << tJ3a( i, j ) << " but should be: " << tJ3aNominal( i, j ) << std::endl;
+                    std::cout << "3D: Incorrect Jacobian entry: J3a( " << i << ", " << j << " ) = " << tJ3a( i, j ) << " but should be: " << tJ3aNominal( i, j ) << '\n';
                 }
             }
         }
@@ -823,7 +823,7 @@ TEST_CASE( "GI_3rd_Derivatives_Analytic", "[moris],[fem],[GI_3rd_Derivatives_Ana
                 // print what entries are wrong
                 if( !tCheckEntry )
                 {
-                    std::cout << "3D: Incorrect Jacobian entry: J3b( " << i << ", " << j << " ) = " << tJ3b( i, j ) << " but should be: " << tJ3bNominal( i, j ) << std::endl;
+                    std::cout << "3D: Incorrect Jacobian entry: J3b( " << i << ", " << j << " ) = " << tJ3b( i, j ) << " but should be: " << tJ3bNominal( i, j ) << '\n';
                 }
             }
         }
@@ -840,7 +840,7 @@ TEST_CASE( "GI_3rd_Derivatives_Analytic", "[moris],[fem],[GI_3rd_Derivatives_Ana
                 // print what entries are wrong
                 if( !tCheckEntry )
                 {
-                    std::cout << "3D: Incorrect Jacobian entry: J3c( " << i << ", " << j << " ) = " << tJ3c( i, j ) << " but should be: " << tJ3cNominal( i, j ) << std::endl;
+                    std::cout << "3D: Incorrect Jacobian entry: J3c( " << i << ", " << j << " ) = " << tJ3c( i, j ) << " but should be: " << tJ3cNominal( i, j ) << '\n';
                 }
             }
         }

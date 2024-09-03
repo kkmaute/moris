@@ -20,9 +20,7 @@
 
 #include <iostream>
 
-namespace moris
-{
-namespace exceptions
+namespace moris::exceptions
 {
     /**
      * @brief Out-of-range exception.
@@ -54,13 +52,13 @@ namespace exceptions
         /**
          * moris::exceptions::out_of_range constructor.
          */
-        ~out_of_range() = default;
+        ~out_of_range() override = default;
 
         /**
          * Overrides std::exception::what.
          */
         const char *
-        what() const noexcept
+        what() const noexcept override
         {
             return message_m.c_str();
         }
@@ -78,8 +76,7 @@ namespace exceptions
         std::string message_m;
     };
 
-}    // namespace exceptions
-}    // namespace moris
+}    // namespace moris::exceptions
 
 #endif /* MORIS_EXCEPTIONS_CL_OUT_OF_RANGE_HPP_ */
 

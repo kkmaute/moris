@@ -98,7 +98,7 @@ void Preconditioner_PETSc::build_multigrid_preconditioner( Linear_Problem *aLine
             mGeoMultigrid->get_prolongation_list();
 
     // set multigrid levels and type
-    PCMGSetLevels( mpc, tLevels, NULL );
+    PCMGSetLevels( mpc, tLevels, nullptr );
 
     PCMGSetType( mpc, PC_MG_MULTIPLICATIVE );
     PCMGSetGalerkin( mpc, PC_MG_GALERKIN_BOTH );
@@ -253,8 +253,8 @@ void Preconditioner_PETSc::build_multigrid_preconditioner( Linear_Problem *aLine
             //             ISView( tIs( Ik ) , PETSC_VIEWER_STDOUT_SELF );
         }
 
-        PCASMSetLocalSubdomains( dPCFirstDown, tNumBlocks, NULL, tIs.data().data() );
-        std::cout << "build-----" << std::endl;
+        PCASMSetLocalSubdomains( dPCFirstDown, tNumBlocks, nullptr, tIs.data().data() );
+        std::cout << "build-----" << '\n';
         KSPSetUp( dKSPFirstDown );
 
         KSP *tSubksp;
@@ -277,7 +277,7 @@ void Preconditioner_PETSc::build_multigrid_preconditioner( Linear_Problem *aLine
             //             PCView( tPCBlock( Ik ), PETSC_VIEWER_STDOUT_SELF );
         }
 
-        std::cout << "----- ksps build -----" << std::endl;
+        std::cout << "----- ksps build -----" << '\n';
 
         //         PCView( dPCFirstDown, PETSC_VIEWER_STDOUT_SELF );
     }
@@ -415,13 +415,13 @@ void Preconditioner_PETSc::build_schwarz_preconditioner_petsc( Linear_Problem *a
         //         ISView( tIs( Ik ) , PETSC_VIEWER_STDOUT_SELF );
     }
 
-    PCASMSetLocalSubdomains( mpc, tNumBlocks, NULL, tIs.data().data() );
+    PCASMSetLocalSubdomains( mpc, tNumBlocks, nullptr, tIs.data().data() );
 
     KSPSetUp( aPetscKSPProblem );
 
     KSP *tSubksp;
 
-    PCASMGetSubKSP( mpc, NULL, NULL, &tSubksp );
+    PCASMGetSubKSP( mpc, nullptr, nullptr, &tSubksp );
 
     Vector< PC > tPCBlock( tNumBlocks );
     for ( sint Ik = 0; Ik < tNumBlocks; Ik++ )

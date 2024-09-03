@@ -14,9 +14,7 @@
 // C++ header files.
 #include <string>
 
-namespace moris
-{
-namespace ios
+namespace moris::ios
 {
     /**
      * Dash separator.
@@ -31,8 +29,7 @@ namespace ios
         return "-------------------------------------------------------------------------------";
     }
 
-}    // namespace ios
-}    // namespace moris
+}    // namespace moris::ios
 
 #endif    /* MORIS_IOS_FN_LOGGER_HPP_ */
 

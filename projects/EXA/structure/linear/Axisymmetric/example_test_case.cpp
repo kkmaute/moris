@@ -41,12 +41,12 @@ check_linear_results( moris::mtk::Exodus_IO_Helper &aExoIO, uint aNodeId )
         // coordinates of reference point
         moris::print( aExoIO.get_nodal_coordinate( aNodeId ), "Coordinates of reference point" );
 
-        std::cout << "U1: " << aExoIO.get_nodal_field_value( aNodeId, 2, 0 ) << std::endl;
-        std::cout << "U2: " << aExoIO.get_nodal_field_value( aNodeId, 3, 0 ) << std::endl;
-        std::cout << "S_VM: " << aExoIO.get_nodal_field_value( aNodeId, 4, 0 ) << std::endl;
-        std::cout << "S_11 (x): " << aExoIO.get_nodal_field_value( aNodeId, 5, 0 ) << std::endl;
-        std::cout << "S_22 (radial): " << aExoIO.get_nodal_field_value( aNodeId, 6, 0 ) << std::endl;
-        std::cout << "S_33 (azimuthal): " << aExoIO.get_nodal_field_value( aNodeId, 7, 0 ) << std::endl;
+        std::cout << "U1: " << aExoIO.get_nodal_field_value( aNodeId, 2, 0 ) << '\n';
+        std::cout << "U2: " << aExoIO.get_nodal_field_value( aNodeId, 3, 0 ) << '\n';
+        std::cout << "S_VM: " << aExoIO.get_nodal_field_value( aNodeId, 4, 0 ) << '\n';
+        std::cout << "S_11 (x): " << aExoIO.get_nodal_field_value( aNodeId, 5, 0 ) << '\n';
+        std::cout << "S_22 (radial): " << aExoIO.get_nodal_field_value( aNodeId, 6, 0 ) << '\n';
+        std::cout << "S_33 (azimuthal): " << aExoIO.get_nodal_field_value( aNodeId, 7, 0 ) << '\n';
         return;
     }
 
@@ -86,12 +86,12 @@ check_linear_results_stress( moris::mtk::Exodus_IO_Helper &aExoIO, uint aNodeId 
         // coordinates of reference point
         moris::print( aExoIO.get_nodal_coordinate( aNodeId ), "Coordinates of reference point" );
 
-        std::cout << "U1: " << aExoIO.get_nodal_field_value( aNodeId, 2, 0 ) << std::endl;
-        std::cout << "U2: " << aExoIO.get_nodal_field_value( aNodeId, 3, 0 ) << std::endl;
-        std::cout << "S_VM: " << aExoIO.get_nodal_field_value( aNodeId, 4, 0 ) << std::endl;
-        std::cout << "S_11 (x): " << aExoIO.get_nodal_field_value( aNodeId, 5, 0 ) << std::endl;
-        std::cout << "S_22 (radial): " << aExoIO.get_nodal_field_value( aNodeId, 6, 0 ) << std::endl;
-        std::cout << "S_33 (azimuthal): " << aExoIO.get_nodal_field_value( aNodeId, 7, 0 ) << std::endl;
+        std::cout << "U1: " << aExoIO.get_nodal_field_value( aNodeId, 2, 0 ) << '\n';
+        std::cout << "U2: " << aExoIO.get_nodal_field_value( aNodeId, 3, 0 ) << '\n';
+        std::cout << "S_VM: " << aExoIO.get_nodal_field_value( aNodeId, 4, 0 ) << '\n';
+        std::cout << "S_11 (x): " << aExoIO.get_nodal_field_value( aNodeId, 5, 0 ) << '\n';
+        std::cout << "S_22 (radial): " << aExoIO.get_nodal_field_value( aNodeId, 6, 0 ) << '\n';
+        std::cout << "S_33 (azimuthal): " << aExoIO.get_nodal_field_value( aNodeId, 7, 0 ) << '\n';
         return;
     }
 
@@ -132,9 +132,9 @@ check_linear_results_serial()
 
     if ( gPrintReferenceValues )
     {
-        std::cout << "Number of dimensions: " << tNumDims << std::endl;
-        std::cout << "Number of nodes     : " << tNumNodes << std::endl;
-        std::cout << "Number of elements  : " << tNumElems << std::endl;
+        std::cout << "Number of dimensions: " << tNumDims << '\n';
+        std::cout << "Number of nodes     : " << tNumNodes << '\n';
+        std::cout << "Number of elements  : " << tNumElems << '\n';
     }
     else
     {

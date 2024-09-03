@@ -114,7 +114,7 @@ MultiVector_PETSc::sum_into_global_values(
     // create copy of vector with moris IDs; will be overwritten in AOApplicationToPetsc
     Matrix< DDSMat > tTempElemDofs = aGlobalIds;
 
-    Dist_Map_Custom* tCustomMap = dynamic_cast< Dist_Map_Custom* >( mMap );
+    Dist_Map_Custom* tCustomMap = mMap;
     tCustomMap->map_from_moris_ids_to_petsc_ids( tTempElemDofs);
 
     // loop over elemental dofs
@@ -164,7 +164,7 @@ MultiVector_PETSc::replace_global_values(
     // create copy of vector with moris IDs; will be overwritten in AOApplicationToPetsc
     Matrix< DDSMat > tTempElemDofs = aGlobalIds;
 
-    Dist_Map_Custom* tCustomMap = dynamic_cast< Dist_Map_Custom* >( mMap );
+    Dist_Map_Custom* tCustomMap = mMap;
     tCustomMap->map_from_moris_ids_to_petsc_ids( tTempElemDofs);
 
     // loop over elemental dofs
@@ -292,7 +292,7 @@ sint
 MultiVector_PETSc::vec_local_length() const
 {
     sint tVecLocSize;
-    MatGetLocalSize( mPetscVector, &tVecLocSize, NULL );
+    MatGetLocalSize( mPetscVector, &tVecLocSize, nullptr );
     return tVecLocSize;
 }
 
@@ -302,7 +302,7 @@ sint
 MultiVector_PETSc::vec_global_length() const
 {
     sint tVecSize;
-    MatGetSize( mPetscVector, &tVecSize, NULL );
+    MatGetSize( mPetscVector, &tVecSize, nullptr );
     return tVecSize;
 }
 

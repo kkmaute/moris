@@ -316,7 +316,7 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_020_Growth", "[CM_Struc_Lin_Iso_Dam
                     // std::cout << "Requested dof derivative point " << iGP << " / " << tNumGPs << std::endl;
 
                     // derivative dof type
-                    Vector< MSI::Dof_Type > tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
+                    const Vector< MSI::Dof_Type >& tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
 
                     // cast constitutive model base class pointer to elasticity damage constitutive model
                     CM_Struc_Linear_Isotropic_Damage* tCMLeaderPtr =
@@ -491,7 +491,7 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_020_Growth", "[CM_Struc_Lin_Iso_Dam
                     // test traction -- only displacement as test dof type !!!
                     //------------------------------------------------------------------------------
                     // get the test dof type
-                    Vector< MSI::Dof_Type > tDofTest = tLeaderDofTypes( 0 );
+                    const Vector< MSI::Dof_Type >& tDofTest = tLeaderDofTypes( 0 );
 
                     // evaluate test traction
                     Matrix< DDRMat > ttesttraction = tCMLeader->testTraction(
@@ -838,7 +838,7 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_020_No_Growth", "[CM_Struc_Lin_Iso_
                 for ( uint iRequestedDof = 0; iRequestedDof < tRequestedLeaderGlobalDofTypes.size(); iRequestedDof++ )
                 {
                     // derivative dof type
-                    Vector< MSI::Dof_Type > tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
+                    const Vector< MSI::Dof_Type >& tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
 
                     // cast constitutive model base class pointer to elasticity damage constitutive model
                     CM_Struc_Linear_Isotropic_Damage* tCMLeaderPtr =
@@ -1005,7 +1005,7 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_020_No_Growth", "[CM_Struc_Lin_Iso_
                     // test traction -- only displacement as test dof type !!!
                     //------------------------------------------------------------------------------
                     // get the test dof type
-                    Vector< MSI::Dof_Type > tDofTest = tLeaderDofTypes( 0 );
+                    const Vector< MSI::Dof_Type >& tDofTest = tLeaderDofTypes( 0 );
 
                     // evaluate test traction
                     Matrix< DDRMat > ttesttraction = tCMLeader->testTraction(
@@ -1354,7 +1354,7 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_101_Growth", "[CM_Struc_Lin_Iso_Dam
                     // std::cout << "Requested dof derivative point " << iRequestedDof << " / " << tRequestedLeaderGlobalDofTypes.size() << std::endl;
 
                     // derivative dof type
-                    Vector< MSI::Dof_Type > tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
+                    const Vector< MSI::Dof_Type >& tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
 
                     // cast constitutive model base class pointer to elasticity damage constitutive model
                     CM_Struc_Linear_Isotropic_Damage* tCMLeaderPtr =
@@ -1529,7 +1529,7 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_101_Growth", "[CM_Struc_Lin_Iso_Dam
                     // test traction -- only displacement as test dof type !!!
                     //------------------------------------------------------------------------------
                     // get the test dof type
-                    Vector< MSI::Dof_Type > tDofTest = tLeaderDofTypes( 0 );
+                    const Vector< MSI::Dof_Type >& tDofTest = tLeaderDofTypes( 0 );
 
                     // evaluate test traction
                     Matrix< DDRMat > ttesttraction = tCMLeader->testTraction(
@@ -1878,7 +1878,7 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_101_Threshold", "[CM_Struc_Lin_Iso_
                     // std::cout << "Requested dof derivative point " << iRequestedDof << " / " << tRequestedLeaderGlobalDofTypes.size() << std::endl;
 
                     // derivative dof type
-                    Vector< MSI::Dof_Type > tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
+                    const Vector< MSI::Dof_Type >& tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
 
                     // cast constitutive model base class pointer to elasticity damage constitutive model
                     CM_Struc_Linear_Isotropic_Damage* tCMLeaderPtr =
@@ -2053,7 +2053,7 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_101_Threshold", "[CM_Struc_Lin_Iso_
                     // test traction -- only displacement as test dof type !!!
                     //------------------------------------------------------------------------------
                     // get the test dof type
-                    Vector< MSI::Dof_Type > tDofTest = tLeaderDofTypes( 0 );
+                    const Vector< MSI::Dof_Type >& tDofTest = tLeaderDofTypes( 0 );
 
                     // evaluate test traction
                     Matrix< DDRMat > ttesttraction = tCMLeader->testTraction(
@@ -2402,7 +2402,7 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_112_Growth", "[CM_Struc_Lin_Iso_Dam
                     // std::cout << "Requested dof derivative point " << iRequestedDof << " / " << tRequestedLeaderGlobalDofTypes.size() << std::endl;
 
                     // derivative dof type
-                    Vector< MSI::Dof_Type > tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
+                    const Vector< MSI::Dof_Type >& tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
 
                     // cast constitutive model base class pointer to elasticity damage constitutive model
                     CM_Struc_Linear_Isotropic_Damage* tCMLeaderPtr =
@@ -2577,7 +2577,7 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_112_Growth", "[CM_Struc_Lin_Iso_Dam
                     // test traction -- only displacement as test dof type !!!
                     //------------------------------------------------------------------------------
                     // get the test dof type
-                    Vector< MSI::Dof_Type > tDofTest = tLeaderDofTypes( 0 );
+                    const Vector< MSI::Dof_Type >& tDofTest = tLeaderDofTypes( 0 );
 
                     // evaluate test traction
                     Matrix< DDRMat > ttesttraction = tCMLeader->testTraction(
@@ -2926,7 +2926,7 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_112_Threshold", "[CM_Struc_Lin_Iso_
                     // std::cout << "Requested dof derivative point " << iRequestedDof << " / " << tRequestedLeaderGlobalDofTypes.size() << std::endl;
 
                     // derivative dof type
-                    Vector< MSI::Dof_Type > tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
+                    const Vector< MSI::Dof_Type >& tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
 
                     // cast constitutive model base class pointer to elasticity damage constitutive model
                     CM_Struc_Linear_Isotropic_Damage* tCMLeaderPtr =
@@ -3101,7 +3101,7 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_112_Threshold", "[CM_Struc_Lin_Iso_
                     // test traction -- only displacement as test dof type !!!
                     //------------------------------------------------------------------------------
                     // get the test dof type
-                    Vector< MSI::Dof_Type > tDofTest = tLeaderDofTypes( 0 );
+                    const Vector< MSI::Dof_Type >& tDofTest = tLeaderDofTypes( 0 );
 
                     // evaluate test traction
                     Matrix< DDRMat > ttesttraction = tCMLeader->testTraction(

@@ -113,7 +113,7 @@ namespace moris::xtk
             tMinY   = yOffset;
         }
 
-        std::cout << "yOff = " << yOffset << std::endl;
+        std::cout << "yOff = " << yOffset << '\n';
         moris::real zOffset = 0;
         if ( mNumSpheresInZ > 1 )
         {

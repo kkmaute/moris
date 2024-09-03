@@ -41,8 +41,8 @@ namespace moris::xtk
          *
          * @return Vector< Cluster const* > const& list of clusters in the cluster group
          */
-        const Vector< mtk::Cluster const * >
-        get_side_clusters_in_group() const;
+        Vector< mtk::Cluster const * >
+        get_side_clusters_in_group() const override;
 
         //------------------------------------------------------------------------------
 
@@ -52,7 +52,7 @@ namespace moris::xtk
          * @return mtk::Cluster_Group const* pointer to the bulk cluster group associated with the current side cluster group
          */
         mtk::Cluster_Group const *
-        get_associated_cell_cluster_group() const;
+        get_associated_cell_cluster_group() const override;
 
         //------------------------------------------------------------------------------
 
@@ -67,9 +67,9 @@ namespace moris::xtk
          * @param aAssociatedCellClusterGroup
          */
         Side_Cluster_Group(
-                const moris_index                         aDiscretizationMeshIndex,
-                Vector< std::shared_ptr< mtk::Cluster > > aClusters,
-                std::shared_ptr< mtk::Cluster_Group >     aAssociatedCellClusterGroup );
+                const moris_index                                aDiscretizationMeshIndex,
+                const Vector< std::shared_ptr< mtk::Cluster > >& aClusters,
+                const std::shared_ptr< mtk::Cluster_Group >&     aAssociatedCellClusterGroup );
 
         //------------------------------------------------------------------------------
 
@@ -83,7 +83,7 @@ namespace moris::xtk
          * @brief Default Destructor
          *
          */
-        virtual ~Side_Cluster_Group(){};
+        ~Side_Cluster_Group() override {};
 
         //------------------------------------------------------------------------------
 

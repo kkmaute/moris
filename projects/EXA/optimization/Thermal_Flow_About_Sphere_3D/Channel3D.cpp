@@ -244,8 +244,8 @@ namespace moris
 
     moris::real
     Func_Sphere(
-            const moris::Matrix< DDRMat >&     aCoordinates,
-            const Vector< real >& aGeometryParameters )
+            const moris::Matrix< DDRMat >& aCoordinates,
+            const Vector< real >&          aGeometryParameters )
     {
         // get coordinates
         real tX = aCoordinates( 0 );
@@ -261,9 +261,9 @@ namespace moris
 
     void
     Func_Sphere_Deriv(
-            const moris::Matrix< moris::DDRMat >&                aCoordinates,
+            const moris::Matrix< moris::DDRMat >&           aCoordinates,
             const Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::Matrix< DDRMat >&                             aFieldSensitivity )
+            moris::Matrix< DDRMat >&                        aFieldSensitivity )
     {
         // derivative of level set function wrt sphere radius
         aFieldSensitivity = { { 1.0 } };
@@ -274,8 +274,8 @@ namespace moris
 
     moris::real
     Func_Plane(
-            const moris::Matrix< DDRMat >&     aCoordinates,
-            const Vector< real >& aGeometryParameters )
+            const moris::Matrix< DDRMat >& aCoordinates,
+            const Vector< real >&          aGeometryParameters )
     {
         // get coordinates
         real tX = aCoordinates( 0 );
@@ -542,8 +542,15 @@ namespace moris
 
         tParameterlist( 0 ).push_back( prm::create_gen_parameter_list() );
         tParameterlist( 0 )( 0 ).set( "IQI_types",
-                "IQIInletThermalEnergy", "IQIOutletThermalEnergy", "IQIInletTotalPressure", "IQIOutletTotalPressure"
-                "IQIPerimeterItf", "IQIInletMassFlow", "IQIOutletMassFlow", "IQIMaxTemp", "IQISolidVolume" );
+                "IQIInletThermalEnergy",
+                "IQIOutletThermalEnergy",
+                "IQIInletTotalPressure",
+                "IQIOutletTotalPressure"
+                "IQIPerimeterItf",
+                "IQIInletMassFlow",
+                "IQIOutletMassFlow",
+                "IQIMaxTemp",
+                "IQISolidVolume" );
 
         tParameterlist( 0 )( 0 ).set( "number_of_phases", 5 );
         tParameterlist( 0 )( 0 ).set( "phase_function_name", "get_phase_index" );
@@ -1460,7 +1467,7 @@ namespace moris
         tParameterlist( 3 )( 2 ) = moris::prm::create_nonlinear_solver_parameter_list();    // 2: one-way coupling via NLBGS
         tParameterlist( 3 )( 2 ).set( "NLA_Nonlinear_solver_algorithms", "2" );             // set nonlinear algorithm with index 1.
         tParameterlist( 3 )( 2 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NLBGS_SOLVER );
-        tParameterlist( 3 )( 2 ).set( "NLA_Sub_Nonlinear_Solver", "0,1" );                  // set sub nonlinear solvers with index 0 and 1
+        tParameterlist( 3 )( 2 ).set( "NLA_Sub_Nonlinear_Solver", "0,1" );    // set sub nonlinear solvers with index 0 and 1
         tParameterlist( 3 )( 2 ).set( "NLA_DofTypes", "VX,VY,VZ,P;TEMP" );
 
         tParameterlist( 3 )( 3 ) = moris::prm::create_nonlinear_solver_parameter_list();
@@ -1470,8 +1477,8 @@ namespace moris
         // ----------------------------------------------------------
 
         tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
-        tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_solver", 2 );                      // using NLBGS for forward problem
-        tParameterlist( 4 )( 0 ).set( "TSA_nonlinear_solver_for_adjoint_solve", 3 );    // using monlithic for sensitivity problem
+        tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_Solver", 2 );                // using NLBGS for forward problem
+        tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_Sensitivity_Solver", 3 );    // using monlithic for sensitivity problem
 
         //------------------------------------------------------------------------------
 

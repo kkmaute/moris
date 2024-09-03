@@ -11,35 +11,32 @@
 #include "cl_MTK_Cluster_Group.hpp"
 #include "cl_MTK_Cluster.hpp"
 
-namespace moris
+namespace moris::mtk
 {
-    namespace mtk
+    //------------------------------------------------------------------------------
+
+    Cluster_Group::Cluster_Group( const moris_index aDiscretizationMeshIndex )
+            : mDiscretizationMeshIndex( aDiscretizationMeshIndex )
     {
-        //------------------------------------------------------------------------------
+        // only initialize member variables
+    }
 
-        Cluster_Group::Cluster_Group( const moris_index aDiscretizationMeshIndex )
-                : mDiscretizationMeshIndex( aDiscretizationMeshIndex )
-        {
-            // only initialize member variables
-        }
+    //------------------------------------------------------------------------------
 
-        //------------------------------------------------------------------------------
+    moris_index
+    Cluster_Group::get_discretization_mesh_index_for_cluster_group() const
+    {
+        return mDiscretizationMeshIndex;
+    }
 
-        moris_index
-        Cluster_Group::get_discretization_mesh_index_for_cluster_group() const
-        {
-            return mDiscretizationMeshIndex;
-        }
+    //------------------------------------------------------------------------------
 
-        //------------------------------------------------------------------------------
+    mtk::ClusterType
+    Cluster_Group::get_ClusterType_in_group() const
+    {
+        return mClusterType;
+    }
 
-        mtk::ClusterType
-        Cluster_Group::get_ClusterType_in_group() const
-        {
-            return mClusterType;
-        }
+    //------------------------------------------------------------------------------
 
-        //------------------------------------------------------------------------------
-
-    }    // namespace mtk
-}    // namespace moris
+}    // namespace moris::mtk

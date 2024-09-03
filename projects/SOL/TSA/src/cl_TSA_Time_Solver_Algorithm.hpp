@@ -11,6 +11,7 @@
 #pragma once
 
 #include <iostream>
+#include <utility>
 
 // MORIS header files.
 #include "cl_Vector.hpp"
@@ -44,9 +45,8 @@ namespace moris
           private:
 
           protected:
-
-            uint mTimeSteps; // Number of time steps
-            real mTimeIncrements; // Increments in time
+            uint mTimeSteps;         // Number of time steps
+            real mTimeIncrements;    // Increments in time
 
             //! Pointer to database
             sol::SOL_Warehouse* mSolverWarehouse = nullptr;
@@ -63,7 +63,7 @@ namespace moris
             NLA::Nonlinear_Solver* mNonlinearSolver = nullptr;
 
             //!  Nonlinear Solver for adjoint solve. Can be the same than mNonlinearSolver
-            NLA::Nonlinear_Solver* mNonlinearSolverForAdjoint = nullptr;
+            NLA::Nonlinear_Solver* mNonlinearSolverForSensitivityAnalysis = nullptr;
 
             sol::Dist_Map* mFullMap = nullptr;
 
@@ -76,7 +76,6 @@ namespace moris
             static real calculate_time_needed( clock_t aTime );
 
           public:
-
             /**
              * @brief Constructor using a given parameter list
              *
@@ -101,7 +100,7 @@ namespace moris
              *
              * @param[in] aFullVector     Solution Vector
              */
-            virtual void solve( Vector< sol::Dist_Vector* >& aFullVector ){};
+            virtual void solve( Vector< sol::Dist_Vector* >& aFullVector ) {};
 
             //-------------------------------------------------------------------------------
             /**
@@ -136,14 +135,14 @@ namespace moris
 
             //-------------------------------------------------------------------------------
             /**
-             * @brief set nonlinear solver for adjoint solve
+             * @brief set nonlinear solver for sensitivity analysis
              *
              * @param[in] aNonlinearSolver     Nonlinear solver
              */
             void
-            set_nonlinear_solver_for_adjoint_solve( NLA::Nonlinear_Solver* aNonlinearSolver )
+            set_nonlinear_solver_for_sensitivity_analysis( NLA::Nonlinear_Solver* aNonlinearSolver )
             {
-                mNonlinearSolverForAdjoint = aNonlinearSolver;
+                mNonlinearSolverForSensitivityAnalysis = aNonlinearSolver;
             };
 
             //-------------------------------------------------------------------------------
@@ -167,7 +166,7 @@ namespace moris
             void
             set_output_filename( std::string aOutputSolVecFileName )
             {
-                mOutputSolVecFileName = aOutputSolVecFileName;
+                mOutputSolVecFileName = std::move( aOutputSolVecFileName );
             };
 
             //-------------------------------------------------------------------------------

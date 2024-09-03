@@ -518,7 +518,7 @@ TEST_CASE( "CM_Fluid_Compressible_VdW", "[CM_Fluid_Compressible_VdW]" )
 //                        std::cout << "Checking test-tractions for test DOF type (0-RHO, 1-VX, 2-TEMP): " << iTestDof << "\n\n" << std::flush;
 
                         // derivative dof type
-                        Vector< MSI::Dof_Type > tTestDof = tRequestedLeaderGlobalDofTypes( iTestDof );
+                        const Vector< MSI::Dof_Type >& tTestDof = tRequestedLeaderGlobalDofTypes( iTestDof );
 
                         //------------------------------------------------------------------------------
                         //  Thermal Test Traction

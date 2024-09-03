@@ -11,6 +11,8 @@
 #ifndef MORIS_CL_FEM_MODEL_INITIALIZER_LEGACY_HPP
 #define MORIS_CL_FEM_MODEL_INITIALIZER_LEGACY_HPP
 
+#include <utility>
+
 #include "cl_Vector.hpp"
 #include "cl_Library_IO.hpp"
 #include "cl_FEM_Model_Initializer.hpp"
@@ -20,7 +22,7 @@ namespace moris::fem
     {
       public:
         Model_Initializer_Legacy(
-                Vector< Vector< Parameter_List > >               aParameterList,
+                const Vector< Vector< Parameter_List > >        &aParameterList,
                 std::shared_ptr< Library_IO >                    aLibrary,
                 mtk::Mesh_Pair const                            *aMeshPair,
                 uint                                             aSpatialDimension,
@@ -29,12 +31,12 @@ namespace moris::fem
                 : Model_Initializer(
                           aParameterList,
                           aMeshPair,
-                          aLibrary,
+                          std::move( aLibrary ),
                           aSpatialDimension,
                           aUseNewGhostSets,
-                          aDofTypeToBsplineMeshIndex ){};
+                          std::move( aDofTypeToBsplineMeshIndex ) ) {};
 
-        virtual ~Model_Initializer_Legacy() = default;
+        ~Model_Initializer_Legacy() override = default;
 
       private:
         void create_fem_set_info_from_iwgs( std::map< std::tuple< std::string, bool, bool >, uint > &aMeshToFemSetIndex );

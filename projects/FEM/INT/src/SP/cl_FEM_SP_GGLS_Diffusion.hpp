@@ -24,129 +24,126 @@
 #include "cl_FEM_Stabilization_Parameter.hpp"
 #include "cl_FEM_Cluster.hpp"
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+    //------------------------------------------------------------------------------
+    /*
+     * Stabilization parameter for SUPG stabilization on diffusion-advection
+     * tau_T =
+     * from Tezduyar & Osawa (2000)
+     */
+    class SP_GGLS_Diffusion : public Stabilization_Parameter
     {
+
+        //------------------------------------------------------------------------------
+
+      private:
+        // default tuple for element size to define cluster measure
+        std::tuple< fem::Measure_Type, mtk::Primary_Void, mtk::Leader_Follower > mElementSizeTuple =
+                std::make_tuple(
+                        fem::Measure_Type::CELL_LENGTH_MEASURE,
+                        mtk::Primary_Void::PRIMARY,
+                        mtk::Leader_Follower::LEADER );
+
+        // default dof type
+        MSI::Dof_Type mLeaderDofTemp = MSI::Dof_Type::TEMP;
+
+        // internal threshold
+        const real mEpsilon = 1e-18;
+
+        // property type for the SP
+        enum class Property_Type
+        {
+            CONDUCTIVITY,
+            DENSITY,
+            HEAT_CAPACITY,
+            LATENT_HEAT,
+            PC_TEMP,
+            PHASE_STATE_FUNCTION,
+            PHASE_CHANGE_CONST,
+            MAX_ENUM
+        };
+
+      public:
+        /*
+         * Rem: mParameters - no parameters needed
+         */
+
         //------------------------------------------------------------------------------
         /*
-         * Stabilization parameter for SUPG stabilization on diffusion-advection
-         * tau_T =
-         * from Tezduyar & Osawa (2000)
+         * constructor
          */
-        class SP_GGLS_Diffusion : public Stabilization_Parameter
+        SP_GGLS_Diffusion();
+
+        //------------------------------------------------------------------------------
+        /**
+         * trivial destructor
+         */
+        ~SP_GGLS_Diffusion() override{};
+
+        //------------------------------------------------------------------------------
+        /**
+         * set dof types
+         * @param[ in ] aDofTypes a cell of cell of dof types
+         * @param[ in ] aDofStrings list of strings describing the dof types
+         * @param[ in ] aIsLeader enum for leader or follower
+         */
+        void set_dof_type_list(
+                Vector< Vector< MSI::Dof_Type > > &aDofTypes,
+                Vector< std::string >             &aDofStrings,
+                mtk::Leader_Follower               aIsLeader = mtk::Leader_Follower::LEADER ) override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * set dv types
+         * @param[ in ] aDvTypes   a cell of group of dv types
+         * @param[ in ] aDvStrings list of strings describing the dv types
+         * @param[ in ] aIsLeader enum for leader or follower
+         */
+        void set_dv_type_list(
+                Vector< Vector< gen::PDV_Type > > &aDvTypes,
+                Vector< std::string >             &aDvStrings,
+                mtk::Leader_Follower               aIsLeader = mtk::Leader_Follower::LEADER ) override
         {
+            Stabilization_Parameter::set_dv_type_list( aDvTypes, aIsLeader );
+        }
 
-                //------------------------------------------------------------------------------
-            private:
-
-                // default tuple for element size to define cluster measure
-                std::tuple<fem::Measure_Type,mtk::Primary_Void,mtk::Leader_Follower > mElementSizeTuple =
-                        std::make_tuple(
-                                fem::Measure_Type::CELL_LENGTH_MEASURE,
-                                mtk::Primary_Void::PRIMARY,
-                                mtk::Leader_Follower::LEADER );
-
-                // default dof type
-                MSI::Dof_Type mLeaderDofTemp = MSI::Dof_Type::TEMP;
-
-                // internal threshold
-                const real mEpsilon = 1e-18;
-
-                // property type for the SP
-                enum class Property_Type
-                {
-                    CONDUCTIVITY,
-                    DENSITY,
-                    HEAT_CAPACITY,
-                    LATENT_HEAT,
-                    PC_TEMP,
-                    PHASE_STATE_FUNCTION,
-                    PHASE_CHANGE_CONST,
-                    MAX_ENUM
-                };
-
-            public:
-
-                /*
-                 * Rem: mParameters - no parameters needed
-                 */
-
-                //------------------------------------------------------------------------------
-                /*
-                 * constructor
-                 */
-                SP_GGLS_Diffusion();
-
-                //------------------------------------------------------------------------------
-                /**
-                 * trivial destructor
-                 */
-                ~SP_GGLS_Diffusion(){};
-
-                //------------------------------------------------------------------------------
-                /**
-                 * set dof types
-                 * @param[ in ] aDofTypes a cell of cell of dof types
-                 * @param[ in ] aDofStrings list of strings describing the dof types
-                 * @param[ in ] aIsLeader enum for leader or follower
-                 */
-                void set_dof_type_list(
-                        Vector< Vector< MSI::Dof_Type > > & aDofTypes,
-                        Vector< std::string >                  & aDofStrings,
-                        mtk::Leader_Follower                             aIsLeader = mtk::Leader_Follower::LEADER );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * set dv types
-                 * @param[ in ] aDvTypes   a cell of group of dv types
-                 * @param[ in ] aDvStrings list of strings describing the dv types
-                 * @param[ in ] aIsLeader enum for leader or follower
-                 */
-                void set_dv_type_list(
-                        Vector< Vector< gen::PDV_Type > > & aDvTypes,
-                        Vector< std::string >             & aDvStrings,
-                        mtk::Leader_Follower                        aIsLeader = mtk::Leader_Follower::LEADER )
-                {
-                    Stabilization_Parameter::set_dv_type_list( aDvTypes, aIsLeader );
-                }
-
-                //------------------------------------------------------------------------------
-                /**
-                 * get cluster measure tuples
-                 * @param[ in ] aClusterMeasureTuples list of tuples describing the cluster measure types
-                 */
-                Vector< std::tuple<
+        //------------------------------------------------------------------------------
+        /**
+         * get cluster measure tuples
+         * @param[ in ] aClusterMeasureTuples list of tuples describing the cluster measure types
+         */
+        Vector< std::tuple<
                 fem::Measure_Type,
                 mtk::Primary_Void,
-                mtk::Leader_Follower > > get_cluster_measure_tuple_list();
+                mtk::Leader_Follower > >
+        get_cluster_measure_tuple_list() override;
 
-                //------------------------------------------------------------------------------
-                /**
-                 * evaluate the stabilization parameter value
-                 */
-                void eval_SP();
-
-                //------------------------------------------------------------------------------
-                /**
-                 * evaluate the stabilization parameter derivative wrt to a leader dof type
-                 * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
-                 */
-                void eval_dSPdLeaderDOF( const Vector< MSI::Dof_Type > & aDofTypes );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * evaluate the penalty parameter derivative wrt to a leader dv type
-                 * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
-                 */
-                void eval_dSPdLeaderDV( const Vector< gen::PDV_Type > & aDvTypes )
-                {
-                    MORIS_ERROR( false, "SP_SUPG_Advection::eval_dSPdLeaderDV - not implemented." );
-                }
-        };
         //------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
+        /**
+         * evaluate the stabilization parameter value
+         */
+        void eval_SP() override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * evaluate the stabilization parameter derivative wrt to a leader dof type
+         * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+         */
+        void eval_dSPdLeaderDOF( const Vector< MSI::Dof_Type > &aDofTypes ) override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * evaluate the penalty parameter derivative wrt to a leader dv type
+         * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
+         */
+        void eval_dSPdLeaderDV( const Vector< gen::PDV_Type > &aDvTypes ) override
+        {
+            MORIS_ERROR( false, "SP_SUPG_Advection::eval_dSPdLeaderDV - not implemented." );
+        }
+    };
+    //------------------------------------------------------------------------------
+}    // namespace moris::fem
 
 #endif /* SRC_FEM_CL_FEM_SP_GGLS_DIFFUSION_HPP_ */
 

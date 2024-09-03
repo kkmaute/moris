@@ -62,7 +62,7 @@ namespace moris::hmr
         /**
          * Virtual destructor. Does nothing.
          */
-        virtual ~BSpline_Mesh_Base(){};
+        ~BSpline_Mesh_Base() override{};
 
         /**
          * Gets the polynomial order in a specific direction

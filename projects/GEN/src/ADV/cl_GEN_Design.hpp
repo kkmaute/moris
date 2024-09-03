@@ -23,7 +23,7 @@ namespace moris::gen
     {
         Vector< uint > mNumberOfRefinements;        // The number of refinement steps to use for this field
         Vector< uint > mRefinementMeshIndices;      // Indices of meshes to perform refinement on
-        sint         mRefinementFunctionIndex;    // Index of a user-defined refinement function (-1 = default)
+        sint           mRefinementFunctionIndex;    // Index of a user-defined refinement function (-1 = default)
 
         /**
          * Constructor with a given parameter list
@@ -145,6 +145,6 @@ namespace moris::gen
          *
          * @param aAllUpdatedDesigns All designs (this design will take fields from the ones it needs)
          */
-        virtual void update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedDesigns ) = 0;
+        virtual void update_dependencies( const Vector< std::shared_ptr< Design > >& aUpdatedFields ) = 0;
     };
 }    // namespace moris::gen

@@ -57,7 +57,7 @@ namespace moris::xtk
          * returns the IDs of the interpolation coefficients
          */
         Matrix< IdMat >
-        get_ids() const;
+        get_ids() const override ;
 
         //------------------------------------------------------------------------------
 
@@ -65,7 +65,7 @@ namespace moris::xtk
          * returns the indices of the interpolation coefficients
          */
         Matrix< IndexMat >
-        get_indices() const;
+        get_indices() const override ;
 
         //------------------------------------------------------------------------------
 
@@ -73,14 +73,14 @@ namespace moris::xtk
          * returns the proc owners of the IDs of this vertex
          */
         Matrix< IdMat >
-        get_owners() const;
+        get_owners() const override ;
 
         //------------------------------------------------------------------------------
         /**
          * set the interpolation weights
          */
         void
-        set_weights( const Matrix< DDRMat >& aWeights )
+        set_weights( const Matrix< DDRMat >& aWeights ) override 
         {
             MORIS_ERROR( 0, "set_weights not implemented in xtk vertex interpolation" );
         }
@@ -91,7 +91,7 @@ namespace moris::xtk
          * returns the interpolation weights
          */
         const Matrix< DDRMat >*
-        get_weights() const;
+        get_weights() const override ;
 
         //------------------------------------------------------------------------------
 
@@ -99,7 +99,7 @@ namespace moris::xtk
          * set the coefficient objects
          */
         void
-        set_coefficients( Vector< mtk::Vertex* >& aCoefficients )
+        set_coefficients( Vector< mtk::Vertex* >& aCoefficients ) override 
         {
             MORIS_ERROR( 0, "set_coefficients not implemented in xtk vertex interpolation" );
         }
@@ -110,7 +110,7 @@ namespace moris::xtk
          * returns the pointers to the coefficient objects
          */
         Vector< mtk::Vertex* >&
-        get_coefficients()
+        get_coefficients() override 
         {
             MORIS_ERROR( 0, "get_coefficients not implemented in xtk vertex interpolation" );
             return mCoefficients;
@@ -122,7 +122,7 @@ namespace moris::xtk
          * returns the pointers to the coefficient objects (const version)
          */
         const Vector< mtk::Vertex* >&
-        get_coefficients() const
+        get_coefficients() const override 
         {
             MORIS_ERROR( 0, "get_coefficients not implemented in xtk vertex interpolation" );
             return mCoefficients;
@@ -134,7 +134,7 @@ namespace moris::xtk
          * returns the number of coefficients attributed to this basis
          */
         uint
-        get_number_of_coefficients() const
+        get_number_of_coefficients() const override 
         {
             MORIS_ERROR( 0, "get_number_of_coefficients not implemented in xtk vertex interpolation" );
             return 0;
@@ -215,7 +215,7 @@ namespace moris::xtk
         //------------------------------------------------------------------------------
 
         void
-        print() const;
+        print() const override ;
 
         //------------------------------------------------------------------------------
 
@@ -316,8 +316,8 @@ namespace moris::xtk
             os << "Basis Index: " << std::setw( 9 ) << tBasisIndices( iBasis );
             os << " | Basis Weight: " << std::setw( 9 ) << tBasisWeights( iBasis );
             os << " | Basis Owner: " << std::setw( 9 ) << tBasisOwner( iBasis );
-            os << " | Back Basis Index:" << std::setw( 9 ) << tBackBasisIndices( iBasis ) << std::endl;
-            os << std::endl;
+            os << " | Back Basis Index:" << std::setw( 9 ) << tBackBasisIndices( iBasis ) << '\n';
+            os << '\n';
         }
 
         return os;

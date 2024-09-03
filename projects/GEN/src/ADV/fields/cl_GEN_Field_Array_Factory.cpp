@@ -10,6 +10,8 @@
 
 #include "cl_GEN_Field_Array_Factory.hpp"
 
+#include <utility>
+
 namespace moris::gen
 {
     //--------------------------------------------------------------------------------------------------------------
@@ -140,7 +142,7 @@ namespace moris::gen
             bool                     aMinimum )
     {
         // Store field for copying
-        mCopyField = aCopyField;
+        mCopyField = std::move( aCopyField );
 
         // Reset variable indices
         mVariableIndices.clear();

@@ -21,7 +21,6 @@
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_MTK_Mesh.hpp"
-#include "cl_MTK_Mesh.hpp"
 #include "cl_MTK_Mesh_Data_Input.hpp"
 #include "cl_MTK_Mesh_Factory.hpp"
 #include "cl_MTK_Mesh_Manager.hpp"
@@ -40,184 +39,180 @@
 #include "paths.hpp"
 
 // implementations to test
-#include "cl_MTK_Mesh_Factory.hpp"
 #include "cl_MTK_Intersection_Detect.cpp"
 
-namespace moris
+namespace moris::mtk
 {
-    namespace mtk
+    TEST_CASE( "MTK Intersection Polygon Clipping", "[MTK],[MTK_Intersect_Polygon_Clipping]" )
     {
-        TEST_CASE( "MTK Intersection Polygon Clipping", "[MTK],[MTK_Intersect_Polygon_Clipping]" )
+        if ( par_size() == 1 )
         {
-            if ( par_size() == 1 )
-            {
-                // generate a cubic mesh
-                std::string tInterpString = "generated:2x1x1|sideset:yY";
+            // generate a cubic mesh
+            std::string tInterpString = "generated:2x1x1|sideset:yY";
 
-                // create interpolation integration mesh
-                mtk::Interpolation_Mesh* tInterpMesh = create_interpolation_mesh( MeshType::STK, tInterpString );
-                mtk::Integration_Mesh*   tIntegMesh  = mtk::create_integration_mesh_from_interpolation_mesh( MeshType::STK, tInterpMesh );
+            // create interpolation integration mesh
+            mtk::Interpolation_Mesh* tInterpMesh = create_interpolation_mesh( MeshType::STK, tInterpString );
+            mtk::Integration_Mesh*   tIntegMesh  = mtk::create_integration_mesh_from_interpolation_mesh( MeshType::STK, tInterpMesh );
 
-                // create a mesh manager and register the mesh pair
-                auto tMeshManager = std::make_shared< mtk::Mesh_Manager >();
-                tMeshManager->register_mesh_pair( tInterpMesh, tIntegMesh );
+            // create a mesh manager and register the mesh pair
+            auto tMeshManager = std::make_shared< mtk::Mesh_Manager >();
+            tMeshManager->register_mesh_pair( tInterpMesh, tIntegMesh );
 
-                // parameter list input for the surfaces that are going to be periodic
-                moris::Parameter_List tParameterList;
-                tParameterList.insert( "periodic_side_set_pair", "surface_1,surface_2" );
+            // parameter list input for the surfaces that are going to be periodic
+            moris::Parameter_List tParameterList;
+            tParameterList.insert( "periodic_side_set_pair", "surface_1,surface_2" );
 
-                // construct the intersection detect
-                mtk::Intersection_Detect tIsDetetc( tMeshManager, 0, tParameterList, 2 );
+            // construct the intersection detect
+            mtk::Intersection_Detect tIsDetetc( tMeshManager, 0, tParameterList, 2 );
 
-                // Test "EdgeIntersect"
-                // Test same coordinates
+            // Test "EdgeIntersect"
+            // Test same coordinates
 
-                // Assign coords
-                moris::Matrix< DDRMat > tFirstTriCoordsSame  = { { 0.0, 1.0, 1.0 }, { 0.0, 0.0, 1.0 } };
-                moris::Matrix< DDRMat > tSecondTriCoordsSame = { { 0.0, 1.0, 1.0 }, { 0.0, 0.0, 1.0 } };
+            // Assign coords
+            moris::Matrix< DDRMat > tFirstTriCoordsSame  = { { 0.0, 1.0, 1.0 }, { 0.0, 0.0, 1.0 } };
+            moris::Matrix< DDRMat > tSecondTriCoordsSame = { { 0.0, 1.0, 1.0 }, { 0.0, 0.0, 1.0 } };
 
-                // Initialize the outputs
-                moris::Matrix< DDRMat > tIntersectedPoints;
-                moris::Matrix< DDUMat > tIntersectVec;
+            // Initialize the outputs
+            moris::Matrix< DDRMat > tIntersectedPoints;
+            moris::Matrix< DDUMat > tIntersectVec;
 
-                // use "EdgeIntersect" method
-                tIsDetetc.EdgeIntersect( tFirstTriCoordsSame, tSecondTriCoordsSame, tIntersectedPoints, tIntersectVec );
+            // use "EdgeIntersect" method
+            tIsDetetc.EdgeIntersect( tFirstTriCoordsSame, tSecondTriCoordsSame, tIntersectedPoints, tIntersectVec );
 
-                moris::Matrix< DDRMat > tExpectedTriCoords = { { 1.0, 0.0, 1.0, 1.0, 0.0, 1.0 }, { 0.0, 0.0, 0.0, 1.0, 0.0, 1.0 } };
+            moris::Matrix< DDRMat > tExpectedTriCoords = { { 1.0, 0.0, 1.0, 1.0, 0.0, 1.0 }, { 0.0, 0.0, 0.0, 1.0, 0.0, 1.0 } };
 
-                REQUIRE( norm( tIntersectedPoints - tExpectedTriCoords ) < 0.00000001 );
+            REQUIRE( norm( tIntersectedPoints - tExpectedTriCoords ) < 0.00000001 );
 
-                // Test different coordinates
+            // Test different coordinates
 
-                // Assign coords
-                moris::Matrix< DDRMat > tFirstTriCoords  = { { 0.0, 1.0, 1.0 }, { 0.0, 0.0, 1.0 } };
-                moris::Matrix< DDRMat > tSecondTriCoords = { { 0.5, 1.0, 0.0 }, { 0.0, 0.5, 0.5 } };
+            // Assign coords
+            moris::Matrix< DDRMat > tFirstTriCoords  = { { 0.0, 1.0, 1.0 }, { 0.0, 0.0, 1.0 } };
+            moris::Matrix< DDRMat > tSecondTriCoords = { { 0.5, 1.0, 0.0 }, { 0.0, 0.5, 0.5 } };
 
-                // use "EdgeIntersect" method
-                tIsDetetc.EdgeIntersect( tFirstTriCoords, tSecondTriCoords, tIntersectedPoints, tIntersectVec );
+            // use "EdgeIntersect" method
+            tIsDetetc.EdgeIntersect( tFirstTriCoords, tSecondTriCoords, tIntersectedPoints, tIntersectVec );
 
-                // Expected result
-                tExpectedTriCoords = { { 0.5, 0.5, 1.0, 1.0, 0.5, 0.25 }, { 0.0, 0.0, 0.5, 0.5, 0.5, 0.25 } };
+            // Expected result
+            tExpectedTriCoords = { { 0.5, 0.5, 1.0, 1.0, 0.5, 0.25 }, { 0.0, 0.0, 0.5, 0.5, 0.5, 0.25 } };
 
-                // Check if the expected result is the same as the output
-                REQUIRE( norm( tIntersectedPoints - tExpectedTriCoords ) < 0.00000001 );
+            // Check if the expected result is the same as the output
+            REQUIRE( norm( tIntersectedPoints - tExpectedTriCoords ) < 0.00000001 );
 
-                // Test "PointsXInY"
+            // Test "PointsXInY"
 
-                // Initialize outputs
-                moris::Matrix< DDRMat > tPointsXInY;
-                moris::Matrix< DDRMat > tPointsYInX;
+            // Initialize outputs
+            moris::Matrix< DDRMat > tPointsXInY;
+            moris::Matrix< DDRMat > tPointsYInX;
 
-                // Test points of Tri 1 in Tri 2
-                tIsDetetc.PointsXInY( tFirstTriCoords, tSecondTriCoords, tPointsXInY );
+            // Test points of Tri 1 in Tri 2
+            tIsDetetc.PointsXInY( tFirstTriCoords, tSecondTriCoords, tPointsXInY );
 
-                // Check if the expected result is the same as the output
-                REQUIRE( tPointsXInY.numel() == 0 );
+            // Check if the expected result is the same as the output
+            REQUIRE( tPointsXInY.numel() == 0 );
 
-                // Test points of Tri 2 in Tri 1
-                tIsDetetc.PointsXInY( tSecondTriCoords, tFirstTriCoords, tPointsYInX );
+            // Test points of Tri 2 in Tri 1
+            tIsDetetc.PointsXInY( tSecondTriCoords, tFirstTriCoords, tPointsYInX );
 
-                tExpectedTriCoords = { { 0.5, 1.0 }, { 0.0, 0.5 } };
+            tExpectedTriCoords = { { 0.5, 1.0 }, { 0.0, 0.5 } };
 
-                // Check if the expected result is the same as the output
-                REQUIRE( norm( tPointsYInX - tExpectedTriCoords ) < 0.00000001 );
+            // Check if the expected result is the same as the output
+            REQUIRE( norm( tPointsYInX - tExpectedTriCoords ) < 0.00000001 );
 
-                // Test "SortAndRemove"
+            // Test "SortAndRemove"
 
-                // Apply the method
-                tIsDetetc.SortAndRemove( tIntersectedPoints );
+            // Apply the method
+            tIsDetetc.SortAndRemove( tIntersectedPoints );
 
-                // Expected results
-                tExpectedTriCoords = { { 0.25, 0.5, 1.0, 0.5 }, { 0.25, 0.0, 0.5, 0.5 } };
+            // Expected results
+            tExpectedTriCoords = { { 0.25, 0.5, 1.0, 0.5 }, { 0.25, 0.0, 0.5, 0.5 } };
 
-                // Check if the expected result is the same as the output
-                REQUIRE( norm( tIntersectedPoints - tExpectedTriCoords ) < 0.00000001 );
+            // Check if the expected result is the same as the output
+            REQUIRE( norm( tIntersectedPoints - tExpectedTriCoords ) < 0.00000001 );
 
-                // Test "Intersect"
-                tIsDetetc.Intersect( tFirstTriCoords, tSecondTriCoords, tIntersectedPoints, tIntersectVec );
+            // Test "Intersect"
+            tIsDetetc.Intersect( tFirstTriCoords, tSecondTriCoords, tIntersectedPoints, tIntersectVec );
 
-                tExpectedTriCoords = { { 0.25, 0.5, 1.0, 0.5 }, { 0.25, 0.0, 0.5, 0.5 } };
+            tExpectedTriCoords = { { 0.25, 0.5, 1.0, 0.5 }, { 0.25, 0.0, 0.5, 0.5 } };
 
-                // Check if the expected result is the same as the output
-                REQUIRE( norm( tIntersectedPoints - tExpectedTriCoords ) < 0.00000001 );
+            // Check if the expected result is the same as the output
+            REQUIRE( norm( tIntersectedPoints - tExpectedTriCoords ) < 0.00000001 );
 
-                delete tInterpMesh;
-                delete tIntegMesh;
-            }
+            delete tInterpMesh;
+            delete tIntegMesh;
         }
+    }
 
-        TEST_CASE( "MTK Intersection Intersection", "[MTK],[MTK_Interface]" )
+    TEST_CASE( "MTK Intersection Intersection", "[MTK],[MTK_Interface]" )
+    {
+
+        if ( par_size() == 1 )
         {
 
-            if ( par_size() == 1 )
+            // generate a cubic mesh
+            std::string tInterpString = "generated:2x1x1|sideset:yY";
+
+            // create interpolation integration mesh
+            mtk::Interpolation_Mesh* tInterpMesh = create_interpolation_mesh( MeshType::STK, tInterpString );
+            mtk::Integration_Mesh*   tIntegMesh  = mtk::create_integration_mesh_from_interpolation_mesh( MeshType::STK, tInterpMesh );
+
+            // create a mesh manager and register the mesh pair
+            auto tMeshManager = std::make_shared< mtk::Mesh_Manager >();
+            tMeshManager->register_mesh_pair( tInterpMesh, tIntegMesh );
+
+            // parameter list input for the surfaces that are going to be periodic
+            moris::Parameter_List tParameterList;
+            tParameterList.insert( "periodic_side_set_pair", "surface_1,surface_2" );
+
+            // construct the intersection detect
+            mtk::Intersection_Detect tIsDetetc( tMeshManager, 0, tParameterList, 2 );
+
+            // Test Interface Matrix
+
+            moris::Matrix< DDRMat > tFirstMesh1 = { { 1.0, -1.0, -1.0 }, { -1.0, -1.0, 1.0 } };
+            moris::Matrix< DDRMat > tFirstMesh2 = { { 1.0, -1.0, +1.0 }, { -1.0, 1.0, 1.0 } };
+
+            moris::Matrix< DDRMat > tSecondMesh1 = { { -1.0, +1.0, +1.0 }, { -1.0, +1.0, -1.0 } };
+            moris::Matrix< DDRMat > tSecondMesh2 = { { -1.0, -1.0, +1.0 }, { -1.0, 1.0, 1.0 } };
+
+            Vector< moris::Matrix< DDRMat > > tFirstMesh  = { tFirstMesh1, tFirstMesh2 };
+            Vector< moris::Matrix< DDRMat > > tSecondMesh = { tSecondMesh1, tSecondMesh2 };
+
+            Matrix< IndexMat > tFirstMeshIdentifier  = { { 0, 1 } };
+            Matrix< IndexMat > tSecondMeshIdentifier = { { 0, 1 } };
+
+            Vector< moris::Matrix< DDRMat > > tCutTriangles;
+            moris::Matrix< moris::IndexMat >  tCutTrianglesIdentifier;
+
+            tIsDetetc.elementwise_bruteforce_search( tFirstMesh,
+                    tFirstMeshIdentifier,
+                    tSecondMesh,
+                    tSecondMeshIdentifier,
+                    tCutTriangles,
+                    tCutTrianglesIdentifier );
+
+            for ( uint i = 0; i < tCutTriangles.size(); i++ )
             {
-
-                // generate a cubic mesh
-                std::string tInterpString = "generated:2x1x1|sideset:yY";
-
-                // create interpolation integration mesh
-                mtk::Interpolation_Mesh* tInterpMesh = create_interpolation_mesh( MeshType::STK, tInterpString );
-                mtk::Integration_Mesh*   tIntegMesh  = mtk::create_integration_mesh_from_interpolation_mesh( MeshType::STK, tInterpMesh );
-
-                // create a mesh manager and register the mesh pair
-                auto tMeshManager = std::make_shared< mtk::Mesh_Manager >();
-                tMeshManager->register_mesh_pair( tInterpMesh, tIntegMesh );
-
-                // parameter list input for the surfaces that are going to be periodic
-                moris::Parameter_List tParameterList;
-                tParameterList.insert( "periodic_side_set_pair", "surface_1,surface_2" );
-
-                // construct the intersection detect
-                mtk::Intersection_Detect tIsDetetc( tMeshManager, 0, tParameterList, 2 );
-
-                // Test Interface Matrix
-
-                moris::Matrix< DDRMat > tFirstMesh1 = { { 1.0, -1.0, -1.0 }, { -1.0, -1.0, 1.0 } };
-                moris::Matrix< DDRMat > tFirstMesh2 = { { 1.0, -1.0, +1.0 }, { -1.0, 1.0, 1.0 } };
-
-                moris::Matrix< DDRMat > tSecondMesh1 = { { -1.0, +1.0, +1.0 }, { -1.0, +1.0, -1.0 } };
-                moris::Matrix< DDRMat > tSecondMesh2 = { { -1.0, -1.0, +1.0 }, { -1.0, 1.0, 1.0 } };
-
-                Vector< moris::Matrix< DDRMat > > tFirstMesh  = { tFirstMesh1, tFirstMesh2 };
-                Vector< moris::Matrix< DDRMat > > tSecondMesh = { tSecondMesh1, tSecondMesh2 };
-
-                Matrix< IndexMat > tFirstMeshIdentifier  = { { 0, 1 } };
-                Matrix< IndexMat > tSecondMeshIdentifier = { { 0, 1 } };
-
-                Vector< moris::Matrix< DDRMat > > tCutTriangles;
-                moris::Matrix< moris::IndexMat >       tCutTrianglesIdentifier;
-
-                tIsDetetc.elementwise_bruteforce_search( tFirstMesh,
-                        tFirstMeshIdentifier,
-                        tSecondMesh,
-                        tSecondMeshIdentifier,
-                        tCutTriangles,
-                        tCutTrianglesIdentifier );
-
-                for ( uint i = 0; i < tCutTriangles.size(); i++ )
-                {
-                    print( tCutTriangles( i ), "tCutTriangles" );
-                }
-                // Check if the expected result is the same as the output
-                moris::Matrix< DDRMat > tIntsersectionArea00 = { { -1.0, 1.0, 0.0 }, { -1.0, -1.0, 0.0 } };
-
-                moris::Matrix< DDRMat > tIntsersectionArea01 = { { -1.0, -1.0, 0.0 }, { -1.0, +1.0, 0.0 } };
-
-                moris::Matrix< DDRMat > tIntsersectionArea10 = { { 0.0, 1.0, 1.0 }, { 0.0, +1.0, -1.0 } };
-
-                moris::Matrix< DDRMat > tIntsersectionArea11 = { { -1.0, +1.0, 0.0 }, { +1.0, +1.0, 0.0 } };
-
-                REQUIRE( norm( tCutTriangles( 0 ) ) - norm( tIntsersectionArea00 ) < 0.00000001 );
-                REQUIRE( norm( tCutTriangles( 1 ) ) - norm( tIntsersectionArea01 ) < 0.00000001 );
-                REQUIRE( norm( tCutTriangles( 2 ) ) - norm( tIntsersectionArea10 ) < 0.00000001 );
-                REQUIRE( norm( tCutTriangles( 3 ) ) - norm( tIntsersectionArea11 ) < 0.00000001 );
-
-                //
-
-                delete tInterpMesh;
-                delete tIntegMesh;
+                print( tCutTriangles( i ), "tCutTriangles" );
             }
-        }
+            // Check if the expected result is the same as the output
+            moris::Matrix< DDRMat > tIntsersectionArea00 = { { -1.0, 1.0, 0.0 }, { -1.0, -1.0, 0.0 } };
 
-    }    // namespace mtk
-}    // namespace moris
+            moris::Matrix< DDRMat > tIntsersectionArea01 = { { -1.0, -1.0, 0.0 }, { -1.0, +1.0, 0.0 } };
+
+            moris::Matrix< DDRMat > tIntsersectionArea10 = { { 0.0, 1.0, 1.0 }, { 0.0, +1.0, -1.0 } };
+
+            moris::Matrix< DDRMat > tIntsersectionArea11 = { { -1.0, +1.0, 0.0 }, { +1.0, +1.0, 0.0 } };
+
+            REQUIRE( norm( tCutTriangles( 0 ) ) - norm( tIntsersectionArea00 ) < 0.00000001 );
+            REQUIRE( norm( tCutTriangles( 1 ) ) - norm( tIntsersectionArea01 ) < 0.00000001 );
+            REQUIRE( norm( tCutTriangles( 2 ) ) - norm( tIntsersectionArea10 ) < 0.00000001 );
+            REQUIRE( norm( tCutTriangles( 3 ) ) - norm( tIntsersectionArea11 ) < 0.00000001 );
+
+            //
+
+            delete tInterpMesh;
+            delete tIntegMesh;
+        }
+    }
+
+}    // namespace moris::mtk

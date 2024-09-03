@@ -176,9 +176,9 @@ namespace moris
 
         // initialize a map that stores in what order the grids are defined
         std::map< moris_index, uint > tGridIndexMap;    // map: grid index | position in list
-        Vector< moris_index >           tGridIndices( tNumGridsSpecified, 0 );
-        Vector< moris_index >           tInitialRefinements( tNumGridsSpecified, 0 );
-        Vector< moris_index >           tBoundaryRefinements( tNumGridsSpecified, 0 );
+        Vector< moris_index >         tGridIndices( tNumGridsSpecified, 0 );
+        Vector< moris_index >         tInitialRefinements( tNumGridsSpecified, 0 );
+        Vector< moris_index >         tBoundaryRefinements( tNumGridsSpecified, 0 );
         moris_index                   tMaxGridIndex = -1;
 
         // go through grids specified and get their data
@@ -238,9 +238,9 @@ namespace moris
 
         // initialize a map that stores in what order the grids are defined
         std::map< moris_index, uint > tBspMeshIndexMap;    // map: B-spline mesh index | position in list
-        Vector< moris_index >           tBspMeshIndices( tNumBspMeshesSpecified, -1 );
-        Vector< moris_index >           tGridsForMeshes( tNumBspMeshesSpecified, -1 );
-        Vector< moris_index >           tPolyOrders( tNumBspMeshesSpecified, -1 );
+        Vector< moris_index >         tBspMeshIndices( tNumBspMeshesSpecified, -1 );
+        Vector< moris_index >         tGridsForMeshes( tNumBspMeshesSpecified, -1 );
+        Vector< moris_index >         tPolyOrders( tNumBspMeshesSpecified, -1 );
         moris_index                   tMaxBspMeshIndex = -1;
         moris_index                   tMaxPolyOrder    = -1;
 
@@ -468,12 +468,12 @@ namespace moris
 
         // enriched mesh indices
         std::string sLagrangeToBspline  = tHmrParamList.get< std::string >( "lagrange_to_bspline" );
-        std::string sBsplineMeshIndices = sLagrangeToBspline.substr( 0, sLagrangeToBspline.find( ";" ) );
+        std::string sBsplineMeshIndices = sLagrangeToBspline.substr( 0, sLagrangeToBspline.find( ';' ) );
         tXtkParamList.set( "enrich_mesh_indices", sBsplineMeshIndices );
 
         // get whether to triangulate all
         bool tTriangulateAll = false;
-        mXmlReader->get( aXtkPath + ".TriangulateAllFgElems", tTriangulateAll, bool( false ) );
+        mXmlReader->get( aXtkPath + ".TriangulateAllFgElems", tTriangulateAll, false );
         tXtkParamList.set( "triangulate_all", tTriangulateAll );
 
         // check that boundary refinement is not requested when triangulating all
@@ -491,7 +491,7 @@ namespace moris
 
         // option to output Lagrange meshes
         bool tOutputDecompGrid = false;
-        mXmlReader->get( aXtkPath + ".OutputDecompositionGrid", tOutputDecompGrid, bool( false ) );
+        mXmlReader->get( aXtkPath + ".OutputDecompositionGrid", tOutputDecompGrid, false );
         if ( tOutputDecompGrid )
         {
             tHmrParamList.set( "write_lagrange_output_mesh_to_exodus", "Decomposition_Grid.exo" );
@@ -511,7 +511,7 @@ namespace moris
 
         // check whether T-matrix output has been requested/suppressed
         bool tOutputTmats = "";
-        mXmlReader->get( aXtkPath + ".OutputExtractionOperators", tOutputTmats, bool( true ) );
+        mXmlReader->get( aXtkPath + ".OutputExtractionOperators", tOutputTmats, true );
         tXtkParamList.set( "only_generate_xtk_temp", !tOutputTmats );
 
         // check which T-matrix outputs have been requested
@@ -622,8 +622,12 @@ namespace moris
                             "Number of entries in 'Normal' vector does not match number of spatial dimensions for the 'plane'." );
 
                     // set the parameters in the GEN parameter list
-                    Vector< real > tConstantParameters = string_to_cell< real >( tPoint + "," + tNormal );
-                    tGenParamList( 1 )( iGeom ).set( "constant_parameters", tConstantParameters );
+                    Vector< real > tPointVector  = string_to_cell< real >( tPoint );
+                    Vector< real > tNormalVector = string_to_cell< real >( tNormal );
+                    tGenParamList( 1 )( iGeom ).set( "center_x", tPointVector( 0 ) );
+                    tGenParamList( 1 )( iGeom ).set( "center_y", tPointVector( 1 ) );
+                    tGenParamList( 1 )( iGeom ).set( "normal_x", tNormalVector( 0 ) );
+                    tGenParamList( 1 )( iGeom ).set( "normal_y", tNormalVector( 1 ) );
                 }
 
                 // -------------------------------- //
@@ -654,8 +658,10 @@ namespace moris
                             "All planes must have a parameter 'Radius' specified of format e.g.: '5.6'" );
 
                     // set the parameters in the GEN parameter list
-                    Vector< real > tConstantParameters = string_to_cell< real >( tPoint + "," + tRadius );
-                    tGenParamList( 1 )( iGeom ).set( "constant_parameters", tConstantParameters );
+                    Vector< real > tPointVector = string_to_cell< real >( tPoint );
+                    tGenParamList( 1 )( iGeom ).set( "center_x", tPointVector( 0 ) );
+                    tGenParamList( 1 )( iGeom ).set( "center_y", tPointVector( 1 ) );
+                    tGenParamList( 1 )( iGeom ).set( "radius", std::stod( tRadius ) );
                 }
 
                 // -------------------------------- //
@@ -696,8 +702,13 @@ namespace moris
                     if ( tExponent == "" ) { tExponent = "2.0"; };
 
                     // set the parameters in the GEN parameter list
-                    Vector< real > tConstantParameters = string_to_cell< real >( tPoint + "," + tSemiDiameters + "," + tExponent + ",1.0,0.0,0.0" );
-                    tGenParamList( 1 )( iGeom ).set( "constant_parameters", tConstantParameters );
+                    Vector< real > tPointVector        = string_to_cell< real >( tPoint );
+                    Vector< real > tSemidiameterVector = string_to_cell< real >( tSemiDiameters );
+                    tGenParamList( 1 )( iGeom ).set( "center_x", tPointVector( 0 ) );
+                    tGenParamList( 1 )( iGeom ).set( "center_y", tPointVector( 1 ) );
+                    tGenParamList( 1 )( iGeom ).set( "semidiameter_x", tSemidiameterVector( 0 ) );
+                    tGenParamList( 1 )( iGeom ).set( "semidiameter_y", tSemidiameterVector( 1 ) );
+                    tGenParamList( 1 )( iGeom ).set( "exponent", std::stod( tExponent ) );
                 }
 
                 else if ( tPreDefGeom == "plane" )
@@ -730,8 +741,14 @@ namespace moris
                             "Number of entries in 'Normal' vector does not match number of spatial dimensions for the 'plane'." );
 
                     // set the parameters in the GEN parameter list
-                    Vector< real > tConstantParameters = string_to_cell< real >( tPoint + "," + tNormal );
-                    tGenParamList( 1 )( iGeom ).set( "constant_parameters", tConstantParameters );
+                    Vector< real > tPointVector  = string_to_cell< real >( tPoint );
+                    Vector< real > tNormalVector = string_to_cell< real >( tNormal );
+                    tGenParamList( 1 )( iGeom ).set( "center_x", tPointVector( 0 ) );
+                    tGenParamList( 1 )( iGeom ).set( "center_y", tPointVector( 1 ) );
+                    tGenParamList( 1 )( iGeom ).set( "center_z", tPointVector( 2 ) );
+                    tGenParamList( 1 )( iGeom ).set( "normal_x", tNormalVector( 0 ) );
+                    tGenParamList( 1 )( iGeom ).set( "normal_y", tNormalVector( 1 ) );
+                    tGenParamList( 1 )( iGeom ).set( "normal_z", tNormalVector( 2 ) );
                 }
 
                 // -------------------------------- //
@@ -767,8 +784,11 @@ namespace moris
                             "All planes must have a parameter 'Radius' specified of format e.g.: '5.6'" );
 
                     // set the parameters in the GEN parameter list
-                    Vector< real > tConstantParameters = string_to_cell< real >( tPoint + "," + tRadius );
-                    tGenParamList( 1 )( iGeom ).set( "constant_parameters", tConstantParameters );
+                    Vector< real > tPointVector = string_to_cell< real >( tPoint );
+                    tGenParamList( 1 )( iGeom ).set( "center_x", tPointVector( 0 ) );
+                    tGenParamList( 1 )( iGeom ).set( "center_y", tPointVector( 1 ) );
+                    tGenParamList( 1 )( iGeom ).set( "center_z", tPointVector( 2 ) );
+                    tGenParamList( 1 )( iGeom ).set( "radius", std::stod( tRadius ) );
                 }
 
                 // -------------------------------- //
@@ -814,8 +834,15 @@ namespace moris
                     if ( tExponent == "" ) { tExponent = "2.0"; };
 
                     // set the parameters in the GEN parameter list
-                    Vector< real > tConstantParameters = string_to_cell< real >( tPoint + "," + tSemiDiameters + "," + tExponent );
-                    tGenParamList( 1 )( iGeom ).set( "constant_parameters", tConstantParameters );
+                    Vector< real > tPointVector        = string_to_cell< real >( tPoint );
+                    Vector< real > tSemidiameterVector = string_to_cell< real >( tSemiDiameters );
+                    tGenParamList( 1 )( iGeom ).set( "center_x", tPointVector( 0 ) );
+                    tGenParamList( 1 )( iGeom ).set( "center_y", tPointVector( 1 ) );
+                    tGenParamList( 1 )( iGeom ).set( "center_z", tPointVector( 2 ) );
+                    tGenParamList( 1 )( iGeom ).set( "semidiameter_x", tSemidiameterVector( 0 ) );
+                    tGenParamList( 1 )( iGeom ).set( "semidiameter_y", tSemidiameterVector( 1 ) );
+                    tGenParamList( 1 )( iGeom ).set( "semidiameter_z", tSemidiameterVector( 2 ) );
+                    tGenParamList( 1 )( iGeom ).set( "exponent", std::stod( tExponent ) );
                 }
 
                 // -------------------------------- //
@@ -936,7 +963,7 @@ namespace moris
 
                 // get an offset in the sign distance value if input is provided
                 double tSdfShift = 0.0;
-                mXmlReader->get_from_buffer( "SdfShift", tSdfShift, double( 0.0 ) );
+                mXmlReader->get_from_buffer( "SdfShift", tSdfShift, 0.0 );
                 tGenParamList( 1 )( iGeom ).set( "sdf_shift", tSdfShift );
 
             }    // end if: geometry from image file

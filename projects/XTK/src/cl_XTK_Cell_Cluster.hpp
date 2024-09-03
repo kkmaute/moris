@@ -7,6 +7,7 @@
  * cl_XTK_Cell_Cluster.hpp
  *
  */
+
 #ifndef PROJECTS_XTK_SRC_XTK_CL_XTK_CELL_CLUSTER_HPP_
 #define PROJECTS_XTK_SRC_XTK_CL_XTK_CELL_CLUSTER_HPP_
 
@@ -25,8 +26,9 @@ namespace moris::xtk
 {
     class Interpolation_Cell_Unzipped;
     class Child_Mesh;
-    class IG_Vertex_Group;
-    class IG_Cell_Group;
+
+    struct IG_Cell_Group;
+    struct IG_Vertex_Group;
 
     class Cell_Cluster : public mtk::Cell_Cluster
     {
@@ -55,19 +57,19 @@ namespace moris::xtk
 
       public:
         Cell_Cluster();
-        ~Cell_Cluster();
-        bool                                       is_trivial( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
+        ~Cell_Cluster() override;
+        bool                                       is_trivial( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const override;
         bool                                       is_full() const;
         bool                                       is_void() const;
         bool                                       is_invalid() const;
-        Vector< moris::mtk::Cell const * > const & get_primary_cells_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
-        Vector< moris::mtk::Cell const * > const & get_void_cells_in_cluster() const;
-        moris::mtk::Cell const &                   get_interpolation_cell( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
-        Vector< moris::mtk::Vertex const * >       get_vertices_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
-        Matrix< DDRMat >                           get_vertices_local_coordinates_wrt_interp_cell( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
-        Matrix< DDRMat >                           get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex, const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
-        moris_index                                get_dim_of_param_coord( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
-        Matrix< DDRMat >                           get_primary_cell_local_coords_on_side_wrt_interp_cell( moris::moris_index aPrimaryCellClusterIndex ) const;
+        Vector< moris::mtk::Cell const * > const & get_primary_cells_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const override;
+        Vector< moris::mtk::Cell const * > const & get_void_cells_in_cluster() const override;
+        moris::mtk::Cell const &                   get_interpolation_cell( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const override;
+        Vector< moris::mtk::Vertex const * >       get_vertices_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const override;
+        Matrix< DDRMat >                           get_vertices_local_coordinates_wrt_interp_cell( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const override;
+        Matrix< DDRMat >                           get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex, const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const override;
+        moris_index                                get_dim_of_param_coord( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const override;
+        Matrix< DDRMat >                           get_primary_cell_local_coords_on_side_wrt_interp_cell( moris::moris_index aPrimaryCellClusterIndex ) const override;
 
         // constructor for cell clusters that will only be used for visualization purposes
         // this results in cell-clusters that may miss some data and have reduced functionality
@@ -82,7 +84,7 @@ namespace moris::xtk
         //------------------------------------------------------------------------------
 
         Matrix< IndexMat >
-        get_hanging_nodes() const;
+        get_hanging_nodes() const override;
 
         //------------------------------------------------------------------------------
 
@@ -93,7 +95,7 @@ namespace moris::xtk
         //------------------------------------------------------------------------------
 
         void
-        set_primary_integration_cell_group( std::shared_ptr< IG_Cell_Group > aPrimaryIgCells );
+        set_primary_integration_cell_group( const std::shared_ptr< IG_Cell_Group >& aPrimaryIgCells );
 
         //------------------------------------------------------------------------------
 
@@ -108,7 +110,7 @@ namespace moris::xtk
         //------------------------------------------------------------------------------
 
         void
-        set_ig_vertex_group( std::shared_ptr< IG_Vertex_Group > aVertexGroup );
+        set_ig_vertex_group( const std::shared_ptr< IG_Vertex_Group >& aVertexGroup );
 
         //----------------------------------------------------------------
 
@@ -124,8 +126,8 @@ namespace moris::xtk
 
         void
         set_cluster_group(
-                const moris_index                     aDiscretizationMeshIndex,
-                std::shared_ptr< mtk::Cluster_Group > aClusterGroupPtr ) override;
+                const moris_index                            aDiscretizationMeshIndex,
+                const std::shared_ptr< mtk::Cluster_Group >& aClusterGroupPtr ) override;
 
         //------------------------------------------------------------------------------
 
@@ -138,7 +140,7 @@ namespace moris::xtk
         compute_cluster_group_cell_measure(
                 const moris_index          aDiscretizationMeshIndex,
                 const mtk::Primary_Void    aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const;
+                const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const override;
 
         //------------------------------------------------------------------------------
 
@@ -148,7 +150,7 @@ namespace moris::xtk
                 const Matrix< DDRMat >&    aPerturbedVertexCoords,
                 uint                       aDirection,
                 const mtk::Primary_Void    aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const;
+                const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const override;
 
         //------------------------------------------------------------------------------
 

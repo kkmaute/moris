@@ -16,29 +16,27 @@
 #include "fn_eye.hpp"
 #include "fn_dot.hpp"
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+
+    //------------------------------------------------------------------------------
+
+    IWG_Isotropic_Struc_Linear_Neumann::IWG_Isotropic_Struc_Linear_Neumann()
     {
+        // set size for the property pointer cell
+        mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
-        //------------------------------------------------------------------------------
+        // populate the property map
+        mPropertyMap[ "Traction" ]  = static_cast< uint >( IWG_Property_Type::TRACTION );
+        mPropertyMap[ "Pressure" ]  = static_cast< uint >( IWG_Property_Type::PRESSURE );
+        mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
+    }
 
-        IWG_Isotropic_Struc_Linear_Neumann::IWG_Isotropic_Struc_Linear_Neumann()
-        {
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+    //------------------------------------------------------------------------------
 
-            // populate the property map
-            mPropertyMap[ "Traction" ]  = static_cast< uint >( IWG_Property_Type::TRACTION );
-            mPropertyMap[ "Pressure" ]  = static_cast< uint >( IWG_Property_Type::PRESSURE );
-            mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
-        }
-
-        //------------------------------------------------------------------------------
-
-        void
-        IWG_Isotropic_Struc_Linear_Neumann::compute_residual( real aWStar )
-        {
+    void
+    IWG_Isotropic_Struc_Linear_Neumann::compute_residual( real aWStar )
+    {
 #ifdef MORIS_HAVE_DEBUG
             // check leader field interpolators, properties and constitutive models
             this->check_field_interpolators();
@@ -179,6 +177,4 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
-
+}    // namespace moris::fem

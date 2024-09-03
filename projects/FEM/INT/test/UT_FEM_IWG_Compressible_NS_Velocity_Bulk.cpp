@@ -405,7 +405,7 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_Ideal",
                 // print for debug
                 if( !tCheckJacobian )
                 {
-                    std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<"iGP "<<iGP<<std::endl;
+                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << "iGP " << iGP << '\n';
                 }
 
                 // require check is true
@@ -803,7 +803,7 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_VdW",
                 // print for debug
                 if( !tCheckJacobian )
                 {
-                    std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<"iGP "<<iGP<<std::endl;
+                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << "iGP " << iGP << '\n';
                 }
 
                 // require check is true

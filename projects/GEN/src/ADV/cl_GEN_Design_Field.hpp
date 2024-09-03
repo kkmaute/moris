@@ -23,10 +23,10 @@ namespace moris::gen
      */
     struct Field_Parameters
     {
-        sint         mDiscretizationIndex;         // Index of a mesh for discretization (-2 = none, -1 = store nodal values)
-        real         mDiscretizationLowerBound;    // Lower bound for the B-spline coefficients in this field
-        real         mDiscretizationUpperBound;    // Upper bound for the B-spline coefficients in this field
-        bool         mUseMultilinearInterpolation; // Whether to use multilinear interpolation for all derived node field values
+        sint mDiscretizationIndex;            // Index of a mesh for discretization (-2 = none, -1 = store nodal values)
+        real mDiscretizationLowerBound;       // Lower bound for the B-spline coefficients in this field
+        real mDiscretizationUpperBound;       // Upper bound for the B-spline coefficients in this field
+        bool mUseMultilinearInterpolation;    // Whether to use multilinear interpolation for all derived node field values
 
         /**
          * Constructor with a given parameter list
@@ -45,7 +45,7 @@ namespace moris::gen
       private:
         Field_Parameters mParameters;
         Matrix< DDRMat > mInterpolatedSensitivities;
-        Vector< sint > mInterpolatedADVIDs;
+        Vector< sint >   mInterpolatedADVIDs;
 
       public:
         /**
@@ -57,7 +57,7 @@ namespace moris::gen
          */
         Design_Field(
                 std::shared_ptr< Field > aField,
-                Field_Parameters         aParameters,
+                const Field_Parameters&  aParameters,
                 Node_Manager&            aNodeManager );
 
         /**
@@ -69,7 +69,7 @@ namespace moris::gen
          * @param aADVOffsetID Offset in the owned ADV IDs for pulling ADV IDs
          */
         void discretize(
-                mtk::Mesh_Pair        aMeshPair,
+                const mtk::Mesh_Pair& aMeshPair,
                 sol::Dist_Vector*     aOwnedADVs,
                 const Vector< sint >& aSharedADVIds,
                 uint                  aADVOffsetID );
@@ -83,11 +83,11 @@ namespace moris::gen
          * @param aADVOffsetID Offset in the owned ADV IDs for pulling ADV IDs
          */
         void discretize(
-                std::shared_ptr< mtk::Field > aMTKField,
-                mtk::Mesh_Pair                aMeshPair,
-                sol::Dist_Vector*             aOwnedADVs,
-                const Vector< sint >&         aSharedADVIds,
-                uint                          aADVOffsetID );
+                const std::shared_ptr< mtk::Field >& aMTKField,
+                const mtk::Mesh_Pair&                aMeshPair,
+                sol::Dist_Vector*                    aOwnedADVs,
+                const Vector< sint >&                aSharedADVIds,
+                uint                                 aADVOffsetID );
 
         /**
          * Given a node index or coordinate, returns the field value.
@@ -167,7 +167,7 @@ namespace moris::gen
          *
          * @param aUpdatedFields All designs (this design will take fields from the ones it needs)
          */
-        void update_dependencies( Vector< std::shared_ptr< Field > > aUpdatedFields );
+        void update_dependencies( const Vector< std::shared_ptr< Field > >& aUpdatedFields );
 
         /**
          * Gets an MTK field, if this design field uses one that needs to be remapped to a new mesh

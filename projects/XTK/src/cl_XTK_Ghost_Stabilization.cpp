@@ -218,9 +218,6 @@ namespace moris::xtk
         Vector< uint >                                   tProcRanks;
         tEnrIpMesh.get_owned_and_not_owned_enriched_interpolation_cells( tOwnedInterpCells, tNotOwnedInterpCells, tProcRanks );
 
-        // get new index for new ghost interpolation cell, start where the enriched Ip mesh stops
-        uint tCurrentNewInterpCellIndex = tEnrIpMesh.get_num_entities( mtk::EntityRank::ELEMENT );
-
         // allocate data in ghost setup data
         Cut_Integration_Mesh*                                 tCutIgMesh            = mXTKModel->get_cut_integration_mesh();
         std::shared_ptr< Subphase_Neighborhood_Connectivity > tSubphaseNeighborhood = tCutIgMesh->get_subphase_neighborhood();
@@ -229,8 +226,7 @@ namespace moris::xtk
         // figure out how many of the interpolation cells are not trivial (this value is the number of new interpolation cells)
         // iterate through owned interpolation cells and give them an id if they are not trivial clusters
         // Also, we're only interested in the nontrivial cell clusters so keep track of those.
-        uint tNumNewInterpCellsNotOwned = 0;
-        uint tNumNewInterpCellsOwned    = 0;
+        uint tNumNewInterpCellsOwned = 0;
 
         Vector< Interpolation_Cell_Unzipped* > tNonTrivialOwnedInterpCells;
 
@@ -247,7 +243,6 @@ namespace moris::xtk
                 // ... make a 'note' that the enriched IP cell underlying the cluster needs to be used for creating a Ghost Facet
                 tNumNewInterpCellsOwned++;
                 tNonTrivialOwnedInterpCells.push_back( tOwnedInterpCells( iEnrIpCell ) );
-                tCurrentNewInterpCellIndex++;
             }
 
             // store the enriched IP cell index associated with the current subphase in Ghost setup data
@@ -286,9 +281,7 @@ namespace moris::xtk
                 if ( !tCluster.is_trivial() )
                 {
                     // ... make a 'note' that the enriched IP cell underlying the cluster needs to be used for creating a Ghost Facet
-                    tNumNewInterpCellsNotOwned++;
                     tNonTrivialNotOwnedInterpCells( iProc ).push_back( tNotOwnedInterpCells( iProc )( iIpCell ) );
-                    tCurrentNewInterpCellIndex++;
                 }
 
                 // store the enriched IP cell index associated with the current subphase in Ghost setup data
@@ -475,9 +468,9 @@ namespace moris::xtk
 
             }    // end if: parallel
 
-        }        // end for: every B-spline mesh index
+        }    // end for: every B-spline mesh index
 
-    }            // end function: Ghost_Stabilization::identify_and_setup_aura_vertices_in_ghost
+    }    // end function: Ghost_Stabilization::identify_and_setup_aura_vertices_in_ghost
 
     // ----------------------------------------------------------------------------------
 
@@ -809,9 +802,9 @@ namespace moris::xtk
                     mXTKModel->get_communication_table()( iProc ) );
 
             // initialize lists in which the new received basis functions are collected
-            Vector< moris_id > tNewBasisFnctIDs;
-            Vector< moris_id > tNewBasisFnctOwners;
-            Vector< moris_index > tNewBasisFnctBulkPhases;
+            Vector< moris_id >             tNewBasisFnctIDs;
+            Vector< moris_id >             tNewBasisFnctOwners;
+            Vector< moris_index >          tNewBasisFnctBulkPhases;
             std::unordered_set< moris_id > tBasisIdsAlreadyAdded;
 
             // collect basis function IDs that need to be added to the current processor subdomain
@@ -823,8 +816,8 @@ namespace moris::xtk
                 uint        tSize  = (uint)( tEnd - tStart + 1 );
 
                 // extract the information from the linear communication arrays
-                Matrix< IdMat >  tBasisIds     = aReceivedTMatrixIds( iProc )( { tStart, tEnd }, { 0, 0 } );
-                Matrix< IdMat >  tBasisOwners  = aReceivedTMatrixOwners( iProc )( { tStart, tEnd }, { 0, 0 } );
+                Matrix< IdMat > tBasisIds    = aReceivedTMatrixIds( iProc )( { tStart, tEnd }, { 0, 0 } );
+                Matrix< IdMat > tBasisOwners = aReceivedTMatrixOwners( iProc )( { tStart, tEnd }, { 0, 0 } );
 
                 // collect the indices for the basis IDs received
                 for ( uint iBF = 0; iBF < tSize; iBF++ )
@@ -849,7 +842,7 @@ namespace moris::xtk
                         moris_index                  tUipcIndex               = aGhostIpCellConnectedToVertex( tUipcIndexInNotOwnedData )->get_index();
                         Interpolation_Cell_Unzipped* tEnrIpCell               = tEnrInterpMesh.get_enriched_interpolation_cells()( tUipcIndex );
                         moris_index                  tBulkPhase               = tEnrIpCell->get_bulkphase_index();
-                
+
                         // store the basis IDs
                         tNewBasisFnctIDs.push_back( tBasisId );
                         tNewBasisFnctOwners.push_back( tBasisOwner );
@@ -866,9 +859,9 @@ namespace moris::xtk
                         tProcIdToCommTableIndex = mXTKModel->mCutIntegrationMesh->get_communication_map();
                     }
 
-                } // end for: each basis function interpolating into the current vertex
+                }    // end for: each basis function interpolating into the current vertex
 
-            } // end for: each vertex communicated with current proc to collect received new basis functions
+            }    // end for: each vertex communicated with current proc to collect received new basis functions
 
             // add basis functions received and not already part of the mesh to mesh
             tEnrInterpMesh.add_basis_functions( aMeshIndex, tNewBasisFnctIDs, tNewBasisFnctOwners, tNewBasisFnctBulkPhases );
@@ -921,9 +914,9 @@ namespace moris::xtk
 
             }    // end for: each vertex communicated with current proc
 
-        }        // end for: each proc answers are received from
+        }    // end for: each proc answers are received from
 
-    }            // end function: Ghost_Stabilization::handle_requested_T_matrix_answers()
+    }    // end function: Ghost_Stabilization::handle_requested_T_matrix_answers()
 
     // ----------------------------------------------------------------------------------
 
@@ -1352,7 +1345,8 @@ namespace moris::xtk
 
                 // add to the integration mesh
                 tEnrIntegMesh.mDoubleSideSets( aGhostSetupData.mDblSideSetIndexInMesh( iBulkPhase ) )( iGhostFacet ) = tDblSideCluster;
-            }
+
+            }    // end for: each ghost facet
 
             tDoubleSideSetIndexList.push_back( aGhostSetupData.mDblSideSetIndexInMesh( iBulkPhase ) );
 
@@ -1360,14 +1354,16 @@ namespace moris::xtk
                     aGhostSetupData.mDblSideSetIndexInMesh( iBulkPhase ),
                     { { (moris_index)iBulkPhase } },
                     { { (moris_index)iBulkPhase } } );
-        }
+
+        }    // end for: each bulk phase
 
         // commit and communicate the double side sets
         tEnrIntegMesh.commit_double_side_set( tDoubleSideSetIndexList );
         tEnrIntegMesh.communicate_sets_of_type( mtk::SetType::DOUBLE_SIDED_SIDESET );
 
         tEnrIntegMesh.collect_all_sets();
-    }
+
+    }    // end function: Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh()
 
     // ----------------------------------------------------------------------------------
 
@@ -1597,9 +1593,9 @@ namespace moris::xtk
                             }
                         }    // end for: loop over IP cells connected to leader B-spline cell facet
 
-                    }        // end if: mark elements for ghost side construction
-                }            // end for: loop over neighboring SPGs
-            }                // end for: loop over all SPGs
+                    }    // end if: mark elements for ghost side construction
+                }        // end for: loop over neighboring SPGs
+            }            // end for: loop over all SPGs
 
             // check that reserved size was appropriate
             MORIS_ASSERT( aGhostSetupData.mLeaderSideIpCellsNew( iBspMesh ).size() < tReserveSize,

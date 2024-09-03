@@ -64,7 +64,7 @@ namespace moris::mtk
         mHasIntersection = false;
     }
 
-    Matrix< DDRMat > const Ray_Line_Intersection::get_intersection_parametric() const
+    Matrix< DDRMat > Ray_Line_Intersection::get_intersection_parametric() const
     {
         return Matrix< DDRMat >( { { mParametricCoordinate } } );
     }

@@ -9,11 +9,3 @@
  */
 
 #include "cl_WRK_Performer.hpp"
-
-namespace moris
-{
-    namespace wrk
-    {
-    }
-}
-

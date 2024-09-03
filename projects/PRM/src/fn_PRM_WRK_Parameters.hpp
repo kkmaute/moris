@@ -13,31 +13,28 @@
 
 #include "cl_Parameter_List.hpp"
 
-namespace moris
+namespace moris::prm
 {
-    namespace prm
+
+    //------------------------------------------------------------------------------
+
+    // creates a parameter list with default inputs
+    inline Parameter_List
+    create_wrk_parameter_list()
     {
+        Parameter_List tParameterList;
 
-        //------------------------------------------------------------------------------
+        tParameterList.insert( "adv_field", "" );
+        tParameterList.insert( "dof_type", "" );
+        tParameterList.insert( "reinitialization_frequency", 1 );
+        tParameterList.insert( "output_mesh_file", "" );
+        tParameterList.insert( "time_offset", 0.0 );
 
-        // creates a parameter list with default inputs
-        inline Parameter_List
-        create_wrk_parameter_list()
-        {
-            Parameter_List tParameterList;
+        return tParameterList;
+    }
 
-            tParameterList.insert( "adv_field", "" );
-            tParameterList.insert( "dof_type", "" );
-            tParameterList.insert( "reinitialization_frequency", 1 );
-            tParameterList.insert( "output_mesh_file", "" );
-            tParameterList.insert( "time_offset", 0.0 );
+    //------------------------------------------------------------------------------
 
-            return tParameterList;
-        }
-        
-        //------------------------------------------------------------------------------
-
-    }    // namespace prm
-}    // namespace moris
+}    // namespace moris::prm
 
 #endif

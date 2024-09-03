@@ -11,6 +11,8 @@
 #ifndef PROJECTS_FEM_MDL_SRC_CL_FEM_MODEL_HPP_
 #define PROJECTS_FEM_MDL_SRC_CL_FEM_MODEL_HPP_
 
+#include <utility>
+
 #include "moris_typedefs.hpp"
 #include "cl_Vector.hpp"
 
@@ -173,7 +175,7 @@ namespace moris
                     std::shared_ptr< mtk::Mesh_Manager >      aMeshManager,
                     const moris_index                        &aMeshPairIndex,
                     const Vector< Vector< Parameter_List > > &aParameterList,
-                    std::shared_ptr< Library_IO >             aLibrary );
+                    const std::shared_ptr< Library_IO >      &aLibrary );
 
             //------------------------------------------------------------------------------
             /**
@@ -185,10 +187,10 @@ namespace moris
              * @param[ in ] aDesignVariableInterface a design variable interface pointer
              */
             FEM_Model(
-                    std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
-                    const moris_index                   &aMeshPairIndex,
-                    Vector< Vector< Parameter_List > >   aParameterList,
-                    MSI::Design_Variable_Interface      *aDesignVariableInterface );
+                    std::shared_ptr< mtk::Mesh_Manager >      aMeshManager,
+                    const moris_index                        &aMeshPairIndex,
+                    const Vector< Vector< Parameter_List > > &aParameterList,
+                    MSI::Design_Variable_Interface           *aDesignVariableInterface );
 
             //------------------------------------------------------------------------------
             /**
@@ -200,7 +202,7 @@ namespace moris
             /**
              * @brief non-trivial constructor
              */
-            ~FEM_Model();
+            ~FEM_Model() override;
 
             //------------------------------------------------------------------------------
 
@@ -561,7 +563,7 @@ namespace moris
             void
             set_contact_mesh_editor( std::shared_ptr< mtk::Contact_Mesh_Editor > aContactMeshEditor )
             {
-                mContactMeshEditor = aContactMeshEditor;
+                mContactMeshEditor = std::move( aContactMeshEditor );
             }
         };
     }    // namespace fem

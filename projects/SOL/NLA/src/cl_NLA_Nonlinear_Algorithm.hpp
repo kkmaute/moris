@@ -74,15 +74,14 @@ namespace moris
             moris::real calculate_time_needed( const clock_t aTime );
 
           public:
-
             //--------------------------------------------------------------------------------------------------
 
             Nonlinear_Algorithm( const Parameter_List& aParameterlist = prm::create_nonlinear_algorithm_parameter_list() )
-                    : mParameterListNonlinearSolver( aParameterlist ){};
+                    : mParameterListNonlinearSolver( aParameterlist ) {};
 
             //--------------------------------------------------------------------------------------------------
 
-            virtual ~Nonlinear_Algorithm(){};
+            virtual ~Nonlinear_Algorithm() {};
 
             //--------------------------------------------------------------------------------------------------
 
@@ -118,9 +117,9 @@ namespace moris
             //--------------------------------------------------------------------------------------------------
 
             virtual void extract_my_values(
-                    const moris::uint&                      aNumIndices,
-                    const moris::Matrix< DDSMat >&          aGlobalBlockRows,
-                    const moris::uint&                      aBlockRowOffsets,
+                    const moris::uint&                 aNumIndices,
+                    const moris::Matrix< DDSMat >&     aGlobalBlockRows,
+                    const moris::uint&                 aBlockRowOffsets,
                     Vector< moris::Matrix< DDRMat > >& LHSValues ) = 0;
 
             //--------------------------------------------------------------------------------------------------
@@ -132,7 +131,7 @@ namespace moris
             Nonlinear_Solver* get_my_nonlin_solver();
 
             virtual void
-            set_my_time_solver_algorithm( std::shared_ptr< tsa::Time_Solver_Algorithm > aMyTimeSolverAlgorithm )
+            set_my_time_solver_algorithm( const std::shared_ptr< tsa::Time_Solver_Algorithm >& aMyTimeSolverAlgorithm )
             {
                 MORIS_ASSERT( false, "set_my_time_solver_algorithm(): function not implemented" );
             }

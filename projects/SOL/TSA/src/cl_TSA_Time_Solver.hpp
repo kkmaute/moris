@@ -68,7 +68,7 @@ namespace moris
 
             Vector< moris::uint >     mOutputIndices;
             Vector< Output_Criteria > mOutputCriteriaPointer;
-            Void_Function mPauseFunction = [](){};
+            Void_Function             mPauseFunction = []() {};
 
             moris::Parameter_List mParameterListTimeSolver;
 
@@ -78,12 +78,8 @@ namespace moris
             //! Pointer to solver interface
             Solver_Interface* mSolverInterface = nullptr;
 
-            enum TimeSolverType mTimeSolverType = TimeSolverType::END_ENUM;
-
             moris::uint mCallCounter           = 0;
             moris::uint mCallCounterTimeSolver = 0;
-
-            moris::sint mLevel = 0;
 
             bool mIsLeaderTimeSolver = false;
 
@@ -110,7 +106,7 @@ namespace moris
              * @param[in] aTimeSolverType    Time solver type. Default is Newton
              */
             Time_Solver(
-                    const Parameter_List      aParameterlist,
+                    const Parameter_List&     aParameterlist,
                     sol::SOL_Warehouse*       aSolverWarehouse,
                     const enum TimeSolverType aTimeSolverType = TimeSolverType::MONOLITHIC );
 
@@ -124,7 +120,7 @@ namespace moris
              */
             Time_Solver(
                     Vector< std::shared_ptr< Time_Solver_Algorithm > >& aTimeSolverList,
-                    const enum TimeSolverType                                aTimeSolverType = TimeSolverType::MONOLITHIC );
+                    const enum TimeSolverType                           aTimeSolverType = TimeSolverType::MONOLITHIC );
 
             //--------------------------------------------------------------------------------------------------
 
@@ -143,8 +139,8 @@ namespace moris
              * @param[in] aLevel           Solver level in the block structure. Default is 0
              */
             void set_dof_type_list(
-                    const Vector< enum MSI::Dof_Type > aDofTypeList,
-                    const moris::sint                       aLevel = 0 );
+                    const Vector< enum MSI::Dof_Type >& aDofTypeList,
+                    const moris::sint                   aLevel = 0 );
 
             //--------------------------------------------------------------------------------------------------
 
@@ -163,7 +159,7 @@ namespace moris
              * @brief Accessor function to determine if this is forward or sensitivity analysis
              */
             bool
-            get_is_forward_analysis()
+            is_forward_analysis()
             {
                 return mIsForwardSolve;
             };
@@ -257,7 +253,7 @@ namespace moris
              *
              * @param[in] aTimeSolver Pointer to time solver algorithm.
              */
-            void set_time_solver_algorithm( std::shared_ptr< Time_Solver_Algorithm > aTimeSolver );
+            void set_time_solver_algorithm( const std::shared_ptr< Time_Solver_Algorithm >& aTimeSolver );
 
             //--------------------------------------------------------------------------------------------------
 
@@ -324,8 +320,8 @@ namespace moris
              * @param[in] aOutputCriteria    Pointer to the output criteria
              */
             void set_output(
-                    const uint      aOutputIndex,
-                    Output_Criteria aOutputCriteria );
+                    const uint             aOutputIndex,
+                    const Output_Criteria& aOutputCriteria );
 
             /**
              * Sets a user-defined pause function for pausing between time steps.
@@ -383,7 +379,6 @@ namespace moris
             //--------------------------------------------------------------------------------------------------
 
             void set_time_solver_parameters();
-
         };
     }    // namespace tsa
 }    // namespace moris

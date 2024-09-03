@@ -208,7 +208,7 @@ namespace moris::xtk
     void
     Enrichment::print_enriched_basis_to_subphase_id(
             const moris_index& aMeshIndex,
-            std::string        aFileName )
+            const std::string& aFileName )
     {
         Vector< Matrix< IndexMat > > const & tSubphasesInEnrBasis = mEnrichmentData( aMeshIndex ).mSubphaseIndsInEnrichedBasis;
 
@@ -265,7 +265,7 @@ namespace moris::xtk
         if ( aFileName.empty() == false )
         {
             std::ofstream tOutputFile( aFileName );
-            tOutputFile << tStringStream.str() << std::endl;
+            tOutputFile << tStringStream.str() << '\n';
             tOutputFile.close();
         }
     }
@@ -978,7 +978,7 @@ namespace moris::xtk
             }
         }
 
-        for ( uint iL = 0; iL < (uint)tNumEnrichLevel; ++iL )
+        for ( uint iL = 0; iL < tNumEnrichLevel; ++iL )
         {
             // check that centroid for current enrichment level has been computed
             MORIS_ERROR( tCentroids( iL ).numel() > 0,
@@ -994,7 +994,7 @@ namespace moris::xtk
         // build enrichment level old to new map
         Vector< moris_index > tEnrichmentMap( tNumEnrichLevel );
 
-        for ( uint i = 0; i < (uint)tNumEnrichLevel; ++i )
+        for ( uint i = 0; i < tNumEnrichLevel; ++i )
         {
             tEnrichmentMap( tSortingIndex( i ) ) = i;
         }
@@ -1165,39 +1165,40 @@ namespace moris::xtk
 
         moris_index tBaseIndex = 0;
 
-        for ( uint iEnrLvl = 0; iEnrLvl < aSubPhaseBinEnrichment.size(); iEnrLvl++ )
+        // loop over non-enriched basis functions
+        for ( uint iBF = 0; iBF < aSubPhaseBinEnrichment.size(); iBF++ )
         {
             // get the maximum enrichment level in this basis support
-            moris_index tMaxEnrLev = aMaxEnrichmentLevel( iEnrLvl );
+            moris_index tMaxEnrLev = aMaxEnrichmentLevel( iBF );
 
             // counter
             Vector< moris_index > tCounter( tMaxEnrLev + 1, 0 );
 
             // allocate member data for these basis functions
-            for ( moris_index iEnr = tBaseIndex; iEnr < tBaseIndex + tMaxEnrLev + 1; iEnr++ )
+            for ( moris_index iEnrBF = tBaseIndex; iEnrBF < tBaseIndex + tMaxEnrLev + 1; iEnrBF++ )
             {
-                mEnrichmentData( aEnrichmentDataIndex ).mSubphaseIndsInEnrichedBasis( iEnr ).resize( 1, aSubphaseClusterIndicesInSupport( iEnrLvl ).numel() );
+                mEnrichmentData( aEnrichmentDataIndex ).mSubphaseIndsInEnrichedBasis( iEnrBF ).resize( 1, aSubphaseClusterIndicesInSupport( iBF ).numel() );
             }
 
             // iterate through subphases in support and add them to appropriate location in mSubphaseIndsInEnrichedBasis
-            for ( uint iSp = 0; iSp < aSubphaseClusterIndicesInSupport( iEnrLvl ).numel(); iSp++ )
+            for ( uint iSp = 0; iSp < aSubphaseClusterIndicesInSupport( iBF ).numel(); iSp++ )
             {
                 // get cluster enrichment level
-                moris_index tClusterEnrLev = aSubPhaseBinEnrichment( iEnrLvl )( iSp );
+                moris_index tClusterEnrLev = aSubPhaseBinEnrichment( iBF )( iSp );
 
                 // add to the member data
                 mEnrichmentData( aEnrichmentDataIndex ).mSubphaseIndsInEnrichedBasis( tBaseIndex + tClusterEnrLev )( tCounter( tClusterEnrLev ) ) =
-                        aSubphaseClusterIndicesInSupport( iEnrLvl )( iSp );
+                        aSubphaseClusterIndicesInSupport( iBF )( iSp );
 
                 // increment count
                 tCounter( tClusterEnrLev )++;
             }
 
             // size out unused space
-            for ( moris_index iEnr = 0; iEnr < tMaxEnrLev + 1; iEnr++ )
+            for ( moris_index iEnrLvl = 0; iEnrLvl < tMaxEnrLev + 1; iEnrLvl++ )
             {
-                moris_index tIndex = tBaseIndex + iEnr;
-                mEnrichmentData( aEnrichmentDataIndex ).mSubphaseIndsInEnrichedBasis( tIndex ).resize( 1, tCounter( iEnr ) );
+                moris_index tIndex = tBaseIndex + iEnrLvl;
+                mEnrichmentData( aEnrichmentDataIndex ).mSubphaseIndsInEnrichedBasis( tIndex ).resize( 1, tCounter( iEnrLvl ) );
 
                 // sort in ascending order (easier to find in MPI)
                 // if this sort is removed the function  subphase_is_in_support needs to be updated
@@ -2319,8 +2320,8 @@ namespace moris::xtk
             Matrix< IndexMat > const & aPrunedSubPhaseToSubphase,
             Matrix< IndexMat >&        aSubPhaseBinEnrichmentVals )
     {
-        std::cout << "--------------------------------------------------" << std::endl;
-        std::cout << "Basis Index: " << aBasisIndex << std::endl;
+        std::cout << "--------------------------------------------------" << '\n';
+        std::cout << "Basis Index: " << aBasisIndex << '\n';
         std::cout << "Parent Cell In Support:";
         for ( uint i = 0; i < aParentElementsInSupport.numel(); i++ )
         {
@@ -2332,7 +2333,7 @@ namespace moris::xtk
             std::cout << std::setw( 8 ) << aSubphasesInSupport( i );
         }
 
-        std::cout << "\nSubphase Neighborhood In Support:" << std::endl;
+        std::cout << "\nSubphase Neighborhood In Support:" << '\n';
         for ( uint i = 0; i < aPrunedSubPhaseToSubphase.n_rows(); i++ )
         {
             std::cout << std::setw( 6 ) << aSubphasesInSupport( i ) << " | ";
@@ -2344,7 +2345,7 @@ namespace moris::xtk
                     std::cout << std::setw( 6 ) << aSubphasesInSupport( aPrunedSubPhaseToSubphase( i, j ) );
                 }
             }
-            std::cout << std::endl;
+            std::cout << '\n';
         }
 
         std::cout << "\nSubphase Enrichment Level: \n";
@@ -2352,7 +2353,7 @@ namespace moris::xtk
         {
             std::cout << std::setw( 8 ) << aSubPhaseBinEnrichmentVals( i );
         }
-        std::cout << "\n--------------------------------------------------" << std::endl;
+        std::cout << "\n--------------------------------------------------" << '\n';
     }
 
     //-------------------------------------------------------------------------------------
@@ -2496,7 +2497,7 @@ namespace moris::xtk
     //-------------------------------------------------------------------------------------
 
     void
-    Enrichment::construct_enriched_integration_mesh( const Matrix< IndexMat > aBsplineMeshIndices )
+    Enrichment::construct_enriched_integration_mesh( const Matrix< IndexMat >& aBsplineMeshIndices )
     {
         MORIS_ASSERT( mXTKModelPtr->mEnrichedInterpMesh( 0 ) != nullptr,
                 "Enrichment::construct_enriched_integration_mesh_new() - No enriched interpolation mesh to link enriched integration mesh to" );
@@ -3248,7 +3249,7 @@ namespace moris::xtk
                                         tMeshIndex,
                                         tEnrInterpMesh->get_vertex_enrichment( tMeshIndex, tVertEnrichIndex ) );
                     }
-                }
+                } // end: loop over vertices of the IP cell
 
                 // create the unzipped interpolation cell on first go
                 /* Note: the Interpolation_Cell_Unzipped carries a list of Interpolation_Vertex_Unzipped (UIPV) which themselves get updated for every DMI

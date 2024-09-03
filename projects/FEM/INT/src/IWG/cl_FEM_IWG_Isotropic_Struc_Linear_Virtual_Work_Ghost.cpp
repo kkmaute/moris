@@ -16,41 +16,39 @@
 #include "fn_eye.hpp"
 #include "fn_dot.hpp"
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+    //------------------------------------------------------------------------------
+
+    IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost()
     {
-        //------------------------------------------------------------------------------
+        // set ghost flag
+        mIsGhost = true;
 
-        IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost()
-        {
-            // set ghost flag
-            mIsGhost = true;
+        // set size for the property pointer cell
+        mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+        // populate the property map
+        mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
 
-            // populate the property map
-            mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
+        // set size for the constitutive model pointer cell
+        mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+        mFollowerCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
-            mFollowerCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+        // populate the constitutive map
+        mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
 
-            // populate the constitutive map
-            mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
+        // set size for the stabilization parameter pointer cell
+        mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
 
-            // set size for the stabilization parameter pointer cell
-            mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
+        // populate the stabilization map
+        mStabilizationMap[ "GhostVW" ] = static_cast< uint >( IWG_Stabilization_Type::GHOST_VW );
+    }
 
-            // populate the stabilization map
-            mStabilizationMap[ "GhostVW" ] = static_cast< uint >( IWG_Stabilization_Type::GHOST_VW );
-        }
+    //------------------------------------------------------------------------------
 
-        //------------------------------------------------------------------------------
-
-        void IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::compute_residual( real aWStar )
-        {
+    void IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::compute_residual( real aWStar )
+    {
 #ifdef MORIS_HAVE_DEBUG
             // check leader and follower field interpolators
             this->check_field_interpolators( mtk::Leader_Follower::LEADER );
@@ -414,6 +412,4 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
-
+}    // namespace moris::fem

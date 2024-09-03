@@ -9,6 +9,8 @@
  */
 
 #include "cl_XTK_Model.hpp"
+
+#include <utility>
 #include "cl_XTK_Background_Mesh.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
@@ -142,14 +144,14 @@ namespace moris::xtk
     void
     Model::set_input_performer( std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer )
     {
-        mMTKInputPerformer = aMTKPerformer;
+        mMTKInputPerformer = std::move( aMTKPerformer );
     }
     // ----------------------------------------------------------------------------------
 
     void
     Model::set_cut_ig_mesh( std::shared_ptr< Cut_Integration_Mesh > aCutIgMesh )
     {
-        mCutIntegrationMesh = aCutIgMesh;
+        mCutIntegrationMesh = std::move( aCutIgMesh );
         mDecomposed         = true;
     }
     // ----------------------------------------------------------------------------------
@@ -157,7 +159,7 @@ namespace moris::xtk
     void
     Model::set_output_performer( std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer )
     {
-        mMTKOutputPerformer = aMTKPerformer;
+        mMTKOutputPerformer = std::move( aMTKPerformer );
     }
 
     // ----------------------------------------------------------------------------------
@@ -337,7 +339,8 @@ namespace moris::xtk
             moris::string_to_mat( mParameterList.get< std::string >( "unenriched_mesh_indices" ), tUnenrichedBsplineMeshIndices );
 
             this->perform_unenrichment( tUnenrichedBsplineMeshIndices );
-        }
+
+        } // end: enrichment
 
         if ( mParameterList.get< bool >( "identify_hanging_nodes" ) )
         {
@@ -683,7 +686,7 @@ namespace moris::xtk
     // ----------------------------------------------------------------------------------
 
     bool
-    Model::decompose( Vector< enum Subdivision_Method > aMethods )
+    Model::decompose( const Vector< enum Subdivision_Method > &aMethods )
     {
         // log/trace the mesh decomposition
         Tracer tTracer( "XTK", "Decomposition", "Decompose" );
@@ -734,7 +737,7 @@ namespace moris::xtk
 
         if ( tNumUnsuccessful > 0 )
         {
-            std::cout << "There were " << tNumUnsuccessful << " bad nodes of " << aDecompData.tNewNodeId.size() << " total nodes" << std::endl;
+            std::cout << "There were " << tNumUnsuccessful << " bad nodes of " << aDecompData.tNewNodeId.size() << " total nodes" << '\n';
             return false;
         }
 

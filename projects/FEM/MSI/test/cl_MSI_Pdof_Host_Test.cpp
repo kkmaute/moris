@@ -28,10 +28,8 @@
 
 #include "fn_PRM_MSI_Parameters.hpp"
 
-namespace moris
+namespace moris::MSI
 {
-    namespace MSI
-    {
     TEST_CASE("Pdof_host_set_dof_type","[MSI],[Pdof_host_set_dof_type]")
     {
         // Create node obj
@@ -177,5 +175,3 @@ namespace moris
     }
 
     }
-}
-

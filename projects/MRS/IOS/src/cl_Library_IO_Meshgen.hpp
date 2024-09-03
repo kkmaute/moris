@@ -49,14 +49,14 @@ namespace moris
         /**
          * Default destructor
          */
-        ~Library_IO_Meshgen();
+        ~Library_IO_Meshgen() override;
 
         // -----------------------------------------------------------------------------
 
         /**
          * @brief finishes the initialization of the library and locks it from modification
          */
-        virtual void
+        void
         finalize() override;
 
         // -----------------------------------------------------------------------------

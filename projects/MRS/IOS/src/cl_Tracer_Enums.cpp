@@ -22,7 +22,7 @@ namespace moris
 
     // copy string
     //inline
-    const std::string get_enum_str(enum EntityBase aEntityBase)
+    std::string get_enum_str( enum EntityBase aEntityBase )
     {
         switch (aEntityBase)
         {
@@ -45,7 +45,7 @@ namespace moris
         }
     }
 
-    enum EntityBase get_entity_base_enum_from_str(std::string aEnumString)
+    enum EntityBase get_entity_base_enum_from_str( const std::string& aEnumString )
     {
         if      (aEnumString == "Unknown")                   return EntityBase::Unknown;
         else if (aEnumString == "LinearSolver")              return EntityBase::LinearSolver;
@@ -72,7 +72,7 @@ namespace moris
     // ------------------------------------------------------------------------------------------ //
 
     //inline
-    const std::string get_enum_str(enum EntityType aEntityType)
+    std::string get_enum_str( enum EntityType aEntityType )
     {
         switch (aEntityType)
         {
@@ -106,7 +106,7 @@ namespace moris
         }
     }
 
-    enum EntityType get_entity_type_enum_from_str(std::string aEnumString)
+    enum EntityType get_entity_type_enum_from_str( const std::string& aEnumString )
     {
         if      (aEnumString == "Unknown")            return EntityType::Unknown;
         else if (aEnumString == "Arbitrary")          return EntityType::Arbitrary;
@@ -144,7 +144,7 @@ namespace moris
     // ------------------------------------------------------------------------------------------ //
 
     //inline
-    const std::string get_enum_str(enum EntityAction aEntityAction)
+    std::string get_enum_str( enum EntityAction aEntityAction )
     {
         switch (aEntityAction)
         {
@@ -179,7 +179,7 @@ namespace moris
         }
     }
 
-    enum EntityAction get_entity_action_enum_from_str(std::string aEnumString)
+    enum EntityAction get_entity_action_enum_from_str( const std::string& aEnumString )
     {
         if      (aEnumString == "Unknown")                 return EntityAction::Unknown;
         else if (aEnumString == "Arbitrary")               return EntityAction::Arbitrary;
@@ -217,7 +217,7 @@ namespace moris
     // ------------------------------------------------------------------------------------------ //
 
     //inline
-    const std::string get_enum_str(enum OutputSpecifier aOutputSpecifier)
+    std::string get_enum_str( enum OutputSpecifier aOutputSpecifier )
     {
         switch (aOutputSpecifier)
         {
@@ -244,7 +244,7 @@ namespace moris
         }
     }
 
-    enum OutputSpecifier get_output_spec_enum_from_str(std::string aEnumString)
+    enum OutputSpecifier get_output_spec_enum_from_str( const std::string& aEnumString )
     {
         if      (aEnumString == "Unknown")      return OutputSpecifier::Unknown;
         else if (aEnumString == "ResidualNorm") return OutputSpecifier::ResidualNorm;

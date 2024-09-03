@@ -41,14 +41,14 @@ namespace moris::fem
         /**
          * trivial destructor
          */
-        ~IQI_Eigen_Value(){};
+        ~IQI_Eigen_Value() override{};
 
         //------------------------------------------------------------------------------
         /**
          * child implementation of set_parameter function
          */
         void
-        set_parameters( const Vector< Matrix< DDRMat > >& aParameters );
+        set_parameters( const Vector< Matrix< DDRMat > >& aParameters ) override;
 
         //------------------------------------------------------------------------------
 
@@ -58,14 +58,14 @@ namespace moris::fem
          * compute the quantity of interest
          * @param[ in ] aWStar weight associated to the evaluation point
          */
-        void compute_QI( real aWStar );
+        void compute_QI( real aWStar ) override;
 
         //------------------------------------------------------------------------------
         /**
          * Evaluate the quantity of interest and fill aQI with value
          * @param[ in ] aQI IQI value at evaluation point
          */
-        void compute_QI( Matrix< DDRMat >& aQI );
+        void compute_QI( Matrix< DDRMat >& aQI ) override;
 
         //------------------------------------------------------------------------------
         /**
@@ -81,7 +81,7 @@ namespace moris::fem
          * compute the derivative of the quantity of interest wrt dof types
          * @param[ in ] aWStar weight associated to the evaluation point
          */
-        void compute_dQIdu( real aWStar );
+        void compute_dQIdu( real aWStar ) override;
 
         //------------------------------------------------------------------------------
         /**
@@ -91,7 +91,7 @@ namespace moris::fem
          */
         void compute_dQIdu(
                 Vector< MSI::Dof_Type >& aDofType,
-                Matrix< DDRMat >&        adQIdu );
+                Matrix< DDRMat >&        adQIdu ) override;
 
         //------------------------------------------------------------------------------
     };

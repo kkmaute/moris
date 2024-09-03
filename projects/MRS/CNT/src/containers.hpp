@@ -16,7 +16,6 @@
 #include "cl_Bi_Map.hpp"        // CNT/src
 #include "cl_Dist_Map.hpp"      // CNT/src
 #include "cl_Array.hpp"         // CNT/src
-#include "cl_Dist_Map.hpp"      // CNT/src
 #include "cl_Parameter_List.hpp"    // CNT/src
 #include "cl_Tuple.hpp"         // CNT/src
 #include "cl_Vector.hpp"        // CNT/src

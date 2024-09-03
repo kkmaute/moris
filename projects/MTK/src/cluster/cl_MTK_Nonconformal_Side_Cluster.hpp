@@ -10,7 +10,6 @@
 #include "linalg_typedefs.hpp"
 #include "moris_typedefs.hpp"
 #include <map>
-#include <map>
 #include <utility>
 
 namespace moris::mtk

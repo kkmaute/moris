@@ -25,7 +25,7 @@ namespace moris::xtk
         }
 
         void evaluate_basis_function( Matrix< DDRMat > const &aLocalCoordinate,
-                Matrix< DDRMat >                             &aBasisFunctionValues ) const
+                Matrix< DDRMat >                             &aBasisFunctionValues ) const override
         {
             aBasisFunctionValues.resize( 1, 8 );
 

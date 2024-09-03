@@ -14,13 +14,11 @@
 #include "assert.hpp"
 #include "moris_typedefs.hpp"
 #include "cl_MTK_Enums.hpp"
-#include "cl_MTK_Enums.hpp"
-namespace moris
-{
-    namespace mtk
-    {
 
-// ----------------------------------------------------------------------------
+namespace moris::mtk
+{
+
+    // ----------------------------------------------------------------------------
     inline uint entity_rank_to_order( const enum EntityRank aEntityRank )
     {
         switch( aEntityRank )
@@ -260,8 +258,7 @@ namespace moris
         }
 
 // ----------------------------------------------------------------------------
-    } /* namespace mtk */
-} /* namespace moris */
+}    // namespace moris::mtk
 
 #endif /* PROJECTS_MTK_SRC_MTK_TOOLS_HPP_ */
 

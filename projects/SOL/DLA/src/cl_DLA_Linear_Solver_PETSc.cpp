@@ -131,8 +131,8 @@ void Linear_Solver_PETSc::set_solver_analysis_options()
 {
     KSPMonitorSet( mPetscKSPProblem,
             fn_KSPMonitorResidual,
-            NULL,
-            0 );
+            nullptr,
+            nullptr );
 }
 
 //----------------------------------------------------------------------------------------
@@ -231,7 +231,7 @@ void Linear_Solver_PETSc::compute_eigenspectrum( Linear_Problem *aLinearSystem )
     moris::sint tMaxIter;
     SlepcInitializeNoArguments();
     EPSCreate( PETSC_COMM_WORLD, &eps );
-    EPSSetOperators( eps, tBA, NULL );
+    EPSSetOperators( eps, tBA, nullptr );
     EPSSetProblemType( eps, EPS_HEP );
     EPSSetDimensions( eps, (PetscInt)tNumEigenValues, PETSC_DEFAULT, PETSC_DEFAULT );
     EPSSolve( eps );

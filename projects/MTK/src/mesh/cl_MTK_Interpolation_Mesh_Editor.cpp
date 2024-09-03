@@ -16,7 +16,6 @@
 #include "cl_MTK_Cell_DataBase.hpp"
 #include "cl_MTK_Cell_Info_Factory.hpp"
 #include "cl_MTK_Cell_Info.hpp"
-#include "cl_Tracer.hpp"
 
 namespace moris::mtk
 {
@@ -25,6 +24,7 @@ namespace moris::mtk
             : mInputMesh( aMTKMesh )
     {
         mIPMeshInfo = new Interpolation_Mesh_Info;
+
         // copy the necessary data for the old mesh
         mIPMeshInfo->mVertices               = mInputMesh.get_all_vertices();
         mIPMeshInfo->mNumInterpolations      = mInputMesh.get_num_interpolations();
@@ -85,6 +85,7 @@ namespace moris::mtk
     }
 
     // ----------------------------------------------------------------------------
+
     void
     Interpolation_Mesh_Editor::initialize_vertex_data()
     {
@@ -221,8 +222,6 @@ namespace moris::mtk
 
         return mOutputMesh;
     }
-
-    // ----------------------------------------------------------------------------
 
     // ----------------------------------------------------------------------------
 
@@ -364,6 +363,8 @@ namespace moris::mtk
         }
     }
 
+    //-----------------------------------------------------------------------------
+
     void
     Interpolation_Mesh_Editor::create_communication_table()
     {
@@ -372,6 +373,7 @@ namespace moris::mtk
     }
 
     //--------------------------------------------------------------------------------------------------------------
+
     void
     Interpolation_Mesh_Editor::create_vertex_glb_id_to_loc_vertex_ind_map()
     {
@@ -379,16 +381,15 @@ namespace moris::mtk
         mOutputMesh->mVertexGlobalIdToLocalIndex.reserve( mIPMeshInfo->mVertices.size() );
 
         // create the vertex map used in gen based on the new vertex
-        moris_index iCounter = 0;
-        for ( const auto& iVertex : mOutputMesh->mVertices )
+        for ( uint iCounter = 0; iCounter < mOutputMesh->mVertices.size(); ++iCounter )
         {
-            MORIS_ASSERT( iVertex.get_index() == iCounter, "Index alignment issue in vertices" );
+            MORIS_ASSERT( mOutputMesh->mVertices( iCounter ).get_index() == (moris_index)iCounter,
+                    "Index alignment issue in vertices" );
 
-            mOutputMesh->mVertexGlobalIdToLocalIndex[ iVertex.get_id() ] = iVertex.get_index();
-
-            iCounter++;
+            mOutputMesh->mVertexGlobalIdToLocalIndex[ mOutputMesh->mVertices( iCounter ).get_id() ] = iCounter;
         }
     }
+
     //--------------------------------------------------------------------------------------------------------------
 
     void
@@ -447,6 +448,7 @@ namespace moris::mtk
 
         return tVertexMapEqual && tAdofMapEqual;
     }
+
     //--------------------------------------------------------------------------------------------------------------
 
     bool
@@ -457,13 +459,13 @@ namespace moris::mtk
         bool tVertexIdAndIndexEqual = std::equal( mOutputMesh->mVertices.begin(),
                 mOutputMesh->mVertices.end(),
                 mIPMeshInfo->mVertices.begin(),
-                []( Vertex_DataBase a, mtk::Vertex const * b ) -> bool { return a.get_id() == b->get_id() and a.get_index() == b->get_index(); } );
+                []( const Vertex_DataBase& a, mtk::Vertex const * b ) -> bool { return a.get_id() == b->get_id() and a.get_index() == b->get_index(); } );
 
         // check if old vertices and new vertices have the same coords
         bool tEqualCoords = std::equal( mOutputMesh->mVertices.begin(),
                 mOutputMesh->mVertices.end(),
                 mIPMeshInfo->mVertices.begin(),
-                []( Vertex_DataBase a, mtk::Vertex const * b ) -> bool {
+                []( const Vertex_DataBase& a, mtk::Vertex const * b ) -> bool {
                     return std::equal( a.get_coords().begin(), a.get_coords().end(), b->get_coords().begin() );
                 } );
 

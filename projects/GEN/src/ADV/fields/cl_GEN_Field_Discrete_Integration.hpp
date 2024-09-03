@@ -41,7 +41,7 @@ namespace moris::gen
          */
         Field_Discrete_Integration(
                 const Vector< sint >& aSharedADVIds,
-                mtk::Mesh_Pair        aMeshPair,
+                const mtk::Mesh_Pair& aMeshPair,
                 std::string           aName );
 
         /**

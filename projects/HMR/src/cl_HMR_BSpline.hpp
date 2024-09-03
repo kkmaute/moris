@@ -115,7 +115,7 @@ namespace moris::hmr
         /**
          * Destructor
          */
-        ~BSpline()
+        ~BSpline() override
         {
             // test if basis has elements
             if ( mNumberOfConnectedElements != 0 )
@@ -155,7 +155,7 @@ namespace moris::hmr
          * @return void
          */
         void
-        set_active_flag()
+        set_active_flag() override
         {
             // set active flag on
             mActiveFlag = true;
@@ -172,7 +172,7 @@ namespace moris::hmr
          * @return void
          */
         void
-        set_refined_flag()
+        set_refined_flag() override
         {
             // a refined element is not active
             mActiveFlag = false;
@@ -189,7 +189,7 @@ namespace moris::hmr
          * @return void
          */
         void
-        unset_active_flag()
+        unset_active_flag() override
         {
             // a refined element is not active
             mActiveFlag = false;
@@ -206,7 +206,7 @@ namespace moris::hmr
          * @return bool   true if active
          */
         bool
-        is_active() const
+        is_active() const override
         {
             return mActiveFlag;
         }
@@ -219,7 +219,7 @@ namespace moris::hmr
          * @return bool   true if refined
          */
         bool
-        is_refined()
+        is_refined() override
         {
             return mRefinedFlag;
         }
@@ -234,7 +234,7 @@ namespace moris::hmr
          *               careful: node must not go out of scope.
          */
         const luint*
-        get_ijk() const
+        get_ijk() const override
         {
             return mIJK;
         }
@@ -249,7 +249,7 @@ namespace moris::hmr
          * @return void
          */
         void
-        set_xyz( const real* aXYZ )
+        set_xyz( const real* aXYZ ) override
         {
 #ifdef MORIS_HAVE_DEBUG
             // save ijk position in memory.
@@ -270,7 +270,7 @@ namespace moris::hmr
          *               careful: node must not go out of scope.
          */
         const real*
-        get_xyz() const
+        get_xyz() const override
         {
 #ifdef MORIS_HAVE_DEBUG
             return mXYZ;
@@ -287,7 +287,7 @@ namespace moris::hmr
          */
 #ifdef MORIS_HAVE_DEBUG
         Matrix< DDRMat >
-        get_coords() const
+        get_coords() const override
         {
             Matrix< DDRMat > aCoords( 1, N );
             for ( uint k = 0; k < N; ++k )
@@ -306,7 +306,7 @@ namespace moris::hmr
          * @return void
          */
         void
-        init_neighbor_container()
+        init_neighbor_container() override
         {
             if ( !mNeighborsFlag )
             {
@@ -327,7 +327,7 @@ namespace moris::hmr
         // -----------------------------------------------------------------------------
 
         void
-        delete_neighbor_container()
+        delete_neighbor_container() override
         {
             if ( mNeighborsFlag )
             {
@@ -416,7 +416,7 @@ namespace moris::hmr
          * Tells if children of this basis have been processed already
          */
         bool
-        has_children()
+        has_children() override
         {
             return mChildrenFlag;
         }
@@ -430,7 +430,7 @@ namespace moris::hmr
          * @return void
          */
         void
-        init_children_container()
+        init_children_container() override
         {
             // reserve array
             mChildren = new Basis*[ C ];
@@ -463,7 +463,7 @@ namespace moris::hmr
          */
         void
         insert_child( uint aChildNumber,
-                Basis*     aChild )
+                Basis*     aChild ) override
         {
             mChildren[ aChildNumber ] = aChild;
         }
@@ -478,7 +478,7 @@ namespace moris::hmr
          * @return Basis*               pointer to child
          */
         Basis*
-        get_child( uint aChildNumber )
+        get_child( uint aChildNumber ) override
         {
             if ( mChildrenFlag )
             {
@@ -502,7 +502,7 @@ namespace moris::hmr
          * @return Basis*
          */
         Basis*
-        get_neighbor( uint aNeighborNumber )
+        get_neighbor( uint aNeighborNumber ) override
         {
             if ( mNeighborsFlag )
             {
@@ -518,7 +518,7 @@ namespace moris::hmr
 
         void
         insert_neighbor( uint aNeighborNumber,
-                Basis*        aNeighbor )
+                Basis*        aNeighbor ) override
         {
             MORIS_ASSERT( mNeighborsFlag, "Can't insert neighbor if container is not set" );
             mNeighbors[ aNeighborNumber ] = aNeighbor;
@@ -527,7 +527,7 @@ namespace moris::hmr
         // -----------------------------------------------------------------------------
 
         void
-        flag_descendants()
+        flag_descendants() override
         {
             if ( mFlag == false )
             {
@@ -553,7 +553,7 @@ namespace moris::hmr
         // -----------------------------------------------------------------------------
 
         void
-        unflag_descendants()
+        unflag_descendants() override
         {
             if ( mFlag == true )
             {
@@ -651,14 +651,14 @@ namespace moris::hmr
          * Increments the parent counter. Needed for parent identification.
          */
         void
-        increment_parent_counter()
+        increment_parent_counter() override
         {
             ++mNumberOfParents;
         }
         // -----------------------------------------------------------------------------
 
         void
-        insert_parent( Basis* aParent )
+        insert_parent( Basis* aParent ) override
         {
             if ( mParentCounter == 0 )
             {
@@ -677,7 +677,7 @@ namespace moris::hmr
         // -----------------------------------------------------------------------------
 
         Basis*
-        get_parent( uint aParentNumber )
+        get_parent( uint aParentNumber ) override
         {
             return mParents[ aParentNumber ];
         }
@@ -685,7 +685,7 @@ namespace moris::hmr
         // -----------------------------------------------------------------------------
 
         uint
-        get_number_of_parents()
+        get_number_of_parents() override
         {
             return mNumberOfParents;
         }
@@ -693,7 +693,7 @@ namespace moris::hmr
         // -----------------------------------------------------------------------------
 
         void
-        set_active_index( luint aIndex )
+        set_active_index( luint aIndex ) override
         {
             mActiveIndex = aIndex;
         }
@@ -701,7 +701,7 @@ namespace moris::hmr
         //------------------------------------------------------------------------------
 
         luint
-        get_active_index()
+        get_active_index() override
         {
             return mActiveIndex;
         }
@@ -709,7 +709,7 @@ namespace moris::hmr
         //------------------------------------------------------------------------------
 
         void
-        get_basis_local_child_inds( Matrix< DDSMat >& aChildren )
+        get_basis_local_child_inds( Matrix< DDSMat >& aChildren ) override
         {
             uint tChildren[ C ];
 

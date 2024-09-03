@@ -22,86 +22,83 @@
 #include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
 #include "cl_FEM_IWG.hpp"                   //FEM/INT/src
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+    //------------------------------------------------------------------------------
+
+    class IWG_Diffusion_Virtual_Work_Ghost : public IWG
     {
         //------------------------------------------------------------------------------
 
-        class IWG_Diffusion_Virtual_Work_Ghost : public IWG
+      public:
+        enum class IWG_Constitutive_Type
         {
-                //------------------------------------------------------------------------------
-            public:
-
-                enum class IWG_Constitutive_Type
-                {
-                    DIFF_LIN_ISO,
-                    MAX_ENUM
-                };
-
-                enum class IWG_Stabilization_Type
-                {
-                        GHOST_VW,
-                        MAX_ENUM
-                };
-
-                //------------------------------------------------------------------------------
-                /*
-                 *  constructor
-                 */
-                IWG_Diffusion_Virtual_Work_Ghost();
-
-                //------------------------------------------------------------------------------
-                /**
-                 * trivial destructor
-                 */
-                ~IWG_Diffusion_Virtual_Work_Ghost(){};
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the residual
-                 * @param[ in ] aWStar weight associated to the evaluation point
-                 */
-                void compute_residual( real aWStar );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the jacobian
-                 * @param[ in ] aWStar weight associated to the evaluation point
-                 */
-                void compute_jacobian( real aWStar );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the residual and the jacobian
-                 * @param[ in ] aWStar weight associated to the evaluation point
-                 */
-                void compute_jacobian_and_residual( real aWStar );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the derivative of the residual wrt design variables
-                 * @param[ in ] aWStar weight associated to the evaluation point
-                 */
-                void compute_dRdp( real aWStar );
-
-            private:
-                //------------------------------------------------------------------------------
-                /**
-                 * method to assemble "normal matrix" from normal vector needed for
-                 * 2nd and 3rd order Ghost formulations
-                 * @param[ in ] aFlatNormal flattened normal
-                 * @param[ in ] aOrder      order of derivatives and ghost formulation
-                 */
-                void get_flat_normal_matrix(
-                                Matrix< DDRMat > & aFlatNormal,
-                                uint               aOrder );
-
-                //------------------------------------------------------------------------------
+            DIFF_LIN_ISO,
+            MAX_ENUM
         };
+
+        enum class IWG_Stabilization_Type
+        {
+            GHOST_VW,
+            MAX_ENUM
+        };
+
         //------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
+        /*
+         *  constructor
+         */
+        IWG_Diffusion_Virtual_Work_Ghost();
+
+        //------------------------------------------------------------------------------
+        /**
+         * trivial destructor
+         */
+        ~IWG_Diffusion_Virtual_Work_Ghost() override{};
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute the residual
+         * @param[ in ] aWStar weight associated to the evaluation point
+         */
+        void compute_residual( real aWStar ) override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute the jacobian
+         * @param[ in ] aWStar weight associated to the evaluation point
+         */
+        void compute_jacobian( real aWStar ) override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute the residual and the jacobian
+         * @param[ in ] aWStar weight associated to the evaluation point
+         */
+        void compute_jacobian_and_residual( real aWStar ) override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute the derivative of the residual wrt design variables
+         * @param[ in ] aWStar weight associated to the evaluation point
+         */
+        void compute_dRdp( real aWStar ) override;
+
+      private:
+        //------------------------------------------------------------------------------
+        /**
+         * method to assemble "normal matrix" from normal vector needed for
+         * 2nd and 3rd order Ghost formulations
+         * @param[ in ] aFlatNormal flattened normal
+         * @param[ in ] aOrder      order of derivatives and ghost formulation
+         */
+        void get_flat_normal_matrix(
+                Matrix< DDRMat > &aFlatNormal,
+                uint              aOrder );
+
+        //------------------------------------------------------------------------------
+    };
+    //------------------------------------------------------------------------------
+}    // namespace moris::fem
 
 #endif /* SRC_FEM_CL_FEM_IWG_Diffusion_Virtual_Work_Ghost_HPP_ */
 

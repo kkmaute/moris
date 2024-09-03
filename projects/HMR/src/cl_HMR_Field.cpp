@@ -12,6 +12,7 @@
 
 #include <iostream>
 #include <cstdio>
+#include <utility>
 
 #include "cl_HMR_Lagrange_Mesh_Base.hpp"
 #include "cl_HMR_Mesh.hpp"
@@ -39,19 +40,19 @@ namespace moris::hmr
             std::shared_ptr< mtk::Mesh > aMesh,
             uint                         aBSplineMeshIndex,
             std::shared_ptr< Database >  aDatabase,
-            Lagrange_Mesh_Base *         aLagrangeMesh )
-    : mMesh( aMesh ),
-      mDatabase( aDatabase ),
-      mLagrangeMesh( aLagrangeMesh ),
-      mFieldIndex( aLagrangeMesh->create_real_scalar_field_data( aLabel ) )
+            Lagrange_Mesh_Base*          aLagrangeMesh )
+            : mMesh( std::move( aMesh ) )
+            , mDatabase( std::move( aDatabase ) )
+            , mLagrangeMesh( aLagrangeMesh )
+            , mFieldIndex( aLagrangeMesh->create_real_scalar_field_data( aLabel ) )
     {
         this->set_label( aLabel );
-        mInputBSplineIndex = aBSplineMeshIndex;         //FIXME Index not order
+        mInputBSplineIndex = aBSplineMeshIndex;    // FIXME Index not order
 
         // assume input and output order are the same
         mOutputBSplineOrder = mInputBSplineIndex;
 
-        //get Lagrange mesh than bspline order
+        // get Lagrange mesh than bspline order
         uint tBSplineOrder = mLagrangeMesh->get_bspline_order( aBSplineMeshIndex );
 
         aLagrangeMesh->set_real_scalar_field_bspline_order( mFieldIndex, tBSplineOrder );
@@ -60,10 +61,10 @@ namespace moris::hmr
     //------------------------------------------------------------------------------
 
     Field::Field(
-            const std::string&      aLabel,
-            std::shared_ptr< Mesh > aMesh,
-            const std::string&      aHdf5FilePath  )
-    : mMesh( aMesh )
+            const std::string&             aLabel,
+            const std::shared_ptr< Mesh >& aMesh,
+            const std::string&             aHdf5FilePath )
+            : mMesh( aMesh )
     {
         // link to database
         mDatabase = aMesh->get_database();
@@ -77,8 +78,8 @@ namespace moris::hmr
         this->set_label( aLabel );
 
         // load values into field
-        herr_t tStatus = 0;
-        hid_t tHDF5File = open_hdf5_file( aHdf5FilePath );
+        herr_t tStatus   = 0;
+        hid_t  tHDF5File = open_hdf5_file( aHdf5FilePath );
         load_matrix_from_hdf5_file( tHDF5File, aLabel, this->get_coefficients(), tStatus );
         close_hdf5_file( tHDF5File );
 
@@ -87,9 +88,9 @@ namespace moris::hmr
 
         // find out order
         mInputBSplineIndex = 0;
-        for( uint k=1; k<=3; ++k )
+        for ( uint k = 1; k <= 3; ++k )
         {
-            if( aMesh->get_max_num_coeffs_on_proc( k ) == tNumberOfBSplines )
+            if ( aMesh->get_max_num_coeffs_on_proc( k ) == tNumberOfBSplines )
             {
                 mInputBSplineIndex = k;
                 break;
@@ -177,42 +178,42 @@ namespace moris::hmr
 
     //------------------------------------------------------------------------------
 
-    const std::string & Field::get_label() const
+    const std::string& Field::get_label() const
     {
         return mLagrangeMesh->get_real_scalar_field_label( mFieldIndex );
     }
 
     //------------------------------------------------------------------------------
 
-    void Field::set_label( const std::string & aLabel )
+    void Field::set_label( const std::string& aLabel )
     {
         mLagrangeMesh->set_real_scalar_field_label( mFieldIndex, aLabel );
     }
 
     //------------------------------------------------------------------------------
 
-    Matrix< DDRMat > & Field::get_node_values()
+    Matrix< DDRMat >& Field::get_node_values()
     {
         return mLagrangeMesh->get_real_scalar_field_data( mFieldIndex );
     }
 
     //------------------------------------------------------------------------------
 
-    const Matrix< DDRMat > & Field::get_node_values() const
+    const Matrix< DDRMat >& Field::get_node_values() const
     {
         return mLagrangeMesh->get_real_scalar_field_data( mFieldIndex );
     }
 
     //------------------------------------------------------------------------------
 
-    Matrix< DDRMat > & Field::get_coefficients()
+    Matrix< DDRMat >& Field::get_coefficients()
     {
         return mLagrangeMesh->get_real_scalar_field_coeffs( mFieldIndex );
     }
 
     //------------------------------------------------------------------------------
 
-    const Matrix< DDRMat > & Field::get_coefficients() const
+    const Matrix< DDRMat >& Field::get_coefficients() const
     {
         return mLagrangeMesh->get_real_scalar_field_coeffs( mFieldIndex );
     }
@@ -233,16 +234,16 @@ namespace moris::hmr
         mLagrangeMesh = aMesh;
 
         // change mesh index
-        mFieldIndex   = aFieldIndex;
+        mFieldIndex = aFieldIndex;
     }
     //------------------------------------------------------------------------------
 
     void Field::get_element_local_node_values(
-            const moris_index    aElementIndex,
-            Matrix< DDRMat >   & aValues )
+            const moris_index aElementIndex,
+            Matrix< DDRMat >& aValues )
     {
         // get pointer to element
-        Element * tElement = mLagrangeMesh->get_element( aElementIndex );
+        Element* tElement = mLagrangeMesh->get_element( aElementIndex );
 
         // get number of nodes
         uint tNumberOfNodes = tElement->get_number_of_vertices();
@@ -251,7 +252,7 @@ namespace moris::hmr
         aValues.set_size( tNumberOfNodes, 1 );
 
         // write values into matrix
-        for( uint k=0; k<tNumberOfNodes; ++k )
+        for ( uint k = 0; k < tNumberOfNodes; ++k )
         {
             aValues( k ) = this->get_node_values()( tElement->get_basis( k )->get_index() );
         }
@@ -259,19 +260,19 @@ namespace moris::hmr
 
     //------------------------------------------------------------------------------
 
-    void Field::evaluate_nodal_values( const Matrix< DDRMat > & aCoefficients )
+    void Field::evaluate_nodal_values( const Matrix< DDRMat >& aCoefficients )
     {
         // ask mesh for number of nodes
         uint tNumberOfNodes = mMesh->get_num_nodes();
 
-        Matrix< DDRMat > & tNodeValues = this->get_node_values();
+        Matrix< DDRMat >& tNodeValues = this->get_node_values();
 
         // allocate memory for matrix
         tNodeValues.set_size( tNumberOfNodes, mNumberOfDimensions );
 
         MORIS_ERROR( mNumberOfDimensions == 1, "currently, only scalar fields are supported" );
 
-        for( uint k=0; k<tNumberOfNodes; ++k )
+        for ( uint k = 0; k < tNumberOfNodes; ++k )
         {
             // get pointer to node
             auto tNode = &mMesh->get_mtk_vertex( k );
@@ -280,16 +281,16 @@ namespace moris::hmr
             auto tBSplines = tNode->get_interpolation( mInputBSplineIndex )->get_coefficients();
 
             // get T-Matrix
-            const Matrix< DDRMat > & tTMatrix = *tNode->get_interpolation( mInputBSplineIndex )->get_weights();
+            const Matrix< DDRMat >& tTMatrix = *tNode->get_interpolation( mInputBSplineIndex )->get_weights();
 
             // get number of coefficients
             uint tNumberOfCoeffs = tTMatrix.length();
 
-            MORIS_ASSERT( tNumberOfCoeffs > 0, "No coefficients defined for node" ) ;
+            MORIS_ASSERT( tNumberOfCoeffs > 0, "No coefficients defined for node" );
 
             // fill coeffs vector
             Matrix< DDRMat > tCoeffs( tNumberOfCoeffs, 1 );
-            for( uint i = 0; i < tNumberOfCoeffs; ++i )
+            for ( uint i = 0; i < tNumberOfCoeffs; ++i )
             {
                 tCoeffs( i ) = aCoefficients( tBSplines( i )->get_index() );
             }
@@ -308,20 +309,20 @@ namespace moris::hmr
 
     //------------------------------------------------------------------------------
 
-    void Field::put_scalar_values_on_field( const Matrix< DDRMat > & aValues )
+    void Field::put_scalar_values_on_field( const Matrix< DDRMat >& aValues )
     {
         // get pointer to node values
-        Matrix< DDRMat > & tNodeValues = this->get_node_values();
+        Matrix< DDRMat >& tNodeValues = this->get_node_values();
 
         // get number of nodes on block
         uint tNumberOfVertices = mMesh->get_num_nodes();
 
         // set size of node values
         tNodeValues.set_size( tNumberOfVertices, 1 );
-        tNodeValues.fill(0);
+        tNodeValues.fill( 0 );
 
         // loop over all vertices
-        for( uint k=0; k<tNumberOfVertices; ++k )
+        for ( uint k = 0; k < tNumberOfVertices; ++k )
         {
             tNodeValues( k ) = aValues( k );
         }
@@ -330,16 +331,16 @@ namespace moris::hmr
     //------------------------------------------------------------------------------
 
     void Field::save_field_to_hdf5(
-            const std::string & aFilePath,
-            const bool          aCreateNewFile )
+            const std::string& aFilePath,
+            const bool         aCreateNewFile )
     {
         // test if file exists
         std::string tFilePath = make_path_parallel( aFilePath );
 
         // test if file exists
         std::ifstream tFile( tFilePath );
-        bool tFileExists;
-        if( tFile )
+        bool          tFileExists;
+        if ( tFile )
         {
             tFileExists = true;
         }
@@ -351,7 +352,7 @@ namespace moris::hmr
         tFile.close();
 
         // delete file if it exists and user does not want to keep it
-        if( aCreateNewFile && tFileExists )
+        if ( aCreateNewFile && tFileExists )
         {
             std::remove( tFilePath.c_str() );
             tFileExists = false;
@@ -359,7 +360,7 @@ namespace moris::hmr
 
         hid_t tFileID;
 
-        if( tFileExists )
+        if ( tFileExists )
         {
             tFileID = open_hdf5_file( aFilePath );
         }
@@ -382,16 +383,16 @@ namespace moris::hmr
     //------------------------------------------------------------------------------
 
     void Field::save_node_values_to_hdf5(
-            const std::string & aFilePath,
-            const bool          aCreateNewFile )
+            const std::string& aFilePath,
+            const bool         aCreateNewFile )
     {
         // test if file exists
         std::string tFilePath = make_path_parallel( aFilePath );
 
         // test if file exists
         std::ifstream tFile( tFilePath );
-        bool tFileExists;
-        if( tFile )
+        bool          tFileExists;
+        if ( tFile )
         {
             tFileExists = true;
         }
@@ -403,7 +404,7 @@ namespace moris::hmr
         tFile.close();
 
         // delete file if it exists and user does not want to keep it
-        if( aCreateNewFile && tFileExists )
+        if ( aCreateNewFile && tFileExists )
         {
             std::remove( tFilePath.c_str() );
             tFileExists = false;
@@ -411,7 +412,7 @@ namespace moris::hmr
 
         hid_t tFileID;
 
-        if( tFileExists )
+        if ( tFileExists )
         {
             tFileID = open_hdf5_file( aFilePath );
         }
@@ -434,10 +435,10 @@ namespace moris::hmr
     //------------------------------------------------------------------------------
 
     void Field::load_field_from_hdf5(
-            const std::string & aFilePath,
-            const uint          aBSplineOrder )
+            const std::string& aFilePath,
+            const uint         aBSplineOrder )
     {
-        hid_t tFile    = open_hdf5_file( aFilePath );
+        hid_t  tFile   = open_hdf5_file( aFilePath );
         herr_t tStatus = 0;
         load_matrix_from_hdf5_file( tFile,
                 this->get_label(),
@@ -449,7 +450,7 @@ namespace moris::hmr
 
     //------------------------------------------------------------------------------
 
-    void Field::save_node_values_to_binary( const std::string & aFilePath )
+    void Field::save_node_values_to_binary( const std::string& aFilePath )
     {
         // make path parallel
         std::string tFilePath = parallelize_path( aFilePath );
@@ -459,7 +460,7 @@ namespace moris::hmr
 
     //------------------------------------------------------------------------------
 
-    void Field::save_bspline_coeffs_to_binary( const std::string & aFilePath )
+    void Field::save_bspline_coeffs_to_binary( const std::string& aFilePath )
     {
         // make path parallel
         std::string tFilePath = parallelize_path( aFilePath );
@@ -482,4 +483,4 @@ namespace moris::hmr
     }
 
     //------------------------------------------------------------------------------
-} /* namespace moris */
+}    // namespace moris::hmr

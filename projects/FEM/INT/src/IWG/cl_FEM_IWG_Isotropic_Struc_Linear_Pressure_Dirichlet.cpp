@@ -17,44 +17,42 @@
 #include "fn_eye.hpp"
 #include "fn_dot.hpp"
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+
+    //------------------------------------------------------------------------------
+
+    IWG_Isotropic_Struc_Linear_Pressure_Dirichlet::IWG_Isotropic_Struc_Linear_Pressure_Dirichlet( sint aBeta )
     {
+        // sign for symmetric/unsymmetric Nitsche
+        mBeta = aBeta;
 
-        //------------------------------------------------------------------------------
+        // set size for the property pointer cell
+        mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
-        IWG_Isotropic_Struc_Linear_Pressure_Dirichlet::IWG_Isotropic_Struc_Linear_Pressure_Dirichlet( sint aBeta )
-        {
-            // sign for symmetric/unsymmetric Nitsche
-            mBeta = aBeta;
+        // populate the property map
+        mPropertyMap[ "Dirichlet" ] = static_cast< uint >( IWG_Property_Type::DIRICHLET );
+        mPropertyMap[ "Select" ]    = static_cast< uint >( IWG_Property_Type::SELECT );
+        mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
 
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+        // set size for the constitutive model pointer cell
+        mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
-            // populate the property map
-            mPropertyMap[ "Dirichlet" ] = static_cast< uint >( IWG_Property_Type::DIRICHLET );
-            mPropertyMap[ "Select" ]    = static_cast< uint >( IWG_Property_Type::SELECT );
-            mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
+        // populate the constitutive map
+        mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
 
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+        // set size for the stabilization parameter pointer cell
+        mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
 
-            // populate the constitutive map
-            mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
+        // populate the stabilization map
+        mStabilizationMap[ "DirichletNitsche" ] = static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE );
+    }
 
-            // set size for the stabilization parameter pointer cell
-            mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
+    //------------------------------------------------------------------------------
 
-            // populate the stabilization map
-            mStabilizationMap[ "DirichletNitsche" ] = static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE );
-        }
-
-        //------------------------------------------------------------------------------
-
-        void
-        IWG_Isotropic_Struc_Linear_Pressure_Dirichlet::compute_residual( real aWStar )
-        {
+    void
+    IWG_Isotropic_Struc_Linear_Pressure_Dirichlet::compute_residual( real aWStar )
+    {
 #ifdef MORIS_HAVE_DEBUG
             // check leader field interpolators, properties and constitutive models
             this->check_field_interpolators();
@@ -241,6 +239,4 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
-
+}    // namespace moris::fem

@@ -27,9 +27,7 @@
 #include "fn_all_true.hpp"
 #include "fn_reindex_mat.hpp"
 
-namespace moris
-{
-namespace mtk
+namespace moris::mtk
 {
 TEST_CASE("MTK Cell","[MTK],[MTK_CELL]")
 {
@@ -37,7 +35,7 @@ TEST_CASE("MTK Cell","[MTK],[MTK_CELL]")
     {
         // construct a mesh
         std::string tFilename = "generated:2x2x2";
-        Mesh_Core_STK tMesh1( tFilename, NULL );
+        Mesh_Core_STK tMesh1( tFilename, nullptr );
 
         // get vertex information attached to element with index 0
         Matrix< IndexMat > tNodeIndices = tMesh1.get_entity_connected_to_entity_loc_inds(0, EntityRank::ELEMENT,EntityRank::NODE);
@@ -264,5 +262,3 @@ TEST_CASE("MTK Cell Tet","[MTK],[MTK_CELL_TET]")
 }
 
 }
-}
-

@@ -30,7 +30,6 @@
 #include "cl_HMR_Parameters.hpp"
 #include "cl_HMR_T_Matrix.hpp"
 #include "cl_HMR_T_Matrix_Advanced.hpp"
-#include "cl_HMR_Lagrange_Edge2.hpp"
 #include "HMR_Globals.hpp"
 #include "moris_typedefs.hpp"
 #include "cl_Stopwatch.hpp"
@@ -142,7 +141,7 @@ namespace moris::hmr
         /**
          * Default destructor.
          */
-        ~Lagrange_Mesh()
+        ~Lagrange_Mesh() override
         {
             this->delete_t_matrices();
             this->delete_pointers();
@@ -166,18 +165,18 @@ namespace moris::hmr
          *
          * @return Element*  new Lagrange element
          */
-        Element* create_element( Background_Element_Base* aElement );
+        Element* create_element( Background_Element_Base* aElement ) override;
 
         // ----------------------------------------------------------------------------
 
       protected:
         // ----------------------------------------------------------------------------
 
-        Facet* create_facet( Background_Facet* aFacet );
+        Facet* create_facet( Background_Facet* aFacet ) override;
 
         // ----------------------------------------------------------------------------
 
-        Edge* create_edge( Background_Edge* aEdge );
+        Edge* create_edge( Background_Edge* aEdge ) override;
 
         // ----------------------------------------------------------------------------
 
@@ -246,7 +245,7 @@ namespace moris::hmr
         luint
         calculate_node_id(
                 uint  aLevel,
-                luint aI )
+                luint aI ) override
         {
             if ( aLevel < gMaxNumberOfLevels && N == 1 )
             {
@@ -274,7 +273,7 @@ namespace moris::hmr
         calculate_node_id(
                 uint  aLevel,
                 luint aI,
-                luint aJ )
+                luint aJ ) override
         {
             if ( aLevel < gMaxNumberOfLevels && N == 2 )
             {
@@ -306,7 +305,7 @@ namespace moris::hmr
                 uint  aLevel,
                 luint aI,
                 luint aJ,
-                luint aK )
+                luint aK ) override
         {
             if ( aLevel < gMaxNumberOfLevels && N == 3 )
             {
@@ -405,7 +404,7 @@ namespace moris::hmr
          * @return void
          */
         void
-        calculate_node_coordinates()
+        calculate_node_coordinates() override
         {
             // get domain dimensions from settings
             Matrix< DDRMat > tDomainDimensions = mParameters->get_domain_dimensions();
@@ -486,7 +485,7 @@ namespace moris::hmr
         // ----------------------------------------------------------------------------
 
         void
-        calculate_t_matrices( const bool aBool )
+        calculate_t_matrices( const bool aBool ) override
         {
             // log & trace this operation
             Tracer tTracer( "HMR", "Lagrange Mesh #" + std::to_string( this->get_index() ), "Compute T-matrices" );

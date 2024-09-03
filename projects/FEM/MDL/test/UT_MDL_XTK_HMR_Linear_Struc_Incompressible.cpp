@@ -27,12 +27,10 @@
 #include "cl_MTK_Mesh_Tools.hpp"
 #include "cl_MTK_Mesh_Data_Input.hpp"
 #include "cl_MTK_Scalar_Field_Info.hpp"
-#include "cl_MTK_Mesh.hpp"
 #include "cl_MTK_Mesh_Data_STK.hpp"
 #include "cl_MTK_Mesh_Core_STK.hpp"
 #include "cl_MTK_Interpolation_Mesh_STK.hpp"
 #include "cl_MTK_Integration_Mesh_STK.hpp"
-#include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Double_Side_Cluster.hpp"
@@ -532,7 +530,7 @@ namespace moris
                 tSolutionCheck = tSolutionCheck && ( tFullSolution( i ) - tGoldSolution( i ) < 1e-03 );
                 if ( !tSolutionCheck )
                 {
-                    std::cout << "tFullSolution( i ) " << tFullSolution( i ) << " tGoldSolution( i ) " << tGoldSolution( i ) << std::endl;
+                    std::cout << "tFullSolution( i ) " << tFullSolution( i ) << " tGoldSolution( i ) " << tGoldSolution( i ) << '\n';
                 }
             }
             CHECK( tSolutionCheck );

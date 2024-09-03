@@ -46,7 +46,7 @@ namespace moris
                 /**
                  * destructor
                  */
-                ~Workflow_STK_XTK(){};
+                ~Workflow_STK_XTK() override{};
 
                 //------------------------------------------------------------------------------
                 /**
@@ -56,7 +56,7 @@ namespace moris
                         Vector< real >& aADVs,
                         Vector< real >& aLowerBounds,
                         Vector< real >& aUpperBounds,
-                        Matrix< IdMat >& aIjklIDs );
+                        Matrix< IdMat >& aIjklIDs ) override;
 
                 //------------------------------------------------------------------------------
                 /**
@@ -64,7 +64,7 @@ namespace moris
                  *
                  * @return vector of criteria
                  */
-                Vector< real > perform( Vector< real >& aNewADVs );
+                Vector< real > perform( Vector< real >& aNewADVs ) override;
 
                 //------------------------------------------------------------------------------
                 /**
@@ -72,7 +72,7 @@ namespace moris
                  *
                  * @return matrix d(criteria)_i/d(adv)_j
                  */
-                Matrix< DDRMat > compute_dcriteria_dadv();
+                Matrix< DDRMat > compute_dcriteria_dadv() override;
 
                 void
                 create_xtk();

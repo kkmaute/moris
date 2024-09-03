@@ -60,7 +60,7 @@ namespace moris::xtk
     void
     Cell_XTK_CM::remove_vertex_pointer( moris_index aIndex )
     {
-        std::cout << "In XTK Cell CM" << std::endl;
+        std::cout << "In XTK Cell CM" << '\n';
     }
 
     // ----------------------------------------------------------------------------------

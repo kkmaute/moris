@@ -71,7 +71,7 @@ namespace moris::xtk
         Vector< moris::mtk::Cell* > mIgCells;               // over allocated
         Vector< moris_index >       mIgCellSideOrdinals;    // over allocated
 
-    };                                                      // struct IG_Cell_Side_Group
+    };    // struct IG_Cell_Side_Group
 
     // ----------------------------------------------------------------------------------
 
@@ -79,8 +79,8 @@ namespace moris::xtk
     {
         IG_Cell_Double_Side_Group( moris_index aEstimatedNumCells );
 
-        Vector< moris::mtk::Cell* > mLeaderIgCells;                 // over allocated
-        Vector< moris_index >       mLeaderIgCellSideOrdinals;      // over allocated
+        Vector< moris::mtk::Cell* > mLeaderIgCells;               // over allocated
+        Vector< moris_index >       mLeaderIgCellSideOrdinals;    // over allocated
 
         Vector< moris::mtk::Cell* > mFollowerIgCells;               // over allocated
         Vector< moris_index >       mFollowerIgCellSideOrdinals;    // over allocated
@@ -88,22 +88,22 @@ namespace moris::xtk
         void
         print()
         {
-            std::cout << "Number of Leaders:   " << mLeaderIgCells.size() << std::endl;
-            std::cout << "Number of Followers: " << mFollowerIgCells.size() << std::endl;
+            std::cout << "Number of Leaders:   " << mLeaderIgCells.size() << '\n';
+            std::cout << "Number of Followers: " << mFollowerIgCells.size() << '\n';
 
             int tStrLen = std::string( "Lead Cell Id   | " ).size();
 
             std::cout << "Lead Cell Id   | ";
             std::cout << "Side Ord       | ";
             std::cout << "Follow Cell Id | ";
-            std::cout << "Side Ord       " << std::endl;
+            std::cout << "Side Ord       " << '\n';
             // iterate through pairs
             for ( uint i = 0; i < mLeaderIgCells.size(); i++ )
             {
                 std::cout << std::setw( tStrLen ) << mLeaderIgCells( i )->get_id();
                 std::cout << std::setw( tStrLen ) << mLeaderIgCellSideOrdinals( i );
                 std::cout << std::setw( tStrLen ) << mFollowerIgCells( i )->get_id();
-                std::cout << std::setw( tStrLen ) << mFollowerIgCellSideOrdinals( i ) << std::endl;
+                std::cout << std::setw( tStrLen ) << mFollowerIgCellSideOrdinals( i ) << '\n';
             }
         }
 
@@ -132,8 +132,8 @@ namespace moris::xtk
 
         void
         add_vertex(
-                moris::mtk::Vertex const *          aVertex,
-                std::shared_ptr< Matrix< DDRMat > > aVertexLocalCoord );
+                moris::mtk::Vertex const *                 aVertex,
+                const std::shared_ptr< Matrix< DDRMat > >& aVertexLocalCoord );
 
         void
         add_vertex_local_coord_pointers();
@@ -170,7 +170,7 @@ namespace moris::xtk
     {
         Vector< Vector< moris::mtk::Vertex* > > mEdgeVertices;             // input: edge || output: list of vertices on edge
         Vector< Vector< moris::mtk::Cell* > >   mEdgeToCell;               // input: edge || output: list of cells attached to edge
-        Vector< Vector< moris_index > >         mEdgeToCellEdgeOrdinal;    // input: edge || output: ?
+        Vector< Vector< moris_index > >         mEdgeToCellEdgeOrdinal;    // input: edge || output: ordinal of the edge relative to the cells listed in mEdgeToCell
         Vector< Vector< moris_index > >         mCellToEdge;               // input: cell || output: list of edge indices on cell
     };
 
@@ -264,7 +264,7 @@ namespace moris::xtk
 
             if ( tFacetInds.size() > 2 )
             {
-                std::cout << tFacetInds.size() << std::endl;
+                std::cout << tFacetInds.size() << '\n';
                 MORIS_ERROR( false, "Error: cell being merged has more than 2 facets." );
             }
 
@@ -292,11 +292,11 @@ namespace moris::xtk
             // mFacetVertices.erase(FacetInd1);
             if ( mFacetVertices( FacetInd1 ).size() == 2 )    // 2D
             {
-                mFacetVertices( FacetInd1 ) = { NULL, NULL };
+                mFacetVertices( FacetInd1 ) = { nullptr, nullptr };
             }
             else if ( mFacetVertices( FacetInd1 ).size() == 3 )    // 3D
             {
-                mFacetVertices( FacetInd1 ) = { NULL, NULL, NULL };
+                mFacetVertices( FacetInd1 ) = { nullptr, nullptr, nullptr };
             }
             else
             {
@@ -306,7 +306,7 @@ namespace moris::xtk
             // copy references to cells from facet being deleted to the one being merged
             for ( moris_index iC = 0; (uint)iC < mFacetToCell( FacetInd1 ).size(); iC++ )
             {
-                if ( mFacetToCell( FacetInd1 )( iC ) != NULL )
+                if ( mFacetToCell( FacetInd1 )( iC ) != nullptr )
                 {
                     if ( mFacetToCell( FacetInd1 )( iC )->get_index() != aCellInd )
                     {
@@ -320,12 +320,12 @@ namespace moris::xtk
             // remove reference to deleted cell from mFacetToCell
             for ( moris_index iC = 0; (uint)iC < mFacetToCell( FacetInd2 ).size(); iC++ )
             {
-                if ( mFacetToCell( FacetInd2 )( iC ) != NULL )
+                if ( mFacetToCell( FacetInd2 )( iC ) != nullptr )
                 {
                     if ( mFacetToCell( FacetInd2 )( iC )->get_index() == aCellInd )
                     {
 
-                        mFacetToCell( FacetInd2 )( iC ) = NULL;
+                        mFacetToCell( FacetInd2 )( iC ) = nullptr;
 
                         mFacetToCellEdgeOrdinal( FacetInd2 )( iC ) = MORIS_INDEX_MAX;
                     }
@@ -370,7 +370,7 @@ namespace moris::xtk
             std::sort( mVertexFacets( aVertInd1 ).begin(), mVertexFacets( aVertInd1 ).end() );
             std::sort( mVertexFacets( aVertInd2 ).begin(), mVertexFacets( aVertInd2 ).end() );
 
-            Vector< moris::mtk::Cell* > tNullCell = { NULL };
+            Vector< moris::mtk::Cell* > tNullCell = { nullptr };
 
             auto it = set_intersection( mVertexFacets( aVertInd1 ).begin(),
                     mVertexFacets( aVertInd1 ).end(),
@@ -380,7 +380,7 @@ namespace moris::xtk
 
             for ( auto st = tCommonFacets.begin(); st != it; ++st )
             {
-                if ( mFacetVertices( *st )( 0 ) != NULL )
+                if ( mFacetVertices( *st )( 0 ) != nullptr )
                 {
                     tFacetList.push_back( *st );
                 }
@@ -416,7 +416,7 @@ namespace moris::xtk
             {
                 for ( uint iVert = 0; iVert < mFacetVertices( iDelFacets ).size(); iVert++ )
                 {
-                    if ( mFacetVertices( iDelFacets )( iVert ) != NULL )
+                    if ( mFacetVertices( iDelFacets )( iVert ) != nullptr )
                     {
                         moris_index tVertInd = mFacetVertices( iDelFacets )( iVert )->get_index();
                         if ( tVertInd != MORIS_INDEX_MAX )
@@ -443,7 +443,7 @@ namespace moris::xtk
                 moris_index tFacetInd = aOldFacetConnectivity->mVertexFacets( aVInd1 )( iFacet );
                 for ( uint iVert = 0; iVert < mFacetVertices( tFacetInd ).size(); iVert++ )
                 {
-                    if ( mFacetVertices( tFacetInd )( 0 ) != NULL )    // todo: check mFacetVertices(iF) != {NULL, NULL}
+                    if ( mFacetVertices( tFacetInd )( 0 ) != nullptr )    // todo: check mFacetVertices(iF) != {NULL, NULL}
                     {
                         moris_index tVertInd = mFacetVertices( tFacetInd )( iVert )->get_index();
                         if ( tVertInd == aVInd1 )
@@ -463,7 +463,7 @@ namespace moris::xtk
                 // go through cells attached to facet
                 for ( uint iCell = 0; iCell < aOldFacetConnectivity->mFacetToCell( aFacetIndices( iFacet ) ).size(); iCell++ )
                 {
-                    if ( aOldFacetConnectivity->mFacetToCell( aFacetIndices( iFacet ) )( iCell ) != NULL )
+                    if ( aOldFacetConnectivity->mFacetToCell( aFacetIndices( iFacet ) )( iCell ) != nullptr )
                     {
                         moris_index tCellInd = mFacetToCell( aFacetIndices( iFacet ) )( iCell )->get_index();
 
@@ -484,15 +484,15 @@ namespace moris::xtk
 
                 if ( mFacetVertices( aFacetIndices( iFacet ) ).size() == 2 )    // 2D
                 {
-                    mFacetVertices( aFacetIndices( iFacet ) ) = { NULL, NULL };
+                    mFacetVertices( aFacetIndices( iFacet ) ) = { nullptr, nullptr };
                 }
                 else if ( mFacetVertices( aFacetIndices( iFacet ) ).size() == 3 )    // 3D
                 {
-                    mFacetVertices( aFacetIndices( iFacet ) ) = { NULL, NULL, NULL };
+                    mFacetVertices( aFacetIndices( iFacet ) ) = { nullptr, nullptr, nullptr };
                 }
 
                 // mFacetToCell.erase(aFacetIndices(iFacet));
-                mFacetToCell( aFacetIndices( iFacet ) ) = { NULL };
+                mFacetToCell( aFacetIndices( iFacet ) ) = { nullptr };
 
                 // mFacetToCellEdgeOrdinal.erase(aFacetIndices(iFacet));
                 mFacetToCellEdgeOrdinal( aFacetIndices( iFacet ) ) = { MORIS_INDEX_MAX };
@@ -533,7 +533,13 @@ namespace moris::xtk
 
     struct Cell_Connectivity
     {
-        Cell_Connectivity(){};
+        const Matrix< IndexMat > mCellVertexInds;
+        const Matrix< IndexMat > mCellEdgesInds;
+        const Matrix< IndexMat > mCellFacesInds;
+
+        //------------------------------------------------------
+
+        Cell_Connectivity() {};
         Cell_Connectivity(
                 Matrix< IndexMat > const & aCellVertexInds,
                 Matrix< IndexMat > const & aCellEdgesInds,
@@ -543,6 +549,8 @@ namespace moris::xtk
                 , mCellFacesInds( aCellFacesInds )
         {
         }
+
+        //------------------------------------------------------
 
         moris_index
         get_entity_index(
@@ -566,6 +574,8 @@ namespace moris::xtk
                     break;
             }
         }
+
+        //------------------------------------------------------
 
         moris_index
         get_entity_ordinal(
@@ -614,10 +624,9 @@ namespace moris::xtk
             }
         }
 
-        const Matrix< IndexMat > mCellVertexInds;
-        const Matrix< IndexMat > mCellEdgesInds;
-        const Matrix< IndexMat > mCellFacesInds;
-    };
+        //------------------------------------------------------
+
+    };    // struct Cell_Connectivity
 
     // ----------------------------------------------------------------------------------
 
@@ -643,7 +652,7 @@ namespace moris::xtk
         print_subphase_neighborhood()
         {
 
-            std::cout << "Subphases" << std::endl;
+            std::cout << "Subphases" << '\n';
             for ( uint iC = 0; iC < mSubphaseToSubPhase.size(); iC++ )
             {
                 std::cout << std::setw( 6 ) << iC << " | ";
@@ -652,10 +661,10 @@ namespace moris::xtk
                 {
                     std::cout << std::setw( 6 ) << ( *mSubphaseToSubPhase( iC ) )( iN );
                 }
-                std::cout << std::endl;
+                std::cout << '\n';
             }
 
-            std::cout << "Subphases My Side Ordinals" << std::endl;
+            std::cout << "Subphases My Side Ordinals" << '\n';
             for ( uint iC = 0; iC < mSubphaseToSubPhaseMySideOrds.size(); iC++ )
             {
                 std::cout << std::setw( 6 ) << iC << " | ";
@@ -664,10 +673,10 @@ namespace moris::xtk
                 {
                     std::cout << std::setw( 6 ) << ( *mSubphaseToSubPhaseMySideOrds( iC ) )( iN );
                 }
-                std::cout << std::endl;
+                std::cout << '\n';
             }
 
-            std::cout << "Subphases Neighbor Side Ordinals" << std::endl;
+            std::cout << "Subphases Neighbor Side Ordinals" << '\n';
             for ( uint iC = 0; iC < mSubphaseToSubPhaseNeighborSideOrds.size(); iC++ )
             {
                 std::cout << std::setw( 6 ) << iC << " | ";
@@ -676,10 +685,10 @@ namespace moris::xtk
                 {
                     std::cout << std::setw( 6 ) << ( *mSubphaseToSubPhaseNeighborSideOrds( iC ) )( iN );
                 }
-                std::cout << std::endl;
+                std::cout << '\n';
             }
 
-            std::cout << "Transition Neighbor Locations" << std::endl;
+            std::cout << "Transition Neighbor Locations" << '\n';
             for ( uint iC = 0; iC < mTransitionNeighborCellLocation.size(); iC++ )
             {
                 std::cout << std::setw( 6 ) << iC << " | ";
@@ -688,7 +697,7 @@ namespace moris::xtk
                 {
                     std::cout << std::setw( 12 ) << ( *mTransitionNeighborCellLocation( iC ) )( iN );
                 }
-                std::cout << std::endl;
+                std::cout << '\n';
             }
         }
 
@@ -889,7 +898,7 @@ namespace moris::xtk
 
         // ----------------------------------------------------------------------------------
 
-        ~Cut_Integration_Mesh();
+        ~Cut_Integration_Mesh() override;
 
         // ----------------------------------------------------------------------------------
 
@@ -899,19 +908,19 @@ namespace moris::xtk
 
         // Core Mesh Functions
         uint
-        get_spatial_dim() const;
+        get_spatial_dim() const override;
 
         // ----------------------------------------------------------------------------------
 
         mtk::MeshType
-        get_mesh_type() const;
+        get_mesh_type() const override;
 
         // ----------------------------------------------------------------------------------
 
         uint
         get_num_entities(
                 mtk::EntityRank   aEntityRank,
-                const moris_index aIndex ) const;
+                const moris_index aIndex ) const override;
 
         // ----------------------------------------------------------------------------------
 
@@ -920,27 +929,27 @@ namespace moris::xtk
 
         // ----------------------------------------------------------------------------------
 
-        uint get_num_sets() const;
+        uint get_num_sets() const override;
 
         // ----------------------------------------------------------------------------------
 
         Matrix< DDRMat >
-        get_node_coordinate( moris_index aNodeIndex ) const;
+        get_node_coordinate( moris_index aNodeIndex ) const override;
 
         // ----------------------------------------------------------------------------------
 
         uint
-        get_node_owner( moris_index aNodeIndex ) const;
+        get_node_owner( moris_index aNodeIndex ) const override;
 
         // ----------------------------------------------------------------------------------
 
         uint
-        get_element_owner( moris_index aElementIndex ) const;
+        get_element_owner( moris_index aElementIndex ) const override;
 
         // ----------------------------------------------------------------------------------
 
         Matrix< IdMat >
-        get_communication_table() const;
+        get_communication_table() const override;
 
         // ----------------------------------------------------------------------------------
 
@@ -954,22 +963,22 @@ namespace moris::xtk
 
         // ----------------------------------------------------------------------------------
 
-        Matrix< IndexMat > get_element_indices_in_block_set( uint aSetIndex );
+        Matrix< IndexMat > get_element_indices_in_block_set( uint aSetIndex ) override;
 
         // ----------------------------------------------------------------------------------
 
         mtk::CellTopology
-        get_blockset_topology( const std::string& aSetName );
+        get_blockset_topology( const std::string& aSetName ) override;
 
         // ----------------------------------------------------------------------------------
 
         mtk::CellShape
-        get_IG_blockset_shape( const std::string& aSetName );
+        get_IG_blockset_shape( const std::string& aSetName ) override;
 
         // ----------------------------------------------------------------------------------
 
         mtk::CellShape
-        get_IP_blockset_shape( const std::string& aSetName );
+        get_IP_blockset_shape( const std::string& aSetName ) override;
 
         // ----------------------------------------------------------------------------------
 
@@ -994,27 +1003,27 @@ namespace moris::xtk
                 moris_index       aEntityIndex,
                 mtk::EntityRank   aInputEntityRank,
                 mtk::EntityRank   aOutputEntityRank,
-                const moris_index aDiscretizationIndex = 0 ) const;
+                const moris_index aDiscretizationIndex = 0 ) const override;
 
         // ----------------------------------------------------------------------------------
 
         Vector< std::string >
-        get_set_names( mtk::EntityRank aSetEntityRank ) const;
+        get_set_names( mtk::EntityRank aSetEntityRank ) const override;
 
         // ----------------------------------------------------------------------------------
 
         moris_index
-        get_block_set_index( std::string aBlockSetLabel ) const;
+        get_block_set_index( const std::string& aBlockSetLabel ) const;
 
         // ----------------------------------------------------------------------------------
 
         Matrix< IndexMat >
-        get_block_entity_loc_inds( std::string aSetName ) const;
+        get_block_entity_loc_inds( const std::string& aSetName ) const;
 
         // ----------------------------------------------------------------------------------
 
         moris_index
-        get_side_set_index( std::string aSideSetLabel ) const;
+        get_side_set_index( const std::string& aSideSetLabel ) const;
 
         // ----------------------------------------------------------------------------------
 
@@ -1022,14 +1031,14 @@ namespace moris::xtk
         get_sideset_elems_loc_inds_and_ords(
                 const std::string&  aSetName,
                 Matrix< IndexMat >& aElemIndices,
-                Matrix< IndexMat >& aSidesetOrdinals ) const;
+                Matrix< IndexMat >& aSidesetOrdinals ) const override;
 
         // ----------------------------------------------------------------------------------
 
         Matrix< IndexMat >
         get_set_entity_loc_inds(
-                mtk::EntityRank aSetEntityRank,
-                std::string     aSetName ) const;
+                mtk::EntityRank    aSetEntityRank,
+                const std::string& aSetName ) const override;
 
         // ----------------------------------------------------------------------------------
 
@@ -1054,7 +1063,7 @@ namespace moris::xtk
         // ----------------------------------------------------------------------------------
 
         std::unordered_map< moris_id, moris_index >
-        get_vertex_glb_id_to_loc_vertex_ind_map() const;
+        get_vertex_glb_id_to_loc_vertex_ind_map() const override;
 
         // ----------------------------------------------------------------------------------
 
@@ -1064,22 +1073,22 @@ namespace moris::xtk
         // ----------------------------------------------------------------------------------
 
         mtk::Cell const &
-        get_mtk_cell( moris_index aElementIndex ) const;
+        get_mtk_cell( moris_index aElementIndex ) const override;
 
         // ----------------------------------------------------------------------------------
 
         mtk::Cell&
-        get_mtk_cell( moris_index aElementIndex );
+        get_mtk_cell( moris_index aElementIndex ) override;
 
         // ----------------------------------------------------------------------------------
 
         mtk::Vertex&
-        get_mtk_vertex( moris_index aVertexIndex );
+        get_mtk_vertex( moris_index aVertexIndex ) override;
 
         // ----------------------------------------------------------------------------------
 
         mtk::Vertex const &
-        get_mtk_vertex( moris_index aVertexIndex ) const;
+        get_mtk_vertex( moris_index aVertexIndex ) const override;
 
         // ----------------------------------------------------------------------------------
 
@@ -1116,8 +1125,8 @@ namespace moris::xtk
 
         void
         add_integration_cell(
-                moris_index                            aCellIndex,
-                std::shared_ptr< xtk::Cell_XTK_No_CM > aNewCell );
+                moris_index                                   aCellIndex,
+                const std::shared_ptr< xtk::Cell_XTK_No_CM >& aNewCell );
 
         // ----------------------------------------------------------------------------------
 
@@ -1466,8 +1475,8 @@ namespace moris::xtk
         // ----------------------------------------------------------------------------------
 
         void
-        write_mesh( std::string aOutputPath,
-                std::string     aOutputFile );
+        write_mesh( const std::string& aOutputPath,
+                const std::string&     aOutputFile );
 
         // ----------------------------------------------------------------------------------
 
@@ -1594,15 +1603,15 @@ namespace moris::xtk
 
         void
         print_vectors(
-                bool        aOmitIndex = false,
-                std::string aFile      = "" );
+                bool               aOmitIndex = false,
+                const std::string& aFile      = "" );
 
         // ----------------------------------------------------------------------------------
 
         void
         print_vertices(
-                bool        aOmitIndex = false,
-                std::string aFile      = "" );
+                bool               aOmitIndex = false,
+                const std::string& aFile      = "" );
 
         // ----------------------------------------------------------------------------------
 
@@ -1613,13 +1622,13 @@ namespace moris::xtk
             const int  nameWidth = 24;
             const int  numWidth  = 12;
 
-            std::cout << "Num Block Sets: " << this->mBlockSetCellGroup.size() << std::endl;
+            std::cout << "Num Block Sets: " << this->mBlockSetCellGroup.size() << '\n';
 
             std::cout << std::left << std::setw( nameWidth ) << std::setfill( separator ) << "Name";
             std::cout << std::left << std::setw( numWidth ) << std::setfill( separator ) << "Ordinal";
             std::cout << std::left << std::setw( numWidth ) << std::setfill( separator ) << "Num Cells";
             std::cout << std::left << std::setw( numWidth ) << std::setfill( separator ) << "Cells";
-            std::cout << std::endl;
+            std::cout << '\n';
 
             for ( uint iBS = 0; iBS < mBlockSetCellGroup.size(); iBS++ )
             {
@@ -1633,14 +1642,14 @@ namespace moris::xtk
                     std::cout << std::left << std::setw( nameWidth ) << std::setfill( separator ) << mBlockSetCellGroup( iBS )->mIgCellGroup( iIgCell )->get_id();
                 }
 
-                std::cout << std::endl;
+                std::cout << '\n';
             }
         }
 
         // ----------------------------------------------------------------------------------
 
         void
-        print_groupings( std::string aFile = "" );
+        print_groupings( const std::string& aFile = "" );
 
         // ----------------------------------------------------------------------------------
 

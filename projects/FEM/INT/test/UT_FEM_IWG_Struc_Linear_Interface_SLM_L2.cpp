@@ -328,7 +328,7 @@ TEST_CASE( "IWG_Interface_SLM_L2", "[moris],[fem],[IWG_Interface_SLM_L2]" )
                 // print for debug
                 if( !tCheckJacobian )
                 {
-                    std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<"iGP "<<iGP<<std::endl;
+                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << "iGP " << iGP << '\n';
                 }
 
                 // require check is true

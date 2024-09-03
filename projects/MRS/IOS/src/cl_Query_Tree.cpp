@@ -33,9 +33,7 @@
 #include "Log_Constants.hpp"
 #include "fn_stringify.hpp"
 
-namespace moris
-{
-namespace ios
+namespace moris::ios
 {
 
 //-----------------------------------------------------------------------------------------------------------//
@@ -43,7 +41,7 @@ namespace ios
 //-----------------------------------------------------------------------------------------------------------//
 
 // function to create tree log file
-void Query::tree_query(std::string aFileNameWrite, bool aSuppressText)
+void Query::tree_query( const std::string& aFileNameWrite, bool aSuppressText )
 {
     // Prepare reading file ---------------------------------------------------------- //
 
@@ -170,5 +168,3 @@ void Query::tree_query(std::string aFileNameWrite, bool aSuppressText)
 
 //-----------------------------------------------------------------------------------------------------------//
 } // namespace std
-} // namespace moris
-

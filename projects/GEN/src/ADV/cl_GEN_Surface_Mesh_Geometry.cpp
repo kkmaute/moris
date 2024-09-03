@@ -31,12 +31,12 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Surface_Mesh_Geometry::Surface_Mesh_Geometry( Surface_Mesh_Parameters aParameters )
+    Surface_Mesh_Geometry::Surface_Mesh_Geometry( const Surface_Mesh_Parameters& aParameters )
             : Geometry( aParameters )
             , Object( aParameters.mFilePath, aParameters.mOffsets, aParameters.mScale )
             , mParameters( aParameters )
     {
-        mName = aParameters.mFilePath.substr( aParameters.mFilePath.find_last_of( "/" ) + 1, aParameters.mFilePath.find_last_of( "." ) );
+        mName = aParameters.mFilePath.substr( aParameters.mFilePath.find_last_of( '/' ) + 1, aParameters.mFilePath.find_last_of( '.' ) );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -67,12 +67,12 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Intersection_Node* Surface_Mesh_Geometry::create_intersection_node(
-            uint                     aNodeIndex,
+            uint                              aNodeIndex,
             const Vector< Background_Node* >& aBackgroundNodes,
-            const Parent_Node&       aFirstParentNode,
-            const Parent_Node&       aSecondParentNode,
-            mtk::Geometry_Type       aBackgroundGeometryType,
-            mtk::Interpolation_Order aBackgroundInterpolationOrder )
+            const Parent_Node&                aFirstParentNode,
+            const Parent_Node&                aSecondParentNode,
+            mtk::Geometry_Type                aBackgroundGeometryType,
+            mtk::Interpolation_Order          aBackgroundInterpolationOrder )
     {
         // Create linear intersection node
         return new Intersection_Node_Surface_Mesh(
@@ -84,17 +84,17 @@ namespace moris::gen
                 aBackgroundInterpolationOrder,
                 *this );
     }
-    
+
     //--------------------------------------------------------------------------------------------------------------
-    
+
     real Surface_Mesh_Geometry::compute_intersection_local_coordinate(
             const Vector< Background_Node* >& aBackgroundNodes,
-            const Parent_Node&   aFirstParentNode,
-            const Parent_Node&   aSecondParentNode )
+            const Parent_Node&                aFirstParentNode,
+            const Parent_Node&                aSecondParentNode )
     {
         // transform the interface geometry to local coordinates
         uint tRotatedAxis = this->transform_surface_mesh_to_local_coordinate( aFirstParentNode, aSecondParentNode );
-        
+
         // Compute the distance to the facets
         Matrix< DDRMat > tCastPoint( this->get_dimension(), 1 );
         tCastPoint.fill( 0.0 );
@@ -123,21 +123,25 @@ namespace moris::gen
     }
 
     //--------------------------------------------------------------------------------------------------------------
-    
+
     uint Surface_Mesh_Geometry::transform_surface_mesh_to_local_coordinate(
             const Parent_Node& aFirstParentNode,
             const Parent_Node& aSecondParentNode )
     {
         // step 1: shift the object so the first parent is at the origin
-        Matrix< DDRMat > tFirstParentNodeGlobalCoordinates = aFirstParentNode.get_global_coordinates();
+        const Matrix< DDRMat >& tFirstParentNodeGlobalCoordinates = aFirstParentNode.get_global_coordinates();
+
         Vector< real > tShift( this->get_dimension() );
-        MORIS_ASSERT( tFirstParentNodeGlobalCoordinates.numel() == tShift.size() , "Intersection Node Surface Mesh::transform_mesh_to_local_coordinates() inconsistent parent node and interface geometry dimensions." );
-        for( uint iCoord = 0; iCoord < tShift.size(); iCoord++ )
+
+        MORIS_ASSERT( tFirstParentNodeGlobalCoordinates.numel() == tShift.size(),
+                "Intersection Node Surface Mesh::transform_mesh_to_local_coordinates() inconsistent parent node and interface geometry dimensions." );
+
+        for ( uint iCoord = 0; iCoord < tShift.size(); iCoord++ )
         {
             tShift( iCoord ) = -1.0 * tFirstParentNodeGlobalCoordinates( iCoord );
         }
         this->shift( tShift );
-        
+
         // step 2: rotate the object
         // get unit axis to rotate to
         Matrix< DDRMat > tTransformationMatrix( 3, 3 );
@@ -153,7 +157,7 @@ namespace moris::gen
 
         // Normalize parent vector
         real tParentVectorNorm = norm( tParentVector );
-        tParentVector = tParentVector / tParentVectorNorm;
+        tParentVector          = tParentVector / tParentVectorNorm;
 
         // create vector orthogonal to parent vector and coordinate axis
         // in 2D, this vector is the z axis
@@ -195,7 +199,7 @@ namespace moris::gen
         // Return rotation axis
         return tRotationAxis;
     }
-    
+
     //--------------------------------------------------------------------------------------------------------------
 
     Vector< std::shared_ptr< mtk::Field > > Surface_Mesh_Geometry::get_mtk_fields()
@@ -224,10 +228,10 @@ namespace moris::gen
 
     void
     Surface_Mesh_Geometry::discretize(
-            mtk::Mesh_Pair          aMeshPair,
-            sol::Dist_Vector*       aOwnedADVs,
+            mtk::Mesh_Pair        aMeshPair,
+            sol::Dist_Vector*     aOwnedADVs,
             const Vector< sint >& aSharedADVIds,
-            uint                    aADVOffsetID )
+            uint                  aADVOffsetID )
     {
         // TODO BRENDAN
     }
@@ -239,24 +243,24 @@ namespace moris::gen
             std::shared_ptr< mtk::Field > aMTKField,
             mtk::Mesh_Pair                aMeshPair,
             sol::Dist_Vector*             aOwnedADVs,
-            const Vector< sint >&       aSharedADVIds,
+            const Vector< sint >&         aSharedADVIds,
             uint                          aADVOffsetID )
     {
         // TODO BRENDAN
     }
-    
+
     //--------------------------------------------------------------------------------------------------------------
 
     void
     Surface_Mesh_Geometry::get_design_info(
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates,
-            Vector< real >& aOutputDesignInfo )
+            Vector< real >&         aOutputDesignInfo )
     {
         // TODO BRENDAN
         aOutputDesignInfo.resize( 0 );
     }
-    
+
     //--------------------------------------------------------------------------------------------------------------
 
     bool Surface_Mesh_Geometry::intended_discretization()
@@ -293,10 +297,10 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Surface_Mesh_Geometry::update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedDesigns )
+    void Surface_Mesh_Geometry::update_dependencies( const Vector< std::shared_ptr< Design > >& aAllUpdatedDesigns )
     {
     }
-    
+
     //--------------------------------------------------------------------------------------------------------------
-    
+
 }    // namespace moris::gen

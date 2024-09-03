@@ -43,9 +43,9 @@ int fn_WRK_Workflow_Main_Interface( int argc, char* argv[] );
 
 extern "C" void
 check_results(
-        std::string aExoFileName,
-        std::string aHdf5FileName,
-        uint        aTestCaseIndex )
+        const std::string& aExoFileName,
+        const std::string& aHdf5FileName,
+        uint               aTestCaseIndex )
 {
 }
 TEST_CASE( "One_Element_Mat_Geo_Pdv_sweep",

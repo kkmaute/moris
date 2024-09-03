@@ -14,59 +14,57 @@
 #include "fn_norm.hpp"
 #include "fn_eye.hpp"
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+    //------------------------------------------------------------------------------
+
+    void eval_VL_dAdY(
+            const std::shared_ptr< Material_Model >     &aMM,
+            const std::shared_ptr< Constitutive_Model > &aCM,
+            Field_Interpolator_Manager                  *aLeaderFIManager,
+            const Vector< Vector< MSI::Dof_Type > >     &aResidualDofTypes,
+            const Matrix< DDRMat >                      &aVL,
+            const uint                                   aI,
+            Matrix< DDRMat >                            &aVLdAdY )
     {
-        //------------------------------------------------------------------------------
+        // check inputs
+        MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ),
+                "fn_FEM_IWG_Compressible_NS::eval_VL_dAdY - list of aResidualDofTypes not supported, see messages above." );
 
-        void eval_VL_dAdY(
-                std::shared_ptr< Material_Model >                   aMM,
-                std::shared_ptr< Constitutive_Model >               aCM,
-                Field_Interpolator_Manager                        * aLeaderFIManager,
-                const Vector< Vector< MSI::Dof_Type > > & aResidualDofTypes,
-                const Matrix< DDRMat >                            & aVL,
-                const uint                                          aI,
-                Matrix< DDRMat >                                  & aVLdAdY )
-        {
-            // check inputs
-            MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ),
-                    "fn_FEM_IWG_Compressible_NS::eval_VL_dAdY - list of aResidualDofTypes not supported, see messages above." );
+        // get the velocity FI
+        Field_Interpolator *tFIVelocity = aLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
-            // get the velocity FI
-            Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
+        // get number of Space dimensions
+        uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
 
-            // get number of Space dimensions
-            uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
+        // get commonly used values
+        real tP   = aMM->pressure()( 0 );
+        real tT   = aMM->temperature()( 0 );
+        real tRho = aMM->density()( 0 );
+        real tR   = tP / tRho / tT;
+        real tCv  = aMM->Cv()( 0 );
+        real tU1  = tFIVelocity->val()( 0 );
+        real tU2  = tFIVelocity->val()( 1 );
 
-            // get commonly used values
-            real tP   = aMM->pressure()( 0 );
-            real tT   = aMM->temperature()( 0 );
-            real tRho = aMM->density()( 0 );
-            real tR   = tP / tRho / tT;
-            real tCv  = aMM->Cv()( 0 );
-            real tU1  = tFIVelocity->val()( 0 );
-            real tU2  = tFIVelocity->val()( 1 );
+        // help values
+        real tU1sq = tU1 * tU1;
+        real tU2sq = tU2 * tU2;
+        real tC1   = 1.0 / ( tR * tT );
+        real tC2   = tP / ( tR * tT );
+        real tC3   = 1.0 / ( tR * tT * tT );
+        real tC4   = tP / ( tR * tT * tT );
 
-            // help values
-            real tU1sq = tU1*tU1;
-            real tU2sq = tU2*tU2;
-            real tC1 = 1.0/(tR*tT);
-            real tC2 = tP/(tR*tT);
-            real tC3 = 1.0/(tR*tT*tT);
-            real tC4 = tP/(tR*tT*tT);
+        // check the pre-multiplication vector
+        MORIS_ASSERT( aVL.length() == tNumSpaceDims + 2,
+                "fn_FEM_IWG_Compressible_NS::eval_VL_dAdY - length of pre-multiplication vector incorrect." );
 
-            // check the pre-multiplication vector
-            MORIS_ASSERT( aVL.length() == tNumSpaceDims + 2,
-                    "fn_FEM_IWG_Compressible_NS::eval_VL_dAdY - length of pre-multiplication vector incorrect." );
+        // get values form pre-multiplication vector
+        real tVL1 = aVL( 0 );
+        real tVL2 = aVL( 1 );
+        real tVL3 = aVL( 2 );
+        real tVL4 = aVL( 3 );
 
-            // get values form pre-multiplication vector
-            real tVL1 = aVL( 0 );
-            real tVL2 = aVL( 1 );
-            real tVL3 = aVL( 2 );
-            real tVL4 = aVL( 3 );
-
-            // clang-format off
+        // clang-format off
             // assemble matrices based on
             switch ( tNumSpaceDims )
             {
@@ -206,48 +204,48 @@ namespace moris
                     MORIS_ERROR( false, "fn_FEM_IWG_Compressible_NS::eval_VL_dAdY() - Number of space dimensions must be 2 or 3" );
                 };
             }
-            // clang-format on
-        }
+        // clang-format on
+    }
 
-        //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-        void eval_dAdY(
-                std::shared_ptr< Material_Model >                   aMM,
-                std::shared_ptr< Constitutive_Model >               aCM,
-                Field_Interpolator_Manager                        * aLeaderFIManager,
-                const Vector< Vector< MSI::Dof_Type > > & aResidualDofTypes,
-                const uint                                          aAind,
-                const uint                                          aYind,
-                Matrix< DDRMat >                                  & adAdY )
-        {
-            // check inputs
-            MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ),
-                    "fn_FEM_IWG_Compressible_NS::eval_dAdY - list of aResidualDofTypes not supported, see messages above." );
+    void eval_dAdY(
+            const std::shared_ptr< Material_Model >     &aMM,
+            const std::shared_ptr< Constitutive_Model > &aCM,
+            Field_Interpolator_Manager                  *aLeaderFIManager,
+            const Vector< Vector< MSI::Dof_Type > >     &aResidualDofTypes,
+            const uint                                   aAind,
+            const uint                                   aYind,
+            Matrix< DDRMat >                            &adAdY )
+    {
+        // check inputs
+        MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ),
+                "fn_FEM_IWG_Compressible_NS::eval_dAdY - list of aResidualDofTypes not supported, see messages above." );
 
-            // get the velocity FI
-            Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
+        // get the velocity FI
+        Field_Interpolator *tFIVelocity = aLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
-            // get number of Space dimensions
-            uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
+        // get number of Space dimensions
+        uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
 
-            // // get commonly used values
-            real tP   = aMM->pressure()( 0 );
-            real tT   = aMM->temperature()( 0 );
-            real tRho = aMM->density()( 0 );
-            real tR   = tP / tRho / tT;
-            real tCv  = aMM->Cv()( 0 );
-            real tU1  = tFIVelocity->val()( 0 );
-            real tU2  = tFIVelocity->val()( 1 );
+        // // get commonly used values
+        real tP   = aMM->pressure()( 0 );
+        real tT   = aMM->temperature()( 0 );
+        real tRho = aMM->density()( 0 );
+        real tR   = tP / tRho / tT;
+        real tCv  = aMM->Cv()( 0 );
+        real tU1  = tFIVelocity->val()( 0 );
+        real tU2  = tFIVelocity->val()( 1 );
 
-            // help values
-            real tU1sq = tU1*tU1;
-            real tU2sq = tU2*tU2;
-            real tC1 = 1.0/(tR*tT);
-            real tC2 = tP/(tR*tT);
-            real tC3 = 1.0/(tR*tT*tT);
-            real tC4 = tP/(tR*tT*tT);
+        // help values
+        real tU1sq = tU1 * tU1;
+        real tU2sq = tU2 * tU2;
+        real tC1   = 1.0 / ( tR * tT );
+        real tC2   = tP / ( tR * tT );
+        real tC3   = 1.0 / ( tR * tT * tT );
+        real tC4   = tP / ( tR * tT * tT );
 
-            // clang-format off
+        // clang-format off
             // assemble matrices based on number of spatial dimensions
             switch ( tNumSpaceDims )
             {
@@ -835,57 +833,57 @@ namespace moris
                     break;
                 }
             }
-            // clang-format on
-        }
+        // clang-format on
+    }
 
-        //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-        void eval_dAdY_VR(
-                std::shared_ptr< Material_Model >                   aMM,
-                std::shared_ptr< Constitutive_Model >               aCM,
-                Field_Interpolator_Manager                        * aLeaderFIManager,
-                const Vector< Vector< MSI::Dof_Type > > & aResidualDofTypes,
-                const Matrix< DDRMat >                            & aVR,
-                const uint                                          aI,
-                Matrix< DDRMat >                                  & adAdYVR )
-        {
-            // check inputs
-            MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ),
-                    "fn_FEM_IWG_Compressible_NS::eval_dAdY_VR - list of aResidualDofTypes not supported, see messages above." );
+    void eval_dAdY_VR(
+            const std::shared_ptr< Material_Model >     &aMM,
+            const std::shared_ptr< Constitutive_Model > &aCM,
+            Field_Interpolator_Manager                  *aLeaderFIManager,
+            const Vector< Vector< MSI::Dof_Type > >     &aResidualDofTypes,
+            const Matrix< DDRMat >                      &aVR,
+            const uint                                   aI,
+            Matrix< DDRMat >                            &adAdYVR )
+    {
+        // check inputs
+        MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ),
+                "fn_FEM_IWG_Compressible_NS::eval_dAdY_VR - list of aResidualDofTypes not supported, see messages above." );
 
-            // get the velocity FI
-            Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
+        // get the velocity FI
+        Field_Interpolator *tFIVelocity = aLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
-            // get number of Space dimensions
-            uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
+        // get number of Space dimensions
+        uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
 
-            // get commonly used values
-            real tP   = aMM->pressure()( 0 );
-            real tT   = aMM->temperature()( 0 );
-            real tRho = aMM->density()( 0 );
-            real tR   = tP / tRho / tT;
-            real tCv  = aMM->Cv()( 0 );
-            real tU1  = tFIVelocity->val()( 0 );
-            real tU2  = tFIVelocity->val()( 1 );
+        // get commonly used values
+        real tP   = aMM->pressure()( 0 );
+        real tT   = aMM->temperature()( 0 );
+        real tRho = aMM->density()( 0 );
+        real tR   = tP / tRho / tT;
+        real tCv  = aMM->Cv()( 0 );
+        real tU1  = tFIVelocity->val()( 0 );
+        real tU2  = tFIVelocity->val()( 1 );
 
-            // help values
-            real tU1sq = tU1*tU1;
-            real tU2sq = tU2*tU2;
-            real tTsq = tT*tT;
-            real tC3 = 1.0/(tR*tT*tT);
-            //real tC4 = tP/(tR*tT*tT);
+        // help values
+        real tU1sq = tU1 * tU1;
+        real tU2sq = tU2 * tU2;
+        real tTsq  = tT * tT;
+        real tC3   = 1.0 / ( tR * tT * tT );
+        // real tC4 = tP/(tR*tT*tT);
 
-            // check the pre-multiplication vector
-            MORIS_ASSERT( aVR.length() == tNumSpaceDims + 2,
-                    "fn_FEM_IWG_Compressible_NS::eval_dAdY_VR - length of pre-multiplication vector incorrect." );
+        // check the pre-multiplication vector
+        MORIS_ASSERT( aVR.length() == tNumSpaceDims + 2,
+                "fn_FEM_IWG_Compressible_NS::eval_dAdY_VR - length of pre-multiplication vector incorrect." );
 
-            // get values form pre-multiplication vector
-            real tVR1 = aVR( 0 );
-            real tVR2 = aVR( 1 );
-            real tVR3 = aVR( 2 );
-            real tVR4 = aVR( 3 );
+        // get values form pre-multiplication vector
+        real tVR1 = aVR( 0 );
+        real tVR2 = aVR( 1 );
+        real tVR3 = aVR( 2 );
+        real tVR4 = aVR( 3 );
 
-            // clang-format off
+        // clang-format off
             // assemble matrices based on
             switch ( tNumSpaceDims )
             {
@@ -1024,40 +1022,40 @@ namespace moris
                     MORIS_ERROR( false, "fn_FEM_IWG_Compressible_NS::eval_dAdY_VR() - Number of space dimensions must be 2 or 3" );
                 };
             }
-            // clang-format on
+        // clang-format on
+    }
+
+    //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+
+    void eval_dKdY(
+            const std::shared_ptr< Property >    &aPropDynamicViscosity,
+            const std::shared_ptr< Property >    &aPropThermalConductivity,
+            Field_Interpolator_Manager           *aLeaderFIManager,
+            const uint                            aYind,
+            Vector< Vector< Matrix< DDRMat > > > &adKdY )
+    {
+        // get the velocity FI
+        Field_Interpolator *tFIVelocity = aLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+
+        // get number of Space dimensions
+        uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
+
+        // get commonly used values
+        // real tKa   =  aPropThermalConductivity->val()( 0 );
+        real tMu = aPropDynamicViscosity->val()( 0 );
+        real tLa = -2.0 * tMu / 3.0;
+        real tCh = tLa + 2.0 * tMu;
+
+        // set size of cells
+        Matrix< DDRMat > tZeroMat( tNumSpaceDims + 2, tNumSpaceDims + 2, 0.0 );
+        adKdY.resize( tNumSpaceDims );
+        for ( uint iDim = 0; iDim < tNumSpaceDims; iDim++ )
+        {
+            adKdY( iDim ).assign( tNumSpaceDims, tZeroMat );
         }
 
-        //------------------------------------------------------------------------------
-        //------------------------------------------------------------------------------
-
-        void eval_dKdY(
-                std::shared_ptr< Property >                       aPropDynamicViscosity,
-                std::shared_ptr< Property >                       aPropThermalConductivity,
-                Field_Interpolator_Manager                      * aLeaderFIManager,
-                const uint                                        aYind,
-                Vector< Vector< Matrix< DDRMat > > >  & adKdY )
-        {
-            // get the velocity FI
-            Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
-
-            // get number of Space dimensions
-            uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
-
-            // get commonly used values
-            //real tKa   =  aPropThermalConductivity->val()( 0 );
-            real tMu =  aPropDynamicViscosity->val()( 0 );
-            real tLa = -2.0 * tMu / 3.0;
-            real tCh = tLa + 2.0 * tMu;
-
-            // set size of cells
-            Matrix< DDRMat > tZeroMat( tNumSpaceDims + 2, tNumSpaceDims + 2, 0.0 );
-            adKdY.resize( tNumSpaceDims );
-            for( uint iDim = 0; iDim < tNumSpaceDims; iDim++ )
-            {
-                adKdY( iDim ).assign( tNumSpaceDims, tZeroMat );
-            }
-
-            // clang-format off
+        // clang-format off
             // assemble matrices based on number of spatial dimensions
             switch ( tNumSpaceDims )
             {
@@ -1220,36 +1218,36 @@ namespace moris
                     break;
                 }
             }
-            // clang-format on
-        }
+        // clang-format on
+    }
 
-        //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-        void eval_VL_dKdY(
-                std::shared_ptr< Property >   aPropDynamicViscosity,
-                std::shared_ptr< Property >   aPropThermalConductivity,
-                Field_Interpolator_Manager  * aLeaderFIManager,
-                const Matrix< DDRMat >      & aVL,
-                const uint                    aI,
-                const uint                    aJ,
-                Matrix< DDRMat >            & aVLdKdY )
-        {
-            // get the velocity FI
-            Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
+    void eval_VL_dKdY(
+            const std::shared_ptr< Property > &aPropDynamicViscosity,
+            const std::shared_ptr< Property > &aPropThermalConductivity,
+            Field_Interpolator_Manager        *aLeaderFIManager,
+            const Matrix< DDRMat >            &aVL,
+            const uint                         aI,
+            const uint                         aJ,
+            Matrix< DDRMat >                  &aVLdKdY )
+    {
+        // get the velocity FI
+        Field_Interpolator *tFIVelocity = aLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
-            // get number of Space dimensions
-            uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
+        // get number of Space dimensions
+        uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
 
-            // get commonly used values
-            //real tKa   =  aPropThermalConductivity->val()( 0 );
-            real tMu   =  aPropDynamicViscosity->val()( 0 );
-            real tLa   = -2.0 * tMu / 3.0;
+        // get commonly used values
+        // real tKa   =  aPropThermalConductivity->val()( 0 );
+        real tMu = aPropDynamicViscosity->val()( 0 );
+        real tLa = -2.0 * tMu / 3.0;
 
-            // check the pre-multiplication vector
-            MORIS_ASSERT( aVL.length() == tNumSpaceDims + 2,
-                    "fn_FEM_IWG_Compressible_NS::eval_VL_dKdY - length of pre-multiplication vector incorrect." );
+        // check the pre-multiplication vector
+        MORIS_ASSERT( aVL.length() == tNumSpaceDims + 2,
+                "fn_FEM_IWG_Compressible_NS::eval_VL_dKdY - length of pre-multiplication vector incorrect." );
 
-            // clang-format off
+        // clang-format off
             // assemble matrices based on
             switch ( tNumSpaceDims )
             {
@@ -1547,41 +1545,41 @@ namespace moris
                     MORIS_ERROR( false, "fn_FEM_IWG_Compressible_NS::eval_VL_dKdY() - Number of space dimensions must be 2 or 3" );
                 };
             }
-            // clang-format on
-        }
+        // clang-format on
+    }
 
-        //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-        void eval_dKdY_VR(
-                std::shared_ptr< Property >   aPropDynamicViscosity,
-                std::shared_ptr< Property >   aPropThermalConductivity,
-                Field_Interpolator_Manager  * aLeaderFIManager,
-                const Matrix< DDRMat >      & aVR,
-                const uint                    aI,
-                const uint                    aJ,
-                Matrix< DDRMat >            & adKdYVR )
-        {
-            // get the velocity FI
-            Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
+    void eval_dKdY_VR(
+            const std::shared_ptr< Property > &aPropDynamicViscosity,
+            const std::shared_ptr< Property > &aPropThermalConductivity,
+            Field_Interpolator_Manager        *aLeaderFIManager,
+            const Matrix< DDRMat >            &aVR,
+            const uint                         aI,
+            const uint                         aJ,
+            Matrix< DDRMat >                  &adKdYVR )
+    {
+        // get the velocity FI
+        Field_Interpolator *tFIVelocity = aLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
-            // get number of Space dimensions
-            uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
+        // get number of Space dimensions
+        uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
 
-            // get commonly used values
-            //real tKa   =  aPropThermalConductivity->val()( 0 );
-            real tMu   =  aPropDynamicViscosity->val()( 0 );
-            real tLa   = -2.0 * tMu / 3.0;
+        // get commonly used values
+        // real tKa   =  aPropThermalConductivity->val()( 0 );
+        real tMu = aPropDynamicViscosity->val()( 0 );
+        real tLa = -2.0 * tMu / 3.0;
 
-            // check the pre-multiplication vector
-            MORIS_ASSERT( aVR.length() == tNumSpaceDims + 2,
-                    "fn_FEM_IWG_Compressible_NS::eval_dKdY_VR - length of pre-multiplication vector incorrect." );
+        // check the pre-multiplication vector
+        MORIS_ASSERT( aVR.length() == tNumSpaceDims + 2,
+                "fn_FEM_IWG_Compressible_NS::eval_dKdY_VR - length of pre-multiplication vector incorrect." );
 
-            // get values form pre-multiplication vector
-            real tVR2 = aVR( 1 );
-            real tVR3 = aVR( 2 );
-            real tVR4 = aVR( 3 );
+        // get values form pre-multiplication vector
+        real tVR2 = aVR( 1 );
+        real tVR3 = aVR( 2 );
+        real tVR4 = aVR( 3 );
 
-            // clang-format off
+        // clang-format off
             // assemble matrices based on
             switch ( tNumSpaceDims )
             {
@@ -1878,39 +1876,39 @@ namespace moris
                     MORIS_ERROR( false, "fn_FEM_IWG_Compressible_NS::eval_dKdY_VR() - Number of space dimensions must be 2 or 3" );
                 };
             }
-            // clang-format on
-        }
+        // clang-format on
+    }
 
-        //------------------------------------------------------------------------------
-        //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-        void eval_VL_dKijidY(
-                std::shared_ptr< Property >       aPropDynamicViscosity,
-                std::shared_ptr< Property >       aPropThermalConductivity,
-                Field_Interpolator_Manager      * aLeaderFIManager,
-                const Matrix< DDRMat >          & aVL,
-                const uint                        aJ,
-                Vector< Matrix< DDRMat > > & aVLdKijidY )
-        {
-            // get the velocity FI
-            Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
+    void eval_VL_dKijidY(
+            const std::shared_ptr< Property > &aPropDynamicViscosity,
+            const std::shared_ptr< Property > &aPropThermalConductivity,
+            Field_Interpolator_Manager        *aLeaderFIManager,
+            const Matrix< DDRMat >            &aVL,
+            const uint                         aJ,
+            Vector< Matrix< DDRMat > >        &aVLdKijidY )
+    {
+        // get the velocity FI
+        Field_Interpolator *tFIVelocity = aLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
-            // get number of Space dimensions
-            uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
+        // get number of Space dimensions
+        uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
 
-            // get commonly used values
-            //real tKa   =  aPropThermalConductivity->val()( 0 );
-            real tMu   =  aPropDynamicViscosity->val()( 0 );
-            real tLa   = -2.0 * tMu / 3.0;
+        // get commonly used values
+        // real tKa   =  aPropThermalConductivity->val()( 0 );
+        real tMu = aPropDynamicViscosity->val()( 0 );
+        real tLa = -2.0 * tMu / 3.0;
 
-            // initialize cells
-            aVLdKijidY.resize( tNumSpaceDims + 1 );
+        // initialize cells
+        aVLdKijidY.resize( tNumSpaceDims + 1 );
 
-            // check the pre-multiplication vector
-            MORIS_ASSERT( aVL.length() == tNumSpaceDims + 2,
-                    "fn_FEM_IWG_Compressible_NS::eval_VL_dKijidY - length of pre-multiplication vector incorrect." );
+        // check the pre-multiplication vector
+        MORIS_ASSERT( aVL.length() == tNumSpaceDims + 2,
+                "fn_FEM_IWG_Compressible_NS::eval_VL_dKijidY - length of pre-multiplication vector incorrect." );
 
-            // clang-format off
+        // clang-format off
             // assemble matrices based on
             switch ( tNumSpaceDims )
             {
@@ -2087,43 +2085,43 @@ namespace moris
                     MORIS_ERROR( false, "fn_FEM_IWG_Compressible_NS::eval_VL_dKijidY() - Number of space dimensions must be 2 or 3" );
                 };
             }
-            // clang-format on
-        }
+        // clang-format on
+    }
 
-        //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-        void eval_dKijidY_VR(
-                std::shared_ptr< Property >       aPropDynamicViscosity,
-                std::shared_ptr< Property >       aPropThermalConductivity,
-                Field_Interpolator_Manager      * aLeaderFIManager,
-                const Matrix< DDRMat >          & aVR,
-                const uint                        aJ,
-                Vector< Matrix< DDRMat > > & adKijidYVR )
-        {
-            // get the velocity FI
-            Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
+    void eval_dKijidY_VR(
+            const std::shared_ptr< Property > &aPropDynamicViscosity,
+            const std::shared_ptr< Property > &aPropThermalConductivity,
+            Field_Interpolator_Manager        *aLeaderFIManager,
+            const Matrix< DDRMat >            &aVR,
+            const uint                         aJ,
+            Vector< Matrix< DDRMat > >        &adKijidYVR )
+    {
+        // get the velocity FI
+        Field_Interpolator *tFIVelocity = aLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
-            // get number of Space dimensions
-            uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
+        // get number of Space dimensions
+        uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
 
-            // get commonly used values
-            //real tKa   =  aPropThermalConductivity->val()( 0 );
-            real tMu   =  aPropDynamicViscosity->val()( 0 );
-            real tLa   = -2.0 * tMu / 3.0;
+        // get commonly used values
+        // real tKa   =  aPropThermalConductivity->val()( 0 );
+        real tMu = aPropDynamicViscosity->val()( 0 );
+        real tLa = -2.0 * tMu / 3.0;
 
-            // initialize cells
-            adKijidYVR.resize( tNumSpaceDims + 1 );
+        // initialize cells
+        adKijidYVR.resize( tNumSpaceDims + 1 );
 
-            // check the pre-multiplication vector
-            MORIS_ASSERT( aVR.length() == tNumSpaceDims + 2,
-                    "fn_FEM_IWG_Compressible_NS::eval_dKijidY_VR - length of pre-multiplication vector incorrect." );
+        // check the pre-multiplication vector
+        MORIS_ASSERT( aVR.length() == tNumSpaceDims + 2,
+                "fn_FEM_IWG_Compressible_NS::eval_dKijidY_VR - length of pre-multiplication vector incorrect." );
 
-            // get values form pre-multiplication vector
-            real tVR2 = aVR( 1 );
-            real tVR3 = aVR( 2 );
-            real tVR4 = aVR( 3 );
+        // get values form pre-multiplication vector
+        real tVR2 = aVR( 1 );
+        real tVR3 = aVR( 2 );
+        real tVR4 = aVR( 3 );
 
-            // clang-format off
+        // clang-format off
             // assemble matrices based on
             switch ( tNumSpaceDims )
             {
@@ -2294,11 +2292,9 @@ namespace moris
                     MORIS_ERROR( false, "fn_FEM_IWG_Compressible_NS::eval_dKijidY_VR() - Number of space dimensions must be 2 or 3" );
                 };
             }
-            // clang-format on
-        }
+        // clang-format on
+    }
 
-        //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-    } /* namespace fem */
-} /* namespace moris */
-
+}    // namespace moris::fem

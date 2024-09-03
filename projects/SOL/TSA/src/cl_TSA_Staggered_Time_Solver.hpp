@@ -43,8 +43,8 @@ namespace tsa
          *
          * @param[in] rSolverDatabase Pointer to the solver database
          */
-        Staggered_Time_Solver( const Parameter_List aParameterlist ) : Time_Solver_Algorithm( aParameterlist )
-        {};
+        Staggered_Time_Solver( const Parameter_List& aParameterlist )
+                : Time_Solver_Algorithm( aParameterlist ) {};
 
         //-------------------------------------------------------------------------------
 
@@ -56,7 +56,7 @@ namespace tsa
          *
          * @param[in] aFullVector     Solution Vector
          */
-        void solve( Vector< sol::Dist_Vector * > & aFullVector );
+        void solve( Vector< sol::Dist_Vector * > & aFullVector ) override;
 
         //-------------------------------------------------------------------------------
     };

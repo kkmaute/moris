@@ -31,576 +31,573 @@
 #include "cl_FEM_Set.hpp"        //FEM/INT/src
 #include "cl_FEM_Cluster.hpp"    //FEM/INT/src
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+    class Set;
+    //------------------------------------------------------------------------------
+    /**
+     * \brief element class that communicates with the mesh interface
+     */
+    class Element
     {
-        class Set;
+
+      protected:
+        // pointer to leader and follower integration cells on mesh
+        const mtk::Cell *mLeaderCell;
+        const mtk::Cell *mFollowerCell;
+
+        // index for the cell within the cluster
+        moris::moris_index mCellIndexInCluster;
+
+        Set     *mSet     = nullptr;
+        Cluster *mCluster = nullptr;
+
+        // function pointers
+        void ( Element::*m_compute_jacobian )(
+                const std::shared_ptr< IWG > &aReqIWG,
+                real                          aWStar ) = nullptr;
+        void ( Element::*m_compute_dRdp )(
+                const std::shared_ptr< IWG > &aReqIWG,
+                real                          aWStar,
+                Matrix< DDSMat >             &aGeoLocalAssembly,
+                Vector< Matrix< IndexMat > > &aVertexIndices ) = nullptr;
+        void ( Element::*m_compute_dQIdu )(
+                const std::shared_ptr< IQI > &aReqIQI,
+                real                          aWStar ) = nullptr;
+        void ( Element::*m_compute_dQIdp )(
+                const std::shared_ptr< IQI > &aReqIQI,
+                real                          aWStar,
+                Matrix< DDSMat >             &aGeoLocalAssembly,
+                Vector< Matrix< IndexMat > > &aVertexIndices ) = nullptr;
+
+        // finite difference scheme type for jacobian and dQIdu
+        fem::FDScheme_Type mFAFDScheme = fem::FDScheme_Type::POINT_1_FORWARD;
+
+        // finite difference perturbation size for jacobian and dQIdu
+        real mFAFDPerturbation = 1e-6;
+
+        // finite difference scheme type for dRdp and dQIdp
+        fem::FDScheme_Type mSAFDScheme = fem::FDScheme_Type::POINT_1_FORWARD;
+
+        // finite difference perturbation size for dRdp and dQIdp
+        real mSAFDPerturbation = 1e-6;
+
+        // flag that stores if the IWG requires a different way of computing the jacobian (FD or analytical) compared to the set
+        bool mIWGRequiresDifferentJacobianCalculation = false;
+
+        /**
+         * @brief Usually, the set is the instance that holds information about the way the jacobians are computed (either analytically or by finite difference)
+         * If an IWG requests a different way of computing the jacobian, the pointers of the set have to be reset to the correct jacobian evaluation methods.
+         * @param aIWG
+         */
+        void set_iwg_jacobian_strategy( std::shared_ptr< IWG > const &aIWG )
+        {
+            bool const tSetAnalyticalJacobian = mSet->get_is_analytical_forward_analysis();
+            bool const tIWGFDJacobian         = aIWG->is_fd_jacobian();
+            if ( tSetAnalyticalJacobian && tIWGFDJacobian )    // set requires analytical jacobian, but IWG requires FD jacobian
+            {
+                mIWGRequiresDifferentJacobianCalculation = true;
+                set_function_pointers( false );
+            }
+            // TODO @ff: add the other case where the set requires FD jacobian and the IWG requires analytical jacobian
+        }
+
+        /**
+         * @brief If the IWG required a different way of computing the jacobian, the pointers of the set have to be reset to the correct jacobian evaluation methods from the set.
+         */
+        void reset_iwg_jacobian_strategy()
+        {
+            if ( mIWGRequiresDifferentJacobianCalculation )
+            {
+                mIWGRequiresDifferentJacobianCalculation = false;
+                set_function_pointers( mSet->get_is_analytical_forward_analysis() );
+            }
+        }
+        //------------------------------------------------------------------------------
+
+      public:
         //------------------------------------------------------------------------------
         /**
-         * \brief element class that communicates with the mesh interface
+         * trivial constructor
          */
-        class Element
+        Element(){};
+
+        //------------------------------------------------------------------------------
+        /**
+         * constructor for leader only
+         * @param[ in ] aCell               a mesh cell pointer
+         * @param[ in ] aSet                a fem set pointer
+         * @param[ in ] aCluster            a mesh cluster pointer
+         * @param[ in ] aCellIndexInCluster the index of the cell within the cluster
+         */
+        Element(
+                const mtk::Cell   *aCell,
+                Set               *aSet,
+                Cluster           *aCluster,
+                moris::moris_index aCellIndexInCluster )
+                : mSet( aSet )
+                , mCluster( aCluster )
         {
+            // fill the cell index in cluster
+            mCellIndexInCluster = aCellIndexInCluster;
 
-          protected:
-            // pointer to leader and follower integration cells on mesh
-            const mtk::Cell *mLeaderCell;
-            const mtk::Cell *mFollowerCell;
+            // fill the bulk mtk::Cell pointer //FIXME
+            mLeaderCell = aCell;
 
-            // index for the cell within the cluster
-            moris::moris_index mCellIndexInCluster;
-
-            Set     *mSet     = nullptr;
-            Cluster *mCluster = nullptr;
-
-            // function pointers
-            void ( Element::*m_compute_jacobian )(
-                    const std::shared_ptr< IWG > &aReqIWG,
-                    real                          aWStar ) = nullptr;
-            void ( Element::*m_compute_dRdp )(
-                    const std::shared_ptr< IWG > &aReqIWG,
-                    real                          aWStar,
-                    Matrix< DDSMat >             &aGeoLocalAssembly,
-                    Vector< Matrix< IndexMat > > &aVertexIndices ) = nullptr;
-            void ( Element::*m_compute_dQIdu )(
-                    const std::shared_ptr< IQI > &aReqIQI,
-                    real                          aWStar ) = nullptr;
-            void ( Element::*m_compute_dQIdp )(
-                    const std::shared_ptr< IQI > &aReqIQI,
-                    real                          aWStar,
-                    Matrix< DDSMat >             &aGeoLocalAssembly,
-                    Vector< Matrix< IndexMat > > &aVertexIndices ) = nullptr;
-
-            // finite difference scheme type for jacobian and dQIdu
-            fem::FDScheme_Type mFAFDScheme = fem::FDScheme_Type::POINT_1_FORWARD;
-
-            // finite difference perturbation size for jacobian and dQIdu
-            real mFAFDPerturbation = 1e-6;
-
-            // finite difference scheme type for dRdp and dQIdp
-            fem::FDScheme_Type mSAFDScheme = fem::FDScheme_Type::POINT_1_FORWARD;
-
-            // finite difference perturbation size for dRdp and dQIdp
-            real mSAFDPerturbation = 1e-6;
-
-            // flag that stores if the IWG requires a different way of computing the jacobian (FD or analytical) compared to the set
-            bool mIWGRequiresDifferentJacobianCalculation = false;
-
-            /**
-             * @brief Usually, the set is the instance that holds information about the way the jacobians are computed (either analytically or by finite difference)
-             * If an IWG requests a different way of computing the jacobian, the pointers of the set have to be reset to the correct jacobian evaluation methods.
-             * @param aIWG
-             */
-            void set_iwg_jacobian_strategy( std::shared_ptr< IWG > const aIWG )
-            {
-                bool const tSetAnalyticalJacobian = mSet->get_is_analytical_forward_analysis();
-                bool const tIWGFDJacobian         = aIWG->is_fd_jacobian();
-                if ( tSetAnalyticalJacobian && tIWGFDJacobian )    // set requires analytical jacobian, but IWG requires FD jacobian
-                {
-                    mIWGRequiresDifferentJacobianCalculation = true;
-                    set_function_pointers( false );
-                }
-                // TODO @ff: add the other case where the set requires FD jacobian and the IWG requires analytical jacobian
-            }
-
-            /**
-             * @brief If the IWG required a different way of computing the jacobian, the pointers of the set have to be reset to the correct jacobian evaluation methods from the set.
-             */
-            void reset_iwg_jacobian_strategy()
-            {
-                if ( mIWGRequiresDifferentJacobianCalculation )
-                {
-                    mIWGRequiresDifferentJacobianCalculation = false;
-                    set_function_pointers( mSet->get_is_analytical_forward_analysis() );
-                }
-            }
-            //------------------------------------------------------------------------------
-
-          public:
-            //------------------------------------------------------------------------------
-            /**
-             * trivial constructor
-             */
-            Element(){};
-
-            //------------------------------------------------------------------------------
-            /**
-             * constructor for leader only
-             * @param[ in ] aCell               a mesh cell pointer
-             * @param[ in ] aSet                a fem set pointer
-             * @param[ in ] aCluster            a mesh cluster pointer
-             * @param[ in ] aCellIndexInCluster the index of the cell within the cluster
-             */
-            Element(
-                    const mtk::Cell   *aCell,
-                    Set               *aSet,
-                    Cluster           *aCluster,
-                    moris::moris_index aCellIndexInCluster )
-                    : mSet( aSet )
-                    , mCluster( aCluster )
-            {
-                // fill the cell index in cluster
-                mCellIndexInCluster = aCellIndexInCluster;
-
-                // fill the bulk mtk::Cell pointer //FIXME
-                mLeaderCell = aCell;
-
-                // set function pointers
-                this->set_function_pointers( mSet->get_is_analytical_forward_analysis() );
-            };
-
-            //------------------------------------------------------------------------------
-            /**
-             * constructor for follower only
-             * @param[ in ] aLeaderCell         a leader mesh cell pointer
-             * @param[ in ] aFollowerCell          a follower mesh cell pointer
-             * @param[ in ] aSet                a fem set pointer
-             * @param[ in ] aCluster            a mesh cluster pointer
-             * @param[ in ] aCellIndexInCluster the index of the cell within the cluster
-             */
-            Element(
-                    const mtk::Cell   *aLeaderCell,
-                    const mtk::Cell   *aFollowerCell,
-                    Set               *aSet,
-                    Cluster           *aCluster,
-                    moris::moris_index aCellIndexInCluster )
-                    : mSet( aSet )
-                    , mCluster( aCluster )
-            {
-                // fill the cell index in cluster
-                mCellIndexInCluster = aCellIndexInCluster;
-
-                // fill the leader and follower cell pointers
-                mLeaderCell   = aLeaderCell;
-                mFollowerCell = aFollowerCell;
-
-                // set function pointers
-                this->set_function_pointers( mSet->get_is_analytical_forward_analysis() );
-            };
-
-            //------------------------------------------------------------------------------
-            /**
-             * trivial destructor
-             */
-            virtual ~Element(){};
-
-            //------------------------------------------------------------------------------
-            /**
-             * set function pointers for analytical and FD
-             */
-            void
-            set_function_pointers( bool aIsAnalyticalJacobian )
-            {
-                if ( aIsAnalyticalJacobian )
-                {
-                    m_compute_jacobian = &Element::select_jacobian;
-                    m_compute_dQIdu    = &Element::select_dQIdu;
-                }
-                else
-                {
-                    // get finite difference scheme type
-                    mFAFDScheme = mSet->get_finite_difference_scheme_for_forward_analysis();
-
-                    // get the finite difference perturbation size
-                    mFAFDPerturbation = mSet->get_finite_difference_perturbation_size_forward();
-
-                    m_compute_jacobian = &Element::select_jacobian_FD;
-                    m_compute_dQIdu    = &Element::select_dQIdu_FD;
-                }
-
-                // get bool for sensitivity analysis evaluation type
-                bool tIsAnalyticalSA = mSet->get_is_analytical_sensitivity_analysis();
-
-                if ( tIsAnalyticalSA )
-                {
-                    m_compute_dRdp  = &Element::select_dRdp;
-                    m_compute_dQIdp = &Element::select_dQIdp;
-                }
-                else
-                {
-                    m_compute_dRdp  = &Element::select_dRdp_FD;
-                    m_compute_dQIdp = &Element::select_dQIdp_FD;
-
-                    // get finite difference scheme type
-                    mSAFDScheme = mSet->get_finite_difference_scheme_for_sensitivity_analysis();
-
-                    // get the finite difference perturbation size
-                    mSAFDPerturbation = mSet->get_finite_difference_perturbation_size();
-                }
-            }
-
-            //------------------------------------------------------------------------------
-            /**
-             * select jacobian
-             */
-            void
-            select_jacobian(
-                    const std::shared_ptr< IWG > &aReqIWG,
-                    real                          aWStar )
-            {
-                // compute Jacobian
-                aReqIWG->compute_jacobian( aWStar );
-            }
-
-            void
-            select_jacobian_FD(
-                    const std::shared_ptr< IWG > &aReqIWG,
-                    real                          aWStar )
-            {
-                // compute Jacobian
-                aReqIWG->compute_jacobian_FD( aWStar, mFAFDPerturbation, mFAFDScheme );
-            }
-
-            //------------------------------------------------------------------------------
-            /**
-             * select dQIdu
-             */
-            void
-            select_dQIdu(
-                    const std::shared_ptr< IQI > &aReqIQI,
-                    real                          aWStar )
-            {
-                // compute dQIdu
-                aReqIQI->compute_dQIdu( aWStar );
-            }
-
-            void
-            select_dQIdu_FD(
-                    const std::shared_ptr< IQI > &aReqIQI,
-                    real                          aWStar )
-            {
-                // compute dQIdu FD
-                aReqIQI->compute_dQIdu_FD( aWStar, mFAFDPerturbation, mFAFDScheme );
-            }
-
-            //------------------------------------------------------------------------------
-            /**
-             * select dRdp
-             */
-            void
-            select_dRdp(
-                    const std::shared_ptr< IWG > &aReqIWG,
-                    real                          aWStar,
-                    Matrix< DDSMat >             &aGeoLocalAssembly,
-                    Vector< Matrix< IndexMat > > &aVertexIndices )
-            {
-                // compute dRdpMat at evaluation point
-                aReqIWG->compute_dRdp( aWStar );
-            }
-
-            void
-            select_dRdp_FD(
-                    const std::shared_ptr< IWG > &aReqIWG,
-                    real                          aWStar,
-                    Matrix< DDSMat >             &aGeoLocalAssembly,
-                    Vector< Matrix< IndexMat > > &aVertexIndices )
-            {
-                // compute dRdpMat at evaluation point
-                aReqIWG->compute_dRdp_FD_material(
-                        aWStar,
-                        mSAFDPerturbation,
-                        mSAFDScheme );
-
-                // compute dRdpGeo at evaluation point
-                if ( mSet->get_geo_pdv_assembly_flag() )
-                {
-                    // when order material and geo call order is changed this flag has to be checked
-                    aReqIWG->reset_eval_flags();
-
-                    aReqIWG->compute_dRdp_FD_geometry(
-                            aWStar,
-                            mSAFDPerturbation,
-                            mSAFDScheme,
-                            aGeoLocalAssembly,
-                            aVertexIndices );
-                }
-            }
-
-            //------------------------------------------------------------------------------
-            /**
-             * select dQIdp
-             */
-            void
-            select_dQIdp(
-                    const std::shared_ptr< IQI > &aReqIQI,
-                    real                          aWStar,
-                    Matrix< DDSMat >             &aGeoLocalAssembly,
-                    Vector< Matrix< IndexMat > > &aVertexIndices )
-            {
-                // compute Jacobian
-                aReqIQI->compute_dQIdp( aWStar );
-            }
-
-            void
-            select_dQIdp_FD(
-                    const std::shared_ptr< IQI > &aReqIQI,
-                    real                          aWStar,
-                    Matrix< DDSMat >             &aGeoLocalAssembly,
-                    Vector< Matrix< IndexMat > > &aVertexIndices )
-            {
-                // compute dQIdpMat at evaluation point
-                aReqIQI->compute_dQIdp_FD_material(
-                        aWStar,
-                        mSAFDPerturbation,
-                        mSAFDScheme );
-
-                // compute dQIdpGeo at evaluation point
-                if ( mSet->get_geo_pdv_assembly_flag() )
-                {
-                    // when order material and geo call order is changed this flag has to be checked
-                    aReqIQI->reset_eval_flags();
-
-                    aReqIQI->compute_dQIdp_FD_geometry(
-                            aWStar,
-                            mSAFDPerturbation,
-                            mSAFDScheme,
-                            aGeoLocalAssembly,
-                            aVertexIndices );
-                }
-            }
-
-            //------------------------------------------------------------------------------
-            /**
-             * get mesh cell associated with the element
-             * param[ in ]  aIsLeader                 enum for leader or follower
-             * param[ out ] mLeaderCell or mFollowerCell a pointer to mtk cell
-             */
-            const mtk::Cell *
-            get_mtk_cell( mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER )
-            {
-                switch ( aIsLeader )
-                {
-                    case mtk::Leader_Follower::LEADER:
-                        return mLeaderCell;
-
-                    case mtk::Leader_Follower::FOLLOWER:
-                        return mFollowerCell;
-
-                    default:
-                        MORIS_ERROR( false, "Element::get_mtk_cell - can only be leader or follower." );
-                        return mLeaderCell;
-                }
-            }
-
-            //------------------------------------------------------------------------------
-
-            virtual uint get_number_of_integration_points() const
-            {
-                return mSet->get_number_of_integration_points();
-            }
-
-            //------------------------------------------------------------------------------
-
-            virtual Matrix< DDRMat > get_leader_integration_point( uint const aGPIndex ) const
-            {
-                return mSet->get_integration_points().get_column( aGPIndex );
-            };
-
-            //------------------------------------------------------------------------------
-
-            virtual Matrix< DDRMat > get_follower_integration_point( uint const aGPIndex ) const
-            {
-                return mSet->get_integration_points().get_column( aGPIndex );
-            };
-
-            //------------------------------------------------------------------------------
-
-            virtual moris::real get_integration_weight( uint const aGPIndex ) const
-            {
-                return mSet->get_integration_weights()( aGPIndex );
-            }
-
-            //------------------------------------------------------------------------------
-            /**
-             * compute jacobian
-             */
-            virtual void compute_jacobian() = 0;
-
-            //------------------------------------------------------------------------------
-            /**
-             * compute residual
-             */
-            virtual void compute_residual() = 0;
-
-            //------------------------------------------------------------------------------
-            /**
-             * compute jacobian and residual
-             */
-            virtual void compute_jacobian_and_residual() = 0;
-
-            //------------------------------------------------------------------------------
-            /**
-             * compute dRdp
-             */
-            virtual void
-            compute_dRdp()
-            {
-                MORIS_ERROR( false, "Element::compute_dRdp - Not implemented for base class." );
-            }
-
-            //------------------------------------------------------------------------------
-            /**
-             * compute quantity of interest
-             */
-            virtual void
-            compute_QI()
-            {
-                MORIS_ERROR( false, "Element::compute_QI - Not implemented for base class." );
-            }
-
-            //------------------------------------------------------------------------------
-            /**
-             * compute dQIdp
-             */
-            virtual void
-            compute_dQIdp_explicit()
-            {
-                MORIS_ERROR( false, "Element::compute_dQIdp_explicit - Not implemented for base class." );
-            }
-
-            //------------------------------------------------------------------------------
-            /**
-             * compute dRdp and dQIdp by finite difference
-             */
-            virtual void
-            compute_dRdp_and_dQIdp()
-            {
-                MORIS_ERROR( false, "Element::compute_dRdp_and_dQIdp_FD - Not implemented for base class." );
-            }
-
-            //------------------------------------------------------------------------------
-            /**
-             * compute dQIdu
-             */
-            virtual void
-            compute_dQIdu()
-            {
-                MORIS_ERROR( false, "Element::compute_dQIdu - Not implemented for base class." );
-            }
-
-            //------------------------------------------------------------------------------
-            /**
-             * compute quantity of interest
-             * @param[ in ] aFemMeshIndex  an index for the used IG mesh
-             * @param[ in ] aFieldType  an enum for computation/field type
-             */
-            void
-            compute_quantity_of_interest(
-                    const uint           aFemMeshIndex,
-                    enum vis::Field_Type aFieldType )
-            {
-                switch ( aFieldType )
-                {
-                    case vis::Field_Type::GLOBAL:
-                    {
-                        this->compute_quantity_of_interest_global( aFemMeshIndex );
-                        break;
-                    }
-                    case vis::Field_Type::ELEMENTAL_INT:
-                    {
-                        this->compute_quantity_of_interest_elemental( aFemMeshIndex, false );
-                        break;
-                    }
-                    case vis::Field_Type::ELEMENTAL_AVG:
-                    {
-                        this->compute_quantity_of_interest_elemental( aFemMeshIndex, true );
-                        break;
-                    }
-                    default:
-                    {
-                        MORIS_ERROR( false, "Element::compute_quantity_of_interest - unknown field type." );
-                    }
-                }
-            }
-
-            //------------------------------------------------------------------------------
-            /**
-             * compute quantity of interest
-             * @param[ in ]
-             * @param[ in ] aFieldType  an enum for computation/field type
-             */
-            void
-            compute_quantity_of_interest(
-                    Matrix< DDRMat >      &aValues,
-                    mtk::Field_Entity_Type aFieldType,
-                    uint                   aIQIIndex,
-                    real                  &aSpaceTimeVolume )
-            {
-                switch ( aFieldType )
-                {
-                    case mtk::Field_Entity_Type::ELEMENTAL:
-                    {
-                        this->compute_quantity_of_interest_elemental( aValues, aIQIIndex, aSpaceTimeVolume );
-                        break;
-                    }
-                    default:
-                    {
-                        MORIS_ERROR( false, "Element::compute_quantity_of_interest - unknown field type." );
-                    }
-                }
-            }
-
-            //------------------------------------------------------------------------------
-            /**
-             * compute quantity of interest in a global way
-             * @param[ in ] aFemMeshIndex  an index for the used IG mesh
-             */
-            virtual void
-            compute_quantity_of_interest_global( const uint aFemMeshIndex )
-            {
-                MORIS_ERROR( false, "Element::compute_quantity_of_interest_global - Not implemented for base class." );
-            }
-
-            //------------------------------------------------------------------------------
-            /**
-             * compute quantity of interest in a nodal way
-             * @param[ in ] aFemMeshIndex  an index for the used IG mesh
-             */
-            virtual void
-            compute_quantity_of_interest_nodal( const uint aFemMeshIndex )
-            {
-                MORIS_ERROR( false, "Element::compute_quantity_of_interest_nodal - Not implemented for base class." );
-            }
-
-            //------------------------------------------------------------------------------
-            /**
-             * compute quantity of interest in an elemental way
-             * @param[ in ] aFemMeshIndex  an index for the used IG mesh
-             * @param[ in ] aAverageOutput flag, turn on to request the averaged, rather than integrated quantity on the element/facet
-             */
-            virtual void
-            compute_quantity_of_interest_elemental(
-                    const uint aFemMeshIndex,
-                    const bool aAverageOutput )
-            {
-                MORIS_ERROR( false, "Element::compute_quantity_of_interest_elemental - Not implemented for base class." );
-            }
-
-            virtual void
-            compute_quantity_of_interest_elemental(
-                    Matrix< DDRMat > &aValues,
-                    uint              aIQIIndex,
-                    real             &aSpaceTimeVolume )
-            {
-                MORIS_ERROR( false, "Element::compute_quantity_of_interest_elemental - Not implemented for base class." );
-            }
-
-            //------------------------------------------------------------------------------
-            /**
-             * compute volume of the integration element
-             * @param[ in ] aIsLeader enum leader or follower
-             */
-            virtual real
-            compute_volume( mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER )
-            {
-                MORIS_ERROR( false, "Element::compute_volume - Not implemented for base class." );
-                return 0.0;
-            }
+            // set function pointers
+            this->set_function_pointers( mSet->get_is_analytical_forward_analysis() );
         };
 
         //------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
+        /**
+         * constructor for follower only
+         * @param[ in ] aLeaderCell         a leader mesh cell pointer
+         * @param[ in ] aFollowerCell          a follower mesh cell pointer
+         * @param[ in ] aSet                a fem set pointer
+         * @param[ in ] aCluster            a mesh cluster pointer
+         * @param[ in ] aCellIndexInCluster the index of the cell within the cluster
+         */
+        Element(
+                const mtk::Cell   *aLeaderCell,
+                const mtk::Cell   *aFollowerCell,
+                Set               *aSet,
+                Cluster           *aCluster,
+                moris::moris_index aCellIndexInCluster )
+                : mSet( aSet )
+                , mCluster( aCluster )
+        {
+            // fill the cell index in cluster
+            mCellIndexInCluster = aCellIndexInCluster;
+
+            // fill the leader and follower cell pointers
+            mLeaderCell   = aLeaderCell;
+            mFollowerCell = aFollowerCell;
+
+            // set function pointers
+            this->set_function_pointers( mSet->get_is_analytical_forward_analysis() );
+        };
+
+        //------------------------------------------------------------------------------
+        /**
+         * trivial destructor
+         */
+        virtual ~Element(){};
+
+        //------------------------------------------------------------------------------
+        /**
+         * set function pointers for analytical and FD
+         */
+        void
+        set_function_pointers( bool aIsAnalyticalJacobian )
+        {
+            if ( aIsAnalyticalJacobian )
+            {
+                m_compute_jacobian = &Element::select_jacobian;
+                m_compute_dQIdu    = &Element::select_dQIdu;
+            }
+            else
+            {
+                // get finite difference scheme type
+                mFAFDScheme = mSet->get_finite_difference_scheme_for_forward_analysis();
+
+                // get the finite difference perturbation size
+                mFAFDPerturbation = mSet->get_finite_difference_perturbation_size_forward();
+
+                m_compute_jacobian = &Element::select_jacobian_FD;
+                m_compute_dQIdu    = &Element::select_dQIdu_FD;
+            }
+
+            // get bool for sensitivity analysis evaluation type
+            bool tIsAnalyticalSA = mSet->is_analytical_sensitivity_analysis();
+
+            if ( tIsAnalyticalSA )
+            {
+                m_compute_dRdp  = &Element::select_dRdp;
+                m_compute_dQIdp = &Element::select_dQIdp;
+            }
+            else
+            {
+                m_compute_dRdp  = &Element::select_dRdp_FD;
+                m_compute_dQIdp = &Element::select_dQIdp_FD;
+
+                // get finite difference scheme type
+                mSAFDScheme = mSet->get_finite_difference_scheme_for_sensitivity_analysis();
+
+                // get the finite difference perturbation size
+                mSAFDPerturbation = mSet->get_finite_difference_perturbation_size();
+            }
+        }
+
+        //------------------------------------------------------------------------------
+        /**
+         * select jacobian
+         */
+        void
+        select_jacobian(
+                const std::shared_ptr< IWG > &aReqIWG,
+                real                          aWStar )
+        {
+            // compute Jacobian
+            aReqIWG->compute_jacobian( aWStar );
+        }
+
+        void
+        select_jacobian_FD(
+                const std::shared_ptr< IWG > &aReqIWG,
+                real                          aWStar )
+        {
+            // compute Jacobian
+            aReqIWG->compute_jacobian_FD( aWStar, mFAFDPerturbation, mFAFDScheme );
+        }
+
+        //------------------------------------------------------------------------------
+        /**
+         * select dQIdu
+         */
+        void
+        select_dQIdu(
+                const std::shared_ptr< IQI > &aReqIQI,
+                real                          aWStar )
+        {
+            // compute dQIdu
+            aReqIQI->compute_dQIdu( aWStar );
+        }
+
+        void
+        select_dQIdu_FD(
+                const std::shared_ptr< IQI > &aReqIQI,
+                real                          aWStar )
+        {
+            // compute dQIdu FD
+            aReqIQI->compute_dQIdu_FD( aWStar, mFAFDPerturbation, mFAFDScheme );
+        }
+
+        //------------------------------------------------------------------------------
+        /**
+         * select dRdp
+         */
+        void
+        select_dRdp(
+                const std::shared_ptr< IWG > &aReqIWG,
+                real                          aWStar,
+                Matrix< DDSMat >             &aGeoLocalAssembly,
+                Vector< Matrix< IndexMat > > &aVertexIndices )
+        {
+            // compute dRdpMat at evaluation point
+            aReqIWG->compute_dRdp( aWStar );
+        }
+
+        void
+        select_dRdp_FD(
+                const std::shared_ptr< IWG > &aReqIWG,
+                real                          aWStar,
+                Matrix< DDSMat >             &aGeoLocalAssembly,
+                Vector< Matrix< IndexMat > > &aVertexIndices )
+        {
+            // compute dRdpMat at evaluation point
+            aReqIWG->compute_dRdp_FD_material(
+                    aWStar,
+                    mSAFDPerturbation,
+                    mSAFDScheme );
+
+            // compute dRdpGeo at evaluation point
+            if ( mSet->get_geo_pdv_assembly_flag() )
+            {
+                // when order material and geo call order is changed this flag has to be checked
+                aReqIWG->reset_eval_flags();
+
+                aReqIWG->compute_dRdp_FD_geometry(
+                        aWStar,
+                        mSAFDPerturbation,
+                        mSAFDScheme,
+                        aGeoLocalAssembly,
+                        aVertexIndices );
+            }
+        }
+
+        //------------------------------------------------------------------------------
+        /**
+         * select dQIdp
+         */
+        void
+        select_dQIdp(
+                const std::shared_ptr< IQI > &aReqIQI,
+                real                          aWStar,
+                Matrix< DDSMat >             &aGeoLocalAssembly,
+                Vector< Matrix< IndexMat > > &aVertexIndices )
+        {
+            // compute Jacobian
+            aReqIQI->compute_dQIdp( aWStar );
+        }
+
+        void
+        select_dQIdp_FD(
+                const std::shared_ptr< IQI > &aReqIQI,
+                real                          aWStar,
+                Matrix< DDSMat >             &aGeoLocalAssembly,
+                Vector< Matrix< IndexMat > > &aVertexIndices )
+        {
+            // compute dQIdpMat at evaluation point
+            aReqIQI->compute_dQIdp_FD_material(
+                    aWStar,
+                    mSAFDPerturbation,
+                    mSAFDScheme );
+
+            // compute dQIdpGeo at evaluation point
+            if ( mSet->get_geo_pdv_assembly_flag() )
+            {
+                // when order material and geo call order is changed this flag has to be checked
+                aReqIQI->reset_eval_flags();
+
+                aReqIQI->compute_dQIdp_FD_geometry(
+                        aWStar,
+                        mSAFDPerturbation,
+                        mSAFDScheme,
+                        aGeoLocalAssembly,
+                        aVertexIndices );
+            }
+        }
+
+        //------------------------------------------------------------------------------
+        /**
+         * get mesh cell associated with the element
+         * param[ in ]  aIsLeader                 enum for leader or follower
+         * param[ out ] mLeaderCell or mFollowerCell a pointer to mtk cell
+         */
+        const mtk::Cell *
+        get_mtk_cell( mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER )
+        {
+            switch ( aIsLeader )
+            {
+                case mtk::Leader_Follower::LEADER:
+                    return mLeaderCell;
+
+                case mtk::Leader_Follower::FOLLOWER:
+                    return mFollowerCell;
+
+                default:
+                    MORIS_ERROR( false, "Element::get_mtk_cell - can only be leader or follower." );
+                    return mLeaderCell;
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        virtual uint get_number_of_integration_points() const
+        {
+            return mSet->get_number_of_integration_points();
+        }
+
+        //------------------------------------------------------------------------------
+
+        virtual Matrix< DDRMat > get_leader_integration_point( uint const aGPIndex ) const
+        {
+            return mSet->get_integration_points().get_column( aGPIndex );
+        };
+
+        //------------------------------------------------------------------------------
+
+        virtual Matrix< DDRMat > get_follower_integration_point( uint const aGPIndex ) const
+        {
+            return mSet->get_integration_points().get_column( aGPIndex );
+        };
+
+        //------------------------------------------------------------------------------
+
+        virtual moris::real get_integration_weight( uint const aGPIndex ) const
+        {
+            return mSet->get_integration_weights()( aGPIndex );
+        }
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute jacobian
+         */
+        virtual void compute_jacobian() = 0;
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute residual
+         */
+        virtual void compute_residual() = 0;
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute jacobian and residual
+         */
+        virtual void compute_jacobian_and_residual() = 0;
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute dRdp
+         */
+        virtual void
+        compute_dRdp()
+        {
+            MORIS_ERROR( false, "Element::compute_dRdp - Not implemented for base class." );
+        }
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute quantity of interest
+         */
+        virtual void
+        compute_QI()
+        {
+            MORIS_ERROR( false, "Element::compute_QI - Not implemented for base class." );
+        }
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute dQIdp
+         */
+        virtual void
+        compute_dQIdp_explicit()
+        {
+            MORIS_ERROR( false, "Element::compute_dQIdp_explicit - Not implemented for base class." );
+        }
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute dRdp and dQIdp by finite difference
+         */
+        virtual void
+        compute_dRdp_and_dQIdp()
+        {
+            MORIS_ERROR( false, "Element::compute_dRdp_and_dQIdp_FD - Not implemented for base class." );
+        }
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute dQIdu
+         */
+        virtual void
+        compute_dQIdu()
+        {
+            MORIS_ERROR( false, "Element::compute_dQIdu - Not implemented for base class." );
+        }
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute quantity of interest
+         * @param[ in ] aFemMeshIndex  an index for the used IG mesh
+         * @param[ in ] aFieldType  an enum for computation/field type
+         */
+        void
+        compute_quantity_of_interest(
+                const uint           aFemMeshIndex,
+                enum vis::Field_Type aFieldType )
+        {
+            switch ( aFieldType )
+            {
+                case vis::Field_Type::GLOBAL:
+                {
+                    this->compute_quantity_of_interest_global( aFemMeshIndex );
+                    break;
+                }
+                case vis::Field_Type::ELEMENTAL_INT:
+                {
+                    this->compute_quantity_of_interest_elemental( aFemMeshIndex, false );
+                    break;
+                }
+                case vis::Field_Type::ELEMENTAL_AVG:
+                {
+                    this->compute_quantity_of_interest_elemental( aFemMeshIndex, true );
+                    break;
+                }
+                default:
+                {
+                    MORIS_ERROR( false, "Element::compute_quantity_of_interest - unknown field type." );
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute quantity of interest
+         * @param[ in ]
+         * @param[ in ] aFieldType  an enum for computation/field type
+         */
+        void
+        compute_quantity_of_interest(
+                Matrix< DDRMat >      &aValues,
+                mtk::Field_Entity_Type aFieldType,
+                uint                   aIQIIndex,
+                real                  &aSpaceTimeVolume )
+        {
+            switch ( aFieldType )
+            {
+                case mtk::Field_Entity_Type::ELEMENTAL:
+                {
+                    this->compute_quantity_of_interest_elemental( aValues, aIQIIndex, aSpaceTimeVolume );
+                    break;
+                }
+                default:
+                {
+                    MORIS_ERROR( false, "Element::compute_quantity_of_interest - unknown field type." );
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute quantity of interest in a global way
+         * @param[ in ] aFemMeshIndex  an index for the used IG mesh
+         */
+        virtual void
+        compute_quantity_of_interest_global( const uint aFemMeshIndex )
+        {
+            MORIS_ERROR( false, "Element::compute_quantity_of_interest_global - Not implemented for base class." );
+        }
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute quantity of interest in a nodal way
+         * @param[ in ] aFemMeshIndex  an index for the used IG mesh
+         */
+        virtual void
+        compute_quantity_of_interest_nodal( const uint aFemMeshIndex )
+        {
+            MORIS_ERROR( false, "Element::compute_quantity_of_interest_nodal - Not implemented for base class." );
+        }
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute quantity of interest in an elemental way
+         * @param[ in ] aFemMeshIndex  an index for the used IG mesh
+         * @param[ in ] aAverageOutput flag, turn on to request the averaged, rather than integrated quantity on the element/facet
+         */
+        virtual void
+        compute_quantity_of_interest_elemental(
+                const uint aFemMeshIndex,
+                const bool aAverageOutput )
+        {
+            MORIS_ERROR( false, "Element::compute_quantity_of_interest_elemental - Not implemented for base class." );
+        }
+
+        virtual void
+        compute_quantity_of_interest_elemental(
+                Matrix< DDRMat > &aValues,
+                uint              aIQIIndex,
+                real             &aSpaceTimeVolume )
+        {
+            MORIS_ERROR( false, "Element::compute_quantity_of_interest_elemental - Not implemented for base class." );
+        }
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute volume of the integration element
+         * @param[ in ] aIsLeader enum leader or follower
+         */
+        virtual real
+        compute_volume( mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER )
+        {
+            MORIS_ERROR( false, "Element::compute_volume - Not implemented for base class." );
+            return 0.0;
+        }
+    };
+
+    //------------------------------------------------------------------------------
+}    // namespace moris::fem
 
 #endif /* SRC_FEM_CL_FEM_ELEMENT_HPP_ */

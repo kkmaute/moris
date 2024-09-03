@@ -16,7 +16,6 @@
 #include "paths.hpp"
 #include "fn_Parsing_Tools.hpp"
 #include "fn_assert.hpp"
-#include "catch.hpp"
 
 // ----------------------------------------------------------------------------
 

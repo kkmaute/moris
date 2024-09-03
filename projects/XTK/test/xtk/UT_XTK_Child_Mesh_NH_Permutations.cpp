@@ -31,7 +31,7 @@ namespace moris::xtk
     class Permutations
     {
       public:
-        Permutations( std::string tType = "" )
+        Permutations( const std::string &tType = "" )
 
         {
             if ( tType.compare( "" ) == 0 )
@@ -81,7 +81,7 @@ namespace moris::xtk
             }
             else
             {
-                std::cout << "String Not Recognized" << std::endl;
+                std::cout << "String Not Recognized" << '\n';
             }
             mNumPermutations = mPermutations.size();
         }
@@ -410,7 +410,7 @@ namespace moris::xtk
         }
         else
         {
-            std::cout << "UNDEFINED EDGE" << std::endl;
+            std::cout << "UNDEFINED EDGE" << '\n';
         }
     }
 

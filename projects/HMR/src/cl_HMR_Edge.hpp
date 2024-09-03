@@ -67,7 +67,7 @@ namespace moris::hmr
         /**
          * trivial destructor
          */
-        virtual ~Edge(){};
+        ~Edge() override{};
 
         // ----------------------------------------------------------------------------
 
@@ -76,7 +76,7 @@ namespace moris::hmr
          *
          * @return moris_id ID
          */
-        moris_id get_id() const;
+        moris_id get_id() const override;
 
         // ----------------------------------------------------------------------------
 
@@ -85,14 +85,14 @@ namespace moris::hmr
          *
          * @return moris_index ID
          */
-        moris_index get_index() const;
+        moris_index get_index() const override;
 
         // ----------------------------------------------------------------------------
 
         /**
          * tells how many vertices are connected to this edge
          */
-        virtual uint get_number_of_vertices() const = 0;
+        uint get_number_of_vertices() const override = 0;
 
         // ----------------------------------------------------------------------------
 
@@ -100,39 +100,39 @@ namespace moris::hmr
          * returns the proc id of the owner of this edge
          * ( this information is needed for STK )
          */
-        moris_id get_owner() const;
+        moris_id get_owner() const override;
 
         // ----------------------------------------------------------------------------
 
         /**
          * explicitly sets the owner of the edge
          */
-        void set_owner( const moris_id& aOwner );
+        void set_owner( const moris_id aOwner ) override;
 
         // ----------------------------------------------------------------------------
 
         /**
          * fills a Vector with pointers to connected vertices
          */
-        Vector< mtk::Vertex* > get_vertex_pointers() const;
+        Vector< mtk::Vertex* > get_vertex_pointers() const override;
 
         // ----------------------------------------------------------------------------
 
-        void remove_vertex_pointer( moris_index aIndex );
+        void remove_vertex_pointer( moris_index aIndex ) override;
 
         // ----------------------------------------------------------------------------
 
         /**
          * returns a Mat with IDs of connected vertices
          */
-        Matrix< IdMat > get_vertex_ids() const;
+        Matrix< IdMat > get_vertex_ids() const override;
 
         // ----------------------------------------------------------------------------
 
         /**
          * returns a Mat with indices of connected vertices
          */
-        virtual Matrix< IndexMat > get_vertex_inds() const;
+        Matrix< IndexMat > get_vertex_inds() const override;
 
         // ----------------------------------------------------------------------------
 
@@ -140,26 +140,26 @@ namespace moris::hmr
          * returns a Mat of dimension
          * < number of vertices * number of dimensions >
          */
-        Matrix< DDRMat > get_vertex_coords() const;
+        Matrix< DDRMat > get_vertex_coords() const override;
 
         // ----------------------------------------------------------------------------
 
         /**
          * an edge is always a line
          */
-        mtk::Geometry_Type get_geometry_type() const;
+        mtk::Geometry_Type get_geometry_type() const override;
 
         // ----------------------------------------------------------------------------
 
-        virtual mtk::Interpolation_Order get_interpolation_order() const = 0;
+        mtk::Interpolation_Order get_interpolation_order() const override = 0;
 
         // ----------------------------------------------------------------------------
 
-        void set_index( const moris_index& aIndex );
+        void set_index( const moris_index aIndex ) override;
 
         // ----------------------------------------------------------------------------
 
-        void set_id( const moris_id& aID );
+        void set_id( const moris_id aID ) override;
 
         // ----------------------------------------------------------------------------
 
@@ -196,7 +196,6 @@ namespace moris::hmr
         // ----------------------------------------------------------------------------
 
       private:
-
         // ----------------------------------------------------------------------------
 
         void find_leader(
@@ -209,10 +208,10 @@ namespace moris::hmr
 
         // ----------------------------------------------------------------------------
 
-    }; // class Edge
+    };    // class Edge
 
     // ----------------------------------------------------------------------------
 
-} /* namespace moris */
+}    // namespace moris::hmr
 
 #endif /* PROJECTS_HMR_SRC_CL_HMR_EDGE_HPP_ */

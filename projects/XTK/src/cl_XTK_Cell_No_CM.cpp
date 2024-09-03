@@ -9,6 +9,8 @@
  */
 
 #include "cl_XTK_Cell_No_CM.hpp"
+
+#include <utility>
 #include "cl_XTK_Background_Mesh.hpp"
 
 namespace moris::xtk
@@ -20,8 +22,8 @@ namespace moris::xtk
             moris::moris_index                      aElementIndex,
             moris::moris_index                      aElementOwner,
             std::shared_ptr< mtk::Cell_Info >       aCellInfo,
-            Vector< mtk::Vertex* >                  aVertices )
-            : Cell( aElementId, aElementIndex, aElementOwner, aCellInfo )
+            const Vector< mtk::Vertex* >&           aVertices )
+            : Cell( aElementId, aElementIndex, aElementOwner, std::move( aCellInfo ) )
             , mCellVertices( aVertices )
     {
     }

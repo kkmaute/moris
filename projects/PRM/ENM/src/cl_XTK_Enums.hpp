@@ -52,7 +52,7 @@ enum class Subdivision_Method
     NO_METHOD
 };
 
-inline const std::string get_enum_str( enum Subdivision_Method aSubdivisionEnum )
+inline std::string get_enum_str( enum Subdivision_Method aSubdivisionEnum )
 {
     switch ( aSubdivisionEnum )
     {

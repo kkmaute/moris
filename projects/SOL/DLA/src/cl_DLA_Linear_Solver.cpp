@@ -9,6 +9,8 @@
  */
 #include "cl_DLA_Linear_Solver.hpp"
 
+#include <utility>
+
 #include "cl_DLA_Solver_Factory.hpp"
 #include "cl_DLA_Linear_Solver_Aztec.hpp"
 #include "cl_DLA_Linear_Problem.hpp"
@@ -36,7 +38,7 @@ Linear_Solver::Linear_Solver(
 }
 
 //--------------------------------------------------------------------------------------------------
-void Linear_Solver::set_linear_algorithm( std::shared_ptr< Linear_Solver_Algorithm > aLinSolverAlgorithm )
+void Linear_Solver::set_linear_algorithm( const std::shared_ptr< Linear_Solver_Algorithm >& aLinSolverAlgorithm )
 {
     if ( mCallCounter == 0 )
     {
@@ -70,7 +72,7 @@ void Linear_Solver::set_linear_algorithm(
         mLinearSolverList.resize( aListEntry + 1, nullptr );
     }
     // Set linear solver on entry
-    mLinearSolverList( aListEntry ) = aLinSolverAlgorithm;
+    mLinearSolverList( aListEntry ) = std::move( aLinSolverAlgorithm );
 }
 
 //-------------------------------------------------------------------------------------------------------

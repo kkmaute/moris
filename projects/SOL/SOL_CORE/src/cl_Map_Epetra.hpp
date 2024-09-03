@@ -70,42 +70,42 @@ namespace moris
 
             //-------------------------------------------------------------------------------------------------------------
             /** Destructor */
-            ~Map_Epetra();
+            ~Map_Epetra() override;
 
             //-------------------------------------------------------------------------------------------------------------
 
-            Epetra_Map * get_epetra_map()      { return mEpetraMap; };
-            Epetra_Map * get_epetra_map() const{ return mEpetraMap; };
+            Epetra_Map * get_epetra_map() override      { return mEpetraMap; };
+            Epetra_Map * get_epetra_map() const override{ return mEpetraMap; };
 
             //-------------------------------------------------------------------------------------------------------------
 
-            Epetra_Map * get_epetra_point_map()      { return mEpetraPointMap; };
-            Epetra_Map * get_epetra_point_map() const{ return mEpetraPointMap; };
+            Epetra_Map * get_epetra_point_map() override      { return mEpetraPointMap; };
+            Epetra_Map * get_epetra_point_map() const override{ return mEpetraPointMap; };
 
             //-------------------------------------------------------------------------------------------------------------
-            moris::sint return_local_ind_of_global_Id( moris::uint aGlobalId ) const;
+            moris::sint return_local_ind_of_global_Id( moris::uint aGlobalId ) const override;
 
             //-------------------------------------------------------------------------------------------------------------
 
             void build_dof_translator(
                     const Matrix< IdMat > & aFullMap,
-                    const bool aFlag );
+                    const bool aFlag ) override;
 
             //-------------------------------------------------------------------------------------------------------------
 
             void translate_ids_to_free_point_ids(
                     const moris::Matrix< IdMat > & aIdsIn,
                     moris::Matrix< IdMat >       & aIdsOut,
-                    const bool                   & aIsBuildGraph = true );
+                    const bool                   & aIsBuildGraph = true ) override;
 
             void translate_ids_to_free_point_ids(
                     const Vector< sint >& aIdsIn,
                     Vector< sint >&       aIdsOut,
-                    bool                  aIsBuildGraph = true );
+                    bool                  aIsBuildGraph = true ) override;
 
             //-------------------------------------------------------------------------------------------------------------
 
-            void print();
+            void print() override;
 
     };
 }

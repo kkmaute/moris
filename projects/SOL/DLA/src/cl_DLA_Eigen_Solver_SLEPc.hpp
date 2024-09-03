@@ -56,7 +56,7 @@ namespace moris::dla
 
         //------------------------------------------------------------------------------
 
-        Eigen_Solver_SLEPc( const moris::Parameter_List aParameterlist = prm::create_slepc_algorithm_parameter_list() );
+        Eigen_Solver_SLEPc( const moris::Parameter_List& aParameterlist = prm::create_slepc_algorithm_parameter_list() );
 
         //------------------------------------------------------------------------------
 
@@ -68,7 +68,7 @@ namespace moris::dla
 
         //------------------------------------------------------------------------------
 
-        ~Eigen_Solver_SLEPc();
+        ~Eigen_Solver_SLEPc() override;
 
         //------------------------------------------------------------------------------
 
@@ -80,13 +80,13 @@ namespace moris::dla
 
         //------------------------------------------------------------------------------
 
-        moris::sint solve_linear_system();
+        moris::sint solve_linear_system() override;
 
         //------------------------------------------------------------------------------
 
         moris::sint solve_linear_system(
                 Linear_Problem*   aLinearSystem,
-                const moris::sint aIter );
+                const moris::sint aIter ) override;
 
         //------------------------------------------------------------------------------
 
@@ -94,7 +94,7 @@ namespace moris::dla
 
         //------------------------------------------------------------------------------
 
-        virtual void set_sublinear_solver_options( const Parameter_List* aParameterlistsubSolver, const Parameter_List* aParameterlistPreconditioner ) override;
+        void set_sublinear_solver_options( const Parameter_List* aParameterlistsubSolver, const Parameter_List* aParameterlistPreconditioner ) override;
 
         //------------------------------------------------------------------------------
 

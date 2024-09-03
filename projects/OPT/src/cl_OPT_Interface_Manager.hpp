@@ -34,13 +34,13 @@ namespace moris::opt
          * Constructor
          */
         Interface_Manager(
-                Parameter_List                                  aParameterList,
+                const Parameter_List&                           aParameterList,
                 Vector< std::shared_ptr< Criteria_Interface > > aInterfaces );
 
         /**
          * Destructor
          */
-        ~Interface_Manager()
+        ~Interface_Manager() override
         {
         }
 
@@ -60,21 +60,21 @@ namespace moris::opt
                 Vector< real >& aGlobalADVs,
                 Vector< real >& aGlobalLowerBounds,
                 Vector< real >& aGlobalUpperBounds,
-                Matrix< IdMat >&  aIjklIds );
+                Matrix< IdMat >&  aIjklIds ) override;
 
         /**
          * Gets the criteria values
          *
          * @return vector of criteria
          */
-        Vector< real > perform( Vector< real >& aNewADVs );
+        Vector< real > perform( Vector< real >& aNewADVs ) override;
 
         /**
          * Gets the derivative of the criteria with respect to the advs
          *
          * @return matrix d(criteria)_i/d(adv)_j
          */
-        Matrix< DDRMat > compute_dcriteria_dadv();
+        Matrix< DDRMat > compute_dcriteria_dadv() override;
 
         /**
          * Gets the local advs based on whether or not they are shared

@@ -21,7 +21,6 @@
 #include "cl_MTK_Side_Set.hpp"
 #include "cl_MTK_Double_Side_Set.hpp"
 #include "cl_MTK_Set_Communicator.hpp"
-#include "cl_Tracer.hpp"
 
 namespace moris::mtk
 {
@@ -1512,14 +1511,12 @@ namespace moris::mtk
         mOutputMesh->mVertexGlobalIdToLocalIndex.reserve( mOutputMesh->mVertices.size() );
 
         // create the vertex map used in gen based on the new vertex
-        moris_index iCounter = 0;
-        for ( const auto& iVertex : mOutputMesh->mVertices )
+        for ( uint iCounter = 0; iCounter < mOutputMesh->mVertices.size(); ++iCounter )
         {
-            MORIS_ASSERT( iVertex.get_index() == iCounter, "Index alignment issue in vertices" );
+            MORIS_ASSERT( mOutputMesh->mVertices( iCounter ).get_index() == (moris_index)iCounter,
+                    "Index alignment issue in vertices" );
 
-            mOutputMesh->mVertexGlobalIdToLocalIndex[ iVertex.get_id() ] = iVertex.get_index();
-
-            iCounter++;
+            mOutputMesh->mVertexGlobalIdToLocalIndex[ mOutputMesh->mVertices( iCounter ).get_id() ] = iCounter;
         }
     }
 
@@ -2086,13 +2083,13 @@ namespace moris::mtk
         bool tVertexIdAndIndexEqual = std::equal( mOutputMesh->mVertices.begin(),
                 mOutputMesh->mVertices.end(),
                 mIGMeshInfo->mVertices.begin(),
-                []( Vertex_DataBase a, mtk::Vertex const * b ) -> bool { return a.get_id() == b->get_id() && a.get_index() == b->get_index(); } );
+                []( const Vertex_DataBase& a, mtk::Vertex const * b ) -> bool { return a.get_id() == b->get_id() && a.get_index() == b->get_index(); } );
 
         // check if old vertices and new vertices have the same coords
         bool tEqualCoords = std::equal( mOutputMesh->mVertices.begin(),
                 mOutputMesh->mVertices.end(),
                 mIGMeshInfo->mVertices.begin(),
-                []( Vertex_DataBase a, mtk::Vertex const * b ) -> bool {
+                []( const Vertex_DataBase& a, mtk::Vertex const * b ) -> bool {
                     return std::equal( a.get_coords().begin(), a.get_coords().end(), b->get_coords().begin() );
                 } );
 

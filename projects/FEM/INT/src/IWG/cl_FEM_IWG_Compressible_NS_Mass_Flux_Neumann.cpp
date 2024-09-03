@@ -16,26 +16,24 @@
 #include "fn_eye.hpp"
 #include "fn_dot.hpp"
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+
+    //------------------------------------------------------------------------------
+
+    IWG_Compressible_NS_Mass_Flux_Neumann::IWG_Compressible_NS_Mass_Flux_Neumann()
     {
+        // set size for the property pointer cell
+        mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
-        //------------------------------------------------------------------------------
+        // populate the property map
+        mPropertyMap[ "MassFlux" ] = static_cast< uint >( IWG_Property_Type::MASS_FLUX );
+    }
 
-        IWG_Compressible_NS_Mass_Flux_Neumann::IWG_Compressible_NS_Mass_Flux_Neumann()
-        {
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+    //------------------------------------------------------------------------------
 
-            // populate the property map
-            mPropertyMap[ "MassFlux" ] = static_cast< uint >( IWG_Property_Type::MASS_FLUX );
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IWG_Compressible_NS_Mass_Flux_Neumann::compute_residual( real aWStar )
-        {
+    void IWG_Compressible_NS_Mass_Flux_Neumann::compute_residual( real aWStar )
+    {
 #ifdef MORIS_HAVE_DEBUG
             // check leader field interpolators, properties, constitutive models
             this->check_field_interpolators();
@@ -126,6 +124,4 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
-
+}    // namespace moris::fem

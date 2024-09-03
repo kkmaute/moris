@@ -15,7 +15,7 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_Vector.hpp"
-#include <iomanip>      // std::setw
+#include <iomanip>    // std::setw
 
 /**
  * \def PRINT( container )
@@ -49,7 +49,7 @@ namespace moris
 {
     /**
      * Prints a moris::Matrix
-     * 
+     *
      * @tparam Matrix_Type Matrix type
      * @param aMat Matrix to print
      * @param aTitle Title of matrix
@@ -57,7 +57,7 @@ namespace moris
     template< typename Matrix_Type >
     void print(
             Matrix< Matrix_Type > aMat,
-            std::string           aTitle )
+            const std::string&    aTitle )
     {
         size_t tNumRows    = aMat.n_rows();
         size_t tNumColumns = aMat.n_cols();
@@ -73,12 +73,13 @@ namespace moris
 
             std::cout << "\n";
         }
-        std::cout << "\n-------------------------------------------------\n" << std::endl;
+        std::cout << "\n-------------------------------------------------\n"
+                  << '\n';
     }
 
     /**
      * Prints a moris::Matrix as a row vector. Must actually be a row or column vector to work.
-     * 
+     *
      * @tparam Matrix_Type Matrix type
      * @param aMat Matrix to print
      * @param aTitle Title of matrix
@@ -86,115 +87,116 @@ namespace moris
     template< typename Matrix_Type >
     void print_as_row_vector(
             Matrix< Matrix_Type > aMat,
-            std::string           aTitle )
+            const std::string&    aTitle )
     {
         size_t tNumRows    = aMat.n_rows();
         size_t tNumColumns = aMat.n_cols();
 
-        MORIS_ERROR( tNumRows <= 1 || tNumColumns <= 1, 
+        MORIS_ERROR( tNumRows <= 1 || tNumColumns <= 1,
                 "print_as_row_vector() - Function should only be called on matrices with size 1 x n or n x 1." );
 
-        std::cout << aTitle << " = [ " << std::flush;
+        std::cout << aTitle << " = [ " << '\n';
         for ( moris::uint i = 0; i < aMat.numel(); i++ )
         {
             if ( i == aMat.numel() - 1 )
             {
-                std::cout << aMat( i ) << std::flush;
+                std::cout << aMat( i ) << '\n';
             }
             else
             {
-                std::cout << aMat( i ) << ", " << std::flush;
+                std::cout << aMat( i ) << ",\n";
             }
         }
 
-        std::cout << " ]" << std::endl;
+        std::cout << " ]" << '\n'
+                  << std::flush;
     }
-    
+
     /**
      * Prints a moris::Matrix with row and column index in addition to its data
-     * 
+     *
      * @tparam Matrix_Type Matrix type
      * @param aMat Matrix to print
      * @param aTitle Title of matrix
      */
-    template<typename Matrix_Type>
-    void print_fancy(Matrix< Matrix_Type > aMat,
-                std::string aTitle)
+    template< typename Matrix_Type >
+    void print_fancy( Matrix< Matrix_Type > aMat,
+            const std::string&              aTitle )
     {
-        size_t tNumRows = aMat.n_rows();
+        size_t tNumRows    = aMat.n_rows();
         size_t tNumColumns = aMat.n_cols();
         std::cout << "\n-------------------------------------------------\n";
         std::cout << aTitle + ": \n";
         std::cout << "Num Rows: " << tNumRows << " | Num Cols: " << tNumColumns << "\n";
 
-        std::cout<<std::right<<std::setw(5)<<"";
-        for(size_t c = 0; c < tNumColumns; c++)
+        std::cout << std::right << std::setw( 5 ) << "";
+        for ( size_t c = 0; c < tNumColumns; c++ )
         {
-            std::cout<<std::right<<std::setw(12)<<c;
+            std::cout << std::right << std::setw( 12 ) << c;
         }
 
-        std::cout<<"\n";
-        std::cout<<"--------";
+        std::cout << "\n";
+        std::cout << "--------";
 
-        for(size_t c = 0; c < tNumColumns+1; c++)
+        for ( size_t c = 0; c < tNumColumns + 1; c++ )
         {
-            std::cout<<"-------------";
+            std::cout << "-------------";
         }
 
-        std::cout<<"\n";
+        std::cout << "\n";
 
-        for(size_t r = 0; r < tNumRows; r++)
+        for ( size_t r = 0; r < tNumRows; r++ )
         {
-            std::cout<<std::right<<std::setw(5)<<r<<" | ";
+            std::cout << std::right << std::setw( 5 ) << r << " | ";
 
-            for(size_t c = 0; c < tNumColumns; c++)
+            for ( size_t c = 0; c < tNumColumns; c++ )
             {
-                std::cout<< std::setw(12) << aMat(r, c);
+                std::cout << std::setw( 12 ) << aMat( r, c );
             }
 
             std::cout << "\n";
         }
-        std::cout << "\n-------------------------------------------------\n"<<std::endl;
+        std::cout << "\n-------------------------------------------------\n"
+                  << '\n';
     }
 
     /**
      * Prints a moris::Matrix< DDRMat >
-     * 
+     *
      * @param aMat Matrix to print
      * @param aTitle Title of matrix
      */
-    inline
-    void print( Matrix< DDRMat > const & aMat,
-          std::string aTitle )
+    inline void print( Matrix< DDRMat > const & aMat,
+            const std::string&                  aTitle )
     {
-        FILE * outFile = stdout;
+        FILE* outFile = stdout;
 
-        fprintf( outFile,"%s-------------------------------------------------\n\n","%" );
+        fprintf( outFile, "%s-------------------------------------------------\n\n", "%" );
 
         if ( aTitle.empty() )
             fprintf( outFile, "morisMat = [ ... \n" );
         else
             fprintf( outFile, "%s = [ ... \n", aTitle.c_str() );
 
-        for( uint ir = 0; ir < aMat.n_rows(); ++ir )
+        for ( uint ir = 0; ir < aMat.n_rows(); ++ir )
         {
-            for( uint ic = 0; ic < aMat.n_cols(); ++ic )
+            for ( uint ic = 0; ic < aMat.n_cols(); ++ic )
             {
                 // FIXME: need to type cast the output of mMat(ir,ic)
-                fprintf( outFile, "%+.15e", ( real ) aMat(ir,ic) );
+                fprintf( outFile, "%+.15e", (real)aMat( ir, ic ) );
 
-                if(ic < aMat.n_cols() -1)
+                if ( ic < aMat.n_cols() - 1 )
                     fprintf( outFile, ",  " );
                 else
                     fprintf( outFile, ";" );
             }
 
-            if (ir < aMat.n_rows() - 1 )
+            if ( ir < aMat.n_rows() - 1 )
                 fprintf( outFile, ".... \n" );
             else
                 fprintf( outFile, "];\n" );
         }
-        fprintf( outFile,"%s-------------------------------------------------\n\n", "%") ;
+        fprintf( outFile, "%s-------------------------------------------------\n\n", "%" );
     }
 
     /**
@@ -207,56 +209,57 @@ namespace moris
     template< typename Matrix_Type >
     void print_std_initializer_list(
             const Matrix< Matrix_Type >& aMatrix,
-            std::string                  aTitle )
+            const std::string&           aTitle )
     {
-        std::cout << "\n" << aTitle + ": " << std::endl;
-        size_t tNumRows = aMatrix.n_rows();
+        std::cout << "\n"
+                  << aTitle + ": " << '\n';
+        size_t tNumRows    = aMatrix.n_rows();
         size_t tNumColumns = aMatrix.n_cols();
 
         std::cout << "{";
-        for(size_t r = 0; r < tNumRows; r++)
+        for ( size_t r = 0; r < tNumRows; r++ )
         {
             std::cout << "{";
-            for(size_t c = 0; c < tNumColumns; c++)
+            for ( size_t c = 0; c < tNumColumns; c++ )
             {
-    //            std::cout << std::setprecision(std::numeric_limits<Type>::digits10 + 1) << aMatrix(r, c);
-                std::cout << aMatrix(r, c);
-                if(c != tNumColumns - 1)
+                //            std::cout << std::setprecision(std::numeric_limits<Type>::digits10 + 1) << aMatrix(r, c);
+                std::cout << aMatrix( r, c );
+                if ( c != tNumColumns - 1 )
                 {
                     std::cout << ", ";
                 }
             }
             std::cout << "}";
-            if(r != tNumRows - 1)
+            if ( r != tNumRows - 1 )
             {
                 std::cout << ", \n";
             }
-
         }
 
-        std::cout << "}\n" << std::endl;
+        std::cout << "}\n"
+                  << '\n';
     }
 
     /**
      * Prints a Vector of moris::Matrix data types
-     * 
+     *
      * @tparam T Matrix type
      * @param aCell Cell to print
      * @param aTitle Title of cell
      */
     template< typename T >
     void
-    print( Vector< moris::Matrix<T> > const & aCell,
-          std::string aTitle = "Cell" )
+    print( Vector< moris::Matrix< T > > const & aCell,
+            const std::string&                  aTitle = "Cell" )
     {
-        std::cout<<"Cell Name: "<<aTitle<<"\n";
-        std::cout<<"Number of entries = "<<aCell.size()<<"\n";
-        for(moris::uint  i = 0; i <aCell.size(); i++)
+        std::cout << "Cell Name: " << aTitle << "\n";
+        std::cout << "Number of entries = " << aCell.size() << "\n";
+        for ( moris::uint i = 0; i < aCell.size(); i++ )
         {
-            moris::print(aCell(i),"Cell " + std::to_string(i));
+            moris::print( aCell( i ), "Cell " + std::to_string( i ) );
         }
 
-        std::cout<<std::endl;
+        std::cout << '\n';
     }
 
     /**
@@ -267,19 +270,18 @@ namespace moris
      * @param aTitle Title of cell
      */
     template< typename T >
-    void print( Vector< moris::Matrix<T> * > const & aCell,
-          std::string aTitle = "Cell" )
+    void print( Vector< moris::Matrix< T >* > const & aCell,
+            const std::string&                        aTitle = "Cell" )
     {
-        std::cout<<"Cell Name: "<<aTitle<<"\n";
-        std::cout<<"Number of entries = "<<aCell.size()<<"\n";
-        for(moris::uint  i = 0; i <aCell.size(); i++)
+        std::cout << "Cell Name: " << aTitle << "\n";
+        std::cout << "Number of entries = " << aCell.size() << "\n";
+        for ( moris::uint i = 0; i < aCell.size(); i++ )
         {
-            moris::print(*aCell(i),"Cell " + std::to_string(i));
+            moris::print( *aCell( i ), "Cell " + std::to_string( i ) );
         }
 
-        std::cout<<std::endl;
+        std::cout << '\n';
     }
-}
+}    // namespace moris
 
 #endif /* PROJECTS_LINALG_SRC_FN_PRINT_HPP_ */
-
