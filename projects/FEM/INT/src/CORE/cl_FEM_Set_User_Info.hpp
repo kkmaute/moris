@@ -82,13 +82,13 @@ namespace moris::fem
         /**
          * trivial constructor
          */
-        Set_User_Info(){};
+        Set_User_Info() {};
 
         //------------------------------------------------------------------------------
         /**
          * trivial destructor
          */
-        ~Set_User_Info(){};
+        ~Set_User_Info() {};
 
         //------------------------------------------------------------------------------
         /**
@@ -210,7 +210,7 @@ namespace moris::fem
          * get flag for sensitivity analysis on the set (analytical or finite difference)
          * @param[ in ] aIsAnalyticalSA bool for sensitivity analysis computation type
          */
-        const bool &is_analytical_sensitivity_analysis() const
+        bool is_analytical_sensitivity_analysis() const
         {
             return mIsAnalyticalSA;
         }

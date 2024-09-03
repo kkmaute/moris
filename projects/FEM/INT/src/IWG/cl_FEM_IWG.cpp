@@ -3118,8 +3118,6 @@ namespace moris::fem
                         this->compute_residual( tWStarPert );
 
                         // evaluate dRdpGeo
-                        Matrix< DDRMat >& tDrDpgeo = mSet->get_drdpgeo();
-                        print( tDrDpgeo, "mSet->get_drdpgeo()" );
                         mSet->get_drdpgeo()(
                                 { tResDofAssemblyStart, tResDofAssemblyStop },
                                 { tPdvAssemblyIndex, tPdvAssemblyIndex } ) +=

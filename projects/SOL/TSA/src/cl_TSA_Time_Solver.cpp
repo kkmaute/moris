@@ -479,8 +479,6 @@ void Time_Solver::solve_sensitivity()
     mFullVectorSensitivity( 0 )->vec_put_scalar( 0.0 );
     mFullVectorSensitivity( 1 )->vec_put_scalar( 0.0 );
 
-    std::cout << "need fix in Time_Solver::solve_sensitivity \n";
-
     mSolverInterface->set_adjoint_solution_vector( mFullVectorSensitivity( 0 ) );
     mSolverInterface->set_previous_adjoint_solution_vector( mFullVectorSensitivity( 1 ) );
 
@@ -493,8 +491,6 @@ void Time_Solver::solve_sensitivity()
     mTimeSolverAlgorithmList( 0 )->solve( mFullVectorSensitivity );
 
     // output solution vector to file
-    std::cout << "need fix in Time_Solver::solve_sensitivity - 2\n";
-
     if ( not mSolverWarehouse->get_save_final_adjoint_vec_to_file().empty() )
     {
         MORIS_ERROR( mSolverWarehouse->is_adjoint_sensitivity_analysis(), "not adjoint sensitivity analysis" );

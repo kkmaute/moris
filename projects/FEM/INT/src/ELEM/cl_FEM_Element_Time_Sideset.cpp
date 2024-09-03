@@ -241,8 +241,6 @@ namespace moris::fem
 
                 if ( mSet->mEquationModel->get_is_adjoint_off_diagonal_time_contribution() )
                 {
-                    std::cout << "need fix in Element_Time_Sideset::compute_jacobian \n";
-
                     tReqIWG->compute_jacobian_previous( tWStar );
                 }
                 else

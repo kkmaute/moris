@@ -255,8 +255,6 @@ namespace moris
             void
             set_adjoint_solution_vector( sol::Dist_Vector* aSolutionVector )
             {
-                std::cout << "need fix in set_adjoint_solution_vector \n";
-
                 mAdjointSolutionVector = aSolutionVector;
             }
 
@@ -268,8 +266,6 @@ namespace moris
             void
             set_previous_adjoint_solution_vector( sol::Dist_Vector* aSolutionVector )
             {
-                std::cout << "need fix in set_previous_adjoint_solution_vector \n";
-
                 mPreviousAdjointSolutionVector = aSolutionVector;
             }
 
@@ -281,8 +277,6 @@ namespace moris
             sol::Dist_Vector*
             get_adjoint_solution_vector()
             {
-                std::cout << "need fix in set_adjoint_solution_vector \n";
-
                 return mAdjointSolutionVector;
             }
 
@@ -294,8 +288,6 @@ namespace moris
             sol::Dist_Vector*
             get_previous_adjoint_solution_vector()
             {
-                std::cout << "need fix in get_previous_adjoint_solution_vector \n";
-
                 return mPreviousAdjointSolutionVector;
             }
 
@@ -484,8 +476,6 @@ namespace moris
             set_is_adjoint_off_diagonal_time_contribution(
                     const bool aIsOffDiagonalTimeContribution )
             {
-                std::cout << "need fix in set_is_adjoint_off_diagonal_time_contribution \n";
-
                 mIsOffDiagonalTimeContribution = aIsOffDiagonalTimeContribution;
             }
 
@@ -497,8 +487,6 @@ namespace moris
             bool
             get_is_adjoint_off_diagonal_time_contribution() const
             {
-                std::cout << "need fix in get_is_adjoint_off_diagonal_time_contribution \n";
-
                 return mIsOffDiagonalTimeContribution;
             }
 

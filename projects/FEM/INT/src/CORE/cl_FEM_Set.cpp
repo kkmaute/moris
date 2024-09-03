@@ -2218,8 +2218,6 @@ namespace moris::fem
                         {
                             if ( mEquationModel->get_is_adjoint_off_diagonal_time_contribution() )
                             {
-                                std::cout << "need fix in Set::create_requested_IWG_list \n";
-
                                 if ( mIWGs( iIWG )->get_IWG_type() == moris::fem::IWG_Type::TIME_CONTINUITY_DOF )
                                 {
                                     // add the IWg to the requested IWG list

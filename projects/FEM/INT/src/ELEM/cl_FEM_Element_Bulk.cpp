@@ -270,8 +270,7 @@ namespace moris::fem
         }
 
         // set physical and parametric space and time coefficients for IG element
-        Matrix< DDSMat > tGeoLocalAssembly;
-        this->init_ig_geometry_interpolator( tGeoLocalAssembly );
+        this->init_ig_geometry_interpolator();
 
         // loop over integration points
         uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -323,6 +322,9 @@ namespace moris::fem
                 if ( !mSet->mEquationModel->is_forward_analysis() &&    //
                         !mSet->mEquationModel->is_adjoint_sensitivity_analysis() )
                 {
+                    // just placeholder
+                    Matrix< DDSMat > tGeoLocalAssembly;
+
                     Vector< Matrix< IndexMat > > tVertexIndices( 0 );
                     ( this->*m_compute_dRdp )( tReqIWG, tWStar, tGeoLocalAssembly, tVertexIndices );
                 }

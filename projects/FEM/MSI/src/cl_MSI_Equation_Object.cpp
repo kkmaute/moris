@@ -672,8 +672,6 @@ namespace moris::MSI
             }
 
             // compute previous adjoint values
-            std::cout << "need fix in Equation_Object::get_equation_obj_off_diagonal_residual \n";
-
             this->compute_my_previous_adjoint_values();
 
             const Vector< enum MSI::Dof_Type >& tRequestedDofTypes = mEquationSet->get_requested_dof_types();
@@ -831,8 +829,6 @@ namespace moris::MSI
         // multiply RHS with T-matrix
         for ( uint Ik = 0; Ik < tNumRHS; Ik++ )
         {
-            print( tElementalResidual( Ik ), "tElementalResidual in dqdu" );
-
             aEqnObjRHS( Ik ) = tTMatrixTrans * tElementalResidual( Ik );
         }
     }
@@ -846,8 +842,6 @@ namespace moris::MSI
 
         if ( tAllSecDofTypes.size() != 0 )
         {
-            std::cout << "need fix in Equation_Object::add_staggered_contribution_to_residual \n";
-
             this->compute_my_adjoint_values();
         }
 
@@ -1197,8 +1191,6 @@ namespace moris::MSI
     void
     Equation_Object::compute_my_adjoint_values()
     {
-        std::cout << "need fix in Equation_Object::compute_my_adjoint_values \n";
-
         Matrix< DDRMat > tTMatrix;
 
         // build T-matrix
@@ -1207,8 +1199,6 @@ namespace moris::MSI
         Vector< Matrix< DDRMat > > tMyValues;
 
         // Extract this equation objects adof values from solution vector
-        std::cout << "need fix in Equation_Object::compute_my_adjoint_values - 1\n";
-
         mEquationSet->mEquationModel
                 ->get_adjoint_solution_vector()
                 ->extract_my_values( tTMatrix.n_cols(), mUniqueAdofList, 0, tMyValues );
@@ -1233,8 +1223,6 @@ namespace moris::MSI
     void
     Equation_Object::compute_my_previous_adjoint_values()
     {
-        std::cout << "need fix in Equation_Object::compute_my_previous_adjoint_values \n";
-
         Matrix< DDRMat > tTMatrix;
 
         // build T-matrix
@@ -1243,8 +1231,6 @@ namespace moris::MSI
         Vector< Matrix< DDRMat > > tMyValues;
 
         // Extract this equation objects adof values from solution vector
-        std::cout << "need fix in Equation_Object::compute_my_previous_adjoint_values -1 \n";
-
         mEquationSet->mEquationModel
                 ->get_previous_adjoint_solution_vector()
                 ->extract_my_values( tTMatrix.n_cols(), mUniqueAdofList, 0, tMyValues );

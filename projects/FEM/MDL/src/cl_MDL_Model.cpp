@@ -45,9 +45,6 @@
 
 #include "cl_Library_IO.hpp"
 
-// Parameter function
-// typedef void ( *Parameter_Function ) ( Vector< Vector< moris::ParameterList > > & aParameterList );
-
 namespace moris::mdl
 {
     //------------------------------------------------------------------------------

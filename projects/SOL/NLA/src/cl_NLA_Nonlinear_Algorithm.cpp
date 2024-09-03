@@ -41,8 +41,6 @@ void Nonlinear_Algorithm::set_linear_solver( dla::Linear_Solver* aLinSolver )
 
 void Nonlinear_Algorithm::set_linear_solver_for_adjoint_solve( dla::Linear_Solver* aLinSolver )
 {
-    std::cout << "need fix in Nonlinear_Algorithm::set_linear_solver_for_adjoint_solve \n";
-
     // Delete liner solver manager
     delete mLinSolverManagerForAdjoint;
 
