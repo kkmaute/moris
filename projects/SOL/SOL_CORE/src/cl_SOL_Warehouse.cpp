@@ -32,6 +32,9 @@
 
 #ifdef MORIS_HAVE_PETSC
 #include <petsc.h>
+#ifdef MORIS_HAVE_SLEPC
+#include <slepceps.h>
+#endif
 #endif
 
 #include "cl_Library_IO.hpp"
@@ -74,6 +77,9 @@ SOL_Warehouse::~SOL_Warehouse()
     if ( mTPLType == moris::sol::MapType::Petsc )
     {
         PetscFinalize();
+#ifdef MORIS_HAVE_SLEPC
+	SlepcFinalize();
+#endif
     }
 #endif
 
@@ -110,6 +116,10 @@ void SOL_Warehouse::initialize()
     if ( mTPLType == moris::sol::MapType::Petsc )
     {
         PetscInitializeNoArguments();
+#ifdef MORIS_HAVE_SLEPC
+	SlepcInitializeNoArguments();
+#endif
+    
     }
 #endif
 
