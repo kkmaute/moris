@@ -367,7 +367,7 @@ namespace moris::mig
     void
     Periodic_Mesh_Editor::construct_periodic_data_base(
             Vector< Vector< moris_index > >& aSideClusterToVertexIndices,
-            Matrix< DDRMat >                 aVerticesCoords,
+            const Matrix< DDRMat >&          aVerticesCoords,
             Vector< Vector< moris_index > >& aSideClusterToCells,
             Vector< Vector< moris_index > >& aCellToVertexIndices,
             Vector< moris_index >&           aSideClusterToIPCell,

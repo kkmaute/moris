@@ -42,23 +42,19 @@ void check_linear_results(moris::mtk::Exodus_IO_Helper & aExoIO,uint aNodeId)
         moris::print( aExoIO.get_nodal_coordinate( aNodeId ), "Coordinates of reference point");
 
         // time value for reference time step
-        std::cout << "Time value: " << std::scientific << std::setprecision(15) << aExoIO.get_time_value() << std::endl;
+        std::cout << "Time value: " << std::scientific << std::setprecision( 15 ) << aExoIO.get_time_value() << '\n';
 
         // solution of reference point at reference time step
-        std::cout << "X-Velocity at reference point: " << std::scientific << std::setprecision(15) <<
-                aExoIO.get_nodal_field_value( aNodeId, 2, 0 ) << std::endl;
-        std::cout << "X-Velocity at reference point: " << std::scientific << std::setprecision(15) <<
-                aExoIO.get_nodal_field_value( aNodeId, 3, 0 ) << std::endl;
-        std::cout << "Pressure at reference point: " << std::scientific << std::setprecision(15) <<
-                aExoIO.get_nodal_field_value( aNodeId, 4, 0 ) << std::endl;
-        std::cout << "Temperature at reference point: " << std::scientific << std::setprecision(15) <<
-                aExoIO.get_nodal_field_value( aNodeId, 5, 0 ) << std::endl;
+        std::cout << "X-Velocity at reference point: " << std::scientific << std::setprecision( 15 ) << aExoIO.get_nodal_field_value( aNodeId, 2, 0 ) << '\n';
+        std::cout << "X-Velocity at reference point: " << std::scientific << std::setprecision( 15 ) << aExoIO.get_nodal_field_value( aNodeId, 3, 0 ) << '\n';
+        std::cout << "Pressure at reference point: " << std::scientific << std::setprecision( 15 ) << aExoIO.get_nodal_field_value( aNodeId, 4, 0 ) << '\n';
+        std::cout << "Temperature at reference point: " << std::scientific << std::setprecision( 15 ) << aExoIO.get_nodal_field_value( aNodeId, 5, 0 ) << '\n';
 
         // value of IQI at reference time step
-        std::cout << "IQI - VX   value: " << std::scientific << std::setprecision(15) << aExoIO.get_global_variable(0, 0 ) << std::endl;
-        std::cout << "IQI - VY   value: " << std::scientific << std::setprecision(15) << aExoIO.get_global_variable(1, 0 ) << std::endl;
-        std::cout << "IQI - P    value: " << std::scientific << std::setprecision(15) << aExoIO.get_global_variable(2, 0 ) << std::endl;
-        std::cout << "IQI - TEMP value: " << std::scientific << std::setprecision(15) << aExoIO.get_global_variable(3, 0 ) << std::endl;
+        std::cout << "IQI - VX   value: " << std::scientific << std::setprecision( 15 ) << aExoIO.get_global_variable( 0, 0 ) << '\n';
+        std::cout << "IQI - VY   value: " << std::scientific << std::setprecision( 15 ) << aExoIO.get_global_variable( 1, 0 ) << '\n';
+        std::cout << "IQI - P    value: " << std::scientific << std::setprecision( 15 ) << aExoIO.get_global_variable( 2, 0 ) << '\n';
+        std::cout << "IQI - TEMP value: " << std::scientific << std::setprecision( 15 ) << aExoIO.get_global_variable( 3, 0 ) << '\n';
 
         return;
     }
@@ -128,9 +124,9 @@ void check_linear_results_serial()
 
     if (gPrintReferenceValues)
     {
-        std::cout << "Number of dimensions: " << tNumDims  << std::endl;
-        std::cout << "Number of nodes     : " << tNumNodes << std::endl;
-        std::cout << "Number of elements  : " << tNumElems << std::endl;
+        std::cout << "Number of dimensions: " << tNumDims << '\n';
+        std::cout << "Number of nodes     : " << tNumNodes << '\n';
+        std::cout << "Number of elements  : " << tNumElems << '\n';
     }
 
     REQUIRE( tNumDims  ==  2     );
@@ -158,9 +154,9 @@ void check_linear_results_parallel()
 
     if (gPrintReferenceValues)
     {
-        std::cout << "Number of dimensions: " << tNumDims  << std::endl;
-        std::cout << "Number of nodes     : " << tNumNodes << std::endl;
-        std::cout << "Number of elements  : " << tNumElems << std::endl;
+        std::cout << "Number of dimensions: " << tNumDims << '\n';
+        std::cout << "Number of nodes     : " << tNumNodes << '\n';
+        std::cout << "Number of elements  : " << tNumElems << '\n';
     }
     else
     {

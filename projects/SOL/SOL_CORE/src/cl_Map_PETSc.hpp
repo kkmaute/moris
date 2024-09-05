@@ -83,7 +83,7 @@ namespace moris
 
         // ---------------------------------------------------------------------------------------------------------------
 
-        ~Map_PETSc();
+        ~Map_PETSc() override;
 
         // ---------------------------------------------------------------------------------------------------------------
 
@@ -148,7 +148,7 @@ namespace moris
         // ---------------------------------------------------------------------------------------------------------------
 
         moris::sint
-        return_local_ind_of_global_Id( moris::uint aGlobalId ) const
+        return_local_ind_of_global_Id( moris::uint aGlobalId ) const override
         {
             MORIS_ERROR( false, "not implemented yet" );
 
@@ -160,18 +160,18 @@ namespace moris
         void
         build_dof_translator(
                 const Matrix< IdMat >& aFullMap,
-                const bool             aFlag )
+                const bool             aFlag ) override
         {
             MORIS_ERROR( false, "not implemented for petsc yet" );
         };
 
         // ---------------------------------------------------------------------------------------------------------------
 
-        virtual void
+        void
         translate_ids_to_free_point_ids(
                 const moris::Matrix< IdMat >& aIdsIn,
                 moris::Matrix< IdMat >&       aIdsOut,
-                const bool&                   aIsBuildGraph = true )
+                const bool&                   aIsBuildGraph = true ) override
         {
             MORIS_ERROR( false, "not implemented for petsc yet" );
         };
@@ -181,7 +181,7 @@ namespace moris
         void translate_ids_to_free_point_ids(
                 const Vector< sint >& aIdsIn,
                 Vector< sint >&       aIdsOut,
-                bool                  aIsBuildGraph = true )
+                bool                  aIsBuildGraph = true ) override
         {
             MORIS_ERROR( false, "not implemented for petsc yet" );
         }
@@ -189,13 +189,13 @@ namespace moris
         // ---------------------------------------------------------------------------------------------------------------
 
         void
-        print()
+        print() override
         {
             //AOView( mPETScMap, PETSC_VIEWER_STDOUT_WORLD );
         };
 
         AO
-        get_petsc_map()
+        get_petsc_map() override
         {
             AO tPetscMap;
               Matrix< DDSMat > tPetscIDs = mMorisIDsOwnedAndShared;
@@ -209,7 +209,7 @@ namespace moris
         }
 
         AO
-        get_petsc_map() const
+        get_petsc_map() const override
         {
                 AO tPetscMap;
                 Matrix< DDSMat > tPetscIDs = mMorisIDsOwnedAndShared;

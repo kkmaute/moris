@@ -19,13 +19,10 @@
 
 using namespace moris;
 
-namespace moris
+namespace moris::mtk
 {
-    namespace mtk
-    {
-        class Vertex;
+    class Vertex;
     }
-}    // namespace moris
 
 //------------------------------------------------------------------------------
 
@@ -95,27 +92,27 @@ namespace moris::xtk
         //------------------------------------------------------------------------------
 
         uint
-        get_level() const;
+        get_level() const override ;
 
         //------------------------------------------------------------------------------
 
         uint
-        get_number_of_vertices() const;
+        get_number_of_vertices() const override ;
 
         //------------------------------------------------------------------------------
 
         Vector< mtk::Vertex* >
-        get_vertex_pointers() const;
+        get_vertex_pointers() const override ;
 
         //------------------------------------------------------------------------------
 
         void
-        remove_vertex_pointer( moris_index aIndex );
+        remove_vertex_pointer( moris_index aIndex ) override ;
 
         //------------------------------------------------------------------------------
 
         Matrix< DDRMat >
-        get_vertex_coords() const;
+        get_vertex_coords() const override ;
 
         //------------------------------------------------------------------------------
 
@@ -125,12 +122,12 @@ namespace moris::xtk
         //------------------------------------------------------------------------------
 
         moris::mtk::Cell const *
-        get_base_cell() const;
+        get_base_cell() const override ;
 
         //------------------------------------------------------------------------------
 
         moris::mtk::Cell*
-        get_base_cell();
+        get_base_cell() override ;
 
         //------------------------------------------------------------------------------
         // End Mtk Interpolation Cell Implementation
@@ -200,12 +197,12 @@ namespace moris::xtk
 
         // memory
         size_t
-        capacity();
+        capacity() override ;
 
         //------------------------------------------------------------------------------
 
-        virtual const luint*
-        get_ijk() const
+        const luint*
+        get_ijk() const override 
         {
             return mBaseCell->get_ijk();
         }
@@ -231,12 +228,12 @@ namespace moris::xtk
            << " | Bulkphase: " << std::setw( 9 ) << dt.get_bulkphase_index();
 
         // vertex interpolation
-        std::cout << "\n Interpolation Cell Vertices:" << std::endl;
+        std::cout << "\n Interpolation Cell Vertices:" << '\n';
         Vector< xtk::Interpolation_Vertex_Unzipped* > const & tVertices = dt.get_xtk_interpolation_vertices();
 
         for ( moris::uint i = 0; i < tVertices.size(); i++ )
         {
-            os << "    " << *tVertices( i ) << std::endl;
+            os << "    " << *tVertices( i ) << '\n';
         }
 
         return os;

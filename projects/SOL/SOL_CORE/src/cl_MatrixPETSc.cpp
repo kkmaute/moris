@@ -91,7 +91,7 @@ Matrix_PETSc::Matrix_PETSc(
     PetscInt tNonZeros = 16;
 
     // Define sparsity structure
-    MatMPIAIJSetPreallocation( mPETScMat, tNonZeros, NULL, tNonZeros, NULL );
+    MatMPIAIJSetPreallocation( mPETScMat, tNonZeros, nullptr, tNonZeros, nullptr );
 
     // Finalize setup of matrix
     MatSetUp( mPETScMat );

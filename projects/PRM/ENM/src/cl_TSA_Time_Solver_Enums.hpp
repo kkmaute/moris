@@ -16,15 +16,12 @@
 #include "fn_enum_macros.hpp"
 #include "cl_Vector.hpp"
 
-namespace moris
+namespace moris::tsa
 {
-    namespace tsa
-    {
-        ENUM_MACRO( TimeSolverType,
-                MONOLITHIC,    //< Wrapper around Aztec Solver
-                STAGGERED,     //< Wrapper around Aztec Solver
-                END_ENUM )
-    }
+    ENUM_MACRO( TimeSolverType,
+            MONOLITHIC,    //< Wrapper around Aztec Solver
+            STAGGERED,     //< Wrapper around Aztec Solver
+            END_ENUM )
 }    // namespace moris
 
 #endif /* SRC_DISTLINALG_CL_TSA_TIME_SOLVER_ENUMS_HPP_ */

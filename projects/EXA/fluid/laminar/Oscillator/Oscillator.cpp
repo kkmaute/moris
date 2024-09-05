@@ -227,12 +227,12 @@ namespace moris
     {
         if ( par_rank() == 0 )
         {
-            std::cout << "===============================================================" << std::endl;
-            std::cout << "Reynolds number = " << moris_to_string( tReynolds ) << std::endl;
-            std::cout << "Time scale = " << moris_to_string( tTimeScale ) << std::endl;
-            std::cout << "Effective viscosity = " << tMu << std::endl;
-            std::cout << "Effective density = " << tRho << std::endl;
-            std::cout << "===============================================================" << std::endl;
+            std::cout << "===============================================================" << '\n';
+            std::cout << "Reynolds number = " << moris_to_string( tReynolds ) << '\n';
+            std::cout << "Time scale = " << moris_to_string( tTimeScale ) << '\n';
+            std::cout << "Effective viscosity = " << tMu << '\n';
+            std::cout << "Effective density = " << tRho << '\n';
+            std::cout << "===============================================================" << '\n';
         }
 
         // create a cell of cell of parameter list for fem
@@ -528,8 +528,8 @@ namespace moris
         // ----------------------------------------------------------
 
         tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
-        tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_solver", 0 );
-        tParameterlist( 4 )( 0 ).set( "TSA_nonlinear_solver_for_adjoint_solve", 0 );
+        tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_Solver", 0 );
+        tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_Sensitivity_Solver", 0 );
         if ( tUseTimeContinuity )
         {
             tParameterlist( 4 )( 0 ).set( "TSA_Num_Time_Steps", tTimeSteps );

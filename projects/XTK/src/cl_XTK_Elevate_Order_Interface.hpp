@@ -13,13 +13,10 @@
 
 #include "cl_XTK_Decomposition_Algorithm.hpp"
 
-namespace moris
+namespace moris::mtk
 {
-    namespace mtk
-    {
-        class Mesh;
+    class Mesh;
     }
-}    // namespace moris
 
 namespace moris::xtk
 {
@@ -132,19 +129,19 @@ namespace moris::xtk
         TRI3_to_TRI6() {}
 
         uint
-        get_num_new_nodes() const
+        get_num_new_nodes() const override
         {
             return 3;
         }
 
         uint
-        get_total_ig_verts() const
+        get_total_ig_verts() const override
         {
             return 6;
         }
 
         bool
-        has_new_vertices_on_entity( mtk::EntityRank aEntityRank ) const
+        has_new_vertices_on_entity( mtk::EntityRank aEntityRank ) const override
         {
             switch ( aEntityRank )
             {
@@ -179,7 +176,7 @@ namespace moris::xtk
         }
 
         uint
-        num_new_vertices_per_entity( mtk::EntityRank aEntityRank ) const
+        num_new_vertices_per_entity( mtk::EntityRank aEntityRank ) const override
         {
             switch ( aEntityRank )
             {
@@ -214,7 +211,7 @@ namespace moris::xtk
         }
 
         Vector< Matrix< DDRMat > >
-        get_new_vertex_parametric_coords_wrt_entity( mtk::EntityRank aEntityRank ) const
+        get_new_vertex_parametric_coords_wrt_entity( mtk::EntityRank aEntityRank ) const override
         {
             switch ( aEntityRank )
             {
@@ -251,19 +248,19 @@ namespace moris::xtk
         }
 
         mtk::CellTopology
-        get_ig_cell_topology() const
+        get_ig_cell_topology() const override
         {
             return mtk::CellTopology::TRI6;
         }
 
         uint
-        get_num_spatial_dims() const
+        get_num_spatial_dims() const override
         {
             return 2;
         }
 
         moris_index
-        get_local_vertex_index( mtk::EntityRank aEntityRank, moris_index aSignedLocalEntityIndex, moris_index aVertexIndexOnEntity ) const
+        get_local_vertex_index( mtk::EntityRank aEntityRank, moris_index aSignedLocalEntityIndex, moris_index aVertexIndexOnEntity ) const override
         {
             switch ( aEntityRank )
             {
@@ -317,7 +314,7 @@ namespace moris::xtk
         }
 
         moris_index
-        get_local_edge_index_based_on_vertex_indices( moris_index aFirstLocalVertexIndex, moris_index aSecondLocalVertexIndex ) const
+        get_local_edge_index_based_on_vertex_indices( moris_index aFirstLocalVertexIndex, moris_index aSecondLocalVertexIndex ) const override
         {
             // check if input makes sense
             MORIS_ASSERT( aFirstLocalVertexIndex != aSecondLocalVertexIndex,
@@ -343,19 +340,19 @@ namespace moris::xtk
         TET4_to_TET10() {}
 
         uint
-        get_num_new_nodes() const
+        get_num_new_nodes() const override
         {
             return 6;
         }
 
         uint
-        get_total_ig_verts() const
+        get_total_ig_verts() const override
         {
             return 10;
         }
 
         bool
-        has_new_vertices_on_entity( mtk::EntityRank aEntityRank ) const
+        has_new_vertices_on_entity( mtk::EntityRank aEntityRank ) const override
         {
             switch ( aEntityRank )
             {
@@ -390,7 +387,7 @@ namespace moris::xtk
         }
 
         uint
-        num_new_vertices_per_entity( mtk::EntityRank aEntityRank ) const
+        num_new_vertices_per_entity( mtk::EntityRank aEntityRank ) const override
         {
             switch ( aEntityRank )
             {
@@ -425,7 +422,7 @@ namespace moris::xtk
         }
 
         Vector< Matrix< DDRMat > >
-        get_new_vertex_parametric_coords_wrt_entity( mtk::EntityRank aEntityRank ) const
+        get_new_vertex_parametric_coords_wrt_entity( mtk::EntityRank aEntityRank ) const override
         {
             switch ( aEntityRank )
             {
@@ -462,19 +459,19 @@ namespace moris::xtk
         }
 
         mtk::CellTopology
-        get_ig_cell_topology() const
+        get_ig_cell_topology() const override
         {
             return mtk::CellTopology::TET10;
         }
 
         uint
-        get_num_spatial_dims() const
+        get_num_spatial_dims() const override
         {
             return 3;
         }
 
         moris_index
-        get_local_vertex_index( mtk::EntityRank aEntityRank, moris_index aSignedLocalEntityIndex, moris_index aVertexIndexOnEntity ) const
+        get_local_vertex_index( mtk::EntityRank aEntityRank, moris_index aSignedLocalEntityIndex, moris_index aVertexIndexOnEntity ) const override
         {
             switch ( aEntityRank )
             {
@@ -531,7 +528,7 @@ namespace moris::xtk
         }
 
         moris_index
-        get_local_edge_index_based_on_vertex_indices( moris_index aFirstLocalVertexIndex, moris_index aSecondLocalVertexIndex ) const
+        get_local_edge_index_based_on_vertex_indices( moris_index aFirstLocalVertexIndex, moris_index aSecondLocalVertexIndex ) const override
         {
             // check if input makes sense
             MORIS_ASSERT( aFirstLocalVertexIndex != aSecondLocalVertexIndex,
@@ -558,19 +555,19 @@ namespace moris::xtk
         TRI3_to_TRI10() {}
 
         uint
-        get_num_new_nodes() const
+        get_num_new_nodes() const override
         {
             return 7;
         }
 
         uint
-        get_total_ig_verts() const
+        get_total_ig_verts() const override
         {
             return 10;
         }
 
         bool
-        has_new_vertices_on_entity( mtk::EntityRank aEntityRank ) const
+        has_new_vertices_on_entity( mtk::EntityRank aEntityRank ) const override
         {
             switch ( aEntityRank )
             {
@@ -605,7 +602,7 @@ namespace moris::xtk
         }
 
         uint
-        num_new_vertices_per_entity( mtk::EntityRank aEntityRank ) const
+        num_new_vertices_per_entity( mtk::EntityRank aEntityRank ) const override
         {
             switch ( aEntityRank )
             {
@@ -640,7 +637,7 @@ namespace moris::xtk
         }
 
         Vector< Matrix< DDRMat > >
-        get_new_vertex_parametric_coords_wrt_entity( mtk::EntityRank aEntityRank ) const
+        get_new_vertex_parametric_coords_wrt_entity( mtk::EntityRank aEntityRank ) const override
         {
             switch ( aEntityRank )
             {
@@ -680,13 +677,13 @@ namespace moris::xtk
         }
 
         mtk::CellTopology
-        get_ig_cell_topology() const
+        get_ig_cell_topology() const override
         {
             return mtk::CellTopology::TRI10;
         }
 
         uint
-        get_num_spatial_dims() const
+        get_num_spatial_dims() const override
         {
             return 2;
         }
@@ -714,20 +711,20 @@ namespace moris::xtk
       public:
         Elevate_Order_Interface( Parameter_List& aParameterList, enum Subdivision_Method aSubdivisionMethod );
 
-        ~Elevate_Order_Interface() {}
+        ~Elevate_Order_Interface() override {}
 
-        moris_index get_signature() const;
+        moris_index get_signature() const override;
 
-        enum Decomposition_Algorithm_Type get_algorithm_type() const;
+        enum Decomposition_Algorithm_Type get_algorithm_type() const override;
 
-        bool has_geometric_independent_vertices() const;
+        bool has_geometric_independent_vertices() const override;
 
         void perform(
                 Integration_Mesh_Generation_Data* aMeshGenerationData,
                 Decomposition_Data*               aDecompositionData,
                 Cut_Integration_Mesh*             aCutIntegrationMesh,
                 moris::mtk::Mesh*                 aBackgroundMesh,
-                Integration_Mesh_Generator*       aMeshGenerator );
+                Integration_Mesh_Generator*       aMeshGenerator ) override;
 
         void
         perform_impl_vertex_requests(
@@ -735,7 +732,7 @@ namespace moris::xtk
                 Decomposition_Data*               aDecompositionData,
                 Cut_Integration_Mesh*             aCutIntegrationMesh,
                 moris::mtk::Mesh*                 aBackgroundMesh,
-                Integration_Mesh_Generator*       aMeshGenerator )
+                Integration_Mesh_Generator*       aMeshGenerator ) override
         {
             MORIS_ERROR( false, "Elevate_Order_Interface::perform_impl_vertex_requests() - This virtual function is not implemented in this Child Class." );
         }
@@ -746,7 +743,7 @@ namespace moris::xtk
                 Decomposition_Data*               aDecompositionData,
                 Cut_Integration_Mesh*             aCutIntegrationMesh,
                 moris::mtk::Mesh*                 aBackgroundMesh,
-                Integration_Mesh_Generator*       aMeshGenerator )
+                Integration_Mesh_Generator*       aMeshGenerator ) override
         {
             MORIS_ERROR( false, "Elevate_Order_Interface::perform_impl_generate_mesh() - This virtual function is not implemented in this Child Class." );
         }
@@ -756,24 +753,24 @@ namespace moris::xtk
       private:
         bool
         make_vertex_requests(
-                std::shared_ptr< Edge_Based_Connectivity > aEdgeConnectivity,
-                std::shared_ptr< Edge_Based_Ancestry >     aIgEdgeAncestry,
-                Vector< moris::mtk::Cell* >*               aIgCells,
-                Vector< Vector< moris_index > >*           aCellToNewLocalVertexIndices );
+                const std::shared_ptr< Edge_Based_Connectivity >& aEdgeConnectivity,
+                const std::shared_ptr< Edge_Based_Ancestry >&     aIgEdgeAncestry,
+                Vector< moris::mtk::Cell* >*                      aIgCells,
+                Vector< Vector< moris_index > >*                  aCellToNewLocalVertexIndices );
 
         bool
         associate_new_vertices_with_cell_groups(
-                std::shared_ptr< Edge_Based_Connectivity > aEdgeConnectivity,
-                std::shared_ptr< Edge_Based_Ancestry >     aIgEdgeAncestry,
-                Vector< moris::mtk::Cell* >*               aBackgroundCellForEdge,
-                Vector< moris::mtk::Cell* >*               aIgCells );
+                const std::shared_ptr< Edge_Based_Connectivity >& aEdgeConnectivity,
+                const std::shared_ptr< Edge_Based_Ancestry >&     aIgEdgeAncestry,
+                Vector< moris::mtk::Cell* >*                      aBackgroundCellForEdge,
+                Vector< moris::mtk::Cell* >*                      aIgCells );
 
         void
         create_higher_order_integration_cells(
-                std::shared_ptr< Edge_Based_Connectivity > aEdgeConnectivity,
-                std::shared_ptr< Edge_Based_Ancestry >     aIgEdgeAncestry,
-                Vector< moris::mtk::Cell* >*               aIgCells,
-                Vector< Vector< moris_index > >*           aCellToNewLocalVertexIndices );
+                const std::shared_ptr< Edge_Based_Connectivity >& aEdgeConnectivity,
+                const std::shared_ptr< Edge_Based_Ancestry >&     aIgEdgeAncestry,
+                Vector< moris::mtk::Cell* >*                      aIgCells,
+                Vector< Vector< moris_index > >*                  aCellToNewLocalVertexIndices );
 
         // -------------------------------------------------------------------------
 
@@ -812,10 +809,10 @@ namespace moris::xtk
         compute_edge_vertex_global_coordinates( Vector< moris::mtk::Vertex* > const & aEdgeVertices, Matrix< DDRMat > aEdgeCoord );
 
         Matrix< DDRMat >
-        compute_tri_vertex_global_coordinates( Vector< moris::mtk::Vertex* > const & aTriVertices, Matrix< DDRMat > aTriCoords );
+        compute_tri_vertex_global_coordinates( Vector< moris::mtk::Vertex* > const & aTriVertices, const Matrix< DDRMat >& aTriCoords );
 
         Matrix< DDRMat >
-        compute_tet_vertex_global_coordinates( Vector< moris::mtk::Vertex* > const & aTetVertices, Matrix< DDRMat > aTetCoords );
+        compute_tet_vertex_global_coordinates( Vector< moris::mtk::Vertex* > const & aTetVertices, const Matrix< DDRMat >& aTetCoords );
     };
 
 }    // namespace moris::xtk

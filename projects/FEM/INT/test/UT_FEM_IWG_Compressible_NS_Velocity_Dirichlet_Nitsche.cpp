@@ -482,7 +482,7 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Ideal",
                         // print for debug
                         if( !tCheckJacobian )
                         {
-                            std::cout<<"Case: Residual DoF type " << iResDofType << " Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<"iGP "<<iGP<<std::endl;
+                            std::cout << "Case: Residual DoF type " << iResDofType << " Geometry " << iSpaceDim << " Order " << iInterpOrder << "iGP " << iGP << '\n';
                         }
 
                         // require check is true
@@ -936,7 +936,7 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_VdW",
                         // print for debug
                         if( !tCheckJacobian )
                         {
-                            std::cout<<"Case: Residual DoF type " << iResDofType << " Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<"iGP "<<iGP<<std::endl;
+                            std::cout << "Case: Residual DoF type " << iResDofType << " Geometry " << iSpaceDim << " Order " << iInterpOrder << "iGP " << iGP << '\n';
                         }
 
                         // require check is true
@@ -1385,7 +1385,7 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Ideal_Select",
                         // print for debug
                         if( !tCheckJacobian )
                         {
-                            std::cout<<"Case: Residual DoF type " << iResDofType << " Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<"iGP "<<iGP<<std::endl;
+                            std::cout << "Case: Residual DoF type " << iResDofType << " Geometry " << iSpaceDim << " Order " << iInterpOrder << "iGP " << iGP << '\n';
                         }
 
                         // require check is true

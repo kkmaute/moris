@@ -67,7 +67,7 @@ namespace moris::mtk
     }
 
     std::map< Contact_Mesh_Editor::CellPair, Contact_Mesh_Editor::ResultIndices >
-    Contact_Mesh_Editor::extract_cell_pairing( MappingResult const &aMappingResult, Vector< moris_index > aResultIndices )
+    Contact_Mesh_Editor::extract_cell_pairing( MappingResult const &aMappingResult, const Vector< moris_index > &aResultIndices )
     {
         std::map< Contact_Mesh_Editor::CellPair, Contact_Mesh_Editor::ResultIndices > tCellPairs;
         for ( auto const &tResultIndex : aResultIndices )
@@ -305,7 +305,7 @@ namespace moris::mtk
         };
     }
 
-    Vector< MappingResult > Contact_Mesh_Editor::perform_mapping( Matrix< DDRMat > aPointsToMap ) const
+    Vector< MappingResult > Contact_Mesh_Editor::perform_mapping( const Matrix< DDRMat > &aPointsToMap ) const
     {
         Tracer tTracer( "Contact Mesh Editor", "Update", "Perform Mapping" );
         // get all possible source side sets that have been specified in the candidate pairings

@@ -25,10 +25,8 @@
 #undef protected
 #undef private
 
-namespace moris
+namespace moris::MSI
 {
-    namespace MSI
-    {
     TEST_CASE("Eqn_Obj","[MSI],[Eqn_Obj]")
     {
         // Create node obj
@@ -555,5 +553,3 @@ namespace moris
     }
 
     }
-}
-

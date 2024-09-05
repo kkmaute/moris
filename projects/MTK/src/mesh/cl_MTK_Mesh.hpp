@@ -63,14 +63,14 @@ namespace moris
             /**
              * trivial constructor
              */
-            Mesh_OLD(){};
+            Mesh_OLD() {};
 
             //------------------------------------------------------------------------------
 
             /**
              * virtual destructor
              */
-            virtual ~Mesh_OLD(){};
+            virtual ~Mesh_OLD() {};
 
             // ##############################################
             //  1.) General mesh information access
@@ -174,7 +174,7 @@ namespace moris
                 for ( luint Ik = 0; Ik < aSidesetOrdinalList.size(); ++Ik )
                 {
                     // get the treated sideset name
-                    std::string tTreatedSideset = tSideSetsNames( aSidesetOrdinalList( Ik ) );
+                    const std::string& tTreatedSideset = tSideSetsNames( aSidesetOrdinalList( Ik ) );
 
                     // get the sideset face indices
                     Matrix< IndexMat > tSideSetElementInd = this->get_set_entity_loc_inds( EntityRank::FACE, tTreatedSideset );
@@ -628,8 +628,9 @@ namespace moris
             }
 
             virtual Matrix< IndexMat >
-            get_set_entity_loc_inds( enum EntityRank aSetEntityRank,
-                    std::string                      aSetName ) const
+            get_set_entity_loc_inds(
+                    enum EntityRank    aSetEntityRank,
+                    const std::string& aSetName ) const
             {
                 MORIS_ERROR( 0, " get_set_entity_ids has no base implementation" );
                 return Matrix< IndexMat >( 0, 0 );

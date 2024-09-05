@@ -16,68 +16,65 @@
 #include "linalg_typedefs.hpp"    //LNA/src
 #include "cl_MTK_Enums.hpp"       //MTK/src
 
-namespace moris
+namespace moris::mtk
 {
-    namespace mtk
+
+    //------------------------------------------------------------------------------
+
+    class Integration_Coeffs_Base
     {
 
         //------------------------------------------------------------------------------
 
-        class Integration_Coeffs_Base
-        {
+      public:
+        //------------------------------------------------------------------------------
 
-            //------------------------------------------------------------------------------
-
-          public:
-            //------------------------------------------------------------------------------
-
-            /* trivial constructor */
-            Integration_Coeffs_Base(){};
-
-            //------------------------------------------------------------------------------
-
-            /* trivial destructor */
-            virtual ~Integration_Coeffs_Base(){};
-
-            //------------------------------------------------------------------------------
-
-            /**
-             * returns the number of dimensions
-             */
-            virtual uint
-            get_number_of_dimensions() = 0;
-
-            //------------------------------------------------------------------------------
-
-            /**
-             * returns the number of points
-             */
-            virtual uint
-            get_number_of_points() = 0;
-
-            //------------------------------------------------------------------------------
-
-            /**
-             * returns the integration weights
-             *
-             * @param[ in ] aIntegrationWeights
-             */
-            virtual void get_weights( Matrix< DDRMat > &aIntegrationWeights ) = 0;
-
-            //------------------------------------------------------------------------------
-
-            /**
-             * writes the integration points into given Mat
-             *
-             * @param[ in ] aIntegrationPoints
-             */
-            virtual void get_points( Matrix< DDRMat > &aIntegrationPoints ) = 0;
-
-            //------------------------------------------------------------------------------
-        };
+        /* trivial constructor */
+        Integration_Coeffs_Base(){};
 
         //------------------------------------------------------------------------------
-    } /* namespace mtk */
-} /* namespace moris */
+
+        /* trivial destructor */
+        virtual ~Integration_Coeffs_Base(){};
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * returns the number of dimensions
+         */
+        virtual uint
+        get_number_of_dimensions() = 0;
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * returns the number of points
+         */
+        virtual uint
+        get_number_of_points() = 0;
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * returns the integration weights
+         *
+         * @param[ in ] aIntegrationWeights
+         */
+        virtual void get_weights( Matrix< DDRMat > &aIntegrationWeights ) = 0;
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * writes the integration points into given Mat
+         *
+         * @param[ in ] aIntegrationPoints
+         */
+        virtual void get_points( Matrix< DDRMat > &aIntegrationPoints ) = 0;
+
+        //------------------------------------------------------------------------------
+    };
+
+    //------------------------------------------------------------------------------
+}    // namespace moris::mtk
 
 #endif /* SRC_MTK_CL_MTK_INTEGRATION_COEFFS_BASE_HPP_ */

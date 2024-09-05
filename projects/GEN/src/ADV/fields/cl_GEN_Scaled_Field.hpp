@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include <utility>
+
 #include "cl_GEN_Field.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 
@@ -18,10 +20,10 @@ namespace moris::gen
     class Scaled_Field : public Field
     {
 
-    private:
+      private:
         std::shared_ptr< Field > mField;
 
-    public:
+      public:
         /**
          * Constructor
          *
@@ -36,7 +38,7 @@ namespace moris::gen
                 std::shared_ptr< Field > aField,
                 ADV_ARG_TYPES )
                 : Field( ADV_ARGS )
-                , mField( aField )
+                , mField( std::move( aField ) )
         {
             VARIABLE_CHECK( 1 );
             MORIS_ERROR( mField, "A scaled field must be given an input field." );
@@ -84,7 +86,7 @@ namespace moris::gen
          * @param aCoordinates Node coordinates
          * @return Vector of sensitivities
          */
-        const Matrix<DDRMat>& get_dfield_dadvs(
+        const Matrix< DDRMat >& get_dfield_dadvs(
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates ) override;
 
@@ -119,7 +121,7 @@ namespace moris::gen
          * @param aNodeManager Node manager
          */
         void get_determining_adv_ids(
-                Vector< sint >&   aDeterminingADVIDs,
+                Vector< sint >&     aDeterminingADVIDs,
                 const Derived_Node& aDerivedNode,
                 const Node_Manager& aNodeManager ) override;
 
@@ -131,7 +133,7 @@ namespace moris::gen
          * @param aCoordinates Vector of coordinate values
          * @param aSensitivities Sensitivities to be filled with d(field value)/d(coordinate_j)
          */
-        virtual void get_dfield_dcoordinates(
+        void get_dfield_dcoordinates(
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates,
                 Matrix< DDRMat >&       aSensitivities ) override;
@@ -141,7 +143,7 @@ namespace moris::gen
          *
          * @param aDependencyFields Fields that this field depends on.
          */
-        void update_dependencies( Vector< std::shared_ptr< Field > > aDependencyFields ) override;
+        void update_dependencies( const Vector< std::shared_ptr< Field > >& aUpdatedFields ) override;
 
         /**
          * Gets an MTK field, if this field needs to be remapped to a new mesh
@@ -149,6 +151,5 @@ namespace moris::gen
          * @return MTK field
          */
         std::shared_ptr< mtk::Field > get_mtk_field() override;
-
     };
-}
+}    // namespace moris::gen

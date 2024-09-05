@@ -79,6 +79,7 @@ namespace moris
             MSI::Design_Variable_Interface* mDesignVariableInterface = nullptr;
 
             bool mIsForwardAnalysis             = true;
+            bool mIsAdjointSensitivityAnalysis  = true;
             bool mIsOffDiagonalTimeContribution = false;
 
             moris::sint mNumSensitivityAnalysisRHS = -1;
@@ -94,7 +95,7 @@ namespace moris
             /**
              * constructor
              */
-            Equation_Model(){};
+            Equation_Model() {};
 
             //------------------------------------------------------------------------------
             /**
@@ -413,11 +414,12 @@ namespace moris
              * @brief indicated that this equation model is used for the sensitivity analysis
              */
             void
-            set_is_sensitivity_analysis()
+            set_sensitivity_analysis_type( bool tIsAdjointSensitivityAnalysis )
             {
                 this->reset();
 
-                mIsForwardAnalysis = false;
+                mIsForwardAnalysis            = false;
+                mIsAdjointSensitivityAnalysis = tIsAdjointSensitivityAnalysis;
             }
 
             //------------------------------------------------------------------------------
@@ -450,9 +452,20 @@ namespace moris
              * @returns mIsForwardAnalysis bool true if forward analysis
              */
             bool
-            get_is_forward_analysis() const
+            is_forward_analysis() const
             {
                 return mIsForwardAnalysis;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * @brief returns if adjoint sensitivity analysis is used; if not it is direct
+             * @returns mIsForwardAnalysis bool true if forward analysis
+             */
+            bool
+            is_adjoint_sensitivity_analysis() const
+            {
+                return mIsAdjointSensitivityAnalysis;
             }
 
             //------------------------------------------------------------------------------
@@ -487,13 +500,13 @@ namespace moris
             /**
              * compute implicit dQidp
              */
-            void compute_implicit_dQIdp();
+            //            void compute_implicit_dQIdp();
 
             //------------------------------------------------------------------------------
             /**
              * compute explicit dQidp
              */
-            void compute_explicit_dQIdp();
+            //            void compute_explicit_dQIdp();
 
             //------------------------------------------------------------------------------
             /**

@@ -265,7 +265,7 @@ namespace moris::xtk
         {
             std::string &tKey = tFirst( k );
 
-            std::cout << "key = " << tKey << std::endl;
+            std::cout << "key = " << tKey << '\n';
 
             if ( tKey == "dump_obj" )
             {
@@ -278,7 +278,7 @@ namespace moris::xtk
 
             else if ( tKey == "obj_file" )
             {
-                std::cout << "here" << std::endl;
+                std::cout << "here" << '\n';
                 mXTKProblems( aProblemIndex ).mobjOutputFile = tSecond( k );
             }
 

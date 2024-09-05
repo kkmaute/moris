@@ -122,8 +122,25 @@ namespace moris
             std::string         aExternalParameterName,
             Parameter_List_Type aExternalParameterListType,
             uint                aExternalParameterListIndex )
-            : Parameter( std::string( aString ), aExternalValidationType, std::move( aExternalParameterName ), aExternalParameterListType, aExternalParameterListIndex )
+            : Parameter( std::string( aString ),
+                      aExternalValidationType,
+                      std::move( aExternalParameterName ),
+                      aExternalParameterListType,
+                      aExternalParameterListIndex )
     {
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    template<>
+    void Parameter::set_value(
+            const std::string&  aParameterName,
+            const char* const & aParameterValue,
+            bool                aLockValue )
+    {
+        this->set_value( aParameterName,
+                std::string( aParameterValue ),
+                aLockValue );
     }
 
     //--------------------------------------------------------------------------------------------------------------

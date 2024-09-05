@@ -60,7 +60,7 @@ namespace moris
             // TSA_Solver_Interface_Proxy_( std::shared_ptr< Nonlinear_Solver > aNewtonSolver ){};
 
             // ----------------------------------------------------------------------------------------------
-            ~TSA_Solver_Interface_Proxy() override{};
+            ~TSA_Solver_Interface_Proxy() override {};
 
             // ----------------------------------------------------------------------------------------------
 
@@ -74,7 +74,7 @@ namespace moris
 
             void set_solution_vector_prev_time_step( sol::Dist_Vector* aSolutionVector ) override;
 
-            void free_block_memory( const uint aBlockInd ) override{};
+            void free_block_memory( const uint aBlockInd ) override {};
 
             void
             set_time( const Matrix< DDRMat >& aTime ) override
@@ -82,7 +82,7 @@ namespace moris
                 mT = aTime;
             }
 
-            void compute_IQI() override{};
+            void compute_IQI() override {};
 
             void
             set_previous_time( const Matrix< DDRMat >& aTime ) override
@@ -92,7 +92,7 @@ namespace moris
             // ----------------------------------------------------------------------------------------------
 
             void
-            set_requested_dof_types( const Vector< enum MSI::Dof_Type > aListOfDofTypes ) override
+            set_requested_dof_types( const Vector< enum MSI::Dof_Type >& aListOfDofTypes ) override
             {
                 mListOfDofTypes = aListOfDofTypes;
             };
@@ -104,7 +104,7 @@ namespace moris
             };
 
             void
-            set_secondary_dof_types( const Vector< enum MSI::Dof_Type > aListOfDofTypes ) override
+            set_secondary_dof_types( const Vector< enum MSI::Dof_Type >& aListOfDofTypes ) override
             {
                 mListSecondaryOfDofTypes = aListOfDofTypes;
             };
@@ -160,7 +160,7 @@ namespace moris
             // ----------------------------------------------------------------------------------------------
 
             moris::Matrix< DDSMat >
-            get_my_local_global_overlapping_map( const Vector< enum MSI::Dof_Type >& aListOfDofTypes )
+            get_my_local_global_overlapping_map( const Vector< enum MSI::Dof_Type >& aListOfDofTypes ) override
             {
                 mMyGlobalElementsOverlapping.resize( 2, 1 );
                 mMyGlobalElementsOverlapping( 0, 0 ) = 0;
@@ -269,7 +269,7 @@ namespace moris
                 }
                 else
                 {
-                    return NULL;
+                    return nullptr;
                 }
             };
 

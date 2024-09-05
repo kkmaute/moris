@@ -14,37 +14,35 @@
 //LINALG/src
 #include "fn_trans.hpp"
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+
+    //------------------------------------------------------------------------------
+
+    IWG_Incompressible_NS_Pressure_Interface::IWG_Incompressible_NS_Pressure_Interface( sint aBeta )
     {
+        // set mBeta for symmetric/skew symmetric Nitsche
+        mBeta = aBeta;
 
-        //------------------------------------------------------------------------------
+        // set size for the constitutive model pointer cell
+        mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+        mFollowerCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
-        IWG_Incompressible_NS_Pressure_Interface::IWG_Incompressible_NS_Pressure_Interface( sint aBeta )
-        {
-            // set mBeta for symmetric/skew symmetric Nitsche
-            mBeta = aBeta;
+        // populate the constitutive map
+        mConstitutiveMap[ "IncompressibleFluid" ] = static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE );
 
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
-            mFollowerCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+        // set size for the stabilization parameter pointer cell
+        mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
 
-            // populate the constitutive map
-            mConstitutiveMap[ "IncompressibleFluid" ] = static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE );
+        // populate the stabilization map
+        mStabilizationMap[ "NitscheInterface" ] = static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE );
+    }
 
-            // set size for the stabilization parameter pointer cell
-            mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
+    //------------------------------------------------------------------------------
 
-            // populate the stabilization map
-            mStabilizationMap[ "NitscheInterface" ] = static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE );
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IWG_Incompressible_NS_Pressure_Interface::compute_residual( real aWStar )
-        {
-            // check leader field interpolators
+    void IWG_Incompressible_NS_Pressure_Interface::compute_residual( real aWStar )
+    {
+        // check leader field interpolators
 #ifdef MORIS_HAVE_DEBUG
             this->check_field_interpolators();
 #endif
@@ -285,6 +283,4 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
-
+}    // namespace moris::fem

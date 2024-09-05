@@ -243,7 +243,7 @@ namespace moris::fem
         for ( uint iSP = 0; iSP < tNumSPs; iSP++ )
         {
             // get the SP parameter
-            Parameter_List tSPParameter = tSPParameterList( iSP );
+            const Parameter_List &tSPParameter = tSPParameterList( iSP );
 
             // get the stabilization type from parameter list
             fem::Stabilization_Type tSPType = tSPParameter.get< fem::Stabilization_Type >( "stabilization_type" );
@@ -374,7 +374,7 @@ namespace moris::fem
         for ( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
         {
             // get the treated IWG parameter list
-            Parameter_List const tIWGParameter = tIWGParameterList( iIWG );
+            Parameter_List const &tIWGParameter = tIWGParameterList( iIWG );
 
             auto const tIWGType = tIWGParameter.get< fem::IWG_Type >( "IWG_type" );
 
@@ -637,7 +637,7 @@ namespace moris::fem
         for ( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
         {
             // get the treated IQI parameter list
-            Parameter_List tIQIParameter = tIQIParameterList( iIQI );
+            const Parameter_List &tIQIParameter = tIQIParameterList( iIQI );
 
             // get name from parameter list
             std::string tIQIName = tIQIParameter.get< std::string >( "IQI_name" );

@@ -60,7 +60,7 @@ namespace moris
     //------------------------------------------------------------------------------------------------------------------
 
     std::string
-    Library_IO::convert_to_absolute_file_path( const std::string aFilePath )
+    Library_IO::convert_to_absolute_file_path( const std::string& aFilePath )
     {
         // check the first letter of file path
         if ( aFilePath.at( 0 ) == '/' )    // this is already an absolute path
@@ -186,7 +186,9 @@ namespace moris
     //------------------------------------------------------------------------------------------------------------------
 
     void
-    Library_IO::load_parameter_list( std::string aFileName, File_Type aFileType )
+    Library_IO::load_parameter_list(
+            const std::string& aFileName,
+            File_Type          aFileType )
     {
         // check that this library has not been fully initialized yet and isn't locked
         MORIS_ERROR( !mLibraryIsFinalized,
@@ -448,12 +450,12 @@ namespace moris
             mParameterLists( iParamListType ) = tParameterList;
         }
     }
-    
+
 
     //------------------------------------------------------------------------------------------------------------------
 
     void
-    Library_IO::print_parameter_receipt( const std::string aOutputFileName )
+    Library_IO::print_parameter_receipt( const std::string& aOutputFileName )
     {
         // initialize the xml writer by defining the root
         mXmlWriter->initialize_write( aOutputFileName );

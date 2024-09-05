@@ -90,14 +90,14 @@ tFIDerDvFunction_UTIWGDIFFBULK(
 
 inline Vector< bool >
 test_IWG_Diffusion_Bulk(
-        Matrix< DDRMat >        aXHat,
-        Matrix< DDRMat >        aTHat,
-        mtk::Interpolation_Rule aGIRule,
-        mtk::Interpolation_Rule aFIRule,
-        Matrix< DDRMat >        aDOFHat,
-        Matrix< DDRMat >        aParamPoint,
-        uint                    aNumDOFs,
-        uint                    aSpatialDim = 2 )
+        const Matrix< DDRMat >&        aXHat,
+        const Matrix< DDRMat >&        aTHat,
+        const mtk::Interpolation_Rule& aGIRule,
+        const mtk::Interpolation_Rule& aFIRule,
+        const Matrix< DDRMat >&        aDOFHat,
+        const Matrix< DDRMat >&        aParamPoint,
+        uint                           aNumDOFs,
+        uint                           aSpatialDim = 2 )
 {
     // initialize cell of checks
     Vector< bool > tChecks( 1, false );

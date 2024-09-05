@@ -104,7 +104,7 @@ namespace moris::hmr
         /**
          * Virtual destructor. Does nothing.
          */
-        virtual ~Lagrange_Mesh_Base(){};
+        ~Lagrange_Mesh_Base() override{};
 
         // ----------------------------------------------------------------------------
 

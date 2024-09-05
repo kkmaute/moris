@@ -779,7 +779,6 @@ namespace moris
         /*                                               IQI                                            */
         /* -------------------------------------------------------------------------------------------- */
 
-
         pl = prm::create_IQI_parameter_list();
         pl.set( "IQI_name", "IQIDispX" );
         pl.set( "IQI_type", (uint)fem::IQI_Type::DOF );

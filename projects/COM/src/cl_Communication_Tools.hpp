@@ -91,7 +91,7 @@ namespace moris
      *
      * @param aBarrierName string naming this barrier
      */
-    void barrier( std::string aBarrierName = " " );
+    void barrier( const std::string& aBarrierName = " " );
 
     //------------------------------------------------------------------------------
     /**
@@ -259,10 +259,10 @@ namespace moris
         }
         else
         {
-            return aFilePath.substr( 0, aFilePath.find_last_of( "." ) )                      // base path
+            return aFilePath.substr( 0, aFilePath.find_last_of( '.' ) )                      // base path
                  + "." + std::to_string( par_size() )                                        // number of procs
                  + "." + std::to_string( par_rank() )                                        // rank of this processor
-                 + aFilePath.substr( aFilePath.find_last_of( "." ), aFilePath.length() );    // file extension
+                 + aFilePath.substr( aFilePath.find_last_of( '.' ), aFilePath.length() );    // file extension
         }
     }
 
@@ -550,9 +550,9 @@ namespace moris
 
     template< typename T >
     void print_vector(
-            const Vector< T >&                                        aCell,
-            std::string                                               aString,
-            std::function< void( Vector< T > const &, std::string ) > aPrintFunc = print )
+            const Vector< T >&                                               aCell,
+            const std::string&                                               aString,
+            const std::function< void( Vector< T > const &, std::string ) >& aPrintFunc = print )
     {
         // define tag
         int tRowCommTag  = 10;
@@ -1197,7 +1197,7 @@ namespace moris
                     tLocalDims.data(),
                     2,
                     MPI_INT,
-                    NULL,
+                    nullptr,
                     0,
                     MPI_INT,
                     aBaseProc,
@@ -1258,9 +1258,9 @@ namespace moris
                     aMatToGather.data(),
                     (sint)aMatToGather.numel(),
                     moris::get_comm_datatype( tType ),
-                    NULL,
-                    NULL,
-                    NULL,
+                    nullptr,
+                    nullptr,
+                    nullptr,
                     moris::get_comm_datatype( tType ),
                     aBaseProc,
                     moris::get_comm() );
@@ -1323,7 +1323,7 @@ namespace moris
         {
             // receive dimensions of matrix to be scattered
             MPI_Scatter(
-                    NULL,
+                    nullptr,
                     1,
                     MPI_INT,
                     tLocalDims.data(),
@@ -1379,9 +1379,9 @@ namespace moris
         {
             // receive matrix
             MPI_Scatterv(
-                    NULL,
-                    NULL,
-                    NULL,
+                    nullptr,
+                    nullptr,
+                    nullptr,
                     moris::get_comm_datatype( tType ),
                     aLocalMat.data(),
                     (sint)aLocalMat.numel(),
@@ -1457,7 +1457,7 @@ namespace moris
     template< typename T >
     void print_mat(
             const Matrix< T >&                                aMat,
-            std::string                                       aString,
+            const std::string&                                aString,
             std::function< void( Matrix< T >, std::string ) > aPrintFunc = print )
     {
         // define tag

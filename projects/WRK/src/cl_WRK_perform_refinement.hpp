@@ -93,23 +93,23 @@ namespace moris
 
             void perform_refinement(
                     Vector< std::shared_ptr< mtk::Field > > &aFields,
-                    std::shared_ptr< hmr::HMR >            aHMR );
+                    const std::shared_ptr< hmr::HMR >       &aHMR );
 
             //--------------------------------------------------------------------------------------------------------------
 
             uint perform_refinement_low_level_elements(
                     Vector< std::shared_ptr< mtk::Field > > &aFields,
-                    std::shared_ptr< hmr::HMR >            aHMR );
+                    const std::shared_ptr< hmr::HMR >       &aHMR );
 
             //--------------------------------------------------------------------------------------------------------------
 
             void perform_refinement_based_on_working_pattern(
                     Vector< std::shared_ptr< mtk::Field > > &aFields,
-                    std::shared_ptr< hmr::HMR >            aHMR );
+                    const std::shared_ptr< hmr::HMR >       &aHMR );
 
             void perform_refinement_2(
                     Vector< std::shared_ptr< mtk::Field > > &aFields,
-                    std::shared_ptr< hmr::HMR >            aHMR );
+                    const std::shared_ptr< hmr::HMR >       &aHMR );
 
             //--------------------------------------------------------------------------------------------------------------
 
@@ -141,9 +141,9 @@ namespace moris
              * If false, one performer will have all refinement steps performed before moving to the next performer.
              */
             void perform_refinement_old(
-                    std::shared_ptr< hmr::HMR >          aHMR,
+                    const std::shared_ptr< hmr::HMR >     &aHMR,
                     Vector< std::shared_ptr< Performer > > aPerformers,
-                    bool                                 aSimultaneous = true );
+                    bool                                   aSimultaneous = true );
 
             //--------------------------------------------------------------------------------------------------------------
 
@@ -156,19 +156,19 @@ namespace moris
              * @param aRefinementNumber The refinement number being queued.
              * @return
              */
-            void queue_single_refinement( std::shared_ptr< hmr::HMR > aHMR,
-                    std::shared_ptr< hmr::Mesh >                      aMesh,
-                    std::shared_ptr< Performer >                      aPerformer,
-                    uint                                              aRefinementNumber,
-                    uint                                              aMeshIndex );
+            void queue_single_refinement( const std::shared_ptr< hmr::HMR > &aHMR,
+                    const std::shared_ptr< hmr::Mesh >                      &aMesh,
+                    const std::shared_ptr< Performer >                      &aPerformer,
+                    uint                                                     aRefinementNumber,
+                    uint                                                     aMeshIndex );
 
             //--------------------------------------------------------------------------------------------------------------
 
             uint queue_low_level_elements_for_refinement(
-                    std::shared_ptr< hmr::HMR >  aHMR,
-                    std::shared_ptr< hmr::Mesh > aMesh,
-                    std::shared_ptr< Performer > aPerformer,
-                    uint                         aMeshIndex );
+                    const std::shared_ptr< hmr::HMR >  &aHMR,
+                    const std::shared_ptr< hmr::Mesh > &aMesh,
+                    const std::shared_ptr< Performer > &aPerformer,
+                    uint                                aMeshIndex );
 
             //--------------------------------------------------------------------------------------------------------------
 

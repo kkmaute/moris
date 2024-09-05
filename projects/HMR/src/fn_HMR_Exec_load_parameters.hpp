@@ -40,7 +40,7 @@ namespace moris::hmr
         tKeys.push_back( "coefficient_database" );
         tKeys.push_back( "output_exodus_order" );
         // create parameter list
-        for( std::string tKey : tKeys )
+        for ( const std::string& tKey : tKeys )
         {
             if( tKey == "output_exodus_order" )
             {
@@ -63,7 +63,7 @@ namespace moris::hmr
         uint tCount = 0;
 
         // loop over all entries and set parameters
-        for( std::string tKey : tFirst )
+        for ( const std::string& tKey : tFirst )
         {
             if( tKey == "output_exodus_order" )
             {
@@ -93,7 +93,7 @@ namespace moris::hmr
         aRefParams.insert( "library", "" );
         aRefParams.insert( "function", "" );
         uint tCount=0;
-        for( std::string tKey : tFirst )
+        for ( const std::string& tKey : tFirst )
         {
 
             if( tKey == "library" )
@@ -106,8 +106,8 @@ namespace moris::hmr
             }
             else
             {
-                std::string tType  = tKey.substr( 0, tKey.find_first_of("_") );
-                std::string tLabel = tKey.substr( tKey.find_first_of("_")+1, tKey.size() );
+                std::string tType  = tKey.substr( 0, tKey.find_first_of( '_' ) );
+                std::string tLabel = tKey.substr( tKey.find_first_of( '_' ) + 1, tKey.size() );
 
                 if( tType == "real" )
                 {
@@ -175,7 +175,7 @@ namespace moris::hmr
             // copy key to settings struct
             for( uint k=0; k<tFirst.size(); ++k )
             {
-                std::string tKey = tFirst( k );
+                const std::string& tKey = tFirst( k );
 
                 if ( tKey == "label" )
                 {

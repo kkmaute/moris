@@ -60,186 +60,183 @@ class SparseMatrix;
 class Epetra_Vector;
 
 /* ------------------------------------------------------------------------- */
-namespace moris
+
+namespace moris::dla
 {
-    namespace dla
+    class Linear_Problem;
+    class Eigen_Solver : public Linear_Solver_Algorithm_Trilinos
     {
-        class Linear_Problem;
-        class Eigen_Solver : public Linear_Solver_Algorithm_Trilinos
+      private:
+        Preconditioner_Trilinos* mLeftPreconditioner = nullptr;
+
+      protected:
+        typedef Epetra_MultiVector                                    MV;
+        typedef Epetra_Operator                                       OP;
+        typedef Anasazi::MultiVecTraits< double, Epetra_MultiVector > MVT;
+        typedef Anasazi::OperatorTraits< double, MV, OP >             OPT;
+
+        Epetra_FECrsMatrix* mMat;
+        Epetra_FECrsMatrix* mMassMat;
+
+        sol::Dist_Matrix* mNewMat;
+
+        real mSolTime;
+
+        Anasazi::BasicOutputManager< double > mPrinter;
+        Teuchos::RCP< Epetra_MultiVector >    mIvec;
+
+        Teuchos::RCP< Epetra_Operator > mSPmat;        // K matrix sparse
+        Teuchos::RCP< Epetra_Operator > mSPmassmat;    // M matrix sparse
+
+        sol::Dist_Map* mMap;
+
+        Vector_Epetra* mFreeSolVec = nullptr;    // Solution vector containing a certain eigenvector (ony free DoFs)
+
+        std::vector< Anasazi::Value< double > > mevals;
+
+        Teuchos::RCP< Anasazi::BasicEigenproblem< double, MV, OP > > mMyEigProblem;
+
+        Anasazi::Eigensolution< double, MV > mSol;
+
+        int mNumReturnedEigVals;
+
+        std::vector< double > mNormEvecsMassMatEvecs;    // Vector if phi^T * M * phi norms. One for each eigenpair
+
+        sol::EigSolMethod mEigSolMethod;
+
+        Epetra_LinearProblem mEpetraProblem;
+
+        bool mComputePrecondionerOpertor = false;
+
+      public:
+        Eigen_Solver( const Parameter_List* aParameterList );
+
+        //-----------------------------------------------------------------------
+        /**
+         * @brief Destructor.
+         */
+
+        // virtual ~Eigen_Solver(){};
+        ~Eigen_Solver() override;
+
+        //-----------------------------------------------------------------------
+        /**
+         * @brief extracts mass and stiffness matrix from linear system
+         */
+
+        void build_linearized_system( Linear_Problem* aLinearSystem );
+
+        //-----------------------------------------------------------------------
+        /**
+         * @brief solve eigen system through eigen algorithm
+         */
+
+        moris::sint
+        solve_linear_system() override
         {
-          private:
-            Preconditioner_Trilinos* mLeftPreconditioner = nullptr;
-
-          protected:
-            typedef Epetra_MultiVector                                    MV;
-            typedef Epetra_Operator                                       OP;
-            typedef Anasazi::MultiVecTraits< double, Epetra_MultiVector > MVT;
-            typedef Anasazi::OperatorTraits< double, MV, OP >             OPT;
-
-            Epetra_FECrsMatrix* mMat;
-            Epetra_FECrsMatrix* mMassMat;
-
-            sol::Dist_Matrix* mNewMat;
-
-            real mSolTime;
-
-            Anasazi::BasicOutputManager< double > mPrinter;
-            Teuchos::RCP< Epetra_MultiVector >    mIvec;
-
-            Teuchos::RCP< Epetra_Operator > mSPmat;        // K matrix sparse
-            Teuchos::RCP< Epetra_Operator > mSPmassmat;    // M matrix sparse
-
-            sol::Dist_Map* mMap;
-
-            Vector_Epetra* mFreeSolVec = nullptr;    // Solution vector containing a certain eigenvector (ony free DoFs)
-
-            std::vector< Anasazi::Value< double > > mevals;
-
-            Teuchos::RCP< Anasazi::BasicEigenproblem< double, MV, OP > > mMyEigProblem;
-
-            Anasazi::Eigensolution< double, MV > mSol;
-
-            int mNumReturnedEigVals;
-
-            std::vector< double > mNormEvecsMassMatEvecs;    // Vector if phi^T * M * phi norms. One for each eigenpair
-
-            sol::EigSolMethod mEigSolMethod;
-
-            Epetra_LinearProblem mEpetraProblem;
-
-            bool mComputePrecondionerOpertor = false;
-
-          public:
-
-            Eigen_Solver( const Parameter_List* aParameterList );
-
-            //-----------------------------------------------------------------------
-            /**
-             * @brief Destructor.
-             */
-
-            // virtual ~Eigen_Solver(){};
-            ~Eigen_Solver();
-
-            //-----------------------------------------------------------------------
-            /**
-             * @brief extracts mass and stiffness matrix from linear system
-             */
-
-            void build_linearized_system( Linear_Problem* aLinearSystem );
-
-            //-----------------------------------------------------------------------
-            /**
-             * @brief solve eigen system through eigen algorithm
-             */
-
-            moris::sint
-            solve_linear_system()
-            {
-                return 0;
-            };
-
-            //-----------------------------------------------------------------------
-
-            /**
-             * @brief Solve linear system
-             *
-             * @param[in] aLinearSystem Pointer to linear system.
-             * @param[in] aLinearSystem Iteration number.
-             */
-            moris::sint solve_linear_system( Linear_Problem* aLinearSystem,
-                    const moris::sint                        aIter );
-
-            //-----------------------------------------------------------------------
-            /**
-             * @brief sets parameters for eigen solver
-             */
-
-            void set_eigen_solver_manager_parameters();
-
-            //-----------------------------------------------------------------------
-
-            /**
-             * @brief Eigenvalue solver using Anasazi's implementation of the Block Davidson method
-             * @param[in] aLinearSystem Pointer to linear system.
-             */
-            int solve_block_davidson_system( Linear_Problem* aLinearSystem );
-
-            //-----------------------------------------------------------------------
-
-            /**
-             * @brief Eigenvalue solver using Anasazi's implementation of the Generalized Davidson method an Ifpack ILUT factorization of K used as a preconditioner
-             * @param[in] aLinearSystem Pointer to linear system.
-             */
-            int solve_generalized_davidson_system( Linear_Problem* aLinearSystem );
-
-            //-----------------------------------------------------------------------
-
-            /**
-             * @brief Eigenvalue solver using Anasazi's implementation of the Block Krylov Schur method with a GMRES and a preconditioner (Aztec)
-             * @param[in] aLinearSystem Pointer to linear system.
-             */
-            int solve_block_krylov_schur_system( Linear_Problem* aLinearSystem );
-
-            //-----------------------------------------------------------------------
-
-            /**
-             * @brief Eigenvalue solver using Anasazi's implementation of the Block Krylov Schur Amesos method
-             * @param[in] aLinearSystem Pointer to linear system.
-             */
-            int solve_block_krylov_schur_amesos_system( Linear_Problem* aLinearSystem );
-
-            //-----------------------------------------------------------------------
-            /**
-             * @brief get eigenvector solution and save as hdf5 file
-             * @param[in] aEigValIndex  Index of eigenvalue
-             * @param[in] aSolVec       Current eigenvector
-             * @param[in] aLeaderSolVec Leader solution vector
-             * @param[in] aEigValReal   Real eigenvalue
-             * @param[in] aEigValImag   Imaginary eigenvalue
-             */
-
-            int get_solution(
-                    uint           aEigValIndex,
-                    Vector_Epetra* aSolVec,
-                    Vector_Epetra* aLeaderSolVec,
-                    real&          aEigValReal,
-                    real&          aEigValImag );
-
-            //-----------------------------------------------------------------------
-            /**
-             * @brief returns eigenvector as distributed vector
-             */
-
-            sol::Dist_Vector*
-            get_eigen_vector()
-            {
-                return mFreeSolVec;
-            }
-
-            //-------------------------------------------------------------------------------------------------
-            /**
-             * @brief return eigenvalues
-             */
-
-            std::vector< Anasazi::Value< double > >
-            get_eigen_values()
-            {
-                return mevals;
-            }
-
-            //-------------------------------------------------------------------------------------------------
-
-            /**
-             * @brief Compute the preconditioned operator
-             *
-             */
-
-            void
-            compute_preconditioned_operator();
+            return 0;
         };
 
-    }    // namespace dla
+        //-----------------------------------------------------------------------
 
-}    // namespace moris
+        /**
+         * @brief Solve linear system
+         *
+         * @param[in] aLinearSystem Pointer to linear system.
+         * @param[in] aLinearSystem Iteration number.
+         */
+        moris::sint solve_linear_system( Linear_Problem* aLinearSystem,
+                const moris::sint                        aIter ) override;
+
+        //-----------------------------------------------------------------------
+        /**
+         * @brief sets parameters for eigen solver
+         */
+
+        void set_eigen_solver_manager_parameters();
+
+        //-----------------------------------------------------------------------
+
+        /**
+         * @brief Eigenvalue solver using Anasazi's implementation of the Block Davidson method
+         * @param[in] aLinearSystem Pointer to linear system.
+         */
+        int solve_block_davidson_system( Linear_Problem* aLinearSystem );
+
+        //-----------------------------------------------------------------------
+
+        /**
+         * @brief Eigenvalue solver using Anasazi's implementation of the Generalized Davidson method an Ifpack ILUT factorization of K used as a preconditioner
+         * @param[in] aLinearSystem Pointer to linear system.
+         */
+        int solve_generalized_davidson_system( Linear_Problem* aLinearSystem );
+
+        //-----------------------------------------------------------------------
+
+        /**
+         * @brief Eigenvalue solver using Anasazi's implementation of the Block Krylov Schur method with a GMRES and a preconditioner (Aztec)
+         * @param[in] aLinearSystem Pointer to linear system.
+         */
+        int solve_block_krylov_schur_system( Linear_Problem* aLinearSystem );
+
+        //-----------------------------------------------------------------------
+
+        /**
+         * @brief Eigenvalue solver using Anasazi's implementation of the Block Krylov Schur Amesos method
+         * @param[in] aLinearSystem Pointer to linear system.
+         */
+        int solve_block_krylov_schur_amesos_system( Linear_Problem* aLinearSystem );
+
+        //-----------------------------------------------------------------------
+        /**
+         * @brief get eigenvector solution and save as hdf5 file
+         * @param[in] aEigValIndex  Index of eigenvalue
+         * @param[in] aSolVec       Current eigenvector
+         * @param[in] aLeaderSolVec Leader solution vector
+         * @param[in] aEigValReal   Real eigenvalue
+         * @param[in] aEigValImag   Imaginary eigenvalue
+         */
+
+        int get_solution(
+                uint           aEigValIndex,
+                Vector_Epetra* aSolVec,
+                Vector_Epetra* aLeaderSolVec,
+                real&          aEigValReal,
+                real&          aEigValImag );
+
+        //-----------------------------------------------------------------------
+        /**
+         * @brief returns eigenvector as distributed vector
+         */
+
+        sol::Dist_Vector*
+        get_eigen_vector()
+        {
+            return mFreeSolVec;
+        }
+
+        //-------------------------------------------------------------------------------------------------
+        /**
+         * @brief return eigenvalues
+         */
+
+        std::vector< Anasazi::Value< double > >
+        get_eigen_values()
+        {
+            return mevals;
+        }
+
+        //-------------------------------------------------------------------------------------------------
+
+        /**
+         * @brief Compute the preconditioned operator
+         *
+         */
+
+        void
+        compute_preconditioned_operator();
+    };
+
+}    // namespace moris::dla
+
 #endif

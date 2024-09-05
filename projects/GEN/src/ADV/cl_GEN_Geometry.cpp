@@ -9,6 +9,8 @@
  */
 
 #include "cl_GEN_Geometry.hpp"
+
+#include <utility>
 #include "cl_GEN_Derived_Node.hpp"
 
 namespace moris::gen
@@ -17,7 +19,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Geometry::Geometry( Design_Parameters aParameters )
-    : Design( aParameters )
+            : Design( std::move( aParameters ) )
     {
     }
 

@@ -14,9 +14,7 @@
 // C++ header files.
 #include <stdexcept>
 
-namespace moris
-{
-namespace exceptions
+namespace moris::exceptions
 {
     /**
      * @brief Tic toc exception.
@@ -38,13 +36,13 @@ namespace exceptions
         /**
          * moris::exceptions::tic_toc_error constructor.
          */
-        ~tic_toc_error() = default;
+        ~tic_toc_error() override = default;
 
         /**
          * Overrides std::exception::what.
          */
         const char *
-        what() const noexcept
+        what() const noexcept override
         {
             return
                     "A mismatch between the moris::tic and moris::toc occurred.\n"
@@ -56,8 +54,7 @@ namespace exceptions
         }
     };
 
-}    // namespace exceptions
-}    // namespace moris
+}    // namespace moris::exceptions
 
 #endif    /* MORIS_EXCEPTIONS_CL_TIC_TOC_ERROR_HPP_ */
 

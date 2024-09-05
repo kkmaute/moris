@@ -89,9 +89,9 @@ namespace moris
          * @param aEntityAction Entity action
          */
         void sign_in(
-                std::string aEntityBase,
-                std::string aEntityType,
-                std::string aEntityAction );
+                const std::string& aEntityBase,
+                const std::string& aEntityType,
+                const std::string& aEntityAction );
 
         // --------------------------------------------------------------------------------
         // operation to stop tracing an entity, decrement all lists

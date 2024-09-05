@@ -30,20 +30,20 @@ public:
 
 // ----------------------------------------------------------------------------
 
-        ~Lagrange_Node_Interpolation(){};
+        ~Lagrange_Node_Interpolation() override{};
 
 // ----------------------------------------------------------------------------
         /**
          * sets the values of the T-Matrix
          */
-        void set_weights( const Matrix< DDRMat > & aWeights );
+        void set_weights( const Matrix< DDRMat > & aWeights ) override;
 
 // ----------------------------------------------------------------------------
 
         /**
          * return the interpolation weights
          */
-        const Matrix< DDRMat > * get_weights() const;
+        const Matrix< DDRMat > * get_weights() const override;
 
 // ----------------------------------------------------------------------------
 
@@ -51,56 +51,56 @@ public:
          * sets the coefficients of this basis
          */
         void
-        set_coefficients( Vector< mtk::Vertex* > & aCoefficients );
+        set_coefficients( Vector< mtk::Vertex* > & aCoefficients ) override;
 
 // ----------------------------------------------------------------------------
 
         /**
          * returns the coefficients of this basis
          */
-        Vector< mtk::Vertex* > & get_coefficients();
+        Vector< mtk::Vertex* > & get_coefficients() override;
 
 // ----------------------------------------------------------------------------
 
         /**
          * returns the coefficients of this basis ( const version )
          */
-        const Vector< mtk::Vertex* > & get_coefficients() const;
+        const Vector< mtk::Vertex* > & get_coefficients() const override;
 
 // ----------------------------------------------------------------------------
 
         /**
          * returns the number of coefficients attributed to this basis
          */
-        uint get_number_of_coefficients() const;
+        uint get_number_of_coefficients() const override;
 
 // ----------------------------------------------------------------------------
 
         /**
          * returns the IDs of the interpolation coefficients
          */
-        Matrix< IdMat > get_ids() const;
+        Matrix< IdMat > get_ids() const override;
 
 // ----------------------------------------------------------------------------
 
         /**
          * returns the Indices of the interpolation coefficients
          */
-        Matrix< IndexMat > get_indices() const;
+        Matrix< IndexMat > get_indices() const override;
 
 // ----------------------------------------------------------------------------
 
         /**
          * returns the owners of the interpolation coefficients
          */
-        Matrix< IdMat > get_owners() const;
+        Matrix< IdMat > get_owners() const override;
 
         /**
          * returns the owners of the interpolation coefficients
          * these ids are not consecutive and iriginally created as luint.
          * consider using luint here for large problems
          */
-        Matrix< IdMat > get_ijkl_id() const;
+        Matrix< IdMat > get_ijkl_id() const override;
 
 // ----------------------------------------------------------------------------
     };

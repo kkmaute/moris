@@ -12,7 +12,6 @@
 
 #include "cl_HMR_Parameters.hpp"
 #include "HMR_Tools.hpp"
-#include "HMR_Tools.hpp"
 #include "assert.hpp"
 
 #include "fn_Parsing_Tools.hpp"
@@ -544,8 +543,8 @@ void Paramfile::load_mesh_params()
             }
             else
             {
-                std::string tType  = tKey.substr( 0, tKey.find_first_of("_") );
-                std::string tLabel = tKey.substr( tKey.find_first_of("_")+1, tKey.size() );
+                std::string tType  = tKey.substr( 0, tKey.find_first_of( '_' ) );
+                std::string tLabel = tKey.substr( tKey.find_first_of( '_' ) + 1, tKey.size() );
                 if( tType == "real" )
                 {
                     mParameterList.insert( tLabel, ( moris::real ) stod( tSecond( k ) ) );

@@ -106,7 +106,7 @@ namespace moris
          * @return std::string absolute file path
          */
         std::string
-        convert_to_absolute_file_path( const std::string aFilePath );
+        convert_to_absolute_file_path( const std::string& aFilePath );
 
         // -----------------------------------------------------------------------------
 
@@ -169,7 +169,7 @@ namespace moris
          * @param aFileType type of the file to be used
          */
         virtual void
-        load_parameter_list( std::string aFileName, File_Type aFileType );
+        load_parameter_list( const std::string& aFileName, File_Type aFileType );
 
         // -----------------------------------------------------------------------------
 
@@ -225,7 +225,7 @@ namespace moris
          * @param aOutputFileName name of the xml file to print the parameters to
          */
         void
-        print_parameter_receipt( const std::string aOutputFileName );
+        print_parameter_receipt( const std::string& aOutputFileName );
 
         // -----------------------------------------------------------------------------
 
@@ -269,7 +269,7 @@ namespace moris
          */
         template< typename Function_Type >
         Function_Type
-        load_function( std::string aFunctionName, bool aThrowError = true )
+        load_function( const std::string& aFunctionName, bool aThrowError = true )
         {
             // make sure the library is fully initialized before any functions are loaded from it
             MORIS_ERROR( mLibraryIsFinalized,

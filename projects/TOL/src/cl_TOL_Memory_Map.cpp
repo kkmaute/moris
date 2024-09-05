@@ -74,7 +74,7 @@ namespace moris
                       << std::setw( 12 )
                       << (moris::real)it->second / (moris::real)tTotal * 100
                       << "%"
-                      << std::endl;
+                      << '\n';
             tTotalPercent = tTotalPercent + (moris::real)it->second / (moris::real)tTotal * 100;
         }
         std::cout << "----------------------------------------------------------------------------------\n";
@@ -89,7 +89,7 @@ namespace moris
                   << std::setw( 12 )
                   << tTotalPercent
                   << "%"
-                  << std::endl;
+                  << '\n';
     }
 
     // ----------------------------------------------------------------------------------
@@ -126,7 +126,7 @@ namespace moris
                       << " | "
                       << std::setw( 16 ) << "Memory (KiB)"
                       << " | "
-                      << std::setw( 12 ) << "     " << std::endl;
+                      << std::setw( 12 ) << "     " << '\n';
 
             for ( moris::uint i = 0; i < tTotalMemPerProc.size(); i++ )
             {
@@ -136,7 +136,7 @@ namespace moris
                           << " | "
                           << std::setw( 12 ) << (real)tTotalMemPerProc( i ) / (real)tTotalMem * 100
                           << "%"
-                          << std::endl;
+                          << '\n';
                 tTotalPercent += (real)tTotalMemPerProc( i ) / (real)tTotalMem * 100;
             }
 
@@ -152,7 +152,7 @@ namespace moris
                       << std::setw( 12 )
                       << tTotalPercent
                       << "%"
-                      << std::endl;
+                      << '\n';
         }
     }
 

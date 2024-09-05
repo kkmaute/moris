@@ -109,7 +109,7 @@ namespace moris::hmr
         /**
          * Virtual destructor. Does nothing.
          */
-        virtual ~Basis(){};
+        ~Basis() override{};
 
         // -----------------------------------------------------------------------------
 
@@ -119,7 +119,7 @@ namespace moris::hmr
          * @return uint    ID of proc that owns this basis
          */
         moris_id
-        get_owner() const
+        get_owner() const override
         {
             return mOwner;
         }
@@ -172,7 +172,7 @@ namespace moris::hmr
          * MTK Interface: returns a domain wide id of the vertex
          */
         moris_id
-        get_id() const
+        get_id() const override
         {
             // fixme: add +1 and check against MTK output
             return mDomainIndex + 1;    // < -- this is correct
@@ -186,8 +186,8 @@ namespace moris::hmr
         /**
          * MTK Interface: returns a local proc index of the vertex
          */
-        virtual moris_index
-        get_index() const
+        moris_index
+        get_index() const override
         {
             return mLocalIndex;
         }
@@ -200,7 +200,7 @@ namespace moris::hmr
          * @return void
          */
         void
-        flag()
+        flag() override
         {
             mFlag = true;
         }
@@ -213,7 +213,7 @@ namespace moris::hmr
          * @return void
          */
         void
-        unflag()
+        unflag() override
         {
             mFlag = false;
         }
@@ -239,7 +239,7 @@ namespace moris::hmr
          * @return   uint level of basis
          */
         uint
-        get_level() const
+        get_level() const override
         {
             return mLevel;
         }
@@ -1049,8 +1049,8 @@ namespace moris::hmr
 
         //------------------------------------------------------------------------------
 
-        virtual mtk::Vertex_Interpolation*
-        get_interpolation( const uint aBSplineMeshIndex )
+        mtk::Vertex_Interpolation*
+        get_interpolation( const uint aBSplineMeshIndex ) override
         {
             MORIS_ERROR( false, "get_interpolation() not available for for selected basis type." );
             return nullptr;
@@ -1058,8 +1058,8 @@ namespace moris::hmr
 
         //------------------------------------------------------------------------------
 
-        virtual bool
-        has_interpolation( const uint aBSplineMeshIndex )
+        bool
+        has_interpolation( const uint aBSplineMeshIndex ) override
         {
             MORIS_ERROR( false, "has_interpolation() not available for for selected basis type." );
             return false;
@@ -1067,8 +1067,8 @@ namespace moris::hmr
 
         //------------------------------------------------------------------------------
 
-        virtual const mtk::Vertex_Interpolation*
-        get_interpolation( const uint aBSplineMeshIndex ) const
+        const mtk::Vertex_Interpolation*
+        get_interpolation( const uint aBSplineMeshIndex ) const override
         {
             MORIS_ERROR( false, "get_interpolation() const not available for for selected basis type." );
             return nullptr;
@@ -1153,8 +1153,8 @@ namespace moris::hmr
 
         //------------------------------------------------------------------------------
 
-        virtual Matrix< DDRMat >
-        get_coords() const
+        Matrix< DDRMat >
+        get_coords() const override
         {
             MORIS_ERROR( false, "get_coords() not available for for selected basis type." );
             return Matrix< DDRMat >( 0, 0 );

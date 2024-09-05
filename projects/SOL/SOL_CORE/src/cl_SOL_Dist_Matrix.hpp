@@ -37,15 +37,14 @@
 #endif
 
 #include "cl_SOL_Enums.hpp"
-namespace moris
+
+namespace moris::sol
 {
-    namespace sol
+    class Dist_Matrix
     {
-        class Dist_Matrix
-        {
-          protected:
-            Epetra_FECrsMatrix* mEpetraMat;
-            Dist_Map*           mMap;
+      protected:
+        Epetra_FECrsMatrix* mEpetraMat;
+        Dist_Map*           mMap;
 
 #ifdef MORIS_HAVE_PETSC
             Mat mPETScMat;
@@ -55,14 +54,14 @@ namespace moris
 
           public:
             Dist_Matrix()
-                    : mEpetraMat( NULL )
-                    , mMap( NULL )
-                    , mPETScMat( NULL ){};
+                    : mEpetraMat( nullptr )
+                    , mMap( nullptr )
+                    , mPETScMat( nullptr ){};
 
             Dist_Matrix( Dist_Map* aMap )
-                    : mEpetraMat( NULL )
+                    : mEpetraMat( nullptr )
                     , mMap( aMap )
-                    , mPETScMat( NULL ){};
+                    , mPETScMat( nullptr ){};
 
             virtual ~Dist_Matrix(){};
 
@@ -181,7 +180,6 @@ namespace moris
                 MORIS_ERROR( false, "build_graph does not have an implementation in the base class" );
             }
         };
-    }    // namespace sol
-}    // namespace moris
+}    // namespace moris::sol
 
 #endif /* SRC_DISTLINALG_CL_SPARSE_MATRIX_HPP_ */

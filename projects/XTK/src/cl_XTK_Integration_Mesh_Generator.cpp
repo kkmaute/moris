@@ -30,8 +30,8 @@ namespace moris::xtk
     // ----------------------------------------------------------------------------------
 
     Integration_Mesh_Generator::Integration_Mesh_Generator(
-            xtk::Model*                       aXTKModelPtr,
-            Vector< enum Subdivision_Method > aMethods )
+            xtk::Model*                              aXTKModelPtr,
+            const Vector< enum Subdivision_Method >& aMethods )
             : mXTKModel( aXTKModelPtr )
             , mGeometryEngine( mXTKModel->get_geom_engine() )
             , mSubdivisionMethods( aMethods )
@@ -895,9 +895,9 @@ namespace moris::xtk
 
     void
     Integration_Mesh_Generator::deduce_interfaces(
-            Cut_Integration_Mesh*                       aCutIntegrationMesh,
-            std::shared_ptr< Facet_Based_Connectivity > aFacetConnectivity,
-            Vector< moris_index >&                      aInterfaces )
+            Cut_Integration_Mesh*                              aCutIntegrationMesh,
+            const std::shared_ptr< Facet_Based_Connectivity >& aFacetConnectivity,
+            Vector< moris_index >&                             aInterfaces )
     {
         // log/trace this function call
         Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Deduce Interface", mXTKModel->mVerboseLevel, 1 );
@@ -999,10 +999,10 @@ namespace moris::xtk
 
     void
     Integration_Mesh_Generator::identify_and_construct_subphases(
-            Integration_Mesh_Generation_Data*                 aMeshGenerationData,
-            Cut_Integration_Mesh*                             aCutIntegrationMesh,
-            mtk::Mesh*                                        aBackgroundMesh,
-            std::shared_ptr< Cell_Neighborhood_Connectivity > aCutNeighborhood )
+            Integration_Mesh_Generation_Data*                        aMeshGenerationData,
+            Cut_Integration_Mesh*                                    aCutIntegrationMesh,
+            mtk::Mesh*                                               aBackgroundMesh,
+            const std::shared_ptr< Cell_Neighborhood_Connectivity >& aCutNeighborhood )
     {
         // trace/log this function
         Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Identify subphases", mXTKModel->mVerboseLevel, 1 );
@@ -1217,11 +1217,11 @@ namespace moris::xtk
 
     void
     Integration_Mesh_Generator::construct_subphase_neighborhood(
-            Cut_Integration_Mesh*                                      aCutIntegrationMesh,
-            mtk::Mesh*                                                 aBackgroundMesh,
-            std::shared_ptr< Facet_Based_Connectivity >                aFacetConnectivity,
-            Vector< std::shared_ptr< Vector< moris::moris_index > > >* aBgFacetToChildFacet,
-            std::shared_ptr< Subphase_Neighborhood_Connectivity >      aSubphaseNeighborhood )
+            Cut_Integration_Mesh*                                        aCutIntegrationMesh,
+            mtk::Mesh*                                                   aBackgroundMesh,
+            const std::shared_ptr< Facet_Based_Connectivity >&           aFacetConnectivity,
+            Vector< std::shared_ptr< Vector< moris::moris_index > > >*   aBgFacetToChildFacet,
+            const std::shared_ptr< Subphase_Neighborhood_Connectivity >& aSubphaseNeighborhood )
     {
         // log/trace this function
         Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Subphase Neighborhood", mXTKModel->mVerboseLevel, 1 );
@@ -1439,15 +1439,15 @@ namespace moris::xtk
 
     void
     Integration_Mesh_Generator::collect_subphases_attached_to_facet_on_cell(
-            Cut_Integration_Mesh*                           aCutIntegrationMesh,
-            mtk::Cell const *                               aBGCell,
-            moris::moris_index                              aFacetOrdinal,
-            moris::moris_index                              aSharedFacetIndex,
-            std::shared_ptr< Facet_Based_Connectivity >     aFacetConnectivity,
-            std::shared_ptr< Vector< moris::moris_index > > aBgFacetToChildrenFacets,
-            Vector< moris::moris_index >&                   aSubphaseIndices,
-            Vector< moris::moris_index >&                   aRepresentativeIgCells,
-            Vector< moris::moris_index >&                   aRepresentativeIgCellsOrdinal )
+            Cut_Integration_Mesh*                                  aCutIntegrationMesh,
+            mtk::Cell const *                                      aBGCell,
+            moris::moris_index                                     aFacetOrdinal,
+            moris::moris_index                                     aSharedFacetIndex,
+            const std::shared_ptr< Facet_Based_Connectivity >&     aFacetConnectivity,
+            const std::shared_ptr< Vector< moris::moris_index > >& aBgFacetToChildrenFacets,
+            Vector< moris::moris_index >&                          aSubphaseIndices,
+            Vector< moris::moris_index >&                          aRepresentativeIgCells,
+            Vector< moris::moris_index >&                          aRepresentativeIgCellsOrdinal )
     {
         aSubphaseIndices.clear();
 
@@ -1456,14 +1456,14 @@ namespace moris::xtk
         // case: cluster is non-trivial
         if ( tParentHasChildren )
         {
-            // initialize map that ?...
-            std::unordered_map< moris_index, moris_index > tSubphaseMap;
+            // map making sure that we only have one representative IG cell per subphase connection for performance purposes
+            std::map< std::pair< moris_index, moris_index >, moris_index > tSubphaseMap;
 
             // make sure that a cut Bg-element has information which IG-cell facets comprise the Bg-cell facet
             MORIS_ASSERT( aBgFacetToChildrenFacets != nullptr,
                     "Integration_Mesh_Generator::collect_subphases_attached_to_facet_on_cell() - Null ptr on facet that should have children facets" );
 
-            // get number of IG cells connected to current IP cell's facet
+            // get number of IG cells connected to current IP/BG cell's facet
             uint tNumConnectedIgCells = aBgFacetToChildrenFacets->size();
 
             // iterate through child facets attached to bg facet
@@ -1475,32 +1475,76 @@ namespace moris::xtk
                 // get number of IG cells connected to current IG cell facet
                 uint tNumIgCellsOnFacet = aFacetConnectivity->mFacetToCell( tChildCellFacetIndex ).size();
 
-                // go over the Ig-cells attached to the current Ig-cell facet
-                for ( uint iCell = 0; iCell < tNumIgCellsOnFacet; iCell++ )
-                {
-                    // get index of current Ig-cell, the sub-phase it belongs to, and its parent cell
-                    moris_index tCellIndex       = aFacetConnectivity->mFacetToCell( tChildCellFacetIndex )( iCell )->get_index();
-                    moris_index tSubphaseIndex   = aCutIntegrationMesh->get_ig_cell_subphase_index( tCellIndex );
-                    moris_index tParentCellIndex = aCutIntegrationMesh->get_subphase_parent_cell( tSubphaseIndex )->get_index();
+                /* There are two cases:
+                 * - either the FACET is on the outside of the mesh and therefore only connected to exactly ONE IG CELL
+                 * - or the FACET is on the inside of the mesh and therefore connected to exactly TWO IG CELLS
+                 */
+                MORIS_ASSERT( tNumIgCellsOnFacet == 1 || tNumIgCellsOnFacet == 2, 
+                        "Integration_Mesh_Generator::collect_subphases_attached_to_facet_on_cell() - "
+                        "Any facet should only be connected to exactly one or two IG cells." );
 
-                    // make sure current Ig-cell's parent and the treated Bg-cell are the same cell (otherwise different Ig-cell must be representative for current Bg-cell)
-                    if ( tParentCellIndex == aBGCell->get_index() )
+                // get information about the first IG cell
+                moris_index tFirstCellIndex       = aFacetConnectivity->mFacetToCell( tChildCellFacetIndex )( 0 )->get_index();
+                moris_index tFirstSubphaseIndex   = aCutIntegrationMesh->get_ig_cell_subphase_index( tFirstCellIndex );
+                moris_index tFirstParentCellIndex = aCutIntegrationMesh->get_subphase_parent_cell( tFirstSubphaseIndex )->get_index();
+
+                // get information about the second IG cell if it exists
+                moris_index tSecondCellIndex = MORIS_INDEX_MAX;
+                moris_index tSecondSubphaseIndex = tFirstSubphaseIndex;
+                moris_index tSecondParentCellIndex  = MORIS_INDEX_MAX;
+                if ( tNumIgCellsOnFacet == 2 )
+                {
+                    tSecondCellIndex       = aFacetConnectivity->mFacetToCell( tChildCellFacetIndex )( 1 )->get_index();
+                    tSecondSubphaseIndex   = aCutIntegrationMesh->get_ig_cell_subphase_index( tSecondCellIndex );
+                    tSecondParentCellIndex = aCutIntegrationMesh->get_subphase_parent_cell( tSecondSubphaseIndex )->get_index();
+                }
+
+                // create a sorted pair indicating which sub-phases are connected to the current facet
+                std::pair< moris_index, moris_index > tSpPair;
+                if ( tFirstSubphaseIndex < tSecondSubphaseIndex )
+                {
+                    tSpPair = std::make_pair( tFirstSubphaseIndex, tSecondSubphaseIndex );
+                }
+                else
+                {
+                    tSpPair = std::make_pair( tSecondSubphaseIndex, tFirstSubphaseIndex );
+                }
+
+                // add the first IG-cell if its parent and the treated Bg-cell are the same cell (otherwise the other (if any) IG-cell must be representative for current Bg-cell)
+                if ( tFirstParentCellIndex == aBGCell->get_index() )
+                {                    
+                    // if this sub-phase has not been registered in the sub-phase map yet, then ...
+                    if ( tSubphaseMap.find( tSpPair ) == tSubphaseMap.end() )
+                {
+                        // ... register this sub-phase as being connected to first treated facet
+                        aSubphaseIndices.push_back( tFirstSubphaseIndex );
+
+                        // store first Ig-cell and its facet as representative
+                        aRepresentativeIgCells.push_back( tFirstCellIndex );
+                        aRepresentativeIgCellsOrdinal.push_back( aFacetConnectivity->mFacetToCellEdgeOrdinal( tChildCellFacetIndex )( 0 ) );
+
+                        // register sub-phase index as being connected to the facet
+                        tSubphaseMap[ tSpPair ] = 1;
+                    }
+                }
+
+                // add the second IG-cell if its parent and the treated Bg-cell are the same cell (otherwise the other (if any) IG-cell must be representative for current Bg-cell)
+                if ( tSecondParentCellIndex == aBGCell->get_index() && tSecondParentCellIndex != MORIS_INDEX_MAX )
                     {
                         // if this sub-phase has not been registered in the sub-phase map yet, then ...
-                        if ( tSubphaseMap.find( tSubphaseIndex ) == tSubphaseMap.end() )
+                    if ( tSubphaseMap.find( tSpPair ) == tSubphaseMap.end() )
                         {
-                            // ... register this sub-phase as being connected to currently treated facet
-                            aSubphaseIndices.push_back( tSubphaseIndex );
+                        // ... register this sub-phase as being connected to second treated facet
+                        aSubphaseIndices.push_back( tSecondSubphaseIndex );
 
-                            // store current Ig-cell and its facet as representative
-                            aRepresentativeIgCells.push_back( tCellIndex );
-                            aRepresentativeIgCellsOrdinal.push_back( aFacetConnectivity->mFacetToCellEdgeOrdinal( tChildCellFacetIndex )( iCell ) );
+                        // store the second Ig-cell and its facet as representative
+                        aRepresentativeIgCells.push_back( tSecondCellIndex );
+                        aRepresentativeIgCellsOrdinal.push_back( aFacetConnectivity->mFacetToCellEdgeOrdinal( tChildCellFacetIndex )( 1 ) );
 
-                            // register sub-phase index as being connected to current facet
-                            tSubphaseMap[ tSubphaseIndex ] = 1;
+                        // register sub-phase index as being connected to the facet
+                        tSubphaseMap[ tSpPair ] = 1;
                         }
                     }
-                }    // end for: each IG cell connected to current IG-cell facet
             }        // end for: each IG cell facet connected to current BG-cell facet
         }            // end if: BG element is intersected
 
@@ -2184,10 +2228,10 @@ namespace moris::xtk
 
     Matrix< IndexMat >
     Integration_Mesh_Generator::flood_fill_ig_cell_group(
-            Cut_Integration_Mesh*                             aCutIntegrationMesh,
-            std::shared_ptr< Cell_Neighborhood_Connectivity > aCutNeighborhood,
-            std::shared_ptr< IG_Cell_Group >                  aIgCellGroup,
-            moris_index&                                      aMaxValueAssigned )
+            Cut_Integration_Mesh*                                    aCutIntegrationMesh,
+            const std::shared_ptr< Cell_Neighborhood_Connectivity >& aCutNeighborhood,
+            const std::shared_ptr< IG_Cell_Group >&                  aIgCellGroup,
+            moris_index&                                             aMaxValueAssigned )
     {
 
         // Active phase index
@@ -2466,7 +2510,7 @@ namespace moris::xtk
             }
             else
             {
-                std::cout << "WARNING, need to handle the single sided interface case here" << std::endl;
+                std::cout << "WARNING, need to handle the single sided interface case here" << '\n';
             }
         }
     }
@@ -2700,8 +2744,8 @@ namespace moris::xtk
 
     void
     Integration_Mesh_Generator::create_vertex_facet_connectivity(
-            std::shared_ptr< Facet_Based_Connectivity > aFaceConnectivity,
-            Cut_Integration_Mesh*                       aCutIntegrationMesh )
+            const std::shared_ptr< Facet_Based_Connectivity >& aFaceConnectivity,
+            Cut_Integration_Mesh*                              aCutIntegrationMesh )
     {
         // vertex to facet connectivity
         aFaceConnectivity->mVertexFacets.resize( aCutIntegrationMesh->mIntegrationVertices.size() );
@@ -2729,9 +2773,9 @@ namespace moris::xtk
 
     void
     Integration_Mesh_Generator::create_facet_from_element_to_node(
-            Vector< mtk::Cell* >&                       aCells,
-            std::shared_ptr< Facet_Based_Connectivity > aFaceConnectivity,
-            const Cut_Integration_Mesh*                 aCutIntegrationMesh )
+            Vector< mtk::Cell* >&                              aCells,
+            const std::shared_ptr< Facet_Based_Connectivity >& aFaceConnectivity,
+            const Cut_Integration_Mesh*                        aCutIntegrationMesh )
     {
         Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Creating Facets" );
 
@@ -2910,14 +2954,14 @@ namespace moris::xtk
                             {
                                 std::cout << aFaceConnectivity->mFacetVertices( tFacetIndex )( iVert )->get_index() << " ";
                             }
-                            std::cout << "]" << std::endl;
+                            std::cout << "]" << '\n';
                             std::cout << "Current facet's vertex indices: [ ";
                             for ( uint iVert = 0; iVert < tNumFacetVertices; iVert++ )
                             {
                                 moris_index tLocalVertIndex = tLocalVertexIndicesOnFacet( iVert );
                                 std::cout << tUsedVertices( tLocalVertIndex )->get_index() << " ";
                             }
-                            std::cout << "]" << std::endl;
+                            std::cout << "]" << '\n';
 
                             MORIS_ERROR( 
                                     false, 
@@ -2987,8 +3031,8 @@ namespace moris::xtk
 
     void
     Integration_Mesh_Generator::create_facet_from_element_to_node(
-            Vector< mtk::Cell* >&                       aCells,
-            std::shared_ptr< Facet_Based_Connectivity > aFaceConnectivity )
+            Vector< mtk::Cell* >&                              aCells,
+            const std::shared_ptr< Facet_Based_Connectivity >& aFaceConnectivity )
     {
         Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Creating Facets" );
 
@@ -3137,12 +3181,11 @@ namespace moris::xtk
 
     // ----------------------------------------------------------------------------------
 
-
     void
     Integration_Mesh_Generator::generate_cell_neighborhood(
-            Vector< mtk::Cell* >&                             aCells,               // list of mtk::Cells (pointers) that are active on processor's mesh
-            std::shared_ptr< Facet_Based_Connectivity >       aFaceConnectivity,    // connectivity of Facets on processor's mesh
-            std::shared_ptr< Cell_Neighborhood_Connectivity > aNeighborhood )       // to be filled ...
+            Vector< mtk::Cell* >&                                    aCells,               // list of mtk::Cells (pointers) that are active on processor's mesh
+            const std::shared_ptr< Facet_Based_Connectivity >&       aFaceConnectivity,    // connectivity of Facets on processor's mesh
+            const std::shared_ptr< Cell_Neighborhood_Connectivity >& aNeighborhood )       // to be filled ...
     {
         Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Generate Neighborhood", mXTKModel->mVerboseLevel, 1 );
 
@@ -3204,8 +3247,8 @@ namespace moris::xtk
 
     void
     Integration_Mesh_Generator::create_edges_from_element_to_node(
-            Vector< mtk::Cell* >                       aCells,
-            std::shared_ptr< Edge_Based_Connectivity > aEdgeConnectivity )
+            Vector< mtk::Cell* >                              aCells,
+            const std::shared_ptr< Edge_Based_Connectivity >& aEdgeConnectivity )
     {
         Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Creating Edges", mXTKModel->mVerboseLevel, 1 );
 
@@ -3361,11 +3404,11 @@ namespace moris::xtk
 
     void
     Integration_Mesh_Generator::deduce_facet_ancestry(
-            Cut_Integration_Mesh*                       aCutIntegrationMesh,
-            mtk::Mesh*                                  aBackgroundMesh,
-            std::shared_ptr< Facet_Based_Connectivity > aIgCellGroupFacetConnectivity,
-            Vector< mtk::Cell* > const &                aParentCellForDeduction,    // for each facet, a BG cell it is part of
-            std::shared_ptr< Facet_Based_Ancestry >     aIgFacetAncestry )              // output: facet ancestry information
+            Cut_Integration_Mesh*                              aCutIntegrationMesh,
+            mtk::Mesh*                                         aBackgroundMesh,
+            const std::shared_ptr< Facet_Based_Connectivity >& aIgCellGroupFacetConnectivity,
+            Vector< mtk::Cell* > const &                       aParentCellForDeduction,    // for each facet, a BG cell it is part of
+            const std::shared_ptr< Facet_Based_Ancestry >&     aIgFacetAncestry )              // output: facet ancestry information
     {
         Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Facet Ancestry", mXTKModel->mVerboseLevel, 1 );
 
@@ -3524,8 +3567,8 @@ namespace moris::xtk
     Integration_Mesh_Generator::compute_bg_facet_to_child_facet_connectivity(
             Cut_Integration_Mesh*                                      aCutIntegrationMesh,
             mtk::Mesh*                                                 aBackgroundMesh,
-            std::shared_ptr< Facet_Based_Connectivity >                aIgCellFacetConnectivity,
-            std::shared_ptr< Facet_Based_Ancestry >                    aIgFacetAncestry,
+            const std::shared_ptr< Facet_Based_Connectivity >&         aIgCellFacetConnectivity,
+            const std::shared_ptr< Facet_Based_Ancestry >&             aIgFacetAncestry,
             Vector< std::shared_ptr< Vector< moris::moris_index > > >& aBgFacetToIgFacet )
     {
         // number of facets in the bg mesh
@@ -3562,11 +3605,11 @@ namespace moris::xtk
 
     void
     Integration_Mesh_Generator::deduce_edge_ancestry(
-            Cut_Integration_Mesh*                      aCutIntegrationMesh,
-            mtk::Mesh*                                 aBackgroundMesh,
-            std::shared_ptr< Edge_Based_Connectivity > aIgCellGroupEdgeConnectivity,
-            Vector< mtk::Cell* > const &               aParentCellForDeduction,
-            std::shared_ptr< Edge_Based_Ancestry >     aIgEdgeAncestry )
+            Cut_Integration_Mesh*                             aCutIntegrationMesh,
+            mtk::Mesh*                                        aBackgroundMesh,
+            const std::shared_ptr< Edge_Based_Connectivity >& aIgCellGroupEdgeConnectivity,
+            Vector< mtk::Cell* > const &                      aParentCellForDeduction,
+            const std::shared_ptr< Edge_Based_Ancestry >&     aIgEdgeAncestry )
     {
         Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Edge Ancestry", mXTKModel->mVerboseLevel, 1 );
         // make sure we are starting clean
@@ -3762,7 +3805,7 @@ namespace moris::xtk
 
                 if ( tSecondEntityOrdinal == MORIS_INDEX_MAX )
                 {
-                    std::cout << "tSecondEntityOrdinal = " << tSecondEntityOrdinal << std::endl;
+                    std::cout << "tSecondEntityOrdinal = " << tSecondEntityOrdinal << '\n';
                     moris::print( tEntitiesConnectedToBaseCell, "tEntitiesConnectedToBaseCell" );
 
                     moris::print( tEdgeVertexParentInds, "tEdgeVertexParentInds" );
@@ -3894,9 +3937,9 @@ namespace moris::xtk
 
     void
     Integration_Mesh_Generator::select_background_cell_for_edge(
-            std::shared_ptr< Edge_Based_Connectivity > aEdgeBasedConnectivity,
-            Cut_Integration_Mesh*                      aCutIntegrationMesh,
-            Vector< mtk::Cell* >&                      aBackgroundCellForEdge )
+            const std::shared_ptr< Edge_Based_Connectivity >& aEdgeBasedConnectivity,
+            Cut_Integration_Mesh*                             aCutIntegrationMesh,
+            Vector< mtk::Cell* >&                             aBackgroundCellForEdge )
     {
         Tracer tTracer( "XTK", "Decomposition_Algorithm", "Select BG Cell for Edge", mXTKModel->mVerboseLevel, 1 );
         // number of edges
@@ -3924,9 +3967,9 @@ namespace moris::xtk
 
     void
     Integration_Mesh_Generator::select_background_cell_for_facet(
-            std::shared_ptr< Facet_Based_Connectivity > aFacetBasedConnectivity,
-            Cut_Integration_Mesh*                       aCutIntegrationMesh,
-            Vector< mtk::Cell* >&                       aBackgroundCellForEdge )
+            const std::shared_ptr< Facet_Based_Connectivity >& aFacetBasedConnectivity,
+            Cut_Integration_Mesh*                              aCutIntegrationMesh,
+            Vector< mtk::Cell* >&                              aBackgroundCellForEdge )
     {
         Tracer tTracer( "XTK", "Decomposition_Algorithm", "Select BG Cell for Facet", mXTKModel->mVerboseLevel, 1 );
         // number of edges
@@ -4311,14 +4354,14 @@ namespace moris::xtk
                         tRequestExists = aDecompData.request_exists(
                                 tParentInd,
                                 tSecondaryId,
-                                (mtk::EntityRank)tParentRank,
+                                tParentRank,
                                 tRequestIndex );
                     }
                     else
                     {
                         tRequestExists = aDecompData.request_exists(
                                 tParentInd,
-                                (mtk::EntityRank)tParentRank,
+                                tParentRank,
                                 tRequestIndex );
                     }
 
@@ -4330,7 +4373,7 @@ namespace moris::xtk
 
                         if ( tNodeId == MORIS_ID_MAX )
                         {
-                            std::cout << "tParentId = " << tParentId << " | Rank " << (uint)tParentRank << std::endl;
+                            std::cout << "tParentId = " << tParentId << " | Rank " << (uint)tParentRank << '\n';
                             //                    MORIS_ERROR(0,"Max node");
                         }
                     }
@@ -4387,11 +4430,11 @@ namespace moris::xtk
 
                     if ( aDecompData.mHasSecondaryIdentifier )
                     {
-                        tRequestExists = aDecompData.request_exists( tParentInd, tSecondaryId, (mtk::EntityRank)tParentRank, tRequestIndex );
+                        tRequestExists = aDecompData.request_exists( tParentInd, tSecondaryId, tParentRank, tRequestIndex );
                     }
                     else
                     {
-                        tRequestExists = aDecompData.request_exists( tParentInd, (mtk::EntityRank)tParentRank, tRequestIndex );
+                        tRequestExists = aDecompData.request_exists( tParentInd, tParentRank, tRequestIndex );
                     }
 
                     if ( tRequestExists && aRequestAnswers( i )( j ) )
@@ -4946,7 +4989,7 @@ namespace moris::xtk
 
     // ----------------------------------------------------------------------------------
 
-    const std::shared_ptr< Subphase_Neighborhood_Connectivity >
+    std::shared_ptr< Subphase_Neighborhood_Connectivity >
     Integration_Mesh_Generator::construct_subphase_group_neighborhood(
             Cut_Integration_Mesh* aCutIntegrationMesh,
             Bspline_Mesh_Info*    aBsplineMeshInfo,

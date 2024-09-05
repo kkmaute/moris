@@ -80,31 +80,31 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            virtual ~MSI_Solver_Interface(){};
+            ~MSI_Solver_Interface() override {};
 
             //------------------------------------------------------------------------------
 
-            void set_solution_vector( sol::Dist_Vector* aSolutionVector );
+            void set_solution_vector( sol::Dist_Vector* aSolutionVector ) override;
 
             //------------------------------------------------------------------------------
 
-            void set_solution_vector_prev_time_step( sol::Dist_Vector* aSolutionVector );
+            void set_solution_vector_prev_time_step( sol::Dist_Vector* aSolutionVector ) override;
 
             //------------------------------------------------------------------------------
 
-            void set_eigen_solution_vector( sol::Dist_Vector* aSolutionVector );
+            void set_eigen_solution_vector( sol::Dist_Vector* aSolutionVector ) override;
 
             //--------------------------------------------------------------------------------
 
-            void set_eigen_values( std::shared_ptr< Vector< real > > aEigenValues );
+            void set_eigen_values( const std::shared_ptr< Vector< real > >& aEigenValues ) override;
 
             //------------------------------------------------------------------------------
 
-            void set_adjoint_solution_vector( sol::Dist_Vector* aSolutionVector );
+            void set_adjoint_solution_vector( sol::Dist_Vector* aSolutionVector ) override;
 
             //------------------------------------------------------------------------------
 
-            void set_previous_adjoint_solution_vector( sol::Dist_Vector* aSolutionVector );
+            void set_previous_adjoint_solution_vector( sol::Dist_Vector* aSolutionVector ) override;
 
             //------------------------------------------------------------------------------
 
@@ -123,7 +123,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             sol::Dist_Vector*
-            get_solution_vector_prev_time_step();
+            get_solution_vector_prev_time_step() override;
 
             //------------------------------------------------------------------------------
             /**
@@ -131,7 +131,7 @@ namespace moris
              * @param[ out ] aSolutionVector previous distributed solution vector
              */
             sol::Dist_Vector*
-            get_eigen_solution_vector()
+            get_eigen_solution_vector() override
             {
                 return mEigenSolutionVector;
             }
@@ -143,7 +143,7 @@ namespace moris
              * @param[ out ] aSolutionVector previous distributed solution vector
              */
             std::shared_ptr< Vector< real > >&
-            get_eigen_values()
+            get_eigen_values() override
             {
                 return mEigenValues;
             }
@@ -156,9 +156,9 @@ namespace moris
                 mModel = aModel;
             }
 
-            void postmultiply_implicit_dQds();
+            void postmultiply_implicit_dQds() override;
 
-            void compute_IQI();
+            void compute_IQI() override;
 
             //------------------------------------------------------------------------------
 
@@ -174,23 +174,23 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            void set_time( const Matrix< DDRMat >& aTime );
+            void set_time( const Matrix< DDRMat >& aTime ) override;
 
             //------------------------------------------------------------------------------
 
-            Matrix< DDRMat > get_time();
+            Matrix< DDRMat > get_time() override;
 
             //------------------------------------------------------------------------------
 
-            void set_previous_time( const Matrix< DDRMat >& aTime );
+            void set_previous_time( const Matrix< DDRMat >& aTime ) override;
 
             //------------------------------------------------------------------------------
 
-            Matrix< DDRMat > get_previous_time();
+            Matrix< DDRMat > get_previous_time() override;
 
             //------------------------------------------------------------------------------
 
-            void free_block_memory( const uint aMyEquSetInd );
+            void free_block_memory( const uint aMyEquSetInd ) override;
 
             //------------------------------------------------------------------------------
 
@@ -198,7 +198,7 @@ namespace moris
                     const uint                             aMyEquSetInd,
                     const bool                             aIsStaggered,
                     const moris::fem::Time_Continuity_Flag aTimeContinuityOnlyFlag               = moris::fem::Time_Continuity_Flag::DEFAULT,
-                    const bool                             aIsAdjointOffDiagonalTimeContribution = false );
+                    const bool                             aIsAdjointOffDiagonalTimeContribution = false ) override;
 
             //------------------------------------------------------------------------------
 
@@ -206,18 +206,18 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            void report_beginning_of_assembly();
+            void report_beginning_of_assembly() override;
 
             //------------------------------------------------------------------------------
 
-            void report_end_of_assembly();
+            void report_end_of_assembly() override;
 
             //------------------------------------------------------------------------------
 
             void initiate_output(
                     const uint aOutputIndex,
                     const real aTime,
-                    const bool aEndOfTimeIteration );
+                    const bool aEndOfTimeIteration ) override;
 
             /**
              * Updates the underlying problem via the model.
@@ -227,7 +227,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             void
-            set_requested_dof_types( const Vector< enum MSI::Dof_Type > aListOfDofTypes )
+            set_requested_dof_types( const Vector< enum MSI::Dof_Type >& aListOfDofTypes ) override
             {
                 mListOfDofTypes = aListOfDofTypes;
             };
@@ -235,7 +235,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             void
-            set_secondary_dof_types( const Vector< enum MSI::Dof_Type > aListOfDofTypes )
+            set_secondary_dof_types( const Vector< enum MSI::Dof_Type >& aListOfDofTypes ) override
             {
                 mListOfSecondaryDofTypes = aListOfDofTypes;
             };
@@ -243,7 +243,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             const Vector< enum MSI::Dof_Type >&
-            get_requested_dof_types()
+            get_requested_dof_types() override
             {
                 return mListOfDofTypes;
             };
@@ -261,7 +261,7 @@ namespace moris
             void
             set_time_levels_for_type(
                     const enum Dof_Type aDofType,
-                    const moris::uint   aNumTimeLevels )
+                    const moris::uint   aNumTimeLevels ) override
             {
                 mDofMgn->set_time_levels_for_type( aDofType, aNumTimeLevels );
             };
@@ -270,7 +270,7 @@ namespace moris
 
             // number of elements blocks on proc
             moris::uint
-            get_num_sets()
+            get_num_sets() override
             {
                 return mMSI->get_num_equation_sets();
             };
@@ -279,7 +279,7 @@ namespace moris
 
             // number of elements on proc
             moris::uint
-            get_num_my_elements()
+            get_num_my_elements() override
             {
                 return mMSI->get_num_eqn_objs();
             };
@@ -287,7 +287,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             moris::uint
-            get_num_equation_objects_on_set( uint aMyEquSetInd )
+            get_num_equation_objects_on_set( uint aMyEquSetInd ) override
             {
                 return mMSI->get_equation_set( aMyEquSetInd )->get_num_equation_objects();
             };
@@ -295,7 +295,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             fem::Element_Type
-            get_set_type( uint aMyEquSetInd )
+            get_set_type( uint aMyEquSetInd ) override
             {
                 return mMSI->get_equation_set( aMyEquSetInd )->get_element_type();
             };
@@ -303,19 +303,19 @@ namespace moris
             //------------------------------------------------------------------------------
 
             moris::uint
-            get_num_my_dofs()
+            get_num_my_dofs() override
             {
                 return mDofMgn->get_num_owned_adofs();
             };
 
             //------------------------------------------------------------------------------
 
-            moris::uint get_num_rhs();
+            moris::uint get_num_rhs() override;
 
             //------------------------------------------------------------------------------
 
             moris::uint
-            get_num_eigen_vectors()
+            get_num_eigen_vectors() override
             {
                 return mMSI->get_num_eigen_vectors();
             }
@@ -323,7 +323,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             moris::uint
-            get_max_num_global_dofs()
+            get_max_num_global_dofs() override
             {
                 moris::uint tNumMyDofs = mDofMgn->get_num_owned_adofs();
 
@@ -336,7 +336,7 @@ namespace moris
             //------------------------------------------------------------------------------
             // local-to-global map
             moris::Matrix< DDSMat >
-            get_my_local_global_map()
+            get_my_local_global_map() override
             {
                 return mDofMgn->get_local_adof_ids();
             };
@@ -344,14 +344,14 @@ namespace moris
             //------------------------------------------------------------------------------
 
             moris::Matrix< DDSMat >
-            get_my_local_global_map( const Vector< enum Dof_Type >& aListOfDofTypes )
+            get_my_local_global_map( const Vector< enum Dof_Type >& aListOfDofTypes ) override
             {
                 return mDofMgn->get_local_adof_ids( aListOfDofTypes );
             };
 
             //------------------------------------------------------------------------------
             Matrix< DDSMat >
-            get_my_local_global_overlapping_map()
+            get_my_local_global_overlapping_map() override
             {
                 return mDofMgn->get_local_overlapping_adof_ids();
             };
@@ -359,7 +359,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             Matrix< DDSMat >
-            get_my_local_global_overlapping_map( const Vector< enum Dof_Type >& aListOfDofTypes )
+            get_my_local_global_overlapping_map( const Vector< enum Dof_Type >& aListOfDofTypes ) override
             {
                 return mDofMgn->get_local_overlapping_adof_ids( aListOfDofTypes );
             };
@@ -368,7 +368,7 @@ namespace moris
             void
             get_element_topology(
                     const moris::uint& aMyElementInd,
-                    Matrix< DDSMat >&  aElementTopology )
+                    Matrix< DDSMat >&  aElementTopology ) override
             {
                 mMSI->get_eqn_obj( aMyElementInd )
                         ->get_equation_obj_dof_ids( aElementTopology );
@@ -379,7 +379,7 @@ namespace moris
             get_element_topology(
                     const moris::uint& aMyEquSetInd,
                     const moris::uint& aMyElementInd,
-                    Matrix< DDSMat >&  aElementTopology )
+                    Matrix< DDSMat >&  aElementTopology ) override
             {
                 mMSI->get_equation_set( aMyEquSetInd )
                         ->get_equation_object_list()( aMyElementInd )
@@ -389,7 +389,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             Matrix< DDUMat >
-            get_constrained_Ids()
+            get_constrained_Ids() override
             {
                 // Matrix< DDUMat > tLocalConstrIds;// = mDofMgn->get_full_to_free_constraints();
                 return Matrix< DDUMat >( 0, 0 );
@@ -400,7 +400,7 @@ namespace moris
             void
             get_equation_object_operator(
                     const moris::uint& aMyElementInd,
-                    Matrix< DDRMat >&  aElementMatrix )
+                    Matrix< DDRMat >&  aElementMatrix ) override
             {
                 // mMSI->get_eqn_obj( aMyElementInd )->set_time( mTime );
                 mMSI->get_eqn_obj( aMyElementInd )
@@ -413,7 +413,7 @@ namespace moris
             get_equation_object_operator(
                     const moris::uint& aMyEquSetInd,
                     const moris::uint& aMyElementInd,
-                    Matrix< DDRMat >&  aElementMatrix )
+                    Matrix< DDRMat >&  aElementMatrix ) override
             {
                 // mMSI->get_equation_set( aMyEquSetInd )->get_equation_object_list()( aMyElementInd )->set_time( mTime );
                 mMSI->get_equation_set( aMyEquSetInd )
@@ -425,7 +425,7 @@ namespace moris
             void
             get_equation_object_rhs(
                     const moris::uint&          aMyElementInd,
-                    Vector< Matrix< DDRMat > >& aElementRHS )
+                    Vector< Matrix< DDRMat > >& aElementRHS ) override
             {
                 mMSI->get_eqn_obj( aMyElementInd )
                         ->get_equation_obj_residual( aElementRHS );
@@ -437,7 +437,7 @@ namespace moris
             get_equation_object_rhs(
                     const moris::uint&          aMyEquSetInd,
                     const moris::uint&          aMyElementInd,
-                    Vector< Matrix< DDRMat > >& aElementRHS )
+                    Vector< Matrix< DDRMat > >& aElementRHS ) override
             {
                 mMSI->get_equation_set( aMyEquSetInd )
                         ->get_equation_object_list()( aMyElementInd )
@@ -448,7 +448,7 @@ namespace moris
             get_equation_object_staggered_rhs(
                     const moris::uint&          aMyEquSetInd,
                     const moris::uint&          aMyElementInd,
-                    Vector< Matrix< DDRMat > >& aElementRHS )
+                    Vector< Matrix< DDRMat > >& aElementRHS ) override
             {
                 mMSI->get_equation_set( aMyEquSetInd )
                         ->get_equation_object_list()( aMyElementInd )
@@ -461,7 +461,7 @@ namespace moris
             get_equation_object_off_diag_rhs(
                     const moris::uint&          aMyEquSetInd,
                     const moris::uint&          aMyElementInd,
-                    Vector< Matrix< DDRMat > >& aElementRHS )
+                    Vector< Matrix< DDRMat > >& aElementRHS ) override
             {
                 mMSI->get_equation_set( aMyEquSetInd )
                         ->get_equation_object_list()( aMyElementInd )
@@ -474,7 +474,7 @@ namespace moris
             get_equation_object_operator_and_rhs(
                     const moris::uint&          aMyElementInd,
                     Matrix< DDRMat >&           aElementMatrix,
-                    Vector< Matrix< DDRMat > >& aElementRHS )
+                    Vector< Matrix< DDRMat > >& aElementRHS ) override
             {
                 // mMSI->get_eqn_obj( aMyElementInd )->set_time( mTime );
                 mMSI->get_eqn_obj( aMyElementInd )
@@ -488,7 +488,7 @@ namespace moris
                     const moris::uint&          aMyEquSetInd,
                     const moris::uint&          aMyElementInd,
                     Matrix< DDRMat >&           aElementMatrix,
-                    Vector< Matrix< DDRMat > >& aElementRHS )
+                    Vector< Matrix< DDRMat > >& aElementRHS ) override
             {
                 // mMSI->get_equation_set( aMyEquSetInd )->get_equation_object_list()( aMyElementInd )->set_time( mTime );
                 mMSI->get_equation_set( aMyEquSetInd )
@@ -499,7 +499,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             mtk::Mesh*
-            get_mesh_pointer_for_multigrid()
+            get_mesh_pointer_for_multigrid() override
             {
                 return mMSI->get_mesh_pointer_for_multigrid();
             };
@@ -511,7 +511,7 @@ namespace moris
                     const moris::uint              aLevel,
                     const moris::Matrix< DDSMat >& aExtFineIndices,
                     const moris::sint              aTypeTimeIdentifier,
-                    moris::Matrix< DDSMat >&       aInternalFineIndices )
+                    moris::Matrix< DDSMat >&       aInternalFineIndices ) override
             {
                 mMSI->get_msi_multigrid_pointer()->read_multigrid_maps( aLevel, aExtFineIndices, aTypeTimeIdentifier, aInternalFineIndices );
             };
@@ -519,7 +519,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             const Vector< Matrix< DDSMat > >&
-            get_lists_of_multigrid_identifiers()
+            get_lists_of_multigrid_identifiers() override
             {
                 return mMSI->get_msi_multigrid_pointer()->get_lists_of_multigrid_identifiers();
             };
@@ -527,7 +527,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             const Vector< Matrix< DDUMat > >&
-            get_lists_of_ext_index_multigrid()
+            get_lists_of_ext_index_multigrid() override
             {
                 return mMSI->get_msi_multigrid_pointer()->get_lists_of_ext_index_multigrid();
             };
@@ -535,7 +535,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             const Vector< Vector< Matrix< DDSMat > > >&
-            get_multigrid_map()
+            get_multigrid_map() override
             {
                 return mMSI->get_msi_multigrid_pointer()->get_multigrid_map();
             };
@@ -543,7 +543,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             const moris::Matrix< DDUMat >&
-            get_number_remaining_dofs()
+            get_number_remaining_dofs() override
             {
                 return mMSI->get_msi_multigrid_pointer()->get_number_remaining_dofs();
             };
@@ -551,7 +551,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             const Matrix< DDSMat >&
-            get_type_time_identifier_to_type_map()
+            get_type_time_identifier_to_type_map() override
             {
                 return mDofMgn->get_typetime_identifier_to_type_map();
             };
@@ -559,7 +559,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             moris::sint
-            get_adof_index_for_type( moris::uint aDofType )
+            get_adof_index_for_type( moris::uint aDofType ) override
             {
                 return mMSI->get_adof_index_for_type( aDofType );
             };
@@ -569,18 +569,18 @@ namespace moris
             void
             calculate_criteria(
                     const moris::uint& aMySetInd,
-                    const moris::uint& aMyEquationObjectInd )
+                    const moris::uint& aMyEquationObjectInd ) override
             {
                 mMSI->get_equation_set( aMySetInd )->get_equation_object_list()( aMyEquationObjectInd )->compute_QI();
             };
 
             //------------------------------------------------------------------------------
 
-            const Vector< moris::Matrix< DDRMat > >& get_criteria( const moris::uint& aMySetInd );
+            const Vector< moris::Matrix< DDRMat > >& get_criteria( const moris::uint& aMySetInd ) override;
 
             //------------------------------------------------------------------------------
 
-            void set_requested_IQI_names( const Vector< std::string >& aIQINames );
+            void set_requested_IQI_names( const Vector< std::string >& aIQINames ) override;
 
             //------------------------------------------------------------------------------
 
@@ -590,7 +590,7 @@ namespace moris
              * @param aSolverWarehouse
              */
             void
-            set_solver_warehouse( std::shared_ptr< sol::SOL_Warehouse > aSolverWarehouse );
+            set_solver_warehouse( const std::shared_ptr< sol::SOL_Warehouse >& aSolverWarehouse ) override;
 
             //------------------------------------------------------------------------------
 
@@ -600,7 +600,7 @@ namespace moris
              *
              */
 
-            virtual void compute_sparsity_pattern() override;
+            void compute_sparsity_pattern() override;
 
             //------------------------------------------------------------------------------
 

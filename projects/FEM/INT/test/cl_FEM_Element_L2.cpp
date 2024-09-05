@@ -19,7 +19,6 @@
 #include "cl_MTK_Mesh_Tools.hpp"
 #include "cl_MTK_Mesh_Data_Input.hpp"
 #include "cl_MTK_Scalar_Field_Info.hpp"
-#include "cl_MTK_Mesh.hpp"
 
 #include "cl_Matrix.hpp"    //LINALG
 #include "linalg_typedefs.hpp"

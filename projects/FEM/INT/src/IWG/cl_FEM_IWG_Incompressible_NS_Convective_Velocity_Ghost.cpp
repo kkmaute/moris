@@ -15,30 +15,28 @@
 #include "fn_trans.hpp"
 #include "fn_norm.hpp"
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+
+    //------------------------------------------------------------------------------
+
+    IWG_Incompressible_NS_Convective_Velocity_Ghost::IWG_Incompressible_NS_Convective_Velocity_Ghost()
     {
+        // set ghost flag
+        mIsGhost = true;
 
-        //------------------------------------------------------------------------------
+        // set size for the stabilization parameter pointer cell
+        mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
 
-        IWG_Incompressible_NS_Convective_Velocity_Ghost::IWG_Incompressible_NS_Convective_Velocity_Ghost()
-        {
-            // set ghost flag
-            mIsGhost = true;
+        // populate the stabilization map
+        mStabilizationMap[ "ConvectiveGhost" ] = static_cast< uint >( IWG_Stabilization_Type::CONVECTIVE_GHOST );
+    }
 
-            // set size for the stabilization parameter pointer cell
-            mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
+    //------------------------------------------------------------------------------
 
-            // populate the stabilization map
-            mStabilizationMap[ "ConvectiveGhost" ] = static_cast< uint >( IWG_Stabilization_Type::CONVECTIVE_GHOST );
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IWG_Incompressible_NS_Convective_Velocity_Ghost::compute_residual( real aWStar )
-        {
-            // check leader field interpolators
+    void IWG_Incompressible_NS_Convective_Velocity_Ghost::compute_residual( real aWStar )
+    {
+        // check leader field interpolators
 #ifdef MORIS_HAVE_DEBUG
             this->check_field_interpolators();
 #endif
@@ -264,6 +262,4 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
-
+}    // namespace moris::fem

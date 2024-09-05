@@ -228,7 +228,7 @@ Linear_Solver_Amesos::set_solver_internal_parameters()
     {
 #ifdef MORIS_USE_MUMPS
         // Increase memory allocation to 200% at a time (default = 20%)
-        params.sublist( "mumps" ).set( "ICNTL(14)", static_cast< int >( 200 ) );
+        params.sublist( "mumps" ).set( "ICNTL(14)", 200 );
 #else
         MORIS_ERROR( false,
                 "Linear_Solver_Amesos::set_solver_internal_parameters - MORIS installed without support for MUMPS" );

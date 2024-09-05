@@ -15,162 +15,160 @@
 #include "cl_MTK_Cell.hpp"
 #include "cl_SDF_Vertex.hpp"
 
-namespace moris
+namespace moris::sdf
 {
-    namespace sdf
+    //-------------------------------------------------------------------------------
+
+    /**
+     * a wrapper for the MTK cell
+     */
+    class Cell
     {
-//-------------------------------------------------------------------------------
+        const moris_index mIndex;
+        const moris_id    mID;
 
-        /**
-         * a wrapper for the MTK cell
-         */
-        class Cell
+        // cell with MTK vertices
+        Vector< Vertex * > mVertices;
+
+        // flag telling if element is in volume
+        bool mElementIsInVolume = false;
+
+        // flag telling if element is in surface
+        bool mElementIsOnSurface = false;
+
+        // general purpose flag
+        bool mFlag = false;
+
+        //-------------------------------------------------------------------------------
+
+      public:
+        //-------------------------------------------------------------------------------
+
+        Cell( const moris_index           aIndex,
+                const moris_id            aID,
+                const Matrix< IndexMat > &aIndices,
+                Vector< Vertex * >       &aAllVertices );
+
+        //-------------------------------------------------------------------------------
+
+        uint
+        get_number_of_vertices() const
         {
-            const moris_index mIndex;
-            const moris_id    mID;
+            return mVertices.size();
+        }
 
-            // cell with MTK vertices
-            Vector< Vertex * > mVertices;
+        //-------------------------------------------------------------------------------
 
-            // flag telling if element is in volume
-            bool mElementIsInVolume = false;
+        Vertex *
+        get_vertex( const uint &aIndex )
+        {
+            return mVertices( aIndex );
+        }
 
-            // flag telling if element is in surface
-            bool mElementIsOnSurface= false;
+        //-------------------------------------------------------------------------------
 
-            // general purpose flag
-            bool mFlag = false;
+        Vector< Vertex * > &
+        get_vertices()
+        {
+            return mVertices;
+        }
 
-//-------------------------------------------------------------------------------
-        public:
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
+        void
+        set_volume_flag()
+        {
+            mElementIsInVolume = true;
+        }
 
-            Cell(   const moris_index          aIndex,
-                    const moris_id             aID,
-                    const Matrix< IndexMat > & aIndices,
-                    Vector< Vertex * >  & aAllVertices );
+        //-------------------------------------------------------------------------------
 
-//-------------------------------------------------------------------------------
+        void
+        unset_volume_flag()
+        {
+            mElementIsInVolume = false;
+        }
 
-            uint
-            get_number_of_vertices() const
-            {
-                return mVertices.size();
-            }
+        //-------------------------------------------------------------------------------
 
-//-------------------------------------------------------------------------------
+        bool
+        is_in_volume() const
+        {
+            return mElementIsInVolume;
+        }
 
-            Vertex *
-            get_vertex( const uint & aIndex )
-            {
-                return mVertices( aIndex );
-            }
+        //-------------------------------------------------------------------------------
 
-//-------------------------------------------------------------------------------
+        void
+        set_surface_flag()
+        {
+            mElementIsOnSurface = true;
+        }
 
-            Vector< Vertex * > &
-            get_vertices()
-            {
-                return mVertices;
-            }
+        //-------------------------------------------------------------------------------
 
-//-------------------------------------------------------------------------------
-            void
-            set_volume_flag()
-            {
-                mElementIsInVolume = true;
-            }
+        void
+        unset_surface_flag()
+        {
+            mElementIsOnSurface = false;
+        }
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
-            void
-            unset_volume_flag()
-            {
-                mElementIsInVolume = false;
-            }
+        bool
+        is_on_surface() const
+        {
+            return mElementIsOnSurface;
+        }
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
-            bool
-            is_in_volume() const
-            {
-                return mElementIsInVolume;
-            }
+        void
+        flag()
+        {
+            mFlag = true;
+        }
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
-            void
-            set_surface_flag()
-            {
-                mElementIsOnSurface = true;
-            }
+        void
+        unflag()
+        {
+            mFlag = false;
+        }
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
-            void
-            unset_surface_flag()
-            {
-                mElementIsOnSurface = false;
-            }
+        bool
+        is_flagged() const
+        {
+            return mFlag;
+        }
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
-            bool
-            is_on_surface() const
-            {
-                return mElementIsOnSurface;
-            }
+        moris_index
+        get_index()
+        {
+            return mIndex;
+        }
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
-            void
-            flag()
-            {
-                mFlag = true;
-            }
+        moris_id
+        get_id()
+        {
+            return mID;
+        }
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
-            void
-            unflag()
-            {
-                mFlag = false;
-            }
+        real
+        get_buffer_diagonal();
 
-//-------------------------------------------------------------------------------
-
-            bool
-            is_flagged() const
-            {
-                return mFlag;
-            }
-
-//-------------------------------------------------------------------------------
-
-            moris_index
-            get_index()
-            {
-                return mIndex;
-            }
-
-//-------------------------------------------------------------------------------
-
-            moris_id
-            get_id()
-            {
-                return mID;
-            }
-
-//-------------------------------------------------------------------------------
-
-            real
-            get_buffer_diagonal();
-
-//-------------------------------------------------------------------------------
-        };
-//-------------------------------------------------------------------------------
-    } /* namespace sdf */
-} /* namespace moris */
+        //-------------------------------------------------------------------------------
+    };
+    //-------------------------------------------------------------------------------
+}    // namespace moris::sdf
 
 #endif /* PROJECTS_GEN_SDF_SRC_CL_SDF_CELL_HPP_ */
 

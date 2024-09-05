@@ -117,6 +117,12 @@ namespace moris::sol
         END_ENUM
     };
 
+    enum class SensitivityAnalysisType
+    {
+        ADJOINT,
+        DIRECT,
+        END_ENUM
+    };
 }    // namespace moris::sol
 
 #endif /* SRC_DISTLINALG_CL_DLA_ENUMS_HPP_ */

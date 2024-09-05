@@ -62,7 +62,7 @@ namespace moris::hmr
                     {
                         if( par_rank() == 0 )
                         {
-                            std::cout << "No file path provided for parameters file." << std::endl;
+                            std::cout << "No file path provided for parameters file." << '\n';
                             tArgumentsError = true;
                             break;
                         }
@@ -90,7 +90,7 @@ namespace moris::hmr
                     {
                         if( par_rank() == 0 )
                         {
-                            std::cout << "No timestep provided." << std::endl;
+                            std::cout << "No timestep provided." << '\n';
                             tArgumentsError = true;
                             break;
                         }
@@ -145,9 +145,9 @@ namespace moris::hmr
     {
         if( par_rank() == 0 )
         {
-            std::cout << "Usage: hmr [option] <file>..." << std::endl;
-            std::cout << std::endl;
-            std::cout<< "run hmr --help to show options" << std::endl;
+            std::cout << "Usage: hmr [option] <file>..." << '\n';
+            std::cout << '\n';
+            std::cout << "run hmr --help to show options" << '\n';
         }
     }
 
@@ -157,21 +157,21 @@ namespace moris::hmr
     {
         if( par_rank() == 0 )
         {
-            std::cout << "Usage: hmr [option] <file> ..." << std::endl;
-            std::cout << std::endl;
-            std::cout<< "Options:" << std::endl;
+            std::cout << "Usage: hmr [option] <file> ..." << '\n';
+            std::cout << '\n';
+            std::cout << "Options:" << '\n';
             //std::cout<< "--bincoeffs  <binaryfile> Dump coefficients into binary file      ( short -b )" << std::endl;
             //std::cout<< "--coeffs     <hdf5file>   Dump coefficients into hdf5 file        ( short -c )" << std::endl;
             //std::cout<< "--exodus     <exofile>    Dump output mesh into exodus file       ( short -e )" << std::endl;
-            std::cout<< "--help                    Print this help screen                  ( short -h )" << std::endl;
+            std::cout << "--help                    Print this help screen                  ( short -h )" << '\n';
             //std::cout<< "--in         <infile>     Load existing database from HDF5 file   ( short -i )" << std::endl;
-            std::cout<< "--init                    Create a tensor field and quit          ( short -i )" << std::endl;
-            std::cout<< "--laststep                Dump unrefined step into exodus         ( short -l )" << std::endl;
-            std::cout<< "--map                     Map fields from input database to out   ( short -m )" << std::endl;
+            std::cout << "--init                    Create a tensor field and quit          ( short -i )" << '\n';
+            std::cout << "--laststep                Dump unrefined step into exodus         ( short -l )" << '\n';
+            std::cout << "--map                     Map fields from input database to out   ( short -m )" << '\n';
             //std::cout<< "--out        <outfile>    Save refined  datanbase into HDF5 file  ( short -o )" << std::endl;
-            std::cout<< "--parameters <xmlfile>    Process parameters from <xmlfile>       ( short -p )" << std::endl;
-            std::cout<< "--timestep   <double>     Sets a timestep for the exo-file        ( short -t )" << std::endl;
-            std::cout<< "--version                 Print banner and exit                   ( short -v )" << std::endl;
+            std::cout << "--parameters <xmlfile>    Process parameters from <xmlfile>       ( short -p )" << '\n';
+            std::cout << "--timestep   <double>     Sets a timestep for the exo-file        ( short -t )" << '\n';
+            std::cout << "--version                 Print banner and exit                   ( short -v )" << '\n';
         }
     }
 

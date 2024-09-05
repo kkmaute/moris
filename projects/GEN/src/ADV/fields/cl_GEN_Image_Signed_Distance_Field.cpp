@@ -200,7 +200,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    Image_Signed_Distance_Field::read_image_sdf_data( std::string aImageFiledName )
+    Image_Signed_Distance_Field::read_image_sdf_data( const std::string& aImageFiledName )
     {
         // open hdf5 file with serial naming convention and read only
         hid_t  tFileID = open_hdf5_file( aImageFiledName, false, true );

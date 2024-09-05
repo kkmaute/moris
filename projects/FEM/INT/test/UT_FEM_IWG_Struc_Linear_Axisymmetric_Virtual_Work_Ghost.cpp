@@ -369,7 +369,7 @@ TEST_CASE( "IWG_Elast_Axi_VWGhost", "[moris],[fem],[axi],[IWG_Elast_Axi_VWGhost]
                 // print for debug
                 if( !tCheckJacobian )
                 {
-                    std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<" iGP "<<iGP<<std::endl;
+                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << " iGP " << iGP << '\n';
                 }
 
                 // require check is true

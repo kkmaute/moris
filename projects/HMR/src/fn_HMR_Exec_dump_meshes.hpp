@@ -69,13 +69,12 @@ namespace moris::hmr
                 if( aArguments.get_state() == State::REFINE_MESH && tOrder < 3 )
                 {
                     // get path
-                    std::string tOrgPath = aParamfile.get_mesh_path( m );
+                    const std::string& tOrgPath = aParamfile.get_mesh_path( m );
 
                     // add suffix
                     std::string tPath =
-                            tOrgPath.substr(0,tOrgPath.find_last_of(".")) // base path
-                            + "_last_step" +
-                            tOrgPath.substr( tOrgPath.find_last_of("."), tOrgPath.length() ); // file extension
+                            tOrgPath.substr( 0, tOrgPath.find_last_of( '.' ) )                                      // base path
+                            + "_last_step" + tOrgPath.substr( tOrgPath.find_last_of( '.' ), tOrgPath.length() );    // file extension
 
                     MORIS_ERROR(false, "HMR::get_mesh_index() this function is not udated yet ");
 //                        tIndex = aHMR->get_mesh_index( tOrder, aHMR->get_parameters()->get_lagrange_input_pattern() );

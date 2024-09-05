@@ -30,7 +30,7 @@ namespace moris::gen
 
         // GEN-MESH map
         Vector< moris_index > mGenMeshMap;
-        bool                       mGenMeshMapIsInitialized = false;
+        bool                  mGenMeshMapIsInitialized = false;
 
         // ADV IDs
         Vector< sint > mOwnedADVIds;
@@ -38,12 +38,12 @@ namespace moris::gen
 
         // PDV type map
         Vector< PDV_Type > mPDVTypeList;    // List containing all used unique dv types.
-        Matrix< DDSMat >             mPDVTypeMap;     // Map which maps the unique dv types onto consecutive values.
-        Matrix< IdMat >              mCommTable;
+        Matrix< DDSMat >   mPDVTypeMap;     // Map which maps the unique dv types onto consecutive values.
+        Matrix< IdMat >    mCommTable;
 
         // list of pdv hosts - interpolation nodes
         Vector< std::shared_ptr< Interpolation_PDV_Host > > mIpPDVHosts;
-        Vector< Intersection_Node* > mIntersectionNodes;
+        Vector< Intersection_Node* >                        mIntersectionNodes;
 
         std::unordered_map< moris_id, moris_index > mIGVertexIdtoIndMap;
         std::unordered_map< moris_id, moris_index > mIPVertexIdtoIndMap;
@@ -130,7 +130,7 @@ namespace moris::gen
         };
 
         void
-        set_GenMeshMap( Vector< moris_index > aGenMeshMap ) override;
+        set_GenMeshMap( const Vector< moris_index >& aGenMeshMap ) override;
 
         /**
          * Resets the stored information about PDV hosts.
@@ -146,7 +146,7 @@ namespace moris::gen
          */
         void
         get_ip_dv_types_for_set(
-                moris_index               aIGMeshSetIndex,
+                moris_index                   aIGMeshSetIndex,
                 Vector< Vector< PDV_Type > >& aPDVTypes ) override;
 
         /**
@@ -157,7 +157,7 @@ namespace moris::gen
          */
         void
         get_ig_dv_types_for_set(
-                moris_index               aIGMeshSetIndex,
+                moris_index                   aIGMeshSetIndex,
                 Vector< Vector< PDV_Type > >& aPDVTypes ) override;
 
         /**
@@ -168,7 +168,7 @@ namespace moris::gen
          */
         void
         get_ip_unique_dv_types_for_set(
-                moris_index       aIGMeshSetIndex,
+                moris_index         aIGMeshSetIndex,
                 Vector< PDV_Type >& aPDVTypes ) override;
 
         /**
@@ -179,7 +179,7 @@ namespace moris::gen
          */
         void
         get_ig_unique_dv_types_for_set(
-                moris_index       aIGMeshSetIndex,
+                moris_index         aIGMeshSetIndex,
                 Vector< PDV_Type >& aPDVTypes ) override;
 
         /**
@@ -191,7 +191,7 @@ namespace moris::gen
          */
         void
         get_ip_pdv_value(
-                const Matrix< IndexMat >& aNodeIndices,
+                const Matrix< IndexMat >&   aNodeIndices,
                 const Vector< PDV_Type >&   aPDVTypes,
                 Vector< Matrix< DDRMat > >& aDvValues ) override;
 
@@ -205,10 +205,10 @@ namespace moris::gen
          */
         void
         get_ig_pdv_value(
-                const Matrix< IndexMat >& aNodeIndices,
+                const Matrix< IndexMat >&   aNodeIndices,
                 const Vector< PDV_Type >&   aPDVTypes,
                 Vector< Matrix< DDRMat > >& aDvValues,
-                Vector< Vector< bool > >&     aIsActiveDv ) override;
+                Vector< Vector< bool > >&   aIsActiveDv ) override;
 
         /**
          * Get the local to global pdv type map
@@ -227,9 +227,9 @@ namespace moris::gen
          * @param aDvIds     List of Dv Ids
          */
         void get_ip_dv_ids_for_type_and_ind(
-                const Matrix< IndexMat >& aNodeIndices,
-                const Vector< PDV_Type >&   aPDVTypes,
-                Vector< Matrix< IdMat > >&  aDvIds ) override;
+                const Matrix< IndexMat >&  aNodeIndices,
+                const Vector< PDV_Type >&  aPDVTypes,
+                Vector< Matrix< IdMat > >& aDvIds ) override;
 
         /**
          * Get local to global DV type map
@@ -239,9 +239,9 @@ namespace moris::gen
          * @param aDvIds     List of Dv Ids
          */
         void get_ig_dv_ids_for_type_and_ind(
-                const Matrix< IndexMat >& aNodeIndices,
-                const Vector< PDV_Type >&   aPDVTypes,
-                Vector< Matrix< IdMat > >&  aDvIds ) override;
+                const Matrix< IndexMat >&  aNodeIndices,
+                const Vector< PDV_Type >&  aPDVTypes,
+                Vector< Matrix< IdMat > >& aDvIds ) override;
 
         /**
          * Get requested pdv types on interpolation mesh nodes for sensitivity analysis
@@ -275,9 +275,9 @@ namespace moris::gen
          * @param aPDVTypes The PDV types per set, grouped
          */
         void create_interpolation_pdv_hosts(
-                const Vector< Vector< uint > >& aNodeIndicesPerSet,
-                const Vector< Vector< sint > >& aNodeIdsPerSet,
-                const Vector< Vector< uint > >& aNodeOwnersPerSet,
+                const Vector< Vector< uint > >&   aNodeIndicesPerSet,
+                const Vector< Vector< sint > >&   aNodeIdsPerSet,
+                const Vector< Vector< uint > >&   aNodeOwnersPerSet,
                 const Vector< Matrix< DDRMat > >& aNodeCoordinates );
 
         /**
@@ -303,14 +303,14 @@ namespace moris::gen
          *
          * @param aPDVTypes the pdv types which will be requested by MDL
          */
-        void set_requested_interpolation_pdv_types( Vector< PDV_Type > aPDVTypes );
+        void set_requested_interpolation_pdv_types( const Vector< PDV_Type >& aPDVTypes );
 
         /**
          * Set the requested integration node PDV types for sensitivities
          *
          * @param aPDVTypes the pdv types which will be requested by MDL
          */
-        void set_requested_integration_pdv_types( Vector< PDV_Type > aPDVTypes );
+        void set_requested_integration_pdv_types( const Vector< PDV_Type >& aPDVTypes );
 
         /**
          * Create PDV on interpolation mesh node with real value
@@ -332,9 +332,9 @@ namespace moris::gen
          * @param aProperty Pointer to a GEN property
          */
         void create_interpolation_pdv(
-                uint                        aNodeIndex,
-                PDV_Type                    aPDVType,
-                std::shared_ptr< Property > aProperty );
+                uint                               aNodeIndex,
+                PDV_Type                           aPDVType,
+                const std::shared_ptr< Property >& aProperty );
 
         /**
          * Does the necessary chain rule on the IQI derivatives with respect to PDVs which each of the PDV
@@ -359,12 +359,11 @@ namespace moris::gen
         void
         set_dQIdp(
                 const Vector< Matrix< DDRMat >* >& adQIdp,
-                Matrix< DDSMat >*                aMap );
+                Matrix< DDSMat >*                  aMap );
 
         //-------------------------------------------------------------------------------
 
       private:
-
         /**
          * Counts the number of owned and shared PDVs, including both interpolation PDVs and intersection nodes.
          * These values are stored in mNumOwnedPDVs and mNumOwnedAndSharedPDVs.
@@ -408,6 +407,5 @@ namespace moris::gen
         void build_local_to_global_maps();
 
         //-------------------------------------------------------------------------------
-
     };
-}
+}    // namespace moris::gen

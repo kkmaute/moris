@@ -126,12 +126,12 @@ namespace moris
              * @param[in] aLevel                Solver level in the block structure. Default is 0
              */
             void set_dof_type_list(
-                    const Vector< enum MSI::Dof_Type > aStaggeredDofTypeList,
-                    const sint                         aLevel = 0 );
+                    const Vector< enum MSI::Dof_Type >& aStaggeredDofTypeList,
+                    const sint                          aLevel = 0 );
 
             //--------------------------------------------------------------------------------------------------
 
-            void set_secondary_dof_type_list( const Vector< enum MSI::Dof_Type > aStaggeredDofTypeList );
+            void set_secondary_dof_type_list( const Vector< enum MSI::Dof_Type >& aStaggeredDofTypeList );
 
             //--------------------------------------------------------------------------------------------------
 
@@ -201,7 +201,7 @@ namespace moris
              *
              * @param[in] aNonLinSolver Pointer to nonlinear solver.
              */
-            void set_nonlinear_algorithm( std::shared_ptr< Nonlinear_Algorithm > aNonLinSolver );
+            void set_nonlinear_algorithm( const std::shared_ptr< Nonlinear_Algorithm >& aNonLinSolver );
 
             //--------------------------------------------------------------------------------------------------
 

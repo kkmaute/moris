@@ -14,13 +14,13 @@ namespace moris::mtk
     {
       public:
         explicit Ray_Line_Intersection( uint const aSpatialDimension )
-                : Ray_Intersection( Geometry_Type::LINE, aSpatialDimension ){};
+                : Ray_Intersection( Geometry_Type::LINE, aSpatialDimension ) {};
 
         ~Ray_Line_Intersection() override = default;
 
         void perform_raytracing() override;
 
-        Matrix< DDRMat > const get_intersection_parametric() const override;
+        Matrix< DDRMat > get_intersection_parametric() const override;
 
         real get_signed_ray_length() const override;
 

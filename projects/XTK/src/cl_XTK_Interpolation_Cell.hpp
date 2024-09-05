@@ -11,18 +11,17 @@
 #ifndef PROJECTS_XTK_SRC_XTK_CL_XTK_INTERPOLATION_CELL_HPP_
 #define PROJECTS_XTK_SRC_XTK_CL_XTK_INTERPOLATION_CELL_HPP_
 
+#include <utility>
+
 #include "cl_MTK_Cell.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 using namespace moris;
 
-namespace moris
+namespace moris::mtk
 {
-    namespace mtk
-    {
-        class Vertex;
+    class Vertex;
     }
-}    // namespace moris
 
 namespace moris::xtk
 {
@@ -34,17 +33,17 @@ namespace moris::xtk
                 moris_index                              aCellIndex,
                 moris_id                                 aCellOwner,
                 std::shared_ptr< moris::mtk::Cell_Info > aConnectivity )
-                : Cell( aCellId, aCellIndex, aCellOwner, aConnectivity )
+                : Cell( aCellId, aCellIndex, aCellOwner, std::move( aConnectivity ) )
         {
         }
 
         Interpolation_Cell(){};
 
-        virtual Vector< mtk::Vertex* >
-        get_vertex_pointers() const = 0;
+        Vector< mtk::Vertex* >
+        get_vertex_pointers() const override = 0;
 
-        virtual Matrix< DDRMat >
-        get_vertex_coords() const = 0;
+        Matrix< DDRMat >
+        get_vertex_coords() const override = 0;
     };
 
 }    // namespace moris::xtk

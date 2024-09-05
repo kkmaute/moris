@@ -214,12 +214,10 @@ void snlog_(
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-namespace moris
+namespace moris::opt
 {
-    namespace opt
+    Algorithm_SQP::Algorithm_SQP( Parameter_List aParameterList )
     {
-        Algorithm_SQP::Algorithm_SQP( Parameter_List aParameterList )
-        {
 #ifdef MORIS_HAVE_SNOPT
             // Initialize
             int tPrint = 0;
@@ -413,8 +411,8 @@ namespace moris
             auto xlow = mProblem->get_lower_bounds().memptr();
             auto xupp = mProblem->get_upper_bounds().memptr();
 
-            char* Fnames = 0;
-            char* xnames = 0;
+            char* Fnames = nullptr;
+            char* xnames = nullptr;
 
             double* Flow = static_cast< double* >( malloc( nF * sizeof( double ) ) );
             double* Fupp = static_cast< double* >( malloc( nF * sizeof( double ) ) );
@@ -500,8 +498,8 @@ namespace moris
             int     leniu = 0;
             int     lenru = 0;
             int     Start = 0;
-            int*    iu    = 0;
-            double* ru    = 0;
+            int*    iu    = nullptr;
+            double* ru    = nullptr;
 
             char* cu = reinterpret_cast< char* >( this );
 
@@ -686,5 +684,4 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-    }    // namespace opt
-}    // namespace moris
+}    // namespace moris::opt

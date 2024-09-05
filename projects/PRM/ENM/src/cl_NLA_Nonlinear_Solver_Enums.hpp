@@ -17,16 +17,13 @@
 #include "cl_Vector.hpp"
 
 
-namespace moris
+namespace moris::NLA
 {
-    namespace NLA
-    {
-        ENUM_MACRO( NonlinearSolverType,
-                NEWTON_SOLVER,
-                NLBGS_SOLVER,
-                ARC_LENGTH_SOLVER,
-                END_ENUM )
-    }
-}    // namespace moris
+    ENUM_MACRO( NonlinearSolverType,
+            NEWTON_SOLVER,
+            NLBGS_SOLVER,
+            ARC_LENGTH_SOLVER,
+            END_ENUM )
+}
 
 #endif /* SRC_DISTLINALG_CL_NLA_NONLINEAR_SOLVER_ENUMS_HPP_ */

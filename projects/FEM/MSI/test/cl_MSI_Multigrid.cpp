@@ -53,10 +53,8 @@ LevelSetFunction( const moris::Matrix< moris::DDRMat > & aPoint )
     return norm( aPoint ) - 1.2;
 }
 
-namespace moris
+namespace moris::MSI
 {
-    namespace MSI
-    {
     TEST_CASE("MSI_Multigrid","[MSI],[multigrid]")
     {
         if( moris::par_size() == 1 )
@@ -310,5 +308,3 @@ namespace moris
 //            }
 //    }
     }
-}
-

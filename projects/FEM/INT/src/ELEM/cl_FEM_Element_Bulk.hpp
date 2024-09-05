@@ -14,150 +14,147 @@
 #include "assert.h"
 #include "cl_FEM_Element.hpp"    //FEM/INT/src
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+    class Set;
+    //------------------------------------------------------------------------------
+    /**
+     * \brief element class that communicates with the mesh interface
+     */
+    class Element_Bulk : public Element
     {
-        class Set;
+
+        //------------------------------------------------------------------------------
+
+      public:
         //------------------------------------------------------------------------------
         /**
-         * \brief element class that communicates with the mesh interface
+         * trivial constructor
          */
-        class Element_Bulk : public Element
-        {
+        Element_Bulk(){};
 
-            //------------------------------------------------------------------------------
-
-          public:
-            //------------------------------------------------------------------------------
-            /**
-             * trivial constructor
-             */
-            Element_Bulk(){};
-
-            /**
-             * constructor
-             * @param[ in ] aCell               a mesh cell pointer
-             * @param[ in ] aSet                a fem set pointer
-             * @param[ in ] aCluster            a fem cluster pointer
-             * @param[ in ] aCellIndexInCluster an index for cell in cluster
-             */
-            Element_Bulk(
-                    mtk::Cell const   *aCell,
-                    Set               *aSet,
-                    Cluster           *aCluster,
-                    moris::moris_index aCellIndexInCluster );
-
-            //------------------------------------------------------------------------------
-            /**
-             * trivial destructor
-             */
-            ~Element_Bulk();
-
-            //------------------------------------------------------------------------------
-            /**
-             * compute jacobian
-             */
-            void compute_jacobian();
-
-            //------------------------------------------------------------------------------
-            /**
-             * compute residual
-             */
-            void compute_residual();
-
-            //------------------------------------------------------------------------------
-            /**
-             * compute jacobian and residual
-             */
-            void compute_jacobian_and_residual();
-
-            //------------------------------------------------------------------------------
-            /**
-             * compute dRdp
-             */
-            void compute_dRdp();
-
-            //------------------------------------------------------------------------------
-            /**
-             * compute quantities of interest in a global way
-             */
-            void compute_QI();
-
-            //------------------------------------------------------------------------------
-            /**
-             * compute dQIdp
-             */
-            void compute_dQIdp_explicit();
-
-            //------------------------------------------------------------------------------
-            /**
-             * compute dRdp and dQIdp
-             */
-            void compute_dRdp_and_dQIdp();
-
-            //------------------------------------------------------------------------------
-            /**
-             * compute dQIdu
-             */
-            void compute_dQIdu();
-
-            //------------------------------------------------------------------------------
-            /**
-             * compute quantity of interest in a global way
-             * @param[ in ] aFemMeshIndex mesh index to define on which mesh
-             *                              values are evaluated
-             */
-            void compute_quantity_of_interest_global( const uint aFemMeshIndex );
-
-            //------------------------------------------------------------------------------
-            /**
-             * compute quantity of interest in a elemental way
-             * @param[ in ] aFemMeshIndex mesh index to define on which mesh
-             * @param[ in ] aAverageOutput flag, turn on to request the averaged, rather than integrated quantity on the element/facet
-             */
-            void compute_quantity_of_interest_elemental(
-                    const uint aFemMeshIndex,
-                    const bool aAverageOutput );
-
-            //------------------------------------------------------------------------------
-            /**
-             * compute quantity of interest in a elemental way
-             * @param[ in ] Values
-             */
-            void compute_quantity_of_interest_elemental(
-                    Matrix< DDRMat > &tValues,
-                    uint              aIQIIndex,
-                    real             &aSpaceTimeVolume );
-
-            //------------------------------------------------------------------------------
-            /**
-             * compute volume over the element
-             */
-            real compute_volume( mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
-
-            //------------------------------------------------------------------------------
-
-          protected:
-            //------------------------------------------------------------------------------
-            /**
-             * initialize the geometry interpolator for the IG element
-             * using the mesh and GE
-             * @param[ in ] aGeoLocalAssembly matrix with pdv local assembly indices
-             *                               ( tNumNodes x tNumPdvTypes )
-             */
-            void init_ig_geometry_interpolator( Matrix< DDSMat > &aGeoLocalAssembly );
-
-            //------------------------------------------------------------------------------
-            /**
-             * initialize the geometry interpolator for the IG element
-             * using the mesh only
-             */
-            void init_ig_geometry_interpolator();
-        };
+        /**
+         * constructor
+         * @param[ in ] aCell               a mesh cell pointer
+         * @param[ in ] aSet                a fem set pointer
+         * @param[ in ] aCluster            a fem cluster pointer
+         * @param[ in ] aCellIndexInCluster an index for cell in cluster
+         */
+        Element_Bulk(
+                mtk::Cell const   *aCell,
+                Set               *aSet,
+                Cluster           *aCluster,
+                moris::moris_index aCellIndexInCluster );
 
         //------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
+        /**
+         * trivial destructor
+         */
+        ~Element_Bulk() override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute jacobian
+         */
+        void compute_jacobian() override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute residual
+         */
+        void compute_residual() override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute jacobian and residual
+         */
+        void compute_jacobian_and_residual() override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute dRdp
+         */
+        void compute_dRdp() override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute quantities of interest in a global way
+         */
+        void compute_QI() override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute dQIdp
+         */
+        void compute_dQIdp_explicit() override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute dRdp and dQIdp
+         */
+        void compute_dRdp_and_dQIdp() override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute dQIdu
+         */
+        void compute_dQIdu() override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute quantity of interest in a global way
+         * @param[ in ] aFemMeshIndex mesh index to define on which mesh
+         *                              values are evaluated
+         */
+        void compute_quantity_of_interest_global( const uint aFemMeshIndex ) override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute quantity of interest in a elemental way
+         * @param[ in ] aFemMeshIndex mesh index to define on which mesh
+         * @param[ in ] aAverageOutput flag, turn on to request the averaged, rather than integrated quantity on the element/facet
+         */
+        void compute_quantity_of_interest_elemental(
+                const uint aFemMeshIndex,
+                const bool aAverageOutput ) override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute quantity of interest in a elemental way
+         * @param[ in ] Values
+         */
+        void compute_quantity_of_interest_elemental(
+                Matrix< DDRMat > &tValues,
+                uint              aIQIIndex,
+                real             &aSpaceTimeVolume ) override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute volume over the element
+         */
+        real compute_volume( mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) override;
+
+        //------------------------------------------------------------------------------
+
+      protected:
+        //------------------------------------------------------------------------------
+        /**
+         * initialize the geometry interpolator for the IG element
+         * using the mesh and GE
+         * @param[ in ] aGeoLocalAssembly matrix with pdv local assembly indices
+         *                               ( tNumNodes x tNumPdvTypes )
+         */
+        void init_ig_geometry_interpolator( Matrix< DDSMat > &aGeoLocalAssembly );
+
+        //------------------------------------------------------------------------------
+        /**
+         * initialize the geometry interpolator for the IG element
+         * using the mesh only
+         */
+        void init_ig_geometry_interpolator();
+    };
+
+    //------------------------------------------------------------------------------
+}    // namespace moris::fem
 
 #endif /* SRC_FEM_CL_FEM_ELEMENT_BULK_HPP_ */

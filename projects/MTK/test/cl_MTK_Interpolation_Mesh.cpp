@@ -29,9 +29,7 @@
 #include "fn_all_true.hpp"
 #include "fn_equal_to.hpp"
 
-namespace moris
-{
-namespace mtk
+namespace moris::mtk
 {
 TEST_CASE( "Interpolation Mesh from File STK","[Interpolation Mesh]")
 {    // Parallel
@@ -45,7 +43,7 @@ TEST_CASE( "Interpolation Mesh from File STK","[Interpolation Mesh]")
         //const std::string fileName2 = "generated:8x8x8|sideset:xXyYzZ";    // 512 elements, 729 nodes, 1944 edges, 1728 faces
 
         // create an interpolation mesh
-        Interpolation_Mesh* tMesh3D_HEXs = create_interpolation_mesh( MeshType::STK, fileName2, NULL );
+        Interpolation_Mesh* tMesh3D_HEXs = create_interpolation_mesh( MeshType::STK, fileName2, nullptr );
 
         uint NumElements2      = tMesh3D_HEXs->get_num_elems();
         uint NumNodes2         = tMesh3D_HEXs->get_num_nodes();
@@ -289,5 +287,3 @@ TEST_CASE( "Interpolation Mesh from File STK","[Interpolation Mesh]")
     }
 }
 }
-}
-

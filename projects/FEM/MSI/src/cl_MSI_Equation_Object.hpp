@@ -96,7 +96,7 @@ namespace moris
             /**
              * trivial constructor
              */
-            Equation_Object(){};
+            Equation_Object() {};
 
             //------------------------------------------------------------------------------
             /**
@@ -104,7 +104,7 @@ namespace moris
              * @param[ in ] aElementBlock equation set pointer
              */
             Equation_Object( Equation_Set* aEquationSet )
-                    : mEquationSet( aEquationSet ){};
+                    : mEquationSet( aEquationSet ) {};
 
             //------------------------------------------------------------------------------
             /**
@@ -120,7 +120,7 @@ namespace moris
             /**
              * trivial destructor
              */
-            virtual ~Equation_Object(){};
+            virtual ~Equation_Object() {};
 
             //------------------------------------------------------------------------------
             /**
@@ -515,8 +515,8 @@ namespace moris
              */
             virtual moris::real
             get_element_nodal_pdof_value(
-                    moris_index             aVertexIndex,
-                    Vector< MSI::Dof_Type > aDofType )
+                    moris_index                    aVertexIndex,
+                    const Vector< MSI::Dof_Type >& aDofType )
             {
                 MORIS_ERROR( false, "Equation_Object::get_element_nodal_pdof_value - this function does nothing" );
                 return 0.0;

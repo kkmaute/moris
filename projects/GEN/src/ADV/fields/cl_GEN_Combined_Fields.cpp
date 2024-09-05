@@ -17,9 +17,9 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Combined_Fields::Combined_Fields(
-            Vector< std::shared_ptr< Field > > aFields,
-            bool                               aUseMinimum,
-            std::string                        aName )
+            const Vector< std::shared_ptr< Field > >& aFields,
+            bool                                      aUseMinimum,
+            std::string                               aName )
             : Field( Vector< ADV >(), std::move( aName ) )
             , mFields( aFields )
             , mScale( 2 * aUseMinimum - 1 )
@@ -183,7 +183,7 @@ namespace moris::gen
 
         // Test if MTK field is needed
         bool tNeedMTKField = false;
-        for ( auto iField : mFields )
+        for ( const auto& iField : mFields )
         {
             // Get MTK field
             auto tMTKField = iField->get_mtk_field();

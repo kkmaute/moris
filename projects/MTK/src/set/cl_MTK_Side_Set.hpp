@@ -138,7 +138,7 @@ namespace moris::mtk
         /**
          * virtual destructor
          */
-        ~Side_Set(){};
+        ~Side_Set() override{};
 
         //------------------------------------------------------------------------------
 

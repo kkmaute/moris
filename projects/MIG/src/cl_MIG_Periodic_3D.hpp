@@ -131,7 +131,7 @@ namespace moris::mig
          * constrcuts and add all the double sided sets to the mesh
          * @param[ in ] tPhaseInteractionTable a matrix specifying an index to each phase to phase interaction
          */
-        void construct_add_dbl_sided_set( moris::Matrix< IndexMat > tPhaseInteractionTable );
+        void construct_add_dbl_sided_set( const moris::Matrix< IndexMat > &tPhaseInteractionTable );
 
         // ----------------------------------------------------------------------------
         /**

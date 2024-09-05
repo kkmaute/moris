@@ -19,863 +19,861 @@
 
 #include "cl_MTK_Space_Interpolator.hpp"
 
-namespace moris
+namespace moris::mtk
 {
-    namespace mtk
+    // smallest acceptable value for DetJ
+    // note: should be consistent with Geometry_Interpolator::sDetJLowerLimit
+    const real Space_Interpolator::sDetJLowerLimit = -1.0e-6;
+
+    // smallest acceptable value for DetJ used in building inverse of Jacobian
+    // note: should be consistent with Geometry_Interpolator::sDetJInvJacLowerLimit
+    const real Space_Interpolator::sDetJInvJacLowerLimit = 1.0e-24;
+
+    //------------------------------------------------------------------------------
+
+    Space_Interpolator::Space_Interpolator(
+            const Interpolation_Rule& aInterpolationRule,
+            const CellShape&          aInterpolationShape,
+            const bool                aSpaceSideset )
     {
-        // smallest acceptable value for DetJ
-        // note: should be consistent with Geometry_Interpolator::sDetJLowerLimit
-        const real Space_Interpolator::sDetJLowerLimit = -1.0e-6;
+        // set bool for side interpolation to true
+        mSpaceSideset = aSpaceSideset;
 
-        // smallest acceptable value for DetJ used in building inverse of Jacobian
-        // note: should be consistent with Geometry_Interpolator::sDetJInvJacLowerLimit
-        const real Space_Interpolator::sDetJInvJacLowerLimit = 1.0e-24;
+        // create member pointer to space interpolation function
+        mSpaceInterpolation = aInterpolationRule.create_space_interpolation_function();
 
-        //------------------------------------------------------------------------------
+        // number of space bases and dimensions
+        mNumSpaceBases    = mSpaceInterpolation->get_number_of_bases();
+        mNumSpaceDim      = mSpaceInterpolation->get_number_of_dimensions();
+        mNumSpaceParamDim = mSpaceInterpolation->get_number_of_param_dimensions();
 
-        Space_Interpolator::Space_Interpolator(
-                const Interpolation_Rule& aInterpolationRule,
-                const CellShape&          aInterpolationShape,
-                const bool                aSpaceSideset )
+        // set member geometry type
+        mGeometryType = aInterpolationRule.get_geometry_type();
+
+        // set the interpolation shape
+        mInterpolationShape = aInterpolationShape;
+
+        // Assuming the interpolation cell geometry is the same as the interpolation rule geometry
+        mIPMappingGeometryType     = mGeometryType;
+        mIPMappingNumSpaceParamDim = mNumSpaceParamDim;
+
+        // set pointers for second derivative depending on space and time dimensions
+        this->set_function_pointers();
+    }
+
+    //------------------------------------------------------------------------------
+
+    Space_Interpolator::Space_Interpolator(
+            const Interpolation_Rule& aInterpolationRule,
+            const Interpolation_Rule& aIPMapInterpolationRule,
+            const CellShape&          aInterpolationShape,
+            const bool                aSpaceSideset )
+    {
+        // set bool for side interpolation to true
+        mSpaceSideset = aSpaceSideset;
+
+        // create member pointer to space interpolation function
+        mSpaceInterpolation = aInterpolationRule.create_space_interpolation_function();
+
+        // number of space bases and dimensions
+        mNumSpaceBases    = mSpaceInterpolation->get_number_of_bases();
+        mNumSpaceDim      = mSpaceInterpolation->get_number_of_dimensions();
+        mNumSpaceParamDim = mSpaceInterpolation->get_number_of_param_dimensions();
+
+        // set member geometry type
+        mGeometryType = aInterpolationRule.get_geometry_type();
+
+        // set the interpolation shape
+        mInterpolationShape = aInterpolationShape;
+
+        // Interpolation cell geometry type and space param  dim.  This will be used
+        // to determine an appropriate mapping size.
+        mIPMappingGeometryType = aIPMapInterpolationRule.get_geometry_type();
+
+        // getting param dimensions
+        mIPMappingNumSpaceParamDim = aIPMapInterpolationRule.get_number_of_param_dimensions();
+
+        // set pointers for second derivative depending on space and time dimensions
+        this->set_function_pointers();
+    }
+
+    //------------------------------------------------------------------------------
+
+    Space_Interpolator::~Space_Interpolator()
+    {
+        // delete interpolation functions
+        if ( mSpaceInterpolation != nullptr )
         {
-            // set bool for side interpolation to true
-            mSpaceSideset = aSpaceSideset;
+            delete mSpaceInterpolation;
+        }
+    }
 
-            // create member pointer to space interpolation function
-            mSpaceInterpolation = aInterpolationRule.create_space_interpolation_function();
+    //------------------------------------------------------------------------------
 
-            // number of space bases and dimensions
-            mNumSpaceBases    = mSpaceInterpolation->get_number_of_bases();
-            mNumSpaceDim      = mSpaceInterpolation->get_number_of_dimensions();
-            mNumSpaceParamDim = mSpaceInterpolation->get_number_of_param_dimensions();
+    void
+    Space_Interpolator::reset_eval_flags()
+    {
+        // reset booleans for evaluation
+        mValxEval = true;
 
-            // set member geometry type
-            mGeometryType = aInterpolationRule.get_geometry_type();
+        mNXiEval     = true;
+        mdNdXiEval   = true;
+        md2NdXi2Eval = true;
+        md3NdXi3Eval = true;
 
-            // set the interpolation shape
-            mInterpolationShape = aInterpolationShape;
+        mSpaceDetJEval      = true;
+        mSpaceJacEval       = true;
+        mInvSpaceJacEval    = true;
+        mSpaceJacDerivEval  = true;
+        mSpaceDetJDerivEval = true;
 
-            // Assuming the interpolation cell geometry is the same as the interpolation rule geometry
-            mIPMappingGeometryType     = mGeometryType;
-            mIPMappingNumSpaceParamDim = mNumSpaceParamDim;
+        mMetricTensorEval = true;
+    }
 
-            // set pointers for second derivative depending on space and time dimensions
-            this->set_function_pointers();
+    //------------------------------------------------------------------------------
+
+    void
+    Space_Interpolator::reset_eval_flags_coordinates()
+    {
+        mValxEval = true;
+
+        mSpaceDetJEval      = true;
+        mSpaceJacEval       = true;
+        mInvSpaceJacEval    = true;
+        mSpaceJacDerivEval  = true;
+        mSpaceDetJDerivEval = true;
+
+        mMetricTensorEval = true;
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
+    Space_Interpolator::reset_eval_flags_deriv()
+    {
+        mSpaceJacDerivEval  = true;
+        mSpaceDetJDerivEval = true;
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
+    Space_Interpolator::set_space_coeff( const Matrix< DDRMat >& aXHat )
+    {
+        // check the space coefficients input size
+        //  fixme can not check the number of cols for aXHat
+        MORIS_ASSERT( aXHat.n_rows() == mNumSpaceBases,
+                " Space_Interpolator::set_space_coeff - Wrong input size (aXHat). " );
+
+        // set the space coefficients
+        mXHat = aXHat;
+
+        // reset evaluation flags
+        this->reset_eval_flags_coordinates();
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
+    Space_Interpolator::set_param_coeff()
+    {
+        // default implementation
+        // set space and time param coords
+        mSpaceInterpolation->get_param_coords( mXiHat );
+        mXiHat = trans( mXiHat );
+
+        // reset evaluation flags
+        this->reset_eval_flags_coordinates();
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
+    Space_Interpolator::set_space_param_coeff( const Matrix< DDRMat >& aXiHat )
+    {
+        // check the space param coefficients input size
+        //  fixme can not check the number of cols for aXiHat
+
+        MORIS_ASSERT( aXiHat.n_rows() == mNumSpaceBases,
+                " Space_Interpolator::set_space_param_coeff - Wrong input size (aXiHat). %-5zu vs %-5i ",
+                aXiHat.n_rows(),
+                mNumSpaceBases );
+
+        // set the space coefficients
+        mXiHat = aXiHat;
+
+        // reset evaluation flags
+        this->reset_eval_flags_coordinates();
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
+    Space_Interpolator::set_space_time( const Matrix< DDRMat >& aParamPoint )
+    {
+
+        // set input values
+        mXiLocal = aParamPoint( { 0, mNumSpaceParamDim - 1 }, { 0, 0 } );
+
+        // if no mapping required
+        if ( !mMapFlag )
+        {
+            mMappedPoint = aParamPoint;
         }
 
-        //------------------------------------------------------------------------------
+        // reset bool for evaluation
+        this->reset_eval_flags();
+        this->reset_eval_flags_coordinates();
+    }
 
-        Space_Interpolator::Space_Interpolator(
-                const Interpolation_Rule& aInterpolationRule,
-                const Interpolation_Rule& aIPMapInterpolationRule,
-                const CellShape&          aInterpolationShape,
-                const bool                aSpaceSideset )
+    //------------------------------------------------------------------------------
+
+    void
+    Space_Interpolator::set_space( const Matrix< DDRMat >& aSpaceParamPoint )
+    {
+
+        // check input size aParamPoint
+        MORIS_ASSERT( ( ( aSpaceParamPoint.n_cols() == 1 ) && ( aSpaceParamPoint.n_rows() == mNumSpaceParamDim ) ),
+                "Space_Interpolator::set_space - Wrong input size ( aSpaceParamPoint )." );
+
+        // check input values are between -1 and 1
+        // fixme what about TRI and TET
+        for ( uint Ik = 0; Ik < mNumSpaceParamDim; Ik++ )
         {
-            // set bool for side interpolation to true
-            mSpaceSideset = aSpaceSideset;
-
-            // create member pointer to space interpolation function
-            mSpaceInterpolation = aInterpolationRule.create_space_interpolation_function();
-
-            // number of space bases and dimensions
-            mNumSpaceBases    = mSpaceInterpolation->get_number_of_bases();
-            mNumSpaceDim      = mSpaceInterpolation->get_number_of_dimensions();
-            mNumSpaceParamDim = mSpaceInterpolation->get_number_of_param_dimensions();
-
-            // set member geometry type
-            mGeometryType = aInterpolationRule.get_geometry_type();
-
-            // set the interpolation shape
-            mInterpolationShape = aInterpolationShape;
-
-            // Interpolation cell geometry type and space param  dim.  This will be used
-            // to determine an appropriate mapping size.
-            mIPMappingGeometryType = aIPMapInterpolationRule.get_geometry_type();
-
-            // getting param dimensions
-            mIPMappingNumSpaceParamDim = aIPMapInterpolationRule.get_number_of_param_dimensions();
-
-            // set pointers for second derivative depending on space and time dimensions
-            this->set_function_pointers();
+            MORIS_ASSERT( ( aSpaceParamPoint( Ik ) <= 1.0 + Space_Interpolator_Epsilon )    //
+                                  && ( aSpaceParamPoint( Ik ) >= -1.0 - Space_Interpolator_Epsilon ),
+                    "Space_Interpolator::set_space - Wrong input value ( aSpaceParamPoint )." );
         }
 
-        //------------------------------------------------------------------------------
+        // set input values
+        mXiLocal = aSpaceParamPoint;
 
-        Space_Interpolator::~Space_Interpolator()
+        // if no mapping required
+        if ( !mMapFlag )
         {
-            // delete interpolation functions
-            if ( mSpaceInterpolation != NULL )
-            {
-                delete mSpaceInterpolation;
-            }
+            mMappedPoint( { 0, mNumSpaceParamDim - 1 }, { 0, 0 } ) =
+                    aSpaceParamPoint.matrix_data();
         }
 
-        //------------------------------------------------------------------------------
+        // reset bool for evaluation
+        this->reset_eval_flags();
+        this->reset_eval_flags_coordinates();
+    }
 
-        void
-        Space_Interpolator::reset_eval_flags()
+    //------------------------------------------------------------------------------
+
+    const Matrix< DDRMat >&
+    Space_Interpolator::NXi()
+    {
+        // if shape functions need to be evaluated
+        if ( mNXiEval )
         {
-            // reset booleans for evaluation
-            mValxEval = true;
+            // evaluate the shape functions
+            this->eval_NXi();
 
-            mNXiEval     = true;
-            mdNdXiEval   = true;
-            md2NdXi2Eval = true;
-            md3NdXi3Eval = true;
-
-            mSpaceDetJEval      = true;
-            mSpaceJacEval       = true;
-            mInvSpaceJacEval    = true;
-            mSpaceJacDerivEval  = true;
-            mSpaceDetJDerivEval = true;
-
-            mMetricTensorEval = true;
+            // set bool for evaluation
+            mNXiEval = false;
         }
 
-        //------------------------------------------------------------------------------
+        // return member value
+        return mNXi;
+    }
 
-        void
-        Space_Interpolator::reset_eval_flags_coordinates()
+    //------------------------------------------------------------------------------
+
+    void
+    Space_Interpolator::eval_NXi()
+    {
+        // check that mXiLocal is set
+        MORIS_ASSERT( mXiLocal.numel() > 0,
+                "Space_Interpolator::eval_NXi - mXiLocal is not set." );
+
+        // pass data through interpolation function
+        mSpaceInterpolation->eval_N( mXiLocal, mNXi );
+    }
+
+    //------------------------------------------------------------------------------
+
+    const Matrix< DDRMat >&
+    Space_Interpolator::dNdXi()
+    {
+        // if shape functions need to be evaluated
+        if ( mdNdXiEval )
         {
-            mValxEval = true;
+            // evaluate the shape functions 1st derivative
+            this->eval_dNdXi();
 
-            mSpaceDetJEval      = true;
-            mSpaceJacEval       = true;
-            mInvSpaceJacEval    = true;
-            mSpaceJacDerivEval  = true;
-            mSpaceDetJDerivEval = true;
-
-            mMetricTensorEval = true;
+            // set bool for evaluation
+            mdNdXiEval = false;
         }
 
-        //------------------------------------------------------------------------------
+        // return member value
+        return mdNdXi;
+    }
 
-        void
-        Space_Interpolator::reset_eval_flags_deriv()
+    //------------------------------------------------------------------------------
+
+    void
+    Space_Interpolator::eval_dNdXi()
+    {
+        // check that mXiLocal is set
+        MORIS_ASSERT( mXiLocal.numel() > 0,
+                "Space_Interpolator::eval_dNdXi - mXiLocal is not set." );
+
+        // pass data through interpolation function
+        mSpaceInterpolation->eval_dNdXi( mXiLocal, mdNdXi );
+    }
+
+    //------------------------------------------------------------------------------
+
+    const Matrix< DDRMat >&
+    Space_Interpolator::d2NdXi2()
+    {
+        // if shape functions need to be evaluated
+        if ( md2NdXi2Eval )
         {
-            mSpaceJacDerivEval  = true;
-            mSpaceDetJDerivEval = true;
+            // evaluate the shape functions 2nd derivative
+            this->eval_d2NdXi2();
+
+            // set bool for evaluation
+            md2NdXi2Eval = false;
         }
 
-        //------------------------------------------------------------------------------
+        // return member value
+        return md2NdXi2;
+    }
 
-        void
-        Space_Interpolator::set_space_coeff( const Matrix< DDRMat >& aXHat )
+    //------------------------------------------------------------------------------
+
+    void
+    Space_Interpolator::eval_d2NdXi2()
+    {
+        // check that mXiLocal is set
+        MORIS_ASSERT( mXiLocal.numel() > 0,
+                "Space_Interpolator::eval_d2NdXi2 - mXiLocal is not set." );
+
+        // pass data through interpolation function
+        mSpaceInterpolation->eval_d2NdXi2( mXiLocal, md2NdXi2 );
+    }
+
+    //------------------------------------------------------------------------------
+
+    const Matrix< DDRMat >&
+    Space_Interpolator::d3NdXi3()
+    {
+        // if shape functions need to be evaluated
+        if ( md3NdXi3Eval )
         {
-            // check the space coefficients input size
-            //  fixme can not check the number of cols for aXHat
-            MORIS_ASSERT( aXHat.n_rows() == mNumSpaceBases,
-                    " Space_Interpolator::set_space_coeff - Wrong input size (aXHat). " );
+            // evaluate the shape functions 3rd derivative
+            this->eval_d3NdXi3();
 
-            // set the space coefficients
-            mXHat = aXHat;
-
-            // reset evaluation flags
-            this->reset_eval_flags_coordinates();
+            // set bool for evaluation
+            md3NdXi3Eval = false;
         }
 
-        //------------------------------------------------------------------------------
+        // return member value
+        return md3NdXi3;
+    }
 
-        void
-        Space_Interpolator::set_param_coeff()
+    //------------------------------------------------------------------------------
+
+    void
+    Space_Interpolator::eval_d3NdXi3()
+    {
+        // check that mXiLocal is set
+        MORIS_ASSERT( mXiLocal.numel() > 0,
+                "Space_Interpolator::eval_d3NdXi3 - mXiLocal is not set." );
+
+        // pass data through interpolation function
+        mSpaceInterpolation->eval_d3NdXi3( mXiLocal, md3NdXi3 );
+    }
+
+    //------------------------------------------------------------------------------
+
+    const Matrix< DDRMat >&
+    Space_Interpolator::space_jacobian()
+    {
+        // if space Jacobian needs to be evaluated
+        if ( mSpaceJacEval )
         {
-            // default implementation
-            // set space and time param coords
-            mSpaceInterpolation->get_param_coords( mXiHat );
-            mXiHat = trans( mXiHat );
+            // evaluate the space Jacobian
+            this->eval_space_jacobian();
 
-            // reset evaluation flags
-            this->reset_eval_flags_coordinates();
+            // set bool for evaluation
+            mSpaceJacEval = false;
         }
 
-        //------------------------------------------------------------------------------
+        // return member value
+        return mSpaceJac;
+    }
 
-        void
-        Space_Interpolator::set_space_param_coeff( const Matrix< DDRMat >& aXiHat )
+    //------------------------------------------------------------------------------
+
+    void
+    Space_Interpolator::eval_space_jacobian()
+    {
+        // check that mXHat is set
+        MORIS_ASSERT( mXHat.numel() > 0,
+                "Space_Interpolator::space_jacobian - mXHat is not set." );
+
+        // compute the Jacobian
+        mSpaceJac = this->dNdXi() * mXHat;
+    }
+
+    //------------------------------------------------------------------------------
+
+    const Matrix< DDRMat >&
+    Space_Interpolator::space_jacobian_deriv(
+            const uint& aLocalVertexID,
+            const uint& aDirection )
+    {
+        // if space Jacobian needs to be evaluated
+        if ( mSpaceJacDerivEval )
         {
-            // check the space param coefficients input size
-            //  fixme can not check the number of cols for aXiHat
+            // evaluate the space Jacobian
+            this->eval_space_jacobian_deriv( aLocalVertexID, aDirection );
 
-            MORIS_ASSERT( aXiHat.n_rows() == mNumSpaceBases,
-                    " Space_Interpolator::set_space_param_coeff - Wrong input size (aXiHat). %-5zu vs %-5i ",
-                    aXiHat.n_rows(),
-                    mNumSpaceBases );
-
-            // set the space coefficients
-            mXiHat = aXiHat;
-
-            // reset evaluation flags
-            this->reset_eval_flags_coordinates();
+            // set bool for evaluation
+            mSpaceJacDerivEval = false;
         }
 
-        //------------------------------------------------------------------------------
+        // return member value
+        return mSpaceJacDeriv;
+    }
 
-        void
-        Space_Interpolator::set_space_time( const Matrix< DDRMat >& aParamPoint )
+    //------------------------------------------------------------------------------
+
+    void
+    Space_Interpolator::eval_space_jacobian_deriv(
+            const uint& aLocalVertexID,
+            const uint& aDirection )
+    {
+        // check that mXHat is set
+        MORIS_ASSERT( mXHat.numel() > 0,
+                "Space_Interpolator::eval_space_jacobian_deriv - mXHat is not set." );
+
+        // check inputs wrt to xHat
+        MORIS_ASSERT( aDirection < mXHat.n_cols(),
+                "Space_Interpolator::eval_space_jacobian_deriv - invalid direction." );
+        MORIS_ASSERT( aLocalVertexID < mXHat.n_rows(),
+                "Space_Interpolator::eval_space_jacobian_deriv - invalid vertex ID." );
+
+        // get derivative of space coefficient. Note that only one element of this matrix will have a value
+        Matrix< DDRMat > tXHatDeriv = mXHat;
+        Matrix< DDRMat > tZeroVector( mXHat.n_rows(), 1, 0.0 );
+
+        // set all other elements in the derivative direction to 0
+        tXHatDeriv( { 0, mXHat.n_rows() - 1 }, { aDirection, aDirection } ) = tZeroVector( { 0, mXHat.n_rows() - 1 }, { 0, 0 } );
+
+        // what dof are we taking a derivative wrt? this will be the only used value in that column
+        tXHatDeriv( aLocalVertexID, aDirection ) = 1.0;
+
+        // compute the Jacobian derivative
+        mSpaceJacDeriv = this->dNdXi() * tXHatDeriv;
+    }
+
+    //------------------------------------------------------------------------------
+
+    const Matrix< DDRMat >&
+    Space_Interpolator::inverse_space_jacobian()
+    {
+        // if inverse of the space Jacobian needs to be evaluated
+        if ( mInvSpaceJacEval )
         {
+            // evaluate the inverse of the space Jacobian
+            this->eval_inverse_space_jacobian();
 
-            // set input values
-            mXiLocal = aParamPoint( { 0, mNumSpaceParamDim - 1 }, { 0, 0 } );
-
-            // if no mapping required
-            if ( !mMapFlag )
-            {
-                mMappedPoint = aParamPoint;
-            }
-
-            // reset bool for evaluation
-            this->reset_eval_flags();
-            this->reset_eval_flags_coordinates();
+            // set bool for evaluation
+            mInvSpaceJacEval = false;
         }
 
-        //------------------------------------------------------------------------------
+        // return member value
+        return mInvSpaceJac;
+    }
 
-        void
-        Space_Interpolator::set_space( const Matrix< DDRMat >& aSpaceParamPoint )
-        {
+    //------------------------------------------------------------------------------
 
-            // check input size aParamPoint
-            MORIS_ASSERT( ( ( aSpaceParamPoint.n_cols() == 1 ) && ( aSpaceParamPoint.n_rows() == mNumSpaceParamDim ) ),
-                    "Space_Interpolator::set_space - Wrong input size ( aSpaceParamPoint )." );
+    void
+    Space_Interpolator::eval_inverse_space_jacobian()
+    {
+        // compute the standard inv Jacobian
+        ( this->*mInvSpaceJacFunc )();
+    }
 
-            // check input values are between -1 and 1
-            // fixme what about TRI and TET
-            for ( uint Ik = 0; Ik < mNumSpaceParamDim; Ik++ )
-            {
-                MORIS_ASSERT( ( aSpaceParamPoint( Ik ) <= 1.0 + Space_Interpolator_Epsilon )    //
-                                      && ( aSpaceParamPoint( Ik ) >= -1.0 - Space_Interpolator_Epsilon ),
-                        "Space_Interpolator::set_space - Wrong input value ( aSpaceParamPoint )." );
-            }
+    //------------------------------------------------------------------------------
 
-            // set input values
-            mXiLocal = aSpaceParamPoint;
+    void
+    Space_Interpolator::eval_inverse_space_jacobian_1d()
+    {
+        // get the space Jacobian
+        const Matrix< DDRMat >& tSpaceJac = this->space_jacobian();
 
-            // if no mapping required
-            if ( !mMapFlag )
-            {
-                mMappedPoint( { 0, mNumSpaceParamDim - 1 }, { 0, 0 } ) =
-                        aSpaceParamPoint.matrix_data();
-            }
+        MORIS_ASSERT( tSpaceJac( 0, 0 ) > sDetJInvJacLowerLimit,
+                "Space determinate (1D) close to zero or negative: %e\n",
+                tSpaceJac( 0, 0 ) );
 
-            // reset bool for evaluation
-            this->reset_eval_flags();
-            this->reset_eval_flags_coordinates();
-        }
+        mInvSpaceJac.set_size( 1, 1 );
 
-        //------------------------------------------------------------------------------
+        mInvSpaceJac( 0, 0 ) = 1.0 / tSpaceJac( 0, 0 );
 
-        const Matrix< DDRMat >&
-        Space_Interpolator::NXi()
-        {
-            // if shape functions need to be evaluated
-            if ( mNXiEval )
-            {
-                // evaluate the shape functions
-                this->eval_NXi();
+        // check results against generic inverse operator
+        MORIS_ASSERT( norm( mInvSpaceJac - inv( tSpaceJac ) ) < 1e-8 * norm( mInvSpaceJac ),
+                "Inconsistent space Jacobian (1D)\n" );
+    }
 
-                // set bool for evaluation
-                mNXiEval = false;
-            }
+    //------------------------------------------------------------------------------
 
-            // return member value
-            return mNXi;
-        }
+    void
+    Space_Interpolator::eval_inverse_space_jacobian_2d()
+    {
+        // get the space Jacobian
+        const Matrix< DDRMat >& tSpacJac = this->space_jacobian();
 
-        //------------------------------------------------------------------------------
+        MORIS_ASSERT( this->space_det_J() > sDetJInvJacLowerLimit,
+                "Space determinate (2D) close to zero or negative: %e\n",
+                this->space_det_J() );
 
-        void
-        Space_Interpolator::eval_NXi()
-        {
-            // check that mXiLocal is set
-            MORIS_ASSERT( mXiLocal.numel() > 0,
-                    "Space_Interpolator::eval_NXi - mXiLocal is not set." );
+        // compute inverse of 3x3 matrix
+        real tInvDet = 1.0 / ( this->space_det_J() );
 
-            // pass data through interpolation function
-            mSpaceInterpolation->eval_N( mXiLocal, mNXi );
-        }
+        // compute inverse
+        mInvSpaceJac.set_size( 2, 2 );
 
-        //------------------------------------------------------------------------------
+        mInvSpaceJac( 0, 0 ) = tSpacJac( 1, 1 ) * tInvDet;
+        mInvSpaceJac( 0, 1 ) = -tSpacJac( 0, 1 ) * tInvDet;
+        mInvSpaceJac( 1, 0 ) = -tSpacJac( 1, 0 ) * tInvDet;
+        mInvSpaceJac( 1, 1 ) = tSpacJac( 0, 0 ) * tInvDet;
 
-        const Matrix< DDRMat >&
-        Space_Interpolator::dNdXi()
-        {
-            // if shape functions need to be evaluated
-            if ( mdNdXiEval )
-            {
-                // evaluate the shape functions 1st derivative
-                this->eval_dNdXi();
+        // check results against generic inverse operator
+        MORIS_ASSERT( norm( mInvSpaceJac - inv( tSpacJac ) ) < 1e-8 * norm( mInvSpaceJac ),
+                "Inconsistent space Jacobian (2D)" );
+    }
 
-                // set bool for evaluation
-                mdNdXiEval = false;
-            }
+    //------------------------------------------------------------------------------
 
-            // return member value
-            return mdNdXi;
-        }
+    void
+    Space_Interpolator::eval_inverse_space_jacobian_2d_tri()
+    {
+        // get the space Jacobian
+        const Matrix< DDRMat >& tSpacJac = this->space_jacobian();
 
-        //------------------------------------------------------------------------------
+        MORIS_ASSERT( this->space_det_J() > sDetJInvJacLowerLimit,
+                "Space determinate (2D) close to zero or negative: %e\n",
+                this->space_det_J() );
 
-        void
-        Space_Interpolator::eval_dNdXi()
-        {
-            // check that mXiLocal is set
-            MORIS_ASSERT( mXiLocal.numel() > 0,
-                    "Space_Interpolator::eval_dNdXi - mXiLocal is not set." );
+        // compute inv det J * 1/2
+        real tInvDet = 0.5 / ( this->space_det_J() );
 
-            // pass data through interpolation function
-            mSpaceInterpolation->eval_dNdXi( mXiLocal, mdNdXi );
-        }
+        // compute inverse
+        mInvSpaceJac.set_size( 2, 2 );
 
-        //------------------------------------------------------------------------------
+        mInvSpaceJac( 0, 0 ) = tSpacJac( 1, 1 ) * tInvDet;
+        mInvSpaceJac( 0, 1 ) = -tSpacJac( 0, 1 ) * tInvDet;
+        mInvSpaceJac( 1, 0 ) = -tSpacJac( 1, 0 ) * tInvDet;
+        mInvSpaceJac( 1, 1 ) = tSpacJac( 0, 0 ) * tInvDet;
 
-        const Matrix< DDRMat >&
-        Space_Interpolator::d2NdXi2()
-        {
-            // if shape functions need to be evaluated
-            if ( md2NdXi2Eval )
-            {
-                // evaluate the shape functions 2nd derivative
-                this->eval_d2NdXi2();
+        // no generic checks available for this calculation;
+    }
 
-                // set bool for evaluation
-                md2NdXi2Eval = false;
-            }
+    //------------------------------------------------------------------------------
 
-            // return member value
-            return md2NdXi2;
-        }
+    void
+    Space_Interpolator::eval_inverse_space_jacobian_2d_rect()
+    {
+        // get the space Jacobian
+        const Matrix< DDRMat >& tSpacJac = this->space_jacobian();
 
-        //------------------------------------------------------------------------------
+        MORIS_ASSERT( this->space_det_J() > sDetJInvJacLowerLimit,
+                "Space determinate (2D) close to zero or negative: %e\n",
+                this->space_det_J() );
 
-        void
-        Space_Interpolator::eval_d2NdXi2()
-        {
-            // check that mXiLocal is set
-            MORIS_ASSERT( mXiLocal.numel() > 0,
-                    "Space_Interpolator::eval_d2NdXi2 - mXiLocal is not set." );
+        MORIS_ASSERT(
+                std::abs( tSpacJac( 0, 1 ) ) < Space_Interpolator_Epsilon    //
+                        || std::abs( tSpacJac( 1, 0 ) ) < Space_Interpolator_Epsilon,
+                "Space_Interpolator::eval_inverse_space_jacobian_2d_rect - Jacobian is not diagonal" );
 
-            // pass data through interpolation function
-            mSpaceInterpolation->eval_d2NdXi2( mXiLocal, md2NdXi2 );
-        }
+        // compute inverse
+        mInvSpaceJac.set_size( 2, 2, 0.0 );
 
-        //------------------------------------------------------------------------------
+        // reciprocals
+        mInvSpaceJac( 0, 0 ) = 1.0 / tSpacJac( 0, 0 );
+        mInvSpaceJac( 1, 1 ) = 1.0 / tSpacJac( 1, 1 );
 
-        const Matrix< DDRMat >&
-        Space_Interpolator::d3NdXi3()
-        {
-            // if shape functions need to be evaluated
-            if ( md3NdXi3Eval )
-            {
-                // evaluate the shape functions 3rd derivative
-                this->eval_d3NdXi3();
+        // check results against generic inverse operator
+        MORIS_ASSERT( norm( mInvSpaceJac - inv( tSpacJac ) ) < 1e-8 * norm( mInvSpaceJac ),
+                "Inconsistent space Jacobian (2D)" );
+    }
 
-                // set bool for evaluation
-                md3NdXi3Eval = false;
-            }
+    //------------------------------------------------------------------------------
 
-            // return member value
-            return md3NdXi3;
-        }
+    void
+    Space_Interpolator::eval_inverse_space_jacobian_3d()
+    {
+        // get the space Jacobian
+        const Matrix< DDRMat >& tSpacJac = this->space_jacobian();
 
-        //------------------------------------------------------------------------------
+        MORIS_ASSERT( this->space_det_J() > sDetJInvJacLowerLimit,
+                "Space determinate (3D) close to zero or negative: %e\n",
+                this->space_det_J() );
 
-        void
-        Space_Interpolator::eval_d3NdXi3()
-        {
-            // check that mXiLocal is set
-            MORIS_ASSERT( mXiLocal.numel() > 0,
-                    "Space_Interpolator::eval_d3NdXi3 - mXiLocal is not set." );
+        // compute inverse of 3x3 matrix
+        real tInvDet = 1.0 / ( this->space_det_J() );
 
-            // pass data through interpolation function
-            mSpaceInterpolation->eval_d3NdXi3( mXiLocal, md3NdXi3 );
-        }
+        // compute inverse
+        mInvSpaceJac.set_size( 3, 3 );
 
-        //------------------------------------------------------------------------------
+        mInvSpaceJac( 0, 0 ) = ( tSpacJac( 1, 1 ) * tSpacJac( 2, 2 ) - tSpacJac( 2, 1 ) * tSpacJac( 1, 2 ) ) * tInvDet;
+        mInvSpaceJac( 0, 1 ) = ( tSpacJac( 0, 2 ) * tSpacJac( 2, 1 ) - tSpacJac( 0, 1 ) * tSpacJac( 2, 2 ) ) * tInvDet;
+        mInvSpaceJac( 0, 2 ) = ( tSpacJac( 0, 1 ) * tSpacJac( 1, 2 ) - tSpacJac( 0, 2 ) * tSpacJac( 1, 1 ) ) * tInvDet;
+        mInvSpaceJac( 1, 0 ) = ( tSpacJac( 1, 2 ) * tSpacJac( 2, 0 ) - tSpacJac( 1, 0 ) * tSpacJac( 2, 2 ) ) * tInvDet;
+        mInvSpaceJac( 1, 1 ) = ( tSpacJac( 0, 0 ) * tSpacJac( 2, 2 ) - tSpacJac( 0, 2 ) * tSpacJac( 2, 0 ) ) * tInvDet;
+        mInvSpaceJac( 1, 2 ) = ( tSpacJac( 1, 0 ) * tSpacJac( 0, 2 ) - tSpacJac( 0, 0 ) * tSpacJac( 1, 2 ) ) * tInvDet;
+        mInvSpaceJac( 2, 0 ) = ( tSpacJac( 1, 0 ) * tSpacJac( 2, 1 ) - tSpacJac( 2, 0 ) * tSpacJac( 1, 1 ) ) * tInvDet;
+        mInvSpaceJac( 2, 1 ) = ( tSpacJac( 2, 0 ) * tSpacJac( 0, 1 ) - tSpacJac( 0, 0 ) * tSpacJac( 2, 1 ) ) * tInvDet;
+        mInvSpaceJac( 2, 2 ) = ( tSpacJac( 0, 0 ) * tSpacJac( 1, 1 ) - tSpacJac( 1, 0 ) * tSpacJac( 0, 1 ) ) * tInvDet;
 
-        const Matrix< DDRMat >&
-        Space_Interpolator::space_jacobian()
-        {
-            // if space Jacobian needs to be evaluated
-            if ( mSpaceJacEval )
-            {
-                // evaluate the space Jacobian
-                this->eval_space_jacobian();
+        // check results against generic inverse operator
+        MORIS_ASSERT( norm( mInvSpaceJac - inv( tSpacJac ) ) < 1e-8 * norm( mInvSpaceJac ),
+                "Inconsistent space Jacobian (3D)" );
+    }
 
-                // set bool for evaluation
-                mSpaceJacEval = false;
-            }
+    //------------------------------------------------------------------------------
 
-            // return member value
-            return mSpaceJac;
-        }
+    void
+    Space_Interpolator::eval_inverse_space_jacobian_3d_tri()
+    {
+        // get the space Jacobian
+        const Matrix< DDRMat >& tSpacJac = this->space_jacobian();
 
-        //------------------------------------------------------------------------------
+        MORIS_ASSERT( this->space_det_J() > sDetJInvJacLowerLimit,
+                "Space determinate (3D) close to zero or negative: %e\n",
+                this->space_det_J() );
 
-        void
-        Space_Interpolator::eval_space_jacobian()
-        {
-            // check that mXHat is set
-            MORIS_ASSERT( mXHat.numel() > 0,
-                    "Space_Interpolator::space_jacobian - mXHat is not set." );
+        // compute inverse of 3x3 matrix
+        real tInvDet = 1.0 / ( this->space_det_J() ) / 6.0;
 
-            // compute the Jacobian
-            mSpaceJac = this->dNdXi() * mXHat;
-        }
+        // compute inverse
+        mInvSpaceJac.set_size( 3, 3 );
 
-        //------------------------------------------------------------------------------
+        mInvSpaceJac( 0, 0 ) = ( tSpacJac( 1, 1 ) * tSpacJac( 2, 2 ) - tSpacJac( 2, 1 ) * tSpacJac( 1, 2 ) ) * tInvDet;
+        mInvSpaceJac( 0, 1 ) = ( tSpacJac( 0, 2 ) * tSpacJac( 2, 1 ) - tSpacJac( 0, 1 ) * tSpacJac( 2, 2 ) ) * tInvDet;
+        mInvSpaceJac( 0, 2 ) = ( tSpacJac( 0, 1 ) * tSpacJac( 1, 2 ) - tSpacJac( 0, 2 ) * tSpacJac( 1, 1 ) ) * tInvDet;
+        mInvSpaceJac( 1, 0 ) = ( tSpacJac( 1, 2 ) * tSpacJac( 2, 0 ) - tSpacJac( 1, 0 ) * tSpacJac( 2, 2 ) ) * tInvDet;
+        mInvSpaceJac( 1, 1 ) = ( tSpacJac( 0, 0 ) * tSpacJac( 2, 2 ) - tSpacJac( 0, 2 ) * tSpacJac( 2, 0 ) ) * tInvDet;
+        mInvSpaceJac( 1, 2 ) = ( tSpacJac( 1, 0 ) * tSpacJac( 0, 2 ) - tSpacJac( 0, 0 ) * tSpacJac( 1, 2 ) ) * tInvDet;
+        mInvSpaceJac( 2, 0 ) = ( tSpacJac( 1, 0 ) * tSpacJac( 2, 1 ) - tSpacJac( 2, 0 ) * tSpacJac( 1, 1 ) ) * tInvDet;
+        mInvSpaceJac( 2, 1 ) = ( tSpacJac( 2, 0 ) * tSpacJac( 0, 1 ) - tSpacJac( 0, 0 ) * tSpacJac( 2, 1 ) ) * tInvDet;
+        mInvSpaceJac( 2, 2 ) = ( tSpacJac( 0, 0 ) * tSpacJac( 1, 1 ) - tSpacJac( 1, 0 ) * tSpacJac( 0, 1 ) ) * tInvDet;
 
-        const Matrix< DDRMat >&
-        Space_Interpolator::space_jacobian_deriv(
-                const uint& aLocalVertexID,
-                const uint& aDirection )
-        {
-            // if space Jacobian needs to be evaluated
-            if ( mSpaceJacDerivEval )
-            {
-                // evaluate the space Jacobian
-                this->eval_space_jacobian_deriv( aLocalVertexID, aDirection );
+        // check results against generic inverse operator
+        MORIS_ASSERT( norm( mInvSpaceJac - inv( tSpacJac ) ) < 1e-8 * norm( mInvSpaceJac ),
+                "Inconsistent space Jacobian (3D)" );
+    }
 
-                // set bool for evaluation
-                mSpaceJacDerivEval = false;
-            }
+    //------------------------------------------------------------------------------
 
-            // return member value
-            return mSpaceJacDeriv;
-        }
+    void
+    Space_Interpolator::eval_inverse_space_jacobian_3d_rect()
+    {
+        // get the space Jacobian
+        const Matrix< DDRMat >& tSpacJac = this->space_jacobian();
 
-        //------------------------------------------------------------------------------
+        MORIS_ASSERT( this->space_det_J() > sDetJInvJacLowerLimit,
+                "Space determinate (3D) close to zero or negative: %e\n",
+                this->space_det_J() );
 
-        void
-        Space_Interpolator::eval_space_jacobian_deriv(
-                const uint& aLocalVertexID,
-                const uint& aDirection )
-        {
-            // check that mXHat is set
-            MORIS_ASSERT( mXHat.numel() > 0,
-                    "Space_Interpolator::eval_space_jacobian_deriv - mXHat is not set." );
+        MORIS_ASSERT(
+                std::abs( tSpacJac( 0, 1 ) ) < Space_Interpolator_Epsilon ||            //
+                        std::abs( tSpacJac( 0, 2 ) ) < Space_Interpolator_Epsilon ||    //
+                        std::abs( tSpacJac( 1, 0 ) ) < Space_Interpolator_Epsilon ||    //
+                        std::abs( tSpacJac( 1, 2 ) ) < Space_Interpolator_Epsilon ||    //
+                        std::abs( tSpacJac( 2, 0 ) ) < Space_Interpolator_Epsilon ||    //
+                        std::abs( tSpacJac( 2, 1 ) ) < Space_Interpolator_Epsilon,
+                "Space_Interpolator::eval_inverse_space_jacobian_3d_rect - Jacobian is not diagonal" );
 
-            // check inputs wrt to xHat
-            MORIS_ASSERT( aDirection < mXHat.n_cols(),
-                    "Space_Interpolator::eval_space_jacobian_deriv - invalid direction." );
-            MORIS_ASSERT( aLocalVertexID < mXHat.n_rows(),
-                    "Space_Interpolator::eval_space_jacobian_deriv - invalid vertex ID." );
+        // compute inverse
+        mInvSpaceJac.set_size( 3, 3, 0.0 );
 
-            // get derivative of space coefficient. Note that only one element of this matrix will have a value
-            Matrix< DDRMat > tXHatDeriv = mXHat;
-            Matrix< DDRMat > tZeroVector( mXHat.n_rows(), 1, 0.0 );
+        // reciprocals
+        mInvSpaceJac( 0, 0 ) = 1.0 / tSpacJac( 0, 0 );
+        mInvSpaceJac( 1, 1 ) = 1.0 / tSpacJac( 1, 1 );
+        mInvSpaceJac( 2, 2 ) = 1.0 / tSpacJac( 2, 2 );
 
-            // set all other elements in the derivative direction to 0
-            tXHatDeriv( { 0, mXHat.n_rows() - 1 }, { aDirection, aDirection } ) = tZeroVector( { 0, mXHat.n_rows() - 1 }, { 0, 0 } );
+        // check results against generic inverse operator
+        MORIS_ASSERT( norm( mInvSpaceJac - inv( tSpacJac ) ) < 1e-8 * norm( mInvSpaceJac ),
+                "Inconsistent space Jacobian (3D)" );
+    }
 
-            // what dof are we taking a derivative wrt? this will be the only used value in that column
-            tXHatDeriv( aLocalVertexID, aDirection ) = 1.0;
+    //------------------------------------------------------------------------------
 
-            // compute the Jacobian derivative
-            mSpaceJacDeriv = this->dNdXi() * tXHatDeriv;
-        }
+    void
+    Space_Interpolator::second_space_jacobian( Matrix< DDRMat >& aJ2bt )
+    {
+        // check that mXHat is set
+        MORIS_ASSERT( mXHat.numel() > 0,
+                "Space_Interpolator::second_space_jacobian - mXHat is not set." );
 
-        //------------------------------------------------------------------------------
+        // compute the second order Jacobian
+        aJ2bt = this->d2NdXi2() * mXHat;
+    }
 
-        const Matrix< DDRMat >&
-        Space_Interpolator::inverse_space_jacobian()
-        {
-            // if inverse of the space Jacobian needs to be evaluated
-            if ( mInvSpaceJacEval )
-            {
-                // evaluate the inverse of the space Jacobian
-                this->eval_inverse_space_jacobian();
+    //------------------------------------------------------------------------------
 
-                // set bool for evaluation
-                mInvSpaceJacEval = false;
-            }
+    void
+    Space_Interpolator::third_space_jacobian( Matrix< DDRMat >& aJ3ct )
+    {
+        // check that mXHat is set
+        MORIS_ASSERT( mXHat.numel() > 0,
+                "Space_Interpolator::third_space_jacobian - mXHat is not set." );
 
-            // return member value
-            return mInvSpaceJac;
-        }
+        // compute the third order Jacobian
+        aJ3ct = this->d3NdXi3() * mXHat;
+    }
 
-        //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-        void
-        Space_Interpolator::eval_inverse_space_jacobian()
-        {
-            // compute the standard inv Jacobian
-            ( this->*mInvSpaceJacFunc )();
-        }
-
-        //------------------------------------------------------------------------------
-
-        void
-        Space_Interpolator::eval_inverse_space_jacobian_1d()
+    const real&
+    Space_Interpolator::space_det_J()
+    {
+        // if determinant of space Jacobian needs to be evaluated
+        if ( mSpaceDetJEval )
         {
             // get the space Jacobian
-            const Matrix< DDRMat >& tSpaceJac = this->space_jacobian();
+            const Matrix< DDRMat >& tSpaceJt = this->space_jacobian();
 
-            MORIS_ASSERT( tSpaceJac( 0, 0 ) > sDetJInvJacLowerLimit,
-                    "Space determinate (1D) close to zero or negative: %e\n",
-                    tSpaceJac( 0, 0 ) );
+            // det j function pointer
+            mSpaceDetJ = ( this->*mSpaceDetJFunc )( tSpaceJt );
 
-            mInvSpaceJac.set_size( 1, 1 );
-
-            mInvSpaceJac( 0, 0 ) = 1.0 / tSpaceJac( 0, 0 );
-
-            // check results against generic inverse operator
-            MORIS_ASSERT( norm( mInvSpaceJac - inv( tSpaceJac ) ) < 1e-8 * norm( mInvSpaceJac ),
-                    "Inconsistent space Jacobian (1D)\n" );
+            // set bool for evaluation
+            mSpaceDetJEval = false;
         }
 
-        //------------------------------------------------------------------------------
+        // return member value
+        return mSpaceDetJ;
+    }
 
-        void
-        Space_Interpolator::eval_inverse_space_jacobian_2d()
+    //------------------------------------------------------------------------------
+
+    const real&
+    Space_Interpolator::space_det_J_deriv(
+            const uint& aLocalVertexID,
+            const uint& aDirection )
+    {
+        // if determinant of space Jacobian derivative needs to be evaluated
+        if ( mSpaceDetJDerivEval )
         {
             // get the space Jacobian
-            const Matrix< DDRMat >& tSpacJac = this->space_jacobian();
+            const Matrix< DDRMat >& tSpaceJtDeriv = this->space_jacobian_deriv( aLocalVertexID, aDirection );
 
-            MORIS_ASSERT( this->space_det_J() > sDetJInvJacLowerLimit,
-                    "Space determinate (2D) close to zero or negative: %e\n",
-                    this->space_det_J() );
+            //  det J deriv function pointer
+            mSpaceDetJDeriv = ( this->*mSpaceDetJDerivFunc )( tSpaceJtDeriv );
 
-            // compute inverse of 3x3 matrix
-            real tInvDet = 1.0 / ( this->space_det_J() );
-
-            // compute inverse
-            mInvSpaceJac.set_size( 2, 2 );
-
-            mInvSpaceJac( 0, 0 ) = tSpacJac( 1, 1 ) * tInvDet;
-            mInvSpaceJac( 0, 1 ) = -tSpacJac( 0, 1 ) * tInvDet;
-            mInvSpaceJac( 1, 0 ) = -tSpacJac( 1, 0 ) * tInvDet;
-            mInvSpaceJac( 1, 1 ) = tSpacJac( 0, 0 ) * tInvDet;
-
-            // check results against generic inverse operator
-            MORIS_ASSERT( norm( mInvSpaceJac - inv( tSpacJac ) ) < 1e-8 * norm( mInvSpaceJac ),
-                    "Inconsistent space Jacobian (2D)" );
+            // set bool for evaluation
+            mSpaceDetJDerivEval = false;
         }
 
-        //------------------------------------------------------------------------------
-
-        void
-        Space_Interpolator::eval_inverse_space_jacobian_2d_tri()
-        {
-            // get the space Jacobian
-            const Matrix< DDRMat >& tSpacJac = this->space_jacobian();
-
-            MORIS_ASSERT( this->space_det_J() > sDetJInvJacLowerLimit,
-                    "Space determinate (2D) close to zero or negative: %e\n",
-                    this->space_det_J() );
-
-            // compute inv det J * 1/2
-            real tInvDet = 0.5 / ( this->space_det_J() );
-
-            // compute inverse
-            mInvSpaceJac.set_size( 2, 2 );
-
-            mInvSpaceJac( 0, 0 ) = tSpacJac( 1, 1 ) * tInvDet;
-            mInvSpaceJac( 0, 1 ) = -tSpacJac( 0, 1 ) * tInvDet;
-            mInvSpaceJac( 1, 0 ) = -tSpacJac( 1, 0 ) * tInvDet;
-            mInvSpaceJac( 1, 1 ) = tSpacJac( 0, 0 ) * tInvDet;
-
-            // no generic checks available for this calculation;
-        }
-
-        //------------------------------------------------------------------------------
-
-        void
-        Space_Interpolator::eval_inverse_space_jacobian_2d_rect()
-        {
-            // get the space Jacobian
-            const Matrix< DDRMat >& tSpacJac = this->space_jacobian();
-
-            MORIS_ASSERT( this->space_det_J() > sDetJInvJacLowerLimit,
-                    "Space determinate (2D) close to zero or negative: %e\n",
-                    this->space_det_J() );
-
-            MORIS_ASSERT(
-                    std::abs( tSpacJac( 0, 1 ) ) < Space_Interpolator_Epsilon    //
-                            || std::abs( tSpacJac( 1, 0 ) ) < Space_Interpolator_Epsilon,
-                    "Space_Interpolator::eval_inverse_space_jacobian_2d_rect - Jacobian is not diagonal" );
-
-            // compute inverse
-            mInvSpaceJac.set_size( 2, 2, 0.0 );
-
-            // reciprocals
-            mInvSpaceJac( 0, 0 ) = 1.0 / tSpacJac( 0, 0 );
-            mInvSpaceJac( 1, 1 ) = 1.0 / tSpacJac( 1, 1 );
-
-            // check results against generic inverse operator
-            MORIS_ASSERT( norm( mInvSpaceJac - inv( tSpacJac ) ) < 1e-8 * norm( mInvSpaceJac ),
-                    "Inconsistent space Jacobian (2D)" );
-        }
-
-        //------------------------------------------------------------------------------
-
-        void
-        Space_Interpolator::eval_inverse_space_jacobian_3d()
-        {
-            // get the space Jacobian
-            const Matrix< DDRMat >& tSpacJac = this->space_jacobian();
-
-            MORIS_ASSERT( this->space_det_J() > sDetJInvJacLowerLimit,
-                    "Space determinate (3D) close to zero or negative: %e\n",
-                    this->space_det_J() );
-
-            // compute inverse of 3x3 matrix
-            real tInvDet = 1.0 / ( this->space_det_J() );
-
-            // compute inverse
-            mInvSpaceJac.set_size( 3, 3 );
-
-            mInvSpaceJac( 0, 0 ) = ( tSpacJac( 1, 1 ) * tSpacJac( 2, 2 ) - tSpacJac( 2, 1 ) * tSpacJac( 1, 2 ) ) * tInvDet;
-            mInvSpaceJac( 0, 1 ) = ( tSpacJac( 0, 2 ) * tSpacJac( 2, 1 ) - tSpacJac( 0, 1 ) * tSpacJac( 2, 2 ) ) * tInvDet;
-            mInvSpaceJac( 0, 2 ) = ( tSpacJac( 0, 1 ) * tSpacJac( 1, 2 ) - tSpacJac( 0, 2 ) * tSpacJac( 1, 1 ) ) * tInvDet;
-            mInvSpaceJac( 1, 0 ) = ( tSpacJac( 1, 2 ) * tSpacJac( 2, 0 ) - tSpacJac( 1, 0 ) * tSpacJac( 2, 2 ) ) * tInvDet;
-            mInvSpaceJac( 1, 1 ) = ( tSpacJac( 0, 0 ) * tSpacJac( 2, 2 ) - tSpacJac( 0, 2 ) * tSpacJac( 2, 0 ) ) * tInvDet;
-            mInvSpaceJac( 1, 2 ) = ( tSpacJac( 1, 0 ) * tSpacJac( 0, 2 ) - tSpacJac( 0, 0 ) * tSpacJac( 1, 2 ) ) * tInvDet;
-            mInvSpaceJac( 2, 0 ) = ( tSpacJac( 1, 0 ) * tSpacJac( 2, 1 ) - tSpacJac( 2, 0 ) * tSpacJac( 1, 1 ) ) * tInvDet;
-            mInvSpaceJac( 2, 1 ) = ( tSpacJac( 2, 0 ) * tSpacJac( 0, 1 ) - tSpacJac( 0, 0 ) * tSpacJac( 2, 1 ) ) * tInvDet;
-            mInvSpaceJac( 2, 2 ) = ( tSpacJac( 0, 0 ) * tSpacJac( 1, 1 ) - tSpacJac( 1, 0 ) * tSpacJac( 0, 1 ) ) * tInvDet;
-
-            // check results against generic inverse operator
-            MORIS_ASSERT( norm( mInvSpaceJac - inv( tSpacJac ) ) < 1e-8 * norm( mInvSpaceJac ),
-                    "Inconsistent space Jacobian (3D)" );
-        }
-
-        //------------------------------------------------------------------------------
-
-        void
-        Space_Interpolator::eval_inverse_space_jacobian_3d_tri()
-        {
-            // get the space Jacobian
-            const Matrix< DDRMat >& tSpacJac = this->space_jacobian();
-
-            MORIS_ASSERT( this->space_det_J() > sDetJInvJacLowerLimit,
-                    "Space determinate (3D) close to zero or negative: %e\n",
-                    this->space_det_J() );
-
-            // compute inverse of 3x3 matrix
-            real tInvDet = 1.0 / ( this->space_det_J() ) / 6.0;
-
-            // compute inverse
-            mInvSpaceJac.set_size( 3, 3 );
-
-            mInvSpaceJac( 0, 0 ) = ( tSpacJac( 1, 1 ) * tSpacJac( 2, 2 ) - tSpacJac( 2, 1 ) * tSpacJac( 1, 2 ) ) * tInvDet;
-            mInvSpaceJac( 0, 1 ) = ( tSpacJac( 0, 2 ) * tSpacJac( 2, 1 ) - tSpacJac( 0, 1 ) * tSpacJac( 2, 2 ) ) * tInvDet;
-            mInvSpaceJac( 0, 2 ) = ( tSpacJac( 0, 1 ) * tSpacJac( 1, 2 ) - tSpacJac( 0, 2 ) * tSpacJac( 1, 1 ) ) * tInvDet;
-            mInvSpaceJac( 1, 0 ) = ( tSpacJac( 1, 2 ) * tSpacJac( 2, 0 ) - tSpacJac( 1, 0 ) * tSpacJac( 2, 2 ) ) * tInvDet;
-            mInvSpaceJac( 1, 1 ) = ( tSpacJac( 0, 0 ) * tSpacJac( 2, 2 ) - tSpacJac( 0, 2 ) * tSpacJac( 2, 0 ) ) * tInvDet;
-            mInvSpaceJac( 1, 2 ) = ( tSpacJac( 1, 0 ) * tSpacJac( 0, 2 ) - tSpacJac( 0, 0 ) * tSpacJac( 1, 2 ) ) * tInvDet;
-            mInvSpaceJac( 2, 0 ) = ( tSpacJac( 1, 0 ) * tSpacJac( 2, 1 ) - tSpacJac( 2, 0 ) * tSpacJac( 1, 1 ) ) * tInvDet;
-            mInvSpaceJac( 2, 1 ) = ( tSpacJac( 2, 0 ) * tSpacJac( 0, 1 ) - tSpacJac( 0, 0 ) * tSpacJac( 2, 1 ) ) * tInvDet;
-            mInvSpaceJac( 2, 2 ) = ( tSpacJac( 0, 0 ) * tSpacJac( 1, 1 ) - tSpacJac( 1, 0 ) * tSpacJac( 0, 1 ) ) * tInvDet;
-
-            // check results against generic inverse operator
-            MORIS_ASSERT( norm( mInvSpaceJac - inv( tSpacJac ) ) < 1e-8 * norm( mInvSpaceJac ),
-                    "Inconsistent space Jacobian (3D)" );
-        }
-
-        //------------------------------------------------------------------------------
-
-        void
-        Space_Interpolator::eval_inverse_space_jacobian_3d_rect()
-        {
-            // get the space Jacobian
-            const Matrix< DDRMat >& tSpacJac = this->space_jacobian();
-
-            MORIS_ASSERT( this->space_det_J() > sDetJInvJacLowerLimit,
-                    "Space determinate (3D) close to zero or negative: %e\n",
-                    this->space_det_J() );
-
-            MORIS_ASSERT(
-                    std::abs( tSpacJac( 0, 1 ) ) < Space_Interpolator_Epsilon ||            //
-                            std::abs( tSpacJac( 0, 2 ) ) < Space_Interpolator_Epsilon ||    //
-                            std::abs( tSpacJac( 1, 0 ) ) < Space_Interpolator_Epsilon ||    //
-                            std::abs( tSpacJac( 1, 2 ) ) < Space_Interpolator_Epsilon ||    //
-                            std::abs( tSpacJac( 2, 0 ) ) < Space_Interpolator_Epsilon ||    //
-                            std::abs( tSpacJac( 2, 1 ) ) < Space_Interpolator_Epsilon,
-                    "Space_Interpolator::eval_inverse_space_jacobian_3d_rect - Jacobian is not diagonal" );
-
-            // compute inverse
-            mInvSpaceJac.set_size( 3, 3, 0.0 );
-
-            // reciprocals
-            mInvSpaceJac( 0, 0 ) = 1.0 / tSpacJac( 0, 0 );
-            mInvSpaceJac( 1, 1 ) = 1.0 / tSpacJac( 1, 1 );
-            mInvSpaceJac( 2, 2 ) = 1.0 / tSpacJac( 2, 2 );
-
-            // check results against generic inverse operator
-            MORIS_ASSERT( norm( mInvSpaceJac - inv( tSpacJac ) ) < 1e-8 * norm( mInvSpaceJac ),
-                    "Inconsistent space Jacobian (3D)" );
-        }
-
-        //------------------------------------------------------------------------------
-
-        void
-        Space_Interpolator::second_space_jacobian( Matrix< DDRMat >& aJ2bt )
-        {
-            // check that mXHat is set
-            MORIS_ASSERT( mXHat.numel() > 0,
-                    "Space_Interpolator::second_space_jacobian - mXHat is not set." );
-
-            // compute the second order Jacobian
-            aJ2bt = this->d2NdXi2() * mXHat;
-        }
-
-        //------------------------------------------------------------------------------
-
-        void
-        Space_Interpolator::third_space_jacobian( Matrix< DDRMat >& aJ3ct )
-        {
-            // check that mXHat is set
-            MORIS_ASSERT( mXHat.numel() > 0,
-                    "Space_Interpolator::third_space_jacobian - mXHat is not set." );
-
-            // compute the third order Jacobian
-            aJ3ct = this->d3NdXi3() * mXHat;
-        }
-
-        //------------------------------------------------------------------------------
-
-        const real&
-        Space_Interpolator::space_det_J()
-        {
-            // if determinant of space Jacobian needs to be evaluated
-            if ( mSpaceDetJEval )
-            {
-                // get the space Jacobian
-                const Matrix< DDRMat >& tSpaceJt = this->space_jacobian();
-
-                // det j function pointer
-                mSpaceDetJ = ( this->*mSpaceDetJFunc )( tSpaceJt );
-
-                // set bool for evaluation
-                mSpaceDetJEval = false;
-            }
-
-            // return member value
-            return mSpaceDetJ;
-        }
-
-        //------------------------------------------------------------------------------
-
-        const real&
-        Space_Interpolator::space_det_J_deriv(
-                const uint& aLocalVertexID,
-                const uint& aDirection )
-        {
-            // if determinant of space Jacobian derivative needs to be evaluated
-            if ( mSpaceDetJDerivEval )
-            {
-                // get the space Jacobian
-                const Matrix< DDRMat >& tSpaceJtDeriv = this->space_jacobian_deriv( aLocalVertexID, aDirection );
-
-                //  det J deriv function pointer
-                mSpaceDetJDeriv = ( this->*mSpaceDetJDerivFunc )( tSpaceJtDeriv );
-
-                // set bool for evaluation
-                mSpaceDetJDerivEval = false;
-            }
-
-            // return member value
-            return mSpaceDetJDeriv;
-        }
-
-        //------------------------------------------------------------------------------
-
-        real
-        Space_Interpolator::eval_space_detJ_side_line(
-                const Matrix< DDRMat >& aSpaceJt )
-        {
-            real tDetJ = norm( aSpaceJt );
-
-            MORIS_ASSERT( tDetJ > sDetJLowerLimit,
-                    "Space determinant (side line) close to zero or negative: %e\n",
-                    tDetJ );
-
-            return tDetJ;
-        }
-
-        //------------------------------------------------------------------------------
-
-        real
-        Space_Interpolator::eval_space_detJ_deriv_side_line(
-                const Matrix< DDRMat >& aSpaceJDerivt )
-        {
-            real tDetJDeriv = norm( aSpaceJDerivt );
-
-            return tDetJDeriv;
-        }
-
-        //------------------------------------------------------------------------------
-
-        real
-        Space_Interpolator::eval_space_detJ_side_tri(
-                const Matrix< DDRMat >& aSpaceJt )
-        {
-            MORIS_ASSERT( aSpaceJt.n_rows() == 2 && aSpaceJt.n_cols() == 3,
-                    "Space_Interpolator::eval_space_detJ_side_tri - incorrect dimension of space Jacobian" );
-
-            // note: space Jacobian contains vectors x1-x3 and x2-x3
-            real tDetJ = norm( cross( aSpaceJt.get_row( 0 ), aSpaceJt.get_row( 1 ) ) ) / 2.0;
-
-            MORIS_ASSERT( tDetJ > sDetJLowerLimit,
-                    "Space_Interpolator::eval_space_detJ_side_tri - Space determinant (side tri) close to zero or negative: %e\n",
-                    tDetJ );
-
-            return tDetJ;
-        }
-
-        //------------------------------------------------------------------------------
-
-        real
-        Space_Interpolator::eval_space_detJ_deriv_side_tri(
-                const Matrix< DDRMat >& aSpaceJDerivt )
-        {
-            MORIS_ASSERT( aSpaceJDerivt.n_rows() == 2 && aSpaceJDerivt.n_cols() == 3,
-                    "Space_Interpolator::eval_space_detJ_deriv_side_tri - incorrect dimension of space Jacobian" );
-
-            real tDetJDeriv = norm( cross( aSpaceJDerivt.get_row( 0 ), aSpaceJDerivt.get_row( 1 ) ) ) / 2.0;
-
-            return tDetJDeriv;
-        }
-
-        //------------------------------------------------------------------------------
-
-        real
-        Space_Interpolator::eval_space_detJ_side_quad(
-                const Matrix< DDRMat >& aSpaceJt )
-        {
-            real tDetJ = norm( cross( aSpaceJt.get_row( 0 ), aSpaceJt.get_row( 1 ) ) );
-
-            MORIS_ASSERT( tDetJ > sDetJLowerLimit,
-                    "Space determinant (side quad) close to zero or negative: %e\n",
-                    tDetJ );
-
-            return tDetJ;
-        }
-
-        //------------------------------------------------------------------------------
-
-        real
-        Space_Interpolator::eval_space_detJ_deriv_side_quad(
-                const Matrix< DDRMat >& aSpaceJDerivt )
-        {
-            real tDetJDeriv = norm( cross( aSpaceJDerivt.get_row( 0 ), aSpaceJDerivt.get_row( 1 ) ) );
-
-            return tDetJDeriv;
-        }
-
-        //------------------------------------------------------------------------------
-
-        real
-        Space_Interpolator::eval_space_detJ_bulk_line(
-                const Matrix< DDRMat >& aSpaceJt )
-        {
-            real tDetJ = aSpaceJt( 0, 0 );
-
-            MORIS_ASSERT(
-                    tDetJ > sDetJLowerLimit,
-                    "Space_Interpolator::eval_space_detJ_bulk_line() - "
-                    "Space determinant (bulk 1D) close to zero or negative: %e\n",
-                    tDetJ );
+        // return member value
+        return mSpaceDetJDeriv;
+    }
+
+    //------------------------------------------------------------------------------
+
+    real
+    Space_Interpolator::eval_space_detJ_side_line(
+            const Matrix< DDRMat >& aSpaceJt )
+    {
+        real tDetJ = norm( aSpaceJt );
+
+        MORIS_ASSERT( tDetJ > sDetJLowerLimit,
+                "Space determinant (side line) close to zero or negative: %e\n",
+                tDetJ );
+
+        return tDetJ;
+    }
+
+    //------------------------------------------------------------------------------
+
+    real
+    Space_Interpolator::eval_space_detJ_deriv_side_line(
+            const Matrix< DDRMat >& aSpaceJDerivt )
+    {
+        real tDetJDeriv = norm( aSpaceJDerivt );
+
+        return tDetJDeriv;
+    }
+
+    //------------------------------------------------------------------------------
+
+    real
+    Space_Interpolator::eval_space_detJ_side_tri(
+            const Matrix< DDRMat >& aSpaceJt )
+    {
+        MORIS_ASSERT( aSpaceJt.n_rows() == 2 && aSpaceJt.n_cols() == 3,
+                "Space_Interpolator::eval_space_detJ_side_tri - incorrect dimension of space Jacobian" );
+
+        // note: space Jacobian contains vectors x1-x3 and x2-x3
+        real tDetJ = norm( cross( aSpaceJt.get_row( 0 ), aSpaceJt.get_row( 1 ) ) ) / 2.0;
+
+        MORIS_ASSERT( tDetJ > sDetJLowerLimit,
+                "Space_Interpolator::eval_space_detJ_side_tri - Space determinant (side tri) close to zero or negative: %e\n",
+                tDetJ );
+
+        return tDetJ;
+    }
+
+    //------------------------------------------------------------------------------
+
+    real
+    Space_Interpolator::eval_space_detJ_deriv_side_tri(
+            const Matrix< DDRMat >& aSpaceJDerivt )
+    {
+        MORIS_ASSERT( aSpaceJDerivt.n_rows() == 2 && aSpaceJDerivt.n_cols() == 3,
+                "Space_Interpolator::eval_space_detJ_deriv_side_tri - incorrect dimension of space Jacobian" );
+
+        real tDetJDeriv = norm( cross( aSpaceJDerivt.get_row( 0 ), aSpaceJDerivt.get_row( 1 ) ) ) / 2.0;
+
+        return tDetJDeriv;
+    }
+
+    //------------------------------------------------------------------------------
+
+    real
+    Space_Interpolator::eval_space_detJ_side_quad(
+            const Matrix< DDRMat >& aSpaceJt )
+    {
+        real tDetJ = norm( cross( aSpaceJt.get_row( 0 ), aSpaceJt.get_row( 1 ) ) );
+
+        MORIS_ASSERT( tDetJ > sDetJLowerLimit,
+                "Space determinant (side quad) close to zero or negative: %e\n",
+                tDetJ );
+
+        return tDetJ;
+    }
+
+    //------------------------------------------------------------------------------
+
+    real
+    Space_Interpolator::eval_space_detJ_deriv_side_quad(
+            const Matrix< DDRMat >& aSpaceJDerivt )
+    {
+        real tDetJDeriv = norm( cross( aSpaceJDerivt.get_row( 0 ), aSpaceJDerivt.get_row( 1 ) ) );
+
+        return tDetJDeriv;
+    }
+
+    //------------------------------------------------------------------------------
+
+    real
+    Space_Interpolator::eval_space_detJ_bulk_line(
+            const Matrix< DDRMat >& aSpaceJt )
+    {
+        real tDetJ = aSpaceJt( 0, 0 );
+
+        MORIS_ASSERT(
+                tDetJ > sDetJLowerLimit,
+                "Space_Interpolator::eval_space_detJ_bulk_line() - "
+                "Space determinant (bulk 1D) close to zero or negative: %e\n",
+                tDetJ );
 
 #ifdef MORIS_HAVE_DEBUG
             real tAbsoluteError          = std::abs( det( aSpaceJt ) - tDetJ );
@@ -2964,5 +2962,4 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-    } /* namespace mtk */
-} /* namespace moris */
+}    // namespace moris::mtk

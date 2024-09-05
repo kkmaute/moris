@@ -11,6 +11,8 @@
 #ifndef PROJECTS_HMR_SRC_CL_HMR_MESH_INTERPOLATION_HPP_
 #define PROJECTS_HMR_SRC_CL_HMR_MESH_INTERPOLATION_HPP_
 
+#include <utility>
+
 #include "cl_HMR_Mesh.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
 
@@ -27,8 +29,8 @@ namespace moris::hmr
                 std::shared_ptr< Database > aDatabase,
                 uint                        aLagrangeMeshIndex )
                 : Mesh(
-                        aDatabase,
-                        aLagrangeMeshIndex )
+                          std::move( aDatabase ),
+                          aLagrangeMeshIndex )
         {
         }
 
@@ -39,9 +41,9 @@ namespace moris::hmr
                 uint                        aLagrangeOrder,
                 uint                        aLagrangePattern )
                 : Mesh(
-                        aDatabase,
-                        aLagrangeOrder,
-                        aLagrangePattern )
+                          std::move( aDatabase ),
+                          aLagrangeOrder,
+                          aLagrangePattern )
         {
         }
 
@@ -53,10 +55,10 @@ namespace moris::hmr
                 uint                        aLagrangePattern,
                 uint                        aBsplinePattern )
                 : Mesh(
-                        aDatabase,
-                        aOrder,
-                        aLagrangePattern,
-                        aBsplinePattern )
+                          std::move( aDatabase ),
+                          aOrder,
+                          aLagrangePattern,
+                          aBsplinePattern )
         {
         }
 
@@ -69,17 +71,17 @@ namespace moris::hmr
                 uint                        aBSplineOrder,
                 uint                        aBsplinePattern )
                 : Mesh(
-                        aDatabase,
-                        aLagrangeOrder,
-                        aLagrangePattern,
-                        aBSplineOrder,
-                        aBsplinePattern )
+                          std::move( aDatabase ),
+                          aLagrangeOrder,
+                          aLagrangePattern,
+                          aBSplineOrder,
+                          aBsplinePattern )
         {
         }
 
         //-------------------------------------------------------------------------------
 
-        ~Interpolation_Mesh_HMR()
+        ~Interpolation_Mesh_HMR() override
         {
         }
 

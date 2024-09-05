@@ -77,10 +77,10 @@ namespace moris
 
             //------------------------------------------------------------------
             Linear_Problem( Solver_Interface* aInput )
-                    : mMat( NULL )
-                    , mMassMat( NULL )
+                    : mMat( nullptr )
+                    , mMassMat( nullptr )
                     , mFreeVectorLHS( nullptr )
-                    , mMap( NULL )
+                    , mMap( nullptr )
                     , mSolverInterface( aInput ){};
 
             //------------------------------------------------------------------

@@ -93,7 +93,7 @@ namespace moris::mtk
          * @brief Get mesh set by name
          * @param[in] aSetLabel Set label
          */
-        moris::mtk::Set *get_set_by_name( std::string aSetLabel ) const override;
+        moris::mtk::Set *get_set_by_name( const std::string &aSetLabel ) const override;
 
         // ----------------------------------------------------------------------------
 
@@ -114,7 +114,7 @@ namespace moris::mtk
          * @param[in] aSetLabel Set label
          * @return Set index
          */
-        moris_index get_set_index_by_name( std::string aSetLabel );
+        moris_index get_set_index_by_name( const std::string &aSetLabel );
 
         // ----------------------------------------------------------------------------
 
@@ -185,7 +185,7 @@ namespace moris::mtk
         /**
          * Returns the index given a label
          */
-        virtual moris_index get_block_set_index( std::string aBlockSetLabel ) const;
+        virtual moris_index get_block_set_index( const std::string &aBlockSetLabel ) const;
 
         // ----------------------------------------------------------------------------
 
@@ -289,7 +289,7 @@ namespace moris::mtk
         /**
          * Returns the index given a label
          */
-        virtual moris_index get_double_sided_set_index( std::string aDoubleSideSetLabel ) const;
+        virtual moris_index get_double_sided_set_index( const std::string &aDoubleSideSetLabel ) const;
 
         // ----------------------------------------------------------------------------
         /**
@@ -337,14 +337,14 @@ namespace moris::mtk
          * @param aNumBsplineMeshes
          */
         void save_elemental_T_matrices_to_file(
-                std::string aFileName,
-                uint        aNumBsplineMeshes = 1 );
+                const std::string &aFileName,
+                uint               aNumBsplineMeshes = 1 );
 
         // ----------------------------------------------------------------------------
         /**
          * Save nodal T-matrices for IG-mesh nodes to .hdf5 or .dat file
          */
-        void save_IG_global_T_matrix_to_file( std::string tFileName );
+        void save_IG_global_T_matrix_to_file( const std::string &tFileName );
 
         // ----------------------------------------------------------------------------
 

@@ -108,9 +108,9 @@ namespace moris::xtk
                     // Invalid topo
                     else
                     {
-                        std::cout << "iElem = " << i << " iEdge = " << j << std::endl;
-                        std::cout << "Expected Nodes = " << tExpectedEdgeToNode( j, 0 ) << " " << tExpectedEdgeToNode( j, 1 ) << std::endl;
-                        std::cout << "Actual Nodes   = " << aEdgeToNode( tEdgeIndex, 0 ) << " " << aEdgeToNode( tEdgeIndex, 1 ) << std::endl;
+                        std::cout << "iElem = " << i << " iEdge = " << j << '\n';
+                        std::cout << "Expected Nodes = " << tExpectedEdgeToNode( j, 0 ) << " " << tExpectedEdgeToNode( j, 1 ) << '\n';
+                        std::cout << "Actual Nodes   = " << aEdgeToNode( tEdgeIndex, 0 ) << " " << aEdgeToNode( tEdgeIndex, 1 ) << '\n';
                         tValidEdgeTopo = false;
                     }
                 }
@@ -195,9 +195,9 @@ namespace moris::xtk
                     // Invalid topo
                     else
                     {
-                        std::cout << "iElem = " << i << " iFace = " << j << std::endl;
-                        std::cout << "Expected Nodes = " << tExpectedEdgeToNode( j, 0 ) << " " << tExpectedEdgeToNode( j, 1 ) << " " << tExpectedEdgeToNode( j, 2 ) << std::endl;
-                        std::cout << "Actual Nodes   = " << aFaceToNode( tFaceIndex, 0 ) << " " << aFaceToNode( tFaceIndex, 1 ) << " " << aFaceToNode( tFaceIndex, 2 ) << std::endl;
+                        std::cout << "iElem = " << i << " iFace = " << j << '\n';
+                        std::cout << "Expected Nodes = " << tExpectedEdgeToNode( j, 0 ) << " " << tExpectedEdgeToNode( j, 1 ) << " " << tExpectedEdgeToNode( j, 2 ) << '\n';
+                        std::cout << "Actual Nodes   = " << aFaceToNode( tFaceIndex, 0 ) << " " << aFaceToNode( tFaceIndex, 1 ) << " " << aFaceToNode( tFaceIndex, 2 ) << '\n';
                         tValidFaceTopo = false;
                     }
                 }
@@ -235,13 +235,13 @@ namespace moris::xtk
 
         if ( !tValidEdgeTopo )
         {
-            std::cout << "Invalid edge topology detected" << std::endl;
+            std::cout << "Invalid edge topology detected" << '\n';
             tValidTopo = false;
         }
 
         else if ( !tValidFaceTopo )
         {
-            std::cout << "Invalid face topology detected" << std::endl;
+            std::cout << "Invalid face topology detected" << '\n';
             tValidTopo = false;
         }
 

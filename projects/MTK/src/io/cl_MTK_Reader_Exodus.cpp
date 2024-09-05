@@ -19,6 +19,7 @@
 #include "cl_MTK_Sets_Info.hpp"
 
 #include <iostream>
+#include <utility>
 
 namespace moris::mtk
 {
@@ -35,7 +36,7 @@ namespace moris::mtk
         ex_opts( abort * EX_ABORT | debug * EX_DEBUG | verbose * EX_VERBOSE );
     }
 
-    void Reader_Exodus::open_file( std::string aExodusFileName, float aVersion )
+    void Reader_Exodus::open_file( const std::string& aExodusFileName, float aVersion )
     {
         int tCPUWordSize = 8, tIOWordSize = 8;    // TODO
         mExoID = ex_open( aExodusFileName.c_str(), EX_READ, &tCPUWordSize, &tIOWordSize, &aVersion );
@@ -46,7 +47,7 @@ namespace moris::mtk
         ex_close( mExoID );
     }
 
-    void Reader_Exodus::read_file( std::string aFileName )
+    void Reader_Exodus::read_file( const std::string& aFileName )
     {
         Reader_Exodus::open_file( aFileName );
 

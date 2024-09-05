@@ -47,18 +47,18 @@ namespace moris::hmr
 
 //------------------------------------------------------------------------------
 
-           ~Lagrange_Facet(){};
+           ~Lagrange_Facet() override{};
 
 //------------------------------------------------------------------------------
            inline
-           uint get_number_of_vertices() const
+           uint get_number_of_vertices() const override
            {
                return D;
            }
 
 //------------------------------------------------------------------------------
            inline
-           Matrix< DDRMat > get_vertex_coords() const
+           Matrix< DDRMat > get_vertex_coords() const override
            {
                // create output matrix
                Matrix< DDRMat > aCoords( D, N );
@@ -79,33 +79,33 @@ namespace moris::hmr
 
 //------------------------------------------------------------------------------
 
-           mtk::Geometry_Type get_geometry_type() const;
+           mtk::Geometry_Type get_geometry_type() const override;
 
 //------------------------------------------------------------------------------
 
-           mtk::Interpolation_Order get_interpolation_order() const;
+           mtk::Interpolation_Order get_interpolation_order() const override;
 
 //------------------------------------------------------------------------------
 
-           mtk::Integration_Order get_integration_order() const;
+           mtk::Integration_Order get_integration_order() const override;
 
 //------------------------------------------------------------------------------
            inline
-           const mtk::Vertex * get_vertex( uint aIndex ) const
+           const mtk::Vertex * get_vertex( uint aIndex ) const override
            {
                return mVertices[ aIndex ];
            }
 
 // ----------------------------------------------------------------------------
            inline
-           const Basis * get_basis( uint aIndex ) const
+           const Basis * get_basis( uint aIndex ) const override
            {
                return mVertices[ aIndex ];
            }
 
 // ----------------------------------------------------------------------------
            inline
-           Basis * get_basis( uint aIndex )
+           Basis * get_basis( uint aIndex ) override
            {
                return mVertices[ aIndex ];
            }

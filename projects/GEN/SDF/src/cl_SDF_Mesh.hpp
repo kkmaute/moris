@@ -22,167 +22,165 @@
 #include "cl_SDF_Vertex.hpp"
 #include "cl_SDF_Cell.hpp"
 
-namespace moris
+namespace moris::sdf
 {
-    namespace sdf
+    //-------------------------------------------------------------------------------
+
+    /**
+     * Wrapper around an MTK mesh
+     */
+    class Mesh
     {
-//-------------------------------------------------------------------------------
+        //! pointer to underlying mesh
+        mtk::Mesh *mMesh;
+
+        //! vector with SDF Vertices
+        Vector< Vertex * > mVertices;
+
+        //! vector with SDF Cells
+        Vector< Cell * > mCells;
+
+        bool mVerbose;
+
+        Matrix< F31RMat > mMinCoord;
+        Matrix< F31RMat > mMaxCoord;
+
+        Matrix< IdMat > mNodeIDs;
+
+        // interpolation order
+        uint mOrder;
+
+        //-------------------------------------------------------------------------------
+
+      public:
+        //-------------------------------------------------------------------------------
 
         /**
-         * Wrapper around an MTK mesh
+         * constructor
          */
-        class Mesh
+        Mesh( const std::shared_ptr< mtk::Mesh > &aMesh, bool aVerbose = false );
+
+        //-------------------------------------------------------------------------------
+
+        Mesh( mtk::Mesh *aMesh, bool aVerbose = false );
+
+        //-------------------------------------------------------------------------------
+
+        /**
+         * destructor
+         */
+        ~Mesh();
+
+        //-------------------------------------------------------------------------------
+
+        /**
+         * expose mesh pointer
+         */
+        mtk::Mesh *
+        get_mtk_mesh()
         {
-            //! pointer to underlying mesh
-            mtk::Mesh * mMesh;
+            return mMesh;
+        }
 
-            //! vector with SDF Vertices
-            Vector< Vertex * > mVertices;
+        //-------------------------------------------------------------------------------
+        uint
+        get_num_nodes() const
+        {
+            return mMesh->get_num_nodes();
+        }
 
-            //! vector with SDF Cells
-            Vector< Cell * > mCells;
+        //-------------------------------------------------------------------------------
 
-            bool mVerbose;
+        uint
+        get_num_elems() const
+        {
+            return mMesh->get_num_elems();
+        }
 
-            Matrix< F31RMat > mMinCoord;
-            Matrix< F31RMat > mMaxCoord;
+        //-------------------------------------------------------------------------------
 
-            Matrix< IdMat > mNodeIDs;
+        const Matrix< F31RMat > &
+        get_node_coordinate( const moris_index aIndex ) const
+        {
+            return mVertices( aIndex )->get_coords();
+        }
 
-            // interpolation order
-            uint mOrder;
+        //-------------------------------------------------------------------------------
 
-//-------------------------------------------------------------------------------
-        public:
-//-------------------------------------------------------------------------------
+        Vertex *
+        get_vertex( const uint &aIndex )
+        {
+            return mVertices( aIndex );
+        }
 
-            /**
-             * constructor
-             */
-            Mesh( std::shared_ptr< mtk::Mesh > aMesh, bool aVerbose = false );
+        //-------------------------------------------------------------------------------
 
-//-------------------------------------------------------------------------------
+        Cell *
+        get_cell( const uint &aIndex )
+        {
+            return mCells( aIndex );
+        }
 
-            Mesh( mtk::Mesh * aMesh , bool aVerbose = false );
+        //-------------------------------------------------------------------------------
 
-//-------------------------------------------------------------------------------
+        real
+        get_min_coord( const uint aIndex ) const
+        {
+            return mMinCoord( aIndex );
+        }
 
-            /**
-             * destructor
-             */
-            ~Mesh();
+        //-------------------------------------------------------------------------------
 
-//-------------------------------------------------------------------------------
+        real
+        get_max_coord( const uint aIndex ) const
+        {
+            return mMaxCoord( aIndex );
+        }
 
-            /**
-             * expose mesh pointer
-             */
-            mtk::Mesh *
-            get_mtk_mesh()
-            {
-                return mMesh;
-            }
+        //-------------------------------------------------------------------------------
 
-//-------------------------------------------------------------------------------
-            uint
-            get_num_nodes() const
-            {
-                return mMesh->get_num_nodes();
-            }
+        bool
+        is_verbose() const
+        {
+            return mVerbose;
+        }
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
-            uint
-            get_num_elems() const
-            {
-                return mMesh->get_num_elems();
-            }
+        const Matrix< IdMat > &
+        get_node_ids() const
+        {
+            return mNodeIDs;
+        }
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
-            const Matrix< F31RMat > &
-            get_node_coordinate( const moris_index aIndex ) const
-            {
-                return mVertices( aIndex )->get_coords();
-            }
+        /**
+         * return the interpolation order of the mesh.
+         * Needer for HDF5 output.
+         * ( taken from first element on mesh, assuming that all elements
+         *   are of the same order )
+         */
+        uint
+        get_order() const
+        {
+            return mOrder;
+        }
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
-            Vertex *
-            get_vertex( const uint & aIndex )
-            {
-                return mVertices( aIndex );
-            }
+      private:
+        //-------------------------------------------------------------------------------
 
-//-------------------------------------------------------------------------------
+        void
+        link_vertex_cells();
 
-            Cell *
-            get_cell( const uint & aIndex )
-            {
-                return mCells( aIndex );
-            }
-
-//-------------------------------------------------------------------------------
-
-            real
-            get_min_coord( const uint aIndex ) const
-            {
-                return mMinCoord( aIndex );
-            }
-
-//-------------------------------------------------------------------------------
-
-            real
-            get_max_coord( const uint aIndex ) const
-            {
-                return mMaxCoord( aIndex );
-            }
-
-//-------------------------------------------------------------------------------
-
-            bool
-            is_verbose() const
-            {
-                return mVerbose;
-            }
-
-//-------------------------------------------------------------------------------
-
-            const Matrix< IdMat > &
-            get_node_ids() const
-            {
-                return mNodeIDs;
-            }
-
-//-------------------------------------------------------------------------------
-
-            /**
-             * return the interpolation order of the mesh.
-             * Needer for HDF5 output.
-             * ( taken from first element on mesh, assuming that all elements
-             *   are of the same order )
-             */
-            uint
-            get_order() const
-            {
-                return mOrder;
-            }
-
-//-------------------------------------------------------------------------------
-        private:
-//-------------------------------------------------------------------------------
-
-            void
-            link_vertex_cells();
-
-//-------------------------------------------------------------------------------
-            void
-            link_vertex_neighbors();
-
-        };
-//-------------------------------------------------------------------------------
-    } /* namespace sdf */
-} /* namespace moris */
+        //-------------------------------------------------------------------------------
+        void
+        link_vertex_neighbors();
+    };
+    //-------------------------------------------------------------------------------
+}    // namespace moris::sdf
 
 #endif /* PROJECTS_GEN_SDF_SRC_CL_SDF_MESH_HPP_ */
 

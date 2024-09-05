@@ -776,7 +776,7 @@ namespace moris
         tParameterlist( 3 )( 2 ).set( "NLA_DofTypes", "VX,VY,P;TEMP" );
 
         tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
-        tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_solver", 2 );    // set nonlinear solver with index 2
+        tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_Solver", 2 );    // set nonlinear solver with index 2
         tParameterlist( 4 )( 0 ).set( "TSA_Num_Time_Steps", sNumStep );
         tParameterlist( 4 )( 0 ).set( "TSA_Time_Frame", sMaxTime );
 

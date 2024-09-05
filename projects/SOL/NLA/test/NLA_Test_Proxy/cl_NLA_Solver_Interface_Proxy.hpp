@@ -78,11 +78,11 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
-            NLA_Solver_Interface_Proxy( std::shared_ptr< Nonlinear_Algorithm > aNewtonSolver ){};
+            NLA_Solver_Interface_Proxy( const std::shared_ptr< Nonlinear_Algorithm >& aNewtonSolver ) {};
 
             // ----------------------------------------------------------------------------------------------
 
-            ~NLA_Solver_Interface_Proxy(){};
+            ~NLA_Solver_Interface_Proxy() override {};
 
             // ----------------------------------------------------------------------------------------------
 
@@ -108,14 +108,14 @@ namespace moris
             // ----------------------------------------------------------------------------------------------
 
             void
-            set_requested_dof_types( const Vector< enum MSI::Dof_Type > aListOfDofTypes ) override
+            set_requested_dof_types( const Vector< enum MSI::Dof_Type >& aListOfDofTypes ) override
             {
                 mListOfDofTypes = aListOfDofTypes;
             };
 
             // ----------------------------------------------------------------------------
 
-            virtual const Vector< enum MSI::Dof_Type >&
+            const Vector< enum MSI::Dof_Type >&
             get_requested_dof_types() override
             {
                 return mListOfDofTypes;
@@ -123,7 +123,7 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
-            void set_secondary_dof_types( const Vector< enum MSI::Dof_Type > aListOfDofTypes ) override {};
+            void set_secondary_dof_types( const Vector< enum MSI::Dof_Type >& aListOfDofTypes ) override {};
 
             // ----------------------------------------------------------------------------------------------
             // local dimension of the problem
@@ -292,7 +292,7 @@ namespace moris
                 }
                 else
                 {
-                    return NULL;
+                    return nullptr;
                 }
             };
 

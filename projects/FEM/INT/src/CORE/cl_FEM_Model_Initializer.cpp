@@ -38,7 +38,7 @@ namespace moris::fem
         for ( uint iProp = 0; iProp < tNumProps; iProp++ )
         {
             // get property parameter list
-            Parameter_List tPropParameter = tPropParameterList( iProp );
+            const Parameter_List &tPropParameter = tPropParameterList( iProp );
             auto           tProperty      = std::make_shared< fem::Property >();
 
             // get property name from parameter list
@@ -102,7 +102,7 @@ namespace moris::fem
         for ( sint iField = 0; iField < tNumFields; iField++ )
         {
             // get property parameter list
-            Parameter_List tFieldParameter = tFieldParameterList( iField );
+            const Parameter_List &tFieldParameter = tFieldParameterList( iField );
 
             moris::map< std::string, mtk::Field_Entity_Type > tFieldEntityTypeMap = mtk::get_field_entity_type_map();
 

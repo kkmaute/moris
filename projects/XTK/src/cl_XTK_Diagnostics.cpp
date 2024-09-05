@@ -100,7 +100,7 @@ namespace moris::xtk
                         {
                             std::cout << std::left << std::scientific << ( *tVertexLocalCoords )( iSp ) << " ";
                         }
-                        std::cout << std::endl;
+                        std::cout << '\n';
                         tProblemIgVertices.push_back( iV );
                     }
                 }
@@ -123,7 +123,7 @@ namespace moris::xtk
 
         if ( (moris_index)tCutIgMesh->get_num_nodes() != aGoldNumVerts( moris::par_rank() ) )
         {
-            std::cout << "Number of vertex mismatch on proc" << par_rank() << std::endl;
+            std::cout << "Number of vertex mismatch on proc" << par_rank() << '\n';
             return false;
         }
         // iterate through verts
@@ -138,10 +138,10 @@ namespace moris::xtk
 
             if ( moris::norm( tVertexCoords - aGoldVertexCoords.get_row( tIter->second ) ) > aTolerance )
             {
-                std::cout << "tVertex.get_id() = " << tVertex.get_id() << " | gold index = " << tIter->second << std::endl;
+                std::cout << "tVertex.get_id() = " << tVertex.get_id() << " | gold index = " << tIter->second << '\n';
                 moris::print( aGoldVertexCoords.get_row( tIter->second ), "Gold Coordinates" );
                 moris::print( tVertexCoords, "Coordinates" );
-                std::cout << "Vertex coordinate failure on " << par_rank() << std::endl;
+                std::cout << "Vertex coordinate failure on " << par_rank() << '\n';
                 return false;
             }
         }
@@ -160,7 +160,7 @@ namespace moris::xtk
 
         if ( (moris_index)tCutIgMesh->get_num_elems() != aGoldNumCells( moris::par_rank() ) )
         {
-            std::cout << "Number of cell mismatch on proc" << par_rank() << std::endl;
+            std::cout << "Number of cell mismatch on proc" << par_rank() << '\n';
             return false;
         }
         // iterate through verts
@@ -179,7 +179,7 @@ namespace moris::xtk
             {
                 if ( tCellVertIds( iV ) != aGoldCellConn( tGoldCellIndex, iV ) )
                 {
-                    std::cout << "Cell connectivity failure on " << par_rank() << std::endl;
+                    std::cout << "Cell connectivity failure on " << par_rank() << '\n';
                     return false;
                 }
             }

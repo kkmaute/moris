@@ -24,8 +24,8 @@ int fn_WRK_Workflow_Main_Interface( int argc, char *argv[] );
 
 extern "C" void
 check_results_serial(
-        std::string aExoFileName,
-        uint        aTestCaseIndex )
+        const std::string &aExoFileName,
+        uint               aTestCaseIndex )
 {
     MORIS_LOG_INFO( " " );
     MORIS_LOG_INFO( "Checking Results - Test Case %d on %i processor.", aTestCaseIndex, par_size() );
@@ -36,15 +36,15 @@ check_results_serial(
 
     if ( false )
     {
-        std::cout << "Test case index: " << aTestCaseIndex << std::endl;
+        std::cout << "Test case index: " << aTestCaseIndex << '\n';
 
         uint tNumDims  = tExoIO.get_number_of_dimensions();
         uint tNumNodes = tExoIO.get_number_of_nodes();
         uint tNumElems = tExoIO.get_number_of_elements();
 
-        std::cout << "Number of dimensions: " << tNumDims << std::endl;
-        std::cout << "Number of nodes     : " << tNumNodes << std::endl;
-        std::cout << "Number of elements  : " << tNumElems << std::endl;
+        std::cout << "Number of dimensions: " << tNumDims << '\n';
+        std::cout << "Number of nodes     : " << tNumNodes << '\n';
+        std::cout << "Number of elements  : " << tNumElems << '\n';
 
         return;
     }
@@ -79,8 +79,8 @@ check_results_serial(
 
 extern "C" void
 check_results_parallel(
-        std::string aExoFileName,
-        uint        aTestCaseIndex )
+        const std::string &aExoFileName,
+        uint               aTestCaseIndex )
 {
     MORIS_LOG_INFO( " " );
     MORIS_LOG_INFO( "Checking Results - Test Case %d on %i processor.", aTestCaseIndex, par_size() );
@@ -91,15 +91,15 @@ check_results_parallel(
 
     if ( true )
     {
-        std::cout << "Test case index: " << aTestCaseIndex << " on proc: " << par_rank() << std::endl;
+        std::cout << "Test case index: " << aTestCaseIndex << " on proc: " << par_rank() << '\n';
 
         uint tNumDims  = tExoIO.get_number_of_dimensions();
         uint tNumNodes = tExoIO.get_number_of_nodes();
         uint tNumElems = tExoIO.get_number_of_elements();
 
-        std::cout << "Number of dimensions: " << tNumDims << std::endl;
-        std::cout << "Number of nodes     : " << tNumNodes << std::endl;
-        std::cout << "Number of elements  : " << tNumElems << std::endl;
+        std::cout << "Number of dimensions: " << tNumDims << '\n';
+        std::cout << "Number of nodes     : " << tNumNodes << '\n';
+        std::cout << "Number of elements  : " << tNumElems << '\n';
 
         return;
     }

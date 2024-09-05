@@ -24,7 +24,6 @@
 
 #include "cl_XTK_Enums.hpp"
 #include "cl_MTK_Enums.hpp"
-#include "cl_MTK_Enums.hpp"
 #include "cl_XTK_Output_Options.hpp"
 #include "fn_generate_element_to_element.hpp"
 #include "fn_generate_element_to_element_2D.hpp"
@@ -35,8 +34,6 @@
 #include "cl_MTK_Cell_Info_Factory.hpp"
 
 // MTK includes
-#include "cl_MTK_Enums.hpp"
-#include "cl_MTK_Enums.hpp"
 #include "fn_verify_tet_topology.hpp"
 
 #include "cl_XTK_Side_Cluster.hpp"

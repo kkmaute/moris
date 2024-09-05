@@ -322,7 +322,7 @@ void UT_FEM_SP_YZBETA_Advection_Core( real aBeta )
                 for( uint iRequestedDof = 0; iRequestedDof < tLeaderDofTypes.size(); iRequestedDof++ )
                 {
                     // derivative dof type
-                    Vector< MSI::Dof_Type > tDofDerivative = tLeaderDofTypes( iRequestedDof );
+                    const Vector< MSI::Dof_Type >& tDofDerivative = tLeaderDofTypes( iRequestedDof );
 
                     // evaluate dspdu
                     Matrix< DDRMat > tdspdu = tSPYZBeta->dSPdLeaderDOF( tDofDerivative );

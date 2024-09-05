@@ -17,57 +17,52 @@
 
 #include "fn_PRM_SOL_Parameters.hpp"
 
-namespace moris
+namespace moris::dla
 {
-    namespace dla
+    class Linear_Problem;
+    class Linear_Solver_Aztec : public Linear_Solver_Algorithm_Trilinos
     {
-        class Linear_Problem;
-        class Linear_Solver_Aztec : public Linear_Solver_Algorithm_Trilinos
-        {
-          private:
+      private:
+        AztecOO *mAztecSolver = nullptr;
 
-            AztecOO *mAztecSolver = nullptr;
+        Epetra_LinearProblem mEpetraProblem;
 
-            Epetra_LinearProblem mEpetraProblem;
+      private:
+        // -----------------------------------------------------------------------------------
 
-          private:
-            // -----------------------------------------------------------------------------------
+        void set_solver_internal_parameters();
 
-            void set_solver_internal_parameters();
+        // -----------------------------------------------------------------------------------
 
-            // -----------------------------------------------------------------------------------
+        bool build_external_preconditioner( const moris::sint &aIter = 1 );
 
-            bool build_external_preconditioner( const moris::sint &aIter = 1 );
+        // -----------------------------------------------------------------------------------
 
-            // -----------------------------------------------------------------------------------
+      public:
+        // -----------------------------------------------------------------------------------
 
-          public:
-            // -----------------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------------
 
-            // -----------------------------------------------------------------------------------
+        Linear_Solver_Aztec( const moris::Parameter_List &aParameterlist = prm::create_linear_algorithm_parameter_list_aztec() );
 
-            Linear_Solver_Aztec( const moris::Parameter_List& aParameterlist = prm::create_linear_algorithm_parameter_list_aztec() );
+        // -----------------------------------------------------------------------------------
 
-            // -----------------------------------------------------------------------------------
+        Linear_Solver_Aztec( Linear_Problem *aLinearSystem );
 
-            Linear_Solver_Aztec( Linear_Problem *aLinearSystem );
+        // -----------------------------------------------------------------------------------
 
-            // -----------------------------------------------------------------------------------
+        ~Linear_Solver_Aztec() override;
 
-            ~Linear_Solver_Aztec();
+        // -----------------------------------------------------------------------------------
 
-            // -----------------------------------------------------------------------------------
+        moris::sint solve_linear_system() override;
 
-            moris::sint solve_linear_system();
+        // -----------------------------------------------------------------------------------
 
-            // -----------------------------------------------------------------------------------
+        moris::sint solve_linear_system(
+                Linear_Problem   *aLinearSystem,
+                const moris::sint aIter ) override;
 
-            moris::sint solve_linear_system(
-                    Linear_Problem   *aLinearSystem,
-                    const moris::sint aIter );
-
-            // -----------------------------------------------------------------------------------
-        };
-    }    // namespace dla
-}    // namespace moris
-
+        // -----------------------------------------------------------------------------------
+    };
+}    // namespace moris::dla

@@ -16,27 +16,25 @@
 #include "fn_norm.hpp"
 #include "fn_eye.hpp"
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+
+    //------------------------------------------------------------------------------
+
+    IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::IWG_Compressible_NS_Advective_Momentum_Flux_Boundary()
     {
+        // set size for the constitutive model pointer cell
+        mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
-        //------------------------------------------------------------------------------
+        // populate the constitutive map
+        mConstitutiveMap[ "Fluid" ] = static_cast< uint >( IWG_Constitutive_Type::FLUID );
+    }
 
-        IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::IWG_Compressible_NS_Advective_Momentum_Flux_Boundary()
-        {
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+    //------------------------------------------------------------------------------
 
-            // populate the constitutive map
-            mConstitutiveMap[ "Fluid" ] = static_cast< uint >( IWG_Constitutive_Type::FLUID );
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_residual( real aWStar )
-        {
-            // check leader field interpolators
+    void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_residual( real aWStar )
+    {
+        // check leader field interpolators
 #ifdef MORIS_HAVE_DEBUG
             this->check_field_interpolators();
 #endif
@@ -174,9 +172,9 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_jacobian_strong_form(
-                Vector< MSI::Dof_Type >   aDofTypes,
-                Matrix< DDRMat >             & aJM,
-                Matrix< DDRMat >             & aJC )
+                const Vector< MSI::Dof_Type >& aDofTypes,
+                Matrix< DDRMat >&              aJM,
+                Matrix< DDRMat >&              aJC )
         {
             MORIS_ERROR( false, "IWG_Compressible_NS_Advective_Mass_Flux_Boundary::compute_jacobian_strong_form - Not implemented." );
         }
@@ -290,6 +288,4 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
-
+}    // namespace moris::fem

@@ -49,13 +49,13 @@ namespace moris::dla
          * 
          */
 
-        virtual ~Linear_Solver_Algorithm_Petsc(){};
+        ~Linear_Solver_Algorithm_Petsc() override{};
 
         //-----------------------------------------------------------------------------------
 
         // cast the preconditioner to the correct type(petsc and assign it to the object)
         
-        virtual void
+        void
         set_preconditioner( Preconditioner* aPreconditioner ) override
         {
             mPreconditioner = dynamic_cast< Preconditioner_PETSc* >( aPreconditioner );

@@ -61,7 +61,7 @@ namespace moris
 
             // ----------------------------------------------------------------------------------------------
 
-            ~TSA_Solver_Interface_Proxy_II(){};
+            ~TSA_Solver_Interface_Proxy_II() override {};
 
             // ----------------------------------------------------------------------------------------------
 
@@ -79,10 +79,10 @@ namespace moris
                 mPreviousT = aTime;
             }
 
-            void free_block_memory( const uint aBlockInd ) override{};
+            void free_block_memory( const uint aBlockInd ) override {};
             // ----------------------------------------------------------------------------------------------
 
-            void set_requested_dof_types( const Vector< enum MSI::Dof_Type > aListOfDofTypes ) override
+            void set_requested_dof_types( const Vector< enum MSI::Dof_Type >& aListOfDofTypes ) override
             {
                 mListOfDofTypes = aListOfDofTypes;
             };
@@ -92,7 +92,7 @@ namespace moris
                 return mListOfDofTypes;
             };
 
-            void set_secondary_dof_types( const Vector< enum MSI::Dof_Type > aListOfDofTypes ) override
+            void set_secondary_dof_types( const Vector< enum MSI::Dof_Type >& aListOfDofTypes ) override
             {
                 mListSecondaryOfDofTypes = aListOfDofTypes;
             };
@@ -264,7 +264,7 @@ namespace moris
                 }
                 else
                 {
-                    return NULL;
+                    return nullptr;
                 }
             };
 

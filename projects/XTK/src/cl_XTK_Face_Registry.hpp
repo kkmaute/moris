@@ -13,7 +13,6 @@
 
 // XTKL: Linear Algebra Includes
 #include "cl_Matrix.hpp"
-#include "cl_Matrix.hpp"
 #include "fn_bubble_sort.hpp"
 
 namespace moris::xtk
@@ -239,8 +238,8 @@ namespace moris::xtk
 
                     if ( mFaceAncestryRanks( 0, aFaceIndex ) != aParentRank || mFaceAncestryIndices( 0, aFaceIndex ) != aParentIndex )
                     {
-                        std::cout << "Existing Parent Rank: " << mFaceAncestryRanks( 0, aFaceIndex ) << " New Parent Rank: " << aParentRank << std::endl;
-                        std::cout << "Existing Parent Index: " << mFaceAncestryIndices( 0, aFaceIndex ) << " New Parent Index: " << aParentIndex << std::endl;
+                        std::cout << "Existing Parent Rank: " << mFaceAncestryRanks( 0, aFaceIndex ) << " New Parent Rank: " << aParentRank << '\n';
+                        std::cout << "Existing Parent Index: " << mFaceAncestryIndices( 0, aFaceIndex ) << " New Parent Index: " << aParentIndex << '\n';
                     }
                     MORIS_ASSERT( mFaceAncestryRanks( 0, aFaceIndex ) == aParentRank, "Inheritance Rank mismatch on a given face" );
                     MORIS_ASSERT( mFaceAncestryIndices( 0, aFaceIndex ) == aParentIndex, "Inheritance Index mismatch on a given face" );

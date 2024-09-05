@@ -41,17 +41,10 @@
 
 // MTK
 #include "cl_MTK_Enums.hpp"
-#include "cl_MTK_Mesh.hpp"
 #include "cl_MTK_Mapper.hpp"
 #include "cl_MTK_Mesh_Factory.hpp"
 
 // HMR
-#include "fn_HMR_Exec_load_parameters.hpp"
-#include "fn_HMR_Exec_dump_meshes.hpp"
-#include "fn_HMR_Exec_dump_fields.hpp"
-#include "fn_HMR_Exec_initialize_fields.hpp"
-#include "fn_HMR_Exec_load_user_library.hpp"
-#include "fn_HMR_Exec_perform_mapping.hpp"
 #include "cl_Logger.hpp" // MRS/IOS/src
 
 moris::Comm_Manager gMorisComm;

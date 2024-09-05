@@ -159,7 +159,7 @@ namespace moris::vis
     // ----------------------------------------------------------------------------
 
     Vector< mtk::Cell const * >
-    Visualization_Mesh::get_set_cells( std::string aSetName ) const
+    Visualization_Mesh::get_set_cells( const std::string& aSetName ) const
     {
         // get the set's position in the list of all sets
         uint tSetIndex = mSetNameToIndexMap.find( aSetName );
@@ -248,7 +248,7 @@ namespace moris::vis
     // ----------------------------------------------------------------------------
 
     moris::mtk::Set*
-    Visualization_Mesh::get_set_by_name( std::string aSetLabel ) const
+    Visualization_Mesh::get_set_by_name( const std::string& aSetLabel ) const
     {
         MORIS_ASSERT(
                 mSetNameToIndexMap.key_exists( aSetLabel ),
@@ -442,7 +442,7 @@ namespace moris::vis
             Matrix< IndexMat >& aSidesetOrdinals ) const
     {
         // copy string such that we can modify it
-        std::string tSetNameCopy = aSetName;
+        const std::string& tSetNameCopy = aSetName;
 
         // get the set
         moris_index tSetIndex = mSetNameToIndexMap.find( tSetNameCopy );

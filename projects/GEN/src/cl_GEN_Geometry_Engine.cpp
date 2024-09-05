@@ -726,7 +726,7 @@ namespace moris::gen
                 tStringStream << ",";
             }
         }
-        tStringStream << std::endl;
+        tStringStream << '\n';
         // iterate through vertices
         for ( moris::uint iV = 0; iV < aMesh->get_num_nodes(); iV++ )
         {
@@ -775,12 +775,12 @@ namespace moris::gen
                     tStringStream << ",";
                 }
             }
-            tStringStream << std::endl;
+            tStringStream << '\n';
         }
         if ( not aFile.empty() )
         {
             std::ofstream tOutputFile( aFile );
-            tOutputFile << tStringStream.str() << std::endl;
+            tOutputFile << tStringStream.str() << '\n';
             tOutputFile.close();
         }
     }
@@ -861,9 +861,9 @@ namespace moris::gen
 
     void
     Geometry_Engine::distribute_advs(
-            mtk::Mesh_Pair                               aMeshPair,
-            Vector< std::shared_ptr< mtk::Field > > aFields,
-            mtk::EntityRank                              aADVEntityRank )
+            mtk::Mesh_Pair                                 aMeshPair,
+            const Vector< std::shared_ptr< mtk::Field > >& aFields,
+            mtk::EntityRank                                aADVEntityRank )
     {
         // Tracer
         Tracer tTracer( "GEN", "Distribute ADVs" );
@@ -1708,7 +1708,7 @@ namespace moris::gen
                         }
 
                         // Level-set field
-                        tOutFiles( iGeometryFieldIndex ) << tGeometryInfo( iGeometryFieldIndex ) << std::endl;
+                        tOutFiles( iGeometryFieldIndex ) << tGeometryInfo( iGeometryFieldIndex ) << '\n';
                     }
                 }
 

@@ -18,7 +18,7 @@
  * \def ADV_ARG_TYPES
  * All the ADV arguments to a field
  */
-#define ADV_ARG_TYPES Vector< real >& aADVs, const Vector< uint >& aFieldVariableIndices, const Vector< uint >& aADVIndices, const Vector< real >& aConstants, std::string aName = ""
+#define ADV_ARG_TYPES Vector< real >&aADVs, const Vector< uint >&aFieldVariableIndices, const Vector< uint >&aADVIndices, const Vector< real >&aConstants, const std::string &aName = ""
 
 /**
  * \def ADV_ARGS
@@ -31,7 +31,9 @@
  * Generates a moris error that checks that the number of variables passed to a field is correct. This should be called in most child field constructors.
  */
 #define VARIABLE_CHECK( num_variables ) MORIS_ERROR( aFieldVariableIndices.size() + aConstants.size() == num_variables, \
-        "A GEN %s must be created with a total of exactly %d variables (ADVs + constants)", __FUNCTION__, num_variables )
+        "A GEN %s must be created with a total of exactly %d variables (ADVs + constants)",                             \
+        __FUNCTION__,                                                                                                   \
+        num_variables )
 
 namespace moris::mtk
 {
@@ -50,12 +52,12 @@ namespace moris::gen
         Matrix< DDRMat > mSensitivities;
 
       private:
-        std::string mName;
+        std::string        mName;
         inline static uint mCount = 0;
 
       public:
         // FIXME this is only used for Field_Analytic, this should be removed when refinement is done through a proper interface
-        mtk::Mesh_Pair mMeshPairForAnalytic = mtk::Mesh_Pair( nullptr, nullptr );
+        mtk::Mesh_Pair     mMeshPairForAnalytic = mtk::Mesh_Pair( nullptr, nullptr );
         static inline uint gDiscretizationIndex = 0;
 
         /**
@@ -67,7 +69,7 @@ namespace moris::gen
          * @param aConstants The constant field variables not filled by ADVs
          * @param aName Name of this field
          */
-        Field( Vector< real >& aADVs,
+        Field( Vector< real >&        aADVs,
                 const Vector< uint >& aFieldVariableIndices,
                 const Vector< uint >& aADVIndices,
                 const Vector< real >& aConstants,
@@ -98,7 +100,7 @@ namespace moris::gen
          * @param aReplaceVariables Variable indices to replace
          * @param aNewConstants New constants
          */
-        Field( const Field& aCopy,
+        Field( const Field&           aCopy,
                 const Vector< uint >& aReplaceVariables,
                 const Vector< real >& aNewConstants );
 
@@ -176,7 +178,7 @@ namespace moris::gen
          */
         real get_interpolated_field_value(
                 const Vector< Basis_Node >& aBasisNodes,
-                const Node_Manager&       aNodeManager );
+                const Node_Manager&         aNodeManager );
 
         /**
          * Given a node index or coordinates, returns a vector of the field derivatives with respect to its ADVs.
@@ -208,10 +210,10 @@ namespace moris::gen
          * @param aBasisNodes Basis nodes of a derived node
          */
         void append_interpolated_dfield_dadvs(
-                Matrix< DDRMat >&         aInterpolatedSensitivities,
+                Matrix< DDRMat >&           aInterpolatedSensitivities,
                 const Vector< Basis_Node >& aBasisNodes,
-                const Node_Manager&       aNodeManager,
-                real                      aBasisFactor = 1.0 );
+                const Node_Manager&         aNodeManager,
+                real                        aBasisFactor = 1.0 );
 
         /**
          * Gets the IDs of ADVs that this field depends on for evaluations.
@@ -243,7 +245,7 @@ namespace moris::gen
          * @param aBasisNodes Basis nodes of a derived node
          */
         void append_interpolated_determining_adv_ids(
-                Vector< sint >&           aInterpolatedADVIDs,
+                Vector< sint >&             aInterpolatedADVIDs,
                 const Vector< Basis_Node >& aBasisNodes,
                 const Node_Manager&         aNodeManager );
 
@@ -272,7 +274,7 @@ namespace moris::gen
          *
          * @param aUpdatedFields Other fields that this field may depend on.
          */
-        virtual void update_dependencies( Vector< std::shared_ptr< Field > > aUpdatedFields );
+        virtual void update_dependencies( const Vector< std::shared_ptr< Field > >& aUpdatedFields );
 
         /**
          * Resets all nodal information, including child nodes. This should be called when a new XTK mesh is being
@@ -295,7 +297,6 @@ namespace moris::gen
         virtual std::shared_ptr< mtk::Field > get_mtk_field() = 0;
 
       protected:
-
         /**
          * Creates an MTK field based on this field on a given mesh. Should only need to be called by discrete fields.
          *
@@ -305,11 +306,9 @@ namespace moris::gen
         std::shared_ptr< mtk::Field > create_mtk_field( const mtk::Mesh_Pair& aMeshPair );
 
       private:
-
         /**
          * Checks that a unique name has been given, and if not assigns a default name
          */
         void verify_name();
-
     };
-}
+}    // namespace moris::gen

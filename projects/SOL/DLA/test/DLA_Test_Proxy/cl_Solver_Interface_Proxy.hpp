@@ -55,11 +55,11 @@ namespace moris
 
         // ----------------------------------------------------------------------------------------------
 
-        Solver_Interface_Proxy( std::string aProblem );
+        Solver_Interface_Proxy( const std::string& aProblem );
 
         // ----------------------------------------------------------------------------------------------
 
-        ~Solver_Interface_Proxy(){};
+        ~Solver_Interface_Proxy() override{};
 
         // ----------------------------------------------------------------------------------------------
         // local dimension of the problem
@@ -207,7 +207,7 @@ namespace moris
                 const uint&       aMyElementInd,
                 Matrix< DDSMat >& aElementTopology ) override
         {
-            std::cout << aMyElementInd << std::endl;
+            std::cout << aMyElementInd << '\n';
             aElementTopology = mEleDofConectivity.get_column( aMyElementInd );
         };
 
@@ -307,13 +307,13 @@ namespace moris
             }
             else
             {
-                return NULL;
+                return nullptr;
             }
         }
 
         // ----------------------------------------------------------------------------------------------
 
-        virtual const Vector< enum MSI::Dof_Type >&
+        const Vector< enum MSI::Dof_Type >&
         get_requested_dof_types() override
         {
             return mDummyDofs;
@@ -330,7 +330,7 @@ namespace moris
         // ---------------------------------------------------------------------------------------------
 
         std::shared_ptr< Vector< real > >&
-        get_eigen_values()
+        get_eigen_values() override
         {
             return mEigenValues;
         }

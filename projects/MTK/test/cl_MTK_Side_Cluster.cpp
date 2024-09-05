@@ -24,9 +24,8 @@
 #include "fn_trans.hpp"
 #include "op_equal_equal.hpp"
 // ----------------------------------------------------------------------------
-namespace moris
-{
-namespace mtk
+
+namespace moris::mtk
 {
 
 TEST_CASE( "MTK Single Side Cluster", "[MTK_Side_Cluster]" )
@@ -262,5 +261,3 @@ TEST_CASE( "MTK Single Side Cluster", "[MTK_Side_Cluster]" )
 
 }
 }
-}
-

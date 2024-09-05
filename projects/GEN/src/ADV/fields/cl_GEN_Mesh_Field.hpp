@@ -37,34 +37,34 @@ namespace moris::gen
              * @param aFieldName  Name of the field
              */
           Mesh_Field(
-                  mtk::Mesh*  aMesh,
-                  std::string aFieldName,
-                  mtk::EntityRank  aEntityRank = mtk::EntityRank::NODE );
+                  mtk::Mesh*         aMesh,
+                  const std::string& aFieldName,
+                  mtk::EntityRank    aEntityRank = mtk::EntityRank::NODE );
 
-            /**
-              * Constructor
-              *
-              * @param aMesh In-core mesh
-              * @param aFileName    Name of the file with field data
-              * @param aFieldName   Name of the field
-              * @param aFileFormat  Name of file format (e.g., exodus)
-              *
-              */
+          /**
+           * Constructor
+           *
+           * @param aMesh In-core mesh
+           * @param aFileName    Name of the file with field data
+           * @param aFieldName   Name of the field
+           * @param aFileFormat  Name of file format (e.g., exodus)
+           *
+           */
           Mesh_Field(
-                  mtk::Mesh*  aMesh,
-                  std::string aFileName,
-                  std::string aFieldName,
-                  std::string aFileFormat,
-                  real        aOffset,
-                  mtk::EntityRank  aEntityRank = mtk::EntityRank::NODE );
+                  mtk::Mesh*         aMesh,
+                  const std::string& aFileName,
+                  const std::string& aFieldName,
+                  const std::string& aFileFormat,
+                  real               aOffset,
+                  mtk::EntityRank    aEntityRank = mtk::EntityRank::NODE );
 
-            /**
-             * Given a node index, returns the field value.
-             *
-             * @param aNodeIndex Node index
-             * @return Mesh field value
-             */
-            real get_field_value(uint aNodeIndex);
+          /**
+           * Given a node index, returns the field value.
+           *
+           * @param aNodeIndex Node index
+           * @return Mesh field value
+           */
+          real get_field_value( uint aNodeIndex ) override;
 
         private:
 
@@ -75,7 +75,7 @@ namespace moris::gen
              * @param aNodeIndex Node index
              * @return Vector of sensitivities
              */
-            const Matrix<DDRMat>& get_dfield_dadvs(uint aNodeIndex);
+            const Matrix<DDRMat>& get_dfield_dadvs(uint aNodeIndex) override;
 
     };
 }

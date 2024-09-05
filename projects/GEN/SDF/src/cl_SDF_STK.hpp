@@ -22,77 +22,76 @@
 #include "cl_MTK_Fields_Info.hpp"
 #include "cl_MTK_Mesh_Data_Input.hpp"
 
-namespace moris
+namespace moris::sdf
 {
-    namespace sdf
+    //-------------------------------------------------------------------------------
+
+    class STK
     {
-//-------------------------------------------------------------------------------
+        sdf::Mesh &mMesh;
 
-        class STK
-        {
-            sdf::Mesh           & mMesh;
+        //! struc required by MTK
+        mtk::MtkMeshData mMeshData;
 
-            //! struc required by MTK
-            mtk::MtkMeshData      mMeshData;
+        //! Container of all fields
+        mtk::MtkFieldsInfo mFieldsInfo;
 
-            //! Container of all fields
-            mtk::MtkFieldsInfo    mFieldsInfo;
+        // Fields the field info contain references
+        Vector< mtk::Scalar_Field_Info< DDRMat > > mFields;
 
-            // Fields the field info contain references
-            Vector<mtk::Scalar_Field_Info<DDRMat>> mFields;
+        //! set this to 3D
+        uint mNumberOfDimensions = 3;
 
-            //! set this to 3D
-            uint                  mNumberOfDimensions = 3;
+        //! connectivity passed to MTK
+        Matrix< IdMat > mElementTopology;
 
-            //! connectivity passed to MTK
-            Matrix< IdMat >           mElementTopology;
+        //! element IDs passed to MTK
+        Matrix< IdMat > mElementLocalToGlobal;
 
-            //! element IDs passed to MTK
-            Matrix< IdMat >           mElementLocalToGlobal;
+        //! node IDs passed to MTK
+        Matrix< IdMat > mNodeLocalToGlobal;
 
-            //! node IDs passed to MTK
-            Matrix< IdMat >           mNodeLocalToGlobal;
+        //! node coordinates passed to MTK
+        Matrix< DDRMat > mNodeCoords;
 
-            //! node coordinates passed to MTK
-            Matrix< DDRMat >          mNodeCoords;
+        //! node owners passed to MTK
+        Matrix< IdMat > mNodeOwner;
 
-            //! node owners passed to MTK
-            Matrix< IdMat >           mNodeOwner;
+        //-------------------------------------------------------------------------------
 
-//-------------------------------------------------------------------------------
-        public:
-//-------------------------------------------------------------------------------
+      public:
+        //-------------------------------------------------------------------------------
 
-            /**
-             * constructor
-             */
-            STK( sdf::Mesh & aMesh ) : mMesh( aMesh ) {};
+        /**
+         * constructor
+         */
+        STK( sdf::Mesh &aMesh )
+                : mMesh( aMesh ){};
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
-            /**
-             * destructor
-             */
-            ~STK(){};
+        /**
+         * destructor
+         */
+        ~STK(){};
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
-            void
-            create_mesh_data(
-                    Vector< Matrix<DDRMat> > & aFields,
-                    Vector< std::string >    & aFieldLabels,
-                    const double                    aTimeStep=0.0 );
+        void
+        create_mesh_data(
+                Vector< Matrix< DDRMat > > &aFields,
+                Vector< std::string >      &aFieldLabels,
+                const double                aTimeStep = 0.0 );
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
-            void
-            save_to_file( const std::string & aFilePath );
+        void
+        save_to_file( const std::string &aFilePath );
 
-//-------------------------------------------------------------------------------
-        };
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
+    };
+    //-------------------------------------------------------------------------------
     }
-}
 
 #endif /* PROJECTS_GEN_SDF_SRC_CL_SDF_STK_HPP_ */
 

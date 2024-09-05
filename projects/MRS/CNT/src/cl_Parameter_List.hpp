@@ -15,6 +15,7 @@
 #include <map>
 #include <string>
 #include <sstream>
+#include <utility>
 
 // MORIS library header files.
 #include "moris_typedefs.hpp"
@@ -89,7 +90,7 @@ namespace moris
                     "Param_List::insert - key contains whitespaces" );
 
             // Insert new value
-            Parameter tParameter( aDefaultValue, aExternalValidationType, aExternalParameterName, aExternalParameterListType, aExternalParameterListIndex );
+            Parameter tParameter( std::move( aDefaultValue ), aExternalValidationType, std::move( aExternalParameterName ), aExternalParameterListType, aExternalParameterListIndex );
             mParamMap.insert( { aName, tParameter } );
         }
 
@@ -155,11 +156,11 @@ namespace moris
         template< typename T >
         void set(
                 const std::string& aName,
-                T                  aValue,
+                const T&           aValue,
                 bool               aLockValue = true )
         {
             // Delegate to private implementation overload, depending on if T is an enum
-            this->convert_and_set( aName, aValue, aLockValue, std::is_enum< T >() );
+            this->convert_and_set( aName, std::move( aValue ), aLockValue, std::is_enum< T >() );
         }
 
         /**
@@ -342,7 +343,7 @@ namespace moris
         template< typename T >
         void convert_and_set(
                 const std::string& aName,
-                T                  aValue,
+                const T&           aValue,
                 bool               aLockValue,
                 std::false_type )
         {
@@ -360,7 +361,7 @@ namespace moris
                     "The requested parameter %s can not be set because it does not exist.\n",
                     tKey.c_str() );
 
-            tIterator->second.set_value( aName, aValue, aLockValue );
+            tIterator->second.set_value( aName, std::move( aValue ), aLockValue );
         }
 
         /**

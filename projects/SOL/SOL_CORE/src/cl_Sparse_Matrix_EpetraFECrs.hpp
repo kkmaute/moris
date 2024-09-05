@@ -36,7 +36,7 @@ private:
     const bool mBuildGraph =  false;
 
     void dirichlet_BC_vector(       moris::Matrix< DDUMat > & aDirichletBCVec,
-                              const moris::Matrix< DDUMat > & aMyConstraintDofs );
+                              const moris::Matrix< DDUMat > & aMyConstraintDofs ) override;
 
 protected:
 
@@ -56,11 +56,11 @@ public:
     { MORIS_ERROR( false, "Sparse_Matrix_EpetraFECrs::Sparse_Matrix_EpetraFECrs: not set yet with epetra"); };
 
     /** Destructor */
-    ~Sparse_Matrix_EpetraFECrs();
+    ~Sparse_Matrix_EpetraFECrs() override;
 
     void fill_matrix( const moris::uint             & aNumMyDofs,
                       const moris::Matrix< DDRMat > & aA_val,
-                      const moris::Matrix< DDSMat > & aEleDofConnectivity );
+                      const moris::Matrix< DDSMat > & aEleDofConnectivity ) override;
 
     /**
      * Inserts values into the matrix at locations corresponding to the given row and column IDs.
@@ -72,7 +72,7 @@ public:
     void insert_values(
             const Matrix<DDSMat>& aRowIDs,
             const Matrix<DDSMat>& aColumnIDs,
-            const Matrix<DDRMat>& aMatrixValues);
+            const Matrix<DDRMat>& aMatrixValues) override;
 
     /**
      * Sums values into the matrix at locations corresponding to the given row and column IDs.
@@ -84,40 +84,40 @@ public:
     void sum_into_values(
             const Matrix<DDSMat>& aRowIDs,
             const Matrix<DDSMat>& aColumnIDs,
-            const Matrix<DDRMat>& aMatrixValues);
+            const Matrix<DDRMat>& aMatrixValues) override;
 
     void get_matrix_values( const moris::Matrix< DDSMat > & aRequestedIds,
-                                  moris::Matrix< DDRMat > & aValues )
+                                  moris::Matrix< DDRMat > & aValues ) override
 	{ MORIS_ERROR( false, "Sparse_Matrix_EpetraFECrs::get_matrix_values: not set yet with epetra"); };
 
-    void matrix_global_assembly();
+    void matrix_global_assembly() override;
 
-    void initial_matrix_global_assembly();
+    void initial_matrix_global_assembly() override;
 
     void build_graph( const moris::uint             & aNumMyDof,
-                      const moris::Matrix< DDSMat > & aElementTopology );
+                      const moris::Matrix< DDSMat > & aElementTopology ) override;
 
-    void get_diagonal( moris::sol::Dist_Vector & aDiagVec ) const;
+    void get_diagonal( moris::sol::Dist_Vector & aDiagVec ) const override;
 
-    void mat_put_scalar( const moris::real & aValue );
+    void mat_put_scalar( const moris::real & aValue ) override;
 
-    void sparse_mat_left_scale( const moris::sol::Dist_Vector & aScaleVector );
+    void sparse_mat_left_scale( const moris::sol::Dist_Vector & aScaleVector ) override;
 
-    void sparse_mat_right_scale( const moris::sol::Dist_Vector & aScaleVector );
+    void sparse_mat_right_scale( const moris::sol::Dist_Vector & aScaleVector ) override;
 
-    void replace_diagonal_values( const moris::sol::Dist_Vector & aDiagVec );
+    void replace_diagonal_values( const moris::sol::Dist_Vector & aDiagVec ) override;
 
     void mat_vec_product( const moris::sol::Dist_Vector & aInputVec,
                                 moris::sol::Dist_Vector & aResult,
-                          const bool                      aUseTranspose );
+                          const bool                      aUseTranspose ) override;
 
-    void print() const;
+    void print() const override;
 
-    void save_matrix_to_matlab_file( const char* aFilename );
+    void save_matrix_to_matlab_file( const char* aFilename ) override;
 
-    void save_matrix_to_matrix_market_file( const char* aFilename );
+    void save_matrix_to_matrix_market_file( const char* aFilename ) override;
 
-    void save_matrix_map_to_matrix_market_file( const char* aFilename );
+    void save_matrix_map_to_matrix_market_file( const char* aFilename ) override;
 
 };
 }

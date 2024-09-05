@@ -42,7 +42,6 @@
 #include "cl_MTK_Mesh_Tools.hpp"
 #include "cl_MTK_Mesh_Data_Input.hpp"
 #include "cl_MTK_Scalar_Field_Info.hpp"
-#include "cl_MTK_Mesh.hpp"
 #include "cl_MTK_Mesh_Data_STK.hpp"
 #include "cl_MTK_Mesh_Core_STK.hpp"
 #include "cl_MTK_Interpolation_Mesh_STK.hpp"
@@ -74,9 +73,7 @@
 #include "cl_SOL_Dist_Map.hpp"
 #include "cl_SOL_Dist_Vector.hpp"
 
-namespace moris
-{
-namespace MSI
+namespace moris::MSI
 {
 
 void tConstValFunction_FDTest
@@ -428,6 +425,4 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
 
 }/* END_TEST_CASE */
 
-}/* end_namespace_msi */
-}/* end_namespace_moris */
-
+}    // namespace moris::MSI

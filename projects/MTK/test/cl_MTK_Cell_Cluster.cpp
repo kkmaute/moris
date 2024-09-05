@@ -24,10 +24,7 @@
 #include "fn_all_true.hpp"
 #include "op_equal_equal.hpp"
 
-namespace moris
-{
-
-namespace mtk
+namespace moris::mtk
 {
 
 TEST_CASE("Cell Cluster Proxy","[MTK_CLUSTER_PROXY]")
@@ -533,5 +530,3 @@ TEST_CASE(" Same Interpolation and Integration Mesh + Cluster Input ","[MTK_MESH
 
 }
 }
-}
-

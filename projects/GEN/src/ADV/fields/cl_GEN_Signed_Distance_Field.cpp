@@ -18,9 +18,9 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Signed_Distance_Field::Signed_Distance_Field(
-            std::string  aObjectPath,
-            Vector< real > aObjectOffset,
-            real         aSDFShift )
+            const std::string& aObjectPath,
+            Vector< real >     aObjectOffset,
+            real               aSDFShift )
             : Field_Discrete_Integration( {}, aObjectPath )
     {
         mObjectPath = aObjectPath;

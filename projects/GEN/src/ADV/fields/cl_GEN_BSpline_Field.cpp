@@ -26,12 +26,12 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     BSpline_Field::BSpline_Field(
-            mtk::Mesh_Pair           aMeshPair,
-            sol::Dist_Vector*        aOwnedADVs,
-            const Vector< sint >&    aSharedADVIds,
-            uint                     aADVOffsetID,
-            uint                     aDiscretizationIndex,
-            std::shared_ptr< Field > aField )
+            const mtk::Mesh_Pair&           aMeshPair,
+            sol::Dist_Vector*               aOwnedADVs,
+            const Vector< sint >&           aSharedADVIds,
+            uint                            aADVOffsetID,
+            uint                            aDiscretizationIndex,
+            const std::shared_ptr< Field >& aField )
             : Field_Discrete_Integration( aSharedADVIds, aMeshPair, aField->get_name() )
             , mADVOffsetID( aADVOffsetID )
             , mMeshPair( aMeshPair )
@@ -50,12 +50,12 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     BSpline_Field::BSpline_Field(
-            sol::Dist_Vector*             aOwnedADVs,
-            const Vector< sint >&       aSharedADVIds,
-            uint                          aADVOffsetID,
-            uint                          aDiscretizationIndex,
-            std::shared_ptr< mtk::Field > aMTKField,
-            mtk::Mesh_Pair                aMeshPair )
+            sol::Dist_Vector*                    aOwnedADVs,
+            const Vector< sint >&                aSharedADVIds,
+            uint                                 aADVOffsetID,
+            uint                                 aDiscretizationIndex,
+            const std::shared_ptr< mtk::Field >& aMTKField,
+            const mtk::Mesh_Pair&                aMeshPair )
             : Field_Discrete_Integration( aSharedADVIds, aMeshPair, aMTKField->get_label() )
             , mADVOffsetID( aADVOffsetID )
             , mMeshPair( aMeshPair )
@@ -293,7 +293,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDRMat >
-    BSpline_Field::map_to_bsplines( std::shared_ptr< Field > aField )
+    BSpline_Field::map_to_bsplines( const std::shared_ptr< Field >& aField )
     {
         // Mapper
         mtk::Mapper tMapper;

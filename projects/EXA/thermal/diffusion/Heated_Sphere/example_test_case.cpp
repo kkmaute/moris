@@ -35,8 +35,8 @@ int fn_WRK_Workflow_Main_Interface( int argc, char *argv[] );
 
 extern "C" void
 check_results(
-        std::string aExoFileName,
-        uint        aTestCaseIndex )
+        const std::string &aExoFileName,
+        uint               aTestCaseIndex )
 {
 
     MORIS_LOG_INFO( " " );

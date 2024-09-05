@@ -10,11 +10,13 @@
 
 #include "cl_XTK_Field.hpp"
 
+#include <utility>
+
 namespace moris::xtk
 {
     Field::Field( std::string  aFieldLabel,
             moris::moris_index aFieldPhase )
-            : mFieldLabel( aFieldLabel )
+            : mFieldLabel( std::move( aFieldLabel ) )
             , mFieldPhase( aFieldPhase )
             , mFieldData( 0, 0 )
     {

@@ -16,30 +16,28 @@
 #include "fn_eye.hpp"
 #include "fn_dot.hpp"
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+
+    //------------------------------------------------------------------------------
+
+    IWG_Diffusion_Radiation::IWG_Diffusion_Radiation()
     {
+        // set size for the property pointer cell
+        mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
-        //------------------------------------------------------------------------------
+        // populate the property map
+        mPropertyMap[ "Emissivity" ]         = static_cast< uint >( IWG_Property_Type::EMISSIVITY );
+        mPropertyMap[ "AmbientTemperature" ] = static_cast< uint >( IWG_Property_Type::AMBIENT_TEMP );
+        mPropertyMap[ "AbsoluteZero" ]       = static_cast< uint >( IWG_Property_Type::ABSOLUTE_ZERO );
+        mPropertyMap[ "Thickness" ]          = static_cast< uint >( IWG_Property_Type::THICKNESS );
+    }
 
-        IWG_Diffusion_Radiation::IWG_Diffusion_Radiation()
-        {
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+    //------------------------------------------------------------------------------
 
-            // populate the property map
-            mPropertyMap[ "Emissivity" ]         = static_cast< uint >( IWG_Property_Type::EMISSIVITY );
-            mPropertyMap[ "AmbientTemperature" ] = static_cast< uint >( IWG_Property_Type::AMBIENT_TEMP );
-            mPropertyMap[ "AbsoluteZero" ]       = static_cast< uint >( IWG_Property_Type::ABSOLUTE_ZERO );
-            mPropertyMap[ "Thickness" ]          = static_cast< uint >( IWG_Property_Type::THICKNESS );
-        }
-
-        //------------------------------------------------------------------------------
-
-        void
-        IWG_Diffusion_Radiation::compute_residual( real aWStar )
-        {
+    void
+    IWG_Diffusion_Radiation::compute_residual( real aWStar )
+    {
 #ifdef MORIS_HAVE_DEBUG
             // check leader field interpolators, properties, constitutive models
             this->check_field_interpolators();
@@ -194,5 +192,4 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
+}    // namespace moris::fem

@@ -22,61 +22,59 @@
 #include "cl_MTK_Cell_Cluster.hpp"    //MTK/src
 #include "cl_MTK_Set.hpp"             //MTK/src
 
-namespace moris
+namespace moris::mtk
 {
-    namespace mtk
+
+    //------------------------------------------------------------------------------
+    class Block_Set : public Set
     {
+      private:
+        uint                             mNumVerticesOnBlock;
+        moris::Matrix< moris::IndexMat > mVerticesOnBlock;
+
+        uint                    mNumCellsOnBlock;
+        moris::Matrix< DDSMat > mCellsOnBlock;
+
+        bool mOnlyPrimaryVertCheck = false;
+        bool mOnlyPrimaryCellCheck = false;
 
         //------------------------------------------------------------------------------
-        class Block_Set : public Set
+
+        void
+        calculate_vertices_on_blocks( const bool aOnlyPrimary )
         {
-          private:
-            uint                             mNumVerticesOnBlock;
-            moris::Matrix< moris::IndexMat > mVerticesOnBlock;
+            uint tMaxNumVert = 0;
 
-            uint                    mNumCellsOnBlock;
-            moris::Matrix< DDSMat > mCellsOnBlock;
-
-            bool mOnlyPrimaryVertCheck = false;
-            bool mOnlyPrimaryCellCheck = false;
-
-            //------------------------------------------------------------------------------
-
-            void
-            calculate_vertices_on_blocks( const bool aOnlyPrimary )
+            for ( uint Ik = 0; Ik < mSetClusters.size(); Ik++ )
             {
-                uint tMaxNumVert = 0;
+                tMaxNumVert += mSetClusters( Ik )->get_vertices_in_cluster().size();
 
-                for ( uint Ik = 0; Ik < mSetClusters.size(); Ik++ )
+                // if( !aOnlyPrimary )
+                // {
+                //     for( uint Ij = 0; Ij < mSetClusters( Ik )->get_void_cells_in_cluster().size(); Ij++)
+                //     {
+                //         tMaxNumVert +=  mSetClusters( Ik )->get_void_cells_in_cluster()( Ij )
+                //                                                       ->get_vertex_inds().numel();
+                //     }
+                // }
+            }
+
+            moris::Matrix< moris::IndexMat > tVerticesOnBlock( 1, tMaxNumVert, -1 );
+            uint                             tCounter = 0;
+
+            for ( uint Ik = 0; Ik < mSetClusters.size(); Ik++ )
+            {
+                // get the vertex indices in cluster Ik
+                moris::Matrix< moris::IndexMat > tVerticesInCluster = mSetClusters( Ik )->get_vertex_indices_in_cluster();
+
+                for ( moris::uint iV = 0; iV < tVerticesInCluster.numel(); iV++ )
                 {
-                    tMaxNumVert += mSetClusters( Ik )->get_vertices_in_cluster().size();
-
-                    // if( !aOnlyPrimary )
-                    // {
-                    //     for( uint Ij = 0; Ij < mSetClusters( Ik )->get_void_cells_in_cluster().size(); Ij++)
-                    //     {
-                    //         tMaxNumVert +=  mSetClusters( Ik )->get_void_cells_in_cluster()( Ij )
-                    //                                                       ->get_vertex_inds().numel();
-                    //     }
-                    // }
+                    // set the vertex indices into the tVertices on Block
+                    tVerticesOnBlock( tCounter++ ) = tVerticesInCluster( iV );
                 }
+            }
 
-                moris::Matrix< moris::IndexMat > tVerticesOnBlock( 1, tMaxNumVert, -1 );
-                uint                             tCounter = 0;
-
-                for ( uint Ik = 0; Ik < mSetClusters.size(); Ik++ )
-                {
-                    // get the vertex indices in cluster Ik
-                    moris::Matrix< moris::IndexMat > tVerticesInCluster = mSetClusters( Ik )->get_vertex_indices_in_cluster();
-
-                    for ( moris::uint iV = 0; iV < tVerticesInCluster.numel(); iV++ )
-                    {
-                        // set the vertex indices into the tVertices on Block
-                        tVerticesOnBlock( tCounter++ ) = tVerticesInCluster( iV );
-                    }
-                }
-
-                // FIXME: Maybe add this to linalg. Armadillo throws if min is called on an empty matrix
+            // FIXME: Maybe add this to linalg. Armadillo throws if min is called on an empty matrix
 #ifdef MORIS_HAVE_DEBUG
                 if ( tVerticesOnBlock.numel() != 0 )
                 {
@@ -216,7 +214,7 @@ namespace moris
             /**
              * virtual destructor
              */
-            ~Block_Set(){};
+            ~Block_Set() override{};
 
             //------------------------------------------------------------------------------
 
@@ -422,7 +420,7 @@ namespace moris
         };
 
         //------------------------------------------------------------------------------
-    } /* namespace mtk */
-} /* namespace moris */
+}    // namespace moris::mtk
+
 //------------------------------------------------------------------------------
 #endif /* SRC_MESH_CL_MTK_BLOCK_HPP_ */

@@ -10,6 +10,7 @@
 
 #include <memory>
 #include <mutex>
+#include <utility>
 
 // see http://pubs.opengroup.org/onlinepubs/7908799/xsh/dlfcn.h.html
 #include "cl_HMR.hpp"    //HMR/src
@@ -34,7 +35,6 @@
 #include "cl_HMR_Mesh_Integration.hpp"
 #include "cl_HMR_Field.hpp"    //HMR/src
 #include "cl_HMR_File.hpp"     //HMR/src
-#include "cl_HMR_Mesh.hpp"     //HMR/src
 #include "cl_HMR_STK.hpp"      //HMR/src
 
 #include "MTK_Tools.hpp"
@@ -48,7 +48,6 @@
 #include "cl_MTK_Writer_Exodus.hpp"
 
 #include "HDF5_Tools.hpp"
-#include "cl_HMR_Field.hpp"    //HMR/src
 
 namespace moris::hmr
 {
@@ -81,8 +80,8 @@ namespace moris::hmr
 
     // alternative constructor that uses parameter list
     HMR::HMR(
-            Parameter_List&                      aParameterList,
-            std::shared_ptr< moris::Library_IO > aLibrary )
+            Parameter_List&                             aParameterList,
+            const std::shared_ptr< moris::Library_IO >& aLibrary )
             : HMR( new Parameters( aParameterList, aLibrary ) )
     {
         mDatabase->set_parameter_owning_flag();
@@ -336,7 +335,7 @@ namespace moris::hmr
     void
     HMR::set_performer( std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer )
     {
-        mMTKPerformer = aMTKPerformer;
+        mMTKPerformer = std::move( aMTKPerformer );
     }
 
     // -----------------------------------------------------------------------------
@@ -471,9 +470,9 @@ namespace moris::hmr
         }
 
         // add order to path
-        std::string tFilePath = aFilePath.substr( 0, aFilePath.find_last_of( "." ) )    // base path
+        std::string tFilePath = aFilePath.substr( 0, aFilePath.find_last_of( '.' ) )    // base path
                               + "_" + std::to_string( tMesh->get_order() )              // rank of this processor
-                              + aFilePath.substr( aFilePath.find_last_of( "." ), aFilePath.length() );
+                              + aFilePath.substr( aFilePath.find_last_of( '.' ), aFilePath.length() );
 
         // make path parallel
         tFilePath = parallelize_path( tFilePath );
@@ -600,7 +599,7 @@ namespace moris::hmr
         BSpline_Mesh_Base* tMesh = tLagrangeMesh->get_bspline_mesh( aBsplineMeshIndex );
 
         // add order to path
-        std::string tFilePath = aFilePath.substr( 0, aFilePath.find_last_of( "." ) ) + "_" + std::to_string( aBsplineMeshIndex ) + aFilePath.substr( aFilePath.find_last_of( "." ), aFilePath.length() );
+        std::string tFilePath = aFilePath.substr( 0, aFilePath.find_last_of( '.' ) ) + "_" + std::to_string( aBsplineMeshIndex ) + aFilePath.substr( aFilePath.find_last_of( '.' ), aFilePath.length() );
 
         // make path parallel
         tFilePath = parallelize_path( tFilePath );
@@ -1294,7 +1293,7 @@ namespace moris::hmr
             const uint         aBSpineIndex )
     {
         // detect file type
-        std::string tType = aFilePath.substr( aFilePath.find_last_of( "." ) + 1, aFilePath.length() );
+        std::string tType = aFilePath.substr( aFilePath.find_last_of( '.' ) + 1, aFilePath.length() );
 
         if ( tType == "hdf5" || tType == "h5" )
         {
@@ -1813,7 +1812,7 @@ namespace moris::hmr
     // -----------------------------------------------------------------------------
 
     uint
-    HMR::flag_volume_and_surface_elements_on_working_pattern( const std::shared_ptr< Field > aScalarField )
+    HMR::flag_volume_and_surface_elements_on_working_pattern( const std::shared_ptr< Field >& aScalarField )
     {
         // the function returns the number of flagged elements
         uint aElementCounter = 0;
@@ -1863,7 +1862,7 @@ namespace moris::hmr
     // -----------------------------------------------------------------------------
 
     uint
-    HMR::flag_surface_elements_on_working_pattern( const std::shared_ptr< Field > aScalarField )
+    HMR::flag_surface_elements_on_working_pattern( const std::shared_ptr< Field >& aScalarField )
     {
         // the function returns the number of flagged elements
         uint aElementCounter = 0;
@@ -2432,9 +2431,9 @@ namespace moris::hmr
 
     void
     HMR::map_field_to_output(
-            std::shared_ptr< Field > aField,
-            const uint               aMesh_Index,
-            const uint               aBsplineMeshIndex )
+            const std::shared_ptr< Field >& aField,
+            const uint                      aMesh_Index,
+            const uint                      aBsplineMeshIndex )
     {
         // grab orders of meshes
         uint tSourceLagrangeOrder = aField->get_lagrange_order();
@@ -2538,7 +2537,7 @@ namespace moris::hmr
                 aBsplineMeshIndex );    // BSplineIndex
 
         // move coefficients to output field
-        tOutputField->get_coefficients() = std::move( tFieldUnion.get_coefficients() );
+        tOutputField->get_coefficients() = tFieldUnion.get_coefficients();
 
         // allocate nodes for output
         tOutputField->get_node_values().set_size( tOutputMesh->get_num_nodes(), 1 );
@@ -2555,8 +2554,8 @@ namespace moris::hmr
 
     void
     HMR::map_field_to_output_union(
-            std::shared_ptr< Field > aField,
-            const uint               aUnionOrder )
+            const std::shared_ptr< Field >& aField,
+            const uint                      aUnionOrder )
     {
         // grab orders of meshes
         uint tLagrangeOrder = aField->get_lagrange_order();

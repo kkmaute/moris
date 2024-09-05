@@ -328,7 +328,7 @@ TEST_CASE( "CM_Struc_Linear_MT", "[CM_Struc_Lin_MT]" )
                 for ( uint iRequestedDof = 0; iRequestedDof < tRequestedLeaderGlobalDofTypes.size(); iRequestedDof++ )
                 {
                     // derivative dof type
-                    Vector< MSI::Dof_Type > tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
+                    const Vector< MSI::Dof_Type >& tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
 
                     // strain
                     //------------------------------------------------------------------------------
@@ -405,7 +405,6 @@ TEST_CASE( "CM_Struc_Linear_MT", "[CM_Struc_Lin_MT]" )
                     for ( uint iTestDof = 0; iTestDof < tLeaderDofTypes.size(); iTestDof++ )
                     {
                         // get the test dof type
-                        Vector< MSI::Dof_Type > tDofTest = tLeaderDofTypes( iTestDof );
 
                         // evaluate derivative test traction
                         Matrix< DDRMat > tdtesttractiondu = tCMLeaderStrucLinIso->dTestTractiondDOF(

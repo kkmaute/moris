@@ -53,30 +53,30 @@ extern "C" void check_results()
 
     if ( gPrintReferenceValues )
     {
-        std::cout << "Test case index: " << gCaseIndex << std::endl;
+        std::cout << "Test case index: " << gCaseIndex << '\n';
 
         uint tNumDims  = tExoIO.get_number_of_dimensions();
         uint tNumNodes = tExoIO.get_number_of_nodes();
         uint tNumElems = tExoIO.get_number_of_elements();
 
-        std::cout << "Number of dimensions: " << tNumDims << std::endl;
-        std::cout << "Number of nodes     : " << tNumNodes << std::endl;
-        std::cout << "Number of elements  : " << tNumElems << std::endl;
+        std::cout << "Number of dimensions: " << tNumDims << '\n';
+        std::cout << "Number of nodes     : " << tNumNodes << '\n';
+        std::cout << "Number of elements  : " << tNumElems << '\n';
 
         // coordinates of reference point
         moris::print( tExoIO.get_nodal_coordinate( tReferenceNodeId( gCaseIndex ) ), "Coordinates of reference point" );
 
         // time value for reference time step
-        std::cout << "Time value: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_time_value() << std::endl;
+        std::cout << "Time value: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_time_value() << '\n';
 
         // solution of reference point at reference time step
-        std::cout << "Displacement at reference point: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_nodal_field_value( tReferenceNodeId( gCaseIndex ), 2, 0 ) << "," << tExoIO.get_nodal_field_value( tReferenceNodeId( gCaseIndex ), 3, 0 ) << "," << tExoIO.get_nodal_field_value( tReferenceNodeId( gCaseIndex ), 4, 0 ) << std::endl;
+        std::cout << "Displacement at reference point: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_nodal_field_value( tReferenceNodeId( gCaseIndex ), 2, 0 ) << "," << tExoIO.get_nodal_field_value( tReferenceNodeId( gCaseIndex ), 3, 0 ) << "," << tExoIO.get_nodal_field_value( tReferenceNodeId( gCaseIndex ), 4, 0 ) << '\n';
 
         // solution of reference point at reference time step
-        std::cout << "Temperature at reference point: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_nodal_field_value( tReferenceNodeId( gCaseIndex ), 5, 0 ) << std::endl;
+        std::cout << "Temperature at reference point: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_nodal_field_value( tReferenceNodeId( gCaseIndex ), 5, 0 ) << '\n';
 
         // value of IQI at reference time step
-        std::cout << "IQI value: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_global_variable( 0, 0 ) << std::endl;
+        std::cout << "IQI value: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_global_variable( 0, 0 ) << '\n';
 
         return;
     }

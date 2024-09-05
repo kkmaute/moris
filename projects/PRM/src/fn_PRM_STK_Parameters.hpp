@@ -13,29 +13,26 @@
 
 #include "cl_Parameter_List.hpp"
 
-namespace moris
+namespace moris::prm
 {
-    namespace prm
+    //------------------------------------------------------------------------------
+
+    // creates a parameter list with default inputs
+    inline Parameter_List
+    create_stk_parameter_list()
     {
-        //------------------------------------------------------------------------------
+        Parameter_List tParameterList;
 
-        // creates a parameter list with default inputs
-        inline Parameter_List
-        create_stk_parameter_list()
-        {
-            Parameter_List tParameterList;
+        // decomposition and decomposition related parameters
+        tParameterList.insert( "input_file", "" );
+        tParameterList.insert( "periodic_workspace", false );
+        tParameterList.insert( "periodic_side_set_pair", "" );
 
-            // decomposition and decomposition related parameters
-            tParameterList.insert( "input_file", "" );
-            tParameterList.insert( "periodic_workspace", false );
-            tParameterList.insert( "periodic_side_set_pair", "" );
+        return tParameterList;
+    }
 
-            return tParameterList;
-        }
+    //------------------------------------------------------------------------------
 
-        //------------------------------------------------------------------------------
-
-    }    // namespace prm
-}    // namespace moris
+}    // namespace moris::prm
 
 #endif // PROJECTS_PRM_SRC_FN_PRM_STK_PARAMETERS_HPP_

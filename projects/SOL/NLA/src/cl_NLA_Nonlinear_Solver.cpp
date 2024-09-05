@@ -10,6 +10,8 @@
 #include "cl_DLA_Solver_Interface.hpp"
 
 #include "cl_NLA_Nonlinear_Solver.hpp"
+
+#include <utility>
 #include "cl_NLA_Nonlinear_Solver_Factory.hpp"
 #include "cl_NLA_Nonlinear_Problem.hpp"
 #include "cl_NLA_Nonlinear_Algorithm.hpp"
@@ -79,15 +81,15 @@ void Nonlinear_Solver::free_memory()
 //--------------------------------------------------------------------------------------------------
 
 void Nonlinear_Solver::set_dof_type_list(
-        const Vector< enum MSI::Dof_Type > aStaggeredDofTypeList,
-        const moris::sint                  aLevel )
+        const Vector< enum MSI::Dof_Type >& aStaggeredDofTypeList,
+        const moris::sint                   aLevel )
 {
     mStaggeredDofTypeList.push_back( aStaggeredDofTypeList );
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void Nonlinear_Solver::set_secondary_dof_type_list( const Vector< enum MSI::Dof_Type > aStaggeredDofTypeList )
+void Nonlinear_Solver::set_secondary_dof_type_list( const Vector< enum MSI::Dof_Type >& aStaggeredDofTypeList )
 {
     if ( mSecondaryDofTypeList.size() == 0 )
     {
@@ -99,7 +101,7 @@ void Nonlinear_Solver::set_secondary_dof_type_list( const Vector< enum MSI::Dof_
 
 //--------------------------------------------------------------------------------------------------
 
-void Nonlinear_Solver::set_nonlinear_algorithm( std::shared_ptr< Nonlinear_Algorithm > aNonLinSolver )
+void Nonlinear_Solver::set_nonlinear_algorithm( const std::shared_ptr< Nonlinear_Algorithm >& aNonLinSolver )
 {
     if ( mCallCounter == 0 )
     {
@@ -134,7 +136,7 @@ void Nonlinear_Solver::set_nonlinear_algorithm(
         mNonlinearSolverAlgorithmList.resize( aListEntry + 1, nullptr );
     }
     // Set nonlinear solver on entry
-    mNonlinearSolverAlgorithmList( aListEntry ) = aNonLinSolver;
+    mNonlinearSolverAlgorithmList( aListEntry ) = std::move( aNonLinSolver );
 }
 
 //-------------------------------------------------------------------------------------------------------

@@ -21,14 +21,12 @@
 #include "fn_OPT_Rosenbrock.hpp"
 #include "fn_OPT_Test_Interface.hpp"
 
-namespace moris
+namespace moris::opt
 {
-    namespace opt
+    TEST_CASE( "[optimization]" )
     {
-        TEST_CASE( "[optimization]" )
-        {
 
-            // ---------------------------------------------------------------------------------------------------------
+        // ---------------------------------------------------------------------------------------------------------
 
 #ifdef MORIS_HAVE_GCMMA
             SECTION( "GCMMA" )
@@ -368,5 +366,4 @@ namespace moris
 
             // ---------------------------------------------------------------------------------------------------------
         }
-    }    // namespace opt
-}    // namespace moris
+}    // namespace moris::opt

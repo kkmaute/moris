@@ -222,7 +222,7 @@ namespace moris
             /**
              * trivial destructor
              */
-            ~Set();
+            ~Set() override;
 
             //------------------------------------------------------------------------------
             /**
@@ -238,7 +238,7 @@ namespace moris
              */
             void initialize_set(
                     const bool                 aIsStaggered            = false,
-                    const Time_Continuity_Flag aTimeContinuityOnlyFlag = Time_Continuity_Flag::DEFAULT );
+                    const Time_Continuity_Flag aTimeContinuityOnlyFlag = Time_Continuity_Flag::DEFAULT ) override;
 
             void update() override;
 
@@ -256,13 +256,13 @@ namespace moris
              * create and set the field interpolators
              * @param[ in ] aModelSolverInterface model solver interface pointer
              */
-            void finalize( MSI::Model_Solver_Interface* aModelSolverInterface );
+            void finalize( MSI::Model_Solver_Interface* aModelSolverInterface ) override;
 
             //------------------------------------------------------------------------------
             /**
              * free the memory on the set
              */
-            void free_memory();
+            void free_memory() override;
 
             //------------------------------------------------------------------------------
             /**
@@ -295,7 +295,7 @@ namespace moris
             void set_visualization_set(
                     const uint       aMeshIndex,
                     moris::mtk::Set* aVisMeshSet,
-                    const bool       aOnlyPrimaryCells );
+                    const bool       aOnlyPrimaryCells ) override;
 
             //------------------------------------------------------------------------------
 
@@ -318,7 +318,7 @@ namespace moris
              * @param[ out ] aElementType element type for the set
              */
             fem::Element_Type
-            get_element_type() const
+            get_element_type() const override
             {
                 return mElementType;
             }
@@ -411,7 +411,7 @@ namespace moris
              *                                    false if finite difference
              */
             bool
-            get_is_analytical_sensitivity_analysis() const
+            is_analytical_sensitivity_analysis() const
             {
                 return mIsAnalyticalSA;
             }
@@ -590,13 +590,13 @@ namespace moris
             //------------------------------------------------------------------------------
 
             std::unordered_map< moris_index, Vector< real > >
-            get_nodal_displacements( std::unordered_set< moris_index > aRequestedNodes ) override;
+            get_nodal_displacements( const std::unordered_set< moris_index >& aRequestedNodes ) override;
 
             //------------------------------------------------------------------------------
             /**
              * building an IQI name to set local index map
              */
-            std::string get_set_name();
+            std::string get_set_name() override;
 
             //------------------------------------------------------------------------------
             /**
@@ -621,7 +621,7 @@ namespace moris
              * @param[ out ] uint number of local requested IQIs for SA
              */
             uint
-            get_number_of_requested_IQIs()
+            get_number_of_requested_IQIs() override
             {
                 return mRequestedIQIs.size();
             }
@@ -717,7 +717,7 @@ namespace moris
              * create the geometry pdv assembly map
              * @param[ in ] aFemCluster a fem cluster pointer
              */
-            void create_geo_pdv_assembly_map( std::shared_ptr< fem::Cluster > aFemCluster );
+            void create_geo_pdv_assembly_map( const std::shared_ptr< fem::Cluster >& aFemCluster );
 
             //------------------------------------------------------------------------------
             /**
@@ -890,7 +890,7 @@ namespace moris
             /**
              * set size and reset values for dQIdp
              */
-            void initialize_mdQIdpGeo( std::shared_ptr< fem::Cluster > aFemCluster );
+            void initialize_mdQIdpGeo( const std::shared_ptr< fem::Cluster >& aFemCluster );
 
             //------------------------------------------------------------------------------
             /**
@@ -902,7 +902,7 @@ namespace moris
             /**
              * set size and reset values for dRdp geo
              */
-            void initialize_mdRdpGeo( std::shared_ptr< fem::Cluster > aFemCluster );
+            void initialize_mdRdpGeo( const std::shared_ptr< fem::Cluster >& aFemCluster );
 
             //------------------------------------------------------------------------------
             /*
@@ -960,7 +960,7 @@ namespace moris
             void compute_quantity_of_interest_nodal(
                     const uint                   aVisMeshIndex,
                     Matrix< DDRMat >*            aNodalFieldValues,
-                    const Vector< std::string >& aQINames );
+                    const Vector< std::string >& aQINames ) override;
 
             //------------------------------------------------------------------------------
             /**
@@ -992,7 +992,7 @@ namespace moris
             void compute_quantity_of_interest_global(
                     const uint                   aVisMeshIndex,
                     Matrix< DDRMat >*            aGlobalFieldValues,
-                    const Vector< std::string >& aQINames );
+                    const Vector< std::string >& aQINames ) override;
 
             //------------------------------------------------------------------------------
             /**
@@ -1026,7 +1026,7 @@ namespace moris
                     const uint                   aVisMeshIndex,
                     Matrix< DDRMat >*            aElementalFieldValues,
                     const Vector< std::string >& aQINames,
-                    const bool                   aOutputAverageValue = true );
+                    const bool                   aOutputAverageValue = true ) override;
 
             //------------------------------------------------------------------------------
             /**
@@ -1101,7 +1101,7 @@ namespace moris
 
             void populate_fields(
                     Vector< std::shared_ptr< fem::Field > >& aFieldToPopulate,
-                    Vector< std::string > const &            aFieldIQINames );
+                    Vector< std::string > const &            aFieldIQINames ) override;
         };
         //------------------------------------------------------------------------------
     } /* namespace fem */

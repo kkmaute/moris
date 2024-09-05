@@ -24,9 +24,7 @@
 
 #include "Teuchos_ParameterList.hpp"
 
-namespace moris
-{
-namespace dla
+namespace moris::dla
 {
 class Linear_Solver_Belos : public Linear_Solver_Algorithm_Trilinos
 {
@@ -40,18 +38,17 @@ public:
 
     Linear_Solver_Belos( Linear_Problem * aLinearSystem  );
 
-    ~Linear_Solver_Belos();
+    ~Linear_Solver_Belos() override;
 
     //int SetSystemMatrix ( bool aUseTranspose );
 
-    moris::sint solve_linear_system(){ return 0; };
+    moris::sint solve_linear_system() override{ return 0; };
 
     moris::sint solve_linear_system(      Linear_Problem * aLinearSystem,
-                                     const moris::sint     aIter );
+                                     const moris::sint     aIter ) override;
 
     void set_solver_internal_parameters();
 };
-}
 }
 
 #endif /* SRC_DISTLINALG_CL_LINEAR_SOLVER_BELOS_HPP_ */

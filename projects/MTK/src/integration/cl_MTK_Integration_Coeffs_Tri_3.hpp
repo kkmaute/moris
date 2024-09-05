@@ -20,59 +20,57 @@
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Integration_Coeffs.hpp"
 
-namespace moris
+namespace moris::mtk
 {
-    namespace mtk
+    //------------------------------------------------------------------------------
+    template<>
+    uint
+    Integration_Coeffs<
+            Integration_Type::GAUSS,
+            Integration_Order::TRI_3 >::get_number_of_dimensions()
     {
-        //------------------------------------------------------------------------------
-        template<>
-        uint
-        Integration_Coeffs<
-                Integration_Type::GAUSS,
-                Integration_Order::TRI_3 >::get_number_of_dimensions()
-        {
-            return 2;
-        }
+        return 2;
+    }
 
-        //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-        template<>
-        uint
-        Integration_Coeffs<
-                Integration_Type::GAUSS,
-                Integration_Order::TRI_3 >::get_number_of_points()
-        {
-            return 3;
-        }
+    template<>
+    uint
+    Integration_Coeffs<
+            Integration_Type::GAUSS,
+            Integration_Order::TRI_3 >::get_number_of_points()
+    {
+        return 3;
+    }
 
-        //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-        template<>
-        void
-        Integration_Coeffs<
-                Integration_Type::GAUSS,
-                Integration_Order::TRI_3 >::get_points( Matrix< DDRMat >& aIntegrationPoints )
-        {
-            aIntegrationPoints = {
-                { 0.666666666666667, 0.166666666666667, 0.166666666666667 },
-                { 0.166666666666667, 0.666666666666667, 0.166666666666667 }
-            };
-        }
+    template<>
+    void
+    Integration_Coeffs<
+            Integration_Type::GAUSS,
+            Integration_Order::TRI_3 >::get_points( Matrix< DDRMat >& aIntegrationPoints )
+    {
+        aIntegrationPoints = {
+            { 0.666666666666667, 0.166666666666667, 0.166666666666667 },
+            { 0.166666666666667, 0.666666666666667, 0.166666666666667 }
+        };
+    }
 
-        //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-        template<>
-        void
-        Integration_Coeffs<
-                Integration_Type::GAUSS,
-                Integration_Order::TRI_3 >::get_weights( Matrix< DDRMat >& aIntegrationWeights )
-        {
-            aIntegrationWeights = {
-                { 0.333333333333333, 0.333333333333333, 0.333333333333333 }
-            };
-        }
+    template<>
+    void
+    Integration_Coeffs<
+            Integration_Type::GAUSS,
+            Integration_Order::TRI_3 >::get_weights( Matrix< DDRMat >& aIntegrationWeights )
+    {
+        aIntegrationWeights = {
+            { 0.333333333333333, 0.333333333333333, 0.333333333333333 }
+        };
+    }
 
-        //------------------------------------------------------------------------------
-    } /* namespace mtk */
-} /* namespace moris */
+    //------------------------------------------------------------------------------
+}    // namespace moris::mtk
+
 #endif /* SRC_MTK_CL_MTK_INTEGRATION_COEFFS_TRI_3_HPP_ */

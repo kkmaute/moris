@@ -272,7 +272,7 @@ TEST_CASE( "SP_Crosswind", "[SP_Crosswind]" )
                 for( uint iRequestedDof = 0; iRequestedDof < tLeaderDofTypes.size(); iRequestedDof++ )
                 {
                     // derivative dof type
-                    Vector< MSI::Dof_Type > tDofDerivative = tLeaderDofTypes( iRequestedDof );
+                    const Vector< MSI::Dof_Type >& tDofDerivative = tLeaderDofTypes( iRequestedDof );
 
                     // print derivative dof for debug
                     // std::cout<<"Derivative dof type treated "<<static_cast<uint>(tDofDerivative(0))<<std::endl;

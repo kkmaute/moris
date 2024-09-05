@@ -184,7 +184,7 @@ namespace moris::xtk
                 // if there are two potential edges at this stage that is an issue
                 else if ( tPotentialEdges1.size() > 1 )
                 {
-                    std::cout << "Invalid number of edges found" << std::endl;
+                    std::cout << "Invalid number of edges found" << '\n';
                 }
                 else
                 {

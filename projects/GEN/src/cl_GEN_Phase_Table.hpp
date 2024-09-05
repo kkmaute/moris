@@ -40,9 +40,9 @@ namespace moris::gen
          * @param aPhaseNames (optional) Phase names
          */
         Phase_Table(
-                uint                aNumGeometries,
-                Matrix< DDUMat >    aBulkPhases,
-                Vector< std::string > aPhaseNames = {} );
+                uint                         aNumGeometries,
+                const Matrix< DDUMat >&      aBulkPhases,
+                const Vector< std::string >& aPhaseNames = {} );
 
         /**
          * Create a phase table with 2^n structure using a number of bulk phases. Delegating constructor.
@@ -51,8 +51,8 @@ namespace moris::gen
          * @param aPhaseNames (optional) Phase names
          */
         Phase_Table(
-                uint                aNumGeometries,
-                Vector< std::string > aPhaseNames = {} );
+                uint                         aNumGeometries,
+                const Vector< std::string >& aPhaseNames = {} );
 
         /**
          * Create a phase table where the phase indices are decided by a user-defined function.
@@ -62,9 +62,9 @@ namespace moris::gen
          * @param aPhaseNames (optional) Phase names
          */
         Phase_Table(
-                PHASE_FUNCTION      aPhaseFunction,
-                uint                aNumPhases,
-                Vector< std::string > aPhaseNames = {} );
+                PHASE_FUNCTION               aPhaseFunction,
+                uint                         aNumPhases,
+                const Vector< std::string >& aPhaseNames = {} );
 
         /**
          * Get the number of phases
@@ -93,9 +93,9 @@ namespace moris::gen
          * Set the phase table without a library
          */
         void
-        set_phase_function( PHASE_FUNCTION aPhaseFunction,
-                uint                       aNumPhases,
-                Vector< std::string >        aPhaseNames = {} );
+        set_phase_function( PHASE_FUNCTION   aPhaseFunction,
+                uint                         aNumPhases,
+                const Vector< std::string >& aPhaseNames = {} );
 
         /*!
          * Print information for setting up phase table

@@ -31,7 +31,7 @@ TEST_CASE("moris::save_and_load_binary_file",
         std::string tFilePath = "matrixtest_" + std::to_string( moris::par_rank() ) + ".dat";
 
         // seed random number generator using time
-        std::srand( time ( NULL ) );
+        std::srand( time ( nullptr ) );
 
         // assign vector
         moris::Matrix< moris::DDRMat >  tOutMat( tNumberOfRows, tNumberOfCols );

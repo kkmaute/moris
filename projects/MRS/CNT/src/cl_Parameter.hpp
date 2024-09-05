@@ -106,7 +106,7 @@ namespace moris
                 : mEntryType( Entry_Type::SELECTION )
         {
             // Set default value without validation
-            mValue = make_variant( aParameterValue );
+            mValue = make_variant( std::move( aParameterValue ) );
 
             // Create selection validator
             mValidator = new Selection_Validator( aValidSelections );
@@ -151,7 +151,7 @@ namespace moris
                     aParameterName.c_str() );
 
             // Make value into a variant
-            Variant tParameterVariant = make_variant( aParameterValue );
+            Variant tParameterVariant = make_variant( std::move( aParameterValue ) );
 
             // Validate the variant
             MORIS_ERROR( mValidator->make_valid_parameter( tParameterVariant ),

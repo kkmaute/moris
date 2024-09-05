@@ -53,21 +53,19 @@ void setulb_(
 
 //----------------------------------------------------------------------------------------------------------------------
 
-namespace moris
+namespace moris::opt
 {
-    namespace opt
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Algorithm_LBFGS::Algorithm_LBFGS( const Parameter_List& aParameterList )
+            : mMaxIt( aParameterList.get< sint >( "max_its" ) )
+            , mLBFGSprint( aParameterList.get< sint >( "internal_lbfgs_print_severity" ) )
+            , mNumCorrections( aParameterList.get< sint >( "num_corr" ) )
+            , mNumberOfFunctionEvals( aParameterList.get< sint >( "num_function_evaluations" ) )
+            , mNormDrop( aParameterList.get< real >( "norm_drop" ) )
+            , mGradTolerance( aParameterList.get< real >( "grad_tol" ) )
     {
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        Algorithm_LBFGS::Algorithm_LBFGS( Parameter_List aParameterList )
-                : mMaxIt( aParameterList.get< sint >( "max_its" ) )
-                , mLBFGSprint( aParameterList.get< sint >( "internal_lbfgs_print_severity" ) )
-                , mNumCorrections( aParameterList.get< sint >( "num_corr" ) )
-                , mNumberOfFunctionEvals( aParameterList.get< sint >( "num_function_evaluations" ) )
-                , mNormDrop( aParameterList.get< real >( "norm_drop" ) )
-                , mGradTolerance( aParameterList.get< real >( "grad_tol" ) )
-        {
 #ifndef MORIS_HAVE_LBFGS
             MORIS_ERROR( false, "MORIS was compiled without LBFGS support" );
 #endif
@@ -448,5 +446,4 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-    }    // namespace opt
-}    // namespace moris
+}    // namespace moris::opt
