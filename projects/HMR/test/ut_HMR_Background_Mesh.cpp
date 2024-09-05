@@ -873,11 +873,11 @@ namespace moris::hmr
             tParameters.set_multigrid( false );
             tParameters.set_bspline_truncation( true );
 
-            tParameters.set_lagrange_orders( { { 1 } } );
-            tParameters.set_lagrange_patterns( { { 0 } } );
+            tParameters.set_lagrange_orders( { 1 } );
+            tParameters.set_lagrange_patterns( { 0 } );
 
-            tParameters.set_bspline_orders( { { 1 } } );
-            tParameters.set_bspline_patterns( { { 0 } } );
+            tParameters.set_bspline_orders( { 1 } );
+            tParameters.set_bspline_patterns( { 0 } );
 
             Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
             tLagrangeToBSplineMesh( 0 ) = { { 0 } };
@@ -927,11 +927,11 @@ namespace moris::hmr
             tParameters.set_refinement_buffer( 1 );
             tParameters.set_staircase_buffer( 1 );
 
-            tParameters.set_lagrange_orders( { { 1 } } );
-            tParameters.set_lagrange_patterns( { { 0 } } );
+            tParameters.set_lagrange_orders( { 1 } );
+            tParameters.set_lagrange_patterns( { 0 } );
 
-            tParameters.set_bspline_orders( { { 1 } } );
-            tParameters.set_bspline_patterns( { { 0 } } );
+            tParameters.set_bspline_orders( { 1 } );
+            tParameters.set_bspline_patterns( { 0 } );
 
             tParameters.set_number_aura( false );
 
@@ -1017,11 +1017,11 @@ namespace moris::hmr
             tParameters.set_refinement_buffer( 2 );
             tParameters.set_staircase_buffer( 1 );
 
-            tParameters.set_lagrange_orders( { { 1 } } );
-            tParameters.set_lagrange_patterns( { { 0 } } );
+            tParameters.set_lagrange_orders( { 1 } );
+            tParameters.set_lagrange_patterns( { 0 } );
 
-            tParameters.set_bspline_orders( { { 1 } } );
-            tParameters.set_bspline_patterns( { { 0 } } );
+            tParameters.set_bspline_orders( { 1 } );
+            tParameters.set_bspline_patterns( { 0 } );
 
             tParameters.set_number_aura( false );
 

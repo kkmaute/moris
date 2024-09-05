@@ -149,11 +149,11 @@ namespace moris
 
             tParameters.set_bspline_truncation( true );
 
-            tParameters.set_lagrange_orders( { { 1 } } );
-            tParameters.set_lagrange_patterns( { { 0 } } );
+            tParameters.set_lagrange_orders( { 1 } );
+            tParameters.set_lagrange_patterns( { 0 } );
 
-            tParameters.set_bspline_orders( { { 1 } } );
-            tParameters.set_bspline_patterns( { { 0 } } );
+            tParameters.set_bspline_orders( { 1 } );
+            tParameters.set_bspline_patterns( { 0 } );
 
             tParameters.set_output_meshes( { { { 0 } } } );
             //        tParameters.set_lagrange_input_mesh( { { 0 } } );

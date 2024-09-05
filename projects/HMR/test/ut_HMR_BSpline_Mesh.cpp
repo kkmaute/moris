@@ -72,11 +72,11 @@ namespace moris::hmr
                     tParameters->set_staircase_buffer( tOrder );
 
                     // set mesh order
-                    tParameters->set_lagrange_orders( { { tOrder } } );
-                    tParameters->set_lagrange_patterns( { { 0 } } );
+                    tParameters->set_lagrange_orders( { tOrder } );
+                    tParameters->set_lagrange_patterns( { 0 } );
 
-                    tParameters->set_bspline_orders( { { tOrder } } );
-                    tParameters->set_bspline_patterns( { { 0 } } );
+                    tParameters->set_bspline_orders( { tOrder } );
+                    tParameters->set_bspline_patterns( { 0 } );
 
                     // create background mesh object
                     Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh();
@@ -159,11 +159,11 @@ namespace moris::hmr
                     tParameters->set_refinement_buffer( tOrder );
                     tParameters->set_staircase_buffer( tOrder );
 
-                    tParameters->set_lagrange_orders( { { tOrder } } );
-                    tParameters->set_lagrange_patterns( { { 0 } } );
+                    tParameters->set_lagrange_orders( { tOrder } );
+                    tParameters->set_lagrange_patterns( { 0 } );
 
-                    tParameters->set_bspline_orders( { { tOrder } } );
-                    tParameters->set_bspline_patterns( { { 0 } } );
+                    tParameters->set_bspline_orders( { tOrder } );
+                    tParameters->set_bspline_patterns( { 0 } );
 
                     // create background mesh object
                     Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh();
@@ -222,11 +222,11 @@ namespace moris::hmr
             tParameters->set_refinement_buffer( 1 );
             tParameters->set_staircase_buffer( 1 );
 
-            tParameters->set_lagrange_orders( { { 2 } } );
-            tParameters->set_lagrange_patterns( { { 0 } } );
+            tParameters->set_lagrange_orders( { 2 } );
+            tParameters->set_lagrange_patterns( { 0 } );
 
-            tParameters->set_bspline_orders( { { 2 } } );
-            tParameters->set_bspline_patterns( { { 0 } } );
+            tParameters->set_bspline_orders( { 2 } );
+            tParameters->set_bspline_patterns( { 0 } );
 
             // create factory
             Factory tFactory( tParameters );

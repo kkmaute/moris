@@ -253,22 +253,22 @@ namespace moris::hmr
         Tracer tTracer( "HMR", "Output mesh refinement data" );
 
         // get all lagrange and bspline pattern
-        moris::Matrix< DDUMat > tLagrangePatter = mParameters->get_lagrange_patterns();
-        moris::Matrix< DDUMat > tBSplinePatter  = mParameters->get_bspline_patterns();
+        Vector< uint > tLagrangePatterns = mParameters->get_lagrange_patterns();
+        Vector< uint > tBSplinePatterns  = mParameters->get_bspline_patterns();
 
-        uint tNumLagPattern = tLagrangePatter.numel();
-        uint tNumBSPattern  = tBSplinePatter.numel();
+        uint tNumLagPattern = tLagrangePatterns.size();
+        uint tNumBSPattern  = tBSplinePatterns.size();
 
         // make pattern unique
         Vector< uint > tPatternList( tNumLagPattern + tNumBSPattern );
 
         for ( uint Ik = 0; Ik < tNumLagPattern; Ik++ )
         {
-            tPatternList( Ik ) = tLagrangePatter( Ik );
+            tPatternList( Ik ) = tLagrangePatterns( Ik );
         }
         for ( uint Ik = 0; Ik < tNumBSPattern; Ik++ )
         {
-            tPatternList( Ik + tNumLagPattern ) = tBSplinePatter( Ik );
+            tPatternList( Ik + tNumLagPattern ) = tBSplinePatterns( Ik );
         }
 
         std::sort( ( tPatternList.data() ).data(), ( tPatternList.data() ).data() + tPatternList.size() );

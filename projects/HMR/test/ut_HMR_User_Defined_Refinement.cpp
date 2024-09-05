@@ -216,11 +216,11 @@ namespace moris::hmr
                     // It is recommended to leave this setting as is.
                     tParameters.set_bspline_truncation( true );
 
-                    tParameters.set_lagrange_orders( { { 1 } } );
-                    tParameters.set_lagrange_patterns( { { 0 } } );
+                    tParameters.set_lagrange_orders( { 1 } );
+                    tParameters.set_lagrange_patterns( { 0 } );
 
-                    tParameters.set_bspline_orders( { { 1 } } );
-                    tParameters.set_bspline_patterns( { { 0 } } );
+                    tParameters.set_bspline_orders( { 1 } );
+                    tParameters.set_bspline_patterns( { 0 } );
 
                     tParameters.set_staircase_buffer( 2 );
 
@@ -321,11 +321,11 @@ namespace moris::hmr
             // It is recommended to leave this setting as is.
             tParameters.set_bspline_truncation( true );
 
-            tParameters.set_lagrange_orders( { { 1 } } );
-            tParameters.set_lagrange_patterns( { { 0 } } );
+            tParameters.set_lagrange_orders( { 1 } );
+            tParameters.set_lagrange_patterns( { 0 } );
 
-            tParameters.set_bspline_orders( { { 1 } } );
-            tParameters.set_bspline_patterns( { { 0 } } );
+            tParameters.set_bspline_orders( { 1 } );
+            tParameters.set_bspline_patterns( { 0 } );
 
             tParameters.set_staircase_buffer( 1 );
 

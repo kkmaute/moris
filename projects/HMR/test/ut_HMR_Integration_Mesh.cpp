@@ -46,11 +46,11 @@ namespace moris::hmr
 
         tParameters.set_output_meshes( { { { 0 } } } );
 
-        tParameters.set_lagrange_orders( { { 1 } } );
-        tParameters.set_lagrange_patterns( { { 0 } } );
+        tParameters.set_lagrange_orders( { 1 } );
+        tParameters.set_lagrange_patterns( { 0 } );
 
-        tParameters.set_bspline_orders( { { 1 } } );
-        tParameters.set_bspline_patterns( { { 0 } } );
+        tParameters.set_bspline_orders( { 1 } );
+        tParameters.set_bspline_patterns( { 0 } );
 
         tParameters.set_union_pattern( 2 );
         tParameters.set_working_pattern( 3 );
@@ -118,11 +118,11 @@ namespace moris::hmr
 
             tParameters.set_output_meshes( { { { 0 } } } );
 
-            tParameters.set_lagrange_orders( { { 1 } } );
-            tParameters.set_lagrange_patterns( { { 0 } } );
+            tParameters.set_lagrange_orders( { 1 } );
+            tParameters.set_lagrange_patterns( { 0 } );
 
-            tParameters.set_bspline_orders( { { 1 } } );
-            tParameters.set_bspline_patterns( { { 1 } } );
+            tParameters.set_bspline_orders( { 1 } );
+            tParameters.set_bspline_patterns( { 1 } );
 
             tParameters.set_refinement_buffer( 1 );
             tParameters.set_staircase_buffer( 1 );
@@ -201,11 +201,11 @@ namespace moris::hmr
 
             tParameters.set_output_meshes( { { { 0 } } } );
 
-            tParameters.set_lagrange_orders( { { 1 } } );
-            tParameters.set_lagrange_patterns( { { 0 } } );
+            tParameters.set_lagrange_orders( { 1 } );
+            tParameters.set_lagrange_patterns( { 0 } );
 
-            tParameters.set_bspline_orders( { { 1 } } );
-            tParameters.set_bspline_patterns( { { 0 } } );
+            tParameters.set_bspline_orders( { 1 } );
+            tParameters.set_bspline_patterns( { 0 } );
 
             tParameters.set_refinement_buffer( 1 );
             tParameters.set_staircase_buffer( 1 );
@@ -275,11 +275,11 @@ namespace moris::hmr
 
             tParameters.set_output_meshes( { { { 0 } } } );
 
-            tParameters.set_lagrange_orders( { { 1 } } );
-            tParameters.set_lagrange_patterns( { { 0 } } );
+            tParameters.set_lagrange_orders( { 1 } );
+            tParameters.set_lagrange_patterns( { 0 } );
 
-            tParameters.set_bspline_orders( { { 1 } } );
-            tParameters.set_bspline_patterns( { { 0 } } );
+            tParameters.set_bspline_orders( { 1 } );
+            tParameters.set_bspline_patterns( { 0 } );
 
             tParameters.set_refinement_buffer( 1 );
             tParameters.set_staircase_buffer( 1 );

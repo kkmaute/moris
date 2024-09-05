@@ -32,11 +32,11 @@ namespace moris::hmr
             tParameters.set_bspline_truncation( true );
             //        tParameters.set( "domain_sidesets", "1, 6, 3, 4, 5, 2");
 
-            tParameters.set_lagrange_orders( { { 1 } } );
-            tParameters.set_lagrange_patterns( { { 0 } } );
+            tParameters.set_lagrange_orders( { 1 } );
+            tParameters.set_lagrange_patterns( { 0 } );
 
-            tParameters.set_bspline_orders( { { 2 } } );
-            tParameters.set_bspline_patterns( { { 0 } } );
+            tParameters.set_bspline_orders( { 2 } );
+            tParameters.set_bspline_patterns( { 0 } );
 
             tParameters.set_union_pattern( 2 );
             tParameters.set_working_pattern( 3 );
@@ -99,11 +99,11 @@ namespace moris::hmr
             tParameters.set_bspline_truncation( true );
             //        tParameters.set( "domain_sidesets", "1, 6, 3, 4, 5, 2");
 
-            tParameters.set_lagrange_orders( { { 2 } } );
-            tParameters.set_lagrange_patterns( { { 0 } } );
+            tParameters.set_lagrange_orders( { 2 } );
+            tParameters.set_lagrange_patterns( { 0 } );
 
-            tParameters.set_bspline_orders( { { 2 } } );
-            tParameters.set_bspline_patterns( { { 0 } } );
+            tParameters.set_bspline_orders( { 2 } );
+            tParameters.set_bspline_patterns( { 0 } );
 
             tParameters.set_union_pattern( 2 );
             tParameters.set_working_pattern( 3 );
@@ -168,11 +168,11 @@ namespace moris::hmr
             tParameters.set_bspline_truncation( true );
             //        tParameters.set( "domain_sidesets", "1, 6, 3, 4, 5, 2");
 
-            tParameters.set_lagrange_orders( { { 3 } } );
-            tParameters.set_lagrange_patterns( { { 0 } } );
+            tParameters.set_lagrange_orders( { 3 } );
+            tParameters.set_lagrange_patterns( { 0 } );
 
-            tParameters.set_bspline_orders( { { 2 } } );
-            tParameters.set_bspline_patterns( { { 0 } } );
+            tParameters.set_bspline_orders( { 2 } );
+            tParameters.set_bspline_patterns( { 0 } );
 
             tParameters.set_union_pattern( 2 );
             tParameters.set_working_pattern( 3 );

@@ -111,19 +111,19 @@ namespace moris::hmr
                 aParameters->get_gmsh_scale(),
                 mStatus );
 
-        // save Lagrange mesh associations
-        save_matrix_to_hdf5_file( mFileID,
+        // save Lagrange mesh orders
+        save_vector_to_hdf5_file( mFileID,
                 "LagrangeOrders",
-                aParameters->get_lagrange_orders(),
+                aParameters->get_lagrange_orders().data(),
                 mStatus );
 
-        // save Lagrange mesh associations
-        save_matrix_to_hdf5_file( mFileID,
+        // save Lagrange mesh patterns
+        save_vector_to_hdf5_file( mFileID,
                 "LagrangePatterns",
-                aParameters->get_lagrange_patterns(),
+                aParameters->get_lagrange_patterns().data(),
                 mStatus );
 
-        // save bspline mesh associations
+        // save bspline mesh orders
         Vector< uint > tBSplineOrders( aParameters->get_number_of_bspline_meshes() );
         for ( uint iMeshIndex = 0; iMeshIndex < aParameters->get_number_of_bspline_meshes(); iMeshIndex++ )
         {
@@ -134,10 +134,10 @@ namespace moris::hmr
                 tBSplineOrders.data(),
                 mStatus );
 
-        // save bspline mesh associations
-        save_matrix_to_hdf5_file( mFileID,
+        // save bspline mesh patterns
+        save_vector_to_hdf5_file( mFileID,
                 "BSplinePatterns",
-                aParameters->get_bspline_patterns(),
+                aParameters->get_bspline_patterns().data(),
                 mStatus );
 
         // save Sidesets
@@ -161,6 +161,7 @@ namespace moris::hmr
         Matrix< DDRMat >  tMatReal;
         Matrix< DDLUMat > tMatLuint;
         Matrix< DDUMat >  tMatUint;
+        Vector< uint >    tUnsignedVector;
         real              tValReal;
         uint              tValUint;
         sint              tValSint;
@@ -262,36 +263,44 @@ namespace moris::hmr
         aParameters->set_gmsh_scale( tValReal );
 
         // load orders of meshes
-        load_matrix_from_hdf5_file( mFileID,
+        load_vector_from_hdf5_file( mFileID,
                 "OrderToLagrangeMeshList",
-                tMatUint,
+                tUnsignedVector.data(),
                 mStatus );
 
-        aParameters->set_lagrange_orders( tMatUint );
+        print( tUnsignedVector, "Lagrange orders" );
+
+        aParameters->set_lagrange_orders( tUnsignedVector );
 
         // load Lagrange mesh associations
-        load_matrix_from_hdf5_file( mFileID,
+        load_vector_from_hdf5_file( mFileID,
                 "PatternToLagrangeMeshList",
-                tMatUint,
+                tUnsignedVector.data(),
                 mStatus );
 
-        aParameters->set_lagrange_patterns( tMatUint );
+        print( tUnsignedVector, "Lagrange patterns" );
+
+        aParameters->set_lagrange_patterns( tUnsignedVector );
 
         // load orders of meshes
-        load_matrix_from_hdf5_file( mFileID,
+        load_vector_from_hdf5_file( mFileID,
                 "OrderToBspMeshList",
-                tMatUint,
+                tUnsignedVector.data(),
                 mStatus );
 
-        aParameters->set_bspline_orders( tMatUint );
+        print( tUnsignedVector, "B orders" );
+
+        aParameters->set_bspline_orders( tUnsignedVector );
 
         // load bspline mesh associations
-        load_matrix_from_hdf5_file( mFileID,
+        load_vector_from_hdf5_file( mFileID,
                 "PatternToBspMeshList",
-                tMatUint,
+                tUnsignedVector.data(),
                 mStatus );
 
-        aParameters->set_bspline_patterns( tMatUint );
+        print( tUnsignedVector, "B patterns" );
+
+        aParameters->set_bspline_patterns( tUnsignedVector );
 
         // set lagrange to bpline mesh dependecies. since we read one lag mesh from file all bsplines belong to this mesh
         Vector< Matrix< DDSMat > >tMatBspToLag( 1 );

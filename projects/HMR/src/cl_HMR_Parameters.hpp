@@ -92,16 +92,16 @@ namespace moris::hmr
         bool mParametersAreLocked = false;
 
         //! mesh orders, by default, a linear mesh is generated
-        Matrix< DDUMat > mLagrangeOrders = { { 1 } };
+        Vector< uint > mLagrangeOrders = { 1 };
 
         //! mesh orders, by default, a linear mesh is generated
-        Matrix< DDUMat > mBSplineOrders = { { 1 } };
+        Vector< uint > mBSplineOrders = { 1 };
 
         //! defines which Lagrange mesh is associated with which refinement pattern
-        Matrix< DDUMat > mLagrangePatterns = { { 0 } };
+        Vector< uint > mLagrangePatterns = { 0 };
 
         //! defines which B-Spline mesh is associated with which refinement pattern
-        Matrix< DDUMat > mBSplinePatterns = { { 0 } };
+        Vector< uint > mBSplinePatterns = { 0 };
 
         //! defines which B-Spline mesh is associated with which lagrange mesh
         Vector< Matrix< DDSMat > > mLagrangeToBSplineMesh;
@@ -321,14 +321,14 @@ namespace moris::hmr
         /**
          * sets the mesh orders according to given matrix
          */
-        void set_lagrange_orders( const Matrix< DDUMat >& aMeshOrders );
+        void set_lagrange_orders( const Vector< uint >& aMeshOrders );
 
         //--------------------------------------------------------------------------------
 
         /**
          * sets the mesh orders according to given matrix
          */
-        void set_bspline_orders( const Matrix< DDUMat >& aMeshOrders );
+        void set_bspline_orders( const Vector< uint >& aMeshOrders );
 
         //--------------------------------------------------------------------------------
 
@@ -350,7 +350,7 @@ namespace moris::hmr
          * @param[ in ] aPattern patterns set by set_mesh_orders the Lagrange meshes refer to.
          *
          */
-        void set_lagrange_patterns( const Matrix< DDUMat >& aPatterns );
+        void set_lagrange_patterns( const Vector< uint >& aPatterns );
 
         //-------------------------------------------------------------------------------
 
@@ -395,7 +395,7 @@ namespace moris::hmr
          *
          * @param[ in ] aPattern patterns set by set_mesh_orders the B-Spline meshes refer to.
          */
-        void set_bspline_patterns( const Matrix< DDUMat >& aPatterns );
+        void set_bspline_patterns( const Vector< uint >& aPatterns );
 
         //-------------------------------------------------------------------------------
 
@@ -463,7 +463,7 @@ namespace moris::hmr
         uint
         get_number_of_bspline_meshes() const
         {
-            return mBSplineOrders.length();
+            return mBSplineOrders.size();
         }
 
         //--------------------------------------------------------------------------------
@@ -474,7 +474,7 @@ namespace moris::hmr
         uint
         get_number_of_lagrange_meshes() const
         {
-            return mLagrangeOrders.length();
+            return mLagrangeOrders.size();
         }
 
         //--------------------------------------------------------------------------------

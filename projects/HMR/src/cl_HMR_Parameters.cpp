@@ -120,10 +120,18 @@ namespace moris::hmr
         }
 
         string_to_mat( aParameterList.get< std::string >( "lagrange_input_meshes" ), mLagrangeInputMeshes );
-        string_to_mat( aParameterList.get< std::string >( "lagrange_orders" ), mLagrangeOrders );
-        string_to_mat( aParameterList.get< std::string >( "lagrange_pattern" ), mLagrangePatterns );
-        string_to_mat( aParameterList.get< std::string >( "bspline_orders" ), mBSplineOrders );
-        string_to_mat( aParameterList.get< std::string >( "bspline_pattern" ), mBSplinePatterns );
+
+        // Clear orders/patterns
+        mLagrangeOrders.clear();
+        mLagrangePatterns.clear();
+        mBSplineOrders.clear();
+        mBSplinePatterns.clear();
+
+        // Set orders/patterns
+        string_to_cell( aParameterList.get< std::string >( "lagrange_orders" ), mLagrangeOrders );
+        string_to_cell( aParameterList.get< std::string >( "lagrange_pattern" ), mLagrangePatterns );
+        string_to_cell( aParameterList.get< std::string >( "bspline_orders" ), mBSplineOrders );
+        string_to_cell( aParameterList.get< std::string >( "bspline_pattern" ), mBSplinePatterns );
 
         this->set_union_pattern( aParameterList.get< sint >( "union_pattern" ) );
         this->set_working_pattern( aParameterList.get< sint >( "working_pattern" ) );
@@ -272,7 +280,7 @@ namespace moris::hmr
      * sets the mesh orders according to given matrix
      */
     void
-    Parameters::set_lagrange_orders( const Matrix< DDUMat >& aMeshOrders )
+    Parameters::set_lagrange_orders( const Vector< uint >& aMeshOrders )
     {
         // test if calling this function is allowed
         this->error_if_locked( "set_lagrange_orders" );
@@ -292,14 +300,15 @@ namespace moris::hmr
      * sets the mesh orders according to given matrix
      */
     void
-    Parameters::set_bspline_orders( const Matrix< DDUMat >& aMeshOrders )
+    Parameters::set_bspline_orders( const Vector< uint >& aMeshOrders )
     {
         // test if calling this function is allowed
         this->error_if_locked( "set_lagrange_orders" );
 
-        MORIS_ERROR( aMeshOrders.max() <= 3, "Polynomial degree must be between 1 and 3" );
-        MORIS_ERROR( 1 <= aMeshOrders.min(), "Polynomial degree must be between 1 and 3" );
+        MORIS_ERROR( aMeshOrders.max() <= 3, "B-spline polynomial degree must be between 1 and 3" );
+        MORIS_ERROR( 1 <= aMeshOrders.min(), "B-spline polynomial degree must be between 1 and 3" );
 
+        // Assign B-spline orders
         mBSplineOrders = aMeshOrders;
 
         // make sure that max polynomial is up to date
@@ -585,13 +594,13 @@ namespace moris::hmr
      * sets the patterns for the Lagrange Meshes
      */
     void
-    Parameters::set_lagrange_patterns( const Matrix< DDUMat >& aPatterns )
+    Parameters::set_lagrange_patterns( const Vector< uint >& aPatterns )
     {
         // test if calling this function is allowed
         this->error_if_locked( "set_lagrange_patterns" );
 
         // test sanity of input
-        MORIS_ERROR( aPatterns.length() == mLagrangeOrders.length(),
+        MORIS_ERROR( aPatterns.size() == mLagrangeOrders.size(),
                 "set_lagrange_patterns() : referred refinement pattern does not exist. Call set_lagrange_orders() first." );
 
         MORIS_ERROR( aPatterns.max() < gNumberOfPatterns - 2,
@@ -608,13 +617,13 @@ namespace moris::hmr
      * sets the patterns for the Lagrange Meshes
      */
     void
-    Parameters::set_bspline_patterns( const Matrix< DDUMat >& aPatterns )
+    Parameters::set_bspline_patterns( const Vector< uint >& aPatterns )
     {
         // test if calling this function is allowed
         this->error_if_locked( "set_bspline_patterns" );
 
         // test sanity of input
-        MORIS_ERROR( aPatterns.length() == mBSplineOrders.length(),
+        MORIS_ERROR( aPatterns.size() == mBSplineOrders.size(),
                 "set_bspline_patterns() : referred refinement pattern does not exist. Call set_bspline_orders() first." );
 
         MORIS_ERROR( aPatterns.max() < gNumberOfPatterns - 2,
@@ -623,6 +632,11 @@ namespace moris::hmr
                 gNumberOfPatterns - 1 );
 
         mBSplinePatterns = aPatterns;
+
+        PRINT( mLagrangeOrders )
+        PRINT( mLagrangePatterns )
+        PRINT( mBSplineOrders )
+        PRINT( mBSplinePatterns )
     }
 
     //--------------------------------------------------------------------------------
@@ -645,17 +659,15 @@ namespace moris::hmr
             MORIS_ERROR( mDomainOffset.length() == tNumberOfDimensions,
                     "Domain offset and Number of Elements per dimension do not match" );
 
-            // get number of B-Spline meshes
-            auto tNumberOfBSplineMeshes = mBSplineOrders.length();
+            MORIS_ERROR( mBSplinePatterns.size() == mBSplineOrders.size(),
+                    "Number of B-spline meshes given by patterns (%lu) doesn't match number of B-spline meshes given by orders (%lu)",
+                    mBSplinePatterns.size(),
+                    mBSplineOrders.size() );
 
-            MORIS_ERROR( mBSplinePatterns.length() == tNumberOfBSplineMeshes,
-                    "B-Spline pattern list does not match number of B-Splines" );
-
-            // get number of Lagrange meshes
-            auto tNumberOfLagrangeMeshes = mLagrangeOrders.length();
-
-            MORIS_ERROR( mLagrangePatterns.length() == tNumberOfLagrangeMeshes,
-                    "Lagrange pattern list does not match number of Lagrange meshes" );
+            MORIS_ERROR( mLagrangePatterns.size() ==  mLagrangeOrders.size(),
+                    "Number of Lagrange meshes given by patterns (%lu) doesn't match number of Lagrange meshes given by orders (%lu)",
+                    mLagrangePatterns.size(),
+                    mLagrangeOrders.size() );
         }
     }
 
