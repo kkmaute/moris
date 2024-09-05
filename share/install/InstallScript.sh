@@ -234,7 +234,7 @@ spack develop --path $WORKSPACE/moris moris@main
 
 if [ $DEVELOPPER_MODE = "1" ];then
     spack add doxygen %"$COMPILER"
-    spack add llvm~gold~libomptarget %"$COMPILER"
+    spack add llvm@main~gold~libomptarget %"$COMPILER"
 fi
 
 spack add openmpi %"$COMPILER" fabrics=auto 
