@@ -166,9 +166,6 @@ namespace moris::xtk
     {
         Tracer tTracer( "XTK", "Decomposition_Algorithm", "Determine Intersected Edges", mGenerator->verbosity_level(), 1 );
 
-        // get first unused index for nodes for numbering new nodes
-        moris_index tNewNodeIndex = mCutIntegrationMesh->get_first_available_index( mtk::EntityRank::NODE );
-
         // get the number of edges to be treated
         uint tNumEdges = aEdgeConnectivity->mEdgeVertices.size();
 
@@ -214,10 +211,10 @@ namespace moris::xtk
             Matrix< IndexMat >        tParentEntityIndices = tGeometricQuery.get_query_parent_entity_connectivity();
 
             // annoying copy until this is converted to using a vector
-            Matrix< DDUMat > tParentEntityIndiceUINT( tParentEntityIndices.numel() );
+            Matrix< DDUMat > tParentEntityIndicesUINT( tParentEntityIndices.numel() );
             for ( moris::uint i = 0; i < tParentEntityIndices.numel(); i++ )
             {
-                tParentEntityIndiceUINT( i ) = (uint)tParentEntityIndices( i );
+                tParentEntityIndicesUINT( i ) = (uint)tParentEntityIndices( i );
             }
 
             // see if the edge is intersected using the geometry engine
@@ -225,7 +222,7 @@ namespace moris::xtk
                     tEdgeToVertex( 1 ),
                     tGeometricQuery.get_vertex_local_coord_wrt_parent_entity( tEdgeToVertex( 0 ) ),
                     tGeometricQuery.get_vertex_local_coord_wrt_parent_entity( tEdgeToVertex( 1 ) ),
-                    tParentEntityIndiceUINT,
+                    tParentEntityIndicesUINT,
                     tGeometricQuery.get_geometry_type(),
                     tGeometricQuery.get_interpolation_order() );
 
@@ -260,7 +257,7 @@ namespace moris::xtk
                             (mtk::EntityRank)tParentRank,
                             tNewNodeIndexInSubdivision );
 
-                    // ... if not request it
+                    // ... if not, request it
                     if ( !tRequestExist )
                     {
                         // find out which processor owns parent entity of currently treated edge
@@ -278,7 +275,6 @@ namespace moris::xtk
                         mGeometryEngine->admit_queued_intersection();
 
                         // count number of new nodes created
-                        tNewNodeIndex++;
                     }
                 }
             }
@@ -452,12 +448,10 @@ namespace moris::xtk
         uint tNumElemsCurrentlyInCutIgMesh = mCutIntegrationMesh->get_num_entities( mtk::EntityRank::ELEMENT, 0 );
 
         // initialize map, input: IG Cell index || output: list of intersected edge ordinals (?)
-        Vector< std::shared_ptr< Vector< moris_index > > >
-                tCellIndexIntersectedEdgeOrdinals( tNumElemsCurrentlyInCutIgMesh, nullptr );
+        Vector< std::shared_ptr< Vector< moris_index > > > tCellIndexIntersectedEdgeOrdinals( tNumElemsCurrentlyInCutIgMesh, nullptr );
 
         // initialize map, input: IG Cell index || output: list of intersected vertex ordinals (?)
-        Vector< std::shared_ptr< Vector< mtk::Vertex* > > >
-                tCellIndexIntersectedEdgeVertex( tNumElemsCurrentlyInCutIgMesh, nullptr );
+        Vector< std::shared_ptr< Vector< mtk::Vertex* > > > tCellIndexIntersectedEdgeVertex( tNumElemsCurrentlyInCutIgMesh, nullptr );
 
         // fill necessary information in maps initialized above
         this->determine_intersected_cell_information(
@@ -559,7 +553,7 @@ namespace moris::xtk
 
         }    // end for: each IG cell currently in the cut mesh
 
-    }        // end function: Node_Hierarchy_Interface::create_node_hierarchy_integration_cells()
+    }    // end function: Node_Hierarchy_Interface::create_node_hierarchy_integration_cells()
 
     // ----------------------------------------------------------------------------------
 
@@ -626,11 +620,13 @@ namespace moris::xtk
 
         Node_Hierarchy_Template_Library tLibrary;
 
-        // iterate through cells
+        // select a template for each cell
         for ( uint iCell = 0; iCell < aCellIndexIntersectedEdgeOrdinals->size(); iCell++ )
         {
+            // only populate template if there are intersected edges
             if ( ( *aCellIndexIntersectedEdgeOrdinals )( iCell ) != nullptr )
             {
+                // access the underlying cell
                 mtk::Cell const * tIgCell = &mCutIntegrationMesh->get_mtk_cell( iCell );
 
                 if ( tEdgeToVertexOrdinalMap == nullptr )
@@ -662,8 +658,10 @@ namespace moris::xtk
 
                 tNumNewIgCells = tNumNewIgCells + ( *aNHTemplate )( iCell )->mNumCells;
                 mNumNewCells   = mNumNewCells + ( *aNHTemplate )( iCell )->mNumCells - 1;
-            }
-        }
+
+            }    // end if: the cell is intersected
+        }        // end for: each IG cell
+
         return tNumNewIgCells;
     }
 

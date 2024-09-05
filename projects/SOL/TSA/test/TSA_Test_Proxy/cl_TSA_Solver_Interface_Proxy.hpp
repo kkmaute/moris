@@ -43,9 +43,6 @@ namespace moris
             Matrix< DDRMat >  mMySolVec;
             Matrix< DDRMat >  mMySolVecPrev;
 
-            moris::sint mNX;
-            moris::sint mNY;
-
             Vector< enum MSI::Dof_Type > mListOfDofTypes;
             Vector< enum MSI::Dof_Type > mListSecondaryOfDofTypes;
 
@@ -77,7 +74,7 @@ namespace moris
 
             void set_solution_vector_prev_time_step( sol::Dist_Vector* aSolutionVector ) override;
 
-            void free_block_memory( const uint aBlockInd ) override {};
+            void free_block_memory( const uint aBlockInd ) override{};
 
             void
             set_time( const Matrix< DDRMat >& aTime ) override
@@ -85,7 +82,7 @@ namespace moris
                 mT = aTime;
             }
 
-            void compute_IQI() override {};
+            void compute_IQI() override{};
 
             void
             set_previous_time( const Matrix< DDRMat >& aTime ) override

@@ -34,7 +34,7 @@ namespace moris
                     "fn_FEM_IWG_Compressible_NS::eval_VL_dAdY - list of aResidualDofTypes not supported, see messages above." );
 
             // get the velocity FI
-            Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
+            Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get number of Space dimensions
             uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
@@ -225,7 +225,7 @@ namespace moris
                     "fn_FEM_IWG_Compressible_NS::eval_dAdY - list of aResidualDofTypes not supported, see messages above." );
 
             // get the velocity FI
-            Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
+            Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get number of Space dimensions
             uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
@@ -854,7 +854,7 @@ namespace moris
                     "fn_FEM_IWG_Compressible_NS::eval_dAdY_VR - list of aResidualDofTypes not supported, see messages above." );
 
             // get the velocity FI
-            Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
+            Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get number of Space dimensions
             uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
@@ -1038,7 +1038,7 @@ namespace moris
                 Vector< Vector< Matrix< DDRMat > > >  & adKdY )
         {
             // get the velocity FI
-            Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
+            Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get number of Space dimensions
             uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
@@ -1235,7 +1235,7 @@ namespace moris
                 Matrix< DDRMat >            & aVLdKdY )
         {
             // get the velocity FI
-            Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
+            Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get number of Space dimensions
             uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
@@ -1562,7 +1562,7 @@ namespace moris
                 Matrix< DDRMat >            & adKdYVR )
         {
             // get the velocity FI
-            Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
+            Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get number of Space dimensions
             uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
@@ -1893,7 +1893,7 @@ namespace moris
                 Vector< Matrix< DDRMat > > & aVLdKijidY )
         {
             // get the velocity FI
-            Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
+            Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get number of Space dimensions
             uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
@@ -2101,7 +2101,7 @@ namespace moris
                 Vector< Matrix< DDRMat > > & adKijidYVR )
         {
             // get the velocity FI
-            Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
+            Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get number of Space dimensions
             uint tNumSpaceDims = tFIVelocity->get_number_of_fields();

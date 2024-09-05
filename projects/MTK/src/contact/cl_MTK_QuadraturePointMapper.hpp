@@ -37,7 +37,6 @@ namespace moris::mtk
         Vector< std::pair< moris_index, moris_index > > const &get_candidate_pairs() const { return mCandidatePairs; }
 
       private:
-        Integration_Mesh                               *mIGMesh;
         Vector< Side_Set const * >                      mSideSets;
         Vector< std::pair< moris_index, moris_index > > mCandidatePairs;
     };

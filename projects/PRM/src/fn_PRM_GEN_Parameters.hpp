@@ -33,13 +33,6 @@ namespace moris::prm
         tGENParameterList.insert( "time_offset", 0.0 );                     // Time offset for writing files in optimization process
 
         // IQIs/PDVs
-        tGENParameterList.insert( "initial_advs", Vector< real >() );        // Initial ADV vector
-        tGENParameterList.insert( "advs_size", 0 );                          // Specify size and fill value for ADVs in addition to
-        tGENParameterList.insert( "initial_advs_fill", 0.0 );                // explicitly defined ADVs (above)
-        tGENParameterList.insert( "lower_bounds", Vector< real >() );        // Lower bounds on advs, string converted into vector
-        tGENParameterList.insert( "lower_bounds_fill", 0.0 );                // Fill value for lower bounds up to size of ADV vector
-        tGENParameterList.insert( "upper_bounds", Vector< real >() );        // Upper bounds on advs, string converted into vector
-        tGENParameterList.insert( "upper_bounds_fill", 0.0 );                // Fill value for upper bounds up to size of ADV vector
         tGENParameterList.insert( "IQI_types", Vector< std::string >(),      // Requested IQI types for sensitivity analysis
                 Entry_Type::SELECTION, "IQI_name", Parameter_List_Type::FEM, 4 );
         tGENParameterList.insert( "PDV_types", Vector< std::string >() );    // Requested PDV types for sensitivity analysis
@@ -72,11 +65,8 @@ namespace moris::prm
             aParameterList.insert( "field_type", gen::Field_Type::NONE, gen::Field_Type::CONSTANT, gen::Field_Type::USER_DEFINED );
             aParameterList.set( "field_type", aFieldType );
 
-            // General field parameters
-            aParameterList.insert( "name", "" );                                    // Name of field
-            aParameterList.insert( "field_variable_indices", Vector< uint >() );    // Indices of field variables to fill
-            aParameterList.insert( "adv_indices", Vector< uint >() );               // ADVs used to fill in variables
-            aParameterList.insert( "constant_parameters", Vector< real >() );       // Remaining geometry parameters that are constant
+            // Field name
+            aParameterList.insert( "name", "" );
 
             // Insert specific field parameters
             switch ( aFieldType )
@@ -152,8 +142,6 @@ namespace moris::prm
                     aParameterList.insert( "use_minimum", true );
                     break;
                 }
-                case gen::Field_Type::NODAL:
-                    break;
                 case gen::Field_Type::NODAL_FROM_FILE:
                 {
                     aParameterList.insert( "file_name", "" );

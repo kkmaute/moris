@@ -190,8 +190,6 @@ namespace moris
             void ( CM_Struc_Nonlinear_Isotropic::*m_eval_dEATestStraindDOF )(
                     const Vector< MSI::Dof_Type >& aDofTypes ) = nullptr;
 
-            void ( CM_Struc_Nonlinear_Isotropic::*m_eval_defGrad )() = nullptr;
-
             void ( CM_Struc_Nonlinear_Isotropic::*m_eval_inv_right_cauchy_green_deformation_tensor )() = nullptr;
             void ( CM_Struc_Nonlinear_Isotropic::*m_eval_inv_left_cauchy_green_deformation_tensor )()  = nullptr;
 

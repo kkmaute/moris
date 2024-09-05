@@ -43,7 +43,6 @@ namespace moris::gen
         SUPERELLIPSOID,
         SCALED_FIELD,
         COMBINED_FIELDS,
-        NODAL,
         NODAL_FROM_FILE,
         SIGNED_DISTANCE_OBJECT,
         SIGNED_DISTANCE_IMAGE,

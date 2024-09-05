@@ -58,22 +58,6 @@ namespace moris::gen
         mOutputMeshFile    = aParameterLists( 0 )( 0 ).get< std::string >( "output_mesh_file" );
         mTimeOffset        = aParameterLists( 0 )( 0 ).get< real >( "time_offset" );
 
-        // Read ADVs
-        sint tADVsSize = aParameterLists( 0 )( 0 ).get< sint >( "advs_size" );
-        if ( tADVsSize )
-        {
-            mInitialPrimitiveADVs.resize( tADVsSize, aParameterLists( 0 )( 0 ).get< real >( "initial_advs_fill" ) );
-            mADVManager.mLowerBounds.resize( tADVsSize, aParameterLists( 0 )( 0 ).get< real >( "lower_bounds_fill" ) );
-            mADVManager.mUpperBounds.resize( tADVsSize, aParameterLists( 0 )( 0 ).get< real >( "upper_bounds_fill" ) );
-        }
-        else
-        {
-            mInitialPrimitiveADVs = aParameterLists( 0 )( 0 ).get< Vector< real > >( "initial_advs" );
-            mADVManager.mLowerBounds = aParameterLists( 0 )( 0 ).get< Vector< real > >( "lower_bounds" );
-            mADVManager.mUpperBounds = aParameterLists( 0 )( 0 ).get< Vector< real > >( "upper_bounds" );
-        }
-        mADVManager.mADVs = mInitialPrimitiveADVs;
-
         // Create designs with the factory
         for ( uint iParameterIndex = 2; iParameterIndex < aParameterLists.size(); iParameterIndex++ )
         {
@@ -81,12 +65,9 @@ namespace moris::gen
         }
         Design_Factory tDesignFactory( aParameterLists( 1 ), mADVManager, aLibrary, aMesh, mNodeManager );
 
-        // FIXME make standard once old way of initializing ADVs is removed
-        if ( mADVManager.mADVs.size() > 0 )
-        {
-            mInitialPrimitiveADVs = mADVManager.mADVs;
-            mADVManager.mADVs.clear();
-        }
+        // Set primitive ADVs FIXME don't copy, store in one place to begin with
+        mInitialPrimitiveADVs = mADVManager.mADVs;
+        mADVManager.mADVs.clear();
 
         // Get geometries and properties from the factory
         mGeometries = tDesignFactory.get_geometries();

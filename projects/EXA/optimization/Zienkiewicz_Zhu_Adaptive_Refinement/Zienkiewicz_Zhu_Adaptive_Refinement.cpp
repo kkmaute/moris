@@ -404,7 +404,7 @@ namespace moris
             const Vector< real >&   aGeometryParameters )
 
     {
-        real tLSval;
+        real tLSval = 0.0;
 
         if ( aCoordinates( 0 ) <= tFirstHoleX )
         {

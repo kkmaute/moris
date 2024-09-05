@@ -25,6 +25,9 @@
 // GEN/src
 #include "GEN_Data_Types.hpp"
 
+// tolerance for check
+#define Field_Interpolator_Epsilon 1e-12
+
 namespace moris
 {
     namespace fem
@@ -34,9 +37,6 @@ namespace moris
 
         class Field_Interpolator
         {
-            // tolerance for check
-            real mEpsilon = 1e-12;
-
             // discretization (B-spline) mesh index the field interpolator operates on
             moris_index mDiscretizationMeshIndex = -1;
 

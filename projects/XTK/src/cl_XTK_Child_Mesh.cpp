@@ -930,22 +930,19 @@ namespace moris::xtk
         moris::size_t tNumEdges = tElemToEdge.n_cols();
 
         // Initialize output
-        moris::moris_index tEdgeOrdinals = 1000;
+        moris::moris_index tEdgeOrdinals = MORIS_INDEX_MAX;
 
         // find the edge ordinals
-        moris::size_t tCount = 0;
-
         for ( moris::size_t iEdge = 0; iEdge < tNumEdges; iEdge++ )
         {
             if ( aEdgeIndex == tElemToEdge( aElementIndex, iEdge ) )
             {
                 tEdgeOrdinals = iEdge;
-                tCount++;
                 break;
             }
         }
 
-        MORIS_ASSERT( 1 == tCount, "All edge ordinals not found" );
+        MORIS_ERROR( tEdgeOrdinals != MORIS_INDEX_MAX, "Edge ordinal not found" );
 
         return tEdgeOrdinals;
     }

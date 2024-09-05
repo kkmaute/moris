@@ -35,9 +35,7 @@ namespace moris
 
           private:
             // default dof
-            MSI::Dof_Type mDofDispl    = MSI::Dof_Type::UX;
-            MSI::Dof_Type mDofTemp     = MSI::Dof_Type::UNDEFINED;
-            MSI::Dof_Type mDofPressure = MSI::Dof_Type::UNDEFINED;
+            MSI::Dof_Type mDofDispl = MSI::Dof_Type::UX;
 
             // property type for CM
             enum class CM_Property_Type_Saint_Venant_Kirchhoff

@@ -207,8 +207,8 @@ namespace moris
     // sphere level set function
     moris::real
     Func_Sphere(
-            const moris::Matrix< DDRMat >&     aCoordinates,
-            const Vector< real >& aGeometryParameters )
+            const moris::Matrix< DDRMat >& aCoordinates,
+            const Vector< real >&          aGeometryParameters )
     {
         // get coordinates
         real tX = aCoordinates( 0 );
@@ -223,9 +223,9 @@ namespace moris
 
     void
     Func_Sphere_Deriv(
-            const moris::Matrix< moris::DDRMat >&                aCoordinates,
+            const moris::Matrix< moris::DDRMat >&           aCoordinates,
             const Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::Matrix< DDRMat >&                             aFieldSensitivity )
+            moris::Matrix< DDRMat >&                        aFieldSensitivity )
     {
         if ( tUseAnalyticGeometry )
         {
@@ -240,8 +240,8 @@ namespace moris
     // plane function
     moris::real
     Func_Plane(
-            const moris::Matrix< DDRMat >&     aCoordinates,
-            const Vector< real >& aGeometryParameters )
+            const moris::Matrix< DDRMat >& aCoordinates,
+            const Vector< real >&          aGeometryParameters )
     {
         // get coordinates
         real tX = aCoordinates( 0 );
@@ -263,9 +263,9 @@ namespace moris
     /* ------------------------------------------------------------------------ */
     void
     Func_HeatLoad(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         aPropMatrix.set_size( 1, 1 );
 
@@ -279,9 +279,9 @@ namespace moris
 
     void
     Func_StoredThermalEnergy(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         aPropMatrix.set_size( 1, 1 );
 

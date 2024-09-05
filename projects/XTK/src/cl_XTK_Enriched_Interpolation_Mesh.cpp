@@ -1185,7 +1185,6 @@ namespace moris::xtk
         moris_index tParRank = par_rank();
 
         // counter
-        uint           tOwnerCount = 0;
         Vector< uint > tCounts( 0 );
 
         // map
@@ -1210,7 +1209,6 @@ namespace moris::xtk
             if ( tParRank == tOwnerProc )
             {
                 aOwnedInterpCells.push_back( tEnrInterpCells( i ) );
-                tOwnerCount++;
             }
             else
             {

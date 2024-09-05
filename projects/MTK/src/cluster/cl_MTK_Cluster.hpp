@@ -455,7 +455,8 @@ namespace moris
              * @param[in] - Local integration cell index with respect to the cluster (not proc local index)
              */
             virtual moris::Matrix< moris::DDRMat >
-            get_primary_cell_local_coords_on_side_wrt_interp_cell( moris::moris_index aPrimaryCellClusterIndex ) const
+            get_primary_cell_local_coords_on_side_wrt_interp_cell(
+                    moris::moris_index aPrimaryCellClusterIndex ) const
             {
                 MORIS_ERROR( false, "MTK::Cluster::get_primary_cell_local_coords_on_side_wrt_interp_cell() - not implemented for this cluster type." );
                 return moris::Matrix< moris::DDRMat >( 0, 0 );

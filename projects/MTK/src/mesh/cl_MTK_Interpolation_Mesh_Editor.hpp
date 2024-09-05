@@ -55,7 +55,7 @@ namespace moris::mtk
         // temporay data that can be deleted later
         Interpolation_Mesh_Info* mIPMeshInfo;
 
-        Interpolation_Mesh_DataBase_IP* mOutputMesh;
+        Interpolation_Mesh_DataBase_IP* mOutputMesh = nullptr;
 
       public:
         // ----------------------------------------------------------------------------

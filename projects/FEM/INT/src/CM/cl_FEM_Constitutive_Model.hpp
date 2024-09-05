@@ -182,7 +182,6 @@ namespace moris
             bool mGlobalDvBuild       = true;
             bool mGlobalFieldBuild    = true;
             bool mGlobalDofMapBuild   = true;
-            bool mGlobalDvMapBuild    = true;
             bool mGlobalFieldMapBuild = true;
 
             // flag for flux related evaluation
