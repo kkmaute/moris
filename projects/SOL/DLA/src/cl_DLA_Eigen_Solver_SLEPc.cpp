@@ -214,6 +214,8 @@ Eigen_Solver_SLEPc::solve_linear_system(
         EPSGetEigenvector( mEps, iEigenIndex, tSourceVec, nullptr );
 
         tDestinationVector->import_local_to_global( tSourceVec, iEigenIndex, tSourceMap );
+
+	VecDestroy(&tSourceVec);
     }
 
     delete tSourceMap;
