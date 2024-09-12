@@ -268,8 +268,6 @@ namespace moris::hmr
                 tUnsignedVector.data(),
                 mStatus );
 
-        print( tUnsignedVector, "Lagrange orders" );
-
         aParameters->set_lagrange_orders( tUnsignedVector );
 
         // load Lagrange mesh associations
@@ -277,8 +275,6 @@ namespace moris::hmr
                 "PatternToLagrangeMeshList",
                 tUnsignedVector.data(),
                 mStatus );
-
-        print( tUnsignedVector, "Lagrange patterns" );
 
         aParameters->set_lagrange_patterns( tUnsignedVector );
 
@@ -288,8 +284,6 @@ namespace moris::hmr
                 tUnsignedVector.data(),
                 mStatus );
 
-        print( tUnsignedVector, "B orders" );
-
         aParameters->set_bspline_orders( tUnsignedVector );
 
         // load bspline mesh associations
@@ -298,19 +292,15 @@ namespace moris::hmr
                 tUnsignedVector.data(),
                 mStatus );
 
-        print( tUnsignedVector, "B patterns" );
-
         aParameters->set_bspline_patterns( tUnsignedVector );
 
         // set lagrange to bpline mesh dependecies. since we read one lag mesh from file all bsplines belong to this mesh
         Vector< Matrix< DDSMat > > tMatBspToLag( 1 );
-        tMatBspToLag( 0 ).set_size( tMatUint.numel(), 1 );
-
-        for ( uint Ik = 0; Ik < tMatUint.numel(); Ik++ )
+        tMatBspToLag( 0 ).set_size( tUnsignedVector.size(), 1 );
+        for ( uint Ik = 0; Ik < tUnsignedVector.size(); Ik++ )
         {
             tMatBspToLag( 0 )( Ik ) = Ik;
         }
-
         aParameters->set_lagrange_to_bspline_mesh( tMatBspToLag );
 
         // load side sets

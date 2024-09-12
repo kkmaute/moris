@@ -632,11 +632,6 @@ namespace moris::hmr
                 gNumberOfPatterns - 1 );
 
         mBSplinePatterns = aPatterns;
-
-        PRINT( mLagrangeOrders )
-        PRINT( mLagrangePatterns )
-        PRINT( mBSplineOrders )
-        PRINT( mBSplinePatterns )
     }
 
     //--------------------------------------------------------------------------------
