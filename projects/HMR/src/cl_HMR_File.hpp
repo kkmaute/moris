@@ -94,16 +94,16 @@ namespace moris::hmr
         //-------------------------------------------------------------------------------
 
         void save_refinement_pattern(
-                Background_Mesh_Base          * aBackgroundMesh,
-                const moris::Matrix< DDUMat > & tPatternToSave );
+                Background_Mesh_Base*   aBackgroundMesh,
+                const Matrix< DDUMat >& tPatternToSave );
 
         //-------------------------------------------------------------------------------
 
         static void save_refinement_pattern(
-                Background_Mesh_Base             * aBackgroundMesh,
-                const moris::Matrix< DDUMat >    & tPatternToSave,
-                Matrix< DDLUMat >                & aElementCounterPerLevelAndPattern,
-                Vector< Matrix< DDLUMat > > & aElementPerPattern);
+                Background_Mesh_Base*        aBackgroundMesh,
+                const Matrix< DDUMat >&      aPatternToSave,
+                Matrix< DDLUMat >&           aElementCounterPerLevelAndPattern,
+                Vector< Matrix< DDLUMat > >& aElementPerPattern);
 
 //-------------------------------------------------------------------------------
 
