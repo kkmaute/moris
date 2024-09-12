@@ -38,8 +38,8 @@ namespace moris::xtk
          *
          * @return Vector< Cluster const* > const& list of clusters in the cluster group
          */
-        const Vector< mtk::Cluster const * >
-        get_clusters_in_group() const;
+        Vector< mtk::Cluster const * >
+        get_clusters_in_group() const override;
 
         //------------------------------------------------------------------------------
 
@@ -53,8 +53,8 @@ namespace moris::xtk
          * @param aClusters cell of pointers to the clusters in the group
          */
         Cell_Cluster_Group(
-                const moris_index                         aDiscretizationMeshIndex,
-                Vector< std::shared_ptr< mtk::Cluster > > aClusters );
+                const moris_index                                aDiscretizationMeshIndex,
+                const Vector< std::shared_ptr< mtk::Cluster > >& aClusters );
 
         //------------------------------------------------------------------------------
 
@@ -68,7 +68,7 @@ namespace moris::xtk
          * @brief Default Destructor
          *
          */
-        ~Cell_Cluster_Group(){};
+        ~Cell_Cluster_Group() override {};
 
     };    // class xtk::Cell_Cluster_Group
 

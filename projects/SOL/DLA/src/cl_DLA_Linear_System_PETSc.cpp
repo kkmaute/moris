@@ -47,7 +47,7 @@ Linear_System_PETSc::Linear_System_PETSc(
         PetscInitializeNoArguments();
     }
 
-    if ( aInput->get_matrix_market_path() == NULL )
+    if ( aInput->get_matrix_market_path() == nullptr )
     {
         sol::Matrix_Vector_Factory tMatFactory( sol::MapType::Petsc );
 
@@ -157,6 +157,12 @@ Linear_System_PETSc::~Linear_System_PETSc()
 
         PetscFinalize();
     }
+    if ( mMassMat != nullptr )
+    {
+        delete mMassMat;
+        mMassMat = nullptr;
+    }
+
 }
 
 //------------------------------------------------------------------------------

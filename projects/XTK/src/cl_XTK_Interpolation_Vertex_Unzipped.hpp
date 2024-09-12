@@ -52,15 +52,15 @@ namespace moris::xtk
 
         //------------------------------------------------------------------------------
 
-        Matrix< DDRMat >                 get_coords() const;
-        moris_id                         get_id() const;
-        moris_index                      get_index() const;
-        mtk::Vertex const *              get_base_vertex() const;
-        moris_index                      get_owner() const;
-        mtk::Vertex_Interpolation*       get_interpolation( const uint aOrder );
-        const mtk::Vertex_Interpolation* get_interpolation( const uint aOrder ) const;
+        Matrix< DDRMat >                 get_coords() const override ;
+        moris_id                         get_id() const override ;
+        moris_index                      get_index() const override ;
+        mtk::Vertex const *              get_base_vertex() const override ;
+        moris_index                      get_owner() const override ;
+        mtk::Vertex_Interpolation*       get_interpolation( const uint aOrder ) override ;
+        const mtk::Vertex_Interpolation* get_interpolation( const uint aOrder ) const override ;
         uint                             get_num_vertex_interpolations() const;
-        bool                             has_interpolation( const uint aBSplineMeshIndex );
+        bool                             has_interpolation( const uint aBSplineMeshIndex ) override ;
 
         //------------------------------------------------------------------------------
 

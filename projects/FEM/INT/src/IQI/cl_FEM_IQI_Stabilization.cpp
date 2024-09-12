@@ -12,123 +12,119 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IQI_Stabilization.hpp"
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+    //------------------------------------------------------------------------------
+
+    IQI_Stabilization::IQI_Stabilization()
     {
-        //------------------------------------------------------------------------------
+        // set size for the stabilization parameter pointer cell
+        mStabilizationParam.resize( static_cast< uint >( IQI_Stabilization_Type::MAX_ENUM ), nullptr );
 
-        IQI_Stabilization::IQI_Stabilization()
+        // populate the stabilization map
+        mStabilizationMap[ "Stabilization" ] = static_cast< uint >( IQI_Stabilization_Type::STABILIZATION );
+    }
+
+    //------------------------------------------------------------------------------
+
+    void IQI_Stabilization::compute_QI( Matrix< DDRMat > &aQI )
+    {
+        // get the stabilization parameter
+        const std::shared_ptr< Stabilization_Parameter > &tSP =
+                mStabilizationParam( static_cast< uint >( IQI_Stabilization_Type::STABILIZATION ) );
+
+        // check if index was set
+        if ( mQuantityDofType.size() > 1 )
         {
-            // set size for the stabilization parameter pointer cell
-            mStabilizationParam.resize( static_cast< uint >( IQI_Stabilization_Type::MAX_ENUM ), nullptr );
-
-            // populate the stabilization map
-            mStabilizationMap[ "Stabilization" ] = static_cast< uint >( IQI_Stabilization_Type::STABILIZATION );
+            MORIS_ERROR( mIQITypeIndex != -1, "IQI_Stabilization::compute_QI - mIQITypeIndex not set." );
+        }
+        else
+        {
+            mIQITypeIndex = 0;
         }
 
-        //------------------------------------------------------------------------------
+        // evaluate the QI
+        aQI = { { tSP->val()( mIQITypeIndex ) } };
+    }
 
-        void IQI_Stabilization::compute_QI( Matrix< DDRMat > & aQI )
+    //------------------------------------------------------------------------------
+
+    void IQI_Stabilization::compute_QI( real aWStar )
+    {
+        // get index for QI
+        sint tQIIndex = mSet->get_QI_assembly_index( mName );
+
+        // get the stabilization parameter
+        const std::shared_ptr< Stabilization_Parameter > &tSP =
+                mStabilizationParam( static_cast< uint >( IQI_Stabilization_Type::STABILIZATION ) );
+
+        // check if index was set
+        if ( mQuantityDofType.size() > 1 )
         {
-            // get the stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter > & tSP =
-                    mStabilizationParam( static_cast< uint >( IQI_Stabilization_Type::STABILIZATION ) );
-
-            // check if index was set
-            if( mQuantityDofType.size() > 1 )
-            {
-                MORIS_ERROR( mIQITypeIndex != -1, "IQI_Stabilization::compute_QI - mIQITypeIndex not set." );
-            }
-            else
-            {
-                mIQITypeIndex = 0;
-            }
-
-            // evaluate the QI
-            aQI = {{ tSP->val()( mIQITypeIndex ) }};
+            MORIS_ERROR( mIQITypeIndex != -1, "IQI_Stabilization::compute_QI - mIQITypeIndex not set." );
+        }
+        else
+        {
+            mIQITypeIndex = 0;
         }
 
-        //------------------------------------------------------------------------------
+        // evaluate the QI
+        mSet->get_QI()( tQIIndex ) += { { aWStar * tSP->val()( mIQITypeIndex ) } };
+    }
 
-        void IQI_Stabilization::compute_QI( real aWStar )
+    //------------------------------------------------------------------------------
+
+    void IQI_Stabilization::compute_dQIdu( real aWStar )
+    {
+        // get the column index to assemble in residual
+        sint tQIIndex = mSet->get_QI_assembly_index( mName );
+
+        // get the stabilization parameter
+        const std::shared_ptr< Stabilization_Parameter > &tSP =
+                mStabilizationParam( static_cast< uint >( IQI_Stabilization_Type::STABILIZATION ) );
+
+        // get the number of leader dof type dependencies
+        uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
+
+        // compute dQIdu for indirect dof dependencies
+        for ( uint iDof = 0; iDof < tNumDofDependencies; iDof++ )
         {
-            // get index for QI
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+            // get the treated dof type
+            Vector< MSI::Dof_Type > &tDofType = mRequestedLeaderGlobalDofTypes( iDof );
 
-            // get the stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter > & tSP =
-                    mStabilizationParam( static_cast< uint >( IQI_Stabilization_Type::STABILIZATION ) );
-
-            // check if index was set
-            if( mQuantityDofType.size() > 1 )
-            {
-                MORIS_ERROR( mIQITypeIndex != -1, "IQI_Stabilization::compute_QI - mIQITypeIndex not set." );
-            }
-            else
-            {
-                mIQITypeIndex = 0;
-            }
-
-            // evaluate the QI
-            mSet->get_QI()( tQIIndex ) += {{ aWStar * tSP->val()( mIQITypeIndex ) }};
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IQI_Stabilization::compute_dQIdu( real aWStar )
-        {
-            // get the column index to assemble in residual
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
-
-            // get the stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter > & tSP =
-                    mStabilizationParam( static_cast< uint >( IQI_Stabilization_Type::STABILIZATION ) );
-
-            // get the number of leader dof type dependencies
-            uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
-
-            // compute dQIdu for indirect dof dependencies
-            for( uint iDof = 0; iDof < tNumDofDependencies; iDof++ )
-            {
-                // get the treated dof type
-                Vector< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDof );
-
-                // get leader index for residual dof type, indices for assembly
-                uint tLeaderDofIndex      = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
-                uint tLeaderDepStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
-                uint tLeaderDepStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
-
-                // Dof dependency
-                if ( tSP != nullptr && tSP->check_dof_dependency( tDofType ) )
-                {
-                    // compute dQIdu
-                    mSet->get_residual()( tQIIndex )(
-                            { tLeaderDepStartIndex, tLeaderDepStopIndex },
-                            { 0, 0 } ) += aWStar * trans( tSP->dSPdLeaderDOF( tDofType ) );
-                }
-            }
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IQI_Stabilization::compute_dQIdu(
-                Vector< MSI::Dof_Type > & aDofType,
-                Matrix< DDRMat >             & adQIdu )
-        {
-            // get the stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter > & tSP =
-                    mStabilizationParam( static_cast< uint >( IQI_Stabilization_Type::STABILIZATION ) );
+            // get leader index for residual dof type, indices for assembly
+            uint tLeaderDofIndex      = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
+            uint tLeaderDepStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+            uint tLeaderDepStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // Dof dependency
-            if ( tSP != nullptr && tSP->check_dof_dependency( aDofType ) )
+            if ( tSP != nullptr && tSP->check_dof_dependency( tDofType ) )
             {
                 // compute dQIdu
-                adQIdu = trans( tSP->dSPdLeaderDOF( aDofType ) );
+                mSet->get_residual()( tQIIndex )(
+                        { tLeaderDepStartIndex, tLeaderDepStopIndex },
+                        { 0, 0 } ) += aWStar * trans( tSP->dSPdLeaderDOF( tDofType ) );
             }
         }
+    }
 
-        //------------------------------------------------------------------------------
-    }/* end_namespace_fem */
-}/* end_namespace_moris */
+    //------------------------------------------------------------------------------
 
+    void IQI_Stabilization::compute_dQIdu(
+            Vector< MSI::Dof_Type > &aDofType,
+            Matrix< DDRMat >        &adQIdu )
+    {
+        // get the stabilization parameter
+        const std::shared_ptr< Stabilization_Parameter > &tSP =
+                mStabilizationParam( static_cast< uint >( IQI_Stabilization_Type::STABILIZATION ) );
+
+        // Dof dependency
+        if ( tSP != nullptr && tSP->check_dof_dependency( aDofType ) )
+        {
+            // compute dQIdu
+            adQIdu = trans( tSP->dSPdLeaderDOF( aDofType ) );
+        }
+    }
+
+    //------------------------------------------------------------------------------
+}    // namespace moris::fem

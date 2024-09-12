@@ -423,7 +423,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric",
                 // print for debug
                 if ( !tCheckJacobian )
                 {
-                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << "iGP " << iGP << std::endl;
+                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << "iGP " << iGP << '\n';
                 }
 
                 // require check is true
@@ -796,7 +796,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric",
                 // print for debug
                 if ( !tCheckJacobian )
                 {
-                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << "iGP " << iGP << std::endl;
+                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << "iGP " << iGP << '\n';
                 }
 
                 // require check is true
@@ -1169,7 +1169,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric_Negative",
                 // print for debug
                 if ( !tCheckJacobian )
                 {
-                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << "iGP " << iGP << std::endl;
+                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << "iGP " << iGP << '\n';
                 }
 
                 // require check is true
@@ -1542,7 +1542,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric_Negative",
                 // print for debug
                 if ( !tCheckJacobian )
                 {
-                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << "iGP " << iGP << std::endl;
+                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << "iGP " << iGP << '\n';
                 }
 
                 // require check is true

@@ -33,11 +33,11 @@ namespace moris::gen
 
     std::shared_ptr< Field >
     create_field(
-            const Parameter_List&              aFieldParameterList,
-            ADV_Manager&                       aADVManager,
-            Vector< std::shared_ptr< Field > > aFieldDependencies,
-            std::shared_ptr< Library_IO >      aLibrary,
-            mtk::Mesh*                         aMTKMesh )
+            const Parameter_List&                aFieldParameterList,
+            ADV_Manager&                         aADVManager,
+            Vector< std::shared_ptr< Field > >   aFieldDependencies,
+            const std::shared_ptr< Library_IO >& aLibrary,
+            mtk::Mesh*                           aMTKMesh )
     {
         // Field type
         auto tFieldType = aFieldParameterList.get< Field_Type >( "field_type" );

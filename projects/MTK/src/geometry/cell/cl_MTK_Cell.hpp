@@ -21,18 +21,15 @@
 
 //------------------------------------------------------------------------------
 // Forward Declarations
-namespace moris
+
+namespace moris::mtk
 {
-    namespace mtk
-    {
-        class Cell_Info;
+    class Cell_Info;
     }
-}    // namespace moris
+
 //------------------------------------------------------------------------------
 
-namespace moris
-{
-    namespace mtk
+    namespace moris::mtk
     {
         //------------------------------------------------------------------------------
         /**
@@ -106,20 +103,20 @@ namespace moris
              * set the cell id
              */
             virtual void
-            set_id( moris_id aId );
+            set_id( const moris_id aId );
 
             //------------------------------------------------------------------------------
             /**
              * set the cell id
              */
             virtual void
-            set_owner( moris_id aOwner );
+            set_owner( const moris_id aOwner );
 
             /**
              * set the cell id
              */
             virtual void
-            set_index( moris_id aIndex );
+            set_index( const moris_index aIndex );
 
             //------------------------------------------------------------------------------
 
@@ -442,8 +439,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-    } /* namespace mtk */
-} /* namespace moris */
+    }    // namespace moris::mtk
 
 //------------------------------------------------------------------------------
 

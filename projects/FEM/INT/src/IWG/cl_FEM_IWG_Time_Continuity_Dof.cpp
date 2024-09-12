@@ -16,39 +16,37 @@
 #include "fn_trans.hpp"
 #include "fn_diag_mat.hpp"
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+
+    //------------------------------------------------------------------------------
+
+    IWG_Time_Continuity_Dof::IWG_Time_Continuity_Dof()
     {
+        // set IWG type
+        mIWGType = moris::fem::IWG_Type::TIME_CONTINUITY_DOF;
 
-        //------------------------------------------------------------------------------
+        // set time continuity flag
+        mTimeContinuity = true;
 
-        IWG_Time_Continuity_Dof::IWG_Time_Continuity_Dof()
-        {
-            // set IWG type
-            mIWGType = moris::fem::IWG_Type::TIME_CONTINUITY_DOF;
+        // set size for the property pointer cell
+        mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
-            // set time continuity flag
-            mTimeContinuity = true;
+        // populate the property map
+        mPropertyMap[ "WeightCurrent" ]    = static_cast< uint >( IWG_Property_Type::WEIGHT_CURRENT );
+        mPropertyMap[ "WeightPrevious" ]   = static_cast< uint >( IWG_Property_Type::WEIGHT_PREVIOUS );
+        mPropertyMap[ "InitialCondition" ] = static_cast< uint >( IWG_Property_Type::INITIAL_CONDITION );
+        mPropertyMap[ "WeightResidual" ]   = static_cast< uint >( IWG_Property_Type::WEIGHT_RESIDUAL );
+        mPropertyMap[ "Thickness" ]        = static_cast< uint >( IWG_Property_Type::THICKNESS );
+        mPropertyMap[ "Lump" ]             = static_cast< uint >( IWG_Property_Type::LUMP );
+    }
 
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+    //------------------------------------------------------------------------------
 
-            // populate the property map
-            mPropertyMap[ "WeightCurrent" ]    = static_cast< uint >( IWG_Property_Type::WEIGHT_CURRENT );
-            mPropertyMap[ "WeightPrevious" ]   = static_cast< uint >( IWG_Property_Type::WEIGHT_PREVIOUS );
-            mPropertyMap[ "InitialCondition" ] = static_cast< uint >( IWG_Property_Type::INITIAL_CONDITION );
-            mPropertyMap[ "WeightResidual" ]   = static_cast< uint >( IWG_Property_Type::WEIGHT_RESIDUAL );
-            mPropertyMap[ "Thickness" ]        = static_cast< uint >( IWG_Property_Type::THICKNESS );
-            mPropertyMap[ "Lump" ]             = static_cast< uint >( IWG_Property_Type::LUMP );
-        }
-
-        //------------------------------------------------------------------------------
-
-        void
-        IWG_Time_Continuity_Dof::compute_residual( real aWStar )
-        {
-            // check leader field interpolators
+    void
+    IWG_Time_Continuity_Dof::compute_residual( real aWStar )
+    {
+        // check leader field interpolators
 #ifdef MORIS_HAVE_DEBUG
             this->check_field_interpolators();
 #endif
@@ -469,5 +467,4 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
+}    // namespace moris::fem

@@ -53,7 +53,7 @@ void Staggered_Time_Solver::solve_staggered_time_system( Vector< sol::Dist_Vecto
 
         tMaxNewTime = this->calculate_time_needed( tLoopStartTime );
 
-        std::cout<< "Time spend on time system: " << tMaxNewTime <<std::endl;
+        std::cout << "Time spend on time system: " << tMaxNewTime << '\n';
 
         mMyTimeSolver->prepare_sol_vec_for_next_time_step();
 

@@ -17,66 +17,61 @@
 #include "cl_OPT_Problem.hpp"
 #include "cl_OPT_Criteria_Interface.hpp"
 
-namespace moris
+namespace moris::opt
 {
-    namespace opt
+    class Manager
     {
-        class Manager
-        {
-        private:
-          Vector< std::shared_ptr<Algorithm> > mAlgorithms; // Cell of pointers of optimization algorithms
-            std::shared_ptr<Problem> mProblem;
+      private:
+        Vector< std::shared_ptr< Algorithm > > mAlgorithms;    // Cell of pointers of optimization algorithms
+        std::shared_ptr< Problem >             mProblem;
 
-        public:
+      public:
+        /**
+         * Constructor with both parameter list and a cell of criteria interfaces
+         *
+         * @param aParameterLists parameter lists for defining an optimization problem
+         * @param aCriteriaInterface criteria interfaces, in addition to any specified in the parameter lists
+         */
+        Manager( const Vector< Vector< Parameter_List > >&             aParameterLists,
+                const Vector< std::shared_ptr< Criteria_Interface > >& aInterfaces = Vector< std::shared_ptr< Criteria_Interface > >( 0 ) );
 
-            /**
-             * Constructor with both parameter list and a cell of criteria interfaces
-             *
-             * @param aParameterLists parameter lists for defining an optimization problem
-             * @param aCriteriaInterface criteria interfaces, in addition to any specified in the parameter lists
-             */
-            Manager(const Vector< Vector< Parameter_List > >& aParameterLists,
-                  Vector<std::shared_ptr<Criteria_Interface>> aInterfaces = Vector<std::shared_ptr<Criteria_Interface>>(0));
+        /**
+         * Constructor with problem class already created
+         *
+         * @param aAlgorithmParameterLists parameter lists for defining just the optimization algorithms
+         */
+        Manager( const Vector< Parameter_List >& aAlgorithmParameterLists,
+                std::shared_ptr< Problem >       aProblem );
 
-            /**
-             * Constructor with problem class already created
-             *
-             * @param aAlgorithmParameterLists parameter lists for defining just the optimization algorithms
-             */
-            Manager(const Vector< Parameter_List >& aAlgorithmParameterLists,
-                    std::shared_ptr<Problem> aProblem);
+        /**
+         * Destructor
+         */
+        ~Manager();
 
-            /**
-             * Destructor
-             */
-            ~Manager();
+        /**
+         * Solve the Cell of optimization algorithms
+         */
+        void perform();
 
-            /**
-             * Solve the Cell of optimization algorithms
-             */
-            void perform();
+        void reinitialize(
+                uint aI,
+                uint aOptIteration );
 
-            void reinitialize(
-                    uint aI,
-                    uint aOptIteration );
+        /**
+         * Gets the avs from the problem
+         *
+         * @return Vector of current advs
+         */
+        Vector< real > get_advs();
 
-            /**
-             * Gets the avs from the problem
-             *
-             * @return Vector of current advs
-             */
-            Vector< real > get_advs();
-
-            /**
-             * Gets the objectives from the problem
-             *
-             * @return Vector of objectives, aka a single objective value
-             */
-            Matrix<DDRMat> get_objectives();
-
-        };
-    }  // namespace opt
-}  // namespace moris
+        /**
+         * Gets the objectives from the problem
+         *
+         * @return Vector of objectives, aka a single objective value
+         */
+        Matrix< DDRMat > get_objectives();
+    };
+}    // namespace moris::opt
 
 #endif  /* MORIS_CL_OPT_MANAGER_HPP_ */
 

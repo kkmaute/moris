@@ -362,7 +362,7 @@ UT_FEM_IWG_Diffusion_Robin_Nitsche_Core( enum fem::IWG_Type tIWGType )
                 // print for debug
                 if ( !tCheckJacobian )
                 {
-                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << "iGP " << iGP << std::endl;
+                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << "iGP " << iGP << '\n';
                 }
 
                 // require check is true

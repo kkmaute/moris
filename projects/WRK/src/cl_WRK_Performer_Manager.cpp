@@ -35,25 +35,23 @@
 
 #include "cl_WRK_Performer_Manager.hpp"
 
+#include <utility>
+
 #include "cl_Library_IO.hpp"
 
-namespace moris
+namespace moris::wrk
 {
-    namespace wrk
+
+    Performer_Manager::Performer_Manager( std::shared_ptr< Library_IO > aLibrary )
+            : mLibrary( std::move( aLibrary ) )
     {
+    }
 
-        Performer_Manager::Performer_Manager( std::shared_ptr< Library_IO > aLibrary )
-        : mLibrary(aLibrary)
-        {
-        }
+    //------------------------------------------------------------------------------
 
-        //------------------------------------------------------------------------------
+    Performer_Manager::~Performer_Manager()
+    {
+    }
 
-        Performer_Manager::~Performer_Manager()
-        {
-        }
-
-        //------------------------------------------------------------------------------
-    } /* namespace mdl */
-} /* namespace moris */
-
+    //------------------------------------------------------------------------------
+}    // namespace moris::wrk

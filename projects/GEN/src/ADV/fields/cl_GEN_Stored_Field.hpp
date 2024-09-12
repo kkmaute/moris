@@ -32,37 +32,37 @@ namespace moris::gen
          * @param aField Field for obtaining values to store
          */
       Stored_Field(
-                mtk::Mesh*               aMesh,
-                std::shared_ptr< Field > aField );
+              mtk::Mesh*                      aMesh,
+              const std::shared_ptr< Field >& aField );
 
-        /**
-         * Given a node index or coordinate, returns the field value.
-         *
-         * @param aNodeIndex Node index
-         * @return Field value
-         */
-        real get_field_value(uint aNodeIndex);
+      /**
+       * Given a node index or coordinate, returns the field value.
+       *
+       * @param aNodeIndex Node index
+       * @return Field value
+       */
+      real get_field_value( uint aNodeIndex ) override;
 
-        /**
-         * Given a node index or coordinates, returns a vector of the field derivatives with respect to its ADVs.
-         *
-         * @param aNodeIndex Node index
-         * @return Vector of sensitivities
-         */
-        const Matrix<DDRMat>& get_dfield_dadvs(uint aNodeIndex);
+      /**
+       * Given a node index or coordinates, returns a vector of the field derivatives with respect to its ADVs.
+       *
+       * @param aNodeIndex Node index
+       * @return Vector of sensitivities
+       */
+      const Matrix< DDRMat >& get_dfield_dadvs( uint aNodeIndex ) override;
 
-        /**
-         * Gets the IDs of ADVs which this field depends on for evaluations.
-         *
-         * @param aNodeIndex Node index
-         * @return Determining ADV IDs at this node
-         */
-        Vector< sint > get_determining_adv_ids( uint aNodeIndex );
+      /**
+       * Gets the IDs of ADVs which this field depends on for evaluations.
+       *
+       * @param aNodeIndex Node index
+       * @return Determining ADV IDs at this node
+       */
+      Vector< sint > get_determining_adv_ids( uint aNodeIndex ) override;
 
-        /**
-         * Resets all nodal information about field values.
-         */
-        void reset_nodal_data( mtk::Interpolation_Mesh* aMesh );
+      /**
+       * Resets all nodal information about field values.
+       */
+      void reset_nodal_data( mtk::Interpolation_Mesh* aMesh ) override;
 
     private:
 

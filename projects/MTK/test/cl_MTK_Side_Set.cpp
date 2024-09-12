@@ -22,7 +22,6 @@
 #include "cl_MTK_Mesh_Tools.hpp"
 #include "cl_MTK_Mesh_Data_Input.hpp"
 #include "cl_MTK_Scalar_Field_Info.hpp"
-#include "cl_MTK_Mesh.hpp"
 #include "cl_MTK_Mesh_Data_STK.hpp"
 #include "cl_MTK_Mesh_Core_STK.hpp"
 #include "cl_MTK_Interpolation_Mesh_STK.hpp"
@@ -37,9 +36,7 @@
 #include "op_equal_equal.hpp"
 #include "cl_Communication_Tools.hpp"
 
-namespace moris
-{
-namespace mtk
+namespace moris::mtk
 {
 TEST_CASE("MTK Side","[MTK],[MTK_Side]")
 {
@@ -104,5 +101,3 @@ TEST_CASE("MTK Side","[MTK],[MTK_Side]")
 }
 
 }
-}
-

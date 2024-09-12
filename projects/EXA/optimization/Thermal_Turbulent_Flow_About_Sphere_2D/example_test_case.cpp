@@ -40,9 +40,9 @@ int fn_WRK_Workflow_Main_Interface( int argc, char* argv[] );
 
 extern "C" void
 check_results(
-        std::string aExoFileName,
-        std::string aHdf5FileName,
-        uint        aTestCaseIndex )
+        const std::string& aExoFileName,
+        const std::string& aHdf5FileName,
+        uint               aTestCaseIndex )
 {
     MORIS_LOG_INFO( " " );
     MORIS_LOG_INFO( "Checking Results - Test Case %d on %i processors.", aTestCaseIndex, par_size() );
@@ -59,42 +59,42 @@ check_results(
 
     if ( gPrintReferenceValues )
     {
-        std::cout << "Test case index: " << aTestCaseIndex << std::endl;
+        std::cout << "Test case index: " << aTestCaseIndex << '\n';
 
         uint tNumDims  = tExoIO.get_number_of_dimensions();
         uint tNumNodes = tExoIO.get_number_of_nodes();
         uint tNumElems = tExoIO.get_number_of_elements();
 
-        std::cout << "Number of dimensions: " << tNumDims << std::endl;
-        std::cout << "Number of nodes     : " << tNumNodes << std::endl;
-        std::cout << "Number of elements  : " << tNumElems << std::endl;
+        std::cout << "Number of dimensions: " << tNumDims << '\n';
+        std::cout << "Number of nodes     : " << tNumNodes << '\n';
+        std::cout << "Number of elements  : " << tNumElems << '\n';
 
         // coordinates of reference point
         moris::print( tExoIO.get_nodal_coordinate( tReferenceNodeId( aTestCaseIndex ) ), "Coordinates of reference point" );
 
         // time value for reference time step
-        std::cout << "Time value: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_time_value() << std::endl;
+        std::cout << "Time value: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_time_value() << '\n';
 
         // solution of reference point at reference time step
-        std::cout << "Theta at reference point: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 2, 0 ) << std::endl;
+        std::cout << "Theta at reference point: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 2, 0 ) << '\n';
 
         // solution of reference point at reference time step
-        std::cout << "PhiD at reference point: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 3, 0 ) << std::endl;
+        std::cout << "PhiD at reference point: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 3, 0 ) << '\n';
 
         // solution of reference point at reference time step
-        std::cout << "Velocity in x-dir at reference point: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 4, 0 ) << std::endl;
+        std::cout << "Velocity in x-dir at reference point: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 4, 0 ) << '\n';
 
         // solution of reference point at reference time step
-        std::cout << "Velocity in y-dir at reference point: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 5, 0 ) << std::endl;
+        std::cout << "Velocity in y-dir at reference point: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 5, 0 ) << '\n';
 
         // solution of reference point at reference time step
-        std::cout << "Pressure at reference point: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 6, 0 ) << std::endl;
+        std::cout << "Pressure at reference point: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 6, 0 ) << '\n';
 
         // solution of reference point at reference time step
-        std::cout << "Viscosity at reference point: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 7, 0 ) << std::endl;
+        std::cout << "Viscosity at reference point: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 7, 0 ) << '\n';
 
         // solution of reference point at reference time step
-        std::cout << "Temperature at reference point: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 8, 0 ) << std::endl;
+        std::cout << "Temperature at reference point: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 8, 0 ) << '\n';
 
         // value of IQI at reference time step
         hid_t  tFileID = open_hdf5_file( aHdf5FileName );
@@ -103,17 +103,17 @@ check_results(
         Matrix< DDRMat > tConstraints;
         load_matrix_from_hdf5_file( tFileID, "constraints eval_1-1", tConstraints, tStatus );
 
-        std::cout << "IQI 0 value: " << std::scientific << std::setprecision( 15 ) << tConstraints( 0, 0 ) << std::endl;
-        std::cout << "IQI 1 value: " << std::scientific << std::setprecision( 15 ) << tConstraints( 1, 0 ) << std::endl;
-        std::cout << "IQI 2 value: " << std::scientific << std::setprecision( 15 ) << tConstraints( 2, 0 ) << std::endl;
-        std::cout << "IQI 3 value: " << std::scientific << std::setprecision( 15 ) << tConstraints( 3, 0 ) << std::endl;
-        std::cout << "IQI 4 value: " << std::scientific << std::setprecision( 15 ) << tConstraints( 4, 0 ) << std::endl;
-        std::cout << "IQI 5 value: " << std::scientific << std::setprecision( 15 ) << tConstraints( 5, 0 ) << std::endl;
-        std::cout << "IQI 6 value: " << std::scientific << std::setprecision( 15 ) << tConstraints( 6, 0 ) << std::endl;
-        std::cout << "IQI 7 value: " << std::scientific << std::setprecision( 15 ) << tConstraints( 7, 0 ) << std::endl;
-        std::cout << "IQI 8 value: " << std::scientific << std::setprecision( 15 ) << tConstraints( 8, 0 ) << std::endl;
-        std::cout << "IQI 9 value: " << std::scientific << std::setprecision( 15 ) << tConstraints( 9, 0 ) << std::endl;
-        std::cout << "IQI 10 value: " << std::scientific << std::setprecision( 15 ) << tConstraints( 10, 0 ) << std::endl;
+        std::cout << "IQI 0 value: " << std::scientific << std::setprecision( 15 ) << tConstraints( 0, 0 ) << '\n';
+        std::cout << "IQI 1 value: " << std::scientific << std::setprecision( 15 ) << tConstraints( 1, 0 ) << '\n';
+        std::cout << "IQI 2 value: " << std::scientific << std::setprecision( 15 ) << tConstraints( 2, 0 ) << '\n';
+        std::cout << "IQI 3 value: " << std::scientific << std::setprecision( 15 ) << tConstraints( 3, 0 ) << '\n';
+        std::cout << "IQI 4 value: " << std::scientific << std::setprecision( 15 ) << tConstraints( 4, 0 ) << '\n';
+        std::cout << "IQI 5 value: " << std::scientific << std::setprecision( 15 ) << tConstraints( 5, 0 ) << '\n';
+        std::cout << "IQI 6 value: " << std::scientific << std::setprecision( 15 ) << tConstraints( 6, 0 ) << '\n';
+        std::cout << "IQI 7 value: " << std::scientific << std::setprecision( 15 ) << tConstraints( 7, 0 ) << '\n';
+        std::cout << "IQI 8 value: " << std::scientific << std::setprecision( 15 ) << tConstraints( 8, 0 ) << '\n';
+        std::cout << "IQI 9 value: " << std::scientific << std::setprecision( 15 ) << tConstraints( 9, 0 ) << '\n';
+        std::cout << "IQI 10 value: " << std::scientific << std::setprecision( 15 ) << tConstraints( 10, 0 ) << '\n';
         return;
     }
 

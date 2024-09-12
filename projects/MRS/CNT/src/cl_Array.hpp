@@ -15,35 +15,33 @@
 #include <array>
 
 // MORIS library header files.
-#include "moris_typedefs.hpp" // COR/src
+#include "moris_typedefs.hpp"    // COR/src
 
 namespace moris
 {
-    template < typename T, moris::size_t N >
+    template< typename T, moris::size_t N >
     class Array
     {
-    private:
-
+      private:
         /**
          * Underlying std::array
          */
         std::array< T, N > mArray;
 
-    public:
-
+      public:
         /**
          * moris::Array constructor.
          */
         Array(
-                const std::array< T, N > & aArray )
-            : mArray( aArray )
+                const std::array< T, N > &aArray )
+                : mArray( aArray )
         {
         }
 
         /**
          * moris::Array destructor.
          */
-        ~Array() = default; // 'default' tells the compiler to automatically delete the underlying array
+        ~Array() = default;    // 'default' tells the compiler to automatically delete the underlying array
 
         /**
          * @brief Returns the number of elements in the array.
@@ -79,18 +77,18 @@ namespace moris
         auto
         operator[](
                 const moris::size_t i_index )
-        -> decltype(
+                -> decltype(
 #ifdef MORIS_HAVE_DEBUG
-                ( mArray.at( i_index ) )
+                        ( mArray.at( i_index ) )
 #else
-                ( mArray[ i_index ] )
+                        ( mArray[ i_index ] )
 #endif
-        )
+                )
         {
 #ifdef MORIS_HAVE_DEBUG
-            return( mArray.at( i_index ) );
+            return ( mArray.at( i_index ) );
 #else
-            return( mArray[ i_index ] );
+            return ( mArray[ i_index ] );
 #endif
         }
 
@@ -100,7 +98,7 @@ namespace moris
          * @return Pointer to the first element of the array.
          */
         auto
-        begin()->decltype( mArray.begin() )
+        begin() -> decltype( mArray.begin() )
         {
             return mArray.begin();
         }
@@ -111,7 +109,7 @@ namespace moris
          * @return Direct reference to the first element of the array.
          */
         auto
-        front()->decltype( mArray.front() )
+        front() -> decltype( mArray.front() )
         {
             return mArray.front();
         }
@@ -122,7 +120,7 @@ namespace moris
          * @return Pointer to the last+1 element of the array.
          */
         auto
-        end()->decltype( mArray.end() )
+        end() -> decltype( mArray.end() )
         {
             return mArray.end();
         }
@@ -133,7 +131,7 @@ namespace moris
          * @return Direct reference to the last element of the array.
          */
         auto
-        back()->decltype( mArray.back() )
+        back() -> decltype( mArray.back() )
         {
             return mArray.back();
         }
@@ -148,11 +146,8 @@ namespace moris
                 const T val )
         {
             mArray.fill( val );
-            return;
         }
-
     };
-}
+}    // namespace moris
 
 #endif /* MORIS_CONTAINERS_CL_ARRAY_HPP_ */
-

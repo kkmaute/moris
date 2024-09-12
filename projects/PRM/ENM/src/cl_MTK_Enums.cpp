@@ -9,7 +9,6 @@
  */
 
 #include "cl_MTK_Enums.hpp"
-#include "cl_MTK_Enums.hpp"
 
 namespace moris::mtk
 {

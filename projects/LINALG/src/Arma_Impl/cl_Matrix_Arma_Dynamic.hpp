@@ -34,7 +34,7 @@
 namespace moris
 {
     template< typename Type >
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( __llvm__ )
     __attribute__( ( optimize( "-O2" ) ) )
 #endif
     arma::Mat< Type >
@@ -82,7 +82,7 @@ namespace moris
 
         // -----------------------------------------------------------------
 
-        Matrix(){};
+        Matrix() {};
 
         // -----------------------------------------------------------------
 

@@ -15,12 +15,12 @@
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Mesh_Data_Input.hpp"
 #include "cl_MTK_Mesh.hpp"
-#include "cl_MTK_Mesh_Data_Input.hpp"
 #include "cl_MTK_Mesh_Factory.hpp"
 #include "cl_MTK_Mesh_Data_STK.hpp"
 #include "cl_MTK_Mesh_Core_STK.hpp"
 
 #include <iostream>
+#include <utility>
 
 namespace moris::mtk
 {
@@ -117,9 +117,9 @@ namespace moris::mtk
         MORIS_ERROR( mMesh != nullptr, "No mesh has been given to the Exodus Writer!" );
 
         this->create_init_mesh_file(
-                aFilePath,
+                std::move( aFilePath ),
                 aFileName,
-                aTempPath,
+                std::move( aTempPath ),
                 aTempName );
 
         this->write_nodes();
@@ -140,16 +140,16 @@ namespace moris::mtk
     {
         // Create the actual file
         this->create_file(
-                aFilePath,
+                std::move( aFilePath ),
                 aFileName,
-                aTempPath,
+                std::move( aTempPath ),
                 aTempName );
 
         // Initialize database
         int tNumDimensions = aCoordinates.n_cols();
         int tNumPoints     = aCoordinates.n_rows();
 
-        ex_put_init( mExoID, "MTK", tNumDimensions, tNumPoints, int( 1 ), int( 1 ), int( 0 ), int( 0 ) );
+        ex_put_init( mExoID, "MTK", tNumDimensions, tNumPoints, 1, 1, 0, 0 );
 
         // Set the point coordinates
         int  tSpatialDim = aCoordinates.n_cols();
@@ -350,7 +350,7 @@ namespace moris::mtk
 
     void
     Writer_Exodus::write_point_field(
-            std::string             aFieldName,
+            const std::string&      aFieldName,
             const Matrix< DDRMat >& aFieldValues )
     {
         // skip if no nodal values exist
@@ -386,7 +386,7 @@ namespace moris::mtk
 
     void
     Writer_Exodus::write_nodal_field(
-            std::string             aFieldName,
+            const std::string&      aFieldName,
             const Matrix< DDRMat >& aFieldValues )
     {
         // skip if no nodal values exist
@@ -435,8 +435,8 @@ namespace moris::mtk
 
     void
     Writer_Exodus::write_elemental_field(
-            std::string             aBlockName,
-            std::string             aFieldName,
+            const std::string&      aBlockName,
+            const std::string&      aFieldName,
             const Matrix< DDRMat >& aFieldValues )
     {
         // skip if no elemental values exist
@@ -507,8 +507,8 @@ namespace moris::mtk
 
     void
     Writer_Exodus::write_side_set_field(
-            std::string             aSideSetName,
-            std::string             aFieldName,
+            const std::string&      aSideSetName,
+            const std::string&      aFieldName,
             const Matrix< DDRMat >& aFieldValues )
     {
         // skip if no elemental values exist
@@ -693,9 +693,9 @@ namespace moris::mtk
     {
         // Create the actual file
         this->create_file(
-                aFilePath,
+                std::move( aFilePath ),
                 aFileName,
-                aTempPath,
+                std::move( aTempPath ),
                 aTempName );
 
         // Number of dimensions
@@ -1149,7 +1149,7 @@ namespace moris::mtk
             uint tSideSetIndexInInputMesh = mSideSetIndices( iSideSetInExoMesh );
 
             // get the name/label of the set
-            std::string tSetLabel = tSideSetNames( tSideSetIndexInInputMesh );
+            const std::string& tSetLabel = tSideSetNames( tSideSetIndexInInputMesh );
 
             // Add name to map
             mSideSetNamesMap[ tSetLabel ] = iSideSetInExoMesh;

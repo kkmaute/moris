@@ -102,8 +102,8 @@ MatType< ElementType > convert_epetra_operator_to_arma_sp_mat( Epetra_CrsMatrix 
     else
     {
         // else case ;  break the matrix into chunks and transfer all of them into PE 0 and use the write_serial_matrix function
-        Epetra_Map tRowMap    = aEpetraMatrix.RowMatrixRowMap();
-        int        tNumMyRows = tRowMap.NumMyElements();
+        const Epetra_Map &tRowMap    = aEpetraMatrix.RowMatrixRowMap();
+        int               tNumMyRows = tRowMap.NumMyElements();
 
         // create a map on each processor containing all the GIDs on that PE
         Epetra_Map tAllGidsMap( -1, tNumMyRows, 0, tRowMap.Comm() );
@@ -134,7 +134,7 @@ MatType< ElementType > convert_epetra_operator_to_arma_sp_mat( Epetra_CrsMatrix 
         for ( int iChunk = 0; iChunk < numChunks; iChunk++ )
         {
             if ( tRowMap.Comm().MyPID() == 0 )
-            {                                                // Only PE 0 does this part
+            {    // Only PE 0 does this part
                 curStripSize = stripSize;
                 if ( iChunk < remainder ) curStripSize++;    // handle leftovers
                 for ( int j = 0; j < curStripSize; j++ ) tImportedGIDList[ j ] = j + curStart;
@@ -146,7 +146,7 @@ MatType< ElementType > convert_epetra_operator_to_arma_sp_mat( Epetra_CrsMatrix 
             Epetra_Map       tImportGIDMap( -1, curStripSize, tImportedGIDList.Values(), 0, tRowMap.Comm() );
             Epetra_Import    tGIDImporter( tImportGIDMap, tAllGidsMap );
             Epetra_IntVector tImportGids( tImportGIDMap );
-            if ( tImportGids.Import( tAllGids, tGIDImporter, Insert ) != 0 ) { std::cout << "BAD" << std::endl; }
+            if ( tImportGids.Import( tAllGids, tGIDImporter, Insert ) != 0 ) { std::cout << "BAD" << '\n'; }
 
             // importGids now has a list of GIDs for the current strip of matrix rows.
             // Use these values to build another importer that will get rows of the matrix.
@@ -155,8 +155,8 @@ MatType< ElementType > convert_epetra_operator_to_arma_sp_mat( Epetra_CrsMatrix 
             Epetra_Map       tImportMapMatrixMap( -1, tImportGids.MyLength(), tImportGids.Values(), 0, tRowMap.Comm() );
             Epetra_Import    tImporterMatrix( tImportMapMatrixMap, tRowMap );
             Epetra_CrsMatrix tImportedMatrix( Copy, tImportMapMatrixMap, 0 );
-            if ( tImportedMatrix.Import( aEpetraMatrix, tImporterMatrix, Insert ) != 0 ) { std::cout << "BAD" << std::endl; }
-            if ( tImportedMatrix.FillComplete( aEpetraMatrix.OperatorDomainMap(), tImportMapMatrixMap ) != 0 ) { std::cout << "BAD" << std::endl; }
+            if ( tImportedMatrix.Import( aEpetraMatrix, tImporterMatrix, Insert ) != 0 ) { std::cout << "BAD" << '\n'; }
+            if ( tImportedMatrix.FillComplete( aEpetraMatrix.OperatorDomainMap(), tImportMapMatrixMap ) != 0 ) { std::cout << "BAD" << '\n'; }
 
             // Finally we are ready to write this strip of the matrix to ostream
             write_serial_matrix< MatType, ElementType >( tImportedMatrix, tReturnMatrix );
@@ -166,12 +166,14 @@ MatType< ElementType > convert_epetra_operator_to_arma_sp_mat( Epetra_CrsMatrix 
 }
 
 template< template< typename > class MatType, typename ElementType >
-void write_serial_matrix( Epetra_CrsMatrix const &aEpetraMatrix, MatType< ElementType > &aArmaMatrix )
+void write_serial_matrix(
+        Epetra_CrsMatrix const &aEpetraMatrix,
+        MatType< ElementType > &aArmaMatrix )
 {
 
-    int        tNumRows = aEpetraMatrix.NumMyRows();
-    Epetra_Map tRowMap  = aEpetraMatrix.RowMap();
-    Epetra_Map tColMap  = aEpetraMatrix.ColMap();
+    int               tNumRows = aEpetraMatrix.NumMyRows();
+    const Epetra_Map &tRowMap  = aEpetraMatrix.RowMap();
+    const Epetra_Map &tColMap  = aEpetraMatrix.ColMap();
 
     // create arrays to store the values
     moris::real *tValues     = new moris::real[ aEpetraMatrix.MaxNumEntries() ];

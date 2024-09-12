@@ -330,7 +330,7 @@ namespace moris::fem
                 // set the normal for the IWG
                 tReqIWG->set_normal( tNormal );
 
-                if ( mSet->mEquationModel->get_is_forward_analysis() )
+                if ( mSet->mEquationModel->is_forward_analysis() )
                 {
                     // compute residual at integration point
                     tReqIWG->compute_residual( tWStar );

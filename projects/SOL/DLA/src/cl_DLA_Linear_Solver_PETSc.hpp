@@ -50,7 +50,7 @@ namespace moris::dla
 
         //------------------------------------------------------------------------------
 
-        ~Linear_Solver_PETSc();
+        ~Linear_Solver_PETSc() override;
 
         //------------------------------------------------------------------------------
 
@@ -58,13 +58,13 @@ namespace moris::dla
 
         //------------------------------------------------------------------------------
 
-        moris::sint solve_linear_system();
+        moris::sint solve_linear_system() override;
 
         //------------------------------------------------------------------------------
 
         moris::sint solve_linear_system(
                 Linear_Problem*   aLinearSystem,
-                const moris::sint aIter );
+                const moris::sint aIter ) override;
 
         //------------------------------------------------------------------------------
 

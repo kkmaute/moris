@@ -75,14 +75,14 @@ namespace moris::dla
          *  @param[in] iteration index - used to decided whether preconditioner needs to
          *                               be build and computed or just recomputed
          */
-        void build( Linear_Problem* aProblem, const sint& aIter = 1 );
+        void build( Linear_Problem* aProblem, const sint& aIter = 1 ) override;
 
         //-------------------------------------------------------------------------------
 
         /*
          * returns true if a preconditioner has been built
          */
-        bool exists();
+        bool exists() override;
 
         //-------------------------------------------------------------------------------
 

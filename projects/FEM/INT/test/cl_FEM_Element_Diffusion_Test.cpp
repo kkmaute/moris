@@ -342,7 +342,7 @@ void Test_IWG_Diffusion_Bulk(
                 // print for debug
                 if ( !tCheckJacobian )
                 {
-                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << "iGP " << iGP << std::endl;
+                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << "iGP " << iGP << '\n';
 
                     // set error flag to true
                     tErrorFlag = true;

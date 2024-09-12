@@ -15,7 +15,7 @@
 # (http://stackoverflow.com/questions/23782799/properly-configuring-boost-in-cmake)
 
 if(NOT BOOST_FOUND_ONCE)
-	find_package(Boost 1.54.0 REQUIRED filesystem system log log_setup thread serialization timer)
+	find_package(Boost CONFIG 1.54.0 REQUIRED filesystem system log log_setup thread serialization timer)
 	set(MORIS_BOOST_REQUIREMENTS "Boost 1.54.0 REQUIRED filesystem system log log_setup thread serialization timer")
 	
 	if(Boost_FOUND)

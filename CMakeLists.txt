@@ -248,6 +248,10 @@ option(MORIS_USE_OPENMP "Use OpenMP" OFF)
 
 option(MORIS_USE_NTOP_LIB 
       " Build with NTOP interface library - experimental" OFF)
+      
+option(MORIS_USE_CLANG_TIDY 
+      " Use clang-tidy" OFF)
+      
 
 # -------------------------------------------------------------------------
 # Package Options
@@ -514,15 +518,10 @@ else()
             set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -O3 -m64")
         endif()
     endif()
-    
-#    check_cxx_compiler_flag(-ffast-math HAVE_FASTMATH_OPTIMISATION)
-#    if (HAVE_FASTMATH_OPTIMISATION)
-#        set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -ffast-math")
-#    endif()
-    
+        
     check_cxx_compiler_flag(-flto HAVE_LTO_OPTIMISATION)
     if (HAVE_LTO_OPTIMISATION AND MORIS_USE_LTO)
-        set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -flto")
+        set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -flto=4")
         # clang flag
         # set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -flto=thin")
         # -ffat-lto-objects
@@ -589,10 +588,6 @@ if (MORIS_HAVE_PEDANTIC)
     if (HAVE_EXCEPTION)
         set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-unused-parameter" )
     endif()
-#    check_cxx_compiler_flag("-Wno-overloaded-virtual" HAVE_OVERLOAD_VIRTUAL )
-#    if (HAVE_OVERLOAD_VIRTUAL)
-#        set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-overloaded-virtual" )       
-#    endif()
     
     # clang flags
     # check_cxx_compiler_flag("-Wno-inconsistent-missing-override" HAVE_MISSING_OVERRIDE )
@@ -850,6 +845,56 @@ endif()
 
 if (MORIS_HAVE_LBFGS)
     list(APPEND MORIS_DEFINITIONS "-DMORIS_HAVE_LBFGS")
+endif()
+
+# -------------------------------------------------------------------------
+# Clang-tidy------------------- -------------------------------------------
+#
+# for building regex: 
+# https://www.freecodecamp.org/news/practical-regex-guide-with-real-life-examples
+#
+# -------------------------------------------------------------------------
+if(MORIS_USE_CLANG_TIDY)
+    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-unused-command-line-argument" )
+    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-keyword-macro" )
+    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-return-type-c-linkage" )
+    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-deprecated-declarations" )
+    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -I$ENV{MPI_HOME}/include" )
+    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wpessimizing-move" )
+    
+    find_program(CLANG_TIDY_EXE NAMES "clang-tidy" REQUIRED)
+    
+    set(CLANG_TIDY_CHECKS "-*" )
+    set(CLANG_TIDY_CHECKS "${CLANG_TIDY_CHECKS},readability-redundant-casting" )
+    set(CLANG_TIDY_CHECKS "${CLANG_TIDY_CHECKS},readability-redundant-control-flow" )
+    set(CLANG_TIDY_CHECKS "${CLANG_TIDY_CHECKS},readability-duplicate-include" )
+    set(CLANG_TIDY_CHECKS "${CLANG_TIDY_CHECKS},readability-container-contains" )
+    set(CLANG_TIDY_CHECKS "${CLANG_TIDY_CHECKS},readability-const-return-type" )
+    set(CLANG_TIDY_CHECKS "${CLANG_TIDY_CHECKS},modernize-concat-nested-namespaces" )
+    set(CLANG_TIDY_CHECKS "${CLANG_TIDY_CHECKS},modernize-deprecated-headers" )
+    set(CLANG_TIDY_CHECKS "${CLANG_TIDY_CHECKS},modernize-use-nullptr" )
+    set(CLANG_TIDY_CHECKS "${CLANG_TIDY_CHECKS},modernize-use-override" )
+    set(CLANG_TIDY_CHECKS "${CLANG_TIDY_CHECKS},performance-unnecessary-copy-initialization" )
+    set(CLANG_TIDY_CHECKS "${CLANG_TIDY_CHECKS},performance-unnecessary-value-param" )
+    set(CLANG_TIDY_CHECKS "${CLANG_TIDY_CHECKS},performance-move-const-arg" )
+    set(CLANG_TIDY_CHECKS "${CLANG_TIDY_CHECKS},performance-inefficient-algorithm" )
+    set(CLANG_TIDY_CHECKS "${CLANG_TIDY_CHECKS},performance-trivially-destructible" )
+    set(CLANG_TIDY_CHECKS "${CLANG_TIDY_CHECKS},performance-no-automatic-move" )
+    set(CLANG_TIDY_CHECKS "${CLANG_TIDY_CHECKS},performance-inefficient-vector-operation" )
+    set(CLANG_TIDY_CHECKS "${CLANG_TIDY_CHECKS},performance-inefficient-vector-operation" )
+    set(CLANG_TIDY_CHECKS "${CLANG_TIDY_CHECKS},performance-for-range-copy" )
+    set(CLANG_TIDY_CHECKS "${CLANG_TIDY_CHECKS},performance-faster-string-find" )
+    set(CLANG_TIDY_CHECKS "${CLANG_TIDY_CHECKS},performance-avoid-endl" )
+    
+    # excluse all headers in spack installationand cl_Parameter.hpp
+    set(CMAKE_CXX_CLANG_TIDY
+    ${CLANG_TIDY_EXE};
+    --format-style=file
+    -header-filter=.+projects.+;
+    --exclude-header-filter=.+spack.+|cl_Parameter\.hpp
+    -checks=${CLANG_TIDY_CHECKS}
+    -fix;
+    )
 endif()
 
 # -------------------------------------------------------------------------

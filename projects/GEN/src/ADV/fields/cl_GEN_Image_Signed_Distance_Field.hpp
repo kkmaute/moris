@@ -108,7 +108,7 @@ namespace moris::gen
                 Matrix< DDRMat >&       aSensitivities ) override;
 
       private:
-        void read_image_sdf_data( std::string aImageFileName );
+        void read_image_sdf_data( const std::string& aImageFileName );
 
         real get_field_value_2d( const Matrix< DDRMat >& aCoordinates );
         real get_field_value_3d( const Matrix< DDRMat >& aCoordinates );

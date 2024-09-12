@@ -208,7 +208,7 @@ namespace moris::xtk
     void
     Enrichment::print_enriched_basis_to_subphase_id(
             const moris_index& aMeshIndex,
-            std::string        aFileName )
+            const std::string& aFileName )
     {
         Vector< Matrix< IndexMat > > const & tSubphasesInEnrBasis = mEnrichmentData( aMeshIndex ).mSubphaseIndsInEnrichedBasis;
 
@@ -265,7 +265,7 @@ namespace moris::xtk
         if ( aFileName.empty() == false )
         {
             std::ofstream tOutputFile( aFileName );
-            tOutputFile << tStringStream.str() << std::endl;
+            tOutputFile << tStringStream.str() << '\n';
             tOutputFile.close();
         }
     }
@@ -978,7 +978,7 @@ namespace moris::xtk
             }
         }
 
-        for ( uint iL = 0; iL < (uint)tNumEnrichLevel; ++iL )
+        for ( uint iL = 0; iL < tNumEnrichLevel; ++iL )
         {
             // check that centroid for current enrichment level has been computed
             MORIS_ERROR( tCentroids( iL ).numel() > 0,
@@ -994,7 +994,7 @@ namespace moris::xtk
         // build enrichment level old to new map
         Vector< moris_index > tEnrichmentMap( tNumEnrichLevel );
 
-        for ( uint i = 0; i < (uint)tNumEnrichLevel; ++i )
+        for ( uint i = 0; i < tNumEnrichLevel; ++i )
         {
             tEnrichmentMap( tSortingIndex( i ) ) = i;
         }
@@ -2320,8 +2320,8 @@ namespace moris::xtk
             Matrix< IndexMat > const & aPrunedSubPhaseToSubphase,
             Matrix< IndexMat >&        aSubPhaseBinEnrichmentVals )
     {
-        std::cout << "--------------------------------------------------" << std::endl;
-        std::cout << "Basis Index: " << aBasisIndex << std::endl;
+        std::cout << "--------------------------------------------------" << '\n';
+        std::cout << "Basis Index: " << aBasisIndex << '\n';
         std::cout << "Parent Cell In Support:";
         for ( uint i = 0; i < aParentElementsInSupport.numel(); i++ )
         {
@@ -2333,7 +2333,7 @@ namespace moris::xtk
             std::cout << std::setw( 8 ) << aSubphasesInSupport( i );
         }
 
-        std::cout << "\nSubphase Neighborhood In Support:" << std::endl;
+        std::cout << "\nSubphase Neighborhood In Support:" << '\n';
         for ( uint i = 0; i < aPrunedSubPhaseToSubphase.n_rows(); i++ )
         {
             std::cout << std::setw( 6 ) << aSubphasesInSupport( i ) << " | ";
@@ -2345,7 +2345,7 @@ namespace moris::xtk
                     std::cout << std::setw( 6 ) << aSubphasesInSupport( aPrunedSubPhaseToSubphase( i, j ) );
                 }
             }
-            std::cout << std::endl;
+            std::cout << '\n';
         }
 
         std::cout << "\nSubphase Enrichment Level: \n";
@@ -2353,7 +2353,7 @@ namespace moris::xtk
         {
             std::cout << std::setw( 8 ) << aSubPhaseBinEnrichmentVals( i );
         }
-        std::cout << "\n--------------------------------------------------" << std::endl;
+        std::cout << "\n--------------------------------------------------" << '\n';
     }
 
     //-------------------------------------------------------------------------------------
@@ -2497,7 +2497,7 @@ namespace moris::xtk
     //-------------------------------------------------------------------------------------
 
     void
-    Enrichment::construct_enriched_integration_mesh( const Matrix< IndexMat > aBsplineMeshIndices )
+    Enrichment::construct_enriched_integration_mesh( const Matrix< IndexMat >& aBsplineMeshIndices )
     {
         MORIS_ASSERT( mXTKModelPtr->mEnrichedInterpMesh( 0 ) != nullptr,
                 "Enrichment::construct_enriched_integration_mesh_new() - No enriched interpolation mesh to link enriched integration mesh to" );

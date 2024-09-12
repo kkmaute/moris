@@ -89,7 +89,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             void perform_refinement(
-                    std::shared_ptr< hmr::HMR >             aHMRPerformer,
+                    const std::shared_ptr< hmr::HMR >&      aHMRPerformer,
                     Vector< std::shared_ptr< mtk::Field > > aSourceFields );
 
             //------------------------------------------------------------------------------
@@ -101,19 +101,19 @@ namespace moris
              *
              */
             void perform_refinement_mode_0(
-                    std::shared_ptr< hmr::HMR >              aHMRPerformer,
+                    const std::shared_ptr< hmr::HMR >&       aHMRPerformer,
                     Vector< std::shared_ptr< mtk::Field > >& aSourceFields );
 
             //------------------------------------------------------------------------------
 
             void perform_refinement_mode_1(
-                    std::shared_ptr< hmr::HMR >             aHMRPerformer,
+                    const std::shared_ptr< hmr::HMR >&      aHMRPerformer,
                     Vector< std::shared_ptr< mtk::Field > > aSourceFields );
 
             //------------------------------------------------------------------------------
 
             void perform_refinement_mode_2(
-                    std::shared_ptr< hmr::HMR >             aHMRPerformer,
+                    const std::shared_ptr< hmr::HMR >&      aHMRPerformer,
                     Vector< std::shared_ptr< mtk::Field > > aSourceFields );
 
             //------------------------------------------------------------------------------
@@ -147,11 +147,11 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            void output_meshes( std::shared_ptr< hmr::HMR > aHMRPerformer );
+            void output_meshes( const std::shared_ptr< hmr::HMR >& aHMRPerformer );
 
             //------------------------------------------------------------------------------
 
-            void unite_all_pattern_for_lagrange( std::shared_ptr< hmr::HMR > aHMRPerformer );
+            void unite_all_pattern_for_lagrange( const std::shared_ptr< hmr::HMR >& aHMRPerformer );
 
             //------------------------------------------------------------------------------
         };

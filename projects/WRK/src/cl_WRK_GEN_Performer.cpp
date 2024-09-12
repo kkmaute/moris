@@ -9,6 +9,8 @@
  */
 
 #include "cl_WRK_GEN_Performer.hpp"
+
+#include <utility>
 #include "cl_GEN_Geometry_Engine.hpp"
 #include "cl_Matrix.hpp"
 
@@ -18,7 +20,7 @@ namespace moris::wrk
     // ----------------------------------------------------------------------------
 
     Gen_Performer::Gen_Performer( std::shared_ptr< moris::gen::Geometry_Engine > aGeometryEngine )
-            : mGeometryEngine( aGeometryEngine )
+            : mGeometryEngine( std::move( aGeometryEngine ) )
     {
     }
 

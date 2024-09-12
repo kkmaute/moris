@@ -77,9 +77,9 @@ namespace moris::xtk
                     if ( tExpectedEdgeToNode( j, k ) != aEdgeToNode( tEdgeIndex, 0 )
                             && tExpectedEdgeToNode( j, k ) != aEdgeToNode( tEdgeIndex, 1 ) )
                     {
-                        std::cout << "iElem = " << i << " iEdge = " << j << std::endl;
-                        std::cout << "Expected Nodes = " << tExpectedEdgeToNode( j, 0 ) << " " << tExpectedEdgeToNode( j, 1 ) << std::endl;
-                        std::cout << "Actual Nodes   = " << aEdgeToNode( tEdgeIndex, 0 ) << " " << aEdgeToNode( tEdgeIndex, 1 ) << std::endl;
+                        std::cout << "iElem = " << i << " iEdge = " << j << '\n';
+                        std::cout << "Expected Nodes = " << tExpectedEdgeToNode( j, 0 ) << " " << tExpectedEdgeToNode( j, 1 ) << '\n';
+                        std::cout << "Actual Nodes   = " << aEdgeToNode( tEdgeIndex, 0 ) << " " << aEdgeToNode( tEdgeIndex, 1 ) << '\n';
                         tValidEdgeTopo = false;
                     }
                 }
@@ -127,7 +127,7 @@ namespace moris::xtk
 
         if ( !tValidEdgeTopo )
         {
-            std::cout << "Invalid edge topology detected" << std::endl;
+            std::cout << "Invalid edge topology detected" << '\n';
             tValidTopo = false;
         }
         else

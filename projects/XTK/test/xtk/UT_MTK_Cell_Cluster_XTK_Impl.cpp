@@ -15,7 +15,6 @@
 
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enums.hpp"
-#include "cl_XTK_Cut_Mesh.hpp"
 #include "cl_XTK_Enrichment.hpp"
 
 #include "cl_MTK_Mesh_Data_Input.hpp"

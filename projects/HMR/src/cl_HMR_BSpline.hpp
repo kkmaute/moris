@@ -115,7 +115,7 @@ namespace moris::hmr
         /**
          * Destructor
          */
-        ~BSpline()
+        ~BSpline() override
         {
             // test if basis has elements
             if ( mNumberOfConnectedElements != 0 )

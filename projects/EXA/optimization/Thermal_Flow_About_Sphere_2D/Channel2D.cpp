@@ -631,52 +631,52 @@ namespace moris
     {
         if ( par_rank() == 0 )
         {
-            std::cout << "presref        = " << presref << std::endl;
-            std::cout << "lenref         = " << lenref << std::endl;
-            std::cout << "rhoref         = " << rhoref << std::endl;
-            std::cout << "tempref        = " << tempref << std::endl;
+            std::cout << "presref        = " << presref << '\n';
+            std::cout << "lenref         = " << lenref << '\n';
+            std::cout << "rhoref         = " << rhoref << '\n';
+            std::cout << "tempref        = " << tempref << '\n';
 
-            std::cout << std::endl;
+            std::cout << '\n';
 
-            std::cout << "velref         = " << velref << std::endl;
-            std::cout << "timeref        = " << timeref << std::endl;
-            std::cout << "massref        = " << massref << std::endl;
+            std::cout << "velref         = " << velref << '\n';
+            std::cout << "timeref        = " << timeref << '\n';
+            std::cout << "massref        = " << massref << '\n';
 
-            std::cout << std::endl;
+            std::cout << '\n';
 
-            std::cout << "tLengthScale   = " << tLengthScale << std::endl;
-            std::cout << "tTimeScale     = " << tTimeScale << std::endl;
-            std::cout << "tMassScale     = " << tMassScale << std::endl;
-            std::cout << "tTempScale     = " << tTempScale << std::endl;
+            std::cout << "tLengthScale   = " << tLengthScale << '\n';
+            std::cout << "tTimeScale     = " << tTimeScale << '\n';
+            std::cout << "tMassScale     = " << tMassScale << '\n';
+            std::cout << "tTempScale     = " << tTempScale << '\n';
 
-            std::cout << std::endl;
+            std::cout << '\n';
 
-            std::cout << "tPressureScale = " << tPressureScale << std::endl;
-            std::cout << "tEnergyScale   = " << tEnergyScale << std::endl;
-            std::cout << "tPowerScale    = " << tPowerScale << std::endl;
-            std::cout << "tDensityScale  = " << tDensityScale << std::endl;
+            std::cout << "tPressureScale = " << tPressureScale << '\n';
+            std::cout << "tEnergyScale   = " << tEnergyScale << '\n';
+            std::cout << "tPowerScale    = " << tPowerScale << '\n';
+            std::cout << "tDensityScale  = " << tDensityScale << '\n';
 
-            std::cout << std::endl;
+            std::cout << '\n';
 
-            std::cout << "tInletPressure       = " << tInletPressure << std::endl;
-            std::cout << "tInletTemperature    = " << tInletTemperature << std::endl;
-            std::cout << "tVolumetricHeatLoad  = " << tVolumetricHeatLoad << std::endl;
+            std::cout << "tInletPressure       = " << tInletPressure << '\n';
+            std::cout << "tInletTemperature    = " << tInletTemperature << '\n';
+            std::cout << "tVolumetricHeatLoad  = " << tVolumetricHeatLoad << '\n';
 
-            std::cout << std::endl;
+            std::cout << '\n';
 
-            std::cout << "tFluidViscosity      = " << tFluidViscosity << std::endl;
-            std::cout << "tFluidDensity        = " << tFluidDensity << std::endl;
-            std::cout << "tFluidCapacity       = " << tFluidCapacity << std::endl;
-            std::cout << "tFluidConductivity   = " << tFluidConductivity << std::endl;
-            std::cout << "tFluidPressureSpring = " << tFluidPressureSpring << std::endl;
+            std::cout << "tFluidViscosity      = " << tFluidViscosity << '\n';
+            std::cout << "tFluidDensity        = " << tFluidDensity << '\n';
+            std::cout << "tFluidCapacity       = " << tFluidCapacity << '\n';
+            std::cout << "tFluidConductivity   = " << tFluidConductivity << '\n';
+            std::cout << "tFluidPressureSpring = " << tFluidPressureSpring << '\n';
 
-            std::cout << std::endl;
+            std::cout << '\n';
 
-            std::cout << "tSolidDensity        = " << tSolidDensity << std::endl;
-            std::cout << "tSolidCapacity       = " << tSolidCapacity << std::endl;
-            std::cout << "tSolidConductivity   = " << tSolidConductivity << std::endl;
+            std::cout << "tSolidDensity        = " << tSolidDensity << '\n';
+            std::cout << "tSolidCapacity       = " << tSolidCapacity << '\n';
+            std::cout << "tSolidConductivity   = " << tSolidConductivity << '\n';
 
-            std::cout << std::endl;
+            std::cout << '\n';
 
             std::cout << "Reynolds number     = " << 1.0 / std::stod( tFluidViscosity ) << " (" << reynolds << ")\n";
         }
@@ -1421,8 +1421,8 @@ namespace moris
         // ----------------------------------------------------------
 
         tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
-        tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_solver", 2 );                      // using NLBGS for forward problem
-        tParameterlist( 4 )( 0 ).set( "TSA_nonlinear_solver_for_adjoint_solve", 3 );    // using monlithic for sensitivity problem
+        tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_Solver", 2 );                // using NLBGS for forward problem
+        tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_Sensitivity_Solver", 3 );    // using monlithic for sensitivity problem
 
         //------------------------------------------------------------------------------
 

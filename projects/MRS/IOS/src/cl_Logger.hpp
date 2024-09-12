@@ -15,6 +15,7 @@
 #include <cstdio>
 #include <string>
 #include <cstring>
+#include <utility>
 
 #include "moris_typedefs.hpp"
 #include "IO_Tools.hpp"
@@ -181,7 +182,7 @@ namespace moris
 
                 if ( mMemoryOutput > 0 )
                 {
-                    std::cout << tMemUsage << std::endl
+                    std::cout << tMemUsage << '\n'
                               << std::flush;
                 }
             }
@@ -195,9 +196,9 @@ namespace moris
 
         void
         initialize(
-                const std::string aPath,
-                const moris::sint aSeverityLevel      = LOGGER_DEFAULT_SEVERITY_LEVEL,
-                const moris::uint aDirectOutputFormat = LOGGER_DEFAULT_DIRECT_OUTPUT )
+                const std::string& aPath,
+                const moris::sint  aSeverityLevel      = LOGGER_DEFAULT_SEVERITY_LEVEL,
+                const moris::uint  aDirectOutputFormat = LOGGER_DEFAULT_DIRECT_OUTPUT )
         {
             mDirectOutputFormat = aDirectOutputFormat;
             mSeverityLevel      = aSeverityLevel;
@@ -227,7 +228,7 @@ namespace moris
 
                 if ( mMemoryOutput > 0 )
                 {
-                    std::cout << tMemUsage << std::endl
+                    std::cout << tMemUsage << '\n'
                               << std::flush;
                 }
             }
@@ -479,8 +480,8 @@ namespace moris
         template< class T >
         void
         log_specific(
-                std::string aOutputSpecifier,
-                T           aOutputValue )
+                const std::string& aOutputSpecifier,
+                const T&           aOutputValue )
         {
             // only processor 0 prints message
             if ( logger_par_rank() == mOutputRank )
@@ -529,9 +530,9 @@ namespace moris
          * @param aEntityAction Entity action
          */
         void sign_in(
-                std::string aEntityBase,
-                std::string aEntityType,
-                std::string aEntityAction );
+                const std::string& aEntityBase,
+                const std::string& aEntityType,
+                const std::string& aEntityAction );
 
         //------------------------------------------------------------------------------
 
@@ -618,7 +619,7 @@ namespace moris
         // write logged info to formatted file
         template< class T >
         void
-        log_to_file( std::string aOutputSpecifier, T aOutputValue )
+        log_to_file( const std::string& aOutputSpecifier, const T& aOutputValue )
         {
             std::string tLine =
                     ios::stringify( mGlobalClock.mIndentationLevel ) + ";"
@@ -627,7 +628,7 @@ namespace moris
                     + mGlobalClock.mCurrentType[ mGlobalClock.mIndentationLevel ] + ";"
                     + mGlobalClock.mCurrentAction[ mGlobalClock.mIndentationLevel ] + ";"
                     + aOutputSpecifier + ";"
-                    + ios::stringify( aOutputValue ) + "\n";
+                    + ios::stringify( std::move( aOutputValue ) ) + "\n";
 
             mStream << tLine << std::flush;
         }
@@ -655,11 +656,11 @@ namespace moris
         //------------------------------------------------------------------------------
 
         // logging operation using Clock Info and string
-        void log_to_file( std::string aOutputString );
-        void log_to_file_info( std::string aOutputString );
-        void log_to_file_debug( std::string aOutputString );
-        void log_to_file_warning( std::string aOutputString );
-        void log_to_file_error( std::string aOutputString );
+        void log_to_file( const std::string& aOutputString );
+        void log_to_file_info( const std::string& aOutputString );
+        void log_to_file_debug( const std::string& aOutputString );
+        void log_to_file_warning( const std::string& aOutputString );
+        void log_to_file_error( const std::string& aOutputString );
 
         // -----------------------------------------------------------------------------
         // FORMATTING TOOLS FOR OUTPUT -------------------------------------------------

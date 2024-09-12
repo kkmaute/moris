@@ -18,9 +18,7 @@
 // moris header files.
 #include "core.hpp"
 
-namespace moris
-{
-namespace exceptions
+namespace moris::exceptions
 {
     /**
      * @brief Invalid size exception.
@@ -45,13 +43,13 @@ namespace exceptions
         /**
          * moris::exceptions::invalid_size constructor.
          */
-        ~invalid_size() = default;
+        ~invalid_size() override = default;
 
         /**
          * Overrides std::exception::what.
          */
         const char *
-        what() const noexcept
+        what() const noexcept override
         {
             return message_m.c_str();
         }
@@ -69,8 +67,7 @@ namespace exceptions
         std::string message_m;
     };
 
-}    // namespace exceptions
-}    // namespace moris
+}    // namespace moris::exceptions
 
 #endif /* MORIS_EXCEPTIONS_CL_INVALID_SIZE_HPP_ */
 

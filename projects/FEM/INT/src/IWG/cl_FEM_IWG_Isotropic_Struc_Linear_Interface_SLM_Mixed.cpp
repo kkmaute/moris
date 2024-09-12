@@ -16,35 +16,32 @@
 #include "fn_eye.hpp"
 #include "fn_dot.hpp"
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+    //------------------------------------------------------------------------------
+
+    IWG_Isotropic_Struc_Linear_Interface_SLM_Mixed::IWG_Isotropic_Struc_Linear_Interface_SLM_Mixed()
     {
-        //------------------------------------------------------------------------------
+        // set size for the property pointer cell
+        mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
-        IWG_Isotropic_Struc_Linear_Interface_SLM_Mixed::IWG_Isotropic_Struc_Linear_Interface_SLM_Mixed()
-        {
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+        // populate the property map
+        mPropertyMap[ "Youngsmodulus_Leader" ]   = static_cast< uint >( IWG_Property_Type::YOUNGS_MODULUS_LEADER );
+        mPropertyMap[ "Youngsmodulus_Follower" ] = static_cast< uint >( IWG_Property_Type::YOUNGS_MODULUS_FOLLOWER );
 
-            // populate the property map
-            mPropertyMap[ "Youngsmodulus_Leader" ] = static_cast< uint >( IWG_Property_Type::YOUNGS_MODULUS_LEADER );
-            mPropertyMap[ "Youngsmodulus_Follower" ] = static_cast< uint >( IWG_Property_Type::YOUNGS_MODULUS_FOLLOWER );
+        // set size for the constitutive model pointer cell
+        mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+        mFollowerCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
-            mFollowerCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+        // set size for the stabilization parameter pointer cell
+        mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
+    }
 
-            // set size for the stabilization parameter pointer cell
-            mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
+    //------------------------------------------------------------------------------
 
-        }
-
-        //------------------------------------------------------------------------------
-
-        void
-		IWG_Isotropic_Struc_Linear_Interface_SLM_Mixed::compute_residual( real aWStar )
-        {
+    void
+    IWG_Isotropic_Struc_Linear_Interface_SLM_Mixed::compute_residual( real aWStar )
+    {
 #ifdef MORIS_HAVE_DEBUG
             // check leader and follower field interpolators
             this->check_field_interpolators( mtk::Leader_Follower::LEADER );
@@ -229,6 +226,4 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
-
+}    // namespace moris::fem

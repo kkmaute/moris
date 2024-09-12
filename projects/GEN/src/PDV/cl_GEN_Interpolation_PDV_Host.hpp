@@ -119,7 +119,7 @@ namespace moris::gen
          * @param aPDVType PDV type
          * @param aPropertyPointer Pointer to a GEN property
          */
-        void create_pdv( PDV_Type aPDVType, std::shared_ptr< Property > aPropertyPointer );
+        void create_pdv( PDV_Type aPDVType, const std::shared_ptr< Property >& aPropertyPointer );
 
         /**
          * Check if PDV type is active on this host.

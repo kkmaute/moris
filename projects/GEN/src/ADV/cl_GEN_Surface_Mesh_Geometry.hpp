@@ -21,11 +21,12 @@ namespace moris::gen
     /**
      * This is a struct used to simplify \ref moris::gen::Surface_Mesh_Geometry constructors. It contains all field and level-set parameters.
      */
-    struct Surface_Mesh_Parameters : public Field_Parameters, public Design_Parameters
+    struct Surface_Mesh_Parameters : public Field_Parameters
+            , public Design_Parameters
     {
         Vector< real > mOffsets;
         Vector< real > mScale;
-        std::string  mFilePath;
+        std::string    mFilePath;
 
         /**
          * Constructor with a given parameter list
@@ -35,11 +36,12 @@ namespace moris::gen
         explicit Surface_Mesh_Parameters( const Parameter_List& aParameterList = prm::create_surface_mesh_geometry_parameter_list() );
     };
 
-    class Surface_Mesh_Geometry : public Geometry, public sdf::Object
+    class Surface_Mesh_Geometry : public Geometry
+            , public sdf::Object
     {
       private:
         Surface_Mesh_Parameters mParameters;
-        std::string mName;
+        std::string             mName;
 
       public:
         /**
@@ -48,7 +50,7 @@ namespace moris::gen
          * @param aField Field for computing nodal values
          * @param aParameters Field parameters
          */
-        Surface_Mesh_Geometry( Surface_Mesh_Parameters aParameters = Surface_Mesh_Parameters() );
+        Surface_Mesh_Geometry( const Surface_Mesh_Parameters& aParameters = Surface_Mesh_Parameters() );
 
         /**
          * Gets the geometric region of a node, based on this geometry.
@@ -75,12 +77,12 @@ namespace moris::gen
          * @return New intersection node
          */
         Intersection_Node* create_intersection_node(
-                uint                     aNodeIndex,
+                uint                              aNodeIndex,
                 const Vector< Background_Node* >& aBackgroundNodes,
-                const Parent_Node&       aFirstParentNode,
-                const Parent_Node&       aSecondParentNode,
-                mtk::Geometry_Type       aBackgroundGeometryType,
-                mtk::Interpolation_Order aBackgroundInterpolationOrder ) override;
+                const Parent_Node&                aFirstParentNode,
+                const Parent_Node&                aSecondParentNode,
+                mtk::Geometry_Type                aBackgroundGeometryType,
+                mtk::Interpolation_Order          aBackgroundInterpolationOrder ) override;
 
         /**
          * Computes the local coordinate along a parent edge of an intersection node created using this geometry.
@@ -92,8 +94,8 @@ namespace moris::gen
          */
         real compute_intersection_local_coordinate(
                 const Vector< Background_Node* >& aBackgroundNodes,
-                const Parent_Node&   aFirstParentNode,
-                const Parent_Node&   aSecondParentNode ) override;
+                const Parent_Node&                aFirstParentNode,
+                const Parent_Node&                aSecondParentNode ) override;
 
         /**
          *
@@ -144,10 +146,10 @@ namespace moris::gen
          * @param aADVOffsetID Offset in the owned ADV IDs for pulling ADV IDs
          */
         void discretize(
-                mtk::Mesh_Pair          aMeshPair,
-                sol::Dist_Vector*       aOwnedADVs,
+                mtk::Mesh_Pair        aMeshPair,
+                sol::Dist_Vector*     aOwnedADVs,
                 const Vector< sint >& aSharedADVIds,
-                uint                    aADVOffsetID ) override;
+                uint                  aADVOffsetID ) override;
 
         /**
          * If intended for this field, maps the field to B-spline coefficients or stores the nodal field values in a stored field object.
@@ -161,7 +163,7 @@ namespace moris::gen
                 std::shared_ptr< mtk::Field > aMTKField,
                 mtk::Mesh_Pair                aMeshPair,
                 sol::Dist_Vector*             aOwnedADVs,
-                const Vector< sint >&       aSharedADVIds,
+                const Vector< sint >&         aSharedADVIds,
                 uint                          aADVOffsetID ) override;
 
         /**
@@ -174,7 +176,7 @@ namespace moris::gen
         void get_design_info(
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates,
-                Vector< real >&           aOutputDesignInfo ) override;
+                Vector< real >&         aOutputDesignInfo ) override;
 
         /**
          * Gets the number of fields the surface mesh has
@@ -239,10 +241,9 @@ namespace moris::gen
          *
          * @param aAllUpdatedDesigns All designs (this design will take fields from the ones it needs)
          */
-        void update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedDesigns ) override;
+        void update_dependencies( const Vector< std::shared_ptr< Design > >& aAllUpdatedDesigns ) override;
 
       private:
-
         /**
          * Transforms a surface mesh to the local coordinate frame of an intersection node
          *

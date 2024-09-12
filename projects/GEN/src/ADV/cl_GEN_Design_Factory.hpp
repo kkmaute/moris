@@ -51,11 +51,11 @@ namespace moris::gen
          * @param aNodeManager Node manager from the geometry engine, if applicable
          */
         Design_Factory(
-                Vector< Parameter_List >      aParameterLists,
-                ADV_Manager&                  aADVManager,
-                std::shared_ptr< Library_IO > aLibrary = nullptr,
-                mtk::Mesh*                    aMesh = nullptr,
-                Node_Manager&                 aNodeManager = Node_Manager::get_trivial_instance() );
+                Vector< Parameter_List >             aParameterLists,
+                ADV_Manager&                         aADVManager,
+                const std::shared_ptr< Library_IO >& aLibrary     = nullptr,
+                mtk::Mesh*                           aMesh        = nullptr,
+                Node_Manager&                        aNodeManager = Node_Manager::get_trivial_instance() );
 
         /**
          * Gets the geometries that the factory has created.

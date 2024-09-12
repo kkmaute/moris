@@ -31,7 +31,7 @@ Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface* aInput )
         : moris::dla::Linear_Problem( aInput )
 {
     mTplType = sol::MapType::Epetra;
-    if ( aInput->get_matrix_market_path() == NULL )
+    if ( aInput->get_matrix_market_path() == nullptr )
     {
         sol::Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
 

@@ -22,7 +22,7 @@ namespace moris::mtk
       public:
         Interpolation_Mesh(){};
 
-        virtual ~Interpolation_Mesh(){};
+        ~Interpolation_Mesh() override{};
 
         /**
          * Gets a background mesh of this interpolation mesh (could be this mesh itself)

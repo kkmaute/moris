@@ -25,7 +25,7 @@ int fn_WRK_Workflow_Main_Interface( int argc, char* argv[] );
 //---------------------------------------------------------------
 
 extern "C" void
-check_results( uint aTestCaseIndex, std::string aHDF5FileName )
+check_results( uint aTestCaseIndex, const std::string& aHDF5FileName )
 {
     MORIS_LOG_INFO( " " );
     MORIS_LOG_INFO( "Checking Results - Test Case %d on %i processors.", aTestCaseIndex, par_size() );

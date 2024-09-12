@@ -82,7 +82,7 @@ namespace moris::mig
          *
          */
 
-        virtual ~Periodic_Mesh_Editor();
+        ~Periodic_Mesh_Editor() override;
         //------------------------------------------------------------------------------------------------------------
 
         /**
@@ -102,7 +102,7 @@ namespace moris::mig
         void
         construct_periodic_data_base(
                 Vector< Vector< moris_index > >& aSideClusterToVertexIndices,
-                Matrix< DDRMat >                 aVerticesCoords,
+                const Matrix< DDRMat >&          aVerticesCoords,
                 Vector< Vector< moris_index > >& aSideClusterToCells,
                 Vector< Vector< moris_index > >& aCellToVertexIndices,
                 Vector< moris_index >&           aSideClusterToIPCell,

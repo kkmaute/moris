@@ -412,7 +412,7 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Velocity_Symmetric_Nitsche",
                 // print for debug
                 if( !tCheckJacobian )
                 {
-                    std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<" iGP "<<iGP<<std::endl;
+                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << " iGP " << iGP << '\n';
                 }
 
                 // require check is true
@@ -796,7 +796,7 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Velocity_Unsymmetric_Nitsche",
                 // print for debug
                 if( !tCheckJacobian )
                 {
-                    std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<" iGP "<<iGP<<std::endl;
+                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << " iGP " << iGP << '\n';
                 }
 
                 // require check is true
@@ -1144,7 +1144,7 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Pressure_Symmetric_Nitsche",
                 // print for debug
                 if( !tCheckJacobian )
                 {
-                    std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<" iGP "<<iGP<<std::endl;
+                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << " iGP " << iGP << '\n';
                 }
 
                 // require check is true
@@ -1492,7 +1492,7 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Pressure_Unsymmetric_Nitsche",
                 // print for debug
                 if( !tCheckJacobian )
                 {
-                    std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<" iGP "<<iGP<<std::endl;
+                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << " iGP " << iGP << '\n';
                 }
 
                 // require check is true

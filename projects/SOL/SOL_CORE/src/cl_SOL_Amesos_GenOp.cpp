@@ -22,7 +22,7 @@ Amesos_GenOp::Amesos_GenOp(
         const bool                               tUseTranspose )
         : mSolver( aSolver )
         , mMassMatrix( aMassMatrix )
-        , mEpetraProblem( NULL )
+        , mEpetraProblem( nullptr )
         , mUseTranspose( tUseTranspose )
 {
     if ( mSolver.is_null() )
@@ -36,7 +36,7 @@ Amesos_GenOp::Amesos_GenOp(
     
     mEpetraProblem = const_cast<Epetra_LinearProblem*> (mSolver->GetProblem ());
 
-    if ( mEpetraProblem == NULL )
+    if ( mEpetraProblem == nullptr )
     {
         MORIS_ERROR( false, "Amesos_GenOp constructor: mEpetraProblem is nulll" );
     }
@@ -67,7 +67,7 @@ Amesos_GenOp::SetUseTranspose( bool tUseTranspose )
 {
     int tErr = 0;
 
-    if ( mEpetraProblem == NULL )
+    if ( mEpetraProblem == nullptr )
     {
         MORIS_ERROR( false, "Amesos_GenOp::set_use_transpose: mEpetraProblem is NULL" );
     }
@@ -125,7 +125,7 @@ Amesos_GenOp::SetUseTranspose( bool tUseTranspose )
 int
 Amesos_GenOp::Apply( const Epetra_MultiVector& X, Epetra_MultiVector& Y ) const
 {
-    if ( mEpetraProblem == NULL )
+    if ( mEpetraProblem == nullptr )
     {
         MORIS_ERROR( false, "Amesos_GenOp::apply: mEpetraProblem is NULL" );
     }

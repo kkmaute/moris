@@ -15,28 +15,26 @@
 #include "fn_trans.hpp"
 #include "fn_norm.hpp"
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+    //------------------------------------------------------------------------------
+
+    IWG_Ghost_Normal_Field::IWG_Ghost_Normal_Field()
     {
-        //------------------------------------------------------------------------------
+        // set ghost flag
+        mIsGhost = true;
 
-        IWG_Ghost_Normal_Field::IWG_Ghost_Normal_Field()
-        {
-            // set ghost flag
-            mIsGhost = true;
+        // set size for the stabilization parameter pointer cell
+        mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
 
-            // set size for the stabilization parameter pointer cell
-            mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
+        // populate the stabilization map
+        mStabilizationMap[ "GhostSP" ] = static_cast< uint >( IWG_Stabilization_Type::GHOST_SP );
+    }
 
-            // populate the stabilization map
-            mStabilizationMap[ "GhostSP" ] = static_cast< uint >( IWG_Stabilization_Type::GHOST_SP );
-        }
+    //------------------------------------------------------------------------------
 
-        //------------------------------------------------------------------------------
-
-        void IWG_Ghost_Normal_Field::compute_residual( real aWStar )
-        {
+    void IWG_Ghost_Normal_Field::compute_residual( real aWStar )
+    {
 #ifdef MORIS_HAVE_DEBUG
             // check leader and follower field interpolators
             this->check_field_interpolators( mtk::Leader_Follower::LEADER );
@@ -435,6 +433,4 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
-
+}    // namespace moris::fem

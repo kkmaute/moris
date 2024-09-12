@@ -1624,9 +1624,9 @@ namespace moris::hmr
         float tFChar = 0;
         int   tIChar = 0;
 
-        tFile << "# vtk DataFile Version 3.0" << std::endl;
-        tFile << "GO BUFFS!" << std::endl;
-        tFile << "BINARY" << std::endl;
+        tFile << "# vtk DataFile Version 3.0" << '\n';
+        tFile << "GO BUFFS!" << '\n';
+        tFile << "BINARY" << '\n';
 
         // collect all elements on proc
         // total number of elements
@@ -1656,9 +1656,9 @@ namespace moris::hmr
         uint tNumberOfNodes = tNumberOfNodesPerElement * tNumberOfElements;
 
         // write node data
-        tFile << "DATASET UNSTRUCTURED_GRID" << std::endl;
+        tFile << "DATASET UNSTRUCTURED_GRID" << '\n';
 
-        tFile << "POINTS " << tNumberOfNodes << " float" << std::endl;
+        tFile << "POINTS " << tNumberOfNodes << " float" << '\n';
 
         // temporary matrix containing corder nodes
         Matrix< DDRMat > tNodes( mParameters->get_number_of_dimensions(), tNumberOfNodesPerElement );
@@ -1721,7 +1721,7 @@ namespace moris::hmr
         }
 
         // create new line
-        tFile << std::endl;
+        tFile << '\n';
 
         // can only write element data if vtk map exists
         if ( tCellType != 0 )
@@ -1734,7 +1734,7 @@ namespace moris::hmr
 
             // write header for cells
             tFile << "CELLS " << tNumberOfElements << " "
-                  << ( tNumberOfNodesPerElement + 1 ) * tNumberOfElements << std::endl;
+                  << ( tNumberOfNodesPerElement + 1 ) * tNumberOfElements << '\n';
 
             // loop over all elements
             for ( auto tElement : tAllElements )
@@ -1754,7 +1754,7 @@ namespace moris::hmr
             }
 
             // write cell types
-            tFile << "CELL_TYPES " << tNumberOfElements << std::endl;
+            tFile << "CELL_TYPES " << tNumberOfElements << '\n';
             tIChar = swap_byte_endian( tCellType );
             for ( luint k = 0; k < tNumberOfElements; ++k )
             {
@@ -1762,11 +1762,11 @@ namespace moris::hmr
             }
 
             // write element data
-            tFile << "CELL_DATA " << tNumberOfElements << std::endl;
+            tFile << "CELL_DATA " << tNumberOfElements << '\n';
 
             // write element ID
-            tFile << "SCALARS ELEMENT_ID int" << std::endl;
-            tFile << "LOOKUP_TABLE default" << std::endl;
+            tFile << "SCALARS ELEMENT_ID int" << '\n';
+            tFile << "LOOKUP_TABLE default" << '\n';
             for ( auto tElement : tAllElements )
             {
                 if ( !tElement->has_children() )
@@ -1777,15 +1777,15 @@ namespace moris::hmr
             }
 
             // write proc owner
-            tFile << "SCALARS ELEMENT_OWNER int" << std::endl;
-            tFile << "LOOKUP_TABLE default" << std::endl;
+            tFile << "SCALARS ELEMENT_OWNER int" << '\n';
+            tFile << "LOOKUP_TABLE default" << '\n';
             for ( auto tElement : tAllElements )
             {
                 if ( !tElement->has_children() )
                 {
                     if ( tElement->is_padding() )
                     {
-                        tIChar = swap_byte_endian( (int)-1 );
+                        tIChar = swap_byte_endian( ( -1 ) );
                     }
                     else
                     {
@@ -1794,11 +1794,11 @@ namespace moris::hmr
                     tFile.write( (char*)&tIChar, sizeof( int ) );
                 }
             }
-            tFile << std::endl;
+            tFile << '\n';
 
             // write level
-            tFile << "SCALARS ELEMENT_LEVEL int" << std::endl;
-            tFile << "LOOKUP_TABLE default" << std::endl;
+            tFile << "SCALARS ELEMENT_LEVEL int" << '\n';
+            tFile << "LOOKUP_TABLE default" << '\n';
             for ( auto tElement : tAllElements )
             {
                 if ( !tElement->has_children() )
@@ -1807,11 +1807,11 @@ namespace moris::hmr
                     tFile.write( (char*)&tIChar, sizeof( float ) );
                 }
             }
-            tFile << std::endl;
+            tFile << '\n';
 
             // write memory index
-            tFile << "SCALARS ELEMENT_MEMORY_INDEX int" << std::endl;
-            tFile << "LOOKUP_TABLE default" << std::endl;
+            tFile << "SCALARS ELEMENT_MEMORY_INDEX int" << '\n';
+            tFile << "LOOKUP_TABLE default" << '\n';
             for ( auto tElement : tAllElements )
             {
                 if ( !tElement->has_children() )
@@ -1820,7 +1820,7 @@ namespace moris::hmr
                     tFile.write( (char*)&tIChar, sizeof( int ) );
                 }
             }
-            tFile << std::endl;
+            tFile << '\n';
 
             // close the output file
             tFile.close();

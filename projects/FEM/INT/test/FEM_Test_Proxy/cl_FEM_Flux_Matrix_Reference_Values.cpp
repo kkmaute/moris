@@ -16,7 +16,7 @@ using namespace moris;
 
 //------------------------------------------------------------------------------
 
-inline const Matrix< DDRMat >
+inline Matrix< DDRMat >
 get_reference_Y()
 {
     // define reference value for unit test
@@ -33,7 +33,7 @@ get_reference_Y()
 
 //------------------------------------------------------------------------------
 
-inline const Matrix< DDRMat >
+inline Matrix< DDRMat >
 get_reference_dYdt()
 {
     // define reference value for unit test
@@ -50,7 +50,7 @@ get_reference_dYdt()
 
 //------------------------------------------------------------------------------
 
-inline const Vector< Matrix< DDRMat > >
+inline Vector< Matrix< DDRMat > >
 get_reference_dYdx()
 {
     // define reference value for unit test
@@ -76,7 +76,7 @@ get_reference_dYdx()
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-inline const Matrix< DDRMat >
+inline Matrix< DDRMat >
 get_reference_C()
 {
     // define reference value for unit test
@@ -93,7 +93,7 @@ get_reference_C()
 
 //------------------------------------------------------------------------------
 
-inline const Vector< Matrix< DDRMat > >
+inline Vector< Matrix< DDRMat > >
 get_reference_A()
 {
     // define reference value for unit test
@@ -124,7 +124,7 @@ get_reference_A()
 
 //------------------------------------------------------------------------------
 
-inline const Vector< Matrix< DDRMat > >
+inline Vector< Matrix< DDRMat > >
 get_reference_K()
 {
     // define reference value for unit test
@@ -161,7 +161,7 @@ get_reference_K()
 
 //------------------------------------------------------------------------------
 
-inline const Vector< Matrix< DDRMat > >
+inline Vector< Matrix< DDRMat > >
 get_reference_Kiji()
 {
     // define reference value for unit test
@@ -188,7 +188,7 @@ get_reference_Kiji()
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-inline const Matrix< DDRMat >
+inline Matrix< DDRMat >
 get_reference_LY()
 {
     // define reference value for unit test
@@ -205,7 +205,7 @@ get_reference_LY()
 
 //------------------------------------------------------------------------------
 
-inline const Matrix< DDRMat >
+inline Matrix< DDRMat >
 get_reference_LW()
 {
     // define reference value for unit test
@@ -293,7 +293,7 @@ get_reference_LW()
 
 //------------------------------------------------------------------------------
 
-inline const Matrix< DDRMat >
+inline Matrix< DDRMat >
 get_reference_dRsdDof()
 {
     // define reference value for unit test
@@ -381,7 +381,7 @@ get_reference_dRsdDof()
 
 //------------------------------------------------------------------------------
 
-inline const Matrix< DDRMat >
+inline Matrix< DDRMat >
 get_reference_GLSTestFunc()
 {
     // define reference value for unit test
@@ -466,7 +466,7 @@ get_reference_GLSTestFunc()
 
 //------------------------------------------------------------------------------
 
-inline const Matrix< DDRMat >
+inline Matrix< DDRMat >
 get_reference_A0inv()
 {
     // define reference value for unit test
@@ -483,7 +483,7 @@ get_reference_A0inv()
 
 //------------------------------------------------------------------------------
 
-inline const Matrix< DDRMat >
+inline Matrix< DDRMat >
 get_reference_G()
 {
     // define reference value for unit test
@@ -498,7 +498,7 @@ get_reference_G()
 
 //------------------------------------------------------------------------------
 
-inline const Matrix< DDRMat >
+inline Matrix< DDRMat >
 get_reference_M()
 {
     // define reference value for unit test
@@ -515,7 +515,7 @@ get_reference_M()
 
 //------------------------------------------------------------------------------
 
-inline const Matrix< DDRMat >
+inline Matrix< DDRMat >
 get_reference_sqrtMinv()
 {
     // define reference value for unit test
@@ -532,7 +532,7 @@ get_reference_sqrtMinv()
 
 //------------------------------------------------------------------------------
 
-inline const Matrix< DDRMat >
+inline Matrix< DDRMat >
 get_reference_Tau()
 {
     // define reference value for unit test
@@ -549,7 +549,7 @@ get_reference_Tau()
 
 //------------------------------------------------------------------------------
 
-inline const Vector< Matrix< DDRMat > >
+inline Vector< Matrix< DDRMat > >
 get_reference_dMdY()
 {
     // define reference value for unit test
@@ -589,7 +589,7 @@ get_reference_dMdY()
 
 //------------------------------------------------------------------------------
 
-inline const Vector< Matrix< DDRMat > >
+inline Vector< Matrix< DDRMat > >
 get_reference_dTaudDof()
 {
     // define reference value for unit test
@@ -905,7 +905,7 @@ get_reference_dTaudDof()
 
 //------------------------------------------------------------------------------
 
-inline const Matrix< DDRMat >
+inline Matrix< DDRMat >
 get_reference_ResGLS()
 {
     // define reference value for unit test
@@ -990,7 +990,7 @@ get_reference_ResGLS()
 
 //------------------------------------------------------------------------------
 
-inline const Matrix< DDRMat >
+inline Matrix< DDRMat >
 get_reference_JacGLS()
 {
     // define reference value for unit test

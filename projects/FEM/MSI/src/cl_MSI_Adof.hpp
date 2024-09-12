@@ -13,89 +13,86 @@
 
 #include "moris_typedefs.hpp"
 
-namespace moris
+namespace moris::MSI
 {
-    namespace MSI
+    class Adof
     {
-        class Adof
+      private:
+        moris_id    mAdofId          = gNoID;
+        moris_id    mAdofExternalId  = gNoID;       // FIXME delete
+        moris_index mAdofExternalInd = gNoIndex;    // external Ind. only for HMR use
+
+        uint mOwningProcessor;
+
+        sint mAdofTypeTimeIdentifier = -1;    // Stores a unique integer for every dof type and time combination.
+                                              // only used for multigrid
+
+      public:
+        Adof(){};
+
+        ~Adof(){};
+
+        void
+        set_adof_id( const moris_id aAdofId )
         {
-          private:
-            moris_id    mAdofId          = gNoID;
-            moris_id    mAdofExternalId  = gNoID;       // FIXME delete
-            moris_index mAdofExternalInd = gNoIndex;    // external Ind. only for HMR use
+            mAdofId = aAdofId;
+        };
 
-            uint mOwningProcessor;
+        void
+        set_adof_external_id( const moris_id aAdofExtId )    // FIXME delte
+        {
+            mAdofExternalId = aAdofExtId;
+        };
 
-            sint mAdofTypeTimeIdentifier = -1;    // Stores a unique integer for every dof type and time combination.
-            // only used for multigrid
+        void
+        set_adof_external_ind( const moris_index aAdofExtInd )
+        {
+            mAdofExternalInd = aAdofExtInd;
+        };
 
-          public:
-            Adof(){};
+        void
+        set_adof_owning_processor( const sint aOwningProcessor )
+        {
+            mOwningProcessor = aOwningProcessor;
+        };
 
-            ~Adof(){};
+        moris_id
+        get_adof_id()
+        {
+            return mAdofId;
+        };
 
-            void
-            set_adof_id( const moris_id aAdofId )
-            {
-                mAdofId = aAdofId;
-            };
+        moris_id
+        get_adof_external_id()
+        {
+            return mAdofExternalId;
+        };
 
-            void
-            set_adof_external_id( const moris_id aAdofExtId )    // FIXME delte
-            {
-                mAdofExternalId = aAdofExtId;
-            };
+        moris_index
+        get_adof_external_ind()
+        {
+            return mAdofExternalInd;
+        };
 
-            void
-            set_adof_external_ind( const moris_index aAdofExtInd )
-            {
-                mAdofExternalInd = aAdofExtInd;
-            };
+        moris_id
+        get_adof_owning_processor()
+        {
+            return mOwningProcessor;
+        };
 
-            void
-            set_adof_owning_processor( const sint aOwningProcessor )
-            {
-                mOwningProcessor = aOwningProcessor;
-            };
+        sint
+        get_adof_type_time_identifier()
+        {
+            return mAdofTypeTimeIdentifier;
+        };
 
-            moris_id
-            get_adof_id()
-            {
-                return mAdofId;
-            };
+        void
+        set_adof_type_time_identifier( const sint aAdofTypeTimeIdentifier )
+        {
+            mAdofTypeTimeIdentifier = aAdofTypeTimeIdentifier;
+        };
 
-            moris_id
-            get_adof_external_id()
-            {
-                return mAdofExternalId;
-            };
-
-            moris_index
-            get_adof_external_ind()
-            {
-                return mAdofExternalInd;
-            };
-
-            moris_id
-            get_adof_owning_processor()
-            {
-                return mOwningProcessor;
-            };
-
-            sint
-            get_adof_type_time_identifier()
-            {
-                return mAdofTypeTimeIdentifier;
-            };
-
-            void
-            set_adof_type_time_identifier( const sint aAdofTypeTimeIdentifier )
-            {
-                mAdofTypeTimeIdentifier = aAdofTypeTimeIdentifier;
-            };
-
-        };  // class ADof
-    }   // namespace MSI
-}    // namespace moris
+    };    // class ADof
+}    // namespace moris::MSI
 
 #endif /* SRC_FEM_CL_ADOF_HPP_ */

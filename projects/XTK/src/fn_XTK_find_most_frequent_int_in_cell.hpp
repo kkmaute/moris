@@ -57,7 +57,7 @@ namespace moris::xtk
         MORIS_ERROR( tCheck, "xtk::find_most_frequent_index_in_cell() - function failed to find any index" );
 
         // return the array element that occurs the most often
-        aCount = (moris_index)tMaxCount;
+        aCount = tMaxCount;
         return tResult;
     }
 

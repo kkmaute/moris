@@ -463,7 +463,7 @@ namespace moris::hmr
 
             tHMR.finalize();
 
-            std::cout << "create mesh" << std::endl;
+            std::cout << "create mesh" << '\n';
             //        auto tMesh = tHMR.create_mesh( tLagrangeOrder );
 
             Interpolation_Mesh_HMR* tMesh = tHMR.create_interpolation_mesh( 3, 0 );
@@ -757,7 +757,7 @@ namespace moris::hmr
     {
         if ( par_size() == 1 or par_size() == 2 or par_size() == 4 )
         {
-            std::cout << "I am proc: " << par_rank() << std::endl;
+            std::cout << "I am proc: " << par_rank() << '\n';
 
             uint tLagrangeMeshIndex = 0;
 
@@ -919,7 +919,7 @@ namespace moris::hmr
     {
         if ( par_size() == 1 or par_size() == 2 or par_size() == 4 )
         {
-            std::cout << "I am proc: " << par_rank() << std::endl;
+            std::cout << "I am proc: " << par_rank() << '\n';
 
             uint tLagrangeMeshIndex = 0;
 
@@ -984,7 +984,7 @@ namespace moris::hmr
 
             uint tNumNodes = tInterpolationMesh->get_num_nodes();
 
-            std::cout << tNumNodes << std::endl;
+            std::cout << tNumNodes << '\n';
 
             if ( par_size() == 1 )
             {
@@ -1032,7 +1032,7 @@ namespace moris::hmr
     {
         if ( par_size() == 1 )
         {
-            std::cout << "I am proc: " << par_rank() << std::endl;
+            std::cout << "I am proc: " << par_rank() << '\n';
 
             // empty container for B-Spline meshes
             Vector< BSpline_Mesh_Base* > tBSplineMeshes;
@@ -1189,7 +1189,7 @@ namespace moris::hmr
     {
         if ( par_size() == 4 )
         {
-            std::cout << "I am proc: " << par_rank() << std::endl;
+            std::cout << "I am proc: " << par_rank() << '\n';
 
             // empty container for B-Spline meshes
             Vector< BSpline_Mesh_Base* > tBSplineMeshes;
@@ -1290,7 +1290,7 @@ namespace moris::hmr
     {
         if ( par_size() == 4 )
         {
-            std::cout << "I am proc: " << par_rank() << std::endl;
+            std::cout << "I am proc: " << par_rank() << '\n';
 
             // empty container for B-Spline meshes
             Vector< BSpline_Mesh_Base* > tBSplineMeshes;

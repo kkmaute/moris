@@ -45,10 +45,10 @@ check_linear_results( moris::mtk::Exodus_IO_Helper &aExoIO, uint aNodeId )
         moris::print( aExoIO.get_nodal_coordinate( aNodeId ), "Coordinates of reference point" );
 
         // time value for reference time step
-        std::cout << "Time value: " << std::scientific << std::setprecision( 15 ) << aExoIO.get_time_value() << std::endl;
+        std::cout << "Time value: " << std::scientific << std::setprecision( 15 ) << aExoIO.get_time_value() << '\n';
 
         // solution of reference point at reference time step
-        std::cout << "Temperature at reference point: " << std::scientific << std::setprecision( 15 ) << aExoIO.get_nodal_field_value( aNodeId, 2, 19 ) << std::endl;
+        std::cout << "Temperature at reference point: " << std::scientific << std::setprecision( 15 ) << aExoIO.get_nodal_field_value( aNodeId, 2, 19 ) << '\n';
 
         // value of IQI at reference time step
         // std::cout << "IQI value: " << std::scientific << std::setprecision(15) << aExoIO.get_global_variable(0, 0 ) << std::endl;
@@ -91,10 +91,10 @@ check_quadratic_results( moris::mtk::Exodus_IO_Helper &aExoIO, uint aNodeId )
         moris::print( aExoIO.get_nodal_coordinate( aNodeId ), "Coordinates of reference point" );
 
         // time value for reference time step
-        std::cout << "Time value: " << std::scientific << std::setprecision( 15 ) << aExoIO.get_time_value() << std::endl;
+        std::cout << "Time value: " << std::scientific << std::setprecision( 15 ) << aExoIO.get_time_value() << '\n';
 
         // solution of reference point at reference time step
-        std::cout << "Temperature at reference point: " << std::scientific << std::setprecision( 15 ) << aExoIO.get_nodal_field_value( aNodeId, 2, 19 ) << std::endl;
+        std::cout << "Temperature at reference point: " << std::scientific << std::setprecision( 15 ) << aExoIO.get_nodal_field_value( aNodeId, 2, 19 ) << '\n';
 
         // value of IQI at reference time step
         // std::cout << "IQI value: " << std::scientific << std::setprecision(15) << aExoIO.get_global_variable(0, 0 ) << std::endl;
@@ -142,9 +142,9 @@ check_linear_results_serial()
 
     if ( gPrintReferenceValues )
     {
-        std::cout << "Number of dimensions: " << tNumDims << std::endl;
-        std::cout << "Number of nodes     : " << tNumNodes << std::endl;
-        std::cout << "Number of elements  : " << tNumElems << std::endl;
+        std::cout << "Number of dimensions: " << tNumDims << '\n';
+        std::cout << "Number of nodes     : " << tNumNodes << '\n';
+        std::cout << "Number of elements  : " << tNumElems << '\n';
     }
     else
     {
@@ -174,9 +174,9 @@ check_quadratic_results_serial()
 
     if ( gPrintReferenceValues )
     {
-        std::cout << "Number of dimensions: " << tNumDims << std::endl;
-        std::cout << "Number of nodes     : " << tNumNodes << std::endl;
-        std::cout << "Number of elements  : " << tNumElems << std::endl;
+        std::cout << "Number of dimensions: " << tNumDims << '\n';
+        std::cout << "Number of nodes     : " << tNumNodes << '\n';
+        std::cout << "Number of elements  : " << tNumElems << '\n';
     }
     else
     {

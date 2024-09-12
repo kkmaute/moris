@@ -14,19 +14,16 @@
 #include "cl_OPT_Algorithm.hpp"
 #include "cl_Parameter_List.hpp"
 
-namespace moris
+namespace moris::opt
 {
-    namespace opt
-    {
-        /**
-         * Creates an instance of the specified Algorithm class and returns a shared pointer to it.
-         *
-         * @param aAlgorithmParameterList Parameter list for an OPT algorithm
-         * @return Algorithm class
-         */
-        std::shared_ptr<Algorithm> create_algorithm( Parameter_List aAlgorithmParameterList);
+    /**
+     * Creates an instance of the specified Algorithm class and returns a shared pointer to it.
+     *
+     * @param aAlgorithmParameterList Parameter list for an OPT algorithm
+     * @return Algorithm class
+     */
+    std::shared_ptr< Algorithm > create_algorithm( const Parameter_List& aAlgorithmParameterList );
     }
-}
 
 #endif //MORIS_FN_OPT_CREATE_ALGORITHM_HPP
 

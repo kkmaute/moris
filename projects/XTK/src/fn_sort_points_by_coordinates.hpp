@@ -23,7 +23,7 @@ namespace moris
     {
         Matrix< DDRMat > mX;
 
-        SortPoint( Matrix< DDRMat > aX )
+        SortPoint( const Matrix< DDRMat >& aX )
                 : mX( aX )
         {
         }

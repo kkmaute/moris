@@ -95,6 +95,7 @@ namespace moris
             // map of leader and follower mat pdv types for assembly
             Vector< moris::Matrix< DDSMat > > mPdvMatAssemblyMap;
             moris::Matrix< DDSMat >           mPdvMatAssemblyVector;
+            bool                              mPdvMatAssemblyFlag = false;
 
             std::map< std::pair< moris_index, gen::PDV_Type >, uint > mPdvGeoAssemblyMap;
             moris::Matrix< DDSMat >                                   mPdvGeoAssemblyVector;
@@ -172,13 +173,13 @@ namespace moris
             /**
              * trivial constructor
              */
-            Equation_Set(){};
+            Equation_Set() {};
 
             //------------------------------------------------------------------------------
             /**
              * trivial destructor
              */
-            virtual ~Equation_Set(){};
+            virtual ~Equation_Set() {};
 
             //------------------------------------------------------------------------------
 
@@ -337,7 +338,7 @@ namespace moris
              * \brief Get the displacement for every node in the set.
              * \return A map from the node index to the displacement vector.
              */
-            virtual std::unordered_map< moris_index, Vector< real > > get_nodal_displacements( std::unordered_set< moris_index > aRequestedNodes )
+            virtual std::unordered_map< moris_index, Vector< real > > get_nodal_displacements( const std::unordered_set< moris_index >& aRequestedNodes )
             {
                 MORIS_ERROR( false, "Equation_Set::get_nodal_displacements - not implemented for virtual member function" );
                 return {};

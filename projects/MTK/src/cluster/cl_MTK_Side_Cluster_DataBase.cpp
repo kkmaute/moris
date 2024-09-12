@@ -245,8 +245,9 @@ namespace moris::mtk
     // ----------------------------------------------------------------------------------
 
     moris_index
-    Side_Cluster_DataBase::get_vertex_cluster_index( const Vertex* aVertex,
-            const mtk::Leader_Follower                             aIsLeader ) const
+    Side_Cluster_DataBase::get_vertex_cluster_index(
+            const Vertex*              aVertex,
+            const mtk::Leader_Follower aIsLeader ) const
     {
         auto tVertexOrdinalFinder = [ aVertex ]( mtk::Vertex* aVertices ) { return aVertices->get_index() == aVertex->get_index(); };
 
@@ -290,7 +291,7 @@ namespace moris::mtk
         {
             std::cout << tVerticesOnSide( i )->get_id() << " ";
         }
-        std::cout << "]" << std::endl;
+        std::cout << "]" << '\n';
 
         // throw error and return default
         MORIS_ERROR( false, "Side_Cluster_DataBase::get_vertex_ordinal_on_facet() - Vertex not found on facet." );

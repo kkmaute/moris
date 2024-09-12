@@ -16,36 +16,34 @@
 #include "fn_norm.hpp"
 #include "fn_eye.hpp"
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+
+    //------------------------------------------------------------------------------
+
+    IWG_Incompressible_NS_Pressure_SlipBoundary_Nitsche::IWG_Incompressible_NS_Pressure_SlipBoundary_Nitsche( sint aBeta )
     {
+        // set sign for symmetric/unsymmetric Nitsche
+        mBeta = aBeta;
 
-        //------------------------------------------------------------------------------
+        // set size for the property pointer cell
+        mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
-        IWG_Incompressible_NS_Pressure_SlipBoundary_Nitsche::IWG_Incompressible_NS_Pressure_SlipBoundary_Nitsche( sint aBeta )
-        {
-            // set sign for symmetric/unsymmetric Nitsche
-            mBeta = aBeta;
+        // populate the property map
+        mPropertyMap[ "Dirichlet" ] = static_cast< uint >( IWG_Property_Type::DIRICHLET );
 
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+        // set size for the constitutive model pointer cell
+        mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
-            // populate the property map
-            mPropertyMap[ "Dirichlet" ] = static_cast< uint >( IWG_Property_Type::DIRICHLET );
+        // populate the constitutive map
+        mConstitutiveMap[ "IncompressibleFluid" ] = static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE );
+    }
 
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+    //------------------------------------------------------------------------------
 
-            // populate the constitutive map
-            mConstitutiveMap[ "IncompressibleFluid" ] = static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE );
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IWG_Incompressible_NS_Pressure_SlipBoundary_Nitsche::compute_residual( real aWStar )
-        {
-            // check leader field interpolators
+    void IWG_Incompressible_NS_Pressure_SlipBoundary_Nitsche::compute_residual( real aWStar )
+    {
+        // check leader field interpolators
 #ifdef MORIS_HAVE_DEBUG
             this->check_field_interpolators();
 #endif
@@ -193,6 +191,4 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
-
+}    // namespace moris::fem

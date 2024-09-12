@@ -14,27 +14,22 @@
 
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
 
-namespace moris
+namespace moris::mtk
 {
-    namespace mtk
+    Field_Proxy::Field_Proxy(
+            const mtk::Mesh_Pair &aMeshPairs,
+            uint const           &aDiscretizationMeshIndex )
+            : Field( aMeshPairs,
+                      aDiscretizationMeshIndex )
     {
-        Field_Proxy::Field_Proxy(
-                mtk::Mesh_Pair   aMeshPairs,
-                uint const     & aDiscretizationMeshIndex )
-        : Field( aMeshPairs,
-                 aDiscretizationMeshIndex )
-        {
-        }
+    }
 
-        // ----------------------------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------
 
-        Field_Proxy::~Field_Proxy()
-        {
+    Field_Proxy::~Field_Proxy()
+    {
+    }
 
-        }
-
-        // ----------------------------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------
 
     }
-}
-

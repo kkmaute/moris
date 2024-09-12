@@ -20,7 +20,6 @@
 #include "cl_MTK_Mesh_Tools.hpp"
 #include "cl_MTK_Mesh_Data_Input.hpp"
 #include "cl_MTK_Scalar_Field_Info.hpp"
-#include "cl_MTK_Mesh.hpp"
 
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
@@ -83,9 +82,7 @@ moris::real LevelSetFunction( const moris::Matrix< moris::DDRMat > & aPoint )
     return norm( aPoint ) - 0.5;
 }
 
-namespace moris
-{
-namespace mdl
+namespace moris::mdl
 {
 
 void tConstValFunction_MDLDIFF
@@ -1284,6 +1281,4 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
     }/* if( par_size() */
 }
 
-}/* namespace fem */
-}/* namespace moris */
-
+}    // namespace moris::mdl

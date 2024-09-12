@@ -721,6 +721,8 @@ namespace moris
         }
     }
 
+    // -----------------------------------------------------------------------------
+
     template< typename T >
     [[nodiscard]] Vector< T >
     string_to_cell(
@@ -731,6 +733,8 @@ namespace moris
         string_to_cell( aString, tCell, aMap );
         return tCell;
     }
+
+    // -----------------------------------------------------------------------------
 
     /**
      * Converts an input string into values to be pushed back into a cell with "," delimiter.
@@ -744,10 +748,13 @@ namespace moris
             const std::string &aString,
             Vector< T >       &aCell )
     {
+        // check that vector is empty
+        MORIS_ASSERT( aCell.size() == 0, "string_to_cell - vector needs to be empty" );
+
         // convert string to string stream and a sub string
         std::stringstream tStringStream( aString );
 
-        // seperate the string by the delimiter
+        // separate the string by the delimiter
         std::string tSubString;
         while ( std::getline( tStringStream, tSubString, ',' ) )
         {
@@ -763,6 +770,8 @@ namespace moris
         }
     }
 
+    // -----------------------------------------------------------------------------
+
     /**
      * Converts an input string into values to be pushed back into a cell of strings with "," delimiter.
      *
@@ -773,6 +782,8 @@ namespace moris
     void string_to_cell< std::string >(
             const std::string     &aString,
             Vector< std::string > &aCell );
+
+    // -----------------------------------------------------------------------------
 
     /**
      * Converts an input string into a new cell to be returned.
@@ -788,6 +799,8 @@ namespace moris
         string_to_cell( aString, tCell );
         return tCell;
     }
+
+    // -----------------------------------------------------------------------------
 
     /**
      * This function inverts little endian to big endian and vice versa.

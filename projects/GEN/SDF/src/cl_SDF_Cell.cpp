@@ -13,11 +13,9 @@
 #include "linalg_typedefs.hpp"
 #include "cl_SDF_Cell.hpp"
 
-namespace moris
+namespace moris::sdf
 {
-    namespace sdf
-    {
-//-------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------
 
     Cell::Cell(
             const moris_index aIndex,
@@ -75,6 +73,4 @@ namespace moris
         }
 
 //-------------------------------------------------------------------------------
-    } /* namespace sdf */
-} /* namespace moris */
-
+}    // namespace moris::sdf

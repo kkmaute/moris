@@ -88,12 +88,12 @@ namespace moris::xtk
         Vector< Vector< moris_index > >                                 mDoubleSideSetsLeaderIndex;      // outer cell: index of the dbl-side set || inner cell: indices of the leader of side clusters that live on this dbl-side set
         Vector< Vector< moris_index > >                                 mDoubleSideSetsFollowerIndex;    // outer cell: index of the dbl-side set || inner cell: indices of all the follower of side clusters that live on this dbl-side set
         Vector< std::shared_ptr< mtk::Double_Side_Cluster > >           mDoubleSideClusters;
-        Vector< std::shared_ptr< xtk::Side_Cluster > >                  mDoubleSideSingleSideClusters;   /*lefts and rights of the double side sets*/
+        Vector< std::shared_ptr< xtk::Side_Cluster > >                  mDoubleSideSingleSideClusters;    // lefts and rights of the double side sets
         Matrix< IndexMat >                                              mBulkPhaseToDblSideIndex;
         Vector< Matrix< IndexMat > >                                    mLeaderDoubleSideSetColor;
         Vector< Matrix< IndexMat > >                                    mFollowerDoubleSideSetColor;
-        Vector< Vector< moris_index > >                                 mColorLeaderDoubleSideSet;   /*transpose of mLeaderDoubleSideSetColor*/
-        Vector< Vector< moris_index > >                                 mColorFollowerDoubleSideSet; /*transpose of mFollowerDoubleSideSetColor*/
+        Vector< Vector< moris_index > >                                 mColorLeaderDoubleSideSet;      // transpose of mLeaderDoubleSideSetColor
+        Vector< Vector< moris_index > >                                 mColorFollowerDoubleSideSet;    // transpose of mFollowerDoubleSideSetColor
 
         // Fields
         Vector< xtk::Field >                                               mFields;                        // list of global fields
@@ -115,40 +115,40 @@ namespace moris::xtk
         Enriched_Integration_Mesh( Model *aXTKModel );
 
         Enriched_Integration_Mesh(
-                Model                   *aXTKModel,
-                const Matrix< IndexMat > aBsplineMeshIndices );
+                Model                    *aXTKModel,
+                const Matrix< IndexMat > &aBsplineMeshIndices );
         //------------------------------------------------------------------------------
-        ~Enriched_Integration_Mesh();
+        ~Enriched_Integration_Mesh() override;
         //------------------------------------------------------------------------------
         // MTK Mesh Core Functionality (see base class mtk::Mesh for documentation)
         //------------------------------------------------------------------------------
-        mtk::MeshType                               get_mesh_type() const;
-        moris::uint                                 get_spatial_dim() const;
-        uint                                        get_num_entities( mtk::EntityRank aEntityRank, const moris_index aIndex = 0 ) const;
-        Matrix< IndexMat >                          get_entity_connected_to_entity_loc_inds( moris_index aEntityIndex, mtk::EntityRank aInputEntityRank, mtk::EntityRank aOutputEntityRank, const moris_index aIndex = 0 ) const;
-        Matrix< IndexMat >                          get_elements_connected_to_element_and_face_ind_loc_inds( moris_index aElementIndex ) const;
-        moris_id                                    get_glb_entity_id_from_entity_loc_index( moris_index aEntityIndex, mtk::EntityRank aEntityRank, const moris_index aIndex = 0 ) const;
-        std::unordered_map< moris_id, moris_index > get_vertex_glb_id_to_loc_vertex_ind_map() const;
-        moris_index                                 get_loc_entity_ind_from_entity_glb_id( moris_id aEntityId, mtk::EntityRank aEntityRank, const moris_index aIndex = 0 ) const;
-        Vector< mtk::Vertex const * >               get_all_vertices() const;
-        Matrix< IdMat >                             get_entity_connected_to_entity_glob_ids( moris_id aEntityId, mtk::EntityRank aInputEntityRank, mtk::EntityRank aOutputEntityRank, const moris_index aIndex = 0 ) const;
-        Matrix< DDRMat >                            get_node_coordinate( moris_index aNodeIndex ) const;
-        mtk::Vertex                                &get_mtk_vertex( moris_index aVertexIndex );
-        mtk::Vertex const                          &get_mtk_vertex( moris_index aVertexIndex ) const;
-        mtk::Cell                                  &get_writable_mtk_cell( moris_index aElementIndex );
-        mtk::Cell                                  &get_mtk_cell( moris_index aElementIndex );
-        mtk::Cell const                            &get_mtk_cell( moris_index aElementIndex ) const;
-        Matrix< IdMat >                             get_communication_table() const;
-        Vector< std::string >                       get_set_names( mtk::EntityRank aSetEntityRank ) const;
-        mtk::CellTopology                           get_blockset_topology( const std::string &aSetName );
-        mtk::CellShape                              get_IG_blockset_shape( const std::string &aSetName );
-        mtk::CellShape                              get_IP_blockset_shape( const std::string &aSetName );
-        Matrix< IndexMat >                          get_set_entity_loc_inds( mtk::EntityRank aSetEntityRank, std::string aSetName ) const;
-        Matrix< IndexMat >                          get_element_indices_in_block_set( uint aSetIndex );
-        void                                        get_sideset_elems_loc_inds_and_ords( const std::string &aSetName, Matrix< IndexMat > &aElemIndices, Matrix< IndexMat > &aSidesetOrdinals ) const;
-        moris_id                                    get_max_entity_id( mtk::EntityRank aEntityRank, const moris_index aIndex = 0 ) const;
-        uint                                        get_node_owner( moris_index aNodeIndex ) const;
-        uint                                        get_element_owner( moris_index aElementIndex ) const;
+        mtk::MeshType                               get_mesh_type() const override;
+        moris::uint                                 get_spatial_dim() const override;
+        uint                                        get_num_entities( mtk::EntityRank aEntityRank, const moris_index aIndex = 0 ) const override;
+        Matrix< IndexMat >                          get_entity_connected_to_entity_loc_inds( moris_index aEntityIndex, mtk::EntityRank aInputEntityRank, mtk::EntityRank aOutputEntityRank, const moris_index aIndex = 0 ) const override;
+        Matrix< IndexMat >                          get_elements_connected_to_element_and_face_ind_loc_inds( moris_index aElementIndex ) const override;
+        moris_id                                    get_glb_entity_id_from_entity_loc_index( moris_index aEntityIndex, mtk::EntityRank aEntityRank, const moris_index aIndex = 0 ) const override;
+        std::unordered_map< moris_id, moris_index > get_vertex_glb_id_to_loc_vertex_ind_map() const override;
+        moris_index                                 get_loc_entity_ind_from_entity_glb_id( moris_id aEntityId, mtk::EntityRank aEntityRank, const moris_index aIndex = 0 ) const override;
+        Vector< mtk::Vertex const * >               get_all_vertices() const override;
+        Matrix< IdMat >                             get_entity_connected_to_entity_glob_ids( moris_id aEntityId, mtk::EntityRank aInputEntityRank, mtk::EntityRank aOutputEntityRank, const moris_index aIndex = 0 ) const override;
+        Matrix< DDRMat >                            get_node_coordinate( moris_index aNodeIndex ) const override;
+        mtk::Vertex                                &get_mtk_vertex( moris_index aVertexIndex ) override;
+        mtk::Vertex const                          &get_mtk_vertex( moris_index aVertexIndex ) const override;
+        mtk::Cell                                  &get_writable_mtk_cell( moris_index aElementIndex ) override;
+        mtk::Cell                                  &get_mtk_cell( moris_index aElementIndex ) override;
+        mtk::Cell const                            &get_mtk_cell( moris_index aElementIndex ) const override;
+        Matrix< IdMat >                             get_communication_table() const override;
+        Vector< std::string >                       get_set_names( mtk::EntityRank aSetEntityRank ) const override;
+        mtk::CellTopology                           get_blockset_topology( const std::string &aSetName ) override;
+        mtk::CellShape                              get_IG_blockset_shape( const std::string &aSetName ) override;
+        mtk::CellShape                              get_IP_blockset_shape( const std::string &aSetName ) override;
+        Matrix< IndexMat >                          get_set_entity_loc_inds( mtk::EntityRank aSetEntityRank, const std::string &aSetName ) const override;
+        Matrix< IndexMat >                          get_element_indices_in_block_set( uint aSetIndex ) override;
+        void                                        get_sideset_elems_loc_inds_and_ords( const std::string &aSetName, Matrix< IndexMat > &aElemIndices, Matrix< IndexMat > &aSidesetOrdinals ) const override;
+        moris_id                                    get_max_entity_id( mtk::EntityRank aEntityRank, const moris_index aIndex = 0 ) const override;
+        uint                                        get_node_owner( moris_index aNodeIndex ) const override;
+        uint                                        get_element_owner( moris_index aElementIndex ) const override;
 
         //------------------------------------------------------------------------------
         // end mesh core functions
@@ -158,24 +158,24 @@ namespace moris::xtk
         // MTK Integration Mesh Functions
         // see base class mtk::Integration_Mesh for documentation
         //------------------------------------------------------------------------------
-        mtk::Cell_Cluster const       &get_cell_cluster( mtk::Cell const &aInterpCell ) const;
-        mtk::Cell_Cluster const       &get_cell_cluster( moris_index aInterpCellIndex ) const;
-        Vector< std::string >          get_block_set_names() const;
-        std::string                    get_block_set_label( moris_index aBlockSetOrdinal ) const;
-        moris_index                    get_block_set_index( std::string aBlockSetLabel ) const;
-        Vector< mtk::Cluster const * > get_cell_clusters_in_set( moris_index aBlockSetOrdinal ) const;
+        mtk::Cell_Cluster const       &get_cell_cluster( mtk::Cell const &aInterpCell ) const override;
+        mtk::Cell_Cluster const       &get_cell_cluster( moris_index aInterpCellIndex ) const override;
+        Vector< std::string >          get_block_set_names() const override;
+        std::string                    get_block_set_label( moris_index aBlockSetOrdinal ) const override;
+        moris_index                    get_block_set_index( const std::string &aBlockSetLabel ) const override;
+        Vector< mtk::Cluster const * > get_cell_clusters_in_set( moris_index aBlockSetOrdinal ) const override;
         Matrix< IndexMat >             get_block_set_colors( moris_index aBlockSetOrdinal ) const;
-        Vector< mtk::Cluster const * > get_side_set_cluster( moris_index aSideSetOrdinal ) const;
+        Vector< mtk::Cluster const * > get_side_set_cluster( moris_index aSideSetOrdinal ) const override;
         Matrix< IndexMat >             get_side_set_colors( moris_index aSideSetOrdinal ) const;
-        uint                           get_num_side_sets() const;
-        std::string                    get_side_set_label( moris_index aSideSetOrdinal ) const;
-        moris_index                    get_side_set_index( std::string aSideSetLabel ) const;
-        uint                           get_num_double_sided_sets() const;
-        std::string                    get_double_sided_set_label( moris_index aSideSetOrdinal ) const;
-        moris_index                    get_double_sided_set_index( std::string aDoubleSideSetLabel ) const;
-        Vector< mtk::Cluster const * > get_double_side_set_cluster( moris_index aSideSetOrdinal ) const;
+        uint                           get_num_side_sets() const override;
+        std::string                    get_side_set_label( moris_index aSideSetOrdinal ) const override;
+        moris_index                    get_side_set_index( std::string aSideSetLabel ) const override;
+        uint                           get_num_double_sided_sets() const override;
+        std::string                    get_double_sided_set_label( moris_index aSideSetOrdinal ) const override;
+        moris_index                    get_double_sided_set_index( const std::string &aDoubleSideSetLabel ) const override;
+        Vector< mtk::Cluster const * > get_double_side_set_cluster( moris_index aSideSetOrdinal ) const override;
         Matrix< IndexMat >             get_double_side_set_colors( moris_index aSideSetOrdinal ) const;
-        uint                           get_sidesets_num_faces( Vector< moris_index > aSideSetIndex ) const;
+        uint                           get_sidesets_num_faces( Vector< moris_index > aSideSetIndex ) const override;
         //------------------------------------------------------------------------------
         // end integration mesh functions
         //------------------------------------------------------------------------------
@@ -185,12 +185,12 @@ namespace moris::xtk
         //------------------------------------------------------------------------------
 
         void                                                        setup_mesh_index_map();
-        moris_index                                                 get_local_mesh_index_xtk( moris_index const & aDiscretizationMeshIndex ) const;
-        Matrix< IndexMat >                                          get_enriched_mesh_indices() const;
+        moris_index                                                 get_local_mesh_index_xtk( moris_index const &aDiscretizationMeshIndex ) const;
+        Matrix< IndexMat >                                          get_enriched_mesh_indices() const override;
         uint                                                        get_num_interpolation_types() const;
-        uint                                                        get_num_cell_cluster_groups( const moris_index aDiscretizationMeshIndex ) const;
-        uint                                                        get_num_side_cluster_groups( const moris_index aDiscretizationMeshIndex ) const;
-        uint                                                        get_num_dbl_side_single_side_cluster_groups( const moris_index aDiscretizationMeshIndex ) const;
+        uint                                                        get_num_cell_cluster_groups( const moris_index aDiscretizationMeshIndex ) const override;
+        uint                                                        get_num_side_cluster_groups( const moris_index aDiscretizationMeshIndex ) const override;
+        uint                                                        get_num_dbl_side_single_side_cluster_groups( const moris_index aDiscretizationMeshIndex ) const override;
         Vector< std::shared_ptr< xtk::Cell_Cluster_Group > > const &get_cell_cluster_groups( const moris_index aDiscretizationMeshIndex ) const;
         Vector< std::shared_ptr< xtk::Side_Cluster_Group > > const &get_side_cluster_groups( const moris_index aDiscretizationMeshIndex ) const;
 
@@ -223,7 +223,7 @@ namespace moris::xtk
          * @return Primary cell local indices in a block set
          */
         Matrix< IndexMat >
-        get_block_entity_loc_inds( std::string aSetName ) const;
+        get_block_entity_loc_inds( const std::string &aSetName ) const;
 
         //------------------------------------------------------------------------------
 
@@ -284,7 +284,7 @@ namespace moris::xtk
         void create_subphase_fields();
 
         void
-        write_subphase_neighborhood( std::string aFile );
+        write_subphase_neighborhood( const std::string &aFile );
 
         void
         create_cell_id_fields();
@@ -293,7 +293,7 @@ namespace moris::xtk
         add_mesh_field_real_scalar_data_loc_inds(
                 std::string const      &aFieldName,
                 mtk::EntityRank const  &aFieldEntityRank,
-                Matrix< DDRMat > const &aFieldData );
+                Matrix< DDRMat > const &aFieldData ) override;
         //------------------------------------------------------------------------------
 
         /**
@@ -360,7 +360,7 @@ namespace moris::xtk
          */
         moris::moris_index
         create_field(
-                std::string        aLabel,
+                const std::string &aLabel,
                 mtk::EntityRank    aEntityRank,
                 moris::moris_index aSetOrdinal = MORIS_INDEX_MAX );
 
@@ -372,7 +372,7 @@ namespace moris::xtk
          */
         moris::moris_index
         get_field_index(
-                const std::string        aLabel,
+                const std::string       &aLabel,
                 const mtk::EntityRank    aEntityRank,
                 const moris::moris_index aSetOrdinal = MORIS_INDEX_MAX );
 
@@ -663,19 +663,19 @@ namespace moris::xtk
 
         void
         add_side_to_cluster(
-                std::shared_ptr< xtk::Side_Cluster > aSideCluster,
-                moris_index                          aCellIndex,
-                moris_index                          aSideOrdinal );
+                const std::shared_ptr< xtk::Side_Cluster > &aSideCluster,
+                moris_index                                 aCellIndex,
+                moris_index                                 aSideOrdinal );
 
         //------------------------------------------------------------------------------
 
         Vector< std::string >
-        split_set_name_by_bulk_phase( std::string aBaseName );
+        split_set_name_by_bulk_phase( const std::string &aBaseName );
 
         //------------------------------------------------------------------------------
 
         Vector< std::string >
-        split_set_name_by_child_no_child( std::string aBaseName );
+        split_set_name_by_child_no_child( const std::string &aBaseName );
 
         //------------------------------------------------------------------------------
 
@@ -783,7 +783,7 @@ namespace moris::xtk
          */
         bool
         field_exists(
-                const std::string        aLabel,
+                const std::string       &aLabel,
                 const mtk::EntityRank    aEntityRank,
                 const moris::moris_index aSetOrdinal );
 

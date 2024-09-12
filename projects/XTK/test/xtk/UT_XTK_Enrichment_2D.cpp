@@ -40,7 +40,6 @@
 #include "cl_XTK_Enrichment.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
-#include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 #include "cl_XTK_Interpolation_Cell_Unzipped.hpp"
 #include "cl_XTK_Cell_Cluster.hpp"
 
@@ -220,7 +219,7 @@ namespace moris::xtk
 
                 // check the primary ids
                 Matrix< IdMat > tPrimaryCellIds = tXTKCellCluster.get_primary_cell_ids_in_cluster();
-                std::cout << " i = " << i << std::endl;
+                std::cout << " i = " << i << '\n';
                 // moris::print(tPrimaryCellIds,"tPrimaryCellIds");
                 moris::print_std_initializer_list( tPrimaryCellIds, "tPrimaryCellIds" );
 

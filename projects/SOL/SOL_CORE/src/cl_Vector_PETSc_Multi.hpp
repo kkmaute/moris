@@ -49,10 +49,10 @@ namespace moris
                 bool                     aManageMap = false );
 
         /** Destructor */
-        ~MultiVector_PETSc();
+        ~MultiVector_PETSc() override;
 
         sol::Dist_Map*
-        get_map()
+        get_map() override
         {
             return dynamic_cast< sol::Dist_Map* >( mMap );
         }
@@ -63,40 +63,40 @@ namespace moris
          * @param aGlobalId Global ID
          * @return Value
          */
-        real& operator()( sint aGlobalId, uint aVectorIndex = 0 );
+        real& operator()( sint aGlobalId, uint aVectorIndex = 0 ) override;
 
         void sum_into_global_values(
                 const moris::Matrix< DDSMat >& aGlobalIds,
                 const moris::Matrix< DDRMat >& aValues,
-                const uint&                    aVectorIndex = 0 );
+                const uint&                    aVectorIndex = 0 ) override;
 
         void sum_into_global_values(
                 const Vector< sint >&          aGlobalIds,
                 const moris::Matrix< DDRMat >& aValues,
-                const uint&                    aVectorIndex = 0 );
+                const uint&                    aVectorIndex = 0 ) override;
 
         void replace_global_values(
                 const moris::Matrix< DDSMat >& aGlobalIds,
                 const moris::Matrix< DDRMat >& aValues,
-                const uint&                    aVectorIndex = 0 );
+                const uint&                    aVectorIndex = 0 ) override;
 
         void replace_global_values(
                 const Vector< sint >& aGlobalIds,
-                const Vector< real >& aValues );
+                const Vector< real >& aValues ) override;
 
-        void vector_global_assembly();
+        void vector_global_assembly() override;
 
         void vec_plus_vec(
                 const moris::real& aScaleA,
                 sol::Dist_Vector&  aVecA,
-                const moris::real& aScaleThis );
+                const moris::real& aScaleThis ) override;
 
         void scale_vector(
                 const moris::real& aValue,
-                const moris::uint& aVecIndex = 0 );
+                const moris::uint& aVecIndex = 0 ) override;
 
         void import_local_to_global(
-                sol::Dist_Vector& aSourceVec );
+                sol::Dist_Vector& aSourceVec ) override;
         
         //-----------------------------------------------------------------------------
         /**
@@ -109,41 +109,41 @@ namespace moris
 
         //-----------------------------------------------------------------------------
         
-        void vec_put_scalar( const moris::real& aValue );
+        void vec_put_scalar( const moris::real& aValue ) override;
 
-        void random();
+        void random() override;
 
-        moris::sint vec_local_length() const;
+        moris::sint vec_local_length() const override;
 
-        moris::sint vec_global_length() const;
+        moris::sint vec_global_length() const override;
 
-        Vector< moris::real > vec_norm2();
+        Vector< moris::real > vec_norm2() override;
 
-        void extract_copy( moris::Matrix< DDRMat >& LHSValues );
+        void extract_copy( moris::Matrix< DDRMat >& LHSValues ) override;
 
-        void extract_copy( Vector< real >& aVector );
+        void extract_copy( Vector< real >& aVector ) override;
 
         void extract_my_values( const moris::uint&      aNumIndices,
                 const moris::Matrix< DDSMat >&          aGlobalBlockRows,
                 const moris::uint&                      aBlockRowOffsets,
-                Vector< moris::Matrix< DDRMat > >& LHSValues );
+                Vector< moris::Matrix< DDRMat > >& LHSValues ) override;
 
-        void print() const;
+        void print() const override;
 
-        void save_vector_to_matrix_market_file( const char* aFilename ){};
+        void save_vector_to_matrix_market_file( const char* aFilename ) override{};
 
-        void save_vector_to_matlab_file( const char* aFilename );
+        void save_vector_to_matlab_file( const char* aFilename ) override;
 
-        void save_vector_to_HDF5( const char* aFilename );
+        void save_vector_to_HDF5( const char* aFilename ) override;
 
         void read_vector_from_HDF5(
                 const char* aFilename,
                 std::string aGroupName   = "LHS",
-                sint        aVectorindex = 0 );
+                sint        aVectorindex = 0 ) override;
 
         void check_vector();
 
-        moris::real* get_values_pointer();
+        moris::real* get_values_pointer() override;
 
         //-----------------------------------------------------------------------------
 

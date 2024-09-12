@@ -19,6 +19,7 @@
 #include "cl_MTK_Enums.hpp"
 #include "fn_unique.hpp"
 #include <unordered_map>
+#include <utility>
 
 #include "fn_norm.hpp"
 #include "fn_sum.hpp"
@@ -49,7 +50,7 @@ namespace moris::mig
             moris::moris_index                          aMeshIndex,
             moris::Parameter_List                      &aParameterList,
             moris::uint                                 aNumBulkPhases )
-            : mMeshManager( aMeshManager )
+            : mMeshManager( std::move( aMeshManager ) )
             , mMeshIndex( aMeshIndex )
             , mNumBulkPhases( aNumBulkPhases )
     {
@@ -615,7 +616,7 @@ namespace moris::mig
     //------------------------------------------------------------------------------------------------------------
     // name the cluster set
     void
-    Periodic_2D::construct_add_dbl_sided_set( moris::Matrix< IndexMat > tPhaseInteractionTable )
+    Periodic_2D::construct_add_dbl_sided_set( const moris::Matrix< IndexMat > &tPhaseInteractionTable )
     {
         // adjust the size of coordinate matrices
         mVertexParametricCoords.resize( mNumParamCoords, 2 );

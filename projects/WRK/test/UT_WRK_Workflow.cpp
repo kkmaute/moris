@@ -19,7 +19,6 @@
 #include "cl_WRK_Performer_Manager.hpp"
 #include "cl_WRK_Workflow_HMR_XTK.hpp"
 #include "cl_Library_Factory.hpp"
-#include "cl_Communication_Tools.hpp"
 
 using namespace moris;
 

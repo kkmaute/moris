@@ -21,88 +21,86 @@
 #include "fn_diag_vec.hpp"
 #include "fn_diag_mat.hpp"
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+
+    //------------------------------------------------------------------------------
+
+    IWG_L2_Damage_Bulk::IWG_L2_Damage_Bulk( uint aSourceType )
+    {
+        // set the property pointer cell size
+        mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+
+        // populate the property map
+        mPropertyMap[ "Weight" ] = static_cast< uint >( IWG_Property_Type::WEIGHT );
+        mPropertyMap[ "Lump" ]   = static_cast< uint >( IWG_Property_Type::LUMP );
+
+        // set size for the constitutive model pointer cell
+        mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+
+        // populate the constitutive map
+        mConstitutiveMap[ "ElasticDamage" ] = static_cast< uint >( IWG_Constitutive_Type::ELASTIC_DAMAGE );
+
+        // assign source type
+        mSourceType = aSourceType;
+
+        // switch on source type
+        switch ( mSourceType )
+        {
+            case 0:    // equivalent strain
+            {
+                m_get_source    = &IWG_L2_Damage_Bulk::get_source_eqStrain;
+                m_get_dsourcedu = &IWG_L2_Damage_Bulk::get_dsourcedu_eqStrain;
+                break;
+            }
+            case 1:    // history
+            {
+                m_get_source    = &IWG_L2_Damage_Bulk::get_source_history;
+                m_get_dsourcedu = &IWG_L2_Damage_Bulk::get_dsourcedu_history;
+                break;
+            }
+            case 2:    // smooth damage
+            {
+                m_get_source    = &IWG_L2_Damage_Bulk::get_source_smoothDam;
+                m_get_dsourcedu = &IWG_L2_Damage_Bulk::get_dsourcedu_smoothDam;
+                break;
+            }
+            default:
+                MORIS_ERROR( false, "IWG_L2_Damage_Bulk:: unknown source." );
+        }
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
+    IWG_L2_Damage_Bulk::set_parameters( const Vector< Matrix< DDRMat > >& aParameters )
+    {
+        // FIXME for now only implemented for the specific case of equivalent strain
+        // if not for equivalent strain then default parameters and no higher order derivatives included
+        if ( mSourceType == 0 )
+        {
+            // set parameters
+            mParameters = aParameters;
+
+            // check characteristic length provided
+            MORIS_ERROR( mParameters( 0 ).numel() == 1 || mParameters( 0 ).numel() == 2,
+                    "IWG_Nonlocal_Bulk::set_parameters - IWG_Nonlocal_Bulk requires a characteristic length.\n" );
+
+            // set a characteristic length
+            mCharacteristicLength = aParameters( 0 )( 0 );
+
+            // set a required order
+            mOrder = static_cast< uint >( aParameters( 1 )( 0 ) );
+        }
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
+    IWG_L2_Damage_Bulk::compute_residual( real aWStar )
     {
 
-        //------------------------------------------------------------------------------
-
-        IWG_L2_Damage_Bulk::IWG_L2_Damage_Bulk( uint aSourceType )
-        {
-            // set the property pointer cell size
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
-
-            // populate the property map
-            mPropertyMap[ "Weight" ]    = static_cast< uint >( IWG_Property_Type::WEIGHT );
-            mPropertyMap[ "Lump" ]      = static_cast< uint >( IWG_Property_Type::LUMP );
-
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
-
-            // populate the constitutive map
-            mConstitutiveMap[ "ElasticDamage" ] = static_cast< uint >( IWG_Constitutive_Type::ELASTIC_DAMAGE );
-
-            // assign source type
-            mSourceType = aSourceType;
-
-            // switch on source type
-            switch ( mSourceType )
-            {
-                case 0:    // equivalent strain
-                {
-                    m_get_source = &IWG_L2_Damage_Bulk::get_source_eqStrain;
-                    m_get_dsourcedu = &IWG_L2_Damage_Bulk::get_dsourcedu_eqStrain;
-                    break;
-                }
-                case 1:    // history
-                {
-                    m_get_source = &IWG_L2_Damage_Bulk::get_source_history;
-                    m_get_dsourcedu = &IWG_L2_Damage_Bulk::get_dsourcedu_history;
-                    break;
-                }
-                case 2:    // smooth damage
-                {
-                    m_get_source = &IWG_L2_Damage_Bulk::get_source_smoothDam;
-                    m_get_dsourcedu = &IWG_L2_Damage_Bulk::get_dsourcedu_smoothDam;
-                    break;
-                }
-                default:
-                    MORIS_ERROR( false, "IWG_L2_Damage_Bulk:: unknown source." );
-            }
-        }
-
-        //------------------------------------------------------------------------------
-
-        void
-        IWG_L2_Damage_Bulk::set_parameters( const Vector< Matrix< DDRMat > >& aParameters )
-        {
-            // FIXME for now only implemented for the specific case of equivalent strain
-            // if not for equivalent strain then default parameters and no higher order derivatives included
-            if ( mSourceType == 0 )
-            {
-                // set parameters
-                mParameters = aParameters;
-
-                // check characteristic length provided
-                MORIS_ERROR( mParameters( 0 ).numel() == 1 || mParameters( 0 ).numel() == 2,
-                        "IWG_Nonlocal_Bulk::set_parameters - IWG_Nonlocal_Bulk requires a characteristic length.\n" );
-
-                // set a characteristic length
-                mCharacteristicLength = aParameters( 0 )( 0 );
-
-                // set a required order
-                mOrder = static_cast< uint >( aParameters( 1 )( 0 ) );
-            }
-        }
-
-        //------------------------------------------------------------------------------
-
-        void
-        IWG_L2_Damage_Bulk::compute_residual( real aWStar )
-        {
-
-            // check leader field interpolators
+        // check leader field interpolators
 #ifdef MORIS_HAVE_DEBUG
             this->check_field_interpolators();
 #endif
@@ -409,6 +407,6 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-    } /* namespace fem */
-} /* namespace moris */
+}    // namespace moris::fem
+
 #endif /* SRC_FEM_CL_FEM_IWG_L2_DAMAGE_BULK_CPP_ */

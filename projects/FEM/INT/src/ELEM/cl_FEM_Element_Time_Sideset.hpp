@@ -14,122 +14,122 @@
 #include "assert.h"
 #include "cl_FEM_Element.hpp" //FEM/INT/src
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+    class Set;
+    //------------------------------------------------------------------------------
+    /**
+     * \brief Element_Sideset class
+     */
+    class Element_Time_Sideset : public Element
     {
-        class Set;
+
+        //------------------------------------------------------------------------------
+
+      protected:
+        //------------------------------------------------------------------------------
+
+        //------------------------------------------------------------------------------
+
+      public:
+        //------------------------------------------------------------------------------
+
+        /**
+         * constructor
+         *
+         * @param[ in ]     pointer to mesh interface object
+         * @param[ in ]     cell of pointers to integrand of weak form of governing eqs.
+         * @param[ in ]     cell of pointer to fem nodes
+         * @param[ in ]     Pointer to element block
+         */
+        Element_Time_Sideset(
+                mtk::Cell const   *aCell,
+                Set               *aSet,
+                Cluster           *aCluster,
+                moris::moris_index aCellIndexInCluster );
+
         //------------------------------------------------------------------------------
         /**
-         * \brief Element_Sideset class
+         * destructor
          */
-        class Element_Time_Sideset : public Element
-        {
-
-                //------------------------------------------------------------------------------
-            protected:
-                //------------------------------------------------------------------------------
-
-                //------------------------------------------------------------------------------
-            public:
-                //------------------------------------------------------------------------------
-
-                /**
-                 * constructor
-                 *
-                 * @param[ in ]     pointer to mesh interface object
-                 * @param[ in ]     cell of pointers to integrand of weak form of governing eqs.
-                 * @param[ in ]     cell of pointer to fem nodes
-                 * @param[ in ]     Pointer to element block
-                 */
-                Element_Time_Sideset(
-                        mtk::Cell const  * aCell,
-                        Set              * aSet,
-                        Cluster          * aCluster,
-                        moris::moris_index aCellIndexInCluster );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * destructor
-                 */
-                ~Element_Time_Sideset();
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute residual over the element
-                 */
-                void compute_residual();
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute jacobian over the element
-                 */
-                void compute_jacobian();
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute jacobian and residual over the element
-                 */
-                void compute_jacobian_and_residual();
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute dRdp
-                 */
-                void compute_dRdp();
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute QI
-                 */
-                void compute_QI();
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute dQIdu
-                 */
-                void compute_dQIdu();
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute dQIdp
-                 */
-                void compute_dQIdp_explicit();
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute dQIdp by finite difference
-                 */
-                void compute_dRdp_and_dQIdp();
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute volume over the element
-                 */
-                real compute_volume( mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
-
-                //------------------------------------------------------------------------------
-            private:
-                //------------------------------------------------------------------------------
-                /**
-                 * initialize the geometry interpolator for the IG element
-                 */
-                void init_ig_geometry_interpolator();
-
-                //------------------------------------------------------------------------------
-                /**
-                 * initialize the geometry interpolator for the IG element
-                 * @param[ in ] aGeoLocalAssembly matrix with pdv local assembly indices
-                 *                                ( tNumNodes x tNumPdvTypes )
-                 */
-                void init_ig_geometry_interpolator( Matrix< DDSMat > & aGeoLocalAssembly );
-
-                //------------------------------------------------------------------------------
-        };
+        ~Element_Time_Sideset() override;
 
         //------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
+        /**
+         * compute residual over the element
+         */
+        void compute_residual() override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute jacobian over the element
+         */
+        void compute_jacobian() override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute jacobian and residual over the element
+         */
+        void compute_jacobian_and_residual() override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute dRdp
+         */
+        void compute_dRdp() override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute QI
+         */
+        void compute_QI() override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute dQIdu
+         */
+        void compute_dQIdu() override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute dQIdp
+         */
+        void compute_dQIdp_explicit() override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute dQIdp by finite difference
+         */
+        void compute_dRdp_and_dQIdp() override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute volume over the element
+         */
+        real compute_volume( mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) override;
+
+        //------------------------------------------------------------------------------
+
+      private:
+        //------------------------------------------------------------------------------
+        /**
+         * initialize the geometry interpolator for the IG element
+         */
+        void init_ig_geometry_interpolator();
+
+        //------------------------------------------------------------------------------
+        /**
+         * initialize the geometry interpolator for the IG element
+         * @param[ in ] aGeoLocalAssembly matrix with pdv local assembly indices
+         *                                ( tNumNodes x tNumPdvTypes )
+         */
+        void init_ig_geometry_interpolator( Matrix< DDSMat > &aGeoLocalAssembly );
+
+        //------------------------------------------------------------------------------
+    };
+
+    //------------------------------------------------------------------------------
+}    // namespace moris::fem
 
 #endif /* SRC_FEM_CL_FEM_Element_Time_Sideset_HPP_ */
 

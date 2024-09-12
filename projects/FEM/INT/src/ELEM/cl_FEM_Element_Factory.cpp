@@ -20,87 +20,84 @@
 // FEM/MSI/src
 #include "cl_MSI_Equation_Object.hpp"
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+    //------------------------------------------------------------------------------
+    Element_Factory::Element_Factory() {}
+
+    //------------------------------------------------------------------------------
+    Element_Factory::~Element_Factory() {}
+
+    //------------------------------------------------------------------------------
+    MSI::Equation_Object* Element_Factory::create_interpolation_element(
+            Element_Type                      aElementType,
+            const Vector< const mtk::Cell* >& aInterpolationCell,
+            Vector< Node_Base* >&             aNodes,
+            Set*                              aSet )
     {
-        //------------------------------------------------------------------------------
-        Element_Factory::Element_Factory() {}
+        return new fem::Interpolation_Element( aElementType, aInterpolationCell, aNodes, aSet );
+    }
 
-        //------------------------------------------------------------------------------
-        Element_Factory::~Element_Factory() {}
+    //------------------------------------------------------------------------------
+    fem::Element* Element_Factory::create_single_sided_element(
+            Element_Type       aElementType,
+            mtk::Cell const *  aCell,
+            Set*               aSet,
+            Cluster*           aCluster,
+            moris::moris_index aCellIndexInCluster )
+    {
+        fem::Element* tElement = nullptr;
 
-        //------------------------------------------------------------------------------
-        MSI::Equation_Object* Element_Factory::create_interpolation_element(
-                Element_Type                      aElementType,
-                const Vector< const mtk::Cell* >& aInterpolationCell,
-                Vector< Node_Base* >&             aNodes,
-                Set*                              aSet )
+        switch ( aElementType )
         {
-            return new fem::Interpolation_Element( aElementType, aInterpolationCell, aNodes, aSet );
-        }
+            case fem::Element_Type::BULK:
+                tElement = new Element_Bulk( aCell, aSet, aCluster, aCellIndexInCluster );
+                break;
 
-        //------------------------------------------------------------------------------
-        fem::Element* Element_Factory::create_single_sided_element(
-                Element_Type       aElementType,
-                mtk::Cell const *  aCell,
-                Set*               aSet,
-                Cluster*           aCluster,
-                moris::moris_index aCellIndexInCluster )
+            case fem::Element_Type::SIDESET:
+                tElement = new Element_Sideset( aCell, aSet, aCluster, aCellIndexInCluster );
+                break;
+
+            case fem::Element_Type::TIME_SIDESET:
+                tElement = new Element_Time_Sideset( aCell, aSet, aCluster, aCellIndexInCluster );
+                break;
+
+            case fem::Element_Type::TIME_BOUNDARY:
+                tElement = new Element_Time_Boundary( aCell, aSet, aCluster, aCellIndexInCluster );
+                break;
+
+            default:
+                MORIS_ERROR( false, "Element_Factory::create_single_sided_element - No element type specified" );
+                break;
+        }
+        return tElement;
+    }
+
+    //------------------------------------------------------------------------------
+    fem::Element* Element_Factory::create_double_sided_element(
+            Element_Type       aElementType,
+            mtk::Cell const *  aLeftCell,
+            mtk::Cell const *  aRightCell,
+            Set*               aSet,
+            Cluster*           aCluster,
+            moris::moris_index aCellIndexInCluster )
+    {
+        fem::Element* tElement = nullptr;
+
+        switch ( aElementType )
         {
-            fem::Element* tElement = nullptr;
+            case fem::Element_Type::DOUBLE_SIDESET:
+                tElement = new Element_Double_Sideset( aLeftCell, aRightCell, aSet, aCluster, aCellIndexInCluster );
+                break;
 
-            switch ( aElementType )
-            {
-                case fem::Element_Type::BULK:
-                    tElement = new Element_Bulk( aCell, aSet, aCluster, aCellIndexInCluster );
-                    break;
-
-                case fem::Element_Type::SIDESET:
-                    tElement = new Element_Sideset( aCell, aSet, aCluster, aCellIndexInCluster );
-                    break;
-
-                case fem::Element_Type::TIME_SIDESET:
-                    tElement = new Element_Time_Sideset( aCell, aSet, aCluster, aCellIndexInCluster );
-                    break;
-
-                case fem::Element_Type::TIME_BOUNDARY:
-                    tElement = new Element_Time_Boundary( aCell, aSet, aCluster, aCellIndexInCluster );
-                    break;
-
-                default:
-                    MORIS_ERROR( false, "Element_Factory::create_single_sided_element - No element type specified" );
-                    break;
-            }
-            return tElement;
+            default:
+                MORIS_ERROR( false, "Element_Factory::create_double_sided_element - Not a double sideset" );
+                break;
         }
+        return tElement;
+    }
 
-        //------------------------------------------------------------------------------
-        fem::Element* Element_Factory::create_double_sided_element(
-                Element_Type       aElementType,
-                mtk::Cell const *  aLeftCell,
-                mtk::Cell const *  aRightCell,
-                Set*               aSet,
-                Cluster*           aCluster,
-                moris::moris_index aCellIndexInCluster )
-        {
-            fem::Element* tElement = nullptr;
+    //------------------------------------------------------------------------------
 
-            switch ( aElementType )
-            {
-                case fem::Element_Type::DOUBLE_SIDESET:
-                    tElement = new Element_Double_Sideset( aLeftCell, aRightCell, aSet, aCluster, aCellIndexInCluster );
-                    break;
-
-                default:
-                    MORIS_ERROR( false, "Element_Factory::create_double_sided_element - Not a double sideset" );
-                    break;
-            }
-            return tElement;
-        }
-
-        //------------------------------------------------------------------------------
-
-        //------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
+    //------------------------------------------------------------------------------
+}    // namespace moris::fem

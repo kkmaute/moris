@@ -21,17 +21,12 @@
 #include "cl_MSI_Dof_Type_Enums.hpp"
 #include "cl_MSI_Adof.hpp"
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
-    {
-        class Node_Base;
+    class Node_Base;
     }
-}    // namespace moris
 
-namespace moris
-{
-    namespace MSI
+    namespace moris::MSI
     {
         struct Pdof
         {
@@ -179,7 +174,6 @@ namespace moris
 
             //-------------------------------------------------------------------------------------------------
         };
-    }    // namespace MSI
-}    // namespace moris
+    }    // namespace moris::MSI
 
 #endif /* SRC_FEM_CL_PDOF_HOST_HPP_ */

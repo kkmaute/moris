@@ -45,7 +45,6 @@
 // debug - output to hdf5
 #include "paths.hpp"
 #include "HDF5_Tools.hpp"
-#include "fn_FEM_Check.hpp"
 #include "fn_sqrtmat.hpp"
 
 using namespace moris;

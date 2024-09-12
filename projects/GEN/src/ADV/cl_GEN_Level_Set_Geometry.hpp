@@ -19,7 +19,8 @@ namespace moris::gen
     /**
      * This is a struct used to simplify \ref moris::gen::Level_Set_Geometry constructors. It contains all field and level-set parameters.
      */
-    struct Level_Set_Parameters : public Field_Parameters, public Design_Parameters
+    struct Level_Set_Parameters : public Field_Parameters
+            , public Design_Parameters
     {
         real mIsocontourThreshold;      // Level set isocontour level
         real mIsocontourTolerance;      // Interface tolerance based on geometry value
@@ -33,7 +34,8 @@ namespace moris::gen
         explicit Level_Set_Parameters( const Parameter_List& aParameterList = prm::create_level_set_geometry_parameter_list( gen::Field_Type::NONE ) );
     };
 
-    class Level_Set_Geometry : public Geometry, public Design_Field
+    class Level_Set_Geometry : public Geometry
+            , public Design_Field
     {
       private:
         Level_Set_Parameters mParameters;
@@ -47,9 +49,9 @@ namespace moris::gen
          * @param aNodeManager Node manager from the geometry engine, if available
          */
         explicit Level_Set_Geometry(
-                std::shared_ptr< Field > aField,
-                Level_Set_Parameters     aParameters  = Level_Set_Parameters(),
-                Node_Manager&            aNodeManager = Node_Manager::get_trivial_instance() );
+                std::shared_ptr< Field >    aField,
+                const Level_Set_Parameters& aParameters  = Level_Set_Parameters(),
+                Node_Manager&               aNodeManager = Node_Manager::get_trivial_instance() );
 
         /**
          * Sets a new node manager (from the geometry engine, if it was created after this geometry)
@@ -97,12 +99,12 @@ namespace moris::gen
          * @return New intersection node
          */
         Intersection_Node* create_intersection_node(
-                uint                     aNodeIndex,
+                uint                              aNodeIndex,
                 const Vector< Background_Node* >& aBackgroundNodes,
-                const Parent_Node&       aFirstParentNode,
-                const Parent_Node&       aSecondParentNode,
-                mtk::Geometry_Type       aBackgroundGeometryType,
-                mtk::Interpolation_Order aBackgroundInterpolationOrder ) override;
+                const Parent_Node&                aFirstParentNode,
+                const Parent_Node&                aSecondParentNode,
+                mtk::Geometry_Type                aBackgroundGeometryType,
+                mtk::Interpolation_Order          aBackgroundInterpolationOrder ) override;
 
         /**
          * Computes the local coordinate along a parent edge of an intersection node created using this geometry.
@@ -114,8 +116,8 @@ namespace moris::gen
          */
         real compute_intersection_local_coordinate(
                 const Vector< Background_Node* >& aBackgroundNodes,
-                const Parent_Node&   aFirstParentNode,
-                const Parent_Node&   aSecondParentNode ) override;
+                const Parent_Node&                aFirstParentNode,
+                const Parent_Node&                aSecondParentNode ) override;
 
         /**
          * Given a node index or coordinates, returns a vector of the field derivatives with respect to the nodal
@@ -196,11 +198,11 @@ namespace moris::gen
         void get_design_info(
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates,
-                Vector< real >&           aOutputDesignInfo ) override;
+                Vector< real >&         aOutputDesignInfo ) override;
 
         /**
          * Gets the number of fields the level set geometry has
-        */
+         */
         uint get_num_fields() override
         {
             return 1;
@@ -226,7 +228,7 @@ namespace moris::gen
             Design_Field::mField->set_advs( aADVs );
         }
 
-                /**
+        /**
          * Gets if this field is to be used for seeding a B-spline field.
          *
          * @return Logic for B-spline creation
@@ -260,7 +262,7 @@ namespace moris::gen
          *
          * @param aAllUpdatedDesigns All designs (this design will take fields from the ones it needs)
          */
-        void update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedDesigns ) override;
+        void update_dependencies( const Vector< std::shared_ptr< Design > >& aAllUpdatedDesigns ) override;
 
       private:
         /**

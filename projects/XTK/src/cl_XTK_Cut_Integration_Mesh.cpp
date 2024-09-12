@@ -12,6 +12,7 @@
 #include "moris_typedefs.hpp"
 
 #include <set>
+#include <utility>
 
 #include "fn_stringify_matrix.hpp"
 
@@ -53,7 +54,9 @@ namespace moris::xtk
 
         if ( mIgCellIndexToCellOrdinal.find( aCell->get_index() ) != mIgCellIndexToCellOrdinal.end() )
         {
-            std::cout << "New cell index = " << aCell->get_index() << " | mIgCellIndexToCellOrdinal.find( aCell->get_index() ) = " << mIgCellIndexToCellOrdinal.find( aCell->get_index() )->first << std::endl;
+            std::cout << "New cell index = " << aCell->get_index()                       //
+                      << " | mIgCellIndexToCellOrdinal.find( aCell->get_index() ) = "    //
+                      << mIgCellIndexToCellOrdinal.find( aCell->get_index() )->first << '\n';
         }
 
         MORIS_ASSERT( mIgCellIndexToCellOrdinal.find( aCell->get_index() ) == mIgCellIndexToCellOrdinal.end(), "Duplicate vertex in group" );
@@ -179,14 +182,14 @@ namespace moris::xtk
 
     void
     IG_Vertex_Group::add_vertex(
-            moris::mtk::Vertex const *          aVertex,
-            std::shared_ptr< Matrix< DDRMat > > aVertexLocalCoord )
+            moris::mtk::Vertex const *                 aVertex,
+            const std::shared_ptr< Matrix< DDRMat > >& aVertexLocalCoord )
     {
         moris_index tNewVertexOrdinal = (moris_index)mIgVertexGroup.size();
 
         if ( mIgVertexIndexToVertexOrdinal.find( aVertex->get_index() ) != mIgVertexIndexToVertexOrdinal.end() )
         {
-            std::cout << "New vertex index = " << aVertex->get_index() << " | mIgVertexIndexToVertexOrdinal.find( aVertex->get_index() ) = " << mIgVertexIndexToVertexOrdinal.find( aVertex->get_index() )->first << std::endl;
+            std::cout << "New vertex index = " << aVertex->get_index() << " | mIgVertexIndexToVertexOrdinal.find( aVertex->get_index() ) = " << mIgVertexIndexToVertexOrdinal.find( aVertex->get_index() )->first << '\n';
             this->print();
         }
 
@@ -272,7 +275,7 @@ namespace moris::xtk
             {
                 std::cout << " " << std::setw( 16 ) << std::scientific << tVertexCoords( iSpatial );
             }
-            std::cout << std::endl;
+            std::cout << '\n';
         }
     }
 
@@ -714,7 +717,7 @@ namespace moris::xtk
     // ----------------------------------------------------------------------------------
 
     moris_index
-    Cut_Integration_Mesh::get_block_set_index( std::string aBlockSetLabel ) const
+    Cut_Integration_Mesh::get_block_set_index( const std::string& aBlockSetLabel ) const
     {
         auto tIter = mBlockSetLabelToOrd.find( aBlockSetLabel );
 
@@ -726,7 +729,7 @@ namespace moris::xtk
     // ----------------------------------------------------------------------------------
 
     Matrix< IndexMat >
-    Cut_Integration_Mesh::get_block_entity_loc_inds( std::string aSetName ) const
+    Cut_Integration_Mesh::get_block_entity_loc_inds( const std::string& aSetName ) const
     {
         // get index
         moris_index tBlockIndex = this->get_block_set_index( aSetName );
@@ -747,7 +750,7 @@ namespace moris::xtk
     // ----------------------------------------------------------------------------------
 
     moris_index
-    Cut_Integration_Mesh::get_side_set_index( std::string aSideSetLabel ) const
+    Cut_Integration_Mesh::get_side_set_index( const std::string& aSideSetLabel ) const
     {
         auto tIter = mSideSideSetLabelToOrd.find( aSideSetLabel );
 
@@ -791,8 +794,8 @@ namespace moris::xtk
 
     Matrix< IndexMat >
     Cut_Integration_Mesh::get_set_entity_loc_inds(
-            mtk::EntityRank aSetEntityRank,
-            std::string     aSetName ) const
+            mtk::EntityRank    aSetEntityRank,
+            const std::string& aSetName ) const
     {
         switch ( aSetEntityRank )
         {
@@ -951,7 +954,7 @@ namespace moris::xtk
         moris_index tIndexInControlledCells = aCellIndex - mFirstControlledCellIndex;
 
         mControlledIgCells( tIndexInControlledCells )->set_id( aCellId );
-        mControlledIgCells( tIndexInControlledCells )->set_mtk_cell_info( aCellInfo );
+        mControlledIgCells( tIndexInControlledCells )->set_mtk_cell_info( std::move( aCellInfo ) );
         mControlledIgCells( tIndexInControlledCells )->set_vertex_pointers( aVertexPointers );
     }
 
@@ -967,14 +970,14 @@ namespace moris::xtk
         // controlled index
         moris_index tIndexInControlledCells = aCellIndex - mFirstControlledCellIndex;
 
-        mControlledIgCells( tIndexInControlledCells ) = aNewCell;
+        mControlledIgCells( tIndexInControlledCells ) = std::move( aNewCell );
         mIntegrationCells( aCellIndex )               = mControlledIgCells( tIndexInControlledCells ).get();
     }
 
     void
     Cut_Integration_Mesh::add_integration_cell(
-            moris_index                            aCellIndex,
-            std::shared_ptr< xtk::Cell_XTK_No_CM > aNewCell )
+            moris_index                                   aCellIndex,
+            const std::shared_ptr< xtk::Cell_XTK_No_CM >& aNewCell )
     {
         MORIS_ERROR( (uint)aCellIndex >= mIntegrationCells.size(), "Index mismatch between adding cell and current data." );
 
@@ -1437,7 +1440,7 @@ namespace moris::xtk
     void
     Cut_Integration_Mesh::set_face_connectivity( std::shared_ptr< Facet_Based_Connectivity > aFaceConnectivity )
     {
-        mIgCellFaceConnectivity = aFaceConnectivity;
+        mIgCellFaceConnectivity = std::move( aFaceConnectivity );
     }
 
     // ----------------------------------------------------------------------------------
@@ -1453,7 +1456,7 @@ namespace moris::xtk
     void
     Cut_Integration_Mesh::set_face_ancestry( std::shared_ptr< Facet_Based_Ancestry > aFaceAncestry )
     {
-        mIgCellFaceAncestry = aFaceAncestry;
+        mIgCellFaceAncestry = std::move( aFaceAncestry );
     }
 
     // ----------------------------------------------------------------------------------
@@ -1509,7 +1512,7 @@ namespace moris::xtk
     void
     Cut_Integration_Mesh::set_subphase_neighborhood( std::shared_ptr< Subphase_Neighborhood_Connectivity > aSubphaseNeighborhood )
     {
-        mSubphaseNeighborhood = aSubphaseNeighborhood;
+        mSubphaseNeighborhood = std::move( aSubphaseNeighborhood );
     }
 
     // ----------------------------------------------------------------------------------
@@ -1547,7 +1550,7 @@ namespace moris::xtk
             moris_id tSubphaseId = this->get_subphase_id( (moris_id)i );
             if ( tSubphaseId == MORIS_INDEX_MAX )
             {
-                std::cout << "IPCell Owner = " << this->get_subphase_parent_cell( (moris_index)i )->get_owner() << " on " << par_rank() << std::endl;
+                std::cout << "IPCell Owner = " << this->get_subphase_parent_cell( (moris_index)i )->get_owner() << " on " << par_rank() << '\n';
             }
             MORIS_ASSERT( tSubphaseId != MORIS_INDEX_MAX, "Subphase id set to max" );
             MORIS_ASSERT( mGlobalToLocalSubphaseMap.find( tSubphaseId ) == mGlobalToLocalSubphaseMap.end(), "Subphase id already in map" );
@@ -1660,15 +1663,15 @@ namespace moris::xtk
 
     void
     Cut_Integration_Mesh::write_mesh(
-            std::string aOutputPath,
-            std::string aOutputFile )
+            const std::string& aOutputPath,
+            const std::string& aOutputFile )
     {
         Tracer tTracer( "XTK", "Cut Integration Mesh", "Write mesh", mXTKModel->mVerboseLevel, 0 );
         // get path to output XTK files to
-        std::string tOutputPath = aOutputPath;
-        std::string tOutputFile = aOutputFile;
-        std::string tOutputBase = tOutputFile.substr( 0, tOutputFile.find( "." ) );
-        std::string tOutputExt  = tOutputFile.substr( tOutputFile.find( "." ), tOutputFile.length() );
+        const std::string& tOutputPath = aOutputPath;
+        const std::string& tOutputFile = aOutputFile;
+        std::string        tOutputBase = tOutputFile.substr( 0, tOutputFile.find( '.' ) );
+        std::string        tOutputExt  = tOutputFile.substr( tOutputFile.find( '.' ), tOutputFile.length() );
 
         MORIS_ASSERT( tOutputExt == ".exo" || tOutputExt == ".e", "Invalid file extension, needs to be .exo or .e" );
 
@@ -1810,16 +1813,16 @@ namespace moris::xtk
 
     void
     Cut_Integration_Mesh::print_vectors(
-            bool        aOmitIndex,
-            std::string aFile )
+            bool               aOmitIndex,
+            const std::string& aFile )
     {
 
         std::ostringstream tStringStream;
         // // Number of Controlled Cells:
         if ( aFile.empty() == true )
         {
-            tStringStream << "Num IG Cells: " << this->mIntegrationCells.size() << std::endl;
-            tStringStream << "Num Controlled IG Cells: " << this->mControlledIgCells.size() << std::endl;
+            tStringStream << "Num IG Cells: " << this->mIntegrationCells.size() << '\n';
+            tStringStream << "Num Controlled IG Cells: " << this->mControlledIgCells.size() << '\n';
         }
         // max num verts to cells
         uint tMaxVertsToCell = 0;
@@ -1883,7 +1886,7 @@ namespace moris::xtk
         if ( aFile.empty() == false )
         {
             std::ofstream tOutputFile( aFile );
-            tOutputFile << tStringStream.str() << std::endl;
+            tOutputFile << tStringStream.str() << '\n';
             tOutputFile.close();
         }
     }
@@ -1892,8 +1895,8 @@ namespace moris::xtk
 
     void
     Cut_Integration_Mesh::print_vertices(
-            bool        aOmitIndex,
-            std::string aFile )
+            bool               aOmitIndex,
+            const std::string& aFile )
     {
         std::ostringstream tStringStream;
         tStringStream.clear();
@@ -1914,7 +1917,7 @@ namespace moris::xtk
             }
         }
 
-        tStringStream << std::endl;
+        tStringStream << '\n';
 
         for ( uint i = 0; i < this->get_num_entities( mtk::EntityRank::NODE, 0 ); i++ )
         {
@@ -1939,12 +1942,12 @@ namespace moris::xtk
             }
 
             //
-            tStringStream << std::endl;
+            tStringStream << '\n';
         }
         if ( aFile.empty() == false )
         {
             std::ofstream tOutputFile( aFile );
-            tOutputFile << tStringStream.str() << std::endl;
+            tOutputFile << tStringStream.str() << '\n';
             tOutputFile.close();
         }
     }
@@ -1952,7 +1955,7 @@ namespace moris::xtk
     // ----------------------------------------------------------------------------------
 
     void
-    Cut_Integration_Mesh::print_groupings( std::string aFile )
+    Cut_Integration_Mesh::print_groupings( const std::string& aFile )
     {
         std::ostringstream tStringStream;
 
@@ -2008,7 +2011,7 @@ namespace moris::xtk
         if ( aFile.empty() == false )
         {
             std::ofstream tOutputFile( aFile );
-            tOutputFile << tStringStream.str() << std::endl;
+            tOutputFile << tStringStream.str() << '\n';
             tOutputFile.close();
         }
     }

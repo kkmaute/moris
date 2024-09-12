@@ -371,7 +371,7 @@ Test_IWG_Struc_Linear_Contact_Nitsche( const IWG_Type aIWGType, const real& aDis
                 // print for debug
                 if ( !tCheckJacobian )
                 {
-                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << " iGP " << iGP << std::endl;
+                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << " iGP " << iGP << '\n';
                 }
 
                 // require check is true

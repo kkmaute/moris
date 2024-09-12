@@ -13,13 +13,10 @@
 
 #include "cl_XTK_Decomposition_Algorithm.hpp"
 
-namespace moris
+namespace moris::mtk
 {
-    namespace mtk
-    {
-        class Mesh;
+    class Mesh;
     }
-}    // namespace moris
 
 namespace moris::xtk
 {
@@ -116,67 +113,67 @@ namespace moris::xtk
         Regular_Subdivision_4_TRIS() {}
 
         moris_index
-        get_num_new_nodes() const
+        get_num_new_nodes() const override
         {
             return 1;
         }
 
         moris_index
-        get_total_ig_verts() const
+        get_total_ig_verts() const override
         {
             return 5;
         }
 
         moris_index
-        get_num_ig_cells() const
+        get_num_ig_cells() const override
         {
             return 4;
         }
 
         moris_index
-        get_num_verts_per_cell() const
+        get_num_verts_per_cell() const override
         {
             return 3;
         }
 
         Matrix< IndexMat >
-        get_new_node_on_parent_edge() const
+        get_new_node_on_parent_edge() const override
         {
             return { {} };
         }
 
         Matrix< IndexMat >
-        get_new_node_on_parent_edge_edge_ordinal() const
+        get_new_node_on_parent_edge_edge_ordinal() const override
         {
             return { {} };
         }
 
         Matrix< IndexMat >
-        get_new_node_on_parent_face() const
+        get_new_node_on_parent_face() const override
         {
             return { {} };
         }
 
         Matrix< IndexMat >
-        get_new_node_on_parent_face_face_ordinal() const
+        get_new_node_on_parent_face_face_ordinal() const override
         {
             return { {} };
         }
 
         Matrix< IndexMat >
-        get_new_node_in_parent_cell() const
+        get_new_node_in_parent_cell() const override
         {
             return { { 0 } };
         }
 
         Matrix< IndexMat >
-        get_new_node_on_parent_cell_cell_ordinal() const
+        get_new_node_on_parent_cell_cell_ordinal() const override
         {
             return { { 0 } };
         }
 
         Vertex_Ancestry
-        get_vertex_ancestry() const
+        get_vertex_ancestry() const override
         {
             return Vertex_Ancestry(
                     { 0, 1, 2, 3, 0 },
@@ -188,13 +185,13 @@ namespace moris::xtk
         }
 
         Vector< Matrix< DDRMat > >
-        get_new_vertex_parametric_coordinates_wrt_parent() const
+        get_new_vertex_parametric_coordinates_wrt_parent() const override
         {
             return { { { 0.0, 0.0 } } };
         }
 
         Vector< Vector< moris_index > >
-        get_ig_cell_to_vertex_connectivity() const
+        get_ig_cell_to_vertex_connectivity() const override
         {
             return {
                 { { 0, 1, 4 } },
@@ -205,19 +202,19 @@ namespace moris::xtk
         }
 
         moris_index
-        get_parametric_dimension() const
+        get_parametric_dimension() const override
         {
             return 2;
         }
 
         moris_index
-        get_signature() const
+        get_signature() const override
         {
             return 420;
         }
 
         mtk::CellTopology
-        get_ig_cell_topology() const
+        get_ig_cell_topology() const override
         {
             return mtk::CellTopology::TRI3;
         }
@@ -231,67 +228,67 @@ namespace moris::xtk
         Regular_Subdivision_24_TETS() {}
 
         moris_index
-        get_num_new_nodes() const
+        get_num_new_nodes() const override
         {
             return 7;
         }
 
         moris_index
-        get_total_ig_verts() const
+        get_total_ig_verts() const override
         {
             return 15;
         }
 
         moris_index
-        get_num_ig_cells() const
+        get_num_ig_cells() const override
         {
             return 24;
         }
 
         moris_index
-        get_num_verts_per_cell() const
+        get_num_verts_per_cell() const override
         {
             return 4;
         }
 
         Matrix< IndexMat >
-        get_new_node_on_parent_edge() const
+        get_new_node_on_parent_edge() const override
         {
             return { {} };
         }
 
         Matrix< IndexMat >
-        get_new_node_on_parent_edge_edge_ordinal() const
+        get_new_node_on_parent_edge_edge_ordinal() const override
         {
             return { {} };
         }
 
         Matrix< IndexMat >
-        get_new_node_on_parent_face() const
+        get_new_node_on_parent_face() const override
         {
             return { { 0, 1, 2, 3, 4, 5 } };
         }
 
         Matrix< IndexMat >
-        get_new_node_on_parent_face_face_ordinal() const
+        get_new_node_on_parent_face_face_ordinal() const override
         {
             return { { 0, 1, 2, 3, 4, 5 } };
         }
 
         Matrix< IndexMat >
-        get_new_node_in_parent_cell() const
+        get_new_node_in_parent_cell() const override
         {
             return { { 6 } };
         }
 
         Matrix< IndexMat >
-        get_new_node_on_parent_cell_cell_ordinal() const
+        get_new_node_on_parent_cell_cell_ordinal() const override
         {
             return { { 0 } };
         }
 
         Vertex_Ancestry
-        get_vertex_ancestry() const
+        get_vertex_ancestry() const override
         {
             return Vertex_Ancestry(
                     { 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 0 },
@@ -313,7 +310,7 @@ namespace moris::xtk
         }
 
         Vector< Matrix< DDRMat > >
-        get_new_vertex_parametric_coordinates_wrt_parent() const
+        get_new_vertex_parametric_coordinates_wrt_parent() const override
         {
             return { { { 0.0, -1.0, 0.0 } },
                 { { 1.0, 0.0, 0.0 } },
@@ -325,7 +322,7 @@ namespace moris::xtk
         }
 
         Vector< Vector< moris_index > >
-        get_ig_cell_to_vertex_connectivity() const
+        get_ig_cell_to_vertex_connectivity() const override
         {
             return { { { 0, 8, 1, 14 } },
                 { { 1, 8, 5, 14 } },
@@ -354,19 +351,19 @@ namespace moris::xtk
         }
 
         moris_index
-        get_parametric_dimension() const
+        get_parametric_dimension() const override
         {
             return 3;
         }
 
         moris_index
-        get_signature() const
+        get_signature() const override
         {
             return 10000;
         }
 
         mtk::CellTopology
-        get_ig_cell_topology() const
+        get_ig_cell_topology() const override
         {
             return mtk::CellTopology::TET4;
         }
@@ -447,9 +444,9 @@ namespace moris::xtk
       public:
         Regular_Subdivision_Interface( Parameter_List& aParameterList, mtk::CellTopology aCellTopology );
 
-        ~Regular_Subdivision_Interface() {}
+        ~Regular_Subdivision_Interface() override {}
 
-        bool has_geometric_independent_vertices() const;
+        bool has_geometric_independent_vertices() const override;
 
         void
         perform_impl_vertex_requests(
@@ -457,7 +454,7 @@ namespace moris::xtk
                 Decomposition_Data*               aDecompositionData,
                 Cut_Integration_Mesh*             aCutIntegrationMesh,
                 moris::mtk::Mesh*                 aBackgroundMesh,
-                Integration_Mesh_Generator*       aMeshGenerator );
+                Integration_Mesh_Generator*       aMeshGenerator ) override;
 
         void
         perform_impl_generate_mesh(
@@ -465,10 +462,10 @@ namespace moris::xtk
                 Decomposition_Data*               aDecompositionData,
                 Cut_Integration_Mesh*             aCutIntegrationMesh,
                 moris::mtk::Mesh*                 aBackgroundMesh,
-                Integration_Mesh_Generator*       aMeshGenerator );
+                Integration_Mesh_Generator*       aMeshGenerator ) override;
 
         enum Decomposition_Algorithm_Type
-        get_algorithm_type() const;
+        get_algorithm_type() const override;
 
         // template functions
 
@@ -539,7 +536,7 @@ namespace moris::xtk
         }
 
         moris_index
-        get_signature() const
+        get_signature() const override
         {
             return mRegularSubdivisionTemplate->get_signature();
         }

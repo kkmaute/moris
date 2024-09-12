@@ -76,7 +76,7 @@ namespace moris::hmr
         /**
          * default destructor
          */
-        ~Lagrange_Element()
+        ~Lagrange_Element() override
         {
             this->delete_basis_container();
         }
@@ -150,7 +150,7 @@ namespace moris::hmr
         void
         remove_vertex_pointer( moris_index aIndex ) override
         {
-            std::cout << "In HMR Lagrange Element" << std::endl;
+            std::cout << "In HMR Lagrange Element" << '\n';
         }
 
         //------------------------------------------------------------------------------

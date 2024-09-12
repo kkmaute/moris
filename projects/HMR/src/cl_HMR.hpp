@@ -128,8 +128,8 @@ namespace moris::hmr
          * @param[in] aParameters  ref to container of user defined settings
          */
         HMR(
-                Parameter_List&                      aParameterList,
-                std::shared_ptr< moris::Library_IO > aLibrary = nullptr );
+                Parameter_List&                             aParameterList,
+                const std::shared_ptr< moris::Library_IO >& aLibrary = nullptr );
 
         // -----------------------------------------------------------------------------
 
@@ -393,14 +393,14 @@ namespace moris::hmr
         /**
          * flags elements on the surface and inside of a level set
          */
-        uint flag_volume_and_surface_elements_on_working_pattern( std::shared_ptr< Field > aScalarField );
+        uint flag_volume_and_surface_elements_on_working_pattern( const std::shared_ptr< Field >& aScalarField );
 
         // -----------------------------------------------------------------------------
 
         /**
          * flags elements on the surface of a level set
          */
-        uint flag_surface_elements_on_working_pattern( std::shared_ptr< Field > aScalarField );
+        uint flag_surface_elements_on_working_pattern( const std::shared_ptr< Field >& aScalarField );
 
         // FIXME this can be deleted the moment GEN is fixed
         uint based_on_field_put_elements_on_queue(
@@ -450,13 +450,13 @@ namespace moris::hmr
          * function for L2 test
          */
         void map_field_to_output(
-                std::shared_ptr< Field > aField,
-                uint                     aMesh_Index,
-                uint                     aBsplineMeshIndex );
+                const std::shared_ptr< Field >& aField,
+                uint                            aMesh_Index,
+                uint                            aBsplineMeshIndex );
 
         void map_field_to_output_union(
-                std::shared_ptr< Field > aField,
-                uint                     aUnionOrder );
+                const std::shared_ptr< Field >& aField,
+                uint                            aUnionOrder );
 
         // -----------------------------------------------------------------------------
 

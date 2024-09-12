@@ -217,7 +217,7 @@ namespace moris::xtk
                     break;
                 }
                 default:
-                    std::cout << "Template not found in the catalog" << std::endl;
+                    std::cout << "Template not found in the catalog" << '\n';
                     break;
             }
         }
@@ -717,7 +717,7 @@ namespace moris::xtk
 
                 default:
                 {
-                    std::cout << "WARNING UNDEFINED PERMUTATION" << std::endl;
+                    std::cout << "WARNING UNDEFINED PERMUTATION" << '\n';
                     break;
                 }
             }
@@ -1037,7 +1037,7 @@ namespace moris::xtk
                     break;
                 }
                 default:
-                    std::cout << "Template not found in the catalog" << std::endl;
+                    std::cout << "Template not found in the catalog" << '\n';
                     break;
             }
         }
@@ -1350,7 +1350,7 @@ namespace moris::xtk
                 }
                 default:
                 {
-                    std::cout << "Template not found in the catalog" << std::endl;
+                    std::cout << "Template not found in the catalog" << '\n';
                     break;
                 }
             }
@@ -1668,7 +1668,7 @@ namespace moris::xtk
                 }
                 default:
                 {
-                    std::cout << "Template not found in the catalog" << std::endl;
+                    std::cout << "Template not found in the catalog" << '\n';
                     break;
                 }
             }
@@ -2092,7 +2092,7 @@ namespace moris::xtk
                 //            mNewElementInterfaceSides = Matrix< moris::DDSTMat >({{},{},{}});
                 default:
                 {
-                    std::cout << "Template not found in the catalog" << std::endl;
+                    std::cout << "Template not found in the catalog" << '\n';
                     break;
                 }
             }

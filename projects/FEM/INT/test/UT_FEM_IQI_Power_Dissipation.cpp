@@ -339,7 +339,7 @@ TEST_CASE( "IQI_Power_Dissipation","[moris],[fem],[IQI_Power_Dissipation]" )
                 // print for debug
                 if( !tCheckdQIdu )
                 {
-                    std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<" iGP "<<iGP<<std::endl;
+                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << " iGP " << iGP << '\n';
                 }
 
                 REQUIRE( tCheckdQIdu );

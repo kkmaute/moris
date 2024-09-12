@@ -175,7 +175,7 @@ TEST_CASE("Basics of Linear Algebra Tutorial",
             Matrix<DDRMat> tMat2Trans = trans(tMat2);
             tMat6 = tMat5*tMat2Trans;
         }
-        std::cout << "Time w/o expression templating: " << (std::clock() - tStart) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
+        std::cout << "Time w/o expression templating: " << ( std::clock() - tStart ) / (double)( CLOCKS_PER_SEC / 1000 ) << " ms" << '\n';
 
         /*
          * With Expression templating
@@ -185,8 +185,7 @@ TEST_CASE("Basics of Linear Algebra Tutorial",
         {
             tMat6 = tEye*tMat3*trans(tMat2);
         }
-        std::cout << "Time w/ expression templating: " << (std::clock() - tStart) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
-
+        std::cout << "Time w/ expression templating: " << ( std::clock() - tStart ) / (double)( CLOCKS_PER_SEC / 1000 ) << " ms" << '\n';
     }
 }
 }

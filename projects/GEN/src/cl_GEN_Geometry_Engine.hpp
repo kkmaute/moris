@@ -409,9 +409,9 @@ namespace moris::gen
          * @param aMeshPair Mesh for discretizing fields
          */
         void distribute_advs(
-                mtk::Mesh_Pair                        aMeshPair,
-                Vector< std::shared_ptr< mtk::Field > > aFields = {},
-                mtk::EntityRank                       aADVEntityRank = mtk::EntityRank::BSPLINE );
+                mtk::Mesh_Pair                                 aMeshPair,
+                const Vector< std::shared_ptr< mtk::Field > >& aFields        = {},
+                mtk::EntityRank                                aADVEntityRank = mtk::EntityRank::BSPLINE );
 
         /**
          * Resets the information that the geometry engine stores about a mesh.

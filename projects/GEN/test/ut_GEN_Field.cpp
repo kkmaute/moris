@@ -79,12 +79,12 @@ namespace moris::gen
      * @param aCheck Check if there is a hole (false checks to make sure there is no hole)
      */
     void check_swiss_cheese(
-            std::shared_ptr< Level_Set_Geometry > aSwissCheese,
-            real                                  aXCenter,
-            real                                  aYCenter,
-            real                                  aXSemidiameter,
-            real                                  aYSemidiameter,
-            bool                                  aCheck = true );
+            const std::shared_ptr< Level_Set_Geometry >& aSwissCheese,
+            real                                         aXCenter,
+            real                                         aYCenter,
+            real                                         aXSemidiameter,
+            real                                         aYSemidiameter,
+            bool                                         aCheck = true );
 
     /**
      * Checks for an ellipse location in a swiss cheese (field array with spheres or superellipsoids)
@@ -99,14 +99,14 @@ namespace moris::gen
      * @param aCheck Check if there is a hole (false checks to make sure there is no hole)
      */
     void check_swiss_cheese(
-            std::shared_ptr< Level_Set_Geometry > aSwissCheese,
-            real                                  aXCenter,
-            real                                  aYCenter,
-            real                                  aZCenter,
-            real                                  aXSemidiameter,
-            real                                  aYSemidiameter,
-            real                                  aZSemidiameter,
-            bool                                  aCheck = true );
+            const std::shared_ptr< Level_Set_Geometry >& aSwissCheese,
+            real                                         aXCenter,
+            real                                         aYCenter,
+            real                                         aZCenter,
+            real                                         aXSemidiameter,
+            real                                         aYSemidiameter,
+            real                                         aZSemidiameter,
+            bool                                         aCheck = true );
 
     //--------------------------------------------------------------------------------------------------------------
 
@@ -1083,12 +1083,12 @@ namespace moris::gen
 
     void
     check_swiss_cheese(
-            std::shared_ptr< Level_Set_Geometry > aSwissCheese,
-            real                                  aXCenter,
-            real                                  aYCenter,
-            real                                  aXSemidiameter,
-            real                                  aYSemidiameter,
-            bool                                  aCheck )
+            const std::shared_ptr< Level_Set_Geometry >& aSwissCheese,
+            real                                         aXCenter,
+            real                                         aYCenter,
+            real                                         aXSemidiameter,
+            real                                         aYSemidiameter,
+            bool                                         aCheck )
     {
         if ( aCheck )
         {
@@ -1110,14 +1110,14 @@ namespace moris::gen
 
     void
     check_swiss_cheese(
-            std::shared_ptr< Level_Set_Geometry > aSwissCheese,
-            real                                  aXCenter,
-            real                                  aYCenter,
-            real                                  aZCenter,
-            real                                  aXSemidiameter,
-            real                                  aYSemidiameter,
-            real                                  aZSemidiameter,
-            bool                                  aCheck )
+            const std::shared_ptr< Level_Set_Geometry >& aSwissCheese,
+            real                                         aXCenter,
+            real                                         aYCenter,
+            real                                         aZCenter,
+            real                                         aXSemidiameter,
+            real                                         aYSemidiameter,
+            real                                         aZSemidiameter,
+            bool                                         aCheck )
     {
         if ( aCheck )
         {

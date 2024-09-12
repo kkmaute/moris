@@ -45,11 +45,11 @@ namespace moris
          * @param aEntityAction Entity action
          */
         Tracer(
-                std::string aEntityBase,
-                std::string aEntityType,
-                std::string aEntityAction,
-                moris::uint aThreshold = 0,
-                moris::uint aLevel     = 0 )
+                const std::string& aEntityBase,
+                const std::string& aEntityType,
+                const std::string& aEntityAction,
+                moris::uint        aThreshold = 0,
+                moris::uint        aLevel     = 0 )
         {
             if ( aLevel <= aThreshold )
             {
@@ -71,8 +71,8 @@ namespace moris
          * @param aEntityAction Entity action
          */
         Tracer(
-                std::string aEntityBase,
-                std::string aEntityAction )
+                const std::string& aEntityBase,
+                const std::string& aEntityAction )
         {
             gLogger.sign_in( aEntityBase, LOGGER_NON_SPECIFIC_ENTITY_TYPE, aEntityAction );
         }

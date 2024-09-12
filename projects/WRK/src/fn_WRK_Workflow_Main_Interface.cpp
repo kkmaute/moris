@@ -17,9 +17,7 @@
 // C system files
 #include <unistd.h>
 // C++ system files
-#include <stdio.h>
 #include <cstddef>
-#include <cstdio>
 #include <cstring>
 #include <cstdlib>
 #include <ctime>
@@ -35,10 +33,8 @@
 #include "cl_Tracer.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "cl_Stopwatch.hpp"    //CHR/src
 #include "op_move.hpp"
 
-#include "cl_Matrix.hpp"
 #include "cl_Logger.hpp"    // MRS/IOS/src
 
 #include "cl_WRK_Workflow_Factory.hpp"

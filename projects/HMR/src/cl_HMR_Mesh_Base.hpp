@@ -17,7 +17,7 @@
 #include "cl_HMR_Parameters.hpp"              //HMR/src
 #include "HMR_Globals.hpp"                    //HMR/src
 #include "HMR_Tools.hpp"
-#include "moris_typedefs.hpp"                       //COR/src
+#include "moris_typedefs.hpp"    //COR/src
 
 namespace moris::hmr
 {
@@ -120,7 +120,7 @@ namespace moris::hmr
         // ----------------------------------------------------------------------------
 
         void
-        set_index( uint aIndex )
+        set_index( const uint aIndex )
         {
             mMeshIndex = aIndex;
         }
@@ -457,7 +457,7 @@ namespace moris::hmr
          */
         void collect_basis_from_aura( uint aProcNeighborIndex,
                 uint                       aMode,
-                Vector< Basis* >&            aNodeList );
+                Vector< Basis* >&          aNodeList );
 
       protected:
         // ----------------------------------------------------------------------------
@@ -523,7 +523,7 @@ namespace moris::hmr
         //------------------------------------------------------------------------------
 
         void encode_foreign_basis_path(
-                Vector< Basis* >&    aBasis,
+                Vector< Basis* >&  aBasis,
                 const moris_id&    aOwner,
                 Matrix< DDLUMat >& aElementAncestors,
                 Matrix< DDUMat >&  aElementPedigree,

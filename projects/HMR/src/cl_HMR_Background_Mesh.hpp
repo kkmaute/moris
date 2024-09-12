@@ -121,7 +121,7 @@ namespace moris::hmr
          * level. Higher level elements are destroyed implicitly by element
          * destructor.
          */
-        ~Background_Mesh()
+        ~Background_Mesh() override
         {
             // delete pointers in element cell
             for ( auto p : mCoarsestElementsIncludingAura )
@@ -340,7 +340,7 @@ namespace moris::hmr
          * @param aIJK
          */
 
-        virtual void calc_ijk_from_global_id(
+        void calc_ijk_from_global_id(
                 const uint&  aLevel,
                 const luint& aID,
                 luint*       aIJK ) const override;

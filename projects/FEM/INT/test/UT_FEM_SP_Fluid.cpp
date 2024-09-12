@@ -399,7 +399,7 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
                         for ( uint iRequestedDof = 0; iRequestedDof < tLeaderDofTypes.size(); iRequestedDof++ )
                         {
                             // derivative dof type
-                            Vector< MSI::Dof_Type > tDofDerivative = tLeaderDofTypes( iRequestedDof );
+                            const Vector< MSI::Dof_Type >& tDofDerivative = tLeaderDofTypes( iRequestedDof );
 
                             // evaluate dspdu
                             Matrix< DDRMat > tdspdu = tSPIncFlow->dSPdLeaderDOF( tDofDerivative );
@@ -420,7 +420,7 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
                         for ( uint iRequestedDof = 0; iRequestedDof < tLeaderDofTypes.size(); iRequestedDof++ )
                         {
                             // derivative dof type
-                            Vector< MSI::Dof_Type > tDofDerivative = tLeaderDofTypes( iRequestedDof );
+                            const Vector< MSI::Dof_Type >& tDofDerivative = tLeaderDofTypes( iRequestedDof );
 
                             // evaluate dspdu
                             Matrix< DDRMat > tdspdu = tSPNitsche->dSPdLeaderDOF( tDofDerivative );
@@ -441,7 +441,7 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
                         for ( uint iRequestedDof = 0; iRequestedDof < tLeaderDofTypes.size(); iRequestedDof++ )
                         {
                             // derivative dof type
-                            Vector< MSI::Dof_Type > tDofDerivative = tLeaderDofTypes( iRequestedDof );
+                            const Vector< MSI::Dof_Type >& tDofDerivative = tLeaderDofTypes( iRequestedDof );
 
                             // evaluate dspdu
                             Matrix< DDRMat > tdspdu = tSPViscousGhost->dSPdLeaderDOF( tDofDerivative );
@@ -462,7 +462,7 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
                         for ( uint iRequestedDof = 0; iRequestedDof < tLeaderDofTypes.size(); iRequestedDof++ )
                         {
                             // derivative dof type
-                            Vector< MSI::Dof_Type > tDofDerivative = tLeaderDofTypes( iRequestedDof );
+                            const Vector< MSI::Dof_Type >& tDofDerivative = tLeaderDofTypes( iRequestedDof );
 
                             // evaluate dspdu
                             Matrix< DDRMat > tdspdu = tSPConvectiveGhost->dSPdLeaderDOF( tDofDerivative );
@@ -483,7 +483,7 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
                         for ( uint iRequestedDof = 0; iRequestedDof < tLeaderDofTypes.size(); iRequestedDof++ )
                         {
                             // derivative dof type
-                            Vector< MSI::Dof_Type > tDofDerivative = tLeaderDofTypes( iRequestedDof );
+                            const Vector< MSI::Dof_Type >& tDofDerivative = tLeaderDofTypes( iRequestedDof );
 
                             // evaluate dspdu
                             Matrix< DDRMat > tdspdu = tSPPressureGhost->dSPdLeaderDOF( tDofDerivative );
@@ -504,7 +504,7 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
                         for ( uint iRequestedDof = 0; iRequestedDof < tLeaderDofTypes.size(); iRequestedDof++ )
                         {
                             // derivative dof type
-                            Vector< MSI::Dof_Type > tDofDerivative = tLeaderDofTypes( iRequestedDof );
+                            const Vector< MSI::Dof_Type >& tDofDerivative = tLeaderDofTypes( iRequestedDof );
 
                             // evaluate dspdu
                             Matrix< DDRMat > tdspdu = tSPSUPGSA->dSPdLeaderDOF( tDofDerivative );

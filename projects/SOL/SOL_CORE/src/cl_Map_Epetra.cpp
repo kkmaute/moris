@@ -323,7 +323,7 @@ Map_Epetra::translate_ids_to_free_point_ids(
 moris::sint
 Map_Epetra::return_local_ind_of_global_Id( moris::uint aGlobalId ) const
 {
-    MORIS_ERROR( mEpetraMap != NULL, "Map_Epetra::return_local_ind_of_global_Id(), Map does not exist" );
+    MORIS_ERROR( mEpetraMap != nullptr, "Map_Epetra::return_local_ind_of_global_Id(), Map does not exist" );
 
     return mEpetraMap->LID( (int)aGlobalId );
 }
@@ -333,5 +333,5 @@ Map_Epetra::return_local_ind_of_global_Id( moris::uint aGlobalId ) const
 void
 Map_Epetra::print()
 {
-    std::cout << *mEpetraMap << std::endl;
+    std::cout << *mEpetraMap << '\n';
 }

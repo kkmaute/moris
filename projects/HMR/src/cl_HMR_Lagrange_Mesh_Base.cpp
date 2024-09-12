@@ -98,7 +98,7 @@ namespace moris::hmr
     Lagrange_Mesh_Base::save_to_file( const std::string& aFilePath )
     {
         // get the file extension
-        auto tFileExt = aFilePath.substr( aFilePath.find_last_of( "." ) + 1,
+        auto tFileExt = aFilePath.substr( aFilePath.find_last_of( '.' ) + 1,
                 aFilePath.length() );
 
         // guess routine from extension
@@ -1494,16 +1494,16 @@ namespace moris::hmr
         float tFChar = 0;
         int   tIChar = 0;
 
-        tFile << "# vtk DataFile Version 3.0" << std::endl;
-        tFile << "GO BUFFS!" << std::endl;
-        tFile << "BINARY" << std::endl;
+        tFile << "# vtk DataFile Version 3.0" << '\n';
+        tFile << "GO BUFFS!" << '\n';
+        tFile << "BINARY" << '\n';
         // tFile << "ASCII" << std::endl;
         luint tNumberOfNodes = mAllBasisOnProc.size();
 
         // write node data
-        tFile << "DATASET UNSTRUCTURED_GRID" << std::endl;
+        tFile << "DATASET UNSTRUCTURED_GRID" << '\n';
 
-        tFile << "POINTS " << tNumberOfNodes << " float" << std::endl;
+        tFile << "POINTS " << tNumberOfNodes << " float" << '\n';
 
         // ask settings for number of dimensions
         auto tNumberOfDimensions = mParameters->get_number_of_dimensions();
@@ -1543,7 +1543,7 @@ namespace moris::hmr
             }
         }
 
-        tFile << std::endl;
+        tFile << '\n';
 
         // write element topology
         int tCellType = mAllElementsOnProc( 0 )->get_vtk_type();
@@ -1569,7 +1569,7 @@ namespace moris::hmr
 
             // write header for cells
             tFile << "CELLS " << tNumberOfElements << " "
-                  << ( mNumberOfBasesPerElement + 1 ) * tNumberOfElements << std::endl;
+                  << ( mNumberOfBasesPerElement + 1 ) * tNumberOfElements << '\n';
 
             // matrix containing node indices
             Matrix< DDLUMat > tNodes( mNumberOfBasesPerElement, 1 );
@@ -1594,10 +1594,10 @@ namespace moris::hmr
                 }
             }
 
-            tFile << std::endl;
+            tFile << '\n';
 
             // write cell types
-            tFile << "CELL_TYPES " << tNumberOfElements << std::endl;
+            tFile << "CELL_TYPES " << tNumberOfElements << '\n';
             tIChar = swap_byte_endian( tCellType );
             for ( luint k = 0; k < tNumberOfElements; ++k )
             {
@@ -1606,11 +1606,11 @@ namespace moris::hmr
             }
 
             // write element data
-            tFile << "CELL_DATA " << tNumberOfElements << std::endl;
+            tFile << "CELL_DATA " << tNumberOfElements << '\n';
 
             // write element ID
-            tFile << "SCALARS ELEMENT_ID int" << std::endl;
-            tFile << "LOOKUP_TABLE default" << std::endl;
+            tFile << "SCALARS ELEMENT_ID int" << '\n';
+            tFile << "LOOKUP_TABLE default" << '\n';
             for ( moris::uint k = 0; k < tNumberOfAllElementsOnProc; ++k )
             {
                 if ( mAllElementsOnProc( k )->is_active() )
@@ -1620,11 +1620,11 @@ namespace moris::hmr
                     tFile.write( (char*)&tIChar, sizeof( int ) );
                 }
             }
-            tFile << std::endl;
+            tFile << '\n';
 
             // write element ID
-            tFile << "SCALARS ELEMENT_INDEX int" << std::endl;
-            tFile << "LOOKUP_TABLE default" << std::endl;
+            tFile << "SCALARS ELEMENT_INDEX int" << '\n';
+            tFile << "LOOKUP_TABLE default" << '\n';
             for ( moris::uint k = 0; k < tNumberOfAllElementsOnProc; ++k )
             {
                 if ( mAllElementsOnProc( k )->is_active() )
@@ -1634,11 +1634,11 @@ namespace moris::hmr
                     tFile.write( (char*)&tIChar, sizeof( int ) );
                 }
             }
-            tFile << std::endl;
+            tFile << '\n';
 
             // write proc owner
-            tFile << "SCALARS ELEMENT_OWNER int" << std::endl;
-            tFile << "LOOKUP_TABLE default" << std::endl;
+            tFile << "SCALARS ELEMENT_OWNER int" << '\n';
+            tFile << "LOOKUP_TABLE default" << '\n';
             for ( moris::uint k = 0; k < tNumberOfAllElementsOnProc; ++k )
             {
                 if ( mAllElementsOnProc( k )->is_active() )
@@ -1647,11 +1647,11 @@ namespace moris::hmr
                     tFile.write( (char*)&tIChar, sizeof( float ) );
                 }
             }
-            tFile << std::endl;
+            tFile << '\n';
 
             // write level
-            tFile << "SCALARS ELEMENT_LEVEL int" << std::endl;
-            tFile << "LOOKUP_TABLE default" << std::endl;
+            tFile << "SCALARS ELEMENT_LEVEL int" << '\n';
+            tFile << "LOOKUP_TABLE default" << '\n';
             for ( moris::uint k = 0; k < tNumberOfAllElementsOnProc; ++k )
             {
                 if ( mAllElementsOnProc( k )->is_active() )
@@ -1660,11 +1660,11 @@ namespace moris::hmr
                     tFile.write( (char*)&tIChar, sizeof( float ) );
                 }
             }
-            tFile << std::endl;
+            tFile << '\n';
 
             // write level
-            tFile << "SCALARS ELEMENT_CHILD_INDEX int" << std::endl;
-            tFile << "LOOKUP_TABLE default" << std::endl;
+            tFile << "SCALARS ELEMENT_CHILD_INDEX int" << '\n';
+            tFile << "LOOKUP_TABLE default" << '\n';
             for ( moris::uint k = 0; k < tNumberOfAllElementsOnProc; ++k )
             {
                 if ( mAllElementsOnProc( k )->is_active() )
@@ -1673,11 +1673,11 @@ namespace moris::hmr
                     tFile.write( (char*)&tIChar, sizeof( float ) );
                 }
             }
-            tFile << std::endl;
+            tFile << '\n';
 
             // write memory index
-            tFile << "SCALARS ELEMENT_MEMORY_INDEX int" << std::endl;
-            tFile << "LOOKUP_TABLE default" << std::endl;
+            tFile << "SCALARS ELEMENT_MEMORY_INDEX int" << '\n';
+            tFile << "LOOKUP_TABLE default" << '\n';
             for ( moris::uint k = 0; k < tNumberOfAllElementsOnProc; ++k )
             {
                 if ( mAllElementsOnProc( k )->is_active() )
@@ -1686,61 +1686,61 @@ namespace moris::hmr
                     tFile.write( (char*)&tIChar, sizeof( float ) );
                 }
             }
-            tFile << std::endl;
+            tFile << '\n';
         }
 
         // write node data
-        tFile << "POINT_DATA " << tNumberOfNodes << std::endl;
+        tFile << "POINT_DATA " << tNumberOfNodes << '\n';
 
-        tFile << "SCALARS NODE_ID int" << std::endl;
-        tFile << "LOOKUP_TABLE default" << std::endl;
+        tFile << "SCALARS NODE_ID int" << '\n';
+        tFile << "LOOKUP_TABLE default" << '\n';
         for ( moris::uint k = 0; k < tNumberOfNodes; ++k )
         {
 
             tIChar = swap_byte_endian( (int)mAllBasisOnProc( k )->get_id() );
             tFile.write( (char*)&tIChar, sizeof( float ) );
         }
-        tFile << std::endl;
+        tFile << '\n';
 
-        tFile << "SCALARS NODE_INDEX int" << std::endl;
-        tFile << "LOOKUP_TABLE default" << std::endl;
+        tFile << "SCALARS NODE_INDEX int" << '\n';
+        tFile << "LOOKUP_TABLE default" << '\n';
         for ( moris::uint k = 0; k < tNumberOfNodes; ++k )
         {
 
             tIChar = swap_byte_endian( (int)mAllBasisOnProc( k )->get_index() );
             tFile.write( (char*)&tIChar, sizeof( float ) );
         }
-        tFile << std::endl;
+        tFile << '\n';
 
-        tFile << "SCALARS NODE_OWNER int" << std::endl;
-        tFile << "LOOKUP_TABLE default" << std::endl;
+        tFile << "SCALARS NODE_OWNER int" << '\n';
+        tFile << "LOOKUP_TABLE default" << '\n';
         for ( moris::uint k = 0; k < tNumberOfNodes; ++k )
         {
 
             tIChar = swap_byte_endian( (int)mAllBasisOnProc( k )->get_owner() );
             tFile.write( (char*)&tIChar, sizeof( float ) );
         }
-        tFile << std::endl;
+        tFile << '\n';
 
-        tFile << "SCALARS DOMAIN_ID int" << std::endl;
-        tFile << "LOOKUP_TABLE default" << std::endl;
+        tFile << "SCALARS DOMAIN_ID int" << '\n';
+        tFile << "LOOKUP_TABLE default" << '\n';
         for ( moris::uint k = 0; k < tNumberOfNodes; ++k )
         {
 
             tIChar = swap_byte_endian( (int)mAllBasisOnProc( k )->get_hmr_id() );
             tFile.write( (char*)&tIChar, sizeof( float ) );
         }
-        tFile << std::endl;
+        tFile << '\n';
 
-        tFile << "SCALARS DOMAIN_INDEX int" << std::endl;
-        tFile << "LOOKUP_TABLE default" << std::endl;
+        tFile << "SCALARS DOMAIN_INDEX int" << '\n';
+        tFile << "LOOKUP_TABLE default" << '\n';
         for ( moris::uint k = 0; k < tNumberOfNodes; ++k )
         {
 
             tIChar = swap_byte_endian( (int)mAllBasisOnProc( k )->get_hmr_index() );
             tFile.write( (char*)&tIChar, sizeof( float ) );
         }
-        tFile << std::endl;
+        tFile << '\n';
 
         // close the output file
         tFile.close();
@@ -3056,15 +3056,15 @@ namespace moris::hmr
             float tFChar = 0;
             int   tIChar = 0;
 
-            tFile << "# vtk DataFile Version 3.0" << std::endl;
-            tFile << "GO BUFFS!" << std::endl;
-            tFile << "BINARY" << std::endl;
+            tFile << "# vtk DataFile Version 3.0" << '\n';
+            tFile << "GO BUFFS!" << '\n';
+            tFile << "BINARY" << '\n';
             int tNumberOfNodes = mAllBasisOnProc.size();
 
             // write node data
-            tFile << "DATASET UNSTRUCTURED_GRID" << std::endl;
+            tFile << "DATASET UNSTRUCTURED_GRID" << '\n';
 
-            tFile << "POINTS " << tNumberOfNodes << " float" << std::endl;
+            tFile << "POINTS " << tNumberOfNodes << " float" << '\n';
 
             // ask settings for number of dimensions
             auto tNumberOfDimensions = mParameters->get_number_of_dimensions();
@@ -3104,7 +3104,7 @@ namespace moris::hmr
                 }
             }
 
-            tFile << std::endl;
+            tFile << '\n';
 
             // get vtk index for edge
             int tCellType = 0;
@@ -3162,14 +3162,14 @@ namespace moris::hmr
             int tNumberOfNodesPerElement = mFacets( 0 )->get_vertex_ids().length();
 
             // value to write in VTK file
-            int tNumberOfNodesVTK = swap_byte_endian( (int)tNumberOfNodesPerElement );
+            int tNumberOfNodesVTK = swap_byte_endian( tNumberOfNodesPerElement );
 
             // get number of faces
             int tNumberOfElements = mFacets.size();
 
             // write header for cells
             tFile << "CELLS " << tNumberOfElements << " "
-                  << ( tNumberOfNodesPerElement + 1 ) * tNumberOfElements << std::endl;
+                  << ( tNumberOfNodesPerElement + 1 ) * tNumberOfElements << '\n';
 
             // loop over all faces
             for ( Facet* tFacet : mFacets )
@@ -3186,50 +3186,50 @@ namespace moris::hmr
             }
 
             // write cell types
-            tFile << "CELL_TYPES " << tNumberOfElements << std::endl;
+            tFile << "CELL_TYPES " << tNumberOfElements << '\n';
             tIChar = swap_byte_endian( tCellType );
             for ( int k = 0; k < tNumberOfElements; ++k )
             {
                 tFile.write( (char*)&tIChar, sizeof( int ) );
             }
-            tFile << std::endl;
+            tFile << '\n';
 
             // write element data
-            tFile << "CELL_DATA " << tNumberOfElements << std::endl;
+            tFile << "CELL_DATA " << tNumberOfElements << '\n';
 
             // write face ID
-            tFile << "SCALARS FACET_ID int" << std::endl;
-            tFile << "LOOKUP_TABLE default" << std::endl;
+            tFile << "SCALARS FACET_ID int" << '\n';
+            tFile << "LOOKUP_TABLE default" << '\n';
             for ( Facet* tFacet : mFacets )
             {
                 tIChar = swap_byte_endian( (int)tFacet->get_id() );
                 tFile.write( (char*)&tIChar, sizeof( int ) );
             }
-            tFile << std::endl;
+            tFile << '\n';
 
             // write face index
-            tFile << "SCALARS FACET_INDEX int" << std::endl;
-            tFile << "LOOKUP_TABLE default" << std::endl;
+            tFile << "SCALARS FACET_INDEX int" << '\n';
+            tFile << "LOOKUP_TABLE default" << '\n';
             for ( Facet* tFacet : mFacets )
             {
                 tIChar = swap_byte_endian( (int)tFacet->get_index() );
                 tFile.write( (char*)&tIChar, sizeof( int ) );
             }
-            tFile << std::endl;
+            tFile << '\n';
 
             // write owner
-            tFile << "SCALARS FACET_OWNER int" << std::endl;
-            tFile << "LOOKUP_TABLE default" << std::endl;
+            tFile << "SCALARS FACET_OWNER int" << '\n';
+            tFile << "LOOKUP_TABLE default" << '\n';
             for ( Facet* tFacet : mFacets )
             {
                 tIChar = swap_byte_endian( (int)tFacet->get_owner() );
                 tFile.write( (char*)&tIChar, sizeof( int ) );
             }
-            tFile << std::endl;
+            tFile << '\n';
 
             // write level
-            tFile << "SCALARS FACET_LEVEL int" << std::endl;
-            tFile << "LOOKUP_TABLE default" << std::endl;
+            tFile << "SCALARS FACET_LEVEL int" << '\n';
+            tFile << "LOOKUP_TABLE default" << '\n';
             for ( Facet* tFacet : mFacets )
             {
                 tIChar = swap_byte_endian( (int)tFacet->get_hmr_leader()
@@ -3238,47 +3238,47 @@ namespace moris::hmr
 
                 tFile.write( (char*)&tIChar, sizeof( int ) );
             }
-            tFile << std::endl;
+            tFile << '\n';
 
             // write level
-            tFile << "SCALARS FACET_STATE int" << std::endl;
-            tFile << "LOOKUP_TABLE default" << std::endl;
+            tFile << "SCALARS FACET_STATE int" << '\n';
+            tFile << "LOOKUP_TABLE default" << '\n';
             for ( Facet* tFacet : mFacets )
             {
                 if ( tFacet->is_active() )
                 {
-                    tIChar = swap_byte_endian( (int)1 );
+                    tIChar = swap_byte_endian( 1 );
                 }
                 else
                 {
-                    tIChar = swap_byte_endian( (int)0 );
+                    tIChar = swap_byte_endian( 0 );
                 }
                 tFile.write( (char*)&tIChar, sizeof( int ) );
             }
-            tFile << std::endl;
+            tFile << '\n';
 
             // write node data
-            tFile << "POINT_DATA " << tNumberOfNodes << std::endl;
+            tFile << "POINT_DATA " << tNumberOfNodes << '\n';
 
-            tFile << "SCALARS NODE_ID int" << std::endl;
-            tFile << "LOOKUP_TABLE default" << std::endl;
+            tFile << "SCALARS NODE_ID int" << '\n';
+            tFile << "LOOKUP_TABLE default" << '\n';
             for ( int k = 0; k < tNumberOfNodes; ++k )
             {
 
                 tIChar = swap_byte_endian( (int)mAllBasisOnProc( k )->get_id() );
                 tFile.write( (char*)&tIChar, sizeof( float ) );
             }
-            tFile << std::endl;
+            tFile << '\n';
 
-            tFile << "SCALARS NODE_INDEX int" << std::endl;
-            tFile << "LOOKUP_TABLE default" << std::endl;
+            tFile << "SCALARS NODE_INDEX int" << '\n';
+            tFile << "LOOKUP_TABLE default" << '\n';
             for ( int k = 0; k < tNumberOfNodes; ++k )
             {
 
                 tIChar = swap_byte_endian( (int)mAllBasisOnProc( k )->get_index() );
                 tFile.write( (char*)&tIChar, sizeof( float ) );
             }
-            tFile << std::endl;
+            tFile << '\n';
 
             // close the output file
             tFile.close();
@@ -3301,15 +3301,15 @@ namespace moris::hmr
             float tFChar = 0;
             int   tIChar = 0;
 
-            tFile << "# vtk DataFile Version 3.0" << std::endl;
-            tFile << "GO BUFFS!" << std::endl;
-            tFile << "BINARY" << std::endl;
+            tFile << "# vtk DataFile Version 3.0" << '\n';
+            tFile << "GO BUFFS!" << '\n';
+            tFile << "BINARY" << '\n';
             int tNumberOfNodes = mAllBasisOnProc.size();
 
             // write node data
-            tFile << "DATASET UNSTRUCTURED_GRID" << std::endl;
+            tFile << "DATASET UNSTRUCTURED_GRID" << '\n';
 
-            tFile << "POINTS " << tNumberOfNodes << " float" << std::endl;
+            tFile << "POINTS " << tNumberOfNodes << " float" << '\n';
 
             // ask settings for number of dimensions
             auto tNumberOfDimensions = mParameters->get_number_of_dimensions();
@@ -3349,7 +3349,7 @@ namespace moris::hmr
                 }
             }
 
-            tFile << std::endl;
+            tFile << '\n';
 
             // get vtk index for edge
             int tCellType = 0;
@@ -3383,14 +3383,14 @@ namespace moris::hmr
             int tNumberOfNodesPerElement = mEdges( 0 )->get_vertex_ids().length();
 
             // value to write in VTK file
-            int tNumberOfNodesVTK = swap_byte_endian( (int)tNumberOfNodesPerElement );
+            int tNumberOfNodesVTK = swap_byte_endian( tNumberOfNodesPerElement );
 
             // get number of faces
             int tNumberOfElements = mEdges.size();
 
             // write header for cells
             tFile << "CELLS " << tNumberOfElements << " "
-                  << ( tNumberOfNodesPerElement + 1 ) * tNumberOfElements << std::endl;
+                  << ( tNumberOfNodesPerElement + 1 ) * tNumberOfElements << '\n';
 
             // loop over all faces
             for ( Edge* tEdge : mEdges )
@@ -3407,49 +3407,49 @@ namespace moris::hmr
             }
 
             // write cell types
-            tFile << "CELL_TYPES " << tNumberOfElements << std::endl;
+            tFile << "CELL_TYPES " << tNumberOfElements << '\n';
             tIChar = swap_byte_endian( tCellType );
             for ( int k = 0; k < tNumberOfElements; ++k )
             {
                 tFile.write( (char*)&tIChar, sizeof( int ) );
             }
-            tFile << std::endl;
+            tFile << '\n';
 
             // write element data
-            tFile << "CELL_DATA " << tNumberOfElements << std::endl;
+            tFile << "CELL_DATA " << tNumberOfElements << '\n';
 
             // write element ID
-            tFile << "SCALARS EDGE_ID int" << std::endl;
-            tFile << "LOOKUP_TABLE default" << std::endl;
+            tFile << "SCALARS EDGE_ID int" << '\n';
+            tFile << "LOOKUP_TABLE default" << '\n';
             for ( Edge* tEdge : mEdges )
             {
                 tIChar = swap_byte_endian( (int)tEdge->get_id() );
                 tFile.write( (char*)&tIChar, sizeof( int ) );
             }
-            tFile << std::endl;
+            tFile << '\n';
 
-            tFile << "SCALARS EDGE_INDEX int" << std::endl;
-            tFile << "LOOKUP_TABLE default" << std::endl;
+            tFile << "SCALARS EDGE_INDEX int" << '\n';
+            tFile << "LOOKUP_TABLE default" << '\n';
             for ( Edge* tEdge : mEdges )
             {
                 tIChar = swap_byte_endian( (int)tEdge->get_index() );
                 tFile.write( (char*)&tIChar, sizeof( int ) );
             }
-            tFile << std::endl;
+            tFile << '\n';
 
             // write owner
-            tFile << "SCALARS EDGE_OWNER int" << std::endl;
-            tFile << "LOOKUP_TABLE default" << std::endl;
+            tFile << "SCALARS EDGE_OWNER int" << '\n';
+            tFile << "LOOKUP_TABLE default" << '\n';
             for ( Edge* tEdge : mEdges )
             {
                 tIChar = swap_byte_endian( (int)tEdge->get_owner() );
                 tFile.write( (char*)&tIChar, sizeof( int ) );
             }
-            tFile << std::endl;
+            tFile << '\n';
 
             // write level
-            tFile << "SCALARS EDGE_LEVEL int" << std::endl;
-            tFile << "LOOKUP_TABLE default" << std::endl;
+            tFile << "SCALARS EDGE_LEVEL int" << '\n';
+            tFile << "LOOKUP_TABLE default" << '\n';
             for ( Edge* tEdge : mEdges )
             {
                 tIChar = swap_byte_endian( (int)tEdge->get_hmr_leader()
@@ -3458,27 +3458,27 @@ namespace moris::hmr
 
                 tFile.write( (char*)&tIChar, sizeof( int ) );
             }
-            tFile << std::endl;
+            tFile << '\n';
 
             // write leader
-            tFile << "SCALARS EDGE_LEADER int" << std::endl;
-            tFile << "LOOKUP_TABLE default" << std::endl;
+            tFile << "SCALARS EDGE_LEADER int" << '\n';
+            tFile << "LOOKUP_TABLE default" << '\n';
             for ( Edge* tEdge : mEdges )
             {
                 tIChar = swap_byte_endian( (int)tEdge->get_hmr_leader()->get_hmr_id() );
                 tFile.write( (char*)&tIChar, sizeof( int ) );
             }
-            tFile << std::endl;
+            tFile << '\n';
 
             // write index
-            tFile << "SCALARS EDGE_INDEX_ON_LEADER int" << std::endl;
-            tFile << "LOOKUP_TABLE default" << std::endl;
+            tFile << "SCALARS EDGE_INDEX_ON_LEADER int" << '\n';
+            tFile << "LOOKUP_TABLE default" << '\n';
             for ( Edge* tEdge : mEdges )
             {
                 tIChar = swap_byte_endian( (int)tEdge->get_index_on_leader() );
                 tFile.write( (char*)&tIChar, sizeof( int ) );
             }
-            tFile << std::endl;
+            tFile << '\n';
 
             // write level
             /* tFile << "SCALARS FACET_STATE int" << std::endl;
@@ -3498,27 +3498,27 @@ namespace moris::hmr
                     tFile << std::endl; */
 
             // write node data
-            tFile << "POINT_DATA " << tNumberOfNodes << std::endl;
+            tFile << "POINT_DATA " << tNumberOfNodes << '\n';
 
-            tFile << "SCALARS NODE_ID int" << std::endl;
-            tFile << "LOOKUP_TABLE default" << std::endl;
+            tFile << "SCALARS NODE_ID int" << '\n';
+            tFile << "LOOKUP_TABLE default" << '\n';
             for ( int k = 0; k < tNumberOfNodes; ++k )
             {
 
                 tIChar = swap_byte_endian( (int)mAllBasisOnProc( k )->get_id() );
                 tFile.write( (char*)&tIChar, sizeof( float ) );
             }
-            tFile << std::endl;
+            tFile << '\n';
 
-            tFile << "SCALARS NODE_INDEX int" << std::endl;
-            tFile << "LOOKUP_TABLE default" << std::endl;
+            tFile << "SCALARS NODE_INDEX int" << '\n';
+            tFile << "LOOKUP_TABLE default" << '\n';
             for ( int k = 0; k < tNumberOfNodes; ++k )
             {
 
                 tIChar = swap_byte_endian( (int)mAllBasisOnProc( k )->get_index() );
                 tFile.write( (char*)&tIChar, sizeof( float ) );
             }
-            tFile << std::endl;
+            tFile << '\n';
 
             // close the output file
             tFile.close();

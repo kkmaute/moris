@@ -10,6 +10,8 @@
 
 #include "cl_GEN_Scaled_Field.hpp"
 
+#include <utility>
+
 namespace moris::gen
 {
     //--------------------------------------------------------------------------------------------------------------
@@ -19,7 +21,7 @@ namespace moris::gen
             const ADV&               aScalingFactor,
             std::string              aName )
             : Field( { aScalingFactor }, std::move( aName ) )
-            , mField( aField )
+            , mField( std::move( aField ) )
     {
     }
 
@@ -43,7 +45,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Matrix<DDRMat>& Scaled_Field::get_dfield_dadvs(
+    const Matrix< DDRMat >& Scaled_Field::get_dfield_dadvs(
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates )
     {
@@ -74,7 +76,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void Scaled_Field::get_determining_adv_ids(
-            Vector< sint >&   aDeterminingADVIDs,
+            Vector< sint >&     aDeterminingADVIDs,
             const Derived_Node& aDerivedNode,
             const Node_Manager& aNodeManager )
     {
@@ -94,7 +96,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Scaled_Field::update_dependencies( Vector< std::shared_ptr< Field > > aUpdatedFields )
+    void Scaled_Field::update_dependencies( const Vector< std::shared_ptr< Field > >& aUpdatedFields )
     {
         for ( const auto& iField : aUpdatedFields )
         {
@@ -116,4 +118,4 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-}
+}    // namespace moris::gen

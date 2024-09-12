@@ -55,8 +55,7 @@ namespace moris
         // check that this parser has not been initialized before
         if( mMode != XML_Mode::UNINITIALIZED )
         {
-            std::cerr << "XML_Parser::initialize_read() - " <<
-                    "Trying to initialize an XML-parser that has already been initialized." << aFilePath << std::endl;
+            std::cerr << "XML_Parser::initialize_read() - " << "Trying to initialize an XML-parser that has already been initialized." << aFilePath << '\n';
             throw;
         }
 
@@ -68,8 +67,7 @@ namespace moris
         }
         else
         {
-            std::cerr << "XML_Parser::initialize_read() - " << 
-                    "Something went wrong while trying to load from XML file: " << aFilePath << std::endl;
+            std::cerr << "XML_Parser::initialize_read() - " << "Something went wrong while trying to load from XML file: " << aFilePath << '\n';
             throw;
         }
 
@@ -85,8 +83,7 @@ namespace moris
         // check that this parser has not been initialized before
         if( mMode != XML_Mode::UNINITIALIZED )
         {
-            std::cerr << "XML_Parser::initialize_write() - " <<
-                    "Trying to initialize an XML-parser that has already been initialized." << aFilePath << std::endl;
+            std::cerr << "XML_Parser::initialize_write() - " << "Trying to initialize an XML-parser that has already been initialized." << aFilePath << '\n';
             throw;
         }
 

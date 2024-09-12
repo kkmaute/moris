@@ -88,7 +88,7 @@ namespace moris::hmr
         /**
          * destructor
          */
-        virtual ~Mesh();
+        ~Mesh() override;
 
         //-------------------------------------------------------------------------------
 
@@ -96,7 +96,7 @@ namespace moris::hmr
          * return the type of this mesh
          */
         mtk::MeshType
-        get_mesh_type() const
+        get_mesh_type() const override
         {
             return mtk::MeshType::HMR;
         }
@@ -181,8 +181,9 @@ namespace moris::hmr
 
         //-------------------------------------------------------------------------------
 
-        uint get_num_entities( mtk::EntityRank aEntityRank,
-                moris_index                    aIndex = 0 ) const override;
+        uint get_num_entities(
+                mtk::EntityRank aEntityRank,
+                moris_index     aIndex = 0 ) const override;
 
         //-------------------------------------------------------------------------------
 
@@ -222,7 +223,7 @@ namespace moris::hmr
 
         //-------------------------------------------------------------------------------
 
-        uint get_max_num_coeffs_on_proc( const uint aBSplineMeshIndex ) const override;
+        uint get_max_num_coeffs_on_proc( uint aBSplineMeshIndex ) const override;
 
         /**
          * Gets the indices of the B-splines which form the basis of the given node.
@@ -362,7 +363,7 @@ namespace moris::hmr
 
         // ----------------------------------------------------------------------------
 
-        virtual void
+        void
         get_extended_t_matrix(
                 moris_index                       aDiscretizationMeshIndex,
                 moris_index                       aBSplineCellIndex,
@@ -372,7 +373,7 @@ namespace moris::hmr
 
         // ----------------------------------------------------------------------------
 
-        virtual void
+        void
         get_L2_projection_matrix(
                 moris_index                             aDiscretizationMeshIndex,
                 const mtk::Cell*                        aRootBSplineCell,
@@ -383,7 +384,7 @@ namespace moris::hmr
 
         // ----------------------------------------------------------------------------
 
-        virtual const luint*
+        const luint*
         get_bspline_element_ijk_level(
                 moris_index      aDiscretizationMeshIndex,
                 const mtk::Cell* aBsplineElement,
@@ -518,8 +519,8 @@ namespace moris::hmr
         //-------------------------------------------------------------------------------
 
         Matrix< IndexMat > get_set_entity_loc_inds(
-                mtk::EntityRank aSetEntityRank,
-                std::string     aSetName ) const override;
+                mtk::EntityRank    aSetEntityRank,
+                const std::string& aSetName ) const override;
 
         //-------------------------------------------------------------------------------
         //           Pointer Functions for FEM

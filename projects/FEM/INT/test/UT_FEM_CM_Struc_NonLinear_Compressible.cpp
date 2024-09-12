@@ -274,7 +274,7 @@ void Test_CM_Struc_NL_Compressible(
                 for ( uint iRequestedDof = 0; iRequestedDof < tRequestedLeaderGlobalDofTypes.size(); iRequestedDof++ )
                 {
                     // derivative dof type
-                    Vector< MSI::Dof_Type > tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
+                    const Vector< MSI::Dof_Type >& tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
 
                     // flux
                     //------------------------------------------------------------------------------
@@ -385,7 +385,7 @@ void Test_CM_Struc_NL_Compressible(
                     for ( uint iTestDof = 0; iTestDof < tLeaderDofTypes.size(); iTestDof++ )
                     {
                         // get the test dof type
-                        Vector< MSI::Dof_Type > tDofTest = tLeaderDofTypes( iTestDof );
+                        const Vector< MSI::Dof_Type >& tDofTest = tLeaderDofTypes( iTestDof );
 
                         //                        // evaluate PK1 test traction
                         //                        const Matrix< DDRMat >& tPK1TestTraction =

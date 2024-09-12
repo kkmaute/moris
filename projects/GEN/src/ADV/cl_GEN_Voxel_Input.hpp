@@ -74,7 +74,7 @@ namespace moris::gen
         };
 
       private:
-        void read_voxel_data( std::string aVoxelFieldName );
+        void read_voxel_data( const std::string& aVoxelFieldName );
 
         uint get_voxel_ID_2d( const Matrix< DDRMat >& aCoordinates );
         uint get_voxel_ID_3d( const Matrix< DDRMat >& aCoordinates );

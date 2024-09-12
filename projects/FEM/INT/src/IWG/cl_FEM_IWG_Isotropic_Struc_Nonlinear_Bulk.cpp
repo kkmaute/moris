@@ -17,39 +17,37 @@
 #include "fn_eye.hpp"
 #include "fn_cond.hpp"
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+    //------------------------------------------------------------------------------
+
+    IWG_Isotropic_Struc_Nonlinear_Bulk::IWG_Isotropic_Struc_Nonlinear_Bulk(
+            enum CM_Function_Type aStressType,
+            enum CM_Function_Type aStrainType )
     {
-        //------------------------------------------------------------------------------
+        // assign stress and strain type to evaluate the IWG
+        mStressType = aStressType;
+        mStrainType = aStrainType;
 
-        IWG_Isotropic_Struc_Nonlinear_Bulk::IWG_Isotropic_Struc_Nonlinear_Bulk(
-                enum CM_Function_Type aStressType,
-                enum CM_Function_Type aStrainType )
-        {
-            // assign stress and strain type to evaluate the IWG
-            mStressType = aStressType;
-            mStrainType = aStrainType;
+        // set size for the property pointer cell
+        mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+        // populate the property map
+        mPropertyMap[ "Load" ]      = static_cast< uint >( IWG_Property_Type::LOAD );
+        mPropertyMap[ "Bedding" ]   = static_cast< uint >( IWG_Property_Type::BEDDING );
+        mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
 
-            // populate the property map
-            mPropertyMap[ "Load" ]      = static_cast< uint >( IWG_Property_Type::LOAD );
-            mPropertyMap[ "Bedding" ]   = static_cast< uint >( IWG_Property_Type::BEDDING );
-            mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
+        // set size for the constitutive model pointer cell
+        mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+        // populate the constitutive map
+        mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
+    }
 
-            // populate the constitutive map
-            mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
-        }
+    //------------------------------------------------------------------------------
 
-        //------------------------------------------------------------------------------
-
-        void IWG_Isotropic_Struc_Nonlinear_Bulk::compute_residual( real aWStar )
-        {
+    void IWG_Isotropic_Struc_Nonlinear_Bulk::compute_residual( real aWStar )
+    {
 #ifdef MORIS_HAVE_DEBUG
             // check leader field interpolators, properties and constitutive models
             this->check_field_interpolators();
@@ -229,6 +227,4 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
-
+}    // namespace moris::fem

@@ -139,8 +139,9 @@ namespace moris::xtk
     //----------------------------------------------------------------
 
     moris::moris_index
-    Side_Cluster::get_vertex_cluster_index( moris::mtk::Vertex const *aVertex,
-            const mtk::Leader_Follower                                aIsLeader ) const
+    Side_Cluster::get_vertex_cluster_index(
+            moris::mtk::Vertex const  *aVertex,
+            const mtk::Leader_Follower aIsLeader ) const
     {
         return mVertexGroup->get_vertex_group_ordinal( aVertex->get_index() );
     }
@@ -284,7 +285,7 @@ namespace moris::xtk
     //------------------------------------------------------------------------------
 
     void
-    Side_Cluster::set_ig_vertex_group( std::shared_ptr< IG_Vertex_Group > aVertexGroup )
+    Side_Cluster::set_ig_vertex_group( const std::shared_ptr< IG_Vertex_Group > &aVertexGroup )
     {
         mVertexGroup = aVertexGroup;
 
@@ -356,8 +357,8 @@ namespace moris::xtk
 
     void
     Side_Cluster::set_cluster_group(
-            const moris_index                     aDiscretizationMeshIndex,
-            std::shared_ptr< mtk::Cluster_Group > aClusterGroupPtr )
+            const moris_index                            aDiscretizationMeshIndex,
+            const std::shared_ptr< mtk::Cluster_Group > &aClusterGroupPtr )
     {
         // check that the cluster group is set to the correct B-spline list index
         MORIS_ASSERT( aClusterGroupPtr->get_discretization_mesh_index_for_cluster_group() == aDiscretizationMeshIndex,

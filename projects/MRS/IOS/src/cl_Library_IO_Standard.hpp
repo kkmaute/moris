@@ -37,7 +37,7 @@ namespace moris
         /**
          * Default destructor
          */
-        virtual ~Library_IO_Standard();
+        ~Library_IO_Standard() override;
 
         // -----------------------------------------------------------------------------
 

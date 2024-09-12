@@ -30,7 +30,6 @@
 #include "cl_HMR_Parameters.hpp"
 #include "cl_HMR_T_Matrix.hpp"
 #include "cl_HMR_T_Matrix_Advanced.hpp"
-#include "cl_HMR_Lagrange_Edge2.hpp"
 #include "HMR_Globals.hpp"
 #include "moris_typedefs.hpp"
 #include "cl_Stopwatch.hpp"
@@ -142,7 +141,7 @@ namespace moris::hmr
         /**
          * Default destructor.
          */
-        ~Lagrange_Mesh()
+        ~Lagrange_Mesh() override
         {
             this->delete_t_matrices();
             this->delete_pointers();

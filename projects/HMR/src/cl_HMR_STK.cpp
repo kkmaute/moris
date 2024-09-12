@@ -14,8 +14,7 @@
 #include "HMR_Tools.hpp" //HMR/src
 #include "fn_trans.hpp"
 #include "fn_sort.hpp" //LINALG/src
-#include "cl_MTK_Mesh.hpp" //MTK/src
-#include "HMR_Tools.hpp" //HMR/src
+#include "cl_MTK_Mesh.hpp"    //MTK/src
 #include "stk_impl/cl_MTK_Mesh_Core_STK.hpp"
 
 namespace moris::hmr

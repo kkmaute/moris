@@ -73,7 +73,7 @@ namespace moris::MSI
             moris::Solver_Interface* tDLASolInterface = static_cast< moris::Solver_Interface* >( tSolverInterface );
 
             // print the data
-            void ( *tPrintFunc )( Vector< moris_id > const &, std::string ) = print_as_row_vector;
+            void ( *tPrintFunc )( Vector< moris_id > const &, const std::string& ) = print_as_row_vector;
             print_vector< moris_id >( tDLASolInterface->mNonZeroDigonal, "mNonZeroDigonal", tPrintFunc );
             print_vector< moris_id >( tDLASolInterface->mNonZeroOffDigonal, "mNonZeroOffDigonal", tPrintFunc );
 

@@ -11,39 +11,36 @@
 #include "cl_SDF_Facet_Vertex.hpp"
 #include "op_times.hpp"
 
-namespace moris
+namespace moris::sdf
 {
-    namespace sdf
+    //-------------------------------------------------------------------------------
+
+    Facet_Vertex::Facet_Vertex(
+            const moris_index       aIndex,
+            const Matrix< DDRMat > &aNodeCoords )
+            : mIndex( aIndex )
+            , mNodeCoords( aNodeCoords )
+            , mOriginalNodeCoords( aNodeCoords )
     {
-        //-------------------------------------------------------------------------------
+    }
 
-        Facet_Vertex::Facet_Vertex(
-                const moris_index       aIndex,
-                const Matrix< DDRMat > &aNodeCoords )
-                : mIndex( aIndex )
-                , mNodeCoords( aNodeCoords )
-                , mOriginalNodeCoords( aNodeCoords )
-        {
-        }
+    //-------------------------------------------------------------------------------
 
-        //-------------------------------------------------------------------------------
+    void
+    Facet_Vertex::rotate_node_coords( const Matrix< DDRMat > &aRotationMatrix )
+    {
+        mNodeCoords    = aRotationMatrix * mNodeCoords;
+        mIsTransformed = true;
+    }
 
-        void
-        Facet_Vertex::rotate_node_coords( const Matrix< DDRMat > &aRotationMatrix )
-        {
-            mNodeCoords = aRotationMatrix * mNodeCoords;
-            mIsTransformed = true;
-        }
+    //-------------------------------------------------------------------------------
 
-        //-------------------------------------------------------------------------------
+    void
+    Facet_Vertex::reset_node_coords()
+    {
+        mNodeCoords = mOriginalNodeCoords;
+    }
 
-        void
-        Facet_Vertex::reset_node_coords()
-        {
-            mNodeCoords = mOriginalNodeCoords;
-        }
+    //-------------------------------------------------------------------------------
 
-        //-------------------------------------------------------------------------------
-
-    } /* namespace sdf */
-} /* namespace moris */
+}    // namespace moris::sdf

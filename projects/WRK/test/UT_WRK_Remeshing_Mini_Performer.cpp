@@ -18,7 +18,6 @@
 #include "fn_norm.hpp"
 
 #include "cl_Library_IO.hpp"
-#include "cl_Communication_Tools.hpp"
 
 #include "moris_typedefs.hpp"
 
@@ -29,7 +28,7 @@
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Mesh_Pair.hpp"
 
-#include "cl_Matrix.hpp"      //LINALG
+#include "cl_Matrix.hpp"    //LINALG
 #include "linalg_typedefs.hpp"
 #include "fn_equal_to.hpp"    // ALG/src
 
@@ -61,8 +60,7 @@ tCircle(
     return norm( aCoords ) - aParameters( 0 );
 }
 
-void
-DummyDerivativeFunction(
+void DummyDerivativeFunction(
         const moris::Matrix< DDRMat > &aCoordinates,
         const moris::Matrix< DDRMat > &aParameters,
         moris::Matrix< DDRMat >       &aReturnValue )
@@ -134,7 +132,7 @@ TEST_CASE( "WRK L2 test", "[WRK_L2_test]" )
                 1,
                 0 );
 
-        mtk::Mesh_Pair tMeshPair( tInterpolationMesh, nullptr, true );
+        mtk::Mesh_Pair tMeshPair( tInterpolationMesh, nullptr, false );
 
         // Define two analytic MTK fields
         Vector< std::shared_ptr< mtk::Field > > tFields( 1, nullptr );
@@ -163,7 +161,7 @@ TEST_CASE( "WRK L2 test", "[WRK_L2_test]" )
                 1,
                 0 );
 
-        mtk::Mesh_Pair tMeshPairNew( tInterpolationMeshNew, nullptr, true );
+        mtk::Mesh_Pair tMeshPairNew( tInterpolationMeshNew, nullptr, false );
 
         tFields( 0 )->unlock_field();
         tFields( 0 )->set_mesh_pair( tMeshPairNew );
@@ -197,9 +195,19 @@ TEST_CASE( "WRK L2 test", "[WRK_L2_test]" )
                 1,
                 0 );
 
-        mtk::Mesh_Pair tMeshPairNewMesh( tInterpolationMeshNewMesh, nullptr, true );
+        mtk::Mesh_Pair tMeshPairNewMesh( tInterpolationMeshNewMesh, nullptr, false );
         tFields( 0 )->unlock_field();
         tFields( 0 )->set_mesh_pair( tMeshPairNewMesh );
         tFields( 0 )->save_field_to_exodus( "Remeshing_Field4.exo" );
+
+        // explicitly delete meshes
+        delete tInterpolationMesh;
+        tInterpolationMesh = nullptr;
+
+        delete tInterpolationMeshNewMesh;
+        tInterpolationMeshNewMesh = nullptr;
+
+        delete tInterpolationMeshNew;
+        tInterpolationMeshNew = nullptr;
     }
 }

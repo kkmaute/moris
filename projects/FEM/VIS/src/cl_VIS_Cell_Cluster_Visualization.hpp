@@ -56,18 +56,18 @@ namespace moris
             //                                   mVertexParamCoords( 0, 0 )
             //    {};
 
-            ~Cell_Cluster_Visualization() {}
+            ~Cell_Cluster_Visualization() override {}
             //----------------------------------------------------------------
-            bool is_trivial( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
+            bool is_trivial( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const override;
 
             // ##############################################
             //  Add and setup of cluster
             // ##############################################
-            void mark_as_nontrivial();
+            void mark_as_nontrivial() override;
 
             //----------------------------------------------------------------
 
-            void set_interpolation_cell( moris::mtk::Cell const *aInterpCell );
+            void set_interpolation_cell( moris::mtk::Cell const *aInterpCell ) override;
 
             //----------------------------------------------------------------
 
@@ -75,11 +75,11 @@ namespace moris
 
             //----------------------------------------------------------------
 
-            void add_primary_integration_cell( Vector< moris::mtk::Cell const * > const &aIntegrationCell );
+            void add_primary_integration_cell( Vector< moris::mtk::Cell const * > const &aIntegrationCell ) override;
 
             //----------------------------------------------------------------
 
-            void add_void_integration_cell( Vector< moris::mtk::Cell const * > const &aIntegrationCell );
+            void add_void_integration_cell( Vector< moris::mtk::Cell const * > const &aIntegrationCell ) override;
 
             //----------------------------------------------------------------
 
@@ -96,39 +96,39 @@ namespace moris
             // ##############################################
 
             Vector< moris::mtk::Cell const * > const &
-            get_primary_cells_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
+            get_primary_cells_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const override;
 
             //----------------------------------------------------------------
 
             Vector< moris::mtk::Cell const * > const &
-            get_void_cells_in_cluster() const;
+            get_void_cells_in_cluster() const override;
 
             //----------------------------------------------------------------
 
             moris::mtk::Cell const &
-            get_interpolation_cell( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
+            get_interpolation_cell( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const override;
 
             //----------------------------------------------------------------
 
             Vector< moris::mtk::Vertex const * >
-            get_vertices_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
+            get_vertices_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const override;
 
             //----------------------------------------------------------------
 
             moris::Matrix< moris::DDRMat >
-            get_vertices_local_coordinates_wrt_interp_cell( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
+            get_vertices_local_coordinates_wrt_interp_cell( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const override;
 
             //----------------------------------------------------------------
 
             moris::Matrix< moris::DDRMat >
             get_vertex_local_coordinate_wrt_interp_cell(
                     moris::mtk::Vertex const  *aVertex,
-                    const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
+                    const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const override;
 
             //----------------------------------------------------------------
 
             moris_index
-            get_dim_of_param_coord( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
+            get_dim_of_param_coord( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const override;
 
             //----------------------------------------------------------------
             // ##############################################

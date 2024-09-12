@@ -22,78 +22,74 @@
 #include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
 #include "cl_FEM_IWG.hpp"                   //FEM/INT/src
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+    //------------------------------------------------------------------------------
+
+    class IWG_Isotropic_Struc_Linear_Interface_SLM_Constraint : public IWG
     {
-        //------------------------------------------------------------------------------
 
-        class IWG_Isotropic_Struc_Linear_Interface_SLM_Constraint : public IWG
+      public:
+        enum class IWG_Property_Type
         {
-
-            public:
-
-                enum class IWG_Property_Type
-                {
-                    MAX_ENUM
-                };
-
-                enum class IWG_Constitutive_Type
-                {
-                        MAX_ENUM
-                };
-
-                enum class IWG_Stabilization_Type
-                {
-                        MAX_ENUM
-                };
-
-                //------------------------------------------------------------------------------
-                /*
-                 * constructor
-                 * @param[ in ] aBeta +1 or -1 for symmetric/unsymmetric symmetric Nitsche
-                 */
-                IWG_Isotropic_Struc_Linear_Interface_SLM_Constraint();
-
-                //------------------------------------------------------------------------------
-                /**
-                 * trivial destructor
-                 */
-                ~IWG_Isotropic_Struc_Linear_Interface_SLM_Constraint(){};
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the residual
-                 * @param[ in ] aWStar weight associated to the evaluation point
-                 */
-                void compute_residual( real aWStar );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the jacobian
-                 * @param[ in ] aWStar weight associated to the evaluation point
-                 */
-                void compute_jacobian( real aWStar );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the residual and the jacobian
-                 * @param[ in ] aWStar weight associated to the evaluation point
-                 */
-                void compute_jacobian_and_residual( real aWStar );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the derivative of the residual wrt design variables
-                 * @param[ in ] aWStar weight associated to the evaluation point
-                 */
-                void compute_dRdp( real aWStar );
-
-                //------------------------------------------------------------------------------
+            MAX_ENUM
         };
+
+        enum class IWG_Constitutive_Type
+        {
+            MAX_ENUM
+        };
+
+        enum class IWG_Stabilization_Type
+        {
+            MAX_ENUM
+        };
+
         //------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
+        /*
+         * constructor
+         * @param[ in ] aBeta +1 or -1 for symmetric/unsymmetric symmetric Nitsche
+         */
+        IWG_Isotropic_Struc_Linear_Interface_SLM_Constraint();
+
+        //------------------------------------------------------------------------------
+        /**
+         * trivial destructor
+         */
+        ~IWG_Isotropic_Struc_Linear_Interface_SLM_Constraint() override{};
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute the residual
+         * @param[ in ] aWStar weight associated to the evaluation point
+         */
+        void compute_residual( real aWStar ) override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute the jacobian
+         * @param[ in ] aWStar weight associated to the evaluation point
+         */
+        void compute_jacobian( real aWStar ) override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute the residual and the jacobian
+         * @param[ in ] aWStar weight associated to the evaluation point
+         */
+        void compute_jacobian_and_residual( real aWStar ) override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute the derivative of the residual wrt design variables
+         * @param[ in ] aWStar weight associated to the evaluation point
+         */
+        void compute_dRdp( real aWStar ) override;
+
+        //------------------------------------------------------------------------------
+    };
+    //------------------------------------------------------------------------------
+}    // namespace moris::fem
 
 #endif /* SRC_FEM_CL_FEM_IWG_ISOTROPIC_STRUC_LINEAR_INTERFACE_HPP_ */
 

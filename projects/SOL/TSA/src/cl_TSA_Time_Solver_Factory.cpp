@@ -43,7 +43,7 @@ std::shared_ptr< Time_Solver_Algorithm > Time_Solver_Factory::create_time_solver
 }
 
 std::shared_ptr< Time_Solver_Algorithm > Time_Solver_Factory::create_time_solver( const enum TimeSolverType aTimeSolverType,
-                                                                                  const Parameter_List                                                                                aParameterlist )
+        const Parameter_List&                                                                               aParameterlist )
 {
     std::shared_ptr< Time_Solver_Algorithm > tTimeSolver = nullptr;
 

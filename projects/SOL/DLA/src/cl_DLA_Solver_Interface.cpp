@@ -439,7 +439,7 @@ void Solver_Interface::get_adof_ids_based_on_criteria(
 
 //---------------------------------------------------------------------------------------------------------
 
-void Solver_Interface::set_solver_warehouse( std::shared_ptr< sol::SOL_Warehouse > aSolverWarehouse )
+void Solver_Interface::set_solver_warehouse( const std::shared_ptr< sol::SOL_Warehouse >& aSolverWarehouse )
 {
     MORIS_ERROR( false, "Solver_Interface::set_solver_warehouse(), not implemented for base class" );
 }

@@ -14,7 +14,7 @@
 #include <string>
 
 #include "cl_HMR_Background_Element.hpp"    //HMR/src
-#include "moris_typedefs.hpp"                     //COR/src
+#include "moris_typedefs.hpp"               //COR/src
 
 #include "cl_Vector.hpp"
 #include "cl_MTK_Cell.hpp"    //MTK/src
@@ -69,7 +69,7 @@ namespace moris::hmr
         /**
          * Virtual destructor. Does nothing.
          */
-        virtual ~Element(){};
+        ~Element() override{};
 
         //------------------------------------------------------------------------------
 
@@ -87,7 +87,7 @@ namespace moris::hmr
          * @return uint
          */
         moris_id
-        get_owner() const
+        get_owner() const override
         {
             return mElement->get_owner();
         }
@@ -98,7 +98,7 @@ namespace moris::hmr
          * MTK Interface: returns the id of the element
          */
         moris_id
-        get_id() const
+        get_id() const override
         {
             return mElement->get_hmr_index( mActivationPattern ) + 1;    // <-- this is correct
         }
@@ -109,7 +109,7 @@ namespace moris::hmr
          * sets the index of this element
          */
         void
-        set_index( uint aIndex )
+        set_index( const moris_index aIndex ) override
         {
             mIndex = aIndex;
         }
@@ -120,7 +120,7 @@ namespace moris::hmr
          * returns the index of this element
          */
         moris_index
-        get_index() const
+        get_index() const override
         {
             return mIndex;
         }
@@ -290,7 +290,7 @@ namespace moris::hmr
          * @return uint
          */
         auto
-        get_level() const -> decltype( mElement->get_level() )
+        get_level() const -> decltype( mElement->get_level() ) override
         {
             return mElement->get_level();
         }
@@ -433,7 +433,7 @@ namespace moris::hmr
          */
         Element* get_neighbor(
                 Vector< Element* >& aAllElementsOnProc,
-                luint                    aNeighborNumber );
+                luint               aNeighborNumber );
 
         //------------------------------------------------------------------------------
 
@@ -442,7 +442,7 @@ namespace moris::hmr
          */
         Element* get_child(
                 Vector< Element* >& aAllElementsOnProc,
-                uint                     aChildIndex );
+                uint                aChildIndex );
 
         //------------------------------------------------------------------------------
 
@@ -501,8 +501,8 @@ namespace moris::hmr
 
         //------------------------------------------------------------------------------
 
-        virtual Vector< mtk::Vertex* >
-        get_vertex_pointers() const
+        Vector< mtk::Vertex* >
+        get_vertex_pointers() const override
         {
             MORIS_ERROR( false, "get_vertex_pointers() not available for this element." );
             return Vector< mtk::Vertex* >( 0 );
@@ -511,16 +511,16 @@ namespace moris::hmr
         //------------------------------------------------------------------------------
 
         // TODO MESHCLEANUP
-        virtual void
-        remove_vertex_pointer( moris_index aIndex )
+        void
+        remove_vertex_pointer( moris_index aIndex ) override
         {
-            std::cout << "In HMR Element" << std::endl;
+            std::cout << "In HMR Element" << '\n';
         }
 
         //------------------------------------------------------------------------------
 
-        virtual Matrix< DDRMat >
-        get_vertex_coords() const
+        Matrix< DDRMat >
+        get_vertex_coords() const override
         {
             MORIS_ERROR( false, "get_vertex_coords() not available for this element." );
             return Matrix< DDRMat >( 0, 0 );
@@ -531,8 +531,8 @@ namespace moris::hmr
         /**
          * tells how many nodes are connected to this element
          */
-        virtual uint
-        get_number_of_vertices() const
+        uint
+        get_number_of_vertices() const override
         {
             MORIS_ERROR( false, " get_number_of_vertices() not available for this element." );
             return 0;
@@ -545,7 +545,7 @@ namespace moris::hmr
          * nodes connected to the element
          */
         Matrix< IdMat >
-        get_vertex_ids() const
+        get_vertex_ids() const override
         {
             MORIS_ERROR( false, "get_vertex_ids() const not available for this element." );
             return Matrix< IdMat >( 0, 0 );
@@ -558,7 +558,7 @@ namespace moris::hmr
          * nodes connected to the element
          */
         Matrix< IndexMat >
-        get_vertex_inds() const
+        get_vertex_inds() const override
         {
             MORIS_ERROR( false, "get_vertex_indices() const not available for this element." );
             return Matrix< IndexMat >( 0, 0 );
@@ -617,7 +617,7 @@ namespace moris::hmr
         //-------------------------------------------------------------------------------
 
         const luint*
-        get_ijk() const
+        get_ijk() const override
         {
             return mElement->get_ijk();
         }

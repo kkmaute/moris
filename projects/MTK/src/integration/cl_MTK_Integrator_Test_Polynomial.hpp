@@ -11,71 +11,68 @@
 #ifndef SRC_MTK_CL_MTK_POLYNOMIAL_FOR_TEST_HPP_
 #define SRC_MTK_CL_MTK_POLYNOMIAL_FOR_TEST_HPP_
 
-namespace moris
+namespace moris::mtk
 {
-    namespace mtk
+    //------------------------------------------------------------------------------
+    /**
+     * \brief A special class to test the functionality of the integrator
+     */
+    class Integrator_Test_Polynomial
     {
+        //! coefficients
+        Matrix< DDRMat > mCoeffs;
+
+        //! exponents
+        Matrix< DDRMat > mExponents;
+
+        //! number of coefficients
+        uint mNumberOfCoeffs;
+
+        //! number of dimensions
+        uint mNumberOfDimensions;
+
+        //! the solution calculated by MATLAB
+        real mIntegral;
+
         //------------------------------------------------------------------------------
+
+      public:
+        //------------------------------------------------------------------------------
+
         /**
-         * \brief A special class to test the functionality of the integrator
+         * loads a MATLAB-generates binary file and generates the
+         * testing polybomial
+         *
+         * @param[ in ] aPath   path to binary file
          */
-        class Integrator_Test_Polynomial
-        {
-            //! coefficients
-            Matrix< DDRMat > mCoeffs;
+        Integrator_Test_Polynomial( const std::string &aPath );
 
-            //! exponents
-            Matrix< DDRMat > mExponents;
-
-            //! number of coefficients
-            uint mNumberOfCoeffs;
-
-            //! number of dimensions
-            uint mNumberOfDimensions;
-
-            //! the solution calculated by MATLAB
-            real mIntegral;
-
-            //------------------------------------------------------------------------------
-
-          public:
-            //------------------------------------------------------------------------------
-
-            /**
-             * loads a MATLAB-generates binary file and generates the
-             * testing polybomial
-             *
-             * @param[ in ] aPath   path to binary file
-             */
-            Integrator_Test_Polynomial( const std::string &aPath );
-
-            //------------------------------------------------------------------------------
-
-            /**
-             * trivial destructor
-             */
-            ~Integrator_Test_Polynomial() {}
-
-            //------------------------------------------------------------------------------
-
-            /**
-             * evaluates the polynomial at specified position
-             */
-            real
-            eval( const Matrix< DDRMat > &aXi );
-
-            //------------------------------------------------------------------------------
-
-            /**
-             * returns the MATLAB precalculated integral
-             */
-            real
-            get_integral();
-
-            //------------------------------------------------------------------------------
-        };
         //------------------------------------------------------------------------------
-    } /* namespace mtk */
-} /* namespace moris */
+
+        /**
+         * trivial destructor
+         */
+        ~Integrator_Test_Polynomial() {}
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * evaluates the polynomial at specified position
+         */
+        real
+        eval( const Matrix< DDRMat > &aXi );
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * returns the MATLAB precalculated integral
+         */
+        real
+        get_integral();
+
+        //------------------------------------------------------------------------------
+    };
+    //------------------------------------------------------------------------------
+}    // namespace moris::mtk
 
 #endif /* SRC_MTK_CL_MTK_POLYNOMIAL_FOR_TEST_HPP_ */

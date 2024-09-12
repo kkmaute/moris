@@ -9,6 +9,8 @@
  */
 
 #include "cl_XTK_Interpolation_Cell_Unzipped.hpp"
+
+#include <utility>
 namespace moris::xtk
 {
     //------------------------------------------------------------------------------
@@ -21,7 +23,7 @@ namespace moris::xtk
             moris_index                              aCellIndex,
             moris_id                                 aCellOwner,
             std::shared_ptr< moris::mtk::Cell_Info > aConnectivity )
-            : Interpolation_Cell( aCellId, aCellIndex, aCellOwner, aConnectivity )
+            : Interpolation_Cell( aCellId, aCellIndex, aCellOwner, std::move( aConnectivity ) )
             , mBaseCell( aBaseCell )
             , mSubPhaseIndex( aSubphaseIndex )
             , mBulkPhaseIndex( aBulkPhaseIndex )
@@ -39,7 +41,7 @@ namespace moris::xtk
             moris_index                              aNumMeshIndices,
             std::shared_ptr< moris::mtk::Cell_Info > aConnectivity,
             bool                                     aIsSpgBasedConstruction )
-            : Interpolation_Cell( MORIS_ID_MAX, aEnrCellIndex, aEnrCellOwner, aConnectivity )
+            : Interpolation_Cell( MORIS_ID_MAX, aEnrCellIndex, aEnrCellOwner, std::move( aConnectivity ) )
             , mBaseCell( aBaseCell )
             , mSubPhaseIndex( aPrimarySubPhaseIndex )
             , mBulkPhaseIndex( aPrimaryBulkPhaseIndex )
@@ -91,7 +93,7 @@ namespace moris::xtk
     void
     Interpolation_Cell_Unzipped::remove_vertex_pointer( moris_index aIndex )
     {
-        std::cout << "In intepolation cell unyipped" << std::endl;
+        std::cout << "In intepolation cell unyipped" << '\n';
     }
 
     //------------------------------------------------------------------------------

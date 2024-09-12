@@ -37,7 +37,7 @@ namespace moris
         SECTION( "Matrix Tests using default" )
         {
 
-            srand( time( 0 ) );
+            srand( time( nullptr ) );
 
             // using cell and pushback
             real tsum_matrix     = 0;
@@ -103,7 +103,7 @@ namespace moris
         SECTION( "Matrix Tests using default" )
         {
 
-            srand( time( 0 ) );
+            srand( time( nullptr ) );
             moris::uint tNumCR = rand() % 200;
             printf( "First number: %d\n", tNumCR );
             Matrix< DDRMat > tA( tNumCR, tNumCR, 1.0 );
@@ -112,8 +112,8 @@ namespace moris
             Matrix< DDRMat > tD( tNumCR, tNumCR, 4.0 );
 
             moris::Matrix< DDRMat > tTestET  = test( tA, tB );
-            moris::Matrix< DDRMat > tTestMat = tTestET;
-            std::cout << tTestMat( 0, 0 ) << std::endl;
+            const moris::Matrix< DDRMat >& tTestMat = tTestET;
+            std::cout << tTestMat( 0, 0 ) << '\n';
 
             moris::uint  tNumIts    = 1;
             std::clock_t tTotalTime = std::clock();
@@ -123,7 +123,7 @@ namespace moris
                 Matrix< DDRMat > tABC = tAB * tC;
                 Matrix< DDRMat > tE   = tABC * tD;
             }
-            std::cout << "Matrix multiplication without expression templates completed in " << ( std::clock() - tTotalTime ) / (double)( CLOCKS_PER_SEC ) * 1000 << " s." << std::endl;
+            std::cout << "Matrix multiplication without expression templates completed in " << ( std::clock() - tTotalTime ) / (double)( CLOCKS_PER_SEC ) * 1000 << " s." << '\n';
 
             // Start clock
             DDRMat tAA( tNumCR, tNumCR );
@@ -141,7 +141,7 @@ namespace moris
             {
                 DDRMat tE = ( tAA * tBA * tCA * tDA );
             }
-            std::cout << "Matrix multiplication with armadillo direct completed in " << ( std::clock() - tTotalTime ) / (double)( CLOCKS_PER_SEC ) * 1000 << " s." << std::endl;
+            std::cout << "Matrix multiplication with armadillo direct completed in " << ( std::clock() - tTotalTime ) / (double)( CLOCKS_PER_SEC ) * 1000 << " s." << '\n';
 
             // Start clock
             tTotalTime = std::clock();
@@ -150,7 +150,7 @@ namespace moris
             {
                 Matrix< DDRMat > tE = tA * tB * tC * tD;
             }
-            std::cout << "Matrix multiplication with expression templates completed in " << ( std::clock() - tTotalTime ) / (double)( CLOCKS_PER_SEC ) * 1000 << " s." << std::endl;
+            std::cout << "Matrix multiplication with expression templates completed in " << ( std::clock() - tTotalTime ) / (double)( CLOCKS_PER_SEC ) * 1000 << " s." << '\n';
 
             // check plus and minus operators
             Matrix< DDRMat > tMpm1( 2, 2, 1 );
@@ -348,7 +348,7 @@ namespace moris
     TEST_CASE( "matrix_performance_arma", "[moris],[matrix_performance_arma]" )
     {
         // Initialize random matrix size
-        srand( time( NULL ) );
+        srand( time( nullptr ) );
         uint tDimX = rand() % 40 + 130;
         uint tDimY = rand() % 40 + 130;
 
@@ -369,7 +369,7 @@ namespace moris
             {
 
                 // create a random number
-                srand( time( NULL ) );
+                srand( time( nullptr ) );
                 tRandNumerator   = rand() % 10 + 1;
                 tRandDenominator = rand() % 10 + 1;
                 tRandNumber      = (moris::real)tRandNumerator / (moris::real)tRandDenominator;
@@ -688,7 +688,7 @@ namespace moris
             "moris::resize",
             "[linalgebra],[resize]" )
     {
-        srand( time( NULL ) );
+        srand( time( nullptr ) );
 
         const uint tMaxNumRow = rand() % 40 + 10;    // was: 100000
 

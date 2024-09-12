@@ -20,185 +20,183 @@
 #include "fn_trans.hpp"
 #include "op_div.hpp"
 //------------------------------------------------------------------------------
-namespace moris
+
+namespace moris::vis
 {
-    namespace vis
+
+    /**
+     * \brief the mtk::Cell class provides the cell information that is
+     * provided by the mesh.
+     */
+
+    class Cell_Visualization : public moris::mtk::Cell
     {
-
-        /**
-         * \brief the mtk::Cell class provides the cell information that is
-         * provided by the mesh.
-         */
-
-        class Cell_Visualization : public moris::mtk::Cell
-        {
-            Vector< mtk::Vertex* > mCellVertices;
-            const moris::mtk::Cell*     mIntegrationcell = nullptr;
-
-            //------------------------------------------------------------------------------
-
-          public:
-            //------------------------------------------------------------------------------
-
-            /**
-             * trivial constructor
-             */
-            Cell_Visualization()    //: mCellInfo(nullptr)
-                    {};
-
-            //------------------------------------------------------------------------------
-
-            /**
-             *  constructor
-             */
-            Cell_Visualization( moris_id              aCellId,
-                    moris_index                       aCellInd,
-                    const Vector< mtk::Vertex* > aCellVertices,
-                    const moris::mtk::Cell*           aIntegrationCell )
-                    : Cell( aCellId,
-                            aCellInd,
-                            aIntegrationCell->get_owner(),
-                            aIntegrationCell->get_cell_info_sp() )
-                    , mCellVertices( aCellVertices )
-                    , mIntegrationcell( aIntegrationCell ){};
-
-            //------------------------------------------------------------------------------
-
-            /**
-             * Destructor. Must be virtual.
-             */
-            ~Cell_Visualization(){};
-
-            //------------------------------------------------------------------------------
-
-            /**
-             * returns the id of the cell with which this cell was created
-             *
-             * @return luint ID
-             */
-            moris_id
-            get_mesh_cell_id() const
-            {
-                return mIntegrationcell->get_id();
-            };
-
-            //------------------------------------------------------------------------------
-
-            /**
-             * returns the index of the cell with which this cell was created
-             *
-             * @return luint ID
-             */
-            moris_index
-            get_mesh_cell_index() const
-            {
-                return mIntegrationcell->get_index();
-            }
-
-            //------------------------------------------------------------------------------
-
-            /**
-             * tells how many vertices are connected to this cell
-             */
-            uint
-            get_number_of_vertices() const
-            {
-                return mCellVertices.size();
-            };
-
-            //------------------------------------------------------------------------------
-
-            /**
-             * returns the proc id of the owner of this cell
-             * ( this information is needed for STK )
-             */
-            moris_id
-            get_owner() const
-            {
-                return mIntegrationcell->get_owner();
-            }
-
-            //------------------------------------------------------------------------------
-
-            /**
-             * fills a Vector with pointers to connected vertices
-             */
-            Vector< mtk::Vertex* >
-            get_vertex_pointers() const
-            {
-                return mCellVertices;
-            }
-
-            //------------------------------------------------------------------------------
-
-            // TODO MESHCLEANUP
-            void
-            remove_vertex_pointer( moris_index aIndex )
-            {
-                // std::cout << "In Vis Cell Visu" << std::endl;
-            }
-
-            //------------------------------------------------------------------------------
-
-            /**
-             * returns a Matrix with IDs of connected vertices
-             */
-            Matrix< IdMat >
-            get_vertex_ids() const
-            {
-                size_t          tNumVertices = this->get_number_of_vertices();
-                Matrix< IdMat > tVertexIds( 1, tNumVertices );
-                for ( size_t i = 0; i < tNumVertices; i++ )
-                {
-                    tVertexIds( i ) = mCellVertices( i )->get_id();
-                }
-                return tVertexIds;
-            }
-
-            //------------------------------------------------------------------------------
-
-            /**
-             * returns a Mat with indices of connected vertices
-             */
-            Matrix< IndexMat >
-            get_vertex_inds() const
-            {
-                size_t             tNumVertices = this->get_number_of_vertices();
-                Matrix< IndexMat > tVertexInds( 1, tNumVertices );
-                for ( size_t i = 0; i < tNumVertices; i++ )
-                {
-                    tVertexInds( i ) = mCellVertices( i )->get_index();
-                }
-                return tVertexInds;
-            }
-
-            //------------------------------------------------------------------------------
-            
-            /**
-             * returns a Matrix of dimension
-             * < number of vertices * number of dimensions >
-             */
-            Matrix< DDRMat >
-            get_vertex_coords() const
-            {
-                size_t tNumVertices = this->get_number_of_vertices();
-
-                Matrix< DDRMat > tVertexCoords( tNumVertices, mCellVertices( 0 )->get_coords().numel() );
-                for ( size_t i = 0; i < tNumVertices; i++ )
-                {
-                    tVertexCoords.set_row( i, mCellVertices( i )->get_coords() );
-                }
-                return tVertexCoords;
-            }
-
-            //------------------------------------------------------------------------------
-
-        };    // class Cell_Visualization
+        Vector< mtk::Vertex* >  mCellVertices;
+        const moris::mtk::Cell* mIntegrationcell = nullptr;
 
         //------------------------------------------------------------------------------
 
-    } /* namespace vis */
-} /* namespace moris */
+      public:
+        //------------------------------------------------------------------------------
+
+        /**
+         * trivial constructor
+         */
+        Cell_Visualization()    //: mCellInfo(nullptr)
+                {};
+
+        //------------------------------------------------------------------------------
+
+        /**
+         *  constructor
+         */
+        Cell_Visualization( moris_id          aCellId,
+                moris_index                   aCellInd,
+                const Vector< mtk::Vertex* >& aCellVertices,
+                const moris::mtk::Cell*       aIntegrationCell )
+                : Cell( aCellId,
+                          aCellInd,
+                          aIntegrationCell->get_owner(),
+                          aIntegrationCell->get_cell_info_sp() )
+                , mCellVertices( aCellVertices )
+                , mIntegrationcell( aIntegrationCell ) {};
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * Destructor. Must be virtual.
+         */
+        ~Cell_Visualization() override{};
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * returns the id of the cell with which this cell was created
+         *
+         * @return luint ID
+         */
+        moris_id
+        get_mesh_cell_id() const
+        {
+            return mIntegrationcell->get_id();
+        };
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * returns the index of the cell with which this cell was created
+         *
+         * @return luint ID
+         */
+        moris_index
+        get_mesh_cell_index() const
+        {
+            return mIntegrationcell->get_index();
+        }
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * tells how many vertices are connected to this cell
+         */
+        uint
+        get_number_of_vertices() const override
+        {
+            return mCellVertices.size();
+        };
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * returns the proc id of the owner of this cell
+         * ( this information is needed for STK )
+         */
+        moris_id
+        get_owner() const override
+        {
+            return mIntegrationcell->get_owner();
+        }
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * fills a Vector with pointers to connected vertices
+         */
+        Vector< mtk::Vertex* >
+        get_vertex_pointers() const override
+        {
+            return mCellVertices;
+        }
+
+        //------------------------------------------------------------------------------
+
+        // TODO MESHCLEANUP
+        void
+        remove_vertex_pointer( moris_index aIndex ) override
+        {
+            // std::cout << "In Vis Cell Visu" << std::endl;
+        }
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * returns a Matrix with IDs of connected vertices
+         */
+        Matrix< IdMat >
+        get_vertex_ids() const override
+        {
+            size_t          tNumVertices = this->get_number_of_vertices();
+            Matrix< IdMat > tVertexIds( 1, tNumVertices );
+            for ( size_t i = 0; i < tNumVertices; i++ )
+            {
+                tVertexIds( i ) = mCellVertices( i )->get_id();
+            }
+            return tVertexIds;
+        }
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * returns a Mat with indices of connected vertices
+         */
+        Matrix< IndexMat >
+        get_vertex_inds() const override
+        {
+            size_t             tNumVertices = this->get_number_of_vertices();
+            Matrix< IndexMat > tVertexInds( 1, tNumVertices );
+            for ( size_t i = 0; i < tNumVertices; i++ )
+            {
+                tVertexInds( i ) = mCellVertices( i )->get_index();
+            }
+            return tVertexInds;
+        }
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * returns a Matrix of dimension
+         * < number of vertices * number of dimensions >
+         */
+        Matrix< DDRMat >
+        get_vertex_coords() const override
+        {
+            size_t tNumVertices = this->get_number_of_vertices();
+
+            Matrix< DDRMat > tVertexCoords( tNumVertices, mCellVertices( 0 )->get_coords().numel() );
+            for ( size_t i = 0; i < tNumVertices; i++ )
+            {
+                tVertexCoords.set_row( i, mCellVertices( i )->get_coords() );
+            }
+            return tVertexCoords;
+        }
+
+        //------------------------------------------------------------------------------
+
+    };    // class Cell_Visualization
+
+    //------------------------------------------------------------------------------
+
+}    // namespace moris::vis
 
 //------------------------------------------------------------------------------
 

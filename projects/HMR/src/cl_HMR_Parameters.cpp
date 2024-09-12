@@ -26,8 +26,8 @@ namespace moris::hmr
      * parameter list constructor
      */
     Parameters::Parameters(
-            Parameter_List&                       aParameterList,
-            std::shared_ptr< moris::Library_IO > aLibrary )
+            Parameter_List&                             aParameterList,
+            const std::shared_ptr< moris::Library_IO >& aLibrary )
     {
         string_to_mat( aParameterList.get< std::string >( "number_of_elements_per_dimension" ), mNumberOfElementsPerDimension );
 
@@ -684,7 +684,7 @@ namespace moris::hmr
     //--------------------------------------------------------------------------------
 
     void
-    Parameters::set_refinement_functions( Vector< Refinement_Function > aRefinementFunctions )
+    Parameters::set_refinement_functions( const Vector< Refinement_Function >& aRefinementFunctions )
     {
         mRefinementFunctions = aRefinementFunctions;
     }

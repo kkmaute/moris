@@ -19,7 +19,6 @@
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Mesh.hpp"
 
-#include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_MTK_Integration_Mesh_STK.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"

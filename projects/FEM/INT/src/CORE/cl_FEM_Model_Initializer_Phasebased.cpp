@@ -41,7 +41,7 @@ namespace moris::fem
         for ( uint iPhase = 0; iPhase < tNumPhases; iPhase++ )
         {
             // get the treated phase parameter list
-            Parameter_List tPhaseParameter = tPhaseParameterList( iPhase );
+            const Parameter_List &tPhaseParameter = tPhaseParameterList( iPhase );
 
             // get the phase name from parameter list
             std::string tPhaseName =
@@ -79,7 +79,7 @@ namespace moris::fem
         for ( uint iMM = 0; iMM < tNumMMs; iMM++ )
         {
             // get the treated MM parameter list
-            Parameter_List tMMParameter = tMMParameterList( iMM );
+            const Parameter_List &tMMParameter = tMMParameterList( iMM );
 
             // get the constitutive type from parameter list
             auto tMMType = tMMParameter.get< fem::Material_Type >( "material_type" );
@@ -171,7 +171,7 @@ namespace moris::fem
         for ( uint iCM = 0; iCM < tNumCMs; iCM++ )
         {
             // get the treated CM parameter list
-            Parameter_List tCMParameter = tCMParameterList( iCM );
+            const Parameter_List &tCMParameter = tCMParameterList( iCM );
 
             // get the constitutive type from parameter list
             auto tCMType = tCMParameter.get< fem::Constitutive_Type >( "constitutive_type" );
@@ -330,7 +330,7 @@ namespace moris::fem
         for ( uint iSP = 0; iSP < tNumSPs; iSP++ )
         {
             // get the stabilization parameters
-            Parameter_List tSPParameter = tSPParameterList( iSP );
+            const Parameter_List &tSPParameter = tSPParameterList( iSP );
 
             // get the stabilization parameter name
             std::string tSPName = tSPParameter.get< std::string >( "stabilization_name" );
@@ -541,7 +541,7 @@ namespace moris::fem
         for ( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
         {
             // get the treated IWG parameter list
-            Parameter_List tIWGParameter = tIWGParameterList( iIWG );
+            const Parameter_List &tIWGParameter = tIWGParameterList( iIWG );
 
             // get the treated IWG name
             std::string tIWGName = tIWGParameter.get< std::string >( "IWG_name" );
@@ -732,7 +732,6 @@ namespace moris::fem
         for ( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
         {
             // get the treated IWG parameter list
-            Parameter_List tIWGParameter = tIWGParameterList( iIWG );
 
             // get the IWG bulk type
             fem::Element_Type tIWGBulkType = mIWGs( iIWG )->get_bulk_type();
@@ -814,7 +813,7 @@ namespace moris::fem
         for ( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
         {
             // get the treated IQI parameter list
-            Parameter_List tIQIParameter = tIQIParameterList( iIQI );
+            const Parameter_List &tIQIParameter = tIQIParameterList( iIQI );
 
             // get the treated IQI name from parameter list
             std::string tIQIName =
@@ -1037,7 +1036,7 @@ namespace moris::fem
         for ( uint iIWG = 0; iIWG < tIWGParameterList.size(); iIWG++ )
         {
             // get the treated IWG parameter list
-            Parameter_List tIWGParameter = tIWGParameterList( iIWG );
+            const Parameter_List &tIWGParameter = tIWGParameterList( iIWG );
 
             // get the IWG bulk type
             fem::Element_Type tIWGBulkType = mIWGs( iIWG )->get_bulk_type();
@@ -1162,7 +1161,7 @@ namespace moris::fem
         for ( uint iIQI = 0; iIQI < tIQIParameterList.size(); iIQI++ )
         {
             // get the treated IWG parameter list
-            Parameter_List tIQIParameter = tIQIParameterList( iIQI );
+            const Parameter_List &tIQIParameter = tIQIParameterList( iIQI );
 
             // get the IWG bulk type
             fem::Element_Type tIQIBulkType = mIQIs( iIQI )->get_bulk_type();
@@ -1333,7 +1332,7 @@ namespace moris::fem
                     for ( uint iSingle = 0; iSingle < tNumSingle; iSingle++ )
                     {
                         // get the neighbor phase name
-                        std::string tNeighborPhaseName = tNeighborPhaseNames( iSingle );
+                        const std::string &tNeighborPhaseName = tNeighborPhaseNames( iSingle );
 
                         // get the follower phase mesh index
                         moris::Matrix< moris::IndexMat > tNeighborPhaseIndices = mPhaseInfo( mPhaseMap[ tNeighborPhaseName ] ).get_phase_indices();

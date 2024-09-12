@@ -215,8 +215,8 @@ namespace moris::hmr
         /**
          * Constructor that loads parameters from a library
          */
-        Parameters( Parameter_List&                  aParameterList,
-                std::shared_ptr< moris::Library_IO > aLibrary );
+        Parameters( Parameter_List&                         aParameterList,
+                const std::shared_ptr< moris::Library_IO >& aLibrary );
 
         /**
          * Trivial constructor
@@ -1263,7 +1263,7 @@ namespace moris::hmr
         //-------------------------------------------------------------------------------
 
         void
-        set_basis_fuction_vtk_file_name( const std::string aFileName )
+        set_basis_fuction_vtk_file_name( const std::string& aFileName )
         {
             mBasisFunctionVtkFileName = aFileName;
         }
@@ -1288,7 +1288,7 @@ namespace moris::hmr
          *
          * @param aRefinementFunctions
          */
-        void set_refinement_functions( Vector< Refinement_Function > aRefinementFunctions );
+        void set_refinement_functions( const Vector< Refinement_Function >& aRefinementFunctions );
 
         /**
          * Get a user-defined refinement function from the parameters

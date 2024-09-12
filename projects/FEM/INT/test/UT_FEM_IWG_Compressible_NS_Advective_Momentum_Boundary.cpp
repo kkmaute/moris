@@ -413,7 +413,7 @@ TEST_CASE( "IWG_Compressible_NS_Advective_Momentum_Boundary_Ideal",
                 // print for debug
                 if ( !tCheckJacobian )
                 {
-                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << "iGP " << iGP << std::endl;
+                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << "iGP " << iGP << '\n';
                 }
 
                 // require check is true
@@ -820,7 +820,7 @@ TEST_CASE( "IWG_Compressible_NS_Advective_Momentum_Boundary_VdW",
                 // print for debug
                 if ( !tCheckJacobian )
                 {
-                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << "iGP " << iGP << std::endl;
+                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << "iGP " << iGP << '\n';
                 }
 
                 // require check is true

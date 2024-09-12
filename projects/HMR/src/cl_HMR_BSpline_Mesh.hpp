@@ -17,9 +17,9 @@
 #include "cl_HMR_BSpline_Mesh_Base.hpp"          //HMR/src
 #include "cl_HMR_Parameters.hpp"                 //HMR/src
 #include "fn_HMR_calculate_basis_identifier.hpp"
-#include "HMR_Globals.hpp"                       //HMR/src
-#include "moris_typedefs.hpp"                          //COR/src
-#include "cl_Stopwatch.hpp"                      //CHR/src
+#include "HMR_Globals.hpp"       //HMR/src
+#include "moris_typedefs.hpp"    //COR/src
+#include "cl_Stopwatch.hpp"      //CHR/src
 
 namespace moris::hmr
 {
@@ -76,11 +76,11 @@ namespace moris::hmr
                 uint                  aActivationPattern,
                 uint                  aMeshIndex )
                 : BSpline_Mesh_Base(    // <-- this initializer only copies what is passed here into member data and does not process anything
-                        aParameters,
-                        aBackgroundMesh,
-                        this->get_min_order(),
-                        aActivationPattern,
-                        B )
+                          aParameters,
+                          aBackgroundMesh,
+                          this->get_min_order(),
+                          aActivationPattern,
+                          B )
         {
             // trace this operation
             Tracer tTracer( "HMR", "B-Spline Mesh #" + std::to_string( aMeshIndex ), "Create" );
@@ -181,7 +181,7 @@ namespace moris::hmr
 
         void
         evaluate_child_matrices(
-                const Matrix< DDUMat >&   aBasisIndices,
+                const Matrix< DDUMat >&     aBasisIndices,
                 Vector< Matrix< DDRMat > >& aChildMatrices ) override
         {
             // Number of children per element
@@ -802,10 +802,10 @@ namespace moris::hmr
                                 iBasisFunction->set_refined_flag();
                             }
                         }    // end if: BF interpolates into de-activated element
-                    }        // end if: BF is relevant and not outside the domain
-                }            // end if: BF is used on processor
-            }                // end for: all basis functions parsed into function
-        }                    // end function: BSpline_Mesh::determine_basis_state()
+                    }    // end if: BF is relevant and not outside the domain
+                }    // end if: BF is used on processor
+            }    // end for: all basis functions parsed into function
+        }    // end function: BSpline_Mesh::determine_basis_state()
 
         //------------------------------------------------------------------------------
 
@@ -873,7 +873,7 @@ namespace moris::hmr
 
         void
         delete_unused_bases(
-                uint                              aLevel,
+                uint                                aLevel,
                 Vector< Background_Element_Base* >& aBackgroundElements,
                 Vector< Basis* >&                   aBasis ) override
         {
@@ -1005,7 +1005,7 @@ namespace moris::hmr
 
                 // move output
                 aBasis.clear();
-                aBasis = std::move( tBasisOut );
+                aBasis = tBasisOut;
 
                 // stop timer
                 real tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
@@ -1026,7 +1026,7 @@ namespace moris::hmr
 
         void
         collect_bases_from_level(
-                uint            aLevel,
+                uint              aLevel,
                 Vector< Basis* >& aBasis ) override
         {
             Vector< Element* > tElements;

@@ -13,10 +13,8 @@
 
 #include "cl_FEM_Node_Base.hpp"
 
-namespace moris
+namespace moris::MSI
 {
-    namespace MSI
-    {
     class Node_Proxy : public moris::fem::Node_Base
     {
     private:
@@ -44,23 +42,22 @@ namespace moris
         Node_Proxy( const moris::luint             & aNodeId ) : mNodeId( aNodeId )
         {};
 
-        ~Node_Proxy() {};
+        ~Node_Proxy() override {};
 
-        moris::sint get_id() const { return mNodeId; }
-        moris::sint get_index() const { return mNodeId; }
+        moris::sint get_id() const override { return mNodeId; }
+        moris::sint get_index() const override { return mNodeId; }
 
         moris::sint get_owner() const { return mNodeOwner; }
 
-        Matrix< IdMat > get_adof_ids( const uint aOrder ) const { return mAdofIds; };
+        Matrix< IdMat > get_adof_ids( const uint aOrder ) const override { return mAdofIds; };
 
-        Matrix< IndexMat > get_adof_indices( const uint aOrder ) const { return mAdofInd; };
+        Matrix< IndexMat > get_adof_indices( const uint aOrder ) const override { return mAdofInd; };
 
-        const Matrix< DDRMat > * get_t_matrix( const uint aOrder ) const { return & mMatrix; };
+        const Matrix< DDRMat > * get_t_matrix( const uint aOrder ) const override { return & mMatrix; };
 
-        Matrix< IndexMat > get_adof_owners( const uint aOrder ) const { return mAdofOwningProcessor; };
+        Matrix< IndexMat > get_adof_owners( const uint aOrder ) const override { return mAdofOwningProcessor; };
     };
     }
-}
 
 #endif /* SRC_MSI_CL_NODE_OBJ_HPP_ */
 

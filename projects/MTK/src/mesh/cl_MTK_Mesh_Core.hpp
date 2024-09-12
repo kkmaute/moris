@@ -329,7 +329,7 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
-            virtual moris::mtk::Set* get_set_by_name( std::string aSetLabel ) const;
+            virtual moris::mtk::Set* get_set_by_name( const std::string& aSetLabel ) const;
 
             // end of pure virtual functions in section 1
             // all functions below this line need to be able to have a default implementation
@@ -1327,8 +1327,8 @@ namespace moris
              */
             virtual Matrix< IndexMat >
             get_set_entity_loc_inds(
-                    enum EntityRank aSetEntityRank,
-                    std::string     aSetName ) const;
+                    enum EntityRank    aSetEntityRank,
+                    const std::string& aSetName ) const;
 
             // ----------------------------------------------------------------------------
 
@@ -1403,7 +1403,7 @@ namespace moris
             /**
              * Deprecated
              */
-            virtual Vector< mtk::Cell const * > get_set_cells( std::string aSetLabel ) const;
+            virtual Vector< mtk::Cell const * > get_set_cells( const std::string& aSetLabel ) const;
 
             // ----------------------------------------------------------------------------
 
@@ -1412,7 +1412,7 @@ namespace moris
              * Deprecated
              */
             virtual Vector< mtk::Cell const * >
-            get_block_set_cells( std::string aSetName ) const;
+            get_block_set_cells( const std::string& aSetName ) const;
 
             // ----------------------------------------------------------------------------
 
@@ -1454,7 +1454,7 @@ namespace moris
 
             // FIXME remove access to vertex
             virtual Vector< moris::mtk::Vertex const * >
-            get_vertices_in_vertex_set_no_aura( std::string aSetName ) const;
+            get_vertices_in_vertex_set_no_aura( const std::string& aSetName ) const;
 
             // ----------------------------------------------------------------------------
 

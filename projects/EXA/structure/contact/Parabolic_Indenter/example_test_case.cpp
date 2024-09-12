@@ -53,24 +53,24 @@ extern "C" void check_results()
 
     if ( gPrintReferenceValues )
     {
-        std::cout << "Test case index: " << gCaseIndex << std::endl;
+        std::cout << "Test case index: " << gCaseIndex << '\n';
 
         uint tNumDims  = tExoIO.get_number_of_dimensions();
         uint tNumNodes = tExoIO.get_number_of_nodes();
         uint tNumElems = tExoIO.get_number_of_elements();
 
-        std::cout << "Number of dimensions: " << tNumDims << std::endl;
-        std::cout << "Number of nodes     : " << tNumNodes << std::endl;
-        std::cout << "Number of elements  : " << tNumElems << std::endl;
+        std::cout << "Number of dimensions: " << tNumDims << '\n';
+        std::cout << "Number of nodes     : " << tNumNodes << '\n';
+        std::cout << "Number of elements  : " << tNumElems << '\n';
 
         // coordinates of reference point
         moris::print( tExoIO.get_nodal_coordinate( tReferenceNodeId( gCaseIndex ) ), "Coordinates of reference point" );
 
         // time value for reference time step
-        std::cout << "Time value: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_time_value() << std::endl;
+        std::cout << "Time value: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_time_value() << '\n';
 
         // solution of reference point at reference time step
-        std::cout << "Displacement at reference point: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_nodal_field_value( tReferenceNodeId( gCaseIndex ), 2, 0 ) << "," << tExoIO.get_nodal_field_value( tReferenceNodeId( gCaseIndex ), 3, 0 ) << std::endl;
+        std::cout << "Displacement at reference point: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_nodal_field_value( tReferenceNodeId( gCaseIndex ), 2, 0 ) << "," << tExoIO.get_nodal_field_value( tReferenceNodeId( gCaseIndex ), 3, 0 ) << '\n';
 
         return;
     }
@@ -184,7 +184,6 @@ TEST_CASE( "Parabolic_Indenter_Linear",
     MORIS_LOG_INFO( " " );
     MORIS_LOG_INFO( "Executing Parabolic_Indenter_Linear: Interpolation order 1 - %i Processors.", par_size() );
     MORIS_LOG_INFO( " " );
-
 
     // call to performance manager main interface
     fn_WRK_Workflow_Main_Interface( argc, argv );

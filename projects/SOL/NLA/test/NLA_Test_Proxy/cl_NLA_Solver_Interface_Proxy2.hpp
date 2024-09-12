@@ -49,11 +49,11 @@ namespace moris
 
             // ----------------------------------------------------------------------------------------------
 
-            NLA_Solver_Interface_Proxy_II( std::shared_ptr< Nonlinear_Algorithm > aNewtonSolver ){};
+            NLA_Solver_Interface_Proxy_II( const std::shared_ptr< Nonlinear_Algorithm >& aNewtonSolver ) {};
 
             // ----------------------------------------------------------------------------------------------
 
-            ~NLA_Solver_Interface_Proxy_II() override{};
+            ~NLA_Solver_Interface_Proxy_II() override {};
 
             // ----------------------------------------------------------------------------------------------
 
@@ -61,11 +61,11 @@ namespace moris
 
             // ----------------------------------------------------------------------------------------------
 
-            void free_block_memory( const uint aBlockInd ) override{};
+            void free_block_memory( const uint aBlockInd ) override {};
 
             // ----------------------------------------------------------------------------------------------
 
-            void set_requested_dof_types( const Vector< enum MSI::Dof_Type > aListOfDofTypes ) override
+            void set_requested_dof_types( const Vector< enum MSI::Dof_Type >& aListOfDofTypes ) override
             {
                 mListOfDofTypes = aListOfDofTypes;
             };
@@ -79,7 +79,7 @@ namespace moris
 
             // ----------------------------------------------------------------------------------------------
 
-            void set_secondary_dof_types( const Vector< enum MSI::Dof_Type > aListOfDofTypes ) override{};
+            void set_secondary_dof_types( const Vector< enum MSI::Dof_Type >& aListOfDofTypes ) override {};
 
             // ----------------------------------------------------------------------------------------------
 
@@ -267,7 +267,7 @@ namespace moris
                 }
                 else
                 {
-                    return NULL;
+                    return nullptr;
                 }
             };
 

@@ -11,19 +11,16 @@
 #ifndef SRC_DISTLINALG_CL_NLA_NONLINEAR_SOLVER_ENUMS_HPP_
 #define SRC_DISTLINALG_CL_NLA_NONLINEAR_SOLVER_ENUMS_HPP_
 
-namespace moris
+namespace moris::NLA
 {
-    namespace NLA
+    enum class NonlinearSolverType
     {
-        enum class NonlinearSolverType
-        {
-            NEWTON_SOLVER,   //< Wrapper around Aztec Solver
-            NLBGS_SOLVER,   //< Wrapper around Aztec Solver
-            ARC_LENGTH_SOLVER,
-            END_ENUM
-        };
+        NEWTON_SOLVER,    //< Wrapper around Aztec Solver
+        NLBGS_SOLVER,     //< Wrapper around Aztec Solver
+        ARC_LENGTH_SOLVER,
+        END_ENUM
+    };
     }
-}
 
 #endif /* SRC_DISTLINALG_CL_NLA_NONLINEAR_SOLVER_ENUMS_HPP_ */
 

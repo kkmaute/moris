@@ -38,7 +38,7 @@ namespace moris::hmr
     void
     check_for_forbidden_fields( Vector< std::shared_ptr< Field > > &aInputFields )
     {
-        for ( auto tField : aInputFields )
+        for ( const auto &tField : aInputFields )
         {
             bool tFieldIsForbidden = false;
 
@@ -189,7 +189,7 @@ namespace moris::hmr
         for ( uint f = 0; f < tNumberOfFields; ++f )
         {
             // get pointer to input field
-            std::shared_ptr< Field > tInputField = aInputFields( f );
+            const std::shared_ptr< Field > &tInputField = aInputFields( f );
 
             // get order
             uint tBSplineOrder  = tInputField->get_bspline_output_order();
@@ -251,11 +251,11 @@ namespace moris::hmr
             std::shared_ptr< Field > tOutputField = tOutputMesh->create_field( tInputField->get_label(),
                     tBSplineOrder );
 
-            std::cout << tOutputField->get_coefficients().length() << std::endl;
+            std::cout << tOutputField->get_coefficients().length() << '\n';
 
             // move coefficients to output field
             // fixme: to be tested with Eigen also
-            tOutputField->get_coefficients() = std::move( tFieldUnion( m )->get_coefficients() );
+            tOutputField->get_coefficients() = tFieldUnion( m )->get_coefficients();
 
             // allocate nodes for output
             tOutputField->get_node_values().set_size( tOutputMesh->get_num_nodes(), 1 );
@@ -307,7 +307,7 @@ namespace moris::hmr
         {
             // grab base path
             std::string tBasepath = aParamfile.get_union_mesh_path().substr(
-                    0, aParamfile.get_union_mesh_path().find_last_of( "." ) );
+                    0, aParamfile.get_union_mesh_path().find_last_of( '.' ) );
 
             // loop over all meshes
             for ( uint m = 0; m < tNumberOfMappers; ++m )

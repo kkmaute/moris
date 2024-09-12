@@ -281,7 +281,7 @@ TEST_CASE( "CM_Spalart_Allmaras_Turbulence", "[CM_Spalart_Allmaras_Turbulence]" 
                 for( uint iRequestedDof = 0; iRequestedDof < tRequestedLeaderGlobalDofTypes.size(); iRequestedDof++ )
                 {
                     // derivative dof type
-                    Vector< MSI::Dof_Type > tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
+                    const Vector< MSI::Dof_Type >& tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
 
                     // production coeff
                     //------------------------------------------------------------------------------
@@ -307,7 +307,7 @@ TEST_CASE( "CM_Spalart_Allmaras_Turbulence", "[CM_Spalart_Allmaras_Turbulence]" 
                     for( uint iTestDof = 0; iTestDof < tLeaderDofTypes.size(); iTestDof++ )
                     {
                         // get the test dof type
-                        Vector< MSI::Dof_Type > tDofTest = tLeaderDofTypes( iTestDof );
+                        const Vector< MSI::Dof_Type >& tDofTest = tLeaderDofTypes( iTestDof );
 
                         // evaluate dtesttractiondu
                         Matrix< DDRMat > tdtesttractiondu = tCMLeaderSATurbulence->dTestTractiondDOF(

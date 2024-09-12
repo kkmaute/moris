@@ -21,89 +21,86 @@
 
 #include "cl_FEM_IQI.hpp"    //FEM/INT/src
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+    //------------------------------------------------------------------------------
+
+    class IQI_Dof : public IQI
     {
+      private:
+        //! initialization flag
+        bool mIsInitialized = false;
+
+        //! spatial and time derivative information
+        uint mSpatialDerivativeDirection = 0;
+        uint mSpatialDerivativeOrder     = 0;
+        uint mTimeDerivativeOrder        = 0;
+
+      public:
+        //------------------------------------------------------------------------------
+        /*
+         * constructor
+         */
+        IQI_Dof();
+
+        //------------------------------------------------------------------------------
+        /**
+         * trivial destructor
+         */
+        ~IQI_Dof() override{};
+
         //------------------------------------------------------------------------------
 
-        class IQI_Dof : public IQI
-        {
-          private:
-            //! initialization flag
-            bool mIsInitialized = false;
+      private:
+        //------------------------------------------------------------------------------
+        /**
+         * initialize parameters
+         */
+        void initialize();
 
-            //! spatial and time derivative information
-            uint mSpatialDerivativeDirection = 0;
-            uint mSpatialDerivativeOrder     = 0;
-            uint mTimeDerivativeOrder        = 0;
+        //------------------------------------------------------------------------------
+        /**
+         * compute the quantity of interest
+         * @param[ in ] aWStar weight associated to the evaluation point
+         */
+        void compute_QI( real aWStar ) override;
 
-          public:
-            //------------------------------------------------------------------------------
-            /*
-             * constructor
-             */
-            IQI_Dof();
+        //------------------------------------------------------------------------------
+        /**
+         * Evaluate the quantity of interest and fill aQI with value
+         * @param[ in ] aQI IQI value at evaluation point
+         */
+        void compute_QI( Matrix< DDRMat >& aQI ) override;
 
-            //------------------------------------------------------------------------------
-            /**
-             * trivial destructor
-             */
-            ~IQI_Dof(){};
+        //------------------------------------------------------------------------------
+        /**
+         * evaluate the quantity of interest
+         * @param[ in ] Matrix
+         *
+         * @return void
+         */
+        void evaluate_QI( Matrix< DDRMat >& aMat );
 
-            //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+        /**
+         * compute the derivative of the quantity of interest wrt dof types
+         * @param[ in ] aWStar weight associated to the evaluation point
+         */
+        void compute_dQIdu( real aWStar ) override;
 
-          private:
-            //------------------------------------------------------------------------------
-            /**
-             * initialize parameters
-             */
-            void initialize();
+        //------------------------------------------------------------------------------
+        /**
+         * compute the derivative of the quantity of interest wrt dof types
+         * @param[ in ] aDofType group of dof types wrt which derivatives are evaluated
+         * @param[ in ] adQIdu   derivative of quantity of interest matrix to fill
+         */
+        void compute_dQIdu(
+                Vector< MSI::Dof_Type >& aDofType,
+                Matrix< DDRMat >&        adQIdu ) override;
 
-            //------------------------------------------------------------------------------
-            /**
-             * compute the quantity of interest
-             * @param[ in ] aWStar weight associated to the evaluation point
-             */
-            void compute_QI( real aWStar );
-
-            //------------------------------------------------------------------------------
-            /**
-             * Evaluate the quantity of interest and fill aQI with value
-             * @param[ in ] aQI IQI value at evaluation point
-             */
-            void compute_QI( Matrix< DDRMat >& aQI );
-
-            //------------------------------------------------------------------------------
-            /**
-             * evaluate the quantity of interest
-             * @param[ in ] Matrix
-             *
-             * @return void
-             */
-            void evaluate_QI( Matrix< DDRMat >& aMat );
-
-            //------------------------------------------------------------------------------
-            /**
-             * compute the derivative of the quantity of interest wrt dof types
-             * @param[ in ] aWStar weight associated to the evaluation point
-             */
-            void compute_dQIdu( real aWStar );
-
-            //------------------------------------------------------------------------------
-            /**
-             * compute the derivative of the quantity of interest wrt dof types
-             * @param[ in ] aDofType group of dof types wrt which derivatives are evaluated
-             * @param[ in ] adQIdu   derivative of quantity of interest matrix to fill
-             */
-            void compute_dQIdu(
-                    Vector< MSI::Dof_Type >& aDofType,
-                    Matrix< DDRMat >&             adQIdu );
-
-            //------------------------------------------------------------------------------
-        };
-    } /* end namespace fem */
-} /* end namespace moris */
+        //------------------------------------------------------------------------------
+    };
+}    // namespace moris::fem
 
 #endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IQI_DOF_HPP_ */
 

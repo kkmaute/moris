@@ -31,7 +31,7 @@ namespace moris
      */
     struct External_Validator
     {
-        Validation_Type     mValidationType     = Validation_Type::NONE;
+        Validation_Type     mValidationType = Validation_Type::NONE;
         std::string         mParameterName;
         Parameter_List_Type mParameterListType  = Parameter_List_Type::END_ENUM;
         uint                mParameterListIndex = 0;
@@ -40,8 +40,8 @@ namespace moris
     class Parameter
     {
       private:
-        Variant mValue;
-        Validator* mValidator;
+        Variant            mValue;
+        Validator*         mValidator;
         External_Validator mExternalValidator;
 
       public:
@@ -64,18 +64,18 @@ namespace moris
                 uint                aExternalParameterListIndex )
         {
             // Set default value without validation
-            mValue = make_variant( aParameterValue );
+            mValue = make_variant( std::move( aParameterValue ) );
 
             // Create type validator
             mValidator = new Type_Validator< T >();
 
             // Set external validator
-            mExternalValidator.mValidationType = aExternalValidationType;
-            mExternalValidator.mParameterName = std::move( aExternalParameterListName );
-            mExternalValidator.mParameterListType = aExternalParameterListType;
+            mExternalValidator.mValidationType     = aExternalValidationType;
+            mExternalValidator.mParameterName      = std::move( aExternalParameterListName );
+            mExternalValidator.mParameterListType  = aExternalParameterListType;
             mExternalValidator.mParameterListIndex = aExternalParameterListIndex;
         }
-        
+
         /**
          * Constructor for a parameter with a range validator.
          *
@@ -89,7 +89,7 @@ namespace moris
         {
             // Set default value without validation
             mValue = make_variant( aParameterValue );
-            
+
             // Create range validator
             mValidator = new Range_Validator( aMinimumValue, aMaximumValue );
         }
@@ -105,7 +105,7 @@ namespace moris
         Parameter( T aParameterValue, const std::set< T >& aValidSelections )
         {
             // Set default value without validation
-            mValue = make_variant( aParameterValue );
+            mValue = make_variant( std::move( aParameterValue ) );
 
             // Create selection validator
             mValidator = new Selection_Validator( aValidSelections );
@@ -143,7 +143,7 @@ namespace moris
                     aParameterName.c_str() );
 
             // Make value into a variant
-            Variant tParameterVariant = make_variant( aParameterValue );
+            Variant tParameterVariant = make_variant( std::move( aParameterValue ) );
 
             // Validate the variant
             MORIS_ERROR( mValidator->make_valid_parameter( tParameterVariant ),
@@ -215,5 +215,12 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     // Declare template specializations of the Parameter constructor
-    template<> Parameter::Parameter( const char*, Validation_Type, std::string, Parameter_List_Type, uint );
-}
+    template<>
+    Parameter::Parameter(
+            const char*,
+            Validation_Type,
+            std::string,
+            Parameter_List_Type,
+            uint );
+
+}    // namespace moris

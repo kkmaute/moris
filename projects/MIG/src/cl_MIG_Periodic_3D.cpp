@@ -19,6 +19,7 @@
 #include "cl_MTK_Enums.hpp"
 #include "fn_unique.hpp"
 #include <unordered_map>
+#include <utility>
 
 #include "fn_norm.hpp"
 #include "fn_sum.hpp"
@@ -47,13 +48,13 @@
 namespace moris::mig
 {
     Periodic_3D::Periodic_3D(
-        std::shared_ptr< moris::mtk::Mesh_Manager > aMeshManager,
-        moris::moris_index                          aMeshIndex,
-        moris::Parameter_List                      &aParameterList,
-        moris::uint                                 aNumBulkPhases ) :
-        mMeshManager( aMeshManager ),
-        mMeshIndex( aMeshIndex ),
-        mNumBulkPhases( aNumBulkPhases )
+            std::shared_ptr< moris::mtk::Mesh_Manager > aMeshManager,
+            moris::moris_index                          aMeshIndex,
+            moris::Parameter_List                      &aParameterList,
+            moris::uint                                 aNumBulkPhases )
+            : mMeshManager( std::move( aMeshManager ) )
+            , mMeshIndex( aMeshIndex )
+            , mNumBulkPhases( aNumBulkPhases )
     {
         // get the periodic mesh set names
         std::string tMeshSideSetNames = aParameterList.get< std::string >( "periodic_side_set_pair" );
@@ -719,7 +720,7 @@ namespace moris::mig
     //------------------------------------------------------------------------------------------------------------
     // name the cluster set
     void
-    Periodic_3D::construct_add_dbl_sided_set( moris::Matrix< IndexMat > tPhaseInteractionTable )
+    Periodic_3D::construct_add_dbl_sided_set( const moris::Matrix< IndexMat > &tPhaseInteractionTable )
     {
         // resize the coordinate matrix
         mVertexParametricCoords.resize( mNumParamCoords, 3 );
