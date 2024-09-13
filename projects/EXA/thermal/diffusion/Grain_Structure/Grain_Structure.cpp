@@ -174,7 +174,7 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "ghost_stab",                    isGhost );
         tParameterlist( 0 )( 0 ).set( "multigrid",                     false );
         tParameterlist( 0 )( 0 ).set( "verbose",                       true );
-        tParameterlist( 0 )( 0 ).set( "print_enriched_ig_mesh",        true );
+        tParameterlist( 0 )( 0 ).set( "print_enriched_ig_mesh",        false );
         tParameterlist( 0 )( 0 ).set( "exodus_output_XTK_ig_mesh",     true );
         tParameterlist( 0 )( 0 ).set( "write_cluster_measures_to_exo", false );
     }
@@ -428,7 +428,7 @@ namespace moris
         tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
         tParameterlist( 2 )( 0 ).set("NLA_rel_res_norm_drop",    1e-04 );
         tParameterlist( 2 )( 0 ).set("NLA_relaxation_parameter", 1.0  );
-        tParameterlist( 2 )( 0 ).set("NLA_max_iter", 20 );
+        tParameterlist( 2 )( 0 ).set("NLA_max_iter", 1 );
 
         tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
         tParameterlist( 3 )( 0 ).set("NLA_DofTypes"      , "TEMP") ;
