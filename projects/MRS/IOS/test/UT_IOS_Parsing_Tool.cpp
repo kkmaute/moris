@@ -39,7 +39,7 @@ namespace moris
 
         std::string tString = "1.0, 2.0; 3.0, 11.0 / 1.0 , 4.0 , 3.0 ; 2.0 , 5.0 ,8.0 ";
 
-        string_to_cell_mat_2( tString, tCellMat );
+        string_to_vector_of_matrices( tString, tCellMat );
 
         CHECK( tCellMat(0)(0,0) == 1.0  );        CHECK( tCellMat(1)(0,0) == 1.0  );
         CHECK( tCellMat(0)(0,1) == 2.0  );        CHECK( tCellMat(1)(0,2) == 3.0 );

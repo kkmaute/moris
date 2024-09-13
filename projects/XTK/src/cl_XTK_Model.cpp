@@ -397,14 +397,14 @@ namespace moris::xtk
         {
             // get the blocks to unionize
             Vector< Vector< std::string > > tUnionBlockCells;
-            moris::string_to_cell_of_cell( tUnionBlockStr, tUnionBlockCells );
+            moris::string_to_vector_of_vectors( tUnionBlockStr, tUnionBlockCells );
 
             // Row based
             Matrix< IndexMat > tUnionBlockColors      = string_to_mat< IndexMat >( mParameterList.get< std::string >( "union_block_colors" ) );
             std::string        tUnionNewBlockNamesStr = mParameterList.get< std::string >( "union_block_names" );
 
             Vector< Vector< std::string > > tNewBlockNames;
-            moris::string_to_cell_of_cell( tUnionNewBlockNamesStr, tNewBlockNames );
+            moris::string_to_vector_of_vectors( tUnionNewBlockNamesStr, tNewBlockNames );
 
             MORIS_ERROR( tUnionBlockCells.size() == tNewBlockNames.size(), "Dimension Mismatch in number of union operations for block" );
             MORIS_ERROR( tUnionBlockCells.size() == tUnionBlockColors.n_rows(), "Dimension Mismatch in number of union operations for block" );
@@ -423,14 +423,14 @@ namespace moris::xtk
         {
             // get the blocks to unionize
             Vector< Vector< std::string > > tUnionSideSetCells;
-            moris::string_to_cell_of_cell( tUnionSideSetStr, tUnionSideSetCells );
+            moris::string_to_vector_of_vectors( tUnionSideSetStr, tUnionSideSetCells );
 
             // Row based
             Matrix< IndexMat > tUnionSideSetColors      = string_to_mat< IndexMat >( mParameterList.get< std::string >( "union_side_set_colors" ) );
             std::string        tUnionNewSideSetNamesStr = mParameterList.get< std::string >( "union_side_set_names" );
 
             Vector< Vector< std::string > > tNewSideSetNames;
-            moris::string_to_cell_of_cell( tUnionNewSideSetNamesStr, tNewSideSetNames );
+            moris::string_to_vector_of_vectors( tUnionNewSideSetNamesStr, tNewSideSetNames );
 
             MORIS_ERROR( tUnionSideSetCells.size() == tNewSideSetNames.size(), "Dimension Mismatch in number of union operations for side set" );
             MORIS_ERROR( tUnionSideSetCells.size() == tUnionSideSetColors.n_rows(), "Dimension Mismatch in number of union operations for side set" );
@@ -449,7 +449,7 @@ namespace moris::xtk
         {
             // get the blocks to unionize
             Vector< Vector< std::string > > tBlocksToKeepStr;
-            moris::string_to_cell_of_cell( tDeactivatedBlockStr, tBlocksToKeepStr );
+            moris::string_to_vector_of_vectors( tDeactivatedBlockStr, tBlocksToKeepStr );
 
             MORIS_ERROR( tBlocksToKeepStr.size() == 1, "deactivate_all_but_block issue: This operation can only be performed on time" );
 
@@ -461,7 +461,7 @@ namespace moris::xtk
         {
             // get the blocks to unionize
             Vector< Vector< std::string > > tSideSetsToKeepStr;
-            moris::string_to_cell_of_cell( tDeactivatedSideSetStr, tSideSetsToKeepStr );
+            moris::string_to_vector_of_vectors( tDeactivatedSideSetStr, tSideSetsToKeepStr );
 
             MORIS_ERROR( tSideSetsToKeepStr.size() == 1, "deactivate_all_side_sets_except_selected issue: This operation can only be performed on time" );
 

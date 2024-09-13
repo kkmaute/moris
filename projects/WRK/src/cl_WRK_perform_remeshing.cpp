@@ -102,7 +102,7 @@ namespace moris::wrk
 
         if ( mParameters.mModeIndex == 2 )
         {
-            string_to_cell(
+            string_to_vector(
                     aParameterlist.get< std::string >( "refinement_function_name" ),
                     mParameters.mRefinementFunctionForField );
 

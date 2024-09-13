@@ -230,7 +230,7 @@ namespace moris
         template< typename T >
         Vector< T > get_cell( const std::string& aName ) const
         {
-            return string_to_cell< T >( this->get< std::string >( aName ) );
+            return string_to_vector< T >( this->get< std::string >( aName ) );
         }
 
         /**

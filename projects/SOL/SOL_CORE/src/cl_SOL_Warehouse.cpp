@@ -172,7 +172,7 @@ void SOL_Warehouse::create_linear_solver_algorithms()
 
         // get and set nonlinear sub-solvers for staggered methods
         Vector< uint > tPreconditionerIndices;
-        string_to_cell( mParameterlist( 0 )( Ik ).get< std::string >( "preconditioners" ),
+        string_to_vector( mParameterlist( 0 )( Ik ).get< std::string >( "preconditioners" ),
                 tPreconditionerIndices );
 
         // loop over the list of preconditioners and assign it to the solver
@@ -183,7 +183,7 @@ void SOL_Warehouse::create_linear_solver_algorithms()
 
         // get and set nonlinear sub-solvers for staggered methods
         tPreconditionerIndices.clear();
-        string_to_cell( mParameterlist( 0 )( Ik ).get< std::string >( "preconditioners_linear_operator" ),
+        string_to_vector( mParameterlist( 0 )( Ik ).get< std::string >( "preconditioners_linear_operator" ),
                 tPreconditionerIndices );
 
         // loop over the list of preconditioner and assign it to the solver
@@ -194,7 +194,7 @@ void SOL_Warehouse::create_linear_solver_algorithms()
 
         // get and set nonlinear sub-solvers for staggered methods
         tPreconditionerIndices.clear();
-        string_to_cell( mParameterlist( 0 )( Ik ).get< std::string >( "sub_linear_solver" ),
+        string_to_vector( mParameterlist( 0 )( Ik ).get< std::string >( "sub_linear_solver" ),
                 tPreconditionerIndices );
 
         // set the sub linear solver for the iegn problem
@@ -228,7 +228,7 @@ void SOL_Warehouse::create_linear_solvers()
         mLinearSolvers( Ik ) = new dla::Linear_Solver( mParameterlist( 1 )( Ik ) );
 
         Vector< uint > tLinearSolverAlgorithmIndices;
-        string_to_cell( mParameterlist( 1 )( Ik ).get< std::string >( "DLA_Linear_solver_algorithms" ),
+        string_to_vector( mParameterlist( 1 )( Ik ).get< std::string >( "DLA_Linear_solver_algorithms" ),
                 tLinearSolverAlgorithmIndices );
 
         // set output for LHS
@@ -313,7 +313,7 @@ void SOL_Warehouse::create_nonlinear_solvers()
 
         map< std::string, enum MSI::Dof_Type > tMap = MSI::get_msi_dof_type_map();
 
-        string_to_cell_of_cell(
+        string_to_vector_of_vectors(
                 mParameterlist( 3 )( Ik ).get< std::string >( "NLA_DofTypes" ),
                 tCellOfCells,
                 tMap );
@@ -328,7 +328,7 @@ void SOL_Warehouse::create_nonlinear_solvers()
         // get and set secondary dof types
         Vector< Vector< MSI::Dof_Type > > tCellOfCellsSecDofTypes;
 
-        string_to_cell_of_cell(
+        string_to_vector_of_vectors(
                 mParameterlist( 3 )( Ik ).get< std::string >( "NLA_Secondary_DofTypes" ),
                 tCellOfCellsSecDofTypes,
                 tMap );
@@ -428,7 +428,7 @@ void SOL_Warehouse::create_time_solvers()
 
         map< std::string, enum MSI::Dof_Type > tMap = MSI::get_msi_dof_type_map();
 
-        string_to_cell_of_cell( mParameterlist( 5 )( Ik ).get< std::string >( "TSA_DofTypes" ),
+        string_to_vector_of_vectors( mParameterlist( 5 )( Ik ).get< std::string >( "TSA_DofTypes" ),
                 tCellOfCells,
                 tMap );
 
@@ -449,7 +449,7 @@ void SOL_Warehouse::create_time_solvers()
             string_to_mat( tStringOutputInd, tOutputIndices );
 
             Vector< std::string > tOutputCriteria;
-            string_to_cell( tStringOutputCriteria, tOutputCriteria );
+            string_to_vector( tStringOutputCriteria, tOutputCriteria );
 
             MORIS_ERROR( tOutputIndices.numel() == tOutputCriteria.size(),
                     "SOL_Warehouse::create_time_solvers(), Number of output indices and criteria must be the same" );
@@ -502,7 +502,7 @@ void SOL_Warehouse::get_default_secondary_dof_types(
 
         map< std::string, enum MSI::Dof_Type > tMap = MSI::get_msi_dof_type_map();
 
-        string_to_cell_of_cell( mParameterlist( 5 )( Ik ).get< std::string >( "TSA_DofTypes" ),
+        string_to_vector_of_vectors( mParameterlist( 5 )( Ik ).get< std::string >( "TSA_DofTypes" ),
                 tCellOfCells,
                 tMap );
 

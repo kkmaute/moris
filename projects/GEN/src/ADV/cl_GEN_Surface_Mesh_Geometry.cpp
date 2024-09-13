@@ -25,8 +25,8 @@ namespace moris::gen
             , Design_Parameters( aParameterList )
             , mFilePath( aParameterList.get< std::string >( "file_path" ) )
     {
-        string_to_cell( aParameterList.get< std::string >( "offset" ), mOffsets );
-        string_to_cell( aParameterList.get< std::string >( "scale" ), mScale );
+        string_to_vector( aParameterList.get< std::string >( "offset" ), mOffsets );
+        string_to_vector( aParameterList.get< std::string >( "scale" ), mScale );
     }
 
     //--------------------------------------------------------------------------------------------------------------

@@ -188,7 +188,7 @@ namespace moris::hmr
         }
         else
         {
-            string_to_cell( aParameterList.get< std::string >( "lagrange_output_mesh_names" ), mOutputMesheNames );
+            string_to_vector( aParameterList.get< std::string >( "lagrange_output_mesh_names" ), mOutputMesheNames );
 
             uint tOutputMeshSize = mOutputMeshes.size();
 
@@ -271,7 +271,7 @@ namespace moris::hmr
         this->set_basis_fuction_vtk_file_name( aParameterList.get< std::string >( "basis_function_vtk_file" ) );
 
         // get user-defined refinement functions
-        Vector< std::string > tFunctionNames = string_to_cell< std::string >( aParameterList.get< std::string >( "refinement_function_names" ) );
+        Vector< std::string > tFunctionNames = string_to_vector< std::string >( aParameterList.get< std::string >( "refinement_function_names" ) );
 
         MORIS_ERROR( ( aLibrary != nullptr ) or ( tFunctionNames.size() == 0 ),
                 "User-defined refinement function names were provided without a library to load them from." );

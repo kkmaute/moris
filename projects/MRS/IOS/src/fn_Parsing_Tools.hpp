@@ -24,21 +24,19 @@
 
 namespace moris
 {
-    // -----------------------------------------------------------------------------
     /**
      * splits string into substrings based on delimiter
      *
      * @param[in] aString  input string
      * @param[in] aDelim   delimiter
      *
-     * @return  cell of strings
+     * @return Vector of strings
      */
     Vector< std::string >
     split_string(
             const std::string &aString,
             const std::string &aDelim );
 
-    // -----------------------------------------------------------------------------
     /**
      * removes leading whitespace of string
      *
@@ -46,7 +44,6 @@ namespace moris
      */
     void ltrim_string( std::string &aString );
 
-    // -----------------------------------------------------------------------------
     /**
      * removes trailing whitespace of string
      *
@@ -54,7 +51,6 @@ namespace moris
      */
     void rtrim_string( std::string &aString );
 
-    // -----------------------------------------------------------------------------
     /**
      * removes leading and trailing whitespace of string
      *
@@ -62,7 +58,6 @@ namespace moris
      */
     void trim_string( std::string &aString );
 
-    // -----------------------------------------------------------------------------
     /**
      * splits a string in sub-strings defined by a set of delimiters, removes leading and trailing whitespace
      *  of sub-string, and reassembles sub-strings into single string; if not delimiter is provides input string
@@ -75,7 +70,6 @@ namespace moris
             std::string       &aString,
             const std::string &aDelimiter );
 
-    // -----------------------------------------------------------------------------
     /**
      * splits a string in sub-strings based on a delimiter and then converts substrings
      * to numerical values which are stored in a vector
@@ -121,7 +115,6 @@ namespace moris
         }
     }
 
-    // -----------------------------------------------------------------------------
     /**
      * Converts a given string into a matrix of templated type;
      * rows are separated by ";", columns are separated by ","
@@ -130,7 +123,6 @@ namespace moris
      * @param aString String to be converted into a matrix
      * @param aMat Matrix converted from string, returned as reference
      */
-
     template< typename T >
     void
     string_to_mat(
@@ -191,7 +183,6 @@ namespace moris
         }
     }
 
-    // -----------------------------------------------------------------------------
     /**
      * Converts a given string into a matrix of templated type, which is returned instead of passed by reference
      * rows are separated by ";", columns are separated by ","
@@ -200,7 +191,6 @@ namespace moris
      * @param aString String to be converted into a matrix
      * @return Matrix converted from string
      */
-
     template< typename T >
     Matrix< T >
     string_to_mat( const std::string &aString )
@@ -211,7 +201,6 @@ namespace moris
         return tMat;
     }
 
-    // -----------------------------------------------------------------------------
     /**
      * Converts a matrix into a string with the matrix components separated by ","
      *
@@ -219,7 +208,6 @@ namespace moris
      * @param aMat Matrix to be converted into a string
      * @return String converted from matrix
      */
-
     template< typename T >
     void
     mat_to_string(
@@ -240,16 +228,14 @@ namespace moris
         }
     }
 
-    // -----------------------------------------------------------------------------
     /**
-     * Converts a string into a cell of vectors (1-D matrices)
-     * Cells are separated by ";", vector components are separated by ","
+     * Converts a string into a vector of 1-D matrices
+     * Vectors are separated by ";", matrix components are separated by ","
      *
      * @tparam T Type of moris::Matrix
      * @param aString String to be converted into cell of vectors
      * @return aCellMat cell of vectors converted from string
      */
-
     template< typename T >
     void
     string_to_cell_mat(
@@ -258,9 +244,9 @@ namespace moris
     {
         if ( !aString.empty() )
         {
-            uint tCellCount = std::count( aString.begin(), aString.end(), ';' ) + 1;
+            uint tVectorCount = std::count( aString.begin(), aString.end(), ';' ) + 1;
 
-            aCellMat.resize( tCellCount );
+            aCellMat.resize( tVectorCount );
 
             std::string tString( aString );
 
@@ -343,13 +329,21 @@ namespace moris
         }
     }
 
-    // -----------------------------------------------------------------------------
-
+    /**
+     * Converts an input string into a vector of matrices with the following delimiters:
+     * "/" - Vector
+     * ";" - Matrix row
+     * "," - Matrix column
+     *
+     * @tparam T Matrix data type
+     * @param aString Input string
+     * @param aVectorMat Vector of matrices to fill
+     */
     template< typename T >
     inline void
-    string_to_cell_mat_2(
-            const std::string     &aString,
-            Vector< Matrix< T > > &aCellMat )
+    string_to_vector_of_matrices(
+            const std::string&     aString,
+            Vector< Matrix< T > >& aVectorMat )
     {
         // if non-empty string
         if ( !aString.empty() )
@@ -357,12 +351,12 @@ namespace moris
             // get the string to stream over
             std::istringstream tStringStream( aString );
 
-            // get number of cells
-            uint tCellCount = std::count( aString.begin(), aString.end(), '/' ) + 1;
+            // get number of vectors
+            uint tVectorCount = std::count( aString.begin(), aString.end(), '/' ) + 1;
 
             // set size for the list and initialize a counter
-            aCellMat.resize( tCellCount );
-            uint iCellCounter = 0;
+            aVectorMat.resize( tVectorCount );
+            uint iVectorCounter = 0;
 
             // initialize a string for individual matrices
             std::string tMatrixString;
@@ -379,7 +373,7 @@ namespace moris
                 // set the size of the matrix
                 uint tNumRows = std::count( tMatrixString.begin(), tMatrixString.end(), ';' ) + 1;
                 uint tNumCols = std::count( tMatrixString.begin(), tMatrixString.end(), ',' ) + 1;
-                aCellMat( iCellCounter ).set_size( tNumRows, tNumCols );
+                aVectorMat( iVectorCounter ).set_size( tNumRows, tNumCols );
 
                 // row  and column counter
                 uint iRow = 0;
@@ -408,7 +402,7 @@ namespace moris
                         if ( tColStringStream >> tValue )
                         {
                             // store the value
-                            aCellMat( iCellCounter )( iRow, iCol++ ) = tValue;
+                            aVectorMat( iVectorCounter )( iRow, iCol++ ) = tValue;
                         }
                     }
 
@@ -417,37 +411,53 @@ namespace moris
                 }
 
                 // resize the matrix to correct size
-                aCellMat( iCellCounter ).resize( iRow, iCol );
+                aVectorMat( iVectorCounter ).resize( iRow, iCol );
 
-                // increment the cell counter
-                iCellCounter++;
+                // increment the vector counter
+                iVectorCounter++;
             }
         }
     }
 
+    /**
+     * Converts an input string into a vector of matrices with the following delimiters:
+     * "/" - Vector
+     * "," - Matrix row
+     * ";" - Matrix column
+     *
+     * @tparam T Matrix data type
+     * @param aString Input string
+     * @return Created vector of matrices
+     */
     template< typename T >
     [[nodiscard]] inline Vector< Matrix< T > >
-    string_to_cell_mat_2( const std::string &aString )
+    string_to_vector_of_matrices( const std::string& aString )
     {
-        Vector< Matrix< T > > tCellMat;
-        string_to_cell_mat_2( aString, tCellMat );
-        return tCellMat;
+        Vector< Matrix< T > > tVectorMat;
+        string_to_vector_of_matrices( aString, tVectorMat );
+        return tVectorMat;
     }
 
-    // -----------------------------------------------------------------------------
-
+    /**
+     * Converts an input string into a vector of vectors with "," (inner) and ";" (outer) delimiters and a map to the output type
+     *
+     * @tparam T Vector data type
+     * @param aString Input string
+     * @param aVectorOfVectors Vector of vectors to fill
+     * @param aMap Map from string to the vector data type
+     */
     template< typename T >
     void
-    string_to_cell_of_cell(
-            const std::string                  &aString,
-            Vector< Vector< T > >              &aCellCell,
-            moris::map< std::string, T > const &aMap )
+    string_to_vector_of_vectors(
+            const std::string&                  aString,
+            Vector< Vector< T > >&              aVectorOfVectors,
+            moris::map< std::string, T > const& aMap )
     {
         if ( !aString.empty() )
         {
-            uint tCellCount = std::count( aString.begin(), aString.end(), ';' ) + 1;
+            uint tVectorCount = std::count( aString.begin(), aString.end(), ';' ) + 1;
 
-            aCellCell.resize( tCellCount );
+            aVectorOfVectors.resize( tVectorCount );
 
             std::string tString( aString );
 
@@ -479,7 +489,7 @@ namespace moris
 
                     uint tCountNum = std::count( tStringMat.begin(), tStringMat.end(), ',' ) + 1;
 
-                    aCellCell( tCount ).resize( tCountNum );
+                    aVectorOfVectors( tCount ).resize( tCountNum );
 
                     while ( tPosSubString < tStringMat.size() )
                     {
@@ -490,7 +500,7 @@ namespace moris
                         if ( tPosSubString < tStringMat.size() )
                         {
                             T tComponent                     = aMap.find( tStringMat.substr( 0, tPosSubString ) );
-                            aCellCell( tCount )( tCount1++ ) = tComponent;
+                            aVectorOfVectors( tCount )( tCount1++ ) = tComponent;
                             tStringMat                       = tStringMat.substr( tPosSubString + 1, tStringMat.size() );
                             tPosSubString                    = tStringMat.find( ',' );
                         }
@@ -498,14 +508,14 @@ namespace moris
 
                     // copy value into output matrix
                     T tComponent                     = aMap.find( tStringMat );
-                    aCellCell( tCount )( tCount1++ ) = tComponent;
+                    aVectorOfVectors( tCount )( tCount1++ ) = tComponent;
                     tString                          = tString.substr( tPos + 1, tString.size() );
                 }
                 else
                 {
                     uint tCountNum = std::count( tString.begin(), tString.end(), ',' ) + 1;
 
-                    aCellCell( tCount ).resize( tCountNum );
+                    aVectorOfVectors( tCount ).resize( tCountNum );
 
                     while ( tPosSubString < tString.size() )
                     {
@@ -516,7 +526,7 @@ namespace moris
                         if ( tPosSubString < tString.size() )
                         {
                             T tComponent                     = aMap.find( tString.substr( 0, tPosSubString ) );
-                            aCellCell( tCount )( tCount1++ ) = tComponent;
+                            aVectorOfVectors( tCount )( tCount1++ ) = tComponent;
                             tString                          = tString.substr( tPosSubString + 1, tString.size() );
                             tPosSubString                    = tString.find( ',' );
                         }
@@ -524,41 +534,54 @@ namespace moris
 
                     // copy value into output matrix
                     T tComponent                     = aMap.find( tString );
-                    aCellCell( tCount )( tCount1++ ) = tComponent;
+                    aVectorOfVectors( tCount )( tCount1++ ) = tComponent;
                 }
                 tCount++;
             }
         }
         else
         {
-            aCellCell.resize( 0 );
+            aVectorOfVectors.resize( 0 );
         }
     }
 
+    /**
+     * Converts an input string into a vector of vectors with "," (inner) and ";" (outer) delimiters and a map to the output type
+     *
+     * @tparam T Vector data type
+     * @param aString Input string
+     * @param aMap Map from string to the vector data type
+     * @return Created vector of vectors
+     */
     template< typename T >
     [[nodiscard]] Vector< Vector< T > >
-    string_to_cell_of_cell(
-            const std::string                  &aString,
-            moris::map< std::string, T > const &aMap )
+    string_to_vector_of_vectors(
+            const std::string&                  aString,
+            moris::map< std::string, T > const& aMap )
     {
-        Vector< Vector< T > > tCellCell;
-        string_to_cell_of_cell( aString, tCellCell, aMap );
-        return tCellCell;
+        Vector< Vector< T > > tVectorOfVectors;
+        string_to_vector_of_vectors( aString, tVectorOfVectors, aMap );
+        return tVectorOfVectors;
     }
 
-    // -----------------------------------------------------------------------------
-
+    /**
+     * Converts an input string into a vector of vectors with "," (inner) and ";" (outer) delimiters
+     *
+     * @tparam T Vector data type
+     * @param aString Input string
+     * @param aVectorOfVectors Vector of vectors to fill
+     */
     template< typename T >
     void
-    string_to_cell_of_cell(
-            const std::string     &aString,
-            Vector< Vector< T > > &aCellCell )
+    string_to_vector_of_vectors(
+            const std::string&     aString,
+            Vector< Vector< T > >& aVectorOfVectors )
     {
         if ( !aString.empty() )
         {
-            uint tCellCount = std::count( aString.begin(), aString.end(), ';' ) + 1;
+            uint tVectorCount = std::count( aString.begin(), aString.end(), ';' ) + 1;
 
-            aCellCell.resize( tCellCount );
+            aVectorOfVectors.resize( tVectorCount );
 
             std::string tString( aString );
 
@@ -590,7 +613,7 @@ namespace moris
 
                     uint tCountNum = std::count( tStringMat.begin(), tStringMat.end(), ',' ) + 1;
 
-                    aCellCell( tCount ).resize( tCountNum );
+                    aVectorOfVectors( tCount ).resize( tCountNum );
 
                     while ( tPosSubString < tStringMat.size() )
                     {
@@ -600,21 +623,21 @@ namespace moris
                         // copy value into output matrix
                         if ( tPosSubString < tStringMat.size() )
                         {
-                            aCellCell( tCount )( tCount1++ ) = tStringMat.substr( 0, tPosSubString );
+                            aVectorOfVectors( tCount )( tCount1++ ) = tStringMat.substr( 0, tPosSubString );
                             tStringMat                       = tStringMat.substr( tPosSubString + 1, tStringMat.size() );
                             tPosSubString                    = tStringMat.find( ',' );
                         }
                     }
 
                     // copy value into output matrix
-                    aCellCell( tCount )( tCount1++ ) = tStringMat;
+                    aVectorOfVectors( tCount )( tCount1++ ) = tStringMat;
                     tString                          = tString.substr( tPos + 1, tString.size() );
                 }
                 else
                 {
                     uint tCountNum = std::count( tString.begin(), tString.end(), ',' ) + 1;
 
-                    aCellCell( tCount ).resize( tCountNum );
+                    aVectorOfVectors( tCount ).resize( tCountNum );
 
                     while ( tPosSubString < tString.size() )
                     {
@@ -624,47 +647,60 @@ namespace moris
                         // copy value into output matrix
                         if ( tPosSubString < tString.size() )
                         {
-                            aCellCell( tCount )( tCount1++ ) = tString.substr( 0, tPosSubString );
+                            aVectorOfVectors( tCount )( tCount1++ ) = tString.substr( 0, tPosSubString );
                             tString                          = tString.substr( tPosSubString + 1, tString.size() );
                             tPosSubString                    = tString.find( ',' );
                         }
                     }
 
                     // copy value into output matrix
-                    aCellCell( tCount )( tCount1++ ) = tString;
+                    aVectorOfVectors( tCount )( tCount1++ ) = tString;
                 }
                 tCount++;
             }
         }
         else
         {
-            aCellCell.resize( 0 );
+            aVectorOfVectors.resize( 0 );
         }
     }
 
+    /**
+     * Converts an input string into a vector of vectors with "," (inner) and ";" (outer) delimiters
+     *
+     * @tparam T Vector data type
+     * @param aString Input string
+     * @return Created vector of vectors
+     */
     template< typename T >
     [[nodiscard]] Vector< Vector< T > >
-    string_to_cell_of_cell( const std::string &aString )
+    string_to_vector_of_vectors( const std::string &aString )
     {
-        Vector< Vector< T > > tCellCell;
-        string_to_cell_of_cell( aString, tCellCell );
-        return tCellCell;
+        Vector< Vector< T > > tVectorOfVectors;
+        string_to_vector_of_vectors( aString, tVectorOfVectors );
+        return tVectorOfVectors;
     }
 
-    // -----------------------------------------------------------------------------
-
+    /**
+     * Converts an input string into a vector with a "," delimiter and a map defining the conversion
+     *
+     * @tparam T Vector data type
+     * @param aString Input string
+     * @param aVector Vector to push back into
+     * @param aMap Map to the vector data type
+     */
     template< typename T >
     void
-    string_to_cell(
-            const std::string                  &aString,
-            Vector< T >                        &aCell,
-            moris::map< std::string, T > const &aMap )
+    string_to_vector(
+            const std::string&                  aString,
+            Vector< T >&                        aVector,
+            moris::map< std::string, T > const& aMap )
     {
         if ( !aString.empty() )
         {
-            uint tCellCount = std::count( aString.begin(), aString.end(), ',' ) + 1;
+            uint tVectorCount = std::count( aString.begin(), aString.end(), ',' ) + 1;
 
-            aCell.resize( tCellCount );
+            aVector.resize( tVectorCount );
 
             std::string tString( aString );
 
@@ -691,13 +727,13 @@ namespace moris
 
                     // check that output type is member of map
                     MORIS_ERROR( aMap.key_exists( tStringMat ),
-                            "fn_Parsing_Tools::string_to_cell - key does not exist: %s",
+                            "fn_Parsing_Tools::string_to_vector - key does not exist: %s",
                             tString.c_str() );
 
                     // copy value into output matrix
                     T tComponent = aMap.find( tStringMat );
 
-                    aCell( tCount++ ) = tComponent;
+                    aVector( tCount++ ) = tComponent;
 
                     tString = tString.substr( tPos + 1, tString.size() );
                 }
@@ -705,51 +741,55 @@ namespace moris
                 {
                     // check that output type is member of map
                     MORIS_ERROR( aMap.key_exists( tString ),
-                            "fn_Parsing_Tools::string_to_cell - key does not exist: %s",
+                            "fn_Parsing_Tools::string_to_vector - key does not exist: %s",
                             tString.c_str() );
 
                     // copy value into output matrix
                     T tComponent = aMap.find( tString );
 
-                    aCell( tCount++ ) = tComponent;
+                    aVector( tCount++ ) = tComponent;
                 }
             }
         }
         else
         {
-            aCell.resize( 0 );
+            aVector.resize( 0 );
         }
     }
 
-    // -----------------------------------------------------------------------------
-
+    /**
+     * Converts an input string into a vector with a "," delimiter and a map defining the conversion
+     *
+     * @tparam T Vector data type
+     * @param aString Input string
+     * @param aMap Map to the vector data type
+     * @return Created vector
+     */
     template< typename T >
     [[nodiscard]] Vector< T >
-    string_to_cell(
+    string_to_vector(
             const std::string                  &aString,
             moris::map< std::string, T > const &aMap )
     {
         Vector< T > tCell;
-        string_to_cell( aString, tCell, aMap );
+        string_to_vector( aString, tCell, aMap );
         return tCell;
     }
 
-    // -----------------------------------------------------------------------------
-
     /**
-     * Converts an input string into values to be pushed back into a cell with "," delimiter.
+     * Converts an input string into values to be pushed back into a vector with "," delimiter.
      *
-     * @tparam T Cell data type
+     * @tparam T Vector data type
      * @param aString Input string
-     * @param aCell Cell of converted data
+     * @param aVector Vector of converted data
      */
     template< typename T >
-    void string_to_cell(
-            const std::string &aString,
-            Vector< T >       &aCell )
+    void string_to_vector(
+            const std::string& aString,
+            Vector< T >&       aVector )
     {
         // check that vector is empty
-        MORIS_ASSERT( aCell.size() == 0, "string_to_cell - vector needs to be empty" );
+        MORIS_ASSERT( aVector.size() == 0, "string_to_vector - vector needs to be empty" );
 
         // convert string to string stream and a sub string
         std::stringstream tStringStream( aString );
@@ -766,38 +806,34 @@ namespace moris
             tSubStringStream >> tValue;
 
             // Add to the cell
-            aCell.push_back( tValue );
+            aVector.push_back( tValue );
         }
     }
 
-    // -----------------------------------------------------------------------------
-
     /**
-     * Converts an input string into values to be pushed back into a cell of strings with "," delimiter.
+     * Converts an input string into values to be pushed back into a vector of strings with "," delimiter.
      *
      * @param aString Input string
-     * @param aCell Cell of converted data
+     * @param aVector Vector of converted data
      */
     template<>
-    void string_to_cell< std::string >(
-            const std::string     &aString,
-            Vector< std::string > &aCell );
-
-    // -----------------------------------------------------------------------------
+    void string_to_vector< std::string >(
+            const std::string&     aString,
+            Vector< std::string >& aVector );
 
     /**
-     * Converts an input string into a new cell to be returned.
+     * Converts an input string into a new vector to be returned.
      *
-     * @tparam T Cell data type
+     * @tparam T Vector data type
      * @param aString Input string
-     * @return Cell of converted data
+     * @return Vector of converted data
      */
     template< typename T >
-    [[nodiscard]] Vector< T > string_to_cell( const std::string &aString )
+    [[nodiscard]] Vector< T > string_to_vector( const std::string &aString )
     {
-        Vector< T > tCell;
-        string_to_cell( aString, tCell );
-        return tCell;
+        Vector< T > tVector;
+        string_to_vector( aString, tVector );
+        return tVector;
     }
 
     // -----------------------------------------------------------------------------

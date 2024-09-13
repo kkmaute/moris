@@ -622,8 +622,8 @@ namespace moris
                             "Number of entries in 'Normal' vector does not match number of spatial dimensions for the 'plane'." );
 
                     // set the parameters in the GEN parameter list
-                    Vector< real > tPointVector  = string_to_cell< real >( tPoint );
-                    Vector< real > tNormalVector = string_to_cell< real >( tNormal );
+                    Vector< real > tPointVector  = string_to_vector< real >( tPoint );
+                    Vector< real > tNormalVector = string_to_vector< real >( tNormal );
                     tGenParamList( 1 )( iGeom ).set( "center_x", tPointVector( 0 ) );
                     tGenParamList( 1 )( iGeom ).set( "center_y", tPointVector( 1 ) );
                     tGenParamList( 1 )( iGeom ).set( "normal_x", tNormalVector( 0 ) );
@@ -658,7 +658,7 @@ namespace moris
                             "All planes must have a parameter 'Radius' specified of format e.g.: '5.6'" );
 
                     // set the parameters in the GEN parameter list
-                    Vector< real > tPointVector = string_to_cell< real >( tPoint );
+                    Vector< real > tPointVector = string_to_vector< real >( tPoint );
                     tGenParamList( 1 )( iGeom ).set( "center_x", tPointVector( 0 ) );
                     tGenParamList( 1 )( iGeom ).set( "center_y", tPointVector( 1 ) );
                     tGenParamList( 1 )( iGeom ).set( "radius", std::stod( tRadius ) );
@@ -702,8 +702,8 @@ namespace moris
                     if ( tExponent == "" ) { tExponent = "2.0"; };
 
                     // set the parameters in the GEN parameter list
-                    Vector< real > tPointVector        = string_to_cell< real >( tPoint );
-                    Vector< real > tSemidiameterVector = string_to_cell< real >( tSemiDiameters );
+                    Vector< real > tPointVector        = string_to_vector< real >( tPoint );
+                    Vector< real > tSemidiameterVector = string_to_vector< real >( tSemiDiameters );
                     tGenParamList( 1 )( iGeom ).set( "center_x", tPointVector( 0 ) );
                     tGenParamList( 1 )( iGeom ).set( "center_y", tPointVector( 1 ) );
                     tGenParamList( 1 )( iGeom ).set( "semidiameter_x", tSemidiameterVector( 0 ) );
@@ -741,8 +741,8 @@ namespace moris
                             "Number of entries in 'Normal' vector does not match number of spatial dimensions for the 'plane'." );
 
                     // set the parameters in the GEN parameter list
-                    Vector< real > tPointVector  = string_to_cell< real >( tPoint );
-                    Vector< real > tNormalVector = string_to_cell< real >( tNormal );
+                    Vector< real > tPointVector  = string_to_vector< real >( tPoint );
+                    Vector< real > tNormalVector = string_to_vector< real >( tNormal );
                     tGenParamList( 1 )( iGeom ).set( "center_x", tPointVector( 0 ) );
                     tGenParamList( 1 )( iGeom ).set( "center_y", tPointVector( 1 ) );
                     tGenParamList( 1 )( iGeom ).set( "center_z", tPointVector( 2 ) );
@@ -784,7 +784,7 @@ namespace moris
                             "All planes must have a parameter 'Radius' specified of format e.g.: '5.6'" );
 
                     // set the parameters in the GEN parameter list
-                    Vector< real > tPointVector = string_to_cell< real >( tPoint );
+                    Vector< real > tPointVector = string_to_vector< real >( tPoint );
                     tGenParamList( 1 )( iGeom ).set( "center_x", tPointVector( 0 ) );
                     tGenParamList( 1 )( iGeom ).set( "center_y", tPointVector( 1 ) );
                     tGenParamList( 1 )( iGeom ).set( "center_z", tPointVector( 2 ) );
@@ -834,8 +834,8 @@ namespace moris
                     if ( tExponent == "" ) { tExponent = "2.0"; };
 
                     // set the parameters in the GEN parameter list
-                    Vector< real > tPointVector        = string_to_cell< real >( tPoint );
-                    Vector< real > tSemidiameterVector = string_to_cell< real >( tSemiDiameters );
+                    Vector< real > tPointVector        = string_to_vector< real >( tPoint );
+                    Vector< real > tSemidiameterVector = string_to_vector< real >( tSemiDiameters );
                     tGenParamList( 1 )( iGeom ).set( "center_x", tPointVector( 0 ) );
                     tGenParamList( 1 )( iGeom ).set( "center_y", tPointVector( 1 ) );
                     tGenParamList( 1 )( iGeom ).set( "center_z", tPointVector( 2 ) );
@@ -896,7 +896,7 @@ namespace moris
                         "Please provide image dimensions using the tag 'ImageDimensions' in the the format e.g. '1.2,3.3' ",
                         iGeom );
                 Vector< real > tImageDimVec;
-                moris::string_to_cell( tImageDimStr, tImageDimVec );
+                moris::string_to_vector( tImageDimStr, tImageDimVec );
                 MORIS_ERROR( tImageDimVec.size() == mNumSpatialDims,
                         "Library_IO_Meshgen::load_parameters_from_xml() - "
                         "Number of entries in 'ImageDimensions' vector does not match number of spatial dimensions" );
@@ -911,7 +911,7 @@ namespace moris
                         "Please provide image origin/offset using the tag 'ImageOrigin' in the the format e.g. '1.2,3.3' ",
                         iGeom );
                 Vector< real > tImageOffsetVec;
-                moris::string_to_cell( tImageOffsetStr, tImageOffsetVec );
+                moris::string_to_vector( tImageOffsetStr, tImageOffsetVec );
                 MORIS_ERROR( tImageOffsetVec.size() == mNumSpatialDims,
                         "Library_IO_Meshgen::load_parameters_from_xml() - "
                         "Number of entries in 'ImageOrigin' vector does not match number of spatial dimensions" );
@@ -954,7 +954,7 @@ namespace moris
                         "Please provide an origin/offset using the tag 'ObjectOrigin' in the the format e.g. '1.2,3.3' ",
                         iGeom );
                 Vector< real > tObjectOffsetVec;
-                moris::string_to_cell( tObjectOffsetStr, tObjectOffsetVec );
+                moris::string_to_vector( tObjectOffsetStr, tObjectOffsetVec );
                 MORIS_ERROR( tObjectOffsetVec.size() == mNumSpatialDims,
                         "Library_IO_Meshgen::load_parameters_from_xml() - "
                         "Number of entries in 'ObjectOrigin' vector for geometry %i does not match number of spatial dimensions.",
