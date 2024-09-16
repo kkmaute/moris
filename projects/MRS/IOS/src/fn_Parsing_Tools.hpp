@@ -579,84 +579,25 @@ namespace moris
     {
         if ( !aString.empty() )
         {
+            // Get number of outer vectors
             uint tVectorCount = std::count( aString.begin(), aString.end(), ';' ) + 1;
-
             aVectorOfVectors.resize( tVectorCount );
 
-            std::string tString( aString );
+            // convert string to string stream
+            std::stringstream tStringStream( aString );
 
-            uint tCount = 0;
-
-            // reset position
-            size_t tPos;
-
-            bool tBool = true;
-
-            while ( tBool )
+            // Loop over outer vectors
+            for ( Vector< T >& iOuterVector : aVectorOfVectors )
             {
-                // find string
-                tPos = tString.find( ';' );
+                // Clear the vector
+                iOuterVector.clear();
 
-                if ( tPos == std::string::npos )
-                {
-                    tBool = false;
-                }
+                // separate the string by the delimiter
+                std::string tSubString;
+                std::getline( tStringStream, tSubString, ';' );
 
-                // reset position
-                size_t tPosSubString = 0;
-
-                uint tCount1 = 0;
-
-                if ( tBool )
-                {
-                    std::string tStringMat = tString.substr( 0, tPos );
-
-                    uint tCountNum = std::count( tStringMat.begin(), tStringMat.end(), ',' ) + 1;
-
-                    aVectorOfVectors( tCount ).resize( tCountNum );
-
-                    while ( tPosSubString < tStringMat.size() )
-                    {
-                        // find string
-                        tPosSubString = tStringMat.find( ',' );
-
-                        // copy value into output matrix
-                        if ( tPosSubString < tStringMat.size() )
-                        {
-                            aVectorOfVectors( tCount )( tCount1++ ) = tStringMat.substr( 0, tPosSubString );
-                            tStringMat                       = tStringMat.substr( tPosSubString + 1, tStringMat.size() );
-                            tPosSubString                    = tStringMat.find( ',' );
-                        }
-                    }
-
-                    // copy value into output matrix
-                    aVectorOfVectors( tCount )( tCount1++ ) = tStringMat;
-                    tString                          = tString.substr( tPos + 1, tString.size() );
-                }
-                else
-                {
-                    uint tCountNum = std::count( tString.begin(), tString.end(), ',' ) + 1;
-
-                    aVectorOfVectors( tCount ).resize( tCountNum );
-
-                    while ( tPosSubString < tString.size() )
-                    {
-                        // find string
-                        tPosSubString = tString.find( ',' );
-
-                        // copy value into output matrix
-                        if ( tPosSubString < tString.size() )
-                        {
-                            aVectorOfVectors( tCount )( tCount1++ ) = tString.substr( 0, tPosSubString );
-                            tString                          = tString.substr( tPosSubString + 1, tString.size() );
-                            tPosSubString                    = tString.find( ',' );
-                        }
-                    }
-
-                    // copy value into output matrix
-                    aVectorOfVectors( tCount )( tCount1++ ) = tString;
-                }
-                tCount++;
+                // Convert inner string to vector
+                string_to_vector( tSubString, iOuterVector );
             }
         }
         else
