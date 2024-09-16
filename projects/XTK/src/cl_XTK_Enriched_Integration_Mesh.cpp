@@ -31,6 +31,7 @@
 #include "cl_Logger.hpp"
 #include "fn_XTK_match_normal_to_side_ordinal.hpp"
 #include "fn_stringify_matrix.hpp"
+#include "moris_typedefs.hpp"
 
 namespace moris::xtk
 {
@@ -2348,24 +2349,25 @@ namespace moris::xtk
             std::string const &aSideSetName,
             bool               aCollectSets )
     {
-        Vector< moris_index > tSideSetIndex = this->register_side_set_names( { aSideSetName } );
+        Vector< moris_index > tSideSetIndices = this->register_side_set_names( { aSideSetName } );
+        moris_index tSideSetIndex = tSideSetIndices( 0 );
 
-        Vector< std::shared_ptr< mtk::Double_Side_Cluster > > &tDblSideClusters = mDoubleSideSets( aDblSideSetIndex );
+        uint tNumDblSideClusters = mDoubleSideSets( aDblSideSetIndex ).size();
 
-        for ( uint i = 0; i < tDblSideClusters.size(); i++ )
+        for ( uint i = 0; i < tNumDblSideClusters; i++ )
         {
             // get the index
             moris_index tLeaderIndex   = mDoubleSideSetsLeaderIndex( aDblSideSetIndex )( i );
             moris_index tFollowerIndex = mDoubleSideSetsFollowerIndex( aDblSideSetIndex )( i );
 
-            mSideSets( tSideSetIndex( 0 ) ).push_back( mDoubleSideSingleSideClusters( tLeaderIndex ) );
-            mSideSets( tSideSetIndex( 0 ) ).push_back( mDoubleSideSingleSideClusters( tFollowerIndex ) );
+            mSideSets( tSideSetIndex ).push_back( mDoubleSideSingleSideClusters( tLeaderIndex ) );
+            mSideSets( tSideSetIndex ).push_back( mDoubleSideSingleSideClusters( tFollowerIndex ) );
         }
 
-        this->commit_side_set( tSideSetIndex( 0 ) );
+        this->commit_side_set( tSideSetIndex );
         this->communicate_sets_of_type( mtk::SetType::SIDESET );
 
-        this->set_side_set_colors( tSideSetIndex( 0 ), this->get_double_side_set_colors( aDblSideSetIndex ) );
+        this->set_side_set_colors( tSideSetIndex, this->get_double_side_set_colors( aDblSideSetIndex ) );
 
         if ( aCollectSets )
         {
@@ -2373,7 +2375,7 @@ namespace moris::xtk
             this->collect_all_sets( false );
         }
 
-        return tSideSetIndex( 0 );
+        return tSideSetIndex;
     }
 
     //------------------------------------------------------------------------------
@@ -2387,7 +2389,8 @@ namespace moris::xtk
     {
         Vector< std::shared_ptr< xtk::Side_Cluster > > &tSideClusters = mSideSets( aSideSetIndex );
 
-        Vector< moris_index > tBlockSetIndex = this->register_block_set_names_with_cell_topo( { aBlockSetName }, aCellTopo );
+        Vector< moris_index > tBlockSetIndices = this->register_block_set_names_with_cell_topo( { aBlockSetName }, aCellTopo );
+        moris_index tBlockSetIndex = tBlockSetIndices( 0 );
 
         std::unordered_map< moris_index, moris_index > tIpCellInSet;
 
@@ -2412,21 +2415,21 @@ namespace moris::xtk
 
                 mCellClusters.push_back( tCellCluster );
 
-                mPrimaryBlockSetClusters( tBlockSetIndex( 0 ) ).push_back( tCellCluster.get() );
+                mPrimaryBlockSetClusters( tBlockSetIndex ).push_back( tCellCluster.get() );
 
                 tIpCellInSet[ tSideCluster->mIntegrationCells( 0 )->get_id() ] = i;
             }
         }
 
-        this->commit_block_set( tBlockSetIndex( 0 ) );
-        this->set_block_set_colors( tBlockSetIndex( 0 ), this->get_side_set_colors( aSideSetIndex ) );
+        this->commit_block_set( tBlockSetIndex );
+        this->set_block_set_colors( tBlockSetIndex, this->get_side_set_colors( aSideSetIndex ) );
         this->setup_color_to_set();
         this->collect_all_sets( false );
 
         // communicate block sets after committing a new one
         this->communicate_sets_of_type( mtk::SetType::BULK );
 
-        return tBlockSetIndex( 0 );
+        return tBlockSetIndex;
     }
 
     //------------------------------------------------------------------------------
