@@ -373,5 +373,5 @@ void Matrix_PETSc::mat_vec_product(
     Mat                tPetscResultMultiVec = tPetscResultVec.get_petsc_vector();
 
     // perform the matrix vector multiplication
-    MatMatMult( mPETScMat, tPetscSourceMultiVec, MAT_INITIAL_MATRIX, PETSC_DEFAULT, &tPetscResultMultiVec );
+    MatMatMult( mPETScMat, tPetscSourceMultiVec,  MAT_REUSE_MATRIX, PETSC_DEFAULT, &tPetscResultMultiVec );
 }
