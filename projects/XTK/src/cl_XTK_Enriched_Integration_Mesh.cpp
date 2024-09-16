@@ -127,12 +127,6 @@ namespace moris::xtk
 
     Enriched_Integration_Mesh::~Enriched_Integration_Mesh()
     {
-
-std::cout << "Destroying the xtk::Enriched_Integration_Mesh." << std::endl;
-std::cout << "size of mListOfBlocks: " << mListOfBlocks.size() << std::endl;
-std::cout << "size of mListOfSideSets: " << mListOfSideSets.size() << std::endl;
-std::cout << "size of mListOfDoubleSideSets: " << mListOfDoubleSideSets.size() << std::endl;
-
         delete mCellInfo;
 
         for ( auto p : mListOfBlocks )
