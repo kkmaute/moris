@@ -52,7 +52,7 @@ namespace moris::fem
 
             // get the phase index from parameter list
             moris::Matrix< moris::IndexMat > tPhaseIndices;
-            string_to_mat( tPhaseParameter.get< std::string >( "phase_indices" ), tPhaseIndices );
+            string_to_matrix( tPhaseParameter.get< std::string >( "phase_indices" ), tPhaseIndices );
 
             // set phase mesh indices to phase
             mPhaseInfo( iPhase ).set_phase_indices( tPhaseIndices );
@@ -1322,7 +1322,7 @@ namespace moris::fem
                 uint tNumSingle = tNeighborPhaseNames.size();
 
                 // get ordinals for boundary from string
-                Matrix< DDSMat > tOrdinals    = string_to_mat< DDSMat >( aOrdinalString );
+                Matrix< DDSMat > tOrdinals    = string_to_matrix< DDSMat >( aOrdinalString );
                 uint             tNumBoundary = tOrdinals.numel();
 
                 // loop over leader phase mesh indices

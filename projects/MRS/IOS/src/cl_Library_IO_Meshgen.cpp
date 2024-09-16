@@ -136,15 +136,15 @@ namespace moris
 
         // check the number of spatial dimensions
         Matrix< DDUMat > tBaseGridMat;
-        moris::string_to_mat( tBaseGridSize, tBaseGridMat );
+        moris::string_to_matrix( tBaseGridSize, tBaseGridMat );
         mNumSpatialDims = tBaseGridMat.numel();
 
         Matrix< DDRMat > tDomainDimsMat;
-        moris::string_to_mat( tDomainDimensions, tDomainDimsMat );
+        moris::string_to_matrix( tDomainDimensions, tDomainDimsMat );
         uint tNumDimsDimensions = tDomainDimsMat.numel();
 
         Matrix< DDRMat > tDomainOriginMat;
-        moris::string_to_mat( tBaseGridOrigin, tDomainOriginMat );
+        moris::string_to_matrix( tBaseGridOrigin, tDomainOriginMat );
         uint tNumDimsOrigin = tDomainOriginMat.numel();
 
         // perform some checks on the user inputs
@@ -604,7 +604,7 @@ namespace moris
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "All pre-defined geometries must have a parameter 'Point' specified of format e.g.: '1.2,3.4'" );
                     Matrix< DDRMat > tPointMat;
-                    moris::string_to_mat( tPoint, tPointMat );
+                    moris::string_to_matrix( tPoint, tPointMat );
                     MORIS_ERROR( tPointMat.numel() == mNumSpatialDims || tPointMat.n_cols() == mNumSpatialDims,
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "Number of entries in 'Point' vector does not match number of spatial dimensions" );
@@ -616,7 +616,7 @@ namespace moris
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "All planes must have a parameter 'Normal' specified of format e.g.: '1.2,3.4'" );
                     Matrix< DDRMat > tNormalMat;
-                    moris::string_to_mat( tNormal, tNormalMat );
+                    moris::string_to_matrix( tNormal, tNormalMat );
                     MORIS_ERROR( tNormalMat.numel() == mNumSpatialDims || tNormalMat.n_cols() == mNumSpatialDims,
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "Number of entries in 'Normal' vector does not match number of spatial dimensions for the 'plane'." );
@@ -645,7 +645,7 @@ namespace moris
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "The 'circle' must have a parameter 'Point' specified of format e.g.: '1.2,3.4'" );
                     Matrix< DDRMat > tPointMat;
-                    moris::string_to_mat( tPoint, tPointMat );
+                    moris::string_to_matrix( tPoint, tPointMat );
                     MORIS_ERROR( tPointMat.numel() == 2 || tPointMat.n_cols() == 2,
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "Number of entries in 'Point' vector for a 'circle' needs to be two." );
@@ -679,7 +679,7 @@ namespace moris
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "The 'ellipse' must have a parameter 'Point' specified of format e.g.: '1.2,3.4'" );
                     Matrix< DDRMat > tPointMat;
-                    moris::string_to_mat( tPoint, tPointMat );
+                    moris::string_to_matrix( tPoint, tPointMat );
                     MORIS_ERROR( tPointMat.numel() == 2 || tPointMat.n_cols() == 2,
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "Number of entries in 'Point' vector for a 'ellipse' needs to be two." );
@@ -691,7 +691,7 @@ namespace moris
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "The 'ellipse' must have a parameter 'SemiDiameters' specified of format e.g.: '1.2,3.4'" );
                     Matrix< DDRMat > tSemiDiametersMat;
-                    moris::string_to_mat( tSemiDiameters, tSemiDiametersMat );
+                    moris::string_to_matrix( tSemiDiameters, tSemiDiametersMat );
                     MORIS_ERROR( tSemiDiametersMat.numel() == 2 || tSemiDiametersMat.n_cols() == 2,
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "Number of entries in 'SemiDiameters' vector for a 'ellipse' needs to be two." );
@@ -723,7 +723,7 @@ namespace moris
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "All pre-defined geometries must have a parameter 'Point' specified of format e.g.: '1.2,3.4'" );
                     Matrix< DDRMat > tPointMat;
-                    moris::string_to_mat( tPoint, tPointMat );
+                    moris::string_to_matrix( tPoint, tPointMat );
                     MORIS_ERROR( tPointMat.numel() == mNumSpatialDims || tPointMat.n_cols() == mNumSpatialDims,
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "Number of entries in 'Point' vector does not match number of spatial dimensions" );
@@ -735,7 +735,7 @@ namespace moris
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "All planes must have a parameter 'Normal' specified of format e.g.: '1.2,3.4'" );
                     Matrix< DDRMat > tNormalMat;
-                    moris::string_to_mat( tNormal, tNormalMat );
+                    moris::string_to_matrix( tNormal, tNormalMat );
                     MORIS_ERROR( tNormalMat.numel() == mNumSpatialDims || tNormalMat.n_cols() == mNumSpatialDims,
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "Number of entries in 'Normal' vector does not match number of spatial dimensions for the 'plane'." );
@@ -771,7 +771,7 @@ namespace moris
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "The 'circle' must have a parameter 'Point' specified of format e.g.: '1.2,3.4,5.6'" );
                     Matrix< DDRMat > tPointMat;
-                    moris::string_to_mat( tPoint, tPointMat );
+                    moris::string_to_matrix( tPoint, tPointMat );
                     MORIS_ERROR( tPointMat.numel() == 3 || tPointMat.n_cols() == 3,
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "Number of entries in 'Point' vector for a 'sphere' needs to be three." );
@@ -811,7 +811,7 @@ namespace moris
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "The 'ellipsoid' must have a parameter 'Point' specified of format e.g.: '1.2,3.4,5.6'" );
                     Matrix< DDRMat > tPointMat;
-                    moris::string_to_mat( tPoint, tPointMat );
+                    moris::string_to_matrix( tPoint, tPointMat );
                     MORIS_ERROR( tPointMat.numel() == 3 || tPointMat.n_cols() == 3,
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "Number of entries in 'Point' vector for a 'ellipsoid' needs to be three." );
@@ -823,7 +823,7 @@ namespace moris
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "The 'ellipsoid' must have a parameter 'SemiDiameters' specified of format e.g.: '1.2,3.4,5.6'" );
                     Matrix< DDRMat > tSemiDiametersMat;
-                    moris::string_to_mat( tSemiDiameters, tSemiDiametersMat );
+                    moris::string_to_matrix( tSemiDiameters, tSemiDiametersMat );
                     MORIS_ERROR( tSemiDiametersMat.numel() == 3 || tSemiDiametersMat.n_cols() == 3,
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "Number of entries in 'SemiDiameters' vector for a 'ellipsoid' needs to be three." );
@@ -986,7 +986,7 @@ namespace moris
 
         // if a phase map has been specified, convert it to a matrix
         Matrix< DDUMat > tPhaseMap;
-        moris::string_to_mat( tPhaseMapString, tPhaseMap );
+        moris::string_to_matrix( tPhaseMapString, tPhaseMap );
 
         if ( tPhaseMapSpecified )
         {

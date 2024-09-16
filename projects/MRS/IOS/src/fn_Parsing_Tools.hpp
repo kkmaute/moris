@@ -125,7 +125,7 @@ namespace moris
      */
     template< typename T >
     void
-    string_to_mat(
+    string_to_matrix(
             const std::string &aString,
             Matrix< T >       &aMat )
     {
@@ -193,10 +193,10 @@ namespace moris
      */
     template< typename T >
     Matrix< T >
-    string_to_mat( const std::string &aString )
+    string_to_matrix( const std::string &aString )
     {
         Matrix< T > tMat;
-        string_to_mat( aString, tMat );
+        string_to_matrix( aString, tMat );
 
         return tMat;
     }
@@ -210,7 +210,7 @@ namespace moris
      */
     template< typename T >
     void
-    mat_to_string(
+    matrix_to_string(
             const Matrix< T > &aMat,
             std::string       &aString )
     {
@@ -718,7 +718,7 @@ namespace moris
     }
 
     /**
-     * Converts an input string into values to be pushed back into a vector with "," delimiter.
+     * Converts an input string into values into a vector with "," delimiter.
      *
      * @tparam T Vector data type
      * @param aString Input string

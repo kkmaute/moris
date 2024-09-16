@@ -291,7 +291,7 @@ void SOL_Warehouse::create_nonlinear_solvers()
 
         // set nonlinear algorithms
         moris::Matrix< DDSMat > tMat;
-        string_to_mat( mParameterlist( 3 )( Ik ).get< std::string >( "NLA_Nonlinear_solver_algorithms" ),
+        string_to_matrix( mParameterlist( 3 )( Ik ).get< std::string >( "NLA_Nonlinear_solver_algorithms" ),
                 tMat );
 
         for ( uint Ii = 0; Ii < tMat.numel(); Ii++ )
@@ -349,7 +349,7 @@ void SOL_Warehouse::create_nonlinear_solvers()
 
         // get and set nonlinear sub-solvers for staggered methods
         moris::Matrix< DDSMat > tNonlinearSubSolvers;
-        string_to_mat( mParameterlist( 3 )( Ik ).get< std::string >( "NLA_Sub_Nonlinear_Solver" ),
+        string_to_matrix( mParameterlist( 3 )( Ik ).get< std::string >( "NLA_Sub_Nonlinear_Solver" ),
                 tNonlinearSubSolvers );
 
         for ( uint Ii = 0; Ii < tNonlinearSubSolvers.numel(); Ii++ )
@@ -414,7 +414,7 @@ void SOL_Warehouse::create_time_solvers()
 
         // get tie solver algorithm indices for this time solver
         moris::Matrix< DDSMat > tMat;
-        string_to_mat( mParameterlist( 5 )( Ik ).get< std::string >( "TSA_Solver_algorithms" ),
+        string_to_matrix( mParameterlist( 5 )( Ik ).get< std::string >( "TSA_Solver_algorithms" ),
                 tMat );
 
         // add these time solver algorithms to time solver
@@ -446,7 +446,7 @@ void SOL_Warehouse::create_time_solvers()
         if ( tStringOutputInd.size() > 0 )
         {
             moris::Matrix< DDSMat > tOutputIndices;
-            string_to_mat( tStringOutputInd, tOutputIndices );
+            string_to_matrix( tStringOutputInd, tOutputIndices );
 
             Vector< std::string > tOutputCriteria;
             string_to_vector( tStringOutputCriteria, tOutputCriteria );

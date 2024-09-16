@@ -2027,7 +2027,7 @@ namespace moris::gen
         else if ( not aParameterLists( 0 )( 0 ).get< std::string >( "phase_table" ).empty() )
         {
             // User-defined bulk phases
-            return { tNumGeometries, string_to_mat< DDUMat >( aParameterLists( 0 )( 0 ).get< std::string >( "phase_table" ) ) };
+            return { tNumGeometries, string_to_matrix< DDUMat >( aParameterLists( 0 )( 0 ).get< std::string >( "phase_table" ) ) };
         }
         else
         {

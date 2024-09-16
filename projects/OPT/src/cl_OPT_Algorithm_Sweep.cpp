@@ -33,13 +33,13 @@ namespace moris::opt
 
         // define sampling strategy
         mIncludeBounds    = aParameterList.get< bool >( "include_bounds" );
-        mNumEvaluations   = string_to_mat< DDUMat >( aParameterList.get< std::string >( "num_evaluations_per_adv" ) );
-        mEvaluationPoints = string_to_mat< DDRMat >( aParameterList.get< std::string >( "custom_adv_evaluations" ) );
+        mNumEvaluations   = string_to_matrix< DDUMat >( aParameterList.get< std::string >( "num_evaluations_per_adv" ) );
+        mEvaluationPoints = string_to_matrix< DDRMat >( aParameterList.get< std::string >( "custom_adv_evaluations" ) );
 
         // define finite difference strategy
         mFiniteDifferenceType     = aParameterList.get< std::string >( "finite_difference_type" );
-        mFiniteDifferenceEpsilons = string_to_mat< DDRMat >( aParameterList.get< std::string >( "finite_difference_epsilons" ) );
-        mFiniteDifferenceADVs     = string_to_mat< DDUMat >( aParameterList.get< std::string >( "finite_difference_adv_indices" ) );
+        mFiniteDifferenceEpsilons = string_to_matrix< DDRMat >( aParameterList.get< std::string >( "finite_difference_epsilons" ) );
+        mFiniteDifferenceADVs     = string_to_matrix< DDUMat >( aParameterList.get< std::string >( "finite_difference_adv_indices" ) );
 
         // define output options
         mSave  = aParameterList.get< bool >( "save" );
