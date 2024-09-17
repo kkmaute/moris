@@ -311,7 +311,7 @@ namespace moris
         // get num rows and columns of data file
         uint             tNumRows = tAscii.length();
         Matrix< DDRMat > tRow;
-        string_to_mat( tAscii.line( 0 ), tRow );
+        string_to_matrix( tAscii.line( 0 ), tRow );
         uint tNumCols = tRow.n_cols();
 
         // set size of returned matrix
@@ -331,7 +331,7 @@ namespace moris
         for ( uint i = 0; i < tNumRows; i++ )
         {
             // storing ascii row to matrix
-            string_to_mat( tAscii.line( i ), tRow );
+            string_to_matrix( tAscii.line( i ), tRow );
 
             // are the number of columns the same?
             MORIS_ASSERT( tRow.n_cols() == tNumCols, "Inconsistent number of columns in input file" );

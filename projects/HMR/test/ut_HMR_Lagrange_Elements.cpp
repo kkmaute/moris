@@ -44,11 +44,6 @@ namespace moris::hmr
             tParameters.set_refinement_buffer( 2 );
             tParameters.set_staircase_buffer( 1 );
 
-            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
-            tLagrangeToBSplineMesh( 0 ) = { { 0 } };
-
-            tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
-
             HMR tHMR( tParameters );
 
             std::shared_ptr< Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
@@ -110,11 +105,6 @@ namespace moris::hmr
 
             tParameters.set_refinement_buffer( 2 );
             tParameters.set_staircase_buffer( 1 );
-
-            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
-            tLagrangeToBSplineMesh( 0 ) = { { 0 } };
-
-            tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
             HMR tHMR( tParameters );
 
@@ -179,11 +169,6 @@ namespace moris::hmr
 
             tParameters.set_refinement_buffer( 2 );
             tParameters.set_staircase_buffer( 1 );
-
-            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
-            tLagrangeToBSplineMesh( 0 ) = { { 0 } };
-
-            tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
             HMR tHMR( tParameters );
 

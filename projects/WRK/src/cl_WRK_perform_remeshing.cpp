@@ -62,12 +62,12 @@ namespace moris::wrk
         if ( mParameters.mModeIndex == 0 )
         {
             // set refinement level
-            string_to_cell_mat(
+            string_to_vector_of_vectors(
                     aParameterlist.get< std::string >( "remeshing_levels_of_refinement" ),
                     mParameters.mRefinementsMode_0 );
 
             // set refinement pattern
-            string_to_cell_mat(
+            string_to_vector_of_vectors(
                     aParameterlist.get< std::string >( "remeshing_refinement_pattern" ),
                     mParameters.mRefinementPatternMode_0 );
 
@@ -85,15 +85,15 @@ namespace moris::wrk
             //                        aParameterlist.get< std::string >( "remeshing_refinement_pattern" ),
             //                        mParameters.mRefinementPatternMode_0 );
 
-            string_to_mat(
+            string_to_matrix(
                     aParameterlist.get< std::string >( "remeshing_refinement_pattern" ),
                     mParameters.mRefinementPatternMode_1 );
 
-            string_to_mat(
+            string_to_matrix(
                     aParameterlist.get< std::string >( "remeshing_maximum_refinement_level" ),
                     mParameters.mMaxRefinementsMode_1 );
 
-            string_to_mat(
+            string_to_matrix(
                     aParameterlist.get< std::string >( "remeshing_minimum_refinement_level" ),
                     mParameters.mMinRefinementsMode_1 );
 
@@ -102,27 +102,27 @@ namespace moris::wrk
 
         if ( mParameters.mModeIndex == 2 )
         {
-            string_to_cell(
+            string_to_vector(
                     aParameterlist.get< std::string >( "refinement_function_name" ),
                     mParameters.mRefinementFunctionForField );
 
             // set refinement pattern
-            string_to_cell_mat(
+            string_to_vector_of_vectors(
                     aParameterlist.get< std::string >( "remeshing_refinement_pattern" ),
                     mParameters.mRefinementPatternMode_0 );
 
-            string_to_cell_mat(
+            string_to_vector_of_vectors(
                     aParameterlist.get< std::string >( "minimum_refinement_level" ),
                     mParameters.mMinimumRefinementLevel );
 
             // set refinement pattern
-            string_to_cell_mat(
+            string_to_vector_of_vectors(
                     aParameterlist.get< std::string >( "remeshing_copy_old_pattern_to_pattern" ),
                     mParameters.mRefinemenCopytPatternToPattern_3 );
 
             for ( uint Ik = 0; Ik < mParameters.mRefinemenCopytPatternToPattern_3.size(); Ik++ )
             {
-                MORIS_ERROR( mParameters.mRefinemenCopytPatternToPattern_3( Ik ).numel() == 2,
+                MORIS_ERROR( mParameters.mRefinemenCopytPatternToPattern_3( Ik ).size() == 2,
                         "remeshing_copy_old_pattern_to_pattern: entries need to be in pairs of 2 separated by ; " );
             }
         }
@@ -141,9 +141,9 @@ namespace moris::wrk
 
         // find first discrete field. // assumption: all fields are based on the same interpolation mesh
         // If no discrete field is found use first with index 0 TODO
-        sint tOptIter = gLogger.get_iteration( "OPT", "Manager", "Perform" );
+        uint tOptIter = gLogger.get_iteration( "OPT", "Manager", "Perform" );
 
-        sint tFirstDiscreteFieldIndex = 0;
+        uint tFirstDiscreteFieldIndex = 0;
         bool tIsAnalyticField         = true;
 
         for ( uint Ik = 0; Ik < aSourceFields.size(); Ik++ )
@@ -241,7 +241,7 @@ namespace moris::wrk
             {
                 tMinRefinementPattern( Ik ) = mParameters.mMinimumRefinementLevel( Ik )( 0 );
 
-                for ( uint Ia = 0; Ia < std::floor( ( (real)mParameters.mMinimumRefinementLevel( Ik ).numel() ) / 2.0 ); Ia++ )
+                for ( uint Ia = 0; Ia < std::floor( ( (real)mParameters.mMinimumRefinementLevel( Ik ).size() ) / 2.0 ); Ia++ )
                 {
                     if ( mParameters.mMinimumRefinementLevel( Ik )( Ia + 2 ) > tOptIter )
                     {
@@ -732,7 +732,7 @@ namespace moris::wrk
         // produce unique list of pattern which will be refined
         for ( uint Ik = 0; Ik < mParameters.mRefinementPatternMode_0.size(); Ik++ )
         {
-            for ( uint Ii = 0; Ii < mParameters.mRefinementPatternMode_0( Ik ).numel(); Ii++ )
+            for ( uint Ii = 0; Ii < mParameters.mRefinementPatternMode_0( Ik ).size(); Ii++ )
             {
                 aPatternForRefinement.push_back( mParameters.mRefinementPatternMode_0( Ik )( Ii ) );
             }
@@ -756,13 +756,13 @@ namespace moris::wrk
         // create list with field pointers and refinements per pattern
         for ( uint Ik = 0; Ik < tNumberOfRefinementPattern; Ik++ )
         {
-            moris_index tPattern = aPatternForRefinement( Ik );
+            uint tPattern = aPatternForRefinement( Ik );
 
             // loop over all fields and corresponding patterns. Find the pattern which corresponds to tPattern and put it in list.
             // This is kind of a brute force algorithm. however there will be only a few fields
             for ( uint Ii = 0; Ii < mParameters.mRefinementPatternMode_0.size(); Ii++ )
             {
-                for ( uint Ia = 0; Ia < mParameters.mRefinementPatternMode_0( Ii ).numel(); Ia++ )
+                for ( uint Ia = 0; Ia < mParameters.mRefinementPatternMode_0( Ii ).size(); Ia++ )
                 {
                     if ( tPattern == mParameters.mRefinementPatternMode_0( Ii )( Ia ) )
                     {
@@ -828,7 +828,7 @@ namespace moris::wrk
             tFieldNames.append( aFields( iFieldIndex )->get_label() + ", " );
             tRefFunctionForFieldNames = tRefFunctionForFieldNames + mParameters.mRefinementFunctionForField( iFieldIndex ) + ",";
 
-            for ( uint Ia = 0; Ia < mParameters.mRefinementPatternMode_0( iFieldIndex ).numel(); Ia++ )
+            for ( uint Ia = 0; Ia < mParameters.mRefinementPatternMode_0( iFieldIndex ).size(); Ia++ )
             {
                 tPattern = tPattern + ios::stringify( mParameters.mRefinementPatternMode_0( iFieldIndex )( Ia ) ) + ",";
             }
@@ -846,7 +846,7 @@ namespace moris::wrk
 
         for ( uint Ik = 0; Ik < mParameters.mRefinemenCopytPatternToPattern_3.size(); Ik++ )
         {
-            for ( uint Ia = 0; Ia < mParameters.mRefinemenCopytPatternToPattern_3( Ik ).numel(); Ia++ )
+            for ( uint Ia = 0; Ia < mParameters.mRefinemenCopytPatternToPattern_3( Ik ).size(); Ia++ )
             {
                 tCopyPattern = tCopyPattern + ios::stringify( mParameters.mRefinemenCopytPatternToPattern_3( Ik )( Ia ) ) + ",";
             }
@@ -871,7 +871,7 @@ namespace moris::wrk
     Remeshing_Mini_Performer::output_meshes(
             const std::shared_ptr< hmr::HMR >& aHMRPerformer )
     {
-        sint tOptIter = gLogger.get_iteration( "OPT", "Manager", "Perform" );
+        uint tOptIter = gLogger.get_iteration( "OPT", "Manager", "Perform" );
 
         uint tActivePattern = aHMRPerformer->get_database()->get_background_mesh()->get_activation_pattern();
 

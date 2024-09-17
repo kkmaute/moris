@@ -811,14 +811,17 @@ namespace moris::mtk
     Integration_Mesh::delete_visualization_sets()
     {
         // lambda function to determine if the set name has a ghost in it
-        auto tIsGhostVisualization = []( moris::mtk::Set *aSet ) -> bool { return std::strstr( aSet->get_set_name().c_str(), "ghost" ); };
+        auto tIsGhostVisualizationAndDelete = []( moris::mtk::Set *aSet ) -> bool { 
+            bool tIsVisSet = std::strstr( aSet->get_set_name().c_str(), "ghost" );
+            if ( tIsVisSet ) { delete aSet; }
+            return tIsVisSet; };
+        auto tIsGhostVisualization = []( moris::mtk::Set *aSet ) -> bool { 
+            return std::strstr( aSet->get_set_name().c_str(), "ghost" ); };
 
         // use erase remove idiom to remove sets that have the name as the ghost
         // FIXME : a proper insert function needs to be implemented that we don't use data
-        mListOfBlocks.data().erase( std::remove_if( mListOfBlocks.begin(), mListOfBlocks.end(), tIsGhostVisualization ), mListOfBlocks.end() );
-
-        mListOfSideSets.data().erase( std::remove_if( mListOfSideSets.begin(), mListOfSideSets.end(), tIsGhostVisualization ), mListOfSideSets.end() );
-
         mListOfAllSets.data().erase( std::remove_if( mListOfAllSets.begin(), mListOfAllSets.end(), tIsGhostVisualization ), mListOfAllSets.end() );
+        mListOfBlocks.data().erase( std::remove_if( mListOfBlocks.begin(), mListOfBlocks.end(), tIsGhostVisualizationAndDelete ), mListOfBlocks.end() );
+        mListOfSideSets.data().erase( std::remove_if( mListOfSideSets.begin(), mListOfSideSets.end(), tIsGhostVisualizationAndDelete ), mListOfSideSets.end() );
     }
 }    // namespace moris::mtk

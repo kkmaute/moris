@@ -295,9 +295,10 @@ namespace moris::hmr
         aParameters->set_bspline_patterns( tUnsignedVector );
 
         // set lagrange to bpline mesh dependecies. since we read one lag mesh from file all bsplines belong to this mesh
-        Vector< Matrix< DDSMat > > tMatBspToLag( 1 );
-        tMatBspToLag( 0 ).set_size( tUnsignedVector.size(), 1 );
-        for ( uint Ik = 0; Ik < tUnsignedVector.size(); Ik++ )
+        Vector< Vector< uint > > tMatBspToLag( 1 );
+        tMatBspToLag( 0 ).resize( tMatUint.numel() );
+
+        for ( uint Ik = 0; Ik < tMatUint.numel(); Ik++ )
         {
             tMatBspToLag( 0 )( Ik ) = Ik;
         }

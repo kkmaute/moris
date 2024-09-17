@@ -3462,7 +3462,7 @@ namespace moris::xtk
 
             if ( !tProbeSpheresStr.empty() )
             {
-                Matrix< DDRMat > tProbeSpheres = string_to_mat< DDRMat >( tProbeSpheresStr );
+                Matrix< DDRMat > tProbeSpheres = string_to_matrix< DDRMat >( tProbeSpheresStr );
 
                 // set up the nodal fields for basis support
                 this->create_basis_support_fields( tProbeSpheres );
@@ -3476,7 +3476,7 @@ namespace moris::xtk
 
             if ( !tProbeSpheresStr.empty() )
             {
-                Matrix< DDRMat > tProbeSpheres = string_to_mat< DDRMat >( tProbeSpheresStr );
+                Matrix< DDRMat > tProbeSpheres = string_to_matrix< DDRMat >( tProbeSpheresStr );
 
                 // set up the nodal fields for basis support
                 this->create_basis_function_fields( tProbeSpheres );

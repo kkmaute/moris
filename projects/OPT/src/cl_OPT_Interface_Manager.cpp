@@ -29,7 +29,7 @@ namespace moris::opt
         // Set parameters
         mSharedADVs = aParameterList.get< bool >( "shared_advs" );
         mParallel   = aParameterList.get< bool >( "parallel" );
-        string_to_mat( aParameterList.get< std::string >( "num_processors_per_interface" ), mProcessorBoundaries );
+        string_to_matrix( aParameterList.get< std::string >( "num_processors_per_interface" ), mProcessorBoundaries );
 
         // Check processors
         if ( mParallel )

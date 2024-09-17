@@ -153,12 +153,12 @@ namespace moris
     // -----------------------------------------------------------------------------
 
     template<>
-    void string_to_cell< std::string >(
+    void string_to_vector< std::string >(
             const std::string&     aString,
-            Vector< std::string >& aCell )
+            Vector< std::string >& aVector )
     {
         // check that vector is empty
-        MORIS_ASSERT( aCell.size() == 0, "string_to_cell - vector needs to be empty" );
+        MORIS_ASSERT( aVector.size() == 0, "string_to_vector - vector needs to be empty" );
 
         // convert string to string stream and a sub string
         std::stringstream tStringStream( aString );
@@ -168,7 +168,7 @@ namespace moris
         while ( std::getline( tStringStream, tSubString, ',' ) )
         {
             // Add to the cell
-            aCell.push_back( tSubString );
+            aVector.push_back( tSubString );
         }
     }
 

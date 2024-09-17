@@ -322,17 +322,17 @@ namespace moris::hmr
         for ( uint iLagMesh = 0; iLagMesh < tNumberOfLagrangeMeshes; ++iLagMesh )
         {
             // get B-Spline index corresponding to current Lagrange mesh
-            Matrix< DDSMat > tBsplineMeshIndices = mParameters->get_lagrange_to_bspline_mesh( iLagMesh );
+            Vector< uint > tBsplineMeshIndices = mParameters->get_lagrange_to_bspline_mesh( iLagMesh );
 
             // create a cell containing B-Spline meshes associated with current Lagrange mesh
-            Vector< BSpline_Mesh_Base* > tBsplineMeshes( tBsplineMeshIndices.numel() );
+            Vector< BSpline_Mesh_Base* > tBsplineMeshes( tBsplineMeshIndices.size() );
 
             // pick out B-Spline meshes associated with current Lagrange mesh from HMR-global
             // list of B-Spline meshes and fill container with them
-            for ( uint iBspMeshOnLagMesh = 0; iBspMeshOnLagMesh < tBsplineMeshIndices.numel(); ++iBspMeshOnLagMesh )
+            for ( uint iBspMeshOnLagMesh = 0; iBspMeshOnLagMesh < tBsplineMeshIndices.size(); ++iBspMeshOnLagMesh )
             {
                 // assign existing b-spline mesh to list of b-spline meshes
-                if ( tBsplineMeshIndices( iBspMeshOnLagMesh ) >= 0 )
+                if ( tBsplineMeshIndices( iBspMeshOnLagMesh ) != UINT_MAX )
                 {
                     tBsplineMeshes( iBspMeshOnLagMesh ) = mBSplineMeshes( tBsplineMeshIndices( iBspMeshOnLagMesh ) );
                 }
@@ -542,33 +542,36 @@ namespace moris::hmr
         // remember active pattern
         auto tActivePattern = mBackgroundMesh->get_activation_pattern();
 
-        const Vector< Matrix< DDUMat > >& tOutputMeshIndices = mParameters->get_output_mesh();
+        const Vector< Vector< uint > >& tOutputMeshIndices = mParameters->get_output_mesh();
 
         // finalize each of the output meshes
-        for ( uint iOutputMesh = 0; iOutputMesh < tOutputMeshIndices( 0 ).numel(); iOutputMesh++ )
+        if ( tOutputMeshIndices.size() > 0 )
         {
-            // get the corresponding mesh index
-            uint tMeshIndex = tOutputMeshIndices( 0 )( iOutputMesh );
-
-            // activate output pattern
-            uint tOutputMeshPattern = mLagrangeMeshes( tMeshIndex )->get_activation_pattern();
-            mBackgroundMesh->set_activation_pattern( tOutputMeshPattern );
-
-            // create communication table
-            this->create_communication_table();
-
-            if ( mParameters->get_number_of_dimensions() == 3 )
+            for ( uint iOutputMesh = 0; iOutputMesh < tOutputMeshIndices( 0 ).size(); iOutputMesh++ )
             {
-                mBackgroundMesh->create_faces_and_edges();
-            }
-            else
-            {
-                mBackgroundMesh->create_facets();
-            }
+                // get the corresponding mesh index
+                uint tMeshIndex = tOutputMeshIndices( 0 )( iOutputMesh );
 
-            if ( not mParameters->get_write_background_mesh().empty() )
-            {
-                mBackgroundMesh->save_to_vtk( mParameters->get_write_background_mesh() );
+                // activate output pattern
+                uint tOutputMeshPattern = mLagrangeMeshes( tMeshIndex )->get_activation_pattern();
+                mBackgroundMesh->set_activation_pattern( tOutputMeshPattern );
+
+                // create communication table
+                this->create_communication_table();
+
+                if ( mParameters->get_number_of_dimensions() == 3 )
+                {
+                    mBackgroundMesh->create_faces_and_edges();
+                }
+                else
+                {
+                    mBackgroundMesh->create_facets();
+                }
+
+                if ( not mParameters->get_write_background_mesh().empty() )
+                {
+                    mBackgroundMesh->save_to_vtk( mParameters->get_write_background_mesh() );
+                }
             }
         }
 
@@ -1386,11 +1389,11 @@ namespace moris::hmr
     Matrix< DDUMat >
     Database::create_output_pattern_list()
     {
-        const Vector< Matrix< DDUMat > >& OutputMeshIndex = mParameters->get_output_mesh();
+        const Vector< Vector< uint > >& OutputMeshIndex = mParameters->get_output_mesh();
 
-        Matrix< DDUMat > tPatternList( OutputMeshIndex( 0 ).numel(), 1, MORIS_UINT_MAX );
+        Matrix< DDUMat > tPatternList( OutputMeshIndex( 0 ).size(), 1, MORIS_UINT_MAX );
 
-        for ( uint Ik = 0; Ik < OutputMeshIndex( 0 ).numel(); ++Ik )
+        for ( uint Ik = 0; Ik < OutputMeshIndex( 0 ).size(); ++Ik )
         {
             tPatternList( Ik ) = mLagrangeMeshes( OutputMeshIndex( 0 )( Ik ) )->get_activation_pattern();
         }

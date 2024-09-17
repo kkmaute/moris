@@ -29,7 +29,7 @@ namespace moris::hmr
             Parameter_List&                             aParameterList,
             const std::shared_ptr< moris::Library_IO >& aLibrary )
     {
-        string_to_mat( aParameterList.get< std::string >( "number_of_elements_per_dimension" ), mNumberOfElementsPerDimension );
+        string_to_matrix( aParameterList.get< std::string >( "number_of_elements_per_dimension" ), mNumberOfElementsPerDimension );
 
         // check sanity of input
         MORIS_ERROR( mNumberOfElementsPerDimension.length() == 2 || mNumberOfElementsPerDimension.length() == 3,
@@ -39,17 +39,17 @@ namespace moris::hmr
         this->set_processor_decomp_method( aParameterList.get< sint >( "processor_decomposition_method" ) );
 
         // get user defined processor dimensions. Only matters if decomp method == 3.
-        string_to_mat( aParameterList.get< std::string >( "processor_dimensions" ), mProcessorDimensions );
+        string_to_matrix( aParameterList.get< std::string >( "processor_dimensions" ), mProcessorDimensions );
 
         // get domain dimensions
-        string_to_mat( aParameterList.get< std::string >( "domain_dimensions" ), mDomainDimensions );
+        string_to_matrix( aParameterList.get< std::string >( "domain_dimensions" ), mDomainDimensions );
 
         // check sanity of input
         MORIS_ERROR( mNumberOfElementsPerDimension.length() == mDomainDimensions.length(),
                 "length of domain_dimensions must be equal to number_of_elements_per_dimension." );
 
         // get domain offset
-        string_to_mat( aParameterList.get< std::string >( "domain_offset" ), mDomainOffset );
+        string_to_matrix( aParameterList.get< std::string >( "domain_offset" ), mDomainOffset );
 
         // check sanity of input
         MORIS_ERROR( mNumberOfElementsPerDimension.length() == mDomainOffset.length(),
@@ -59,11 +59,10 @@ namespace moris::hmr
         this->set_refinement_buffer( aParameterList.get< sint >( "refinement_buffer" ) );
         this->set_staircase_buffer( aParameterList.get< sint >( "staircase_buffer" ) );
 
-        string_to_mat( aParameterList.get< std::string >( "domain_sidesets" ), mSideSets );
+        string_to_matrix( aParameterList.get< std::string >( "domain_sidesets" ), mSideSets );
 
-        string_to_cell_mat( aParameterList.get< std::string >( "lagrange_output_meshes" ), mOutputMeshes );
+        string_to_vector_of_vectors( aParameterList.get< std::string >( "lagrange_output_meshes" ), mOutputMeshes );
 
-        MORIS_ERROR( mOutputMeshes( 0 ).numel() <= 1, "only one main output mesh allowed right now" );
         MORIS_ERROR( mOutputMeshes.size() <= 2,
                 "Output mesh list can only have one list of main output meshes and one list of secondary output meshes" );
 
@@ -78,7 +77,7 @@ namespace moris::hmr
             }
             else if ( tOutputMeshSize == 2 )
             {
-                uint tNumSecOutputMeshes = mOutputMeshes( 1 ).numel();
+                uint tNumSecOutputMeshes = mOutputMeshes( 1 ).size();
                 mOutputMeshNames.resize( 1 + tNumSecOutputMeshes );
                 mOutputNameToIndexMap[ "HMR_Mesh_Main" ] = mOutputMeshes( 0 )( 0 );
 
@@ -93,7 +92,7 @@ namespace moris::hmr
         }
         else
         {
-            string_to_cell( aParameterList.get< std::string >( "lagrange_output_mesh_names" ), mOutputMeshNames );
+            string_to_vector( aParameterList.get< std::string >( "lagrange_output_mesh_names" ), mOutputMeshNames );
 
             uint tOutputMeshSize = mOutputMeshes.size();
 
@@ -106,20 +105,20 @@ namespace moris::hmr
             }
             else if ( tOutputMeshSize == 2 )
             {
-                uint tNumSecOutputMeshes = mOutputMeshes( 1 ).numel();
+                uint tNumSecOutputMeshes = mOutputMeshes( 1 ).size();
                 MORIS_ERROR( mOutputMeshNames.size() == ( 1 + tNumSecOutputMeshes ),
                         "Number of output mesh names must be the same than number of output meshes" );
 
                 mOutputNameToIndexMap[ mOutputMeshNames( 0 ) ] = mOutputMeshes( 0 )( 0 );
 
-                for ( uint Ik = 0; Ik < mOutputMeshes( 1 ).numel(); Ik++ )
+                for ( uint Ik = 0; Ik < mOutputMeshes( 1 ).size(); Ik++ )
                 {
                     mOutputNameToIndexMap[ mOutputMeshNames( Ik + 1 ) ] = mOutputMeshes( 1 )( Ik );
                 }
             }
         }
 
-        string_to_mat( aParameterList.get< std::string >( "lagrange_input_meshes" ), mLagrangeInputMeshes );
+        string_to_matrix( aParameterList.get< std::string >( "lagrange_input_meshes" ), mLagrangeInputMeshes );
 
         // Clear orders/patterns
         mLagrangeOrders.clear();
@@ -128,15 +127,15 @@ namespace moris::hmr
         mBSplinePatterns.clear();
 
         // Set orders/patterns
-        string_to_cell( aParameterList.get< std::string >( "lagrange_orders" ), mLagrangeOrders );
-        string_to_cell( aParameterList.get< std::string >( "lagrange_pattern" ), mLagrangePatterns );
-        string_to_cell( aParameterList.get< std::string >( "bspline_orders" ), mBSplineOrders );
-        string_to_cell( aParameterList.get< std::string >( "bspline_pattern" ), mBSplinePatterns );
+        string_to_vector( aParameterList.get< std::string >( "lagrange_orders" ), mLagrangeOrders );
+        string_to_vector( aParameterList.get< std::string >( "lagrange_pattern" ), mLagrangePatterns );
+        string_to_vector( aParameterList.get< std::string >( "bspline_orders" ), mBSplineOrders );
+        string_to_vector( aParameterList.get< std::string >( "bspline_pattern" ), mBSplinePatterns );
 
         this->set_union_pattern( aParameterList.get< sint >( "union_pattern" ) );
         this->set_working_pattern( aParameterList.get< sint >( "working_pattern" ) );
 
-        string_to_cell_mat( aParameterList.get< std::string >( "lagrange_to_bspline" ), mLagrangeToBSplineMesh );
+        string_to_vector_of_vectors( aParameterList.get< std::string >( "lagrange_to_bspline" ), mLagrangeToBSplineMesh );
 
         if ( aParameterList.get< sint >( "severity_level" ) != 1 )
         {
@@ -147,8 +146,8 @@ namespace moris::hmr
         this->set_bspline_truncation( (bool)aParameterList.get< sint >( "truncate_bsplines" ) );
 
         //        // set minimum initial refinement
-        string_to_mat( aParameterList.get< std::string >( "initial_refinement" ), mInitialRefinementLevel );
-        string_to_mat( aParameterList.get< std::string >( "initial_refinement_pattern" ), mInitialRefinementPattern );
+        string_to_matrix( aParameterList.get< std::string >( "initial_refinement" ), mInitialRefinementLevel );
+        string_to_matrix( aParameterList.get< std::string >( "initial_refinement_pattern" ), mInitialRefinementPattern );
 
         MORIS_ERROR( mInitialRefinementLevel.numel() == mInitialRefinementPattern.numel(),
                 "length of mInitialRefinementLevel must be equal to mInitialRefinementPattern." );
@@ -184,7 +183,7 @@ namespace moris::hmr
         this->set_basis_fuction_vtk_file_name( aParameterList.get< std::string >( "basis_function_vtk_file" ) );
 
         // get user-defined refinement functions
-        Vector< std::string > tFunctionNames = string_to_cell< std::string >( aParameterList.get< std::string >( "refinement_function_names" ) );
+        Vector< std::string > tFunctionNames = string_to_vector< std::string >( aParameterList.get< std::string >( "refinement_function_names" ) );
 
         MORIS_ERROR( ( aLibrary != nullptr ) or ( tFunctionNames.size() == 0 ),
                 "User-defined refinement function names were provided without a library to load them from." );
@@ -672,7 +671,7 @@ namespace moris::hmr
     Parameters::get_side_sets_as_string() const
     {
         std::string aString;
-        mat_to_string( mSideSets, aString );
+        matrix_to_string( mSideSets, aString );
         return aString;
     }
 
@@ -705,16 +704,19 @@ namespace moris::hmr
     bool
     Parameters::is_output_mesh( const uint aMeshIndex ) const
     {
-        const Vector< Matrix< DDUMat > >& tOutputMeshes = this->get_output_mesh();
-
+        const Vector< Vector< uint > >& tOutputMeshes = this->get_output_mesh();
         bool tIsOutputMesh = false;
 
-        for ( uint k = 0; k < tOutputMeshes( 0 ).numel(); ++k )
+        // Loop over output meshes
+        for ( const auto& iMeshList : tOutputMeshes )
         {
-            if ( aMeshIndex == tOutputMeshes( 0 )( k ) )
+            for ( auto iOutputIndex : iMeshList )
             {
-                tIsOutputMesh = true;
-                break;
+                if ( aMeshIndex == iOutputIndex )
+                {
+                    tIsOutputMesh = true;
+                    break;
+                }
             }
         }
 

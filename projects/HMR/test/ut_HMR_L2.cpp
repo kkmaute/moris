@@ -85,9 +85,9 @@ namespace moris::hmr
 
             tParameters.set_union_pattern( 2 );
 
-            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
-            tLagrangeToBSplineMesh( 0 ) = { { 0 } };
-            tLagrangeToBSplineMesh( 1 ) = { { 1 } };
+            Vector< Vector< uint > > tLagrangeToBSplineMesh( 2 );
+            tLagrangeToBSplineMesh( 0 ) = { 0 };
+            tLagrangeToBSplineMesh( 1 ) = { 1 };
 
             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
@@ -369,9 +369,9 @@ namespace moris::hmr
 
             tParameters.set_union_pattern( 2 );
 
-            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
-            tLagrangeToBSplineMesh( 0 ) = { { 0 }, { 1 } };
-            tLagrangeToBSplineMesh( 1 ) = { { 2 }, { 3 } };
+            Vector< Vector< uint > > tLagrangeToBSplineMesh( 2 );
+            tLagrangeToBSplineMesh( 0 ) = { 0, 1 };
+            tLagrangeToBSplineMesh( 1 ) = { 2, 3 };
 
             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
@@ -493,9 +493,9 @@ namespace moris::hmr
 
             tParameters.set_staircase_buffer( 2 );
 
-            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
-            tLagrangeToBSplineMesh( 0 ) = { { 0 }, { 1 } };
-            tLagrangeToBSplineMesh( 1 ) = { { 2 }, { 3 } };
+            Vector< Vector< uint > > tLagrangeToBSplineMesh( 2 );
+            tLagrangeToBSplineMesh( 0 ) = { 0, 1 };
+            tLagrangeToBSplineMesh( 1 ) = { 2, 3 };
 
             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
@@ -624,9 +624,9 @@ namespace moris::hmr
 
             tParameters.set_staircase_buffer( 2 );
 
-            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
-            tLagrangeToBSplineMesh( 0 ) = { { 0 }, { 1 } };
-            tLagrangeToBSplineMesh( 1 ) = { { 2 }, { 3 } };
+            Vector< Vector< uint > > tLagrangeToBSplineMesh( 2 );
+            tLagrangeToBSplineMesh( 0 ) = { 0, 1 };
+            tLagrangeToBSplineMesh( 1 ) = { 2, 3 };
 
             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
@@ -766,9 +766,9 @@ namespace moris::hmr
 
                     tParameters.set_staircase_buffer( tOrder );
 
-                    Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
-                    tLagrangeToBSplineMesh( 0 ) = { { 0 }, { 1 } };
-                    tLagrangeToBSplineMesh( 1 ) = { { 2 }, { 3 } };
+                    Vector< Vector< uint > > tLagrangeToBSplineMesh( 2 );
+                    tLagrangeToBSplineMesh( 0 ) = { 0, 1 };
+                    tLagrangeToBSplineMesh( 1 ) = { 2, 3 };
 
                     tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
@@ -911,9 +911,9 @@ namespace moris::hmr
 
                     tParameters.set_staircase_buffer( tOrder );
 
-                    Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
-                    tLagrangeToBSplineMesh( 0 ) = { { 0 }, { 1 } };
-                    tLagrangeToBSplineMesh( 1 ) = { { 2 }, { 3 } };
+                    Vector< Vector< uint > > tLagrangeToBSplineMesh( 2 );
+                    tLagrangeToBSplineMesh( 0 ) = { 0, 1 };
+                    tLagrangeToBSplineMesh( 1 ) = { 2, 3 };
 
                     tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
@@ -1057,9 +1057,9 @@ namespace moris::hmr
 
                     tParameters.set_staircase_buffer( tOrder );
 
-                    Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
-                    tLagrangeToBSplineMesh( 0 ) = { { 0 }, { 1 } };
-                    tLagrangeToBSplineMesh( 1 ) = { { 2 }, { 3 } };
+                    Vector< Vector< uint > > tLagrangeToBSplineMesh( 2 );
+                    tLagrangeToBSplineMesh( 0 ) = { 0, 1 };
+                    tLagrangeToBSplineMesh( 1 ) = { 2, 3 };
 
                     tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
@@ -1204,11 +1204,6 @@ namespace moris::hmr
 
             tParameters.set_initial_refinement( { { 1 } } );
             tParameters.set_initial_refinement_patterns( { { 0 } } );
-
-            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
-            tLagrangeToBSplineMesh( 0 ) = { { 0 } };
-
-            tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
             tParameters.set_number_aura( false );
 

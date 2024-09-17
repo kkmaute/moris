@@ -84,11 +84,6 @@ namespace moris::MSI
             tParameters.set_refinement_buffer( 1 );
             tParameters.set_staircase_buffer( 1 );
 
-            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
-            tLagrangeToBSplineMesh( 0 ) = { {0} };
-
-            tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
-
             // create HMR object
             moris::hmr::HMR tHMR( tParameters );
 
