@@ -295,14 +295,13 @@ namespace moris::hmr
         aParameters->set_bspline_patterns( tUnsignedVector );
 
         // set lagrange to bpline mesh dependecies. since we read one lag mesh from file all bsplines belong to this mesh
-        Vector< Vector< uint > > tMatBspToLag( 1 );
-        tMatBspToLag( 0 ).resize( tMatUint.numel() );
-
-        for ( uint Ik = 0; Ik < tMatUint.numel(); Ik++ )
+        Vector< Vector< uint > > tBsplineToLagrange( 1 );
+        tBsplineToLagrange( 0 ).resize( tUnsignedVector.size() );
+        for ( uint Ik = 0; Ik < tUnsignedVector.size(); Ik++ )
         {
-            tMatBspToLag( 0 )( Ik ) = Ik;
+            tBsplineToLagrange( 0 )( Ik ) = Ik;
         }
-        aParameters->set_lagrange_to_bspline_mesh( tMatBspToLag );
+        aParameters->set_lagrange_to_bspline_mesh( tBsplineToLagrange );
 
         // load side sets
         load_matrix_from_hdf5_file( mFileID,
