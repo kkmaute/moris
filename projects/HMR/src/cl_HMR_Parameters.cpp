@@ -29,6 +29,14 @@ namespace moris::hmr
             Parameter_List&                             aParameterList,
             const std::shared_ptr< moris::Library_IO >& aLibrary )
     {
+        // Clear default vectors
+        mProcessorDimensions.clear();
+        mLagrangeOrders.clear();
+        mLagrangePatterns.clear();
+        mBSplineOrders.clear();
+        mBSplinePatterns.clear();
+
+        // Number of elements per dimension
         string_to_matrix( aParameterList.get< std::string >( "number_of_elements_per_dimension" ), mNumberOfElementsPerDimension );
 
         // check sanity of input
@@ -39,7 +47,7 @@ namespace moris::hmr
         this->set_processor_decomp_method( aParameterList.get< sint >( "processor_decomposition_method" ) );
 
         // get user defined processor dimensions. Only matters if decomp method == 3.
-        string_to_matrix( aParameterList.get< std::string >( "processor_dimensions" ), mProcessorDimensions );
+        string_to_vector( aParameterList.get< std::string >( "processor_dimensions" ), mProcessorDimensions );
 
         // get domain dimensions
         string_to_matrix( aParameterList.get< std::string >( "domain_dimensions" ), mDomainDimensions );
@@ -119,12 +127,6 @@ namespace moris::hmr
         }
 
         string_to_matrix( aParameterList.get< std::string >( "lagrange_input_meshes" ), mLagrangeInputMeshes );
-
-        // Clear orders/patterns
-        mLagrangeOrders.clear();
-        mLagrangePatterns.clear();
-        mBSplineOrders.clear();
-        mBSplinePatterns.clear();
 
         // Set orders/patterns
         string_to_vector( aParameterList.get< std::string >( "lagrange_orders" ), mLagrangeOrders );

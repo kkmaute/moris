@@ -516,8 +516,7 @@ namespace moris::hmr
         create_proc_dims_min_mesh_interface(
                 uint               aNumberOfDimensions,
                 Matrix< DDLUMat >& aMeshDims,
-                Matrix< DDUMat >&  aProcDimensions )
-
+                Vector< uint >&    aProcDimensions )
         {
 
             // This function determines the processor dimensions based on minimizing mesh grid interfaces.
@@ -528,14 +527,14 @@ namespace moris::hmr
             // 1D Processor Grid
             if ( aNumberOfDimensions == 1 )
             {
-                aProcDimensions.set_size( 1, 1 );
+                aProcDimensions.resize( 1 );
                 aProcDimensions( 0 ) = par_size();
             }
 
             // 2D Processor Grid
             else if ( aNumberOfDimensions == 2 )
             {
-                aProcDimensions.set_size( 2, 1 );
+                aProcDimensions.resize( 2 );
                 // Iterating through "i" (x) direction processors
                 for ( uint i = 1; i <= (uint)par_size(); i++ )
                 {
@@ -571,7 +570,7 @@ namespace moris::hmr
             // 3D Processor Grid
             else if ( aNumberOfDimensions == 3 )
             {
-                aProcDimensions.set_size( 3, 1 );
+                aProcDimensions.resize( 3 );
 
                 // Iterating through i-direction processor possibilities
                 for ( uint i = 1; i <= (uint)par_size(); i++ )
@@ -643,22 +642,19 @@ namespace moris::hmr
                 // User defined processor grid
                 case 0:
                 {
-                    mProcDims = mParameters->get_processor_dimensions();
+                    mProcessorDimensions = mParameters->get_processor_dimensions();
 
                     // Checking if user defined processor dimensions matches mesh dimensions, N.
-                    if ( (uint)std::max( mProcDims.n_rows(), mProcDims.n_cols() ) != N )
-                    {
-                        MORIS_ERROR(
-                                false,
-                                "hmr::Background_Mesh::decompose_mesh() - "
-                                "User defined processor grid dimensions incompatible with mesh dimensions." );
-                    }
+                    MORIS_ERROR(
+                            mProcessorDimensions.max() == N,
+                            "hmr::Background_Mesh::decompose_mesh() - "
+                            "User defined processor grid dimensions incompatible with mesh dimensions." );
 
                     // Calculating the product of user defined proc dims dimensions
                     uint tProcCount = 1;
                     for ( uint iDim = 0; iDim < N; ++iDim )    // N is number of spatial dimensions
                     {
-                        tProcCount = tProcCount * mProcDims( iDim );
+                        tProcCount = tProcCount * mProcessorDimensions( iDim );
                     }
 
                     // check that the total number of processors for user-defined mesh splitting matches with actual number of processors
@@ -686,7 +682,7 @@ namespace moris::hmr
                     create_proc_dims_min_mesh_interface(
                             N,
                             tNumberOfElementsPerDimension,
-                            mProcDims );
+                            mProcessorDimensions );
                     break;
                 }
 
@@ -700,7 +696,7 @@ namespace moris::hmr
             create_proc_cart(
                     tDecompMethod,
                     N,
-                    mProcDims,
+                    mProcessorDimensions,
                     mMyProcCoords,
                     mMyProcNeighbors );
 
@@ -713,16 +709,16 @@ namespace moris::hmr
                     case 2:
                     {
                         MORIS_LOG_INFO( "Background mesh split (x,y) across processors is (%i,%i)",
-                                mProcDims( 0 ),
-                                mProcDims( 1 ) );
+                                mProcessorDimensions( 0 ),
+                                mProcessorDimensions( 1 ) );
                         break;
                     }
                     case 3:
                     {
                         MORIS_LOG_INFO( "Background mesh split (x,y,z) across processors is (%i,%i,%i)",
-                                mProcDims( 0 ),
-                                mProcDims( 1 ),
-                                mProcDims( 2 ) );
+                                mProcessorDimensions( 0 ),
+                                mProcessorDimensions( 1 ),
+                                mProcessorDimensions( 2 ) );
                         break;
                     }
                     default:
@@ -752,7 +748,7 @@ namespace moris::hmr
                  * in a direction, this will assign 4 elements to proc 1
                  * and 3 elements to the other 2.
                  */
-                if ( mMyProcCoords( k ) < ( tNumberOfElementsPerDimension( k ) % mProcDims( k ) ) )
+                if ( mMyProcCoords( k ) < ( tNumberOfElementsPerDimension( k ) % mProcessorDimensions( k ) ) )
                 {
                     // Remainder applied
                     tRemainder( k ) = 1;
@@ -765,7 +761,7 @@ namespace moris::hmr
 
                 // assigning number of elements on this direction of the processor
                 tNumberOfElementsPerDimensionOnProc( k ) =
-                        ( tNumberOfElementsPerDimension( k ) - ( tNumberOfElementsPerDimension( k ) % mProcDims( k ) ) ) / mProcDims( k ) + tRemainder( k );
+                        ( tNumberOfElementsPerDimension( k ) - ( tNumberOfElementsPerDimension( k ) % mProcessorDimensions( k ) ) ) / mProcessorDimensions( k ) + tRemainder( k );
             }
 
             // calculate decomposition domain
@@ -780,7 +776,7 @@ namespace moris::hmr
                 // calculates domain start taking into account remainder elements
                 tDomainIJK( 0, k ) =
                         mPaddingSize + tNumberOfElementsPerDimensionOnProc( k ) * mMyProcCoords( k ) +    //
-                        ( 1 - tRemainder( k ) ) * ( tNumberOfElementsPerDimension( k ) % mProcDims( k ) );
+                        ( 1 - tRemainder( k ) ) * ( tNumberOfElementsPerDimension( k ) % mProcessorDimensions( k ) );
 
                 tDomainIJK( 1, k ) = tDomainIJK( 0, k ) + tNumberOfElementsPerDimensionOnProc( k ) - 1;
 
@@ -886,7 +882,7 @@ namespace moris::hmr
                 for ( uint k = 0; k < tNumberOfDimensions; ++k )
                 {
                     // do not consider pseudo 1D directions or 2 Procs in 1 direction since aura overlap isn't an issue
-                    if ( mProcDims( k ) > 2 )
+                    if ( mProcessorDimensions( k ) > 2 )
                     {
                         // determine how many elements are on this proc in this domain minus the padding elements in that direction
                         tProcSplit( k ) = mMySubDomain.mNumberOfElementsPerDimension[ 0 ][ k ] - 2 * mPaddingSize;

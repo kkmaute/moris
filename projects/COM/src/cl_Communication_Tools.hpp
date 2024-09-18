@@ -411,7 +411,7 @@ namespace moris
     void create_proc_cart(
             const uint&       aDecompMethod,
             const uint&       aNumberOfDimensions,
-            Matrix< DDUMat >& aProcDims,
+            Vector< uint >&   aProcDims,
             Matrix< DDUMat >& aProcCoords,
             Matrix< IdMat >&  aProcNeighbors );
 

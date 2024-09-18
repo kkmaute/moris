@@ -58,7 +58,7 @@ namespace moris::hmr
         uint mProcDecompMethod = 1;
 
         //! Processor layout if mProcDecompMethod is 0 (user defined here). Product MUST = # of processors used. Can be 1, 2, or 3 dimensions.
-        Matrix< DDUMat > mProcessorDimensions = { { 2 }, { 2 } };
+        Vector< uint > mProcessorDimensions = { 2, 2 };
 
         //! number of elements per direction in overall mesh, without aura
         //! 2D or 3D is determined by length of this vector
@@ -121,7 +121,7 @@ namespace moris::hmr
         uint mWorkingPattern = gNumberOfPatterns - 2;
 
         //! Lagrange Meshes that are used for the output meshes
-        Vector< Vector< uint > > mOutputMeshes     = { { { 0 } } };
+        Vector< Vector< uint > > mOutputMeshes     = { { 0 } };
         Vector< std::string >      mOutputMeshNames  = { "" };
 
         moris::map< std::string, moris_index > mOutputNameToIndexMap;

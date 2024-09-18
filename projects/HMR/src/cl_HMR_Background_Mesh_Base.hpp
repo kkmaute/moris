@@ -71,7 +71,7 @@ namespace moris::hmr
         Vector< Matrix< DDLUMat > > mCoarsestInverseAura;
 
         //! defines how many procs are used in i, j and k-direction
-        Matrix< DDUMat > mProcDims;
+        Vector< uint > mProcessorDimensions;
 
         //! i-j-k coordinate of current proc
         Matrix< DDUMat > mMyProcCoords;
@@ -638,10 +638,10 @@ namespace moris::hmr
          *
          * @return Matrix< DDUMat >
          */
-        const Matrix< DDUMat >&
+        const Vector< uint >&
         get_proc_dims() const
         {
-            return mProcDims;
+            return mProcessorDimensions;
         }
 
         //--------------------------------------------------------------------------------
