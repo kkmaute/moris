@@ -140,7 +140,7 @@ namespace moris
             // create settings object
             moris::hmr::Parameters tParameters;
 
-            tParameters.set_number_of_elements_per_dimension( { { 4 }, { 2 }, { 2 } } );
+            tParameters.set_number_of_elements_per_dimension( 4, 2, 2 );
             tParameters.set_domain_dimensions( 10, 5, 5 );
             tParameters.set_domain_offset( 0.0, 0.0, 0.0 );
             tParameters.set_side_sets( { { 1 }, { 2 }, { 3 }, { 4 }, { 5 }, { 6 } } );

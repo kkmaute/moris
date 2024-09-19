@@ -117,8 +117,8 @@ namespace moris::vis
 
             moris::hmr::Parameters tParameters;
 
-            tParameters.set_number_of_elements_per_dimension( { { 4 }, { 2 } } );
-            tParameters.set_domain_dimensions( { { 2 }, { 1 } } );
+            tParameters.set_number_of_elements_per_dimension( 4, 2 );
+            tParameters.set_domain_dimensions( 2, 1 );
             tParameters.set_domain_offset( { { -1.0 }, { -0.0 } } );
             tParameters.set_bspline_truncation( true );
 

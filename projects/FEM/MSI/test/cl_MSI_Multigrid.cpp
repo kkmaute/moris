@@ -64,7 +64,7 @@ namespace moris::MSI
 
             // create parameter object
             moris::hmr::Parameters tParameters;
-            tParameters.set_number_of_elements_per_dimension( { { 2 }, { 2 } } );
+            tParameters.set_number_of_elements_per_dimension( 2, 2 );
 
             tParameters.set_severity_level( 0 );
             tParameters.set_multigrid( true );

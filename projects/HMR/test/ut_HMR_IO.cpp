@@ -43,9 +43,9 @@ namespace moris::hmr
                 // create settings object
                 Parameters tParameters;
 
-                tParameters.set_number_of_elements_per_dimension( { { 4 }, { 4 } } );
+                tParameters.set_number_of_elements_per_dimension( 4, 4 );
 
-                tParameters.set_domain_dimensions( { { 1 }, { 1 } } );
+                tParameters.set_domain_dimensions( 1, 1 );
                 tParameters.set_domain_offset( { { -0.5 }, { -0.5 } } );
 
                 // B-Spline truncation is turned on by default.
@@ -182,9 +182,9 @@ namespace moris::hmr
                 // create settings object
                 Parameters tParameters;
 
-                tParameters.set_number_of_elements_per_dimension( { { 4 }, { 4 } } );
+                tParameters.set_number_of_elements_per_dimension( 4, 4 );
 
-                tParameters.set_domain_dimensions( { { 1 }, { 1 } } );
+                tParameters.set_domain_dimensions( 1, 1 );
                 tParameters.set_domain_offset( { { -0.5 }, { -0.5 } } );
 
                 // B-Spline truncation is turned on by default.

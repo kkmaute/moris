@@ -215,7 +215,7 @@ namespace moris
         // Dummy parameter list
         ParameterList tParam = prm::create_hmr_parameter_list();
 
-        tParameters.set_number_of_elements_per_dimension( { { 10 }, { 10 }, { 10 } } );
+        tParameters.set_number_of_elements_per_dimension( 10, 10, 10 );
         tParameters.set_domain_dimensions( 5, 5, 5 );
         tParameters.set_domain_offset( 0.1, 0.1, 0.1 );
         tParameters.set_side_sets( { { 1 }, { 2 }, { 3 }, { 4 }, { 5 }, { 6 } } );

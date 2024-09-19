@@ -196,7 +196,7 @@ namespace moris::hmr
             Parameters tParameters;
 
             tParameters.set_number_of_elements_per_dimension( 2, 2 );
-            tParameters.set_domain_dimensions( { { 3 }, { 3 } } );
+            tParameters.set_domain_dimensions( 3, 3 );
             tParameters.set_domain_offset( { { -1.5 }, { -1.5 } } );
             tParameters.set_bspline_truncation( true );
 
@@ -297,7 +297,7 @@ namespace moris::hmr
             Parameters tParameters;
 
             tParameters.set_number_of_elements_per_dimension( 2, 2 );
-            tParameters.set_domain_dimensions( { { 3 }, { 3 } } );
+            tParameters.set_domain_dimensions( 3, 3 );
             tParameters.set_domain_offset( { { -1.5 }, { -1.5 } } );
             tParameters.set_bspline_truncation( true );
 
@@ -402,7 +402,7 @@ namespace moris::hmr
             Parameters tParameters;
 
             tParameters.set_number_of_elements_per_dimension( 2, 2 );
-            tParameters.set_domain_dimensions( { { 3 }, { 3 } } );
+            tParameters.set_domain_dimensions( 3, 3 );
             tParameters.set_domain_offset( { { -1.5 }, { -1.5 } } );
             tParameters.set_bspline_truncation( true );
 
@@ -813,7 +813,7 @@ namespace moris::hmr
 
             // set number of elements
             tParameters->set_number_of_elements_per_dimension( 10, 10 );
-            tParameters->set_domain_dimensions( { { 10 }, { 10 } } );
+            tParameters->set_domain_dimensions( 10, 10 );
 
             // set buffer size to zero
             tParameters->set_refinement_buffer( 1 );
@@ -1070,7 +1070,7 @@ namespace moris::hmr
             Parameters tParameters;
 
             tParameters.set_number_of_elements_per_dimension( 4, 4 );
-            tParameters.set_domain_dimensions( { { 3 }, { 3 } } );
+            tParameters.set_domain_dimensions( 3, 3 );
             tParameters.set_domain_offset( { { -1.5 }, { -1.5 } } );
             tParameters.set_bspline_truncation( true );
 
