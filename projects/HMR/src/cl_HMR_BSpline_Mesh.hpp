@@ -398,7 +398,7 @@ namespace moris::hmr
             Matrix< DDRMat > tDomainDimensions = mParameters->get_domain_dimensions();
 
             // get number of elements on coarsest level from settings
-            Matrix< DDLUMat > tNumberOfElements = mParameters->get_number_of_elements_per_dimension();
+            Vector< luint > tNumberOfElements = mParameters->get_number_of_elements_per_dimension();
 
             // calculate step width
             real tDeltaX[ gMaxNumberOfLevels ][ N ];

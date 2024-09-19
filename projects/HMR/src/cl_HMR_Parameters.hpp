@@ -62,7 +62,7 @@ namespace moris::hmr
 
         //! number of elements per direction in overall mesh, without aura
         //! 2D or 3D is determined by length of this vector
-        Matrix< DDLUMat > mNumberOfElementsPerDimension = { { 2 }, { 2 } };
+        Vector< luint > mNumberOfElementsPerDimension = { 2, 2 };
 
         //! width, height and depth of domain (without aura)
         Matrix< DDRMat > mDomainDimensions;
@@ -655,7 +655,7 @@ namespace moris::hmr
          *
          * @return void
          */
-        void set_number_of_elements_per_dimension( const Matrix< DDLUMat >& aNumberOfElementsPerDimension );
+        void set_number_of_elements_per_dimension( const Vector< luint >& aNumberOfElementsPerDimension );
 
         //--------------------------------------------------------------------------------
 
@@ -695,7 +695,7 @@ namespace moris::hmr
         luint
         get_number_of_dimensions() const
         {
-            return mNumberOfElementsPerDimension.length();
+            return mNumberOfElementsPerDimension.size();
         }
 
         //-------------------------------------------------------------------------------

@@ -58,9 +58,9 @@ namespace moris::hmr
                 mStatus );
 
         // save number of elements on coarsest mesh
-        save_matrix_to_hdf5_file( mFileID,
+        save_vector_to_hdf5_file( mFileID,
                 "CoarsestElements",
-                aParameters->get_number_of_elements_per_dimension(),
+                aParameters->get_number_of_elements_per_dimension().data(),
                 mStatus );
 
         // save buffer size
@@ -159,9 +159,9 @@ namespace moris::hmr
     {
         // placeholders for data read from file
         Matrix< DDRMat >  tMatReal;
-        Matrix< DDLUMat > tMatLuint;
         Matrix< DDUMat >  tMatUint;
         Vector< uint >    tUnsignedVector;
+        Vector< luint >   tLongUnsignedVector;
         real              tValReal;
         uint              tValUint;
         sint              tValSint;
@@ -187,13 +187,13 @@ namespace moris::hmr
         aParameters->set_domain_offset( tMatReal );
 
         // load number of elements on coarsest mesh
-        load_matrix_from_hdf5_file( mFileID,
+        load_vector_from_hdf5_file( mFileID,
                 "CoarsestElements",
-                tMatLuint,
+                tLongUnsignedVector.data(),
                 mStatus );
 
         // set number of elements
-        aParameters->set_number_of_elements_per_dimension( tMatLuint );
+        aParameters->set_number_of_elements_per_dimension( tLongUnsignedVector );
 
         // load buffer size
         load_scalar_from_hdf5_file( mFileID,

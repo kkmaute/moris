@@ -66,7 +66,7 @@ namespace moris::hmr
             for ( uint iNumberOfDimensions = 2; iNumberOfDimensions <= 3; iNumberOfDimensions++ )
             {
                 // Create one element
-                tParameters->set_number_of_elements_per_dimension( Matrix< DDLUMat >( iNumberOfDimensions, 1, 1 ) );
+                tParameters->set_number_of_elements_per_dimension( Vector< luint >( iNumberOfDimensions, 1 ) );
 
                 // Domain from -1 to 1 in each dimension
                 tParameters->set_domain_dimensions( Matrix< DDRMat >( iNumberOfDimensions, 1, 2 ) );

@@ -39,18 +39,18 @@ namespace moris::hmr
                 auto tParameters = new Parameters;
 
                 // set number of elements
-                Matrix< DDLUMat > tNumberOfElementsPerDimension;
+                Vector< luint > tNumberOfElementsPerDimension;
                 if ( par_size() == 1 )
                 {
-                    tNumberOfElementsPerDimension.set_size( 2, 1, 3 );
+                    tNumberOfElementsPerDimension.resize( 2, 3 );
                 }
                 else if ( par_size() == 2 )
                 {
-                    tNumberOfElementsPerDimension.set_size( 2, 1, 6 );
+                    tNumberOfElementsPerDimension.resize( 2, 6 );
                 }
                 else if ( par_size() == 4 )
                 {
-                    tNumberOfElementsPerDimension.set_size( 2, 1, 10 );
+                    tNumberOfElementsPerDimension.resize( 2, 10 );
                 }
 
                 tParameters->set_number_of_elements_per_dimension( tNumberOfElementsPerDimension );
@@ -125,19 +125,19 @@ namespace moris::hmr
                 auto tParameters = new Parameters;
 
                 // set number of elements
-                Matrix< DDLUMat > tNumberOfElementsPerDimension;
+                Vector< luint > tNumberOfElementsPerDimension;
 
                 if ( par_size() == 1 )
                 {
-                    tNumberOfElementsPerDimension.set_size( 3, 1, 3 );
+                    tNumberOfElementsPerDimension.resize( 3, 3 );
                 }
                 else if ( par_size() == 2 )
                 {
-                    tNumberOfElementsPerDimension.set_size( 3, 1, 6 );
+                    tNumberOfElementsPerDimension.resize( 3, 6 );
                 }
                 else if ( par_size() == 4 )
                 {
-                    tNumberOfElementsPerDimension.set_size( 3, 1, 10 );
+                    tNumberOfElementsPerDimension.resize( 3, 10 );
                 }
 
                 tParameters->set_number_of_elements_per_dimension( tNumberOfElementsPerDimension );
@@ -213,7 +213,7 @@ namespace moris::hmr
             auto tParameters = new Parameters;
 
             // set number of elements
-            tParameters->set_number_of_elements_per_dimension( { { 4 }, { 4 } } );
+            tParameters->set_number_of_elements_per_dimension( { 4, 4 } );
 
             // deactivate truncation
             tParameters->set_bspline_truncation( false );

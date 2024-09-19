@@ -54,8 +54,7 @@ namespace moris::hmr
                 uint tPattern = tParameters->get_lagrange_input_pattern();
 
                 // set number of elements
-                Matrix< DDLUMat > tNumberOfElementsPerDimension = { { 6 }, { 6 } };
-                tParameters->set_number_of_elements_per_dimension( tNumberOfElementsPerDimension );
+                tParameters->set_number_of_elements_per_dimension( 6, 6 );
 
                 // set buffer size to zero
                 tParameters->set_refinement_buffer( 0 );
@@ -124,8 +123,7 @@ namespace moris::hmr
                 uint tPattern = tParameters->get_lagrange_input_pattern();
 
                 // set number of elements
-                Matrix< DDLUMat > tNumberOfElementsPerDimension = { { 6 }, { 6 }, { 6 } };
-                tParameters->set_number_of_elements_per_dimension( tNumberOfElementsPerDimension );
+                tParameters->set_number_of_elements_per_dimension( 6, 6, 6 );
 
                 // set buffer size to zero
                 tParameters->set_refinement_buffer( 0 );
@@ -197,7 +195,7 @@ namespace moris::hmr
             // The parameter object controls the behavior of HMR.
             Parameters tParameters;
 
-            tParameters.set_number_of_elements_per_dimension( { { 2 }, { 2 } } );
+            tParameters.set_number_of_elements_per_dimension( 2, 2 );
             tParameters.set_domain_dimensions( { { 3 }, { 3 } } );
             tParameters.set_domain_offset( { { -1.5 }, { -1.5 } } );
             tParameters.set_bspline_truncation( true );
@@ -298,7 +296,7 @@ namespace moris::hmr
 
             Parameters tParameters;
 
-            tParameters.set_number_of_elements_per_dimension( { { 2 }, { 2 } } );
+            tParameters.set_number_of_elements_per_dimension( 2, 2 );
             tParameters.set_domain_dimensions( { { 3 }, { 3 } } );
             tParameters.set_domain_offset( { { -1.5 }, { -1.5 } } );
             tParameters.set_bspline_truncation( true );
@@ -403,7 +401,7 @@ namespace moris::hmr
 
             Parameters tParameters;
 
-            tParameters.set_number_of_elements_per_dimension( { { 2 }, { 2 } } );
+            tParameters.set_number_of_elements_per_dimension( 2, 2 );
             tParameters.set_domain_dimensions( { { 3 }, { 3 } } );
             tParameters.set_domain_offset( { { -1.5 }, { -1.5 } } );
             tParameters.set_bspline_truncation( true );
@@ -505,7 +503,7 @@ namespace moris::hmr
             auto tParameters = new Parameters;
 
             // set number of elements
-            tParameters->set_number_of_elements_per_dimension( { { 4 }, { 4 } } );
+            tParameters->set_number_of_elements_per_dimension( 4, 4 );
 
             // set buffer size to zero
             tParameters->set_refinement_buffer( 1 );
@@ -646,7 +644,7 @@ namespace moris::hmr
             auto tParameters = new Parameters;
 
             // set number of elements
-            tParameters->set_number_of_elements_per_dimension( { { 4 }, { 4 } } );
+            tParameters->set_number_of_elements_per_dimension( 4, 4 );
 
             // set buffer size to zero
             tParameters->set_refinement_buffer( 1 );
@@ -752,7 +750,7 @@ namespace moris::hmr
             // create settings object
             Parameters tParameters;
 
-            tParameters.set_number_of_elements_per_dimension( { { 40 }, { 10 }, { 10 } } );
+            tParameters.set_number_of_elements_per_dimension( 40, 10, 10 );
             tParameters.set_domain_dimensions( 10, 5, 5 );
             tParameters.set_domain_offset( 0.0, 0.0, 0.0 );
             tParameters.set_side_sets( { { 1 }, { 2 }, { 3 }, { 4 }, { 5 }, { 6 } } );
@@ -814,7 +812,7 @@ namespace moris::hmr
             auto tParameters = new Parameters;
 
             // set number of elements
-            tParameters->set_number_of_elements_per_dimension( { { 10 }, { 10 } } );
+            tParameters->set_number_of_elements_per_dimension( 10, 10 );
             tParameters->set_domain_dimensions( { { 10 }, { 10 } } );
 
             // set buffer size to zero
@@ -908,7 +906,7 @@ namespace moris::hmr
             // create settings object
             Parameters tParameters;
 
-            tParameters.set_number_of_elements_per_dimension( { { 40 }, { 10 }, { 10 } } );
+            tParameters.set_number_of_elements_per_dimension( 40, 10, 10 );
             tParameters.set_domain_dimensions( 10, 5, 5 );
             tParameters.set_domain_offset( 0.0, 0.0, 0.0 );
             tParameters.set_side_sets( { { 1 }, { 2 }, { 3 }, { 4 }, { 5 }, { 6 } } );
@@ -1019,7 +1017,7 @@ namespace moris::hmr
             // create settings object
             Parameters tParameters;
 
-            tParameters.set_number_of_elements_per_dimension( { { 2 }, { 1 }, { 1 } } );
+            tParameters.set_number_of_elements_per_dimension( 2, 1, 1 );
             tParameters.set_domain_dimensions( 2, 1, 1 );
             tParameters.set_domain_offset( 0.0, 0.0, 0.0 );
             tParameters.set_side_sets( { { 1 }, { 2 }, { 3 }, { 4 }, { 5 }, { 6 } } );
@@ -1071,7 +1069,7 @@ namespace moris::hmr
             // The parameter object controls the behavior of HMR.
             Parameters tParameters;
 
-            tParameters.set_number_of_elements_per_dimension( { { 4 }, { 4 } } );
+            tParameters.set_number_of_elements_per_dimension( 4, 4 );
             tParameters.set_domain_dimensions( { { 3 }, { 3 } } );
             tParameters.set_domain_offset( { { -1.5 }, { -1.5 } } );
             tParameters.set_bspline_truncation( true );
@@ -1170,7 +1168,7 @@ namespace moris::hmr
             // create settings object
             Parameters tParameters;
 
-            tParameters.set_number_of_elements_per_dimension( { { 6 }, { 6 }, { 3 } } );
+            tParameters.set_number_of_elements_per_dimension( 6, 6, 3 );
             tParameters.set_domain_dimensions( 2, 2, 1 );
             tParameters.set_domain_offset( 0.0, 0.0, 0.0 );
             tParameters.set_side_sets( { { 1 }, { 2 }, { 3 }, { 4 }, { 5 }, { 6 } } );
@@ -1265,7 +1263,7 @@ namespace moris::hmr
             // create settings object
             Parameters tParameters;
 
-            tParameters.set_number_of_elements_per_dimension( { { 6 }, { 6 }, { 3 } } );
+            tParameters.set_number_of_elements_per_dimension( 6, 6, 3 );
             tParameters.set_domain_dimensions( 2, 2, 1 );
             tParameters.set_domain_offset( 0.0, 0.0, 0.0 );
             tParameters.set_side_sets( { { 1 }, { 2 }, { 3 }, { 4 }, { 5 }, { 6 } } );

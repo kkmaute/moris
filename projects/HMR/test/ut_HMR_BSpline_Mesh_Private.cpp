@@ -60,7 +60,7 @@ namespace moris::hmr
 
                             tParameters.set_multigrid( tMultigrid == 1 );
 
-                            Matrix< DDLUMat > tNumberOfElements( tDimension, 1, 2 * tOrder );
+                            Vector< luint > tNumberOfElements( tDimension, 2 * tOrder );
                             tParameters.set_number_of_elements_per_dimension( tNumberOfElements );
 
                             Matrix< DDRMat > tDomainOffset( tDimension, 1, 0.0 );

@@ -51,20 +51,20 @@ namespace moris::hmr
             // The parameter object controls the behavior of HMR.
             Parameters tParameters;
 
-            Matrix< DDLUMat > tNumberOfElements;
+            Vector< luint > tNumberOfElements;
 
             // set element size
             if ( par_size() == 1 )
             {
-                tNumberOfElements.set_size( tDimension, 1, 2 );
+                tNumberOfElements.resize( tDimension, 2 );
             }
             else if ( par_size() == 2 )
             {
-                tNumberOfElements.set_size( tDimension, 1, 6 );
+                tNumberOfElements.resize( tDimension, 6 );
             }
             else if ( par_size() == 4 )
             {
-                tNumberOfElements.set_size( tDimension, 1, 6 );
+                tNumberOfElements.resize( tDimension, 6 );
             }
 
             // set values to parameters
@@ -355,7 +355,7 @@ namespace moris::hmr
             Matrix< DDLUMat > tNumberOfElements;
 
             // set values to parameters
-            tParameters.set_number_of_elements_per_dimension( { { 2 }, { 2 } } );
+            tParameters.set_number_of_elements_per_dimension( 2, 2 );
 
             // B-Spline truncation is turned on by default.
             // It is recommended to leave this setting as is.
@@ -477,7 +477,7 @@ namespace moris::hmr
             Matrix< DDLUMat > tNumberOfElements;
 
             // set values to parameters
-            tParameters.set_number_of_elements_per_dimension( { { 2 }, { 2 } } );
+            tParameters.set_number_of_elements_per_dimension( 2, 2 );
 
             // B-Spline truncation is turned on by default.
             // It is recommended to leave this setting as is.
@@ -608,7 +608,7 @@ namespace moris::hmr
             Matrix< DDLUMat > tNumberOfElements;
 
             // set values to parameters
-            tParameters.set_number_of_elements_per_dimension( { { 2 }, { 2 } } );
+            tParameters.set_number_of_elements_per_dimension( 2, 2 );
 
             // B-Spline truncation is turned on by default.
             // It is recommended to leave this setting as is.
@@ -734,23 +734,23 @@ namespace moris::hmr
                     Parameters tParameters;
 
                     // set values to parameters
-                    Matrix< DDLUMat > tNumberOfElements;
+                    Vector< luint > tNumberOfElements;
 
                     // set element size
                     if ( par_size() == 1 )
                     {
-                        tNumberOfElements.set_size( tDimension, 1, 2 );
+                        tNumberOfElements.resize( tDimension, 2 );
                     }
                     else if ( par_size() == 2 )
                     {
-                        tNumberOfElements.set_size( tDimension, 1, 6 );
+                        tNumberOfElements.resize( tDimension, 6 );
                     }
                     else if ( par_size() == 4 )
                     {
-                        tNumberOfElements.set_size( tDimension, 1, 6 );
+                        tNumberOfElements.resize( tDimension, 6 );
                     }
 
-                    tParameters.set_number_of_elements_per_dimension( { tNumberOfElements } );
+                    tParameters.set_number_of_elements_per_dimension( tNumberOfElements );
 
                     // B-Spline truncation is turned on by default.
                     // It is recommended to leave this setting as is.
@@ -879,23 +879,23 @@ namespace moris::hmr
                     Parameters tParameters;
 
                     // set values to parameters
-                    Matrix< DDLUMat > tNumberOfElements;
+                    Vector< luint > tNumberOfElements;
 
                     // set element size
                     if ( par_size() == 1 )
                     {
-                        tNumberOfElements.set_size( tDimension, 1, 2 );
+                        tNumberOfElements.resize( tDimension, 2 );
                     }
                     else if ( par_size() == 2 )
                     {
-                        tNumberOfElements.set_size( tDimension, 1, 6 );
+                        tNumberOfElements.resize( tDimension, 6 );
                     }
                     else if ( par_size() == 4 )
                     {
-                        tNumberOfElements.set_size( tDimension, 1, 6 );
+                        tNumberOfElements.resize( tDimension, 6 );
                     }
 
-                    tParameters.set_number_of_elements_per_dimension( { tNumberOfElements } );
+                    tParameters.set_number_of_elements_per_dimension( tNumberOfElements );
 
                     // B-Spline truncation is turned on by default.
                     // It is recommended to leave this setting as is.
@@ -1025,23 +1025,23 @@ namespace moris::hmr
                     Parameters tParameters;
 
                     // set values to parameters
-                    Matrix< DDLUMat > tNumberOfElements;
+                    Vector< luint > tNumberOfElements;
 
                     // set element size
                     if ( par_size() == 1 )
                     {
-                        tNumberOfElements.set_size( tDimension, 1, 2 );
+                        tNumberOfElements.resize( tDimension, 2 );
                     }
                     else if ( par_size() == 2 )
                     {
-                        tNumberOfElements.set_size( tDimension, 1, 6 );
+                        tNumberOfElements.resize( tDimension, 6 );
                     }
                     else if ( par_size() == 4 )
                     {
-                        tNumberOfElements.set_size( tDimension, 1, 6 );
+                        tNumberOfElements.resize( tDimension, 6 );
                     }
 
-                    tParameters.set_number_of_elements_per_dimension( { tNumberOfElements } );
+                    tParameters.set_number_of_elements_per_dimension( tNumberOfElements );
 
                     // B-Spline truncation is turned on by default.
                     // It is recommended to leave this setting as is.
@@ -1171,8 +1171,6 @@ namespace moris::hmr
         // do this test for 2 and 3 dimensions
         if ( par_size() == 1 )
         {
-            uint tDimension = 2;
-
             //------------------------------------------------------------------------------
             //  HMR Parameters setup
             //------------------------------------------------------------------------------
@@ -1180,13 +1178,7 @@ namespace moris::hmr
             // The parameter object controls the behavior of HMR.
             Parameters tParameters;
 
-            // set values to parameters
-            Matrix< DDLUMat > tNumberOfElements;
-
-            // set element size
-            tNumberOfElements.set_size( tDimension, 1, 2 );
-
-            tParameters.set_number_of_elements_per_dimension( { tNumberOfElements } );
+            tParameters.set_number_of_elements_per_dimension( 2, 2 );
 
             // B-Spline truncation is turned on by default.
             // It is recommended to leave this setting as is.

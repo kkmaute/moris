@@ -31,16 +31,17 @@ namespace moris::hmr
     {
         // Clear default vectors
         mProcessorDimensions.clear();
+        mNumberOfElementsPerDimension.clear();
         mLagrangeOrders.clear();
         mLagrangePatterns.clear();
         mBSplineOrders.clear();
         mBSplinePatterns.clear();
 
         // Number of elements per dimension
-        string_to_matrix( aParameterList.get< std::string >( "number_of_elements_per_dimension" ), mNumberOfElementsPerDimension );
+        string_to_vector( aParameterList.get< std::string >( "number_of_elements_per_dimension" ), mNumberOfElementsPerDimension );
 
         // check sanity of input
-        MORIS_ERROR( mNumberOfElementsPerDimension.length() == 2 || mNumberOfElementsPerDimension.length() == 3,
+        MORIS_ERROR( mNumberOfElementsPerDimension.size() == 2 or mNumberOfElementsPerDimension.size() == 3,
                 "Number of elements must be a matrix of length 2 or 3." );
 
         // get processor decomposition method
@@ -53,14 +54,14 @@ namespace moris::hmr
         string_to_matrix( aParameterList.get< std::string >( "domain_dimensions" ), mDomainDimensions );
 
         // check sanity of input
-        MORIS_ERROR( mNumberOfElementsPerDimension.length() == mDomainDimensions.length(),
+        MORIS_ERROR( mNumberOfElementsPerDimension.size() == mDomainDimensions.length(),
                 "length of domain_dimensions must be equal to number_of_elements_per_dimension." );
 
         // get domain offset
         string_to_matrix( aParameterList.get< std::string >( "domain_offset" ), mDomainOffset );
 
         // check sanity of input
-        MORIS_ERROR( mNumberOfElementsPerDimension.length() == mDomainOffset.length(),
+        MORIS_ERROR( mNumberOfElementsPerDimension.size() == mDomainOffset.length(),
                 "length of domain_offset must be equal to number_of_elements_per_dimension." );
 
         // set buffer sizes
@@ -227,18 +228,18 @@ namespace moris::hmr
             MORIS_LOG_INFO( "user defined settings " );
             MORIS_LOG_INFO( "-------------------------------------------------------------------------------- " );
             MORIS_LOG_INFO( " " );
-            if ( mNumberOfElementsPerDimension.length() == 1 )
+            if ( mNumberOfElementsPerDimension.size() == 1 )
             {
                 MORIS_LOG_INFO( "elements per dimension ....... : %lu",
                         (long unsigned int)mNumberOfElementsPerDimension( 0 ) );
             }
-            else if ( mNumberOfElementsPerDimension.length() == 2 )
+            else if ( mNumberOfElementsPerDimension.size() == 2 )
             {
                 MORIS_LOG_INFO( "elements per dimension ....... : %lu x %lu ",
                         (long unsigned int)mNumberOfElementsPerDimension( 0 ),
                         (long unsigned int)mNumberOfElementsPerDimension( 1 ) );
             }
-            else if ( mNumberOfElementsPerDimension.length() == 3 )
+            else if ( mNumberOfElementsPerDimension.size() == 3 )
             {
                 MORIS_LOG_INFO( "elements per dimension ....... : %lu x %lu x %lu ",
                         (long unsigned int)mNumberOfElementsPerDimension( 0 ),
@@ -344,13 +345,13 @@ namespace moris::hmr
     //--------------------------------------------------------------------------------
 
     void
-    Parameters::set_number_of_elements_per_dimension( const Matrix< DDLUMat >& aNumberOfElementsPerDimension )
+    Parameters::set_number_of_elements_per_dimension( const Vector< luint >& aNumberOfElementsPerDimension )
     {
         // test if calling this function is allowed
         this->error_if_locked( "set_number_of_elements_per_dimension" );
 
         // check sanity of input
-        MORIS_ERROR( aNumberOfElementsPerDimension.length() == 2 || aNumberOfElementsPerDimension.length() == 3,
+        MORIS_ERROR( aNumberOfElementsPerDimension.size() == 2 or aNumberOfElementsPerDimension.size() == 3,
                 "Number of elements must be a matrix of length 2 or 3." );
 
         mNumberOfElementsPerDimension = aNumberOfElementsPerDimension;
@@ -369,7 +370,7 @@ namespace moris::hmr
         // test if calling this function is allowed
         this->error_if_locked( "set_number_of_elements_per_dimension" );
 
-        mNumberOfElementsPerDimension.set_size( 2, 1 );
+        mNumberOfElementsPerDimension.resize( 2 );
         mNumberOfElementsPerDimension( 0 ) = aElementsX;
         mNumberOfElementsPerDimension( 1 ) = aElementsY;
 
@@ -388,7 +389,7 @@ namespace moris::hmr
         // test if calling this function is allowed
         this->error_if_locked( "set_number_of_elements_per_dimension" );
 
-        mNumberOfElementsPerDimension.set_size( 3, 1 );
+        mNumberOfElementsPerDimension.resize( 3 );
         mNumberOfElementsPerDimension( 0 ) = aElementsX;
         mNumberOfElementsPerDimension( 1 ) = aElementsY;
         mNumberOfElementsPerDimension( 2 ) = aElementsZ;
@@ -405,7 +406,7 @@ namespace moris::hmr
         // test if calling this function is allowed
         this->error_if_locked( "set_default_dimensions_and_offset" );
 
-        auto tNumberOfDimensions = mNumberOfElementsPerDimension.length();
+        auto tNumberOfDimensions = mNumberOfElementsPerDimension.size();
 
         // auto set for domain dimensions
         if ( mDomainDimensions.length() == 0 )
@@ -572,7 +573,7 @@ namespace moris::hmr
             // use default setting:
 
             // dimensions
-            uint tNumberOfDimensions = mNumberOfElementsPerDimension.length();
+            uint tNumberOfDimensions = mNumberOfElementsPerDimension.size();
 
             // return defalult values
             Matrix< DDRMat > aDimensions( tNumberOfDimensions, 1 );
@@ -646,7 +647,7 @@ namespace moris::hmr
             auto tNumberOfDimensions = this->get_number_of_dimensions();
 
             // check dimensions
-            MORIS_ERROR( mNumberOfElementsPerDimension.length() == tNumberOfDimensions,
+            MORIS_ERROR( mNumberOfElementsPerDimension.size() == tNumberOfDimensions,
                     "Number of Elements Per Dimension does not match" );
 
             MORIS_ERROR( mDomainDimensions.length() == tNumberOfDimensions,
