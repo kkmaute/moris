@@ -407,10 +407,10 @@ namespace moris::hmr
         calculate_node_coordinates() override
         {
             // get domain dimensions from settings
-            Matrix< DDRMat > tDomainDimensions = mParameters->get_domain_dimensions();
+            const Matrix< DDRMat >& tDomainDimensions = mParameters->get_domain_dimensions();
 
             // get number of elements on coarsest level from settings
-            Vector< luint > tNumberOfElements = mParameters->get_number_of_elements_per_dimension();
+            const Vector< luint >& tNumberOfElements = mParameters->get_number_of_elements_per_dimension();
 
             // calculate step width
             real tDeltaX[ gMaxNumberOfLevels ][ N ];

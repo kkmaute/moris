@@ -742,7 +742,7 @@ namespace moris::hmr
          *
          * @return Matrix< DDRMat >
          */
-        Matrix< DDRMat > get_domain_dimensions() const;
+        const Matrix< DDRMat >& get_domain_dimensions() const;
 
         //-------------------------------------------------------------------------------
 

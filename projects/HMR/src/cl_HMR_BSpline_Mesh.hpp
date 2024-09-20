@@ -395,7 +395,7 @@ namespace moris::hmr
             MORIS_LOG_INFO( "B-Spline Mesh #%i: Computing basis function coordinates", this->get_index() );
 
             // get domain dimensions from settings
-            Matrix< DDRMat > tDomainDimensions = mParameters->get_domain_dimensions();
+            const Matrix< DDRMat >& tDomainDimensions = mParameters->get_domain_dimensions();
 
             // get number of elements on coarsest level from settings
             const Vector< luint >& tNumberOfElements = mParameters->get_number_of_elements_per_dimension();

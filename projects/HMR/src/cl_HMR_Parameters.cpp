@@ -559,35 +559,10 @@ namespace moris::hmr
      *
      * @return Matrix< DDRMat >
      */
-    Matrix< DDRMat >
+    const Matrix< DDRMat >&
     Parameters::get_domain_dimensions() const
     {
-        // see if dimensions have been set
-        if ( mDomainDimensions.length() != 0 )
-        {
-            // return user defined dimensions
-            return mDomainDimensions;
-        }
-        else
-        {
-            // use default setting:
-
-            // dimensions
-            uint tNumberOfDimensions = mNumberOfElementsPerDimension.size();
-
-            // return defalult values
-            Matrix< DDRMat > aDimensions( tNumberOfDimensions, 1 );
-
-            // loop over all dimensions
-            for ( uint k = 0; k < tNumberOfDimensions; ++k )
-            {
-                // cast element number to real
-                aDimensions( k ) = (real)mNumberOfElementsPerDimension( k );
-            }
-
-            // return domain so that element length equals unity
-            return aDimensions;
-        }
+        return mDomainDimensions;
     }
 
     //-------------------------------------------------------------------------------
