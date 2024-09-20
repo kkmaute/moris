@@ -32,6 +32,7 @@ namespace moris::hmr
         // Clear default vectors
         mProcessorDimensions.clear();
         mNumberOfElementsPerDimension.clear();
+        mDomainDimensions.clear();
         mLagrangeOrders.clear();
         mLagrangePatterns.clear();
         mBSplineOrders.clear();
@@ -51,10 +52,10 @@ namespace moris::hmr
         string_to_vector( aParameterList.get< std::string >( "processor_dimensions" ), mProcessorDimensions );
 
         // get domain dimensions
-        string_to_matrix( aParameterList.get< std::string >( "domain_dimensions" ), mDomainDimensions );
+        string_to_vector( aParameterList.get< std::string >( "domain_dimensions" ), mDomainDimensions );
 
         // check sanity of input
-        MORIS_ERROR( mNumberOfElementsPerDimension.size() == mDomainDimensions.length(),
+        MORIS_ERROR( mNumberOfElementsPerDimension.size() == mDomainDimensions.size(),
                 "length of domain_dimensions must be equal to number_of_elements_per_dimension." );
 
         // get domain offset
@@ -409,9 +410,9 @@ namespace moris::hmr
         auto tNumberOfDimensions = mNumberOfElementsPerDimension.size();
 
         // auto set for domain dimensions
-        if ( mDomainDimensions.length() == 0 )
+        if ( mDomainDimensions.size() == 0 )
         {
-            mDomainDimensions.set_size( tNumberOfDimensions, 1, 1.0 );
+            mDomainDimensions.resize( tNumberOfDimensions, 1.0 );
         }
 
         // auto set offset
@@ -423,13 +424,13 @@ namespace moris::hmr
     //--------------------------------------------------------------------------------
 
     void
-    Parameters::set_domain_dimensions( const Matrix< DDRMat >& aDomainDimensions )
+    Parameters::set_domain_dimensions( const Vector< real >& aDomainDimensions )
     {
         // test if calling this function is allowed
         this->error_if_locked( "set_domain_dimensions" );
 
         // check sanity of input
-        MORIS_ERROR( aDomainDimensions.length() == 2 || aDomainDimensions.length() == 3,
+        MORIS_ERROR( aDomainDimensions.size() == 2 || aDomainDimensions.size() == 3,
                 "Domain Dimensions must be a matrix of length 2 or 3." );
 
         MORIS_ERROR( aDomainDimensions.max() > 0.0, "Domain Dimensions be greater than zero" );
@@ -452,7 +453,7 @@ namespace moris::hmr
 
         MORIS_ERROR( aDomainDimensionsY > 0.0, "aDomainDimensionsY must be greater than zero" );
 
-        mDomainDimensions.set_size( 2, 1 );
+        mDomainDimensions.resize( 2 );
         mDomainDimensions( 0 ) = aDomainDimensionsX;
         mDomainDimensions( 1 ) = aDomainDimensionsY;
     }
@@ -475,7 +476,7 @@ namespace moris::hmr
 
         MORIS_ERROR( aDomainDimensionsZ > 0.0, "aDomainDimensionsZ must be greater than zero" );
 
-        mDomainDimensions.set_size( 3, 1 );
+        mDomainDimensions.resize( 3 );
         mDomainDimensions( 0 ) = aDomainDimensionsX;
         mDomainDimensions( 1 ) = aDomainDimensionsY;
         mDomainDimensions( 2 ) = aDomainDimensionsZ;
@@ -559,7 +560,7 @@ namespace moris::hmr
      *
      * @return Matrix< DDRMat >
      */
-    const Matrix< DDRMat >&
+    const Vector< real >&
     Parameters::get_domain_dimensions() const
     {
         return mDomainDimensions;
@@ -625,7 +626,7 @@ namespace moris::hmr
             MORIS_ERROR( mNumberOfElementsPerDimension.size() == tNumberOfDimensions,
                     "Number of Elements Per Dimension does not match" );
 
-            MORIS_ERROR( mDomainDimensions.length() == tNumberOfDimensions,
+            MORIS_ERROR( mDomainDimensions.size() == tNumberOfDimensions,
                     "Domain dimensions and Number of Elements per dimension do not match" );
 
             MORIS_ERROR( mDomainOffset.length() == tNumberOfDimensions,

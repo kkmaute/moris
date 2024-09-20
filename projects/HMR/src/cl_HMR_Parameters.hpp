@@ -65,7 +65,7 @@ namespace moris::hmr
         Vector< luint > mNumberOfElementsPerDimension = { 2, 2 };
 
         //! width, height and depth of domain (without aura)
-        Matrix< DDRMat > mDomainDimensions;
+        Vector< real > mDomainDimensions;
 
         //! coordinate of first visible node
         Matrix< DDRMat > mDomainOffset;
@@ -707,7 +707,7 @@ namespace moris::hmr
          *
          * @return void
          */
-        void set_domain_dimensions( const Matrix< DDRMat >& aDomainDimensions );
+        void set_domain_dimensions( const Vector< real >& aDomainDimensions );
 
         //-------------------------------------------------------------------------------
 
@@ -742,7 +742,7 @@ namespace moris::hmr
          *
          * @return Matrix< DDRMat >
          */
-        const Matrix< DDRMat >& get_domain_dimensions() const;
+        const Vector< real >& get_domain_dimensions() const;
 
         //-------------------------------------------------------------------------------
 

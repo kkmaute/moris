@@ -407,7 +407,7 @@ namespace moris::hmr
         calculate_node_coordinates() override
         {
             // get domain dimensions from settings
-            const Matrix< DDRMat >& tDomainDimensions = mParameters->get_domain_dimensions();
+            const Vector< real >& tDomainDimensions = mParameters->get_domain_dimensions();
 
             // get number of elements on coarsest level from settings
             const Vector< luint >& tNumberOfElements = mParameters->get_number_of_elements_per_dimension();

@@ -46,9 +46,9 @@ namespace moris::hmr
     void File::save_settings( const Parameters* aParameters )
     {
         // save dimensions of field
-        save_matrix_to_hdf5_file( mFileID,
+        save_vector_to_hdf5_file( mFileID,
                 "DomainDimensions",
-                aParameters->get_domain_dimensions(),
+                aParameters->get_domain_dimensions().data(),
                 mStatus );
 
         // save domain offset
@@ -162,6 +162,7 @@ namespace moris::hmr
         Matrix< DDUMat >  tMatUint;
         Vector< uint >    tUnsignedVector;
         Vector< luint >   tLongUnsignedVector;
+        Vector< real >    tRealVector;
         real              tValReal;
         uint              tValUint;
         sint              tValSint;
@@ -169,13 +170,13 @@ namespace moris::hmr
         bool              tValBool;
 
         // load dimensions from field
-        load_matrix_from_hdf5_file( mFileID,
+        load_vector_from_hdf5_file( mFileID,
                 "DomainDimensions",
-                tMatReal,
+                tRealVector.data(),
                 mStatus );
 
         // set domain dimensions
-        aParameters->set_domain_dimensions( tMatReal );
+        aParameters->set_domain_dimensions( tRealVector );
 
         // load domain offset
         load_matrix_from_hdf5_file( mFileID,
