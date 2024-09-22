@@ -9,7 +9,7 @@
  */
 
 #include <iostream>
-//FEM/INT/src
+// FEM/INT/src
 #include "cl_FEM_Element_Sideset.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_Set.hpp"
@@ -272,11 +272,21 @@ namespace moris::fem
             return;
         }
 
+        // check whether dRdp needs be computed
+        bool tComputedRdp = !mSet->mEquationModel->is_forward_analysis() &&    //
+                            !mSet->mEquationModel->is_adjoint_sensitivity_analysis();
+
+        // check whether dQIdu needs to be computed
+        bool tComputedQIdu = !mSet->mEquationModel->is_forward_analysis() &&               //
+                             mSet->mEquationModel->is_adjoint_sensitivity_analysis() &&    //
+                             tNumIQIs > 0;
+
         // get treated side ordinal
         uint tSideOrd = mCluster->mLeaderListOfSideOrdinals( mCellIndexInCluster );
 
         // set physical and parametric space and time coefficients for IG element
-        this->init_ig_geometry_interpolator( tSideOrd );
+        Matrix< DDSMat > tGeoLocalAssembly;
+        this->init_ig_geometry_interpolator( tSideOrd, tGeoLocalAssembly );
 
         // loop over integration points
         uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -328,9 +338,17 @@ namespace moris::fem
 
                 // compute Jacobian at evaluation point
                 ( this->*m_compute_jacobian )( tReqIWG, tWStar );
+
+                // compute dRdp if direct sensitivity analysis
+                if ( tComputedRdp )
+                {
+                    Vector< Matrix< IndexMat > > tVertexIndices( 0 );
+                    ( this->*m_compute_dRdp )( tReqIWG, tWStar, tGeoLocalAssembly, tVertexIndices );
+                }
             }
 
-            if ( ( !mSet->mEquationModel->is_forward_analysis() ) && ( tNumIQIs > 0 ) )
+            // if adjoint sensitivity analysis is used and IQIs exists
+            if ( tComputedQIdu )
             {
                 // loop over the IQIs
                 for ( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )

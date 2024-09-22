@@ -338,7 +338,7 @@ namespace moris::NLA
                 mOutputTime += mTimeOffSet;
 
                 // write current solution to output 0
-                mSolverInterface->initiate_output( 0, mOutputTime, false );
+                mSolverInterface->output_solution( 0, mOutputTime, false, true );
             }
 
             // copy current solution onto "previous" solution
@@ -645,7 +645,7 @@ namespace moris::NLA
             mOutputTime += mTimeOffSet;
 
             // write current solution to output 0
-            mSolverInterface->initiate_output( 0, mOutputTime, false );
+            mSolverInterface->output_solution( 0, mOutputTime, false, true );
         }
 
         // initialize convergence flag

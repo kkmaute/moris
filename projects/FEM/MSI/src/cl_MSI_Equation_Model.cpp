@@ -39,6 +39,17 @@ namespace moris::MSI
 
     //------------------------------------------------------------------------------
 
+    moris::uint
+    Equation_Model::get_num_IQIs()
+    {
+        MORIS_ASSERT( !mIsForwardAnalysis,
+                "Equation_Model::get_num_IQIs - should be only called in sensitivity analysis" );
+
+        return this->get_requested_IQI_names().size();
+    }
+
+    //------------------------------------------------------------------------------
+
     moris::sint
     Equation_Model::get_num_rhs()
     {
@@ -127,15 +138,15 @@ namespace moris::MSI
         mdQIdpMap = tMatFactory.create_map(
                 mDesignVariableInterface->get_my_local_global_map() );
 
-        // get number of RHS for either adjoint or direct method
-        uint tNumRHMS = this->get_num_rhs();
+        // get number of requested iqis
+        uint tNumIQIs = this->get_num_IQIs();
 
         // create vector for dQIdp implicit and explicit contributions
         delete mImplicitdQidp;
         delete mExplicitdQidp;
 
-        mImplicitdQidp = tMatFactory.create_vector( mdQIdpMap, tNumRHMS );
-        mExplicitdQidp = tMatFactory.create_vector( mdQIdpMap, tNumRHMS );
+        mImplicitdQidp = tMatFactory.create_vector( mdQIdpMap, tNumIQIs );
+        mExplicitdQidp = tMatFactory.create_vector( mdQIdpMap, tNumIQIs );
 
         // fill dQIdp implicit/explicit vectors with zeros
         mExplicitdQidp->vec_put_scalar( 0.0 );
@@ -271,12 +282,12 @@ namespace moris::MSI
         // create map object
         moris::sol::Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
 
-        // get number of RHD
-        uint tNumRHMS = this->get_num_rhs();
+        // get number of IQIs used in optimization
+        uint tNumIQIs = this->get_num_IQIs();
 
         // create vector for dQIdp
         delete mdQIdp;
-        mdQIdp = tMatFactory.create_vector( mdQIdpMap, tNumRHMS );
+        mdQIdp = tMatFactory.create_vector( mdQIdpMap, tNumIQIs );
 
         // fill vector with zero
         mdQIdp->vec_put_scalar( 0.0 );

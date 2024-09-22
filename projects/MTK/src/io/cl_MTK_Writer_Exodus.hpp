@@ -74,6 +74,9 @@ namespace moris::mtk
         // time step used for writing exodus data
         uint mTimeStep = 0;
 
+        // current time value
+        real mTimeValue = -1.0;
+
         // number of nodes (same in MTK and exodus mesh)
         uint mNumNodes;
 

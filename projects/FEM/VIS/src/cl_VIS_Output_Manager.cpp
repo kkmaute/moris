@@ -34,33 +34,35 @@ namespace moris::vis
 
     void
     Output_Manager::set_outputs(
-            const uint                       aOutputIndex,
-            const enum VIS_Mesh_Type         aMeshType,
-            const std::string&               aMeshPath,
-            const std::string&               aMeshName,
-            const std::string&               aTempPath,
-            const std::string&               aTempName,
-            const Vector< std::string >&     aBlockNames,
-            const Vector< std::string >&     aFieldNames,
-            const Vector< enum Field_Type >& aFieldType,
-            const Vector< std::string >&     aQINames,
-            const uint                       aSaveFrequency,
-            const real                       aTimeOffset )
+            const uint                          aOutputIndex,
+            const enum VIS_Mesh_Type            aMeshType,
+            const std::string&                  aMeshPath,
+            const std::string&                  aMeshName,
+            const std::string&                  aTempPath,
+            const std::string&                  aTempName,
+            const Vector< std::string >&        aBlockNames,
+            const Vector< std::string >&        aFieldNames,
+            const Vector< enum Field_Type >&    aFieldType,
+            const Vector< std::string >&        aQINames,
+            const Vector< enum Analysis_Type >& aAnalysisType,
+            const uint                          aSaveFrequency,
+            const real                          aTimeOffset )
     {
         // create output data object
         vis::Output_Data tOutputData;
 
         // fill output data object
-        tOutputData.mMeshIndex  = aOutputIndex;
-        tOutputData.mMeshType   = aMeshType;
-        tOutputData.mMeshName   = aMeshName;
-        tOutputData.mMeshPath   = aMeshPath;
-        tOutputData.mTempName   = aTempName;
-        tOutputData.mTempPath   = aTempPath;
-        tOutputData.mSetNames   = aBlockNames;
-        tOutputData.mFieldNames = aFieldNames;
-        tOutputData.mFieldType  = aFieldType;
-        tOutputData.mQINames    = aQINames;
+        tOutputData.mMeshIndex    = aOutputIndex;
+        tOutputData.mMeshType     = aMeshType;
+        tOutputData.mMeshName     = aMeshName;
+        tOutputData.mMeshPath     = aMeshPath;
+        tOutputData.mTempName     = aTempName;
+        tOutputData.mTempPath     = aTempPath;
+        tOutputData.mSetNames     = aBlockNames;
+        tOutputData.mFieldNames   = aFieldNames;
+        tOutputData.mFieldType    = aFieldType;
+        tOutputData.mQINames      = aQINames;
+        tOutputData.mAnalysisType = aAnalysisType;
 
         tOutputData.mSaveFrequency = aSaveFrequency;
         tOutputData.mTimeOffset    = aTimeOffset;
@@ -77,7 +79,7 @@ namespace moris::vis
         // resize mesh list
         mVisMesh.resize( mOutputData.size(), nullptr );
 
-        mVisMeshCreatedAndOpen.resize( mOutputData.size(), false );
+        mVisMeshOutputFileStatus.resize( mOutputData.size(), File_Status::CLOSED );
     }
 
     //-----------------------------------------------------------------------------------------------------------
@@ -147,10 +149,10 @@ namespace moris::vis
         MORIS_ERROR( tFieldTypes.size() > 0,
                 "Output_Manager::set_outputs() - At least one field type needs to be provided for Vis mesh." );
 
-        for ( const auto& tName : tFieldNames )
+        for ( const auto& tField : tFieldTypes )
         {
-            MORIS_ERROR( tName.length() > 0,
-                    "Output_Manager::set_outputs() - Empty strings for field types in Vis mesh are not allowed." );
+            MORIS_ERROR( (uint)tField < (uint)vis::Field_Type::END_ENUM,
+                    "Output_Manager::set_outputs() - Invalid field type in Vis mesh is used." );
         }
 
         tOutputData.mFieldType = tFieldTypes;
@@ -180,6 +182,42 @@ namespace moris::vis
         MORIS_ERROR( tFieldNames.size() == tQINames.size(),
                 "Output_Manager::set_outputs() - Number of Field Names and QI Names differ." );
 
+        // read and check analysis types
+        Vector< enum vis::Analysis_Type >                  tAnalysisTypes;
+        moris::map< std::string, enum vis::Analysis_Type > tAnalysisTypeMap = get_vis_analysis_type_map();
+
+        string_to_cell(
+                aParameterlist.get< std::string >( "Analysis_Type" ),
+                tAnalysisTypes,
+                tAnalysisTypeMap );
+
+        bool tSensitivityBasedIQIs = false;
+
+        if ( tAnalysisTypes.size() == 0 )
+        {
+            tAnalysisTypes.assign( tQINames.size(), vis::Analysis_Type::FORWARD );
+        }
+        else
+        {
+            for ( const auto& tAnalysis : tAnalysisTypes )
+            {
+                MORIS_ERROR( tAnalysis == vis::Analysis_Type::FORWARD || tAnalysis == vis::Analysis_Type::SENSITIVITY,
+                        "Output_Manager::set_outputs() - Analysis type need to be either FORWARD or SENSITIVITY." );
+
+                if ( tAnalysis == vis::Analysis_Type::SENSITIVITY )
+                {
+                    tSensitivityBasedIQIs = true;
+                }
+            }
+        }
+
+        MORIS_ERROR( tAnalysisTypes.size() == tQINames.size(),
+                "Output_Manager::set_outputs() - Number of Field Names and QI Analysis types differ." );
+
+        tOutputData.mAnalysisType = tAnalysisTypes;
+
+        tOutputData.mSensitivityBasedIQIs = tSensitivityBasedIQIs;
+
         // resize list of output data objects
         sint tSize          = mOutputData.size();
         sint OutputDataSize = std::max( tSize, tOutputData.mMeshIndex + 1 );
@@ -192,7 +230,7 @@ namespace moris::vis
         // resize mesh list
         mVisMesh.resize( mOutputData.size(), nullptr );
 
-        mVisMeshCreatedAndOpen.resize( mOutputData.size(), false );
+        mVisMeshOutputFileStatus.resize( mOutputData.size(), File_Status::CLOSED );
     }
 
     //-----------------------------------------------------------------------------------------------------------
@@ -204,7 +242,7 @@ namespace moris::vis
             const uint                                    aMeshPairIndex,
             const std::shared_ptr< MSI::Equation_Model >& aEquationModel )
     {
-        if ( mVisMeshCreatedAndOpen( aVisMeshIndex ) == false )
+        if ( mVisMeshOutputFileStatus( aVisMeshIndex ) == File_Status::CLOSED )
         {
             Tracer tTracer( "VIS", "Output Manager", "Setup VIS mesh" );
 
@@ -214,7 +252,7 @@ namespace moris::vis
 
             this->write_mesh( aVisMeshIndex );
 
-            mVisMeshCreatedAndOpen( aVisMeshIndex ) = true;
+            mVisMeshOutputFileStatus( aVisMeshIndex ) = File_Status::OPEN;
         }
     }
 
@@ -654,7 +692,8 @@ namespace moris::vis
     Output_Manager::write_field(
             const uint                                    aVisMeshIndex,
             const real                                    aTime,
-            const std::shared_ptr< MSI::Equation_Model >& aEquationModel )
+            const std::shared_ptr< MSI::Equation_Model >& aEquationModel,
+            const bool                                    aIsFowardAnalysis )
     {
         // log/time this operation
         Tracer tTracer( "VIS", "Output Manager", "Write Fields" );
@@ -670,7 +709,8 @@ namespace moris::vis
                 aVisMeshIndex,
                 tIQINames,
                 tFieldNames,
-                tNumIQIsForFieldType );
+                tNumIQIsForFieldType,
+                aIsFowardAnalysis );
 
         // increment field write counter (signal that another output has been performed)
         mOutputData( aVisMeshIndex ).mFieldWriteCounter++;
@@ -793,7 +833,8 @@ namespace moris::vis
             const uint                       aVisMeshIndex,
             Vector< Vector< std::string > >& aIQINames,
             Vector< Vector< std::string > >& aFieldNames,
-            Vector< uint >&                  aNumIQIsForFieldType )
+            Vector< uint >&                  aNumIQIsForFieldType,
+            const bool                       aIsFowardAnalysis )
     {
         // number of fields in vis mesh
         uint tNumFields = mOutputData( aVisMeshIndex ).mFieldNames.size();
@@ -809,6 +850,13 @@ namespace moris::vis
         // loop over all output fields and sort them into lists by type (i.e. global, nodal, or elemental)
         for ( uint iField = 0; iField < tNumFields; iField++ )
         {
+            // check that analysis type matches the requested one
+            if ( ( aIsFowardAnalysis && mOutputData( aVisMeshIndex ).mAnalysisType( iField ) != vis::Analysis_Type::FORWARD ) ||    //
+                    ( !aIsFowardAnalysis && mOutputData( aVisMeshIndex ).mAnalysisType( iField ) != vis::Analysis_Type::SENSITIVITY ) )
+            {
+                continue;
+            }
+
             // get the type of the current field
             uint tFieldType = (uint)mOutputData( aVisMeshIndex ).mFieldType( iField );
 

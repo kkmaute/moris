@@ -43,6 +43,14 @@ namespace moris
 
     namespace vis
     {
+        enum class File_Status
+        {
+            CLOSED,
+            OPEN,
+            CLOSINGDELAYED,
+            END_ENUM
+        };
+
         struct Output_Data
         {
             //! Mesh Index for sanity checks
@@ -59,6 +67,9 @@ namespace moris
 
             //! Mesh Type
             enum VIS_Mesh_Type mMeshType;
+
+            //! flag whether IQIs exist that are based on sensitivity analysis
+            bool mSensitivityBasedIQIs;
 
             //! Output Path
             std::string mOutputPath;
@@ -86,6 +97,9 @@ namespace moris
 
             //! Quantity of interest names
             Vector< std::string > mQINames;
+
+            //! Analysis type for which quantity of interest is evaluated
+            Vector< enum Analysis_Type > mAnalysisType;
         };
 
         //-----------------------------------------------------------------------------------------------------------
@@ -96,7 +110,9 @@ namespace moris
             Vector< vis::Output_Data > mOutputData;
 
             Vector< mtk::Mesh * > mVisMesh;
-            Vector< bool >        mVisMeshCreatedAndOpen;
+
+            //! file closing status
+            Vector< vis::File_Status > mVisMeshOutputFileStatus;
 
             bool mOnlyPrimary = false;
 
@@ -111,7 +127,7 @@ namespace moris
           protected:
 
           public:
-            Output_Manager(){};
+            Output_Manager() {};
 
             //-----------------------------------------------------------------------------------------------------------
 
@@ -134,6 +150,16 @@ namespace moris
 
             ~Output_Manager()
             {
+                // close files
+                for ( uint i = 0; i < mVisMeshOutputFileStatus.size(); ++i )
+                {
+                    if ( mVisMeshOutputFileStatus( i ) != File_Status::CLOSED )
+                    {
+                        this->end_writing( i );
+                    }
+                }
+
+                // delete vis meshes
                 for ( auto tMesh : mVisMesh )
                 {
                     delete tMesh;
@@ -152,8 +178,6 @@ namespace moris
                 delete mWriter( aVisMeshIndex );
 
                 mWriter( aVisMeshIndex ) = nullptr;
-
-                mVisMeshCreatedAndOpen( aVisMeshIndex ) = false;
             }
 
             //-----------------------------------------------------------------------------------------------------------
@@ -161,6 +185,10 @@ namespace moris
             void
             end_writing( const uint aVisMeshIndex )
             {
+                // check if file is already closed
+                MORIS_ERROR( mVisMeshOutputFileStatus( aVisMeshIndex ) != File_Status::CLOSED,
+                        "Output_Manager::end_writing - closing of already closed file not permitted" );
+
                 // only close output file if mesh is not empty
                 if ( mWriter( aVisMeshIndex ) != nullptr )
                 {
@@ -168,23 +196,81 @@ namespace moris
                 }
 
                 this->delete_pointers( aVisMeshIndex );
+
+                // set file closing status to closed
+                mVisMeshOutputFileStatus( aVisMeshIndex ) = File_Status::CLOSED;
+            }
+
+            //-----------------------------------------------------------------------------------------------------------
+
+            bool
+            check_for_closing_file( uint aVisMeshIndex, bool aCloseFile, bool aIsFowardAnalysis )
+            {
+                // check if requested action is to not close file
+                if ( !aCloseFile )
+                {
+                    return false;
+                }
+
+                // check if file is already closed
+                if ( mVisMeshOutputFileStatus( aVisMeshIndex ) == File_Status::CLOSED )
+                {
+                    return false;
+                }
+
+                // if in forward analysis
+                if ( aIsFowardAnalysis )
+                {
+                    // file status is closing delayed, close file (can happen in sweep)
+                    if ( mVisMeshOutputFileStatus( aVisMeshIndex ) == File_Status::CLOSINGDELAYED )
+                    {
+                        MORIS_ERROR( false, "Output_Manager::check_for_closing_file - file status is closing delayed in forward analysis" );
+                    }
+
+                    // sensitivity based IQIs exist, delay closing
+                    if ( mOutputData( aVisMeshIndex ).mSensitivityBasedIQIs )
+                    {
+                        mVisMeshOutputFileStatus( aVisMeshIndex ) = File_Status::CLOSINGDELAYED;
+                        return false;
+                    }
+                }
+                // if in sensitivity analysis, close file
+                else
+                {
+                    // file status is closing delayed, keep file open and file status to open
+                    if ( mVisMeshOutputFileStatus( aVisMeshIndex ) == File_Status::CLOSINGDELAYED )
+                    {
+                        mVisMeshOutputFileStatus( aVisMeshIndex ) = File_Status::OPEN;
+
+                        return false;
+                    }
+                    else
+                    {
+                        // file status is open, close file
+                        return true;
+                    }
+                }
+
+                // for all other cases close file
+                return true;
             }
 
             //-----------------------------------------------------------------------------------------------------------
 
             void set_outputs(
-                    const uint                            aOutputIndex,
-                    const enum VIS_Mesh_Type              aMeshType,
-                    const std::string                    &aMeshPath,
-                    const std::string                    &aMeshName,
-                    const std::string                    &aTempPath,
-                    const std::string                    &aTempName,
-                    const Vector< std::string >     &aBlockNames,
-                    const Vector< std::string >     &aFieldNames,
-                    const Vector< enum Field_Type > &aFieldType,
-                    const Vector< std::string >     &aQINames,
-                    const uint                            aSaveFrequency = 1,
-                    const real                            aTimeOffset    = 0.0 );
+                    const uint                          aOutputIndex,
+                    const enum VIS_Mesh_Type            aMeshType,
+                    const std::string                  &aMeshPath,
+                    const std::string                  &aMeshName,
+                    const std::string                  &aTempPath,
+                    const std::string                  &aTempName,
+                    const Vector< std::string >        &aBlockNames,
+                    const Vector< std::string >        &aFieldNames,
+                    const Vector< enum Field_Type >    &aFieldType,
+                    const Vector< std::string >        &aQINames,
+                    const Vector< enum Analysis_Type > &aAnalysisType,
+                    const uint                          aSaveFrequency = 1,
+                    const real                          aTimeOffset    = 0.0 );
 
             //---------------------------------------------------------------------------------------------------------------------------
 
@@ -240,36 +326,45 @@ namespace moris
             void write_field(
                     const uint                                    aVisMeshIndex,
                     const real                                    aTime,
-                    const std::shared_ptr< MSI::Equation_Model > &aEquationModel );
+                    const std::shared_ptr< MSI::Equation_Model > &aEquationModel,
+                    const bool                                    aIsFowardAnalysis );
 
             //-----------------------------------------------------------------------------------------------------------
 
             void
             get_IQI_and_field_names(
-                    const uint                   aVisMeshIndex,
+                    const uint                       aVisMeshIndex,
                     Vector< Vector< std::string > > &aIQINames,
                     Vector< Vector< std::string > > &aFieldNames,
-                    Vector< uint >                &aNumIQIsForFieldType );
+                    Vector< uint >                  &aNumIQIsForFieldType,
+                    const bool                       aIsFowardAnalysis );
 
             //-----------------------------------------------------------------------------------------------------------
 
             void compute_fields_for_set(
-                    const uint                         aVisMeshIndex,
-                    MSI::Equation_Set                 *aFemSet,
+                    const uint                             aVisMeshIndex,
+                    MSI::Equation_Set                     *aFemSet,
                     Vector< Vector< std::string > > const &aIQINames,
                     Vector< Vector< std::string > > const &aFieldNames,
-                    Matrix< DDRMat >                  *aGlobalFieldValues,
-                    Matrix< DDRMat >                  *aNodalFieldValues );
+                    Matrix< DDRMat >                      *aGlobalFieldValues,
+                    Matrix< DDRMat >                      *aNodalFieldValues );
 
             //-----------------------------------------------------------------------------------------------------------
 
             void
             compute_and_write_elemental_fields_on_set(
-                    const uint                 aVisMeshIndex,
-                    MSI::Equation_Set         *aFemSet,
-                    const Field_Type           aFieldType,
+                    const uint                   aVisMeshIndex,
+                    MSI::Equation_Set           *aFemSet,
+                    const Field_Type             aFieldType,
                     Vector< std::string > const &aIQINamesForType,
                     Vector< std::string > const &aFieldNamesForType );
+
+            //-----------------------------------------------------------------------------------------------------------
+
+            bool sensitivity_based_iqis_exist( uint aVisMeshIndex )
+            {
+                return mOutputData( aVisMeshIndex ).mSensitivityBasedIQIs;
+            }
 
             //-----------------------------------------------------------------------------------------------------------
         };

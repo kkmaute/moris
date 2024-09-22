@@ -270,33 +270,35 @@ void Time_Solver::set_pause_function(
 
 void Time_Solver::check_for_outputs(
         const moris::real& aTime,
-        const bool         aEndOfTimeIteration )
+        const bool         aEndOfTimeIteration,
+        const bool         aIsForwardAnalysis )
 {
-    if ( mIsForwardSolve )
+    uint tCounter = 0;
+
+    // loop over all outputs and check if it is triggered
+    for ( const Output_Criteria& tOutputCriteria : mOutputCriteriaPointer )
     {
-        uint tCounter = 0;
+        bool tIsOutput = false;
 
-        // loop over all outputs and check if it is triggered
-        for ( const Output_Criteria& tOutputCriteria : mOutputCriteriaPointer )
+        if ( tOutputCriteria == nullptr )
         {
-            bool tIsOutput = false;
-
-            if ( tOutputCriteria == nullptr )
-            {
-                tIsOutput = true;
-            }
-            else
-            {
-                tIsOutput = tOutputCriteria( this );
-            }
-
-            if ( tIsOutput )
-            {
-                mSolverInterface->initiate_output( mOutputIndices( tCounter ), aTime, aEndOfTimeIteration );
-            }
-
-            tCounter++;
+            tIsOutput = true;
         }
+        else
+        {
+            tIsOutput = tOutputCriteria( this );
+        }
+
+        if ( tIsOutput )
+        {
+            mSolverInterface->output_solution(
+                    mOutputIndices( tCounter ),
+                    aTime,
+                    aEndOfTimeIteration,
+                    aIsForwardAnalysis );
+        }
+
+        tCounter++;
     }
 }
 
@@ -425,7 +427,7 @@ void Time_Solver::solve()
             mSolverInterface->compute_IQI();
 
             // write IQIs to file
-            this->check_for_outputs( (real)Ik, Ik == tTimeSteps - 1 );
+            this->check_for_outputs( (real)Ik, Ik == tTimeSteps - 1, true );
         }
     }
     else
@@ -479,6 +481,8 @@ void Time_Solver::solve_sensitivity()
     mFullVectorSensitivity( 0 )->vec_put_scalar( 0.0 );
     mFullVectorSensitivity( 1 )->vec_put_scalar( 0.0 );
 
+    std::cout << "need fix in Time_Solver::solve_sensitivity \n";
+
     mSolverInterface->set_adjoint_solution_vector( mFullVectorSensitivity( 0 ) );
     mSolverInterface->set_previous_adjoint_solution_vector( mFullVectorSensitivity( 1 ) );
 
@@ -491,6 +495,8 @@ void Time_Solver::solve_sensitivity()
     mTimeSolverAlgorithmList( 0 )->solve( mFullVectorSensitivity );
 
     // output solution vector to file
+    std::cout << "need fix in Time_Solver::solve_sensitivity - 2\n";
+
     if ( not mSolverWarehouse->get_save_final_adjoint_vec_to_file().empty() )
     {
         MORIS_ERROR( mSolverWarehouse->is_adjoint_sensitivity_analysis(), "not adjoint sensitivity analysis" );

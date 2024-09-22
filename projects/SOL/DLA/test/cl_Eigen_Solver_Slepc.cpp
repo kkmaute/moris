@@ -50,13 +50,12 @@ namespace moris::dla
     {
         if ( par_size() == 1 )
         {
-	    SlepcInitializeNoArguments();	
             Solver_Interface_Proxy* tSolverInterface = new Solver_Interface_Proxy( 1 );
             tSolverInterface->mMyConstraintDofs.set_size( 0, 0 );
 
             Solver_Factory tSolFactory;
 
-            Linear_Problem* tEigProblem = tSolFactory.create_linear_system( tSolverInterface, sol::MapType::Petsc, false );
+            Linear_Problem* tEigProblem = tSolFactory.create_linear_system( tSolverInterface, sol::MapType::Petsc, true );
 
             Parameter_List tLinearSolverParameterListLM = prm::create_slepc_algorithm_parameter_list();
             tLinearSolverParameterListLM.set( "Eigen_Algorithm", std::string( "power" ) );
@@ -82,7 +81,7 @@ namespace moris::dla
             Parameter_List tParamListPCNone = prm::create_preconditioner_parameter_list( moris::sol::PreconditionerType::PETSC );
             tParamListPCNone.set( "PCType", std::string( "none" ) );
             Parameter_List tParamListPCMumps = prm::create_preconditioner_parameter_list( moris::sol::PreconditionerType::PETSC );
-            tParamListPCMumps.set( "PCType", std::string( "superlu-dist" ) );
+            tParamListPCMumps.set( "PCType", std::string( "mumps" ) );
 
             tEigSolverLM->set_sublinear_solver_options( &tParamListKSP, &tParamListPCNone );
             tEigSolverSM->set_sublinear_solver_options( &tParamListKSP, &tParamListPCMumps );
@@ -107,8 +106,7 @@ namespace moris::dla
             CHECK( equal_to( tLargeEigenValues(0), 60.864058, 1.0e+08 ) );
             CHECK( equal_to( tSmallEigenValues(0), 0.0, 1.0e+08 ) );
 
-            //SlepcFinalize();
-	    delete tEigProblem;
+            delete tEigProblem;
             delete tSolverInterface;
             
         }
@@ -120,13 +118,12 @@ namespace moris::dla
     {
         if ( par_size() == 1 )
         {
-	    SlepcInitializeNoArguments();
             Solver_Interface_Proxy* tSolverInterface = new Solver_Interface_Proxy( 1 );
             tSolverInterface->mMyConstraintDofs.set_size( 0, 0 );
 
             Solver_Factory tSolFactory;
 
-            Linear_Problem* tEigProblem = tSolFactory.create_linear_system( tSolverInterface, sol::MapType::Petsc, false );
+            Linear_Problem* tEigProblem = tSolFactory.create_linear_system( tSolverInterface, sol::MapType::Petsc, true );
 
             Parameter_List tLinearSolverParameterListLM = prm::create_slepc_algorithm_parameter_list();
             tLinearSolverParameterListLM.set( "Eigen_Algorithm", std::string( "gd" ) );
@@ -176,8 +173,7 @@ namespace moris::dla
             CHECK( equal_to( tLargeEigenValues(0), 60.864058, 1.0e+08 ) );
             // CHECK( equal_to( tSmallEigenValues(0), 0.0, 1.0e+08 ) );
 
-            //SlepcFinalize();
-	    delete tEigProblem;
+            delete tEigProblem;
             delete tSolverInterface;
         }
     }
@@ -186,13 +182,12 @@ namespace moris::dla
     {
         if ( par_size() == 1 )
         {
-	    SlepcInitializeNoArguments();
             Solver_Interface_Proxy* tSolverInterface = new Solver_Interface_Proxy( 1 );
             tSolverInterface->mMyConstraintDofs.set_size( 0, 0 );
 
             Solver_Factory tSolFactory;
 
-            Linear_Problem* tEigProblem = tSolFactory.create_linear_system( tSolverInterface, sol::MapType::Petsc, false );
+            Linear_Problem* tEigProblem = tSolFactory.create_linear_system( tSolverInterface, sol::MapType::Petsc, true );
 
             Parameter_List tLinearSolverParameterListLM = prm::create_slepc_algorithm_parameter_list();
             tLinearSolverParameterListLM.set( "Eigen_Algorithm", std::string( "krylovschur" ) );
@@ -241,8 +236,7 @@ namespace moris::dla
 
             CHECK( equal_to( tLargeEigenValues(0), 60.864058, 1.0e+08 ) );
             CHECK( equal_to( tSmallEigenValues(0), 0.0, 1.0e+08 ) );
-		
-	   // SlepcFinalize();
+
             delete tEigProblem;
             delete tSolverInterface;
  

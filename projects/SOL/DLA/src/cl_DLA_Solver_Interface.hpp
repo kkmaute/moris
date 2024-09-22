@@ -282,12 +282,13 @@ namespace moris
         //------------------------------------------------------------------------------
 
         virtual void
-        initiate_output(
+        output_solution(
                 const uint aOutputIndex,
                 const real aTime,
-                const bool aEndOfTimeIteration )
+                const bool aEndOfTimeIteration,
+                const bool aIsForwardAnalysis )
         {
-            MORIS_ERROR( false, "Solver_Interface::initiate_output: not set." );
+            MORIS_ERROR( false, "Solver_Interface::output_solution: not set." );
         };
 
         //------------------------------------------------------------------------------
@@ -321,7 +322,7 @@ namespace moris
         virtual fem::Element_Type
         get_set_type( uint aMyEquSetInd )
         {
-            MORIS_ERROR( false, "Solver_Interface::initiate_output: not set." );
+            MORIS_ERROR( false, "Solver_Interface::get_set_type: not set." );
             return fem::Element_Type::UNDEFINED;
         };
 

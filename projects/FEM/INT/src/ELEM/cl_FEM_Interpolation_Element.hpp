@@ -216,14 +216,11 @@ namespace moris::fem
 
         //------------------------------------------------------------------------------
         /**
-         * Reorder adjoint solution vector to fit odering used within elements
+         * Reorder adjoint solution vector to fit ordering used within elements
          *
-         * @param[ out ] aAdjointPdofValuesReordered reordered adjoint for current RHS index
-         * @param[in]    aRhsIndex                   index of RHS, i.e. requested IQI index
+         * @return reordered adjoint
          */
-        void reorder_adjoint_pdofs(
-                Matrix< DDRMat >& aAdjointPdofValuesReordered,
-                uint              aRhsIndex );
+        Matrix< DDRMat > reorder_adjoint_pdofs();
 
         //------------------------------------------------------------------------------
 

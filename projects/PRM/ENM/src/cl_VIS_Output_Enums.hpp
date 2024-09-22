@@ -38,6 +38,14 @@ namespace moris::vis
         END_ENUM    //
     };
 
+    enum class Analysis_Type
+    {
+        UNDEFINED,
+        FORWARD,
+        SENSITIVITY,
+        END_ENUM
+    };
+
     inline moris::map< std::string, enum vis::Field_Type >
     get_vis_field_type_map()
     {
@@ -55,6 +63,20 @@ namespace moris::vis
 
         return tVisFieldTypeMap;
     }
+
+    inline moris::map< std::string, enum vis::Analysis_Type >
+    get_vis_analysis_type_map()
+    {
+        moris::map< std::string, enum vis::Analysis_Type > tVisAnalysisTypeMap;
+
+        tVisAnalysisTypeMap[ "UNDEFINED" ]   = vis::Analysis_Type::UNDEFINED;
+        tVisAnalysisTypeMap[ "FORWARD" ]     = vis::Analysis_Type::FORWARD;
+        tVisAnalysisTypeMap[ "SENSITIVITY" ] = vis::Analysis_Type::SENSITIVITY;
+        tVisAnalysisTypeMap[ "UNDEFINED" ]   = vis::Analysis_Type::END_ENUM;
+
+        return tVisAnalysisTypeMap;
+    }
+
 }    // namespace moris::vis
 
 #endif /* SRC_CL_VIS_ENUMS_HPP_ */

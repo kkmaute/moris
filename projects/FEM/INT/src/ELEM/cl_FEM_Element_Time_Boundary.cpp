@@ -9,11 +9,11 @@
  */
 
 #include <iostream>
-//FEM/INT/src
+// FEM/INT/src
 #include "cl_FEM_Element_Time_Boundary.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_Set.hpp"
-//FEM/MSI/src
+// FEM/MSI/src
 #include "cl_MSI_Equation_Model.hpp"
 #include "cl_MSI_Design_Variable_Interface.hpp"
 
@@ -258,6 +258,10 @@ namespace moris::fem
             return;
         }
 
+        // check whether dRdp needs be computed
+        bool tComputedRdp = !mSet->mEquationModel->is_forward_analysis() &&    //
+                            !mSet->mEquationModel->is_adjoint_sensitivity_analysis();
+
         // get number of integration points integration points
         uint tNumIntegPoints = mSet->get_number_of_integration_points();
 
@@ -268,7 +272,8 @@ namespace moris::fem
             real tTimeParamCoeff = 2.0 * iTimeBoundary - 1.0;
 
             // set physical and parametric space and time coefficients for IG element
-            this->init_ig_geometry_interpolator( iTimeBoundary );
+            Matrix< DDSMat > tGeoLocalAssembly;
+            this->init_ig_geometry_interpolator( iTimeBoundary, tGeoLocalAssembly );
 
             // loop over integration points
             for ( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
@@ -310,6 +315,13 @@ namespace moris::fem
 
                     // compute Jacobian at evaluation point
                     ( this->*m_compute_jacobian )( tReqIWG, tWStar );
+
+                    // compute dRdp if direct sensitivity analysis
+                    if ( tComputedRdp )
+                    {
+                        Vector< Matrix< IndexMat > > tVertexIndices( 0 );
+                        ( this->*m_compute_dRdp )( tReqIWG, tWStar, tGeoLocalAssembly, tVertexIndices );
+                    }
                 }
             }
         }

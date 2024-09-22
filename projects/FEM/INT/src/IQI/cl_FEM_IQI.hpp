@@ -14,8 +14,8 @@
 #include <utility>
 
 #include "moris_typedefs.hpp"    //MRS/COR/src
-#include "cl_Vector.hpp"          //MRS/CNT/src
-#include "cl_Matrix.hpp"    //LNA/src
+#include "cl_Vector.hpp"         //MRS/CNT/src
+#include "cl_Matrix.hpp"         //LNA/src
 // MRS/COR/src           // note: linalg_typedefs.hpp must be included AFTER the cl_Matrix.hpp
 #include "linalg_typedefs.hpp"
 // FEM/INT/src
@@ -84,9 +84,11 @@ namespace moris::fem
         bool mGlobalDofBuild = true;
 
         // field interpolator manager pointer
-        Field_Interpolator_Manager* mLeaderFIManager      = nullptr;
-        Field_Interpolator_Manager* mFollowerFIManager    = nullptr;
-        Field_Interpolator_Manager* mLeaderEigenFIManager = nullptr;
+        Field_Interpolator_Manager* mLeaderFIManager          = nullptr;
+        Field_Interpolator_Manager* mFollowerFIManager        = nullptr;
+        Field_Interpolator_Manager* mLeaderEigenFIManager     = nullptr;
+        Field_Interpolator_Manager* mLeaderAdjointFIManager   = nullptr;
+        Field_Interpolator_Manager* mFollowerAdjointFIManager = nullptr;
 
         // leader and follower dv type lists
         Vector< Vector< gen::PDV_Type > > mLeaderDvTypes;
@@ -160,15 +162,15 @@ namespace moris::fem
         bool mNormalized     = false;
 
         // function pointers
-        void ( IQI::*m_compute_dQIdu_FD )(
+        void ( IQI::* m_compute_dQIdu_FD )(
                 real               aWStar,
                 real               aPerturbation,
                 fem::FDScheme_Type aFDSchemeType ) = nullptr;
-        void ( IQI::*m_compute_dQIdp_FD_material )(
+        void ( IQI::* m_compute_dQIdp_FD_material )(
                 real               aWStar,
                 real               aPerturbation,
                 fem::FDScheme_Type aFDSchemeType ) = nullptr;
-        void ( IQI::*m_compute_dQIdp_FD_geometry )(
+        void ( IQI::* m_compute_dQIdp_FD_geometry )(
                 real                          aWStar,
                 real                          aPerturbation,
                 fem::FDScheme_Type            aFDSchemeType,
@@ -176,7 +178,7 @@ namespace moris::fem
                 Vector< Matrix< IndexMat > >& aVertexIndices ) = nullptr;
 
         // function pointer for building the perturbation size for FD
-        real ( IQI::*m_build_perturbation_size )(
+        real ( IQI::* m_build_perturbation_size )(
                 const real& aPerturbation,
                 const real& aCoefficientToPerturb,
                 const real& aMaxPerturbation,
@@ -189,13 +191,13 @@ namespace moris::fem
         /**
          * constructor
          */
-        IQI(){};
+        IQI() {};
 
         //------------------------------------------------------------------------------
         /**
          * destructor
          */
-        virtual ~IQI(){};
+        virtual ~IQI() {};
 
         //------------------------------------------------------------------------------
         /**
@@ -449,6 +451,16 @@ namespace moris::fem
          * @param[ in ] aIsLeader                 an enum for leader or follower
          */
         void set_field_interpolator_manager_eigen_vector(
+                Field_Interpolator_Manager* aFieldInterpolatorManager,
+                mtk::Leader_Follower        aIsLeader = mtk::Leader_Follower::LEADER );
+
+        //------------------------------------------------------------------------------
+        /*
+         * set field interpolator manager for eigen vector
+         * @param[ in ] aFieldInterpolatorManager a field interpolator manager pointer
+         * @param[ in ] aIsLeader                 an enum for leader or follower
+         */
+        void set_field_interpolator_manager_adjoint_vector(
                 Field_Interpolator_Manager* aFieldInterpolatorManager,
                 mtk::Leader_Follower        aIsLeader = mtk::Leader_Follower::LEADER );
 

@@ -269,8 +269,18 @@ namespace moris::fem
             return;
         }
 
+        // check whether dRdp needs be computed
+        bool tComputedRdp = !mSet->mEquationModel->is_forward_analysis() &&    //
+                            !mSet->mEquationModel->is_adjoint_sensitivity_analysis();
+
+        // check whether dQIdu needs to be computed
+        bool tComputedQIdu = !mSet->mEquationModel->is_forward_analysis() &&               //
+                             mSet->mEquationModel->is_adjoint_sensitivity_analysis() &&    //
+                             tNumIQIs > 0;
+
         // set physical and parametric space and time coefficients for IG element
-        this->init_ig_geometry_interpolator();
+        Matrix< DDSMat > tGeoLocalAssembly;
+        this->init_ig_geometry_interpolator( tGeoLocalAssembly );
 
         // loop over integration points
         uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -319,21 +329,15 @@ namespace moris::fem
                 ( this->*m_compute_jacobian )( tReqIWG, tWStar );
 
                 // compute dRdp if direct sensitivity analysis
-                if ( !mSet->mEquationModel->is_forward_analysis() &&    //
-                        !mSet->mEquationModel->is_adjoint_sensitivity_analysis() )
+                if ( tComputedRdp )
                 {
-                    // just placeholder
-                    Matrix< DDSMat > tGeoLocalAssembly;
-
                     Vector< Matrix< IndexMat > > tVertexIndices( 0 );
                     ( this->*m_compute_dRdp )( tReqIWG, tWStar, tGeoLocalAssembly, tVertexIndices );
                 }
             }
 
             // if adjoint sensitivity analysis is used and IQIs exists
-            if ( ( !mSet->mEquationModel->is_forward_analysis() ) &&              //
-                    mSet->mEquationModel->is_adjoint_sensitivity_analysis() &&    //
-                    ( tNumIQIs > 0 ) )
+            if ( tComputedQIdu )
             {
                 // loop over the IQIs
                 for ( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )

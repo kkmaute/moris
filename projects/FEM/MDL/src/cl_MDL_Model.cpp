@@ -45,6 +45,9 @@
 
 #include "cl_Library_IO.hpp"
 
+// Parameter function
+// typedef void ( *Parameter_Function ) ( Vector< Vector< moris::ParameterList > > & aParameterList );
+
 namespace moris::mdl
 {
     //------------------------------------------------------------------------------
@@ -512,9 +515,17 @@ namespace moris::mdl
     Model::output_solution(
             const uint aVisMeshIndex,
             const real aTime,
-            const bool aCloseFile )
+            const bool aCloseFile,
+            const bool aIsFowardAnalysis )
     {
         Tracer tTracer( "MDL", "Model", "Post-Process and Output Solution" );
+
+        // check for dangling file to be closed
+        if ( mOutputManager->check_for_closing_file( aVisMeshIndex, true, aIsFowardAnalysis ) )
+        {
+            // end writing and delete vis mesh
+            mOutputManager->end_writing( aVisMeshIndex );
+        }
 
         // create vis mesh and setup output
         mOutputManager->setup_vis_mesh_for_output(
@@ -527,9 +538,11 @@ namespace moris::mdl
         mOutputManager->write_field(
                 aVisMeshIndex,
                 aTime,
-                mEquationModel );
+                mEquationModel,
+                aIsFowardAnalysis );
 
-        if ( aCloseFile )
+        // check whether to close file
+        if ( mOutputManager->check_for_closing_file( aVisMeshIndex, aCloseFile, aIsFowardAnalysis ) )
         {
             // end writing and delete vis mesh
             mOutputManager->end_writing( aVisMeshIndex );

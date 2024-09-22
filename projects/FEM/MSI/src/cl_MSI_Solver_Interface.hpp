@@ -214,10 +214,11 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            void initiate_output(
+            void output_solution(
                     const uint aOutputIndex,
                     const real aTime,
-                    const bool aEndOfTimeIteration ) override;
+                    const bool aEndOfTimeIteration,
+                    const bool aIsFowardAnalysis ) override;
 
             /**
              * Updates the underlying problem via the model.

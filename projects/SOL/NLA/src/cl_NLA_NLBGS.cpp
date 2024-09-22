@@ -146,6 +146,8 @@ void NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem* aNonlin
         }
         else
         {
+            std::cout << "need fix in NonLinBlockGaussSeidel::solver_nonlinear_system\n";
+
             // Loop over all non-linear systems backwards
             for ( sint Ik = tNumNonLinSystems; Ik > (sint)tNonLinSysStartIt; Ik-- )
             {

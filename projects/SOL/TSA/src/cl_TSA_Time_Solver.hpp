@@ -374,7 +374,8 @@ namespace moris
 
             void check_for_outputs(
                     const moris::real& aTime,
-                    const bool         aEndOfTimeIteration );
+                    const bool         aEndOfTimeIteration,
+                    const bool         aIsForwardAnalysis );
 
             //--------------------------------------------------------------------------------------------------
 

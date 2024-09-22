@@ -241,6 +241,8 @@ namespace moris::fem
 
                 if ( mSet->mEquationModel->get_is_adjoint_off_diagonal_time_contribution() )
                 {
+                    std::cout << "need fix in Element_Time_Sideset::compute_jacobian \n";
+
                     tReqIWG->compute_jacobian_previous( tWStar );
                 }
                 else
@@ -265,8 +267,13 @@ namespace moris::fem
             return;
         }
 
+        // check whether dRdp needs be computed
+        bool tComputedRdp = !mSet->mEquationModel->is_forward_analysis() &&    //
+                            !mSet->mEquationModel->is_adjoint_sensitivity_analysis();
+
         // set physical and parametric space and time coefficients for IG element
-        this->init_ig_geometry_interpolator();
+        Matrix< DDSMat > tGeoLocalAssembly;
+        this->init_ig_geometry_interpolator( tGeoLocalAssembly );
 
         // loop over integration points
         uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -312,6 +319,13 @@ namespace moris::fem
 
                 // compute Jacobian at evaluation point
                 ( this->*m_compute_jacobian )( tReqIWG, tWStar );
+
+                // compute dRdp if direct sensitivity analysis
+                if ( tComputedRdp )
+                {
+                    Vector< Matrix< IndexMat > > tVertexIndices( 0 );
+                    ( this->*m_compute_dRdp )( tReqIWG, tWStar, tGeoLocalAssembly, tVertexIndices );
+                }
             }
         }
     }

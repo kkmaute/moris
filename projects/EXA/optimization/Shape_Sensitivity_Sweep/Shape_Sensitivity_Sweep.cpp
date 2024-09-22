@@ -38,7 +38,7 @@ namespace moris
 {
     std::string tMeshSets = "HMR_dummy_n_p1,HMR_dummy_c_p1";
     std::string tDBCSets  = "iside_b0_1_b1_3";
-    std::string tNBCSets  = "iside_b0_1_b1_0";
+    std::string tNBCSets  = "SideSet_4_c_p1";    ///"iside_b0_1_b1_0";
 
     // FD in adjoint
     real tFEMFdEpsilon = 1.0e-7;
@@ -196,6 +196,44 @@ namespace moris
     }
 
     //--------------------------------------------------------------------------------------------------------------
+    moris::real
+    Oblique_Line_Func(
+            const moris::Matrix< DDRMat > &aCoordinates,
+            const Vector< real >          &aGeometryParameters )
+    {
+        // get coordinates
+        real tX = aCoordinates( 0 );
+        real tY = aCoordinates( 1 );
+
+        real tLev = 1.0 * ( tX + 0.6 ) + 1.0 * ( tY + 0.3 );
+
+        if ( std::sqrt( std::pow( tX + 0.5, 2 ) + std::pow( tY + 0.5, 2 ) ) < 0.2 )
+        {
+            tLev += aGeometryParameters( 0 );
+        }
+
+        return tLev;
+    }
+
+    void
+    Oblique_Line_Deriv(
+            const moris::Matrix< moris::DDRMat >           &aCoordinates,
+            const Vector< moris::Matrix< moris::DDRMat > > &aParameters,
+            moris::Matrix< DDRMat >                        &aFieldSensitivity )
+    {
+        // get coordinates
+        real tX = aCoordinates( 0 );
+        real tY = aCoordinates( 1 );
+
+        if ( std::sqrt( std::pow( tX + 0.5, 2 ) + std::pow( tY + 0.5, 2 ) ) < 0.2 )
+        {
+            aFieldSensitivity = { { 1.0 } };
+        }
+        else
+        {
+            aFieldSensitivity = { { 0.0 } };
+        }
+    }
 
     void
     GENParameterList( Vector< Vector< Parameter_List > > &tParameterlist )
@@ -210,17 +248,23 @@ namespace moris
 
         // vertical line
         tParameterlist( 1 )( 0 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE );
-        tParameterlist( 1 )( 0 ).set( "center_x", 0.8, 0.8, 0.8 );
+        tParameterlist( 1 )( 0 ).set( "center_x", 0.8 );
         tParameterlist( 1 )( 0 ).set( "center_y", 0.3 );
         tParameterlist( 1 )( 0 ).set( "normal_x", 1.0 );
-        tParameterlist( 1 )( 0 ).set( "normal_y", 0.0, 0.0, 0.0 );
+        tParameterlist( 1 )( 0 ).set( "normal_y", 0.0 );
 
         // oblique line
-        tParameterlist( 1 )( 1 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE );
-        tParameterlist( 1 )( 1 ).set( "center_x", -0.6, -0.6, -0.6 );
-        tParameterlist( 1 )( 1 ).set( "center_y", -0.3, -0.3, -0.3 );
-        tParameterlist( 1 )( 1 ).set( "normal_x", 1.0, 1.0, 1.0 );
-        tParameterlist( 1 )( 1 ).set( "normal_y", 1.0, 1.0, 1.0 );
+        //        tParameterlist( 1 )( 1 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE );
+        //        tParameterlist( 1 )( 1 ).set( "center_x", -0.6, -0.6, -0.6 );
+        //        tParameterlist( 1 )( 1 ).set( "center_y", -0.3, -0.3, -0.3 );
+        //        tParameterlist( 1 )( 1 ).set( "normal_x", 1.0, 1.0, 1.0 );
+        //        tParameterlist( 1 )( 1 ).set( "normal_y", 1.0, 1.0, 1.0 );
+
+        tParameterlist( 1 )( 1 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED );
+        real deps                = 0.0e-5;
+        tParameterlist( 1 )( 1 ).set( "field_function_name", "Oblique_Line_Func" );
+        tParameterlist( 1 )( 1 ).set( "sensitivity_function_name", "Oblique_Line_Deriv" );
+        tParameterlist( 1 )( 1 ).insert( "offset_diagonal", Design_Variable( 0.0 + deps, 0.0 + deps, 0.0 + deps ) );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -359,6 +403,27 @@ namespace moris
 
         // create parameter list for IQI 4
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIDispXDV" );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type", fem::IQI_Type::SENSITIVITY );
+        tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "UX,UY" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "UX,UY" );
+        tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 0 );
+        tParameterList( 4 )( tIQICounter ).set( "function_parameters", "1" );
+        tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tMeshSets );
+        tIQICounter++;
+
+        tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIDispYDV" );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type", fem::IQI_Type::SENSITIVITY );
+        tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "UX,UY" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "UX,UY" );
+        tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 1 );
+        tParameterList( 4 )( tIQICounter ).set( "function_parameters", "1" );
+        tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tMeshSets );
+        tIQICounter++;
+
+        // create parameter list for IQI 4
+        tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkStrainEnergy" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type", fem::IQI_Type::STRAIN_ENERGY );
         tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "UX,UY" );
@@ -393,7 +458,7 @@ namespace moris
             tParameterlist( Ik ).resize( 1 );
         }
 
-        tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::BELOS_IMPL );
+        tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
         tParameterlist( 0 )( 0 ).set( "preconditioners", "0" );
 
         tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
@@ -413,7 +478,8 @@ namespace moris
         tParameterlist( 5 )( 0 ).set( "TSA_Output_Criteria", "Output_Criterion" );
 
         tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
-        tParameterlist( 6 )( 0 ).set( "Sensitivity_Analysis_Type", sol::SensitivityAnalysisType::ADJOINT );
+        tParameterlist( 6 )( 0 ).set( "Sensitivity_Analysis_Type", sol::SensitivityAnalysisType::DIRECT );
+        tParameterlist( 6 )( 0 ).set( "SOL_save_operator_to_matlab", "operator" );
 
         tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::IFPACK );
         tParameterlist( 7 )( 0 ).set( "ifpack_prec_type", "ILU" );
@@ -442,9 +508,10 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "File_Name", std::pair< std::string, std::string >( "./", "shape_sensitivities.exo" ) );
         tParameterlist( 0 )( 0 ).set( "Mesh_Type", vis::VIS_Mesh_Type::STANDARD );
         tParameterlist( 0 )( 0 ).set( "Set_Names", tMeshSets );
-        tParameterlist( 0 )( 0 ).set( "Field_Names", "UX,UY" );
-        tParameterlist( 0 )( 0 ).set( "Field_Type", "NODAL,NODAL" );
-        tParameterlist( 0 )( 0 ).set( "IQI_Names", "IQIDispX,IQIDispY" );
+        tParameterlist( 0 )( 0 ).set( "Field_Names", "UX,UY,DUX,DUY" );
+        tParameterlist( 0 )( 0 ).set( "Field_Type", "NODAL,NODAL,NODAL,NODAL" );
+        tParameterlist( 0 )( 0 ).set( "IQI_Names", "IQIDispX,IQIDispY,IQIDispXDV,IQIDispYDV" );
+        tParameterlist( 0 )( 0 ).set( "Analysis_Type", "FORWARD,FORWARD,SENSITIVITY,SENSITIVITY" );
         tParameterlist( 0 )( 0 ).set( "Save_Frequency", 1 );
     }
 

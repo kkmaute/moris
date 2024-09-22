@@ -60,7 +60,7 @@ fn_EPSMonitorResidual( EPS eps, PetscInt its, PetscInt nconv, PetscScalar *eigr,
 Eigen_Solver_SLEPc::Eigen_Solver_SLEPc( const moris::Parameter_List &aParameterlist )
         : Linear_Solver_Algorithm_Petsc( aParameterlist )
 {
-    //SlepcInitializeNoArguments();
+    SlepcInitializeNoArguments();
 
     mStringToEPSWhich = {
         { "LM", EPS_LARGEST_MAGNITUDE },
@@ -105,8 +105,8 @@ Eigen_Solver_SLEPc::Eigen_Solver_SLEPc( const moris::Parameter_List &aParameterl
 //----------------------------------------------------------------------------------------
 Eigen_Solver_SLEPc::~Eigen_Solver_SLEPc()
 {
-   // EPSDestroy( &mEps );
-   // SlepcFinalize();
+    // KSPDestroy(&mPetscKSPProblem);
+    //    PCDestroy(&mpc);
 }
 
 //----------------------------------------------------------------------------------------
@@ -217,7 +217,7 @@ Eigen_Solver_SLEPc::solve_linear_system(
     }
 
     delete tSourceMap;
-    EPSDestroy( &mEps );
+
     return 0;
 }
 

@@ -209,7 +209,7 @@ namespace moris::prm
         Parameter_List tParameterList;
 
         tParameterList.insert( "IQI_name", "undefined" );
-        tParameterList.insert( "IQI_type", fem::IQI_Type::UNDEFINED, fem::IQI_Type::VOLUME, fem::IQI_Type::LINEAR_ELASTICITY_DAMAGE );
+        tParameterList.insert( "IQI_type", fem::IQI_Type::UNDEFINED, fem::IQI_Type::VOLUME, fem::IQI_Type::SENSITIVITY );
         tParameterList.insert( "IQI_bulk_type", fem::Element_Type::BULK, fem::Element_Type::BULK, fem::Element_Type::TIME_BOUNDARY );
         tParameterList.insert( "dof_quantity", "" );
         tParameterList.insert( "vectorial_field_index", -1 );

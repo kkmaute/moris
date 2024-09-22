@@ -258,6 +258,16 @@ namespace moris::fem
             delete mLeaderEigenFIManager;
             mLeaderEigenFIManager = nullptr;
         }
+        if ( mLeaderAdjointFIManager != nullptr )
+        {
+            delete mLeaderAdjointFIManager;
+            mLeaderAdjointFIManager = nullptr;
+        }
+        if ( mFollowerAdjointFIManager != nullptr )
+        {
+            delete mFollowerAdjointFIManager;
+            mFollowerAdjointFIManager = nullptr;
+        }
     }
 
     //------------------------------------------------------------------------------
@@ -1228,6 +1238,7 @@ namespace moris::fem
         // if eigen vectors
         mNumEigenVectors = aModelSolverInterface->get_num_eigen_vectors();
 
+        // if eigen vectors have been computed
         if ( mNumEigenVectors > 0 )
         {
             // create the leader field interpolator manager
@@ -1246,6 +1257,32 @@ namespace moris::fem
 
             // create the field interpolators on the leader FI manager
             mLeaderEigenFIManager->create_field_interpolators( aModelSolverInterface, mNumEigenVectors );
+        }
+
+        // if in sensitivity analysis
+        // if ( !mEquationModel->is_forward_analysis() )
+        {
+            // create the leader field interpolator manager
+            mLeaderAdjointFIManager = new Field_Interpolator_Manager(
+                    mLeaderDofTypes,
+                    mLeaderDvTypes,
+                    mLeaderFieldTypes,
+                    this );
+
+            // assign cell shape to the field interpolator manager
+            mLeaderAdjointFIManager->set_IG_cell_shape( mMeshSet->get_IG_cell_shape() );
+            mLeaderAdjointFIManager->set_IP_cell_shape( mMeshSet->get_IP_cell_shape() );
+
+            // create the geometry interpolators on the leader FI manager
+            mLeaderAdjointFIManager->create_geometry_interpolators();
+
+            // get number of adjoint vectors
+            uint tNumAdjointVectors = 14;    // FIXME mEquationModel->get_adjoint_solution_vector()->get_num_vectors();
+
+            // create the field interpolators on the leader FI manager
+            mLeaderAdjointFIManager->create_field_interpolators( aModelSolverInterface, tNumAdjointVectors );
+
+            // FIXME: here should come the construction of the mFollowerAdjointFIManager etc
         }
     }
 
@@ -1298,7 +1335,24 @@ namespace moris::fem
                 return mLeaderEigenFIManager;
 
             default:
-                MORIS_ERROR( false, "Set::get_field_interpolator_manager - can only be leader." );
+                MORIS_ERROR( false, "Set::get_field_interpolator_manager_eigen_vectors - can only be leader." );
+                return mLeaderPreviousFIManager;
+        }
+    }
+
+    //------------------------------------------------------------------------------
+
+    Field_Interpolator_Manager*
+    Set::get_field_interpolator_manager_adjoint_vectors(
+            mtk::Leader_Follower aIsLeader )
+    {
+        switch ( aIsLeader )
+        {
+            case mtk::Leader_Follower::LEADER:
+                return mLeaderAdjointFIManager;
+
+            default:
+                MORIS_ERROR( false, "Set::get_field_interpolator_manager_adjoint_vectors - can only be leader." );
                 return mLeaderPreviousFIManager;
         }
     }
@@ -1461,6 +1515,12 @@ namespace moris::fem
             if ( mLeaderEigenFIManager )
             {
                 tIQI->set_field_interpolator_manager_eigen_vector( mLeaderEigenFIManager );
+            }
+
+            // if sensitivity analysis
+            // if ( !mEquationModel->is_forward_analysis() )
+            {
+                tIQI->set_field_interpolator_manager_adjoint_vector( mLeaderAdjointFIManager );
             }
         }
     }
@@ -2218,6 +2278,8 @@ namespace moris::fem
                         {
                             if ( mEquationModel->get_is_adjoint_off_diagonal_time_contribution() )
                             {
+                                std::cout << "need fix in Set::create_requested_IWG_list \n";
+
                                 if ( mIWGs( iIWG )->get_IWG_type() == moris::fem::IWG_Type::TIME_CONTINUITY_DOF )
                                 {
                                     // add the IWg to the requested IWG list

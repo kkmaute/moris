@@ -291,8 +291,18 @@ namespace moris::fem
             return;
         }
 
+        // check whether dRdp needs be computed
+        bool tComputedRdp = !mSet->mEquationModel->is_forward_analysis() &&    //
+                            !mSet->mEquationModel->is_adjoint_sensitivity_analysis();
+
         // set the leader/follower ig geometry interpolator physical/parametric space and time coefficients
         this->init_ig_geometry_interpolator();
+
+        // get treated side ordinal on the leader and on the follower
+        moris_index const tLeaderSideOrd   = mCluster->mLeaderListOfSideOrdinals( get_leader_local_cell_index() );
+        moris_index const tFollowerSideOrd = mCluster->mFollowerListOfSideOrdinals( get_follower_local_cell_index() );
+
+        Matrix< DDSMat > tGeoLocalAssembly = get_local_cluster_assembly_indices( tLeaderSideOrd, tFollowerSideOrd );
 
         // loop over the integration points
         uint const tNumIntegPoints = this->get_number_of_integration_points();
@@ -342,6 +352,13 @@ namespace moris::fem
                 ( this->*m_compute_jacobian )( tReqIWG, tWStar );
 
                 this->reset_iwg_jacobian_strategy();
+
+                // compute dRdp if direct sensitivity analysis
+                if ( tComputedRdp )
+                {
+                    Vector< Matrix< IndexMat > > tVertexIndices( 0 );
+                    ( this->*m_compute_dRdp )( tReqIWG, tWStar, tGeoLocalAssembly, tVertexIndices );
+                }
             }
 
             mSet->mFemModel->mDoubleSidedSideSetsGaussPoints++;

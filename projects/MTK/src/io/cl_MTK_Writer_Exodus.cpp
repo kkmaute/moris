@@ -343,7 +343,15 @@ namespace moris::mtk
     void
     Writer_Exodus::set_time( real aTimeValue )
     {
-        ex_put_time( mExoID, ++mTimeStep, &aTimeValue );
+        // check whether new time is large than previous time
+        if ( aTimeValue > mTimeValue )
+        {
+            // set new time value and increase time step index
+            ex_put_time( mExoID, ++mTimeStep, &aTimeValue );
+
+            // store new time value
+            mTimeValue = aTimeValue;
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------

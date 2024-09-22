@@ -110,8 +110,8 @@ void Monolithic_Time_Solver::solve_monolithic_time_system( Vector< sol::Dist_Vec
             save_matrix_to_hdf5_file( tFileID, "SolVec", tSolVec, tStatus );
         }
 
-        // input second time slap value for output
-        mMyTimeSolver->check_for_outputs( tTime( 1 ), tMaxTimeIterationReached );
+        // output state at end of time slab
+        mMyTimeSolver->check_for_outputs( tTime( 1 ), tMaxTimeIterationReached, true );
 
         mMyTimeSolver->prepare_sol_vec_for_next_time_step();
     }
@@ -144,6 +144,8 @@ void Monolithic_Time_Solver::solve_implicit_DqDs( Vector< sol::Dist_Vector* >& a
         mSolverInterface->set_solution_vector( tSolVec( tSolVecIndex ) );
         mSolverInterface->set_solution_vector_prev_time_step( tSolVec( tPrevSolVecIndex ) );
 
+        std::cout << "need fix in Monolithic_Time_Solver::solve_implicit_DqDs \n";
+
         mSolverInterface->set_adjoint_solution_vector( aFullAdjointVector( 0 ) );
         mSolverInterface->set_previous_adjoint_solution_vector( aFullAdjointVector( 1 ) );
 
@@ -167,6 +169,12 @@ void Monolithic_Time_Solver::solve_implicit_DqDs( Vector< sol::Dist_Vector* >& a
         mSolverInterface->postmultiply_implicit_dQds();
 
         aFullAdjointVector( 1 )->vec_plus_vec( 1.0, *( aFullAdjointVector( 0 ) ), 0.0 );
+
+        // output state at end of time slab
+        mMyTimeSolver->check_for_outputs(
+                tTimeFrames( tSolVecIndex )( 1 ),
+                tPrevSolVecIndex == 0,
+                false );
     }
 }
 

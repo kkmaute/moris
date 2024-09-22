@@ -92,10 +92,12 @@ namespace moris
             mtk::Interpolation_Order mIGTimeInterpolationOrder = mtk::Interpolation_Order::UNDEFINED;
 
             // field interpolator manager pointers
-            Field_Interpolator_Manager* mLeaderFIManager         = nullptr;
-            Field_Interpolator_Manager* mFollowerFIManager       = nullptr;
-            Field_Interpolator_Manager* mLeaderPreviousFIManager = nullptr;
-            Field_Interpolator_Manager* mLeaderEigenFIManager    = nullptr;
+            Field_Interpolator_Manager* mLeaderFIManager          = nullptr;
+            Field_Interpolator_Manager* mFollowerFIManager        = nullptr;
+            Field_Interpolator_Manager* mLeaderPreviousFIManager  = nullptr;
+            Field_Interpolator_Manager* mLeaderEigenFIManager     = nullptr;
+            Field_Interpolator_Manager* mLeaderAdjointFIManager   = nullptr;
+            Field_Interpolator_Manager* mFollowerAdjointFIManager = nullptr;
 
             // number of eigen vectors
             uint mNumEigenVectors = 0;
@@ -829,6 +831,15 @@ namespace moris
              * @param[ out ] mFIManger a field interpolator manager pointer
              */
             Field_Interpolator_Manager* get_field_interpolator_manager_eigen_vectors(
+                    mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
+
+            //------------------------------------------------------------------------------
+            /**
+             * get the field interpolator manager for adjoint vectors
+             * @param[ in ]  aIsLeader an enum for leader or follower
+             * @param[ out ] mFIManger a field interpolator manager pointer
+             */
+            Field_Interpolator_Manager* get_field_interpolator_manager_adjoint_vectors(
                     mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------

@@ -684,6 +684,14 @@ namespace moris::gen
                     // loop over all IQIs
                     for ( uint tVectorIndex = 0; tVectorIndex < (uint)tNumIQIs; tVectorIndex++ )
                     {
+                        fprintf( stdout, "tStartingGlobalIndex %d - direction %d - IQI index %d - dQidPDV %e\n",    //
+                                (sint)tStartingGlobalIndex,
+                                (sint)tCoordinateIndex,
+                                (sint)tVectorIndex,
+                                ( *tdIQIdPDV )( tPDVID, tVectorIndex ) );
+
+                        print( tHostADVSensitivities.get_row( tCoordinateIndex ), "dPDVdADV" );
+
                         Matrix< DDRMat > tIndividualSensitivity =
                                 ( *tdIQIdPDV )( tPDVID, tVectorIndex ) *    //
                                 tHostADVSensitivities.get_row( tCoordinateIndex );

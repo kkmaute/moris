@@ -34,6 +34,7 @@ namespace moris::prm
         mVISParameterList.insert( "Set_Names", "" );
         mVISParameterList.insert( "Field_Names", "" );
         mVISParameterList.insert( "Field_Type", "" );
+        mVISParameterList.insert( "Analysis_Type", "" );
         mVISParameterList.insert( "IQI_Names", "" );
 
         return mVISParameterList;
@@ -43,4 +44,3 @@ namespace moris::prm
 }    // namespace moris::prm
 
 #endif /* PROJECTS_PRM_SRC_FN_PRM_VIS_PARAMETERS_HPP_ */
-

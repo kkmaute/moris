@@ -615,6 +615,28 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
+    void
+    IQI::set_field_interpolator_manager_adjoint_vector(
+            Field_Interpolator_Manager* aFieldInterpolatorManager,
+            mtk::Leader_Follower        aIsLeader )
+    {
+        switch ( aIsLeader )
+        {
+            case mtk::Leader_Follower::LEADER:
+            {
+                mLeaderAdjointFIManager = aFieldInterpolatorManager;
+                break;
+            }
+
+            default:
+            {
+                MORIS_ERROR( false, "IQI::set_field_interpolator_manager_adjoint_vector - can only be leader" );
+            }
+        }
+    }
+
+    //------------------------------------------------------------------------------
+
     const Vector< Vector< mtk::Field_Type > >&
     IQI::get_field_type_list(
             mtk::Leader_Follower aIsLeader ) const

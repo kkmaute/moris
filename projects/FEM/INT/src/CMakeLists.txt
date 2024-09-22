@@ -274,6 +274,8 @@ set(HEADERS
     IQI/cl_FEM_IQI_Traction.hpp
     IQI/cl_FEM_IQI_Linear_Elasticity_Damage.hpp
     IQI/cl_FEM_IQI_Normal_Vector.hpp
+    IQI/cl_FEM_IQI_Sensitivity.hpp
+
     MEA/cl_FEM_Cluster_Measure.hpp
     )
 
@@ -524,6 +526,7 @@ set(LIB_SOURCES
     IQI/cl_FEM_IQI_Traction.cpp
     IQI/cl_FEM_IQI_Linear_Elasticity_Damage.cpp
     IQI/cl_FEM_IQI_Normal_Vector.cpp
+    IQI/cl_FEM_IQI_Sensitivity.cpp
     
     MEA/cl_FEM_Cluster_Measure.cpp
     )
