@@ -84,18 +84,18 @@ namespace moris
 
     inline void
     ConstFunctionVal_MDLFEMBench2(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         aPropMatrix = aParameters( 0 );
     }
 
     inline void
     AnalyticalTempFunc_MDLFEMBench2(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         // get parameters
         real RInner  = aParameters( 0 )( 0 );                        // inner radius
@@ -118,9 +118,9 @@ namespace moris
 
     inline void
     AnalyticalTemp2MatFunc_MDLFEMBench2(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         // get parameters
         real RInner  = aParameters( 0 )( 0 );                        // inner radius
@@ -183,9 +183,9 @@ namespace moris
             moris::uint tNumX = 20; /* Number of elements in x*/
             moris::uint tNumY = 20; /* Number of elements in y*/
 
-            uint          tLagrangeMeshIndex = 0;
-            std::string   tOuterFieldName    = "Outercircle";
-            std::string   tInnerFieldName    = "Innercircle";
+            uint           tLagrangeMeshIndex = 0;
+            std::string    tOuterFieldName    = "Outercircle";
+            std::string    tInnerFieldName    = "Innercircle";
             Parameter_List tParameters        = prm::create_hmr_parameter_list();
 
             tParameters.set( "number_of_elements_per_dimension", std::to_string( tNumX ) + "," + std::to_string( tNumY ) );
@@ -218,10 +218,10 @@ namespace moris
 
             // Create geometry engine
             Vector< std::shared_ptr< moris::gen::Geometry > > tGeometry( 2 );
-            auto                                           tCircleOuter = std::make_shared< gen::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tROuter );
-            auto                                           tCircleInner = std::make_shared< gen::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRInner );
-            tGeometry( 0 )                                              = std::make_shared< gen::Level_Set_Geometry >( tCircleOuter );
-            tGeometry( 1 )                                              = std::make_shared< gen::Level_Set_Geometry >( tCircleInner );
+            auto                                              tCircleOuter = std::make_shared< gen::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tROuter );
+            auto                                              tCircleInner = std::make_shared< gen::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRInner );
+            tGeometry( 0 )                                                 = std::make_shared< gen::Level_Set_Geometry >( tCircleOuter );
+            tGeometry( 1 )                                                 = std::make_shared< gen::Level_Set_Geometry >( tCircleInner );
 
             // Perform additional refinement
             // tGENGeometryEngine.perform_refinement(tHMR);
@@ -237,12 +237,12 @@ namespace moris
             //-----------------------------------------------------------------------------------------------
 
             Vector< std::shared_ptr< moris::gen::Geometry > > tGeometry0( 2 );
-            auto                                           tCircleOuter0 = std::make_shared< gen::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tROuter );
-            auto                                           tCircleInner0 = std::make_shared< gen::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRInner );
-            tGeometry0( 0 )                                              = std::make_shared< gen::Level_Set_Geometry >( tCircleOuter0 );
-            tGeometry0( 1 )                                              = std::make_shared< gen::Level_Set_Geometry >( tCircleInner0 );
+            auto                                              tCircleOuter0 = std::make_shared< gen::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tROuter );
+            auto                                              tCircleInner0 = std::make_shared< gen::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRInner );
+            tGeometry0( 0 )                                                 = std::make_shared< gen::Level_Set_Geometry >( tCircleOuter0 );
+            tGeometry0( 1 )                                                 = std::make_shared< gen::Level_Set_Geometry >( tCircleInner0 );
 
-            size_t                                tModelDimension = 2;
+            size_t                                 tModelDimension = 2;
             moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters0;
             tGeometryEngineParameters0.mGeometries = tGeometry0;
             moris::gen::Geometry_Engine tGENGeometryEngine0( tInterpolationMesh, tGeometryEngineParameters0 );
@@ -388,8 +388,13 @@ namespace moris
                     "temp.exo",
                     { "HMR_dummy_c_p1", "HMR_dummy_n_p1" },
                     { "TEMP", "L2", "TEMP_EXACT" },
-                    { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
-                    { "IQI_TEMP", "IQI_L2", "IQI_Exact" } );
+                    { vis::Field_Type::NODAL,
+                            vis::Field_Type::NODAL,
+                            vis::Field_Type::NODAL },
+                    { "IQI_TEMP", "IQI_L2", "IQI_Exact" },
+                    { vis::Analysis_Type::FORWARD,
+                            vis::Analysis_Type::FORWARD,
+                            vis::Analysis_Type::FORWARD } );
             tModel->set_output_manager( &tOutputData );
 
             // create linear solver and algorithm
@@ -481,8 +486,8 @@ namespace moris
             moris::uint tNumY              = 20; /* Number of elements in y*/
             moris::uint tLagrangeMeshIndex = 0;
 
-            std::string   tOuterFieldName = "Outercircle";
-            std::string   tInnerFieldName = "Innercircle";
+            std::string    tOuterFieldName = "Outercircle";
+            std::string    tInnerFieldName = "Innercircle";
             Parameter_List tParameters     = prm::create_hmr_parameter_list();
 
             tParameters.set( "number_of_elements_per_dimension", std::to_string( tNumX ) + "," + std::to_string( tNumY ) );
@@ -515,10 +520,10 @@ namespace moris
 
             // Create geometry engine
             Vector< std::shared_ptr< moris::gen::Geometry > > tGeometry( 2 );
-            auto                                           tCircleOuter = std::make_shared< gen::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tROuter );
-            auto                                           tCircleInner = std::make_shared< gen::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRInner );
-            tGeometry( 0 )                                              = std::make_shared< gen::Level_Set_Geometry >( tCircleOuter );
-            tGeometry( 1 )                                              = std::make_shared< gen::Level_Set_Geometry >( tCircleInner );
+            auto                                              tCircleOuter = std::make_shared< gen::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tROuter );
+            auto                                              tCircleInner = std::make_shared< gen::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRInner );
+            tGeometry( 0 )                                                 = std::make_shared< gen::Level_Set_Geometry >( tCircleOuter );
+            tGeometry( 1 )                                                 = std::make_shared< gen::Level_Set_Geometry >( tCircleInner );
 
             // Perform additional refinement
             // tGENGeometryEngine.perform_refinement(tHMR);
@@ -534,12 +539,12 @@ namespace moris
             //-----------------------------------------------------------------------------------------------
 
             Vector< std::shared_ptr< moris::gen::Geometry > > tGeometry0( 2 );
-            auto                                           tCircle1 = std::make_shared< gen::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tROuter );
-            auto                                           tCircle2 = std::make_shared< gen::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRInner );
-            tGeometry0( 0 )                                         = std::make_shared< gen::Level_Set_Geometry >( tCircle1 );
-            tGeometry0( 1 )                                         = std::make_shared< gen::Level_Set_Geometry >( tCircle2 );
+            auto                                              tCircle1 = std::make_shared< gen::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tROuter );
+            auto                                              tCircle2 = std::make_shared< gen::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRInner );
+            tGeometry0( 0 )                                            = std::make_shared< gen::Level_Set_Geometry >( tCircle1 );
+            tGeometry0( 1 )                                            = std::make_shared< gen::Level_Set_Geometry >( tCircle2 );
 
-            size_t                                tModelDimension = 2;
+            size_t                                 tModelDimension = 2;
             moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters0;
             tGeometryEngineParameters0.mGeometries = tGeometry0;
             moris::gen::Geometry_Engine tGENGeometryEngine0( tInterpolationMesh, tGeometryEngineParameters0 );
@@ -712,8 +717,13 @@ namespace moris
                     "temp.exo",
                     { "HMR_dummy_c_p1", "HMR_dummy_n_p1" },
                     { "TEMP", "L2", "TEMP_EXACT" },
-                    { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
-                    { "IQI_TEMP", "IQI_L2", "IQI_Exact" } );
+                    { vis::Field_Type::NODAL,
+                            vis::Field_Type::NODAL,
+                            vis::Field_Type::NODAL },
+                    { "IQI_TEMP", "IQI_L2", "IQI_Exact" },
+                    { vis::Analysis_Type::FORWARD,
+                            vis::Analysis_Type::FORWARD,
+                            vis::Analysis_Type::FORWARD } );
             tModel->set_output_manager( &tOutputData );
 
             // create linear solver and algorithm
@@ -819,10 +829,10 @@ namespace moris
 
             // define hmr parameters
             //------------------------------------------------------------------------------
-            uint          tLagrangeMeshIndex = 0;
-            std::string   tOuterFieldName    = "OuterCircle";
-            std::string   tMiddleFieldName   = "MiddleCircle";
-            std::string   tInnerFieldName    = "InnerCircle";
+            uint           tLagrangeMeshIndex = 0;
+            std::string    tOuterFieldName    = "OuterCircle";
+            std::string    tMiddleFieldName   = "MiddleCircle";
+            std::string    tInnerFieldName    = "InnerCircle";
             Parameter_List tParameters        = prm::create_hmr_parameter_list();
 
             tParameters.set( "number_of_elements_per_dimension", std::to_string( tNumX ) + "," + std::to_string( tNumY ) );
@@ -855,12 +865,12 @@ namespace moris
 
             // Create geometry engine
             Vector< std::shared_ptr< moris::gen::Geometry > > tGeometry( 3 );
-            auto                                           tCircleOuter  = std::make_shared< gen::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tROuter );
-            auto                                           tCircleMiddle = std::make_shared< gen::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRMiddle );
-            auto                                           tCircleInner  = std::make_shared< gen::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRInner );
-            tGeometry( 0 )                                               = std::make_shared< gen::Level_Set_Geometry >( tCircleOuter );
-            tGeometry( 1 )                                               = std::make_shared< gen::Level_Set_Geometry >( tCircleMiddle );
-            tGeometry( 2 )                                               = std::make_shared< gen::Level_Set_Geometry >( tCircleInner );
+            auto                                              tCircleOuter  = std::make_shared< gen::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tROuter );
+            auto                                              tCircleMiddle = std::make_shared< gen::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRMiddle );
+            auto                                              tCircleInner  = std::make_shared< gen::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRInner );
+            tGeometry( 0 )                                                  = std::make_shared< gen::Level_Set_Geometry >( tCircleOuter );
+            tGeometry( 1 )                                                  = std::make_shared< gen::Level_Set_Geometry >( tCircleMiddle );
+            tGeometry( 2 )                                                  = std::make_shared< gen::Level_Set_Geometry >( tCircleInner );
 
             // Perform additional refinement
             // tGENGeometryEngine.perform_refinement(tHMR);
@@ -1061,8 +1071,13 @@ namespace moris
                     "temp.exo",
                     { "HMR_dummy_c_p1", "HMR_dummy_n_p1", "HMR_dummy_c_p3", "HMR_dummy_n_p3" },
                     { "TEMP", "L2", "TEMP_EXACT" },
-                    { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
-                    { "IQI_Temp", "IQI_L2", "IQI_Exact" } );
+                    { vis::Field_Type::NODAL,
+                            vis::Field_Type::NODAL,
+                            vis::Field_Type::NODAL },
+                    { "IQI_Temp", "IQI_L2", "IQI_Exact" },
+                    { vis::Analysis_Type::FORWARD,
+                            vis::Analysis_Type::FORWARD,
+                            vis::Analysis_Type::FORWARD } );
             tModel->set_output_manager( &tOutputData );
 
             // create linear solver and algorithm
@@ -1081,8 +1096,8 @@ namespace moris
 
             // create nonlinear solver and algorithm
             // --------------------------------------------------------------------------------------
-            NLA::Nonlinear_Solver_Factory               tNonlinFactory;
-            Parameter_List tNonlinearSolverParameterList = prm::create_nonlinear_algorithm_parameter_list();
+            NLA::Nonlinear_Solver_Factory tNonlinFactory;
+            Parameter_List                tNonlinearSolverParameterList = prm::create_nonlinear_algorithm_parameter_list();
             tNonlinearSolverParameterList.set( "NLA_max_iter", 3 );
             std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( tNonlinearSolverParameterList );
 
@@ -1158,10 +1173,10 @@ namespace moris
 
             // define hmr parameters
             //------------------------------------------------------------------------------
-            uint          tLagrangeMeshIndex = 0;
-            std::string   tOuterFieldName    = "OuterCircle";
-            std::string   tMiddleFieldName   = "MiddleCircle";
-            std::string   tInnerFieldName    = "InnerCircle";
+            uint           tLagrangeMeshIndex = 0;
+            std::string    tOuterFieldName    = "OuterCircle";
+            std::string    tMiddleFieldName   = "MiddleCircle";
+            std::string    tInnerFieldName    = "InnerCircle";
             Parameter_List tParameters        = prm::create_hmr_parameter_list();
 
             tParameters.set( "number_of_elements_per_dimension", std::to_string( tNumX ) + "," + std::to_string( tNumY ) );
@@ -1194,12 +1209,12 @@ namespace moris
 
             // Create geometry engine
             Vector< std::shared_ptr< moris::gen::Geometry > > tGeometry( 3 );
-            auto                                           tCircleOuter  = std::make_shared< gen::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tROuter );
-            auto                                           tCircleMiddle = std::make_shared< gen::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRMiddle );
-            auto                                           tCircleInner  = std::make_shared< gen::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRInner );
-            tGeometry( 0 )                                               = std::make_shared< gen::Level_Set_Geometry >( tCircleOuter );
-            tGeometry( 1 )                                               = std::make_shared< gen::Level_Set_Geometry >( tCircleMiddle );
-            tGeometry( 2 )                                               = std::make_shared< gen::Level_Set_Geometry >( tCircleInner );
+            auto                                              tCircleOuter  = std::make_shared< gen::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tROuter );
+            auto                                              tCircleMiddle = std::make_shared< gen::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRMiddle );
+            auto                                              tCircleInner  = std::make_shared< gen::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRInner );
+            tGeometry( 0 )                                                  = std::make_shared< gen::Level_Set_Geometry >( tCircleOuter );
+            tGeometry( 1 )                                                  = std::make_shared< gen::Level_Set_Geometry >( tCircleMiddle );
+            tGeometry( 2 )                                                  = std::make_shared< gen::Level_Set_Geometry >( tCircleInner );
 
             // Perform additional refinement
             // tGENGeometryEngine.perform_refinement(tHMR);
@@ -1402,7 +1417,10 @@ namespace moris
                     { "HMR_dummy_c_p1", "HMR_dummy_n_p1", "HMR_dummy_c_p3", "HMR_dummy_n_p3" },
                     { "TEMP", "L2", "TEMP_EXACT" },
                     { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
-                    { "IQI_Temp", "IQI_L2", "IQI_Exact" } );
+                    { "IQI_Temp", "IQI_L2", "IQI_Exact" },
+                    { vis::Analysis_Type::FORWARD,
+                            vis::Analysis_Type::FORWARD,
+                            vis::Analysis_Type::FORWARD } );
             tModel->set_output_manager( &tOutputData );
 
             // create linear solver and algorithm
@@ -1421,8 +1439,8 @@ namespace moris
 
             // create nonlinear solver and algorithm
             // --------------------------------------------------------------------------------------
-            NLA::Nonlinear_Solver_Factory               tNonlinFactory;
-            Parameter_List tNonlinearSolverParameterList = prm::create_nonlinear_algorithm_parameter_list();
+            NLA::Nonlinear_Solver_Factory tNonlinFactory;
+            Parameter_List                tNonlinearSolverParameterList = prm::create_nonlinear_algorithm_parameter_list();
             tNonlinearSolverParameterList.set( "NLA_max_iter", 3 );
             std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( tNonlinearSolverParameterList );
 

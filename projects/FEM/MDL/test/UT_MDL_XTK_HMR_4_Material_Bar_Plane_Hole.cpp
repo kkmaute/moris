@@ -129,7 +129,7 @@ Circle4MatMDL( const moris::Matrix< moris::DDRMat >& aPoint )
 
 inline void
 tConstValFunction2MatMDL( moris::Matrix< moris::DDRMat >& aPropMatrix,
-        Vector< moris::Matrix< moris::DDRMat > >&    aParameters,
+        Vector< moris::Matrix< moris::DDRMat > >&         aParameters,
         moris::fem::Field_Interpolator_Manager*           aFIManager )
 {
     aPropMatrix = aParameters( 0 );
@@ -143,7 +143,7 @@ tSolverOutputCriteria_4MatMDL( moris::tsa::Time_Solver* )
 
 inline void
 run_hmr_for_multi_mat_model_2d(
-        hmr::HMR&                                     aHMR,
+        hmr::HMR&                                       aHMR,
         Vector< std::shared_ptr< moris::hmr::Field > >& aFields )
 {
     moris_index tLagrangeMeshIndex = 0;
@@ -201,13 +201,13 @@ MultiMat3dCyl( const moris::Matrix< moris::DDRMat >& aPoint )
     MORIS_ASSERT( aAxis.numel() == 3, "axis need to have length 3" );
 
     Vector< moris::real > relativePosition = { ( aPoint( 0 ) - aCenter( 0 ) ), ( aPoint( 1 ) - aCenter( 1 ) ), ( aPoint( 2 ) - aCenter( 2 ) ) };
-    moris::real         lsFromLeft       = ( relativePosition( 0 ) * ( -aAxis( 0 ) ) + relativePosition( 1 ) * ( -aAxis( 1 ) ) + relativePosition( 2 ) * ( -aAxis( 2 ) ) ) - aLength / 2.0;
-    moris::real         lsFromRight      = ( relativePosition( 0 ) * ( aAxis( 0 ) ) + relativePosition( 1 ) * ( aAxis( 1 ) ) + relativePosition( 2 ) * ( aAxis( 2 ) ) ) - aLength / 2.0;
+    moris::real           lsFromLeft       = ( relativePosition( 0 ) * ( -aAxis( 0 ) ) + relativePosition( 1 ) * ( -aAxis( 1 ) ) + relativePosition( 2 ) * ( -aAxis( 2 ) ) ) - aLength / 2.0;
+    moris::real           lsFromRight      = ( relativePosition( 0 ) * ( aAxis( 0 ) ) + relativePosition( 1 ) * ( aAxis( 1 ) ) + relativePosition( 2 ) * ( aAxis( 2 ) ) ) - aLength / 2.0;
 
-    moris::real         axialCrd  = ( relativePosition( 0 ) * ( aAxis( 0 ) ) + relativePosition( 1 ) * ( aAxis( 1 ) ) + relativePosition( 2 ) * ( aAxis( 2 ) ) );
+    moris::real           axialCrd  = ( relativePosition( 0 ) * ( aAxis( 0 ) ) + relativePosition( 1 ) * ( aAxis( 1 ) ) + relativePosition( 2 ) * ( aAxis( 2 ) ) );
     Vector< moris::real > radDir    = { ( relativePosition( 0 ) - aAxis( 0 ) * axialCrd ), ( relativePosition( 1 ) - aAxis( 1 ) * axialCrd ), ( relativePosition( 2 ) - aAxis( 2 ) * axialCrd ) };
-    moris::real         radDist   = std::pow( radDir( 0 ) * radDir( 0 ) + radDir( 1 ) * radDir( 1 ) + radDir( 2 ) * radDir( 2 ), 0.5 );
-    moris::real         lsFromRad = radDist - aRad;
+    moris::real           radDist   = std::pow( radDir( 0 ) * radDir( 0 ) + radDir( 1 ) * radDir( 1 ) + radDir( 2 ) * radDir( 2 ), 0.5 );
+    moris::real           lsFromRad = radDist - aRad;
 
     return std::max( std::max( lsFromLeft, lsFromRight ), lsFromRad );
 }
@@ -215,14 +215,14 @@ MultiMat3dCyl( const moris::Matrix< moris::DDRMat >& aPoint )
 inline real
 MultiMat3dCylGeometry(
         const Matrix< DDRMat >& aCoordinates,
-        const Vector< real >&     aParameters )
+        const Vector< real >&   aParameters )
 {
     return MultiMat3dCyl( aCoordinates );
 }
 
 inline void
 run_hmr_for_multi_mat_model_3d(
-        hmr::HMR&                                     aHMR,
+        hmr::HMR&                                       aHMR,
         Vector< std::shared_ptr< moris::hmr::Field > >& aFields )
 {
     moris_index tLagrangeMeshIndex = 0;
@@ -279,23 +279,23 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole", "[XTK_HMR_PLA
         tParameters.set_staircase_buffer( 2 );
         tParameters.set_lagrange_to_bspline_mesh( { { { 0 } } } );
 
-        hmr::HMR                                     tHMR( tParameters );
+        hmr::HMR                                       tHMR( tParameters );
         Vector< std::shared_ptr< moris::hmr::Field > > tHMRFields;
         run_hmr_for_multi_mat_model_2d( tHMR, tHMRFields );
 
         hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
         Vector< std::shared_ptr< gen::Geometry > > tGeometryVector( 2 );
-        auto tCircle = std::make_shared< gen::Circle >( 0.01, 0.01, 0.47334 );
-        auto tPlane = std::make_shared< gen::Line >( 0.1, 0.1, 1.0, 0.0 );
-        tGeometryVector( 0 ) = { std::make_shared< gen::Level_Set_Geometry >( tCircle ) };
-        tGeometryVector( 1 ) = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
+        auto                                       tCircle = std::make_shared< gen::Circle >( 0.01, 0.01, 0.47334 );
+        auto                                       tPlane  = std::make_shared< gen::Line >( 0.1, 0.1, 1.0, 0.0 );
+        tGeometryVector( 0 )                               = { std::make_shared< gen::Level_Set_Geometry >( tCircle ) };
+        tGeometryVector( 1 )                               = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
-        size_t                                tModelDimension = 2;
+        size_t                          tModelDimension = 2;
         gen::Geometry_Engine_Parameters tGeometryEngineParameters;
         tGeometryEngineParameters.mGeometries = tGeometryVector;
         gen::Geometry_Engine tGeometryEngine( tInterpMesh, tGeometryEngineParameters );
-        moris::xtk::Model                 tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );
+        moris::xtk::Model    tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );
         tXTKModel.mVerbose = false;
 
         Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
@@ -576,7 +576,8 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole", "[XTK_HMR_PLA
                 { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_c_p2", "HMR_dummy_c_p3", "HMR_dummy_n_p0", "HMR_dummy_n_p1", "HMR_dummy_n_p2", "HMR_dummy_n_p3" },
                 { "Temperature" },
                 { vis::Field_Type::NODAL },
-                { "IQI_TEMP" } );
+                { "IQI_TEMP" },
+                { vis::Analysis_Type::FORWARD } );
 
         tModel->set_output_manager( &tOutputData );
 
@@ -586,8 +587,8 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole", "[XTK_HMR_PLA
         // STEP 1: create linear solver and algorithm
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        dla::Solver_Factory                             tSolFactory;
-        Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_aztec();
+        dla::Solver_Factory tSolFactory;
+        Parameter_List      tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_aztec();
         tLinearSolverParameterList.set( "AZ_diagnostics", AZ_none );
         tLinearSolverParameterList.set( "AZ_output", AZ_none );
         std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( tLinearSolverParameterList );
@@ -606,8 +607,8 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole", "[XTK_HMR_PLA
         // STEP 2: create nonlinear solver and algorithm
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        NLA::Nonlinear_Solver_Factory               tNonlinFactory;
-        Parameter_List tNonlinearSolverParameterList = prm::create_nonlinear_algorithm_parameter_list();
+        NLA::Nonlinear_Solver_Factory tNonlinFactory;
+        Parameter_List                tNonlinearSolverParameterList = prm::create_nonlinear_algorithm_parameter_list();
         tNonlinearSolverParameterList.set( "NLA_max_iter", 2 );
         tNonlinearSolverParameterList.set( "NLA_hard_break", false );
         tNonlinearSolverParameterList.set( "NLA_max_lin_solver_restarts", 2 );
@@ -698,23 +699,23 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole 3D", "[XTK_HMR_
         tParameters.set_staircase_buffer( 2 );
         tParameters.set_lagrange_to_bspline_mesh( { { { 0 } } } );
 
-        hmr::HMR                                     tHMR( tParameters );
+        hmr::HMR                                       tHMR( tParameters );
         Vector< std::shared_ptr< moris::hmr::Field > > tHMRFields;
         run_hmr_for_multi_mat_model_3d( tHMR, tHMRFields );
 
         hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
         Vector< std::shared_ptr< gen::Geometry > > tGeometryVector( 2 );
-        auto tUserDefinedField = std::make_shared< gen::User_Defined_Field >( &( MultiMat3dCylGeometry ) );
-        auto tPlane = std::make_shared< gen::Plane >( 0.1, 0.1, 0.1, 1.0, 0.0, 0.0 );
-        tGeometryVector( 0 ) = { std::make_shared< gen::Level_Set_Geometry >( tUserDefinedField ) };
-        tGeometryVector( 1 ) = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
+        auto                                       tUserDefinedField = std::make_shared< gen::User_Defined_Field >( &( MultiMat3dCylGeometry ) );
+        auto                                       tPlane            = std::make_shared< gen::Plane >( 0.1, 0.1, 0.1, 1.0, 0.0, 0.0 );
+        tGeometryVector( 0 )                                         = { std::make_shared< gen::Level_Set_Geometry >( tUserDefinedField ) };
+        tGeometryVector( 1 )                                         = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
-        size_t                                tModelDimension = 3;
+        size_t                          tModelDimension = 3;
         gen::Geometry_Engine_Parameters tGeometryEngineParameters;
         tGeometryEngineParameters.mGeometries = tGeometryVector;
         gen::Geometry_Engine tGeometryEngine( tInterpMesh, tGeometryEngineParameters );
-        moris::xtk::Model                 tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );
+        moris::xtk::Model    tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );
         tXTKModel.mVerbose = false;
 
         Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
@@ -1022,15 +1023,17 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole 3D", "[XTK_HMR_
                 { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_c_p2", "HMR_dummy_c_p3", "HMR_dummy_n_p0", "HMR_dummy_n_p1", "HMR_dummy_n_p2", "HMR_dummy_n_p3" },
                 { "Temperature" },
                 { vis::Field_Type::NODAL },
-                { "IQI_TEMP" } );
+                { "IQI_TEMP" },
+                { vis::Analysis_Type::FORWARD } );
+
         tModel->set_output_manager( &tOutputData );
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // STEP 1: create linear solver and algorithm
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        dla::Solver_Factory                             tSolFactory;
-        Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_aztec();
+        dla::Solver_Factory tSolFactory;
+        Parameter_List      tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_aztec();
         tLinearSolverParameterList.set( "AZ_diagnostics", AZ_none );
         tLinearSolverParameterList.set( "AZ_output", AZ_none );
         std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( tLinearSolverParameterList );

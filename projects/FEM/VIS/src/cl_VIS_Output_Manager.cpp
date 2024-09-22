@@ -186,7 +186,7 @@ namespace moris::vis
         Vector< enum vis::Analysis_Type >                  tAnalysisTypes;
         moris::map< std::string, enum vis::Analysis_Type > tAnalysisTypeMap = get_vis_analysis_type_map();
 
-        string_to_cell(
+        string_to_vector(
                 aParameterlist.get< std::string >( "Analysis_Type" ),
                 tAnalysisTypes,
                 tAnalysisTypeMap );

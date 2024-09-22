@@ -434,7 +434,9 @@ namespace moris
                     { "HMR_dummy_n_p1" },
                     { "UX", "UY", "TEMP" },
                     { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
-                    { "IQI_UX", "IQI_UY", "IQI_TEMP" } );
+                    { "IQI_UX", "IQI_UY", "IQI_TEMP" },
+                    { vis::Analysis_Type::FORWARD, vis::Analysis_Type::FORWARD, vis::Analysis_Type::FORWARD } );
+
             tModel->set_output_manager( &tOutputData );
 
             sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
@@ -911,7 +913,9 @@ namespace moris
                     { "HMR_dummy_n_p1" },
                     { "UX", "UY", "TEMP" },
                     { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
-                    { "IQI_UX", "IQI_UY", "IQI_TEMP" } );
+                    { "IQI_UX", "IQI_UY", "IQI_TEMP" },
+                    { vis::Analysis_Type::FORWARD, vis::Analysis_Type::FORWARD, vis::Analysis_Type::FORWARD } );
+
             tModel->set_output_manager( &tOutputData );
 
             sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );

@@ -460,8 +460,13 @@ namespace moris
                     "temp.exo",
                     { "HMR_dummy_c_p10", "HMR_dummy_n_p10" },
                     { "VX", "VY", "P" },
-                    { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
-                    { "IQI_VX", "IQI_VY", "IQI_P" } );
+                    { vis::Field_Type::NODAL,
+                            vis::Field_Type::NODAL,
+                            vis::Field_Type::NODAL },
+                    { "IQI_VX", "IQI_VY", "IQI_P" },
+                    { vis::Analysis_Type::FORWARD,
+                            vis::Analysis_Type::FORWARD,
+                            vis::Analysis_Type::FORWARD } );
             tModel->set_output_manager( &tOutputData );
 
             // create linear solver and algorithm
@@ -821,8 +826,13 @@ namespace moris
                     "temp.exo",
                     { "HMR_dummy_c_p10", "HMR_dummy_n_p10" },
                     { "VX", "VY", "P" },
-                    { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
-                    { "IQI_VX", "IQI_VY", "IQI_P" } );
+                    { vis::Field_Type::NODAL,
+                            vis::Field_Type::NODAL,
+                            vis::Field_Type::NODAL },
+                    { "IQI_VX", "IQI_VY", "IQI_P" },
+                    { vis::Analysis_Type::FORWARD,
+                            vis::Analysis_Type::FORWARD,
+                            vis::Analysis_Type::FORWARD } );
             tModel->set_output_manager( &tOutputData );
 
             // create linear solver and algorithm
@@ -2519,7 +2529,12 @@ namespace moris
                             vis::Field_Type::NODAL,
                             vis::Field_Type::NODAL,
                             vis::Field_Type::NODAL },
-                    { "IQI_VX", "IQI_VY", "IQI_P", "IQI_L2", "IQI_H1" } );
+                    { "IQI_VX", "IQI_VY", "IQI_P", "IQI_L2", "IQI_H1" },
+                    { vis::Analysis_Type::FORWARD,
+                            vis::Analysis_Type::FORWARD,
+                            vis::Analysis_Type::FORWARD,
+                            vis::Analysis_Type::FORWARD,
+                            vis::Analysis_Type::FORWARD } );
             tModel->set_output_manager( &tOutputData );
 
             // create linear solver and algorithm

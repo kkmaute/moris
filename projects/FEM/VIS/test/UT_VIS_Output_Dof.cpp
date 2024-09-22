@@ -348,7 +348,8 @@ namespace moris::vis
                     { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1" },
                     { "Displacement nodal UX", "Displacement nodal UY" },
                     { Field_Type::NODAL, Field_Type::NODAL },
-                    { "IQI_UX", "IQI_UY" } );
+                    { "IQI_UX", "IQI_UY" },
+                    { vis::Analysis_Type::FORWARD, vis::Analysis_Type::FORWARD } );
             tModel->set_output_manager( &tOutputData );
 
             // --------------------------------------------------------------------------------------

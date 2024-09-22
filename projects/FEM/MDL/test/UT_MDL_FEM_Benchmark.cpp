@@ -92,7 +92,7 @@ namespace moris
     // define free function for properties
     inline void
     tPropValConstFunc_MDLFEMBench( moris::Matrix< moris::DDRMat >& aPropMatrix,
-            Vector< moris::Matrix< moris::DDRMat > >&         aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >&              aParameters,
             moris::fem::Field_Interpolator_Manager*                aFIManager )
     {
         aPropMatrix = aParameters( 0 );
@@ -100,7 +100,7 @@ namespace moris
 
     inline void
     tPropValFuncL2_MDLFEMBench( moris::Matrix< moris::DDRMat >& aPropMatrix,
-            Vector< moris::Matrix< moris::DDRMat > >&      aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >&           aParameters,
             moris::fem::Field_Interpolator_Manager*             aFIManager )
     {
         aPropMatrix = { { 20 * aFIManager->get_IP_geometry_interpolator()->valx()( 0 ) } };
@@ -275,14 +275,16 @@ namespace moris
                     { "HMR_dummy" },
                     { "Temperature", "L2 error" },
                     { vis::Field_Type::NODAL, vis::Field_Type::GLOBAL },
-                    { "IQI_TEMP", "IQI_L2" } );
+                    { "IQI_TEMP", "IQI_L2" },
+                    { vis::Analysis_Type::FORWARD, vis::Analysis_Type::FORWARD } );
+
             tModel->set_output_manager( &tOutputData );
 
             // --------------------------------------------------------------------------------------
             // define linear solver and algorithm
             dla::Solver_Factory                             tSolFactory;
-            Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_amesos();
-            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( tLinearSolverParameterList );
+            Parameter_List                                  tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_amesos();
+            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm     = tSolFactory.create_solver( tLinearSolverParameterList );
 
             dla::Linear_Solver tLinSolver;
 
@@ -402,10 +404,10 @@ namespace moris
 
             hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            auto tPlane = std::make_shared< moris::gen::Line >( 2.6, 0.0, 1.0, 0.0 );
+            auto                                              tPlane          = std::make_shared< moris::gen::Line >( 2.6, 0.0, 1.0, 0.0 );
             Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
-            size_t                                tModelDimension = 3;
+            size_t                                 tModelDimension = 3;
             moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometryVector;
             moris::gen::Geometry_Engine tGeometryEngine( tInterpMesh, tGeometryEngineParameters );
@@ -587,12 +589,13 @@ namespace moris
                     { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1" },
                     { "Temperature" },
                     { vis::Field_Type::NODAL },
-                    { "IQI_TEMP" } );
+                    { "IQI_TEMP" },
+                    { vis::Analysis_Type::FORWARD } );
 
             tModel->set_output_manager( &tOutputData );
 
-            dla::Solver_Factory                             tSolFactory;
-            Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_aztec();
+            dla::Solver_Factory tSolFactory;
+            Parameter_List      tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_aztec();
             tLinearSolverParameterList.set( "AZ_diagnostics", AZ_none );
             tLinearSolverParameterList.set( "AZ_output", AZ_all );
             tLinearSolverParameterList.set( "AZ_solver", AZ_gmres_condnum );
@@ -719,10 +722,10 @@ namespace moris
 
             hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            auto tPlane = std::make_shared< moris::gen::Line >( 2.6, 0.0, 1.0, 0.0 );
+            auto                                              tPlane          = std::make_shared< moris::gen::Line >( 2.6, 0.0, 1.0, 0.0 );
             Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
-            size_t                                tModelDimension = 3;
+            size_t                                 tModelDimension = 3;
             moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometryVector;
             moris::gen::Geometry_Engine tGeometryEngine( tInterpMesh, tGeometryEngineParameters );
@@ -927,12 +930,13 @@ namespace moris
                     { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1" },
                     { "Temperature" },
                     { vis::Field_Type::NODAL },
-                    { "IQI_TEMP" } );
+                    { "IQI_TEMP" },
+                    { vis::Analysis_Type::FORWARD } );
 
             tModel->set_output_manager( &tOutputData );
 
-            dla::Solver_Factory                             tSolFactory;
-            Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_aztec();
+            dla::Solver_Factory tSolFactory;
+            Parameter_List      tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_aztec();
             tLinearSolverParameterList.set( "AZ_diagnostics", AZ_none );
             tLinearSolverParameterList.set( "AZ_output", AZ_all );
             tLinearSolverParameterList.set( "AZ_solver", AZ_gmres_condnum );
@@ -1159,16 +1163,21 @@ namespace moris
                     "temp.exo",
                     { "HMR_dummy" },
                     { "Displacement UX", "Displacement UY", "Displacement UZ" },
-                    { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
-                    { "IQI_UX", "IQI_UY", "IQI_UZ" } );
+                    { vis::Field_Type::NODAL,
+                            vis::Field_Type::NODAL,
+                            vis::Field_Type::NODAL },
+                    { "IQI_UX", "IQI_UY", "IQI_UZ" },
+                    { vis::Analysis_Type::FORWARD,
+                            vis::Analysis_Type::FORWARD,
+                            vis::Analysis_Type::FORWARD } );
 
             tModel->set_output_manager( &tOutputData );
 
             // --------------------------------------------------------------------------------------
             // define linear solver and algorithm
             dla::Solver_Factory                             tSolFactory;
-            Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_amesos();
-            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( tLinearSolverParameterList );
+            Parameter_List                                  tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_amesos();
+            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm     = tSolFactory.create_solver( tLinearSolverParameterList );
 
             dla::Linear_Solver tLinSolver;
 
@@ -1288,10 +1297,10 @@ namespace moris
 
             hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            auto tPlane = std::make_shared< moris::gen::Line >( 2.6, 0.0, 1.0, 0.0 );
+            auto                                              tPlane          = std::make_shared< moris::gen::Line >( 2.6, 0.0, 1.0, 0.0 );
             Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
-            size_t                                tModelDimension = 3;
+            size_t                                 tModelDimension = 3;
             moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometryVector;
             moris::gen::Geometry_Engine tGeometryEngine( tInterpMesh, tGeometryEngineParameters );
@@ -1488,16 +1497,21 @@ namespace moris
                     "temp.exo",
                     { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1" },
                     { "Displacement UX", "Displacement UY", "Displacement UZ" },
-                    { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
-                    { "IQI_UX", "IQI_UY", "IQI_UZ" } );
+                    { vis::Field_Type::NODAL,
+                            vis::Field_Type::NODAL,
+                            vis::Field_Type::NODAL },
+                    { "IQI_UX", "IQI_UY", "IQI_UZ" },
+                    { vis::Analysis_Type::FORWARD,
+                            vis::Analysis_Type::FORWARD,
+                            vis::Analysis_Type::FORWARD } );
 
             tModel->set_output_manager( &tOutputData );
 
             // --------------------------------------------------------------------------------------
             // define linear solver and algorithm
             dla::Solver_Factory                             tSolFactory;
-            Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_amesos();
-            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( tLinearSolverParameterList );
+            Parameter_List                                  tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_amesos();
+            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm     = tSolFactory.create_solver( tLinearSolverParameterList );
 
             dla::Linear_Solver tLinSolver;
 
@@ -1616,7 +1630,7 @@ namespace moris
 
             hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            auto tPlane = std::make_shared< moris::gen::Line >( 2.6, 0.0, 1.0, 0.0 );
+            auto                                              tPlane          = std::make_shared< moris::gen::Line >( 2.6, 0.0, 1.0, 0.0 );
             Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
             size_t tModelDimension = 3;
@@ -1846,16 +1860,21 @@ namespace moris
                     "temp.exo",
                     { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1" },
                     { "Displacement UX", "Displacement UY", "Displacement UZ" },
-                    { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
-                    { "IQI_UX", "IQI_UY", "IQI_UZ" } );
+                    { vis::Field_Type::NODAL,
+                            vis::Field_Type::NODAL,
+                            vis::Field_Type::NODAL },
+                    { "IQI_UX", "IQI_UY", "IQI_UZ" },
+                    { vis::Analysis_Type::FORWARD,
+                            vis::Analysis_Type::FORWARD,
+                            vis::Analysis_Type::FORWARD } );
 
             tModel->set_output_manager( &tOutputData );
 
             // --------------------------------------------------------------------------------------
             // define linear solver and algorithm
             dla::Solver_Factory                             tSolFactory;
-            Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_amesos();
-            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( tLinearSolverParameterList );
+            Parameter_List                                  tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_amesos();
+            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm     = tSolFactory.create_solver( tLinearSolverParameterList );
 
             dla::Linear_Solver tLinSolver;
 

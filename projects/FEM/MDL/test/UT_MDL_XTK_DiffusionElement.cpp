@@ -36,18 +36,18 @@
 #include "cl_MTK_Side_Cluster.hpp"
 #include "cl_MTK_Side_Cluster_Input.hpp"
 
-#include "cl_Matrix.hpp"        //LINALG
+#include "cl_Matrix.hpp"    //LINALG
 #include "linalg_typedefs.hpp"
-#include "fn_equal_to.hpp" // ALG/src
+#include "fn_equal_to.hpp"    // ALG/src
 
-#include "cl_FEM_NodeProxy.hpp"                  //FEM/INT/src
-#include "cl_FEM_ElementProxy.hpp"               //FEM/INT/src
-#include "cl_FEM_Node_Base.hpp"                  //FEM/INT/src
-#include "cl_FEM_Element_Factory.hpp"            //FEM/INT/src
-#include "cl_FEM_IWG_Factory.hpp"                //FEM/INT/src
-#include "cl_FEM_SP_Factory.hpp"                //FEM/INT/src
-#include "cl_FEM_CM_Factory.hpp"                //FEM/INT/src
-#include "cl_FEM_Set_User_Info.hpp" //FEM/INT/src
+#include "cl_FEM_NodeProxy.hpp"          //FEM/INT/src
+#include "cl_FEM_ElementProxy.hpp"       //FEM/INT/src
+#include "cl_FEM_Node_Base.hpp"          //FEM/INT/src
+#include "cl_FEM_Element_Factory.hpp"    //FEM/INT/src
+#include "cl_FEM_IWG_Factory.hpp"        //FEM/INT/src
+#include "cl_FEM_SP_Factory.hpp"         //FEM/INT/src
+#include "cl_FEM_CM_Factory.hpp"         //FEM/INT/src
+#include "cl_FEM_Set_User_Info.hpp"      //FEM/INT/src
 
 #include "cl_MDL_Model.hpp"
 
@@ -80,24 +80,23 @@
 namespace moris
 {
 
-    void tConstValFunction_MDL_XTK
-    ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-            Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
-            moris::fem::Field_Interpolator_Manager         * aFIManager )
+    void tConstValFunction_MDL_XTK( moris::Matrix< moris::DDRMat >& aPropMatrix,
+            Vector< moris::Matrix< moris::DDRMat > >&               aParameters,
+            moris::fem::Field_Interpolator_Manager*                 aFIManager )
     {
         aPropMatrix = aParameters( 0 );
     }
 
-    TEST_CASE("XTK Cut Diffusion Model","[XTK_DIFF]")
+    TEST_CASE( "XTK Cut Diffusion Model", "[XTK_DIFF]" )
     {
 
-        if(par_size() == 1)
+        if ( par_size() == 1 )
         {
-            moris::Matrix<moris::DDRMat> tCenters = {{ 1.0,1.0,3.1 }};
-            moris::Matrix<moris::DDRMat> tNormals = {{ 0.0,0.0,1.0 }};
+            moris::Matrix< moris::DDRMat >                    tCenters = { { 1.0, 1.0, 3.1 } };
+            moris::Matrix< moris::DDRMat >                    tNormals = { { 0.0, 0.0, 1.0 } };
             Vector< std::shared_ptr< moris::gen::Geometry > > tGeometry( 1 );
-            auto tField = std::make_shared<moris::gen::Plane>(tCenters(0), tCenters(1), tCenters(2), tNormals(0), tNormals(1), tNormals(2));
-            tGeometry( 0 ) = std::make_shared< gen::Level_Set_Geometry >( tField );
+            auto                                              tField = std::make_shared< moris::gen::Plane >( tCenters( 0 ), tCenters( 1 ), tCenters( 2 ), tNormals( 0 ), tNormals( 1 ), tNormals( 2 ) );
+            tGeometry( 0 )                                           = std::make_shared< gen::Level_Set_Geometry >( tField );
 
             // Initialize field information container
             mtk::MtkFieldsInfo tFieldsInfo;
@@ -107,67 +106,67 @@ namespace moris
             tMeshData.FieldsInfo = &tFieldsInfo;
 
             // Create Mesh --------------------------------------------------------------------
-            std::string tMeshFileName = "generated:1x1x4|sideset:z";
-            moris::mtk::Interpolation_Mesh* tInterpMesh1 = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshFileName, &tMeshData );
+            std::string                     tMeshFileName = "generated:1x1x4|sideset:z";
+            moris::mtk::Interpolation_Mesh* tInterpMesh1  = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshFileName, &tMeshData );
 
             moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometry;
-            moris::gen::Geometry_Engine tGeometryEngine(tInterpMesh1, tGeometryEngineParameters);
+            moris::gen::Geometry_Engine tGeometryEngine( tInterpMesh1, tGeometryEngineParameters );
 
             // Setup XTK Model ----------------------------------------------------------------
-            size_t tModelDimension = 3;
-            xtk::Model tXTKModel(tModelDimension,tInterpMesh1,&tGeometryEngine);
+            size_t     tModelDimension = 3;
+            xtk::Model tXTKModel( tModelDimension, tInterpMesh1, &tGeometryEngine );
 
-            //Specify decomposition Method and Cut Mesh ---------------------------------------
-            Vector<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
-            tXTKModel.decompose(tDecompositionMethods);
+            // Specify decomposition Method and Cut Mesh ---------------------------------------
+            Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
+            tXTKModel.decompose( tDecompositionMethods );
 
             tXTKModel.perform_basis_enrichment( mtk::EntityRank::NODE );
 
             // get meshes
-            xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
-            xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
+            xtk::Enriched_Interpolation_Mesh& tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
+            xtk::Enriched_Integration_Mesh&   tEnrIntegMesh  = tXTKModel.get_enriched_integ_mesh();
 
             std::string tDirchletSideName      = "surface_1_n_p0";
-            std::string tNeumannSideName       = tEnrIntegMesh.get_interface_side_set_name(0,0,1);
+            std::string tNeumannSideName       = tEnrIntegMesh.get_interface_side_set_name( 0, 0, 1 );
             std::string tBulkBlockNamesChild   = "block_1_c_p0";
             std::string tBulkBlockNamesNoChild = "block_1_n_p0";
 
             // place the pair in mesh manager
             std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
-            tMeshManager->register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
+            tMeshManager->register_mesh_pair( &tEnrInterpMesh, &tEnrIntegMesh );
 
             //------------------------------------------------------------------------------
             // create the properties
             std::shared_ptr< fem::Property > tPropConductivity = std::make_shared< fem::Property >();
-            tPropConductivity->set_parameters( { {{ 1.0 }} } );
+            tPropConductivity->set_parameters( { { { 1.0 } } } );
             tPropConductivity->set_val_function( tConstValFunction_MDL_XTK );
 
             std::shared_ptr< fem::Property > tPropDirichlet = std::make_shared< fem::Property >();
-            tPropDirichlet->set_parameters( { {{ 5.0 }} } );
+            tPropDirichlet->set_parameters( { { { 5.0 } } } );
             tPropDirichlet->set_val_function( tConstValFunction_MDL_XTK );
 
             std::shared_ptr< fem::Property > tPropNeumann = std::make_shared< fem::Property >();
-            tPropNeumann->set_parameters( { {{ 20.0 }} } );
+            tPropNeumann->set_parameters( { { { 20.0 } } } );
             tPropNeumann->set_val_function( tConstValFunction_MDL_XTK );
 
             std::shared_ptr< fem::Property > tPropTempLoad = std::make_shared< fem::Property >();
-            tPropTempLoad->set_parameters( { {{ 0.0 }} } );
+            tPropTempLoad->set_parameters( { { { 0.0 } } } );
             tPropTempLoad->set_val_function( tConstValFunction_MDL_XTK );
 
             // define constitutive models
             fem::CM_Factory tCMFactory;
 
             std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
-            tCMDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            tCMDiffLinIso->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
             tCMDiffLinIso->set_property( tPropConductivity, "Conductivity" );
             tCMDiffLinIso->set_space_dim( 3 );
             tCMDiffLinIso->set_local_properties();
 
             // define stabilization parameters
-            fem::SP_Factory tSPFactory;
+            fem::SP_Factory                                 tSPFactory;
             std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
-            tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
+            tSPDirichletNitsche->set_parameters( { { { 1.0 } } } );
             tSPDirichletNitsche->set_property( tPropConductivity, "Material", mtk::Leader_Follower::LEADER );
 
             // define the IWGs
@@ -175,20 +174,20 @@ namespace moris
 
             std::shared_ptr< fem::IWG > tIWGBulk = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
             tIWGBulk->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
-            tIWGBulk->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            tIWGBulk->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
             tIWGBulk->set_constitutive_model( tCMDiffLinIso, "Diffusion", mtk::Leader_Follower::LEADER );
             tIWGBulk->set_property( tPropTempLoad, "Load", mtk::Leader_Follower::LEADER );
 
             std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
             tIWGDirichlet->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
-            tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            tIWGDirichlet->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
             tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
             tIWGDirichlet->set_constitutive_model( tCMDiffLinIso, "Diffusion", mtk::Leader_Follower::LEADER );
             tIWGDirichlet->set_property( tPropDirichlet, "Dirichlet", mtk::Leader_Follower::LEADER );
 
             std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_NEUMANN );
             tIWGNeumann->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
-            tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            tIWGNeumann->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
             tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Leader_Follower::LEADER );
 
             // define set info
@@ -216,7 +215,7 @@ namespace moris
             tSetInfo( 3 ) = tSetNeumann;
 
             // create model
-            mdl::Model * tModel = new mdl::Model( tMeshManager,
+            mdl::Model* tModel = new mdl::Model( tMeshManager,
                     0,
                     tSetInfo );
 
@@ -224,15 +223,16 @@ namespace moris
             // --------------------------------------------------------------------------------------
             vis::Output_Manager tOutputData;
             tOutputData.set_outputs( 0,
-                    vis::VIS_Mesh_Type::STANDARD, //STANDARD_WITH_OVERLAP
+                    vis::VIS_Mesh_Type::STANDARD,    // STANDARD_WITH_OVERLAP
                     "./",
                     "UT_Output_xtk_mdl_enr_integ.exo",
                     "./",
-                     "temp.exo",
+                    "temp.exo",
                     { "block_1_c_p0", "block_1_n_p0" },
                     { "TEMP" },
                     { vis::Field_Type::NODAL },
-                    { "IQI_temp" } );
+                    { "IQI_temp" },
+                    { vis::Analysis_Type::FORWARD } );
             tModel->set_output_manager( &tOutputData );
 
             Vector< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
@@ -241,8 +241,8 @@ namespace moris
             // STEP 1: create linear solver and algorithm
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-            dla::Solver_Factory  tSolFactory;
-            Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_aztec();
+            dla::Solver_Factory tSolFactory;
+            Parameter_List      tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_aztec();
             tLinearSolverParameterList.set( "AZ_diagnostics", AZ_none );
             tLinearSolverParameterList.set( "AZ_output", AZ_none );
             std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( tLinearSolverParameterList );
@@ -256,7 +256,7 @@ namespace moris
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
             NLA::Nonlinear_Solver_Factory tNonlinFactory;
-            Parameter_List tNonlinearSolverParameterList = prm::create_nonlinear_algorithm_parameter_list();
+            Parameter_List                tNonlinearSolverParameterList = prm::create_nonlinear_algorithm_parameter_list();
             tNonlinearSolverParameterList.set( "NLA_max_iter", 10 );
             tNonlinearSolverParameterList.set( "NLA_hard_break", false );
             tNonlinearSolverParameterList.set( "NLA_max_lin_solver_restarts", 2 );
@@ -272,7 +272,7 @@ namespace moris
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 3: create time Solver and algorithm
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            tsa::Time_Solver_Factory tTimeSolverFactory;
+            tsa::Time_Solver_Factory                      tTimeSolverFactory;
             std::shared_ptr< tsa::Time_Solver_Algorithm > tTimeSolverAlgorithm = tTimeSolverFactory.create_time_solver( tsa::TimeSolverType::MONOLITHIC );
 
             tTimeSolverAlgorithm->set_nonlinear_solver( &tNonlinearSolver );
@@ -283,7 +283,7 @@ namespace moris
 
             sol::SOL_Warehouse tSolverWarehouse;
 
-            tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
+            tSolverWarehouse.set_solver_interface( tModel->get_solver_interface() );
 
             tNonlinearSolver.set_solver_warehouse( &tSolverWarehouse );
             tTimeSolver.set_solver_warehouse( &tSolverWarehouse );
@@ -300,27 +300,28 @@ namespace moris
             moris::Matrix< DDRMat > tSolution11;
             tTimeSolver.get_full_solution( tSolution11 );
 
-            Matrix<DDRMat> tGoldSolution = {
-            {2.499999999999997e+01},
-            {2.499999999999997e+01},
-            {2.499999999999996e+01},
-            {2.499999999999997e+01},
-            {4.499999999999995e+01},
-            {4.499999999999996e+01},
-            {4.499999999999994e+01},
-            {4.499999999999995e+01},
-            {6.499999999999994e+01},
-            {6.499999999999993e+01},
-            {6.499999999999993e+01},
-            {6.499999999999996e+01},
-            {8.500000000000014e+01},
-            {8.500000000000011e+01},
-            {8.500000000000013e+01},
-            {8.499999999999947e+01},
-            {5.000000000000000e+00},
-            {5.000000000000005e+00},
-            {5.000000000000003e+00},
-            {5.000000000000001e+00}};
+            Matrix< DDRMat > tGoldSolution = {
+                { 2.499999999999997e+01 },
+                { 2.499999999999997e+01 },
+                { 2.499999999999996e+01 },
+                { 2.499999999999997e+01 },
+                { 4.499999999999995e+01 },
+                { 4.499999999999996e+01 },
+                { 4.499999999999994e+01 },
+                { 4.499999999999995e+01 },
+                { 6.499999999999994e+01 },
+                { 6.499999999999993e+01 },
+                { 6.499999999999993e+01 },
+                { 6.499999999999996e+01 },
+                { 8.500000000000014e+01 },
+                { 8.500000000000011e+01 },
+                { 8.500000000000013e+01 },
+                { 8.499999999999947e+01 },
+                { 5.000000000000000e+00 },
+                { 5.000000000000005e+00 },
+                { 5.000000000000003e+00 },
+                { 5.000000000000001e+00 }
+            };
 
             // verify solution
             // define a bool for solution check
@@ -334,7 +335,7 @@ namespace moris
             {
                 // check solution
                 tCheckNodalSolution = tCheckNodalSolution
-                        && ( std::abs( tSolution11( i ) - tGoldSolution( i ) ) < 1e-08 );
+                                   && ( std::abs( tSolution11( i ) - tGoldSolution( i ) ) < 1e-08 );
             }
             // check bool is true
             REQUIRE( tCheckNodalSolution );
@@ -344,5 +345,4 @@ namespace moris
             delete tModel;
         }
     }
-}
-
+}    // namespace moris

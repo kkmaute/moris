@@ -96,7 +96,7 @@ PlaneVisTest( const moris::Matrix< moris::DDRMat >& aPoint )
 
 inline void
 tConstValFunction_VISOutputManager( moris::Matrix< moris::DDRMat >& aPropMatrix,
-        Vector< moris::Matrix< moris::DDRMat > >&              aParameters,
+        Vector< moris::Matrix< moris::DDRMat > >&                   aParameters,
         moris::fem::Field_Interpolator_Manager*                     aFIManager )
 {
     aPropMatrix = aParameters( 0 );
@@ -341,7 +341,8 @@ namespace moris::vis
                     { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1" },
                     { "strain energy elemental", "strain energy global", "strain energy nodal IP" },
                     { Field_Type::ELEMENTAL_AVG, Field_Type::GLOBAL, Field_Type::NODAL },
-                    { "IQI", "IQI", "IQI" } );
+                    { "IQI", "IQI", "IQI" },
+                    { vis::Analysis_Type::FORWARD, vis::Analysis_Type::FORWARD, vis::Analysis_Type::FORWARD } );
 
             tModel->set_output_manager( &tOutputData );
 
