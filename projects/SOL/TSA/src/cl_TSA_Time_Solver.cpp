@@ -575,7 +575,7 @@ void Time_Solver::initialize_sol_vec()
         else
         {
             // convert the user defined string to cell/matrix
-            string_to_cell_of_cell( tStrInitialGuess, tDofTypeAndValuePair );
+            string_to_vector_of_vectors( tStrInitialGuess, tDofTypeAndValuePair );
 
             // create map object
             sol::Matrix_Vector_Factory tMatFactory( mSolverWarehouse->get_tpl_type() );
@@ -729,7 +729,7 @@ void Time_Solver::initialize_time_levels()
     // extract initialization string from parameter list
     Vector< Vector< std::string > > tDofTypeAndTimeLevelPair;
 
-    string_to_cell_of_cell( mParameterListTimeSolver.get< std::string >( "TSA_time_level_per_type" ),
+    string_to_vector_of_vectors( mParameterListTimeSolver.get< std::string >( "TSA_time_level_per_type" ),
             tDofTypeAndTimeLevelPair );
 
     // get string to dof type map

@@ -106,7 +106,7 @@ namespace moris::vis
 
         // read and check mesh set names
         Vector< std::string > tSetNames;
-        string_to_cell(
+        string_to_vector(
                 aParameterlist.get< std::string >( "Set_Names" ),
                 tSetNames );
 
@@ -123,7 +123,7 @@ namespace moris::vis
 
         // read and check field names
         Vector< std::string > tFieldNames;
-        string_to_cell(
+        string_to_vector(
                 aParameterlist.get< std::string >( "Field_Names" ),
                 tFieldNames );
 
@@ -141,7 +141,7 @@ namespace moris::vis
         // read and check field types
         Vector< enum vis::Field_Type >                  tFieldTypes;
         moris::map< std::string, enum vis::Field_Type > tFieldTypeMap = get_vis_field_type_map();
-        string_to_cell(
+        string_to_vector(
                 aParameterlist.get< std::string >( "Field_Type" ),
                 tFieldTypes,
                 tFieldTypeMap );
@@ -163,7 +163,7 @@ namespace moris::vis
 
         // read and check IQI names
         Vector< std::string > tQINames;
-        string_to_cell(
+        string_to_vector(
                 aParameterlist.get< std::string >( "IQI_Names" ),
                 tQINames );
 

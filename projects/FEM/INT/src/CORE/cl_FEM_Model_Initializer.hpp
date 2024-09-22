@@ -135,7 +135,7 @@ namespace moris::fem
     template< typename T >
     Vector< Vector< T > > Model_Initializer::property_to_vec_of_vec( Parameter_List const &aParameterList, std::string const &aPropertyName, map< std::string, T > const &aTypeMap ) const
     {
-        return string_to_cell_of_cell< T >( aParameterList.get< std::string >( aPropertyName ), aTypeMap );
+        return string_to_vector_of_vectors< T >( aParameterList.get< std::string >( aPropertyName ), aTypeMap );
     }
 }    // namespace moris::fem
 

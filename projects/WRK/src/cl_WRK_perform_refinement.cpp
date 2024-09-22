@@ -36,7 +36,7 @@ namespace moris::wrk
     {
         // set field names
         Vector< std::string > tFieldNames;
-        string_to_cell(
+        string_to_vector(
                 aParameterlist.get< std::string >( "field_names" ),
                 mParameters.mFieldNames );
 
@@ -61,7 +61,7 @@ namespace moris::wrk
                     mParameters.mRefinemenCopytPatternToPattern );
         }
 
-        string_to_cell(
+        string_to_vector(
                 aParameterlist.get< std::string >( "refinement_function_name" ),
                 mParameters.mRefinementFunctionName );
     }

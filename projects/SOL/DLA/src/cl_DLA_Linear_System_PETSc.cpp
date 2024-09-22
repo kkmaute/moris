@@ -157,6 +157,12 @@ Linear_System_PETSc::~Linear_System_PETSc()
 
         PetscFinalize();
     }
+    if ( mMassMat != nullptr )
+    {
+        delete mMassMat;
+        mMassMat = nullptr;
+    }
+
 }
 
 //------------------------------------------------------------------------------

@@ -125,7 +125,7 @@ namespace moris::vis
             tParameters.set_domain_offset( { { -1.0 }, { -0.0 } } );
             tParameters.set_bspline_truncation( true );
 
-            tParameters.set_output_meshes( { { { 0 } } } );
+            tParameters.set_output_meshes( { { 0 } } );
 
             tParameters.set_lagrange_orders( { { 1 } } );
             tParameters.set_lagrange_patterns( { { 0 } } );
@@ -137,11 +137,6 @@ namespace moris::vis
 
             tParameters.set_refinement_buffer( 1 );
             tParameters.set_staircase_buffer( 1 );
-
-            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
-            tLagrangeToBSplineMesh( 0 ) = { { 0 } };
-
-            tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
             hmr::HMR tHMR( tParameters );
 
@@ -427,7 +422,7 @@ namespace moris::vis
             tParameters.set_domain_offset( { { -1.0 }, { -0.0 } } );
             tParameters.set_bspline_truncation( true );
 
-            tParameters.set_output_meshes( { { { 0 } } } );
+            tParameters.set_output_meshes( { { 0 } } );
 
             tParameters.set_lagrange_orders( { { 1 } } );
             tParameters.set_lagrange_patterns( { { 0 } } );
@@ -439,11 +434,6 @@ namespace moris::vis
 
             tParameters.set_refinement_buffer( 1 );
             tParameters.set_staircase_buffer( 1 );
-
-            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
-            tLagrangeToBSplineMesh( 0 ) = { { 0 } };
-
-            tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
             hmr::HMR tHMR( tParameters );
 

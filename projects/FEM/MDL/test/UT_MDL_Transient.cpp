@@ -144,17 +144,12 @@ namespace moris
             tParameters.set_bspline_orders( { { 1 } } );
             tParameters.set_bspline_patterns( { { 0 } } );
 
-            tParameters.set_output_meshes( { { { 0 } } } );
+            tParameters.set_output_meshes( { { 0 } } );
 
             tParameters.set_staircase_buffer( 1 );
             tParameters.set_initial_refinement( { { 2 } } );
             tParameters.set_initial_refinement_patterns( { { 0 } } );
             tParameters.set_number_aura( true );
-
-            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
-            tLagrangeToBSplineMesh( 0 ) = { { 0 } };
-
-            tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
             // create the HMR object by passing the settings to the constructor
             moris::hmr::HMR tHMR( tParameters );

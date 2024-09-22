@@ -944,7 +944,7 @@ namespace moris::fem
                 // Try to set reference values directly
                 try
                 {
-                    mIQIs( tRequestedIQIIndex )->set_reference_value( string_to_mat< DDRMat >( tNormalization )( 0 ) );
+                    mIQIs( tRequestedIQIIndex )->set_reference_value( string_to_matrix< DDRMat >( tNormalization )( 0 ) );
                 } catch ( ... )
                 {
                     // error

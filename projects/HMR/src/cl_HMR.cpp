@@ -179,9 +179,9 @@ namespace moris::hmr
             this->output_mesh_refinement_data();
         }
 
-        const Vector< Matrix< DDUMat > >& OutputMeshIndex = mParameters->get_output_mesh();
+        const Vector< Vector< uint > >& OutputMeshIndex = mParameters->get_output_mesh();
 
-        MORIS_ERROR( OutputMeshIndex( 0 ).numel() == 1,
+        MORIS_ERROR( OutputMeshIndex( 0 ).size() == 1,
                 "HMR::perform(), Only one output mesh allowed right! To allow more implement multiple side sets!" );
 
         // get mesh with numbered aura (aura number is requested)
@@ -213,7 +213,7 @@ namespace moris::hmr
 
         if ( OutputMeshIndex.size() == 2 )
         {
-            for ( uint iOutputMesh = 0; iOutputMesh < OutputMeshIndex( 1 ).numel(); iOutputMesh++ )
+            for ( uint iOutputMesh = 0; iOutputMesh < OutputMeshIndex( 1 ).size(); iOutputMesh++ )
             {
                 uint tLagrangeMeshIndexSecondary = OutputMeshIndex( 1 )( iOutputMesh );
 
