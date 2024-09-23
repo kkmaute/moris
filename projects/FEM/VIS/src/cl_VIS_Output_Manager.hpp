@@ -215,6 +215,9 @@ namespace moris
                 // check if file is already closed
                 if ( mVisMeshOutputFileStatus( aVisMeshIndex ) == File_Status::CLOSED )
                 {
+                    MORIS_ERROR( false,
+                            "Output_Manager::check_for_closing_file - cannot close file whose status is closed" );
+
                     return false;
                 }
 
@@ -224,7 +227,8 @@ namespace moris
                     // file status is closing delayed, close file (can happen in sweep)
                     if ( mVisMeshOutputFileStatus( aVisMeshIndex ) == File_Status::CLOSINGDELAYED )
                     {
-                        MORIS_ERROR( false, "Output_Manager::check_for_closing_file - file status is closing delayed in forward analysis" );
+                        MORIS_ERROR( false,
+                                "Output_Manager::check_for_closing_file - file status is closing delayed in forward analysis" );
                     }
 
                     // sensitivity based IQIs exist, delay closing
@@ -242,11 +246,14 @@ namespace moris
                     {
                         mVisMeshOutputFileStatus( aVisMeshIndex ) = File_Status::OPEN;
 
-                        return false;
+                        return true;
                     }
                     else
                     {
                         // file status is open, close file
+                        MORIS_ERROR( false,
+                                "Output_Manager::check_for_closing_file - in sensitivity analysis file status should be closing delayed" );
+
                         return true;
                     }
                 }

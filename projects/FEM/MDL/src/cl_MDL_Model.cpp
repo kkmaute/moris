@@ -520,11 +520,10 @@ namespace moris::mdl
     {
         Tracer tTracer( "MDL", "Model", "Post-Process and Output Solution" );
 
-        // check for dangling file to be closed
-        if ( mOutputManager->check_for_closing_file( aVisMeshIndex, true, aIsFowardAnalysis ) )
+        // if sensitivity based IQIs do not exist skip remainder when in sensitivity analysis
+        if ( !aIsFowardAnalysis && !mOutputManager->sensitivity_based_iqis_exist( aVisMeshIndex ) )
         {
-            // end writing and delete vis mesh
-            mOutputManager->end_writing( aVisMeshIndex );
+            return;
         }
 
         // create vis mesh and setup output

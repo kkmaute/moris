@@ -813,8 +813,6 @@ namespace moris::MSI
             aEqnObjMatrix = trans( aEqnObjMatrix );
         }
 
-        std::cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
-
         Vector< Matrix< DDRMat > >& tElementalResidual = mEquationSet->get_residual();
 
         if ( !mEquationSet->mEquationModel->is_forward_analysis() )

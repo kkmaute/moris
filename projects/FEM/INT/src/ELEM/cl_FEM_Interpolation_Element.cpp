@@ -888,8 +888,6 @@ namespace moris::fem
         Matrix< DDRMat > tdRdpmat;
         Matrix< DDRMat > tdRdpgeo;
 
-        std::cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
-
         if ( mSet->mEquationModel->is_adjoint_sensitivity_analysis() )
         {
             // ask cluster to compute explicit derivatives of residual and IQI wrt. PDOFs
