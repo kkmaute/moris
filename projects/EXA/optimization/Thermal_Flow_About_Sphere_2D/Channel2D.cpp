@@ -124,8 +124,8 @@ namespace moris
 
     /* ------------------------------------------------------------------------ */
     // background mesh
-    std::string tNumElemX = moris_to_string( std::ceil( tDimX / tApproxEleSize ) );
-    std::string tNumElemY = moris_to_string( std::ceil( tDimY / tApproxEleSize ) );
+    std::string tNumElemX = std::to_string( (uint)std::ceil( tDimX / tApproxEleSize ) );
+    std::string tNumElemY = std::to_string( (uint)std::ceil( tDimY / tApproxEleSize ) );
 
     std::string tDomainDimX = moris_to_string( tDimX );
     std::string tDomainDimY = moris_to_string( tDimY );
