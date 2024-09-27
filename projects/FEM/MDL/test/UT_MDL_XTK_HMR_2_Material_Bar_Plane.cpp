@@ -119,7 +119,7 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
 
         tParameters.set_number_of_elements_per_dimension( 11, 4 );
         tParameters.set_domain_dimensions( 6, 2 );
-        tParameters.set_domain_offset({ {-3.0}, {-1.0} });
+        tParameters.set_domain_offset( -3, -1 );
         tParameters.set_bspline_truncation( true );
 
         tParameters.set_output_meshes( {{ 0 }} );

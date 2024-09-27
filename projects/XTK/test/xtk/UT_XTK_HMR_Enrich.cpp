@@ -97,7 +97,7 @@ namespace moris::xtk
 
             tParameters.set_number_of_elements_per_dimension( 3, 3 );
             tParameters.set_domain_dimensions( 2, 2 );
-            tParameters.set_domain_offset( { { -1.0 }, { -1.0 } } );
+            tParameters.set_domain_offset( -1, -1 );
             tParameters.set_bspline_truncation( true );
 
             tParameters.set_output_meshes( { { 0 } } );
@@ -206,7 +206,7 @@ namespace moris::xtk
 
             tParameters.set_number_of_elements_per_dimension( 3, 1 );
             tParameters.set_domain_dimensions( 6, 2 );
-            tParameters.set_domain_offset( { { -3.0 }, { -1.0 } } );
+            tParameters.set_domain_offset( -3, -1 );
             tParameters.set_bspline_truncation( true );
 
             tParameters.set_output_meshes( { { 0 } } );

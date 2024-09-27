@@ -521,7 +521,7 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
 
         tParameters.set_number_of_elements_per_dimension( 10, 4, 4 );
         tParameters.set_domain_dimensions( 10, 4, 4 );
-        tParameters.set_domain_offset({ {-10.0}, {-2.0}, {-2.0} });
+        tParameters.set_domain_offset( -10, -2, -2 );
         tParameters.set_bspline_truncation( true );
         tParameters.set_side_sets({ {1}, {6}, {3}, {4}, {5}, {2} });
 
@@ -778,7 +778,7 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
 
         tParameters.set_number_of_elements_per_dimension( 4, 2, 2 );
         tParameters.set_domain_dimensions( 4, 2, 2 );
-        tParameters.set_domain_offset({ {-2.0}, {0.0}, {0.0} });
+        tParameters.set_domain_offset( -2, 0, 0 );
         tParameters.set_bspline_truncation( true );
         tParameters.set_side_sets({ {1}, {6}, {3}, {4}, {5}, {2} });
 
@@ -1046,7 +1046,7 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
 
         tParameters.set_number_of_elements_per_dimension( 4, 2, 2 );
         tParameters.set_domain_dimensions( 4, 2, 2 );
-        tParameters.set_domain_offset({ {-2.0}, {0.0}, {0.0} });
+        tParameters.set_domain_offset( -2, 0, 0 );
         tParameters.set_bspline_truncation( true );
         tParameters.set_side_sets({ {1}, {6}, {3}, {4}, {5}, {2} });
 
