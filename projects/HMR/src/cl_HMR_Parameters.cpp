@@ -59,10 +59,10 @@ namespace moris::hmr
                 "length of domain_dimensions must be equal to number_of_elements_per_dimension." );
 
         // get domain offset
-        string_to_matrix( aParameterList.get< std::string >( "domain_offset" ), mDomainOffset );
+        string_to_vector( aParameterList.get< std::string >( "domain_offset" ), mDomainOffset );
 
         // check sanity of input
-        MORIS_ERROR( mNumberOfElementsPerDimension.size() == mDomainOffset.length(),
+        MORIS_ERROR( mNumberOfElementsPerDimension.size() == mDomainOffset.size(),
                 "length of domain_offset must be equal to number_of_elements_per_dimension." );
 
         // set buffer sizes
@@ -411,9 +411,9 @@ namespace moris::hmr
         }
 
         // auto set offset
-        if ( mDomainOffset.length() == 0 )
+        if ( mDomainOffset.size() == 0 )
         {
-            mDomainOffset.set_size( tNumberOfDimensions, 1, 0.0 );
+            mDomainOffset.resize( tNumberOfDimensions, 0.0 );
         }
     }
     //--------------------------------------------------------------------------------
@@ -480,13 +480,13 @@ namespace moris::hmr
     //--------------------------------------------------------------------------------
 
     void
-    Parameters::set_domain_offset( const Matrix< DDRMat >& aDomainOffset )
+    Parameters::set_domain_offset( const Vector< real >& aDomainOffset )
     {
         // test if calling this function is allowed
         this->error_if_locked( "set_domain_offset" );
 
         // check sanity of input
-        MORIS_ERROR( aDomainOffset.length() == 2 || aDomainOffset.length() == 3,
+        MORIS_ERROR( aDomainOffset.size() == 2 || aDomainOffset.size() == 3,
                 "Domain Offset must be a matrix of length 2 or 3." );
 
         mDomainOffset = aDomainOffset;
@@ -502,7 +502,7 @@ namespace moris::hmr
         // test if calling this function is allowed
         this->error_if_locked( "set_domain_offset" );
 
-        mDomainOffset.set_size( 2, 1 );
+        mDomainOffset.resize( 2 );
         mDomainOffset( 0 ) = aDomainOffsetX;
         mDomainOffset( 1 ) = aDomainOffsetY;
     }
@@ -518,7 +518,7 @@ namespace moris::hmr
         // test if calling this function is allowed
         this->error_if_locked( "set_domain_offset" );
 
-        mDomainOffset.set_size( 3, 1 );
+        mDomainOffset.resize( 3 );
         mDomainOffset( 0 ) = aDomainOffsetX;
         mDomainOffset( 1 ) = aDomainOffsetY;
         mDomainOffset( 2 ) = aDomainOffsetZ;
@@ -624,7 +624,7 @@ namespace moris::hmr
             MORIS_ERROR( mDomainDimensions.size() == tNumberOfDimensions,
                     "Domain dimensions and Number of Elements per dimension do not match" );
 
-            MORIS_ERROR( mDomainOffset.length() == tNumberOfDimensions,
+            MORIS_ERROR( mDomainOffset.size() == tNumberOfDimensions,
                     "Domain offset and Number of Elements per dimension do not match" );
 
             MORIS_ERROR( mBSplinePatterns.size() == mBSplineOrders.size(),

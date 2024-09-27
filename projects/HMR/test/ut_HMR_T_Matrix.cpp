@@ -70,7 +70,7 @@ namespace moris::hmr
 
                 // Domain from -1 to 1 in each dimension
                 tParameters->set_domain_dimensions( Vector< real >( iNumberOfDimensions, 2 ) );
-                tParameters->set_domain_offset( Matrix< DDRMat >( iNumberOfDimensions, 1, -1 ) );
+                tParameters->set_domain_offset( Vector< real >( iNumberOfDimensions, -1 ) );
 
                 // Loop over orders
                 for ( uint iOrder = 1; iOrder <= 3; iOrder++ )

@@ -431,7 +431,7 @@ namespace moris::hmr
             }
 
             // get domain offset
-            Matrix< DDRMat > tParametersOffset = mParameters->get_domain_offset();
+            Vector< real > tParametersOffset = mParameters->get_domain_offset();
 
             // domain offset
             real tOffset[ N ];

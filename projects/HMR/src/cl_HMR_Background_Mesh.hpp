@@ -487,7 +487,7 @@ namespace moris::hmr
         calculate_domain_offset()
         {
             // get domain offset
-            Matrix< DDRMat > tParametersOffset = mParameters->get_domain_offset();
+            Vector< real > tParametersOffset = mParameters->get_domain_offset();
 
             // get padding size
             real tPaddingSize = (real)mParameters->get_padding_size();
@@ -1167,7 +1167,7 @@ namespace moris::hmr
             //                }
 
             // get domain offset
-            Matrix< DDRMat > tParametersOffset = mParameters->get_domain_offset();
+            Vector< real > tParametersOffset = mParameters->get_domain_offset();
 
             bool tCheck = true;
 

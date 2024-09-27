@@ -63,7 +63,7 @@ namespace moris::hmr
                             Vector< uint > tNumberOfElements( tDimension, 2 * tOrder );
                             tParameters.set_number_of_elements_per_dimension( tNumberOfElements );
 
-                            Matrix< DDRMat > tDomainOffset( tDimension, 1, 0.0 );
+                            Vector< real > tDomainOffset( tDimension, 0.0 );
                             tParameters.set_domain_offset( tDomainOffset );
 
                             tParameters.set_lagrange_orders( { 1 } );

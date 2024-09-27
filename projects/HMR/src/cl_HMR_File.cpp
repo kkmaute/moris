@@ -52,9 +52,9 @@ namespace moris::hmr
                 mStatus );
 
         // save domain offset
-        save_matrix_to_hdf5_file( mFileID,
+        save_vector_to_hdf5_file( mFileID,
                 "DomainOffset",
-                aParameters->get_domain_offset(),
+                aParameters->get_domain_offset().data(),
                 mStatus );
 
         // save number of elements on coarsest mesh
@@ -177,13 +177,13 @@ namespace moris::hmr
         aParameters->set_domain_dimensions( tRealVector );
 
         // load domain offset
-        load_matrix_from_hdf5_file( mFileID,
+        load_vector_from_hdf5_file( mFileID,
                 "DomainOffset",
-                tMatReal,
+                tRealVector.data(),
                 mStatus );
 
         // set domain offset
-        aParameters->set_domain_offset( tMatReal );
+        aParameters->set_domain_offset( tRealVector );
 
         // load number of elements on coarsest mesh
         load_vector_from_hdf5_file( mFileID,

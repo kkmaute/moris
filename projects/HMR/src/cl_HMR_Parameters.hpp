@@ -73,7 +73,7 @@ namespace moris::hmr
         Vector< real > mDomainDimensions;
 
         //! coordinate of first visible node
-        Matrix< DDRMat > mDomainOffset;
+        Vector< real > mDomainOffset;
 
         //! size of staircase buffer
         uint mRefinementBuffer = 1;
@@ -647,7 +647,7 @@ namespace moris::hmr
          *
          * @return void
          */
-        void set_domain_offset( const Matrix< DDRMat >& aDomainOffset );
+        void set_domain_offset( const Vector< real >& aDomainOffset );
 
         /**
          * sets the coordinate of first node of calculation domain. 2D Version.
