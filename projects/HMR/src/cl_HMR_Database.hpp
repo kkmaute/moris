@@ -499,7 +499,11 @@ namespace moris::hmr
             return mFinalizedCalled;
         }
 
-        // -----------------------------------------------------------------------------
+        /**
+         * creates the communication table and writes it into
+         * mCommunicationTable. Must be called after mesh has been finalized.
+         */
+        void create_communication_table();
 
       private:
         // -----------------------------------------------------------------------------
@@ -514,12 +518,6 @@ namespace moris::hmr
 
         // -----------------------------------------------------------------------------
 
-        bool is_lagrange_input_mesh( const uint aMeshIndex );
-
-        bool is_bspline_input_mesh( const uint aMeshIndex );
-
-        // -----------------------------------------------------------------------------
-
         /**
          * this function deletes the Lagrange and B-Spline meshes
          * the function is called before create_meshes
@@ -530,24 +528,10 @@ namespace moris::hmr
 
         void delete_additional_meshes( uint aPattern );
 
-        // -----------------------------------------------------------------------------
-
-        /**
-         * creates the communication table and writes it into
-         * mCommunicationTable. Must be called after mesh has been finalized.
-         */
-        void create_communication_table();
-
-        // -----------------------------------------------------------------------------
-
         /**
          * creates the sidesets
          */
         void create_side_sets();
-
-        // -----------------------------------------------------------------------------
-
-        void create_working_pattern_for_bspline_refinement();
 
         // -----------------------------------------------------------------------------
 

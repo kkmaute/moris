@@ -211,8 +211,6 @@ namespace moris::hmr
                 tParameters.set_bspline_orders( { 1, 1, 1 } );
                 tParameters.set_bspline_patterns( { 0, 1, 2 } );
 
-                tParameters.set_lagrange_input_mesh( { { 0 } } );
-
                 tParameters.set_staircase_buffer( 3 );
                 tParameters.set_refinement_buffer( 3 );
 

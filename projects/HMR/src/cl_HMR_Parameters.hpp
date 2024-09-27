@@ -118,10 +118,6 @@ namespace moris::hmr
 
         moris::map< std::string, moris_index > mOutputNameToIndexMap;
 
-        Matrix< DDUMat > mLagrangeInputMeshes = { {} };
-
-        Matrix< DDUMat > mBSplineInputMeshes = { {} };
-
         Matrix< DDUMat > mInitialRefinementLevel   = { {} };
         Matrix< DDUMat > mInitialRefinementPattern = { {} };
 
@@ -511,29 +507,6 @@ namespace moris::hmr
          * @param aMeshIndex Mesh index to check
          */
         bool is_output_mesh( uint aMeshIndex ) const;
-
-        /**
-         * returns lagrange input mesh index
-         */
-        const Matrix< DDUMat >&
-        get_lagrange_input_mesh() const
-        {
-            return mLagrangeInputMeshes;
-        };
-
-        /**
-         * Sets the Lagrange input meshes.
-         *
-         * @param aLagrangeInputMeshes Lagrange input mesh indices
-         */
-        void
-        set_lagrange_input_mesh( const Matrix< DDUMat >& aLagrangeInputMeshes )
-        {
-            // test if calling this function is allowed
-            this->error_if_locked( "set_lagrange_input_mesh" );
-
-            mLagrangeInputMeshes = aLagrangeInputMeshes;
-        };
 
         /**
          * Padding size is the bigger one of mBufferSize and mMaxPolynomial.

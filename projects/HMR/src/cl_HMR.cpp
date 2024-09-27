@@ -65,7 +65,8 @@ namespace moris::hmr
         // initialize meshes
         this->create_input_and_output_meshes();
 
-        mDatabase->calculate_t_matrices_for_input();
+        // create communication table
+        mDatabase->create_communication_table();
     }
 
     // -----------------------------------------------------------------------------
@@ -103,7 +104,8 @@ namespace moris::hmr
 
         this->create_input_and_output_meshes();
 
-        mDatabase->calculate_t_matrices_for_input();
+        // create communication table
+        mDatabase->create_communication_table();
     }
 
     // -----------------------------------------------------------------------------

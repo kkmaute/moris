@@ -128,8 +128,6 @@ namespace moris::hmr
             }
         }
 
-        string_to_matrix( aParameterList.get< std::string >( "lagrange_input_meshes" ), mLagrangeInputMeshes );
-
         // Set orders/patterns
         string_to_vector( aParameterList.get< std::string >( "lagrange_orders" ), mLagrangeOrders );
         string_to_vector( aParameterList.get< std::string >( "lagrange_pattern" ), mLagrangePatterns );

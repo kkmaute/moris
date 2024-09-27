@@ -46,8 +46,6 @@ namespace moris::prm
 
         // Lagrange Mesh Names of output meshes
         tParameterList.insert( "lagrange_output_mesh_names", "" );
-        // Lagrange Meshes that are used as input meshes
-        tParameterList.insert( "lagrange_input_meshes", "" );
 
         // size of refinement buffer
         tParameterList.insert( "refinement_buffer", 0u );

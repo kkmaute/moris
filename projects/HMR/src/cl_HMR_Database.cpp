@@ -402,36 +402,6 @@ namespace moris::hmr
 
     // -----------------------------------------------------------------------------
 
-    bool
-    Database::is_lagrange_input_mesh( const uint aMeshIndex )
-    {
-        const Matrix< DDUMat >& tLagInputMeshes = mParameters->get_lagrange_input_mesh();
-
-        bool tIsLagrangeInputMesh = false;
-
-        for ( uint k = 0; k < tLagInputMeshes.numel(); ++k )
-        {
-            if ( aMeshIndex == tLagInputMeshes( k ) )
-            {
-                tIsLagrangeInputMesh = true;
-                break;
-            }
-        }
-
-        return tIsLagrangeInputMesh;
-    }
-
-    // -----------------------------------------------------------------------------
-
-    bool
-    Database::is_bspline_input_mesh( const uint aMeshIndex )
-    {
-        // TODO remove this function
-        return false;
-    }
-
-    // -----------------------------------------------------------------------------
-
     void
     Database::update_bspline_meshes()
     {
@@ -1508,92 +1478,6 @@ namespace moris::hmr
         mOutputSideSets.clear();
 
         mOutputSideSetMap.clear();
-    }
-
-    // -----------------------------------------------------------------------------
-
-    void
-    Database::calculate_t_matrices_for_input()
-    {
-        // remember active pattern // uint
-        auto tActivePattern = mBackgroundMesh->get_activation_pattern();
-
-        // create communication table
-        this->create_communication_table();
-
-        // calculate T-Matrices and node indices for input
-        for ( Lagrange_Mesh_Base* tMesh : mLagrangeMeshes )
-        {
-            // only perform for input meshes
-            if ( this->is_lagrange_input_mesh( tMesh->get_index() ) )
-            {
-                tMesh->calculate_node_indices();
-                tMesh->calculate_t_matrices();
-            }
-        }
-
-        // calculate B-Spline IDs for input meshes
-        for ( BSpline_Mesh_Base* tMesh : mBSplineMeshes )
-        {
-            if ( this->is_bspline_input_mesh( tMesh->get_index() ) )
-            {
-                tMesh->calculate_basis_indices( mCommunicationTable );
-            }
-        }
-
-        // set flag for input matrices
-        mHaveInputTMatrix = true;
-
-        // reset active pattern
-        if ( mBackgroundMesh->get_activation_pattern() != tActivePattern )
-        {
-            mBackgroundMesh->set_activation_pattern( tActivePattern );
-        }
-    }
-
-    // -----------------------------------------------------------------------------
-
-    void
-    Database::create_working_pattern_for_bspline_refinement()
-    {
-        MORIS_ASSERT( false, "create_working_pattern_for_bspline_refinement(), not changed yet" );
-        // get pattern
-        uint tWorkingPattern = mParameters->get_working_pattern();
-
-        // get active elements
-        MORIS_ASSERT( mBackgroundMesh->get_activation_pattern() == Parameters::mLagrangeOutputPattern,
-                "Need Lagrange output pattern active in order to create b-spline working pattern" );
-
-        // get number of active elements
-        uint tNumberOfElements = mBackgroundMesh->get_number_of_active_elements_on_proc();
-
-        // get delta levels
-        uint tDeltaLevel = mParameters->get_additional_lagrange_refinement();
-
-        // loop over all active elements
-        for ( uint e = 0; e < tNumberOfElements; ++e )
-        {
-            // get pointer to element
-            Background_Element_Base* tElement = mBackgroundMesh->get_element( e );
-
-            // jump up levels to get parent
-            for ( uint l = 0; l < tDeltaLevel; ++l )
-            {
-                tElement = tElement->get_parent();
-            }
-
-            // get level of this element
-            uint tLevel = tElement->get_level();
-
-            for ( uint l = 0; l < tLevel; ++l )
-            {
-                // get parent
-                tElement = tElement->get_parent();
-
-                // set flag on working pattern
-                tElement->set_refined_flag( tWorkingPattern );
-            }
-        }
     }
 
     // ----------------------------------------------------------------------------
