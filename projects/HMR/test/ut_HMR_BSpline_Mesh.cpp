@@ -39,7 +39,7 @@ namespace moris::hmr
                 auto tParameters = new Parameters;
 
                 // set number of elements
-                Vector< luint > tNumberOfElementsPerDimension;
+                Vector< uint > tNumberOfElementsPerDimension;
                 if ( par_size() == 1 )
                 {
                     tNumberOfElementsPerDimension.resize( 2, 3 );
@@ -125,7 +125,7 @@ namespace moris::hmr
                 auto tParameters = new Parameters;
 
                 // set number of elements
-                Vector< luint > tNumberOfElementsPerDimension;
+                Vector< uint > tNumberOfElementsPerDimension;
 
                 if ( par_size() == 1 )
                 {
@@ -213,7 +213,7 @@ namespace moris::hmr
             auto tParameters = new Parameters;
 
             // set number of elements
-            tParameters->set_number_of_elements_per_dimension( { 4, 4 } );
+            tParameters->set_number_of_elements_per_dimension( 4, 4 );
 
             // deactivate truncation
             tParameters->set_bspline_truncation( false );

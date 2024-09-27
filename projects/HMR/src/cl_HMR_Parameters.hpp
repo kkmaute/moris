@@ -67,7 +67,7 @@ namespace moris::hmr
 
         //! number of elements per direction in overall mesh, without aura
         //! 2D or 3D is determined by length of this vector
-        Vector< luint > mNumberOfElementsPerDimension = { 2, 2 };
+        Vector< uint > mNumberOfElementsPerDimension = { 2, 2 };
 
         //! width, height and depth of domain (without aura)
         Vector< real > mDomainDimensions;
@@ -76,11 +76,11 @@ namespace moris::hmr
         Matrix< DDRMat > mDomainOffset;
 
         //! size of staircase buffer
-        luint mRefinementBuffer = 1;
-        luint mStaircaseBuffer  = 1;
+        uint mRefinementBuffer = 1;
+        uint mStaircaseBuffer  = 1;
 
         //! max polynomial to be supported
-        luint mMaxPolynomial = 1;
+        uint mMaxPolynomial = 1;
 
         //! scale factor for gmsh output
         real mGmshScale = 1;
@@ -242,7 +242,7 @@ namespace moris::hmr
          * @return void
          */
         void
-        set_refinement_buffer( luint aBufferSize )
+        set_refinement_buffer( uint aBufferSize )
         {
             mRefinementBuffer = aBufferSize;
         }
@@ -255,7 +255,7 @@ namespace moris::hmr
          * @return void
          */
         void
-        set_staircase_buffer( luint aBufferSize )
+        set_staircase_buffer( uint aBufferSize )
         {
             mStaircaseBuffer = aBufferSize;
         }
@@ -562,7 +562,7 @@ namespace moris::hmr
          *
          * @param[in] aNumberOfElementsPerDimension Number of elements per dimension as a vector
          */
-        void set_number_of_elements_per_dimension( const Vector< luint >& aNumberOfElementsPerDimension );
+        void set_number_of_elements_per_dimension( const Vector< uint >& aNumberOfElementsPerDimension );
 
 
         /**

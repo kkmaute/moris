@@ -51,7 +51,7 @@ namespace moris::hmr
             // The parameter object controls the behavior of HMR.
             Parameters tParameters;
 
-            Vector< luint > tNumberOfElements;
+            Vector< uint > tNumberOfElements;
 
             // set element size
             if ( par_size() == 1 )
@@ -734,7 +734,7 @@ namespace moris::hmr
                     Parameters tParameters;
 
                     // set values to parameters
-                    Vector< luint > tNumberOfElements;
+                    Vector< uint > tNumberOfElements;
 
                     // set element size
                     if ( par_size() == 1 )
@@ -879,7 +879,7 @@ namespace moris::hmr
                     Parameters tParameters;
 
                     // set values to parameters
-                    Vector< luint > tNumberOfElements;
+                    Vector< uint > tNumberOfElements;
 
                     // set element size
                     if ( par_size() == 1 )
@@ -1025,7 +1025,7 @@ namespace moris::hmr
                     Parameters tParameters;
 
                     // set values to parameters
-                    Vector< luint > tNumberOfElements;
+                    Vector< uint > tNumberOfElements;
 
                     // set element size
                     if ( par_size() == 1 )

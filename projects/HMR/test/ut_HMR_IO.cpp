@@ -166,6 +166,20 @@ namespace moris::hmr
 
                 // perform test
                 REQUIRE( tR2 > 0.99 );
+//
+//                // create file object
+//                File tHDF5;
+//
+//                // create file on disk
+//                tHDF5.create( "/home/christopherson/new.hdf5" );
+//
+//                // store settings object
+//                tHDF5.save_settings( tHMR.get_parameters() );
+//
+//                Lagrange_Mesh_Base* tLagrangeMesh = tHMR.get_database()->get_lagrange_mesh_by_index( 0 );
+//
+//                // get pointer to background mesh
+//                tHDF5.save_refinement_pattern( tLagrangeMesh );
             }
         }
     }

@@ -450,7 +450,7 @@ namespace moris::hmr
             const Vector< real >& tDomainDimensions = mParameters->get_domain_dimensions();
 
             // get number of elements on coarsest level from settings
-            const Vector< luint >& tNumberOfElements = mParameters->get_number_of_elements_per_dimension();
+            const Vector< uint >& tNumberOfElements = mParameters->get_number_of_elements_per_dimension();
 
             // calculate width for first level
             Matrix< DDRMat > tInitElemSize( 3, 1, 0.0 );
@@ -514,9 +514,9 @@ namespace moris::hmr
          */
         void
         create_proc_dims_min_mesh_interface(
-                uint             aNumberOfDimensions,
-                Vector< luint >& aMeshDims,
-                Vector< uint >&  aProcDimensions )
+                uint            aNumberOfDimensions,
+                Vector< uint >& aMeshDims,
+                Vector< uint >& aProcDimensions )
         {
 
             // This function determines the processor dimensions based on minimizing mesh grid interfaces.
@@ -635,7 +635,7 @@ namespace moris::hmr
             uint tDecompMethod = mParameters->get_processor_decomp_method();
 
             // Pulling mesh dimensions from parameters
-            Vector< luint > tNumberOfElementsPerDimension = mParameters->get_number_of_elements_per_dimension();
+            Vector< uint > tNumberOfElementsPerDimension = mParameters->get_number_of_elements_per_dimension();
 
             switch ( tDecompMethod )
             {
@@ -729,11 +729,11 @@ namespace moris::hmr
             }
 
             // calculate number of elements per dimension
-            Vector< luint > tNumberOfElementsPerDimensionOnProc( N );
+            Vector< uint > tNumberOfElementsPerDimensionOnProc( N );
 
             // remainder used if tNumberOfElementsPerDimension(k) isn't a
             // multiple of mProcDims(k).
-            Vector< luint > tRemainder( N, 1 );
+            Vector< uint > tRemainder( N, 1 );
 
             for ( uint k = 0; k < N; ++k )
             {

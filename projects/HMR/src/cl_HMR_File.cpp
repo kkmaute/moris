@@ -161,12 +161,10 @@ namespace moris::hmr
         Matrix< DDRMat >  tMatReal;
         Matrix< DDUMat >  tMatUint;
         Vector< uint >    tUnsignedVector;
-        Vector< luint >   tLongUnsignedVector;
         Vector< real >    tRealVector;
         real              tValReal;
         uint              tValUint;
         sint              tValSint;
-        luint             tValLuint;
         bool              tValBool;
 
         // load dimensions from field
@@ -190,20 +188,20 @@ namespace moris::hmr
         // load number of elements on coarsest mesh
         load_vector_from_hdf5_file( mFileID,
                 "CoarsestElements",
-                tLongUnsignedVector.data(),
+                tUnsignedVector.data(),
                 mStatus );
 
         // set number of elements
-        aParameters->set_number_of_elements_per_dimension( tLongUnsignedVector );
+        aParameters->set_number_of_elements_per_dimension( tUnsignedVector );
 
         // load buffer size
         load_scalar_from_hdf5_file( mFileID,
                 "RefinementBuffer",
-                tValLuint,
+                tValUint,
                 mStatus );
 
         // set buffer size
-        aParameters->set_refinement_buffer( tValLuint );
+        aParameters->set_refinement_buffer( tValUint );
 
         // load truncation flag
         load_scalar_from_hdf5_file( mFileID,

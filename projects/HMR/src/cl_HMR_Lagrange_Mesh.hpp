@@ -410,7 +410,7 @@ namespace moris::hmr
             const Vector< real >& tDomainDimensions = mParameters->get_domain_dimensions();
 
             // get number of elements on coarsest level from settings
-            const Vector< luint >& tNumberOfElements = mParameters->get_number_of_elements_per_dimension();
+            const Vector< uint >& tNumberOfElements = mParameters->get_number_of_elements_per_dimension();
 
             // calculate step width
             real tDeltaX[ gMaxNumberOfLevels ][ N ];

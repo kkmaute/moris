@@ -50,9 +50,9 @@ namespace moris::prm
         tParameterList.insert( "lagrange_input_meshes", "" );
 
         // size of refinement buffer
-        tParameterList.insert( "refinement_buffer", 0 );
+        tParameterList.insert( "refinement_buffer", 0u );
         // size of staircase buffer
-        tParameterList.insert( "staircase_buffer", 0 );
+        tParameterList.insert( "staircase_buffer", 0u );
 
         // Lagrange orders
         tParameterList.insert( "lagrange_orders", "1" );

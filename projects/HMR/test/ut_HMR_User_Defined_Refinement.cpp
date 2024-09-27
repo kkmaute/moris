@@ -202,7 +202,7 @@ namespace moris::hmr
                     Parameters tParameters;
 
                     // set values to parameters
-                    Vector< luint > tNumberOfElements( tDimension, 8 );
+                    Vector< uint > tNumberOfElements( tDimension, 8 );
 
                     tParameters.set_number_of_elements_per_dimension( tNumberOfElements );
 
@@ -299,7 +299,7 @@ namespace moris::hmr
             Parameters tParameters;
 
             // set values to parameters
-            Vector< luint > tNumberOfElements( tDimension, 20 );
+            Vector< uint > tNumberOfElements( tDimension, 20 );
             tParameters.set_number_of_elements_per_dimension( tNumberOfElements );
 
             tParameters.set_domain_dimensions( 4, 4 );

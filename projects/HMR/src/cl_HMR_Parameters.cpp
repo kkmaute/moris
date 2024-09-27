@@ -66,8 +66,8 @@ namespace moris::hmr
                 "length of domain_offset must be equal to number_of_elements_per_dimension." );
 
         // set buffer sizes
-        this->set_refinement_buffer( aParameterList.get< sint >( "refinement_buffer" ) );
-        this->set_staircase_buffer( aParameterList.get< sint >( "staircase_buffer" ) );
+        this->set_refinement_buffer( aParameterList.get< uint >( "refinement_buffer" ) );
+        this->set_staircase_buffer( aParameterList.get< uint >( "staircase_buffer" ) );
 
         string_to_matrix( aParameterList.get< std::string >( "domain_sidesets" ), mSideSets );
 
@@ -226,26 +226,26 @@ namespace moris::hmr
             MORIS_LOG_INFO( " " );
             if ( mNumberOfElementsPerDimension.size() == 1 )
             {
-                MORIS_LOG_INFO( "elements per dimension ....... : %lu",
-                        (long unsigned int)mNumberOfElementsPerDimension( 0 ) );
+                MORIS_LOG_INFO( "elements per dimension ....... : %u",
+                        mNumberOfElementsPerDimension( 0 ) );
             }
             else if ( mNumberOfElementsPerDimension.size() == 2 )
             {
-                MORIS_LOG_INFO( "elements per dimension ....... : %lu x %lu ",
-                        (long unsigned int)mNumberOfElementsPerDimension( 0 ),
-                        (long unsigned int)mNumberOfElementsPerDimension( 1 ) );
+                MORIS_LOG_INFO( "elements per dimension ....... : %u x %u ",
+                        mNumberOfElementsPerDimension( 0 ),
+                        mNumberOfElementsPerDimension( 1 ) );
             }
             else if ( mNumberOfElementsPerDimension.size() == 3 )
             {
-                MORIS_LOG_INFO( "elements per dimension ....... : %lu x %lu x %lu ",
-                        (long unsigned int)mNumberOfElementsPerDimension( 0 ),
-                        (long unsigned int)mNumberOfElementsPerDimension( 1 ),
-                        (long unsigned int)mNumberOfElementsPerDimension( 2 ) );
+                MORIS_LOG_INFO( "elements per dimension ....... : %u x %u x %u ",
+                        mNumberOfElementsPerDimension( 0 ),
+                        mNumberOfElementsPerDimension( 1 ),
+                        mNumberOfElementsPerDimension( 2 ) );
             }
 
-            MORIS_LOG_INFO( "refinement buffer............. : %lu", (long unsigned int)mRefinementBuffer );
-            MORIS_LOG_INFO( "staircase buffer.............. : %lu", (long unsigned int)mStaircaseBuffer );
-            MORIS_LOG_INFO( "max polynomial ............... : %lu", (long unsigned int)mMaxPolynomial );
+            MORIS_LOG_INFO( "refinement buffer............. : %u", mRefinementBuffer );
+            MORIS_LOG_INFO( "staircase buffer.............. : %u", mStaircaseBuffer );
+            MORIS_LOG_INFO( "max polynomial ............... : %u", mMaxPolynomial );
             MORIS_LOG_INFO( " " );
             MORIS_LOG_INFO( "--------------------------------------------------------------------------------" );
             MORIS_LOG_INFO( "automatically defined settings" );
@@ -341,7 +341,7 @@ namespace moris::hmr
     //--------------------------------------------------------------------------------
 
     void
-    Parameters::set_number_of_elements_per_dimension( const Vector< luint >& aNumberOfElementsPerDimension )
+    Parameters::set_number_of_elements_per_dimension( const Vector< uint >& aNumberOfElementsPerDimension )
     {
         // test if calling this function is allowed
         this->error_if_locked( "set_number_of_elements_per_dimension" );
