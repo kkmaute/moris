@@ -55,8 +55,8 @@ namespace moris::hmr
     class Parameters
     {
       public:
-        static const uint mLagrangeInputPattern  = 1;
-        static const uint mLagrangeOutputPattern = 3;
+        static const uint mLagrangeInputPattern  = 0;
+        static const uint mLagrangeOutputPattern = 1;
 
       private:
         //! Processor decomposition method.  1=Original MPI decomp (min processor interface). 2=Min mesh interface. 0=Manually Defined
