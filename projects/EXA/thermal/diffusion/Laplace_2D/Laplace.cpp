@@ -536,7 +536,7 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "severity_level", 0 );
 
         tParameterlist( 0 )( 0 ).set( "basis_function_vtk_file", "basisinhmr.vtk" );
-        tParameterlist( 0 )( 0 ).set( "write_lagrange_output_mesh_to_exodus", "lagrangehmr.exo" );
+        tParameterlist( 0 )( 0 ).set( "write_lagrange_output_mesh", "lagrangehmr.exo" );
     }
 
     /* ------------------------------------------------------------------------ */

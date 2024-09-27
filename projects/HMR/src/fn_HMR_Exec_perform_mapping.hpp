@@ -143,7 +143,7 @@ namespace moris::hmr
             //  create interpolation mesh input
             Interpolation_Mesh_HMR *tInputInterpMesh = aHMR->create_interpolation_mesh(
                     tMeshOrders( m ),
-                    aHMR->get_parameters()->get_lagrange_input_pattern() );
+                    Parameters::mLagrangeInputPattern );
 
             // add to vector of input interpolation meshes
             tInputInterpMeshes.push_back( tInputInterpMesh );
@@ -151,7 +151,7 @@ namespace moris::hmr
             // create integration mesh input
             Integration_Mesh_HMR *tInputIntegMesh = aHMR->create_integration_mesh(
                     tMeshOrders( m ),
-                    aHMR->get_parameters()->get_lagrange_input_pattern(),
+                    Parameters::mLagrangeInputPattern,
                     tInputInterpMesh );
 
             // add to vector of input integration meshes
@@ -205,7 +205,8 @@ namespace moris::hmr
             if ( tLagrangeOrder == tBSplineOrder )
             {
                 // interpolate field onto union mesh
-                aHMR->get_database()->interpolate_field( aHMR->get_parameters()->get_lagrange_input_pattern(),
+                aHMR->get_database()->interpolate_field(
+                        Parameters::mLagrangeInputPattern,
                         tInputField,
                         aHMR->get_parameters()->get_union_pattern(),
                         tUnionField );
@@ -222,7 +223,8 @@ namespace moris::hmr
                 aHMR->get_database()->change_field_order( tInputField, tTemporaryField );
 
                 // now, interpolate this field onto the union
-                aHMR->get_database()->interpolate_field( aHMR->get_parameters()->get_lagrange_input_pattern(),
+                aHMR->get_database()->interpolate_field(
+                        Parameters::mLagrangeInputPattern,
                         tTemporaryField,
                         aHMR->get_parameters()->get_union_pattern(),
                         tUnionField );
@@ -244,8 +246,9 @@ namespace moris::hmr
                     "Number of B-Splines does not match" );
 
             // get pointer to output mesh
-            std::shared_ptr< Mesh > tOutputMesh = aHMR->create_mesh( tLagrangeOrder,
-                    aHMR->get_parameters()->get_lagrange_output_pattern() );
+            std::shared_ptr< Mesh > tOutputMesh = aHMR->create_mesh(
+                    tLagrangeOrder,
+                    Parameters::mLagrangeOutputPattern );
 
             // create output field
             std::shared_ptr< Field > tOutputField = tOutputMesh->create_field( tInputField->get_label(),

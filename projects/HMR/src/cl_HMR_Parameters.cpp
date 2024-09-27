@@ -161,9 +161,6 @@ namespace moris::hmr
         // get multigrid parameter
         this->set_multigrid( aParameterList.get< sint >( "use_multigrid" ) == 1 );
 
-        // get refinement interrelation parameter
-        this->set_refinement_interrelation( aParameterList.get< sint >( "use_refinement_interrelation" ) == 1 );
-
         // get renumber lagrange nodes
         this->set_renumber_lagrange_nodes( aParameterList.get< sint >( "renumber_lagrange_nodes" ) == 1 );
 
@@ -174,11 +171,9 @@ namespace moris::hmr
 
         this->set_refinement_for_low_level_elements( aParameterList.get< bool >( "use_refine_low_level_elements" ) );
 
-        this->set_write_background_mesh( aParameterList.get< std::string >( "write_background_mesh" ) );
+        this->set_background_mesh_file_name( aParameterList.get< std::string >( "write_background_mesh" ) );
 
-        this->set_write_output_lagrange_mesh( aParameterList.get< std::string >( "write_lagrange_output_mesh" ) );
-
-        this->set_write_output_lagrange_mesh_to_exodus( aParameterList.get< std::string >( "write_lagrange_output_mesh_to_exodus" ) );
+        this->set_lagrange_mesh_file_name( aParameterList.get< std::string >( "write_lagrange_output_mesh" ) );
 
         this->set_write_refinement_pattern_file_flag( aParameterList.get< bool >( "write_refinement_pattern_file" ) );
 
@@ -642,16 +637,6 @@ namespace moris::hmr
                     mLagrangePatterns.size(),
                     mLagrangeOrders.size() );
         }
-    }
-
-    //--------------------------------------------------------------------------------
-
-    std::string
-    Parameters::get_side_sets_as_string() const
-    {
-        std::string aString;
-        matrix_to_string( mSideSets, aString );
-        return aString;
     }
 
     //--------------------------------------------------------------------------------

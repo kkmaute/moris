@@ -172,7 +172,7 @@ namespace moris::hmr
         this->finalize();
 
         // write refinement pattern file
-        if ( mParameters->get_write_refinement_pattern_file_flag() )
+        if ( mParameters->write_refinement_pattern() )
         {
             this->output_mesh_refinement_data();
         }
@@ -197,10 +197,9 @@ namespace moris::hmr
         mMTKPerformer->register_mesh_pair( tInterpolationMesh, tIntegrationMesh, true, tMeshNames( 0 ) );
 
         // save first mesh
-        if ( not mParameters->get_write_output_lagrange_mesh_to_exodus().empty() )
+        std::string tFileName = mParameters->get_lagrange_mesh_file_name();
+        if ( tFileName.size() > 4 and tFileName.substr( tFileName.size() - 4 ) == ".exo" )
         {
-            std::string tFileName = mParameters->get_write_output_lagrange_mesh_to_exodus();
-
             // report on this operation
             MORIS_LOG_INFO( "Writing output HMR mesh '%s'", tFileName.c_str() );
 
@@ -228,15 +227,15 @@ namespace moris::hmr
                 mMTKPerformer->register_mesh_pair( tInterpolationMeshSecondary, tIntegrationMeshSecondary, true, tMeshNames( iOutputMesh + 1 ) );
 
                 // save additional meshes
-                if ( not mParameters->get_write_output_lagrange_mesh_to_exodus().empty() )
+                if ( tFileName.size() > 4 and tFileName.substr( tFileName.size() - 4 ) == ".exo" )
                 {
-                    std::string tFileName = mParameters->get_write_output_lagrange_mesh_to_exodus() + "_Mesh_" + std::to_string( iOutputMesh );
+                    std::string tAddFileName = tFileName + "_Mesh_" + std::to_string( iOutputMesh );
 
                     // report on this operation
-                    MORIS_LOG_INFO( "Writing output HMR mesh '%s'", tFileName.c_str() );
+                    MORIS_LOG_INFO( "Writing output HMR mesh '%s'", tAddFileName.c_str() );
 
                     moris::mtk::Writer_Exodus writer( tInterpolationMeshSecondary );
-                    writer.write_mesh( "", tFileName, "", "hmr_temp.exo" );
+                    writer.write_mesh( "", tAddFileName, "", "hmr_temp.exo" );
                     writer.close_file();
                 }
             }
@@ -843,17 +842,6 @@ namespace moris::hmr
     HMR::set_activation_pattern( uint aActivationPattern )
     {
         this->get_database()->set_activation_pattern( aActivationPattern );
-    }
-
-    // -----------------------------------------------------------------------------
-
-    std::shared_ptr< Mesh >
-    HMR::create_mesh()
-    {
-        MORIS_ERROR( false, "create_mesh() not changed yet" );
-        return std::make_shared< Mesh >( mDatabase,
-                mParameters->get_lagrange_orders().max(),
-                mParameters->get_lagrange_output_pattern() );
     }
 
     // -----------------------------------------------------------------------------
@@ -2250,195 +2238,6 @@ namespace moris::hmr
         return tElementCounter;
     }
 
-    // ----------------------------------------------------------------------------
-
-    /**
-     * needed for tutorials
-     */
-    //        void HMR::perform_refinement_and_map_fields( const uint aPattern )
-    //        {
-    //            MORIS_ERROR(false,"perform_refinement_and_map_fields() not changed yet" );
-    //            // - - - - - - - - - - - - - - - - - - - - - -
-    //            // step 0: perform simple refinement
-    //            // - - - - - - - - - - - - - - - - - - - - - -
-    //
-    //            // in the tutorial, lagrange and B-Spline are the same refinement
-    //            this->perform_refinement( aPattern );
-    //
-    //            // create union of input and output
-    //            mDatabase->create_union_pattern();     //FIXME
-    //
-    //            // finalize database
-    //            this->finalize();
-    //
-    //            // - - - - - - - - - - - - - - - - - - - - - -
-    //            // step 1: find out which orders are needed
-    //            // - - - - - - - - - - - - - - - - - - - - - -
-    //
-    //            // number of input fields
-    //            uint tNumberOfFields = mFields.size();
-    //
-    //            // counter
-    //            uint tCount = 0;
-    //
-    //            // container for orders of fields
-    //            Matrix< DDUMat > tInputFieldOrders( 2*tNumberOfFields, 1 );
-    //
-    //            // loop over all fields
-    //            for( uint f=0; f<tNumberOfFields; ++f )
-    //            {
-    //                MORIS_ASSERT(false,"potentially problematic");
-    //                tInputFieldOrders( tCount++ ) = mFields( f )->get_bspline_order();
-    //                tInputFieldOrders( tCount++ ) = mFields( f )->get_lagrange_order();
-    //            }
-    //
-    //            // chop container
-    //            tInputFieldOrders.resize( tCount, 1 );
-    //
-    //            // make orders unique
-    //            Matrix< DDUMat > tMeshOrders;
-    //            unique( tInputFieldOrders, tMeshOrders );
-    //
-    //            uint tNumberOfMappers = tMeshOrders.length();
-    //
-    //            // create map for mappers
-    //            Matrix< DDUMat > tMapperIndex( gMaxBSplineOrder+1, 1, MORIS_UINT_MAX );
-    //
-    //            for( uint k = 0; k<tNumberOfMappers; ++k )
-    //            {
-    //                tMapperIndex( tMeshOrders( k ) ) = k;
-    //            }
-    //
-    //            // - - - - - - - - - - - - - - - - - - - - - -
-    //            // step 2: create union meshes and mappers
-    //            // - - - - - - - - - - - - - - - - - - - - - -
-    //            mtk::Mesh_Manager tMeshManager;
-    //            Vector< std::shared_ptr< Interpolation_Mesh_HMR > > tUnionInterpMeshes;
-    //            Vector< std::shared_ptr< Integration_Mesh_HMR > >   tUnionIntegMeshes;
-    //            Vector< std::shared_ptr< Interpolation_Mesh_HMR > > tInputInterpMeshes;
-    //            Vector< std::shared_ptr< Integration_Mesh_HMR > >   tInputIntegMeshes;
-    //            Vector< mapper::Mapper * > tMappers( tNumberOfMappers, nullptr );
-    //
-    //            for( uint m=0; m<tNumberOfMappers; ++m )
-    //            {
-    //                //FIXME: CHANGE INTEGRATION MESHES TO DIRECTLY USE INTERPOLATION MESHES. (ELIMINATE DUPLICATE MESH CREATION)
-    //                // create interpolation mesh input
-    //                std::shared_ptr< Interpolation_Mesh_HMR > tInputInterpMesh = this->create_interpolation_mesh(tMeshOrders( m ), mParameters->get_lagrange_input_pattern() );
-    //
-    //                // add to vector of input interpolation meshes
-    //                tInputInterpMeshes.push_back( tInputInterpMesh );
-    //
-    //                // create integration mesh input
-    //                std::shared_ptr< Integration_Mesh_HMR > tInputIntegMesh = this->create_integration_mesh(tMeshOrders( m ), mParameters->get_lagrange_input_pattern(), *tInputInterpMesh );
-    //
-    //                // add to vector of input integration meshes
-    //                tInputIntegMeshes.push_back( tInputIntegMesh );
-    //
-    //                // create interpolation mesh union
-    //                std::shared_ptr< Interpolation_Mesh_HMR > tUnionInterpMesh = this->create_interpolation_mesh(tMeshOrders( m ), mParameters->get_union_pattern() ) ;
-    //
-    //                // add to vector of union interpolation meshes
-    //                tUnionInterpMeshes.push_back( tUnionInterpMesh );
-    //
-    //                // create integration mesh union
-    //                std::shared_ptr< Integration_Mesh_HMR > tUnionIntegMesh = this->create_integration_mesh(tMeshOrders( m ), mParameters->get_union_pattern(), *tUnionInterpMesh );
-    //
-    //                // add to vector of union interpolation meshes
-    //                tUnionIntegMeshes.push_back(tUnionIntegMesh);
-    //
-    //                // add pairs to mesh manager
-    //                moris::uint tMeshPairIndex = tMeshManager.register_mesh_pair(tUnionInterpMeshes(m).get(),tUnionIntegMeshes(m).get());
-    //
-    //                // create mapper
-    //                tMappers( m ) = new mtk::Mapper( &tMeshManager,tMeshPairIndex );
-    //            }
-    //
-    //            // - - - - - - - - - - - - - - - - - - - - - -
-    //            // step 3: map and project fields
-    //            // - - - - - - - - - - - - - - - - - - - - - -
-    //
-    //            for( uint f=0; f<tNumberOfFields; ++f )
-    //            {
-    //
-    //                // get pointer to input field
-    //                std::shared_ptr< Field > tInputField = mFields( f );
-    //
-    //                // get order
-    //                MORIS_ASSERT(false,"potentially problematic");
-    //                uint tBSplineOrder = tInputField->get_bspline_order();
-    //
-    //                // get index of mapper
-    //                uint m = tMapperIndex( tBSplineOrder );
-    //
-    //                // get pointer to field on union mesh
-    //                std::shared_ptr< Field > tUnionField =  tUnionInterpMeshes( m )->create_field(
-    //                        tInputField->get_label(),
-    //                        tBSplineOrder );
-    //
-    //
-    //                if( tInputField->get_lagrange_order() >= tBSplineOrder )
-    //                {
-    //                    // interpolate field onto union mesh
-    //                    mDatabase->interpolate_field( mParameters->get_lagrange_input_pattern(),
-    //                                                  tInputField,
-    //                                                  mParameters->get_union_pattern(),
-    //                                                  tUnionField );
-    //                }
-    //                else
-    //                {
-    //                    // first, project field on mesh with correct order
-    //                    std::shared_ptr< Field > tTemporaryField = tInputInterpMeshes( m )->create_field( tInputField->get_label(),
-    //                                                                                                      tBSplineOrder );
-    //
-    //                    mDatabase->change_field_order( tInputField, tTemporaryField );
-    //
-    //                    // now, interpolate this field onto the inion
-    //                    mDatabase->interpolate_field( mParameters->get_lagrange_input_pattern(),
-    //                                                  tTemporaryField,
-    //                                                  mParameters->get_union_pattern(),
-    //                                                  tUnionField );
-    //                }
-    //
-    //                // perform mapping
-    //                tMappers( m )->perform_mapping( tInputField->get_label(),
-    //                                                mtk::EntityRank::NODE,
-    //                                                tInputField->get_label(),
-    //                                                tUnionField->get_bspline_rank() );
-    //
-    //                // a small sanity test
-    //                MORIS_ASSERT(  tUnionField->get_coefficients().length() == tUnionInterpMeshes( m )->get_num_entities(
-    //                                mtk::order_to_entity_rank( tBSplineOrder ) ),
-    //                                "Number of B-Splines does not match" );
-    //
-    //                // get pointer to output mesh
-    //                std::shared_ptr< Mesh >  tOutputMesh = this->create_mesh( tInputField->get_lagrange_order(),
-    //                                                                          mParameters->get_lagrange_output_pattern() );
-    //
-    //                // create output field
-    //                std::shared_ptr< Field >  tOutputField = tOutputMesh->create_field( tInputField->get_label(),
-    //                                                                                    tBSplineOrder );
-    //
-    //                // move coefficients to output field
-    //                // fixme: to be tested with Eigen also
-    //                tOutputField->get_coefficients() = std::move( tUnionField->get_coefficients() );
-    //
-    //                // allocate nodes for output
-    //                tOutputField->get_node_values().set_size( tOutputMesh->get_num_nodes(), 1 );
-    //
-    //                // evaluate nodes
-    //                tOutputField->evaluate_node_values();
-    //
-    //                // make this field point to the output mesh
-    //                tInputField->change_mesh( tOutputField->get_mesh(),
-    //                                          tOutputField->get_field_index() );
-    //            }
-    //
-    //            // delete mappers
-    //            for( mapper::Mapper * tMapper : tMappers )
-    //            {
-    //                delete tMapper;
-    //            }
-    //        }
     // ----------------------------------------------------------------------------
 
     void

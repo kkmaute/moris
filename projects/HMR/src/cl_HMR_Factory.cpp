@@ -84,10 +84,8 @@ namespace moris::hmr
 
         // reset main patterns of this mesh
         // fixme: this should be its own function
-        aMesh->reset_pattern( mParameters->get_bspline_input_pattern() );
-        aMesh->reset_pattern( mParameters->get_lagrange_input_pattern() );
-        aMesh->reset_pattern( mParameters->get_bspline_output_pattern() );
-        aMesh->reset_pattern( mParameters->get_lagrange_output_pattern() );
+        aMesh->reset_pattern( Parameters::mLagrangeInputPattern );
+        aMesh->reset_pattern( Parameters::mLagrangeOutputPattern );
 
         return aMesh;
     }

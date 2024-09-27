@@ -96,7 +96,7 @@ namespace moris::hmr
         mAdditionalLagrangeMeshes.resize( gNumberOfPatterns );
 
         // activate input pattern
-        this->set_activation_pattern( mParameters->get_lagrange_input_pattern() );
+        this->set_activation_pattern( Parameters::mLagrangeInputPattern );
     }
 
     // -----------------------------------------------------------------------------
@@ -426,20 +426,8 @@ namespace moris::hmr
     bool
     Database::is_bspline_input_mesh( const uint aMeshIndex )
     {
-        const Matrix< DDUMat >& tBSInputMeshes = mParameters->get_bspline_input_mesh();
-
-        bool tIsBsplineInputMesh = false;
-
-        for ( uint k = 0; k < tBSInputMeshes.numel(); ++k )
-        {
-            if ( aMeshIndex == tBSInputMeshes( k ) )
-            {
-                tIsBsplineInputMesh = true;
-                break;
-            }
-        }
-
-        return tIsBsplineInputMesh;
+        // TODO remove this function
+        return false;
     }
 
     // -----------------------------------------------------------------------------
@@ -568,9 +556,9 @@ namespace moris::hmr
                     mBackgroundMesh->create_facets();
                 }
 
-                if ( not mParameters->get_write_background_mesh().empty() )
+                if ( not mParameters->get_background_mesh_file_name().empty() )
                 {
-                    mBackgroundMesh->save_to_vtk( mParameters->get_write_background_mesh() );
+                    mBackgroundMesh->save_to_vtk( mParameters->get_background_mesh_file_name() );
                 }
             }
         }
@@ -601,9 +589,9 @@ namespace moris::hmr
                     tMesh->create_edges();
                 }
 
-                if ( not mParameters->get_write_output_lagrange_mesh().empty() )
+                if ( not mParameters->get_lagrange_mesh_file_name().empty() )
                 {
-                    tMesh->save_to_vtk( mParameters->get_write_output_lagrange_mesh() );
+                    tMesh->save_to_vtk( mParameters->get_lagrange_mesh_file_name() );
                 }
             }
         }
@@ -1573,7 +1561,7 @@ namespace moris::hmr
         uint tWorkingPattern = mParameters->get_working_pattern();
 
         // get active elements
-        MORIS_ASSERT( mBackgroundMesh->get_activation_pattern() == mParameters->get_lagrange_output_pattern(),
+        MORIS_ASSERT( mBackgroundMesh->get_activation_pattern() == Parameters::mLagrangeOutputPattern,
                 "Need Lagrange output pattern active in order to create b-spline working pattern" );
 
         // get number of active elements

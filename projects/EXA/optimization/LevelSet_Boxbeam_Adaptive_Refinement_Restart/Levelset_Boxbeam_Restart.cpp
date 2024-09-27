@@ -583,7 +583,7 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "use_multigrid", 0 );
         tParameterlist( 0 )( 0 ).set( "severity_level", 0 );
 
-        tParameterlist( 0 )( 0 ).set( "write_lagrange_output_mesh_to_exodus", "HMRLagrangeMesh.exo" );
+        tParameterlist( 0 )( 0 ).set( "write_lagrange_output_mesh", "HMRLagrangeMesh.exo" );
 
         tParameterlist( 0 )( 0 ).set( "use_refine_low_level_elements", false );
 

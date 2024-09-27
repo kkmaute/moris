@@ -51,7 +51,7 @@ namespace moris::hmr
                 auto tParameters = new Parameters;
 
                 // pattern this mesh operates on
-                uint tPattern = tParameters->get_lagrange_input_pattern();
+                uint tPattern = Parameters::mLagrangeInputPattern;
 
                 // set number of elements
                 tParameters->set_number_of_elements_per_dimension( 6, 6 );
@@ -120,7 +120,7 @@ namespace moris::hmr
                 // create settings object
                 auto tParameters = new Parameters;
 
-                uint tPattern = tParameters->get_lagrange_input_pattern();
+                uint tPattern = Parameters::mLagrangeInputPattern;
 
                 // set number of elements
                 tParameters->set_number_of_elements_per_dimension( 6, 6, 6 );
@@ -1187,8 +1187,8 @@ namespace moris::hmr
             tParameters.set_initial_refinement( { { 0 } } );
             tParameters.set_initial_refinement_patterns( { { 0 } } );
 
-            tParameters.set_write_background_mesh( "backgroundmesh.vtk" );
-            tParameters.set_write_output_lagrange_mesh( "lagrangemesh.vtk" );
+            tParameters.set_background_mesh_file_name( "backgroundmesh.vtk" );
+            tParameters.set_lagrange_mesh_file_name( "lagrangemesh.vtk" );
 
             tParameters.set_number_aura( true );
 
@@ -1281,8 +1281,8 @@ namespace moris::hmr
             tParameters.set_initial_refinement( { { 0 } } );
             tParameters.set_initial_refinement_patterns( { { 0 } } );
 
-            tParameters.set_write_background_mesh( "backgroundmesh.vtk" );
-            tParameters.set_write_output_lagrange_mesh( "lagrangemesh.vtk" );
+            tParameters.set_background_mesh_file_name( "backgroundmesh.vtk" );
+            tParameters.set_lagrange_mesh_file_name( "lagrangemesh.vtk" );
 
             tParameters.set_number_aura( true );
 

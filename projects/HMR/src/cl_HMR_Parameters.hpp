@@ -54,6 +54,11 @@ namespace moris::hmr
      */
     class Parameters
     {
+      public:
+        static const uint mLagrangeInputPattern  = 1;
+        static const uint mLagrangeOutputPattern = 3;
+
+      private:
         //! Processor decomposition method.  1=Original MPI decomp (min processor interface). 2=Min mesh interface. 0=Manually Defined
         uint mProcDecompMethod = 1;
 
@@ -70,9 +75,6 @@ namespace moris::hmr
         //! coordinate of first visible node
         Matrix< DDRMat > mDomainOffset;
 
-        // --- Begin changable parameters.
-        //     Make sure to add them to copy_selected_parameters()
-
         //! size of staircase buffer
         luint mRefinementBuffer = 1;
         luint mStaircaseBuffer  = 1;
@@ -85,8 +87,6 @@ namespace moris::hmr
 
         //! flag telling if truncation is used
         bool mBSplineTruncationFlag = true;
-
-        // --- End changable parameters.
 
         //! tells if critical features of the settings object are locked
         bool mParametersAreLocked = false;
@@ -106,14 +106,6 @@ namespace moris::hmr
         //! defines which B-Spline mesh is associated with which lagrange mesh
         Vector< Vector< uint > > mLagrangeToBSplineMesh = { { 0 } };
 
-        //! default input pattern     //FIXME delete these
-        const uint mBSplineInputPattern  = 0;
-        const uint mLagrangeInputPattern = 1;
-
-        //! default output pattern
-        const uint mBSplineOutputPattern  = 2;
-        const uint mLagrangeOutputPattern = 3;
-
         //! default union pattern
         uint mUnionPattern = gNumberOfPatterns - 1;
 
@@ -121,8 +113,8 @@ namespace moris::hmr
         uint mWorkingPattern = gNumberOfPatterns - 2;
 
         //! Lagrange Meshes that are used for the output meshes
-        Vector< Vector< uint > > mOutputMeshes     = { { 0 } };
-        Vector< std::string >      mOutputMeshNames  = { "" };
+        Vector< Vector< uint > > mOutputMeshes    = { { 0 } };
+        Vector< std::string >    mOutputMeshNames = { "" };
 
         moris::map< std::string, moris_index > mOutputNameToIndexMap;
 
@@ -145,22 +137,18 @@ namespace moris::hmr
 
         bool mAdvancedTMatrices = false;
 
-        std::string mWriteBackgroundMesh;
-        std::string mWriteOutputLagrangeMesh;
-        std::string mWriteOutputLagrangeMeshToExodus;
+        std::string mBackgroundMeshFileName;
+        std::string mLagrangeMeshFileName;
 
         std::string mBasisFunctionVtkFileName;
 
-        bool mWriteRefinementPatternFileFlag = false;
+        bool mWriteRefinementPattern = false;
 
-        std::string mRestartfromRefinedPattern;
+        std::string mRestartFromRefinedPatternFileName;
 
         //! maximum level for refinement. Default value is specified
         //! by global constant
         uint mMaxRefinementLevel = gMaxNumberOfLevels - 1;
-
-        //! Generate information about mesh refinement level interrelation
-        bool mRefinementInterrelation = false;
 
         //! Renumber Lagrange Nodes
         bool mRenumberLagrangeNodes = false;
@@ -168,11 +156,7 @@ namespace moris::hmr
         // HMR user defined refinement function
         Vector< Refinement_Function > mRefinementFunctions;
 
-        //--------------------------------------------------------------------------------
-
       public:
-        //--------------------------------------------------------------------------------
-
         /**
          * returns user defined processor decomposition method
          *
@@ -185,8 +169,6 @@ namespace moris::hmr
             return mProcDecompMethod;
         }
 
-        //--------------------------------------------------------------------------------
-
         /**
          * sets processor decomposition method
          *
@@ -195,8 +177,6 @@ namespace moris::hmr
          * @return void
          */
         void set_processor_decomp_method( uint aProcDecompMethod );
-
-        //--------------------------------------------------------------------------------
 
         /**
          * returns user defined processor decomposition method
@@ -209,8 +189,6 @@ namespace moris::hmr
         {
             return mProcessorDimensions;
         }
-
-        //--------------------------------------------------------------------------------
 
         /**
          * Constructor that loads parameters from a library
@@ -235,29 +213,26 @@ namespace moris::hmr
          */
         void print() const;
 
-        //--------------------------------------------------------------------------------
-
         /**
-         * sets verbosity switch
+         * Sets global logger severity level
          *
-         * @param[in] aSwitch    true or false
-         * @return void
+         * @param[in] aSeverityLevel Logger severity level
          */
         static void
-        set_severity_level( sint aSwitch )
+        set_severity_level( sint aSeverityLevel )
         {
-            gLogger.set_severity_level( aSwitch );
+            gLogger.set_severity_level( aSeverityLevel );
         }
 
-        //--------------------------------------------------------------------------------
-
+        /**
+         * Gets the logger severity level
+         * @return
+         */
         static sint
         get_severity_level()
         {
             return gLogger.get_severity_level();
-        };
-
-        //--------------------------------------------------------------------------------
+        }
 
         /**
          * sets the buffer size to given value
@@ -272,8 +247,6 @@ namespace moris::hmr
             mRefinementBuffer = aBufferSize;
         }
 
-        //--------------------------------------------------------------------------------
-
         /**
          * sets the buffer size to given value
          *
@@ -287,8 +260,11 @@ namespace moris::hmr
             mStaircaseBuffer = aBufferSize;
         }
 
-        //--------------------------------------------------------------------------------
-
+        /**
+         * Gets the staircase buffer
+         *
+         * @return staircase buffer
+         */
         auto
         get_staircase_buffer() const
                 -> decltype( mStaircaseBuffer )
@@ -303,8 +279,6 @@ namespace moris::hmr
             }
         }
 
-        //--------------------------------------------------------------------------------
-
         /**
          * returns the buffer size
          *
@@ -317,20 +291,19 @@ namespace moris::hmr
             return mRefinementBuffer;
         }
 
-        //--------------------------------------------------------------------------------
         /**
          * sets the mesh orders according to given matrix
+         *
+         * @param aMeshOrders Lagrange mesh orders
          */
         void set_lagrange_orders( const Vector< uint >& aMeshOrders );
 
-        //--------------------------------------------------------------------------------
-
         /**
          * sets the mesh orders according to given matrix
+         *
+         * @param aMeshOrders B-spline mesh orders
          */
         void set_bspline_orders( const Vector< uint >& aMeshOrders );
-
-        //--------------------------------------------------------------------------------
 
         /**
          * returns a matrix with mesh orders
@@ -342,8 +315,6 @@ namespace moris::hmr
             return mLagrangeOrders;
         }
 
-        //-------------------------------------------------------------------------------
-
         /**
          * sets the patterns for the Lagrange Meshes
          *
@@ -352,10 +323,10 @@ namespace moris::hmr
          */
         void set_lagrange_patterns( const Vector< uint >& aPatterns );
 
-        //-------------------------------------------------------------------------------
-
         /**
-         * returns a moris::Mat containing the patterns the meshes are linked to
+         * Gets the patterns for the Lagrange meshes
+         *
+         * @return Lagrange mesh patterns
          */
         auto
         get_lagrange_patterns() const
@@ -364,10 +335,11 @@ namespace moris::hmr
             return mLagrangePatterns;
         }
 
-        //-------------------------------------------------------------------------------
-
         /**
-         * returns an entry of mLagrangeOrders
+         * Returns the order of a Lagrange mesh by index
+         *
+         * @param aIndex Lagrange mesh index
+         * @return Lagrange order
          */
         auto
         get_lagrange_order( uint aIndex ) const
@@ -376,10 +348,11 @@ namespace moris::hmr
             return mLagrangeOrders( aIndex );
         }
 
-        //-------------------------------------------------------------------------------
-
         /**
-         * returns an entry of mLagrangePatterns
+         * Returns the pattern of a Lagrange mesh by index.
+         *
+         * @param aIndex Lagrange mesh index
+         * @return Lagrange pattern
          */
         auto
         get_lagrange_pattern( uint aIndex ) const
@@ -388,8 +361,6 @@ namespace moris::hmr
             return mLagrangePatterns( aIndex );
         }
 
-        //-------------------------------------------------------------------------------
-
         /**
          * sets the patterns for the B-Spline Meshes
          *
@@ -397,10 +368,10 @@ namespace moris::hmr
          */
         void set_bspline_patterns( const Vector< uint >& aPatterns );
 
-        //-------------------------------------------------------------------------------
-
         /**
-         * returns a moris::Mat containing the patterns the meshes are linked to
+         * Returns a list of all B-spline patterns.
+         *
+         * @return B-spline patterns
          */
         auto
         get_bspline_patterns() const
@@ -409,10 +380,11 @@ namespace moris::hmr
             return mBSplinePatterns;
         }
 
-        //--------------------------------------------------------------------------------
-
         /**
-         * returns an entry of mBSplinePatterns
+         * Returns the pattern of a B-spline mesh by index.
+         *
+         * @param aIndex B-spline mesh index
+         * @return B-spline pattern
          */
         auto
         get_bspline_pattern( uint aIndex ) const
@@ -421,10 +393,11 @@ namespace moris::hmr
             return mBSplinePatterns( aIndex );
         }
 
-        //--------------------------------------------------------------------------------
-
         /**
-         * returns an entry of mBSplineOrders
+         * Returns the order of a B-spline mesh by index.
+         *
+         * @param aIndex B-spline mesh index
+         * @return B-spline order
          */
         auto
         get_bspline_order( uint aIndex ) const
@@ -441,7 +414,9 @@ namespace moris::hmr
         uint get_max_bspline_order() const;
 
         /**
-         * returns an entry of mBSplineOrders
+         * Sets information about which B-spline mesh is associated with which Lagrange mesh.
+         *
+         * @param Lagrange to B-spline mesh relationship
          */
         void
         set_lagrange_to_bspline_mesh( const Vector< Vector< uint > >& aLagrangeToBSplineMesh )
@@ -449,16 +424,20 @@ namespace moris::hmr
             mLagrangeToBSplineMesh = aLagrangeToBSplineMesh;
         }
 
+        /**
+         * Gets the B-spline mesh indices that are associated with a given Lagrange mesh.
+         *
+         * @param aLagrangeMeshIndex Lagrange mesh index
+         * @return B-spline mesh indices
+         */
         Vector< uint >
         get_lagrange_to_bspline_mesh( uint aLagrangeMeshIndex ) const
         {
             return mLagrangeToBSplineMesh( aLagrangeMeshIndex );
         }
 
-        //--------------------------------------------------------------------------------
-
         /**
-         * returns the number of B-Spline meshes
+         * Gets the number of B-Spline meshes
          */
         uint
         get_number_of_bspline_meshes() const
@@ -466,10 +445,8 @@ namespace moris::hmr
             return mBSplineOrders.size();
         }
 
-        //--------------------------------------------------------------------------------
-
         /**
-         * returns the number of Lagrange meshes
+         * Gets the total number of Lagrange meshes
          */
         uint
         get_number_of_lagrange_meshes() const
@@ -477,18 +454,14 @@ namespace moris::hmr
             return mLagrangeOrders.size();
         }
 
-        //--------------------------------------------------------------------------------
-
         /**
-         * returns the index of the defined Lagrange output mesh for a specified order
+         * Gets the index of the defined Lagrange output mesh for a specified order
          */
         const Vector< Vector< uint > >&
         get_output_mesh() const
         {
             return mOutputMeshes;
         }
-
-        //--------------------------------------------------------------------------------
 
         /**
          * set which lagrange meshes are used for an output
@@ -502,22 +475,6 @@ namespace moris::hmr
             mOutputMeshes = aOutputMeshes;
         };
 
-        //--------------------------------------------------------------------------------
-
-        /**
-         * set output mesh names
-         */
-        void
-        set_output_mesh_names( const Vector< std::string >& aOutputMesheNames )
-        {
-            // test if calling this function is allowed
-            this->error_if_locked( "set_output_meshes_names" );
-
-            mOutputMeshNames = aOutputMesheNames;
-        }
-
-        //--------------------------------------------------------------------------------
-
         /**
          * returns the index of the defined Lagrange output mesh names for a specified order
          */
@@ -526,8 +483,6 @@ namespace moris::hmr
         {
             return mOutputMeshNames;
         }
-
-        //--------------------------------------------------------------------------------
 
         /**
          * returns mesh index for name
@@ -541,8 +496,6 @@ namespace moris::hmr
             return mOutputNameToIndexMap.find( aName );
         }
 
-        //--------------------------------------------------------------------------------
-
         /**
          * returns true if mesh name exists
          */
@@ -552,14 +505,12 @@ namespace moris::hmr
             return mOutputNameToIndexMap.key_exists( aName );
         }
 
-        //--------------------------------------------------------------------------------
-
         /**
-         * checks if this mesh index belongs to an output mesh
+         * Checks if the given mesh is an output mesh
+         *
+         * @param aMeshIndex Mesh index to check
          */
         bool is_output_mesh( uint aMeshIndex ) const;
-
-        //--------------------------------------------------------------------------------
 
         /**
          * returns lagrange input mesh index
@@ -570,10 +521,10 @@ namespace moris::hmr
             return mLagrangeInputMeshes;
         };
 
-        //--------------------------------------------------------------------------------
-
         /**
-         * set lagrange input mesh index
+         * Sets the Lagrange input meshes.
+         *
+         * @param aLagrangeInputMeshes Lagrange input mesh indices
          */
         void
         set_lagrange_input_mesh( const Matrix< DDUMat >& aLagrangeInputMeshes )
@@ -584,45 +535,6 @@ namespace moris::hmr
             mLagrangeInputMeshes = aLagrangeInputMeshes;
         };
 
-        //--------------------------------------------------------------------------------
-
-        /**
-         * returns lagrange input mesh index
-         */
-        const Matrix< DDUMat >&
-        get_bspline_input_mesh() const
-        {
-            return mBSplineInputMeshes;
-        }
-
-        //--------------------------------------------------------------------------------
-
-        /**
-         * set lagrange input mesh index
-         */
-        void
-        set_bspline_input_mesh( const Matrix< DDUMat >& aBSplineInputMeshes )
-        {
-            // test if calling this function is allowed
-            this->error_if_locked( "set_bspline_input_mesh" );
-
-            mBSplineInputMeshes = aBSplineInputMeshes;
-        };
-
-        //--------------------------------------------------------------------------------
-
-        /**
-         * sets the maximum polynomial degree to given value
-         *
-         * @param[in] aMaxPolynomial
-         *
-         * @return void
-         */
-        // void
-        // set_max_polynomial( luint aMaxPolynomial ) ;
-
-        //--------------------------------------------------------------------------------
-
         /**
          * Padding size is the bigger one of mBufferSize and mMaxPolynomial.
          * In the future, filter size will be regarded here.
@@ -631,8 +543,6 @@ namespace moris::hmr
          */
         auto get_padding_size() const
                 -> decltype( mStaircaseBuffer );
-
-        //--------------------------------------------------------------------------------
 
         /**
          * returns user defined elements per direction on domain (without aura)
@@ -646,46 +556,38 @@ namespace moris::hmr
             return mNumberOfElementsPerDimension;
         }
 
-        //--------------------------------------------------------------------------------
         /**
          * sets elements per direction on domain (without aura) according to
          * defined value
          *
-         * @param[in] aNumberOfElementsPerDimension Matrix< DDLUMat >
-         *
-         * @return void
+         * @param[in] aNumberOfElementsPerDimension Number of elements per dimension as a vector
          */
         void set_number_of_elements_per_dimension( const Vector< luint >& aNumberOfElementsPerDimension );
 
-        //--------------------------------------------------------------------------------
 
         /**
          * sets elements per direction on domain (without aura) according to
          * defined value. 2D Version.
          *
-         * @param[in] aElementsX
-         * @param[in] aElementsY
-         * @return void
+         * @param[in] aElementsX Number of elements in the x direction
+         * @param[in] aElementsY Number of elements in the y direction
          */
-        void set_number_of_elements_per_dimension( luint aElementsX,
-                luint                                    aElementsY );
-
-        //--------------------------------------------------------------------------------
+        void set_number_of_elements_per_dimension(
+                luint aElementsX,
+                luint aElementsY );
 
         /**
          * sets elements per direction on domain (without aura) according to
          * defined value. 3D Version.
          *
-         * @param[in] aElementsX
-         * @param[in] aElementsY
-         * @param[in] aElementsZ
-         * @return void
+         * @param[in] aElementsX Number of elements in the x direction
+         * @param[in] aElementsY Number of elements in the y direction
+         * @param[in] aElementsZ Number of elements in the z direction
          */
-        void set_number_of_elements_per_dimension( luint aElementsX,
-                luint                                    aElementsY,
-                luint                                    aElementsZ );
-
-        //-------------------------------------------------------------------------------
+        void set_number_of_elements_per_dimension(
+                luint aElementsX,
+                luint aElementsY,
+                luint aElementsZ );
 
         /**
          * determines if dimension is 1D, 2D or 3D
@@ -698,8 +600,6 @@ namespace moris::hmr
             return mNumberOfElementsPerDimension.size();
         }
 
-        //-------------------------------------------------------------------------------
-
         /**
          * returns with, height and length of specified domain
          *
@@ -709,8 +609,6 @@ namespace moris::hmr
          */
         void set_domain_dimensions( const Vector< real >& aDomainDimensions );
 
-        //-------------------------------------------------------------------------------
-
         /**
          * returns with, height and length of specified domain. 2D Version
          *
@@ -718,10 +616,9 @@ namespace moris::hmr
          * @param[in] real dimension in Y-Direction
          * @return void
          */
-        void set_domain_dimensions( real aDomainDimensionsX,
-                real                     aDomainDimensionsY );
-
-        //-------------------------------------------------------------------------------
+        void set_domain_dimensions(
+                real aDomainDimensionsX,
+                real aDomainDimensionsY );
 
         /**
          * returns with, height and length of specified domain. 3D Version
@@ -731,11 +628,10 @@ namespace moris::hmr
          * @param[in] real dimension in Z-Direction
          * @return void
          */
-        void set_domain_dimensions( real aDomainDimensionsX,
-                real                     aDomainDimensionsY,
-                real                     aDomainDimensionsZ );
-
-        //-------------------------------------------------------------------------------
+        void set_domain_dimensions(
+                real aDomainDimensionsX,
+                real aDomainDimensionsY,
+                real aDomainDimensionsZ );
 
         /**
          * returns with, height and length of specified domain
@@ -743,8 +639,6 @@ namespace moris::hmr
          * @return Matrix< DDRMat >
          */
         const Vector< real >& get_domain_dimensions() const;
-
-        //-------------------------------------------------------------------------------
 
         /**
          * sets the coordinate of first node of calculation domain
@@ -755,8 +649,6 @@ namespace moris::hmr
          */
         void set_domain_offset( const Matrix< DDRMat >& aDomainOffset );
 
-        //-------------------------------------------------------------------------------
-
         /**
          * sets the coordinate of first node of calculation domain. 2D Version.
          *
@@ -765,10 +657,9 @@ namespace moris::hmr
          *
          * @return void
          */
-        void set_domain_offset( real aDomainOffsetX,
-                real                 aDomainOffsetY );
-
-        //-------------------------------------------------------------------------------
+        void set_domain_offset(
+                real aDomainOffsetX,
+                real aDomainOffsetY );
 
         /**
          * sets the coordinate of first node of calculation domain. 3D Version.
@@ -779,11 +670,11 @@ namespace moris::hmr
          *
          * @return void
          */
-        void set_domain_offset( real aDomainOffsetX,
-                real                 aDomainOffsetY,
-                real                 aDomainOffsetZ );
+        void set_domain_offset(
+                real aDomainOffsetX,
+                real aDomainOffsetY,
+                real aDomainOffsetZ );
 
-        //-------------------------------------------------------------------------------
         /**
          * returns coordinate of first node on calculation domain
          *
@@ -796,8 +687,6 @@ namespace moris::hmr
             return mDomainOffset;
         }
 
-        //-------------------------------------------------------------------------------
-
         /**
          * Calculates which ijk range contains the calculation domain
          * of the mesh (excludes padding elements)
@@ -806,8 +695,11 @@ namespace moris::hmr
          */
         Matrix< DDLUMat > get_domain_ijk() const;
 
-        //-------------------------------------------------------------------------------
-
+        /**
+         * Gets the current maximum polynomial order
+         *
+         * @return Max order
+         */
         auto
         get_max_polynomial() const
                 -> decltype( mMaxPolynomial )
@@ -815,31 +707,22 @@ namespace moris::hmr
             return mMaxPolynomial;
         }
 
-        //-------------------------------------------------------------------------------
-
-        // void
-        // set_demo_knot_parameter( real aParam )
-        //{
-        //     mDemoKnotParameter = aParam;
-        // }
-
-        //-------------------------------------------------------------------------------
-
-        // auto
-        // get_demo_knot_parameter() const -> decltype ( mDemoKnotParameter )
-        //{
-        //     return mDemoKnotParameter;
-        // }
-
-        //-------------------------------------------------------------------------------
-
+        /**
+         * Sets the mesh scale factor for saving to gmsh.
+         *
+         * @param aScaleFactor gmsh scale factor
+         */
         void
         set_gmsh_scale( real aScaleFactor )
         {
             mGmshScale = aScaleFactor;
         }
 
-        //-------------------------------------------------------------------------------
+        /**
+         * Gets the mesh scale factor for saving to gmsh.
+         *
+         * @return gmsh scale factor
+         */
         auto
         get_gmsh_scale() const
                 -> decltype( mGmshScale )
@@ -847,18 +730,21 @@ namespace moris::hmr
             return mGmshScale;
         }
 
-        //-------------------------------------------------------------------------------
-
+        /**
+         * Sets the B-spline truncation flag.
+         *
+         * @param aTruncateBSplines Whether or not to truncate B-splines
+         */
         void
-        set_bspline_truncation( const bool aSwitch )
+        set_bspline_truncation( bool aTruncateBSplines )
         {
-            mBSplineTruncationFlag = aSwitch;
+            mBSplineTruncationFlag = aTruncateBSplines;
         }
 
-        //-------------------------------------------------------------------------------
-
         /**
-         * returns the flag that tells if the truncation flag is set
+         * Gets if B-spline truncation is on or not.
+         *
+         * @return B-spline truncation flag
          */
         bool
         truncate_bsplines() const
@@ -866,70 +752,26 @@ namespace moris::hmr
             return mBSplineTruncationFlag;
         }
 
-        //-------------------------------------------------------------------------------
-
         /**
          * test if input is sane
          */
         void check_sanity() const;
 
-        //-------------------------------------------------------------------------------
-
         /**
-         * returns the default pattern for input meshes
-         */
-        uint
-        get_bspline_input_pattern() const
-        {
-            return mBSplineInputPattern;
-        }
-
-        //-------------------------------------------------------------------------------
-
-        /**
-         * returns the default pattern for input meshes
-         */
-        uint
-        get_lagrange_input_pattern() const
-        {
-            return mLagrangeInputPattern;
-        }
-
-        //-------------------------------------------------------------------------------
-
-        /**
-         * returns the default pattern for output meshes
-         */
-        uint
-        get_bspline_output_pattern() const
-        {
-            return mBSplineOutputPattern;
-        }
-
-        /**
-         * returns the default pattern for output meshes
-         */
-        uint
-        get_lagrange_output_pattern() const
-        {
-            return mLagrangeOutputPattern;
-        }
-
-        //-------------------------------------------------------------------------------
-
-        /**
-         * returns the default pattern for union meshes
+         * Sets the pattern used for union meshes.
+         *
+         * @param aUsedUnionPattern Union pattern to set
          */
         void
-        set_union_pattern( const uint aUsedUnionPattern )
+        set_union_pattern( uint aUsedUnionPattern )
         {
             mUnionPattern = aUsedUnionPattern;
         }
 
-        //-------------------------------------------------------------------------------
-
         /**
          * returns the default pattern for union meshes
+         *
+         * @return Union pattern
          */
         uint
         get_union_pattern() const
@@ -937,10 +779,10 @@ namespace moris::hmr
             return mUnionPattern;
         }
 
-        //-------------------------------------------------------------------------------
-
         /**
-         * returns the working pattern
+         * Gets the current working pattern.
+         *
+         * @return Working pattern
          */
         uint
         get_working_pattern() const
@@ -948,61 +790,80 @@ namespace moris::hmr
             return mWorkingPattern;
         }
 
+        /**
+         * Sets the current working pattern.
+         *
+         * @param aWorkingPattern New working pattern
+         */
         void
-        set_working_pattern( const uint aWorkingPattern )
+        set_working_pattern( uint aWorkingPattern )
         {
             mWorkingPattern = aWorkingPattern;
         }
-
-        //-------------------------------------------------------------------------------
 
         /**
          * lock critical parameters
          */
         void lock();
 
-        //-------------------------------------------------------------------------------
-
+        /**
+         * Sets initial refinement levels
+         *
+         * @param aLevel Initial refinement
+         */
         void
         set_initial_refinement( const moris::Matrix< DDUMat >& aLevel )
         {
             mInitialRefinementLevel = aLevel;
         }
 
-        //-------------------------------------------------------------------------------
-
+        /**
+         * Gets initial refinement levels
+         *
+         * @return Initial refinement
+         */
         moris::Matrix< DDUMat >
         get_initial_refinement() const
         {
             return mInitialRefinementLevel;
         }
 
-        //-------------------------------------------------------------------------------
-
+        /**
+         * Sets initial refinement patterns
+         *
+         * @param aPatterns Initial refinement patterns
+         */
         void
         set_initial_refinement_patterns( const moris::Matrix< DDUMat >& aPatterns )
         {
             mInitialRefinementPattern = aPatterns;
         }
 
-        //-------------------------------------------------------------------------------
-
+        /**
+         * Gets initial refinement patterns
+         *
+         * @return Initial refinement patterns
+         */
         moris::Matrix< DDUMat >
         get_initial_refinement_patterns() const
         {
             return mInitialRefinementPattern;
         }
 
-        //-------------------------------------------------------------------------------
-
+        /**
+         * Gets the initial refinement for a specific activation pattern.
+         *
+         * @param aActivationPattern Activation pattern to target
+         * @return Initial refinement level
+         */
         uint
-        get_initial_refinement( uint tActivationPattern ) const
+        get_initial_refinement( uint aActivationPattern ) const
         {
             sint tInitialRefinement = 0;
 
             for ( uint Ik = 0; Ik < mInitialRefinementPattern.numel(); Ik++ )
             {
-                if ( mInitialRefinementPattern( Ik ) == tActivationPattern )
+                if ( mInitialRefinementPattern( Ik ) == aActivationPattern )
                 {
                     tInitialRefinement = mInitialRefinementLevel( Ik );
                 }
@@ -1010,283 +871,296 @@ namespace moris::hmr
             return tInitialRefinement;
         }
 
-        //-------------------------------------------------------------------------------
-
+        /**
+         * Sets additional Lagrange refinement level.
+         *
+         * @param aLevel Additional refinement level
+         */
         void
         set_additional_lagrange_refinement( uint aLevel )
         {
             mAdditionalLagrangeRefinementLevel = aLevel;
         }
 
-        //-------------------------------------------------------------------------------
-
+        /**
+         * Gets additional refinement level.
+         *
+         * @return Additional refinement level
+         */
         uint
         get_additional_lagrange_refinement() const
         {
             return mAdditionalLagrangeRefinementLevel;
         }
 
-        //-------------------------------------------------------------------------------
-
-        //           Matrix< DDUMat> get_bspline_input_map() const
-        //           {
-        //               return mBSplineInputMap;
-        //           }
-
-        //-------------------------------------------------------------------------------
-
-        //           Matrix< DDUMat> get_bspline_output_map() const
-        //           {
-        //               return mBSplineOutputMap;
-        //           }
-
-        //-------------------------------------------------------------------------------
-
-        //           void set_bspline_input_map( const Matrix< DDUMat> & aBSplineInputMap )
-        //           {
-        //               mBSplineInputMap = aBSplineInputMap;
-        //           }
-
-        //-------------------------------------------------------------------------------
-
-        //           void set_bspline_output_map( const Matrix< DDUMat> & aBSplineOutputMap )
-        //           {
-        //               mBSplineOutputMap = aBSplineOutputMap;
-        //           }
-
-        //-------------------------------------------------------------------------------
-
+        /**
+         * Gets the side sets to generate.
+         *
+         * @return Side set indices
+         */
         const Matrix< DDUMat >&
         get_side_sets() const
         {
             return mSideSets;
         }
 
-        //-------------------------------------------------------------------------------
-
+        /**
+         * Sets which side sets to generate.
+         *
+         * @param aSideSets Side set indices
+         */
         void
         set_side_sets( const Matrix< DDUMat >& aSideSets )
         {
             mSideSets = aSideSets;
         }
 
-        //-------------------------------------------------------------------------------
-
         /**
-         * returns a string with the specified side set ordinals
+         * Gets if multigrid is to be used by HMR.
+         *
+         * @return multigrid flag
          */
-        std::string get_side_sets_as_string() const;
-
-        //-------------------------------------------------------------------------------
-
-        bool
+        [[nodiscard]] bool
         use_multigrid() const
         {
             return mUseMultigrid;
         }
 
-        //-------------------------------------------------------------------------------
-
-        bool
+        /**
+         * Gets if the aura is to be numbered by HMR.
+         *
+         * @return number aura flag
+         */
+        [[nodiscard]] bool
         use_number_aura() const
         {
             return mNumberAura;
         }
 
-        //-------------------------------------------------------------------------------
-
+        /**
+         * Gets if refinement is to be used for low level elements
+         *
+         * @return Low level refinement flag
+         */
         bool
         use_refinement_for_low_level_elements() const
         {
             return mRefinementForLowLevelElements;
         }
 
-        //-------------------------------------------------------------------------------
-
+        /**
+         * Gets if advanced T-matrices are to be used by HMR.
+         *
+         * @return Advanced T-matrix flag
+         */
         bool
         use_advanced_t_matrices() const
         {
             return mAdvancedTMatrices;
         }
 
-        //-------------------------------------------------------------------------------
-
+        /**
+         * Sets if HMR is to use multigrid.
+         *
+         * @param aUseMultigrid Multigrid flag
+         */
         void
-        set_multigrid( const bool aSwitch )
+        set_multigrid( bool aUseMultigrid )
         {
-            mUseMultigrid = aSwitch;
+            mUseMultigrid = aUseMultigrid;
         }
 
-        //-------------------------------------------------------------------------------
-
+        /**
+         * Sets if HMR is to nubmer the aura.
+         *
+         * @param aNumberAura Number aura flag
+         */
         void
-        set_number_aura( const bool aSwitch )
+        set_number_aura( bool aNumberAura )
         {
-            mNumberAura = aSwitch;
+            mNumberAura = aNumberAura;
         }
 
-        //-------------------------------------------------------------------------------
-
+        /**
+         * Sets if refinement is to be used for low level elements
+         *
+         * @param aRefinementForLowLevelElements Low level element refinement flag
+         */
         void
-        set_refinement_for_low_level_elements( const bool aSwitch )
+        set_refinement_for_low_level_elements( const bool aRefinementForLowLevelElements )
         {
-            mRefinementForLowLevelElements = aSwitch;
+            mRefinementForLowLevelElements = aRefinementForLowLevelElements;
         }
 
-        //-------------------------------------------------------------------------------
-
+        /**
+         * Sets if HMR is to use advanced T-matrices
+         *
+         * @param aAdvancedTMatrices Advanced T-matrix flag
+         */
         void
-        set_use_advanced_t_matrices( const bool aSwitch )
+        set_use_advanced_t_matrices( bool aAdvancedTMatrices )
         {
-            mAdvancedTMatrices = aSwitch;
+            mAdvancedTMatrices = aAdvancedTMatrices;
         }
 
-        //-------------------------------------------------------------------------------
-
+        /**
+         * Sets the file name to write the background mesh to.
+         *
+         * @param aWriteBackgroundMesh Background mesh file name
+         */
         void
-        set_write_background_mesh( const std::string& aWriteBackgroundMesh )
+        set_background_mesh_file_name( const std::string& aWriteBackgroundMesh )
         {
-            mWriteBackgroundMesh = aWriteBackgroundMesh;
+            mBackgroundMeshFileName = aWriteBackgroundMesh;
         }
 
-        //-------------------------------------------------------------------------------
-
+        /**
+         * Sets the file name to write the Lagrange mesh to
+         *
+         * @param aWriteOutputLagrangeMesh Lagrange mesh file name
+         */
         void
-        set_write_output_lagrange_mesh( const std::string& aWriteOutputLagrangeMesh )
+        set_lagrange_mesh_file_name( const std::string& aWriteOutputLagrangeMesh )
         {
-            mWriteOutputLagrangeMesh = aWriteOutputLagrangeMesh;
+            mLagrangeMeshFileName = aWriteOutputLagrangeMesh;
         }
 
-        //-------------------------------------------------------------------------------
-
-        void
-        set_write_output_lagrange_mesh_to_exodus( const std::string& aWriteOutputLagrangeMesh )
-        {
-            mWriteOutputLagrangeMeshToExodus = aWriteOutputLagrangeMesh;
-        }
-
-        //-------------------------------------------------------------------------------
-
+        /**
+         * Sets if HMR is to write the refinement pattern to file.
+         *
+         * @param aWriteRefinmentPatternFile Refinement pattern output flag
+         */
         void
         set_write_refinement_pattern_file_flag( bool aWriteRefinmentPatternFile )
         {
-            mWriteRefinementPatternFileFlag = aWriteRefinmentPatternFile;
+            mWriteRefinementPattern = aWriteRefinmentPatternFile;
         }
 
-        //-------------------------------------------------------------------------------
-
+        /**
+         * Sets the HDF5 file name for HMR to read in restart refinement info from.
+         *
+         * @param aRestartfromRefinedPattern Restart refinement pattern output file
+         */
         void
         set_restart_refinement_pattern_file( const std::string& aRestartfromRefinedPattern )
         {
-            mRestartfromRefinedPattern = aRestartfromRefinedPattern;
+            mRestartFromRefinedPatternFileName = aRestartfromRefinedPattern;
         }
 
-        //-------------------------------------------------------------------------------
-
+        /**
+         * Gets the name of the file to write the background mesh to, or an empty string for no output.
+         *
+         * @return Background mesh file name
+         */
         const std::string&
-        get_write_background_mesh()
+        get_background_mesh_file_name()
         {
-            return mWriteBackgroundMesh;
+            return mBackgroundMeshFileName;
         }
 
-        //-------------------------------------------------------------------------------
-
+        /**
+         * Gets the name of the file to write the Lagrange mesh to, or an empty string for no output.
+         *
+         * @return Output Lagrange mesh file name
+         */
         const std::string&
-        get_write_output_lagrange_mesh()
+        get_lagrange_mesh_file_name()
         {
-            return mWriteOutputLagrangeMesh;
+            return mLagrangeMeshFileName;
         }
 
-        //-------------------------------------------------------------------------------
-
-        const std::string&
-        get_write_output_lagrange_mesh_to_exodus()
+        /**
+         * Gets if the refinement pattern is to be written to file
+         *
+         * @return
+         */
+        [[nodiscard]] bool
+        write_refinement_pattern() const
         {
-            return mWriteOutputLagrangeMeshToExodus;
+            return mWriteRefinementPattern;
         }
 
-        //-------------------------------------------------------------------------------
-
-        bool
-        get_write_refinement_pattern_file_flag()
-        {
-            return mWriteRefinementPatternFileFlag;
-        }
-
-        //-------------------------------------------------------------------------------
-
+        /**
+         * Gets the HDF5 file name to read refinement restart info from.
+         *
+         * @return Refinement restart file name
+         */
         const std::string&
         get_restart_refinement_pattern_file()
         {
-            return mRestartfromRefinedPattern;
+            return mRestartFromRefinedPatternFileName;
         }
 
-        //-------------------------------------------------------------------------------
-
+        /**
+         * Gets the maximum refinement level.
+         *
+         * @return Max refinement level
+         */
         uint
         get_max_refinement_level() const
         {
             return mMaxRefinementLevel;
         }
 
-        //-------------------------------------------------------------------------------
-
+        /**
+         * Sets the maximum refinement level.
+         *
+         * @param aLevel Max refinement level
+         */
         void
-        set_max_refinement_level( const uint aLevel )
+        set_max_refinement_level( uint aLevel )
         {
             mMaxRefinementLevel = std::min( aLevel, gMaxNumberOfLevels - 1 );
         }
-        //-------------------------------------------------------------------------------
 
-        bool
-        get_refinement_interrelation() const
-        {
-            return mRefinementInterrelation;
-        }
-
-        //-------------------------------------------------------------------------------
-
+        /**
+         * Sets if Lagrange nodes are to be renumbered or not.
+         *
+         * @param aRenumberLagrangeNodes Lagrange node renumbering flag
+         */
         void
-        set_renumber_lagrange_nodes( const bool aSwitch )
+        set_renumber_lagrange_nodes( bool aRenumberLagrangeNodes )
         {
-            mRenumberLagrangeNodes = aSwitch;
+            mRenumberLagrangeNodes = aRenumberLagrangeNodes;
         }
 
-        //-------------------------------------------------------------------------------
-
+        /**
+         * Gets if Lagrange nodes are to be renumbered or not.
+         *
+         * @return Lagrange node renumbering flag
+         */
         bool
         get_renumber_lagrange_nodes() const
         {
             return mRenumberLagrangeNodes;
         }
 
-        //-------------------------------------------------------------------------------
-
+        /**
+         * Sets the VTK file name to write basis functions to.
+         *
+         * @param aFileName Basis function file name
+         */
         void
         set_basis_fuction_vtk_file_name( const std::string& aFileName )
         {
             mBasisFunctionVtkFileName = aFileName;
         }
 
-        //-------------------------------------------------------------------------------
-
+        /**
+         * Gets the VTK file name to write basis functions to, or an empty string if they are not to be written.
+         *
+         * @return Basis function file name
+         */
         std::string
         get_basis_fuction_vtk_file_name() const
         {
             return mBasisFunctionVtkFileName;
         }
 
-        //-------------------------------------------------------------------------------
-
-        void
-        set_refinement_interrelation( const bool aSwitch )
-        {
-            mRefinementInterrelation = aSwitch;
-        }
-
         /**
+         * Sets the refinement functions to the parameters.
          *
-         * @param aRefinementFunctions
+         * @param aRefinementFunctions Vector of refinement functions
          */
         void set_refinement_functions( const Vector< Refinement_Function >& aRefinementFunctions );
 
@@ -1297,37 +1171,20 @@ namespace moris::hmr
          */
         Refinement_Function get_refinement_function( uint aFunctionIndex );
 
-        //-------------------------------------------------------------------------------
-
       private:
-
-        //-------------------------------------------------------------------------------
-
         /**
          * calls error message only if parameters are locked
          */
         void error_if_locked( const std::string& aFunctionName ) const;
-
-        //-------------------------------------------------------------------------------
 
         /**
          * called from set_lagrange_orders and set_bspline_orders
          */
         void update_max_polynomial_and_truncated_buffer();
 
-        //-------------------------------------------------------------------------------
-
         /**
          * auto setting for dimension lengths and offset
          */
         void set_default_dimensions_and_offset();
-
-        //-------------------------------------------------------------------------------
-
-        //           void set_mesh_orders( const Matrix< DDUMat > & aBSplineOrders,
-        //                                 const Matrix< DDUMat > & aLagrangeOrders );
-
-        //-------------------------------------------------------------------------------
-    }; /* Parameters */
-
-}    // namespace moris::hmr
+    };
+}
