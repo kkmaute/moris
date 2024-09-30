@@ -1333,25 +1333,16 @@ namespace moris::hmr
     HMR::perform_initial_refinement()
     {
         Tracer tTracer( "HMR", "Perform initial refinement" );
-
-        // get minimum refinement from parameters object
-        Matrix< DDUMat > tInitialRefinement        = mParameters->get_initial_refinement();
-        Matrix< DDUMat > tInitialRefinementPattern = mParameters->get_initial_refinement_patterns();
-
-        uint tNumInitialRefinementPatterns = tInitialRefinementPattern.numel();
-
         uint tActivationPattern = mDatabase->get_activation_pattern();
 
-        for ( uint iPatternForInitRefine = 0; iPatternForInitRefine < tNumInitialRefinementPatterns; ++iPatternForInitRefine )
+        for ( uint iPatternForInitRefine = 0; iPatternForInitRefine < mParameters->get_initial_refinement().size(); ++iPatternForInitRefine )
         {
-            uint tPattern = tInitialRefinementPattern( iPatternForInitRefine );
+            mDatabase->set_activation_pattern( iPatternForInitRefine );
 
-            mDatabase->set_activation_pattern( tPattern );
-
-            uint tNumRefinementsForPattern = tInitialRefinement( iPatternForInitRefine );
+            uint tNumRefinementsForPattern = mParameters->get_initial_refinement( iPatternForInitRefine );
 
             // report on the following for-loop
-            MORIS_LOG_INFO( "Refining pattern #%i %i-times.", tPattern, tNumRefinementsForPattern );
+            MORIS_LOG_INFO( "Refining pattern #%i %i-times.", iPatternForInitRefine, tNumRefinementsForPattern );
 
             for ( uint iRefinementForPattern = 0; iRefinementForPattern < tNumRefinementsForPattern; ++iRefinementForPattern )
             {
@@ -1375,10 +1366,10 @@ namespace moris::hmr
                 }
 
                 // run the refiner
-                this->perform_refinement( tPattern );
+                this->perform_refinement( iPatternForInitRefine );
 
-                mDatabase->update_bspline_meshes( tPattern );
-                mDatabase->update_lagrange_meshes( tPattern );
+                mDatabase->update_bspline_meshes( iPatternForInitRefine );
+                mDatabase->update_lagrange_meshes( iPatternForInitRefine );
             }
         }    // end for: each pattern which initial refinement is performed upon
 

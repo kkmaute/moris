@@ -88,9 +88,9 @@ namespace moris::hmr
                 mStatus );
 
         // save initial refinement
-        save_matrix_to_hdf5_file( mFileID,
+        save_vector_to_hdf5_file( mFileID,
                 "InitialBSplineRefinement",
-                aParameters->get_initial_refinement(),
+                aParameters->get_initial_refinement().data(),
                 mStatus );
 
         // save initial refinement
@@ -235,7 +235,7 @@ namespace moris::hmr
                 tValUint,
                 mStatus );
 
-        aParameters->set_initial_refinement( { { tValUint } } );
+        aParameters->set_initial_refinement( { tValUint } );
 
         // load initial refinement
         load_scalar_from_hdf5_file( mFileID,

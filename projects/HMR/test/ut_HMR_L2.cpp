@@ -1194,8 +1194,7 @@ namespace moris::hmr
 
             tParameters.set_staircase_buffer( 2 );
 
-            tParameters.set_initial_refinement( { { 1 } } );
-            tParameters.set_initial_refinement_patterns( { { 0 } } );
+            tParameters.set_initial_refinement( { 1 } );
 
             tParameters.set_number_aura( false );
 

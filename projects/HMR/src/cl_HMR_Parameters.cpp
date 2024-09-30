@@ -148,11 +148,7 @@ namespace moris::hmr
         this->set_bspline_truncation( (bool)aParameterList.get< sint >( "truncate_bsplines" ) );
 
         //        // set minimum initial refinement
-        string_to_matrix( aParameterList.get< std::string >( "initial_refinement" ), mInitialRefinementLevel );
-        string_to_matrix( aParameterList.get< std::string >( "initial_refinement_pattern" ), mInitialRefinementPattern );
-
-        MORIS_ERROR( mInitialRefinementLevel.numel() == mInitialRefinementPattern.numel(),
-                "length of mInitialRefinementLevel must be equal to mInitialRefinementPattern." );
+        string_to_vector( aParameterList.get< std::string >( "initial_refinement" ), mInitialRefinementLevel );
 
         this->set_max_refinement_level( aParameterList.get< sint >( "max_refinement_level" ) );
 

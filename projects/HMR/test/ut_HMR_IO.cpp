@@ -61,8 +61,7 @@ namespace moris::hmr
                 tParameters.set_staircase_buffer( 3 );
                 tParameters.set_refinement_buffer( 3 );
 
-                tParameters.set_initial_refinement( { { 1 } } );
-                tParameters.set_initial_refinement_patterns( { { 0 } } );
+                tParameters.set_initial_refinement( { 1 } );
 
                 Vector< Vector< uint > > tLagrangeToBSplineMesh( 1 );
                 tLagrangeToBSplineMesh( 0 ) = { { 0, 1 } };
@@ -214,8 +213,7 @@ namespace moris::hmr
                 tParameters.set_staircase_buffer( 3 );
                 tParameters.set_refinement_buffer( 3 );
 
-                tParameters.set_initial_refinement( { { 1 } } );
-                tParameters.set_initial_refinement_patterns( { { 0 } } );
+                tParameters.set_initial_refinement( { 1 } );
 
                 Vector< Vector< uint > > tLagrangeToBSplineMesh( 1 );
                 tLagrangeToBSplineMesh( 0 ) = { 0, 1, 2 };

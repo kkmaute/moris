@@ -118,8 +118,7 @@ namespace moris::hmr
 
         moris::map< std::string, moris_index > mOutputNameToIndexMap;
 
-        Matrix< DDUMat > mInitialRefinementLevel   = { {} };
-        Matrix< DDUMat > mInitialRefinementPattern = { {} };
+        Vector< uint > mInitialRefinementLevel   = {};
 
         uint mAdditionalLagrangeRefinementLevel = 0;
         //! defines which SideSets are to be generated
@@ -785,7 +784,7 @@ namespace moris::hmr
          * @param aLevel Initial refinement
          */
         void
-        set_initial_refinement( const moris::Matrix< DDUMat >& aLevel )
+        set_initial_refinement( const Vector< uint >& aLevel )
         {
             mInitialRefinementLevel = aLevel;
         }
@@ -795,32 +794,10 @@ namespace moris::hmr
          *
          * @return Initial refinement
          */
-        moris::Matrix< DDUMat >
+        const Vector< uint >&
         get_initial_refinement() const
         {
             return mInitialRefinementLevel;
-        }
-
-        /**
-         * Sets initial refinement patterns
-         *
-         * @param aPatterns Initial refinement patterns
-         */
-        void
-        set_initial_refinement_patterns( const moris::Matrix< DDUMat >& aPatterns )
-        {
-            mInitialRefinementPattern = aPatterns;
-        }
-
-        /**
-         * Gets initial refinement patterns
-         *
-         * @return Initial refinement patterns
-         */
-        moris::Matrix< DDUMat >
-        get_initial_refinement_patterns() const
-        {
-            return mInitialRefinementPattern;
         }
 
         /**
@@ -832,16 +809,14 @@ namespace moris::hmr
         uint
         get_initial_refinement( uint aActivationPattern ) const
         {
-            sint tInitialRefinement = 0;
-
-            for ( uint Ik = 0; Ik < mInitialRefinementPattern.numel(); Ik++ )
+            if ( aActivationPattern < mInitialRefinementLevel.size() )
             {
-                if ( mInitialRefinementPattern( Ik ) == aActivationPattern )
-                {
-                    tInitialRefinement = mInitialRefinementLevel( Ik );
-                }
+                return mInitialRefinementLevel( aActivationPattern );
             }
-            return tInitialRefinement;
+            else
+            {
+                return 0;
+            }
         }
 
         /**

@@ -212,8 +212,7 @@ namespace moris::hmr
             tParameters.set_refinement_buffer( 3 );
             tParameters.set_staircase_buffer( 1 );
 
-            tParameters.set_initial_refinement( { { 1 } } );
-            tParameters.set_initial_refinement_patterns( { { 0 } } );
+            tParameters.set_initial_refinement( { 1 } );
 
             HMR tHMR( tParameters );
 
@@ -313,8 +312,7 @@ namespace moris::hmr
             tParameters.set_refinement_buffer( 3 );
             tParameters.set_staircase_buffer( 1 );
 
-            tParameters.set_initial_refinement( { { 1 } } );
-            tParameters.set_initial_refinement_patterns( { { 0 } } );
+            tParameters.set_initial_refinement( { 1 } );
 
             //tParameters.set_side_sets({ {1}, {2}, {3}, {4} });
 
@@ -418,8 +416,7 @@ namespace moris::hmr
             tParameters.set_refinement_buffer( 3 );
             tParameters.set_staircase_buffer( 1 );
 
-            tParameters.set_initial_refinement( { { 1 } } );
-            tParameters.set_initial_refinement_patterns( { { 0 } } );
+            tParameters.set_initial_refinement( { 1 } );
 
             //tParameters.set_side_sets({ {1}, {2}, {3}, {4} });
 
@@ -765,8 +762,7 @@ namespace moris::hmr
 
             tParameters.set_staircase_buffer( 2 );
 
-            tParameters.set_initial_refinement( { { 0 } } );
-            tParameters.set_initial_refinement_patterns( { { 0 } } );
+            tParameters.set_initial_refinement( { 0 } );
 
             tParameters.set_number_aura( true );
 
@@ -921,8 +917,7 @@ namespace moris::hmr
 
             tParameters.set_staircase_buffer( 2 );
 
-            tParameters.set_initial_refinement( { { 0 } } );
-            tParameters.set_initial_refinement_patterns( { { 0 } } );
+            tParameters.set_initial_refinement( { 0 } );
 
             tParameters.set_number_aura( true );
 
@@ -1030,8 +1025,7 @@ namespace moris::hmr
 
             tParameters.set_staircase_buffer( 2 );
 
-            tParameters.set_initial_refinement( { { 2, 1 } } );
-            tParameters.set_initial_refinement_patterns( { { 0, 1 } } );
+            tParameters.set_initial_refinement( { 2, 1 } );
 
             tParameters.set_number_aura( true );
 
@@ -1083,8 +1077,7 @@ namespace moris::hmr
             tParameters.set_refinement_buffer( 3 );
             tParameters.set_staircase_buffer( 1 );
 
-            tParameters.set_initial_refinement( { { 2 } } );
-            tParameters.set_initial_refinement_patterns( { { 0 } } );
+            tParameters.set_initial_refinement( { 2 } );
 
             HMR tHMR( tParameters );
 
@@ -1181,8 +1174,7 @@ namespace moris::hmr
 
             tParameters.set_staircase_buffer( 0 );
 
-            tParameters.set_initial_refinement( { { 0 } } );
-            tParameters.set_initial_refinement_patterns( { { 0 } } );
+            tParameters.set_initial_refinement( { 0 } );
 
             tParameters.set_background_mesh_file_name( "backgroundmesh.vtk" );
             tParameters.set_lagrange_mesh_file_name( "lagrangemesh.vtk" );
@@ -1275,8 +1267,7 @@ namespace moris::hmr
 
             tParameters.set_staircase_buffer( 0 );
 
-            tParameters.set_initial_refinement( { { 0 } } );
-            tParameters.set_initial_refinement_patterns( { { 0 } } );
+            tParameters.set_initial_refinement( { 0 } );
 
             tParameters.set_background_mesh_file_name( "backgroundmesh.vtk" );
             tParameters.set_lagrange_mesh_file_name( "lagrangemesh.vtk" );
