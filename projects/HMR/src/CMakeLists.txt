@@ -13,7 +13,6 @@ set(${HMR}_VERSION ${MORIS_VERSION})
 
 # List header files
 set(HEADERS
-    cl_HMR_Arguments.hpp
     cl_HMR_Background_Edge.hpp
     cl_HMR_Background_Element_Base.hpp
     cl_HMR_Background_Element.hpp
@@ -71,7 +70,6 @@ set(HEADERS
     cl_HMR_Mesh_Interpolation.hpp
     cl_HMR_Mesh.hpp
     cl_HMR_Parameters.hpp
-    cl_HMR_Paramfile.hpp
     cl_HMR_Side_Cluster.hpp
     cl_HMR_Side_Set.hpp
     cl_HMR_State.hpp
@@ -97,8 +95,7 @@ set(HEADERS
 
 # List library source files
 set(LIB_SOURCES
-    cl_HMR_Arguments.cpp
-    cl_HMR_Background_Edge.cpp
+        cl_HMR_Background_Edge.cpp
     cl_HMR_Background_Facet.cpp
     cl_HMR_Background_Mesh_Base.cpp
     cl_HMR_BSpline_Mesh_Base.cpp
@@ -115,8 +112,7 @@ set(LIB_SOURCES
     cl_HMR_Mesh_Base.cpp
     cl_HMR_Mesh.cpp
     cl_HMR_Parameters.cpp
-    cl_HMR_Paramfile.cpp
-    cl_HMR_STK.cpp
+        cl_HMR_STK.cpp
     cl_HMR_T_Matrix_Base.cpp
     cl_HMR_T_Matrix_2D.cpp
     cl_HMR_T_Matrix_3D.cpp
