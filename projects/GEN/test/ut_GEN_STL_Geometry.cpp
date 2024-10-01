@@ -49,7 +49,7 @@ namespace moris
         tParameterlist.set( "use_multigrid",  0 );
         tParameterlist.set( "severity_level", 0 );
 
-        std::string tObjectPath = get_base_moris_dir() + "/projects/HMR/tutorials/bracket.obj";
+        std::string tObjectPath = get_base_moris_dir() + "/projects/GEN/test/bracket.obj";
 
         // create SDF generator
         sdf::SDF_Generator tSdfGen( tObjectPath );
