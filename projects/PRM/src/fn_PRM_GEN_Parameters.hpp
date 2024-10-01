@@ -164,7 +164,7 @@ namespace moris::prm
                     aParameterList.insert( "image_offset", Vector< real >() );
                     aParameterList.insert( "image_sdf_scaling", 0.0 );                // sdf scaling factor (0: automatic scaling)
                     aParameterList.insert( "image_sdf_shift", 0.0 );                  // sdf shift value
-                    aParameterList.insert( "image_sdf_default", -1.0 );               // sdf value outside image
+                    aParameterList.insert( "image_sdf_default", 1.0 );               // sdf value outside image
                     aParameterList.insert( "image_sdf_interpolate", false );          // whether sdf value is interpolated
                     break;
                 }
