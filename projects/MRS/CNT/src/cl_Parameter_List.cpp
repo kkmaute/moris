@@ -86,7 +86,7 @@ namespace moris
     
     //--------------------------------------------------------------------------------------------------------------
     
-    const Variant& Parameter_List::get( const std::string& aName ) const
+    const Variant& Parameter_List::get_variant( const std::string& aName ) const
     {
         auto tIterator = mParamMap.find( aName );
         

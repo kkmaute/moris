@@ -677,7 +677,7 @@ namespace moris
         if ( aExternalValidator.mParameterListType == Parameter_List_Type::END_ENUM )
         {
             // Return single parameter
-            tExternalOptions = { aContainingParameterList.get( aExternalValidator.mParameterName ) };
+            tExternalOptions = { aContainingParameterList.get_variant( aExternalValidator.mParameterName ) };
         }
         else
         {
@@ -690,7 +690,7 @@ namespace moris
                     // Check if external parameter exists here
                     if ( iExternalParameterList.exists( aExternalValidator.mParameterName ) )
                     {
-                        tExternalOptions.push_back( iExternalParameterList.get( aExternalValidator.mParameterName ) );
+                        tExternalOptions.push_back( iExternalParameterList.get_variant( aExternalValidator.mParameterName ) );
                     }
                 }
             }

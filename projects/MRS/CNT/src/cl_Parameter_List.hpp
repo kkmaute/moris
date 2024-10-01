@@ -71,15 +71,12 @@ namespace moris
                 Parameter_List_Type aExternalParameterListType  = Parameter_List_Type::END_ENUM,
                 uint                aExternalParameterListIndex = 0 )
         {
-            // Check for leading and trailing whitespaces in key
-            std::string tKeyWithoutSpaces = aName;
-            split_trim_string( tKeyWithoutSpaces, "" );
-            MORIS_ERROR( aName == tKeyWithoutSpaces,
-                    "Param_List::insert - key contains whitespaces" );
+            // Register new
+            std::string tKey = this->register_key( aName );
 
             // Insert new value
             Parameter tParameter( std::move( aDefaultValue ), aExternalValidationType, std::move( aExternalParameterName ), aExternalParameterListType, aExternalParameterListIndex );
-            mParamMap.insert( { aName, tParameter } );
+            mParamMap.insert( { tKey, tParameter } );
         }
 
         /**
@@ -197,7 +194,7 @@ namespace moris
         const T& get( const std::string& aName ) const
         {
             // Delegate to private implementation overload, depending on if T is an enum
-            return this->get< T >( aName, std::is_enum< T >() );
+            return this->get_and_convert< T >( aName, std::is_enum< T >() );
         }
 
         /**
@@ -206,7 +203,7 @@ namespace moris
          * @param aName Name of the parameter to get
          * @return The variant corresponding to aName
          */
-        const Variant& get( const std::string& aName ) const;
+        const Variant& get_variant( const std::string& aName ) const;
 
         /**
          * Gets a cell from a paramter that is stored as a std::string
@@ -254,6 +251,24 @@ namespace moris
       private:
 
         /**
+         * Registers a new key to this parameter list's vector of names, based on the parameter name.
+         *
+         * @param aName Parameter name
+         * @return Valid map key
+         */
+        std::string register_key( const std::string& aName )
+        {
+            // Trim leading and trailing whitespaces from name to form key
+            std::string tKey = aName;
+            trim_string( tKey );
+
+            // Add key to list TODO
+
+            // Return key
+            return tKey;
+        }
+
+        /**
          * Adds a new parameter to this parameter list (private implementation).
          *
          * @param[in] aName Key corresponding to the mapped value that
@@ -265,15 +280,12 @@ namespace moris
         template< typename T >
         void convert_and_insert( const std::string& aName, T aValue, T aMinimumValue, T aMaximumValue, std::false_type )
         {
-            // Check for leading and trailing whitespaces in key
-            std::string tKeyWithoutSpaces = aName;
-            split_trim_string( tKeyWithoutSpaces, "" );
-            MORIS_ERROR( aName == tKeyWithoutSpaces,
-                    "Param_List::insert - key contains whitespaces" );
+            // Register new key
+            std::string tKey = this->register_key( aName );
 
             // Insert new value
             Parameter tParameter( aValue, aMinimumValue, aMaximumValue );
-            mParamMap.insert( { aName, tParameter } );
+            mParamMap.insert( { tKey, tParameter } );
         }
 
         /**
@@ -304,11 +316,9 @@ namespace moris
                 bool               aLockValue,
                 std::false_type )
         {
-            // create copy of key string such that tIterator can be manipulated
+            // Remove leading and trailing whitespaces in key
             std::string tKey = aName;
-
-            // remove spurious whitespaces from key string
-            split_trim_string( tKey, "" );
+            trim_string( tKey );
 
             // find key in map
             auto tIterator = mParamMap.find( tKey );
@@ -318,7 +328,7 @@ namespace moris
                     "The requested parameter %s can not be set because it does not exist.\n",
                     tKey.c_str() );
 
-            tIterator->second.set_value( aName, std::move( aValue ), aLockValue );
+            tIterator->second.set_value( tKey, std::move( aValue ), aLockValue );
         }
 
         /**
@@ -343,7 +353,7 @@ namespace moris
          * @return The value corresponding to aName.
          */
         template< typename T >
-        const T& get( const std::string& aName, std::false_type ) const
+        const T& get_and_convert( const std::string& aName, std::false_type ) const
         {
             auto tIterator = mParamMap.find( aName );
 
@@ -359,9 +369,9 @@ namespace moris
          * Get function overload, for static casting uints to a requested enum.
          */
         template< typename T >
-        const T& get( const std::string& aName, std::true_type ) const
+        const T& get_and_convert( const std::string& aName, std::true_type ) const
         {
-            return ( const T& ) this->get< uint >( aName, std::false_type() );
+            return ( const T& ) this->get_and_convert< uint >( aName, std::false_type() );
         }
     };
 
