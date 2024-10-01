@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef PROJECTS_HMR_SRC_CL_HMR_DATABASE_HPP_
-#define PROJECTS_HMR_SRC_CL_HMR_DATABASE_HPP_
+#pragma once
 
 // database is always a shared pointer, so we need std::memory
 #include <memory>
@@ -543,5 +542,3 @@ namespace moris::hmr
         // -----------------------------------------------------------------------------
     };
 }    // namespace moris::hmr
-
-#endif /* PROJECTS_HMR_SRC_CL_HMR_DATABASE_HPP_ */

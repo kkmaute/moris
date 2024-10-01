@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_HMR_CL_HMR_HPP_
-#define SRC_HMR_CL_HMR_HPP_
+#pragma once
 
 // #include "cl_HMR_Database.hpp"     //HMR/src
 #include "cl_HMR_Element.hpp"
@@ -589,5 +588,3 @@ namespace moris::hmr
     }; /* HMR */
 
 }    // namespace moris::hmr
-
-#endif /* SRC_HMR_CL_HMR_HPP_ */

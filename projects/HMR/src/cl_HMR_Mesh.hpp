@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_HMR_CL_HMR_INTERFACE_HPP_
-#define SRC_HMR_CL_HMR_INTERFACE_HPP_
+#pragma once
 
 #include "cl_HMR_Lagrange_Mesh_Base.hpp"
 #include "cl_Vector.hpp"    //CNT/src
@@ -826,5 +825,3 @@ namespace moris::hmr
     //-------------------------------------------------------------------------------
 
 }    // namespace moris::hmr
-
-#endif /* SRC_HMR_CL_HMR_INTERFACE_HPP_ */

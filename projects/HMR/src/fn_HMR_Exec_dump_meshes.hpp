@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef PROJECTS_HMR_SRC_FN_HMR_EXEC_DUMP_MESHES_HPP_
-#define PROJECTS_HMR_SRC_FN_HMR_EXEC_DUMP_MESHES_HPP_
+#pragma once
 
 #include <string>
 
@@ -90,6 +89,3 @@ namespace moris::hmr
 
 //--------------------------------------------------------------------------------
 }
-
-#endif /* PROJECTS_HMR_SRC_FN_HMR_EXEC_DUMP_MESHES_HPP_ */
-

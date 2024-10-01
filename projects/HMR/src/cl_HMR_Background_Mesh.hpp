@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_HMR_CL_HMR_BACKGROUND_MESH_HPP_
-#define SRC_HMR_CL_HMR_BACKGROUND_MESH_HPP_
+#pragma once
 
 #include <string>
 
@@ -1462,5 +1461,3 @@ namespace moris::hmr
 
 #include "cl_HMR_Background_Mesh_2D.hpp"
 #include "cl_HMR_Background_Mesh_3D.hpp"
-
-#endif /* SRC_HMR_CL_HMR_BACKGROUND_MESH_HPP_ */

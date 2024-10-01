@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_HMR_CL_HMR_DOMAIN_HPP_
-#define SRC_HMR_CL_HMR_DOMAIN_HPP_
+#pragma once
 
 #include "HMR_Globals.hpp" //HMR/src
 #include "moris_typedefs.hpp" //COR/src
@@ -115,4 +114,3 @@ namespace moris::hmr
 //--------------------------------------------------------------------------------
 
 }
-#endif /* SRC_HMR_CL_HMR_DOMAIN_HPP_ */

@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef PROJECTS_HMR_SRC_FN_HMR_EXEC_PERFORM_MAPPING_HPP_
-#define PROJECTS_HMR_SRC_FN_HMR_EXEC_PERFORM_MAPPING_HPP_
+#pragma once
 
 #include <memory>
 
@@ -341,5 +340,3 @@ namespace moris::hmr
     // -----------------------------------------------------------------------------
 
 }    // namespace moris::hmr
-
-#endif /* PROJECTS_HMR_SRC_FN_HMR_EXEC_PERFORM_MAPPING_HPP_ */

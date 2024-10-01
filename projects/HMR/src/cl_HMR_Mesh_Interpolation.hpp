@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef PROJECTS_HMR_SRC_CL_HMR_MESH_INTERPOLATION_HPP_
-#define PROJECTS_HMR_SRC_CL_HMR_MESH_INTERPOLATION_HPP_
+#pragma once
 
 #include <utility>
 
@@ -92,4 +91,3 @@ namespace moris::hmr
     //-------------------------------------------------------------------------------
 
 }    // namespace moris::hmr
-#endif /* PROJECTS_HMR_SRC_CL_HMR_MESH_INTERPOLATION_HPP_ */

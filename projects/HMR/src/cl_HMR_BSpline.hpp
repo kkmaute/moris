@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_HMR_CL_HMR_BSPLINE_HPP_
-#define SRC_HMR_CL_HMR_BSPLINE_HPP_
+#pragma once
 
 #include "cl_HMR_Basis.hpp"    //HMR/src
 
@@ -743,5 +742,3 @@ namespace moris::hmr
     //------------------------------------------------------------------------------
 
 }    // namespace moris::hmr
-
-#endif /* SRC_HMR_CL_HMR_BSPLINE_HPP_ */

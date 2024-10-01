@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_HMR_CL_HMR_BACKGROUND_MESH_BASE_HPP_
-#define SRC_HMR_CL_HMR_BACKGROUND_MESH_BASE_HPP_
+#pragma once
 
 #include "cl_HMR_Background_Element_Base.hpp"
 #include "cl_HMR_Parameters.hpp"    //HMR/src
@@ -1388,4 +1387,3 @@ namespace moris::hmr
         //------------------------------------------------------------------------------
     };
 }    // namespace moris::hmr
-#endif /* SRC_HMR_CL_HMR_BACKGROUND_MESH_BASE_HPP_ */

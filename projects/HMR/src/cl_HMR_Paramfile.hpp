@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef PROJECTS_HMR_SRC_CL_HMR_PARAMFILE_HPP_
-#define PROJECTS_HMR_SRC_CL_HMR_PARAMFILE_HPP_
+#pragma once
 
 #include <string>
 
@@ -208,5 +207,3 @@ namespace moris::hmr
 
     // -----------------------------------------------------------------------------
 }    // namespace moris::hmr
-
-#endif /* PROJECTS_HMR_SRC_CL_HMR_PARAMFILE_HPP_ */

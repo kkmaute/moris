@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef PROJECTS_HMR_SRC_FN_HMR_EXEC_LOAD_USER_LIBRARY_HPP_
-#define PROJECTS_HMR_SRC_FN_HMR_EXEC_LOAD_USER_LIBRARY_HPP_
+#pragma once
 
 #include <string>
 
@@ -108,5 +107,3 @@ namespace moris::hmr
     };
     // -----------------------------------------------------------------------------
 }    // namespace moris::hmr
-
-#endif /* PROJECTS_HMR_SRC_FN_HMR_EXEC_LOAD_USER_LIBRARY_HPP_ */

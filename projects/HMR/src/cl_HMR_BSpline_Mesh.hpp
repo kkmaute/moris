@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_HMR_CL_HMR_BSPLINE_MESH_HPP_
-#define SRC_HMR_CL_HMR_BSPLINE_MESH_HPP_
+#pragma once
 
 #include "cl_HMR_Background_Element_Base.hpp"    //HMR/src
 #include "cl_HMR_Background_Mesh_Base.hpp"       //HMR/src
@@ -1223,5 +1222,3 @@ namespace moris::hmr
         // ----------------------------------------------------------------------------
     };
 }    // namespace moris::hmr
-
-#endif /* SRC_HMR_CL_HMR_BSPLINE_MESH_HPP_ */

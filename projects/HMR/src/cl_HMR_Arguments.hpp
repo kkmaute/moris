@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef PROJECTS_HMR_SRC_CL_HMR_ARGUMENTS_HPP_
-#define PROJECTS_HMR_SRC_CL_HMR_ARGUMENTS_HPP_
+#pragma once
 #include <string>
 
 #include "cl_HMR_State.hpp"
@@ -81,6 +80,3 @@ namespace moris::hmr
     };
 //---------------------------------------------------------------------------------
 }
-
-#endif /* PROJECTS_HMR_SRC_CL_HMR_ARGUMENTS_HPP_ */
-
