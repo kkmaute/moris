@@ -138,7 +138,6 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", "11,11");
         tParameterlist( 0 )( 0 ).set( "domain_dimensions",                "4,4");
         tParameterlist( 0 )( 0 ).set( "domain_offset",                    "-2.0,-2.0");
-        tParameterlist( 0 )( 0 ).set( "domain_sidesets",                  "1,2,3,4");
         tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes",           "0");
 
         tParameterlist( 0 )( 0 ).set( "lagrange_orders",  "1");

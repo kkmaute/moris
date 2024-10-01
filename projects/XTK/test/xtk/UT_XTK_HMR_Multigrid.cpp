@@ -93,7 +93,7 @@ namespace moris::xtk
             tParameters.set_bspline_orders( { 1 } );
             tParameters.set_bspline_patterns( { 0 } );
 
-            tParameters.set_side_sets( { { 1 }, { 2 }, { 3 }, { 4 } } );
+            tParameters.set_create_side_sets( true );
 
             tParameters.set_union_pattern( 2 );
             tParameters.set_working_pattern( 3 );

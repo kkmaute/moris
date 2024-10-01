@@ -37,9 +37,7 @@ namespace moris::prm
         // width, height and depth of domain (without aura)
         tParameterList.insert( "domain_dimensions", "1, 1" );
         // offset from the origin
-        tParameterList.insert( "domain_offset", "0, 0 " );
-        // sidesets which should be built
-        tParameterList.insert( "domain_sidesets", "" );
+        tParameterList.insert( "domain_offset", "0, 0" );
 
         // Lagrange Meshes that are used as output meshes
         tParameterList.insert( "lagrange_output_meshes", "" );

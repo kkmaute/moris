@@ -108,7 +108,7 @@ namespace moris::xtk
             tParameters.set_bspline_orders( { 3 } );
             tParameters.set_bspline_patterns( { 0 } );
 
-            tParameters.set_side_sets( { { 1, 2, 3, 4 } } );
+            tParameters.set_create_side_sets( true );
 
             tParameters.set_union_pattern( 2 );
             tParameters.set_working_pattern( 3 );
@@ -217,7 +217,7 @@ namespace moris::xtk
             tParameters.set_bspline_orders( { 3 } );
             tParameters.set_bspline_patterns( { 0 } );
 
-            tParameters.set_side_sets( { { 1 }, { 2 }, { 3 }, { 4 } } );
+            tParameters.set_create_side_sets( true );
             tParameters.set_max_refinement_level( 2 );
             tParameters.set_union_pattern( 2 );
             tParameters.set_working_pattern( 3 );
@@ -293,7 +293,6 @@ namespace moris::xtk
             tParameters.set( "number_of_elements_per_dimension", "3, 1" );
             tParameters.set( "domain_dimensions", "6,2" );
             tParameters.set( "domain_offset", "-3,-1" );
-            tParameters.set( "domain_sidesets", "1,2,3,4" );
             tParameters.set( "lagrange_output_meshes", "0" );
             tParameters.set( "lagrange_orders", "2" );
             tParameters.set( "lagrange_pattern", "0" );

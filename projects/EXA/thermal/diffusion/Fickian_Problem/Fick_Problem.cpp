@@ -112,7 +112,6 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "processor_decomposition_method", 1 );
         tParameterlist( 0 )( 0 ).set( "domain_dimensions", "0.168,0.0005" );
         tParameterlist( 0 )( 0 ).set( "domain_offset", "0.0,0.0" );
-        tParameterlist( 0 )( 0 ).set( "domain_sidesets", "1,2,3,4" );
         tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes", "0" );
 
         if ( gPrintReferenceValues == true )

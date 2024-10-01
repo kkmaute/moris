@@ -162,7 +162,6 @@ namespace moris
         tHmrParamList.set( "number_of_elements_per_dimension", tBaseGridSize );
         tHmrParamList.set( "domain_dimensions", tDomainDimensions );
         tHmrParamList.set( "domain_offset", tBaseGridOrigin );
-        tHmrParamList.set( "domain_sidesets", tDomainSideSets );
 
         // ------------------------------
         // grids and refinements

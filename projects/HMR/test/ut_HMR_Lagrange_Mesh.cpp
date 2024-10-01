@@ -314,7 +314,7 @@ namespace moris::hmr
 
             tParameters.set_initial_refinement( { 1 } );
 
-            //tParameters.set_side_sets({ {1}, {2}, {3}, {4} });
+            //tParameters.set_create_side_sets( true );
 
             HMR tHMR( tParameters );
 
@@ -418,7 +418,7 @@ namespace moris::hmr
 
             tParameters.set_initial_refinement( { 1 } );
 
-            //tParameters.set_side_sets({ {1}, {2}, {3}, {4} });
+            //tParameters.set_create_side_sets( true );
 
             HMR tHMR( tParameters );
 
@@ -750,7 +750,7 @@ namespace moris::hmr
             tParameters.set_number_of_elements_per_dimension( 40, 10, 10 );
             tParameters.set_domain_dimensions( 10, 5, 5 );
             tParameters.set_domain_offset( 0.0, 0.0, 0.0 );
-            tParameters.set_side_sets( { { 1 }, { 2 }, { 3 }, { 4 }, { 5 }, { 6 } } );
+            tParameters.set_create_side_sets( true );
 
             tParameters.set_bspline_truncation( true );
 
@@ -903,7 +903,7 @@ namespace moris::hmr
             tParameters.set_number_of_elements_per_dimension( 40, 10, 10 );
             tParameters.set_domain_dimensions( 10, 5, 5 );
             tParameters.set_domain_offset( 0.0, 0.0, 0.0 );
-            tParameters.set_side_sets( { { 1 }, { 2 }, { 3 }, { 4 }, { 5 }, { 6 } } );
+            tParameters.set_create_side_sets( true );
 
             tParameters.set_bspline_truncation( true );
 
@@ -1012,7 +1012,7 @@ namespace moris::hmr
             tParameters.set_number_of_elements_per_dimension( 2, 1, 1 );
             tParameters.set_domain_dimensions( 2, 1, 1 );
             tParameters.set_domain_offset( 0.0, 0.0, 0.0 );
-            tParameters.set_side_sets( { { 1 }, { 2 }, { 3 }, { 4 }, { 5 }, { 6 } } );
+            tParameters.set_create_side_sets( true );
 
             tParameters.set_bspline_truncation( true );
 
@@ -1161,7 +1161,7 @@ namespace moris::hmr
             tParameters.set_number_of_elements_per_dimension( 6, 6, 3 );
             tParameters.set_domain_dimensions( 2, 2, 1 );
             tParameters.set_domain_offset( 0.0, 0.0, 0.0 );
-            tParameters.set_side_sets( { { 1 }, { 2 }, { 3 }, { 4 }, { 5 }, { 6 } } );
+            tParameters.set_create_side_sets( true );
 
             tParameters.set_bspline_truncation( true );
 
@@ -1255,7 +1255,7 @@ namespace moris::hmr
             tParameters.set_number_of_elements_per_dimension( 6, 6, 3 );
             tParameters.set_domain_dimensions( 2, 2, 1 );
             tParameters.set_domain_offset( 0.0, 0.0, 0.0 );
-            tParameters.set_side_sets( { { 1 }, { 2 }, { 3 }, { 4 }, { 5 }, { 6 } } );
+            tParameters.set_create_side_sets( true );
 
             tParameters.set_bspline_truncation( true );
 
@@ -1358,7 +1358,6 @@ namespace moris::hmr
             tParameterlist_test.set( "number_of_elements_per_dimension", "2,2" );
             tParameterlist_test.set( "domain_dimensions", "1,1" );
             tParameterlist_test.set( "domain_offset", "0,0" );
-            tParameterlist_test.set( "domain_sidesets", "1,2,3,4" );
             tParameterlist_test.set( "lagrange_output_meshes", "0" );
 
             tParameterlist_test.set( "lagrange_orders", "1" );
@@ -1448,7 +1447,6 @@ namespace moris::hmr
             tParameterlist_test.set( "number_of_elements_per_dimension", "2,2" );
             tParameterlist_test.set( "domain_dimensions", "1,1" );
             tParameterlist_test.set( "domain_offset", "0,0" );
-            tParameterlist_test.set( "domain_sidesets", "1,2,3,4" );
             tParameterlist_test.set( "lagrange_output_meshes", "0" );
 
             tParameterlist_test.set( "lagrange_orders", "1" );

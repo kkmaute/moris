@@ -85,7 +85,6 @@ namespace moris
     std::string tNumElemsPerDim = tDim == 3 ? "5,50,5" : "5,50";
     std::string tDomainDims     = tDim == 3 ? "1,10,1" : "1,10";
     std::string tDomainOffset   = tDim == 3 ? "0.0,0.0,0.0" : "0.0,0.0";
-    std::string tDomainSidesets = tDim == 3 ? "1,2,3,4,5,6" : "1,2,3,4";
 
     /* ------------------------------------------------------------------------ */
     // Mesh Set Information
@@ -151,7 +150,6 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", tNumElemsPerDim );
         tParameterlist( 0 )( 0 ).set( "domain_dimensions", tDomainDims );
         tParameterlist( 0 )( 0 ).set( "domain_offset", tDomainOffset );
-        tParameterlist( 0 )( 0 ).set( "domain_sidesets", tDomainSidesets );
         tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes", std::string( "0" ) );
 
         tParameterlist( 0 )( 0 ).set( "lagrange_orders", tOrder );

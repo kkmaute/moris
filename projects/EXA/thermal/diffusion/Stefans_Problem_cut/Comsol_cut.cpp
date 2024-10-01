@@ -150,7 +150,6 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", tNumElemsPerDim );
         tParameterlist( 0 )( 0 ).set( "domain_dimensions", tHMRDomainDimensions );
         tParameterlist( 0 )( 0 ).set( "domain_offset", "-0.0015,-0.0008" );
-        tParameterlist( 0 )( 0 ).set( "domain_sidesets", "1,2,3,4" );
         tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes", "0" );
 
         switch ( gInterpolationOrder )

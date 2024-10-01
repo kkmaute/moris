@@ -30,7 +30,6 @@ namespace moris::hmr
             tParameters.set_domain_dimensions( 1, 1, 1 );
             tParameters.set_domain_offset( -1, -1, -1 );
             tParameters.set_bspline_truncation( true );
-            //        tParameters.set( "domain_sidesets", "1, 6, 3, 4, 5, 2");
 
             tParameters.set_lagrange_orders( { 1 } );
             tParameters.set_lagrange_patterns( { 0 } );
@@ -92,7 +91,6 @@ namespace moris::hmr
             tParameters.set_domain_dimensions( 1, 1, 1 );
             tParameters.set_domain_offset( -1, -1, -1 );
             tParameters.set_bspline_truncation( true );
-            //        tParameters.set( "domain_sidesets", "1, 6, 3, 4, 5, 2");
 
             tParameters.set_lagrange_orders( { 2 } );
             tParameters.set_lagrange_patterns( { 0 } );
@@ -156,7 +154,6 @@ namespace moris::hmr
             tParameters.set_domain_dimensions( 1, 1, 1 );
             tParameters.set_domain_offset( -1, -1, -1 );
             tParameters.set_bspline_truncation( true );
-            //        tParameters.set( "domain_sidesets", "1, 6, 3, 4, 5, 2");
 
             tParameters.set_lagrange_orders( { 3 } );
             tParameters.set_lagrange_patterns( { 0 } );

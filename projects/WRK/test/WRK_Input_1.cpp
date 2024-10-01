@@ -353,7 +353,6 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", std::string( "2, 1" ) );
         tParameterlist( 0 )( 0 ).set( "domain_dimensions", "2, 2" );
         tParameterlist( 0 )( 0 ).set( "domain_offset", "-1.0, -1.0" );
-        tParameterlist( 0 )( 0 ).set( "domain_sidesets", "1,2,3,4" );
         tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes", std::string( "0" ) );
 
         tParameterlist( 0 )( 0 ).set( "lagrange_orders", std::string( "1" ) );

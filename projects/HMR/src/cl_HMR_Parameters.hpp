@@ -120,16 +120,11 @@ namespace moris::hmr
 
         Vector< uint > mInitialRefinementLevel   = {};
 
-        uint mAdditionalLagrangeRefinementLevel = 0;
-        //! defines which SideSets are to be generated
-        Matrix< DDUMat > mSideSets;
-
+        //! defines if these options are to be used
+        bool mCreateSideSets = false;
         bool mUseMultigrid = false;
-
         bool mNumberAura = false;
-
         bool mRefinementForLowLevelElements = false;
-
         bool mAdvancedTMatrices = false;
 
         std::string mBackgroundMeshFileName;
@@ -564,9 +559,9 @@ namespace moris::hmr
         /**
          * determines if dimension is 1D, 2D or 3D
          *
-         * return luint
+         * return uint
          */
-        luint
+        uint
         get_number_of_dimensions() const
         {
             return mNumberOfElementsPerDimension.size();
@@ -820,47 +815,25 @@ namespace moris::hmr
         }
 
         /**
-         * Sets additional Lagrange refinement level.
-         *
-         * @param aLevel Additional refinement level
-         */
-        void
-        set_additional_lagrange_refinement( uint aLevel )
-        {
-            mAdditionalLagrangeRefinementLevel = aLevel;
-        }
-
-        /**
-         * Gets additional refinement level.
-         *
-         * @return Additional refinement level
-         */
-        uint
-        get_additional_lagrange_refinement() const
-        {
-            return mAdditionalLagrangeRefinementLevel;
-        }
-
-        /**
          * Gets the side sets to generate.
          *
          * @return Side set indices
          */
-        const Matrix< DDUMat >&
-        get_side_sets() const
+        bool
+        get_create_side_sets() const
         {
-            return mSideSets;
+            return mCreateSideSets;
         }
 
         /**
-         * Sets which side sets to generate.
+         * Sets if to generate side sets
          *
          * @param aSideSets Side set indices
          */
         void
-        set_side_sets( const Matrix< DDUMat >& aSideSets )
+        set_create_side_sets( bool aCreateSideSets )
         {
-            mSideSets = aSideSets;
+            mCreateSideSets = aCreateSideSets;
         }
 
         /**

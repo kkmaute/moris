@@ -42,7 +42,7 @@ namespace moris::hmr
         tParameters.set_domain_dimensions( 10, 4, 4 );
         tParameters.set_domain_offset( -10, -2, -2 );
         tParameters.set_bspline_truncation( true );
-        tParameters.set_side_sets( { { 1 }, { 6 }, { 3 }, { 4 }, { 5 }, { 2 } } );
+        tParameters.set_create_side_sets( true );
 
         tParameters.set_lagrange_orders( { 1 } );
         tParameters.set_lagrange_patterns( { 0 } );
@@ -183,7 +183,7 @@ namespace moris::hmr
             tParameters.set_domain_dimensions( 10, 4, 4 );
             tParameters.set_domain_offset( -5, -2, -2 );
             tParameters.set_bspline_truncation( true );
-            tParameters.set_side_sets( { { 1 }, { 6 }, { 3 }, { 4 }, { 5 }, { 2 } } );
+            tParameters.set_create_side_sets( true );
 
             tParameters.set_lagrange_orders( { 1 } );
             tParameters.set_lagrange_patterns( { 0 } );
@@ -250,7 +250,7 @@ namespace moris::hmr
             tParameters.set_domain_dimensions( 10, 4, 4 );
             tParameters.set_domain_offset( -2, -2, -2 );
             tParameters.set_bspline_truncation( true );
-            tParameters.set_side_sets( { { 1 }, { 6 }, { 3 }, { 4 }, { 5 }, { 2 } } );
+            tParameters.set_create_side_sets( true );
 
             tParameters.set_lagrange_orders( { 1 } );
             tParameters.set_lagrange_patterns( { 0 } );

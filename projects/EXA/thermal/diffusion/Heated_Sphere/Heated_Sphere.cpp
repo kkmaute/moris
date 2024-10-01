@@ -98,7 +98,6 @@ namespace moris
     std::string tNumElemsPerDim = "8, 8, 8";
     std::string tDomainDims     = "2.0, 2.0, 2.0";
     std::string tDomainOffset   = "-1.0, -1.0, -1.0";
-    std::string tDomainSidesets = "1,2,3,4,5,6";
 
     int tRefineBuffer = 1;
 
@@ -251,7 +250,6 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", tNumElemsPerDim );
         tParameterlist( 0 )( 0 ).set( "domain_dimensions", tDomainDims );
         tParameterlist( 0 )( 0 ).set( "domain_offset", tDomainOffset );
-        tParameterlist( 0 )( 0 ).set( "domain_sidesets", tDomainSidesets );
         tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes", "0" );
 
         tParameterlist( 0 )( 0 ).set( "lagrange_orders", std::to_string( gInterpolationOrder ) );

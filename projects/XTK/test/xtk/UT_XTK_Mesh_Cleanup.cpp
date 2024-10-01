@@ -159,7 +159,6 @@
 //         tHMRParams( 0 )( 0 ).set( "number_of_elements_per_dimension", tNumElemsPerDim );
 //         tHMRParams( 0 )( 0 ).set( "domain_dimensions",                tDomainDims );
 //         tHMRParams( 0 )( 0 ).set( "domain_offset",                    tDomainOffset );
-//         tHMRParams( 0 )( 0 ).set( "domain_sidesets",                  tDomainSidesets);
 //         tHMRParams( 0 )( 0 ).set( "lagrange_output_meshes",           "0");
 //         tHMRParams( 0 )( 0 ).set( "lagrange_orders",  tInterpolationOrder );
 //         tHMRParams( 0 )( 0 ).set( "lagrange_pattern", std::string( "0" )  );
@@ -350,7 +349,6 @@
 //         tHMRParams( 0 )( 0 ).set( "number_of_elements_per_dimension", tNumElemsPerDim );
 //         tHMRParams( 0 )( 0 ).set( "domain_dimensions",                tDomainDims );
 //         tHMRParams( 0 )( 0 ).set( "domain_offset",                    tDomainOffset );
-//         tHMRParams( 0 )( 0 ).set( "domain_sidesets",                  tDomainSidesets);
 //         tHMRParams( 0 )( 0 ).set( "lagrange_output_meshes",           "0");
 //         tHMRParams( 0 )( 0 ).set( "lagrange_orders",  tInterpolationOrder );
 //         tHMRParams( 0 )( 0 ).set( "lagrange_pattern", std::string( "0" )  );

@@ -80,7 +80,6 @@ namespace moris
     std::string tNumElemsPerDim = "1, 1";
     std::string tDomainDims     = "0.01, 0.05";
     std::string tDomainOffset   = "0.0,0.0";
-    std::string tDomainSidesets = "1,2,3,4";
 
     /* ------------------------------------------------------------------------ */
     /* ------------------------------------------------------------------------ */
@@ -242,7 +241,6 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", tNumElemsPerDim );
         tParameterlist( 0 )( 0 ).set( "domain_dimensions", tDomainDims );
         tParameterlist( 0 )( 0 ).set( "domain_offset", tDomainOffset );
-        tParameterlist( 0 )( 0 ).set( "domain_sidesets", tDomainSidesets );
         tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes", std::string( "0" ) );
 
         tParameterlist( 0 )( 0 ).set( "lagrange_orders", tOrder );

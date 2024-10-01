@@ -85,7 +85,6 @@ namespace moris
     std::string tNumElemsPerDim = "5, 5 ,5 ";
     std::string tDomainDims     = "1.0, 1.0, 1.0";
     std::string tDomainOffset   = "0, 0, 0";
-    std::string tDomainSidesets = "1,2,3,4, 5, 6";
 
     std::string tEigenStrain = "1.0;0.0;0.0;0.0;0.0;0.0";
 
@@ -189,7 +188,6 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", tNumElemsPerDim );
         tParameterlist( 0 )( 0 ).set( "domain_dimensions", tDomainDims );
         tParameterlist( 0 )( 0 ).set( "domain_offset", tDomainOffset );
-        tParameterlist( 0 )( 0 ).set( "domain_sidesets", tDomainSidesets );
         tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes", "0" );
 
         tParameterlist( 0 )( 0 ).set( "lagrange_orders", std::to_string( 1 ) );

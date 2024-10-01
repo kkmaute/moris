@@ -93,12 +93,6 @@ namespace moris::hmr
                 aParameters->get_initial_refinement().data(),
                 mStatus );
 
-        // save initial refinement
-        save_scalar_to_hdf5_file( mFileID,
-                "AdditionalLagrangeRefinement",
-                aParameters->get_additional_lagrange_refinement(),
-                mStatus );
-
         // save maximal refinement level
         save_scalar_to_hdf5_file( mFileID,
                 "MaxRefinementLevel",
@@ -138,18 +132,6 @@ namespace moris::hmr
         save_vector_to_hdf5_file( mFileID,
                 "BSplinePatterns",
                 aParameters->get_bspline_patterns().data(),
-                mStatus );
-
-        // save Sidesets
-        Matrix< DDUMat > tSideSets = aParameters->get_side_sets();
-        if ( tSideSets.length() == 0 )
-        {
-            tSideSets.set_size( 1, 1, 0 );
-        }
-
-        save_matrix_to_hdf5_file( mFileID,
-                "SideSets",
-                tSideSets,
                 mStatus );
     }
 
@@ -237,14 +219,6 @@ namespace moris::hmr
 
         aParameters->set_initial_refinement( { tValUint } );
 
-        // load initial refinement
-        load_scalar_from_hdf5_file( mFileID,
-                "AdditionalLagrangeRefinement",
-                tValUint,
-                mStatus );
-
-        aParameters->set_additional_lagrange_refinement( tValUint );
-
         // loadmaximal refinement level
         load_scalar_from_hdf5_file( mFileID,
                 "MaxRefinementLevel",
@@ -301,22 +275,6 @@ namespace moris::hmr
             tBsplineToLagrange( 0 )( Ik ) = Ik;
         }
         aParameters->set_lagrange_to_bspline_mesh( tBsplineToLagrange );
-
-        // load side sets
-        load_matrix_from_hdf5_file( mFileID,
-                "SideSets",
-                tMatUint,
-                mStatus );
-
-        // test if matrix has values
-        if ( tMatUint.length() > 0 )
-        {
-            if ( tMatUint( 0 ) != 0 )
-            {
-                // reset matrix
-                aParameters->set_side_sets( tMatUint );
-            }
-        }
     }
 
     //------------------------------------------------------------------------------

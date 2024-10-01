@@ -272,7 +272,7 @@ namespace moris::hmr
     //                // link to sideset if this is an output mesh
     //                if ( mLagrangeMeshes( k )->get_activation_pattern() == mParameters->get_lagrange_output_pattern() )
     //                {
-    //                    mLagrangeMeshes( k )->set_side_sets( mOutputSideSets );
+    //                    mLagrangeMeshes( k )->set_create_side_sets( true );
     //                }
     //            }
     //        }
@@ -1377,13 +1377,9 @@ namespace moris::hmr
         // report on this operation
         MORIS_LOG_INFO( "Creating side sets in HMR Database" );
 
-        // matrix with side sets
-        const Matrix< DDUMat >& tSideSets = mParameters->get_side_sets();
-
-        moris_index tNumberOfSets = tSideSets.length();
-
-        if ( tNumberOfSets > 0 )
+        if ( mParameters->get_create_side_sets() )
         {
+            uint tNumberOfSets = 2 * mParameters->get_number_of_dimensions();
             Side_Set tEmpty;
 
             // allocate output side set
@@ -1405,28 +1401,26 @@ namespace moris::hmr
             mOutputSideSetMap.clear();
 
             // create side sets for output mesh
-            for ( moris_index s = 0; s < tNumberOfSets; ++s )
+            for ( uint iSet = 0; iSet < tNumberOfSets; iSet++ )
             {
-                uint tSet = tSideSets( s );
-
                 // collect elements from background mesh
                 Vector< Background_Element_Base* > tBackElements;
 
                 mBackgroundMesh->collect_side_set_elements(
                         tPatternList( 0 ),
-                        tSet,
+                        iSet + 1,
                         tBackElements );
 
                 // get number of elements
                 uint tNumberOfElements = tBackElements.size();
 
                 // get ref to side set
-                Side_Set& tSideSet = mOutputSideSets( s );
+                Side_Set& tSideSet = mOutputSideSets( iSet );
 
                 // create name
-                tSideSet.mInfo.mSideSetName = "SideSet_" + std::to_string( s + 1 );
+                tSideSet.mInfo.mSideSetName = "SideSet_" + std::to_string( iSet + 1 );
 
-                mOutputSideSetMap[ tSideSet.mInfo.mSideSetName ] = s;
+                mOutputSideSetMap[ tSideSet.mInfo.mSideSetName ] = iSet;
 
                 // allocate memory for ids
                 tSideSet.mElemIdsAndSideOrds.set_size( tNumberOfElements, 2 );
@@ -1436,8 +1430,6 @@ namespace moris::hmr
 
                 // initialize counter
                 luint tCount = 0;
-
-                uint tSetIndex = tSet - 1;
 
                 // loop over all Background Elements
                 for ( Background_Element_Base* tBackElement : tBackElements )
@@ -1449,7 +1441,7 @@ namespace moris::hmr
                     tSideSet.mElemIdsAndSideOrds( tCount, 0 ) = tElement->get_id();
 
                     // write sideset ordinal
-                    tSideSet.mElemIdsAndSideOrds( tCount, 1 ) = tSetIndex;
+                    tSideSet.mElemIdsAndSideOrds( tCount, 1 ) = iSet;
 
                     // write element index
                     tSideSet.mElemIndices( tCount++ ) = tElement->get_index();

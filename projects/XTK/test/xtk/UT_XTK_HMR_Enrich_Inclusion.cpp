@@ -76,7 +76,6 @@
 //     tParameterlist.set( "number_of_elements_per_dimension", tNumElementsPerDir);
 //     tParameterlist.set( "domain_dimensions",                tDimensions    );
 //     tParameterlist.set( "domain_offset",                    tOffSet);
-//     tParameterlist.set( "domain_sidesets",                  tSideSets);
 //     tParameterlist.set( "lagrange_output_meshes",           "0");
 //     tParameterlist.set( "lagrange_orders",  tLagrangeOrder   );
 //     tParameterlist.set( "lagrange_pattern", tLagrangePattern );

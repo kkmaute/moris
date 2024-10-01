@@ -209,6 +209,7 @@ namespace moris::hmr
 
             // create the HMR object by passing the settings to the constructor
             HMR tHMR( tParameters );
+            tHMR.get_parameters()->set_create_side_sets( false );
 
             // std::shared_ptr< Database >
             auto tDatabase = tHMR.get_database();
@@ -261,6 +262,7 @@ namespace moris::hmr
 
             // create the HMR object by passing the settings to the constructor
             HMR tHMR( tParameters );
+            tHMR.get_parameters()->set_create_side_sets( false );
 
             // std::shared_ptr< Database >
             auto tDatabase = tHMR.get_database();

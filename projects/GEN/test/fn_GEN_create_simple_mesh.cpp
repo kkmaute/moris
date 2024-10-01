@@ -30,7 +30,6 @@ namespace moris::gen
                          std::to_string(aNumXElements) + ", " + std::to_string(aNumYElements));
         tParameters.set( "domain_dimensions", "2, 2");
         tParameters.set( "domain_offset", "-1.0, -1.0");
-        tParameters.set( "domain_sidesets", "1,2,3,4");
         tParameters.set( "lagrange_output_meshes", "0");
 
         tParameters.set( "lagrange_orders", std::to_string(aLagrangeOrder));

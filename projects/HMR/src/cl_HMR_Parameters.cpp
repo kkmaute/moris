@@ -69,8 +69,6 @@ namespace moris::hmr
         this->set_refinement_buffer( aParameterList.get< uint >( "refinement_buffer" ) );
         this->set_staircase_buffer( aParameterList.get< uint >( "staircase_buffer" ) );
 
-        string_to_matrix( aParameterList.get< std::string >( "domain_sidesets" ), mSideSets );
-
         string_to_vector_of_vectors( aParameterList.get< std::string >( "lagrange_output_meshes" ), mOutputMeshes );
 
         MORIS_ERROR( mOutputMeshes.size() <= 2,
@@ -174,6 +172,9 @@ namespace moris::hmr
         this->set_restart_refinement_pattern_file( aParameterList.get< std::string >( "restart_refinement_pattern_file" ) );
 
         this->set_basis_fuction_vtk_file_name( aParameterList.get< std::string >( "basis_function_vtk_file" ) );
+
+        // Always create side sets when using parameter list
+        mCreateSideSets = true;
 
         // get user-defined refinement functions
         Vector< std::string > tFunctionNames = string_to_vector< std::string >( aParameterList.get< std::string >( "refinement_function_names" ) );

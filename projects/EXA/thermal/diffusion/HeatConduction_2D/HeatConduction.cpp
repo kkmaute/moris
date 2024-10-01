@@ -168,7 +168,6 @@ namespace moris
     std::string tNumElemsPerDim = tNumElemX + "," + tNumElemY;
     std::string tDomainDims     = tDomainDimX + "," + tDomainDimY;
     std::string tDomainOffset   = tDomainOffX + "," + tDomainOffY;
-    std::string tDomainSidesets = "1,2,3,4";
 
     // interpolation orders for level set and temperature fields
     int tLevelsetOrder = 2;
@@ -467,7 +466,6 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", tNumElemsPerDim );
         tParameterlist( 0 )( 0 ).set( "domain_dimensions", tDomainDims );
         tParameterlist( 0 )( 0 ).set( "domain_offset", tDomainOffset );
-        tParameterlist( 0 )( 0 ).set( "domain_sidesets", tDomainSidesets );
 
         tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes", "0" );
 

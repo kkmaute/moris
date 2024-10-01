@@ -124,7 +124,6 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
         tParameters.set( "number_of_elements_per_dimension", "600, 6");
         tParameters.set( "domain_dimensions", "100, 2" );
 //        tParameters.set( "domain_offset", "-50.0, -1.0" );
-        tParameters.set( "domain_sidesets", "1,2,3,4" );
         tParameters.set( "lagrange_output_meshes", "0" );
 
         tParameters.set( "lagrange_orders", "1" );

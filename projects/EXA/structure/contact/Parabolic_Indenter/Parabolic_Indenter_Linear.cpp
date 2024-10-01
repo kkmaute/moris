@@ -259,7 +259,6 @@ namespace moris
                 std::to_string( tNumElemsX ) + "," + std::to_string( tNumElemsY ) );
         pl.set( "domain_dimensions", std::to_string( tWidth ) + "," + std::to_string( tHeight ) );
         pl.set( "domain_offset", tDomainOffset );
-        pl.set( "domain_sidesets", "1,2,3,4" );
 
         /* ---------------------------------------- Lagrange Mesh ------------------------------------- */
         pl.set( "lagrange_pattern", "0" );
