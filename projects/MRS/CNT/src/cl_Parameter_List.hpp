@@ -24,18 +24,6 @@
 #include "ios.hpp"
 #include "cl_Parameter.hpp"
 
-namespace moris::containers
-{
-    struct strcmp
-    {
-        bool
-        operator()( const std::string& a, const std::string& b ) const
-        {
-            return std::strcmp( a.c_str(), b.c_str() ) < 0;
-        }
-    };
-}
-
 namespace moris
 {
     /**
@@ -48,7 +36,7 @@ namespace moris
     {
 
       private:
-        std::map< std::string, Parameter, moris::containers::strcmp > mParamMap;
+        std::map< std::string, Parameter > mParamMap;
 
       public:
 
