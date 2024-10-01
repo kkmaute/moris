@@ -54,9 +54,6 @@ namespace moris::gen
             // Create mesh
             mtk::Interpolation_Mesh* tMesh = create_simple_mesh( 2, 2 );
 
-            // Set up geometry
-            Vector< real > tADVs = { 0.25, 0.0, 1.0, 0.0 };
-
             // Circle
             Parameter_List tCircleParameterList = prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE );
             tCircleParameterList.set( "center_x", -0.25 );
@@ -81,7 +78,6 @@ namespace moris::gen
             // Create geometry engine
             Geometry_Engine_Parameters tGeometryEngineParameters;
             ADV_Manager tADVManager;
-            tADVManager.mADVs = tADVs;
             Design_Factory tDesignFactory( { tCircleParameterList, tPlane1ParameterList, tPlane2ParameterList }, tADVManager );
             tGeometryEngineParameters.mADVManager = tADVManager;
             tGeometryEngineParameters.mGeometries = tDesignFactory.get_geometries();
@@ -402,7 +398,7 @@ namespace moris::gen
 
             // Set new ADVs, level set field now has no intersections
             mtk::Mesh_Pair tMeshPair( tMesh, create_integration_mesh_from_interpolation_mesh( mtk::MeshType::HMR, tMesh ) );
-            tADVs = { { 0.25, 0.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 } };
+            Vector< real > tADVs = { 0.25, 0.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
             tGeometryEngine.set_advs( tADVs );
             tGeometryEngine.reset_mesh_information( tMeshPair.get_interpolation_mesh() );
 
