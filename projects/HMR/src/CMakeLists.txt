@@ -85,12 +85,6 @@ set(HEADERS
     fn_HMR_Background_Element_Neighbors_3D.hpp
     fn_HMR_bspline_shape.hpp
     fn_HMR_calculate_basis_identifier.hpp
-    fn_HMR_Exec_dump_fields.hpp
-    fn_HMR_Exec_dump_meshes.hpp
-    fn_HMR_Exec_initialize_fields.hpp
-    fn_HMR_Exec_load_parameters.hpp
-    fn_HMR_Exec_load_user_library.hpp
-    fn_HMR_Exec_perform_mapping.hpp
     fn_HMR_get_basis_neighbors_2d.hpp
     fn_HMR_get_basis_neighbors_3d.hpp
     fn_HMR_refinement_transition_locations.hpp
@@ -166,36 +160,6 @@ foreach(TPL ${HMR_TPL_DEPENDENCIES})
     target_compile_definitions(${HMR}-lib
         PUBLIC ${MORIS_${TPL}_DEFINITIONS})
 endforeach()
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# hmr Executable
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# project Executable
-
-# List executable source files
-set(EXE_SOURCES
-    main.cpp )
-
-# List executable dependencies
-set(EXE_DEPENDENCIES
-    ${LINALG}-lib
-    ${CNT}-lib
-    ${IOS}-lib
-    ${HMR}-lib
-    ${MTK}-lib
-    ${DLA}-lib
-    )
-    
-# Set the output path for executable
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
-
-# Create executable
-if(BUILD_HMR)
-    add_executable(${HMR}-exe ${EXE_SOURCES})
-    target_link_libraries(${HMR}-exe PRIVATE ${EXE_DEPENDENCIES})
-    set_target_properties(${HMR}-exe PROPERTIES OUTPUT_NAME hmr )
-endif()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # hmr Config Files
