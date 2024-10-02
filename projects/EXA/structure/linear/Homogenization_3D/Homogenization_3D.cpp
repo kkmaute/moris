@@ -171,9 +171,7 @@ namespace moris
     OPTParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_opt_problem_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_opt_problem_parameter_list() );
 
         tParameterlist( 0 )( 0 ).set( "is_optimization_problem", false );
     }
@@ -182,9 +180,7 @@ namespace moris
     HMRParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_hmr_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_hmr_parameter_list() );
 
         tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", tNumElemsPerDim );
         tParameterlist( 0 )( 0 ).set( "domain_dimensions", tDomainDims );
@@ -215,9 +211,7 @@ namespace moris
     XTKParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_xtk_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_xtk_parameter_list() );
         tParameterlist( 0 )( 0 ).set( "decompose", true );
         tParameterlist( 0 )( 0 ).set( "decomposition_type", "conformal" );
         tParameterlist( 0 )( 0 ).set( "enrich", true );
@@ -235,10 +229,7 @@ namespace moris
     GENParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 3 );
-        tParameterlist( 0 ).resize( 1 );
-
-        // Main GEN parameter list
-        tParameterlist( 0 )( 0 ) = prm::create_gen_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_gen_parameter_list() );
 
         // init geometry counter
         uint tGeoCounter = 0;
@@ -252,10 +243,9 @@ namespace moris
     MIGParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
 
         // Main GEN parameter list
-        tParameterlist( 0 )( 0 ) = prm::create_mig_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_mig_parameter_list() );
 
         tParameterlist( 0 )( 0 ).set( "periodic_side_set_pair", tPeriodicSidePairs );
     }
@@ -273,7 +263,6 @@ namespace moris
         // properties for inclusion
 
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ) = prm::create_property_parameter_list();
         tParameterList( 0 )( tPropCounter ).set( "property_name", "PropDensityInner" );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters", tDensityInner );
         tParameterList( 0 )( tPropCounter ).set( "value_function", "Func_Const" );
@@ -300,7 +289,6 @@ namespace moris
 
         // properties for outer material
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ) = prm::create_property_parameter_list();
         tParameterList( 0 )( tPropCounter ).set( "property_name", "PropDensityOuter" );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters", tDensityOuter );
         tParameterList( 0 )( tPropCounter ).set( "value_function", "Func_Const" );
@@ -571,8 +559,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
         // fill the computation part of the parameter list
-        tParameterList( 5 ).resize( 1 );
-        tParameterList( 5 )( 0 ) = prm::create_computation_parameter_list();
+        tParameterList( 5 ).push_back( prm::create_computation_parameter_list() );
     }
 
     void
@@ -610,9 +597,7 @@ namespace moris
     MSIParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_msi_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_msi_parameter_list() );
         tParameterlist( 0 )( 0 ).set( "order_adofs_by_host", false );
     }
 
@@ -620,9 +605,7 @@ namespace moris
     VISParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_vis_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_vis_parameter_list() );
         tParameterlist( 0 )( 0 ).set( "File_Name", std::pair< std::string, std::string >( "./", tOutputFileName ) );
         tParameterlist( 0 )( 0 ).set( "Mesh_Type",  vis::VIS_Mesh_Type::STANDARD ) ;
         tParameterlist( 0 )( 0 ).set( "Set_Names", tTotalDomain );

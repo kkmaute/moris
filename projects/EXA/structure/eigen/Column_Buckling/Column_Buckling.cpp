@@ -131,11 +131,7 @@ namespace moris
     void OPTParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 3 );
-        tParameterlist( 0 ).resize( 1 );
-        tParameterlist( 1 ).resize( 0 );
-        tParameterlist( 2 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = moris::prm::create_opt_problem_parameter_list();
+        tParameterlist( 0 ).push_back( moris::prm::create_opt_problem_parameter_list() );
         tParameterlist( 0 )( 0 ).set( "is_optimization_problem", false );
     }
 
@@ -144,9 +140,7 @@ namespace moris
     void HMRParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_hmr_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_hmr_parameter_list() );
 
         tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", tNumElemsPerDim );
         tParameterlist( 0 )( 0 ).set( "domain_dimensions", tDomainDims );
@@ -178,9 +172,7 @@ namespace moris
     void XTKParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_xtk_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_xtk_parameter_list() );
         tParameterlist( 0 )( 0 ).set( "decompose", true );
         tParameterlist( 0 )( 0 ).set( "decomposition_type", std::string( "conformal" ) );
         tParameterlist( 0 )( 0 ).set( "enrich", true );
@@ -199,10 +191,7 @@ namespace moris
     void GENParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 3 );
-        tParameterlist( 0 ).resize( 1 );
-
-        // Main GEN parameter list
-        tParameterlist( 0 )( 0 ) = prm::create_gen_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_gen_parameter_list() );
     }
 
     /* ------------------------------------------------------------------------ */
@@ -420,18 +409,14 @@ namespace moris
         }
 
         // create computation parameter list
-        tParameterList( 5 ).resize( 1 );
-        tParameterList( 5 )( 0 ) = prm::create_computation_parameter_list();
+        tParameterList( 5 ).push_back( prm::create_computation_parameter_list() );
     }
 
     void
     SOLParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 8 );
-        for ( uint Ik = 0; Ik < 8; Ik++ )
-        {
-            tParameterlist( Ik ).resize( 1 );
-        }
+
 
         if ( tUsePetsc )
         {
@@ -447,12 +432,9 @@ namespace moris
     create_trilinos_parameter_list( Vector< Vector< Parameter_List > >& aParameterlist )
     {
         //---------------------------------------------------------------------------------------------------------------------------------------
+        aParameterlist( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
 
-        aParameterlist( 0 ).resize( 2 );
-
-        aParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
-
-        aParameterlist( 0 )( 1 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::EIGEN_SOLVER );
+        aParameterlist( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::EIGEN_SOLVER ) );
         aParameterlist( 0 )( 1 ).set( "Eigen_Algorithm", "EIGALG_BLOCK_DAVIDSON" );
         aParameterlist( 0 )( 1 ).set( "Verbosity", false );
         aParameterlist( 0 )( 1 ).set( "Which", "SM" );
@@ -468,27 +450,23 @@ namespace moris
 
         //---------------------------------------------------------------------------------------------------------------------------------------
 
-        aParameterlist( 1 ).resize( 2 );
-
-        aParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
+        aParameterlist( 1 ).push_back( moris::prm::create_linear_solver_parameter_list() );
         aParameterlist( 1 )( 0 ).set( "DLA_Linear_solver_algorithms", "0" );
 
-        aParameterlist( 1 )( 1 ) = moris::prm::create_linear_solver_parameter_list();
+        aParameterlist( 1 ).push_back( moris::prm::create_linear_solver_parameter_list() );
         aParameterlist( 1 )( 1 ).set( "DLA_Linear_solver_algorithms", "1" );
         aParameterlist( 1 )( 1 ).set( "RHS_Matrix_Type", "GeomStiffMat" );    // MassMat or IdentityMat
 
         //---------------------------------------------------------------------------------------------------------------------------------------
 
-        aParameterlist( 2 ).resize( 2 );
-
-        aParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+        aParameterlist( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );
         aParameterlist( 2 )( 0 ).set( "NLA_Linear_solver", 0 );
         aParameterlist( 2 )( 0 ).set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
         aParameterlist( 2 )( 0 ).set( "NLA_relaxation_parameter", tNLA_relaxation_parameter );
         aParameterlist( 2 )( 0 ).set( "NLA_max_iter", 2 );
         aParameterlist( 2 )( 0 ).set( "NLA_combined_res_jac_assembly", true );
 
-        aParameterlist( 2 )( 1 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+        aParameterlist( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );
         aParameterlist( 2 )( 1 ).set( "NLA_Linear_solver", 1 );
         aParameterlist( 2 )( 1 ).set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
         aParameterlist( 2 )( 1 ).set( "NLA_relaxation_parameter", tNLA_relaxation_parameter );
@@ -498,17 +476,17 @@ namespace moris
 
         //---------------------------------------------------------------------------------------------------------------------------------------
 
-        aParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
+        aParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );
         aParameterlist( 3 )( 0 ).set( "NLA_Nonlinear_solver_algorithms", "0,1" );
         aParameterlist( 3 )( 0 ).set( "NLA_DofTypes", tDofString );
 
         //---------------------------------------------------------------------------------------------------------------------------------------
 
-        aParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
+        aParameterlist( 4 ).push_back( moris::prm::create_time_solver_algorithm_parameter_list() );
 
         //---------------------------------------------------------------------------------------------------------------------------------------
 
-        aParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
+        aParameterlist( 5 ).push_back( moris::prm::create_time_solver_parameter_list() );
         aParameterlist( 5 )( 0 ).set( "TSA_DofTypes", tDofString );
         aParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec", "UX,0.0;UY,0.0" );
         aParameterlist( 5 )( 0 ).set( "TSA_Output_Indices", "0" );
@@ -516,12 +494,12 @@ namespace moris
 
         //---------------------------------------------------------------------------------------------------------------------------------------
 
-        aParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+        aParameterlist( 6 ).push_back( moris::prm::create_solver_warehouse_parameterlist() );
         aParameterlist( 6 )( 0 ).set( "SOL_save_operator_to_matlab", "LBAMat" );
 
         //---------------------------------------------------------------------------------------------------------------------------------------
 
-        aParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::IFPACK );
+        aParameterlist( 7 ).push_back( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::IFPACK ) );
         // Ifpack Preconditioner parameters
         aParameterlist( 7 )( 0 ).set( "ifpack_prec_type", "Amesos" );
         aParameterlist( 7 )( 0 ).set( "amesos: solver type", "Amesos_Pardiso" );    // Amesos_Umfpack or Amesos_Pardiso
@@ -536,14 +514,13 @@ namespace moris
     {
         //---------------------------------------------------------------------------------------------------------------------------------------
 
-        aParameterlist( 0 ).resize( 2 );
 
-        aParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::PETSC );
+        aParameterlist( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::PETSC ) );
         aParameterlist( 0 )( 0 ).set( "KSPType", "gmres" );
         aParameterlist( 0 )( 0 ).set( "preconditioners", "0" );
 
         // find max eigen value
-        aParameterlist( 0 )( 1 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::SLEPC_SOLVER );
+        aParameterlist( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::SLEPC_SOLVER ) );
         aParameterlist( 0 )( 1 ).set( "Eigen_Algorithm", "krylovschur" );
         aParameterlist( 0 )( 1 ).set( "Which", std::string( "LM" ) );
         aParameterlist( 0 )( 1 ).set( "Num_Eig_Vals", 5 );
@@ -554,33 +531,30 @@ namespace moris
         aParameterlist( 0 )( 1 ).set( "Verbosity", false );
 
         // precondioerr
-        aParameterlist( 7 ).resize( 1 );
-        aParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::PETSC );
+                aParameterlist( 7 ).push_back( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::PETSC ) );
         aParameterlist( 7 )( 0 ).set( "PCType", "mumps" );
 
         //---------------------------------------------------------------------------------------------------------------------------------------
 
-        aParameterlist( 1 ).resize( 2 );
 
-        aParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
+        aParameterlist( 1 ).push_back( moris::prm::create_linear_solver_parameter_list() );
         aParameterlist( 1 )( 0 ).set( "DLA_Linear_solver_algorithms", "0" );
 
-        aParameterlist( 1 )( 1 ) = moris::prm::create_linear_solver_parameter_list();
+        aParameterlist( 1 ).push_back( moris::prm::create_linear_solver_parameter_list() );
         aParameterlist( 1 )( 1 ).set( "DLA_Linear_solver_algorithms", "1" );
         aParameterlist( 1 )( 1 ).set( "RHS_Matrix_Type", "GeomStiffMat" );    // MassMat or IdentityMat
 
         //---------------------------------------------------------------------------------------------------------------------------------------
 
-        aParameterlist( 2 ).resize( 2 );
 
-        aParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+        aParameterlist( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );
         aParameterlist( 2 )( 0 ).set( "NLA_Linear_solver", 0 );
         aParameterlist( 2 )( 0 ).set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
         aParameterlist( 2 )( 0 ).set( "NLA_relaxation_parameter", tNLA_relaxation_parameter );
         aParameterlist( 2 )( 0 ).set( "NLA_max_iter", 2 );
         aParameterlist( 2 )( 0 ).set( "NLA_combined_res_jac_assembly", true );
 
-        aParameterlist( 2 )( 1 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+        aParameterlist( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );
         aParameterlist( 2 )( 1 ).set( "NLA_Linear_solver", 1 );
         aParameterlist( 2 )( 1 ).set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
         aParameterlist( 2 )( 1 ).set( "NLA_relaxation_parameter", tNLA_relaxation_parameter );
@@ -590,42 +564,38 @@ namespace moris
 
         //---------------------------------------------------------------------------------------------------------------------------------------
 
-        aParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
+        aParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );
         aParameterlist( 3 )( 0 ).set( "NLA_Nonlinear_solver_algorithms", "0,1" );
         aParameterlist( 3 )( 0 ).set( "NLA_DofTypes", tDofString );
 
         //---------------------------------------------------------------------------------------------------------------------------------------
 
-        aParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
+        aParameterlist( 4 ).push_back( moris::prm::create_time_solver_algorithm_parameter_list() );
 
         //---------------------------------------------------------------------------------------------------------------------------------------
 
-        aParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
+        aParameterlist( 5 ).push_back( moris::prm::create_time_solver_parameter_list() );
         aParameterlist( 5 )( 0 ).set( "TSA_DofTypes", tDofString );
         aParameterlist( 5 )( 0 ).set( "TSA_Output_Indices", "0" );
         aParameterlist( 5 )( 0 ).set( "TSA_Output_Criteria", "Output_Criterion" );
 
         //---------------------------------------------------------------------------------------------------------------------------------------
 
-        aParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+        aParameterlist( 6 ).push_back( moris::prm::create_solver_warehouse_parameterlist() );
         aParameterlist( 6 )( 0 ).set( "SOL_TPL_Type", sol::MapType::Petsc );
     }
 
     void MSIParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_msi_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_msi_parameter_list() );
         tParameterlist( 0 )( 0 ).set( "number_eigen_vectors", tNumEigenVectors );
     }
 
     void VISParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_vis_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_vis_parameter_list() );
         tParameterlist( 0 )( 0 ).set( "File_Name", std::pair< std::string, std::string >( "./", tOutputFileName ) );
         tParameterlist( 0 )( 0 ).set( "Mesh_Type", static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
         tParameterlist( 0 )( 0 ).set( "Set_Names", tBulk );

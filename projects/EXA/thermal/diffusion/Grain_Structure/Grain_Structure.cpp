@@ -121,9 +121,7 @@ namespace moris
     void OPTParameterList( Vector< Vector< Parameter_List > > & tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_opt_problem_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_opt_problem_parameter_list() );
 
         tParameterlist( 0 )( 0 ).set( "is_optimization_problem", false);
     }
@@ -131,9 +129,7 @@ namespace moris
     void HMRParameterList( Vector< Vector< Parameter_List > > & tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_hmr_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_hmr_parameter_list() );
 
         tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", "11,11");
         tParameterlist( 0 )( 0 ).set( "domain_dimensions",                "4,4");
@@ -163,9 +159,7 @@ namespace moris
     void XTKParameterList( Vector< Vector< Parameter_List > > & tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_xtk_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_xtk_parameter_list() );
         tParameterlist( 0 )( 0 ).set( "decompose",                     true );
         tParameterlist( 0 )( 0 ).set( "decomposition_type",            "conformal") ;
         tParameterlist( 0 )( 0 ).set( "enrich",                        true );
@@ -182,35 +176,33 @@ namespace moris
     void GENParameterList( Vector< Vector< Parameter_List > > & tParameterlist )
     {
         tParameterlist.resize( 3 );
-        tParameterlist( 0 ).resize( 1 );
-        tParameterlist( 1 ).resize( 4 );
 
-        tParameterlist( 0 )( 0 ) = prm::create_gen_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_gen_parameter_list() );
         tParameterlist( 0 )( 0 ).set( "output_mesh_file", "gen_output.exo" );
 
         // Geometry parameter lists
-        tParameterlist( 1 )( 0 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( 0 ).set( "field_function_name", "Colors_1" );
         tParameterlist( 1 )( 0 ).set( "number_of_refinements", 2 );
         tParameterlist( 1 )( 0 ).set( "refinement_mesh_index", 0 );
         tParameterlist( 1 )( 0 ).set( "discretization_mesh_index", -1 );
         tParameterlist( 1 )( 0 ).set( "isocontour_tolerance", 1E-12 );
 
-        tParameterlist( 1 )( 1 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( 1 ).set( "field_function_name", "Colors_2" );
         tParameterlist( 1 )( 1 ).set( "number_of_refinements", 2 );
         tParameterlist( 1 )( 1 ).set( "refinement_mesh_index", 0 );
         tParameterlist( 1 )( 1 ).set( "discretization_mesh_index", -1 );
         tParameterlist( 1 )( 1 ).set( "isocontour_tolerance", 1E-12 );
 
-        tParameterlist( 1 )( 2 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( 2 ).set( "field_function_name", "Colors_3" );
         tParameterlist( 1 )( 2 ).set( "number_of_refinements", 2 );
         tParameterlist( 1 )( 2 ).set( "refinement_mesh_index", 0 );
         tParameterlist( 1 )( 2 ).set( "discretization_mesh_index", -1 );
         tParameterlist( 1 )( 2 ).set( "isocontour_tolerance", 1E-12 );
 
-        tParameterlist( 1 )( 3 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( 3 ).set( "field_function_name", "Colors_4" );
         tParameterlist( 1 )( 3 ).set( "number_of_refinements", 2 );
         tParameterlist( 1 )( 3 ).set( "refinement_mesh_index", 0 );
@@ -408,60 +400,51 @@ namespace moris
 
         //------------------------------------------------------------------------------
         // fill the computation part of the parameter list
-        tParameterList( 5 ).resize( 1 );
-        tParameterList( 5 )( 0 ) = prm::create_computation_parameter_list();
+        tParameterList( 5 ).push_back( prm::create_computation_parameter_list() );
     }
 
     void SOLParameterList( Vector< Vector< Parameter_List > > & tParameterlist )
     {
         tParameterlist.resize( 8 );
-        for( uint Ik = 0; Ik < 8; Ik ++ )
-        {
-            tParameterlist( Ik ).resize( 1 );
-        }
 
-        tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::BELOS_IMPL );
+        tParameterlist( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::BELOS_IMPL ) );
         tParameterlist( 0 )( 0 ).set( "preconditioners", "0");
 
-        tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
+        tParameterlist( 1 ).push_back( moris::prm::create_linear_solver_parameter_list() );
 
-        tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+        tParameterlist( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );
         tParameterlist( 2 )( 0 ).set("NLA_rel_res_norm_drop",    1e-04 );
         tParameterlist( 2 )( 0 ).set("NLA_relaxation_parameter", 1.0  );
         tParameterlist( 2 )( 0 ).set("NLA_max_iter", 1 );
 
-        tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
+        tParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );
         tParameterlist( 3 )( 0 ).set("NLA_DofTypes"      , "TEMP") ;
 
-        tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
+        tParameterlist( 4 ).push_back( moris::prm::create_time_solver_algorithm_parameter_list() );
 
-        tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
+        tParameterlist( 5 ).push_back( moris::prm::create_time_solver_parameter_list() );
         tParameterlist( 5 )( 0 ).set("TSA_DofTypes"       , "TEMP") ;
         tParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec" , "TEMP,0.0") ;
         tParameterlist( 5 )( 0 ).set("TSA_Output_Indices" , "0") ;
         tParameterlist( 5 )( 0 ).set("TSA_Output_Criteria" , "Output_Criterion") ;
 
-        tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+        tParameterlist( 6 ).push_back( moris::prm::create_solver_warehouse_parameterlist() );
     
-        tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::IFPACK );
+        tParameterlist( 7 ).push_back( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::IFPACK ) );
         tParameterlist( 7 )( 0 ).set( "ifpack_prec_type", "ILU" );
     }
 
     void MSIParameterList( Vector< Vector< Parameter_List > > & tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_msi_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_msi_parameter_list() );
         tParameterlist( 0 )( 0 ).set("order_adofs_by_host",false);
     }
 
     void VISParameterList( Vector< Vector< Parameter_List > > & tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_vis_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_vis_parameter_list() );
         tParameterlist( 0 )( 0 ).set( "File_Name"     , std::pair< std::string, std::string >( "./", "Grain_Structure.exo" ) );
         tParameterlist( 0 )( 0 ).set( "Mesh_Type"     ,  vis::VIS_Mesh_Type::STANDARD ) ;
         tParameterlist( 0 )( 0 ).set( "Set_Names"     ,  tBulk ) ;

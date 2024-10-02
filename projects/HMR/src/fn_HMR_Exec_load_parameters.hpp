@@ -147,7 +147,7 @@ namespace moris::hmr
         XML_Parser tParser( aFilePath );
 
         // create empty parameter list
-        Parameter_List tParams;
+        Parameter_List tParams( "" );
         tParams.insert( "label", "untitled" );
         tParams.insert( "lagrange_order", (sint) 0 );
         tParams.insert( "bspline_order", (sint) 0 );

@@ -19,7 +19,7 @@ namespace moris::sdf
     Parameter_List
     create_sdf_parameter_list()
     {
-        Parameter_List aParameterList;
+        Parameter_List aParameterList( "SDF" );
 
         aParameterList.insert( "input_mesh", std::string( "Mesh.exo" ) );
         aParameterList.insert( "output_mesh", std::string( "Mesh.exo" ) );
@@ -32,7 +32,7 @@ namespace moris::sdf
     Parameter_List
     create_sdf_object_parameter_list()
     {
-        Parameter_List aParameterList;
+        Parameter_List aParameterList( "SDF Object" );
         aParameterList.insert( "label", std::string( "Object" ) );
         aParameterList.insert( "stl_file", std::string( "object.obj" ) );
         aParameterList.insert( "output_values", std::string( "" ) );

@@ -259,8 +259,7 @@ namespace moris
     OPTParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-        tParameterlist( 0 )( 0 ) = prm::create_opt_problem_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_opt_problem_parameter_list() );
         tParameterlist( 0 )( 0 ).set( "is_optimization_problem", false );
     }
 
@@ -276,9 +275,7 @@ namespace moris
                   << std::flush;
 
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_hmr_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_hmr_parameter_list() );
 
         tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", ios::stringify( tNumXElems ) + "," + ios::stringify( tNumYElems ) );
         tParameterlist( 0 )( 0 ).set( "domain_dimensions", ios::stringify( tChannelLength ) + "," + ios::stringify( tChannelHeight ) );
@@ -307,9 +304,7 @@ namespace moris
     XTKParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_xtk_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_xtk_parameter_list() );
         tParameterlist( 0 )( 0 ).set( "decompose", true );
         tParameterlist( 0 )( 0 ).set( "decomposition_type", "conformal" );
         tParameterlist( 0 )( 0 ).set( "enrich", true );
@@ -327,10 +322,7 @@ namespace moris
     GENParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 3 );
-        tParameterlist( 0 ).resize( 1 );
-
-        // Main GEN parameter list
-        tParameterlist( 0 )( 0 ) = prm::create_gen_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_gen_parameter_list() );
 
         // init geometry counter
         uint tGeoCounter = 0;
@@ -774,8 +766,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
         // fill the computation part of the parameter list
-        tParameterList( tFEMIndex ).resize( 1 );
-        tParameterList( tFEMIndex )( 0 ) = prm::create_computation_parameter_list();
+        tParameterList( tFEMIndex ).push_back( prm::create_computation_parameter_list() );
 
         // tParameterList( tFEMIndex )( 0 ).set( "finite_difference_scheme",            tFEMFdScheme  );
         // tParameterList( tFEMIndex )( 0 ).set( "finite_difference_perturbation_size", tFEMFdEpsilon );
@@ -787,33 +778,30 @@ namespace moris
     SOLParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 8 );
-        for ( uint Ik = 0; Ik < 8; Ik++ )
-        {
-            tParameterlist( Ik ).resize( 1 );
-        }
 
-        tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
 
-        tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
+        tParameterlist( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
+
+        tParameterlist( 1 ).push_back( moris::prm::create_linear_solver_parameter_list() );
         if ( tWriteLhsToHDF5 )
         {
             tParameterlist( 1 )( 0 ).set( "DLA_LHS_output_filename", "LHS" );
         }
 
-        tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+        tParameterlist( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );
         tParameterlist( 2 )( 0 ).set( "NLA_rel_res_norm_drop", tNewtonTolerance );
         tParameterlist( 2 )( 0 ).set( "NLA_relaxation_parameter", tNewtonRelaxation );
         tParameterlist( 2 )( 0 ).set( "NLA_max_iter", tMaxNewtonSteps );
 
-        tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
+        tParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );
         tParameterlist( 3 )( 0 ).set( "NLA_DofTypes", "P;VX,VY;TEMP" );
 
-        tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
+        tParameterlist( 4 ).push_back( moris::prm::create_time_solver_algorithm_parameter_list() );
         // tParameterlist( 4 )( 0 ).set("TSA_Nonlinear_Solver", 2);
         tParameterlist( 4 )( 0 ).set( "TSA_Num_Time_Steps", tNumTimeSteps );
         tParameterlist( 4 )( 0 ).set( "TSA_Time_Frame", tTimeFrame );
 
-        tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
+        tParameterlist( 5 ).push_back( moris::prm::create_time_solver_parameter_list() );
         tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "P;VX,VY;TEMP" );
         tParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec", "P," + ios::stringify( tInitialPressure ) + ";VX,0.0;VY,0.0;TEMP," + ios::stringify( tInitialTemperature ) );
         // tParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec" , "P,1.0;VX,1.0;VY,0.0;TEMP,1.0" );
@@ -822,7 +810,7 @@ namespace moris
         tParameterlist( 5 )( 0 ).set( "TSA_Output_Criteria", "Output_Criterion" );
         tParameterlist( 5 )( 0 ).set( "TSA_time_level_per_type", "P,2;VX,2;VY,2;TEMP,2" );
 
-        tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+        tParameterlist( 6 ).push_back( moris::prm::create_solver_warehouse_parameterlist() );
         if ( tWriteJacToMatlab )
         {
             tParameterlist( 6 )( 0 ).set( "SOL_save_operator_to_matlab", "Heated_Channel" );
@@ -832,7 +820,7 @@ namespace moris
             tParameterlist( 6 )( 0 ).set( "TSA_Save_Sol_Vecs_to_file", "SolVec" );
         }
 
-        tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE );
+        tParameterlist( 7 ).push_back( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE ) );
     }
 
     //------------------------------------------------------------------------------
@@ -841,9 +829,7 @@ namespace moris
     MSIParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_msi_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_msi_parameter_list() );
         tParameterlist( 0 )( 0 ).set( "order_adofs_by_host", tOrderAdofsByHost );
     }
 
@@ -853,9 +839,7 @@ namespace moris
     VISParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_vis_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_vis_parameter_list() );
         tParameterlist( 0 )( 0 ).set( "File_Name", std::pair< std::string, std::string >( "./", "Heated_Channel_2D.exo" ) );
         tParameterlist( 0 )( 0 ).set( "Mesh_Type",  vis::VIS_Mesh_Type::STANDARD ) ;
         tParameterlist( 0 )( 0 ).set( "Set_Names", sFluid );

@@ -21,7 +21,7 @@ namespace moris::prm
     inline Parameter_List
     create_stk_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "STK" );
 
         // decomposition and decomposition related parameters
         tParameterList.insert( "input_file", "" );

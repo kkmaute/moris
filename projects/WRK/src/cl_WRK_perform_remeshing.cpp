@@ -470,7 +470,7 @@ namespace moris::wrk
                         true );    // FIXME tPattern = DiscretizationMeshIndex
 
                 // create refinement parameter list
-                moris::Parameter_List tRefinementParameterlist;
+                moris::Parameter_List tRefinementParameterlist( "Refinement" );
                 this->create_refinement_input_list( tRefinementParameterlist, aTargetFields, tPattern );
 
                 // create refinement mini performer and perform refinement
@@ -505,7 +505,7 @@ namespace moris::wrk
                             true );    // FIXME tPattern = DiscretizationMeshIndex
 
                     // create refinement parameter list
-                    moris::Parameter_List tRefinementParameterlist;
+                    moris::Parameter_List tRefinementParameterlist( "Refinement" );
                     this->create_refinement_input_list( tRefinementParameterlist, aSourceFields, tPattern );
 
                     // create refinement mini performer and perform refinement
@@ -545,7 +545,7 @@ namespace moris::wrk
             uint tInitialPattern = mParameters.mRefinementPatternMode_1( Ik );
 
             // create refinement parameterlist
-            moris::Parameter_List tInitialRefinementParameterlist;
+            moris::Parameter_List tInitialRefinementParameterlist( "Refinement" );
             prm::create_refinement_parameterlist( tInitialRefinementParameterlist );
             std::string tInitialFieldNames;
             std::string tInitialPatterns;
@@ -603,7 +603,7 @@ namespace moris::wrk
                         true );    // FIXME tPattern = DiscretizationMeshiondex
 
                 // create refinement parameterlist
-                moris::Parameter_List tRefinementParameterlist;
+                moris::Parameter_List tRefinementParameterlist( "Refinement" );
                 prm::create_refinement_parameterlist( tRefinementParameterlist );
                 std::string tFieldNames;
                 std::string tPatterns;
@@ -649,7 +649,7 @@ namespace moris::wrk
         std::shared_ptr< hmr::Database > tHMRDatabase = aHMRPerformer->get_database();
 
         // create refinement parameter list
-        moris::Parameter_List tRefinementParameterlist;
+        moris::Parameter_List tRefinementParameterlist( "Refinement" );
         this->create_refinement_input_list_2( tRefinementParameterlist, aSourceFields );
 
         // create refinement mini performer and perform refinement

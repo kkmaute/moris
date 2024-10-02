@@ -100,9 +100,7 @@ namespace moris
     OPTParameterList( Vector< Vector< Parameter_List > > &tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_opt_problem_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_opt_problem_parameter_list() );
 
         tParameterlist( 0 )( 0 ).set( "is_optimization_problem", false );
         tParameterlist( 0 )( 0 ).set( "workflow", "STK_FEM" );
@@ -112,9 +110,7 @@ namespace moris
     STKParameterList( Vector< Vector< Parameter_List > > &tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_stk_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_stk_parameter_list() );
         tParameterlist( 0 )( 0 ).set( "input_file", tMeshFileName );
     }
 
@@ -262,8 +258,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
         // fill the computation part of the parameter list
-        tParameterList( 5 ).resize( 1 );
-        tParameterList( 5 )( 0 ) = prm::create_computation_parameter_list();
+        tParameterList( 5 ).push_back( prm::create_computation_parameter_list() );
 
         //------------------------------------------------------------------------------
         // init IQI counter
@@ -315,9 +310,7 @@ namespace moris
     MSIParameterList( Vector< Vector< Parameter_List > > &tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_msi_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_msi_parameter_list() );
     }
 
     //------------------------------------------------------------------------------
@@ -326,9 +319,7 @@ namespace moris
     VISParameterList( Vector< Vector< Parameter_List > > &tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_vis_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_vis_parameter_list() );
         tParameterlist( 0 )( 0 ).set( "File_Name", std::pair< std::string, std::string >( "./", tOutputFileName ) );
         tParameterlist( 0 )( 0 ).set( "Mesh_Type",  vis::VIS_Mesh_Type::STANDARD ) ;
         tParameterlist( 0 )( 0 ).set( "Set_Names", "block_main" );

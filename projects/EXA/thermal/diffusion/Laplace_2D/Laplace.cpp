@@ -490,7 +490,6 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "problem", "user_defined" );
         tParameterlist( 0 )( 0 ).set( "library", tSoFile );
 
-        tParameterlist( 1 ).resize( 0 );
 
         tParameterlist( 2 ).push_back( moris::prm::create_sweep_parameter_list() );
         tParameterlist( 2 )( 0 ).set( "hdf5_path", tHdf5File );
@@ -545,9 +544,7 @@ namespace moris
     XTKParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_xtk_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_xtk_parameter_list() );
         tParameterlist( 0 )( 0 ).set( "decompose", true );
         tParameterlist( 0 )( 0 ).set( "decomposition_type", "conformal" );
         tParameterlist( 0 )( 0 ).set( "enrich", true );
@@ -1044,9 +1041,7 @@ namespace moris
     MSIParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_msi_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_msi_parameter_list() );
         tParameterlist( 0 )( 0 ).set( "TEMP", 0 );
         tParameterlist( 0 )( 0 ).set( "number_eigen_vectors", gTestIndex == 0 ? 5 : 1 );
         tParameterlist( 0 )( 0 ).set( "order_adofs_by_host", true );
@@ -1056,9 +1051,7 @@ namespace moris
     VISParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_vis_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_vis_parameter_list() );
         tParameterlist( 0 )( 0 ).set( "File_Name", std::pair< std::string, std::string >( "./", tExoFile ) );
         tParameterlist( 0 )( 0 ).set( "Mesh_Type", vis::VIS_Mesh_Type::STANDARD );
         tParameterlist( 0 )( 0 ).set( "Set_Names", tAllPhaseInterfaces );
@@ -1080,28 +1073,24 @@ namespace moris
     create_petsc_solver_parameter_list( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 8 );
-        for ( uint Ik = 0; Ik < 8; Ik++ )
-        {
-            tParameterlist( Ik ).resize( 1 );
-        }
+
 
         // 5 linear solvers, 1 linear solver to find the displacement,
         // 2 slpec solver and the associated linear solver object
-        tParameterlist( 0 ).resize( 5 );
-        tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::PETSC );
+                tParameterlist( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::PETSC ) );
         tParameterlist( 0 )( 0 ).set( "KSPType", "fgmres" );
         tParameterlist( 0 )( 0 ).set( "preconditioners", "0" );    // 10 shift_invert
 
-        tParameterlist( 0 )( 1 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::PETSC );
+        tParameterlist( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::PETSC ) );
         tParameterlist( 0 )( 1 ).set( "KSPType", "preonly" );
         tParameterlist( 0 )( 1 ).set( "preconditioners", "0" );    // 10 shift_invert
 
-        tParameterlist( 0 )( 2 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::PETSC );
+        tParameterlist( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::PETSC ) );
         tParameterlist( 0 )( 2 ).set( "KSPType", "preonly" );
         tParameterlist( 0 )( 2 ).set( "preconditioners", "1" );    // 10 shift_invert
 
         // find max eigen value
-        tParameterlist( 0 )( 3 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::SLEPC_SOLVER );
+        tParameterlist( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::SLEPC_SOLVER ) );
         tParameterlist( 0 )( 3 ).set( "Eigen_Algorithm", "power" );
         tParameterlist( 0 )( 3 ).set( "Which", std::string( "LM" ) );
         tParameterlist( 0 )( 3 ).set( "Num_Eig_Vals", 1 );
@@ -1110,7 +1099,7 @@ namespace moris
         tParameterlist( 0 )( 3 ).set( "Update_Flag", true );         // 10 shift_invert
 
         // find min eigen value
-        tParameterlist( 0 )( 4 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::SLEPC_SOLVER );
+        tParameterlist( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::SLEPC_SOLVER ) );
         tParameterlist( 0 )( 4 ).set( "Eigen_Algorithm", "power" );
         tParameterlist( 0 )( 4 ).set( "Which", std::string( "LM" ) );
         tParameterlist( 0 )( 4 ).set( "Num_Eig_Vals", 1 );
@@ -1120,71 +1109,67 @@ namespace moris
         tParameterlist( 0 )( 4 ).set( "Update_Flag", false );        // 10 shift_invert
 
         // precondioerr
-        tParameterlist( 7 ).resize( 2 );
-        tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::PETSC );
+                tParameterlist( 7 ).push_back( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::PETSC ) );
         tParameterlist( 7 )( 0 ).set( "PCType", "none" );
 
         // Ifpack precondioner for the eigen solve
-        tParameterlist( 7 )( 1 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::PETSC );
+        tParameterlist( 7 ).push_back( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::PETSC ) );
         tParameterlist( 7 )( 1 ).set( "PCType", "mumps" );
 
         // **
-        tParameterlist( 1 ).resize( 3 );
-        tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();    // linear problem index 0
+        tParameterlist( 1 ).push_back( moris::prm::create_linear_solver_parameter_list() );    // linear problem index 0
         tParameterlist( 1 )( 0 ).set( "DLA_Linear_solver_algorithms", "0" );
 
-        tParameterlist( 1 )( 1 ) = moris::prm::create_linear_solver_parameter_list();    // eigen problem index 1
+        tParameterlist( 1 ).push_back( moris::prm::create_linear_solver_parameter_list() );    // eigen problem index 1
         tParameterlist( 1 )( 1 ).set( "DLA_Linear_solver_algorithms", "3" );
         tParameterlist( 1 )( 1 ).set( "RHS_Matrix_Type", "IdentityMat" );
 
-        tParameterlist( 1 )( 2 ) = moris::prm::create_linear_solver_parameter_list();    // eigen problem index 1
+        tParameterlist( 1 ).push_back( moris::prm::create_linear_solver_parameter_list() );    // eigen problem index 1
         tParameterlist( 1 )( 2 ).set( "DLA_Linear_solver_algorithms", "4" );
         tParameterlist( 1 )( 2 ).set( "RHS_Matrix_Type", "IdentityMat" );
 
         //------------------------------------------------------------------------------
 
-        tParameterlist( 2 ).resize( 4 );
 
-        tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();    // nonlinear algorithm index 0
+        tParameterlist( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );    // nonlinear algorithm index 0
         tParameterlist( 2 )( 0 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         tParameterlist( 2 )( 0 ).set( "NLA_Linear_solver", 0 );
         tParameterlist( 2 )( 0 ).set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
         tParameterlist( 2 )( 0 ).set( "NLA_relaxation_parameter", tNLA_relaxation_parameter );
         tParameterlist( 2 )( 0 ).set( "NLA_max_iter", tNLA_max_iter );
 
-        tParameterlist( 2 )( 1 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+        tParameterlist( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );
         tParameterlist( 2 )( 1 ).set( "NLA_Linear_solver", 1 );
         tParameterlist( 2 )( 1 ).set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
         tParameterlist( 2 )( 1 ).set( "NLA_relaxation_parameter", tNLA_relaxation_parameter );
         tParameterlist( 2 )( 1 ).set( "NLA_max_iter", tNLA_max_iter );
         tParameterlist( 2 )( 1 ).set( "NLA_is_eigen_problem", true );
 
-        tParameterlist( 2 )( 2 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+        tParameterlist( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );
         tParameterlist( 2 )( 2 ).set( "NLA_Linear_solver", 2 );
         tParameterlist( 2 )( 2 ).set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
         tParameterlist( 2 )( 2 ).set( "NLA_relaxation_parameter", tNLA_relaxation_parameter );
         tParameterlist( 2 )( 2 ).set( "NLA_max_iter", tNLA_max_iter );
         tParameterlist( 2 )( 2 ).set( "NLA_is_eigen_problem", true );
 
-        tParameterlist( 2 )( 3 ) = moris::prm::create_nonlinear_algorithm_parameter_list();    // nonlinear algorithm index 1
+        tParameterlist( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );    // nonlinear algorithm index 1
         tParameterlist( 2 )( 3 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER ) );
         tParameterlist( 2 )( 3 ).set( "NLA_rel_res_norm_drop", 1.0e-9 );
         tParameterlist( 2 )( 3 ).set( "NLA_max_iter", 1 );
 
         //------------------------------------------------------------------------------
 
-        tParameterlist( 3 ).resize( 3 );
-        tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();    // 1: thermal subproblem
+        tParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );    // 1: thermal subproblem
         tParameterlist( 3 )( 0 ).set( "NLA_Nonlinear_solver_algorithms", "0,1" );           // set nonlinear algorithm with index 0
         tParameterlist( 3 )( 0 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         tParameterlist( 3 )( 0 ).set( "NLA_DofTypes", "TEMP" );
 
-        tParameterlist( 3 )( 1 ) = moris::prm::create_nonlinear_solver_parameter_list();    // 1: thermal subproblem
+        tParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );    // 1: thermal subproblem
         tParameterlist( 3 )( 1 ).set( "NLA_Nonlinear_solver_algorithms", "0" );             // set nonlinear algorithm with index 0
         tParameterlist( 3 )( 1 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         tParameterlist( 3 )( 1 ).set( "NLA_DofTypes", "L2" );
 
-        tParameterlist( 3 )( 2 ) = moris::prm::create_nonlinear_solver_parameter_list();    // nonlinear solver index 2
+        tParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );    // nonlinear solver index 2
         tParameterlist( 3 )( 2 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER ) );
         tParameterlist( 3 )( 2 ).set( "NLA_Nonlinear_solver_algorithms", "3" );    // set nonlinear algorithm with index 1.
         tParameterlist( 3 )( 2 ).set( "NLA_Sub_Nonlinear_Solver", "0,1" );         // set sub nonlinear solvers with index 0 and 1
@@ -1192,7 +1177,7 @@ namespace moris
 
         // ----------------------------------------------------------
 
-        tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
+        tParameterlist( 4 ).push_back( moris::prm::create_time_solver_algorithm_parameter_list() );
         tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_Solver", 2 );                // using NLBGS for forward problem
         tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_Sensitivity_Solver", 2 );    // using monlithic for sensitivity problem
 
@@ -1204,7 +1189,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
+        tParameterlist( 5 ).push_back( moris::prm::create_time_solver_parameter_list() );
         tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "TEMP;L2" );
         // tParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec", "TEMP,0.0" );
         tParameterlist( 5 )( 0 ).set( "TSA_Output_Indices", "0" );
@@ -1221,7 +1206,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+        tParameterlist( 6 ).push_back( moris::prm::create_solver_warehouse_parameterlist() );
         tParameterlist( 6 )( 0 ).set( "SOL_save_operator_to_matlab", "Jacobian_petsc" );
         tParameterlist( 6 )( 0 ).set( "SOL_TPL_Type", static_cast< uint >( sol::MapType::Petsc ) );
     }
@@ -1231,31 +1216,27 @@ namespace moris
     create_trilinos_solver_parameter_list( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 8 );
-        for ( uint Ik = 0; Ik < 8; Ik++ )
-        {
-            tParameterlist( Ik ).resize( 1 );
-        }
 
-        tParameterlist( 0 ).resize( 3 );
+
 
         sint tVerbosity = Belos::Errors + Belos::Warnings + Belos::IterationDetails + Belos::TimingDetails + Belos::StatusTestDetails + Belos::FinalSummary;
 
         switch ( tSolverType )
         {
             case 0:    // Amesos - Pardiso
-                tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
+                tParameterlist( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
 
                 //                 tParameterlist( 0 )( 0 ).set( "Solver_Type", "Amesos_Mumps");
                 break;
 
             case 1:    // Amesos - Mumps
-                tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
+                tParameterlist( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
 
                 tParameterlist( 0 )( 0 ).set( "Solver_Type", "Amesos_Mumps" );
                 break;
 
             case 2:    // Belos
-                tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::BELOS_IMPL );
+                tParameterlist( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::BELOS_IMPL ) );
 
                 // Solver type: GMRES, Flexible GMRES, Block CG , PseudoBlockCG, Stochastic CG, Recycling GMRES, Recycling CG, MINRES, LSQR, TFQMR
                 //              Pseudoblock TFQMR, Seed GMRES, Seed CG
@@ -1304,7 +1285,7 @@ namespace moris
                 break;
 
             case 3:    // AZTEC
-                tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AZTEC_IMPL );
+                tParameterlist( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AZTEC_IMPL ) );
 
                 // options are: AZ_gmres, AZ_gmres_condnum, AZ_cg, AZ_cg_condnum, AZ_cgs, AZ_tfqmr, AZ_bicgstab
                 tParameterlist( 0 )( 0 ).set( "AZ_solver", AZ_gmres );
@@ -1404,7 +1385,7 @@ namespace moris
         }
 
         // eigenvalue problem to find the largest eigenvalues
-        tParameterlist( 0 )( 1 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::EIGEN_SOLVER );
+        tParameterlist( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::EIGEN_SOLVER ) );
         tParameterlist( 0 )( 1 ).set( "Eigen_Algorithm", "EIGALG_BLOCK_KRYLOV_SCHUR" );
         tParameterlist( 0 )( 1 ).set( "Verbosity", false );
         tParameterlist( 0 )( 1 ).set( "Which", "SM" );
@@ -1421,7 +1402,7 @@ namespace moris
         tParameterlist( 0 )( 1 ).set( "preconditioners_linear_operator", "0" );
 
         // eigenvalue problem to find the smallest eigenvalues
-        tParameterlist( 0 )( 2 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::EIGEN_SOLVER );
+        tParameterlist( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::EIGEN_SOLVER ) );
         tParameterlist( 0 )( 2 ).set( "Eigen_Algorithm", "EIGALG_BLOCK_KRYLOV_SCHUR_AMESOS" );
         tParameterlist( 0 )( 2 ).set( "Verbosity", false );
         tParameterlist( 0 )( 2 ).set( "Which", "LM" );
@@ -1436,15 +1417,14 @@ namespace moris
         tParameterlist( 0 )( 2 ).set( "Relative_Convergence_Tolerance", true );
         tParameterlist( 0 )( 2 ).set( "preconditioners", "1" );
 
-        tParameterlist( 7 ).resize( 2 );
 
         // ML precondioner for the linear solver
-        tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::ML );
+        tParameterlist( 7 ).push_back( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::ML ) );
         tParameterlist( 7 )( 0 ).set( "ml_prec_type", "NSSA" );
         tParameterlist( 7 )( 0 ).set( "PDE equations", 1 );
 
         // Ifpack precondioner for the eigen solve
-        tParameterlist( 7 )( 1 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::IFPACK );
+        tParameterlist( 7 ).push_back( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::IFPACK ) );
         tParameterlist( 7 )( 1 ).set( "ifpack_prec_type", "ILU" );
         tParameterlist( 7 )( 1 ).set( "fact: level-of-fill", 2 );
         tParameterlist( 7 )( 1 ).set( "fact: drop tolerance", 1.0e-2 );
@@ -1452,40 +1432,38 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        tParameterlist( 1 ).resize( 3 );
 
-        tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();    // linear problem index 0
+        tParameterlist( 1 ).push_back( moris::prm::create_linear_solver_parameter_list() );    // linear problem index 0
         tParameterlist( 1 )( 0 ).set( "DLA_Linear_solver_algorithms", "0" );
         tParameterlist( 1 )( 0 ).set( "DLA_operator_condition_number_with_moris", "dense" );
         tParameterlist( 1 )( 0 ).set( "DLA_prec_operator_condition_number_with_moris", "dense" );
 
-        tParameterlist( 1 )( 1 ) = moris::prm::create_linear_solver_parameter_list();    // eigen problem index 1
+        tParameterlist( 1 ).push_back( moris::prm::create_linear_solver_parameter_list() );    // eigen problem index 1
         tParameterlist( 1 )( 1 ).set( "DLA_Linear_solver_algorithms", "1" );
         tParameterlist( 1 )( 1 ).set( "RHS_Matrix_Type", "IdentityMat" );
 
-        tParameterlist( 1 )( 2 ) = moris::prm::create_linear_solver_parameter_list();    // eigen problem index 1
+        tParameterlist( 1 ).push_back( moris::prm::create_linear_solver_parameter_list() );    // eigen problem index 1
         tParameterlist( 1 )( 2 ).set( "DLA_Linear_solver_algorithms", "2" );
         tParameterlist( 1 )( 2 ).set( "RHS_Matrix_Type", "IdentityMat" );
 
         //------------------------------------------------------------------------------
 
-        tParameterlist( 2 ).resize( 3 );
 
-        tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();    // nonlinear algorithm index 0
+        tParameterlist( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );    // nonlinear algorithm index 0
         tParameterlist( 2 )( 0 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         tParameterlist( 2 )( 0 ).set( "NLA_Linear_solver", 0 );
         tParameterlist( 2 )( 0 ).set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
         tParameterlist( 2 )( 0 ).set( "NLA_relaxation_parameter", tNLA_relaxation_parameter );
         tParameterlist( 2 )( 0 ).set( "NLA_max_iter", tNLA_max_iter );
 
-        tParameterlist( 2 )( 1 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+        tParameterlist( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );
         tParameterlist( 2 )( 1 ).set( "NLA_Linear_solver", 1 );
         tParameterlist( 2 )( 1 ).set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
         tParameterlist( 2 )( 1 ).set( "NLA_relaxation_parameter", tNLA_relaxation_parameter );
         tParameterlist( 2 )( 1 ).set( "NLA_max_iter", tNLA_max_iter );
         tParameterlist( 2 )( 1 ).set( "NLA_is_eigen_problem", true );
 
-        tParameterlist( 2 )( 2 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+        tParameterlist( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );
         tParameterlist( 2 )( 2 ).set( "NLA_Linear_solver", 2 );
         tParameterlist( 2 )( 2 ).set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
         tParameterlist( 2 )( 2 ).set( "NLA_relaxation_parameter", tNLA_relaxation_parameter );
@@ -1494,15 +1472,14 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        tParameterlist( 3 ).resize( 1 );
-        tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();    // 1: thermal subproblem
+        tParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );    // 1: thermal subproblem
         tParameterlist( 3 )( 0 ).set( "NLA_Nonlinear_solver_algorithms", "0,1,2" );         // set nonlinear algorithm with index 0
         tParameterlist( 3 )( 0 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         tParameterlist( 3 )( 0 ).set( "NLA_DofTypes", "TEMP" );
 
         // ----------------------------------------------------------
 
-        tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
+        tParameterlist( 4 ).push_back( moris::prm::create_time_solver_algorithm_parameter_list() );
         tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_Solver", 0 );                // using NLBGS for forward problem
         tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_Sensitivity_Solver", 0 );    // using monlithic for sensitivity problem
 
@@ -1514,7 +1491,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
+        tParameterlist( 5 ).push_back( moris::prm::create_time_solver_parameter_list() );
         tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "TEMP" );
         tParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec", "TEMP,0.0" );
         tParameterlist( 5 )( 0 ).set( "TSA_Output_Indices", "0" );
@@ -1531,7 +1508,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+        tParameterlist( 6 ).push_back( moris::prm::create_solver_warehouse_parameterlist() );
         tParameterlist( 6 )( 0 ).set( "SOL_save_operator_to_matlab", "heat" );
     }
 

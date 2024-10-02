@@ -25,6 +25,4 @@
 #include "fn_PRM_WRK_Parameters.hpp"
 #include "fn_PRM_XTK_Parameters.hpp"
 
-#include "fn_PRM_print.hpp"
-
 #endif /* parameters.hpp */

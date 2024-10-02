@@ -195,9 +195,7 @@ namespace moris
     OPTParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_opt_problem_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_opt_problem_parameter_list() );
 
         tParameterlist( 0 )( 0 ).set( "is_optimization_problem", false );
         tParameterlist( 0 )( 0 ).set( "workflow", "STK_FEM" );
@@ -209,12 +207,11 @@ namespace moris
     STKParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
 
         std::string tPrefix       = moris::get_base_moris_dir();
         std::string tMeshFileName = tPrefix + "/projects/EXA/fluid/laminar/Oscillator/Oscillator.g";
 
-        tParameterlist( 0 )( 0 ) = prm::create_stk_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_stk_parameter_list() );;
         tParameterlist( 0 )( 0 ).set( "input_file", tMeshFileName );
 
         gLogger.set_severity_level( 0 );
@@ -492,12 +489,9 @@ namespace moris
     SOLParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 8 );
-        for ( uint Ik = 0; Ik < 8; Ik++ )
-        {
-            tParameterlist( Ik ).resize( 1 );
-        }
 
-        tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
+
+        tParameterlist( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
 
 #ifdef MORIS_USE_MUMPS
         tParameterlist( 0 )( 0 ).set( "Solver_Type", "Amesos_Mumps" );
@@ -506,12 +500,12 @@ namespace moris
 #endif
         //------------------------------------------------------------------------------
 
-        tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
+        tParameterlist( 1 ).push_back( moris::prm::create_linear_solver_parameter_list() );
         tParameterlist( 1 )( 0 ).set( "DLA_Linear_solver_algorithms", "0" );
 
         //------------------------------------------------------------------------------
 
-        tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();    // nonlinear algorithm index 0
+        tParameterlist( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );    // nonlinear algorithm index 0
         tParameterlist( 2 )( 0 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         tParameterlist( 2 )( 0 ).set( "NLA_Linear_solver", 0 );
         tParameterlist( 2 )( 0 ).set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
@@ -520,14 +514,14 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();    // 1: thermal subproblem
+        tParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );    // 1: thermal subproblem
         tParameterlist( 3 )( 0 ).set( "NLA_Nonlinear_solver_algorithms", "0" );             // set nonlinear algorithm with index 0
         tParameterlist( 3 )( 0 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         tParameterlist( 3 )( 0 ).set( "NLA_DofTypes", "VX,VY;P" );
 
         // ----------------------------------------------------------
 
-        tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
+        tParameterlist( 4 ).push_back( moris::prm::create_time_solver_algorithm_parameter_list() );
         tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_Solver", 0 );
         tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_Sensitivity_Solver", 0 );
         if ( tUseTimeContinuity )
@@ -538,7 +532,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
+        tParameterlist( 5 ).push_back( moris::prm::create_time_solver_parameter_list() );
         tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "VX,VY;P" );
         //        tParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec", "VX,0.0;VY,0.0;P,0.0" );
         tParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec", "VX," + moris_to_string( tVelIn ) + ";VY,0.0;P,0.0" );
@@ -556,27 +550,23 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+        tParameterlist( 6 ).push_back( moris::prm::create_solver_warehouse_parameterlist() );
 
-        tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list(sol::PreconditionerType::NONE);
+        tParameterlist( 7 ).push_back( moris::prm::create_preconditioner_parameter_list(sol::PreconditionerType::NONE) );
     }
 
     void
     MSIParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_msi_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_msi_parameter_list() );
     }
 
     void
     VISParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_vis_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_vis_parameter_list() );
         tParameterlist( 0 )( 0 ).set( "File_Name", std::pair< std::string, std::string >( "./", tExoFile ) );
         tParameterlist( 0 )( 0 ).set( "Mesh_Type", vis::VIS_Mesh_Type::STANDARD );
         tParameterlist( 0 )( 0 ).set( "Set_Names", mesh_sets );

@@ -20,7 +20,7 @@ namespace moris::prm
     inline Parameter_List
     create_opt_problem_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "Problem" );
 
         tParameterList.insert( "is_optimization_problem", false );        // Whether or not to use OPT
         tParameterList.insert( "workflow", "HMR_XTK" );                   // Workflow to use, HMR_XTK - standard workflow, STK_XTK
@@ -42,7 +42,7 @@ namespace moris::prm
     inline Parameter_List
     create_opt_interface_manager_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "Interface Manager" );
 
         tParameterList.insert( "shared_advs", false );                  // If all of the ADVs are shared between criteria interfaces
         tParameterList.insert( "parallel", false );                     // If to execute criteria evaluations in parallel
@@ -56,7 +56,7 @@ namespace moris::prm
     inline Parameter_List
     create_opt_interface_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "Interface" );
 
         tParameterList.insert( "field_type", "user_defined" );    // OPT Interface class type
         tParameterList.insert( "library", "" );                   // Path to a shared object file for user-defined functions
@@ -69,7 +69,7 @@ namespace moris::prm
     inline Parameter_List
     create_gcmma_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "GCMMA" );
 
         tParameterList.insert( "algorithm", "gcmma" );    // Algorithm name, don't change
         tParameterList.insert( "restart_index", 0 );      // Restart iteration index
@@ -91,7 +91,7 @@ namespace moris::prm
     inline Parameter_List
     create_lbfgs_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "LBFGS" );
 
         tParameterList.insert( "algorithm", "lbfgs" );    // Algorithm name, don't change
         tParameterList.insert( "restart_index", 0 );      // Restart iteration index
@@ -115,7 +115,7 @@ namespace moris::prm
     inline Parameter_List
     create_sqp_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "SQP" );
 
         tParameterList.insert( "algorithm", "sqp" );    // Algorithm name, don't change
 
@@ -196,7 +196,7 @@ namespace moris::prm
     inline Parameter_List
     create_sweep_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "Sweep" );
 
         tParameterList.insert( "algorithm", "sweep" );                     // Algorithm name, don't change
         tParameterList.insert( "num_evaluations_per_adv", "10" );          // Uniformly sweep each adv with this many evaluation points per adv

@@ -22,7 +22,7 @@ namespace moris::prm
     inline Parameter_List
     create_moris_general_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "General" );
 
         return tParameterList;
     }

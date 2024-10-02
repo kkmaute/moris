@@ -843,18 +843,14 @@ Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< re
     OPTParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 3 );
-        tParameterlist( 0 ).resize( 1 );
-        tParameterlist( 1 ).resize( 0 );
-        tParameterlist( 2 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = moris::prm::create_opt_problem_parameter_list();
+        tParameterlist( 0 ).push_back( moris::prm::create_opt_problem_parameter_list() );
         tParameterlist( 0 )( 0 ).set( "is_optimization_problem", tIsOpt );
         tParameterlist( 0 )( 0 ).set( "problem", "user_defined" );
         tParameterlist( 0 )( 0 ).set( "library", tLibraryName );
         tParameterlist( 0 )( 0 ).set( "restart_file", "" );
         tParameterlist( 0 )( 0 ).set( "reinitialize_interface_iter", 18 );
 
-        tParameterlist( 2 )( 0 ) = moris::prm::create_gcmma_parameter_list();
+        tParameterlist( 2 ).push_back( moris::prm::create_gcmma_parameter_list() );
         tParameterlist( 2 )( 0 ).set( "step_size", tMMAStepSize );
         tParameterlist( 2 )( 0 ).set( "penalty", tMMAPenalty );
         tParameterlist( 2 )( 0 ).set( "max_its", tMMAMaxIter );    // Maximum number of iterations
@@ -867,9 +863,7 @@ Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< re
     HMRParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_hmr_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_hmr_parameter_list() );
 
         tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", "60,30" );
         tParameterlist( 0 )( 0 ).set( "domain_dimensions", "8,4" );
@@ -908,9 +902,7 @@ Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< re
     XTKParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_xtk_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_xtk_parameter_list() );
         tParameterlist( 0 )( 0 ).set( "decompose", true );
         tParameterlist( 0 )( 0 ).set( "decomposition_type", "conformal" );
         tParameterlist( 0 )( 0 ).set( "enrich", true );
@@ -931,8 +923,7 @@ Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< re
     {
 
         tParameterlist.resize( 3 );
-        tParameterlist( 0 ).resize( 1 );
-        tParameterlist( 0 )( 0 ) = moris::prm::create_gen_parameter_list();
+        tParameterlist( 0 ).push_back( moris::prm::create_gen_parameter_list() );
         tParameterlist( 0 )( 0 ).set( "IQI_types", "IQIBulkStrainEnergy_Frame", "IQIBulkStrainEnergy", "IQIBulkVolume", "IQIPerimeter_InterfaceVoid", "IQIHeatMethodPenalty", "IQIMaxStress" );
         // tParameterlist(0)(0).set("output_mesh_file", tGENOutputFile );
         tParameterlist( 0 )( 0 ).set( "time_offset", 10.0 );
@@ -1043,7 +1034,6 @@ Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< re
 
         // create parameter list for property 1
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ) = prm::create_property_parameter_list();
         tParameterList( 0 )( tPropCounter ).set( "property_name", "PropDensity" );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters", "1.0" );
         tParameterList( 0 )( tPropCounter ).set( "value_function", "tDensityFunc" );
@@ -1053,7 +1043,6 @@ Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< re
 
         // create parameter list for property 1
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ) = prm::create_property_parameter_list();
         tParameterList( 0 )( tPropCounter ).set( "property_name", "PropDensityFrame" );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters", "1.0" );
         tParameterList( 0 )( tPropCounter ).set( "value_function", "Func_Const" );
@@ -1126,7 +1115,6 @@ Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< re
 
         // properties for Theta
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ) = prm::create_property_parameter_list();
         tParameterList( 0 )( tPropCounter ).set( "property_name", "PropDensityTheta" );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters", tDensityTheta );
         tParameterList( 0 )( tPropCounter ).set( "value_function", "Func_Const" );
@@ -1147,7 +1135,6 @@ Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< re
         // properties for phi problem
 
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ) = prm::create_property_parameter_list();
         tParameterList( 0 )( tPropCounter ).set( "property_name", "PropDensityPhi" );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters", tDensityPhi );
         tParameterList( 0 )( tPropCounter ).set( "value_function", "Func_Const" );
@@ -1172,21 +1159,18 @@ Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< re
         tPropCounter++;
 
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ) = prm::create_property_parameter_list();
         tParameterList( 0 )( tPropCounter ).set( "property_name", "PropLevelSetConst" );
         tParameterList( 0 )( tPropCounter ).set( "value_function", "Func_Const" );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters", "1.0" );
         tPropCounter++;
 
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ) = prm::create_property_parameter_list();
         tParameterList( 0 )( tPropCounter ).set( "property_name", "PropLevelSetGradxConst" );
         tParameterList( 0 )( tPropCounter ).set( "value_function", "Func_Const" );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters", "1.0;1.0" );
         tPropCounter++;
 
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ) = prm::create_property_parameter_list();
         tParameterList( 0 )( tPropCounter ).set( "property_name", "PropLevelSet" );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters", "1.0" );
         tParameterList( 0 )( tPropCounter ).set( "value_function", "tLevelSetFunc" );
@@ -1195,7 +1179,6 @@ Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< re
         tPropCounter++;
 
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ) = prm::create_property_parameter_list();
         tParameterList( 0 )( tPropCounter ).set( "property_name", "PropLevelSetReal" );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters", "1.0" );
         tParameterList( 0 )( tPropCounter ).set( "value_function", "tLevelSetFuncReal" );
@@ -1204,7 +1187,6 @@ Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< re
         tPropCounter++;
 
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ) = prm::create_property_parameter_list();
         tParameterList( 0 )( tPropCounter ).set( "property_name", "PropLevelSetGradx" );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters", "1.0" );
         tParameterList( 0 )( tPropCounter ).set( "value_function", "tLevelSetGradxFunc" );
@@ -1736,8 +1718,7 @@ Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< re
          */
 
         // create computation  parameter list
-        tParameterList( 5 ).resize( 1 );
-        tParameterList( 5 )( 0 ) = prm::create_computation_parameter_list();
+        tParameterList( 5 ).push_back( prm::create_computation_parameter_list() );
         // tParameterList( 5 )( 0 ).set( "print_physics_model",      true );
 
         uint tFieldCounter = 0;
@@ -1757,12 +1738,9 @@ Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< re
     SOLParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 8 );
-        for ( uint Ik = 0; Ik < 8; Ik++ )
-        {
-            tParameterlist( Ik ).resize( 1 );
-        }
 
-        tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
+
+        tParameterlist( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
 
         /*
     // Solver type: GMRES, Flexible GMRES, Block CG , PseudoBlockCG, Stochastic CG, Recycling GMRES, Recycling CG, MINRES, LSQR, TFQMR
@@ -1797,39 +1775,38 @@ Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< re
     //tParameterlist( 0 )( 0 ).set( "fact: drop tolerance", 1e-12 );
          */
 
-        tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
+        tParameterlist( 1 ).push_back( moris::prm::create_linear_solver_parameter_list() );
 
-        tParameterlist( 2 ).resize( 6 );
-        tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();    // nonlinear algorithm index 0
+                tParameterlist( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );    // nonlinear algorithm index 0
         tParameterlist( 2 )( 0 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         tParameterlist( 2 )( 0 ).set( "NLA_rel_res_norm_drop", 1.0e-7 );
         tParameterlist( 2 )( 0 ).set( "NLA_relaxation_parameter", 1.0 );
         tParameterlist( 2 )( 0 ).set( "NLA_max_iter", 1 );
 
-        tParameterlist( 2 )( 1 ) = moris::prm::create_nonlinear_algorithm_parameter_list();    // nonlinear algorithm index 0
+        tParameterlist( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );    // nonlinear algorithm index 0
         tParameterlist( 2 )( 1 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         tParameterlist( 2 )( 1 ).set( "NLA_rel_res_norm_drop", 1.0e-7 );
         tParameterlist( 2 )( 1 ).set( "NLA_relaxation_parameter", 1.0 );
         tParameterlist( 2 )( 1 ).set( "NLA_max_iter", 1 );
 
-        tParameterlist( 2 )( 2 ) = moris::prm::create_nonlinear_algorithm_parameter_list();    // nonlinear algorithm index 1
+        tParameterlist( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );    // nonlinear algorithm index 1
         tParameterlist( 2 )( 2 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NLBGS_SOLVER );
         tParameterlist( 2 )( 2 ).set( "NLA_rel_res_norm_drop", 1.0e-7 );
         tParameterlist( 2 )( 2 ).set( "NLA_max_iter", 1 );
 
-        tParameterlist( 2 )( 3 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+        tParameterlist( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );
         tParameterlist( 2 )( 3 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         tParameterlist( 2 )( 3 ).set( "NLA_rel_res_norm_drop", 1.0e-7 );
         tParameterlist( 2 )( 3 ).set( "NLA_relaxation_parameter", 1.0 );
         tParameterlist( 2 )( 3 ).set( "NLA_max_iter", 1 );
 
-        tParameterlist( 2 )( 4 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+        tParameterlist( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );
         tParameterlist( 2 )( 4 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         tParameterlist( 2 )( 4 ).set( "NLA_rel_res_norm_drop", 1.0e-7 );
         tParameterlist( 2 )( 4 ).set( "NLA_relaxation_parameter", 1.0 );
         tParameterlist( 2 )( 4 ).set( "NLA_max_iter", 1 );
 
-        tParameterlist( 2 )( 5 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+        tParameterlist( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );
         tParameterlist( 2 )( 5 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         tParameterlist( 2 )( 5 ).set( "NLA_rel_res_norm_drop", 1.0e-7 );
         tParameterlist( 2 )( 5 ).set( "NLA_relaxation_parameter", 1.0 );
@@ -1837,54 +1814,53 @@ Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< re
 
         //------------------------------------------------------------------------------
 
-        tParameterlist( 3 ).resize( 6 );
-        tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();    // nonlinear solver index 0
+        tParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );    // nonlinear solver index 0
         tParameterlist( 3 )( 0 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         tParameterlist( 3 )( 0 ).set( "NLA_Nonlinear_solver_algorithms", "0" );    // set nonlinear algorithm with index 0
         tParameterlist( 3 )( 0 ).set( "NLA_DofTypes", "THETA" );
         tParameterlist( 3 )( 0 ).set( "NLA_Secondary_DofTypes", "" );
 
-        tParameterlist( 3 )( 1 ) = moris::prm::create_nonlinear_solver_parameter_list();    // nonlinear solver index 1
+        tParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );    // nonlinear solver index 1
         tParameterlist( 3 )( 1 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         tParameterlist( 3 )( 1 ).set( "NLA_Nonlinear_solver_algorithms", "1" );    // set nonlinear algorithm with index 0
         tParameterlist( 3 )( 1 ).set( "NLA_DofTypes", "PHID" );
         tParameterlist( 3 )( 1 ).set( "NLA_Secondary_DofTypes", "" );
 
-        tParameterlist( 3 )( 2 ) = moris::prm::create_nonlinear_solver_parameter_list();
+        tParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );
         tParameterlist( 3 )( 2 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         tParameterlist( 3 )( 2 ).set( "NLA_Nonlinear_solver_algorithms", "3" );    // set nonlinear algorithm with index 0
         tParameterlist( 3 )( 2 ).set( "NLA_DofTypes", "UX,UY" );
         tParameterlist( 3 )( 2 ).set( "NLA_Secondary_DofTypes", "STRESS_DOF" );
 
-        tParameterlist( 3 )( 3 ) = moris::prm::create_nonlinear_solver_parameter_list();
+        tParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );
         tParameterlist( 3 )( 3 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         tParameterlist( 3 )( 3 ).set( "NLA_Nonlinear_solver_algorithms", "4" );    // set nonlinear algorithm with index 0
         tParameterlist( 3 )( 3 ).set( "NLA_DofTypes", "STRESS_DOF" );
         tParameterlist( 3 )( 3 ).set( "NLA_Secondary_DofTypes", "" );
 
-        tParameterlist( 3 )( 4 ) = moris::prm::create_nonlinear_solver_parameter_list();    // nonlinear solver index 2
+        tParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );    // nonlinear solver index 2
         tParameterlist( 3 )( 4 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NLBGS_SOLVER );
         tParameterlist( 3 )( 4 ).set( "NLA_Nonlinear_solver_algorithms", "2" );    // set nonlinear algorithm with index 1.
         tParameterlist( 3 )( 4 ).set( "NLA_Sub_Nonlinear_Solver", "0,1,2,3" );     // set sub nonlinear solvers with index 0 and 1
         tParameterlist( 3 )( 4 ).set( "NLA_DofTypes", "THETA;PHID;UX,UY;STRESS_DOF" );
 
-        tParameterlist( 3 )( 5 ) = moris::prm::create_nonlinear_solver_parameter_list();    // nonlinear solver index 2
+        tParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );    // nonlinear solver index 2
         tParameterlist( 3 )( 5 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NLBGS_SOLVER );
         tParameterlist( 3 )( 5 ).set( "NLA_Nonlinear_solver_algorithms", "2" );    // set nonlinear algorithm with index 1.
         tParameterlist( 3 )( 5 ).set( "NLA_Sub_Nonlinear_Solver", "2,3" );         // set sub nonlinear solvers with index 0 and 1
         tParameterlist( 3 )( 5 ).set( "NLA_DofTypes", "UX,UY;STRESS_DOF" );
 
-        tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
+        tParameterlist( 4 ).push_back( moris::prm::create_time_solver_algorithm_parameter_list() );
         tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_Solver", 4 );
 
-        tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
+        tParameterlist( 5 ).push_back( moris::prm::create_time_solver_parameter_list() );
         tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "THETA;PHID;UX,UY;STRESS_DOF" );
         tParameterlist( 5 )( 0 ).set( "TSA_Output_Indices", "0" );
         tParameterlist( 5 )( 0 ).set( "TSA_Output_Criteria", "Output_Criterion" );
 
-        tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+        tParameterlist( 6 ).push_back( moris::prm::create_solver_warehouse_parameterlist() );
 
-        tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE );
+        tParameterlist( 7 ).push_back( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE ) );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -1893,9 +1869,7 @@ Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< re
     MSIParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_msi_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_msi_parameter_list() );
         tParameterlist( 0 )( 0 ).set( "UX", 0 );
         tParameterlist( 0 )( 0 ).set( "UY", 0 );
         tParameterlist( 0 )( 0 ).set( "STRESS_DOF", 0 );
@@ -1909,9 +1883,7 @@ Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< re
     VISParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_vis_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_vis_parameter_list() );
         tParameterlist( 0 )( 0 ).set( "File_Name", std::pair< std::string, std::string >( "./", tOutputFileName ) );
         tParameterlist( 0 )( 0 ).set( "Mesh_Type", vis::VIS_Mesh_Type::STANDARD );
         tParameterlist( 0 )( 0 ).set( "Set_Names", tTotalDomain + "," + tFrameSets );
@@ -1930,8 +1902,8 @@ Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< re
     MORISGENERALParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 3 );
-        tParameterlist( 0 ).resize( 1 );
 
+        tParameterlist( 0 ).resize( 1, Parameter_List( "" ) );
         prm::create_remeshing_parameterlist( tParameterlist( 0 )( 0 ) );
         tParameterlist( 0 )( 0 ).set( "mode", "advanced" );
         tParameterlist( 0 )( 0 ).set( "remeshing_field_names", "Level_Set_Field,Outer_shape,Inner_Holes,Outer_Holes,FieldZienkiewiczZhu" );

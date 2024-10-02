@@ -75,8 +75,7 @@ namespace moris
 
             Vector< Vector< Parameter_List > > tParameterlist;
             tParameterlist.resize( 1 );
-            tParameterlist( 0 ).resize( 1 );
-            tParameterlist( 0 )( 0 ) = prm::create_hmr_parameter_list();
+                tParameterlist( 0 ).push_back( prm::create_hmr_parameter_list() );
             tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", "6,6,6" );
             tParameterlist( 0 )( 0 ).set( "domain_dimensions", "2.0,2.0,2.0" );
             tParameterlist( 0 )( 0 ).set( "domain_offset", "-1.0,1.0,-2.0" );

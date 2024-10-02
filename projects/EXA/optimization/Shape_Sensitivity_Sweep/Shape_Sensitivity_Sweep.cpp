@@ -145,9 +145,7 @@ namespace moris
     HMRParameterList( Vector< Vector< Parameter_List > > &tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_hmr_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_hmr_parameter_list() );
 
         tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", "2, 2" );
         tParameterlist( 0 )( 0 ).set( "domain_dimensions", "2.0, 2.0" );
@@ -179,9 +177,7 @@ namespace moris
     XTKParameterList( Vector< Vector< Parameter_List > > &tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_xtk_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_xtk_parameter_list() );
         tParameterlist( 0 )( 0 ).set( "decompose", true );
         tParameterlist( 0 )( 0 ).set( "decomposition_type", "conformal" );
         tParameterlist( 0 )( 0 ).set( "enrich", true );
@@ -201,22 +197,20 @@ namespace moris
     GENParameterList( Vector< Vector< Parameter_List > > &tParameterlist )
     {
         tParameterlist.resize( 3 );
-        tParameterlist( 0 ).resize( 1 );
-        tParameterlist( 0 )( 0 ) = moris::prm::create_gen_parameter_list();
+        tParameterlist( 0 ).push_back( moris::prm::create_gen_parameter_list() );
         tParameterlist( 0 )( 0 ).set( "IQI_types", "IQIBulkStrainEnergy", "IQIBulkVolume" );
 
         // Geometry parameter lists
-        tParameterlist( 1 ).resize( 2 );
 
         // vertical line
-        tParameterlist( 1 )( 0 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE ) );
         tParameterlist( 1 )( 0 ).set( "center_x", 0.8, 0.8, 0.8 );
         tParameterlist( 1 )( 0 ).set( "center_y", 0.3 );
         tParameterlist( 1 )( 0 ).set( "normal_x", 1.0 );
         tParameterlist( 1 )( 0 ).set( "normal_y", 0.0, 0.0, 0.0 );
 
         // oblique line
-        tParameterlist( 1 )( 1 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE ) );
         tParameterlist( 1 )( 1 ).set( "center_x", -0.6, -0.6, -0.6 );
         tParameterlist( 1 )( 1 ).set( "center_y", -0.3, -0.3, -0.3 );
         tParameterlist( 1 )( 1 ).set( "normal_x", 1.0, 1.0, 1.0 );
@@ -237,7 +231,6 @@ namespace moris
 
         // create parameter list for property 1
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ) = prm::create_property_parameter_list();
         tParameterList( 0 )( tPropCounter ).set( "property_name", "PropDensity" );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters", "1.0" );
         tParameterList( 0 )( tPropCounter ).set( "value_function", "Func_Const" );
@@ -375,8 +368,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
         // fill the computation part of the parameter list
-        tParameterList( 5 ).resize( 1 );
-        tParameterList( 5 )( 0 ) = prm::create_computation_parameter_list();
+        tParameterList( 5 ).push_back( prm::create_computation_parameter_list() );
 
         tParameterList( 5 )( 0 ).set( "finite_difference_scheme", fem::FDScheme_Type::POINT_3_CENTRAL );
         tParameterList( 5 )( 0 ).set( "finite_difference_perturbation_size", tFEMFdEpsilon );
@@ -388,34 +380,31 @@ namespace moris
     SOLParameterList( Vector< Vector< Parameter_List > > &tParameterlist )
     {
         tParameterlist.resize( 8 );
-        for ( uint Ik = 0; Ik < 8; Ik++ )
-        {
-            tParameterlist( Ik ).resize( 1 );
-        }
 
-        tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::BELOS_IMPL );
+
+        tParameterlist( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::BELOS_IMPL ) );
         tParameterlist( 0 )( 0 ).set( "preconditioners", "0" );
 
-        tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
+        tParameterlist( 1 ).push_back( moris::prm::create_linear_solver_parameter_list() );
 
-        tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+        tParameterlist( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );
 
-        tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
+        tParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );
         tParameterlist( 3 )( 0 ).set( "NLA_DofTypes", "UX,UY" );
 
-        tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
+        tParameterlist( 4 ).push_back( moris::prm::create_time_solver_algorithm_parameter_list() );
         tParameterlist( 4 )( 0 ).set( "TSA_Num_Time_Steps", 1 );
         tParameterlist( 4 )( 0 ).set( "TSA_Time_Frame", 1.0 );
 
-        tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
+        tParameterlist( 5 ).push_back( moris::prm::create_time_solver_parameter_list() );
         tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "UX,UY" );
         tParameterlist( 5 )( 0 ).set( "TSA_Output_Indices", "0" );
         tParameterlist( 5 )( 0 ).set( "TSA_Output_Criteria", "Output_Criterion" );
 
-        tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+        tParameterlist( 6 ).push_back( moris::prm::create_solver_warehouse_parameterlist() );
         tParameterlist( 6 )( 0 ).set( "Sensitivity_Analysis_Type", sol::SensitivityAnalysisType::ADJOINT );
 
-        tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::IFPACK );
+        tParameterlist( 7 ).push_back( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::IFPACK ) );
         tParameterlist( 7 )( 0 ).set( "ifpack_prec_type", "ILU" );
     }
 
@@ -425,9 +414,7 @@ namespace moris
     MSIParameterList( Vector< Vector< Parameter_List > > &tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_msi_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_msi_parameter_list() );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -436,9 +423,7 @@ namespace moris
     VISParameterList( Vector< Vector< Parameter_List > > &tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_vis_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_vis_parameter_list() );
         tParameterlist( 0 )( 0 ).set( "File_Name", std::pair< std::string, std::string >( "./", "shape_sensitivities.exo" ) );
         tParameterlist( 0 )( 0 ).set( "Mesh_Type", vis::VIS_Mesh_Type::STANDARD );
         tParameterlist( 0 )( 0 ).set( "Set_Names", tMeshSets );
@@ -454,16 +439,12 @@ namespace moris
     OPTParameterList( Vector< Vector< Parameter_List > > &tParameterlist )
     {
         tParameterlist.resize( 3 );
-        tParameterlist( 0 ).resize( 1 );
-        tParameterlist( 1 ).resize( 0 );
-        tParameterlist( 2 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = moris::prm::create_opt_problem_parameter_list();
+        tParameterlist( 0 ).push_back( moris::prm::create_opt_problem_parameter_list() );
         tParameterlist( 0 )( 0 ).set( "is_optimization_problem", true );
         tParameterlist( 0 )( 0 ).set( "problem", "user_defined" );
         tParameterlist( 0 )( 0 ).set( "library", "Shape_Sensitivity_Sweep.so" );
 
-        tParameterlist( 2 )( 0 ) = moris::prm::create_sweep_parameter_list();
+        tParameterlist( 2 ).push_back( moris::prm::create_sweep_parameter_list() );
         tParameterlist( 2 )( 0 ).set( "hdf5_path", "shape_opt_test.hdf5" );
         tParameterlist( 2 )( 0 ).set( "evaluate_objective_gradients", true );
         tParameterlist( 2 )( 0 ).set( "evaluate_constraint_gradients", true );

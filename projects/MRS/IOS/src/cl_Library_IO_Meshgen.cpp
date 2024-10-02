@@ -555,9 +555,6 @@ namespace moris
         // see how many grids are specified in the input file
         uint tNumGeometries = mXmlReader->count_keys_in_subtree( aGenPath, tGeometryNodeName );
 
-        // resize the parameter list correctly
-        tGenParamList( 1 ).resize( tNumGeometries );
-
         // get the intersection mode
         bool tUseMultiLinearIntersections = true;
         mXmlReader->get( aGenPath + ".UseMultiLinearIntersections", tUseMultiLinearIntersections, true );
@@ -595,7 +592,7 @@ namespace moris
                 if ( tPreDefGeom == "line" )
                 {
                     // Create geometry parameter list
-                    tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE );
+                    tGenParamList( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE ) );
 
                     // get the point
                     std::string tPoint = "";
@@ -1085,8 +1082,7 @@ namespace moris
     {
         // resize and initialize with standard parameters
         aParameterList.resize( 1 );
-        aParameterList( 0 ).resize( 1 );
-        aParameterList( 0 )( 0 ) = prm::create_opt_problem_parameter_list();    // ParameterList();
+        aParameterList( 0 ).push_back( prm::create_opt_problem_parameter_list() );
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -1096,8 +1092,7 @@ namespace moris
     {
         // resize and initialize with standard parameters
         aParameterList.resize( 1 );
-        aParameterList( 0 ).resize( 1 );
-        aParameterList( 0 )( 0 ) = prm::create_xtk_parameter_list();
+        aParameterList( 0 ).push_back( prm::create_xtk_parameter_list() );
 
         // enrichment
         aParameterList( 0 )( 0 ).set( "enrich", true );
@@ -1117,8 +1112,7 @@ namespace moris
     {
         // resize and initialize with standard parameters
         aParameterList.resize( 1 );
-        aParameterList( 0 ).resize( 1 );
-        aParameterList( 0 )( 0 ) = prm::create_hmr_parameter_list();
+        aParameterList( 0 ).push_back( prm::create_hmr_parameter_list() );
 
         // Lagrange mesh is always 0
         aParameterList( 0 )( 0 ).set( "lagrange_output_meshes", "0" );
@@ -1131,8 +1125,7 @@ namespace moris
     {
         // resize and initialize with standard parameters
         aParameterList.resize( 3 );
-        aParameterList( 0 ).resize( 1 );
-        aParameterList( 0 )( 0 ) = prm::create_gen_parameter_list();
+        aParameterList( 0 ).push_back( prm::create_gen_parameter_list() );
     }
 
     //------------------------------------------------------------------------------------------------------------------

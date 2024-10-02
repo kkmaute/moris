@@ -169,7 +169,7 @@ perform_calculation(
 {
 
     // step 1: load parameters
-    Parameter_List           tGlobalParameters;
+    Parameter_List           tGlobalParameters( "" );
     Vector< Parameter_List > tObjectParameters;
 
     // load XML file

@@ -22,7 +22,7 @@ namespace moris::prm
     inline Parameter_List
     create_wrk_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "Workflow" );
 
         tParameterList.insert( "adv_field", "" );
         tParameterList.insert( "dof_type", "" );

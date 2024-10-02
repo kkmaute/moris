@@ -174,9 +174,7 @@ namespace moris
     OPTParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_opt_problem_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_opt_problem_parameter_list() );
 
         tParameterlist( 0 )( 0 ).set( "is_optimization_problem", false );
     }
@@ -185,9 +183,7 @@ namespace moris
     HMRParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_hmr_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_hmr_parameter_list() );
 
         tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", "22,11" );
         tParameterlist( 0 )( 0 ).set( "domain_dimensions", "4,2" );
@@ -220,9 +216,7 @@ namespace moris
     XTKParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_xtk_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_xtk_parameter_list() );
         tParameterlist( 0 )( 0 ).set( "decompose", true );
         tParameterlist( 0 )( 0 ).set( "decomposition_type", "conformal" );
         tParameterlist( 0 )( 0 ).set( "enrich", true );
@@ -239,34 +233,32 @@ namespace moris
     GENParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 3 );
-        tParameterlist( 0 ).resize( 1 );
-        tParameterlist( 1 ).resize( 8 );
 
-        tParameterlist( 0 )( 0 ) = prm::create_gen_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_gen_parameter_list() );
 
         // Geometry parameter lists
-        tParameterlist( 1 )( 0 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( 0 ).set( "field_function_name", "Func_Bottom_Plane" );
 
-        tParameterlist( 1 )( 1 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( 1 ).set( "field_function_name", "Func_Top_Plane" );
 
-        tParameterlist( 1 )( 2 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( 2 ).set( "field_function_name", "Func_Left_Plane" );
 
-        tParameterlist( 1 )( 3 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( 3 ).set( "field_function_name", "Func_Right_Plane" );
 
-        tParameterlist( 1 )( 4 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( 4 ).set( "field_function_name", "Func_Cylinder" );
 
-        tParameterlist( 1 )( 5 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( 5 ).set( "field_function_name", "Func_Cylinder2" );
 
-        tParameterlist( 1 )( 6 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( 6 ).set( "field_function_name", "Func_Cylinder3" );
 
-        tParameterlist( 1 )( 7 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         tParameterlist( 1 )( 7 ).set( "field_function_name", "Func_Cylinder4" );
     }
 
@@ -728,85 +720,75 @@ namespace moris
 
         //------------------------------------------------------------------------------
         // fill the computation part of the parameter list
-        tParameterList( 5 ).resize( 1 );
-        tParameterList( 5 )( 0 ) = prm::create_computation_parameter_list();
+        tParameterList( 5 ).push_back( prm::create_computation_parameter_list() );
     }
 
     void
     SOLParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 8 );
-        for ( uint Ik = 0; Ik < 8; Ik++ )
-        {
-            tParameterlist( Ik ).resize( 1 );
-        }
 
-        tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::BELOS_IMPL );
+
+        tParameterlist( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::BELOS_IMPL ) );
         tParameterlist( 0 )( 0 ).set( "ifpack_prec_type", "ILU" );
 
-        tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
+        tParameterlist( 1 ).push_back( moris::prm::create_linear_solver_parameter_list() );
 
-        tParameterlist( 2 ).resize( 2 );
-        tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();    // nonlinear algorithm index 0
+                tParameterlist( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );    // nonlinear algorithm index 0
         tParameterlist( 2 )( 0 ).set( "NLA_Solver_Implementation",  moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) ;
         tParameterlist( 2 )( 0 ).set( "NLA_rel_res_norm_drop", 1e-04 );
         tParameterlist( 2 )( 0 ).set( "NLA_relaxation_parameter", 1.0 );
         tParameterlist( 2 )( 0 ).set( "NLA_max_iter", 10 );
 
-        tParameterlist( 2 )( 1 ) = moris::prm::create_nonlinear_algorithm_parameter_list();    // nonlinear algorithm index 1
+        tParameterlist( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );    // nonlinear algorithm index 1
         tParameterlist( 2 )( 1 ).set( "NLA_Solver_Implementation",  moris::NLA::NonlinearSolverType::NLBGS_SOLVER ) ;
         tParameterlist( 2 )( 1 ).set( "NLA_rel_res_norm_drop", 1.0 );
         tParameterlist( 2 )( 1 ).set( "NLA_max_iter", 1 );
 
-        tParameterlist( 3 ).resize( 3 );
-        tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();    // nonlinear solver index 0
+        tParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );    // nonlinear solver index 0
         tParameterlist( 3 )( 0 ).set( "NLA_Nonlinear_solver_algorithms", "0" );             // set nonlinear algorithm with index 0
         tParameterlist( 3 )( 0 ).set( "NLA_Solver_Implementation",  moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) ;
         tParameterlist( 3 )( 0 ).set( "NLA_DofTypes", "VX,VY,P" );
 
-        tParameterlist( 3 )( 1 ) = moris::prm::create_nonlinear_solver_parameter_list();    // nonlinear solver index 1
+        tParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );    // nonlinear solver index 1
         tParameterlist( 3 )( 1 ).set( "NLA_Nonlinear_solver_algorithms", "0" );             // set nonlinear algorithm with index 0
         tParameterlist( 3 )( 1 ).set( "NLA_Solver_Implementation",  moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) ;
         tParameterlist( 3 )( 1 ).set( "NLA_DofTypes", "TEMP" );
 
-        tParameterlist( 3 )( 2 ) = moris::prm::create_nonlinear_solver_parameter_list();    // nonlinear solver index 2
+        tParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );    // nonlinear solver index 2
         tParameterlist( 3 )( 2 ).set( "NLA_Nonlinear_solver_algorithms", "1" );             // set nonlinear algorithm with index 1.
         tParameterlist( 3 )( 2 ).set( "NLA_Solver_Implementation",  moris::NLA::NonlinearSolverType::NLBGS_SOLVER ) ;
         tParameterlist( 3 )( 2 ).set( "NLA_Sub_Nonlinear_Solver", "0,1" );    // set sub nonlinear solvers with index 0 and 1
         tParameterlist( 3 )( 2 ).set( "NLA_DofTypes", "VX,VY,P;TEMP" );
 
-        tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
+        tParameterlist( 4 ).push_back( moris::prm::create_time_solver_algorithm_parameter_list() );
         tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_Solver", 2 );    // set nonlinear solver with index 2
         tParameterlist( 4 )( 0 ).set( "TSA_Num_Time_Steps", sNumStep );
         tParameterlist( 4 )( 0 ).set( "TSA_Time_Frame", sMaxTime );
 
-        tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
+        tParameterlist( 5 ).push_back( moris::prm::create_time_solver_parameter_list() );
         tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "VX,VY;P;TEMP" );
         tParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec", "VX,1.5;VY,0.0;P,0.0;TEMP,0.0" );
         tParameterlist( 5 )( 0 ).set( "TSA_Output_Indices", "0" );
         tParameterlist( 5 )( 0 ).set( "TSA_Output_Criteria", "Output_Criterion" );
 
-        tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+        tParameterlist( 6 ).push_back( moris::prm::create_solver_warehouse_parameterlist() );
 
-        tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE );
+        tParameterlist( 7 ).push_back( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE ) );
     }
 
     void
     MSIParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_msi_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_msi_parameter_list() );
     }
 
     void
     VISParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_vis_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_vis_parameter_list() );
         tParameterlist( 0 )( 0 ).set( "File_Name", std::pair< std::string, std::string >( "./", "Channel_with_Four_Cylinders_Transient.exo" ) );
         tParameterlist( 0 )( 0 ).set( "Mesh_Type",  vis::VIS_Mesh_Type::STANDARD ) ;
         tParameterlist( 0 )( 0 ).set( "Set_Names", "HMR_dummy_n_p160,HMR_dummy_c_p160" );

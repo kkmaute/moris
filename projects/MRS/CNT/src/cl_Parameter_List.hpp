@@ -87,15 +87,32 @@ namespace moris
     {
 
       private:
+        std::string mName;
         std::map< std::string, Parameter > mParameterMap;
         Vector< std::string > mOrderedKeys;
 
       public:
 
         /**
-         * Constructor
+         * Parameter list constructor
+         *
+         * @param aName Name of this parameter list
          */
-        Parameter_List() = default;
+        explicit Parameter_List( std::string aName );
+
+        /**
+         * Sets the name of this parameter list.
+         *
+         * @param aName Name of this collection of parameters
+         */
+        void set_name( std::string aName );
+
+        /**
+         * Gets the name of this parameter list.
+         *
+         * @return Name of this collection of parameters
+         */
+        const std::string& get_name();
 
         /**
          * Destructor

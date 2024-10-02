@@ -117,35 +117,22 @@ namespace moris
             uint tInnerSizeToMod = aParamListToModify( iOuterCell ).size();
             uint tInnerSizeToAdd = aParamListToAdd( iOuterCell ).size();
 
-            if ( tInnerSizeToAdd > tInnerSizeToMod )
-            {
-                aParamListToModify( iOuterCell ).resize( tInnerSizeToAdd );
-            }
-        }
-
-        // go over the various pieces of the parameter list and add non-existing parameters,
-        // or overwrite them with the parameters provided
-        for ( uint iOuterCell = 0; iOuterCell < tOuterSizeToAdd; iOuterCell++ )
-        {
-            uint tInnerSizeToAdd = aParamListToAdd( iOuterCell ).size();
-
-            for ( uint iInnerCell = 0; iInnerCell < tInnerSizeToAdd; iInnerCell++ )
+            // Modify existing parameters
+            for ( uint iInnerCell = 0; iInnerCell < tInnerSizeToMod; iInnerCell++ )
             {
                 // get access to the current parameter lists
                 Parameter_List& tParamsToMod = aParamListToModify( iOuterCell )( iInnerCell );
                 Parameter_List& tParamsToAdd = aParamListToAdd( iOuterCell )( iInnerCell );
 
-                // if the existing parameter list is empty, just replace it with whatever is in the one to add
-                if ( tParamsToMod.is_empty() )    // FIXME, potentially
-                {
-                    tParamsToMod = tParamsToAdd;
-                }
-                else    // otherwise compare and add/overwrite values
-                {
-                    tParamsToMod.copy_parameters( tParamsToAdd );
-                }
-            }    // end for: inner cells
-        }    // end for: outer cells
+                tParamsToMod.copy_parameters( tParamsToAdd );
+            }
+
+            // Add parameters that don't exist yet
+            for ( uint iInnerIndex = tInnerSizeToMod; iInnerIndex < tInnerSizeToAdd; iInnerIndex++ )
+            {
+                aParamListToModify( iOuterCell ).push_back( aParamListToAdd( iOuterCell )( iInnerIndex ) );
+            }
+        }
     }
 
     //------------------------------------------------------------------------------------------------------------------

@@ -25,7 +25,7 @@ namespace moris::prm
     inline Parameter_List
     create_gen_parameter_list()
     {
-        Parameter_List tGENParameterList;
+        Parameter_List tGENParameterList( "General" );
 
         // Level set parameters
         tGENParameterList.insert( "output_mesh_file", "" );                 // File name for exodus mesh, if default no mesh is written
@@ -186,7 +186,7 @@ namespace moris::prm
      */
     inline Parameter_List create_field_parameter_list( gen::Field_Type aFieldType )
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "Field" );
         insert_field_parameters( tParameterList, aFieldType );
         return tParameterList;
     }
@@ -213,7 +213,7 @@ namespace moris::prm
      */
     static Parameter_List create_design_parameter_list()
     {
-        Parameter_List tDesignParameterList;
+        Parameter_List tDesignParameterList( "Design" );
 
         tDesignParameterList.insert( "design_type", "" );                            // Insert the design type parameter
         tDesignParameterList.insert( "number_of_refinements", Vector< uint >() );    // Number of refinement steps using HMR

@@ -22,7 +22,7 @@ namespace moris::prm
     inline Parameter_List
     create_hmr_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "General" );
 
         // number of elements per direction in overall mesh, without aura
         // 2D or 3D is determined by length of this vector

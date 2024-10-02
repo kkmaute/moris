@@ -35,6 +35,7 @@ using namespace tsa;
 //-------------------------------------------------------------------------------
 
 Time_Solver::Time_Solver( const enum TimeSolverType aTimeSolverType )
+        : mParameterListTimeSolver( prm::create_time_solver_parameter_list() )
 {
     // create solver factory
     Time_Solver_Factory tTimeSolFactory;
@@ -49,8 +50,6 @@ Time_Solver::Time_Solver( const enum TimeSolverType aTimeSolverType )
     mTimeSolverAlgorithmList( 0 ) = tTimeSolver;
 
     mDofTypeList.resize( 0 );
-
-    this->set_time_solver_parameters();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -73,10 +72,9 @@ Time_Solver::Time_Solver(
 Time_Solver::Time_Solver(
         Vector< std::shared_ptr< Time_Solver_Algorithm > >& aTimeSolverList,
         const enum TimeSolverType                           aTimeSolverType )
+        : mParameterListTimeSolver( prm::create_time_solver_parameter_list() )
 {
     mTimeSolverAlgorithmList = aTimeSolverList;
-
-    this->set_time_solver_parameters();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -740,13 +738,6 @@ void Time_Solver::initialize_time_levels()
 
         mSolverInterface->set_time_levels_for_type( tDofType, tValue );
     }
-}
-
-//--------------------------------------------------------------------------------------------------------------------------
-void Time_Solver::set_time_solver_parameters()
-{
-    // Maximal number of linear solver restarts on fail
-    mParameterListTimeSolver = prm::create_time_solver_parameter_list();
 }
 
 //--------------------------------------------------------------------------------------------------------------------------

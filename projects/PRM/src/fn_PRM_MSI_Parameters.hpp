@@ -22,7 +22,7 @@ namespace moris::prm
     inline moris::Parameter_List
     create_msi_parameter_list()
     {
-        Parameter_List mMSIParameterList;
+        Parameter_List mMSIParameterList( "MSI" );
 
         // Adof type interpolation index
         mMSIParameterList.insert( "TEMP", 0 );

@@ -828,20 +828,20 @@ namespace moris::gen
         Design_Variable tCenterX( 0.0, 0.0, 0.0 );
 
         // Set up 2 circles
-        Vector< Parameter_List > tParameterLists( 3 );
-        tParameterLists( 0 ) = prm::create_field_parameter_list( Field_Type::CIRCLE );
+        Vector< Parameter_List > tParameterLists;
+        tParameterLists.push_back( prm::create_field_parameter_list( Field_Type::CIRCLE ) );
         tParameterLists( 0 ).set( "center_x", tCenterX );
         tParameterLists( 0 ).set( "center_y", 1.0, 1.0, 1.0 );
         tParameterLists( 0 ).set( "radius", 1.0, 1.0, 1.0 );
         tParameterLists( 0 ).set( "name", "Circle 1" );
 
-        tParameterLists( 1 ) = prm::create_field_parameter_list( Field_Type::CIRCLE );
+        tParameterLists.push_back( prm::create_field_parameter_list( Field_Type::CIRCLE ) );
         tParameterLists( 1 ).set( "center_x", tCenterX );
         tParameterLists( 1 ).set( "center_y", 2.0, 2.0, 2.0 );
         tParameterLists( 1 ).set( "radius", 2.0, 2.0, 2.0 );
         tParameterLists( 1 ).set( "name", "Circle 2" );
 
-        tParameterLists( 2 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::COMBINED_FIELDS );
+        tParameterLists.push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::COMBINED_FIELDS ) );
         tParameterLists( 2 ).set( "dependencies", "Circle 1", "Circle 2" );
 
         // Create combined fields

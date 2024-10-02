@@ -186,8 +186,7 @@ TEST_CASE("IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]")
     tParameterList( 4 )( 0 ).set( "normalization",              "design" );
 
     // create computation  parameter list
-    tParameterList( 5 ).resize( 1 );
-    tParameterList( 5 )( 0 ) = prm::create_computation_parameter_list();
+        tParameterList( 5 ).push_back( prm::create_computation_parameter_list() );
 
     // Create FEM model
     FEM_Model tModel;

@@ -1136,7 +1136,6 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "problem", "user_defined" );
         tParameterlist( 0 )( 0 ).set( "library", tSoFile );
 
-        tParameterlist( 1 ).resize( 0 );
 
         if ( tCheckSensitivities )
         {
@@ -1166,9 +1165,7 @@ namespace moris
     HMRParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_hmr_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_hmr_parameter_list() );
 
         tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", tNumElemsPerDim );
         tParameterlist( 0 )( 0 ).set( "domain_dimensions", tDomainDims );
@@ -1203,9 +1200,7 @@ namespace moris
     XTKParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_xtk_parameter_list();
+        tParameterlist( 0 ).push_back( prm::create_xtk_parameter_list() );
         tParameterlist( 0 )( 0 ).set( "decompose", true );
         tParameterlist( 0 )( 0 ).set( "decomposition_type", "conformal" );
         tParameterlist( 0 )( 0 ).set( "enrich", true );
@@ -1544,7 +1539,6 @@ namespace moris
         // properties for Theta
 
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
-        tParameterList( tPropIndex )( tPropCounter ) = prm::create_property_parameter_list();
         tParameterList( tPropIndex )( tPropCounter ).set( "property_name", "PropDensityTheta" );
         tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters", tDensityTheta );
         tPropCounter++;
@@ -1600,21 +1594,18 @@ namespace moris
 
         // target level set
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
-        tParameterList( tPropIndex )( tPropCounter ) = prm::create_property_parameter_list();
         tParameterList( tPropIndex )( tPropCounter ).set( "property_name", "PropLevelSetConst" );
         tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters", "1.0" );
         tPropCounter++;
 
         // target level set gradient
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
-        tParameterList( tPropIndex )( tPropCounter ) = prm::create_property_parameter_list();
         tParameterList( tPropIndex )( tPropCounter ).set( "property_name", "PropLevelSetGradxConst" );
         tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters", tLevelSetGradxConstant );
         tPropCounter++;
 
         // actual level set
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
-        tParameterList( tPropIndex )( tPropCounter ) = prm::create_property_parameter_list();
         tParameterList( tPropIndex )( tPropCounter ).set( "property_name", "PropLevelSet" );
         tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters", "1.0" );
         tParameterList( tPropIndex )( tPropCounter ).set( "value_function", "tLevelSetFunc" );
@@ -1624,7 +1615,6 @@ namespace moris
 
         // actual level set gradient
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
-        tParameterList( tPropIndex )( tPropCounter ) = prm::create_property_parameter_list();
         tParameterList( tPropIndex )( tPropCounter ).set( "property_name", "PropLevelSetGradx" );
         tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters", "1.0" );
         tParameterList( tPropIndex )( tPropCounter ).set( "value_function", "tLevelSetGradxFunc" );
@@ -2567,12 +2557,9 @@ namespace moris
     SOLParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
     {
         tParameterlist.resize( 8 );
-        for ( uint Ik = 0; Ik < 8; Ik++ )
-        {
-            tParameterlist( Ik ).resize( 1 );
-        }
 
-        tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
+
+        tParameterlist( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
 #ifdef MORIS_USE_MUMPS
         tParameterlist( 0 )( 0 ).set( "Solver_Type", "Amesos_Mumps" );
 #else
@@ -2581,15 +2568,14 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
+        tParameterlist( 1 ).push_back( moris::prm::create_linear_solver_parameter_list() );
         tParameterlist( 1 )( 0 ).set( "DLA_Linear_solver_algorithms", "0" );
 
         //------------------------------------------------------------------------------
 
-        tParameterlist( 2 ).resize( 6 );
 
         // Newton solve in forward problem used by Newton flow subproblem (includes load control)
-        tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();    // nonlinear algorithm index 0
+        tParameterlist( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );    // nonlinear algorithm index 0
         tParameterlist( 2 )( 0 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         tParameterlist( 2 )( 0 ).set( "NLA_Linear_solver", 0 );
         tParameterlist( 2 )( 0 ).set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
@@ -2607,7 +2593,7 @@ namespace moris
         }
 
         // for linear solve - forward: theta, phi, l2 - adjoint: all problems
-        tParameterlist( 2 )( 1 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+        tParameterlist( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );
         tParameterlist( 2 )( 1 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         tParameterlist( 2 )( 1 ).set( "NLA_Linear_solver", 0 );
         tParameterlist( 2 )( 1 ).set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
@@ -2615,14 +2601,14 @@ namespace moris
         tParameterlist( 2 )( 1 ).set( "NLA_max_iter", 1 );
 
         // NLBGS for overall forward solve and adjoint in theta,phi,l2,(vx,vy,p,viscosity)
-        tParameterlist( 2 )( 2 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+        tParameterlist( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );
         tParameterlist( 2 )( 2 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NLBGS_SOLVER );
         tParameterlist( 2 )( 2 ).set( "NLA_Linear_solver", 0 );
         tParameterlist( 2 )( 2 ).set( "NLA_rel_res_norm_drop", 1.0 );
         tParameterlist( 2 )( 2 ).set( "NLA_max_iter", 1 );
 
         // algorithm not used
-        tParameterlist( 2 )( 3 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+        tParameterlist( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );
         tParameterlist( 2 )( 3 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         tParameterlist( 2 )( 3 ).set( "NLA_Linear_solver", 0 );
         tParameterlist( 2 )( 3 ).set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
@@ -2630,7 +2616,7 @@ namespace moris
         tParameterlist( 2 )( 3 ).set( "NLA_max_iter", 1 );
 
         // NLBGS for flow subproblem using pseudo time stepping and (optional) load control)
-        tParameterlist( 2 )( 4 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+        tParameterlist( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );
         tParameterlist( 2 )( 4 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NLBGS_SOLVER );
         tParameterlist( 2 )( 4 ).set( "NLA_Linear_solver", 0 );
         tParameterlist( 2 )( 4 ).set( "NLA_rel_res_norm_drop", tNLBGS_rel_res );
@@ -2671,7 +2657,7 @@ namespace moris
         }
 
         // Newton solve used within NLBGS for flow subproblem
-        tParameterlist( 2 )( 5 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+        tParameterlist( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );
         tParameterlist( 2 )( 5 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         tParameterlist( 2 )( 5 ).set( "NLA_Linear_solver", 0 );
         tParameterlist( 2 )( 5 ).set( "NLA_rel_res_norm_drop", tNewton_rel_res );
@@ -2682,14 +2668,13 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        tParameterlist( 3 ).resize( 9 );
 
-        tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
+        tParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );
         tParameterlist( 3 )( 0 ).set( "NLA_Nonlinear_solver_algorithms", "1" );
         tParameterlist( 3 )( 0 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         tParameterlist( 3 )( 0 ).set( "NLA_DofTypes", "THETA" );
 
-        tParameterlist( 3 )( 1 ) = moris::prm::create_nonlinear_solver_parameter_list();
+        tParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );
         tParameterlist( 3 )( 1 ).set( "NLA_Nonlinear_solver_algorithms", "1" );
         tParameterlist( 3 )( 1 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         tParameterlist( 3 )( 1 ).set( "NLA_DofTypes", "PHID" );
@@ -2698,14 +2683,14 @@ namespace moris
         {
             if ( tFluidViscSolver == "Mono" )    // monolithic flow problem
             {
-                tParameterlist( 3 )( 2 ) = moris::prm::create_nonlinear_solver_parameter_list();
+        tParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );
                 tParameterlist( 3 )( 2 ).set( "NLA_Nonlinear_solver_algorithms", tSubNewtonSolverOption );
                 tParameterlist( 3 )( 2 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
                 tParameterlist( 3 )( 2 ).set( "NLA_DofTypes", "VX,VY,P,VISCOSITY" );
             }
             else    // flow problem in vx,vy,p
             {
-                tParameterlist( 3 )( 2 ) = moris::prm::create_nonlinear_solver_parameter_list();
+        tParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );
                 tParameterlist( 3 )( 2 ).set( "NLA_Nonlinear_solver_algorithms", tSubNewtonSolverOption );
                 tParameterlist( 3 )( 2 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
                 tParameterlist( 3 )( 2 ).set( "NLA_DofTypes", "VX,VY,P" );
@@ -2713,14 +2698,14 @@ namespace moris
         }
         else    // using Newton solver only monolithic
         {
-            tParameterlist( 3 )( 2 ) = moris::prm::create_nonlinear_solver_parameter_list();
+            tParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );
             tParameterlist( 3 )( 2 ).set( "NLA_Nonlinear_solver_algorithms", "0" );
             tParameterlist( 3 )( 2 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
             tParameterlist( 3 )( 2 ).set( "NLA_DofTypes", "VX,VY,P,VISCOSITY" );
         }
 
         // flow viscosity problem only
-        tParameterlist( 3 )( 3 ) = moris::prm::create_nonlinear_solver_parameter_list();
+        tParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );
         tParameterlist( 3 )( 3 ).set( "NLA_Nonlinear_solver_algorithms", tSubNewtonSolverOption );
         tParameterlist( 3 )( 3 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         tParameterlist( 3 )( 3 ).set( "NLA_DofTypes", "VISCOSITY" );
@@ -2728,7 +2713,7 @@ namespace moris
         // following settings only used when solving flow problem by NLBGS
         if ( tFluidViscSolver == "Mono" )
         {
-            tParameterlist( 3 )( 4 ) = moris::prm::create_nonlinear_solver_parameter_list();
+            tParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );
             tParameterlist( 3 )( 4 ).set( "NLA_Nonlinear_solver_algorithms", "4" );
             tParameterlist( 3 )( 4 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NLBGS_SOLVER );
             tParameterlist( 3 )( 4 ).set( "NLA_Sub_Nonlinear_Solver", "2" );
@@ -2736,7 +2721,7 @@ namespace moris
         }
         else
         {
-            tParameterlist( 3 )( 4 ) = moris::prm::create_nonlinear_solver_parameter_list();
+            tParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );
             tParameterlist( 3 )( 4 ).set( "NLA_Nonlinear_solver_algorithms", "4" );
             tParameterlist( 3 )( 4 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NLBGS_SOLVER );
             tParameterlist( 3 )( 4 ).set( "NLA_Sub_Nonlinear_Solver", "2,3" );
@@ -2744,7 +2729,7 @@ namespace moris
         }
 
         // L2 projection problem
-        tParameterlist( 3 )( 5 ) = moris::prm::create_nonlinear_solver_parameter_list();
+        tParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );
         tParameterlist( 3 )( 5 ).set( "NLA_Nonlinear_solver_algorithms", "1" );
         tParameterlist( 3 )( 5 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         tParameterlist( 3 )( 5 ).set( "NLA_DofTypes", "L2" );
@@ -2752,7 +2737,7 @@ namespace moris
         // total forward problem
         if ( tSolverType == "NLBGS" )
         {
-            tParameterlist( 3 )( 6 ) = moris::prm::create_nonlinear_solver_parameter_list();
+            tParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );
             tParameterlist( 3 )( 6 ).set( "NLA_Nonlinear_solver_algorithms", "2" );
             tParameterlist( 3 )( 6 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NLBGS_SOLVER );
             tParameterlist( 3 )( 6 ).set( "NLA_Sub_Nonlinear_Solver", "0,1,5,4" );
@@ -2760,7 +2745,7 @@ namespace moris
         }
         else
         {
-            tParameterlist( 3 )( 6 ) = moris::prm::create_nonlinear_solver_parameter_list();
+            tParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );
             tParameterlist( 3 )( 6 ).set( "NLA_Nonlinear_solver_algorithms", "2" );
             tParameterlist( 3 )( 6 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NLBGS_SOLVER );
             tParameterlist( 3 )( 6 ).set( "NLA_Sub_Nonlinear_Solver", "0,1,5,2" );
@@ -2768,13 +2753,13 @@ namespace moris
         }
 
         // adjoint of flow problem
-        tParameterlist( 3 )( 7 ) = moris::prm::create_nonlinear_solver_parameter_list();
+        tParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );
         tParameterlist( 3 )( 7 ).set( "NLA_Nonlinear_solver_algorithms", "1" );
         tParameterlist( 3 )( 7 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         tParameterlist( 3 )( 7 ).set( "NLA_DofTypes", "VX,VY,P,VISCOSITY" );
 
         // adjoint of total problem
-        tParameterlist( 3 )( 8 ) = moris::prm::create_nonlinear_solver_parameter_list();
+        tParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );
         tParameterlist( 3 )( 8 ).set( "NLA_Nonlinear_solver_algorithms", "2" );
         tParameterlist( 3 )( 8 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NLBGS_SOLVER );
         tParameterlist( 3 )( 8 ).set( "NLA_Sub_Nonlinear_Solver", "0,1,5,7" );    // set sub nonlinear solvers with index 0 and 1
@@ -2782,13 +2767,13 @@ namespace moris
 
         // ----------------------------------------------------------
 
-        tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
+        tParameterlist( 4 ).push_back( moris::prm::create_time_solver_algorithm_parameter_list() );
         tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_Solver", 6 );                // using NLBGS for forward problem
         tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_Sensitivity_Solver", 8 );    // using NLBGS for sensitivity problem
 
         //------------------------------------------------------------------------------
 
-        tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
+        tParameterlist( 5 ).push_back( moris::prm::create_time_solver_parameter_list() );
         tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "THETA;PHID;L2;VX,VY,P,VISCOSITY" );
         tParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec", "THETA,0.0;PHID,0.0;VX," + tVXInitial + ";VY,0.0;P,0.0;VISCOSITY," + tInletKinViscosity + ";L2,1.0" );
         tParameterlist( 5 )( 0 ).set( "TSA_Output_Indices", "0" );
@@ -2796,11 +2781,11 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+        tParameterlist( 6 ).push_back( moris::prm::create_solver_warehouse_parameterlist() );
 
         //------------------------------------------------------------------------------
 
-        tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE );
+        tParameterlist( 7 ).push_back( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE ) );
     }
 
     void

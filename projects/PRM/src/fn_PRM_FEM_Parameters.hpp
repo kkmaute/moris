@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef PROJECTS_PRM_SRC_FN_PRM_FEM_PARAMETERS_HPP_
-#define PROJECTS_PRM_SRC_FN_PRM_FEM_PARAMETERS_HPP_
+#pragma once
 
 #include "cl_Parameter_List.hpp"
 
@@ -28,7 +27,7 @@ namespace moris::prm
     inline Parameter_List
     create_property_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "Property" );
 
         tParameterList.insert( "property_name", "undefined" );
         tParameterList.insert( "function_parameters", "" );
@@ -52,7 +51,7 @@ namespace moris::prm
     inline Parameter_List
     create_fem_field_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "Field" );
 
         tParameterList.insert( "field_name", "undefined" );
         tParameterList.insert( "field_entity_type", "" );
@@ -76,7 +75,7 @@ namespace moris::prm
     inline Parameter_List
     create_material_model_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "MM" );
 
         tParameterList.insert( "material_name", "undefined" );
         tParameterList.insert( "material_type", fem::Material_Type::UNDEFINED, fem::Material_Type::PERFECT_GAS, fem::Material_Type::VAN_DER_WAALS_FLUID );
@@ -96,7 +95,7 @@ namespace moris::prm
     inline Parameter_List
     create_constitutive_model_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "CM" );
 
         tParameterList.insert( "constitutive_name", "undefined" );
         tParameterList.insert( "constitutive_type", fem::Constitutive_Type::UNDEFINED, fem::Constitutive_Type::DIFF_LIN_ISO, fem::Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
@@ -120,7 +119,7 @@ namespace moris::prm
     inline Parameter_List
     create_stabilization_parameter_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "SP" );
 
         tParameterList.insert( "stabilization_name", "undefined" );
         tParameterList.insert( "stabilization_type", fem::Stabilization_Type::UNDEFINED, fem::Stabilization_Type::DIRICHLET_NITSCHE, fem::Stabilization_Type::LAGRANGE_MULTIPLIER_L2 );
@@ -151,7 +150,7 @@ namespace moris::prm
     inline Parameter_List
     create_IWG_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "IWG" );
 
         tParameterList.insert( "IWG_name", "undefined" );
         tParameterList.insert( "IWG_bulk_type", fem::Element_Type::BULK, fem::Element_Type::BULK, fem::Element_Type::TIME_BOUNDARY );
@@ -206,7 +205,7 @@ namespace moris::prm
     inline Parameter_List
     create_IQI_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "IQI" );
 
         tParameterList.insert( "IQI_name", "undefined" );
         tParameterList.insert( "IQI_type", fem::IQI_Type::UNDEFINED, fem::IQI_Type::VOLUME, fem::IQI_Type::LINEAR_ELASTICITY_DAMAGE );
@@ -258,7 +257,7 @@ namespace moris::prm
     inline Parameter_List
     create_phase_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "Phase" );
 
         tParameterList.insert( "phase_name", "undefined" );
         tParameterList.insert( "phase_indices", "" );
@@ -279,7 +278,7 @@ namespace moris::prm
     inline Parameter_List
     create_computation_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "Computation" );
 
         // bool true for printing physics
         tParameterList.insert( "print_physics_model", false );
@@ -325,5 +324,3 @@ namespace moris::prm
     //------------------------------------------------------------------------------
 
 }    // namespace moris::prm
-
-#endif /* PROJECTS_PRM_SRC_FN_PRM_FEM_PARAMETERS_HPP_ */

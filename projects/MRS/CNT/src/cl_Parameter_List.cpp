@@ -67,6 +67,27 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
 
+    Parameter_List::Parameter_List( std::string aName )
+            : mName( std::move( aName ) )
+    {
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Parameter_List::set_name( std::string aName )
+    {
+        mName = std::move( aName );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    const std::string& Parameter_List::get_name()
+    {
+        return mName;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     void Parameter_List::insert(
             const std::string&             aName,
             const std::string&             aDefaultValue,

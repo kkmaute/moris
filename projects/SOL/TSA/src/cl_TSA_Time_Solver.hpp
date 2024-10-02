@@ -376,9 +376,6 @@ namespace moris
                     const moris::real& aTime,
                     const bool         aEndOfTimeIteration );
 
-            //--------------------------------------------------------------------------------------------------
-
-            void set_time_solver_parameters();
         };
     }    // namespace tsa
 }    // namespace moris

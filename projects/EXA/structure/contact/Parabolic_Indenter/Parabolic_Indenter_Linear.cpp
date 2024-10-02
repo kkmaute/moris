@@ -313,11 +313,10 @@ namespace moris
     void GENParameterList( moris::Vector< moris::Vector< Parameter_List > > &tParameterlist )
     {
         tParameterlist.resize( 3 );
-        Parameter_List pl;
         /* -------------------------------------------------------------------------------------------- */
         /*                                        GEN Parameter                                         */
         /* -------------------------------------------------------------------------------------------- */
-        pl = prm::create_gen_parameter_list();
+        Parameter_List pl = prm::create_gen_parameter_list();
         pl.set( "number_of_phases", 3 );
         pl.set( "phase_function_name", F2STR( Phase_Index_Split ) );
         tParameterlist( 0 ).push_back( pl );
@@ -397,12 +396,10 @@ namespace moris
         uint tFEMIndex   = 5;
         uint tPhaseIndex = 7;
 
-        Parameter_List pl;
-
         /* -------------------------------------------------------------------------------------------- */
         /*                                            Phases                                            */
         /* -------------------------------------------------------------------------------------------- */
-        pl = prm::create_phase_parameter_list();
+        Parameter_List pl = prm::create_phase_parameter_list();
         pl.set( "phase_name", "PhaseVoid" );
         pl.set( "phase_indices", "0" );
         tParameterList( tPhaseIndex ).push_back( pl );
@@ -852,14 +849,13 @@ namespace moris
     void SOLParameterList( moris::Vector< moris::Vector< Parameter_List > > &tParameterlist )
     {
         tParameterlist.resize( 8 );
-        Parameter_List pl;
 
         /* --------------------------------------------------------------------------------------------
          */
         /*                                        Linear Algorithm */
         /* --------------------------------------------------------------------------------------------
          */
-        pl = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
+        Parameter_List pl = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
         pl.set( "Solver_Type", "Amesos_Umfpack" );
         tParameterlist( 0 ).push_back( pl );
 
@@ -943,14 +939,13 @@ namespace moris
     void MSIParameterList( moris::Vector< moris::Vector< Parameter_List > > &tParameterlist )
     {
         tParameterlist.resize( 1 );
-        Parameter_List pl;
 
         /* --------------------------------------------------------------------------------------------
          */
         /*                                       MSI Parameter List */
         /* --------------------------------------------------------------------------------------------
          */
-        pl = prm::create_msi_parameter_list();
+        Parameter_List pl = prm::create_msi_parameter_list();
         pl.set( "UX", 0 );
         pl.set( "UY", 0 );
         tParameterlist( 0 ).push_back( pl );
@@ -964,14 +959,13 @@ namespace moris
     void VISParameterList( moris::Vector< moris::Vector< Parameter_List > > &tParameterlist )
     {
         tParameterlist.resize( 1 );
-        Parameter_List pl;
 
         /* --------------------------------------------------------------------------------------------
          */
         /*                                          VIS Parameter */
         /* --------------------------------------------------------------------------------------------
          */
-        pl = prm::create_vis_parameter_list();
+        Parameter_List pl = prm::create_vis_parameter_list();
         pl.set( "File_Name", std::pair< std::string, std::string >( "./", tOutputFileName ) );
         pl.set( "Mesh_Type", (uint)vis::VIS_Mesh_Type::STANDARD );
 
