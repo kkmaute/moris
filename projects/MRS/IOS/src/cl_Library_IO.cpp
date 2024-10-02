@@ -449,11 +449,10 @@ namespace moris
     Library_IO::write_parameter_list_to_xml_buffer( Parameter_List& aParameterList )
     {
         // go over the entries of the parameter list ...
-        // for ( auto iParamToAdd : aParameterList )
-        for ( auto iParamToAdd = aParameterList.begin(); iParamToAdd != aParameterList.end(); ++iParamToAdd )
+        for ( const Parameter_Iterator& iParamToAdd : aParameterList )
         {
             // ... and add or modify them
-            mXmlWriter->set_in_buffer( iParamToAdd->first, iParamToAdd->second.get_string() );
+            mXmlWriter->set_in_buffer( iParamToAdd.get_name(), iParamToAdd.get_parameter().get_string() );
         }
     }
 
@@ -533,10 +532,10 @@ namespace moris
                     const Parameter_List& tParameterList = mParameterLists( iModuleIndex )( iOuterIndex )( iInnerIndex );
 
                     // Loop over mapped parameters
-                    for ( const auto& iParameterPair : tParameterList )
+                    for ( const Parameter_Iterator& iParameterPair : tParameterList )
                     {
                         // Get external validator
-                        const External_Validator& tExternalValidator = iParameterPair.second.get_external_validator();
+                        const External_Validator& tExternalValidator = iParameterPair.get_parameter().get_external_validator();
 
                         // Go through validation cases
                         switch ( tExternalValidator.mValidationType )
@@ -549,7 +548,7 @@ namespace moris
                             case Validation_Type::SELECTION:
                             {
                                 // Build internal variants that need to be checked
-                                Vector< Variant > iInternalVariants = split_variant( iParameterPair.second.get_value() );
+                                Vector< Variant > iInternalVariants = split_variant( iParameterPair.get_parameter().get_value() );
 
                                 // Get valid external variants
                                 Vector< Variant > tExternalVariants = this->get_external_variants( tExternalValidator, tParameterList );
@@ -610,7 +609,7 @@ namespace moris
                                     // Execute error
                                     MORIS_ERROR( tAllMatchesFound,
                                             "Parameter %s was set with an invalid value, %s. It requires one of the following selections:\n\t%s\n(%s)",
-                                            iParameterPair.first.c_str(),
+                                            iParameterPair.get_name().c_str(),
                                             tInternalVariantNotFound.c_str(),
                                             tExternalOptionList.c_str(),
                                             tExternalValidatorString.c_str() );
@@ -626,9 +625,9 @@ namespace moris
                                 MORIS_ERROR( tExternalVariants.size() == 1,
                                         "%lu variants were found for the external size validation of parameter %s.",
                                         tExternalVariants.size(),
-                                        iParameterPair.first.c_str() );
+                                        iParameterPair.get_name().c_str() );
 
-                                bool tSizeMatch = get_size( iParameterPair.second.get_value() ) == get_size( tExternalVariants( 0 ) );
+                                bool tSizeMatch = get_size( iParameterPair.get_parameter().get_value() ) == get_size( tExternalVariants( 0 ) );
                                 if ( not tSizeMatch )
                                 {
                                     // Additional info about where the checked options came from
@@ -650,8 +649,8 @@ namespace moris
                                     // Execute error
                                     MORIS_ERROR( tSizeMatch,
                                             "Parameter %s was set with an invalid value, %s. It requires a size of %u.\n(%s)",
-                                            iParameterPair.first.c_str(),
-                                            iParameterPair.second.get_string().c_str(),
+                                            iParameterPair.get_name().c_str(),
+                                            iParameterPair.get_parameter().get_string().c_str(),
                                             get_size( tExternalVariants( 0 ) ),
                                             tExternalValidatorString.c_str() );
                                 }

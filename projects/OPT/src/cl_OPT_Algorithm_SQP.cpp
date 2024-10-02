@@ -231,16 +231,16 @@ namespace moris::opt
             for ( auto it = aParameterList.begin(); it != aParameterList.end(); ++it )
             {
                 // skip over non-SQP specific parameters
-                if ( it->first == "restart_index" ) continue;
+                if ( it.get_name() == "restart_index" ) continue;
 
-                uint tParamType = aParameterList.index( it->first );    // get the underlying parameter type
+                uint tParamType = aParameterList.index( it.get_name() );    // get the underlying parameter type
 
                 // call Fortran subroutine based on parameter type
                 switch ( tParamType )
                 {
                     case 2:    // set integer parameters
                     {
-                        char* paramname = (char*)it->first.c_str();
+                        char* paramname = (char*)it.get_name().c_str();
                         int   tParamVal = aParameterList.get< sint >( paramname );
                         short paramlen  = strlen( paramname );
 
@@ -263,7 +263,7 @@ namespace moris::opt
 
                     case 3:    // set double parameters
                     {
-                        char*  paramname = (char*)it->first.c_str();
+                        char*  paramname = (char*)it.get_name().c_str();
                         double tParamVal = aParameterList.get< real >( paramname );
                         short  paramlen  = strlen( paramname );
 
@@ -285,7 +285,7 @@ namespace moris::opt
 
                     case 4:    // set string parameters to char
                     {
-                        char* paramname = (char*)it->first.c_str();
+                        char* paramname = (char*)it.get_name().c_str();
                         char* tParamVal = (char*)( aParameterList.get< std::string >( paramname ) ).c_str();
                         short paramlen  = strlen( tParamVal );
 
@@ -310,7 +310,7 @@ namespace moris::opt
 
                 if ( tExit != 0 )
                 {
-                    MORIS_ERROR( false, "When calling SNOPT Fortran subroutine, unable to set parameter :  %s", it->first.c_str() );
+                    MORIS_ERROR( false, "When calling SNOPT Fortran subroutine, unable to set parameter :  %s", it.get_name().c_str() );
                 }
             }
 #else

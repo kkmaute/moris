@@ -26,17 +26,69 @@
 
 namespace moris
 {
-    /**
-     * The parameter list class.
-     *
-     * A parameter list can be created as follows:
-     * @include CON/src/cl_param_list/cl_param_list_insert.inc
-     */
+    class Parameter_Iterator
+    {
+      private:
+        const std::map< std::string, Parameter > mParameterMap;
+        const Vector< std::string >&             mOrderedKeys;
+        luint                                    mKeyIndex;
+
+      public:
+
+        /**
+         * Parameter iterator constructor, gives all the information needed to increment this iterator.
+         *
+         * @param aParameterMap Map where the std::string to Parameter relationship is found
+         * @param aOrderedKeys Vector of keys in the order to be iterated
+         * @param aKeyIndex Key index to start iterating from
+         */
+        Parameter_Iterator(
+                const std::map< std::string, Parameter >& aParameterMap,
+                const Vector< std::string >&              aOrderedKeys,
+                luint                                     aKeyIndex );
+
+        /**
+         * Indirection operator, used for range-based for loops.
+         *
+         * @return Parameter iterator by const reference
+         */
+        const Parameter_Iterator& operator*() const;
+
+        /**
+         * Increment operator
+         *
+         * @return Parameter iterator, with 1 added to the underlying key index.
+         */
+        Parameter_Iterator& operator++();
+
+        /**
+         * Comparison operator for checking if iterator is at the end of the parameter list container.
+         *
+         * @return If iterators are equal
+         */
+        bool operator!=( const Parameter_Iterator& ) const;
+
+        /**
+         * Gets the name of the parameter at the current key index.
+         *
+         * @return Parameter name
+         */
+        const std::string& get_name() const;
+
+        /**
+         * Gets the parameter associated with the key at the current index.
+         *
+         * @return Parameter currently mapped to by the key
+         */
+        const Parameter& get_parameter() const;
+    };
+
     class Parameter_List
     {
 
       private:
-        std::map< std::string, Parameter > mParamMap;
+        std::map< std::string, Parameter > mParameterMap;
+        Vector< std::string > mOrderedKeys;
 
       public:
 
@@ -76,7 +128,7 @@ namespace moris
 
             // Insert new value
             Parameter tParameter( std::move( aDefaultValue ), aExternalValidationType, std::move( aExternalParameterName ), aExternalParameterListType, aExternalParameterListIndex );
-            mParamMap.insert( { tKey, tParameter } );
+            mParameterMap.insert( { tKey, tParameter } );
         }
 
         /**
@@ -219,20 +271,18 @@ namespace moris
         }
 
         /**
-         * @brief Get the beginning iterator of the underlying map.
+         * Gets a custom begin iterator for going through the parameter map in the order parameters were inserted.
          *
-         * @return An iterator pointing to the beginning of mParamMap.
+         * @return Beginning of the parameter map, by insertion
          */
-        auto
-        begin() const -> decltype( mParamMap.begin() );
+        [[nodiscard]] Parameter_Iterator begin() const;
 
         /**
-         * @brief Get the end iterator of the underlying map.
+         * Gets a custom end iterator for going through the parameter map in the order parameters were inserted.
          *
-         * @return An iterator pointing to the end of mParamMap.
+         * @return End of the parameter map, by insertion
          */
-        auto
-        end() const -> decltype( mParamMap.end() );
+        [[nodiscard]] Parameter_Iterator end() const;
 
         /**
          * @brief check if parameter list is empty
@@ -256,17 +306,7 @@ namespace moris
          * @param aName Parameter name
          * @return Valid map key
          */
-        std::string register_key( const std::string& aName )
-        {
-            // Trim leading and trailing whitespaces from name to form key
-            std::string tKey = aName;
-            trim_string( tKey );
-
-            // Add key to list TODO
-
-            // Return key
-            return tKey;
-        }
+        std::string register_key( const std::string& aName );
 
         /**
          * Adds a new parameter to this parameter list (private implementation).
@@ -285,7 +325,7 @@ namespace moris
 
             // Insert new value
             Parameter tParameter( aValue, aMinimumValue, aMaximumValue );
-            mParamMap.insert( { tKey, tParameter } );
+            mParameterMap.insert( { tKey, tParameter } );
         }
 
         /**
@@ -321,10 +361,10 @@ namespace moris
             trim_string( tKey );
 
             // find key in map
-            auto tIterator = mParamMap.find( tKey );
+            auto tIterator = mParameterMap.find( tKey );
 
             // if key does not exist in map
-            MORIS_ERROR( tIterator != mParamMap.end(),
+            MORIS_ERROR( tIterator != mParameterMap.end(),
                     "The requested parameter %s can not be set because it does not exist.\n",
                     tKey.c_str() );
 
@@ -355,10 +395,10 @@ namespace moris
         template< typename T >
         const T& get_and_convert( const std::string& aName, std::false_type ) const
         {
-            auto tIterator = mParamMap.find( aName );
+            auto tIterator = mParameterMap.find( aName );
 
             // check if key exists
-            MORIS_ERROR( tIterator != mParamMap.end(),
+            MORIS_ERROR( tIterator != mParameterMap.end(),
                     "The requested parameter %s does not exist.\n",
                     aName.c_str() );
 
