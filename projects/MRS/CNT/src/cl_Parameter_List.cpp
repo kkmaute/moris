@@ -89,6 +89,7 @@ namespace moris
     Parameter_List::erase( const std::string& aName )
     {
         mParameterMap.erase( aName );
+        mOrderedKeys.remove( aName );
     }
 
     //--------------------------------------------------------------------------------------------------------------
