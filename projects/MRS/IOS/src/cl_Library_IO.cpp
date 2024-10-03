@@ -1042,7 +1042,6 @@ namespace moris
      * @param aSubChild - Should be 0 unless a sub-module has inner types (for instance GEN/Geometries, OPT/Algorithms and SOL/LinearAlgorithms)
      * @return Parameter_List
      */
-
     Parameter_List create_parameter_list( Parameter_List_Type aModule, uint aChild, uint aSubChild )
     {
         /*
@@ -1057,33 +1056,28 @@ namespace moris
                 The 0th index of the QList gives the "keys" of the map
                 The 1st index of the QList gives the default "values" of the map
         */
-
-
-        Parameter_List tParameterList;
-
         switch ( aModule )
         {
             case Parameter_List_Type::OPT:
                 switch ( aChild )
                 {
                     case 0:
-                        tParameterList = ( prm::create_opt_problem_parameter_list() );
-                        break;
+                        return prm::create_opt_problem_parameter_list();
 
                     case 1:
-                        tParameterList = ( prm::create_opt_interface_parameter_list() );
+                        return prm::create_opt_interface_parameter_list();
 
                         // Commented out the Interface manager for now
 
                         // switch ( aSubChild )
                         // {
                         //     case 0:
-                        //         tParameterList = ( prm::create_opt_interface_parameter_list() );
+                        //         return prm::create_opt_interface_parameter_list();
 
                         //         break;
 
                         //     case 1:
-                        //         tParameterList = ( prm::create_opt_interface_manager_parameter_list() );
+                        //         return prm::create_opt_interface_manager_parameter_list();
 
                         //         break;
 
@@ -1099,27 +1093,19 @@ namespace moris
 
                             // Eventually create an enum to check this
                             case 0:
-                                tParameterList = ( prm::create_gcmma_parameter_list() );
-
-                                break;
+                                return prm::create_gcmma_parameter_list();
 
                             case 1:
-                                tParameterList = ( prm::create_lbfgs_parameter_list() );
-                                break;
+                                return prm::create_lbfgs_parameter_list();
 
                             case 2:
-                                tParameterList = ( prm::create_sqp_parameter_list() );
-
-                                break;
+                                return prm::create_sqp_parameter_list();
 
                             case 3:
-                                tParameterList = ( prm::create_sweep_parameter_list() );
-
-                                break;
+                                return prm::create_sweep_parameter_list();
                             default:
                                 break;
                         }
-
                         break;
 
                     default:
@@ -1129,54 +1115,47 @@ namespace moris
                 break;
 
             case Parameter_List_Type::HMR:
-                tParameterList = ( prm::create_hmr_parameter_list() );
-
-                break;
+                return prm::create_hmr_parameter_list();
 
             case Parameter_List_Type::STK:
-                tParameterList = ( prm::create_stk_parameter_list() );
-                break;
+                return prm::create_stk_parameter_list();
 
             case Parameter_List_Type::XTK:
-                tParameterList = ( prm::create_xtk_parameter_list() );
-                break;
+                return prm::create_xtk_parameter_list();
 
             case Parameter_List_Type::GEN:
                 switch ( aChild )
                 {
                     case 0:
                     {
-                        tParameterList = ( prm::create_gen_parameter_list() );
-                        break;
+                        return prm::create_gen_parameter_list();
                     }
 
                     case 1:
                     {
                         if ( aSubChild <= (uint)gen::Field_Type::USER_DEFINED )
                         {
-                            tParameterList = ( prm::create_level_set_geometry_parameter_list( (gen::Field_Type)aSubChild ) );
+                            return prm::create_level_set_geometry_parameter_list( (gen::Field_Type)aSubChild );
                         }
                         else if ( aSubChild == (uint)gen::Field_Type::USER_DEFINED + 1 )
                         {
-                            tParameterList = ( prm::create_surface_mesh_geometry_parameter_list() );
+                            return prm::create_surface_mesh_geometry_parameter_list();
                         }
                         else
                         {
-                            tParameterList = ( prm::create_voxel_geometry_parameter_list() );
+                            return prm::create_voxel_geometry_parameter_list();
                         }
                         break;
                     }
                     case 2:
                     {
-                        tParameterList = ( prm::create_gen_property_parameter_list( gen::Field_Type::CONSTANT ) );
-                        break;
+                        return prm::create_gen_property_parameter_list( gen::Field_Type::CONSTANT );
                     }
                     default:
                     {
                         break;
                     }
                 }
-
                 break;
 
             case Parameter_List_Type::FEM:
@@ -1193,40 +1172,31 @@ namespace moris
                 switch ( aChild )
                 {
                     case 0:
-                        tParameterList = ( prm::create_property_parameter_list() );
-                        break;
+                        return prm::create_property_parameter_list();
 
                     case 1:
-                        tParameterList = ( prm::create_constitutive_model_parameter_list() );
-                        break;
+                        return prm::create_constitutive_model_parameter_list();
 
                     case 2:
-                        tParameterList = ( prm::create_stabilization_parameter_parameter_list() );
-                        break;
+                        return prm::create_stabilization_parameter_parameter_list();
 
                     case 3:
-                        tParameterList = ( prm::create_IWG_parameter_list() );
-                        break;
+                        return prm::create_IWG_parameter_list();
 
                     case 4:
-                        tParameterList = ( prm::create_IQI_parameter_list() );
-                        break;
+                        return prm::create_IQI_parameter_list();
 
                     case 5:
-                        tParameterList = ( prm::create_computation_parameter_list() );
-                        break;
+                        return prm::create_computation_parameter_list();
 
                     case 6:
-                        tParameterList = ( prm::create_fem_field_parameter_list() );
-                        break;
+                        return prm::create_fem_field_parameter_list();
 
                     case 7:
-                        tParameterList = ( prm::create_phase_parameter_list() );
-                        break;
+                        return prm::create_phase_parameter_list();
 
                     case 8:
-                        tParameterList = ( prm::create_material_model_parameter_list() );
-                        break;
+                        return prm::create_material_model_parameter_list();
 
                     default:
                         break;
@@ -1245,69 +1215,53 @@ namespace moris
                         switch ( aSubChild )
                         {
                             case 0:
-                                tParameterList = ( prm::create_linear_algorithm_parameter_list_aztec() );
-                                break;
+                                return prm::create_linear_algorithm_parameter_list_aztec();
 
                             case 1:
-                                tParameterList = ( prm::create_linear_algorithm_parameter_list_amesos() );
-                                break;
+                                return prm::create_linear_algorithm_parameter_list_amesos();
 
                             case 2:
-                                tParameterList = ( prm::create_linear_algorithm_parameter_list_belos() );
-                                break;
+                                return prm::create_linear_algorithm_parameter_list_belos();
 
                             case 3:
-                                tParameterList = ( prm::create_linear_algorithm_parameter_list_petsc() );
-                                break;
+                                return prm::create_linear_algorithm_parameter_list_petsc();
 
                             case 4:
-                                tParameterList = ( prm::create_eigen_algorithm_parameter_list() );
-                                break;
+                                return prm::create_eigen_algorithm_parameter_list();
 
                             case 5:
                                 // Need to add ML here
-                                tParameterList = ( prm::create_linear_algorithm_parameter_list_belos() );
-                                break;
+                                return prm::create_linear_algorithm_parameter_list_belos();
 
                             case 6:
-                                tParameterList = ( prm::create_slepc_algorithm_parameter_list() );
-                                break;
+                                return prm::create_slepc_algorithm_parameter_list();
 
                             default:
                                 break;
                         }
                         break;
 
-                        break;
-
                     case 1:
-                        tParameterList = ( prm::create_linear_solver_parameter_list() );
-                        break;
+                        return prm::create_linear_solver_parameter_list();
 
                     case 2:
-                        tParameterList = ( prm::create_nonlinear_algorithm_parameter_list() );
-                        break;
+                        return prm::create_nonlinear_algorithm_parameter_list();
 
                     case 3:
-                        tParameterList = ( prm::create_nonlinear_solver_parameter_list() );
-                        break;
+                        return prm::create_nonlinear_solver_parameter_list();
 
                     case 4:
-                        tParameterList = ( prm::create_time_solver_algorithm_parameter_list() );
-                        break;
+                        return prm::create_time_solver_algorithm_parameter_list();
 
                     case 5:
-                        tParameterList = ( prm::create_time_solver_parameter_list() );
-                        break;
+                        return prm::create_time_solver_parameter_list();
 
                     case 6:
-                        tParameterList = ( prm::create_solver_warehouse_parameterlist() );
-                        break;
+                        return prm::create_solver_warehouse_parameterlist();
 
                     case 7:
                         // Need to add Preconditioners
-                        tParameterList = ( prm::create_material_model_parameter_list() );
-                        break;
+                        return prm::create_material_model_parameter_list();
 
                     default:
                         break;
@@ -1316,41 +1270,35 @@ namespace moris
                 break;
 
             case Parameter_List_Type::MSI:
-                tParameterList = ( prm::create_msi_parameter_list() );
-                break;
+                return prm::create_msi_parameter_list();
 
             case Parameter_List_Type::VIS:
-                tParameterList = ( prm::create_vis_parameter_list() );    //
-
-                break;
+                return prm::create_vis_parameter_list();    //
 
             case Parameter_List_Type::MIG:
-                tParameterList = ( prm::create_mig_parameter_list() );
-
-                break;
+                return prm::create_mig_parameter_list();
 
             case Parameter_List_Type::WRK:
-                tParameterList = ( prm::create_wrk_parameter_list() );
-                break;
+                return prm::create_wrk_parameter_list();
 
             case Parameter_List_Type::MORISGENERAL:
                 switch ( aChild )
                 {
                     case 0:
                     {
-                        tParameterList = ( prm::create_moris_general_parameter_list() );
+                        return prm::create_moris_general_parameter_list();
                     }
                     break;
 
                     case 1:
                     {
-                        tParameterList = ( prm::create_moris_general_parameter_list() );
+                        return prm::create_moris_general_parameter_list();
                     }
                     break;
 
                     case 2:
                     {
-                        tParameterList = ( prm::create_moris_general_parameter_list() );
+                        return prm::create_moris_general_parameter_list();
                     }
                     break;
 
@@ -1360,11 +1308,11 @@ namespace moris
                 break;
 
             default:
-                // MORIS_ERROR( false, "Library_Enums::get_number_of_sub_parameter_lists_in_module() - Parameter list type enum unknown." );
                 break;
         }
 
-        return tParameterList;
+        MORIS_ERROR( false, "Library_Enums::get_number_of_sub_parameter_lists_in_module() - Parameter list type enum unknown." );
+        return Parameter_List( "" );
     }
 
     Vector< Submodule_Parameter_Lists > read_module( uint aRoot )
