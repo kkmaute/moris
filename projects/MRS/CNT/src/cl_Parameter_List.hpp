@@ -317,6 +317,20 @@ namespace moris
          *
          * @return Beginning of the parameter map, by insertion
          */
+        [[nodiscard]] iterator begin();
+
+        /**
+         * Gets a custom end iterator for going through the parameter map in the order parameters were inserted.
+         *
+         * @return End of the parameter map, by insertion
+         */
+        [[nodiscard]] iterator end();
+
+        /**
+         * Gets a custom begin iterator for going through the parameter map in the order parameters were inserted.
+         *
+         * @return Beginning of the parameter map, by insertion
+         */
         [[nodiscard]] const_iterator begin() const;
 
         /**

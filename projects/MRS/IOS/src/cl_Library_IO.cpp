@@ -871,7 +871,7 @@ namespace moris
         Parameter_List tParameterList = create_parameter_list( aModule, aChild, aSubChild );
 
         // Loop through the default parameter list
-        for ( auto& iElements : tParameterList )
+        for ( auto iElements : tParameterList )
         {
             //  Cannot set locked parameters
             if ( iElements.get_parameter().is_locked() )

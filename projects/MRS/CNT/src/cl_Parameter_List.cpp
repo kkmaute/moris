@@ -196,6 +196,20 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
 
+    Parameter_List::iterator Parameter_List::begin()
+    {
+        return { mParameterMap, mOrderedKeys, 0 };
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Parameter_List::iterator Parameter_List::end()
+    {
+        return { mParameterMap, mOrderedKeys, mOrderedKeys.size() };
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     Parameter_List::const_iterator Parameter_List::begin() const
     {
         return { mParameterMap, mOrderedKeys, 0 };
