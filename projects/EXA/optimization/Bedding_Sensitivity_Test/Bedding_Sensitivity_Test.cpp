@@ -343,8 +343,8 @@ namespace moris
         if ( tIs3D )
         {
             tParameterlist( 1 ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::SPHERE ) );
-            tParameterlist( 1 ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::SPHERE ) );
             tParameterlist( 1 ).set( "center_z", 0.5 );
+            tParameterlist( 1 ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::SPHERE ) );
             tParameterlist( 1 ).set( "center_z", 0.5 );
         }
         else
@@ -352,13 +352,13 @@ namespace moris
             tParameterlist( 1 ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE ) );
             tParameterlist( 1 ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE ) );
         }
-        tParameterlist( 1 ).set( "center_x", 0.5 );
-        tParameterlist( 1 ).set( "center_y", 0.5 );
-        tParameterlist( 1 ).set( "radius", 0.9 * tOuterRadius, tOuterRadius, 1.1 * tOuterRadius );
+        tParameterlist( 1 )( 0 ).set( "center_x", 0.5 );
+        tParameterlist( 1 )( 0 ).set( "center_y", 0.5 );
+        tParameterlist( 1 )( 0 ).set( "radius", 0.9 * tOuterRadius, tOuterRadius, 1.1 * tOuterRadius );
 
-        tParameterlist( 1 ).set( "center_x", 0.5 );
-        tParameterlist( 1 ).set( "center_y", 0.5 );
-        tParameterlist( 1 ).set( "radius", 0.9 * tInnerRadius, tInnerRadius, 1.1 * tInnerRadius );
+        tParameterlist( 1 )( 1 ).set( "center_x", 0.5 );
+        tParameterlist( 1 )( 1 ).set( "center_y", 0.5 );
+        tParameterlist( 1 )( 1 ).set( "radius", 0.9 * tInnerRadius, tInnerRadius, 1.1 * tInnerRadius );
     }
 
     //--------------------------------------------------------------------------------------------------------------

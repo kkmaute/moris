@@ -4,7 +4,7 @@
  *
  *------------------------------------------------------------------------------------
  *
- * Channel2D.cpp
+ * Thermal_Flow_About_Sphere_2D.cpp
  *
  */
 
@@ -184,7 +184,7 @@ namespace moris
 
     /* ------------------------------------------------------------------------ */
     // File names
-    std::string tName          = "Channel2D";
+    std::string tName          = "Thermal_Flow_About_Sphere_2D";
     std::string tProblemConfig = "_" + std::to_string( gTestCaseIndex );
 
     std::string tSoFile        = tName + ".so";
@@ -1244,11 +1244,11 @@ namespace moris
         tParameterlist( 0 ).add_parameter_list( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
 
 #ifdef MORIS_USE_MUMPS
-        tParameterlist( 0 ).set( "Solver_Type", "Amesos_Mumps" );
-        tParameterlist( 0 ).set( "Solver_Type", "Amesos_Mumps" );
+        tParameterlist( 0 )( 0 ).set( "Solver_Type", "Amesos_Mumps" );
+        tParameterlist( 0 )( 1 ).set( "Solver_Type", "Amesos_Mumps" );
 #else
-        tParameterlist( 0 ).set( "Solver_Type", "Amesos_Superludist" );
-        tParameterlist( 0 ).set( "Solver_Type", "Amesos_Superludist" );
+        tParameterlist( 0 )( 0 ).set( "Solver_Type", "Amesos_Superludist" );
+        tParameterlist( 0 )( 1 ).set( "Solver_Type", "Amesos_Superludist" );
 #endif
 
         /*
