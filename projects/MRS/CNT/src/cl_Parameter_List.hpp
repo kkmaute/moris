@@ -80,8 +80,8 @@ namespace moris
          *
          * @return Parameter currently mapped to by the key
          */
-        template< bool enabled = not std::is_const< std::remove_reference< Map_Type > >::value >
-        typename std::enable_if< enabled, Parameter& >::type
+        template< bool not_const = not std::is_const< typename std::remove_reference< Map_Type >::type >::value >
+        typename std::enable_if< not_const, Parameter& >::type
         get_parameter()
         {
             return mParameterMap.find( mOrderedKeys( mKeyIndex ) )->second;
@@ -94,6 +94,10 @@ namespace moris
          */
         const Parameter& get_parameter() const;
     };
+
+    // Explicit instantiation
+    template class Parameter_Iterator< std::map< std::string, Parameter >& >;
+    template class Parameter_Iterator< const std::map< std::string, Parameter >& >;
 
     class Parameter_List
     {
