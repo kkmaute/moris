@@ -49,7 +49,7 @@ namespace moris::sdf
     load_sdf_parameter_list_from_xml(
             const std::string        &aFilePath,
             Parameter_List           &aGlobalParameters,
-            Vector< Parameter_List > &aObjectParameters )
+            Submodule_Parameter_Lists &aObjectParameters )
     {
         // create temporary Parser object
         XML_Parser tParser( aFilePath );
@@ -67,8 +67,10 @@ namespace moris::sdf
         uint tNumberOfObjects = tParser.count_keys_in_subtree( "moris.sdf", "object" );
 
         // create cell
-        aObjectParameters.clear();
-        aObjectParameters.resize( tNumberOfObjects, create_sdf_object_parameter_list() );
+        for ( uint iObjectIndex = 0; iObjectIndex < tNumberOfObjects; iObjectIndex++ )
+        {
+            aObjectParameters.add_parameter_list( create_sdf_object_parameter_list() );
+        }
 
         // loop over all objects
         for ( uint b = 0; b < tNumberOfObjects; ++b )

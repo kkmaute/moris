@@ -190,7 +190,6 @@ namespace moris
 
         /**
          * Sets an element to a value if it exists, otherwise an error is thrown
-         *        whitespaces in key and value string will be removed
          *
          * @param aName Parameter name
          * @param aValue Parameter value

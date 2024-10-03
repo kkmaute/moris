@@ -96,7 +96,7 @@ namespace moris::gen
             // Create geometry engine
             Geometry_Engine_Parameters tGeometryEngineParameters;
             ADV_Manager tADVManager;
-            Design_Factory tDesignFactory( { tRhombusParameterList }, tADVManager );
+            Design_Factory tDesignFactory( Vector< Parameter_List >{ tRhombusParameterList }, tADVManager );
             tGeometryEngineParameters.mGeometries = tDesignFactory.get_geometries();
             Geometry_Engine tGeometryEngine( tMesh, tGeometryEngineParameters );
         }

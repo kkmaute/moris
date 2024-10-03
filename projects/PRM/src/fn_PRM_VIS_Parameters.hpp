@@ -8,11 +8,9 @@
  *
  */
 
-#ifndef PROJECTS_PRM_SRC_FN_PRM_VIS_PARAMETERS_HPP_
-#define PROJECTS_PRM_SRC_FN_PRM_VIS_PARAMETERS_HPP_
+#pragma once
 
-#include "cl_Parameter_List.hpp"
-
+#include "cl_Submodule_Parameter_Lists.hpp"
 #include "cl_VIS_Output_Enums.hpp"
 
 namespace moris::prm
@@ -41,6 +39,3 @@ namespace moris::prm
     //------------------------------------------------------------------------------
 
 }    // namespace moris::prm
-
-#endif /* PROJECTS_PRM_SRC_FN_PRM_VIS_PARAMETERS_HPP_ */
-

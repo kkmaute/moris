@@ -11,6 +11,7 @@
 #pragma once
 
 #include "cl_WRK_Workflow.hpp"
+#include "cl_Submodule_Parameter_Lists.hpp"
 #include "moris_typedefs.hpp"                       //MRS/COR/src
 #include "cl_Vector.hpp"
 
@@ -78,7 +79,7 @@ namespace moris
                 create_xtk();
 
                 void
-                create_stk( Vector< Vector< Parameter_List > > & aParameterLists);
+                create_stk( Vector< Submodule_Parameter_Lists > & aParameterLists);
 
         };
         //------------------------------------------------------------------------------

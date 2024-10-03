@@ -130,7 +130,7 @@ namespace moris
             // Add parameters that don't exist yet
             for ( uint iInnerIndex = tInnerSizeToMod; iInnerIndex < tInnerSizeToAdd; iInnerIndex++ )
             {
-                aParamListToModify( iOuterCell ).push_back( aParamListToAdd( iOuterCell )( iInnerIndex ) );
+                aParamListToModify( iOuterCell ).add_parameter_list( aParamListToAdd( iOuterCell )( iInnerIndex ) );
             }
         }
     }

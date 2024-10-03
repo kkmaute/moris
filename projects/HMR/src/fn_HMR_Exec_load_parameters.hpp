@@ -138,11 +138,8 @@ namespace moris::hmr
     void
     load_field_parameters_from_xml(
             const std::string       & aFilePath,
-            Vector< Parameter_List >   & aFieldParams )
+            Submodule_Parameter_Lists   & aFieldParams )
     {
-        // clean up output
-        aFieldParams.clear();
-
         // create a parser object for this settings path
         XML_Parser tParser( aFilePath );
 
@@ -161,8 +158,6 @@ namespace moris::hmr
 
         // get number of fields from parser
         uint tNumberOfFields = tParser.count_keys_in_subtree( "moris.hmr", "field" );
-
-        aFieldParams.resize( tNumberOfFields, tParams );
 
         // loop over all fields
         for( uint f=0; f<tNumberOfFields; ++f )

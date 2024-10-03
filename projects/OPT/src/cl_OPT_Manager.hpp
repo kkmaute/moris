@@ -8,11 +8,10 @@
  *
  */
 
-#ifndef MORIS_CL_OPT_MANAGER_HPP_
-#define MORIS_CL_OPT_MANAGER_HPP_
+#pragma once
 
 #include "cl_Vector.hpp"
-#include "cl_Parameter_List.hpp"
+#include "cl_Submodule_Parameter_Lists.hpp"
 #include "cl_OPT_Algorithm.hpp"
 #include "cl_OPT_Problem.hpp"
 #include "cl_OPT_Criteria_Interface.hpp"
@@ -32,7 +31,7 @@ namespace moris::opt
          * @param aParameterLists parameter lists for defining an optimization problem
          * @param aCriteriaInterface criteria interfaces, in addition to any specified in the parameter lists
          */
-        Manager( const Vector< Vector< Parameter_List > >&             aParameterLists,
+        Manager( const Vector< Submodule_Parameter_Lists >&             aParameterLists,
                 const Vector< std::shared_ptr< Criteria_Interface > >& aInterfaces = Vector< std::shared_ptr< Criteria_Interface > >( 0 ) );
 
         /**
@@ -40,7 +39,7 @@ namespace moris::opt
          *
          * @param aAlgorithmParameterLists parameter lists for defining just the optimization algorithms
          */
-        Manager( const Vector< Parameter_List >& aAlgorithmParameterLists,
+        Manager( const Submodule_Parameter_Lists& aAlgorithmParameterLists,
                 std::shared_ptr< Problem >       aProblem );
 
         /**
@@ -72,6 +71,3 @@ namespace moris::opt
         Matrix< DDRMat > get_objectives();
     };
 }    // namespace moris::opt
-
-#endif  /* MORIS_CL_OPT_MANAGER_HPP_ */
-

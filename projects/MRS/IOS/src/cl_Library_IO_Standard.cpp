@@ -102,60 +102,60 @@ namespace moris
             // for each parameter list type, initialize it with a default
             switch( tParamListType )
             {
-                case Parameter_List_Type::OPT : 
-                    tModuleParamList( 0 ).push_back( prm::create_opt_problem_parameter_list() );
+                case Parameter_List_Type::OPT :
+                    tModuleParamList( 0 ).add_parameter_list( prm::create_opt_problem_parameter_list() );
                     break;
 
                 case Parameter_List_Type::HMR :
-                    tModuleParamList( 0 ).push_back( prm::create_hmr_parameter_list() );
+                    tModuleParamList( 0 ).add_parameter_list( prm::create_hmr_parameter_list() );
                     break;
 
                 case Parameter_List_Type::STK :
-                    tModuleParamList( 0 ).push_back( prm::create_stk_parameter_list() );
+                    tModuleParamList( 0 ).add_parameter_list( prm::create_stk_parameter_list() );
                     break;
 
                 case Parameter_List_Type::XTK :
-                    tModuleParamList( 0 ).push_back( prm::create_xtk_parameter_list() );
+                    tModuleParamList( 0 ).add_parameter_list( prm::create_xtk_parameter_list() );
                     break;
 
                 case Parameter_List_Type::GEN :
                     tModuleParamList.resize( 3 );
-                    tModuleParamList( 0 ).push_back( prm::create_gen_parameter_list() );
+                    tModuleParamList( 0 ).add_parameter_list( prm::create_gen_parameter_list() );
                     break;
 
                 case Parameter_List_Type::FEM :
                     tModuleParamList.resize( 9 );
-                    tModuleParamList( 5 ).push_back( prm::create_computation_parameter_list() );
+                    tModuleParamList( 5 ).add_parameter_list( prm::create_computation_parameter_list() );
                     break;
 
                 case Parameter_List_Type::SOL :
                     tModuleParamList.resize( 8 );
-                    tModuleParamList( 0 ).push_back( prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
-                    tModuleParamList( 1 ).push_back( prm::create_linear_solver_parameter_list() );
-                    tModuleParamList( 2 ).push_back( prm::create_nonlinear_algorithm_parameter_list() );
-                    tModuleParamList( 3 ).push_back( prm::create_nonlinear_solver_parameter_list() );
-                    tModuleParamList( 4 ).push_back( prm::create_time_solver_algorithm_parameter_list() );
-                    tModuleParamList( 5 ).push_back( prm::create_time_solver_parameter_list() );
-                    tModuleParamList( 6 ).push_back( prm::create_solver_warehouse_parameterlist() );
-                    tModuleParamList( 7 ).push_back( prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE ) );
+                    tModuleParamList( 0 ).add_parameter_list( prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
+                    tModuleParamList( 1 ).add_parameter_list( prm::create_linear_solver_parameter_list() );
+                    tModuleParamList( 2 ).add_parameter_list( prm::create_nonlinear_algorithm_parameter_list() );
+                    tModuleParamList( 3 ).add_parameter_list( prm::create_nonlinear_solver_parameter_list() );
+                    tModuleParamList( 4 ).add_parameter_list( prm::create_time_solver_algorithm_parameter_list() );
+                    tModuleParamList( 5 ).add_parameter_list( prm::create_time_solver_parameter_list() );
+                    tModuleParamList( 6 ).add_parameter_list( prm::create_solver_warehouse_parameterlist() );
+                    tModuleParamList( 7 ).add_parameter_list( prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE ) );
                     break;
 
                 case Parameter_List_Type::MSI :
-                    tModuleParamList( 0 ).push_back( prm::create_msi_parameter_list() );
+                    tModuleParamList( 0 ).add_parameter_list( prm::create_msi_parameter_list() );
                     break;
 
                 case Parameter_List_Type::VIS :
-                    tModuleParamList( 0 ).push_back( prm::create_vis_parameter_list() );
+                    tModuleParamList( 0 ).add_parameter_list( prm::create_vis_parameter_list() );
                     tModuleParamList( 0 )( 0 ).set( "Mesh_Type", static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
                     tModuleParamList( 0 )( 0 ).set( "Save_Frequency", 1 );
                     break;
 
                 case Parameter_List_Type::MIG :
-                    tModuleParamList( 0 ).push_back( prm::create_mig_parameter_list() );
+                    tModuleParamList( 0 ).add_parameter_list( prm::create_mig_parameter_list() );
                     break;
 
                 case Parameter_List_Type::WRK :
-                    tModuleParamList( 0 ).push_back( prm::create_wrk_parameter_list() );
+                    tModuleParamList( 0 ).add_parameter_list( prm::create_wrk_parameter_list() );
                     break;
 
                 case Parameter_List_Type::MORISGENERAL :

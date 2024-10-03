@@ -27,7 +27,7 @@ namespace moris::gen
         Parameter_List tConstantPropertyParameterList = prm::create_gen_property_parameter_list( gen::Field_Type::CONSTANT );
         tConstantPropertyParameterList.set( "constant", 0.0, 0.0, 0.0 );
         ADV_Manager tADVManager;
-        Design_Factory              tDesignFactory( { tConstantPropertyParameterList }, tADVManager );
+        Design_Factory              tDesignFactory( Vector< Parameter_List >{ tConstantPropertyParameterList }, tADVManager );
         std::shared_ptr< Property > tConstantProperty = tDesignFactory.get_properties()( 0 );
 
         // Random distribution
@@ -77,7 +77,7 @@ namespace moris::gen
             real tScale = tUniform( tEngine );
             tScaledFieldParameterList.set( "scaling_factor", tScale, false );
             ADV_Manager tADVManager;
-            Design_Factory                        tDesignFactory( { tCircleParameterList, tScaledFieldParameterList }, tADVManager );
+            Design_Factory                        tDesignFactory( Vector< Parameter_List >{ tCircleParameterList, tScaledFieldParameterList }, tADVManager );
             std::shared_ptr< Level_Set_Geometry > tCircle     = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
             auto                                  tProperties = tDesignFactory.get_properties();
 
@@ -153,7 +153,7 @@ namespace moris::gen
 
             // Set up property
             ADV_Manager tADVManager;
-            Design_Factory   tDesignFactory( { tPropertyParameterList }, tADVManager );
+            Design_Factory   tDesignFactory( Vector< Parameter_List >{ tPropertyParameterList }, tADVManager );
             auto             tBSplineProperty = tDesignFactory.get_properties()( 0 );
 
             // Create geometry engine

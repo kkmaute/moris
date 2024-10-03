@@ -58,7 +58,7 @@ namespace moris::opt
                         &compute_dconstraint_dcriteria_rosenbrock );
 
                 // Create manager
-                moris::opt::Manager tManager( { tAlgorithmParameterList }, tProblem );
+                moris::opt::Manager tManager( Vector< Parameter_List >{ tAlgorithmParameterList }, tProblem );
 
                 // Solve optimization problem
                 tManager.perform();
@@ -107,7 +107,7 @@ namespace moris::opt
                         &compute_dconstraint_dcriteria_rosenbrock );
 
                 // Create manager
-                moris::opt::Manager tManager( { tAlgorithmParameterList }, tProblem );
+                moris::opt::Manager tManager( Vector< Parameter_List >{ tAlgorithmParameterList }, tProblem );
 
                 // Solve optimization problem
                 tManager.perform();
@@ -153,7 +153,7 @@ namespace moris::opt
                         &compute_dconstraint_dcriteria_rosenbrock );
 
                 // Create manager
-                moris::opt::Manager tManager( { tAlgorithmParameterList }, tProblem );
+                moris::opt::Manager tManager( Vector< Parameter_List >{ tAlgorithmParameterList }, tProblem );
 
                 // Solve optimization problem
                 tManager.perform();
@@ -208,7 +208,7 @@ namespace moris::opt
                         &compute_dconstraint_dcriteria_rosenbrock );
 
                 // Create manager
-                moris::opt::Manager tManager( { tAlgorithmParameterList }, tProblem );
+                moris::opt::Manager tManager( Vector< Parameter_List >{ tAlgorithmParameterList }, tProblem );
 
                 // Solve optimization problem
                 tManager.perform();
@@ -266,7 +266,7 @@ namespace moris::opt
                         &compute_dconstraint_dcriteria_rosenbrock );
 
                 // Create manager
-                moris::opt::Manager tManager( { tAlgorithmParameterList }, tProblem );
+                moris::opt::Manager tManager( Vector< Parameter_List >{ tAlgorithmParameterList }, tProblem );
 
                 // Solve optimization problem
                 tManager.perform();
@@ -294,7 +294,7 @@ namespace moris::opt
                         nullptr );
 
                 // Create manager
-                tManager = moris::opt::Manager( { tAlgorithmParameterList }, tProblem );
+                tManager = moris::opt::Manager( Vector< Parameter_List >{ tAlgorithmParameterList }, tProblem );
 
                 // Solve optimization problem
                 tManager.perform();
@@ -342,7 +342,7 @@ namespace moris::opt
 
                     // Create manager
                     std::shared_ptr< Criteria_Interface > tInterface = create_interface(
-                            { tInterfaceManagerParameterList },
+                            Vector< Parameter_List >{ tInterfaceManagerParameterList },
                             tInterfaces );
 
                     // Test manager in parallel

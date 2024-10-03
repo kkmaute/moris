@@ -8,10 +8,9 @@
  *
  */
 
-#ifndef SRC_fn_PRM_MIG_Parameters
-#define SRC_fn_PRM_MIG_Parameters
+#pragma once
 
-#include "cl_Parameter_List.hpp"
+#include "cl_Submodule_Parameter_Lists.hpp"
 
 namespace moris::prm
 {
@@ -31,5 +30,3 @@ namespace moris::prm
     //------------------------------------------------------------------------------
 
 }    // namespace moris::prm
-
-#endif    // SRC_fn_PRM_MIG_Parameters

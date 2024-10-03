@@ -456,89 +456,89 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     void
-    OPTParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
+    OPTParameterList( Vector< Submodule_Parameter_Lists >& tParameterlist )
     {
         tParameterlist.resize( 3 );
 
         tParameterlist( 0 ).push_back( prm::create_opt_problem_parameter_list() );
-        tParameterlist( 0 )( 0 ).set( "is_optimization_problem", true );
-        tParameterlist( 0 )( 0 ).set( "problem", "user_defined" );
-        tParameterlist( 0 )( 0 ).set( "library", tSoFile );
+        tParameterlist( 0 ).set( "is_optimization_problem", true );
+        tParameterlist( 0 ).set( "problem", "user_defined" );
+        tParameterlist( 0 ).set( "library", tSoFile );
 
 
         tParameterlist( 2 ).push_back( moris::prm::create_sweep_parameter_list() );
-        tParameterlist( 2 )( 0 ).set( "hdf5_path", tHdf5File );
-        tParameterlist( 2 )( 0 ).set( "num_evaluations_per_adv", "1" );
-        tParameterlist( 2 )( 0 ).set( "finite_difference_type", "all" );
-        tParameterlist( 2 )( 0 ).set( "finite_difference_epsilons", tSweepFdEpsilon );
+        tParameterlist( 2 ).set( "hdf5_path", tHdf5File );
+        tParameterlist( 2 ).set( "num_evaluations_per_adv", "1" );
+        tParameterlist( 2 ).set( "finite_difference_type", "all" );
+        tParameterlist( 2 ).set( "finite_difference_epsilons", tSweepFdEpsilon );
     }
 
     /* ------------------------------------------------------------------------ */
 
     void
-    HMRParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
+    HMRParameterList( Vector< Submodule_Parameter_Lists >& tParameterlist )
     {
         tParameterlist.resize( 1 );
 
         tParameterlist( 0 ).push_back( prm::create_hmr_parameter_list() );
 
-        tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", tNumElemsPerDim );
-        tParameterlist( 0 )( 0 ).set( "domain_dimensions", tDomainDims );
-        tParameterlist( 0 )( 0 ).set( "domain_offset", tDomainOffset );
-        tParameterlist( 0 )( 0 ).set( "domain_sidesets", tDomainSidesets );
+        tParameterlist( 0 ).set( "number_of_elements_per_dimension", tNumElemsPerDim );
+        tParameterlist( 0 ).set( "domain_dimensions", tDomainDims );
+        tParameterlist( 0 ).set( "domain_offset", tDomainOffset );
+        tParameterlist( 0 ).set( "domain_sidesets", tDomainSidesets );
 
-        tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes", "0" );
+        tParameterlist( 0 ).set( "lagrange_output_meshes", "0" );
 
-        tParameterlist( 0 )( 0 ).set( "lagrange_orders", tLagrangeOrder );
-        tParameterlist( 0 )( 0 ).set( "lagrange_pattern", tLagrangePattern );
+        tParameterlist( 0 ).set( "lagrange_orders", tLagrangeOrder );
+        tParameterlist( 0 ).set( "lagrange_pattern", tLagrangePattern );
 
-        tParameterlist( 0 )( 0 ).set( "bspline_orders", tBsplineOrder );
-        tParameterlist( 0 )( 0 ).set( "bspline_pattern", "0,1" );
+        tParameterlist( 0 ).set( "bspline_orders", tBsplineOrder );
+        tParameterlist( 0 ).set( "bspline_pattern", "0,1" );
 
-        tParameterlist( 0 )( 0 ).set( "lagrange_to_bspline", "0,1" );
+        tParameterlist( 0 ).set( "lagrange_to_bspline", "0,1" );
 
-        tParameterlist( 0 )( 0 ).set( "truncate_bsplines", 1 );
-        tParameterlist( 0 )( 0 ).set( "refinement_buffer", tRefineBuffer );
-        tParameterlist( 0 )( 0 ).set( "staircase_buffer", tRefineBuffer );
+        tParameterlist( 0 ).set( "truncate_bsplines", 1 );
+        tParameterlist( 0 ).set( "refinement_buffer", tRefineBuffer );
+        tParameterlist( 0 ).set( "staircase_buffer", tRefineBuffer );
 
-        tParameterlist( 0 )( 0 ).set( "initial_refinement", tInitialRef );
-        tParameterlist( 0 )( 0 ).set( "initial_refinement_pattern", "0,1" );
+        tParameterlist( 0 ).set( "initial_refinement", tInitialRef );
+        tParameterlist( 0 ).set( "initial_refinement_pattern", "0,1" );
 
-        tParameterlist( 0 )( 0 ).set( "use_number_aura", 1 );
+        tParameterlist( 0 ).set( "use_number_aura", 1 );
 
-        tParameterlist( 0 )( 0 ).set( "use_multigrid", 0 );
-        tParameterlist( 0 )( 0 ).set( "severity_level", 0 );
+        tParameterlist( 0 ).set( "use_multigrid", 0 );
+        tParameterlist( 0 ).set( "severity_level", 0 );
     }
 
     /* ------------------------------------------------------------------------ */
 
     void
-    XTKParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
+    XTKParameterList( Vector< Submodule_Parameter_Lists >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).push_back( prm::create_xtk_parameter_list() );
-        tParameterlist( 0 )( 0 ).set( "decompose", true );
-        tParameterlist( 0 )( 0 ).set( "decomposition_type", "conformal" );
-        tParameterlist( 0 )( 0 ).set( "enrich", true );
-        tParameterlist( 0 )( 0 ).set( "basis_rank", "bspline" );
-        tParameterlist( 0 )( 0 ).set( "enrich_mesh_indices", "0,1" );
-        tParameterlist( 0 )( 0 ).set( "ghost_stab", tUseGhost );
-        tParameterlist( 0 )( 0 ).set( "multigrid", false );
-        tParameterlist( 0 )( 0 ).set( "verbose", false );
-        tParameterlist( 0 )( 0 ).set( "high_to_low_dbl_side_sets", true );
-        tParameterlist( 0 )( 0 ).set( "print_enriched_ig_mesh", false );
-        tParameterlist( 0 )( 0 ).set( "exodus_output_XTK_ig_mesh", true );
+        tParameterlist( 0 ).set( "decompose", true );
+        tParameterlist( 0 ).set( "decomposition_type", "conformal" );
+        tParameterlist( 0 ).set( "enrich", true );
+        tParameterlist( 0 ).set( "basis_rank", "bspline" );
+        tParameterlist( 0 ).set( "enrich_mesh_indices", "0,1" );
+        tParameterlist( 0 ).set( "ghost_stab", tUseGhost );
+        tParameterlist( 0 ).set( "multigrid", false );
+        tParameterlist( 0 ).set( "verbose", false );
+        tParameterlist( 0 ).set( "high_to_low_dbl_side_sets", true );
+        tParameterlist( 0 ).set( "print_enriched_ig_mesh", false );
+        tParameterlist( 0 ).set( "exodus_output_XTK_ig_mesh", true );
     }
 
     /* ------------------------------------------------------------------------ */
 
     void
-    GENParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
+    GENParameterList( Vector< Submodule_Parameter_Lists >& tParameterlist )
     {
         tParameterlist.resize( 3 );
 
         tParameterlist( 0 ).push_back( prm::create_gen_parameter_list() );
-        tParameterlist( 0 )( 0 ).set( "IQI_types",
+        tParameterlist( 0 ).set( "IQI_types",
                 "IQIInletThermalEnergy",
                 "IQIOutletThermalEnergy",
                 "IQIInletTotalPressure",
@@ -549,127 +549,118 @@ namespace moris
                 "IQIMaxTemp",
                 "IQISolidVolume" );
 
-        tParameterlist( 0 )( 0 ).set( "number_of_phases", 5 );
-        tParameterlist( 0 )( 0 ).set( "phase_function_name", "get_phase_index" );
-        tParameterlist( 0 )( 0 ).set( "output_mesh_file", tGENOutputFile );
-        tParameterlist( 0 )( 0 ).set( "time_offset", 10.0 );
+        tParameterlist( 0 ).set( "number_of_phases", 5 );
+        tParameterlist( 0 ).set( "phase_function_name", "get_phase_index" );
+        tParameterlist( 0 ).set( "output_mesh_file", tGENOutputFile );
+        tParameterlist( 0 ).set( "time_offset", 10.0 );
 
-        // init geometry counter
-        uint tGeoCounter = 0;
 
         // Inclusions
         tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
-        tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Sphere" );
-        tParameterlist( 1 )( tGeoCounter ).set( "sensitivity_function_name", "Func_Sphere_Deriv" );
-        tParameterlist( 1 )( tGeoCounter ).insert( "radius", Design_Variable( tSphereRadius * 0.9, tSphereRadius, tSphereRadius * 1.1 ) );
-        tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementSphere );
-        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0 );
-        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 0.0 );
-        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1.0e-12 );
-        tParameterlist( 1 )( tGeoCounter ).set( "intersection_tolerance", 1.0e-12 );
-        tGeoCounter++;
+        tParameterlist( 1 ).set( "field_function_name", "Func_Sphere" );
+        tParameterlist( 1 ).set( "sensitivity_function_name", "Func_Sphere_Deriv" );
+        tParameterlist( 1 ).insert( "radius", Design_Variable( tSphereRadius * 0.9, tSphereRadius, tSphereRadius * 1.1 ) );
+        tParameterlist( 1 ).set( "number_of_refinements", tInterfaceRefinementSphere );
+        tParameterlist( 1 ).set( "refinement_mesh_index", 0 );
+        tParameterlist( 1 ).set( "isocontour_threshold", 0.0 );
+        tParameterlist( 1 ).set( "isocontour_tolerance", 1.0e-12 );
+        tParameterlist( 1 ).set( "intersection_tolerance", 1.0e-12 );
 
         // Inlet plane
         tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
-        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_1", 1.0 );
-        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_2", 0.0 );
-        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_3", 0.0 );
-        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_4", tGeoShift );
-        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_5", 0.0 );
-        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_6", 0.0 );
-        tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Plane" );
-        tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementWalls );
-        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0 );
-        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 0.0 );
-        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1.0e-12 );
-        tParameterlist( 1 )( tGeoCounter ).set( "intersection_tolerance", 1.0e-12 );
-        tGeoCounter++;
+        tParameterlist( 1 ).insert( "variable_1", 1.0 );
+        tParameterlist( 1 ).insert( "variable_2", 0.0 );
+        tParameterlist( 1 ).insert( "variable_3", 0.0 );
+        tParameterlist( 1 ).insert( "variable_4", tGeoShift );
+        tParameterlist( 1 ).insert( "variable_5", 0.0 );
+        tParameterlist( 1 ).insert( "variable_6", 0.0 );
+        tParameterlist( 1 ).set( "field_function_name", "Func_Plane" );
+        tParameterlist( 1 ).set( "number_of_refinements", tInterfaceRefinementWalls );
+        tParameterlist( 1 ).set( "refinement_mesh_index", 0 );
+        tParameterlist( 1 ).set( "isocontour_threshold", 0.0 );
+        tParameterlist( 1 ).set( "isocontour_tolerance", 1.0e-12 );
+        tParameterlist( 1 ).set( "intersection_tolerance", 1.0e-12 );
 
         // Out plane
         tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
-        tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Plane" );
-        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_1", -1.0 );
-        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_2", 0.0 );
-        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_3", 0.0 );
-        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_4", tChannelLength + tGeoShift );
-        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_5", 0.0 );
-        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_6", 0.0 );
-        tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementWalls );
-        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0 );
-        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 0.0 );
-        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1.0e-12 );
-        tParameterlist( 1 )( tGeoCounter ).set( "intersection_tolerance", 1.0e-12 );
-        tGeoCounter++;
+        tParameterlist( 1 ).set( "field_function_name", "Func_Plane" );
+        tParameterlist( 1 ).insert( "variable_1", -1.0 );
+        tParameterlist( 1 ).insert( "variable_2", 0.0 );
+        tParameterlist( 1 ).insert( "variable_3", 0.0 );
+        tParameterlist( 1 ).insert( "variable_4", tChannelLength + tGeoShift );
+        tParameterlist( 1 ).insert( "variable_5", 0.0 );
+        tParameterlist( 1 ).insert( "variable_6", 0.0 );
+        tParameterlist( 1 ).set( "number_of_refinements", tInterfaceRefinementWalls );
+        tParameterlist( 1 ).set( "refinement_mesh_index", 0 );
+        tParameterlist( 1 ).set( "isocontour_threshold", 0.0 );
+        tParameterlist( 1 ).set( "isocontour_tolerance", 1.0e-12 );
+        tParameterlist( 1 ).set( "intersection_tolerance", 1.0e-12 );
 
         // Lower plane
         tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
-        tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Plane" );
-        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_1", 0.0 );
-        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_2", 1.0 );
-        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_3", 0.0 );
-        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_4", 0.0 );
-        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_5", tGeoShift );
-        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_6", 0.0 );
-        tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementWalls );
-        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0 );
-        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 0.0 );
-        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1.0e-12 );
-        tParameterlist( 1 )( tGeoCounter ).set( "intersection_tolerance", 1.0e-12 );
-        tGeoCounter++;
+        tParameterlist( 1 ).set( "field_function_name", "Func_Plane" );
+        tParameterlist( 1 ).insert( "variable_1", 0.0 );
+        tParameterlist( 1 ).insert( "variable_2", 1.0 );
+        tParameterlist( 1 ).insert( "variable_3", 0.0 );
+        tParameterlist( 1 ).insert( "variable_4", 0.0 );
+        tParameterlist( 1 ).insert( "variable_5", tGeoShift );
+        tParameterlist( 1 ).insert( "variable_6", 0.0 );
+        tParameterlist( 1 ).set( "number_of_refinements", tInterfaceRefinementWalls );
+        tParameterlist( 1 ).set( "refinement_mesh_index", 0 );
+        tParameterlist( 1 ).set( "isocontour_threshold", 0.0 );
+        tParameterlist( 1 ).set( "isocontour_tolerance", 1.0e-12 );
+        tParameterlist( 1 ).set( "intersection_tolerance", 1.0e-12 );
 
         // Upper plane
         tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
-        tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Plane" );
-        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_1", 0.0 );
-        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_2", -1.0 );
-        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_3", 0.0 );
-        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_4", 0.0 );
-        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_5", tChannelHeight + tGeoShift );
-        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_6", 0.0 );
-        tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementWalls );
-        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0 );
-        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 0.0 );
-        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1.0e-12 );
-        tParameterlist( 1 )( tGeoCounter ).set( "intersection_tolerance", 1.0e-12 );
-        tGeoCounter++;
+        tParameterlist( 1 ).set( "field_function_name", "Func_Plane" );
+        tParameterlist( 1 ).insert( "variable_1", 0.0 );
+        tParameterlist( 1 ).insert( "variable_2", -1.0 );
+        tParameterlist( 1 ).insert( "variable_3", 0.0 );
+        tParameterlist( 1 ).insert( "variable_4", 0.0 );
+        tParameterlist( 1 ).insert( "variable_5", tChannelHeight + tGeoShift );
+        tParameterlist( 1 ).insert( "variable_6", 0.0 );
+        tParameterlist( 1 ).set( "number_of_refinements", tInterfaceRefinementWalls );
+        tParameterlist( 1 ).set( "refinement_mesh_index", 0 );
+        tParameterlist( 1 ).set( "isocontour_threshold", 0.0 );
+        tParameterlist( 1 ).set( "isocontour_tolerance", 1.0e-12 );
+        tParameterlist( 1 ).set( "intersection_tolerance", 1.0e-12 );
 
         // Back Plan
         tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
-        tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Plane" );
-        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_1", 0.0 );
-        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_2", 0.0 );
-        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_3", 1.0 );
-        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_4", 0.0 );
-        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_5", 0.0 );
-        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_6", tGeoShift );
-        tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementWalls );
-        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0 );
-        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 0.0 );
-        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1.0e-12 );
-        tParameterlist( 1 )( tGeoCounter ).set( "intersection_tolerance", 1.0e-12 );
-        tGeoCounter++;
+        tParameterlist( 1 ).set( "field_function_name", "Func_Plane" );
+        tParameterlist( 1 ).insert( "variable_1", 0.0 );
+        tParameterlist( 1 ).insert( "variable_2", 0.0 );
+        tParameterlist( 1 ).insert( "variable_3", 1.0 );
+        tParameterlist( 1 ).insert( "variable_4", 0.0 );
+        tParameterlist( 1 ).insert( "variable_5", 0.0 );
+        tParameterlist( 1 ).insert( "variable_6", tGeoShift );
+        tParameterlist( 1 ).set( "number_of_refinements", tInterfaceRefinementWalls );
+        tParameterlist( 1 ).set( "refinement_mesh_index", 0 );
+        tParameterlist( 1 ).set( "isocontour_threshold", 0.0 );
+        tParameterlist( 1 ).set( "isocontour_tolerance", 1.0e-12 );
+        tParameterlist( 1 ).set( "intersection_tolerance", 1.0e-12 );
 
         // Front plane
         tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
-        tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Plane" );
-        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_1", 0.0 );
-        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_2", 0.0 );
-        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_3", -1.0 );
-        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_4", 0.0 );
-        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_5", 0.0 );
-        tParameterlist( 1 )( tGeoCounter ).insert< Design_Variable >( "variable_6", tChannelWidth + tGeoShift );
-        tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementWalls );
-        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", 0 );
-        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 0.0 );
-        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1.0e-12 );
-        tParameterlist( 1 )( tGeoCounter ).set( "intersection_tolerance", 1.0e-12 );
-        tGeoCounter++;
+        tParameterlist( 1 ).set( "field_function_name", "Func_Plane" );
+        tParameterlist( 1 ).insert( "variable_1", 0.0 );
+        tParameterlist( 1 ).insert( "variable_2", 0.0 );
+        tParameterlist( 1 ).insert( "variable_3", -1.0 );
+        tParameterlist( 1 ).insert( "variable_4", 0.0 );
+        tParameterlist( 1 ).insert( "variable_5", 0.0 );
+        tParameterlist( 1 ).insert( "variable_6", tChannelWidth + tGeoShift );
+        tParameterlist( 1 ).set( "number_of_refinements", tInterfaceRefinementWalls );
+        tParameterlist( 1 ).set( "refinement_mesh_index", 0 );
+        tParameterlist( 1 ).set( "isocontour_threshold", 0.0 );
+        tParameterlist( 1 ).set( "isocontour_tolerance", 1.0e-12 );
+        tParameterlist( 1 ).set( "intersection_tolerance", 1.0e-12 );
     }
 
     /* ------------------------------------------------------------------------ */
 
     void
-    FEMParameterList( Vector< Vector< Parameter_List > >& tParameterList )
+    FEMParameterList( Vector< Submodule_Parameter_Lists >& tParameterList )
     {
         if ( par_rank() == 0 )
         {
@@ -734,434 +725,378 @@ namespace moris
         uint tPhaseIndex = 7;
 
         //------------------------------------------------------------------------------
-        // phase info
-        uint tPhaseCounter = 0;
 
         tParameterList( tPhaseIndex ).push_back( prm::create_phase_parameter_list() );
-        tParameterList( tPhaseIndex )( tPhaseCounter ).set( "phase_name", "PhaseFluid" );
-        tParameterList( tPhaseIndex )( tPhaseCounter ).set( "phase_indices", "0" );
-        tPhaseCounter++;
+        tParameterList( tPhaseIndex ).set( "phase_name", "PhaseFluid" );
+        tParameterList( tPhaseIndex ).set( "phase_indices", "0" );
 
         tParameterList( tPhaseIndex ).push_back( prm::create_phase_parameter_list() );
-        tParameterList( tPhaseIndex )( tPhaseCounter ).set( "phase_name", "PhaseSolid" );
-        tParameterList( tPhaseIndex )( tPhaseCounter ).set( "phase_indices", "1" );
-        tPhaseCounter++;
+        tParameterList( tPhaseIndex ).set( "phase_name", "PhaseSolid" );
+        tParameterList( tPhaseIndex ).set( "phase_indices", "1" );
 
         tParameterList( tPhaseIndex ).push_back( prm::create_phase_parameter_list() );
-        tParameterList( tPhaseIndex )( tPhaseCounter ).set( "phase_name", "PhaseVoidFront" );
-        tParameterList( tPhaseIndex )( tPhaseCounter ).set( "phase_indices", "2" );
-        tPhaseCounter++;
+        tParameterList( tPhaseIndex ).set( "phase_name", "PhaseVoidFront" );
+        tParameterList( tPhaseIndex ).set( "phase_indices", "2" );
 
         tParameterList( tPhaseIndex ).push_back( prm::create_phase_parameter_list() );
-        tParameterList( tPhaseIndex )( tPhaseCounter ).set( "phase_name", "PhaseVoidBack" );
-        tParameterList( tPhaseIndex )( tPhaseCounter ).set( "phase_indices", "3" );
-        tPhaseCounter++;
+        tParameterList( tPhaseIndex ).set( "phase_name", "PhaseVoidBack" );
+        tParameterList( tPhaseIndex ).set( "phase_indices", "3" );
 
         tParameterList( tPhaseIndex ).push_back( prm::create_phase_parameter_list() );
-        tParameterList( tPhaseIndex )( tPhaseCounter ).set( "phase_name", "PhaseVoidLateral" );
-        tParameterList( tPhaseIndex )( tPhaseCounter ).set( "phase_indices", "4" );
-        tPhaseCounter++;
+        tParameterList( tPhaseIndex ).set( "phase_name", "PhaseVoidLateral" );
+        tParameterList( tPhaseIndex ).set( "phase_indices", "4" );
 
         tParameterList( tPhaseIndex ).push_back( prm::create_phase_parameter_list() );
-        tParameterList( tPhaseIndex )( tPhaseCounter ).set( "phase_name", "PhaseAll" );
-        tParameterList( tPhaseIndex )( tPhaseCounter ).set( "phase_indices", "0,1" );
-        tPhaseCounter++;
+        tParameterList( tPhaseIndex ).set( "phase_name", "PhaseAll" );
+        tParameterList( tPhaseIndex ).set( "phase_indices", "0,1" );
 
         //------------------------------------------------------------------------------
         // fill the property part of the parameter list
 
-        // init property counter
-        uint tPropCounter = 0;
 
         // fluid properties ------------------------------------------------------------
         // create fluid viscosity property
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
-        tParameterList( tPropIndex )( tPropCounter ).set( "property_name", "PropFluidViscosity" );
-        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters", tFluidViscosity );
-        tPropCounter++;
+        tParameterList( tPropIndex ).set( "property_name", "PropFluidViscosity" );
+        tParameterList( tPropIndex ).set( "function_parameters", tFluidViscosity );
 
         // create fluid density property
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
-        tParameterList( tPropIndex )( tPropCounter ).set( "property_name", "PropFluidDensity" );
-        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters", tFluidDensity );
-        tPropCounter++;
+        tParameterList( tPropIndex ).set( "property_name", "PropFluidDensity" );
+        tParameterList( tPropIndex ).set( "function_parameters", tFluidDensity );
 
         // create fluid capacity property
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
-        tParameterList( tPropIndex )( tPropCounter ).set( "property_name", "PropFluidCapacity" );
-        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters", tFluidCapacity );
-        tPropCounter++;
+        tParameterList( tPropIndex ).set( "property_name", "PropFluidCapacity" );
+        tParameterList( tPropIndex ).set( "function_parameters", tFluidCapacity );
 
         // create fluid conductivity property
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
-        tParameterList( tPropIndex )( tPropCounter ).set( "property_name", "PropFluidConductivity" );
-        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters", tFluidConductivity );
+        tParameterList( tPropIndex ).set( "property_name", "PropFluidConductivity" );
+        tParameterList( tPropIndex ).set( "function_parameters", tFluidConductivity );
 
-        tPropCounter++;
 
         // create fluid pressure spring property
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
-        tParameterList( tPropIndex )( tPropCounter ).set( "property_name", "PropFluidPressureSpring" );
-        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters", tFluidPressureSpring );
-        tPropCounter++;
+        tParameterList( tPropIndex ).set( "property_name", "PropFluidPressureSpring" );
+        tParameterList( tPropIndex ).set( "function_parameters", tFluidPressureSpring );
 
         // solid properties ----------------------------------------------------------
         // create solid B density property
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
-        tParameterList( tPropIndex )( tPropCounter ).set( "property_name", "PropSolidDensity" );
-        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters", tSolidDensity );
-        tPropCounter++;
+        tParameterList( tPropIndex ).set( "property_name", "PropSolidDensity" );
+        tParameterList( tPropIndex ).set( "function_parameters", tSolidDensity );
 
         // create solid B capacity property
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
-        tParameterList( tPropIndex )( tPropCounter ).set( "property_name", "PropSolidCapacity" );
-        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters", tSolidCapacity );
-        tPropCounter++;
+        tParameterList( tPropIndex ).set( "property_name", "PropSolidCapacity" );
+        tParameterList( tPropIndex ).set( "function_parameters", tSolidCapacity );
 
         // create solid B conductivity property
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
-        tParameterList( tPropIndex )( tPropCounter ).set( "property_name", "PropSolidConductivity" );
-        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters", tSolidConductivity );
-        tPropCounter++;
+        tParameterList( tPropIndex ).set( "property_name", "PropSolidConductivity" );
+        tParameterList( tPropIndex ).set( "function_parameters", tSolidConductivity );
 
         // BC properties ---------------------------------------------------------------
         // create inlet pressure property
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
-        tParameterList( tPropIndex )( tPropCounter ).set( "property_name", "PropInletPressure" );
-        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters", tInletPressure );
-        tPropCounter++;
+        tParameterList( tPropIndex ).set( "property_name", "PropInletPressure" );
+        tParameterList( tPropIndex ).set( "function_parameters", tInletPressure );
 
         // create inlet temperature property
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
-        tParameterList( tPropIndex )( tPropCounter ).set( "property_name", "PropInletTemp" );
-        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters", tInletTemperature );
-        tPropCounter++;
+        tParameterList( tPropIndex ).set( "property_name", "PropInletTemp" );
+        tParameterList( tPropIndex ).set( "function_parameters", tInletTemperature );
 
         // create wall velocity property
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
-        tParameterList( tPropIndex )( tPropCounter ).set( "property_name", "PropZeroU" );
-        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters", "0.0;0.0;0.0" );
-        tPropCounter++;
+        tParameterList( tPropIndex ).set( "property_name", "PropZeroU" );
+        tParameterList( tPropIndex ).set( "function_parameters", "0.0;0.0;0.0" );
 
         // create symmetry velocity property (x-z plane)
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
-        tParameterList( tPropIndex )( tPropCounter ).set( "property_name", "PropSelectUY" );
-        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters", "0.0,0.0,0.0;0.0,1.0,0.0;0.0,0.0,0.0" );
-        tPropCounter++;
+        tParameterList( tPropIndex ).set( "property_name", "PropSelectUY" );
+        tParameterList( tPropIndex ).set( "function_parameters", "0.0,0.0,0.0;0.0,1.0,0.0;0.0,0.0,0.0" );
 
         // create symmetry velocity property (x-y plane)
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
-        tParameterList( tPropIndex )( tPropCounter ).set( "property_name", "PropSelectUZ" );
-        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters", "0.0,0.0,0.0;0.0,0.0,0.0;0.0,0.0,1.0" );
-        tPropCounter++;
+        tParameterList( tPropIndex ).set( "property_name", "PropSelectUZ" );
+        tParameterList( tPropIndex ).set( "function_parameters", "0.0,0.0,0.0;0.0,0.0,0.0;0.0,0.0,1.0" );
 
         // create heat load property
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
-        tParameterList( tPropIndex )( tPropCounter ).set( "property_name", "PropVolumetricHeatFlux" );
-        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters", tVolumetricHeatLoad );
-        tPropCounter++;
+        tParameterList( tPropIndex ).set( "property_name", "PropVolumetricHeatFlux" );
+        tParameterList( tPropIndex ).set( "function_parameters", tVolumetricHeatLoad );
 
         //------------------------------------------------------------------------------
         // fill the constitutive model part of the parameter list
 
-        // init CM counter
-        uint tCMCounter = 0;
 
         // fluid CM --------------------------------------------------------------------
         // create fluid CM
         tParameterList( tCMIndex ).push_back( prm::create_constitutive_model_parameter_list() );
-        tParameterList( tCMIndex )( tCMCounter ).set( "constitutive_name", "CMFluid" );
-        tParameterList( tCMIndex )( tCMCounter ).set( "phase_name", "PhaseFluid" );
-        tParameterList( tCMIndex )( tCMCounter ).set( "constitutive_type", fem::Constitutive_Type::FLUID_INCOMPRESSIBLE );
-        tParameterList( tCMIndex )( tCMCounter ).set( "dof_dependencies", std::pair< std::string, std::string >( "VX,VY,VZ;P", "Velocity,Pressure" ) );
-        tParameterList( tCMIndex )( tCMCounter ).set( "properties",
+        tParameterList( tCMIndex ).set( "constitutive_name", "CMFluid" );
+        tParameterList( tCMIndex ).set( "phase_name", "PhaseFluid" );
+        tParameterList( tCMIndex ).set( "constitutive_type", fem::Constitutive_Type::FLUID_INCOMPRESSIBLE );
+        tParameterList( tCMIndex ).set( "dof_dependencies", std::pair< std::string, std::string >( "VX,VY,VZ;P", "Velocity,Pressure" ) );
+        tParameterList( tCMIndex ).set( "properties",
                 "PropFluidViscosity,Viscosity;"
                 "PropFluidDensity  ,Density" );
-        tCMCounter++;
 
         // create fluid diffusion CM
         tParameterList( tCMIndex ).push_back( prm::create_constitutive_model_parameter_list() );
-        tParameterList( tCMIndex )( tCMCounter ).set( "constitutive_name", "CMFluidDiffusion" );
-        tParameterList( tCMIndex )( tCMCounter ).set( "phase_name", "PhaseFluid" );
-        tParameterList( tCMIndex )( tCMCounter ).set( "constitutive_type", fem::Constitutive_Type::DIFF_LIN_ISO );
-        tParameterList( tCMIndex )( tCMCounter ).set( "dof_dependencies", std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
-        tParameterList( tCMIndex )( tCMCounter ).set( "properties",
+        tParameterList( tCMIndex ).set( "constitutive_name", "CMFluidDiffusion" );
+        tParameterList( tCMIndex ).set( "phase_name", "PhaseFluid" );
+        tParameterList( tCMIndex ).set( "constitutive_type", fem::Constitutive_Type::DIFF_LIN_ISO );
+        tParameterList( tCMIndex ).set( "dof_dependencies", std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
+        tParameterList( tCMIndex ).set( "properties",
                 "PropFluidConductivity,Conductivity;"
                 "PropFluidDensity     ,Density;"
                 "PropFluidCapacity    ,HeatCapacity" );
-        tCMCounter++;
 
         // solid CM --------------------------------------------------------------------
         // create solid B diffusion CM
         tParameterList( tCMIndex ).push_back( prm::create_constitutive_model_parameter_list() );
-        tParameterList( tCMIndex )( tCMCounter ).set( "constitutive_name", "CMSolidDiffusion" );
-        tParameterList( tCMIndex )( tCMCounter ).set( "phase_name", "PhaseSolid" );
-        tParameterList( tCMIndex )( tCMCounter ).set( "constitutive_type", fem::Constitutive_Type::DIFF_LIN_ISO );
-        tParameterList( tCMIndex )( tCMCounter ).set( "dof_dependencies", std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
-        tParameterList( tCMIndex )( tCMCounter ).set( "properties",
+        tParameterList( tCMIndex ).set( "constitutive_name", "CMSolidDiffusion" );
+        tParameterList( tCMIndex ).set( "phase_name", "PhaseSolid" );
+        tParameterList( tCMIndex ).set( "constitutive_type", fem::Constitutive_Type::DIFF_LIN_ISO );
+        tParameterList( tCMIndex ).set( "dof_dependencies", std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
+        tParameterList( tCMIndex ).set( "properties",
                 "PropSolidConductivity,Conductivity;"
                 "PropSolidDensity     ,Density;"
                 "PropSolidCapacity    ,HeatCapacity" );
-        tCMCounter++;
 
         //------------------------------------------------------------------------------
         // fill the stabilization parameter part of the parameter list
 
-        // init SP counter
-        uint tSPCounter = 0;
 
         // create SUPG/PSG fluid
         tParameterList( tSPIndex ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name", "SPIncFlow" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type", fem::Stabilization_Type::INCOMPRESSIBLE_FLOW );
-        tParameterList( tSPIndex )( tSPCounter ).set( "function_parameters", tCInv );
-        tParameterList( tSPIndex )( tSPCounter ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY,VZ;P", "Velocity,Pressure" ) );
-        tParameterList( tSPIndex )( tSPCounter ).set( "leader_properties",
+        tParameterList( tSPIndex ).set( "stabilization_name", "SPIncFlow" );
+        tParameterList( tSPIndex ).set( "leader_phase_name", "PhaseFluid" );
+        tParameterList( tSPIndex ).set( "stabilization_type", fem::Stabilization_Type::INCOMPRESSIBLE_FLOW );
+        tParameterList( tSPIndex ).set( "function_parameters", tCInv );
+        tParameterList( tSPIndex ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY,VZ;P", "Velocity,Pressure" ) );
+        tParameterList( tSPIndex ).set( "leader_properties",
                 "PropFluidViscosity,Viscosity;"
                 "PropFluidDensity  ,Density" );
-        tSPCounter++;
 
         // create SUPG fluid temperature advection
         tParameterList( tSPIndex ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name", "SPSUPGTemp" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type", fem::Stabilization_Type::SUPG_ADVECTION );
-        tParameterList( tSPIndex )( tSPCounter ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY,VZ", "Velocity" ) );
-        tParameterList( tSPIndex )( tSPCounter ).set( "leader_properties", "PropFluidConductivity,Conductivity" );
-        tSPCounter++;
+        tParameterList( tSPIndex ).set( "stabilization_name", "SPSUPGTemp" );
+        tParameterList( tSPIndex ).set( "leader_phase_name", "PhaseFluid" );
+        tParameterList( tSPIndex ).set( "stabilization_type", fem::Stabilization_Type::SUPG_ADVECTION );
+        tParameterList( tSPIndex ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY,VZ", "Velocity" ) );
+        tParameterList( tSPIndex ).set( "leader_properties", "PropFluidConductivity,Conductivity" );
 
         // create Nitsche for fluid velocity
         tParameterList( tSPIndex ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name", "SPNitscheU" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type", fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE );
-        tParameterList( tSPIndex )( tSPCounter ).set( "function_parameters", "100.0/1.0" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY,VZ", "Velocity" ) );
-        tParameterList( tSPIndex )( tSPCounter ).set( "leader_properties",
+        tParameterList( tSPIndex ).set( "stabilization_name", "SPNitscheU" );
+        tParameterList( tSPIndex ).set( "leader_phase_name", "PhaseFluid" );
+        tParameterList( tSPIndex ).set( "stabilization_type", fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE );
+        tParameterList( tSPIndex ).set( "function_parameters", "100.0/1.0" );
+        tParameterList( tSPIndex ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY,VZ", "Velocity" ) );
+        tParameterList( tSPIndex ).set( "leader_properties",
                 "PropFluidViscosity,Viscosity;"
                 "PropFluidDensity,Density" );
-        tSPCounter++;
 
         // create Nitsche for fluid temperature
         tParameterList( tSPIndex ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name", "SPNitscheT" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type", fem::Stabilization_Type::DIRICHLET_NITSCHE );
-        tParameterList( tSPIndex )( tSPCounter ).set( "function_parameters", "100.0" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "leader_properties", "PropFluidConductivity,Material" );
-        tSPCounter++;
+        tParameterList( tSPIndex ).set( "stabilization_name", "SPNitscheT" );
+        tParameterList( tSPIndex ).set( "leader_phase_name", "PhaseFluid" );
+        tParameterList( tSPIndex ).set( "stabilization_type", fem::Stabilization_Type::DIRICHLET_NITSCHE );
+        tParameterList( tSPIndex ).set( "function_parameters", "100.0" );
+        tParameterList( tSPIndex ).set( "leader_properties", "PropFluidConductivity,Material" );
 
         // create Nitsche for fluid/solid diffusion interface
         tParameterList( tSPIndex ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name", "SPFSInterfaceNitsche" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "follower_phase_name", "PhaseSolid" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type", fem::Stabilization_Type::NITSCHE_INTERFACE );
-        tParameterList( tSPIndex )( tSPCounter ).set( "function_parameters", "100.0" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "leader_properties", "PropFluidConductivity,Material" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "follower_properties", "PropSolidConductivity,Material" );
-        tSPCounter++;
+        tParameterList( tSPIndex ).set( "stabilization_name", "SPFSInterfaceNitsche" );
+        tParameterList( tSPIndex ).set( "leader_phase_name", "PhaseFluid" );
+        tParameterList( tSPIndex ).set( "follower_phase_name", "PhaseSolid" );
+        tParameterList( tSPIndex ).set( "stabilization_type", fem::Stabilization_Type::NITSCHE_INTERFACE );
+        tParameterList( tSPIndex ).set( "function_parameters", "100.0" );
+        tParameterList( tSPIndex ).set( "leader_properties", "PropFluidConductivity,Material" );
+        tParameterList( tSPIndex ).set( "follower_properties", "PropSolidConductivity,Material" );
 
         // create ghost penalty viscous
         tParameterList( tSPIndex ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name", "SPGPViscous" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type", fem::Stabilization_Type::VISCOUS_GHOST );
-        tParameterList( tSPIndex )( tSPCounter ).set( "function_parameters", "0.05" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "leader_properties", "PropFluidViscosity,Viscosity" );
-        tSPCounter++;
+        tParameterList( tSPIndex ).set( "stabilization_name", "SPGPViscous" );
+        tParameterList( tSPIndex ).set( "leader_phase_name", "PhaseFluid" );
+        tParameterList( tSPIndex ).set( "stabilization_type", fem::Stabilization_Type::VISCOUS_GHOST );
+        tParameterList( tSPIndex ).set( "function_parameters", "0.05" );
+        tParameterList( tSPIndex ).set( "leader_properties", "PropFluidViscosity,Viscosity" );
 
         // create ghost penalty convective
         tParameterList( tSPIndex ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name", "SPGPVelocity" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type", fem::Stabilization_Type::CONVECTIVE_GHOST );
-        tParameterList( tSPIndex )( tSPCounter ).set( "function_parameters", "0.05" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY,VZ", "Velocity" ) );
-        tParameterList( tSPIndex )( tSPCounter ).set( "leader_properties", "PropFluidDensity,Density" );
-        tSPCounter++;
+        tParameterList( tSPIndex ).set( "stabilization_name", "SPGPVelocity" );
+        tParameterList( tSPIndex ).set( "leader_phase_name", "PhaseFluid" );
+        tParameterList( tSPIndex ).set( "stabilization_type", fem::Stabilization_Type::CONVECTIVE_GHOST );
+        tParameterList( tSPIndex ).set( "function_parameters", "0.05" );
+        tParameterList( tSPIndex ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY,VZ", "Velocity" ) );
+        tParameterList( tSPIndex ).set( "leader_properties", "PropFluidDensity,Density" );
 
         // create ghost penalty pressure
         tParameterList( tSPIndex ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name", "SPGPPressure" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type", fem::Stabilization_Type::PRESSURE_GHOST );
-        tParameterList( tSPIndex )( tSPCounter ).set( "function_parameters", "0.005/1.0" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY,VZ", "Velocity" ) );
-        tParameterList( tSPIndex )( tSPCounter ).set( "leader_properties",
+        tParameterList( tSPIndex ).set( "stabilization_name", "SPGPPressure" );
+        tParameterList( tSPIndex ).set( "leader_phase_name", "PhaseFluid" );
+        tParameterList( tSPIndex ).set( "stabilization_type", fem::Stabilization_Type::PRESSURE_GHOST );
+        tParameterList( tSPIndex ).set( "function_parameters", "0.005/1.0" );
+        tParameterList( tSPIndex ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY,VZ", "Velocity" ) );
+        tParameterList( tSPIndex ).set( "leader_properties",
                 "PropFluidViscosity,Viscosity;"
                 "PropFluidDensity,Density" );
-        tSPCounter++;
 
         // create ghost penalty fluid temperature
         tParameterList( tSPIndex ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name", "SPGPFluidTemp" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type", fem::Stabilization_Type::GHOST_DISPL );
-        tParameterList( tSPIndex )( tSPCounter ).set( "function_parameters", "0.05" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "leader_properties", "PropFluidConductivity,Material" );
-        tSPCounter++;
+        tParameterList( tSPIndex ).set( "stabilization_name", "SPGPFluidTemp" );
+        tParameterList( tSPIndex ).set( "leader_phase_name", "PhaseFluid" );
+        tParameterList( tSPIndex ).set( "stabilization_type", fem::Stabilization_Type::GHOST_DISPL );
+        tParameterList( tSPIndex ).set( "function_parameters", "0.05" );
+        tParameterList( tSPIndex ).set( "leader_properties", "PropFluidConductivity,Material" );
 
         // create ghost penalty solid temperature
         tParameterList( tSPIndex ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name", "SPGPSolidTemp" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "leader_phase_name", "PhaseSolid" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type", fem::Stabilization_Type::GHOST_DISPL );
-        tParameterList( tSPIndex )( tSPCounter ).set( "function_parameters", "0.05" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "leader_properties", "PropSolidConductivity,Material" );
-        tSPCounter++;
+        tParameterList( tSPIndex ).set( "stabilization_name", "SPGPSolidTemp" );
+        tParameterList( tSPIndex ).set( "leader_phase_name", "PhaseSolid" );
+        tParameterList( tSPIndex ).set( "stabilization_type", fem::Stabilization_Type::GHOST_DISPL );
+        tParameterList( tSPIndex ).set( "function_parameters", "0.05" );
+        tParameterList( tSPIndex ).set( "leader_properties", "PropSolidConductivity,Material" );
 
         //------------------------------------------------------------------------------
         // fill the IWG part of the parameter list
 
-        // init IWG counter
-        uint tIWGCounter = 0;
-
         // fluid bulk IWGs -------------------------------------------------------------
         // NS incompressible (velocity)
         tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name", "IWGVelocityBulk" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type", fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual", "VX,VY,VZ" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters", "SPIncFlow,IncompressibleFlow" );
-        tIWGCounter++;
+        tParameterList( tIWGIndex ).set( "IWG_name", "IWGVelocityBulk" );
+        tParameterList( tIWGIndex ).set( "leader_phase_name", "PhaseFluid" );
+        tParameterList( tIWGIndex ).set( "IWG_type", fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK );
+        tParameterList( tIWGIndex ).set( "dof_residual", "VX,VY,VZ" );
+        tParameterList( tIWGIndex ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
+        tParameterList( tIWGIndex ).set( "stabilization_parameters", "SPIncFlow,IncompressibleFlow" );
 
         // NS incompressible (pressure)
         tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name", "IWGPressureBulk" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type", fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual", "P" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_properties", "PropFluidPressureSpring,PressureSpring" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters", "SPIncFlow,IncompressibleFlow" );
-        tIWGCounter++;
+        tParameterList( tIWGIndex ).set( "IWG_name", "IWGPressureBulk" );
+        tParameterList( tIWGIndex ).set( "leader_phase_name", "PhaseFluid" );
+        tParameterList( tIWGIndex ).set( "IWG_type", fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK );
+        tParameterList( tIWGIndex ).set( "dof_residual", "P" );
+        tParameterList( tIWGIndex ).set( "leader_properties", "PropFluidPressureSpring,PressureSpring" );
+        tParameterList( tIWGIndex ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
+        tParameterList( tIWGIndex ).set( "stabilization_parameters", "SPIncFlow,IncompressibleFlow" );
 
         // diffusion
         tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name", "IWGFluidDiffusionBulk" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type", fem::IWG_Type::SPATIALDIFF_BULK );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual", "TEMP" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_constitutive_models", "CMFluidDiffusion,Diffusion" );
-        tIWGCounter++;
+        tParameterList( tIWGIndex ).set( "IWG_name", "IWGFluidDiffusionBulk" );
+        tParameterList( tIWGIndex ).set( "leader_phase_name", "PhaseFluid" );
+        tParameterList( tIWGIndex ).set( "IWG_type", fem::IWG_Type::SPATIALDIFF_BULK );
+        tParameterList( tIWGIndex ).set( "dof_residual", "TEMP" );
+        tParameterList( tIWGIndex ).set( "leader_constitutive_models", "CMFluidDiffusion,Diffusion" );
 
         // advection
         tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name", "IWGFluidAdvectionBulk" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type", fem::IWG_Type::ADVECTION_BULK );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual", "TEMP" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_constitutive_models", "CMFluidDiffusion,Diffusion" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters", "SPSUPGTemp,SUPG" );
-        tIWGCounter++;
+        tParameterList( tIWGIndex ).set( "IWG_name", "IWGFluidAdvectionBulk" );
+        tParameterList( tIWGIndex ).set( "leader_phase_name", "PhaseFluid" );
+        tParameterList( tIWGIndex ).set( "IWG_type", fem::IWG_Type::ADVECTION_BULK );
+        tParameterList( tIWGIndex ).set( "dof_residual", "TEMP" );
+        tParameterList( tIWGIndex ).set( "leader_constitutive_models", "CMFluidDiffusion,Diffusion" );
+        tParameterList( tIWGIndex ).set( "stabilization_parameters", "SPSUPGTemp,SUPG" );
 
         // solid bulk IWGs -----------------------------------------------------------
         // diffusion
         tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name", "IWGSolidDiffusionBulk" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name", "PhaseSolid" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type", fem::IWG_Type::SPATIALDIFF_BULK );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual", "TEMP" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_properties", "PropVolumetricHeatFlux,Load" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_constitutive_models", "CMSolidDiffusion,Diffusion" );
-        tIWGCounter++;
+        tParameterList( tIWGIndex ).set( "IWG_name", "IWGSolidDiffusionBulk" );
+        tParameterList( tIWGIndex ).set( "leader_phase_name", "PhaseSolid" );
+        tParameterList( tIWGIndex ).set( "IWG_type", fem::IWG_Type::SPATIALDIFF_BULK );
+        tParameterList( tIWGIndex ).set( "dof_residual", "TEMP" );
+        tParameterList( tIWGIndex ).set( "leader_properties", "PropVolumetricHeatFlux,Load" );
+        tParameterList( tIWGIndex ).set( "leader_constitutive_models", "CMSolidDiffusion,Diffusion" );
 
         // fluid/solid ifc IWGs ------------------------------------------------------
 
         // temperature
         tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name", "IWGInterfaceFluidSolid" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type", fem::Element_Type::DOUBLE_SIDESET );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "follower_phase_name", "PhaseSolid" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type", fem::IWG_Type::SPATIALDIFF_INTERFACE_UNSYMMETRIC_NITSCHE );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual", "TEMP" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_constitutive_models", "CMFluidDiffusion,Diffusion" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "follower_constitutive_models", "CMSolidDiffusion,Diffusion" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters", "SPFSInterfaceNitsche,NitscheInterface" );
-        tIWGCounter++;
+        tParameterList( tIWGIndex ).set( "IWG_name", "IWGInterfaceFluidSolid" );
+        tParameterList( tIWGIndex ).set( "IWG_bulk_type", fem::Element_Type::DOUBLE_SIDESET );
+        tParameterList( tIWGIndex ).set( "leader_phase_name", "PhaseFluid" );
+        tParameterList( tIWGIndex ).set( "follower_phase_name", "PhaseSolid" );
+        tParameterList( tIWGIndex ).set( "IWG_type", fem::IWG_Type::SPATIALDIFF_INTERFACE_UNSYMMETRIC_NITSCHE );
+        tParameterList( tIWGIndex ).set( "dof_residual", "TEMP" );
+        tParameterList( tIWGIndex ).set( "leader_constitutive_models", "CMFluidDiffusion,Diffusion" );
+        tParameterList( tIWGIndex ).set( "follower_constitutive_models", "CMSolidDiffusion,Diffusion" );
+        tParameterList( tIWGIndex ).set( "stabilization_parameters", "SPFSInterfaceNitsche,NitscheInterface" );
 
         // zero velocity
         tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name", "IWGZeroVelocity" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type", fem::Element_Type::SIDESET );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "neighbor_phases", "PhaseSolid" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type", fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_UNSYMMETRIC_NITSCHE );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual", "VX,VY,VZ" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_properties", "PropZeroU,Dirichlet" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters", "SPNitscheU,DirichletNitsche" );
-        tIWGCounter++;
+        tParameterList( tIWGIndex ).set( "IWG_name", "IWGZeroVelocity" );
+        tParameterList( tIWGIndex ).set( "IWG_bulk_type", fem::Element_Type::SIDESET );
+        tParameterList( tIWGIndex ).set( "leader_phase_name", "PhaseFluid" );
+        tParameterList( tIWGIndex ).set( "neighbor_phases", "PhaseSolid" );
+        tParameterList( tIWGIndex ).set( "IWG_type", fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_UNSYMMETRIC_NITSCHE );
+        tParameterList( tIWGIndex ).set( "dof_residual", "VX,VY,VZ" );
+        tParameterList( tIWGIndex ).set( "leader_properties", "PropZeroU,Dirichlet" );
+        tParameterList( tIWGIndex ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
+        tParameterList( tIWGIndex ).set( "stabilization_parameters", "SPNitscheU,DirichletNitsche" );
 
         // zero velocity (pressure part)
         tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name", "IWGZeroPressure" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type", fem::Element_Type::SIDESET );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "neighbor_phases", "PhaseSolid" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type", fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual", "P" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_properties", "PropZeroU,Dirichlet" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
-        tIWGCounter++;
+        tParameterList( tIWGIndex ).set( "IWG_name", "IWGZeroPressure" );
+        tParameterList( tIWGIndex ).set( "IWG_bulk_type", fem::Element_Type::SIDESET );
+        tParameterList( tIWGIndex ).set( "leader_phase_name", "PhaseFluid" );
+        tParameterList( tIWGIndex ).set( "neighbor_phases", "PhaseSolid" );
+        tParameterList( tIWGIndex ).set( "IWG_type", fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE );
+        tParameterList( tIWGIndex ).set( "dof_residual", "P" );
+        tParameterList( tIWGIndex ).set( "leader_properties", "PropZeroU,Dirichlet" );
+        tParameterList( tIWGIndex ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
 
         // Laterial BC IWG (adiabatic) ----------------------------------------------------------------
 
         // zero velocity along lateral sides
         tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name", "IWGZeroVelocityVoid" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type", fem::Element_Type::SIDESET );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "neighbor_phases", "PhaseVoidLateral" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type", fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_UNSYMMETRIC_NITSCHE );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual", "VX,VY,VZ" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_properties", "PropZeroU,Dirichlet" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters", "SPNitscheU,DirichletNitsche" );
-        tIWGCounter++;
+        tParameterList( tIWGIndex ).set( "IWG_name", "IWGZeroVelocityVoid" );
+        tParameterList( tIWGIndex ).set( "IWG_bulk_type", fem::Element_Type::SIDESET );
+        tParameterList( tIWGIndex ).set( "leader_phase_name", "PhaseFluid" );
+        tParameterList( tIWGIndex ).set( "neighbor_phases", "PhaseVoidLateral" );
+        tParameterList( tIWGIndex ).set( "IWG_type", fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_UNSYMMETRIC_NITSCHE );
+        tParameterList( tIWGIndex ).set( "dof_residual", "VX,VY,VZ" );
+        tParameterList( tIWGIndex ).set( "leader_properties", "PropZeroU,Dirichlet" );
+        tParameterList( tIWGIndex ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
+        tParameterList( tIWGIndex ).set( "stabilization_parameters", "SPNitscheU,DirichletNitsche" );
 
         // zero velocity along lateral sides (pressure part)
         tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name", "IWGZeroPressureVoid" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type", fem::Element_Type::SIDESET );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "neighbor_phases", "PhaseVoidLateral" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type", fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual", "P" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_properties", "PropZeroU,Dirichlet" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
-        tIWGCounter++;
+        tParameterList( tIWGIndex ).set( "IWG_name", "IWGZeroPressureVoid" );
+        tParameterList( tIWGIndex ).set( "IWG_bulk_type", fem::Element_Type::SIDESET );
+        tParameterList( tIWGIndex ).set( "leader_phase_name", "PhaseFluid" );
+        tParameterList( tIWGIndex ).set( "neighbor_phases", "PhaseVoidLateral" );
+        tParameterList( tIWGIndex ).set( "IWG_type", fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE );
+        tParameterList( tIWGIndex ).set( "dof_residual", "P" );
+        tParameterList( tIWGIndex ).set( "leader_properties", "PropZeroU,Dirichlet" );
+        tParameterList( tIWGIndex ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
 
         // Inlet BC IWG ----------------------------------------------------------------
 
         // inlet pressure
         tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name", "IWGInletImposedPressure" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "neighbor_phases", "PhaseVoidFront" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type", fem::Element_Type::SIDESET );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type", fem::IWG_Type::INCOMPRESSIBLE_NS_IMPOSED_PRESSURE );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual", "VX,VY,VZ" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_properties", "PropInletPressure,Pressure" );
-        tIWGCounter++;
+        tParameterList( tIWGIndex ).set( "IWG_name", "IWGInletImposedPressure" );
+        tParameterList( tIWGIndex ).set( "leader_phase_name", "PhaseFluid" );
+        tParameterList( tIWGIndex ).set( "neighbor_phases", "PhaseVoidFront" );
+        tParameterList( tIWGIndex ).set( "IWG_bulk_type", fem::Element_Type::SIDESET );
+        tParameterList( tIWGIndex ).set( "IWG_type", fem::IWG_Type::INCOMPRESSIBLE_NS_IMPOSED_PRESSURE );
+        tParameterList( tIWGIndex ).set( "dof_residual", "VX,VY,VZ" );
+        tParameterList( tIWGIndex ).set( "leader_properties", "PropInletPressure,Pressure" );
 
         // inlet temperature
         tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name", "IWGInletTemp" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type", fem::Element_Type::SIDESET );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "neighbor_phases", "PhaseVoidFront" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type", fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual", "TEMP" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_properties", "PropInletTemp,Dirichlet" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_constitutive_models", "CMFluidDiffusion,Diffusion" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters", "SPNitscheT,DirichletNitsche" );
-        tIWGCounter++;
+        tParameterList( tIWGIndex ).set( "IWG_name", "IWGInletTemp" );
+        tParameterList( tIWGIndex ).set( "IWG_bulk_type", fem::Element_Type::SIDESET );
+        tParameterList( tIWGIndex ).set( "leader_phase_name", "PhaseFluid" );
+        tParameterList( tIWGIndex ).set( "neighbor_phases", "PhaseVoidFront" );
+        tParameterList( tIWGIndex ).set( "IWG_type", fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
+        tParameterList( tIWGIndex ).set( "dof_residual", "TEMP" );
+        tParameterList( tIWGIndex ).set( "leader_properties", "PropInletTemp,Dirichlet" );
+        tParameterList( tIWGIndex ).set( "leader_constitutive_models", "CMFluidDiffusion,Diffusion" );
+        tParameterList( tIWGIndex ).set( "stabilization_parameters", "SPNitscheT,DirichletNitsche" );
 
         // Ghost  ----------------------------------------------------------------
 
@@ -1169,213 +1104,191 @@ namespace moris
         {
             // ghost viscous
             tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name", "IWGGPViscous" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type", fem::Element_Type::DOUBLE_SIDESET );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name", "PhaseFluid" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "follower_phase_name", "PhaseFluid" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type", fem::IWG_Type::GHOST_NORMAL_FIELD );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual", "VX,VY,VZ" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters", "SPGPViscous,GhostSP" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "ghost_order", (uint)tDispOrder );
-            tIWGCounter++;
+            tParameterList( tIWGIndex ).set( "IWG_name", "IWGGPViscous" );
+            tParameterList( tIWGIndex ).set( "IWG_bulk_type", fem::Element_Type::DOUBLE_SIDESET );
+            tParameterList( tIWGIndex ).set( "leader_phase_name", "PhaseFluid" );
+            tParameterList( tIWGIndex ).set( "follower_phase_name", "PhaseFluid" );
+            tParameterList( tIWGIndex ).set( "IWG_type", fem::IWG_Type::GHOST_NORMAL_FIELD );
+            tParameterList( tIWGIndex ).set( "dof_residual", "VX,VY,VZ" );
+            tParameterList( tIWGIndex ).set( "stabilization_parameters", "SPGPViscous,GhostSP" );
+            tParameterList( tIWGIndex ).set( "ghost_order", (uint)tDispOrder );
 
             // ghost convective
             tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name", "IWGGPConvective" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type", fem::Element_Type::DOUBLE_SIDESET );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name", "PhaseFluid" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "follower_phase_name", "PhaseFluid" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type", fem::IWG_Type::GHOST_NORMAL_FIELD );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual", "VX,VY,VZ" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters", "SPGPVelocity,GhostSP" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "ghost_order", (uint)tDispOrder );
-            tIWGCounter++;
+            tParameterList( tIWGIndex ).set( "IWG_name", "IWGGPConvective" );
+            tParameterList( tIWGIndex ).set( "IWG_bulk_type", fem::Element_Type::DOUBLE_SIDESET );
+            tParameterList( tIWGIndex ).set( "leader_phase_name", "PhaseFluid" );
+            tParameterList( tIWGIndex ).set( "follower_phase_name", "PhaseFluid" );
+            tParameterList( tIWGIndex ).set( "IWG_type", fem::IWG_Type::GHOST_NORMAL_FIELD );
+            tParameterList( tIWGIndex ).set( "dof_residual", "VX,VY,VZ" );
+            tParameterList( tIWGIndex ).set( "stabilization_parameters", "SPGPVelocity,GhostSP" );
+            tParameterList( tIWGIndex ).set( "ghost_order", (uint)tDispOrder );
 
             // ghost pressure
             tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name", "IWGGPPressure" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type", fem::Element_Type::DOUBLE_SIDESET );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name", "PhaseFluid" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "follower_phase_name", "PhaseFluid" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type", fem::IWG_Type::GHOST_NORMAL_FIELD );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual", "P" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters", "SPGPPressure,GhostSP" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "ghost_order", (uint)tDispOrder );
-            tIWGCounter++;
+            tParameterList( tIWGIndex ).set( "IWG_name", "IWGGPPressure" );
+            tParameterList( tIWGIndex ).set( "IWG_bulk_type", fem::Element_Type::DOUBLE_SIDESET );
+            tParameterList( tIWGIndex ).set( "leader_phase_name", "PhaseFluid" );
+            tParameterList( tIWGIndex ).set( "follower_phase_name", "PhaseFluid" );
+            tParameterList( tIWGIndex ).set( "IWG_type", fem::IWG_Type::GHOST_NORMAL_FIELD );
+            tParameterList( tIWGIndex ).set( "dof_residual", "P" );
+            tParameterList( tIWGIndex ).set( "stabilization_parameters", "SPGPPressure,GhostSP" );
+            tParameterList( tIWGIndex ).set( "ghost_order", (uint)tDispOrder );
 
             // ghost fluid temperature
             tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name", "IWGGPFluidTemp" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type", fem::Element_Type::DOUBLE_SIDESET );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name", "PhaseFluid" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "follower_phase_name", "PhaseFluid" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type", fem::IWG_Type::GHOST_NORMAL_FIELD );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual", "TEMP" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters", "SPGPFluidTemp,GhostSP" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "ghost_order", (uint)tDispOrder );
-            tIWGCounter++;
+            tParameterList( tIWGIndex ).set( "IWG_name", "IWGGPFluidTemp" );
+            tParameterList( tIWGIndex ).set( "IWG_bulk_type", fem::Element_Type::DOUBLE_SIDESET );
+            tParameterList( tIWGIndex ).set( "leader_phase_name", "PhaseFluid" );
+            tParameterList( tIWGIndex ).set( "follower_phase_name", "PhaseFluid" );
+            tParameterList( tIWGIndex ).set( "IWG_type", fem::IWG_Type::GHOST_NORMAL_FIELD );
+            tParameterList( tIWGIndex ).set( "dof_residual", "TEMP" );
+            tParameterList( tIWGIndex ).set( "stabilization_parameters", "SPGPFluidTemp,GhostSP" );
+            tParameterList( tIWGIndex ).set( "ghost_order", (uint)tDispOrder );
 
             // ghost solid A temperature
             tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name", "IWGGPSolidTemp" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type", fem::Element_Type::DOUBLE_SIDESET );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name", "PhaseSolid" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "follower_phase_name", "PhaseSolid" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type", fem::IWG_Type::GHOST_NORMAL_FIELD );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual", "TEMP" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters", "SPGPSolidTemp,GhostSP" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "ghost_order", (uint)tDispOrder );
-            tIWGCounter++;
+            tParameterList( tIWGIndex ).set( "IWG_name", "IWGGPSolidTemp" );
+            tParameterList( tIWGIndex ).set( "IWG_bulk_type", fem::Element_Type::DOUBLE_SIDESET );
+            tParameterList( tIWGIndex ).set( "leader_phase_name", "PhaseSolid" );
+            tParameterList( tIWGIndex ).set( "follower_phase_name", "PhaseSolid" );
+            tParameterList( tIWGIndex ).set( "IWG_type", fem::IWG_Type::GHOST_NORMAL_FIELD );
+            tParameterList( tIWGIndex ).set( "dof_residual", "TEMP" );
+            tParameterList( tIWGIndex ).set( "stabilization_parameters", "SPGPSolidTemp,GhostSP" );
+            tParameterList( tIWGIndex ).set( "ghost_order", (uint)tDispOrder );
         }
 
         //------------------------------------------------------------------------------
         // fill the IQI part of the parameter list
 
-        // init IQI counter
-        uint tIQICounter = 0;
-
         // velocity VX
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name", "IQIBulkVX" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type", fem::IQI_Type::DOF );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "dof_quantity", "VX,VY,VZ" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "vectorial_field_index", 0 );
-        tIQICounter++;
+        tParameterList( tIQIIndex ).set( "IQI_name", "IQIBulkVX" );
+        tParameterList( tIQIIndex ).set( "leader_phase_name", "PhaseFluid" );
+        tParameterList( tIQIIndex ).set( "IQI_type", fem::IQI_Type::DOF );
+        tParameterList( tIQIIndex ).set( "dof_quantity", "VX,VY,VZ" );
+        tParameterList( tIQIIndex ).set( "vectorial_field_index", 0 );
 
         // velocity VY
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name", "IQIBulkVY" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type", fem::IQI_Type::DOF );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "dof_quantity", "VX,VY,VZ" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "vectorial_field_index", 1 );
-        tIQICounter++;
+        tParameterList( tIQIIndex ).set( "IQI_name", "IQIBulkVY" );
+        tParameterList( tIQIIndex ).set( "leader_phase_name", "PhaseFluid" );
+        tParameterList( tIQIIndex ).set( "IQI_type", fem::IQI_Type::DOF );
+        tParameterList( tIQIIndex ).set( "dof_quantity", "VX,VY,VZ" );
+        tParameterList( tIQIIndex ).set( "vectorial_field_index", 1 );
 
         // velocity VZ
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name", "IQIBulkVZ" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type", fem::IQI_Type::DOF );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "dof_quantity", "VX,VY,VZ" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "vectorial_field_index", 2 );
-        tIQICounter++;
+        tParameterList( tIQIIndex ).set( "IQI_name", "IQIBulkVZ" );
+        tParameterList( tIQIIndex ).set( "leader_phase_name", "PhaseFluid" );
+        tParameterList( tIQIIndex ).set( "IQI_type", fem::IQI_Type::DOF );
+        tParameterList( tIQIIndex ).set( "dof_quantity", "VX,VY,VZ" );
+        tParameterList( tIQIIndex ).set( "vectorial_field_index", 2 );
 
         // pressure
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name", "IQIBulkP" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type", fem::IQI_Type::DOF );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "dof_quantity", "P" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "vectorial_field_index", 0 );
-        tIQICounter++;
+        tParameterList( tIQIIndex ).set( "IQI_name", "IQIBulkP" );
+        tParameterList( tIQIIndex ).set( "leader_phase_name", "PhaseFluid" );
+        tParameterList( tIQIIndex ).set( "IQI_type", fem::IQI_Type::DOF );
+        tParameterList( tIQIIndex ).set( "dof_quantity", "P" );
+        tParameterList( tIQIIndex ).set( "vectorial_field_index", 0 );
 
         // temperature
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name", "IQIBulkTEMP" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name", "PhaseAll" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type", fem::IQI_Type::DOF );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "dof_quantity", "TEMP" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "vectorial_field_index", 0 );
-        tIQICounter++;
+        tParameterList( tIQIIndex ).set( "IQI_name", "IQIBulkTEMP" );
+        tParameterList( tIQIIndex ).set( "leader_phase_name", "PhaseAll" );
+        tParameterList( tIQIIndex ).set( "IQI_type", fem::IQI_Type::DOF );
+        tParameterList( tIQIIndex ).set( "dof_quantity", "TEMP" );
+        tParameterList( tIQIIndex ).set( "vectorial_field_index", 0 );
 
         // fluid thermal energy on inlet
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name", "IQIInletThermalEnergy" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_bulk_type", fem::Element_Type::SIDESET );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "neighbor_phases", "PhaseVoidFront" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type", fem::IQI_Type::THERMAL_ENERGY_CONVECTIVE_FLUX );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "leader_constitutive_models", "CMFluid,Fluid" );
-        tIQICounter++;
+        tParameterList( tIQIIndex ).set( "IQI_name", "IQIInletThermalEnergy" );
+        tParameterList( tIQIIndex ).set( "IQI_bulk_type", fem::Element_Type::SIDESET );
+        tParameterList( tIQIIndex ).set( "leader_phase_name", "PhaseFluid" );
+        tParameterList( tIQIIndex ).set( "neighbor_phases", "PhaseVoidFront" );
+        tParameterList( tIQIIndex ).set( "IQI_type", fem::IQI_Type::THERMAL_ENERGY_CONVECTIVE_FLUX );
+        tParameterList( tIQIIndex ).set( "leader_constitutive_models", "CMFluid,Fluid" );
 
         // fluid thermal energy on outlet
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name", "IQIOutletThermalEnergy" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_bulk_type", fem::Element_Type::SIDESET );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type", fem::IQI_Type::THERMAL_ENERGY_CONVECTIVE_FLUX );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "neighbor_phases", "PhaseVoidBack" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "leader_constitutive_models", "CMFluid,Fluid" );
-        tIQICounter++;
+        tParameterList( tIQIIndex ).set( "IQI_name", "IQIOutletThermalEnergy" );
+        tParameterList( tIQIIndex ).set( "IQI_bulk_type", fem::Element_Type::SIDESET );
+        tParameterList( tIQIIndex ).set( "IQI_type", fem::IQI_Type::THERMAL_ENERGY_CONVECTIVE_FLUX );
+        tParameterList( tIQIIndex ).set( "leader_phase_name", "PhaseFluid" );
+        tParameterList( tIQIIndex ).set( "neighbor_phases", "PhaseVoidBack" );
+        tParameterList( tIQIIndex ).set( "leader_constitutive_models", "CMFluid,Fluid" );
 
         // fluid total pressure on inlet
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name", "IQIInletTotalPressure" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_bulk_type", fem::Element_Type::SIDESET );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "neighbor_phases", "PhaseVoidFront" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type", fem::IQI_Type::TOTAL_PRESSURE );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "leader_constitutive_models", "CMFluid,Fluid" );
-        tIQICounter++;
+        tParameterList( tIQIIndex ).set( "IQI_name", "IQIInletTotalPressure" );
+        tParameterList( tIQIIndex ).set( "IQI_bulk_type", fem::Element_Type::SIDESET );
+        tParameterList( tIQIIndex ).set( "leader_phase_name", "PhaseFluid" );
+        tParameterList( tIQIIndex ).set( "neighbor_phases", "PhaseVoidFront" );
+        tParameterList( tIQIIndex ).set( "IQI_type", fem::IQI_Type::TOTAL_PRESSURE );
+        tParameterList( tIQIIndex ).set( "leader_constitutive_models", "CMFluid,Fluid" );
 
         // fluid total pressure on outlet
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name", "IQIOutletTotalPressure" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_bulk_type", fem::Element_Type::SIDESET );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "neighbor_phases", "PhaseVoidBack" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type", fem::IQI_Type::TOTAL_PRESSURE );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "leader_constitutive_models", "CMFluid,Fluid" );
-        tIQICounter++;
+        tParameterList( tIQIIndex ).set( "IQI_name", "IQIOutletTotalPressure" );
+        tParameterList( tIQIIndex ).set( "IQI_bulk_type", fem::Element_Type::SIDESET );
+        tParameterList( tIQIIndex ).set( "leader_phase_name", "PhaseFluid" );
+        tParameterList( tIQIIndex ).set( "neighbor_phases", "PhaseVoidBack" );
+        tParameterList( tIQIIndex ).set( "IQI_type", fem::IQI_Type::TOTAL_PRESSURE );
+        tParameterList( tIQIIndex ).set( "leader_constitutive_models", "CMFluid,Fluid" );
 
         // fluid mass flow on inlet
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name", "IQIInletMassFlow" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type", fem::IQI_Type::MASS_FLOW );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "neighbor_phases", "PhaseVoidFront" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_bulk_type", fem::Element_Type::SIDESET );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "leader_constitutive_models", "CMFluid,Fluid" );
-        tIQICounter++;
+        tParameterList( tIQIIndex ).set( "IQI_name", "IQIInletMassFlow" );
+        tParameterList( tIQIIndex ).set( "IQI_type", fem::IQI_Type::MASS_FLOW );
+        tParameterList( tIQIIndex ).set( "leader_phase_name", "PhaseFluid" );
+        tParameterList( tIQIIndex ).set( "neighbor_phases", "PhaseVoidFront" );
+        tParameterList( tIQIIndex ).set( "IQI_bulk_type", fem::Element_Type::SIDESET );
+        tParameterList( tIQIIndex ).set( "leader_constitutive_models", "CMFluid,Fluid" );
 
         // fluid mass flow on outlet
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name", "IQIOutletMassFlow" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "neighbor_phases", "PhaseVoidBack" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_bulk_type", fem::Element_Type::SIDESET );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type", fem::IQI_Type::MASS_FLOW );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "leader_constitutive_models", "CMFluid,Fluid" );
-        tIQICounter++;
+        tParameterList( tIQIIndex ).set( "IQI_name", "IQIOutletMassFlow" );
+        tParameterList( tIQIIndex ).set( "leader_phase_name", "PhaseFluid" );
+        tParameterList( tIQIIndex ).set( "neighbor_phases", "PhaseVoidBack" );
+        tParameterList( tIQIIndex ).set( "IQI_bulk_type", fem::Element_Type::SIDESET );
+        tParameterList( tIQIIndex ).set( "IQI_type", fem::IQI_Type::MASS_FLOW );
+        tParameterList( tIQIIndex ).set( "leader_constitutive_models", "CMFluid,Fluid" );
 
         // inclusion perimeter
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name", "IQIPerimeterItf" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name", "PhaseSolid" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "neighbor_phases", "PhaseFluid" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_bulk_type", fem::Element_Type::SIDESET );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type", fem::IQI_Type::VOLUME );
-        tIQICounter++;
+        tParameterList( tIQIIndex ).set( "IQI_name", "IQIPerimeterItf" );
+        tParameterList( tIQIIndex ).set( "leader_phase_name", "PhaseSolid" );
+        tParameterList( tIQIIndex ).set( "neighbor_phases", "PhaseFluid" );
+        tParameterList( tIQIIndex ).set( "IQI_bulk_type", fem::Element_Type::SIDESET );
+        tParameterList( tIQIIndex ).set( "IQI_type", fem::IQI_Type::VOLUME );
 
         // max temperature in solid
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name", "IQIMaxTemp" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name", "PhaseSolid" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type", fem::IQI_Type::MAX_DOF );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "function_parameters", tRefTemp + "/" + tMaxTempExponent );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "dof_quantity", "TEMP" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "vectorial_field_index", 0 );
-        tIQICounter++;
+        tParameterList( tIQIIndex ).set( "IQI_name", "IQIMaxTemp" );
+        tParameterList( tIQIIndex ).set( "leader_phase_name", "PhaseSolid" );
+        tParameterList( tIQIIndex ).set( "IQI_type", fem::IQI_Type::MAX_DOF );
+        tParameterList( tIQIIndex ).set( "function_parameters", tRefTemp + "/" + tMaxTempExponent );
+        tParameterList( tIQIIndex ).set( "dof_quantity", "TEMP" );
+        tParameterList( tIQIIndex ).set( "vectorial_field_index", 0 );
 
         // volume solid
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name", "IQISolidVolume" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name", "PhaseSolid" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type", fem::IQI_Type::VOLUME );
-        tIQICounter++;
+        tParameterList( tIQIIndex ).set( "IQI_name", "IQISolidVolume" );
+        tParameterList( tIQIIndex ).set( "leader_phase_name", "PhaseSolid" );
+        tParameterList( tIQIIndex ).set( "IQI_type", fem::IQI_Type::VOLUME );
 
         //------------------------------------------------------------------------------
         // fill the computation part of the parameter list
         tParameterList( tFEMIndex ).push_back( prm::create_computation_parameter_list() );
-        tParameterList( tFEMIndex )( 0 ).set( "print_physics_model", false );
+        tParameterList( tFEMIndex ).set( "print_physics_model", false );
 
-        tParameterList( tFEMIndex )( 0 ).set( "finite_difference_scheme", fem::FDScheme_Type::POINT_3_CENTRAL );
-        tParameterList( tFEMIndex )( 0 ).set( "finite_difference_perturbation_size", tFEMFdEpsilon );
+        tParameterList( tFEMIndex ).set( "finite_difference_scheme", fem::FDScheme_Type::POINT_3_CENTRAL );
+        tParameterList( tFEMIndex ).set( "finite_difference_perturbation_size", tFEMFdEpsilon );
     }
 
     void
-    SOLParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
+    SOLParameterList( Vector< Submodule_Parameter_Lists >& tParameterlist )
     {
         tParameterlist.resize( 8 );
 
@@ -1385,98 +1298,98 @@ namespace moris
         tParameterlist( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
 
 #ifdef MORIS_USE_MUMPS
-        tParameterlist( 0 )( 0 ).set( "Solver_Type", "Amesos_Mumps" );
-        tParameterlist( 0 )( 1 ).set( "Solver_Type", "Amesos_Mumps" );
+        tParameterlist( 0 ).set( "Solver_Type", "Amesos_Mumps" );
+        tParameterlist( 0 ).set( "Solver_Type", "Amesos_Mumps" );
 #else
-        tParameterlist( 0 )( 0 ).set( "Solver_Type", "Amesos_Superludist" );
-        tParameterlist( 0 )( 1 ).set( "Solver_Type", "Amesos_Superludist" );
+        tParameterlist( 0 ).set( "Solver_Type", "Amesos_Superludist" );
+        tParameterlist( 0 ).set( "Solver_Type", "Amesos_Superludist" );
 #endif
 
         /*
         tParameterlist( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::BELOS_IMPL ) );
-        tParameterlist( 0 )( 0 ).set( "ifpack_prec_type", "ILU");
-        tParameterlist( 0 )( 0 ).set( "fact: level-of-fill", 1);
+        tParameterlist( 0 ).set( "ifpack_prec_type", "ILU");
+        tParameterlist( 0 ).set( "fact: level-of-fill", 1);
 
         tParameterlist( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::BELOS_IMPL ) );
-        tParameterlist( 0 )( 1 ).set( "ifpack_prec_type", "ILU");
-        tParameterlist( 0 )( 1 ).set( "fact: level-of-fill", 3);
+        tParameterlist( 0 ).set( "ifpack_prec_type", "ILU");
+        tParameterlist( 0 ).set( "fact: level-of-fill", 3);
         */
 
         //------------------------------------------------------------------------------
 
 
         tParameterlist( 1 ).push_back( moris::prm::create_linear_solver_parameter_list() );
-        tParameterlist( 1 )( 0 ).set( "DLA_Linear_solver_algorithms", "0" );
+        tParameterlist( 1 ).set( "DLA_Linear_solver_algorithms", "0" );
 
         tParameterlist( 1 ).push_back( moris::prm::create_linear_solver_parameter_list() );
-        tParameterlist( 1 )( 1 ).set( "DLA_Linear_solver_algorithms", "1" );
+        tParameterlist( 1 ).set( "DLA_Linear_solver_algorithms", "1" );
 
         //------------------------------------------------------------------------------
 
 
         tParameterlist( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );    // nonlinear algorithm index 0
-        tParameterlist( 2 )( 0 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
-        tParameterlist( 2 )( 0 ).set( "NLA_Linear_solver", 0 );
-        tParameterlist( 2 )( 0 ).set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
-        tParameterlist( 2 )( 0 ).set( "NLA_relaxation_parameter", tNLA_relaxation_parameter );
-        tParameterlist( 2 )( 0 ).set( "NLA_max_iter", tNLA_max_iter );
+        tParameterlist( 2 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
+        tParameterlist( 2 ).set( "NLA_Linear_solver", 0 );
+        tParameterlist( 2 ).set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
+        tParameterlist( 2 ).set( "NLA_relaxation_parameter", tNLA_relaxation_parameter );
+        tParameterlist( 2 ).set( "NLA_max_iter", tNLA_max_iter );
 
         tParameterlist( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );
-        tParameterlist( 2 )( 1 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
-        tParameterlist( 2 )( 1 ).set( "NLA_Linear_solver", 0 );
-        tParameterlist( 2 )( 1 ).set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
-        tParameterlist( 2 )( 1 ).set( "NLA_relaxation_parameter", 1.0 );
-        tParameterlist( 2 )( 1 ).set( "NLA_max_iter", 1 );
+        tParameterlist( 2 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
+        tParameterlist( 2 ).set( "NLA_Linear_solver", 0 );
+        tParameterlist( 2 ).set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
+        tParameterlist( 2 ).set( "NLA_relaxation_parameter", 1.0 );
+        tParameterlist( 2 ).set( "NLA_max_iter", 1 );
 
         tParameterlist( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );    // nonlinear algorithm index 1
-        tParameterlist( 2 )( 2 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NLBGS_SOLVER );
-        tParameterlist( 2 )( 2 ).set( "NLA_Linear_solver", 0 );
-        tParameterlist( 2 )( 2 ).set( "NLA_rel_res_norm_drop", 1.0 );
-        tParameterlist( 2 )( 2 ).set( "NLA_max_iter", 1 );
+        tParameterlist( 2 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NLBGS_SOLVER );
+        tParameterlist( 2 ).set( "NLA_Linear_solver", 0 );
+        tParameterlist( 2 ).set( "NLA_rel_res_norm_drop", 1.0 );
+        tParameterlist( 2 ).set( "NLA_max_iter", 1 );
 
         tParameterlist( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );
-        tParameterlist( 2 )( 3 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
-        tParameterlist( 2 )( 3 ).set( "NLA_Linear_solver", 1 );
-        tParameterlist( 2 )( 3 ).set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
-        tParameterlist( 2 )( 3 ).set( "NLA_relaxation_parameter", 1.0 );
-        tParameterlist( 2 )( 3 ).set( "NLA_max_iter", 1 );
+        tParameterlist( 2 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
+        tParameterlist( 2 ).set( "NLA_Linear_solver", 1 );
+        tParameterlist( 2 ).set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
+        tParameterlist( 2 ).set( "NLA_relaxation_parameter", 1.0 );
+        tParameterlist( 2 ).set( "NLA_max_iter", 1 );
 
         //------------------------------------------------------------------------------
 
 
         tParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );    // 0: fluid subproblem
-        tParameterlist( 3 )( 0 ).set( "NLA_Nonlinear_solver_algorithms", "0" );             // set nonlinear algorithm with index 0
-        tParameterlist( 3 )( 0 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
-        tParameterlist( 3 )( 0 ).set( "NLA_DofTypes", "VX,VY,VZ,P" );
+        tParameterlist( 3 ).set( "NLA_Nonlinear_solver_algorithms", "0" );             // set nonlinear algorithm with index 0
+        tParameterlist( 3 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
+        tParameterlist( 3 ).set( "NLA_DofTypes", "VX,VY,VZ,P" );
 
         tParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );    // 1: thermal subproblem
-        tParameterlist( 3 )( 1 ).set( "NLA_Nonlinear_solver_algorithms", "1" );             // set nonlinear algorithm with index 0
-        tParameterlist( 3 )( 1 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
-        tParameterlist( 3 )( 1 ).set( "NLA_DofTypes", "TEMP" );
+        tParameterlist( 3 ).set( "NLA_Nonlinear_solver_algorithms", "1" );             // set nonlinear algorithm with index 0
+        tParameterlist( 3 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
+        tParameterlist( 3 ).set( "NLA_DofTypes", "TEMP" );
 
         tParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );    // 2: one-way coupling via NLBGS
-        tParameterlist( 3 )( 2 ).set( "NLA_Nonlinear_solver_algorithms", "2" );             // set nonlinear algorithm with index 1.
-        tParameterlist( 3 )( 2 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NLBGS_SOLVER );
-        tParameterlist( 3 )( 2 ).set( "NLA_Sub_Nonlinear_Solver", "0,1" );    // set sub nonlinear solvers with index 0 and 1
-        tParameterlist( 3 )( 2 ).set( "NLA_DofTypes", "VX,VY,VZ,P;TEMP" );
+        tParameterlist( 3 ).set( "NLA_Nonlinear_solver_algorithms", "2" );             // set nonlinear algorithm with index 1.
+        tParameterlist( 3 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NLBGS_SOLVER );
+        tParameterlist( 3 ).set( "NLA_Sub_Nonlinear_Solver", "0,1" );    // set sub nonlinear solvers with index 0 and 1
+        tParameterlist( 3 ).set( "NLA_DofTypes", "VX,VY,VZ,P;TEMP" );
 
         tParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );
-        tParameterlist( 3 )( 3 ).set( "NLA_DofTypes", "VX,VY,VZ,P,TEMP" );
-        tParameterlist( 3 )( 3 ).set( "NLA_Nonlinear_solver_algorithms", "3" );
+        tParameterlist( 3 ).set( "NLA_DofTypes", "VX,VY,VZ,P,TEMP" );
+        tParameterlist( 3 ).set( "NLA_Nonlinear_solver_algorithms", "3" );
 
         // ----------------------------------------------------------
 
         tParameterlist( 4 ).push_back( moris::prm::create_time_solver_algorithm_parameter_list() );
-        tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_Solver", 2 );                // using NLBGS for forward problem
-        tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_Sensitivity_Solver", 3 );    // using monlithic for sensitivity problem
+        tParameterlist( 4 ).set( "TSA_Nonlinear_Solver", 2 );                // using NLBGS for forward problem
+        tParameterlist( 4 ).set( "TSA_Nonlinear_Sensitivity_Solver", 3 );    // using monlithic for sensitivity problem
 
         //------------------------------------------------------------------------------
 
         tParameterlist( 5 ).push_back( moris::prm::create_time_solver_parameter_list() );
-        tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "VX,VY,VZ;P;TEMP" );
-        tParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec", "VX,0.01;VY,0.0;VZ,0.0;P,0.0;TEMP,0.0" );
-        tParameterlist( 5 )( 0 ).set( "TSA_Output_Indices", "0" );
-        tParameterlist( 5 )( 0 ).set( "TSA_Output_Criteria", "Output_Criterion" );
+        tParameterlist( 5 ).set( "TSA_DofTypes", "VX,VY,VZ;P;TEMP" );
+        tParameterlist( 5 ).set( "TSA_Initialize_Sol_Vec", "VX,0.01;VY,0.0;VZ,0.0;P,0.0;TEMP,0.0" );
+        tParameterlist( 5 ).set( "TSA_Output_Indices", "0" );
+        tParameterlist( 5 ).set( "TSA_Output_Criteria", "Output_Criterion" );
 
         //------------------------------------------------------------------------------
 
@@ -1486,33 +1399,33 @@ namespace moris
     }
 
     void
-    MSIParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
+    MSIParameterList( Vector< Submodule_Parameter_Lists >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).push_back( prm::create_msi_parameter_list() );
-        tParameterlist( 0 )( 0 ).set( "VX", 1 );
-        tParameterlist( 0 )( 0 ).set( "VY", 1 );
-        tParameterlist( 0 )( 0 ).set( "VZ", 1 );
-        tParameterlist( 0 )( 0 ).set( "TEMP", 1 );
+        tParameterlist( 0 ).set( "VX", 1 );
+        tParameterlist( 0 ).set( "VY", 1 );
+        tParameterlist( 0 ).set( "VZ", 1 );
+        tParameterlist( 0 ).set( "TEMP", 1 );
     }
 
     void
-    VISParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
+    VISParameterList( Vector< Submodule_Parameter_Lists >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).push_back( prm::create_vis_parameter_list() );
-        tParameterlist( 0 )( 0 ).set( "File_Name", std::pair< std::string, std::string >( "./", tExoFile ) );
-        tParameterlist( 0 )( 0 ).set( "Mesh_Type", vis::VIS_Mesh_Type::STANDARD );
-        tParameterlist( 0 )( 0 ).set( "Set_Names", tAllPhases );
-        tParameterlist( 0 )( 0 ).set( "Field_Names", "VX,VY,VZ,P,TEMP" );
-        tParameterlist( 0 )( 0 ).set( "Field_Type", "NODAL,NODAL,NODAL,NODAL,NODAL" );
-        tParameterlist( 0 )( 0 ).set( "IQI_Names", "IQIBulkVX,IQIBulkVY,IQIBulkVZ,IQIBulkP,IQIBulkTEMP" );
-        tParameterlist( 0 )( 0 ).set( "Save_Frequency", 1 );
-        tParameterlist( 0 )( 0 ).set( "Time_Offset", 10.0 );
+        tParameterlist( 0 ).set( "File_Name", std::pair< std::string, std::string >( "./", tExoFile ) );
+        tParameterlist( 0 ).set( "Mesh_Type", vis::VIS_Mesh_Type::STANDARD );
+        tParameterlist( 0 ).set( "Set_Names", tAllPhases );
+        tParameterlist( 0 ).set( "Field_Names", "VX,VY,VZ,P,TEMP" );
+        tParameterlist( 0 ).set( "Field_Type", "NODAL,NODAL,NODAL,NODAL,NODAL" );
+        tParameterlist( 0 ).set( "IQI_Names", "IQIBulkVX,IQIBulkVY,IQIBulkVZ,IQIBulkP,IQIBulkTEMP" );
+        tParameterlist( 0 ).set( "Save_Frequency", 1 );
+        tParameterlist( 0 ).set( "Time_Offset", 10.0 );
     }
 
     void
-    MORISGENERALParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
+    MORISGENERALParameterList( Vector< Submodule_Parameter_Lists >& tParameterlist )
     {
     }
 

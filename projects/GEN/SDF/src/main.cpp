@@ -170,7 +170,7 @@ perform_calculation(
 
     // step 1: load parameters
     Parameter_List           tGlobalParameters( "" );
-    Vector< Parameter_List > tObjectParameters;
+    Submodule_Parameter_Lists tObjectParameters;
 
     // load XML file
     load_sdf_parameter_list_from_xml(

@@ -8,10 +8,9 @@
  *
  */
 
-#ifndef MORIS_FN_PRM_OPT_PARAMETERS_HPP
-#define MORIS_FN_PRM_OPT_PARAMETERS_HPP
+#pragma once
 
-#include "cl_Parameter_List.hpp"
+#include "cl_Submodule_Parameter_Lists.hpp"
 
 namespace moris::prm
 {
@@ -221,5 +220,3 @@ namespace moris::prm
     //--------------------------------------------------------------------------------------------------------------
 
 }    // namespace moris::prm
-
-#endif    // MORIS_FN_PRM_OPT_PARAMETERS_HPP
