@@ -16,8 +16,9 @@ namespace moris
 {
     //--------------------------------------------------------------------------------------------------------------
 
-    Parameter_Iterator::Parameter_Iterator(
-            const std::map< std::string, Parameter >& aParameterMap,
+    template< typename Map_Type >
+    Parameter_Iterator< Map_Type >::Parameter_Iterator(
+            Map_Type aParameterMap,
             const Vector< std::string >&              aOrderedKeys,
             luint                                     aKeyIndex )
             : mParameterMap( aParameterMap )
@@ -28,14 +29,16 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Parameter_Iterator& Parameter_Iterator::operator*() const
+    template< typename Map_Type >
+    const Parameter_Iterator< Map_Type >& Parameter_Iterator< Map_Type >::operator*() const
     {
         return *this;
     };
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Parameter_Iterator& Parameter_Iterator::operator++()
+    template< typename Map_Type >
+    Parameter_Iterator< Map_Type >& Parameter_Iterator< Map_Type >::operator++()
     {
         // Increment key index
         mKeyIndex++;
@@ -46,21 +49,24 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
 
-    bool Parameter_Iterator::operator!=( const Parameter_Iterator& aComparisonIterator ) const
+    template< typename Map_Type >
+    bool Parameter_Iterator< Map_Type >::operator!=( const Parameter_Iterator< Map_Type >& aComparisonIterator ) const
     {
         return mKeyIndex != aComparisonIterator.mKeyIndex;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const std::string& Parameter_Iterator::get_name() const
+    template< typename Map_Type >
+    const std::string& Parameter_Iterator< Map_Type >::get_name() const
     {
         return mOrderedKeys( mKeyIndex );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Parameter& Parameter_Iterator::get_parameter() const
+    template< typename Map_Type >
+    const Parameter& Parameter_Iterator< Map_Type >::get_parameter() const
     {
         return mParameterMap.find( mOrderedKeys( mKeyIndex ) )->second;
     }
@@ -134,7 +140,7 @@ namespace moris
 
     void Parameter_List::copy_parameters( const Parameter_List& aParameterList )
     {
-        for ( const Parameter_Iterator& iCopyIterator : aParameterList )
+        for ( Parameter_List::const_iterator iCopyIterator : aParameterList )
         {
             // Get iterator from this map
             auto tFoundIterator = mParameterMap.find( iCopyIterator.get_name() );
@@ -190,14 +196,14 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Parameter_Iterator Parameter_List::begin() const
+    Parameter_List::const_iterator Parameter_List::begin() const
     {
         return { mParameterMap, mOrderedKeys, 0 };
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Parameter_Iterator Parameter_List::end() const
+    Parameter_List::const_iterator Parameter_List::end() const
     {
         return { mParameterMap, mOrderedKeys, mOrderedKeys.size() };
     }

@@ -594,7 +594,7 @@ namespace moris
                     const Parameter_List& tParameterList = mParameterLists( iModuleIndex )( iOuterIndex )( iInnerIndex );
 
                     // Loop over mapped parameters
-                    for ( const Parameter_Iterator& iParameterPair : tParameterList )
+                    for ( auto iParameterPair : tParameterList )
                     {
                         // Get external validator
                         const External_Validator& tExternalValidator = iParameterPair.get_parameter().get_external_validator();

@@ -26,15 +26,15 @@
 
 namespace moris
 {
+    template< typename Map_Type >
     class Parameter_Iterator
     {
       private:
-        const std::map< std::string, Parameter > mParameterMap;
-        const Vector< std::string >&             mOrderedKeys;
-        luint                                    mKeyIndex;
+        Map_Type                     mParameterMap;
+        const Vector< std::string >& mOrderedKeys;
+        luint                        mKeyIndex;
 
       public:
-
         /**
          * Parameter iterator constructor, gives all the information needed to increment this iterator.
          *
@@ -43,9 +43,9 @@ namespace moris
          * @param aKeyIndex Key index to start iterating from
          */
         Parameter_Iterator(
-                const std::map< std::string, Parameter >& aParameterMap,
-                const Vector< std::string >&              aOrderedKeys,
-                luint                                     aKeyIndex );
+                Map_Type                     aParameterMap,
+                const Vector< std::string >& aOrderedKeys,
+                luint                        aKeyIndex );
 
         /**
          * Indirection operator, used for range-based for loops.
@@ -80,16 +80,31 @@ namespace moris
          *
          * @return Parameter currently mapped to by the key
          */
+        template< bool enabled = not std::is_const< std::remove_reference< Map_Type > >::value >
+        typename std::enable_if< enabled, Parameter& >::type
+        get_parameter()
+        {
+            return mParameterMap.find( mOrderedKeys( mKeyIndex ) )->second;
+        }
+
+        /**
+         * Gets a const reference to the parameter associated with the key at the current index.
+         *
+         * @return Parameter currently mapped to by the key
+         */
         const Parameter& get_parameter() const;
     };
 
     class Parameter_List
     {
-
       private:
         std::string mName;
         std::map< std::string, Parameter > mParameterMap;
         Vector< std::string > mOrderedKeys;
+
+        // Scoped iterator types
+        typedef Parameter_Iterator< std::map< std::string, Parameter >& > iterator;
+        typedef Parameter_Iterator< const std::map< std::string, Parameter >& > const_iterator;
 
       public:
 
@@ -302,14 +317,14 @@ namespace moris
          *
          * @return Beginning of the parameter map, by insertion
          */
-        [[nodiscard]] Parameter_Iterator begin() const;
+        [[nodiscard]] const_iterator begin() const;
 
         /**
          * Gets a custom end iterator for going through the parameter map in the order parameters were inserted.
          *
          * @return End of the parameter map, by insertion
          */
-        [[nodiscard]] Parameter_Iterator end() const;
+        [[nodiscard]] const_iterator end() const;
 
         /**
          * @brief check if parameter list is empty
