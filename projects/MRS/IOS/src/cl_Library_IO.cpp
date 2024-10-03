@@ -19,6 +19,11 @@ namespace moris
 {
     //------------------------------------------------------------------------------------------------------------------
 
+    // Declare helper function for reading a module's parameter lists
+    Vector< Submodule_Parameter_Lists > read_module( uint aRoot );
+
+    //------------------------------------------------------------------------------------------------------------------
+
     Library_IO::Library_IO()
             : mSoFilePath( "" )
             , mLibraryHandle( nullptr )
@@ -430,14 +435,12 @@ namespace moris
 
     void
     Library_IO::create_new_module_parameterlist() {
-        ModuleParameterList tParameterList;
+        Vector< ModuleParameterList > tParameterList;
         for ( uint iParamListType = 0; iParamListType < (uint)( Parameter_List_Type::END_ENUM ); iParamListType++ )
         {
-            tParameterList.push_back( read( iParamListType ) );
-            mParameterLists( iParamListType ) = tParameterList;
+            mParameterLists( iParamListType ) = read_module( iParamListType );
         }
     }
-
 
     //------------------------------------------------------------------------------------------------------------------
 
@@ -508,7 +511,7 @@ namespace moris
     Library_IO::write_parameter_list_to_xml_buffer( Parameter_List& aParameterList )
     {
         // go over the entries of the parameter list ...
-        for ( const Parameter_Iterator& iParamToAdd : aParameterList )
+        for ( const auto& iParamToAdd : aParameterList )
         {
             // ... and add or modify them
             mXmlWriter->set_in_buffer( iParamToAdd.get_name(), iParamToAdd.get_parameter().get_string() );
@@ -866,6 +869,7 @@ namespace moris
     {
         // Create the parameter list with default values
         Parameter_List tParameterList = create_parameter_list( aModule, aChild, aSubChild );
+
         // Loop through the default parameter list
         for ( auto& iElements : tParameterList )
         {
@@ -1363,33 +1367,27 @@ namespace moris
         return tParameterList;
     }
 
-    Vector< Submodule_Parameter_Lists > read(uint aRoot)
+    Vector< Submodule_Parameter_Lists > read_module( uint aRoot )
     {
-
         // Create the 3d vector
-        Vector< Vector< Submodule_Parameter_Lists > > tParameterList;
+        Vector< Submodule_Parameter_Lists > tParameterList;
         tParameterList.resize( (uint)( Parameter_List_Type::END_ENUM ) );
-        for ( uint iRoot = 0; iRoot < (uint)( Parameter_List_Type::END_ENUM ); iRoot++ )
+        for ( uint iChild = 0; iChild < get_number_of_sub_parameter_lists_in_module( (Parameter_List_Type)aRoot ); iChild++ )
         {
-            tParameterList( iRoot ).resize( get_number_of_sub_parameter_lists_in_module( (Parameter_List_Type)iRoot ) );
-            for ( uint iChild = 0; iChild < get_number_of_sub_parameter_lists_in_module( (Parameter_List_Type)iRoot ); iChild++ )
+            if ( ( aRoot == (uint)( Parameter_List_Type::OPT ) && iChild == (uint)( OPT_SubModule::ALGORITHMS ) )
+                    || ( aRoot == (uint)( Parameter_List_Type::GEN ) && iChild == (uint)( GEN_SubModule::GEOMETRIES ) )
+                    || ( aRoot == (uint)( Parameter_List_Type::SOL ) && iChild == (uint)( SOL_SubModule::LINEAR_ALGORITHMS ) ) )
             {
-                if ( ( iRoot == (uint)( Parameter_List_Type::OPT ) && iChild == (uint)( OPT_SubModule::ALGORITHMS ) )
-                        || ( iRoot == (uint)( Parameter_List_Type::GEN ) && iChild == (uint)( GEN_SubModule::GEOMETRIES ) )
-                        || ( iRoot == (uint)( Parameter_List_Type::SOL ) && iChild == (uint)( SOL_SubModule::LINEAR_ALGORITHMS ) ) )
-                {
-                }
-                else
-                {
-                    tParameterList( iRoot )( iChild ).add_parameter_list( create_parameter_list( (Parameter_List_Type)iRoot, iChild, 0 ) );
-                }
+            }
+            else
+            {
+                tParameterList( iChild ).add_parameter_list( create_parameter_list( (Parameter_List_Type)aRoot, iChild, 0 ) );
             }
         }
 
         // Resize based on the projects/sub-projects
         // Populate based on the parameter_list
-        return tParameterList(aRoot);
+        return tParameterList;
     }
-
 
 }    // namespace moris

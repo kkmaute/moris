@@ -154,7 +154,7 @@ namespace moris
 
         // -----------------------------------------------------------------------------
 
-        Vector< Vector < Vector < Parameter_List > > >&
+        Vector< Vector < Submodule_Parameter_Lists > >&
         get_parameter_lists()
         {
             return mParameterLists;
@@ -390,9 +390,6 @@ namespace moris
      */
 
     Parameter_List create_parameter_list( Parameter_List_Type aModule, uint aChild, uint aSubChild );
-
-    Vector< Vector< Parameter_List > >  read(uint aRoot);
-
 
 }    // namespace moris
 
