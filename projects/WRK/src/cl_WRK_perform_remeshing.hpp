@@ -40,17 +40,16 @@ namespace moris
             bool mOutputMeshes = false;
 
             // mode ab_initio
-            Vector< Matrix< DDSMat > > mRefinementsMode_0;
-            Vector< Matrix< DDSMat > > mRefinementPatternMode_0;
+            Vector< Vector< uint > > mRefinementsMode_0;
+            Vector< Vector< uint > > mRefinementPatternMode_0;
             std::string                mRefinementFunction;
 
             Matrix< DDSMat > mMaxRefinementsMode_1;
             Matrix< DDSMat > mMinRefinementsMode_1;
             Matrix< DDSMat > mRefinementPatternMode_1;
 
-            Vector< Matrix< DDSMat > > mRefinementPatternMode_3;
-            Vector< Matrix< DDSMat > > mRefinemenCopytPatternToPattern_3;
-            Vector< Matrix< DDSMat > > mMinimumRefinementLevel;
+            Vector< Vector< uint > > mRefinemenCopytPatternToPattern_3;
+            Vector< Vector< uint > > mMinimumRefinementLevel;
             Vector< std::string >      mRefinementFunctionForField;
         };
 

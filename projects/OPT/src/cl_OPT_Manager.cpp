@@ -24,7 +24,7 @@ namespace moris::opt
     // -------------------------------------------------------------------------------------------------------------
 
     Manager::Manager(
-            const Vector< Vector< Parameter_List > >&              aParameterLists,
+            const Vector< Submodule_Parameter_Lists >&              aParameterLists,
             const Vector< std::shared_ptr< Criteria_Interface > >& aInterfaces )
             : Manager(
                       aParameterLists( 2 ),
@@ -39,7 +39,7 @@ namespace moris::opt
     // -------------------------------------------------------------------------------------------------------------
 
     Manager::Manager(
-            const Vector< Parameter_List >& aAlgorithmParameterLists,
+            const Submodule_Parameter_Lists& aAlgorithmParameterLists,
             std::shared_ptr< Problem >      aProblem )
             : mProblem( std::move( aProblem ) )
     {

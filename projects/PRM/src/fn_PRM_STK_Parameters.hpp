@@ -8,10 +8,9 @@
  *
  */
 
-#ifndef PROJECTS_PRM_SRC_FN_PRM_STK_PARAMETERS_HPP_
-#define PROJECTS_PRM_SRC_FN_PRM_STK_PARAMETERS_HPP_
+#pragma once
 
-#include "cl_Parameter_List.hpp"
+#include "cl_Submodule_Parameter_Lists.hpp"
 
 namespace moris::prm
 {
@@ -21,7 +20,7 @@ namespace moris::prm
     inline Parameter_List
     create_stk_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "STK" );
 
         // decomposition and decomposition related parameters
         tParameterList.insert( "input_file", "" );
@@ -34,5 +33,3 @@ namespace moris::prm
     //------------------------------------------------------------------------------
 
 }    // namespace moris::prm
-
-#endif // PROJECTS_PRM_SRC_FN_PRM_STK_PARAMETERS_HPP_

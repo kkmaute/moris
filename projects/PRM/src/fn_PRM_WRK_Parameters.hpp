@@ -8,10 +8,9 @@
  *
  */
 
-#ifndef SRC_fn_PRM_WRK_Parameters
-#define SRC_fn_PRM_WRK_Parameters
+#pragma once
 
-#include "cl_Parameter_List.hpp"
+#include "cl_Submodule_Parameter_Lists.hpp"
 
 namespace moris::prm
 {
@@ -22,7 +21,7 @@ namespace moris::prm
     inline Parameter_List
     create_wrk_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "Workflow" );
 
         tParameterList.insert( "adv_field", "" );
         tParameterList.insert( "dof_type", "" );
@@ -36,5 +35,3 @@ namespace moris::prm
     //------------------------------------------------------------------------------
 
 }    // namespace moris::prm
-
-#endif

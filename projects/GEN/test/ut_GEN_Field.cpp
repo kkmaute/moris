@@ -196,7 +196,7 @@ namespace moris::gen
         {
             // Create circles
             ADV_Manager tADVManager;
-            Design_Factory tDesignFactory( { tCircle1ParameterList, tCircle2ParameterList }, tADVManager );
+            Design_Factory tDesignFactory( Vector< Parameter_List >{ tCircle1ParameterList, tCircle2ParameterList }, tADVManager );
             tCircle1 = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
             tCircle2 = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 1 ) );
 
@@ -276,7 +276,7 @@ namespace moris::gen
 
         // Create superellipse
         ADV_Manager tADVManager;
-        Design_Factory                        tDesignFactory( { tSuperellipseParameterList }, tADVManager );
+        Design_Factory                        tDesignFactory( Vector< Parameter_List >{ tSuperellipseParameterList }, tADVManager );
         std::shared_ptr< Level_Set_Geometry > tSuperellipse = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
 
         // Set coordinates for checking
@@ -330,7 +330,7 @@ namespace moris::gen
 
         // Create new superellipse
         tADVManager = ADV_Manager();
-        tDesignFactory = Design_Factory( { tSuperellipseParameterList }, tADVManager );
+        tDesignFactory = Design_Factory( Vector< Parameter_List >{ tSuperellipseParameterList }, tADVManager );
         tSuperellipse = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
 
         // Change coordinates
@@ -388,7 +388,7 @@ namespace moris::gen
 
         // Create sphere
         ADV_Manager tADVManager;
-        Design_Factory                        tDesignFactory( { tSphereParameterList }, tADVManager );
+        Design_Factory                        tDesignFactory( Vector< Parameter_List >{ tSphereParameterList }, tADVManager );
         std::shared_ptr< Level_Set_Geometry > tSphere = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
 
         // Set coordinates for checking
@@ -438,7 +438,7 @@ namespace moris::gen
 
         // Create superellipsoid
         ADV_Manager tADVManager;
-        Design_Factory tDesignFactory( { tSuperellipsoidParameterList }, tADVManager );
+        Design_Factory tDesignFactory( Vector< Parameter_List >{ tSuperellipsoidParameterList }, tADVManager );
         std::shared_ptr< Level_Set_Geometry > tSuperellipsoid = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
 
         // Set coordinates for checking
@@ -494,7 +494,7 @@ namespace moris::gen
 
         // Create new superellipsoid
         tADVManager = ADV_Manager();
-        tDesignFactory = Design_Factory( { tSuperellipsoidParameterList }, tADVManager );
+        tDesignFactory = Design_Factory( Vector< Parameter_List >{ tSuperellipsoidParameterList }, tADVManager );
         tSuperellipsoid = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
 
         // Change coordinates
@@ -611,7 +611,7 @@ namespace moris::gen
 
                         // Set up geometry
                         ADV_Manager tADVManager;
-                        Design_Factory tDesignFactory( { tCircleParameterList }, tADVManager );
+                        Design_Factory tDesignFactory( Vector< Parameter_List >{ tCircleParameterList }, tADVManager );
                         tBSplineGeometries( tGeometryIndex ) = tDesignFactory.get_geometries()( 0 );
                     }
 
@@ -761,7 +761,7 @@ namespace moris::gen
 
         // Set up geometry
         ADV_Manager tADVManager;
-        Design_Factory tDesignFactory( { tCircleParameterList }, tADVManager );
+        Design_Factory tDesignFactory( Vector< Parameter_List >{ tCircleParameterList }, tADVManager );
         std::shared_ptr< Level_Set_Geometry > tCircle = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
 
         // Create geometry engine
@@ -828,20 +828,20 @@ namespace moris::gen
         Design_Variable tCenterX( 0.0, 0.0, 0.0 );
 
         // Set up 2 circles
-        Vector< Parameter_List > tParameterLists( 3 );
-        tParameterLists( 0 ) = prm::create_field_parameter_list( Field_Type::CIRCLE );
+        Submodule_Parameter_Lists tParameterLists;
+        tParameterLists.add_parameter_list( prm::create_field_parameter_list( Field_Type::CIRCLE ) );
         tParameterLists( 0 ).set( "center_x", tCenterX );
         tParameterLists( 0 ).set( "center_y", 1.0, 1.0, 1.0 );
         tParameterLists( 0 ).set( "radius", 1.0, 1.0, 1.0 );
         tParameterLists( 0 ).set( "name", "Circle 1" );
 
-        tParameterLists( 1 ) = prm::create_field_parameter_list( Field_Type::CIRCLE );
+        tParameterLists.add_parameter_list( prm::create_field_parameter_list( Field_Type::CIRCLE ) );
         tParameterLists( 1 ).set( "center_x", tCenterX );
         tParameterLists( 1 ).set( "center_y", 2.0, 2.0, 2.0 );
         tParameterLists( 1 ).set( "radius", 2.0, 2.0, 2.0 );
         tParameterLists( 1 ).set( "name", "Circle 2" );
 
-        tParameterLists( 2 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::COMBINED_FIELDS );
+        tParameterLists.add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::COMBINED_FIELDS ) );
         tParameterLists( 2 ).set( "dependencies", "Circle 1", "Circle 2" );
 
         // Create combined fields
@@ -918,7 +918,7 @@ namespace moris::gen
 
                 // Create swiss cheese
                 ADV_Manager tADVManager;
-                Design_Factory tDesignFactory( { tSwissCheeseParameterList }, tADVManager );
+                Design_Factory tDesignFactory( Vector< Parameter_List >{ tSwissCheeseParameterList }, tADVManager );
                 std::shared_ptr< Level_Set_Geometry > tSwissCheese = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
 
                 // Radii to check
@@ -984,7 +984,7 @@ namespace moris::gen
 
             // Create swiss cheese
             ADV_Manager tADVManager;
-            Design_Factory                        tDesignFactory( { tSwissCheeseParameterList }, tADVManager );
+            Design_Factory                        tDesignFactory( Vector< Parameter_List >{ tSwissCheeseParameterList }, tADVManager );
             std::shared_ptr< Level_Set_Geometry > tSwissCheese = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
 
             // Check holes
@@ -1043,7 +1043,7 @@ namespace moris::gen
 
             // Create swiss cheese
             ADV_Manager tADVManager;
-            Design_Factory tDesignFactory( { tSwissCheeseParameterList }, tADVManager );
+            Design_Factory tDesignFactory( Vector< Parameter_List >{ tSwissCheeseParameterList }, tADVManager );
             std::shared_ptr< Level_Set_Geometry > tSwissCheese = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
 
             // Check holes

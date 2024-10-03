@@ -4,7 +4,7 @@
  *
  *------------------------------------------------------------------------------------
  *
- * ChannelTurbulent2D.cpp
+ * Thermal_Flow_About_Sphere_2D.cpp
  *
  */
 
@@ -71,38 +71,22 @@ namespace moris
 
     /* ------------------------------------------------------------------------ */
 
-    // inlet fluid and thermal properties
-    real tInPres        = 0.001 * 101325.0;    // N/m2  - 0.6 atm
-    real tInTemp        = 0.0;                 // K     - 500 K
-    real tTurbIntensity = 3.0;
+    // inlet pressure
+    real tInPres = 0.001 * 101325.0;    // N/m2  - 0.6 atm
 
     // reference values
-    real presref = tInPres;     // reference pressure
-    real lenref  = 1e-3;        // reference length
-    real rhoref  = 0.3289;      // reference density
-    real dynvisc = 43.32e-6;    // reference kinematic visc
-    real tempref = 1.0;         // reference temperature
+    real presref = tInPres;    // reference pressure
+    real lenref  = 1e-3;       // reference length
+    real rhoref  = 0.3289;     // reference density
+    real tempref = 1.0;        // reference temperature
 
     // derived reference values
     real velref  = std::sqrt( presref / rhoref );
     real timeref = lenref / velref;
     real massref = rhoref * std::pow( lenref, 3.0 );
 
-    // fluid properties
-    real capfld  = 1.210e3;    // J/kg K
-    real prandtl = 0.7;
-    real turbPr  = 0.9;
-
-    real kinvisc = dynvisc / rhoref;
-    real confld  = ( dynvisc * capfld ) / prandtl;
-
-    // solid properties
-    real rhosolid = 7.0e3;
-    real consolid = 150.0;
-    real capsolid = 200.0;
-
     // reynolds number based on reference values and fluid properties see below
-    real reynolds = lenref * velref / kinvisc;
+    real reynolds = lenref * velref * 0.3289 / 43.32e-6;
 
     // scaling parameters: input: m -> used for computation: mm
     real tLengthScale = 1.0 / lenref;     // 1 m  = 1.0/lref;
@@ -136,7 +120,7 @@ namespace moris
     real tOffsetX = ( tChannelLength - tDimX ) / 2.0;
     real tOffsetY = ( tChannelHeight - tDimY ) / 2.0;
 
-    real tApproxEleSize = 1e-4 * tLengthScale;
+    real tApproxEleSize = 2e-4 * tLengthScale;
 
     /* ------------------------------------------------------------------------ */
     // background mesh
@@ -178,59 +162,29 @@ namespace moris
 
     /* ------------------------------------------------------------------------ */
     // loading parameters
+    real tInTemp  = 0.0;        // K     - 500 K
     real tHeatFlx = 250.0e4;    // W/m^2 - 250 W/cm^2
 
-    std::string tInletPressure     = moris_to_string( tInPres * tPressureScale );
-    std::string tInletTemperature  = moris_to_string( tInTemp * tTempScale );
-    std::string tInletKinViscosity = moris_to_string( tTurbIntensity * kinvisc * tLengthScale * tLengthScale / tTimeScale );    // m2/s air at 800 C);
-
+    std::string tInletPressure      = moris_to_string( tInPres * tPressureScale );
+    std::string tInletTemperature   = moris_to_string( tInTemp * tTempScale );
     std::string tVolumetricHeatLoad = moris_to_string( tHeatFlx * tPowerScale / tLengthScale / tLengthScale / tLengthScale );
 
     /* ------------------------------------------------------------------------ */
     // material parameters
-    std::string tFluidDensity           = moris_to_string( rhoref * tDensityScale );                                // kg/m3   air at 800 C and 1 atm
-    std::string tFluidDynViscosity      = moris_to_string( dynvisc * tPressureScale * tTimeScale );                 // N s/m2  air at 800 C
-    std::string tFluidKinViscosity      = moris_to_string( kinvisc * tLengthScale * tLengthScale / tTimeScale );    // m2/s air at 800 C
-    std::string tFluidCapacity          = moris_to_string( capfld * tEnergyScale / tMassScale / tTempScale );       // J/kg K  cp air at 800 C and 1 atm
-    std::string tFluidConductivity      = moris_to_string( confld * tPowerScale / tLengthScale / tTempScale );      // W/m K   air at 800 C
-    std::string tFluidTurbulencePrandtl = moris_to_string( prandtl );
-    std::string tFluidPressureSpring    = "0.0";
 
-    std::string tSolidDensity      = moris_to_string( rhosolid * tDensityScale );                              // kg/m3
-    std::string tSolidCapacity     = moris_to_string( capsolid * tEnergyScale / tMassScale / tTempScale );     // J/kg*K
-    std::string tSolidConductivity = moris_to_string( consolid * tPowerScale / tLengthScale / tTempScale );    // W/m K ;
+    std::string tFluidViscosity      = moris_to_string( 43.32e-6 * tPressureScale * tTimeScale );                //  N s/m2  air at 800 C
+    std::string tFluidDensity        = moris_to_string( 0.3289 * tDensityScale );                                // kg/m3   air at 800 C and 1 atm
+    std::string tFluidCapacity       = moris_to_string( 1.210e3 * tEnergyScale / tMassScale / tTempScale );      // J/kg K  cp air at 800 C and 1 atm
+    std::string tFluidConductivity   = moris_to_string( 76.26e-3 * tPowerScale / tLengthScale / tTempScale );    // W/m K   air at 800 C
+    std::string tFluidPressureSpring = "1e-6";
 
-    /* ------------------------------------------------------------------------ */
-    // turbulence model parameters
-    std::string tCMTurbFt2      = "1.0";
-    std::string tCMTurbAlpha    = "10.0";
-    std::string tSupgTurbPower  = "2.0";
-    std::string tSupgTurbSource = "1.0";
-    std::string tSupgFluidC1    = "36.0";
-
-    /* ------------------------------------------------------------------------ */
-    // material parameters for wall distance
-
-    // conductivity
-    std::string tConductivityThetaPhi = "1.0";
-
-    // capacity
-    std::string tCapacityTheta = "0.1";
-    std::string tCapacityPhi   = "0.0";
-
-    // density
-    std::string tDensityTheta = "1.0";
-    std::string tDensityPhi   = "0.0";
-
-    // prescribed theta on interface
-    std::string tPrescTheta = "1.0";
-
-    // prescribed phi on interface
-    std::string tPrescPhi = "0.0";
+    std::string tSolidDensity      = moris_to_string( 7.0e3 * tDensityScale );                              // kg/m3
+    std::string tSolidCapacity     = moris_to_string( 200.0 * tEnergyScale / tMassScale / tTempScale );     // J/kg*K
+    std::string tSolidConductivity = moris_to_string( 150.0 * tPowerScale / tLengthScale / tTempScale );    // W/m K ;
 
     /* ------------------------------------------------------------------------ */
     // File names
-    std::string tName          = "ChannelTurbulent2D";
+    std::string tName          = "Thermal_Flow_About_Sphere_2D";
     std::string tProblemConfig = "_" + std::to_string( gTestCaseIndex );
 
     std::string tSoFile        = tName + ".so";
@@ -244,16 +198,16 @@ namespace moris
     // FD in sweep
     std::string tSweepFdEpsilon = "1.0e-4";
 
-    // Element inverse estimate
+    // Eleement inverse estimate
     std::string tCInv = gInterpolationOrder == 2 ? "60.0" : "36.0";
 
     /* ------------------------------------------------------------------------ */
 
     // number of constraints (here: number of design criteria)
-    moris::uint tNumConstraints = 11;
+    moris::uint tNumConstraints = 9;
 
     // max dof IQI
-    std::string tRefTemp         = moris_to_string( 250.0 * tTempScale );
+    std::string tRefTemp         = moris_to_string( 250.0 * tTempScale );    // about 0.5 of inlet temperature
     std::string tMaxTempExponent = "8.0";
 
     /* ------------------------------------------------------------------------ */
@@ -286,6 +240,9 @@ namespace moris
     /* ------------------------------------------------------------------------ */
     // geometry parameters & LS functions
 
+    // Minimum level set value
+    moris::real tMinLevs = 1.0e-8;
+
     moris::real
     Func_Sphere(
             const moris::Matrix< DDRMat >& aCoordinates,
@@ -299,7 +256,7 @@ namespace moris
 
         real tReturnValue = tRadius - std::pow( std::pow( tX - tSpherePosX, tSphereExpon ) + std::pow( tY - tSpherePosY, tSphereExpon ), 1.0 / tSphereExpon );
 
-        return tReturnValue;
+        return std::abs( tReturnValue ) < tMinLevs ? tMinLevs : tReturnValue;
     }
 
     void
@@ -334,43 +291,7 @@ namespace moris
 
         real tReturnValue = tNx * ( tPx - tX ) + tNy * ( tPy - tY );
 
-        return tReturnValue;
-    }
-
-    /* ------------------------------------------------------------------------ */
-    // property functions
-
-    // inlet viscosity function
-    void
-    Func_Inlet_V(
-            moris::Matrix< moris::DDRMat >&           aPropMatrix,
-            Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*   aFIManager )
-    {
-        aPropMatrix.set_size( 1, 1, 0.0 );
-
-        real        tA      = 0.05;
-        moris::real tInVisc = aParameters( 0 )( 0 );
-        real        tY      = M_PI * ( aFIManager->get_IP_geometry_interpolator()->valx()( 1 ) - tGeoShift ) / ( tChannelHeight );
-        aPropMatrix( 0 )    = tInVisc * std::sin( tY ) / std::sqrt( tA * tA + std::sin( tY ) * std::sin( tY ) );
-    }
-
-    // wall distance function
-    void
-    Func_Wall_Distance( moris::Matrix< moris::DDRMat >& aPropMatrix,
-            Vector< moris::Matrix< moris::DDRMat > >&   aParameters,
-            moris::fem::Field_Interpolator_Manager*     aFIManager )
-    {
-        aPropMatrix = aFIManager->get_field_interpolators_for_type( MSI::Dof_Type::PHID )->val();
-    }
-
-    // Wall distance derivative function
-    void
-    Func_Wall_Distance_Der( moris::Matrix< moris::DDRMat >& aPropMatrix,
-            Vector< moris::Matrix< moris::DDRMat > >&       aParameters,
-            moris::fem::Field_Interpolator_Manager*         aFIManager )
-    {
-        aPropMatrix = aFIManager->get_field_interpolators_for_type( MSI::Dof_Type::PHID )->N();
+        return std::abs( tReturnValue ) < tMinLevs ? tMinLevs : tReturnValue;
     }
 
     /* ------------------------------------------------------------------------ */
@@ -423,16 +344,15 @@ namespace moris
 
     /* ------------------------------------------------------------------------ */
     /*
-    0- IQIOutletThermalEnergy
-    1- IQIInletTotalPressure
-    2- IQIOutletTotalPressure
-    3- IQIPerimeterIfc
-    4- IQIInletMassFlow
-    5- IQIOutletMassFlow
-    6- IQIMaxTemp
-    7- IQISolidVolume
-    8- IQIInletPowDisp
-    9 - IQIOutletPowDisp
+    0 - IQIInletThermalEnergy
+    1 - IQIOutletThermalEnergy
+    2 - IQIInletTotalPressure
+    3 - IQIOutletTotalPressure
+    4 - IQIPerimeterIfc
+    5 - IQIInletMassFlow
+    6 - IQIOutletMassFlow
+    7 - IQIMaxTemp
+    8 - IQISolidVolume
 */
 
     Matrix< DDRMat >
@@ -480,18 +400,16 @@ namespace moris
     {
         Matrix< DDRMat > tConstraints( tNumConstraints, 1 );
 
-        // constraints
-        tConstraints( 0 )  = aCriteria( 0 );
-        tConstraints( 1 )  = aCriteria( 1 );
-        tConstraints( 2 )  = aCriteria( 2 );
-        tConstraints( 3 )  = aCriteria( 3 );
-        tConstraints( 4 )  = aCriteria( 4 );
-        tConstraints( 5 )  = aCriteria( 5 );
-        tConstraints( 6 )  = aCriteria( 6 );
-        tConstraints( 7 )  = aCriteria( 7 );
-        tConstraints( 8 )  = aCriteria( 8 );
-        tConstraints( 9 )  = aCriteria( 9 );
-        tConstraints( 10 ) = aCriteria( 10 );
+        // Mass flux constraint
+        tConstraints( 0 ) = aCriteria( 0 );
+        tConstraints( 1 ) = aCriteria( 1 );
+        tConstraints( 2 ) = aCriteria( 2 );
+        tConstraints( 3 ) = aCriteria( 3 );
+        tConstraints( 4 ) = aCriteria( 4 );
+        tConstraints( 5 ) = aCriteria( 5 );
+        tConstraints( 6 ) = aCriteria( 6 );
+        tConstraints( 7 ) = aCriteria( 7 );
+        tConstraints( 8 ) = aCriteria( 8 );
 
         return tConstraints;
     }
@@ -517,17 +435,15 @@ namespace moris
     {
         Matrix< DDRMat > tDConstraintDCriteria( tNumConstraints, aCriteria.size(), 0.0 );
 
-        tDConstraintDCriteria( 0, 0 )   = 1.0;
-        tDConstraintDCriteria( 1, 1 )   = 1.0;
-        tDConstraintDCriteria( 2, 2 )   = 1.0;
-        tDConstraintDCriteria( 3, 3 )   = 1.0;
-        tDConstraintDCriteria( 4, 4 )   = 1.0;
-        tDConstraintDCriteria( 5, 5 )   = 1.0;
-        tDConstraintDCriteria( 6, 6 )   = 1.0;
-        tDConstraintDCriteria( 7, 7 )   = 1.0;
-        tDConstraintDCriteria( 8, 8 )   = 1.0;
-        tDConstraintDCriteria( 9, 9 )   = 1.0;
-        tDConstraintDCriteria( 10, 10 ) = 1.0;
+        tDConstraintDCriteria( 0, 0 ) = 1.0;
+        tDConstraintDCriteria( 1, 1 ) = 1.0;
+        tDConstraintDCriteria( 2, 2 ) = 1.0;
+        tDConstraintDCriteria( 3, 3 ) = 1.0;
+        tDConstraintDCriteria( 4, 4 ) = 1.0;
+        tDConstraintDCriteria( 5, 5 ) = 1.0;
+        tDConstraintDCriteria( 6, 6 ) = 1.0;
+        tDConstraintDCriteria( 7, 7 ) = 1.0;
+        tDConstraintDCriteria( 8, 8 ) = 1.0;
 
         return tDConstraintDCriteria;
     }
@@ -618,6 +534,7 @@ namespace moris
 
         tParameterlist( 0 ).add_parameter_list( prm::create_gen_parameter_list() );
         tParameterlist( 0 ).set( "IQI_types",
+                "IQIInletThermalEnergy",
                 "IQIOutletThermalEnergy",
                 "IQIInletTotalPressure",
                 "IQIOutletTotalPressure",
@@ -625,10 +542,7 @@ namespace moris
                 "IQIInletMassFlow",
                 "IQIOutletMassFlow",
                 "IQIMaxTemp",
-                "IQISolidVolume",
-                "IQIInletPowDisp",
-                "IQIOutletPowDisp",
-                "IQIVolumePowDisp" );
+                "IQISolidVolume" );
 
         tParameterlist( 0 ).set( "number_of_phases", 5 );
         tParameterlist( 0 ).set( "phase_function_name", "get_phase_index" );
@@ -736,13 +650,11 @@ namespace moris
             std::cout << "tInletPressure       = " << tInletPressure << '\n';
             std::cout << "tInletTemperature    = " << tInletTemperature << '\n';
             std::cout << "tVolumetricHeatLoad  = " << tVolumetricHeatLoad << '\n';
-            std::cout << "tInletKinViscosity   = " << tInletKinViscosity << '\n';
 
             std::cout << '\n';
 
+            std::cout << "tFluidViscosity      = " << tFluidViscosity << '\n';
             std::cout << "tFluidDensity        = " << tFluidDensity << '\n';
-            std::cout << "tFluidDynViscosity   = " << tFluidDynViscosity << '\n';
-            std::cout << "tFluidKinViscosity   = " << tFluidKinViscosity << '\n';
             std::cout << "tFluidCapacity       = " << tFluidCapacity << '\n';
             std::cout << "tFluidConductivity   = " << tFluidConductivity << '\n';
             std::cout << "tFluidPressureSpring = " << tFluidPressureSpring << '\n';
@@ -755,7 +667,7 @@ namespace moris
 
             std::cout << '\n';
 
-            std::cout << "Reynolds number     = " << 1.0 / std::stod( tFluidDynViscosity ) << " (" << reynolds << ")\n";
+            std::cout << "Reynolds number     = " << 1.0 / std::stod( tFluidViscosity ) << " (" << reynolds << ")\n";
         }
 
         // create a cell of cell of parameter list for fem
@@ -801,18 +713,13 @@ namespace moris
         // fluid properties ------------------------------------------------------------
         // create fluid viscosity property
         tParameterList( tPropIndex ).add_parameter_list( prm::create_property_parameter_list() );
-        tParameterList( tPropIndex ).set( "property_name", "PropFluidDynViscosity" );
-        tParameterList( tPropIndex ).set( "function_parameters", tFluidDynViscosity );
+        tParameterList( tPropIndex ).set( "property_name", "PropFluidViscosity" );
+        tParameterList( tPropIndex ).set( "function_parameters", tFluidViscosity );
 
         // create fluid density property
         tParameterList( tPropIndex ).add_parameter_list( prm::create_property_parameter_list() );
         tParameterList( tPropIndex ).set( "property_name", "PropFluidDensity" );
         tParameterList( tPropIndex ).set( "function_parameters", tFluidDensity );
-
-        // create fluid kinematic viscosity property
-        tParameterList( tPropIndex ).add_parameter_list( prm::create_property_parameter_list() );
-        tParameterList( tPropIndex ).set( "property_name", "PropFluidKinViscosity" );
-        tParameterList( tPropIndex ).set( "function_parameters", tFluidKinViscosity );
 
         // create fluid capacity property
         tParameterList( tPropIndex ).add_parameter_list( prm::create_property_parameter_list() );
@@ -823,11 +730,6 @@ namespace moris
         tParameterList( tPropIndex ).add_parameter_list( prm::create_property_parameter_list() );
         tParameterList( tPropIndex ).set( "property_name", "PropFluidConductivity" );
         tParameterList( tPropIndex ).set( "function_parameters", tFluidConductivity );
-
-        // create turbulent prandtl number
-        tParameterList( tPropIndex ).add_parameter_list( prm::create_property_parameter_list() );
-        tParameterList( tPropIndex ).set( "property_name", "PropFluidTurbPrandtl" );
-        tParameterList( tPropIndex ).set( "function_parameters", tFluidTurbulencePrandtl );
 
         // create fluid pressure spring property
         tParameterList( tPropIndex ).add_parameter_list( prm::create_property_parameter_list() );
@@ -871,84 +773,10 @@ namespace moris
         tParameterList( tPropIndex ).set( "property_name", "PropSelectUY" );
         tParameterList( tPropIndex ).set( "function_parameters", "0.0,0.0;0.0,1.0" );
 
-        // create inlet kinematic viscosity property
-        tParameterList( tPropIndex ).add_parameter_list( prm::create_property_parameter_list() );
-        tParameterList( tPropIndex ).set( "property_name", "PropInletV" );
-        tParameterList( tPropIndex ).set( "value_function", "Func_Inlet_V" );
-        tParameterList( tPropIndex ).set( "function_parameters", tInletKinViscosity );
-
-        // create  wall kinematic viscosity property
-        tParameterList( tPropIndex ).add_parameter_list( prm::create_property_parameter_list() );
-        tParameterList( tPropIndex ).set( "property_name", "PropZeroV" );
-        tParameterList( tPropIndex ).set( "function_parameters", "0.0" );
-
         // create heat load property
         tParameterList( tPropIndex ).add_parameter_list( prm::create_property_parameter_list() );
         tParameterList( tPropIndex ).set( "property_name", "PropVolumetricHeatFlux" );
         tParameterList( tPropIndex ).set( "function_parameters", tVolumetricHeatLoad );
-
-        // Wall distance properties ----------------------------------------------------
-        // create wall distance property
-        tParameterList( tPropIndex ).add_parameter_list( prm::create_property_parameter_list() );
-        tParameterList( tPropIndex ).set( "property_name", "PropWallDistance" );
-        tParameterList( tPropIndex ).set( "dof_dependencies", "PHID" );
-        tParameterList( tPropIndex ).set( "value_function", "Func_Wall_Distance" );
-        tParameterList( tPropIndex ).set( "dof_derivative_functions", "Func_Wall_Distance_Der" );
-
-        // create common conductivity property for theta and phi problems
-        tParameterList( tPropIndex ).add_parameter_list( prm::create_property_parameter_list() );
-        tParameterList( tPropIndex ).set( "property_name", "PropConductivity" );
-        tParameterList( tPropIndex ).set( "function_parameters", tConductivityThetaPhi );
-
-        // create density property for theta problem
-        tParameterList( tPropIndex ).add_parameter_list( prm::create_property_parameter_list() );
-        tParameterList( tPropIndex ).set( "property_name", "PropDensityTheta" );
-        tParameterList( tPropIndex ).set( "function_parameters", tDensityTheta );
-
-        // create capacity property for theta problem
-        tParameterList( tPropIndex ).add_parameter_list( prm::create_property_parameter_list() );
-        tParameterList( tPropIndex ).set( "property_name", "PropCapacityTheta" );
-        tParameterList( tPropIndex ).set( "function_parameters", tCapacityTheta );
-
-        // create prescribed BC property for theta problem
-        tParameterList( tPropIndex ).add_parameter_list( prm::create_property_parameter_list() );
-        tParameterList( tPropIndex ).set( "property_name", "PropPrescTheta" );
-        tParameterList( tPropIndex ).set( "function_parameters", tPrescTheta );
-
-        // create density property for phi problem
-        tParameterList( tPropIndex ).add_parameter_list( prm::create_property_parameter_list() );
-        tParameterList( tPropIndex ).set( "property_name", "PropDensityPhi" );
-        tParameterList( tPropIndex ).set( "function_parameters", tDensityPhi );
-
-        // create capacity property for phi problem
-        tParameterList( tPropIndex ).add_parameter_list( prm::create_property_parameter_list() );
-        tParameterList( tPropIndex ).set( "property_name", "PropCapacityPhi" );
-        tParameterList( tPropIndex ).set( "function_parameters", tCapacityPhi );
-
-        // create prescribed BC property for phi problem
-        tParameterList( tPropIndex ).add_parameter_list( prm::create_property_parameter_list() );
-        tParameterList( tPropIndex ).set( "property_name", "PropPrescPhi" );
-        tParameterList( tPropIndex ).set( "function_parameters", tPrescPhi );
-
-        // create eigenstrain BC property for phi problem
-        tParameterList( tPropIndex ).add_parameter_list( prm::create_property_parameter_list() );
-        tParameterList( tPropIndex ).set( "property_name", "PropEigenStrainPhi" );
-        tParameterList( tPropIndex ).set( "function_parameters", "1.0" );
-
-        // create time continuity weight current
-        tParameterList( tPropIndex ).add_parameter_list( prm::create_property_parameter_list() );
-        tParameterList( tPropIndex ).set( "property_name", "PropWeightCurrent" );
-        tParameterList( tPropIndex ).set( "function_parameters", "10.0" );
-
-        // create time continuity weight previous
-        tParameterList( tPropIndex ).add_parameter_list( prm::create_property_parameter_list() );
-        tParameterList( tPropIndex ).set( "property_name", "PropWeightPrevious" );
-        tParameterList( tPropIndex ).set( "function_parameters", "10.0" );
-
-        // create initial condition property
-        tParameterList( tPropIndex ).add_parameter_list( prm::create_property_parameter_list() );
-        tParameterList( tPropIndex ).set( "property_name", "PropInitialCondition" );
-        tParameterList( tPropIndex ).set( "function_parameters", "0.0" );
 
         //------------------------------------------------------------------------------
         // fill the constitutive model part of the parameter list
@@ -959,36 +787,22 @@ namespace moris
         tParameterList( tCMIndex ).add_parameter_list( prm::create_constitutive_model_parameter_list() );
         tParameterList( tCMIndex ).set( "constitutive_name", "CMFluid" );
         tParameterList( tCMIndex ).set( "phase_name", "PhaseFluid" );
-        tParameterList( tCMIndex ).set( "constitutive_type", fem::Constitutive_Type::FLUID_TURBULENCE );
-        tParameterList( tCMIndex ).set( "dof_dependencies", std::pair< std::string, std::string >( "VX,VY;P;VISCOSITY", "Velocity,Pressure,Viscosity" ) );
+        tParameterList( tCMIndex ).set( "constitutive_type", fem::Constitutive_Type::FLUID_INCOMPRESSIBLE );
+        tParameterList( tCMIndex ).set( "dof_dependencies", std::pair< std::string, std::string >( "VX,VY;P", "Velocity,Pressure" ) );
         tParameterList( tCMIndex ).set( "properties",
-                "PropFluidDynViscosity,Viscosity;"
-                "PropFluidKinViscosity,KinViscosity;"
+                "PropFluidViscosity,Viscosity;"
                 "PropFluidDensity  ,Density" );
-
-        // create CM SA turbulence
-        tParameterList( tCMIndex ).add_parameter_list( prm::create_constitutive_model_parameter_list() );
-        tParameterList( tCMIndex ).set( "constitutive_name", "CMTurbulence" );
-        tParameterList( tCMIndex ).set( "phase_name", "PhaseFluid" );
-        tParameterList( tCMIndex ).set( "constitutive_type", fem::Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
-        tParameterList( tCMIndex ).set( "function_parameters", tCMTurbFt2 + "/" + tCMTurbAlpha );
-        tParameterList( tCMIndex ).set( "dof_dependencies", std::pair< std::string, std::string >( "VX,VY;VISCOSITY", "Velocity,Viscosity" ) );
-        tParameterList( tCMIndex ).set( "properties",
-                "PropFluidKinViscosity,KinViscosity;"
-                "PropWallDistance     ,WallDistance" );
 
         // create fluid diffusion CM
         tParameterList( tCMIndex ).add_parameter_list( prm::create_constitutive_model_parameter_list() );
         tParameterList( tCMIndex ).set( "constitutive_name", "CMFluidDiffusion" );
         tParameterList( tCMIndex ).set( "phase_name", "PhaseFluid" );
-        tParameterList( tCMIndex ).set( "constitutive_type", fem::Constitutive_Type::DIFF_LIN_ISO_TURBULENCE );
+        tParameterList( tCMIndex ).set( "constitutive_type", fem::Constitutive_Type::DIFF_LIN_ISO );
         tParameterList( tCMIndex ).set( "dof_dependencies", std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
         tParameterList( tCMIndex ).set( "properties",
                 "PropFluidConductivity,Conductivity;"
                 "PropFluidDensity     ,Density;"
-                "PropFluidCapacity    ,HeatCapacity;"
-                "PropFluidKinViscosity,KinematicViscosity;"
-                "PropFluidTurbPrandtl ,TurbulentPrandtl" );
+                "PropFluidCapacity    ,HeatCapacity" );
 
         // solid CM --------------------------------------------------------------------
         // create solid B diffusion CM
@@ -1002,94 +816,39 @@ namespace moris
                 "PropSolidDensity     ,Density;"
                 "PropSolidCapacity    ,HeatCapacity" );
 
-        // theta/phi CM --------------------------------------------------------------------
-        // create fluid theta diffusion CM
-        tParameterList( tCMIndex ).add_parameter_list( prm::create_constitutive_model_parameter_list() );
-        tParameterList( tCMIndex ).set( "constitutive_name", "CMFluidDiffusionTheta" );
-        tParameterList( tCMIndex ).set( "phase_name", "PhaseFluid" );
-        tParameterList( tCMIndex ).set( "constitutive_type", fem::Constitutive_Type::DIFF_LIN_ISO );
-        tParameterList( tCMIndex ).set( "dof_dependencies", std::pair< std::string, std::string >( "THETA", "Temperature" ) );
-        tParameterList( tCMIndex ).set( "properties",
-                "PropConductivity      , Conductivity;"
-                "PropDensityTheta      , Density;"
-                "PropCapacityTheta     , HeatCapacity" );
-
-        // create solid theta diffusion CM
-        tParameterList( tCMIndex ).add_parameter_list( prm::create_constitutive_model_parameter_list() );
-        tParameterList( tCMIndex ).set( "constitutive_name", "CMInclusionSolidDiffusionTheta" );
-        tParameterList( tCMIndex ).set( "phase_name", "PhaseSolid" );
-        tParameterList( tCMIndex ).set( "constitutive_type", fem::Constitutive_Type::DIFF_LIN_ISO );
-        tParameterList( tCMIndex ).set( "dof_dependencies", std::pair< std::string, std::string >( "THETA", "Temperature" ) );
-        tParameterList( tCMIndex ).set( "properties",
-                "PropConductivity      , Conductivity;"
-                "PropDensityTheta      , Density;"
-                "PropCapacityTheta     , HeatCapacity" );
-
-        // create fluid phi diffusion CM
-        tParameterList( tCMIndex ).add_parameter_list( prm::create_constitutive_model_parameter_list() );
-        tParameterList( tCMIndex ).set( "constitutive_name", "CMFluidDiffusionPhi" );
-        tParameterList( tCMIndex ).set( "phase_name", "PhaseFluid" );
-        tParameterList( tCMIndex ).set( "constitutive_type", fem::Constitutive_Type::DIFF_LIN_ISO );
-        tParameterList( tCMIndex ).set( "dof_dependencies", std::pair< std::string, std::string >( "PHID;THETA", "Temperature,Theta" ) );
-        tParameterList( tCMIndex ).set( "properties",
-                "PropConductivity    , Conductivity;"
-                "PropDensityPhi      , Density;"
-                "PropCapacityPhi     , HeatCapacity;"
-                "PropEigenStrainPhi  , EigenStrain" );
-
-        // create solid phi diffusion CM
-        tParameterList( tCMIndex ).add_parameter_list( prm::create_constitutive_model_parameter_list() );
-        tParameterList( tCMIndex ).set( "constitutive_name", "CMInclusionSolidDiffusionPhi" );
-        tParameterList( tCMIndex ).set( "phase_name", "PhaseSolid" );
-        tParameterList( tCMIndex ).set( "constitutive_type", fem::Constitutive_Type::DIFF_LIN_ISO );
-        tParameterList( tCMIndex ).set( "dof_dependencies", std::pair< std::string, std::string >( "PHID;THETA", "Temperature,Theta" ) );
-        tParameterList( tCMIndex ).set( "properties",
-                "PropConductivity    , Conductivity;"
-                "PropDensityPhi      , Density;"
-                "PropCapacityPhi     , HeatCapacity;"
-                "PropEigenStrainPhi  , EigenStrain" );
-
         //------------------------------------------------------------------------------
         // fill the stabilization parameter part of the parameter list
 
 
-        // create SUPG/PSG fluid
+        // create SUPG/PSG fluid (note: use time step in tau although static; for testing purposes only)
         tParameterList( tSPIndex ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( tSPIndex ).set( "stabilization_name", "SPIncFlow" );
         tParameterList( tSPIndex ).set( "leader_phase_name", "PhaseFluid" );
         tParameterList( tSPIndex ).set( "stabilization_type", fem::Stabilization_Type::INCOMPRESSIBLE_FLOW );
-        tParameterList( tSPIndex ).set( "function_parameters", tCInv + "/0.0" );
+        tParameterList( tSPIndex ).set( "function_parameters", tCInv + "/1.0" );
         tParameterList( tSPIndex ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY;P", "Velocity,Pressure" ) );
         tParameterList( tSPIndex ).set( "leader_properties",
-                "PropFluidDynViscosity,Viscosity;"
+                "PropFluidViscosity,Viscosity;"
                 "PropFluidDensity  ,Density" );
 
-        // create SUPG fluid temperature advection
+        // create SUPG fluid temperature advection (note: use time step in tau although static; for testing purposes only)
         tParameterList( tSPIndex ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( tSPIndex ).set( "stabilization_name", "SPSUPGTemp" );
         tParameterList( tSPIndex ).set( "leader_phase_name", "PhaseFluid" );
         tParameterList( tSPIndex ).set( "stabilization_type", fem::Stabilization_Type::SUPG_ADVECTION );
         tParameterList( tSPIndex ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
+        tParameterList( tSPIndex ).set( "function_parameters", "1.0" );
         tParameterList( tSPIndex ).set( "leader_properties", "PropFluidConductivity,Conductivity" );
-
-        // create SUPG Spalart-Allmaras model
-        tParameterList( tSPIndex ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( tSPIndex ).set( "stabilization_name", "SPSUPGSA" );
-        tParameterList( tSPIndex ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tSPIndex ).set( "stabilization_type", fem::Stabilization_Type::SUPG_SPALART_ALLMARAS_TURBULENCE );
-        tParameterList( tSPIndex ).set( "leader_constitutive_models", "CMTurbulence,SpalartAllmarasTurbulence" );
-        tParameterList( tSPIndex ).set( "function_parameters", tSupgTurbPower + "/" + tSupgTurbSource );
-        tParameterList( tSPIndex ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY;VISCOSITY", "Velocity,Viscosity" ) );
 
         // create Nitsche for fluid velocity
         tParameterList( tSPIndex ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( tSPIndex ).set( "stabilization_name", "SPNitscheU" );
         tParameterList( tSPIndex ).set( "leader_phase_name", "PhaseFluid" );
         tParameterList( tSPIndex ).set( "stabilization_type", fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE );
-        tParameterList( tSPIndex ).set( "function_parameters", "100.0" );
+        tParameterList( tSPIndex ).set( "function_parameters", "100.0/1.0" );
         tParameterList( tSPIndex ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
         tParameterList( tSPIndex ).set( "leader_properties",
-                "PropFluidDynViscosity,Viscosity;"
+                "PropFluidViscosity,Viscosity;"
                 "PropFluidDensity,Density" );
 
         // create Nitsche for fluid temperature
@@ -1099,14 +858,6 @@ namespace moris
         tParameterList( tSPIndex ).set( "stabilization_type", fem::Stabilization_Type::DIRICHLET_NITSCHE );
         tParameterList( tSPIndex ).set( "function_parameters", "100.0" );
         tParameterList( tSPIndex ).set( "leader_properties", "PropFluidConductivity,Material" );
-
-        // create Nitsche for fluid turbulent viscosity
-        tParameterList( tSPIndex ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( tSPIndex ).set( "stabilization_name", "SPNitscheV" );
-        tParameterList( tSPIndex ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tSPIndex ).set( "stabilization_type", fem::Stabilization_Type::TURBULENCE_DIRICHLET_NITSCHE );
-        tParameterList( tSPIndex ).set( "function_parameters", "100.0" );
-        tParameterList( tSPIndex ).set( "leader_constitutive_models", "CMTurbulence,SpalartAllmarasTurbulence" );
 
         // create Nitsche for fluid/solid diffusion interface
         tParameterList( tSPIndex ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
@@ -1124,7 +875,7 @@ namespace moris
         tParameterList( tSPIndex ).set( "leader_phase_name", "PhaseFluid" );
         tParameterList( tSPIndex ).set( "stabilization_type", fem::Stabilization_Type::VISCOUS_GHOST );
         tParameterList( tSPIndex ).set( "function_parameters", "0.05" );
-        tParameterList( tSPIndex ).set( "leader_properties", "PropFluidDynViscosity,Viscosity" );
+        tParameterList( tSPIndex ).set( "leader_properties", "PropFluidViscosity,Viscosity" );
 
         // create ghost penalty convective
         tParameterList( tSPIndex ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
@@ -1140,10 +891,10 @@ namespace moris
         tParameterList( tSPIndex ).set( "stabilization_name", "SPGPPressure" );
         tParameterList( tSPIndex ).set( "leader_phase_name", "PhaseFluid" );
         tParameterList( tSPIndex ).set( "stabilization_type", fem::Stabilization_Type::PRESSURE_GHOST );
-        tParameterList( tSPIndex ).set( "function_parameters", "0.005" );
+        tParameterList( tSPIndex ).set( "function_parameters", "0.005/1.0" );
         tParameterList( tSPIndex ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
         tParameterList( tSPIndex ).set( "leader_properties",
-                "PropFluidDynViscosity,Viscosity;"
+                "PropFluidViscosity,Viscosity;"
                 "PropFluidDensity,Density" );
 
         // create ghost penalty fluid temperature
@@ -1156,15 +907,6 @@ namespace moris
         tParameterList( tSPIndex ).set( "leader_properties", "PropFluidConductivity,Material" );
         tParameterList( tSPIndex ).set( "follower_properties", "PropFluidConductivity,Material" );
 
-        // create ghost fluid turbulence viscosity
-        tParameterList( tSPIndex ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( tSPIndex ).set( "stabilization_name", "SPGPViscosity" );
-        tParameterList( tSPIndex ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tSPIndex ).set( "follower_phase_name", "PhaseFluid" );
-        tParameterList( tSPIndex ).set( "stabilization_type", fem::Stabilization_Type::GHOST_DISPL );
-        tParameterList( tSPIndex ).set( "function_parameters", "0.05" );
-        tParameterList( tSPIndex ).set( "leader_properties", "PropFluidKinViscosity,Material" );
-
         // create ghost penalty solid temperature
         tParameterList( tSPIndex ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( tSPIndex ).set( "stabilization_name", "SPGPSolidTemp" );
@@ -1174,40 +916,6 @@ namespace moris
         tParameterList( tSPIndex ).set( "function_parameters", "0.05" );
         tParameterList( tSPIndex ).set( "leader_properties", "PropSolidConductivity,Material" );
         tParameterList( tSPIndex ).set( "follower_properties", "PropSolidConductivity,Material" );
-
-        // create ghost stabilization for theta and phi problems
-        tParameterList( tSPIndex ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( tSPIndex ).set( "stabilization_name", "SPGPFluidThetaPhi" );
-        tParameterList( tSPIndex ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tSPIndex ).set( "follower_phase_name", "PhaseFluid" );
-        tParameterList( tSPIndex ).set( "stabilization_type", fem::Stabilization_Type::GHOST_DISPL );
-        tParameterList( tSPIndex ).set( "function_parameters", "0.01" );
-        tParameterList( tSPIndex ).set( "leader_properties", "PropConductivity,Material" );
-
-        // create DBC on interface for theta problem
-        tParameterList( tSPIndex ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( tSPIndex ).set( "stabilization_name", "SPNitscheFluidThetaPhi" );
-        tParameterList( tSPIndex ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tSPIndex ).set( "stabilization_type", fem::Stabilization_Type::DIRICHLET_NITSCHE );
-        tParameterList( tSPIndex ).set( "function_parameters", "100.0" );
-        tParameterList( tSPIndex ).set( "leader_properties", "PropConductivity,Material" );
-
-        // create ghost stabilization parameter for theta and phi problems
-        tParameterList( tSPIndex ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( tSPIndex ).set( "stabilization_name", "SPGPInclusionThetaPhi" );
-        tParameterList( tSPIndex ).set( "leader_phase_name", "PhaseSolid" );
-        tParameterList( tSPIndex ).set( "follower_phase_name", "PhaseSolid" );
-        tParameterList( tSPIndex ).set( "stabilization_type", fem::Stabilization_Type::GHOST_DISPL );
-        tParameterList( tSPIndex ).set( "function_parameters", "0.01" );
-        tParameterList( tSPIndex ).set( "leader_properties", "PropConductivity,Material" );
-
-        // create DBC on interface for theta problem
-        tParameterList( tSPIndex ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( tSPIndex ).set( "stabilization_name", "SPNitscheInclusionThetaPhi" );
-        tParameterList( tSPIndex ).set( "leader_phase_name", "PhaseSolid" );
-        tParameterList( tSPIndex ).set( "stabilization_type", fem::Stabilization_Type::DIRICHLET_NITSCHE );
-        tParameterList( tSPIndex ).set( "function_parameters", "100.0" );
-        tParameterList( tSPIndex ).set( "leader_properties", "PropConductivity,Material" );
 
         //------------------------------------------------------------------------------
         // fill the IWG part of the parameter list
@@ -1248,15 +956,6 @@ namespace moris
         tParameterList( tIWGIndex ).set( "dof_residual", "TEMP" );
         tParameterList( tIWGIndex ).set( "leader_constitutive_models", "CMFluidDiffusion,Diffusion" );
         tParameterList( tIWGIndex ).set( "stabilization_parameters", "SPSUPGTemp,SUPG" );
-
-        // turbulence
-        tParameterList( tIWGIndex ).add_parameter_list( prm::create_IWG_parameter_list() );
-        tParameterList( tIWGIndex ).set( "IWG_name", "IWGTurbulenceBulk" );
-        tParameterList( tIWGIndex ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIWGIndex ).set( "IWG_type", fem::IWG_Type::SPALART_ALLMARAS_TURBULENCE_BULK );
-        tParameterList( tIWGIndex ).set( "dof_residual", "VISCOSITY" );
-        tParameterList( tIWGIndex ).set( "leader_constitutive_models", "CMTurbulence,SpalartAllmarasTurbulence" );
-        tParameterList( tIWGIndex ).set( "stabilization_parameters", "SPSUPGSA,SUPG" );
 
         // solid bulk IWGs -----------------------------------------------------------
         // diffusion
@@ -1305,18 +1004,6 @@ namespace moris
         tParameterList( tIWGIndex ).set( "leader_properties", "PropZeroU,Dirichlet" );
         tParameterList( tIWGIndex ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
 
-        // zero viscosity
-        tParameterList( tIWGIndex ).add_parameter_list( prm::create_IWG_parameter_list() );
-        tParameterList( tIWGIndex ).set( "IWG_name", "IWGZeroViscosity" );
-        tParameterList( tIWGIndex ).set( "IWG_bulk_type", fem::Element_Type::SIDESET );
-        tParameterList( tIWGIndex ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIWGIndex ).set( "neighbor_phases", "PhaseSolid" );
-        tParameterList( tIWGIndex ).set( "IWG_type", fem::IWG_Type::SPALART_ALLMARAS_TURBULENCE_DIRICHLET_UNSYMMETRIC_NITSCHE );
-        tParameterList( tIWGIndex ).set( "dof_residual", "VISCOSITY" );
-        tParameterList( tIWGIndex ).set( "leader_properties", "PropZeroV,Dirichlet" );
-        tParameterList( tIWGIndex ).set( "leader_constitutive_models", "CMTurbulence,SpalartAllmarasTurbulence" );
-        tParameterList( tIWGIndex ).set( "stabilization_parameters", "SPNitscheV,Nitsche" );
-
         // Laterial BC IWG (adiabatic) ----------------------------------------------------------------
 
         // zero velocity along lateral sides
@@ -1342,18 +1029,6 @@ namespace moris
         tParameterList( tIWGIndex ).set( "leader_properties", "PropZeroU,Dirichlet" );
         tParameterList( tIWGIndex ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
 
-        // zero viscosity along lateral sides
-        tParameterList( tIWGIndex ).add_parameter_list( prm::create_IWG_parameter_list() );
-        tParameterList( tIWGIndex ).set( "IWG_name", "IWGZeroViscosityVoid" );
-        tParameterList( tIWGIndex ).set( "IWG_bulk_type", fem::Element_Type::SIDESET );
-        tParameterList( tIWGIndex ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIWGIndex ).set( "neighbor_phases", "PhaseVoidLateral" );
-        tParameterList( tIWGIndex ).set( "IWG_type", fem::IWG_Type::SPALART_ALLMARAS_TURBULENCE_DIRICHLET_UNSYMMETRIC_NITSCHE );
-        tParameterList( tIWGIndex ).set( "dof_residual", "VISCOSITY" );
-        tParameterList( tIWGIndex ).set( "leader_properties", "PropZeroV,Dirichlet" );
-        tParameterList( tIWGIndex ).set( "leader_constitutive_models", "CMTurbulence,SpalartAllmarasTurbulence" );
-        tParameterList( tIWGIndex ).set( "stabilization_parameters", "SPNitscheV,Nitsche" );
-
         // Inlet BC IWG ----------------------------------------------------------------
 
         // inlet pressure
@@ -1365,18 +1040,6 @@ namespace moris
         tParameterList( tIWGIndex ).set( "IWG_type", fem::IWG_Type::INCOMPRESSIBLE_NS_IMPOSED_PRESSURE );
         tParameterList( tIWGIndex ).set( "dof_residual", "VX,VY" );
         tParameterList( tIWGIndex ).set( "leader_properties", "PropInletPressure,Pressure" );
-
-        // inlet viscosity
-        tParameterList( tIWGIndex ).add_parameter_list( prm::create_IWG_parameter_list() );
-        tParameterList( tIWGIndex ).set( "IWG_name", "IWGInletViscosity" );
-        tParameterList( tIWGIndex ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIWGIndex ).set( "neighbor_phases", "PhaseVoidFront" );
-        tParameterList( tIWGIndex ).set( "IWG_bulk_type", fem::Element_Type::SIDESET );
-        tParameterList( tIWGIndex ).set( "IWG_type", fem::IWG_Type::SPALART_ALLMARAS_TURBULENCE_DIRICHLET_SYMMETRIC_NITSCHE );
-        tParameterList( tIWGIndex ).set( "dof_residual", "VISCOSITY" );
-        tParameterList( tIWGIndex ).set( "leader_properties", "PropInletV,Dirichlet" );
-        tParameterList( tIWGIndex ).set( "leader_constitutive_models", "CMTurbulence,SpalartAllmarasTurbulence" );
-        tParameterList( tIWGIndex ).set( "stabilization_parameters", "SPNitscheV,Nitsche" );
 
         // inlet temperature
         tParameterList( tIWGIndex ).add_parameter_list( prm::create_IWG_parameter_list() );
@@ -1438,16 +1101,6 @@ namespace moris
             tParameterList( tIWGIndex ).set( "stabilization_parameters", "SPGPFluidTemp,GhostSP" );
             tParameterList( tIWGIndex ).set( "ghost_order", (uint)tDispOrder );
 
-            // ghost fluid viscosity
-            tParameterList( tIWGIndex ).add_parameter_list( prm::create_IWG_parameter_list() );
-            tParameterList( tIWGIndex ).set( "IWG_bulk_type", fem::Element_Type::DOUBLE_SIDESET );
-            tParameterList( tIWGIndex ).set( "IWG_name", "IWGGPFluidViscosity" );
-            tParameterList( tIWGIndex ).set( "leader_phase_name", "PhaseFluid" );
-            tParameterList( tIWGIndex ).set( "follower_phase_name", "PhaseFluid" );
-            tParameterList( tIWGIndex ).set( "IWG_type", fem::IWG_Type::GHOST_NORMAL_FIELD );
-            tParameterList( tIWGIndex ).set( "dof_residual", "VISCOSITY" );
-            tParameterList( tIWGIndex ).set( "stabilization_parameters", "SPGPViscosity,GhostSP" );
-
             // ghost solid A temperature
             tParameterList( tIWGIndex ).add_parameter_list( prm::create_IWG_parameter_list() );
             tParameterList( tIWGIndex ).set( "IWG_name", "IWGGPSolidTemp" );
@@ -1458,156 +1111,6 @@ namespace moris
             tParameterList( tIWGIndex ).set( "dof_residual", "TEMP" );
             tParameterList( tIWGIndex ).set( "stabilization_parameters", "SPGPSolidTemp,GhostSP" );
             tParameterList( tIWGIndex ).set( "ghost_order", (uint)tDispOrder );
-        }
-
-        // theta problem  ----------------------------------------------------------------
-        // theta bulk in fluid
-        tParameterList( tIWGIndex ).add_parameter_list( prm::create_IWG_parameter_list() );
-        tParameterList( tIWGIndex ).set( "IWG_name", "IWGFluidDiffusionThetaBulk" );
-        tParameterList( tIWGIndex ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIWGIndex ).set( "IWG_type", fem::IWG_Type::SPATIALDIFF_BULK );
-        tParameterList( tIWGIndex ).set( "dof_residual", "THETA" );
-        tParameterList( tIWGIndex ).set( "leader_constitutive_models", "CMFluidDiffusionTheta,Diffusion" );
-
-        // theta bulk in inclusion
-        tParameterList( tIWGIndex ).add_parameter_list( prm::create_IWG_parameter_list() );
-        tParameterList( tIWGIndex ).set( "IWG_name", "IWGInclusionSolidDiffusionThetaBulk" );
-        tParameterList( tIWGIndex ).set( "leader_phase_name", "PhaseSolid" );
-        tParameterList( tIWGIndex ).set( "IWG_type", fem::IWG_Type::SPATIALDIFF_BULK );
-        tParameterList( tIWGIndex ).set( "dof_residual", "THETA" );
-        tParameterList( tIWGIndex ).set( "leader_constitutive_models", "CMInclusionSolidDiffusionTheta,Diffusion" );
-
-        // create parameter list for single side interface condition
-        tParameterList( tIWGIndex ).add_parameter_list( prm::create_IWG_parameter_list() );
-        tParameterList( tIWGIndex ).set( "IWG_name", "IWGSurfaceOuterTheta" );
-        tParameterList( tIWGIndex ).set( "leader_phase_name", "PhaseSolid" );
-        tParameterList( tIWGIndex ).set( "neighbor_phases", "PhaseFluid" );
-        tParameterList( tIWGIndex ).set( "IWG_bulk_type", fem::Element_Type::SIDESET );
-        tParameterList( tIWGIndex ).set( "IWG_type", fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
-        tParameterList( tIWGIndex ).set( "dof_residual", "THETA" );
-        tParameterList( tIWGIndex ).set( "leader_properties", "PropPrescTheta,Dirichlet" );
-        tParameterList( tIWGIndex ).set( "leader_constitutive_models", "CMInclusionSolidDiffusionTheta,Diffusion" );
-        tParameterList( tIWGIndex ).set( "stabilization_parameters", "SPNitscheInclusionThetaPhi,DirichletNitsche" );
-
-        // create parameter list for single side interface condition
-        tParameterList( tIWGIndex ).add_parameter_list( prm::create_IWG_parameter_list() );
-        tParameterList( tIWGIndex ).set( "IWG_name", "IWGSurfaceInnerTheta" );
-        tParameterList( tIWGIndex ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIWGIndex ).set( "neighbor_phases", "PhaseSolid,PhaseVoidLateral" );
-        tParameterList( tIWGIndex ).set( "IWG_bulk_type", fem::Element_Type::SIDESET );
-        tParameterList( tIWGIndex ).set( "IWG_type", fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
-        tParameterList( tIWGIndex ).set( "dof_residual", "THETA" );
-        tParameterList( tIWGIndex ).set( "leader_properties", "PropPrescTheta,Dirichlet" );
-        tParameterList( tIWGIndex ).set( "leader_constitutive_models", "CMFluidDiffusionTheta,Diffusion" );
-        tParameterList( tIWGIndex ).set( "stabilization_parameters", "SPNitscheFluidThetaPhi,DirichletNitsche" );
-
-        if ( tUseGhost )
-        {
-            // create IWG - ghost
-            tParameterList( tIWGIndex ).add_parameter_list( prm::create_IWG_parameter_list() );
-            tParameterList( tIWGIndex ).set( "IWG_name", "IWGGPInnerTheta" );
-            tParameterList( tIWGIndex ).set( "leader_phase_name", "PhaseFluid" );
-            tParameterList( tIWGIndex ).set( "follower_phase_name", "PhaseFluid" );
-            tParameterList( tIWGIndex ).set( "IWG_bulk_type", fem::Element_Type::DOUBLE_SIDESET );
-            tParameterList( tIWGIndex ).set( "IWG_type", fem::IWG_Type::GHOST_NORMAL_FIELD );
-            tParameterList( tIWGIndex ).set( "dof_residual", "THETA" );
-            tParameterList( tIWGIndex ).set( "stabilization_parameters", "SPGPFluidThetaPhi,GhostSP" );
-
-            // create IWG - ghost
-            tParameterList( tIWGIndex ).add_parameter_list( prm::create_IWG_parameter_list() );
-            tParameterList( tIWGIndex ).set( "IWG_name", "IWGGPOuterTheta" );
-            tParameterList( tIWGIndex ).set( "leader_phase_name", "PhaseSolid" );
-            tParameterList( tIWGIndex ).set( "follower_phase_name", "PhaseSolid" );
-            tParameterList( tIWGIndex ).set( "IWG_bulk_type", fem::Element_Type::DOUBLE_SIDESET );
-            tParameterList( tIWGIndex ).set( "IWG_type", fem::IWG_Type::GHOST_NORMAL_FIELD );
-            tParameterList( tIWGIndex ).set( "dof_residual", "THETA" );
-            tParameterList( tIWGIndex ).set( "stabilization_parameters", "SPGPInclusionThetaPhi,GhostSP" );
-        }
-
-        // create time side interface condition fluid
-        tParameterList( tIWGIndex ).add_parameter_list( prm::create_IWG_parameter_list() );
-        tParameterList( tIWGIndex ).set( "IWG_name", "IWGFluidTimeContinuityTheta" );
-        tParameterList( tIWGIndex ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIWGIndex ).set( "IWG_type", fem::IWG_Type::TIME_CONTINUITY_DOF );
-        tParameterList( tIWGIndex ).set( "dof_residual", "THETA" );
-        tParameterList( tIWGIndex ).set( "leader_properties",
-                "PropWeightCurrent,       WeightCurrent;"
-                "PropWeightPrevious,      WeightPrevious;"
-                "PropInitialCondition,    InitialCondition" );
-
-        // create time side interface condition solid
-        tParameterList( tIWGIndex ).add_parameter_list( prm::create_IWG_parameter_list() );
-        tParameterList( tIWGIndex ).set( "IWG_name", "IWGInclusionTimeContinuityTheta" );
-        tParameterList( tIWGIndex ).set( "leader_phase_name", "PhaseSolid" );
-        tParameterList( tIWGIndex ).set( "IWG_type", fem::IWG_Type::TIME_CONTINUITY_DOF );
-        tParameterList( tIWGIndex ).set( "dof_residual", "THETA" );
-        tParameterList( tIWGIndex ).set( "leader_properties",
-                "PropWeightCurrent,       WeightCurrent;"
-                "PropWeightPrevious,      WeightPrevious;"
-                "PropInitialCondition,    InitialCondition" );
-
-        // theta problem  ----------------------------------------------------------------
-        // create IWG - bulk diffusion
-        tParameterList( tIWGIndex ).add_parameter_list( prm::create_IWG_parameter_list() );
-        tParameterList( tIWGIndex ).set( "IWG_name", "IWGDiffusionInnerBulk" );
-        tParameterList( tIWGIndex ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIWGIndex ).set( "IWG_type", fem::IWG_Type::SPATIALDIFF_BULK );
-        tParameterList( tIWGIndex ).set( "dof_residual", "PHID" );
-        tParameterList( tIWGIndex ).set( "leader_constitutive_models", "CMFluidDiffusionPhi,Diffusion" );
-
-        // create IWG - bulk diffusion
-        tParameterList( tIWGIndex ).add_parameter_list( prm::create_IWG_parameter_list() );
-        tParameterList( tIWGIndex ).set( "IWG_name", "IWGDiffusionOuterBulk" );
-        tParameterList( tIWGIndex ).set( "leader_phase_name", "PhaseSolid" );
-        tParameterList( tIWGIndex ).set( "IWG_type", fem::IWG_Type::SPATIALDIFF_BULK );
-        tParameterList( tIWGIndex ).set( "dof_residual", "PHID" );
-        tParameterList( tIWGIndex ).set( "leader_constitutive_models", "CMInclusionSolidDiffusionPhi,Diffusion" );
-
-        // create parameter list for single side interface condition
-        tParameterList( tIWGIndex ).add_parameter_list( prm::create_IWG_parameter_list() );
-        tParameterList( tIWGIndex ).set( "IWG_name", "IWGSurfaceInnerPhi" );
-        tParameterList( tIWGIndex ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIWGIndex ).set( "neighbor_phases", "PhaseSolid,PhaseVoidLateral" );
-        tParameterList( tIWGIndex ).set( "IWG_bulk_type", fem::Element_Type::SIDESET );
-        tParameterList( tIWGIndex ).set( "IWG_type", fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
-        tParameterList( tIWGIndex ).set( "dof_residual", "PHID" );
-        tParameterList( tIWGIndex ).set( "leader_properties", "PropPrescPhi,Dirichlet" );
-        tParameterList( tIWGIndex ).set( "leader_constitutive_models", "CMFluidDiffusionPhi,Diffusion" );
-        tParameterList( tIWGIndex ).set( "stabilization_parameters", "SPNitscheFluidThetaPhi,DirichletNitsche" );
-
-        // create parameter list for single side interface condition
-        tParameterList( tIWGIndex ).add_parameter_list( prm::create_IWG_parameter_list() );
-        tParameterList( tIWGIndex ).set( "IWG_name", "IWGSurfaceOuterPhi" );
-        tParameterList( tIWGIndex ).set( "leader_phase_name", "PhaseSolid" );
-        tParameterList( tIWGIndex ).set( "neighbor_phases", "PhaseFluid" );
-        tParameterList( tIWGIndex ).set( "IWG_bulk_type", fem::Element_Type::SIDESET );
-        tParameterList( tIWGIndex ).set( "IWG_type", fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
-        tParameterList( tIWGIndex ).set( "dof_residual", "PHID" );
-        tParameterList( tIWGIndex ).set( "leader_properties", "PropPrescPhi,Dirichlet" );
-        tParameterList( tIWGIndex ).set( "leader_constitutive_models", "CMInclusionSolidDiffusionPhi,Diffusion" );
-        tParameterList( tIWGIndex ).set( "stabilization_parameters", "SPNitscheInclusionThetaPhi,DirichletNitsche" );
-
-        if ( tUseGhost )
-        {
-            // create IWG - ghost
-            tParameterList( tIWGIndex ).add_parameter_list( prm::create_IWG_parameter_list() );
-            tParameterList( tIWGIndex ).set( "IWG_name", "IWGGPInnerPhi" );
-            tParameterList( tIWGIndex ).set( "leader_phase_name", "PhaseFluid" );
-            tParameterList( tIWGIndex ).set( "follower_phase_name", "PhaseFluid" );
-            tParameterList( tIWGIndex ).set( "IWG_bulk_type", fem::Element_Type::DOUBLE_SIDESET );
-            tParameterList( tIWGIndex ).set( "IWG_type", fem::IWG_Type::GHOST_NORMAL_FIELD );
-            tParameterList( tIWGIndex ).set( "dof_residual", "PHID" );
-            tParameterList( tIWGIndex ).set( "stabilization_parameters", "SPGPFluidThetaPhi,GhostSP" );
-
-            // create IWG - ghost
-            tParameterList( tIWGIndex ).add_parameter_list( prm::create_IWG_parameter_list() );
-            tParameterList( tIWGIndex ).set( "IWG_name", "IWGGPOuterPhi" );
-            tParameterList( tIWGIndex ).set( "leader_phase_name", "PhaseSolid" );
-            tParameterList( tIWGIndex ).set( "follower_phase_name", "PhaseSolid" );
-            tParameterList( tIWGIndex ).set( "IWG_bulk_type", fem::Element_Type::DOUBLE_SIDESET );
-            tParameterList( tIWGIndex ).set( "IWG_type", fem::IWG_Type::GHOST_NORMAL_FIELD );
-            tParameterList( tIWGIndex ).set( "dof_residual", "PHID" );
-            tParameterList( tIWGIndex ).set( "stabilization_parameters", "SPGPInclusionThetaPhi,GhostSP" );
         }
 
         //------------------------------------------------------------------------------
@@ -1643,30 +1146,6 @@ namespace moris
         tParameterList( tIQIIndex ).set( "leader_phase_name", "PhaseAll" );
         tParameterList( tIQIIndex ).set( "IQI_type", fem::IQI_Type::DOF );
         tParameterList( tIQIIndex ).set( "dof_quantity", "TEMP" );
-        tParameterList( tIQIIndex ).set( "vectorial_field_index", 0 );
-
-        // viscosity
-        tParameterList( tIQIIndex ).add_parameter_list( prm::create_IQI_parameter_list() );
-        tParameterList( tIQIIndex ).set( "IQI_name", "IQIBulkVISCOSITY" );
-        tParameterList( tIQIIndex ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIQIIndex ).set( "IQI_type", fem::IQI_Type::DOF );
-        tParameterList( tIQIIndex ).set( "dof_quantity", "VISCOSITY" );
-        tParameterList( tIQIIndex ).set( "vectorial_field_index", 0 );
-
-        // theta
-        tParameterList( tIQIIndex ).add_parameter_list( prm::create_IQI_parameter_list() );
-        tParameterList( tIQIIndex ).set( "IQI_name", "IQIBulkTHETA" );
-        tParameterList( tIQIIndex ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIQIIndex ).set( "IQI_type", fem::IQI_Type::DOF );
-        tParameterList( tIQIIndex ).set( "dof_quantity", "THETA" );
-        tParameterList( tIQIIndex ).set( "vectorial_field_index", 0 );
-
-        // phi
-        tParameterList( tIQIIndex ).add_parameter_list( prm::create_IQI_parameter_list() );
-        tParameterList( tIQIIndex ).set( "IQI_name", "IQIBulkPHID" );
-        tParameterList( tIQIIndex ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIQIIndex ).set( "IQI_type", fem::IQI_Type::DOF );
-        tParameterList( tIQIIndex ).set( "dof_quantity", "PHID" );
         tParameterList( tIQIIndex ).set( "vectorial_field_index", 0 );
 
         // fluid thermal energy on inlet
@@ -1723,31 +1202,6 @@ namespace moris
         tParameterList( tIQIIndex ).set( "IQI_type", fem::IQI_Type::MASS_FLOW );
         tParameterList( tIQIIndex ).set( "leader_constitutive_models", "CMFluid,Fluid" );
 
-        // fluid power dissipation on inlet
-        tParameterList( tIQIIndex ).add_parameter_list( prm::create_IQI_parameter_list() );
-        tParameterList( tIQIIndex ).set( "IQI_name", "IQIInletPowDisp" );
-        tParameterList( tIQIIndex ).set( "IQI_bulk_type", fem::Element_Type::SIDESET );
-        tParameterList( tIQIIndex ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIQIIndex ).set( "neighbor_phases", "PhaseVoidFront" );
-        tParameterList( tIQIIndex ).set( "IQI_type", fem::IQI_Type::POWER_DISSIPATION );
-        tParameterList( tIQIIndex ).set( "leader_constitutive_models", "CMFluid,Fluid" );
-
-        // fluid power dissipation on outlet
-        tParameterList( tIQIIndex ).add_parameter_list( prm::create_IQI_parameter_list() );
-        tParameterList( tIQIIndex ).set( "IQI_name", "IQIOutletPowDisp" );
-        tParameterList( tIQIIndex ).set( "IQI_bulk_type", fem::Element_Type::SIDESET );
-        tParameterList( tIQIIndex ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIQIIndex ).set( "neighbor_phases", "PhaseVoidBack" );
-        tParameterList( tIQIIndex ).set( "IQI_type", fem::IQI_Type::POWER_DISSIPATION );
-        tParameterList( tIQIIndex ).set( "leader_constitutive_models", "CMFluid,Fluid" );
-
-        // fluid power dissipation in volume
-        tParameterList( tIQIIndex ).add_parameter_list( prm::create_IQI_parameter_list() );
-        tParameterList( tIQIIndex ).set( "IQI_name", "IQIVolumePowDisp" );
-        tParameterList( tIQIIndex ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIQIIndex ).set( "IQI_type", fem::IQI_Type::POWER_DISSIPATION_BULK );
-        tParameterList( tIQIIndex ).set( "leader_constitutive_models", "CMFluid,Fluid" );
-
         // inclusion perimeter
         tParameterList( tIQIIndex ).add_parameter_list( prm::create_IQI_parameter_list() );
         tParameterList( tIQIIndex ).set( "IQI_name", "IQIPerimeterItf" );
@@ -1771,34 +1225,6 @@ namespace moris
         tParameterList( tIQIIndex ).set( "leader_phase_name", "PhaseSolid" );
         tParameterList( tIQIIndex ).set( "IQI_type", fem::IQI_Type::VOLUME );
 
-        // wall distance
-        tParameterList( tIQIIndex ).add_parameter_list( prm::create_IQI_parameter_list() );
-        tParameterList( tIQIIndex ).set( "IQI_name", "IQIWallDistance" );
-        tParameterList( tIQIIndex ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIQIIndex ).set( "IQI_type", fem::IQI_Type::PROPERTY );
-        tParameterList( tIQIIndex ).set( "leader_properties", "PropWallDistance,Property" );
-
-        // turbulent dynamic viscosity
-        tParameterList( tIQIIndex ).add_parameter_list( prm::create_IQI_parameter_list() );
-        tParameterList( tIQIIndex ).set( "IQI_name", "IQIBulkTurbDynVisc" );
-        tParameterList( tIQIIndex ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIQIIndex ).set( "IQI_type", fem::IQI_Type::TURBULENT_DYNAMIC_VISCOSITY );
-        tParameterList( tIQIIndex ).set( "leader_constitutive_models", "CMFluid,Fluid_Turbulence" );
-
-        // effective dynamic viscosity
-        tParameterList( tIQIIndex ).add_parameter_list( prm::create_IQI_parameter_list() );
-        tParameterList( tIQIIndex ).set( "IQI_name", "IQIBulkEffDynVisc" );
-        tParameterList( tIQIIndex ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIQIIndex ).set( "IQI_type", fem::IQI_Type::EFFECTIVE_DYNAMIC_VISCOSITY );
-        tParameterList( tIQIIndex ).set( "leader_constitutive_models", "CMFluid,Fluid_Turbulence" );
-
-        // effective conductivity
-        tParameterList( tIQIIndex ).add_parameter_list( prm::create_IQI_parameter_list() );
-        tParameterList( tIQIIndex ).set( "IQI_name", "IQIBulkEffCond" );
-        tParameterList( tIQIIndex ).set( "leader_phase_name", "PhaseFluid" );
-        tParameterList( tIQIIndex ).set( "IQI_type", fem::IQI_Type::EFFECTIVE_CONDUCTIVITY );
-        tParameterList( tIQIIndex ).set( "leader_constitutive_models", "CMFluidDiffusion,Diffusion_Turbulence" );
-
         //------------------------------------------------------------------------------
         // fill the computation part of the parameter list
         tParameterList( tFEMIndex ).add_parameter_list( prm::create_computation_parameter_list() );
@@ -1813,19 +1239,36 @@ namespace moris
     {
         tParameterlist.resize( 8 );
 
+
+        tParameterlist( 0 ).add_parameter_list( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
         tParameterlist( 0 ).add_parameter_list( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
 
 #ifdef MORIS_USE_MUMPS
-        tParameterlist( 0 ).set( "Solver_Type", "Amesos_Mumps" );
+        tParameterlist( 0 )( 0 ).set( "Solver_Type", "Amesos_Mumps" );
+        tParameterlist( 0 )( 1 ).set( "Solver_Type", "Amesos_Mumps" );
 #else
-        tParameterlist( 0 ).set( "Solver_Type", "Amesos_Superludist" );
+        tParameterlist( 0 )( 0 ).set( "Solver_Type", "Amesos_Superludist" );
+        tParameterlist( 0 )( 1 ).set( "Solver_Type", "Amesos_Superludist" );
 #endif
+
+        /*
+        tParameterlist( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::BELOS_IMPL ) );
+        tParameterlist( 0 ).set( "ifpack_prec_type", "ILU");
+        tParameterlist( 0 ).set( "fact: level-of-fill", 1);
+
+        tParameterlist( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::BELOS_IMPL ) );
+        tParameterlist( 0 ).set( "ifpack_prec_type", "ILU");
+        tParameterlist( 0 ).set( "fact: level-of-fill", 3);
+        */
 
         //------------------------------------------------------------------------------
 
 
         tParameterlist( 1 ).add_parameter_list( moris::prm::create_linear_solver_parameter_list() );
         tParameterlist( 1 ).set( "DLA_Linear_solver_algorithms", "0" );
+
+        tParameterlist( 1 ).add_parameter_list( moris::prm::create_linear_solver_parameter_list() );
+        tParameterlist( 1 ).set( "DLA_Linear_solver_algorithms", "1" );
 
         //------------------------------------------------------------------------------
 
@@ -1834,10 +1277,8 @@ namespace moris
         tParameterlist( 2 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         tParameterlist( 2 ).set( "NLA_Linear_solver", 0 );
         tParameterlist( 2 ).set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
-        tParameterlist( 2 ).set( "NLA_relaxation_strategy", sol::SolverRelaxationType::InvResNormAdaptive );
-        tParameterlist( 2 ).set( "NLA_relaxation_parameter", 0.5 );
-        tParameterlist( 2 ).set( "NLA_relaxation_damping", 0.5 );
-        tParameterlist( 2 ).set( "NLA_max_iter", 100 );
+        tParameterlist( 2 ).set( "NLA_relaxation_parameter", tNLA_relaxation_parameter );
+        tParameterlist( 2 ).set( "NLA_max_iter", tNLA_max_iter );
 
         tParameterlist( 2 ).add_parameter_list( moris::prm::create_nonlinear_algorithm_parameter_list() );
         tParameterlist( 2 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
@@ -1846,70 +1287,57 @@ namespace moris
         tParameterlist( 2 ).set( "NLA_relaxation_parameter", 1.0 );
         tParameterlist( 2 ).set( "NLA_max_iter", 1 );
 
-        tParameterlist( 2 ).add_parameter_list( moris::prm::create_nonlinear_algorithm_parameter_list() );
+        tParameterlist( 2 ).add_parameter_list( moris::prm::create_nonlinear_algorithm_parameter_list() );    // nonlinear algorithm index 1
         tParameterlist( 2 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NLBGS_SOLVER );
         tParameterlist( 2 ).set( "NLA_Linear_solver", 0 );
         tParameterlist( 2 ).set( "NLA_rel_res_norm_drop", 1.0 );
         tParameterlist( 2 ).set( "NLA_max_iter", 1 );
 
+        tParameterlist( 2 ).add_parameter_list( moris::prm::create_nonlinear_algorithm_parameter_list() );
+        tParameterlist( 2 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
+        tParameterlist( 2 ).set( "NLA_Linear_solver", 1 );
+        tParameterlist( 2 ).set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
+        tParameterlist( 2 ).set( "NLA_relaxation_parameter", 1.0 );
+        tParameterlist( 2 ).set( "NLA_max_iter", 1 );
+
         //------------------------------------------------------------------------------
 
 
-        tParameterlist( 3 ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );
-        tParameterlist( 3 ).set( "NLA_Nonlinear_solver_algorithms", "1" );
+        tParameterlist( 3 ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );    // 0: fluid subproblem
+        tParameterlist( 3 ).set( "NLA_Nonlinear_solver_algorithms", "0" );             // set nonlinear algorithm with index 0
         tParameterlist( 3 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
-        tParameterlist( 3 ).set( "NLA_DofTypes", "THETA" );
+        tParameterlist( 3 ).set( "NLA_DofTypes", "VX,VY,P" );
 
-        tParameterlist( 3 ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );
-        tParameterlist( 3 ).set( "NLA_Nonlinear_solver_algorithms", "1" );
-        tParameterlist( 3 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
-        tParameterlist( 3 ).set( "NLA_DofTypes", "PHID" );
-
-        tParameterlist( 3 ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );
-        tParameterlist( 3 ).set( "NLA_Nonlinear_solver_algorithms", "0" );
-        tParameterlist( 3 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
-        tParameterlist( 3 ).set( "NLA_DofTypes", "VX,VY,P,VISCOSITY" );
-
-        tParameterlist( 3 ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );
-        tParameterlist( 3 ).set( "NLA_Nonlinear_solver_algorithms", "1" );
+        tParameterlist( 3 ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );    // 1: thermal subproblem
+        tParameterlist( 3 ).set( "NLA_Nonlinear_solver_algorithms", "1" );             // set nonlinear algorithm with index 0
         tParameterlist( 3 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         tParameterlist( 3 ).set( "NLA_DofTypes", "TEMP" );
 
-        tParameterlist( 3 ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );
-        tParameterlist( 3 ).set( "NLA_Nonlinear_solver_algorithms", "2" );
+        tParameterlist( 3 ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );    // 2: one-way coupling via NLBGS
+        tParameterlist( 3 ).set( "NLA_Nonlinear_solver_algorithms", "2" );             // set nonlinear algorithm with index 1.
         tParameterlist( 3 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NLBGS_SOLVER );
-        tParameterlist( 3 ).set( "NLA_Sub_Nonlinear_Solver", "0,1,2,3" );
-        tParameterlist( 3 ).set( "NLA_DofTypes", "THETA;PHID;VX,VY,P,VISCOSITY;TEMP" );
+        tParameterlist( 3 ).set( "NLA_Sub_Nonlinear_Solver", "0,1" );    // set sub nonlinear solvers with index 0 and 1
+        tParameterlist( 3 ).set( "NLA_DofTypes", "VX,VY,P;TEMP" );
 
         tParameterlist( 3 ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );
-        tParameterlist( 3 ).set( "NLA_Nonlinear_solver_algorithms", "1" );
-        tParameterlist( 3 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
-        tParameterlist( 3 ).set( "NLA_DofTypes", "VX,VY,P,VISCOSITY" );
-
-        tParameterlist( 3 ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );
-        tParameterlist( 3 ).set( "NLA_Nonlinear_solver_algorithms", "2" );
-        tParameterlist( 3 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NLBGS_SOLVER );
-        tParameterlist( 3 ).set( "NLA_Sub_Nonlinear_Solver", "0,1,5,3" );
-        tParameterlist( 3 ).set( "NLA_DofTypes", "THETA;PHID;VX,VY,P,VISCOSITY;TEMP" );
+        tParameterlist( 3 ).set( "NLA_DofTypes", "VX,VY,P,TEMP" );
+        tParameterlist( 3 ).set( "NLA_Nonlinear_solver_algorithms", "3" );
 
         // ----------------------------------------------------------
 
-
         tParameterlist( 4 ).add_parameter_list( moris::prm::create_time_solver_algorithm_parameter_list() );
-        tParameterlist( 4 ).set( "TSA_Nonlinear_Solver", 4 );                // using NLBGS for forward problem
-        tParameterlist( 4 ).set( "TSA_Nonlinear_Sensitivity_Solver", 6 );    // using monlithic for sensitivity problem
+        tParameterlist( 4 ).set( "TSA_Nonlinear_Solver", 2 );                // using NLBGS for forward problem
+        tParameterlist( 4 ).set( "TSA_Nonlinear_Sensitivity_Solver", 3 );    // using monlithic for sensitivity problem
 
         //------------------------------------------------------------------------------
 
-
         tParameterlist( 5 ).add_parameter_list( moris::prm::create_time_solver_parameter_list() );
-        tParameterlist( 5 ).set( "TSA_DofTypes", "THETA;PHID;VX,VY,P,VISCOSITY;TEMP" );
-        tParameterlist( 5 ).set( "TSA_Initialize_Sol_Vec", "THETA,0.0;PHID,0.0;VX,0.01;VY,0.0;P,0.0;VISCOSITY," + tInletKinViscosity + ";TEMP,0.0" );
+        tParameterlist( 5 ).set( "TSA_DofTypes", "VX,VY;P;TEMP" );
+        tParameterlist( 5 ).set( "TSA_Initialize_Sol_Vec", "VX,0.01;VY,0.0;P,0.0;TEMP,0.0" );
         tParameterlist( 5 ).set( "TSA_Output_Indices", "0" );
         tParameterlist( 5 ).set( "TSA_Output_Criteria", "Output_Criterion" );
 
         //------------------------------------------------------------------------------
-
 
         tParameterlist( 6 ).add_parameter_list( moris::prm::create_solver_warehouse_parameterlist() );
 
@@ -1921,12 +1349,8 @@ namespace moris
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).add_parameter_list( prm::create_msi_parameter_list() );
-        tParameterlist( 0 ).set( "THETA", 1 );
-        tParameterlist( 0 ).set( "PHID", 1 );
         tParameterlist( 0 ).set( "VX", 1 );
         tParameterlist( 0 ).set( "VY", 1 );
-        tParameterlist( 0 ).set( "P", 1 );
-        tParameterlist( 0 ).set( "VISCOSITY", 1 );
         tParameterlist( 0 ).set( "TEMP", 1 );
     }
 
@@ -1938,11 +1362,9 @@ namespace moris
         tParameterlist( 0 ).set( "File_Name", std::pair< std::string, std::string >( "./", tExoFile ) );
         tParameterlist( 0 ).set( "Mesh_Type", vis::VIS_Mesh_Type::STANDARD );
         tParameterlist( 0 ).set( "Set_Names", tAllPhases );
-        tParameterlist( 0 ).set( "Field_Names", "THETA,PHID,VX,VY,P,VISCOSITY,TEMP,TURBDYNVISC,EFFVISC,EFFCOND" );
-        tParameterlist( 0 ).set( "Field_Type", "NODAL,NODAL,NODAL,NODAL,NODAL,NODAL,NODAL,NODAL,NODAL,NODAL" );
-        tParameterlist( 0 ).set( "IQI_Names",
-                "IQIBulkTHETA,IQIBulkPHID,IQIBulkVX,IQIBulkVY,IQIBulkP,IQIBulkVISCOSITY,IQIBulkTEMP,"
-                "IQIBulkTurbDynVisc,IQIBulkEffDynVisc,IQIBulkEffCond" );
+        tParameterlist( 0 ).set( "Field_Names", "VX,VY,P,TEMP" );
+        tParameterlist( 0 ).set( "Field_Type", "NODAL,NODAL,NODAL,NODAL" );
+        tParameterlist( 0 ).set( "IQI_Names", "IQIBulkVX,IQIBulkVY,IQIBulkP,IQIBulkTEMP" );
         tParameterlist( 0 ).set( "Save_Frequency", 1 );
         tParameterlist( 0 ).set( "Time_Offset", 10.0 );
     }

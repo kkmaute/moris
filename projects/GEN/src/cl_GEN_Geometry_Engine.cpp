@@ -9,7 +9,7 @@
  */
 
 // MRS
-#include "cl_Parameter_List.hpp"
+#include "cl_Submodule_Parameter_Lists.hpp"
 #include "fn_Parsing_Tools.hpp"
 #include "cl_Tracer.hpp"
 #include "cl_Library_IO.hpp"
@@ -40,7 +40,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Geometry_Engine::Geometry_Engine(
-            Vector< Vector< Parameter_List > >        aParameterLists,
+            Vector< Submodule_Parameter_Lists >  aParameterLists,
             const std::shared_ptr< Library_IO >& aLibrary,
             mtk::Mesh*                           aMesh )
             : mNodeManager( aMesh )
@@ -2010,7 +2010,7 @@ namespace moris::gen
 
     Phase_Table
     Geometry_Engine::create_phase_table(
-            const Vector< Vector< Parameter_List > >& aParameterLists,
+            const Vector< Submodule_Parameter_Lists >& aParameterLists,
             const std::shared_ptr< Library_IO >& aLibrary )
     {
         // Get number of geometries
@@ -2027,7 +2027,7 @@ namespace moris::gen
         else if ( not aParameterLists( 0 )( 0 ).get< std::string >( "phase_table" ).empty() )
         {
             // User-defined bulk phases
-            return { tNumGeometries, string_to_mat< DDUMat >( aParameterLists( 0 )( 0 ).get< std::string >( "phase_table" ) ) };
+            return { tNumGeometries, string_to_matrix< DDUMat >( aParameterLists( 0 )( 0 ).get< std::string >( "phase_table" ) ) };
         }
         else
         {

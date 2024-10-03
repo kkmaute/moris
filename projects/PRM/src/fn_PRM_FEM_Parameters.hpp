@@ -8,10 +8,9 @@
  *
  */
 
-#ifndef PROJECTS_PRM_SRC_FN_PRM_FEM_PARAMETERS_HPP_
-#define PROJECTS_PRM_SRC_FN_PRM_FEM_PARAMETERS_HPP_
+#pragma once
 
-#include "cl_Parameter_List.hpp"
+#include "cl_Submodule_Parameter_Lists.hpp"
 
 #include "cl_FEM_Enums.hpp"
 #include "cl_MTK_Enums.hpp"
@@ -28,7 +27,7 @@ namespace moris::prm
     inline Parameter_List
     create_property_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "Property" );
 
         tParameterList.insert( "property_name", "undefined" );
         tParameterList.insert( "function_parameters", "" );
@@ -52,7 +51,7 @@ namespace moris::prm
     inline Parameter_List
     create_fem_field_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "Field" );
 
         tParameterList.insert( "field_name", "undefined" );
         tParameterList.insert( "field_entity_type", "" );
@@ -76,7 +75,7 @@ namespace moris::prm
     inline Parameter_List
     create_material_model_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "MM" );
 
             tParameterList.insert( "material_name", "undefined" );
             tParameterList.insert_enum( "material_type", fem::Material_Type_String::values );
@@ -96,7 +95,7 @@ namespace moris::prm
     inline Parameter_List
     create_constitutive_model_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "CM" );
 
         tParameterList.insert( "constitutive_name", "undefined" );
         tParameterList.insert_enum( "constitutive_type", fem::Constitutive_Type_String::values );
@@ -120,7 +119,7 @@ namespace moris::prm
     inline Parameter_List
     create_stabilization_parameter_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "SP" );
 
         tParameterList.insert( "stabilization_name", "undefined" );
         tParameterList.insert_enum( "stabilization_type", fem::Stabilization_Type_String::values );
@@ -151,7 +150,7 @@ namespace moris::prm
     inline Parameter_List
     create_IWG_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "IWG" );
 
         tParameterList.insert( "IWG_name", "undefined" );
         tParameterList.insert_enum( "IWG_bulk_type", fem::Element_Type_String::values );
@@ -206,7 +205,7 @@ namespace moris::prm
     inline Parameter_List
     create_IQI_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "IQI" );
 
         tParameterList.insert( "IQI_name", "undefined" );
         tParameterList.insert_enum( "IQI_type", fem::IQI_Type_String::values );
@@ -258,7 +257,7 @@ namespace moris::prm
     inline Parameter_List
     create_phase_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "Phase" );
 
         tParameterList.insert( "phase_name", "undefined" );
         tParameterList.insert( "phase_indices", "" );
@@ -279,7 +278,7 @@ namespace moris::prm
     inline Parameter_List
     create_computation_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "Computation" );
 
         // bool true for printing physics
         tParameterList.insert( "print_physics_model", false );
@@ -325,5 +324,3 @@ namespace moris::prm
     //------------------------------------------------------------------------------
 
 }    // namespace moris::prm
-
-#endif /* PROJECTS_PRM_SRC_FN_PRM_FEM_PARAMETERS_HPP_ */

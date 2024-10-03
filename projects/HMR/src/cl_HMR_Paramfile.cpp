@@ -28,7 +28,7 @@ namespace moris::hmr
 // -----------------------------------------------------------------------------
 
 Paramfile::Paramfile( const std::string & aPath,
-                      const enum State aState ) : mState( aState )
+                      const enum State aState ) : mState( aState ) , mParameterList( "" )
 {
     // create parser
     mParser = new XML_Parser( aPath );
@@ -284,11 +284,11 @@ void Paramfile::load_mesh_params()
             }
             else if( tKey == "meshes" )
             {
-                string_to_mat( tSecond( k ), mMeshIDs );
+                string_to_matrix( tSecond( k ), mMeshIDs );
             }
             else if( tKey == "fields" )
             {
-                string_to_mat( tSecond( k ), mFieldIDs );
+                string_to_matrix( tSecond( k ), mFieldIDs );
             }
             else if ( tKey == "library" )
             {
@@ -417,7 +417,7 @@ void Paramfile::load_mesh_params()
         // - - - - - - - - - - - - - - - - - - - - - - - -
 
         Matrix< DDUMat > tOrdersFromXML;
-        string_to_mat( mParameterList.get< std::string>("lagrange_orders"),
+        string_to_matrix( mParameterList.get< std::string >( "lagrange_orders" ),
                 tOrdersFromXML );
 
         // allocate vector
@@ -450,7 +450,7 @@ void Paramfile::load_mesh_params()
 
         // convert matrix to string
         std::string tString;
-        mat_to_string( tOrdersUnique, tString );
+        matrix_to_string( tOrdersUnique, tString );
 
         // update entry in parameter list
         mParameterList.set( "lagrange_orders", tString );
@@ -459,8 +459,8 @@ void Paramfile::load_mesh_params()
         // Part 2: Make B-Spline orders consistent
         // - - - - - - - - - - - - - - - - - - - - - - - -
 
-        string_to_mat( mParameterList.get< std::string>("bspline_orders"),
-                           tOrdersFromXML );
+        string_to_matrix( mParameterList.get< std::string >( "bspline_orders" ),
+                tOrdersFromXML );
 
         // allocate vector
         tOrders.set_size(
@@ -491,7 +491,7 @@ void Paramfile::load_mesh_params()
                               "Paramfile::update_parameter_list: minimum order of Bsplines needs to be larger 0" );
 
         // convert matrix to string
-        mat_to_string( tOrdersUnique, tString );
+        matrix_to_string( tOrdersUnique, tString );
 
         // update entry in parameter list
         mParameterList.set( "bspline_orders", tString );

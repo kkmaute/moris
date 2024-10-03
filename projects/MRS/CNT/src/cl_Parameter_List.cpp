@@ -16,6 +16,78 @@ namespace moris
 {
     //--------------------------------------------------------------------------------------------------------------
 
+    Parameter_Iterator::Parameter_Iterator(
+            const std::map< std::string, Parameter >& aParameterMap,
+            const Vector< std::string >&              aOrderedKeys,
+            luint                                     aKeyIndex )
+            : mParameterMap( aParameterMap )
+            , mOrderedKeys( aOrderedKeys )
+            , mKeyIndex( aKeyIndex )
+    {
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    const Parameter_Iterator& Parameter_Iterator::operator*() const
+    {
+        return *this;
+    };
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Parameter_Iterator& Parameter_Iterator::operator++()
+    {
+        // Increment key index
+        mKeyIndex++;
+
+        // Return this
+        return *this;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    bool Parameter_Iterator::operator!=( const Parameter_Iterator& aComparisonIterator ) const
+    {
+        return mKeyIndex != aComparisonIterator.mKeyIndex;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    const std::string& Parameter_Iterator::get_name() const
+    {
+        return mOrderedKeys( mKeyIndex );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    const Parameter& Parameter_Iterator::get_parameter() const
+    {
+        return mParameterMap.find( mOrderedKeys( mKeyIndex ) )->second;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Parameter_List::Parameter_List( std::string aName )
+            : mName( std::move( aName ) )
+    {
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Parameter_List::set_name( std::string aName )
+    {
+        mName = std::move( aName );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    const std::string& Parameter_List::get_name()
+    {
+        return mName;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     void Parameter_List::insert(
             const std::string&           aName,
             const std::string&           aDefaultValue,
@@ -29,7 +101,7 @@ namespace moris
 
         // Insert new value
         Parameter tParameter( aDefaultValue, aValidSelections );
-        mParamMap.insert( { aName, tParameter } );
+        mParameterMap.insert( { aName, tParameter } );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -46,7 +118,7 @@ namespace moris
 
         // Insert new value
         Parameter tParameter( aEnumStrings );
-        mParamMap.insert( { aName, tParameter } );
+        mParameterMap.insert( { aName, tParameter } );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -54,28 +126,29 @@ namespace moris
     void
     Parameter_List::erase( const std::string& aName )
     {
-        mParamMap.erase( aName );
+        mParameterMap.erase( aName );
+        mOrderedKeys.remove( aName );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     void Parameter_List::copy_parameters( const Parameter_List& aParameterList )
     {
-        for ( const auto& iCopyIterator : aParameterList )
+        for ( const Parameter_Iterator& iCopyIterator : aParameterList )
         {
             // Get iterator from this map
-            auto tFoundIterator = mParamMap.find( iCopyIterator.first );
+            auto tFoundIterator = mParameterMap.find( iCopyIterator.get_name() );
 
             // Determine if parameter needs to be insert or set
-            if ( tFoundIterator == mParamMap.end() )
+            if ( tFoundIterator == mParameterMap.end() )
             {
                 // Insert parameter
-                mParamMap.insert( { iCopyIterator.first, iCopyIterator.second } );
+                mParameterMap.insert( { iCopyIterator.get_name(), iCopyIterator.get_parameter() } );
             }
             else
             {
                 // Set parameter
-                tFoundIterator->second = iCopyIterator.second;
+                tFoundIterator->second = iCopyIterator.get_parameter();
             }
         }
     }
@@ -84,17 +157,17 @@ namespace moris
 
     [[nodiscard]] bool Parameter_List::exists( const std::string& aName ) const
     {
-        return mParamMap.find( aName ) not_eq mParamMap.end();
+        return mParameterMap.find( aName ) not_eq mParameterMap.end();
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     uint Parameter_List::index( const std::string& aName )
     {
-        auto tIterator = mParamMap.find( aName );
+        auto tIterator = mParameterMap.find( aName );
 
         // throw error
-        MORIS_ERROR( tIterator != mParamMap.end(),
+        MORIS_ERROR( tIterator != mParameterMap.end(),
                 "The requested parameter %s does not exist.\n",
                 aName.c_str() );
 
@@ -103,12 +176,12 @@ namespace moris
     
     //--------------------------------------------------------------------------------------------------------------
     
-    const Variant& Parameter_List::get( const std::string& aName ) const
+    const Variant& Parameter_List::get_variant( const std::string& aName ) const
     {
-        auto tIterator = mParamMap.find( aName );
+        auto tIterator = mParameterMap.find( aName );
         
         // throw error
-        MORIS_ERROR( tIterator != mParamMap.end(),
+        MORIS_ERROR( tIterator != mParameterMap.end(),
                 "The requested parameter %s does not exist.\n",
                 aName.c_str() );
 
@@ -117,34 +190,16 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
 
-    auto
-    Parameter_List::begin() -> decltype( mParamMap.begin() )
+    Parameter_Iterator Parameter_List::begin() const
     {
-        return mParamMap.begin();
+        return { mParameterMap, mOrderedKeys, 0 };
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    auto
-    Parameter_List::end() -> decltype( mParamMap.end() )
+    Parameter_Iterator Parameter_List::end() const
     {
-        return mParamMap.end();
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    auto
-    Parameter_List::begin() const -> decltype( mParamMap.begin() )
-    {
-        return mParamMap.begin();
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    auto
-    Parameter_List::end() const -> decltype( mParamMap.end() )
-    {
-        return mParamMap.end();
+        return { mParameterMap, mOrderedKeys, mOrderedKeys.size() };
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -152,7 +207,7 @@ namespace moris
     bool
     Parameter_List::is_empty()
     {
-        return mParamMap.empty();
+        return mParameterMap.empty();
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -160,7 +215,22 @@ namespace moris
     size_t
     Parameter_List::size() const
     {
-        return mParamMap.size();
+        return mParameterMap.size();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    std::string Parameter_List::register_key( const std::string& aName )
+    {
+        // Trim leading and trailing whitespaces from name to form key
+        std::string tKey = aName;
+        trim_string( tKey );
+
+        // Add key to ordered list
+        mOrderedKeys.push_back( tKey );
+
+        // Return key
+        return tKey;
     }
 
     //--------------------------------------------------------------------------------------------------------------

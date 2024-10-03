@@ -243,462 +243,401 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    OPTParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
+    OPTParameterList( Vector< Submodule_Parameter_Lists >& tParameterlist )
     {
         tParameterlist.resize( 3 );
-        tParameterlist( 0 ).resize( 1 );
-        tParameterlist( 1 ).resize( 0 );
-        tParameterlist( 2 ).resize( 1 );
+        tParameterlist( 0 ).add_parameter_list( moris::prm::create_opt_problem_parameter_list() );
+        tParameterlist( 0 ).set( "is_optimization_problem", tIsOpt );
+        tParameterlist( 0 ).set( "problem", "user_defined" );
+        tParameterlist( 0 ).set( "library", tLibraryName );
+        tParameterlist( 0 ).set( "restart_file", "" );
 
-        tParameterlist( 0 )( 0 ) = moris::prm::create_opt_problem_parameter_list();
-        tParameterlist( 0 )( 0 ).set( "is_optimization_problem", tIsOpt );
-        tParameterlist( 0 )( 0 ).set( "problem", "user_defined" );
-        tParameterlist( 0 )( 0 ).set( "library", tLibraryName );
-        tParameterlist( 0 )( 0 ).set( "restart_file", "" );
-
-        tParameterlist( 2 )( 0 ) = moris::prm::create_gcmma_parameter_list();
-        tParameterlist( 2 )( 0 ).set( "step_size", tMMAStepSize );
-        tParameterlist( 2 )( 0 ).set( "penalty", tMMAPenalty );
-        tParameterlist( 2 )( 0 ).set( "max_its", tMMAMaxIter );    // Maximum number of iterations
+        tParameterlist( 2 ).add_parameter_list( moris::prm::create_gcmma_parameter_list() );
+        tParameterlist( 2 ).set( "step_size", tMMAStepSize );
+        tParameterlist( 2 ).set( "penalty", tMMAPenalty );
+        tParameterlist( 2 ).set( "max_its", tMMAMaxIter );    // Maximum number of iterations
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    HMRParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
+    HMRParameterList( Vector< Submodule_Parameter_Lists >& tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
+        tParameterlist( 0 ).add_parameter_list( prm::create_hmr_parameter_list() );
 
-        tParameterlist( 0 )( 0 ) = prm::create_hmr_parameter_list();
+        tParameterlist( 0 ).set( "number_of_elements_per_dimension", "45,15" );
+        tParameterlist( 0 ).set( "domain_dimensions", "3,1" );
+        tParameterlist( 0 ).set( "domain_offset", "0.0,0.0" );
+        tParameterlist( 0 ).set( "domain_sidesets", "1,2,3,4" );
+        tParameterlist( 0 ).set( "lagrange_output_meshes", "0" );
 
-        tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", "45,15" );
-        tParameterlist( 0 )( 0 ).set( "domain_dimensions", "3,1" );
-        tParameterlist( 0 )( 0 ).set( "domain_offset", "0.0,0.0" );
-        tParameterlist( 0 )( 0 ).set( "domain_sidesets", "1,2,3,4" );
-        tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes", "0" );
+        tParameterlist( 0 ).set( "lagrange_orders", tLagrangeOrder );
+        tParameterlist( 0 ).set( "lagrange_pattern", "0" );
+        tParameterlist( 0 ).set( "bspline_orders", tBsplineOrder );
+        tParameterlist( 0 ).set( "bspline_pattern", "0,0" );
 
-        tParameterlist( 0 )( 0 ).set( "lagrange_orders", tLagrangeOrder );
-        tParameterlist( 0 )( 0 ).set( "lagrange_pattern", "0" );
-        tParameterlist( 0 )( 0 ).set( "bspline_orders", tBsplineOrder );
-        tParameterlist( 0 )( 0 ).set( "bspline_pattern", "0,0" );
+        tParameterlist( 0 ).set( "lagrange_to_bspline", "0,1" );
 
-        tParameterlist( 0 )( 0 ).set( "lagrange_to_bspline", "0,1" );
+        tParameterlist( 0 ).set( "truncate_bsplines", 1 );
+        tParameterlist( 0 ).set( "refinement_buffer", 3 );
+        tParameterlist( 0 ).set( "staircase_buffer", 3 );
+        tParameterlist( 0 ).set( "initial_refinement", std::to_string( tInitialRef ) );
 
-        tParameterlist( 0 )( 0 ).set( "truncate_bsplines", 1 );
-        tParameterlist( 0 )( 0 ).set( "refinement_buffer", 3 );
-        tParameterlist( 0 )( 0 ).set( "staircase_buffer", 3 );
-        tParameterlist( 0 )( 0 ).set( "initial_refinement", std::to_string( tInitialRef ) );
-
-        tParameterlist( 0 )( 0 ).set( "use_multigrid", 0 );
-        tParameterlist( 0 )( 0 ).set( "severity_level", 0 );
+        tParameterlist( 0 ).set( "use_multigrid", 0 );
+        tParameterlist( 0 ).set( "severity_level", 0 );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    XTKParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
+    XTKParameterList( Vector< Submodule_Parameter_Lists >& tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_xtk_parameter_list();
-        tParameterlist( 0 )( 0 ).set( "decompose", true );
-        tParameterlist( 0 )( 0 ).set( "decomposition_type", "conformal" );
-        tParameterlist( 0 )( 0 ).set( "enrich", true );
-        tParameterlist( 0 )( 0 ).set( "basis_rank", "bspline" );
-        tParameterlist( 0 )( 0 ).set( "enrich_mesh_indices", "0,1" );
-        tParameterlist( 0 )( 0 ).set( "ghost_stab", tUseGhost );
-        tParameterlist( 0 )( 0 ).set( "multigrid", false );
-        tParameterlist( 0 )( 0 ).set( "verbose", false );
-        tParameterlist( 0 )( 0 ).set( "print_enriched_ig_mesh", false );
-        tParameterlist( 0 )( 0 ).set( "exodus_output_XTK_ig_mesh", true );
-        tParameterlist( 0 )( 0 ).set( "high_to_low_dbl_side_sets", true );
+        tParameterlist( 0 ).add_parameter_list( prm::create_xtk_parameter_list() );
+        tParameterlist( 0 ).set( "decompose", true );
+        tParameterlist( 0 ).set( "decomposition_type", "conformal" );
+        tParameterlist( 0 ).set( "enrich", true );
+        tParameterlist( 0 ).set( "basis_rank", "bspline" );
+        tParameterlist( 0 ).set( "enrich_mesh_indices", "0,1" );
+        tParameterlist( 0 ).set( "ghost_stab", tUseGhost );
+        tParameterlist( 0 ).set( "multigrid", false );
+        tParameterlist( 0 ).set( "verbose", false );
+        tParameterlist( 0 ).set( "print_enriched_ig_mesh", false );
+        tParameterlist( 0 ).set( "exodus_output_XTK_ig_mesh", true );
+        tParameterlist( 0 ).set( "high_to_low_dbl_side_sets", true );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    GENParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
+    GENParameterList( Vector< Submodule_Parameter_Lists >& tParameterlist )
     {
 
         tParameterlist.resize( 3 );
-        tParameterlist( 0 ).resize( 1 );
-        tParameterlist( 0 )( 0 ) = moris::prm::create_gen_parameter_list();
-        tParameterlist( 0 )( 0 ).set( "IQI_types", "IQIBulkStrainEnergy_Frame", "IQIBulkStrainEnergy_Interior", "IQIBulkVolume_Interior", "IQIPerimeter_InterfaceVoid" );
-        tParameterlist( 0 )( 0 ).set( "output_mesh_file", tGENOutputFile );
+        tParameterlist( 0 ).add_parameter_list( moris::prm::create_gen_parameter_list() );
+        tParameterlist( 0 ).set( "IQI_types", "IQIBulkStrainEnergy_Frame", "IQIBulkStrainEnergy_Interior", "IQIBulkVolume_Interior", "IQIPerimeter_InterfaceVoid" );
+        tParameterlist( 0 ).set( "output_mesh_file", tGENOutputFile );
 
         Matrix< DDUMat > tPhaseMap( 4, 1, 0 );
         tPhaseMap( 1 ) = 1;
         tPhaseMap( 2 ) = 2;
         tPhaseMap( 3 ) = 2;
-        tParameterlist( 0 )( 0 ).set( "phase_table", moris::ios::stringify( tPhaseMap ) );
+        tParameterlist( 0 ).set( "phase_table", moris::ios::stringify( tPhaseMap ) );
 
-        tParameterlist( 0 )( 0 ).set( "print_phase_table", true );
+        tParameterlist( 0 ).set( "print_phase_table", true );
 
-        // init geometry counter
-        uint tGeoCounter = 0;
 
         // outer frame
-        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::SUPERELLIPSE ) );
-        tParameterlist( 1 )( tGeoCounter ).set( "center_x", 1.5 );
-        tParameterlist( 1 )( tGeoCounter ).set( "center_y", 0.5 );
-        tParameterlist( 1 )( tGeoCounter ).set( "semidiameter_x", 1.5 - tWallThickness );
-        tParameterlist( 1 )( tGeoCounter ).set( "semidiameter_y", 0.5 - tWallThickness );
-        tParameterlist( 1 )( tGeoCounter ).set( "exponent", 24.0 );
-        tGeoCounter++;
+        tParameterlist( 1 ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::SUPERELLIPSE ) );
+        tParameterlist( 1 ).set( "center_x", 1.5 );
+        tParameterlist( 1 ).set( "center_y", 0.5 );
+        tParameterlist( 1 ).set( "semidiameter_x", 1.5 - tWallThickness );
+        tParameterlist( 1 ).set( "semidiameter_y", 0.5 - tWallThickness );
+        tParameterlist( 1 ).set( "exponent", 24.0 );
 
         // Geometry parameter lists
-        tParameterlist( 1 ).push_back( prm::create_field_array_parameter_list( gen::Field_Type::SUPERELLIPSE ) );
-        tParameterlist( 1 )( tGeoCounter ).set( "semidiameter_x", tHoleDiameter );
-        tParameterlist( 1 )( tGeoCounter ).set( "semidiameter_y", tHoleDiameter );
-        tParameterlist( 1 )( tGeoCounter ).set( "exponent", 8.0 );
-        tParameterlist( 1 )( tGeoCounter ).set( "lower_bound_x", 0.12 );
-        tParameterlist( 1 )( tGeoCounter ).set( "upper_bound_x", 2.88 );
-        tParameterlist( 1 )( tGeoCounter ).set( "lower_bound_y", 0.12 );
-        tParameterlist( 1 )( tGeoCounter ).set( "upper_bound_y", 0.88 );
-        tParameterlist( 1 )( tGeoCounter ).set( "number_of_fields_x", tNumHoleX );
-        tParameterlist( 1 )( tGeoCounter ).set( "number_of_fields_y", tNumHoleY );
+        tParameterlist( 1 ).add_parameter_list( prm::create_field_array_parameter_list( gen::Field_Type::SUPERELLIPSE ) );
+        tParameterlist( 1 ).set( "semidiameter_x", tHoleDiameter );
+        tParameterlist( 1 ).set( "semidiameter_y", tHoleDiameter );
+        tParameterlist( 1 ).set( "exponent", 8.0 );
+        tParameterlist( 1 ).set( "lower_bound_x", 0.12 );
+        tParameterlist( 1 ).set( "upper_bound_x", 2.88 );
+        tParameterlist( 1 ).set( "lower_bound_y", 0.12 );
+        tParameterlist( 1 ).set( "upper_bound_y", 0.88 );
+        tParameterlist( 1 ).set( "number_of_fields_x", tNumHoleX );
+        tParameterlist( 1 ).set( "number_of_fields_y", tNumHoleY );
 
         if ( tIsOpt )
         {
-            tParameterlist( 1 )( tGeoCounter ).set( "discretization_mesh_index", 0 );
-            tParameterlist( 1 )( tGeoCounter ).set( "discretization_lower_bound", -tBsplineLimit );
-            tParameterlist( 1 )( tGeoCounter ).set( "discretization_upper_bound", tBsplineLimit );
-            tGeoCounter++;
-        }
+            tParameterlist( 1 ).set( "discretization_mesh_index", 0 );
+            tParameterlist( 1 ).set( "discretization_lower_bound", -tBsplineLimit );
+            tParameterlist( 1 ).set( "discretization_upper_bound", tBsplineLimit );
+            }
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    FEMParameterList( Vector< Vector< Parameter_List > >& tParameterList )
+    FEMParameterList( Vector< Submodule_Parameter_Lists >& tParameterList )
     {
         // create a cell of cell of parameter list for fem
         tParameterList.resize( 8 );
 
         //------------------------------------------------------------------------------
-        // init property counter
-        uint tPropCounter = 0;
 
         // create parameter list for property 1
-        tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ) = prm::create_property_parameter_list();
-        tParameterList( 0 )( tPropCounter ).set( "property_name", "PropDensity" );
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters", "1.0" );
-        tParameterList( 0 )( tPropCounter ).set( "value_function", "Func_Const" );
-        tPropCounter++;
+        tParameterList( 0 ).add_parameter_list( prm::create_property_parameter_list() );
+        tParameterList( 0 ).set( "property_name", "PropDensity" );
+        tParameterList( 0 ).set( "function_parameters", "1.0" );
+        tParameterList( 0 ).set( "value_function", "Func_Const" );
 
         // create parameter list for property 2
-        tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name", "PropYoungs" );
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters", "1.0" );
-        tParameterList( 0 )( tPropCounter ).set( "value_function", "Func_Const" );
-        tPropCounter++;
+        tParameterList( 0 ).add_parameter_list( prm::create_property_parameter_list() );
+        tParameterList( 0 ).set( "property_name", "PropYoungs" );
+        tParameterList( 0 ).set( "function_parameters", "1.0" );
+        tParameterList( 0 ).set( "value_function", "Func_Const" );
 
         // create parameter list for property 2
-        tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name", "PropBedding" );
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters", "1.0e-6" );
-        tParameterList( 0 )( tPropCounter ).set( "value_function", "Func_Const" );
-        tPropCounter++;
+        tParameterList( 0 ).add_parameter_list( prm::create_property_parameter_list() );
+        tParameterList( 0 ).set( "property_name", "PropBedding" );
+        tParameterList( 0 ).set( "function_parameters", "1.0e-6" );
+        tParameterList( 0 ).set( "value_function", "Func_Const" );
 
         // create parameter list for property 5
-        tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name", "PropFlux" );
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters", "10.0" );
-        tParameterList( 0 )( tPropCounter ).set( "value_function", "Func_Const" );
-        tPropCounter++;
+        tParameterList( 0 ).add_parameter_list( prm::create_property_parameter_list() );
+        tParameterList( 0 ).set( "property_name", "PropFlux" );
+        tParameterList( 0 ).set( "function_parameters", "10.0" );
+        tParameterList( 0 ).set( "value_function", "Func_Const" );
 
         // create parameter list for property 4
-        tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name", "PropDirichletU" );
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters", "0.0;0.0" );
-        tParameterList( 0 )( tPropCounter ).set( "value_function", "Func_Const" );
-        tPropCounter++;
+        tParameterList( 0 ).add_parameter_list( prm::create_property_parameter_list() );
+        tParameterList( 0 ).set( "property_name", "PropDirichletU" );
+        tParameterList( 0 ).set( "function_parameters", "0.0;0.0" );
+        tParameterList( 0 ).set( "value_function", "Func_Const" );
 
         // create parameter list for property 10
-        tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name", "PropTraction" );
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters", "1.0" );
-        tParameterList( 0 )( tPropCounter ).set( "value_function", "Func_Neumann_U" );
-        tPropCounter++;
+        tParameterList( 0 ).add_parameter_list( prm::create_property_parameter_list() );
+        tParameterList( 0 ).set( "property_name", "PropTraction" );
+        tParameterList( 0 ).set( "function_parameters", "1.0" );
+        tParameterList( 0 ).set( "value_function", "Func_Neumann_U" );
 
         // create parameter list for property 7
-        tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name", "PropPoisson" );
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters", "0.0" );
-        tParameterList( 0 )( tPropCounter ).set( "value_function", "Func_Const" );
-        tPropCounter++;
+        tParameterList( 0 ).add_parameter_list( prm::create_property_parameter_list() );
+        tParameterList( 0 ).set( "property_name", "PropPoisson" );
+        tParameterList( 0 ).set( "function_parameters", "0.0" );
+        tParameterList( 0 ).set( "value_function", "Func_Const" );
 
         //------------------------------------------------------------------------------
-        // init CM counter
-        uint tCMCounter = 0;
 
         // create parameter list for constitutive model 1
-        tParameterList( 1 ).push_back( prm::create_constitutive_model_parameter_list() );
-        tParameterList( 1 )( tCMCounter ).set( "constitutive_name", "CMStrucLinIso_Frame" );
-        tParameterList( 1 )( tCMCounter ).set( "constitutive_type",  fem::Constitutive_Type::STRUC_LIN_ISO ) ;
-        tParameterList( 1 )( tCMCounter ).set( "dof_dependencies", std::pair< std::string, std::string >( "UX,UY", "Displacement" ) );
-        tParameterList( 1 )( tCMCounter ).set( "properties", "PropYoungs,YoungsModulus;PropPoisson,PoissonRatio" );
-        tCMCounter++;
+        tParameterList( 1 ).add_parameter_list( prm::create_constitutive_model_parameter_list() );
+        tParameterList( 1 ).set( "constitutive_name", "CMStrucLinIso_Frame" );
+        tParameterList( 1 ).set( "constitutive_type",  fem::Constitutive_Type::STRUC_LIN_ISO ) ;
+        tParameterList( 1 ).set( "dof_dependencies", std::pair< std::string, std::string >( "UX,UY", "Displacement" ) );
+        tParameterList( 1 ).set( "properties", "PropYoungs,YoungsModulus;PropPoisson,PoissonRatio" );
 
         // create parameter list for constitutive model 1
-        tParameterList( 1 ).push_back( prm::create_constitutive_model_parameter_list() );
-        tParameterList( 1 )( tCMCounter ).set( "constitutive_name", "CMStrucLinIso_Interior" );
-        tParameterList( 1 )( tCMCounter ).set( "constitutive_type",  fem::Constitutive_Type::STRUC_LIN_ISO ) ;
-        tParameterList( 1 )( tCMCounter ).set( "dof_dependencies", std::pair< std::string, std::string >( "UX,UY", "Displacement" ) );
-        tParameterList( 1 )( tCMCounter ).set( "properties", "PropYoungs,YoungsModulus;PropPoisson,PoissonRatio" );
-        tCMCounter++;
+        tParameterList( 1 ).add_parameter_list( prm::create_constitutive_model_parameter_list() );
+        tParameterList( 1 ).set( "constitutive_name", "CMStrucLinIso_Interior" );
+        tParameterList( 1 ).set( "constitutive_type",  fem::Constitutive_Type::STRUC_LIN_ISO ) ;
+        tParameterList( 1 ).set( "dof_dependencies", std::pair< std::string, std::string >( "UX,UY", "Displacement" ) );
+        tParameterList( 1 ).set( "properties", "PropYoungs,YoungsModulus;PropPoisson,PoissonRatio" );
 
         //------------------------------------------------------------------------------
-        // init SP counter
-        uint tSPCounter = 0;
 
         // create parameter list for stabilization parameter 1
-        tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_name", "SPNitscheDirichletBC" );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  fem::Stabilization_Type::DIRICHLET_NITSCHE ) ;
-        tParameterList( 2 )( tSPCounter ).set( "function_parameters", "100.0" );
-        tParameterList( 2 )( tSPCounter ).set( "leader_properties", "PropYoungs,Material" );
-        tSPCounter++;
+        tParameterList( 2 ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
+        tParameterList( 2 ).set( "stabilization_name", "SPNitscheDirichletBC" );
+        tParameterList( 2 ).set( "stabilization_type",  fem::Stabilization_Type::DIRICHLET_NITSCHE ) ;
+        tParameterList( 2 ).set( "function_parameters", "100.0" );
+        tParameterList( 2 ).set( "leader_properties", "PropYoungs,Material" );
 
-        tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_name", "SPNitscheFrameInteriorInterface" );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  fem::Stabilization_Type::NITSCHE_INTERFACE ) ;
-        tParameterList( 2 )( tSPCounter ).set( "function_parameters", "100.0" );
-        tParameterList( 2 )( tSPCounter ).set( "leader_properties", "PropYoungs,Material" );
-        tParameterList( 2 )( tSPCounter ).set( "follower_properties", "PropYoungs,Material" );
-        tSPCounter++;
+        tParameterList( 2 ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
+        tParameterList( 2 ).set( "stabilization_name", "SPNitscheFrameInteriorInterface" );
+        tParameterList( 2 ).set( "stabilization_type",  fem::Stabilization_Type::NITSCHE_INTERFACE ) ;
+        tParameterList( 2 ).set( "function_parameters", "100.0" );
+        tParameterList( 2 ).set( "leader_properties", "PropYoungs,Material" );
+        tParameterList( 2 ).set( "follower_properties", "PropYoungs,Material" );
 
-        tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_name", "SPGhost_Frame" );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  fem::Stabilization_Type::GHOST_DISPL ) ;
-        tParameterList( 2 )( tSPCounter ).set( "function_parameters", "0.01" );
-        tParameterList( 2 )( tSPCounter ).set( "leader_properties", "PropYoungs,Material" );
-        tSPCounter++;
+        tParameterList( 2 ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
+        tParameterList( 2 ).set( "stabilization_name", "SPGhost_Frame" );
+        tParameterList( 2 ).set( "stabilization_type",  fem::Stabilization_Type::GHOST_DISPL ) ;
+        tParameterList( 2 ).set( "function_parameters", "0.01" );
+        tParameterList( 2 ).set( "leader_properties", "PropYoungs,Material" );
 
-        tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_name", "SPGhost_Interior" );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  fem::Stabilization_Type::GHOST_DISPL ) ;
-        tParameterList( 2 )( tSPCounter ).set( "function_parameters", "0.01" );
-        tParameterList( 2 )( tSPCounter ).set( "leader_properties", "PropYoungs,Material" );
-        tSPCounter++;
+        tParameterList( 2 ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
+        tParameterList( 2 ).set( "stabilization_name", "SPGhost_Interior" );
+        tParameterList( 2 ).set( "stabilization_type",  fem::Stabilization_Type::GHOST_DISPL ) ;
+        tParameterList( 2 ).set( "function_parameters", "0.01" );
+        tParameterList( 2 ).set( "leader_properties", "PropYoungs,Material" );
 
         //------------------------------------------------------------------------------
-        // init IWG counter
-        uint tIWGCounter = 0;
+        tParameterList( 3 ).add_parameter_list( prm::create_IWG_parameter_list() );
+        tParameterList( 3 ).set( "IWG_name", "IWGBulkU_Frame" );
+        tParameterList( 3 ).set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_BULK ) ;
+        tParameterList( 3 ).set( "dof_residual", "UX,UY" );
+        tParameterList( 3 ).set( "leader_dof_dependencies", "UX,UY" );
+        tParameterList( 3 ).set( "leader_constitutive_models", "CMStrucLinIso_Frame,ElastLinIso" );
+        tParameterList( 3 ).set( "leader_properties", "PropBedding,Bedding" );
+        tParameterList( 3 ).set( "mesh_set_names", tFrameSets );
 
-        tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGBulkU_Frame" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_BULK ) ;
-        tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
-        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY" );
-        tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMStrucLinIso_Frame,ElastLinIso" );
-        tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropBedding,Bedding" );
-        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tFrameSets );
-        tIWGCounter++;
+        tParameterList( 3 ).add_parameter_list( prm::create_IWG_parameter_list() );
+        tParameterList( 3 ).set( "IWG_name", "IWGBulkU_Frame" );
+        tParameterList( 3 ).set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_BULK ) ;
+        tParameterList( 3 ).set( "dof_residual", "UX,UY" );
+        tParameterList( 3 ).set( "leader_dof_dependencies", "UX,UY" );
+        tParameterList( 3 ).set( "leader_constitutive_models", "CMStrucLinIso_Interior,ElastLinIso" );
+        tParameterList( 3 ).set( "leader_properties", "PropBedding,Bedding" );
+        tParameterList( 3 ).set( "mesh_set_names", tInteriorSets );
 
-        tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGBulkU_Frame" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_BULK ) ;
-        tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
-        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY" );
-        tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMStrucLinIso_Interior,ElastLinIso" );
-        tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropBedding,Bedding" );
-        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tInteriorSets );
-        tIWGCounter++;
+        tParameterList( 3 ).add_parameter_list( prm::create_IWG_parameter_list() );
+        tParameterList( 3 ).set( "IWG_name", "IWGDirichletU" );
+        tParameterList( 3 ).set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE ) ;
+        tParameterList( 3 ).set( "dof_residual", "UX,UY" );
+        tParameterList( 3 ).set( "leader_dof_dependencies", "UX,UY" );
+        tParameterList( 3 ).set( "leader_properties", "PropDirichletU,Dirichlet" );
+        tParameterList( 3 ).set( "leader_constitutive_models", "CMStrucLinIso_Frame,ElastLinIso" );
+        tParameterList( 3 ).set( "stabilization_parameters", "SPNitscheDirichletBC,DirichletNitsche" );
+        tParameterList( 3 ).set( "mesh_set_names", tFrameSupportSSets );
 
-        tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGDirichletU" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE ) ;
-        tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
-        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY" );
-        tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropDirichletU,Dirichlet" );
-        tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMStrucLinIso_Frame,ElastLinIso" );
-        tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters", "SPNitscheDirichletBC,DirichletNitsche" );
-        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tFrameSupportSSets );
-        tIWGCounter++;
+        tParameterList( 3 ).add_parameter_list( prm::create_IWG_parameter_list() );
+        tParameterList( 3 ).set( "IWG_name", "IWGTraction" );
+        tParameterList( 3 ).set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_NEUMANN ) ;
+        tParameterList( 3 ).set( "dof_residual", "UX,UY" );
+        tParameterList( 3 ).set( "leader_dof_dependencies", "UX,UY" );
+        tParameterList( 3 ).set( "leader_properties", "PropTraction,Traction" );
+        tParameterList( 3 ).set( "mesh_set_names", tFrameLoadSSets );
 
-        tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGTraction" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_NEUMANN ) ;
-        tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
-        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY" );
-        tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropTraction,Traction" );
-        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tFrameLoadSSets );
-        tIWGCounter++;
-
-        tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGFrameInteriorInterface" );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_INTERFACE_UNSYMMETRIC_NITSCHE ) ;
-        tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
-        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY" );
-        tParameterList( 3 )( tIWGCounter ).set( "follower_dof_dependencies", "UX,UY" );
-        tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMStrucLinIso_Frame,ElastLinIso" );
-        tParameterList( 3 )( tIWGCounter ).set( "follower_constitutive_models", "CMStrucLinIso_Interior,ElastLinIso" );
-        tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters", "SPNitscheFrameInteriorInterface,NitscheInterface" );
-        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tFrameInteriorDSets );
-        tIWGCounter++;
+        tParameterList( 3 ).add_parameter_list( prm::create_IWG_parameter_list() );
+        tParameterList( 3 ).set( "IWG_name", "IWGFrameInteriorInterface" );
+        tParameterList( 3 ).set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_INTERFACE_UNSYMMETRIC_NITSCHE ) ;
+        tParameterList( 3 ).set( "dof_residual", "UX,UY" );
+        tParameterList( 3 ).set( "leader_dof_dependencies", "UX,UY" );
+        tParameterList( 3 ).set( "follower_dof_dependencies", "UX,UY" );
+        tParameterList( 3 ).set( "leader_constitutive_models", "CMStrucLinIso_Frame,ElastLinIso" );
+        tParameterList( 3 ).set( "follower_constitutive_models", "CMStrucLinIso_Interior,ElastLinIso" );
+        tParameterList( 3 ).set( "stabilization_parameters", "SPNitscheFrameInteriorInterface,NitscheInterface" );
+        tParameterList( 3 ).set( "mesh_set_names", tFrameInteriorDSets );
 
         if ( tUseGhost )
         {
-            tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-            tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGGhostFrame" );
-            tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
-            tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
-            tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY" );
-            tParameterList( 3 )( tIWGCounter ).set( "follower_dof_dependencies", "UX,UY" );
-            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters", "SPGhost_Frame,GhostSP" );
-            tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tFrameGhost );
-            tIWGCounter++;
+            tParameterList( 3 ).add_parameter_list( prm::create_IWG_parameter_list() );
+            tParameterList( 3 ).set( "IWG_name", "IWGGhostFrame" );
+            tParameterList( 3 ).set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
+            tParameterList( 3 ).set( "dof_residual", "UX,UY" );
+            tParameterList( 3 ).set( "leader_dof_dependencies", "UX,UY" );
+            tParameterList( 3 ).set( "follower_dof_dependencies", "UX,UY" );
+            tParameterList( 3 ).set( "stabilization_parameters", "SPGhost_Frame,GhostSP" );
+            tParameterList( 3 ).set( "mesh_set_names", tFrameGhost );
 
-            tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-            tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGGhostInterior" );
-            tParameterList( 3 )( tIWGCounter ).set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
-            tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
-            tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY" );
-            tParameterList( 3 )( tIWGCounter ).set( "follower_dof_dependencies", "UX,UY" );
-            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters", "SPGhost_Interior,GhostSP" );
-            tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tInteriorGhost );
-            tIWGCounter++;
+            tParameterList( 3 ).add_parameter_list( prm::create_IWG_parameter_list() );
+            tParameterList( 3 ).set( "IWG_name", "IWGGhostInterior" );
+            tParameterList( 3 ).set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
+            tParameterList( 3 ).set( "dof_residual", "UX,UY" );
+            tParameterList( 3 ).set( "leader_dof_dependencies", "UX,UY" );
+            tParameterList( 3 ).set( "follower_dof_dependencies", "UX,UY" );
+            tParameterList( 3 ).set( "stabilization_parameters", "SPGhost_Interior,GhostSP" );
+            tParameterList( 3 ).set( "mesh_set_names", tInteriorGhost );
         }
         //------------------------------------------------------------------------------
-        // init IQI counter
-        uint tIQICounter = 0;
+        tParameterList( 4 ).add_parameter_list( prm::create_IQI_parameter_list() );
+        tParameterList( 4 ).set( "IQI_name", "IQIBulkUX" );
+        tParameterList( 4 ).set( "IQI_type",  fem::IQI_Type::DOF ) ;
+        tParameterList( 4 ).set( "dof_quantity", "UX,UY" );
+        tParameterList( 4 ).set( "leader_dof_dependencies", "UX,UY" );
+        tParameterList( 4 ).set( "vectorial_field_index", 0 );
+        tParameterList( 4 ).set( "mesh_set_names", tTotalDomainSets );
 
-        tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkUX" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::DOF ) ;
-        tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "UX,UY" );
-        tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "UX,UY" );
-        tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 0 );
-        tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tTotalDomainSets );
-        tIQICounter++;
+        tParameterList( 4 ).add_parameter_list( prm::create_IQI_parameter_list() );
+        tParameterList( 4 ).set( "IQI_name", "IQIBulkUY" );
+        tParameterList( 4 ).set( "IQI_type",  fem::IQI_Type::DOF ) ;
+        tParameterList( 4 ).set( "leader_dof_dependencies", "UX,UY" );
+        tParameterList( 4 ).set( "dof_quantity", "UX,UY" );
+        tParameterList( 4 ).set( "vectorial_field_index", 1 );
+        tParameterList( 4 ).set( "mesh_set_names", tTotalDomainSets );
 
-        tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkUY" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::DOF ) ;
-        tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "UX,UY" );
-        tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "UX,UY" );
-        tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 1 );
-        tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tTotalDomainSets );
-        tIQICounter++;
+        tParameterList( 4 ).add_parameter_list( prm::create_IQI_parameter_list() );
+        tParameterList( 4 ).set( "IQI_name", "IQIBulkStrainEnergy_Frame" );
+        tParameterList( 4 ).set( "IQI_type",  fem::IQI_Type::STRAIN_ENERGY ) ;
+        tParameterList( 4 ).set( "leader_dof_dependencies", "UX,UY" );
+        tParameterList( 4 ).set( "leader_constitutive_models", "CMStrucLinIso_Frame,Elast" );
+        tParameterList( 4 ).set( "mesh_set_names", tFrameSets );
 
-        tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkStrainEnergy_Frame" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::STRAIN_ENERGY ) ;
-        tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "UX,UY" );
-        tParameterList( 4 )( tIQICounter ).set( "leader_constitutive_models", "CMStrucLinIso_Frame,Elast" );
-        tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tFrameSets );
-        tIQICounter++;
+        tParameterList( 4 ).add_parameter_list( prm::create_IQI_parameter_list() );
+        tParameterList( 4 ).set( "IQI_name", "IQIBulkStrainEnergy_Interior" );
+        tParameterList( 4 ).set( "IQI_type",  fem::IQI_Type::STRAIN_ENERGY ) ;
+        tParameterList( 4 ).set( "leader_dof_dependencies", "UX,UY" );
+        tParameterList( 4 ).set( "leader_constitutive_models", "CMStrucLinIso_Interior,Elast" );
+        tParameterList( 4 ).set( "mesh_set_names", tInteriorSets );
 
-        tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkStrainEnergy_Interior" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::STRAIN_ENERGY ) ;
-        tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "UX,UY" );
-        tParameterList( 4 )( tIQICounter ).set( "leader_constitutive_models", "CMStrucLinIso_Interior,Elast" );
-        tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tInteriorSets );
-        tIQICounter++;
+        tParameterList( 4 ).add_parameter_list( prm::create_IQI_parameter_list() );
+        tParameterList( 4 ).set( "IQI_name", "IQIBulkVolume_Frame" );
+        tParameterList( 4 ).set( "IQI_type",  fem::IQI_Type::VOLUME ) ;
+        tParameterList( 4 ).set( "leader_properties", "PropDensity,Density" );
+        tParameterList( 4 ).set( "mesh_set_names", tFrameSets );
 
-        tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkVolume_Frame" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::VOLUME ) ;
-        tParameterList( 4 )( tIQICounter ).set( "leader_properties", "PropDensity,Density" );
-        tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tFrameSets );
-        tIQICounter++;
+        tParameterList( 4 ).add_parameter_list( prm::create_IQI_parameter_list() );
+        tParameterList( 4 ).set( "IQI_name", "IQIBulkVolume_Interior" );
+        tParameterList( 4 ).set( "IQI_type",  fem::IQI_Type::VOLUME ) ;
+        tParameterList( 4 ).set( "leader_properties", "PropDensity,Density" );
+        tParameterList( 4 ).set( "mesh_set_names", tInteriorSets );
 
-        tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkVolume_Interior" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::VOLUME ) ;
-        tParameterList( 4 )( tIQICounter ).set( "leader_properties", "PropDensity,Density" );
-        tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tInteriorSets );
-        tIQICounter++;
-
-        tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIPerimeter_InterfaceVoid" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type",  fem::IQI_Type::VOLUME ) ;
-        tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "UX,UY" );
-        tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tInterfaceVoidSSets );
-        tIQICounter++;
+        tParameterList( 4 ).add_parameter_list( prm::create_IQI_parameter_list() );
+        tParameterList( 4 ).set( "IQI_name", "IQIPerimeter_InterfaceVoid" );
+        tParameterList( 4 ).set( "IQI_type",  fem::IQI_Type::VOLUME ) ;
+        tParameterList( 4 ).set( "leader_dof_dependencies", "UX,UY" );
+        tParameterList( 4 ).set( "mesh_set_names", tInterfaceVoidSSets );
 
         // create computation  parameter list
-        tParameterList( 5 ).resize( 1 );
-        tParameterList( 5 )( 0 ) = prm::create_computation_parameter_list();
+        tParameterList( 5 ).add_parameter_list( prm::create_computation_parameter_list() );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    SOLParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
+    SOLParameterList( Vector< Submodule_Parameter_Lists >& tParameterlist )
     {
         tParameterlist.resize( 8 );
-        for ( uint Ik = 0; Ik < 8; Ik++ )
-        {
-            tParameterlist( Ik ).resize( 1 );
-        }
 
-        tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
 
-        tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
+        tParameterlist( 0 ).add_parameter_list( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
 
-        tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
-        tParameterlist( 2 )( 0 ).set( "NLA_combined_res_jac_assembly", true );
-        tParameterlist( 2 )( 0 ).set( "NLA_rel_res_norm_drop", 1.00 );
-        tParameterlist( 2 )( 0 ).set( "NLA_relaxation_parameter", 1.00 );
-        tParameterlist( 2 )( 0 ).set( "NLA_max_iter", 1 );
+        tParameterlist( 1 ).add_parameter_list( moris::prm::create_linear_solver_parameter_list() );
 
-        tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
-        tParameterlist( 3 )( 0 ).set( "NLA_DofTypes", "UX,UY" );
+        tParameterlist( 2 ).add_parameter_list( moris::prm::create_nonlinear_algorithm_parameter_list() );
+        tParameterlist( 2 ).set( "NLA_combined_res_jac_assembly", true );
+        tParameterlist( 2 ).set( "NLA_rel_res_norm_drop", 1.00 );
+        tParameterlist( 2 ).set( "NLA_relaxation_parameter", 1.00 );
+        tParameterlist( 2 ).set( "NLA_max_iter", 1 );
 
-        tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
-        tParameterlist( 4 )( 0 ).set( "TSA_Num_Time_Steps", 1 );
-        tParameterlist( 4 )( 0 ).set( "TSA_Time_Frame", 1.0 );
+        tParameterlist( 3 ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );
+        tParameterlist( 3 ).set( "NLA_DofTypes", "UX,UY" );
 
-        tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
-        tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "UX,UY" );
-        tParameterlist( 5 )( 0 ).set( "TSA_Output_Indices", "0" );
-        tParameterlist( 5 )( 0 ).set( "TSA_Output_Criteria", "Output_Criterion" );
+        tParameterlist( 4 ).add_parameter_list( moris::prm::create_time_solver_algorithm_parameter_list() );
+        tParameterlist( 4 ).set( "TSA_Num_Time_Steps", 1 );
+        tParameterlist( 4 ).set( "TSA_Time_Frame", 1.0 );
 
-        tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+        tParameterlist( 5 ).add_parameter_list( moris::prm::create_time_solver_parameter_list() );
+        tParameterlist( 5 ).set( "TSA_DofTypes", "UX,UY" );
+        tParameterlist( 5 ).set( "TSA_Output_Indices", "0" );
+        tParameterlist( 5 ).set( "TSA_Output_Criteria", "Output_Criterion" );
 
-        tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE );
+        tParameterlist( 6 ).add_parameter_list( moris::prm::create_solver_warehouse_parameterlist() );
+
+        tParameterlist( 7 ).add_parameter_list( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE ) );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    MSIParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
+    MSIParameterList( Vector< Submodule_Parameter_Lists >& tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_msi_parameter_list();
-        tParameterlist( 0 )( 0 ).set( "UX", 1 );
-        tParameterlist( 0 )( 0 ).set( "UY", 1 );
+        tParameterlist( 0 ).add_parameter_list( prm::create_msi_parameter_list() );
+        tParameterlist( 0 ).set( "UX", 1 );
+        tParameterlist( 0 ).set( "UY", 1 );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    VISParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
+    VISParameterList( Vector< Submodule_Parameter_Lists >& tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 1 );
-
-        tParameterlist( 0 )( 0 ) = prm::create_vis_parameter_list();
-        tParameterlist( 0 )( 0 ).set( "File_Name", std::pair< std::string, std::string >( "./", tOutputFileName ) );
-        tParameterlist( 0 )( 0 ).set( "Mesh_Type",  vis::VIS_Mesh_Type::STANDARD ) ;
-        tParameterlist( 0 )( 0 ).set( "Set_Names", tTotalDomainSets );
-        tParameterlist( 0 )( 0 ).set( "Field_Names", "UX,UY" );
-        tParameterlist( 0 )( 0 ).set( "Field_Type", "NODAL,NODAL" );
-        tParameterlist( 0 )( 0 ).set( "IQI_Names", "IQIBulkUX,IQIBulkUY" );
-        tParameterlist( 0 )( 0 ).set( "Save_Frequency", 1 );
-        tParameterlist( 0 )( 0 ).set( "Time_Offset", 10.0 );
+        tParameterlist( 0 ).add_parameter_list( prm::create_vis_parameter_list() );
+        tParameterlist( 0 ).set( "File_Name", std::pair< std::string, std::string >( "./", tOutputFileName ) );
+        tParameterlist( 0 ).set( "Mesh_Type",  vis::VIS_Mesh_Type::STANDARD ) ;
+        tParameterlist( 0 ).set( "Set_Names", tTotalDomainSets );
+        tParameterlist( 0 ).set( "Field_Names", "UX,UY" );
+        tParameterlist( 0 ).set( "Field_Type", "NODAL,NODAL" );
+        tParameterlist( 0 ).set( "IQI_Names", "IQIBulkUX,IQIBulkUY" );
+        tParameterlist( 0 ).set( "Save_Frequency", 1 );
+        tParameterlist( 0 ).set( "Time_Offset", 10.0 );
     }
 
     void
-    MORISGENERALParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
+    MORISGENERALParameterList( Vector< Submodule_Parameter_Lists >& tParameterlist )
     {
     }
 

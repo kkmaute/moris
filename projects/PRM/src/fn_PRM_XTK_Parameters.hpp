@@ -8,10 +8,9 @@
  *
  */
 
-#ifndef PROJECTS_PRM_SRC_FN_PRM_XTK_PARAMETERS_HPP_
-#define PROJECTS_PRM_SRC_FN_PRM_XTK_PARAMETERS_HPP_
+#pragma once
 
-#include "cl_Parameter_List.hpp"
+#include "cl_Submodule_Parameter_Lists.hpp"
 
 namespace moris::prm
 {
@@ -22,7 +21,7 @@ namespace moris::prm
     inline Parameter_List
     create_xtk_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "XTK" );
 
         // decomposition and decomposition related parameters
         tParameterList.insert( "decompose", true );
@@ -150,5 +149,3 @@ namespace moris::prm
     //------------------------------------------------------------------------------
 
 }    // namespace moris::prm
-
-#endif /* PROJECTS_PRM_SRC_FN_PRM_MSI_PARAMETERS_HPP_ */

@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "cl_Parameter_List.hpp"
+#include "cl_Submodule_Parameter_Lists.hpp"
 #include "GEN_Data_Types.hpp"
 
 namespace moris::prm
@@ -25,7 +25,7 @@ namespace moris::prm
     inline Parameter_List
     create_gen_parameter_list()
     {
-        Parameter_List tGENParameterList;
+        Parameter_List tGENParameterList( "General" );
 
         // Level set parameters
         tGENParameterList.insert( "output_mesh_file", "" );                 // File name for exodus mesh, if default no mesh is written
@@ -164,7 +164,7 @@ namespace moris::prm
                     aParameterList.insert( "image_offset", Vector< real >() );
                     aParameterList.insert( "image_sdf_scaling", 0.0 );                // sdf scaling factor (0: automatic scaling)
                     aParameterList.insert( "image_sdf_shift", 0.0 );                  // sdf shift value
-                    aParameterList.insert( "image_sdf_default", -1.0 );               // sdf value outside image
+                    aParameterList.insert( "image_sdf_default", 1.0 );               // sdf value outside image
                     aParameterList.insert( "image_sdf_interpolate", false );          // whether sdf value is interpolated
                     break;
                 }
@@ -186,7 +186,7 @@ namespace moris::prm
      */
     inline Parameter_List create_field_parameter_list( gen::Field_Type aFieldType )
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "Field" );
         insert_field_parameters( tParameterList, aFieldType );
         return tParameterList;
     }
@@ -213,7 +213,7 @@ namespace moris::prm
      */
     static Parameter_List create_design_parameter_list()
     {
-        Parameter_List tDesignParameterList;
+        Parameter_List tDesignParameterList( "Design" );
 
         tDesignParameterList.insert( "design_type", "" );                            // Insert the design type parameter
         tDesignParameterList.insert( "number_of_refinements", Vector< uint >() );    // Number of refinement steps using HMR

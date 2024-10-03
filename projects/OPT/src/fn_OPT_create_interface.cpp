@@ -18,7 +18,7 @@ namespace moris::opt
 
     std::shared_ptr< Criteria_Interface >
     create_interface(
-            Vector< Parameter_List >                        aParameterLists,
+            Submodule_Parameter_Lists                        aParameterLists,
             Vector< std::shared_ptr< Criteria_Interface > > aInterfaces )
     {
         // Get number of interfaces

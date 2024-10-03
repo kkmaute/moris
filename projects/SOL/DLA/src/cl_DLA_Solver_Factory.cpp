@@ -102,7 +102,7 @@ Solver_Factory::create_solver(
 #ifdef MORIS_HAVE_SLEPC
             tLinSol = std::make_shared< Eigen_Solver_SLEPc >(aParameterlist);
 #else
-            MORIS_ERROR( false, "MORIS is configured with out PETSC support." );
+            MORIS_ERROR( false, "MORIS is configured with out SLEPc support." );
 #endif
             break;
         default:

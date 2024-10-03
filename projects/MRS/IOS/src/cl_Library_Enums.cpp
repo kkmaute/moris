@@ -229,7 +229,7 @@ namespace moris
                 break;    // standard name
 
             case Parameter_List_Type::GEN:
-                tNames = { "", "Geometry", "Field" };
+                tNames = { "General", "Geometry", "Field" };
                 break;
 
             case Parameter_List_Type::FEM:

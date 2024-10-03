@@ -58,7 +58,7 @@ namespace moris::mig
         std::string tMeshSideSetNames = aParameterList.get< std::string >( "periodic_side_set_pair" );
 
         // store the names in mMeshSideSetPairs
-        string_to_cell_of_cell( aParameterList.get< std::string >( "periodic_side_set_pair" ), mMeshSideSetPairs );
+        string_to_vector_of_vectors( aParameterList.get< std::string >( "periodic_side_set_pair" ), mMeshSideSetPairs );
     }
 
     //---------------------------------------------------------------------

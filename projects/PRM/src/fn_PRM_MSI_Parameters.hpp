@@ -8,10 +8,9 @@
  *
  */
 
-#ifndef PROJECTS_PRM_SRC_FN_PRM_MSI_PARAMETERS_HPP_
-#define PROJECTS_PRM_SRC_FN_PRM_MSI_PARAMETERS_HPP_
+#pragma once
 
-#include "cl_Parameter_List.hpp"
+#include "cl_Submodule_Parameter_Lists.hpp"
 
 namespace moris::prm
 {
@@ -22,7 +21,7 @@ namespace moris::prm
     inline moris::Parameter_List
     create_msi_parameter_list()
     {
-        Parameter_List mMSIParameterList;
+        Parameter_List mMSIParameterList( "MSI" );
 
         // Adof type interpolation index
         mMSIParameterList.insert( "TEMP", 0 );
@@ -81,5 +80,3 @@ namespace moris::prm
     //------------------------------------------------------------------------------
 
 }    // namespace moris::prm
-
-#endif /* PROJECTS_PRM_SRC_FN_PRM_MSI_PARAMETERS_HPP_ */

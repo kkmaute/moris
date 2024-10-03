@@ -8,10 +8,9 @@
  *
  */
 
-#ifndef PROJECTS_PRM_SRC_FN_PRM_HMR_PARAMETERS_HPP_
-#define PROJECTS_PRM_SRC_FN_PRM_HMR_PARAMETERS_HPP_
+#pragma once
 
-#include "cl_Parameter_List.hpp"
+#include "cl_Submodule_Parameter_Lists.hpp"
 
 namespace moris::prm
 {
@@ -22,7 +21,7 @@ namespace moris::prm
     inline Parameter_List
     create_hmr_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "General" );
 
         // number of elements per direction in overall mesh, without aura
         // 2D or 3D is determined by length of this vector
@@ -128,5 +127,3 @@ namespace moris::prm
     //------------------------------------------------------------------------------
 
 }    // namespace moris::prm
-
-#endif    // PROJECTS_PRM_SRC_FN_PRM_MSI_PARAMETERS_HPP_

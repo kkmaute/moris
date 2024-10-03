@@ -65,7 +65,7 @@ namespace moris::wrk
                 moris::MSI::get_msi_dof_type_map();
 
         // get the quantity dof type from parameter list
-        string_to_cell(
+        string_to_vector(
                 tMORISParameterList( 2 )( 0 ).get< std::string >( "dof_type" ),
                 mDofTypes,
                 tMSIDofTypeMap );

@@ -194,7 +194,7 @@ namespace moris
             tParameters.set_bspline_truncation( true );
             tParameters.set_side_sets( { { 5 }, { 6 } } );
 
-            tParameters.set_output_meshes( { { { 0 } } } );
+            tParameters.set_output_meshes( { { 0 } } );
 
             tParameters.set_lagrange_orders( { { 1 } } );
             tParameters.set_lagrange_patterns( { { 0 } } );
@@ -207,11 +207,6 @@ namespace moris
 
             tParameters.set_refinement_buffer( 2 );
             tParameters.set_staircase_buffer( 2 );
-
-            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
-            tLagrangeToBSplineMesh( 0 ) = { { 0 } };
-
-            tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
             hmr::HMR tHMR( tParameters );
 
@@ -437,7 +432,7 @@ namespace moris
             tParameters.set_bspline_truncation( true );
             tParameters.set_side_sets( { { 5 }, { 6 } } );
 
-            tParameters.set_output_meshes( { { { 0 } } } );
+            tParameters.set_output_meshes( { { 0 } } );
 
             tParameters.set_lagrange_orders( { { 1 } } );
             tParameters.set_lagrange_patterns( { { 0 } } );
@@ -452,11 +447,6 @@ namespace moris
             tParameters.set_staircase_buffer( 2 );
 
             tParameters.set_number_aura( true );
-
-            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
-            tLagrangeToBSplineMesh( 0 ) = { { 0 } };
-
-            tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
             hmr::HMR tHMR( tParameters );
 
@@ -718,7 +708,7 @@ namespace moris
 
             tParameters.set_multigrid( true );
 
-            tParameters.set_output_meshes( { { { 0 } } } );
+            tParameters.set_output_meshes( { { 0 } } );
 
             tParameters.set_lagrange_orders( { { 1 } } );
             tParameters.set_lagrange_patterns( { { 0 } } );
@@ -731,11 +721,6 @@ namespace moris
 
             tParameters.set_refinement_buffer( 2 );
             tParameters.set_staircase_buffer( 2 );
-
-            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
-            tLagrangeToBSplineMesh( 0 ) = { { 0 } };
-
-            tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
             hmr::HMR tHMR( tParameters );
 
@@ -926,31 +911,27 @@ namespace moris
             //-------------------------------------------------------
             sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
-            Vector< Vector< moris::Parameter_List > > tParameterlist( 8 );
-            for ( uint Ik = 0; Ik < 8; Ik++ )
-            {
-                tParameterlist( Ik ).resize( 1 );
-            }
+            Vector< Submodule_Parameter_Lists > tParameterlist( 8 );
 
-            tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::PETSC );
+            tParameterlist( 0 ).add_parameter_list( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::PETSC ) );
             tParameterlist( 0 )( 0 ).set( "KSPType", std::string( "fgmres" ) );
             tParameterlist( 0 )( 0 ).set( "preconditioners", std::string( "0" ) );
 
-            tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
-            tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
-            tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
+            tParameterlist( 1 ).add_parameter_list( moris::prm::create_linear_solver_parameter_list() );
+            tParameterlist( 2 ).add_parameter_list( moris::prm::create_nonlinear_algorithm_parameter_list() );
+            tParameterlist( 3 ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );
             tParameterlist( 3 )( 0 ).set( "NLA_DofTypes", "TEMP" );
 
-            tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
-            tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
+            tParameterlist( 4 ).add_parameter_list( moris::prm::create_time_solver_algorithm_parameter_list() );
+            tParameterlist( 5 ).add_parameter_list( moris::prm::create_time_solver_parameter_list() );
             tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "TEMP" );
             tParameterlist( 5 )( 0 ).set( "TSA_Output_Indices", "" );
             tParameterlist( 5 )( 0 ).set( "TSA_Output_Criteria", "" );
 
-            tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+            tParameterlist( 6 ).add_parameter_list( moris::prm::create_solver_warehouse_parameterlist() );
             tParameterlist( 6 )( 0 ).set( "SOL_TPL_Type", static_cast< uint >( sol::MapType::Petsc ) );
 
-            tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::PETSC );
+            tParameterlist( 7 ).add_parameter_list( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::PETSC ) );
             tParameterlist( 7 )( 0 ).set( "PCType", std::string( "mg" ) );
 
             tSolverWarehouse.set_parameterlist( tParameterlist );
@@ -1006,7 +987,7 @@ namespace moris
 
             tParameters.set_multigrid( true );
 
-            tParameters.set_output_meshes( { { { 0 } } } );
+            tParameters.set_output_meshes( { { 0 } } );
 
             tParameters.set_lagrange_orders( { { 1 } } );
             tParameters.set_lagrange_patterns( { { 0 } } );
@@ -1019,11 +1000,6 @@ namespace moris
 
             tParameters.set_refinement_buffer( 2 );
             tParameters.set_staircase_buffer( 2 );
-
-            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
-            tLagrangeToBSplineMesh( 0 ) = { { 0 } };
-
-            tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
             hmr::HMR tHMR( tParameters );
 
@@ -1213,33 +1189,29 @@ namespace moris
             //-------------------------------------------------------
             sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
-            Vector< Vector< moris::Parameter_List > > tParameterlist( 8 );
-            for ( uint Ik = 0; Ik < 8; Ik++ )
-            {
-                tParameterlist( Ik ).resize( 1 );
-            }
+            Vector< Submodule_Parameter_Lists > tParameterlist( 8 );
 
-            tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::PETSC );
+            tParameterlist( 0 ).add_parameter_list( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::PETSC ) );
             tParameterlist( 0 )( 0 ).set( "KSPType", std::string( "fgmres" ) );
             tParameterlist( 0 )( 0 ).set( "PCType", std::string( "mg" ) );
             tParameterlist( 0 )( 0 ).set( "ILUFill", 0 );
             tParameterlist( 0 )( 0 ).set( "ILUTol", 1e-6 );
 
-            tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
-            tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
-            tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
+            tParameterlist( 1 ).add_parameter_list( moris::prm::create_linear_solver_parameter_list() );
+            tParameterlist( 2 ).add_parameter_list( moris::prm::create_nonlinear_algorithm_parameter_list() );
+            tParameterlist( 3 ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );
             tParameterlist( 3 )( 0 ).set( "NLA_DofTypes", "TEMP" );
 
-            tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
-            tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
+            tParameterlist( 4 ).add_parameter_list( moris::prm::create_time_solver_algorithm_parameter_list() );
+            tParameterlist( 5 ).add_parameter_list( moris::prm::create_time_solver_parameter_list() );
             tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "TEMP" );
             tParameterlist( 5 )( 0 ).set( "TSA_Output_Indices", "" );
             tParameterlist( 5 )( 0 ).set( "TSA_Output_Criteria", "" );
 
-            tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+            tParameterlist( 6 ).add_parameter_list( moris::prm::create_solver_warehouse_parameterlist() );
             tParameterlist( 6 )( 0 ).set( "SOL_TPL_Type", static_cast< uint >( sol::MapType::Petsc ) );
 
-            tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE );
+            tParameterlist( 7 ).add_parameter_list( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE ) );
 
             tSolverWarehouse.set_parameterlist( tParameterlist );
 

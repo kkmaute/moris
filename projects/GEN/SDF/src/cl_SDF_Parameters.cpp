@@ -19,7 +19,7 @@ namespace moris::sdf
     Parameter_List
     create_sdf_parameter_list()
     {
-        Parameter_List aParameterList;
+        Parameter_List aParameterList( "SDF" );
 
         aParameterList.insert( "input_mesh", std::string( "Mesh.exo" ) );
         aParameterList.insert( "output_mesh", std::string( "Mesh.exo" ) );
@@ -32,7 +32,7 @@ namespace moris::sdf
     Parameter_List
     create_sdf_object_parameter_list()
     {
-        Parameter_List aParameterList;
+        Parameter_List aParameterList( "SDF Object" );
         aParameterList.insert( "label", std::string( "Object" ) );
         aParameterList.insert( "stl_file", std::string( "object.obj" ) );
         aParameterList.insert( "output_values", std::string( "" ) );
@@ -49,7 +49,7 @@ namespace moris::sdf
     load_sdf_parameter_list_from_xml(
             const std::string        &aFilePath,
             Parameter_List           &aGlobalParameters,
-            Vector< Parameter_List > &aObjectParameters )
+            Submodule_Parameter_Lists &aObjectParameters )
     {
         // create temporary Parser object
         XML_Parser tParser( aFilePath );
@@ -67,8 +67,10 @@ namespace moris::sdf
         uint tNumberOfObjects = tParser.count_keys_in_subtree( "moris.sdf", "object" );
 
         // create cell
-        aObjectParameters.clear();
-        aObjectParameters.resize( tNumberOfObjects, create_sdf_object_parameter_list() );
+        for ( uint iObjectIndex = 0; iObjectIndex < tNumberOfObjects; iObjectIndex++ )
+        {
+            aObjectParameters.add_parameter_list( create_sdf_object_parameter_list() );
+        }
 
         // loop over all objects
         for ( uint b = 0; b < tNumberOfObjects; ++b )

@@ -136,15 +136,15 @@ namespace moris
 
         // check the number of spatial dimensions
         Matrix< DDUMat > tBaseGridMat;
-        moris::string_to_mat( tBaseGridSize, tBaseGridMat );
+        moris::string_to_matrix( tBaseGridSize, tBaseGridMat );
         mNumSpatialDims = tBaseGridMat.numel();
 
         Matrix< DDRMat > tDomainDimsMat;
-        moris::string_to_mat( tDomainDimensions, tDomainDimsMat );
+        moris::string_to_matrix( tDomainDimensions, tDomainDimsMat );
         uint tNumDimsDimensions = tDomainDimsMat.numel();
 
         Matrix< DDRMat > tDomainOriginMat;
-        moris::string_to_mat( tBaseGridOrigin, tDomainOriginMat );
+        moris::string_to_matrix( tBaseGridOrigin, tDomainOriginMat );
         uint tNumDimsOrigin = tDomainOriginMat.numel();
 
         // perform some checks on the user inputs
@@ -555,9 +555,6 @@ namespace moris
         // see how many grids are specified in the input file
         uint tNumGeometries = mXmlReader->count_keys_in_subtree( aGenPath, tGeometryNodeName );
 
-        // resize the parameter list correctly
-        tGenParamList( 1 ).resize( tNumGeometries );
-
         // get the intersection mode
         bool tUseMultiLinearIntersections = true;
         mXmlReader->get( aGenPath + ".UseMultiLinearIntersections", tUseMultiLinearIntersections, true );
@@ -595,7 +592,7 @@ namespace moris
                 if ( tPreDefGeom == "line" )
                 {
                     // Create geometry parameter list
-                    tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE );
+                    tGenParamList( 1 ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE ) );
 
                     // get the point
                     std::string tPoint = "";
@@ -604,7 +601,7 @@ namespace moris
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "All pre-defined geometries must have a parameter 'Point' specified of format e.g.: '1.2,3.4'" );
                     Matrix< DDRMat > tPointMat;
-                    moris::string_to_mat( tPoint, tPointMat );
+                    moris::string_to_matrix( tPoint, tPointMat );
                     MORIS_ERROR( tPointMat.numel() == mNumSpatialDims || tPointMat.n_cols() == mNumSpatialDims,
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "Number of entries in 'Point' vector does not match number of spatial dimensions" );
@@ -616,14 +613,14 @@ namespace moris
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "All planes must have a parameter 'Normal' specified of format e.g.: '1.2,3.4'" );
                     Matrix< DDRMat > tNormalMat;
-                    moris::string_to_mat( tNormal, tNormalMat );
+                    moris::string_to_matrix( tNormal, tNormalMat );
                     MORIS_ERROR( tNormalMat.numel() == mNumSpatialDims || tNormalMat.n_cols() == mNumSpatialDims,
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "Number of entries in 'Normal' vector does not match number of spatial dimensions for the 'plane'." );
 
                     // set the parameters in the GEN parameter list
-                    Vector< real > tPointVector  = string_to_cell< real >( tPoint );
-                    Vector< real > tNormalVector = string_to_cell< real >( tNormal );
+                    Vector< real > tPointVector  = string_to_vector< real >( tPoint );
+                    Vector< real > tNormalVector = string_to_vector< real >( tNormal );
                     tGenParamList( 1 )( iGeom ).set( "center_x", tPointVector( 0 ) );
                     tGenParamList( 1 )( iGeom ).set( "center_y", tPointVector( 1 ) );
                     tGenParamList( 1 )( iGeom ).set( "normal_x", tNormalVector( 0 ) );
@@ -636,7 +633,7 @@ namespace moris
                 else if ( tPreDefGeom == "circle" )
                 {
                     // Create geometry parameter list
-                    tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE );
+                    tGenParamList( 1 ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE ) );
 
                     // get the point
                     std::string tPoint = "";
@@ -645,7 +642,7 @@ namespace moris
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "The 'circle' must have a parameter 'Point' specified of format e.g.: '1.2,3.4'" );
                     Matrix< DDRMat > tPointMat;
-                    moris::string_to_mat( tPoint, tPointMat );
+                    moris::string_to_matrix( tPoint, tPointMat );
                     MORIS_ERROR( tPointMat.numel() == 2 || tPointMat.n_cols() == 2,
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "Number of entries in 'Point' vector for a 'circle' needs to be two." );
@@ -658,7 +655,7 @@ namespace moris
                             "All planes must have a parameter 'Radius' specified of format e.g.: '5.6'" );
 
                     // set the parameters in the GEN parameter list
-                    Vector< real > tPointVector = string_to_cell< real >( tPoint );
+                    Vector< real > tPointVector = string_to_vector< real >( tPoint );
                     tGenParamList( 1 )( iGeom ).set( "center_x", tPointVector( 0 ) );
                     tGenParamList( 1 )( iGeom ).set( "center_y", tPointVector( 1 ) );
                     tGenParamList( 1 )( iGeom ).set( "radius", std::stod( tRadius ) );
@@ -670,7 +667,7 @@ namespace moris
                 else if ( tPreDefGeom == "ellipse" )
                 {
                     // Create geometry parameter list
-                    tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::SUPERELLIPSE );
+                    tGenParamList( 1 ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::SUPERELLIPSE ) );
 
                     // get the point
                     std::string tPoint = "";
@@ -679,7 +676,7 @@ namespace moris
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "The 'ellipse' must have a parameter 'Point' specified of format e.g.: '1.2,3.4'" );
                     Matrix< DDRMat > tPointMat;
-                    moris::string_to_mat( tPoint, tPointMat );
+                    moris::string_to_matrix( tPoint, tPointMat );
                     MORIS_ERROR( tPointMat.numel() == 2 || tPointMat.n_cols() == 2,
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "Number of entries in 'Point' vector for a 'ellipse' needs to be two." );
@@ -691,7 +688,7 @@ namespace moris
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "The 'ellipse' must have a parameter 'SemiDiameters' specified of format e.g.: '1.2,3.4'" );
                     Matrix< DDRMat > tSemiDiametersMat;
-                    moris::string_to_mat( tSemiDiameters, tSemiDiametersMat );
+                    moris::string_to_matrix( tSemiDiameters, tSemiDiametersMat );
                     MORIS_ERROR( tSemiDiametersMat.numel() == 2 || tSemiDiametersMat.n_cols() == 2,
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "Number of entries in 'SemiDiameters' vector for a 'ellipse' needs to be two." );
@@ -702,8 +699,8 @@ namespace moris
                     if ( tExponent == "" ) { tExponent = "2.0"; };
 
                     // set the parameters in the GEN parameter list
-                    Vector< real > tPointVector        = string_to_cell< real >( tPoint );
-                    Vector< real > tSemidiameterVector = string_to_cell< real >( tSemiDiameters );
+                    Vector< real > tPointVector        = string_to_vector< real >( tPoint );
+                    Vector< real > tSemidiameterVector = string_to_vector< real >( tSemiDiameters );
                     tGenParamList( 1 )( iGeom ).set( "center_x", tPointVector( 0 ) );
                     tGenParamList( 1 )( iGeom ).set( "center_y", tPointVector( 1 ) );
                     tGenParamList( 1 )( iGeom ).set( "semidiameter_x", tSemidiameterVector( 0 ) );
@@ -714,7 +711,7 @@ namespace moris
                 else if ( tPreDefGeom == "plane" )
                 {
                     // Create geometry parameter list
-                    tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::PLANE );
+                    tGenParamList( 1 ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::PLANE ) );
 
                     // get the point
                     std::string tPoint = "";
@@ -723,7 +720,7 @@ namespace moris
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "All pre-defined geometries must have a parameter 'Point' specified of format e.g.: '1.2,3.4'" );
                     Matrix< DDRMat > tPointMat;
-                    moris::string_to_mat( tPoint, tPointMat );
+                    moris::string_to_matrix( tPoint, tPointMat );
                     MORIS_ERROR( tPointMat.numel() == mNumSpatialDims || tPointMat.n_cols() == mNumSpatialDims,
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "Number of entries in 'Point' vector does not match number of spatial dimensions" );
@@ -735,14 +732,14 @@ namespace moris
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "All planes must have a parameter 'Normal' specified of format e.g.: '1.2,3.4'" );
                     Matrix< DDRMat > tNormalMat;
-                    moris::string_to_mat( tNormal, tNormalMat );
+                    moris::string_to_matrix( tNormal, tNormalMat );
                     MORIS_ERROR( tNormalMat.numel() == mNumSpatialDims || tNormalMat.n_cols() == mNumSpatialDims,
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "Number of entries in 'Normal' vector does not match number of spatial dimensions for the 'plane'." );
 
                     // set the parameters in the GEN parameter list
-                    Vector< real > tPointVector  = string_to_cell< real >( tPoint );
-                    Vector< real > tNormalVector = string_to_cell< real >( tNormal );
+                    Vector< real > tPointVector  = string_to_vector< real >( tPoint );
+                    Vector< real > tNormalVector = string_to_vector< real >( tNormal );
                     tGenParamList( 1 )( iGeom ).set( "center_x", tPointVector( 0 ) );
                     tGenParamList( 1 )( iGeom ).set( "center_y", tPointVector( 1 ) );
                     tGenParamList( 1 )( iGeom ).set( "center_z", tPointVector( 2 ) );
@@ -757,7 +754,7 @@ namespace moris
                 else if ( tPreDefGeom == "sphere" )
                 {
                     // Create geometry parameter list
-                    tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::SPHERE );
+                    tGenParamList( 1 ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::SPHERE ) );
 
                     // check dimensionality
                     MORIS_ERROR( mNumSpatialDims != 2,
@@ -771,7 +768,7 @@ namespace moris
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "The 'circle' must have a parameter 'Point' specified of format e.g.: '1.2,3.4,5.6'" );
                     Matrix< DDRMat > tPointMat;
-                    moris::string_to_mat( tPoint, tPointMat );
+                    moris::string_to_matrix( tPoint, tPointMat );
                     MORIS_ERROR( tPointMat.numel() == 3 || tPointMat.n_cols() == 3,
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "Number of entries in 'Point' vector for a 'sphere' needs to be three." );
@@ -784,7 +781,7 @@ namespace moris
                             "All planes must have a parameter 'Radius' specified of format e.g.: '5.6'" );
 
                     // set the parameters in the GEN parameter list
-                    Vector< real > tPointVector = string_to_cell< real >( tPoint );
+                    Vector< real > tPointVector = string_to_vector< real >( tPoint );
                     tGenParamList( 1 )( iGeom ).set( "center_x", tPointVector( 0 ) );
                     tGenParamList( 1 )( iGeom ).set( "center_y", tPointVector( 1 ) );
                     tGenParamList( 1 )( iGeom ).set( "center_z", tPointVector( 2 ) );
@@ -797,7 +794,7 @@ namespace moris
                 else if ( tPreDefGeom == "ellipsoid" )
                 {
                     // Create geometry parameter list
-                    tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::SUPERELLIPSOID );
+                    tGenParamList( 1 ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::SUPERELLIPSOID ) );
 
                     // check dimensionality
                     MORIS_ERROR( mNumSpatialDims != 2,
@@ -811,7 +808,7 @@ namespace moris
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "The 'ellipsoid' must have a parameter 'Point' specified of format e.g.: '1.2,3.4,5.6'" );
                     Matrix< DDRMat > tPointMat;
-                    moris::string_to_mat( tPoint, tPointMat );
+                    moris::string_to_matrix( tPoint, tPointMat );
                     MORIS_ERROR( tPointMat.numel() == 3 || tPointMat.n_cols() == 3,
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "Number of entries in 'Point' vector for a 'ellipsoid' needs to be three." );
@@ -823,7 +820,7 @@ namespace moris
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "The 'ellipsoid' must have a parameter 'SemiDiameters' specified of format e.g.: '1.2,3.4,5.6'" );
                     Matrix< DDRMat > tSemiDiametersMat;
-                    moris::string_to_mat( tSemiDiameters, tSemiDiametersMat );
+                    moris::string_to_matrix( tSemiDiameters, tSemiDiametersMat );
                     MORIS_ERROR( tSemiDiametersMat.numel() == 3 || tSemiDiametersMat.n_cols() == 3,
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "Number of entries in 'SemiDiameters' vector for a 'ellipsoid' needs to be three." );
@@ -834,8 +831,8 @@ namespace moris
                     if ( tExponent == "" ) { tExponent = "2.0"; };
 
                     // set the parameters in the GEN parameter list
-                    Vector< real > tPointVector        = string_to_cell< real >( tPoint );
-                    Vector< real > tSemidiameterVector = string_to_cell< real >( tSemiDiameters );
+                    Vector< real > tPointVector        = string_to_vector< real >( tPoint );
+                    Vector< real > tSemidiameterVector = string_to_vector< real >( tSemiDiameters );
                     tGenParamList( 1 )( iGeom ).set( "center_x", tPointVector( 0 ) );
                     tGenParamList( 1 )( iGeom ).set( "center_y", tPointVector( 1 ) );
                     tGenParamList( 1 )( iGeom ).set( "center_z", tPointVector( 2 ) );
@@ -865,11 +862,8 @@ namespace moris
 
             else if ( tGeomType == "image_file" )
             {
-                // Create geometry parameter list
-                tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::SIGNED_DISTANCE_IMAGE );
-
                 // initialize with the image sdf default parameter list
-                tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::SIGNED_DISTANCE_IMAGE );
+                tGenParamList( 1 ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::SIGNED_DISTANCE_IMAGE ) );
                 tGenParamList( 1 )( iGeom ).set( "number_of_refinements", mGenNumRefinements );
                 tGenParamList( 1 )( iGeom ).set( "refinement_mesh_index", mGenRefineMeshIndices );
                 tGenParamList( 1 )( iGeom ).set( "use_multilinear_interpolation", tUseMultiLinearIntersections );
@@ -896,7 +890,7 @@ namespace moris
                         "Please provide image dimensions using the tag 'ImageDimensions' in the the format e.g. '1.2,3.3' ",
                         iGeom );
                 Vector< real > tImageDimVec;
-                moris::string_to_cell( tImageDimStr, tImageDimVec );
+                moris::string_to_vector( tImageDimStr, tImageDimVec );
                 MORIS_ERROR( tImageDimVec.size() == mNumSpatialDims,
                         "Library_IO_Meshgen::load_parameters_from_xml() - "
                         "Number of entries in 'ImageDimensions' vector does not match number of spatial dimensions" );
@@ -911,7 +905,7 @@ namespace moris
                         "Please provide image origin/offset using the tag 'ImageOrigin' in the the format e.g. '1.2,3.3' ",
                         iGeom );
                 Vector< real > tImageOffsetVec;
-                moris::string_to_cell( tImageOffsetStr, tImageOffsetVec );
+                moris::string_to_vector( tImageOffsetStr, tImageOffsetVec );
                 MORIS_ERROR( tImageOffsetVec.size() == mNumSpatialDims,
                         "Library_IO_Meshgen::load_parameters_from_xml() - "
                         "Number of entries in 'ImageOrigin' vector does not match number of spatial dimensions" );
@@ -921,11 +915,8 @@ namespace moris
 
             else if ( tGeomType == "object_file" )
             {
-                // Create geometry parameter list
-                tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::SIGNED_DISTANCE_OBJECT );
-
                 // initialize with the sdf field default parameter list
-                tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::SIGNED_DISTANCE_OBJECT );
+                tGenParamList( 1 ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::SIGNED_DISTANCE_OBJECT ) );
                 tGenParamList( 1 )( iGeom ).set( "use_multilinear_interpolation", false );
                 // tGenParamList( 1 )( iGeom ).set( "discretization_mesh_index", -1 );
 
@@ -954,7 +945,7 @@ namespace moris
                         "Please provide an origin/offset using the tag 'ObjectOrigin' in the the format e.g. '1.2,3.3' ",
                         iGeom );
                 Vector< real > tObjectOffsetVec;
-                moris::string_to_cell( tObjectOffsetStr, tObjectOffsetVec );
+                moris::string_to_vector( tObjectOffsetStr, tObjectOffsetVec );
                 MORIS_ERROR( tObjectOffsetVec.size() == mNumSpatialDims,
                         "Library_IO_Meshgen::load_parameters_from_xml() - "
                         "Number of entries in 'ObjectOrigin' vector for geometry %i does not match number of spatial dimensions.",
@@ -986,7 +977,7 @@ namespace moris
 
         // if a phase map has been specified, convert it to a matrix
         Matrix< DDUMat > tPhaseMap;
-        moris::string_to_mat( tPhaseMapString, tPhaseMap );
+        moris::string_to_matrix( tPhaseMapString, tPhaseMap );
 
         if ( tPhaseMapSpecified )
         {
@@ -1085,8 +1076,7 @@ namespace moris
     {
         // resize and initialize with standard parameters
         aParameterList.resize( 1 );
-        aParameterList( 0 ).resize( 1 );
-        aParameterList( 0 )( 0 ) = prm::create_opt_problem_parameter_list();    // ParameterList();
+        aParameterList( 0 ).add_parameter_list( prm::create_opt_problem_parameter_list() );
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -1096,8 +1086,7 @@ namespace moris
     {
         // resize and initialize with standard parameters
         aParameterList.resize( 1 );
-        aParameterList( 0 ).resize( 1 );
-        aParameterList( 0 )( 0 ) = prm::create_xtk_parameter_list();
+        aParameterList( 0 ).add_parameter_list( prm::create_xtk_parameter_list() );
 
         // enrichment
         aParameterList( 0 )( 0 ).set( "enrich", true );
@@ -1117,8 +1106,7 @@ namespace moris
     {
         // resize and initialize with standard parameters
         aParameterList.resize( 1 );
-        aParameterList( 0 ).resize( 1 );
-        aParameterList( 0 )( 0 ) = prm::create_hmr_parameter_list();
+        aParameterList( 0 ).add_parameter_list( prm::create_hmr_parameter_list() );
 
         // Lagrange mesh is always 0
         aParameterList( 0 )( 0 ).set( "lagrange_output_meshes", "0" );
@@ -1131,8 +1119,7 @@ namespace moris
     {
         // resize and initialize with standard parameters
         aParameterList.resize( 3 );
-        aParameterList( 0 ).resize( 1 );
-        aParameterList( 0 )( 0 ) = prm::create_gen_parameter_list();
+        aParameterList( 0 ).add_parameter_list( prm::create_gen_parameter_list() );
     }
 
     //------------------------------------------------------------------------------------------------------------------

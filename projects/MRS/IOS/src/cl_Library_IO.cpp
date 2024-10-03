@@ -121,35 +121,22 @@ namespace moris
             uint tInnerSizeToMod = aParamListToModify( iOuterCell ).size();
             uint tInnerSizeToAdd = aParamListToAdd( iOuterCell ).size();
 
-            if ( tInnerSizeToAdd > tInnerSizeToMod )
-            {
-                aParamListToModify( iOuterCell ).resize( tInnerSizeToAdd );
-            }
-        }
-
-        // go over the various pieces of the parameter list and add non-existing parameters,
-        // or overwrite them with the parameters provided
-        for ( uint iOuterCell = 0; iOuterCell < tOuterSizeToAdd; iOuterCell++ )
-        {
-            uint tInnerSizeToAdd = aParamListToAdd( iOuterCell ).size();
-
-            for ( uint iInnerCell = 0; iInnerCell < tInnerSizeToAdd; iInnerCell++ )
+            // Modify existing parameters
+            for ( uint iInnerCell = 0; iInnerCell < tInnerSizeToMod; iInnerCell++ )
             {
                 // get access to the current parameter lists
                 Parameter_List& tParamsToMod = aParamListToModify( iOuterCell )( iInnerCell );
                 Parameter_List& tParamsToAdd = aParamListToAdd( iOuterCell )( iInnerCell );
 
-                // if the existing parameter list is empty, just replace it with whatever is in the one to add
-                if ( tParamsToMod.is_empty() )    // FIXME, potentially
-                {
-                    tParamsToMod = tParamsToAdd;
-                }
-                else    // otherwise compare and add/overwrite values
-                {
-                    tParamsToMod.copy_parameters( tParamsToAdd );
-                }
-            }    // end for: inner cells
-        }    // end for: outer cells
+                tParamsToMod.copy_parameters( tParamsToAdd );
+            }
+
+            // Add parameters that don't exist yet
+            for ( uint iInnerIndex = tInnerSizeToMod; iInnerIndex < tInnerSizeToAdd; iInnerIndex++ )
+            {
+                aParamListToModify( iOuterCell ).add_parameter_list( aParamListToAdd( iOuterCell )( iInnerIndex ) );
+            }
+        }
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -349,7 +336,7 @@ namespace moris
                 // Loop over all the sub-modules in this module and create the respective parameter lists with the defaults
                 for ( uint iSubModule = 0; iSubModule < tMaxNumSubParamLists; iSubModule++ )
                 {
-                    tParameterList( iSubModule ).push_back( create_parameter_list( tParamListType, iSubModule, 0 ) );
+                    tParameterList( iSubModule ).add_parameter_list( create_parameter_list( tParamListType, iSubModule, 0 ) );
                 }
                 mParameterLists( iParamListType ) = tParameterList;
                 continue;
@@ -380,7 +367,7 @@ namespace moris
                 {
                     if ( tOuterSubParamListName != "Geometries" && tOuterSubParamListName != "Algorithms" && tOuterSubParamListName != "Linear_Algorithm" )
                     {
-                        tParameterList( iSubParamList ).push_back( create_parameter_list( tParamListType, iSubParamList, 0 ) );
+                        tParameterList( iSubParamList ).add_parameter_list( create_parameter_list( tParamListType, iSubParamList, 0 ) );
                     }
                     continue;
                 }
@@ -406,7 +393,7 @@ namespace moris
                         // getting the index of the inner sub-module type by reading from the XML file parameter list (used for special forms like "GEN/Geometry", "OPT/Algorithm" and "SOL/Linear_Algorithm")
                         uint tIndex = get_subchild_index_from_xml_list( tInnerSubParamListName, tKeys, tValues );
                         // Adding the parameter list with set values from the XML file to tParameterList (that is added to mParameterLists)
-                        tParameterList( iSubParamList ).push_back( create_and_set_parameter_list( tParamListType, iSubParamList, tIndex, tKeys, tValues ) );
+                        tParameterList( iSubParamList ).add_parameter_list( create_and_set_parameter_list( tParamListType, iSubParamList, tIndex, tKeys, tValues ) );
                     }
                     else
                     {
@@ -421,7 +408,7 @@ namespace moris
                             uint tIndex = get_subchild_index_from_xml_list( tInnerSubParamListName, tKeys, tValues );
 
                             // Adding the parameter list with set values from the XML file to tParameterList (that is added to mParameterLists)
-                            tParameterList( iSubParamList ).push_back( create_and_set_parameter_list( tParamListType, iSubParamList, tIndex, tKeys, tValues ) );
+                            tParameterList( iSubParamList ).add_parameter_list( create_and_set_parameter_list( tParamListType, iSubParamList, tIndex, tKeys, tValues ) );
                         }
                     }
                 }
@@ -431,7 +418,7 @@ namespace moris
                     // mXmlReader->get_keys_from_subtree( tInnerSubParamListRoot, tInnerSubParamListName, 0, tKeys, tValues );
                     mXmlReader->get_keys_from_subtree( tModuleRoot, tOuterSubParamListName, 0, tKeys, tValues );
 
-                    tParameterList( iSubParamList ).push_back( create_and_set_parameter_list( tParamListType, iSubParamList, 0, tKeys, tValues ) );
+                    tParameterList( iSubParamList ).add_parameter_list( create_and_set_parameter_list( tParamListType, iSubParamList, 0, tKeys, tValues ) );
                 }
             }
             // adding the ModuleParameterList to the mParameterLists (which is a vector of ModuleParameterLists)
@@ -446,7 +433,7 @@ namespace moris
         ModuleParameterList tParameterList;
         for ( uint iParamListType = 0; iParamListType < (uint)( Parameter_List_Type::END_ENUM ); iParamListType++ )
         {
-            tParameterList = read( iParamListType );
+            tParameterList.push_back( read( iParamListType ) );
             mParameterLists( iParamListType ) = tParameterList;
         }
     }
@@ -521,11 +508,10 @@ namespace moris
     Library_IO::write_parameter_list_to_xml_buffer( Parameter_List& aParameterList )
     {
         // go over the entries of the parameter list ...
-        // for ( auto iParamToAdd : aParameterList )
-        for ( auto iParamToAdd = aParameterList.begin(); iParamToAdd != aParameterList.end(); ++iParamToAdd )
+        for ( const Parameter_Iterator& iParamToAdd : aParameterList )
         {
             // ... and add or modify them
-            mXmlWriter->set_in_buffer( iParamToAdd->first, iParamToAdd->second.get_string() );
+            mXmlWriter->set_in_buffer( iParamToAdd.get_name(), iParamToAdd.get_parameter().get_string() );
         }
     }
 
@@ -605,16 +591,16 @@ namespace moris
                     const Parameter_List& tParameterList = mParameterLists( iModuleIndex )( iOuterIndex )( iInnerIndex );
 
                     // Loop over mapped parameters
-                    for ( const auto& iParameterPair : tParameterList )
+                    for ( const Parameter_Iterator& iParameterPair : tParameterList )
                     {
                         // Get external validator
-                        const External_Validator& tExternalValidator = iParameterPair.second.get_external_validator();
+                        const External_Validator& tExternalValidator = iParameterPair.get_parameter().get_external_validator();
 
                         // Check if parameter needs linking (has not been cross-validated yet)
-                        if ( iParameterPair.second.needs_linking() )
+                        if ( iParameterPair.get_parameter().needs_linking() )
                         {
                             // Go through entry types
-                            switch ( iParameterPair.second.get_entry_type() )
+                            switch ( iParameterPair.get_parameter().get_entry_type() )
                             {
                                 case Entry_Type::FREE:
                                 {
@@ -624,7 +610,7 @@ namespace moris
                                 case Entry_Type::SELECTION:
                                 {
                                     // Build internal variants that need to be checked
-                                    Vector< Variant > iInternalVariants = split_variant( iParameterPair.second.get_value() );
+                                    Vector< Variant > iInternalVariants = split_variant( iParameterPair.get_parameter().get_value() );
 
                                     // Get valid external variants
                                     Vector< Variant > tExternalVariants = this->get_external_variants( tExternalValidator, tParameterList );
@@ -685,7 +671,7 @@ namespace moris
                                         // Execute error
                                         MORIS_ERROR( tAllMatchesFound,
                                                 "Parameter %s was set with an invalid value, %s. It requires one of the following selections:\n\t%s\n(%s)",
-                                                iParameterPair.first.c_str(),
+                                                iParameterPair.get_name().c_str(),
                                                 tInternalVariantNotFound.c_str(),
                                                 tExternalOptionList.c_str(),
                                                 tExternalValidatorString.c_str() );
@@ -701,9 +687,9 @@ namespace moris
                                     MORIS_ERROR( tExternalVariants.size() == 1,
                                             "%lu variants were found for the external size validation of parameter %s.",
                                             tExternalVariants.size(),
-                                            iParameterPair.first.c_str() );
+                                            iParameterPair.get_name().c_str() );
 
-                                    bool tSizeMatch = get_size( iParameterPair.second.get_value() ) == get_size( tExternalVariants( 0 ) );
+                                    bool tSizeMatch = get_size( iParameterPair.get_parameter().get_value() ) == get_size( tExternalVariants( 0 ) );
                                     if ( not tSizeMatch )
                                     {
                                         // Additional info about where the checked options came from
@@ -725,8 +711,8 @@ namespace moris
                                         // Execute error
                                         MORIS_ERROR( tSizeMatch,
                                                 "Parameter %s was set with an invalid value, %s. It requires a size of %u.\n(%s)",
-                                                iParameterPair.first.c_str(),
-                                                iParameterPair.second.get_string().c_str(),
+                                                iParameterPair.get_name().c_str(),
+                                                iParameterPair.get_parameter().get_string().c_str(),
                                                 get_size( tExternalVariants( 0 ) ),
                                                 tExternalValidatorString.c_str() );
                                     }
@@ -753,7 +739,7 @@ namespace moris
         if ( aExternalValidator.mParameterListType == Parameter_List_Type::END_ENUM )
         {
             // Return single parameter
-            tExternalOptions = { aContainingParameterList.get( aExternalValidator.mParameterName ) };
+            tExternalOptions = { aContainingParameterList.get_variant( aExternalValidator.mParameterName ) };
         }
         else
         {
@@ -766,7 +752,7 @@ namespace moris
                     // Check if external parameter exists here
                     if ( iExternalParameterList.exists( aExternalValidator.mParameterName ) )
                     {
-                        tExternalOptions.push_back( iExternalParameterList.get( aExternalValidator.mParameterName ) );
+                        tExternalOptions.push_back( iExternalParameterList.get_variant( aExternalValidator.mParameterName ) );
                     }
                 }
             }
@@ -884,13 +870,13 @@ namespace moris
         for ( auto& iElements : tParameterList )
         {
             //  Cannot set locked parameters
-            if ( iElements.second.is_locked() )
+            if ( iElements.get_parameter().is_locked() )
             {
                 continue;
             }
 
             // Find the key in the XML file parameter list
-            auto tFind = std::find( aKeys.begin(), aKeys.end(), iElements.first );
+            auto tFind = std::find( aKeys.begin(), aKeys.end(), iElements.get_name() );
 
             if ( tFind == aKeys.end() )
             {
@@ -899,65 +885,65 @@ namespace moris
 
             // Set the value of the parameter list with the value from the XML file by converting the string to the correct data type
             // Calls the convert_parameter_from_string_to_type function for bool, uint, sint, real
-            // Calls the string_to_cell function for std::string, std::pair< std::string, std::string >, Vector< uint >, Vector< sint >, Vector< real >, Vector< std::string > and Design_Variable
-            if ( iElements.second.index() == variant_index< bool >() )
+            // Calls the string_to_vector function for std::string, std::pair< std::string, std::string >, Vector< uint >, Vector< sint >, Vector< real >, Vector< std::string > and Design_Variable
+            if ( iElements.get_parameter().index() == variant_index< bool >() )
             {
                 if ( tFind != aKeys.end() )
                 {
                     bool tBool = convert_parameter_from_string_to_type< bool >( aValues( std::distance( aKeys.begin(), tFind ) ) );
-                    iElements.second.set_value( iElements.first, tBool, false );
+                    iElements.get_parameter().set_value( iElements.get_name(), tBool, false );
                 }
             }
-            else if ( iElements.second.index() == variant_index< uint >() )
+            else if ( iElements.get_parameter().index() == variant_index< uint >() )
             {
                 if ( tFind != aKeys.end() )
                 {
-                    if ( iElements.second.get_entry_type() == Entry_Type::SELECTION )
+                    if ( iElements.get_parameter().get_entry_type() == Entry_Type::SELECTION )
                     {
                         uint tUint = convert_parameter_from_string_to_type< uint >( aValues( std::distance( aKeys.begin(), tFind ) ) );
-                        iElements.second.set_value( iElements.first, tUint, false );
+                        iElements.get_parameter().set_value( iElements.get_name(), tUint, false );
                     }
                     else
                     {
                         uint tUint = convert_parameter_from_string_to_type< uint >( aValues( std::distance( aKeys.begin(), tFind ) ) );
-                        iElements.second.set_value( iElements.first, tUint, false );
+                        iElements.get_parameter().set_value( iElements.get_name(), tUint, false );
                     }
                     // uint tUint = convert_parameter_from_string_to_type< uint >( aValues( std::distance( aKeys.begin(), tFind ) ) );
-                    // iElements.second.set_value( iElements.first, tUint, false );
+                    // iElements.get_parameter().set_value( iElements.get_name(), tUint, false );
                 }
             }
-            else if ( iElements.second.index() == variant_index< sint >() )
+            else if ( iElements.get_parameter().index() == variant_index< sint >() )
             {
                 if ( tFind != aKeys.end() )
                 {
                     sint tSint = convert_parameter_from_string_to_type< sint >( aValues( std::distance( aKeys.begin(), tFind ) ) );
 
-                    iElements.second.set_value( iElements.first, tSint, false );
+                    iElements.get_parameter().set_value( iElements.get_name(), tSint, false );
                 }
             }
-            else if ( iElements.second.index() == variant_index< real >() )
+            else if ( iElements.get_parameter().index() == variant_index< real >() )
             {
                 if ( tFind != aKeys.end() )
                 {
                     real tReal = convert_parameter_from_string_to_type< real >( aValues( std::distance( aKeys.begin(), tFind ) ) );
-                    iElements.second.set_value( iElements.first, tReal, false );
+                    iElements.get_parameter().set_value( iElements.get_name(), tReal, false );
                 }
             }
-            else if ( iElements.second.index() == variant_index< std::string >() )
+            else if ( iElements.get_parameter().index() == variant_index< std::string >() )
             {
                 if ( tFind != aKeys.end() )
                 {
                     std::string tString = aValues( std::distance( aKeys.begin(), tFind ) );
                     // Strip the string of leading and trailing quotation marks
                     tString.erase( std::remove( tString.begin(), tString.end(), '\"' ), tString.end() );
-                    iElements.second.set_value( iElements.first, tString, false );
+                    iElements.get_parameter().set_value( iElements.get_name(), tString, false );
                 }
             }
-            else if ( iElements.second.index() == variant_index< std::pair< std::string, std::string > >() )
+            else if ( iElements.get_parameter().index() == variant_index< std::pair< std::string, std::string > >() )
             {
                 if ( tFind != aKeys.end() )
                 {
-                    moris::Vector< std::string >          tVec = moris::string_to_cell< std::string >( aValues( std::distance( aKeys.begin(), tFind ) ) );
+                    Vector< std::string >          tVec = string_to_vector< std::string >( aValues( std::distance( aKeys.begin(), tFind ) ) );
                     std::pair< std::string, std::string > tPair;
                     if ( tVec.size() < 2 )
                     {
@@ -967,47 +953,47 @@ namespace moris
                     {
                         tPair = std::make_pair( tVec( 0 ), tVec( 1 ) );
                     }
-                    iElements.second.set_value( iElements.first, tPair, false );
+                    iElements.get_parameter().set_value( iElements.get_name(), tPair, false );
                 }
             }
-            else if ( iElements.second.index() == variant_index< Vector< uint > >() )
+            else if ( iElements.get_parameter().index() == variant_index< Vector< uint > >() )
             {
                 if ( tFind != aKeys.end() )
                 {
-                    moris::Vector< uint > tVec = moris::string_to_cell< uint >( aValues( std::distance( aKeys.begin(), tFind ) ) );
-                    iElements.second.set_value( iElements.first, tVec, false );
+                    Vector< uint > tVec = string_to_vector< uint >( aValues( std::distance( aKeys.begin(), tFind ) ) );
+                    iElements.get_parameter().set_value( iElements.get_name(), tVec, false );
                 }
             }
-            else if ( iElements.second.index() == variant_index< Vector< sint > >() )
+            else if ( iElements.get_parameter().index() == variant_index< Vector< sint > >() )
             {
                 if ( tFind != aKeys.end() )
                 {
-                    moris::Vector< sint > tVec = moris::string_to_cell< sint >( aValues( std::distance( aKeys.begin(), tFind ) ) );
-                    iElements.second.set_value( iElements.first, tVec, false );
+                    Vector< sint > tVec = string_to_vector< sint >( aValues( std::distance( aKeys.begin(), tFind ) ) );
+                    iElements.get_parameter().set_value( iElements.get_name(), tVec, false );
                 }
             }
-            else if ( iElements.second.index() == variant_index< Vector< real > >() )
+            else if ( iElements.get_parameter().index() == variant_index< Vector< real > >() )
             {
                 if ( tFind != aKeys.end() )
                 {
-                    moris::Vector< real > tVec = moris::string_to_cell< real >( aValues( std::distance( aKeys.begin(), tFind ) ) );
-                    iElements.second.set_value( iElements.first, tVec, false );
+                    Vector< real > tVec = string_to_vector< real >( aValues( std::distance( aKeys.begin(), tFind ) ) );
+                    iElements.get_parameter().set_value( iElements.get_name(), tVec, false );
                 }
             }
-            else if ( iElements.second.index() == variant_index< Vector< std::string > >() )
+            else if ( iElements.get_parameter().index() == variant_index< Vector< std::string > >() )
             {
                 if ( tFind != aKeys.end() )
                 {
-                    moris::Vector< std::string > tVec = moris::string_to_cell< std::string >( aValues( std::distance( aKeys.begin(), tFind ) ) );
-                    iElements.second.set_value( iElements.first, tVec, false );
+                    Vector< std::string > tVec = string_to_vector< std::string >( aValues( std::distance( aKeys.begin(), tFind ) ) );
+                    iElements.get_parameter().set_value( iElements.get_name(), tVec, false );
                 }
             }
             else
             {
-                // Vector< real >  tVec            = string_to_cell< real >( aValues( std::distance( aKeys.begin(), tFind ) ) );
+                // Vector< real >  tVec            = string_to_vector< real >( aValues( std::distance( aKeys.begin(), tFind ) ) );
                 // Design_Variable tDesignVariable = Design_Variable( tVec( 0 ), tVec( 1 ), tVec( 2 ) );
                 Design_Variable tDesignVariable = convert_parameter_from_string_to_type< real >( aValues( std::distance( aKeys.begin(), tFind ) ) );
-                iElements.second.set_value( iElements.first, tDesignVariable, false );
+                iElements.get_parameter().set_value( iElements.get_name(), tDesignVariable, false );
             }
         }
 
@@ -1058,7 +1044,7 @@ namespace moris
         /*
         function name: create_parameter_list
         parameters:
-          moris::Parameter_List_Type aModule (ENUM) -> this gives the project name
+          Parameter_List_Type aModule (ENUM) -> this gives the project name
           uint aChild -> gives the child index
           uint aSubChild -> gives the Sub-Child (inner sub-module) index
         returns:
@@ -1069,31 +1055,31 @@ namespace moris
         */
 
 
-        moris::Parameter_List tParameterList;
+        Parameter_List tParameterList;
 
         switch ( aModule )
         {
-            case moris::Parameter_List_Type::OPT:
+            case Parameter_List_Type::OPT:
                 switch ( aChild )
                 {
                     case 0:
-                        tParameterList = ( moris::prm::create_opt_problem_parameter_list() );
+                        tParameterList = ( prm::create_opt_problem_parameter_list() );
                         break;
 
                     case 1:
-                        tParameterList = ( moris::prm::create_opt_interface_parameter_list() );
+                        tParameterList = ( prm::create_opt_interface_parameter_list() );
 
                         // Commented out the Interface manager for now
 
                         // switch ( aSubChild )
                         // {
                         //     case 0:
-                        //         tParameterList = ( moris::prm::create_opt_interface_parameter_list() );
+                        //         tParameterList = ( prm::create_opt_interface_parameter_list() );
 
                         //         break;
 
                         //     case 1:
-                        //         tParameterList = ( moris::prm::create_opt_interface_manager_parameter_list() );
+                        //         tParameterList = ( prm::create_opt_interface_manager_parameter_list() );
 
                         //         break;
 
@@ -1109,21 +1095,21 @@ namespace moris
 
                             // Eventually create an enum to check this
                             case 0:
-                                tParameterList = ( moris::prm::create_gcmma_parameter_list() );
+                                tParameterList = ( prm::create_gcmma_parameter_list() );
 
                                 break;
 
                             case 1:
-                                tParameterList = ( moris::prm::create_lbfgs_parameter_list() );
+                                tParameterList = ( prm::create_lbfgs_parameter_list() );
                                 break;
 
                             case 2:
-                                tParameterList = ( moris::prm::create_sqp_parameter_list() );
+                                tParameterList = ( prm::create_sqp_parameter_list() );
 
                                 break;
 
                             case 3:
-                                tParameterList = ( moris::prm::create_sweep_parameter_list() );
+                                tParameterList = ( prm::create_sweep_parameter_list() );
 
                                 break;
                             default:
@@ -1138,47 +1124,47 @@ namespace moris
                 // Free
                 break;
 
-            case moris::Parameter_List_Type::HMR:
-                tParameterList = ( moris::prm::create_hmr_parameter_list() );
+            case Parameter_List_Type::HMR:
+                tParameterList = ( prm::create_hmr_parameter_list() );
 
                 break;
 
-            case moris::Parameter_List_Type::STK:
-                tParameterList = ( moris::prm::create_stk_parameter_list() );
+            case Parameter_List_Type::STK:
+                tParameterList = ( prm::create_stk_parameter_list() );
                 break;
 
-            case moris::Parameter_List_Type::XTK:
-                tParameterList = ( moris::prm::create_xtk_parameter_list() );
+            case Parameter_List_Type::XTK:
+                tParameterList = ( prm::create_xtk_parameter_list() );
                 break;
 
-            case moris::Parameter_List_Type::GEN:
+            case Parameter_List_Type::GEN:
                 switch ( aChild )
                 {
                     case 0:
                     {
-                        tParameterList = ( moris::prm::create_gen_parameter_list() );
+                        tParameterList = ( prm::create_gen_parameter_list() );
                         break;
                     }
 
                     case 1:
                     {
-                        if ( aSubChild <= (uint)moris::gen::Field_Type::USER_DEFINED )
+                        if ( aSubChild <= (uint)gen::Field_Type::USER_DEFINED )
                         {
-                            tParameterList = ( moris::prm::create_level_set_geometry_parameter_list( (moris::gen::Field_Type)aSubChild ) );
+                            tParameterList = ( prm::create_level_set_geometry_parameter_list( (gen::Field_Type)aSubChild ) );
                         }
-                        else if ( aSubChild == (uint)moris::gen::Field_Type::USER_DEFINED + 1 )
+                        else if ( aSubChild == (uint)gen::Field_Type::USER_DEFINED + 1 )
                         {
-                            tParameterList = ( moris::prm::create_surface_mesh_geometry_parameter_list() );
+                            tParameterList = ( prm::create_surface_mesh_geometry_parameter_list() );
                         }
                         else
                         {
-                            tParameterList = ( moris::prm::create_voxel_geometry_parameter_list() );
+                            tParameterList = ( prm::create_voxel_geometry_parameter_list() );
                         }
                         break;
                     }
                     case 2:
                     {
-                        tParameterList = ( moris::prm::create_gen_property_parameter_list( moris::gen::Field_Type::CONSTANT ) );
+                        tParameterList = ( prm::create_gen_property_parameter_list( gen::Field_Type::CONSTANT ) );
                         break;
                     }
                     default:
@@ -1189,7 +1175,7 @@ namespace moris
 
                 break;
 
-            case moris::Parameter_List_Type::FEM:
+            case Parameter_List_Type::FEM:
                 /*
                  * Set of Dropdowns for tParameterList[0] (property_name in FEM)
                  * //Dropdown
@@ -1203,39 +1189,39 @@ namespace moris
                 switch ( aChild )
                 {
                     case 0:
-                        tParameterList = ( moris::prm::create_property_parameter_list() );
+                        tParameterList = ( prm::create_property_parameter_list() );
                         break;
 
                     case 1:
-                        tParameterList = ( moris::prm::create_constitutive_model_parameter_list() );
+                        tParameterList = ( prm::create_constitutive_model_parameter_list() );
                         break;
 
                     case 2:
-                        tParameterList = ( moris::prm::create_stabilization_parameter_parameter_list() );
+                        tParameterList = ( prm::create_stabilization_parameter_parameter_list() );
                         break;
 
                     case 3:
-                        tParameterList = ( moris::prm::create_IWG_parameter_list() );
+                        tParameterList = ( prm::create_IWG_parameter_list() );
                         break;
 
                     case 4:
-                        tParameterList = ( moris::prm::create_IQI_parameter_list() );
+                        tParameterList = ( prm::create_IQI_parameter_list() );
                         break;
 
                     case 5:
-                        tParameterList = ( moris::prm::create_computation_parameter_list() );
+                        tParameterList = ( prm::create_computation_parameter_list() );
                         break;
 
                     case 6:
-                        tParameterList = ( moris::prm::create_fem_field_parameter_list() );
+                        tParameterList = ( prm::create_fem_field_parameter_list() );
                         break;
 
                     case 7:
-                        tParameterList = ( moris::prm::create_phase_parameter_list() );
+                        tParameterList = ( prm::create_phase_parameter_list() );
                         break;
 
                     case 8:
-                        tParameterList = ( moris::prm::create_material_model_parameter_list() );
+                        tParameterList = ( prm::create_material_model_parameter_list() );
                         break;
 
                     default:
@@ -1245,7 +1231,7 @@ namespace moris
 
                 break;
 
-            case moris::Parameter_List_Type::SOL:
+            case Parameter_List_Type::SOL:
                 //            tParameterList.resize( 8 );
 
                 switch ( aChild )
@@ -1255,32 +1241,32 @@ namespace moris
                         switch ( aSubChild )
                         {
                             case 0:
-                                tParameterList = ( moris::prm::create_linear_algorithm_parameter_list_aztec() );
+                                tParameterList = ( prm::create_linear_algorithm_parameter_list_aztec() );
                                 break;
 
                             case 1:
-                                tParameterList = ( moris::prm::create_linear_algorithm_parameter_list_amesos() );
+                                tParameterList = ( prm::create_linear_algorithm_parameter_list_amesos() );
                                 break;
 
                             case 2:
-                                tParameterList = ( moris::prm::create_linear_algorithm_parameter_list_belos() );
+                                tParameterList = ( prm::create_linear_algorithm_parameter_list_belos() );
                                 break;
 
                             case 3:
-                                tParameterList = ( moris::prm::create_linear_algorithm_parameter_list_petsc() );
+                                tParameterList = ( prm::create_linear_algorithm_parameter_list_petsc() );
                                 break;
 
                             case 4:
-                                tParameterList = ( moris::prm::create_eigen_algorithm_parameter_list() );
+                                tParameterList = ( prm::create_eigen_algorithm_parameter_list() );
                                 break;
 
                             case 5:
                                 // Need to add ML here
-                                tParameterList = ( moris::prm::create_linear_algorithm_parameter_list_belos() );
+                                tParameterList = ( prm::create_linear_algorithm_parameter_list_belos() );
                                 break;
 
                             case 6:
-                                tParameterList = ( moris::prm::create_slepc_algorithm_parameter_list() );
+                                tParameterList = ( prm::create_slepc_algorithm_parameter_list() );
                                 break;
 
                             default:
@@ -1291,32 +1277,32 @@ namespace moris
                         break;
 
                     case 1:
-                        tParameterList = ( moris::prm::create_linear_solver_parameter_list() );
+                        tParameterList = ( prm::create_linear_solver_parameter_list() );
                         break;
 
                     case 2:
-                        tParameterList = ( moris::prm::create_nonlinear_algorithm_parameter_list() );
+                        tParameterList = ( prm::create_nonlinear_algorithm_parameter_list() );
                         break;
 
                     case 3:
-                        tParameterList = ( moris::prm::create_nonlinear_solver_parameter_list() );
+                        tParameterList = ( prm::create_nonlinear_solver_parameter_list() );
                         break;
 
                     case 4:
-                        tParameterList = ( moris::prm::create_time_solver_algorithm_parameter_list() );
+                        tParameterList = ( prm::create_time_solver_algorithm_parameter_list() );
                         break;
 
                     case 5:
-                        tParameterList = ( moris::prm::create_time_solver_parameter_list() );
+                        tParameterList = ( prm::create_time_solver_parameter_list() );
                         break;
 
                     case 6:
-                        tParameterList = ( moris::prm::create_solver_warehouse_parameterlist() );
+                        tParameterList = ( prm::create_solver_warehouse_parameterlist() );
                         break;
 
                     case 7:
                         // Need to add Preconditioners
-                        tParameterList = ( moris::prm::create_material_model_parameter_list() );
+                        tParameterList = ( prm::create_material_model_parameter_list() );
                         break;
 
                     default:
@@ -1325,42 +1311,42 @@ namespace moris
 
                 break;
 
-            case moris::Parameter_List_Type::MSI:
-                tParameterList = ( moris::prm::create_msi_parameter_list() );
+            case Parameter_List_Type::MSI:
+                tParameterList = ( prm::create_msi_parameter_list() );
                 break;
 
-            case moris::Parameter_List_Type::VIS:
-                tParameterList = ( moris::prm::create_vis_parameter_list() );    //
-
-                break;
-
-            case moris::Parameter_List_Type::MIG:
-                tParameterList = ( moris::prm::create_mig_parameter_list() );
+            case Parameter_List_Type::VIS:
+                tParameterList = ( prm::create_vis_parameter_list() );    //
 
                 break;
 
-            case moris::Parameter_List_Type::WRK:
-                tParameterList = ( moris::prm::create_wrk_parameter_list() );
+            case Parameter_List_Type::MIG:
+                tParameterList = ( prm::create_mig_parameter_list() );
+
                 break;
 
-            case moris::Parameter_List_Type::MORISGENERAL:
+            case Parameter_List_Type::WRK:
+                tParameterList = ( prm::create_wrk_parameter_list() );
+                break;
+
+            case Parameter_List_Type::MORISGENERAL:
                 switch ( aChild )
                 {
                     case 0:
                     {
-                        tParameterList = ( moris::prm::create_moris_general_parameter_list() );
+                        tParameterList = ( prm::create_moris_general_parameter_list() );
                     }
                     break;
 
                     case 1:
                     {
-                        tParameterList = ( moris::prm::create_moris_general_parameter_list() );
+                        tParameterList = ( prm::create_moris_general_parameter_list() );
                     }
                     break;
 
                     case 2:
                     {
-                        tParameterList = ( moris::prm::create_moris_general_parameter_list() );
+                        tParameterList = ( prm::create_moris_general_parameter_list() );
                     }
                     break;
 
@@ -1377,11 +1363,11 @@ namespace moris
         return tParameterList;
     }
 
-    Vector< Vector< Parameter_List > > read(uint aRoot)
+    Vector< Submodule_Parameter_Lists > read(uint aRoot)
     {
 
         // Create the 3d vector
-        Vector< Vector< Vector< Parameter_List > > > tParameterList;
+        Vector< Vector< Submodule_Parameter_Lists > > tParameterList;
         tParameterList.resize( (uint)( Parameter_List_Type::END_ENUM ) );
         for ( uint iRoot = 0; iRoot < (uint)( Parameter_List_Type::END_ENUM ); iRoot++ )
         {
@@ -1395,7 +1381,7 @@ namespace moris
                 }
                 else
                 {
-                    tParameterList( iRoot )( iChild ).push_back( create_parameter_list( (Parameter_List_Type)iRoot, iChild, 0 ) );
+                    tParameterList( iRoot )( iChild ).add_parameter_list( create_parameter_list( (Parameter_List_Type)iRoot, iChild, 0 ) );
                 }
             }
         }

@@ -58,7 +58,7 @@ namespace moris::mtk
         std::string tMeshSideSetNames = aParameterList.get< std::string >( "periodic_side_set_pair" );
 
         // store the names in mMeshSideSetPairs
-        string_to_cell_of_cell( aParameterList.get< std::string >( "periodic_side_set_pair" ), mMeshSideSetPairs );
+        string_to_vector_of_vectors( aParameterList.get< std::string >( "periodic_side_set_pair" ), mMeshSideSetPairs );
 
         // initialize the mesh intersection data to store the id and index of the added entities
         mIntersectedMeshData.set_up_external_entity_data( mMeshManager->get_integration_mesh( mMeshIndex ) );

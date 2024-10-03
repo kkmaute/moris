@@ -163,7 +163,7 @@ namespace moris::fem
     FEM_Model::FEM_Model(
             std::shared_ptr< mtk::Mesh_Manager >      aMeshManager,
             const moris_index                        &aMeshPairIndex,
-            const Vector< Vector< Parameter_List > > &aParameterList,
+            const Vector< Submodule_Parameter_Lists > &aParameterList,
             const std::shared_ptr< Library_IO >      &aLibrary )
             : mMeshManager( std::move( aMeshManager ) )
             , mMeshPairIndex( aMeshPairIndex )
@@ -201,7 +201,7 @@ namespace moris::fem
     FEM_Model::FEM_Model(
             std::shared_ptr< mtk::Mesh_Manager >      aMeshManager,
             const moris_index                        &aMeshPairIndex,
-            const Vector< Vector< Parameter_List > > &aParameterList,
+            const Vector< Submodule_Parameter_Lists > &aParameterList,
             MSI::Design_Variable_Interface           *aDesignVariableInterface )
             : mMeshManager( std::move( aMeshManager ) )
             , mMeshPairIndex( aMeshPairIndex )
@@ -944,7 +944,7 @@ namespace moris::fem
                 // Try to set reference values directly
                 try
                 {
-                    mIQIs( tRequestedIQIIndex )->set_reference_value( string_to_mat< DDRMat >( tNormalization )( 0 ) );
+                    mIQIs( tRequestedIQIIndex )->set_reference_value( string_to_matrix< DDRMat >( tNormalization )( 0 ) );
                 } catch ( ... )
                 {
                     // error

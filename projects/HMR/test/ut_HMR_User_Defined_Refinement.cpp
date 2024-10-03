@@ -229,11 +229,6 @@ namespace moris::hmr
                     tParameters.set_initial_refinement( { { 1 } } );
                     tParameters.set_initial_refinement_patterns( { { 0 } } );
 
-                    Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
-                    tLagrangeToBSplineMesh( 0 ) = { { 0 } };
-
-                    tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
-
                     tParameters.set_refinement_functions( { &user_defined_refinement } );
 
                     //------------------------------------------------------------------------------
@@ -333,11 +328,6 @@ namespace moris::hmr
 
             tParameters.set_initial_refinement( { { 1 } } );
             tParameters.set_initial_refinement_patterns( { { 0 } } );
-
-            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
-            tLagrangeToBSplineMesh( 0 ) = { { 0 } };
-
-            tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
             tParameters.set_refinement_functions( { &user_defined_refinement_color } );
 

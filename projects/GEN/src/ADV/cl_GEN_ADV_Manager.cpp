@@ -53,6 +53,9 @@ namespace moris::gen
         mLowerBounds.reserve( mParameterIDs.size() );
         mUpperBounds.reserve( mParameterIDs.size() );
 
+        // Reset parameter IDs for when ADVs are created
+        mParameterIDs.clear();
+
         // Set flag
         mParameterIDsFinalized = true;
     }
@@ -76,12 +79,17 @@ namespace moris::gen
             uint tFindIndex = tFindID - mParameterIDs.begin();
 
             // Determine what to do
-            if ( tFindIndex >= mADVs.size() or tFindID == mParameterIDs.end() )
+            if ( tFindIndex >= mParameterIDs.size()  )
             {
                 // New ADV
                 mADVs.push_back( aDesignVariable.get_value() );
                 mLowerBounds.push_back( aDesignVariable.get_lower_bound() );
                 mUpperBounds.push_back( aDesignVariable.get_upper_bound() );
+
+                // Set ID in its final place corresponding to the ADV vector
+                mParameterIDs.push_back( aDesignVariable.get_id() );
+
+                // Return ADV
                 return ADV( mADVs, mADVs.size() - 1 );
             }
             else
