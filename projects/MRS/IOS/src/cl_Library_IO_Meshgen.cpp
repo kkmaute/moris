@@ -633,7 +633,7 @@ namespace moris
                 else if ( tPreDefGeom == "circle" )
                 {
                     // Create geometry parameter list
-                    tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE );
+                    tGenParamList( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE ) );
 
                     // get the point
                     std::string tPoint = "";
@@ -667,7 +667,7 @@ namespace moris
                 else if ( tPreDefGeom == "ellipse" )
                 {
                     // Create geometry parameter list
-                    tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::SUPERELLIPSE );
+                    tGenParamList( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::SUPERELLIPSE ) );
 
                     // get the point
                     std::string tPoint = "";
@@ -711,7 +711,7 @@ namespace moris
                 else if ( tPreDefGeom == "plane" )
                 {
                     // Create geometry parameter list
-                    tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::PLANE );
+                    tGenParamList( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::PLANE ) );
 
                     // get the point
                     std::string tPoint = "";
@@ -754,7 +754,7 @@ namespace moris
                 else if ( tPreDefGeom == "sphere" )
                 {
                     // Create geometry parameter list
-                    tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::SPHERE );
+                    tGenParamList( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::SPHERE ) );
 
                     // check dimensionality
                     MORIS_ERROR( mNumSpatialDims != 2,
@@ -794,7 +794,7 @@ namespace moris
                 else if ( tPreDefGeom == "ellipsoid" )
                 {
                     // Create geometry parameter list
-                    tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::SUPERELLIPSOID );
+                    tGenParamList( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::SUPERELLIPSOID ) );
 
                     // check dimensionality
                     MORIS_ERROR( mNumSpatialDims != 2,
@@ -862,11 +862,8 @@ namespace moris
 
             else if ( tGeomType == "image_file" )
             {
-                // Create geometry parameter list
-                tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::SIGNED_DISTANCE_IMAGE );
-
                 // initialize with the image sdf default parameter list
-                tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::SIGNED_DISTANCE_IMAGE );
+                tGenParamList( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::SIGNED_DISTANCE_IMAGE ) );
                 tGenParamList( 1 )( iGeom ).set( "number_of_refinements", mGenNumRefinements );
                 tGenParamList( 1 )( iGeom ).set( "refinement_mesh_index", mGenRefineMeshIndices );
                 tGenParamList( 1 )( iGeom ).set( "use_multilinear_interpolation", tUseMultiLinearIntersections );
@@ -918,11 +915,8 @@ namespace moris
 
             else if ( tGeomType == "object_file" )
             {
-                // Create geometry parameter list
-                tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::SIGNED_DISTANCE_OBJECT );
-
                 // initialize with the sdf field default parameter list
-                tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::SIGNED_DISTANCE_OBJECT );
+                tGenParamList( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::SIGNED_DISTANCE_OBJECT ) );
                 tGenParamList( 1 )( iGeom ).set( "use_multilinear_interpolation", false );
                 // tGenParamList( 1 )( iGeom ).set( "discretization_mesh_index", -1 );
 

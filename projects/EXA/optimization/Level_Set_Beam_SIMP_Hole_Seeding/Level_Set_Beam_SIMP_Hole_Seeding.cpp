@@ -1315,6 +1315,7 @@ namespace moris
     {
         tParameterlist.resize( 3 );
 
+        tParameterlist( 0 ).resize( 1, Parameter_List( "" ) );
         prm::create_remeshing_parameterlist( tParameterlist( 0 )( 0 ) );
         tParameterlist( 0 )( 0 ).set( "mode", "ab_initio" );
         tParameterlist( 0 )( 0 ).set( "remeshing_field_names", "Box,Level_Set_Field" );
