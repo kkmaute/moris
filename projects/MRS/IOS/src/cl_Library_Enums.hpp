@@ -80,34 +80,29 @@ namespace moris
     {
         OPTIMIZATION_PROBLEMS,
         INTERFACE,
-        ALGORITHMS,
-        END_ENUM
+        ALGORITHMS
     };
 
     enum class HMR_SubModule
     {
-        GENERAL,
-        END_ENUM
+        GENERAL
     };
 
     enum class STK_SubModule
     {
-        GENERAL,
-        END_ENUM
+        GENERAL
     };
 
     enum class XTK_SubModule
     {
-        GENERAL,
-        END_ENUM
+        GENERAL
     };
 
     enum class GEN_SubModule
     {
         GENERAL,
         GEOMETRIES,
-        PROPERTIES,
-        END_ENUM
+        PROPERTIES
     };
 
     enum class FEM_SubModule
@@ -119,8 +114,7 @@ namespace moris
         IQI,
         COMPUTATION_PARAMETERS,
         FIELDS,
-        MATERIAL_MODELS,
-        END_ENUM
+        MATERIAL_MODELS
     };
 
     enum class SOL_SubModule
@@ -132,40 +126,34 @@ namespace moris
         TIME_SOLVER_ALGORITHMS,
         TIME_SOLVERS,
         SOLVER_WAREHOUSE,
-        PRECONDITIONERS,
-        END_ENUM
+        PRECONDITIONERS
     };
 
     enum class MSI_SubModule
     {
-        GENERAL,
-        END_ENUM
+        GENERAL
     };
 
     enum class VIS_SubModule
     {
-        OUTPUT_MESHES,
-        END_ENUM
+        OUTPUT_MESHES
     };
 
     enum class MIG_SubModule
     {
-        GENERAL,
-        END_ENUM
+        GENERAL
     };
 
     enum class WRK_SubModule
     {
-        GENERAL,
-        END_ENUM
+        GENERAL
     };
 
     enum class MORISGENERAL_SubModule
     {
         REMESHING,
         REFINEMENT,
-        MAPPING,
-        END_ENUM
+        MAPPING
     };
 
     // -----------------------------------------------------------------------------
