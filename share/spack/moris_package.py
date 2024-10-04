@@ -47,7 +47,7 @@ class Moris(CMakePackage):
     variant("examples", default=False, description="Compile with examples")
     variant("debug",    default=False, description="Compile with debug support")
 
-    depends_on('arborx')
+    depends_on('arborx@1.6')
     depends_on('armadillo')
     depends_on('arpack-ng')
     depends_on('boost+filesystem+log+serialization+system+thread+timer')
