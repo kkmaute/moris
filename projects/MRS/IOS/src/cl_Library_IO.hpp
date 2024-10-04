@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef MORIS_CL_LIBRARY_IO_HPP
-#define MORIS_CL_LIBRARY_IO_HPP
+#pragma once
 
 #include <string>
 #include <set>
@@ -171,29 +170,17 @@ namespace moris
         virtual void
         load_parameter_list( const std::string& aFileName, File_Type aFileType );
 
-        // -----------------------------------------------------------------------------
-
         /**
-         * @brief finishes the initialization of the library and locks it from modification
+         * Finalizes this library and locks it from modification.
+         *
+         * @param aFilePath Optional file path/name for printing out an XML parameter receipt
          */
-        virtual void
-        finalize()
-        {
-            MORIS_ERROR( false, "Library_IO::finalize() - Function not implemented in this base class." );
-        }
-
-        // -----------------------------------------------------------------------------
+        void finalize( const std::string& aFilePath = "" );
 
         /**
          * @brief fills the member parameter lists with the standard parameters for all modules
          */
-        virtual void
-        load_all_standard_parameters()
-        {
-            MORIS_ERROR( false, "Library_IO::load_all_standard_parameters() - Function not implemented in this base class." );
-        }
-
-        // -----------------------------------------------------------------------------
+        virtual void load_all_standard_parameters() = 0;
 
         /**
          * @brief loads parameters from an shared object library and overwrites any previously specified parameters by it
@@ -392,5 +379,3 @@ namespace moris
     Parameter_List create_parameter_list( Parameter_List_Type aModule, uint aChild, uint aSubChild );
 
 }    // namespace moris
-
-#endif    // MORIS_CL_LIBRARY_IO_HPP

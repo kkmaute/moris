@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef MORIS_CL_LIBRARY_IO_MESHGEN_HPP
-#define MORIS_CL_LIBRARY_IO_MESHGEN_HPP
+#pragma once
 
 #include "cl_Library_IO.hpp"
 
@@ -50,16 +49,6 @@ namespace moris
          * Default destructor
          */
         ~Library_IO_Meshgen() override;
-
-        // -----------------------------------------------------------------------------
-
-        /**
-         * @brief finishes the initialization of the library and locks it from modification
-         */
-        void
-        finalize() override;
-
-        // -----------------------------------------------------------------------------
 
         /**
          * @brief loads parameters from the simplified xml file and overwrites any previously specified parameters by it
@@ -158,5 +147,3 @@ namespace moris
     // -----------------------------------------------------------------------------
 
 }    // namespace moris
-
-#endif    // MORIS_CL_LIBRARY_IO_MESHGEN_HPP

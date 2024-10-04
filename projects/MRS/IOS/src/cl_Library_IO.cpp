@@ -250,6 +250,40 @@ namespace moris
 
     //------------------------------------------------------------------------------------------------------------------
 
+    void Library_IO::finalize( const std::string& aFilePath )
+    {
+        // check that an .xml input file has been specified
+        MORIS_ERROR( mSoLibIsInitialized || mXmlParserIsInitialized,
+                "Library_IO_Standard::finalize() - Neither an .xml nor a .so input file has been specified. "
+                "At least one input file is required." );
+
+        // load the standard parameters into the member variables
+        this->load_all_standard_parameters();
+
+        // if an .so file has been parsed, first use its parameters (if any were defined in it) to overwrite or add to the standard parameters
+        if ( mSoLibIsInitialized )
+        {
+            this->load_parameters_from_shared_object_library();
+        }
+
+        // load parameters from xml, overwrites parameters specified in either the standard parameters or an .so file if parsed
+        if ( mXmlParserIsInitialized )
+        {
+            this->load_parameters_from_xml();
+        }
+
+        // check the parameters for validity
+        this->check_parameters();
+
+        // mark this library as finalized and lock it from modification
+        mLibraryIsFinalized = true;
+
+        // print receipt of the finalized library
+        this->print_parameter_receipt( aFilePath );
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
     void
     Library_IO::load_parameters_from_shared_object_library()
     {
@@ -447,24 +481,27 @@ namespace moris
     void
     Library_IO::print_parameter_receipt( const std::string& aOutputFileName )
     {
-        // initialize the xml writer by defining the root
-        mXmlWriter->initialize_write( aOutputFileName );
-
-        // write root of the tree
-        // mXmlWriter->flush_buffer_to_tree( XML_PARAMETER_FILE_ROOT );
-
-        // go through the modules and print their parameters to file
-        for ( uint iModule = 0; iModule < (uint)( Parameter_List_Type::END_ENUM ); iModule++ )
+        if ( not aOutputFileName.empty() )
         {
-            // get the enum and name of the current module
-            Parameter_List_Type tModule = (Parameter_List_Type)( iModule );
+            // initialize the xml writer by defining the root
+            mXmlWriter->initialize_write( aOutputFileName );
 
-            // write this module to the xml tree
-            this->write_module_parameter_list_to_xml_tree( tModule );
+            // write root of the tree
+            // mXmlWriter->flush_buffer_to_tree( XML_PARAMETER_FILE_ROOT );
+
+            // go through the modules and print their parameters to file
+            for ( uint iModule = 0; iModule < (uint)( Parameter_List_Type::END_ENUM ); iModule++ )
+            {
+                // get the enum and name of the current module
+                Parameter_List_Type tModule = (Parameter_List_Type)( iModule );
+
+                // write this module to the xml tree
+                this->write_module_parameter_list_to_xml_tree( tModule );
+            }
+
+            // write the xml file
+            mXmlWriter->save();
         }
-
-        // write the xml file
-        mXmlWriter->save();
     }
 
     //------------------------------------------------------------------------------------------------------------------

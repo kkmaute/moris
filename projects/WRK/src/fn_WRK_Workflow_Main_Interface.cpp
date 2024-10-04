@@ -177,7 +177,7 @@ int fn_WRK_Workflow_Main_Interface( int argc, char *argv[] )
         }
 
         // finish initializing the library and lock it from modification
-        tLibrary->finalize();
+        tLibrary->finalize( "./Parameter_Receipt.xml" );
     }
 
     // --------------------------------------------- //
