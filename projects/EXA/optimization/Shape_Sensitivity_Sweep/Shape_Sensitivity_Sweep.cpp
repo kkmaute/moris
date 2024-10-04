@@ -408,7 +408,7 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "UX,UY" );
         tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "UX,UY" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 0 );
-        tParameterList( 4 )( tIQICounter ).set( "function_parameters", "1" );
+        tParameterList( 4 )( tIQICounter ).set( "function_parameters", "0" );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tMeshSets );
         tIQICounter++;
 
@@ -418,7 +418,7 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "UX,UY" );
         tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "UX,UY" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 1 );
-        tParameterList( 4 )( tIQICounter ).set( "function_parameters", "1" );
+        tParameterList( 4 )( tIQICounter ).set( "function_parameters", "0" );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tMeshSets );
         tIQICounter++;
 

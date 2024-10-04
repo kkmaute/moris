@@ -275,7 +275,8 @@ namespace moris::fem
     void Set::create_fem_clusters()
     {
         Vector< mtk::Cluster const * > tMeshClusterList = mMeshSet->get_clusters_on_set();
-        uint                           tNumMeshClusters = tMeshClusterList.size();
+
+        uint tNumMeshClusters = tMeshClusterList.size();
         mEquationObjList.resize( tNumMeshClusters, nullptr );
 
         // create a fem cluster factory
@@ -315,8 +316,11 @@ namespace moris::fem
             }
 
             // create an interpolation element and fem cluster
-            auto const tInterpolationElement = new fem::Interpolation_Element( mElementType, tInterpolationCell, mIPNodes, this );
-            auto const tCluster              = std::make_shared< fem::Cluster >( mElementType, tMeshCluster, this, tInterpolationElement );
+            auto const tInterpolationElement =
+                    new fem::Interpolation_Element( mElementType, tInterpolationCell, mIPNodes, this );
+
+            auto const tCluster =
+                    std::make_shared< fem::Cluster >( mElementType, tMeshCluster, this, tInterpolationElement );
 
             tInterpolationElement->set_cluster( tCluster, 0 );
 
@@ -2073,16 +2077,27 @@ namespace moris::fem
         MSI::Design_Variable_Interface* tDVInterface =
                 mEquationModel->get_design_variable_interface();
 
+        // get node indices on cluster
+        moris::Matrix< moris::IndexMat > tNodeIndicesOnCluster;
+        aFemCluster->get_vertex_indices_in_cluster_for_sensitivity( tNodeIndicesOnCluster );
+
+        // get extraction operators for the cluster
+        mIGExtractionOperators = tDVInterface->get_IG_Desgin_Extraction_Operators( tNodeIndicesOnCluster );
+
+        mAdvIdToLocalIndexMap = tDVInterface->build_local_adv_indices( mIGExtractionOperators );
+
+        mVertexMeshIndexToClusterIndexMap.clear();
+        for ( uint i = 0; i < tNodeIndicesOnCluster.numel(); i++ )
+        {
+            mVertexMeshIndexToClusterIndexMap[ tNodeIndicesOnCluster( i ) ] = i;
+        }
+
         // get the geo dv types requested by the opt
         Vector< enum gen::PDV_Type > tRequestedDvTypes;
         moris_index                  tMeshSetIndex = mMeshSet->get_set_index();
         tDVInterface->get_ig_unique_dv_types_for_set(
                 tMeshSetIndex,
                 tRequestedDvTypes );
-
-        // get node indices on cluster
-        moris::Matrix< moris::IndexMat > tNodeIndicesOnCluster;
-        aFemCluster->get_vertex_indices_in_cluster_for_sensitivity( tNodeIndicesOnCluster );
 
         // get access to the FEM model
         MSI::Equation_Model* tFemModel = this->get_equation_model();
@@ -3869,6 +3884,45 @@ namespace moris::fem
         for ( uint Ik = 0; Ik < mEquationObjList.size(); Ik++ )
         {
             mEquationObjList( Ik )->populate_fields( aFieldToPopulate, aFieldIQINames );
+        }
+    }
+
+
+    //------------------------------------------------------------------------------
+
+    void
+    Set::create_geo_adv_assembly_data( const Matrix< IndexMat >& tVertexMeshIndices )
+    {
+        // get design variable interfac
+        MSI::Design_Variable_Interface* tDVInterface =
+                mEquationModel->get_design_variable_interface();
+
+        // get number of vertices
+        uint tNumVertices = tVertexMeshIndices.numel();
+
+        // set dimension for GP level adv indices relative to cluster and weights
+        mAdvGeoWeights.clear();
+        mAdvGeoWeights.resize( tNumVertices, Matrix< DDRMat >( 0, 0 ) );
+
+        // get number of unique adv ids
+        uint tNumAdvs = mAdvIdToLocalIndexMap.size();
+
+        // loop over all vertices
+        for ( uint iVert = 0; iVert < tNumVertices; ++iVert )
+        {
+            // get local vertex index with respect to the cluster
+            uint tLocalVertexIndex = mVertexMeshIndexToClusterIndexMap[ tVertexMeshIndices( iVert ) ];
+
+            const std::shared_ptr< gen::Design_Extraction_Operator >& tOperator = mIGExtractionOperators( tLocalVertexIndex );
+
+            if ( tOperator )
+            {
+                // populate adv geo weights
+                tDVInterface->populate_adv_geo_weights(
+                        tOperator,
+                        mAdvGeoWeights( iVert ),
+                        tNumAdvs );
+            }
         }
     }
 

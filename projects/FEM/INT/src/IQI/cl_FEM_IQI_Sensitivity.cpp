@@ -11,6 +11,7 @@
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IQI_Sensitivity.hpp"
+#include "fn_dot.hpp"
 
 namespace moris::fem
 {
@@ -80,20 +81,35 @@ namespace moris::fem
     {
         // get field interpolator for a given dof type
         Field_Interpolator* tFI =
+                mLeaderFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
+
+        Field_Interpolator* tFIsens =
                 mLeaderAdjointFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ), mDerivativeVectorIndex );
 
         // check that field interpolator exists
         MORIS_ASSERT( tFI != nullptr,
                 "IQI_Sensitivity::evaluate_QI - field interpolator does not exist." );
 
+        Matrix< DDRMat > tSpatialDerivative;
+
         if ( mQuantityDofType.size() > 1 && mIQITypeIndex != -1 )
         {
             // evaluate DOF value
-            aMat = { tFI->val()( mIQITypeIndex ) };
+            aMat = { tFIsens->val()( mIQITypeIndex ) };
         }
         else
         {
-            aMat = tFI->val();
+            aMat = tFIsens->val();
+        }
+
+        // get partial derivative of node location on advs
+        const Matrix< DDRMat >& tDxDp = mSet->get_current_adv_geo_weight();
+
+        if ( tDxDp.numel() > 0 )
+        {
+            const Matrix< DDRMat >& tSpatialGradient = tFI->gradx( 1 );
+
+            aMat( 0 ) += dot( tSpatialGradient.get_column( mIQITypeIndex ), tDxDp );
         }
     }
 

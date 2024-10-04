@@ -22,6 +22,24 @@
 
 namespace moris::gen
 {
+    struct Design_Extraction_Operator
+    {
+        Vector< sint >   mAdvIds;
+        Vector< sint >   mLocalAdvIndices;
+        Matrix< DDRMat > mWeights;
+
+        Design_Extraction_Operator(
+                const Vector< sint >&   aAdvIds,
+                const Matrix< DDRMat >& aWeights )
+                : mAdvIds( aAdvIds )
+                , mLocalAdvIndices( aAdvIds.size() )
+                , mWeights( aWeights )
+        {
+        }
+    };
+
+    //-------------------------------------------------------------------------------
+
     class PDV_Host_Manager : public MSI::Design_Variable_Interface
     {
       private:
@@ -70,6 +88,12 @@ namespace moris::gen
 
         // Requested IQI types
         Vector< std::string > mRequestedIQIs;
+
+        // Design extraction operators
+        // Vector at IP nodes of Vector of field types of Design_Extraction_Operators
+        // Vector at IG nodes of Design_Extraction_Operators
+        Vector< Vector< std::shared_ptr< Design_Extraction_Operator > > > tIpExtractionOperators;
+        Vector< std::shared_ptr< Design_Extraction_Operator > >           tIgExtractionOperators;
 
       public:
         /**
@@ -209,6 +233,25 @@ namespace moris::gen
                 const Vector< PDV_Type >&   aPDVTypes,
                 Vector< Matrix< DDRMat > >& aDvValues,
                 Vector< Vector< bool > >&   aIsActiveDv ) override;
+
+        //-------------------------------------------------------------------------------
+
+        Vector< std::shared_ptr< Design_Extraction_Operator > >
+                get_IG_Desgin_Extraction_Operators( Matrix< moris::IndexMat > ) override;
+
+        //-------------------------------------------------------------------------------
+
+        Vector< sint >
+        build_local_adv_indices(
+                Vector< std::shared_ptr< gen::Design_Extraction_Operator > >& aExtractionOperators ) override;
+
+        //-------------------------------------------------------------------------------
+
+        void
+        populate_adv_geo_weights(
+                const std::shared_ptr< gen::Design_Extraction_Operator >& aOperator,
+                Matrix< DDRMat >&                                         aAdvGeoWeights,
+                const uint                                                aNumAdvs ) override;
 
         /**
          * Get the local to global pdv type map
@@ -360,6 +403,10 @@ namespace moris::gen
         set_dQIdp(
                 const Vector< Matrix< DDRMat >* >& adQIdp,
                 Matrix< DDSMat >*                  aMap );
+
+        //-------------------------------------------------------------------------------
+
+        void create_design_extraction_operators();
 
         //-------------------------------------------------------------------------------
 

@@ -72,6 +72,9 @@ namespace moris::fem
                     tVertexIndices,
                     tGeoPdvType,
                     aGeoLocalAssembly );
+
+            // get new geo asssembly indices
+            mSet->create_geo_adv_assembly_data( tVertexIndices );
         }
 
         // set physical space and time coefficients for IG element GI

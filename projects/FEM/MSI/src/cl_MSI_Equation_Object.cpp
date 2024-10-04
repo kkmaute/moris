@@ -824,16 +824,20 @@ namespace moris::MSI
                 //                print( tdRdp( 0 ), "dRdp for IP DVs" );
                 //                print( tdRdp( 1 ), "dRdp for IG DVs" );
 
+                // xxxxxxxxxxxx
                 const Matrix< DDSMat >& tLocalToGlobalIdsIGPdv =
                         mEquationSet->get_geo_pdv_assembly_vector();
 
-                //                print( tLocalToGlobalIdsIGPdv, "tLocalToGlobalIdsIGPdv" );
+                // print( tLocalToGlobalIdsIGPdv, "tLocalToGlobalIdsIGPdv" );
 
                 for ( uint Ik = 0; Ik < tLocalToGlobalIdsIGPdv.n_rows(); Ik++ )
                 {
-                    sint tIndex = tLocalToGlobalIdsIGPdv( Ik );
+                    // xxxx uint Ik     = 0;
+                    sint tIndex = tLocalToGlobalIdsIGPdv( Ik );    // xxxx  0;
 
-                    tElementalResidual( tIndex ) = -1.0 * tdRdp( 1 ).get_column( Ik );
+                    // xxx                   if ( tdRdp( 1 ).numel() > 0 )
+                    //  xxx                  {
+                    tElementalResidual( tIndex ) = 1.0 * tdRdp( 1 ).get_column( Ik );
 
                     print( tElementalResidual( tIndex ), "direct: tElementalResidual for PDV index " + std::to_string( tIndex ) );
                 }
@@ -1147,6 +1151,8 @@ namespace moris::MSI
         for ( uint Ik = 0; Ik < tMyValues.size(); Ik++ )
         {
             mEquationSet->mPdofValues( Ik ) = tTMatrix * tMyValues( Ik );
+
+            print( mEquationSet->mPdofValues( Ik ), "mEquationSet->mPdofValues( Ik )" );
         }
 
         this->set_vector_entry_number_of_pdof();    // FIXME should not be in MSI. Should be in FEM
@@ -1255,7 +1261,7 @@ namespace moris::MSI
 
             mEquationSet->mAdjointPdofValues( Ik ) = tTMatrix * tMyValues( Ik );
 
-            // print( mEquationSet->mAdjointPdofValues( Ik ), "mEquationSet->mAdjointPdofValues( Ik )" );
+            print( mEquationSet->mAdjointPdofValues( Ik ), "mEquationSet->mAdjointPdofValues( Ik )" );
         }
 
         // FIXME should not be in MSI. Should be in FEM

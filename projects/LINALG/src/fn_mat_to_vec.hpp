@@ -25,7 +25,7 @@
 namespace moris
 {
     /**
-     * @brief Generate a flattened version of matrix to either column (default) or row vector.
+     * @brief Generate a flattened version of matrix to either column (default) or row vector and stores it as moris::Vector.
      *
      * for column vector: elements are copied column-wise, resulting in a column vector;
      *                    equivalent to concatenating all the columns of matrix
@@ -36,17 +36,23 @@ namespace moris
      * @param[in] aA            Matrix.
      * @param[in] aToRowVector  flag to create row vector
      *
-     * @return  row or column vector
+     * @return  row or column vector as moris::Vector
      */
 
-    template< typename Matrix_Type >
-    auto
-    vectorize(
+    template< typename Matrix_Type, typename Vector_Type = typename Matrix< Matrix_Type >::Data_Type >
+    Vector< Vector_Type >
+    mat_to_vec(
             const Matrix< Matrix_Type > &aA,
             bool                         aToRowVector = false )
-            -> decltype( vectorize( aA.matrix_data(), aToRowVector ) )
     {
-        return vectorize( aA.matrix_data(), aToRowVector );
+        const Matrix< Matrix_Type > tMatrix = vectorize( aA.matrix_data(), aToRowVector );
+
+        Vector< Vector_Type > tVector( tMatrix.numel() );
+
+        std::copy( tMatrix.data(), tMatrix.data() + tMatrix.numel(), tVector.memptr() );
+
+        return tVector;
     }
+
 }    // namespace moris
 #endif /* PROJECTS_LINALG_SRC_FN_VECTORIZE_HPP_ */

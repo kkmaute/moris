@@ -174,6 +174,14 @@ namespace moris
             // enum for perturbation strategy used for FD (FA and SA)
             fem::Perturbation_Type mPerturbationStrategy = fem::Perturbation_Type::RELATIVE;
 
+            Vector< sint >                                               mAdvIdToLocalIndexMap;
+            Vector< std::shared_ptr< gen::Design_Extraction_Operator > > mIGExtractionOperators;
+            map< sint, sint >                                            mVertexMeshIndexToClusterIndexMap;
+
+            Vector< sint >             mAdvGeoAssemblyVector;
+            Vector< Matrix< DDRMat > > mAdvGeoWeights;           // Vector of each node with Adv weights
+            Matrix< DDRMat >           mCurrrentAdvGeoWeight;    // Adv weight of current node
+
             friend class MSI::Equation_Object;
             friend class Cluster;
             friend class Element_Bulk;
@@ -723,6 +731,12 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
+             * create the adv weights and assembly vector at integration point
+             */
+            void create_geo_adv_assembly_data( const Matrix< IndexMat >& tVertexMeshIndices );
+
+            //------------------------------------------------------------------------------
+            /**
              * create a list of IWGs requested by the solver
              */
             void create_requested_IWG_list( const fem::Time_Continuity_Flag aTimeContinuityOnlyFlag = moris::fem::Time_Continuity_Flag::DEFAULT );
@@ -1104,7 +1118,8 @@ namespace moris
              * @param[ in ] aMatPdvType list of group of ip pdv types on set
              * @param[ in ] aIsLeader determine the leader / follower side, only for dbl sided set, is leader by default
              */
-            void get_ip_dv_types_for_set(
+            void
+            get_ip_dv_types_for_set(
                     Vector< Vector< enum gen::PDV_Type > >& aMatPdvType,
                     mtk::Leader_Follower                    aIsLeader = mtk::Leader_Follower::LEADER );
 
@@ -1113,6 +1128,20 @@ namespace moris
             void populate_fields(
                     Vector< std::shared_ptr< fem::Field > >& aFieldToPopulate,
                     Vector< std::string > const &            aFieldIQINames ) override;
+
+            //------------------------------------------------------------------------------
+
+            const Vector< Matrix< DDRMat > >& get_adv_geo_weights() { return mAdvGeoWeights; }
+
+            void set_index_for_geo_weights( uint aInedex )
+            {
+                MORIS_ASSERT( aInedex < mAdvGeoWeights.size(),
+                        "Set::set_index_for_geo_weights - Index out of range" );
+
+                mCurrrentAdvGeoWeight = mAdvGeoWeights( aInedex );
+            }
+
+            const Matrix< DDRMat >& get_current_adv_geo_weight() { return mCurrrentAdvGeoWeight; }
         };
         //------------------------------------------------------------------------------
     } /* namespace fem */
