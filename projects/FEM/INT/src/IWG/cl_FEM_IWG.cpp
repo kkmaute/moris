@@ -3041,17 +3041,36 @@ namespace moris::fem
         // init FD scheme
         Vector< Vector< real > > tFDScheme;
 
+        Matrix< DDRMat > tDrDpGeo( mSet->get_drdpgeo().n_rows(), 1 );
+
+        const Vector< Matrix< DDRMat > >& tGeoWeights = mSet->get_adv_geo_weights();
+        print( tGeoWeights, "tGeoWeights" );
+
         // loop over the spatial directions
         for ( uint iCoeffCol = 0; iCoeffCol < tDerNumDimensions; iCoeffCol++ )
         {
             // loop over the IG nodes
             for ( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
             {
-                // get the geometry pdv assembly index
-                sint tPdvAssemblyIndex = aGeoLocalAssembly( iCoeffRow, iCoeffCol );
+                // yyyy
+                if ( tGeoWeights( iCoeffRow ).n_rows() == 0 )
+                {
+                    continue;
+                }
 
-                // if pdv is active
-                if ( tPdvAssemblyIndex != -1 )
+                tDrDpGeo.fill( 0.0 );
+
+                // yyyy
+                Matrix< DDRMat > dIGNodeCorddAdv = tGeoWeights( iCoeffRow ).get_row( iCoeffCol );
+                print( dIGNodeCorddAdv, "dIGNodeCorddAdv" );
+
+                // xxx get the geometry pdv assembly index
+                //                sint tPdvAssemblyIndex = aGeoLocalAssembly( iCoeffRow, iCoeffCol );
+
+                // xxx if pdv is active
+                //                if ( tPdvAssemblyIndex != -1 )
+                // yyy
+                if ( norm( dIGNodeCorddAdv ) > MORIS_REAL_EPS )
                 {
                     // provide adapted perturbation and FD scheme considering ip element boundaries
                     fem::FDScheme_Type tUsedFDSchemeType = aFDSchemeType;
@@ -3075,9 +3094,9 @@ namespace moris::fem
                             ( tUsedFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                     {
                         // add unperturbed residual contribution to dRdp
-                        mSet->get_drdpgeo()(
+                        tDrDpGeo(
                                 { tResDofAssemblyStart, tResDofAssemblyStop },
-                                { tPdvAssemblyIndex, tPdvAssemblyIndex } ) +=
+                                { 0, 0 } ) +=
                                 tFDScheme( 1 )( 0 ) * tResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
                         // skip first point in FD
@@ -3120,13 +3139,25 @@ namespace moris::fem
                         // evaluate dRdpGeo
                         //                        Matrix< DDRMat >& tDrDpgeo = mSet->get_drdpgeo();
                         //                        print( tDrDpgeo, "mSet->get_drdpgeo()" );
-                        mSet->get_drdpgeo()(
+                        tDrDpGeo(
                                 { tResDofAssemblyStart, tResDofAssemblyStop },
-                                { tPdvAssemblyIndex, tPdvAssemblyIndex } ) +=
+                                { 0, 0 } ) +=
                                 tFDScheme( 1 )( iPoint ) *                                                                //
                                 mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } ) /    //
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
+
+                    print( tDrDpGeo, "tDrDpGeo" );
+
+                    // yyyy
+                    mSet->get_drdpgeo()(
+                            { tResDofAssemblyStart, tResDofAssemblyStop },
+                            { 0, dIGNodeCorddAdv.n_cols() - 1 } ) += tDrDpGeo * dIGNodeCorddAdv;
+
+                    // xxxx
+                    //                    mSet->get_drdpgeo()(
+                    //                            { tResDofAssemblyStart, tResDofAssemblyStop },
+                    //                            { tPdvAssemblyIndex, tPdvAssemblyIndex } ) += tDrDpGeo.matrix_data();
                 }
             }
         }

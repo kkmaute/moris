@@ -218,7 +218,8 @@ namespace moris::fem
             MIN_FEATURE_SIZE,
             ZIENKIEWICZ_ZHU_VON_MISES_STRESS,
             LINEAR_ELASTICITY_DAMAGE,
-            SENSITIVITY,
+            DOF_SENSITIVITY,
+            NODE_SENSITIVITY,
             END_IQI_TYPE )
 
     //------------------------------------------------------------------------------

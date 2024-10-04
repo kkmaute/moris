@@ -4,12 +4,12 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_FEM_IQI_Sensitivity.hpp
+ * cl_FEM_IQI_Dof_Sensitivity.hpp
  *
  */
 
-#ifndef PROJECTS_FEM_INT_SRC_CL_FEM_IQI_SENSITIVITY_HPP_
-#define PROJECTS_FEM_INT_SRC_CL_FEM_IQI_SENSITIVITY_HPP_
+#ifndef PROJECTS_FEM_INT_SRC_CL_FEM_IQI_DOF_SENSITIVITY_HPP_
+#define PROJECTS_FEM_INT_SRC_CL_FEM_IQI_DOF_SENSITIVITY_HPP_
 
 #include <map>
 
@@ -25,24 +25,24 @@ namespace moris::fem
 {
     //------------------------------------------------------------------------------
 
-    class IQI_Sensitivity : public IQI
+    class IQI_Dof_Sensitivity : public IQI
     {
       private:
-        //! index of eigen vector
-        uint mDerivativeVectorIndex = 0;
+        //! optimization variable id
+        uint mOptimizationVariableId = 0;
 
       public:
         //------------------------------------------------------------------------------
         /*
          * constructor
          */
-        IQI_Sensitivity();
+        IQI_Dof_Sensitivity();
 
         //------------------------------------------------------------------------------
         /**
          * trivial destructor
          */
-        ~IQI_Sensitivity() override {};
+        ~IQI_Dof_Sensitivity() override {};
 
         //------------------------------------------------------------------------------
         /**
@@ -76,15 +76,6 @@ namespace moris::fem
 
         //------------------------------------------------------------------------------
         /**
-         * evaluate the quantity of interest
-         * @param[ in ] Matrix
-         *
-         * @return void
-         */
-        void evaluate_QI( Matrix< DDRMat >& aMat );
-
-        //------------------------------------------------------------------------------
-        /**
          * compute the derivative of the quantity of interest wrt dof types
          * @param[ in ] aWStar weight associated to the evaluation point
          */
@@ -104,4 +95,4 @@ namespace moris::fem
     };
 }    // namespace moris::fem
 
-#endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IQI_SENSITIVITY_HPP_ */
+#endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IQI_DOF_SENSITIVITY_HPP_ */

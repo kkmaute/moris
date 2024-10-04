@@ -29,9 +29,15 @@ namespace moris
         class Dist_Vector;
     }
 
+    namespace gen
+    {
+        struct Design_Extraction_Operator;
+    }
+
     namespace MSI
     {
         class Equation_Model;
+
         class Design_Variable_Interface
         {
             //------------------------------------------------------------------------------
@@ -102,9 +108,29 @@ namespace moris
                     const moris::moris_index      aIntegrationMeshSetIndex,
                     Vector< enum gen::PDV_Type >& aDvTypes ) = 0;
 
+            //------------------------------------------------------------------------------
+
             virtual void get_ig_unique_dv_types_for_set(
                     const moris::moris_index      aIntegrationMeshSetIndex,
                     Vector< enum gen::PDV_Type >& aDvTypes ) = 0;
+
+            //------------------------------------------------------------------------------
+
+            virtual Vector< std::shared_ptr< gen::Design_Extraction_Operator > >
+                    get_IG_Desgin_Extraction_Operators( Matrix< moris::IndexMat > ) = 0;
+
+            //------------------------------------------------------------------------------
+
+            virtual Vector< sint >
+            build_local_adv_indices( Vector< std::shared_ptr< gen::Design_Extraction_Operator > >& ) = 0;
+
+            //------------------------------------------------------------------------------
+
+            virtual void
+            populate_adv_geo_weights(
+                    const std::shared_ptr< gen::Design_Extraction_Operator >& aOperator,
+                    Matrix< DDRMat >&                                         aAdvGeoWeights,
+                    const uint                                                aNumAdvs ) = 0;
 
             //------------------------------------------------------------------------------
 

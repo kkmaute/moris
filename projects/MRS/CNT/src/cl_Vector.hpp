@@ -766,6 +766,22 @@ namespace moris
 
         //------------------------------------------------------------------
 
+        sint
+        find( const T& aKey )
+        {
+            auto it = std::find( mVector.begin(), mVector.end(), aKey );
+
+            if ( it != mVector.end() )
+            {
+                return std::distance( mVector.begin(), it );
+            }
+
+            // find key in vector
+            return -1;
+        }
+
+        //------------------------------------------------------------------
+
     };    // class Vector
 
     //------------------------------------------------------------------

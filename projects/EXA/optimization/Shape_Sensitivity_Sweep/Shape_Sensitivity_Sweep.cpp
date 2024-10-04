@@ -403,22 +403,38 @@ namespace moris
 
         // create parameter list for IQI 4
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQINodeX" );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type", fem::IQI_Type::NODE_SENSITIVITY );
+        tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 0 );
+        tParameterList( 4 )( tIQICounter ).set( "function_parameters", "0" );
+        tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tMeshSets );
+        tIQICounter++;
+
+        tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQINodeY" );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type", fem::IQI_Type::NODE_SENSITIVITY );
+        tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 1 );
+        tParameterList( 4 )( tIQICounter ).set( "function_parameters", "0" );
+        tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tMeshSets );
+        tIQICounter++;
+
+        tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIDispXDV" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type", fem::IQI_Type::SENSITIVITY );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type", fem::IQI_Type::DOF_SENSITIVITY );
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "UX,UY" );
         tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "UX,UY" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 0 );
-        tParameterList( 4 )( tIQICounter ).set( "function_parameters", "1" );
+        tParameterList( 4 )( tIQICounter ).set( "function_parameters", "0" );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tMeshSets );
         tIQICounter++;
 
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIDispYDV" );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type", fem::IQI_Type::SENSITIVITY );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type", fem::IQI_Type::DOF_SENSITIVITY );
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "UX,UY" );
         tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "UX,UY" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 1 );
-        tParameterList( 4 )( tIQICounter ).set( "function_parameters", "1" );
+        tParameterList( 4 )( tIQICounter ).set( "function_parameters", "0" );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tMeshSets );
         tIQICounter++;
 
@@ -508,10 +524,10 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "File_Name", std::pair< std::string, std::string >( "./", "shape_sensitivities.exo" ) );
         tParameterlist( 0 )( 0 ).set( "Mesh_Type", vis::VIS_Mesh_Type::STANDARD );
         tParameterlist( 0 )( 0 ).set( "Set_Names", tMeshSets );
-        tParameterlist( 0 )( 0 ).set( "Field_Names", "UX,UY,DUX,DUY" );
-        tParameterlist( 0 )( 0 ).set( "Field_Type", "NODAL,NODAL,NODAL,NODAL" );
-        tParameterlist( 0 )( 0 ).set( "IQI_Names", "IQIDispX,IQIDispY,IQIDispXDV,IQIDispYDV" );
-        tParameterlist( 0 )( 0 ).set( "Analysis_Type", "FORWARD,FORWARD,SENSITIVITY,SENSITIVITY" );
+        tParameterlist( 0 )( 0 ).set( "Field_Names", "UX,UY,DPX,DPY,DUX,DUY" );
+        tParameterlist( 0 )( 0 ).set( "Field_Type", "NODAL,NODAL,NODAL,NODAL,NODAL,NODAL" );
+        tParameterlist( 0 )( 0 ).set( "IQI_Names", "IQIDispX,IQIDispY,IQINodeX,IQINodeY,IQIDispXDV,IQIDispYDV" );
+        tParameterlist( 0 )( 0 ).set( "Analysis_Type", "FORWARD,FORWARD,SENSITIVITY,SENSITIVITY,SENSITIVITY,SENSITIVITY" );
         tParameterlist( 0 )( 0 ).set( "Save_Frequency", 1 );
     }
 

@@ -57,7 +57,8 @@
 #include "cl_FEM_IQI_Traction.hpp"
 #include "cl_FEM_IQI_Linear_Elasticity_Damage.hpp"
 #include "cl_FEM_IQI_Contact_Pressure.hpp"
-#include "cl_FEM_IQI_Sensitivity.hpp"
+#include "cl_FEM_IQI_Dof_Sensitivity.hpp"
+#include "cl_FEM_IQI_Node_Sensitivity.hpp"
 
 namespace moris::fem
 {
@@ -214,8 +215,11 @@ namespace moris::fem
             case IQI_Type::LINEAR_ELASTICITY_DAMAGE:
                 return std::make_shared< IQI_Linear_Elasticity_Damage >();
 
-            case IQI_Type::SENSITIVITY:
-                return std::make_shared< IQI_Sensitivity >();
+            case IQI_Type::DOF_SENSITIVITY:
+                return std::make_shared< IQI_Dof_Sensitivity >();
+
+            case IQI_Type::NODE_SENSITIVITY:
+                return std::make_shared< IQI_Node_Sensitivity >();
 
             default:
                 MORIS_ERROR( false, " IQI_Factory::create_IQI - No IQI type specified. " );

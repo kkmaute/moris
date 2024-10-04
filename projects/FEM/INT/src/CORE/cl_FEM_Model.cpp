@@ -244,7 +244,7 @@ namespace moris::fem
     void
     FEM_Model::create_integration_nodes( mtk::Integration_Mesh *aIGMesh )
     {
-        // ask IG mesh about number of IG vertices on proc
+        // number of IG vertices on current processor
         luint tNumIGNodes = aIGMesh->get_num_nodes();
 
         // set size for list IG nodes
@@ -281,12 +281,15 @@ namespace moris::fem
         // tMesh_GEN_map.reserve(660);
         // aIGMesh->get_Mesh_GEN_map( tMesh_GEN_map );
 
+        auto tDesignInterface = this->get_design_variable_interface();
+
         // loop over IG mesh vertices
         for ( uint iNode = 0; iNode < tNumIGNodes; iNode++ )
         {
             // create a new IG Node
             mIGNodes( iNode ) = new fem::Node( &aIGMesh->get_mtk_vertex( iNode ) );
 
+            // if design optimization
             if ( mFEMOnly == false )
             {
                 // get IG node index
@@ -297,7 +300,7 @@ namespace moris::fem
                 Vector< Matrix< DDRMat > > tVertexCoordsFromGen( mSpaceDim );
                 Vector< Vector< bool > >   tIsActiveDv;
 
-                this->get_design_variable_interface()->get_ig_pdv_value(
+                tDesignInterface->get_ig_pdv_value(
                         tVertexIndices,
                         tGeoPdvType,
                         tVertexCoordsFromGen,
@@ -306,7 +309,7 @@ namespace moris::fem
                 // set active flags for xyz
                 this->set_vertex_xyz_active_flags( tVertexIndex, tIsActiveDv );
 
-                // reshape the XYZ values into a cell of vectors
+                // checks that GEN gives the same coordinates as used in the current IG mesh
                 for ( uint iSpaceDim = 0; iSpaceDim < mSpaceDim; iSpaceDim++ )
                 {
                     if ( tIsActiveDv( iSpaceDim )( 0 ) )
@@ -315,17 +318,17 @@ namespace moris::fem
                         Matrix< DDRMat > tVertexCoordsFromMesh;
                         mIGNodes( iNode )->get_vertex_coords( tVertexCoordsFromMesh );
 
-                        MORIS_ERROR( equal_to(
-                                             tVertexCoordsFromGen( iSpaceDim )( 0 ),
-                                             tVertexCoordsFromMesh( iSpaceDim ),
-                                             1.0 ),
+                        MORIS_ASSERT( equal_to(
+                                              tVertexCoordsFromGen( iSpaceDim )( 0 ),
+                                              tVertexCoordsFromMesh( iSpaceDim ),
+                                              1.0 ),
                                 "FEM_Model::create_integration_nodes - GE coordinate and MTK coordinate differ\n" );
                     }
                 }
 
                 // get the id associated to the pdv
                 Vector< moris::Matrix< DDSMat > > tPdvIds;
-                this->get_design_variable_interface()->get_ig_dv_ids_for_type_and_ind(
+                tDesignInterface->get_ig_dv_ids_for_type_and_ind(
                         tVertexIndices,
                         tGeoPdvType,
                         tPdvIds );

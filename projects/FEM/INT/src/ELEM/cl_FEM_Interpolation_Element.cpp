@@ -1370,6 +1370,9 @@ namespace moris::fem
             // get the type of the current cluster
             fem::Element_Type tElementType = mFemCluster( aFemMeshIndex )->get_element_type();
 
+            // init IG pdv assembly map
+            mSet->create_geo_pdv_assembly_map( mFemCluster( 0 ) );
+
             // compute the nodal values of the requested QIs
             // double sided clusters require additional treatment of the follower side
             // and therefore need special consideration
@@ -1416,6 +1419,10 @@ namespace moris::fem
             this->compute_my_eigen_vector_values();    // FIXME: do this only once
         }
 
+        {
+            this->compute_my_adjoint_values();
+        }
+
         // set the field interpolators coefficients
         this->set_field_interpolators_coefficients();
 
@@ -1443,6 +1450,21 @@ namespace moris::fem
         // get number of vertices on the treated mesh cluster
         uint tNumVertices = tVertexLocalCoords.n_rows();
 
+        if ( !mSet->mEquationModel->is_forward_analysis() )
+        {
+            // get the vertices indices for IG element
+            Matrix< IndexMat > tVertexIndicesForSensitivities;
+            mFemCluster( aFemMeshIndex )->get_vertex_indices_in_cluster_for_sensitivity( tVertexIndicesForSensitivities );
+
+            // this might not be correct as it assumes that IG mesh and the visualization mesh are the same
+            MORIS_ERROR( tVertexIndicesForSensitivities.numel() == tNumVertices,
+                    "Interpolation_Element::compute_nodal_QIs() - "
+                    "Number of vertices for sensitivity analysis does not match the number of vertices in cluster." );
+
+            // get new geo asssembly indices
+            mSet->create_geo_adv_assembly_data( tVertexIndicesForSensitivities );
+        }
+
         // loop over the vertices on the treated mesh cluster
         for ( uint iVertex = 0; iVertex < tNumVertices; iVertex++ )
         {
@@ -1465,6 +1487,11 @@ namespace moris::fem
             if ( mSet->mAdjointPdofValues.size() > 0 )
             {
                 mSet->get_field_interpolator_manager_adjoint_vectors()->set_space_time( tNodalPointLocalCoords );
+            }
+
+            if ( !mSet->mEquationModel->is_forward_analysis() )
+            {
+                mSet->set_geo_weights_for_cluster_node_index( iVertex );
             }
 
             // get the current vertex's coordinates

@@ -375,6 +375,9 @@ void Solver_Interface::fill_matrix_and_RHS(
     aMat->matrix_global_assembly();
     aVectorRHS->vector_global_assembly();
 
+    // print aVectorRHS
+    aVectorRHS->print();
+
     this->report_end_of_assembly();
 }
 

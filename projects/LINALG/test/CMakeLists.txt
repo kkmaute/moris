@@ -40,6 +40,7 @@ set(TEST_SOURCES
     fn_linsolve.cpp
     fn_linspace.cpp
     fn_lu.cpp
+    fn_mat_to_vec.cpp
     fn_norm.cpp
     fn_qr.cpp
     fn_r2.cpp
