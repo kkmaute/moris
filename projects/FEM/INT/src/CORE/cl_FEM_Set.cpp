@@ -3897,14 +3897,22 @@ namespace moris::fem
         MSI::Design_Variable_Interface* tDVInterface =
                 mEquationModel->get_design_variable_interface();
 
+<<<<<<< HEAD
         // get number of vertices in cluster
+=======
+        // get number of vertices
+>>>>>>> 1a0163db4913c722426448c2c4a70a75fc149750
         uint tNumVertices = tVertexMeshIndices.numel();
 
         // set dimension for GP level adv indices relative to cluster and weights
         mAdvGeoWeights.clear();
         mAdvGeoWeights.resize( tNumVertices, Matrix< DDRMat >( 0, 0 ) );
 
+<<<<<<< HEAD
         // get number of unique adv ids active in the cluster
+=======
+        // get number of unique adv ids
+>>>>>>> 1a0163db4913c722426448c2c4a70a75fc149750
         uint tNumAdvs = mAdvIdToLocalIndexMap.size();
 
         // loop over all vertices

@@ -1491,7 +1491,11 @@ namespace moris::fem
 
             if ( !mSet->mEquationModel->is_forward_analysis() )
             {
+<<<<<<< HEAD
                 mSet->set_geo_weights_for_cluster_node_index( iVertex );
+=======
+                mSet->set_index_for_geo_weights( iVertex );
+>>>>>>> 1a0163db4913c722426448c2c4a70a75fc149750
             }
 
             // get the current vertex's coordinates

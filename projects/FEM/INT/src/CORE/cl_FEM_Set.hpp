@@ -1131,6 +1131,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
+<<<<<<< HEAD
             /**
              * get the weights of design extraction operator of the cluster
              *
@@ -1149,10 +1150,19 @@ namespace moris
             {
                 MORIS_ASSERT( aInedex < mAdvGeoWeights.size(),
                         "Set::set_geo_weights_for_cluster_node_index - Index out of range" );
+=======
+            const Vector< Matrix< DDRMat > >& get_adv_geo_weights() { return mAdvGeoWeights; }
+
+            void set_index_for_geo_weights( uint aInedex )
+            {
+                MORIS_ASSERT( aInedex < mAdvGeoWeights.size(),
+                        "Set::set_index_for_geo_weights - Index out of range" );
+>>>>>>> 1a0163db4913c722426448c2c4a70a75fc149750
 
                 mCurrrentAdvGeoWeight = mAdvGeoWeights( aInedex );
             }
 
+<<<<<<< HEAD
             //------------------------------------------------------------------------------
 
             /**
@@ -1177,6 +1187,9 @@ namespace moris
             {
                 return mCurrrentAdvGeoWeight;
             }
+=======
+            const Matrix< DDRMat >& get_current_adv_geo_weight() { return mCurrrentAdvGeoWeight; }
+>>>>>>> 1a0163db4913c722426448c2c4a70a75fc149750
         };
         //------------------------------------------------------------------------------
     } /* namespace fem */
