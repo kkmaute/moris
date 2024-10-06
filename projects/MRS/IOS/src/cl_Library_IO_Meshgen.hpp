@@ -50,6 +50,16 @@ namespace moris
          */
         ~Library_IO_Meshgen() override;
 
+        // -----------------------------------------------------------------------------
+
+        /**
+         * @brief finishes the initialization of the library and locks it from modification
+         */
+        virtual void
+        finalize( std::string aFilePath = "") override;
+
+        // -----------------------------------------------------------------------------
+
         /**
          * @brief loads parameters from the simplified xml file and overwrites any previously specified parameters by it
          */

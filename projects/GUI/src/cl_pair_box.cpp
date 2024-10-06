@@ -16,11 +16,6 @@ namespace moris
             , mParameter( a_param )
     {
         // Set up the combo box with provided options
-        // moris_pair_combo_box->addItems( a_options );
-        // connect( moris_pair_combo_box, &QComboBox::currentTextChanged, this, &Moris_Pair_Box::on_combo_box_text_changed );
-        connect( moris_pair_line_edit, &QLineEdit::textChanged, this, &Moris_Pair_Box::on_line_edit_text_changed );
-        connect( moris_pair_line_edit_2, &QLineEdit::textChanged, this, &Moris_Pair_Box::on_line_edit_text_changed );
-
 
         // Set up the line edit
         // connect( moris_pair_line_edit, &QLineEdit::textChanged, this, &Moris_Pair_Box::on_line_edit_text_changed );
@@ -35,6 +30,19 @@ namespace moris
         layout->addWidget( moris_pair_line_edit_2 );
 
         setLayout( layout );
+
+        if ( mParameter.is_locked() )
+        {
+            moris_pair_line_edit->setReadOnly( true );
+            moris_pair_line_edit_2->setReadOnly( true );
+        }
+        else
+        {
+            // moris_pair_combo_box->addItems( a_options );
+            // connect( moris_pair_combo_box, &QComboBox::currentTextChanged, this, &Moris_Pair_Box::on_combo_box_text_changed );
+            connect( moris_pair_line_edit, &QLineEdit::textChanged, this, &Moris_Pair_Box::on_line_edit_text_changed );
+            connect( moris_pair_line_edit_2, &QLineEdit::textChanged, this, &Moris_Pair_Box::on_line_edit_text_changed );
+        }
     }
 
     // Slot to handle changes in the combo box text

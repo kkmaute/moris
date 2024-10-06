@@ -170,12 +170,18 @@ namespace moris
         virtual void
         load_parameter_list( const std::string& aFileName, File_Type aFileType );
 
+        // -----------------------------------------------------------------------------
+
         /**
-         * Finalizes this library and locks it from modification.
-         *
-         * @param aFilePath Optional file path/name for printing out an XML parameter receipt
+         * @brief finishes the initialization of the library and locks it from modification
          */
-        void finalize( const std::string& aFilePath = "" );
+        virtual void
+        finalize( std::string aFilePath = "")
+        {
+            MORIS_ERROR( false, "Library_IO::finalize() - Function not implemented in this base class." );
+        }
+
+        // -----------------------------------------------------------------------------
 
         /**
          * @brief fills the member parameter lists with the standard parameters for all modules

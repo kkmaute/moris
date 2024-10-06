@@ -200,6 +200,28 @@ namespace moris
         mScrollArea->setVisible( aVisible );
     }
 
+    QList< QWidget * > &Moris_Tree_Widget_Item::getWidget()
+    {
+        return mWidget;
+    }
+
+    void Moris_Tree_Widget_Item::setPropertyNameList( QStringList &aPropertyNameList )
+    {
+        mPropertyNameList = aPropertyNameList;
+        if ( mWidget.size() > 0 )
+        {
+            for ( uint i = 0; i < mWidget.size(); i++ )
+            {
+                if ( mWidget[ i ]->objectName() == "properties" )
+                {
+                    auto &tGroupBox = dynamic_cast< Moris_Group_Box & >( *mWidget[ i ] );
+                    tGroupBox.set_property_list( mPropertyNameList );
+                    break;
+                }
+            }
+        }
+    }
+
     void Moris_Tree_Widget_Item::add_elements( Parameter_List &aParameters )
     {
         /**
@@ -270,7 +292,7 @@ namespace moris
                     {
                         if ( iElements.first == "properties" )
                         {
-                            Moris_Group_Box *tGroupBox = new Moris_Group_Box( mScrollWidget, iElements.second );
+                            Moris_Group_Box *tGroupBox = new Moris_Group_Box( mScrollWidget, iElements.second, mPropertyNameList );
                             tGroupBox->setObjectName( QString::fromStdString( iElements.first ) );
                             mWidget.append( tGroupBox );
                             mFormLayout->addRow( QString::fromStdString( iElements.first ), mWidget[ tIndex + tCounter ] );
@@ -279,7 +301,7 @@ namespace moris
                                 // Cast by reference using dynamic_cast
                                 for ( uint it = 0; it < mWidget.size() - 1; it++ )
                                 {
-                                    if (mWidget[it]->objectName() == "constitutive_type")
+                                    if ( mWidget[ it ]->objectName() == "constitutive_type" )
                                     {
                                         auto &tComboBox    = dynamic_cast< Moris_Combo_Box    &>( *mWidget[ it ] );
                                         auto &tGroupWidget = dynamic_cast< Moris_Group_Box & >( *mWidget[ tIndex + tCounter ] );

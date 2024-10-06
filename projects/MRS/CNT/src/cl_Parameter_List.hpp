@@ -111,7 +111,6 @@ namespace moris
         typedef Parameter_Iterator< const std::map< std::string, Parameter >& > const_iterator;
 
       public:
-
         /**
          * Parameter list constructor
          *
@@ -154,9 +153,9 @@ namespace moris
         void insert(
                 const std::string&  aName,
                 T                   aDefaultValue,
-                Entry_Type          aExternalValidationType = Entry_Type::FREE,
-                std::string         aExternalParameterName = "",
-                Parameter_List_Type aExternalParameterListType = Parameter_List_Type::END_ENUM,
+                Entry_Type          aExternalValidationType     = Entry_Type::FREE,
+                std::string         aExternalParameterName      = "",
+                Parameter_List_Type aExternalParameterListType  = Parameter_List_Type::END_ENUM,
                 uint                aExternalParameterListIndex = 0 )
         {
             // Register new
@@ -248,7 +247,7 @@ namespace moris
                 const std::string& aName,
                 T                  aFirstValue,
                 T                  aSecondValue,
-                Arg_Types...       aMoreValues )
+                Arg_Types... aMoreValues )
         {
             // Delegate to private implementation overload, with lock on
             this->convert_and_set( aName, Vector< T >( { aFirstValue, aSecondValue, aMoreValues... } ), true, std::false_type() );
@@ -477,4 +476,4 @@ namespace moris
 
     //------------------------------------------------------------------------------
 
-}
+}    // namespace moris

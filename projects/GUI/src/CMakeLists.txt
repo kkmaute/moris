@@ -65,11 +65,13 @@ endforeach()
  
  # List executable dependencies
 set(MAIN_DEPENDENCIES
-    ${HMR}-lib
+    ${HMR}-lib	
     ${COM}-lib
     ${IOS}-lib
     ${GEN}-lib
     ${WRK}-lib
+    ${MTK}-lib
+    ${HMR}-lib
     ${MORIS_PETSC_LIBS}
     ${MORIS_BOOST_LIBS}
     ${MORIS_ACML_LAPACK_MKL_OPENBLAS_LIBS}
@@ -77,6 +79,7 @@ set(MAIN_DEPENDENCIES
     ${MORIS_SUPERLU_LIBS}
     ${MORIS_LDLIBS}
     ${MORIS_BASE_LIBS}
+    ${HMR}-lib
     )
 
 string(REPLACE ".cpp" "-${EXECUTABLE}" EXE_NAME ${PROJECT_SOURCES})

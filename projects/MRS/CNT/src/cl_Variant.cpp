@@ -236,7 +236,7 @@ namespace moris
             case PAIR:
             {
                 std::pair< std::string, std::string > tPair = std::get< std::pair< std::string, std::string > >( aVariant );
-                tStringStream << tPair.first << "," << tPair.second;
+                tStringStream << tPair.first << ";" << tPair.second;
                 break;
             }
             case VECTOR_UINT:

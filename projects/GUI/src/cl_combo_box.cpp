@@ -17,12 +17,19 @@ namespace moris
             addItem( QString::fromStdString( selection_option ) );
         }
 
-        if ( m_parameter.index() == variant_index<uint>() )
+        if ( m_parameter.index() == variant_index< uint >() )
         {
             setCurrentIndex( m_parameter.get_value< uint >() );
         }
         // Connect the currentIndexChanged(int) signal of QComboBox to the on_index_changed slot
-        connect( this, QOverload< int >::of( &QComboBox::currentIndexChanged ), this, &Moris_Combo_Box::on_index_changed );
+        if ( m_parameter.is_locked() )
+        {
+            setDisabled( true );
+        }
+        else
+        {
+            connect( this, QOverload< int >::of( &QComboBox::currentIndexChanged ), this, &Moris_Combo_Box::on_index_changed );
+        }
     }
 
     // Destructor for Moris_Combo_Box

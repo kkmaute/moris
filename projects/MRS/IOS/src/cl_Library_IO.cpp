@@ -364,22 +364,25 @@ namespace moris
 
             // get the number of sub-parameter lists that could be specified
             uint tMaxNumSubParamLists = get_number_of_sub_parameter_lists_in_module( tParamListType );
-
+            if ( tParamListType == Parameter_List_Type::FEM )
+            {
+                tMaxNumSubParamLists = 8;
+            }
             // temporary storage for the parameter lists, later addded to mParamterLists
             ModuleParameterList tParameterList;
-            tParameterList.resize( tMaxNumSubParamLists );
 
             // If there are no modules of this type, create a default parameter list
             if ( tCount == 0 )
             {
                 // Loop over all the sub-modules in this module and create the respective parameter lists with the defaults
-                for ( uint iSubModule = 0; iSubModule < tMaxNumSubParamLists; iSubModule++ )
-                {
-                    tParameterList( iSubModule ).add_parameter_list( create_parameter_list( tParamListType, iSubModule, 0 ) );
-                }
+                // for ( uint iSubModule = 0; iSubModule < tMaxNumSubParamLists; iSubModule++ )
+                // {
+                //     tParameterList( iSubModule ).push_back( create_parameter_list( tParamListType, iSubModule, 0 ) );
+                // }
                 mParameterLists( iParamListType ) = tParameterList;
                 continue;
             }
+            tParameterList.resize( tMaxNumSubParamLists );
 
             // get the root of the current Module parameter list
             std::string tModuleRoot = XML_PARAMETER_FILE_ROOT + "." + tModuleName;
@@ -404,10 +407,10 @@ namespace moris
                 // if the sub-parameter list is missing skip everything here after
                 if ( tSubParamListCount == 0 )
                 {
-                    if ( tOuterSubParamListName != "Geometries" && tOuterSubParamListName != "Algorithms" && tOuterSubParamListName != "Linear_Algorithm" )
-                    {
-                        tParameterList( iSubParamList ).add_parameter_list( create_parameter_list( tParamListType, iSubParamList, 0 ) );
-                    }
+                    // if ( tOuterSubParamListName != "Geometries" && tOuterSubParamListName != "Algorithms" && tOuterSubParamListName != "Linear_Algorithm" && tOuterSubParamListName != "Interface" )
+                    // {
+                    //     tParameterList( iSubParamList ).push_back( create_parameter_list( tParamListType, iSubParamList, 0 ) );
+                    // }
                     continue;
                 }
 
@@ -462,6 +465,8 @@ namespace moris
             }
             // adding the ModuleParameterList to the mParameterLists (which is a vector of ModuleParameterLists)
             mParameterLists( iParamListType ) = tParameterList;
+            // this->overwrite_and_add_parameters(mParameterLists(iParamListType),tParameterList);
+            MORIS_LOG( "Parameters for %s provided in .xml file.", convert_parameter_list_enum_to_string( (Parameter_List_Type)iParamListType ).c_str() );
         }
     }
 
@@ -839,15 +844,15 @@ namespace moris
                 tAlgorithm = tValues( std::distance( tKeys.begin(), it ) );
                 // Need to create cl_OPT_Enums and create the algorithms enum to check against that
                 // For now, just using the string with a else if statement
-                if ( tAlgorithm == "gcmma" )
+                if ( tAlgorithm.find( "gcmma" ) != std::string::npos )
                 {
                     tIndex = 0;
                 }
-                else if ( tAlgorithm == "lbfgs" )
+                else if ( tAlgorithm.find( "lbfgs" ) != std::string::npos )
                 {
                     tIndex = 1;
                 }
-                else if ( tAlgorithm == "sql" )
+                else if ( tAlgorithm.find( "sql" ) != std::string::npos )
                 {
                     tIndex = 2;
                 }
@@ -984,17 +989,18 @@ namespace moris
             {
                 if ( tFind != aKeys.end() )
                 {
-                    Vector< std::string >          tVec = string_to_vector< std::string >( aValues( std::distance( aKeys.begin(), tFind ) ) );
                     std::pair< std::string, std::string > tPair;
-                    if ( tVec.size() < 2 )
-                    {
-                        tPair = std::make_pair( "", "" );
-                    }
-                    else
-                    {
-                        tPair = std::make_pair( tVec( 0 ), tVec( 1 ) );
-                    }
-                    iElements.get_parameter().set_value( iElements.get_name(), tPair, false );
+                    // Everything before a ; is the key and everything after is the value of tPair
+                    // Remove any whitespaces or {}
+                    std::string tPairString = aValues( std::distance( aKeys.begin(), tFind ) );
+                    tPairString.erase( std::remove( tPairString.begin(), tPairString.end(), '{' ), tPairString.end() );
+                    tPairString.erase( std::remove( tPairString.begin(), tPairString.end(), '}' ), tPairString.end() );
+                    tPairString.erase( std::remove( tPairString.begin(), tPairString.end(), ' ' ), tPairString.end() );
+                    size_t tPos  = tPairString.find( ';' );
+                    tPair.first  = tPairString.substr( 0, tPos );
+                    tPair.second = tPairString.substr( tPos + 1 );
+
+                    iElements.second.set_value( iElements.first, tPair, false );
                 }
             }
             else if ( iElements.get_parameter().index() == variant_index< Vector< uint > >() )
@@ -1025,8 +1031,16 @@ namespace moris
             {
                 if ( tFind != aKeys.end() )
                 {
-                    Vector< std::string > tVec = string_to_vector< std::string >( aValues( std::distance( aKeys.begin(), tFind ) ) );
-                    iElements.get_parameter().set_value( iElements.get_name(), tVec, false );
+                    // Remove any whitespaces or {}
+                    std::string tString = aValues( std::distance( aKeys.begin(), tFind ) );
+                    tString.erase( std::remove( tString.begin(), tString.end(), '{' ), tString.end() );
+                    tString.erase( std::remove( tString.begin(), tString.end(), '}' ), tString.end() );
+                    tString.erase( std::remove( tString.begin(), tString.end(), ' ' ), tString.end() );
+
+                    // Call string_to_cell after erasing all the {} and whitespaces
+                    moris::Vector< std::string > tVec = moris::string_to_cell< std::string >( tString );
+
+                    iElements.second.set_value( iElements.first, tVec, false );
                 }
             }
             else
@@ -1249,34 +1263,7 @@ namespace moris
                 {
                     case 0:
 
-                        switch ( aSubChild )
-                        {
-                            case 0:
-                                return prm::create_linear_algorithm_parameter_list_aztec();
-
-                            case 1:
-                                return prm::create_linear_algorithm_parameter_list_amesos();
-
-                            case 2:
-                                return prm::create_linear_algorithm_parameter_list_belos();
-
-                            case 3:
-                                return prm::create_linear_algorithm_parameter_list_petsc();
-
-                            case 4:
-                                return prm::create_eigen_algorithm_parameter_list();
-
-                            case 5:
-                                // Need to add ML here
-                                return prm::create_linear_algorithm_parameter_list_belos();
-
-                            case 6:
-                                return prm::create_slepc_algorithm_parameter_list();
-
-                            default:
-                                break;
-                        }
-                        break;
+                        tParameterList = ( moris::prm::create_linear_algorithm_parameter_list( (sol::SolverType)aSubChild ) );
 
                     case 1:
                         return prm::create_linear_solver_parameter_list();
@@ -1298,7 +1285,8 @@ namespace moris
 
                     case 7:
                         // Need to add Preconditioners
-                        return prm::create_material_model_parameter_list();
+                        tParameterList = ( moris::prm::create_preconditioner_parameter_list( (moris::sol::PreconditionerType)aSubChild ) );
+                        break;
 
                     default:
                         break;
@@ -1323,19 +1311,23 @@ namespace moris
                 {
                     case 0:
                     {
-                        return prm::create_moris_general_parameter_list();
+                        tParameterList = ( moris::prm::create_moris_general_parameter_list() );
+                        moris::prm::create_remeshing_parameterlist( tParameterList );
+                        tParameterList.set( "mode", "none" );
                     }
                     break;
 
                     case 1:
                     {
-                        return prm::create_moris_general_parameter_list();
+                        tParameterList = ( moris::prm::create_moris_general_parameter_list() );
+                        moris::prm::create_refinement_parameterlist( tParameterList );
                     }
                     break;
 
                     case 2:
                     {
-                        return prm::create_moris_general_parameter_list();
+                        tParameterList = ( moris::prm::create_moris_general_parameter_list() );
+                        moris::prm::create_mapping_parameterlist( tParameterList );
                     }
                     break;
 

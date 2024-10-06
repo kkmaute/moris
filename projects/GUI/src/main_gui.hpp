@@ -104,6 +104,8 @@ namespace moris
 
         // Vector< Vector< Vector< Parameter_List > > > & mGUIParameterLists;
 
+        QStringList mPropertyNameList;
+
       public:
         // Add argument that reads a parameter list
 
@@ -113,6 +115,8 @@ namespace moris
          * @note This constructor initializes the GUI, sets up the layout, the layout and elements related objects and connects the signals and slots
          */
         Moris_Gui( QWidget *parent = nullptr );
+
+        void add_property_name( const QString &aText, uint tPropListSize );
 
       private slots:
 
@@ -146,8 +150,7 @@ namespace moris
          */
 
         void write_to_xml();
-
-        //--------------------------------------------------------------------------------------------------------------
+        
 
       private:
         //--------------------------------------------------------------------------------------------------------------
@@ -177,6 +180,8 @@ namespace moris
          * @note Small function to add projects on construction; Handles form formatting, renaming and eliminates redundant code
          */ 
         void add_project( uint aRoot, uint aChild, uint aSubChild );
+
+        void update_tree_widget_name( Moris_Tree_Widget_Item *aItem, const QString &aText );
     };
 
 

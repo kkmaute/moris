@@ -17,7 +17,14 @@ namespace moris
         addItem( "false" );
 
         // Connect the currentIndexChanged(int) signal of QComboBox to the on_index_changed slot
-        connect( this, QOverload< int >::of( &QComboBox::currentIndexChanged ), this, &Moris_Bool_Combo_Box::on_index_changed );
+        if ( m_Parameter.is_locked() )
+        {
+            setDisabled( true );
+        }
+        else
+        {
+            connect( this, QOverload< int >::of( &QComboBox::currentIndexChanged ), this, &Moris_Bool_Combo_Box::on_index_changed );
+        }
     }
 
     // Destructor for Moris_Bool_Combo_Box

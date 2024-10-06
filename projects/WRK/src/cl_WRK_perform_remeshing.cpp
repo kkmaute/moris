@@ -53,6 +53,8 @@ namespace moris::wrk
         tModeMap[ "ab_initio" ]         = 0;
         tModeMap[ "based_on_previous" ] = 1;
         tModeMap[ "advanced" ]          = 2;
+        //Adding none mode option to enable reading empty parameter list from xml file
+        tModeMap[ "none" ] = 3;
 
         MORIS_ERROR( tModeMap.key_exists( mParameters.mMode ),
                 "Remeshing_Mini_Performer::Remeshing_Mini_Performer(), Mode name does not exist" );

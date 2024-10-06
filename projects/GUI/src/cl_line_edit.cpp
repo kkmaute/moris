@@ -23,7 +23,14 @@ namespace moris
         // If parameter is not null, set the initial text from the parameter value
 
         // Connect the textChanged signal of QLineEdit to the onTextChanged slot
-        connect( this, &QLineEdit::textChanged, this, &Moris_Line_Edit::onTextChanged );
+        if ( mParameter.is_locked() )
+        {
+            setReadOnly( true );
+        }
+        else
+        {
+            connect( this, &QLineEdit::textChanged, this, &Moris_Line_Edit::onTextChanged );
+        }
     }
 
     // Destructor for Moris_Line_Edit
@@ -60,7 +67,7 @@ namespace moris
         }
         else if ( mParameter.index() == variant_index< std::pair< std::string, std::string > >() )
         {
-            Vector< std::string >          tVec  = string_to_cell< std::string >( new_text.toStdString() );
+            Vector< std::string >                 tVec  = string_to_cell< std::string >( new_text.toStdString() );
             std::pair< std::string, std::string > tPair = std::make_pair( tVec( 0 ), tVec( 1 ) );
             mParameter.set_value( objectName().toStdString(), tPair, false );
         }
@@ -86,8 +93,9 @@ namespace moris
         }
         else
         {
-            Vector< real > tVec             = string_to_cell< real >( new_text.toStdString() );
-            Design_Variable       tDesign_Variable = Design_Variable( tVec( 0 ), tVec( 1 ), tVec( 2 ) );
+            // Geometry center_x variable spazzes out when empty
+            Vector< real >  tVec             = string_to_cell< real >( new_text.toStdString() );
+            Design_Variable tDesign_Variable = Design_Variable( tVec( 0 ) );
             mParameter.set_value( objectName().toStdString(), tDesign_Variable, false );
         }
 

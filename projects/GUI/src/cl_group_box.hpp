@@ -34,28 +34,40 @@ namespace moris
         // Inputs:
         // - a_parent: Pointer to the parent widget (default is nullptr).
         // - a_param: Reference to a Parameter object to be linked with this widget.
-        explicit Moris_Group_Box( QWidget *a_parent, Parameter &a_param );
+        explicit Moris_Group_Box( QWidget *a_parent, Parameter &a_param, QStringList &a_options );
 
         // Public member variables
-        std::map < std::string, QLineEdit* > mWidget;
-        QFormLayout *mFormLayout = new QFormLayout;
+        std::map< std::string, QComboBox * > mWidget;
+        QFormLayout                         *mFormLayout = new QFormLayout;
+
+        void set_property_list( QStringList &a_options )
+        {
+            m_options = a_options;
+            for ( auto it = mWidget.begin(); it != mWidget.end(); ++it )
+            {
+                it->second->clear();
+                it->second->addItems( m_options );
+            }
+        }
 
       public slots:
 
         // Slot to handle text changes in the line edit
         // Inputs:
         // - a_text: New text entered in the line edit.
-        void on_line_edit_text_changed( const QString &a_text );
+        // void on_line_edit_text_changed( const QString &a_text );
 
         void on_combo_box_selection_changed( const int a_index );
-        
+
+        void on_property_selection_changed( const int a_index );
+
 
         // Slot to set the associated Parameter with the combined value of the combo box and line edit
-        //void set_parameter();
+        // void set_parameter();
 
       private:
-        Parameter &m_parameter;    // Reference to the Parameter object
+        Parameter   &m_parameter;    // Reference to the Parameter object
+        QStringList &m_options;      // List of options for the combo box
     };
 
 }    // namespace moris
-

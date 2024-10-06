@@ -85,14 +85,14 @@ namespace moris::wrk
 
         if ( !tMORISParameterList.empty() )
         {
-            if ( !tMORISParameterList( 0 ).empty() )
+            if ( !tMORISParameterList( 0 ).empty() and tMORISParameterList(0)(0).get<std::string>("mode") != "none" )
             {
                 // create re-meshing performer - will be used for HMR mesh
                 mPerformerManager->mRemeshingMiniPerformer( 0 ) =
                         std::make_shared< wrk::Remeshing_Mini_Performer >( tMORISParameterList( 0 )( 0 ), mPerformerManager->mLibrary );
             }
 
-            if ( !tMORISParameterList( 2 ).empty() )
+            if ( !tMORISParameterList( 2 ).empty() and tMORISParameterList(0)(0).get<std::string>("mode") != "none" )
             {
                 // allocate size
                 mPerformerManager->mReinitializePerformer.resize( 1 );

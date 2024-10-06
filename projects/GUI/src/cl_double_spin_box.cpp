@@ -14,7 +14,14 @@ namespace moris
         setRange( -MORIS_REAL_MAX, MORIS_REAL_MAX );
         setValue( m_parameter.get_value< real >() );
         // Connect the valueChanged(double) signal of QDoubleSpinBox to the on_value_changed slot
-        connect( this, QOverload< double >::of( &QDoubleSpinBox::valueChanged ), this, &Moris_Double_Spin_Box::on_value_changed );
+        if ( m_parameter.is_locked() )
+        {
+            setReadOnly( true );
+        }
+        else
+        {
+            connect( this, QOverload< double >::of( &QDoubleSpinBox::valueChanged ), this, &Moris_Double_Spin_Box::on_value_changed );
+        }
     }
 
     // Destructor for Moris_Double_Spin_Box

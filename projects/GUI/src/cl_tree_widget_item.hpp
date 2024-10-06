@@ -7,6 +7,7 @@
 #include <QLineEdit>
 #include <QComboBox>
 #include <QMessageBox>
+#include <QStringList>
 
 #include "cl_line_edit.hpp"
 #include "cl_combo_box.hpp"
@@ -202,6 +203,16 @@ namespace moris
         void set_form_visible( bool aVisible );
 
         /**
+         * function to get the list of widgets (mWidget) in the form layout by reference
+         * @param NONE
+         * @return QList< QWidget* >&
+         */
+        QList< QWidget * > &getWidget();
+
+        // set mPropertyNameList by reference
+        void setPropertyNameList( QStringList &aPropertyNameList );
+
+        /**
          * @brief Function to add elements to the form
          * @param QList< QStringList > aParameters
          * @return NONE
@@ -262,11 +273,13 @@ namespace moris
          *
          */
         QList< QWidget * > mWidget;
-        //std::map < std::string, QWidget* > mWidget;
+        // std::map < std::string, QWidget* > mWidget;
 
-        QComboBox         *mComboBox = new QComboBox();
+        QComboBox *mComboBox = new QComboBox();
 
         QList< uint > mIndex;
+
+        QStringList mPropertyNameList;
     };
 
 }    // namespace moris

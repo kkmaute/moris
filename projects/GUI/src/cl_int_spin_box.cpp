@@ -24,7 +24,14 @@ namespace moris
             setValue( m_parameter.get_value< sint >() );
         }
         // Connect the valueChanged(int) signal of QSpinBox to the on_value_changed slot
-        connect( this, QOverload< int >::of( &QSpinBox::valueChanged ), this, &Moris_Int_Spin_Box::on_value_changed );
+        if ( m_parameter.is_locked() )
+        {
+            setReadOnly( true );
+        }
+        else
+        {
+            connect( this, QOverload< int >::of( &QSpinBox::valueChanged ), this, &Moris_Int_Spin_Box::on_value_changed );
+        }
     }
 
     // Destructor for Moris_Int_Spin_Box.
