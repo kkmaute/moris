@@ -57,6 +57,13 @@ namespace moris
         void add_parameter_list( const Parameter_List& aParameterList );
 
         /**
+         * Erases the parameter list at the given index.
+         *
+         * @param aParameterListIndex Index of the parameter list
+         */
+        void erase( uint aParameterListIndex );
+
+        /**
          * Appends another submodule parameter list to this submodule parameter list.
          *
          * @param aSubmoduleToAppend Submodule parameter lists to append

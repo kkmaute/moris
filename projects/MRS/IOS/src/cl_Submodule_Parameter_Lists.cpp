@@ -49,6 +49,13 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
 
+    void Submodule_Parameter_Lists::erase( uint aParameterListIndex )
+    {
+        mParameterLists.erase( aParameterListIndex );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     void Submodule_Parameter_Lists::append( const Submodule_Parameter_Lists& aSubmoduleToAppend )
     {
         mParameterLists.append( aSubmoduleToAppend.mParameterLists );
