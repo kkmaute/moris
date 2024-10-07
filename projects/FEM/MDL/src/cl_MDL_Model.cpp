@@ -59,7 +59,7 @@ namespace moris::mdl
             , mBSplineIndex( aBSplineIndex )
             , mUseMultigrid( aUseMultigrid )
     {
-        Tracer tTracer( "FEM", "Model", "Create" );
+        Tracer tConstructorTracer( "FEM", "Model", "Create" );
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // STEP 0: initialize

@@ -19,9 +19,6 @@ namespace moris
     Library_IO_Standard::Library_IO_Standard()
             : Library_IO()    // initialize base class data as usual
     {
-        // set the type of this library
-        mLibraryType = Library_Type::STANDARD;
-
         // list of supported parameter list types
         mSupportedParamListTypes = {
             Parameter_List_Type::OPT,
@@ -60,10 +57,7 @@ namespace moris
             Parameter_List_Type tParamListType = (Parameter_List_Type)( iModule );
 
             // get access to this module's parameter list
-            ModuleParameterList tModuleParamList = mParameterLists( iModule );
-
-            // most modules must use a 1x1 parameter list, so resize here to this default
-            tModuleParamList.resize( 1 );
+            Module_Parameter_Lists tModuleParamList = mParameterLists( iModule );
 
             // for each parameter list type, initialize it with a default
             switch ( tParamListType )
@@ -85,17 +79,14 @@ namespace moris
                     break;
 
                 case Parameter_List_Type::GEN:
-                    tModuleParamList.resize( 3 );
                     tModuleParamList( 0 ).add_parameter_list( prm::create_gen_parameter_list() );
                     break;
 
                 case Parameter_List_Type::FEM:
-                    tModuleParamList.resize( 9 );
                     tModuleParamList( 5 ).add_parameter_list( prm::create_computation_parameter_list() );
                     break;
 
                 case Parameter_List_Type::SOL:
-                    tModuleParamList.resize( 8 );
                     tModuleParamList( 0 ).add_parameter_list( prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
                     tModuleParamList( 1 ).add_parameter_list( prm::create_linear_solver_parameter_list() );
                     tModuleParamList( 2 ).add_parameter_list( prm::create_nonlinear_algorithm_parameter_list() );
@@ -125,7 +116,6 @@ namespace moris
                     break;
 
                 case Parameter_List_Type::MORISGENERAL:
-                    tModuleParamList.resize( 3 );
                     break;
 
                 case Parameter_List_Type::END_ENUM:

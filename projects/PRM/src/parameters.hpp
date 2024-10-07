@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_parameters
-#define SRC_parameters
+#pragma once
 
 // include all parameter function headers defined in this directory
 #include "fn_PRM_FEM_Parameters.hpp"
@@ -24,5 +23,4 @@
 #include "fn_PRM_VIS_Parameters.hpp"
 #include "fn_PRM_WRK_Parameters.hpp"
 #include "fn_PRM_XTK_Parameters.hpp"
-
-#endif /* parameters.hpp */
+#include "cl_Module_Parameter_Lists.hpp"

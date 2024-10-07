@@ -190,7 +190,7 @@ int fn_WRK_Workflow_Main_Interface( int argc, char *argv[] )
 #endif
 
         // load the OPT parameter list
-        ModuleParameterList tOPTParameterList = tLibrary->get_parameters_for_module( Parameter_List_Type::OPT );
+        Module_Parameter_Lists tOPTParameterList = tLibrary->get_parameters_for_module( Parameter_List_Type::OPT );
 
         // Create performer manager
         wrk::Performer_Manager tPerformerManager( tLibrary );

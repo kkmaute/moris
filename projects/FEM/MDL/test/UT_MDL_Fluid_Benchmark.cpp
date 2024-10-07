@@ -466,7 +466,7 @@ namespace moris
 
             // create linear solver and algorithm
             // --------------------------------------------------------------------------------------
-            Vector< Submodule_Parameter_Lists > tSOLParameterlist( 8 );
+            Module_Parameter_Lists tSOLParameterlist( Parameter_List_Type::SOL );;
 
             tSOLParameterlist( 0 ).add_parameter_list( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
 
@@ -823,7 +823,7 @@ namespace moris
 
             // create linear solver and algorithm
             // --------------------------------------------------------------------------------------
-            Vector< Submodule_Parameter_Lists > tSOLParameterlist( 8 );
+            Module_Parameter_Lists tSOLParameterlist( Parameter_List_Type::SOL );;
 
             tSOLParameterlist( 0 ).add_parameter_list( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
 
@@ -2516,7 +2516,7 @@ namespace moris
 
             // create linear solver and algorithm
             // --------------------------------------------------------------------------------------
-            Vector< Submodule_Parameter_Lists > tSOLParameterlist( 8 );
+            Module_Parameter_Lists tSOLParameterlist( Parameter_List_Type::SOL );;
 
             tSOLParameterlist( 0 ).add_parameter_list( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
 

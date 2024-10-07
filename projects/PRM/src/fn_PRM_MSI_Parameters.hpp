@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "cl_Submodule_Parameter_Lists.hpp"
+#include "cl_Parameter_List.hpp"
 
 namespace moris::prm
 {

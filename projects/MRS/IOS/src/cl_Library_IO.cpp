@@ -20,7 +20,7 @@ namespace moris
     //------------------------------------------------------------------------------------------------------------------
 
     // Declare helper function for reading a module's parameter lists
-    Vector< Submodule_Parameter_Lists > read_module( uint aRoot );
+    Module_Parameter_Lists read_module( uint aRoot );
 
     //------------------------------------------------------------------------------------------------------------------
 
@@ -32,12 +32,13 @@ namespace moris
             , mXmlReader( std::make_unique< XML_Parser >() )
             , mXmlParserIsInitialized( false )
             , mLibraryIsFinalized( false )
-            , mLibraryType( Library_Type::UNDEFINED )                       // base class library-type is undefined
-            , mParameterLists( (uint)( Parameter_List_Type::END_ENUM ) )    // list of module parameter lists sized to the number of modules that exist
             , mXmlWriter( std::make_unique< XML_Parser >() )
             , mSupportedParamListTypes()
     {
-        // do nothing else
+        for ( uint iTypeIndex = 0; iTypeIndex < static_cast< uint >( Parameter_List_Type::END_ENUM ); iTypeIndex++ )
+        {
+            mParameterLists.push_back( Module_Parameter_Lists( static_cast< Parameter_List_Type >( iTypeIndex ) ) );
+        }
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -107,8 +108,8 @@ namespace moris
 
     void
     Library_IO::overwrite_and_add_parameters(
-            ModuleParameterList& aParamListToModify,
-            ModuleParameterList& aParamListToAdd )
+            Module_Parameter_Lists& aParamListToModify,
+            Module_Parameter_Lists& aParamListToAdd )
     {
         // get the sizes of the different parameter lists
         uint tOuterSizeToMod = aParamListToModify.size();
@@ -117,7 +118,9 @@ namespace moris
         // resize the outer cell, if the parameter list to add is longer
         if ( tOuterSizeToAdd > tOuterSizeToMod )
         {
-            aParamListToModify.resize( tOuterSizeToAdd );
+            // TODO if we want to handle this again, give to the module parameter list for copying
+            MORIS_ERROR( false, "Parameter lists are not the same size" );
+            //aParamListToModify.resize( tOuterSizeToAdd );
         }
 
         // resize the inner cells, if the parameter lists to add are longer than the original ones
@@ -300,8 +303,8 @@ namespace moris
             std::string tParamListFuncName = get_name_for_parameter_list_type( tParamListType );
 
             // see if a function for this parameter list function exists in the provide input file
-            Parameter_Function tUserDefinedParmListFunc = reinterpret_cast< Parameter_Function >( dlsym( mLibraryHandle, tParamListFuncName.c_str() ) );
-            bool               tParamListFuncExists     = ( tUserDefinedParmListFunc != nullptr );
+            Parameter_Function tUserDefinedParamListFunc = reinterpret_cast< Parameter_Function >( dlsym( mLibraryHandle, tParamListFuncName.c_str() ) );
+            bool               tParamListFuncExists     = ( tUserDefinedParamListFunc != nullptr );
 
             // if the parameter list function exists, use it to overwrite and add to the standard parameters
             if ( tParamListFuncExists )
@@ -316,18 +319,13 @@ namespace moris
                 }
                 else    // otherwise, if parameter list is supported, overwrite and add parameters to standard parameters
                 {
-                    // create a copy of the parameter list the .so file provided
-                    ModuleParameterList tUserDefinedParamList;
-                    tUserDefinedParmListFunc( tUserDefinedParamList );
-
-                    // get the parameter list to the currently
-                    ModuleParameterList& tCurrentModuleStandardParamList = mParameterLists( iParamListType );
-
-                    // supersede standard parameters with user-defined parameters
-                    this->overwrite_and_add_parameters( tCurrentModuleStandardParamList, tUserDefinedParamList );
+                    tUserDefinedParamListFunc( mParameterLists( iParamListType ) );
                 }
             }
-
+            else
+            {
+                mParameterLists( iParamListType ).clear();
+            }
         }    // end for: parameter list types that could be specified
     }
 
@@ -366,8 +364,7 @@ namespace moris
             uint tMaxNumSubParamLists = get_number_of_sub_parameter_lists_in_module( tParamListType );
 
             // temporary storage for the parameter lists, later addded to mParamterLists
-            ModuleParameterList tParameterList;
-            tParameterList.resize( tMaxNumSubParamLists );
+            Module_Parameter_Lists tParameterList( tParamListType );
 
             // If there are no modules of this type, create a default parameter list
             if ( tCount == 0 )
@@ -453,14 +450,14 @@ namespace moris
                 }
                 else
                 {
-                    // If there is no inner sub-parameter list, just adding the set parameter list from the xml file to the ModuleParameterList
+                    // If there is no inner sub-parameter list, just adding the set parameter list from the xml file to the Module_Parameter_Lists
                     // mXmlReader->get_keys_from_subtree( tInnerSubParamListRoot, tInnerSubParamListName, 0, tKeys, tValues );
                     mXmlReader->get_keys_from_subtree( tModuleRoot, tOuterSubParamListName, 0, tKeys, tValues );
 
                     tParameterList( iSubParamList ).add_parameter_list( create_and_set_parameter_list( tParamListType, iSubParamList, 0, tKeys, tValues ) );
                 }
             }
-            // adding the ModuleParameterList to the mParameterLists (which is a vector of ModuleParameterLists)
+            // adding the Module_Parameter_Lists to the mParameterLists (which is a vector of Module_Parameter_Listss)
             mParameterLists( iParamListType ) = tParameterList;
         }
     }
@@ -469,7 +466,7 @@ namespace moris
 
     void
     Library_IO::create_new_module_parameterlist() {
-        Vector< ModuleParameterList > tParameterList;
+        Vector< Module_Parameter_Lists > tParameterList;
         for ( uint iParamListType = 0; iParamListType < (uint)( Parameter_List_Type::END_ENUM ); iParamListType++ )
         {
             mParameterLists( iParamListType ) = read_module( iParamListType );
@@ -513,7 +510,7 @@ namespace moris
         uint tModuleIndex = (uint)( aModule );
 
         // get this module's parameter list
-        ModuleParameterList& tModuleParamList    = mParameterLists( tModuleIndex );
+        Module_Parameter_Lists& tModuleParamList    = mParameterLists( tModuleIndex );
         uint                 tOuterParamListSize = tModuleParamList.size();
 
         // go through the individual sub-parameter lists and write them to the file
@@ -601,7 +598,7 @@ namespace moris
 
     //------------------------------------------------------------------------------------------------------------------
 
-    ModuleParameterList
+    Module_Parameter_Lists
     Library_IO::get_parameters_for_module( Parameter_List_Type aParamListType ) const
     {
         // check that the parameter lists are complete
@@ -1243,8 +1240,7 @@ namespace moris
                 break;
 
             case Parameter_List_Type::SOL:
-                //            tParameterList.resize( 8 );
-
+                //
                 switch ( aChild )
                 {
                     case 0:
@@ -1352,11 +1348,10 @@ namespace moris
         return Parameter_List( "" );
     }
 
-    Vector< Submodule_Parameter_Lists > read_module( uint aRoot )
+    Module_Parameter_Lists read_module( uint aRoot )
     {
         // Create the 3d vector
-        Vector< Submodule_Parameter_Lists > tParameterList;
-        tParameterList.resize( (uint)( Parameter_List_Type::END_ENUM ) );
+        Module_Parameter_Lists tParameterList( static_cast< Parameter_List_Type >( aRoot ) );
         for ( uint iChild = 0; iChild < get_number_of_sub_parameter_lists_in_module( (Parameter_List_Type)aRoot ); iChild++ )
         {
             if ( ( aRoot == (uint)( Parameter_List_Type::OPT ) && iChild == (uint)( OPT_SubModule::ALGORITHMS ) )

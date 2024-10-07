@@ -73,8 +73,7 @@ namespace moris
         for ( moris::uint iOrder = 1; iOrder < 2; iOrder++ )
         {
 
-            Vector< Submodule_Parameter_Lists > tParameterlist;
-            tParameterlist.resize( 1 );
+            Module_Parameter_Lists tParameterlist( Parameter_List_Type::HMR );
             tParameterlist( 0 ).add_parameter_list( prm::create_hmr_parameter_list() );
             tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", "6,6,6" );
             tParameterlist( 0 )( 0 ).set( "domain_dimensions", "2.0,2.0,2.0" );

@@ -21,7 +21,7 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_MTK_Enums.hpp"
-#include "cl_Submodule_Parameter_Lists.hpp"
+#include "cl_Module_Parameter_Lists.hpp"
 
 namespace moris
 {
@@ -117,10 +117,10 @@ namespace moris
 
                 MSI::Design_Variable_Interface * mDesignVariableInterface = nullptr;
 
-                Vector< Submodule_Parameter_Lists > mFEMParameterList;
-                Vector< Submodule_Parameter_Lists > mMSIParameterList;
-                Vector< Submodule_Parameter_Lists > mSOLParameterList;
-                Vector< Submodule_Parameter_Lists > mVISParameterList;
+                Module_Parameter_Lists mFEMParameterList = Module_Parameter_Lists( Parameter_List_Type::FEM );
+                Module_Parameter_Lists mMSIParameterList = Module_Parameter_Lists( Parameter_List_Type::MSI );
+                Module_Parameter_Lists mSOLParameterList = Module_Parameter_Lists( Parameter_List_Type::SOL );
+                Module_Parameter_Lists mVISParameterList = Module_Parameter_Lists( Parameter_List_Type::VIS );
 
                 //------------------------------------------------------------------------------
             public:

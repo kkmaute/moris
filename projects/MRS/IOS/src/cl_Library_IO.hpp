@@ -19,21 +19,9 @@
 #include "assert.hpp"
 
 #include "cl_Library_Enums.hpp"
-#include "cl_Submodule_Parameter_Lists.hpp"
 #include "cl_Vector.hpp"
 
-#include "fn_PRM_FEM_Parameters.hpp"
-#include "fn_PRM_MSI_Parameters.hpp"
-#include "fn_PRM_SOL_Parameters.hpp"
-#include "fn_PRM_VIS_Parameters.hpp"
-#include "fn_PRM_HMR_Parameters.hpp"
-#include "fn_PRM_GEN_Parameters.hpp"
-#include "fn_PRM_XTK_Parameters.hpp"
-#include "fn_PRM_OPT_Parameters.hpp"
-#include "fn_PRM_MIG_Parameters.hpp"
-#include "fn_PRM_STK_Parameters.hpp"
-#include "fn_PRM_WRK_Parameters.hpp"
-#include "fn_PRM_MORIS_GENERAL_Parameters.hpp"
+#include "parameters.hpp"
 
 
 namespace moris
@@ -43,11 +31,8 @@ namespace moris
     // Forward declare the XML-parser
     class XML_Parser;
 
-    // Define what a module parameter list is
-    typedef Vector< Submodule_Parameter_Lists > ModuleParameterList;
-
     // Define what a parameter function is
-    typedef void ( *Parameter_Function )( ModuleParameterList& aParameterList );
+    typedef void ( *Parameter_Function )( Module_Parameter_Lists& aParameterList );
 
     // -----------------------------------------------------------------------------
 
@@ -74,11 +59,8 @@ namespace moris
         // flag indicating whether the library is complete and initialized
         bool mLibraryIsFinalized;
 
-        // Library type
-        Library_Type mLibraryType;
-
         // storage for the parameters for the various Modules
-        Vector< ModuleParameterList > mParameterLists;
+        Vector< Module_Parameter_Lists > mParameterLists;
 
         // XML parser for output
         std::unique_ptr< XML_Parser > mXmlWriter;
@@ -122,8 +104,8 @@ namespace moris
          */
         void
         overwrite_and_add_parameters(
-                ModuleParameterList& aParamListToModify,
-                ModuleParameterList& aParamsToAdd );
+                Module_Parameter_Lists& aParamListToModify,
+                Module_Parameter_Lists& aParamsToAdd );
 
       public:
         // -----------------------------------------------------------------------------
@@ -153,7 +135,7 @@ namespace moris
 
         // -----------------------------------------------------------------------------
 
-        Vector< Vector < Submodule_Parameter_Lists > >&
+        Vector< Module_Parameter_Lists >&
         get_parameter_lists()
         {
             return mParameterLists;
@@ -238,9 +220,9 @@ namespace moris
          * @brief Get the parameters for module object
          *
          * @param aParamListType
-         * @return ModuleParameterList
+         * @return Module_Parameter_Lists
          */
-        ModuleParameterList
+        Module_Parameter_Lists
         get_parameters_for_module( Parameter_List_Type aParamListType ) const;
 
         // -----------------------------------------------------------------------------
