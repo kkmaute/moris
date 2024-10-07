@@ -18,6 +18,9 @@
 #include "fn_trans.hpp"
 #include "op_elemwise_mult.hpp"
 
+
+// BRENDAN FORMAT
+
 namespace moris::mtk
 {
     //--------------------------------------------------------------------------------------------------------------
@@ -467,7 +470,7 @@ namespace moris::mtk
         tRay( 0 ) = ArborX::Experimental::Ray{ arborx::coordinate_to_arborx_point< ArborX::Point >( aPoint ), arborx::coordinate_to_arborx_point< ArborX::Experimental::Vector >( aDirection ) };
 
         // Build the query rays
-        arborx::QueryRays< MemorySpace > tQueryRays{ tRay };
+        arborx::QueryRays< MemorySpace > tQueryRays{ tRay, tCellIndices };
 
         // Initialize the results and offsets
         Kokkos::View< arborx::QueryResult*, MemorySpace > tResults( "values", 0 );
@@ -484,6 +487,42 @@ namespace moris::mtk
         }
 
         return tFacetIndices;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void
+    Surface_Mesh::write_to_file( std::string aFilePath )
+    {
+        // Open file for writing
+        std::ofstream tFile;
+        tFile.open( aFilePath );
+
+        // Write vertices
+        for ( uint iVertex = 0; iVertex < this->get_number_of_vertices(); iVertex++ )
+        {
+            tFile << "v ";
+            for ( uint iDimension = 0; iDimension < this->get_spatial_dimension(); iDimension++ )
+            {
+                tFile << mVertexCoordinates( iDimension, iVertex) << " ";
+            }
+            tFile << std::endl;
+        }
+
+        // Write facets
+        for ( uint iFacet = 0; iFacet < this->get_number_of_facets(); iFacet++ )
+        {
+            tFile << "f ";
+            Vector< moris_index > tIndices = this->get_facets_vertex_indices( iFacet );
+            for ( uint iDimension = 0; iDimension < this->get_spatial_dimension(); iDimension++ )
+            {
+                tFile << tIndices( iDimension ) + 1 << " ";
+            }
+            tFile << std::endl;
+        }
+
+        // close file
+        tFile.close();
     }
 
     //--------------------------------------------------------------------------------------------------------------

@@ -20,6 +20,8 @@
 #include "op_equal_equal.hpp"
 #include "fn_all_true.hpp"
 
+// BRENDAN format
+
 namespace moris::sdf
 {
     //-------------------------------------------------------------------------------
@@ -253,5 +255,4 @@ namespace moris::sdf
                 && std::abs( mHesse - aRHS.get_hesse() ) < mIntersectionTolerance
                 && this->get_id() == aRHS.get_id();
         }
-    } /* namespace sdf */
-} /* namespace moris */
+} /* namespace moris::sdf */

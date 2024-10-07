@@ -297,7 +297,7 @@ namespace moris::gen
          *
          * @param aAllUpdatedDesigns All designs (this design will take fields from the ones it needs)
          */
-        void update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedDesigns ) override;
+        void update_dependencies( const Vector< std::shared_ptr< Design > >& aAllUpdatedDesigns ) override;
 
         /**
          * Gets the center of the facet at the given local index

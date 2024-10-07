@@ -8,13 +8,13 @@
  *
  */
 
-#include "fn_sort.hpp"
-#include "fn_trans.hpp"
+// #include "fn_sort.hpp"
+// #include "fn_trans.hpp"
 
-#include "fn_SDF_Raycast.hpp"
+// #include "fn_SDF_Raycast.hpp"
 
-namespace moris::sdf
-{
+// namespace moris::sdf
+// {
     // Object_Region
     // raycast_point(
     //         mtk::Surface_Mesh& aSurfaceMesh,
@@ -924,4 +924,4 @@ namespace moris::sdf
     // }
     // -----------------------------------------------------------------------------
 
-}    // namespace moris::sdf
+// }    // namespace moris::sdf

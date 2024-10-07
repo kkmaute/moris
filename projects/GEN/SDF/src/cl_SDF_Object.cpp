@@ -341,42 +341,6 @@ namespace moris::sdf
 
     //-------------------------------------------------------------------------------
 
-    void
-    Object::write_to_file( std::string aFilePath )
-    {
-        // Open file for writing
-        std::ofstream tFile;
-        tFile.open( aFilePath );
-
-        // Write vertices
-        for ( auto iVertex : mVertices )
-        {
-            tFile << "v ";
-            for ( uint iDimension = 0; iDimension < this->get_spatial_dimension(); iDimension++ )
-            {
-                tFile << iVertex->get_coord( iDimension ) << " ";
-            }
-            tFile << std::endl;
-        }
-
-        // Write facets
-        for ( auto iFacet : mFacets )
-        {
-            tFile << "f ";
-            Matrix< IdMat > tIndices = iFacet->get_vertex_inds();
-            for ( uint iDimension = 0; iDimension < this->get_spatial_dimension(); iDimension++ )
-            {
-                tFile << tIndices( iDimension ) + 1 << " ";
-            }
-            tFile << std::endl;
-        }
-
-        // close file
-        tFile.close();
-    }
-
-    //-------------------------------------------------------------------------------
-
     Matrix< IndexMat >
     Object::get_nodes_connected_to_element_loc_inds( moris_index aElementIndex ) const
     {

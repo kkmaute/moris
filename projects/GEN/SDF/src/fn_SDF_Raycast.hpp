@@ -8,19 +8,19 @@
  *
  */
 
-#pragma once
+// #pragma once
 
-#include <fstream>
+// #include <fstream>
 
-#include "cl_Matrix.hpp"
-#include "linalg_typedefs.hpp"
-#include "moris_typedefs.hpp"
-#include "SDF_Tools.hpp"
+// #include "cl_Matrix.hpp"
+// #include "linalg_typedefs.hpp"
+// #include "moris_typedefs.hpp"
+// #include "SDF_Tools.hpp"
 
-#include "cl_MTK_Surface_Mesh.hpp"
+// #include "cl_MTK_Surface_Mesh.hpp"
 
-namespace moris::sdf
-{
+// namespace moris::sdf
+// {
 //     /**
 //      * Conducts a raycast to determine if aPoint is inside or outside of the object. Casts rays in each coordinate direction until the point is resolved.
 //      * Also determines intersection locations along the coordinate axes of aPoint with each facet.
@@ -262,4 +262,4 @@ namespace moris::sdf
 
     //-------------------------------------------------------------------------------
 
-}    // namespace moris::sdf
+// }    // namespace moris::sdf

@@ -81,7 +81,7 @@ namespace moris::gen
         real compute_intersection_local_coordinate(
                 const Vector< Background_Node* >& aBackgroundNodes,
                 const Parent_Node&                aFirstParentNode,
-                const Parent_Node&                aSecondParentNode ) override;
+                const Parent_Node&                aSecondParentNode );
 
         /**
          * A voxel geometry has no relevant MTK fields for remeshing, so this returns an empty vector.

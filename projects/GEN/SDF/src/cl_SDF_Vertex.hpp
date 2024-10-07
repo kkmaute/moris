@@ -195,7 +195,6 @@ namespace moris::sdf
             mFlag         = true;
             mSDF          = std::numeric_limits< real >::max();
             mClosestFacet = nullptr;
-            mIsInside     = false;
         }
 
         // -----------------------------------------------------------------------------

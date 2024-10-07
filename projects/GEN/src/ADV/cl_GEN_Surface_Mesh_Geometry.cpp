@@ -184,105 +184,10 @@ namespace moris::gen
             const Parent_Node&                aSecondParentNode,
             uint&                             aParentFacet )
     {
-        // -------------------------------------------------------------------------------------
-        // STEP 1: Determine if the parent edge is along an axis and if so cast along that axis.
-        //         If not, rotate the object so the parent edge is along the x axis
-        // -------------------------------------------------------------------------------------
-
-        // // Axis to perform raycast along
-        // uint tAxis;
-
-        // // Point to originate ray from
-        // Matrix< DDRMat > tCastPoint( Surface_Mesh::get_spatial_dimension(), 1 );
-
-        // // Sign to flip the intersection coordinates
-        // real tSign;
-
-        // // Get the unit vector from the first parent to the second parent
-        // Matrix< DDRMat > tParentVector = trans( aSecondParentNode.get_global_coordinates() - aFirstParentNode.get_global_coordinates() );
-
-        // // See if the parent vector is along an axis by determining the number of non-zero components
-        // bool tIsAnAxis = std::count_if( tParentVector.cbegin(), tParentVector.cend(), [ this ]( real aValue ) -> bool { return std::abs( aValue ) > this->get_intersection_tolerance(); } ) == 1;
-
-        // // the parent vector lies along an axis, get which axis it lies on
-        // if ( not tIsAnAxis )
-        // {
-        //     // Rotate the object so the parent edge is along the x axis
-        //     tAxis = 0;
-        //     tSign = 1.0;
-
-
-        //     real tParentVectorNorm = norm( tParentVector );
-        //     tParentVector          = tParentVector / tParentVectorNorm;
-
-        //     // augment with zero if 2D
-        //     if ( tParentVector.numel() == 2 )
-        //     {
-        //         tParentVector.resize( 3, 1 );
-        //     }
-
-        //     // Initialize rotation matrix
-        //     Matrix< DDRMat > tRotationMatrix( 3, 1 );
-        //     Matrix< DDRMat > tCastAxis = { { 1.0 }, { 0.0 }, { 0.0 } };
-
-        //     // If the parent vector is in the -x direction, make the rotation matrix a relfection about the yz plane
-        //     if ( norm( tParentVector + tCastAxis ) < this->get_intersection_tolerance() )
-        //     {
-        //         tRotationMatrix = { { -1.0, 0.0, 0.0 }, { 0.0, 1.0, 0.0 }, { 0.0, 0.0, 1.0 } };
-        //     }
-        //     // otherwise compute the rotation matrix with Rodrigues' rotation formula
-        //     else
-        //     {
-        //         Matrix< DDRMat > tAntisymmetricCrossProduct = { { 0, tParentVector( 1 ), tParentVector( 2 ) },
-        //             { -tParentVector( 1 ), 0.0, 0.0 },
-        //             { -tParentVector( 2 ), 0.0, 0.0 } };
-
-        //         Matrix< DDRMat > tAntisymmetricCrossProductSquared = { { -std::pow( tParentVector( 1 ), 2 ) - std::pow( tParentVector( 2 ), 2 ), 0.0, 0.0 },
-        //             { 0.0, -std::pow( tParentVector( 1 ), 2 ), -tParentVector( 1 ) * tParentVector( 2 ) },
-        //             { 0.0, -tParentVector( 1 ) * tParentVector( 2 ), -std::pow( tParentVector( 2 ), 2 ) } };
-
-        //         tRotationMatrix = eye( 3, 3 ) + tAntisymmetricCrossProduct + ( 1 / ( 1 + tParentVector( 0 ) ) ) * tAntisymmetricCrossProductSquared;
-        //     }
-
-        //     // check that the rotation matrix is correct by ensuring the parent vector was rotated to the x axis
-        //     MORIS_ASSERT( norm( tRotationMatrix * tParentVector - tCastAxis ) < this->get_intersection_tolerance(),
-        //             "Rotation matrix should rotate the parent vector to the x axis." );
-
-        //     // trim the transformation matrix if 2D
-        //     if ( Surface_Mesh::get_spatial_dimension() == 2 )
-        //     {
-        //         tRotationMatrix.resize( 2, 2 );
-        //     }
-
-        //     // rotate the object
-        //     this->rotate( tRotationMatrix );
-
-        //     // rotate the cast point
-        //     tCastPoint = tRotationMatrix * trans( aFirstParentNode.get_global_coordinates() );
-        // }
-        // else
-        // {
-        //     // Get the index of the nonzero axis
-        //     auto tNonZeroValueLambda = [ this ]( real aValue ) -> bool { return std::abs( aValue ) > this->get_intersection_tolerance(); };
-        //     tAxis                    = std::distance( tParentVector.cbegin(), std::find_if( tParentVector.cbegin(), tParentVector.cend(), tNonZeroValueLambda ) );
-
-        //     // Get the sign of the axis
-        //     if ( tParentVector( tAxis ) > 0 )
-        //     {
-        //         tSign      = 1.0;
-        //         tCastPoint = aFirstParentNode.get_global_coordinates();
-        //     }
-        //     else
-        //     {
-        //         tSign      = -1.0;
-        //         tCastPoint = aSecondParentNode.get_global_coordinates();
-        //     }
-        // }
+        // Get the direction for the raycast
         Matrix< DDRMat > tRayDirection = aSecondParentNode.get_global_coordinates() - aFirstParentNode.get_global_coordinates();
 
-        // -------------------------------------------------------------------------------------
-        // STEP 2: Compute the distance from the first parent to all the facets
-        // -------------------------------------------------------------------------------------
+        //  Compute the distance from the first parent to all the facets
         Vector< uint > tIntersectionFacets;
         Vector< real > tLocalCoordinate = this->compute_ray_facet_intersections( aFirstParentNode.get_global_coordinates(), tRayDirection, tIntersectionFacets );
 

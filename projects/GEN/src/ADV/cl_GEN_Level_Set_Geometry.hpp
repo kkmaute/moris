@@ -117,7 +117,7 @@ namespace moris::gen
         real compute_intersection_local_coordinate(
                 const Vector< Background_Node* >& aBackgroundNodes,
                 const Parent_Node&                aFirstParentNode,
-                const Parent_Node&                aSecondParentNode ) override;
+                const Parent_Node&                aSecondParentNode );
 
         /**
          * Given a node index or coordinates, returns a vector of the field derivatives with respect to the nodal
