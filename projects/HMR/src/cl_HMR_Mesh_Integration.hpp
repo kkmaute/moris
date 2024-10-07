@@ -69,7 +69,7 @@ namespace moris::hmr
         }
 
         mtk::Cell_Cluster const &
-        get_cell_cluster( mtk::Cell const &aInterpCell ) const
+        get_cell_cluster( mtk::Cell const &aInterpCell ) const override
         {
             return mCellClusters( aInterpCell.get_index() );
         }
@@ -79,7 +79,7 @@ namespace moris::hmr
          * cell
          */
         mtk::Cell_Cluster const &
-        get_cell_cluster( moris_index aInterpCellIndex ) const
+        get_cell_cluster( moris_index aInterpCellIndex ) const override
         {
             MORIS_ASSERT( aInterpCellIndex < (moris_index)mCellClusters.size(), "Interpolation Cell index out of bounds" );
             return mCellClusters( aInterpCellIndex );
@@ -89,7 +89,7 @@ namespace moris::hmr
          * Get block set names
          */
         Vector< std::string >
-        get_block_set_names() const
+        get_block_set_names() const override
         {
             return mPrimaryBlockSetNames;
         }
@@ -98,7 +98,7 @@ namespace moris::hmr
          * Get cell clusters within a block set
          */
         Vector< mtk::Cluster const * >
-        get_cell_clusters_in_set( moris_index aBlockSetOrdinal ) const
+        get_cell_clusters_in_set( moris_index aBlockSetOrdinal ) const override
         {
             MORIS_ASSERT( aBlockSetOrdinal < (moris_index)mPrimaryBlockSetNames.size(), "Requested block set ordinal out of bounds." );
 
@@ -118,13 +118,13 @@ namespace moris::hmr
          * get number of side sets
          */
         uint
-        get_num_side_sets() const
+        get_num_side_sets() const override
         {
             return mSideSets.size();
         }
 
         Vector< mtk::Cluster const * >
-        get_side_set_cluster( moris_index aSideSetOrdinal ) const
+        get_side_set_cluster( moris_index aSideSetOrdinal ) const override
         {
             MORIS_ASSERT( aSideSetOrdinal < (moris_index)mSideSets.size(), "Side set ordinal out of bounds" );
 
@@ -145,7 +145,7 @@ namespace moris::hmr
          */
 
         std::string
-        get_side_set_label( moris_index aSideSetOrdinal ) const
+        get_side_set_label( moris_index aSideSetOrdinal ) const override
         {
             MORIS_ASSERT( aSideSetOrdinal < (moris_index)mSideSetLabels.size(),
                     "Side set ordinal out of bounds" );
@@ -157,7 +157,7 @@ namespace moris::hmr
          * Returns the index given a label
          */
         moris_index
-        get_side_set_index( std::string aSideSetLabel ) const
+        get_side_set_index( std::string aSideSetLabel ) const override
         {
             auto tIter = mSideSideSetLabelToOrd.find( aSideSetLabel );
 
@@ -168,7 +168,7 @@ namespace moris::hmr
         }
 
         uint
-        get_num_double_sided_sets() const
+        get_num_double_sided_sets() const override
         {
             return 0;
         }
@@ -178,7 +178,7 @@ namespace moris::hmr
          */
 
         std::string
-        get_double_sided_set_label( moris_index aSideSetOrdinal ) const
+        get_double_sided_set_label( moris_index aSideSetOrdinal ) const override
         {
             MORIS_ERROR( 0, "get_double_sided_set_label not implemented in HMR Integration mesh" );
             return "ERROR";
@@ -189,7 +189,7 @@ namespace moris::hmr
          */
 
         Vector< moris::mtk::Cluster const * >
-        get_double_side_set_cluster( moris_index aSideSetOrdinal ) const
+        get_double_side_set_cluster( moris_index aSideSetOrdinal ) const override
         {
             MORIS_ERROR( 0, "get_double_side_set_cluster not implemented in HMR Integration mesh" );
             return Vector< moris::mtk::Cluster const * >( 0 );

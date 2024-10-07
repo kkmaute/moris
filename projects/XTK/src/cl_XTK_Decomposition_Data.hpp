@@ -298,12 +298,12 @@ namespace moris::xtk
 
         moris_index
         register_new_request(
-                moris_index                         aParentEntityIndex,
-                moris_index                         aParentEntityOwner,
-                mtk::EntityRank                     aParentEntityRank,
-                Matrix< DDRMat > const &            aNewNodeCoord,
-                mtk::Cell*                          aNewVertexParentCell,
-                std::shared_ptr< Matrix< DDRMat > > aNewVertexLocalCoordinates )
+                moris_index                                aParentEntityIndex,
+                moris_index                                aParentEntityOwner,
+                mtk::EntityRank                            aParentEntityRank,
+                Matrix< DDRMat > const &                   aNewNodeCoord,
+                mtk::Cell*                                 aNewVertexParentCell,
+                const std::shared_ptr< Matrix< DDRMat > >& aNewVertexLocalCoordinates )
         {
             MORIS_ASSERT( !mHasSecondaryIdentifier, "register_new_request w/o a secondary identifier should only be used when secondary identifiers are not necessary, this is because the maps in this data structure are slightly different between the two cases" );
 
@@ -367,13 +367,13 @@ namespace moris::xtk
 
         moris_index
         register_new_request(
-                moris_index                         aParentEntityIndex,
-                moris_index                         aSecondaryIdentifier,
-                moris_index                         aParentEntityOwner,
-                mtk::EntityRank                     aParentEntityRank,
-                Matrix< DDRMat > const &            aNewNodeCoord,
-                mtk::Cell*                          aNewVertexParentCell       = nullptr,
-                std::shared_ptr< Matrix< DDRMat > > aNewVertexLocalCoordinates = nullptr )
+                moris_index                                aParentEntityIndex,
+                moris_index                                aSecondaryIdentifier,
+                moris_index                                aParentEntityOwner,
+                mtk::EntityRank                            aParentEntityRank,
+                Matrix< DDRMat > const &                   aNewNodeCoord,
+                mtk::Cell*                                 aNewVertexParentCell       = nullptr,
+                const std::shared_ptr< Matrix< DDRMat > >& aNewVertexLocalCoordinates = nullptr )
         {
             MORIS_ASSERT( mHasSecondaryIdentifier, "register_new_request with a secondary identifier should only be used when secondary identifiers are not necessary, this is because the maps in this data structure are slightly different between the two cases" );
 
@@ -485,8 +485,8 @@ namespace moris::xtk
 
         void
         print_requests(
-                mtk::Mesh const & aBackgroundMesh,
-                std::string       aFile = "" )
+                mtk::Mesh const &  aBackgroundMesh,
+                const std::string& aFile = "" )
         {
             std::stringstream oSS;
             oSS << "Request_Index,";
@@ -525,7 +525,7 @@ namespace moris::xtk
             if ( aFile.empty() == false )
             {
                 std::ofstream tOutputFile( aFile );
-                tOutputFile << oSS.str() << std::endl;
+                tOutputFile << oSS.str() << '\n';
                 tOutputFile.close();
             }
 
@@ -535,8 +535,8 @@ namespace moris::xtk
 
         void
         print(
-                mtk::Mesh const & aBackgroundMesh,
-                std::string       aFile = "" )
+                mtk::Mesh const &  aBackgroundMesh,
+                const std::string& aFile = "" )
         {
             // std::stringstream oSS;
             // oSS << "Request_Index,";

@@ -13,7 +13,6 @@
 #include "cl_HMR_Basis.hpp"
 #include "cl_HMR_Lagrange_Node_Interpolation.hpp"
 #include "moris_typedefs.hpp"    //COR/src
-#include "cl_HMR_Lagrange_Node_Interpolation.hpp"
 
 namespace moris::hmr
 {
@@ -73,7 +72,7 @@ namespace moris::hmr
         /**
          * default destructor
          */
-        ~Lagrange_Node()
+        ~Lagrange_Node() override
         {
             // delete element container
             if ( mNumberOfConnectedElements != 0 )
@@ -108,14 +107,14 @@ namespace moris::hmr
 
         // ----------------------------------------------------------------------------
 
-        bool has_interpolation( uint aBSplineMeshIndex )
+        bool has_interpolation( uint aBSplineMeshIndex ) override
         {
             return mHaveInterpolation.test( aBSplineMeshIndex );
         }
 
         // ----------------------------------------------------------------------------
 
-        void init_interpolation( uint aBSplineMeshIndex )
+        void init_interpolation( uint aBSplineMeshIndex ) override
         {
             if ( !mHaveInterpolationContainer )
             {
@@ -135,7 +134,7 @@ namespace moris::hmr
         /**
          * MTK Interface: return the coords of this node as Moris::Mat
          */
-        Matrix< DDRMat > get_coords() const
+        Matrix< DDRMat > get_coords() const override
         {
             Matrix< DDRMat > aCoords( 1, N );
             for ( uint k = 0; k < N; ++k )
@@ -153,7 +152,7 @@ namespace moris::hmr
          * @return luint pointer to array containing ijk-position
          *               careful: node must not go out of scope.
          */
-        const luint* get_ijk() const
+        const luint* get_ijk() const override
         {
             return mIJK;
         }
@@ -167,7 +166,7 @@ namespace moris::hmr
          *
          * @return void
          */
-        void set_xyz( const real* aXYZ )
+        void set_xyz( const real* aXYZ ) override
         {
             // save ijk position in memory.
             for ( uint k = 0; k < N; ++k )
@@ -185,7 +184,7 @@ namespace moris::hmr
          * @return double pointer to array containing xyz-position
          *               careful: node must not go out of scope.
          */
-        const real* get_xyz() const
+        const real* get_xyz() const override
         {
             return mXYZ;
         }
@@ -206,7 +205,7 @@ namespace moris::hmr
          * set the DOFs
          */
         void set_coefficients( const uint aBSplineMeshIndex,
-                Vector< mtk::Vertex* >&   aDOFs )
+                Vector< mtk::Vertex* >&   aDOFs ) override
         {
             mInterpolations( aBSplineMeshIndex )->set_coefficients( aDOFs );
         }
@@ -217,7 +216,7 @@ namespace moris::hmr
          * set the weights
          */
         void set_weights( const uint    aBSplineMeshIndex,
-                const Matrix< DDRMat >& aWeights )
+                const Matrix< DDRMat >& aWeights ) override
         {
             mInterpolations( aBSplineMeshIndex )->set_weights( aWeights );
         }
@@ -227,7 +226,7 @@ namespace moris::hmr
         /**
          * return a pointer to the interpolation object
          */
-        mtk::Vertex_Interpolation* get_interpolation( const uint aBSplineMeshIndex )
+        mtk::Vertex_Interpolation* get_interpolation( const uint aBSplineMeshIndex ) override
         {
             MORIS_ASSERT( mHaveInterpolation.test( aBSplineMeshIndex ),
                     "tried to access an interpolation object for vertex ID %-5i and Index %-5i that does not exist",
@@ -242,7 +241,7 @@ namespace moris::hmr
         /**
          * return a pointer to the interpolation object ( const version )
          */
-        const mtk::Vertex_Interpolation* get_interpolation( const uint aBSplineMeshIndex ) const
+        const mtk::Vertex_Interpolation* get_interpolation( const uint aBSplineMeshIndex ) const override
         {
             MORIS_ASSERT( mHaveInterpolation.test( aBSplineMeshIndex ),
                     "tried to access an interpolation object for vertex ID %-5i and Index %-5i that does not exist",

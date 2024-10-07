@@ -55,10 +55,10 @@ namespace moris::xtk
 
       public:
         Subphase_Group(
-                moris_index           aSubphaseGroupIndex,
-                moris_index           aBsplineCellIndex,
-                moris_index           aLocalSpgIndex,
-                Vector< moris_index > aSubphaseIndicesInGroup )
+                moris_index                  aSubphaseGroupIndex,
+                moris_index                  aBsplineCellIndex,
+                moris_index                  aLocalSpgIndex,
+                const Vector< moris_index >& aSubphaseIndicesInGroup )
         // Vector< moris_index > aSubphaseIdsInGroup )
         {
             mSubphaseGroupIndex     = aSubphaseGroupIndex;
@@ -113,7 +113,7 @@ namespace moris::xtk
         }
 
         void
-        set_ligament_side_ordinals( Vector< moris_index > aLigamentSideOrdinals )
+        set_ligament_side_ordinals( const Vector< moris_index >& aLigamentSideOrdinals )
         {
             mLigamentSideOrdinals    = aLigamentSideOrdinals;
             mLigamentSideOrdinalsSet = true;
@@ -352,7 +352,7 @@ namespace moris::xtk
 
         // ----------------------------------------------------------------------------------
 
-        Vector< const Subphase_Group* > const
+        Vector< const Subphase_Group* >
         get_SPGs_in_Bspline_cell( moris_index aBsplineCellIndex ) const
         {
             // check input
@@ -434,8 +434,8 @@ namespace moris::xtk
 
         void
         add_subphase_group_to_bspline_cell(
-                Vector< moris_index > aSPsInGroup,    // TODO: is it a problem to pass this Cell by reference?
-                moris_index           aBsplineElementIndex )
+                const Vector< moris_index >& aSPsInGroup,    // TODO: is it a problem to pass this Cell by reference?
+                moris_index                  aBsplineElementIndex )
         {
             // track SPG indices and get new one
             mMaxSpgIndex++;
@@ -454,7 +454,7 @@ namespace moris::xtk
         // ----------------------------------------------------------------------------------
 
         void
-        add_ig_cell_indices_to_last_admitted_subphase_group( Vector< moris_index > aIgCellIndicesInGroup )    // TODO: is it a problem to pass this Cell by reference?
+        add_ig_cell_indices_to_last_admitted_subphase_group( const Vector< moris_index >& aIgCellIndicesInGroup )    // TODO: is it a problem to pass this Cell by reference?
         {
             // add ig cells to last admitted SPG
             mSubphaseGroups( mMaxSpgIndex )->set_ig_cell_indices( aIgCellIndicesInGroup );
@@ -466,7 +466,7 @@ namespace moris::xtk
         admit_extraction_cell_group( Vector< mtk::Cell* >& tExtractionCellsInBsplineCell )
         {
             // check if list L-to-B-map is initialized
-            MORIS_ASSERT( &mExtractionCellToBsplineCell != nullptr && mExtractionCellToBsplineCell.size() > 0,
+            MORIS_ASSERT( mExtractionCellToBsplineCell.size() > 0,
                     "Bspline_Mesh_Info::admit_extraction_cell_group() -mExtractionCellToBsplineCell has not been initialized." );
 
             // get size of extraction cell group

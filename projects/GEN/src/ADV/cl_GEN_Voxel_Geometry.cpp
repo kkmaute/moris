@@ -9,6 +9,8 @@
  */
 
 #include "cl_GEN_Voxel_Geometry.hpp"
+
+#include <utility>
 #include "cl_GEN_Voxel_Input.hpp"
 #include "cl_GEN_Intersection_Node_Voxel.hpp"
 #include "cl_GEN_Parent_Node.hpp"
@@ -22,7 +24,7 @@ namespace moris::gen
             std::shared_ptr< Voxel_Input > aVoxelInput,
             uint                           aIndex )
             : Geometry( Design_Parameters(), 1e-12 )
-            , mVoxelInput( aVoxelInput )
+            , mVoxelInput( std::move( aVoxelInput ) )
             , mIndex( aIndex )
     {
     }
@@ -276,7 +278,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Voxel_Geometry::update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedDesigns )
+    void Voxel_Geometry::update_dependencies( const Vector< std::shared_ptr< Design > >& aAllUpdatedDesigns )
     {
     }
 

@@ -15,7 +15,7 @@ void Linear_Solver_Algorithm_Trilinos::set_preconditioner( Preconditioner* aPrec
 
 //-----------------------------------------------------------------------------------
 
-void Linear_Solver_Algorithm_Trilinos::compute_operator_condition_number_with_moris( std::string tComputationMode )
+void Linear_Solver_Algorithm_Trilinos::compute_operator_condition_number_with_moris( const std::string& tComputationMode )
 {
     // // get Epetra matrix
     Epetra_FECrsMatrix* tOperator = mLinearSystem->get_matrix()->get_matrix();
@@ -52,7 +52,7 @@ void Linear_Solver_Algorithm_Trilinos::compute_operator_condition_number_with_mo
 
 //-----------------------------------------------------------------------------------
 
-void Linear_Solver_Algorithm_Trilinos::compute_preconditioned_operator_condition_number_with_moris( std::string tComputationMode )
+void Linear_Solver_Algorithm_Trilinos::compute_preconditioned_operator_condition_number_with_moris( const std::string& tComputationMode )
 {
     // get Epetra matrix
     Epetra_FECrsMatrix* tOperator = mLinearSystem->get_matrix()->get_matrix();
@@ -65,7 +65,7 @@ void Linear_Solver_Algorithm_Trilinos::compute_preconditioned_operator_condition
         Epetra_Operator*    mPreconditioner;
         LocalEpetraOperator( Epetra_FECrsMatrix* aOperator, Epetra_Operator* aPrec )
                 : mOperator( aOperator )
-                , mPreconditioner( aPrec ){
+                , mPreconditioner( aPrec ) {
                     // Create the Epetra_Operator class for the preconditioner with the
 
                 };

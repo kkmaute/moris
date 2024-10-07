@@ -311,7 +311,7 @@ namespace moris
         // get num rows and columns of data file
         uint             tNumRows = tAscii.length();
         Matrix< DDRMat > tRow;
-        string_to_mat( tAscii.line( 0 ), tRow );
+        string_to_matrix( tAscii.line( 0 ), tRow );
         uint tNumCols = tRow.n_cols();
 
         // set size of returned matrix
@@ -331,7 +331,7 @@ namespace moris
         for ( uint i = 0; i < tNumRows; i++ )
         {
             // storing ascii row to matrix
-            string_to_mat( tAscii.line( i ), tRow );
+            string_to_matrix( tAscii.line( i ), tRow );
 
             // are the number of columns the same?
             MORIS_ASSERT( tRow.n_cols() == tNumCols, "Inconsistent number of columns in input file" );
@@ -844,7 +844,7 @@ namespace moris
         tParameterlist( 3 )( 3 ).set( "NLA_DofTypes", "UX,UY;STRESS_DOF;VX" );
 
         tParameterlist( 4 ).push_back( moris::prm::create_time_solver_algorithm_parameter_list() );
-        tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_solver", 3 );
+        tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_Solver", 3 );
 
         tParameterlist( 5 ).push_back( moris::prm::create_time_solver_parameter_list() );
         tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "UX,UY;STRESS_DOF;VX" );

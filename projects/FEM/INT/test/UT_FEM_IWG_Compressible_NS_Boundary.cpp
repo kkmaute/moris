@@ -466,7 +466,7 @@ TEST_CASE( "IWG_Compressible_NS_Boundary_Pressure_Primitive",
                     // print for debug
                     if( !tCheckJacobian )
                     {
-                        std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<"iGP "<<iGP<<std::endl;
+                        std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << "iGP " << iGP << '\n';
                     }
 
                     // require check is true

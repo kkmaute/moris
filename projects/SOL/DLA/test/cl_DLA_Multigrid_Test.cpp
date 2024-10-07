@@ -28,7 +28,6 @@
 #include "cl_MSI_Solver_Interface.hpp"
 #include "cl_MSI_Equation_Object.hpp"
 #include "cl_MSI_Equation_Model.hpp"
-#include "cl_MSI_Model_Solver_Interface.hpp"
 
 #include "fn_PRM_MSI_Parameters.hpp"
 
@@ -101,7 +100,7 @@ namespace moris
             tParameters.set_multigrid( true );
             tParameters.set_bspline_truncation( true );
 
-            tParameters.set_output_meshes( { { { 0 } } } );
+            tParameters.set_output_meshes( { { 0 } } );
 
             tParameters.set_lagrange_orders( { { 1 } } );
             tParameters.set_lagrange_patterns( { { 0 } } );
@@ -114,11 +113,6 @@ namespace moris
 
             tParameters.set_refinement_buffer( 1 );
             tParameters.set_staircase_buffer( 1 );
-
-            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
-            tLagrangeToBSplineMesh( 0 ) = { { 0 } };
-
-            tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
             // create HMR object
             moris::hmr::HMR tHMR( tParameters );
@@ -520,7 +514,7 @@ namespace moris
             tParameters.set_multigrid( true );
             tParameters.set_bspline_truncation( true );
 
-            tParameters.set_output_meshes( { { { 0 } } } );
+            tParameters.set_output_meshes( { { 0 } } );
 
             tParameters.set_lagrange_orders( { { 1 } } );
             tParameters.set_lagrange_patterns( { { 0 } } );
@@ -533,11 +527,6 @@ namespace moris
 
             tParameters.set_refinement_buffer( 1 );
             tParameters.set_staircase_buffer( 1 );
-
-            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
-            tLagrangeToBSplineMesh( 0 ) = { { 0 } };
-
-            tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
             // create HMR object
             moris::hmr::HMR tHMR( tParameters );

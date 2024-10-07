@@ -110,8 +110,8 @@ namespace moris
              * @param aMeshPairIndex Mesh pair index
              */
             VIS_Factory(
-                    std::shared_ptr< mtk::Mesh_Manager > aMesh,
-                    uint                                 aMeshPairIndex );
+                    const std::shared_ptr< mtk::Mesh_Manager >& aMesh,
+                    uint                                        aMeshPairIndex );
 
             /**
              * Destructor, checks for memory leak

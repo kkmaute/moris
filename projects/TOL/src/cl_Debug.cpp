@@ -28,7 +28,7 @@ namespace moris
 
         if (tCombination>UINT_MAX)
         {
-            std::cout << "Size of the vector for duplicate check is to big" << std::endl;
+            std::cout << "Size of the vector for duplicate check is to big" << '\n';
         }
 
         for (moris::uint  i = 0; i<tNumInt;i++){
@@ -76,7 +76,7 @@ namespace moris
 
         if (tCombination>UINT_MAX)
         {
-            std::cout << "Size of the vector for duplicate check is to big" << std::endl;
+            std::cout << "Size of the vector for duplicate check is to big" << '\n';
         }
 
         for (moris::uint  i = 0; i<tNumInt;i++){
@@ -109,7 +109,7 @@ namespace moris
 
         if (tCombination>UINT_MAX)
         {
-            std::cout << "Size of the vector for duplicate check is to big" << std::endl;
+            std::cout << "Size of the vector for duplicate check is to big" << '\n';
         }
 
         for (moris::uint  i = 0; i<tNumInt;i++){
@@ -145,7 +145,7 @@ namespace moris
 
         if (tCombination>UINT_MAX)
         {
-            std::cout << "Size of the vector for duplicate check is to big" << std::endl;
+            std::cout << "Size of the vector for duplicate check is to big" << '\n';
         }
 
         for (moris::uint  i = 0; i<tId1;i++){
@@ -187,7 +187,7 @@ namespace moris
 
         if (tCombination>UINT_MAX)
         {
-            std::cout << "Size of the vector for duplicate check is to big" << std::endl;
+            std::cout << "Size of the vector for duplicate check is to big" << '\n';
         }
 
         for (moris::uint i = 0; i<tId1;i++)

@@ -71,9 +71,9 @@ namespace moris
     {
         return new Type_Validator< T >();
     }
-    
+
     //--------------------------------------------------------------------------------------------------------------
-    
+
     template< typename T >
     bool Vector_Validator< T >::make_valid_parameter( Variant& aVariant )
     {
@@ -85,9 +85,9 @@ namespace moris
         else if ( aVariant.index() == variant_index< T >() )
         {
             // Single value given, convert to vector
-            T tValue = std::get< T >( aVariant );
+            T           tValue  = std::get< T >( aVariant );
             Vector< T > tVector = { tValue };
-            aVariant = tVector;
+            aVariant            = tVector;
             return true;
         }
         else
@@ -110,12 +110,12 @@ namespace moris
         else if ( aVariant.index() == variant_index< uint >() )
         {
             // Single value given, convert to vector
-            uint tValue = std::get< uint >( aVariant );
+            uint           tValue  = std::get< uint >( aVariant );
             Vector< uint > tVector = { tValue };
-            aVariant = tVector;
+            aVariant               = tVector;
             return true;
         }
-        else if ( aVariant.index() == variant_index< Vector< sint > >() ) // Additional case for signed integer vector
+        else if ( aVariant.index() == variant_index< Vector< sint > >() )    // Additional case for signed integer vector
         {
             // Create vectors
             Vector< sint > tSignedVector = std::get< Vector< sint > >( aVariant );
@@ -139,7 +139,7 @@ namespace moris
             aVariant = tUnsignedVector;
             return true;
         }
-        else if ( aVariant.index() == variant_index< sint >() ) // Additional case for single signed integer
+        else if ( aVariant.index() == variant_index< sint >() )    // Additional case for single signed integer
         {
             // Get value
             sint tValue = std::get< sint >( aVariant );
@@ -148,7 +148,7 @@ namespace moris
             if ( tValue >= 0 )
             {
                 Vector< uint > tVector = { static_cast< uint >( tValue ) };
-                aVariant = tVector;
+                aVariant               = tVector;
                 return true;
             }
             else
@@ -210,8 +210,7 @@ namespace moris
     template< typename T >
     bool Selection_Validator< T >::make_valid_parameter( Variant& aVariant )
     {
-        return aVariant.index() == variant_index< T >() and
-               mValidSelections.find( std::get< T >( aVariant ) ) != mValidSelections.end();
+        return aVariant.index() == variant_index< T >() and mValidSelections.find( std::get< T >( aVariant ) ) != mValidSelections.end();
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -224,7 +223,7 @@ namespace moris
 
         // Create string from the set of valid values
         std::string tValidSelectionString;
-        for ( auto iValue : mValidSelections )
+        for ( const auto& iValue : mValidSelections )
         {
             tValidSelectionString += ", " + to_string( iValue );
         }
@@ -309,4 +308,4 @@ namespace moris
     }
 
     //--------------------------------------------------------------------------------------------------------------
-}
+}    // namespace moris

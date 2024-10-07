@@ -34,7 +34,9 @@
 namespace moris
 {
     template< typename Type >
+#if defined( __GNUC__ ) && !defined( __llvm__ )
     __attribute__( ( optimize( "-O2" ) ) )
+#endif
     arma::Mat< Type >
     createArmaMatrixWithoutOptimization( const std::initializer_list< std::initializer_list< Type > >& initList )
     {
@@ -80,7 +82,7 @@ namespace moris
 
         // -----------------------------------------------------------------
 
-        Matrix(){};
+        Matrix() {};
 
         // -----------------------------------------------------------------
 

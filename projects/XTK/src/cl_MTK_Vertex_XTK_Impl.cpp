@@ -9,119 +9,118 @@
  */
 
 #include "cl_MTK_Vertex_XTK_Impl.hpp"
+
+#include <utility>
 #include "cl_XTK_Background_Mesh.hpp"
 
-namespace moris
+namespace moris::mtk
 {
-    namespace mtk
+    //------------------------------------------------------------------------------
+
+    Vertex_XTK::Vertex_XTK() {}
+
+    Vertex_XTK::Vertex_XTK(
+            moris::moris_id                     aVertexId,
+            moris::moris_index                  aVertexIndex,
+            moris::moris_index                  aOwner,
+            std::shared_ptr< Matrix< DDRMat > > aCoordinates )
+            : mVertexId( aVertexId )
+            , mVertexIndex( aVertexIndex )
+            , mVertexOwner( aOwner )
+            , mCoordinates( std::move( aCoordinates ) )
     {
-        //------------------------------------------------------------------------------
+    }
 
-        Vertex_XTK::Vertex_XTK() {}
+    //------------------------------------------------------------------------------
 
-        Vertex_XTK::Vertex_XTK(
-                moris::moris_id                     aVertexId,
-                moris::moris_index                  aVertexIndex,
-                moris::moris_index                  aOwner,
-                std::shared_ptr< Matrix< DDRMat > > aCoordinates )
-                : mVertexId( aVertexId )
-                , mVertexIndex( aVertexIndex )
-                , mVertexOwner( aOwner )
-                , mCoordinates( aCoordinates )
-        {
-        }
+    Vertex_XTK::~Vertex_XTK() {}
 
-        //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-        Vertex_XTK::~Vertex_XTK() {}
+    void
+    Vertex_XTK::set_vertex_interpolation( Vertex_Interpolation_XTK* aVertexInterpolation )
+    {
+        MORIS_ASSERT( aVertexInterpolation != nullptr, "aVertexInterpolation provided is a null ptr" );
+        mVertexInterpolation = aVertexInterpolation;
+    }
 
-        //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-        void
-        Vertex_XTK::set_vertex_interpolation( Vertex_Interpolation_XTK* aVertexInterpolation )
-        {
-            MORIS_ASSERT( aVertexInterpolation != nullptr, "aVertexInterpolation provided is a null ptr" );
-            mVertexInterpolation = aVertexInterpolation;
-        }
+    Matrix< DDRMat >
+    Vertex_XTK::get_coords() const
+    {
+        return *mCoordinates;
+    }
+    //------------------------------------------------------------------------------
+    moris_id
+    Vertex_XTK::get_id() const
+    {
+        return mVertexId;
+    }
 
-        //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-        Matrix< DDRMat >
-        Vertex_XTK::get_coords() const
-        {
-            return *mCoordinates;
-        }
-        //------------------------------------------------------------------------------
-        moris_id
-        Vertex_XTK::get_id() const
-        {
-            return mVertexId;
-        }
+    moris_index
+    Vertex_XTK::get_index() const
+    {
+        return mVertexIndex;
+    }
 
-        //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-        moris_index
-        Vertex_XTK::get_index() const
-        {
-            return mVertexIndex;
-        }
+    void
+    Vertex_XTK::set_index( const moris_index aIndex )
+    {
+        mVertexIndex = aIndex;
+    }
 
-        //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-        void
-        Vertex_XTK::set_index( const moris_index aIndex )
-        {
-            mVertexIndex = aIndex;
-        }
+    moris_index
+    Vertex_XTK::get_owner() const
+    {
+        return mVertexOwner;
+    }
 
-        //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-        moris_index
-        Vertex_XTK::get_owner() const
-        {
-            return mVertexOwner;
-        }
+    Vertex_Interpolation*
+    Vertex_XTK::get_interpolation( const uint aOrder )
+    {
+        MORIS_ASSERT( mVertexInterpolation != nullptr, "mInterpolation is a null ptr" );
+        return mVertexInterpolation;
+    }
 
-        //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-        Vertex_Interpolation*
-        Vertex_XTK::get_interpolation( const uint aOrder )
-        {
-            MORIS_ASSERT( mVertexInterpolation != nullptr, "mInterpolation is a null ptr" );
-            return mVertexInterpolation;
-        }
+    const Vertex_Interpolation*
+    Vertex_XTK::get_interpolation( const uint aOrder ) const
+    {
+        MORIS_ASSERT( mVertexInterpolation != nullptr, "mInterpolation is a null ptr" );
+        return mVertexInterpolation;
+    }
 
-        //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-        const Vertex_Interpolation*
-        Vertex_XTK::get_interpolation( const uint aOrder ) const
-        {
-            MORIS_ASSERT( mVertexInterpolation != nullptr, "mInterpolation is a null ptr" );
-            return mVertexInterpolation;
-        }
+    uint
+    Vertex_XTK::get_level() const
+    {
+        return 0;
+    }
 
-        //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-        uint
-        Vertex_XTK::get_level() const
-        {
-            return 0;
-        }
+    size_t
+    Vertex_XTK::capacity()
+    {
+        size_t tTotal = 0;
+        tTotal += sizeof( mVertexId );
+        tTotal += sizeof( mVertexIndex );
+        tTotal += sizeof( mVertexInterpolation );
+        tTotal += sizeof( mCoordinates );
+        return tTotal;
+    }
 
-        //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-        size_t
-        Vertex_XTK::capacity()
-        {
-            size_t tTotal = 0;
-            tTotal += sizeof( mVertexId );
-            tTotal += sizeof( mVertexIndex );
-            tTotal += sizeof( mVertexInterpolation );
-            tTotal += sizeof( mCoordinates );
-            return tTotal;
-        }
-
-        //------------------------------------------------------------------------------
-
-    }    // namespace mtk
-}    // namespace moris
+}    // namespace moris::mtk

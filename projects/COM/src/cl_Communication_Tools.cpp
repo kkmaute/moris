@@ -62,7 +62,7 @@ namespace moris
     //------------------------------------------------------------------------------------------------------------------
 
     void
-    barrier( std::string )
+    barrier( const std::string& )
     {
         MPI_Barrier( gMorisComm.get_comm() );
     }
@@ -461,7 +461,7 @@ namespace moris
 
         std::vector< char > cstrings;
         cstrings.reserve( aCellToGather.size() );
-        for ( std::string s : aCellToGather.data() )
+        for ( const std::string& s : aCellToGather.data() )
         {
             for ( size_t i = 0; i < strlen( s.c_str() ); ++i )
             {

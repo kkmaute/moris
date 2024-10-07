@@ -14,12 +14,3 @@
 #include "cl_MSI_Equation_Model.hpp"
 #include "cl_MSI_Equation_Set.hpp"
 #include "cl_MDL_Model.hpp"
-
-namespace moris
-{
-    namespace MSI
-    {
-    //---------------------------------------------------------------------------------------------------
-    }
-}
-

@@ -278,14 +278,14 @@ namespace moris::xtk
         uint tNumEntries = mBasisIndices.numel();
 
         // print header
-        std::cout << "\nVertex Enrichment #" << mNodeIndex << " ( Enr. Basis Index | Weight ) = " << std::endl;
+        std::cout << "\nVertex Enrichment #" << mNodeIndex << " ( Enr. Basis Index | Weight ) = " << '\n';
         for ( uint iEntry = 0; iEntry < tNumEntries; iEntry++ )
         {
-            std::cout << mBasisIndices( iEntry ) << " | " << mBasisWeights( iEntry ) << std::endl;
+            std::cout << mBasisIndices( iEntry ) << " | " << mBasisWeights( iEntry ) << '\n';
         }
 
         // std::cout << "\n" << std::endl;
-        std::cout << "" << std::endl;
+        std::cout << "" << '\n';
     }
 
     //------------------------------------------------------------------------------

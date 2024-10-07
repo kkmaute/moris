@@ -49,7 +49,7 @@ namespace moris::gen
     Surface_Mesh_Geometry::Surface_Mesh_Geometry(
             mtk::Mesh*                    aMesh,
             ADV_Manager&                  aADVManager,
-            Surface_Mesh_Parameters       aParameters,
+            const Surface_Mesh_Parameters      & aParameters,
             Node_Manager&                 aNodeManager,
             std::shared_ptr< Library_IO > aLibrary )
             : Geometry( aParameters, aParameters.mIntersectionTolerance )
@@ -826,9 +826,10 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Surface_Mesh_Geometry::update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedDesigns )
+    void Surface_Mesh_Geometry::update_dependencies( const Vector< std::shared_ptr< Design > >& aAllUpdatedDesigns )
     {
     }
+
 
     //--------------------------------------------------------------------------------------------------------------
 

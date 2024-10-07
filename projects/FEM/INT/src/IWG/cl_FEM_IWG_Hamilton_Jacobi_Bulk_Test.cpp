@@ -13,19 +13,17 @@
 #include "cl_FEM_Set.hpp"
 #include "fn_trans.hpp"
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+
+    //------------------------------------------------------------------------------
+
+    IWG_Hamilton_Jacobi_Bulk_Test::IWG_Hamilton_Jacobi_Bulk_Test() {}
+
+    //------------------------------------------------------------------------------
+
+    void IWG_Hamilton_Jacobi_Bulk_Test::compute_residual( real aWStar )
     {
-
-        //------------------------------------------------------------------------------
-
-        IWG_Hamilton_Jacobi_Bulk_Test::IWG_Hamilton_Jacobi_Bulk_Test(){}
-
-        //------------------------------------------------------------------------------
-
-        void IWG_Hamilton_Jacobi_Bulk_Test::compute_residual( real aWStar )
-        {
 #ifdef MORIS_HAVE_DEBUG
             this->check_field_interpolators();
 #endif
@@ -90,6 +88,4 @@ namespace moris
             MORIS_ERROR( false, "IWG_Hamilton_Jacobi_Bulk_Test::compute_dRdp - Not implemented." );
         }
         //------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
-
+}    // namespace moris::fem

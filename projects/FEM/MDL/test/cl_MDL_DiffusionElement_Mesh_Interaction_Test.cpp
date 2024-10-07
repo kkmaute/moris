@@ -20,7 +20,6 @@
 #include "cl_MTK_Mesh_Tools.hpp"
 #include "cl_MTK_Mesh_Data_Input.hpp"
 #include "cl_MTK_Scalar_Field_Info.hpp"
-#include "cl_MTK_Mesh.hpp"
 
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
@@ -83,9 +82,7 @@ moris::real LevelSetFunction( const moris::Matrix< moris::DDRMat > & aPoint )
     return norm( aPoint ) - 0.5;
 }
 
-namespace moris
-{
-namespace mdl
+namespace moris::mdl
 {
 
 void tConstValFunction_MDLDIFF
@@ -528,7 +525,7 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
         tParameters.set_bspline_truncation( true );
         tParameters.set_side_sets({ {1}, {6}, {3}, {4}, {5}, {2} });
 
-        tParameters.set_output_meshes( {{ {0} }} );
+        tParameters.set_output_meshes( {{ 0 }} );
 
         tParameters.set_lagrange_orders  ( { {1} });
         tParameters.set_lagrange_patterns({ {0} });
@@ -543,11 +540,6 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
         tParameters.set_staircase_buffer( 1 );
 
 //        tParameters.set_number_aura( true );
-
-        Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
-        tLagrangeToBSplineMesh( 0 ) = { {0} };
-
-        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
         hmr::HMR tHMR( tParameters );
 
@@ -790,7 +782,7 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
         tParameters.set_bspline_truncation( true );
         tParameters.set_side_sets({ {1}, {6}, {3}, {4}, {5}, {2} });
 
-        tParameters.set_output_meshes( {{ {0} }} );
+        tParameters.set_output_meshes( {{ 0 }} );
 
         tParameters.set_lagrange_orders  ( { {2} });
         tParameters.set_lagrange_patterns({ {0} });
@@ -803,11 +795,6 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
 
         tParameters.set_refinement_buffer( 2 );
         tParameters.set_staircase_buffer( 1 );
-
-        Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
-        tLagrangeToBSplineMesh( 0 ) = { {0} };
-
-        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
         hmr::HMR tHMR( tParameters );
 
@@ -1063,7 +1050,7 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
         tParameters.set_bspline_truncation( true );
         tParameters.set_side_sets({ {1}, {6}, {3}, {4}, {5}, {2} });
 
-        tParameters.set_output_meshes( {{ {0} }} );
+        tParameters.set_output_meshes( {{ 0 }} );
 
         tParameters.set_lagrange_orders  ( { {3} });
         tParameters.set_lagrange_patterns({ {0} });
@@ -1076,11 +1063,6 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
 
         tParameters.set_refinement_buffer( 1 );
         tParameters.set_staircase_buffer( 1 );
-
-        Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
-        tLagrangeToBSplineMesh( 0 ) = { {0} };
-
-        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
         hmr::HMR tHMR( tParameters );
 
@@ -1284,6 +1266,4 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
     }/* if( par_size() */
 }
 
-}/* namespace fem */
-}/* namespace moris */
-
+}    // namespace moris::mdl

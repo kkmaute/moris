@@ -185,6 +185,6 @@ namespace moris::gen
          *
          * @param aAllUpdatedDesigns All designs (this design will take fields from the ones it needs)
          */
-        virtual void update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedDesigns ) = 0;
+        virtual void update_dependencies( const Vector< std::shared_ptr< Design > >& aUpdatedFields ) = 0;
     };
 }    // namespace moris::gen

@@ -53,10 +53,8 @@ LevelSetFunction( const moris::Matrix< moris::DDRMat > & aPoint )
     return norm( aPoint ) - 1.2;
 }
 
-namespace moris
+namespace moris::MSI
 {
-    namespace MSI
-    {
     TEST_CASE("MSI_Multigrid","[MSI],[multigrid]")
     {
         if( moris::par_size() == 1 )
@@ -85,11 +83,6 @@ namespace moris
 
             tParameters.set_refinement_buffer( 1 );
             tParameters.set_staircase_buffer( 1 );
-
-            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
-            tLagrangeToBSplineMesh( 0 ) = { {0} };
-
-            tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
             // create HMR object
             moris::hmr::HMR tHMR( tParameters );
@@ -310,5 +303,3 @@ namespace moris
 //            }
 //    }
     }
-}
-

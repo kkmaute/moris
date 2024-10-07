@@ -20,6 +20,7 @@
 #include <numeric>
 #include "cl_Tracer.hpp"
 #include <chrono>
+#include <utility>
 namespace moris::xtk
 {
 
@@ -157,17 +158,14 @@ namespace moris::xtk
 
     bool
     Node_Hierarchy_Interface::determine_intersected_edges_and_make_requests(
-            std::shared_ptr< Edge_Based_Connectivity >    aEdgeConnectivity,
-            std::shared_ptr< Edge_Based_Ancestry >        aIgEdgeAncestry,
-            Vector< mtk::Cell* >*                         aBackgroundCellForEdge,
-            Vector< std::shared_ptr< IG_Vertex_Group > >* aVertexGroups,
-            Vector< moris_index >&                        aIntersectedEdges,
-            Vector< real >&                               aEdgeLocalCoordinate )
+            const std::shared_ptr< Edge_Based_Connectivity >& aEdgeConnectivity,
+            const std::shared_ptr< Edge_Based_Ancestry >&     aIgEdgeAncestry,
+            Vector< mtk::Cell* >*                             aBackgroundCellForEdge,
+            Vector< std::shared_ptr< IG_Vertex_Group > >*     aVertexGroups,
+            Vector< moris_index >&                            aIntersectedEdges,
+            Vector< real >&                                   aEdgeLocalCoordinate )
     {
         Tracer tTracer( "XTK", "Decomposition_Algorithm", "Determine Intersected Edges", mGenerator->verbosity_level(), 1 );
-
-        // get first unused index for nodes for numbering new nodes
-        moris_index tNewNodeIndex = mCutIntegrationMesh->get_first_available_index( mtk::EntityRank::NODE );
 
         // get the number of edges to be treated
         uint tNumEdges = aEdgeConnectivity->mEdgeVertices.size();
@@ -282,7 +280,6 @@ namespace moris::xtk
                         mGeometryEngine->admit_queued_intersection();
 
                         // count number of new nodes created
-                        tNewNodeIndex++;
                     }
                 }
             }
@@ -297,12 +294,12 @@ namespace moris::xtk
 
     bool
     Node_Hierarchy_Interface::associate_new_vertices_with_cell_groups(
-            std::shared_ptr< Edge_Based_Connectivity >    aEdgeConnectivity,
-            std::shared_ptr< Edge_Based_Ancestry >        aIgEdgeAncestry,
-            Vector< mtk::Cell* >*                         aBackgroundCellForEdge,
-            Vector< std::shared_ptr< IG_Vertex_Group > >* aVertexGroups,
-            Vector< moris_index >*                        aIntersectedEdges,
-            Vector< real >*                               aEdgeLocalCoordinate )
+            const std::shared_ptr< Edge_Based_Connectivity >& aEdgeConnectivity,
+            const std::shared_ptr< Edge_Based_Ancestry >&     aIgEdgeAncestry,
+            Vector< mtk::Cell* >*                             aBackgroundCellForEdge,
+            Vector< std::shared_ptr< IG_Vertex_Group > >*     aVertexGroups,
+            Vector< moris_index >*                            aIntersectedEdges,
+            Vector< real >*                                   aEdgeLocalCoordinate )
     {
         // trace this function
         Tracer tTracer( "XTK", "Decomposition_Algorithm", "Vertex Associations", mGenerator->verbosity_level(), 1 );
@@ -442,9 +439,9 @@ namespace moris::xtk
 
     void
     Node_Hierarchy_Interface::create_node_hierarchy_integration_cells(
-            std::shared_ptr< Edge_Based_Connectivity > aEdgeConnectivity,
-            std::shared_ptr< Edge_Based_Ancestry >     aIgEdgeAncestry,
-            Vector< moris_index >*                     aIntersectedEdges )
+            const std::shared_ptr< Edge_Based_Connectivity >& aEdgeConnectivity,
+            const std::shared_ptr< Edge_Based_Ancestry >&     aIgEdgeAncestry,
+            Vector< moris_index >*                            aIntersectedEdges )
     {
         // time/log function
         Tracer tTracer( "XTK", "Node_Hierarchy_Interface", "Create NH IG Cells", mGenerator->verbosity_level(), 1 );
@@ -528,7 +525,7 @@ namespace moris::xtk
                 moris_index tCellGroupMembershipIndex = mCutIntegrationMesh->get_ig_cell_group_memberships( (moris_index)iCell )( 0 );
 
                 // get the template
-                std::shared_ptr< Node_Hierarchy_Template > tTemplate = tNHTemplate( iCell );
+                const std::shared_ptr< Node_Hierarchy_Template >& tTemplate = tNHTemplate( iCell );
 
                 // vertices sorted for this template
                 Vector< mtk::Vertex* >& tSortedVertices = *(tNodesForTemplates)( iCell );
@@ -561,13 +558,13 @@ namespace moris::xtk
 
         }    // end for: each IG cell currently in the cut mesh
 
-    }        // end function: Node_Hierarchy_Interface::create_node_hierarchy_integration_cells()
+    }    // end function: Node_Hierarchy_Interface::create_node_hierarchy_integration_cells()
 
     // ----------------------------------------------------------------------------------
 
     void
     Node_Hierarchy_Interface::determine_intersected_cell_information(
-            std::shared_ptr< Edge_Based_Connectivity >           aEdgeConnectivity,
+            const std::shared_ptr< Edge_Based_Connectivity >&    aEdgeConnectivity,
             Vector< moris_index >*                               aIntersectedEdges,
             Vector< std::shared_ptr< Vector< moris_index > > >*  aCellIndexIntersectedEdgeOrdinals,
             Vector< std::shared_ptr< Vector< mtk::Vertex* > > >* aCellIndexIntersectedEdgeVertex )
@@ -667,8 +664,8 @@ namespace moris::xtk
                 tNumNewIgCells = tNumNewIgCells + ( *aNHTemplate )( iCell )->mNumCells;
                 mNumNewCells   = mNumNewCells + ( *aNHTemplate )( iCell )->mNumCells - 1;
 
-            } // end if: the cell is intersected
-        } // end for: each IG cell
+            }    // end if: the cell is intersected
+        }    // end for: each IG cell
 
         return tNumNewIgCells;
     }
@@ -740,12 +737,12 @@ namespace moris::xtk
 
     void
     Node_Hierarchy_Interface::sort_nodes_2d(
-            mtk::Cell const *                         aIgCell,
-            Matrix< IndexMat >*                       aEdgeToVertexOrdinalMap,
-            std::shared_ptr< Vector< moris_index > >  aCellIndexIntersectedEdgeOrdinals,
-            std::shared_ptr< Vector< mtk::Vertex* > > aCellIndexIntersectedEdgeVertex,
-            moris_index&                              aPermutation,
-            std::shared_ptr< Vector< mtk::Vertex* > > aSortedNodeInds )
+            mtk::Cell const *                                aIgCell,
+            Matrix< IndexMat >*                              aEdgeToVertexOrdinalMap,
+            std::shared_ptr< Vector< moris_index > >         aCellIndexIntersectedEdgeOrdinals,
+            const std::shared_ptr< Vector< mtk::Vertex* > >& aCellIndexIntersectedEdgeVertex,
+            moris_index&                                     aPermutation,
+            const std::shared_ptr< Vector< mtk::Vertex* > >& aSortedNodeInds )
     {
         // hier TRI3
         MORIS_ERROR( mBackgroundMesh->get_spatial_dim() == 2, "Node_Hierarchy_Interface::sort_nodes_2d() - number of spatial dimensions is not 2." );
@@ -798,12 +795,12 @@ namespace moris::xtk
 
     void
     Node_Hierarchy_Interface::sort_nodes_3d(
-            mtk::Cell const *                         aIgCell,
-            Matrix< IndexMat >*                       aEdgeToVertexOrdinalMap,
-            std::shared_ptr< Vector< moris_index > >  aCellIndexIntersectedEdgeOrdinals,
-            std::shared_ptr< Vector< mtk::Vertex* > > aCellIndexIntersectedEdgeVertex,
-            moris_index&                              aPermutation,
-            std::shared_ptr< Vector< mtk::Vertex* > > aSortedNodeInds )
+            mtk::Cell const *                                aIgCell,
+            Matrix< IndexMat >*                              aEdgeToVertexOrdinalMap,
+            const std::shared_ptr< Vector< moris_index > >&  aCellIndexIntersectedEdgeOrdinals,
+            std::shared_ptr< Vector< mtk::Vertex* > >        aCellIndexIntersectedEdgeVertex,
+            moris_index&                                     aPermutation,
+            const std::shared_ptr< Vector< mtk::Vertex* > >& aSortedNodeInds )
     {
         // hier tet 4
         MORIS_ERROR( mBackgroundMesh->get_spatial_dim() == 3, "Node_Hierarchy_Interface::sort_nodes_3d() - number of spatial dimensions is not 3." );

@@ -50,7 +50,7 @@ namespace moris::hmr
 
     // ----------------------------------------------------------------------------
 
-    Facet::~Facet(){}
+    Facet::~Facet() {}
 
     // ----------------------------------------------------------------------------
 
@@ -97,7 +97,7 @@ namespace moris::hmr
     void
     Facet::remove_vertex_pointer( moris_index aIndex )
     {
-        std::cout << "In HMR Facet" << std::endl;
+        std::cout << "In HMR Facet" << '\n';
     }
 
     // ----------------------------------------------------------------------------
@@ -159,7 +159,7 @@ namespace moris::hmr
     // ----------------------------------------------------------------------------
 
     void
-    Facet::set_id( const moris_id& aID )
+    Facet::set_id( const moris_id aID )
     {
         mID = aID;
     }
@@ -177,7 +177,7 @@ namespace moris::hmr
     // ----------------------------------------------------------------------------
 
     void
-    Facet::set_index( const moris_index& aIndex )
+    Facet::set_index( const moris_index aIndex )
     {
         mIndex = aIndex;
     }
@@ -263,9 +263,9 @@ namespace moris::hmr
         mIndexOnLeader = mFacet->get_index_on_other( mIndexOnLeader );
         Element* tSwap = mLeader;
         mLeader        = mFollower;
-        mFollower         = tSwap;
+        mFollower      = tSwap;
     }
 
     // ----------------------------------------------------------------------------
 
-} /* namespace moris */
+}    // namespace moris::hmr

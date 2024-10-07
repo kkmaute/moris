@@ -19,19 +19,16 @@
 #define timer boost_timer
 #include <boost/timer/progress_display.hpp>
 
-namespace moris
+namespace moris::chronos
 {
-    namespace chronos
-    {
-        /**
-         * Waitbar API wrapper for Boost progress_display.
-         * A wait bar is a figure that displays what percentage of a calculation
-         * is complete as the calculation proceeds
-         * by progressively filling a bar from left to right.
-         */
-        using Waitbar = boost::timer::progress_display;
+    /**
+     * Waitbar API wrapper for Boost progress_display.
+     * A wait bar is a figure that displays what percentage of a calculation
+     * is complete as the calculation proceeds
+     * by progressively filling a bar from left to right.
+     */
+    using Waitbar = boost::timer::progress_display;
 
-    }    // namespace chronos
-}    // namespace moris
+}    // namespace moris::chronos
 
 #endif /* MORIS_CHRONOS_CL_WAITBAR_HPP_ */

@@ -20,11 +20,9 @@
 #include "op_equal_equal.hpp"
 #include "fn_all_true.hpp"
 
-namespace moris
+namespace moris::sdf
 {
-    namespace sdf
-    {
-        //-------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------
 
         Facet::Facet(
                 moris_index                                aIndex,
@@ -42,9 +40,9 @@ namespace moris
         }
 
 
-        //-------------------------------------------------------------------------------
-        // SDF Functions
-        //-------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------
+    // SDF Functions
+    //-------------------------------------------------------------------------------
 
         void
         Facet::intersect_with_coordinate_axis(
@@ -92,59 +90,59 @@ namespace moris
 
         //-------------------------------------------------------------------------------
 
-        Vector< mtk::Vertex* >
-        Facet::get_vertex_pointers() const
-        {
-            uint                   tDimension = get_number_of_vertices();
-            Vector< mtk::Vertex* > tVertices( tDimension, nullptr );
+    Vector< mtk::Vertex* >
+    Facet::get_vertex_pointers() const
+    {
+        uint                   tDimension = get_number_of_vertices();
+        Vector< mtk::Vertex* > tVertices( tDimension, nullptr );
 
-            for ( uint k = 0; k < tDimension; ++k )
-            {
-                tVertices( k ) = mVertices( k ).get();
-            }
-            return tVertices;
+        for ( uint k = 0; k < tDimension; ++k )
+        {
+            tVertices( k ) = mVertices( k ).get();
+        }
+        return tVertices;
+    }
+
+    //-------------------------------------------------------------------------------
+
+    // TODO MESH-CLEANUP
+    void
+    Facet::remove_vertex_pointer( moris_index aIndex )
+    {
+        // std::cout<<"In SDF facet"<<std::endl;
+    }
+
+    //-------------------------------------------------------------------------------
+
+    Matrix< IdMat >
+    Facet::get_vertex_ids() const
+    {
+        uint            tDimension = get_number_of_vertices();
+        Matrix< IdMat > aIDs( tDimension, 1 );
+        for ( uint k = 0; k < tDimension; ++k )
+        {
+            aIDs( k ) = mVertices( k )->get_id();
         }
 
-        //-------------------------------------------------------------------------------
+        return aIDs;
+    }
 
-        // TODO MESH-CLEANUP
-        void
-        Facet::remove_vertex_pointer( moris_index aIndex )
+    //-------------------------------------------------------------------------------
+
+    Matrix< IndexMat >
+    Facet::get_vertex_inds() const
+    {
+        uint               tDimenion = get_number_of_vertices();
+        Matrix< IndexMat > aINDs( tDimenion, 1 );
+
+        for ( uint k = 0; k < tDimenion; ++k )
         {
-            // std::cout<<"In SDF facet"<<std::endl;
+            aINDs( k ) = mVertices( k )->get_index();
         }
+        return aINDs;
+    }
 
-        //-------------------------------------------------------------------------------
-
-        Matrix< IdMat >
-        Facet::get_vertex_ids() const
-        {
-            uint            tDimension = get_number_of_vertices();
-            Matrix< IdMat > aIDs( tDimension, 1 );
-            for ( uint k = 0; k < tDimension; ++k )
-            {
-                aIDs( k ) = mVertices( k )->get_id();
-            }
-
-            return aIDs;
-        }
-
-        //-------------------------------------------------------------------------------
-
-        Matrix< IndexMat >
-        Facet::get_vertex_inds() const
-        {
-            uint               tDimenion = get_number_of_vertices();
-            Matrix< IndexMat > aINDs( tDimenion, 1 );
-
-            for ( uint k = 0; k < tDimenion; ++k )
-            {
-                aINDs( k ) = mVertices( k )->get_index();
-            }
-            return aINDs;
-        }
-
-        //-------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------
 
         Matrix< DDRMat >
         Facet::get_vertex_coords() const
@@ -162,90 +160,90 @@ namespace moris
 
         //-------------------------------------------------------------------------------
 
-        mtk::Geometry_Type
-        Facet::get_geometry_type() const
+    mtk::Geometry_Type
+    Facet::get_geometry_type() const
+    {
+        switch ( get_number_of_vertices() )
         {
-            switch ( get_number_of_vertices() )
+            case 2:
+            {
+                return mtk::Geometry_Type::LINE;
+            }
+            case 3:
+            {
+                return mtk::Geometry_Type::TRI;
+            }
+            default:
+            {
+                MORIS_ERROR( false, "Geometry type not implemented for %d vertex facets.", get_number_of_vertices() );
+                return mtk::Geometry_Type::UNDEFINED;
+            }
+        }
+    }
+
+    void
+    Facet::compute_center()
+    {
+        uint tDimension = mVertices.size();
+
+        // reset center
+        mCenter.fill( 0 );
+
+        // loop over all nodes
+        for ( uint iVertexNumber = 0; iVertexNumber < tDimension; ++iVertexNumber )
+        {
+            // add to the center total
+            for ( uint iAxis = 0; iAxis < tDimension; ++iAxis )
+            {
+                mCenter( iAxis ) += mVertices( iVertexNumber )->get_coord( iAxis );
+            }
+        }
+
+        // divide center by dimension
+        for ( uint iAxis = 0; iAxis < tDimension; ++iAxis )
+        {
+            mCenter( iAxis ) /= (real)tDimension;
+        }
+    }
+
+    void
+    Facet::compute_min_and_max_coordinates()
+    {
+        uint tDimension = mVertices.size();
+
+        // identify minimum and maximum coordinate
+        for ( uint iAxis = 0; iAxis < tDimension; ++iAxis )
+        {
+            // FIXME: there's probably an easier way to determine the min and max without the use of a switch case
+            switch ( tDimension )
             {
                 case 2:
                 {
-                    return mtk::Geometry_Type::LINE;
+                    mMinCoord( iAxis ) = min( mVertices( 0 )->get_coord( iAxis ),
+                            mVertices( 1 )->get_coord( iAxis ) );
+
+                    mMaxCoord( iAxis ) = max( mVertices( 0 )->get_coord( iAxis ),
+                            mVertices( 1 )->get_coord( iAxis ) );
+                    break;
                 }
                 case 3:
                 {
-                    return mtk::Geometry_Type::TRI;
+                    mMinCoord( iAxis ) = min( mVertices( 0 )->get_coord( iAxis ),
+                            mVertices( 1 )->get_coord( iAxis ),
+                            mVertices( 2 )->get_coord( iAxis ) );
+
+                    mMaxCoord( iAxis ) = max( mVertices( 0 )->get_coord( iAxis ),
+                            mVertices( 1 )->get_coord( iAxis ),
+                            mVertices( 2 )->get_coord( iAxis ) );
+                    break;
                 }
                 default:
                 {
-                    MORIS_ERROR( false, "Geometry type not implemented for %d vertex facets.", get_number_of_vertices() );
-                    return mtk::Geometry_Type::UNDEFINED;
+                    MORIS_ASSERT( false, "SDF Facet() - mMinCoord and mMaxCoord not properly computed for dimension %d", tDimension );
                 }
             }
         }
-
-        void
-        Facet::compute_center()
-        {
-            uint tDimension = mVertices.size();
-
-            // reset center
-            mCenter.fill( 0 );
-
-            // loop over all nodes
-            for ( uint iVertexNumber = 0; iVertexNumber < tDimension; ++iVertexNumber )
-            {
-                // add to the center total
-                for ( uint iAxis = 0; iAxis < tDimension; ++iAxis )
-                {
-                    mCenter( iAxis ) += mVertices( iVertexNumber )->get_coord( iAxis );
-                }
-            }
-
-            // divide center by dimension
-            for ( uint iAxis = 0; iAxis < tDimension; ++iAxis )
-            {
-                mCenter( iAxis ) /= (real)tDimension;
-            }
-        }
-
-        void
-        Facet::compute_min_and_max_coordinates()
-        {
-            uint tDimension = mVertices.size();
-
-            // identify minimum and maximum coordinate
-            for ( uint iAxis = 0; iAxis < tDimension; ++iAxis )
-            {
-                // FIXME: there's probably an easier way to determine the min and max without the use of a switch case
-                switch ( tDimension )
-                {
-                    case 2:
-                    {
-                        mMinCoord( iAxis ) = min( mVertices( 0 )->get_coord( iAxis ),
-                                mVertices( 1 )->get_coord( iAxis ) );
-
-                        mMaxCoord( iAxis ) = max( mVertices( 0 )->get_coord( iAxis ),
-                                mVertices( 1 )->get_coord( iAxis ) );
-                        break;
-                    }
-                    case 3:
-                    {
-                        mMinCoord( iAxis ) = min( mVertices( 0 )->get_coord( iAxis ),
-                                mVertices( 1 )->get_coord( iAxis ),
-                                mVertices( 2 )->get_coord( iAxis ) );
-
-                        mMaxCoord( iAxis ) = max( mVertices( 0 )->get_coord( iAxis ),
-                                mVertices( 1 )->get_coord( iAxis ),
-                                mVertices( 2 )->get_coord( iAxis ) );
-                        break;
-                    }
-                    default:
-                    {
-                        MORIS_ASSERT( false, "SDF Facet() - mMinCoord and mMaxCoord not properly computed for dimension %d", tDimension );
-                    }
-                }
-            }
-        }
+    }
 
         bool
         Facet::operator==( const Facet& aRHS ) const

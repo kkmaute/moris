@@ -329,7 +329,7 @@ void perform_calculation(
     }
 
     // create output mesh
-    std::string tOutputPath = aArguments.get_output_mesh_path();
+    const std::string& tOutputPath = aArguments.get_output_mesh_path();
 
     if ( tOutputPath.size() > 0 )
     {

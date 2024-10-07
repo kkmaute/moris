@@ -37,7 +37,7 @@ namespace moris
 
         void dirichlet_BC_vector(
                 moris::Matrix< DDUMat >&       aDirichletBCVec,
-                const moris::Matrix< DDUMat >& aMyConstraintDofs );
+                const moris::Matrix< DDUMat >& aMyConstraintDofs ) override;
 
       protected:
 
@@ -51,12 +51,12 @@ namespace moris
                 const moris::uint       aCols );
 
         /** Destructor */
-        virtual ~Matrix_PETSc();
+        ~Matrix_PETSc() override;
 
         void fill_matrix(
                 const moris::uint&             aNumMyDofs,
                 const moris::Matrix< DDRMat >& aA_val,
-                const moris::Matrix< DDSMat >& aEleDofConnectivity );
+                const moris::Matrix< DDSMat >& aEleDofConnectivity ) override;
 
         /**
          * Inserts values into the matrix at locations corresponding to the given row and column IDs.
@@ -68,7 +68,7 @@ namespace moris
         void insert_values(
                 const Matrix< DDSMat >& aRowIDs,
                 const Matrix< DDSMat >& aColumnIDs,
-                const Matrix< DDRMat >& aMatrixValues );
+                const Matrix< DDRMat >& aMatrixValues ) override;
 
         /**
          * Sums values into the matrix at locations corresponding to the given row and column IDs.
@@ -80,23 +80,23 @@ namespace moris
         void sum_into_values(
                 const Matrix< DDSMat >& aRowIDs,
                 const Matrix< DDSMat >& aColumnIDs,
-                const Matrix< DDRMat >& aMatrixValues );
+                const Matrix< DDRMat >& aMatrixValues ) override;
 
         void get_matrix_values(
                 const moris::Matrix< DDSMat >& aRequestedIds,
-                moris::Matrix< DDRMat >&       aValues );
+                moris::Matrix< DDRMat >&       aValues ) override;
 
-        void matrix_global_assembly();
+        void matrix_global_assembly() override;
 
         void build_graph(
                 const moris::uint&             aNumMyDof,
-                const moris::Matrix< DDSMat >& aElementTopology );
+                const moris::Matrix< DDSMat >& aElementTopology ) override;
 
-        void get_diagonal( moris::sol::Dist_Vector& aDiagVec ) const {};
+        void get_diagonal( moris::sol::Dist_Vector& aDiagVec ) const override {};
 
         // FIXME mat_put_scalar only implemented for zeros with petsc. has to be changed
         void
-        mat_put_scalar( const moris::real& aValue )
+        mat_put_scalar( const moris::real& aValue ) override
         {
             MORIS_ERROR( std::abs( aValue ) < MORIS_REAL_EPS,
                     "mat_put_scalar only implemented for zeros with petsc. " );
@@ -105,19 +105,19 @@ namespace moris
         }
 
         void
-        sparse_mat_left_scale( const moris::sol::Dist_Vector& aScaleVector )
+        sparse_mat_left_scale( const moris::sol::Dist_Vector& aScaleVector ) override
         {
             MORIS_ERROR( false, "not yet implemented for petsc" );
         };
 
         void
-        sparse_mat_right_scale( const moris::sol::Dist_Vector& aScaleVector )
+        sparse_mat_right_scale( const moris::sol::Dist_Vector& aScaleVector ) override
         {
             MORIS_ERROR( false, "not yet implemented for petsc" );
         };
 
         void
-        replace_diagonal_values( const moris::sol::Dist_Vector& aDiagVec )
+        replace_diagonal_values( const moris::sol::Dist_Vector& aDiagVec ) override
         {
             MORIS_ERROR( false, "not yet implemented for petsc" );
         };
@@ -131,19 +131,19 @@ namespace moris
          * @param aResult 
          * @param aUseTranspose 
          */
-        virtual void
+        void
         mat_vec_product(
                 const moris::sol::Dist_Vector& aInputVec,
                 moris::sol::Dist_Vector&       aResult,
-                const bool                     aUseTranspose );
+                const bool                     aUseTranspose ) override;
         //----------------------------------------------------------------------------------------
-        void print() const;
+        void print() const override;
 
-        void save_matrix_to_matlab_file( const char* aFilename );
+        void save_matrix_to_matlab_file( const char* aFilename ) override;
 
-        void save_matrix_to_matrix_market_file( const char* aFilename ){};
+        void save_matrix_to_matrix_market_file( const char* aFilename ) override{};
 
-        void save_matrix_map_to_matrix_market_file( const char* aFilename ){};
+        void save_matrix_map_to_matrix_market_file( const char* aFilename ) override{};
 
         // ----------------------------------------------------------------------------
 
@@ -154,7 +154,7 @@ namespace moris
          * @param aElementTopology
          */
 
-        virtual void build_graph(
+        void build_graph(
                 Vector< moris_id >& aNonZeroDiagonal,
                 Vector< moris_id >& aNonZeroOffDiagonal ) override;
 

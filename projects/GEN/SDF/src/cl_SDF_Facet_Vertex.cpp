@@ -11,11 +11,9 @@
 #include "cl_SDF_Facet_Vertex.hpp"
 #include "op_times.hpp"
 
-namespace moris
+namespace moris::sdf
 {
-    namespace sdf
-    {
-        //-------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------
 
         Facet_Vertex::Facet_Vertex(
                 const moris_index       aIndex,
@@ -25,7 +23,7 @@ namespace moris
         {
         }
 
-        //-------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------
 
         void
         Facet_Vertex::rotate_node_coords( const Matrix< DDRMat > &aRotationMatrix )
@@ -74,7 +72,7 @@ namespace moris
             mNodeCoords( aDimension )          = aCoordinate;
         }
 
-        //-------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------
 
         void
         Facet_Vertex::shift_node_coords_from_current( const moris::Vector< real > &aShift )
@@ -101,8 +99,6 @@ namespace moris
             return mNodeCoords;
         }
 
-        //-------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------
 
-
-    } /* namespace sdf */
-} /* namespace moris */
+}    // namespace moris::sdf

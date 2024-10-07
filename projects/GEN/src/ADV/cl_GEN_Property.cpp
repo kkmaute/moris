@@ -9,6 +9,8 @@
  */
 
 #include "cl_GEN_Property.hpp"
+
+#include <utility>
 #include "cl_MTK_Integration_Mesh.hpp"
 
 namespace moris::gen
@@ -29,10 +31,10 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Property::Property(
-            std::shared_ptr< Field > aField,
-            Property_Parameters      aParameters,
-            Node_Manager&            aNodeManager )
-            : Design_Field( aField, aParameters, aNodeManager )
+            std::shared_ptr< Field >   aField,
+            const Property_Parameters& aParameters,
+            Node_Manager&              aNodeManager )
+            : Design_Field( std::move( aField ), aParameters, aNodeManager )
             , Design( aParameters )
             , mParameters( aParameters )
     {
@@ -47,7 +49,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Property::update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedDesigns )
+    void Property::update_dependencies( const Vector< std::shared_ptr< Design > >& aAllUpdatedDesigns )
     {
         // Get fields from designs
         Vector< std::shared_ptr< Field > > tUpdatedFields;

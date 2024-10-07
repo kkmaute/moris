@@ -39,46 +39,46 @@ namespace moris::opt
          *
          * @param aParameterList Parameter list containing parameters for a user-defined interface.
          */
-        explicit Interface_User_Defined( Parameter_List aParameterList );
+      explicit Interface_User_Defined( const Parameter_List& aParameterList );
 
-        /**
-         * Alternate constructor where the user-defined functions are provided directly. Used in the OPT tests.
-         *
-         * @param aInitializationFunction Function for initializing ADVs and lower/upper bounds.
-         * @param aCriteriaEvaluationFunction Function for evaluating the criteria vector.
-         * @param aCriteriaGradientFunction Function for evaluating the gradient of the criteria vector wrt ADVs.
-         */
-        Interface_User_Defined(
-                Criteria_Initialize_Function aInitializationFunction,
-                Criteria_Function            aCriteriaEvaluationFunction,
-                Criteria_Gradient_Function   aCriteriaGradientFunction );
+      /**
+       * Alternate constructor where the user-defined functions are provided directly. Used in the OPT tests.
+       *
+       * @param aInitializationFunction Function for initializing ADVs and lower/upper bounds.
+       * @param aCriteriaEvaluationFunction Function for evaluating the criteria vector.
+       * @param aCriteriaGradientFunction Function for evaluating the gradient of the criteria vector wrt ADVs.
+       */
+      Interface_User_Defined(
+              Criteria_Initialize_Function aInitializationFunction,
+              Criteria_Function            aCriteriaEvaluationFunction,
+              Criteria_Gradient_Function   aCriteriaGradientFunction );
 
-        /**
-         * Initializes the vectors of ADV values, lower bounds, and upper bounds
-         *
-         * @param aADVs Initial ADVs to be filled.
-         * @param aLowerBounds Lower ADV bounds to be filled.
-         * @param aUpperBounds Upper ADV bounds to be filled.
-         */
-        void initialize(
-                Vector< real >& aADVs,
-                Vector< real >& aLowerBounds,
-                Vector< real >& aUpperBounds,
-                Matrix< IdMat >& aIjklIds ) override;
+      /**
+       * Initializes the vectors of ADV values, lower bounds, and upper bounds
+       *
+       * @param aADVs Initial ADVs to be filled.
+       * @param aLowerBounds Lower ADV bounds to be filled.
+       * @param aUpperBounds Upper ADV bounds to be filled.
+       */
+      void initialize(
+              Vector< real >&  aADVs,
+              Vector< real >&  aLowerBounds,
+              Vector< real >&  aUpperBounds,
+              Matrix< IdMat >& aIjklIds ) override;
 
-        /**
-         * Gets the criteria values.
-         *
-         * @return vector of criteria
-         */
-        Vector< real > perform( Vector< real >& aNewADVs ) override;
+      /**
+       * Gets the criteria values.
+       *
+       * @return vector of criteria
+       */
+      Vector< real > perform( Vector< real >& aNewADVs ) override;
 
-        /**
-         * Gets the derivative of the criteria with respect to the advs.
-         *
-         * @return matrix d(criteria)_i/d(adv)_j
-         */
-        Matrix< DDRMat > compute_dcriteria_dadv() override;
+      /**
+       * Gets the derivative of the criteria with respect to the advs.
+       *
+       * @return matrix d(criteria)_i/d(adv)_j
+       */
+      Matrix< DDRMat > compute_dcriteria_dadv() override;
 
     private:
 

@@ -15,9 +15,7 @@
 #include "cl_Matrix.hpp"
 #include <unordered_map>
 
-namespace moris
-{
-namespace mtk
+namespace moris::mtk
 {
 
 class Cell_Cluster_STK: public Cell_Cluster
@@ -44,22 +42,22 @@ public:
 
     //----------------------------------------------------------------
 
-    ~Cell_Cluster_STK(){};
+    ~Cell_Cluster_STK() override{};
 
     //----------------------------------------------------------------
     bool
-    is_trivial( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
+    is_trivial( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const override;
 
     //##############################################
     // Add and setup of cluster
     //##############################################
     void
-    mark_as_nontrivial();
+    mark_as_nontrivial() override;
 
     //----------------------------------------------------------------
 
     void
-    set_interpolation_cell(moris::mtk::Cell const * aInterpCell);
+    set_interpolation_cell(moris::mtk::Cell const * aInterpCell) override;
 
     //----------------------------------------------------------------
 
@@ -69,12 +67,12 @@ public:
     //----------------------------------------------------------------
 
     void
-    add_primary_integration_cell(Vector<moris::mtk::Cell  const *> const & aIntegrationCell);
+    add_primary_integration_cell(Vector<moris::mtk::Cell  const *> const & aIntegrationCell) override;
 
     //----------------------------------------------------------------
 
     void
-    add_void_integration_cell(Vector<moris::mtk::Cell const *> const & aIntegrationCell);
+    add_void_integration_cell(Vector<moris::mtk::Cell const *> const & aIntegrationCell) override;
 
     //----------------------------------------------------------------
 
@@ -93,38 +91,38 @@ public:
     //##############################################
 
     Vector<moris::mtk::Cell const *> const &
-    get_primary_cells_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER) const;
+    get_primary_cells_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER) const override;
 
     //----------------------------------------------------------------
 
     Vector<moris::mtk::Cell const *> const &
-    get_void_cells_in_cluster() const;
+    get_void_cells_in_cluster() const override;
 
     //----------------------------------------------------------------
 
     moris::mtk::Cell const &
-    get_interpolation_cell( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
+    get_interpolation_cell( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const override;
 
     //----------------------------------------------------------------
 
     Vector<moris::mtk::Vertex const *>
-    get_vertices_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
+    get_vertices_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const override;
 
     //----------------------------------------------------------------
 
     moris::Matrix<moris::DDRMat>
-    get_vertices_local_coordinates_wrt_interp_cell(const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER) const;
+    get_vertices_local_coordinates_wrt_interp_cell(const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER) const override;
 
     //----------------------------------------------------------------
 
     moris::Matrix<moris::DDRMat>
     get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex,
-            const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER) const;
+            const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER) const override;
 
     //----------------------------------------------------------------
 
     moris_index
-    get_dim_of_param_coord( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
+    get_dim_of_param_coord( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const override;
 
     //----------------------------------------------------------------
     //##############################################
@@ -140,7 +138,6 @@ private:
     add_vertex_to_map(moris_id aVertexId,
                       moris_index aVertexLocalIndex);
 };
-}
 }
 
 #endif /* PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_CELL_CLUSTER_STK_HPP_ */

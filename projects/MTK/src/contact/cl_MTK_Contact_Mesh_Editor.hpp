@@ -91,7 +91,7 @@ namespace moris::mtk
          *
          * (SourceCluster, TargetCluster, TargetMesh) -- n -> (SourceCell, TargetCell) -- n -> (Index in MappingResult, e.g. to access integration points)
          */
-        static std::map< Contact_Mesh_Editor::CellPair, Contact_Mesh_Editor::ResultIndices > extract_cell_pairing( MappingResult const &aMappingResult, Vector< moris_index > aResultIndices );
+        static std::map< Contact_Mesh_Editor::CellPair, Contact_Mesh_Editor::ResultIndices > extract_cell_pairing( MappingResult const &aMappingResult, const Vector< moris_index > &aResultIndices );
 
         std::unordered_map< moris_index, std::map< std::pair< moris_index, moris_index >, Contact_Mesh_Editor::ResultIndices > > extract_cluster_pairing( MappingResult const &aMappingResult ) const;
         /**
@@ -99,7 +99,7 @@ namespace moris::mtk
          * while the leader side (where the ray hits) will be called the target side. The mapping will be performed for all source sides of the candidate pairs.
          * \return Returns a mapping result for each source side of the candidate pairs.
          */
-        Vector< MappingResult > perform_mapping( Matrix< DDRMat > aPointsToMap ) const;
+        Vector< MappingResult > perform_mapping( const Matrix< DDRMat > &aPointsToMap ) const;
 
         std::map< SetPair, Vector< Nonconformal_Side_Cluster > >
         convert_mapping_result_to_nonconformal_side_clusters( MappingResult const &aMappingResult ) const;
@@ -155,7 +155,6 @@ namespace moris::mtk
         PointMapper                                     mPointMapper;
         real                                            mMaxNegativeRayLength;
         real                                            mMaxPositiveRayLength;
-        int                                             mIteration = 0;
     };
 }    // namespace moris::mtk
 #endif    // MORIS_CL_MTK_CONTACT_MESH_EDITOR_HPP

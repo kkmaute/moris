@@ -43,9 +43,6 @@ namespace moris
             Matrix< DDRMat >  mMySolVec;
             Matrix< DDRMat >  mMySolVecPrev;
 
-            moris::sint mNX;
-            moris::sint mNY;
-
             Vector< enum MSI::Dof_Type > mListOfDofTypes;
             Vector< enum MSI::Dof_Type > mListSecondaryOfDofTypes;
 
@@ -63,7 +60,7 @@ namespace moris
             // TSA_Solver_Interface_Proxy_( std::shared_ptr< Nonlinear_Solver > aNewtonSolver ){};
 
             // ----------------------------------------------------------------------------------------------
-            ~TSA_Solver_Interface_Proxy() override{};
+            ~TSA_Solver_Interface_Proxy() override {};
 
             // ----------------------------------------------------------------------------------------------
 
@@ -89,7 +86,7 @@ namespace moris
             // ----------------------------------------------------------------------------------------------
 
             void
-            set_requested_dof_types( const Vector< enum MSI::Dof_Type > aListOfDofTypes ) override
+            set_requested_dof_types( const Vector< enum MSI::Dof_Type >& aListOfDofTypes ) override
             {
                 mListOfDofTypes = aListOfDofTypes;
             };
@@ -101,7 +98,7 @@ namespace moris
             };
 
             void
-            set_secondary_dof_types( const Vector< enum MSI::Dof_Type > aListOfDofTypes ) override
+            set_secondary_dof_types( const Vector< enum MSI::Dof_Type >& aListOfDofTypes ) override
             {
                 mListSecondaryOfDofTypes = aListOfDofTypes;
             };
@@ -157,7 +154,7 @@ namespace moris
             // ----------------------------------------------------------------------------------------------
 
             moris::Matrix< DDSMat >
-            get_my_local_global_overlapping_map( const Vector< enum MSI::Dof_Type >& aListOfDofTypes )
+            get_my_local_global_overlapping_map( const Vector< enum MSI::Dof_Type >& aListOfDofTypes ) override
             {
                 mMyGlobalElementsOverlapping.resize( 2, 1 );
                 mMyGlobalElementsOverlapping( 0, 0 ) = 0;
@@ -266,7 +263,7 @@ namespace moris
                 }
                 else
                 {
-                    return NULL;
+                    return nullptr;
                 }
             };
 

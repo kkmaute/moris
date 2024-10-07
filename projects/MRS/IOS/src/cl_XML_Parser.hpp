@@ -107,7 +107,7 @@ namespace moris
          */
         template< typename T >
         void
-        get( const std::string aKey, T& aValue, T aDefault ) const
+        get( const std::string& aKey, T& aValue, const T& aDefault ) const
         {
             aValue = mTree.get< T >( aKey, aDefault );
         }
@@ -153,9 +153,9 @@ namespace moris
         template< typename T >
         void
         get_from_buffer(
-                const std::string aKey,
-                T&                aValue,
-                T                 aDefault ) const
+                const std::string& aKey,
+                T&                 aValue,
+                const T&           aDefault ) const
         {
             aValue = mBuffer.get< T >( aKey, aDefault );
         }
@@ -167,7 +167,7 @@ namespace moris
          */
         template< typename T >
         void
-        set_in_buffer( const std::string aKey, const T& aValue )
+        set_in_buffer( const std::string& aKey, const T& aValue )
         {
             mBuffer.put( aKey, aValue );
         }
@@ -186,7 +186,7 @@ namespace moris
         get_attribute_in_buffer(
                 const std::string& aAttributeName,
                 T&                 aAttributeValue,
-                const std::string  aLocation = "" ) const
+                const std::string& aLocation = "" ) const
         {
             std::string tKey = "<xmlattr>." + aAttributeName;
             if ( aLocation != "" )
@@ -202,7 +202,7 @@ namespace moris
         T
         get_attribute_from_buffer(
                 const std::string& aAttributeName,
-                T                  aDefault ) const
+                const T&           aDefault ) const
         {
             std::string tKey = "<xmlattr>." + aAttributeName;
             return mBuffer.get< T >( tKey );
@@ -228,7 +228,7 @@ namespace moris
         set_attribute_in_buffer(
                 const std::string& aAttributeName,
                 const T&           aAttributeValue,
-                const std::string  aLocation = "" )
+                const std::string& aLocation = "" )
         {
             std::string tKey = "<xmlattr>." + aAttributeName;
             if ( aLocation != "" )

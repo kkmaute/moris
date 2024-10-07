@@ -40,35 +40,33 @@
 
 #include "cl_Parameter_List.hpp"    // CON/src
 
-namespace moris
+namespace moris::dla
 {
-    namespace dla
+    class Linear_System_Trilinos : public Linear_Problem
     {
-        class Linear_System_Trilinos : public Linear_Problem
-        {
-          private:
+      private:
 
-          protected:
+      protected:
 
-          public:
-            Linear_System_Trilinos( Solver_Interface* aInput );
+      public:
+        Linear_System_Trilinos( Solver_Interface* aInput );
 
-            Linear_System_Trilinos(
-                    Solver_Interface*   aInput,
-                    sol::SOL_Warehouse* aSolverWarehouse,
-                    sol::Dist_Map*      aMap,
-                    sol::Dist_Map*      aFullMap );
+        Linear_System_Trilinos(
+                Solver_Interface*   aInput,
+                sol::SOL_Warehouse* aSolverWarehouse,
+                sol::Dist_Map*      aMap,
+                sol::Dist_Map*      aFullMap );
 
-            Linear_System_Trilinos( const char* aString );
+        Linear_System_Trilinos( const char* aString );
 
-            ~Linear_System_Trilinos();
+        ~Linear_System_Trilinos() override;
 
-            moris::sint solve_linear_system();
+        moris::sint solve_linear_system() override;
 
-            void get_solution( Matrix< DDRMat >& LHSValues );
+        void get_solution( Matrix< DDRMat >& LHSValues ) override;
 
-            virtual void construct_rhs_matrix() override;
-        };
-    }    // namespace dla
-}    // namespace moris
+        void construct_rhs_matrix() override;
+    };
+}    // namespace moris::dla
+
 #endif /* SRC_DISTLINALG_CL_DLA_LINEAR_SYSTEM_TRILINOS_HPP_ */

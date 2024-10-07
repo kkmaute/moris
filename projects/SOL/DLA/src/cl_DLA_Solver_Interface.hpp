@@ -46,7 +46,8 @@ namespace moris
       private:
         // Dummy member variable
 
-        bool mIsForwardAnalysis = true;
+        bool mIsForwardAnalysis            = true;
+        bool mIsAdjointSensitivityAnalysis = true;
 
       protected:
         Vector< moris_id > mNonZeroDigonal;
@@ -54,16 +55,17 @@ namespace moris
 
       public:
         /** Destructor */
-        virtual ~Solver_Interface(){};
+        virtual ~Solver_Interface() {};
 
         //------------------------------------------------------------------------------
         /**
          * indicated that this equation model is used for the sensitivity analysis
          */
         void
-        set_is_sensitivity_analysis()
+        set_sensitivity_analysis_type( bool tIsAdjointSensitivityAnalysis )
         {
-            mIsForwardAnalysis = false;
+            mIsForwardAnalysis            = false;
+            mIsAdjointSensitivityAnalysis = tIsAdjointSensitivityAnalysis;
         };
 
         //------------------------------------------------------------------------------
@@ -82,7 +84,7 @@ namespace moris
          * @param[ out ] mIsForwardAnalysis
          */
         bool
-        get_is_forward_analysis()
+        is_forward_analysis()
         {
             return mIsForwardAnalysis;
         };
@@ -122,7 +124,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         virtual void
-        set_eigen_values( std::shared_ptr< Vector< real > > aEigenValues )
+        set_eigen_values( const std::shared_ptr< Vector< real > >& aEigenValues )
         {
             MORIS_ERROR( false, "Solver_Interface::set_eigen_values: not set." );
         };
@@ -255,7 +257,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         virtual void
-        set_requested_dof_types( const Vector< enum MSI::Dof_Type > aListOfDofTypes )
+        set_requested_dof_types( const Vector< enum MSI::Dof_Type >& aListOfDofTypes )
         {
             MORIS_ERROR( false, "Solver_Interface::set_requested_dof_types: not set." );
         };
@@ -263,7 +265,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         virtual void
-        set_secondary_dof_types( const Vector< enum MSI::Dof_Type > aListOfDofTypes )
+        set_secondary_dof_types( const Vector< enum MSI::Dof_Type >& aListOfDofTypes )
         {
             MORIS_ERROR( false, "Solver_Interface::set_secondary_dof_types: not set." );
         };
@@ -474,7 +476,7 @@ namespace moris
         get_matrix_market_path()
         {
             // assert(0);
-            return NULL;
+            return nullptr;
         }
 
         //------------------------------------------------------------------------------
@@ -639,7 +641,7 @@ namespace moris
          */
 
         virtual void
-        set_solver_warehouse( std::shared_ptr< sol::SOL_Warehouse > aSolverWarehouse );
+        set_solver_warehouse( const std::shared_ptr< sol::SOL_Warehouse >& aSolverWarehouse );
 
         //------------------------------------------------------------------------------
 

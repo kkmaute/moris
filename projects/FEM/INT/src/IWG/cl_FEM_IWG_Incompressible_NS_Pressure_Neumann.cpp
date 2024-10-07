@@ -16,31 +16,29 @@
 #include "fn_norm.hpp"
 #include "fn_dot.hpp"
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+    //------------------------------------------------------------------------------
+
+    IWG_Incompressible_NS_Pressure_Neumann::IWG_Incompressible_NS_Pressure_Neumann()
     {
-        //------------------------------------------------------------------------------
+        // set size for the property pointer cell
+        mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
-        IWG_Incompressible_NS_Pressure_Neumann::IWG_Incompressible_NS_Pressure_Neumann()
-        {
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+        // populate the property map
+        mPropertyMap[ "Pressure" ]           = static_cast< uint >( IWG_Property_Type::PRESSURE );
+        mPropertyMap[ "TotalPressure" ]      = static_cast< uint >( IWG_Property_Type::TOTAL_PRESSURE );
+        mPropertyMap[ "Density" ]            = static_cast< uint >( IWG_Property_Type::DENSITY );
+        mPropertyMap[ "BackFlowPrevention" ] = static_cast< uint >( IWG_Property_Type::BACKFLOW_PREVENTION );
+        mPropertyMap[ "Select" ]             = static_cast< uint >( IWG_Property_Type::SELECT );
+    }
 
-            // populate the property map
-            mPropertyMap[ "Pressure" ]           = static_cast< uint >( IWG_Property_Type::PRESSURE );
-            mPropertyMap[ "TotalPressure" ]      = static_cast< uint >( IWG_Property_Type::TOTAL_PRESSURE );
-            mPropertyMap[ "Density" ]            = static_cast< uint >( IWG_Property_Type::DENSITY );
-            mPropertyMap[ "BackFlowPrevention" ] = static_cast< uint >( IWG_Property_Type::BACKFLOW_PREVENTION );
-            mPropertyMap[ "Select" ]             = static_cast< uint >( IWG_Property_Type::SELECT );
-        }
+    //------------------------------------------------------------------------------
 
-        //------------------------------------------------------------------------------
-
-        void
-        IWG_Incompressible_NS_Pressure_Neumann::compute_residual( real aWStar )
-        {
-            // check leader field interpolators
+    void
+    IWG_Incompressible_NS_Pressure_Neumann::compute_residual( real aWStar )
+    {
+        // check leader field interpolators
 #ifdef MORIS_HAVE_DEBUG
             this->check_field_interpolators();
 #endif
@@ -332,5 +330,4 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
+}    // namespace moris::fem

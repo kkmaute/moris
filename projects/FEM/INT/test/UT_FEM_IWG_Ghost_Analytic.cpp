@@ -317,16 +317,15 @@ TEST_CASE( "IWG_Diff_Ghost_Analytic", "[moris],[fem],[IWG_Diff_Ghost_Analytic]" 
             // print information if something goes wrong
             if( !tCheckResidual || !tCheckJacobian )
             {
-                std::cout << "\n-------------------------------------------" << std::endl;
-                std::cout << "Residual or Jacobian check failed in " << iSpaceDim << "D and for p=" << iInterpOrder << std::endl;
-                std::cout << "Reference value is: " << tRefVal << std::endl;
-                std::cout << "Residual value is: " << tIntegrandFromResidual( 0, 0 ) << std::endl;
-                std::cout << "Residual value (obtained through the Jacobian) is: " << tIntegrandFromJacobian( 0, 0 ) << std::endl;
-                std::cout << "Absolute differences are: " << std::abs( tIntegrandFromResidual( 0, 0 ) - tRefVal ) << 
-                        " and " << std::abs( tIntegrandFromResidual( 0, 0 ) - tRefVal ) << std::endl;
-                std::cout << "Relative differences are: " << std::abs( ( tIntegrandFromResidual( 0, 0 ) - tRefVal ) / tRefVal ) << 
-                        " and " << std::abs( ( tIntegrandFromJacobian( 0, 0 ) - tRefVal ) / tRefVal ) << std::endl;
-                std::cout << "-------------------------------------------\n" << std::endl;
+                std::cout << "\n-------------------------------------------" << '\n';
+                std::cout << "Residual or Jacobian check failed in " << iSpaceDim << "D and for p=" << iInterpOrder << '\n';
+                std::cout << "Reference value is: " << tRefVal << '\n';
+                std::cout << "Residual value is: " << tIntegrandFromResidual( 0, 0 ) << '\n';
+                std::cout << "Residual value (obtained through the Jacobian) is: " << tIntegrandFromJacobian( 0, 0 ) << '\n';
+                std::cout << "Absolute differences are: " << std::abs( tIntegrandFromResidual( 0, 0 ) - tRefVal ) << " and " << std::abs( tIntegrandFromResidual( 0, 0 ) - tRefVal ) << '\n';
+                std::cout << "Relative differences are: " << std::abs( ( tIntegrandFromResidual( 0, 0 ) - tRefVal ) / tRefVal ) << " and " << std::abs( ( tIntegrandFromJacobian( 0, 0 ) - tRefVal ) / tRefVal ) << '\n';
+                std::cout << "-------------------------------------------\n"
+                          << '\n';
             }
 
             // check that the integral sums are as expected

@@ -38,7 +38,7 @@ namespace moris::fem
         for ( uint iProp = 0; iProp < tNumProps; iProp++ )
         {
             // get property parameter list
-            Parameter_List tPropParameter = tPropParameterList( iProp );
+            const Parameter_List &tPropParameter = tPropParameterList( iProp );
             auto           tProperty      = std::make_shared< fem::Property >();
 
             // get property name from parameter list
@@ -61,7 +61,7 @@ namespace moris::fem
             tProperty->set_field_type_list( tFieldTypes );
 
             // set function parameters
-            auto tFuncParameters = string_to_cell_mat_2< DDRMat >( tPropParameter.get< std::string >( "function_parameters" ) );
+            auto tFuncParameters = string_to_vector_of_matrices< DDRMat >( tPropParameter.get< std::string >( "function_parameters" ) );
             tProperty->set_parameters( tFuncParameters );
 
             // set value function for property
@@ -102,7 +102,7 @@ namespace moris::fem
         for ( sint iField = 0; iField < tNumFields; iField++ )
         {
             // get property parameter list
-            Parameter_List tFieldParameter = tFieldParameterList( iField );
+            const Parameter_List &tFieldParameter = tFieldParameterList( iField );
 
             moris::map< std::string, mtk::Field_Entity_Type > tFieldEntityTypeMap = mtk::get_field_entity_type_map();
 
@@ -119,7 +119,7 @@ namespace moris::fem
             moris::map< std::string, mtk::Field_Type > tFieldTypeMap = mtk::get_field_type_map();
 
             // set field type
-            Vector< mtk::Field_Type > tFieldTypes = string_to_cell< mtk::Field_Type >( tFieldParameter.get< std::string >( "field_type" ), tFieldTypeMap );
+            Vector< mtk::Field_Type > tFieldTypes = string_to_vector< mtk::Field_Type >( tFieldParameter.get< std::string >( "field_type" ), tFieldTypeMap );
             tField->set_field_type( tFieldTypes );
 
             mFieldTypes.resize( std::max( static_cast< uint >( tFieldTypes( 0 ) ) + 1, (uint)mFieldTypes.size() ), -1 );
@@ -178,7 +178,7 @@ namespace moris::fem
             Parameter_List const &aParameterList,
             std::string const    &aPropertyName )
     {
-        auto tFuncNames    = string_to_cell< std::string >( aParameterList.get< std::string >( aPropertyName ) );
+        auto tFuncNames    = string_to_vector< std::string >( aParameterList.get< std::string >( aPropertyName ) );
         uint tNumFunctions = tFuncNames.size();
 
         Vector< fem::PropertyFunc > tPropertyFunctions( tNumFunctions, nullptr );

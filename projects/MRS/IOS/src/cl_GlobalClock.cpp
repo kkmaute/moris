@@ -62,9 +62,9 @@ namespace moris
 
     void
     GlobalClock::sign_in(
-            std::string aEntityBase,
-            std::string aEntityType,
-            std::string aEntityAction )
+            const std::string& aEntityBase,
+            const std::string& aEntityType,
+            const std::string& aEntityAction )
     {
         // increment indentation level
         mIndentationLevel++;

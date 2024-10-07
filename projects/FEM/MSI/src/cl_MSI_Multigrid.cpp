@@ -16,10 +16,8 @@
 #include "cl_MTK_Mesh.hpp"
 #include "cl_HMR_Database.hpp"
 
-namespace moris
+namespace moris::MSI
 {
-    namespace MSI
-    {
     Multigrid::Multigrid( moris::MSI::Model_Solver_Interface * aModelSolverInterface,
                           moris::mtk::Mesh                   * aMesh ) : mMesh( aMesh ),
                                                                          mModelSolverInterface( aModelSolverInterface )
@@ -311,5 +309,3 @@ namespace moris
     }
 
 }
-}
-

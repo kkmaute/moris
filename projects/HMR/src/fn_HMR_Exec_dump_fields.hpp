@@ -25,9 +25,9 @@
 
 namespace moris::hmr
 {
-//--------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------
 
-    void dump_fields( const Paramfile & aParams, Vector< std::shared_ptr< Field > > & aFields )
+    void dump_fields( const Paramfile& aParams, Vector< std::shared_ptr< Field > >& aFields )
     {
         // before we dump the fields, we must find out if they are all
         // written into the same output database or not
@@ -39,9 +39,9 @@ namespace moris::hmr
 
         // next, we map the target paths with the field IDs
         map< moris_id, std::string > tFieldIdToTarget;
-        for( uint f=0; f<tNumberOfFields; ++f )
+        for ( uint f = 0; f < tNumberOfFields; ++f )
         {
-            tFieldIdToTarget[ aParams.get_field_params( f ).mID ] =  aParams.get_field_params( f ).mTarget;
+            tFieldIdToTarget[ aParams.get_field_params( f ).mID ] = aParams.get_field_params( f ).mTarget;
 
             tOutputFiles.push_back( aParams.get_field_params( f ).mTarget );
         }
@@ -55,7 +55,7 @@ namespace moris::hmr
         // now, we crate a map with the indices
         map< std::string, uint > tFileMap;
 
-        for( uint k=0; k<tNumberOfFiles; ++k )
+        for ( uint k = 0; k < tNumberOfFiles; ++k )
         {
             tFileMap[ tOutputFiles( k ) ] = k;
         }
@@ -67,7 +67,7 @@ namespace moris::hmr
         Vector< hid_t > tFileIDs( tNumberOfFiles, 0 );
 
         // loop over all fields
-        for(  std::shared_ptr< Field > tField : aFields )
+        for ( const std::shared_ptr< Field >& tField : aFields )
         {
             // get path
             std::string tFilePath = tFieldIdToTarget.find( tField->get_id() );
@@ -87,19 +87,18 @@ namespace moris::hmr
             }
 
             save_matrix_to_hdf5_file( tFileIDs( tIndex ),
-                                      tField->get_label(),
-                                      tField->get_coefficients(),
-                                      tStatus );
+                    tField->get_label(),
+                    tField->get_coefficients(),
+                    tStatus );
         }
 
         // close all open files
-        for( hid_t tFileID : tFileIDs )
+        for ( hid_t tFileID : tFileIDs )
         {
             close_hdf5_file( tFileID );
         }
     }
-//--------------------------------------------------------------------------------
-}
+    //--------------------------------------------------------------------------------
+}    // namespace moris::hmr
 
 #endif /* PROJECTS_HMR_SRC_FN_HMR_EXEC_DUMP_FIELDS_HPP_ */
-

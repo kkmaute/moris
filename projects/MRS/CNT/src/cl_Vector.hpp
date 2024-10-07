@@ -82,7 +82,7 @@ namespace moris
         template< typename A >
         Vector(
                 moris::uint const aSize,
-                A const           aValue )
+                A const &         aValue )
                 : mVector( aSize, aValue )
         {
             MORIS_CHECK_MEMORY( sizeof( T ) * aSize < MORIS_MAX_CELL_CAPACITY,
@@ -635,7 +635,7 @@ namespace moris
         void
         resize(
                 moris::size_t const & aCount,
-                T                     aValue = T() )
+                const T&              aValue = T() )
         {
             MORIS_CHECK_MEMORY( sizeof( T ) * aCount < MORIS_MAX_CELL_CAPACITY,
                     "Vector::resize: Maximum allowable capacity exceeded: %f MB.\n",
@@ -860,7 +860,7 @@ namespace moris
     void
     print(
             Vector< T > const & aVector,
-            std::string         aStr = "Vector" )
+            const std::string&  aStr = "Vector" )
     {
         std::cout << "Vector Name: " << aStr << "\n";
         std::cout << "Number of entries = " << aVector.size() << "\n";
@@ -869,7 +869,7 @@ namespace moris
             std::cout << aVector( i ) << "\n";
         }
 
-        std::cout << std::endl;
+        std::cout << '\n';
     }
 
     //------------------------------------------------------------------
@@ -935,7 +935,7 @@ namespace moris
     void
     print_as_row_vector(
             Vector< T > const & aVector,
-            std::string         aStr = "Vector" )
+            const std::string&  aStr = "Vector" )
     {
         std::cout << aStr << " = " << print_nested_cells( aVector ) << std::endl;
     }
@@ -976,7 +976,7 @@ namespace moris
     void
     write_to_txt_file(
             Vector< T > const & aVector,
-            std::string         aFileName )
+            const std::string&  aFileName )
     {
         // Open a file stream for writing
         std::ofstream tOutFile( aFileName );

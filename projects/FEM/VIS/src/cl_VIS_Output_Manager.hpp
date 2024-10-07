@@ -115,7 +115,7 @@ namespace moris
 
             //-----------------------------------------------------------------------------------------------------------
 
-            Output_Manager( moris::Parameter_List aParameterlist )
+            Output_Manager( const moris::Parameter_List &aParameterlist )
             {
                 this->set_outputs( aParameterlist );
             };
@@ -188,28 +188,28 @@ namespace moris
 
             //---------------------------------------------------------------------------------------------------------------------------
 
-            void set_outputs( moris::Parameter_List aParameterlist );
+            void set_outputs( const moris::Parameter_List &aParameterlist );
 
             //---------------------------------------------------------------------------------------------------------------------------
 
             void setup_vis_mesh_for_output(
-                    const uint                             aVisMeshIndex,
-                    std::shared_ptr< mtk::Mesh_Manager >   aMesh,
-                    const uint                             aMeshPairIndex,
-                    std::shared_ptr< MSI::Equation_Model > aEquationModel );
+                    const uint                                    aVisMeshIndex,
+                    const std::shared_ptr< mtk::Mesh_Manager >   &aMesh,
+                    const uint                                    aMeshPairIndex,
+                    const std::shared_ptr< MSI::Equation_Model > &aEquationModel );
 
             //---------------------------------------------------------------------------------------------------------------------------
 
             void create_visualization_mesh(
-                    const uint                           aVisMeshIndex,
-                    std::shared_ptr< mtk::Mesh_Manager > aMesh,
-                    const uint                           aMeshPairIndex );
+                    const uint                                  aVisMeshIndex,
+                    const std::shared_ptr< mtk::Mesh_Manager > &aMesh,
+                    const uint                                  aMeshPairIndex );
 
             //-----------------------------------------------------------------------------------------------------------
 
             void set_visualization_sets(
-                    const uint                             aVisMeshIndex,
-                    std::shared_ptr< MSI::Equation_Model > aEquationModel );
+                    const uint                                    aVisMeshIndex,
+                    const std::shared_ptr< MSI::Equation_Model > &aEquationModel );
 
             //-----------------------------------------------------------------------------------------------------------
 
@@ -238,9 +238,9 @@ namespace moris
             //-----------------------------------------------------------------------------------------------------------
 
             void write_field(
-                    const uint                             aVisMeshIndex,
-                    const real                             aTime,
-                    std::shared_ptr< MSI::Equation_Model > aEquationModel );
+                    const uint                                    aVisMeshIndex,
+                    const real                                    aTime,
+                    const std::shared_ptr< MSI::Equation_Model > &aEquationModel );
 
             //-----------------------------------------------------------------------------------------------------------
 

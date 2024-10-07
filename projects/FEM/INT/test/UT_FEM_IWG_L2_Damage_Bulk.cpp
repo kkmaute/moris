@@ -394,8 +394,8 @@ void Test_IWG_L2_Damage_Bulk(
                 if ( !tCheckJacobian )
                 {
                     std::cout << "Case: Geometry " << iSpaceDim
-                            << " Order " << iInterpOrder
-                            << " iGP " << iGP << std::endl;
+                              << " Order " << iInterpOrder
+                              << " iGP " << iGP << '\n';
                 }
 
                 // require check is true

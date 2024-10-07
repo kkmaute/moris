@@ -9,6 +9,8 @@
  */
 
 #include "cl_XTK_Model.hpp"
+
+#include <utility>
 #include "cl_XTK_Background_Mesh.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
@@ -142,14 +144,14 @@ namespace moris::xtk
     void
     Model::set_input_performer( std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer )
     {
-        mMTKInputPerformer = aMTKPerformer;
+        mMTKInputPerformer = std::move( aMTKPerformer );
     }
     // ----------------------------------------------------------------------------------
 
     void
     Model::set_cut_ig_mesh( std::shared_ptr< Cut_Integration_Mesh > aCutIgMesh )
     {
-        mCutIntegrationMesh = aCutIgMesh;
+        mCutIntegrationMesh = std::move( aCutIgMesh );
         mDecomposed         = true;
     }
     // ----------------------------------------------------------------------------------
@@ -157,7 +159,7 @@ namespace moris::xtk
     void
     Model::set_output_performer( std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer )
     {
-        mMTKOutputPerformer = aMTKPerformer;
+        mMTKOutputPerformer = std::move( aMTKPerformer );
     }
 
     // ----------------------------------------------------------------------------------
@@ -211,7 +213,7 @@ namespace moris::xtk
         if ( mParameterList.get< std::string >( "probe_bg_cells" ) != "" )
         {
             Matrix< IdMat > tBgCellIds;
-            string_to_mat( mParameterList.get< std::string >( "probe_bg_cells" ), tBgCellIds );
+            string_to_matrix( mParameterList.get< std::string >( "probe_bg_cells" ), tBgCellIds );
             print( tBgCellIds, "tBgCellIds" );
             this->probe_bg_cell( tBgCellIds );
         }
@@ -226,7 +228,7 @@ namespace moris::xtk
             mIgElementOrder       = mParameterList.get< uint >( "ig_element_order" );
 
             // get and store indices of B-spline meshes wrt. which information needs to be constructed
-            moris::string_to_mat( mParameterList.get< std::string >( "enrich_mesh_indices" ), mBsplineMeshIndices );
+            moris::string_to_matrix( mParameterList.get< std::string >( "enrich_mesh_indices" ), mBsplineMeshIndices );
 
             // check the enriched B-spline mesh indices
             for ( uint iBspMesh = 0; iBspMesh < mBsplineMeshIndices.numel(); iBspMesh++ )
@@ -334,7 +336,7 @@ namespace moris::xtk
 
             // get index of B-spline meshes indices that will be unenriched later
             Matrix< IndexMat > tUnenrichedBsplineMeshIndices;
-            moris::string_to_mat( mParameterList.get< std::string >( "unenriched_mesh_indices" ), tUnenrichedBsplineMeshIndices );
+            moris::string_to_matrix( mParameterList.get< std::string >( "unenriched_mesh_indices" ), tUnenrichedBsplineMeshIndices );
 
             this->perform_unenrichment( tUnenrichedBsplineMeshIndices );
 
@@ -368,7 +370,7 @@ namespace moris::xtk
                 {
                     // get the B-spline mesh indices
                     Matrix< IndexMat > tBsplineMeshIndices;
-                    moris::string_to_mat( mParameterList.get< std::string >( "enrich_mesh_indices" ), tBsplineMeshIndices );
+                    moris::string_to_matrix( mParameterList.get< std::string >( "enrich_mesh_indices" ), tBsplineMeshIndices );
 
                     // visualize ghost mesh sets for all B-spline meshes and bulk-phases
                     for ( moris::moris_index iBM = 0; iBM < (moris_index)tBsplineMeshIndices.numel(); iBM++ )
@@ -395,14 +397,14 @@ namespace moris::xtk
         {
             // get the blocks to unionize
             Vector< Vector< std::string > > tUnionBlockCells;
-            moris::string_to_cell_of_cell( tUnionBlockStr, tUnionBlockCells );
+            moris::string_to_vector_of_vectors( tUnionBlockStr, tUnionBlockCells );
 
             // Row based
-            Matrix< IndexMat > tUnionBlockColors      = string_to_mat< IndexMat >( mParameterList.get< std::string >( "union_block_colors" ) );
+            Matrix< IndexMat > tUnionBlockColors      = string_to_matrix< IndexMat >( mParameterList.get< std::string >( "union_block_colors" ) );
             std::string        tUnionNewBlockNamesStr = mParameterList.get< std::string >( "union_block_names" );
 
             Vector< Vector< std::string > > tNewBlockNames;
-            moris::string_to_cell_of_cell( tUnionNewBlockNamesStr, tNewBlockNames );
+            moris::string_to_vector_of_vectors( tUnionNewBlockNamesStr, tNewBlockNames );
 
             MORIS_ERROR( tUnionBlockCells.size() == tNewBlockNames.size(), "Dimension Mismatch in number of union operations for block" );
             MORIS_ERROR( tUnionBlockCells.size() == tUnionBlockColors.n_rows(), "Dimension Mismatch in number of union operations for block" );
@@ -421,14 +423,14 @@ namespace moris::xtk
         {
             // get the blocks to unionize
             Vector< Vector< std::string > > tUnionSideSetCells;
-            moris::string_to_cell_of_cell( tUnionSideSetStr, tUnionSideSetCells );
+            moris::string_to_vector_of_vectors( tUnionSideSetStr, tUnionSideSetCells );
 
             // Row based
-            Matrix< IndexMat > tUnionSideSetColors      = string_to_mat< IndexMat >( mParameterList.get< std::string >( "union_side_set_colors" ) );
+            Matrix< IndexMat > tUnionSideSetColors      = string_to_matrix< IndexMat >( mParameterList.get< std::string >( "union_side_set_colors" ) );
             std::string        tUnionNewSideSetNamesStr = mParameterList.get< std::string >( "union_side_set_names" );
 
             Vector< Vector< std::string > > tNewSideSetNames;
-            moris::string_to_cell_of_cell( tUnionNewSideSetNamesStr, tNewSideSetNames );
+            moris::string_to_vector_of_vectors( tUnionNewSideSetNamesStr, tNewSideSetNames );
 
             MORIS_ERROR( tUnionSideSetCells.size() == tNewSideSetNames.size(), "Dimension Mismatch in number of union operations for side set" );
             MORIS_ERROR( tUnionSideSetCells.size() == tUnionSideSetColors.n_rows(), "Dimension Mismatch in number of union operations for side set" );
@@ -447,7 +449,7 @@ namespace moris::xtk
         {
             // get the blocks to unionize
             Vector< Vector< std::string > > tBlocksToKeepStr;
-            moris::string_to_cell_of_cell( tDeactivatedBlockStr, tBlocksToKeepStr );
+            moris::string_to_vector_of_vectors( tDeactivatedBlockStr, tBlocksToKeepStr );
 
             MORIS_ERROR( tBlocksToKeepStr.size() == 1, "deactivate_all_but_block issue: This operation can only be performed on time" );
 
@@ -459,7 +461,7 @@ namespace moris::xtk
         {
             // get the blocks to unionize
             Vector< Vector< std::string > > tSideSetsToKeepStr;
-            moris::string_to_cell_of_cell( tDeactivatedSideSetStr, tSideSetsToKeepStr );
+            moris::string_to_vector_of_vectors( tDeactivatedSideSetStr, tSideSetsToKeepStr );
 
             MORIS_ERROR( tSideSetsToKeepStr.size() == 1, "deactivate_all_side_sets_except_selected issue: This operation can only be performed on time" );
 
@@ -684,7 +686,7 @@ namespace moris::xtk
     // ----------------------------------------------------------------------------------
 
     bool
-    Model::decompose( Vector< enum Subdivision_Method > aMethods )
+    Model::decompose( const Vector< enum Subdivision_Method > &aMethods )
     {
         // log/trace the mesh decomposition
         Tracer tTracer( "XTK", "Decomposition", "Decompose" );
@@ -735,7 +737,7 @@ namespace moris::xtk
 
         if ( tNumUnsuccessful > 0 )
         {
-            std::cout << "There were " << tNumUnsuccessful << " bad nodes of " << aDecompData.tNewNodeId.size() << " total nodes" << std::endl;
+            std::cout << "There were " << tNumUnsuccessful << " bad nodes of " << aDecompData.tNewNodeId.size() << " total nodes" << '\n';
             return false;
         }
 

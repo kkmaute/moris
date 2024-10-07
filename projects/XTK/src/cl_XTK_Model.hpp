@@ -249,7 +249,7 @@ namespace moris::xtk
          * Decomposes a mesh to conform to a geometric interface
          * @param[in] aMethods Subdivision Methods
          */
-        bool decompose( Vector< enum Subdivision_Method > aMethods );
+        bool decompose( const Vector< enum Subdivision_Method >& aMethods );
 
         //--------------------------------------------------------------------------------
         /**

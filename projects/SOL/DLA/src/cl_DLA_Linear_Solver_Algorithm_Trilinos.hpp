@@ -32,7 +32,6 @@ namespace moris::dla
         Preconditioner_Trilinos* mPreconditioner = nullptr;
 
       public:
-
         //-----------------------------------------------------------------------------------
 
         /**
@@ -42,7 +41,7 @@ namespace moris::dla
          */
 
         Linear_Solver_Algorithm_Trilinos( const moris::Parameter_List& aParameterlist )
-                : Linear_Solver_Algorithm( aParameterlist ){};
+                : Linear_Solver_Algorithm( aParameterlist ) {};
 
         //-----------------------------------------------------------------------------------
 
@@ -51,7 +50,7 @@ namespace moris::dla
          *
          */
 
-        virtual ~Linear_Solver_Algorithm_Trilinos(){};
+        ~Linear_Solver_Algorithm_Trilinos() override {};
 
         //-----------------------------------------------------------------------------------
 
@@ -61,7 +60,7 @@ namespace moris::dla
          * @return moris::sint
          */
 
-        virtual moris::sint solve_linear_system() = 0;
+        moris::sint solve_linear_system() override = 0;
 
         //-----------------------------------------------------------------------------------
 
@@ -73,8 +72,8 @@ namespace moris::dla
          * @return moris::sint
          */
 
-        virtual moris::sint solve_linear_system( Linear_Problem* aLinearSystem,
-                const moris::sint                                aIter = 1 ) = 0;
+        moris::sint solve_linear_system( Linear_Problem* aLinearSystem,
+                const moris::sint                        aIter = 1 ) override = 0;
 
         //-----------------------------------------------------------------------------------
 
@@ -85,7 +84,7 @@ namespace moris::dla
          */
 
         // cast the preconditioner to the correct type(trillons and assign it to the object)
-        virtual void
+        void
         set_preconditioner( Preconditioner* aPreconditioner ) override;
 
         //-----------------------------------------------------------------------------------
@@ -95,7 +94,7 @@ namespace moris::dla
          *
          */
 
-        virtual void compute_operator_condition_number_with_moris( std::string tComputationMode ) override;
+        void compute_operator_condition_number_with_moris( const std::string& tComputationMode ) override;
 
         //-----------------------------------------------------------------------------------
 
@@ -104,6 +103,6 @@ namespace moris::dla
          *
          */
 
-        virtual void compute_preconditioned_operator_condition_number_with_moris( std::string tComputationMode ) override;
+        void compute_preconditioned_operator_condition_number_with_moris( const std::string& tComputationMode ) override;
     };
 }    // namespace moris::dla

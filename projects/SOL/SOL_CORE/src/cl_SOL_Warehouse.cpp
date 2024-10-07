@@ -32,6 +32,9 @@
 
 #ifdef MORIS_HAVE_PETSC
 #include <petsc.h>
+#ifdef MORIS_HAVE_SLEPC
+#include <slepceps.h>
+#endif
 #endif
 
 #include "cl_Library_IO.hpp"
@@ -74,6 +77,9 @@ SOL_Warehouse::~SOL_Warehouse()
     if ( mTPLType == moris::sol::MapType::Petsc )
     {
         PetscFinalize();
+#ifdef MORIS_HAVE_SLEPC
+	SlepcFinalize();
+#endif
     }
 #endif
 
@@ -101,14 +107,23 @@ void SOL_Warehouse::initialize()
 
     mSaveFinalAdjointVecToFile = mParameterlist( 6 )( 0 ).get< std::string >( "SOL_save_final_adjoint_vec_to_file" );
 
+    sol::SensitivityAnalysisType tSensitivityAnalysisType =
+            static_cast< sol::SensitivityAnalysisType >( mParameterlist( 6 )( 0 ).get< moris::uint >( "Sensitivity_Analysis_Type" ) );
+
+    mIsAdjointSensitivityAnalysis = tSensitivityAnalysisType == sol::SensitivityAnalysisType::ADJOINT;
+
 #ifdef MORIS_HAVE_PETSC
     if ( mTPLType == moris::sol::MapType::Petsc )
     {
         PetscInitializeNoArguments();
+#ifdef MORIS_HAVE_SLEPC
+	SlepcInitializeNoArguments();
+#endif
+    
     }
 #endif
 
-    // create the requested precondioer
+    // create the requested preconditioner
     this->create_preconditioner_algorithms();
 
     // build solvers and solver algorithms
@@ -157,7 +172,7 @@ void SOL_Warehouse::create_linear_solver_algorithms()
 
         // get and set nonlinear sub-solvers for staggered methods
         Vector< uint > tPreconditionerIndices;
-        string_to_cell( mParameterlist( 0 )( Ik ).get< std::string >( "preconditioners" ),
+        string_to_vector( mParameterlist( 0 )( Ik ).get< std::string >( "preconditioners" ),
                 tPreconditionerIndices );
 
         // loop over the list of preconditioners and assign it to the solver
@@ -168,7 +183,7 @@ void SOL_Warehouse::create_linear_solver_algorithms()
 
         // get and set nonlinear sub-solvers for staggered methods
         tPreconditionerIndices.clear();
-        string_to_cell( mParameterlist( 0 )( Ik ).get< std::string >( "preconditioners_linear_operator" ),
+        string_to_vector( mParameterlist( 0 )( Ik ).get< std::string >( "preconditioners_linear_operator" ),
                 tPreconditionerIndices );
 
         // loop over the list of preconditioner and assign it to the solver
@@ -179,19 +194,19 @@ void SOL_Warehouse::create_linear_solver_algorithms()
 
         // get and set nonlinear sub-solvers for staggered methods
         tPreconditionerIndices.clear();
-        string_to_cell( mParameterlist( 0 )( Ik ).get< std::string >( "sub_linear_solver" ),
+        string_to_vector( mParameterlist( 0 )( Ik ).get< std::string >( "sub_linear_solver" ),
                 tPreconditionerIndices );
 
         // set the sub linear solver for the iegn problem
         for ( auto tPrecIndex : tPreconditionerIndices )
         {
             MORIS_ASSERT( tPrecIndex < Ik, "SOL_Warehouse::create_linear_solver_algorithms - sub_linear_solver index %d is not defined yet", tPrecIndex );
-            
+
             std::string tSubsolverPrec = mParameterlist( 0 )( tPrecIndex ).get< std::string >( "preconditioners" );
 
-            if(  tSubsolverPrec not_eq "" )
+            if ( tSubsolverPrec not_eq "" )
             {
-                mLinearSolverAlgorithms( Ik )->set_sublinear_solver_options( &mParameterlist( 0 )( tPrecIndex ), &mParameterlist( 7 )( std::stoi(tSubsolverPrec) ) );
+                mLinearSolverAlgorithms( Ik )->set_sublinear_solver_options( &mParameterlist( 0 )( tPrecIndex ), &mParameterlist( 7 )( std::stoi( tSubsolverPrec ) ) );
                 continue;
             }
 
@@ -213,7 +228,7 @@ void SOL_Warehouse::create_linear_solvers()
         mLinearSolvers( Ik ) = new dla::Linear_Solver( mParameterlist( 1 )( Ik ) );
 
         Vector< uint > tLinearSolverAlgorithmIndices;
-        string_to_cell( mParameterlist( 1 )( Ik ).get< std::string >( "DLA_Linear_solver_algorithms" ),
+        string_to_vector( mParameterlist( 1 )( Ik ).get< std::string >( "DLA_Linear_solver_algorithms" ),
                 tLinearSolverAlgorithmIndices );
 
         // set output for LHS
@@ -276,7 +291,7 @@ void SOL_Warehouse::create_nonlinear_solvers()
 
         // set nonlinear algorithms
         moris::Matrix< DDSMat > tMat;
-        string_to_mat( mParameterlist( 3 )( Ik ).get< std::string >( "NLA_Nonlinear_solver_algorithms" ),
+        string_to_matrix( mParameterlist( 3 )( Ik ).get< std::string >( "NLA_Nonlinear_solver_algorithms" ),
                 tMat );
 
         for ( uint Ii = 0; Ii < tMat.numel(); Ii++ )
@@ -298,7 +313,7 @@ void SOL_Warehouse::create_nonlinear_solvers()
 
         map< std::string, enum MSI::Dof_Type > tMap = MSI::get_msi_dof_type_map();
 
-        string_to_cell_of_cell(
+        string_to_vector_of_vectors(
                 mParameterlist( 3 )( Ik ).get< std::string >( "NLA_DofTypes" ),
                 tCellOfCells,
                 tMap );
@@ -313,7 +328,7 @@ void SOL_Warehouse::create_nonlinear_solvers()
         // get and set secondary dof types
         Vector< Vector< MSI::Dof_Type > > tCellOfCellsSecDofTypes;
 
-        string_to_cell_of_cell(
+        string_to_vector_of_vectors(
                 mParameterlist( 3 )( Ik ).get< std::string >( "NLA_Secondary_DofTypes" ),
                 tCellOfCellsSecDofTypes,
                 tMap );
@@ -334,7 +349,7 @@ void SOL_Warehouse::create_nonlinear_solvers()
 
         // get and set nonlinear sub-solvers for staggered methods
         moris::Matrix< DDSMat > tNonlinearSubSolvers;
-        string_to_mat( mParameterlist( 3 )( Ik ).get< std::string >( "NLA_Sub_Nonlinear_Solver" ),
+        string_to_matrix( mParameterlist( 3 )( Ik ).get< std::string >( "NLA_Sub_Nonlinear_Solver" ),
                 tNonlinearSubSolvers );
 
         for ( uint Ii = 0; Ii < tNonlinearSubSolvers.numel(); Ii++ )
@@ -365,15 +380,15 @@ void SOL_Warehouse::create_time_solver_algorithms()
                 tTimeSolverFactory.create_time_solver( static_cast< moris::tsa::TimeSolverType >( mParameterlist( 4 )( Ik ).get< moris::uint >( "TSA_Solver_Implementation" ) ),
                         mParameterlist( 4 )( Ik ) );
 
-        mTimeSolverAlgorithms( Ik )->set_nonlinear_solver( mNonlinearSolvers( mParameterlist( 4 )( Ik ).get< moris::sint >( "TSA_Nonlinear_solver" ) ) );
+        mTimeSolverAlgorithms( Ik )->set_nonlinear_solver( mNonlinearSolvers( mParameterlist( 4 )( Ik ).get< moris::sint >( "TSA_Nonlinear_Solver" ) ) );
 
-        if ( mParameterlist( 4 )( Ik ).get< moris::sint >( "TSA_nonlinear_solver_for_adjoint_solve" ) == -1 )
+        if ( mParameterlist( 4 )( Ik ).get< moris::sint >( "TSA_Nonlinear_Sensitivity_Solver" ) == -1 )
         {
-            mTimeSolverAlgorithms( Ik )->set_nonlinear_solver_for_adjoint_solve( mNonlinearSolvers( mParameterlist( 4 )( Ik ).get< moris::sint >( "TSA_Nonlinear_solver" ) ) );
+            mTimeSolverAlgorithms( Ik )->set_nonlinear_solver_for_sensitivity_analysis( mNonlinearSolvers( mParameterlist( 4 )( Ik ).get< moris::sint >( "TSA_Nonlinear_Solver" ) ) );
         }
         else
         {
-            mTimeSolverAlgorithms( Ik )->set_nonlinear_solver_for_adjoint_solve( mNonlinearSolvers( mParameterlist( 4 )( Ik ).get< moris::sint >( "TSA_nonlinear_solver_for_adjoint_solve" ) ) );
+            mTimeSolverAlgorithms( Ik )->set_nonlinear_solver_for_sensitivity_analysis( mNonlinearSolvers( mParameterlist( 4 )( Ik ).get< moris::sint >( "TSA_Nonlinear_Sensitivity_Solver" ) ) );
         }
 
         // set output file names
@@ -399,7 +414,7 @@ void SOL_Warehouse::create_time_solvers()
 
         // get tie solver algorithm indices for this time solver
         moris::Matrix< DDSMat > tMat;
-        string_to_mat( mParameterlist( 5 )( Ik ).get< std::string >( "TSA_Solver_algorithms" ),
+        string_to_matrix( mParameterlist( 5 )( Ik ).get< std::string >( "TSA_Solver_algorithms" ),
                 tMat );
 
         // add these time solver algorithms to time solver
@@ -413,7 +428,7 @@ void SOL_Warehouse::create_time_solvers()
 
         map< std::string, enum MSI::Dof_Type > tMap = MSI::get_msi_dof_type_map();
 
-        string_to_cell_of_cell( mParameterlist( 5 )( Ik ).get< std::string >( "TSA_DofTypes" ),
+        string_to_vector_of_vectors( mParameterlist( 5 )( Ik ).get< std::string >( "TSA_DofTypes" ),
                 tCellOfCells,
                 tMap );
 
@@ -431,10 +446,10 @@ void SOL_Warehouse::create_time_solvers()
         if ( tStringOutputInd.size() > 0 )
         {
             moris::Matrix< DDSMat > tOutputIndices;
-            string_to_mat( tStringOutputInd, tOutputIndices );
+            string_to_matrix( tStringOutputInd, tOutputIndices );
 
             Vector< std::string > tOutputCriteria;
-            string_to_cell( tStringOutputCriteria, tOutputCriteria );
+            string_to_vector( tStringOutputCriteria, tOutputCriteria );
 
             MORIS_ERROR( tOutputIndices.numel() == tOutputCriteria.size(),
                     "SOL_Warehouse::create_time_solvers(), Number of output indices and criteria must be the same" );
@@ -487,7 +502,7 @@ void SOL_Warehouse::get_default_secondary_dof_types(
 
         map< std::string, enum MSI::Dof_Type > tMap = MSI::get_msi_dof_type_map();
 
-        string_to_cell_of_cell( mParameterlist( 5 )( Ik ).get< std::string >( "TSA_DofTypes" ),
+        string_to_vector_of_vectors( mParameterlist( 5 )( Ik ).get< std::string >( "TSA_DofTypes" ),
                 tCellOfCells,
                 tMap );
 

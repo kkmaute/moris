@@ -15,6 +15,7 @@
 #include "moris_typedefs.hpp"    // CON/src
 #include "cl_Vector.hpp"
 #include <memory>
+#include <utility>
 
 #include "cl_MSI_Dof_Type_Enums.hpp"
 #include "cl_SOL_Enums.hpp"
@@ -22,7 +23,7 @@
 #include "cl_NLA_Nonlinear_Solver_Enums.hpp"    //CNT/src
 #include "cl_TSA_Time_Solver_Enums.hpp"         //CNT/src
 
-#include "cl_Parameter_List.hpp"                //CNT/src
+#include "cl_Parameter_List.hpp"    //CNT/src
 
 namespace moris
 {
@@ -117,6 +118,9 @@ namespace moris
             // load initial guess solution vector from file
             std::string mFilenameInitialGuess = std::string( "" );
 
+            // type of sensitivity analysis (adjoint or direct)
+            bool mIsAdjointSensitivityAnalysis = true;
+
             //--------------------------------------------------------------------------------------------------------
 
             /**
@@ -179,14 +183,14 @@ namespace moris
              * @param[in] aSolverInterface Pointer to the solver interface
              */
             SOL_Warehouse( moris::Solver_Interface* aSolverInterface )
-                    : mSolverInterface( aSolverInterface ){};
+                    : mSolverInterface( aSolverInterface ) {};
 
             SOL_Warehouse( moris::Solver_Interface* aSolverInterface,
                     std::shared_ptr< Library_IO >   aLibrary )
                     : mSolverInterface( aSolverInterface )
-                    , mLibrary( aLibrary ){};
+                    , mLibrary( std::move( aLibrary ) ) {};
 
-            SOL_Warehouse(){};
+            SOL_Warehouse() {};
 
             //--------------------------------------------------------------------------------------------------------
 
@@ -198,7 +202,7 @@ namespace moris
             //--------------------------------------------------------------------------------------------------------
 
             void
-            set_parameterlist( Vector< Vector< moris::Parameter_List > > aParameterlist )
+            set_parameterlist( const Vector< Vector< moris::Parameter_List > >& aParameterlist )
             {
                 mParameterlist = aParameterlist;
             };
@@ -311,6 +315,14 @@ namespace moris
             set_tpl_type( enum sol::MapType aTPLType )
             {
                 mTPLType = aTPLType;
+            }
+
+            //--------------------------------------------------------------------------------------------------------
+
+            bool
+            is_adjoint_sensitivity_analysis()
+            {
+                return mIsAdjointSensitivityAnalysis;
             }
 
             //--------------------------------------------------------------------------------------------------------

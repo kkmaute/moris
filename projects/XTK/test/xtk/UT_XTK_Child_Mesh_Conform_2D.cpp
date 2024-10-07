@@ -80,7 +80,7 @@ namespace moris::xtk
         }
         else
         {
-            std::cout << "UNDEFINED EDGE" << std::endl;
+            std::cout << "UNDEFINED EDGE" << '\n';
         }
     }
 

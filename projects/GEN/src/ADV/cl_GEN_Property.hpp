@@ -50,9 +50,9 @@ namespace moris::gen
          * @param aNodeManager Node manager from the geometry engine, if available
          */
         explicit Property(
-                std::shared_ptr< Field > aField,
-                Property_Parameters      aParameters  = Property_Parameters(),
-                Node_Manager&            aNodeManager = Node_Manager::get_trivial_instance() );
+                std::shared_ptr< Field >   aField,
+                const Property_Parameters& aParameters  = Property_Parameters(),
+                Node_Manager&              aNodeManager = Node_Manager::get_trivial_instance() );
 
         /**
          * Sets a new node manager (from the geometry engine, if it was created after this property)
@@ -67,7 +67,7 @@ namespace moris::gen
          *
          * @param aAllUpdatedDesigns All designs (this design will take fields from the ones it needs)
          */
-        void update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedDesigns ) override;
+        void update_dependencies( const Vector< std::shared_ptr< Design > >& aAllUpdatedDesigns ) override;
 
         /**
          * Gets the PDV type that this property defines.
@@ -178,20 +178,20 @@ namespace moris::gen
          *
          * @return Mesh index
          */
-        virtual moris_index get_discretization_mesh_index() override;
+        moris_index get_discretization_mesh_index() override;
 
         /**
          * Gets the lower bound for a discretized field.
          *
          * @return Lower bound
          */
-        virtual real get_discretization_lower_bound() override;
+        real get_discretization_lower_bound() override;
 
         /**
          * Get the upper bound for a discretized field.
          *
          * @return Upper bound
          */
-        virtual real get_discretization_upper_bound() override;
+        real get_discretization_upper_bound() override;
     };
 }    // namespace moris::gen

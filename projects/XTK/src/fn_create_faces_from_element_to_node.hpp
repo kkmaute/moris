@@ -53,7 +53,6 @@ namespace moris::xtk
         moris::size_t tFaceIndex = 0;
         moris::size_t tNodeInd   = 0;
         moris::size_t tFirstInd  = 0;
-        moris::size_t tResize    = 0;
 
         // Allocate outputs
         aElementToFace.resize( tNumElements, tNumFacesPerElem );
@@ -71,7 +70,6 @@ namespace moris::xtk
         // Single Element Face To Nodes
         Matrix< IndexMat > tElementFaceToNode( 1, tNumNodesPerFace );
 
-        Vector< moris::size_t > tPotentialFaces;
         Vector< moris::size_t > tPotentialFaces1;
         Vector< moris::size_t > tPotentialFaces2;
 
@@ -98,6 +96,8 @@ namespace moris::xtk
                 // iterate over nodes on the face j
                 for ( moris::size_t k = 1; k < tNumNodesPerFace; k++ )
                 {
+                    Vector< moris::size_t > tPotentialFaces;
+
                     tNodeInd = tElementFaceToNode( j, k );
 
                     moris::size_t tNumPotentialFaces2 = tNodeToFaceCounter( 0, tNodeInd );
@@ -112,8 +112,7 @@ namespace moris::xtk
                             tPotentialFaces2.end(),
                             std::back_inserter( tPotentialFaces ) );
 
-                    tPotentialFaces1 = std::move( tPotentialFaces.data() );
-                    tPotentialFaces.clear();
+                    tPotentialFaces1 = tPotentialFaces;
                     tPotentialFaces2.clear();
                 }
 
@@ -130,7 +129,6 @@ namespace moris::xtk
                         if ( tCount >= aNodeToFace.n_cols() )
                         {
                             aNodeToFace.resize( aNumNodes, aNodeToFace.n_cols() + tMaxFacePerNode );
-                            tResize++;
                         }
 
                         if ( tCount > tMaxUsed )
@@ -150,7 +148,7 @@ namespace moris::xtk
                 // if there are two potential faces at this stage that is an issue
                 else if ( tPotentialFaces1.size() > 1 )
                 {
-                    std::cout << "Invalid number of faces found" << std::endl;
+                    std::cout << "Invalid number of faces found" << '\n';
                 }
                 else
                 {

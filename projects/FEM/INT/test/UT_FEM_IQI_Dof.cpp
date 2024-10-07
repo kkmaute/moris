@@ -335,7 +335,7 @@ UT_FEM_IQI_Dof( uint aTestConfiguration )
                 // print for debug
                 if ( !tCheckdQIdu )
                 {
-                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << " iGP " << iGP << std::endl;
+                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << " iGP " << iGP << '\n';
                 }
 
                 REQUIRE( tCheckdQIdu );

@@ -1,12 +1,12 @@
 /*
-* Copyright (c) 2022 University of Colorado
-* Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
-*
-*------------------------------------------------------------------------------------
-*
-* cl_Variant.cpp
-*
-*/
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Variant.cpp
+ *
+ */
 
 #include "cl_Variant.hpp"
 
@@ -284,7 +284,7 @@ namespace moris
     }
 
     //--------------------------------------------------------------------------------------------------------------
-    
+
     template<>
     Variant make_variant( std::string aParameterValue )
     {
@@ -334,6 +334,6 @@ namespace moris
         }
         return make_variant( tStringVector );
     }
-    
+
     //--------------------------------------------------------------------------------------------------------------
-}
+}    // namespace moris

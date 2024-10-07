@@ -33,7 +33,7 @@ namespace moris::fem
         /**
          * trivial destructor
          */
-        ~IQI_Normal_Vector(){};
+        ~IQI_Normal_Vector() override{};
 
       private:
         /**

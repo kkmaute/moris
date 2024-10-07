@@ -195,7 +195,7 @@ namespace moris::xtk
 
         if ( tIter == mGlobalToLocalMaps( tMapIndex ).end() )
         {
-            std::cout << "Not Found  Entity Id = " << aEntityId << " | par_rank = " << par_rank() << std::endl;
+            std::cout << "Not Found  Entity Id = " << aEntityId << " | par_rank = " << par_rank() << '\n';
         }
 
         MORIS_ASSERT( tIter != mGlobalToLocalMaps( tMapIndex ).end(), "Id does not appear in map" );
@@ -1185,7 +1185,6 @@ namespace moris::xtk
         moris_index tParRank = par_rank();
 
         // counter
-        uint           tOwnerCount = 0;
         Vector< uint > tCounts( 0 );
 
         // map
@@ -1210,7 +1209,6 @@ namespace moris::xtk
             if ( tParRank == tOwnerProc )
             {
                 aOwnedInterpCells.push_back( tEnrInterpCells( i ) );
-                tOwnerCount++;
             }
             else
             {
@@ -1299,8 +1297,8 @@ namespace moris::xtk
 
     void
     Enriched_Interpolation_Mesh::set_enriched_basis_to_bulkphase_map(
-            const moris_index aMeshIndex,
-            Matrix< IdMat >   aBulkPhaseInEnrichedBasis )
+            const moris_index      aMeshIndex,
+            const Matrix< IdMat >& aBulkPhaseInEnrichedBasis )
     {
         // set the enr. BF index to bulk-phase index map
         mEnrichCoeffBulkPhase( aMeshIndex ) = aBulkPhaseInEnrichedBasis;
@@ -1449,7 +1447,7 @@ namespace moris::xtk
     // ----------------------------------------------------------------------------
 
     void
-    Enriched_Interpolation_Mesh::print_enriched_cells( std::string aFile )
+    Enriched_Interpolation_Mesh::print_enriched_cells( const std::string& aFile )
     {
         Vector< Interpolation_Cell_Unzipped* > const & tEnrIPCells = this->get_enriched_interpolation_cells();
 
@@ -1495,7 +1493,7 @@ namespace moris::xtk
             tStringStream << std::to_string( par_rank() ) << ",";
             tStringStream << tCell->get_base_cell()->get_id() << ",";
             tStringStream << tCell->get_bulkphase_index() << ",";
-            tStringStream << mXTKModel->get_cut_integration_mesh()->get_subphase_id( (moris_index)tCell->get_subphase_index() ) << ",";
+            tStringStream << mXTKModel->get_cut_integration_mesh()->get_subphase_id( tCell->get_subphase_index() ) << ",";
             tStringStream << std::scientific << tCell->compute_cell_measure() << ",";
 
             for ( uint j = 0; j < tMaxVertsToCell; j++ )
@@ -1520,7 +1518,7 @@ namespace moris::xtk
         if ( aFile.empty() == false )
         {
             std::ofstream tOutputFile( aFile );
-            tOutputFile << tStringStream.str() << std::endl;
+            tOutputFile << tStringStream.str() << '\n';
             tOutputFile.close();
         }
     }
@@ -1528,7 +1526,7 @@ namespace moris::xtk
     // ----------------------------------------------------------------------------
 
     void
-    Enriched_Interpolation_Mesh::print_enriched_verts( std::string aFile )
+    Enriched_Interpolation_Mesh::print_enriched_verts( const std::string& aFile )
     {
         std::ostringstream tStringStream;
         tStringStream.clear();
@@ -1552,7 +1550,7 @@ namespace moris::xtk
             }
         }
 
-        tStringStream << std::endl;
+        tStringStream << '\n';
 
         for ( uint i = 0; i < this->get_num_entities( mtk::EntityRank::NODE, 0 ); i++ )
         {
@@ -1580,12 +1578,12 @@ namespace moris::xtk
             }
 
             //
-            tStringStream << std::endl;
+            tStringStream << '\n';
         }
         if ( aFile.empty() == false )
         {
             std::ofstream tOutputFile( aFile );
-            tOutputFile << tStringStream.str() << std::endl;
+            tOutputFile << tStringStream.str() << '\n';
             tOutputFile.close();
         }
     }
@@ -1595,7 +1593,7 @@ namespace moris::xtk
     void
     Enriched_Interpolation_Mesh::print_enriched_verts_interpolation(
             const moris_index& aMeshIndex,
-            std::string        aFileName )
+            const std::string& aFileName )
     {
         std::ostringstream tStringStream;
         tStringStream.precision( 16 );
@@ -1664,7 +1662,7 @@ namespace moris::xtk
         if ( aFileName.empty() == false )
         {
             std::ofstream tOutputFile( aFileName );
-            tOutputFile << tStringStream.str() << std::endl;
+            tOutputFile << tStringStream.str() << '\n';
             tOutputFile.close();
         }
     }
@@ -1681,11 +1679,11 @@ namespace moris::xtk
         MORIS_ASSERT( mLocalToGlobalMaps( tMapIndex ).numel() == tNumNodes,
                 "Enriched_Interpolation_Mesh::print_vertex_maps: number of nodes and size of map do not match." );
 
-        std::cout << "\nVertex Map:" << std::endl;
+        std::cout << "\nVertex Map:" << '\n';
 
         for ( uint i = 0; i < tNumNodes; i++ )
         {
-            std::cout << "    Vertex Index: " << std::setw( 9 ) << i << " | Vertex Id: " << std::setw( 9 ) << mLocalToGlobalMaps( tMapIndex )( i ) << std::endl;
+            std::cout << "    Vertex Index: " << std::setw( 9 ) << i << " | Vertex Id: " << std::setw( 9 ) << mLocalToGlobalMaps( tMapIndex )( i ) << '\n';
         }
     }
 
@@ -1701,11 +1699,11 @@ namespace moris::xtk
         MORIS_ASSERT( mLocalToGlobalMaps( tMapIndex ).numel() == tNumCells,
                 "Enriched_Interpolation_Mesh::print_enriched_cell_maps: number of elements and size of map do not match." );
 
-        std::cout << "\nCell Map:" << std::endl;
+        std::cout << "\nCell Map:" << '\n';
 
         for ( uint i = 0; i < tNumCells; i++ )
         {
-            std::cout << "    Cell Index: " << std::setw( 9 ) << i << " | Cell Id: " << std::setw( 9 ) << mLocalToGlobalMaps( tMapIndex )( i ) << std::endl;
+            std::cout << "    Cell Index: " << std::setw( 9 ) << i << " | Cell Id: " << std::setw( 9 ) << mLocalToGlobalMaps( tMapIndex )( i ) << '\n';
         }
     }
 
@@ -1718,7 +1716,7 @@ namespace moris::xtk
         {
             uint tNumBasis = mCoeffToEnrichCoeffs( iM ).size();
 
-            std::cout << "\nBackground Basis to Enriched Basis Indices For Mesh: " << mMeshIndices( iM ) << std::endl;
+            std::cout << "\nBackground Basis to Enriched Basis Indices For Mesh: " << mMeshIndices( iM ) << '\n';
 
             for ( uint iB = 0; iB < tNumBasis; iB++ )
             {
@@ -1728,7 +1726,7 @@ namespace moris::xtk
                 {
                     std::cout << std::setw( 9 ) << mCoeffToEnrichCoeffs( iM )( iB )( iEB );
                 }
-                std::cout << std::endl;
+                std::cout << '\n';
             }
         }
     }
@@ -1740,14 +1738,14 @@ namespace moris::xtk
     {
         uint tNumVerts = this->get_num_entities( mtk::EntityRank::NODE );
 
-        std::cout << "\nVertex Interpolation:" << std::endl;
+        std::cout << "\nVertex Interpolation:" << '\n';
 
         for ( moris::moris_index i = 0; i < (moris_index)tNumVerts; i++ )
         {
             Interpolation_Vertex_Unzipped const & tVertex = this->get_xtk_interp_vertex( i );
 
-            std::cout << "\nVertex Id: " << std::setw( 9 ) << tVertex.get_id() << std::endl;
-            std::cout << *tVertex.get_xtk_interpolation( 0 ) << std::endl;
+            std::cout << "\nVertex Id: " << std::setw( 9 ) << tVertex.get_id() << '\n';
+            std::cout << *tVertex.get_xtk_interpolation( 0 ) << '\n';
         }
     }
 
@@ -1756,11 +1754,11 @@ namespace moris::xtk
     void
     Enriched_Interpolation_Mesh::print_basis_information() const
     {
-        std::cout << "\nBasis Information on proc " << par_rank() << ":" << std::endl;
+        std::cout << "\nBasis Information on proc " << par_rank() << ":" << '\n';
 
         for ( moris::moris_index iM = 0; iM < (moris_index)mMeshIndices.numel(); iM++ )
         {
-            std::cout << " Mesh Index: " << mMeshIndices( iM ) << std::endl;
+            std::cout << " Mesh Index: " << mMeshIndices( iM ) << '\n';
 
             for ( moris::moris_index i = 0; i < (moris_index)mEnrichCoeffLocToGlob( iM ).numel(); i++ )
             {
@@ -1768,7 +1766,7 @@ namespace moris::xtk
 
                 moris_index tIndex = this->get_enr_basis_index_from_enr_basis_id( mMeshIndices( iM ), tId );
 
-                std::cout << "    Basis Id: " << std::setw( 9 ) << tId << " | Basis Index: " << std::setw( 9 ) << tIndex << std::endl;
+                std::cout << "    Basis Id: " << std::setw( 9 ) << tId << " | Basis Index: " << std::setw( 9 ) << tIndex << '\n';
             }
         }
     }
@@ -1808,7 +1806,7 @@ namespace moris::xtk
                           << " | owner = " << tVertexPointers( i )->get_owner()
                           << " | my rank = " << par_rank()
                           << " | IP Cell Owner = " << tEnrichedIpCell->get_owner()
-                          << " | IP Cell ID = " << tEnrichedIpCell->get_id() << std::endl;
+                          << " | IP Cell ID = " << tEnrichedIpCell->get_id() << '\n';
 
                 moris::print( tVertexPointers( i )->get_coords(), "Coordinate of vertex" );
             }
@@ -1824,7 +1822,7 @@ namespace moris::xtk
             if ( tBasisIds.numel() == 0 )
             {
                 std::cout << "Vertex id = " << tVertexPointers( i )->get_id()
-                          << " | back vertex id = " << mEnrichedInterpVerts( tVertexPointers( i )->get_index() )->get_id() << std::endl;
+                          << " | back vertex id = " << mEnrichedInterpVerts( tVertexPointers( i )->get_index() )->get_id() << '\n';
                 MORIS_ASSERT( 0, "Interpolation Vertex in cluster does not have at least 1 basis interpolating into it" );
                 tDiagnosticFlag = false;
             }
@@ -1838,7 +1836,7 @@ namespace moris::xtk
                               << " | back vertex id = " << mEnrichedInterpVerts( tVertexPointers( i )->get_index() )->get_id()
                               << " | tBasisIds(iB) = " << tBasisIds( iB )
                               << " | MeshBP" << this->get_basis_bulk_phase( tBasisIndices( iB ), aMeshIndex )
-                              << " | tBulkPhase = " << tBulkPhase << std::endl;
+                              << " | tBulkPhase = " << tBulkPhase << '\n';
                     MORIS_ASSERT( 0, "Basis in cluster does not interpolate into same bulk phase as interpolation cell" );
                     tDiagnosticFlag = false;
                 }
@@ -1966,7 +1964,7 @@ namespace moris::xtk
                                   << "  subphase = " << iSP                                                      //
                                   << "  expected bulk phase = " << mEnrichCoeffBulkPhase( tMeshIndex )( iBF )    //
                                   << "  current bulk phase  = " << tBulkPhase                                    //
-                                  << std::endl;
+                                  << '\n';
 
                         // print( tCellsInEnrSupports( iBF )( 0 )->get_vertex_coords(), "Vertex coordinates of subphase 0" );
                         // print( tIpCell->get_vertex_coords(), "Vertex coordinates of subphase i" );
@@ -2027,7 +2025,7 @@ namespace moris::xtk
                                   << " | Vert Owner = " << tVertices( iVertex )->get_owner()
                                   << " | mVertexBulkPhase(tVertexIndex) = " << mVertexBulkPhase( tVertexIndex )
                                   << " | tEnrIpCells(i)->get_bulkphase_index() =" << tEnrIpCells( iEnrIpCell )->get_bulkphase_index()
-                                  << std::endl;
+                                  << '\n';
                     }
 
                     // check that vertices on current Enr. IP cell have same Bulk phase as Enr. IP cell
@@ -3322,8 +3320,8 @@ namespace moris::xtk
 
     moris::moris_index
     Enriched_Interpolation_Mesh::get_field_index(
-            std::string     aLabel,
-            mtk::EntityRank aEntityRank )
+            const std::string& aLabel,
+            mtk::EntityRank    aEntityRank )
     {
         MORIS_ASSERT( field_exists( aLabel, aEntityRank ), "Field does not exist in mesh" );
 
@@ -3374,7 +3372,7 @@ namespace moris::xtk
 
     moris::moris_index
     Enriched_Interpolation_Mesh::create_field(
-            std::string        aLabel,
+            const std::string& aLabel,
             mtk::EntityRank    aEntityRank,
             moris::moris_index aBulkPhaseIndex )
     {
@@ -3391,8 +3389,8 @@ namespace moris::xtk
 
     bool
     Enriched_Interpolation_Mesh::field_exists(
-            std::string     aLabel,
-            mtk::EntityRank aEntityRank )
+            const std::string& aLabel,
+            mtk::EntityRank    aEntityRank )
     {
         moris::moris_index tIndex = this->get_entity_rank_field_index( aEntityRank );
 
@@ -3432,8 +3430,8 @@ namespace moris::xtk
         // get path to output XTK files to
         std::string tOutputPath = aParamList->get< std::string >( "output_path" );
         std::string tOutputFile = aParamList->get< std::string >( "output_file" );
-        std::string tOutputBase = tOutputFile.substr( 0, tOutputFile.find( "." ) ) + "_ip";
-        std::string tOutputExt  = tOutputFile.substr( tOutputFile.find( "." ), tOutputFile.length() );
+        std::string tOutputBase = tOutputFile.substr( 0, tOutputFile.find( '.' ) ) + "_ip";
+        std::string tOutputExt  = tOutputFile.substr( tOutputFile.find( '.' ), tOutputFile.length() );
 
         MORIS_ASSERT( tOutputExt == ".exo" || tOutputExt == ".e", "Invalid file extension, needs to be .exo or .e" );
 
@@ -3464,7 +3462,7 @@ namespace moris::xtk
 
             if ( !tProbeSpheresStr.empty() )
             {
-                Matrix< DDRMat > tProbeSpheres = string_to_mat< DDRMat >( tProbeSpheresStr );
+                Matrix< DDRMat > tProbeSpheres = string_to_matrix< DDRMat >( tProbeSpheresStr );
 
                 // set up the nodal fields for basis support
                 this->create_basis_support_fields( tProbeSpheres );
@@ -3478,7 +3476,7 @@ namespace moris::xtk
 
             if ( !tProbeSpheresStr.empty() )
             {
-                Matrix< DDRMat > tProbeSpheres = string_to_mat< DDRMat >( tProbeSpheresStr );
+                Matrix< DDRMat > tProbeSpheres = string_to_matrix< DDRMat >( tProbeSpheresStr );
 
                 // set up the nodal fields for basis support
                 this->create_basis_function_fields( tProbeSpheres );
@@ -3512,8 +3510,8 @@ namespace moris::xtk
 
             for ( uint iBlock = 0; iBlock < this->get_num_blocks(); iBlock++ )
             {
-                std::string tBlockName  = tBlockNames( iBlock );
-                moris_index tBlockIndex = this->get_block_set_index( tBlockName );
+                const std::string& tBlockName  = tBlockNames( iBlock );
+                moris_index        tBlockIndex = this->get_block_set_index( tBlockName );
 
                 Matrix< IndexMat > tCellIndices = this->get_element_indices_in_block_set( tBlockIndex );
 
@@ -3560,7 +3558,7 @@ namespace moris::xtk
     //------------------------------------------------------------------------------
 
     moris_index
-    Enriched_Interpolation_Mesh::get_block_set_index( std::string aBlockSetLabel ) const
+    Enriched_Interpolation_Mesh::get_block_set_index( const std::string& aBlockSetLabel ) const
     {
         // find the iterator
         auto it = std::find_if( mBlockSetNames.begin(), mBlockSetNames.end(), [ & ]( const std::string& aStr ) {
@@ -3584,7 +3582,7 @@ namespace moris::xtk
     //------------------------------------------------------------------------------
 
     Vector< mtk::Cell const * >
-    Enriched_Interpolation_Mesh::get_set_cells( std::string aSetLabel ) const
+    Enriched_Interpolation_Mesh::get_set_cells( const std::string& aSetLabel ) const
     {
         // get the index of the set
         moris_index tSetIndex = this->get_block_set_index( aSetLabel );

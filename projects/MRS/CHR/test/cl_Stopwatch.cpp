@@ -114,36 +114,36 @@ TEST_CASE(
         REQUIRE( wall_time_1.find( "user" ) != std::string::npos );
         REQUIRE( wall_time_1.find( "system" ) != std::string::npos );
         REQUIRE( wall_time_1.find( "CPU" ) != std::string::npos );
-        REQUIRE( wall_time_1.find( "%" ) != std::string::npos );
+        REQUIRE( wall_time_1.find( '%' ) != std::string::npos );
 
         REQUIRE( wall_time_2.find( "wall" ) != std::string::npos );
         REQUIRE( wall_time_2.find( "user" ) == std::string::npos );
         REQUIRE( wall_time_2.find( "system" ) == std::string::npos );
         REQUIRE( wall_time_2.find( "CPU" ) == std::string::npos );
-        REQUIRE( wall_time_2.find( "%" ) == std::string::npos );
+        REQUIRE( wall_time_2.find( '%' ) == std::string::npos );
 
         REQUIRE( wall_time_3.find( "wall" ) == std::string::npos );
         REQUIRE( wall_time_3.find( "user" ) != std::string::npos );
         REQUIRE( wall_time_3.find( "system" ) == std::string::npos );
         REQUIRE( wall_time_3.find( "CPU" ) == std::string::npos );
-        REQUIRE( wall_time_3.find( "%" ) == std::string::npos );
+        REQUIRE( wall_time_3.find( '%' ) == std::string::npos );
 
         REQUIRE( wall_time_4.find( "wall" ) == std::string::npos );
         REQUIRE( wall_time_4.find( "user" ) == std::string::npos );
         REQUIRE( wall_time_4.find( "system" ) != std::string::npos );
         REQUIRE( wall_time_4.find( "CPU" ) == std::string::npos );
-        REQUIRE( wall_time_4.find( "%" ) == std::string::npos );
+        REQUIRE( wall_time_4.find( '%' ) == std::string::npos );
 
         REQUIRE( wall_time_5.find( "wall" ) == std::string::npos );
         REQUIRE( wall_time_5.find( "user" ) == std::string::npos );
         REQUIRE( wall_time_5.find( "system" ) == std::string::npos );
         REQUIRE( wall_time_5.find( "CPU" ) != std::string::npos );
-        REQUIRE( wall_time_5.find( "%" ) == std::string::npos );
+        REQUIRE( wall_time_5.find( '%' ) == std::string::npos );
 
         REQUIRE( wall_time_6.find( "wall" ) == std::string::npos );
         REQUIRE( wall_time_6.find( "user" ) == std::string::npos );
         REQUIRE( wall_time_6.find( "system" ) == std::string::npos );
         REQUIRE( wall_time_6.find( "CPU" ) == std::string::npos );
-        REQUIRE( wall_time_6.find( "%" ) != std::string::npos );
+        REQUIRE( wall_time_6.find( '%' ) != std::string::npos );
     }
 }

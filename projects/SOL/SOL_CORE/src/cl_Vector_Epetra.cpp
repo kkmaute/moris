@@ -491,7 +491,7 @@ Vector_Epetra::extract_my_values(
 void
 Vector_Epetra::print() const
 {
-    std::cout << *mEpetraVector << std::endl;
+    std::cout << *mEpetraVector << '\n';
 }
 
 //----------------------------------------------------------------------------------------------
@@ -554,7 +554,7 @@ Vector_Epetra::read_vector_from_HDF5(
     HDF5.Read( "map-" + std::to_string( ( mEpetraComm.get_epetra_comm() )->NumProc() ), tNewMap );
 
     // read new multi-vector
-    Epetra_MultiVector* tNewVector = NULL;
+    Epetra_MultiVector* tNewVector = nullptr;
 
     HDF5.Read( aGroupName, *tNewMap, tNewVector );
 

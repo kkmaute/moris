@@ -207,7 +207,7 @@ namespace moris::xtk
     //----------------------------------------------------------------
 
     void
-    Cell_Cluster::set_primary_integration_cell_group( std::shared_ptr< IG_Cell_Group > aPrimaryIgCells )
+    Cell_Cluster::set_primary_integration_cell_group( const std::shared_ptr< IG_Cell_Group > &aPrimaryIgCells )
     {
         mPrimaryIgCellGroup = { aPrimaryIgCells };
 
@@ -280,7 +280,7 @@ namespace moris::xtk
     //------------------------------------------------------------------------------
 
     void
-    Cell_Cluster::set_ig_vertex_group( std::shared_ptr< IG_Vertex_Group > aVertexGroup )
+    Cell_Cluster::set_ig_vertex_group( const std::shared_ptr< IG_Vertex_Group > &aVertexGroup )
     {
         mVertexGroup = aVertexGroup;
 
@@ -336,8 +336,8 @@ namespace moris::xtk
 
     void
     Cell_Cluster::set_cluster_group(
-            const moris_index                     aDiscretizationMeshIndex,
-            std::shared_ptr< mtk::Cluster_Group > aClusterGroupPtr )
+            const moris_index                            aDiscretizationMeshIndex,
+            const std::shared_ptr< mtk::Cluster_Group > &aClusterGroupPtr )
     {
         // check that the cluster group is set to the correct B-spline list index
         MORIS_ASSERT( aClusterGroupPtr->get_discretization_mesh_index_for_cluster_group() == aDiscretizationMeshIndex,

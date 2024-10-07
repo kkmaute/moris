@@ -16,43 +16,41 @@
 #include "fn_eye.hpp"
 #include "fn_dot.hpp"
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+    //------------------------------------------------------------------------------
+
+    IWG_Isotropic_Struc_Linear_Contact_Penalty::IWG_Isotropic_Struc_Linear_Contact_Penalty()
     {
-        //------------------------------------------------------------------------------
+        // set size for the property pointer cell
+        mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
-        IWG_Isotropic_Struc_Linear_Contact_Penalty::IWG_Isotropic_Struc_Linear_Contact_Penalty()
-        {
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+        // populate the property map
+        mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
 
-            // populate the property map
-            mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
+        // set size for the constitutive model pointer cell
+        // .resize: gives aValue:(The value to initialize the new elements with) and aCount:(new size of the Cell)
+        mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+        mFollowerCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
-            // set size for the constitutive model pointer cell
-            // .resize: gives aValue:(The value to initialize the new elements with) and aCount:(new size of the Cell)
-            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
-            mFollowerCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+        // populate the constitutive map
+        mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
 
-            // populate the constitutive map
-            mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
+        // set size for the stabilization parameter pointer cell
+        mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
 
-            // set size for the stabilization parameter pointer cell
-            mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
+        // populate the stabilization map
+        mStabilizationMap[ "PenaltyContact" ]     = static_cast< uint >( IWG_Stabilization_Type::PENALTY_CONTACT );
+        mStabilizationMap[ "StabPenaltyContact" ] = static_cast< uint >( IWG_Stabilization_Type::STAB_PENALTY_CONTACT );
 
-            // populate the stabilization map
-            mStabilizationMap[ "PenaltyContact" ]     = static_cast< uint >( IWG_Stabilization_Type::PENALTY_CONTACT );
-            mStabilizationMap[ "StabPenaltyContact" ] = static_cast< uint >( IWG_Stabilization_Type::STAB_PENALTY_CONTACT );
+        //            mStabilizationMap[ "LeaderWeightInterface" ] = IWG_Stabilization_Type::LEADER_WEIGHT_INTERFACE;
+        //            mStabilizationMap[ "FollowerWeightInterface" ]  = IWG_Stabilization_Type::FOLLOWER_WEIGHT_INTERFACE;
+    }
 
-            //            mStabilizationMap[ "LeaderWeightInterface" ] = IWG_Stabilization_Type::LEADER_WEIGHT_INTERFACE;
-            //            mStabilizationMap[ "FollowerWeightInterface" ]  = IWG_Stabilization_Type::FOLLOWER_WEIGHT_INTERFACE;
-        }
+    //------------------------------------------------------------------------------
 
-        //------------------------------------------------------------------------------
-
-        void IWG_Isotropic_Struc_Linear_Contact_Penalty::compute_residual( real aWStar )
-        {
+    void IWG_Isotropic_Struc_Linear_Contact_Penalty::compute_residual( real aWStar )
+    {
 #ifdef MORIS_HAVE_DEBUG
             // check leader and follower field interpolators
             this->check_field_interpolators( mtk::Leader_Follower::LEADER );
@@ -432,5 +430,4 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
+}    // namespace moris::fem

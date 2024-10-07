@@ -5,7 +5,7 @@
  *------------------------------------------------------------------------------------
  *
  * cl_Map.cpp
- *
+ *#include "containers/cl_Map/cl_Map_clear.inc"
  */
 
 #include <catch.hpp>
@@ -13,37 +13,35 @@
 // MORIS project header files.
 #include "core.hpp"
 #include "algorithms.hpp"
-#include "cl_Map.hpp" // CON/src
+#include "cl_Map.hpp"    // CON/src
 
 // ----------------------------------------------------------------------------
 
 TEST_CASE( "moris::map" )
 {
-    #include "containers/cl_Map/cl_Map.inc"
-    #include "containers/cl_Map/cl_Map_size.inc"
+#include "containers/cl_Map/cl_Map.inc"
+#include "containers/cl_Map/cl_Map_size.inc"
 
-    SECTION("moris::map size")
+    SECTION( "moris::map size" )
     {
         REQUIRE( map_size == 3 );
     }
 
-    SECTION("moris::map clear")
+    SECTION( "moris::map clear" )
     {
-        #include "containers/cl_Map/cl_Map_clear.inc"
+#include "containers/cl_Map/cl_Map_clear.inc"
         REQUIRE( myMap.size() == 2 );
     }
 
-    SECTION("moris::map find")
+    SECTION( "moris::map find" )
     {
-        #include "containers/cl_Map/cl_Map_clear.inc"
-        #include "containers/cl_Map/cl_Map_find.inc"
+#include "containers/cl_Map/cl_Map_find.inc"
         REQUIRE( aValue == 12 );
     }
 
-    SECTION("moris::map empty")
+    SECTION( "moris::map empty" )
     {
-        #include "containers/cl_Map/cl_Map_empty.inc"
+#include "containers/cl_Map/cl_Map_empty.inc"
         REQUIRE( aEmpty == 0 );
     }
 }
-

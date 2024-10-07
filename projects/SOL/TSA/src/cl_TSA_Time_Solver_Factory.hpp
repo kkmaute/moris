@@ -36,8 +36,8 @@ class Solver_Interface;
 
             std::shared_ptr< Time_Solver_Algorithm > create_time_solver( const enum TimeSolverType   aTimeSolverType = TimeSolverType::MONOLITHIC );
 
-            std::shared_ptr< Time_Solver_Algorithm > create_time_solver( const enum TimeSolverType   aTimeSolverType,
-                                                                         const Parameter_List                                                           aParameterlist);
+            std::shared_ptr< Time_Solver_Algorithm > create_time_solver( const enum TimeSolverType aTimeSolverType,
+                    const Parameter_List&                                                          aParameterlist );
         };
     }
 }

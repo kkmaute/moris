@@ -11,6 +11,8 @@
 #ifndef SRC_FEM_CL_MSI_DESIGN_VARIABLE_INTERFACE_HPP_
 #define SRC_FEM_CL_MSI_DESIGN_VARIABLE_INTERFACE_HPP_
 
+#include <utility>
+
 #include "moris_typedefs.hpp"
 #include "cl_Vector.hpp"
 #include "cl_Matrix.hpp"
@@ -48,14 +50,14 @@ namespace moris
             /**
              * trivial constructor
              */
-            Design_Variable_Interface(){};
+            Design_Variable_Interface() {};
 
             //------------------------------------------------------------------------------
 
             /**
              * trivial destructor
              */
-            virtual ~Design_Variable_Interface(){};
+            virtual ~Design_Variable_Interface() {};
 
             //------------------------------------------------------------------------------
 
@@ -66,7 +68,7 @@ namespace moris
             void
             set_equation_model( std::shared_ptr< MSI::Equation_Model > aModel )
             {
-                mModel = aModel;
+                mModel = std::move( aModel );
             }
 
             //------------------------------------------------------------------------------
@@ -121,7 +123,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            virtual void set_GenMeshMap( Vector< moris_index > aGenMeshMap )
+            virtual void set_GenMeshMap( const Vector< moris_index >& aGenMeshMap )
             {
                 MORIS_ERROR( false, "MSI_Design_Variable_Interface::set_GenMeshMap() - This function is not defined in this class" );
             }

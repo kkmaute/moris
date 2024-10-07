@@ -61,8 +61,9 @@ namespace moris::xtk
          * share
          */
         void
-        set_element_pair_and_side_ordinal( Vector< const moris::mtk::Cell * > aElementIndexPair,
-                Matrix< IndexMat >                                            aElementSideOrdinals )
+        set_element_pair_and_side_ordinal(
+                const Vector< const moris::mtk::Cell* >& aElementIndexPair,
+                const Matrix< IndexMat >&                aElementSideOrdinals )
         {
             // Verify lengths
             MORIS_ASSERT( aElementIndexPair.size() == 2, "Provided aElementIndexPair vector needs to have length 2" );
@@ -73,7 +74,7 @@ namespace moris::xtk
             MORIS_ASSERT( mElementSideOrdinals.numel() == 0, "This interface element has already been given an element side ordinal pair" );
 
             // Copy the vectors
-            mElementPairs        = std::move( aElementIndexPair );
+            mElementPairs        = aElementIndexPair;
             mElementSideOrdinals = aElementSideOrdinals.copy();
         }
 
@@ -82,8 +83,9 @@ namespace moris::xtk
          *
          */
         void
-        set_element_identifiers( moris::moris_index aElementIndex,
-                moris::moris_id                     aElementId )
+        set_element_identifiers(
+                moris::moris_index aElementIndex,
+                moris::moris_id    aElementId )
         {
             MORIS_ASSERT( mElementId == MORIS_ID_MAX, "Element Id has already been set" );
             MORIS_ASSERT( mElementIndex == MORIS_INDEX_MAX, "Element index has already been set" );
@@ -120,7 +122,7 @@ namespace moris::xtk
         /*
          * Returns the cell pointers in this interface element
          */
-        Vector< const moris::mtk::Cell * > const &
+        Vector< const moris::mtk::Cell* > const &
         get_cell_ptrs()
         {
             MORIS_ASSERT( mElementPairs.size() == 2, "This interface element has not been given an element index pair" );
@@ -213,11 +215,11 @@ namespace moris::xtk
         }
 
       private:
-        moris::moris_id                    mElementId;
-        moris::moris_index                 mElementIndex;
-        moris::moris_index                 mElementOwner;
-        Vector< const moris::mtk::Cell * > mElementPairs;
-        Matrix< IndexMat >                 mElementSideOrdinals;
+        moris::moris_id                   mElementId;
+        moris::moris_index                mElementIndex;
+        moris::moris_index                mElementOwner;
+        Vector< const moris::mtk::Cell* > mElementPairs;
+        Matrix< IndexMat >                mElementSideOrdinals;
     };
 
 }    // namespace moris::xtk

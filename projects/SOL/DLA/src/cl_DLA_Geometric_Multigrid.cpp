@@ -19,9 +19,7 @@
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_HMR_Database.hpp"
 
-namespace moris
-{
-namespace dla
+namespace moris::dla
 {
     Geometric_Multigrid::Geometric_Multigrid( Solver_Interface * aSolverInterface ) : mSolverInterface( aSolverInterface ),
                                                                                       mMesh( mSolverInterface->get_mesh_pointer_for_multigrid() )
@@ -133,5 +131,3 @@ namespace dla
         }
     }
 }
-}
-

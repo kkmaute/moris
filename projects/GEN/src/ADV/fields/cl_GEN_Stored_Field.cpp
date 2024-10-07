@@ -15,8 +15,8 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Stored_Field::Stored_Field(
-            mtk::Mesh*               aMesh,
-            std::shared_ptr< Field > aField )
+            mtk::Mesh*                      aMesh,
+            const std::shared_ptr< Field >& aField )
             : Field_Discrete_Integration( {}, aField->get_name() )
             , mField( aField )
             , mMesh( aMesh )

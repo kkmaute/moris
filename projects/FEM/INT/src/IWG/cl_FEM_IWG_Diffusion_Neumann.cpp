@@ -16,28 +16,26 @@
 #include "fn_eye.hpp"
 #include "fn_dot.hpp"
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+
+    //------------------------------------------------------------------------------
+
+    IWG_Diffusion_Neumann::IWG_Diffusion_Neumann()
     {
+        // set size for the property pointer cell
+        mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
-        //------------------------------------------------------------------------------
+        // populate the property map
+        mPropertyMap[ "Neumann" ]   = static_cast< uint >( IWG_Property_Type::NEUMANN );
+        mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
+    }
 
-        IWG_Diffusion_Neumann::IWG_Diffusion_Neumann()
-        {
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+    //------------------------------------------------------------------------------
 
-            // populate the property map
-            mPropertyMap[ "Neumann" ]   = static_cast< uint >( IWG_Property_Type::NEUMANN );
-            mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
-        }
-
-        //------------------------------------------------------------------------------
-
-        void
-        IWG_Diffusion_Neumann::compute_residual( real aWStar )
-        {
+    void
+    IWG_Diffusion_Neumann::compute_residual( real aWStar )
+    {
 #ifdef MORIS_HAVE_DEBUG
             // check leader field interpolators, properties, constitutive models
             this->check_field_interpolators();
@@ -151,5 +149,4 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
+}    // namespace moris::fem

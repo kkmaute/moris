@@ -19,46 +19,44 @@
 // #include "fn_eye.hpp"
 // #include "fn_cond.hpp"
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+    //------------------------------------------------------------------------------
+
+    IWG_Isotropic_Struc_Nonlinear_Geometric_Stiffness::IWG_Isotropic_Struc_Nonlinear_Geometric_Stiffness(
+            enum CM_Function_Type aStressType,
+            enum CM_Function_Type aStrainType )
     {
-        //------------------------------------------------------------------------------
+        mIWGType = moris::fem::IWG_Type::STRUC_NON_LINEAR_GEOMETRIC_STIFFNESS;
 
-        IWG_Isotropic_Struc_Nonlinear_Geometric_Stiffness::IWG_Isotropic_Struc_Nonlinear_Geometric_Stiffness(
-                enum CM_Function_Type aStressType,
-                enum CM_Function_Type aStrainType )
-        {
-            mIWGType = moris::fem::IWG_Type::STRUC_NON_LINEAR_GEOMETRIC_STIFFNESS;
+        // assign stress and strain type to evaluate the IWG
+        mStressType = aStressType;
+        mStrainType = aStrainType;
 
-            // assign stress and strain type to evaluate the IWG
-            mStressType = aStressType;
-            mStrainType = aStrainType;
+        // set size for the property pointer cell
+        mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+        // populate the property map
+        mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
 
-            // populate the property map
-            mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
+        // set size for the constitutive model pointer cell
+        mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+        // populate the constitutive map
+        mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
+    }
 
-            // populate the constitutive map
-            mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
-        }
+    //------------------------------------------------------------------------------
 
-        //------------------------------------------------------------------------------
+    void IWG_Isotropic_Struc_Nonlinear_Geometric_Stiffness::compute_residual( real aWStar )
+    {
+        MORIS_ERROR( false,
+                "IWG_Isotropic_Struc_Nonlinear_Geometric_Stiffness::compute_residual - should not be called" );
+    }
 
-        void IWG_Isotropic_Struc_Nonlinear_Geometric_Stiffness::compute_residual( real aWStar )
-        {
-            MORIS_ERROR( false,
-                    "IWG_Isotropic_Struc_Nonlinear_Geometric_Stiffness::compute_residual - should not be called" );
-        }
-
-        //------------------------------------------------------------------------------
-        void IWG_Isotropic_Struc_Nonlinear_Geometric_Stiffness::compute_jacobian( real aWStar )
-        {
+    //------------------------------------------------------------------------------
+    void IWG_Isotropic_Struc_Nonlinear_Geometric_Stiffness::compute_jacobian( real aWStar )
+    {
 #ifdef MORIS_HAVE_DEBUG
             // check leader field interpolators, properties and constitutive models
             this->check_field_interpolators();
@@ -150,5 +148,4 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
+}    // namespace moris::fem

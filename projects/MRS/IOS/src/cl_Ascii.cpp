@@ -108,7 +108,7 @@ namespace moris
             // save buffer to file
             for ( std::string& tLine : mBuffer )
             {
-                tFile << tLine << std::endl;
+                tFile << tLine << '\n';
             }
 
             tFile.close();

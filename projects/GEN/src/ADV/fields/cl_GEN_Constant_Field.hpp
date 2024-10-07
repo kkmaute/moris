@@ -38,7 +38,7 @@ namespace moris::gen
          * @param aCoordinates Node coordinates
          * @return Field value
          */
-        real get_field_value( const Matrix< DDRMat >& aCoordinates );
+        real get_field_value( const Matrix< DDRMat >& aCoordinates ) override;
 
         /**
          * Given a node index, evaluates the sensitivity of the field with respect to all of the
@@ -48,7 +48,7 @@ namespace moris::gen
          * @param aCoordinates Node coordinates
          * @return Vector of sensitivities
          */
-        const Matrix< DDRMat >& get_dfield_dadvs( const Matrix< DDRMat >& aCoordinates );
+        const Matrix< DDRMat >& get_dfield_dadvs( const Matrix< DDRMat >& aCoordinates ) override;
 
         /**
          * Given nodal coordinates, returns a vector of the field derivatives with respect to the nodal
@@ -59,6 +59,6 @@ namespace moris::gen
          */
         void get_dfield_dcoordinates(
                 const Matrix< DDRMat >& aCoordinates,
-                Matrix< DDRMat >&       aSensitivities );
+                Matrix< DDRMat >&       aSensitivities ) override;
     };
 }

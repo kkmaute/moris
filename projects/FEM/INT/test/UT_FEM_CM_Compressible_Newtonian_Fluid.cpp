@@ -372,7 +372,7 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive",
                     // std::cout << "Performing test for jacobian DOF derivative wrt. (0-RHO, 1-VX, 2-TEMP): " << jRequestedDof << "\n\n" << std::flush;
 
                     // derivative dof type
-                    Vector< MSI::Dof_Type > tDofDerivative = tRequestedLeaderGlobalDofTypes( jRequestedDof );
+                    const Vector< MSI::Dof_Type >& tDofDerivative = tRequestedLeaderGlobalDofTypes( jRequestedDof );
 
                     if ( jRequestedDof != 1 )
                     {
@@ -1223,7 +1223,7 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive",
                     // std::cout << "Performing test for jacobian DOF derivative wrt. (0-P, 1-VX, 2-TEMP): " << jRequestedDof << "\n\n" << std::flush;
 
                     // derivative dof type
-                    Vector< MSI::Dof_Type > tDofDerivative = tRequestedLeaderGlobalDofTypes( jRequestedDof );
+                    const Vector< MSI::Dof_Type >& tDofDerivative = tRequestedLeaderGlobalDofTypes( jRequestedDof );
 
                     if ( jRequestedDof != 1 )
                     {

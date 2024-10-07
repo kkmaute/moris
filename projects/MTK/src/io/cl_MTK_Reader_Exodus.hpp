@@ -17,13 +17,11 @@
 
 // TODO
 #include "cl_MTK_Mesh.hpp"    // MTK/src
-#include "cl_MTK_Mesh_Data_Input.hpp"
 #include "cl_MTK_Mesh_Factory.hpp"
 #include "cl_MTK_Mesh_Data_STK.hpp"
 #include "cl_MTK_Mesh_Core_STK.hpp"
 #include "cl_MTK_Interpolation_Mesh_STK.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
-#include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Mesh_Tools.hpp"
 #include "cl_MTK_Integration_Mesh_STK.hpp"
 #include "cl_MTK_Sets_Info.hpp"
@@ -69,7 +67,7 @@ namespace moris::mtk
          * Reads an Exodus file and dumps the result into a specified mesh.
          * @param aFileName The name of the file to be read from
          */
-        void read_file( std::string aFileName );
+        void read_file( const std::string& aFileName );
 
       private:
         /**
@@ -77,7 +75,7 @@ namespace moris::mtk
          *  @param aExodusFileName Name of the Exodus file.
          *  @param aVersion Version of the database. Current version is 4.72 as of programming.
          */
-        void open_file( std::string aExodusFileName, float aVersion = 4.72 );
+        void open_file( const std::string& aExodusFileName, float aVersion = 4.72 );
 
         /**
          * Closes the open Exodus database *and* renames it to the permanent file name stored under mPermFileName. This

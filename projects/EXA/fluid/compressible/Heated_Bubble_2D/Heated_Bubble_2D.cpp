@@ -126,9 +126,9 @@ namespace moris
     // Constant function for properties
     void
     Func_Const(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         aPropMatrix = aParameters( 0 );
     }
@@ -138,9 +138,9 @@ namespace moris
     // heat load distribution
     void
     Func_Heat_Load_Distribution(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         // get coordinates
         real tX = aFIManager->get_IP_geometry_interpolator()->valx()( 0 );
@@ -161,9 +161,9 @@ namespace moris
     // initial pressure
     void
     Func_Initial_Pressure(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         aPropMatrix = { { tInitialPressure } };
     }
@@ -171,9 +171,9 @@ namespace moris
     // initial velocity
     void
     Func_Initial_Velocity(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         aPropMatrix = { { 0.0 }, { 0.0 } };
     }
@@ -181,9 +181,9 @@ namespace moris
     // initial pressure
     void
     Func_Initial_Temperature(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         aPropMatrix = { { tInitialTemperature } };
     }
@@ -193,9 +193,9 @@ namespace moris
     // local mach Number
     void
     Func_Mach_Number(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         // get field values
         real tTemp   = aFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP )->val()( 0 );
@@ -214,9 +214,9 @@ namespace moris
     // local reynolds Number
     void
     Func_Reynolds_Number(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         // get field values
         real tTemp   = aFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP )->val()( 0 );
@@ -244,8 +244,8 @@ namespace moris
 
     moris::real
     Func_Dummy_Plane(
-            const moris::Matrix< DDRMat >&     aCoordinates,
-            const Vector< real >& aGeometryParameters )
+            const moris::Matrix< DDRMat >& aCoordinates,
+            const Vector< real >&          aGeometryParameters )
     {
         moris::real aReturnValue = aCoordinates( 1 ) - 10000;    // tPlaneBottom - 0.01;
         return aReturnValue;
@@ -805,7 +805,7 @@ namespace moris
         tParameterlist( 3 )( 0 ).set( "NLA_DofTypes", "P;VX,VY;TEMP" );
 
         tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
-        // tParameterlist( 4 )( 0 ).set("TSA_Nonlinear_solver", 2);
+        // tParameterlist( 4 )( 0 ).set("TSA_Nonlinear_Solver", 2);
         tParameterlist( 4 )( 0 ).set( "TSA_Num_Time_Steps", tNumTimeSteps );
         tParameterlist( 4 )( 0 ).set( "TSA_Time_Frame", tTimeFrame );
 
@@ -823,7 +823,7 @@ namespace moris
             tParameterlist( 6 )( 0 ).set( "SOL_save_operator_to_matlab", "Jacobian.dat" );
         }
 
-        tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list(sol::PreconditionerType::NONE);
+        tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE );
     }
 
     //------------------------------------------------------------------------------
@@ -848,7 +848,7 @@ namespace moris
 
         tParameterlist( 0 )( 0 ) = prm::create_vis_parameter_list();
         tParameterlist( 0 )( 0 ).set( "File_Name", std::pair< std::string, std::string >( "./", "Heated_Bubble_2D.exo" ) );
-        tParameterlist( 0 )( 0 ).set( "Mesh_Type",  vis::VIS_Mesh_Type::STANDARD ) ;
+        tParameterlist( 0 )( 0 ).set( "Mesh_Type", vis::VIS_Mesh_Type::STANDARD );
         tParameterlist( 0 )( 0 ).set( "Set_Names", sFluid );
         tParameterlist( 0 )( 0 ).set( "Field_Names", "P,VX,VY,TEMP,Ma,Re,Q" );
         tParameterlist( 0 )( 0 ).set( "Field_Type", "NODAL,NODAL,NODAL,NODAL,NODAL,NODAL,NODAL" );

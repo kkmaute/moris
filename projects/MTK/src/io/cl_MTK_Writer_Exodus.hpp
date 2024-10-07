@@ -16,7 +16,6 @@
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Mesh_Data_Input.hpp"
 #include "cl_MTK_Mesh.hpp"
-#include "cl_MTK_Mesh_Data_Input.hpp"
 #include "cl_MTK_Mesh_Factory.hpp"
 #include "cl_MTK_Mesh_Data_STK.hpp"
 #include "cl_MTK_Mesh_Core_STK.hpp"
@@ -253,7 +252,7 @@ namespace moris::mtk
          *  @param aFieldValues Matrix of values to write for this field.
          */
         void write_point_field(
-                std::string             aFieldName,
+                const std::string&      aFieldName,
                 const Matrix< DDRMat >& aFieldValues );
 
         //------------------------------------------------------------------------------
@@ -265,7 +264,7 @@ namespace moris::mtk
          *  @param aFieldValues Matrix of values to write for this field.
          */
         void write_nodal_field(
-                std::string             aFieldName,
+                const std::string&      aFieldName,
                 const Matrix< DDRMat >& aFieldValues );
 
         //------------------------------------------------------------------------------
@@ -278,8 +277,8 @@ namespace moris::mtk
          *  @param aFieldValues Matrix of values to write
          */
         void write_elemental_field(
-                std::string             aBlockName,
-                std::string             aFieldName,
+                const std::string&      aBlockName,
+                const std::string&      aFieldName,
                 const Matrix< DDRMat >& aFieldValues );
 
         //------------------------------------------------------------------------------
@@ -293,8 +292,8 @@ namespace moris::mtk
          */
         void
         write_side_set_field(
-                std::string             aSideSetName,
-                std::string             aFieldName,
+                const std::string&      aSideSetName,
+                const std::string&      aFieldName,
                 const Matrix< DDRMat >& aFieldValues );
 
         //------------------------------------------------------------------------------

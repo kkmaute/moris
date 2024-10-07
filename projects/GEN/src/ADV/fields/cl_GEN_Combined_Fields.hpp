@@ -29,9 +29,9 @@ namespace moris::gen
          * @param aUseMinimum Whether or not to use minimum or maximum value when combining fields
          */
         Combined_Fields(
-                Vector< std::shared_ptr< Field > > aFields,
-                bool                               aUseMinimum = true,
-                std::string                        aName       = "" );
+                const Vector< std::shared_ptr< Field > >& aFields,
+                bool                                      aUseMinimum = true,
+                std::string                               aName       = "" );
 
         /**
          * Given a node coordinate, returns the minimum (or maximum) field value of all fields that have been combined.
@@ -86,7 +86,7 @@ namespace moris::gen
          * @param aCoordinates Vector of coordinate values
          * @param aSensitivities Sensitivities to be filled with d(field value)/d(coordinate_j)
          */
-        virtual void get_dfield_dcoordinates(
+        void get_dfield_dcoordinates(
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates,
                 Matrix< DDRMat >&       aSensitivities ) override;

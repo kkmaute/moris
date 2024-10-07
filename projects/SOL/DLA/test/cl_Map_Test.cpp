@@ -207,13 +207,13 @@ namespace moris
                     tMyGlobalElements,
                     tMyConstraintDofs );
 
-            std::cout << *tMap->get_epetra_map() << std::endl;
+            std::cout << *tMap->get_epetra_map() << '\n';
 
             barrier();
-            std::cout << "---------------------------------------------" << std::endl;
+            std::cout << "---------------------------------------------" << '\n';
             barrier();
 
-            std::cout << *tMap->get_epetra_point_map() << std::endl;
+            std::cout << *tMap->get_epetra_point_map() << '\n';
 
             tMap->build_dof_translator( tMyFullOverlappingMap, false );
 

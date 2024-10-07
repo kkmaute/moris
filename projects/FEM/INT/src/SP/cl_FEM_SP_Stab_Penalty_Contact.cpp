@@ -17,27 +17,23 @@
 #include "fn_dot.hpp"
 #include "op_div.hpp"
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+    //------------------------------------------------------------------------------
+
+    SP_Stab_Penalty_Contact::SP_Stab_Penalty_Contact()
     {
-        //------------------------------------------------------------------------------
+        // set size for the property pointer cells
+        mLeaderProp.resize( static_cast< uint >( SP_Property_Type::MAX_ENUM ), nullptr );
+        mFollowerProp.resize( static_cast< uint >( SP_Property_Type::MAX_ENUM ), nullptr );
+    }
 
-        SP_Stab_Penalty_Contact::SP_Stab_Penalty_Contact()
-        {
-            // set size for the property pointer cells
-            mLeaderProp.resize( static_cast< uint >( SP_Property_Type::MAX_ENUM ), nullptr );
-            mFollowerProp.resize( static_cast< uint >( SP_Property_Type::MAX_ENUM ), nullptr );
-        }
+    //------------------------------------------------------------------------------
+    void SP_Stab_Penalty_Contact::eval_SP()
+    {
+        // compute stabilization parameter value
+        mPPVal = mParameters( 0 );
+    }
 
-        //------------------------------------------------------------------------------
-        void SP_Stab_Penalty_Contact::eval_SP()
-        {
-            // compute stabilization parameter value
-            mPPVal = mParameters( 0 );
-        }
-
-        //------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
-
+    //------------------------------------------------------------------------------
+}    // namespace moris::fem

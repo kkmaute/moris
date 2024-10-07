@@ -28,12 +28,12 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     Design_Variable::Design_Variable(
-            real        aLowerBound,
-            real        aInitialValue,
-            real        aUpperBound,
-            std::string aName )
+            real               aLowerBound,
+            real               aInitialValue,
+            real               aUpperBound,
+            const std::string& aName )
             : mID( mCount++ )
-            , mValue ( aInitialValue )
+            , mValue( aInitialValue )
             , mLowerBound( aLowerBound )
             , mUpperBound( aUpperBound )
             , mIsConstant( false )

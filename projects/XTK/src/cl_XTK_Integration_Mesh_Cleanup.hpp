@@ -215,9 +215,9 @@ namespace moris::xtk
          */
         double_t
         minAngle2D(
-                Matrix< DDRMat > C1,
-                Matrix< DDRMat > C2,
-                Matrix< DDRMat > C3 );
+                const Matrix< DDRMat >& C1,
+                const Matrix< DDRMat >& C2,
+                const Matrix< DDRMat >& C3 );
 
         // ----------------------------------------------------------------------------
 
@@ -231,10 +231,10 @@ namespace moris::xtk
          */
         double_t
         minAngle3D(
-                Matrix< DDRMat > C1,
-                Matrix< DDRMat > C2,
-                Matrix< DDRMat > C3,
-                Matrix< DDRMat > C4 );
+                const Matrix< DDRMat >& C1,
+                const Matrix< DDRMat >& C2,
+                const Matrix< DDRMat >& C3,
+                const Matrix< DDRMat >& C4 );
 
         // ----------------------------------------------------------------------------
 
@@ -248,10 +248,10 @@ namespace moris::xtk
          */
         double_t
         solidAngle(
-                Matrix< DDRMat > nodeO,
-                Matrix< DDRMat > nodeA,
-                Matrix< DDRMat > nodeB,
-                Matrix< DDRMat > nodeC );
+                const Matrix< DDRMat >& nodeO,
+                const Matrix< DDRMat >& nodeA,
+                const Matrix< DDRMat >& nodeB,
+                const Matrix< DDRMat >& nodeC );
 
         // ----------------------------------------------------------------------------
 
@@ -328,7 +328,7 @@ namespace moris::xtk
          * @brief checks for coinciding vertices
          */
         void
-        check_coinc_verts( Vector< moris_index > aFlats, Vector< moris::mtk::Cell* >& aActiveIgCells );
+        check_coinc_verts( const Vector< moris_index >& aFlats, Vector< moris::mtk::Cell* >& aActiveIgCells );
 
         // ----------------------------------------------------------------------------
 
@@ -338,7 +338,7 @@ namespace moris::xtk
          * @param aV2 Coordinates 2
          */
         double_t
-        dist( Matrix< DDRMat > aV1, Matrix< DDRMat > aV2 );
+        dist( const Matrix< DDRMat >& aV1, const Matrix< DDRMat >& aV2 );
 
         // ----------------------------------------------------------------------------
     };

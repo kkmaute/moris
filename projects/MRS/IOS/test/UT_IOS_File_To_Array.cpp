@@ -16,7 +16,6 @@
 #include "paths.hpp"
 #include "fn_Parsing_Tools.hpp"
 #include "fn_assert.hpp"
-#include "catch.hpp"
 
 // ----------------------------------------------------------------------------
 
@@ -39,7 +38,7 @@ namespace moris
 
         uint tNumRows = tAscii.length();
         Matrix< DDUMat > tRow;
-        string_to_mat( tAscii.line( 0 ), tRow );
+        string_to_matrix( tAscii.line( 0 ), tRow );
         uint tNumCols = tRow.n_cols();
 
         Matrix< DDUMat > tMatrix( tNumRows,tNumCols );
@@ -48,7 +47,7 @@ namespace moris
         {
 
             // storing ascii row to matrix
-            string_to_mat( tAscii.line( i ), tRow );
+            string_to_matrix( tAscii.line( i ), tRow );
 
             // are the number of columns the same?
             MORIS_ASSERT(tRow.n_cols() == tNumCols, "Inconsistent number of columns in input file");

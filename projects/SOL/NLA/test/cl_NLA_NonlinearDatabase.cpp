@@ -28,10 +28,7 @@
 
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 
-namespace moris
-{
-
-namespace NLA
+namespace moris::NLA
 {
 TEST_CASE("NonlinearDatabase3","[NLA],[NLA_Database3]")
 {
@@ -180,5 +177,3 @@ TEST_CASE("NonlinearDatabase3","[NLA],[NLA_Database3]")
 //    }
 
 }
-}
-

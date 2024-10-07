@@ -14,7 +14,6 @@
 
 #include "moris_typedefs.hpp"
 #include "cl_MTK_Enums.hpp"
-#include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
@@ -56,13 +55,13 @@ namespace moris
             //------------------------------------------------------------------------------
 
             Field(
-                    mtk::Mesh_Pair         aMeshPair,
+                    const mtk::Mesh_Pair&  aMeshPair,
                     mtk::Field_Entity_Type tFieldEntityType         = mtk::Field_Entity_Type::NODAL,
                     uint                   aDiscretizationMeshIndex = 0 );
 
             //------------------------------------------------------------------------------
 
-            virtual ~Field();
+            ~Field() override;
 
             /**
              * Updates this field from file, if necessary.
@@ -128,7 +127,7 @@ namespace moris
             /**
              * @brief child class implementation: computes and stores nodal values
              */
-            virtual void
+            void
             compute_nodal_values() override
             {
                 MORIS_ERROR( false, "fem::Field::compute_nodal_values - not implemented.\n" );

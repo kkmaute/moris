@@ -81,7 +81,7 @@ namespace moris::gen
         real compute_intersection_local_coordinate(
                 const Vector< Background_Node* >& aBackgroundNodes,
                 const Parent_Node&                aFirstParentNode,
-                const Parent_Node&                aSecondParentNode );
+                const Parent_Node&                aSecondParentNode ) override;
 
         /**
          * A voxel geometry has no relevant MTK fields for remeshing, so this returns an empty vector.
@@ -208,6 +208,6 @@ namespace moris::gen
          *
          * @param aAllUpdatedDesigns All designs (this design will take fields from the ones it needs)
          */
-        void update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedDesigns ) override;
+        void update_dependencies( const Vector< std::shared_ptr< Design > >& aAllUpdatedDesigns ) override;
     };
 }    // namespace moris::gen

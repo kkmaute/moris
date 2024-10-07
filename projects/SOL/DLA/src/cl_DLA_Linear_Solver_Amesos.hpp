@@ -39,13 +39,13 @@ namespace moris::dla
 
         Linear_Solver_Amesos( Linear_Problem* aLinearSystem );
 
-        ~Linear_Solver_Amesos();
+        ~Linear_Solver_Amesos() override;
 
         // int SetSystemMatrix ( bool aUseTranspose );
 
-        moris::sint solve_linear_system();
+        moris::sint solve_linear_system() override;
 
-        moris::sint solve_linear_system( Linear_Problem* aLinearSystem, moris::sint aIter );
+        moris::sint solve_linear_system( Linear_Problem* aLinearSystem, moris::sint aIter ) override;
 
         void set_solver_internal_parameters();
     };

@@ -40,17 +40,16 @@ namespace moris
             bool mOutputMeshes = false;
 
             // mode ab_initio
-            Vector< Matrix< DDSMat > > mRefinementsMode_0;
-            Vector< Matrix< DDSMat > > mRefinementPatternMode_0;
+            Vector< Vector< uint > > mRefinementsMode_0;
+            Vector< Vector< uint > > mRefinementPatternMode_0;
             std::string                mRefinementFunction;
 
             Matrix< DDSMat > mMaxRefinementsMode_1;
             Matrix< DDSMat > mMinRefinementsMode_1;
             Matrix< DDSMat > mRefinementPatternMode_1;
 
-            Vector< Matrix< DDSMat > > mRefinementPatternMode_3;
-            Vector< Matrix< DDSMat > > mRefinemenCopytPatternToPattern_3;
-            Vector< Matrix< DDSMat > > mMinimumRefinementLevel;
+            Vector< Vector< uint > > mRefinemenCopytPatternToPattern_3;
+            Vector< Vector< uint > > mMinimumRefinementLevel;
             Vector< std::string >      mRefinementFunctionForField;
         };
 
@@ -89,7 +88,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             void perform_refinement(
-                    std::shared_ptr< hmr::HMR >             aHMRPerformer,
+                    const std::shared_ptr< hmr::HMR >&      aHMRPerformer,
                     Vector< std::shared_ptr< mtk::Field > > aSourceFields );
 
             //------------------------------------------------------------------------------
@@ -101,19 +100,19 @@ namespace moris
              *
              */
             void perform_refinement_mode_0(
-                    std::shared_ptr< hmr::HMR >              aHMRPerformer,
+                    const std::shared_ptr< hmr::HMR >&       aHMRPerformer,
                     Vector< std::shared_ptr< mtk::Field > >& aSourceFields );
 
             //------------------------------------------------------------------------------
 
             void perform_refinement_mode_1(
-                    std::shared_ptr< hmr::HMR >             aHMRPerformer,
+                    const std::shared_ptr< hmr::HMR >&      aHMRPerformer,
                     Vector< std::shared_ptr< mtk::Field > > aSourceFields );
 
             //------------------------------------------------------------------------------
 
             void perform_refinement_mode_2(
-                    std::shared_ptr< hmr::HMR >             aHMRPerformer,
+                    const std::shared_ptr< hmr::HMR >&      aHMRPerformer,
                     Vector< std::shared_ptr< mtk::Field > > aSourceFields );
 
             //------------------------------------------------------------------------------
@@ -147,11 +146,11 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            void output_meshes( std::shared_ptr< hmr::HMR > aHMRPerformer );
+            void output_meshes( const std::shared_ptr< hmr::HMR >& aHMRPerformer );
 
             //------------------------------------------------------------------------------
 
-            void unite_all_pattern_for_lagrange( std::shared_ptr< hmr::HMR > aHMRPerformer );
+            void unite_all_pattern_for_lagrange( const std::shared_ptr< hmr::HMR >& aHMRPerformer );
 
             //------------------------------------------------------------------------------
         };

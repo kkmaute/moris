@@ -49,9 +49,9 @@ namespace moris::gen
          * @param aNodeManager Node manager from the geometry engine, if available
          */
         explicit Level_Set_Geometry(
-                std::shared_ptr< Field > aField,
-                Level_Set_Parameters     aParameters  = Level_Set_Parameters(),
-                Node_Manager&            aNodeManager = Node_Manager::get_trivial_instance() );
+                std::shared_ptr< Field >    aField,
+                const Level_Set_Parameters& aParameters  = Level_Set_Parameters(),
+                Node_Manager&               aNodeManager = Node_Manager::get_trivial_instance() );
 
         /**
          * Sets a new node manager (from the geometry engine, if it was created after this geometry)
@@ -117,7 +117,7 @@ namespace moris::gen
         real compute_intersection_local_coordinate(
                 const Vector< Background_Node* >& aBackgroundNodes,
                 const Parent_Node&                aFirstParentNode,
-                const Parent_Node&                aSecondParentNode );
+                const Parent_Node&                aSecondParentNode ) override;
 
         /**
          * Given a node index or coordinates, returns a vector of the field derivatives with respect to the nodal
@@ -262,7 +262,7 @@ namespace moris::gen
          *
          * @param aAllUpdatedDesigns All designs (this design will take fields from the ones it needs)
          */
-        void update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedDesigns ) override;
+        void update_dependencies( const Vector< std::shared_ptr< Design > >& aAllUpdatedDesigns ) override;
 
       private:
         /**

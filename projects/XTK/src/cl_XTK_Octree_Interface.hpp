@@ -487,7 +487,7 @@ namespace moris::xtk
         moris_index
         get_num_corner_points() const
         {
-            std::cout << "WARNING NEEDs ABSTRACTION" << std::endl;
+            std::cout << "WARNING NEEDs ABSTRACTION" << '\n';
             return 8;
         }
 
@@ -496,7 +496,7 @@ namespace moris::xtk
         {
             Vector< moris_index > tVertexHashes( mOctreeMeshGrid.num_verts() );
 
-            std::cout << "WARNING TODO MAKE PROPER VERTEX HASHES" << std::endl;
+            std::cout << "WARNING TODO MAKE PROPER VERTEX HASHES" << '\n';
             // I need to make these hashes in a way that makes consistent requests across facets
 
             MORIS_ERROR( mOctreeMeshGrid.max_vert_i() < 10000 && mOctreeMeshGrid.max_vert_j() < 10000 && mOctreeMeshGrid.max_vert_k() < 10000, "Current limit imposed by hashing in octree" );
@@ -680,16 +680,16 @@ namespace moris::xtk
                 Decomposition_Data               *aDecompositionData,
                 Cut_Integration_Mesh             *aCutIntegrationMesh,
                 moris::mtk::Mesh                 *aBackgroundMesh,
-                Integration_Mesh_Generator       *aMeshGenerator );
+                Integration_Mesh_Generator       *aMeshGenerator ) override;
 
         enum Decomposition_Algorithm_Type
-        get_algorithm_type() const;
+        get_algorithm_type() const override;
 
         moris_index
-        get_signature() const;
+        get_signature() const override;
 
         bool
-        has_geometric_independent_vertices() const;
+        has_geometric_independent_vertices() const override;
 
         void
         perform_impl_vertex_requests(
@@ -697,7 +697,7 @@ namespace moris::xtk
                 Decomposition_Data               *aDecompositionData,
                 Cut_Integration_Mesh             *aCutIntegrationMesh,
                 moris::mtk::Mesh                 *aBackgroundMesh,
-                Integration_Mesh_Generator       *aMeshGenerator );
+                Integration_Mesh_Generator       *aMeshGenerator ) override;
 
         void
         perform_impl_generate_mesh(
@@ -705,7 +705,7 @@ namespace moris::xtk
                 Decomposition_Data               *aDecompositionData,
                 Cut_Integration_Mesh             *aCutIntegrationMesh,
                 moris::mtk::Mesh                 *aBackgroundMesh,
-                Integration_Mesh_Generator       *aMeshGenerator );
+                Integration_Mesh_Generator       *aMeshGenerator ) override;
 
       private:
         Vector< std::shared_ptr< Octree_Template const > >
@@ -716,7 +716,7 @@ namespace moris::xtk
          *
          * @return Vector<moris_index> const - {LowerBound,UpperBound}
          */
-        Vector< moris_index > const
+        Vector< moris_index >
         determine_octree_bounds();
 
         mtk::CellTopology

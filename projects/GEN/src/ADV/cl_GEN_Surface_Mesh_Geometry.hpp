@@ -73,7 +73,7 @@ namespace moris::gen
         Surface_Mesh_Geometry(
                 mtk::Mesh*                    aMesh,
                 ADV_Manager&                  aADVManager,
-                Surface_Mesh_Parameters       aParameters  = Surface_Mesh_Parameters(),
+                const Surface_Mesh_Parameters      & aParameters  = Surface_Mesh_Parameters(),
                 Node_Manager&                 aNodeManager = Node_Manager::get_trivial_instance(),
                 std::shared_ptr< Library_IO > aLibrary     = nullptr );
 
@@ -82,22 +82,6 @@ namespace moris::gen
          *
          */
         ~Surface_Mesh_Geometry();
-
-        /**
-         * loads an ascii file and creates vertex and facet objects
-         * Facets are either lines in 2D or triangles in 3D
-         */
-        Matrix< DDRMat >
-        load_vertices_from_object_file( const std::string& aFilePath, const Vector< real >& aOffsets, const Vector< real >& aScale );
-
-        //-------------------------------------------------------------------------------
-
-        /**
-         * loads an ascii file and creates vertex and facet objects
-         * Facets are either lines in 2D or triangles in 3D
-         */
-        Vector< Vector< moris_index > >
-        load_facets_from_object_file( const std::string& aFilePath );
 
         /**
          * Gets the geometric region of a node, based on this geometry.

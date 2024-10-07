@@ -191,7 +191,7 @@ namespace moris::hmr
                             const real* tXY = tBasisFunction->get_xyz();
 
                             std::cout << "Active Basis: " << tBasisFunction->get_level() << " "
-                                      << tXY[ 0 ] << " " << tXY[ 1 ] << std::endl;
+                                      << tXY[ 0 ] << " " << tXY[ 1 ] << '\n';
                         }
                     }
                 }
@@ -249,7 +249,7 @@ namespace moris::hmr
                       << tTestTopLevelState << " "
                       << tHaveRefinedParent << " "
                       << tDeactivatedTest << " "
-                      << tRefinedHasActiveChild << std::endl;
+                      << tRefinedHasActiveChild << '\n';
         }
 
         return aPassedTest;
@@ -989,7 +989,7 @@ namespace moris::hmr
                         and tBasis->is_active()
                         and tBasis->get_hmr_index() == gNoEntityID )
                 {
-                    std::cout << par_rank() << " bad basis " << tBasis->get_hmr_id() << " " << tBasis->get_owner() << std::endl;
+                    std::cout << par_rank() << " bad basis " << tBasis->get_hmr_id() << " " << tBasis->get_owner() << '\n';
 
                     // increment counter
                     ++tBasisIndex;
@@ -1071,7 +1071,7 @@ namespace moris::hmr
 
             if ( tBasisCommCheck.max() != 0 )
             {
-                std::cout << "Processor " << par_rank() << std::endl;
+                std::cout << "Processor " << par_rank() << '\n';
                 print( aCommTable, "CommTable" );
                 print( tBasisCommCheck, "CommCheck" );
             }
@@ -1396,9 +1396,9 @@ namespace moris::hmr
         float tFChar = 0;
         int   tIChar = 0;
 
-        tFile << "# vtk DataFile Version 3.0" << std::endl;
-        tFile << "GO BUFFS!" << std::endl;
-        tFile << "BINARY" << std::endl;
+        tFile << "# vtk DataFile Version 3.0" << '\n';
+        tFile << "GO BUFFS!" << '\n';
+        tFile << "BINARY" << '\n';
 
         // unflag all bases
         this->unflag_all_basis();
@@ -1427,8 +1427,8 @@ namespace moris::hmr
         }
 
         // write node data
-        tFile << "DATASET UNSTRUCTURED_GRID" << std::endl;
-        tFile << "POINTS " << tNumberOfBasis << " float" << std::endl;
+        tFile << "DATASET UNSTRUCTURED_GRID" << '\n';
+        tFile << "POINTS " << tNumberOfBasis << " float" << '\n';
 
         // ask settings for number of dimensions
         auto tNumberOfDimensions = mParameters->get_number_of_dimensions();
@@ -1473,13 +1473,13 @@ namespace moris::hmr
             }
         }
 
-        tFile << std::endl;
+        tFile << '\n';
 
         // write each basis as its own element
         tFile << "CELLS " << tNumberOfBasis << " "
-              << 2 * tNumberOfBasis << std::endl;
+              << 2 * tNumberOfBasis << '\n';
 
-        int tOne = swap_byte_endian( (int)1 );
+        int tOne = swap_byte_endian( 1 );
 
         // reset counter
         int tBasisCount = 0;
@@ -1497,19 +1497,19 @@ namespace moris::hmr
         }
 
         // write cell types
-        tFile << "CELL_TYPES " << tNumberOfBasis << std::endl;
-        tIChar = swap_byte_endian( (int)2 );
+        tFile << "CELL_TYPES " << tNumberOfBasis << '\n';
+        tIChar = swap_byte_endian( 2 );
         for ( luint k = 0; k < tNumberOfBasis; ++k )
         {
             tFile.write( (char*)&tIChar, sizeof( int ) );
         }
 
         // write node data
-        tFile << "POINT_DATA " << tNumberOfBasis << std::endl;
+        tFile << "POINT_DATA " << tNumberOfBasis << '\n';
 
         // write state
-        tFile << "SCALARS STATE int" << std::endl;
-        tFile << "LOOKUP_TABLE default" << std::endl;
+        tFile << "SCALARS STATE int" << '\n';
+        tFile << "LOOKUP_TABLE default" << '\n';
         for ( auto tBasis : mAllBasisOnProc )
         {
             if ( tBasis->is_flagged() )
@@ -1531,11 +1531,11 @@ namespace moris::hmr
                 tFile.write( (char*)&tIChar, sizeof( int ) );
             }
         }
-        tFile << std::endl;
+        tFile << '\n';
 
         // write basis ID
-        tFile << "SCALARS ID int" << std::endl;
-        tFile << "LOOKUP_TABLE default" << std::endl;
+        tFile << "SCALARS ID int" << '\n';
+        tFile << "LOOKUP_TABLE default" << '\n';
         for ( auto tBasis : mAllBasisOnProc )
         {
             if ( tBasis->is_flagged() )
@@ -1545,11 +1545,11 @@ namespace moris::hmr
                 tFile.write( (char*)&tIChar, sizeof( int ) );
             }
         }
-        tFile << std::endl;
+        tFile << '\n';
 
         // write internal basis ID
-        tFile << "SCALARS HMR_ID int" << std::endl;
-        tFile << "LOOKUP_TABLE default" << std::endl;
+        tFile << "SCALARS HMR_ID int" << '\n';
+        tFile << "LOOKUP_TABLE default" << '\n';
         for ( auto tBasis : mAllBasisOnProc )
         {
             if ( tBasis->is_flagged() )
@@ -1559,11 +1559,11 @@ namespace moris::hmr
                 tFile.write( (char*)&tIChar, sizeof( int ) );
             }
         }
-        tFile << std::endl;
+        tFile << '\n';
 
         // write basis level
-        tFile << "SCALARS LEVEL int" << std::endl;
-        tFile << "LOOKUP_TABLE default" << std::endl;
+        tFile << "SCALARS LEVEL int" << '\n';
+        tFile << "LOOKUP_TABLE default" << '\n';
         for ( auto tBasis : mAllBasisOnProc )
         {
             if ( tBasis->is_flagged() )
@@ -1573,11 +1573,11 @@ namespace moris::hmr
                 tFile.write( (char*)&tIChar, sizeof( int ) );
             }
         }
-        tFile << std::endl;
+        tFile << '\n';
 
         // write basis owner
-        tFile << "SCALARS OWNER int" << std::endl;
-        tFile << "LOOKUP_TABLE default" << std::endl;
+        tFile << "SCALARS OWNER int" << '\n';
+        tFile << "LOOKUP_TABLE default" << '\n';
         for ( auto tBasis : mAllBasisOnProc )
         {
             if ( tBasis->is_flagged() )
@@ -1587,11 +1587,11 @@ namespace moris::hmr
                 tFile.write( (char*)&tIChar, sizeof( int ) );
             }
         }
-        tFile << std::endl;
+        tFile << '\n';
 
         // write memory index
-        tFile << "SCALARS MEMORY_INDEX int" << std::endl;
-        tFile << "LOOKUP_TABLE default" << std::endl;
+        tFile << "SCALARS MEMORY_INDEX int" << '\n';
+        tFile << "LOOKUP_TABLE default" << '\n';
         for ( auto tBasis : mAllBasisOnProc )
         {
             if ( tBasis->is_flagged() )
@@ -1601,11 +1601,11 @@ namespace moris::hmr
                 tFile.write( (char*)&tIChar, sizeof( int ) );
             }
         }
-        tFile << std::endl;
+        tFile << '\n';
 
         // write mtk index
-        tFile << "SCALARS MTK_INDEX int" << std::endl;
-        tFile << "LOOKUP_TABLE default" << std::endl;
+        tFile << "SCALARS MTK_INDEX int" << '\n';
+        tFile << "LOOKUP_TABLE default" << '\n';
         for ( auto tBasis : mAllBasisOnProc )
         {
             if ( tBasis->is_flagged() )
@@ -1615,11 +1615,11 @@ namespace moris::hmr
                 tFile.write( (char*)&tIChar, sizeof( int ) );
             }
         }
-        tFile << std::endl;
+        tFile << '\n';
 
         // write active index
-        tFile << "SCALARS ACTIVE_INDEX int" << std::endl;
-        tFile << "LOOKUP_TABLE default" << std::endl;
+        tFile << "SCALARS ACTIVE_INDEX int" << '\n';
+        tFile << "LOOKUP_TABLE default" << '\n';
         for ( auto tBasis : mAllBasisOnProc )
         {
             if ( tBasis->is_flagged() )
@@ -1630,13 +1630,13 @@ namespace moris::hmr
                 }
                 else
                 {
-                    tIChar = swap_byte_endian( (int)-1 );
+                    tIChar = swap_byte_endian( ( -1 ) );
                 }
                 tFile.write( (char*)&tIChar, sizeof( int ) );
             }
         }
 
-        tFile << std::endl;
+        tFile << '\n';
 
         // close the output file
         tFile.close();

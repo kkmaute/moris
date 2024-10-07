@@ -24,10 +24,9 @@
 #include "fn_trans.hpp"
 #include "op_equal_equal.hpp"
 // ----------------------------------------------------------------------------
-namespace moris
+
+namespace moris::mtk
 {
-    namespace mtk
-    {
 
         TEST_CASE( "MTK Single Side Cluster", "[MTK_Side_Cluster]" )
         {
@@ -258,6 +257,6 @@ namespace moris
                 delete tInterpMesh1;
                 delete tIntegMesh1;
             }
+
         }
-    }    // namespace mtk
-}    // namespace moris
+}

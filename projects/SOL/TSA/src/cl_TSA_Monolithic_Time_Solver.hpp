@@ -47,8 +47,8 @@ namespace moris
              *
              * @param[in] aParameterlist     User defined parameter list
              */
-            Monolithic_Time_Solver( const Parameter_List aParameterlist )
-                    : Time_Solver_Algorithm( aParameterlist ){};
+            Monolithic_Time_Solver( const Parameter_List& aParameterlist )
+                    : Time_Solver_Algorithm( aParameterlist ) {};
 
             //-------------------------------------------------------------------------------
 
@@ -60,15 +60,15 @@ namespace moris
              *
              * @param[in] aFullVector     Solution Vector
              */
-            void solve( Vector< sol::Dist_Vector* >& aFullVector );
+            void solve( Vector< sol::Dist_Vector* >& aFullVector ) override;
 
             //-------------------------------------------------------------------------------
 
-            void set_lambda_increment( moris::real aLambdaInc );
+            void set_lambda_increment( moris::real aLambdaInc ) override;
 
             //-------------------------------------------------------------------------------
 
-            moris::real get_new_lambda();
+            moris::real get_new_lambda() override;
         };
     }    // namespace tsa
 }    // namespace moris

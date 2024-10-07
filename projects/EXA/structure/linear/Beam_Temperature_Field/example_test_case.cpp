@@ -41,9 +41,9 @@ check_linear_results( moris::mtk::Exodus_IO_Helper &aExoIO, uint aNodeId )
         // coordinates of reference point
         moris::print( aExoIO.get_nodal_coordinate( aNodeId ), "Coordinates of reference point" );
 
-        std::cout << "Ux: " << aExoIO.get_nodal_field_value( aNodeId, 2, 0 ) << std::endl;
-        std::cout << "Uy: " << aExoIO.get_nodal_field_value( aNodeId, 3, 0 ) << std::endl;
-        std::cout << "Temperature: " << aExoIO.get_nodal_field_value( aNodeId, 4, 0 ) << std::endl;
+        std::cout << "Ux: " << aExoIO.get_nodal_field_value( aNodeId, 2, 0 ) << '\n';
+        std::cout << "Uy: " << aExoIO.get_nodal_field_value( aNodeId, 3, 0 ) << '\n';
+        std::cout << "Temperature: " << aExoIO.get_nodal_field_value( aNodeId, 4, 0 ) << '\n';
         return;
     }
 
@@ -90,9 +90,9 @@ check_linear_results_serial()
 
     if ( gPrintReferenceValues )
     {
-        std::cout << "Number of dimensions: " << tNumDims << std::endl;
-        std::cout << "Number of nodes     : " << tNumNodes << std::endl;
-        std::cout << "Number of elements  : " << tNumElems << std::endl;
+        std::cout << "Number of dimensions: " << tNumDims << '\n';
+        std::cout << "Number of nodes     : " << tNumNodes << '\n';
+        std::cout << "Number of elements  : " << tNumElems << '\n';
     }
     else
     {

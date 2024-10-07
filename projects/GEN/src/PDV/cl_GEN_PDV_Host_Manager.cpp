@@ -9,6 +9,8 @@
  */
 
 #include "cl_GEN_PDV_Host_Manager.hpp"
+
+#include <utility>
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_Communication_Tools.hpp"
 #include "fn_trans.hpp"
@@ -162,7 +164,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    PDV_Host_Manager::set_GenMeshMap( Vector< moris_index > aGenMeshMap )
+    PDV_Host_Manager::set_GenMeshMap( const Vector< moris_index >& aGenMeshMap )
     {
         mGenMeshMap              = aGenMeshMap;
         mGenMeshMapIsInitialized = true;
@@ -479,7 +481,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    PDV_Host_Manager::set_requested_interpolation_pdv_types( Vector< PDV_Type > aPDVTypes )
+    PDV_Host_Manager::set_requested_interpolation_pdv_types( const Vector< PDV_Type >& aPDVTypes )
     {
         mRequestedIpPDVTypes = aPDVTypes;
     }
@@ -487,7 +489,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    PDV_Host_Manager::set_requested_integration_pdv_types( Vector< PDV_Type > aPDVTypes )
+    PDV_Host_Manager::set_requested_integration_pdv_types( const Vector< PDV_Type >& aPDVTypes )
     {
         mRequestedIgPDVTypes = aPDVTypes;
     }
@@ -513,9 +515,9 @@ namespace moris::gen
 
     void
     PDV_Host_Manager::create_interpolation_pdv(
-            uint                        aNodeIndex,
-            PDV_Type                    aPDVType,
-            std::shared_ptr< Property > aProperty )
+            uint                               aNodeIndex,
+            PDV_Type                           aPDVType,
+            const std::shared_ptr< Property >& aProperty )
     {
         // Check that PDV host exists
         MORIS_ASSERT( mIpPDVHosts( aNodeIndex ),

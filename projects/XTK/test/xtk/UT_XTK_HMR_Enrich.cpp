@@ -19,7 +19,6 @@
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Mesh.hpp"
 
-#include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_MTK_Integration_Mesh_STK.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
@@ -101,7 +100,7 @@ namespace moris::xtk
             tParameters.set_domain_offset( { { -1.0 }, { -1.0 } } );
             tParameters.set_bspline_truncation( true );
 
-            tParameters.set_output_meshes( { { { 0 } } } );
+            tParameters.set_output_meshes( { { 0 } } );
 
             tParameters.set_lagrange_orders( { { 2 } } );
             tParameters.set_lagrange_patterns( { { 0 } } );
@@ -116,11 +115,6 @@ namespace moris::xtk
 
             tParameters.set_refinement_buffer( 1 );
             tParameters.set_staircase_buffer( 1 );
-
-            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
-            tLagrangeToBSplineMesh( 0 ) = { { 0 } };
-
-            tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
             hmr::HMR tHMR( tParameters );
 
@@ -215,7 +209,7 @@ namespace moris::xtk
             tParameters.set_domain_offset( { { -3.0 }, { -1.0 } } );
             tParameters.set_bspline_truncation( true );
 
-            tParameters.set_output_meshes( { { { 0 } } } );
+            tParameters.set_output_meshes( { { 0 } } );
 
             tParameters.set_lagrange_orders( { { 2 } } );
             tParameters.set_lagrange_patterns( { { 0 } } );
@@ -230,11 +224,6 @@ namespace moris::xtk
 
             tParameters.set_refinement_buffer( 2 );
             tParameters.set_staircase_buffer( 2 );
-
-            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
-            tLagrangeToBSplineMesh( 0 ) = { { 0 } };
-
-            tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
             hmr::HMR tHMR( tParameters );
 

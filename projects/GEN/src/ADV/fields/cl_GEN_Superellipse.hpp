@@ -16,19 +16,14 @@ namespace moris::gen
 {
     class Superellipse : public Field_Analytic< 2 >
     {
-    private:
-        real mEpsilon = 1E-8;
-
-    public:
-
+      public:
         // Constructor to allow this field to be created with ADVs
-        ANALYTIC_FIELD_ADV_CONSTRUCTOR( Superellipse, 2, 7,
-        {
+        ANALYTIC_FIELD_ADV_CONSTRUCTOR( Superellipse, 2, 7, {
             MORIS_ERROR( mADVHandler.get_variable( 2 ) > 0 and mADVHandler.get_variable( 3 ) > 0,
-                      "A GEN Superellipse must be created with positive semi-diameters.");
+                    "A GEN Superellipse must be created with positive semi-diameters." );
 
             MORIS_ERROR( std::abs( std::fmod( mADVHandler.get_variable( 4 ), 2.0 ) ) < 1e-12,
-                      "A GEN Superellipse must be created with an even exponent.");
+                    "A GEN Superellipse must be created with an even exponent." );
         } )
 
         /**
@@ -42,13 +37,13 @@ namespace moris::gen
          * @param aName Name of this field
          */
         Superellipse(
-                const ADV& aXCenter,
-                const ADV& aYCenter,
-                const ADV& aXSemidiameter,
-                const ADV& aYSemidiameter,
-                real aExponent,
-                real aScaling,
-                real aRegularization,
+                const ADV&  aXCenter,
+                const ADV&  aYCenter,
+                const ADV&  aXSemidiameter,
+                const ADV&  aYSemidiameter,
+                real        aExponent,
+                real        aScaling,
+                real        aRegularization,
                 std::string aName = "" );
 
         /**
@@ -57,7 +52,7 @@ namespace moris::gen
          * @param aCoordinates Coordinate values
          * @return Field value
          */
-        real get_field_value( const Matrix< DDRMat >& aCoordinates );
+        real get_field_value( const Matrix< DDRMat >& aCoordinates ) override;
 
         /**
          * Given a node coordinate, evaluates the sensitivity of the field with respect to all of the
@@ -66,7 +61,7 @@ namespace moris::gen
          * @param aCoordinates Coordinate values
          * @return Vector of sensitivities
          */
-        const Matrix< DDRMat >& get_dfield_dadvs( const Matrix< DDRMat >& aCoordinates );
+        const Matrix< DDRMat >& get_dfield_dadvs( const Matrix< DDRMat >& aCoordinates ) override;
 
         /**
          * Given nodal coordinates, returns a vector of the field derivatives with respect to the nodal
@@ -77,6 +72,6 @@ namespace moris::gen
          */
         void get_dfield_dcoordinates(
                 const Matrix< DDRMat >& aCoordinates,
-                Matrix< DDRMat >&       aSensitivities );
+                Matrix< DDRMat >&       aSensitivities ) override;
     };
-}
+}    // namespace moris::gen

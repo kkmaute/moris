@@ -41,12 +41,12 @@ namespace moris::gen
     {
         this->verify_name();
     }
-    
+
     //--------------------------------------------------------------------------------------------------------------
-    
+
     Field::Field(
             const Vector< sint >& aSharedADVIds,
-            std::string           aName)
+            std::string           aName )
             : mADVHandler( aSharedADVIds )
             , mSensitivities( 1, aSharedADVIds.size() )
             , mName( std::move( aName ) )
@@ -56,7 +56,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Field::Field( const Field& aCopy,
+    Field::Field( const Field&    aCopy,
             const Vector< uint >& aReplaceVariables,
             const Vector< real >& aNewConstants )
             : mADVHandler( aCopy.mADVHandler, aReplaceVariables, aNewConstants )
@@ -93,7 +93,7 @@ namespace moris::gen
 
     real Field::get_interpolated_field_value(
             const Vector< Basis_Node >& aBasisNodes,
-            const Node_Manager&       aNodeManager )
+            const Node_Manager&         aNodeManager )
     {
         // Initialize field value
         real tFieldValue = 0.0;
@@ -117,14 +117,14 @@ namespace moris::gen
         // Return result
         return tFieldValue;
     }
-    
+
     //--------------------------------------------------------------------------------------------------------------
-    
+
     void Field::append_interpolated_dfield_dadvs(
-            Matrix< DDRMat >&         aInterpolatedSensitivities,
+            Matrix< DDRMat >&           aInterpolatedSensitivities,
             const Vector< Basis_Node >& aBasisNodes,
-            const Node_Manager&       aNodeManager,
-            real                      aBasisFactor )
+            const Node_Manager&         aNodeManager,
+            real                        aBasisFactor )
     {
         // Add contributions from each basis node
         for ( auto iBasisNode : aBasisNodes )
@@ -177,9 +177,9 @@ namespace moris::gen
     {
         aDeterminingADVIDs = this->get_determining_adv_ids( aDerivedNode.get_index(), aDerivedNode.get_global_coordinates() );
     }
-    
+
     //--------------------------------------------------------------------------------------------------------------
-    
+
     void Field::append_interpolated_determining_adv_ids(
             Vector< sint >&             aInterpolatedADVIDs,
             const Vector< Basis_Node >& aBasisNodes,
@@ -226,7 +226,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Field::update_dependencies( Vector< std::shared_ptr< Field > > aUpdatedFields )
+    void Field::update_dependencies( const Vector< std::shared_ptr< Field > >& aUpdatedFields )
     {
     }
 
@@ -255,7 +255,7 @@ namespace moris::gen
         mtk::Interpolation_Mesh* tInterpolationMesh = aMeshPair.get_interpolation_mesh();
 
         // Get nodal values
-        uint tNumberOfNodes = tInterpolationMesh->get_num_nodes();
+        uint             tNumberOfNodes = tInterpolationMesh->get_num_nodes();
         Matrix< DDRMat > tNodalValues( tNumberOfNodes, 1 );
         for ( uint tNodeIndex = 0; tNodeIndex < tNumberOfNodes; tNodeIndex++ )
         {
@@ -288,4 +288,4 @@ namespace moris::gen
     }
 
     //--------------------------------------------------------------------------------------------------------------
-}
+}    // namespace moris::gen

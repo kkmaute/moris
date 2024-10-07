@@ -14,9 +14,7 @@
 #include "cl_Matrix.hpp"
 #include "cl_MTK_Vertex.hpp"
 
-namespace moris
-{
-namespace fem
+namespace moris::fem
 {
 
     class NodeProxy : public mtk::Vertex
@@ -35,62 +33,62 @@ namespace fem
         }
 
     //------------------------------------------------------------------------------
-        ~NodeProxy(){};
+        ~NodeProxy() override{};
 
     //------------------------------------------------------------------------------
-        Matrix< DDRMat > get_coords() const
+        Matrix< DDRMat > get_coords() const override
         {
             return coord;
         };
 
     //------------------------------------------------------------------------------
-        moris_id get_id() const
+        moris_id get_id() const override
         {
             MORIS_ERROR( false," NodeProxy - get_id - Function not implemented. ");
             return gNoID;
         };
 
     //------------------------------------------------------------------------------
-        moris_index get_index() const
+        moris_index get_index() const override
         {
             return mindex;
         }
 
     //------------------------------------------------------------------------------
-        moris_index get_owner() const
+        moris_index get_owner() const override
         {
             MORIS_ERROR( false," NodeProxy - get_owner - Function not implemented. " );
             return 0;
         };
 
     //------------------------------------------------------------------------------
-        mtk::Vertex_Interpolation * get_interpolation( const uint aBSplineMeshIndex )
+        mtk::Vertex_Interpolation * get_interpolation( const uint aBSplineMeshIndex ) override
         {
             MORIS_ERROR( false," NodeProxy - get_interpolation - Function not implemented. " );
             return nullptr;
         }
 
     //------------------------------------------------------------------------------
-        mtk::Vertex_Interpolation * get_interpolation( const uint aBSplineMeshIndex ) const
+        mtk::Vertex_Interpolation * get_interpolation( const uint aBSplineMeshIndex ) const override
         {
             MORIS_ERROR( false," NodeProxy - get_interpolation - Function not implemented. " );
             return nullptr;
         }
 
     //------------------------------------------------------------------------------
-        uint get_level() const
+        uint get_level() const override
         {
             return 0;
         };
 
     //------------------------------------------------------------------------------
-        void flag()
+        void flag() override
         {
             MORIS_ERROR( false," NodeProxy - flag - Function not implemented. " );
         };
 
     //------------------------------------------------------------------------------
-        void unflag()
+        void unflag() override
         {
             MORIS_ERROR( false," NodeProxy - unflag - Function not implemented. " );
         };
@@ -105,8 +103,7 @@ namespace fem
     //------------------------------------------------------------------------------
     };
 
-}/* namespace fem */
-}/* namespace moris */
+}    // namespace moris::fem
 
 #endif /* PROJECTS_FEM_INT_SRC_CL_FEM_NODEPROXY_HPP_ */
 

@@ -24,7 +24,7 @@
 
 // #include "assert.hpp"
 
-#include "moris_typedefs.hpp"           //COR/src
+#include "moris_typedefs.hpp"     //COR/src
 #include "cl_Matrix.hpp"          //LINALG/src
 #include "linalg_typedefs.hpp"    //LINALG/src
 
@@ -45,13 +45,13 @@ namespace moris
         {
             // get file extension
             auto tFileExt = aPath.substr(
-                    aPath.find_last_of( "." ),
+                    aPath.find_last_of( '.' ),
                     aPath.length() );
 
             // get base path
             auto tBasePath = aPath.substr(
                     0,
-                    aPath.find_last_of( "." ) );
+                    aPath.find_last_of( '.' ) );
 
             // add proc number to path
             std::string aParallelPath = tBasePath + "_"
@@ -80,11 +80,15 @@ namespace moris
         std::string tPath = make_path_parallel( aPath, aAddParExt );
 
         // create file
-        return H5Fcreate(
+        hid_t tFileID = H5Fcreate(
                 tPath.c_str(),
                 H5F_ACC_TRUNC,
                 H5P_DEFAULT,
                 H5P_DEFAULT );
+
+        MORIS_ERROR( tFileID > 0, "create_hdf5_file - could not create hdf5 file %s", tPath.c_str() );
+
+        return tFileID;
     }
 
     //------------------------------------------------------------------------------
@@ -114,7 +118,7 @@ namespace moris
         std::ifstream tFile( tPath );
 
         // throw error if file does not exist
-        MORIS_ERROR( tFile, "Could not open HDF5 file %s", tPath.c_str() );
+        MORIS_ERROR( tFile, "open_hdf5_file - could not open HDF5 file %s", tPath.c_str() );
 
         // close file
         tFile.close();
@@ -301,7 +305,7 @@ namespace moris
         tDims[ 1 ] = aMatrix.n_cols();
 
         // create data space
-        hid_t tDataSpace = H5Screate_simple( 2, tDims, NULL );
+        hid_t tDataSpace = H5Screate_simple( 2, tDims, nullptr );
 
         // select data type for matrix to save
         hid_t tDataType = H5Tcopy( get_hdf5_datatype( (typename Matrix< T >::Data_Type)0 ) );
@@ -420,7 +424,7 @@ namespace moris
         hsize_t tDims[ 2 ];
 
         // ask hdf for dimensions
-        aStatus = H5Sget_simple_extent_dims( tDataSpace, tDims, NULL );
+        aStatus = H5Sget_simple_extent_dims( tDataSpace, tDims, nullptr );
 
         // allocate memory for output
         aMatrix.set_size( tDims[ 0 ], tDims[ 1 ] );
@@ -517,7 +521,7 @@ namespace moris
         hsize_t tSize = aVector.size();
 
         // create data space
-        hid_t tDataSpace = H5Screate_simple( 1, &tSize, NULL );
+        hid_t tDataSpace = H5Screate_simple( 1, &tSize, nullptr );
 
         // select data type for vector to save
         hid_t tDataType = H5Tcopy( get_hdf5_datatype( (T)0 ) );
@@ -611,7 +615,7 @@ namespace moris
         hsize_t tDims[ 1 ];
 
         // ask hdf for dimensions
-        aStatus = H5Sget_simple_extent_dims( tDataSpace, tDims, NULL );
+        aStatus = H5Sget_simple_extent_dims( tDataSpace, tDims, nullptr );
 
         // allocate memory for output
         aVector.resize( tDims[ 0 ] );
@@ -680,7 +684,7 @@ namespace moris
         hsize_t tDims[ 1 ] = { 1 };
 
         // create data space
-        hid_t tDataSpace = H5Screate_simple( 1, tDims, NULL );
+        hid_t tDataSpace = H5Screate_simple( 1, tDims, nullptr );
 
         // create new data set
         hid_t tDataSet = H5Dcreate(
@@ -732,7 +736,7 @@ namespace moris
         hsize_t tDims[ 1 ] = { 1 };
 
         // create data space
-        hid_t tDataSpace = H5Screate_simple( 1, tDims, NULL );
+        hid_t tDataSpace = H5Screate_simple( 1, tDims, nullptr );
 
         // create new data set
         hid_t tDataSet = H5Dcreate(
@@ -913,7 +917,7 @@ namespace moris
         hsize_t tDims[ 1 ] = { 1 };
 
         // create data space
-        hid_t tDataSpace = H5Screate_simple( 1, tDims, NULL );
+        hid_t tDataSpace = H5Screate_simple( 1, tDims, nullptr );
 
         // create new dataset
         hid_t tDataSet = H5Dcreate(

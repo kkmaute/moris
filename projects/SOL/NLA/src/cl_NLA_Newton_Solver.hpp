@@ -45,16 +45,16 @@ namespace moris
 
             Newton_Solver( dla::Linear_Solver* aLinSolver );
 
-            ~Newton_Solver();
+            ~Newton_Solver() override;
 
             /**
              * @brief Call to solve the nonlinear system
              *
              * @param[in] aNonlinearProblem Nonlinear problem
              */
-            void solver_nonlinear_system( Nonlinear_Problem* aNonlinearProblem );
+            void solver_nonlinear_system( Nonlinear_Problem* aNonlinearProblem ) override;
 
-            void get_full_solution( moris::Matrix< DDRMat >& LHSValues );
+            void get_full_solution( moris::Matrix< DDRMat >& LHSValues ) override;
 
             void get_solution( moris::Matrix< DDRMat >& LHSValues );
 
@@ -62,7 +62,7 @@ namespace moris
                     const moris::uint&                      aNumIndices,
                     const moris::Matrix< DDSMat >&          aGlobalBlockRows,
                     const moris::uint&                      aBlockRowOffsets,
-                    Vector< moris::Matrix< DDRMat > >& LHSValues );
+                    Vector< moris::Matrix< DDRMat > >& LHSValues ) override;
         };
     }    // namespace NLA
 }    // namespace moris

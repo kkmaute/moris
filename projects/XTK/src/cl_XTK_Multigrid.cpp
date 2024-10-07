@@ -362,7 +362,7 @@ namespace moris::xtk
     // #endif
 
     void
-    Multigrid::build_basis_exodus_information( std::string aName )
+    Multigrid::build_basis_exodus_information( const std::string& aName )
     {
         moris::mtk::Interpolation_Mesh& tInterpolationMesh = mXTKModelPtr->get_background_mesh();
 

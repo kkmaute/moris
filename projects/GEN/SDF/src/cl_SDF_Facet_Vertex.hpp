@@ -15,13 +15,11 @@
 #include "cl_Vector.hpp"
 #include "cl_MTK_Vertex.hpp"
 
-namespace moris
+namespace moris::sdf
 {
-    namespace sdf
-    {
-        //-------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------
 
-        class Triangle;
+    class Triangle;
 
         //-------------------------------------------------------------------------------
         class Facet_Vertex : public mtk::Vertex
@@ -30,34 +28,34 @@ namespace moris
 
             const moris_index mIndex;
 
-            //-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
             Matrix< DDRMat > mNodeCoords;             // can be changed through coordinate transformations in raycasts and design iterations
 
             //-------------------------------------------------------------------------------
 
-          public:
-            //-------------------------------------------------------------------------------
+      public:
+        //-------------------------------------------------------------------------------
 
-            Facet_Vertex(
-                    const moris_index       aIndex,
-                    const Matrix< DDRMat >& aNodeCoords );
+        Facet_Vertex(
+                const moris_index       aIndex,
+                const Matrix< DDRMat >& aNodeCoords );
 
-            //-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
-            ~Facet_Vertex(){};
+        ~Facet_Vertex() override{};
 
-            //-------------------------------------------------------------------------------
-            // Special SDF functions
-            //-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
+        // Special SDF functions
+        //-------------------------------------------------------------------------------
+
+        void
+        rotate_node_coords( const Matrix< F33RMat >& aRotationMatrix );
+
+        //-------------------------------------------------------------------------------
 
             void
-            rotate_node_coords( const Matrix< F33RMat >& aRotationMatrix );
-
-            //-------------------------------------------------------------------------------
-
-            void
-            scale_node_coords( const moris::Vector< real >& aScaling );
+            scale_node_coords( const Vector< real >& aScaling );
 
 
             //-------------------------------------------------------------------------------
@@ -68,9 +66,9 @@ namespace moris
              * @param aCoordinates new coordinates to be set to
              */
             void
-            set_node_coords( const moris::Vector< real >& aCoordinates );
+            set_node_coords( const Vector< real >& aCoordinates );
 
-            //-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
             /**
              * Sets the coordinates of this node (Matrix version).
@@ -81,7 +79,7 @@ namespace moris
             void
             set_node_coords( const Matrix< DDRMat >& aCoordinates );
 
-            //-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
             /**
              * Sets only the aDimension index of this nodes coordinates.
@@ -103,7 +101,7 @@ namespace moris
              */
             void shift_node_coords_from_current( const moris::Vector< real >& aShift );
 
-            //-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
             /**
              * Sets the coordinates of the node back to the coordinates at the start of the design iteration
@@ -112,15 +110,15 @@ namespace moris
             void
             reset_node_coords();
 
-            //-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
             Matrix< DDRMat > const &
             get_coords_reference() const;
 
 
-            //-------------------------------------------------------------------------------
-            // MTK API functions
-            //-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
+        // MTK API functions
+        //-------------------------------------------------------------------------------
 
             real
             get_coord( uint aAxis ) const
@@ -134,58 +132,57 @@ namespace moris
             Matrix< DDRMat >
             get_coords() const override;
 
-            //-------------------------------------------------------------------------------
-
-            moris_id
-            get_id() const
-            {
-                return mIndex + 1;
-            }
-
-            //-------------------------------------------------------------------------------
-
-            moris_index
-            get_index() const
-            {
-                return mIndex;
-            }
-
-            //-------------------------------------------------------------------------------
-
-            moris_id
-            get_owner() const
-            {
-                return 0;
-            }
-
-            //-------------------------------------------------------------------------------
-
-            mtk::Vertex_Interpolation*
-            get_interpolation( const uint aOrder )
-            {
-                MORIS_ERROR( false,
-                        "get_interpolation() is not available for an SDF Vertex" );
-                return nullptr;
-            }
-
-            //-------------------------------------------------------------------------------
-
-            const mtk::Vertex_Interpolation*
-            get_interpolation( const uint aOrder ) const
-            {
-                MORIS_ERROR( false,
-                        "get_interpolation() is not available for an SDF Vertex" );
-                return nullptr;
-            }
-
-            //-------------------------------------------------------------------------------
-
-            uint
-            get_dimension() const
-            {
-                return mNodeCoords.numel();
-            }
-        };
         //-------------------------------------------------------------------------------
-    } /* namespace sdf */
-} /* namespace moris */
+
+        moris_id
+        get_id() const override
+        {
+            return mIndex + 1;
+        }
+
+        //-------------------------------------------------------------------------------
+
+        moris_index
+        get_index() const override
+        {
+            return mIndex;
+        }
+
+        //-------------------------------------------------------------------------------
+
+        moris_id
+        get_owner() const override
+        {
+            return 0;
+        }
+
+        //-------------------------------------------------------------------------------
+
+        mtk::Vertex_Interpolation*
+        get_interpolation( const uint aOrder ) override
+        {
+            MORIS_ERROR( false,
+                    "get_interpolation() is not available for an SDF Vertex" );
+            return nullptr;
+        }
+
+        //-------------------------------------------------------------------------------
+
+        const mtk::Vertex_Interpolation*
+        get_interpolation( const uint aOrder ) const override
+        {
+            MORIS_ERROR( false,
+                    "get_interpolation() is not available for an SDF Vertex" );
+            return nullptr;
+        }
+
+        //-------------------------------------------------------------------------------
+
+        uint
+        get_dimension() const
+        {
+            return mNodeCoords.numel();
+        }
+    };
+    //-------------------------------------------------------------------------------
+}    // namespace moris::sdf

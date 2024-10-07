@@ -32,7 +32,6 @@ namespace moris::hmr
         // ----------------------------------------------------------------------------
 
       protected:
-
         // ----------------------------------------------------------------------------
 
         const Background_Facet* mFacet;
@@ -66,7 +65,6 @@ namespace moris::hmr
         // ----------------------------------------------------------------------------
 
       public:
-
         // ----------------------------------------------------------------------------
 
         Facet( Mesh_Base*         aMesh,
@@ -74,7 +72,7 @@ namespace moris::hmr
 
         // ----------------------------------------------------------------------------
 
-        virtual ~Facet();
+        ~Facet() override;
 
         // ----------------------------------------------------------------------------
 
@@ -83,7 +81,7 @@ namespace moris::hmr
          *
          * @return moris_id ID
          */
-        moris_id get_id() const;
+        moris_id get_id() const override;
 
         // ----------------------------------------------------------------------------
 
@@ -92,46 +90,46 @@ namespace moris::hmr
          *
          * @return moris_index ID
          */
-        moris_index get_index() const;
+        moris_index get_index() const override;
 
         // ----------------------------------------------------------------------------
 
         /**
          * tells how many vertices are connected to this cell
          */
-        virtual uint get_number_of_vertices() const = 0;
+        uint get_number_of_vertices() const override = 0;
 
         // ----------------------------------------------------------------------------
 
         /**
          * returns the proc id of the owner of this cell
          */
-        moris_id get_owner() const;
+        moris_id get_owner() const override;
 
         // ----------------------------------------------------------------------------
 
         /**
          * fills a Vector with pointers to connected vertices
          */
-        Vector< mtk::Vertex* > get_vertex_pointers() const;
+        Vector< mtk::Vertex* > get_vertex_pointers() const override;
 
         // ----------------------------------------------------------------------------
 
-        void remove_vertex_pointer( moris_index aIndex );
+        void remove_vertex_pointer( moris_index aIndex ) override;
 
         // ----------------------------------------------------------------------------
 
         /**
          * returns a Mat with IDs of connected vertices
          */
-        Matrix< IdMat > get_vertex_ids() const;
+        Matrix< IdMat > get_vertex_ids() const override;
 
         // ----------------------------------------------------------------------------
 
         /**
          * returns a Mat with Indices of connected vertices
          */
-        Matrix< IndexMat > get_vertex_inds() const;
+        Matrix< IndexMat > get_vertex_inds() const override;
 
         // ----------------------------------------------------------------------------
 
@@ -139,37 +137,37 @@ namespace moris::hmr
          * returns a Mat of dimension
          * < number of vertices * number of dimensions >
          */
-        virtual Matrix< DDRMat > get_vertex_coords() const = 0;
+        Matrix< DDRMat > get_vertex_coords() const override = 0;
 
         //------------------------------------------------------------------------------
 
         /**
          * returns an enum that defines the geometry type of the element
          */
-        virtual mtk::Geometry_Type get_geometry_type() const = 0;
+        mtk::Geometry_Type get_geometry_type() const override = 0;
 
         //------------------------------------------------------------------------------
 
         /**
          * returns the order of the element
          */
-        virtual mtk::Interpolation_Order get_interpolation_order() const = 0;
+        mtk::Interpolation_Order get_interpolation_order() const override = 0;
 
         //------------------------------------------------------------------------------
 
-        mtk::Cell* get_leader();
+        mtk::Cell* get_leader() override;
 
         //------------------------------------------------------------------------------
 
-        const mtk::Cell* get_leader() const;
+        const mtk::Cell* get_leader() const override;
 
         //------------------------------------------------------------------------------
 
-        mtk::Cell* get_follower();
+        mtk::Cell* get_follower() override;
 
         //------------------------------------------------------------------------------
 
-        const mtk::Cell* get_follower() const;
+        const mtk::Cell* get_follower() const override;
 
         //-----------------------------------------------------------------------------
 
@@ -198,7 +196,7 @@ namespace moris::hmr
 
         // ----------------------------------------------------------------------------
 
-        void set_id( const moris_id& aID );
+        void set_id( const moris_id aID ) override;
 
         // ----------------------------------------------------------------------------
 
@@ -210,7 +208,7 @@ namespace moris::hmr
 
         // ----------------------------------------------------------------------------
 
-        void set_index( const moris_index& aIndex );
+        void set_index( const moris_index aIndex ) override;
 
         // ----------------------------------------------------------------------------
 
@@ -222,7 +220,7 @@ namespace moris::hmr
 
         // ----------------------------------------------------------------------------
 
-        uint get_level() const;
+        uint get_level() const override;
 
         // ----------------------------------------------------------------------------
 
@@ -235,17 +233,16 @@ namespace moris::hmr
         // ----------------------------------------------------------------------------
 
       private:
-
         // ----------------------------------------------------------------------------
 
         void swap_leader_and_follower();
 
         // ----------------------------------------------------------------------------
 
-    };  // class Facet
+    };    // class Facet
 
     // ----------------------------------------------------------------------------
 
-} /* namespace moris */
+}    // namespace moris::hmr
 
 #endif /* SRC_HMR_CL_HMR_FACE_BASE_HPP_ */

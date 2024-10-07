@@ -66,15 +66,15 @@ void tFIDerFunction_UTIWGDIFFBULK
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
 }
 
-Vector<bool> test_IWG_Diffusion_Phase_Change_Bulk(
-        Matrix< DDRMat > aXHat,
-        Matrix< DDRMat > aTHat,
-        mtk::Interpolation_Rule aGIRule,
-        mtk::Interpolation_Rule aFIRule,
-        Matrix< DDRMat > aDOFHat,
-        Matrix< DDRMat > aParamPoint,
-        uint aNumDOFs,
-        uint aSpatialDim = 2 )
+Vector< bool > test_IWG_Diffusion_Phase_Change_Bulk(
+        const Matrix< DDRMat >&        aXHat,
+        const Matrix< DDRMat >&        aTHat,
+        const mtk::Interpolation_Rule& aGIRule,
+        const mtk::Interpolation_Rule& aFIRule,
+        const Matrix< DDRMat >&        aDOFHat,
+        const Matrix< DDRMat >&        aParamPoint,
+        uint                           aNumDOFs,
+        uint                           aSpatialDim = 2 )
 {
     // initialize cell of checks
     Vector<bool> tChecks( 1, false );

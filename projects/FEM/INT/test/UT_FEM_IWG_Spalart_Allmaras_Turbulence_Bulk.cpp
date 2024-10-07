@@ -401,7 +401,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
                                       << " Order " << iInterpOrder
                                       << " VelConf " << iCu
                                       << " PresConf " << iCp
-                                      << " iGP " << iGP << std::endl;
+                                      << " iGP " << iGP << '\n';
                         }
 
                         // require check is true
@@ -836,7 +836,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                                               << tJacDestructionCoefficient( iI ) << " FD = "
                                               << tJacDestructionCoefficientFD( iI ) << " rel error = "
                                               << tRelError
-                                              << std::endl;
+                                              << '\n';
                                 }
 
                                 tRelError = std::abs( tJacDestructionTerm( iI ) - tJacDestructionTermFD( iI ) ) / ( std::abs( tJacDestructionTermFD( iI ) ) + MORIS_REAL_EPS );
@@ -846,7 +846,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                                               << tJacDestructionTerm( iI ) << " FD = "
                                               << tJacDestructionTermFD( iI ) << " rel error = "
                                               << tRelError
-                                              << std::endl;
+                                              << '\n';
                                 }
 
                                 tRelError = std::abs( tJacProductionCoefficient( iI ) - tJacProductionCoefficientFD( iI ) ) / ( std::abs( tJacProductionCoefficientFD( iI ) ) + MORIS_REAL_EPS );
@@ -856,7 +856,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                                               << tJacProductionCoefficient( iI ) << " FD = "
                                               << tJacProductionCoefficientFD( iI ) << " rel error = "
                                               << tRelError
-                                              << std::endl;
+                                              << '\n';
                                 }
 
                                 tRelError = std::abs( tJacProductionTerm( iI ) - tJacProductionTermFD( iI ) ) / ( std::abs( tJacProductionTermFD( iI ) ) + MORIS_REAL_EPS );
@@ -866,7 +866,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                                               << tJacProductionTerm( iI ) << " FD = "
                                               << tJacProductionTermFD( iI ) << " rel error = "
                                               << tRelError
-                                              << std::endl;
+                                              << '\n';
                                 }
 
                                 tRelError = std::abs( tJacDiffusionCoefficient( iI ) - tJacDiffusionCoefficientFD( iI ) ) / ( std::abs( tJacDiffusionCoefficientFD( iI ) ) + MORIS_REAL_EPS );
@@ -875,7 +875,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                                     std::cout << "tJacDiffusionCoefficientFD velocity dof:"
                                               << " ana = " << tJacDiffusionCoefficient( iI )
                                               << " FD  = " << tJacDiffusionCoefficientFD( iI )
-                                              << " rel error = " << tRelError << std::endl;
+                                              << " rel error = " << tRelError << '\n';
                                 }
 
                                 tRelError = std::abs( tJacDivFlux( iI ) - tJacDivFluxFD( iI ) ) / ( std::abs( tJacDivFluxFD( iI ) ) + MORIS_REAL_EPS );
@@ -884,7 +884,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                                     std::cout << "tJacDivFluxFD velocity dof:"
                                               << " ana = " << tJacDivFlux( iI )
                                               << " FD  = " << tJacDivFluxFD( iI )
-                                              << " rel error = " << tRelError << std::endl;
+                                              << " rel error = " << tRelError << '\n';
                                 }
 
                                 tRelError = std::abs( tJacSUPG( iI ) - tJacSUPGFD( iI ) ) / ( std::abs( tJacSUPGFD( iI ) ) + MORIS_REAL_EPS );
@@ -893,7 +893,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                                     std::cout << "tJacSUPGFD velocity dof:"
                                               << " ana = " << tJacSUPG( iI )
                                               << " FD  = " << tJacSUPGFD( iI )
-                                              << " rel error = " << tRelError << std::endl;
+                                              << " rel error = " << tRelError << '\n';
                                 }
 
                                 tRelError = std::abs( tJacStrongForm( iI ) - tJacStrongFormFD( iI ) ) / ( std::abs( tJacStrongFormFD( iI ) ) + MORIS_REAL_EPS );
@@ -902,7 +902,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                                     std::cout << "tJacStrongForm velocity dof:"
                                               << " ana = " << tJacStrongForm( iI )
                                               << " FD  = " << tJacStrongFormFD( iI )
-                                              << " rel error = " << tRelError << std::endl;
+                                              << " rel error = " << tRelError << '\n';
                                 }
                             }
                         }
@@ -990,7 +990,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                                               << tJacDestructionCoefficient( iI ) << " FD = "
                                               << tJacDestructionCoefficientFD( iI ) << " rel error = "
                                               << tRelError
-                                              << std::endl;
+                                              << '\n';
                                 }
 
                                 tRelError = std::abs( tJacProductionCoefficient( iI ) - tJacProductionCoefficientFD( iI ) ) / ( std::abs( tJacProductionCoefficientFD( iI ) ) + MORIS_REAL_EPS );
@@ -1000,7 +1000,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                                               << tJacProductionCoefficient( iI ) << " FD = "
                                               << tJacProductionCoefficientFD( iI ) << " rel error = "
                                               << tRelError
-                                              << std::endl;
+                                              << '\n';
                                 }
 
                                 tRelError = std::abs( tJacDiffusionCoefficient( iI ) - tJacDiffusionCoefficientFD( iI ) ) / ( std::abs( tJacDiffusionCoefficientFD( iI ) ) + MORIS_REAL_EPS );
@@ -1010,7 +1010,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                                               << " ana = " << tJacDiffusionCoefficient( iI )
                                               << " FD  = " << tJacDiffusionCoefficientFD( iI )
                                               << " rel error = " << tRelError
-                                              << std::endl;
+                                              << '\n';
                                 }
 
                                 tRelError = std::abs( tJacDivFlux( iI ) - tJacDivFluxFD( iI ) ) / ( std::abs( tJacDivFluxFD( iI ) ) + MORIS_REAL_EPS );
@@ -1019,7 +1019,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                                     std::cout << "tJacDivFluxFD viscosity dof:"
                                               << " ana = " << tJacDivFlux( iI )
                                               << " FD  = " << tJacDivFluxFD( iI )
-                                              << " rel error = " << tRelError << std::endl;
+                                              << " rel error = " << tRelError << '\n';
                                 }
 
                                 tRelError = std::abs( tJacSUPG( iI ) - tJacSUPGFD( iI ) ) / ( std::abs( tJacSUPGFD( iI ) ) + MORIS_REAL_EPS );
@@ -1028,7 +1028,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                                     std::cout << "tJacSUPGFD viscosity dof:"
                                               << " ana = " << tJacSUPG( iI )
                                               << " FD  = " << tJacSUPGFD( iI )
-                                              << " rel error = " << tRelError << std::endl;
+                                              << " rel error = " << tRelError << '\n';
                                 }
 
                                 tRelError = std::abs( tJacStrongForm( iI ) - tJacStrongFormFD( iI ) ) / ( std::abs( tJacStrongFormFD( iI ) ) + MORIS_REAL_EPS );
@@ -1037,7 +1037,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                                     std::cout << "tJacStrongForm viscosity dof:"
                                               << " ana = " << tJacStrongForm( iI )
                                               << " FD  = " << tJacStrongFormFD( iI )
-                                              << " rel error = " << tRelError << std::endl;
+                                              << " rel error = " << tRelError << '\n';
                                 }
                             }
                         }
@@ -1135,7 +1135,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                                               << tJacDestructionCoefficient( iI ) << " FD = "
                                               << tJacDestructionCoefficientFD( iI ) << " rel error = "
                                               << tRelError
-                                              << std::endl;
+                                              << '\n';
                                 }
 
                                 tRelError = std::abs( tJacProductionCoefficient( iI ) - tJacProductionCoefficientFD( iI ) ) / ( std::abs( tJacProductionCoefficientFD( iI ) ) + MORIS_REAL_EPS );
@@ -1145,7 +1145,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                                               << tJacProductionCoefficient( iI ) << " FD = "
                                               << tJacProductionCoefficientFD( iI ) << " rel error = "
                                               << tRelError
-                                              << std::endl;
+                                              << '\n';
                                 }
 
                                 tRelError = std::abs( tJacDiffusionCoefficient( iI ) - tJacDiffusionCoefficientFD( iI ) ) / ( std::abs( tJacDiffusionCoefficientFD( iI ) ) + MORIS_REAL_EPS );
@@ -1155,7 +1155,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                                               << " ana = " << tJacDiffusionCoefficient( iI )
                                               << " FD  = " << tJacDiffusionCoefficientFD( iI )
                                               << " rel error = " << tRelError
-                                              << std::endl;
+                                              << '\n';
                                 }
 
                                 tRelError = std::abs( tJacProductionTerm( iI ) - tJacProductionTermFD( iI ) ) / ( std::abs( tJacProductionTermFD( iI ) ) + MORIS_REAL_EPS );
@@ -1165,7 +1165,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                                               << tJacProductionTerm( iI ) << " FD = "
                                               << tJacProductionTermFD( iI ) << " rel error = "
                                               << tRelError
-                                              << std::endl;
+                                              << '\n';
                                 }
 
                                 tRelError = std::abs( tJacDestructionTerm( iI ) - tJacDestructionTermFD( iI ) ) / ( std::abs( tJacDestructionTermFD( iI ) ) + MORIS_REAL_EPS );
@@ -1175,7 +1175,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                                               << tJacDestructionTerm( iI ) << " FD = "
                                               << tJacDestructionTermFD( iI ) << " rel error = "
                                               << tRelError
-                                              << std::endl;
+                                              << '\n';
                                 }
 
                                 tRelError = std::abs( tJacDivFlux( iI ) - tJacDivFluxFD( iI ) ) / ( std::abs( tJacDivFluxFD( iI ) ) + MORIS_REAL_EPS );
@@ -1184,7 +1184,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                                     std::cout << "tJacDivFluxFD wall distance dof:"
                                               << " ana = " << tJacDivFlux( iI )
                                               << " FD  = " << tJacDivFluxFD( iI )
-                                              << " rel error = " << tRelError << std::endl;
+                                              << " rel error = " << tRelError << '\n';
                                 }
 
                                 tRelError = std::abs( tJacSUPG( iI ) - tJacSUPGFD( iI ) ) / ( std::abs( tJacSUPGFD( iI ) ) + MORIS_REAL_EPS );
@@ -1193,7 +1193,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                                     std::cout << "tJacSUPGFD wall distance dof:"
                                               << " ana = " << tJacSUPG( iI )
                                               << " FD  = " << tJacSUPGFD( iI )
-                                              << " rel error = " << tRelError << std::endl;
+                                              << " rel error = " << tRelError << '\n';
                                 }
 
                                 tRelError = std::abs( tJacStrongForm( iI ) - tJacStrongFormFD( iI ) ) / ( std::abs( tJacStrongFormFD( iI ) ) + MORIS_REAL_EPS );
@@ -1202,7 +1202,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                                     std::cout << "tJacStrongForm wall distance dof:"
                                               << " ana = " << tJacStrongForm( iI )
                                               << " FD  = " << tJacStrongFormFD( iI )
-                                              << " rel error = " << tRelError << std::endl;
+                                              << " rel error = " << tRelError << '\n';
                                 }
                             }
                         }
@@ -1243,7 +1243,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                                       << " Order " << iInterpOrder
                                       << " VelConf " << iCu
                                       << " PresConf " << iCp
-                                      << " iGP " << iGP << std::endl;
+                                      << " iGP " << iGP << '\n';
                         }
 
                         // require check is true
@@ -1593,7 +1593,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Negative",
                                       << " Order " << iInterpOrder
                                       << " VelConf " << iCu
                                       << " PresConf " << iCp
-                                      << " iGP " << iGP << std::endl;
+                                      << " iGP " << iGP << '\n';
                         }
 
                         // require check is true
@@ -1955,7 +1955,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Crosswind", "[IWG_Spalart_Allma
                                       << " Order " << iInterpOrder
                                       << " VelConf " << iCu
                                       << " PresConf " << iCp
-                                      << " iGP " << iGP << std::endl;
+                                      << " iGP " << iGP << '\n';
                         }
 
                         // require check is true
@@ -2318,7 +2318,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Isotropic_Diffusion",
                                       << " Order " << iInterpOrder
                                       << " VelConf " << iCu
                                       << " PresConf " << iCp
-                                      << " iGP " << iGP << std::endl;
+                                      << " iGP " << iGP << '\n';
                         }
 
                         // require check is true

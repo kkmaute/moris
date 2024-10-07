@@ -930,22 +930,19 @@ namespace moris::xtk
         moris::size_t tNumEdges = tElemToEdge.n_cols();
 
         // Initialize output
-        moris::moris_index tEdgeOrdinals = 1000;
+        moris::moris_index tEdgeOrdinals = MORIS_INDEX_MAX;
 
         // find the edge ordinals
-        moris::size_t tCount = 0;
-
         for ( moris::size_t iEdge = 0; iEdge < tNumEdges; iEdge++ )
         {
             if ( aEdgeIndex == tElemToEdge( aElementIndex, iEdge ) )
             {
                 tEdgeOrdinals = iEdge;
-                tCount++;
                 break;
             }
         }
 
-        MORIS_ASSERT( 1 == tCount, "All edge ordinals not found" );
+        MORIS_ERROR( tEdgeOrdinals != MORIS_INDEX_MAX, "Edge ordinal not found" );
 
         return tEdgeOrdinals;
     }
@@ -1319,7 +1316,7 @@ namespace moris::xtk
     void
     Child_Mesh::convert_tet4_to_tet10_child()
     {
-        std::cerr << "Warning conversion tet4 to tet10 not implemented in new child mesh structure" << std::endl;
+        std::cerr << "Warning conversion tet4 to tet10 not implemented in new child mesh structure" << '\n';
     }
 
     // ---------------------------------------------------------------------------------
@@ -2281,9 +2278,9 @@ namespace moris::xtk
     {
         moris::uint tNumDoubleSideSets = mDoubleSideSetSubphaseInds.size();
 
-        std::cout << "\n--------------------------------------------------------" << std::endl;
-        std::cout << "Child Mesh Double Sides:" << std::endl;
-        std::cout << " Num Double Side Sets: " << std::setw( 9 ) << tNumDoubleSideSets << std::endl;
+        std::cout << "\n--------------------------------------------------------" << '\n';
+        std::cout << "Child Mesh Double Sides:" << '\n';
+        std::cout << " Num Double Side Sets: " << std::setw( 9 ) << tNumDoubleSideSets << '\n';
 
         for ( moris::uint i = 0; i < tNumDoubleSideSets; i++ )
         {
@@ -2293,16 +2290,16 @@ namespace moris::xtk
 
             if ( aVerboseLevel > 0 )
             {
-                std::cout << "\n Cell Pairs: " << std::endl;
+                std::cout << "\n Cell Pairs: " << '\n';
                 for ( moris::uint j = 0; j < mDoubleSideSetCellPairs( i ).size(); j++ )
                 {
                     std::cout << "  Cell 1 ID/Ord: " << std::setw( 9 ) << mChildElementIds( mDoubleSideSetCellPairs( i )( j )( 0 ) ) << std::setw( 9 ) << mDoubleSideSetFacetPairs( i )( j )( 0 );
-                    std::cout << "  Cell 2 ID/Ord: " << std::setw( 9 ) << mChildElementIds( mDoubleSideSetCellPairs( i )( j )( 1 ) ) << std::setw( 9 ) << mDoubleSideSetFacetPairs( i )( j )( 1 ) << std::endl;
+                    std::cout << "  Cell 2 ID/Ord: " << std::setw( 9 ) << mChildElementIds( mDoubleSideSetCellPairs( i )( j )( 1 ) ) << std::setw( 9 ) << mDoubleSideSetFacetPairs( i )( j )( 1 ) << '\n';
                 }
             }
-            std::cout << std::endl;
+            std::cout << '\n';
         }
-        std::cout << "--------------------------------------------------------" << std::endl;
+        std::cout << "--------------------------------------------------------" << '\n';
     }
 
     // ---------------------------------------------------------------------------------
@@ -3339,8 +3336,8 @@ namespace moris::xtk
                 }
                 else
                 {
-                    std::cout << "mIntersectConnectivity(iE,0) = " << mIntersectConnectivity( iE, 0 ) << std::endl;
-                    std::cout << "Parent Cell Index = " << this->get_parent_element_index() << std::endl;
+                    std::cout << "mIntersectConnectivity(iE,0) = " << mIntersectConnectivity( iE, 0 ) << '\n';
+                    std::cout << "Parent Cell Index = " << this->get_parent_element_index() << '\n';
 
                     Matrix< IndexMat > tNodeIds = this->get_node_ids();
                     moris::print( tNodeIds, "Node Ids" );

@@ -71,13 +71,13 @@ namespace moris::xtk
         // Initialize
         if ( aEntityRank == mtk::EntityRank::NODE )
         {
-            moris::size_t tNumBackgroundEntities = mMeshData->get_num_entities( (mtk::EntityRank)aEntityRank );
+            moris::size_t tNumBackgroundEntities = mMeshData->get_num_entities( aEntityRank );
             moris::size_t tExternalEntities      = mExternalMeshData.get_num_entities_external_data( aEntityRank );
             return tNumBackgroundEntities + tExternalEntities;
         }
         else if ( aEntityRank == mtk::EntityRank::ELEMENT )
         {
-            moris::size_t tNumBackgroundEntities = mMeshData->get_num_entities( (mtk::EntityRank)aEntityRank );
+            moris::size_t tNumBackgroundEntities = mMeshData->get_num_entities( aEntityRank );
             return tNumBackgroundEntities + mChildMtkCells.size();
         }
         else
@@ -92,7 +92,7 @@ namespace moris::xtk
     moris::size_t
     Background_Mesh::get_num_entities_background( mtk::EntityRank aEntityRank ) const
     {
-        return mMeshData->get_num_entities( (mtk::EntityRank)aEntityRank );
+        return mMeshData->get_num_entities( aEntityRank );
     }
 
     // ----------------------------------------------------------------------------------
@@ -957,7 +957,7 @@ namespace moris::xtk
             {
                 std::cout << mInterfaceNodeFlag( i, j ) << " ";
             }
-            std::cout << std::endl;
+            std::cout << '\n';
         }
     }
 
@@ -966,12 +966,12 @@ namespace moris::xtk
     void
     Background_Mesh::print_vertex_map()
     {
-        std::cout << "Background Mesh Vertex Map:" << std::endl;
-        std::cout << "   Id    |   Index " << std::endl;
-        std::cout << "-------------------" << std::endl;
+        std::cout << "Background Mesh Vertex Map:" << '\n';
+        std::cout << "   Id    |   Index " << '\n';
+        std::cout << "-------------------" << '\n';
         for ( auto it : mVertexGlbToLocalMap )
         {
-            std::cout << std::setw( 8 ) << it.first << "|" << std::setw( 8 ) << it.second << std::endl;
+            std::cout << std::setw( 8 ) << it.first << "|" << std::setw( 8 ) << it.second << '\n';
         }
     }
 

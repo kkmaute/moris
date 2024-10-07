@@ -36,9 +36,9 @@ namespace moris
 
     // copy string
     //inline
-    const std::string get_enum_str(enum EntityBase aEntityBase);
+    std::string get_enum_str( enum EntityBase aEntityBase );
 
-    enum EntityBase get_entity_base_enum_from_str(std::string aEnumString);
+    enum EntityBase get_entity_base_enum_from_str( const std::string& aEnumString );
 
     // define Types ---------------------------------------------------------------------------
     enum class EntityType {
@@ -69,9 +69,9 @@ namespace moris
 
     // copy string
     //inline
-    const std::string get_enum_str(enum EntityType aEntityType);
+    std::string get_enum_str( enum EntityType aEntityType );
 
-    enum EntityType get_entity_type_enum_from_str(std::string aEnumString);
+    enum EntityType get_entity_type_enum_from_str( const std::string& aEnumString );
 
     // define Actions ---------------------------------------------------------------------------
     enum class EntityAction {
@@ -103,9 +103,9 @@ namespace moris
 
     // copy string
     //inline
-    const std::string get_enum_str(enum EntityAction aEntityAction);
+    std::string get_enum_str( enum EntityAction aEntityAction );
 
-    enum EntityAction get_entity_action_enum_from_str(std::string aEnumString);
+    enum EntityAction get_entity_action_enum_from_str( const std::string& aEnumString );
 
     // define Outputs ---------------------------------------------------------------------------
     enum class OutputSpecifier {
@@ -129,9 +129,9 @@ namespace moris
 
     // copy string
     //inline
-    const std::string get_enum_str(enum OutputSpecifier aOutputSpecifier);
+    std::string get_enum_str( enum OutputSpecifier aOutputSpecifier );
 
-    enum OutputSpecifier get_output_spec_enum_from_str(std::string aEnumString);
+    enum OutputSpecifier get_output_spec_enum_from_str( const std::string& aEnumString );
 
 } // namespace moris
 #endif /* PROJECTS_MRS_IOS_SRC_CL_TRACER_ENUMS_HPP_ */

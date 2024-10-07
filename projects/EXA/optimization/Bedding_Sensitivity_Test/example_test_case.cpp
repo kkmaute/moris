@@ -71,9 +71,9 @@ void test_pause()
 
 extern "C" void
 check_results(
-        std::string aExoFileName,
-        std::string aHdf5FileName,
-        uint        aTestCaseIndex )
+        const std::string& aExoFileName,
+        const std::string& aHdf5FileName,
+        uint               aTestCaseIndex )
 {
     MORIS_LOG_INFO( " " );
     MORIS_LOG_INFO( "Checking Results - Test Case %d on %i processors.", aTestCaseIndex, par_size() );

@@ -9,6 +9,8 @@
  */
 
 #include "cl_OPT_Manager.hpp"
+
+#include <utility>
 #include "fn_OPT_create_problem.hpp"
 #include "fn_OPT_create_interface.hpp"
 #include "fn_OPT_create_algorithm.hpp"
@@ -17,105 +19,101 @@
 #include "cl_Logger.hpp"
 #include "cl_Tracer.hpp"
 
-namespace moris
+namespace moris::opt
 {
-    namespace opt
+    // -------------------------------------------------------------------------------------------------------------
+
+    Manager::Manager(
+            const Vector< Vector< Parameter_List > >&              aParameterLists,
+            const Vector< std::shared_ptr< Criteria_Interface > >& aInterfaces )
+            : Manager(
+                      aParameterLists( 2 ),
+                      create_problem(
+                              aParameterLists( 0 )( 0 ),
+                              create_interface(
+                                      aParameterLists( 1 ),
+                                      aInterfaces ) ) )
     {
-        // -------------------------------------------------------------------------------------------------------------
+    }
 
-        Manager::Manager(
-                const Vector< Vector< Parameter_List > >           & aParameterLists,
-                Vector<std::shared_ptr<Criteria_Interface>>   aInterfaces)
-                : Manager(
-                        aParameterLists(2),
-                        create_problem(
-                                aParameterLists(0)(0),
-                                create_interface(
-                                        aParameterLists(1),
-                                        aInterfaces)))
+    // -------------------------------------------------------------------------------------------------------------
+
+    Manager::Manager(
+            const Vector< Parameter_List >& aAlgorithmParameterLists,
+            std::shared_ptr< Problem >      aProblem )
+            : mProblem( std::move( aProblem ) )
+    {
+        // Construct Algorithm cell
+        uint tNumAlgorithms = aAlgorithmParameterLists.size();
+
+        for ( uint tAlgorithmIndex = 0; tAlgorithmIndex < tNumAlgorithms; tAlgorithmIndex++ )
         {
+            mAlgorithms.push_back( create_algorithm( aAlgorithmParameterLists( tAlgorithmIndex ) ) );
         }
+    }
 
-        // -------------------------------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------------------------------------------
 
-        Manager::Manager(
-                const Vector< Parameter_List >& aAlgorithmParameterLists,
-                std::shared_ptr<Problem>   aProblem)
-                : mProblem(aProblem)
+    Manager::~Manager()
+    {
+    }
+
+    // -------------------------------------------------------------------------------------------------------------
+
+    void Manager::perform()
+    {
+        // Trace optimization
+        Tracer tTracer( "OPT", "Manager", "Perform" );
+
+        // initialize the problem
+        mProblem->initialize();
+
+        for ( uint i = 0; i < mAlgorithms.size(); i++ )
         {
-            // Construct Algorithm cell
-            uint tNumAlgorithms = aAlgorithmParameterLists.size();
+            // solve the optimization problem based on the algorithm cell
+            uint tOptIteration = mAlgorithms( i )->solve( i, mProblem );
 
-            for (uint tAlgorithmIndex = 0; tAlgorithmIndex < tNumAlgorithms; tAlgorithmIndex++)
-            {
-                mAlgorithms.push_back( create_algorithm( aAlgorithmParameterLists( tAlgorithmIndex ) ) );
-            }
+            this->reinitialize( i, tOptIteration );
+
+            // scale the solution of the optimization problem
+            mProblem->scale_solution();
+
+            // update the optimization problem
+            mProblem->update_problem();
         }
+    }
 
-        // -------------------------------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------------------------------------------
 
-        Manager::~Manager()
+    void Manager::reinitialize(
+            uint aI,
+            uint aOptIteration )
+    {
+        if ( mProblem->restart_optimization() )
         {
-        }
+            mAlgorithms( aI )->set_restart_index( aOptIteration - 1 );
 
-        // -------------------------------------------------------------------------------------------------------------
-
-        void Manager::perform()
-        {
-            // Trace optimization
-            Tracer tTracer( "OPT", "Manager", "Perform" );
-
-            // initialize the problem
             mProblem->initialize();
 
-            for (uint i = 0; i < mAlgorithms.size(); i++)
-            {
-                // solve the optimization problem based on the algorithm cell
-                uint tOptIteration = mAlgorithms(i)->solve(i, mProblem);
+            uint tOptIteration = mAlgorithms( aI )->solve( aI, mProblem );
 
-                this->reinitialize( i, tOptIteration );
-
-                // scale the solution of the optimization problem
-                mProblem->scale_solution();
-
-                // update the optimization problem
-                mProblem->update_problem();
-            }
+            this->reinitialize( aI, tOptIteration );
         }
-
-        // -------------------------------------------------------------------------------------------------------------
-
-        void Manager::reinitialize(
-                uint aI,
-                uint aOptIteration )
-        {
-            if( mProblem->restart_optimization())
-            {
-                mAlgorithms( aI )->set_restart_index( aOptIteration - 1 );
-
-                mProblem->initialize();
-
-                uint tOptIteration = mAlgorithms( aI )->solve( aI, mProblem );
-
-                this->reinitialize( aI, tOptIteration );
-            }
-        }
-
-        // -------------------------------------------------------------------------------------------------------------
-
-        Vector< real > Manager::get_advs()
-        {
-            return mProblem->get_advs();
-        }
-
-        // -------------------------------------------------------------------------------------------------------------
-
-        Matrix<DDRMat> Manager::get_objectives()
-        {
-            return mProblem->get_objectives();
-        }
-
-        // -------------------------------------------------------------------------------------------------------------
     }
-}
 
+    // -------------------------------------------------------------------------------------------------------------
+
+    Vector< real > Manager::get_advs()
+    {
+        return mProblem->get_advs();
+    }
+
+    // -------------------------------------------------------------------------------------------------------------
+
+    Matrix< DDRMat > Manager::get_objectives()
+    {
+        return mProblem->get_objectives();
+    }
+
+    // -------------------------------------------------------------------------------------------------------------
+    }

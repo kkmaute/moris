@@ -32,11 +32,11 @@ namespace moris::gen
 
     Design_Field::Design_Field(
             std::shared_ptr< Field > aField,
-            Field_Parameters         aParameters,
+            const Field_Parameters&  aParameters,
             Node_Manager&            aNodeManager )
             : mField( std::move( aField ) )
             , mNodeManager( &aNodeManager )
-            , mParameters( std::move( aParameters ) )
+            , mParameters( aParameters )
     {
         // Check for a provided field
         MORIS_ERROR( mField, "A design must be provided a field for computing values." );
@@ -51,7 +51,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void Design_Field::discretize(
-            mtk::Mesh_Pair        aMeshPair,
+            const mtk::Mesh_Pair& aMeshPair,
             sol::Dist_Vector*     aOwnedADVs,
             const Vector< sint >& aSharedADVIds,
             uint                  aADVOffsetID )
@@ -83,11 +83,11 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void Design_Field::discretize(
-            std::shared_ptr< mtk::Field > aMTKField,
-            mtk::Mesh_Pair                aMeshPair,
-            sol::Dist_Vector*             aOwnedADVs,
-            const Vector< sint >&         aSharedADVIds,
-            uint                          aADVOffsetID )
+            const std::shared_ptr< mtk::Field >& aMTKField,
+            const mtk::Mesh_Pair&                aMeshPair,
+            sol::Dist_Vector*                    aOwnedADVs,
+            const Vector< sint >&                aSharedADVIds,
+            uint                                 aADVOffsetID )
     {
         if ( mParameters.mDiscretizationIndex >= 0 )
         {
@@ -124,7 +124,7 @@ namespace moris::gen
             // Get derived node
             const Node_Manager& tNodeManager = *mNodeManager;
             const Derived_Node& tDerivedNode = tNodeManager.get_derived_node( aNodeIndex );
-            
+
             // Determine how to perform interpolation
             if ( mParameters.mUseMultilinearInterpolation )
             {
@@ -162,7 +162,7 @@ namespace moris::gen
             // Get derived node
             const Node_Manager& tNodeManager = *mNodeManager;
             const Derived_Node& tDerivedNode = tNodeManager.get_derived_node( aNodeIndex );
-            
+
             // Determine how to perform interpolation
             if ( mParameters.mUseMultilinearInterpolation )
             {
@@ -205,7 +205,7 @@ namespace moris::gen
             // Get derived node
             const Node_Manager& tNodeManager = *mNodeManager;
             const Derived_Node& tDerivedNode = tNodeManager.get_derived_node( aNodeIndex );
-            
+
             // Determine how to perform interpolation
             if ( mParameters.mUseMultilinearInterpolation )
             {
@@ -261,7 +261,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Design_Field::update_dependencies( Vector< std::shared_ptr< Field > > aUpdatedFields )
+    void Design_Field::update_dependencies( const Vector< std::shared_ptr< Field > >& aUpdatedFields )
     {
         mField->update_dependencies( aUpdatedFields );
     }

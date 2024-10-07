@@ -10,7 +10,7 @@
 #include "cl_NLA_Nonlinear_Solver.hpp"
 #include "cl_NLA_Solver_Nonconformal_Remapping.hpp"
 
-#include <math.h>
+#include <cmath>
 #include <cstdlib>
 
 namespace moris::NLA

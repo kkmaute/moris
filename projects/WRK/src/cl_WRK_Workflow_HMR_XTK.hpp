@@ -70,7 +70,7 @@ namespace moris
             /**
              * destructor
              */
-            ~Workflow_HMR_XTK(){};
+            ~Workflow_HMR_XTK() override{};
 
             //------------------------------------------------------------------------------
             /**
@@ -80,7 +80,7 @@ namespace moris
                     Vector< real >& aADVs,
                     Vector< real >& aLowerBounds,
                     Vector< real >& aUpperBounds,
-                    Matrix< IdMat >& aIjklIDs );
+                    Matrix< IdMat >& aIjklIDs ) override;
 
             //------------------------------------------------------------------------------
             /**
@@ -88,7 +88,7 @@ namespace moris
              *
              * @return vector of criteria
              */
-            Vector< real > perform( Vector< real >& aNewADVs );
+            Vector< real > perform( Vector< real >& aNewADVs ) override;
 
             //------------------------------------------------------------------------------
             /**
@@ -96,7 +96,7 @@ namespace moris
              *
              * @return matrix d(criteria)_i/d(adv)_j
              */
-            Matrix< DDRMat > compute_dcriteria_dadv();
+            Matrix< DDRMat > compute_dcriteria_dadv() override;
 
             //------------------------------------------------------------------------------
             /**
@@ -108,8 +108,8 @@ namespace moris
              */
             bool
             output_T_matrices(
-                    const std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer,
-                    xtk::Model* const &                        aXTKPerformer );
+                    const std::shared_ptr< mtk::Mesh_Manager >& aMTKPerformer,
+                    xtk::Model* const &                         aXTKPerformer );
         };
         //------------------------------------------------------------------------------
     }    // namespace wrk

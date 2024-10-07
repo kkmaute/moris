@@ -45,7 +45,7 @@ namespace moris::dla
          * @brief Destroy the Linear_Solver_ML object
          * 
          */
-        virtual ~Linear_Solver_ML() = default;
+        ~Linear_Solver_ML() override = default;
 
         // -----------------------------------------------------------------------------------
 
@@ -58,7 +58,7 @@ namespace moris::dla
          */
         moris::sint solve_linear_system(
                 Linear_Problem   *aLinearSystem,
-                const moris::sint aIter );
+                const moris::sint aIter ) override;
 
         //-----------------------------------------------------------------------------------
 
@@ -67,6 +67,6 @@ namespace moris::dla
          * 
          * @return moris::sint 
          */
-        moris::sint solve_linear_system();
+        moris::sint solve_linear_system() override;
     };
 }    // namespace moris::dla

@@ -1553,8 +1553,8 @@ namespace moris
         tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
         tParameterlist( 4 )( 0 ).set( "TSA_Num_Time_Steps", tTSA_Num_Time_Steps );
         tParameterlist( 4 )( 0 ).set( "TSA_Time_Frame", tTSA_Time_Frame );
-        tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_solver", 2 );
-        tParameterlist( 4 )( 0 ).set( "TSA_nonlinear_solver_for_adjoint_solve", 3 );
+        tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_Solver", 2 );
+        tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_Sensitivity_Solver", 3 );
 
         // ----------------------------------------------------------
 

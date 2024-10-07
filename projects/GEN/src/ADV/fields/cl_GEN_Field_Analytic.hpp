@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include <utility>
+
 #include "cl_GEN_Field.hpp"
 #include "cl_MTK_Mapper.hpp"
 
@@ -48,7 +50,7 @@ namespace moris::gen
         Field_Analytic(
                 const Vector< ADV >& aADVs,
                 std::string          aName )
-                : Field( aADVs, aName )
+                : Field( aADVs, std::move( aName ) )
         {
         }
 
@@ -61,8 +63,8 @@ namespace moris::gen
          */
         Field_Analytic(
                 const Field_Analytic< N >& aCopy,
-                const Vector< uint >& aReplaceVariables,
-                const Vector< real >& aNewConstants )
+                const Vector< uint >&      aReplaceVariables,
+                const Vector< real >&      aNewConstants )
                 : Field( aCopy, aReplaceVariables, aNewConstants )
         {
         }
@@ -185,13 +187,13 @@ namespace moris::gen
         std::shared_ptr< mtk::Field > get_mtk_field() final
         {
             // TODO make this just return a nullptr once the refinement interface is finished, as an MTK field won't be needed then
-            mtk::Mapper tMapper;
+            mtk::Mapper                   tMapper;
             std::shared_ptr< mtk::Field > tField = this->create_mtk_field( mMeshPairForAnalytic );
             tMapper.perform_mapping( tField.get(), mtk::EntityRank::NODE, mtk::EntityRank::BSPLINE );
             return tField;
         }
     };
-}
+}    // namespace moris::gen
 
 /**
  * \def ANALYTIC_FIELD_DECLARATION( class_name, num_dimensions, num_variables, ... )
@@ -202,18 +204,18 @@ namespace moris::gen
  * @param num_variables Number of variables this field takes in
  * @param ... Additional code to be inserted into the constructor body via __VA_ARGS__
  */
-#define ANALYTIC_FIELD_ADV_CONSTRUCTOR( class_name, num_dimensions, num_variables, ... )                            \
-    class_name( ADV_ARG_TYPES )                                                                                     \
-            : Field_Analytic< num_dimensions >( ADV_ARGS )                                                          \
-    {                                                                                                               \
-        VARIABLE_CHECK( num_variables );                                                                            \
-        __VA_ARGS__                                                                                                 \
-    }                                                                                                               \
-    class_name( const class_name& aCopy, const Vector< uint >& aReplaceVariables, const Vector< real >& aNewConstants ) \
-            : Field_Analytic< num_dimensions >( aCopy, aReplaceVariables, aNewConstants )                           \
-    {                                                                                                               \
-    }                                                                                                               \
-    std::shared_ptr< Field > copy( const Vector< uint >& aReplaceVariables, const Vector< real >& aNewConstants )       \
-    {                                                                                                               \
-        return std::make_shared< class_name >( *this, aReplaceVariables, aNewConstants );                           \
+#define ANALYTIC_FIELD_ADV_CONSTRUCTOR( class_name, num_dimensions, num_variables, ... )                                   \
+    class_name( ADV_ARG_TYPES )                                                                                            \
+            : Field_Analytic< num_dimensions >( ADV_ARGS )                                                                 \
+    {                                                                                                                      \
+        VARIABLE_CHECK( num_variables );                                                                                   \
+        __VA_ARGS__                                                                                                        \
+    }                                                                                                                      \
+    class_name( const class_name& aCopy, const Vector< uint >& aReplaceVariables, const Vector< real >& aNewConstants )    \
+            : Field_Analytic< num_dimensions >( aCopy, aReplaceVariables, aNewConstants )                                  \
+    {                                                                                                                      \
+    }                                                                                                                      \
+    std::shared_ptr< Field > copy( const Vector< uint >& aReplaceVariables, const Vector< real >& aNewConstants ) override \
+    {                                                                                                                      \
+        return std::make_shared< class_name >( *this, aReplaceVariables, aNewConstants );                                  \
     }

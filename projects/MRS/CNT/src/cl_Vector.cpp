@@ -28,7 +28,7 @@ namespace moris
     {
         Vector< char > cstrings;
         cstrings.reserve( strings.size() );
-        for ( std::string s : strings )
+        for ( const std::string& s : strings )
         {
             for ( size_t i = 0; i < strlen( s.c_str() ); ++i )
             {

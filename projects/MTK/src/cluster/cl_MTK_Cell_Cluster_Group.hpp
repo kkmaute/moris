@@ -12,126 +12,123 @@
 
 #include "cl_MTK_Cluster_Group.hpp"
 
-namespace moris
+namespace moris::mtk
 {
-    namespace mtk
+    //------------------------------------------------------------------------------
+
+    class Cluster;
+
+    //------------------------------------------------------------------------------
+
+    class Cell_Cluster_Group : public Cluster_Group
     {
         //------------------------------------------------------------------------------
 
-        class Cluster;
+      protected:
+        //------------------------------------------------------------------------------
+
+        /**
+         * @brief Get a the list of clusters in the cluster group (how the clusters are accessed is handled by the children)
+         *
+         * @return Vector< Cluster const* > const& list of clusters in the cluster group
+         */
+        virtual Vector< mtk::Cluster const * >
+        get_clusters_in_group() const = 0;
 
         //------------------------------------------------------------------------------
 
-        class Cell_Cluster_Group : public Cluster_Group
-        {
-            //------------------------------------------------------------------------------
+      public:
+        //------------------------------------------------------------------------------
 
-          protected:
-            //------------------------------------------------------------------------------
+        /**
+         * @brief Constructor
+         *
+         * @param aDiscretizationMeshIndex discretization mesh index (in MSI) that the cluster group is associated with
+         */
+        Cell_Cluster_Group( const moris_index aDiscretizationMeshIndex );
 
-            /**
-             * @brief Get a the list of clusters in the cluster group (how the clusters are accessed is handled by the children)
-             *
-             * @return Vector< Cluster const* > const& list of clusters in the cluster group
-             */
-            virtual const Vector< mtk::Cluster const * >
-            get_clusters_in_group() const = 0;
+        //------------------------------------------------------------------------------
 
-            //------------------------------------------------------------------------------
+        /**
+         * @brief default constructor initializing nothing
+         *
+         */
+        Cell_Cluster_Group() = default;
 
-          public:
-            //------------------------------------------------------------------------------
+        /**
+         * @brief Default Destructor
+         *
+         */
+        ~Cell_Cluster_Group() override = default;
 
-            /**
-             * @brief Constructor
-             *
-             * @param aDiscretizationMeshIndex discretization mesh index (in MSI) that the cluster group is associated with
-             */
-            Cell_Cluster_Group( const moris_index aDiscretizationMeshIndex );
+        //------------------------------------------------------------------------------
 
-            //------------------------------------------------------------------------------
+        /**
+         * @brief Compute the sum of all cluster volumes within the cluster group
+         *
+         * @param aPrimaryOrVoid
+         * @param aIsLeader
+         * @return moris::real volume of all clusters
+         */
+        moris::real
+        compute_cluster_group_cell_measure(
+                const mtk::Primary_Void    aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const override;
 
-            /**
-             * @brief default constructor initializing nothing
-             *
-             */
-            Cell_Cluster_Group() = default;
+        //------------------------------------------------------------------------------
 
-            /**
-             * @brief Default Destructor
-             *
-             */
-            virtual ~Cell_Cluster_Group() = default;
+        /**
+         * @brief compute the derivative of the total cluster group volume
+         *
+         * @param aPerturbedVertexCoords
+         * @param aDirection
+         * @param aPrimaryOrVoid
+         * @param aIsLeader
+         * @return moris::real
+         */
+        moris::real
+        compute_cluster_group_cell_measure_derivative(
+                const Matrix< DDRMat >&    aPerturbedVertexCoords,
+                uint                       aDirection,
+                const mtk::Primary_Void    aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const override;
 
-            //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-            /**
-             * @brief Compute the sum of all cluster volumes within the cluster group
-             *
-             * @param aPrimaryOrVoid
-             * @param aIsLeader
-             * @return moris::real volume of all clusters
-             */
-            moris::real
-            compute_cluster_group_cell_measure(
-                    const mtk::Primary_Void    aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const;
+        /**
+         * @brief compute the total cluster group interface/boundary surface/length
+         *
+         * @param aPrimaryOrVoid
+         * @param aIsLeader
+         * @return moris::real
+         */
+        moris::real
+        compute_cluster_group_side_measure(
+                const mtk::Primary_Void    aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const override;
 
-            //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-            /**
-             * @brief compute the derivative of the total cluster group volume
-             *
-             * @param aPerturbedVertexCoords
-             * @param aDirection
-             * @param aPrimaryOrVoid
-             * @param aIsLeader
-             * @return moris::real
-             */
-            moris::real
-            compute_cluster_group_cell_measure_derivative(
-                    const Matrix< DDRMat >&    aPerturbedVertexCoords,
-                    uint                       aDirection,
-                    const mtk::Primary_Void    aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const;
+        /**
+         * @brief compute the derivative of the total cluster group interface/boundary surface/length
+         *
+         * @param aPerturbedVertexCoords
+         * @param aDirection
+         * @param aPrimaryOrVoid
+         * @param aIsLeader
+         * @return moris::real
+         */
+        moris::real
+        compute_cluster_group_side_measure_derivative(
+                const Matrix< DDRMat >&    aPerturbedVertexCoords,
+                uint                       aDirection,
+                const mtk::Primary_Void    aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const override;
 
-            //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-            /**
-             * @brief compute the total cluster group interface/boundary surface/length
-             *
-             * @param aPrimaryOrVoid
-             * @param aIsLeader
-             * @return moris::real
-             */
-            moris::real
-            compute_cluster_group_side_measure(
-                    const mtk::Primary_Void    aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const;
+    };    // class mtk::Cell_Cluster_Group
 
-            //------------------------------------------------------------------------------
-
-            /**
-             * @brief compute the derivative of the total cluster group interface/boundary surface/length
-             *
-             * @param aPerturbedVertexCoords
-             * @param aDirection
-             * @param aPrimaryOrVoid
-             * @param aIsLeader
-             * @return moris::real
-             */
-            moris::real
-            compute_cluster_group_side_measure_derivative(
-                    const Matrix< DDRMat >&    aPerturbedVertexCoords,
-                    uint                       aDirection,
-                    const mtk::Primary_Void    aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const;
-
-            //------------------------------------------------------------------------------
-
-        };    // class mtk::Cell_Cluster_Group
-
-    }    // namespace mtk
-}    // namespace moris
+}    // namespace moris::mtk
 
 #endif /* cl_MTK_Cell_Cluster_Group.hpp */

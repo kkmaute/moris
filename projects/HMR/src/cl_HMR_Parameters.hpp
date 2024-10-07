@@ -31,7 +31,7 @@ namespace moris::mtk
 {
     class Cell;
     class Field;
-}
+}    // namespace moris::mtk
 namespace moris::hmr
 {
     class Element;
@@ -53,7 +53,7 @@ namespace moris::hmr
     // fixme: to be deleted soon
     // creates a parameter list with default inputs
     void load_hmr_parameter_list_from_xml( const std::string& aFilePath,
-            Parameter_List&                                    aParameterList );
+            Parameter_List&                                   aParameterList );
 
     //--------------------------------------------------------------------------------
 
@@ -112,7 +112,7 @@ namespace moris::hmr
         Matrix< DDUMat > mBSplinePatterns = { { 0 } };
 
         //! defines which B-Spline mesh is associated with which lagrange mesh
-        Vector< Matrix< DDSMat > > mLagrangeToBSplineMesh;
+        Vector< Vector< uint > > mLagrangeToBSplineMesh = { { 0 } };
 
         //! maps input orders with B-Splines
         //           Matrix< DDUMat> mBSplineInputMap;
@@ -142,8 +142,8 @@ namespace moris::hmr
         Matrix< DDUMat > mUnionMeshes;
 
         //! Lagrange Meshes that are used for the output meshes
-        Vector< Matrix< DDUMat > > mOutputMeshes     = { { { 0 } } };
-        Vector< std::string >      mOutputMesheNames = { { { "" } } };
+        Vector< Vector< uint > > mOutputMeshes     = { { 0 } };
+        Vector< std::string >    mOutputMesheNames = { "" };
 
         moris::map< std::string, moris_index > mOutputNameToIndexMap;
 
@@ -254,8 +254,8 @@ namespace moris::hmr
         /*
          * parameter list constructor
          */
-        Parameters( Parameter_List&                   aParameterList,
-                std::shared_ptr< moris::Library_IO > aLibrary );
+        Parameters( Parameter_List&                         aParameterList,
+                const std::shared_ptr< moris::Library_IO >& aLibrary );
 
         //--------------------------------------------------------------------------------
 
@@ -487,12 +487,12 @@ namespace moris::hmr
          * returns an entry of mBSplineOrders
          */
         void
-        set_lagrange_to_bspline_mesh( const Vector< Matrix< DDSMat > > aLagrangeToBSplineMesh )
+        set_lagrange_to_bspline_mesh( const Vector< Vector< uint > >& aLagrangeToBSplineMesh )
         {
             mLagrangeToBSplineMesh = aLagrangeToBSplineMesh;
         }
 
-        Matrix< DDSMat >
+        Vector< uint >
         get_lagrange_to_bspline_mesh( uint aLagrangeMeshIndex ) const
         {
             return mLagrangeToBSplineMesh( aLagrangeMeshIndex );
@@ -535,7 +535,7 @@ namespace moris::hmr
         /**
          * returns the index of the defined Lagrange output mesh for a specified order
          */
-        const Vector< Matrix< DDUMat > >&
+        const Vector< Vector< uint > >&
         get_output_mesh() const
         {
             return mOutputMeshes;
@@ -547,7 +547,7 @@ namespace moris::hmr
          * set which lagrange meshes are used for an output
          */
         void
-        set_output_meshes( const Vector< Matrix< DDUMat > >& aOutputMeshes )
+        set_output_meshes( const Vector< Vector< uint > >& aOutputMeshes )
         {
             // test if calling this function is allowed
             this->error_if_locked( "set_output_meshes" );
@@ -632,7 +632,7 @@ namespace moris::hmr
         set_lagrange_input_mesh( const Matrix< DDUMat >& aLagrangeInputMeshes )
         {
             // test if calling this function is allowed
-            this->error_if_locked( "set_output_meshes" );
+            this->error_if_locked( "set_lagrange_input_mesh" );
 
             mLagrangeInputMeshes = aLagrangeInputMeshes;
         };
@@ -657,7 +657,7 @@ namespace moris::hmr
         set_bspline_input_mesh( const Matrix< DDUMat >& aBSplineInputMeshes )
         {
             // test if calling this function is allowed
-            this->error_if_locked( "set_output_meshes" );
+            this->error_if_locked( "set_bspline_input_mesh" );
 
             mBSplineInputMeshes = aBSplineInputMeshes;
         };
@@ -1331,7 +1331,7 @@ namespace moris::hmr
         //-------------------------------------------------------------------------------
 
         void
-        set_basis_fuction_vtk_file_name( const std::string aFileName )
+        set_basis_fuction_vtk_file_name( const std::string& aFileName )
         {
             mBasisFunctionVtkFileName = aFileName;
         }
@@ -1356,7 +1356,7 @@ namespace moris::hmr
          *
          * @param aRefinementFunctions
          */
-        void set_refinement_functions( Vector< Refinement_Function > aRefinementFunctions );
+        void set_refinement_functions( const Vector< Refinement_Function >& aRefinementFunctions );
 
         /**
          * Get a user-defined refinement function from the parameters
@@ -1417,7 +1417,6 @@ namespace moris::hmr
     Parameter_List create_hmr_parameter_list( const Parameters* aParameters );
 
     // -----------------------------------------------------------------------------
-} /* namespace moris */
+}    // namespace moris::hmr
 
 #endif /* SRC_HMR_CL_HMR_PARAMETERS_HPP_ */
-

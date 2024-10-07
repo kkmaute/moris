@@ -137,8 +137,8 @@ namespace moris::gen
 
     void
     Interpolation_PDV_Host::create_pdv(
-            PDV_Type                    aPDVType,
-            std::shared_ptr< Property > aPropertyPointer )
+            PDV_Type                           aPDVType,
+            const std::shared_ptr< Property >& aPropertyPointer )
     {
         // Check that PDV has not already been created
         MORIS_ASSERT( aPropertyPointer != nullptr,
@@ -243,7 +243,7 @@ namespace moris::gen
 
         // Loop over PDVs and get IDs
         uint tCounter = 0;
-        for ( auto tPDV : mPDVs )
+        for ( const auto& tPDV : mPDVs )
         {
             if ( tPDV != nullptr )
             {
@@ -275,10 +275,10 @@ namespace moris::gen
 #ifdef MORIS_HAVE_DEBUG
         if ( mPDVs( tPDVIndex ) == nullptr )
         {
-            std::cout << "PDV not found at current node index." << std::endl;
-            std::cout << "PDV node index #" << mNodeIndex << " (ID: " << mNodeId << ")" << std::endl;
-            std::cout << "PDV index: " << tPDVIndex << std::endl;
-            std::cout << "Node Coordinates: " << ios::stringify_log( mCoordinates ) << std::endl;
+            std::cout << "PDV not found at current node index." << '\n';
+            std::cout << "PDV node index #" << mNodeIndex << " (ID: " << mNodeId << ")" << '\n';
+            std::cout << "PDV index: " << tPDVIndex << '\n';
+            std::cout << "Node Coordinates: " << ios::stringify_log( mCoordinates ) << '\n';
             MORIS_ERROR( false, "Interpolation_PDV_Host::get_pdv_value() - PDV does not exist at node with index %d.\n", mNodeIndex );
         }
 #endif    // MORIS_HAVE_DEBUG
@@ -347,12 +347,12 @@ namespace moris::gen
 
         std::cout << "--------------------------------------------------------------\n";
         std::cout << " Interpolation_PDV_Host: \n";
-        std::cout << " Current processor rank: " << par_rank() << std::endl;
-        std::cout << " mNodeId:                " << mNodeId << std::endl;
-        std::cout << " mNodeIndex:             " << mNodeIndex << std::endl;
-        std::cout << " mNodeOwner:             " << mNodeOwner << std::endl;
-        std::cout << " Number of PDV types:    " << tPDVTypeMap.n_rows() << std::endl;
-        std::cout << " Number of PDVs:         " << mPDVs.size() << std::endl;
+        std::cout << " Current processor rank: " << par_rank() << '\n';
+        std::cout << " mNodeId:                " << mNodeId << '\n';
+        std::cout << " mNodeIndex:             " << mNodeIndex << '\n';
+        std::cout << " mNodeOwner:             " << mNodeOwner << '\n';
+        std::cout << " Number of PDV types:    " << tPDVTypeMap.n_rows() << '\n';
+        std::cout << " Number of PDVs:         " << mPDVs.size() << '\n';
 
         print( mCoordinates, "mCoordinates" );
 
@@ -364,7 +364,7 @@ namespace moris::gen
             {
                 if ( mPDVs( tIndex ) )
                 {
-                    std::cout << "PDV of type " << i << " - PDV - ID :" << mPDVs( tIndex )->get_id() << std::endl;
+                    std::cout << "PDV of type " << i << " - PDV - ID :" << mPDVs( tIndex )->get_id() << '\n';
                 }
                 else
                 {

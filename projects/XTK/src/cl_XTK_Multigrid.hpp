@@ -31,7 +31,6 @@
 #include "cl_MTK_Cell.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "cl_XTK_Background_Mesh.hpp"
-#include "cl_MTK_Enums.hpp"
 
 #include "fn_unique.hpp"
 
@@ -163,7 +162,7 @@ namespace moris::xtk
 #endif
         //------------------------------------------------------------------------------
 
-        void build_basis_exodus_information( std::string aName );
+        void build_basis_exodus_information( const std::string& aName );
 
         //------------------------------------------------------------------------------
 

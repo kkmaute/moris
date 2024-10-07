@@ -67,7 +67,7 @@ namespace moris::mtk
             return mHasIntersection;
         }
 
-        virtual Matrix< DDRMat > const get_intersection_parametric() const = 0;
+        virtual Matrix< DDRMat > get_intersection_parametric() const = 0;
 
         Matrix< DDRMat > get_intersection_physical() const
         {

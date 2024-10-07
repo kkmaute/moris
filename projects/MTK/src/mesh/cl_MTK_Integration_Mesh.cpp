@@ -68,7 +68,7 @@ namespace moris::mtk
     void
     Integration_Mesh::get_Mesh_GEN_map( Vector< moris_index > &aMesh_GEN_map )
     {
-        std::cout << "in integrtion mesh class" << std::endl;
+        std::cout << "in integrtion mesh class" << '\n';
 
         aMesh_GEN_map = this->mMesh_GEN_map;
     }
@@ -84,7 +84,7 @@ namespace moris::mtk
     // ----------------------------------------------------------------------------
 
     moris::mtk::Set *
-    Integration_Mesh::get_set_by_name( std::string aSetLabel ) const
+    Integration_Mesh::get_set_by_name( const std::string &aSetLabel ) const
     {
         if ( !mSetNameToIndexMap.key_exists( aSetLabel ) )
         {
@@ -107,7 +107,7 @@ namespace moris::mtk
     // ----------------------------------------------------------------------------
 
     moris_index
-    Integration_Mesh::get_set_index_by_name( std::string aSetLabel )
+    Integration_Mesh::get_set_index_by_name( const std::string &aSetLabel )
     {
         if ( !mSetNameToIndexMap.key_exists( aSetLabel ) )
         {
@@ -177,23 +177,23 @@ namespace moris::mtk
     {
         for ( moris::uint i = 0; i < mColorToBlockSet.size(); i++ )
         {
-            std::cout << "\n Color: " << std::setw( 8 ) << i << std::endl;
-            std::cout << "    Blocks: " << std::endl;
+            std::cout << "\n Color: " << std::setw( 8 ) << i << '\n';
+            std::cout << "    Blocks: " << '\n';
             for ( moris::uint iS = 0; iS < mColorToBlockSet( i ).size(); iS++ )
             {
-                std::cout << "            " << mColorToBlockSet( i )( iS )->get_set_name() << std::endl;
+                std::cout << "            " << mColorToBlockSet( i )( iS )->get_set_name() << '\n';
             }
 
-            std::cout << "    Side Sets: " << std::endl;
+            std::cout << "    Side Sets: " << '\n';
             for ( moris::uint iS = 0; iS < mColorToSideSet( i ).size(); iS++ )
             {
-                std::cout << "            " << mColorToSideSet( i )( iS )->get_set_name() << std::endl;
+                std::cout << "            " << mColorToSideSet( i )( iS )->get_set_name() << '\n';
             }
 
-            std::cout << "    Double Side Sets: " << std::endl;
+            std::cout << "    Double Side Sets: " << '\n';
             for ( moris::uint iS = 0; iS < mColorToDoubleSideSet( i ).size(); iS++ )
             {
-                std::cout << "            " << mColorToDoubleSideSet( i )( iS )->get_set_name() << std::endl;
+                std::cout << "            " << mColorToDoubleSideSet( i )( iS )->get_set_name() << '\n';
             }
         }
     }
@@ -210,7 +210,7 @@ namespace moris::mtk
     // ----------------------------------------------------------------------------
 
     moris_index
-    Integration_Mesh::get_block_set_index( std::string aBlockSetLabel ) const
+    Integration_Mesh::get_block_set_index( const std::string &aBlockSetLabel ) const
     {
         MORIS_ERROR( 0, "get_block_set_index has no default implementation" );
         return MORIS_INDEX_MAX;
@@ -243,7 +243,7 @@ namespace moris::mtk
     // ----------------------------------------------------------------------------
 
     moris_index
-    Integration_Mesh::get_double_sided_set_index( std::string aDoubleSideSetLabel ) const
+    Integration_Mesh::get_double_sided_set_index( const std::string &aDoubleSideSetLabel ) const
     {
         MORIS_ERROR( false, "not implemented" );
         return 0;
@@ -403,7 +403,7 @@ namespace moris::mtk
         // get number of integration vertices
         uint tNumVertices = this->get_num_nodes();
 
-        std::cout << "Num Nodes: " << tNumVertices << std::endl;
+        std::cout << "Num Nodes: " << tNumVertices << '\n';
 
         Matrix< IdMat > tIdentifierMat( tNumVertices, 1, -1 );
 
@@ -497,7 +497,7 @@ namespace moris::mtk
                         tMPCs( tIGVertexIndex ).set_size( tNCols, 1, -1.0 );
                         tNodeDOFs( tIGVertexIndex ).set_size( tNCols, 1, gNoID );
 
-                        std::cout << "tIGVertexId: " << tIGVertexId << " " << tIGVertexIndex << std::endl;
+                        std::cout << "tIGVertexId: " << tIGVertexId << " " << tIGVertexIndex << '\n';
 
                         if ( tHangingNodeIdentifier( tIGVertexIndex ) == 1 )
                         {
@@ -639,7 +639,7 @@ namespace moris::mtk
 
                     Vector< moris::mtk::Vertex const * > tIGVertices = tCluster->get_vertices_in_cluster();
 
-                    std::cout << " IGVert: " << tIGVertices.size() << " IPVert: " << tIPVertices.size() << std::endl;
+                    std::cout << " IGVert: " << tIGVertices.size() << " IPVert: " << tIPVertices.size() << '\n';
 
                     for ( uint Ij = 0; Ij < tIPVertices.size(); Ij++ )
                     {
@@ -811,14 +811,17 @@ namespace moris::mtk
     Integration_Mesh::delete_visualization_sets()
     {
         // lambda function to determine if the set name has a ghost in it
-        auto tIsGhostVisualization = []( moris::mtk::Set *aSet ) -> bool { return std::strstr( aSet->get_set_name().c_str(), "ghost" ); };
+        auto tIsGhostVisualizationAndDelete = []( moris::mtk::Set *aSet ) -> bool { 
+            bool tIsVisSet = std::strstr( aSet->get_set_name().c_str(), "ghost" );
+            if ( tIsVisSet ) { delete aSet; }
+            return tIsVisSet; };
+        auto tIsGhostVisualization = []( moris::mtk::Set *aSet ) -> bool { 
+            return std::strstr( aSet->get_set_name().c_str(), "ghost" ); };
 
         // use erase remove idiom to remove sets that have the name as the ghost
         // FIXME : a proper insert function needs to be implemented that we don't use data
-        mListOfBlocks.data().erase( std::remove_if( mListOfBlocks.begin(), mListOfBlocks.end(), tIsGhostVisualization ), mListOfBlocks.end() );
-
-        mListOfSideSets.data().erase( std::remove_if( mListOfSideSets.begin(), mListOfSideSets.end(), tIsGhostVisualization ), mListOfSideSets.end() );
-
         mListOfAllSets.data().erase( std::remove_if( mListOfAllSets.begin(), mListOfAllSets.end(), tIsGhostVisualization ), mListOfAllSets.end() );
+        mListOfBlocks.data().erase( std::remove_if( mListOfBlocks.begin(), mListOfBlocks.end(), tIsGhostVisualizationAndDelete ), mListOfBlocks.end() );
+        mListOfSideSets.data().erase( std::remove_if( mListOfSideSets.begin(), mListOfSideSets.end(), tIsGhostVisualizationAndDelete ), mListOfSideSets.end() );
     }
 }    // namespace moris::mtk

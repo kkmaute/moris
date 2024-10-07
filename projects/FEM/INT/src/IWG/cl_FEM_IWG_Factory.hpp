@@ -16,37 +16,34 @@
 #include "cl_Matrix.hpp"
 #include "cl_FEM_IWG.hpp"    //FEM/INT/src
 
-namespace moris
+    //------------------------------------------------------------------------------
+namespace moris::fem
 {
     //------------------------------------------------------------------------------
-    namespace fem
+
+    /**
+     * \brief IWG factory
+     */
+    class IWG_Factory
     {
+
         //------------------------------------------------------------------------------
 
+      public:
+        //------------------------------------------------------------------------------
         /**
-         * \brief IWG factory
+         * constructor
          */
-        class IWG_Factory
-        {
-
-            //------------------------------------------------------------------------------
-
-          public:
-            //------------------------------------------------------------------------------
-            /**
-             * constructor
-             */
-            IWG_Factory() = default;
-
-            //------------------------------------------------------------------------------
-            /**
-             * create IWGs
-             */
-            std::shared_ptr< IWG > create_IWG( IWG_Type aIWGType );
-        };
+        IWG_Factory() = default;
 
         //------------------------------------------------------------------------------
-    } /* namespace fem */
-} /* namespace moris */
+        /**
+         * create IWGs
+         */
+        std::shared_ptr< IWG > create_IWG( IWG_Type aIWGType );
+    };
+
+    //------------------------------------------------------------------------------
+}    // namespace moris::fem
 
 #endif /* SRC_FEM_CL_FEM_IWG_FACTORY_HPP_ */

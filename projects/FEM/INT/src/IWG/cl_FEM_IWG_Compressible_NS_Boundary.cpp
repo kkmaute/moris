@@ -16,50 +16,48 @@
 #include "fn_trans.hpp"
 #include "fn_dot.hpp"
 
-namespace moris
+namespace moris::fem
 {
-    namespace fem
+
+    //------------------------------------------------------------------------------
+
+    IWG_Compressible_NS_Boundary::IWG_Compressible_NS_Boundary()
     {
+        // set size for the property pointer cell
+        mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
-        //------------------------------------------------------------------------------
+        // populate the property map
+        mPropertyMap[ "HeatFlux" ] = static_cast< uint >( IWG_Property_Type::HEAT_FLUX );
+        mPropertyMap[ "Traction" ] = static_cast< uint >( IWG_Property_Type::TRACTION );
+        mPropertyMap[ "Pressure" ] = static_cast< uint >( IWG_Property_Type::PRESSURE );
 
-        IWG_Compressible_NS_Boundary::IWG_Compressible_NS_Boundary()
-        {
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+        // set size for the material model pointer cell
+        mLeaderMM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
-            // populate the property map
-            mPropertyMap[ "HeatFlux" ] = static_cast< uint >( IWG_Property_Type::HEAT_FLUX );
-            mPropertyMap[ "Traction" ] = static_cast< uint >( IWG_Property_Type::TRACTION );
-            mPropertyMap[ "Pressure" ] = static_cast< uint >( IWG_Property_Type::PRESSURE );
+        // populate the material map
+        mMaterialMap[ "FluidMM" ] = static_cast< uint >( IWG_Material_Type::FLUID_MM );
 
-            // set size for the material model pointer cell
-            mLeaderMM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+        // set size for the constitutive model pointer cell
+        mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
-            // populate the material map
-            mMaterialMap[ "FluidMM" ] = static_cast< uint >( IWG_Material_Type::FLUID_MM );
+        // populate the constitutive map
+        mConstitutiveMap[ "FluidCM" ] = static_cast< uint >( IWG_Constitutive_Type::FLUID_CM );
+    }
 
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+    //------------------------------------------------------------------------------
 
-            // populate the constitutive map
-            mConstitutiveMap[ "FluidCM" ] = static_cast< uint >( IWG_Constitutive_Type::FLUID_CM );
-        }
+    void IWG_Compressible_NS_Boundary::reset_child_eval_flags()
+    {
+        // reset eval flags
+        mTractionEval    = true;
+        mTractionDofEval = true;
+    }
 
-        //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-        void IWG_Compressible_NS_Boundary::reset_child_eval_flags()
-        {
-            // reset eval flags
-            mTractionEval = true;
-            mTractionDofEval = true;
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IWG_Compressible_NS_Boundary::compute_residual( real aWStar )
-        {
-            // check leader field interpolators
+    void IWG_Compressible_NS_Boundary::compute_residual( real aWStar )
+    {
+        // check leader field interpolators
 #ifdef MORIS_HAVE_DEBUG
             this->check_field_interpolators();
 #endif
@@ -303,6 +301,5 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        
-    } /* namespace fem */
-} /* namespace moris */
+
+}    // namespace moris::fem

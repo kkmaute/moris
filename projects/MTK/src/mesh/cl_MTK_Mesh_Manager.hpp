@@ -58,7 +58,7 @@ namespace moris
 
             //--------------------------------------------------------------------
 
-            void set_performer( std::shared_ptr< hmr::HMR > aHMRPerformer )
+            void set_performer( const std::shared_ptr< hmr::HMR >& aHMRPerformer )
             {
                 mHMRPerformer = aHMRPerformer;
             };
@@ -134,7 +134,7 @@ namespace moris
 
             //--------------------------------------------------------------------
 
-            void register_field( std::shared_ptr< mtk::Field > aField );
+            void register_field( const std::shared_ptr< mtk::Field >& aField );
 
             //--------------------------------------------------------------------
         };

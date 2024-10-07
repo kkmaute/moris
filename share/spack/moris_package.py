@@ -47,7 +47,7 @@ class Moris(CMakePackage):
     variant("examples", default=False, description="Compile with examples")
     variant("debug",    default=False, description="Compile with debug support")
 
-    depends_on('arborx')
+    depends_on('arborx@1.6')
     depends_on('armadillo')
     depends_on('arpack-ng')
     depends_on('boost+filesystem+log+serialization+system+thread+timer')
@@ -64,7 +64,7 @@ class Moris(CMakePackage):
     depends_on('superlu-dist@8.1')
     depends_on('suite-sparse@5.13.0')
    
-    depends_on('trilinos@15.0.0')
+    depends_on('trilinos@15.1.1')
     depends_on('trilinos+boost+hdf5+mpi+suite-sparse+superlu-dist+amesos+anasazi+aztec+belos+chaco+epetra+exodus+ifpack+ifpack2+ml+rol+stk+zoltan2')
     depends_on('trilinos+pardiso', when="+pardiso")
     depends_on('trilinos~pardiso', when="-pardiso")

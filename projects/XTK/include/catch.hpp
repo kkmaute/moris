@@ -1562,7 +1562,6 @@ namespace Catch
 
 }    // end namespace Catch
 
-
 namespace Catch
 {
 
@@ -2306,7 +2305,6 @@ namespace Catch
 
 }    // namespace Catch
 
-
 namespace Catch
 {
 
@@ -2968,7 +2966,6 @@ namespace Catch
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
-
 
 #ifdef __OBJC__
 // #included from: internal/catch_objc.hpp

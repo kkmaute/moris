@@ -28,7 +28,6 @@
 #include "fn_prune_element_to_element.hpp"
 #include "fn_generate_element_to_element.hpp"
 #include "fn_local_child_mesh_flood_fill.hpp"
-#include "fn_mesh_flood_fill.hpp"
 #include "fn_Pairing.hpp"
 #include "fn_equal_to.hpp"
 
@@ -37,7 +36,6 @@
 #include "cl_MTK_Cell.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "cl_XTK_Background_Mesh.hpp"
-#include "cl_MTK_Enums.hpp"
 
 #include "fn_unique.hpp"
 
@@ -320,7 +318,7 @@ namespace moris::xtk
         void
         print_enriched_basis_to_subphase_id(
                 const moris_index& aMeshIndex,
-                std::string        aFileName );
+                const std::string& aFileName );
 
         // ----------------------------------------------------------------------------------
 
@@ -801,7 +799,7 @@ namespace moris::xtk
         construct_enriched_integration_mesh();
 
         void
-        construct_enriched_integration_mesh( const Matrix< IndexMat > aBsplineMeshIndices );
+        construct_enriched_integration_mesh( const Matrix< IndexMat >& aBsplineMeshIndices );
 
         // ----------------------------------------------------------------------------------
 

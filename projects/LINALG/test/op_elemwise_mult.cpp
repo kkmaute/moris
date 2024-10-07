@@ -14,7 +14,6 @@
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "op_elemwise_mult.hpp"
 #include "op_plus.hpp"
 
 namespace moris

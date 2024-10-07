@@ -23,6 +23,7 @@
 #include <sys/types.h>
 #include <tuple>
 #include <unordered_map>
+#include <utility>
 
 using moris::moris_index;
 
@@ -60,13 +61,14 @@ namespace moris::mtk::arborx
                 Kokkos::View< ArborX::Box *, MemorySpace > aBoxes,
                 Kokkos::View< moris_index *, MemorySpace > aMeshIndices,
                 Kokkos::View< moris_index *, MemorySpace > aCellIndices )
-                : mBoxes( aBoxes )
-                , mMeshIndices( aMeshIndices )
-                , mCellIndices( aCellIndices )
+                : mBoxes( std::move( aBoxes ) )
+                , mMeshIndices( std::move( aMeshIndices ) )
+                , mCellIndices( std::move( aCellIndices ) )
         {
         }
-        KOKKOS_FUNCTION
-        [[nodiscard]] std::size_t size() const
+        [[nodiscard]] KOKKOS_FUNCTION
+                std::size_t
+                size() const
         {
             return mBoxes.extent( 0 );
         }
@@ -85,14 +87,15 @@ namespace moris::mtk::arborx
     struct QueryRays
     {
         explicit QueryRays( Kokkos::View< ArborX::Experimental::Ray *, MemorySpace > aRays,
-                Kokkos::View< moris_index *, MemorySpace >                           aCellIndices = {} )
-                : mRays( aRays )
-                , mCellIndices( aCellIndices )
+                Kokkos::View< moris_index *, MemorySpace >                           aCellIndices )
+                : mRays( std::move( aRays ) )
+                , mCellIndices( std::move( aCellIndices ) )
         {
         }
 
-        KOKKOS_FUNCTION
-        [[nodiscard]] std::size_t size() const
+        [[nodiscard]] KOKKOS_FUNCTION
+                std::size_t
+                size() const
         {
             return mRays.extent( 0 );
         }

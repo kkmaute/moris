@@ -21,11 +21,11 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Design_Factory::Design_Factory(
-            Vector< Parameter_List >      aParameterLists,
-            ADV_Manager&                  aADVManager,
-            std::shared_ptr< Library_IO > aLibrary,
-            mtk::Mesh*                    aMesh,
-            Node_Manager&                 aNodeManager )
+            Vector< Parameter_List >             aParameterLists,
+            ADV_Manager&                         aADVManager,
+            const std::shared_ptr< Library_IO >& aLibrary,
+            mtk::Mesh*                           aMesh,
+            Node_Manager&                        aNodeManager )
     {
         // Count maximum number of possible ADVs, fields, and designs
         uint tGeometryIndex = 0;

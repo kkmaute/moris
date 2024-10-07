@@ -22,37 +22,35 @@
 #include "cl_SOL_Dist_Map_Custom.hpp"
 #endif
 
-namespace moris
+namespace moris::sol
 {
-    namespace sol
+    //-------------------------------------------------------------------------------------------
+
+    sol::Matrix_Vector_Factory::Matrix_Vector_Factory( const enum MapType aMapType )
     {
-        //-------------------------------------------------------------------------------------------
+        mMapType = aMapType;
+    }
 
-        sol::Matrix_Vector_Factory::Matrix_Vector_Factory( const enum MapType aMapType )
+    //-------------------------------------------------------------------------------------------
+
+    Dist_Matrix*
+    sol::Matrix_Vector_Factory::create_matrix(
+            Solver_Interface* aInput,
+            Dist_Map*         aMap,
+            bool              aPointMap,
+            bool              aBuildGraph )
+    {
+        Dist_Matrix* tSparseMatrix = nullptr;
+
+        switch ( mMapType )
         {
-            mMapType = aMapType;
-        }
-
-        //-------------------------------------------------------------------------------------------
-
-        Dist_Matrix*
-        sol::Matrix_Vector_Factory::create_matrix(
-                Solver_Interface* aInput,
-                Dist_Map*         aMap,
-                bool              aPointMap,
-                bool              aBuildGraph )
-        {
-            Dist_Matrix* tSparseMatrix = nullptr;
-
-            switch ( mMapType )
+            case MapType::Epetra:
             {
-                case MapType::Epetra:
-                {
-                    tSparseMatrix = new Sparse_Matrix_EpetraFECrs( aInput, aMap, aPointMap, aBuildGraph );
-                    break;
-                }
-                case MapType::Petsc:
-                {
+                tSparseMatrix = new Sparse_Matrix_EpetraFECrs( aInput, aMap, aPointMap, aBuildGraph );
+                break;
+            }
+            case MapType::Petsc:
+            {
 #ifdef MORIS_HAVE_PETSC
                     tSparseMatrix = new Matrix_PETSc( aInput, aMap );
 #else
@@ -366,5 +364,4 @@ namespace moris
             }
             return tMap;
         }
-    }    // namespace sol
-}    // namespace moris
+}    // namespace moris::sol

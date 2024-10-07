@@ -29,9 +29,7 @@
 #include "op_equal_equal.hpp"
 #include "fn_sort.hpp"
 
-namespace moris
-{
-namespace mtk
+namespace moris::mtk
 {
 
 Mesh* generate_single_element_hex8()
@@ -335,7 +333,7 @@ Mesh* generate_single_element_tri3()
 	return create_interpolation_mesh(MeshType::STK, aMeshData);
 }
 
-void check_normals(Mesh* aMesh, std::shared_ptr<Cell_Info> aConnectivity, Matrix< DDRMat >* aExpectedNormals, uint aNumFaces)
+void check_normals( Mesh* aMesh, const std::shared_ptr< Cell_Info >& aConnectivity, Matrix< DDRMat >* aExpectedNormals, uint aNumFaces )
 {
 	// Access first cell
 	Cell & tCell = aMesh->get_mtk_cell(0);
@@ -352,7 +350,7 @@ void check_normals(Mesh* aMesh, std::shared_ptr<Cell_Info> aConnectivity, Matrix
 	}
 }
 
-void check_normals_2D(Mesh* aMesh, std::shared_ptr<Cell_Info> aConnectivity, Matrix< DDRMat >* aExpectedNormals, uint aNumEdges)
+void check_normals_2D( Mesh* aMesh, const std::shared_ptr< Cell_Info >& aConnectivity, Matrix< DDRMat >* aExpectedNormals, uint aNumEdges )
 {
 	// Access first cell
 	Cell & tCell = aMesh->get_mtk_cell(0);
@@ -379,7 +377,7 @@ void check_normals_2D(Mesh* aMesh, std::shared_ptr<Cell_Info> aConnectivity, Mat
 	}
 }
 
-void check_faces(Mesh* aMesh, std::shared_ptr<Cell_Info> aConnectivity, uint aNumFaces, uint aNumNodesPerFace)
+void check_faces( Mesh* aMesh, const std::shared_ptr< Cell_Info >& aConnectivity, uint aNumFaces, uint aNumNodesPerFace )
 {
 	// Access first cell
 	Cell & tCell = aMesh->get_mtk_cell(0);
@@ -420,7 +418,7 @@ void check_faces(Mesh* aMesh, std::shared_ptr<Cell_Info> aConnectivity, uint aNu
 	}
 }
 
-void check_edges(Mesh* aMesh, std::shared_ptr<Cell_Info> aConnectivity, uint aNumEdges)
+void check_edges( Mesh* aMesh, const std::shared_ptr< Cell_Info >& aConnectivity, uint aNumEdges )
 {
 	// Access first cell
 	Cell & tCell = aMesh->get_mtk_cell(0);
@@ -461,7 +459,7 @@ void check_edges(Mesh* aMesh, std::shared_ptr<Cell_Info> aConnectivity, uint aNu
 	}
 }
 
-void check_facets(std::shared_ptr<Cell_Info> aConnectivity, uint aNumFacets)
+void check_facets( const std::shared_ptr< Cell_Info >& aConnectivity, uint aNumFacets )
 {
 	// Get the matrix containing the full node to face ordinal map
 	Matrix< IndexMat > tNodeOrdinalsOnAllFaces = aConnectivity->get_node_to_face_map();
@@ -484,7 +482,7 @@ void check_facets(std::shared_ptr<Cell_Info> aConnectivity, uint aNumFacets)
 	}
 }
 
-void check_facets_2D(std::shared_ptr<Cell_Info> aConnectivity, uint aNumFacets)
+void check_facets_2D( const std::shared_ptr< Cell_Info >& aConnectivity, uint aNumFacets )
 {
 	// Get the matrix containing the full node to edge ordinal map
 	Matrix< IndexMat > tNodeOrdinalsOnAllEdges = aConnectivity->get_node_to_edge_map();
@@ -623,6 +621,3 @@ TEST_CASE("Tri3 Connectivity Test", "[MTK_CONN_TRI3]")
 }
 
 }
-
-}
-

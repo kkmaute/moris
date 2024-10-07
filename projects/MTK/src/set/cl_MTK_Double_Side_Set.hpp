@@ -135,7 +135,7 @@ namespace moris::mtk
 
         //------------------------------------------------------------------------------
 
-        ~Double_Side_Set()
+        ~Double_Side_Set() override
         {
             if ( mOwnedByPeriodicBCFlag )
             {

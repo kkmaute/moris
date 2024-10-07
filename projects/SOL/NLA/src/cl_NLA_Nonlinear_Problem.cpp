@@ -228,7 +228,7 @@ void Nonlinear_Problem::build_linearized_problem(
 
     // in case of sensitivity analysis and staggered solver: assemble contribution contributions of
     // of secondary dof types to residual
-    if ( !mSolverInterface->get_is_forward_analysis() )
+    if ( !mSolverInterface->is_forward_analysis() )
     {
         Vector< enum MSI::Dof_Type > tSecDofTypes = mMyNonLinSolver->get_sec_dof_type_union();
 

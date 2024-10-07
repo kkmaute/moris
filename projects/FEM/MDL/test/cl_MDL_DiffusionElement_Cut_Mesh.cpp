@@ -19,7 +19,6 @@
 #include "cl_MTK_Mesh_Tools.hpp"
 #include "cl_MTK_Mesh_Data_Input.hpp"
 #include "cl_MTK_Scalar_Field_Info.hpp"
-#include "cl_MTK_Mesh.hpp"
 #include "cl_MTK_Mesh_Data_STK.hpp"
 #include "cl_MTK_Mesh_Core_STK.hpp"
 #include "cl_MTK_Interpolation_Mesh_STK.hpp"
@@ -78,9 +77,7 @@
 
 #include "cl_Tracer.hpp"
 
-namespace moris
-{
-namespace mdl
+namespace moris::mdl
 {
 
 void tConstValFunction_MDLCUT
@@ -471,6 +468,4 @@ void tConstValFunction_MDLCUT
         }
         }
 
-    }/* namespace mdl */
-}/* namespace moris */
-
+}    // namespace moris::mdl

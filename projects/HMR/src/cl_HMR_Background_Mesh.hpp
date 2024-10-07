@@ -23,19 +23,19 @@
 #include "HMR_Globals.hpp"                       //HMR/src
 #include "HMR_Tools.hpp"                         //HMR/src
 #include "assert.hpp"
-#include "cl_Communication_Tools.hpp"            //COM/src
-#include "cl_Communication_Manager.hpp"          //COM/src
+#include "cl_Communication_Tools.hpp"      //COM/src
+#include "cl_Communication_Manager.hpp"    //COM/src
 #include "cl_Tracer.hpp"
 #include "fn_stringify_matrix.hpp"
 
-#include "fn_equal_to.hpp"     //COM/src
+#include "fn_equal_to.hpp"    //COM/src
 
-#include "moris_typedefs.hpp"        //COR/src
-#include "cl_Vector.hpp"             //CNT/src
+#include "moris_typedefs.hpp"    //COR/src
+#include "cl_Vector.hpp"         //CNT/src
 
 #include "cl_Stopwatch.hpp"    //CHR/src
 
-#include "cl_Matrix.hpp"       //LINALG/src
+#include "cl_Matrix.hpp"    //LINALG/src
 
 namespace moris::hmr
 {
@@ -121,7 +121,7 @@ namespace moris::hmr
          * level. Higher level elements are destroyed implicitly by element
          * destructor.
          */
-        ~Background_Mesh()
+        ~Background_Mesh() override
         {
             // delete pointers in element cell
             for ( auto p : mCoarsestElementsIncludingAura )
@@ -140,7 +140,7 @@ namespace moris::hmr
          *                              proc, including aura
          */
         Matrix< DDLUMat >
-        get_number_of_elements_per_direction_on_proc() const
+        get_number_of_elements_per_direction_on_proc() const override
         {
             Matrix< DDLUMat > aMat( N, gMaxNumberOfLevels );
 
@@ -164,7 +164,7 @@ namespace moris::hmr
          *                                   within whole mesh, including aura
          */
         Matrix< DDLUMat >
-        get_number_of_elements_per_direction() const
+        get_number_of_elements_per_direction() const override
         {
             Matrix< DDLUMat > aMat( N, gMaxNumberOfLevels );
 
@@ -187,7 +187,7 @@ namespace moris::hmr
          * @return Matrix< DDLUMat >
          */
         Matrix< DDLUMat >
-        get_subdomain_ijk() const
+        get_subdomain_ijk() const override
         {
             Matrix< DDLUMat > aMat( 2, N );
 
@@ -211,7 +211,7 @@ namespace moris::hmr
          *                                  * <max number of levels>
          */
         Matrix< DDLUMat >
-        get_subdomain_offset_of_proc()
+        get_subdomain_offset_of_proc() override
         {
             uint tNumberOfDimensions = mParameters->get_number_of_dimensions();
 
@@ -238,7 +238,7 @@ namespace moris::hmr
          */
         void calc_corner_nodes_of_element(
                 const Background_Element_Base* aElement,
-                Matrix< DDRMat >&              aNodeCoords );
+                Matrix< DDRMat >&              aNodeCoords ) override;
 
         //--------------------------------------------------------------------------------
 
@@ -251,7 +251,7 @@ namespace moris::hmr
          */
         void calc_center_of_element(
                 const Background_Element_Base* aElement,
-                Matrix< DDRMat >&              aNodeCoords );
+                Matrix< DDRMat >&              aNodeCoords ) override;
 
         //--------------------------------------------------------------------------------
 
@@ -267,7 +267,7 @@ namespace moris::hmr
         Background_Element_Base*
         get_coarsest_element_by_ij(
                 luint aI,
-                luint aJ )
+                luint aJ ) override
         {
             return mCoarsestElementsIncludingAura( this->calc_subdomain_id_of_element( 0, aI, aJ ) );
         }
@@ -287,7 +287,7 @@ namespace moris::hmr
         get_coarsest_element_by_ijk(
                 luint aI,
                 luint aJ,
-                luint aK )
+                luint aK ) override
         {
             return mCoarsestElementsIncludingAura( this->calc_subdomain_id_of_element( 0, aI, aJ, aK ) );
         }
@@ -300,7 +300,7 @@ namespace moris::hmr
          * @return Matrix< DDRMat >
          */
         Matrix< DDRMat >
-        get_domain_offset()
+        get_domain_offset() override
         {
             Matrix< DDRMat > aMat( N, 1 );
 
@@ -328,7 +328,7 @@ namespace moris::hmr
          */
         luint calc_subdomain_id_from_global_id(
                 uint  aLevel,
-                luint aID ) const;
+                luint aID ) const override;
 
         //--------------------------------------------------------------------------------
 
@@ -340,7 +340,7 @@ namespace moris::hmr
          * @param aIJK
          */
 
-        virtual void calc_ijk_from_global_id(
+        void calc_ijk_from_global_id(
                 const uint&  aLevel,
                 const luint& aID,
                 luint*       aIJK ) const override;
@@ -356,7 +356,7 @@ namespace moris::hmr
          *
          * @return      vpid
          */
-        void refine_element( Background_Element_Base* aElement, const bool aKeepState );
+        void refine_element( Background_Element_Base* aElement, const bool aKeepState ) override;
 
         //--------------------------------------------------------------------------------
 
@@ -371,7 +371,7 @@ namespace moris::hmr
          * @return void
          *
          */
-        void collect_neighbors_on_level_zero();
+        void collect_neighbors_on_level_zero() override;
 
         //--------------------------------------------------------------------------------
 
@@ -386,7 +386,7 @@ namespace moris::hmr
          */
         luint calc_domain_id_of_element(
                 uint  aLevel,
-                luint aI ) const;
+                luint aI ) const override;
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -403,7 +403,7 @@ namespace moris::hmr
         luint calc_domain_id_of_element(
                 uint  aLevel,
                 luint aI,
-                luint aJ ) const;
+                luint aJ ) const override;
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -422,7 +422,7 @@ namespace moris::hmr
                 uint  aLevel,
                 luint aI,
                 luint aJ,
-                luint aK ) const;
+                luint aK ) const override;
         //--------------------------------------------------------------------------------
 
         /**
@@ -430,8 +430,8 @@ namespace moris::hmr
          * level for a side
          */
         void collect_coarsest_elements_on_side(
-                uint                              aSideOrdinal,
-                Vector< Background_Element_Base* >& aCoarsestElementsOnSide );
+                uint                                aSideOrdinal,
+                Vector< Background_Element_Base* >& aCoarsestElementsOnSide ) override;
 
         //--------------------------------------------------------------------------------
 
@@ -1005,10 +1005,10 @@ namespace moris::hmr
          *                       containing number of elements per direction
          *                       on coarsest proc, including aura
          */
-        Matrix< DDLUMat >
+        Vector< luint >
         get_number_of_subdomain_elements_per_direction_on_level_zero()
         {
-            Matrix< DDLUMat > aNumberOfElements( N, 1 );
+            Vector< luint > aNumberOfElements( N );
             for ( uint k = 0; k < N; ++k )
             {
                 aNumberOfElements( k ) = mMySubDomain.mNumberOfElementsPerDimension[ 0 ][ k ];
@@ -1026,8 +1026,8 @@ namespace moris::hmr
          *
          */
         void
-        insert_zero_level_element( 
-                luint aPosition,
+        insert_zero_level_element(
+                luint                    aPosition,
                 Background_Element_Base* aElement )
         {
             mCoarsestElementsIncludingAura( aPosition ) = aElement;
@@ -1103,7 +1103,7 @@ namespace moris::hmr
         //--------------------------------------------------------------------------------
 
         void
-        check_queued_element_for_padding( Background_Element_Base* aElement )
+        check_queued_element_for_padding( Background_Element_Base* aElement ) override
         {
             // only do something if this element belongs to me
             if ( aElement->get_owner() == mMyRank )
@@ -1156,7 +1156,7 @@ namespace moris::hmr
                 uint                           aPattern,
                 const moris::Matrix< DDRMat >& aPoint,
                 const moris::Matrix< DDRMat >& aBoundingBoxSize,
-                moris::Matrix< DDLUMat >&      aElementMemoryIndex )
+                moris::Matrix< DDLUMat >&      aElementMemoryIndex ) override
         {
             MORIS_ASSERT( par_size() == 1, "get_element_in_bounding_box_memory_index(), not tested in parallel" );
             uint tLevel = 0;
@@ -1252,9 +1252,10 @@ namespace moris::hmr
 
         //--------------------------------------------------------------------------------
 
-        void collect_coarsest_elements_in_bounding_box( Vector< Background_Element_Base* >& aBackgroundElements,
-                luint                                                                     aBoundingBoxStartEndIJK[][ 2 ],
-                uint                                                                      alevel );
+        void collect_coarsest_elements_in_bounding_box(
+                Vector< Background_Element_Base* >& aBackgroundElements,
+                luint                               aBoundingBoxStartEndIJK[][ 2 ],
+                uint                                alevel );
 
         //--------------------------------------------------------------------------------
     }; /* Background_Mesh */
@@ -1443,7 +1444,7 @@ namespace moris::hmr
     template< uint N >
     inline void
     Background_Mesh< N >::collect_coarsest_elements_on_side(
-            uint                              aSideOrdinal,
+            uint                                aSideOrdinal,
             Vector< Background_Element_Base* >& aCoarsestElementsOnSide )
     {
         MORIS_ERROR( false, "Do not know how to collect coarsest elements on side \n" );
@@ -1455,8 +1456,8 @@ namespace moris::hmr
     inline void
     Background_Mesh< N >::collect_coarsest_elements_in_bounding_box(
             Vector< Background_Element_Base* >& aBackgroundElements,
-            luint                                    aBoundingBoxStartEndIJK[][ 2 ],
-            uint                                     alevel )
+            luint                               aBoundingBoxStartEndIJK[][ 2 ],
+            uint                                alevel )
     {
         MORIS_ERROR( false, "Do not know how initialize elements\n" );
     }
