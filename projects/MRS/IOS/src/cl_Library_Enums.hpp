@@ -109,11 +109,12 @@ namespace moris
     {
         PROPERTIES,
         CONSTITUTIVE_MODELS,
-        STABILIZATION_PARAMETER,
+        STABILIZATION,
         IWG,
         IQI,
-        COMPUTATION_PARAMETERS,
+        COMPUTATION,
         FIELDS,
+        PHASES,
         MATERIAL_MODELS
     };
 
