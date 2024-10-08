@@ -17,8 +17,9 @@ namespace moris
     class Module_Parameter_Lists
     {
       private:
-        Parameter_List_Type mParameterListType;
+        Parameter_List_Type                 mParameterListType;
         Vector< Submodule_Parameter_Lists > mSubModuleParameterLists;
+        uint                                mCurrentSubmoduleIndex = 0;
 
       public:
         /**
@@ -39,49 +40,50 @@ namespace moris
          * Clears this module parameter list, indicating it is not to be used by MORIS.
          */
         void clear();
-//        /**
-//         * Sets a parameter to a value in the most recently added parameter list, if it exists.
-//         *
-//         * @param aName Parameter name
-//         * @param aValue Parameter value
-//         */
-//        template< typename T >
-//        void set(
-//                const std::string& aName,
-//                const T&           aValue )
-//        {
-//            // Set in last parameter list
-//            mParameterLists.back().set( aName, aValue );
-//        }
-//
-//        /**
-//         * Sets a parameter to a moris vector in the most recently added parameter list, using a parameter pack
-//         *
-//         * @param aName Parameter name
-//         * @param aFirstValue First value to put into the vector
-//         * @param aSecondValue Second value to put into the vector
-//         * @param aMoreValues Parameter pack of more values
-//         */
-//        template< typename T, typename... Arg_Types >
-//        void set(
-//                const std::string& aName,
-//                T                  aFirstValue,
-//                T                  aSecondValue,
-//                Arg_Types...       aMoreValues )
-//        {
-//            // Set in last parameter list
-//            mParameterLists.back().set( aName, aFirstValue, aSecondValue, aMoreValues... );
-//        }
-//
-//        /**
-//         * Inserts a design variable into the most recently added parameter list.
-//         *
-//         * @param aName Design variable name
-//         * @param aDesignVariable Design variable parameters
-//         */
-//        void insert(
-//                const std::string&     aName,
-//                const Design_Variable& aDesignVariable );
+
+        /**
+         * Sets a parameter to a value in the most recently added parameter list, if it exists.
+         *
+         * @param aName Parameter name
+         * @param aValue Parameter value
+         */
+        template< typename T >
+        void set(
+                const std::string& aName,
+                const T&           aValue )
+        {
+            // Set in last parameter list
+            mSubModuleParameterLists( mCurrentSubmoduleIndex ).set( aName, aValue );
+        }
+
+        /**
+         * Sets a parameter to a moris vector in the most recently added parameter list, using a parameter pack
+         *
+         * @param aName Parameter name
+         * @param aFirstValue First value to put into the vector
+         * @param aSecondValue Second value to put into the vector
+         * @param aMoreValues Parameter pack of more values
+         */
+        template< typename T, typename... Arg_Types >
+        void set(
+                const std::string& aName,
+                T                  aFirstValue,
+                T                  aSecondValue,
+                Arg_Types...       aMoreValues )
+        {
+            // Set in last parameter list
+            mSubModuleParameterLists( mCurrentSubmoduleIndex ).set( aName, aFirstValue, aSecondValue, aMoreValues... );
+        }
+
+        /**
+         * Inserts a design variable into the most recently added parameter list.
+         *
+         * @param aName Design variable name
+         * @param aDesignVariable Design variable parameters
+         */
+        void insert(
+                const std::string&     aName,
+                const Design_Variable& aDesignVariable );
 
         /**
          * Access operator to get the submodule parameter list stored at a given index.
@@ -154,6 +156,10 @@ namespace moris
         template< typename T >
         Submodule_Parameter_Lists& get_submodule( T aSubmoduleIndex, std::false_type )
         {
+            // Update current index
+            mCurrentSubmoduleIndex = aSubmoduleIndex;
+
+            // Return submodule parameter list
             return mSubModuleParameterLists( aSubmoduleIndex );
         }
 

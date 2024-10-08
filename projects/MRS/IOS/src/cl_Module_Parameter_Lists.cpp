@@ -41,6 +41,15 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
 
+    void Module_Parameter_Lists::insert(
+            const std::string&     aName,
+            const Design_Variable& aDesignVariable )
+    {
+        mSubModuleParameterLists( mCurrentSubmoduleIndex ).insert( aName, aDesignVariable );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     auto Module_Parameter_Lists::begin()->decltype( mSubModuleParameterLists.begin() )
     {
         return mSubModuleParameterLists.begin();
