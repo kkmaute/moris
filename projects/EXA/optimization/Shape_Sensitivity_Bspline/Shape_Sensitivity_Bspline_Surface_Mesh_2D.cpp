@@ -30,6 +30,8 @@
 #include "fn_equal_to.hpp"
 #include "AztecOO.h"
 
+// BRENDAN FORMAT
+
 extern uint tGeoModel;
 
 #ifdef __cplusplus
@@ -148,17 +150,10 @@ namespace moris
         }
     }
 
-    real
-    Facet_Vertex_Factor( const uint aFacetVertexIndex, const Matrix< DDRMat >& aCoordinates, const uint aDirection )
+    Vector< real >
+    Facet_Vertex_Factor( const Matrix< DDRMat >& aCoordinates )
     {
-        if ( aFacetVertexIndex == 3 and aDirection == 0 )
-        {
-            return 0.5;
-        }
-        else
-        {
-            return 1.2;
-        }
+        return { 0.5, 1.2 };
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -222,7 +217,7 @@ namespace moris
 
     void
     GENParameterList( Vector< Vector< Parameter_List > >& tParameterlist )
-    {        
+    {
         tParameterlist.resize( 3 );
         tParameterlist( 0 ).resize( 1 );
         tParameterlist( 0 )( 0 ) = moris::prm::create_gen_parameter_list();
@@ -239,7 +234,7 @@ namespace moris
                 tParameterlist( 1 )( 0 ).set( "discretization_mesh_index", 0 );
                 break;
             case 1:
-                tParameterlist( 1 )( 0 ).set( "vertex_factor_function_name", "Facet_Vertex_Factor" );
+                tParameterlist( 1 )( 0 ).set( "discretization_factor_function_name", "Facet_Vertex_Factor" );
                 tParameterlist( 1 )( 0 ).set( "discretization_mesh_index", 0 );
                 break;
             default:

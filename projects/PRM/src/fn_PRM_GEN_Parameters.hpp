@@ -8,6 +8,8 @@
  *
  */
 
+// BRENDAN FORMAT
+
 #pragma once
 
 #include "cl_Parameter_List.hpp"
@@ -278,7 +280,9 @@ namespace moris::prm
         tSurfaceMeshParameterList.insert( "offset", Vector< real >( 3, 0.0 ) );                // offset all points in the geometry by this much
         tSurfaceMeshParameterList.insert( "scale", Vector< real >( 3, 1.0 ) );                 // scaling factor for all points in the geometry
         tSurfaceMeshParameterList.insert( "file_path", "" );                                   // path to .obj file
-        tSurfaceMeshParameterList.insert( "vertex_factor_function_name", "" );                 // function name that determines which nodes are fixed
+        tSurfaceMeshParameterList.insert( "discretization_factor_function_name", "" );                 // function name that determines which nodes are fixed
+        tSurfaceMeshParameterList.insert( "field_function_name", "" );          // Function for perturbation of surface mesh vertices
+        tSurfaceMeshParameterList.insert( "sensitivity_function_name", "" );    // Function name for evaluating the sensitivity of the perturbation
         tSurfaceMeshParameterList.set( "geometry_type", "surface_mesh" );                      // set the geometry type to surface mesh
 
         return tSurfaceMeshParameterList;

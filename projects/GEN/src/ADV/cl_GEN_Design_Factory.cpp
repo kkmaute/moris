@@ -182,10 +182,23 @@ namespace moris::gen
                         }
                         else if ( tGeometryType == "surface_mesh" )
                         {
+                            // Loop over parameters to create ADVs
+                            Vector< ADV > tADVs;
+                            for ( const auto& iParameter : iParameterList )
+                            {
+                                // Determine if parameter is design variable
+                                if ( iParameter.second.index() == variant_index< Design_Variable >() )
+                                {
+                                    // Get design variable from parameter list
+                                    tADVs.push_back( aADVManager.create_adv( iParameterList.get< Design_Variable >( iParameter.first ) ) );
+                                }
+                            }
+
                             mGeometries( tGeometryIndex++ ) = std::make_shared< Surface_Mesh_Geometry >(
                                     aMesh,
                                     aADVManager,
                                     Surface_Mesh_Parameters( iParameterList ),
+                                    tADVs,
                                     aNodeManager,
                                     aLibrary );
                             tSomethingHasBeenBuilt = true;

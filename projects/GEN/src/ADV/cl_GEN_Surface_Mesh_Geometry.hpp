@@ -22,7 +22,13 @@
 namespace moris::gen
 {
     // User-defined function that determines which indices are fixed or not
-    using VERTEX_FACTOR_FUNCTION = real ( * )( const uint aFacetVertexIndex, const Matrix< DDRMat >& aFacetVertexCoordinates, const uint aDimension );
+    using DISCRETIZATION_FACTOR_FUNCTION = Vector< real > ( * )( const Matrix< DDRMat >& aFacetVertexCoordinates );
+
+    // User-defined function that defines anlytic perturbations
+    using ANALYTIC_PERTURBATION_FUNCTION = Vector< real > ( * )( const Matrix< DDRMat >& aFacetVertexCoordinates, const Vector< real >& aADVs );
+
+    // User-defined function that defines perturbation sensitivities
+    using PERTURBATION_SENSITIVITY_FUNCTION = void ( * )( const Matrix< DDRMat >& aFacetVertexCoordinates, const Vector< real >& aADVs, Matrix< DDRMat >& aSensitivities );
 
     /**
      * This is a struct used to simplify \ref moris::gen::Surface_Mesh_Geometry constructors. It contains all field and surface mesh parameters.
@@ -30,12 +36,15 @@ namespace moris::gen
     struct Surface_Mesh_Parameters : public Field_Parameters
             , public Design_Parameters
     {
-        Vector< real > mOffsets;                     // Initial shift of surface mesh coordinates
-        Vector< real > mScale;                       // Option to scale each axis of the surface mesh
-        std::string    mFilePath;                    // Surface mesh file path
-        real           mIntersectionTolerance;       // Interface tolerance based on intersection distance
-        Vector< uint > mADVIndices;                  // Indices of the ADVs that the surface mesh depends on
-        std::string    mVertexFactorFunctionName;    // Name of the user-defined function that provides a scaling factor for the facet vertex sensitivities
+        Vector< real > mOffsets;                                // Initial shift of surface mesh coordinates
+        Vector< real > mScale;                                  // Option to scale each axis of the surface mesh
+        std::string    mFilePath;                               // Surface mesh file path
+        real           mIntersectionTolerance;                  // Interface tolerance based on intersection distance
+        Vector< uint > mADVIndices;                             // Indices of the ADVs that the surface mesh depends on
+        std::string    mDiscretizationFactorFuntionName;        // Name of the user-defined function that provides a scaling factor for the facet vertex sensitivities
+        std::string    mAnalyticPerturbationFunctionName;       // Name of the user-defined function that provides a scaling factor for the facet vertex sensitivities
+        std::string    mPerturbationSensitivityFunctionName;    // Name of the user-defined function that provides a scaling factor for the facet vertex sensitivities
+
         /**
          * Constructor with a given parameter list
          *
@@ -51,16 +60,19 @@ namespace moris::gen
         bool mBasesComputed = false;
 
         Surface_Mesh_Parameters mParameters;
+        ADV_Handler             mADVHandler;
         Node_Manager*           mNodeManager;
         std::string             mName;
 
         // Optimization variables
-        VERTEX_FACTOR_FUNCTION             mVertexFactorFunction = nullptr;
-        mtk::Mesh*                         mMesh                 = nullptr;    // Pointer to lagrange interpolation mesh
-        Vector< uint >                     mFixedVertexIndices;                // Indices of surface mesh vertices that are unaffected by ADVs
-        Vector< std::shared_ptr< Field > > mPerturbationFields;                // Vector of perturbation fields
-        Matrix< DDRMat >                   mVertexBases;                       // Basis function values for each vertex <number of fields> x <number of vertices>
-        Vector< mtk::Cell* >               mVertexBackgroundElements;          // Index of the background element the facet vertex was in on construction
+        DISCRETIZATION_FACTOR_FUNCTION     get_discretization_factor_user_defined    = nullptr;
+        ANALYTIC_PERTURBATION_FUNCTION     get_analytic_perturbation_user_defined    = nullptr;
+        PERTURBATION_SENSITIVITY_FUNCTION  get_perturbation_sensitivity_user_defined = nullptr;
+        mtk::Mesh*                         mMesh                                     = nullptr;    // Pointer to lagrange interpolation mesh
+        Vector< uint >                     mFixedVertexIndices;                                    // Indices of surface mesh vertices that are unaffected by ADVs
+        Vector< std::shared_ptr< Field > > mPerturbationFields;                                    // Vector of perturbation fields
+        Matrix< DDRMat >                   mVertexBases;                                           // Basis function values for each vertex <number of fields> x <number of vertices>
+        Vector< mtk::Cell* >               mVertexBackgroundElements;                              // Index of the background element the facet vertex was in on construction
 
 
       public:
@@ -71,11 +83,12 @@ namespace moris::gen
          * @param aParameters Field parameters
          */
         Surface_Mesh_Geometry(
-                mtk::Mesh*                    aMesh,
-                ADV_Manager&                  aADVManager,
-                const Surface_Mesh_Parameters      & aParameters  = Surface_Mesh_Parameters(),
-                Node_Manager&                 aNodeManager = Node_Manager::get_trivial_instance(),
-                std::shared_ptr< Library_IO > aLibrary     = nullptr );
+                mtk::Mesh*                     aMesh,
+                ADV_Manager&                   aADVManager,
+                const Surface_Mesh_Parameters& aParameters  = Surface_Mesh_Parameters(),
+                const Vector< ADV >&           aADVs        = {},
+                Node_Manager&                  aNodeManager = Node_Manager::get_trivial_instance(),
+                std::shared_ptr< Library_IO >  aLibrary     = nullptr );
 
         /**
          * Default destructor

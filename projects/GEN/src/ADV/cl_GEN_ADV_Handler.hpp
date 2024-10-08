@@ -91,6 +91,12 @@ namespace moris::gen
         real get_variable( uint aVariableIndex );
 
         /**
+         * Gets the values of all design variables in this manager.
+         * 
+         */
+        Vector < real > get_values();
+
+        /**
          * Imports the local ADVs required from the full owned ADV distributed vector.
          *
          * @param aOwnedADVs Full owned distributed ADV vector

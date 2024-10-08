@@ -28,6 +28,8 @@
 #include "cl_MTK_Enums.hpp"
 
 #include "cl_SOL_Dist_Map.hpp"
+
+// BRENDAN FORMAT
 namespace moris::gen
 {
 
@@ -40,49 +42,56 @@ namespace moris::gen
             , mScale( aParameterList.get< Vector< real > >( "scale" ) )
             , mFilePath( aParameterList.get< std::string >( "file_path" ) )
             , mIntersectionTolerance( aParameterList.get< real >( "intersection_tolerance" ) )
-            , mVertexFactorFunctionName( aParameterList.get< std::string >( "vertex_factor_function_name" ) )
+            , mDiscretizationFactorFuntionName( aParameterList.get< std::string >( "discretization_factor_function_name" ) )
+            , mAnalyticPerturbationFunctionName( aParameterList.get< std::string >( "field_function_name" ) )
+            , mPerturbationSensitivityFunctionName( aParameterList.get< std::string >( "sensitivity_function_name" ) )
     {
+        MORIS_ASSERT( ( mDiscretizationIndex > -2 ) + ( not mAnalyticPerturbationFunctionName.empty() ) < 2, "Surface mesh should be optimized by either a B-spline field or an analytic function - not both!" );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     Surface_Mesh_Geometry::Surface_Mesh_Geometry(
-            mtk::Mesh*                    aMesh,
-            ADV_Manager&                  aADVManager,
-            const Surface_Mesh_Parameters      & aParameters,
-            Node_Manager&                 aNodeManager,
-            std::shared_ptr< Library_IO > aLibrary )
+            mtk::Mesh*                     aMesh,
+            ADV_Manager&                   aADVManager,
+            const Surface_Mesh_Parameters& aParameters,
+            const Vector< ADV >&           aADVs,
+            Node_Manager&                  aNodeManager,
+            std::shared_ptr< Library_IO >  aLibrary )
             : Geometry( aParameters, aParameters.mIntersectionTolerance )
             , Surface_Mesh( mtk::load_vertices_from_object_file( aParameters.mFilePath, aParameters.mOffsets, aParameters.mScale ),
                       mtk::load_facets_from_object_file( aParameters.mFilePath ),
                       aParameters.mIntersectionTolerance )
             , mParameters( aParameters )
+            , mADVHandler( aADVs )
             , mNodeManager( &aNodeManager )
             , mMesh( aMesh )
             , mPerturbationFields( 0 )
             , mVertexBases( 0, 0 )
             , mVertexBackgroundElements( 0 )
     {
+        uint tDim = Surface_Mesh::get_spatial_dimension();
+
         // parse the file path and extract the file name
         mName = aParameters.mFilePath.substr( aParameters.mFilePath.find_last_of( "/" ) + 1,
                 aParameters.mFilePath.find_last_of( "." ) - aParameters.mFilePath.find_last_of( "/" ) - 1 );
 
         // If this surface mesh is being optimized, construct fields,
         // store original vertex coordinates, determine which facet vertices are fixed, and compute the bases for all vertices
-        if ( this->depends_on_advs() )
+        if ( this->intended_discretization() )
         {
             // STEP 1: Determine which facet vertices are fixed
-            if ( not mParameters.mVertexFactorFunctionName.empty() )
+            if ( not mParameters.mDiscretizationFactorFuntionName.empty() )
             {
                 // Get pointer to function
-                mVertexFactorFunction = aLibrary->load_function< VERTEX_FACTOR_FUNCTION >( mParameters.mVertexFactorFunctionName );
+                get_discretization_factor_user_defined = aLibrary->load_function< DISCRETIZATION_FACTOR_FUNCTION >( mParameters.mDiscretizationFactorFuntionName );
             }
 
             // STEP 2: Construct perturbation fields
-            mPerturbationFields.resize( Surface_Mesh::get_spatial_dimension() );
+            mPerturbationFields.resize( tDim );
 
             // build perturbation fields
-            for ( uint iFieldIndex = 0; iFieldIndex < Surface_Mesh::get_spatial_dimension(); iFieldIndex++ )
+            for ( uint iFieldIndex = 0; iFieldIndex < tDim; iFieldIndex++ )
             {
                 Vector< uint > tADVIndices;
                 Vector< real > tConstants( 1 );
@@ -96,6 +105,13 @@ namespace moris::gen
                         tConstants,
                         mName + "_PERT_" + std::to_string( iFieldIndex ) );
             }
+        }
+        else if ( not mParameters.mAnalyticPerturbationFunctionName.empty() )
+        {
+            // Get pointer to perturbations and sensitivities
+            get_analytic_perturbation_user_defined = aLibrary->load_function< ANALYTIC_PERTURBATION_FUNCTION >( mParameters.mAnalyticPerturbationFunctionName );
+
+            get_perturbation_sensitivity_user_defined = aLibrary->load_function< PERTURBATION_SENSITIVITY_FUNCTION >( mParameters.mPerturbationSensitivityFunctionName );
         }
     }
 
@@ -236,32 +252,53 @@ namespace moris::gen
 
     void Surface_Mesh_Geometry::import_advs( sol::Dist_Vector* aOwnedADVs )
     {
+        uint tDim         = Surface_Mesh::get_spatial_dimension();
+        uint tNumVertices = Surface_Mesh::get_number_of_vertices();
+
         // Get the coordinates of the owned vertices to communicate to other processors (first rows = coordinates, last row = owned flag)
-        Matrix< DDRMat > tOwnedVertexDisplacements( Surface_Mesh::get_spatial_dimension() + 1, Surface_Mesh::get_number_of_vertices() );
+        Matrix< DDRMat > tOwnedVertexDisplacements( tDim + 1, tNumVertices );
 
         for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
         {
             // Import advs to field
             mPerturbationFields( iFieldIndex )->import_advs( aOwnedADVs );
+        }
 
-            // Add this vertex's movement to the owned vertex coordinates
-            for ( uint iVertexIndex = 0; iVertexIndex < Surface_Mesh::get_number_of_vertices(); iVertexIndex++ )
+        // Add this vertex's movement to the owned vertex coordinates
+        for ( uint iVertexIndex = 0; iVertexIndex < tNumVertices; iVertexIndex++ )
+        {
+            if ( this->intended_discretization() )
             {
-                // update the facet vertex if it can move and is owned by this processor
-                if ( this->facet_vertex_depends_on_advs( iVertexIndex ) and mVertexBackgroundElements( iVertexIndex )->get_owner() == par_rank() )
+                // Get the factor that scales this vertex's movement
+                Vector< real > tFactor = get_discretization_factor_user_defined == nullptr ? Vector< real >( tDim, 1.0 ) : get_discretization_factor_user_defined( Surface_Mesh::get_vertex_coordinates( iVertexIndex ) );
+
+                for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
                 {
-                    // Get the factor that scales this vertex's movement
-                    real tFactor = mVertexFactorFunction == nullptr ? 1.0 : mVertexFactorFunction( iVertexIndex, Surface_Mesh::get_vertex_coordinates( iVertexIndex ), iFieldIndex );
+                    // update the facet vertex if it can move and is owned by this processor
+                    if ( this->facet_vertex_depends_on_advs( iVertexIndex ) and mVertexBackgroundElements( iVertexIndex )->get_owner() == par_rank() )
+                    {
+                        // Interpolate the bspline field value at the facet vertex location
+                        real tInterpolatedPerturbation = this->interpolate_perturbation_from_background_element(
+                                mVertexBackgroundElements( iVertexIndex ),
+                                iFieldIndex,
+                                iVertexIndex );
 
-                    // Interpolate the bspline field value at the facet vertex location
-                    real tInterpolatedPerturbation = this->interpolate_perturbation_from_background_element(
-                            mVertexBackgroundElements( iVertexIndex ),
-                            iFieldIndex,
-                            iVertexIndex );
+                        // build the matrix for new coordinates
+                        tOwnedVertexDisplacements( tDim, iVertexIndex )        = 1.0;    // says that this vertex is owned by this proc
+                        tOwnedVertexDisplacements( iFieldIndex, iVertexIndex ) = tFactor( iFieldIndex ) * tInterpolatedPerturbation;
+                    }
+                }
+            }
+            else if ( get_analytic_perturbation_user_defined != nullptr )
+            {
+                // Get the perturbation value at the vertex
+                Vector< real > tPerturbation = get_analytic_perturbation_user_defined( Surface_Mesh::get_vertex_coordinates( iVertexIndex ), mADVHandler.get_values() );
 
-                    // build the matrix for new coordinates
-                    tOwnedVertexDisplacements( Surface_Mesh::get_spatial_dimension(), iVertexIndex ) = 1.0;    // says that this vertex is owned by this proc
-                    tOwnedVertexDisplacements( iFieldIndex, iVertexIndex )                           = tFactor * tInterpolatedPerturbation;
+                // build the matrix for new coordinates
+                tOwnedVertexDisplacements( tDim, iVertexIndex ) = 1.0;    // says that this vertex is owned by this proc
+                for ( uint iFieldIndex = 0; iFieldIndex < tDim; iFieldIndex++ )
+                {
+                    tOwnedVertexDisplacements( iFieldIndex, iVertexIndex ) = tPerturbation( iFieldIndex );
                 }
             }
         }
@@ -271,17 +308,17 @@ namespace moris::gen
         gatherv_mats( tOwnedVertexDisplacements, tAllVertexDisplacements );
 
         // Build matrix with all vertex coordinates on base proc
-        Matrix< DDRMat > tCombinedVertexCoordinates( Surface_Mesh::get_spatial_dimension() + 1, Surface_Mesh::get_number_of_vertices() );
+        Matrix< DDRMat > tCombinedVertexCoordinates( tDim + 1, tNumVertices );
         if ( par_rank() == 0 )
         {
             for ( uint iProcessor = 0; iProcessor < tAllVertexDisplacements.size(); iProcessor++ )
             {
-                for ( uint iVertexIndex = 0; iVertexIndex < Surface_Mesh::get_number_of_vertices(); iVertexIndex++ )
+                for ( uint iVertexIndex = 0; iVertexIndex < tNumVertices; iVertexIndex++ )
                 {
                     // TODO: check if vertices are shared and if so that the coordinates are the same
 
                     // Check to see if the vertex was owned by proc iProcessor
-                    if ( (uint)tAllVertexDisplacements( iProcessor )( Surface_Mesh::get_spatial_dimension(), iVertexIndex ) == 1 )
+                    if ( (uint)tAllVertexDisplacements( iProcessor )( tDim, iVertexIndex ) == 1 )
                     {
                         // If so, set the node coordinates in the combined matrix
                         tCombinedVertexCoordinates.set_column( iVertexIndex, tAllVertexDisplacements( iProcessor ).get_column( iVertexIndex ) );
@@ -294,10 +331,10 @@ namespace moris::gen
         broadcast_mat( tCombinedVertexCoordinates );
 
         // Update the surface mesh vertex coordinates
-        for ( uint iVertexIndex = 0; iVertexIndex < Surface_Mesh::get_number_of_vertices(); iVertexIndex++ )
+        for ( uint iVertexIndex = 0; iVertexIndex < tNumVertices; iVertexIndex++ )
         {
             // Check if this vertex was updated by any processor
-            if ( (uint)tCombinedVertexCoordinates( Surface_Mesh::get_spatial_dimension(), iVertexIndex ) == 1 )
+            if ( (uint)tCombinedVertexCoordinates( tDim, iVertexIndex ) == 1 )
             {
                 Surface_Mesh::append_vertex_displacement( iVertexIndex, tCombinedVertexCoordinates.get_column( iVertexIndex ) );
             }
@@ -317,6 +354,9 @@ namespace moris::gen
         {
             mPerturbationFields( iFieldIndex )->set_advs( aADVs );
         }
+
+        // Let the ADV handler know about the ADVs as well
+        mADVHandler.set_advs( aADVs );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -353,7 +393,7 @@ namespace moris::gen
 
     bool Surface_Mesh_Geometry::depends_on_advs() const
     {
-        return mParameters.mDiscretizationIndex > -1;
+        return mParameters.mDiscretizationIndex > -1 or get_analytic_perturbation_user_defined != nullptr;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -510,16 +550,20 @@ namespace moris::gen
 
     bool Surface_Mesh_Geometry::facet_vertex_depends_on_advs( uint aFacetVertexIndex )
     {
-        // Build vector of dimensions
-        Vector< uint > tDimensions( Surface_Mesh::get_spatial_dimension() );
-        std::iota( tDimensions.begin(), tDimensions.end(), 0 );
+        if ( get_analytic_perturbation_user_defined != nullptr )
+        {
+            return true;
+        }
+        else
+        {
+            // Get the factor that scales this vertex's movement
+            Vector< real > tFactor = get_discretization_factor_user_defined == nullptr ? Vector< real >( Surface_Mesh::get_spatial_dimension(), 1.0 ) : get_discretization_factor_user_defined( Surface_Mesh::get_vertex_coordinates( aFacetVertexIndex ) );
 
-        // Return true if this surface mesh can move, its movement was not fixed in all directions by the user, and it lies in the Lagrange mesh domain
-        return this->depends_on_advs()
-           and mVertexBackgroundElements( aFacetVertexIndex ) != nullptr
-           and ( mVertexFactorFunction == nullptr or                         //
-                   std::any_of( tDimensions.cbegin(), tDimensions.cend(),    //
-                           [ & ]( const uint aDimension ) { return mVertexFactorFunction( aFacetVertexIndex, Surface_Mesh::get_vertex_coordinates( aFacetVertexIndex ), aDimension ) != 0.0; } ) );
+            // Return true if this surface mesh can move, its movement was not fixed in all directions by the user, and it lies in the Lagrange mesh domain
+            return this->depends_on_advs()
+               and mVertexBackgroundElements( aFacetVertexIndex ) != nullptr    //
+               and std::any_of( tFactor.cbegin(), tFactor.cend(), []( real tFac ) { return tFac != 0.0; } );
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -527,61 +571,63 @@ namespace moris::gen
     Matrix< DDRMat >
     Surface_Mesh_Geometry::get_dvertex_dadv( uint aFacetVertexIndex )
     {
-        // Determine which directions the vertex can move in
-        Vector< bool > tVertexDependsOnADVs( Surface_Mesh::get_spatial_dimension() );
-        uint           tNumDimsDependOnADVs = 0;
-        for ( uint iDimension = 0; iDimension < Surface_Mesh::get_spatial_dimension(); iDimension++ )
-        {
-            tVertexDependsOnADVs( iDimension ) = mVertexFactorFunction == nullptr ? true : mVertexFactorFunction( aFacetVertexIndex, this->get_vertex_coordinates( aFacetVertexIndex ), iDimension ) != 0.0;
-            if ( tVertexDependsOnADVs( iDimension ) )
-            {
-                tNumDimsDependOnADVs++;
-            }
-        }
-
-        // Get the vertex indices and coordinates of the background element
-        Matrix< DDRMat >   tVertexCoordinates = mVertexBackgroundElements( aFacetVertexIndex )->get_vertex_coords();
-        Matrix< IndexMat > tVertexIndices     = mVertexBackgroundElements( aFacetVertexIndex )->get_vertex_inds();
+        uint tDim = Surface_Mesh::get_spatial_dimension();
 
         // Initialize sensitivity matrix
         Matrix< DDRMat > tVertexSensitivity;
 
-        // Loop over background nodes
-        for ( uint iNodeIndex = 0; iNodeIndex < tVertexCoordinates.n_rows(); iNodeIndex++ )
+        if ( this->intended_discretization() )
         {
-            // Get length before adding sensitivities for this node
-            uint tNumVertexSensitivities = tVertexSensitivity.n_cols();
+            // Determine which directions the vertex can move in
+            Vector< bool > tVertexDependsOnADVs( tDim );
 
-            bool tVertexSensitivitySizeDetermined = false;
-            uint tDimensionSensitivitiesAdded     = 0;
+            Vector< real > tFactor              = get_discretization_factor_user_defined == nullptr ? Vector< real >( tDim, 1.0 ) : get_discretization_factor_user_defined( Surface_Mesh::get_vertex_coordinates( aFacetVertexIndex ) );
+            uint           tNumDimsDependOnADVs = std::count_if( tFactor.cbegin(), tFactor.cend(), []( real tFac ) { return tFac != 0.0; } );
 
-            // Loop over spatial dimension
-            for ( uint iDimensionIndex = 0; iDimensionIndex < Surface_Mesh::get_spatial_dimension(); iDimensionIndex++ )
+            // Get the vertex indices and coordinates of the background element
+            Matrix< DDRMat >   tVertexCoordinates = mVertexBackgroundElements( aFacetVertexIndex )->get_vertex_coords();
+            Matrix< IndexMat > tVertexIndices     = mVertexBackgroundElements( aFacetVertexIndex )->get_vertex_inds();
+
+            // Loop over background nodes
+            for ( uint iNodeIndex = 0; iNodeIndex < tVertexCoordinates.n_rows(); iNodeIndex++ )
             {
+                // Get length before adding sensitivities for this node
+                uint tNumVertexSensitivities = tVertexSensitivity.n_cols();
+
+                bool tVertexSensitivitySizeDetermined = false;
+                uint tDimensionSensitivitiesAdded     = 0;
+
                 // Get the sensitivity factor of the node in this direction
-                real tFactor = mVertexFactorFunction == nullptr ? 1.0 : mVertexFactorFunction( aFacetVertexIndex, this->get_vertex_coordinates( aFacetVertexIndex ), iDimensionIndex );
-
-                // Check that the vertex depends on ADVs in this direction
-                if ( tFactor != 0.0 )
+                Vector< real > tFactor = get_discretization_factor_user_defined == nullptr ? Vector< real >( tDim ) : get_discretization_factor_user_defined( this->get_vertex_coordinates( aFacetVertexIndex ) );
+                // Loop over spatial dimension
+                for ( uint iDimensionIndex = 0; iDimensionIndex < tDim; iDimensionIndex++ )
                 {
-                    Matrix< DDRMat > tNodeSensitivity = tFactor * mVertexBases( iNodeIndex, aFacetVertexIndex ) * mPerturbationFields( iDimensionIndex )->get_dfield_dadvs( tVertexIndices( iNodeIndex ), tVertexCoordinates.get_row( iNodeIndex ) );
-
-                    // set size of sensitivity matrix
-                    if ( not tVertexSensitivitySizeDetermined )
+                    // Check that the vertex depends on ADVs in this direction
+                    if ( tFactor( iDimensionIndex ) != 0.0 )
                     {
-                        tVertexSensitivity.resize( Surface_Mesh::get_spatial_dimension(), tNumVertexSensitivities + tNumDimsDependOnADVs * tNodeSensitivity.numel() );
-                        tVertexSensitivitySizeDetermined = true;
-                    }
+                        Matrix< DDRMat > tNodeSensitivity = tFactor( iDimensionIndex ) * mVertexBases( iNodeIndex, aFacetVertexIndex ) * mPerturbationFields( iDimensionIndex )->get_dfield_dadvs( tVertexIndices( iNodeIndex ), tVertexCoordinates.get_row( iNodeIndex ) );
 
-                    // Each sensitivity is a separate index
-                    for ( uint iADVIndex = 0; iADVIndex < tNodeSensitivity.numel(); iADVIndex++ )
-                    {
-                        tVertexSensitivity( iDimensionIndex, tNumVertexSensitivities + tNodeSensitivity.length() * tDimensionSensitivitiesAdded + iADVIndex ) = tNodeSensitivity( iADVIndex );
-                    }
+                        // set size of sensitivity matrix
+                        if ( not tVertexSensitivitySizeDetermined )
+                        {
+                            tVertexSensitivity.resize( tDim, tNumVertexSensitivities + tNumDimsDependOnADVs * tNodeSensitivity.numel() );
+                            tVertexSensitivitySizeDetermined = true;
+                        }
 
-                    tDimensionSensitivitiesAdded++;
+                        // Each sensitivity is a separate index
+                        for ( uint iADVIndex = 0; iADVIndex < tNodeSensitivity.numel(); iADVIndex++ )
+                        {
+                            tVertexSensitivity( iDimensionIndex, tNumVertexSensitivities + tNodeSensitivity.length() * tDimensionSensitivitiesAdded + iADVIndex ) = tNodeSensitivity( iADVIndex );
+                        }
+
+                        tDimensionSensitivitiesAdded++;
+                    }
                 }
             }
+        }
+        else if ( get_analytic_perturbation_user_defined != nullptr )
+        {
+            get_perturbation_sensitivity_user_defined( this->get_vertex_coordinates( aFacetVertexIndex ), mADVHandler.get_values(), tVertexSensitivity );    // BRENDAN NEED TO PASS ADVS TO FUNCTION
         }
 
         return tVertexSensitivity;
@@ -592,54 +638,56 @@ namespace moris::gen
     Vector< sint >
     Surface_Mesh_Geometry::get_vertex_adv_ids( uint aFacetVertexIndex )
     {
-        // Determine which directions the vertex can move in
-        Vector< bool > tVertexDependsOnADVs( Surface_Mesh::get_spatial_dimension() );
-        uint           tNumDimsDependOnADVs = 0;
-        for ( uint iDimension = 0; iDimension < Surface_Mesh::get_spatial_dimension(); iDimension++ )
+        if ( this->intended_discretization() )
         {
-            tVertexDependsOnADVs( iDimension ) = mVertexFactorFunction == nullptr ? true : mVertexFactorFunction( aFacetVertexIndex, this->get_vertex_coordinates( aFacetVertexIndex ), iDimension ) != 0.0;
-            if ( tVertexDependsOnADVs( iDimension ) )
+            uint tDim = Surface_Mesh::get_spatial_dimension();
+
+            // Determine which directions the vertex can move in
+            Vector< bool > tVertexDependsOnADVs( tDim );
+            Vector< real > tFactor              = get_discretization_factor_user_defined == nullptr ? Vector< real >( tDim, 1.0 ) : get_discretization_factor_user_defined( Surface_Mesh::get_vertex_coordinates( aFacetVertexIndex ) );
+            uint           tNumDimsDependOnADVs = std::count_if( tFactor.cbegin(), tFactor.cend(), []( real tFac ) { return tFac != 0.0; } );
+
+            // Initialize matrix to be filled
+            Vector< sint > tVertexADVIds;
+
+            // Get the vertex indices and coordinates of the background element
+            Matrix< DDRMat >   tVertexCoordinates = mVertexBackgroundElements( aFacetVertexIndex )->get_vertex_coords();
+            Matrix< IndexMat > tVertexIndices     = mVertexBackgroundElements( aFacetVertexIndex )->get_vertex_inds();
+
+            // Loop over background nodes
+            for ( uint iNodeIndex = 0; iNodeIndex < tVertexCoordinates.n_rows(); iNodeIndex++ )
             {
-                tNumDimsDependOnADVs++;
-            }
-        }
+                // Get the ADV IDs for this node
+                Vector< sint > tNodeIDs = this->get_determining_adv_ids( tVertexIndices( iNodeIndex ), tVertexCoordinates.get_row( iNodeIndex ) );
 
-        // Initialize matrix to be filled
-        Vector< sint > tVertexADVIds;
+                // Join the ADV IDs to the output
+                // Get the original length
+                uint tIDLength = tVertexADVIds.size();
 
-        // Get the vertex indices and coordinates of the background element
-        Matrix< DDRMat >   tVertexCoordinates = mVertexBackgroundElements( aFacetVertexIndex )->get_vertex_coords();
-        Matrix< IndexMat > tVertexIndices     = mVertexBackgroundElements( aFacetVertexIndex )->get_vertex_inds();
+                // Resize to add new ADV IDs
+                tVertexADVIds.resize( tVertexADVIds.size() + ( tNodeIDs.size() * tNumDimsDependOnADVs ) / tDim );
 
-        // Loop over background nodes
-        for ( uint iNodeIndex = 0; iNodeIndex < tVertexCoordinates.n_rows(); iNodeIndex++ )
-        {
-            // Get the ADV IDs for this node
-            Vector< sint > tNodeIDs = this->get_determining_adv_ids( tVertexIndices( iNodeIndex ), tVertexCoordinates.get_row( iNodeIndex ) );
-
-            // Join the ADV IDs to the output
-            // Get the original length
-            uint tIDLength = tVertexADVIds.size();
-
-            // Resize to add new ADV IDs
-            tVertexADVIds.resize( tVertexADVIds.size() + ( tNodeIDs.size() * tNumDimsDependOnADVs ) / Surface_Mesh::get_spatial_dimension() );
-
-            // Join the IDs
-            uint tADVsAdded = 0;
-            for ( uint iDimension = 0; iDimension < Surface_Mesh::get_spatial_dimension(); iDimension++ )
-            {
-                if ( tVertexDependsOnADVs( iDimension ) )
+                // Join the IDs
+                uint tADVsAdded = 0;
+                for ( uint iDimension = 0; iDimension < tDim; iDimension++ )
                 {
-                    for ( uint iADVIndex = 0; iADVIndex < tNodeIDs.size() / Surface_Mesh::get_spatial_dimension(); iADVIndex++ )
+                    if ( tVertexDependsOnADVs( iDimension ) )
                     {
-                        tVertexADVIds( tIDLength + tADVsAdded ) = tNodeIDs( ( iDimension * tNodeIDs.size() ) / Surface_Mesh::get_spatial_dimension() + iADVIndex );
-                        tADVsAdded++;
+                        for ( uint iADVIndex = 0; iADVIndex < tNodeIDs.size() / tDim; iADVIndex++ )
+                        {
+                            tVertexADVIds( tIDLength + tADVsAdded ) = tNodeIDs( ( iDimension * tNodeIDs.size() ) / tDim + iADVIndex );
+                            tADVsAdded++;
+                        }
                     }
                 }
             }
-        }
 
-        return tVertexADVIds;
+            return tVertexADVIds;
+        }
+        else
+        {
+            return mADVHandler.get_determining_adv_ids();
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -776,6 +824,8 @@ namespace moris::gen
     mtk::Cell*
     Surface_Mesh_Geometry::find_background_element_from_global_coordinates( const Matrix< DDRMat >& aCoordinate )
     {
+        uint tDim = Surface_Mesh::get_spatial_dimension();
+
         // Loop through each mtk::Cell
         for ( uint iCellIndex = 0; iCellIndex < mMesh->get_num_elems(); iCellIndex++ )
         {
@@ -786,7 +836,7 @@ namespace moris::gen
             bool tCoordinateInCell = true;
 
             // Loop over the bounding box and determine if this is true
-            for ( uint iDimensionIndex = 0; iDimensionIndex < Surface_Mesh::get_spatial_dimension(); iDimensionIndex++ )
+            for ( uint iDimensionIndex = 0; iDimensionIndex < tDim; iDimensionIndex++ )
             {
                 // check if the point is outside the bounding box in this dimension
                 if ( aCoordinate( iDimensionIndex ) < tBoundingBox( 0 )( iDimensionIndex )
@@ -838,6 +888,8 @@ namespace moris::gen
 
     void Surface_Mesh_Geometry::update_vertex_basis_data()
     {
+        uint tDim = Surface_Mesh::get_spatial_dimension();
+
         // Set size if it has not been set already
         if ( mVertexBases.n_cols() != Surface_Mesh::get_number_of_vertices() )
         {
@@ -851,7 +903,7 @@ namespace moris::gen
             // Get this vertex's coordinates
             Matrix< DDRMat > tVertexCoordinates = Surface_Mesh::get_vertex_coordinates( iVertexIndex );
 
-            Matrix< DDRMat > tVertexParametricCoordinates( Surface_Mesh::get_spatial_dimension(), 1 );
+            Matrix< DDRMat > tVertexParametricCoordinates( tDim, 1 );
 
             // Determine which element this vertex lies in, will be the same for every field
             mVertexBackgroundElements( iVertexIndex ) = this->find_background_element_from_global_coordinates( Surface_Mesh::get_vertex_coordinates( iVertexIndex ) );
@@ -863,7 +915,7 @@ namespace moris::gen
                 Vector< Vector< real > > tElementBoundingBox = this->determine_mtk_cell_bounding_box( mVertexBackgroundElements( iVertexIndex ) );
 
                 // determine the local coordinates of the vertex inside the mtk::Cell
-                for ( uint iDimensionIndex = 0; iDimensionIndex < Surface_Mesh::get_spatial_dimension(); iDimensionIndex++ )
+                for ( uint iDimensionIndex = 0; iDimensionIndex < tDim; iDimensionIndex++ )
                 {
                     tVertexParametricCoordinates( iDimensionIndex, 0 ) = 2.0 * ( tVertexCoordinates( iDimensionIndex ) - tElementBoundingBox( 0 )( iDimensionIndex ) )
                                                                                / ( tElementBoundingBox( 1 )( iDimensionIndex ) - tElementBoundingBox( 0 )( iDimensionIndex ) )
