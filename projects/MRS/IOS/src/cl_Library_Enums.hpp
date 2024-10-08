@@ -76,36 +76,36 @@ namespace moris
         END_ENUM
     };
 
-    enum class OPT_SubModule
+    enum class OPT_Submodule
     {
         OPTIMIZATION_PROBLEMS,
         INTERFACE,
         ALGORITHMS
     };
 
-    enum class HMR_SubModule
+    enum class HMR_Submodule
     {
         GENERAL
     };
 
-    enum class STK_SubModule
+    enum class STK_Submodule
     {
         GENERAL
     };
 
-    enum class XTK_SubModule
+    enum class XTK_Submodule
     {
         GENERAL
     };
 
-    enum class GEN_SubModule
+    enum class GEN_Submodule
     {
         GENERAL,
         GEOMETRIES,
         PROPERTIES
     };
 
-    enum class FEM_SubModule
+    enum class FEM_Submodule
     {
         PROPERTIES,
         CONSTITUTIVE_MODELS,
@@ -117,7 +117,7 @@ namespace moris
         MATERIAL_MODELS
     };
 
-    enum class SOL_SubModule
+    enum class SOL_Submodule
     {
         LINEAR_ALGORITHMS,
         LINEAR_SOLVERS,
@@ -129,27 +129,27 @@ namespace moris
         PRECONDITIONERS
     };
 
-    enum class MSI_SubModule
+    enum class MSI_Submodule
     {
         GENERAL
     };
 
-    enum class VIS_SubModule
+    enum class VIS_Submodule
     {
         OUTPUT_MESHES
     };
 
-    enum class MIG_SubModule
+    enum class MIG_Submodule
     {
         GENERAL
     };
 
-    enum class WRK_SubModule
+    enum class WRK_Submodule
     {
         GENERAL
     };
 
-    enum class MORISGENERAL_SubModule
+    enum class MORISGENERAL_Submodule
     {
         REMESHING,
         REFINEMENT,

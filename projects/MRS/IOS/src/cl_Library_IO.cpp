@@ -1354,9 +1354,9 @@ namespace moris
         Module_Parameter_Lists tParameterList( static_cast< Parameter_List_Type >( aRoot ) );
         for ( uint iChild = 0; iChild < get_number_of_sub_parameter_lists_in_module( (Parameter_List_Type)aRoot ); iChild++ )
         {
-            if ( ( aRoot == (uint)( Parameter_List_Type::OPT ) && iChild == (uint)( OPT_SubModule::ALGORITHMS ) )
-                    || ( aRoot == (uint)( Parameter_List_Type::GEN ) && iChild == (uint)( GEN_SubModule::GEOMETRIES ) )
-                    || ( aRoot == (uint)( Parameter_List_Type::SOL ) && iChild == (uint)( SOL_SubModule::LINEAR_ALGORITHMS ) ) )
+            if ( ( aRoot == (uint)( Parameter_List_Type::OPT ) && iChild == (uint)( OPT_Submodule::ALGORITHMS ) )
+                    || ( aRoot == (uint)( Parameter_List_Type::GEN ) && iChild == (uint)( GEN_Submodule::GEOMETRIES ) )
+                    || ( aRoot == (uint)( Parameter_List_Type::SOL ) && iChild == (uint)( SOL_Submodule::LINEAR_ALGORITHMS ) ) )
             {
             }
             else

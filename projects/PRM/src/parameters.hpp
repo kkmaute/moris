@@ -24,3 +24,13 @@
 #include "fn_PRM_WRK_Parameters.hpp"
 #include "fn_PRM_XTK_Parameters.hpp"
 #include "cl_Module_Parameter_Lists.hpp"
+
+// Typedefs for ease of typing
+namespace moris
+{
+    typedef OPT_Submodule OPT;
+    typedef HMR_Submodule HMR;
+    typedef GEN_Submodule GEN;
+    typedef FEM_Submodule FEM;
+    typedef SOL_Submodule SOL;
+}
