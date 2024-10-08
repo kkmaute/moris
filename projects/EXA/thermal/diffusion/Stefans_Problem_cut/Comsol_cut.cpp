@@ -395,32 +395,32 @@ namespace moris
     SOLParameterList( Module_Parameter_Lists& aParameterLists )
     {
 
-        aParameterLists( 0 ).add_parameter_list( prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
+        aParameterLists( SOL::LINEAR_ALGORITHMS ).add_parameter_list( prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
 
-        aParameterLists( 1 ).add_parameter_list( prm::create_linear_solver_parameter_list() );
+        aParameterLists( SOL::LINEAR_SOLVERS ).add_parameter_list( prm::create_linear_solver_parameter_list() );
 
-        aParameterLists( 2 ).add_parameter_list( prm::create_nonlinear_algorithm_parameter_list() );
+        aParameterLists( SOL::NONLINEAR_ALGORITHMS ).add_parameter_list( prm::create_nonlinear_algorithm_parameter_list() );
         aParameterLists.set( "NLA_rel_res_norm_drop", 2.0e-05 );
         aParameterLists.set( "NLA_relaxation_parameter", 0.96 );
         aParameterLists.set( "NLA_max_iter", 20 );
 
-        aParameterLists( 3 ).add_parameter_list( prm::create_nonlinear_solver_parameter_list() );
+        aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list( prm::create_nonlinear_solver_parameter_list() );
         aParameterLists.set( "NLA_DofTypes", "TEMP" );
 
-        aParameterLists( 4 ).add_parameter_list( prm::create_time_solver_algorithm_parameter_list() );
+        aParameterLists( SOL::TIME_SOLVER_ALGORITHMS ).add_parameter_list( prm::create_time_solver_algorithm_parameter_list() );
         aParameterLists.set( "TSA_Num_Time_Steps", tStep );
         aParameterLists.set( "TSA_Time_Frame", tTmax );
 
-        aParameterLists( 5 ).add_parameter_list( prm::create_time_solver_parameter_list() );
+        aParameterLists( SOL::TIME_SOLVERS ).add_parameter_list( prm::create_time_solver_parameter_list() );
         aParameterLists.set( "TSA_DofTypes", "TEMP" );
         aParameterLists.set( "TSA_Initialize_Sol_Vec", "TEMP,0.0" );
         aParameterLists.set( "TSA_Output_Indices", "0" );
         aParameterLists.set( "TSA_Output_Criteria", "Output_Criterion" );
         aParameterLists.set( "TSA_time_level_per_type", "TEMP,2" );
 
-        aParameterLists( 6 ).add_parameter_list( prm::create_solver_warehouse_parameterlist() );
+        aParameterLists( SOL::TIME_SOLVERS ).add_parameter_list( prm::create_solver_warehouse_parameterlist() );
 
-        aParameterLists( 7 ).add_parameter_list( prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE ) );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE ) );
     }
 
     void
