@@ -376,36 +376,28 @@ namespace moris
     /* ---------------------------------------------------------------------------------------------- */
     void FEMParameterList( Module_Parameter_Lists& aParameterLists )
     {
-        uint tPropIndex  = 0;
-        uint tCMIndex    = 1;
-        uint tSPIndex    = 2;
-        uint tIWGIndex   = 3;
-        uint tIQIIndex   = 4;
-        uint tFEMIndex   = 5;
-        uint tPhaseIndex = 7;
-
         /* -------------------------------------------------------------------------------------------- */
         /*                                            Phases                                            */
         /* -------------------------------------------------------------------------------------------- */
         Parameter_List pl = prm::create_phase_parameter_list();
         pl.set( "phase_name", "PhaseVoid" );
         pl.set( "phase_indices", "0" );
-        aParameterLists( tPhaseIndex ).add_parameter_list( pl );
+        aParameterLists( FEM::PHASES ).add_parameter_list( pl );
 
         pl = prm::create_phase_parameter_list();
         pl.set( "phase_name", "PhaseTop" );
         pl.set( "phase_indices", "1" );
-        aParameterLists( tPhaseIndex ).add_parameter_list( pl );
+        aParameterLists( FEM::PHASES ).add_parameter_list( pl );
 
         pl = prm::create_phase_parameter_list();
         pl.set( "phase_name", "PhaseBottom" );
         pl.set( "phase_indices", "2" );
-        aParameterLists( tPhaseIndex ).add_parameter_list( pl );
+        aParameterLists( FEM::PHASES ).add_parameter_list( pl );
 
         pl = prm::create_phase_parameter_list();
         pl.set( "phase_name", "PhaseAll" );
         pl.set( "phase_indices", "1,2" );
-        aParameterLists( tPhaseIndex ).add_parameter_list( pl );
+        aParameterLists( FEM::PHASES ).add_parameter_list( pl );
 
         /* -------------------------------------------------------------------------------------------- */
         /*                                           Properties                                         */
@@ -416,26 +408,26 @@ namespace moris
         pl.set( "property_name", "PropYoungsTop" );
         pl.set( "function_parameters", std::to_string( tTopEmod ) );
         pl.set( "value_function", F2STR( Func_Const ) );
-        aParameterLists( tPropIndex ).add_parameter_list( pl );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list( pl );
 
         pl = prm::create_property_parameter_list();
         pl.set( "property_name", "PropYoungsBottom" );
         pl.set( "function_parameters", std::to_string( tBottomEmod ) );
         pl.set( "value_function", F2STR( Func_Const ) );
-        aParameterLists( tPropIndex ).add_parameter_list( pl );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list( pl );
 
         /* ------------------------------------------ Poisson ----------------------------------------- */
         pl = prm::create_property_parameter_list();
         pl.set( "property_name", "PropPoissonTop" );
         pl.set( "function_parameters", std::to_string( tTopPois ) );
         pl.set( "value_function", F2STR( Func_Const ) );
-        aParameterLists( tPropIndex ).add_parameter_list( pl );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list( pl );
 
         pl = prm::create_property_parameter_list();
         pl.set( "property_name", "PropPoissonBottom" );
         pl.set( "function_parameters", std::to_string( tBottomPois ) );
         pl.set( "value_function", F2STR( Func_Const ) );
-        aParameterLists( tPropIndex ).add_parameter_list( pl );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list( pl );
 
         /* --------------------------------------- Dirichlet Top -------------------------------------- */
         if ( tTopHasDirichlet )
@@ -444,7 +436,7 @@ namespace moris
             pl.set( "property_name", "PropDirichletTop" );
             pl.set( "function_parameters", "0.0;" + std::to_string( tVerticalDisplacement ) );
             pl.set( "value_function", F2STR( Func_Dirichlet ) );
-            aParameterLists( tPropIndex ).add_parameter_list( pl );
+            aParameterLists( FEM::PROPERTIES ).add_parameter_list( pl );
         }
 
         /* ------------------------------------- Dirichlet Bottom ------------------------------------- */
@@ -454,21 +446,21 @@ namespace moris
             pl.set( "property_name", "PropDirichletBottom" );
             pl.set( "function_parameters", "0.0;0.0" );
             pl.set( "value_function", F2STR( Func_Const ) );
-            aParameterLists( tPropIndex ).add_parameter_list( pl );
+            aParameterLists( FEM::PROPERTIES ).add_parameter_list( pl );
         }
 
         pl = prm::create_property_parameter_list();
         pl.set( "property_name", "PropFixed" );
         pl.set( "function_parameters", "0.0;0.0" );
         pl.set( "value_function", F2STR( Func_Const ) );
-        aParameterLists( tPropIndex ).add_parameter_list( pl );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list( pl );
 
         /* -------------------------------------- Symmetry Plane -------------------------------------- */
         pl = prm::create_property_parameter_list();
         pl.set( "property_name", "PropSelectX" );
         pl.set( "function_parameters", "0.0;0.0" );
         pl.set( "value_function", F2STR( Func_Select_X ) );
-        aParameterLists( tPropIndex ).add_parameter_list( pl );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list( pl );
 
         /* -------------------------------------------------------------------------------------------- */
         /*                                       Constitutive Model                                     */
@@ -483,7 +475,7 @@ namespace moris
         pl.set( "properties",
                 "PropYoungsTop,YoungsModulus;"
                 "PropPoissonTop,PoissonRatio" );
-        aParameterLists( tCMIndex ).add_parameter_list( pl );
+        aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list( pl );
 
         /* -------------------------------- Elastic Material Bottom ----------------------------------- */
         pl = prm::create_constitutive_model_parameter_list();
@@ -494,7 +486,7 @@ namespace moris
         pl.set( "properties",
                 "PropYoungsBottom,YoungsModulus;"
                 "PropPoissonBottom,PoissonRatio" );
-        aParameterLists( tCMIndex ).add_parameter_list( pl );
+        aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list( pl );
 
         /* -------------------------------------------------------------------------------------------- */
         /*                                     Stabilization Parameter                                  */
@@ -506,7 +498,7 @@ namespace moris
         pl.set( "function_parameters", "100.0" );
         pl.set( "leader_phase_name", "PhaseTop" );
         pl.set( "leader_properties", "PropYoungsTop,Material" );
-        aParameterLists( tSPIndex ).add_parameter_list( pl );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list( pl );
 
         pl = prm::create_stabilization_parameter_parameter_list();
         pl.set( "stabilization_name", "SPDirichletNitscheBottom" );
@@ -514,7 +506,7 @@ namespace moris
         pl.set( "function_parameters", "100.0" );
         pl.set( "leader_phase_name", "PhaseBottom" );
         pl.set( "leader_properties", "PropYoungsBottom,Material" );
-        aParameterLists( tSPIndex ).add_parameter_list( pl );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list( pl );
 
         pl = prm::create_stabilization_parameter_parameter_list();
         pl.set( "stabilization_name", "SPContactInterfaceTop" );
@@ -522,7 +514,7 @@ namespace moris
         pl.set( "function_parameters", std::to_string( tContactStabilization ) + ";1.0" );
         pl.set( "leader_phase_name", "PhaseTop" );
         pl.set( "leader_properties", "PropYoungsTop,Material" );
-        aParameterLists( tSPIndex ).add_parameter_list( pl );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list( pl );
 
         pl = prm::create_stabilization_parameter_parameter_list();
         pl.set( "stabilization_name", "SPContactInterfaceBottom" );
@@ -530,7 +522,7 @@ namespace moris
         pl.set( "function_parameters", std::to_string( tContactStabilization ) + ";1.0" );
         pl.set( "leader_phase_name", "PhaseBottom" );
         pl.set( "leader_properties", "PropYoungsBottom,Material" );
-        aParameterLists( tSPIndex ).add_parameter_list( pl );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list( pl );
 
         // create ghost penalty displacement Matrix
         pl = prm::create_stabilization_parameter_parameter_list();
@@ -540,7 +532,7 @@ namespace moris
         pl.set( "leader_phase_name", "PhaseTop" );
         pl.set( "follower_phase_name", "PhaseTop" );
         pl.set( "leader_properties", "PropYoungsTop,Material" );
-        aParameterLists( tSPIndex ).add_parameter_list( pl );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list( pl );
 
         // create ghost penalty  displacement Fiber
         pl = prm::create_stabilization_parameter_parameter_list();
@@ -550,7 +542,7 @@ namespace moris
         pl.set( "leader_phase_name", "PhaseBottom" );
         pl.set( "follower_phase_name", "PhaseBottom" );
         pl.set( "leader_properties", "PropYoungsBottom,Material" );
-        aParameterLists( tSPIndex ).add_parameter_list( pl );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list( pl );
 
         /* -------------------------------------------------------------------------------------------- */
         /*                                               IWG                                            */
@@ -565,7 +557,7 @@ namespace moris
         pl.set( "leader_phase_name", "PhaseTop" );
         pl.set( "leader_dof_dependencies", "UX,UY" );
         pl.set( "leader_constitutive_models", "MaterialTop,ElastLinIso" );
-        aParameterLists( tIWGIndex ).add_parameter_list( pl );
+        aParameterLists( FEM::IWG ).add_parameter_list( pl );
 
         /* ----------------------------- Body Material Bottom (Left or Whole) ------------------------- */
         pl = prm::create_IWG_parameter_list();
@@ -576,7 +568,7 @@ namespace moris
         pl.set( "leader_phase_name", "PhaseBottom" );
         pl.set( "leader_dof_dependencies", "UX,UY" );
         pl.set( "leader_constitutive_models", "MaterialBottom,ElastLinIso" );
-        aParameterLists( tIWGIndex ).add_parameter_list( pl );
+        aParameterLists( FEM::IWG ).add_parameter_list( pl );
 
         /* ---------------------------------------- Dirichlet Top ------------------------------------- */
         if ( tTopHasDirichlet )
@@ -592,7 +584,7 @@ namespace moris
             pl.set( "leader_properties", "PropDirichletTop,Dirichlet" );
             pl.set( "leader_constitutive_models", "MaterialTop,ElastLinIso" );
             pl.set( "stabilization_parameters", "SPDirichletNitscheTop,DirichletNitsche" );
-            aParameterLists( tIWGIndex ).add_parameter_list( pl );
+            aParameterLists( FEM::IWG ).add_parameter_list( pl );
         }
 
         /* -------------------------------------- Dirichlet Bottom ------------------------------------ */
@@ -609,7 +601,7 @@ namespace moris
             pl.set( "leader_properties", "PropDirichletBottom,Dirichlet" );
             pl.set( "leader_constitutive_models", "MaterialBottom,ElastLinIso" );
             pl.set( "stabilization_parameters", "SPDirichletNitscheBottom,DirichletNitsche" );
-            aParameterLists( tIWGIndex ).add_parameter_list( pl );
+            aParameterLists( FEM::IWG ).add_parameter_list( pl );
         }
 
         /* ---------------------------------------- Symmetry ------------------------------------------ */
@@ -626,7 +618,7 @@ namespace moris
             pl.set( "leader_properties", "PropFixed,Dirichlet;PropSelectX,Select" );
             pl.set( "leader_constitutive_models", "MaterialTop,ElastLinIso" );
             pl.set( "stabilization_parameters", "SPDirichletNitscheTop,DirichletNitsche" );
-            aParameterLists( tIWGIndex ).add_parameter_list( pl );
+            aParameterLists( FEM::IWG ).add_parameter_list( pl );
         }
 
         if ( tTopHasSymmetryEast )
@@ -642,7 +634,7 @@ namespace moris
             pl.set( "leader_properties", "PropFixed,Dirichlet;PropSelectX,Select" );
             pl.set( "leader_constitutive_models", "MaterialTop,ElastLinIso" );
             pl.set( "stabilization_parameters", "SPDirichletNitscheTop,DirichletNitsche" );
-            aParameterLists( tIWGIndex ).add_parameter_list( pl );
+            aParameterLists( FEM::IWG ).add_parameter_list( pl );
         }
 
         if ( tBottomHasSymmetryWest )
@@ -658,7 +650,7 @@ namespace moris
             pl.set( "leader_properties", "PropFixed,Dirichlet;PropSelectX,Select" );
             pl.set( "leader_constitutive_models", "MaterialBottom,ElastLinIso" );
             pl.set( "stabilization_parameters", "SPDirichletNitscheBottom,DirichletNitsche" );
-            aParameterLists( tIWGIndex ).add_parameter_list( pl );
+            aParameterLists( FEM::IWG ).add_parameter_list( pl );
         }
 
         if ( tBottomHasSymmetryEast )
@@ -674,7 +666,7 @@ namespace moris
             pl.set( "leader_properties", "PropFixed,Dirichlet;PropSelectX,Select" );
             pl.set( "leader_constitutive_models", "MaterialBottom,ElastLinIso" );
             pl.set( "stabilization_parameters", "SPDirichletNitscheBottom,DirichletNitsche" );
-            aParameterLists( tIWGIndex ).add_parameter_list( pl );
+            aParameterLists( FEM::IWG ).add_parameter_list( pl );
         }
 
         /* ------------------------------------- Contact Interface ------------------------------------ */
@@ -713,7 +705,7 @@ namespace moris
         pl.set( "follower_constitutive_models", "MaterialBottom,ElastLinIso" );
         pl.set( "stabilization_parameters", "SPContactInterfaceTop,NitscheInterface" );
         pl.set( "analytical_jacobian", false );
-        aParameterLists( tIWGIndex ).add_parameter_list( pl );
+        aParameterLists( FEM::IWG ).add_parameter_list( pl );
 
         pl = prm::create_IWG_parameter_list();
         pl.set( "IWG_name", "IWGContactInterfaceBottom" );
@@ -729,7 +721,7 @@ namespace moris
         pl.set( "follower_constitutive_models", "MaterialTop,ElastLinIso" );
         pl.set( "stabilization_parameters", "SPContactInterfaceBottom,NitscheInterface" );
         pl.set( "analytical_jacobian", false );
-        aParameterLists( tIWGIndex ).add_parameter_list( pl );
+        aParameterLists( FEM::IWG ).add_parameter_list( pl );
 
         if ( tUseGhost )
         {
@@ -744,7 +736,7 @@ namespace moris
             pl.set( "leader_dof_dependencies", "UX,UY" );
             pl.set( "follower_dof_dependencies", "UX,UY" );
             pl.set( "stabilization_parameters", "SPGPDisplTop,GhostSP" );
-            aParameterLists( tIWGIndex ).add_parameter_list( pl );
+            aParameterLists( FEM::IWG ).add_parameter_list( pl );
 
             // ghost  displacement
             pl = prm::create_IWG_parameter_list();
@@ -757,7 +749,7 @@ namespace moris
             pl.set( "leader_dof_dependencies", "UX,UY" );
             pl.set( "follower_dof_dependencies", "UX,UY" );
             pl.set( "stabilization_parameters", "SPGPDisplBottom,GhostSP" );
-            aParameterLists( tIWGIndex ).add_parameter_list( pl );
+            aParameterLists( FEM::IWG ).add_parameter_list( pl );
         }
 
         /* -------------------------------------------------------------------------------------------- */
@@ -771,7 +763,7 @@ namespace moris
         pl.set( "leader_dof_dependencies", "UX,UY" );
         pl.set( "leader_phase_name", "PhaseAll" );
         pl.set( "vectorial_field_index", 0 );
-        aParameterLists( tIQIIndex ).add_parameter_list( pl );
+        aParameterLists( FEM::IQI ).add_parameter_list( pl );
 
         pl = prm::create_IQI_parameter_list();
         pl.set( "IQI_name", "IQIDispY" );
@@ -780,7 +772,7 @@ namespace moris
         pl.set( "leader_dof_dependencies", "UX,UY" );
         pl.set( "leader_phase_name", "PhaseAll" );
         pl.set( "vectorial_field_index", 1 );
-        aParameterLists( tIQIIndex ).add_parameter_list( pl );
+        aParameterLists( FEM::IQI ).add_parameter_list( pl );
 
         Vector< std::string >                   tSides      = { "Top", "Bottom" };
         Vector< std::pair< int, std::string > > tComponents = { { 0, "X" }, { 1, "Y" } };
@@ -795,7 +787,7 @@ namespace moris
                 pl.set( "leader_constitutive_models", "Material" + tSide + ",ElastLinIso" );
                 pl.set( "leader_phase_name", "Phase" + tSide );
                 pl.set( "vectorial_field_index", tDir );
-                aParameterLists( tIQIIndex ).add_parameter_list( pl );
+                aParameterLists( FEM::IQI ).add_parameter_list( pl );
             }
 
             pl = prm::create_IQI_parameter_list();
@@ -804,7 +796,7 @@ namespace moris
             pl.set( "leader_dof_dependencies", "UX,UY" );
             pl.set( "leader_phase_name", "Phase" + tSide );
             pl.set( "leader_constitutive_models", "Material" + tSide + ",TractionCM" );
-            aParameterLists( tIQIIndex ).add_parameter_list( pl );
+            aParameterLists( FEM::IQI ).add_parameter_list( pl );
         }
 
         // /* ---------------------------------------- Ray Length ----------------------------------------
@@ -813,7 +805,7 @@ namespace moris
         pl.set( "IQI_type", (uint)fem::IQI_Type::GAP );
         pl.set( "leader_phase_name", "PhaseBottom" );
         pl.set( "follower_phase_name", "PhaseTop" );
-        aParameterLists( tIQIIndex ).add_parameter_list( pl );
+        aParameterLists( FEM::IQI ).add_parameter_list( pl );
 
         /* -------------------------------------------------------------------------------------------- */
         /*                                   Computation Parameter List                                 */
@@ -826,7 +818,7 @@ namespace moris
         pl.set( "nonconformal_integration_order", static_cast< uint >( tNonconformalIntegrationOrder ) );
         pl.set( "nonconformal_max_negative_ray_length", tMaxNegativeRayLength );
         pl.set( "nonconformal_max_positive_ray_length", tMaxPositiveRayLength );
-        aParameterLists( tFEMIndex ).add_parameter_list( pl );
+        aParameterLists( FEM::COMPUTATION ).add_parameter_list( pl );
     }
 
     /* ----------------------------------------------------------------------------------------------
@@ -844,7 +836,7 @@ namespace moris
          */
         Parameter_List pl = prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
         pl.set( "Solver_Type", "Amesos_Umfpack" );
-        aParameterLists( 0 ).add_parameter_list( pl );
+        aParameterLists( SOL::LINEAR_ALGORITHMS ).add_parameter_list( pl );
 
         /* --------------------------------------------------------------------------------------------
          */
@@ -852,7 +844,7 @@ namespace moris
         /* --------------------------------------------------------------------------------------------
          */
         pl = prm::create_linear_solver_parameter_list();
-        aParameterLists( 1 ).add_parameter_list( pl );
+        aParameterLists( SOL::LINEAR_SOLVERS ).add_parameter_list( pl );
 
         /* --------------------------------------------------------------------------------------------
          */
@@ -873,7 +865,7 @@ namespace moris
         pl.set( "NLA_remap_load_step_frequency", tRemapLoadStepFrequency );
         pl.set( "NLA_remap_iteration_frequency", tRemapIterationFrequency );
         pl.set( "NLA_remap_residual_change_tolerance", tRemapResidualChange );
-        aParameterLists( 2 ).add_parameter_list( pl );
+        aParameterLists( SOL::NONLINEAR_ALGORITHMS ).add_parameter_list( pl );
 
         /* --------------------------------------------------------------------------------------------
          */
@@ -882,7 +874,7 @@ namespace moris
          */
         pl = prm::create_nonlinear_solver_parameter_list();
         pl.set( "NLA_DofTypes", "UX,UY" );
-        aParameterLists( 3 ).add_parameter_list( pl );
+        aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list( pl );
 
         /* --------------------------------------------------------------------------------------------
          */
@@ -892,7 +884,7 @@ namespace moris
         pl = prm::create_time_solver_algorithm_parameter_list();
         pl.set( "TSA_Num_Time_Steps", 1 );
         pl.set( "TSA_Time_Frame", 10.0 );
-        aParameterLists( 4 ).add_parameter_list( pl );
+        aParameterLists( SOL::TIME_SOLVER_ALGORITHMS ).add_parameter_list( pl );
 
         /* --------------------------------------------------------------------------------------------
          */
@@ -903,7 +895,7 @@ namespace moris
         pl.set( "TSA_DofTypes", "UX,UY" );
         pl.set( "TSA_Output_Indices", "0" );
         pl.set( "TSA_Output_Criteria", F2STR( Output_Criterion ) );
-        aParameterLists( 5 ).add_parameter_list( pl );
+        aParameterLists( SOL::TIME_SOLVERS ).add_parameter_list( pl );
 
         /* --------------------------------------------------------------------------------------------
          */
@@ -912,7 +904,7 @@ namespace moris
          */
         pl = prm::create_solver_warehouse_parameterlist();
         // pl.set("SOL_save_operator_to_matlab", "jacobian");
-        aParameterLists( 6 ).add_parameter_list( pl );
+        aParameterLists( SOL::SOLVER_WAREHOUSE ).add_parameter_list( pl );
 
         /* --------------------------------------------------------------------------------------------
          */
@@ -920,7 +912,7 @@ namespace moris
         /* --------------------------------------------------------------------------------------------
          */
         pl = prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE );
-        aParameterLists( 7 ).add_parameter_list( pl );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( pl );
     }
 
     void MSIParameterList( Module_Parameter_Lists &aParameterLists )

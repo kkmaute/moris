@@ -434,15 +434,15 @@ namespace moris
     {
 
         aParameterLists( 0 ).add_parameter_list( prm::create_opt_problem_parameter_list() );
-        aParameterLists( 0 ).set( "is_optimization_problem", tIsOptimization );
-        aParameterLists( 0 ).set( "problem", "user_defined" );
-        aParameterLists( 0 ).set( "library", tSoFile );
+        aParameterLists.set( "is_optimization_problem", tIsOptimization );
+        aParameterLists.set( "problem", "user_defined" );
+        aParameterLists.set( "library", tSoFile );
 
         aParameterLists( 2 ).add_parameter_list( moris::prm::create_sweep_parameter_list() );
-        aParameterLists( 2 ).set( "hdf5_path", tHdf5File );
-        aParameterLists( 2 ).set( "num_evaluations_per_adv", "1" );
-        aParameterLists( 2 ).set( "finite_difference_type", "all" );
-        aParameterLists( 2 ).set( "finite_difference_epsilons", tSweepFdEpsilon );
+        aParameterLists.set( "hdf5_path", tHdf5File );
+        aParameterLists.set( "num_evaluations_per_adv", "1" );
+        aParameterLists.set( "finite_difference_type", "all" );
+        aParameterLists.set( "finite_difference_epsilons", tSweepFdEpsilon );
     }
 
     /* ------------------------------------------------------------------------ */
@@ -453,34 +453,34 @@ namespace moris
 
         aParameterLists( 0 ).add_parameter_list( prm::create_hmr_parameter_list() );
 
-        aParameterLists( 0 ).set( "number_of_elements_per_dimension", tNumElemsPerDim );
-        aParameterLists( 0 ).set( "domain_dimensions", tDomainDims );
-        aParameterLists( 0 ).set( "domain_offset", tDomainOffset );
-        aParameterLists( 0 ).set( "domain_sidesets", tDomainSidesets );
+        aParameterLists.set( "number_of_elements_per_dimension", tNumElemsPerDim );
+        aParameterLists.set( "domain_dimensions", tDomainDims );
+        aParameterLists.set( "domain_offset", tDomainOffset );
+        aParameterLists.set( "domain_sidesets", tDomainSidesets );
 
-        aParameterLists( 0 ).set( "lagrange_output_meshes", "0" );
+        aParameterLists.set( "lagrange_output_meshes", "0" );
 
-        aParameterLists( 0 ).set( "lagrange_orders", tLagrangeOrder );
-        aParameterLists( 0 ).set( "lagrange_pattern", "1" );
+        aParameterLists.set( "lagrange_orders", tLagrangeOrder );
+        aParameterLists.set( "lagrange_pattern", "1" );
 
-        aParameterLists( 0 ).set( "bspline_orders", tBsplineOrder );
-        aParameterLists( 0 ).set( "bspline_pattern", "0,1" );
+        aParameterLists.set( "bspline_orders", tBsplineOrder );
+        aParameterLists.set( "bspline_pattern", "0,1" );
 
-        aParameterLists( 0 ).set( "lagrange_to_bspline", "0,1" );
+        aParameterLists.set( "lagrange_to_bspline", "0,1" );
 
-        aParameterLists( 0 ).set( "truncate_bsplines", 1 );
-        aParameterLists( 0 ).set( "refinement_buffer", tRefineBuffer );
-        aParameterLists( 0 ).set( "staircase_buffer", tRefineBuffer );
+        aParameterLists.set( "truncate_bsplines", 1 );
+        aParameterLists.set( "refinement_buffer", tRefineBuffer );
+        aParameterLists.set( "staircase_buffer", tRefineBuffer );
 
-        aParameterLists( 0 ).set( "initial_refinement", tInitialRef );
-        aParameterLists( 0 ).set( "initial_refinement_pattern", "0,1" );
+        aParameterLists.set( "initial_refinement", tInitialRef );
+        aParameterLists.set( "initial_refinement_pattern", "0,1" );
 
-        aParameterLists( 0 ).set( "use_number_aura", 1 );
+        aParameterLists.set( "use_number_aura", 1 );
 
-        aParameterLists( 0 ).set( "use_multigrid", 0 );
-        aParameterLists( 0 ).set( "severity_level", 0 );
+        aParameterLists.set( "use_multigrid", 0 );
+        aParameterLists.set( "severity_level", 0 );
 
-        aParameterLists( 0 ).set( "write_lagrange_output_mesh_to_exodus", "HeatConduction_HMR.exo" );
+        aParameterLists.set( "write_lagrange_output_mesh_to_exodus", "HeatConduction_HMR.exo" );
     }
 
     /* ------------------------------------------------------------------------ */
@@ -489,17 +489,17 @@ namespace moris
     XTKParameterList( Module_Parameter_Lists& aParameterLists )
     {
         aParameterLists( 0 ).add_parameter_list( prm::create_xtk_parameter_list() );
-        aParameterLists( 0 ).set( "decompose", true );
-        aParameterLists( 0 ).set( "decomposition_type", "conformal" );
-        aParameterLists( 0 ).set( "enrich", true );
-        aParameterLists( 0 ).set( "basis_rank", "bspline" );
-        aParameterLists( 0 ).set( "enrich_mesh_indices", "0,1" );
-        aParameterLists( 0 ).set( "ghost_stab", tUseGhost );
-        aParameterLists( 0 ).set( "multigrid", false );
-        aParameterLists( 0 ).set( "verbose", false );
-        aParameterLists( 0 ).set( "high_to_low_dbl_side_sets", true );
-        aParameterLists( 0 ).set( "print_enriched_ig_mesh", false );
-        aParameterLists( 0 ).set( "exodus_output_XTK_ig_mesh", true );
+        aParameterLists.set( "decompose", true );
+        aParameterLists.set( "decomposition_type", "conformal" );
+        aParameterLists.set( "enrich", true );
+        aParameterLists.set( "basis_rank", "bspline" );
+        aParameterLists.set( "enrich_mesh_indices", "0,1" );
+        aParameterLists.set( "ghost_stab", tUseGhost );
+        aParameterLists.set( "multigrid", false );
+        aParameterLists.set( "verbose", false );
+        aParameterLists.set( "high_to_low_dbl_side_sets", true );
+        aParameterLists.set( "print_enriched_ig_mesh", false );
+        aParameterLists.set( "exodus_output_XTK_ig_mesh", true );
     }
 
     /* ------------------------------------------------------------------------ */
@@ -509,7 +509,7 @@ namespace moris
     {
 
         aParameterLists( 0 ).add_parameter_list( prm::create_gen_parameter_list() );
-        aParameterLists( 0 ).set( "IQI_types",
+        aParameterLists.set( "IQI_types",
                 "IQIInputThermalEnergy",
                 "IQIDiffusiveLower",
                 "IQIDiffusiveUpper",
@@ -518,23 +518,23 @@ namespace moris
                 "IQIStoredThermalEnergy",
                 "IQIInputThermalEnergySurface" );
 
-        aParameterLists( 0 ).set( "number_of_phases", 2 );
-        aParameterLists( 0 ).set( "phase_function_name", "get_phase_index" );
-        aParameterLists( 0 ).set( "output_mesh_file", tGENOutputFile );
-        aParameterLists( 0 ).set( "time_offset", 10.0 );
+        aParameterLists.set( "number_of_phases", 2 );
+        aParameterLists.set( "phase_function_name", "get_phase_index" );
+        aParameterLists.set( "output_mesh_file", tGENOutputFile );
+        aParameterLists.set( "time_offset", 10.0 );
 
-        // aParameterLists( 0 ).set( "evaluate_new_pts_as_linear", true);
+        // aParameterLists.set( "evaluate_new_pts_as_linear", true);
 
         // Inclusions
-        aParameterLists( 1 ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
-        aParameterLists( 1 ).set( "field_function_name", "Func_Sphere" );
-        aParameterLists( 1 ).set( "sensitivity_function_name", "Func_Sphere_Deriv" );
-        aParameterLists( 1 ).set( "number_of_refinements", tInterfaceRefinementSphere );
-        aParameterLists( 1 ).set( "refinement_mesh_index", 0 );
-        aParameterLists( 1 ).set( "isocontour_threshold", 0.0 );
-        aParameterLists( 1 ).set( "isocontour_tolerance", 1.0e-12 );
-        aParameterLists( 1 ).set( "intersection_tolerance", 1.0e-12 );
-        aParameterLists( 1 ).set( "use_multilinear_interpolation", false );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
+        aParameterLists.set( "field_function_name", "Func_Sphere" );
+        aParameterLists.set( "sensitivity_function_name", "Func_Sphere_Deriv" );
+        aParameterLists.set( "number_of_refinements", tInterfaceRefinementSphere );
+        aParameterLists.set( "refinement_mesh_index", 0 );
+        aParameterLists.set( "isocontour_threshold", 0.0 );
+        aParameterLists.set( "isocontour_tolerance", 1.0e-12 );
+        aParameterLists.set( "intersection_tolerance", 1.0e-12 );
+        aParameterLists.set( "use_multilinear_interpolation", false );
 
         if ( tUseAnalyticGeometry )
         {
@@ -543,9 +543,9 @@ namespace moris
         else
         {
             aParameterLists( 1 ).insert( "radius", tSphereRadius );
-            aParameterLists( 1 ).set( "discretization_mesh_index", 0 );
-            aParameterLists( 1 ).set( "discretization_lower_bound", -2.0 );
-            aParameterLists( 1 ).set( "discretization_upper_bound", 2.0 );
+            aParameterLists.set( "discretization_mesh_index", 0 );
+            aParameterLists.set( "discretization_lower_bound", -2.0 );
+            aParameterLists.set( "discretization_upper_bound", 2.0 );
         }
     }
 
@@ -555,103 +555,94 @@ namespace moris
     FEMParameterList( Module_Parameter_Lists& aParameterLists )
     {
 
-        // create a cell of cell of parameter list for fem
-        uint tPropIndex  = 0;
-        uint tCMIndex    = 1;
-        uint tSPIndex    = 2;
-        uint tIWGIndex   = 3;
-        uint tIQIIndex   = 4;
-        uint tFEMIndex   = 5;
-        uint tPhaseIndex = 7;
+         //------------------------------------------------------------------------------
 
-        //------------------------------------------------------------------------------
+        aParameterLists( FEM::PHASES ).add_parameter_list( prm::create_phase_parameter_list() );
+        aParameterLists.set( "phase_name", "PhaseSolid" );
+        aParameterLists.set( "phase_indices", "0" );
 
-        aParameterLists( tPhaseIndex ).add_parameter_list( prm::create_phase_parameter_list() );
-        aParameterLists( tPhaseIndex ).set( "phase_name", "PhaseSolid" );
-        aParameterLists( tPhaseIndex ).set( "phase_indices", "0" );
+        aParameterLists( FEM::PHASES ).add_parameter_list( prm::create_phase_parameter_list() );
+        aParameterLists.set( "phase_name", "PhaseVoid" );
+        aParameterLists.set( "phase_indices", "1" );
 
-        aParameterLists( tPhaseIndex ).add_parameter_list( prm::create_phase_parameter_list() );
-        aParameterLists( tPhaseIndex ).set( "phase_name", "PhaseVoid" );
-        aParameterLists( tPhaseIndex ).set( "phase_indices", "1" );
-
-        aParameterLists( tPhaseIndex ).add_parameter_list( prm::create_phase_parameter_list() );
-        aParameterLists( tPhaseIndex ).set( "phase_name", "PhaseAll" );
-        aParameterLists( tPhaseIndex ).set( "phase_indices", "0,1" );
+        aParameterLists( FEM::PHASES ).add_parameter_list( prm::create_phase_parameter_list() );
+        aParameterLists.set( "phase_name", "PhaseAll" );
+        aParameterLists.set( "phase_indices", "0,1" );
 
         //------------------------------------------------------------------------------
         // fill the property part of the parameter list
 
         // soild properties ------------------------------------------------------------
 
-        aParameterLists( tPropIndex ).add_parameter_list( prm::create_property_parameter_list() );
-        aParameterLists( tPropIndex ).set( "property_name", "PropDensity" );
-        aParameterLists( tPropIndex ).set( "function_parameters", tDensity );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists.set( "property_name", "PropDensity" );
+        aParameterLists.set( "function_parameters", tDensity );
 
-        aParameterLists( tPropIndex ).add_parameter_list( prm::create_property_parameter_list() );
-        aParameterLists( tPropIndex ).set( "property_name", "PropCapacity" );
-        aParameterLists( tPropIndex ).set( "function_parameters", tCapacity );
-
-        // create  conductivity property
-        aParameterLists( tPropIndex ).add_parameter_list( prm::create_property_parameter_list() );
-        aParameterLists( tPropIndex ).set( "property_name", "PropConductivity" );
-        aParameterLists( tPropIndex ).set( "function_parameters", tConductivity );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists.set( "property_name", "PropCapacity" );
+        aParameterLists.set( "function_parameters", tCapacity );
 
         // create  conductivity property
-        aParameterLists( tPropIndex ).add_parameter_list( prm::create_property_parameter_list() );
-        aParameterLists( tPropIndex ).set( "property_name", "PropConductivityVoid" );
-        aParameterLists( tPropIndex ).set( "function_parameters", "10.0" );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists.set( "property_name", "PropConductivity" );
+        aParameterLists.set( "function_parameters", tConductivity );
+
+        // create  conductivity property
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists.set( "property_name", "PropConductivityVoid" );
+        aParameterLists.set( "function_parameters", "10.0" );
 
         // BC properties ---------------------------------------------------------------
 
         // create inlet temperature property
-        aParameterLists( tPropIndex ).add_parameter_list( prm::create_property_parameter_list() );
-        aParameterLists( tPropIndex ).set( "property_name", "PropInletTemp" );
-        aParameterLists( tPropIndex ).set( "function_parameters", moris_to_string( tInTemp ) );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists.set( "property_name", "PropInletTemp" );
+        aParameterLists.set( "function_parameters", moris_to_string( tInTemp ) );
 
         // create heat load property
-        aParameterLists( tPropIndex ).add_parameter_list( prm::create_property_parameter_list() );
-        aParameterLists( tPropIndex ).set( "property_name", "PropVolumetricHeatFlux" );
-        aParameterLists( tPropIndex ).set( "value_function", "Func_HeatLoad" );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists.set( "property_name", "PropVolumetricHeatFlux" );
+        aParameterLists.set( "value_function", "Func_HeatLoad" );
 
         // create heat load property
-        aParameterLists( tPropIndex ).add_parameter_list( prm::create_property_parameter_list() );
-        aParameterLists( tPropIndex ).set( "property_name", "PropSurfaceHeatFlux" );
-        aParameterLists( tPropIndex ).set( "function_parameters", tSurfaceHeatLoad );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists.set( "property_name", "PropSurfaceHeatFlux" );
+        aParameterLists.set( "function_parameters", tSurfaceHeatLoad );
 
-        aParameterLists( tPropIndex ).add_parameter_list( prm::create_property_parameter_list() );
-        aParameterLists( tPropIndex ).set( "property_name", "PropInitialTemp" );
-        aParameterLists( tPropIndex ).set( "function_parameters", moris_to_string( tInTemp ) );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists.set( "property_name", "PropInitialTemp" );
+        aParameterLists.set( "function_parameters", moris_to_string( tInTemp ) );
 
-        aParameterLists( tPropIndex ).add_parameter_list( prm::create_property_parameter_list() );
-        aParameterLists( tPropIndex ).set( "property_name", "PropTimeContinuity" );
-        aParameterLists( tPropIndex ).set( "function_parameters", moris_to_string( tTimePenalty * std::stod( tDensity ) * std::stod( tCapacity ) ) );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists.set( "property_name", "PropTimeContinuity" );
+        aParameterLists.set( "function_parameters", moris_to_string( tTimePenalty * std::stod( tDensity ) * std::stod( tCapacity ) ) );
 
         // Stored Thermal Energy
-        aParameterLists( tPropIndex ).add_parameter_list( prm::create_property_parameter_list() );
-        aParameterLists( tPropIndex ).set( "property_name", "PropStoredThermalEnergy" );
-        aParameterLists( tPropIndex ).set( "value_function", "Func_StoredThermalEnergy" );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists.set( "property_name", "PropStoredThermalEnergy" );
+        aParameterLists.set( "value_function", "Func_StoredThermalEnergy" );
 
         //------------------------------------------------------------------------------
         // fill the constitutive model part of the parameter list
 
         //  CM --------------------------------------------------------------------
         // create  diffusion CM
-        aParameterLists( tCMIndex ).add_parameter_list( prm::create_constitutive_model_parameter_list() );
-        aParameterLists( tCMIndex ).set( "constitutive_name", "CMDiffusion" );
-        aParameterLists( tCMIndex ).set( "phase_name", "PhaseSolid" );
-        aParameterLists( tCMIndex ).set( "constitutive_type", fem::Constitutive_Type::DIFF_LIN_ISO );
-        aParameterLists( tCMIndex ).set( "dof_dependencies", std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
-        aParameterLists( tCMIndex ).set( "properties",
+        aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list( prm::create_constitutive_model_parameter_list() );
+        aParameterLists.set( "constitutive_name", "CMDiffusion" );
+        aParameterLists.set( "phase_name", "PhaseSolid" );
+        aParameterLists.set( "constitutive_type", fem::Constitutive_Type::DIFF_LIN_ISO );
+        aParameterLists.set( "dof_dependencies", std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
+        aParameterLists.set( "properties",
                 "PropConductivity,Conductivity;"
                 "PropDensity     ,Density;"
                 "PropCapacity    ,HeatCapacity" );
 
-        aParameterLists( tCMIndex ).add_parameter_list( prm::create_constitutive_model_parameter_list() );
-        aParameterLists( tCMIndex ).set( "constitutive_name", "CMDiffusionVoid" );
-        aParameterLists( tCMIndex ).set( "phase_name", "PhaseVoid" );
-        aParameterLists( tCMIndex ).set( "constitutive_type", fem::Constitutive_Type::DIFF_LIN_ISO );
-        aParameterLists( tCMIndex ).set( "dof_dependencies", std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
-        aParameterLists( tCMIndex ).set( "properties",
+        aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list( prm::create_constitutive_model_parameter_list() );
+        aParameterLists.set( "constitutive_name", "CMDiffusionVoid" );
+        aParameterLists.set( "phase_name", "PhaseVoid" );
+        aParameterLists.set( "constitutive_type", fem::Constitutive_Type::DIFF_LIN_ISO );
+        aParameterLists.set( "dof_dependencies", std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
+        aParameterLists.set( "properties",
                 "PropConductivityVoid,Conductivity;"
                 "PropDensity     ,Density;"
                 "PropCapacity    ,HeatCapacity" );
@@ -660,113 +651,113 @@ namespace moris
         // fill the stabilization parameter part of the parameter list
 
         // create Nitsche for  temperature
-        aParameterLists( tSPIndex ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
-        aParameterLists( tSPIndex ).set( "stabilization_name", "SPNitscheT" );
-        aParameterLists( tSPIndex ).set( "leader_phase_name", "PhaseSolid" );
-        aParameterLists( tSPIndex ).set( "stabilization_type", fem::Stabilization_Type::DIRICHLET_NITSCHE );
-        aParameterLists( tSPIndex ).set( "function_parameters", tNitschePenThermal );
-        aParameterLists( tSPIndex ).set( "leader_properties", "PropConductivity,Material" );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
+        aParameterLists.set( "stabilization_name", "SPNitscheT" );
+        aParameterLists.set( "leader_phase_name", "PhaseSolid" );
+        aParameterLists.set( "stabilization_type", fem::Stabilization_Type::DIRICHLET_NITSCHE );
+        aParameterLists.set( "function_parameters", tNitschePenThermal );
+        aParameterLists.set( "leader_properties", "PropConductivity,Material" );
 
         // create parameter list for Nitsche stabilization parameter for inclusion-2 material interface
-        aParameterLists( tSPIndex ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
-        aParameterLists( tSPIndex ).set( "stabilization_name", "SPInterfaceNitsche" );
-        aParameterLists( tSPIndex ).set( "leader_phase_name", "PhaseSolid" );
-        aParameterLists( tSPIndex ).set( "follower_phase_name", "PhaseVoid" );
-        aParameterLists( tSPIndex ).set( "stabilization_type", fem::Stabilization_Type::NITSCHE_INTERFACE );
-        aParameterLists( tSPIndex ).set( "function_parameters", tNitschePenThermal );
-        aParameterLists( tSPIndex ).set( "leader_properties", "PropConductivity,Material" );
-        aParameterLists( tSPIndex ).set( "follower_properties", "PropConductivityVoid,Material" );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
+        aParameterLists.set( "stabilization_name", "SPInterfaceNitsche" );
+        aParameterLists.set( "leader_phase_name", "PhaseSolid" );
+        aParameterLists.set( "follower_phase_name", "PhaseVoid" );
+        aParameterLists.set( "stabilization_type", fem::Stabilization_Type::NITSCHE_INTERFACE );
+        aParameterLists.set( "function_parameters", tNitschePenThermal );
+        aParameterLists.set( "leader_properties", "PropConductivity,Material" );
+        aParameterLists.set( "follower_properties", "PropConductivityVoid,Material" );
 
         // create ghost penalty  temperature
-        aParameterLists( tSPIndex ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
-        aParameterLists( tSPIndex ).set( "stabilization_name", "SPGPTemp" );
-        aParameterLists( tSPIndex ).set( "leader_phase_name", "PhaseSolid" );
-        aParameterLists( tSPIndex ).set( "follower_phase_name", "PhaseSolid" );
-        aParameterLists( tSPIndex ).set( "stabilization_type", fem::Stabilization_Type::GHOST_DISPL );
-        aParameterLists( tSPIndex ).set( "function_parameters", "0.05" );
-        aParameterLists( tSPIndex ).set( "leader_properties", "PropConductivity,Material" );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
+        aParameterLists.set( "stabilization_name", "SPGPTemp" );
+        aParameterLists.set( "leader_phase_name", "PhaseSolid" );
+        aParameterLists.set( "follower_phase_name", "PhaseSolid" );
+        aParameterLists.set( "stabilization_type", fem::Stabilization_Type::GHOST_DISPL );
+        aParameterLists.set( "function_parameters", "0.05" );
+        aParameterLists.set( "leader_properties", "PropConductivity,Material" );
 
-        aParameterLists( tSPIndex ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
-        aParameterLists( tSPIndex ).set( "stabilization_name", "SPGPTempVoid" );
-        aParameterLists( tSPIndex ).set( "leader_phase_name", "PhaseVoid" );
-        aParameterLists( tSPIndex ).set( "follower_phase_name", "PhaseVoid" );
-        aParameterLists( tSPIndex ).set( "stabilization_type", fem::Stabilization_Type::GHOST_DISPL );
-        aParameterLists( tSPIndex ).set( "function_parameters", "0.05" );
-        aParameterLists( tSPIndex ).set( "leader_properties", "PropConductivityVoid,Material" );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
+        aParameterLists.set( "stabilization_name", "SPGPTempVoid" );
+        aParameterLists.set( "leader_phase_name", "PhaseVoid" );
+        aParameterLists.set( "follower_phase_name", "PhaseVoid" );
+        aParameterLists.set( "stabilization_type", fem::Stabilization_Type::GHOST_DISPL );
+        aParameterLists.set( "function_parameters", "0.05" );
+        aParameterLists.set( "leader_properties", "PropConductivityVoid,Material" );
 
         //------------------------------------------------------------------------------
         // fill the IWG part of the parameter list
 
         //  bulk IWGs -------------------------------------------------------------
         // diffusion
-        aParameterLists( tIWGIndex ).add_parameter_list( prm::create_IWG_parameter_list() );
-        aParameterLists( tIWGIndex ).set( "IWG_name", "IWGDiffusionBulk" );
-        aParameterLists( tIWGIndex ).set( "leader_phase_name", "PhaseSolid" );
-        aParameterLists( tIWGIndex ).set( "IWG_type", fem::IWG_Type::SPATIALDIFF_BULK );
-        aParameterLists( tIWGIndex ).set( "dof_residual", "TEMP" );
-        aParameterLists( tIWGIndex ).set( "leader_properties", "PropVolumetricHeatFlux,Load" );
-        aParameterLists( tIWGIndex ).set( "leader_constitutive_models", "CMDiffusion,Diffusion" );
+        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists.set( "IWG_name", "IWGDiffusionBulk" );
+        aParameterLists.set( "leader_phase_name", "PhaseSolid" );
+        aParameterLists.set( "IWG_type", fem::IWG_Type::SPATIALDIFF_BULK );
+        aParameterLists.set( "dof_residual", "TEMP" );
+        aParameterLists.set( "leader_properties", "PropVolumetricHeatFlux,Load" );
+        aParameterLists.set( "leader_constitutive_models", "CMDiffusion,Diffusion" );
 
-        aParameterLists( tIWGIndex ).add_parameter_list( prm::create_IWG_parameter_list() );
-        aParameterLists( tIWGIndex ).set( "IWG_name", "IWGDiffusionVoid" );
-        aParameterLists( tIWGIndex ).set( "leader_phase_name", "PhaseVoid" );
-        aParameterLists( tIWGIndex ).set( "IWG_type", fem::IWG_Type::SPATIALDIFF_BULK );
-        aParameterLists( tIWGIndex ).set( "dof_residual", "TEMP" );
-        aParameterLists( tIWGIndex ).set( "leader_properties", "PropVolumetricHeatFlux,Load" );
-        aParameterLists( tIWGIndex ).set( "leader_constitutive_models", "CMDiffusionVoid,Diffusion" );
+        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists.set( "IWG_name", "IWGDiffusionVoid" );
+        aParameterLists.set( "leader_phase_name", "PhaseVoid" );
+        aParameterLists.set( "IWG_type", fem::IWG_Type::SPATIALDIFF_BULK );
+        aParameterLists.set( "dof_residual", "TEMP" );
+        aParameterLists.set( "leader_properties", "PropVolumetricHeatFlux,Load" );
+        aParameterLists.set( "leader_constitutive_models", "CMDiffusionVoid,Diffusion" );
 
-        aParameterLists( tIWGIndex ).add_parameter_list( prm::create_IWG_parameter_list() );
-        aParameterLists( tIWGIndex ).set( "IWG_name", "IWGInterfaceSolidVoid" );
-        aParameterLists( tIWGIndex ).set( "IWG_bulk_type", fem::Element_Type::DOUBLE_SIDESET );
-        aParameterLists( tIWGIndex ).set( "leader_phase_name", "PhaseSolid" );
-        aParameterLists( tIWGIndex ).set( "follower_phase_name", "PhaseVoid" );
-        aParameterLists( tIWGIndex ).set( "IWG_type", fem::IWG_Type::SPATIALDIFF_INTERFACE_UNSYMMETRIC_NITSCHE );
-        aParameterLists( tIWGIndex ).set( "dof_residual", "TEMP" );
-        aParameterLists( tIWGIndex ).set( "leader_constitutive_models", "CMDiffusion,Diffusion" );
-        aParameterLists( tIWGIndex ).set( "follower_constitutive_models", "CMDiffusionVoid,Diffusion" );
-        aParameterLists( tIWGIndex ).set( "stabilization_parameters", "SPInterfaceNitsche,NitscheInterface" );
+        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists.set( "IWG_name", "IWGInterfaceSolidVoid" );
+        aParameterLists.set( "IWG_bulk_type", fem::Element_Type::DOUBLE_SIDESET );
+        aParameterLists.set( "leader_phase_name", "PhaseSolid" );
+        aParameterLists.set( "follower_phase_name", "PhaseVoid" );
+        aParameterLists.set( "IWG_type", fem::IWG_Type::SPATIALDIFF_INTERFACE_UNSYMMETRIC_NITSCHE );
+        aParameterLists.set( "dof_residual", "TEMP" );
+        aParameterLists.set( "leader_constitutive_models", "CMDiffusion,Diffusion" );
+        aParameterLists.set( "follower_constitutive_models", "CMDiffusionVoid,Diffusion" );
+        aParameterLists.set( "stabilization_parameters", "SPInterfaceNitsche,NitscheInterface" );
 
         // Inlet BC IWG ----------------------------------------------------------------
 
         // inlet temperature
-        aParameterLists( tIWGIndex ).add_parameter_list( prm::create_IWG_parameter_list() );
-        aParameterLists( tIWGIndex ).set( "IWG_name", "IWGInletTemp" );
-        aParameterLists( tIWGIndex ).set( "IWG_bulk_type", fem::Element_Type::SIDESET );
-        aParameterLists( tIWGIndex ).set( "leader_phase_name", "PhaseSolid" );
-        aParameterLists( tIWGIndex ).set( "side_ordinals", "4" );
-        aParameterLists( tIWGIndex ).set( "IWG_type", fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
-        aParameterLists( tIWGIndex ).set( "dof_residual", "TEMP" );
-        aParameterLists( tIWGIndex ).set( "leader_properties", "PropInletTemp,Dirichlet" );
-        aParameterLists( tIWGIndex ).set( "leader_constitutive_models", "CMDiffusion,Diffusion" );
-        aParameterLists( tIWGIndex ).set( "stabilization_parameters", "SPNitscheT,DirichletNitsche" );
+        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists.set( "IWG_name", "IWGInletTemp" );
+        aParameterLists.set( "IWG_bulk_type", fem::Element_Type::SIDESET );
+        aParameterLists.set( "leader_phase_name", "PhaseSolid" );
+        aParameterLists.set( "side_ordinals", "4" );
+        aParameterLists.set( "IWG_type", fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
+        aParameterLists.set( "dof_residual", "TEMP" );
+        aParameterLists.set( "leader_properties", "PropInletTemp,Dirichlet" );
+        aParameterLists.set( "leader_constitutive_models", "CMDiffusion,Diffusion" );
+        aParameterLists.set( "stabilization_parameters", "SPNitscheT,DirichletNitsche" );
 
         // Outlet BC IWG ----------------------------------------------------------------
 
         // heat flux around inclusion
-        aParameterLists( tIWGIndex ).add_parameter_list( prm::create_IWG_parameter_list() );
-        aParameterLists( tIWGIndex ).set( "IWG_name", "IWGIntefaceHeat" );
-        aParameterLists( tIWGIndex ).set( "IWG_bulk_type", fem::Element_Type::SIDESET );
-        aParameterLists( tIWGIndex ).set( "leader_phase_name", "PhaseSolid" );
-        aParameterLists( tIWGIndex ).set( "neighbor_phases", "PhaseVoid" );
-        aParameterLists( tIWGIndex ).set( "IWG_type", fem::IWG_Type::SPATIALDIFF_NEUMANN );
-        aParameterLists( tIWGIndex ).set( "dof_residual", "TEMP" );
-        aParameterLists( tIWGIndex ).set( "leader_properties", "PropSurfaceHeatFlux,Neumann" );
+        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists.set( "IWG_name", "IWGIntefaceHeat" );
+        aParameterLists.set( "IWG_bulk_type", fem::Element_Type::SIDESET );
+        aParameterLists.set( "leader_phase_name", "PhaseSolid" );
+        aParameterLists.set( "neighbor_phases", "PhaseVoid" );
+        aParameterLists.set( "IWG_type", fem::IWG_Type::SPATIALDIFF_NEUMANN );
+        aParameterLists.set( "dof_residual", "TEMP" );
+        aParameterLists.set( "leader_properties", "PropSurfaceHeatFlux,Neumann" );
 
         // Time continuity ----------------------------------------------------------------
 
         if ( tUseTimeContinuity )
         {
             // Time continuity temperature
-            aParameterLists( tIWGIndex ).add_parameter_list( prm::create_IWG_parameter_list() );
-            aParameterLists( tIWGIndex ).set( "IWG_name", "IWGTimeContinuity" );
-            aParameterLists( tIWGIndex ).set( "IWG_type", ( fem::IWG_Type::TIME_CONTINUITY_DOF ) );
-            aParameterLists( tIWGIndex ).set( "dof_residual", "TEMP" );
-            aParameterLists( tIWGIndex ).set( "leader_properties",
+            aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+            aParameterLists.set( "IWG_name", "IWGTimeContinuity" );
+            aParameterLists.set( "IWG_type", ( fem::IWG_Type::TIME_CONTINUITY_DOF ) );
+            aParameterLists.set( "dof_residual", "TEMP" );
+            aParameterLists.set( "leader_properties",
                     "PropTimeContinuity,WeightCurrent;"
                     "PropTimeContinuity,WeightPrevious;"
                     "PropInitialTemp,InitialCondition" );
-            aParameterLists( tIWGIndex ).set( "leader_phase_name", "PhaseSolid" );
-            aParameterLists( tIWGIndex ).set( "time_continuity", true );
+            aParameterLists.set( "leader_phase_name", "PhaseSolid" );
+            aParameterLists.set( "time_continuity", true );
             }
 
         // Ghost  ----------------------------------------------------------------
@@ -774,195 +765,195 @@ namespace moris
         if ( tUseGhost )
         {
             // ghost  temperature
-            aParameterLists( tIWGIndex ).add_parameter_list( prm::create_IWG_parameter_list() );
-            aParameterLists( tIWGIndex ).set( "IWG_name", "IWGGPTemp" );
-            aParameterLists( tIWGIndex ).set( "IWG_bulk_type", fem::Element_Type::DOUBLE_SIDESET );
-            aParameterLists( tIWGIndex ).set( "leader_phase_name", "PhaseSolid" );
-            aParameterLists( tIWGIndex ).set( "follower_phase_name", "PhaseSolid" );
-            aParameterLists( tIWGIndex ).set( "IWG_type", fem::IWG_Type::GHOST_NORMAL_FIELD );
-            aParameterLists( tIWGIndex ).set( "dof_residual", "TEMP" );
-            aParameterLists( tIWGIndex ).set( "stabilization_parameters", "SPGPTemp,GhostSP" );
-            aParameterLists( tIWGIndex ).set( "ghost_order", (uint)tDispOrder );
+            aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+            aParameterLists.set( "IWG_name", "IWGGPTemp" );
+            aParameterLists.set( "IWG_bulk_type", fem::Element_Type::DOUBLE_SIDESET );
+            aParameterLists.set( "leader_phase_name", "PhaseSolid" );
+            aParameterLists.set( "follower_phase_name", "PhaseSolid" );
+            aParameterLists.set( "IWG_type", fem::IWG_Type::GHOST_NORMAL_FIELD );
+            aParameterLists.set( "dof_residual", "TEMP" );
+            aParameterLists.set( "stabilization_parameters", "SPGPTemp,GhostSP" );
+            aParameterLists.set( "ghost_order", (uint)tDispOrder );
 
             // ghost  temperature
-            aParameterLists( tIWGIndex ).add_parameter_list( prm::create_IWG_parameter_list() );
-            aParameterLists( tIWGIndex ).set( "IWG_name", "IWGGPTempVoid" );
-            aParameterLists( tIWGIndex ).set( "IWG_bulk_type", fem::Element_Type::DOUBLE_SIDESET );
-            aParameterLists( tIWGIndex ).set( "leader_phase_name", "PhaseVoid" );
-            aParameterLists( tIWGIndex ).set( "follower_phase_name", "PhaseVoid" );
-            aParameterLists( tIWGIndex ).set( "IWG_type", fem::IWG_Type::GHOST_NORMAL_FIELD );
-            aParameterLists( tIWGIndex ).set( "dof_residual", "TEMP" );
-            aParameterLists( tIWGIndex ).set( "stabilization_parameters", "SPGPTempVoid,GhostSP" );
-            aParameterLists( tIWGIndex ).set( "ghost_order", (uint)tDispOrder );
+            aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+            aParameterLists.set( "IWG_name", "IWGGPTempVoid" );
+            aParameterLists.set( "IWG_bulk_type", fem::Element_Type::DOUBLE_SIDESET );
+            aParameterLists.set( "leader_phase_name", "PhaseVoid" );
+            aParameterLists.set( "follower_phase_name", "PhaseVoid" );
+            aParameterLists.set( "IWG_type", fem::IWG_Type::GHOST_NORMAL_FIELD );
+            aParameterLists.set( "dof_residual", "TEMP" );
+            aParameterLists.set( "stabilization_parameters", "SPGPTempVoid,GhostSP" );
+            aParameterLists.set( "ghost_order", (uint)tDispOrder );
         }
 
         //------------------------------------------------------------------------------
         // fill the IQI part of the parameter list
 
         // temperature
-        aParameterLists( tIQIIndex ).add_parameter_list( prm::create_IQI_parameter_list() );
-        aParameterLists( tIQIIndex ).set( "IQI_name", "IQIBulkTEMP" );
-        aParameterLists( tIQIIndex ).set( "leader_phase_name", "PhaseAll" );
-        aParameterLists( tIQIIndex ).set( "IQI_type", fem::IQI_Type::DOF );
-        aParameterLists( tIQIIndex ).set( "dof_quantity", "TEMP" );
-        aParameterLists( tIQIIndex ).set( "vectorial_field_index", 0 );
+        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists.set( "IQI_name", "IQIBulkTEMP" );
+        aParameterLists.set( "leader_phase_name", "PhaseAll" );
+        aParameterLists.set( "IQI_type", fem::IQI_Type::DOF );
+        aParameterLists.set( "dof_quantity", "TEMP" );
+        aParameterLists.set( "vectorial_field_index", 0 );
 
         // input thermal energy
-        aParameterLists( tIQIIndex ).add_parameter_list( prm::create_IQI_parameter_list() );
-        aParameterLists( tIQIIndex ).set( "IQI_name", "IQIInputThermalEnergy" );
-        aParameterLists( tIQIIndex ).set( "leader_phase_name", "PhaseSolid" );
-        aParameterLists( tIQIIndex ).set( "IQI_type", ( fem::IQI_Type::PROPERTY ) );
-        aParameterLists( tIQIIndex ).set( "leader_properties", "PropVolumetricHeatFlux,Property" );
+        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists.set( "IQI_name", "IQIInputThermalEnergy" );
+        aParameterLists.set( "leader_phase_name", "PhaseSolid" );
+        aParameterLists.set( "IQI_type", ( fem::IQI_Type::PROPERTY ) );
+        aParameterLists.set( "leader_properties", "PropVolumetricHeatFlux,Property" );
 
         // input thermal energy
-        aParameterLists( tIQIIndex ).add_parameter_list( prm::create_IQI_parameter_list() );
-        aParameterLists( tIQIIndex ).set( "IQI_name", "IQIInputThermalEnergySurface" );
-        aParameterLists( tIQIIndex ).set( "IQI_bulk_type", fem::Element_Type::SIDESET );
-        aParameterLists( tIQIIndex ).set( "leader_phase_name", "PhaseSolid" );
-        aParameterLists( tIQIIndex ).set( "side_ordinals", "2" );
-        aParameterLists( tIQIIndex ).set( "IQI_type", ( fem::IQI_Type::PROPERTY ) );
-        aParameterLists( tIQIIndex ).set( "leader_properties", "PropSurfaceHeatFlux,Property" );
+        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists.set( "IQI_name", "IQIInputThermalEnergySurface" );
+        aParameterLists.set( "IQI_bulk_type", fem::Element_Type::SIDESET );
+        aParameterLists.set( "leader_phase_name", "PhaseSolid" );
+        aParameterLists.set( "side_ordinals", "2" );
+        aParameterLists.set( "IQI_type", ( fem::IQI_Type::PROPERTY ) );
+        aParameterLists.set( "leader_properties", "PropSurfaceHeatFlux,Property" );
 
         //  diffusive flux
-        aParameterLists( tIQIIndex ).add_parameter_list( prm::create_IQI_parameter_list() );
-        aParameterLists( tIQIIndex ).set( "IQI_name", "IQIDiffusiveLower" );
-        aParameterLists( tIQIIndex ).set( "IQI_bulk_type", fem::Element_Type::SIDESET );
-        aParameterLists( tIQIIndex ).set( "leader_phase_name", "PhaseSolid" );
-        aParameterLists( tIQIIndex ).set( "side_ordinals", "1" );
-        aParameterLists( tIQIIndex ).set( "IQI_type", fem::IQI_Type::THERMAL_ENERGY_DIFFUSIVE_FLUX );
-        aParameterLists( tIQIIndex ).set( "leader_constitutive_models", "CMDiffusion,Diffusion" );
+        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists.set( "IQI_name", "IQIDiffusiveLower" );
+        aParameterLists.set( "IQI_bulk_type", fem::Element_Type::SIDESET );
+        aParameterLists.set( "leader_phase_name", "PhaseSolid" );
+        aParameterLists.set( "side_ordinals", "1" );
+        aParameterLists.set( "IQI_type", fem::IQI_Type::THERMAL_ENERGY_DIFFUSIVE_FLUX );
+        aParameterLists.set( "leader_constitutive_models", "CMDiffusion,Diffusion" );
 
         //  diffusive flux
-        aParameterLists( tIQIIndex ).add_parameter_list( prm::create_IQI_parameter_list() );
-        aParameterLists( tIQIIndex ).set( "IQI_name", "IQIDiffusiveUpper" );
-        aParameterLists( tIQIIndex ).set( "IQI_bulk_type", fem::Element_Type::SIDESET );
-        aParameterLists( tIQIIndex ).set( "leader_phase_name", "PhaseSolid" );
-        aParameterLists( tIQIIndex ).set( "side_ordinals", "3" );
-        aParameterLists( tIQIIndex ).set( "IQI_type", fem::IQI_Type::THERMAL_ENERGY_DIFFUSIVE_FLUX );
-        aParameterLists( tIQIIndex ).set( "leader_constitutive_models", "CMDiffusion,Diffusion" );
+        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists.set( "IQI_name", "IQIDiffusiveUpper" );
+        aParameterLists.set( "IQI_bulk_type", fem::Element_Type::SIDESET );
+        aParameterLists.set( "leader_phase_name", "PhaseSolid" );
+        aParameterLists.set( "side_ordinals", "3" );
+        aParameterLists.set( "IQI_type", fem::IQI_Type::THERMAL_ENERGY_DIFFUSIVE_FLUX );
+        aParameterLists.set( "leader_constitutive_models", "CMDiffusion,Diffusion" );
 
         //  diffusive flux
-        aParameterLists( tIQIIndex ).add_parameter_list( prm::create_IQI_parameter_list() );
-        aParameterLists( tIQIIndex ).set( "IQI_name", "IQIDiffusiveFront" );
-        aParameterLists( tIQIIndex ).set( "IQI_bulk_type", fem::Element_Type::SIDESET );
-        aParameterLists( tIQIIndex ).set( "leader_phase_name", "PhaseSolid" );
-        aParameterLists( tIQIIndex ).set( "side_ordinals", "4" );
-        aParameterLists( tIQIIndex ).set( "IQI_type", fem::IQI_Type::THERMAL_ENERGY_DIFFUSIVE_FLUX );
-        aParameterLists( tIQIIndex ).set( "leader_constitutive_models", "CMDiffusion,Diffusion" );
+        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists.set( "IQI_name", "IQIDiffusiveFront" );
+        aParameterLists.set( "IQI_bulk_type", fem::Element_Type::SIDESET );
+        aParameterLists.set( "leader_phase_name", "PhaseSolid" );
+        aParameterLists.set( "side_ordinals", "4" );
+        aParameterLists.set( "IQI_type", fem::IQI_Type::THERMAL_ENERGY_DIFFUSIVE_FLUX );
+        aParameterLists.set( "leader_constitutive_models", "CMDiffusion,Diffusion" );
 
         //  diffusive flux
-        aParameterLists( tIQIIndex ).add_parameter_list( prm::create_IQI_parameter_list() );
-        aParameterLists( tIQIIndex ).set( "IQI_name", "IQIDiffusiveBack" );
-        aParameterLists( tIQIIndex ).set( "IQI_bulk_type", fem::Element_Type::SIDESET );
-        aParameterLists( tIQIIndex ).set( "leader_phase_name", "PhaseSolid" );
-        aParameterLists( tIQIIndex ).set( "side_ordinals", "2" );
-        aParameterLists( tIQIIndex ).set( "IQI_type", fem::IQI_Type::THERMAL_ENERGY_DIFFUSIVE_FLUX );
-        aParameterLists( tIQIIndex ).set( "leader_constitutive_models", "CMDiffusion,Diffusion" );
+        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists.set( "IQI_name", "IQIDiffusiveBack" );
+        aParameterLists.set( "IQI_bulk_type", fem::Element_Type::SIDESET );
+        aParameterLists.set( "leader_phase_name", "PhaseSolid" );
+        aParameterLists.set( "side_ordinals", "2" );
+        aParameterLists.set( "IQI_type", fem::IQI_Type::THERMAL_ENERGY_DIFFUSIVE_FLUX );
+        aParameterLists.set( "leader_constitutive_models", "CMDiffusion,Diffusion" );
 
         // stored thermal energy
-        aParameterLists( tIQIIndex ).add_parameter_list( prm::create_IQI_parameter_list() );
-        aParameterLists( tIQIIndex ).set( "IQI_name", "IQIStoredThermalEnergy" );
-        aParameterLists( tIQIIndex ).set( "leader_phase_name", "PhaseSolid" );
-        aParameterLists( tIQIIndex ).set( "IQI_type", ( fem::IQI_Type::PROPERTY ) );
-        aParameterLists( tIQIIndex ).set( "leader_properties", "PropStoredThermalEnergy,Property" );
+        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists.set( "IQI_name", "IQIStoredThermalEnergy" );
+        aParameterLists.set( "leader_phase_name", "PhaseSolid" );
+        aParameterLists.set( "IQI_type", ( fem::IQI_Type::PROPERTY ) );
+        aParameterLists.set( "leader_properties", "PropStoredThermalEnergy,Property" );
 
         //------------------------------------------------------------------------------
         // fill the computation part of the parameter list
-        aParameterLists( tFEMIndex ).add_parameter_list( prm::create_computation_parameter_list() );
-        aParameterLists( tFEMIndex ).set( "print_physics_model", false );
+        aParameterLists( FEM::COMPUTATION ).add_parameter_list( prm::create_computation_parameter_list() );
+        aParameterLists.set( "print_physics_model", false );
 
-        aParameterLists( tFEMIndex ).set( "finite_difference_scheme", fem::FDScheme_Type::POINT_3_CENTRAL );
-        aParameterLists( tFEMIndex ).set( "finite_difference_perturbation_size", tFEMFdEpsilon );
+        aParameterLists.set( "finite_difference_scheme", fem::FDScheme_Type::POINT_3_CENTRAL );
+        aParameterLists.set( "finite_difference_perturbation_size", tFEMFdEpsilon );
     }
 
     void
     SOLParameterList( Module_Parameter_Lists& aParameterLists )
     {
 
-        aParameterLists( 0 ).add_parameter_list( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
+        aParameterLists( SOL::LINEAR_ALGORITHMS ).add_parameter_list( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
 #ifdef MORIS_USE_MUMPS
-        aParameterLists( 0 ).set( "Solver_Type", "Amesos_Mumps" );
+        aParameterLists.set( "Solver_Type", "Amesos_Mumps" );
 #else
-        aParameterLists( 0 ).set( "Solver_Type", "Amesos_Superludist" );
+        aParameterLists.set( "Solver_Type", "Amesos_Superludist" );
 #endif
 
         //------------------------------------------------------------------------------
 
-        aParameterLists( 1 ).add_parameter_list( moris::prm::create_linear_solver_parameter_list() );
-        aParameterLists( 1 ).set( "DLA_Linear_solver_algorithms", "0" );
+        aParameterLists( SOL::LINEAR_SOLVERS ).add_parameter_list( moris::prm::create_linear_solver_parameter_list() );
+        aParameterLists.set( "DLA_Linear_solver_algorithms", "0" );
 
         //------------------------------------------------------------------------------
 
-        aParameterLists( 2 ).add_parameter_list( moris::prm::create_nonlinear_algorithm_parameter_list() );    // nonlinear algorithm index 0
-        aParameterLists( 2 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
-        aParameterLists( 2 ).set( "NLA_Linear_solver", 0 );
-        aParameterLists( 2 ).set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
-        aParameterLists( 2 ).set( "NLA_relaxation_parameter", tNLA_relaxation_parameter );
-        aParameterLists( 2 ).set( "NLA_max_iter", tNLA_max_iter );
+        aParameterLists( SOL::NONLINEAR_ALGORITHMS ).add_parameter_list( moris::prm::create_nonlinear_algorithm_parameter_list() );    // nonlinear algorithm index 0
+        aParameterLists.set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
+        aParameterLists.set( "NLA_Linear_solver", 0 );
+        aParameterLists.set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
+        aParameterLists.set( "NLA_relaxation_parameter", tNLA_relaxation_parameter );
+        aParameterLists.set( "NLA_max_iter", tNLA_max_iter );
 
         //------------------------------------------------------------------------------
 
-        aParameterLists( 3 ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );    // 1: thermal subproblem
-        aParameterLists( 3 ).set( "NLA_Nonlinear_solver_algorithms", "0" );             // set nonlinear algorithm with index 0
-        aParameterLists( 3 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
-        aParameterLists( 3 ).set( "NLA_DofTypes", "TEMP" );
+        aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );    // 1: thermal subproblem
+        aParameterLists.set( "NLA_Nonlinear_solver_algorithms", "0" );             // set nonlinear algorithm with index 0
+        aParameterLists.set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
+        aParameterLists.set( "NLA_DofTypes", "TEMP" );
 
         // ----------------------------------------------------------
 
-        aParameterLists( 4 ).add_parameter_list( moris::prm::create_time_solver_algorithm_parameter_list() );
-        aParameterLists( 4 ).set( "TSA_Nonlinear_Solver", 0 );                // using NLBGS for forward problem
-        aParameterLists( 4 ).set( "TSA_Nonlinear_Sensitivity_Solver", 0 );    // using monlithic for sensitivity problem
+        aParameterLists( SOL::TIME_SOLVER_ALGORITHMS ).add_parameter_list( moris::prm::create_time_solver_algorithm_parameter_list() );
+        aParameterLists.set( "TSA_Nonlinear_Solver", 0 );                // using NLBGS for forward problem
+        aParameterLists.set( "TSA_Nonlinear_Sensitivity_Solver", 0 );    // using monlithic for sensitivity problem
 
         if ( tUseTimeContinuity )
         {
-            aParameterLists( 4 ).set( "TSA_Num_Time_Steps", tTimeSteps );
-            aParameterLists( 4 ).set( "TSA_Time_Frame", tMaxTime );
+            aParameterLists.set( "TSA_Num_Time_Steps", tTimeSteps );
+            aParameterLists.set( "TSA_Time_Frame", tMaxTime );
         }
 
         //------------------------------------------------------------------------------
 
-        aParameterLists( 5 ).add_parameter_list( moris::prm::create_time_solver_parameter_list() );
-        aParameterLists( 5 ).set( "TSA_DofTypes", "TEMP" );
-        aParameterLists( 5 ).set( "TSA_Initialize_Sol_Vec", "TEMP,0.0" );
-        aParameterLists( 5 ).set( "TSA_Output_Indices", "0" );
-        aParameterLists( 5 ).set( "TSA_Output_Criteria", "Output_Criterion" );
+        aParameterLists( SOL::TIME_SOLVERS ).add_parameter_list( moris::prm::create_time_solver_parameter_list() );
+        aParameterLists.set( "TSA_DofTypes", "TEMP" );
+        aParameterLists.set( "TSA_Initialize_Sol_Vec", "TEMP,0.0" );
+        aParameterLists.set( "TSA_Output_Indices", "0" );
+        aParameterLists.set( "TSA_Output_Criteria", "Output_Criterion" );
 
         if ( tUseTimeContinuity )
         {
-            aParameterLists( 5 ).set( "TSA_time_level_per_type", "TEMP,2" );
+            aParameterLists.set( "TSA_time_level_per_type", "TEMP,2" );
         }
         else
         {
-            aParameterLists( 5 ).set( "TSA_time_level_per_type", "TEMP,1" );
+            aParameterLists.set( "TSA_time_level_per_type", "TEMP,1" );
         }
 
         //------------------------------------------------------------------------------
 
-        aParameterLists( 6 ).add_parameter_list( moris::prm::create_solver_warehouse_parameterlist() );
-        aParameterLists( 6 ).set( "SOL_save_operator_to_matlab", "Jacobian" );
+        aParameterLists( SOL::SOLVER_WAREHOUSE ).add_parameter_list( moris::prm::create_solver_warehouse_parameterlist() );
+        aParameterLists.set( "SOL_save_operator_to_matlab", "Jacobian" );
 
-        aParameterLists( 7 ).add_parameter_list( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE ) );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE ) );
     }
 
     void
     MSIParameterList( Module_Parameter_Lists& aParameterLists )
     {
         aParameterLists( 0 ).add_parameter_list( prm::create_msi_parameter_list() );
-        aParameterLists( 0 ).set( "TEMP", 1 );
+        aParameterLists.set( "TEMP", 1 );
     }
 
     void
     VISParameterList( Module_Parameter_Lists& aParameterLists )
     {
         aParameterLists( 0 ).add_parameter_list( prm::create_vis_parameter_list() );
-        aParameterLists( 0 ).set( "File_Name", std::pair< std::string, std::string >( "./", tExoFile ) );
-        aParameterLists( 0 ).set( "Mesh_Type", vis::VIS_Mesh_Type::STANDARD );
-        aParameterLists( 0 ).set( "Set_Names", tAllPhases );
-        aParameterLists( 0 ).set( "Field_Names", "TEMP,HEAT" );
-        aParameterLists( 0 ).set( "Field_Type", "NODAL,NODAL" );
-        aParameterLists( 0 ).set( "IQI_Names", "IQIBulkTEMP,IQIInputThermalEnergy" );
-        aParameterLists( 0 ).set( "Save_Frequency", 1 );
-        aParameterLists( 0 ).set( "Time_Offset", 10.0 );
+        aParameterLists.set( "File_Name", std::pair< std::string, std::string >( "./", tExoFile ) );
+        aParameterLists.set( "Mesh_Type", vis::VIS_Mesh_Type::STANDARD );
+        aParameterLists.set( "Set_Names", tAllPhases );
+        aParameterLists.set( "Field_Names", "TEMP,HEAT" );
+        aParameterLists.set( "Field_Type", "NODAL,NODAL" );
+        aParameterLists.set( "IQI_Names", "IQIBulkTEMP,IQIInputThermalEnergy" );
+        aParameterLists.set( "Save_Frequency", 1 );
+        aParameterLists.set( "Time_Offset", 10.0 );
     }
 
     void

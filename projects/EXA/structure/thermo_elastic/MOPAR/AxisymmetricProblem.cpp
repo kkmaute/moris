@@ -385,8 +385,8 @@ namespace moris
     {
         aParameterLists( 0 ).add_parameter_list( prm::create_opt_problem_parameter_list() );
 
-        aParameterLists( 0 ).set( "is_optimization_problem", false );
-        aParameterLists( 0 ).set( "workflow", "STK_FEM" );
+        aParameterLists.set( "is_optimization_problem", false );
+        aParameterLists.set( "workflow", "STK_FEM" );
     }
 
     void
@@ -397,7 +397,7 @@ namespace moris
         std::string tMeshFileName = tPrefix + "/projects/EXA/structure/thermo_elastic/MOPAR/exomesh.e";
 
         aParameterLists( 0 ).add_parameter_list( prm::create_stk_parameter_list() );;
-        aParameterLists( 0 ).set( "input_file", tMeshFileName );
+        aParameterLists.set( "input_file", tMeshFileName );
 
         gLogger.set_severity_level( 0 );
     }
@@ -412,119 +412,119 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        aParameterLists( 0 ).add_parameter_list( prm::create_property_parameter_list() );
-        aParameterLists( 0 ).set( "property_name", "PropDensity" );
-        aParameterLists( 0 ).set( "function_parameters", "0.0" );
-        aParameterLists( 0 ).set( "value_function", "Func_Density" );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists.set( "property_name", "PropDensity" );
+        aParameterLists.set( "function_parameters", "0.0" );
+        aParameterLists.set( "value_function", "Func_Density" );
 
-        aParameterLists( 0 ).add_parameter_list( prm::create_property_parameter_list() );
-        aParameterLists( 0 ).set( "property_name", "PropDensity1" );
-        aParameterLists( 0 ).set( "function_parameters", std::to_string( tDens_c ) );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists.set( "property_name", "PropDensity1" );
+        aParameterLists.set( "function_parameters", std::to_string( tDens_c ) );
 
-        aParameterLists( 0 ).add_parameter_list( prm::create_property_parameter_list() );
-        aParameterLists( 0 ).set( "property_name", "PropDensity2" );
-        aParameterLists( 0 ).set( "function_parameters", std::to_string( tDens_al ) );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists.set( "property_name", "PropDensity2" );
+        aParameterLists.set( "function_parameters", std::to_string( tDens_al ) );
 
-        aParameterLists( 0 ).add_parameter_list( prm::create_property_parameter_list() );
-        aParameterLists( 0 ).set( "property_name", "PropYoungs" );
-        aParameterLists( 0 ).set( "function_parameters", "0.0" );
-        aParameterLists( 0 ).set( "value_function", "Func_Thermal_Modulus_Geo" );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists.set( "property_name", "PropYoungs" );
+        aParameterLists.set( "function_parameters", "0.0" );
+        aParameterLists.set( "value_function", "Func_Thermal_Modulus_Geo" );
 
-        aParameterLists( 0 ).add_parameter_list( prm::create_property_parameter_list() );
-        aParameterLists( 0 ).set( "property_name", "PropYoungs1" );
-        aParameterLists( 0 ).set( "function_parameters", "1.0" );
-        aParameterLists( 0 ).set( "value_function", "Func_Thermal_Modulus_Block" );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists.set( "property_name", "PropYoungs1" );
+        aParameterLists.set( "function_parameters", "1.0" );
+        aParameterLists.set( "value_function", "Func_Thermal_Modulus_Block" );
 
-        aParameterLists( 0 ).add_parameter_list( prm::create_property_parameter_list() );
-        aParameterLists( 0 ).set( "property_name", "PropYoungs2" );
-        aParameterLists( 0 ).set( "function_parameters", "2.0" );
-        aParameterLists( 0 ).set( "value_function", "Func_Thermal_Modulus_Block" );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists.set( "property_name", "PropYoungs2" );
+        aParameterLists.set( "function_parameters", "2.0" );
+        aParameterLists.set( "value_function", "Func_Thermal_Modulus_Block" );
 
-        aParameterLists( 0 ).add_parameter_list( prm::create_property_parameter_list() );
-        aParameterLists( 0 ).set( "property_name", "PropPoisson" );
-        aParameterLists( 0 ).set( "function_parameters", "0.0" );
-        aParameterLists( 0 ).set( "value_function", "Func_Poisson" );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists.set( "property_name", "PropPoisson" );
+        aParameterLists.set( "function_parameters", "0.0" );
+        aParameterLists.set( "value_function", "Func_Poisson" );
 
-        aParameterLists( 0 ).add_parameter_list( prm::create_property_parameter_list() );
-        aParameterLists( 0 ).set( "property_name", "PropPoisson1" );
-        aParameterLists( 0 ).set( "function_parameters", std::to_string( tPois_c ) );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists.set( "property_name", "PropPoisson1" );
+        aParameterLists.set( "function_parameters", std::to_string( tPois_c ) );
 
-        aParameterLists( 0 ).add_parameter_list( prm::create_property_parameter_list() );
-        aParameterLists( 0 ).set( "property_name", "PropPoisson2" );
-        aParameterLists( 0 ).set( "function_parameters", std::to_string( tPois_al ) );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists.set( "property_name", "PropPoisson2" );
+        aParameterLists.set( "function_parameters", std::to_string( tPois_al ) );
 
-        aParameterLists( 0 ).add_parameter_list( prm::create_property_parameter_list() );
-        aParameterLists( 0 ).set( "property_name", "PropCTE" );
-        aParameterLists( 0 ).set( "function_parameters", "0.0" );
-        aParameterLists( 0 ).set( "value_function", "Func_CTE" );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists.set( "property_name", "PropCTE" );
+        aParameterLists.set( "function_parameters", "0.0" );
+        aParameterLists.set( "value_function", "Func_CTE" );
 
-        aParameterLists( 0 ).add_parameter_list( prm::create_property_parameter_list() );
-        aParameterLists( 0 ).set( "property_name", "PropCTE1" );
-        aParameterLists( 0 ).set( "function_parameters", std::to_string( tCTE_c ) );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists.set( "property_name", "PropCTE1" );
+        aParameterLists.set( "function_parameters", std::to_string( tCTE_c ) );
 
-        aParameterLists( 0 ).add_parameter_list( prm::create_property_parameter_list() );
-        aParameterLists( 0 ).set( "property_name", "PropCTE2" );
-        aParameterLists( 0 ).set( "function_parameters", std::to_string( tCTE_al ) );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists.set( "property_name", "PropCTE2" );
+        aParameterLists.set( "function_parameters", std::to_string( tCTE_al ) );
 
-        aParameterLists( 0 ).add_parameter_list( prm::create_property_parameter_list() );
-        aParameterLists( 0 ).set( "property_name", "PropRefTemp" );
-        aParameterLists( 0 ).set( "function_parameters", tRefTemp );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists.set( "property_name", "PropRefTemp" );
+        aParameterLists.set( "function_parameters", tRefTemp );
 
         // properties of dummy L2 projection of stress fields (supression for RBMs)
-        aParameterLists( 0 ).add_parameter_list( prm::create_property_parameter_list() );
-        aParameterLists( 0 ).set( "property_name", "DummySource" );
-        aParameterLists( 0 ).set( "function_parameters", "0.0" );
-        aParameterLists( 0 ).set( "value_function", "Func_Const" );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists.set( "property_name", "DummySource" );
+        aParameterLists.set( "function_parameters", "0.0" );
+        aParameterLists.set( "value_function", "Func_Const" );
 
-        aParameterLists( 0 ).add_parameter_list( prm::create_property_parameter_list() );
-        aParameterLists( 0 ).set( "property_name", "DummyL2Coefficient" );
-        aParameterLists( 0 ).set( "function_parameters", "0.0" );
-        aParameterLists( 0 ).set( "value_function", "Func_Const" );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists.set( "property_name", "DummyL2Coefficient" );
+        aParameterLists.set( "function_parameters", "0.0" );
+        aParameterLists.set( "value_function", "Func_Const" );
 
-        aParameterLists( 0 ).add_parameter_list( prm::create_property_parameter_list() );
-        aParameterLists( 0 ).set( "property_name", "DummyDiffusionCoefficient" );
-        aParameterLists( 0 ).set( "function_parameters", "0.00001" );
-        aParameterLists( 0 ).set( "value_function", "Func_Const" );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists.set( "property_name", "DummyDiffusionCoefficient" );
+        aParameterLists.set( "function_parameters", "0.00001" );
+        aParameterLists.set( "value_function", "Func_Const" );
 
         // properties of boundary conditions
-        aParameterLists( 0 ).add_parameter_list( prm::create_property_parameter_list() );
-        aParameterLists( 0 ).set( "property_name", "PropDirichlet" );
-        aParameterLists( 0 ).set( "function_parameters", "0.0;0.0" );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists.set( "property_name", "PropDirichlet" );
+        aParameterLists.set( "function_parameters", "0.0;0.0" );
 
-        aParameterLists( 0 ).add_parameter_list( prm::create_property_parameter_list() );
-        aParameterLists( 0 ).set( "property_name", "PropSelectX" );
-        aParameterLists( 0 ).set( "function_parameters", "0.0;0.0" );
-        aParameterLists( 0 ).set( "value_function", "Func_Select_X" );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists.set( "property_name", "PropSelectX" );
+        aParameterLists.set( "function_parameters", "0.0;0.0" );
+        aParameterLists.set( "value_function", "Func_Select_X" );
 
         // create parameter list for property 10
-        aParameterLists( 0 ).add_parameter_list( prm::create_property_parameter_list() );
-        aParameterLists( 0 ).set( "property_name", "PropNeumann" );
-        aParameterLists( 0 ).set( "function_parameters", "0.0" );
-        aParameterLists( 0 ).set( "value_function", "Func_Import_Traction" );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists.set( "property_name", "PropNeumann" );
+        aParameterLists.set( "function_parameters", "0.0" );
+        aParameterLists.set( "value_function", "Func_Import_Traction" );
 
         // create rotation axis property
-        aParameterLists( 0 ).add_parameter_list( prm::create_property_parameter_list() );
-        aParameterLists( 0 ).set( "property_name", "PropRotAxis" );
-        aParameterLists( 0 ).set( "function_parameters", "0.0,0.0;1.0,0.0" );
-        aParameterLists( 0 ).set( "value_function", "Func_AxiRotation" );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists.set( "property_name", "PropRotAxis" );
+        aParameterLists.set( "function_parameters", "0.0,0.0;1.0,0.0" );
+        aParameterLists.set( "value_function", "Func_AxiRotation" );
 
-        aParameterLists( 0 ).add_parameter_list( prm::create_property_parameter_list() );
-        aParameterLists( 0 ).set( "property_name", "PropField" );
-        aParameterLists( 0 ).set( "value_function", "Func_Field" );
-        aParameterLists( 0 ).set( "field_dependencies", "FIELD_1" );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists.set( "property_name", "PropField" );
+        aParameterLists.set( "value_function", "Func_Field" );
+        aParameterLists.set( "field_dependencies", "FIELD_1" );
 
         //------------------------------------------------------------------------------
 
         // create parameter list for constitutive model 1
-        aParameterLists( 1 ).add_parameter_list( prm::create_constitutive_model_parameter_list() );
-        aParameterLists( 1 ).set( "constitutive_name", "CMStrucLinIso1" );
-        aParameterLists( 1 ).set( "constitutive_type", fem::Constitutive_Type::STRUC_LIN_ISO );
-        aParameterLists( 1 ).set( "model_type", fem::Model_Type::AXISYMMETRIC );
-        aParameterLists( 1 ).set( "dof_dependencies", std::pair< std::string, std::string >( "UX,UY", "Displacement" ) );
+        aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list( prm::create_constitutive_model_parameter_list() );
+        aParameterLists.set( "constitutive_name", "CMStrucLinIso1" );
+        aParameterLists.set( "constitutive_type", fem::Constitutive_Type::STRUC_LIN_ISO );
+        aParameterLists.set( "model_type", fem::Model_Type::AXISYMMETRIC );
+        aParameterLists.set( "dof_dependencies", std::pair< std::string, std::string >( "UX,UY", "Displacement" ) );
 
         if ( byGeometry )
         {
-            aParameterLists( 1 ).set( "properties",
+            aParameterLists.set( "properties",
                     "PropYoungs,YoungsModulus;"
                     "PropPoisson,PoissonRatio;"
                     "PropRotAxis,AxisymRotationAxis;"
@@ -534,7 +534,7 @@ namespace moris
         }
         else
         {
-            aParameterLists( 1 ).set( "properties",
+            aParameterLists.set( "properties",
                     "PropYoungs1,YoungsModulus;"
                     "PropPoisson1,PoissonRatio;"
                     "PropRotAxis,AxisymRotationAxis;"
@@ -544,14 +544,14 @@ namespace moris
         }
 
         // create parameter list for constitutive model 1
-        aParameterLists( 1 ).add_parameter_list( prm::create_constitutive_model_parameter_list() );
-        aParameterLists( 1 ).set( "constitutive_name", "CMStrucLinIso2" );
-        aParameterLists( 1 ).set( "constitutive_type", fem::Constitutive_Type::STRUC_LIN_ISO );
-        aParameterLists( 1 ).set( "model_type", fem::Model_Type::AXISYMMETRIC );
-        aParameterLists( 1 ).set( "dof_dependencies", std::pair< std::string, std::string >( "UX,UY", "Displacement" ) );
+        aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list( prm::create_constitutive_model_parameter_list() );
+        aParameterLists.set( "constitutive_name", "CMStrucLinIso2" );
+        aParameterLists.set( "constitutive_type", fem::Constitutive_Type::STRUC_LIN_ISO );
+        aParameterLists.set( "model_type", fem::Model_Type::AXISYMMETRIC );
+        aParameterLists.set( "dof_dependencies", std::pair< std::string, std::string >( "UX,UY", "Displacement" ) );
         if ( byGeometry )
         {
-            aParameterLists( 1 ).set( "properties",
+            aParameterLists.set( "properties",
                     "PropYoungs,YoungsModulus;"
                     "PropPoisson,PoissonRatio;"
                     "PropRotAxis,AxisymRotationAxis;"
@@ -561,7 +561,7 @@ namespace moris
         }
         else
         {
-            aParameterLists( 1 ).set( "properties",
+            aParameterLists.set( "properties",
                     "PropYoungs2,YoungsModulus;"
                     "PropPoisson2,PoissonRatio;"
                     "PropRotAxis,AxisymRotationAxis;"
@@ -573,168 +573,168 @@ namespace moris
         //------------------------------------------------------------------------------
 
         // create parameter list for stabilization parameter 1
-        aParameterLists( 2 ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
-        aParameterLists( 2 ).set( "stabilization_name", "SPNitsche" );
-        aParameterLists( 2 ).set( "stabilization_type", fem::Stabilization_Type::DIRICHLET_NITSCHE );
-        aParameterLists( 2 ).set( "function_parameters", "100.0" );
-        aParameterLists( 2 ).set( "leader_properties", "PropYoungs1,Material" );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
+        aParameterLists.set( "stabilization_name", "SPNitsche" );
+        aParameterLists.set( "stabilization_type", fem::Stabilization_Type::DIRICHLET_NITSCHE );
+        aParameterLists.set( "function_parameters", "100.0" );
+        aParameterLists.set( "leader_properties", "PropYoungs1,Material" );
 
         //------------------------------------------------------------------------------
         // Bulk Terms
-        aParameterLists( 3 ).add_parameter_list( prm::create_IWG_parameter_list() );
-        aParameterLists( 3 ).set( "IWG_name", "IWGBulkU_1" );
-        aParameterLists( 3 ).set( "IWG_type", fem::IWG_Type::STRUC_LINEAR_BULK );
-        aParameterLists( 3 ).set( "dof_residual", "UX,UY" );
-        aParameterLists( 3 ).set( "leader_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
-        aParameterLists( 3 ).set( "leader_constitutive_models", "CMStrucLinIso1,ElastLinIso" );
-        aParameterLists( 3 ).set( "leader_properties", "PropRotAxis,Thickness" );
-        aParameterLists( 3 ).set( "mesh_set_names", "block_1" );
+        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists.set( "IWG_name", "IWGBulkU_1" );
+        aParameterLists.set( "IWG_type", fem::IWG_Type::STRUC_LINEAR_BULK );
+        aParameterLists.set( "dof_residual", "UX,UY" );
+        aParameterLists.set( "leader_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
+        aParameterLists.set( "leader_constitutive_models", "CMStrucLinIso1,ElastLinIso" );
+        aParameterLists.set( "leader_properties", "PropRotAxis,Thickness" );
+        aParameterLists.set( "mesh_set_names", "block_1" );
 
         // Bulk Terms
-        aParameterLists( 3 ).add_parameter_list( prm::create_IWG_parameter_list() );
-        aParameterLists( 3 ).set( "IWG_name", "IWGBulkU_2" );
-        aParameterLists( 3 ).set( "IWG_type", fem::IWG_Type::STRUC_LINEAR_BULK );
-        aParameterLists( 3 ).set( "dof_residual", "UX,UY" );
-        aParameterLists( 3 ).set( "leader_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
-        aParameterLists( 3 ).set( "leader_constitutive_models", "CMStrucLinIso2,ElastLinIso" );
-        aParameterLists( 3 ).set( "leader_properties", "PropRotAxis,Thickness" );
-        aParameterLists( 3 ).set( "mesh_set_names", "block_2" );
+        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists.set( "IWG_name", "IWGBulkU_2" );
+        aParameterLists.set( "IWG_type", fem::IWG_Type::STRUC_LINEAR_BULK );
+        aParameterLists.set( "dof_residual", "UX,UY" );
+        aParameterLists.set( "leader_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
+        aParameterLists.set( "leader_constitutive_models", "CMStrucLinIso2,ElastLinIso" );
+        aParameterLists.set( "leader_properties", "PropRotAxis,Thickness" );
+        aParameterLists.set( "mesh_set_names", "block_2" );
 
         // Dirichlet Boundary
-        aParameterLists( 3 ).add_parameter_list( prm::create_IWG_parameter_list() );
-        aParameterLists( 3 ).set( "IWG_name", "IWGDirichletU_1" );
-        aParameterLists( 3 ).set( "IWG_type", fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE );
-        aParameterLists( 3 ).set( "dof_residual", "UX,UY" );
-        aParameterLists( 3 ).set( "leader_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
-        aParameterLists( 3 ).set( "leader_properties", "PropDirichlet,Dirichlet;PropSelectX,Select;PropRotAxis,Thickness" );
-        aParameterLists( 3 ).set( "leader_constitutive_models", "CMStrucLinIso1,ElastLinIso" );
-        aParameterLists( 3 ).set( "stabilization_parameters", "SPNitsche,DirichletNitsche" );
-        aParameterLists( 3 ).set( "mesh_set_names", "side_2" );
+        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists.set( "IWG_name", "IWGDirichletU_1" );
+        aParameterLists.set( "IWG_type", fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE );
+        aParameterLists.set( "dof_residual", "UX,UY" );
+        aParameterLists.set( "leader_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
+        aParameterLists.set( "leader_properties", "PropDirichlet,Dirichlet;PropSelectX,Select;PropRotAxis,Thickness" );
+        aParameterLists.set( "leader_constitutive_models", "CMStrucLinIso1,ElastLinIso" );
+        aParameterLists.set( "stabilization_parameters", "SPNitsche,DirichletNitsche" );
+        aParameterLists.set( "mesh_set_names", "side_2" );
 
-        aParameterLists( 3 ).add_parameter_list( prm::create_IWG_parameter_list() );
-        aParameterLists( 3 ).set( "IWG_name", "IWGDirichletU_2" );
-        aParameterLists( 3 ).set( "IWG_type", fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE );
-        aParameterLists( 3 ).set( "dof_residual", "UX,UY" );
-        aParameterLists( 3 ).set( "leader_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
-        aParameterLists( 3 ).set( "leader_properties", "PropDirichlet,Dirichlet;PropSelectX,Select;PropRotAxis,Thickness" );
-        aParameterLists( 3 ).set( "leader_constitutive_models", "CMStrucLinIso2,ElastLinIso" );
-        aParameterLists( 3 ).set( "stabilization_parameters", "SPNitsche,DirichletNitsche" );
-        aParameterLists( 3 ).set( "mesh_set_names", "side_3" );
+        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists.set( "IWG_name", "IWGDirichletU_2" );
+        aParameterLists.set( "IWG_type", fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE );
+        aParameterLists.set( "dof_residual", "UX,UY" );
+        aParameterLists.set( "leader_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
+        aParameterLists.set( "leader_properties", "PropDirichlet,Dirichlet;PropSelectX,Select;PropRotAxis,Thickness" );
+        aParameterLists.set( "leader_constitutive_models", "CMStrucLinIso2,ElastLinIso" );
+        aParameterLists.set( "stabilization_parameters", "SPNitsche,DirichletNitsche" );
+        aParameterLists.set( "mesh_set_names", "side_3" );
 
         // Neumann Boundary
-        aParameterLists( 3 ).add_parameter_list( prm::create_IWG_parameter_list() );
-        aParameterLists( 3 ).set( "IWG_name", "IWGNeumannFlux" );
-        aParameterLists( 3 ).set( "IWG_type", fem::IWG_Type::STRUC_LINEAR_NEUMANN );
-        aParameterLists( 3 ).set( "dof_residual", "UX,UY" );
-        aParameterLists( 3 ).set( "leader_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
-        aParameterLists( 3 ).set( "leader_properties", "PropNeumann,Traction;PropRotAxis,Thickness" );
-        aParameterLists( 3 ).set( "mesh_set_names", "side_1" );
+        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists.set( "IWG_name", "IWGNeumannFlux" );
+        aParameterLists.set( "IWG_type", fem::IWG_Type::STRUC_LINEAR_NEUMANN );
+        aParameterLists.set( "dof_residual", "UX,UY" );
+        aParameterLists.set( "leader_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
+        aParameterLists.set( "leader_properties", "PropNeumann,Traction;PropRotAxis,Thickness" );
+        aParameterLists.set( "mesh_set_names", "side_1" );
 
         // Stress projection for block 1
-        aParameterLists( 3 ).add_parameter_list( prm::create_IWG_parameter_list() );
-        aParameterLists( 3 ).set( "IWG_name", "IWGStress_1" );
-        aParameterLists( 3 ).set( "IWG_type", fem::IWG_Type::STRUC_VON_MISES_STRESS );
-        aParameterLists( 3 ).set( "dof_residual", "STRESS_DOF" );
-        aParameterLists( 3 ).set( "leader_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
-        aParameterLists( 3 ).set( "leader_constitutive_models", "CMStrucLinIso1,ElastLinIso" );
-        aParameterLists( 3 ).set( "mesh_set_names", "block_1" );
+        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists.set( "IWG_name", "IWGStress_1" );
+        aParameterLists.set( "IWG_type", fem::IWG_Type::STRUC_VON_MISES_STRESS );
+        aParameterLists.set( "dof_residual", "STRESS_DOF" );
+        aParameterLists.set( "leader_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
+        aParameterLists.set( "leader_constitutive_models", "CMStrucLinIso1,ElastLinIso" );
+        aParameterLists.set( "mesh_set_names", "block_1" );
 
         // Dummy equation for STRESS_DOF in block_2
-        aParameterLists( 3 ).add_parameter_list( prm::create_IWG_parameter_list() );
-        aParameterLists( 3 ).set( "IWG_name", "IWGL2_2" );
-        aParameterLists( 3 ).set( "IWG_type", fem::IWG_Type::L2 );
-        aParameterLists( 3 ).set( "dof_residual", "STRESS_DOF" );
-        aParameterLists( 3 ).set( "leader_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
-        aParameterLists( 3 ).set( "leader_properties",    //
+        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists.set( "IWG_name", "IWGL2_2" );
+        aParameterLists.set( "IWG_type", fem::IWG_Type::L2 );
+        aParameterLists.set( "dof_residual", "STRESS_DOF" );
+        aParameterLists.set( "leader_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
+        aParameterLists.set( "leader_properties",    //
                 "DummySource,Source;DummyL2Coefficient,L2coefficient;DummyDiffusionCoefficient,Diffusion" );
-        aParameterLists( 3 ).set( "mesh_set_names", "block_2" );
+        aParameterLists.set( "mesh_set_names", "block_2" );
 
         // Stress projection for block 2
-        aParameterLists( 3 ).add_parameter_list( prm::create_IWG_parameter_list() );
-        aParameterLists( 3 ).set( "IWG_name", "IWGStress_2" );
-        aParameterLists( 3 ).set( "IWG_type", fem::IWG_Type::STRUC_VON_MISES_STRESS );
-        aParameterLists( 3 ).set( "dof_residual", "VX" );
-        aParameterLists( 3 ).set( "leader_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
-        aParameterLists( 3 ).set( "leader_constitutive_models", "CMStrucLinIso2,ElastLinIso" );
-        aParameterLists( 3 ).set( "mesh_set_names", "block_2" );
+        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists.set( "IWG_name", "IWGStress_2" );
+        aParameterLists.set( "IWG_type", fem::IWG_Type::STRUC_VON_MISES_STRESS );
+        aParameterLists.set( "dof_residual", "VX" );
+        aParameterLists.set( "leader_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
+        aParameterLists.set( "leader_constitutive_models", "CMStrucLinIso2,ElastLinIso" );
+        aParameterLists.set( "mesh_set_names", "block_2" );
 
         // Dummy equation for VX in block_1
-        aParameterLists( 3 ).add_parameter_list( prm::create_IWG_parameter_list() );
-        aParameterLists( 3 ).set( "IWG_name", "IWGL2_1" );
-        aParameterLists( 3 ).set( "IWG_type", fem::IWG_Type::L2 );
-        aParameterLists( 3 ).set( "dof_residual", "VX" );
-        aParameterLists( 3 ).set( "leader_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
-        aParameterLists( 3 ).set( "leader_properties",    //
+        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists.set( "IWG_name", "IWGL2_1" );
+        aParameterLists.set( "IWG_type", fem::IWG_Type::L2 );
+        aParameterLists.set( "dof_residual", "VX" );
+        aParameterLists.set( "leader_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
+        aParameterLists.set( "leader_properties",    //
                 "DummySource,Source;DummyL2Coefficient,L2coefficient;DummyDiffusionCoefficient,Diffusion" );
-        aParameterLists( 3 ).set( "mesh_set_names", "block_1" );
+        aParameterLists.set( "mesh_set_names", "block_1" );
 
         //------------------------------------------------------------------------------
-        aParameterLists( 4 ).add_parameter_list( prm::create_IQI_parameter_list() );
-        aParameterLists( 4 ).set( "IQI_name", "IQIBulkDISPX" );
-        aParameterLists( 4 ).set( "IQI_type", fem::IQI_Type::DOF );
-        aParameterLists( 4 ).set( "dof_quantity", "UX,UY" );
-        aParameterLists( 4 ).set( "leader_dof_dependencies", "UX,UY" );
-        aParameterLists( 4 ).set( "vectorial_field_index", 0 );
-        aParameterLists( 4 ).set( "mesh_set_names", "block_1,block_2" );
+        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists.set( "IQI_name", "IQIBulkDISPX" );
+        aParameterLists.set( "IQI_type", fem::IQI_Type::DOF );
+        aParameterLists.set( "dof_quantity", "UX,UY" );
+        aParameterLists.set( "leader_dof_dependencies", "UX,UY" );
+        aParameterLists.set( "vectorial_field_index", 0 );
+        aParameterLists.set( "mesh_set_names", "block_1,block_2" );
 
-        aParameterLists( 4 ).add_parameter_list( prm::create_IQI_parameter_list() );
-        aParameterLists( 4 ).set( "IQI_name", "IQIBulkDISPY" );
-        aParameterLists( 4 ).set( "IQI_type", fem::IQI_Type::DOF );
-        aParameterLists( 4 ).set( "dof_quantity", "UX,UY" );
-        aParameterLists( 4 ).set( "leader_dof_dependencies", "UX,UY" );
-        aParameterLists( 4 ).set( "vectorial_field_index", 1 );
-        aParameterLists( 4 ).set( "mesh_set_names", "block_1,block_2" );
-
-        // nodal von-mises stresses for shell
-        aParameterLists( 4 ).add_parameter_list( prm::create_IQI_parameter_list() );
-        aParameterLists( 4 ).set( "IQI_name", "IQIVMStress1" );
-        aParameterLists( 4 ).set( "IQI_type", fem::IQI_Type::DOF );
-        aParameterLists( 4 ).set( "dof_quantity", "STRESS_DOF" );
-        aParameterLists( 4 ).set( "leader_dof_dependencies", "STRESS_DOF" );
-        aParameterLists( 4 ).set( "vectorial_field_index", 0 );
-        aParameterLists( 4 ).set( "mesh_set_names", "block_1" );
+        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists.set( "IQI_name", "IQIBulkDISPY" );
+        aParameterLists.set( "IQI_type", fem::IQI_Type::DOF );
+        aParameterLists.set( "dof_quantity", "UX,UY" );
+        aParameterLists.set( "leader_dof_dependencies", "UX,UY" );
+        aParameterLists.set( "vectorial_field_index", 1 );
+        aParameterLists.set( "mesh_set_names", "block_1,block_2" );
 
         // nodal von-mises stresses for shell
-        aParameterLists( 4 ).add_parameter_list( prm::create_IQI_parameter_list() );
-        aParameterLists( 4 ).set( "IQI_name", "IQIVMStress2" );
-        aParameterLists( 4 ).set( "IQI_type", fem::IQI_Type::DOF );
-        aParameterLists( 4 ).set( "dof_quantity", "VX" );
-        aParameterLists( 4 ).set( "leader_dof_dependencies", "VX" );
-        aParameterLists( 4 ).set( "vectorial_field_index", 0 );
-        aParameterLists( 4 ).set( "mesh_set_names", "block_2" );
+        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists.set( "IQI_name", "IQIVMStress1" );
+        aParameterLists.set( "IQI_type", fem::IQI_Type::DOF );
+        aParameterLists.set( "dof_quantity", "STRESS_DOF" );
+        aParameterLists.set( "leader_dof_dependencies", "STRESS_DOF" );
+        aParameterLists.set( "vectorial_field_index", 0 );
+        aParameterLists.set( "mesh_set_names", "block_1" );
+
+        // nodal von-mises stresses for shell
+        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists.set( "IQI_name", "IQIVMStress2" );
+        aParameterLists.set( "IQI_type", fem::IQI_Type::DOF );
+        aParameterLists.set( "dof_quantity", "VX" );
+        aParameterLists.set( "leader_dof_dependencies", "VX" );
+        aParameterLists.set( "vectorial_field_index", 0 );
+        aParameterLists.set( "mesh_set_names", "block_2" );
 
         // Nodal Temperature IQI
-        aParameterLists( 4 ).add_parameter_list( prm::create_IQI_parameter_list() );
-        aParameterLists( 4 ).set( "IQI_name", "IQITempField" );
-        aParameterLists( 4 ).set( "IQI_type", fem::IQI_Type::PROPERTY );
-        aParameterLists( 4 ).set( "leader_properties", "PropField,Property" );
-        aParameterLists( 4 ).set( "mesh_set_names", "block_1,block_2" );
+        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists.set( "IQI_name", "IQITempField" );
+        aParameterLists.set( "IQI_type", fem::IQI_Type::PROPERTY );
+        aParameterLists.set( "leader_properties", "PropField,Property" );
+        aParameterLists.set( "mesh_set_names", "block_1,block_2" );
 
         // Emod
-        aParameterLists( 4 ).add_parameter_list( prm::create_IQI_parameter_list() );
-        aParameterLists( 4 ).set( "IQI_name", "IQIEmod1" );
-        aParameterLists( 4 ).set( "IQI_type", ( fem::IQI_Type::PROPERTY ) );
-        aParameterLists( 4 ).set( "leader_properties", "PropYoungs1,Property" );
-        aParameterLists( 4 ).set( "mesh_set_names", "block_1" );
+        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists.set( "IQI_name", "IQIEmod1" );
+        aParameterLists.set( "IQI_type", ( fem::IQI_Type::PROPERTY ) );
+        aParameterLists.set( "leader_properties", "PropYoungs1,Property" );
+        aParameterLists.set( "mesh_set_names", "block_1" );
 
         // Emod
-        aParameterLists( 4 ).add_parameter_list( prm::create_IQI_parameter_list() );
-        aParameterLists( 4 ).set( "IQI_name", "IQIEmod2" );
-        aParameterLists( 4 ).set( "IQI_type", ( fem::IQI_Type::PROPERTY ) );
-        aParameterLists( 4 ).set( "leader_properties", "PropYoungs2,Property" );
-        aParameterLists( 4 ).set( "mesh_set_names", "block_2" );
+        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists.set( "IQI_name", "IQIEmod2" );
+        aParameterLists.set( "IQI_type", ( fem::IQI_Type::PROPERTY ) );
+        aParameterLists.set( "leader_properties", "PropYoungs2,Property" );
+        aParameterLists.set( "mesh_set_names", "block_2" );
 
         //------------------------------------------------------------------------------
         // fill the computation part of the parameter list
-        aParameterLists( 5 ).add_parameter_list( prm::create_computation_parameter_list() );
+        aParameterLists( FEM::COMPUTATION ).add_parameter_list( prm::create_computation_parameter_list() );
 
         //------------------------------------------------------------------------------
 
-        aParameterLists( 6 ).add_parameter_list( prm::create_fem_field_parameter_list() );
-        aParameterLists( 6 ).set( "field_name", "FieldNodalTEMP" );
-        aParameterLists( 6 ).set( "field_entity_type", "NODAL" );
-        aParameterLists( 6 ).set( "field_type", "FIELD_1" );
-        aParameterLists( 6 ).set( "field_create_from_file", tFieldRefPath );
+        aParameterLists( FEM::FIELDS ).add_parameter_list( prm::create_fem_field_parameter_list() );
+        aParameterLists.set( "field_name", "FieldNodalTEMP" );
+        aParameterLists.set( "field_entity_type", "NODAL" );
+        aParameterLists.set( "field_type", "FIELD_1" );
+        aParameterLists.set( "field_create_from_file", tFieldRefPath );
     }
 
     //------------------------------------------------------------------------------
@@ -743,46 +743,46 @@ namespace moris
     SOLParameterList( Module_Parameter_Lists& aParameterLists )
     {
 
-        aParameterLists( 0 ).add_parameter_list( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
+        aParameterLists( SOL::LINEAR_ALGORITHMS ).add_parameter_list( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
 
-        aParameterLists( 1 ).add_parameter_list( moris::prm::create_linear_solver_parameter_list() );
+        aParameterLists( SOL::LINEAR_SOLVERS ).add_parameter_list( moris::prm::create_linear_solver_parameter_list() );
 
-        aParameterLists( 2 ).add_parameter_list( moris::prm::create_nonlinear_algorithm_parameter_list() );
-        aParameterLists( 2 ).set( "NLA_rel_res_norm_drop", 1e-09 );
-        aParameterLists( 2 ).set( "NLA_relaxation_parameter", 1.0 );
-        aParameterLists( 2 ).set( "NLA_max_iter", 1 );
+        aParameterLists( SOL::NONLINEAR_ALGORITHMS ).add_parameter_list( moris::prm::create_nonlinear_algorithm_parameter_list() );
+        aParameterLists.set( "NLA_rel_res_norm_drop", 1e-09 );
+        aParameterLists.set( "NLA_relaxation_parameter", 1.0 );
+        aParameterLists.set( "NLA_max_iter", 1 );
 
-        aParameterLists( 2 ).add_parameter_list( moris::prm::create_nonlinear_algorithm_parameter_list() );
-        aParameterLists( 2 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NLBGS_SOLVER );
-        aParameterLists( 2 ).set( "NLA_rel_res_norm_drop", 10.0 );
-        aParameterLists( 2 ).set( "NLA_max_iter", 1 );
+        aParameterLists( SOL::NONLINEAR_ALGORITHMS ).add_parameter_list( moris::prm::create_nonlinear_algorithm_parameter_list() );
+        aParameterLists.set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NLBGS_SOLVER );
+        aParameterLists.set( "NLA_rel_res_norm_drop", 10.0 );
+        aParameterLists.set( "NLA_max_iter", 1 );
 
-        aParameterLists( 3 ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );
-        aParameterLists( 3 ).set( "NLA_DofTypes", "UX,UY" );
+        aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );
+        aParameterLists.set( "NLA_DofTypes", "UX,UY" );
 
-        aParameterLists( 3 ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );
-        aParameterLists( 3 ).set( "NLA_DofTypes", "STRESS_DOF" );
+        aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );
+        aParameterLists.set( "NLA_DofTypes", "STRESS_DOF" );
 
-        aParameterLists( 3 ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );
-        aParameterLists( 3 ).set( "NLA_DofTypes", "VX" );
+        aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );
+        aParameterLists.set( "NLA_DofTypes", "VX" );
 
-        aParameterLists( 3 ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );
-        aParameterLists( 3 ).set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NLBGS_SOLVER );
-        aParameterLists( 3 ).set( "NLA_Nonlinear_solver_algorithms", "1" );
-        aParameterLists( 3 ).set( "NLA_Sub_Nonlinear_Solver", "0,1,2" );
-        aParameterLists( 3 ).set( "NLA_DofTypes", "UX,UY;STRESS_DOF;VX" );
+        aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );
+        aParameterLists.set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NLBGS_SOLVER );
+        aParameterLists.set( "NLA_Nonlinear_solver_algorithms", "1" );
+        aParameterLists.set( "NLA_Sub_Nonlinear_Solver", "0,1,2" );
+        aParameterLists.set( "NLA_DofTypes", "UX,UY;STRESS_DOF;VX" );
 
-        aParameterLists( 4 ).add_parameter_list( moris::prm::create_time_solver_algorithm_parameter_list() );
-        aParameterLists( 4 ).set( "TSA_Nonlinear_Solver", 3 );
+        aParameterLists( SOL::TIME_SOLVER_ALGORITHMS ).add_parameter_list( moris::prm::create_time_solver_algorithm_parameter_list() );
+        aParameterLists.set( "TSA_Nonlinear_Solver", 3 );
 
-        aParameterLists( 5 ).add_parameter_list( moris::prm::create_time_solver_parameter_list() );
-        aParameterLists( 5 ).set( "TSA_DofTypes", "UX,UY;STRESS_DOF;VX" );
-        aParameterLists( 5 ).set( "TSA_Output_Indices", "0" );
-        aParameterLists( 5 ).set( "TSA_Output_Criteria", "Output_Criterion" );
+        aParameterLists( SOL::TIME_SOLVERS ).add_parameter_list( moris::prm::create_time_solver_parameter_list() );
+        aParameterLists.set( "TSA_DofTypes", "UX,UY;STRESS_DOF;VX" );
+        aParameterLists.set( "TSA_Output_Indices", "0" );
+        aParameterLists.set( "TSA_Output_Criteria", "Output_Criterion" );
 
-        aParameterLists( 6 ).add_parameter_list( moris::prm::create_solver_warehouse_parameterlist() );
+        aParameterLists( SOL::SOLVER_WAREHOUSE ).add_parameter_list( moris::prm::create_solver_warehouse_parameterlist() );
 
-        aParameterLists( 7 ).add_parameter_list( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE ) );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE ) );
     }
 
     //------------------------------------------------------------------------------
@@ -799,13 +799,13 @@ namespace moris
     VISParameterList( Module_Parameter_Lists& aParameterLists )
     {
         aParameterLists( 0 ).add_parameter_list( prm::create_vis_parameter_list() );
-        aParameterLists( 0 ).set( "File_Name", std::pair< std::string, std::string >( "./", tOutputFileName ) );
-        aParameterLists( 0 ).set( "Mesh_Type", vis::VIS_Mesh_Type::STANDARD );
-        aParameterLists( 0 ).set( "Set_Names", "block_1,block_2" );
-        aParameterLists( 0 ).set( "Field_Names", "UX,UY,STRESS1,STRESS2,Temp,EMOD1,EMOD2" );
-        aParameterLists( 0 ).set( "Field_Type", "NODAL,NODAL,NODAL,NODAL,NODAL,ELEMENTAL_AVG,ELEMENTAL_AVG" );
-        aParameterLists( 0 ).set( "IQI_Names", "IQIBulkDISPX,IQIBulkDISPY,IQIVMStress1,IQIVMStress2,IQITempField,IQIEmod1,IQIEmod2" );
-        aParameterLists( 0 ).set( "Save_Frequency", 1 );
+        aParameterLists.set( "File_Name", std::pair< std::string, std::string >( "./", tOutputFileName ) );
+        aParameterLists.set( "Mesh_Type", vis::VIS_Mesh_Type::STANDARD );
+        aParameterLists.set( "Set_Names", "block_1,block_2" );
+        aParameterLists.set( "Field_Names", "UX,UY,STRESS1,STRESS2,Temp,EMOD1,EMOD2" );
+        aParameterLists.set( "Field_Type", "NODAL,NODAL,NODAL,NODAL,NODAL,ELEMENTAL_AVG,ELEMENTAL_AVG" );
+        aParameterLists.set( "IQI_Names", "IQIBulkDISPX,IQIBulkDISPY,IQIVMStress1,IQIVMStress2,IQITempField,IQIEmod1,IQIEmod2" );
+        aParameterLists.set( "Save_Frequency", 1 );
     }
 
     //------------------------------------------------------------------------------

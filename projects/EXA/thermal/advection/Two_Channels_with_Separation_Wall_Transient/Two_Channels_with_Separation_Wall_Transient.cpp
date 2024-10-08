@@ -104,7 +104,7 @@ namespace moris
     {
         aParameterLists( 0 ).push_back( prm::create_opt_problem_parameter_list() );
 
-        aParameterLists( 0 ).set( "is_optimization_problem", false );
+        aParameterLists.set( "is_optimization_problem", false );
     }
 
     // HMR parameter list
@@ -113,29 +113,29 @@ namespace moris
     {
         aParameterLists( 0 ).push_back( prm::create_hmr_parameter_list() );
 
-        aParameterLists( 0 ).set( "number_of_elements_per_dimension", "62,31" );
-        aParameterLists( 0 ).set( "domain_dimensions", "3,1" );
-        aParameterLists( 0 ).set( "domain_offset", "-0.835,-0.186" );
-        aParameterLists( 0 ).set( "domain_sidesets", "1,2,3,4" );
-        aParameterLists( 0 ).set( "lagrange_output_meshes", "0" );
+        aParameterLists.set( "number_of_elements_per_dimension", "62,31" );
+        aParameterLists.set( "domain_dimensions", "3,1" );
+        aParameterLists.set( "domain_offset", "-0.835,-0.186" );
+        aParameterLists.set( "domain_sidesets", "1,2,3,4" );
+        aParameterLists.set( "lagrange_output_meshes", "0" );
 
-        aParameterLists( 0 ).set( "lagrange_orders", "1" );
-        aParameterLists( 0 ).set( "lagrange_pattern", "0" );
-        aParameterLists( 0 ).set( "bspline_orders", "1" );
-        aParameterLists( 0 ).set( "bspline_pattern", "0" );
+        aParameterLists.set( "lagrange_orders", "1" );
+        aParameterLists.set( "lagrange_pattern", "0" );
+        aParameterLists.set( "bspline_orders", "1" );
+        aParameterLists.set( "bspline_pattern", "0" );
 
-        aParameterLists( 0 ).set( "lagrange_to_bspline", "0" );
+        aParameterLists.set( "lagrange_to_bspline", "0" );
 
-        aParameterLists( 0 ).set( "truncate_bsplines", 1 );
-        aParameterLists( 0 ).set( "refinement_buffer", 3 );
-        aParameterLists( 0 ).set( "staircase_buffer", 3 );
-        aParameterLists( 0 ).set( "initial_refinement", "0" );
-        aParameterLists( 0 ).set( "initial_refinement_pattern", "0" );
+        aParameterLists.set( "truncate_bsplines", 1 );
+        aParameterLists.set( "refinement_buffer", 3 );
+        aParameterLists.set( "staircase_buffer", 3 );
+        aParameterLists.set( "initial_refinement", "0" );
+        aParameterLists.set( "initial_refinement_pattern", "0" );
 
-        aParameterLists( 0 ).set( "use_multigrid", 0 );
-        aParameterLists( 0 ).set( "severity_level", 0 );
+        aParameterLists.set( "use_multigrid", 0 );
+        aParameterLists.set( "severity_level", 0 );
 
-        aParameterLists( 0 ).set( "adaptive_refinement_level", 0 );
+        aParameterLists.set( "adaptive_refinement_level", 0 );
     }
 
     // XTK parameter list
@@ -143,16 +143,16 @@ namespace moris
     XTKParameterList( Vector< Vector< ParameterList > >& aParameterLists )
     {
         aParameterLists( 0 ).push_back( prm::create_xtk_parameter_list() );
-        aParameterLists( 0 ).set( "decompose", true );
-        aParameterLists( 0 ).set( "decomposition_type", "conformal" );
-        aParameterLists( 0 ).set( "enrich", true );
-        aParameterLists( 0 ).set( "basis_rank", "bspline" );
-        aParameterLists( 0 ).set( "enrich_mesh_indices", "0" );
-        aParameterLists( 0 ).set( "ghost_stab", true );
-        aParameterLists( 0 ).set( "multigrid", false );
-        aParameterLists( 0 ).set( "high_to_low_dbl_side_sets", true );
-        aParameterLists( 0 ).set( "print_enriched_ig_mesh", true );
-        aParameterLists( 0 ).set( "exodus_output_XTK_ig_mesh", false );
+        aParameterLists.set( "decompose", true );
+        aParameterLists.set( "decomposition_type", "conformal" );
+        aParameterLists.set( "enrich", true );
+        aParameterLists.set( "basis_rank", "bspline" );
+        aParameterLists.set( "enrich_mesh_indices", "0" );
+        aParameterLists.set( "ghost_stab", true );
+        aParameterLists.set( "multigrid", false );
+        aParameterLists.set( "high_to_low_dbl_side_sets", true );
+        aParameterLists.set( "print_enriched_ig_mesh", true );
+        aParameterLists.set( "exodus_output_XTK_ig_mesh", false );
     }
 
     // GEN parameter list
@@ -163,28 +163,28 @@ namespace moris
 
         // Geometry parameter lists
         aParameterLists( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
-        aParameterLists( 1 ).set( "field_function_name", "Func_Plane" );
-        aParameterLists( 1 ).set( "constant_parameters", 0,0,1,0 );
+        aParameterLists.set( "field_function_name", "Func_Plane" );
+        aParameterLists.set( "constant_parameters", 0,0,1,0 );
 
         aParameterLists( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
-        aParameterLists( 1 ).set( "field_function_name", "Func_Plane" );
-        aParameterLists( 1 ).set( "constant_parameters", 0,0,1,0.41 );
+        aParameterLists.set( "field_function_name", "Func_Plane" );
+        aParameterLists.set( "constant_parameters", 0,0,1,0.41 );
 
         aParameterLists( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
-        aParameterLists( 1 ).set( "field_function_name", "Func_Plane" );
-        aParameterLists( 1 ).set( "constant_parameters", 0,0,1,0.18 );
+        aParameterLists.set( "field_function_name", "Func_Plane" );
+        aParameterLists.set( "constant_parameters", 0,0,1,0.18 );
 
         aParameterLists( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
-        aParameterLists( 1 ).set( "field_function_name", "Func_Plane" );
-        aParameterLists( 1 ).set( "constant_parameters", 0,0,1,0.23 );
+        aParameterLists.set( "field_function_name", "Func_Plane" );
+        aParameterLists.set( "constant_parameters", 0,0,1,0.23 );
 
         aParameterLists( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
-        aParameterLists( 1 ).set( "field_function_name", "Func_Plane" );
-        aParameterLists( 1 ).set( "constant_parameters", 1,0,0,0 );
+        aParameterLists.set( "field_function_name", "Func_Plane" );
+        aParameterLists.set( "constant_parameters", 1,0,0,0 );
 
         aParameterLists( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
-        aParameterLists( 1 ).set( "field_function_name", "Func_Plane" );
-        aParameterLists( 1 ).set( "constant_parameters", 1,1.845,0,0 );
+        aParameterLists.set( "field_function_name", "Func_Plane" );
+        aParameterLists.set( "constant_parameters", 1,1.845,0,0 );
     }
 
     // FEM parameter list
@@ -198,75 +198,75 @@ namespace moris
 
         // fluid viscosity property
         aParameterLists( 0 ).push_back( prm::create_property_parameter_list() );
-        aParameterLists( 0 ).set( "property_name", "PropFluidViscosity" );
-        aParameterLists( 0 ).set( "function_parameters", "1.0" );
-        aParameterLists( 0 ).set( "value_function", "Func_Const" );
+        aParameterLists.set( "property_name", "PropFluidViscosity" );
+        aParameterLists.set( "function_parameters", "1.0" );
+        aParameterLists.set( "value_function", "Func_Const" );
 
         // fluid density property
         aParameterLists( 0 ).push_back( prm::create_property_parameter_list() );
-        aParameterLists( 0 ).set( "property_name", "PropFluidDensity" );
-        aParameterLists( 0 ).set( "function_parameters", "1.0" );
-        aParameterLists( 0 ).set( "value_function", "Func_Const" );
+        aParameterLists.set( "property_name", "PropFluidDensity" );
+        aParameterLists.set( "function_parameters", "1.0" );
+        aParameterLists.set( "value_function", "Func_Const" );
 
         // fluid conductivity property
         aParameterLists( 0 ).push_back( prm::create_property_parameter_list() );
-        aParameterLists( 0 ).set( "property_name", "PropFluidConductivity" );
-        aParameterLists( 0 ).set( "function_parameters", "500.0" );
-        aParameterLists( 0 ).set( "value_function", "Func_Const" );
+        aParameterLists.set( "property_name", "PropFluidConductivity" );
+        aParameterLists.set( "function_parameters", "500.0" );
+        aParameterLists.set( "value_function", "Func_Const" );
 
         // fluid heat capacity property
         aParameterLists( 0 ).push_back( prm::create_property_parameter_list() );
-        aParameterLists( 0 ).set( "property_name", "PropFluidHeatCapacity" );
-        aParameterLists( 0 ).set( "function_parameters", "0.001" );
-        aParameterLists( 0 ).set( "value_function", "Func_Const" );
+        aParameterLists.set( "property_name", "PropFluidHeatCapacity" );
+        aParameterLists.set( "function_parameters", "0.001" );
+        aParameterLists.set( "value_function", "Func_Const" );
 
         // solid density property
         aParameterLists( 0 ).push_back( prm::create_property_parameter_list() );
-        aParameterLists( 0 ).set( "property_name", "PropSolidDensity" );
-        aParameterLists( 0 ).set( "function_parameters", "2.0" );
-        aParameterLists( 0 ).set( "value_function", "Func_Const" );
+        aParameterLists.set( "property_name", "PropSolidDensity" );
+        aParameterLists.set( "function_parameters", "2.0" );
+        aParameterLists.set( "value_function", "Func_Const" );
 
         // solid conductivity property
         aParameterLists( 0 ).push_back( prm::create_property_parameter_list() );
-        aParameterLists( 0 ).set( "property_name", "PropSolidConductivity" );
-        aParameterLists( 0 ).set( "function_parameters", "1.0" );
-        aParameterLists( 0 ).set( "value_function", "Func_Const" );
+        aParameterLists.set( "property_name", "PropSolidConductivity" );
+        aParameterLists.set( "function_parameters", "1.0" );
+        aParameterLists.set( "value_function", "Func_Const" );
 
         // solid heat capacity property
         aParameterLists( 0 ).push_back( prm::create_property_parameter_list() );
-        aParameterLists( 0 ).set( "property_name", "PropSolidHeatCapacity" );
-        aParameterLists( 0 ).set( "function_parameters", "0.001" );
-        aParameterLists( 0 ).set( "value_function", "Func_Const" );
+        aParameterLists.set( "property_name", "PropSolidHeatCapacity" );
+        aParameterLists.set( "function_parameters", "0.001" );
+        aParameterLists.set( "value_function", "Func_Const" );
 
         // inlet velocity top channel property
         aParameterLists( 0 ).push_back( prm::create_property_parameter_list() );
-        aParameterLists( 0 ).set( "property_name", "PropInletVelocityTop" );
-        aParameterLists( 0 ).set( "function_parameters", std::string( std::to_string( tRadiusTopChannel ) + "/" std::to_string( tYcTopChannel ) + "/-1.0" ) );
-        aParameterLists( 0 ).set( "value_function", "Func_Inlet_U" );
+        aParameterLists.set( "property_name", "PropInletVelocityTop" );
+        aParameterLists.set( "function_parameters", std::string( std::to_string( tRadiusTopChannel ) + "/" std::to_string( tYcTopChannel ) + "/-1.0" ) );
+        aParameterLists.set( "value_function", "Func_Inlet_U" );
 
         // inlet velocity bottom channel property
         aParameterLists( 0 ).push_back( prm::create_property_parameter_list() );
-        aParameterLists( 0 ).set( "property_name", "PropInletVelocityBottom" );
-        aParameterLists( 0 ).set( "function_parameters", std::string( std::to_string( tRadiusBottomChannel ) + "/" std::to_string( tYcBottomChannel ) + "/1.0" ) );
-        aParameterLists( 0 ).set( "value_function", "Func_Inlet_U" );
+        aParameterLists.set( "property_name", "PropInletVelocityBottom" );
+        aParameterLists.set( "function_parameters", std::string( std::to_string( tRadiusBottomChannel ) + "/" std::to_string( tYcBottomChannel ) + "/1.0" ) );
+        aParameterLists.set( "value_function", "Func_Inlet_U" );
 
         // zero velocity property
         aParameterLists( 0 ).push_back( prm::create_property_parameter_list() );
-        aParameterLists( 0 ).set( "property_name", "PropZeroVelocity" );
-        aParameterLists( 0 ).set( "function_parameters", "0.0;0.0" );
-        aParameterLists( 0 ).set( "value_function", "Func_Const" );
+        aParameterLists.set( "property_name", "PropZeroVelocity" );
+        aParameterLists.set( "function_parameters", "0.0;0.0" );
+        aParameterLists.set( "value_function", "Func_Const" );
 
         // inlet temperature top channel property
         aParameterLists( 0 ).push_back( prm::create_property_parameter_list() );
-        aParameterLists( 0 ).set( "property_name", "PropInletTempTop" );
-        aParameterLists( 0 ).set( "function_parameters", "1.0" );
-        aParameterLists( 0 ).set( "value_function", "Func_Const" );
+        aParameterLists.set( "property_name", "PropInletTempTop" );
+        aParameterLists.set( "function_parameters", "1.0" );
+        aParameterLists.set( "value_function", "Func_Const" );
 
         // inlet temperature bottom channel property
         aParameterLists( 0 ).push_back( prm::create_property_parameter_list() );
-        aParameterLists( 0 ).set( "property_name", "PropInletTempBottom" );
-        aParameterLists( 0 ).set( "function_parameters", "0.0" );
-        aParameterLists( 0 ).set( "value_function", "Func_Const" );
+        aParameterLists.set( "property_name", "PropInletTempBottom" );
+        aParameterLists.set( "function_parameters", "0.0" );
+        aParameterLists.set( "value_function", "Func_Const" );
 
         //------------------------------------------------------------------------------
         // fill the constitutive model part of the parameter list
@@ -276,24 +276,24 @@ namespace moris
 
         // fluid constitutive model
         aParameterLists( 1 ).push_back( prm::create_constitutive_model_parameter_list() );
-        aParameterLists( 1 ).set( "constitutive_name", "CMFluid" );
-        aParameterLists( 1 ).set( "constitutive_type",  fem::Constitutive_Type::FLUID_INCOMPRESSIBLE ) ;
-        aParameterLists( 1 ).set( "dof_dependencies", std::pair< std::string, std::string >( "VX,VY;P", "Velocity,Pressure" ) );
-        aParameterLists( 1 ).set( "properties", "PropFluidViscosity,Viscosity;PropFluidDensity,Density" );
+        aParameterLists.set( "constitutive_name", "CMFluid" );
+        aParameterLists.set( "constitutive_type",  fem::Constitutive_Type::FLUID_INCOMPRESSIBLE ) ;
+        aParameterLists.set( "dof_dependencies", std::pair< std::string, std::string >( "VX,VY;P", "Velocity,Pressure" ) );
+        aParameterLists.set( "properties", "PropFluidViscosity,Viscosity;PropFluidDensity,Density" );
 
         // fluid diffusion constitutive model
         aParameterLists( 1 ).push_back( prm::create_constitutive_model_parameter_list() );
-        aParameterLists( 1 ).set( "constitutive_name", "CMFluidDiffusion" );
-        aParameterLists( 1 ).set( "constitutive_type",  fem::Constitutive_Type::DIFF_LIN_ISO ) ;
-        aParameterLists( 1 ).set( "dof_dependencies", std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
-        aParameterLists( 1 ).set( "properties", "PropFluidConductivity,Conductivity;PropFluidDensity,Density;PropFluidHeatCapacity,HeatCapacity" );
+        aParameterLists.set( "constitutive_name", "CMFluidDiffusion" );
+        aParameterLists.set( "constitutive_type",  fem::Constitutive_Type::DIFF_LIN_ISO ) ;
+        aParameterLists.set( "dof_dependencies", std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
+        aParameterLists.set( "properties", "PropFluidConductivity,Conductivity;PropFluidDensity,Density;PropFluidHeatCapacity,HeatCapacity" );
 
         // solid diffusion constitutive model
         aParameterLists( 1 ).push_back( prm::create_constitutive_model_parameter_list() );
-        aParameterLists( 1 ).set( "constitutive_name", "CMSolidDiffusion" );
-        aParameterLists( 1 ).set( "constitutive_type",  fem::Constitutive_Type::DIFF_LIN_ISO ) ;
-        aParameterLists( 1 ).set( "dof_dependencies", std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
-        aParameterLists( 1 ).set( "properties", "PropSolidConductivity,Conductivity;PropSolidDensity,Density;PropSolidHeatCapacity,HeatCapacity" );
+        aParameterLists.set( "constitutive_name", "CMSolidDiffusion" );
+        aParameterLists.set( "constitutive_type",  fem::Constitutive_Type::DIFF_LIN_ISO ) ;
+        aParameterLists.set( "dof_dependencies", std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
+        aParameterLists.set( "properties", "PropSolidConductivity,Conductivity;PropSolidDensity,Density;PropSolidHeatCapacity,HeatCapacity" );
 
         //------------------------------------------------------------------------------
         // fill the stabilization parameter part of the parameter list
@@ -303,78 +303,78 @@ namespace moris
 
         // NS SUPG stabilization parameter
         aParameterLists( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        aParameterLists( 2 ).set( "stabilization_name", "SPSUPGVelocity" );
-        aParameterLists( 2 ).set( "stabilization_type",  fem::Stabilization_Type::INCOMPRESSIBLE_FLOW ) ;
-        aParameterLists( 2 ).set( "function_parameters", "36.0" );
-        aParameterLists( 2 ).set( "leader_properties", "PropFluidViscosity,Viscosity;PropFluidDensity,Density" );
-        aParameterLists( 2 ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY;P", "Velocity,Pressure" ) );
+        aParameterLists.set( "stabilization_name", "SPSUPGVelocity" );
+        aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::INCOMPRESSIBLE_FLOW ) ;
+        aParameterLists.set( "function_parameters", "36.0" );
+        aParameterLists.set( "leader_properties", "PropFluidViscosity,Viscosity;PropFluidDensity,Density" );
+        aParameterLists.set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY;P", "Velocity,Pressure" ) );
 
         // advection SUPG stabilization parameter
         aParameterLists( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        aParameterLists( 2 ).set( "stabilization_name", "SPSUPGTemp" );
-        aParameterLists( 2 ).set( "stabilization_type",  fem::Stabilization_Type::SUPG_ADVECTION ) ;
-        aParameterLists( 2 ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
-        aParameterLists( 2 ).set( "leader_properties", "PropFluidConductivity,Conductivity" );
+        aParameterLists.set( "stabilization_name", "SPSUPGTemp" );
+        aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::SUPG_ADVECTION ) ;
+        aParameterLists.set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
+        aParameterLists.set( "leader_properties", "PropFluidConductivity,Conductivity" );
 
         // nitsche for fluid velocity stabilization parameter
         aParameterLists( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        aParameterLists( 2 ).set( "stabilization_name", "SPNitscheVelocity" );
-        aParameterLists( 2 ).set( "stabilization_type",  fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE ) ;
-        aParameterLists( 2 ).set( "function_parameters", "100.0/1.0" );
-        aParameterLists( 2 ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
-        aParameterLists( 2 ).set( "leader_properties", "PropFluidViscosity,Viscosity;PropFluidDensity,Density" );
+        aParameterLists.set( "stabilization_name", "SPNitscheVelocity" );
+        aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE ) ;
+        aParameterLists.set( "function_parameters", "100.0/1.0" );
+        aParameterLists.set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
+        aParameterLists.set( "leader_properties", "PropFluidViscosity,Viscosity;PropFluidDensity,Density" );
 
         // nitsche for fluid temperature stabilization parameter 4
         aParameterLists( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        aParameterLists( 2 ).set( "stabilization_name", "SPNitscheFluidTemp" );
-        aParameterLists( 2 ).set( "stabilization_type",  fem::Stabilization_Type::DIRICHLET_NITSCHE ) ;
-        aParameterLists( 2 ).set( "function_parameters", "100.0" );
-        aParameterLists( 2 ).set( "leader_properties", "PropFluidConductivity,Material" );
+        aParameterLists.set( "stabilization_name", "SPNitscheFluidTemp" );
+        aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::DIRICHLET_NITSCHE ) ;
+        aParameterLists.set( "function_parameters", "100.0" );
+        aParameterLists.set( "leader_properties", "PropFluidConductivity,Material" );
 
         // nitsche thermal interface stabilization parameter
         aParameterLists( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        aParameterLists( 2 ).set( "stabilization_name", "SPInterfaceNitsche" );
-        aParameterLists( 2 ).set( "stabilization_type",  fem::Stabilization_Type::NITSCHE_INTERFACE ) ;
-        aParameterLists( 2 ).set( "function_parameters", "100.0" );
-        aParameterLists( 2 ).set( "leader_properties", "PropFluidConductivity,Material" );
-        aParameterLists( 2 ).set( "follower_properties", "PropSolidConductivity,Material" );
+        aParameterLists.set( "stabilization_name", "SPInterfaceNitsche" );
+        aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::NITSCHE_INTERFACE ) ;
+        aParameterLists.set( "function_parameters", "100.0" );
+        aParameterLists.set( "leader_properties", "PropFluidConductivity,Material" );
+        aParameterLists.set( "follower_properties", "PropSolidConductivity,Material" );
 
         // ghost viscous stabilization parameter
         aParameterLists( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        aParameterLists( 2 ).set( "stabilization_name", "SPGPViscous" );
-        aParameterLists( 2 ).set( "stabilization_type",  fem::Stabilization_Type::VISCOUS_GHOST ) ;
-        aParameterLists( 2 ).set( "function_parameters", "0.05" );
-        aParameterLists( 2 ).set( "leader_properties", "PropFluidViscosity,Viscosity" );
+        aParameterLists.set( "stabilization_name", "SPGPViscous" );
+        aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::VISCOUS_GHOST ) ;
+        aParameterLists.set( "function_parameters", "0.05" );
+        aParameterLists.set( "leader_properties", "PropFluidViscosity,Viscosity" );
 
         // ghost convective stabilization parameter
         aParameterLists( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        aParameterLists( 2 ).set( "stabilization_name", "SPGPVelocity" );
-        aParameterLists( 2 ).set( "stabilization_type",  fem::Stabilization_Type::CONVECTIVE_GHOST ) ;
-        aParameterLists( 2 ).set( "function_parameters", "0.05" );
-        aParameterLists( 2 ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
-        aParameterLists( 2 ).set( "leader_properties", "PropFluidDensity,Density" );
+        aParameterLists.set( "stabilization_name", "SPGPVelocity" );
+        aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::CONVECTIVE_GHOST ) ;
+        aParameterLists.set( "function_parameters", "0.05" );
+        aParameterLists.set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
+        aParameterLists.set( "leader_properties", "PropFluidDensity,Density" );
 
         // ghost fluid pressure stabilization parameter
         aParameterLists( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        aParameterLists( 2 ).set( "stabilization_name", "SPGPPressure" );
-        aParameterLists( 2 ).set( "stabilization_type",  fem::Stabilization_Type::PRESSURE_GHOST ) ;
-        aParameterLists( 2 ).set( "function_parameters", "0.05/1.0" );
-        aParameterLists( 2 ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
-        aParameterLists( 2 ).set( "leader_properties", "PropFluidViscosity,Viscosity;PropFluidDensity,Density" );
+        aParameterLists.set( "stabilization_name", "SPGPPressure" );
+        aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::PRESSURE_GHOST ) ;
+        aParameterLists.set( "function_parameters", "0.05/1.0" );
+        aParameterLists.set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
+        aParameterLists.set( "leader_properties", "PropFluidViscosity,Viscosity;PropFluidDensity,Density" );
 
         // ghost fluid temperature stabilization parameter
         aParameterLists( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        aParameterLists( 2 ).set( "stabilization_name", "SPGPFluidTemp" );
-        aParameterLists( 2 ).set( "stabilization_type",  fem::Stabilization_Type::GHOST_DISPL ) ;
-        aParameterLists( 2 ).set( "function_parameters", "0.05" );
-        aParameterLists( 2 ).set( "leader_properties", "PropFluidConductivity,Material" );
+        aParameterLists.set( "stabilization_name", "SPGPFluidTemp" );
+        aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::GHOST_DISPL ) ;
+        aParameterLists.set( "function_parameters", "0.05" );
+        aParameterLists.set( "leader_properties", "PropFluidConductivity,Material" );
 
         // ghost solid temperature stabilization parameter
         aParameterLists( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        aParameterLists( 2 ).set( "stabilization_name", "SPGPSolidTemp" );
-        aParameterLists( 2 ).set( "stabilization_type",  fem::Stabilization_Type::GHOST_DISPL ) ;
-        aParameterLists( 2 ).set( "function_parameters", "0.05" );
-        aParameterLists( 2 ).set( "leader_properties", "PropSolidConductivity,Material" );
+        aParameterLists.set( "stabilization_name", "SPGPSolidTemp" );
+        aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::GHOST_DISPL ) ;
+        aParameterLists.set( "function_parameters", "0.05" );
+        aParameterLists.set( "leader_properties", "PropSolidConductivity,Material" );
 
         //------------------------------------------------------------------------------
         // fill the IWG part of the parameter list
@@ -384,198 +384,198 @@ namespace moris
 
         // NS incompressible velocity bulk IWG
         aParameterLists( 3 ).push_back( prm::create_IWG_parameter_list() );
-        aParameterLists( 3 ).set( "IWG_name", "IWGVelocityBulk" );
-        aParameterLists( 3 ).set( "IWG_type",  fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK ) ;
-        aParameterLists( 3 ).set( "dof_residual", "VX,VY" );
-        aParameterLists( 3 ).set( "leader_dof_dependencies", "VX,VY;P;TEMP" );
-        aParameterLists( 3 ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
-        aParameterLists( 3 ).set( "stabilization_parameters", "SPSUPGVelocity,IncompressibleFlow" );
-        aParameterLists( 3 ).set( "mesh_set_names", "HMR_dummy_n_p34,HMR_dummy_c_p34,HMR_dummy_n_p46,HMR_dummy_c_p46" );
+        aParameterLists.set( "IWG_name", "IWGVelocityBulk" );
+        aParameterLists.set( "IWG_type",  fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK ) ;
+        aParameterLists.set( "dof_residual", "VX,VY" );
+        aParameterLists.set( "leader_dof_dependencies", "VX,VY;P;TEMP" );
+        aParameterLists.set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
+        aParameterLists.set( "stabilization_parameters", "SPSUPGVelocity,IncompressibleFlow" );
+        aParameterLists.set( "mesh_set_names", "HMR_dummy_n_p34,HMR_dummy_c_p34,HMR_dummy_n_p46,HMR_dummy_c_p46" );
 
         // NS incompressible pressure bulk IWG
         aParameterLists( 3 ).push_back( prm::create_IWG_parameter_list() );
-        aParameterLists( 3 ).set( "IWG_name", "IWGPressureBulk" );
-        aParameterLists( 3 ).set( "IWG_type",  fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK ) ;
-        aParameterLists( 3 ).set( "dof_residual", "P" );
-        aParameterLists( 3 ).set( "leader_dof_dependencies", "VX,VY;P;TEMP" );
-        aParameterLists( 3 ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
-        aParameterLists( 3 ).set( "stabilization_parameters", "SPSUPGVelocity,IncompressibleFlow" );
-        aParameterLists( 3 ).set( "mesh_set_names", "HMR_dummy_n_p34,HMR_dummy_c_p34,HMR_dummy_n_p46,HMR_dummy_c_p46" );
+        aParameterLists.set( "IWG_name", "IWGPressureBulk" );
+        aParameterLists.set( "IWG_type",  fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK ) ;
+        aParameterLists.set( "dof_residual", "P" );
+        aParameterLists.set( "leader_dof_dependencies", "VX,VY;P;TEMP" );
+        aParameterLists.set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
+        aParameterLists.set( "stabilization_parameters", "SPSUPGVelocity,IncompressibleFlow" );
+        aParameterLists.set( "mesh_set_names", "HMR_dummy_n_p34,HMR_dummy_c_p34,HMR_dummy_n_p46,HMR_dummy_c_p46" );
 
         // fluid diffusion bulk IWG
         aParameterLists( 3 ).push_back( prm::create_IWG_parameter_list() );
-        aParameterLists( 3 ).set( "IWG_name", "IWGFluidDiffusionBulk" );
-        aParameterLists( 3 ).set( "IWG_type",  fem::IWG_Type::SPATIALDIFF_BULK ) ;
-        aParameterLists( 3 ).set( "dof_residual", "TEMP" );
-        aParameterLists( 3 ).set( "leader_dof_dependencies", "VX,VY;P;TEMP" );
-        aParameterLists( 3 ).set( "leader_constitutive_models", "CMFluidDiffusion,Diffusion" );
-        aParameterLists( 3 ).set( "mesh_set_names", "HMR_dummy_n_p34,HMR_dummy_c_p34,HMR_dummy_n_p46,HMR_dummy_c_p46" );
+        aParameterLists.set( "IWG_name", "IWGFluidDiffusionBulk" );
+        aParameterLists.set( "IWG_type",  fem::IWG_Type::SPATIALDIFF_BULK ) ;
+        aParameterLists.set( "dof_residual", "TEMP" );
+        aParameterLists.set( "leader_dof_dependencies", "VX,VY;P;TEMP" );
+        aParameterLists.set( "leader_constitutive_models", "CMFluidDiffusion,Diffusion" );
+        aParameterLists.set( "mesh_set_names", "HMR_dummy_n_p34,HMR_dummy_c_p34,HMR_dummy_n_p46,HMR_dummy_c_p46" );
 
         // solid diffusion bulk IWG
         aParameterLists( 3 ).push_back( prm::create_IWG_parameter_list() );
-        aParameterLists( 3 ).set( "IWG_name", "IWGSolidDiffusionBulk" );
-        aParameterLists( 3 ).set( "IWG_type",  fem::IWG_Type::SPATIALDIFF_BULK ) ;
-        aParameterLists( 3 ).set( "dof_residual", "TEMP" );
-        aParameterLists( 3 ).set( "leader_dof_dependencies", "VX,VY;P;TEMP" );
-        aParameterLists( 3 ).set( "leader_constitutive_models", "CMSolidDiffusion,Diffusion" );
-        aParameterLists( 3 ).set( "mesh_set_names", "HMR_dummy_n_p42,HMR_dummy_c_p42" );
+        aParameterLists.set( "IWG_name", "IWGSolidDiffusionBulk" );
+        aParameterLists.set( "IWG_type",  fem::IWG_Type::SPATIALDIFF_BULK ) ;
+        aParameterLists.set( "dof_residual", "TEMP" );
+        aParameterLists.set( "leader_dof_dependencies", "VX,VY;P;TEMP" );
+        aParameterLists.set( "leader_constitutive_models", "CMSolidDiffusion,Diffusion" );
+        aParameterLists.set( "mesh_set_names", "HMR_dummy_n_p42,HMR_dummy_c_p42" );
 
         // fluid advection bulk IWG
         aParameterLists( 3 ).push_back( prm::create_IWG_parameter_list() );
-        aParameterLists( 3 ).set( "IWG_name", "IWGAdvectionBulk" );
-        aParameterLists( 3 ).set( "IWG_type",  fem::IWG_Type::ADVECTION_BULK ) ;
-        aParameterLists( 3 ).set( "dof_residual", "TEMP" );
-        aParameterLists( 3 ).set( "leader_dof_dependencies", "VX,VY;P;TEMP" );
-        aParameterLists( 3 ).set( "leader_constitutive_models", "CMFluidDiffusion,Diffusion" );
-        aParameterLists( 3 ).set( "stabilization_parameters", "SPSUPGTemp,SUPG" );
-        aParameterLists( 3 ).set( "mesh_set_names", "HMR_dummy_n_p34,HMR_dummy_c_p34,HMR_dummy_n_p46,HMR_dummy_c_p46" );
+        aParameterLists.set( "IWG_name", "IWGAdvectionBulk" );
+        aParameterLists.set( "IWG_type",  fem::IWG_Type::ADVECTION_BULK ) ;
+        aParameterLists.set( "dof_residual", "TEMP" );
+        aParameterLists.set( "leader_dof_dependencies", "VX,VY;P;TEMP" );
+        aParameterLists.set( "leader_constitutive_models", "CMFluidDiffusion,Diffusion" );
+        aParameterLists.set( "stabilization_parameters", "SPSUPGTemp,SUPG" );
+        aParameterLists.set( "mesh_set_names", "HMR_dummy_n_p34,HMR_dummy_c_p34,HMR_dummy_n_p46,HMR_dummy_c_p46" );
 
         // top inlet fluid velocity IWG (velocity part)
         aParameterLists( 3 ).push_back( prm::create_IWG_parameter_list() );
-        aParameterLists( 3 ).set( "IWG_name", "IWGInVelocityTop" );
-        aParameterLists( 3 ).set( "IWG_type",  fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE ) ;
-        aParameterLists( 3 ).set( "dof_residual", "VX,VY" );
-        aParameterLists( 3 ).set( "leader_dof_dependencies", "VX,VY;P;TEMP" );
-        aParameterLists( 3 ).set( "leader_properties", "PropInletVelocityTop,Dirichlet" );
-        aParameterLists( 3 ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
-        aParameterLists( 3 ).set( "stabilization_parameters", "SPNitscheVelocity,DirichletNitsche" );
-        aParameterLists( 3 ).set( "mesh_set_names", "iside_b0_46_b1_47" );
+        aParameterLists.set( "IWG_name", "IWGInVelocityTop" );
+        aParameterLists.set( "IWG_type",  fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE ) ;
+        aParameterLists.set( "dof_residual", "VX,VY" );
+        aParameterLists.set( "leader_dof_dependencies", "VX,VY;P;TEMP" );
+        aParameterLists.set( "leader_properties", "PropInletVelocityTop,Dirichlet" );
+        aParameterLists.set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
+        aParameterLists.set( "stabilization_parameters", "SPNitscheVelocity,DirichletNitsche" );
+        aParameterLists.set( "mesh_set_names", "iside_b0_46_b1_47" );
 
         // top inlet fluid velocity IWG (pressure part)
         aParameterLists( 3 ).push_back( prm::create_IWG_parameter_list() );
-        aParameterLists( 3 ).set( "IWG_name", "IWGInPressureTop" );
-        aParameterLists( 3 ).set( "IWG_type",  fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE ) ;
-        aParameterLists( 3 ).set( "dof_residual", "P" );
-        aParameterLists( 3 ).set( "leader_dof_dependencies", "VX,VY;P;TEMP" );
-        aParameterLists( 3 ).set( "leader_properties", "PropInletVelocityTop,Dirichlet" );
-        aParameterLists( 3 ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
-        aParameterLists( 3 ).set( "mesh_set_names", "iside_b0_46_b1_47" );
+        aParameterLists.set( "IWG_name", "IWGInPressureTop" );
+        aParameterLists.set( "IWG_type",  fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE ) ;
+        aParameterLists.set( "dof_residual", "P" );
+        aParameterLists.set( "leader_dof_dependencies", "VX,VY;P;TEMP" );
+        aParameterLists.set( "leader_properties", "PropInletVelocityTop,Dirichlet" );
+        aParameterLists.set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
+        aParameterLists.set( "mesh_set_names", "iside_b0_46_b1_47" );
 
         // bottom inlet fluid velocity IWG (velocity part)
         aParameterLists( 3 ).push_back( prm::create_IWG_parameter_list() );
-        aParameterLists( 3 ).set( "IWG_name", "IWGInVelocityBottom" );
-        aParameterLists( 3 ).set( "IWG_type",  fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE ) ;
-        aParameterLists( 3 ).set( "dof_residual", "VX,VY" );
-        aParameterLists( 3 ).set( "leader_dof_dependencies", "VX,VY;P;TEMP" );
-        aParameterLists( 3 ).set( "leader_properties", "PropInletVelocityBottom,Dirichlet" );
-        aParameterLists( 3 ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
-        aParameterLists( 3 ).set( "stabilization_parameters", "SPNitscheVelocity,DirichletNitsche" );
-        aParameterLists( 3 ).set( "mesh_set_names", "iside_b0_34_b1_32" );
+        aParameterLists.set( "IWG_name", "IWGInVelocityBottom" );
+        aParameterLists.set( "IWG_type",  fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE ) ;
+        aParameterLists.set( "dof_residual", "VX,VY" );
+        aParameterLists.set( "leader_dof_dependencies", "VX,VY;P;TEMP" );
+        aParameterLists.set( "leader_properties", "PropInletVelocityBottom,Dirichlet" );
+        aParameterLists.set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
+        aParameterLists.set( "stabilization_parameters", "SPNitscheVelocity,DirichletNitsche" );
+        aParameterLists.set( "mesh_set_names", "iside_b0_34_b1_32" );
 
         // bottom inlet fluid velocity IWG (pressure part)
         aParameterLists( 3 ).push_back( prm::create_IWG_parameter_list() );
-        aParameterLists( 3 ).set( "IWG_name", "IWGInPressureBottom" );
-        aParameterLists( 3 ).set( "IWG_type",  fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE ) ;
-        aParameterLists( 3 ).set( "dof_residual", "P" );
-        aParameterLists( 3 ).set( "leader_dof_dependencies", "VX,VY;P;TEMP" );
-        aParameterLists( 3 ).set( "leader_properties", "PropInletVelocityBottom,Dirichlet" );
-        aParameterLists( 3 ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
-        aParameterLists( 3 ).set( "mesh_set_names", "iside_b0_34_b1_32" );
+        aParameterLists.set( "IWG_name", "IWGInPressureBottom" );
+        aParameterLists.set( "IWG_type",  fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE ) ;
+        aParameterLists.set( "dof_residual", "P" );
+        aParameterLists.set( "leader_dof_dependencies", "VX,VY;P;TEMP" );
+        aParameterLists.set( "leader_properties", "PropInletVelocityBottom,Dirichlet" );
+        aParameterLists.set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
+        aParameterLists.set( "mesh_set_names", "iside_b0_34_b1_32" );
 
         // wall fluid velocity IWG (velocity part)
         aParameterLists( 3 ).push_back( prm::create_IWG_parameter_list() );
-        aParameterLists( 3 ).set( "IWG_name", "IWGWallVelocity" );
-        aParameterLists( 3 ).set( "IWG_type",  fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE ) ;
-        aParameterLists( 3 ).set( "dof_residual", "VX,VY" );
-        aParameterLists( 3 ).set( "leader_dof_dependencies", "VX,VY;P;TEMP" );
-        aParameterLists( 3 ).set( "leader_properties", "PropZeroVelocity,Dirichlet" );
-        aParameterLists( 3 ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
-        aParameterLists( 3 ).set( "stabilization_parameters", "SPNitscheVelocity,DirichletNitsche" );
-        aParameterLists( 3 ).set( "mesh_set_names", "iside_b0_34_b1_2,iside_b0_34_b1_42,iside_b0_46_b1_42,iside_b0_46_b1_62" );
+        aParameterLists.set( "IWG_name", "IWGWallVelocity" );
+        aParameterLists.set( "IWG_type",  fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE ) ;
+        aParameterLists.set( "dof_residual", "VX,VY" );
+        aParameterLists.set( "leader_dof_dependencies", "VX,VY;P;TEMP" );
+        aParameterLists.set( "leader_properties", "PropZeroVelocity,Dirichlet" );
+        aParameterLists.set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
+        aParameterLists.set( "stabilization_parameters", "SPNitscheVelocity,DirichletNitsche" );
+        aParameterLists.set( "mesh_set_names", "iside_b0_34_b1_2,iside_b0_34_b1_42,iside_b0_46_b1_42,iside_b0_46_b1_62" );
 
         // wall fluid velocity IWG (pressure part)
         aParameterLists( 3 ).push_back( prm::create_IWG_parameter_list() );
-        aParameterLists( 3 ).set( "IWG_name", "IWGWallPressure" );
-        aParameterLists( 3 ).set( "IWG_type",  fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE ) ;
-        aParameterLists( 3 ).set( "dof_residual", "P" );
-        aParameterLists( 3 ).set( "leader_dof_dependencies", "VX,VY;P;TEMP" );
-        aParameterLists( 3 ).set( "leader_properties", "PropZeroVelocity,Dirichlet" );
-        aParameterLists( 3 ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
-        aParameterLists( 3 ).set( "mesh_set_names", "iside_b0_34_b1_2,iside_b0_34_b1_42,iside_b0_46_b1_42,iside_b0_46_b1_62" );
+        aParameterLists.set( "IWG_name", "IWGWallPressure" );
+        aParameterLists.set( "IWG_type",  fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE ) ;
+        aParameterLists.set( "dof_residual", "P" );
+        aParameterLists.set( "leader_dof_dependencies", "VX,VY;P;TEMP" );
+        aParameterLists.set( "leader_properties", "PropZeroVelocity,Dirichlet" );
+        aParameterLists.set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
+        aParameterLists.set( "mesh_set_names", "iside_b0_34_b1_2,iside_b0_34_b1_42,iside_b0_46_b1_42,iside_b0_46_b1_62" );
 
         // top inlet fluid temperature IWG
         aParameterLists( 3 ).push_back( prm::create_IWG_parameter_list() );
-        aParameterLists( 3 ).set( "IWG_name", "IWGInletTempTop" );
-        aParameterLists( 3 ).set( "IWG_type",  fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE ) ;
-        aParameterLists( 3 ).set( "dof_residual", "TEMP" );
-        aParameterLists( 3 ).set( "leader_dof_dependencies", "VX,VY;P;TEMP" );
-        aParameterLists( 3 ).set( "leader_properties", "PropInletTempTop,Dirichlet" );
-        aParameterLists( 3 ).set( "leader_constitutive_models", "CMFluidDiffusion,Diffusion" );
-        aParameterLists( 3 ).set( "stabilization_parameters", "SPNitscheFluidTemp,DirichletNitsche" );
-        aParameterLists( 3 ).set( "mesh_set_names", "iside_b0_46_b1_47" );
+        aParameterLists.set( "IWG_name", "IWGInletTempTop" );
+        aParameterLists.set( "IWG_type",  fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE ) ;
+        aParameterLists.set( "dof_residual", "TEMP" );
+        aParameterLists.set( "leader_dof_dependencies", "VX,VY;P;TEMP" );
+        aParameterLists.set( "leader_properties", "PropInletTempTop,Dirichlet" );
+        aParameterLists.set( "leader_constitutive_models", "CMFluidDiffusion,Diffusion" );
+        aParameterLists.set( "stabilization_parameters", "SPNitscheFluidTemp,DirichletNitsche" );
+        aParameterLists.set( "mesh_set_names", "iside_b0_46_b1_47" );
 
         // bottom inlet fluid temperature IWG
         aParameterLists( 3 ).push_back( prm::create_IWG_parameter_list() );
-        aParameterLists( 3 ).set( "IWG_name", "IWGInletTempBottom" );
-        aParameterLists( 3 ).set( "IWG_type",  fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE ) ;
-        aParameterLists( 3 ).set( "dof_residual", "TEMP" );
-        aParameterLists( 3 ).set( "leader_dof_dependencies", "VX,VY;P;TEMP" );
-        aParameterLists( 3 ).set( "leader_properties", "PropInletTempBottom,Dirichlet" );
-        aParameterLists( 3 ).set( "leader_constitutive_models", "CMFluidDiffusion,Diffusion" );
-        aParameterLists( 3 ).set( "stabilization_parameters", "SPNitscheFluidTemp,DirichletNitsche" );
-        aParameterLists( 3 ).set( "mesh_set_names", "iside_b0_34_b1_32" );
+        aParameterLists.set( "IWG_name", "IWGInletTempBottom" );
+        aParameterLists.set( "IWG_type",  fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE ) ;
+        aParameterLists.set( "dof_residual", "TEMP" );
+        aParameterLists.set( "leader_dof_dependencies", "VX,VY;P;TEMP" );
+        aParameterLists.set( "leader_properties", "PropInletTempBottom,Dirichlet" );
+        aParameterLists.set( "leader_constitutive_models", "CMFluidDiffusion,Diffusion" );
+        aParameterLists.set( "stabilization_parameters", "SPNitscheFluidTemp,DirichletNitsche" );
+        aParameterLists.set( "mesh_set_names", "iside_b0_34_b1_32" );
 
         // fluid/solid thermal interface IWG
         aParameterLists( 3 ).push_back( prm::create_IWG_parameter_list() );
-        aParameterLists( 3 ).set( "IWG_name", "IWGInterfaceFluidSolid" );
-        aParameterLists( 3 ).set( "IWG_type",  fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE ) ;
-        aParameterLists( 3 ).set( "dof_residual", "TEMP" );
-        aParameterLists( 3 ).set( "leader_dof_dependencies", "VX,VY;P;TEMP" );
-        aParameterLists( 3 ).set( "follower_dof_dependencies", "VX,VY;P;TEMP" );
-        aParameterLists( 3 ).set( "leader_constitutive_models", "CMFluidDiffusion,Diffusion" );
-        aParameterLists( 3 ).set( "follower_constitutive_models", "CMSolidDiffusion,Diffusion" );
-        aParameterLists( 3 ).set( "stabilization_parameters", "SPInterfaceNitsche,NitscheInterface" );
-        aParameterLists( 3 ).set( "mesh_set_names", "dbl_iside_p0_34_p1_42,dbl_iside_p0_46_p1_42" );
+        aParameterLists.set( "IWG_name", "IWGInterfaceFluidSolid" );
+        aParameterLists.set( "IWG_type",  fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE ) ;
+        aParameterLists.set( "dof_residual", "TEMP" );
+        aParameterLists.set( "leader_dof_dependencies", "VX,VY;P;TEMP" );
+        aParameterLists.set( "follower_dof_dependencies", "VX,VY;P;TEMP" );
+        aParameterLists.set( "leader_constitutive_models", "CMFluidDiffusion,Diffusion" );
+        aParameterLists.set( "follower_constitutive_models", "CMSolidDiffusion,Diffusion" );
+        aParameterLists.set( "stabilization_parameters", "SPInterfaceNitsche,NitscheInterface" );
+        aParameterLists.set( "mesh_set_names", "dbl_iside_p0_34_p1_42,dbl_iside_p0_46_p1_42" );
 
         // ghost viscous IWG
         aParameterLists( 3 ).push_back( prm::create_IWG_parameter_list() );
-        aParameterLists( 3 ).set( "IWG_name", "IWGGPViscous" );
-        aParameterLists( 3 ).set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
-        aParameterLists( 3 ).set( "dof_residual", "VX,VY" );
-        aParameterLists( 3 ).set( "leader_dof_dependencies", "VX,VY;P;TEMP" );
-        aParameterLists( 3 ).set( "follower_dof_dependencies", "VX,VY;P;TEMP" );
-        aParameterLists( 3 ).set( "stabilization_parameters", "SPGPViscous,GhostSP" );
-        aParameterLists( 3 ).set( "mesh_set_names", "ghost_p34,ghost_p46" );
+        aParameterLists.set( "IWG_name", "IWGGPViscous" );
+        aParameterLists.set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
+        aParameterLists.set( "dof_residual", "VX,VY" );
+        aParameterLists.set( "leader_dof_dependencies", "VX,VY;P;TEMP" );
+        aParameterLists.set( "follower_dof_dependencies", "VX,VY;P;TEMP" );
+        aParameterLists.set( "stabilization_parameters", "SPGPViscous,GhostSP" );
+        aParameterLists.set( "mesh_set_names", "ghost_p34,ghost_p46" );
 
         // ghost convective IWG
         aParameterLists( 3 ).push_back( prm::create_IWG_parameter_list() );
-        aParameterLists( 3 ).set( "IWG_name", "IWGGPConvective" );
-        aParameterLists( 3 ).set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
-        aParameterLists( 3 ).set( "dof_residual", "VX,VY" );
-        aParameterLists( 3 ).set( "leader_dof_dependencies", "VX,VY;P;TEMP" );
-        aParameterLists( 3 ).set( "follower_dof_dependencies", "VX,VY;P;TEMP" );
-        aParameterLists( 3 ).set( "stabilization_parameters", "SPGPVelocity,GhostSP" );
-        aParameterLists( 3 ).set( "mesh_set_names", "ghost_p34,ghost_p46" );
+        aParameterLists.set( "IWG_name", "IWGGPConvective" );
+        aParameterLists.set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
+        aParameterLists.set( "dof_residual", "VX,VY" );
+        aParameterLists.set( "leader_dof_dependencies", "VX,VY;P;TEMP" );
+        aParameterLists.set( "follower_dof_dependencies", "VX,VY;P;TEMP" );
+        aParameterLists.set( "stabilization_parameters", "SPGPVelocity,GhostSP" );
+        aParameterLists.set( "mesh_set_names", "ghost_p34,ghost_p46" );
 
         // ghost pressure IWG
         aParameterLists( 3 ).push_back( prm::create_IWG_parameter_list() );
-        aParameterLists( 3 ).set( "IWG_name", "IWGGPPressure" );
-        aParameterLists( 3 ).set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
-        aParameterLists( 3 ).set( "dof_residual", "P" );
-        aParameterLists( 3 ).set( "leader_dof_dependencies", "VX,VY;P;TEMP" );
-        aParameterLists( 3 ).set( "follower_dof_dependencies", "VX,VY;P;TEMP" );
-        aParameterLists( 3 ).set( "stabilization_parameters", "SPGPPressure,GhostSP" );
-        aParameterLists( 3 ).set( "mesh_set_names", "ghost_p34,ghost_p46" );
+        aParameterLists.set( "IWG_name", "IWGGPPressure" );
+        aParameterLists.set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
+        aParameterLists.set( "dof_residual", "P" );
+        aParameterLists.set( "leader_dof_dependencies", "VX,VY;P;TEMP" );
+        aParameterLists.set( "follower_dof_dependencies", "VX,VY;P;TEMP" );
+        aParameterLists.set( "stabilization_parameters", "SPGPPressure,GhostSP" );
+        aParameterLists.set( "mesh_set_names", "ghost_p34,ghost_p46" );
 
         // ghost fluid temperature IWG
         aParameterLists( 3 ).push_back( prm::create_IWG_parameter_list() );
-        aParameterLists( 3 ).set( "IWG_name", "IWGGPFluidTemp" );
-        aParameterLists( 3 ).set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
-        aParameterLists( 3 ).set( "dof_residual", "TEMP" );
-        aParameterLists( 3 ).set( "leader_dof_dependencies", "VX,VY;P;TEMP" );
-        aParameterLists( 3 ).set( "follower_dof_dependencies", "VX,VY;P;TEMP" );
-        aParameterLists( 3 ).set( "stabilization_parameters", "SPGPFluidTemp,GhostSP" );
-        aParameterLists( 3 ).set( "mesh_set_names", "ghost_p34,ghost_p46" );
+        aParameterLists.set( "IWG_name", "IWGGPFluidTemp" );
+        aParameterLists.set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
+        aParameterLists.set( "dof_residual", "TEMP" );
+        aParameterLists.set( "leader_dof_dependencies", "VX,VY;P;TEMP" );
+        aParameterLists.set( "follower_dof_dependencies", "VX,VY;P;TEMP" );
+        aParameterLists.set( "stabilization_parameters", "SPGPFluidTemp,GhostSP" );
+        aParameterLists.set( "mesh_set_names", "ghost_p34,ghost_p46" );
 
         // ghost solid temperature IWG
         aParameterLists( 3 ).push_back( prm::create_IWG_parameter_list() );
-        aParameterLists( 3 ).set( "IWG_name", "IWGGPSolidTemp" );
-        aParameterLists( 3 ).set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
-        aParameterLists( 3 ).set( "dof_residual", "TEMP" );
-        aParameterLists( 3 ).set( "leader_dof_dependencies", "VX,VY;P;TEMP" );
-        aParameterLists( 3 ).set( "follower_dof_dependencies", "VX,VY;P;TEMP" );
-        aParameterLists( 3 ).set( "stabilization_parameters", "SPGPSolidTemp,GhostSP" );
-        aParameterLists( 3 ).set( "mesh_set_names", "ghost_p42" );
+        aParameterLists.set( "IWG_name", "IWGGPSolidTemp" );
+        aParameterLists.set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
+        aParameterLists.set( "dof_residual", "TEMP" );
+        aParameterLists.set( "leader_dof_dependencies", "VX,VY;P;TEMP" );
+        aParameterLists.set( "follower_dof_dependencies", "VX,VY;P;TEMP" );
+        aParameterLists.set( "stabilization_parameters", "SPGPSolidTemp,GhostSP" );
+        aParameterLists.set( "mesh_set_names", "ghost_p42" );
 
         //------------------------------------------------------------------------------
         // fill the IQI part of the parameter list
@@ -585,39 +585,39 @@ namespace moris
 
         // VX IQI
         aParameterLists( 4 ).push_back( prm::create_IQI_parameter_list() );
-        aParameterLists( 4 ).set( "IQI_name", "IQIBulkVX" );
-        aParameterLists( 4 ).set( "IQI_type",  fem::IQI_Type::DOF ) ;
-        aParameterLists( 4 ).set( "dof_quantity", "VX,VY" );
-        aParameterLists( 4 ).set( "leader_dof_dependencies", "VX,VY" );
-        aParameterLists( 4 ).set( "vectorial_field_index", 0 );
-        aParameterLists( 4 ).set( "mesh_set_names", "HMR_dummy_n_p34,HMR_dummy_c_p34,HMR_dummy_n_p46,HMR_dummy_c_p46,HMR_dummy_n_p42,HMR_dummy_c_p42" );
+        aParameterLists.set( "IQI_name", "IQIBulkVX" );
+        aParameterLists.set( "IQI_type",  fem::IQI_Type::DOF ) ;
+        aParameterLists.set( "dof_quantity", "VX,VY" );
+        aParameterLists.set( "leader_dof_dependencies", "VX,VY" );
+        aParameterLists.set( "vectorial_field_index", 0 );
+        aParameterLists.set( "mesh_set_names", "HMR_dummy_n_p34,HMR_dummy_c_p34,HMR_dummy_n_p46,HMR_dummy_c_p46,HMR_dummy_n_p42,HMR_dummy_c_p42" );
 
         // VY IQI
         aParameterLists( 4 ).push_back( prm::create_IQI_parameter_list() );
-        aParameterLists( 4 ).set( "IQI_name", "IQIBulkVY" );
-        aParameterLists( 4 ).set( "IQI_type",  fem::IQI_Type::DOF ) ;
-        aParameterLists( 4 ).set( "dof_quantity", "VX,VY" );
-        aParameterLists( 4 ).set( "leader_dof_dependencies", "VX,VY" );
-        aParameterLists( 4 ).set( "vectorial_field_index", 1 );
-        aParameterLists( 4 ).set( "mesh_set_names", "HMR_dummy_n_p34,HMR_dummy_c_p34,HMR_dummy_n_p46,HMR_dummy_c_p46,HMR_dummy_n_p42,HMR_dummy_c_p42" );
+        aParameterLists.set( "IQI_name", "IQIBulkVY" );
+        aParameterLists.set( "IQI_type",  fem::IQI_Type::DOF ) ;
+        aParameterLists.set( "dof_quantity", "VX,VY" );
+        aParameterLists.set( "leader_dof_dependencies", "VX,VY" );
+        aParameterLists.set( "vectorial_field_index", 1 );
+        aParameterLists.set( "mesh_set_names", "HMR_dummy_n_p34,HMR_dummy_c_p34,HMR_dummy_n_p46,HMR_dummy_c_p46,HMR_dummy_n_p42,HMR_dummy_c_p42" );
 
         // P IQI
         aParameterLists( 4 ).push_back( prm::create_IQI_parameter_list() );
-        aParameterLists( 4 ).set( "IQI_name", "IQIBulkP" );
-        aParameterLists( 4 ).set( "IQI_type",  fem::IQI_Type::DOF ) ;
-        aParameterLists( 4 ).set( "dof_quantity", "P" );
-        aParameterLists( 4 ).set( "leader_dof_dependencies", "P" );
-        aParameterLists( 4 ).set( "vectorial_field_index", 0 );
-        aParameterLists( 4 ).set( "mesh_set_names", "HMR_dummy_n_p34,HMR_dummy_c_p34,HMR_dummy_n_p46,HMR_dummy_c_p46,HMR_dummy_n_p42,HMR_dummy_c_p42" );
+        aParameterLists.set( "IQI_name", "IQIBulkP" );
+        aParameterLists.set( "IQI_type",  fem::IQI_Type::DOF ) ;
+        aParameterLists.set( "dof_quantity", "P" );
+        aParameterLists.set( "leader_dof_dependencies", "P" );
+        aParameterLists.set( "vectorial_field_index", 0 );
+        aParameterLists.set( "mesh_set_names", "HMR_dummy_n_p34,HMR_dummy_c_p34,HMR_dummy_n_p46,HMR_dummy_c_p46,HMR_dummy_n_p42,HMR_dummy_c_p42" );
 
         // TEMP IQI
         aParameterLists( 4 ).push_back( prm::create_IQI_parameter_list() );
-        aParameterLists( 4 ).set( "IQI_name", "IQIBulkTEMP" );
-        aParameterLists( 4 ).set( "IQI_type",  fem::IQI_Type::DOF ) ;
-        aParameterLists( 4 ).set( "dof_quantity", "TEMP" );
-        aParameterLists( 4 ).set( "leader_dof_dependencies", "TEMP" );
-        aParameterLists( 4 ).set( "vectorial_field_index", 0 );
-        aParameterLists( 4 ).set( "mesh_set_names", "HMR_dummy_n_p34,HMR_dummy_c_p34,HMR_dummy_n_p46,HMR_dummy_c_p46,HMR_dummy_n_p42,HMR_dummy_c_p42" );
+        aParameterLists.set( "IQI_name", "IQIBulkTEMP" );
+        aParameterLists.set( "IQI_type",  fem::IQI_Type::DOF ) ;
+        aParameterLists.set( "dof_quantity", "TEMP" );
+        aParameterLists.set( "leader_dof_dependencies", "TEMP" );
+        aParameterLists.set( "vectorial_field_index", 0 );
+        aParameterLists.set( "mesh_set_names", "HMR_dummy_n_p34,HMR_dummy_c_p34,HMR_dummy_n_p46,HMR_dummy_c_p46,HMR_dummy_n_p42,HMR_dummy_c_p42" );
 
         //------------------------------------------------------------------------------
         // fill the computation part of the parameter list
@@ -634,21 +634,21 @@ namespace moris
         aParameterLists( 1 ).push_back( moris::prm::create_linear_solver_parameter_list() );
 
         aParameterLists( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );
-        aParameterLists( 2 ).set( "NLA_rel_res_norm_drop", 1e-07 );
+        aParameterLists.set( "NLA_rel_res_norm_drop", 1e-07 );
 
         aParameterLists( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );
-        aParameterLists( 3 ).set( "NLA_DofTypes", "VX,VY;P;TEMP" );
+        aParameterLists.set( "NLA_DofTypes", "VX,VY;P;TEMP" );
 
         aParameterLists( 4 ).push_back( moris::prm::create_time_solver_algorithm_parameter_list() );
-        aParameterLists( 4 ).set( "TSA_Num_Time_Steps", 20 );
-        aParameterLists( 4 ).set( "TSA_Time_Frame", 0.4 );
+        aParameterLists.set( "TSA_Num_Time_Steps", 20 );
+        aParameterLists.set( "TSA_Time_Frame", 0.4 );
 
         aParameterLists( 5 ).push_back( moris::prm::create_time_solver_parameter_list() );
-        aParameterLists( 5 ).set( "TSA_DofTypes", "VX,VY;P;TEMP" );
-        aParameterLists( 5 ).set( "TSA_Initialize_Sol_Vec", "VX,1E-4;VY,1E-4;P,0.0;TEMP,0.0" );
-        aParameterLists( 5 ).set( "TSA_Output_Indices", "0" );
-        aParameterLists( 5 ).set( "TSA_Output_Criteria", "Output_Criterion" );
-        aParameterLists( 5 ).set( "TSA_time_level_per_type", "VX,2;VY,2;P,2;TEMP,2" );
+        aParameterLists.set( "TSA_DofTypes", "VX,VY;P;TEMP" );
+        aParameterLists.set( "TSA_Initialize_Sol_Vec", "VX,1E-4;VY,1E-4;P,0.0;TEMP,0.0" );
+        aParameterLists.set( "TSA_Output_Indices", "0" );
+        aParameterLists.set( "TSA_Output_Criteria", "Output_Criterion" );
+        aParameterLists.set( "TSA_time_level_per_type", "VX,2;VY,2;P,2;TEMP,2" );
 
         aParameterLists( 6 ).push_back( moris::prm::create_solver_warehouse_parameterlist() );
 
@@ -667,12 +667,12 @@ namespace moris
     VISParameterList( Vector< Vector< ParameterList > >& aParameterLists )
     {
         aParameterLists( 0 ).push_back( prm::create_vis_parameter_list() );
-        aParameterLists( 0 ).set( "File_Name", std::pair< std::string, std::string >( "./", "2_Channels_Temp.exo" ) );
-        aParameterLists( 0 ).set( "Mesh_Type",  vis::VIS_Mesh_Type::STANDARD ) ;
-        aParameterLists( 0 ).set( "Set_Names", "HMR_dummy_n_p34,HMR_dummy_c_p34,HMR_dummy_n_p46,HMR_dummy_c_p46,HMR_dummy_n_p42,HMR_dummy_c_p42" );
-        aParameterLists( 0 ).set( "Field_Names", "VX,VY,P,TEMP" );
-        aParameterLists( 0 ).set( "Field_Type", "NODAL,NODAL,NODAL,NODAL" );
-        aParameterLists( 0 ).set( "IQI_Names", "IQIBulkVX,IQIBulkVY,IQIBulkP,IQIBulkTEMP" );
+        aParameterLists.set( "File_Name", std::pair< std::string, std::string >( "./", "2_Channels_Temp.exo" ) );
+        aParameterLists.set( "Mesh_Type",  vis::VIS_Mesh_Type::STANDARD ) ;
+        aParameterLists.set( "Set_Names", "HMR_dummy_n_p34,HMR_dummy_c_p34,HMR_dummy_n_p46,HMR_dummy_c_p46,HMR_dummy_n_p42,HMR_dummy_c_p42" );
+        aParameterLists.set( "Field_Names", "VX,VY,P,TEMP" );
+        aParameterLists.set( "Field_Type", "NODAL,NODAL,NODAL,NODAL" );
+        aParameterLists.set( "IQI_Names", "IQIBulkVX,IQIBulkVY,IQIBulkP,IQIBulkTEMP" );
     }
 
     void
