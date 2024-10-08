@@ -36,41 +36,6 @@ namespace moris
         // do nothing extra
     }
 
-    //------------------------------------------------------------------------------------------------------------------
-
-    void
-    Library_IO_Meshgen::finalize( std::string aFilePath )
-    {
-        // check that an .xml input file has been specified
-        MORIS_ERROR( mXmlParserIsInitialized,
-                "Library_IO_Meshgen::finalize() - No .xml input file has been specified. "
-                "This is required for the mesh generation workflow." );
-
-        // load the standard parameters into the member variables
-        this->load_all_standard_parameters();
-
-        // if an .so file has been parsed, first use its parameters (if any were defined in it) to overwrite or add to the standard parameters
-        if ( mSoLibIsInitialized )
-        {
-            this->load_parameters_from_shared_object_library();
-        }
-
-        // load parameters from xml, overwrites parameters specified in either the standard parameters or an .so file if parsed
-        if ( mXmlParserIsInitialized )
-        {
-            this->load_parameters_from_xml();
-        }
-
-        // check the parameters for validity
-        this->check_parameters();
-
-        // mark this library as finalized and lock it from modification
-        mLibraryIsFinalized = true;
-
-        // print receipt of the finalized library
-        this->print_parameter_receipt( "./Parameter_Receipt.xml" );    // TODO: the file name and location should be user define-able
-    }
-
     // -----------------------------------------------------------------------------
 
     void

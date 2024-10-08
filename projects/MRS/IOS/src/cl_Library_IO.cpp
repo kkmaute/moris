@@ -1000,7 +1000,7 @@ namespace moris
                     tPair.first  = tPairString.substr( 0, tPos );
                     tPair.second = tPairString.substr( tPos + 1 );
 
-                    iElements.second.set_value( iElements.first, tPair, false );
+                    iElements.get_parameter().set_value( iElements.get_name(), tPair, false );
                 }
             }
             else if ( iElements.get_parameter().index() == variant_index< Vector< uint > >() )
@@ -1037,10 +1037,10 @@ namespace moris
                     tString.erase( std::remove( tString.begin(), tString.end(), '}' ), tString.end() );
                     tString.erase( std::remove( tString.begin(), tString.end(), ' ' ), tString.end() );
 
-                    // Call string_to_cell after erasing all the {} and whitespaces
-                    moris::Vector< std::string > tVec = moris::string_to_cell< std::string >( tString );
+                    // Split the string into a vector of strings by the delimiter ,
+                    Vector< std::string > tVec = split_string( tString, "," );
 
-                    iElements.second.set_value( iElements.first, tVec, false );
+                    iElements.get_parameter().set_value( iElements.get_name(), tVec, false );
                 }
             }
             else
@@ -1263,7 +1263,7 @@ namespace moris
                 {
                     case 0:
 
-                        tParameterList = ( moris::prm::create_linear_algorithm_parameter_list( (sol::SolverType)aSubChild ) );
+                        return prm::create_linear_algorithm_parameter_list( (sol::SolverType)aSubChild );
 
                     case 1:
                         return prm::create_linear_solver_parameter_list();
@@ -1285,7 +1285,7 @@ namespace moris
 
                     case 7:
                         // Need to add Preconditioners
-                        tParameterList = ( moris::prm::create_preconditioner_parameter_list( (moris::sol::PreconditionerType)aSubChild ) );
+                        return moris::prm::create_preconditioner_parameter_list( (moris::sol::PreconditionerType)aSubChild );
                         break;
 
                     default:
@@ -1311,23 +1311,27 @@ namespace moris
                 {
                     case 0:
                     {
-                        tParameterList = ( moris::prm::create_moris_general_parameter_list() );
+                        Parameter_List tParameterList = ( moris::prm::create_moris_general_parameter_list() );
                         moris::prm::create_remeshing_parameterlist( tParameterList );
                         tParameterList.set( "mode", "none" );
+                        return tParameterList;
                     }
                     break;
 
                     case 1:
                     {
-                        tParameterList = ( moris::prm::create_moris_general_parameter_list() );
+                        Parameter_List tParameterList = ( moris::prm::create_moris_general_parameter_list() );
                         moris::prm::create_refinement_parameterlist( tParameterList );
+                        return tParameterList;
+
                     }
                     break;
 
                     case 2:
                     {
-                        tParameterList = ( moris::prm::create_moris_general_parameter_list() );
+                        Parameter_List tParameterList = ( moris::prm::create_moris_general_parameter_list() );
                         moris::prm::create_mapping_parameterlist( tParameterList );
+                        return tParameterList;
                     }
                     break;
 

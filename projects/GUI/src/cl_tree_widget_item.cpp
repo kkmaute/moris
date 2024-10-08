@@ -240,68 +240,70 @@ namespace moris
             uint tCounter = mWidget.size();
             uint tIndex   = 0;
 
-            for ( auto &iElements : aParameters )
+            for ( auto iElements : aParameters )
             {
-                if ( iElements.second.get_entry_type() == Entry_Type::SELECTION )
+
+                // Custom iterator doesn't allow .get_parameter() so change to .get_parameter()
+                if ( iElements.get_parameter().get_entry_type() == Entry_Type::SELECTION )
                 {
-                    Moris_Combo_Box *tComboBox = new Moris_Combo_Box( mScrollWidget, iElements.second );
-                    tComboBox->setObjectName( QString::fromStdString( iElements.first ) );
+                    Moris_Combo_Box *tComboBox = new Moris_Combo_Box( mScrollWidget, iElements.get_parameter() );
+                    tComboBox->setObjectName( QString::fromStdString( iElements.get_name() ) );
                     // Moris_Combo_Box *tComboBox = new Moris_Combo_Box();
                     mWidget.append( tComboBox );
-                    mFormLayout->addRow( QString::fromStdString( iElements.first ), mWidget[ tIndex + tCounter ] );
+                    mFormLayout->addRow( QString::fromStdString( iElements.get_name() ), mWidget[ tIndex + tCounter ] );
                 }
                 else
                 {
-                    if ( iElements.second.index() == variant_index< bool >() )
+                    if ( iElements.get_parameter().index() == variant_index< bool >() )
                     {
                         // Make a new boolean combo box
-                        Moris_Bool_Combo_Box *tComboBox = new Moris_Bool_Combo_Box( mScrollWidget, iElements.second );
-                        tComboBox->setObjectName( QString::fromStdString( iElements.first ) );
+                        Moris_Bool_Combo_Box *tComboBox = new Moris_Bool_Combo_Box( mScrollWidget, iElements.get_parameter() );
+                        tComboBox->setObjectName( QString::fromStdString( iElements.get_name() ) );
                         mWidget.append( tComboBox );
-                        mFormLayout->addRow( QString::fromStdString( iElements.first ), mWidget[ tIndex + tCounter ] );
+                        mFormLayout->addRow( QString::fromStdString( iElements.get_name() ), mWidget[ tIndex + tCounter ] );
                     }
-                    else if ( iElements.second.index() == variant_index< uint >() )
+                    else if ( iElements.get_parameter().index() == variant_index< uint >() )
                     {
-                        Moris_Int_Spin_Box *tSpinBox = new Moris_Int_Spin_Box( mScrollWidget, iElements.second );
-                        tSpinBox->setObjectName( QString::fromStdString( iElements.first ) );
+                        Moris_Int_Spin_Box *tSpinBox = new Moris_Int_Spin_Box( mScrollWidget, iElements.get_parameter() );
+                        tSpinBox->setObjectName( QString::fromStdString( iElements.get_name() ) );
                         mWidget.append( tSpinBox );
-                        mFormLayout->addRow( QString::fromStdString( iElements.first ), mWidget[ tIndex + tCounter ] );
+                        mFormLayout->addRow( QString::fromStdString( iElements.get_name() ), mWidget[ tIndex + tCounter ] );
                     }
-                    else if ( iElements.second.index() == variant_index< sint >() )
+                    else if ( iElements.get_parameter().index() == variant_index< sint >() )
                     {
-                        Moris_Int_Spin_Box *tDoubleSpinBox = new Moris_Int_Spin_Box( mScrollWidget, iElements.second );
-                        tDoubleSpinBox->setObjectName( QString::fromStdString( iElements.first ) );
+                        Moris_Int_Spin_Box *tDoubleSpinBox = new Moris_Int_Spin_Box( mScrollWidget, iElements.get_parameter() );
+                        tDoubleSpinBox->setObjectName( QString::fromStdString( iElements.get_name() ) );
                         mWidget.append( tDoubleSpinBox );
-                        mFormLayout->addRow( QString::fromStdString( iElements.first ), mWidget[ tIndex + tCounter ] );
+                        mFormLayout->addRow( QString::fromStdString( iElements.get_name() ), mWidget[ tIndex + tCounter ] );
                     }
-                    else if ( iElements.second.index() == variant_index< real >() )
+                    else if ( iElements.get_parameter().index() == variant_index< real >() )
                     {
-                        Moris_Double_Spin_Box *tDoubleSpinBox = new Moris_Double_Spin_Box( mScrollWidget, iElements.second );
-                        tDoubleSpinBox->setObjectName( QString::fromStdString( iElements.first ) );
+                        Moris_Double_Spin_Box *tDoubleSpinBox = new Moris_Double_Spin_Box( mScrollWidget, iElements.get_parameter() );
+                        tDoubleSpinBox->setObjectName( QString::fromStdString( iElements.get_name() ) );
                         mWidget.append( tDoubleSpinBox );
-                        mFormLayout->addRow( QString::fromStdString( iElements.first ), mWidget[ tIndex + tCounter ] );
+                        mFormLayout->addRow( QString::fromStdString( iElements.get_name() ), mWidget[ tIndex + tCounter ] );
                     }
-                    else if ( iElements.second.index() == variant_index< std::pair< std::string, std::string > >() )
+                    else if ( iElements.get_parameter().index() == variant_index< std::pair< std::string, std::string > >() )
                     {
-                        Moris_Pair_Box *tPairBox = new Moris_Pair_Box( mScrollWidget, iElements.second );
-                        tPairBox->setObjectName( QString::fromStdString( iElements.first ) );
+                        Moris_Pair_Box *tPairBox = new Moris_Pair_Box( mScrollWidget, iElements.get_parameter() );
+                        tPairBox->setObjectName( QString::fromStdString( iElements.get_name() ) );
                         mWidget.append( tPairBox );
-                        mFormLayout->addRow( QString::fromStdString( iElements.first ), mWidget[ tIndex + tCounter ] );
+                        mFormLayout->addRow( QString::fromStdString( iElements.get_name() ), mWidget[ tIndex + tCounter ] );
                     }
                     else
                     {
-                        if ( iElements.first == "properties" )
+                        if ( iElements.get_name() == "properties" )
                         {
-                            Moris_Group_Box *tGroupBox = new Moris_Group_Box( mScrollWidget, iElements.second, mPropertyNameList );
-                            tGroupBox->setObjectName( QString::fromStdString( iElements.first ) );
+                            Moris_Group_Box *tGroupBox = new Moris_Group_Box( mScrollWidget, iElements.get_parameter(), mPropertyNameList );
+                            tGroupBox->setObjectName( QString::fromStdString( iElements.get_name() ) );
                             mWidget.append( tGroupBox );
-                            mFormLayout->addRow( QString::fromStdString( iElements.first ), mWidget[ tIndex + tCounter ] );
+                            mFormLayout->addRow( QString::fromStdString( iElements.get_name() ), mWidget[ tIndex + tCounter ] );
                             try
                             {
                                 // Cast by reference using dynamic_cast
                                 for ( uint it = 0; it < mWidget.size() - 1; it++ )
                                 {
-                                    if ( mWidget[ it ]->objectName() == "constitutive_type" )
+                                    if (mWidget[it]->objectName() == "constitutive_type")
                                     {
                                         auto &tComboBox    = dynamic_cast< Moris_Combo_Box    &>( *mWidget[ it ] );
                                         auto &tGroupWidget = dynamic_cast< Moris_Group_Box & >( *mWidget[ tIndex + tCounter ] );
@@ -319,11 +321,11 @@ namespace moris
                         else
                         {
 
-                            Moris_Line_Edit *tLineEdit = new Moris_Line_Edit( mScrollWidget, iElements.second );
-                            tLineEdit->setObjectName( QString::fromStdString( iElements.first ) );
-                            // tLineEdit->setParameter(iElements.second);
+                            Moris_Line_Edit *tLineEdit = new Moris_Line_Edit( mScrollWidget, iElements.get_parameter() );
+                            tLineEdit->setObjectName( QString::fromStdString( iElements.get_name() ) );
+                            // tLineEdit->setParameter(iElements.get_parameter());
                             mWidget.append( tLineEdit );
-                            mFormLayout->addRow( QString::fromStdString( iElements.first ), mWidget[ tIndex + tCounter ] );
+                            mFormLayout->addRow( QString::fromStdString( iElements.get_name() ), mWidget[ tIndex + tCounter ] );
                         }
                     }
                 }

@@ -341,8 +341,8 @@ namespace moris
 
         for ( auto it = aList.begin(); it != aList.end(); ++it )
         {
-            tQtList[ 0 ].append( QString::fromStdString( it->first ) );
-            tQtList[ 1 ].append( QString::fromStdString( it->second.get_string() ) );
+            tQtList[ 0 ].append( QString::fromStdString( it.get_name() ) );
+            tQtList[ 1 ].append( QString::fromStdString( it.get_parameter().get_string() ) );
         }
 
         return tQtList;
@@ -386,13 +386,13 @@ namespace moris
                 {
                     mQTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last()->setText( 0, mQTreeWidgetChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ]->text( 0 ) + QString::number( tCurrentWidget->getSubFormCountProps() ) );
                     mTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last()->setSubFormType( -1 );
-                    mLibrary.get_parameter_lists()( tCurrentIndex[ 0 ] )( tCurrentIndex[ 1 ] ).push_back( create_parameter_list( (Parameter_List_Type)tCurrentIndex[ 0 ], tCurrentIndex[ 1 ], 0 ) );
+                    mLibrary.get_parameter_lists()( tCurrentIndex[ 0 ] )( tCurrentIndex[ 1 ] ).add_parameter_list( create_parameter_list( (Parameter_List_Type)tCurrentIndex[ 0 ], tCurrentIndex[ 1 ], 0 ) );
                 }
                 else
                 {
                     mQTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last()->setText( 0, tCurrentWidget->getComboBox()->currentText() + QString::number( tCurrentWidget->getSubFormCountProps() ) );
                     mTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last()->setSubFormType( tCurrentWidget->getComboBox()->currentIndex() );
-                    mLibrary.get_parameter_lists()( tCurrentIndex[ 0 ] )( tCurrentIndex[ 1 ] ).push_back( create_parameter_list( (Parameter_List_Type)tCurrentIndex[ 0 ], tCurrentIndex[ 1 ], tCurrentWidget->getComboBox()->currentIndex() ) );
+                    mLibrary.get_parameter_lists()( tCurrentIndex[ 0 ] )( tCurrentIndex[ 1 ] ).add_parameter_list( create_parameter_list( (Parameter_List_Type)tCurrentIndex[ 0 ], tCurrentIndex[ 1 ], tCurrentWidget->getComboBox()->currentIndex() ) );
                 }
 
                 // Setting up the scroll area, index, saving type for the sub-forms
@@ -415,7 +415,7 @@ namespace moris
                 }
 
                 // Append to mLibrary.get_parameter_lists() and pass it into add_elements
-                mTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last()->add_elements( mLibrary.get_parameter_lists()( tCurrentIndex[ 0 ] )( tCurrentIndex[ 1 ] ).back() );
+                mTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last()->add_elements( mLibrary.get_parameter_lists()( tCurrentIndex[ 0 ] )( tCurrentIndex[ 1 ] )(mLibrary.get_parameter_lists()( tCurrentIndex[ 0 ] )( tCurrentIndex[ 1 ] ).size() - 1) );
                 mTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last()->set_form_visible( false );
 
                 // Connecting the QTreeWidgetItem to the Moris_Tree_Widget_Item
@@ -446,7 +446,7 @@ namespace moris
             else
             {
                 QList< uint > tCurrentIndex = tCurrentWidget->getIndex();
-                mLibrary.get_parameter_lists()( tCurrentIndex[ 0 ] )( tCurrentIndex[ 1 ] ).push_back( create_parameter_list( (Parameter_List_Type)tCurrentIndex[ 0 ], tCurrentIndex[ 1 ], 0 ) );
+                mLibrary.get_parameter_lists()( tCurrentIndex[ 0 ] )( tCurrentIndex[ 1 ] ).add_parameter_list( create_parameter_list( (Parameter_List_Type)tCurrentIndex[ 0 ], tCurrentIndex[ 1 ], 0 ) );
                 tCurrentWidget->add_elements( mLibrary.get_parameter_lists()( tCurrentIndex[ 0 ] )( tCurrentIndex[ 1 ] )( mLibrary.get_parameter_lists()( tCurrentIndex[ 0 ] )( tCurrentIndex[ 1 ] ).size() - 1 ) );
             }
         }
@@ -498,7 +498,8 @@ namespace moris
             else
             {
                 // If the current widget is not a sub-form, then remove the elements from the form in the Moris_Tree_Widget_Item
-                mLibrary.get_parameter_lists()( tCurrentWidget->getIndex()[ 0 ] )( tCurrentWidget->getIndex()[ 1 ] ).pop_back();
+
+                mLibrary.get_parameter_lists()( tCurrentWidget->getIndex()[ 0 ] )( tCurrentWidget->getIndex()[ 1 ] ).erase( mLibrary.get_parameter_lists()( tCurrentWidget->getIndex()[ 0 ] )( tCurrentWidget->getIndex()[ 1 ] ).size() - 1 );
                 tCurrentWidget->remove_elements();
             }
         }
@@ -516,13 +517,13 @@ namespace moris
 
         for ( auto &iFindName : mLibrary.get_parameter_lists()( aRoot )(aChild)( aSubChild ) )
         {
-            if ( endswith( iFindName.first, "name" ) )
+            if ( endswith( iFindName.get_name(), "name" ) )
             {
-                if ( iFindName.second.get_value< std::string >().empty() )
+                if ( iFindName.get_parameter().get_value< std::string >().empty() )
                 {
                     break;
                 }
-                tName = QString::fromStdString( iFindName.second.get_value< std::string >() );
+                tName = QString::fromStdString( iFindName.get_parameter().get_value< std::string >() );
                 break;
             }
         }

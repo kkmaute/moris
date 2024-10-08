@@ -67,34 +67,34 @@ namespace moris
         }
         else if ( mParameter.index() == variant_index< std::pair< std::string, std::string > >() )
         {
-            Vector< std::string >                 tVec  = string_to_cell< std::string >( new_text.toStdString() );
+            Vector< std::string >                 tVec  = split_string( new_text.toStdString(), "," );
             std::pair< std::string, std::string > tPair = std::make_pair( tVec( 0 ), tVec( 1 ) );
             mParameter.set_value( objectName().toStdString(), tPair, false );
         }
         else if ( mParameter.index() == variant_index< Vector< uint > >() )
         {
-            Vector< uint > tVec = string_to_cell< uint >( new_text.toStdString() );
+            Vector< uint > tVec = string_to_vector< uint >( new_text.toStdString() );
             mParameter.set_value( objectName().toStdString(), tVec, false );
         }
         else if ( mParameter.index() == variant_index< Vector< sint > >() )
         {
-            Vector< sint > tVec = string_to_cell< sint >( new_text.toStdString() );
+            Vector< sint > tVec = string_to_vector< sint >( new_text.toStdString() );
             mParameter.set_value( objectName().toStdString(), tVec, false );
         }
         else if ( mParameter.index() == variant_index< Vector< real > >() )
         {
-            Vector< real > tVec = string_to_cell< real >( new_text.toStdString() );
+            Vector< real > tVec = string_to_vector< real >( new_text.toStdString() );
             mParameter.set_value( objectName().toStdString(), tVec, false );
         }
         else if ( mParameter.index() == variant_index< Vector< std::string > >() )
         {
-            Vector< std::string > tVec = string_to_cell< std::string >( new_text.toStdString() );
+            Vector< std::string > tVec = string_to_vector< std::string >( new_text.toStdString() );
             mParameter.set_value( objectName().toStdString(), tVec, false );
         }
         else
         {
             // Geometry center_x variable spazzes out when empty
-            Vector< real >  tVec             = string_to_cell< real >( new_text.toStdString() );
+            Vector< real >  tVec             = string_to_vector< real >( new_text.toStdString() );
             Design_Variable tDesign_Variable = Design_Variable( tVec( 0 ) );
             mParameter.set_value( objectName().toStdString(), tDesign_Variable, false );
         }
