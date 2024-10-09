@@ -237,8 +237,9 @@ namespace moris
 
         tParameterlist( 1 ).resize( 1 );
         tParameterlist( 1 )( 0 ) = prm::create_surface_mesh_geometry_parameter_list();
-        tParameterlist( 1 )( 0 ).set( "file_path", moris::get_base_moris_dir() + "projects/GEN/test/data/tetra.obj" );    // BRENDAN FIXME
+        tParameterlist( 1 )( 0 ).set( "file_path", moris::get_base_moris_dir() + "projects/GEN/test/data/tetra.obj" );
         tParameterlist( 1 )( 0 ).set( "offset", -0.6, -0.6, 0.0 );
+        tParameterlist( 1 )( 0 ).set( "intersection_tolerance", 1e-9 );
 
         switch ( tGeoModel )
         {

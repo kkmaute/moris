@@ -12,6 +12,7 @@
 #include <cmath>
 #include "fn_eye.hpp"
 #include "paths.hpp"
+#include <Kokkos_Core.hpp>
 
 #include "cl_GEN_Geometry_Engine_Test.hpp"
 #include "cl_GEN_PDV_Host_Manager.hpp"
@@ -30,6 +31,9 @@
 
 #include "fn_check_equal.hpp"
 
+#ifdef MORIS_HAVE_ARBORX
+// initialize Kokkos for the use in the spatial tree library ArborX
+std::unique_ptr< Kokkos::ScopeGuard > guard = !Kokkos::is_initialized() && !Kokkos::is_finalized() ? std::make_unique< Kokkos::ScopeGuard >() : nullptr;
 namespace moris::gen
 {
     //--------------------------------------------------------------------------------------------------------------
@@ -383,3 +387,5 @@ namespace moris::gen
         }
     }
 }    // namespace moris::gen
+
+#endif

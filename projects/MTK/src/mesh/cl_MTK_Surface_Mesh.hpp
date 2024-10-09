@@ -65,14 +65,6 @@ namespace moris::mtk
         void set_vertex_displacement( const uint aVertexIndex, const Matrix< DDRMat >& aDisplacement );
 
         /**
-         * Adds a displacement to the current displacement of the vertex
-         *
-         * @param aVertexIndex vertex index to add displacement to
-         * @param aDisplacement <dimension > x < 1 > matrix containing displacment to add
-         */
-        void append_vertex_displacement( const uint aVertexIndex, const Matrix< DDRMat >& aDisplacement );
-
-        /**
          * @brief removes any displacement, rotation, and scaling applied to the surface mesh
          */
         void reset_coordinates();

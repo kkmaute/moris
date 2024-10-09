@@ -227,7 +227,8 @@ namespace moris
 
         tParameterlist( 1 ).resize( 1 );
         tParameterlist( 1 )( 0 ) = prm::create_surface_mesh_geometry_parameter_list();
-        tParameterlist( 1 )( 0 ).set( "file_path", moris::get_base_moris_dir() + "projects/GEN/test/data/triangle_sensitivity_oblique.obj" );    // BRENDAN FIXME
+        tParameterlist( 1 )( 0 ).set( "file_path", moris::get_base_moris_dir() + "projects/GEN/test/data/triangle_sensitivity_oblique.obj" );
+        tParameterlist( 1 )( 0 ).set( "intersection_tolerance", 1e-9 );
         switch ( tGeoModel )
         {
             case 0:
@@ -474,7 +475,7 @@ namespace moris
         tParameterlist( 2 )( 0 ).set( "hdf5_path", "shape_opt_test_surface_mesh_2D.hdf5" );
         tParameterlist( 2 )( 0 ).set( "evaluate_objective_gradients", true );
         tParameterlist( 2 )( 0 ).set( "evaluate_constraint_gradients", true );
-        tParameterlist( 2 )( 0 ).set( "finite_difference_epsilons", "1E-8" );
+        tParameterlist( 2 )( 0 ).set( "finite_difference_epsilons", "1E-6" );
         tParameterlist( 2 )( 0 ).set( "num_evaluations_per_adv", "1" );
         tParameterlist( 2 )( 0 ).set( "include_bounds", false );
         tParameterlist( 2 )( 0 ).set( "finite_difference_type", "all" );

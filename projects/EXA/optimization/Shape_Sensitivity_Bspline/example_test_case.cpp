@@ -13,7 +13,14 @@
 #include "cl_Logger.hpp"    // MRS/IOS/src
 #include "HDF5_Tools.hpp"
 
+#include <Kokkos_Core.hpp>
+
 using namespace moris;
+
+#ifdef MORIS_HAVE_ARBORX
+// initialize Kokkos for the use in the spatial tree library ArborX
+std::unique_ptr< Kokkos::ScopeGuard > guard = !Kokkos::is_initialized() && !Kokkos::is_finalized() ? std::make_unique< Kokkos::ScopeGuard >() : nullptr;
+#endif
 
 // global variable to define test cases
 uint tGeoModel;

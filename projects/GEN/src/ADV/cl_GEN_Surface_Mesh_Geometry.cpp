@@ -201,7 +201,8 @@ namespace moris::gen
             uint&                             aParentFacet )
     {
         // Get the direction for the raycast as a unit vector
-        Matrix< DDRMat > tRayDirection = aSecondParentNode.get_global_coordinates() - aFirstParentNode.get_global_coordinates();
+        real             tNorm         = norm( aSecondParentNode.get_global_coordinates() - aFirstParentNode.get_global_coordinates() );
+        Matrix< DDRMat > tRayDirection = ( aSecondParentNode.get_global_coordinates() - aFirstParentNode.get_global_coordinates() ) / tNorm;
 
         //  Compute the distance from the first parent to all the facets
         mtk::Intersection_Vector tLocalCoordinate = this->cast_single_ray( aFirstParentNode.get_global_coordinates(), tRayDirection );
@@ -209,7 +210,7 @@ namespace moris::gen
         // Put the intersections in the local coordinate frame
         for ( uint iIntersection = 0; iIntersection < tLocalCoordinate.size(); iIntersection++ )
         {
-            tLocalCoordinate( iIntersection ).second = 2.0 * tLocalCoordinate( iIntersection ).second - 1.0;
+            tLocalCoordinate( iIntersection ).second = 2.0 / tNorm * tLocalCoordinate( iIntersection ).second - 1.0;
         }
 
         // -------------------------------------------------------------------------------------
@@ -320,7 +321,7 @@ namespace moris::gen
             // Check if this vertex was updated by any processor
             if ( (uint)tCombinedVertexCoordinates( tDim, iVertexIndex ) == 1 )
             {
-                Surface_Mesh::append_vertex_displacement( iVertexIndex, tCombinedVertexCoordinates.get_column( iVertexIndex ) );
+                Surface_Mesh::set_vertex_displacement( iVertexIndex, tCombinedVertexCoordinates( { 0, tDim - 1 }, { iVertexIndex } ) );
             }
         }
 
@@ -562,8 +563,6 @@ namespace moris::gen
         if ( this->intended_discretization() )
         {
             // Determine which directions the vertex can move in
-            Vector< bool > tVertexDependsOnADVs( tDim );
-
             Vector< real > tFactor              = get_discretization_factor_user_defined == nullptr ? Vector< real >( tDim, 1.0 ) : get_discretization_factor_user_defined( Surface_Mesh::get_vertex_coordinates( aFacetVertexIndex ) );
             uint           tNumDimsDependOnADVs = std::count_if( tFactor.cbegin(), tFactor.cend(), []( real tFac ) { return tFac != 0.0; } );
 
@@ -581,7 +580,7 @@ namespace moris::gen
                 uint tDimensionSensitivitiesAdded     = 0;
 
                 // Get the sensitivity factor of the node in this direction
-                Vector< real > tFactor = get_discretization_factor_user_defined == nullptr ? Vector< real >( tDim ) : get_discretization_factor_user_defined( this->get_vertex_coordinates( aFacetVertexIndex ) );
+                Vector< real > tFactor = get_discretization_factor_user_defined == nullptr ? Vector< real >( tDim, 1.0 ) : get_discretization_factor_user_defined( this->get_vertex_coordinates( aFacetVertexIndex ) );
                 // Loop over spatial dimension
                 for ( uint iDimensionIndex = 0; iDimensionIndex < tDim; iDimensionIndex++ )
                 {
@@ -627,8 +626,16 @@ namespace moris::gen
 
             // Determine which directions the vertex can move in
             Vector< bool > tVertexDependsOnADVs( tDim );
+            uint           tNumDimsDependOnADVs = 0;
             Vector< real > tFactor              = get_discretization_factor_user_defined == nullptr ? Vector< real >( tDim, 1.0 ) : get_discretization_factor_user_defined( Surface_Mesh::get_vertex_coordinates( aFacetVertexIndex ) );
-            uint           tNumDimsDependOnADVs = std::count_if( tFactor.cbegin(), tFactor.cend(), []( real tFac ) { return tFac != 0.0; } );
+            for ( uint iDimension = 0; iDimension < tDim; iDimension++ )
+            {
+                tVertexDependsOnADVs( iDimension ) = tFactor( iDimension ) != 0.0;
+                if ( tVertexDependsOnADVs( iDimension ) )
+                {
+                    tNumDimsDependOnADVs++;
+                }
+            }
 
             // Initialize matrix to be filled
             Vector< sint > tVertexADVIds;

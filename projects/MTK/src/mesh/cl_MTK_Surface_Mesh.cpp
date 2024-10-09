@@ -67,13 +67,6 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Surface_Mesh::append_vertex_displacement( const uint aVertexIndex, const Matrix< DDRMat >& aDisplacement )
-    {
-        mDisplacements.set_column( aVertexIndex, mDisplacements.get_column( aVertexIndex ) + aDisplacement );
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
     Matrix< DDRMat > Surface_Mesh::get_all_vertex_coordinates() const
     {
         return mVertexCoordinates + mDisplacements;
@@ -168,12 +161,14 @@ namespace moris::mtk
             {
                 tDirection( 0, 0 ) = 0.7986;
                 tDirection( 1, 0 ) = 0.6018;
+                break;
             }
             case 3:
             {
                 tDirection( 0, 0 ) = 0.5642;
                 tDirection( 1, 0 ) = 0.4250;
                 tDirection( 2, 0 ) = -0.4367;
+                break;
             }
             default:
             {
@@ -265,6 +260,8 @@ namespace moris::mtk
                 tIntersections( tNumberOfValidIntersections++ ).first = iCandidate;
             }
         }
+
+        tIntersections.resize( tNumberOfValidIntersections );
 
         // Remove duplicates and sort the intersections, return
         return postprocess_raycast_output( tIntersections );
@@ -416,10 +413,18 @@ namespace moris::mtk
         Matrix< DDRMat > tEdge = tFacetCoordinates.get_column( 1 ) - tFacetCoordinates.get_column( 0 );
 
         // Vector from the origin of the ray to the origin of the first vertex
-        Matrix< DDRMat > tRayToVertex = tFacetCoordinates.get_column( 0 ) - aPoint;
+        Matrix< DDRMat > tRayToVertex;
+        if ( aPoint.n_cols() == 1 )
+        {
+            tRayToVertex = tFacetCoordinates.get_column( 0 ) - aPoint;
+        }
+        else
+        {
+            tRayToVertex = tFacetCoordinates.get_column( 0 ) - trans( aPoint );
+        }
 
         // Get the determinate of the edge and the cast direction
-        real tDet = aDirection( 0 ) * tEdge( 1 ) - aDirection( 1 ) * tEdge( 0 );
+        real tDet = aDirection( 1 ) * tEdge( 0 ) - aDirection( 0 ) * tEdge( 1 );
 
         // If the determinant is close to zero, the ray is parallel or colinear to the line
         if ( std::abs( tDet ) < mIntersectionTolerance )
@@ -455,7 +460,7 @@ namespace moris::mtk
         real tInverseDeterminant = 1.0 / tDet;
 
         // Solve the 2D system
-        real tDistance = ( tRayToVertex( 0 ) * tEdge( 1 ) - tRayToVertex( 1 ) * tEdge( 0 ) ) * tInverseDeterminant;
+        real tDistance = ( tRayToVertex( 1 ) * tEdge( 0 ) - tRayToVertex( 0 ) * tEdge( 1 ) ) * tInverseDeterminant;
         real tU        = ( aDirection( 0 ) * tRayToVertex( 1 ) - aDirection( 1 ) * tRayToVertex( 0 ) ) * tInverseDeterminant;
 
         // Check if the intersection is within the line segment
@@ -498,7 +503,7 @@ namespace moris::mtk
         real             tDet = dot( tEdge1, tP );
 
         // If the determinant is close to zero, the ray is parallel to the triangle. Return NaN
-        if ( tDet > -mIntersectionTolerance and tDet < mIntersectionTolerance )
+        if ( std::abs( tDet ) < mIntersectionTolerance )
         {
             return std::numeric_limits< real >::quiet_NaN();
         }
@@ -510,11 +515,11 @@ namespace moris::mtk
         Matrix< DDRMat > tT;
         if ( aPoint.n_cols() == 1 )
         {
-            tT = aPoint - tVertexCoordinates.get_column( tVertexIndices( 0 ) );
+            tT = aPoint - tVertexCoordinates.get_column( 0 );
         }
         else
         {
-            tT = trans( aPoint ) - tVertexCoordinates.get_column( tVertexIndices( 0 ) );
+            tT = trans( aPoint ) - tVertexCoordinates.get_column( 0 );
         }
 
         // Compute the u parameter
@@ -541,8 +546,14 @@ namespace moris::mtk
         // Compute the distance from the origin to the intersection point
         real tDistance = dot( tEdge2, tQ ) * tInverseDeterminant;
 
-        // Return the distance
-        return norm( tDistance * aDirection );
+        // Check if the intersection is behind the origin
+        if ( tDistance < -mIntersectionTolerance )
+        {
+            return std::numeric_limits< real >::quiet_NaN();
+        }
+
+        // Return the distance (snap to zero if close)
+        return std::abs( tDistance ) < mIntersectionTolerance ? 0.0 : tDistance;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -743,9 +754,10 @@ namespace moris::mtk
         for ( uint iVertex = 0; iVertex < this->get_number_of_vertices(); iVertex++ )
         {
             tFile << "v ";
+            Matrix< DDRMat > tCoords = this->get_vertex_coordinates( iVertex );
             for ( uint iDimension = 0; iDimension < this->get_spatial_dimension(); iDimension++ )
             {
-                tFile << mVertexCoordinates( iDimension, iVertex ) << " ";
+                tFile << tCoords( iDimension ) << " ";
             }
             tFile << std::endl;
         }
@@ -826,6 +838,8 @@ namespace moris::mtk
         Vector< std::pair< moris_index, Surface_Mesh > > tSurfaceMesh = { std::pair< moris_index, Surface_Mesh >( { 0, *this } ) };
 
         // Construct the ArborX boxes from this mesh
+        using ExecutionSpace = Kokkos::DefaultExecutionSpace;
+        using MemorySpace    = ExecutionSpace::memory_space;
         ExecutionSpace                    tExecutionSpace{};
         arborx::QueryBoxes< MemorySpace > tQueryBoxes = arborx::construct_query_boxes< MemorySpace >( tExecutionSpace, tSurfaceMesh );
 
