@@ -18,7 +18,7 @@ namespace moris
     {
       private:
         Parameter_List_Type                 mParameterListType;
-        Vector< Submodule_Parameter_Lists > mSubModuleParameterLists;
+        Vector< Submodule_Parameter_Lists > mSubmoduleParameterLists;
         uint                                mCurrentSubmoduleIndex = 0;
 
       public:
@@ -53,7 +53,7 @@ namespace moris
                 const T&           aValue )
         {
             // Set in last parameter list
-            mSubModuleParameterLists( mCurrentSubmoduleIndex ).set( aName, aValue );
+            mSubmoduleParameterLists( mCurrentSubmoduleIndex ).set( aName, aValue );
         }
 
         /**
@@ -72,7 +72,7 @@ namespace moris
                 Arg_Types...       aMoreValues )
         {
             // Set in last parameter list
-            mSubModuleParameterLists( mCurrentSubmoduleIndex ).set( aName, aFirstValue, aSecondValue, aMoreValues... );
+            mSubmoduleParameterLists( mCurrentSubmoduleIndex ).set( aName, aFirstValue, aSecondValue, aMoreValues... );
         }
 
         /**
@@ -95,7 +95,11 @@ namespace moris
         template< typename T >
         Submodule_Parameter_Lists& operator()( T aSubmoduleType )
         {
-            return get_submodule( aSubmoduleType, std::is_enum< T >() );
+            // Set new current index
+            mCurrentSubmoduleIndex = index( aSubmoduleType, std::is_enum< T >() );
+
+            // Return submodule parameter list
+            return mSubmoduleParameterLists( mCurrentSubmoduleIndex );
         }
 
         /**
@@ -107,7 +111,7 @@ namespace moris
         template< typename T >
         const Submodule_Parameter_Lists& operator()( T aSubmoduleType ) const
         {
-            return get_submodule( aSubmoduleType, std::is_enum< T >() );
+            return mSubmoduleParameterLists( index( aSubmoduleType, std::is_enum< T >() ) );
         }
 
         /**
@@ -115,78 +119,49 @@ namespace moris
          *
          * @return Beginning of the parameter list vector
          */
-        [[nodiscard]] auto begin()->decltype( mSubModuleParameterLists.begin() );
+        [[nodiscard]] auto begin()->decltype( mSubmoduleParameterLists.begin() );
 
         /**
          * Gets an end() iterator through the underlying vector of parameter lists.
          *
          * @return End of the parameter list vector
          */
-        [[nodiscard]] auto end()->decltype( mSubModuleParameterLists.end() );
+        [[nodiscard]] auto end()->decltype( mSubmoduleParameterLists.end() );
 
         /**
          * Should only be used for old input files, with old FEM parameter list setup
          */
         void hack_for_legacy_fem()
         {
-            mSubModuleParameterLists.resize( 8 );
+            mSubmoduleParameterLists.resize( 8 );
         }
 
       private:
+
         /**
-         * Gets a submodule parameter list with an enum.
+         * Gets a submodule index from an enum.
          *
          * @tparam T Enum type
-         * @param aSubmoduleType Specifies the type of submodule
-         * @return Submodule parameter list
+         * @param SubmoduleType Submodule enum
+         * @return Submodule index
          */
         template< typename T >
-        Submodule_Parameter_Lists& get_submodule( T aSubmoduleType, std::true_type )
+        static uint index( T aSubmoduleType, std::true_type )
         {
-            return get_submodule( static_cast< uint >( aSubmoduleType ), std::false_type() );
+            return static_cast< uint >( aSubmoduleType );
         }
 
         /**
-         * Gets a submodule parameter list with an unsigned integer.
+         * Overload for getting a submodule index, if the index is already a uint.
          *
-         * @tparam T Integer type
-         * @param aSubmoduleType Specifies the index of a submodule
-         * @return Submodule parameter list
+         * @tparam T Uint type
+         * @param SubmoduleType Submodule index
+         * @return Submodule index
          */
         template< typename T >
-        Submodule_Parameter_Lists& get_submodule( T aSubmoduleIndex, std::false_type )
+        static uint index( T aSubmoduleType, std::false_type )
         {
-            // Update current index
-            mCurrentSubmoduleIndex = aSubmoduleIndex;
-
-            // Return submodule parameter list
-            return mSubModuleParameterLists( aSubmoduleIndex );
-        }
-
-        /**
-         * Gets a const submodule parameter list with an enum.
-         *
-         * @tparam T Enum type
-         * @param aSubmoduleType Specifies the type of submodule
-         * @return Submodule parameter list
-         */
-        template< typename T >
-        const Submodule_Parameter_Lists& get_submodule( T aSubmoduleType, std::true_type ) const
-        {
-            return get_submodule( static_cast< uint >( aSubmoduleType ), std::false_type() );
-        }
-
-        /**
-         * Gets a const submodule parameter list with an unsigned integer.
-         *
-         * @tparam T Integer type
-         * @param aSubmoduleType Specifies the index of a submodule
-         * @return Submodule parameter list
-         */
-        template< typename T >
-        const Submodule_Parameter_Lists& get_submodule( T aSubmoduleIndex, std::false_type ) const
-        {
-            return mSubModuleParameterLists( aSubmoduleIndex );
+            return aSubmoduleType;
         }
     };
 }

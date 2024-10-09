@@ -201,7 +201,6 @@ namespace moris
     void
     OPTParameterList( Module_Parameter_Lists& aParameterLists )
     {
-        aParameterLists( 0 ).add_parameter_list( moris::prm::create_opt_problem_parameter_list() );
         aParameterLists.set( "is_optimization_problem", false );
     }
 
@@ -210,8 +209,6 @@ namespace moris
     void
     HMRParameterList( Module_Parameter_Lists& aParameterLists )
     {
-        aParameterLists( 0 ).add_parameter_list( prm::create_hmr_parameter_list() );
-
         aParameterLists.set( "number_of_elements_per_dimension", tNumElemsPerDim );
         aParameterLists.set( "domain_dimensions", tDomainDims );
         aParameterLists.set( "domain_offset", tDomainOffset );
@@ -242,7 +239,6 @@ namespace moris
     void
     XTKParameterList( Module_Parameter_Lists& aParameterLists )
     {
-        aParameterLists( 0 ).add_parameter_list( prm::create_xtk_parameter_list() );
         aParameterLists.set( "decompose", true );
         aParameterLists.set( "decomposition_type", std::string( "conformal" ) );
         aParameterLists.set( "enrich", true );
@@ -261,7 +257,6 @@ namespace moris
     void
     GENParameterList( Module_Parameter_Lists& aParameterLists )
     {
-        aParameterLists( 0 ).add_parameter_list( prm::create_gen_parameter_list() );
         aParameterLists.set( "output_mesh_file", tGENOutputFile );
 
         // Dummy Geometry
@@ -485,7 +480,7 @@ namespace moris
             }
 
         // create computation parameter list
-        aParameterLists( FEM::COMPUTATION ).add_parameter_list( prm::create_computation_parameter_list() );
+        aParameterLists( FEM::COMPUTATION );
     }
 
     void
@@ -499,14 +494,12 @@ namespace moris
     void
     MSIParameterList( Module_Parameter_Lists& aParameterLists )
     {
-        aParameterLists( 0 ).add_parameter_list( prm::create_msi_parameter_list() );
         aParameterLists.set( "number_eigen_vectors", 5 );
     }
 
     void
     VISParameterList( Module_Parameter_Lists& aParameterLists )
     {
-        aParameterLists( 0 ).add_parameter_list( prm::create_vis_parameter_list() );
         aParameterLists.set( "File_Name", std::pair< std::string, std::string >( "./", tOutputFileName ) );
         aParameterLists.set( "Mesh_Type",  vis::VIS_Mesh_Type::STANDARD ) ;
         aParameterLists.set( "Set_Names", tBulk );
@@ -575,10 +568,9 @@ namespace moris
         aParameterLists.set( "TSA_Output_Criteria", "Output_Criterion" );
         aParameterLists.set( "TSA_time_level_per_type", "UX,1;UY,1" );
 
-        aParameterLists( SOL::SOLVER_WAREHOUSE ).add_parameter_list( moris::prm::create_solver_warehouse_parameterlist() );
-        aParameterLists.set( "SOL_save_operator_to_matlab", "MassMat" );
+        aParameterLists( SOL::SOLVER_WAREHOUSE ).set( "SOL_save_operator_to_matlab", "MassMat" );
 
-        aParameterLists( 7 ).add_parameter_list( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::IFPACK ) );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::IFPACK ) );
         // Ifpack Preconditioner parameters
         aParameterLists.set( "ifpack_prec_type", "Amesos" );
         aParameterLists.set( "amesos: solver type", gPrecSolver );    // Amesos_Umfpack or Amesos_Pardiso
@@ -610,7 +602,7 @@ namespace moris
         aParameterLists.set( "Verbosity", false );
 
         // precondioerr
-        aParameterLists( 7 ).add_parameter_list( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::PETSC ) );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::PETSC ) );
         aParameterLists.set( "PCType", "mumps" );
 
         aParameterLists( SOL::LINEAR_SOLVERS ).add_parameter_list( moris::prm::create_linear_solver_parameter_list() );
@@ -637,7 +629,6 @@ namespace moris
         aParameterLists.set( "TSA_Output_Criteria", "Output_Criterion" );
         aParameterLists.set( "TSA_time_level_per_type", "UX,1;UY,1" );
 
-        aParameterLists( SOL::SOLVER_WAREHOUSE ).add_parameter_list( moris::prm::create_solver_warehouse_parameterlist() );
         // aParameterLists.set( "SOL_save_operator_to_matlab", "MassMat" );
         aParameterLists.set( "SOL_TPL_Type",  sol::MapType::Petsc ) ;
 

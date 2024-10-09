@@ -234,8 +234,7 @@ namespace moris
     void OPTParameterList( Module_Parameter_Lists &aParameterLists )
     {
         Parameter_List pl = prm::create_opt_problem_parameter_list();
-        pl.set( "is_optimization_problem", false );
-        aParameterLists( 0 ).add_parameter_list( pl );
+        aParameterLists.set( "is_optimization_problem", false );
     }
 
     /* ---------------------------------------------------------------------------------------------- */
@@ -243,37 +242,34 @@ namespace moris
     /* ---------------------------------------------------------------------------------------------- */
     void HMRParameterList( Module_Parameter_Lists &aParameterLists )
     {
-        auto pl = prm::create_hmr_parameter_list();
-
         /* --------------------------------------- Domain Settings ------------------------------------ */
-        pl.set( "number_of_elements_per_dimension",
+        aParameterLists.set( "number_of_elements_per_dimension",
                 std::to_string( tNumElemsX ) + "," + std::to_string( tNumElemsY ) );
-        pl.set( "domain_dimensions", std::to_string( tWidth ) + "," + std::to_string( tHeight ) );
-        pl.set( "domain_offset", tDomainOffset );
-        pl.set( "domain_sidesets", "1,2,3,4" );
+        aParameterLists.set( "domain_dimensions", std::to_string( tWidth ) + "," + std::to_string( tHeight ) );
+        aParameterLists.set( "domain_offset", tDomainOffset );
+        aParameterLists.set( "domain_sidesets", "1,2,3,4" );
 
         /* ---------------------------------------- Lagrange Mesh ------------------------------------- */
-        pl.set( "lagrange_pattern", "0" );
-        pl.set( "lagrange_orders", tInterpolationOrder );
-        pl.set( "lagrange_output_meshes", "0" );
+        aParameterLists.set( "lagrange_pattern", "0" );
+        aParameterLists.set( "lagrange_orders", tInterpolationOrder );
+        aParameterLists.set( "lagrange_output_meshes", "0" );
 
         /* -------------------------------------- B-Spline Mesh --------------------------------------- */
-        pl.set( "bspline_pattern", "0" );
-        pl.set( "bspline_orders", tInterpolationOrder );
-        pl.set( "lagrange_to_bspline", "0" );
-        pl.set( "truncate_bsplines", 1 );
+        aParameterLists.set( "bspline_pattern", "0" );
+        aParameterLists.set( "bspline_orders", tInterpolationOrder );
+        aParameterLists.set( "lagrange_to_bspline", "0" );
+        aParameterLists.set( "truncate_bsplines", 1 );
 
         /* ----------------------------------------- Refinement --------------------------------------- */
-        pl.set( "refinement_buffer", 0 );
-        pl.set( "staircase_buffer", 0 );
-        pl.set( "initial_refinement", "0" );
-        pl.set( "initial_refinement_pattern", "0" );
+        aParameterLists.set( "refinement_buffer", 0 );
+        aParameterLists.set( "staircase_buffer", 0 );
+        aParameterLists.set( "initial_refinement", "0" );
+        aParameterLists.set( "initial_refinement_pattern", "0" );
 
         /* ---------------------------------------- Miscellaneous ------------------------------------- */
-        pl.set( "use_number_aura", 1 );
-        pl.set( "use_multigrid", 0 );
-        pl.set( "severity_level", 0 );
-        aParameterLists( 0 ).add_parameter_list( pl );
+        aParameterLists.set( "use_number_aura", 1 );
+        aParameterLists.set( "use_multigrid", 0 );
+        aParameterLists.set( "severity_level", 0 );
     }
 
     /* ---------------------------------------------------------------------------------------------- */
@@ -281,20 +277,18 @@ namespace moris
     /* ---------------------------------------------------------------------------------------------- */
     void XTKParameterList( Module_Parameter_Lists &aParameterLists )
     {
-        auto pl = prm::create_xtk_parameter_list();
-        pl.set( "decompose", true );
-        pl.set( "decomposition_type", "conformal" );
-        pl.set( "enrich", true );
-        pl.set( "basis_rank", "bspline" );
-        pl.set( "enrich_mesh_indices", "0" );
-        pl.set( "ghost_stab", tUseGhost );
-        pl.set( "multigrid", false );
-        pl.set( "verbose", true );
-        pl.set( "print_enriched_ig_mesh", true );
-        pl.set( "exodus_output_XTK_ig_mesh", true );
-        pl.set( "high_to_low_dbl_side_sets", true );
-        pl.set( "only_generate_xtk_temp", tOnlyGenerateMesh );
-        aParameterLists( 0 ).add_parameter_list( pl );
+        aParameterLists.set( "decompose", true );
+        aParameterLists.set( "decomposition_type", "conformal" );
+        aParameterLists.set( "enrich", true );
+        aParameterLists.set( "basis_rank", "bspline" );
+        aParameterLists.set( "enrich_mesh_indices", "0" );
+        aParameterLists.set( "ghost_stab", tUseGhost );
+        aParameterLists.set( "multigrid", false );
+        aParameterLists.set( "verbose", true );
+        aParameterLists.set( "print_enriched_ig_mesh", true );
+        aParameterLists.set( "exodus_output_XTK_ig_mesh", true );
+        aParameterLists.set( "high_to_low_dbl_side_sets", true );
+        aParameterLists.set( "only_generate_xtk_temp", tOnlyGenerateMesh );
     }
 
     /* ---------------------------------------------------------------------------------------------- */
@@ -305,11 +299,9 @@ namespace moris
         /* -------------------------------------------------------------------------------------------- */
         /*                                        GEN Parameter                                         */
         /* -------------------------------------------------------------------------------------------- */
-        Parameter_List pl = prm::create_gen_parameter_list();
-        pl.set( "number_of_phases", 3 );
-        pl.set( "phase_function_name", F2STR( Phase_Index_Split ) );
-        aParameterLists( 0 ).add_parameter_list( pl );
-
+        Parameter_List pl( "" );
+        aParameterLists.set( "number_of_phases", 3 );
+        aParameterLists.set( "phase_function_name", F2STR( Phase_Index_Split ) );
         /* -------------------------------------------------------------------------------------------- */
         /*                                      Geometry Parameter                                      */
         /* -------------------------------------------------------------------------------------------- */
@@ -329,7 +321,7 @@ namespace moris
 
             pl.set( "number_of_refinements", 0 );
             pl.set( "refinement_mesh_index", 0 );
-            aParameterLists( 1 ).add_parameter_list( pl );
+            aParameterLists( GEN::GEOMETRIES ).add_parameter_list( pl );
         }
         else
         {
@@ -339,7 +331,7 @@ namespace moris
             pl.insert( "variable_1", tTopXShift );
             pl.insert( "variable_2", tTopYShift );
             pl.insert( "variable_3", tTopParabolaFactor );
-            aParameterLists( 1 ).add_parameter_list( pl );
+            aParameterLists( GEN::GEOMETRIES ).add_parameter_list( pl );
         }
 
         /* --------------------------------------- Bottom Plane --------------------------------------- */
@@ -357,7 +349,7 @@ namespace moris
 
             pl.set( "number_of_refinements", 0 );
             pl.set( "refinement_mesh_index", 0 );
-            aParameterLists( 1 ).add_parameter_list( pl );
+            aParameterLists( GEN::GEOMETRIES ).add_parameter_list( pl );
         }
         else
         {
@@ -367,7 +359,7 @@ namespace moris
             pl.insert( "variable_1", tBottomXShift );
             pl.insert( "variable_2", tBottomYShift );
             pl.insert( "variable_3", tBottomParabolaFactor );
-            aParameterLists( 1 ).add_parameter_list( pl );
+            aParameterLists( GEN::GEOMETRIES ).add_parameter_list( pl );
         }
     }
 
@@ -902,9 +894,6 @@ namespace moris
         /*                                        Solver Warehouse */
         /* --------------------------------------------------------------------------------------------
          */
-        pl = prm::create_solver_warehouse_parameterlist();
-        // pl.set("SOL_save_operator_to_matlab", "jacobian");
-        aParameterLists( SOL::SOLVER_WAREHOUSE ).add_parameter_list( pl );
 
         /* --------------------------------------------------------------------------------------------
          */

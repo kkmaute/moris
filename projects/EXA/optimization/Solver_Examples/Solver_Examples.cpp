@@ -293,12 +293,11 @@ namespace moris
     void
     OPTParameterList( Module_Parameter_Lists& aParameterLists )
     {
-        aParameterLists( 0 ).add_parameter_list( moris::prm::create_opt_problem_parameter_list() );
         aParameterLists.set( "is_optimization_problem", true );
         aParameterLists.set( "problem", "user_defined" );
         aParameterLists.set( "library", tLibraryName );
 
-        aParameterLists( 2 ).add_parameter_list( moris::prm::create_gcmma_parameter_list() );
+        aParameterLists( OPT::ALGORITHMS ).add_parameter_list( moris::prm::create_gcmma_parameter_list() );
         aParameterLists.set( "max_its", 1 );
         aParameterLists.set( "step_size", 0.2 );
     }
@@ -308,8 +307,6 @@ namespace moris
     void
     HMRParameterList( Module_Parameter_Lists& aParameterLists )
     {
-        aParameterLists( 0 ).add_parameter_list( prm::create_hmr_parameter_list() );
-
         aParameterLists.set( "number_of_elements_per_dimension", "32, 8" );
         aParameterLists.set( "domain_dimensions", "0.8,0.2" );
         aParameterLists.set( "domain_offset", "0.0,0.0" );
@@ -332,7 +329,6 @@ namespace moris
     void
     XTKParameterList( Module_Parameter_Lists& aParameterLists )
     {
-        aParameterLists( 0 ).add_parameter_list( prm::create_xtk_parameter_list() );
         aParameterLists.set( "decompose", true );
         aParameterLists.set( "decomposition_type", std::string( "conformal" ) );
         aParameterLists.set( "enrich", true );
@@ -353,7 +349,6 @@ namespace moris
     void
     GENParameterList( Module_Parameter_Lists& aParameterLists )
     {
-        aParameterLists( 0 ).add_parameter_list( prm::create_gen_parameter_list() );
         aParameterLists.set( "IQI_types", "IQIMaxTemp_1", "IQIMaxTemp_2", "IQIStrainEnergy_1", "IQIStrainEnergy_2", "IQIVolume_1" );
         aParameterLists.set( "output_mesh_file", tGENOutputFile );
 
@@ -989,7 +984,7 @@ namespace moris
         aParameterLists.set( "leader_phase_name", "Phase2" );
 
         // create computation parameter list
-        aParameterLists( FEM::COMPUTATION ).add_parameter_list( prm::create_computation_parameter_list() );
+        aParameterLists( FEM::COMPUTATION );
         // aParameterLists.set( "print_physics_model", true );
     }
 
@@ -1009,7 +1004,7 @@ namespace moris
 
         if ( gUseBelosWithILUT )
         {
-            aParameterLists( 7 ).add_parameter_list( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::IFPACK ) );
+            aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::IFPACK ) );
             aParameterLists.set( "Convergence Tolerance", 1e-12 );
             aParameterLists.set( "ifpack_prec_type", "ILUT" );
             aParameterLists.set( "fact: drop tolerance", 1e-10 );
@@ -1142,14 +1137,12 @@ namespace moris
             aParameterLists.set( "TSA_time_level_per_type", "UX," + sTLSD + ";UY," + sTLSD + ";TEMP,2" );
         }
 
-        aParameterLists( SOL::SOLVER_WAREHOUSE ).add_parameter_list( moris::prm::create_solver_warehouse_parameterlist() );
-        aParameterLists.set( "SOL_save_operator_to_matlab", "Mat.dat" );
+        aParameterLists( SOL::SOLVER_WAREHOUSE ).set( "SOL_save_operator_to_matlab", "Mat.dat" );
     }
 
     void
     MSIParameterList( Module_Parameter_Lists& aParameterLists )
     {
-        aParameterLists( 0 ).add_parameter_list( prm::create_msi_parameter_list() );
     }
 
     void
@@ -1157,7 +1150,6 @@ namespace moris
     {
         int tVisCounter = 0;
 
-        aParameterLists( 0 ).add_parameter_list( prm::create_vis_parameter_list() );
         aParameterLists.set( "Temp_Name", std::pair< std::string, std::string >( "./", "temp_material_1.exo" ) );
         aParameterLists.set( "File_Name", std::pair< std::string, std::string >( "./", tOutputFileName + "_material_1" ) );
         aParameterLists.set( "Time_Offset", 100.0 );
@@ -1193,7 +1185,6 @@ namespace moris
                 "IQIMaxTemp_2,IQIStrainEnergy_2,IQIVolume_2" );
         aParameterLists.set( "Save_Frequency", 1 );
         aParameterLists.set( "Output_Index", tVisCounter );
-        tVisCounter++;
     }
 
     void

@@ -209,12 +209,11 @@ namespace moris
     void
     OPTParameterList( Module_Parameter_Lists &aParameterLists )
     {
-        aParameterLists( 0 ).add_parameter_list( moris::prm::create_opt_problem_parameter_list() );
         aParameterLists.set( "is_optimization_problem", true );
         aParameterLists.set( "problem", "user_defined" );
         aParameterLists.set( "library", "./Shape_Sensitivity_Circle_Sweep_Transient_Vol_2.so" );
 
-        aParameterLists( 2 ).add_parameter_list( moris::prm::create_sweep_parameter_list() );
+        aParameterLists( OPT::ALGORITHMS ).add_parameter_list( moris::prm::create_sweep_parameter_list() );
         aParameterLists.set( "hdf5_path", "shape_opt_test.hdf5" );
         aParameterLists.set( "num_evaluations_per_adv", "1" );
         aParameterLists.set( "finite_difference_type", "all" );
@@ -223,8 +222,6 @@ namespace moris
     void
     HMRParameterList( Module_Parameter_Lists &aParameterLists )
     {
-        aParameterLists( 0 ).add_parameter_list( prm::create_hmr_parameter_list() );
-
         aParameterLists.set( "number_of_elements_per_dimension", tNumElemsPerDim );
         aParameterLists.set( "domain_dimensions", tDomainDims );
         aParameterLists.set( "domain_offset", tDomainOffset );
@@ -253,7 +250,6 @@ namespace moris
     void
     XTKParameterList( Module_Parameter_Lists &aParameterLists )
     {
-        aParameterLists( 0 ).add_parameter_list( prm::create_xtk_parameter_list() );
         aParameterLists.set( "decompose", true );
         aParameterLists.set( "decomposition_type", "conformal" );
         aParameterLists.set( "enrich", true );
@@ -271,7 +267,6 @@ namespace moris
     GENParameterList( Module_Parameter_Lists &aParameterLists )
     {
 
-        aParameterLists( 0 ).add_parameter_list( moris::prm::create_gen_parameter_list() );
         aParameterLists.set( "IQI_types", "IQIBulkStrainEnergy", "IQIBulkVolume" );
 
         // Geometry parameter lists
@@ -464,7 +459,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
         // fill the computation part of the parameter list
-        aParameterLists( FEM::COMPUTATION ).add_parameter_list( prm::create_computation_parameter_list() );
+        aParameterLists( FEM::COMPUTATION );
     }
 
     void
@@ -513,24 +508,21 @@ namespace moris
         aParameterLists.set( "TSA_Output_Criteria", "Output_Criterion" );
         aParameterLists.set( "TSA_time_level_per_type", "TEMP,2" );
 
-        aParameterLists( SOL::SOLVER_WAREHOUSE ).add_parameter_list( moris::prm::create_solver_warehouse_parameterlist() );
-        aParameterLists.set( "SOL_save_final_adjoint_vec_to_file", "Shape_Sensitivity_Transient_V2.hdf5" );
+        aParameterLists( SOL::SOLVER_WAREHOUSE ).set( "SOL_save_final_adjoint_vec_to_file", "Shape_Sensitivity_Transient_V2.hdf5" );
 
-        aParameterLists( 7 ).add_parameter_list( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::IFPACK ) );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::IFPACK ) );
         aParameterLists.set( "ifpack_prec_type", "ILU" );
     }
 
     void
     MSIParameterList( Module_Parameter_Lists &aParameterLists )
     {
-        aParameterLists( 0 ).add_parameter_list( prm::create_msi_parameter_list() );
         aParameterLists.set( "order_adofs_by_host", false );
     }
 
     void
     VISParameterList( Module_Parameter_Lists &aParameterLists )
     {
-        aParameterLists( 0 ).add_parameter_list( prm::create_vis_parameter_list() );
         aParameterLists.set( "File_Name", std::pair< std::string, std::string >( "./", tOutputFileName ) );
         aParameterLists.set( "Mesh_Type", vis::VIS_Mesh_Type::STANDARD );
         aParameterLists.set( "Set_Names", tPhase1 );

@@ -231,16 +231,11 @@ namespace moris
         aParameterList( 4 ).set( "leader_dof_dependencies", "UX,UY" );
         aParameterList( 4 ).set( "leader_constitutive_models", "CMStrucLinIso1,Elast" );
         aParameterList( 4 ).set( "mesh_set_names", "HMR_dummy_n_p1" );
-
-        // create computation parameter list
-        aParameterList( 5 ).add_parameter_list( prm::create_computation_parameter_list() );
     }
 
     void
     SOLParameterList( Module_Parameter_Lists& aParameterList )
     {
-
-
         aParameterList( 0 ).add_parameter_list( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AZTEC_IMPL ) );
         aParameterList( 0 ).set( "AZ_diagnostics", AZ_none );
         aParameterList( 0 ).set( "AZ_output", AZ_none );
@@ -261,8 +256,6 @@ namespace moris
         aParameterList( 5 ).set( "TSA_Output_Indices", "0" );
         aParameterList( 5 ).set( "TSA_Output_Criteria", "Output_Criterion" );
 
-        aParameterList( 6 ).add_parameter_list( moris::prm::create_solver_warehouse_parameterlist() );
-
         aParameterList( 7 ).add_parameter_list( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::ML ) );
         aParameterList( 7 ).set( "ml_prec_type", "SA" );
     }
@@ -270,8 +263,6 @@ namespace moris
     void
     XTKParameterList( Module_Parameter_Lists& aParameterList )
     {
-        aParameterList( 0 ).add_parameter_list( prm::create_xtk_parameter_list() );
-
         aParameterList( 0 ).set( "decompose", true );
         aParameterList( 0 ).set( "decomposition_type", "conformal" );
 
@@ -287,7 +278,6 @@ namespace moris
     void
     MSIParameterList( Module_Parameter_Lists& aParameterList )
     {
-        aParameterList( 0 ).add_parameter_list( prm::create_msi_parameter_list() );
     }
 
     void
@@ -298,8 +288,6 @@ namespace moris
 
         MORIS_ERROR( tMorisOutput.size() > 0,
                 "Environment variable MORISOUTPUT not set." );
-
-        aParameterList( 0 ).add_parameter_list( prm::create_vis_parameter_list() );
         aParameterList( 0 ).set( "File_Name", std::pair< std::string, std::string >( tMorisOutput, "MDL_input_test.exo" ) );
         aParameterList( 0 ).set( "Set_Names", std::string( "HMR_dummy_n_p1" ) );
         aParameterList( 0 ).set( "Field_Names", std::string( "strain_energy_elemental,strain_energy_global,strain_energy_nodal_IP" ) );
@@ -310,8 +298,6 @@ namespace moris
     void
     HMRParameterList( Module_Parameter_Lists& aParameterList )
     {
-        aParameterList( 0 ).add_parameter_list( prm::create_hmr_parameter_list() );
-
         aParameterList( 0 ).set( "number_of_elements_per_dimension", std::string( "2, 1" ) );
         aParameterList( 0 ).set( "domain_dimensions", "2, 2" );
         aParameterList( 0 ).set( "domain_offset", "-1.0, -1.0" );
@@ -340,10 +326,6 @@ namespace moris
     void
     GENParameterList( Module_Parameter_Lists& aParameterList )
     {
-
-        // Main GEN parameter list
-        aParameterList( 0 ).add_parameter_list( prm::create_gen_parameter_list() );
-
         // Geometry parameter lists
         aParameterList( 1 ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         aParameterList( 1 ).set( "field_function_name", "Lvl_set_1" );
@@ -354,8 +336,6 @@ namespace moris
     void
     OPaParameterList( Module_Parameter_Lists& aParameterList )
     {
-
-        aParameterList( 0 ).add_parameter_list( moris::prm::create_opt_problem_parameter_list() );
         aParameterList( 0 ).set( "is_optimization_problem", false );
     }
 

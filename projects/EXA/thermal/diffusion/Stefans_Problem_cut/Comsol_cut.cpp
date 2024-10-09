@@ -135,8 +135,6 @@ namespace moris
     void
     HMRParameterList( Module_Parameter_Lists& aParameterLists )
     {
-        aParameterLists( 0 ).add_parameter_list( prm::create_hmr_parameter_list() );
-
         aParameterLists.set( "number_of_elements_per_dimension", tNumElemsPerDim );
         aParameterLists.set( "domain_dimensions", tHMRDomainDimensions );
         aParameterLists.set( "domain_offset", "-0.0015,-0.0008" );
@@ -183,15 +181,12 @@ namespace moris
     void
     OPTParameterList( Module_Parameter_Lists& aParameterLists )
     {
-        aParameterLists( 0 ).add_parameter_list( prm::create_opt_problem_parameter_list() );
-
         aParameterLists.set( "is_optimization_problem", false );
     }
 
     void
     XTKParameterList( Module_Parameter_Lists& aParameterLists )
     {
-        aParameterLists( 0 ).add_parameter_list( prm::create_xtk_parameter_list() );
         aParameterLists.set( "decompose", true );
         aParameterLists.set( "decomposition_type", "conformal" );
         aParameterLists.set( "enrich", true );
@@ -208,8 +203,6 @@ namespace moris
     void
     GENParameterList( Module_Parameter_Lists& aParameterLists )
     {
-        aParameterLists( 0 ).add_parameter_list( prm::create_gen_parameter_list() );
-
         // Geometry parameter lists
         aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         aParameterLists.set( "field_function_name", "Bottom_Boundary" );
@@ -388,7 +381,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
         // fill the computation part of the parameter list
-        aParameterLists( FEM::COMPUTATION ).add_parameter_list( prm::create_computation_parameter_list() );
+        aParameterLists( FEM::COMPUTATION );
     }
 
     void
@@ -418,21 +411,17 @@ namespace moris
         aParameterLists.set( "TSA_Output_Criteria", "Output_Criterion" );
         aParameterLists.set( "TSA_time_level_per_type", "TEMP,2" );
 
-        aParameterLists( SOL::TIME_SOLVERS ).add_parameter_list( prm::create_solver_warehouse_parameterlist() );
-
         aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE ) );
     }
 
     void
     MSIParameterList( Module_Parameter_Lists& aParameterLists )
     {
-        aParameterLists( 0 ).add_parameter_list( prm::create_msi_parameter_list() );
     }
 
     void
     VISParameterList( Module_Parameter_Lists& aParameterLists )
     {
-        aParameterLists( 0 ).add_parameter_list( prm::create_vis_parameter_list() );
         aParameterLists.set( "File_Name", std::pair< std::string, std::string >( "./", "Comsol_cut.exo" ) );
         aParameterLists.set( "Mesh_Type", vis::VIS_Mesh_Type::STANDARD );
         aParameterLists.set( "Set_Names", "HMR_dummy_n_p15,HMR_dummy_c_p15" );
