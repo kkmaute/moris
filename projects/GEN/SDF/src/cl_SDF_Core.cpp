@@ -140,7 +140,7 @@ namespace moris::sdf
                 const Matrix< DDRMat >& tPoint = mMesh.get_node_coordinate( iNodeIndex );
 
                 // raycast on this point until the point is determined
-                mMesh.get_vertex( iNodeIndex )->set_region( static_cast< mtk::Mesh_Region >( mObject.raycast_point( tPoint ) ) );
+                mMesh.get_vertex( iNodeIndex )->set_region( static_cast< mtk::Mesh_Region >( mObject.get_region_from_raycast( tPoint ) ) );
             }
 
         this->calculate_candidate_points_and_buffer_diagonal();

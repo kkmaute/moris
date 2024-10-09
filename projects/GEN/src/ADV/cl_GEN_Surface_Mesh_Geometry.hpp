@@ -68,11 +68,11 @@ namespace moris::gen
         DISCRETIZATION_FACTOR_FUNCTION     get_discretization_factor_user_defined    = nullptr;
         ANALYTIC_PERTURBATION_FUNCTION     get_analytic_perturbation_user_defined    = nullptr;
         PERTURBATION_SENSITIVITY_FUNCTION  get_perturbation_sensitivity_user_defined = nullptr;
-        mtk::Mesh*                         mMesh                                     = nullptr;    // Pointer to lagrange interpolation mesh
         Vector< uint >                     mFixedVertexIndices;                                    // Indices of surface mesh vertices that are unaffected by ADVs
         Vector< std::shared_ptr< Field > > mPerturbationFields;                                    // Vector of perturbation fields
         Matrix< DDRMat >                   mVertexBases;                                           // Basis function values for each vertex <number of fields> x <number of vertices>
         Vector< mtk::Cell* >               mVertexBackgroundElements;                              // Index of the background element the facet vertex was in on construction
+        Vector< mtk::Mesh_Region >         mMeshNodeRegions;                                       // Regions for all of the nodes in the interpolation mesh. Stored so that they can be batch raycast for additional speed
 
 
       public:
@@ -137,7 +137,7 @@ namespace moris::gen
          * @param aParentFacetIndex return value. A pointer to the facet that intersected the edge to create this intersection node
          * @return Parent edge local coordinate, between -1 and 1
          */
-        real compute_intersection_local_coordinate(
+        std::pair< uint, real > compute_intersection_local_coordinate(
                 const Vector< Background_Node* >& aBackgroundNodes,
                 const Parent_Node&                aFirstParentNode,
                 const Parent_Node&                aSecondParentNode,
@@ -379,7 +379,7 @@ namespace moris::gen
          *
          * @return Index of the element in which aCoordinates resides. If no element is found, -1 is returned
          */
-        mtk::Cell* find_background_element_from_global_coordinates( const Matrix< DDRMat >& aCoordinate );
+        mtk::Cell* find_background_element_from_global_coordinates( mtk::Mesh* aMesh, const Matrix< DDRMat >& aCoordinate );
 
         /**
          * Gets the bounding box of a requested mtk::Cell
@@ -404,7 +404,7 @@ namespace moris::gen
          * Updates the values of the basis functions for all of the facet vertices and the background elements they lie in
          *
          */
-        void update_vertex_basis_data();
+        void update_vertex_basis_data( mtk::Mesh* aMesh );
 
         /**
          * Determines the field value at a given point in the background element.
@@ -418,5 +418,11 @@ namespace moris::gen
                 mtk::Cell* aBackgroundElement,
                 uint       aFieldIndex,
                 uint       aFacetVertexIndex );
+
+        /**
+         * @brief Determines the regions of any nodes in mMeshNodeRegions that are still unknown after the flood fill
+         * mMeshNodeRegions should already be intialized with regions for all nodes in the interpolation mesh. Thus it must be of size aMesh->get_num_nodes()
+         */
+        void raycast_remaining_unknown_nodes( mtk::Mesh* aMesh );
     };
 }    // namespace moris::gen

@@ -48,6 +48,8 @@ namespace moris::mtk::arborx
         return QueryBoxes< MemorySpace >{ tBoxes, tMeshIndices, tCellIndices };
     }
 
+    // --------------------------------------------------------------------------------------------------------------
+
     template< typename MemorySpace, typename ExecutionSpace >
     QueryRays< MemorySpace > construct_query_rays( ExecutionSpace const &aExecutionSpace, moris::mtk::MappingResult const &aMappingResult )
     {
@@ -79,6 +81,10 @@ namespace moris::mtk::arborx
 
         return QueryRays< MemorySpace >{ tRays, tCellIndices };
     }
+
+    // --------------------------------------------------------------------------------------------------------------
+
+    // --------------------------------------------------------------------------------------------------------------
 
     cell_locator_map
     map_rays_to_boxes( moris::mtk::MappingResult const &aMappingResult, moris::Vector< std::pair< moris_index, moris::mtk::Surface_Mesh > > const &aTargetSurfaceMeshes )
@@ -116,6 +122,8 @@ namespace moris::mtk::arborx
 
         return tBoxRayMap;
     }
+
+    // --------------------------------------------------------------------------------------------------------------
 
     template< typename T >
     T coordinate_to_arborx_point( Matrix< moris::DDRMat > const &aMatrix )

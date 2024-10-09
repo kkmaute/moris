@@ -65,10 +65,10 @@ namespace moris::gen
             , mParameters( aParameters )
             , mADVHandler( aADVs )
             , mNodeManager( &aNodeManager )
-            , mMesh( aMesh )
             , mPerturbationFields( 0 )
             , mVertexBases( 0, 0 )
             , mVertexBackgroundElements( 0 )
+            , mMeshNodeRegions( 0 )
     {
         uint tDim = Surface_Mesh::get_spatial_dimension();
 
@@ -135,7 +135,8 @@ namespace moris::gen
             const Matrix< DDRMat >& aNodeCoordinates )
     {
         // Raycast from the point
-        mtk::Mesh_Region tRegion = this->raycast_point( aNodeCoordinates );
+        mtk::Mesh_Region tRegion = ( aNodeIndex < mMeshNodeRegions.size() and mMeshNodeRegions( aNodeIndex ) != mtk::Mesh_Region::UNDEFINED ) ? mMeshNodeRegions( aNodeIndex )
+                                                                                                                                              : this->get_region_from_raycast( aNodeCoordinates );
 
         switch ( tRegion )
         {
@@ -171,12 +172,12 @@ namespace moris::gen
             mtk::Interpolation_Order          aBackgroundInterpolationOrder )
     {
         // Determine the local coordinate of the intersection and the facet that intersects the parent edge
-        uint tParentFacet     = MORIS_UINT_MAX;
-        real tLocalCoordinate = this->compute_intersection_local_coordinate( aBackgroundNodes, aFirstParentNode, aSecondParentNode, tParentFacet );
+        uint                    tParentFacet     = MORIS_UINT_MAX;
+        std::pair< uint, real > tLocalCoordinate = this->compute_intersection_local_coordinate( aBackgroundNodes, aFirstParentNode, aSecondParentNode, tParentFacet );
 
-        MORIS_ERROR( tParentFacet != MORIS_UINT_MAX or ( tLocalCoordinate < 1.0 + this->get_intersection_tolerance() and tLocalCoordinate > -1.0 - this->get_intersection_tolerance() ),
+        MORIS_ERROR( tParentFacet != MORIS_UINT_MAX or ( tLocalCoordinate.second < 1.0 + this->get_intersection_tolerance() and tLocalCoordinate.second > -1.0 - this->get_intersection_tolerance() ),
                 "Intersection node local coordinate is not between -1 and 1 or parent facet is null. Local coordinate = %f",
-                tLocalCoordinate );
+                tLocalCoordinate.second );
 
 
         // Create surface mesh intersection node
@@ -186,7 +187,6 @@ namespace moris::gen
                 aFirstParentNode,
                 aSecondParentNode,
                 tLocalCoordinate,
-                tParentFacet,
                 aBackgroundGeometryType,
                 aBackgroundInterpolationOrder,
                 *this );
@@ -194,49 +194,33 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real Surface_Mesh_Geometry::compute_intersection_local_coordinate(
+    std::pair< uint, real > Surface_Mesh_Geometry::compute_intersection_local_coordinate(
             const Vector< Background_Node* >& aBackgroundNodes,
             const Parent_Node&                aFirstParentNode,
             const Parent_Node&                aSecondParentNode,
             uint&                             aParentFacet )
     {
-        // Get the direction for the raycast
+        // Get the direction for the raycast as a unit vector
         Matrix< DDRMat > tRayDirection = aSecondParentNode.get_global_coordinates() - aFirstParentNode.get_global_coordinates();
 
         //  Compute the distance from the first parent to all the facets
-        Vector< uint > tIntersectionFacets;
-        Vector< real > tLocalCoordinate = this->compute_ray_facet_intersections( aFirstParentNode.get_global_coordinates(), tRayDirection, tIntersectionFacets );
+        mtk::Intersection_Vector tLocalCoordinate = this->cast_single_ray( aFirstParentNode.get_global_coordinates(), tRayDirection );
 
         // Put the intersections in the local coordinate frame
         for ( uint iIntersection = 0; iIntersection < tLocalCoordinate.size(); iIntersection++ )
         {
-            tLocalCoordinate( iIntersection ) = 2.0 / norm( aSecondParentNode.get_global_coordinates() - aFirstParentNode.get_global_coordinates() ) * ( tLocalCoordinate( iIntersection ) ) - 1.0;
+            tLocalCoordinate( iIntersection ).second = 2.0 * tLocalCoordinate( iIntersection ).second - 1.0;
         }
 
         // -------------------------------------------------------------------------------------
         // STEP 3: Process the intersection information and determine if the surface mesh intersects the parent edge
         // -------------------------------------------------------------------------------------
 
-        // check number of intersections along parent edge
-        uint tNumberOfParentEdgeIntersections = 0;
-        for ( uint iIntersection = 0; iIntersection < tLocalCoordinate.size(); iIntersection++ )
-        {
-            if ( tLocalCoordinate( iIntersection ) < 1.0 + this->get_intersection_tolerance() and tLocalCoordinate( iIntersection ) > -1.0 - this->get_intersection_tolerance() )
-            {
-                tNumberOfParentEdgeIntersections++;
-            }
-        }
-
         // no intersections detected or multiple along parent edge
         if ( tLocalCoordinate.size() == 0 )
         {
-            aParentFacet = MORIS_UINT_MAX;
-            return MORIS_REAL_MAX;
+            return { MORIS_UINT_MAX, MORIS_REAL_MAX };
         }
-
-        // Set return values for intersection location and associated facet
-        MORIS_ASSERT( tIntersectionFacets.size() == tLocalCoordinate.size(), "Inconsistent size of facet vector (size %lu) and local coordinate vector (size %lu)", tIntersectionFacets.size(), tLocalCoordinate.size() );
-        aParentFacet = tIntersectionFacets( 0 );
 
         return tLocalCoordinate( 0 );
     }
@@ -258,10 +242,10 @@ namespace moris::gen
         // Get the coordinates of the owned vertices to communicate to other processors (first rows = coordinates, last row = owned flag)
         Matrix< DDRMat > tOwnedVertexDisplacements( tDim + 1, tNumVertices );
 
-        for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
+        for ( auto& iField : mPerturbationFields )
         {
             // Import advs to field
-            mPerturbationFields( iFieldIndex )->import_advs( aOwnedADVs );
+            iField->import_advs( aOwnedADVs );
         }
 
         // Add this vertex's movement to the owned vertex coordinates
@@ -406,12 +390,11 @@ namespace moris::gen
             mPerturbationFields( iFieldIndex )->reset_nodal_data( aInterpolationMesh );
         }
 
-        // update the stored mtk interpolation mesh with the new mesh
-        mMesh = aInterpolationMesh;
-
         if ( !mBasesComputed and this->depends_on_advs() )
         {
-            this->update_vertex_basis_data();
+            mMeshNodeRegions.resize( aInterpolationMesh->get_num_nodes(), mtk::Mesh_Region::UNDEFINED );
+
+            this->update_vertex_basis_data( aInterpolationMesh );
             mBasesComputed = true;
         }
     }
@@ -822,15 +805,15 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     mtk::Cell*
-    Surface_Mesh_Geometry::find_background_element_from_global_coordinates( const Matrix< DDRMat >& aCoordinate )
+    Surface_Mesh_Geometry::find_background_element_from_global_coordinates( mtk::Mesh* aMesh, const Matrix< DDRMat >& aCoordinate )
     {
         uint tDim = Surface_Mesh::get_spatial_dimension();
 
         // Loop through each mtk::Cell
-        for ( uint iCellIndex = 0; iCellIndex < mMesh->get_num_elems(); iCellIndex++ )
+        for ( uint iCellIndex = 0; iCellIndex < aMesh->get_num_elems(); iCellIndex++ )
         {
             // get this Cell's bounding box
-            Vector< Vector< real > > tBoundingBox = this->determine_mtk_cell_bounding_box( &mMesh->get_mtk_cell( iCellIndex ) );
+            Vector< Vector< real > > tBoundingBox = this->determine_mtk_cell_bounding_box( &aMesh->get_mtk_cell( iCellIndex ) );
 
             // assume the point is in this bounding box
             bool tCoordinateInCell = true;
@@ -850,7 +833,7 @@ namespace moris::gen
             if ( tCoordinateInCell == true )
             {
                 // If so, return this element's index
-                return &mMesh->get_mtk_cell( iCellIndex );
+                return &aMesh->get_mtk_cell( iCellIndex );
             }
         }
 
@@ -886,14 +869,14 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Surface_Mesh_Geometry::update_vertex_basis_data()
+    void Surface_Mesh_Geometry::update_vertex_basis_data( mtk::Mesh* aMesh )
     {
         uint tDim = Surface_Mesh::get_spatial_dimension();
 
         // Set size if it has not been set already
         if ( mVertexBases.n_cols() != Surface_Mesh::get_number_of_vertices() )
         {
-            mVertexBases.resize( mMesh->get_mtk_cell( 0 ).get_number_of_vertices(), Surface_Mesh::get_number_of_vertices() );
+            mVertexBases.resize( aMesh->get_mtk_cell( 0 ).get_number_of_vertices(), Surface_Mesh::get_number_of_vertices() );
             mVertexBackgroundElements.resize( Surface_Mesh::get_number_of_vertices() );
         }
 
@@ -906,7 +889,7 @@ namespace moris::gen
             Matrix< DDRMat > tVertexParametricCoordinates( tDim, 1 );
 
             // Determine which element this vertex lies in, will be the same for every field
-            mVertexBackgroundElements( iVertexIndex ) = this->find_background_element_from_global_coordinates( Surface_Mesh::get_vertex_coordinates( iVertexIndex ) );
+            mVertexBackgroundElements( iVertexIndex ) = this->find_background_element_from_global_coordinates( aMesh, Surface_Mesh::get_vertex_coordinates( iVertexIndex ) );
 
             // check if the vertex is inside the mesh domain
             if ( mVertexBackgroundElements( iVertexIndex ) != nullptr )
@@ -951,6 +934,47 @@ namespace moris::gen
         }
 
         return tPerturbation;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void
+    Surface_Mesh_Geometry::raycast_remaining_unknown_nodes( mtk::Mesh* aMesh )
+    {
+        // Get the spatial dimension
+        uint tDim = Surface_Mesh::get_spatial_dimension();
+
+        // Get the total number of nodes
+        uint tNumNodes = mMeshNodeRegions.size();
+
+        // First pass: Count the number of unknown nodes and collect their coordinates
+        uint             tNumUnknownNodes = 0;
+        Matrix< DDRMat > tUnknownNodeCoordinates( tDim, tNumNodes );    // Temporary storage for coordinates
+
+        for ( uint iNode = 0; iNode < tNumNodes; iNode++ )
+        {
+            if ( mMeshNodeRegions( iNode ) == mtk::Mesh_Region::UNDEFINED )
+            {
+                // Get the coordinates of the unknown node and put it in the temporary storage
+                tUnknownNodeCoordinates.set_column( tNumUnknownNodes++, aMesh->get_node_coordinate( iNode ) );
+            }
+        }
+
+        // Resize the matrix to the actual number of unknown nodes
+        tUnknownNodeCoordinates.resize( tDim, tNumUnknownNodes );
+
+        // Get the regions for the whole batch
+        Vector< mtk::Mesh_Region > tNodeRegions = Surface_Mesh::batch_get_region_from_raycast( tUnknownNodeCoordinates );
+
+        // Second pass: Set the regions for the nodes
+        uint tUnknownNodeIndex = 0;
+        for ( uint iNode = 0; iNode < tNumNodes; iNode++ )
+        {
+            if ( mMeshNodeRegions( iNode ) == mtk::Mesh_Region::UNDEFINED )
+            {
+                mMeshNodeRegions( iNode ) = tNodeRegions( tUnknownNodeIndex++ );
+            }
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------

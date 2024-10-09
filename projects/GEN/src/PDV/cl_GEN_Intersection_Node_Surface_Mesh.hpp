@@ -47,8 +47,7 @@ namespace moris::gen
                 const Vector< Background_Node* >& aBackgroundNodes,
                 const Parent_Node&                aFirstParentNode,
                 const Parent_Node&                aSecondParentNode,
-                real                              aLocalCoordinate,
-                uint                              aParentFacet,
+                std::pair< uint, real >           aLocalCoordinate,
                 mtk::Geometry_Type                aBackgroundGeometryType,
                 mtk::Interpolation_Order          aBackgroundInterpolationOrder,
                 Surface_Mesh_Geometry&            aInterfaceGeometry );

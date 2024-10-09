@@ -28,11 +28,11 @@
 //      * @param aPoint coordinate point in which the ray will originate. Passed by value to avoid modifying the original point if rotations are necessary
 //      */
 //     Object_Region
-//     raycast_point(
+//     get_region_from_raycast(
 //             mtk::Surface_Mesh& aMesh,
 //             Matrix< DDRMat >   aPoint );
 
-    //-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
 
 //     /**
 //      * Casts in the aAxis direction and returns the distance to every facet the ray hits
@@ -50,7 +50,7 @@
 //             const uint              aAxis,
 //             Vector< uint >&         aIntersectedFacets );
 
-    //-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
 
 //     /**
 //      * Performs a raycast in the aAxis direction and determines whether the point is inside or outside.
@@ -69,7 +69,7 @@
 //             Matrix< DDRMat >&  aPoint,
 //             uint               aAxis );
 
-    //-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
 
 //     /**
 //      * @brief Takes a point in 3D space and determines which triangles
@@ -108,7 +108,7 @@
 //             uint                    aAxis,
 //             Vector< uint >&         aCandidateFacets );
 
-    //-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
 
 //     /**
 //      * Determines which lines are definitely pierced by the ray and which lines could be pierced by the ray. Returns true only if all preselection was successful
@@ -130,25 +130,25 @@
 //             Vector< uint >&         aIntersectedFacets,
 //             Vector< uint >&         aCandidateFacets );
 
-    //-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
 
-    //     /**
-    //      * checks if the cast point will cast a ray that will actually intersect aCandidateFacets. If so, the facet is added to the return
-    //      *
-    //      * @param aCandidateFacets indices of facets which to determine intersection
-    //      * @param aMesh water tight collection of facets to cast on to
-    //      * @param aPoint spatial location of the origin of the ray
-    //      * @param aAxis coordinate axis in which to cast from
-    //      * @return pointers to which facets are intersected
-    //      */
-    //     Vector< uint >
-    //     intersect_triangles(
-    //             Vector< uint >&         aCandidateFacets,
-    //             mtk::Surface_Mesh&                 aMesh,
-    //             const Matrix< DDRMat >& aPoint,
-    //             uint                    aAxis ); brendan likely deprecated
+//     /**
+//      * checks if the cast point will cast a ray that will actually intersect aCandidateFacets. If so, the facet is added to the return
+//      *
+//      * @param aCandidateFacets indices of facets which to determine intersection
+//      * @param aMesh water tight collection of facets to cast on to
+//      * @param aPoint spatial location of the origin of the ray
+//      * @param aAxis coordinate axis in which to cast from
+//      * @return pointers to which facets are intersected
+//      */
+//     Vector< uint >
+//     intersect_triangles(
+//             Vector< uint >&         aCandidateFacets,
+//             mtk::Surface_Mesh&                 aMesh,
+//             const Matrix< DDRMat >& aPoint,
+//             uint                    aAxis ); brendan likely deprecated
 
-    //-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
 
 //     /**
 //      * checks if the cast point will cast a ray that will actually intersect aCandidateFacets. If so, the facet is added to the return
@@ -168,7 +168,7 @@
 //             Vector< uint >&         aIntersectedFacets );
 
 
-    //-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
 
 //     /**
 //      * checks if the cast point will cast a ray that will actually intersect aCandidateFacets. If so, the facet is added to the return
@@ -187,7 +187,7 @@
 //             uint                    aAxis,
 //             Vector< uint >&         aIntersectedFacets );
 
-    //-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
 
 //     /**
 //      * Takes all of potential facets (in aIntersectedFacets) and computes the coordinate axis intersection location
@@ -207,7 +207,7 @@
 //             Preselection_Result     aPreselection,
 //             bool                    aIgnoreErrors = false );
 
-    //-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
 
 //     /**
 //      * determines if aPoint is within the closed collection of triangles
@@ -225,7 +225,7 @@
 //             uint                    aAxis,
 //             const real&             aIntersectionTolerance = 1e-8 );
 
-    //-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
 
 //     /**
 //      * determines if aPoint is within the closed collection of lines.
@@ -246,7 +246,7 @@
 //             const Matrix< DDRMat >& aPoint,
 //             uint                    aAxis );
 
-    //-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
 
 //     /**
 //      * Generates a random rotation angle (and axis in 3D) and builds a rotation matrix.
@@ -260,6 +260,6 @@
 //             mtk::Surface_Mesh& aMesh,
 //             Matrix< DDRMat >&  aPoint );
 
-    //-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
 
 // }    // namespace moris::sdf
