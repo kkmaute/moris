@@ -511,7 +511,7 @@
         {
             aParameterLists.resize(8);
 
-            aParameterLists( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
+            aParameterLists( 0 ).push_back( add_parameter_list( sol::SolverType::AMESOS_IMPL ) );
             //aParameterLists.set( "ifpack_prec_type", "ILU");
 
             aParameterLists( 1 ).push_back( moris::prm::create_linear_solver_parameter_list() );

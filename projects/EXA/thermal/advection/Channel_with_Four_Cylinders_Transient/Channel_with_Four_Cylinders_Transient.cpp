@@ -656,7 +656,7 @@ namespace moris
     SOLParameterList( Vector< Vector< ParameterList > >& aParameterLists )
     {
 
-        aParameterLists( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::BELOS_IMPL ) );
+        aParameterLists( 0 ).push_back( add_parameter_list( sol::SolverType::BELOS_IMPL ) );
         aParameterLists.set( "ifpack_prec_type", "ILU" );
 
         aParameterLists( 1 ).push_back( moris::prm::create_linear_solver_parameter_list() );
@@ -701,7 +701,7 @@ namespace moris
 
         aParameterLists( 6 ).push_back( moris::prm::create_solver_warehouse_parameterlist() );
 
-        aParameterLists( 7 ).push_back( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE ) );
+        aParameterLists( 7 ).push_back(  sol::PreconditionerType::NONE );
     }
 
     void

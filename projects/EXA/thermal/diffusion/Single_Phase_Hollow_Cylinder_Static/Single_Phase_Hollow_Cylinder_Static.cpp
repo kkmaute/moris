@@ -182,30 +182,30 @@ namespace moris
         // fill the property part of the parameter list
 
         // create parameter list for property 1
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropConductivity" );
         aParameterLists.set( "function_parameters", std::to_string( tConductivity ) );
         aParameterLists.set( "value_function", "Func_Const" );
 
         // create parameter list for property 2
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropImposedTemp" );
         aParameterLists.set( "function_parameters", std::to_string( tImposedTemp ) );
         aParameterLists.set( "value_function", "Func_Const" );
 
         // create parameter list for property 3
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropImposedFlux" );
         aParameterLists.set( "function_parameters", std::to_string( tImposedFlux ) );
         aParameterLists.set( "value_function", "Func_Const" );
 
         // create parameter list for property 4
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropAnalyticTemp" );
         aParameterLists.set( "value_function", "AnalyticTemperatureFunc" );
 
         // create parameter list for property 5
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropAnalyticdTempdx" );
         aParameterLists.set( "value_function", "AnalyticdTemperaturedxFunc" );
 
@@ -213,7 +213,7 @@ namespace moris
         // fill the constitutive model part of the parameter list
 
         // create parameter list for constitutive model 1
-        aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list( prm::create_constitutive_model_parameter_list() );
+        aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list();
         aParameterLists.set( "constitutive_name", "CMDiffusion" );
         aParameterLists.set( "constitutive_type",  fem::Constitutive_Type::DIFF_LIN_ISO ) ;
         aParameterLists.set( "dof_dependencies", std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
@@ -223,14 +223,14 @@ namespace moris
         // fill the stabilization parameter part of the parameter list
 
         // create parameter list for stabilization parameter 1
-        aParameterLists( FEM::STABILIZATION ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", "SPDirichletNitscheTemp" );
         aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::DIRICHLET_NITSCHE ) ;
         aParameterLists.set( "function_parameters", std::to_string( tDirichletNitsche ) );
         aParameterLists.set( "leader_properties", "PropConductivity,Material" );
 
         // create parameter list for stabilization parameter 2
-        aParameterLists( FEM::STABILIZATION ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", "SPGPTemperature" );
         aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::GHOST_DISPL ) ;
         aParameterLists.set( "function_parameters", std::to_string( tGhostPenalty ) );
@@ -240,7 +240,7 @@ namespace moris
         // fill the IWG part of the parameter list
 
         // create parameter list for IWG 1
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGDiffusionBulk" );
         aParameterLists.set( "IWG_type",  fem::IWG_Type::SPATIALDIFF_BULK ) ;
         aParameterLists.set( "dof_residual", "TEMP" );
@@ -249,7 +249,7 @@ namespace moris
         aParameterLists.set( "mesh_set_names", tSolid );
 
         // create parameter list for IWG 2
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGImposedTempIn" );
         aParameterLists.set( "IWG_type",  fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE ) ;
         aParameterLists.set( "dof_residual", "TEMP" );
@@ -260,7 +260,7 @@ namespace moris
         aParameterLists.set( "mesh_set_names", tInSide );
 
         // create parameter list for IWG 3
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGImposedFluxOut" );
         aParameterLists.set( "IWG_type",  fem::IWG_Type::SPATIALDIFF_NEUMANN ) ;
         aParameterLists.set( "dof_residual", "TEMP" );
@@ -269,7 +269,7 @@ namespace moris
         aParameterLists.set( "mesh_set_names", tOutSide );
 
         // create parameter list for IWG 5
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGGhostTemp" );
         aParameterLists.set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
         aParameterLists.set( "dof_residual", "TEMP" );
@@ -282,7 +282,7 @@ namespace moris
         // fill the IQI part of the parameter list
 
         // create parameter list for IQI 1
-        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkTEMP" );
         aParameterLists.set( "IQI_type",  fem::IQI_Type::DOF ) ;
         aParameterLists.set( "dof_quantity", "TEMP" );
@@ -291,14 +291,14 @@ namespace moris
         aParameterLists.set( "mesh_set_names", tSolid );
 
         // create parameter list for IQI 1
-        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkTEMPAnalytic" );
         aParameterLists.set( "IQI_type",  fem::IQI_Type::PROPERTY ) ;
         aParameterLists.set( "leader_properties", "PropAnalyticTemp,Property" );
         aParameterLists.set( "mesh_set_names", tSolid );
 
         // create parameter list for IQI 2
-        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkL2Error" );
         aParameterLists.set( "IQI_type",  fem::IQI_Type::L2_ERROR_ANALYTIC ) ;
         aParameterLists.set( "dof_quantity", "TEMP" );
@@ -307,7 +307,7 @@ namespace moris
         aParameterLists.set( "mesh_set_names", tSolid );
 
         // create parameter list for IQI 3
-        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkH1Error" );
         aParameterLists.set( "IQI_type",  fem::IQI_Type::H1_ERROR_ANALYTIC ) ;
         aParameterLists.set( "dof_quantity", "TEMP" );
@@ -315,7 +315,7 @@ namespace moris
         aParameterLists.set( "leader_properties", "PropAnalyticdTempdx,H1Check" );
         aParameterLists.set( "mesh_set_names", tSolid );
 
-        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIMaxTEMP" );
         aParameterLists.set( "IQI_type",  fem::IQI_Type::MAX_DOF ) ;
         aParameterLists.set( "dof_quantity", "TEMP" );
@@ -323,7 +323,7 @@ namespace moris
         aParameterLists.set( "function_parameters", "5.0/30.0" );
         aParameterLists.set( "mesh_set_names", tSolid );
 
-        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIVolume" );
         aParameterLists.set( "IQI_type",  fem::IQI_Type::VOLUME ) ;
         aParameterLists.set( "leader_dof_dependencies", "TEMP" );
@@ -338,25 +338,25 @@ namespace moris
     SOLParameterList( Module_Parameter_Lists& aParameterLists )
     {
 
-        aParameterLists( SOL::LINEAR_ALGORITHMS ).add_parameter_list( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
+        aParameterLists( SOL::LINEAR_ALGORITHMS ).add_parameter_list( sol::SolverType::AMESOS_IMPL );
 
-        aParameterLists( SOL::LINEAR_SOLVERS ).add_parameter_list( moris::prm::create_linear_solver_parameter_list() );
+        aParameterLists( SOL::LINEAR_SOLVERS ).add_parameter_list();
 
-        aParameterLists( SOL::NONLINEAR_ALGORITHMS ).add_parameter_list( moris::prm::create_nonlinear_algorithm_parameter_list() );
+        aParameterLists( SOL::NONLINEAR_ALGORITHMS ).add_parameter_list();
         aParameterLists.set( "NLA_rel_res_norm_drop", 1e-07 );
 
-        aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );
+        aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list();
         aParameterLists.set( "NLA_DofTypes", "TEMP" );
 
-        aParameterLists( SOL::TIME_SOLVER_ALGORITHMS ).add_parameter_list( moris::prm::create_time_solver_algorithm_parameter_list() );
+        aParameterLists( SOL::TIME_SOLVER_ALGORITHMS ).add_parameter_list();
 
-        aParameterLists( SOL::TIME_SOLVERS ).add_parameter_list( moris::prm::create_time_solver_parameter_list() );
+        aParameterLists( SOL::TIME_SOLVERS ).add_parameter_list();
         aParameterLists.set( "TSA_DofTypes", "TEMP" );
         aParameterLists.set( "TSA_Initialize_Sol_Vec", "TEMP,0.0" );
         aParameterLists.set( "TSA_Output_Indices", "0" );
         aParameterLists.set( "TSA_Output_Criteria", "Output_Criterion" );
 
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE ) );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::NONE );
     }
 
     void

@@ -112,39 +112,39 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropYoungs" );
         aParameterLists.set( "function_parameters", tEmod );
         aParameterLists.set( "value_function", "Func_Const" );
 
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropPoisson" );
         aParameterLists.set( "function_parameters", tPois );
         aParameterLists.set( "value_function", "Func_Const" );
 
         // properties of boundary conditions
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropDirichlet" );
         aParameterLists.set( "function_parameters", "0.0;0.0" );
         aParameterLists.set( "value_function", "Func_Const" );
 
         // properties of bedding (supression for RBMs)
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropBedding" );
         aParameterLists.set( "function_parameters", tBedding );
         aParameterLists.set( "value_function", "Func_Const" );
 
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropCTE" );
         aParameterLists.set( "function_parameters", tCTE );
         aParameterLists.set( "value_function", "Func_Const" );
 
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropRefTemp" );
         aParameterLists.set( "function_parameters", tRefTemp );
         aParameterLists.set( "value_function", "Func_Const" );
 
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropField" );
         aParameterLists.set( "value_function", "Func_Field" );
         aParameterLists.set( "field_dependencies", "FIELD_1" );
@@ -152,7 +152,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         // create parameter list for constitutive model 1
-        aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list( prm::create_constitutive_model_parameter_list() );
+        aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list();
         aParameterLists.set( "constitutive_name", "CMStrucLinIso1" );
         aParameterLists.set( "constitutive_type",  fem::Constitutive_Type::STRUC_LIN_ISO ) ;
         aParameterLists.set( "dof_dependencies", std::pair< std::string, std::string >( "UX,UY", "Displacement" ) );
@@ -166,7 +166,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         // create parameter list for stabilization parameter 1
-        aParameterLists( FEM::STABILIZATION ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", "SPNitsche" );
         aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::DIRICHLET_NITSCHE ) ;
         aParameterLists.set( "function_parameters", "100.0" );
@@ -174,7 +174,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
         // Bulk Terms
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGBulkU_1" );
         aParameterLists.set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_BULK ) ;
         aParameterLists.set( "dof_residual", "UX,UY" );
@@ -184,7 +184,7 @@ namespace moris
         aParameterLists.set( "mesh_set_names", "block_main" );
 
         // Dirichlet Boundary
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGDirichletU" );
         aParameterLists.set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE ) ;
         aParameterLists.set( "dof_residual", "UX,UY" );
@@ -195,7 +195,7 @@ namespace moris
         aParameterLists.set( "mesh_set_names", "sideset_left" );
 
         //------------------------------------------------------------------------------
-        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkDISPX" );
         aParameterLists.set( "IQI_type",  fem::IQI_Type::DOF ) ;
         aParameterLists.set( "dof_quantity", "UX,UY" );
@@ -203,7 +203,7 @@ namespace moris
         aParameterLists.set( "vectorial_field_index", 0 );
         aParameterLists.set( "mesh_set_names", "block_main" );
 
-        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkDISPY" );
         aParameterLists.set( "IQI_type",  fem::IQI_Type::DOF ) ;
         aParameterLists.set( "dof_quantity", "UX,UY" );
@@ -212,7 +212,7 @@ namespace moris
         aParameterLists.set( "mesh_set_names", "block_main" );
 
         // Nodal Temperature IQI
-        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQITempField" );
         aParameterLists.set( "IQI_type",  fem::IQI_Type::PROPERTY ) ;
         aParameterLists.set( "leader_properties", "PropField,Property" );
@@ -224,7 +224,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        aParameterLists( FEM::FIELDS ).add_parameter_list( prm::create_fem_field_parameter_list() );
+        aParameterLists( FEM::FIELDS ).add_parameter_list();
         aParameterLists.set( "field_name", "FieldNodalTEMP" );
         aParameterLists.set( "field_entity_type", "NODAL" );
         aParameterLists.set( "field_type", "FIELD_1" );
@@ -237,27 +237,27 @@ namespace moris
     SOLParameterList( Module_Parameter_Lists &aParameterLists )
     {
 
-        aParameterLists( SOL::LINEAR_ALGORITHMS ).add_parameter_list( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
+        aParameterLists( SOL::LINEAR_ALGORITHMS ).add_parameter_list( sol::SolverType::AMESOS_IMPL );
 
-        aParameterLists( SOL::LINEAR_SOLVERS ).add_parameter_list( moris::prm::create_linear_solver_parameter_list() );
+        aParameterLists( SOL::LINEAR_SOLVERS ).add_parameter_list();
 
-        aParameterLists( SOL::NONLINEAR_ALGORITHMS ).add_parameter_list( moris::prm::create_nonlinear_algorithm_parameter_list() );
+        aParameterLists( SOL::NONLINEAR_ALGORITHMS ).add_parameter_list();
         aParameterLists.set( "NLA_rel_res_norm_drop", 1e-09 );
         aParameterLists.set( "NLA_relaxation_parameter", 1.0 );
         aParameterLists.set( "NLA_max_iter", 5 );
         aParameterLists.set( "NLA_combined_res_jac_assembly", false );
 
-        aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );
+        aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list();
         aParameterLists.set( "NLA_DofTypes", "UX,UY" );
 
-        aParameterLists( SOL::TIME_SOLVER_ALGORITHMS ).add_parameter_list( moris::prm::create_time_solver_algorithm_parameter_list() );
+        aParameterLists( SOL::TIME_SOLVER_ALGORITHMS ).add_parameter_list();
 
-        aParameterLists( SOL::TIME_SOLVERS ).add_parameter_list( moris::prm::create_time_solver_parameter_list() );
+        aParameterLists( SOL::TIME_SOLVERS ).add_parameter_list();
         aParameterLists.set( "TSA_DofTypes", "UX,UY" );
         aParameterLists.set( "TSA_Output_Indices", "0" );
         aParameterLists.set( "TSA_Output_Criteria", "Output_Criterion" );
 
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE ) );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::NONE );
     }
 
     //------------------------------------------------------------------------------

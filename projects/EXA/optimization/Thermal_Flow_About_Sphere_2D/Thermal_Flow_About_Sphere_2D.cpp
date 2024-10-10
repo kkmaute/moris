@@ -451,7 +451,7 @@ namespace moris
         aParameterLists.set( "problem", "user_defined" );
         aParameterLists.set( "library", tSoFile );
 
-        aParameterLists( OPT::ALGORITHMS ).add_parameter_list( moris::prm::create_sweep_parameter_list() );
+        aParameterLists( OPT::ALGORITHMS ).add_parameter_list( opt::Optimization_Algorithm_Type::SWEEP );
         aParameterLists.set( "hdf5_path", tHdf5File );
         aParameterLists.set( "num_evaluations_per_adv", "1" );
         aParameterLists.set( "finite_difference_type", "all" );
@@ -655,27 +655,27 @@ namespace moris
 
          //------------------------------------------------------------------------------
 
-        aParameterLists( FEM::PHASES ).add_parameter_list( prm::create_phase_parameter_list() );
+        aParameterLists( FEM::PHASES ).add_parameter_list();
         aParameterLists.set( "phase_name", "PhaseFluid" );
         aParameterLists.set( "phase_indices", "0" );
 
-        aParameterLists( FEM::PHASES ).add_parameter_list( prm::create_phase_parameter_list() );
+        aParameterLists( FEM::PHASES ).add_parameter_list();
         aParameterLists.set( "phase_name", "PhaseSolid" );
         aParameterLists.set( "phase_indices", "1" );
 
-        aParameterLists( FEM::PHASES ).add_parameter_list( prm::create_phase_parameter_list() );
+        aParameterLists( FEM::PHASES ).add_parameter_list();
         aParameterLists.set( "phase_name", "PhaseVoidFront" );
         aParameterLists.set( "phase_indices", "2" );
 
-        aParameterLists( FEM::PHASES ).add_parameter_list( prm::create_phase_parameter_list() );
+        aParameterLists( FEM::PHASES ).add_parameter_list();
         aParameterLists.set( "phase_name", "PhaseVoidBack" );
         aParameterLists.set( "phase_indices", "3" );
 
-        aParameterLists( FEM::PHASES ).add_parameter_list( prm::create_phase_parameter_list() );
+        aParameterLists( FEM::PHASES ).add_parameter_list();
         aParameterLists.set( "phase_name", "PhaseVoidLateral" );
         aParameterLists.set( "phase_indices", "4" );
 
-        aParameterLists( FEM::PHASES ).add_parameter_list( prm::create_phase_parameter_list() );
+        aParameterLists( FEM::PHASES ).add_parameter_list();
         aParameterLists.set( "phase_name", "PhaseAll" );
         aParameterLists.set( "phase_indices", "0,1" );
 
@@ -684,69 +684,69 @@ namespace moris
 
         // fluid properties ------------------------------------------------------------
         // create fluid viscosity property
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropFluidViscosity" );
         aParameterLists.set( "function_parameters", tFluidViscosity );
 
         // create fluid density property
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropFluidDensity" );
         aParameterLists.set( "function_parameters", tFluidDensity );
 
         // create fluid capacity property
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropFluidCapacity" );
         aParameterLists.set( "function_parameters", tFluidCapacity );
 
         // create fluid conductivity property
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropFluidConductivity" );
         aParameterLists.set( "function_parameters", tFluidConductivity );
 
         // create fluid pressure spring property
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropFluidPressureSpring" );
         aParameterLists.set( "function_parameters", tFluidPressureSpring );
 
         // solid properties ----------------------------------------------------------
         // create solid B density property
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropSolidDensity" );
         aParameterLists.set( "function_parameters", tSolidDensity );
 
         // create solid B capacity property
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropSolidCapacity" );
         aParameterLists.set( "function_parameters", tSolidCapacity );
 
         // create solid B conductivity property
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropSolidConductivity" );
         aParameterLists.set( "function_parameters", tSolidConductivity );
 
         // BC properties ---------------------------------------------------------------
         // create inlet pressure property
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropInletPressure" );
         aParameterLists.set( "function_parameters", tInletPressure );
 
         // create inlet temperature property
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropInletTemp" );
         aParameterLists.set( "function_parameters", tInletTemperature );
 
         // create wall velocity property
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropZeroU" );
         aParameterLists.set( "function_parameters", "0.0;0.0" );
 
         // create symmetry velocity property (x-z plane)
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropSelectUY" );
         aParameterLists.set( "function_parameters", "0.0,0.0;0.0,1.0" );
 
         // create heat load property
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropVolumetricHeatFlux" );
         aParameterLists.set( "function_parameters", tVolumetricHeatLoad );
 
@@ -755,7 +755,7 @@ namespace moris
 
         // fluid CM --------------------------------------------------------------------
         // create fluid CM
-        aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list( prm::create_constitutive_model_parameter_list() );
+        aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list();
         aParameterLists.set( "constitutive_name", "CMFluid" );
         aParameterLists.set( "phase_name", "PhaseFluid" );
         aParameterLists.set( "constitutive_type", fem::Constitutive_Type::FLUID_INCOMPRESSIBLE );
@@ -765,7 +765,7 @@ namespace moris
                 "PropFluidDensity  ,Density" );
 
         // create fluid diffusion CM
-        aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list( prm::create_constitutive_model_parameter_list() );
+        aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list();
         aParameterLists.set( "constitutive_name", "CMFluidDiffusion" );
         aParameterLists.set( "phase_name", "PhaseFluid" );
         aParameterLists.set( "constitutive_type", fem::Constitutive_Type::DIFF_LIN_ISO );
@@ -777,7 +777,7 @@ namespace moris
 
         // solid CM --------------------------------------------------------------------
         // create solid B diffusion CM
-        aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list( prm::create_constitutive_model_parameter_list() );
+        aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list();
         aParameterLists.set( "constitutive_name", "CMSolidDiffusion" );
         aParameterLists.set( "phase_name", "PhaseSolid" );
         aParameterLists.set( "constitutive_type", fem::Constitutive_Type::DIFF_LIN_ISO );
@@ -791,7 +791,7 @@ namespace moris
         // fill the stabilization parameter part of the parameter list
 
         // create SUPG/PSG fluid (note: use time step in tau although static; for testing purposes only)
-        aParameterLists( FEM::STABILIZATION ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", "SPIncFlow" );
         aParameterLists.set( "leader_phase_name", "PhaseFluid" );
         aParameterLists.set( "stabilization_type", fem::Stabilization_Type::INCOMPRESSIBLE_FLOW );
@@ -802,7 +802,7 @@ namespace moris
                 "PropFluidDensity  ,Density" );
 
         // create SUPG fluid temperature advection (note: use time step in tau although static; for testing purposes only)
-        aParameterLists( FEM::STABILIZATION ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", "SPSUPGTemp" );
         aParameterLists.set( "leader_phase_name", "PhaseFluid" );
         aParameterLists.set( "stabilization_type", fem::Stabilization_Type::SUPG_ADVECTION );
@@ -811,7 +811,7 @@ namespace moris
         aParameterLists.set( "leader_properties", "PropFluidConductivity,Conductivity" );
 
         // create Nitsche for fluid velocity
-        aParameterLists( FEM::STABILIZATION ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", "SPNitscheU" );
         aParameterLists.set( "leader_phase_name", "PhaseFluid" );
         aParameterLists.set( "stabilization_type", fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE );
@@ -822,7 +822,7 @@ namespace moris
                 "PropFluidDensity,Density" );
 
         // create Nitsche for fluid temperature
-        aParameterLists( FEM::STABILIZATION ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", "SPNitscheT" );
         aParameterLists.set( "leader_phase_name", "PhaseFluid" );
         aParameterLists.set( "stabilization_type", fem::Stabilization_Type::DIRICHLET_NITSCHE );
@@ -830,7 +830,7 @@ namespace moris
         aParameterLists.set( "leader_properties", "PropFluidConductivity,Material" );
 
         // create Nitsche for fluid/solid diffusion interface
-        aParameterLists( FEM::STABILIZATION ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", "SPFSInterfaceNitsche" );
         aParameterLists.set( "leader_phase_name", "PhaseFluid" );
         aParameterLists.set( "follower_phase_name", "PhaseSolid" );
@@ -840,7 +840,7 @@ namespace moris
         aParameterLists.set( "follower_properties", "PropSolidConductivity,Material" );
 
         // create ghost penalty viscous
-        aParameterLists( FEM::STABILIZATION ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", "SPGPViscous" );
         aParameterLists.set( "leader_phase_name", "PhaseFluid" );
         aParameterLists.set( "stabilization_type", fem::Stabilization_Type::VISCOUS_GHOST );
@@ -848,7 +848,7 @@ namespace moris
         aParameterLists.set( "leader_properties", "PropFluidViscosity,Viscosity" );
 
         // create ghost penalty convective
-        aParameterLists( FEM::STABILIZATION ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", "SPGPVelocity" );
         aParameterLists.set( "leader_phase_name", "PhaseFluid" );
         aParameterLists.set( "stabilization_type", fem::Stabilization_Type::CONVECTIVE_GHOST );
@@ -857,7 +857,7 @@ namespace moris
         aParameterLists.set( "leader_properties", "PropFluidDensity,Density" );
 
         // create ghost penalty pressure
-        aParameterLists( FEM::STABILIZATION ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", "SPGPPressure" );
         aParameterLists.set( "leader_phase_name", "PhaseFluid" );
         aParameterLists.set( "stabilization_type", fem::Stabilization_Type::PRESSURE_GHOST );
@@ -868,7 +868,7 @@ namespace moris
                 "PropFluidDensity,Density" );
 
         // create ghost penalty fluid temperature
-        aParameterLists( FEM::STABILIZATION ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", "SPGPFluidTemp" );
         aParameterLists.set( "leader_phase_name", "PhaseFluid" );
         aParameterLists.set( "follower_phase_name", "PhaseFluid" );
@@ -878,7 +878,7 @@ namespace moris
         aParameterLists.set( "follower_properties", "PropFluidConductivity,Material" );
 
         // create ghost penalty solid temperature
-        aParameterLists( FEM::STABILIZATION ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", "SPGPSolidTemp" );
         aParameterLists.set( "leader_phase_name", "PhaseSolid" );
         aParameterLists.set( "follower_phase_name", "PhaseSolid" );
@@ -892,7 +892,7 @@ namespace moris
 
         // fluid bulk IWGs -------------------------------------------------------------
         // NS incompressible (velocity)
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGVelocityBulk" );
         aParameterLists.set( "leader_phase_name", "PhaseFluid" );
         aParameterLists.set( "IWG_type", fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK );
@@ -901,7 +901,7 @@ namespace moris
         aParameterLists.set( "stabilization_parameters", "SPIncFlow,IncompressibleFlow" );
 
         // NS incompressible (pressure)
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGPressureBulk" );
         aParameterLists.set( "leader_phase_name", "PhaseFluid" );
         aParameterLists.set( "IWG_type", fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK );
@@ -911,7 +911,7 @@ namespace moris
         aParameterLists.set( "stabilization_parameters", "SPIncFlow,IncompressibleFlow" );
 
         // diffusion
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGFluidDiffusionBulk" );
         aParameterLists.set( "leader_phase_name", "PhaseFluid" );
         aParameterLists.set( "IWG_type", fem::IWG_Type::SPATIALDIFF_BULK );
@@ -919,7 +919,7 @@ namespace moris
         aParameterLists.set( "leader_constitutive_models", "CMFluidDiffusion,Diffusion" );
 
         // advection
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGFluidAdvectionBulk" );
         aParameterLists.set( "leader_phase_name", "PhaseFluid" );
         aParameterLists.set( "IWG_type", fem::IWG_Type::ADVECTION_BULK );
@@ -929,7 +929,7 @@ namespace moris
 
         // solid bulk IWGs -----------------------------------------------------------
         // diffusion
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGSolidDiffusionBulk" );
         aParameterLists.set( "leader_phase_name", "PhaseSolid" );
         aParameterLists.set( "IWG_type", fem::IWG_Type::SPATIALDIFF_BULK );
@@ -940,7 +940,7 @@ namespace moris
         // fluid/solid ifc IWGs ------------------------------------------------------
 
         // temperature
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGInterfaceFluidSolid" );
         aParameterLists.set( "IWG_bulk_type", fem::Element_Type::DOUBLE_SIDESET );
         aParameterLists.set( "leader_phase_name", "PhaseFluid" );
@@ -952,7 +952,7 @@ namespace moris
         aParameterLists.set( "stabilization_parameters", "SPFSInterfaceNitsche,NitscheInterface" );
 
         // zero velocity
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGZeroVelocity" );
         aParameterLists.set( "IWG_bulk_type", fem::Element_Type::SIDESET );
         aParameterLists.set( "leader_phase_name", "PhaseFluid" );
@@ -964,7 +964,7 @@ namespace moris
         aParameterLists.set( "stabilization_parameters", "SPNitscheU,DirichletNitsche" );
 
         // zero velocity (pressure part)
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGZeroPressure" );
         aParameterLists.set( "IWG_bulk_type", fem::Element_Type::SIDESET );
         aParameterLists.set( "leader_phase_name", "PhaseFluid" );
@@ -977,7 +977,7 @@ namespace moris
         // Laterial BC IWG (adiabatic) ----------------------------------------------------------------
 
         // zero velocity along lateral sides
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGZeroVelocityVoid" );
         aParameterLists.set( "IWG_bulk_type", fem::Element_Type::SIDESET );
         aParameterLists.set( "leader_phase_name", "PhaseFluid" );
@@ -989,7 +989,7 @@ namespace moris
         aParameterLists.set( "stabilization_parameters", "SPNitscheU,DirichletNitsche" );
 
         // zero velocity along lateral sides (pressure part)
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGZeroPressureVoid" );
         aParameterLists.set( "IWG_bulk_type", fem::Element_Type::SIDESET );
         aParameterLists.set( "leader_phase_name", "PhaseFluid" );
@@ -1002,7 +1002,7 @@ namespace moris
         // Inlet BC IWG ----------------------------------------------------------------
 
         // inlet pressure
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGInletImposedPressure" );
         aParameterLists.set( "leader_phase_name", "PhaseFluid" );
         aParameterLists.set( "neighbor_phases", "PhaseVoidFront" );
@@ -1012,7 +1012,7 @@ namespace moris
         aParameterLists.set( "leader_properties", "PropInletPressure,Pressure" );
 
         // inlet temperature
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGInletTemp" );
         aParameterLists.set( "IWG_bulk_type", fem::Element_Type::SIDESET );
         aParameterLists.set( "leader_phase_name", "PhaseFluid" );
@@ -1028,7 +1028,7 @@ namespace moris
         if ( tUseGhost )
         {
             // ghost viscous
-            aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+            aParameterLists( FEM::IWG ).add_parameter_list();
             aParameterLists.set( "IWG_name", "IWGGPViscous" );
             aParameterLists.set( "IWG_bulk_type", fem::Element_Type::DOUBLE_SIDESET );
             aParameterLists.set( "leader_phase_name", "PhaseFluid" );
@@ -1039,7 +1039,7 @@ namespace moris
             aParameterLists.set( "ghost_order", (uint)tDispOrder );
 
             // ghost convective
-            aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+            aParameterLists( FEM::IWG ).add_parameter_list();
             aParameterLists.set( "IWG_name", "IWGGPConvective" );
             aParameterLists.set( "IWG_bulk_type", fem::Element_Type::DOUBLE_SIDESET );
             aParameterLists.set( "leader_phase_name", "PhaseFluid" );
@@ -1050,7 +1050,7 @@ namespace moris
             aParameterLists.set( "ghost_order", (uint)tDispOrder );
 
             // ghost pressure
-            aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+            aParameterLists( FEM::IWG ).add_parameter_list();
             aParameterLists.set( "IWG_name", "IWGGPPressure" );
             aParameterLists.set( "IWG_bulk_type", fem::Element_Type::DOUBLE_SIDESET );
             aParameterLists.set( "leader_phase_name", "PhaseFluid" );
@@ -1061,7 +1061,7 @@ namespace moris
             aParameterLists.set( "ghost_order", (uint)tDispOrder );
 
             // ghost fluid temperature
-            aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+            aParameterLists( FEM::IWG ).add_parameter_list();
             aParameterLists.set( "IWG_name", "IWGGPFluidTemp" );
             aParameterLists.set( "IWG_bulk_type", fem::Element_Type::DOUBLE_SIDESET );
             aParameterLists.set( "leader_phase_name", "PhaseFluid" );
@@ -1072,7 +1072,7 @@ namespace moris
             aParameterLists.set( "ghost_order", (uint)tDispOrder );
 
             // ghost solid A temperature
-            aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+            aParameterLists( FEM::IWG ).add_parameter_list();
             aParameterLists.set( "IWG_name", "IWGGPSolidTemp" );
             aParameterLists.set( "IWG_bulk_type", fem::Element_Type::DOUBLE_SIDESET );
             aParameterLists.set( "leader_phase_name", "PhaseSolid" );
@@ -1087,7 +1087,7 @@ namespace moris
         // fill the IQI part of the parameter list
 
         // velocity VX
-        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkVX" );
         aParameterLists.set( "leader_phase_name", "PhaseFluid" );
         aParameterLists.set( "IQI_type", fem::IQI_Type::DOF );
@@ -1095,7 +1095,7 @@ namespace moris
         aParameterLists.set( "vectorial_field_index", 0 );
 
         // velocity VY
-        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkVY" );
         aParameterLists.set( "leader_phase_name", "PhaseFluid" );
         aParameterLists.set( "IQI_type", fem::IQI_Type::DOF );
@@ -1103,7 +1103,7 @@ namespace moris
         aParameterLists.set( "vectorial_field_index", 1 );
 
         // pressure
-        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkP" );
         aParameterLists.set( "leader_phase_name", "PhaseFluid" );
         aParameterLists.set( "IQI_type", fem::IQI_Type::DOF );
@@ -1111,7 +1111,7 @@ namespace moris
         aParameterLists.set( "vectorial_field_index", 0 );
 
         // temperature
-        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkTEMP" );
         aParameterLists.set( "leader_phase_name", "PhaseAll" );
         aParameterLists.set( "IQI_type", fem::IQI_Type::DOF );
@@ -1119,7 +1119,7 @@ namespace moris
         aParameterLists.set( "vectorial_field_index", 0 );
 
         // fluid thermal energy on inlet
-        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIInletThermalEnergy" );
         aParameterLists.set( "IQI_bulk_type", fem::Element_Type::SIDESET );
         aParameterLists.set( "leader_phase_name", "PhaseFluid" );
@@ -1128,7 +1128,7 @@ namespace moris
         aParameterLists.set( "leader_constitutive_models", "CMFluidDiffusion,Diffusion" );
 
         // fluid thermal energy on outlet
-        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIOutletThermalEnergy" );
         aParameterLists.set( "IQI_bulk_type", fem::Element_Type::SIDESET );
         aParameterLists.set( "IQI_type", fem::IQI_Type::THERMAL_ENERGY_CONVECTIVE_FLUX );
@@ -1137,7 +1137,7 @@ namespace moris
         aParameterLists.set( "leader_constitutive_models", "CMFluidDiffusion,Diffusion" );
 
         // fluid total pressure on inlet
-        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIInletTotalPressure" );
         aParameterLists.set( "IQI_bulk_type", fem::Element_Type::SIDESET );
         aParameterLists.set( "leader_phase_name", "PhaseFluid" );
@@ -1146,7 +1146,7 @@ namespace moris
         aParameterLists.set( "leader_constitutive_models", "CMFluid,Fluid" );
 
         // fluid total pressure on outlet
-        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIOutletTotalPressure" );
         aParameterLists.set( "IQI_bulk_type", fem::Element_Type::SIDESET );
         aParameterLists.set( "leader_phase_name", "PhaseFluid" );
@@ -1155,7 +1155,7 @@ namespace moris
         aParameterLists.set( "leader_constitutive_models", "CMFluid,Fluid" );
 
         // fluid mass flow on inlet
-        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIInletMassFlow" );
         aParameterLists.set( "IQI_type", fem::IQI_Type::MASS_FLOW );
         aParameterLists.set( "leader_phase_name", "PhaseFluid" );
@@ -1164,7 +1164,7 @@ namespace moris
         aParameterLists.set( "leader_constitutive_models", "CMFluid,Fluid" );
 
         // fluid mass flow on outlet
-        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIOutletMassFlow" );
         aParameterLists.set( "leader_phase_name", "PhaseFluid" );
         aParameterLists.set( "neighbor_phases", "PhaseVoidBack" );
@@ -1173,7 +1173,7 @@ namespace moris
         aParameterLists.set( "leader_constitutive_models", "CMFluid,Fluid" );
 
         // inclusion perimeter
-        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIPerimeterItf" );
         aParameterLists.set( "leader_phase_name", "PhaseSolid" );
         aParameterLists.set( "neighbor_phases", "PhaseFluid" );
@@ -1181,7 +1181,7 @@ namespace moris
         aParameterLists.set( "IQI_type", fem::IQI_Type::VOLUME );
 
         // max temperature in solid
-        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIMaxTemp" );
         aParameterLists.set( "leader_phase_name", "PhaseSolid" );
         aParameterLists.set( "IQI_type", fem::IQI_Type::MAX_DOF );
@@ -1190,7 +1190,7 @@ namespace moris
         aParameterLists.set( "vectorial_field_index", 0 );
 
         // volume solid
-        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQISolidVolume" );
         aParameterLists.set( "leader_phase_name", "PhaseSolid" );
         aParameterLists.set( "IQI_type", fem::IQI_Type::VOLUME );
@@ -1208,8 +1208,8 @@ namespace moris
     SOLParameterList( Module_Parameter_Lists& aParameterLists )
     {
 
-        aParameterLists( SOL::LINEAR_ALGORITHMS ).add_parameter_list( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
-        aParameterLists( SOL::LINEAR_ALGORITHMS ).add_parameter_list( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
+        aParameterLists( SOL::LINEAR_ALGORITHMS ).add_parameter_list( sol::SolverType::AMESOS_IMPL );
+        aParameterLists( SOL::LINEAR_ALGORITHMS ).add_parameter_list( sol::SolverType::AMESOS_IMPL );
 
 #ifdef MORIS_USE_MUMPS
         aParameterLists( SOL::LINEAR_ALGORITHMS )( 0 ).set( "Solver_Type", "Amesos_Mumps" );
@@ -1220,46 +1220,46 @@ namespace moris
 #endif
 
         /*
-        aParameterLists( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::BELOS_IMPL ) );
+        aParameterLists( 0 ).push_back( add_parameter_list( sol::SolverType::BELOS_IMPL ) );
         aParameterLists.set( "ifpack_prec_type", "ILU");
         aParameterLists.set( "fact: level-of-fill", 1);
 
-        aParameterLists( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::BELOS_IMPL ) );
+        aParameterLists( 0 ).push_back( add_parameter_list( sol::SolverType::BELOS_IMPL ) );
         aParameterLists.set( "ifpack_prec_type", "ILU");
         aParameterLists.set( "fact: level-of-fill", 3);
         */
 
         //------------------------------------------------------------------------------
 
-        aParameterLists( SOL::LINEAR_SOLVERS ).add_parameter_list( moris::prm::create_linear_solver_parameter_list() );
+        aParameterLists( SOL::LINEAR_SOLVERS ).add_parameter_list();
         aParameterLists.set( "DLA_Linear_solver_algorithms", "0" );
 
-        aParameterLists( SOL::LINEAR_SOLVERS ).add_parameter_list( moris::prm::create_linear_solver_parameter_list() );
+        aParameterLists( SOL::LINEAR_SOLVERS ).add_parameter_list();
         aParameterLists.set( "DLA_Linear_solver_algorithms", "1" );
 
         //------------------------------------------------------------------------------
 
-        aParameterLists( SOL::NONLINEAR_ALGORITHMS ).add_parameter_list( moris::prm::create_nonlinear_algorithm_parameter_list() );    // nonlinear algorithm index 0
+        aParameterLists( SOL::NONLINEAR_ALGORITHMS ).add_parameter_list();    // nonlinear algorithm index 0
         aParameterLists.set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         aParameterLists.set( "NLA_Linear_solver", 0 );
         aParameterLists.set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
         aParameterLists.set( "NLA_relaxation_parameter", tNLA_relaxation_parameter );
         aParameterLists.set( "NLA_max_iter", tNLA_max_iter );
 
-        aParameterLists( SOL::NONLINEAR_ALGORITHMS ).add_parameter_list( moris::prm::create_nonlinear_algorithm_parameter_list() );
+        aParameterLists( SOL::NONLINEAR_ALGORITHMS ).add_parameter_list();
         aParameterLists.set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         aParameterLists.set( "NLA_Linear_solver", 0 );
         aParameterLists.set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
         aParameterLists.set( "NLA_relaxation_parameter", 1.0 );
         aParameterLists.set( "NLA_max_iter", 1 );
 
-        aParameterLists( SOL::NONLINEAR_ALGORITHMS ).add_parameter_list( moris::prm::create_nonlinear_algorithm_parameter_list() );    // nonlinear algorithm index 1
+        aParameterLists( SOL::NONLINEAR_ALGORITHMS ).add_parameter_list();    // nonlinear algorithm index 1
         aParameterLists.set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NLBGS_SOLVER );
         aParameterLists.set( "NLA_Linear_solver", 0 );
         aParameterLists.set( "NLA_rel_res_norm_drop", 1.0 );
         aParameterLists.set( "NLA_max_iter", 1 );
 
-        aParameterLists( SOL::NONLINEAR_ALGORITHMS ).add_parameter_list( moris::prm::create_nonlinear_algorithm_parameter_list() );
+        aParameterLists( SOL::NONLINEAR_ALGORITHMS ).add_parameter_list();
         aParameterLists.set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         aParameterLists.set( "NLA_Linear_solver", 1 );
         aParameterLists.set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
@@ -1268,35 +1268,35 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );    // 0: fluid subproblem
+        aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list();    // 0: fluid subproblem
         aParameterLists.set( "NLA_Nonlinear_solver_algorithms", "0" );             // set nonlinear algorithm with index 0
         aParameterLists.set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         aParameterLists.set( "NLA_DofTypes", "VX,VY,P" );
 
-        aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );    // 1: thermal subproblem
+        aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list();    // 1: thermal subproblem
         aParameterLists.set( "NLA_Nonlinear_solver_algorithms", "1" );             // set nonlinear algorithm with index 0
         aParameterLists.set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         aParameterLists.set( "NLA_DofTypes", "TEMP" );
 
-        aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );    // 2: one-way coupling via NLBGS
+        aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list();    // 2: one-way coupling via NLBGS
         aParameterLists.set( "NLA_Nonlinear_solver_algorithms", "2" );             // set nonlinear algorithm with index 1.
         aParameterLists.set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NLBGS_SOLVER );
         aParameterLists.set( "NLA_Sub_Nonlinear_Solver", "0,1" );    // set sub nonlinear solvers with index 0 and 1
         aParameterLists.set( "NLA_DofTypes", "VX,VY,P;TEMP" );
 
-        aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );
+        aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list();
         aParameterLists.set( "NLA_DofTypes", "VX,VY,P,TEMP" );
         aParameterLists.set( "NLA_Nonlinear_solver_algorithms", "3" );
 
         // ----------------------------------------------------------
 
-        aParameterLists( SOL::TIME_SOLVER_ALGORITHMS ).add_parameter_list( moris::prm::create_time_solver_algorithm_parameter_list() );
+        aParameterLists( SOL::TIME_SOLVER_ALGORITHMS ).add_parameter_list();
         aParameterLists.set( "TSA_Nonlinear_Solver", 2 );                // using NLBGS for forward problem
         aParameterLists.set( "TSA_Nonlinear_Sensitivity_Solver", 3 );    // using monlithic for sensitivity problem
 
         //------------------------------------------------------------------------------
 
-        aParameterLists( SOL::TIME_SOLVERS ).add_parameter_list( moris::prm::create_time_solver_parameter_list() );
+        aParameterLists( SOL::TIME_SOLVERS ).add_parameter_list();
         aParameterLists.set( "TSA_DofTypes", "VX,VY;P;TEMP" );
         aParameterLists.set( "TSA_Initialize_Sol_Vec", "VX,0.01;VY,0.0;P,0.0;TEMP,0.0" );
         aParameterLists.set( "TSA_Output_Indices", "0" );
@@ -1304,7 +1304,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE ) );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::NONE );
     }
 
     void

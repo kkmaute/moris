@@ -700,7 +700,7 @@ namespace moris
     SOLParameterList( Vector< Vector< ParameterList > >& aParameterLists )
     {
 
-        aParameterLists( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
+        aParameterLists( 0 ).push_back( add_parameter_list( sol::SolverType::AMESOS_IMPL ) );
 
         aParameterLists( 1 ).push_back( moris::prm::create_linear_solver_parameter_list() );
 
@@ -731,7 +731,7 @@ namespace moris
             aParameterLists.set( "SOL_save_operator_to_matlab", "Jacobian.dat" );
         }
 
-        aParameterLists( 7 ).push_back( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE ) );
+        aParameterLists( 7 ).push_back(  sol::PreconditionerType::NONE );
     }
 
     //------------------------------------------------------------------------------

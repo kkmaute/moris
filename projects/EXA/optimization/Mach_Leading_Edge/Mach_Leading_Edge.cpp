@@ -560,7 +560,7 @@ namespace moris
         aParameterLists.set( "problem", "user_defined" );
         aParameterLists.set( "library", tLibraryName );
 
-        aParameterLists( OPT::ALGORITHMS ).add_parameter_list( moris::prm::create_gcmma_parameter_list() );
+        aParameterLists( OPT::ALGORITHMS ).add_parameter_list( opt::Optimization_Algorithm_Type::GCMMA );
         aParameterLists.set( "max_its", tNumMaxGcmmaIts );
         aParameterLists.set( "step_size", tStepSize );
     }
@@ -687,37 +687,37 @@ namespace moris
         //------------------------------------------------------------------------------
 
         // Density Shell
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropDensity_Shell" );
         aParameterLists.set( "function_parameters", tDensityShell );    // divide by 1000
         aParameterLists.set( "value_function", "Func_Const" );
 
         // Heat Capacity Shell
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropHeatCapacity_Shell" );
         aParameterLists.set( "function_parameters", tHeatCapacityShell );
         aParameterLists.set( "value_function", "Func_Const" );
 
         // Conductivity Shell
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropConductivity_Shell" );
         aParameterLists.set( "function_parameters", tConductivityShell );    // divide by  1e6, assume ~90W/mK
         aParameterLists.set( "value_function", "Func_Const" );
 
         // Youngs Modulus Shell
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropYoungsModulus_Shell" );
         aParameterLists.set( "function_parameters", tYoungsModulusShell );
         aParameterLists.set( "value_function", "Func_Const" );
 
         // Poisson Ratio Shell
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropPoissonRatio_Shell" );
         aParameterLists.set( "function_parameters", tPoissonRatioShell );
         aParameterLists.set( "value_function", "Func_Const" );
 
         // CTE for Shell
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropThermalExpansion_Shell" );
         aParameterLists.set( "function_parameters", tThermalExpansionShell );
         aParameterLists.set( "value_function", "Func_Const" );
@@ -727,61 +727,61 @@ namespace moris
         //------------------------------------------------------------------------------
 
         // Density of PCM
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropDensity_PCM" );
         aParameterLists.set( "function_parameters", tDensityPCM );
         aParameterLists.set( "value_function", "Func_Const" );
 
         // Heat Capacity of PCM
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropHeatCapacity_PCM" );
         aParameterLists.set( "function_parameters", tHeatCapacityPCM );
         aParameterLists.set( "value_function", "Func_Const" );
 
         // Conductivity of PCM
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropConductivity_PCM" );
         aParameterLists.set( "function_parameters", tConductivityPCM );
         aParameterLists.set( "value_function", "Func_Const" );
 
         // Latent Heat of PCM
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropLatentHeat_PCM" );
         aParameterLists.set( "function_parameters", tLatentHeatPCM );
         aParameterLists.set( "value_function", "Func_Const" );
 
         // Phase Change Temperature of PCM
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropPCTemp_PCM" );
         aParameterLists.set( "function_parameters", tPCTempPCM );
         aParameterLists.set( "value_function", "Func_Const" );
 
         // Phase Change Temperature Range of PCM
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropPCconst_PCM" );
         aParameterLists.set( "function_parameters", tPCConstPCM );
         aParameterLists.set( "value_function", "Func_Const" );
 
         // Cubic Phase State Function for phase change model
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropPhaseState_PCM" );
         aParameterLists.set( "function_parameters", "2.0" );
         aParameterLists.set( "value_function", "Func_Const" );
 
         // Youngs Modulus for PCM
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropYoungsModulus_PCM" );
         aParameterLists.set( "function_parameters", tYoungsModulusPCM );
         aParameterLists.set( "value_function", "Func_Const" );
 
         // Poisson Ratio for PCM
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropPoissonRatio_PCM" );
         aParameterLists.set( "function_parameters", tPoissonRatioPCM );
         aParameterLists.set( "value_function", "Func_Const" );
 
         // CTE for PCM
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropThermalExpansion_PCM" );
         aParameterLists.set( "function_parameters", tThermalExpansionPCM );
         aParameterLists.set( "value_function", "Func_Const" );
@@ -791,18 +791,18 @@ namespace moris
         //------------------------------------------------------------------------------
 
         // properties for bedding (suppression for RBMs, both Shell and PCM)
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropBedding" );
         aParameterLists.set( "function_parameters", tBedding );
         aParameterLists.set( "value_function", "Func_Const" );
 
         // Dummy latent heat for non-pc material
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropLatentHeat_Dummy" );
         aParameterLists.set( "function_parameters", "0.0" );
         aParameterLists.set( "value_function", "Func_Const" );
 
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropPCTemp_Dummy" );
         aParameterLists.set( "function_parameters", "10000.0" );
         aParameterLists.set( "value_function", "Func_Const" );
@@ -812,61 +812,61 @@ namespace moris
         //------------------------------------------------------------------------------
 
         // heat flux from outside
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropImposedFlux" );
         aParameterLists.set( "function_parameters", tHeatLoad );
         aParameterLists.set( "value_function", "Func_Heat_Load_Distribution" );
         // aParameterLists.set( "value_function",           "Func_Const" );
 
         // reference temperature for thermal expansion
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropReferenceTemp" );
         aParameterLists.set( "function_parameters", tReferenceTemp );
         aParameterLists.set( "value_function", "Func_Const" );
 
         // pressure load
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropPressure" );
         aParameterLists.set( "function_parameters", tPressureDelta );
         aParameterLists.set( "value_function", "Func_Const" );
 
         // Dirichlet structure
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropDirichletStruct" );
         aParameterLists.set( "function_parameters", "0.0;0.0" );
         aParameterLists.set( "value_function", "Func_Const" );
 
         // emissivity for radiation BC
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropEmissivity" );
         aParameterLists.set( "function_parameters", tEmissivity );
         aParameterLists.set( "value_function", "Func_Const" );
 
         // ambient temperature
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropAmbientTemp" );
         aParameterLists.set( "function_parameters", tAmbientTemp );
         aParameterLists.set( "value_function", "Func_Const" );
 
         // absolute zero
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropAbsoluteZero" );
         aParameterLists.set( "function_parameters", tAbsoluteZero );
         aParameterLists.set( "value_function", "Func_Const" );
 
         // time continuity weights
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropWeightCurrent" );
         aParameterLists.set( "function_parameters", "100.0" );
         aParameterLists.set( "value_function", "Func_Const" );
 
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropWeightPrevious" );
         aParameterLists.set( "function_parameters", "100.0" );
         aParameterLists.set( "value_function", "Func_Const" );
 
         // Initial Temperature
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropInitialCondition" );
         aParameterLists.set( "value_function", "Func_Initial_Condition" );
 
@@ -875,19 +875,19 @@ namespace moris
         //------------------------------------------------------------------------------
 
         // Reference Temperature for MAX_DOF - IQI
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropMaxTempReference" );
         aParameterLists.set( "function_parameters", tIQIRefTemp );
         aParameterLists.set( "value_function", "Func_Const" );
 
         // Exponent for MAX_DOF - IQI
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropMaxTempExponent" );
         aParameterLists.set( "function_parameters", tExponent );
         aParameterLists.set( "value_function", "Func_Const" );
 
         // Shift for MAX_DOF - IQI
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropMaxTempShift" );
         aParameterLists.set( "function_parameters", tShift );
         aParameterLists.set( "value_function", "Func_Const" );
@@ -912,7 +912,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         // create parameter list for constitutive model - shell - 1
-        aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list( prm::create_constitutive_model_parameter_list() );
+        aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list();
         aParameterLists.set( "constitutive_name", "CMDiffusion_Shell_1" );
         aParameterLists.set( "constitutive_type",  fem::Constitutive_Type::DIFF_LIN_ISO ) ;
         aParameterLists.set( "dof_dependencies", std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
@@ -922,7 +922,7 @@ namespace moris
                 "PropHeatCapacity_Shell , HeatCapacity" );
 
         // create parameter list for constitutive model - shell - 2 (for Nitsche interfaces)
-        aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list( prm::create_constitutive_model_parameter_list() );
+        aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list();
         aParameterLists.set( "constitutive_name", "CMDiffusion_Shell_2" );
         aParameterLists.set( "constitutive_type",  fem::Constitutive_Type::DIFF_LIN_ISO ) ;
         aParameterLists.set( "dof_dependencies", std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
@@ -932,7 +932,7 @@ namespace moris
                 "PropHeatCapacity_Shell , HeatCapacity" );
 
         // diffusion with phase change - PCM - 1
-        aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list( prm::create_constitutive_model_parameter_list() );
+        aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list();
         aParameterLists.set( "constitutive_name", "CMDiffusion_PCM" );
         aParameterLists.set( "constitutive_type",  fem::Constitutive_Type::DIFF_LIN_ISO_PC ) ;
         aParameterLists.set( "dof_dependencies", std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
@@ -950,7 +950,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         // linear elasticity - shell - 1
-        aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list( prm::create_constitutive_model_parameter_list() );
+        aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list();
         aParameterLists.set( "constitutive_name", "CMStrucLinIso_Shell_1" );
         aParameterLists.set( "model_type",  fem::Model_Type::PLANE_STRESS ) ;
         aParameterLists.set( "constitutive_type",  fem::Constitutive_Type::STRUC_LIN_ISO ) ;
@@ -962,7 +962,7 @@ namespace moris
                 "PropReferenceTemp,          ReferenceTemperature" );
 
         // linear elasticity - shell - 2
-        aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list( prm::create_constitutive_model_parameter_list() );
+        aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list();
         aParameterLists.set( "constitutive_name", "CMStrucLinIso_Shell_2" );
         aParameterLists.set( "model_type",  fem::Model_Type::PLANE_STRESS ) ;
         aParameterLists.set( "constitutive_type",  fem::Constitutive_Type::STRUC_LIN_ISO ) ;
@@ -974,7 +974,7 @@ namespace moris
                 "PropReferenceTemp,          ReferenceTemperature" );
 
         // linear elasticity - PCM - 1
-        aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list( prm::create_constitutive_model_parameter_list() );
+        aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list();
         aParameterLists.set( "constitutive_name", "CMStrucLinIso_PCM" );
         aParameterLists.set( "constitutive_type",  fem::Constitutive_Type::STRUC_LIN_ISO ) ;
         aParameterLists.set( "dof_dependencies", std::pair< std::string, std::string >( "UX,UY;TEMP", "Displacement,Temperature" ) );
@@ -992,7 +992,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         // create parameter list for GGLS stabilization parameter for Skin
-        aParameterLists( FEM::STABILIZATION ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", "SPGGLSDiffusion_Shell" );
         aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::GGLS_DIFFUSION ) ;
         aParameterLists.set( "leader_dof_dependencies", std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
@@ -1006,7 +1006,7 @@ namespace moris
                 "PropPCconst_PCM        , PhaseChangeConst" );
 
         // create parameter list for GGLS stabilization parameter for PCM
-        aParameterLists( FEM::STABILIZATION ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", "SPGGLSDiffusion_PCM" );
         aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::GGLS_DIFFUSION ) ;
         aParameterLists.set( "leader_dof_dependencies", std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
@@ -1024,7 +1024,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         // Displacements - Shell - back wall
-        aParameterLists( FEM::STABILIZATION ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", "SPNitscheStruc" );
         aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::DIRICHLET_NITSCHE ) ;
         aParameterLists.set( "function_parameters", "100.0" );
@@ -1035,7 +1035,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         // Temperature - Shell - PCM
-        aParameterLists( FEM::STABILIZATION ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", "SPInterfaceShellPCMNitsche" );
         aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::NITSCHE_INTERFACE ) ;
         aParameterLists.set( "function_parameters", "100.0" );
@@ -1045,7 +1045,7 @@ namespace moris
         // Displacements - Shell - PCM - not coupled!
 
         // Temperature - Shell - Shell
-        aParameterLists( FEM::STABILIZATION ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", "SPInterfaceShellShellNitsche" );
         aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::NITSCHE_INTERFACE ) ;
         aParameterLists.set( "function_parameters", "100.0" );
@@ -1053,7 +1053,7 @@ namespace moris
         aParameterLists.set( "follower_properties", "PropConductivity_Shell,Material" );
 
         // Displacements - Shell - Shell
-        aParameterLists( FEM::STABILIZATION ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", "SPInterfaceShellShellNitscheStruct" );
         aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::NITSCHE_INTERFACE ) ;
         aParameterLists.set( "function_parameters", "100.0" );
@@ -1065,28 +1065,28 @@ namespace moris
         //------------------------------------------------------------------------------
 
         // bulk Ghost - Shell - Temperature
-        aParameterLists( FEM::STABILIZATION ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", "SPGPTemp_Shell" );
         aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::GHOST_DISPL ) ;
         aParameterLists.set( "function_parameters", "0.01" );
         aParameterLists.set( "leader_properties", "PropConductivity_Shell,Material" );
 
         // bulk Ghost - PCM - Temperature
-        aParameterLists( FEM::STABILIZATION ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", "SPGPTemp_PCM" );
         aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::GHOST_DISPL ) ;
         aParameterLists.set( "function_parameters", "0.01" );
         aParameterLists.set( "leader_properties", "PropConductivity_PCM,Material" );
 
         // bulk Ghost - Shell - Displacements
-        aParameterLists( FEM::STABILIZATION ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", "SPGPStruct_Shell" );
         aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::GHOST_DISPL ) ;
         aParameterLists.set( "function_parameters", "0.01" );
         aParameterLists.set( "leader_properties", "PropYoungsModulus_Shell,Material" );
 
         // bulk Ghost - PCM - Displacements
-        aParameterLists( FEM::STABILIZATION ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", "SPGPStruct_PCM" );
         aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::GHOST_DISPL ) ;
         aParameterLists.set( "function_parameters", "0.01" );
@@ -1099,7 +1099,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         // diffusion - Shell
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGDiffusionShellBulk" );
         aParameterLists.set( "IWG_type",  fem::IWG_Type::SPATIALDIFF_BULK ) ;
         aParameterLists.set( "dof_residual", "TEMP" );
@@ -1109,7 +1109,7 @@ namespace moris
         aParameterLists.set( "mesh_set_names", tShell );
 
         // linear elasticity - Shell
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGStructShellBulk" );
         aParameterLists.set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_BULK ) ;
         aParameterLists.set( "dof_residual", "UX,UY" );
@@ -1119,7 +1119,7 @@ namespace moris
         aParameterLists.set( "mesh_set_names", tShell );
 
         // diffusion - PCM
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGDiffusionPCMBulk" );
         aParameterLists.set( "IWG_type",  fem::IWG_Type::SPATIALDIFF_BULK ) ;
         aParameterLists.set( "dof_residual", "TEMP" );
@@ -1129,7 +1129,7 @@ namespace moris
         aParameterLists.set( "mesh_set_names", tPCM );
 
         // linear elasticity - PCM
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGStructPCBulk" );
         aParameterLists.set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_BULK ) ;
         aParameterLists.set( "dof_residual", "UX,UY" );
@@ -1143,7 +1143,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         // heat flux on outside of Shell
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGInletFlux" );
         aParameterLists.set( "IWG_type",  fem::IWG_Type::SPATIALDIFF_NEUMANN ) ;
         aParameterLists.set( "dof_residual", "TEMP" );
@@ -1152,7 +1152,7 @@ namespace moris
         aParameterLists.set( "mesh_set_names", tOuterShellSurface );
 
         // pressure pulling on outside of Shell
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGNeumannPressure" );
         aParameterLists.set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_NEUMANN ) ;
         aParameterLists.set( "dof_residual", "UX,UY" );
@@ -1163,7 +1163,7 @@ namespace moris
         if ( tHaveRadiation )
         {
             // radiation heat flux
-            aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+            aParameterLists( FEM::IWG ).add_parameter_list();
             aParameterLists.set( "IWG_name", "IWGHeatRadiation" );
             aParameterLists.set( "IWG_type",  fem::IWG_Type::SPATIALDIFF_RADIATION ) ;
             aParameterLists.set( "dof_residual", "TEMP" );
@@ -1180,7 +1180,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         // Temperature - Shell - Shell
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGInterfaceShellShellTEMP" );
         aParameterLists.set( "IWG_type",  fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE ) ;
         aParameterLists.set( "dof_residual", "TEMP" );
@@ -1192,7 +1192,7 @@ namespace moris
         aParameterLists.set( "mesh_set_names", tShellShellInterface );
 
         // Displacements - Shell - Shell
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGInterfaceShellShellStruct" );
         aParameterLists.set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_INTERFACE_SYMMETRIC_NITSCHE ) ;
         aParameterLists.set( "dof_residual", "UX,UY" );
@@ -1204,7 +1204,7 @@ namespace moris
         aParameterLists.set( "mesh_set_names", tShellShellInterface );
 
         // Temperature - Shell - PCM
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGInterfaceShellPCMTEMP" );
         aParameterLists.set( "IWG_type",  fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE ) ;
         aParameterLists.set( "dof_residual", "TEMP" );
@@ -1220,7 +1220,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         // displacements - shell - back wall
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGDirichletStructShell" );
         aParameterLists.set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE ) ;
         aParameterLists.set( "dof_residual", "UX,UY" );
@@ -1235,7 +1235,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         // temperature - Shell
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGGPShellTemp" );
         aParameterLists.set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
         aParameterLists.set( "dof_residual", "TEMP" );
@@ -1245,7 +1245,7 @@ namespace moris
         aParameterLists.set( "mesh_set_names", tShellGhost );
 
         // displacements - Shell
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGGPShellStruct" );
         aParameterLists.set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
         aParameterLists.set( "dof_residual", "UX,UY" );
@@ -1255,7 +1255,7 @@ namespace moris
         aParameterLists.set( "mesh_set_names", tShellGhost );
 
         // temperature - PCM
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGGPPCMTemp" );
         aParameterLists.set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
         aParameterLists.set( "dof_residual", "TEMP" );
@@ -1265,7 +1265,7 @@ namespace moris
         aParameterLists.set( "mesh_set_names", tPCMGhost );
 
         // displacements - PCM
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGGPPCMStrut" );
         aParameterLists.set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
         aParameterLists.set( "dof_residual", "UX,UY" );
@@ -1279,7 +1279,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         // Time continuity
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGTimeContinuityTemp" );
         aParameterLists.set( "IWG_type",  fem::IWG_Type::TIME_CONTINUITY_DOF ) ;
         aParameterLists.set( "dof_residual", "TEMP" );
@@ -1294,7 +1294,7 @@ namespace moris
         ////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////
         // Nodal Temperature IQI
-        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkTEMP" );
         aParameterLists.set( "IQI_type",  fem::IQI_Type::DOF ) ;
         aParameterLists.set( "dof_quantity", "TEMP" );
@@ -1303,7 +1303,7 @@ namespace moris
         aParameterLists.set( "mesh_set_names", tTotalDomain );
 
         // Max Temperature IQI
-        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIMaxTemp" );
         aParameterLists.set( "IQI_type",  fem::IQI_Type::MAX_DOF ) ;
         aParameterLists.set( "dof_quantity", "TEMP" );
@@ -1312,7 +1312,7 @@ namespace moris
         aParameterLists.set( "mesh_set_names", tSkin );
 
         // Strain Energy of Structure
-        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIStrainEnergy" );
         aParameterLists.set( "IQI_type",  fem::IQI_Type::STRAIN_ENERGY ) ;
         aParameterLists.set( "leader_dof_dependencies", "UX,UY" );
@@ -1321,28 +1321,28 @@ namespace moris
         // aParameterLists.set( "normalization",              "design" ); // <-- what does this do?
 
         // Volume IQI - Fin Volume - temporary to test optimization capabilities
-        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBSplineGeometryVolume" );
         aParameterLists.set( "IQI_type",  fem::IQI_Type::VOLUME ) ;
         aParameterLists.set( "leader_dof_dependencies", "UX,UY;TEMP" );
         aParameterLists.set( "mesh_set_names", tBSplineGeometry );
 
         // Volume IQI - TotalDomain - use once to find total volume to compute max dof
-        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQITotalVolume" );
         aParameterLists.set( "IQI_type",  fem::IQI_Type::VOLUME ) ;
         aParameterLists.set( "leader_dof_dependencies", "UX,UY;TEMP" );
         aParameterLists.set( "mesh_set_names", tTotalDomain );
 
         // Volume IQI - Fin Perimeter
-        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBSplinesPerimeter" );
         aParameterLists.set( "IQI_type",  fem::IQI_Type::VOLUME ) ;
         aParameterLists.set( "leader_dof_dependencies", "UX,UY;TEMP" );
         aParameterLists.set( "mesh_set_names", tBSplinesPerimeter );
 
         // X-displacement
-        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkDISPX" );
         aParameterLists.set( "IQI_type",  fem::IQI_Type::DOF ) ;
         aParameterLists.set( "dof_quantity", "UX,UY" );
@@ -1351,7 +1351,7 @@ namespace moris
         aParameterLists.set( "mesh_set_names", tTotalDomain );
 
         // Y-displacement
-        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkDISPY" );
         aParameterLists.set( "IQI_type",  fem::IQI_Type::DOF ) ;
         aParameterLists.set( "dof_quantity", "UX,UY" );
@@ -1360,7 +1360,7 @@ namespace moris
         aParameterLists.set( "mesh_set_names", tTotalDomain );
 
         // nodal von-mises stresses for shell
-        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQINodalVMStress" );
         aParameterLists.set( "IQI_type",  fem::IQI_Type::VON_MISES_STRESS ) ;
         aParameterLists.set( "leader_dof_dependencies", "UX,UY;TEMP" );
@@ -1376,25 +1376,25 @@ namespace moris
     SOLParameterList( Module_Parameter_Lists& aParameterLists )
     {
 
-        aParameterLists( SOL::LINEAR_ALGORITHMS ).add_parameter_list( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::BELOS_IMPL ) );
+        aParameterLists( SOL::LINEAR_ALGORITHMS ).add_parameter_list( sol::SolverType::BELOS_IMPL );
         aParameterLists.set( "Convergence Tolerance", 1e-12 );
         aParameterLists.set( "preconditioners", "0" );
 
-        aParameterLists( SOL::LINEAR_SOLVERS ).add_parameter_list( moris::prm::create_linear_solver_parameter_list() );
+        aParameterLists( SOL::LINEAR_SOLVERS ).add_parameter_list();
 
         // ----------------------------------------------------------
 
-        aParameterLists( SOL::NONLINEAR_ALGORITHMS ).add_parameter_list( moris::prm::create_nonlinear_algorithm_parameter_list() );
+        aParameterLists( SOL::NONLINEAR_ALGORITHMS ).add_parameter_list();
         aParameterLists.set( "NLA_Solver_Implementation",  moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) ;
         aParameterLists.set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
         aParameterLists.set( "NLA_relaxation_parameter", tNLA_relaxation_parameter );
         aParameterLists.set( "NLA_max_iter", tNLA_max_iter );
         aParameterLists.set( "NLA_combined_res_jac_assembly", true );
 
-        aParameterLists( SOL::NONLINEAR_ALGORITHMS ).add_parameter_list( moris::prm::create_nonlinear_algorithm_parameter_list() );
+        aParameterLists( SOL::NONLINEAR_ALGORITHMS ).add_parameter_list();
         aParameterLists.set( "NLA_Solver_Implementation",  moris::NLA::NonlinearSolverType::NLBGS_SOLVER ) ;
 
-        aParameterLists( SOL::NONLINEAR_ALGORITHMS ).add_parameter_list( moris::prm::create_nonlinear_algorithm_parameter_list() );
+        aParameterLists( SOL::NONLINEAR_ALGORITHMS ).add_parameter_list();
         aParameterLists.set( "NLA_rel_res_norm_drop", 1.0e-7 );
         aParameterLists.set( "NLA_relaxation_parameter", 1.0 );
         aParameterLists.set( "NLA_max_iter", 1 );
@@ -1402,27 +1402,27 @@ namespace moris
 
         // ----------------------------------------------------------
 
-        aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );
+        aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list();
         aParameterLists.set( "NLA_Solver_Implementation",  moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) ;
         aParameterLists.set( "NLA_DofTypes", "UX,UY" );
 
-        aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );
+        aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list();
         aParameterLists.set( "NLA_Solver_Implementation",  moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) ;
         aParameterLists.set( "NLA_DofTypes", "TEMP" );
 
-        aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );
+        aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list();
         aParameterLists.set( "NLA_Solver_Implementation",  moris::NLA::NonlinearSolverType::NLBGS_SOLVER ) ;
         aParameterLists.set( "NLA_Sub_Nonlinear_Solver", "1,0" );
         aParameterLists.set( "NLA_DofTypes", "UX,UY;TEMP" );
         aParameterLists.set( "NLA_Nonlinear_solver_algorithms", "1" );
 
-        aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );
+        aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list();
         aParameterLists.set( "NLA_DofTypes", "UX,UY,TEMP" );
         aParameterLists.set( "NLA_Nonlinear_solver_algorithms", "2" );
 
         // ----------------------------------------------------------
 
-        aParameterLists( SOL::TIME_SOLVER_ALGORITHMS ).add_parameter_list( moris::prm::create_time_solver_algorithm_parameter_list() );
+        aParameterLists( SOL::TIME_SOLVER_ALGORITHMS ).add_parameter_list();
         aParameterLists.set( "TSA_Num_Time_Steps", tTSA_Num_Time_Steps );
         aParameterLists.set( "TSA_Time_Frame", tTSA_Time_Frame );
         aParameterLists.set( "TSA_Nonlinear_Solver", 2 );
@@ -1430,14 +1430,14 @@ namespace moris
 
         // ----------------------------------------------------------
 
-        aParameterLists( SOL::TIME_SOLVERS ).add_parameter_list( moris::prm::create_time_solver_parameter_list() );
+        aParameterLists( SOL::TIME_SOLVERS ).add_parameter_list();
         aParameterLists.set( "TSA_DofTypes", "UX,UY;TEMP" );
         aParameterLists.set( "TSA_Initialize_Sol_Vec", "UX,0.0;UY,0.0;TEMP,1.0" );
         aParameterLists.set( "TSA_Output_Indices", "0" );
         aParameterLists.set( "TSA_Output_Criteria", "Output_Criterion" );
         aParameterLists.set( "TSA_time_level_per_type", "UX,2;UY,2;TEMP,2" );
 
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::IFPACK ) );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::IFPACK );
         aParameterLists.set( "ifpack_prec_type", "ILU" );
     }
 

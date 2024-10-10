@@ -226,37 +226,37 @@ namespace moris
 
         // solid properties ------------------------------------------------------------
 
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropDensity" );
         aParameterLists.set( "function_parameters", tRho );
 
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropViscosity" );
         aParameterLists.set( "function_parameters", tMu );
 
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropTimeContinuity" );
         aParameterLists.set( "function_parameters", moris_to_string( tTimePenalty * std::stod( tRho ) ) );
 
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropInitialVel" );
         aParameterLists.set( "function_parameters", "0.0;0.0" );
 
         // BC properties ---------------------------------------------------------------
 
         // create inlet velocity property
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropInletVel" );
         aParameterLists.set( "value_function", "Func_InletVel" );
         aParameterLists.set( "function_parameters", "1.0" );
 
         // create no-slip velocity property
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropNoSlip" );
         aParameterLists.set( "function_parameters", "0.0;0.0" );
 
         // create outlet pressure property
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropBackFlowPrevention" );
         aParameterLists.set( "function_parameters", "1.0" );
 
@@ -264,7 +264,7 @@ namespace moris
         // fill the constitutive model part of the parameter list
 
         // create fluid constitutive model
-        aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list( prm::create_constitutive_model_parameter_list() );
+        aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list();
         aParameterLists.set( "constitutive_name", "CMFluid" );
         aParameterLists.set( "constitutive_type", fem::Constitutive_Type::FLUID_INCOMPRESSIBLE );
         aParameterLists.set( "dof_dependencies", std::pair< std::string, std::string >( "VX,VY;P", "Velocity,Pressure" ) );
@@ -276,7 +276,7 @@ namespace moris
         // fill the stabilization parameter part of the parameter list
 
         // create SUPG stabilization parameter for Navier-Stokes
-        aParameterLists( FEM::STABILIZATION ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", "SPSUPGNS" );
         aParameterLists.set( "stabilization_type", fem::Stabilization_Type::INCOMPRESSIBLE_FLOW );
         aParameterLists.set( "function_parameters", "36.0 / 1.0" );
@@ -284,7 +284,7 @@ namespace moris
         aParameterLists.set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY;P", "Velocity,Pressure" ) );
 
         // create Nitsche stabilization parameter for velocity
-        aParameterLists( FEM::STABILIZATION ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", "SPNitscheU" );
         aParameterLists.set( "stabilization_type", fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE );
         aParameterLists.set( "function_parameters", tNitsche + "/1.0" );
@@ -297,7 +297,7 @@ namespace moris
         //  bulk IWGs -------------------------------------------------------------
         /* For pure fluid phase */
         // incompressible NS velocity bulk IWG
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGVelocityBulk" );
         aParameterLists.set( "IWG_type", fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK );
         aParameterLists.set( "dof_residual", "VX,VY" );
@@ -307,7 +307,7 @@ namespace moris
         aParameterLists.set( "mesh_set_names", mesh_sets );
 
         // incompressible NS pressure bulk IWG
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGPressureBulk" );
         aParameterLists.set( "IWG_type", fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK );
         aParameterLists.set( "dof_residual", "P" );
@@ -319,7 +319,7 @@ namespace moris
         // Walls IWGs -----------------------------------------------i
 
         // velocity Dirichlet IWG for interface
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGInterfaceFluidSolidVelocity" );
         aParameterLists.set( "IWG_bulk_type", fem::Element_Type::SIDESET );
         aParameterLists.set( "IWG_type", fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_UNSYMMETRIC_NITSCHE );
@@ -331,7 +331,7 @@ namespace moris
         aParameterLists.set( "mesh_set_names", wall_sets );
 
         // pressure contribution from velocity Dirichlet IWG for interface
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGInterfaceFluidSolidPressure" );
         aParameterLists.set( "IWG_bulk_type", fem::Element_Type::SIDESET );
         aParameterLists.set( "IWG_type", fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE );
@@ -344,7 +344,7 @@ namespace moris
         // Inlet BC IWG ----------------------------------------------------------------
 
         // inlet velocity
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGInletVelocity" );
         aParameterLists.set( "IWG_bulk_type", fem::Element_Type::SIDESET );
         aParameterLists.set( "IWG_type", fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_UNSYMMETRIC_NITSCHE );
@@ -356,7 +356,7 @@ namespace moris
         aParameterLists.set( "mesh_set_names", inlet_sets );
 
         // pressure contribution from inlet velocity
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGInletPressure" );
         aParameterLists.set( "IWG_bulk_type", fem::Element_Type::SIDESET );
         aParameterLists.set( "IWG_type", fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE );
@@ -369,7 +369,7 @@ namespace moris
         // Outlet BC IWG ----------------------------------------------------------------
 
         // create inlet backflow prevention BC
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGBackflowPrevention" );
         aParameterLists.set( "IWG_bulk_type", fem::Element_Type::SIDESET );
         aParameterLists.set( "IWG_type", fem::IWG_Type::INCOMPRESSIBLE_NS_IMPOSED_PRESSURE );
@@ -382,7 +382,7 @@ namespace moris
         if ( tUseTimeContinuity )
         {
             // Time continuity
-            aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+            aParameterLists( FEM::IWG ).add_parameter_list();
             aParameterLists.set( "IWG_name", "IWGTimeContinuity" );
             aParameterLists.set( "IWG_type", ( fem::IWG_Type::TIME_CONTINUITY_DOF ) );
             aParameterLists.set( "dof_residual", "VX,VY" );
@@ -399,7 +399,7 @@ namespace moris
         // fill the IQI part of the parameter list
 
         // x velocity
-        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkVX" );
         aParameterLists.set( "IQI_type", fem::IQI_Type::DOF );
         aParameterLists.set( "dof_quantity", "VX,VY" );
@@ -408,7 +408,7 @@ namespace moris
         aParameterLists.set( "mesh_set_names", mesh_sets );
 
         // y velocity
-        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkVY" );
         aParameterLists.set( "IQI_type", fem::IQI_Type::DOF );
         aParameterLists.set( "dof_quantity", "VX,VY" );
@@ -417,7 +417,7 @@ namespace moris
         aParameterLists.set( "mesh_set_names", mesh_sets );
 
         // pressure
-        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkP" );
         aParameterLists.set( "IQI_type", fem::IQI_Type::DOF );
         aParameterLists.set( "dof_quantity", "P" );
@@ -434,7 +434,7 @@ namespace moris
     SOLParameterList( Module_Parameter_Lists& aParameterLists )
     {
 
-        aParameterLists( SOL::LINEAR_ALGORITHMS ).add_parameter_list( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
+        aParameterLists( SOL::LINEAR_ALGORITHMS ).add_parameter_list( sol::SolverType::AMESOS_IMPL );
 
 #ifdef MORIS_USE_MUMPS
         aParameterLists.set( "Solver_Type", "Amesos_Mumps" );
@@ -443,12 +443,12 @@ namespace moris
 #endif
         //------------------------------------------------------------------------------
 
-        aParameterLists( SOL::LINEAR_SOLVERS ).add_parameter_list( moris::prm::create_linear_solver_parameter_list() );
+        aParameterLists( SOL::LINEAR_SOLVERS ).add_parameter_list();
         aParameterLists.set( "DLA_Linear_solver_algorithms", "0" );
 
         //------------------------------------------------------------------------------
 
-        aParameterLists( SOL::NONLINEAR_ALGORITHMS ).add_parameter_list( moris::prm::create_nonlinear_algorithm_parameter_list() );    // nonlinear algorithm index 0
+        aParameterLists( SOL::NONLINEAR_ALGORITHMS ).add_parameter_list();    // nonlinear algorithm index 0
         aParameterLists.set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         aParameterLists.set( "NLA_Linear_solver", 0 );
         aParameterLists.set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
@@ -457,14 +457,14 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );    // 1: thermal subproblem
+        aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list();    // 1: thermal subproblem
         aParameterLists.set( "NLA_Nonlinear_solver_algorithms", "0" );             // set nonlinear algorithm with index 0
         aParameterLists.set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         aParameterLists.set( "NLA_DofTypes", "VX,VY;P" );
 
         // ----------------------------------------------------------
 
-        aParameterLists( SOL::TIME_SOLVER_ALGORITHMS ).add_parameter_list( moris::prm::create_time_solver_algorithm_parameter_list() );
+        aParameterLists( SOL::TIME_SOLVER_ALGORITHMS ).add_parameter_list();
         aParameterLists.set( "TSA_Nonlinear_Solver", 0 );
         aParameterLists.set( "TSA_Nonlinear_Sensitivity_Solver", 0 );
         if ( tUseTimeContinuity )
@@ -475,7 +475,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        aParameterLists( SOL::TIME_SOLVERS ).add_parameter_list( moris::prm::create_time_solver_parameter_list() );
+        aParameterLists( SOL::TIME_SOLVERS ).add_parameter_list();
         aParameterLists.set( "TSA_DofTypes", "VX,VY;P" );
         //        aParameterLists.set( "TSA_Initialize_Sol_Vec", "VX,0.0;VY,0.0;P,0.0" );
         aParameterLists.set( "TSA_Initialize_Sol_Vec", "VX," + moris_to_string( tVelIn ) + ";VY,0.0;P,0.0" );
@@ -493,7 +493,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE ) );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::NONE );
     }
 
     void

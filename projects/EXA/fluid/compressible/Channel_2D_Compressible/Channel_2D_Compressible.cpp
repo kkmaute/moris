@@ -613,7 +613,7 @@ namespace moris
     void SOLParameterList( Vector< Vector< ParameterList > > & aParameterLists )
     {
 
-        aParameterLists( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
+        aParameterLists( 0 ).push_back( add_parameter_list( sol::SolverType::AMESOS_IMPL ) );
 
         aParameterLists( 1 ).push_back( moris::prm::create_linear_solver_parameter_list() );
         if ( tWriteLhsToHDF5 )
@@ -658,7 +658,7 @@ namespace moris
             aParameterLists.set( "TSA_Save_Sol_Vecs_to_file", "SolVec" );
         }
 
-        aParameterLists( 7 ).push_back( moris::prm::create_preconditioner_parameter_list(sol::PreconditionerType::NONE) );
+        aParameterLists( 7 ).push_back( sol::PreconditionerType::NONE);
     }
 
     //------------------------------------------------------------------------------

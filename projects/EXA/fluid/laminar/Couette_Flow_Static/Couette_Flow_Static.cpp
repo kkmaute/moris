@@ -184,29 +184,29 @@ namespace moris
         // fill the property part of the parameter list
 
         // create parameter list for property 1
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropViscosity" );
         aParameterLists.set( "function_parameters", "1.0" );
         aParameterLists.set( "value_function", "Func_Const" );
 
         // create parameter list for property 2
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropDensity" );
         aParameterLists.set( "function_parameters", "1.0" );
         aParameterLists.set( "value_function", "Func_Const" );
 
         // create parameter list for property 3
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropDirichletInU" );
         aParameterLists.set( "value_function", "ImposedVelocityFunc" );
 
         // create parameter list for property 4
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropDirichletOutU" );
         aParameterLists.set( "value_function", "ImposedVelocityFunc" );
 
         // create parameter list for property 5
-        aParameterLists( FEM::PROPERTIES ).add_parameter_list( prm::create_property_parameter_list() );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropdUdx" );
         aParameterLists.set( "value_function", "AnalyticdVelocitydxFunc" );
 
@@ -214,7 +214,7 @@ namespace moris
         // fill the constitutive model part of the parameter list
 
         // create parameter list for constitutive model 1
-        aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list( prm::create_constitutive_model_parameter_list() );
+        aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list();
         aParameterLists.set( "constitutive_name", "CMFluid" );
         aParameterLists.set( "constitutive_type",  fem::Constitutive_Type::FLUID_INCOMPRESSIBLE ) ;
         aParameterLists.set( "dof_dependencies", std::pair< std::string, std::string >( "VX,VY;P", "Velocity,Pressure" ) );
@@ -224,7 +224,7 @@ namespace moris
         // fill the stabilization parameter part of the parameter list
 
         // create parameter list for stabilization parameter 1
-        aParameterLists( FEM::STABILIZATION ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", "SPIncFlow" );
         aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::INCOMPRESSIBLE_FLOW ) ;
         aParameterLists.set( "function_parameters", "36.0" );
@@ -232,7 +232,7 @@ namespace moris
         aParameterLists.set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY;P", "Velocity,Pressure" ) );
 
         // create parameter list for stabilization parameter 2
-        aParameterLists( FEM::STABILIZATION ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", "SPDirichletNitscheU" );
         aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE ) ;
         aParameterLists.set( "function_parameters", "100.0/1.0" );
@@ -240,14 +240,14 @@ namespace moris
         aParameterLists.set( "leader_properties", "PropViscosity,Viscosity;PropDensity,Density" );
 
         // create parameter list for stabilization parameter 3
-        aParameterLists( FEM::STABILIZATION ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", "SPGPViscosity" );
         aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::VISCOUS_GHOST ) ;
         aParameterLists.set( "function_parameters", "0.05" );
         aParameterLists.set( "leader_properties", "PropViscosity,Viscosity" );
 
         // create parameter list for stabilization parameter 4
-        aParameterLists( FEM::STABILIZATION ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", "SPGPVelocity" );
         aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::CONVECTIVE_GHOST ) ;
         aParameterLists.set( "function_parameters", "0.05" );
@@ -255,7 +255,7 @@ namespace moris
         aParameterLists.set( "leader_properties", "PropDensity,Density" );
 
         // create parameter list for stabilization parameter 5
-        aParameterLists( FEM::STABILIZATION ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", "SPGPPressure" );
         aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::PRESSURE_GHOST ) ;
         aParameterLists.set( "function_parameters", "0.005/1.0" );
@@ -266,7 +266,7 @@ namespace moris
         // fill the IWG part of the parameter list
 
         // create parameter list for IWG 1
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGVelocityBulk" );
         aParameterLists.set( "IWG_type",  fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK ) ;
         aParameterLists.set( "dof_residual", "VX,VY" );
@@ -276,7 +276,7 @@ namespace moris
         aParameterLists.set( "mesh_set_names", sFluid );
 
         // create parameter list for IWG 2
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGPressureBulk" );
         aParameterLists.set( "IWG_type",  fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK ) ;
         aParameterLists.set( "dof_residual", "P" );
@@ -286,7 +286,7 @@ namespace moris
         aParameterLists.set( "mesh_set_names", sFluid );
 
         // create parameter list for IWG 3
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGInVelocity" );
         aParameterLists.set( "IWG_type",  fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE ) ;
         aParameterLists.set( "dof_residual", "VX,VY" );
@@ -297,7 +297,7 @@ namespace moris
         aParameterLists.set( "mesh_set_names", sIn );
 
         // create parameter list for IWG 4
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGInPressure" );
         aParameterLists.set( "IWG_type",  fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE ) ;
         aParameterLists.set( "dof_residual", "P" );
@@ -307,7 +307,7 @@ namespace moris
         aParameterLists.set( "mesh_set_names", sIn );
 
         // create parameter list for IWG 5
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGOutVelocity" );
         aParameterLists.set( "IWG_type",  fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE ) ;
         aParameterLists.set( "dof_residual", "VX,VY" );
@@ -318,7 +318,7 @@ namespace moris
         aParameterLists.set( "mesh_set_names", sOut );
 
         // create parameter list for IWG 6
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGOutPressure" );
         aParameterLists.set( "IWG_type",  fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE ) ;
         aParameterLists.set( "dof_residual", "P" );
@@ -328,7 +328,7 @@ namespace moris
         aParameterLists.set( "mesh_set_names", sOut );
 
         // create parameter list for IWG 7
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGGPViscous" );
         aParameterLists.set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
         aParameterLists.set( "dof_residual", "VX,VY" );
@@ -338,7 +338,7 @@ namespace moris
         aParameterLists.set( "mesh_set_names", sFluidGhost );
 
         // create parameter list for IWG 8
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGGPConvective" );
         aParameterLists.set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
         aParameterLists.set( "dof_residual", "VX,VY" );
@@ -348,7 +348,7 @@ namespace moris
         aParameterLists.set( "mesh_set_names", sFluidGhost );
 
         // create parameter list for IWG 9
-        aParameterLists( FEM::IWG ).add_parameter_list( prm::create_IWG_parameter_list() );
+        aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGGPPressure" );
         aParameterLists.set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
         aParameterLists.set( "dof_residual", "P" );
@@ -361,7 +361,7 @@ namespace moris
         // fill the IQI part of the parameter list
 
         // create parameter list for IQI 1
-        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkVX" );
         aParameterLists.set( "IQI_type",  fem::IQI_Type::DOF ) ;
         aParameterLists.set( "dof_quantity", "VX,VY" );
@@ -370,7 +370,7 @@ namespace moris
         aParameterLists.set( "mesh_set_names", sFluid );
 
         // create parameter list for IQI 2
-        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkVY" );
         aParameterLists.set( "IQI_type",  fem::IQI_Type::DOF ) ;
         aParameterLists.set( "dof_quantity", "VX,VY" );
@@ -379,7 +379,7 @@ namespace moris
         aParameterLists.set( "mesh_set_names", sFluid );
 
         // create parameter list for IQI 3
-        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkP" );
         aParameterLists.set( "IQI_type",  fem::IQI_Type::DOF ) ;
         aParameterLists.set( "dof_quantity", "P" );
@@ -388,7 +388,7 @@ namespace moris
         aParameterLists.set( "mesh_set_names", sFluid );
 
         // create parameter list for IQI 4
-        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkL2Error" );
         aParameterLists.set( "IQI_type",  fem::IQI_Type::L2_ERROR_ANALYTIC ) ;
         aParameterLists.set( "dof_quantity", "VX,VY" );
@@ -397,7 +397,7 @@ namespace moris
         aParameterLists.set( "mesh_set_names", sFluid );
 
         // create parameter list for IQI 5
-        aParameterLists( FEM::IQI ).add_parameter_list( prm::create_IQI_parameter_list() );
+        aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkH1Error" );
         aParameterLists.set( "IQI_type",  fem::IQI_Type::H1_ERROR_ANALYTIC ) ;
         aParameterLists.set( "dof_quantity", "VX,VY" );
@@ -414,27 +414,27 @@ namespace moris
     SOLParameterList( Module_Parameter_Lists& aParameterLists )
     {
 
-        aParameterLists( SOL::LINEAR_ALGORITHMS ).add_parameter_list( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
+        aParameterLists( SOL::LINEAR_ALGORITHMS ).add_parameter_list( sol::SolverType::AMESOS_IMPL );
 
-        aParameterLists( SOL::LINEAR_SOLVERS ).add_parameter_list( moris::prm::create_linear_solver_parameter_list() );
+        aParameterLists( SOL::LINEAR_SOLVERS ).add_parameter_list();
 
-        aParameterLists( SOL::NONLINEAR_ALGORITHMS ).add_parameter_list( moris::prm::create_nonlinear_algorithm_parameter_list() );
+        aParameterLists( SOL::NONLINEAR_ALGORITHMS ).add_parameter_list();
         aParameterLists.set( "NLA_rel_res_norm_drop", 1e-06 );
         aParameterLists.set( "NLA_relaxation_parameter", 1.0 );
         aParameterLists.set( "NLA_max_iter", 20 );
 
-        aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );
+        aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list();
         aParameterLists.set( "NLA_DofTypes", "VX,VY;P" );
 
-        aParameterLists( SOL::TIME_SOLVER_ALGORITHMS ).add_parameter_list( moris::prm::create_time_solver_algorithm_parameter_list() );
+        aParameterLists( SOL::TIME_SOLVER_ALGORITHMS ).add_parameter_list();
 
-        aParameterLists( SOL::TIME_SOLVERS ).add_parameter_list( moris::prm::create_time_solver_parameter_list() );
+        aParameterLists( SOL::TIME_SOLVERS ).add_parameter_list();
         aParameterLists.set( "TSA_DofTypes", "VX,VY;P" );
         aParameterLists.set( "TSA_Initialize_Sol_Vec", "VX,1E-4;VY,1E-4;P,0.0" );
         aParameterLists.set( "TSA_Output_Indices", "0" );
         aParameterLists.set( "TSA_Output_Criteria", "Output_Criterion" );
 
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE ) );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::NONE );
     }
 
     void

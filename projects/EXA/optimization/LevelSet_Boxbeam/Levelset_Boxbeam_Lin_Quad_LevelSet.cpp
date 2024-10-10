@@ -384,7 +384,7 @@ namespace moris
         aParameterLists.set( "library", tLibraryName );
         aParameterLists.set( "restart_file", "" );
 
-        aParameterLists( 2 ).push_back( moris::prm::create_gcmma_parameter_list() );
+        aParameterLists( 2 ).push_back( opt::Optimization_Algorithm_Type::GCMMA );
         aParameterLists.set( "step_size", tMMAStepSize );
         aParameterLists.set( "penalty", tMMAPenalty );
         aParameterLists.set( "max_its", tMMAMaxIter );    // Maximum number of iterations
@@ -715,7 +715,7 @@ namespace moris
     SOLParameterList( Vector< Vector< ParameterList > >& aParameterLists )
     {
 
-        aParameterLists( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
+        aParameterLists( 0 ).push_back( add_parameter_list( sol::SolverType::AMESOS_IMPL ) );
 
         aParameterLists( 1 ).push_back( moris::prm::create_linear_solver_parameter_list() );
 
@@ -737,7 +737,7 @@ namespace moris
 
         aParameterLists( 6 ).push_back( moris::prm::create_solver_warehouse_parameterlist() );
 
-        aParameterLists( 7 ).push_back( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE ) );
+        aParameterLists( 7 ).push_back(  sol::PreconditionerType::NONE );
     }
 
     //--------------------------------------------------------------------------------------------------------------
