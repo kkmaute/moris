@@ -202,12 +202,14 @@ namespace moris::mtk
             {
                 tDirection( 0, 0 ) = 0.7986;
                 tDirection( 1, 0 ) = 0.6018;
+                break;
             }
             case 3:
             {
                 tDirection( 0, 0 ) = 0.5642;
                 tDirection( 1, 0 ) = 0.4250;
                 tDirection( 2, 0 ) = -0.4367;
+                break;
             }
             default:
             {
@@ -441,7 +443,14 @@ namespace moris::mtk
                 else if ( ( tFacetCoordinates( 0, 0 ) - aPoint( 0 ) ) * aDirection( 0 ) > 0.0 )
                 {
                     // The ray will hit a vertex, return the closer one
-                    return ( tFacetCoordinates( 0, 0 ) - aPoint( 0 ) ) < ( tFacetCoordinates( 0, 1 ) - aPoint( 0 ) ) ? norm( tFacetCoordinates.get_column( 0 ) - aPoint ) : norm( tFacetCoordinates.get_column( 1 ) - aPoint );
+                    if ( aPoint.n_cols() == 1 )
+                    {
+                        return ( tFacetCoordinates( 0, 0 ) - aPoint( 0 ) ) < ( tFacetCoordinates( 0, 1 ) - aPoint( 0 ) ) ? norm( tFacetCoordinates.get_column( 0 ) - aPoint ) : norm( tFacetCoordinates.get_column( 1 ) - aPoint );
+                    }
+                    else
+                    {
+                        return ( tFacetCoordinates( 0, 0 ) - aPoint( 0 ) ) < ( tFacetCoordinates( 0, 1 ) - aPoint( 0 ) ) ? norm( tFacetCoordinates.get_column( 0 ) - trans( aPoint ) ) : norm( tFacetCoordinates.get_column( 1 ) - trans( aPoint ) );
+                    }
                 }
                 // The ray and facet are colinear, but the facet is in the opposite direction of the ray, therefore no intersection
                 else
@@ -464,7 +473,7 @@ namespace moris::mtk
         real tU        = ( aDirection( 0 ) * tRayToVertex( 1 ) - aDirection( 1 ) * tRayToVertex( 0 ) ) * tInverseDeterminant;
 
         // Check if the intersection is within the line segment
-        if ( tU < -mIntersectionTolerance or tU > 1.0 + mIntersectionTolerance or tDistance < 0 )
+        if ( tU < -mIntersectionTolerance or tU > 1.0 + mIntersectionTolerance or tDistance < -mIntersectionTolerance )
         {
             return std::numeric_limits< real >::quiet_NaN();
         }
@@ -818,6 +827,7 @@ namespace moris::mtk
                     Matrix< DDRMat > tCoords = this->get_all_vertex_coordinates_of_facet( iFacetIndex );
 
                     Matrix< DDRMat > tNormal = cross( tCoords.get_column( 2 ) - tCoords.get_column( 0 ), tCoords.get_column( 1 ) - tCoords.get_column( 0 ) );
+                    tNormal                  = tNormal / norm( tNormal );
 
                     mFacetNormals.set_column( iFacetIndex, tNormal );
                 }

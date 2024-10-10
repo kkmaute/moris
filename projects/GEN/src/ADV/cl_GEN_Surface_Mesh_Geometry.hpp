@@ -59,6 +59,8 @@ namespace moris::gen
       private:
         bool mBasesComputed = false;
 
+        uint mIteration = 0;
+
         Surface_Mesh_Parameters mParameters;
         ADV_Handler             mADVHandler;
         Node_Manager*           mNodeManager;

@@ -137,6 +137,12 @@ namespace moris::gen
         // Raycast from the point
         mtk::Mesh_Region tRegion = ( aNodeIndex < mMeshNodeRegions.size() and mMeshNodeRegions( aNodeIndex ) != mtk::Mesh_Region::UNDEFINED ) ? mMeshNodeRegions( aNodeIndex )
                                                                                                                                               : this->get_region_from_raycast( aNodeCoordinates );
+ 
+
+        if( mNodeManager->get_node( aNodeIndex ).is_IN() and tRegion != mtk::Mesh_Region::INTERFACE )
+        {
+            std::cout << "wuuuut" << this->get_region_from_raycast( aNodeCoordinates ) << "\n ";
+        }
 
         switch ( tRegion )
         {
@@ -174,7 +180,7 @@ namespace moris::gen
         // Determine the local coordinate of the intersection and the facet that intersects the parent edge
         uint                    tParentFacet     = MORIS_UINT_MAX;
         std::pair< uint, real > tLocalCoordinate = this->compute_intersection_local_coordinate( aBackgroundNodes, aFirstParentNode, aSecondParentNode, tParentFacet );
-
+        
         MORIS_ERROR( tParentFacet != MORIS_UINT_MAX or ( tLocalCoordinate.second < 1.0 + this->get_intersection_tolerance() and tLocalCoordinate.second > -1.0 - this->get_intersection_tolerance() ),
                 "Intersection node local coordinate is not between -1 and 1 or parent facet is null. Local coordinate = %f",
                 tLocalCoordinate.second );
@@ -325,6 +331,8 @@ namespace moris::gen
             }
         }
 
+        this->write_to_file( mName + "_" + std::to_string( mIteration++ ) + ".obj" );
+
         // Update the facet's information based on the new vertex coordinates
         Surface_Mesh::initialize_facet_normals();
         Surface_Mesh::construct_bvh();
@@ -393,11 +401,13 @@ namespace moris::gen
 
         if ( !mBasesComputed and this->depends_on_advs() )
         {
-            mMeshNodeRegions.resize( aInterpolationMesh->get_num_nodes(), mtk::Mesh_Region::UNDEFINED );
-
             this->update_vertex_basis_data( aInterpolationMesh );
             mBasesComputed = true;
         }
+
+        // mMeshNodeRegions.resize( aInterpolationMesh->get_num_nodes(), mtk::Mesh_Region::UNDEFINED );
+
+        // this->raycast_remaining_unknown_nodes( aInterpolationMesh );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -963,7 +973,7 @@ namespace moris::gen
             if ( mMeshNodeRegions( iNode ) == mtk::Mesh_Region::UNDEFINED )
             {
                 // Get the coordinates of the unknown node and put it in the temporary storage
-                tUnknownNodeCoordinates.set_column( tNumUnknownNodes++, aMesh->get_node_coordinate( iNode ) );
+                tUnknownNodeCoordinates.set_column( tNumUnknownNodes++, trans(aMesh->get_node_coordinate( iNode ) ) );
             }
         }
 

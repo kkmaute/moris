@@ -475,7 +475,7 @@ namespace moris
         tParameterlist( 2 )( 0 ).set( "hdf5_path", "shape_opt_test_surface_mesh_2D.hdf5" );
         tParameterlist( 2 )( 0 ).set( "evaluate_objective_gradients", true );
         tParameterlist( 2 )( 0 ).set( "evaluate_constraint_gradients", true );
-        tParameterlist( 2 )( 0 ).set( "finite_difference_epsilons", "1E-6" );
+        tParameterlist( 2 )( 0 ).set( "finite_difference_epsilons", "1E-7" );
         tParameterlist( 2 )( 0 ).set( "num_evaluations_per_adv", "1" );
         tParameterlist( 2 )( 0 ).set( "include_bounds", false );
         tParameterlist( 2 )( 0 ).set( "finite_difference_type", "all" );

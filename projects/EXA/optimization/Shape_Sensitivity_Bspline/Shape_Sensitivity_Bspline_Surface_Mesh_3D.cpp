@@ -501,7 +501,7 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "library", "Shape_Sensitivity_Bspline_Surface_Mesh_3D.so" );
 
         tParameterlist( 2 )( 0 ) = moris::prm::create_sweep_parameter_list();
-        tParameterlist( 2 )( 0 ).set( "finite_difference_epsilons", "1E-6" );
+        tParameterlist( 2 )( 0 ).set( "finite_difference_epsilons", "5E-6" );
         tParameterlist( 2 )( 0 ).set( "hdf5_path", "shape_opt_test_surface_mesh_3D.hdf5" );
         tParameterlist( 2 )( 0 ).set( "evaluate_objective_gradients", true );
         tParameterlist( 2 )( 0 ).set( "evaluate_constraint_gradients", true );
