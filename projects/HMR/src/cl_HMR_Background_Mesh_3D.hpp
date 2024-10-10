@@ -255,7 +255,7 @@ namespace moris::hmr
                 nullptr );
 
         // calculate number of elements on level zero pre direction
-        Matrix< DDLUMat > tNumberOfElements = get_number_of_subdomain_elements_per_direction_on_level_zero();
+        Vector< luint > tNumberOfElements = get_number_of_subdomain_elements_per_direction_on_level_zero();
 
         luint* tIJK = new luint[ 3 ];
 
@@ -1258,7 +1258,7 @@ namespace moris::hmr
     template<>
     inline void
     Background_Mesh< 3 >::collect_coarsest_elements_on_side(
-            uint                       aSideOrdinal,
+            uint                                aSideOrdinal,
             Vector< Background_Element_Base* >& aCoarsestElementsOnSide )
     {
         // clear output cell
@@ -1425,8 +1425,8 @@ namespace moris::hmr
     inline void
     Background_Mesh< 3 >::collect_coarsest_elements_in_bounding_box(
             Vector< Background_Element_Base* >& aBackgroundElements,
-            luint                                    aBoundingBoxStartEndIJK[][ 2 ],
-            uint                                     alevel )
+            luint                               aBoundingBoxStartEndIJK[][ 2 ],
+            uint                                alevel )
     {
         aBackgroundElements.resize( ( aBoundingBoxStartEndIJK[ 0 ][ 1 ] - aBoundingBoxStartEndIJK[ 0 ][ 0 ] ) *            //
                                             ( aBoundingBoxStartEndIJK[ 1 ][ 1 ] - aBoundingBoxStartEndIJK[ 1 ][ 0 ] ) *    //
@@ -1454,6 +1454,6 @@ namespace moris::hmr
 
     //-------------------------------------------------------------------------------
 
-}    // namespace moris
+}    // namespace moris::hmr
 
 #endif /* SRC_HMR_CL_HMR_BACKGROUND_MESH_3D_HPP_ */

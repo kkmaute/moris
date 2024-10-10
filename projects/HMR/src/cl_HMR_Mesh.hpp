@@ -320,9 +320,10 @@ namespace moris::hmr
 
         //-------------------------------------------------------------------------------
 
-        void get_elements_in_support_of_basis( const uint aMeshIndex,
-                const uint                                aBasisIndex,
-                Matrix< IndexMat >&                       aElementIndices ) override;
+        void get_elements_in_support_of_basis(
+                const uint          aMeshIndex,
+                const uint          aBasisIndex,
+                Matrix< IndexMat >& aElementIndices ) override;
 
         //-------------------------------------------------------------------------------
 
@@ -571,6 +572,7 @@ namespace moris::hmr
         //-------------------------------------------------------------------------------
 
         mtk::Cell& get_writable_mtk_cell( moris_index aElementIndex ) override;
+
         //-------------------------------------------------------------------------------
 
         moris::mtk::Facet*
