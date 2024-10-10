@@ -246,27 +246,7 @@ namespace moris::mtk
         // Get the facets that the ray could intersect
         Vector< uint > tCandidateFacets = this->preselect_with_arborx( aPoint, aDirection );
 
-        // Initialize return vector that stores intersections and counter for number of valid intersections
-        Intersection_Vector tIntersections( tCandidateFacets.size() );
-        uint                tNumberOfValidIntersections = 0;
-
-        for ( uint iCandidate : tCandidateFacets )
-        {
-            // Compute the intersection location
-            real tIntersection = this->moller_trumbore( iCandidate, aPoint, aDirection );
-
-            // If it is valid, add it to the list
-            if ( not std::isnan( tIntersection ) )
-            {
-                tIntersections( tNumberOfValidIntersections ).second  = tIntersection;
-                tIntersections( tNumberOfValidIntersections++ ).first = iCandidate;
-            }
-        }
-
-        tIntersections.resize( tNumberOfValidIntersections );
-
-        // Remove duplicates and sort the intersections, return
-        return postprocess_raycast_output( tIntersections );
+        return this->determine_valid_intersections_from_candidates( tCandidateFacets, aPoint, aDirection );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -291,29 +271,13 @@ namespace moris::mtk
         {
             for ( uint iDirection = 0; iDirection < tNumberOfDirections; iDirection++ )
             {
-                // Initialize the intersection vector for this origin and direction
-                Intersection_Vector tIntersectionsForRay( tCandidateFacets( iOrigin )( iDirection ).size() );
-                uint                tNumberOfIntersections = 0;
+                // Get the candidates for this ray
+                Vector< uint > tCandidatesForRay = tCandidateFacets( iOrigin )( iDirection );
 
-                // Iterate over all the candidate facets
-                for ( uint iCandidate : tCandidateFacets( iOrigin )( iDirection ) )
-                {
-                    // Compute the intersection location
-                    real tIntersection = this->moller_trumbore( iCandidate, aPoints.get_column( iOrigin ), aDirections.get_column( iDirection ) );
-
-                    // If it is valid, add it to the list
-                    if ( not std::isnan( tIntersection ) )
-                    {
-                        tIntersectionsForRay( tNumberOfIntersections ).second  = tIntersection;
-                        tIntersectionsForRay( tNumberOfIntersections++ ).first = iCandidate;
-                    }
-
-                    // Trim the output vector
-                    tIntersectionsForRay.resize( tNumberOfIntersections );
-
-                    // Remove duplicates and sort the intersections, store in output vector
-                    tIntersections( iOrigin )( iDirection ) = postprocess_raycast_output( tIntersectionsForRay );
-                }
+                tIntersections( iOrigin )( iDirection ) = this->determine_valid_intersections_from_candidates(
+                        tCandidatesForRay,
+                        aPoints.get_column( iOrigin ),
+                        aDirections.get_column( iDirection ) );
             }
         }
 
@@ -344,29 +308,13 @@ namespace moris::mtk
 
             for ( uint iDirection = 0; iDirection < tNumberOfDirections; iDirection++ )
             {
-                // Initialize the intersection vector for this origin and direction
-                Intersection_Vector tIntersectionsForRay( tCandidateFacets( iOrigin )( iDirection ).size() );
-                uint                tNumberOfIntersections = 0;
+                // Get the candidates for this ray
+                Vector< uint > tCandidatesForRay = tCandidateFacets( iOrigin )( iDirection );
 
-                // Iterate over all the candidate facets
-                for ( uint iCandidate : tCandidateFacets( iOrigin )( iDirection ) )
-                {
-                    // Compute the intersection location
-                    real tIntersection = this->moller_trumbore( iCandidate, aPoints.get_column( iOrigin ), aDirections( iOrigin ).get_column( iDirection ) );
-
-                    // If it is valid, add it to the list
-                    if ( not std::isnan( tIntersection ) )
-                    {
-                        tIntersectionsForRay( tNumberOfIntersections ).second  = tIntersection;
-                        tIntersectionsForRay( tNumberOfIntersections++ ).first = iCandidate;
-                    }
-
-                    // Trim the output vector
-                    tIntersectionsForRay.resize( tNumberOfIntersections );
-
-                    // Remove duplicates and sort the intersections, store in output vector
-                    tIntersections( iOrigin )( iDirection ) = postprocess_raycast_output( tIntersectionsForRay );
-                }
+                tIntersections( iOrigin )( iDirection ) = this->determine_valid_intersections_from_candidates(
+                        tCandidatesForRay,
+                        aPoints.get_column( iOrigin ),
+                        aDirections( iOrigin ).get_column( iDirection ) );
             }
         }
 
@@ -719,6 +667,34 @@ namespace moris::mtk
     }
 
     //--------------------------------------------------------------------------------------------------------------
+
+    Intersection_Vector Surface_Mesh::determine_valid_intersections_from_candidates(
+            const Vector< uint >&   aCandidateFacets,
+            const Matrix< DDRMat >& aPoint,
+            const Matrix< DDRMat >& aDirection ) const
+    {
+        // Initialize return vector that stores intersections and counter for number of valid intersections
+        Intersection_Vector tIntersections( aCandidateFacets.size() );
+        uint                tNumberOfValidIntersections = 0;
+
+        for ( uint iCandidate : aCandidateFacets )
+        {
+            // Compute the intersection location
+            real tIntersection = this->moller_trumbore( iCandidate, aPoint, aDirection );
+
+            // If it is valid, add it to the list
+            if ( not std::isnan( tIntersection ) )
+            {
+                tIntersections( tNumberOfValidIntersections ).second  = tIntersection;
+                tIntersections( tNumberOfValidIntersections++ ).first = iCandidate;
+            }
+        }
+
+        tIntersections.resize( tNumberOfValidIntersections );
+
+        // Remove duplicates and sort the intersections, return
+        return postprocess_raycast_output( tIntersections );
+    }
 
     Intersection_Vector
     Surface_Mesh::postprocess_raycast_output( Intersection_Vector& aIntersections ) const

@@ -8,9 +8,6 @@
  *
  */
 
-#define private public    // brendan remove these bad boys
-#define protected public
-
 #include <string>
 #include <catch.hpp>
 

@@ -143,7 +143,6 @@ namespace moris::mtk::arborx
             //            std::cout << "Intersection found between ray " << predicate_index << " (" << tRayCellIndex << ") and box " << primitive_index << " (" << tBocCellIndex << " on mesh " << tBoxMeshIndex << ")" << std::endl;
             out( QueryResult{ tPointIndex, primitive_index } );
         }
-        // QueryBoxes< MemorySpace > mQueryBoxes;    // TODO @ff: Not used. Remove? brendan
         QueryRays< MemorySpace > mQueryRays;
     };
 

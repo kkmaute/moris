@@ -266,6 +266,11 @@ namespace moris::mtk
                 Matrix< DDRMat >&           aPoints,
                 Vector< Matrix< DDRMat > >& aDirections ) const;
 
+        Intersection_Vector determine_valid_intersections_from_candidates( 
+                const Vector< uint >& aCandidateFacets,
+                const Matrix< DDRMat >& aPoint,
+                const Matrix< DDRMat >& aDirection ) const;
+
         /**
          * @brief Sorts thre raycast results from closest to furthest intersection and removes duplicates
          *

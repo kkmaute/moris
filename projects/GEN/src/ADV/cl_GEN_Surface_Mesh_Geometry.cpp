@@ -137,13 +137,6 @@ namespace moris::gen
         // Raycast from the point
         mtk::Mesh_Region tRegion = ( aNodeIndex < mMeshNodeRegions.size() and mMeshNodeRegions( aNodeIndex ) != mtk::Mesh_Region::UNDEFINED ) ? mMeshNodeRegions( aNodeIndex )
                                                                                                                                               : this->get_region_from_raycast( aNodeCoordinates );
- 
-
-        if( mNodeManager->get_node( aNodeIndex ).is_IN() and tRegion != mtk::Mesh_Region::INTERFACE )
-        {
-            std::cout << "wuuuut" << this->get_region_from_raycast( aNodeCoordinates ) << "\n ";
-        }
-
         switch ( tRegion )
         {
             case mtk::Mesh_Region::INSIDE:
@@ -405,9 +398,9 @@ namespace moris::gen
             mBasesComputed = true;
         }
 
-        // mMeshNodeRegions.resize( aInterpolationMesh->get_num_nodes(), mtk::Mesh_Region::UNDEFINED );
+        mMeshNodeRegions.resize( aInterpolationMesh->get_num_nodes(), mtk::Mesh_Region::UNDEFINED );
 
-        // this->raycast_remaining_unknown_nodes( aInterpolationMesh );
+        this->raycast_remaining_unknown_nodes( aInterpolationMesh );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -619,7 +612,7 @@ namespace moris::gen
         }
         else if ( get_analytic_perturbation_user_defined != nullptr )
         {
-            get_perturbation_sensitivity_user_defined( this->get_vertex_coordinates( aFacetVertexIndex ), mADVHandler.get_values(), tVertexSensitivity );    // BRENDAN NEED TO PASS ADVS TO FUNCTION
+            get_perturbation_sensitivity_user_defined( this->get_vertex_coordinates( aFacetVertexIndex ), mADVHandler.get_values(), tVertexSensitivity );
         }
 
         return tVertexSensitivity;
@@ -958,6 +951,8 @@ namespace moris::gen
     void
     Surface_Mesh_Geometry::raycast_remaining_unknown_nodes( mtk::Mesh* aMesh )
     {
+        Tracer tTracer( "GEN", "Surface_Mesh_Geometry", "raycast_remaining_unknown_nodes" );
+
         // Get the spatial dimension
         uint tDim = Surface_Mesh::get_spatial_dimension();
 
