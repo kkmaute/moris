@@ -282,8 +282,8 @@ namespace moris::opt
                 tManager.perform();
 
                 // Sweep without sensitivities
-                tAlgorithmParameterList.set( "evaluate_objective_gradients", false );
-                tAlgorithmParameterList.set( "evaluate_constraint_gradients", false );
+                tAlgorithms.set( "evaluate_objective_gradients", false );
+                tAlgorithms.set( "evaluate_constraint_gradients", false );
 
                 // Create interface
                 tInterface = std::make_shared< Interface_User_Defined >(
