@@ -52,8 +52,8 @@ namespace moris::wrk
             : mLibrary( aLibrary )
     {
         // get the parameter lists
-        Module_Parameter_Lists tMORISParameterList = aLibrary->get_parameters_for_module( Parameter_List_Type::MORISGENERAL );
-        Module_Parameter_Lists tMSIParameterList   = aLibrary->get_parameters_for_module( Parameter_List_Type::MSI );
+        Module_Parameter_Lists tMORISParameterList = aLibrary->get_parameters_for_module( Module_Type::MORISGENERAL );
+        Module_Parameter_Lists tMSIParameterList   = aLibrary->get_parameters_for_module( Module_Type::MSI );
 
         mAdofMeshIndex = tMSIParameterList( 0 )( 0 ).get< moris::sint >( tMORISParameterList( 2 )( 0 ).get< std::string >( "dof_type" ) );
 

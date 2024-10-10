@@ -117,10 +117,10 @@ namespace moris
 
                 MSI::Design_Variable_Interface * mDesignVariableInterface = nullptr;
 
-                Module_Parameter_Lists mFEMParameterList = Module_Parameter_Lists( Parameter_List_Type::FEM );
-                Module_Parameter_Lists mMSIParameterList = Module_Parameter_Lists( Parameter_List_Type::MSI );
-                Module_Parameter_Lists mSOLParameterList = Module_Parameter_Lists( Parameter_List_Type::SOL );
-                Module_Parameter_Lists mVISParameterList = Module_Parameter_Lists( Parameter_List_Type::VIS );
+                Module_Parameter_Lists mFEMParameterList = Module_Parameter_Lists( Module_Type::FEM );
+                Module_Parameter_Lists mMSIParameterList = Module_Parameter_Lists( Module_Type::MSI );
+                Module_Parameter_Lists mSOLParameterList = Module_Parameter_Lists( Module_Type::SOL );
+                Module_Parameter_Lists mVISParameterList = Module_Parameter_Lists( Module_Type::VIS );
 
                 //------------------------------------------------------------------------------
             public:

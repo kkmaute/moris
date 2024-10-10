@@ -156,7 +156,7 @@ namespace moris
                 T                   aDefaultValue,
                 Entry_Type          aExternalValidationType = Entry_Type::FREE,
                 std::string         aExternalParameterName = "",
-                Parameter_List_Type aExternalParameterListType = Parameter_List_Type::END_ENUM,
+                Module_Type        aExternalParameterListType = Module_Type::END_ENUM,
                 uint                aExternalParameterListIndex = 0 )
         {
             // Register new

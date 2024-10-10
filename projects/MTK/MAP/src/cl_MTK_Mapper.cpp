@@ -663,7 +663,7 @@ namespace moris::mtk
         // define time, nonlinear and linear solver
         sol::SOL_Warehouse tSolverWarehouse( mModel->get_solver_interface() );
 
-        Module_Parameter_Lists tParameterlist( Parameter_List_Type::SOL );
+        Module_Parameter_Lists tParameterlist( Module_Type::SOL );
 
         // choose solver type based on problem size
         // FIXME: solver should be received from solver warehouse

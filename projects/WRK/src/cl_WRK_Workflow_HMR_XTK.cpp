@@ -53,9 +53,9 @@ namespace moris::wrk
         mPerformerManager->mDataBasePerformer.resize( 1 );
 
         // load parameter lists
-        Module_Parameter_Lists tHMRParameterList   = aPerformerManager->mLibrary->get_parameters_for_module( Parameter_List_Type::HMR );
-        Module_Parameter_Lists tGENParameterList   = aPerformerManager->mLibrary->get_parameters_for_module( Parameter_List_Type::GEN );
-        Module_Parameter_Lists tMORISParameterList = aPerformerManager->mLibrary->get_parameters_for_module( Parameter_List_Type::MORISGENERAL );
+        Module_Parameter_Lists tHMRParameterList   = aPerformerManager->mLibrary->get_parameters_for_module( Module_Type::HMR );
+        Module_Parameter_Lists tGENParameterList   = aPerformerManager->mLibrary->get_parameters_for_module( Module_Type::GEN );
+        Module_Parameter_Lists tMORISParameterList = aPerformerManager->mLibrary->get_parameters_for_module( Module_Type::MORISGENERAL );
 
         // create HMR performer
         mPerformerManager->mHMRPerformer( 0 ) = std::make_shared< hmr::HMR >( tHMRParameterList( 0 )( 0 ), mPerformerManager->mLibrary );
@@ -183,7 +183,7 @@ namespace moris::wrk
             std::shared_ptr< Library_IO > tLibrary = mPerformerManager->mLibrary;
 
             // re-initialize GEN
-            Module_Parameter_Lists tGENParameterList = tLibrary->get_parameters_for_module( Parameter_List_Type::GEN );
+            Module_Parameter_Lists tGENParameterList = tLibrary->get_parameters_for_module( Module_Type::GEN );
             tGeometryEngine                       = std::make_shared< gen::Geometry_Engine >( tGENParameterList, tLibrary );
         }
 
@@ -281,7 +281,7 @@ namespace moris::wrk
         // Stage 2: XTK -----------------------------------------------------------------------------
 
         // Read parameter list from shared object
-        Module_Parameter_Lists tXTKParameterList = mPerformerManager->mLibrary->get_parameters_for_module( Parameter_List_Type::XTK );
+        Module_Parameter_Lists tXTKParameterList = mPerformerManager->mLibrary->get_parameters_for_module( Module_Type::XTK );
 
         // Create XTK
         xtk::Model* tXTKPerformer = new xtk::Model( tXTKParameterList( 0 )( 0 ) );
@@ -406,7 +406,7 @@ namespace moris::wrk
         // mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0).get_integration_mesh()->save_IG_global_T_matrix_to_file();
 
         // get the MIG parameter list
-        Module_Parameter_Lists tMIGParameterList = mPerformerManager->mLibrary->get_parameters_for_module( Parameter_List_Type::MIG );
+        Module_Parameter_Lists tMIGParameterList = mPerformerManager->mLibrary->get_parameters_for_module( Module_Type::MIG );
 
         // check if there are MIG parameters specified
         if ( tMIGParameterList.size() > 0 )

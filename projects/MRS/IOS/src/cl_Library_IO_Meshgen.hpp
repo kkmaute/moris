@@ -93,7 +93,7 @@ namespace moris
          */
         void
         create_standard_parameter_list_for_module(
-                Parameter_List_Type  aParamListType,
+                Module_Type             aParamListType,
                 Module_Parameter_Lists& aParameterList );
 
         // -----------------------------------------------------------------------------

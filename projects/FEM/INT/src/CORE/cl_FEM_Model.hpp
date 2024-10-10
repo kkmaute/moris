@@ -107,7 +107,7 @@ namespace moris
             Matrix< DDSMat > mXYZLocalAssemblyIndices;
 
             // parameter list to build the fem model
-            Module_Parameter_Lists mParameterList = Module_Parameter_Lists( Parameter_List_Type::FEM );
+            Module_Parameter_Lists mParameterList = Module_Parameter_Lists( Module_Type::FEM );
 
             // unpacked fem inputs
             Vector< fem::Set_User_Info > mSetInfo;

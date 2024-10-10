@@ -509,7 +509,7 @@ namespace moris::gen
         uint             tNumADVs = 2 * par_size();
 
         // Create constant properties
-        Submodule_Parameter_Lists tPropertyParameterLists;
+        Submodule_Parameter_Lists tPropertyParameterLists( "PROPERTIES" );
         for ( uint iPropertyIndex = 0; iPropertyIndex < tNumADVs; iPropertyIndex++ )
         {
             // Constant property parameter list

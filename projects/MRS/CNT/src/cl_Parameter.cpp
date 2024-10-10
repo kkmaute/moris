@@ -120,7 +120,7 @@ namespace moris
             const char*         aString,
             Entry_Type          aExternalValidationType,
             std::string         aExternalParameterName,
-            Parameter_List_Type aExternalParameterListType,
+            Module_Type aExternalParameterListType,
             uint                aExternalParameterListIndex )
             : Parameter( std::string( aString ),
                       aExternalValidationType,

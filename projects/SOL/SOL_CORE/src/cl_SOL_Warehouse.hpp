@@ -184,20 +184,20 @@ namespace moris
              */
             SOL_Warehouse( moris::Solver_Interface* aSolverInterface )
                     : mSolverInterface( aSolverInterface )
-                    , mParameterlist( Parameter_List_Type::SOL )
+                    , mParameterlist( Module_Type::SOL )
             {
             };
 
             SOL_Warehouse( moris::Solver_Interface* aSolverInterface,
                     std::shared_ptr< Library_IO >   aLibrary )
                     : mSolverInterface( aSolverInterface )
-                    , mParameterlist( Parameter_List_Type::SOL )
+                    , mParameterlist( Module_Type::SOL )
                     , mLibrary( std::move( aLibrary ) )
             {
             };
 
             SOL_Warehouse()
-                    : mParameterlist( Parameter_List_Type::SOL )
+                    : mParameterlist( Module_Type::SOL )
             {
             }
 

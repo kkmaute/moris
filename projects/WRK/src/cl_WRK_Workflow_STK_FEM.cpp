@@ -51,7 +51,7 @@ namespace moris::wrk
         mPerformerManager->mMDLPerformer.resize( 1 );
 
         // load the STK parameter list
-        Module_Parameter_Lists tSTKParameterList = aPerformerManager->mLibrary->get_parameters_for_module( Parameter_List_Type::STK );
+        Module_Parameter_Lists tSTKParameterList = aPerformerManager->mLibrary->get_parameters_for_module( Module_Type::STK );
 
         // load the meshes
         mPerformerManager->mMTKPerformer( 0 ) = std::make_shared< mtk::Mesh_Manager >();

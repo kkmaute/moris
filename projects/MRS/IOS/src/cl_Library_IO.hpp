@@ -66,7 +66,7 @@ namespace moris
         std::unique_ptr< XML_Parser > mXmlWriter;
 
         // list of parameter lists supported by the particular workflow
-        std::set< Parameter_List_Type > mSupportedParamListTypes;
+        std::set< Module_Type > mSupportedParamListTypes;
 
         // -----------------------------------------------------------------------------
 
@@ -199,7 +199,7 @@ namespace moris
         // -----------------------------------------------------------------------------
 
         void
-        write_module_parameter_list_to_xml_tree( const Parameter_List_Type aModule );
+        write_module_parameter_list_to_xml_tree( const Module_Type aModule );
 
         // -----------------------------------------------------------------------------
 
@@ -210,7 +210,7 @@ namespace moris
 
         std::string
         get_sub_parameter_list_location_in_xml_tree(
-                const Parameter_List_Type aModule,
+                const Module_Type aModule,
                 const uint                aSubParamListIndex = MORIS_UINT_MAX,
                 const bool                aIsInnerParamList  = false );
 
@@ -223,7 +223,7 @@ namespace moris
          * @return Module_Parameter_Lists
          */
         Module_Parameter_Lists
-        get_parameters_for_module( Parameter_List_Type aParamListType ) const;
+        get_parameters_for_module( Module_Type aParamListType ) const;
 
         // -----------------------------------------------------------------------------
 
@@ -343,7 +343,7 @@ namespace moris
      * @return Parameter_List - The parameter list with the set values from the XML file
      */
 
-    Parameter_List create_and_set_parameter_list( Parameter_List_Type aModule,
+    Parameter_List create_and_set_parameter_list( Module_Type aModule,
             uint                                                      aChild,
             uint                                                      aSubChild,
             const Vector< std::string >&                              aKeys,
@@ -358,6 +358,6 @@ namespace moris
      * @return Parameter_List
      */
 
-    Parameter_List create_parameter_list( Parameter_List_Type aModule, uint aChild, uint aSubChild );
+    Parameter_List create_parameter_list( Module_Type aModule, uint aChild, uint aSubChild );
 
 }    // namespace moris

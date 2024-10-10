@@ -26,7 +26,7 @@ namespace moris
          *
          * @param aParameterLists Vector of constructed parameter lists
          */
-        Submodule_Parameter_Lists( const Vector< Parameter_List >& aParameterLists = {} );
+        explicit Submodule_Parameter_Lists( std::string aType );
 
         /**
          * Sets the type of the submodule parameter list. Can only be done once.

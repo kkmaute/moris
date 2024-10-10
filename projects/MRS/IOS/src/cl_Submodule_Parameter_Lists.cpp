@@ -10,12 +10,14 @@
 
 #include "cl_Submodule_Parameter_Lists.hpp"
 
+#include <utility>
+
 namespace moris
 {
     //--------------------------------------------------------------------------------------------------------------
 
-    Submodule_Parameter_Lists::Submodule_Parameter_Lists( const Vector< Parameter_List >& aParameterLists )
-            : mParameterLists( aParameterLists )
+    Submodule_Parameter_Lists::Submodule_Parameter_Lists( std::string aType )
+            : mType( std::move( aType ) )
     {
     }
 

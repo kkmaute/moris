@@ -32,7 +32,7 @@ namespace moris
     struct External_Validator
     {
         std::string         mParameterName;
-        Parameter_List_Type mParameterListType  = Parameter_List_Type::END_ENUM;
+        Module_Type         mParameterListType  = Module_Type::END_ENUM;
         uint                mParameterListIndex = 0;
     };
 
@@ -62,7 +62,7 @@ namespace moris
                 T                   aParameterValue,
                 Entry_Type          aExternalValidationType,
                 std::string         aExternalParameterName,
-                Parameter_List_Type aExternalParameterListType,
+                Module_Type aExternalParameterListType,
                 uint                aExternalParameterListIndex )
                 : mValue( make_variant( aParameterValue ) )
                 , mEntryType( aExternalValidationType )
@@ -259,5 +259,5 @@ namespace moris
 
     // Declare template specializations of the Parameter constructor
     template<>
-    Parameter::Parameter( const char*, Entry_Type, std::string, Parameter_List_Type, uint );
+    Parameter::Parameter( const char*, Entry_Type, std::string, Module_Type, uint );
 }    // namespace moris

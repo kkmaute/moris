@@ -23,7 +23,7 @@ namespace moris
             : Library_IO()    // initialize base class data as usual
     {
         // list of supported parameter list types
-        mSupportedParamListTypes = { Parameter_List_Type::HMR, Parameter_List_Type::XTK, Parameter_List_Type::GEN };
+        mSupportedParamListTypes = { Module_Type::HMR, Module_Type::XTK, Module_Type::GEN };
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -82,7 +82,7 @@ namespace moris
             std::string const & aXtkPath )
     {
         // quick access to the parameter list
-        Parameter_List& tHmrParamList = mParameterLists( (uint)( Parameter_List_Type::HMR ) )( 0 )( 0 );
+        Parameter_List& tHmrParamList = mParameterLists( (uint)( Module_Type::HMR ) )( 0 )( 0 );
 
         // ------------------------------
         // Base grid
@@ -422,8 +422,8 @@ namespace moris
             std::string const & aHmrPath )
     {
         // quick access to the parameter list
-        Parameter_List& tXtkParamList = mParameterLists( (uint)( Parameter_List_Type::XTK ) )( 0 )( 0 );
-        Parameter_List& tHmrParamList = mParameterLists( (uint)( Parameter_List_Type::HMR ) )( 0 )( 0 );
+        Parameter_List& tXtkParamList = mParameterLists( (uint)( Module_Type::XTK ) )( 0 )( 0 );
+        Parameter_List& tHmrParamList = mParameterLists( (uint)( Module_Type::HMR ) )( 0 )( 0 );
 
         // turn on SPG based enrichment to make sure
         tXtkParamList.set( "use_SPG_based_enrichment", true );
@@ -509,7 +509,7 @@ namespace moris
             std::string const & aXtkPath )
     {
         // quick access to the parameter list
-        Module_Parameter_Lists& tGenParamList = mParameterLists( (uint)( Parameter_List_Type::GEN ) );
+        Module_Parameter_Lists& tGenParamList = mParameterLists( (uint)( Module_Type::GEN ) );
 
         // path to the meshes
         std::string tGeometryNodeName = "Geometry";
@@ -983,10 +983,10 @@ namespace moris
     Library_IO_Meshgen::load_all_standard_parameters()
     {
         // go over all modules and check that
-        for ( uint iModule = 0; iModule < (uint)( Parameter_List_Type::END_ENUM ); iModule++ )
+        for ( uint iModule = 0; iModule < (uint)( Module_Type::END_ENUM ); iModule++ )
         {
             // get the current module
-            Parameter_List_Type tParamListType = (Parameter_List_Type)( iModule );
+            Module_Type tParamListType = (Module_Type)( iModule );
 
             // fill the parameter list entry with the standard parameters
             this->create_standard_parameter_list_for_module( tParamListType, mParameterLists( iModule ) );
@@ -997,28 +997,28 @@ namespace moris
 
     void
     Library_IO_Meshgen::create_standard_parameter_list_for_module(
-            Parameter_List_Type  aParamListType,
+            Module_Type             aParamListType,
             Module_Parameter_Lists& aParameterList )
     {
         switch ( aParamListType )
         {
-            case Parameter_List_Type::OPT:
+            case Module_Type::OPT:
                 this->create_standard_OPT_parameter_list( aParameterList );
                 break;
 
-            case Parameter_List_Type::HMR:
+            case Module_Type::HMR:
                 this->create_standard_HMR_parameter_list( aParameterList );
                 break;
 
-            case Parameter_List_Type::XTK:
+            case Module_Type::XTK:
                 this->create_standard_XTK_parameter_list( aParameterList );
                 break;
 
-            case Parameter_List_Type::GEN:
+            case Module_Type::GEN:
                 this->create_standard_GEN_parameter_list( aParameterList );
                 break;
 
-            case Parameter_List_Type::END_ENUM:
+            case Module_Type::END_ENUM:
                 MORIS_ERROR( false,
                         "Library_IO_Meshgen::create_standard_parameter_list_for_module() - "
                         "No standard library defined for module UNDEFINED" );
@@ -1026,7 +1026,7 @@ namespace moris
 
             // create an empty parameter list for modules that are not needed
             default:
-                aParameterList = Module_Parameter_Lists( Parameter_List_Type::END_ENUM );
+                aParameterList = Module_Parameter_Lists( Module_Type::END_ENUM );
                 break;
         }
     }

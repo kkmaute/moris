@@ -15,54 +15,56 @@ namespace moris
 {
     //--------------------------------------------------------------------------------------------------------------
 
-    Module_Parameter_Lists::Module_Parameter_Lists( Parameter_List_Type aParameterListType )
-            : mParameterListType( aParameterListType )
+    Module_Parameter_Lists::Module_Parameter_Lists( Module_Type aModuleType )
+            : mParameterListType( aModuleType )
     {
-        // Check for valid parameter list type before populating
-        if ( mParameterListType != Parameter_List_Type::END_ENUM )
-        {
-            // Resize to correct number of submodules
-            mSubmoduleParameterLists.resize( get_number_of_sub_parameter_lists_in_module( aParameterListType ) );
+        // Get submodule names
+        Vector< std::string > tSubmoduleNames = get_submodule_names( aModuleType );
 
-            // Create default parameter lists
-            switch ( mParameterListType )
-            {
-                case Parameter_List_Type::OPT:
-                    mSubmoduleParameterLists( index( OPT::OPTIMIZATION_PROBLEMS, std::true_type() ) ).add_parameter_list( prm::create_opt_problem_parameter_list() );
-                    break;
-                case Parameter_List_Type::HMR:
-                    mSubmoduleParameterLists( index( HMR::GENERAL, std::true_type() ) ).add_parameter_list( prm::create_hmr_parameter_list() );
-                    break;
-                case Parameter_List_Type::STK:
-                    mSubmoduleParameterLists( index( STK_Submodule::GENERAL, std::true_type() ) ).add_parameter_list( prm::create_stk_parameter_list() );
-                    break;
-                case Parameter_List_Type::XTK:
-                    mSubmoduleParameterLists( index( XTK_Submodule::GENERAL, std::true_type() ) ).add_parameter_list( prm::create_xtk_parameter_list() );
-                    break;
-                case Parameter_List_Type::GEN:
-                    mSubmoduleParameterLists( index( GEN::GENERAL, std::true_type() ) ).add_parameter_list( prm::create_gen_parameter_list() );
-                    break;
-                case Parameter_List_Type::FEM:
-                    mSubmoduleParameterLists( index( FEM_Submodule::COMPUTATION, std::true_type() ) ).add_parameter_list( prm::create_computation_parameter_list() );
-                    break;
-                case Parameter_List_Type::SOL:
-                    mSubmoduleParameterLists( index( SOL::SOLVER_WAREHOUSE, std::true_type() ) ).add_parameter_list( prm::create_solver_warehouse_parameterlist() );
-                    break;
-                case Parameter_List_Type::MSI:
-                    mSubmoduleParameterLists( index( MSI_Submodule::GENERAL, std::true_type() ) ).add_parameter_list( prm::create_msi_parameter_list() );
-                    break;
-                case Parameter_List_Type::VIS:
-                    mSubmoduleParameterLists( index( VIS_Submodule::OUTPUT_MESHES, std::true_type() ) ).add_parameter_list( prm::create_vis_parameter_list() );
-                    break;
-                case Parameter_List_Type::MIG:
-                    mSubmoduleParameterLists( index( MIG_Submodule::GENERAL, std::true_type() ) ).add_parameter_list( prm::create_mig_parameter_list() );
-                    break;
-                case Parameter_List_Type::WRK:
-                    mSubmoduleParameterLists( index( WRK_Submodule::GENERAL, std::true_type() ) ).add_parameter_list( prm::create_wrk_parameter_list() );
-                    break;
-                default: // Do nothing
-                    break;
-            }
+        // Add new submodules
+        for ( const std::string& iSubmoduleName : tSubmoduleNames )
+        {
+            mSubmoduleParameterLists.emplace_back( iSubmoduleName );
+        }
+
+        // Create default parameter lists
+        switch ( mParameterListType )
+        {
+            case Module_Type::OPT:
+                mSubmoduleParameterLists( index( OPT::OPTIMIZATION_PROBLEMS, std::true_type() ) ).add_parameter_list( prm::create_opt_problem_parameter_list() );
+                break;
+            case Module_Type::HMR:
+                mSubmoduleParameterLists( index( HMR::GENERAL, std::true_type() ) ).add_parameter_list( prm::create_hmr_parameter_list() );
+                break;
+            case Module_Type::STK:
+                mSubmoduleParameterLists( index( STK_Submodule::GENERAL, std::true_type() ) ).add_parameter_list( prm::create_stk_parameter_list() );
+                break;
+            case Module_Type::XTK:
+                mSubmoduleParameterLists( index( XTK_Submodule::GENERAL, std::true_type() ) ).add_parameter_list( prm::create_xtk_parameter_list() );
+                break;
+            case Module_Type::GEN:
+                mSubmoduleParameterLists( index( GEN::GENERAL, std::true_type() ) ).add_parameter_list( prm::create_gen_parameter_list() );
+                break;
+            case Module_Type::FEM:
+                mSubmoduleParameterLists( index( FEM_Submodule::COMPUTATION, std::true_type() ) ).add_parameter_list( prm::create_computation_parameter_list() );
+                break;
+            case Module_Type::SOL:
+                mSubmoduleParameterLists( index( SOL::SOLVER_WAREHOUSE, std::true_type() ) ).add_parameter_list( prm::create_solver_warehouse_parameterlist() );
+                break;
+            case Module_Type::MSI:
+                mSubmoduleParameterLists( index( MSI_Submodule::GENERAL, std::true_type() ) ).add_parameter_list( prm::create_msi_parameter_list() );
+                break;
+            case Module_Type::VIS:
+                mSubmoduleParameterLists( index( VIS_Submodule::OUTPUT_MESHES, std::true_type() ) ).add_parameter_list( prm::create_vis_parameter_list() );
+                break;
+            case Module_Type::MIG:
+                mSubmoduleParameterLists( index( MIG_Submodule::GENERAL, std::true_type() ) ).add_parameter_list( prm::create_mig_parameter_list() );
+                break;
+            case Module_Type::WRK:
+                mSubmoduleParameterLists( index( WRK_Submodule::GENERAL, std::true_type() ) ).add_parameter_list( prm::create_wrk_parameter_list() );
+                break;
+            default: // Do nothing
+                break;
         }
     }
 
@@ -78,7 +80,7 @@ namespace moris
     void Module_Parameter_Lists::clear()
     {
         mSubmoduleParameterLists.clear();
-        mParameterListType = Parameter_List_Type::END_ENUM;
+        mParameterListType = Module_Type::END_ENUM;
     }
 
     //--------------------------------------------------------------------------------------------------------------

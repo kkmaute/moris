@@ -136,16 +136,16 @@ namespace moris::mdl
         Tracer tTracer( "MDL", "Model", "Create" );
 
         // load the MSI parameter list
-        mMSIParameterList = mLibrary->get_parameters_for_module( Parameter_List_Type::MSI );
+        mMSIParameterList = mLibrary->get_parameters_for_module( Module_Type::MSI );
 
         // load the SOL parameter list
-        mSOLParameterList = mLibrary->get_parameters_for_module( Parameter_List_Type::SOL );
+        mSOLParameterList = mLibrary->get_parameters_for_module( Module_Type::SOL );
 
         // load the FEM parameter list
-        mFEMParameterList = mLibrary->get_parameters_for_module( Parameter_List_Type::FEM );
+        mFEMParameterList = mLibrary->get_parameters_for_module( Module_Type::FEM );
 
         // load the VIS parameter list
-        mVISParameterList = mLibrary->get_parameters_for_module( Parameter_List_Type::VIS );
+        mVISParameterList = mLibrary->get_parameters_for_module( Module_Type::VIS );
     }
 
     //------------------------------------------------------------------------------

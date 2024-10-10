@@ -17,7 +17,7 @@ namespace moris
     class Module_Parameter_Lists
     {
       private:
-        Parameter_List_Type                 mParameterListType;
+        Module_Type                         mParameterListType;
         Vector< Submodule_Parameter_Lists > mSubmoduleParameterLists;
         uint                                mCurrentSubmoduleIndex = 0;
 
@@ -25,9 +25,9 @@ namespace moris
         /**
          * Module parameter list constructor. Correctly resizes submodule parameter lists.
          *
-         * @param aParameterListType Type of parameter list, to determine how to resize the parameter lists
+         * @param aModuleType Type of parameter list, to determine how to resize the parameter lists
          */
-        explicit Module_Parameter_Lists( Parameter_List_Type aParameterListType );
+        explicit Module_Parameter_Lists( Module_Type aModuleType );
 
         /**
          * Gets the number of parameter lists being stored.
@@ -133,7 +133,7 @@ namespace moris
          */
         void hack_for_legacy_fem()
         {
-            mSubmoduleParameterLists.resize( 8 );
+            mSubmoduleParameterLists.erase( 8 );
         }
 
       private:

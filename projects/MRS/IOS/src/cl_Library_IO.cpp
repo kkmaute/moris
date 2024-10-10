@@ -35,9 +35,9 @@ namespace moris
             , mXmlWriter( std::make_unique< XML_Parser >() )
             , mSupportedParamListTypes()
     {
-        for ( uint iTypeIndex = 0; iTypeIndex < static_cast< uint >( Parameter_List_Type::END_ENUM ); iTypeIndex++ )
+        for ( uint iTypeIndex = 0; iTypeIndex < static_cast< uint >( Module_Type::END_ENUM ); iTypeIndex++ )
         {
-            mParameterLists.push_back( Module_Parameter_Lists( static_cast< Parameter_List_Type >( iTypeIndex ) ) );
+            mParameterLists.push_back( Module_Parameter_Lists( static_cast< Module_Type >( iTypeIndex ) ) );
         }
     }
 
@@ -294,10 +294,10 @@ namespace moris
         MORIS_ERROR( mSoLibIsInitialized, "Library_IO::load_parameters_from_shared_object_library() - No .so file has been loaded." );
 
         // go through the various parameter list names and see if they exist in the provided .so file
-        for ( uint iParamListType = 0; iParamListType < (uint)( Parameter_List_Type::END_ENUM ); iParamListType++ )
+        for ( uint iParamListType = 0; iParamListType < (uint)( Module_Type::END_ENUM ); iParamListType++ )
         {
             // get the current enum
-            Parameter_List_Type tParamListType = (Parameter_List_Type)( iParamListType );
+            Module_Type tParamListType = (Module_Type)( iParamListType );
 
             // get the name of the parameter list function
             std::string tParamListFuncName = get_name_for_parameter_list_type( tParamListType );
@@ -338,10 +338,10 @@ namespace moris
         MORIS_ERROR( mXmlParserIsInitialized, "Library_IO::load_parameters_from_xml() - No XML file has been loaded." );
 
         // go through the various parameter list names and see if they exist in the provided xml file
-        for ( uint iParamListType = 0; iParamListType < (uint)( Parameter_List_Type::END_ENUM ); iParamListType++ )
+        for ( uint iParamListType = 0; iParamListType < (uint)( Module_Type::END_ENUM ); iParamListType++ )
         {
             // get the current enum
-            Parameter_List_Type tParamListType = (Parameter_List_Type)( iParamListType );
+            Module_Type tParamListType = (Module_Type)( iParamListType );
 
             // get the name of the module, e.g. "HMR"
             std::string tModuleName = convert_parameter_list_enum_to_string( tParamListType );
@@ -381,11 +381,14 @@ namespace moris
             // get the root of the current Module parameter list
             std::string tModuleRoot = XML_PARAMETER_FILE_ROOT + "." + tModuleName;
 
+            // get all submodule names
+            Vector< std::string > tSubmoduleNames = get_submodule_names( tParamListType );
+
             // go over each of the sub-parameter lists
             for ( uint iSubParamList = 0; iSubParamList < tMaxNumSubParamLists; iSubParamList++ )
             {
                 // get the name for this sub-parameter list
-                std::string tOuterSubParamListName = get_outer_sub_parameter_list_name( tParamListType, iSubParamList );
+                std::string tOuterSubParamListName = tSubmoduleNames( iSubParamList );
 
                 // check if the sub-parameter list is found
                 size_t tSubParamListCount = mXmlReader->count_keys_in_subtree( tModuleRoot, tOuterSubParamListName );
@@ -467,7 +470,7 @@ namespace moris
     void
     Library_IO::create_new_module_parameterlist() {
         Vector< Module_Parameter_Lists > tParameterList;
-        for ( uint iParamListType = 0; iParamListType < (uint)( Parameter_List_Type::END_ENUM ); iParamListType++ )
+        for ( uint iParamListType = 0; iParamListType < (uint)( Module_Type::END_ENUM ); iParamListType++ )
         {
             mParameterLists( iParamListType ) = read_module( iParamListType );
         }
@@ -487,10 +490,10 @@ namespace moris
             // mXmlWriter->flush_buffer_to_tree( XML_PARAMETER_FILE_ROOT );
 
             // go through the modules and print their parameters to file
-            for ( uint iModule = 0; iModule < (uint)( Parameter_List_Type::END_ENUM ); iModule++ )
+            for ( uint iModule = 0; iModule < (uint)( Module_Type::END_ENUM ); iModule++ )
             {
                 // get the enum and name of the current module
-                Parameter_List_Type tModule = (Parameter_List_Type)( iModule );
+                Module_Type tModule = (Module_Type)( iModule );
 
                 // write this module to the xml tree
                 this->write_module_parameter_list_to_xml_tree( tModule );
@@ -504,7 +507,7 @@ namespace moris
     //------------------------------------------------------------------------------------------------------------------
 
     void
-    Library_IO::write_module_parameter_list_to_xml_tree( const Parameter_List_Type aModule )
+    Library_IO::write_module_parameter_list_to_xml_tree( const Module_Type aModule )
     {
         // get the location of the current
         uint tModuleIndex = (uint)( aModule );
@@ -556,7 +559,7 @@ namespace moris
 
     std::string
     Library_IO::get_sub_parameter_list_location_in_xml_tree(
-            const Parameter_List_Type aModule,
+            const Module_Type aModule,
             const uint                aSubParamListIndex,
             const bool                aIsInnerParamList )
     {
@@ -571,7 +574,7 @@ namespace moris
         if ( aSubParamListIndex < MORIS_UINT_MAX )
         {
             // get the name of the sub-parameter list
-            std::string tSubParamListName = get_outer_sub_parameter_list_name( aModule, aSubParamListIndex );
+            std::string tSubParamListName = get_submodule_names( aModule )( aSubParamListIndex );
 
             // add it to the location if not empty, otherwise don't add anything
             if ( tSubParamListName != "" )
@@ -599,7 +602,7 @@ namespace moris
     //------------------------------------------------------------------------------------------------------------------
 
     Module_Parameter_Lists
-    Library_IO::get_parameters_for_module( Parameter_List_Type aParamListType ) const
+    Library_IO::get_parameters_for_module( Module_Type aParamListType ) const
     {
         // check that the parameter lists are complete
         MORIS_ERROR( mLibraryIsFinalized,
@@ -692,10 +695,10 @@ namespace moris
                                         // Additional info about where the checked options came from
                                         std::string tExternalValidatorString =
                                                 "These selections are taken from parameter " + tExternalValidator.mParameterName + ", located in the ";
-                                        if ( tExternalValidator.mParameterListType == Parameter_List_Type::END_ENUM )
+                                        if ( tExternalValidator.mParameterListType == Module_Type::END_ENUM )
                                         {
                                             tExternalValidatorString +=
-                                                    convert_parameter_list_enum_to_string( (Parameter_List_Type)iModuleIndex )
+                                                    convert_parameter_list_enum_to_string( (Module_Type)iModuleIndex )
                                                     + " parameters with outer vector index " + std::to_string( iOuterIndex ) + " and inner vector index " + std::to_string( iInnerIndex );
                                         }
                                         else
@@ -732,10 +735,10 @@ namespace moris
                                         // Additional info about where the checked options came from
                                         std::string tExternalValidatorString =
                                                 "This size is based on parameter " + tExternalValidator.mParameterName + ", located in the ";
-                                        if ( tExternalValidator.mParameterListType == Parameter_List_Type::END_ENUM )
+                                        if ( tExternalValidator.mParameterListType == Module_Type::END_ENUM )
                                         {
                                             tExternalValidatorString +=
-                                                    convert_parameter_list_enum_to_string( (Parameter_List_Type)iModuleIndex )
+                                                    convert_parameter_list_enum_to_string( (Module_Type)iModuleIndex )
                                                     + " parameters with outer vector index " + std::to_string( iOuterIndex ) + " and inner vector index " + std::to_string( iInnerIndex );
                                         }
                                         else
@@ -773,7 +776,7 @@ namespace moris
         Vector< Variant > tExternalOptions;
 
         // Check if external validation is required
-        if ( aExternalValidator.mParameterListType == Parameter_List_Type::END_ENUM )
+        if ( aExternalValidator.mParameterListType == Module_Type::END_ENUM )
         {
             // Return single parameter
             tExternalOptions = { aContainingParameterList.get_variant( aExternalValidator.mParameterName ) };
@@ -895,7 +898,7 @@ namespace moris
      * @return Parameter_List - The parameter list with the set values from the XML file
      */
 
-    Parameter_List create_and_set_parameter_list( Parameter_List_Type aModule,
+    Parameter_List create_and_set_parameter_list( Module_Type aModule,
             uint                                                      aChild,
             uint                                                      aSubChild,
             const Vector< std::string >&                              aKeys,
@@ -1076,7 +1079,7 @@ namespace moris
      * @param aSubChild - Should be 0 unless a sub-module has inner types (for instance GEN/Geometries, OPT/Algorithms and SOL/LinearAlgorithms)
      * @return Parameter_List
      */
-    Parameter_List create_parameter_list( Parameter_List_Type aModule, uint aChild, uint aSubChild )
+    Parameter_List create_parameter_list( Module_Type aModule, uint aChild, uint aSubChild )
     {
         /*
         function name: create_parameter_list
@@ -1092,7 +1095,7 @@ namespace moris
         */
         switch ( aModule )
         {
-            case Parameter_List_Type::OPT:
+            case Module_Type::OPT:
                 switch ( aChild )
                 {
                     case 0:
@@ -1148,16 +1151,16 @@ namespace moris
                 // Free
                 break;
 
-            case Parameter_List_Type::HMR:
+            case Module_Type::HMR:
                 return prm::create_hmr_parameter_list();
 
-            case Parameter_List_Type::STK:
+            case Module_Type::STK:
                 return prm::create_stk_parameter_list();
 
-            case Parameter_List_Type::XTK:
+            case Module_Type::XTK:
                 return prm::create_xtk_parameter_list();
 
-            case Parameter_List_Type::GEN:
+            case Module_Type::GEN:
                 switch ( aChild )
                 {
                     case 0:
@@ -1192,7 +1195,7 @@ namespace moris
                 }
                 break;
 
-            case Parameter_List_Type::FEM:
+            case Module_Type::FEM:
                 /*
                  * Set of Dropdowns for tParameterList[0] (property_name in FEM)
                  * //Dropdown
@@ -1239,7 +1242,7 @@ namespace moris
 
                 break;
 
-            case Parameter_List_Type::SOL:
+            case Module_Type::SOL:
                 //
                 switch ( aChild )
                 {
@@ -1302,19 +1305,19 @@ namespace moris
 
                 break;
 
-            case Parameter_List_Type::MSI:
+            case Module_Type::MSI:
                 return prm::create_msi_parameter_list();
 
-            case Parameter_List_Type::VIS:
+            case Module_Type::VIS:
                 return prm::create_vis_parameter_list();    //
 
-            case Parameter_List_Type::MIG:
+            case Module_Type::MIG:
                 return prm::create_mig_parameter_list();
 
-            case Parameter_List_Type::WRK:
+            case Module_Type::WRK:
                 return prm::create_wrk_parameter_list();
 
-            case Parameter_List_Type::MORISGENERAL:
+            case Module_Type::MORISGENERAL:
                 switch ( aChild )
                 {
                     case 0:
@@ -1351,17 +1354,17 @@ namespace moris
     Module_Parameter_Lists read_module( uint aRoot )
     {
         // Create the 3d vector
-        Module_Parameter_Lists tParameterList( static_cast< Parameter_List_Type >( aRoot ) );
-        for ( uint iChild = 0; iChild < get_number_of_sub_parameter_lists_in_module( (Parameter_List_Type)aRoot ); iChild++ )
+        Module_Parameter_Lists tParameterList( static_cast< Module_Type >( aRoot ) );
+        for ( uint iChild = 0; iChild < get_number_of_sub_parameter_lists_in_module( (Module_Type)aRoot ); iChild++ )
         {
-            if ( ( aRoot == (uint)( Parameter_List_Type::OPT ) && iChild == (uint)( OPT_Submodule::ALGORITHMS ) )
-                    || ( aRoot == (uint)( Parameter_List_Type::GEN ) && iChild == (uint)( GEN_Submodule::GEOMETRIES ) )
-                    || ( aRoot == (uint)( Parameter_List_Type::SOL ) && iChild == (uint)( SOL_Submodule::LINEAR_ALGORITHMS ) ) )
+            if ( ( aRoot == (uint)( Module_Type::OPT ) && iChild == (uint)( OPT_Submodule::ALGORITHMS ) )
+                    || ( aRoot == (uint)( Module_Type::GEN ) && iChild == (uint)( GEN_Submodule::GEOMETRIES ) )
+                    || ( aRoot == (uint)( Module_Type::SOL ) && iChild == (uint)( SOL_Submodule::LINEAR_ALGORITHMS ) ) )
             {
             }
             else
             {
-                tParameterList( iChild ).add_parameter_list( create_parameter_list( (Parameter_List_Type)aRoot, iChild, 0 ) );
+                tParameterList( iChild ).add_parameter_list( create_parameter_list( (Module_Type)aRoot, iChild, 0 ) );
             }
         }
 

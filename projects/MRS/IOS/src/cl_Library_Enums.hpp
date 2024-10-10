@@ -11,6 +11,7 @@
 
 #include <string>
 #include "moris_typedefs.hpp"
+#include "fn_enum_macros.hpp"
 
 namespace moris
 {
@@ -57,7 +58,7 @@ namespace moris
     // -----------------------------------------------------------------------------
 
     // define enums for input file types
-    enum class Parameter_List_Type
+    enum class Module_Type
     {
         //! only have types here for which we have a standard parameter list (with the exception of "UNDEFINED")
         //! Make sure to include all enums defined here in the convert to string function below (with the exception of "UNDEFINED")
@@ -76,12 +77,10 @@ namespace moris
         END_ENUM
     };
 
-    enum class OPT_Submodule
-    {
+    ENUM_MACRO( OPT_Submodule,
         OPTIMIZATION_PROBLEMS,
         INTERFACE,
-        ALGORITHMS
-    };
+        ALGORITHMS )
 
     enum class HMR_Submodule
     {
@@ -98,15 +97,12 @@ namespace moris
         GENERAL
     };
 
-    enum class GEN_Submodule
-    {
+    ENUM_MACRO( GEN_Submodule,
         GENERAL,
         GEOMETRIES,
-        PROPERTIES
-    };
+        PROPERTIES )
 
-    enum class FEM_Submodule
-    {
+    ENUM_MACRO( FEM_Submodule,
         PROPERTIES,
         CONSTITUTIVE_MODELS,
         STABILIZATION,
@@ -115,11 +111,9 @@ namespace moris
         COMPUTATION,
         FIELDS,
         PHASES,
-        MATERIAL_MODELS
-    };
+        MATERIAL_MODELS )
 
-    enum class SOL_Submodule
-    {
+    ENUM_MACRO( SOL_Submodule,
         LINEAR_ALGORITHMS,
         LINEAR_SOLVERS,
         NONLINEAR_ALGORITHMS,
@@ -127,8 +121,7 @@ namespace moris
         TIME_SOLVER_ALGORITHMS,
         TIME_SOLVERS,
         SOLVER_WAREHOUSE,
-        PRECONDITIONERS
-    };
+        PRECONDITIONERS )
 
     enum class MSI_Submodule
     {
@@ -162,24 +155,30 @@ namespace moris
     /**
      * @brief converts an enum of type Parameter_List_Type to a string spelled equivalent to the enum
      *
-     * @param aParameterListType enum to convert to string
+     * @param aModuleType enum to convert to string
      * @return std::string enum spelled out as string
      */
     std::string
-    convert_parameter_list_enum_to_string( Parameter_List_Type aParameterListType );
+    convert_parameter_list_enum_to_string( Module_Type aModuleType );
 
     // -----------------------------------------------------------------------------
 
     /**
      * @brief Get the name for parameter list function expected for a given module
      *
-     * @param aParameterListType Parameter_List_Type enum naming the module for which parameters should be parsed
+     * @param aModuleType Parameter_List_Type enum naming the module for which parameters should be parsed
      * @return std::string name of the parameter list function expected in an .so input file
      */
     std::string
-    get_name_for_parameter_list_type( Parameter_List_Type aParameterListType );
+    get_name_for_parameter_list_type( Module_Type aModuleType );
 
-    // -----------------------------------------------------------------------------
+    /**
+     * Gets the submodule names for a particular MORIS module.
+     * 
+     * @param aModuleType Module parameter list type
+     * @return Submodule names
+     */
+    Vector< std::string > get_submodule_names( Module_Type aModuleType );
 
     /**
      * @brief Get the number of sub parameter lists that can be defined in a given module
@@ -188,20 +187,13 @@ namespace moris
      * @return uint number of sub parameter lists in Module
      */
     uint
-    get_number_of_sub_parameter_lists_in_module( Parameter_List_Type aModule );
-
-    // -----------------------------------------------------------------------------
-
-    std::string
-    get_outer_sub_parameter_list_name(
-            Parameter_List_Type aModule,
-            uint                aParamListIndex );
+    get_number_of_sub_parameter_lists_in_module( Module_Type aModule );
 
     // -----------------------------------------------------------------------------
 
     std::string
     get_inner_sub_parameter_list_name(
-            Parameter_List_Type aModule,
+            Module_Type aModule,
             uint                aParamListIndex );
 
     // -----------------------------------------------------------------------------

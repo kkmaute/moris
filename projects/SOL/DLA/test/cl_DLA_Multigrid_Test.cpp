@@ -231,7 +231,7 @@ namespace moris
 
             sol::SOL_Warehouse tSolverWarehouse( tSolverInterface );
 
-            Module_Parameter_Lists tParameterlist( Parameter_List_Type::SOL );
+            Module_Parameter_Lists tParameterlist( Module_Type::SOL );
 
             tParameterlist( 0 ).add_parameter_list( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::PETSC ) );
             tParameterlist( 0 )( 0 ).set( "KSPType", std::string( "fgmres" ) );
