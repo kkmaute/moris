@@ -31,7 +31,7 @@ namespace moris::fem
 
       public:
         Model_Initializer(
-                const Vector< Vector< Parameter_List > >        &aParameterList,
+                const Module_Parameter_Lists        &aParameterList,
                 mtk::Mesh_Pair const                            *aMeshPair,
                 std::shared_ptr< Library_IO >                    aLibrary,
                 uint                                             aSpatialDimension,
@@ -99,7 +99,7 @@ namespace moris::fem
                 moris::fem::Field_Interpolator_Manager   *aFIManager );
 
         // data
-        Vector< Vector< Parameter_List > >               mParameterList;
+        Module_Parameter_Lists               mParameterList;
         mtk::Mesh_Pair const                            *mMeshPair;
         std::shared_ptr< Library_IO >                    mLibrary;
         uint                                             mSpatialDimension;

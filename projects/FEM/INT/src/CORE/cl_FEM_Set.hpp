@@ -121,7 +121,7 @@ namespace moris
             Vector< moris_index >            mRequestedFieldIQIsGlobalIndices;
 
             // enum for element type
-            fem::Element_Type mElementType = fem::Element_Type::UNDEFINED;
+            fem::Element_Type mElementType = fem::Element_Type::END_ELEMENT_TYPE;
 
             // integration points
             Matrix< DDRMat > mIntegPoints;
@@ -155,7 +155,7 @@ namespace moris
             bool mIsAnalyticalFA = true;
 
             // enum for FD scheme used for FD SA
-            fem::FDScheme_Type mFDSchemeForFA = fem::FDScheme_Type::UNDEFINED;
+            fem::FDScheme_Type mFDSchemeForFA = fem::FDScheme_Type::END_FD_SCHEME;
 
             // real for FD perturbation size
             real mFDPerturbationFA = 0.0;
@@ -164,7 +164,7 @@ namespace moris
             bool mIsAnalyticalSA = false;
 
             // enum for FD scheme used for FD SA
-            fem::FDScheme_Type mFDSchemeForSA = fem::FDScheme_Type::UNDEFINED;
+            fem::FDScheme_Type mFDSchemeForSA = fem::FDScheme_Type::END_FD_SCHEME;
 
             // real for FD perturbation size
             real mFDPerturbation = 0.0;

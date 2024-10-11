@@ -22,11 +22,8 @@ namespace moris
     Library_IO_Meshgen::Library_IO_Meshgen()
             : Library_IO()    // initialize base class data as usual
     {
-        // set the type of this library
-        mLibraryType = Library_Type::MESHGEN;
-
         // list of supported parameter list types
-        mSupportedParamListTypes = { Parameter_List_Type::HMR, Parameter_List_Type::XTK, Parameter_List_Type::GEN };
+        mSupportedParamListTypes = { Module_Type::HMR, Module_Type::XTK, Module_Type::GEN };
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -34,41 +31,6 @@ namespace moris
     Library_IO_Meshgen::~Library_IO_Meshgen()
     {
         // do nothing extra
-    }
-
-    //------------------------------------------------------------------------------------------------------------------
-
-    void
-    Library_IO_Meshgen::finalize()
-    {
-        // check that an .xml input file has been specified
-        MORIS_ERROR( mXmlParserIsInitialized,
-                "Library_IO_Meshgen::finalize() - No .xml input file has been specified. "
-                "This is required for the mesh generation workflow." );
-
-        // load the standard parameters into the member variables
-        this->load_all_standard_parameters();
-
-        // if an .so file has been parsed, first use its parameters (if any were defined in it) to overwrite or add to the standard parameters
-        if ( mSoLibIsInitialized )
-        {
-            this->load_parameters_from_shared_object_library();
-        }
-
-        // load parameters from xml, overwrites parameters specified in either the standard parameters or an .so file if parsed
-        if ( mXmlParserIsInitialized )
-        {
-            this->load_parameters_from_xml();
-        }
-
-        // check the parameters for validity
-        this->check_parameters();
-
-        // mark this library as finalized and lock it from modification
-        mLibraryIsFinalized = true;
-
-        // print receipt of the finalized library
-        this->print_parameter_receipt( "./Parameter_Receipt.xml" );    // TODO: the file name and location should be user define-able
     }
 
     // -----------------------------------------------------------------------------
@@ -120,7 +82,7 @@ namespace moris
             std::string const & aXtkPath )
     {
         // quick access to the parameter list
-        Parameter_List& tHmrParamList = mParameterLists( (uint)( Parameter_List_Type::HMR ) )( 0 )( 0 );
+        Parameter_List& tHmrParamList = mParameterLists( (uint)( Module_Type::HMR ) )( 0 )( 0 );
 
         // ------------------------------
         // Base grid
@@ -460,8 +422,8 @@ namespace moris
             std::string const & aHmrPath )
     {
         // quick access to the parameter list
-        Parameter_List& tXtkParamList = mParameterLists( (uint)( Parameter_List_Type::XTK ) )( 0 )( 0 );
-        Parameter_List& tHmrParamList = mParameterLists( (uint)( Parameter_List_Type::HMR ) )( 0 )( 0 );
+        Parameter_List& tXtkParamList = mParameterLists( (uint)( Module_Type::XTK ) )( 0 )( 0 );
+        Parameter_List& tHmrParamList = mParameterLists( (uint)( Module_Type::HMR ) )( 0 )( 0 );
 
         // turn on SPG based enrichment to make sure
         tXtkParamList.set( "use_SPG_based_enrichment", true );
@@ -547,16 +509,13 @@ namespace moris
             std::string const & aXtkPath )
     {
         // quick access to the parameter list
-        ModuleParameterList& tGenParamList = mParameterLists( (uint)( Parameter_List_Type::GEN ) );
+        Module_Parameter_Lists& tGenParamList = mParameterLists( (uint)( Module_Type::GEN ) );
 
         // path to the meshes
         std::string tGeometryNodeName = "Geometry";
 
         // see how many grids are specified in the input file
         uint tNumGeometries = mXmlReader->count_keys_in_subtree( aGenPath, tGeometryNodeName );
-
-        // resize the parameter list correctly
-        tGenParamList( 1 ).resize( tNumGeometries );
 
         // get the intersection mode
         bool tUseMultiLinearIntersections = true;
@@ -595,7 +554,7 @@ namespace moris
                 if ( tPreDefGeom == "line" )
                 {
                     // Create geometry parameter list
-                    tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE );
+                    tGenParamList( 1 ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE ) );
 
                     // get the point
                     std::string tPoint = "";
@@ -636,7 +595,7 @@ namespace moris
                 else if ( tPreDefGeom == "circle" )
                 {
                     // Create geometry parameter list
-                    tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE );
+                    tGenParamList( 1 ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE ) );
 
                     // get the point
                     std::string tPoint = "";
@@ -670,7 +629,7 @@ namespace moris
                 else if ( tPreDefGeom == "ellipse" )
                 {
                     // Create geometry parameter list
-                    tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::SUPERELLIPSE );
+                    tGenParamList( 1 ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::SUPERELLIPSE ) );
 
                     // get the point
                     std::string tPoint = "";
@@ -714,7 +673,7 @@ namespace moris
                 else if ( tPreDefGeom == "plane" )
                 {
                     // Create geometry parameter list
-                    tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::PLANE );
+                    tGenParamList( 1 ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::PLANE ) );
 
                     // get the point
                     std::string tPoint = "";
@@ -757,7 +716,7 @@ namespace moris
                 else if ( tPreDefGeom == "sphere" )
                 {
                     // Create geometry parameter list
-                    tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::SPHERE );
+                    tGenParamList( 1 ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::SPHERE ) );
 
                     // check dimensionality
                     MORIS_ERROR( mNumSpatialDims != 2,
@@ -797,7 +756,7 @@ namespace moris
                 else if ( tPreDefGeom == "ellipsoid" )
                 {
                     // Create geometry parameter list
-                    tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::SUPERELLIPSOID );
+                    tGenParamList( 1 ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::SUPERELLIPSOID ) );
 
                     // check dimensionality
                     MORIS_ERROR( mNumSpatialDims != 2,
@@ -865,11 +824,8 @@ namespace moris
 
             else if ( tGeomType == "image_file" )
             {
-                // Create geometry parameter list
-                tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::SIGNED_DISTANCE_IMAGE );
-
                 // initialize with the image sdf default parameter list
-                tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::SIGNED_DISTANCE_IMAGE );
+                tGenParamList( 1 ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::SIGNED_DISTANCE_IMAGE ) );
                 tGenParamList( 1 )( iGeom ).set( "number_of_refinements", mGenNumRefinements );
                 tGenParamList( 1 )( iGeom ).set( "refinement_mesh_index", mGenRefineMeshIndices );
                 tGenParamList( 1 )( iGeom ).set( "use_multilinear_interpolation", tUseMultiLinearIntersections );
@@ -921,11 +877,8 @@ namespace moris
 
             else if ( tGeomType == "object_file" )
             {
-                // Create geometry parameter list
-                tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::SIGNED_DISTANCE_OBJECT );
-
                 // initialize with the sdf field default parameter list
-                tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::SIGNED_DISTANCE_OBJECT );
+                tGenParamList( 1 ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::SIGNED_DISTANCE_OBJECT ) );
                 tGenParamList( 1 )( iGeom ).set( "use_multilinear_interpolation", false );
                 // tGenParamList( 1 )( iGeom ).set( "discretization_mesh_index", -1 );
 
@@ -1030,10 +983,10 @@ namespace moris
     Library_IO_Meshgen::load_all_standard_parameters()
     {
         // go over all modules and check that
-        for ( uint iModule = 0; iModule < (uint)( Parameter_List_Type::END_ENUM ); iModule++ )
+        for ( uint iModule = 0; iModule < (uint)( Module_Type::END_ENUM ); iModule++ )
         {
             // get the current module
-            Parameter_List_Type tParamListType = (Parameter_List_Type)( iModule );
+            Module_Type tParamListType = (Module_Type)( iModule );
 
             // fill the parameter list entry with the standard parameters
             this->create_standard_parameter_list_for_module( tParamListType, mParameterLists( iModule ) );
@@ -1044,28 +997,28 @@ namespace moris
 
     void
     Library_IO_Meshgen::create_standard_parameter_list_for_module(
-            Parameter_List_Type  aParamListType,
-            ModuleParameterList& aParameterList )
+            Module_Type             aParamListType,
+            Module_Parameter_Lists& aParameterList )
     {
         switch ( aParamListType )
         {
-            case Parameter_List_Type::OPT:
+            case Module_Type::OPT:
                 this->create_standard_OPT_parameter_list( aParameterList );
                 break;
 
-            case Parameter_List_Type::HMR:
+            case Module_Type::HMR:
                 this->create_standard_HMR_parameter_list( aParameterList );
                 break;
 
-            case Parameter_List_Type::XTK:
+            case Module_Type::XTK:
                 this->create_standard_XTK_parameter_list( aParameterList );
                 break;
 
-            case Parameter_List_Type::GEN:
+            case Module_Type::GEN:
                 this->create_standard_GEN_parameter_list( aParameterList );
                 break;
 
-            case Parameter_List_Type::END_ENUM:
+            case Module_Type::END_ENUM:
                 MORIS_ERROR( false,
                         "Library_IO_Meshgen::create_standard_parameter_list_for_module() - "
                         "No standard library defined for module UNDEFINED" );
@@ -1073,7 +1026,7 @@ namespace moris
 
             // create an empty parameter list for modules that are not needed
             default:
-                aParameterList = ModuleParameterList();
+                aParameterList = Module_Parameter_Lists( Module_Type::END_ENUM );
                 break;
         }
     }
@@ -1081,23 +1034,19 @@ namespace moris
     //------------------------------------------------------------------------------------------------------------------
 
     void
-    Library_IO_Meshgen::create_standard_OPT_parameter_list( ModuleParameterList& aParameterList )
+    Library_IO_Meshgen::create_standard_OPT_parameter_list( Module_Parameter_Lists& aParameterList )
     {
         // resize and initialize with standard parameters
-        aParameterList.resize( 1 );
-        aParameterList( 0 ).resize( 1 );
-        aParameterList( 0 )( 0 ) = prm::create_opt_problem_parameter_list();    // ParameterList();
+        aParameterList( 0 ).add_parameter_list( prm::create_opt_problem_parameter_list() );
     }
 
     //------------------------------------------------------------------------------------------------------------------
 
     void
-    Library_IO_Meshgen::create_standard_XTK_parameter_list( ModuleParameterList& aParameterList )
+    Library_IO_Meshgen::create_standard_XTK_parameter_list( Module_Parameter_Lists& aParameterList )
     {
         // resize and initialize with standard parameters
-        aParameterList.resize( 1 );
-        aParameterList( 0 ).resize( 1 );
-        aParameterList( 0 )( 0 ) = prm::create_xtk_parameter_list();
+        aParameterList( 0 ).add_parameter_list( prm::create_xtk_parameter_list() );
 
         // enrichment
         aParameterList( 0 )( 0 ).set( "enrich", true );
@@ -1113,12 +1062,10 @@ namespace moris
     //------------------------------------------------------------------------------------------------------------------
 
     void
-    Library_IO_Meshgen::create_standard_HMR_parameter_list( ModuleParameterList& aParameterList )
+    Library_IO_Meshgen::create_standard_HMR_parameter_list( Module_Parameter_Lists& aParameterList )
     {
         // resize and initialize with standard parameters
-        aParameterList.resize( 1 );
-        aParameterList( 0 ).resize( 1 );
-        aParameterList( 0 )( 0 ) = prm::create_hmr_parameter_list();
+        aParameterList( 0 ).add_parameter_list( prm::create_hmr_parameter_list() );
 
         // Lagrange mesh is always 0
         aParameterList( 0 )( 0 ).set( "lagrange_output_meshes", "0" );
@@ -1127,12 +1074,10 @@ namespace moris
     //------------------------------------------------------------------------------------------------------------------
 
     void
-    Library_IO_Meshgen::create_standard_GEN_parameter_list( ModuleParameterList& aParameterList )
+    Library_IO_Meshgen::create_standard_GEN_parameter_list( Module_Parameter_Lists& aParameterList )
     {
         // resize and initialize with standard parameters
-        aParameterList.resize( 3 );
-        aParameterList( 0 ).resize( 1 );
-        aParameterList( 0 )( 0 ) = prm::create_gen_parameter_list();
+        aParameterList( 0 ).add_parameter_list( prm::create_gen_parameter_list() );
     }
 
     //------------------------------------------------------------------------------------------------------------------

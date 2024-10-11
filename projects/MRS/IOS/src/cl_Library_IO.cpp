@@ -9,10 +9,19 @@
  */
 
 #include "cl_Library_IO.hpp"
+#include "cl_Library_Enums.hpp"
 #include "cl_XML_Parser.hpp"
+#include <cctype>
+#include <cstddef>
+#include <iterator>
 
 namespace moris
 {
+    //------------------------------------------------------------------------------------------------------------------
+
+    // Declare helper function for reading a module's parameter lists
+    Module_Parameter_Lists read_module( uint aRoot );
+
     //------------------------------------------------------------------------------------------------------------------
 
     Library_IO::Library_IO()
@@ -23,12 +32,13 @@ namespace moris
             , mXmlReader( std::make_unique< XML_Parser >() )
             , mXmlParserIsInitialized( false )
             , mLibraryIsFinalized( false )
-            , mLibraryType( Library_Type::UNDEFINED )                       // base class library-type is undefined
-            , mParameterLists( (uint)( Parameter_List_Type::END_ENUM ) )    // list of module parameter lists sized to the number of modules that exist
             , mXmlWriter( std::make_unique< XML_Parser >() )
             , mSupportedParamListTypes()
     {
-        // do nothing else
+        for ( uint iTypeIndex = 0; iTypeIndex < static_cast< uint >( Module_Type::END_ENUM ); iTypeIndex++ )
+        {
+            mParameterLists.push_back( Module_Parameter_Lists( static_cast< Module_Type >( iTypeIndex ) ) );
+        }
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -98,8 +108,8 @@ namespace moris
 
     void
     Library_IO::overwrite_and_add_parameters(
-            ModuleParameterList& aParamListToModify,
-            ModuleParameterList& aParamListToAdd )
+            Module_Parameter_Lists& aParamListToModify,
+            Module_Parameter_Lists& aParamListToAdd )
     {
         // get the sizes of the different parameter lists
         uint tOuterSizeToMod = aParamListToModify.size();
@@ -108,7 +118,9 @@ namespace moris
         // resize the outer cell, if the parameter list to add is longer
         if ( tOuterSizeToAdd > tOuterSizeToMod )
         {
-            aParamListToModify.resize( tOuterSizeToAdd );
+            // TODO if we want to handle this again, give to the module parameter list for copying
+            MORIS_ERROR( false, "Parameter lists are not the same size" );
+            //aParamListToModify.resize( tOuterSizeToAdd );
         }
 
         // resize the inner cells, if the parameter lists to add are longer than the original ones
@@ -117,35 +129,22 @@ namespace moris
             uint tInnerSizeToMod = aParamListToModify( iOuterCell ).size();
             uint tInnerSizeToAdd = aParamListToAdd( iOuterCell ).size();
 
-            if ( tInnerSizeToAdd > tInnerSizeToMod )
-            {
-                aParamListToModify( iOuterCell ).resize( tInnerSizeToAdd );
-            }
-        }
-
-        // go over the various pieces of the parameter list and add non-existing parameters,
-        // or overwrite them with the parameters provided
-        for ( uint iOuterCell = 0; iOuterCell < tOuterSizeToAdd; iOuterCell++ )
-        {
-            uint tInnerSizeToAdd = aParamListToAdd( iOuterCell ).size();
-
-            for ( uint iInnerCell = 0; iInnerCell < tInnerSizeToAdd; iInnerCell++ )
+            // Modify existing parameters
+            for ( uint iInnerCell = 0; iInnerCell < tInnerSizeToMod; iInnerCell++ )
             {
                 // get access to the current parameter lists
                 Parameter_List& tParamsToMod = aParamListToModify( iOuterCell )( iInnerCell );
                 Parameter_List& tParamsToAdd = aParamListToAdd( iOuterCell )( iInnerCell );
 
-                // if the existing parameter list is empty, just replace it with whatever is in the one to add
-                if ( tParamsToMod.is_empty() )    // FIXME, potentially
-                {
-                    tParamsToMod = tParamsToAdd;
-                }
-                else    // otherwise compare and add/overwrite values
-                {
-                    tParamsToMod.copy_parameters( tParamsToAdd );
-                }
-            }    // end for: inner cells
-        }    // end for: outer cells
+                tParamsToMod.copy_parameters( tParamsToAdd );
+            }
+
+            // Add parameters that don't exist yet
+            for ( uint iInnerIndex = tInnerSizeToMod; iInnerIndex < tInnerSizeToAdd; iInnerIndex++ )
+            {
+                aParamListToModify( iOuterCell ).add_parameter_list( aParamListToAdd( iOuterCell )( iInnerIndex ) );
+            }
+        }
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -254,6 +253,40 @@ namespace moris
 
     //------------------------------------------------------------------------------------------------------------------
 
+    void Library_IO::finalize( const std::string& aFilePath )
+    {
+        // check that an .xml input file has been specified
+        MORIS_ERROR( mSoLibIsInitialized || mXmlParserIsInitialized,
+                "Library_IO_Standard::finalize() - Neither an .xml nor a .so input file has been specified. "
+                "At least one input file is required." );
+
+        // load the standard parameters into the member variables
+        this->load_all_standard_parameters();
+
+        // if an .so file has been parsed, first use its parameters (if any were defined in it) to overwrite or add to the standard parameters
+        if ( mSoLibIsInitialized )
+        {
+            this->load_parameters_from_shared_object_library();
+        }
+
+        // load parameters from xml, overwrites parameters specified in either the standard parameters or an .so file if parsed
+        if ( mXmlParserIsInitialized )
+        {
+            this->load_parameters_from_xml();
+        }
+
+        // check the parameters for validity
+        this->check_parameters();
+
+        // mark this library as finalized and lock it from modification
+        mLibraryIsFinalized = true;
+
+        // print receipt of the finalized library
+        this->print_parameter_receipt( aFilePath );
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
     void
     Library_IO::load_parameters_from_shared_object_library()
     {
@@ -261,17 +294,17 @@ namespace moris
         MORIS_ERROR( mSoLibIsInitialized, "Library_IO::load_parameters_from_shared_object_library() - No .so file has been loaded." );
 
         // go through the various parameter list names and see if they exist in the provided .so file
-        for ( uint iParamListType = 0; iParamListType < (uint)( Parameter_List_Type::END_ENUM ); iParamListType++ )
+        for ( uint iParamListType = 0; iParamListType < (uint)( Module_Type::END_ENUM ); iParamListType++ )
         {
             // get the current enum
-            Parameter_List_Type tParamListType = (Parameter_List_Type)( iParamListType );
+            Module_Type tParamListType = (Module_Type)( iParamListType );
 
             // get the name of the parameter list function
             std::string tParamListFuncName = get_name_for_parameter_list_type( tParamListType );
 
             // see if a function for this parameter list function exists in the provide input file
-            Parameter_Function tUserDefinedParmListFunc = reinterpret_cast< Parameter_Function >( dlsym( mLibraryHandle, tParamListFuncName.c_str() ) );
-            bool               tParamListFuncExists     = ( tUserDefinedParmListFunc != nullptr );
+            Parameter_Function tUserDefinedParamListFunc = reinterpret_cast< Parameter_Function >( dlsym( mLibraryHandle, tParamListFuncName.c_str() ) );
+            bool               tParamListFuncExists     = ( tUserDefinedParamListFunc != nullptr );
 
             // if the parameter list function exists, use it to overwrite and add to the standard parameters
             if ( tParamListFuncExists )
@@ -286,18 +319,13 @@ namespace moris
                 }
                 else    // otherwise, if parameter list is supported, overwrite and add parameters to standard parameters
                 {
-                    // create a copy of the parameter list the .so file provided
-                    ModuleParameterList tUserDefinedParamList;
-                    tUserDefinedParmListFunc( tUserDefinedParamList );
-
-                    // get the parameter list to the currently
-                    ModuleParameterList& tCurrentModuleStandardParamList = mParameterLists( iParamListType );
-
-                    // supersede standard parameters with user-defined parameters
-                    this->overwrite_and_add_parameters( tCurrentModuleStandardParamList, tUserDefinedParamList );
+                    tUserDefinedParamListFunc( mParameterLists( iParamListType ) );
                 }
             }
-
+            else
+            {
+                mParameterLists( iParamListType ).clear();
+            }
         }    // end for: parameter list types that could be specified
     }
 
@@ -306,78 +334,146 @@ namespace moris
     void
     Library_IO::load_parameters_from_xml()
     {
-        // TODO ...
-        //         // check that an XML file has been initialized
-        //         MORIS_ERROR( mXmlParserIsInitialized, "Library_IO::load_parameters_from_xml() - No XML file has been loaded." );
-        //
-        //         // go through the various parameter list names and see if they exist in the provided xml file
-        //         for( uint iParamListType = 0; iParamListType < (uint)( Parameter_List_Type::UNDEFINED ); iParamListType++ )
-        //         {
-        //             // get the current enum
-        //             Parameter_List_Type tParamListType = (Parameter_List_Type)( iParamListType );
-        //
-        //             // get the name of the module, e.g. "HMR"
-        //             std::string tModuleName = convert_parameter_list_enum_to_string( tParamListType );
-        //
-        //             // find this module name in the XML-tree
-        //             size_t tCount = mXmlReader->count_keys_in_subtree( XML_PARAMETER_FILE_ROOT, tModuleName );
-        //
-        //             // Make sure that a module is not listed twice
-        //             MORIS_ERROR( tCount < 2, "Library_IO::load_parameters_from_xml() - "
-        //                     "Module '%s' has been specified %i times in XML input file. Only one definition allowed.",
-        //                     tModuleName,
-        //                     tCount );
-        //
-        //             // check if an entry for this Module exists in the XML file, if not, skip to next module
-        //             if( tCount == 0 )
-        //             {
-        //                 continue;
-        //             }
-        //
-        //             // get the number of sub-parameter lists that could be specified
-        //             uint tMaxNumSubParamLists = get_number_of_sub_parameter_lists_in_module( tParamListType );
-        //
-        //             // get the root of the current Module parameter list
-        //             std::string tModuleRoot = XML_PARAMETER_FILE_ROOT + "." + tModuleName;
-        //
-        //             // go over each of the sub-parameter lists
-        //             for( uint iSubParamList = 0; iSubParamList < tMaxNumSubParamLists; iSubParamList++ )
-        //             {
-        //                 // get the name for this sub-parameter list
-        //                 std::string tOuterSubParamListName = get_outer_sub_parameter_list_name( tParamListType, iSubParamList );
-        //
-        //                 // check if the sub-parameter list is found
-        //                 size_t tSubParamListCount = mXmlReader->count_keys_in_subtree( tModuleRoot, tOuterSubParamListName );
-        //                 MORIS_ERROR( tSubParamListCount < 2, "Library_IO::load_parameters_from_xml() - "
-        //                         "Sub-parameter list '%s' in module '%s' has been specified %i times in XML input file. Only one definition allowed.",
-        //                         tOuterSubParamListName,
-        //                         tModuleName,
-        //                         tSubParamListCount );
-        //
-        //                 // if the sub-parameter list is missing skip everything here after
-        //                 if ( tSubParamListCount == 0 )
-        //                 {
-        //                     continue;
-        //                 }
-        //
-        //                 // get the names of the inner parameter lists for this sub-parameter list
-        //                 std::string tInnerSubParamListName = get_inner_sub_parameter_list_name( tParamListType, iSubParamList );
-        //
-        //                 // if there is no name for the inner parameter list, this is just a general parameter list without inner children
-        //
-        //                 std::string tInnerSubParamListRoot = tModuleRoot + "." + tOuterSubParamListName;
-        //                 if( tInnerSubParamListName != "" )
-        //                 {
-        //                     tInnerSubParamListRoot = tInnerSubParamListRoot + "." + tInnerSubParamListName;
-        //                 }
-        //
-        //                 // get the name of the
-        //
-        //                 // count the inner sub-parameter lists if there are any
-        //
-        //             }
-        //
-        //         }
+        // check that an XML file has been initialized
+        MORIS_ERROR( mXmlParserIsInitialized, "Library_IO::load_parameters_from_xml() - No XML file has been loaded." );
+
+        // go through the various parameter list names and see if they exist in the provided xml file
+        for ( uint iParamListType = 0; iParamListType < (uint)( Module_Type::END_ENUM ); iParamListType++ )
+        {
+            // get the current enum
+            Module_Type tParamListType = (Module_Type)( iParamListType );
+
+            // get the name of the module, e.g. "HMR"
+            std::string tModuleName = convert_parameter_list_enum_to_string( tParamListType );
+
+            // find this module name in the XML-tree
+            size_t tCount = mXmlReader->count_keys_in_subtree( XML_PARAMETER_FILE_ROOT, tModuleName );
+
+            // Make sure that a module is not listed twice
+            // COMPILATION ERROR HERE (CHECK WITH ADAM)
+            // MORIS_ERROR( tCount < 2,
+            //         "Library_IO::load_parameters_from_xml() - "
+            //         "Module '%s' has been specified %i times in XML input file. Only one definition allowed.",
+            //         tModuleName,
+            //         tCount );
+
+            // check if an entry for this Module exists in the XML file, if not, skip to next module
+
+
+            // get the number of sub-parameter lists that could be specified
+            uint tMaxNumSubParamLists = get_number_of_sub_parameter_lists_in_module( tParamListType );
+
+            // temporary storage for the parameter lists, later addded to mParamterLists
+            Module_Parameter_Lists tParameterList( tParamListType );
+
+            // If there are no modules of this type, create a default parameter list
+            if ( tCount == 0 )
+            {
+                // Loop over all the sub-modules in this module and create the respective parameter lists with the defaults
+                for ( uint iSubModule = 0; iSubModule < tMaxNumSubParamLists; iSubModule++ )
+                {
+                    tParameterList( iSubModule ).add_parameter_list( create_parameter_list( tParamListType, iSubModule, 0 ) );
+                }
+                mParameterLists( iParamListType ) = tParameterList;
+                continue;
+            }
+
+            // get the root of the current Module parameter list
+            std::string tModuleRoot = XML_PARAMETER_FILE_ROOT + "." + tModuleName;
+
+            // get all submodule names
+            Vector< std::string > tSubmoduleNames = get_submodule_names( tParamListType );
+
+            // go over each of the sub-parameter lists
+            for ( uint iSubParamList = 0; iSubParamList < tMaxNumSubParamLists; iSubParamList++ )
+            {
+                // get the name for this sub-parameter list
+                std::string tOuterSubParamListName = tSubmoduleNames( iSubParamList );
+
+                // check if the sub-parameter list is found
+                size_t tSubParamListCount = mXmlReader->count_keys_in_subtree( tModuleRoot, tOuterSubParamListName );
+
+                // COMPILATION ERROR HERE (CHECK WITH ADAM)
+                // MORIS_ERROR( tSubParamListCount < 2,
+                //         "Library_IO::load_parameters_from_xml() - "
+                //         "Sub-parameter list '%s' in module '%s' has been specified %i times in XML input file. Only one definition allowed.",
+                //         tOuterSubParamListName,
+                //         tModuleName,
+                //         tSubParamListCount );
+
+                // if the sub-parameter list is missing skip everything here after
+                if ( tSubParamListCount == 0 )
+                {
+                    if ( tOuterSubParamListName != "Geometries" && tOuterSubParamListName != "Algorithms" && tOuterSubParamListName != "Linear_Algorithm" )
+                    {
+                        tParameterList( iSubParamList ).add_parameter_list( create_parameter_list( tParamListType, iSubParamList, 0 ) );
+                    }
+                    continue;
+                }
+
+                // get the names of the inner parameter lists for this sub-parameter list
+                std::string tInnerSubParamListName = get_inner_sub_parameter_list_name( tParamListType, iSubParamList );
+
+                // if there is no name for the inner parameter list, this is just a general parameter list without inner children
+
+                std::string           tInnerSubParamListRoot = tModuleRoot + "." + tOuterSubParamListName;
+                Vector< std::string > tKeys;
+                Vector< std::string > tValues;
+                if ( tInnerSubParamListName != "" )
+                {
+                    size_t tInnerSubParamListCount = mXmlReader->count_keys_in_subtree( tInnerSubParamListRoot, tInnerSubParamListName );
+                    // tInnerSubParamListRoot         = tInnerSubParamListRoot + "." + tInnerSubParamListName;
+
+                    if ( tInnerSubParamListCount == 1 )
+                    {
+                        // tKeys and tValues are filled with the keys and values of the inner sub-parameter list
+                        mXmlReader->get_keys_from_subtree( tInnerSubParamListRoot, tInnerSubParamListName, 0, tKeys, tValues );
+
+                        // getting the index of the inner sub-module type by reading from the XML file parameter list (used for special forms like "GEN/Geometry", "OPT/Algorithm" and "SOL/Linear_Algorithm")
+                        uint tIndex = get_subchild_index_from_xml_list( tInnerSubParamListName, tKeys, tValues );
+                        // Adding the parameter list with set values from the XML file to tParameterList (that is added to mParameterLists)
+                        tParameterList( iSubParamList ).add_parameter_list( create_and_set_parameter_list( tParamListType, iSubParamList, tIndex, tKeys, tValues ) );
+                    }
+                    else
+                    {
+                        for ( uint iInnerSubParamList = 0; iInnerSubParamList < tInnerSubParamListCount; iInnerSubParamList++ )
+                        {
+                            tKeys.clear();
+                            tValues.clear();
+                            // tKeys and tValues are filled with the keys and values of the inner sub-parameter list
+                            mXmlReader->get_keys_from_subtree( tInnerSubParamListRoot, tInnerSubParamListName, iInnerSubParamList, tKeys, tValues );
+
+                            // getting the index of the inner sub-module type by reading from the XML file parameter list (used for special forms like "GEN/Geometry", "OPT/Algorithm" and "SOL/Linear_Algorithm")
+                            uint tIndex = get_subchild_index_from_xml_list( tInnerSubParamListName, tKeys, tValues );
+
+                            // Adding the parameter list with set values from the XML file to tParameterList (that is added to mParameterLists)
+                            tParameterList( iSubParamList ).add_parameter_list( create_and_set_parameter_list( tParamListType, iSubParamList, tIndex, tKeys, tValues ) );
+                        }
+                    }
+                }
+                else
+                {
+                    // If there is no inner sub-parameter list, just adding the set parameter list from the xml file to the Module_Parameter_Lists
+                    // mXmlReader->get_keys_from_subtree( tInnerSubParamListRoot, tInnerSubParamListName, 0, tKeys, tValues );
+                    mXmlReader->get_keys_from_subtree( tModuleRoot, tOuterSubParamListName, 0, tKeys, tValues );
+
+                    tParameterList( iSubParamList ).add_parameter_list( create_and_set_parameter_list( tParamListType, iSubParamList, 0, tKeys, tValues ) );
+                }
+            }
+            // adding the Module_Parameter_Lists to the mParameterLists (which is a vector of Module_Parameter_Listss)
+            mParameterLists( iParamListType ) = tParameterList;
+        }
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    void
+    Library_IO::create_new_module_parameterlist() {
+        Vector< Module_Parameter_Lists > tParameterList;
+        for ( uint iParamListType = 0; iParamListType < (uint)( Module_Type::END_ENUM ); iParamListType++ )
+        {
+            mParameterLists( iParamListType ) = read_module( iParamListType );
+        }
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -385,36 +481,39 @@ namespace moris
     void
     Library_IO::print_parameter_receipt( const std::string& aOutputFileName )
     {
-        // initialize the xml writer by defining the root
-        mXmlWriter->initialize_write( aOutputFileName );
-
-        // write root of the tree
-        // mXmlWriter->flush_buffer_to_tree( XML_PARAMETER_FILE_ROOT );
-
-        // go through the modules and print their parameters to file
-        for ( uint iModule = 0; iModule < (uint)( Parameter_List_Type::END_ENUM ); iModule++ )
+        if ( not aOutputFileName.empty() )
         {
-            // get the enum and name of the current module
-            Parameter_List_Type tModule = (Parameter_List_Type)( iModule );
+            // initialize the xml writer by defining the root
+            mXmlWriter->initialize_write( aOutputFileName );
 
-            // write this module to the xml tree
-            this->write_module_parameter_list_to_xml_tree( tModule );
+            // write root of the tree
+            // mXmlWriter->flush_buffer_to_tree( XML_PARAMETER_FILE_ROOT );
+
+            // go through the modules and print their parameters to file
+            for ( uint iModule = 0; iModule < (uint)( Module_Type::END_ENUM ); iModule++ )
+            {
+                // get the enum and name of the current module
+                Module_Type tModule = (Module_Type)( iModule );
+
+                // write this module to the xml tree
+                this->write_module_parameter_list_to_xml_tree( tModule );
+            }
+
+            // write the xml file
+            mXmlWriter->save();
         }
-
-        // write the xml file
-        mXmlWriter->save();
     }
 
     //------------------------------------------------------------------------------------------------------------------
 
     void
-    Library_IO::write_module_parameter_list_to_xml_tree( const Parameter_List_Type aModule )
+    Library_IO::write_module_parameter_list_to_xml_tree( const Module_Type aModule )
     {
         // get the location of the current
         uint tModuleIndex = (uint)( aModule );
 
         // get this module's parameter list
-        ModuleParameterList& tModuleParamList    = mParameterLists( tModuleIndex );
+        Module_Parameter_Lists& tModuleParamList    = mParameterLists( tModuleIndex );
         uint                 tOuterParamListSize = tModuleParamList.size();
 
         // go through the individual sub-parameter lists and write them to the file
@@ -449,11 +548,10 @@ namespace moris
     Library_IO::write_parameter_list_to_xml_buffer( Parameter_List& aParameterList )
     {
         // go over the entries of the parameter list ...
-        // for ( auto iParamToAdd : aParameterList )
-        for ( auto iParamToAdd = aParameterList.begin(); iParamToAdd != aParameterList.end(); ++iParamToAdd )
+        for ( const auto& iParamToAdd : aParameterList )
         {
             // ... and add or modify them
-            mXmlWriter->set_in_buffer( iParamToAdd->first, iParamToAdd->second.get_string() );
+            mXmlWriter->set_in_buffer( iParamToAdd.get_name(), iParamToAdd.get_parameter().get_string() );
         }
     }
 
@@ -461,7 +559,7 @@ namespace moris
 
     std::string
     Library_IO::get_sub_parameter_list_location_in_xml_tree(
-            const Parameter_List_Type aModule,
+            const Module_Type aModule,
             const uint                aSubParamListIndex,
             const bool                aIsInnerParamList )
     {
@@ -476,7 +574,7 @@ namespace moris
         if ( aSubParamListIndex < MORIS_UINT_MAX )
         {
             // get the name of the sub-parameter list
-            std::string tSubParamListName = get_outer_sub_parameter_list_name( aModule, aSubParamListIndex );
+            std::string tSubParamListName = get_submodule_names( aModule )( aSubParamListIndex );
 
             // add it to the location if not empty, otherwise don't add anything
             if ( tSubParamListName != "" )
@@ -503,8 +601,8 @@ namespace moris
 
     //------------------------------------------------------------------------------------------------------------------
 
-    ModuleParameterList
-    Library_IO::get_parameters_for_module( Parameter_List_Type aParamListType ) const
+    Module_Parameter_Lists
+    Library_IO::get_parameters_for_module( Module_Type aParamListType ) const
     {
         // check that the parameter lists are complete
         MORIS_ERROR( mLibraryIsFinalized,
@@ -533,129 +631,133 @@ namespace moris
                     const Parameter_List& tParameterList = mParameterLists( iModuleIndex )( iOuterIndex )( iInnerIndex );
 
                     // Loop over mapped parameters
-                    for ( const auto& iParameterPair : tParameterList )
+                    for ( auto iParameterPair : tParameterList )
                     {
                         // Get external validator
-                        const External_Validator& tExternalValidator = iParameterPair.second.get_external_validator();
+                        const External_Validator& tExternalValidator = iParameterPair.get_parameter().get_external_validator();
 
-                        // Go through validation cases
-                        switch ( tExternalValidator.mValidationType )
+                        // Check if parameter needs linking (has not been cross-validated yet)
+                        if ( iParameterPair.get_parameter().needs_linking() )
                         {
-                            case Validation_Type::NONE:
+                            // Go through entry types
+                            switch ( iParameterPair.get_parameter().get_entry_type() )
                             {
-                                // Do nothing
-                                break;
-                            }
-                            case Validation_Type::SELECTION:
-                            {
-                                // Build internal variants that need to be checked
-                                Vector< Variant > iInternalVariants = split_variant( iParameterPair.second.get_value() );
-
-                                // Get valid external variants
-                                Vector< Variant > tExternalVariants = this->get_external_variants( tExternalValidator, tParameterList );
-
-                                // Loop over all internal variants
-                                bool        tAllMatchesFound = true;
-                                std::string tInternalVariantNotFound;
-                                for ( const Variant& iInternalOption : iInternalVariants )
+                                case Entry_Type::FREE:
                                 {
-                                    // Check options for a match
-                                    bool tMatchFound = false;
-                                    for ( const Variant& iExternalOption : tExternalVariants )
+                                    // Do nothing
+                                    break;
+                                }
+                                case Entry_Type::SELECTION:
+                                {
+                                    // Build internal variants that need to be checked
+                                    Vector< Variant > iInternalVariants = split_variant( iParameterPair.get_parameter().get_value() );
+
+                                    // Get valid external variants
+                                    Vector< Variant > tExternalVariants = this->get_external_variants( tExternalValidator, tParameterList );
+
+                                    // Loop over all internal variants
+                                    bool        tAllMatchesFound = true;
+                                    std::string tInternalVariantNotFound;
+                                    for ( const Variant& iInternalOption : iInternalVariants )
                                     {
-                                        if ( iInternalOption == iExternalOption )
+                                        // Check options for a match
+                                        bool tMatchFound = false;
+                                        for ( const Variant& iExternalOption : tExternalVariants )
                                         {
-                                            tMatchFound = true;
+                                            if ( iInternalOption == iExternalOption )
+                                            {
+                                                tMatchFound = true;
+                                                break;
+                                            }
+                                        }
+
+                                        // If match not found, exit
+                                        if ( not tMatchFound )
+                                        {
+                                            tInternalVariantNotFound = convert_variant_to_string( iInternalOption );
+                                            tAllMatchesFound         = false;
                                             break;
                                         }
                                     }
 
-                                    // If match not found, exit
-                                    if ( not tMatchFound )
+                                    // Error if no match was found
+                                    if ( not tAllMatchesFound )
                                     {
-                                        tInternalVariantNotFound = convert_variant_to_string( iInternalOption );
-                                        tAllMatchesFound         = false;
-                                        break;
-                                    }
-                                }
+                                        // Comma-separated list of options
+                                        std::string tExternalOptionList;
+                                        std::string tDelimiter;
+                                        for ( const Variant& iExternalOption : tExternalVariants )
+                                        {
+                                            tExternalOptionList += tDelimiter + convert_variant_to_string( iExternalOption );
+                                            tDelimiter = ", ";
+                                        }
 
-                                // Error if no match was found
-                                if ( not tAllMatchesFound )
+                                        // Additional info about where the checked options came from
+                                        std::string tExternalValidatorString =
+                                                "These selections are taken from parameter " + tExternalValidator.mParameterName + ", located in the ";
+                                        if ( tExternalValidator.mParameterListType == Module_Type::END_ENUM )
+                                        {
+                                            tExternalValidatorString +=
+                                                    convert_parameter_list_enum_to_string( (Module_Type)iModuleIndex )
+                                                    + " parameters with outer vector index " + std::to_string( iOuterIndex ) + " and inner vector index " + std::to_string( iInnerIndex );
+                                        }
+                                        else
+                                        {
+                                            tExternalValidatorString +=
+                                                    convert_parameter_list_enum_to_string( tExternalValidator.mParameterListType )
+                                                    + " parameters with outer vector index " + std::to_string( tExternalValidator.mParameterListIndex );
+                                        }
+
+                                        // Execute error
+                                        MORIS_ERROR( tAllMatchesFound,
+                                                "Parameter %s was set with an invalid value, %s. It requires one of the following selections:\n\t%s\n(%s)",
+                                                iParameterPair.get_name().c_str(),
+                                                tInternalVariantNotFound.c_str(),
+                                                tExternalOptionList.c_str(),
+                                                tExternalValidatorString.c_str() );
+                                    }
+                                    break;
+                                }
+                                case Entry_Type::LINKED_SIZE_VECTOR:
                                 {
-                                    // Comma-separated list of options
-                                    std::string tExternalOptionList;
-                                    std::string tDelimiter;
-                                    for ( const Variant& iExternalOption : tExternalVariants )
-                                    {
-                                        tExternalOptionList += tDelimiter + convert_variant_to_string( iExternalOption );
-                                        tDelimiter = ", ";
-                                    }
+                                    // Get valid external variants
+                                    Vector< Variant > tExternalVariants = this->get_external_variants( tExternalValidator, tParameterList );
 
-                                    // Additional info about where the checked options came from
-                                    std::string tExternalValidatorString =
-                                            "These selections are taken from parameter " + tExternalValidator.mParameterName + ", located in the ";
-                                    if ( tExternalValidator.mParameterListType == Parameter_List_Type::END_ENUM )
-                                    {
-                                        tExternalValidatorString +=
-                                                convert_parameter_list_enum_to_string( (Parameter_List_Type)iModuleIndex )
-                                                + " parameters with outer vector index " + std::to_string( iOuterIndex ) + " and inner vector index " + std::to_string( iInnerIndex );
-                                    }
-                                    else
-                                    {
-                                        tExternalValidatorString +=
-                                                convert_parameter_list_enum_to_string( tExternalValidator.mParameterListType )
-                                                + " parameters with outer vector index " + std::to_string( tExternalValidator.mParameterListIndex );
-                                    }
+                                    // Check that we have single external variant (for now, this can be changed in the future)
+                                    MORIS_ERROR( tExternalVariants.size() == 1,
+                                            "%lu variants were found for the external size validation of parameter %s.",
+                                            tExternalVariants.size(),
+                                            iParameterPair.get_name().c_str() );
 
-                                    // Execute error
-                                    MORIS_ERROR( tAllMatchesFound,
-                                            "Parameter %s was set with an invalid value, %s. It requires one of the following selections:\n\t%s\n(%s)",
-                                            iParameterPair.first.c_str(),
-                                            tInternalVariantNotFound.c_str(),
-                                            tExternalOptionList.c_str(),
-                                            tExternalValidatorString.c_str() );
+                                    bool tSizeMatch = get_size( iParameterPair.get_parameter().get_value() ) == get_size( tExternalVariants( 0 ) );
+                                    if ( not tSizeMatch )
+                                    {
+                                        // Additional info about where the checked options came from
+                                        std::string tExternalValidatorString =
+                                                "This size is based on parameter " + tExternalValidator.mParameterName + ", located in the ";
+                                        if ( tExternalValidator.mParameterListType == Module_Type::END_ENUM )
+                                        {
+                                            tExternalValidatorString +=
+                                                    convert_parameter_list_enum_to_string( (Module_Type)iModuleIndex )
+                                                    + " parameters with outer vector index " + std::to_string( iOuterIndex ) + " and inner vector index " + std::to_string( iInnerIndex );
+                                        }
+                                        else
+                                        {
+                                            tExternalValidatorString +=
+                                                    convert_parameter_list_enum_to_string( tExternalValidator.mParameterListType )
+                                                    + " parameters with outer vector index " + std::to_string( tExternalValidator.mParameterListIndex );
+                                        }
+
+                                        // Execute error
+                                        MORIS_ERROR( tSizeMatch,
+                                                "Parameter %s was set with an invalid value, %s. It requires a size of %u.\n(%s)",
+                                                iParameterPair.get_name().c_str(),
+                                                iParameterPair.get_parameter().get_string().c_str(),
+                                                get_size( tExternalVariants( 0 ) ),
+                                                tExternalValidatorString.c_str() );
+                                    }
+                                    break;
                                 }
-                                break;
-                            }
-                            case Validation_Type::SIZE:
-                            {
-                                // Get valid external variants
-                                Vector< Variant > tExternalVariants = this->get_external_variants( tExternalValidator, tParameterList );
-
-                                // Check that we have single external variant (for now, this can be changed in the future)
-                                MORIS_ERROR( tExternalVariants.size() == 1,
-                                        "%lu variants were found for the external size validation of parameter %s.",
-                                        tExternalVariants.size(),
-                                        iParameterPair.first.c_str() );
-
-                                bool tSizeMatch = get_size( iParameterPair.second.get_value() ) == get_size( tExternalVariants( 0 ) );
-                                if ( not tSizeMatch )
-                                {
-                                    // Additional info about where the checked options came from
-                                    std::string tExternalValidatorString =
-                                            "This size is based on parameter " + tExternalValidator.mParameterName + ", located in the ";
-                                    if ( tExternalValidator.mParameterListType == Parameter_List_Type::END_ENUM )
-                                    {
-                                        tExternalValidatorString +=
-                                                convert_parameter_list_enum_to_string( (Parameter_List_Type)iModuleIndex )
-                                                + " parameters with outer vector index " + std::to_string( iOuterIndex ) + " and inner vector index " + std::to_string( iInnerIndex );
-                                    }
-                                    else
-                                    {
-                                        tExternalValidatorString +=
-                                                convert_parameter_list_enum_to_string( tExternalValidator.mParameterListType )
-                                                + " parameters with outer vector index " + std::to_string( tExternalValidator.mParameterListIndex );
-                                    }
-
-                                    // Execute error
-                                    MORIS_ERROR( tSizeMatch,
-                                            "Parameter %s was set with an invalid value, %s. It requires a size of %u.\n(%s)",
-                                            iParameterPair.first.c_str(),
-                                            iParameterPair.second.get_string().c_str(),
-                                            get_size( tExternalVariants( 0 ) ),
-                                            tExternalValidatorString.c_str() );
-                                }
-                                break;
                             }
                         }
                     }
@@ -674,10 +776,10 @@ namespace moris
         Vector< Variant > tExternalOptions;
 
         // Check if external validation is required
-        if ( aExternalValidator.mParameterListType == Parameter_List_Type::END_ENUM )
+        if ( aExternalValidator.mParameterListType == Module_Type::END_ENUM )
         {
             // Return single parameter
-            tExternalOptions = { aContainingParameterList.get( aExternalValidator.mParameterName ) };
+            tExternalOptions = { aContainingParameterList.get_variant( aExternalValidator.mParameterName ) };
         }
         else
         {
@@ -690,7 +792,7 @@ namespace moris
                     // Check if external parameter exists here
                     if ( iExternalParameterList.exists( aExternalValidator.mParameterName ) )
                     {
-                        tExternalOptions.push_back( iExternalParameterList.get( aExternalValidator.mParameterName ) );
+                        tExternalOptions.push_back( iExternalParameterList.get_variant( aExternalValidator.mParameterName ) );
                     }
                 }
             }
@@ -701,5 +803,574 @@ namespace moris
     }
 
     //------------------------------------------------------------------------------------------------------------------
+
+    // FREE FUNCTIONS
+
+    /**
+     * @brief get_subchild_index_from_xml_list - Get the index of the sub-module type from the XML file
+     * @param tInnerSubParamListName - The name of the inner sub-parameter list
+     * @param tKeys - The keys of the XML file parameter list
+     * @param tValues - The values of the XML file parameter list
+     * @return uint - The index of the sub-module type for special forms like "GEN/Geometry", "OPT/Algorithm" and "SOL/Linear_Algorithm", if not these forms, returns 0
+     */
+    uint get_subchild_index_from_xml_list( std::string tInnerSubParamListName, Vector< std::string >& tKeys, Vector< std::string >& tValues )
+    {
+        uint tIndex = 0;
+        if ( tInnerSubParamListName == "Geometry" )
+        {
+            // Finding field_type in the keys of the XML file parameter list
+            auto it = std::find( tKeys.begin(), tKeys.end(), "field_type" );
+            if ( it != tKeys.end() )
+            {
+                // Index is the value of field_type
+                tIndex = (uint)std::stoi( tValues( std::distance( tKeys.begin(), it ) ) );
+            }
+
+            // tParameterList( iSubParamList ).push_back( create_and_set_parameter_list( tParamListType, iSubParamList, tFieldType, tKeys, tValues ) );
+        }
+        else if ( tInnerSubParamListName == "Algorithms" )
+        {
+            std::string tAlgorithm;
+
+            // Finding algorithm in the keys of the XML file parameter list
+            auto it = std::find( tKeys.begin(), tKeys.end(), "algorithm" );
+            if ( it != tKeys.end() )
+            {
+                tAlgorithm = tValues( std::distance( tKeys.begin(), it ) );
+                // Need to create cl_OPT_Enums and create the algorithms enum to check against that
+                // For now, just using the string with a else if statement
+                if ( tAlgorithm == "gcmma" )
+                {
+                    tIndex = 0;
+                }
+                else if ( tAlgorithm == "lbfgs" )
+                {
+                    tIndex = 1;
+                }
+                else if ( tAlgorithm == "sql" )
+                {
+                    tIndex = 2;
+                }
+                else
+                {
+                    tIndex = 3;
+                }
+            }
+        }
+        else if ( tInnerSubParamListName == "Linear_Algorithm" )
+        {
+            // Finding solver_type in the keys of the XML file parameter list
+            std::string tSolverType;
+            auto        it = std::find( tKeys.begin(), tKeys.end(), "solver_type" );
+            if ( it != tKeys.end() )
+            {
+                // Index is the value of solver_type
+
+                // solver_type returns a string name of the solver type
+                tSolverType = tValues( std::distance( tKeys.begin(), it ) );
+
+                // Transforming the string to uppercase
+                transform( tSolverType.begin(), tSolverType.end(), tSolverType.begin(), ::toupper );
+
+                // Finding the index of the solver type in SolverType ENUM
+                auto iFind = std::find( sol::SolverType_String::values.begin(), sol::SolverType_String::values.end(), tSolverType );
+                if ( iFind != sol::SolverType_String::values.end() )
+                {
+                    tIndex = std::distance( sol::SolverType_String::values.begin(), iFind );
+                }
+            }
+        }
+        else
+        {
+            tIndex = 0;
+        }
+
+        return tIndex;
+    }
+
+    /**
+     * @brief create_and_set_parameter_list - Calls the create_parameter_list function and sets the parameter list with the values from the XML file in the correct data type
+     * @param aModule - Module in Parameter_List_Type enum type
+     * @param aChild - The index of the sub-module
+     * @param aSubChild - The index of the sub-module type for special forms like "GEN/Geometry", "OPT/Algorithm" and "SOL/Linear_Algorithm", if not these forms, then 0
+     * @param tKeys - The keys of the XML file parameter list
+     * @param tValues - The values of the XML file parameter list
+     * @return Parameter_List - The parameter list with the set values from the XML file
+     */
+
+    Parameter_List create_and_set_parameter_list( Module_Type aModule,
+            uint                                                      aChild,
+            uint                                                      aSubChild,
+            const Vector< std::string >&                              aKeys,
+            const Vector< std::string >&                              aValues )
+    {
+        // Create the parameter list with default values
+        Parameter_List tParameterList = create_parameter_list( aModule, aChild, aSubChild );
+
+        // Loop through the default parameter list
+        for ( auto iElements : tParameterList )
+        {
+            //  Cannot set locked parameters
+            if ( iElements.get_parameter().is_locked() )
+            {
+                continue;
+            }
+
+            // Find the key in the XML file parameter list
+            auto tFind = std::find( aKeys.begin(), aKeys.end(), iElements.get_name() );
+
+            if ( tFind == aKeys.end() )
+            {
+                continue;
+            }
+
+            // Set the value of the parameter list with the value from the XML file by converting the string to the correct data type
+            // Calls the convert_parameter_from_string_to_type function for bool, uint, sint, real
+            // Calls the string_to_vector function for std::string, std::pair< std::string, std::string >, Vector< uint >, Vector< sint >, Vector< real >, Vector< std::string > and Design_Variable
+            if ( iElements.get_parameter().index() == variant_index< bool >() )
+            {
+                if ( tFind != aKeys.end() )
+                {
+                    bool tBool = convert_parameter_from_string_to_type< bool >( aValues( std::distance( aKeys.begin(), tFind ) ) );
+                    iElements.get_parameter().set_value( iElements.get_name(), tBool, false );
+                }
+            }
+            else if ( iElements.get_parameter().index() == variant_index< uint >() )
+            {
+                if ( tFind != aKeys.end() )
+                {
+                    if ( iElements.get_parameter().get_entry_type() == Entry_Type::SELECTION )
+                    {
+                        uint tUint = convert_parameter_from_string_to_type< uint >( aValues( std::distance( aKeys.begin(), tFind ) ) );
+                        iElements.get_parameter().set_value( iElements.get_name(), tUint, false );
+                    }
+                    else
+                    {
+                        uint tUint = convert_parameter_from_string_to_type< uint >( aValues( std::distance( aKeys.begin(), tFind ) ) );
+                        iElements.get_parameter().set_value( iElements.get_name(), tUint, false );
+                    }
+                    // uint tUint = convert_parameter_from_string_to_type< uint >( aValues( std::distance( aKeys.begin(), tFind ) ) );
+                    // iElements.get_parameter().set_value( iElements.get_name(), tUint, false );
+                }
+            }
+            else if ( iElements.get_parameter().index() == variant_index< sint >() )
+            {
+                if ( tFind != aKeys.end() )
+                {
+                    sint tSint = convert_parameter_from_string_to_type< sint >( aValues( std::distance( aKeys.begin(), tFind ) ) );
+
+                    iElements.get_parameter().set_value( iElements.get_name(), tSint, false );
+                }
+            }
+            else if ( iElements.get_parameter().index() == variant_index< real >() )
+            {
+                if ( tFind != aKeys.end() )
+                {
+                    real tReal = convert_parameter_from_string_to_type< real >( aValues( std::distance( aKeys.begin(), tFind ) ) );
+                    iElements.get_parameter().set_value( iElements.get_name(), tReal, false );
+                }
+            }
+            else if ( iElements.get_parameter().index() == variant_index< std::string >() )
+            {
+                if ( tFind != aKeys.end() )
+                {
+                    std::string tString = aValues( std::distance( aKeys.begin(), tFind ) );
+                    // Strip the string of leading and trailing quotation marks
+                    tString.erase( std::remove( tString.begin(), tString.end(), '\"' ), tString.end() );
+                    iElements.get_parameter().set_value( iElements.get_name(), tString, false );
+                }
+            }
+            else if ( iElements.get_parameter().index() == variant_index< std::pair< std::string, std::string > >() )
+            {
+                if ( tFind != aKeys.end() )
+                {
+                    Vector< std::string >          tVec = string_to_vector< std::string >( aValues( std::distance( aKeys.begin(), tFind ) ) );
+                    std::pair< std::string, std::string > tPair;
+                    if ( tVec.size() < 2 )
+                    {
+                        tPair = std::make_pair( "", "" );
+                    }
+                    else
+                    {
+                        tPair = std::make_pair( tVec( 0 ), tVec( 1 ) );
+                    }
+                    iElements.get_parameter().set_value( iElements.get_name(), tPair, false );
+                }
+            }
+            else if ( iElements.get_parameter().index() == variant_index< Vector< uint > >() )
+            {
+                if ( tFind != aKeys.end() )
+                {
+                    Vector< uint > tVec = string_to_vector< uint >( aValues( std::distance( aKeys.begin(), tFind ) ) );
+                    iElements.get_parameter().set_value( iElements.get_name(), tVec, false );
+                }
+            }
+            else if ( iElements.get_parameter().index() == variant_index< Vector< sint > >() )
+            {
+                if ( tFind != aKeys.end() )
+                {
+                    Vector< sint > tVec = string_to_vector< sint >( aValues( std::distance( aKeys.begin(), tFind ) ) );
+                    iElements.get_parameter().set_value( iElements.get_name(), tVec, false );
+                }
+            }
+            else if ( iElements.get_parameter().index() == variant_index< Vector< real > >() )
+            {
+                if ( tFind != aKeys.end() )
+                {
+                    Vector< real > tVec = string_to_vector< real >( aValues( std::distance( aKeys.begin(), tFind ) ) );
+                    iElements.get_parameter().set_value( iElements.get_name(), tVec, false );
+                }
+            }
+            else if ( iElements.get_parameter().index() == variant_index< Vector< std::string > >() )
+            {
+                if ( tFind != aKeys.end() )
+                {
+                    Vector< std::string > tVec = string_to_vector< std::string >( aValues( std::distance( aKeys.begin(), tFind ) ) );
+                    iElements.get_parameter().set_value( iElements.get_name(), tVec, false );
+                }
+            }
+            else
+            {
+                // Vector< real >  tVec            = string_to_vector< real >( aValues( std::distance( aKeys.begin(), tFind ) ) );
+                // Design_Variable tDesignVariable = Design_Variable( tVec( 0 ), tVec( 1 ), tVec( 2 ) );
+                Design_Variable tDesignVariable = convert_parameter_from_string_to_type< real >( aValues( std::distance( aKeys.begin(), tFind ) ) );
+                iElements.get_parameter().set_value( iElements.get_name(), tDesignVariable, false );
+            }
+        }
+
+        return tParameterList;
+    }
+
+    /**
+     * @brief convert_parameter_from_string_to_type - Converts the string value from the XML file to the correct data type
+     * @tparam T - The data type of the parameter
+     * @param aValue - The string value of the parameter from the XML file
+     * @return T - The value of the parameter in the correct data type
+     */
+
+    template< typename T >
+    T convert_parameter_from_string_to_type( const std::string& aValue )
+    {
+        return (T)std::stod( aValue );
+    }
+
+    // Specialization for bool
+    template<>
+    bool convert_parameter_from_string_to_type< bool >( const std::string& aValue )
+    {
+        if ( aValue == "0" || aValue == "false" || aValue == "False" || aValue == "FALSE" )
+        {
+            return false;
+        }
+        else if ( aValue == "1" || aValue == "true" || aValue == "True" || aValue == "TRUE" )
+        {
+            return true;
+        }
+        else
+        {
+            throw std::invalid_argument( "Invalid value for conversion to bool" );
+        }
+    }
+
+    /**
+     * @brief create_parameter_list - This function creates a parameter list for a given module, child, and sub-child
+     * @param aModule - The project index
+     * @param aChild - The sub-module index
+     * @param aSubChild - Should be 0 unless a sub-module has inner types (for instance GEN/Geometries, OPT/Algorithms and SOL/LinearAlgorithms)
+     * @return Parameter_List
+     */
+    Parameter_List create_parameter_list( Module_Type aModule, uint aChild, uint aSubChild )
+    {
+        /*
+        function name: create_parameter_list
+        parameters:
+          Parameter_List_Type aModule (ENUM) -> this gives the project name
+          uint aChild -> gives the child index
+          uint aSubChild -> gives the Sub-Child (inner sub-module) index
+        returns:
+            QList <QStringList>
+                the create_function returns a ParameterList object that is a type of map
+                The 0th index of the QList gives the "keys" of the map
+                The 1st index of the QList gives the default "values" of the map
+        */
+        switch ( aModule )
+        {
+            case Module_Type::OPT:
+                switch ( aChild )
+                {
+                    case 0:
+                        return prm::create_opt_problem_parameter_list();
+
+                    case 1:
+                        return prm::create_opt_interface_parameter_list();
+
+                        // Commented out the Interface manager for now
+
+                        // switch ( aSubChild )
+                        // {
+                        //     case 0:
+                        //         return prm::create_opt_interface_parameter_list();
+
+                        //         break;
+
+                        //     case 1:
+                        //         return prm::create_opt_interface_manager_parameter_list();
+
+                        //         break;
+
+                        //     default:
+                        //         break;
+                        // }
+
+                        break;
+
+                    case 2:
+                        switch ( aSubChild )
+                        {
+
+                            // Eventually create an enum to check this
+                            case 0:
+                                return prm::create_gcmma_parameter_list();
+
+                            case 1:
+                                return prm::create_lbfgs_parameter_list();
+
+                            case 2:
+                                return prm::create_sqp_parameter_list();
+
+                            case 3:
+                                return prm::create_sweep_parameter_list();
+                            default:
+                                break;
+                        }
+                        break;
+
+                    default:
+                        break;
+                }
+                // Free
+                break;
+
+            case Module_Type::HMR:
+                return prm::create_hmr_parameter_list();
+
+            case Module_Type::STK:
+                return prm::create_stk_parameter_list();
+
+            case Module_Type::XTK:
+                return prm::create_xtk_parameter_list();
+
+            case Module_Type::GEN:
+                switch ( aChild )
+                {
+                    case 0:
+                    {
+                        return prm::create_gen_parameter_list();
+                    }
+
+                    case 1:
+                    {
+                        if ( aSubChild <= (uint)gen::Field_Type::USER_DEFINED )
+                        {
+                            return prm::create_level_set_geometry_parameter_list( (gen::Field_Type)aSubChild );
+                        }
+                        else if ( aSubChild == (uint)gen::Field_Type::USER_DEFINED + 1 )
+                        {
+                            return prm::create_surface_mesh_geometry_parameter_list();
+                        }
+                        else
+                        {
+                            return prm::create_voxel_geometry_parameter_list();
+                        }
+                        break;
+                    }
+                    case 2:
+                    {
+                        return prm::create_gen_property_parameter_list( gen::Field_Type::CONSTANT );
+                    }
+                    default:
+                    {
+                        break;
+                    }
+                }
+                break;
+
+            case Module_Type::FEM:
+                /*
+                 * Set of Dropdowns for tParameterList[0] (property_name in FEM)
+                 * //Dropdown
+                 * PropDensity, PropYoungs, PropPoisson,
+                 * PropCTE, PropRefTemp, PropConductivity,
+                 * PropCapacity, PropDirichlet, PropSelectX,
+                 * PropSelectY, PropSelectZ, PropInnerPressureLoad,
+                 * Pro#include <QApplication>
+                 * pOuterPressureLoad, PropOuterTemperature
+                 */
+                switch ( aChild )
+                {
+                    case 0:
+                        return prm::create_property_parameter_list();
+
+                    case 1:
+                        return prm::create_constitutive_model_parameter_list();
+
+                    case 2:
+                        return prm::create_stabilization_parameter_parameter_list();
+
+                    case 3:
+                        return prm::create_IWG_parameter_list();
+
+                    case 4:
+                        return prm::create_IQI_parameter_list();
+
+                    case 5:
+                        return prm::create_computation_parameter_list();
+
+                    case 6:
+                        return prm::create_fem_field_parameter_list();
+
+                    case 7:
+                        return prm::create_phase_parameter_list();
+
+                    case 8:
+                        return prm::create_material_model_parameter_list();
+
+                    default:
+                        break;
+                }
+
+
+                break;
+
+            case Module_Type::SOL:
+                //
+                switch ( aChild )
+                {
+                    case 0:
+
+                        switch ( aSubChild )
+                        {
+                            case 0:
+                                return prm::create_linear_algorithm_parameter_list_aztec();
+
+                            case 1:
+                                return prm::create_linear_algorithm_parameter_list_amesos();
+
+                            case 2:
+                                return prm::create_linear_algorithm_parameter_list_belos();
+
+                            case 3:
+                                return prm::create_linear_algorithm_parameter_list_petsc();
+
+                            case 4:
+                                return prm::create_eigen_algorithm_parameter_list();
+
+                            case 5:
+                                // Need to add ML here
+                                return prm::create_linear_algorithm_parameter_list_belos();
+
+                            case 6:
+                                return prm::create_slepc_algorithm_parameter_list();
+
+                            default:
+                                break;
+                        }
+                        break;
+
+                    case 1:
+                        return prm::create_linear_solver_parameter_list();
+
+                    case 2:
+                        return prm::create_nonlinear_algorithm_parameter_list();
+
+                    case 3:
+                        return prm::create_nonlinear_solver_parameter_list();
+
+                    case 4:
+                        return prm::create_time_solver_algorithm_parameter_list();
+
+                    case 5:
+                        return prm::create_time_solver_parameter_list();
+
+                    case 6:
+                        return prm::create_solver_warehouse_parameterlist();
+
+                    case 7:
+                        // Need to add Preconditioners
+                        return prm::create_material_model_parameter_list();
+
+                    default:
+                        break;
+                }
+
+                break;
+
+            case Module_Type::MSI:
+                return prm::create_msi_parameter_list();
+
+            case Module_Type::VIS:
+                return prm::create_vis_parameter_list();    //
+
+            case Module_Type::MIG:
+                return prm::create_mig_parameter_list();
+
+            case Module_Type::WRK:
+                return prm::create_wrk_parameter_list();
+
+            case Module_Type::MORISGENERAL:
+                switch ( aChild )
+                {
+                    case 0:
+                    {
+                        return prm::create_moris_general_parameter_list();
+                    }
+                    break;
+
+                    case 1:
+                    {
+                        return prm::create_moris_general_parameter_list();
+                    }
+                    break;
+
+                    case 2:
+                    {
+                        return prm::create_moris_general_parameter_list();
+                    }
+                    break;
+
+                    default:
+                        break;
+                }
+                break;
+
+            default:
+                break;
+        }
+
+        MORIS_ERROR( false, "Library_Enums::get_number_of_sub_parameter_lists_in_module() - Parameter list type enum unknown." );
+        return Parameter_List( "" );
+    }
+
+    Module_Parameter_Lists read_module( uint aRoot )
+    {
+        // Create the 3d vector
+        Module_Parameter_Lists tParameterList( static_cast< Module_Type >( aRoot ) );
+        for ( uint iChild = 0; iChild < get_number_of_sub_parameter_lists_in_module( (Module_Type)aRoot ); iChild++ )
+        {
+            if ( ( aRoot == (uint)( Module_Type::OPT ) && iChild == (uint)( OPT_Submodule::ALGORITHMS ) )
+                    || ( aRoot == (uint)( Module_Type::GEN ) && iChild == (uint)( GEN_Submodule::GEOMETRIES ) )
+                    || ( aRoot == (uint)( Module_Type::SOL ) && iChild == (uint)( SOL_Submodule::LINEAR_ALGORITHMS ) ) )
+            {
+            }
+            else
+            {
+                tParameterList( iChild ).add_parameter_list( create_parameter_list( (Module_Type)aRoot, iChild, 0 ) );
+            }
+        }
+
+        // Resize based on the projects/sub-projects
+        // Populate based on the parameter_list
+        return tParameterList;
+    }
 
 }    // namespace moris

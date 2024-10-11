@@ -163,7 +163,7 @@ namespace moris::fem
     FEM_Model::FEM_Model(
             std::shared_ptr< mtk::Mesh_Manager >      aMeshManager,
             const moris_index                        &aMeshPairIndex,
-            const Vector< Vector< Parameter_List > > &aParameterList,
+            const Module_Parameter_Lists &aParameterList,
             const std::shared_ptr< Library_IO >      &aLibrary )
             : mMeshManager( std::move( aMeshManager ) )
             , mMeshPairIndex( aMeshPairIndex )
@@ -201,7 +201,7 @@ namespace moris::fem
     FEM_Model::FEM_Model(
             std::shared_ptr< mtk::Mesh_Manager >      aMeshManager,
             const moris_index                        &aMeshPairIndex,
-            const Vector< Vector< Parameter_List > > &aParameterList,
+            const Module_Parameter_Lists &aParameterList,
             MSI::Design_Variable_Interface           *aDesignVariableInterface )
             : mMeshManager( std::move( aMeshManager ) )
             , mMeshPairIndex( aMeshPairIndex )
@@ -840,7 +840,7 @@ namespace moris::fem
             }
             default:
             {
-                MORIS_ERROR( false, "FEM_Model::initialize - wrong size for parameter list: %zu", mParameterList.size() );
+                MORIS_ERROR( false, "FEM_Model::initialize - wrong size for parameter list: %u", mParameterList.size() );
             }
         }
 

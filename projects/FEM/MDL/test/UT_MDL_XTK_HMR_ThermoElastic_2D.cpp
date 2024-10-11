@@ -439,13 +439,9 @@ namespace moris
 
             sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
-            Vector< Vector< moris::Parameter_List > > tParameterlist( 8 );
-            for ( uint Ik = 0; Ik < 8; Ik++ )
-            {
-                tParameterlist( Ik ).resize( 1 );
-            }
+            Module_Parameter_Lists tParameterlist( Module_Type::SOL );
 
-            tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AZTEC_IMPL );
+            tParameterlist( 0 ).add_parameter_list( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AZTEC_IMPL ) );
             tParameterlist( 0 )( 0 ).set( "AZ_diagnostics", AZ_none );
             tParameterlist( 0 )( 0 ).set( "AZ_output", AZ_none );
             tParameterlist( 0 )( 0 ).set( "AZ_max_iter", 10000 );
@@ -454,18 +450,18 @@ namespace moris
             tParameterlist( 0 )( 0 ).set( "AZ_graph_fill", 10 );
             tParameterlist( 0 )( 0 ).set( "preconditioners", "0" );
 
-            tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
-            tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
-            tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
+            tParameterlist( 1 ).add_parameter_list( moris::prm::create_linear_solver_parameter_list() );
+            tParameterlist( 2 ).add_parameter_list( moris::prm::create_nonlinear_algorithm_parameter_list() );
+            tParameterlist( 3 ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );
             tParameterlist( 3 )( 0 ).set( "NLA_DofTypes", "UX,UY;TEMP" );
 
-            tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
-            tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
+            tParameterlist( 4 ).add_parameter_list( moris::prm::create_time_solver_algorithm_parameter_list() );
+            tParameterlist( 5 ).add_parameter_list( moris::prm::create_time_solver_parameter_list() );
             tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "UX,UY;TEMP" );
 
-            tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+            tParameterlist( 6 ).add_parameter_list( moris::prm::create_solver_warehouse_parameterlist() );
 
-            tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::ML );
+            tParameterlist( 7 ).add_parameter_list( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::ML ) );
             tParameterlist( 7 )( 0 ).set( "ml_prec_type", "SA" );
 
             tSolverWarehouse.set_parameterlist( tParameterlist );
@@ -916,10 +912,9 @@ namespace moris
 
             sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
-            Vector< Vector< moris::Parameter_List > > tParameterlist( 8 );
+            Module_Parameter_Lists tParameterlist( Module_Type::SOL );
 
-            tParameterlist( 0 ).resize( 3 );
-            tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AZTEC_IMPL );
+            tParameterlist( 0 ).add_parameter_list( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AZTEC_IMPL ) );
             tParameterlist( 0 )( 0 ).set( "AZ_diagnostics", AZ_none );
             tParameterlist( 0 )( 0 ).set( "AZ_output", AZ_none );
             tParameterlist( 0 )( 0 ).set( "AZ_max_iter", 10000 );
@@ -928,64 +923,57 @@ namespace moris
             tParameterlist( 0 )( 0 ).set( "AZ_graph_fill", 10 );
             tParameterlist( 0 )( 0 ).set( "preconditioners", "0" );
 
-            tParameterlist( 0 )( 1 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AZTEC_IMPL );
+            tParameterlist( 0 ).add_parameter_list( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AZTEC_IMPL ) );
             tParameterlist( 0 )( 1 ).set( "preconditioners", "1" );
 
-            tParameterlist( 0 )( 2 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
+            tParameterlist( 0 ).add_parameter_list( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
 
-            tParameterlist( 1 ).resize( 3 );
-            tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
+            tParameterlist( 1 ).add_parameter_list( moris::prm::create_linear_solver_parameter_list() );
             tParameterlist( 1 )( 0 ).set( "DLA_Linear_solver_algorithms", "0" );
-            tParameterlist( 1 )( 1 ) = moris::prm::create_linear_solver_parameter_list();
+            tParameterlist( 1 ).add_parameter_list( moris::prm::create_linear_solver_parameter_list() );
             tParameterlist( 1 )( 1 ).set( "DLA_Linear_solver_algorithms", "1" );
-            tParameterlist( 1 )( 2 ) = moris::prm::create_linear_solver_parameter_list();
+            tParameterlist( 1 ).add_parameter_list( moris::prm::create_linear_solver_parameter_list() );
             tParameterlist( 1 )( 2 ).set( "DLA_Linear_solver_algorithms", "2" );
 
-            tParameterlist( 2 ).resize( 3 );
-            tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+            tParameterlist( 2 ).add_parameter_list( moris::prm::create_nonlinear_algorithm_parameter_list() );
             tParameterlist( 2 )( 0 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) );
             tParameterlist( 2 )( 0 ).set( "NLA_combined_res_jac_assembly", false );
             tParameterlist( 2 )( 0 ).set( "NLA_Linear_solver", 0 );
-            tParameterlist( 2 )( 1 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+            tParameterlist( 2 ).add_parameter_list( moris::prm::create_nonlinear_algorithm_parameter_list() );
             tParameterlist( 2 )( 1 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) );
             tParameterlist( 2 )( 1 ).set( "NLA_combined_res_jac_assembly", false );
             tParameterlist( 2 )( 1 ).set( "NLA_Linear_solver", 1 );
-            tParameterlist( 2 )( 2 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+            tParameterlist( 2 ).add_parameter_list( moris::prm::create_nonlinear_algorithm_parameter_list() );
             tParameterlist( 2 )( 2 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER ) );
             tParameterlist( 2 )( 2 ).set( "NLA_combined_res_jac_assembly", false );
             tParameterlist( 2 )( 2 ).set( "NLA_Linear_solver", 2 );
 
-            tParameterlist( 3 ).resize( 3 );
-            tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
+            tParameterlist( 3 ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );
             tParameterlist( 3 )( 0 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) );
             tParameterlist( 3 )( 0 ).set( "NLA_DofTypes", "UX,UY" );
             tParameterlist( 3 )( 0 ).set( "NLA_Nonlinear_solver_algorithms", "0" );
-            tParameterlist( 3 )( 1 ) = moris::prm::create_nonlinear_solver_parameter_list();
+            tParameterlist( 3 ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );
             tParameterlist( 3 )( 1 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) );
             tParameterlist( 3 )( 1 ).set( "NLA_DofTypes", "TEMP" );
             tParameterlist( 3 )( 1 ).set( "NLA_Nonlinear_solver_algorithms", "1" );
-            tParameterlist( 3 )( 2 ) = moris::prm::create_nonlinear_solver_parameter_list();
+            tParameterlist( 3 ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );
             tParameterlist( 3 )( 2 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER ) );
             tParameterlist( 3 )( 2 ).set( "NLA_Sub_Nonlinear_Solver", "1,0" );
             tParameterlist( 3 )( 2 ).set( "NLA_DofTypes", "UX,UY;TEMP" );
             tParameterlist( 3 )( 2 ).set( "NLA_Nonlinear_solver_algorithms", "2" );
 
-            tParameterlist( 4 ).resize( 1 );
-            tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
+            tParameterlist( 4 ).add_parameter_list( moris::prm::create_time_solver_algorithm_parameter_list() );
             tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_Solver", 2 );
 
-            tParameterlist( 5 ).resize( 1 );
-            tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
+            tParameterlist( 5 ).add_parameter_list( moris::prm::create_time_solver_parameter_list() );
             tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "UX,UY;TEMP" );
 
-            tParameterlist( 6 ).resize( 1 );
-            tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+            tParameterlist( 6 ).add_parameter_list( moris::prm::create_solver_warehouse_parameterlist() );
 
-            tParameterlist( 7 ).resize( 2 );
-            tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::ML );
+            tParameterlist( 7 ).add_parameter_list( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::ML ) );
             tParameterlist( 7 )( 0 ).set( "ml_prec_type", "SA" );
 
-            tParameterlist( 7 )( 1 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::IFPACK );
+            tParameterlist( 7 ).add_parameter_list( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::IFPACK ) );
             tParameterlist( 7 )( 1 ).set( "ifpack_prec_type", "ILU" );
 
             tSolverWarehouse.set_parameterlist( tParameterlist );

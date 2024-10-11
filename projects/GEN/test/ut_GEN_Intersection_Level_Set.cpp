@@ -54,35 +54,32 @@ namespace moris::gen
             // Create mesh
             mtk::Interpolation_Mesh* tMesh = create_simple_mesh( 2, 2 );
 
-            // Set up geometry
-            Vector< real > tADVs = { 0.25, 0.0, 1.0, 0.0 };
-
             // Circle
-            Parameter_List tCircleParameterList = prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE );
-            tCircleParameterList.set( "center_x", -0.25 );
-            tCircleParameterList.set( "center_y", 0.0 );
-            tCircleParameterList.set( "radius", 0.7499999999 );
-            tCircleParameterList.set( "discretization_mesh_index", 0 );
+            Submodule_Parameter_Lists tFieldParameterLists( "FIELDS" );
+            tFieldParameterLists.add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE ) );
+            tFieldParameterLists.set( "center_x", -0.25 );
+            tFieldParameterLists.set( "center_y", 0.0 );
+            tFieldParameterLists.set( "radius", 0.7499999999 );
+            tFieldParameterLists.set( "discretization_mesh_index", 0 );
 
             // Plane 1
-            Parameter_List tPlane1ParameterList = prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE );
-            tPlane1ParameterList.set( "center_x", 0.25, 0.25, 0.25 );
-            tPlane1ParameterList.set( "center_y", 0.0, 0.0, 0.0 );
-            tPlane1ParameterList.set( "normal_x", 1.0, 1.0, 1.0 );
-            tPlane1ParameterList.set( "normal_y", 0.0, 0.0, 0.0 );
+            tFieldParameterLists.add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE ) );
+            tFieldParameterLists.set( "center_x", 0.25, 0.25, 0.25 );
+            tFieldParameterLists.set( "center_y", 0.0, 0.0, 0.0 );
+            tFieldParameterLists.set( "normal_x", 1.0, 1.0, 1.0 );
+            tFieldParameterLists.set( "normal_y", 0.0, 0.0, 0.0 );
 
             // Plane 2
-            Parameter_List tPlane2ParameterList = prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE );
-            tPlane2ParameterList.set( "center_x", 1.0 );
-            tPlane2ParameterList.set( "center_y", 0.0 );
-            tPlane2ParameterList.set( "normal_x", 1.0 );
-            tPlane2ParameterList.set( "normal_y", 0.0 );
+            tFieldParameterLists.add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE ) );
+            tFieldParameterLists.set( "center_x", 1.0 );
+            tFieldParameterLists.set( "center_y", 0.0 );
+            tFieldParameterLists.set( "normal_x", 1.0 );
+            tFieldParameterLists.set( "normal_y", 0.0 );
 
             // Create geometry engine
             Geometry_Engine_Parameters tGeometryEngineParameters;
             ADV_Manager tADVManager;
-            tADVManager.mADVs = tADVs;
-            Design_Factory tDesignFactory( { tCircleParameterList, tPlane1ParameterList, tPlane2ParameterList }, tADVManager );
+            Design_Factory tDesignFactory( tFieldParameterLists, tADVManager );
             tGeometryEngineParameters.mADVManager = tADVManager;
             tGeometryEngineParameters.mGeometries = tDesignFactory.get_geometries();
             Geometry_Engine_Test tGeometryEngine( tMesh, tGeometryEngineParameters );
@@ -402,7 +399,7 @@ namespace moris::gen
 
             // Set new ADVs, level set field now has no intersections
             mtk::Mesh_Pair tMeshPair( tMesh, create_integration_mesh_from_interpolation_mesh( mtk::MeshType::HMR, tMesh ) );
-            tADVs = { { 0.25, 0.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 } };
+            Vector< real > tADVs = { 0.25, 0.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
             tGeometryEngine.set_advs( tADVs );
             tGeometryEngine.reset_mesh_information( tMeshPair.get_interpolation_mesh() );
 
@@ -556,17 +553,18 @@ namespace moris::gen
             mtk::Interpolation_Mesh* tMesh = create_simple_mesh( 2, 2 );
 
             // Set up circle
-            Parameter_List tCircleParameterList = prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE );
-            tCircleParameterList.set( "center_x", -0.25 );
-            tCircleParameterList.set( "center_y", 0.0 );
-            tCircleParameterList.set( "radius", 0.7499999999 );
-            tCircleParameterList.set( "discretization_mesh_index", 0 );
-            tCircleParameterList.set( "use_multilinear_interpolation", true );
+            Submodule_Parameter_Lists tFieldParameterLists( "FIELDS" );
+        tFieldParameterLists.add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE ) );
+            tFieldParameterLists.set( "center_x", -0.25 );
+            tFieldParameterLists.set( "center_y", 0.0 );
+            tFieldParameterLists.set( "radius", 0.7499999999 );
+            tFieldParameterLists.set( "discretization_mesh_index", 0 );
+            tFieldParameterLists.set( "use_multilinear_interpolation", true );
 
             // Create geometry engine
             Geometry_Engine_Parameters tGeometryEngineParameters;
             ADV_Manager tADVManager;
-            Design_Factory tDesignFactory( { tCircleParameterList }, tADVManager );
+            Design_Factory tDesignFactory( tFieldParameterLists, tADVManager );
             tGeometryEngineParameters.mGeometries = tDesignFactory.get_geometries();
             Geometry_Engine_Test tGeometryEngine( tMesh, tGeometryEngineParameters );
 

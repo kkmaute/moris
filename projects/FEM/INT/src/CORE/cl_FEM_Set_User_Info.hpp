@@ -53,7 +53,7 @@ namespace moris::fem
         bool mIsAnalyticalSA = false;
 
         // enum for FD scheme used for FD SA
-        fem::FDScheme_Type mFDSchemeForSA = fem::FDScheme_Type::UNDEFINED;
+        fem::FDScheme_Type mFDSchemeForSA = fem::FDScheme_Type::END_FD_SCHEME;
 
         // real for finite difference perturbation size
         real mFDPerturbation;
@@ -62,7 +62,7 @@ namespace moris::fem
         bool mIsAnalyticalFA = true;
 
         // enum for FD scheme used for FD for forward analysis
-        fem::FDScheme_Type mFDSchemeForFA = fem::FDScheme_Type::UNDEFINED;
+        fem::FDScheme_Type mFDSchemeForFA = fem::FDScheme_Type::END_FD_SCHEME;
 
         // real for finite difference perturbation size for forward analysis
         real mFDPerturbationFA;

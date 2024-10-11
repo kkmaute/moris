@@ -90,13 +90,14 @@ namespace moris::gen
             mtk::Interpolation_Mesh* tMesh = create_simple_mesh( 2, 2 );
 
             // surface mesh
-            Parameter_List tRhombusParameterList = prm::create_surface_mesh_geometry_parameter_list();
-            tRhombusParameterList.set( "file_path", tMorisRoot + "projects/GEN/SDF/test/data/tetrahedron.obj" );
+            Submodule_Parameter_Lists tFieldParameterLists( "FIELDS" );
+            tFieldParameterLists.add_parameter_list( prm::create_surface_mesh_geometry_parameter_list() );
+            tFieldParameterLists.set( "file_path", tMorisRoot + "projects/GEN/SDF/test/data/tetrahedron.obj" );
 
             // Create geometry engine
             Geometry_Engine_Parameters tGeometryEngineParameters;
             ADV_Manager tADVManager;
-            Design_Factory tDesignFactory( { tRhombusParameterList }, tADVManager );
+            Design_Factory tDesignFactory( tFieldParameterLists, tADVManager );
             tGeometryEngineParameters.mGeometries = tDesignFactory.get_geometries();
             Geometry_Engine tGeometryEngine( tMesh, tGeometryEngineParameters );
         }

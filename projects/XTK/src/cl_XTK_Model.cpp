@@ -84,7 +84,8 @@ namespace moris::xtk
             moris::mtk::Interpolation_Mesh *aMeshData,
             moris::gen::Geometry_Engine    *aGeometryEngine,
             bool                            aLinkGeometryOnConstruction )
-            : mModelDimension( aModelDimension )
+            : mParameterList( "None" )
+            , mModelDimension( aModelDimension )
             , mBackgroundMesh( aMeshData )
             , mCutMesh( this, mModelDimension )
             , mGeometryEngine( aGeometryEngine )

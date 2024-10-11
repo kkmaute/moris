@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef MORIS_CL_LIBRARY_IO_STANDARD_HPP
-#define MORIS_CL_LIBRARY_IO_STANDARD_HPP
+#pragma once
 
 #include "cl_Library_IO.hpp"
 
@@ -42,14 +41,6 @@ namespace moris
         // -----------------------------------------------------------------------------
 
         /**
-         * @brief finishes the initialization of the library and locks it from modification
-         */
-        void
-        finalize() override;
-
-        // -----------------------------------------------------------------------------
-
-        /**
          * @brief fills the member parameter lists with the standard parameters for all modules
          */
         void
@@ -62,5 +53,3 @@ namespace moris
     // -----------------------------------------------------------------------------
 
 }    // namespace moris
-
-#endif    // MORIS_CL_LIBRARY_IO_STANDARD_HPP
