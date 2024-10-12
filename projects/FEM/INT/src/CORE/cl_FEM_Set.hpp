@@ -1130,39 +1130,26 @@ namespace moris
                     Vector< std::string > const &            aFieldIQINames ) override;
 
             //------------------------------------------------------------------------------
-
-<<<<<<< HEAD
             /**
              * get the weights of design extraction operator of the cluster
              *
              * @return a vector of matrices of design extraction operator weights
              */
-            const Vector< Matrix< DDRMat > >& get_adv_geo_weights() { return mAdvGeoWeights; }
+            const Vector< Matrix< DDRMat > >& get_adv_geo_weights()
+            {
+                return mAdvGeoWeights;
+            }
 
             //------------------------------------------------------------------------------
 
-            /**
-             * set geo weights for cluster node index
-             *
-             * @param[ in ] aInedex node index
-             */
-            void set_geo_weights_for_cluster_node_index( uint aInedex )
+            void set_geo_weights_for_cluster_node_index( uint aIndex )
             {
-                MORIS_ASSERT( aInedex < mAdvGeoWeights.size(),
-                        "Set::set_geo_weights_for_cluster_node_index - Index out of range" );
-=======
-            const Vector< Matrix< DDRMat > >& get_adv_geo_weights() { return mAdvGeoWeights; }
-
-            void set_index_for_geo_weights( uint aInedex )
-            {
-                MORIS_ASSERT( aInedex < mAdvGeoWeights.size(),
+                MORIS_ASSERT( aIndex < mAdvGeoWeights.size(),
                         "Set::set_index_for_geo_weights - Index out of range" );
->>>>>>> 1a0163db4913c722426448c2c4a70a75fc149750
 
-                mCurrrentAdvGeoWeight = mAdvGeoWeights( aInedex );
+                mCurrrentAdvGeoWeight = mAdvGeoWeights( aIndex );
             }
 
-<<<<<<< HEAD
             //------------------------------------------------------------------------------
 
             /**
@@ -1171,7 +1158,8 @@ namespace moris
              * @param[ in ] aOptimizationVariableId optimization variable id
              * @return local index
              */
-            sint get_current_adv_geo_index( uint aOptimizationVariableId )
+            sint
+            get_current_adv_geo_index( uint aOptimizationVariableId )
             {
                 return mAdvIdToLocalIndexMap.find( aOptimizationVariableId );
             }
@@ -1187,9 +1175,6 @@ namespace moris
             {
                 return mCurrrentAdvGeoWeight;
             }
-=======
-            const Matrix< DDRMat >& get_current_adv_geo_weight() { return mCurrrentAdvGeoWeight; }
->>>>>>> 1a0163db4913c722426448c2c4a70a75fc149750
         };
         //------------------------------------------------------------------------------
     } /* namespace fem */
