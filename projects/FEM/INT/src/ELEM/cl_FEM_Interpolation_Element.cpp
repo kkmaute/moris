@@ -993,17 +993,13 @@ namespace moris::fem
             }
             else
             {
-                uint tNumPDVs = tAdjointPdofValuesReordered.n_cols();
-
-                Matrix< DDSMat > tLocalToGlobalIdsPdv = linspace< sint >( 0, tNumPDVs - 1, tNumPDVs );
-
                 Matrix< DDRMat > tLocaldQiDp = 1.0 * trans( tAdjointPdofValuesReordered ) * tdRdpgeo.get_column( Ik );
 
                 print( tLocaldQiDp, "tLocaldQiDp" );
 
                 // assemble implicit dQidp into multivector
                 mEquationSet->get_equation_model()->get_implicit_dQidp()->sum_into_global_values(
-                        tLocalToGlobalIdsPdv,
+                        tIgAdvIds,
                         tLocaldQiDp,
                         Ik );
             }

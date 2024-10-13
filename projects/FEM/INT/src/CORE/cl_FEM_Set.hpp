@@ -177,7 +177,7 @@ namespace moris
             Vector< std::shared_ptr< gen::Design_Extraction_Operator > > mIGExtractionOperators;
             map< sint, sint >                                            mVertexMeshIndexToClusterIndexMap;
 
-            Vector< sint >             mAdvGeoAssemblyVector;
+            // Vector< sint >             mAdvGeoAssemblyVector;
             Vector< Matrix< DDRMat > > mAdvGeoWeights;           // Vector of each node with Adv weights
             Matrix< DDRMat >           mCurrrentAdvGeoWeight;    // Adv weight of current node
 
@@ -1139,6 +1139,17 @@ namespace moris
                 return mAdvGeoWeights;
             }
 
+            //------------------------------------------------------------------------------
+            /**
+             * get the weights of design extraction operator of the cluster
+             *
+             * @param[ in ] aIndex index of the node
+             * @return matrix of design extraction operator weights for the node
+             */
+            const Matrix< DDRMat >& get_adv_geo_weight_by_cluster_node_index( uint aIndex )
+            {
+                return mAdvGeoWeights( aIndex );
+            }
             //------------------------------------------------------------------------------
 
             void set_geo_weights_for_cluster_node_index( uint aIndex )

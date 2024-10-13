@@ -2786,7 +2786,7 @@ namespace moris::fem
         for ( auto& tdQIdp : mdQIdp( 1 ) )
         {
             // fill the dQIdp vector with zero
-            tdQIdp.set_size( 1, mPdvGeoAssemblyVector.numel(), 0.0 );
+            tdQIdp.set_size( 1, mIGAdvIds.size(), 0.0 );
         }
     }
 
@@ -2931,7 +2931,7 @@ namespace moris::fem
         }
 
         // set size for dRdpgeo
-        mdRdp( 1 ).set_size( tNumRows, mPdvGeoAssemblyVector.numel(), 0.0 );
+        mdRdp( 1 ).set_size( tNumRows, mIGAdvIds.size(), 0.0 );
     }
 
     //------------------------------------------------------------------------------

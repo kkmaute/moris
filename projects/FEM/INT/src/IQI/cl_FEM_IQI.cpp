@@ -2395,10 +2395,16 @@ namespace moris::fem
                                 mSet->get_QI()( tIQIAssemblyIndex )( 0 ) /    //
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
+                    //
+                    //                    print( mSet->get_dqidpgeo()( tIQIAssemblyIndex ), "mSet->get_dqidpgeo()( tIQIAssemblyIndex )" );
+                    //
+                    //                    print( tDQiDgeo * trans( dIGNodeCorddAdv ), "tDQiDgeo * trans( dIGNodeCorddAdv )" );
+                    //
+                    //                    print( mSet->get_dqidpgeo()( tIQIAssemblyIndex )    //
+                    //                            ( { 0, dIGNodeCorddAdv.n_cols() - 1 } ),
+                    //                            "mSet->get_dqidpgeo()( tIQIAssemblyIndex ) " );
 
-                    mSet->get_dqidpgeo()( tIQIAssemblyIndex )                       //
-                            ( { 0, dIGNodeCorddAdv.n_cols() - 1 }, { 0, 0 } ) +=    //
-                            tDQiDgeo * dIGNodeCorddAdv;
+                    mSet->get_dqidpgeo()( tIQIAssemblyIndex ) += tDQiDgeo * dIGNodeCorddAdv;
                 }
             }
             // reset the coefficients values

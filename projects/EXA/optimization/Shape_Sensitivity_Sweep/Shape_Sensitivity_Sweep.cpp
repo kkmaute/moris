@@ -248,7 +248,7 @@ namespace moris
 
         // vertical line
         tParameterlist( 1 )( 0 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE );
-        tParameterlist( 1 )( 0 ).set( "center_x", 0.8 );
+        tParameterlist( 1 )( 0 ).set( "center_x", 0.8 );    //, 0.8, 0.8 );
         tParameterlist( 1 )( 0 ).set( "center_y", 0.3 );
         tParameterlist( 1 )( 0 ).set( "normal_x", 1.0 );
         tParameterlist( 1 )( 0 ).set( "normal_y", 0.0 );
@@ -264,7 +264,7 @@ namespace moris
         real deps                = 0.0e-5;
         tParameterlist( 1 )( 1 ).set( "field_function_name", "Oblique_Line_Func" );
         tParameterlist( 1 )( 1 ).set( "sensitivity_function_name", "Oblique_Line_Deriv" );
-        tParameterlist( 1 )( 1 ).set( "use_multilinear_interpolation", true );
+        tParameterlist( 1 )( 1 ).set( "use_multilinear_interpolation", false );
         tParameterlist( 1 )( 1 ).insert( "offset_diagonal", Design_Variable( 0.0 + deps, 0.0 + deps, 0.0 + deps ) );
     }
 
