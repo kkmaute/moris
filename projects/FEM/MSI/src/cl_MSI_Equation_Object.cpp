@@ -825,21 +825,23 @@ namespace moris::MSI
                 //                print( tdRdp( 1 ), "dRdp for IG DVs" );
 
                 // xxxxxxxxxxxx
-                const Matrix< DDSMat >& tLocalToGlobalIdsIGPdv =
-                        mEquationSet->get_geo_pdv_assembly_vector();
+                //                const Matrix< DDSMat >& tLocalToGlobalIdsIGPdv =
+                //                        mEquationSet->get_geo_pdv_assembly_vector();
 
-                // print( tLocalToGlobalIdsIGPdv, "tLocalToGlobalIdsIGPdv" );
+                const Vector< sint >& tLocalIgAdvIds = mEquationSet->get_ig_adv_ids();
 
-                for ( uint Ik = 0; Ik < tLocalToGlobalIdsIGPdv.n_rows(); Ik++ )
+                print( tLocalIgAdvIds, "tLocalIgAdvIds" );
+
+                for ( uint Ik = 0; Ik < tLocalIgAdvIds.size(); Ik++ )
                 {
                     // xxxx uint Ik     = 0;
-                    sint tIndex = tLocalToGlobalIdsIGPdv( Ik );    // xxxx  0;
+                    sint tAdvId = tLocalIgAdvIds( Ik );    // xxxx  0;
 
                     // xxx                   if ( tdRdp( 1 ).numel() > 0 )
                     //  xxx                  {
-                    tElementalResidual( tIndex ) = 1.0 * tdRdp( 1 ).get_column( Ik );
+                    tElementalResidual( tAdvId ) = 1.0 * tdRdp( 1 ).get_column( Ik );
 
-                    print( tElementalResidual( tIndex ), "direct: tElementalResidual for PDV index " + std::to_string( tIndex ) );
+                    print( tElementalResidual( tAdvId ), "direct: tElementalResidual for tAdv Id " + std::to_string( tAdvId ) );
                 }
             }
             else

@@ -174,7 +174,6 @@ namespace moris
             // enum for perturbation strategy used for FD (FA and SA)
             fem::Perturbation_Type mPerturbationStrategy = fem::Perturbation_Type::RELATIVE;
 
-            Vector< sint >                                               mAdvIdToLocalIndexMap;
             Vector< std::shared_ptr< gen::Design_Extraction_Operator > > mIGExtractionOperators;
             map< sint, sint >                                            mVertexMeshIndexToClusterIndexMap;
 
@@ -897,7 +896,7 @@ namespace moris
             /**
              * set size and reset values for residual
              */
-            void initialize_mResidual();
+            void initialize_mResidual( sint aNumRHS = -1 );
 
             //------------------------------------------------------------------------------
             /**
@@ -1161,7 +1160,7 @@ namespace moris
             sint
             get_current_adv_geo_index( uint aOptimizationVariableId )
             {
-                return mAdvIdToLocalIndexMap.find( aOptimizationVariableId );
+                return mIGAdvIds.find( aOptimizationVariableId );
             }
 
             //------------------------------------------------------------------------------

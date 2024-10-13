@@ -102,6 +102,8 @@ namespace moris
             moris::Matrix< DDSMat >                                   mPdvGeoAssemblyVector;
             bool                                                      mPdvGeoAssemblyFlag = false;
 
+            Vector< sint > mIGAdvIds;
+
             // Map from requested IQI Name to index.
             // I do not know if this is slow because the map is called per gauss point.
             // However as long as we go by name I do not see another way.
@@ -527,6 +529,13 @@ namespace moris
             get_geo_pdv_assembly_vector()
             {
                 return mPdvGeoAssemblyVector;
+            }
+
+            //------------------------------------------------------------------------------
+            // return vector of Adv IDs for cluster
+            const Vector< sint >& get_ig_adv_ids()
+            {
+                return mIGAdvIds;
             }
 
             //-----------------------------------------------------------------------------------------

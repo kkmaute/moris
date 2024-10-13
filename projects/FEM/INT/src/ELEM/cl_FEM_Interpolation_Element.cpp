@@ -840,6 +840,8 @@ namespace moris::fem
         const Matrix< DDSMat >& tLocalToGlobalIdsIGPdv =
                 mEquationSet->get_geo_pdv_assembly_vector();
 
+        const Vector< sint >& tIgAdvIds = mEquationSet->get_ig_adv_ids();
+
         // if there is no pdv defined, return
         if ( mSet->mEquationModel->is_adjoint_sensitivity_analysis()    //
                 && tLocalToGlobalIdsIPPdv.numel() == 0
@@ -856,8 +858,18 @@ namespace moris::fem
         mSet->initialize_mdQIdpMat();
         mSet->initialize_mdQIdpGeo( mFemCluster( 0 ) );
 
+        // get number of IQIs
+        uint tNumIQIs = mSet->mdQIdp( 0 ).size();
+
         // as long as dRdp is computed with FD, we need to initialize the residual storage
-        mSet->initialize_mResidual();
+        if ( mSet->mEquationModel->is_adjoint_sensitivity_analysis() )
+        {
+            mSet->initialize_mResidual();
+        }
+        else
+        {
+            mSet->initialize_mResidual( tNumIQIs );
+        }
 
         // compute pdof values
         this->compute_my_pdof_values();
@@ -920,9 +932,6 @@ namespace moris::fem
         // extract adjoint values for this equation object
         this->compute_my_adjoint_values();
 
-        // get number of IQIs
-        uint tNumIQIs = mSet->mdQIdp( 0 ).size();
-
         // reorder adjoint values following the requested dof types order
         Matrix< DDRMat > tAdjointPdofValuesReordered = this->reorder_adjoint_pdofs();
 
@@ -945,14 +954,14 @@ namespace moris::fem
             }
 
             // Assembly for the IG pdv
-            if ( tLocalToGlobalIdsIGPdv.numel() != 0 )
+            if ( tIgAdvIds.size() > 0 )
             {
                 std::string tStr = "for IG DVs: dQdp " + std::to_string( Ik );
                 print( mSet->mdQIdp( 1 )( Ik ), tStr );
 
                 // assemble explicit dQIdpGeo into multivector
                 mEquationSet->get_equation_model()->get_explicit_dQidp()->sum_into_global_values(
-                        tLocalToGlobalIdsIGPdv,
+                        tIgAdvIds,
                         mSet->mdQIdp( 1 )( Ik ),
                         Ik );
             }
@@ -977,7 +986,7 @@ namespace moris::fem
 
                     // assemble implicit dQidp into multivector
                     mEquationSet->get_equation_model()->get_implicit_dQidp()->sum_into_global_values(
-                            tLocalToGlobalIdsIGPdv,
+                            tIgAdvIds,
                             tLocalIGdQiDp,
                             Ik );
                 }
@@ -988,8 +997,7 @@ namespace moris::fem
 
                 Matrix< DDSMat > tLocalToGlobalIdsPdv = linspace< sint >( 0, tNumPDVs - 1, tNumPDVs );
 
-                // Matrix< DDRMat > tLocaldQiDp = -1.0 * tAdjointPdofValuesReordered * tdRdpmat.get_column( Ik );
-                Matrix< DDRMat > tLocaldQiDp = -1.0 * trans( tAdjointPdofValuesReordered ) * tdRdpgeo.get_column( Ik );
+                Matrix< DDRMat > tLocaldQiDp = 1.0 * trans( tAdjointPdofValuesReordered ) * tdRdpgeo.get_column( Ik );
 
                 print( tLocaldQiDp, "tLocaldQiDp" );
 

@@ -2084,7 +2084,7 @@ namespace moris::fem
         // get extraction operators for the cluster
         mIGExtractionOperators = tDVInterface->get_IG_Desgin_Extraction_Operators( tNodeIndicesOnCluster );
 
-        mAdvIdToLocalIndexMap = tDVInterface->build_local_adv_indices( mIGExtractionOperators );
+        mIGAdvIds = tDVInterface->build_local_adv_indices( mIGExtractionOperators );
 
         mVertexMeshIndexToClusterIndexMap.clear();
         for ( uint i = 0; i < tNodeIndicesOnCluster.numel(); i++ )
@@ -2570,7 +2570,7 @@ namespace moris::fem
     //------------------------------------------------------------------------------
 
     void
-    Set::initialize_mResidual()
+    Set::initialize_mResidual( sint aNumRHS )
     {
         // if residual not initialized before
         if ( !mResidualExist )
@@ -2619,7 +2619,7 @@ namespace moris::fem
                 }
 
                 // get the number of rhs
-                uint tNumRHS = mEquationModel->get_num_rhs();
+                uint tNumRHS = aNumRHS < 0 ? mEquationModel->get_num_rhs() : aNumRHS;
 
                 // set size for the list of dQIdu vectors
                 mResidual.resize( tNumRHS );
@@ -3905,7 +3905,7 @@ namespace moris::fem
         mAdvGeoWeights.resize( tNumVertices, Matrix< DDRMat >( 0, 0 ) );
 
         // get number of unique adv ids active in the cluster
-        uint tNumAdvs = mAdvIdToLocalIndexMap.size();
+        uint tNumAdvs = mIGAdvIds.size();
 
         // loop over all vertices
         for ( uint iVert = 0; iVert < tNumVertices; ++iVert )

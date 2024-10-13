@@ -335,6 +335,17 @@ namespace moris::gen
                 Matrix< DDRMat >& aHostADVSensitivities );
 
         /**
+         * Pack matrix of sensitivity values associated with unique ADVs
+         *
+         *@param aADVIds Vector of ADV IDs
+         *@param aHostADVSensitivities Matrix of sensitivity values
+         */
+        void
+        pack_sensitivities(
+                Vector< sint >&   aADVIds,
+                Matrix< DDRMat >& aHostADVSensitivities );
+
+        /**
          * Set the integration PDV types per set.
          *
          * @param aPDVTypes The PDV types per set, grouped

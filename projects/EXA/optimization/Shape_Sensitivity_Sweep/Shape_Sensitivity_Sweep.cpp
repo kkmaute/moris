@@ -38,7 +38,7 @@ namespace moris
 {
     std::string tMeshSets = "HMR_dummy_n_p1,HMR_dummy_c_p1";
     std::string tDBCSets  = "iside_b0_1_b1_3";
-    std::string tNBCSets  = "SideSet_4_c_p1";    ///"iside_b0_1_b1_0";
+    std::string tNBCSets  = "SideSet_3_c_p1";    ///"iside_b0_1_b1_0";
 
     // FD in adjoint
     real tFEMFdEpsilon = 1.0e-7;
@@ -207,10 +207,10 @@ namespace moris
 
         real tLev = 1.0 * ( tX + 0.6 ) + 1.0 * ( tY + 0.3 );
 
-        if ( std::sqrt( std::pow( tX + 0.5, 2 ) + std::pow( tY + 0.5, 2 ) ) < 0.2 )
-        {
-            tLev += aGeometryParameters( 0 );
-        }
+        //        if ( std::sqrt( std::pow( tX + 0.5, 2 ) + std::pow( tY + 0.5, 2 ) ) < 0.2 )
+        //        {
+        tLev += aGeometryParameters( 0 );
+        //       }
 
         return tLev;
     }
@@ -222,17 +222,17 @@ namespace moris
             moris::Matrix< DDRMat >                        &aFieldSensitivity )
     {
         // get coordinates
-        real tX = aCoordinates( 0 );
-        real tY = aCoordinates( 1 );
+        //        real tX = aCoordinates( 0 );
+        //        real tY = aCoordinates( 1 );
 
-        if ( std::sqrt( std::pow( tX + 0.5, 2 ) + std::pow( tY + 0.5, 2 ) ) < 0.2 )
-        {
-            aFieldSensitivity = { { 1.0 } };
-        }
-        else
-        {
-            aFieldSensitivity = { { 0.0 } };
-        }
+        //       if ( std::sqrt( std::pow( tX + 0.5, 2 ) + std::pow( tY + 0.5, 2 ) ) < 0.2 )
+        //       {
+        aFieldSensitivity = { { 1.0 } };
+        //        }
+        //        else
+        //        {
+        //            aFieldSensitivity = { { 0.0 } };
+        //        }
     }
 
     void
@@ -264,6 +264,7 @@ namespace moris
         real deps                = 0.0e-5;
         tParameterlist( 1 )( 1 ).set( "field_function_name", "Oblique_Line_Func" );
         tParameterlist( 1 )( 1 ).set( "sensitivity_function_name", "Oblique_Line_Deriv" );
+        tParameterlist( 1 )( 1 ).set( "use_multilinear_interpolation", true );
         tParameterlist( 1 )( 1 ).insert( "offset_diagonal", Design_Variable( 0.0 + deps, 0.0 + deps, 0.0 + deps ) );
     }
 

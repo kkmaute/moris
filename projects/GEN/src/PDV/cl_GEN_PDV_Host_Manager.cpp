@@ -582,146 +582,187 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    void
+    PDV_Host_Manager::pack_sensitivities(
+            Vector< sint >&   aADVIds,
+            Matrix< DDRMat >& aHostADVSensitivities )
+    {
+        // create vector of unique aADVIds
+        Vector< sint > tUniqueADVIds = aADVIds;
+        unique( tUniqueADVIds );
+
+        // create map of unique aADVIds
+        map< sint, sint > tMapADVIds;
+        for ( uint i = 0; i < tUniqueADVIds.size(); i++ )
+        {
+            tMapADVIds[ tUniqueADVIds( i ) ] = i;
+        }
+
+        // copy sensitivities to new matrix
+        Matrix< DDRMat > tNewHostADVSensitivities( aHostADVSensitivities.n_rows(), tUniqueADVIds.size(), 0.0 );
+
+        // loop over all sensitivities
+        for ( uint i = 0; i < aADVIds.size(); i++ )
+        {
+            // get index of unique ADV ID
+            sint tIndex = tMapADVIds[ aADVIds( i ) ];
+
+            // copy sensitivity values
+            tNewHostADVSensitivities.get_column( tIndex ) +=
+                    aHostADVSensitivities.get_column( i );
+        }
+
+        // overwrite ADV IDs and sensitivities
+        aADVIds               = std::move( tUniqueADVIds );
+        aHostADVSensitivities = std::move( tNewHostADVSensitivities );
+    }
+    //--------------------------------------------------------------------------------------------------------------
+
     Matrix< DDRMat >
     PDV_Host_Manager::compute_diqi_dadv( const Vector< sint >& aFullADVIds )
     {
         Tracer tTracer( "GEN", "PDV Host Manager", "compute dQi/dadv" );
 
-        // Check for ADV IDs
-        MORIS_ERROR( mADVIdsSet,
-                "PDV Host Manager must have ADV IDs set before computing sensitivities." );
+        //        // Check for ADV IDs
+        //        MORIS_ERROR( mADVIdsSet,
+        //                "PDV Host Manager must have ADV IDs set before computing sensitivities." );
+        //
+        //        // Get dIQI/dPDV and dPDV/dADV
+        //        sol::Dist_Vector* tdIQIdPDV = this->get_dQIdp();
+        //
+        //        // Create factory for resulting distributed vector
+        //        sol::Matrix_Vector_Factory tDistributedFactory;
+        //
+        //        // Create maps
+        //        sol::Dist_Map* tOwnedADVMap = tDistributedFactory.create_map( mOwnedADVIds );
+        //        sol::Dist_Map* tFullADVMap  = tDistributedFactory.create_map( aFullADVIds );
+        //
+        //        // Create distributed vectors for derivatives of IQIs wrt Advs
+        //        sint tNumIQIs = tdIQIdPDV->get_num_vectors();
+        //
+        //        sol::Dist_Vector* tdIQIdADV     = tDistributedFactory.create_vector( tOwnedADVMap, tNumIQIs, false, true );
+        //        sol::Dist_Vector* tFulldIQIdADV = tDistributedFactory.create_vector( tFullADVMap, tNumIQIs, false, true );
+        //
+        //        // Initialize derivatives of IQIs wrt Advs to zero
+        //        tdIQIdADV->vec_put_scalar( 0.0 );
+        //
+        //        // Loop of interpolation PDV hosts
+        //        for ( uint tPDVHostIndex = 0; tPDVHostIndex < mIpPDVHosts.size(); tPDVHostIndex++ )
+        //        {
+        //            // Check if PDV host exists
+        //            if ( mIpPDVHosts( tPDVHostIndex ) )
+        //            {
+        //                // Check if processor own PDV host
+        //                if ( mIpPDVHosts( tPDVHostIndex )->get_pdv_owning_processor() == par_rank() )
+        //                {
+        //                    // Get number of PDVs
+        //                    uint tNumPDVsOnHost = mIpPDVHosts( tPDVHostIndex )->get_num_pdvs();
+        //
+        //                    // Assemble sensitivities
+        //                    for ( uint tPDVIndex = 0; tPDVIndex < tNumPDVsOnHost; tPDVIndex++ )
+        //                    {
+        //                        // Get PDVs
+        //                        moris_id tPDVID = mIpPDVHosts( tPDVHostIndex )->get_pdv_id( tPDVIndex );
+        //
+        //                        // FIXME checking if the pdv is defined
+        //                        if ( tPDVID != -1 )
+        //                        {
+        //                            // Get sensitivities
+        //                            Matrix< DDRMat > tHostADVSensitivities =
+        //                                    mIpPDVHosts( tPDVHostIndex )->get_sensitivities( tPDVIndex );
+        //
+        //                            // Get ADV IDs
+        //                            Vector< sint > tADVIds =
+        //                                    mIpPDVHosts( tPDVHostIndex )->get_determining_adv_ids( tPDVIndex );
+        //
+        //                            // remove sensitivities wrt unused variables
+        //                            this->remove_sensitivities_of_unused_variables( tADVIds, tHostADVSensitivities );
+        //
+        //                            // loop over all IQIs
+        //                            for ( uint tVectorIndex = 0; tVectorIndex < (uint)tNumIQIs; tVectorIndex++ )
+        //                            {
+        //                                Matrix< DDRMat > tIndividualSensitivity =
+        //                                        ( *tdIQIdPDV )( tPDVID, tVectorIndex ) * tHostADVSensitivities;
+        //
+        //                                // Fill matrix
+        //                                tdIQIdADV->sum_into_global_values( tADVIds, tIndividualSensitivity, tVectorIndex );
+        //                            }
+        //                        }
+        //                    }
+        //                }
+        //            }
+        //        }
+        //
+        //        // Create ADV Host Sensitivities
+        //        Matrix< DDRMat > tHostADVSensitivities;
+        //        Matrix< DDRMat > tI;
+        //
+        //        // Loop over intersection nodes for inserting
+        //        for ( uint iNodeIndex = mNodeManager.get_number_of_background_nodes(); iNodeIndex < mNodeManager.get_total_number_of_nodes(); iNodeIndex++ )
+        //        {
+        //            if ( mNodeManager.node_depends_on_advs( iNodeIndex ) and mNodeManager.get_derived_node_owner( iNodeIndex ) == par_rank() )
+        //            {
+        //                // Get starting ID and number of coordinates
+        //                uint tStartingGlobalIndex = mNodeManager.get_derived_node_starting_pdv_id( iNodeIndex );
+        //                uint tNumCoordinates      = mNodeManager.get_number_of_derived_node_pdvs( iNodeIndex );
+        //
+        //                // Parent sensitivities and ADV IDs
+        //                tHostADVSensitivities.set_size( 0.0, 0.0 );
+        //                eye( tNumCoordinates, tNumCoordinates, tI );
+        //                mNodeManager.append_dcoordinate_dadv_from_derived_node( iNodeIndex, tHostADVSensitivities, tI );
+        //                Vector< sint > tADVIds = mNodeManager.get_coordinate_determining_adv_ids_from_derived_node( iNodeIndex );
+        //
+        //                // remove sensitivities wrt unused variables
+        //                this->remove_sensitivities_of_unused_variables( tADVIds, tHostADVSensitivities );
+        //
+        //                // loop overall coordinate directions
+        //                for ( uint tCoordinateIndex = 0; tCoordinateIndex < tNumCoordinates; tCoordinateIndex++ )
+        //                {
+        //                    // get PDV ID
+        //                    moris_id tPDVID = tStartingGlobalIndex + tCoordinateIndex;
+        //
+        //                    // loop over all IQIs
+        //                    for ( uint tVectorIndex = 0; tVectorIndex < (uint)tNumIQIs; tVectorIndex++ )
+        //                    {
+        //                        fprintf( stdout, "tStartingGlobalIndex %d - direction %d - IQI index %d - dQidPDV %e\n",    //
+        //                                (sint)tStartingGlobalIndex,
+        //                                (sint)tCoordinateIndex,
+        //                                (sint)tVectorIndex,
+        //                                ( *tdIQIdPDV )( tPDVID, tVectorIndex ) );
+        //
+        //                        print( tHostADVSensitivities.get_row( tCoordinateIndex ), "dPDVdADV" );
+        //
+        //                        Matrix< DDRMat > tIndividualSensitivity =
+        //                                ( *tdIQIdPDV )( tPDVID, tVectorIndex ) *    //
+        //                                tHostADVSensitivities.get_row( tCoordinateIndex );
+        //
+        //                        // Fill matrix
+        //                        tdIQIdADV->sum_into_global_values( tADVIds, tIndividualSensitivity, tVectorIndex );
+        //                    }
+        //                }
+        //            }
+        //        }
+        //
+        //        // Global assembly
+        //        tdIQIdADV->vector_global_assembly();
+        //
+        //        // Import
+        //        tFulldIQIdADV->import_local_to_global( *tdIQIdADV );
+        //
+        //        // Extract values
+        //        Matrix< DDRMat > tFullSensitivity( 0, 0 );
+        //        tFulldIQIdADV->extract_copy( tFullSensitivity );
+        //        tFullSensitivity = trans( tFullSensitivity );
 
-        // Get dIQI/dPDV and dPDV/dADV
-        sol::Dist_Vector* tdIQIdPDV = this->get_dQIdp();
-
-        // Create factory for resulting distributed vector
-        sol::Matrix_Vector_Factory tDistributedFactory;
-
-        // Create maps
-        sol::Dist_Map* tOwnedADVMap = tDistributedFactory.create_map( mOwnedADVIds );
-        sol::Dist_Map* tFullADVMap  = tDistributedFactory.create_map( aFullADVIds );
-
-        // Create distributed vectors for derivatives of IQIs wrt Advs
-        sint tNumIQIs = tdIQIdPDV->get_num_vectors();
-
-        sol::Dist_Vector* tdIQIdADV     = tDistributedFactory.create_vector( tOwnedADVMap, tNumIQIs, false, true );
-        sol::Dist_Vector* tFulldIQIdADV = tDistributedFactory.create_vector( tFullADVMap, tNumIQIs, false, true );
-
-        // Initialize derivatives of IQIs wrt Advs to zero
-        tdIQIdADV->vec_put_scalar( 0.0 );
-
-        // Loop of interpolation PDV hosts
-        for ( uint tPDVHostIndex = 0; tPDVHostIndex < mIpPDVHosts.size(); tPDVHostIndex++ )
-        {
-            // Check if PDV host exists
-            if ( mIpPDVHosts( tPDVHostIndex ) )
-            {
-                // Check if processor own PDV host
-                if ( mIpPDVHosts( tPDVHostIndex )->get_pdv_owning_processor() == par_rank() )
-                {
-                    // Get number of PDVs
-                    uint tNumPDVsOnHost = mIpPDVHosts( tPDVHostIndex )->get_num_pdvs();
-
-                    // Assemble sensitivities
-                    for ( uint tPDVIndex = 0; tPDVIndex < tNumPDVsOnHost; tPDVIndex++ )
-                    {
-                        // Get PDVs
-                        moris_id tPDVID = mIpPDVHosts( tPDVHostIndex )->get_pdv_id( tPDVIndex );
-
-                        // FIXME checking if the pdv is defined
-                        if ( tPDVID != -1 )
-                        {
-                            // Get sensitivities
-                            Matrix< DDRMat > tHostADVSensitivities =
-                                    mIpPDVHosts( tPDVHostIndex )->get_sensitivities( tPDVIndex );
-
-                            // Get ADV IDs
-                            Vector< sint > tADVIds =
-                                    mIpPDVHosts( tPDVHostIndex )->get_determining_adv_ids( tPDVIndex );
-
-                            // remove sensitivities wrt unused variables
-                            this->remove_sensitivities_of_unused_variables( tADVIds, tHostADVSensitivities );
-
-                            // loop over all IQIs
-                            for ( uint tVectorIndex = 0; tVectorIndex < (uint)tNumIQIs; tVectorIndex++ )
-                            {
-                                Matrix< DDRMat > tIndividualSensitivity =
-                                        ( *tdIQIdPDV )( tPDVID, tVectorIndex ) * tHostADVSensitivities;
-
-                                // Fill matrix
-                                tdIQIdADV->sum_into_global_values( tADVIds, tIndividualSensitivity, tVectorIndex );
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        // Create ADV Host Sensitivities
-        Matrix< DDRMat > tHostADVSensitivities;
-        Matrix< DDRMat > tI;
-
-        // Loop over intersection nodes for inserting
-        for ( uint iNodeIndex = mNodeManager.get_number_of_background_nodes(); iNodeIndex < mNodeManager.get_total_number_of_nodes(); iNodeIndex++ )
-        {
-            if ( mNodeManager.node_depends_on_advs( iNodeIndex ) and mNodeManager.get_derived_node_owner( iNodeIndex ) == par_rank() )
-            {
-                // Get starting ID and number of coordinates
-                uint tStartingGlobalIndex = mNodeManager.get_derived_node_starting_pdv_id( iNodeIndex );
-                uint tNumCoordinates      = mNodeManager.get_number_of_derived_node_pdvs( iNodeIndex );
-
-                // Parent sensitivities and ADV IDs
-                tHostADVSensitivities.set_size( 0.0, 0.0 );
-                eye( tNumCoordinates, tNumCoordinates, tI );
-                mNodeManager.append_dcoordinate_dadv_from_derived_node( iNodeIndex, tHostADVSensitivities, tI );
-                Vector< sint > tADVIds = mNodeManager.get_coordinate_determining_adv_ids_from_derived_node( iNodeIndex );
-
-                // remove sensitivities wrt unused variables
-                this->remove_sensitivities_of_unused_variables( tADVIds, tHostADVSensitivities );
-
-                // loop overall coordinate directions
-                for ( uint tCoordinateIndex = 0; tCoordinateIndex < tNumCoordinates; tCoordinateIndex++ )
-                {
-                    // get PDV ID
-                    moris_id tPDVID = tStartingGlobalIndex + tCoordinateIndex;
-
-                    // loop over all IQIs
-                    for ( uint tVectorIndex = 0; tVectorIndex < (uint)tNumIQIs; tVectorIndex++ )
-                    {
-                        fprintf( stdout, "tStartingGlobalIndex %d - direction %d - IQI index %d - dQidPDV %e\n",    //
-                                (sint)tStartingGlobalIndex,
-                                (sint)tCoordinateIndex,
-                                (sint)tVectorIndex,
-                                ( *tdIQIdPDV )( tPDVID, tVectorIndex ) );
-
-                        print( tHostADVSensitivities.get_row( tCoordinateIndex ), "dPDVdADV" );
-
-                        Matrix< DDRMat > tIndividualSensitivity =
-                                ( *tdIQIdPDV )( tPDVID, tVectorIndex ) *    //
-                                tHostADVSensitivities.get_row( tCoordinateIndex );
-
-                        // Fill matrix
-                        tdIQIdADV->sum_into_global_values( tADVIds, tIndividualSensitivity, tVectorIndex );
-                    }
-                }
-            }
-        }
-
-        // Global assembly
-        tdIQIdADV->vector_global_assembly();
-
-        // Import
-        tFulldIQIdADV->import_local_to_global( *tdIQIdADV );
-
-        // Extract values
-        Matrix< DDRMat > tFullSensitivity( 0, 0 );
+        Matrix< DDRMat >  tFullSensitivity;
+        sol::Dist_Vector* tFulldIQIdADV = this->get_dQIdp();
         tFulldIQIdADV->extract_copy( tFullSensitivity );
         tFullSensitivity = trans( tFullSensitivity );
 
-        // Clean up
-        delete tdIQIdPDV;
-        delete tdIQIdADV;
-        delete tFulldIQIdADV;
+        //        // Clean up
+        //        delete tdIQIdPDV;
+        //        delete tdIQIdADV;
+        //        delete tFulldIQIdADV;
 
         return tFullSensitivity;
     }
@@ -766,6 +807,9 @@ namespace moris::gen
                         // remove sensitivities wrt unused variables
                         this->remove_sensitivities_of_unused_variables( tADVIds, tHostADVSensitivities );
 
+                        // pack sensitivities
+                        this->pack_sensitivities( tADVIds, tHostADVSensitivities );
+
                         fprintf( stdout, "\nInterpolation PDVIndex = %d\n", (sint)tPDVID );
                         print( tADVIds, "tADVIds for interpolation PDVs" );
                         print( tHostADVSensitivities, "tHostADVSensitivities for interpolation PDVs" );
@@ -800,6 +844,9 @@ namespace moris::gen
 
                 // remove sensitivities wrt unused variables
                 this->remove_sensitivities_of_unused_variables( tADVIds, tHostADVSensitivities );
+
+                // pack sensitivities
+                this->pack_sensitivities( tADVIds, tHostADVSensitivities );
 
                 // loop overall coordinate directions
                 for ( uint tCoordinateIndex = 0; tCoordinateIndex < tNumCoordinates; tCoordinateIndex++ )
@@ -1546,6 +1593,9 @@ namespace moris::gen
                 }
             }
         }
+        // xxxxxxx
+        mOwnedPDVLocalToGlobalMap          = { 0 };
+        mOwnedAndSharedPDVLocalToGlobalMap = { 0 };
     }
 
     //--------------------------------------------------------------------------------------------------------------
