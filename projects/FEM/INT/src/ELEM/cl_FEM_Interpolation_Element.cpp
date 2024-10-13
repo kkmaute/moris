@@ -958,12 +958,15 @@ namespace moris::fem
             {
                 std::string tStr = "for IG DVs: dQdp " + std::to_string( Ik );
                 print( mSet->mdQIdp( 1 )( Ik ), tStr );
+                print( tIgAdvIds, "tIgAdvIds" );
 
                 // assemble explicit dQIdpGeo into multivector
+                mEquationSet->get_equation_model()->get_explicit_dQidp()->print();
                 mEquationSet->get_equation_model()->get_explicit_dQidp()->sum_into_global_values(
                         tIgAdvIds,
                         mSet->mdQIdp( 1 )( Ik ),
                         Ik );
+                mEquationSet->get_equation_model()->get_explicit_dQidp()->print();
             }
 
             // post multiplication of adjoint values time dRdp
@@ -980,7 +983,7 @@ namespace moris::fem
                             Ik );
                 }
 
-                if ( tLocalToGlobalIdsIGPdv.numel() != 0 )
+                if ( tIgAdvIds.size() > 0 )
                 {
                     Matrix< DDRMat > tLocalIGdQiDp = -1.0 * trans( tAdjointPdofValuesReordered.get_column( Ik ) ) * tdRdpgeo;
 
@@ -993,15 +996,22 @@ namespace moris::fem
             }
             else
             {
+
                 Matrix< DDRMat > tLocaldQiDp = 1.0 * trans( tAdjointPdofValuesReordered ) * tdRdpgeo.get_column( Ik );
 
                 print( tLocaldQiDp, "tLocaldQiDp" );
 
+                uint tNumADVs = tAdjointPdofValuesReordered.n_cols();
+
+                Matrix< DDSMat > tLocalToGlobalIdsPdv = linspace< sint >( 0, tNumADVs - 1, tNumADVs );
+
                 // assemble implicit dQidp into multivector
+                mEquationSet->get_equation_model()->get_implicit_dQidp()->print();
                 mEquationSet->get_equation_model()->get_implicit_dQidp()->sum_into_global_values(
-                        tIgAdvIds,
+                        tLocalToGlobalIdsPdv,
                         tLocaldQiDp,
                         Ik );
+                mEquationSet->get_equation_model()->get_implicit_dQidp()->print();
             }
         }
     }

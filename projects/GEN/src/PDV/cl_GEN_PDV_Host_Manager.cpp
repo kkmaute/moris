@@ -1594,8 +1594,8 @@ namespace moris::gen
             }
         }
         // xxxxxxx
-        mOwnedPDVLocalToGlobalMap          = { { 0 } };    //, { 1 } };
-        mOwnedAndSharedPDVLocalToGlobalMap = { { 0 } };    //, { 1 } };
+        mOwnedPDVLocalToGlobalMap          = { { 0 }, { 1 } };
+        mOwnedAndSharedPDVLocalToGlobalMap = { { 0 }, { 1 } };
     }
 
     //--------------------------------------------------------------------------------------------------------------

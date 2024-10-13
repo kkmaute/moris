@@ -38,7 +38,7 @@ namespace moris
 {
     std::string tMeshSets = "HMR_dummy_n_p1,HMR_dummy_c_p1";
     std::string tDBCSets  = "iside_b0_1_b1_3";
-    std::string tNBCSets  = "SideSet_3_c_p1";    ///"iside_b0_1_b1_0";
+    std::string tNBCSets  = "SideSet_4_c_p1";    ///"iside_b0_1_b1_0";
 
     // FD in adjoint
     real tFEMFdEpsilon = 1.0e-7;
@@ -248,7 +248,7 @@ namespace moris
 
         // vertical line
         tParameterlist( 1 )( 0 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE );
-        tParameterlist( 1 )( 0 ).set( "center_x", 0.8 );    //, 0.8, 0.8 );
+        tParameterlist( 1 )( 0 ).set( "center_x", 0.8, 0.8, 0.8 );
         tParameterlist( 1 )( 0 ).set( "center_y", 0.3 );
         tParameterlist( 1 )( 0 ).set( "normal_x", 1.0 );
         tParameterlist( 1 )( 0 ).set( "normal_y", 0.0 );
