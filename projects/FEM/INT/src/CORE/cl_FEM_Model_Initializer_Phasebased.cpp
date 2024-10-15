@@ -29,7 +29,7 @@ namespace moris::fem
     void Model_Initializer_Phasebased::create_phases()
     {
         // get the phase parameter list
-        Vector< Parameter_List > tPhaseParameterList = mParameterList( 7 );
+        Submodule_Parameter_Lists tPhaseParameterList = mParameterList( 7 );
 
         // get number of phases
         uint tNumPhases = tPhaseParameterList.size();
@@ -70,7 +70,7 @@ namespace moris::fem
         MM_Factory tMMFactory;
 
         // get the MM parameter list
-        Vector< Parameter_List > tMMParameterList = mParameterList( 8 );
+        Submodule_Parameter_Lists tMMParameterList = mParameterList( 8 );
 
         // get number of constitutive models
         uint tNumMMs = tMMParameterList.size();
@@ -162,7 +162,7 @@ namespace moris::fem
         CM_Factory tCMFactory;
 
         // get the CM parameter list
-        Vector< Parameter_List > tCMParameterList = mParameterList( 1 );
+        Submodule_Parameter_Lists tCMParameterList = mParameterList( 1 );
 
         // get number of constitutive models
         uint tNumCMs = tCMParameterList.size();
@@ -201,7 +201,7 @@ namespace moris::fem
 
             // set CM model type. must come before "set_space_dim"
             // fixme: currently cannot set a plane type and tensor type at the same time from an input file
-            if ( tCMModelType != fem::Model_Type::UNDEFINED )
+            if ( tCMModelType != fem::Model_Type::END_MODEL_TYPE )
             {
                 tCM->set_model_type( tCMModelType );
             }
@@ -318,7 +318,7 @@ namespace moris::fem
         SP_Factory tSPFactory;
 
         // get the SP parameter list
-        Vector< Parameter_List > tSPParameterList = mParameterList( 2 );
+        Submodule_Parameter_Lists tSPParameterList = mParameterList( 2 );
 
         // get the number of stabilization parameters
         uint tNumSPs = tSPParameterList.size();
@@ -529,7 +529,7 @@ namespace moris::fem
         IWG_Factory tIWGFactory;
 
         // get the IWG parameter list
-        Vector< Parameter_List > tIWGParameterList = mParameterList( 3 );
+        Submodule_Parameter_Lists tIWGParameterList = mParameterList( 3 );
 
         // get number of IWGs
         uint tNumIWGs = tIWGParameterList.size();
@@ -801,7 +801,7 @@ namespace moris::fem
         IQI_Factory tIQIFactory;
 
         // get the IQI parameter list
-        Vector< Parameter_List > tIQIParameterList = mParameterList( 4 );
+        Submodule_Parameter_Lists tIQIParameterList = mParameterList( 4 );
 
         // get number of IQIs
         uint tNumIQIs = tIQIParameterList.size();
@@ -993,8 +993,8 @@ namespace moris::fem
         uint tNumFEMSets = 0;
 
         // get the IWG and IQI parameter lists
-        Vector< Parameter_List > tIWGParameterList = mParameterList( 3 );
-        Vector< Parameter_List > tIQIParameterList = mParameterList( 4 );
+        Submodule_Parameter_Lists tIWGParameterList = mParameterList( 3 );
+        Submodule_Parameter_Lists tIQIParameterList = mParameterList( 4 );
 
         // get fem computation type parameter list
         Parameter_List tComputationParameterList = mParameterList( 5 )( 0 );

@@ -14,13 +14,23 @@ namespace moris
 {
     //--------------------------------------------------------------------------------------------------------------
 
-    // Forward declare design variable validator
-    class Design_Variable_Validator;
+    Parameter::Parameter( const Vector< std::string >& aEnumStrings )
+            : mEntryType( Entry_Type::SELECTION )
+    {
+        // Set default value without validation
+        uint tValue = 0;
+        mValue      = make_variant( tValue );
+
+        // Create selection validator
+        mValidator = new Enum_Validator( aEnumStrings );
+    }
 
     //--------------------------------------------------------------------------------------------------------------
 
     Parameter::Parameter( const Parameter& aParameter )
             : mValue( aParameter.mValue )
+            , mEntryType( aParameter.mEntryType )
+            , mNumberOfEntries( aParameter.mNumberOfEntries )
             , mExternalValidator( aParameter.mExternalValidator )
     {
         if ( aParameter.mValidator )
@@ -63,6 +73,41 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
 
+    Entry_Type Parameter::get_entry_type() const
+    {
+        return mEntryType;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    uint Parameter::get_number_of_entries() const
+    {
+        return mNumberOfEntries;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    bool Parameter::is_locked() const
+    {
+        return mValidator == nullptr;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    bool Parameter::needs_linking() const
+    {
+        return mNeedsLinking;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    const Vector< std::string >& Parameter::get_selection_names() const
+    {
+        return mValidator->get_selection_names();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     const External_Validator& Parameter::get_external_validator() const
     {
         return mExternalValidator;
@@ -73,9 +118,9 @@ namespace moris
     template<>
     Parameter::Parameter(
             const char*         aString,
-            Validation_Type     aExternalValidationType,
+            Entry_Type          aExternalValidationType,
             std::string         aExternalParameterName,
-            Parameter_List_Type aExternalParameterListType,
+            Module_Type aExternalParameterListType,
             uint                aExternalParameterListIndex )
             : Parameter( std::string( aString ),
                       aExternalValidationType,

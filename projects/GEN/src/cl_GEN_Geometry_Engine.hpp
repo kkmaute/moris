@@ -94,7 +94,7 @@ namespace moris::gen
          * @param aMesh Mesh for discrete or mesh based geomtries
          */
         explicit Geometry_Engine(
-                Vector< Vector< Parameter_List > >        aParameterLists,
+                Module_Parameter_Lists        aParameterLists,
                 const std::shared_ptr< Library_IO >& aLibrary = nullptr,
                 mtk::Mesh*                           aMesh    = nullptr );
 
@@ -518,7 +518,7 @@ namespace moris::gen
          * @return Phase table
          */
         static Phase_Table create_phase_table(
-                const Vector< Vector< Parameter_List > >& aParameterLists,
+                const Module_Parameter_Lists& aParameterLists,
                 const std::shared_ptr< Library_IO >& aLibrary );
 
         /**

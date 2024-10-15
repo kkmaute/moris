@@ -136,7 +136,7 @@ namespace moris::fem
         fem::Cluster *mCluster;
 
         // enum storage
-        fem::Measure_Type    mMeasureType = fem::Measure_Type::UNDEFINED;
+        fem::Measure_Type    mMeasureType = fem::Measure_Type::END_MEASURE_TYPE;
         mtk::Primary_Void    mIsPrimary   = mtk::Primary_Void::UNDEFINED;
         mtk::Leader_Follower mIsLeader    = mtk::Leader_Follower::UNDEFINED;
 

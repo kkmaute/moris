@@ -11,6 +11,7 @@
 #pragma once
 
 #include "cl_WRK_Workflow.hpp"
+#include "cl_Module_Parameter_Lists.hpp"
 #include "moris_typedefs.hpp"                       //MRS/COR/src
 #include "cl_Vector.hpp"
 
@@ -75,7 +76,7 @@ namespace moris
                 Matrix< DDRMat > compute_dcriteria_dadv() override;
 
                 void
-                create_stk( Vector< Vector< Parameter_List > > & aParameterLists);
+                create_stk( Module_Parameter_Lists & aParameterLists);
 
         };
         //------------------------------------------------------------------------------

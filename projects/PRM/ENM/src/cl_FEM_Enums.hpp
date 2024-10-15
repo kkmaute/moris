@@ -17,11 +17,7 @@
 
 namespace moris::fem
 {
-
-    //------------------------------------------------------------------------------
-
     ENUM_MACRO( Element_Type,
-            UNDEFINED,
             BULK,
             SIDESET,
             DOUBLE_SIDESET,
@@ -30,10 +26,7 @@ namespace moris::fem
             TIME_BOUNDARY,
             END_ELEMENT_TYPE )
 
-    //------------------------------------------------------------------------------
-
     ENUM_MACRO( IWG_Type,
-            UNDEFINED,
             L2,
             HJ,
             HJTEST,
@@ -152,10 +145,7 @@ namespace moris::fem
             USER_DEFINED,
             END_IWG_TYPE )
 
-    //------------------------------------------------------------------------------
-
     ENUM_MACRO( IQI_Type,
-            UNDEFINED,
             VOLUME,
             STRAIN_ENERGY,
             VOLUME_FRACTION,
@@ -220,10 +210,7 @@ namespace moris::fem
             LINEAR_ELASTICITY_DAMAGE,
             END_IQI_TYPE )
 
-    //------------------------------------------------------------------------------
-
     ENUM_MACRO( Constitutive_Type,
-            UNDEFINED,
             DIFF_LIN_ISO,
             DIFF_LIN_ISO_PC,
             DIFF_LIN_ISO_TURBULENCE,
@@ -243,193 +230,141 @@ namespace moris::fem
             SPALART_ALLMARAS_TURBULENCE,
             END_CONSTITUTIVE_TYPE )
 
-    //------------------------------------------------------------------------------
+    ENUM_MACRO( Material_Type,
+            PERFECT_GAS,
+            VAN_DER_WAALS_FLUID,
+            END_MATERIAL_TYPE )
 
-    enum class Material_Type
-    {
-        UNDEFINED,
-        PERFECT_GAS,
-        VAN_DER_WAALS_FLUID,
-        END_MATERIAL_TYPE
-    };
+    ENUM_MACRO( Variable_Set,
+            CONSERVATIVE,
+            DENSITY_PRIMITIVE,
+            PRESSURE_PRIMITIVE,
+            ENTROPY,
+            END_VARIABLE_SET )
 
-    //------------------------------------------------------------------------------
+    ENUM_MACRO( Model_Type,
+            PLANE_STRESS,
+            PLANE_STRAIN,
+            AXISYMMETRIC,
+            FULL,
+            HYDROSTATIC,    // not implemented yet
+            DEVIATORIC,
+            END_MODEL_TYPE )
 
-    enum class Variable_Set
-    {
-        UNDEFINED,
-        CONSERVATIVE,
-        DENSITY_PRIMITIVE,
-        PRESSURE_PRIMITIVE,
-        ENTROPY,
-        END_VARIABLE_SET
-    };
+    ENUM_MACRO( Stabilization_Type,
+            DIRICHLET_NITSCHE,
+            ROBIN_NITSCHE,
+            GGLS_DIFFUSION,
+            GHOST_DISPL,
+            GHOST_NORMAL_FIELD,
+            GHOST_VW,
+            NITSCHE_INTERFACE,
+            LEADER_WEIGHT_INTERFACE,
+            FOLLOWER_WEIGHT_INTERFACE,
+            RECIPROCAL_TOTAL_VOLUME,
+            INCOMPRESSIBLE_FLOW,
+            VISCOUS_GHOST,
+            CONVECTIVE_GHOST,
+            PRESSURE_GHOST,
+            TIME_VELOCITY_GHOST,
+            VELOCITY_DIRICHLET_NITSCHE,
+            VELOCITY_SLIPBOUNDARY_NITSCHE,
+            COMPRESSIBLE_VELOCITY_DIRICHLET_NITSCHE,
+            COMPRESSIBLE_DIRICHLET_NITSCHE,
+            SUPG_ADVECTION,
+            SUPG_SPALART_ALLMARAS_TURBULENCE,
+            YZBETA_ADVECTION,
+            CROSSWIND,
+            TURBULENCE_DIRICHLET_NITSCHE,
+            SPALART_ALLMARAS_NITSCHE_INTERFACE,
+            PENALTY_CONTACT,
+            STAB_PENALTY_CONTACT,
+            MEASURE,
+            LAGRANGE_MULTIPLIER_L2,
+            END_STABILIZATION_TYPE )
 
-    //------------------------------------------------------------------------------
+    ENUM_MACRO( Measure_Type,
+            CELL_MEASURE,
+            CELL_SIDE_MEASURE,
+            CELL_LENGTH_MEASURE,
+            END_MEASURE_TYPE )
 
-    enum class Model_Type
-    {
-        UNDEFINED,
-        PLANE_STRESS,
-        PLANE_STRAIN,
-        AXISYMMETRIC,
-        FULL,
-        HYDROSTATIC,    // not implemented yet
-        DEVIATORIC,
-        END_MODEL_TYPE
-    };
+inline map< std::string, enum fem::Measure_Type >
+get_measure_type_map()
+{
+    map< std::string, enum fem::Measure_Type > tFemMeasureTypeMap;
 
-    //------------------------------------------------------------------------------
-
-    enum class Stabilization_Type
-    {
-        UNDEFINED,
-        DIRICHLET_NITSCHE,
-        ROBIN_NITSCHE,
-        GGLS_DIFFUSION,
-        GHOST_DISPL,
-        GHOST_NORMAL_FIELD,
-        GHOST_VW,
-        NITSCHE_INTERFACE,
-        LEADER_WEIGHT_INTERFACE,
-        FOLLOWER_WEIGHT_INTERFACE,
-        RECIPROCAL_TOTAL_VOLUME,
-        INCOMPRESSIBLE_FLOW,
-        VISCOUS_GHOST,
-        CONVECTIVE_GHOST,
-        PRESSURE_GHOST,
-        TIME_VELOCITY_GHOST,
-        VELOCITY_DIRICHLET_NITSCHE,
-        VELOCITY_SLIPBOUNDARY_NITSCHE,
-        COMPRESSIBLE_VELOCITY_DIRICHLET_NITSCHE,
-        COMPRESSIBLE_DIRICHLET_NITSCHE,
-        SUPG_ADVECTION,
-        SUPG_SPALART_ALLMARAS_TURBULENCE,
-        YZBETA_ADVECTION,
-        CROSSWIND,
-        TURBULENCE_DIRICHLET_NITSCHE,
-        SPALART_ALLMARAS_NITSCHE_INTERFACE,
-        PENALTY_CONTACT,
-        STAB_PENALTY_CONTACT,
-        MEASURE,
-        LAGRANGE_MULTIPLIER_L2,
-        END_STABILIZATION_TYPE
-    };
-
-    //------------------------------------------------------------------------------
-
-    enum class Measure_Type
-    {
-        UNDEFINED,
-        CELL_MEASURE,
-        CELL_SIDE_MEASURE,
-        CELL_LENGTH_MEASURE,
-        END_MEASURE_TYPE
-    };
-
-    inline map< std::string, enum fem::Measure_Type >
-    get_measure_type_map()
-    {
-        map< std::string, enum fem::Measure_Type > tFemMeasureTypeMap;
-
-        tFemMeasureTypeMap[ "UNDEFINED" ]           = fem::Measure_Type::UNDEFINED;
         tFemMeasureTypeMap[ "CELL_MEASURE" ]        = fem::Measure_Type::CELL_MEASURE;
         tFemMeasureTypeMap[ "CELL_SIDE_MEASURE" ]   = fem::Measure_Type::CELL_SIDE_MEASURE;
         tFemMeasureTypeMap[ "CELL_LENGTH_MEASURE" ] = fem::Measure_Type::CELL_LENGTH_MEASURE;
         tFemMeasureTypeMap[ "END_MEASURE_TYPE" ]    = fem::Measure_Type::END_MEASURE_TYPE;
 
-        return tFemMeasureTypeMap;
-    }
+    return tFemMeasureTypeMap;
+}
 
-    //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
-    enum class FDScheme_Type
-    {
-        UNDEFINED,
-        POINT_1_FORWARD,
-        POINT_1_BACKWARD,
-        POINT_3_CENTRAL,
-        POINT_5,
-        END_FD_SCHEME
-    };
+    ENUM_MACRO( FDScheme_Type,
+            POINT_1_FORWARD,
+            POINT_1_BACKWARD,
+            POINT_3_CENTRAL,
+            POINT_5,
+            END_FD_SCHEME )
 
-    //------------------------------------------------------------------------------
+    ENUM_MACRO( Perturbation_Type,
+            RELATIVE,
+            ABSOLUTE,
+            END_PERTURBATION_TYPE )
 
-    enum class Perturbation_Type
-    {
-        UNDEFINED,
-        RELATIVE,
-        ABSOLUTE,
-        END_PERTURBATION_TYPE
-    };
+    ENUM_MACRO( Stress_Type,
+            NORMAL_STRESS,
+            SHEAR_STRESS,
+            VON_MISES_STRESS,
+            PRINCIPAL_STRESS,
+            MAX_SHEAR_STRESS,
+            STRESS_VECTOR,
+            END_STRESS_TYPE )
 
-    //------------------------------------------------------------------------------
+    ENUM_MACRO( CM_Function_Type,
+            DEFAULT,
+            THERMAL,
+            FLUID,
+            MECHANICAL,
+            ENERGY,
+            WORK,
+            HEAT,
+            PRESSURE,
+            PK1,
+            PK2,
+            CAUCHY,
+            DEFORMATION_GRADIENT,
+            RIGHT_CAUCHY_GREEN,
+            INV_RIGHT_CAUCHY_GREEN,
+            LEFT_CAUCHY_GREEN,
+            INV_LEFT_CAUCHY_GREEN,
+            LAGRANGIAN,
+            EULERIAN,
+            INFINITESIMAL,
+            END_CM_FUNCTION_TYPE )
 
-    enum class Stress_Type
-    {
-        UNDEFINED,
-        NORMAL_STRESS,
-        SHEAR_STRESS,
-        VON_MISES_STRESS,
-        PRINCIPAL_STRESS,
-        MAX_SHEAR_STRESS,
-        STRESS_VECTOR,
-        END_STRESS_TYPE
-    };
+    ENUM_MACRO( Time_Continuity_Flag,
+            DEFAULT,
+            TIME_CONTINUITY_ONLY,
+            NO_TIME_CONTINUITY,
+            GEOMETRIC_STIFFNESS_ONLY,
+            END_TIME_CONTINUITY_FLAG )
 
-    //------------------------------------------------------------------------------
-
-    enum class CM_Function_Type
-    {
-        DEFAULT,
-        THERMAL,
-        FLUID,
-        MECHANICAL,
-        ENERGY,
-        WORK,
-        HEAT,
-        PRESSURE,
-        PK1,
-        PK2,
-        CAUCHY,
-        DEFORMATION_GRADIENT,
-        RIGHT_CAUCHY_GREEN,
-        INV_RIGHT_CAUCHY_GREEN,
-        LEFT_CAUCHY_GREEN,
-        INV_LEFT_CAUCHY_GREEN,
-        LAGRANGIAN,
-        EULERIAN,
-        INFINITESIMAL,
-        END_CM_FUNCTION_TYPE
-    };
-
-    //------------------------------------------------------------------------------
-
-    enum class Time_Continuity_Flag
-    {
-        DEFAULT,
-        TIME_CONTINUITY_ONLY,
-        NO_TIME_CONTINUITY,
-        GEOMETRIC_STIFFNESS_ONLY,
-        END_TIME_CONTINUITY_FLAG,
-    };
-
-    //------------------------------------------------------------------------------
-
-    enum class CM_Request_Type
-    {
-        UNDEFINED,
-        STRAIN,
-        TEST_STRAIN,
-        FLUX,
-        TRACTION,
-        TEST_TRACTION,
-        DAMAGE,
-        SMOOTH_DAMAGE,
-        EQSTRAIN,
-        HISTORY,
-        END_CM_REQUEST_TYPE
-    };
-}    // namespace moris::fem
+    ENUM_MACRO( CM_Request_Type,
+            STRAIN,
+            TEST_STRAIN,
+            FLUX,
+            TRACTION,
+            TEST_TRACTION,
+            DAMAGE,
+            SMOOTH_DAMAGE,
+            EQSTRAIN,
+            HISTORY,
+            END_CM_REQUEST_TYPE )
+} /* namespace moris */
 
 #endif /* SRC_FEM_CL_FEM_ENUMS_HPP_ */

@@ -550,6 +550,7 @@ namespace moris::hmr
         //-------------------------------------------------------------------------------
 
         mtk::Cell& get_writable_mtk_cell( moris_index aElementIndex ) override;
+
         //-------------------------------------------------------------------------------
 
         moris::mtk::Facet*

@@ -153,6 +153,14 @@ namespace moris
 
         // ----------------------------------------------------------------------------------------------
 
+        fem::Element_Type
+        get_set_type( uint aMyEquSetInd ) override
+        {
+            return fem::Element_Type::END_ELEMENT_TYPE;
+        }
+
+        // ----------------------------------------------------------------------------------------------
+
         void
         get_equation_object_operator(
                 const uint&       aMyElementInd,

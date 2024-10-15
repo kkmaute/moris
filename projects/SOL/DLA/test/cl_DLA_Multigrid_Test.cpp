@@ -231,33 +231,29 @@ namespace moris
 
             sol::SOL_Warehouse tSolverWarehouse( tSolverInterface );
 
-            Vector< Vector< moris::Parameter_List > > tParameterlist( 8 );
-            for ( uint Ik = 0; Ik < 8; Ik++ )
-            {
-                tParameterlist( Ik ).resize( 1 );
-            }
+            Module_Parameter_Lists tParameterlist( Module_Type::SOL );
 
-            tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::PETSC );
+            tParameterlist( 0 ).add_parameter_list( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::PETSC ) );
             tParameterlist( 0 )( 0 ).set( "KSPType", std::string( "fgmres" ) );
             tParameterlist( 0 )( 0 ).set( "preconditioners", "0" );
 
-            tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
-            tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+            tParameterlist( 1 ).add_parameter_list( moris::prm::create_linear_solver_parameter_list() );
+            tParameterlist( 2 ).add_parameter_list( moris::prm::create_nonlinear_algorithm_parameter_list() );
             tParameterlist( 2 )( 0 ).set( "NLA_max_iter", 2 );
 
-            tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
+            tParameterlist( 3 ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );
             tParameterlist( 3 )( 0 ).set( "NLA_DofTypes", "L2" );
 
-            tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
-            tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
+            tParameterlist( 4 ).add_parameter_list( moris::prm::create_time_solver_algorithm_parameter_list() );
+            tParameterlist( 5 ).add_parameter_list( moris::prm::create_time_solver_parameter_list() );
             tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "L2" );
             tParameterlist( 5 )( 0 ).set( "TSA_Output_Indices", "" );
             tParameterlist( 5 )( 0 ).set( "TSA_Output_Criteria", "" );
 
-            tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+            tParameterlist( 6 ).add_parameter_list( moris::prm::create_solver_warehouse_parameterlist() );
             tParameterlist( 6 )( 0 ).set( "SOL_TPL_Type", static_cast< uint >( sol::MapType::Petsc ) );
 
-            tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::PETSC );
+            tParameterlist( 7 ).add_parameter_list( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::PETSC ) );
             tParameterlist( 7 )( 0 ).set( "PCType", std::string( "mg" ) );
             tParameterlist( 7 )( 0 ).set( "ILUFill", 3 );
             tParameterlist( 7 )( 0 ).set( "ILUTol", 1e-6 );

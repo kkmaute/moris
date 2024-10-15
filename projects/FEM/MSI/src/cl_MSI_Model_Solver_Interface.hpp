@@ -72,9 +72,6 @@ namespace moris
             //------------------------------------------------------------------------------
 
           public:
-            Model_Solver_Interface() {};
-
-            //------------------------------------------------------------------------------
 
             Model_Solver_Interface(
                     const Parameter_List&       aMSIParameterList,

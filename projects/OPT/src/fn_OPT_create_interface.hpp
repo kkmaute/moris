@@ -12,7 +12,7 @@
 #define MORIS_FN_OPT_CREATE_INTERFACE_HPP
 
 #include "cl_OPT_Criteria_Interface.hpp"
-#include "cl_Parameter_List.hpp"
+#include "cl_Submodule_Parameter_Lists.hpp"
 
 namespace moris::opt
 {
@@ -23,7 +23,7 @@ namespace moris::opt
      * @return Interface class (can be manager)
      */
     std::shared_ptr< Criteria_Interface > create_interface(
-            Vector< Parameter_List >                        aParameterLists,
+            Submodule_Parameter_Lists                        aParameterLists,
             Vector< std::shared_ptr< Criteria_Interface > > aInterfaces = Vector< std::shared_ptr< Criteria_Interface > >( 0 ) );
 
     /**

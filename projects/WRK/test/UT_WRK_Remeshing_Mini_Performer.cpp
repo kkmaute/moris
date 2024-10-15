@@ -100,13 +100,13 @@ TEST_CASE( "WRK L2 test", "[WRK_L2_test]" )
         tParameters.set( "use_multigrid", 0 );
         tParameters.set( "severity_level", 0 );
 
-        Parameter_List tRefinementParameters;
+        Parameter_List tRefinementParameters( "Refinement" );
         prm::create_refinement_parameterlist( tRefinementParameters );
         tRefinementParameters.set( "field_names", "Circle" );
         tRefinementParameters.set( "levels_of_refinement", "1" );
         tRefinementParameters.set( "refinement_pattern", "0" );
 
-        Parameter_List tRemeshingParameters;
+        Parameter_List tRemeshingParameters( "Remeshing" );
         prm::create_remeshing_parameterlist( tRemeshingParameters );
         tRemeshingParameters.set( "mode", "ab_initio" );
         tRemeshingParameters.set( "remeshing_field_names", "Circle" );

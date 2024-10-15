@@ -14,9 +14,20 @@ namespace moris
 {
     //--------------------------------------------------------------------------------------------------------------
 
+    static Vector< std::string > gNoSelections;
+
+    //--------------------------------------------------------------------------------------------------------------
+
     std::string to_string( const std::string& aValue )
     {
         return "\"" + aValue + "\"";
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    const Vector< std::string >& Validator::get_selection_names()
+    {
+        return gNoSelections;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -59,7 +70,7 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     template< typename T >
-    std::string Type_Validator< T >::get_valid_values()
+    std::string Type_Validator< T >::get_validation_message()
     {
         return get_type_name< T >();
     }
@@ -166,7 +177,7 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     template< typename T >
-    std::string Vector_Validator< T >::get_valid_values()
+    std::string Vector_Validator< T >::get_validation_message()
     {
         return get_type_name< Vector< T > >();
     }
@@ -192,7 +203,7 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     template< typename T >
-    std::string Range_Validator< T >::get_valid_values()
+    std::string Range_Validator< T >::get_validation_message()
     {
         return get_type_name< T >() + ", [" + std::to_string( mMinimumValue ) + ", " + std::to_string( mMaximumValue ) + "]";
     }
@@ -208,15 +219,38 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     template< typename T >
-    bool Selection_Validator< T >::make_valid_parameter( Variant& aVariant )
+    const Vector< std::string >& Selection_Validator< T >::get_selection_names()
     {
-        return aVariant.index() == variant_index< T >() and mValidSelections.find( std::get< T >( aVariant ) ) != mValidSelections.end();
+        return mValidSelections;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     template< typename T >
-    std::string Selection_Validator< T >::get_valid_values()
+    bool Selection_Validator< T >::make_valid_parameter( Variant& aVariant )
+    {
+        // Check if index is correct
+        if ( aVariant.index() == variant_index< T >() )
+        {
+            // Check that given variant is in valid selections
+            T aParameter = std::get< T >( aVariant );
+            for ( const auto& iValidSelection : mValidSelections )
+            {
+                if ( aParameter == iValidSelection )
+                {
+                    return true;
+                }
+            }
+        }
+
+        // Index not correct or valid selection not found
+        return false;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    template< typename T >
+    std::string Selection_Validator< T >::get_validation_message()
     {
         // Use std::to_string for valid arguments
         using namespace std;
@@ -239,6 +273,73 @@ namespace moris
     Validator* Selection_Validator< T >::copy()
     {
         return new Selection_Validator( mValidSelections );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Enum_Validator::Enum_Validator( const Vector< std::string >& aEnumStrings )
+            : mEnumStrings( aEnumStrings )
+    {
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    const Vector< std::string >& Enum_Validator::get_selection_names()
+    {
+        return mEnumStrings;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    bool Enum_Validator::make_valid_parameter( Variant& aVariant )
+    {
+        // Check if uint was given directly
+        if ( aVariant.index() == variant_index< uint >() )
+        {
+            // Check if index lies within vector size
+            return std::get< uint >( aVariant ) < mEnumStrings.size();
+        }
+        else if ( aVariant.index() == variant_index< std::string >() )
+        {
+            // Check that given variant is a valid enum name
+            std::string aParameter = std::get< std::string >( aVariant );
+            for ( uint iEnumIndex = 0; iEnumIndex < mEnumStrings.size(); iEnumIndex++ )
+            {
+                // Check specific enum string at this index
+                if ( aParameter == mEnumStrings( iEnumIndex ) )
+                {
+                    aVariant = make_variant( iEnumIndex );
+                    return true;
+                }
+            }
+        }
+
+        // Index not correct or valid selection not found
+        return false;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    std::string Enum_Validator::get_validation_message()
+    {
+        // Create message from enum strings
+        std::string tMessage;
+        std::string tDelimiter;
+        for ( const auto& iEnumString : mEnumStrings )
+        {
+            tMessage += tDelimiter + iEnumString;
+            tDelimiter = ", ";
+        }
+
+        // Return string
+        return tMessage;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Validator* Enum_Validator::copy()
+    {
+        return new Enum_Validator( mEnumStrings );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -293,7 +394,7 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     template<>
-    std::string Type_Validator< Design_Variable >::get_valid_values()
+    std::string Type_Validator< Design_Variable >::get_validation_message()
     {
         return "Constant value (real) or lower bound, initial value, upper bound (3 reals)";
     }
@@ -301,9 +402,9 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     template<>
-    std::string Range_Validator< Design_Variable >::get_valid_values()
+    std::string Range_Validator< Design_Variable >::get_validation_message()
     {
-        return Type_Validator< Design_Variable >().get_valid_values()
+        return Type_Validator< Design_Variable >().get_validation_message()
              + ", [" + std::to_string( mMinimumValue.get_value() ) + ", " + std::to_string( mMaximumValue.get_value() ) + "]";
     }
 
