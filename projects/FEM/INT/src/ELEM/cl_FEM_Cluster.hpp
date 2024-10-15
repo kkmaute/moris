@@ -66,7 +66,7 @@ namespace moris::fem
         Set *mSet = nullptr;
 
         // element type
-        Element_Type mElementType = Element_Type::UNDEFINED;
+        Element_Type mElementType = Element_Type::END_ELEMENT_TYPE;
 
         // acceptable volume error
         // IG cells with a relative volume below this threshold are ignored

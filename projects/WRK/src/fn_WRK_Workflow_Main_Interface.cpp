@@ -177,7 +177,7 @@ int fn_WRK_Workflow_Main_Interface( int argc, char *argv[] )
         }
 
         // finish initializing the library and lock it from modification
-        tLibrary->finalize();
+        tLibrary->finalize( "./Parameter_Receipt.xml" );
     }
 
     // --------------------------------------------- //
@@ -190,7 +190,7 @@ int fn_WRK_Workflow_Main_Interface( int argc, char *argv[] )
 #endif
 
         // load the OPT parameter list
-        ModuleParameterList tOPTParameterList = tLibrary->get_parameters_for_module( Parameter_List_Type::OPT );
+        Module_Parameter_Lists tOPTParameterList = tLibrary->get_parameters_for_module( Module_Type::OPT );
 
         // Create performer manager
         wrk::Performer_Manager tPerformerManager( tLibrary );

@@ -203,10 +203,10 @@ namespace moris::gen
                 for ( const auto& iParameter : aFieldParameterList )
                 {
                     // Determine if parameter is design variable
-                    if ( iParameter.second.index() == variant_index< Design_Variable >() )
+                    if ( iParameter.get_parameter().index() == variant_index< Design_Variable >() )
                     {
                         // Get design variable from parameter list
-                        tADVs.push_back( aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( iParameter.first ) ) );
+                        tADVs.push_back( aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( iParameter.get_name() ) ) );
                     }
                 }
 
@@ -247,10 +247,10 @@ namespace moris::gen
         for ( const auto& iParameter : aFieldParameterList )
         {
             // Determine if parameter is design variable
-            if ( iParameter.second.index() == variant_index< Design_Variable >() )
+            if ( iParameter.get_parameter().index() == variant_index< Design_Variable >() )
             {
                 // Get design variable from parameter list
-                auto tDesignVariable = aFieldParameterList.get< Design_Variable >( iParameter.first );
+                auto tDesignVariable = aFieldParameterList.get< Design_Variable >( iParameter.get_name() );
 
                 // Add ID if not constant
                 if ( not tDesignVariable.is_constant() )

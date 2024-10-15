@@ -6,7 +6,7 @@
 #
 
 set(EXAMPLE_MAIN Thermal_Flow_About_Sphere_3D)
-set(EXAMPLE_FILE Channel3D)
+set(EXAMPLE_FILE Thermal_Flow_About_Sphere_3D)
 set(EXAMPLE_PROCS 1 4)
 
 # List source files

@@ -85,7 +85,7 @@
 //         // XTK parameter list
 //         Vector< Vector< moris::ParameterList > > tXTKParams(1);
 //         tXTKParams( 0 ).resize( 1 );
-//         tXTKParams( 0 )( 0 ) = prm::create_xtk_parameter_list();
+//         tXTKParams( 0 ).push_back( prm::create_xtk_parameter_list() );;
 //         tXTKParams( 0 )( 0 ).set( "decompose",                 true );
 //         tXTKParams( 0 )( 0 ).set( "decomposition_type",        "conformal" );
 //         tXTKParams( 0 )( 0 ).set( "enrich",                    true );
@@ -155,7 +155,7 @@
 //         tHMRParams.resize( 1 );
 //         tHMRParams( 0 ).resize( 1 );
 
-//         tHMRParams( 0 )( 0 ) = prm::create_hmr_parameter_list();
+//         tHMRParams( 0 ).push_back( prm::create_hmr_parameter_list() );
 //         tHMRParams( 0 )( 0 ).set( "number_of_elements_per_dimension", tNumElemsPerDim );
 //         tHMRParams( 0 )( 0 ).set( "domain_dimensions",                tDomainDims );
 //         tHMRParams( 0 )( 0 ).set( "domain_offset",                    tDomainOffset );

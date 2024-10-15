@@ -265,9 +265,24 @@ namespace moris::xtk
                 moris_index const & aBasisIndex,
                 moris_index const & aMeshIndex ) const;
 
+        //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+
       public:
+
         Vector< Interpolation_Cell_Unzipped* >&
         get_enriched_interpolation_cells();
+
+        //------------------------------------------------------------------------------
+        
+        /**
+         * @brief Using a background vertex id, and a enriched interpolation cell id
+         * find the corresponding enriched interpolation vertex
+         */
+        moris_index
+        get_enriched_interpolation_vertex(
+                moris_index const & aBGVertId,
+                moris_index const & aEnrichedIpCellId ) const;
 
         //------------------------------------------------------------------------------
 

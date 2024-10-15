@@ -24,38 +24,114 @@
 #include "ios.hpp"
 #include "cl_Parameter.hpp"
 
-namespace moris::containers
-{
-    struct strcmp
-    {
-        bool
-        operator()( const std::string& a, const std::string& b ) const
-        {
-            return std::strcmp( a.c_str(), b.c_str() ) < 0;
-        }
-    };
-}
-
 namespace moris
 {
-    /**
-     * The parameter list class.
-     *
-     * A parameter list can be created as follows:
-     * @include CON/src/cl_param_list/cl_param_list_insert.inc
-     */
+    template< typename Map_Type >
+    class Parameter_Iterator
+    {
+      private:
+        Map_Type                     mParameterMap;
+        const Vector< std::string >& mOrderedKeys;
+        luint                        mKeyIndex;
+
+      public:
+        /**
+         * Parameter iterator constructor, gives all the information needed to increment this iterator.
+         *
+         * @param aParameterMap Map where the std::string to Parameter relationship is found
+         * @param aOrderedKeys Vector of keys in the order to be iterated
+         * @param aKeyIndex Key index to start iterating from
+         */
+        Parameter_Iterator(
+                Map_Type                     aParameterMap,
+                const Vector< std::string >& aOrderedKeys,
+                luint                        aKeyIndex );
+
+        /**
+         * Indirection operator, used for range-based for loops.
+         *
+         * @return Parameter iterator by const reference
+         */
+        const Parameter_Iterator& operator*() const;
+
+        /**
+         * Increment operator
+         *
+         * @return Parameter iterator, with 1 added to the underlying key index.
+         */
+        Parameter_Iterator& operator++();
+
+        /**
+         * Comparison operator for checking if iterator is at the end of the parameter list container.
+         *
+         * @return If iterators are equal
+         */
+        bool operator!=( const Parameter_Iterator& ) const;
+
+        /**
+         * Gets the name of the parameter at the current key index.
+         *
+         * @return Parameter name
+         */
+        const std::string& get_name() const;
+
+        /**
+         * Gets the parameter associated with the key at the current index.
+         *
+         * @return Parameter currently mapped to by the key
+         */
+        template< bool not_const = not std::is_const< typename std::remove_reference< Map_Type >::type >::value >
+        typename std::enable_if< not_const, Parameter& >::type
+        get_parameter()
+        {
+            return mParameterMap.find( mOrderedKeys( mKeyIndex ) )->second;
+        }
+
+        /**
+         * Gets a const reference to the parameter associated with the key at the current index.
+         *
+         * @return Parameter currently mapped to by the key
+         */
+        const Parameter& get_parameter() const;
+    };
+
+    // Explicit instantiation
+    template class Parameter_Iterator< std::map< std::string, Parameter >& >;
+    template class Parameter_Iterator< const std::map< std::string, Parameter >& >;
+
     class Parameter_List
     {
-
       private:
-        std::map< std::string, Parameter, moris::containers::strcmp > mParamMap;
+        std::string mName;
+        std::map< std::string, Parameter > mParameterMap;
+        Vector< std::string > mOrderedKeys;
+
+        // Scoped iterator types
+        typedef Parameter_Iterator< std::map< std::string, Parameter >& > iterator;
+        typedef Parameter_Iterator< const std::map< std::string, Parameter >& > const_iterator;
 
       public:
 
         /**
-         * Constructor
+         * Parameter list constructor
+         *
+         * @param aName Name of this parameter list
          */
-        Parameter_List() = default;
+        explicit Parameter_List( std::string aName );
+
+        /**
+         * Sets the name of this parameter list.
+         *
+         * @param aName Name of this collection of parameters
+         */
+        void set_name( std::string aName );
+
+        /**
+         * Gets the name of this parameter list.
+         *
+         * @return Name of this collection of parameters
+         */
+        const std::string& get_name();
 
         /**
          * Destructor
@@ -77,34 +153,19 @@ namespace moris
         template< typename T >
         void insert(
                 const std::string&  aName,
-                const T&            aDefaultValue,
-                Validation_Type     aExternalValidationType     = Validation_Type::NONE,
-                std::string         aExternalParameterName      = "",
-                Parameter_List_Type aExternalParameterListType  = Parameter_List_Type::END_ENUM,
+                T                   aDefaultValue,
+                Entry_Type          aExternalValidationType = Entry_Type::FREE,
+                std::string         aExternalParameterName = "",
+                Module_Type        aExternalParameterListType = Module_Type::END_ENUM,
                 uint                aExternalParameterListIndex = 0 )
         {
-            // Check for leading and trailing whitespaces in key
-            std::string tKeyWithoutSpaces = aName;
-            split_trim_string( tKeyWithoutSpaces, "" );
-            MORIS_ERROR( aName == tKeyWithoutSpaces,
-                    "Param_List::insert - key contains whitespaces" );
+            // Register new
+            std::string tKey = this->register_key( aName );
 
             // Insert new value
             Parameter tParameter( std::move( aDefaultValue ), aExternalValidationType, std::move( aExternalParameterName ), aExternalParameterListType, aExternalParameterListIndex );
-            mParamMap.insert( { aName, tParameter } );
+            mParameterMap.insert( { tKey, tParameter } );
         }
-
-        /**
-         * Adds a new string parameter to this parameter list. The parameter must be set from a selection of values.
-         *
-         * @param aName Parameter name
-         * @param aDefaultValue Default parameter value
-         * @param aValidSelections Valid values the parameter can be set to
-         */
-        void insert(
-                const std::string&             aName,
-                const std::string&             aDefaultValue,
-                const std::set< std::string >& aValidSelections );
 
         /**
          * Adds a new parameter to this parameter list. This parameter must be set with a valid range.
@@ -127,6 +188,29 @@ namespace moris
         }
 
         /**
+         * Adds a new string parameter to this parameter list. The parameter must be set from a selection of values.
+         *
+         * @param aName Parameter name
+         * @param aDefaultValue Default parameter value
+         * @param aValidSelections Valid values the parameter can be set to
+         */
+        void insert(
+                const std::string&           aName,
+                const std::string&           aDefaultValue,
+                const Vector< std::string >& aValidSelections );
+
+        /**
+         * Adds a new enum parameter to this parameter list. The parameter can be set
+         * as an enum directly or with one of the names provided.
+         *
+         * @param aName Parameter name
+         * @param aEnumStrings Valid enum strings (must not be empty)
+         */
+        void insert_enum(
+                const std::string&           aName,
+                const Vector< std::string >& aEnumStrings );
+
+        /**
          * Removes the specified key and its associated value from the map
          *
          * @param aName the key to be erased
@@ -136,7 +220,6 @@ namespace moris
 
         /**
          * Sets an element to a value if it exists, otherwise an error is thrown
-         *        whitespaces in key and value string will be removed
          *
          * @param aName Parameter name
          * @param aValue Parameter value
@@ -209,7 +292,7 @@ namespace moris
         const T& get( const std::string& aName ) const
         {
             // Delegate to private implementation overload, depending on if T is an enum
-            return this->get< T >( aName, std::is_enum< T >() );
+            return this->get_and_convert< T >( aName, std::is_enum< T >() );
         }
 
         /**
@@ -218,7 +301,7 @@ namespace moris
          * @param aName Name of the parameter to get
          * @return The variant corresponding to aName
          */
-        const Variant& get( const std::string& aName ) const;
+        const Variant& get_variant( const std::string& aName ) const;
 
         /**
          * Gets a cell from a paramter that is stored as a std::string
@@ -234,20 +317,32 @@ namespace moris
         }
 
         /**
-         * @brief Get the beginning iterator of the underlying map.
+         * Gets a custom begin iterator for going through the parameter map in the order parameters were inserted.
          *
-         * @return An iterator pointing to the beginning of mParamMap.
+         * @return Beginning of the parameter map, by insertion
          */
-        auto
-        begin() const -> decltype( mParamMap.begin() );
+        [[nodiscard]] iterator begin();
 
         /**
-         * @brief Get the end iterator of the underlying map.
+         * Gets a custom end iterator for going through the parameter map in the order parameters were inserted.
          *
-         * @return An iterator pointing to the end of mParamMap.
+         * @return End of the parameter map, by insertion
          */
-        auto
-        end() const -> decltype( mParamMap.end() );
+        [[nodiscard]] iterator end();
+
+        /**
+         * Gets a custom begin iterator for going through the parameter map in the order parameters were inserted.
+         *
+         * @return Beginning of the parameter map, by insertion
+         */
+        [[nodiscard]] const_iterator begin() const;
+
+        /**
+         * Gets a custom end iterator for going through the parameter map in the order parameters were inserted.
+         *
+         * @return End of the parameter map, by insertion
+         */
+        [[nodiscard]] const_iterator end() const;
 
         /**
          * @brief check if parameter list is empty
@@ -266,6 +361,14 @@ namespace moris
       private:
 
         /**
+         * Registers a new key to this parameter list's vector of names, based on the parameter name.
+         *
+         * @param aName Parameter name
+         * @return Valid map key
+         */
+        std::string register_key( const std::string& aName );
+
+        /**
          * Adds a new parameter to this parameter list (private implementation).
          *
          * @param[in] aName Key corresponding to the mapped value that
@@ -277,15 +380,12 @@ namespace moris
         template< typename T >
         void convert_and_insert( const std::string& aName, T aValue, T aMinimumValue, T aMaximumValue, std::false_type )
         {
-            // Check for leading and trailing whitespaces in key
-            std::string tKeyWithoutSpaces = aName;
-            split_trim_string( tKeyWithoutSpaces, "" );
-            MORIS_ERROR( aName == tKeyWithoutSpaces,
-                    "Param_List::insert - key contains whitespaces" );
+            // Register new key
+            std::string tKey = this->register_key( aName );
 
             // Insert new value
             Parameter tParameter( aValue, aMinimumValue, aMaximumValue );
-            mParamMap.insert( { aName, tParameter } );
+            mParameterMap.insert( { tKey, tParameter } );
         }
 
         /**
@@ -316,21 +416,19 @@ namespace moris
                 bool               aLockValue,
                 std::false_type )
         {
-            // create copy of key string such that tIterator can be manipulated
+            // Remove leading and trailing whitespaces in key
             std::string tKey = aName;
-
-            // remove spurious whitespaces from key string
-            split_trim_string( tKey, "" );
+            trim_string( tKey );
 
             // find key in map
-            auto tIterator = mParamMap.find( tKey );
+            auto tIterator = mParameterMap.find( tKey );
 
             // if key does not exist in map
-            MORIS_ERROR( tIterator != mParamMap.end(),
+            MORIS_ERROR( tIterator != mParameterMap.end(),
                     "The requested parameter %s can not be set because it does not exist.\n",
                     tKey.c_str() );
 
-            tIterator->second.set_value( aName, std::move( aValue ), aLockValue );
+            tIterator->second.set_value( tKey, std::move( aValue ), aLockValue );
         }
 
         /**
@@ -355,12 +453,12 @@ namespace moris
          * @return The value corresponding to aName.
          */
         template< typename T >
-        const T& get( const std::string& aName, std::false_type ) const
+        const T& get_and_convert( const std::string& aName, std::false_type ) const
         {
-            auto tIterator = mParamMap.find( aName );
+            auto tIterator = mParameterMap.find( aName );
 
             // check if key exists
-            MORIS_ERROR( tIterator != mParamMap.end(),
+            MORIS_ERROR( tIterator != mParameterMap.end(),
                     "The requested parameter %s does not exist.\n",
                     aName.c_str() );
 
@@ -371,9 +469,9 @@ namespace moris
          * Get function overload, for static casting uints to a requested enum.
          */
         template< typename T >
-        const T& get( const std::string& aName, std::true_type ) const
+        const T& get_and_convert( const std::string& aName, std::true_type ) const
         {
-            return ( const T& ) this->get< uint >( aName, std::false_type() );
+            return ( const T& ) this->get_and_convert< uint >( aName, std::false_type() );
         }
     };
 

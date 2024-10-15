@@ -8,17 +8,21 @@
  *
  */
 
-#ifndef MORIS_CL_LIBRARY_IO_HPP
-#define MORIS_CL_LIBRARY_IO_HPP
+#pragma once
 
 #include <string>
 #include <set>
+#include <algorithm>
+#include <cctype>
+#include <sys/types.h>
 #include "dlfcn.h"
 #include "assert.hpp"
 
 #include "cl_Library_Enums.hpp"
-#include "cl_Parameter_List.hpp"
 #include "cl_Vector.hpp"
+
+#include "parameters.hpp"
+
 
 namespace moris
 {
@@ -27,11 +31,8 @@ namespace moris
     // Forward declare the XML-parser
     class XML_Parser;
 
-    // Define what a module parameter list is
-    typedef Vector< Vector< moris::Parameter_List > > ModuleParameterList;
-
     // Define what a parameter function is
-    typedef void ( *Parameter_Function )( ModuleParameterList& aParameterList );
+    typedef void ( *Parameter_Function )( Module_Parameter_Lists& aParameterList );
 
     // -----------------------------------------------------------------------------
 
@@ -58,17 +59,14 @@ namespace moris
         // flag indicating whether the library is complete and initialized
         bool mLibraryIsFinalized;
 
-        // Library type
-        Library_Type mLibraryType;
-
         // storage for the parameters for the various Modules
-        Vector< ModuleParameterList > mParameterLists;
+        Vector< Module_Parameter_Lists > mParameterLists;
 
         // XML parser for output
         std::unique_ptr< XML_Parser > mXmlWriter;
 
         // list of parameter lists supported by the particular workflow
-        std::set< Parameter_List_Type > mSupportedParamListTypes;
+        std::set< Module_Type > mSupportedParamListTypes;
 
         // -----------------------------------------------------------------------------
 
@@ -106,8 +104,8 @@ namespace moris
          */
         void
         overwrite_and_add_parameters(
-                ModuleParameterList& aParamListToModify,
-                ModuleParameterList& aParamsToAdd );
+                Module_Parameter_Lists& aParamListToModify,
+                Module_Parameter_Lists& aParamsToAdd );
 
       public:
         // -----------------------------------------------------------------------------
@@ -137,6 +135,14 @@ namespace moris
 
         // -----------------------------------------------------------------------------
 
+        Vector< Module_Parameter_Lists >&
+        get_parameter_lists()
+        {
+            return mParameterLists;
+        }
+
+        // -----------------------------------------------------------------------------
+
         /**
          * @brief give a parameter list file to the library and read it
          *
@@ -146,29 +152,17 @@ namespace moris
         virtual void
         load_parameter_list( const std::string& aFileName, File_Type aFileType );
 
-        // -----------------------------------------------------------------------------
-
         /**
-         * @brief finishes the initialization of the library and locks it from modification
+         * Finalizes this library and locks it from modification.
+         *
+         * @param aFilePath Optional file path/name for printing out an XML parameter receipt
          */
-        virtual void
-        finalize()
-        {
-            MORIS_ERROR( false, "Library_IO::finalize() - Function not implemented in this base class." );
-        }
-
-        // -----------------------------------------------------------------------------
+        void finalize( const std::string& aFilePath = "" );
 
         /**
          * @brief fills the member parameter lists with the standard parameters for all modules
          */
-        virtual void
-        load_all_standard_parameters()
-        {
-            MORIS_ERROR( false, "Library_IO::load_all_standard_parameters() - Function not implemented in this base class." );
-        }
-
-        // -----------------------------------------------------------------------------
+        virtual void load_all_standard_parameters() = 0;
 
         /**
          * @brief loads parameters from an shared object library and overwrites any previously specified parameters by it
@@ -187,6 +181,14 @@ namespace moris
         // -----------------------------------------------------------------------------
 
         /**
+         * @brief Uses the read() function to create a new module parameter list from scratch when no XML file is given
+         */
+        virtual void
+        create_new_module_parameterlist();
+
+        // -----------------------------------------------------------------------------
+
+        /**
          * @brief print a summary of all parameters after finalizing the library
          *
          * @param aOutputFileName name of the xml file to print the parameters to
@@ -197,7 +199,7 @@ namespace moris
         // -----------------------------------------------------------------------------
 
         void
-        write_module_parameter_list_to_xml_tree( const Parameter_List_Type aModule );
+        write_module_parameter_list_to_xml_tree( const Module_Type aModule );
 
         // -----------------------------------------------------------------------------
 
@@ -208,7 +210,7 @@ namespace moris
 
         std::string
         get_sub_parameter_list_location_in_xml_tree(
-                const Parameter_List_Type aModule,
+                const Module_Type aModule,
                 const uint                aSubParamListIndex = MORIS_UINT_MAX,
                 const bool                aIsInnerParamList  = false );
 
@@ -218,10 +220,10 @@ namespace moris
          * @brief Get the parameters for module object
          *
          * @param aParamListType
-         * @return ModuleParameterList
+         * @return Module_Parameter_Lists
          */
-        ModuleParameterList
-        get_parameters_for_module( Parameter_List_Type aParamListType ) const;
+        Module_Parameter_Lists
+        get_parameters_for_module( Module_Type aParamListType ) const;
 
         // -----------------------------------------------------------------------------
 
@@ -306,6 +308,56 @@ namespace moris
 
     // -----------------------------------------------------------------------------
 
-}    // namespace moris
+    // FREE FUNCTIONS
+    // These are for reading parameter lists from xml files and set to the correct type
 
-#endif    // MORIS_CL_LIBRARY_IO_HPP
+    /**
+     * @brief get_subchild_index_from_xml_list - Get the index of the sub-module type from the XML file
+     * @param tInnerSubParamListName - The name of the inner sub-parameter list
+     * @param tKeys - The keys of the XML file parameter list
+     * @param tValues - The values of the XML file parameter list
+     * @return uint - The index of the sub-module type for special forms like "GEN/Geometry", "OPT/Algorithm" and "SOL/Linear_Algorithm", if not these forms, returns 0
+     */
+
+    uint get_subchild_index_from_xml_list( std::string tInnerSubParamListName, Vector< std::string >& aKeys, Vector< std::string >& aValues );
+
+    /**
+     * @brief convert_parameter_from_string_to_type - Converts the string value from the XML file to the correct data type
+     * @tparam T - The data type of the parameter
+     * @param aValue - The string value of the parameter from the XML file
+     * @return T - The value of the parameter in the correct data type
+     */
+    template< typename T >
+    T convert_parameter_from_string_to_type( const std::string& aString );
+
+    template<>
+    bool convert_parameter_from_string_to_type< bool >( const std::string& aString );
+
+    /**
+     * @brief create_and_set_parameter_list - Calls the create_parameter_list function and sets the parameter list with the values from the XML file in the correct data type
+     * @param aModule - Module in Parameter_List_Type enum type
+     * @param aChild - The index of the sub-module
+     * @param aSubChild - The index of the sub-module type for special forms like "GEN/Geometry", "OPT/Algorithm" and "SOL/Linear_Algorithm", if not these forms, then 0
+     * @param tKeys - The keys of the XML file parameter list
+     * @param tValues - The values of the XML file parameter list
+     * @return Parameter_List - The parameter list with the set values from the XML file
+     */
+
+    Parameter_List create_and_set_parameter_list( Module_Type aModule,
+            uint                                                      aChild,
+            uint                                                      aSubChild,
+            const Vector< std::string >&                              aKeys,
+            const Vector< std::string >&                              aValues );
+
+    /**
+     * @brief Create a parameter list for a given module, child, and sub-child
+     
+     * @param aModule module to create the parameter list for
+     * @param aChild child to create the parameter list for
+     * @param aSubChild sub-child to create the parameter list for
+     * @return Parameter_List
+     */
+
+    Parameter_List create_parameter_list( Module_Type aModule, uint aChild, uint aSubChild );
+
+}    // namespace moris

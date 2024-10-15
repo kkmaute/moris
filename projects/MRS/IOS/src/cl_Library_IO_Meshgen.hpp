@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef MORIS_CL_LIBRARY_IO_MESHGEN_HPP
-#define MORIS_CL_LIBRARY_IO_MESHGEN_HPP
+#pragma once
 
 #include "cl_Library_IO.hpp"
 
@@ -50,16 +49,6 @@ namespace moris
          * Default destructor
          */
         ~Library_IO_Meshgen() override;
-
-        // -----------------------------------------------------------------------------
-
-        /**
-         * @brief finishes the initialization of the library and locks it from modification
-         */
-        void
-        finalize() override;
-
-        // -----------------------------------------------------------------------------
 
         /**
          * @brief loads parameters from the simplified xml file and overwrites any previously specified parameters by it
@@ -104,8 +93,8 @@ namespace moris
          */
         void
         create_standard_parameter_list_for_module(
-                Parameter_List_Type  aParamListType,
-                ModuleParameterList& aParameterList );
+                Module_Type             aParamListType,
+                Module_Parameter_Lists& aParameterList );
 
         // -----------------------------------------------------------------------------
 
@@ -116,7 +105,7 @@ namespace moris
          * @param aParameterList address to the parameter list to fill with standard parameters
          */
         void
-        create_standard_OPT_parameter_list( ModuleParameterList& aParameterList );
+        create_standard_OPT_parameter_list( Module_Parameter_Lists& aParameterList );
 
         // -----------------------------------------------------------------------------
 
@@ -127,7 +116,7 @@ namespace moris
          * @param aParameterList address to the parameter list to fill with standard parameters
          */
         void
-        create_standard_XTK_parameter_list( ModuleParameterList& aParameterList );
+        create_standard_XTK_parameter_list( Module_Parameter_Lists& aParameterList );
 
         // -----------------------------------------------------------------------------
 
@@ -138,7 +127,7 @@ namespace moris
          * @param aParameterList address to the parameter list to fill with standard parameters
          */
         void
-        create_standard_HMR_parameter_list( ModuleParameterList& aParameterList );
+        create_standard_HMR_parameter_list( Module_Parameter_Lists& aParameterList );
 
         // -----------------------------------------------------------------------------
 
@@ -149,7 +138,7 @@ namespace moris
          * @param aParameterList address to the parameter list to fill with standard parameters
          */
         void
-        create_standard_GEN_parameter_list( ModuleParameterList& aParameterList );
+        create_standard_GEN_parameter_list( Module_Parameter_Lists& aParameterList );
 
         // -----------------------------------------------------------------------------
 
@@ -158,5 +147,3 @@ namespace moris
     // -----------------------------------------------------------------------------
 
 }    // namespace moris
-
-#endif    // MORIS_CL_LIBRARY_IO_MESHGEN_HPP

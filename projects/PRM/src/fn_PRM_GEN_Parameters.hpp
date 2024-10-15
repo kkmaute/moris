@@ -27,7 +27,7 @@ namespace moris::prm
     inline Parameter_List
     create_gen_parameter_list()
     {
-        Parameter_List tGENParameterList;
+        Parameter_List tGENParameterList( "General" );
 
         // Level set parameters
         tGENParameterList.insert( "output_mesh_file", "" );       // File name for exodus mesh, if default no mesh is written
@@ -36,7 +36,8 @@ namespace moris::prm
 
         // IQIs/PDVs
         tGENParameterList.insert( "IQI_types", Vector< std::string >(),      // Requested IQI types for sensitivity analysis
-                Validation_Type::SELECTION, "IQI_name", Parameter_List_Type::FEM, 4 );
+                Entry_Type::SELECTION, "IQI_name",
+                Module_Type::FEM, 4 );
         tGENParameterList.insert( "PDV_types", Vector< std::string >() );    // Requested PDV types for sensitivity analysis
 
         // Phase table
@@ -164,10 +165,10 @@ namespace moris::prm
                     aParameterList.insert( "image_file", "" );
                     aParameterList.insert( "image_dimensions", Vector< real >() );
                     aParameterList.insert( "image_offset", Vector< real >() );
-                    aParameterList.insert( "image_sdf_scaling", 0.0 );          // sdf scaling factor (0: automatic scaling)
-                    aParameterList.insert( "image_sdf_shift", 0.0 );            // sdf shift value
-                    aParameterList.insert( "image_sdf_default", -1.0 );         // sdf value outside image
-                    aParameterList.insert( "image_sdf_interpolate", false );    // whether sdf value is interpolated
+                    aParameterList.insert( "image_sdf_scaling", 0.0 );                // sdf scaling factor (0: automatic scaling)
+                    aParameterList.insert( "image_sdf_shift", 0.0 );                  // sdf shift value
+                    aParameterList.insert( "image_sdf_default", 1.0 );               // sdf value outside image
+                    aParameterList.insert( "image_sdf_interpolate", false );          // whether sdf value is interpolated
                     break;
                 }
                 case gen::Field_Type::USER_DEFINED:
@@ -188,7 +189,7 @@ namespace moris::prm
      */
     inline Parameter_List create_field_parameter_list( gen::Field_Type aFieldType )
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "Field" );
         insert_field_parameters( tParameterList, aFieldType );
         return tParameterList;
     }
@@ -215,12 +216,12 @@ namespace moris::prm
      */
     static Parameter_List create_design_parameter_list()
     {
-        Parameter_List tDesignParameterList;
+        Parameter_List tDesignParameterList( "Design" );
 
         tDesignParameterList.insert( "design_type", "" );                            // Insert the design type parameter
         tDesignParameterList.insert( "number_of_refinements", Vector< uint >() );    // Number of refinement steps using HMR
         tDesignParameterList.insert( "refinement_mesh_index", Vector< uint >(),      // Refinement pattern
-                Validation_Type::SIZE,
+                Entry_Type::LINKED_SIZE_VECTOR,
                 "number_of_refinements" );
         tDesignParameterList.insert( "refinement_function_index", -1 );    // Index of user-defined refinement function (-1 = default)
 

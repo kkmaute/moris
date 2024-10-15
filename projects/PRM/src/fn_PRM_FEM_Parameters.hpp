@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef PROJECTS_PRM_SRC_FN_PRM_FEM_PARAMETERS_HPP_
-#define PROJECTS_PRM_SRC_FN_PRM_FEM_PARAMETERS_HPP_
+#pragma once
 
 #include "cl_Parameter_List.hpp"
 
@@ -28,7 +27,7 @@ namespace moris::prm
     inline Parameter_List
     create_property_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "Property" );
 
         tParameterList.insert( "property_name", "undefined" );
         tParameterList.insert( "function_parameters", "" );
@@ -52,7 +51,7 @@ namespace moris::prm
     inline Parameter_List
     create_fem_field_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "Field" );
 
         tParameterList.insert( "field_name", "undefined" );
         tParameterList.insert( "field_entity_type", "" );
@@ -76,13 +75,13 @@ namespace moris::prm
     inline Parameter_List
     create_material_model_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "MM" );
 
-        tParameterList.insert( "material_name", "undefined" );
-        tParameterList.insert( "material_type", fem::Material_Type::UNDEFINED, fem::Material_Type::PERFECT_GAS, fem::Material_Type::VAN_DER_WAALS_FLUID );
-        tParameterList.insert( "dof_dependencies", std::pair< std::string, std::string >( "", "" ) );
-        tParameterList.insert( "properties", "" );
-        tParameterList.insert( "phase_name", "" );
+            tParameterList.insert( "material_name", "undefined" );
+            tParameterList.insert_enum( "material_type", fem::Material_Type_String::values );
+            tParameterList.insert( "dof_dependencies", std::pair< std::string, std::string >( "", "" ) );
+            tParameterList.insert( "properties", "" );
+            tParameterList.insert( "phase_name", "" );
 
         return tParameterList;
     }
@@ -96,16 +95,16 @@ namespace moris::prm
     inline Parameter_List
     create_constitutive_model_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "CM" );
 
         tParameterList.insert( "constitutive_name", "undefined" );
-        tParameterList.insert( "constitutive_type", fem::Constitutive_Type::UNDEFINED, fem::Constitutive_Type::DIFF_LIN_ISO, fem::Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
+        tParameterList.insert_enum( "constitutive_type", fem::Constitutive_Type_String::values );
         tParameterList.insert( "function_parameters", "" );
         tParameterList.insert( "dof_dependencies", std::pair< std::string, std::string >( "", "" ) );
         tParameterList.insert( "dv_dependencies", std::pair< std::string, std::string >( "", "" ) );
         tParameterList.insert( "properties", "" );
         tParameterList.insert( "material_model", "" );
-        tParameterList.insert( "model_type", fem::Model_Type::UNDEFINED, fem::Model_Type::PLANE_STRESS, fem::Model_Type::DEVIATORIC );
+        tParameterList.insert_enum( "model_type", fem::Model_Type_String::values );
         tParameterList.insert( "phase_name", "" );
 
         return tParameterList;
@@ -120,10 +119,10 @@ namespace moris::prm
     inline Parameter_List
     create_stabilization_parameter_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "SP" );
 
         tParameterList.insert( "stabilization_name", "undefined" );
-        tParameterList.insert( "stabilization_type", fem::Stabilization_Type::UNDEFINED, fem::Stabilization_Type::DIRICHLET_NITSCHE, fem::Stabilization_Type::LAGRANGE_MULTIPLIER_L2 );
+        tParameterList.insert_enum( "stabilization_type", fem::Stabilization_Type_String::values );
         tParameterList.insert( "function_parameters", "" );
         tParameterList.insert( "leader_dof_dependencies", std::pair< std::string, std::string >( "", "" ) );
         tParameterList.insert( "follower_dof_dependencies", std::pair< std::string, std::string >( "", "" ) );
@@ -151,11 +150,11 @@ namespace moris::prm
     inline Parameter_List
     create_IWG_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "IWG" );
 
         tParameterList.insert( "IWG_name", "undefined" );
-        tParameterList.insert( "IWG_bulk_type", fem::Element_Type::BULK, fem::Element_Type::BULK, fem::Element_Type::TIME_BOUNDARY );
-        tParameterList.insert( "IWG_type", fem::IWG_Type::UNDEFINED, fem::IWG_Type::L2, fem::IWG_Type::USER_DEFINED );
+        tParameterList.insert_enum( "IWG_bulk_type", fem::Element_Type_String::values );
+        tParameterList.insert_enum( "IWG_type", fem::IWG_Type_String::values );
         tParameterList.insert( "dof_residual", "" );
 
         tParameterList.insert( "leader_phase_name", "" );
@@ -206,11 +205,11 @@ namespace moris::prm
     inline Parameter_List
     create_IQI_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "IQI" );
 
         tParameterList.insert( "IQI_name", "undefined" );
-        tParameterList.insert( "IQI_type", fem::IQI_Type::UNDEFINED, fem::IQI_Type::VOLUME, fem::IQI_Type::LINEAR_ELASTICITY_DAMAGE );
-        tParameterList.insert( "IQI_bulk_type", fem::Element_Type::BULK, fem::Element_Type::BULK, fem::Element_Type::TIME_BOUNDARY );
+        tParameterList.insert_enum( "IQI_type", fem::IQI_Type_String::values );
+        tParameterList.insert_enum( "IQI_bulk_type", fem::Element_Type_String::values );
         tParameterList.insert( "dof_quantity", "" );
         tParameterList.insert( "vectorial_field_index", -1 );
 
@@ -258,7 +257,7 @@ namespace moris::prm
     inline Parameter_List
     create_phase_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "Phase" );
 
         tParameterList.insert( "phase_name", "undefined" );
         tParameterList.insert( "phase_indices", "" );
@@ -279,7 +278,7 @@ namespace moris::prm
     inline Parameter_List
     create_computation_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "Computation" );
 
         // bool true for printing physics
         tParameterList.insert( "print_physics_model", false );
@@ -289,7 +288,7 @@ namespace moris::prm
         tParameterList.insert( "is_analytical_forward", true );
 
         // enum for finite difference scheme for forward analysis
-        tParameterList.insert( "finite_difference_scheme_forward", fem::FDScheme_Type::POINT_1_FORWARD, fem::FDScheme_Type::POINT_1_FORWARD, fem::FDScheme_Type::POINT_5 );
+        tParameterList.insert_enum( "finite_difference_scheme_forward", fem::FDScheme_Type_String::values );
 
         // real for relative perturbation size for finite difference for forward analysis
         tParameterList.insert( "finite_difference_perturbation_size_forward", 1e-6 );
@@ -311,13 +310,13 @@ namespace moris::prm
         tParameterList.insert( "is_analytical_sensitivity", false );
 
         // enum for finite difference scheme for sensitivity analysis
-        tParameterList.insert( "finite_difference_scheme", fem::FDScheme_Type::POINT_1_FORWARD, fem::FDScheme_Type::POINT_1_FORWARD, fem::FDScheme_Type::POINT_5 );
+        tParameterList.insert_enum( "finite_difference_scheme", fem::FDScheme_Type_String::values );
 
         // real for relative perturbation size for finite difference
         tParameterList.insert( "finite_difference_perturbation_size", 1e-6 );
 
         // enum for finite difference perturbation strategy (relative, absolute)
-        tParameterList.insert( "finite_difference_perturbation_strategy", fem::Perturbation_Type::RELATIVE, fem::Perturbation_Type::RELATIVE, fem::Perturbation_Type::ABSOLUTE );
+        tParameterList.insert_enum( "finite_difference_perturbation_strategy", fem::Perturbation_Type_String::values );
 
         return tParameterList;
     }
@@ -325,5 +324,3 @@ namespace moris::prm
     //------------------------------------------------------------------------------
 
 }    // namespace moris::prm
-
-#endif /* PROJECTS_PRM_SRC_FN_PRM_FEM_PARAMETERS_HPP_ */

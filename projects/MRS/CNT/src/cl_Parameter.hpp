@@ -19,11 +19,11 @@
 
 namespace moris
 {
-    enum class Validation_Type
+    enum class Entry_Type
     {
-        NONE,
+        FREE,
         SELECTION,
-        SIZE
+        LINKED_SIZE_VECTOR
     };
 
     /**
@@ -31,9 +31,8 @@ namespace moris
      */
     struct External_Validator
     {
-        Validation_Type     mValidationType = Validation_Type::NONE;
         std::string         mParameterName;
-        Parameter_List_Type mParameterListType  = Parameter_List_Type::END_ENUM;
+        Module_Type         mParameterListType  = Module_Type::END_ENUM;
         uint                mParameterListIndex = 0;
     };
 
@@ -41,7 +40,10 @@ namespace moris
     {
       private:
         Variant            mValue;
+        Entry_Type         mEntryType       = Entry_Type::FREE;
+        uint               mNumberOfEntries = 1;
         Validator*         mValidator;
+        bool               mNeedsLinking = false;
         External_Validator mExternalValidator;
 
       public:
@@ -56,22 +58,20 @@ namespace moris
          * @param aExternalParameterListIndex Index of given parameter list type to search
          */
         template< typename T >
-        explicit Parameter(
+        Parameter(
                 T                   aParameterValue,
-                Validation_Type     aExternalValidationType,
-                std::string         aExternalParameterListName,
-                Parameter_List_Type aExternalParameterListType,
+                Entry_Type          aExternalValidationType,
+                std::string         aExternalParameterName,
+                Module_Type aExternalParameterListType,
                 uint                aExternalParameterListIndex )
+                : mValue( make_variant( aParameterValue ) )
+                , mEntryType( aExternalValidationType )
+                , mNumberOfEntries( split_variant( mValue ).size() )
+                , mValidator( new Type_Validator< T >() )
+                , mNeedsLinking( aExternalValidationType != Entry_Type::FREE )
         {
-            // Set default value without validation
-            mValue = make_variant( std::move( aParameterValue ) );
-
-            // Create type validator
-            mValidator = new Type_Validator< T >();
-
             // Set external validator
-            mExternalValidator.mValidationType     = aExternalValidationType;
-            mExternalValidator.mParameterName      = std::move( aExternalParameterListName );
+            mExternalValidator.mParameterName      = std::move( aExternalParameterName );
             mExternalValidator.mParameterListType  = aExternalParameterListType;
             mExternalValidator.mParameterListIndex = aExternalParameterListIndex;
         }
@@ -99,10 +99,11 @@ namespace moris
          *
          * @tparam T Input parameter type
          * @param aParameterValue Default value
-         * @param aValidSelections Set of valid values
+         * @param aValidSelections Vector of valid values
          */
         template< typename T >
-        Parameter( T aParameterValue, const std::set< T >& aValidSelections )
+        Parameter( T aParameterValue, const Vector< T >& aValidSelections )
+                : mEntryType( Entry_Type::SELECTION )
         {
             // Set default value without validation
             mValue = make_variant( std::move( aParameterValue ) );
@@ -110,6 +111,13 @@ namespace moris
             // Create selection validator
             mValidator = new Selection_Validator( aValidSelections );
         }
+
+        /**
+         * Constructor for a parameter with an enum validator.
+         *
+         * @param aEnumStrings Vector of valid enum strings
+         */
+        Parameter( const Vector< std::string >& aEnumStrings );
 
         /**
          * Custom copy constructor, used to ensure each parameter has a validator.
@@ -150,7 +158,7 @@ namespace moris
                     "Parameter %s was set incorrectly as %s. Valid values are: %s.",
                     aParameterName.c_str(),
                     convert_variant_to_string( tParameterVariant ).c_str(),
-                    mValidator->get_valid_values().c_str() );
+                    mValidator->get_validation_message().c_str() );
 
             // Set the value
             mValue = tParameterVariant;
@@ -197,6 +205,41 @@ namespace moris
         [[nodiscard]] uint index() const;
 
         /**
+         * Gets the type of entry for this parameter.
+         *
+         * @return Parameter type
+         */
+        Entry_Type get_entry_type() const;
+
+        /**
+         * Gets the number of entries this parameter requires.
+         *
+         * @return Number of entries, or 0 if resizable
+         */
+        uint get_number_of_entries() const;
+
+        /**
+         * Gets if this parameter is currently locked.
+         *
+         * @return locked or not
+         */
+        bool is_locked() const;
+
+        /**
+         * If this parameter needs to be linked to another parameter for validation.
+         *
+         * @return If linking is required
+         */
+        bool needs_linking() const;
+
+        /**
+         * Gets the valid selections available for this parameter.
+         *
+         * @return Vector of valid selections
+         */
+        const Vector< std::string >& get_selection_names() const;
+
+        /**
          * Gets the external validator from this parameter, for validation after all parameter have been set.
          *
          * @return External validator
@@ -216,11 +259,5 @@ namespace moris
 
     // Declare template specializations of the Parameter constructor
     template<>
-    Parameter::Parameter(
-            const char*,
-            Validation_Type,
-            std::string,
-            Parameter_List_Type,
-            uint );
-
+    Parameter::Parameter( const char*, Entry_Type, std::string, Module_Type, uint );
 }    // namespace moris

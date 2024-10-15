@@ -163,7 +163,7 @@ namespace moris::fem
         std::string mName;
 
         //! string for IWG name
-        enum moris::fem::IWG_Type mIWGType = moris::fem::IWG_Type::UNDEFINED;
+        enum moris::fem::IWG_Type mIWGType = moris::fem::IWG_Type::END_IWG_TYPE;
 
         // function pointers
         void ( IWG::*m_compute_jacobian_FD )(

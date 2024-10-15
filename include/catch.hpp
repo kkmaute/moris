@@ -3311,7 +3311,7 @@ namespace Matchers {
 
             MatchAllOf<ArgT> operator && ( MatcherBase<ArgT> const& other ) {
                 auto copy(*this);
-                copy.m_matchers.push_back( &other );
+                copy.m_matchers.add_parameter_list( &other );
                 return copy;
             }
 
@@ -3345,7 +3345,7 @@ namespace Matchers {
 
             MatchAnyOf<ArgT> operator || ( MatcherBase<ArgT> const& other ) {
                 auto copy(*this);
-                copy.m_matchers.push_back( &other );
+                copy.m_matchers.add_parameter_list( &other );
                 return copy;
             }
 

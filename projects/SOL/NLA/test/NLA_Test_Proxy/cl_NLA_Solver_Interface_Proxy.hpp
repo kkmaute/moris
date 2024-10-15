@@ -195,6 +195,12 @@ namespace moris
             {
                 return mNumElements;
             };
+            
+            fem::Element_Type
+            get_set_type( uint aMyEquSetInd ) override
+            {
+                return fem::Element_Type::END_ELEMENT_TYPE;
+            }
 
             // ----------------------------------------------------------------------------------------------
 
