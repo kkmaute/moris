@@ -187,19 +187,18 @@ namespace moris::gen
                             for ( const auto& iParameter : iParameterList )
                             {
                                 // Determine if parameter is design variable
-                                if ( iParameter.second.index() == variant_index< Design_Variable >() )
+                                if ( iParameter.get_parameter().index() == variant_index< Design_Variable >() )
                                 {
                                     // Get design variable from parameter list
-                                    tADVs.push_back( aADVManager.create_adv( iParameterList.get< Design_Variable >( iParameter.first ) ) );
+                                    tADVs.push_back( aADVManager.create_adv( iParameterList.get< Design_Variable >( iParameter.get_name() ) ) );
                                 }
                             }
 
                             mGeometries( tGeometryIndex++ ) = std::make_shared< Surface_Mesh_Geometry >(
-                                    aMesh,
-                                    aADVManager,
                                     Surface_Mesh_Parameters( iParameterList ),
-                                    tADVs,
                                     aNodeManager,
+                                    tADVs,
+                                    aADVManager,
                                     aLibrary );
                             tSomethingHasBeenBuilt = true;
                         }
@@ -209,7 +208,7 @@ namespace moris::gen
                         }
                     }
 
-                    // Property
+                    // PropertyGF
                     else if ( tDesignType == "property" )
                     {
                         // Create new property

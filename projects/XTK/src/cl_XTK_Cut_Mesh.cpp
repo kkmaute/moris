@@ -450,8 +450,8 @@ namespace moris::xtk
         {
             Child_Mesh const & tCM = get_child_mesh( iCM );
 
-            Matrix< IdMat > const &    tCMIds     = tCM.get_element_ids();
-            Matrix< IndexMat > const & tElemPhase = tCM.get_element_phase_indices();
+            Matrix< IdMat > const &       tCMIds     = tCM.get_element_ids();
+            Vector< moris_index > const & tElemPhase = tCM.get_element_phase_indices();
             for ( moris::size_t iE = 0; iE < tCMIds.numel(); iE++ )
             {
                 moris::moris_index tPhaseInd            = tElemPhase( iE );
@@ -712,8 +712,8 @@ namespace moris::xtk
 
         for ( moris::size_t i = 0; i < this->get_num_child_meshes(); i++ )
         {
-            Matrix< IdMat >    tElementToNodeIdsCM = mChildrenMeshes( i )->get_element_to_node_global();
-            Matrix< IndexMat > tElementPhase       = mChildrenMeshes( i )->get_element_phase_indices();
+            Matrix< IdMat >       tElementToNodeIdsCM = mChildrenMeshes( i )->get_element_to_node_global();
+            Vector< moris_index > tElementPhase       = mChildrenMeshes( i )->get_element_phase_indices();
             for ( moris::size_t j = 0; j < tElementToNodeIdsCM.n_rows(); j++ )
             {
                 tElementToNodeIdsByPhase( tElementPhase( j ) ).set_row( tCount( tElementPhase( j ) ), tElementToNodeIdsCM.get_row( j ) );

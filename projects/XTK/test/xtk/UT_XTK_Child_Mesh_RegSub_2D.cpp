@@ -85,24 +85,23 @@ namespace moris::xtk
         CHECK( approximate( tArea, 1.0 ) );
 
         // Set up phase data
-        moris::Matrix< IndexMat > tElementPhase( 1, 4, 0 );
+        Vector< moris_index > tElementPhase( 4, 0 );
 
         moris::moris_index tMax       = std::numeric_limits< moris::moris_index >::max();
-        size_t             tNumPhases = 2;
 
-        moris::Matrix< IndexMat > tActiveElements( { { 0, 1, 2, 3 } } );
-        moris::Matrix< IndexMat > tIncludedElementMarker( 1, 4, 1 );
-        moris::moris_index        tMaxFloodFill = 0;
+        Vector< moris_index > tActiveElements = { 0, 1, 2, 3 };
+        Vector< moris_index > tIncludedElementMarker( 4, 1 );
+        moris::moris_index    tMaxFloodFill = 0;
         // Run flood fill Algorithm to ensure that the flood-fill can traverse the mesh
-        moris::Matrix< IndexMat > tElementSubphase = flood_fill(
+        moris::Matrix< IndexMat > tElementSubphase = mtk::flood_fill(
                 tRegSubChildMesh.get_element_to_element(),
                 tElementPhase,
                 tActiveElements,
                 tIncludedElementMarker,
-                tNumPhases,
                 tMax,
                 tMaxFloodFill,
                 true );
+
 
         moris::Matrix< IndexMat > tExpectedElementSubphase( 4, 1, 0 );
         CHECK( all_true( tExpectedElementSubphase == tElementSubphase ) );

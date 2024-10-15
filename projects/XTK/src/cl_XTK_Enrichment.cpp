@@ -858,25 +858,24 @@ namespace moris::xtk
     {
         // Variables needed for flood-fill, consider removing these.
         // Active bins to include in flood-fill (We include all bins)
-        Matrix< IndexMat > tActiveBins( 1, aPrunedSubPhaseToSubphase.n_rows() );
+        Vector< moris_index > tActiveBins( aPrunedSubPhaseToSubphase.n_rows() );
 
         for ( moris::size_t i = 0; i < aPrunedSubPhaseToSubphase.n_rows(); i++ )
         {
-            ( tActiveBins )( 0, i ) = i;
+            ( tActiveBins )( i ) = i;
         }
 
         // Mark all as included
-        Matrix< IndexMat > tIncludedBins( 1, aSubphasesInSupport.numel(), 1 );
+        Vector< moris_index > tIncludedBins( aSubphasesInSupport.numel(), 1 );
 
         // Flood fill metric value (since all the subphases do not connect to dissimilar phases)
-        Matrix< IndexMat > tDummyPhase( 1, aSubphasesInSupport.numel(), 1 );
+        Vector< moris_index > tDummyPhase( aSubphasesInSupport.numel(), 1 );
 
-        aSubPhaseBinEnrichmentVals = flood_fill(
+        aSubPhaseBinEnrichmentVals = mtk::flood_fill(
                 aPrunedSubPhaseToSubphase,
                 tDummyPhase,
                 tActiveBins,
                 tIncludedBins,
-                mNumBulkPhases,
                 MORIS_INDEX_MAX,
                 aMaxEnrichmentLevel,
                 true );
@@ -893,25 +892,24 @@ namespace moris::xtk
     {
         // Variables needed for flood-fill, consider removing these.
         // Active bins to include in flood-fill (We include all bins)
-        Matrix< IndexMat > tActiveBins( 1, aPrunedSpgToSpg.n_rows() );
+        Vector< moris_index > tActiveBins( aPrunedSpgToSpg.n_rows() );
 
         for ( moris::size_t i = 0; i < aPrunedSpgToSpg.n_rows(); i++ )
         {
-            ( tActiveBins )( 0, i ) = i;
+            ( tActiveBins )( i ) = i;
         }
 
         // Mark all as included
-        Matrix< IndexMat > tIncludedBins( 1, aSpgsInSupport.numel(), 1 );
+        Vector< moris_index > tIncludedBins( aSpgsInSupport.numel(), 1 );
 
         // Flood fill metric value (since all the subphases do not connect to dissimilar phases)
-        Matrix< IndexMat > tDummyPhase( 1, aSpgsInSupport.numel(), 1 );
+        Vector< moris_index > tDummyPhase( aSpgsInSupport.numel(), 1 );
 
-        aSpgBinEnrichmentVals = flood_fill(
+        aSpgBinEnrichmentVals = mtk::flood_fill(
                 aPrunedSpgToSpg,
                 tDummyPhase,
                 tActiveBins,
                 tIncludedBins,
-                mNumBulkPhases,
                 MORIS_INDEX_MAX,
                 aMaxEnrichmentLevel,
                 true );
@@ -3249,7 +3247,7 @@ namespace moris::xtk
                                         tMeshIndex,
                                         tEnrInterpMesh->get_vertex_enrichment( tMeshIndex, tVertEnrichIndex ) );
                     }
-                } // end: loop over vertices of the IP cell
+                }    // end: loop over vertices of the IP cell
 
                 // create the unzipped interpolation cell on first go
                 /* Note: the Interpolation_Cell_Unzipped carries a list of Interpolation_Vertex_Unzipped (UIPV) which themselves get updated for every DMI

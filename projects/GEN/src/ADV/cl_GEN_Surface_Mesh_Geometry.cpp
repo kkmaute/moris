@@ -430,7 +430,8 @@ namespace moris::gen
         }
 
         this->flood_fill_mesh_regions( aInterpolationMesh );
-        this->raycast_remaining_unknown_nodes( aInterpolationMesh );
+        // FIXME: static cast should not be necessary, but without it a linker error occurs
+        this->raycast_remaining_unknown_nodes( static_cast< const mtk::Mesh* >( aInterpolationMesh ) );
     }
 
     //--------------------------------------------------------------------------------------------------------------

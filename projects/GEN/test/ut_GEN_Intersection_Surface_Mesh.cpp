@@ -124,8 +124,8 @@ namespace moris::gen
 
             // Create geometry engine
             Geometry_Engine_Parameters tGeometryEngineParameters;
-            ADV_Manager tADVManager;
-            Design_Factory tDesignFactory( tFieldParameterLists, tADVManager );
+            ADV_Manager                tADVManager;
+            Design_Factory             tDesignFactory( tFieldParameterLists, tADVManager );
             tGeometryEngineParameters.mGeometries = tDesignFactory.get_geometries();
             Geometry_Engine tGeometryEngine( tMesh, tGeometryEngineParameters );
 
@@ -246,14 +246,15 @@ namespace moris::gen
         mtk::Interpolation_Mesh* tMesh = tHMR.create_interpolation_mesh( 0 );
 
         // surface mesh
-        Parameter_List tSurfaceMeshParameterList = prm::create_surface_mesh_geometry_parameter_list();
+        Submodule_Parameter_Lists tSurfaceMeshParameterList( "FIELDS" );
+        tSurfaceMeshParameterList.add_parameter_list( prm::create_surface_mesh_geometry_parameter_list() );
         tSurfaceMeshParameterList.set( "file_path", tMorisRoot + "projects/GEN/test/data/tetra.obj" );
         tSurfaceMeshParameterList.set( "intersection_tolerance", 1e-8 );
 
         // Create geometry engine
         Geometry_Engine_Parameters tGeometryEngineParameters;
         ADV_Manager                tADVManager;
-        Design_Factory             tDesignFactory( { tSurfaceMeshParameterList }, tADVManager );
+        Design_Factory             tDesignFactory( tSurfaceMeshParameterList, tADVManager );
         tGeometryEngineParameters.mGeometries = tDesignFactory.get_geometries();
         Geometry_Engine tGeometryEngine( tMesh, tGeometryEngineParameters );
 
