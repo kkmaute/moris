@@ -118,7 +118,7 @@ namespace moris::gen
             // surface mesh
             Submodule_Parameter_Lists tFieldParameterLists( "FIELDS" );
             tFieldParameterLists.add_parameter_list( prm::create_surface_mesh_geometry_parameter_list() );
-            tFieldParameterLists.set( "file_path", tMorisRoot + "projects/GEN/SDF/test/data/triangle_sensitivity_oblique.obj" );
+            tFieldParameterLists.set( "file_path", tMorisRoot + "projects/GEN/test/data/triangle_sensitivity_oblique.obj" );
             tFieldParameterLists.set( "intersection_tolerance", 1e-9 );
 
 
