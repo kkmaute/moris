@@ -19,7 +19,7 @@
 #include "cl_GEN_Design_Factory.hpp"
 #include "fn_GEN_create_simple_mesh.hpp"
 #include "cl_GEN_Intersection_Node.hpp"
-#include "fn_PRM_GEN_Parameters.hpp"
+#include "parameters.hpp"
 #include "cl_GEN_Background_Node.hpp"
 #include "cl_GEN_Parent_Node.hpp"
 

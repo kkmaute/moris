@@ -33,7 +33,6 @@
 
 #include "cl_SOL_Dist_Map.hpp"
 
-// BRENDAN FORMAT
 namespace moris::gen
 {
 
@@ -966,7 +965,7 @@ namespace moris::gen
 
     void Surface_Mesh_Geometry::raycast_remaining_unknown_nodes( const mtk::Mesh* aMesh )
     {
-        Tracer tTracer( "GEN", "Surface_Mesh_Geometry", "Raycast remaining unknown nodes" );    // 8895 brendan
+        Tracer tTracer( "GEN", "Surface_Mesh_Geometry", "Raycast remaining unknown nodes" );
 
         // Get the number of unknown nodes
         uint tNumUnknownNodes = std::count_if( mNodeMeshRegions.cbegin(), mNodeMeshRegions.cend(), []( const mtk::Mesh_Region aRegion ) { return aRegion == mtk::Mesh_Region::UNDEFINED; } );

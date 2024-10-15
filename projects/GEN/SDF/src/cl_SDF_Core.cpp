@@ -113,10 +113,10 @@ namespace moris::sdf
             }
         }
 
-            // make sure that everything is OK
-            MORIS_ASSERT( tSurfaceCount == mSurfaceElements,
-                    "Number of surface elements does not match" );
-        }
+        // make sure that everything is OK
+        MORIS_ASSERT( tSurfaceCount == mSurfaceElements,
+                "Number of surface elements does not match" );
+    }
 
     //-------------------------------------------------------------------------------
 
@@ -129,19 +129,23 @@ namespace moris::sdf
         // set unsure flag of all nodes to true
         uint tNumberOfNodes = mMesh.get_num_nodes();
 
+        // reset all of the nodes and get their coordinates for a raycast
+        Matrix< DDRMat > tPoints( mObject.get_spatial_dimension(), tNumberOfNodes );
         for ( uint iNodeIndex = 0; iNodeIndex < tNumberOfNodes; ++iNodeIndex )
         {
             mMesh.get_vertex( iNodeIndex )->reset();
+            tPoints.set_column( iNodeIndex, mMesh.get_node_coordinate( iNodeIndex ) );
         }
 
-            for ( uint iNodeIndex = 0; iNodeIndex < tNumberOfNodes; ++iNodeIndex )
-            {
-                // get node coordinate
-                const Matrix< DDRMat >& tPoint = mMesh.get_node_coordinate( iNodeIndex );
+        // raycast the batch of points
+        Vector< mtk::Mesh_Region > tRegions = mObject.batch_get_region_from_raycast( tPoints );
 
-                // raycast on this point until the point is determined
-                mMesh.get_vertex( iNodeIndex )->set_region( static_cast< mtk::Mesh_Region >( mObject.get_region_from_raycast( tPoint ) ) );
-            }
+        // Set the regions of the nodes
+        for ( uint iNodeIndex = 0; iNodeIndex < tNumberOfNodes; ++iNodeIndex )
+        {
+            // raycast on this point until the point is determined
+            mMesh.get_vertex( iNodeIndex )->set_region( tRegions( iNodeIndex ) );
+        }
 
         this->calculate_candidate_points_and_buffer_diagonal();
     }
@@ -186,8 +190,8 @@ namespace moris::sdf
     {
         Tracer tTracer( "SDF", "Compute UDF" );
 
-            // get number of triangles
-            uint tNumberOfFacets = mObject.get_number_of_facets();
+        // get number of triangles
+        uint tNumberOfFacets = mObject.get_number_of_facets();
 
         // loop over all triangles
         for ( uint k = 0; k < tNumberOfFacets; ++k )
@@ -250,20 +254,20 @@ namespace moris::sdf
             // get number of nodes
             uint tNumberOfNodes = tNodes.size();
 
-                // get first sign
-                mtk::Mesh_Region tRegion = tNodes( 0 )->get_region();
+            // get first sign
+            mtk::Mesh_Region tRegion = tNodes( 0 )->get_region();
 
-                // assume element is not intersected
-                bool tIsIntersected = tRegion == mtk::Mesh_Region::INTERFACE;
+            // assume element is not intersected
+            bool tIsIntersected = tRegion == mtk::Mesh_Region::INTERFACE;
 
-                // loop over all other nodes
-                for ( uint k = 1; k < tNumberOfNodes; ++k )
+            // loop over all other nodes
+            for ( uint k = 1; k < tNumberOfNodes; ++k )
+            {
+                // check of sign is the same
+                if ( tNodes( k )->get_region() != tRegion )
                 {
-                    // check of sign is the same
-                    if ( tNodes( k )->get_region() != tRegion )
-                    {
-                        // sign is not same
-                        tIsIntersected = true;
+                    // sign is not same
+                    tIsIntersected = true;
 
                     // cancel loop
                     break;
@@ -289,17 +293,17 @@ namespace moris::sdf
                 // has been calculated
                 tElement->flag();
 
-                    // flag all nodes of this element as candidates
-                    for ( uint k = 0; k < tNumberOfNodes; ++k )
-                    {
-                        tNodes( k )->set_candidate_flag();
-                    }
-                }
-                else if ( tRegion == mtk::Mesh_Region::INSIDE )
+                // flag all nodes of this element as candidates
+                for ( uint k = 0; k < tNumberOfNodes; ++k )
                 {
-                    // flag this element as volume element
-                    tElement->unset_surface_flag();
-                    tElement->set_volume_flag();
+                    tNodes( k )->set_candidate_flag();
+                }
+            }
+            else if ( tRegion == mtk::Mesh_Region::INSIDE )
+            {
+                // flag this element as volume element
+                tElement->unset_surface_flag();
+                tElement->set_volume_flag();
 
                 // increment counter
                 ++mVolumeElements;
@@ -327,16 +331,16 @@ namespace moris::sdf
                     // get pointer to nodes
                     const Vector< Vertex* > tNodes = tElement->get_vertices();
 
-                        // get number of nodes
-                        uint tNumberOfNodes = tNodes.size();
+                    // get number of nodes
+                    uint tNumberOfNodes = tNodes.size();
 
-                        // test if candidtae flag is set
-                        if ( std::any_of( tNodes.begin(), tNodes.end(), []( const Vertex* aNode ) { return aNode->is_candidate(); } ) )
-                        {
-                            // update buffer diagonal
-                            mBufferDiagonal = std::max(
-                                    mBufferDiagonal,
-                                    tElement->get_buffer_diagonal() );
+                    // test if candidtae flag is set
+                    if ( std::any_of( tNodes.begin(), tNodes.end(), []( const Vertex* aNode ) { return aNode->is_candidate(); } ) )
+                    {
+                        // update buffer diagonal
+                        mBufferDiagonal = std::max(
+                                mBufferDiagonal,
+                                tElement->get_buffer_diagonal() );
 
                         // flag this element
                         tElement->flag();
@@ -559,17 +563,17 @@ namespace moris::sdf
                 // write value
                 aSDF( tVertex->get_index() ) = tSDF;
 
-                    if ( tVertex->get_region() == mtk::Mesh_Region::INSIDE )
-                    {
-                        tMinSDF = std::min( tMinSDF, tSDF );
-                    }
-                    // FIXME: This assumes nodes on the interface are outside. An extra else if may be needed
-                    else
-                    {
-                        tMaxSDF = std::max( tMaxSDF, tSDF );
-                    }
+                if ( tVertex->get_region() == mtk::Mesh_Region::INSIDE )
+                {
+                    tMinSDF = std::min( tMinSDF, tSDF );
+                }
+                // FIXME: This assumes nodes on the interface are outside. An extra else if may be needed
+                else
+                {
+                    tMaxSDF = std::max( tMaxSDF, tSDF );
                 }
             }
+        }
 
         // if parallel, synchronize min and max values for SDF
         if ( par_size() > 1 )
@@ -592,21 +596,21 @@ namespace moris::sdf
             // get pointer to vertex
             Vertex* tVertex = mMesh.get_vertex( k );
 
-                // test if vertex does not have an SDF
-                if ( !tVertex->has_sdf() )
+            // test if vertex does not have an SDF
+            if ( !tVertex->has_sdf() )
+            {
+                if ( tVertex->get_region() == mtk::Mesh_Region::INSIDE )
                 {
-                    if ( tVertex->get_region() == mtk::Mesh_Region::INSIDE )
-                    {
-                        aSDF( tVertex->get_index() ) = tMinSDF;
-                    }
-                    // FIXME: This assumes nodes on the interface are outside. An extra else if may be needed
-                    else
-                    {
-                        aSDF( tVertex->get_index() ) = tMaxSDF;
-                    }
+                    aSDF( tVertex->get_index() ) = tMinSDF;
+                }
+                // FIXME: This assumes nodes on the interface are outside. An extra else if may be needed
+                else
+                {
+                    aSDF( tVertex->get_index() ) = tMaxSDF;
                 }
             }
         }
+    }
 
     // -----------------------------------------------------------------------------
 
@@ -792,21 +796,21 @@ namespace moris::sdf
             tFile.write( (char*)&tIChar, sizeof( int ) );
         }
 
-            tFile << "SCALARS IS_INSIDE int\n";
-            tFile << "LOOKUP_TABLE default\n";
-            for ( uint k = 0; k < tNumberOfNodes; ++k )
+        tFile << "SCALARS IS_INSIDE int\n";
+        tFile << "LOOKUP_TABLE default\n";
+        for ( uint k = 0; k < tNumberOfNodes; ++k )
+        {
+            if ( mMesh.get_vertex( k )->get_region() == mtk::Mesh_Region::INSIDE )
             {
-                if ( mMesh.get_vertex( k )->get_region() == mtk::Mesh_Region::INSIDE )
-                {
-                    tIChar = swap_byte_endian( 1 );
-                }
-                // FIXME: This assumes nodes on the interface are outside. An extra else if may be needed
-                else
-                {
-                    tIChar = swap_byte_endian( 0 );
-                }
-                tFile.write( (char*)&tIChar, sizeof( int ) );
+                tIChar = swap_byte_endian( 1 );
             }
+            // FIXME: This assumes nodes on the interface are outside. An extra else if may be needed
+            else
+            {
+                tIChar = swap_byte_endian( 0 );
+            }
+            tFile.write( (char*)&tIChar, sizeof( int ) );
+        }
 
         tFile << "SCALARS VERTEX_INDEX int" << '\n';
         tFile << "LOOKUP_TABLE default" << '\n';
@@ -981,26 +985,26 @@ namespace moris::sdf
 
         tFile << "POINT_DATA " << tNumberOfNodes << '\n';
 
-            tFile << "SCALARS RAYCAST int\n";
-            tFile << "LOOKUP_TABLE default\n";
-            for ( uint k = 0; k < tNumberOfNodes; ++k )
+        tFile << "SCALARS RAYCAST int\n";
+        tFile << "LOOKUP_TABLE default\n";
+        for ( uint k = 0; k < tNumberOfNodes; ++k )
+        {
+            // test if vertex is determined
+            if ( mMesh.get_vertex( k )->is_flagged() )
             {
-                // test if vertex is determined
-                if ( mMesh.get_vertex( k )->is_flagged() )
-                {
-                    tIChar = swap_byte_endian( 0 );
-                }
-                else if ( mMesh.get_vertex( k )->get_region() == mtk::Mesh_Region::INSIDE )
-                {
-                    tIChar = swap_byte_endian( -1 );
-                }
-                // FIXME: This assumes nodes on the interface are outside. An extra else if may be needed
-                else
-                {
-                    tIChar = swap_byte_endian( (int)1 );
-                }
-                tFile.write( (char*)&tIChar, sizeof( int ) );
+                tIChar = swap_byte_endian( 0 );
             }
+            else if ( mMesh.get_vertex( k )->get_region() == mtk::Mesh_Region::INSIDE )
+            {
+                tIChar = swap_byte_endian( -1 );
+            }
+            // FIXME: This assumes nodes on the interface are outside. An extra else if may be needed
+            else
+            {
+                tIChar = swap_byte_endian( (int)1 );
+            }
+            tFile.write( (char*)&tIChar, sizeof( int ) );
+        }
 
         tFile << "SCALARS VERTEX_INDEX int" << '\n';
         tFile << "LOOKUP_TABLE default" << '\n';

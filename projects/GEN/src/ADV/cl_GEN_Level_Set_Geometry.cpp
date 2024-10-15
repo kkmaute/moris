@@ -569,8 +569,6 @@ namespace moris::gen
             mtk::Mesh_Pair    aMeshPair,
             sol::Dist_Vector* aOwnedADVs )
     {
-        std::cout << aMeshPair.get_interpolation_mesh()->get_num_nodes(); // brendan
-
         if ( mSharedADVIDs.size() == 0 )
         {
             Design_Field::discretize( aMeshPair, aOwnedADVs, { {} }, mOffsetID );
@@ -592,8 +590,6 @@ namespace moris::gen
             mtk::Mesh_Pair                aMeshPair,
             sol::Dist_Vector*             aOwnedADVs )
     {
-        std::cout << aMeshPair.get_interpolation_mesh()->get_num_nodes(); // brendan
-
         if ( aMTKField->get_label() == this->get_name() )
         {
             if ( mSharedADVIDs.size() == 0 )

@@ -28,18 +28,6 @@
 
 namespace moris::sdf
 {      
-    /**
-     * Enum for preselection result brendan deprecated
-     */
-    enum Preselection_Result
-    {
-        SUCCESS,
-        FAIL_ON_VERTEX,
-        FAIL_CAST_TO_VERTEX,
-        FAIL_ON_EDGE,
-        FAIL_CAST_TO_EDGE,
-    };
-
     //-------------------------------------------------------------------------------
 
     inline void

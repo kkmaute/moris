@@ -37,7 +37,6 @@ namespace moris::gen
             , mMeshPair( aMeshPair )
             , mDiscretizationIndex( aDiscretizationIndex )
     {
-        std::cout << aMeshPair.get_interpolation_mesh()->get_num_nodes() << std::endl; // brendan
         // Map to B-splines
         Matrix< DDRMat > tTargetField = this->map_to_bsplines( aField );
 
@@ -61,9 +60,7 @@ namespace moris::gen
             , mADVOffsetID( aADVOffsetID )
             , mMeshPair( aMeshPair )
             , mDiscretizationIndex( aDiscretizationIndex )
-    {
-        std::cout << aMeshPair.get_interpolation_mesh()->get_num_nodes() << std::endl; // brendan
-        
+    {        
         // Map to B-splines
         const Matrix< DDRMat >& tTargetField = aMTKField->get_coefficients();
 
@@ -231,7 +228,6 @@ namespace moris::gen
         }
 
         // Create field
-        std::cout << mMeshPair.get_interpolation_mesh()->get_num_nodes() << std::endl;  // brendan
         auto tField = new mtk::Field_Discrete( mMeshPair, mDiscretizationIndex );
 
         // Set coefficients

@@ -30,7 +30,6 @@ namespace moris::sdf
             Vector< std::shared_ptr< Facet > >        mFacets = {};
 
           private:
-            // real             mIntersectionTolerance = 1e-8;    // tolerance for interfaces when raycasting with this Object brendan moved
             const real mMeshHighPass = 1e-9;
 
 

@@ -70,19 +70,5 @@ namespace moris::sdf
         // check reset
         CHECK( all_true( abs( tFacetCoords - tResetCoordsExpected ) < tEpsilon ) );
 
-        // // scale the object and get the third facet brendan delete
-        // Matrix< DDRMat > tScale = { { 2.0, 0.5 } };
-        // tObject.set_scale( tScale );
-        // tFacetCoords = tObject.get_all_vertex_coordinates_of_facet( 2 );
-
-        // // check scale
-        // CHECK( all_true( abs( tFacetCoords - tScaleCoordsExpected ) < tEpsilon ) );
-
-        // // reset and get first facet coordinates
-        // tObject.reset_coordinates();
-        // tFacetCoords = tObject.get_all_vertex_coordinates_of_facet( 0 );
-
-        // check reset
-        CHECK( all_true( abs( tFacetCoords - tResetCoordsExpected ) < tEpsilon ) );
     }
 }    // namespace moris::sdf

@@ -63,7 +63,7 @@ namespace moris::mtk
          * @brief Returns the facet measure (length/area) for each facet in the surface mesh.
          * @return A (n x 1) matrix where n is the number of facets in the surface mesh.
          */
-        [[nodiscard]] Matrix< DDRMat > get_facet_measure() const;
+        [[nodiscard]] const Matrix< DDRMat > &get_facet_measure() const;
 
         /**
          * @brief Returns the averaged vertex normals for each vertex in the surface mesh.
@@ -108,13 +108,6 @@ namespace moris::mtk
          * @return A list of local cell indices that are neighbors of the vertex with the given index.
          */
         [[nodiscard]] Vector< moris_index > get_cells_of_vertex( moris_index aLocalVertexIndex ) const;
-
-        // /**
-        //  * @brief Returns the coordinates of all vertices that are part of the cell with the given local index. brendan
-        //  * @param aLocalCellIndex The local index of the cell in the surface mesh.
-        //  * @return A (d x n) matrix where d is the dimension of the mesh and n is the number of vertices in the cell.
-        //  */
-        // [[nodiscard]] Matrix< DDRMat > get_vertex_coordinates_of_cell( moris_index aLocalCellIndex ) const;
 
         /**
          * @brief Returns the (averaged) vertex normals of all vertices that are part of the cell with the given local index.
@@ -187,8 +180,6 @@ namespace moris::mtk
 
         void initialize_facet_measure();
 
-        // void initialize_facet_normals(); brendan
-
         void initialize_vertex_normals();
 
         // data
@@ -260,20 +251,10 @@ namespace moris::mtk
 
         Vector< moris_index > mCellToClusterIndices;
 
-        // /**
-        //  * @brief Stores the facet normals for each facet in the surface mesh. The indices are the indices of the facets in the surface mesh, not the global indices!
-        //  */
-        // Matrix< DDRMat > mFacetNormals = Matrix< DDRMat >( 0, 0 ); brendan
-
         /**
          * @brief Stores the averaged vertex normals for each vertex in the surface mesh. The indices are the indices of the vertices in the surface mesh, not the global indices!
          */
         Matrix< DDRMat > mVertexNormals = Matrix< DDRMat >( 0, 0 );
-
-        // /**
-        //  * @brief Stores the coordinates of all vertices in the surface mesh. The indices are the indices of the vertices in the surface mesh, not the global indices!
-        //  */
-        // Matrix< DDRMat > mVertexCoordinates = Matrix< DDRMat >( 0, 0 ); brendan
 
         /**
          * @brief Is used to store the measure of each facet.

@@ -23,8 +23,6 @@
 #include "fn_equal_to.hpp"
 #include "AztecOO.h"
 
-// BRENDAN FORMAT
-
 extern uint tGeoModel;
 
 #ifdef __cplusplus

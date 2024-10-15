@@ -187,7 +187,7 @@
 //         {
 //             // // preselect triangles for intersection test
 //             Vector< uint > tCandidateFacets = aSurfaceMesh.preselect_with_arborx( aPoint, aAxis );
-//             // preselect_triangles_moller_trumbore( aSurfaceMesh, aPoint, aAxis, tCandidateFacets ); brendan
+//             // preselect_triangles_moller_trumbore( aSurfaceMesh, aPoint, aAxis, tCandidateFacets );
 
 //             // Initialize vector to store the facets the ray intersects
 //             Vector< uint > tIntersectedFacets;
@@ -529,7 +529,7 @@
 
 //-------------------------------------------------------------------------------
 
-// Vector< uint > brendan likely deprecated
+// Vector< uint >
 // intersect_triangles(
 //         Vector< uint >&         aCandidateFacets,
 //         mtk::Surface_Mesh&                 aSurfaceMesh,
@@ -597,7 +597,7 @@
 //     // get number of facets
 //     uint tNumberOfFacets = aSurfaceMesh.get_number_of_facets();
 
-//     // initialize vector with coords in axis brendan change
+//     // initialize vector with coords in axis
 //     Vector< real > tCoordsK( tNumberOfFacets );
 //     aIntersectedFacets.resize( tNumberOfFacets );
 
@@ -609,7 +609,7 @@
 //     {
 //         // return the intersection coordinate from moller trumbore algorithm
 //         real tIntersection = aSurfaceMesh.moller_trumbore( iCandidateFacet, aAxis, aPoint );
-//         // real tIntersection = dynamic_cast< sdf::Triangle& >( aSurfaceMesh.get_facet( iCandidateFacet ) ).moller_trumbore( aAxis, aPoint ); brendan
+//         // real tIntersection = dynamic_cast< sdf::Triangle& >( aSurfaceMesh.get_facet( iCandidateFacet ) ).moller_trumbore( aAxis, aPoint );
 
 //         // if the ray intersects the triangle, add the intersection to the list
 //         if ( not std::isnan( tIntersection ) )

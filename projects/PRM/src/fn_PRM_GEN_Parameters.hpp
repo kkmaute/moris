@@ -8,8 +8,6 @@
  *
  */
 
-// BRENDAN FORMAT
-
 #pragma once
 
 #include "cl_Parameter_List.hpp"
@@ -35,9 +33,11 @@ namespace moris::prm
         tGENParameterList.insert( "time_offset", 0.0 );           // Time offset for writing files in optimization process
 
         // IQIs/PDVs
-        tGENParameterList.insert( "IQI_types", Vector< std::string >(),      // Requested IQI types for sensitivity analysis
-                Entry_Type::SELECTION, "IQI_name",
-                Module_Type::FEM, 4 );
+        tGENParameterList.insert( "IQI_types", Vector< std::string >(),    // Requested IQI types for sensitivity analysis
+                Entry_Type::SELECTION,
+                "IQI_name",
+                Module_Type::FEM,
+                4 );
         tGENParameterList.insert( "PDV_types", Vector< std::string >() );    // Requested PDV types for sensitivity analysis
 
         // Phase table
@@ -165,10 +165,10 @@ namespace moris::prm
                     aParameterList.insert( "image_file", "" );
                     aParameterList.insert( "image_dimensions", Vector< real >() );
                     aParameterList.insert( "image_offset", Vector< real >() );
-                    aParameterList.insert( "image_sdf_scaling", 0.0 );                // sdf scaling factor (0: automatic scaling)
-                    aParameterList.insert( "image_sdf_shift", 0.0 );                  // sdf shift value
-                    aParameterList.insert( "image_sdf_default", 1.0 );               // sdf value outside image
-                    aParameterList.insert( "image_sdf_interpolate", false );          // whether sdf value is interpolated
+                    aParameterList.insert( "image_sdf_scaling", 0.0 );          // sdf scaling factor (0: automatic scaling)
+                    aParameterList.insert( "image_sdf_shift", 0.0 );            // sdf shift value
+                    aParameterList.insert( "image_sdf_default", 1.0 );          // sdf value outside image
+                    aParameterList.insert( "image_sdf_interpolate", false );    // whether sdf value is interpolated
                     break;
                 }
                 case gen::Field_Type::USER_DEFINED:
@@ -281,9 +281,9 @@ namespace moris::prm
         tSurfaceMeshParameterList.insert( "offset", Vector< real >( 3, 0.0 ) );                // offset all points in the geometry by this much
         tSurfaceMeshParameterList.insert( "scale", Vector< real >( 3, 1.0 ) );                 // scaling factor for all points in the geometry
         tSurfaceMeshParameterList.insert( "file_path", "" );                                   // path to .obj file
-        tSurfaceMeshParameterList.insert( "discretization_factor_function_name", "" );                 // function name that determines which nodes are fixed
-        tSurfaceMeshParameterList.insert( "field_function_name", "" );          // Function for perturbation of surface mesh vertices
-        tSurfaceMeshParameterList.insert( "sensitivity_function_name", "" );    // Function name for evaluating the sensitivity of the perturbation
+        tSurfaceMeshParameterList.insert( "discretization_factor_function_name", "" );         // function name that determines which nodes are fixed
+        tSurfaceMeshParameterList.insert( "field_function_name", "" );                         // Function for perturbation of surface mesh vertices
+        tSurfaceMeshParameterList.insert( "sensitivity_function_name", "" );                   // Function name for evaluating the sensitivity of the perturbation
         tSurfaceMeshParameterList.set( "geometry_type", "surface_mesh" );                      // set the geometry type to surface mesh
 
         return tSurfaceMeshParameterList;

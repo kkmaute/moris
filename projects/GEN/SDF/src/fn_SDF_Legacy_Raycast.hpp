@@ -146,7 +146,7 @@
 //             Vector< uint >&         aCandidateFacets,
 //             mtk::Surface_Mesh&                 aMesh,
 //             const Matrix< DDRMat >& aPoint,
-//             uint                    aAxis ); brendan likely deprecated
+//             uint                    aAxis );
 
 //-------------------------------------------------------------------------------
 

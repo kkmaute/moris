@@ -66,8 +66,6 @@ namespace moris::mtk
 
         // in a last step, the neighbors can actually be correctly assigned since all local indices are known
         this->initialize_neighbors( tTmpNeighborMap );
-        this->initialize_vertex_coordinates();
-        this->initialize_facet_normals();
         this->initialize_facet_measure();
         this->initialize_vertex_normals();
     }
@@ -259,10 +257,10 @@ namespace moris::mtk
 
     void Integration_Surface_Mesh::initialize_vertex_normals()
     {
-        auto const                    tNumVertices  = static_cast< moris::size_t >( mLocalToGlobalVertexIndex.size() );
-        uint const                    tDim          = this->get_spatial_dimension();
-        Matrix< arma::Mat< double > > tFacetNormals = this->get_all_facet_normals();
-        Matrix< arma::Mat< double > > tFacetMeasure = this->get_facet_measure();
+        auto const             tNumVertices  = static_cast< moris::size_t >( mLocalToGlobalVertexIndex.size() );
+        uint const             tDim          = this->get_spatial_dimension();
+        const Matrix< DDRMat > tFacetNormals = this->get_all_facet_normals();
+        const Matrix< DDRMat > tFacetMeasure = this->get_facet_measure();
         mVertexNormals.resize( tDim, tNumVertices );
 
         auto tNormal = Matrix< DDRMat >( tDim, 1 );
@@ -293,7 +291,7 @@ namespace moris::mtk
         return mVertexNeighbors( aLocalVertexIndex );
     }
 
-    Matrix< DDRMat > Integration_Surface_Mesh::get_facet_measure() const
+    const Matrix< DDRMat >& Integration_Surface_Mesh::get_facet_measure() const
     {
         return mFacetMeasure;
     }
@@ -348,34 +346,10 @@ namespace moris::mtk
         return mVertexToCellIndices( aLocalVertexIndex );
     }
 
-    // uint Integration_Surface_Mesh::get_number_of_cells() const
-    // {
-    //     return static_cast< uint >( mLocalToGlobalCellIndex.size() );
-    // }
-
-    // uint Integration_Surface_Mesh::get_number_of_vertices() const brendan
-    // {
-    //     return static_cast< uint >( mLocalToGlobalVertexIndex.size() );
-    // }
-
     uint Integration_Surface_Mesh::get_spatial_dimension() const
     {
         return mIGMesh->get_spatial_dim();
     }
-
-    // Matrix< DDRMat > Integration_Surface_Mesh::get_vertex_coordinates_of_cell( moris_index aLocalCellIndex ) const brendan deprecated, but maybe frieders implementation is better
-    // {
-    //     Matrix< DDRMat >      tVertexCoordinates = this->get_all_vertex_coordinates();
-    //     Vector< moris_index > tVertexIndices     = this->get_vertices_of_cell( aLocalCellIndex );
-    //     size_t const          tDim               = tVertexCoordinates.n_rows();
-    //     size_t const          tNumVertices       = tVertexIndices.size();
-    //     Matrix< DDRMat >      tCellVertexCoordinates{ tDim, tNumVertices };
-    //     for ( moris::size_t i = 0; i < tNumVertices; i++ )
-    //     {
-    //         tCellVertexCoordinates.set_column( i, tVertexCoordinates.get_column( tVertexIndices( i ) ) );
-    //     }
-    //     return tCellVertexCoordinates;
-    // }
 
     Matrix< DDRMat > Integration_Surface_Mesh::get_vertex_normals_of_cell( moris_index aLocalCellIndex ) const
     {
