@@ -8,50 +8,45 @@
  *
  */
 
-#ifndef XTK_SRC_XTK_FN_MESH_FLOOD_FILL_HPP_
-#define XTK_SRC_XTK_FN_MESH_FLOOD_FILL_HPP_
+#pragma once
 
 // XTKL: Linear Algebra Includes
-#include "cl_XTK_Matrix_Base_Utilities.hpp"
 #include "cl_Matrix.hpp"
 
 // Unordered Map Include
 #include <unordered_map>
 
-#include "cl_XTK_Child_Mesh.hpp"
-
-namespace moris::xtk
+namespace moris::mtk
 {
     /* full_flood_fill runs a floodfill algorithm traversing the element to element connectivity returning subphases
      * values at each index on a subdomain indicated by aActiveElements
      *
-     * @param[in]  aElementToElement   - Element to Element connectivity
-     * @param[in]  aElementPhaseIndex  - Element Phase Index (row vector)
+     * @param[in]  aElementToElement   - Element to Element connectivity size < numElements > x < maxNeighbors >
+     * @param[in]  aElementPhaseIndex  - Element Phase Index (row vector)  size < numElements >
      * @param[in]  aActiveElements     - Short list of active elements to limit elements needed to iterate over
      * @param[in]  aElementsToInclude  - Marks the elements to consider == 1 and the ones to ignore == 0 (could be expensive to create inside if large mesh)
-     * @param[in]  aNumPhases          - Number of Phases possible
      * @param[in]  aIncludeAllElements - Says to include all elements
      * @param[out] Element Subphase Indices
      *
      */
     inline Matrix< IndexMat >
     flood_fill(
-            Matrix< IndexMat > const & aElementToElement,
-            Matrix< IndexMat > const & aElementPhaseIndex,
-            Matrix< IndexMat > const & aActiveElements,
-            Matrix< IndexMat > const & aElementsToInclude,
-            moris::size_t              aNumPhases,
-            moris::moris_index         aDummyValue,
-            moris::moris_index&        aMaxValueAssigned,
-            bool                       aIncludeAllElements = false )
+            Matrix< IndexMat > const &    aElementToElement,
+            Vector< moris_index > const & aElementPhaseIndex,
+            Vector< moris_index > const & aActiveElements,
+            Vector< moris_index > const & aElementsToInclude,
+            moris::moris_index            aDummyValue,
+            moris::moris_index&           aMaxValueAssigned,
+            bool                          aIncludeAllElements = false )
     {
         // Active phase index
         moris::size_t tPhaseIndex = 0;
 
         // Number of elements in the flood fill
-        moris::size_t tNumElements = aActiveElements.n_cols();
+        moris::size_t tNumElements = aActiveElements.size();
 
         // Number of Elements with Set Phases (This allows for early termination of code if every element has been set)
+        moris::size_t tNumPhasesSet = 0;
 
         // Maximum number of neighbors per element
         moris::size_t tMaxNumNeighbors = aElementToElement.n_cols();
@@ -87,20 +82,20 @@ namespace moris::xtk
         {
             for ( moris::size_t iE = 0; iE < tNumElements; iE++ )
             {
-                tElementToLocalIndex[ aActiveElements( 0, iE ) ] = iE;
+                tElementToLocalIndex[ aActiveElements( iE ) ] = iE;
             }
         }
 
         // Loop over all elements
         for ( moris::size_t iE = 0; iE < tNumElements; iE++ )
         {
-            tElementIndex = aActiveElements( 0, iE );
+            tElementIndex = aActiveElements( iE );
 
             // If this element phase has not been set
             if ( !tPhaseSet( 0, iE ) )
             {
                 // Phase Index of the element
-                tPhaseIndex = aElementPhaseIndex( 0, aActiveElements( 0, iE ) );
+                tPhaseIndex = aElementPhaseIndex( aActiveElements( iE ) );
 
                 // Set the elements subphase value
                 tElementSubphase( iE, 0 ) = tCurrentSubphase;
@@ -117,7 +112,7 @@ namespace moris::xtk
                         break;
                     }
 
-                    tNeighborPhase = aElementPhaseIndex( 0, aElementToElement( tElementIndex, iN ) );
+                    tNeighborPhase = aElementPhaseIndex( aElementToElement( tElementIndex, iN ) );
 
                     if ( !aIncludeAllElements )
                     {
@@ -133,8 +128,8 @@ namespace moris::xtk
                     // If this is a neighbor element to include in the subdomain, has not already
                     // been set and its phase matches the current element's phase then
                     // add it to the active front and increment the count
-                    if ( aElementsToInclude( 0, aElementToElement( tElementIndex, iN ) ) == 1 &&    //
-                            tPhaseSet( 0, tNeighborIndex ) != 1 &&                                  //
+                    if ( aElementsToInclude( aElementToElement( tElementIndex, iN ) ) == 1 &&    //
+                            tPhaseSet( 0, tNeighborIndex ) != 1 &&                               //
                             tNeighborPhase == tPhaseIndex )
                     {
                         tActiveFront( 0, tActiveFrontCount ) = aElementToElement( tElementIndex, iN );
@@ -162,7 +157,7 @@ namespace moris::xtk
                     }
 
                     // Get the neighbors phase
-                    tNeighborPhase = aElementPhaseIndex( 0, tActiveFrontElement );
+                    tNeighborPhase = aElementPhaseIndex( tActiveFrontElement );
 
                     // If the neighbor phase matches our phase, then we add it's neighbor to the active front
                     // Unless it has already been set
@@ -173,6 +168,9 @@ namespace moris::xtk
 
                         // Mark element as set
                         tPhaseSet( 0, tNeighborIndex ) = 1;
+
+                        // Increase the number of phases set
+                        tNumPhasesSet++;
 
                         // Add the elements other neighbors to the active front
                         bool tReplaced = false;
@@ -203,7 +201,7 @@ namespace moris::xtk
                             }
 
                             // If this element is active and its phase hasn't been set
-                            if ( aElementsToInclude( 0, tElementIndex ) == 1 &&    //
+                            if ( aElementsToInclude( tElementIndex ) == 1 &&    //
                                     tPhaseSet( 0, tNeighborIndex ) != 1 )
                             {
                                 // and the previous element hasn't been replaced, then replace it
@@ -248,13 +246,11 @@ namespace moris::xtk
                 tCurrentSubphase++;
 
             }    // end if: enrichment level has not been determined yet
-        }        // end for: all elements in graph
+        }    // end for: all elements in graph
 
         aMaxValueAssigned = tCurrentSubphase - 1;
 
         return tElementSubphase;
 
     }    // end function: flood_fill()
-}    // namespace moris::xtk
-
-#endif /* XTK_SRC_XTK_FN_MESH_FLOOD_FILL_HPP_ */
+}    // namespace moris::mtk

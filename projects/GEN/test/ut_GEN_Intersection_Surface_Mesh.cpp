@@ -36,6 +36,11 @@
 std::unique_ptr< Kokkos::ScopeGuard > guard = !Kokkos::is_initialized() && !Kokkos::is_finalized() ? std::make_unique< Kokkos::ScopeGuard >() : nullptr;
 namespace moris::gen
 {
+
+#ifdef MORIS_HAVE_ARBORX
+    // initialize Kokkos for the use in the spatial tree library ArborX
+    std::unique_ptr< Kokkos::ScopeGuard > guard = !Kokkos::is_initialized() && !Kokkos::is_finalized() ? std::make_unique< Kokkos::ScopeGuard >() : nullptr;
+#endif
     //--------------------------------------------------------------------------------------------------------------
 
     static Vector< Matrix< DDRMat > > tQuadParametricCoordinates = {
@@ -73,64 +78,10 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    TEST_CASE( "Surface Mesh Intersections", "[gen], [pdv], [intersection], [surface mesh intersection]" )
-    {
-        if ( par_size() == 1 )
-        {
-            real tEpsilon = 1e-9;
-
-            // Create mesh
-            mtk::Interpolation_Mesh* tMesh = create_simple_mesh( 2, 2 );
-
-            // create surface mesh geometry
-            ADV_Manager    tADVManager;
-            Parameter_List tParameters = prm::create_surface_mesh_geometry_parameter_list();
-            tParameters.set( "file_path", moris::get_base_moris_dir() + "projects/GEN/SDF/test/data/rhombus.obj" );
-            Surface_Mesh_Parameters                  tSurfaceMeshParameters( tParameters );
-            std::shared_ptr< Surface_Mesh_Geometry > tSurfaceMeshPointer = std::make_shared< Surface_Mesh_Geometry >( tMesh, tADVManager, tSurfaceMeshParameters );
-
-            // initialize counter for nodes
-            moris_index tNodeIndex = 0;
-
-            // create base nodes with parent coordinates
-            Matrix< DDRMat > tFirstParentGlobalCoordinates  = { { 0.2, 0.35 } };
-            Matrix< DDRMat > tSecondParentGlobalCoordinates = { { 0.3, 0.15 } };
-
-            Background_Node            tFirstBase( tNodeIndex++, tFirstParentGlobalCoordinates );
-            Background_Node            tSecondBase( tNodeIndex++, tSecondParentGlobalCoordinates );
-            Background_Node            tThirdBase( tNodeIndex++, { { 0.25, 0.15 } } );
-            Background_Node            tFourthBase( tNodeIndex++, { { 0.1, 0.2 } } );
-            Vector< Background_Node* > tBackgroundNodes = { &tFirstBase, &tSecondBase, &tThirdBase, &tFourthBase };
-
-            Matrix< DDRMat > tFirstParentParametricCoordinates  = { { -1.0, 1.0 } };
-            Matrix< DDRMat > tSecondParentParametricCoordinates = { { 1.0, 1.0 } };
-
-            Background_Node tBaseFirstParent( tNodeIndex++, tFirstParentGlobalCoordinates );
-            Background_Node tBaseSecondParent( tNodeIndex++, tSecondParentGlobalCoordinates );
-
-            Parent_Node tFirstParentNode( tBaseFirstParent, tFirstParentParametricCoordinates );
-            Parent_Node tSecondParentNode( tBaseSecondParent, tSecondParentParametricCoordinates );
-
-            // create the intersection node
-            Intersection_Node* tIntersectionNode = tSurfaceMeshPointer->create_intersection_node(
-                    tNodeIndex++,
-                    tBackgroundNodes,
-                    tFirstParentNode,
-                    tSecondParentNode,
-                    mtk::Geometry_Type::QUAD,
-                    mtk::Interpolation_Order::LINEAR );
-
-            // check the local coordinate
-            real tLocalCoordinateExpected = 0.0;
-            real tLocalCoordinate         = tIntersectionNode->get_local_coordinate();
-            CHECK( abs( tLocalCoordinateExpected - tLocalCoordinate ) < tEpsilon );
-        }
-    }
-
     TEST_CASE( "Engine 2D Surface Mesh Intersections", "[gen], [pdv], [intersection], [surface mesh geometry 2d]," )
     {
         if ( par_size() == 1 )
-        {            
+        {
             // get root from environment
             std::string tMorisRoot = moris::get_base_moris_dir();
 
@@ -165,14 +116,16 @@ namespace moris::gen
             mtk::Interpolation_Mesh* tMesh = tHMR.create_interpolation_mesh( 0 );
 
             // surface mesh
-            Parameter_List tSurfaceMeshParameterList = prm::create_surface_mesh_geometry_parameter_list();
-            tSurfaceMeshParameterList.set( "file_path", tMorisRoot + "projects/GEN/test/data/triangle_sensitivity_oblique.obj" );
-            tSurfaceMeshParameterList.set( "intersection_tolerance", 1e-9 );
+            Submodule_Parameter_Lists tFieldParameterLists( "FIELDS" );
+            tFieldParameterLists.add_parameter_list( prm::create_surface_mesh_geometry_parameter_list() );
+            tFieldParameterLists.set( "file_path", tMorisRoot + "projects/GEN/SDF/test/data/triangle_sensitivity_oblique.obj" );
+            tFieldParameterLists.set( "intersection_tolerance", 1e-9 );
+
 
             // Create geometry engine
             Geometry_Engine_Parameters tGeometryEngineParameters;
-            ADV_Manager                tADVManager;
-            Design_Factory             tDesignFactory( { tSurfaceMeshParameterList }, tADVManager );
+            ADV_Manager tADVManager;
+            Design_Factory tDesignFactory( tFieldParameterLists, tADVManager );
             tGeometryEngineParameters.mGeometries = tDesignFactory.get_geometries();
             Geometry_Engine tGeometryEngine( tMesh, tGeometryEngineParameters );
 

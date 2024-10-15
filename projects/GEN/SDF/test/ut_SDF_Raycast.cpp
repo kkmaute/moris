@@ -42,7 +42,10 @@ namespace moris::sdf
 #ifdef MORIS_HAVE_ARBORX
     // initialize Kokkos for the use in the spatial tree library ArborX
     std::unique_ptr< Kokkos::ScopeGuard > guard = !Kokkos::is_initialized() && !Kokkos::is_finalized() ? std::make_unique< Kokkos::ScopeGuard >() : nullptr;
-#endif
+
+
+    // number of random rays to cast to check result
+    uint tNumRays = 1;
 
     TEST_CASE(
             "gen::sdf::Raycast",
@@ -57,9 +60,6 @@ namespace moris::sdf
             {
                 // Tolerance for results
                 // real tEpsilon = 1e-8;
-
-                // number of random rays to cast to check result
-                // uint tNumRays = 100;
 
                 // create triangle object from object file
                 std::string tObjectPath = tMorisRoot + "projects/GEN/SDF/test/data/tetrahedron.obj";
@@ -120,8 +120,7 @@ namespace moris::sdf
                 // CHECK( tPointIsInside == INSIDE );
 
                 // cast a bunch of random rays and ensure they all return the correct result
-                mtk::Mesh_Region tPointIsInside;
-                tPointIsInside = tObject.get_region_from_raycast( tTestPoint );
+                mtk::Mesh_Region tPointIsInside = tObject.get_region_from_raycast( tTestPoint );
                 REQUIRE( tPointIsInside == mtk::Mesh_Region::INSIDE );
 
                 // repeat test for point that is outside
@@ -149,33 +148,25 @@ namespace moris::sdf
                 //     tIntersections( iCandidate ) = tObject.moller_trumbore( tCandidateTriangles( iCandidate ), tTestPoint, tDirection );
                 // }
 
-                // tIntersectedTriangles           = intersect_triangles( tCandidateTriangles, tObject, tTestPoint, 0 );
-
-                // REQUIRE( tIntersectedFacets.size() == 2 );
-                // CHECK( *( tIntersectedFacets( 0 ) ) == tObject.get_facet( 1 ) );
-                // CHECK( *( tIntersectedFacets( 1 ) ) == tObject.get_facet( 2 ) );
-
-                // although two facets are intersected, one of them should produce an error and be removed
-                // tIntersectionCoordinates         = intersect_ray_with_facets( tIntersectedTriangles, tTestPoint, 0, Preselection_Result::SUCCESS );
-
                 // CHECK( std::abs( tIntersections( 0 ) - tIntersectionCoordinatesExpected( 0 ) ) < tEpsilon );
                 // CHECK( std::isnan( tIntersections( 1 ) ) );
                 // CHECK( std::abs( tIntersections( 2 ) - tIntersectionCoordinatesExpected( 1 ) ) < tEpsilon );
 
-                // tPointIsInside = check_if_node_is_inside_triangles( tIntersections, tTestPoint, 0, 1e-8 );
+                // Repeat for all of them at the same time using batching
+                tTestPoint = { { 0.9, 0.2 }, { 0.6, 0.6 }, { 0.7, 0.7 } };
 
-                // CHECK( tPointIsInside == OUTSIDE );
                 tPointIsInside = tObject.get_region_from_raycast( tTestPoint );
                 REQUIRE( tPointIsInside == mtk::Mesh_Region::OUTSIDE );
 
-                // Queue both at the same time and ensure the batching is correct
-                Matrix< DDRMat > tAllTestPoints = { { 0.9, 0.2 }, { 0.6, 0.6 }, { 0.7, 0.7 } };
+                // Get the regions
+                Vector< mtk::Mesh_Region > tRegions  = tObject.batch_get_region_from_raycast( tTestPoint );
+                Vector< mtk::Mesh_Region > tExpected = { mtk::Mesh_Region::INSIDE, mtk::Mesh_Region::OUTSIDE };
 
-                Vector< mtk::Mesh_Region > tRegions         = tObject.batch_get_region_from_raycast( tAllTestPoints );
-                Vector< mtk::Mesh_Region > tRegionsExpected = { mtk::Mesh_Region::INSIDE, mtk::Mesh_Region::OUTSIDE };
-                for ( uint iRegion = 0; iRegion < tRegions.size(); ++iRegion )
+                // Check each match
+                REQUIRE( tRegions.size() == 2 );
+                for ( uint iRegion = 0; iRegion < 2; ++iRegion )
                 {
-                    CHECK( tRegions( iRegion ) == tRegionsExpected( iRegion ) );
+                    CHECK( tRegions( iRegion ) == tExpected( iRegion ) );
                 }
             }
             SECTION( "SDF: Raycast Free Function Test - 2D" )
@@ -193,99 +184,82 @@ namespace moris::sdf
                 // define test direction
                 // Matrix< DDRMat > tDirection = { { 1.0, 0.0 } };
 
-                // preselect in y direction and ensure the candidates and intersected facets are marked
-                // Vector< uint > tCandidateLines =tObject.preselect_with_arborx( tObject tTestPoint, tDirection ); brendan
-                // uint tIntersectedLinesExpected = 1;
-
-                // REQUIRE( tIntersectedLines.size() == 1 );
-                // REQUIRE( tCandidateLines.size() == 1 );
-                // CHECK( tIntersectedLines( 0 ) == tIntersectedLinesExpected );
-                // CHECK( tCandidateLines( 0 ) == &tObject.get_facet( 2 ) );
-
                 // // preselect in x direction and ensure the candidates and intersected facets are marked
                 // Vector< uint > tCandidateLines           = tObject.preselect_with_arborx( tTestPoint, tDirection );
                 // Vector< uint > tIntersectedLinesExpected = { 2, 3 };
 
                 // REQUIRE( tCandidateLines.size() == 2 );
                 // CHECK( tCandidateLines( 0 ) == tIntersectedLinesExpected( 0 ) );
-                // CHECK( tCandidateLines( 0 ) == tIntersectedLinesExpected( 1 ) );
+                // CHECK( tCandidateLines( 1 ) == tIntersectedLinesExpected( 1 ) );
 
                 // // intersect the candidate facets and determine the intersection location
                 // Vector< real > tIntersections( tCandidateLines.size() );
-                // for ( uint iCandidate : tCandidateLines )
+                // for ( uint iCandidate = 0; iCandidate < tCandidateLines.size(); ++iCandidate )
                 // {
-                //     tIntersections( iCandidate ) = tObject.moller_trumbore( iCandidate, tTestPoint, tDirection );
+                //     tIntersections( iCandidate ) = tObject.moller_trumbore( tCandidateLines( iCandidate ), tTestPoint, tDirection );
                 // }
-                // real tIntersectionCoordinateExpected = -0.2;
+                // Vector< real > tIntersectionCoordinatesExpected = { 0.05, 0.45 };
 
                 // REQUIRE( tIntersections.size() == 2 );
-                // CHECK( std::abs( tIntersections( 1 ) - tIntersectionCoordinateExpected ) < tEpsilon );
+                // CHECK( std::abs( tIntersections( 0 ) - tIntersectionCoordinatesExpected( 0 ) ) < tEpsilon );
+                // CHECK( std::abs( tIntersections( 1 ) - tIntersectionCoordinatesExpected( 1 ) ) < tEpsilon );
 
-                // // determine if the point is inside/outside and check expectation
-                // mtk::mtk::Mesh_Region tRegion = check_if_node_is_inside_lines( tObject, tIntersectionCoordinates, tIntersectedLines, tTestPoint, 0 ); brendan
+                // ensure the test gives the same result when the entire algorithm is called, repeat many times for many different random vectors
 
-                // CHECK( tRegion == OUTSIDE );
-
-                // ensure the test gives the same result when the entire algorithm is called at once
                 mtk::Mesh_Region tRegion = tObject.get_region_from_raycast( tTestPoint );
+                REQUIRE( tRegion == mtk::Mesh_Region::OUTSIDE );
 
-                CHECK( tRegion == mtk::Mesh_Region::OUTSIDE );
 
                 // repeat for a point inside the surface
                 tTestPoint = { { -.25 }, { 0.2 } };
 
-                // Matrix< DDRMat > tDirection      = { { 0.0, 1.0 } };
-                // Vector< uint >   tCandidateLines = tObject.preselect_with_arborx( tTestPoint, tDirection );
+                // tDirection      = { { 0.0, 1.0 } };
+                // tCandidateLines = tObject.preselect_with_arborx( tTestPoint, tDirection );
 
                 // REQUIRE( tCandidateLines.size() == 1 );
                 // CHECK( tCandidateLines( 0 ) == 1 );
 
-                // Vector< real > tIntersections( tCandidateLines.size() );
-                // for ( uint iCandidate : tCandidateLines )
+                // tIntersections.resize( tCandidateLines.size() );
+                // for ( uint iCandidate = 0; iCandidate < tCandidateLines.size(); ++iCandidate )
                 // {
-                //     real tVal = tObject.moller_trumbore( iCandidate, tTestPoint, tDirection );
-                //     if( !std::isnan( tVal ) )
-                //     {
-                //         tIntersections( 0 ) = tVal;
-                //     }
+                //     tIntersections( iCandidate ) = tObject.moller_trumbore( tCandidateLines( iCandidate ), tTestPoint, tDirection );
                 // }
 
-                // real tIntersectionCoordinateExpected = 0.05;
+                // tIntersectionCoordinatesExpected = { 0.05 };
 
-                // // REQUIRE( tIntersections.size() == 1 );
-                // CHECK( std::abs( tIntersections( 0 ) - tIntersectionCoordinateExpected ) < 1e-4 );
-
-                // tRegion = check_if_node_is_inside_lines( tObject, tIntersectionCoordinates, tIntersectedLines, tTestPoint, 1 );
-
-                // CHECK( tRegion == mtk::Mesh_Region::INSIDE );
+                // REQUIRE( tIntersections.size() == 1 );
+                // CHECK( std::abs( tIntersections( 0 ) - tIntersectionCoordinatesExpected( 0 ) ) < tEpsilon );
 
                 tRegion = tObject.get_region_from_raycast( tTestPoint );
-
-                CHECK( tRegion == mtk::Mesh_Region::INSIDE );
+                REQUIRE( tRegion == mtk::Mesh_Region::INSIDE );
 
                 // Repeat with a point that is on a facet
                 tTestPoint( 0, 0 ) = 0.25;
                 tTestPoint( 1, 0 ) = 0.25;
 
                 tRegion = tObject.get_region_from_raycast( tTestPoint );
+                REQUIRE( tRegion == mtk::Mesh_Region::INTERFACE );
 
-                CHECK( tRegion == mtk::Mesh_Region::INTERFACE );
 
                 // Repeat with a point that is on a vertex
                 tTestPoint( 0, 0 ) = 0.0;
                 tTestPoint( 1, 0 ) = 0.5;
 
                 tRegion = tObject.get_region_from_raycast( tTestPoint );
+                REQUIRE( tRegion == mtk::Mesh_Region::INTERFACE );
 
-                CHECK( tRegion == mtk::Mesh_Region::INTERFACE );
+                // Repeat for all of them at the same time using batching
+                tTestPoint = { { -0.25, -0.25, 0.25, 0.0 }, { -0.3, 0.2, 0.25, 0.5 } };
 
-                // Repeat by batching all the points
-                Matrix< DDRMat >           tAllTestPoints   = { { -.25, -.25, 0.25, 0.0 }, { -0.3, 0.2, 0.25, 0.5 } };
-                Vector< mtk::Mesh_Region > tRegions         = tObject.batch_get_region_from_raycast( tAllTestPoints );
-                Vector< mtk::Mesh_Region > tRegionsExpected = { mtk::Mesh_Region::OUTSIDE, mtk::Mesh_Region::INSIDE, mtk::Mesh_Region::INTERFACE, mtk::Mesh_Region::INTERFACE };
-                for ( uint iRegion = 0; iRegion < tRegions.size(); ++iRegion )
+                // Get the regions
+                Vector< mtk::Mesh_Region > tRegions  = tObject.batch_get_region_from_raycast( tTestPoint );
+                Vector< mtk::Mesh_Region > tExpected = { mtk::Mesh_Region::OUTSIDE, mtk::Mesh_Region::INSIDE, mtk::Mesh_Region::INTERFACE, mtk::Mesh_Region::INTERFACE };
+
+                // Check each match
+                REQUIRE( tRegions.size() == 4 );
+                for ( uint iRegion = 0; iRegion < 4; ++iRegion )
                 {
-                    CHECK( tRegions( iRegion ) == tRegionsExpected( iRegion ) );
+                    CHECK( tRegions( iRegion ) == tExpected( iRegion ) );
                 }
             }
             SECTION( "SDF: Compute distance to facets test - 3D" )
@@ -303,16 +277,16 @@ namespace moris::sdf
                 // Define the direction of the ray
                 Matrix< DDRMat > tDirection = { { 1.0 }, { 0.0 }, { 0.0 } };
 
-                real tLineDistanceXExpected = 0.384482127272365;      // facet index = 2
-                real tLineDistanceYExpected = 0.319533006470608;      // facet index = 1
-                real tLineDistanceZExpected = 0.18055613061054816;    // facet index = 0
+                real tLineDistanceXExpected = 0.384482127272365;    // facet index = 2
+                real tLineDistanceYExpected = 0.319533006470609;    // facet index = 1
+                real tLineDistanceZExpected = 0.180556130610548;    // facet index = 0
 
                 // compute with raycast function
-                mtk::Intersection_Vector tLineDistanceX = tObject.cast_single_ray( tTestPoint, tDirection );
-                tDirection                              = { { 0.0 }, { 1.0 }, { 0.0 } };
-                mtk::Intersection_Vector tLineDistanceY = tObject.cast_single_ray( tTestPoint, tDirection );
-                tDirection                              = { { 0.0 }, { 0.0 }, { 1.0 } };
-                mtk::Intersection_Vector tLineDistanceZ = tObject.cast_single_ray( tTestPoint, tDirection );
+                Vector< std::pair< uint, real > > tLineDistanceX = tObject.cast_single_ray( tTestPoint, tDirection );
+                tDirection                                       = { { 0.0 }, { 1.0 }, { 0.0 } };
+                Vector< std::pair< uint, real > > tLineDistanceY = tObject.cast_single_ray( tTestPoint, tDirection );
+                tDirection                                       = { { 0.0 }, { 0.0 }, { 1.0 } };
+                Vector< std::pair< uint, real > > tLineDistanceZ = tObject.cast_single_ray( tTestPoint, tDirection );
 
                 // compare
                 REQUIRE( tLineDistanceX.size() == 1 );
@@ -321,6 +295,39 @@ namespace moris::sdf
                 CHECK( std::abs( tLineDistanceX( 0 ).second - tLineDistanceXExpected ) < tEpsilon );
                 CHECK( std::abs( tLineDistanceY( 0 ).second - tLineDistanceYExpected ) < tEpsilon );
                 CHECK( std::abs( tLineDistanceZ( 0 ).second - tLineDistanceZExpected ) < tEpsilon );
+
+                // batch all 3 rays and check that the result is correct
+                Matrix< DDRMat >           tOrigins    = { { 0.9, 0.9, 0.9 }, { 0.6, 0.6, 0.6 }, { 0.7, 0.7, 0.7 } };
+                Vector< Matrix< DDRMat > > tDirections = { { { 1.0 }, { 0.0 }, { 0.0 } }, { { 0.0 }, { 1.0 }, { 0.0 } }, { { 0.0 }, { 0.0 }, { 1.0 } } };
+
+                Vector< Vector< Vector< std::pair< uint, real > > > > tLineDistances = tObject.cast_batch_of_rays( tOrigins, tDirections );
+
+                REQUIRE( tLineDistances.size() == 3 );
+                REQUIRE( tLineDistances( 0 ).size() == 1 );
+                REQUIRE( tLineDistances( 1 ).size() == 1 );
+                REQUIRE( tLineDistances( 2 ).size() == 1 );
+                CHECK( std::abs( tLineDistances( 0 )( 0 )( 0 ).second - tLineDistanceXExpected ) < tEpsilon );
+                CHECK( tLineDistances( 0 )( 0 )( 0 ).first == 2 );
+                CHECK( std::abs( tLineDistances( 1 )( 0 )( 0 ).second - tLineDistanceYExpected ) < tEpsilon );
+                CHECK( tLineDistances( 1 )( 0 )( 0 ).first == 1 );
+                CHECK( std::abs( tLineDistances( 2 )( 0 )( 0 ).second - tLineDistanceZExpected ) < tEpsilon );
+                CHECK( tLineDistances( 2 )( 0 )( 0 ).first == 0 );
+
+                // batch again using the other functionality to cast the same direction on every origin
+                Matrix< DDRMat > tSameDirections = { { 1.0, 0.0, 0.0 }, { 0.0, 1.0, 0.0 }, { 0.0, 0.0, 1.0 } };
+
+                tLineDistances = tObject.cast_batch_of_rays( tOrigins, tDirections );
+
+                REQUIRE( tLineDistances.size() == 3 );
+                REQUIRE( tLineDistances( 0 ).size() == 1 );
+                REQUIRE( tLineDistances( 1 ).size() == 1 );
+                REQUIRE( tLineDistances( 2 ).size() == 1 );
+                CHECK( std::abs( tLineDistances( 0 )( 0 )( 0 ).second - tLineDistanceXExpected ) < tEpsilon );
+                CHECK( tLineDistances( 0 )( 0 )( 0 ).first == 2 );
+                CHECK( std::abs( tLineDistances( 1 )( 0 )( 0 ).second - tLineDistanceYExpected ) < tEpsilon );
+                CHECK( tLineDistances( 1 )( 0 )( 0 ).first == 1 );
+                CHECK( std::abs( tLineDistances( 2 )( 0 )( 0 ).second - tLineDistanceZExpected ) < tEpsilon );
+                CHECK( tLineDistances( 2 )( 0 )( 0 ).first == 0 );
             }
             SECTION( "SDF: Compute distance to facets test - 2D" )
             {
@@ -342,9 +349,9 @@ namespace moris::sdf
                 Vector< real > tLineDistanceYExpected = { 0.05, 0.55 };
 
                 // compute with raycast
-                mtk::Intersection_Vector tLineDistanceX = tObject.cast_single_ray( tTestPoint, tDirection );
-                tDirection                              = { { 0.0 }, { 1.0 } };
-                mtk::Intersection_Vector tLineDistanceY = tObject.cast_single_ray( tTestPoint, tDirection );
+                Vector< std::pair< uint, real > > tLineDistanceX = tObject.cast_single_ray( tTestPoint, tDirection );
+                tDirection                                       = { { 0.0 }, { 1.0 } };
+                Vector< std::pair< uint, real > > tLineDistanceY = tObject.cast_single_ray( tTestPoint, tDirection );
 
                 // compare
                 REQUIRE( tLineDistanceX.size() == 2 );
@@ -357,3 +364,5 @@ namespace moris::sdf
         }
     }
 }    // namespace moris::sdf
+
+#endif    // MORIS_HAVE_ARBORX

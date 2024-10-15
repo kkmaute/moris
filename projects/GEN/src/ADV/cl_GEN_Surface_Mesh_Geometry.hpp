@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "cl_SDF_Object.hpp"
+#include "cl_MTK_Surface_Mesh.hpp"
 
 #include "cl_GEN_Design_Field.hpp"
 #include "cl_GEN_Field.hpp"
@@ -22,13 +22,18 @@
 namespace moris::gen
 {
     // User-defined function that determines which indices are fixed or not
-    using DISCRETIZATION_FACTOR_FUNCTION = Vector< real > ( * )( const Matrix< DDRMat >& aFacetVertexCoordinates );
+    using Discretization_Factor_Function = Vector< real > ( * )(
+            const uint              aFacetVertexIndex,
+            const Matrix< DDRMat >& aFacetVertexCoordinates );
 
-    // User-defined function that defines anlytic perturbations
-    using ANALYTIC_PERTURBATION_FUNCTION = Vector< real > ( * )( const Matrix< DDRMat >& aFacetVertexCoordinates, const Vector< real >& aADVs );
+    using Perturbation_Function = Vector< real > ( * )(
+            const Matrix< DDRMat >& aCoordinates,
+            const Vector< real >&   aParameters );
 
-    // User-defined function that defines perturbation sensitivities
-    using PERTURBATION_SENSITIVITY_FUNCTION = void ( * )( const Matrix< DDRMat >& aFacetVertexCoordinates, const Vector< real >& aADVs, Matrix< DDRMat >& aSensitivities );
+    using Sensitivity_Function = void ( * )(
+            const Matrix< DDRMat >& aCoordinates,
+            const Vector< real >&   aParameters,
+            Matrix< DDRMat >&       aSensitivities );
 
     /**
      * This is a struct used to simplify \ref moris::gen::Surface_Mesh_Geometry constructors. It contains all field and surface mesh parameters.
@@ -36,14 +41,14 @@ namespace moris::gen
     struct Surface_Mesh_Parameters : public Field_Parameters
             , public Design_Parameters
     {
-        Vector< real > mOffsets;                                // Initial shift of surface mesh coordinates
-        Vector< real > mScale;                                  // Option to scale each axis of the surface mesh
-        std::string    mFilePath;                               // Surface mesh file path
-        real           mIntersectionTolerance;                  // Interface tolerance based on intersection distance
-        Vector< uint > mADVIndices;                             // Indices of the ADVs that the surface mesh depends on
-        std::string    mDiscretizationFactorFuntionName;        // Name of the user-defined function that provides a scaling factor for the facet vertex sensitivities
-        std::string    mAnalyticPerturbationFunctionName;       // Name of the user-defined function that provides a scaling factor for the facet vertex sensitivities
-        std::string    mPerturbationSensitivityFunctionName;    // Name of the user-defined function that provides a scaling factor for the facet vertex sensitivities
+        Vector< real > mOffsets;                               // Initial shift of surface mesh coordinates
+        Vector< real > mScale;                                 // Option to scale each axis of the surface mesh
+        std::string    mFilePath;                              // File path to .obj file containing the surface mesh data
+        real           mIntersectionTolerance;                 // Interface tolerance based on intersection distance
+        std::string    mDiscretizationFactorFunctionName;      // Name of the user-defined function that provides a scaling factor for the facet vertex sensitivities
+        std::string    mAnalyticADVFunctionName;               // Name of the user-defined function that determines how surface mesh vertices are affected by ADVs. Mutually exclusive with mDiscretizationFactorFunctionName
+        std::string    mAnalyticADVSensitivityFunctionName;    // Name of the user-defined function that determines vertex/adv sensitivity. Mutually exclusive with mDiscretizationFactorFunctionName
+        std::string    mAnalyticADVIDFunctionName;             // Name of the user-defined function that determines which ADVs a vertex depends on. Mutually exclusive with mDiscretizationFactorFunctionName
 
         /**
          * Constructor with a given parameter list
@@ -53,29 +58,82 @@ namespace moris::gen
         explicit Surface_Mesh_Parameters( const Parameter_List& aParameterList = prm::create_surface_mesh_geometry_parameter_list() );
     };
 
-    class Surface_Mesh_Geometry : public Geometry
-            , public mtk::Surface_Mesh    // FIXME: remove sdf::Object inheritance
+    // ----------------------------------------------------------------------------------------------------------------
+
+    struct ElementQueryResult
     {
+        moris_index mElementIndex;
+        moris_index mBoxIndex;
+    };
+
+    // ----------------------------------------------------------------------------------------------------------------
+
+    template< typename MemorySpace >
+    struct QueryElements
+    {
+        explicit QueryElements( Kokkos::View< ArborX::Box*, MemorySpace > aBoxes )
+                : mBoxes( aBoxes )
+        {
+        }
+
+        KOKKOS_FUNCTION
+        [[nodiscard]] std::size_t size() const
+        {
+            return mBoxes.extent( 0 );
+        }
+
+        KOKKOS_FUNCTION
+        ArborX::Box const & operator()( std::size_t i ) const
+        {
+            return mBoxes( i );
+        }
+
+        Kokkos::View< ArborX::Box*, MemorySpace > mBoxes;
+    };
+
+    // ----------------------------------------------------------------------------------------------------------------
+
+    template< typename MemorySpace >
+    struct ElementIntersectionCallback
+    {
+        template< typename Predicate, typename OutputFunctor >
+        KOKKOS_FUNCTION void operator()( Predicate const & predicate, int const primitive_index, OutputFunctor const & out ) const
+        {
+            int const predicate_index = ArborX::getData( predicate );
+
+            // Return the nodes associated with the element and the surface mesh bounding box index
+            out( ElementQueryResult{ predicate_index, primitive_index } );
+        }
+
+        QueryElements< MemorySpace > mQueryPoints;
+    };
+
+    // ----------------------------------------------------------------------------------------------------------------
+
+    class Surface_Mesh_Geometry : public Geometry
+            , public mtk::Surface_Mesh
+    {
+
+
       private:
+        uint mIteration     = 0;
         bool mBasesComputed = false;
 
-        uint mIteration = 0;
-
         Surface_Mesh_Parameters mParameters;
-        ADV_Handler             mADVHandler;
         Node_Manager*           mNodeManager;
         std::string             mName;
 
         // Optimization variables
-        DISCRETIZATION_FACTOR_FUNCTION     get_discretization_factor_user_defined    = nullptr;
-        ANALYTIC_PERTURBATION_FUNCTION     get_analytic_perturbation_user_defined    = nullptr;
-        PERTURBATION_SENSITIVITY_FUNCTION  get_perturbation_sensitivity_user_defined = nullptr;
-        Vector< uint >                     mFixedVertexIndices;                                    // Indices of surface mesh vertices that are unaffected by ADVs
-        Vector< std::shared_ptr< Field > > mPerturbationFields;                                    // Vector of perturbation fields
-        Matrix< DDRMat >                   mVertexBases;                                           // Basis function values for each vertex <number of fields> x <number of vertices>
-        Vector< mtk::Cell* >               mVertexBackgroundElements;                              // Index of the background element the facet vertex was in on construction
-        Vector< mtk::Mesh_Region >         mMeshNodeRegions;                                       // Regions for all of the nodes in the interpolation mesh. Stored so that they can be batch raycast for additional speed
+        ADV_Handler                        mADVHandler;
+        Discretization_Factor_Function     get_discretization_scaling_user_defined = nullptr;
+        Perturbation_Function              get_vertex_adv_dependency_user_defined  = nullptr;
+        Sensitivity_Function               get_dvertex_dadv_user_defined           = nullptr;
+        Vector< uint >                     mFixedVertexIndices;          // Indices of surface mesh vertices that are unaffected by ADVs
+        Vector< std::shared_ptr< Field > > mPerturbationFields;          // Vector of perturbation fields
+        Matrix< DDRMat >                   mVertexBases;                 // Basis function values for each vertex <number of fields> x <number of vertices>
+        Vector< mtk::Cell* >               mVertexBackgroundElements;    // Index of the background element the facet vertex was in on construction
 
+        Vector< mtk::Mesh_Region > mNodeMeshRegions;    // contains information about the nodes in the interpolation mesh from a flood fill. The nodes that are undefined will be raycast to determine their region.
 
       public:
         /**
@@ -85,12 +143,11 @@ namespace moris::gen
          * @param aParameters Field parameters
          */
         Surface_Mesh_Geometry(
-                mtk::Mesh*                     aMesh,
-                ADV_Manager&                   aADVManager,
-                const Surface_Mesh_Parameters& aParameters  = Surface_Mesh_Parameters(),
-                const Vector< ADV >&           aADVs        = {},
-                Node_Manager&                  aNodeManager = Node_Manager::get_trivial_instance(),
-                std::shared_ptr< Library_IO >  aLibrary     = nullptr );
+                Surface_Mesh_Parameters       aParameters,
+                Node_Manager&                 aNodeManager,
+                const Vector< ADV >&          aADVs,
+                ADV_Manager&                  aADVManager,
+                std::shared_ptr< Library_IO > aLibrary = nullptr );
 
         /**
          * Default destructor
@@ -142,8 +199,7 @@ namespace moris::gen
         std::pair< uint, real > compute_intersection_local_coordinate(
                 const Vector< Background_Node* >& aBackgroundNodes,
                 const Parent_Node&                aFirstParentNode,
-                const Parent_Node&                aSecondParentNode,
-                uint&                             aParentFacet );
+                const Parent_Node&                aSecondParentNode );
 
         /**
          *
@@ -374,6 +430,52 @@ namespace moris::gen
 
       private:
         /**
+         * @brief Performs a flood fill of the mesh nodes for geometric region. Casts as many rays as subphases are found in the flood fill
+         *
+         * @param aMesh Interpolation mesh whose nodes will be flood filled. The result will be stored in mNodeMeshRegions
+         */
+        void flood_fill_mesh_regions( const mtk::Mesh* aMesh );
+
+        /**
+         * @brief Batch raycasts the remaining nodes that were not flood filled by flood_fill_mesh_regions().
+         * Updates any entries of mNodeMeshRegions that were previously UNDEFINED
+         *
+         */
+        void raycast_remaining_unknown_nodes( const mtk::Mesh* aMesh );
+
+        /**
+         *  @brief constructs a query point struct for ArborX queries
+         *
+         * @tparam MemorySpace
+         * @tparam ExecutionSpace
+         * @param iExecution Trivial in this case, but necessary for the ArborX API
+         * @param aPoints all the points that to check. size = nDims x nPoints
+         * @return QueryPoints< MemorySpace > struct for ArborX query
+         */
+        template< typename MemorySpace, typename ExecutionSpace >
+        QueryElements< MemorySpace > construct_query_elements( const mtk::Mesh* aMesh, ExecutionSpace const & aExecutionSpace )
+        {
+            uint const                                tNumElems = aMesh->get_num_elems();
+            Kokkos::View< ArborX::Box*, MemorySpace > tElements( Kokkos::view_alloc( aExecutionSpace, Kokkos::WithoutInitializing, "view:elements" ), tNumElems );
+
+            for ( size_t iElement = 0; iElement < tNumElems; iElement++ )
+            {
+                // Initialize arborx box
+                ArborX::Box tBox;
+
+                // Get the coordinates of the element
+                Matrix< IndexMat > tNodeIndices = aMesh->get_nodes_connected_to_element_loc_inds( iElement );
+                for ( size_t iNode = 0; iNode < tNodeIndices.length(); ++iNode )
+                {
+                    tBox += mtk::arborx::coordinate_to_arborx_point< ArborX::Point >( aMesh->get_node_coordinate( tNodeIndices( iNode ) ) );
+                }
+                tElements( iElement ) = tBox;
+            }
+
+            return QueryElements< MemorySpace >{ tElements };
+        }
+
+        /**
          * Finds the background elemenent in aField that contains aCoordinates
          *
          * @param aCoordinate Search global coordinate location
@@ -381,7 +483,8 @@ namespace moris::gen
          *
          * @return Index of the element in which aCoordinates resides. If no element is found, -1 is returned
          */
-        mtk::Cell* find_background_element_from_global_coordinates( mtk::Mesh* aMesh, const Matrix< DDRMat >& aCoordinate );
+        mtk::Cell*
+        find_background_element_from_global_coordinates( mtk::Mesh* aMesh, const Matrix< DDRMat >& aCoordinate );
 
         /**
          * Gets the bounding box of a requested mtk::Cell
@@ -428,3 +531,26 @@ namespace moris::gen
         void raycast_remaining_unknown_nodes( mtk::Mesh* aMesh );
     };
 }    // namespace moris::gen
+
+namespace ArborX
+{
+    using moris::gen::QueryElements;
+
+    template< typename MemorySpace >
+    struct AccessTraits< QueryElements< MemorySpace >, PredicatesTag >
+    {
+        using memory_space = MemorySpace;
+
+        // Function to return the number of queries
+        static KOKKOS_FUNCTION std::size_t size( QueryElements< MemorySpace > const & elements )
+        {
+            return elements.size();
+        }
+
+        // Function to construct a predicate from a query at a given index
+        static KOKKOS_FUNCTION auto get( QueryElements< MemorySpace > const & elements, std::size_t i )
+        {
+            return attach( intersects( elements( i ) ), i );    // returns this predicate value and attaches the predicates index as extra data to it.
+        }
+    };
+}    // namespace ArborX
