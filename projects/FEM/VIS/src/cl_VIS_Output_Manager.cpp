@@ -782,6 +782,7 @@ namespace moris::vis
 
         }    // end for: each set requested for output mesh
 
+        // write nodal fields to exodus
         for ( uint iNodalField = 0; iNodalField < tNumNodalIQIs; iNodalField++ )
         {
             // get the elemental field name
@@ -794,6 +795,7 @@ namespace moris::vis
             mWriter( aVisMeshIndex )->write_nodal_field( tFieldName, tFieldValues );
         }
 
+        // write global values to exodus
         Matrix< DDRMat > tGlobalVariableValues( tNumGlobalIQIs, 1, MORIS_REAL_MAX );
         for ( uint iGlobalField = 0; iGlobalField < tNumGlobalIQIs; iGlobalField++ )
         {

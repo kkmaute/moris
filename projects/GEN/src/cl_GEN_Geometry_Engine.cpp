@@ -155,6 +155,7 @@ namespace moris::gen
         {
             mGeometries( tGeometryIndex )->import_advs( mOwnedADVs );
         }
+
         for ( uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++ )
         {
             mProperties( tPropertyIndex )->import_advs( mOwnedADVs );
@@ -1155,7 +1156,7 @@ namespace moris::gen
                 mGeometries( iGeometryIndex )->discretize( aMeshPair, tNewOwnedADVs, tSharedADVIds( iGeometryIndex ), tAllOffsetIDs( iGeometryIndex ) );
             }
 
-            // Shape sensitivities logic}
+            // Shape sensitivities logic
             mShapeSensitivities = ( mShapeSensitivities or mGeometries( iGeometryIndex )->depends_on_advs() );
         }
 

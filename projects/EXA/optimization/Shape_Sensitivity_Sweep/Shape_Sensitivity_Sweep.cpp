@@ -196,44 +196,6 @@ namespace moris
     }
 
     //--------------------------------------------------------------------------------------------------------------
-    moris::real
-    Oblique_Line_Func(
-            const moris::Matrix< DDRMat > &aCoordinates,
-            const Vector< real >          &aGeometryParameters )
-    {
-        // get coordinates
-        real tX = aCoordinates( 0 );
-        real tY = aCoordinates( 1 );
-
-        real tLev = 1.0 * ( tX + 0.6 ) + 1.0 * ( tY + 0.3 );
-
-        //        if ( std::sqrt( std::pow( tX + 0.5, 2 ) + std::pow( tY + 0.5, 2 ) ) < 0.2 )
-        //        {
-        tLev += aGeometryParameters( 0 );
-        //       }
-
-        return tLev;
-    }
-
-    void
-    Oblique_Line_Deriv(
-            const moris::Matrix< moris::DDRMat >           &aCoordinates,
-            const Vector< moris::Matrix< moris::DDRMat > > &aParameters,
-            moris::Matrix< DDRMat >                        &aFieldSensitivity )
-    {
-        // get coordinates
-        //        real tX = aCoordinates( 0 );
-        //        real tY = aCoordinates( 1 );
-
-        //       if ( std::sqrt( std::pow( tX + 0.5, 2 ) + std::pow( tY + 0.5, 2 ) ) < 0.2 )
-        //       {
-        aFieldSensitivity = { { 1.0 } };
-        //        }
-        //        else
-        //        {
-        //            aFieldSensitivity = { { 0.0 } };
-        //        }
-    }
 
     void
     GENParameterList( Vector< Vector< Parameter_List > > &tParameterlist )
@@ -254,18 +216,11 @@ namespace moris
         tParameterlist( 1 )( 0 ).set( "normal_y", 0.0 );
 
         // oblique line
-        //        tParameterlist( 1 )( 1 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE );
-        //        tParameterlist( 1 )( 1 ).set( "center_x", -0.6, -0.6, -0.6 );
-        //        tParameterlist( 1 )( 1 ).set( "center_y", -0.3, -0.3, -0.3 );
-        //        tParameterlist( 1 )( 1 ).set( "normal_x", 1.0, 1.0, 1.0 );
-        //        tParameterlist( 1 )( 1 ).set( "normal_y", 1.0, 1.0, 1.0 );
-
-        tParameterlist( 1 )( 1 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED );
-        real deps                = 0.0e-5;
-        tParameterlist( 1 )( 1 ).set( "field_function_name", "Oblique_Line_Func" );
-        tParameterlist( 1 )( 1 ).set( "sensitivity_function_name", "Oblique_Line_Deriv" );
-        tParameterlist( 1 )( 1 ).set( "use_multilinear_interpolation", false );
-        tParameterlist( 1 )( 1 ).insert( "offset_diagonal", Design_Variable( 0.0 + deps, 0.0 + deps, 0.0 + deps ) );
+        tParameterlist( 1 )( 1 ) = prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE );
+        tParameterlist( 1 )( 1 ).set( "center_x", -0.6, -0.6, -0.6 );
+        tParameterlist( 1 )( 1 ).set( "center_y", -0.3, -0.3, -0.3 );
+        tParameterlist( 1 )( 1 ).set( "normal_x", 1.0 );
+        tParameterlist( 1 )( 1 ).set( "normal_y", 1.0 );
     }
 
     //--------------------------------------------------------------------------------------------------------------

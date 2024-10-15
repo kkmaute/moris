@@ -1538,64 +1538,72 @@ namespace moris::gen
     void
     PDV_Host_Manager::build_local_to_global_maps()
     {
-        mOwnedPDVLocalToGlobalMap.set_size( mNumOwnedPDVs, 1, -1 );
-        mOwnedAndSharedPDVLocalToGlobalMap.set_size( mNumOwnedAndSharedPDVs, 1, -1 );
+        MORIS_ERROR( mADVIdsSet, "PDV_Host_Manager::build_local_to_global_maps - ADV IDs not set." );
 
-        uint tOwnedNodeCounter          = 0;
-        uint tOwnedAndSharedNodeCounter = 0;
+        mOwnedPDVLocalToGlobalMap.set_size( mOwnedADVIds.size(), 1 );
+        mOwnedAndSharedPDVLocalToGlobalMap.set_size( mOwnedADVIds.size(), 1 );
 
-        // Loop over all different pdv types for IP node pdvs
-        for ( moris::uint Ij = 0; Ij < mPDVTypeList.size(); Ij++ )
+        for ( uint i = 0; i < mOwnedADVIds.size(); i++ )
         {
-            enum PDV_Type tPDVType = mPDVTypeList( Ij );
-
-            // Loop over pdvs per type. Count number of pdvs per proc which have to be communicated
-            for ( moris::uint Ib = 0; Ib < mIpPDVHosts.size(); Ib++ )
-            {
-                // Check if PDV host exists
-                if ( mIpPDVHosts( Ib ) )
-                {
-                    // Check if PDV exists for given type
-                    if ( mIpPDVHosts( Ib )->get_pdv_exists( tPDVType ) )
-                    {
-                        // Check if owning processor is this processor
-                        if ( mIpPDVHosts( Ib )->get_pdv_owning_processor() == par_rank() )
-                        {
-                            mOwnedPDVLocalToGlobalMap( tOwnedNodeCounter++ ) = mIpPDVHosts( Ib )->get_pdv_id( tPDVType );
-                        }
-                        mOwnedAndSharedPDVLocalToGlobalMap( tOwnedAndSharedNodeCounter++ ) = mIpPDVHosts( Ib )->get_pdv_id( tPDVType );
-                    }
-                }
-            }
+            mOwnedPDVLocalToGlobalMap( i )          = mOwnedADVIds( i );
+            mOwnedAndSharedPDVLocalToGlobalMap( i ) = mOwnedADVIds( i );
         }
 
-        // Loop over intersection node pdvs
-        for ( uint iNodeIndex = mNodeManager.get_number_of_background_nodes(); iNodeIndex < mNodeManager.get_total_number_of_nodes(); iNodeIndex++ )
-        {
-            uint tMeshNodeIndex = iNodeIndex;
-            if ( mGenMeshMapIsInitialized )
-            {
-                tMeshNodeIndex = mGenMeshMap( iNodeIndex );
-            }
-
-            if ( mNodeManager.node_depends_on_advs( tMeshNodeIndex ) )
-            {
-                uint tNumPDVsOnIntersectionNode = mNodeManager.get_number_of_derived_node_pdvs( tMeshNodeIndex );
-
-                for ( uint iCoordinateIndex = 0; iCoordinateIndex < tNumPDVsOnIntersectionNode; iCoordinateIndex++ )
-                {
-                    if ( mNodeManager.get_derived_node_owner( tMeshNodeIndex ) == par_rank() )
-                    {
-                        mOwnedPDVLocalToGlobalMap( tOwnedNodeCounter++ ) = mNodeManager.get_derived_node_starting_pdv_id( tMeshNodeIndex ) + iCoordinateIndex;
-                    }
-
-                    mOwnedAndSharedPDVLocalToGlobalMap( tOwnedAndSharedNodeCounter++ ) = mNodeManager.get_derived_node_starting_pdv_id( tMeshNodeIndex ) + iCoordinateIndex;
-                }
-            }
-        }
-        // xxxxxxx
-        mOwnedPDVLocalToGlobalMap          = { { 0 }, { 1 } };
-        mOwnedAndSharedPDVLocalToGlobalMap = { { 0 }, { 1 } };
+        //        mOwnedPDVLocalToGlobalMap.set_size( mNumOwnedPDVs, 1, -1 );
+        //        mOwnedAndSharedPDVLocalToGlobalMap.set_size( mNumOwnedAndSharedPDVs, 1, -1 );
+        //
+        //        uint tOwnedNodeCounter          = 0;
+        //        uint tOwnedAndSharedNodeCounter = 0;
+        //
+        //        // Loop over all different pdv types for IP node pdvs
+        //        for ( moris::uint Ij = 0; Ij < mPDVTypeList.size(); Ij++ )
+        //        {
+        //            enum PDV_Type tPDVType = mPDVTypeList( Ij );
+        //
+        //            // Loop over pdvs per type. Count number of pdvs per proc which have to be communicated
+        //            for ( moris::uint Ib = 0; Ib < mIpPDVHosts.size(); Ib++ )
+        //            {
+        //                // Check if PDV host exists
+        //                if ( mIpPDVHosts( Ib ) )
+        //                {
+        //                    // Check if PDV exists for given type
+        //                    if ( mIpPDVHosts( Ib )->get_pdv_exists( tPDVType ) )
+        //                    {
+        //                        // Check if owning processor is this processor
+        //                        if ( mIpPDVHosts( Ib )->get_pdv_owning_processor() == par_rank() )
+        //                        {
+        //                            mOwnedPDVLocalToGlobalMap( tOwnedNodeCounter++ ) = mIpPDVHosts( Ib )->get_pdv_id( tPDVType );
+        //                        }
+        //                        mOwnedAndSharedPDVLocalToGlobalMap( tOwnedAndSharedNodeCounter++ ) = mIpPDVHosts( Ib )->get_pdv_id( tPDVType );
+        //                    }
+        //                }
+        //            }
+        //        }
+        //
+        //        // Loop over intersection node pdvs
+        //        for ( uint iNodeIndex = mNodeManager.get_number_of_background_nodes(); iNodeIndex < mNodeManager.get_total_number_of_nodes(); iNodeIndex++ )
+        //        {
+        //            uint tMeshNodeIndex = iNodeIndex;
+        //            if ( mGenMeshMapIsInitialized )
+        //            {
+        //                tMeshNodeIndex = mGenMeshMap( iNodeIndex );
+        //            }
+        //
+        //            if ( mNodeManager.node_depends_on_advs( tMeshNodeIndex ) )
+        //            {
+        //                uint tNumPDVsOnIntersectionNode = mNodeManager.get_number_of_derived_node_pdvs( tMeshNodeIndex );
+        //
+        //                for ( uint iCoordinateIndex = 0; iCoordinateIndex < tNumPDVsOnIntersectionNode; iCoordinateIndex++ )
+        //                {
+        //                    if ( mNodeManager.get_derived_node_owner( tMeshNodeIndex ) == par_rank() )
+        //                    {
+        //                        mOwnedPDVLocalToGlobalMap( tOwnedNodeCounter++ ) = mNodeManager.get_derived_node_starting_pdv_id( tMeshNodeIndex ) + iCoordinateIndex;
+        //                    }
+        //
+        //                    mOwnedAndSharedPDVLocalToGlobalMap( tOwnedAndSharedNodeCounter++ ) = mNodeManager.get_derived_node_starting_pdv_id( tMeshNodeIndex ) + iCoordinateIndex;
+        //                }
+        //            }
+        //        }
     }
 
     //--------------------------------------------------------------------------------------------------------------

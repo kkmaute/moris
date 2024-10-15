@@ -36,7 +36,7 @@ namespace moris::fem
         MORIS_ERROR( tParamSize == 1,
                 "IQI_Eigen_Vector::set_parameters - index of eigen vector needs to be specified.\n" );
 
-        // extract eigenvalue index
+        // extract eigen vector index
         MORIS_ERROR( mParameters( 0 ).numel() == 1,
                 "IQI_Eigen_Vector::set_parameters - size of parameter list needs to be one.\n" );
 
