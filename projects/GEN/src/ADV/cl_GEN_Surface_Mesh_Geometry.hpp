@@ -22,9 +22,7 @@
 namespace moris::gen
 {
     // User-defined function that determines which indices are fixed or not
-    using Discretization_Factor_Function = Vector< real > ( * )(
-            const uint              aFacetVertexIndex,
-            const Matrix< DDRMat >& aFacetVertexCoordinates );
+    using Discretization_Factor_Function = Vector< real > ( * )( const Matrix< DDRMat >& aFacetVertexCoordinates );
 
     using Perturbation_Function = Vector< real > ( * )(
             const Matrix< DDRMat >& aCoordinates,

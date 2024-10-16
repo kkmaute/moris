@@ -174,14 +174,14 @@ namespace moris::gen
         // Determine the local coordinate of the intersection and the facet that intersects the parent edge
         std::pair< uint, real > tIntersection = this->compute_intersection_local_coordinate( aBackgroundNodes, aFirstParentNode, aSecondParentNode );
 
-        if ( tIntersection.second > 1.0 )
+        if ( tIntersection.second > 1.0 or std::isnan( tIntersection.second ) )
         {
             PRINT( aFirstParentNode.get_global_coordinates() );
             PRINT( aSecondParentNode.get_global_coordinates() );
             std::cout << "1st Region by raycasting" << get_region_from_raycast( aFirstParentNode.get_global_coordinates() ) << std::endl;
             std::cout << "2nd Region by raycasting" << get_region_from_raycast( aSecondParentNode.get_global_coordinates() ) << std::endl;
-            std::cout << "1st region from stored data " << mNodeMeshRegions( aFirstParentNode.get_index() ) << std::endl;
-            std::cout << "2nd region from stored data " << mNodeMeshRegions( aSecondParentNode.get_index() ) << std::endl;
+            std::cout << "1st region from stored data " << (char)get_geometric_region( aFirstParentNode.get_index(), aFirstParentNode.get_global_coordinates() ) << std::endl;
+            std::cout << "2nd region from stored data " << (char)get_geometric_region( aSecondParentNode.get_index(), aSecondParentNode.get_global_coordinates() ) << std::endl;
 
             tIntersection = this->compute_intersection_local_coordinate( aBackgroundNodes, aFirstParentNode, aSecondParentNode );
         }
@@ -276,7 +276,7 @@ namespace moris::gen
             for ( uint iVertexIndex = 0; iVertexIndex < tNumVertices; iVertexIndex++ )
             {
                 // Get the factor that scales this vertex's movement
-                Vector< real > tFactor = get_discretization_scaling_user_defined == nullptr ? Vector< real >( tDims, 1.0 ) : get_discretization_scaling_user_defined( iVertexIndex, Surface_Mesh::get_original_vertex_coordinates( iVertexIndex ) );
+                Vector< real > tFactor = get_discretization_scaling_user_defined == nullptr ? Vector< real >( tDims, 1.0 ) : get_discretization_scaling_user_defined( Surface_Mesh::get_original_vertex_coordinates( iVertexIndex ) );
 
                 for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
                 {
@@ -569,7 +569,7 @@ namespace moris::gen
     {
         // Get the factor that scales this vertex's movement
         Vector< real > tFactor = get_discretization_scaling_user_defined == nullptr ? Vector< real >( Surface_Mesh::get_spatial_dimension(), 1.0 )
-                                                                                    : get_discretization_scaling_user_defined( aFacetVertexIndex, this->get_original_vertex_coordinates( aFacetVertexIndex ) );
+                                                                                    : get_discretization_scaling_user_defined( this->get_original_vertex_coordinates( aFacetVertexIndex ) );
 
         // Return true if this surface mesh can move, its movement was not fixed in all directions by the user, and it lies in the Lagrange mesh domain
         return this->depends_on_advs()
@@ -594,7 +594,7 @@ namespace moris::gen
 
             // Determine which directions the vertex can move in by quering the scaling function
             Vector< real > tFactor              = get_discretization_scaling_user_defined == nullptr ? Vector< real >( tDims, 1.0 )
-                                                                                                     : get_discretization_scaling_user_defined( aFacetVertexIndex, this->get_original_vertex_coordinates( aFacetVertexIndex ) );
+                                                                                                     : get_discretization_scaling_user_defined( this->get_original_vertex_coordinates( aFacetVertexIndex ) );
             uint           tNumDimsDependOnADVs = std::count_if( tFactor.cbegin(), tFactor.cend(), []( const real aFactor ) { return aFactor != 0.0; } );
 
             // Get the vertex indices and coordinates of the background element
@@ -665,7 +665,7 @@ namespace moris::gen
         {
             // Determine which directions the vertex can move in by quering the scaling function
             Vector< real > tFactor              = get_discretization_scaling_user_defined == nullptr ? Vector< real >( tDims, 1.0 )
-                                                                                                     : get_discretization_scaling_user_defined( aFacetVertexIndex, this->get_original_vertex_coordinates( aFacetVertexIndex ) );
+                                                                                                     : get_discretization_scaling_user_defined( this->get_original_vertex_coordinates( aFacetVertexIndex ) );
             uint           tNumDimsDependOnADVs = std::count_if( tFactor.cbegin(), tFactor.cend(), []( const real aFactor ) { return aFactor != 0.0; } );
 
             // Get the vertex indices and coordinates of the background element

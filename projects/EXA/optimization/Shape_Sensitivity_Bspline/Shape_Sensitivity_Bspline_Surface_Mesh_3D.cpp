@@ -221,7 +221,6 @@ namespace moris
         aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_surface_mesh_geometry_parameter_list() );
         aParameterLists.set( "file_path", moris::get_base_moris_dir() + "projects/GEN/test/data/tetra.obj" );
         aParameterLists.set( "offset", -0.6, -0.6, 0.0 );
-        aParameterLists.set( "intersection_tolerance", 1e-9 );
 
         switch ( tGeoModel )
         {
@@ -429,14 +428,14 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    OPTParameterLists( Module_Parameter_Lists& aParameterLists )
+    OPTParameterList( Module_Parameter_Lists& aParameterLists )
     {
         aParameterLists.set( "is_optimization_problem", true );
         aParameterLists.set( "problem", "user_defined" );
         aParameterLists.set( "library", "Shape_Sensitivity_Bspline_Surface_Mesh_3D.so" );
 
         aParameterLists( OPT::ALGORITHMS ).add_parameter_list( opt::Optimization_Algorithm_Type::SWEEP );
-        aParameterLists.set( "finite_difference_epsilons", "5E-6" );
+        aParameterLists.set( "finite_difference_epsilons", "9E-6" );
         aParameterLists.set( "hdf5_path", "shape_opt_test_surface_mesh_3D.hdf5" );
         aParameterLists.set( "evaluate_objective_gradients", true );
         aParameterLists.set( "evaluate_constraint_gradients", true );
