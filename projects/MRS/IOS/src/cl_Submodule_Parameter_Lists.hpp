@@ -72,7 +72,7 @@ namespace moris
          * 
          * @param aGeometryType Type of geometry
          */
-        //void add_parameter_list( uint aGeometryType, gen::Field_Type aFieldType );
+        void add_parameter_list( gen::Geometry_Type aFieldType );
         
         /**
          * Adds a new GEN property parameter list to be stored in this class. 

@@ -116,14 +116,30 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
 
-//    void Submodule_Parameter_Lists::add_parameter_list( uint aGeometryType, gen::Field_Type aFieldType )
-//    {
-//        // Check for correct submodule type
-//        this->check_submodule_type( GEN_Submodule_String::values( static_cast< uint >( GEN::GEOMETRIES ) ) );
-//
-//        // Add new parameter list TODO BRENDAN: add overall GEN function for this
-//        MORIS_ERROR( false, "GEN geometries cannot be created automatically yet" );
-//    }
+    void Submodule_Parameter_Lists::add_parameter_list( gen::Geometry_Type aGeometryType )
+    {
+        // Check for correct submodule type
+        this->check_submodule_type( GEN_Submodule_String::values( static_cast< uint >( GEN::GEOMETRIES ) ) );
+
+        switch ( aGeometryType )
+        {
+            case gen::Geometry_Type::LEVEL_SET:
+            {
+                MORIS_ERROR( false, "If creating a Level-Set geometry, you must use a Field_Type enum to specify the field type." );
+                break;
+            }
+            case gen::Geometry_Type::SURFACE_MESH:
+            {
+                mParameterLists.push_back( prm::create_surface_mesh_geometry_parameter_list() );
+                break;
+            }
+            case gen::Geometry_Type::VOXEL:
+            {
+                mParameterLists.push_back( prm::create_voxel_geometry_parameter_list() );
+                break;
+            }
+        }
+    }
 
     //--------------------------------------------------------------------------------------------------------------
 
@@ -175,8 +191,8 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     void Submodule_Parameter_Lists::insert(
-        const std::string&     aName,
-        const Design_Variable& aDesignVariable )
+            const std::string&     aName,
+            const Design_Variable& aDesignVariable )
     {
         // Insert into parameter list
         mParameterLists.back().insert( aName, aDesignVariable );
@@ -198,14 +214,14 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
 
-    auto Submodule_Parameter_Lists::begin()->decltype( mParameterLists.begin() )
+    auto Submodule_Parameter_Lists::begin() -> decltype( mParameterLists.begin() )
     {
         return mParameterLists.begin();
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    auto Submodule_Parameter_Lists::end()->decltype( mParameterLists.end() )
+    auto Submodule_Parameter_Lists::end() -> decltype( mParameterLists.end() )
     {
         return mParameterLists.end();
     }
@@ -218,4 +234,4 @@ namespace moris
     }
 
     //--------------------------------------------------------------------------------------------------------------
-}
+}    // namespace moris
