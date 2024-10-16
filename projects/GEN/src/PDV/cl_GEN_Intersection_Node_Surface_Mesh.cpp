@@ -24,7 +24,7 @@ namespace moris::gen
             const Vector< Background_Node* >& aBackgroundNodes,
             const Parent_Node&                aFirstParentNode,
             const Parent_Node&                aSecondParentNode,
-            std::pair< uint, real >           aLocalCoordinate,
+            std::pair< uint, real >           aIntersection,
             mtk::Geometry_Type                aBackgroundGeometryType,
             mtk::Interpolation_Order          aBackgroundInterpolationOrder,
             Surface_Mesh_Geometry&            aInterfaceGeometry )
@@ -33,10 +33,10 @@ namespace moris::gen
                       aBackgroundNodes,
                       aFirstParentNode,
                       aSecondParentNode,
-                      aLocalCoordinate.second,
+                      aIntersection.second,
                       aBackgroundGeometryType,
                       aBackgroundInterpolationOrder )
-            , mParentFacet( aLocalCoordinate.first )
+            , mParentFacet( aIntersection.first )
             , mInterfaceGeometry( aInterfaceGeometry )
     {
     }
@@ -111,7 +111,7 @@ namespace moris::gen
 
     bool Intersection_Node_Surface_Mesh::depends_on_advs() const
     {
-        Vector< moris_index > tFacetVertexIndices = mInterfaceGeometry.get_facets_vertex_indices( mParentFacet );
+        const Vector< moris_index > tFacetVertexIndices = mInterfaceGeometry.get_facets_vertex_indices( mParentFacet );
 
         // Return true if either parent node depends on advs, or any of the parent facet's vertices depend on advs
         return this->get_first_parent_node().depends_on_advs()
@@ -154,8 +154,8 @@ namespace moris::gen
                 // magnitude of the normal vector
                 real tNormalVectorNorm = norm( tVertexCoordinates.get_column( 1 ) - tVertexCoordinates.get_column( 0 ) );
 
-                tNormalVectorSensitivities( 0 ) = { { ( tVertexCoordinates( 0, 0 ) - tVertexCoordinates( 0, 1 ) ) * ( tVertexCoordinates( 1, 0 ) - tVertexCoordinates( 1, 1 ) ), -std::pow( tVertexCoordinates( 0, 1 ) - tVertexCoordinates( 0, 0 ), 2.0 ) }, { std::pow( tVertexCoordinates( 1, 1 ) - tVertexCoordinates( 1, 0 ), 2.0 ), ( tVertexCoordinates( 0, 1 ) - tVertexCoordinates( 0, 0 ) ) * ( tVertexCoordinates( 1, 0 ) - tVertexCoordinates( 1, 1 ) ) } };
-                tNormalVectorSensitivities( 1 ) = { { ( tVertexCoordinates( 1, 1 ) - tVertexCoordinates( 1, 0 ) ) * ( tVertexCoordinates( 0, 0 ) - tVertexCoordinates( 0, 1 ) ), std::pow( tVertexCoordinates( 0, 1 ) - tVertexCoordinates( 0, 0 ), 2.0 ) }, { -std::pow( tVertexCoordinates( 1, 1 ) - tVertexCoordinates( 1, 0 ), 2.0 ), ( tVertexCoordinates( 0, 0 ) - tVertexCoordinates( 0, 1 ) ) * ( tVertexCoordinates( 1, 0 ) - tVertexCoordinates( 1, 1 ) ) } };
+                tNormalVectorSensitivities( 0 ) = { { ( tVertexCoordinates( 0, 1 ) - tVertexCoordinates( 0, 0 ) ) * ( tVertexCoordinates( 1, 1 ) - tVertexCoordinates( 1, 0 ) ), -1.0 * std::pow( tVertexCoordinates( 0, 1 ) - tVertexCoordinates( 0, 0 ), 2.0 ) }, { std::pow( tVertexCoordinates( 1, 1 ) - tVertexCoordinates( 1, 0 ), 2.0 ), ( tVertexCoordinates( 0, 1 ) - tVertexCoordinates( 0, 0 ) ) * ( tVertexCoordinates( 1, 0 ) - tVertexCoordinates( 1, 1 ) ) } };
+                tNormalVectorSensitivities( 1 ) = { { ( tVertexCoordinates( 1, 1 ) - tVertexCoordinates( 1, 0 ) ) * ( tVertexCoordinates( 0, 0 ) - tVertexCoordinates( 0, 1 ) ), std::pow( tVertexCoordinates( 0, 1 ) - tVertexCoordinates( 0, 0 ), 2.0 ) }, { -1.0 * std::pow( tVertexCoordinates( 1, 1 ) - tVertexCoordinates( 1, 0 ), 2.0 ), ( tVertexCoordinates( 0, 0 ) - tVertexCoordinates( 0, 1 ) ) * ( tVertexCoordinates( 1, 0 ) - tVertexCoordinates( 1, 1 ) ) } };
                 tNormalVectorSensitivities( 0 ) = tRotationMatrix / std::pow( tNormalVectorNorm, 3.0 ) * tNormalVectorSensitivities( 0 );
                 tNormalVectorSensitivities( 1 ) = tRotationMatrix / std::pow( tNormalVectorNorm, 3.0 ) * tNormalVectorSensitivities( 1 );
                 break;
@@ -168,25 +168,24 @@ namespace moris::gen
                 Matrix< DDRMat > tNormal = cross( tVertexCoordinates.get_column( 1 ) - tVertexCoordinates.get_column( 0 ), tVertexCoordinates.get_column( 2 ) - tVertexCoordinates.get_column( 0 ) );
 
                 // magnitude of the normal vector
-                real tNormalVectorNorm = norm( tNormal );
+                real tInverseNormalVectorNorm = 1.0 / norm( tNormal );
 
                 // jacobians of the normal vector wrt to the facet vertices
-                tNormalVectorSensitivities( 0 ) = { { 0.0, tVertexCoordinates( 2, 2 ) - tVertexCoordinates( 2, 1 ), tVertexCoordinates( 1, 1 ) - tVertexCoordinates( 1, 2 ) }, { tVertexCoordinates( 2, 1 ) - tVertexCoordinates( 2, 2 ), 0.0, tVertexCoordinates( 0, 2 ) - tVertexCoordinates( 0, 1 ) }, { tVertexCoordinates( 1, 2 ) - tVertexCoordinates( 1, 1 ), tVertexCoordinates( 0, 1 ) - tVertexCoordinates( 0, 2 ), 0.0 } };
-                tNormalVectorSensitivities( 1 ) = { { 0.0, tVertexCoordinates( 2, 0 ) - tVertexCoordinates( 2, 2 ), tVertexCoordinates( 1, 2 ) - tVertexCoordinates( 1, 0 ) }, { tVertexCoordinates( 2, 2 ) - tVertexCoordinates( 2, 0 ), 0.0, tVertexCoordinates( 0, 0 ) - tVertexCoordinates( 0, 2 ) }, { tVertexCoordinates( 1, 0 ) - tVertexCoordinates( 1, 2 ), tVertexCoordinates( 0, 2 ) - tVertexCoordinates( 0, 0 ), 0.0 } };
-                tNormalVectorSensitivities( 2 ) = { { 0.0, tVertexCoordinates( 2, 1 ) - tVertexCoordinates( 2, 0 ), tVertexCoordinates( 1, 0 ) - tVertexCoordinates( 1, 1 ) }, { tVertexCoordinates( 2, 0 ) - tVertexCoordinates( 2, 1 ), 0.0, tVertexCoordinates( 0, 1 ) - tVertexCoordinates( 0, 0 ) }, { tVertexCoordinates( 1, 1 ) - tVertexCoordinates( 1, 0 ), tVertexCoordinates( 0, 0 ) - tVertexCoordinates( 0, 1 ), 0.0 } };
+                tNormalVectorSensitivities( 0 ) = { { 0.0, tVertexCoordinates( 2, 1 ) - tVertexCoordinates( 2, 2 ), tVertexCoordinates( 1, 2 ) - tVertexCoordinates( 1, 1 ) }, { tVertexCoordinates( 2, 2 ) - tVertexCoordinates( 2, 1 ), 0.0, tVertexCoordinates( 0, 1 ) - tVertexCoordinates( 0, 2 ) }, { tVertexCoordinates( 1, 1 ) - tVertexCoordinates( 1, 2 ), tVertexCoordinates( 0, 2 ) - tVertexCoordinates( 0, 1 ), 0.0 } };
+                tNormalVectorSensitivities( 1 ) = { { 0.0, tVertexCoordinates( 2, 2 ) - tVertexCoordinates( 2, 0 ), tVertexCoordinates( 1, 0 ) - tVertexCoordinates( 1, 2 ) }, { tVertexCoordinates( 2, 0 ) - tVertexCoordinates( 2, 2 ), 0.0, tVertexCoordinates( 0, 2 ) - tVertexCoordinates( 0, 0 ) }, { tVertexCoordinates( 1, 2 ) - tVertexCoordinates( 1, 0 ), tVertexCoordinates( 0, 0 ) - tVertexCoordinates( 0, 2 ), 0.0 } };
+                tNormalVectorSensitivities( 2 ) = { { 0.0, tVertexCoordinates( 2, 0 ) - tVertexCoordinates( 2, 1 ), tVertexCoordinates( 1, 1 ) - tVertexCoordinates( 1, 0 ) }, { tVertexCoordinates( 2, 1 ) - tVertexCoordinates( 2, 0 ), 0.0, tVertexCoordinates( 0, 0 ) - tVertexCoordinates( 0, 1 ) }, { tVertexCoordinates( 1, 0 ) - tVertexCoordinates( 1, 1 ), tVertexCoordinates( 0, 1 ) - tVertexCoordinates( 0, 0 ), 0.0 } };
 
                 tNormalVectorNormSensitivity( 0 ) = { { tNormal( 2 ) * ( tVertexCoordinates( 1, 1 ) - tVertexCoordinates( 1, 2 ) ) - tNormal( 1 ) * ( tVertexCoordinates( 2, 1 ) - tVertexCoordinates( 2, 2 ) ), -tNormal( 2 ) * ( tVertexCoordinates( 0, 1 ) - tVertexCoordinates( 0, 2 ) ) + tNormal( 0 ) * ( tVertexCoordinates( 2, 1 ) - tVertexCoordinates( 2, 2 ) ), tNormal( 1 ) * ( tVertexCoordinates( 0, 1 ) - tVertexCoordinates( 0, 2 ) ) - tNormal( 0 ) * ( tVertexCoordinates( 1, 1 ) - tVertexCoordinates( 1, 2 ) ) } };
                 tNormalVectorNormSensitivity( 1 ) = { { -tNormal( 2 ) * ( tVertexCoordinates( 1, 0 ) - tVertexCoordinates( 1, 2 ) ) + tNormal( 1 ) * ( tVertexCoordinates( 2, 0 ) - tVertexCoordinates( 2, 2 ) ), tNormal( 2 ) * ( tVertexCoordinates( 0, 0 ) - tVertexCoordinates( 0, 2 ) ) - tNormal( 0 ) * ( tVertexCoordinates( 2, 0 ) - tVertexCoordinates( 2, 2 ) ), -tNormal( 1 ) * ( tVertexCoordinates( 0, 0 ) - tVertexCoordinates( 0, 2 ) ) + tNormal( 0 ) * ( tVertexCoordinates( 1, 0 ) - tVertexCoordinates( 1, 2 ) ) } };
-                tNormalVectorNormSensitivity( 2 ) = { { tNormal( 2 ) * ( tVertexCoordinates( 1, 0 ) - tVertexCoordinates( 1, 1 ) ) - tNormal( 1 ) * ( tVertexCoordinates( 2, 0 ) - tVertexCoordinates( 2, 1 ) ), -tNormal( 2 ) * ( tVertexCoordinates( 0, 0 ) - tVertexCoordinates( 0, 1 ) ) + tNormal( 0 ) * ( tVertexCoordinates( 2, 0 ) - tVertexCoordinates( 2, 1 ) ), tNormal( 1 ) * ( tVertexCoordinates( 0, 0 ) - tVertexCoordinates( 0, 1 ) ) - tNormal( 0 ) * ( tVertexCoordinates( 1, 0 ) - tVertexCoordinates( 1, 1 ) ) } };
-                tNormalVectorNormSensitivity( 0 ) = 1.0 / tNormalVectorNorm * tNormalVectorNormSensitivity( 0 );
-                tNormalVectorNormSensitivity( 1 ) = 1.0 / tNormalVectorNorm * tNormalVectorNormSensitivity( 1 );
-                tNormalVectorNormSensitivity( 2 ) = 1.0 / tNormalVectorNorm * tNormalVectorNormSensitivity( 2 );
+                tNormalVectorNormSensitivity( 2 ) = { { tNormal( 2 ) * ( tVertexCoordinates( 1, 0 ) - tVertexCoordinates( 1, 1 ) ) - tNormal( 1 ) * ( tVertexCoordinates( 1, 0 ) - tVertexCoordinates( 2, 1 ) ), -tNormal( 2 ) * ( tVertexCoordinates( 0, 0 ) - tVertexCoordinates( 0, 1 ) ) + tNormal( 0 ) * ( tVertexCoordinates( 2, 0 ) - tVertexCoordinates( 2, 1 ) ), tNormal( 1 ) * ( tVertexCoordinates( 0, 0 ) - tVertexCoordinates( 0, 1 ) ) - tNormal( 0 ) * ( tVertexCoordinates( 1, 0 ) - tVertexCoordinates( 1, 1 ) ) } };
+                tNormalVectorNormSensitivity( 0 ) = tInverseNormalVectorNorm * tNormalVectorNormSensitivity( 0 );
+                tNormalVectorNormSensitivity( 1 ) = tInverseNormalVectorNorm * tNormalVectorNormSensitivity( 1 );
+                tNormalVectorNormSensitivity( 2 ) = tInverseNormalVectorNorm * tNormalVectorNormSensitivity( 2 );
 
                 for ( uint iDimension = 0; iDimension < 3; iDimension++ )
                 {
-                    tNormalVectorSensitivities( iDimension ) = tRotationMatrix / tNormalVectorNorm * ( tNormalVectorSensitivities( iDimension ) - mInterfaceGeometry.get_facet_normal( mParentFacet ) / tNormalVectorNorm * tNormalVectorNormSensitivity( iDimension ) );
+                    tNormalVectorSensitivities( iDimension ) = tRotationMatrix * tInverseNormalVectorNorm * ( tNormalVectorSensitivities( iDimension ) - mInterfaceGeometry.get_facet_normal( mParentFacet ) * tInverseNormalVectorNorm * tNormalVectorNormSensitivity( iDimension ) );
                 }
-
                 break;
             }
         }
