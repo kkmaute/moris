@@ -363,14 +363,14 @@ namespace moris
         aParameterLists.set( "NLA_max_iter", 1 );
 
         aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list();
-        aParameterLists.set( "NLA_DofTypes", "UX,UY,UZ" );
+        aParameterLists.set( "NLA_DofTypes", "UX,UY" );
 
         aParameterLists( SOL::TIME_SOLVER_ALGORITHMS ).add_parameter_list();
         aParameterLists.set( "TSA_Num_Time_Steps", 1 );
         aParameterLists.set( "TSA_Time_Frame", 1.0 );
 
         aParameterLists( SOL::TIME_SOLVERS ).add_parameter_list();
-        aParameterLists.set( "TSA_DofTypes", "UX,UY,UZ" );
+        aParameterLists.set( "TSA_DofTypes", "UX,UY" );
         aParameterLists.set( "TSA_Output_Indices", "0" );
         aParameterLists.set( "TSA_Output_Criteria", "Output_Criterion" );
 
@@ -390,15 +390,15 @@ namespace moris
         aParameterLists.set( "File_Name", std::pair< std::string, std::string >( "./", "shape_sensitivities_2D.exo" ) );
         aParameterLists.set( "Mesh_Type", vis::VIS_Mesh_Type::STANDARD );
         aParameterLists.set( "Set_Names", tMeshSets );
-        aParameterLists.set( "Field_Names", "UX,UY,UZ" );
-        aParameterLists.set( "Field_Type", "NODAL,NODAL,NODAL" );
-        aParameterLists.set( "IQI_Names", "IQIDispX,IQIDispY,IQIDispZ" );
+        aParameterLists.set( "Field_Names", "UX,UY" );
+        aParameterLists.set( "Field_Type", "NODAL,NODAL" );
+        aParameterLists.set( "IQI_Names", "IQIDispX,IQIDispY" );
         aParameterLists.set( "Save_Frequency", 1 );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void OPTParameterLists( Module_Parameter_Lists& aParameterLists )
+    void OPTParameterList( Module_Parameter_Lists& aParameterLists )
     {
         aParameterLists.set( "is_optimization_problem", true );
         aParameterLists.set( "problem", "user_defined" );
