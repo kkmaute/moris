@@ -428,6 +428,7 @@ namespace moris::gen
             mBasesComputed = true;
         }
 
+        mNodeMeshRegions.resize( aInterpolationMesh->get_num_nodes(), mtk::Mesh_Region::UNDEFINED );
         this->flood_fill_mesh_regions( aInterpolationMesh );
         // FIXME: static cast should not be necessary, but without it a linker error occurs
         this->raycast_remaining_unknown_nodes( static_cast< const mtk::Mesh* >( aInterpolationMesh ) );
@@ -954,7 +955,6 @@ namespace moris::gen
         }
 
         // Loop through the nodes and assign their regions
-        mNodeMeshRegions.resize( tNumNodes );
         for ( uint iNode = 0; iNode < tNumNodes; iNode++ )
         {
             mNodeMeshRegions( iNode ) = tSubPhaseMeshRegions( tSubphases( iNode, 0 ) );
