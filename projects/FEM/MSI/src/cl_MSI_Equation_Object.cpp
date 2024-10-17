@@ -1154,7 +1154,7 @@ namespace moris::MSI
         {
             mEquationSet->mPdofValues( Ik ) = tTMatrix * tMyValues( Ik );
 
-            print( mEquationSet->mPdofValues( Ik ), "mEquationSet->mPdofValues( Ik )" );
+            // print( mEquationSet->mPdofValues( Ik ), "mEquationSet->mPdofValues( Ik )" );
         }
 
         this->set_vector_entry_number_of_pdof();    // FIXME should not be in MSI. Should be in FEM
@@ -1263,7 +1263,7 @@ namespace moris::MSI
 
             mEquationSet->mAdjointPdofValues( Ik ) = tTMatrix * tMyValues( Ik );
 
-            print( mEquationSet->mAdjointPdofValues( Ik ), "mEquationSet->mAdjointPdofValues( Ik )" );
+            // print( mEquationSet->mAdjointPdofValues( Ik ), "mEquationSet->mAdjointPdofValues( Ik )" );
         }
 
         // FIXME should not be in MSI. Should be in FEM

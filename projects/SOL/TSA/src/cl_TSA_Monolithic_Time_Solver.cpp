@@ -176,9 +176,9 @@ void Monolithic_Time_Solver::solve_implicit_DqDs( Vector< sol::Dist_Vector* >& a
         aFullAdjointVector( 1 )->vec_plus_vec( 1.0, *( aFullAdjointVector( 0 ) ), 0.0 );
 
         // print the adjoint solution vector
-        Matrix< DDRMat > tSolVec;
-        aFullAdjointVector( 1 )->extract_copy( tSolVec );
-        print( tSolVec, "aFullAdjointVector" );
+        //        Matrix< DDRMat > tSolVec;
+        //        aFullAdjointVector( 1 )->extract_copy( tSolVec );
+        //        print( tSolVec, "aFullAdjointVector" );
 
         // output state at end of time slab
         mMyTimeSolver->check_for_outputs(

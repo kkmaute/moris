@@ -31,10 +31,13 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    PDV_Host_Manager::set_owned_adv_ids( const Vector< sint >& aOwnedADVIds )
+    PDV_Host_Manager::set_owned_adv_ids(
+            const Vector< sint >& aOwnedADVIds,
+            const Vector< sint >& aOwnedAndSharedADVIds )
     {
-        mOwnedADVIds = aOwnedADVIds;
-        mADVIdsSet   = true;
+        mOwnedADVIds          = aOwnedADVIds;
+        mOwnedAndSharedADVIds = aOwnedAndSharedADVIds;
+        mADVIdsSet            = true;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -811,8 +814,8 @@ namespace moris::gen
                         this->pack_sensitivities( tADVIds, tHostADVSensitivities );
 
                         fprintf( stdout, "\nInterpolation PDVIndex = %d\n", (sint)tPDVID );
-                        print( tADVIds, "tADVIds for interpolation PDVs" );
-                        print( tHostADVSensitivities, "tHostADVSensitivities for interpolation PDVs" );
+                        // print( tADVIds, "tADVIds for interpolation PDVs" );
+                        // print( tHostADVSensitivities, "tHostADVSensitivities for interpolation PDVs" );
 
                         // store adv ids and weights
                         // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
@@ -855,8 +858,8 @@ namespace moris::gen
                     moris_id tPDVID = tStartingGlobalIndex + tCoordinateIndex;
 
                     fprintf( stdout, "\nIntegration PDVIndex = %d for tCoordinateIndex %d\n", (sint)tPDVID, (sint)tCoordinateIndex );
-                    print( tADVIds, "tADVIds for integration PDVs" );
-                    print( tHostADVSensitivities.get_row( tCoordinateIndex ), "tHostADVSensitivities for integration PDVs" );
+                    // print( tADVIds, "tADVIds for integration PDVs" );
+                    // print( tHostADVSensitivities.get_row( tCoordinateIndex ), "tHostADVSensitivities for integration PDVs" );
                 }
 
                 tIgExtractionOperators( iNodeIndex ) = std::make_shared< Design_Extraction_Operator >( tADVIds, tHostADVSensitivities );
@@ -1540,14 +1543,8 @@ namespace moris::gen
     {
         MORIS_ERROR( mADVIdsSet, "PDV_Host_Manager::build_local_to_global_maps - ADV IDs not set." );
 
-        mOwnedPDVLocalToGlobalMap.set_size( mOwnedADVIds.size(), 1 );
-        mOwnedAndSharedPDVLocalToGlobalMap.set_size( mOwnedADVIds.size(), 1 );
-
-        for ( uint i = 0; i < mOwnedADVIds.size(); i++ )
-        {
-            mOwnedPDVLocalToGlobalMap( i )          = mOwnedADVIds( i );
-            mOwnedAndSharedPDVLocalToGlobalMap( i ) = mOwnedADVIds( i );
-        }
+        mOwnedPDVLocalToGlobalMap          = Matrix< IndexMat >( mOwnedADVIds );
+        mOwnedAndSharedPDVLocalToGlobalMap = Matrix< IndexMat >( mOwnedAndSharedADVIds );
 
         //        mOwnedPDVLocalToGlobalMap.set_size( mNumOwnedPDVs, 1, -1 );
         //        mOwnedAndSharedPDVLocalToGlobalMap.set_size( mNumOwnedAndSharedPDVs, 1, -1 );

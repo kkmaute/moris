@@ -854,7 +854,7 @@ namespace moris::fem
                 //                        "in the FEM-Model has not been set for this node and PDV type." );
 
                 Matrix< DDRMat > dIGNodeCorddAdv = tGeoWeights( iClusterNode ).get_row( iSpace );
-                print( dIGNodeCorddAdv, "dIGNodeCorddAdv" );
+                // print( dIGNodeCorddAdv, "dIGNodeCorddAdv" );
 
                 //                // if pdv assembly index is set
                 //                if ( tPDVAssemblyIndex != -1 )

@@ -908,8 +908,8 @@ namespace moris::fem
             tdRdpmat = mEquationSet->get_drdp()( 0 );
             tdRdpgeo = mEquationSet->get_drdp()( 1 );
 
-            print( tdRdpmat, "dRdp for IP DVs" );
-            print( tdRdpgeo, "dRdp for IG DVs" );
+            // print( tdRdpmat, "dRdp for IP DVs" );
+            // print( tdRdpgeo, "dRdp for IG DVs" );
         }
         else
         {
@@ -935,7 +935,7 @@ namespace moris::fem
         // reorder adjoint values following the requested dof types order
         Matrix< DDRMat > tAdjointPdofValuesReordered = this->reorder_adjoint_pdofs();
 
-        print( tAdjointPdofValuesReordered, "reordered adjoint" );
+        // print( tAdjointPdofValuesReordered, "reordered adjoint" );
 
         // loop over all requested IQIs
         for ( uint Ik = 0; Ik < tNumIQIs; Ik++ )

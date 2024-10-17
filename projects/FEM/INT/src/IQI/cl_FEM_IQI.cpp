@@ -2301,7 +2301,7 @@ namespace moris::fem
         real tDeltaH = 0.0;
 
         const Vector< Matrix< DDRMat > >& tGeoWeights = mSet->get_adv_geo_weights();
-        print( tGeoWeights, "tGeoWeights" );
+        // print( tGeoWeights, "tGeoWeights" );
 
         // loop over the spatial directions/loop on pdv type
         for ( uint iCoeffCol = 0; iCoeffCol < tDerNumDimensions; iCoeffCol++ )
@@ -2315,7 +2315,7 @@ namespace moris::fem
                 }
 
                 Matrix< DDRMat > dIGNodeCorddAdv = tGeoWeights( iCoeffRow ).get_row( iCoeffCol );
-                print( dIGNodeCorddAdv, "dIGNodeCorddAdv" );
+                // print( dIGNodeCorddAdv, "dIGNodeCorddAdv" );
 
                 //                // get the geometry pdv assembly index
                 //                sint tPdvAssemblyIndex = aGeoLocalAssembly( iCoeffRow, iCoeffCol );

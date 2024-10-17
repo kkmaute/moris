@@ -13,6 +13,7 @@
 
 #include "assert.hpp"
 #include "moris_typedefs.hpp"
+#include "cl_Vector.hpp"
 #include <ostream>
 
 namespace moris
@@ -63,6 +64,13 @@ namespace moris
          * as output
          */
         Matrix( std::initializer_list< std::initializer_list< Data_Type > > const & aInitList )
+        {
+            MORIS_ERROR( false, "Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?" );
+        }
+
+        // constructor from moris::Vector
+        template< typename Vector_Type >
+        Matrix( const Vector< Vector_Type >& aVector, bool aToRowVector = false )
         {
             MORIS_ERROR( false, "Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?" );
         }

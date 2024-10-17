@@ -52,6 +52,7 @@ namespace moris::gen
 
         // ADV IDs
         Vector< sint > mOwnedADVIds;
+        Vector< sint > mOwnedAndSharedADVIds;
         bool           mADVIdsSet = false;
 
         // PDV type map
@@ -130,8 +131,11 @@ namespace moris::gen
          * Sets the owned ADV IDs.
          *
          * @param aOwnedADVIds Owned ADV IDs
+         * @param aOwnedAndSharedADVIds Owned and shared ADV IDs
          */
-        void set_owned_adv_ids( const Vector< sint >& aOwnedADVIds );
+        void set_owned_adv_ids(
+                const Vector< sint >& aOwnedADVIds,
+                const Vector< sint >& aOwnedAndSharedADVIds );
 
         //-------------------------------------------------------------------------------
 

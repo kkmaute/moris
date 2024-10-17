@@ -212,6 +212,25 @@ namespace moris
 
         // -----------------------------------------------------------------
 
+        /**
+         * @brief Construct a new Matrix object from a vector
+         *
+         */
+
+        Matrix( const Vector< Type >& aVector, const bool aToRowVector = false )
+        {
+            if ( aToRowVector )
+            {
+                mMatrix = arma::Mat< Type >( aVector.memptr(), 1, aVector.size() );
+            }
+            else
+            {
+                mMatrix = arma::Mat< Type >( aVector.memptr(), aVector.size(), 1 );
+            }
+        }
+
+        // -----------------------------------------------------------------
+
         // Copy operations
         Matrix< arma::Mat< Type > >
         copy() const

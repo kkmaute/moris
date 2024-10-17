@@ -3000,6 +3000,20 @@ namespace moris::fem
             Matrix< DDSMat >&             aGeoLocalAssembly,
             Vector< Matrix< IndexMat > >& aVertexIndices )
     {
+        const Vector< Matrix< DDRMat > >& tGeoWeights = mSet->get_adv_geo_weights();
+        // print( tGeoWeights, "tGeoWeights" );
+
+        real tNorm = 0.0;
+        for ( const auto& tGeoWeight : tGeoWeights )
+        {
+            tNorm += norm( tGeoWeight );
+        }
+
+        if ( tNorm < MORIS_REAL_EPS )
+        {
+            return;
+        }
+
         // storage residual value
         Matrix< DDRMat > tResidualStore = mSet->get_residual()( 0 );
 
@@ -3041,10 +3055,7 @@ namespace moris::fem
         // init FD scheme
         Vector< Vector< real > > tFDScheme;
 
-        Matrix< DDRMat > tDrDpGeo( mSet->get_drdpgeo().n_rows(), 1 );
-
-        const Vector< Matrix< DDRMat > >& tGeoWeights = mSet->get_adv_geo_weights();
-        print( tGeoWeights, "tGeoWeights" );
+        Matrix< DDRMat > tDrDpGeo( tResDofAssemblyStop - tResDofAssemblyStart + 1, 1 );
 
         // loop over the spatial directions
         for ( uint iCoeffCol = 0; iCoeffCol < tDerNumDimensions; iCoeffCol++ )
@@ -3062,7 +3073,7 @@ namespace moris::fem
 
                 // yyyy
                 Matrix< DDRMat > dIGNodeCorddAdv = tGeoWeights( iCoeffRow ).get_row( iCoeffCol );
-                print( dIGNodeCorddAdv, "dIGNodeCorddAdv" );
+                // print( dIGNodeCorddAdv, "dIGNodeCorddAdv" );
 
                 // xxx get the geometry pdv assembly index
                 //                sint tPdvAssemblyIndex = aGeoLocalAssembly( iCoeffRow, iCoeffCol );
@@ -3094,10 +3105,7 @@ namespace moris::fem
                             ( tUsedFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                     {
                         // add unperturbed residual contribution to dRdp
-                        tDrDpGeo(
-                                { tResDofAssemblyStart, tResDofAssemblyStop },
-                                { 0, 0 } ) +=
-                                tFDScheme( 1 )( 0 ) * tResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                        tDrDpGeo += tFDScheme( 1 )( 0 ) * tResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
                         // skip first point in FD
                         tStartPoint = 1;
@@ -3139,15 +3147,13 @@ namespace moris::fem
                         // evaluate dRdpGeo
                         //                        Matrix< DDRMat >& tDrDpgeo = mSet->get_drdpgeo();
                         //                        print( tDrDpgeo, "mSet->get_drdpgeo()" );
-                        tDrDpGeo(
-                                { tResDofAssemblyStart, tResDofAssemblyStop },
-                                { 0, 0 } ) +=
+                        tDrDpGeo +=
                                 tFDScheme( 1 )( iPoint ) *                                                                //
                                 mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } ) /    //
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
 
-                    print( tDrDpGeo, "tDrDpGeo" );
+                    // print( tDrDpGeo, "tDrDpGeo" );
 
                     // yyyy
                     mSet->get_drdpgeo()(
@@ -3195,6 +3201,20 @@ namespace moris::fem
             Matrix< DDSMat >&             aGeoLocalAssembly,
             Vector< Matrix< IndexMat > >& aVertexIndices )
     {
+        const Vector< Matrix< DDRMat > >& tGeoWeights = mSet->get_adv_geo_weights();
+        // print( tGeoWeights, "tGeoWeights" );
+
+        real tNorm = 0.0;
+        for ( const auto& tGeoWeight : tGeoWeights )
+        {
+            tNorm += norm( tGeoWeight );
+        }
+
+        if ( tNorm < MORIS_REAL_EPS )
+        {
+            return;
+        }
+
         // storage residual value
         Matrix< DDRMat > tResidualStore = mSet->get_residual()( 0 );
 
@@ -3243,10 +3263,7 @@ namespace moris::fem
         uint tDerNumBases      = tIGGI->get_number_of_space_bases();
         uint tDerNumDimensions = tIPGI->get_number_of_space_dimensions();
 
-        Matrix< DDRMat > tDrDpGeo( mSet->get_drdpgeo().n_rows(), 1 );
-
-        const Vector< Matrix< DDRMat > >& tGeoWeights = mSet->get_adv_geo_weights();
-        print( tGeoWeights, "tGeoWeights" );
+        Matrix< DDRMat > tDrDpGeo( tResDofAssemblyStop - tResDofAssemblyStart + 1, 1 );
 
         // loop over the spatial directions
         for ( uint iCoeffCol = 0; iCoeffCol < tDerNumDimensions; iCoeffCol++ )
@@ -3263,7 +3280,7 @@ namespace moris::fem
 
                 // yyyy
                 Matrix< DDRMat > dIGNodeCorddAdv = tGeoWeights( iCoeffRow ).get_row( iCoeffCol );
-                print( dIGNodeCorddAdv, "dIGNodeCorddAdv" );
+                // print( dIGNodeCorddAdv, "dIGNodeCorddAdv" );
 
                 //                // get the geometry pdv assembly index
                 //                sint tPdvAssemblyIndex = aGeoLocalAssembly( iCoeffRow, iCoeffCol );
@@ -3294,10 +3311,7 @@ namespace moris::fem
                             ( tUsedFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                     {
                         // add unperturbed residual contribution to dRdp
-                        tDrDpGeo(
-                                { tResDofAssemblyStart, tResDofAssemblyStop },
-                                { 0, 0 } ) +=
-                                tFDScheme( 1 )( 0 ) * tResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                        tDrDpGeo += tFDScheme( 1 )( 0 ) * tResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
                         // skip first point in FD
                         tStartPoint = 1;
@@ -3340,9 +3354,7 @@ namespace moris::fem
                         this->compute_residual( tWStarPert );
 
                         // evaluate dRdpGeo
-                        tDrDpGeo(
-                                { tResDofAssemblyStart, tResDofAssemblyStop },
-                                { 0, 0 } ) +=
+                        tDrDpGeo +=
                                 tFDScheme( 1 )( iPoint ) *                                                                //
                                 mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } ) /    //
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );

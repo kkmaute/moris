@@ -111,7 +111,7 @@ namespace moris
             Matrix< DDRMat > tC( tNumCR, tNumCR, -2.0 );
             Matrix< DDRMat > tD( tNumCR, tNumCR, 4.0 );
 
-            moris::Matrix< DDRMat > tTestET  = test( tA, tB );
+            moris::Matrix< DDRMat >        tTestET  = test( tA, tB );
             const moris::Matrix< DDRMat >& tTestMat = tTestET;
             std::cout << tTestMat( 0, 0 ) << '\n';
 
@@ -343,6 +343,40 @@ namespace moris
             //        // Initializer list with a mistake in it
             //        REQUIRE_THROWS(Matrix< DDRMat >({{1,2,3,4},{4,5,6},{7,8,9}}));
         }
+    }
+
+    TEST_CASE(
+            "constructor_from_vector",
+            "[linalgebra],[constructor_from_vector]" )
+    {
+        // create vector of size 4
+        Vector< real > A( 4 );
+        A( 0 ) = 1.1;
+        A( 1 ) = 2.1;
+        A( 2 ) = 3.1;
+        A( 3 ) = 4.1;
+
+        // create column matrix
+        Matrix< DDRMat > B( A, false );
+
+        REQUIRE( B.n_rows() == 4 );
+        REQUIRE( B.n_cols() == 1 );
+
+        REQUIRE( equal_to( B( 0 ), 1.1 ) );
+        REQUIRE( equal_to( B( 1 ), 2.1 ) );
+        REQUIRE( equal_to( B( 2 ), 3.1 ) );
+        REQUIRE( equal_to( B( 3 ), 4.1 ) );
+
+        // create row matrix
+        Matrix< DDRMat > C( A, true );
+
+        REQUIRE( C.n_rows() == 1 );
+        REQUIRE( C.n_cols() == 4 );
+
+        REQUIRE( equal_to( C( 0 ), 1.1 ) );
+        REQUIRE( equal_to( C( 1 ), 2.1 ) );
+        REQUIRE( equal_to( C( 2 ), 3.1 ) );
+        REQUIRE( equal_to( C( 3 ), 4.1 ) );
     }
 
     TEST_CASE( "matrix_performance_arma", "[moris],[matrix_performance_arma]" )

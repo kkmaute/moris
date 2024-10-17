@@ -884,29 +884,29 @@ namespace moris::gen
         //------------------------------------//
         clock_t tStart_Owned_Shared_ADVs = clock();
 
-        // Set primitive IDs
+        // Set primitive IDs, i.e. ADVs defined explicitly in the input file
         Vector< sint > tPrimitiveADVIds( mInitialPrimitiveADVs.size() );
         for ( uint iADVIndex = 0; iADVIndex < mInitialPrimitiveADVs.size(); iADVIndex++ )
         {
             tPrimitiveADVIds( iADVIndex ) = iADVIndex;
         }
 
-        // Start with primitive IDs for owned IDs on processor 0
+        // Define primitive ADVs to be owned by processor 0
         Vector< sint > tOwnedADVIds( 0, 0 );
         if ( par_rank() == 0 )
         {
             tOwnedADVIds = tPrimitiveADVIds;
         }
 
-        // this is done to initialize primitive adv positions with gNoID
+        // initialize HMR ijkl information for primitive adv with gNoID
         Matrix< IdMat > tOwnedijklIDs( tPrimitiveADVIds.size(), 1, gNoID );
 
-        // Owned and shared ADVs per field
-        Vector< Vector< sint > > tSharedADVIds( tDesigns.size() );
+        // Define shared ADVs per geometry
+        Vector< Vector< sint > > tOwnedAndSharedADVIds( tDesigns.size() );
         Vector< uint >           tAllOffsetIDs( tDesigns.size() );
         Vector< uint >           tNumCoeff( tDesigns.size() );
 
-        // Loop over all geometries to get number of new ADVs
+        // Loop over all designs, i.e., geometries and properties, to get number of ADVs
         sint tOffsetID = tPrimitiveADVIds.size();
         for ( uint iDesignIndex = 0; iDesignIndex < tDesigns.size(); iDesignIndex++ )
         {
@@ -916,8 +916,10 @@ namespace moris::gen
                 // Get discretization mesh index
                 uint tDiscretizationMeshIndex = tDesigns( iDesignIndex )->get_discretization_mesh_index();
 
+                // Get number of coefficients on processor
                 uint tMaxNumberOfCoefficients = tMesh->get_max_num_coeffs_on_proc( tDiscretizationMeshIndex );
 
+                // Initialize coefficient IDs, indices, and owners for all coefficients of design
                 Matrix< IdMat >    tAllCoefIds( tMaxNumberOfCoefficients, 1, gNoID );
                 Matrix< IndexMat > tAllCoefIndices( tMaxNumberOfCoefficients, 1, gNoIndex );
                 Matrix< IdMat >    tAllCoefOwners( tMaxNumberOfCoefficients, 1, gNoID );
@@ -1037,7 +1039,7 @@ namespace moris::gen
                 mADVManager.mLowerBounds.resize( tNumOwnedADVs + tNumOwnedCoefficients );
                 mADVManager.mUpperBounds.resize( tNumOwnedADVs + tNumOwnedCoefficients );
                 tOwnedijklIDs.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
-                tSharedADVIds( iDesignIndex ).resize( tAllCoefIds.length() );
+                tOwnedAndSharedADVIds( iDesignIndex ).resize( tAllCoefIds.length() );
 
                 // Add owned coefficients to lists
                 for ( uint iOwnedCoefficient = 0; iOwnedCoefficient < tNumOwnedCoefficients; iOwnedCoefficient++ )
@@ -1065,7 +1067,7 @@ namespace moris::gen
                 for ( uint iSharedCoefficientIndex = 0; iSharedCoefficientIndex < tAllCoefIds.length(); iSharedCoefficientIndex++ )
                 {
                     // Set the ADV ID as the offset plus the entity ID
-                    tSharedADVIds( iDesignIndex )( iSharedCoefficientIndex ) = tOffsetID + tAllCoefIds( iSharedCoefficientIndex );
+                    tOwnedAndSharedADVIds( iDesignIndex )( iSharedCoefficientIndex ) = tOffsetID + tAllCoefIds( iSharedCoefficientIndex );
                 }
 
                 // Update offset based on maximum ID
@@ -1074,8 +1076,15 @@ namespace moris::gen
             }
         }
 
-        // Set owned ADV IDs
-        mPDVHostManager.set_owned_adv_ids( tOwnedADVIds );
+        // create a vector unique owned and shared ids
+        Vector< sint > tAllOwnedAndSharedADVIds = tPrimitiveADVIds;
+        for ( auto const & tOwnedAndShared : tOwnedAndSharedADVIds )
+        {
+            tAllOwnedAndSharedADVIds.append( tOwnedAndShared );
+        }
+
+        // Set owned and owned and shared ADV IDs in PDV host manager
+        mPDVHostManager.set_owned_adv_ids( tOwnedADVIds, tAllOwnedAndSharedADVIds );
 
         MORIS_LOG_INFO( "Time to collect owned and shared ADVs: %f sec", ( moris::real )( clock() - tStart_Owned_Shared_ADVs ) / CLOCKS_PER_SEC );
 
@@ -1116,7 +1125,7 @@ namespace moris::gen
         // Global assembly
         tNewOwnedADVs->vector_global_assembly();
 
-        // Get primitive ADVs from owned vector
+        // might not be necessary ???? Get primitive ADVs from owned vector
         mPrimitiveADVs->import_local_to_global( *tNewOwnedADVs );
 
         // Set field ADVs using distributed vector
@@ -1144,7 +1153,7 @@ namespace moris::gen
             {
                 if ( mGeometries( iGeometryIndex )->get_name() == iMTKField->get_label() )
                 {
-                    mGeometries( iGeometryIndex )->discretize( iMTKField, aMeshPair, tNewOwnedADVs, tSharedADVIds( iGeometryIndex ), tAllOffsetIDs( iGeometryIndex ) );
+                    mGeometries( iGeometryIndex )->discretize( iMTKField, aMeshPair, tNewOwnedADVs, tOwnedAndSharedADVIds( iGeometryIndex ), tAllOffsetIDs( iGeometryIndex ) );
                     tUseMTKField = true;
                     break;
                 }
@@ -1153,7 +1162,7 @@ namespace moris::gen
             // Otherwise discretize with original field
             if ( not tUseMTKField )
             {
-                mGeometries( iGeometryIndex )->discretize( aMeshPair, tNewOwnedADVs, tSharedADVIds( iGeometryIndex ), tAllOffsetIDs( iGeometryIndex ) );
+                mGeometries( iGeometryIndex )->discretize( aMeshPair, tNewOwnedADVs, tOwnedAndSharedADVIds( iGeometryIndex ), tAllOffsetIDs( iGeometryIndex ) );
             }
 
             // Shape sensitivities logic
@@ -1171,7 +1180,7 @@ namespace moris::gen
                 {
                     if ( mProperties( iPropertyIndex )->get_name() == iMTKField->get_label() )
                     {
-                        mProperties( iPropertyIndex )->discretize( iMTKField, aMeshPair, tNewOwnedADVs, tSharedADVIds( mGeometries.size() + iPropertyIndex ), tAllOffsetIDs( mGeometries.size() + iPropertyIndex ) );
+                        mProperties( iPropertyIndex )->discretize( iMTKField, aMeshPair, tNewOwnedADVs, tOwnedAndSharedADVIds( mGeometries.size() + iPropertyIndex ), tAllOffsetIDs( mGeometries.size() + iPropertyIndex ) );
                         tUseMTKField = true;
                         break;
                     }
@@ -1180,7 +1189,7 @@ namespace moris::gen
                 // Otherwise discretize with original field
                 if ( not tUseMTKField )
                 {
-                    mProperties( iPropertyIndex )->discretize( aMeshPair, tNewOwnedADVs, tSharedADVIds( mGeometries.size() + iPropertyIndex ), tAllOffsetIDs( mGeometries.size() + iPropertyIndex ) );
+                    mProperties( iPropertyIndex )->discretize( aMeshPair, tNewOwnedADVs, tOwnedAndSharedADVIds( mGeometries.size() + iPropertyIndex ), tAllOffsetIDs( mGeometries.size() + iPropertyIndex ) );
                 }
             }
         }
