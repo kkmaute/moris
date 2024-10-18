@@ -82,8 +82,8 @@ namespace moris
             Vector< Vector< enum gen::PDV_Type > > mFollowerDvTypes;
 
             // maps for the leader and follower dv type
-            Vector< sint > mLeaderDvTypeMap;
-            Vector< sint > mFollowerDvTypeMap;
+            moris::Matrix< DDSMat > mLeaderDvTypeMap;
+            moris::Matrix< DDSMat > mFollowerDvTypeMap;
 
             // lists of leader and follower groups of field types
             Vector< Vector< mtk::Field_Type > > mLeaderFieldTypes;
@@ -103,8 +103,6 @@ namespace moris
             bool                                                      mPdvGeoAssemblyFlag = false;
 
             Vector< sint > mIGAdvIds;
-            Vector< sint > mIGPropIdsLeader;
-            Vector< sint > mIGPropIdsFollower;
 
             // Map from requested IQI Name to index.
             // I do not know if this is slow because the map is called per gauss point.
@@ -262,7 +260,7 @@ namespace moris
              * get dv type map
              * @param[ in ] aIsLeader enum for leader or follower
              */
-            const Vector< sint >& get_dv_type_map(
+            const Matrix< DDSMat >& get_dv_type_map(
                     mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------

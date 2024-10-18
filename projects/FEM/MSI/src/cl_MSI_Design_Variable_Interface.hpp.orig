@@ -117,7 +117,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             virtual Vector< std::shared_ptr< gen::Design_Extraction_Operator > >
-            get_ig_desgin_extraction_operators( const Matrix< moris::IndexMat >& ) = 0;
+                    get_IG_Desgin_Extraction_Operators( Matrix< moris::IndexMat > ) = 0;
 
             //------------------------------------------------------------------------------
 

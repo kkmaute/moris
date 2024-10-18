@@ -202,7 +202,7 @@ namespace moris::MSI
 
     //------------------------------------------------------------------------------
 
-    const Vector< sint > &Equation_Set::get_dv_type_map(
+    const Matrix< DDSMat > &Equation_Set::get_dv_type_map(
             mtk::Leader_Follower aIsLeader )
     {
         switch ( aIsLeader )
@@ -280,7 +280,7 @@ namespace moris::MSI
             case mtk::Leader_Follower::LEADER:
             {
                 // check if dv type exists in map
-                MORIS_ASSERT( static_cast< uint >( aDvType ) < mLeaderDvTypeMap.size(),
+                MORIS_ASSERT( static_cast< uint >( aDvType ) < mLeaderDvTypeMap.numel(),
                         "Equation_Set::get_dv_index_for_type - leader dv type does not exist in map." );
 
                 //                    // check if dv type assigned in map
@@ -294,7 +294,7 @@ namespace moris::MSI
             case mtk::Leader_Follower::FOLLOWER:
             {
                 // check if dv type exists in map
-                MORIS_ASSERT( static_cast< uint >( aDvType ) < mFollowerDvTypeMap.size(),
+                MORIS_ASSERT( static_cast< uint >( aDvType ) < mFollowerDvTypeMap.numel(),
                         "Equation_Set::get_dv_index_for_type(), follower dv type does not exist in map." );
 
                 //                    // check if dv type assigned in map
@@ -342,7 +342,7 @@ namespace moris::MSI
             case mtk::Leader_Follower::LEADER:
             {
                 // check if dv type is set in map
-                MORIS_ASSERT( static_cast< uint >( aDvType ) < mLeaderDvTypeMap.size(),
+                MORIS_ASSERT( static_cast< uint >( aDvType ) < mLeaderDvTypeMap.numel(),
                         "Equation_Set::get_dv_index_for_type_1 - leader dv type does not exist in map." );
 
                 //                    // check if dv type is set in map
@@ -355,7 +355,7 @@ namespace moris::MSI
             case mtk::Leader_Follower::FOLLOWER:
             {
                 // check if dv type is set in map
-                MORIS_ASSERT( static_cast< uint >( aDvType ) < mFollowerDvTypeMap.size(),
+                MORIS_ASSERT( static_cast< uint >( aDvType ) < mFollowerDvTypeMap.numel(),
                         "Equation_Set::get_dv_index_for_type_1 - follower dv type does not exist in map." );
 
                 //                    // check if dv type is set in map

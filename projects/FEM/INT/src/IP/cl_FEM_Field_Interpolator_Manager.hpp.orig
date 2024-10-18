@@ -67,7 +67,7 @@ namespace moris::fem
         const Vector< Vector< enum gen::PDV_Type > > mDvTypes;
 
         // dof type map
-        Vector< sint > mDvTypeMap;
+        moris::Matrix< DDSMat > mDvTypeMap;
 
         // list of field interpolators
         Vector< Field_Interpolator* > mDvFI;

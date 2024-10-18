@@ -1106,21 +1106,21 @@ namespace moris::fem
         MORIS_ASSERT( tMaxEnum != -1, "Set::create_dv_type_map(), no information to build dv type map" );
 
         // set size of dv type map    // FIXME replace with map
-        mLeaderDvTypeMap.resize( tMaxEnum, -1 );
+        mLeaderDvTypeMap.set_size( tMaxEnum, 1, -1 );
 
         // loop over dv types
         for ( uint iDv = 0; iDv < tLeaderNumDvs; iDv++ )
         {
-            mLeaderDvTypeMap( static_cast< int >( mLeaderDvTypes( iDv )( 0 ) ) ) = iDv;
+            mLeaderDvTypeMap( static_cast< int >( mLeaderDvTypes( iDv )( 0 ) ), 0 ) = iDv;
         }
 
         // set size of dv type map
-        mFollowerDvTypeMap.resize( tMaxEnum, -1 );
+        mFollowerDvTypeMap.set_size( tMaxEnum, 1, -1 );
 
         // loop over dv types
         for ( uint iDv = 0; iDv < tFollowerNumDvs; iDv++ )
         {
-            mFollowerDvTypeMap( static_cast< int >( mFollowerDvTypes( iDv )( 0 ) ) ) = iDv;
+            mFollowerDvTypeMap( static_cast< int >( mFollowerDvTypes( iDv )( 0 ) ), 0 ) = iDv;
         }
 
         // field type maps
@@ -2082,7 +2082,7 @@ namespace moris::fem
         aFemCluster->get_vertex_indices_in_cluster_for_sensitivity( tNodeIndicesOnCluster );
 
         // get extraction operators for the cluster
-        mIGExtractionOperators = tDVInterface->get_ig_desgin_extraction_operators( tNodeIndicesOnCluster );
+        mIGExtractionOperators = tDVInterface->get_IG_Desgin_Extraction_Operators( tNodeIndicesOnCluster );
 
         mIGAdvIds = tDVInterface->build_local_adv_indices( mIGExtractionOperators );
 

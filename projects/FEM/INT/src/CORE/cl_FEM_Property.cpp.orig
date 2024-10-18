@@ -201,13 +201,13 @@ namespace moris::fem
         tMaxEnum++;
 
         // set the Dv_Type map size
-        mDvTypeMap.resize( tMaxEnum, -1 );
+        mDvTypeMap.set_size( tMaxEnum, 1, -1 );
 
         // fill the Dof_Type map
         for ( uint iDV = 0; iDV < tNumDvTypes; iDV++ )
         {
             // fill the property map
-            mDvTypeMap( static_cast< int >( mDvTypes( iDV )( 0 ) ) ) = iDV;
+            mDvTypeMap( static_cast< int >( mDvTypes( iDV )( 0 ) ), 0 ) = iDV;
         }
     }
 
@@ -224,7 +224,7 @@ namespace moris::fem
         uint tDvIndex = static_cast< uint >( aDvType( 0 ) );
 
         // if aDvType is an active dv type for the property
-        if ( tDvIndex < mDvTypeMap.size() && mDvTypeMap( tDvIndex ) != -1 )
+        if ( tDvIndex < mDvTypeMap.numel() && mDvTypeMap( tDvIndex ) != -1 )
         {
             // bool is set to true
             tDvDependency = true;

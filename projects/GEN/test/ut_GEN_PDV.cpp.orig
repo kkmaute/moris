@@ -106,7 +106,7 @@ namespace moris::gen
 
             // PDV type list
             tPDVHostManager.mPDVTypeList = { PDV_Type::DENSITY, PDV_Type::TEMPERATURE, PDV_Type::ELASTIC_MODULUS };
-            tPDVHostManager.mPDVTypeMap.resize( 10, -1 );
+            tPDVHostManager.mPDVTypeMap.set_size( 10, 1, -1 );
             tPDVHostManager.mPDVTypeMap( 3 ) = 0;
             tPDVHostManager.mPDVTypeMap( 4 ) = 1;
             tPDVHostManager.mPDVTypeMap( 5 ) = 2;
@@ -198,23 +198,23 @@ namespace moris::gen
             PDV_Host_Manager_Test tPDVHostManager;
 
             tPDVHostManager.mPDVTypeList = { PDV_Type::DENSITY, PDV_Type::TEMPERATURE };
-            tPDVHostManager.mPDVTypeMap.resize( 10, -1 );
+            tPDVHostManager.mPDVTypeMap.set_size( 10, 1, -1 );
             tPDVHostManager.mPDVTypeMap( 3 ) = 0;
             tPDVHostManager.mPDVTypeMap( 4 ) = 1;
 
             // ----------------- Interpolation PDVs ---------------------- //
-            Vector< Vector< uint > >               tNodeIndicesPerSet( 2 );
-            Vector< Vector< sint > >               tNodeIdsPerSet( 2 );
-            Vector< Vector< uint > >               tNodeOwnersPerSet( 2 );
-            Vector< Matrix< DDRMat > >             tNodeCoordinatesPerSet( 2 );
+            Vector< Vector< uint > > tNodeIndicesPerSet( 2 );
+            Vector< Vector< sint > > tNodeIdsPerSet( 2 );
+            Vector< Vector< uint > > tNodeOwnersPerSet( 2 );
+            Vector< Matrix< DDRMat > > tNodeCoordinatesPerSet( 2 );
             Vector< Vector< Vector< PDV_Type > > > tIpPDVTypes( 2 );
 
             // Get my rank and other rank
-            uint tMyRank    = par_rank();
+            uint tMyRank = par_rank();
             uint tOtherRank = ( tMyRank + 1 ) % 2;
 
             // Node indices per set
-            tNodeIndicesPerSet( tMyRank )    = { 0, 1, 2, 3 };
+            tNodeIndicesPerSet( tMyRank ) = { 0, 1, 2, 3 };
             tNodeIndicesPerSet( tOtherRank ) = { tOtherRank * 2, tOtherRank * 2 + 1 };
 
             // Node coordinates per set
@@ -240,7 +240,7 @@ namespace moris::gen
             if ( par_rank() == 0 )
             {
                 // Node indices, IDs and owners
-                tNodeIdsPerSet    = { { 0, 1, 2, 3 }, { 2, 3 } };
+                tNodeIdsPerSet = { { 0, 1, 2, 3 }, { 2, 3 } };
                 tNodeOwnersPerSet = { { 0, 0, 0, 1 }, { 0, 1 } };
 
                 // Vertex ID to index map
@@ -249,7 +249,7 @@ namespace moris::gen
             else if ( par_rank() == 1 )
             {
                 // Node IDs and owners
-                tNodeIdsPerSet    = { { 2, 3 }, { 2, 3, 4, 5 } };
+                tNodeIdsPerSet = { { 2, 3 }, { 2, 3, 4, 5 } };
                 tNodeOwnersPerSet = { { 0, 1 }, { 0, 1, 1, 1 } };
 
                 // Vertex ID to index map
@@ -283,7 +283,7 @@ namespace moris::gen
             tPDVHostManager.create_pdv_ids();
 
             // ------------------- Check global map ----------------------- //
-            const Matrix< DDSMat >& tLocalGlobalMap            = tPDVHostManager.get_my_local_global_map();
+            const Matrix< DDSMat >& tLocalGlobalMap   = tPDVHostManager.get_my_local_global_map();
             const Matrix< DDSMat >& tLocalGlobalOverlappingMap = tPDVHostManager.get_my_local_global_overlapping_map();
 
             if ( par_rank() == 0 )
@@ -332,8 +332,8 @@ namespace moris::gen
         if ( par_size() == 2 )
         {
             // Create circle
-            Vector< real > tADVs        = { { 0.0, 0.0, 1.0 } };
-            auto           tCircleField = std::make_shared< Circle >(
+            Vector< real > tADVs = { { 0.0, 0.0, 1.0 } };
+            auto tCircleField = std::make_shared< Circle >(
                     tADVs,
                     Vector< uint >( { 0, 1, 2 } ),
                     Vector< uint >( { 0, 1, 2 } ),
@@ -366,7 +366,7 @@ namespace moris::gen
             }
             else if ( par_rank() == 1 )
             {
-                tIpNodeIdsPerSet    = { { 2 }, { 3 }, { 4 }, { 5 }, { 6 }, { 7 } };
+                tIpNodeIdsPerSet = { { 2 }, { 3 }, { 4 }, { 5 }, { 6 }, { 7 } };
                 tIpNodeOwnersPerSet = { { 0 }, { 1 }, { 1 }, { 1 }, { 1 }, { 1 } };
                 tNumOwnedNodes      = 5;
 
@@ -381,15 +381,15 @@ namespace moris::gen
             for ( uint tNodeIndex = 0; tNodeIndex < tIpNodeIdsPerSet.length(); tNodeIndex++ )
             {
                 // Go around a circle to create parent coordinates
-                real             tRadians                 = tIpNodeIdsPerSet( tNodeIndex ) * M_PI / 2.0;
+                real tRadians = tIpNodeIdsPerSet( tNodeIndex ) * M_PI / 2.0;
                 Matrix< DDRMat > tFirstParentCoordinates  = { { 0.5 * cos( tRadians ), 0.5 * sin( tRadians ) } };
                 Matrix< DDRMat > tSecondParentCoordinates = { { 1.5 * cos( tRadians ), 1.5 * sin( tRadians ) } };
 
                 // Create parent nodes
-                auto        tFirstNode = new Background_Node( 0, tFirstParentCoordinates );
-                Parent_Node tFirstParentNode( *tFirstNode, { { -1.0 } } );
-                auto        tSecondNode = new Background_Node( 0, tSecondParentCoordinates );
-                Parent_Node tSecondParentNode( *tSecondNode, { { 1.0 } } );
+                auto tFirstNode = new Background_Node( 0, tFirstParentCoordinates );
+                Parent_Node tFirstParentNode( *tFirstNode, {{ -1.0 }} );
+                auto tSecondNode = new Background_Node( 0, tSecondParentCoordinates );
+                Parent_Node tSecondParentNode( *tSecondNode, {{ 1.0 }} );
 
                 // Background nodes need to be deleted later
                 tTemporaryBackgroundNodes.push_back( tFirstNode );
@@ -420,7 +420,7 @@ namespace moris::gen
             tPDVHostManager.create_pdv_ids();
 
             // ------------------- Check global map ----------------------- //
-            const Matrix< DDSMat >& tLocalGlobalMap            = tPDVHostManager.get_my_local_global_map();
+            const Matrix< DDSMat >& tLocalGlobalMap   = tPDVHostManager.get_my_local_global_map();
             const Matrix< DDSMat >& tLocalGlobalOverlappingMap = tPDVHostManager.get_my_local_global_overlapping_map();
 
             REQUIRE( tLocalGlobalMap.length() == tNumOwnedNodes * 2 );
@@ -483,7 +483,7 @@ namespace moris::gen
             // Check sensitivities
             if ( par_rank() == 0 )
             {
-                CHECK_EQUAL( tdIQIdADV, Matrix< DDRMat >( { { 4.0, 4.0, 0.0 }, { 24.0, 36.0, -16.0 } } ), 1.0E6, );
+                CHECK_EQUAL( tdIQIdADV, Matrix< DDRMat>({ { 4.0, 4.0, 0.0 }, { 24.0, 36.0, -16.0 } }), 1.0E6, );
             }
 
             // Clean up temporary background nodes
@@ -502,11 +502,11 @@ namespace moris::gen
         PDV_Host_Manager_Test tPDVHostManager;
 
         tPDVHostManager.mPDVTypeList = { PDV_Type::DENSITY };
-        tPDVHostManager.mPDVTypeMap.resize( 10, -1 );
+        tPDVHostManager.mPDVTypeMap.set_size( 10, 1, -1 );
         tPDVHostManager.mPDVTypeMap( 3 ) = 0;
 
         // Create ADVs
-        uint tNumADVs = 2 * par_size();
+        uint             tNumADVs = 2 * par_size();
 
         // Create constant properties
         Vector< Parameter_List > tPropertyParameterLists;
@@ -519,14 +519,14 @@ namespace moris::gen
         }
 
         // Create properties
-        ADV_Manager                           tADVManager;
-        Design_Factory                        tDesignFactory( tPropertyParameterLists, tADVManager );
+        ADV_Manager tADVManager;
+        Design_Factory tDesignFactory( tPropertyParameterLists, tADVManager );
         Vector< std::shared_ptr< Property > > tProperties = tDesignFactory.get_properties();
 
         // Node indices, IDs, ownership and coordinates per set
-        Vector< Vector< uint > >   tNodeIndicesPerSet( 1 );
-        Vector< Vector< sint > >   tNodeIdsPerSet( 1 );
-        Vector< Vector< uint > >   tNodeOwnersPerSet( 1 );
+        Vector< Vector< uint > > tNodeIndicesPerSet( 1 );
+        Vector< Vector< sint > > tNodeIdsPerSet( 1 );
+        Vector< Vector< uint > > tNodeOwnersPerSet( 1 );
         Vector< Matrix< DDRMat > > tNodeCoordinatesPerSet( 1 );
 
         tNodeIndicesPerSet( 0 ).resize( gNumPDVs, 1 );
@@ -621,4 +621,4 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-}    // namespace moris::gen
+}

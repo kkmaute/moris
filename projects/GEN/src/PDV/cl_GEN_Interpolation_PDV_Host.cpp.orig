@@ -65,7 +65,7 @@ namespace moris::gen
     void
     Interpolation_PDV_Host::create_pdv( PDV_Type aPDVType, real aPDVVal )
     {
-        const Vector< sint >& tPDVTypeMap = mPDVHostManager->get_pdv_type_map();
+        const Matrix< DDSMat >& tPDVTypeMap = mPDVHostManager->get_pdv_type_map();
 
         sint tPDVIndex = tPDVTypeMap( static_cast< sint >( aPDVType ) );
 
@@ -90,7 +90,7 @@ namespace moris::gen
             PDV_Type       aPDVType,
             const moris_id aCounterId )
     {
-        const Vector< sint >& tPDVTypeMap = mPDVHostManager->get_pdv_type_map();
+        const Matrix< DDSMat >& tPDVTypeMap = mPDVHostManager->get_pdv_type_map();
 
         sint tPDVIndex = tPDVTypeMap( static_cast< uint >( aPDVType ) );
 
@@ -107,7 +107,7 @@ namespace moris::gen
     moris_id
     Interpolation_PDV_Host::get_pdv_id( PDV_Type aPDVType )
     {
-        const Vector< sint >& tPDVTypeMap = mPDVHostManager->get_pdv_type_map();
+        const Matrix< DDSMat >& tPDVTypeMap = mPDVHostManager->get_pdv_type_map();
 
         sint tPDVIndex = tPDVTypeMap( static_cast< uint >( aPDVType ) );
 
@@ -144,7 +144,7 @@ namespace moris::gen
         MORIS_ASSERT( aPropertyPointer != nullptr,
                 "Interpolation_PDV_Host::create_pdv - property pointer is nullptr.\n" );
 
-        const Vector< sint >& tPDVTypeMap = mPDVHostManager->get_pdv_type_map();
+        const Matrix< DDSMat >& tPDVTypeMap = mPDVHostManager->get_pdv_type_map();
 
         sint tPDVIndex = tPDVTypeMap( static_cast< sint >( aPDVType ) );
 
@@ -168,7 +168,7 @@ namespace moris::gen
     bool
     Interpolation_PDV_Host::is_active_type( PDV_Type aPDVType )
     {
-        const Vector< sint >& tPDVTypeMap = mPDVHostManager->get_pdv_type_map();
+        const Matrix< DDSMat >& tPDVTypeMap = mPDVHostManager->get_pdv_type_map();
 
         sint tPDVIndex = tPDVTypeMap( static_cast< sint >( aPDVType ) );
 
@@ -193,7 +193,7 @@ namespace moris::gen
             PDV_Type aPDVType,
             moris_id aId )
     {
-        const Vector< sint >& tPDVTypeMap = mPDVHostManager->get_pdv_type_map();
+        const Matrix< DDSMat >& tPDVTypeMap = mPDVHostManager->get_pdv_type_map();
 
         sint tPDVIndex = tPDVTypeMap( static_cast< sint >( aPDVType ) );
 
@@ -215,7 +215,7 @@ namespace moris::gen
     uint
     Interpolation_PDV_Host::get_global_index_for_pdv_type( PDV_Type aPDVType )
     {
-        const Vector< sint >& tPDVTypeMap = mPDVHostManager->get_pdv_type_map();
+        const Matrix< DDSMat >& tPDVTypeMap = mPDVHostManager->get_pdv_type_map();
 
         sint tPDVIndex = tPDVTypeMap( static_cast< sint >( aPDVType ) );
 
@@ -263,7 +263,7 @@ namespace moris::gen
     real
     Interpolation_PDV_Host::get_pdv_value( PDV_Type aPDVType )
     {
-        const Vector< sint >& tPDVTypeMap = mPDVHostManager->get_pdv_type_map();
+        const Matrix< DDSMat >& tPDVTypeMap = mPDVHostManager->get_pdv_type_map();
 
         sint tPDVIndex = tPDVTypeMap( static_cast< sint >( aPDVType ) );
 
@@ -292,7 +292,7 @@ namespace moris::gen
     bool
     Interpolation_PDV_Host::get_pdv_exists( PDV_Type aPDVType )
     {
-        const Vector< sint >& tPDVTypeMap = mPDVHostManager->get_pdv_type_map();
+        const Matrix< DDSMat >& tPDVTypeMap = mPDVHostManager->get_pdv_type_map();
 
         sint tPDVIndex = tPDVTypeMap( static_cast< sint >( aPDVType ) );
 
@@ -343,7 +343,7 @@ namespace moris::gen
     void
     Interpolation_PDV_Host::print_state()
     {
-        const Vector< sint >& tPDVTypeMap = mPDVHostManager->get_pdv_type_map();
+        const Matrix< DDSMat >& tPDVTypeMap = mPDVHostManager->get_pdv_type_map();
 
         std::cout << "--------------------------------------------------------------\n";
         std::cout << " Interpolation_PDV_Host: \n";
@@ -351,12 +351,12 @@ namespace moris::gen
         std::cout << " mNodeId:                " << mNodeId << '\n';
         std::cout << " mNodeIndex:             " << mNodeIndex << '\n';
         std::cout << " mNodeOwner:             " << mNodeOwner << '\n';
-        std::cout << " Number of PDV types:    " << tPDVTypeMap.size() << '\n';
+        std::cout << " Number of PDV types:    " << tPDVTypeMap.n_rows() << '\n';
         std::cout << " Number of PDVs:         " << mPDVs.size() << '\n';
 
         print( mCoordinates, "mCoordinates" );
 
-        for ( uint i = 0; i < tPDVTypeMap.size(); ++i )
+        for ( uint i = 0; i < tPDVTypeMap.n_rows(); ++i )
         {
             sint tIndex = tPDVTypeMap( i );
 
@@ -376,4 +376,4 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-}    // namespace moris::gen
+}

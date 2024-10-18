@@ -78,7 +78,7 @@ namespace moris::fem
         Matrix< DDSMat > mGlobalDvTypeMap;
 
         // dv type map
-        Vector< sint > mDvTypeMap;
+        Matrix< DDSMat > mDvTypeMap;
 
         // dof type list
         Vector< Vector< mtk::Field_Type > > mFieldTypes;
@@ -511,7 +511,7 @@ namespace moris::fem
          * get dv type map
          * @param[ out ] mDvTypeMap map for the dv types
          */
-        const Vector< sint >&
+        const Matrix< DDSMat >&
         get_dv_type_map()
         {
             return mDvTypeMap;

@@ -57,8 +57,8 @@ namespace moris::gen
 
         // PDV type map
         Vector< PDV_Type > mPDVTypeList;    // List containing all used unique dv types.
+        Matrix< DDSMat >   mPDVTypeMap;     // Map which maps the unique dv types onto consecutive values.
         Matrix< IdMat >    mCommTable;
-        Vector< sint >     mPDVTypeMap;    // Map which maps the unique dv types onto consecutive values.
 
         // list of pdv hosts - interpolation nodes
         Vector< std::shared_ptr< Interpolation_PDV_Host > > mIpPDVHosts;
@@ -93,7 +93,7 @@ namespace moris::gen
         // Design extraction operators
         // Vector at IP nodes of Vector of field types of Design_Extraction_Operators
         // Vector at IG nodes of Design_Extraction_Operators
-        Vector< Vector< std::shared_ptr< Design_Extraction_Operator > > > tIPExtractionOperators;
+        Vector< Vector< std::shared_ptr< Design_Extraction_Operator > > > tIpExtractionOperators;
         Vector< std::shared_ptr< Design_Extraction_Operator > >           tIgExtractionOperators;
 
       public:
@@ -111,7 +111,7 @@ namespace moris::gen
 
         //-------------------------------------------------------------------------------
 
-        const Vector< sint >&
+        const Matrix< DDSMat >&
         get_pdv_type_map()
         {
             return mPDVTypeMap;
@@ -241,7 +241,7 @@ namespace moris::gen
         //-------------------------------------------------------------------------------
 
         Vector< std::shared_ptr< Design_Extraction_Operator > >
-        get_ig_desgin_extraction_operators( const Matrix< moris::IndexMat >& ) override;
+                get_IG_Desgin_Extraction_Operators( Matrix< moris::IndexMat > ) override;
 
         //-------------------------------------------------------------------------------
 

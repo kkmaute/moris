@@ -781,8 +781,6 @@ namespace moris::gen
         MORIS_ERROR( mADVIdsSet,
                 "PDV Host Manager must have ADV IDs set before computing sensitivities." );
 
-        tIPExtractionOperators.resize( mIpPDVHosts.size() );
-
         // Loop of interpolation PDV hosts
         for ( uint tPDVHostIndex = 0; tPDVHostIndex < mIpPDVHosts.size(); tPDVHostIndex++ )
         {
@@ -791,9 +789,6 @@ namespace moris::gen
             {
                 // Get number of PDVs
                 uint tNumPDVsOnHost = mIpPDVHosts( tPDVHostIndex )->get_num_pdvs();
-
-                // create extract operator
-                tIPExtractionOperators( tPDVHostIndex ).resize( mPDVTypeMap.size(), nullptr );
 
                 // Loop over all PDVs at PDV host
                 for ( uint tPDVIndex = 0; tPDVIndex < tNumPDVsOnHost; tPDVIndex++ )
@@ -818,13 +813,9 @@ namespace moris::gen
                         // pack sensitivities
                         this->pack_sensitivities( tADVIds, tHostADVSensitivities );
 
-                        // create design extraction operator
-                        tIPExtractionOperators( tPDVHostIndex )( tPDVIndex ) =
-                                std::make_shared< Design_Extraction_Operator >( tADVIds, tHostADVSensitivities );
-
-                        // fprintf( stdout, "\nInterpolation PDVIndex = %d\n", (sint)tPDVID );
-                        //  print( tADVIds, "tADVIds for interpolation PDVs" );
-                        //  print( tHostADVSensitivities, "tHostADVSensitivities for interpolation PDVs" );
+                        fprintf( stdout, "\nInterpolation PDVIndex = %d\n", (sint)tPDVID );
+                        // print( tADVIds, "tADVIds for interpolation PDVs" );
+                        // print( tHostADVSensitivities, "tHostADVSensitivities for interpolation PDVs" );
 
                         // store adv ids and weights
                         // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
@@ -845,8 +836,8 @@ namespace moris::gen
             if ( mNodeManager.node_depends_on_advs( iNodeIndex ) and mNodeManager.get_derived_node_owner( iNodeIndex ) == par_rank() )
             {
                 // Get starting ID and number of coordinates
-                // uint tStartingGlobalIndex = mNodeManager.get_derived_node_starting_pdv_id( iNodeIndex );
-                uint tNumCoordinates = mNodeManager.get_number_of_derived_node_pdvs( iNodeIndex );
+                uint tStartingGlobalIndex = mNodeManager.get_derived_node_starting_pdv_id( iNodeIndex );
+                uint tNumCoordinates      = mNodeManager.get_number_of_derived_node_pdvs( iNodeIndex );
 
                 // Parent sensitivities and ADV IDs
                 tHostADVSensitivities.set_size( 0.0, 0.0 );
@@ -860,16 +851,16 @@ namespace moris::gen
                 // pack sensitivities
                 this->pack_sensitivities( tADVIds, tHostADVSensitivities );
 
-                //                // loop overall coordinate directions
-                //                for ( uint tCoordinateIndex = 0; tCoordinateIndex < tNumCoordinates; tCoordinateIndex++ )
-                //                {
-                //                    // get PDV ID
-                //                    moris_id tPDVID = tStartingGlobalIndex + tCoordinateIndex;
-                //
-                //                    // fprintf( stdout, "\nIntegration PDVIndex = %d for tCoordinateIndex %d\n", (sint)tPDVID, (sint)tCoordinateIndex );
-                //                    // print( tADVIds, "tADVIds for integration PDVs" );
-                //                    // print( tHostADVSensitivities.get_row( tCoordinateIndex ), "tHostADVSensitivities for integration PDVs" );
-                //                }
+                // loop overall coordinate directions
+                for ( uint tCoordinateIndex = 0; tCoordinateIndex < tNumCoordinates; tCoordinateIndex++ )
+                {
+                    // get PDV ID
+                    moris_id tPDVID = tStartingGlobalIndex + tCoordinateIndex;
+
+                    fprintf( stdout, "\nIntegration PDVIndex = %d for tCoordinateIndex %d\n", (sint)tPDVID, (sint)tCoordinateIndex );
+                    // print( tADVIds, "tADVIds for integration PDVs" );
+                    // print( tHostADVSensitivities.get_row( tCoordinateIndex ), "tHostADVSensitivities for integration PDVs" );
+                }
 
                 tIgExtractionOperators( iNodeIndex ) = std::make_shared< Design_Extraction_Operator >( tADVIds, tHostADVSensitivities );
             }
@@ -978,12 +969,12 @@ namespace moris::gen
         tMaxDvTypeEnumNumber = tMaxDvTypeEnumNumber + 1;
 
         // Set size of mapping matrix
-        mPDVTypeMap.resize( tMaxDvTypeEnumNumber, -1 );
+        mPDVTypeMap.set_size( tMaxDvTypeEnumNumber, 1, -1 );
 
         // Loop over all pdv types to create the mapping matrix
         for ( moris::uint Ii = 0; Ii < tNumUniquePDVTypes; Ii++ )
         {
-            mPDVTypeMap( static_cast< int >( mPDVTypeList( Ii ) ) ) = Ii;
+            mPDVTypeMap( static_cast< int >( mPDVTypeList( Ii ) ), 0 ) = Ii;
         }
     }
 
@@ -1692,16 +1683,16 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Vector< std::shared_ptr< Design_Extraction_Operator > >
-    PDV_Host_Manager::get_ig_desgin_extraction_operators( const Matrix< moris::IndexMat >& aNodeIndexList )
+    PDV_Host_Manager::get_IG_Desgin_Extraction_Operators( Matrix< moris::IndexMat > tNodeIndexList )
     {
-        Vector< std::shared_ptr< Design_Extraction_Operator > > tVecExtractionOperators( aNodeIndexList.numel() );
+        Vector< std::shared_ptr< Design_Extraction_Operator > > tVecExtractionOperators( tNodeIndexList.numel() );
 
-        for ( uint iNodeIndex = 0; iNodeIndex < aNodeIndexList.numel(); iNodeIndex++ )
+        for ( uint iNodeIndex = 0; iNodeIndex < tNodeIndexList.numel(); iNodeIndex++ )
         {
-            uint tMeshNodeIndex = aNodeIndexList( iNodeIndex );
+            uint tMeshNodeIndex = tNodeIndexList( iNodeIndex );
             if ( mGenMeshMapIsInitialized )
             {
-                tMeshNodeIndex = mGenMeshMap( tMeshNodeIndex );
+                tMeshNodeIndex = mGenMeshMap( tNodeIndexList( iNodeIndex ) );
             }
 
             tVecExtractionOperators( iNodeIndex ) = tIgExtractionOperators( tMeshNodeIndex );
@@ -1709,23 +1700,6 @@ namespace moris::gen
 
         return tVecExtractionOperators;
     }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    //    Vector< Vector< std::shared_ptr< Design_Extraction_Operator > > >
-    //    PDV_Host_Manager::get_ip_desgin_extraction_operators(
-    //            const Matrix< moris::IndexMat >&              aNodeIndexList,
-    //            const Vector< Vector< enum gen::PDV_Type > >& aRequestedDvTypes )
-    //    {
-    //        Vector < Vector< std::shared_ptr< Design_Extraction_Operator > > tVecExtractionOperators( aRequestedDvTypes.numel() );
-    //
-    //        for ( uint iNodeIndex = 0; iNodeIndex < aNodeIndexList.numel(); iNodeIndex++ )
-    //        {
-    //            tVecExtractionOperators( iNodeIndex ) = tIpExtractionOperators( tMeshNodeIndex );
-    //        }
-    //
-    //        return tVecExtractionOperators;
-    //    }
 
     //--------------------------------------------------------------------------------------------------------------
 

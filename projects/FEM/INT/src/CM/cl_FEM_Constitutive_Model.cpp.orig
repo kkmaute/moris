@@ -478,13 +478,13 @@ namespace moris::fem
         tMaxEnum++;
 
         // set the Dv_Type map size
-        mDvTypeMap.resize( tMaxEnum, -1 );
+        mDvTypeMap.set_size( tMaxEnum, 1, -1 );
 
         // loop over the dv types
         for ( uint iDV = 0; iDV < tNumDvTypes; iDV++ )
         {
             // fill the dv type map
-            mDvTypeMap( static_cast< int >( mDvTypes( iDV )( 0 ) ) ) = iDV;
+            mDvTypeMap( static_cast< int >( mDvTypes( iDV )( 0 ) ), 0 ) = iDV;
         }
     }
 

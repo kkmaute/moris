@@ -11,7 +11,7 @@
 #ifndef SRC_FEM_CL_FEM_PROPERTY_HPP_
 #define SRC_FEM_CL_FEM_PROPERTY_HPP_
 
-#include "moris_typedefs.hpp"               //MRS/COR/src
+#include "moris_typedefs.hpp"                     //MRS/COR/src
 #include "cl_Matrix.hpp"                    //LNA/src
 #include "cl_Vector.hpp"                    //MRS/CNT/src
 #include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
@@ -69,7 +69,7 @@ namespace moris::fem
         Vector< Vector< gen::PDV_Type > > mDvTypes;
 
         // active dv type map
-        Vector< sint > mDvTypeMap;
+        Matrix< DDSMat > mDvTypeMap;
 
         // active dv types
         Vector< Vector< mtk::Field_Type > > mFieldTypes;
@@ -125,7 +125,7 @@ namespace moris::fem
         /**
          * virtual destructor
          */
-        virtual ~Property() {};
+        virtual ~Property(){};
 
         //------------------------------------------------------------------------------
         /**
@@ -352,7 +352,7 @@ namespace moris::fem
          * get a dv type map
          * @param[ out ] mDvTypeMap map of the dv types
          */
-        const Vector< sint >&
+        const moris::Matrix< DDSMat >&
         get_dv_type_map() const
         {
             return mDvTypeMap;
@@ -507,3 +507,4 @@ namespace moris::fem
 }    // namespace moris::fem
 
 #endif /* SRC_FEM_CL_FEM_PROPERTY_HPP_ */
+
