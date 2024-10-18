@@ -486,7 +486,8 @@ namespace moris::mtk
             if ( std::abs( tRayToVertex( 0 ) * aDirection( 1 ) - tRayToVertex( 1 ) * aDirection( 0 ) ) < mIntersectionTolerance )
             {
                 // Check if the point is in between the vertices
-                if ( ( tFacetCoordinates( 0, 0 ) - aPoint( 0 ) ) * ( tFacetCoordinates( 0, 1 ) - aPoint( 0 ) ) < 0.0 )
+                if ( ( tFacetCoordinates( 0, 0 ) - aPoint( 0 ) ) * ( tFacetCoordinates( 0, 1 ) - aPoint( 0 ) ) < 0.0
+                        or ( tFacetCoordinates( 1, 0 ) - aPoint( 1 ) ) * ( tFacetCoordinates( 1, 1 ) - aPoint( 1 ) ) < 0.0 )
                 {
                     return 0.0;
                 }
@@ -494,8 +495,6 @@ namespace moris::mtk
                 else if ( ( tFacetCoordinates( 0, 0 ) - aPoint( 0 ) ) * aDirection( 0 ) > 0.0 )
                 {
                     // The ray will hit a vertex, return the closer one
-
-
                     return ( tFacetCoordinates( 0, 0 ) - aPoint( 0 ) ) < ( tFacetCoordinates( 0, 1 ) - aPoint( 0 ) ) ?                                                            //
                                    ( aPoint.n_cols() == 1 ? norm( tFacetCoordinates.get_column( 0 ) - aPoint ) : norm( tFacetCoordinates.get_column( 0 ) - trans( aPoint ) ) )    //
                                                                                                                      : ( aPoint.n_cols() == 1 ? norm( tFacetCoordinates.get_column( 1 ) - aPoint )

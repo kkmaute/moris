@@ -183,7 +183,9 @@ namespace moris::gen
 
         if ( tIntersection.second > 1.0 or std::isnan( tIntersection.second ) )
         {
+            std::cout << "First parent node index :" << aFirstParentNode.get_index() << std::endl;
             PRINT( aFirstParentNode.get_global_coordinates() );
+            std::cout << "Second parent node index :" << aSecondParentNode.get_index() << std::endl;
             PRINT( aSecondParentNode.get_global_coordinates() );
             std::cout << "1st Region by raycasting" << get_region_from_raycast( aFirstParentNode.get_global_coordinates() ) << std::endl;
             std::cout << "2nd Region by raycasting" << get_region_from_raycast( aSecondParentNode.get_global_coordinates() ) << std::endl;
