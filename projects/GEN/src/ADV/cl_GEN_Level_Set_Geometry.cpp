@@ -617,7 +617,7 @@ namespace moris::gen
         aOutputDesignInfo( 0 ) = Design_Field::get_field_value( aNodeIndex, aCoordinates );
     }
 
-    bool Level_Set_Geometry::intended_discretization()
+    bool Level_Set_Geometry::intended_discretization() const
     {
         return ( mParameters.mDiscretizationIndex >= 0 );
     }
@@ -625,7 +625,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     moris_index
-    Level_Set_Geometry::get_discretization_mesh_index()
+    Level_Set_Geometry::get_discretization_mesh_index() const
     {
         MORIS_ASSERT( mParameters.mDiscretizationIndex >= 0,
                 "A discretization is not intended for this field. Check this with intended_discretization() first." );
@@ -636,7 +636,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     real
-    Level_Set_Geometry::get_discretization_lower_bound()
+    Level_Set_Geometry::get_discretization_lower_bound() const
     {
         return mParameters.mDiscretizationLowerBound;
     }
@@ -644,7 +644,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     real
-    Level_Set_Geometry::get_discretization_upper_bound()
+    Level_Set_Geometry::get_discretization_upper_bound() const
     {
         return mParameters.mDiscretizationUpperBound;
     }

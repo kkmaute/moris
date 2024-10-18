@@ -131,7 +131,7 @@ namespace moris::gen
         Matrix< DDRMat >                   mVertexBases;                 // Basis function values for each vertex <number of fields> x <number of vertices>
         Vector< mtk::Cell* >               mVertexBackgroundElements;    // Index of the background element the facet vertex was in on construction
 
-        Vector< mtk::Mesh_Region > mNodeMeshRegions;    // contains information about the nodes in the interpolation mesh from a flood fill. The nodes that are undefined will be raycast to determine their region.
+        std::unordered_map< uint, mtk::Mesh_Region > mNodeMeshRegions;    // contains information about the nodes in the interpolation mesh from a flood fill. The nodes that are undefined will be raycast to determine their region.
 
       public:
         /**
@@ -337,28 +337,28 @@ namespace moris::gen
          *
          * @return Logic for B-spline creation
          */
-        bool intended_discretization() override;
+        bool intended_discretization() const override;
 
         /**
          * Gets a discretization mesh index for a discretized field.
          *
          * @return Mesh index
          */
-        moris_index get_discretization_mesh_index() override;
+        moris_index get_discretization_mesh_index() const override;
 
         /**
          * Gets the lower bound for a discretized field.
          *
          * @return Lower bound
          */
-        real get_discretization_lower_bound() override;
+        real get_discretization_lower_bound() const override;
 
         /**
          * Get the upper bound for a discretized field.
          *
          * @return Upper bound
          */
-        real get_discretization_upper_bound() override;
+        real get_discretization_upper_bound() const override;
 
         /**
          * Updates the dependencies of this design based on the given designs
@@ -523,8 +523,8 @@ namespace moris::gen
                 uint       aFacetVertexIndex );
 
         /**
-         * @brief Determines the regions of any nodes in mMeshNodeRegions that are still unknown after the flood fill
-         * mMeshNodeRegions should already be intialized with regions for all nodes in the interpolation mesh. Thus it must be of size aMesh->get_num_nodes()
+         * @brief Determines the regions of any nodes in mNodeMeshRegions that are still unknown after the flood fill
+         * mNodeMeshRegions should already be intialized with regions for all nodes in the interpolation mesh. Thus it must be of size aMesh->get_num_nodes()
          */
         void raycast_remaining_unknown_nodes( mtk::Mesh* aMesh );
     };

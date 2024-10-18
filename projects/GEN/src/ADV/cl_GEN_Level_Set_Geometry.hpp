@@ -153,7 +153,7 @@ namespace moris::gen
 
         /**
          * Gets the names of all the fields associated with this design
-         * 
+         *
          * @return Vector< std::string > the geometry name, as this implementation only has one field
          */
         virtual Vector< std::string > get_field_names() override;
@@ -173,8 +173,8 @@ namespace moris::gen
          * @param aOwnedADVs Pointer to the owned distributed ADVs
          */
         void discretize(
-                mtk::Mesh_Pair        aMeshPair,
-                sol::Dist_Vector*     aOwnedADVs ) override;
+                mtk::Mesh_Pair    aMeshPair,
+                sol::Dist_Vector* aOwnedADVs ) override;
 
         /**
          * If intended for this field, maps the field to B-spline coefficients or stores the nodal field values in a stored field object.
@@ -233,28 +233,28 @@ namespace moris::gen
          *
          * @return Logic for B-spline creation
          */
-        bool intended_discretization() override;
+        bool intended_discretization() const override;
 
         /**
          * Gets a discretization mesh index for a discretized field.
          *
          * @return Mesh index
          */
-        moris_index get_discretization_mesh_index() override;
+        moris_index get_discretization_mesh_index() const override;
 
         /**
          * Gets the lower bound for a discretized field.
          *
          * @return Lower bound
          */
-        real get_discretization_lower_bound() override;
+        real get_discretization_lower_bound() const override;
 
         /**
          * Get the upper bound for a discretized field.
          *
          * @return Upper bound
          */
-        real get_discretization_upper_bound() override;
+        real get_discretization_upper_bound() const override;
 
         /**
          * Updates the dependencies of this design based on the given designs

@@ -177,7 +177,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    bool Property::intended_discretization()
+    bool Property::intended_discretization() const
     {
         return ( mParameters.mDiscretizationIndex >= 0 );
     }
@@ -185,7 +185,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     moris_index
-    Property::get_discretization_mesh_index()
+    Property::get_discretization_mesh_index() const
     {
         MORIS_ASSERT( mParameters.mDiscretizationIndex >= 0,
                 "A discretization is not intended for this field. Check this with intended_discretization() first." );
@@ -196,7 +196,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     real
-    Property::get_discretization_lower_bound()
+    Property::get_discretization_lower_bound() const
     {
         return mParameters.mDiscretizationLowerBound;
     }
@@ -204,7 +204,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     real
-    Property::get_discretization_upper_bound()
+    Property::get_discretization_upper_bound() const
     {
         return mParameters.mDiscretizationUpperBound;
     }

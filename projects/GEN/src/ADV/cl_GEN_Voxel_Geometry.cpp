@@ -199,28 +199,28 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    bool Voxel_Geometry::intended_discretization()
+    bool Voxel_Geometry::intended_discretization() const
     {
         return false;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    moris_index Voxel_Geometry::get_discretization_mesh_index()
+    moris_index Voxel_Geometry::get_discretization_mesh_index() const
     {
         return -1;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real Voxel_Geometry::get_discretization_lower_bound()
+    real Voxel_Geometry::get_discretization_lower_bound() const
     {
         return -1.0;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real Voxel_Geometry::get_discretization_upper_bound()
+    real Voxel_Geometry::get_discretization_upper_bound() const
     {
         return 1.0;
     }
@@ -253,8 +253,8 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void Voxel_Geometry::discretize(
-            mtk::Mesh_Pair        aMeshPair,
-            sol::Dist_Vector*     aOwnedADVs )
+            mtk::Mesh_Pair    aMeshPair,
+            sol::Dist_Vector* aOwnedADVs )
     {
     }
 

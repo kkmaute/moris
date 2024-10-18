@@ -70,7 +70,6 @@ namespace moris::gen
             , mPerturbationFields( 0 )
             , mVertexBases( 0, 0 )
             , mVertexBackgroundElements( 0 )
-            , mNodeMeshRegions( 0, mtk::Mesh_Region::UNDEFINED )
     {
         uint tDim = Surface_Mesh::get_spatial_dimension();
 
@@ -135,8 +134,11 @@ namespace moris::gen
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aNodeCoordinates )
     {
-        // See if this node was previously determined. If not, raycast to determine the region
-        mtk::Mesh_Region tRegion = aNodeIndex >= mNodeMeshRegions.size() or mNodeMeshRegions( aNodeIndex ) == mtk::Mesh_Region::UNDEFINED ? this->get_region_from_raycast( aNodeCoordinates ) : mNodeMeshRegions( aNodeIndex );
+        // check if this node has been determined previously
+        auto tNodeIt        = mNodeMeshRegions.find( aNodeIndex );
+        bool tRegionUnknown = tNodeIt == mNodeMeshRegions.end();
+
+        mtk::Mesh_Region tRegion = tRegionUnknown ? mNodeMeshRegions[ aNodeIndex ] = this->get_region_from_raycast( aNodeCoordinates ) : tNodeIt->second;
 
         switch ( tRegion )
         {
@@ -180,13 +182,13 @@ namespace moris::gen
             PRINT( aSecondParentNode.get_global_coordinates() );
             std::cout << "1st Region by raycasting" << get_region_from_raycast( aFirstParentNode.get_global_coordinates() ) << std::endl;
             std::cout << "2nd Region by raycasting" << get_region_from_raycast( aSecondParentNode.get_global_coordinates() ) << std::endl;
-            std::cout << "1st region from stored data " << (char)get_geometric_region( aFirstParentNode.get_index(), aFirstParentNode.get_global_coordinates() ) << std::endl;
-            std::cout << "2nd region from stored data " << (char)get_geometric_region( aSecondParentNode.get_index(), aSecondParentNode.get_global_coordinates() ) << std::endl;
+            std::cout << "1st region from stored data " << mNodeMeshRegions.at( aFirstParentNode.get_index() ) << std::endl;
+            std::cout << "2nd region from stored data " << mNodeMeshRegions.at( aSecondParentNode.get_index() ) << std::endl;
 
             tIntersection = this->compute_intersection_local_coordinate( aBackgroundNodes, aFirstParentNode, aSecondParentNode );
         }
 
-        MORIS_ERROR( tIntersection.first != MORIS_UINT_MAX and ( tIntersection.second < 1.0 + this->get_intersection_tolerance() and tIntersection.second > -1.0 - this->get_intersection_tolerance() ),
+        MORIS_ERROR( tIntersection.first != MORIS_UINT_MAX and ( tIntersection.second < ( 1.0 + Surface_Mesh::mIntersectionTolerance ) and tIntersection.second > ( -1.0 - Surface_Mesh::mIntersectionTolerance ) ),
                 "Intersection node %d has local coordinate %f. Should be [-1, 1]",
                 aNodeIndex,
                 tIntersection.second );
@@ -297,7 +299,7 @@ namespace moris::gen
             }
         }
         // The ADVs control some analytic function
-        else if ( not mParameters.mAnalyticADVFunctionName.empty() )
+        else if ( get_vertex_adv_dependency_user_defined != nullptr )
         {
             mADVHandler.import_advs( aOwnedADVs );
 
@@ -408,7 +410,7 @@ namespace moris::gen
 
     bool Surface_Mesh_Geometry::depends_on_advs() const
     {
-        return mParameters.mDiscretizationIndex > -1 or not mParameters.mAnalyticADVFunctionName.empty();
+        return this->intended_discretization() or get_vertex_adv_dependency_user_defined != nullptr;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -424,11 +426,9 @@ namespace moris::gen
         if ( !mBasesComputed and this->depends_on_advs() )
         {
             this->update_vertex_basis_data( aInterpolationMesh );
-            this->update_vertex_basis_data( aInterpolationMesh );
             mBasesComputed = true;
         }
 
-        mNodeMeshRegions.resize( aInterpolationMesh->get_num_nodes(), mtk::Mesh_Region::UNDEFINED );
         this->flood_fill_mesh_regions( aInterpolationMesh );
         // FIXME: static cast should not be necessary, but without it a linker error occurs
         this->raycast_remaining_unknown_nodes( static_cast< const mtk::Mesh* >( aInterpolationMesh ) );
@@ -572,13 +572,13 @@ namespace moris::gen
         Vector< real > tFactor = get_discretization_scaling_user_defined == nullptr ? Vector< real >( Surface_Mesh::get_spatial_dimension(), 1.0 )
                                                                                     : get_discretization_scaling_user_defined( this->get_original_vertex_coordinates( aFacetVertexIndex ) );
 
-        // Return true if this surface mesh can move, its movement was not fixed in all directions by the user, and it lies in the Lagrange mesh domain
+        // Return true if this surface mesh can move, its movement was either defined by the user or is discretized
+        // and not fixed in all directions by the user, and it lies in the Lagrange mesh domain
         return this->depends_on_advs()
-           and ( not mParameters.mAnalyticADVFunctionName.empty()
+           and ( get_vertex_adv_dependency_user_defined != nullptr
                    or ( mVertexBackgroundElements( aFacetVertexIndex ) != nullptr
-                           and ( get_discretization_scaling_user_defined == nullptr or    //
-                                   std::any_of( tFactor.cbegin(), tFactor.cend(),         //
-                                           [ & ]( const real tDirectionFactor ) { return tDirectionFactor != 0.0; } ) ) ) );
+                           and std::any_of( tFactor.cbegin(), tFactor.cend(),    //
+                                   []( const real tDirectionFactor ) { return tDirectionFactor != 0.0; } ) ) );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -642,7 +642,7 @@ namespace moris::gen
                 }
             }
         }
-        else if ( not mParameters.mAnalyticADVFunctionName.empty() )
+        else if ( get_vertex_adv_dependency_user_defined != nullptr )
         {
             get_dvertex_dadv_user_defined( this->get_original_vertex_coordinates( aFacetVertexIndex ), mADVHandler.get_values(), tVertexSensitivity );
         }
@@ -702,7 +702,7 @@ namespace moris::gen
             }
         }
         // The surface mesh is being optimized by the user defined function
-        else if ( not mParameters.mAnalyticADVFunctionName.empty() )
+        else if ( get_vertex_adv_dependency_user_defined != nullptr )
         {
             // Get all the ADV IDs for this geometry
             tVertexADVIds = mADVHandler.get_determining_adv_ids();
@@ -769,7 +769,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    bool Surface_Mesh_Geometry::intended_discretization()
+    bool Surface_Mesh_Geometry::intended_discretization() const
     {
         return ( mParameters.mDiscretizationIndex >= 0 );
     }
@@ -777,7 +777,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     moris_index
-    Surface_Mesh_Geometry::get_discretization_mesh_index()
+    Surface_Mesh_Geometry::get_discretization_mesh_index() const
     {
         MORIS_ASSERT( mParameters.mDiscretizationIndex >= 0,
                 "A discretization is not intended for this field. Check this with intended_discretization() first." );
@@ -787,14 +787,14 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real Surface_Mesh_Geometry::get_discretization_lower_bound()
+    real Surface_Mesh_Geometry::get_discretization_lower_bound() const
     {
         return mParameters.mDiscretizationLowerBound;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real Surface_Mesh_Geometry::get_discretization_upper_bound()
+    real Surface_Mesh_Geometry::get_discretization_upper_bound() const
     {
         return mParameters.mDiscretizationUpperBound;
     }
@@ -957,7 +957,10 @@ namespace moris::gen
         // Loop through the nodes and assign their regions
         for ( uint iNode = 0; iNode < tNumNodes; iNode++ )
         {
-            mNodeMeshRegions( iNode ) = tSubPhaseMeshRegions( tSubphases( iNode, 0 ) );
+            if ( tSubPhaseMeshRegions( tSubphases( iNode, 0 ) ) != mtk::Mesh_Region::UNDEFINED )
+            {
+                mNodeMeshRegions[ iNode ] = tSubPhaseMeshRegions( tSubphases( iNode, 0 ) );
+            }
         }
     }
 
@@ -967,42 +970,36 @@ namespace moris::gen
     {
         Tracer tTracer( "GEN", "Surface_Mesh_Geometry", "Raycast remaining unknown nodes" );
 
-        // Get the number of unknown nodes
-        uint tNumUnknownNodes = std::count_if( mNodeMeshRegions.cbegin(), mNodeMeshRegions.cend(), []( const mtk::Mesh_Region aRegion ) { return aRegion == mtk::Mesh_Region::UNDEFINED; } );
+        // Get the number of nodes in the mesh and the spatial dimension
+        uint tDims     = Surface_Mesh::get_spatial_dimension();
+        uint tNumNodes = aMesh->get_num_nodes();
 
-        // Build a matrix for the points of all of these nodes
-        Matrix< DDRMat > tUnknownNodeCoordinates( Surface_Mesh::get_spatial_dimension(), tNumUnknownNodes );
+        // Initialize a vector to store unknown node indices and their coordinates
+        Vector< uint > tUnknownNodes;
+        tUnknownNodes.reserve( tNumNodes );    // Reserve space to avoid multiple allocations
 
-        // Initialize an iterator to the beginning of the unknown nodes, this iterator will help track the next unknown node
-        auto it = mNodeMeshRegions.begin();
+        // Initialize a matrix to store the coordinates of unknown nodes
+        Matrix< DDRMat > tUnknownNodeCoordinates( tDims, tNumNodes );
 
-        // Fill the matrix for the coordinates
-        for ( uint iNode = 0; iNode < tNumUnknownNodes; iNode++ )
+        // Fill the vector and matrix with unknown node indices and their coordinates
+        uint tNumUnknownNodes = 0;
+        for ( uint iNode = 0; iNode < tNumNodes; ++iNode )
         {
-            // Find the next unknown node
-            it = std::find( it, mNodeMeshRegions.end(), mtk::Mesh_Region::UNDEFINED );
-
-            // Get the index of the unknown node
-            uint tUnknownNodeIndex = std::distance( mNodeMeshRegions.begin(), it );
-
-            // Get the coordinates of the unknown node
-            tUnknownNodeCoordinates.set_column( iNode, trans( aMesh->get_node_coordinate( tUnknownNodeIndex ) ) );
-
-            // Move the iterator to the next node
-            it++;
+            if ( mNodeMeshRegions.find( iNode ) == mNodeMeshRegions.end() )
+            {
+                tUnknownNodes.emplace_back( iNode );
+                tUnknownNodeCoordinates.set_column( tNumUnknownNodes++, trans( aMesh->get_node_coordinate( iNode ) ) );
+            }
         }
+        tUnknownNodeCoordinates.resize( tDims, tNumUnknownNodes );    // trim the matrix to the correct size
 
         // Batch cast all of the points
         Vector< mtk::Mesh_Region > tUnknownNodeRegions = Surface_Mesh::batch_get_region_from_raycast( tUnknownNodeCoordinates );
 
         // Assign the regions to the unknown nodes
-        uint tRegionIndex = 0;
-        for ( uint iNode = 0; iNode < mNodeMeshRegions.size(); iNode++ )
+        for ( uint iNode = 0; iNode < tNumUnknownNodes; ++iNode )
         {
-            if ( mNodeMeshRegions( iNode ) == mtk::Mesh_Region::UNDEFINED )
-            {
-                mNodeMeshRegions( iNode ) = tUnknownNodeRegions( tRegionIndex++ );
-            }
+            mNodeMeshRegions[ tUnknownNodes( iNode ) ] = tUnknownNodeRegions( iNode );
         }
     }
 
@@ -1036,7 +1033,6 @@ namespace moris::gen
             if ( tCoordinateInCell == true )
             {
                 // If so, return this element's index
-                return &aMesh->get_mtk_cell( iCellIndex );
                 return &aMesh->get_mtk_cell( iCellIndex );
             }
         }
