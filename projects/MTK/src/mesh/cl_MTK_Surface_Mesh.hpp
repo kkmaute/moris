@@ -137,6 +137,8 @@ namespace moris::mtk
 
         [[nodiscard]] uint get_number_of_vertices() const;
 
+        [[nodiscard]] uint get_intersection_tolerance() const;
+
 
         // -------------------------------------------------------------------------------
         // Raycast methods

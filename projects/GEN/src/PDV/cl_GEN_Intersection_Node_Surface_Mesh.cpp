@@ -63,7 +63,7 @@ namespace moris::gen
         Matrix< DDRMat > tRotationMatrix( 3, 1 );
         Matrix< DDRMat > tCastAxis = { { 1.0 }, { 0.0 }, { 0.0 } };
 
-        if ( norm( tParentVector + tCastAxis ) < mInterfaceGeometry.get_intersection_tolerance() )
+        if ( norm( tParentVector + tCastAxis ) < mInterfaceGeometry.Geometry::get_intersection_tolerance() )
         {
             tRotationMatrix = { { -1.0, 0.0, 0.0 }, { 0.0, 1.0, 0.0 }, { 0.0, 0.0, 1.0 } };
         }
@@ -81,7 +81,7 @@ namespace moris::gen
         }
 
         // check that the rotation matrix is correct by ensuring the parent vector was rotated to the x axis
-        MORIS_ASSERT( norm( tRotationMatrix * tParentVector - tCastAxis ) < mInterfaceGeometry.get_intersection_tolerance(), "Rotation matrix should rotate the parent vector to the x axis." );
+        MORIS_ASSERT( norm( tRotationMatrix * tParentVector - tCastAxis ) < mInterfaceGeometry.Geometry::get_intersection_tolerance(), "Rotation matrix should rotate the parent vector to the x axis." );
 
         // trim the transformation matrix if 2D
         if ( mInterfaceGeometry.get_spatial_dimension() == 2 )

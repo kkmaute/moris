@@ -176,6 +176,13 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
+    uint Surface_Mesh::get_intersection_tolerance() const
+    {
+        return mIntersectionTolerance;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     void Surface_Mesh::reset_coordinates()
     {
         // Initialize distortion vectors/matrices
@@ -520,7 +527,7 @@ namespace moris::mtk
             return std::numeric_limits< real >::quiet_NaN();
         }
 
-        return std::abs( tDistance ) < mIntersectionTolerance ? 0.0 : tDistance;
+        return tDistance < -mIntersectionTolerance ? ( std::numeric_limits< real >::quiet_NaN() ) : ( std::abs( tDistance ) < mIntersectionTolerance ? 0.0 : tDistance );
     }
 
     //--------------------------------------------------------------------------------------------------------------
