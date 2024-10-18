@@ -21,9 +21,9 @@ namespace moris::gen
     {
 
       private:
-        std::string  mObjectPath;
+        std::string    mObjectPath;
         Vector< real > mObjectOffset = { 0, 0, 0 };
-        real         mShift        = 0;
+        real           mShift        = 0;
 
         Matrix< DDRMat > mValues;
 

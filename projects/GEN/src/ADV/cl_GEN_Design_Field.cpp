@@ -77,7 +77,7 @@ namespace moris::gen
                     aMeshPair.get_interpolation_mesh(),
                     mField );
         }
-        mField->mMeshPairForAnalytic = aMeshPair; 
+        mField->mMeshPairForAnalytic = aMeshPair;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -111,7 +111,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     real Design_Field::get_field_value(
-            uint                    aNodeIndex,
+            const uint              aNodeIndex,
             const Matrix< DDRMat >& aCoordinates ) const
     {
         if ( mNodeManager->is_background_node( aNodeIndex ) )

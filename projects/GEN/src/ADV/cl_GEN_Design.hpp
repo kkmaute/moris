@@ -83,7 +83,7 @@ namespace moris::gen
          * @param aNodeIndex
          */
         virtual void get_design_info(
-                uint                    aNodeIndex,
+                const uint              aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates,
                 Vector< real >&         aOutputDesignInfo ) = 0;
 

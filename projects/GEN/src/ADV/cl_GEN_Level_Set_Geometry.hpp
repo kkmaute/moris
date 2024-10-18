@@ -196,7 +196,7 @@ namespace moris::gen
          * @return the value of the level set field at the requested location
          */
         void get_design_info(
-                uint                    aNodeIndex,
+                const uint              aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates,
                 Vector< real >&         aOutputDesignInfo ) override;
 

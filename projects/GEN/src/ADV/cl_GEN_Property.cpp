@@ -146,7 +146,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void Property::get_design_info(
-            uint                    aNodeIndex,
+            const uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates,
             Vector< real >&         aOutputDesignInfo )
     {

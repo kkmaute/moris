@@ -129,8 +129,10 @@ namespace moris::gen
         Vector< uint >                     mFixedVertexIndices;          // Indices of surface mesh vertices that are unaffected by ADVs
         Vector< std::shared_ptr< Field > > mPerturbationFields;          // Vector of perturbation fields
         Matrix< DDRMat >                   mVertexBases;                 // Basis function values for each vertex <number of fields> x <number of vertices>
-        Vector< mtk::Cell* >               mVertexBackgroundElements;    // Index of the background element the facet vertex was in on construction
+        Vector< const mtk::Cell* >         mVertexBackgroundElements;    // Index of the background element the facet vertex was in on construction
 
+        // Forward analysis variables
+        const mtk::Mesh*                             mMesh = nullptr;
         std::unordered_map< uint, mtk::Mesh_Region > mNodeMeshRegions;    // contains information about the nodes in the interpolation mesh from a flood fill. The nodes that are undefined will be raycast to determine their region.
 
       public:
@@ -152,6 +154,10 @@ namespace moris::gen
          *
          */
         ~Surface_Mesh_Geometry();
+
+        // ----------------------------------------------------------------------------------------------------------------
+        // FORWARD ANALYSIS FUNCTIONS
+        // ----------------------------------------------------------------------------------------------------------------
 
         /**
          * Gets the geometric region of a node, based on this geometry.
@@ -199,6 +205,10 @@ namespace moris::gen
                 const Parent_Node&                aFirstParentNode,
                 const Parent_Node&                aSecondParentNode );
 
+        // ----------------------------------------------------------------------------------------------------------------
+        // OPTIMIZATION FUNCTIONS
+        // ----------------------------------------------------------------------------------------------------------------
+
         /**
          *
          * Whether or not the surface mesh has ADVs
@@ -208,11 +218,12 @@ namespace moris::gen
         depends_on_advs() const;
 
         /**
-         * Gets an MTK field, if this geometry uses one that needs to be remapped to a new mesh
+         * Resets all nodal information, including child nodes. This should be called when a new XTK mesh is being
+         * created.
          *
-         * @return MTK field
+         * @param aInterpolationMesh Interpolation mesh containing new nodal data
          */
-        Vector< std::shared_ptr< mtk::Field > > get_mtk_fields() override;
+        void reset_nodal_data( mtk::Interpolation_Mesh* aInterpolationMesh ) override;
 
         /**
          * Imports the local ADVs required from the full owned ADV distributed vector.
@@ -222,27 +233,12 @@ namespace moris::gen
         void import_advs( sol::Dist_Vector* aOwnedADVs ) override;
 
         /**
-         * Gets the name of this geometry
+         * Sets the ADVs and grabs the field variables needed from the ADV vector
          *
-         * @return File name of the .obj file that this surface mesh was created with
+         * @param aADVs ADVs
          */
-        std::string
-        get_name() override;
+        void set_advs( sol::Dist_Vector* aADVs ) override;
 
-        /**
-         * Gets the names of all the fields associated with this design
-         *
-         * @return Vector< std::string > The name of each perturbation field
-         */
-        virtual Vector< std::string > get_field_names() override;
-
-        /**
-         * Resets all nodal information, including child nodes. This should be called when a new XTK mesh is being
-         * created.
-         *
-         * @param aInterpolationMesh Interpolation mesh containing new nodal data
-         */
-        void reset_nodal_data( mtk::Interpolation_Mesh* aInterpolationMesh ) override;
 
         /**
          * If intended for this field, maps the field to B-spline coefficients or stores the nodal field values in a stored field object.
@@ -272,18 +268,6 @@ namespace moris::gen
                 sol::Dist_Vector*             aOwnedADVs ) override;
 
         /**
-         * Used to print geometry information to exodus files and print debug information.
-         *
-         *  @param aNodeIndex decides the point at which the surface mesh displacement is printed. If the node is a derived node, the value is interpolated from the parents.
-         * @param aCoordinates The field location to get the value from.
-         * @return the value of the surface mesh displacement at the requested location
-         */
-        void get_design_info(
-                uint                    aNodeIndex,
-                const Matrix< DDRMat >& aCoordinates,
-                Vector< real >&         aOutputDesignInfo ) override;
-
-        /**
          * Appends this designs ADV IDs, ijklIDs, lower bounds, and upper bounds to the global matrices stored in the geometry engine.
          * Sets mNumCoeff, mOffsetID, and appends to mSharedADVIDs
          *
@@ -296,12 +280,99 @@ namespace moris::gen
          * @return uint The new offset ID after this geometry has appended its information
          */
         virtual sint append_adv_info(
-                mtk::Interpolation_Mesh* aMesh,
+                mtk::Interpolation_Mesh* mMesh,
                 Vector< sint >&          aOwnedADVIds,
                 Matrix< IdMat >&         aOwnedijklIDs,
                 sint                     aOffsetID,
                 Vector< real >&          aLowerBounds,
                 Vector< real >&          aUpperBounds ) override;
+
+        /**
+         * Gets the center of the facet at the given local index
+         *
+         * @param aFacetIndex local index of the facet in the surface mesh
+         * @return Matrix< DDRMat > center of the facet
+         */
+        [[nodiscard]] Matrix< DDRMat > get_facet_center( const uint aFacetIndex );
+
+        /**
+         * Gets the basis functions for the specified vertex
+         *
+         * @param aVertexIndex Index of the vertex
+         * @return Matrix< DDRMat > Basis functions for the vertex
+         */
+        [[nodiscard]] Matrix< DDRMat > get_vertex_bases( const uint aVertexIndex )
+        {
+            return mVertexBases.get_column( aVertexIndex );
+        }
+
+        /**
+         * Computes and returns the sensitivity of a facet vertex with respect to the ADVs
+         * NOTE: This function assumes that the facet vertex depends on ADVs. Check this with facet_vertex_depends_on_advs() if unsure
+         *
+         * @return Matrix< DDRMat > derivative of global vertex location with respect to each ADV. Size is <dimension> x <number of ADVs>
+         */
+        Matrix< DDRMat > get_dvertex_dadv( uint aFacetVertexIndex );
+
+        /**
+         * Gets the ADV IDs that the facet vertex depends on.
+         * These are the ADVs that control the bspline field value in the background element that the vertex lies in.
+         * NOTE: This function assumes that the facet vertex depends on ADVs. Check this with facet_vertex_depends_on_advs() if unsure
+         *
+         *
+         * @param aFacetVertexIndex Vertex index of the surface mesh
+         * @return Matrix< DDSMat > ADV IDs that the vertex depends on
+         */
+        Vector< sint > get_vertex_adv_ids( uint aFacetVertexIndex );
+
+        /**
+         * Gets the IDs of the ADVs that the given node depends on
+         *
+         * @param aNodeIndex the query node index on the integration mesh for which ADVs to retrieve
+         * @param aCoordinates the query node coordinates for which ADVs to retrieve
+         * @return Vector< sint > ADV IDs that the query node depends on
+         */
+        Vector< sint > get_determining_adv_ids(
+                uint                    aNodeIndex,
+                const Matrix< DDRMat >& aCoordinates );
+
+        // ----------------------------------------------------------------------------------------------------------------
+        // GETTERS AND GEOMETRY API FUNCTIONS
+        // ----------------------------------------------------------------------------------------------------------------
+
+        /**
+         * Gets an MTK field, if this geometry uses one that needs to be remapped to a new mesh
+         *
+         * @return MTK field
+         */
+        Vector< std::shared_ptr< mtk::Field > > get_mtk_fields() override;
+
+        /**
+         * Gets the name of this geometry
+         *
+         * @return File name of the .obj file that this surface mesh was created with
+         */
+        std::string
+        get_name() override;
+
+        /**
+         * Gets the names of all the fields associated with this design
+         *
+         * @return Vector< std::string > The name of each perturbation field
+         */
+        virtual Vector< std::string > get_field_names() override;
+
+        /**
+         * Used to print geometry information to exodus files and print debug information.
+         *
+         *  @param aNodeIndex decides the point at which the surface mesh displacement is printed. If the node is a derived node, the value is interpolated from the parents.
+         * @param aCoordinates The field location to get the value from.
+         * @return the value of the surface mesh displacement at the requested location
+         */
+        void get_design_info(
+                const uint              aNodeIndex,
+                const Matrix< DDRMat >& aCoordinates,
+                Vector< real >&         aOutputDesignInfo ) override;
 
         /**
          * Gets the number of fields the surface mesh has
@@ -317,13 +388,6 @@ namespace moris::gen
          * @return Underlying fields
          */
         Vector< std::shared_ptr< Field > > get_fields() override;
-
-        /**
-         * Sets the ADVs and grabs the field variables needed from the ADV vector
-         *
-         * @param aADVs ADVs
-         */
-        void set_advs( sol::Dist_Vector* aADVs ) override;
 
         /**
          * Sets a new node manager (from the geometry engine, if it was created after this geometry)
@@ -369,77 +433,28 @@ namespace moris::gen
         void update_dependencies( const Vector< std::shared_ptr< Design > >& aAllUpdatedDesigns ) override;
 
         /**
-         * Gets the center of the facet at the given local index
-         *
-         * @param aFacetIndex local index of the facet in the surface mesh
-         * @return Matrix< DDRMat > center of the facet
-         */
-        [[nodiscard]] Matrix< DDRMat > get_facet_center( const uint aFacetIndex );
-
-        /**
-         * Gets the basis functions for the specified vertex
-         *
-         * @param aVertexIndex Index of the vertex
-         * @return Matrix< DDRMat > Basis functions for the vertex
-         */
-        [[nodiscard]] Matrix< DDRMat > get_vertex_bases( const uint aVertexIndex )
-        {
-            return mVertexBases.get_column( aVertexIndex );
-        }
-
-        /**
          * Determines if the requested facet vertex depends on ADVs or not
          *
          * @param aFacetVertexIndex the index of the facet vertex that is queried
          * @return true if the vertex's index is not in mParameters.mFixedVertexIndices and the node's position is within the boundaries of the mesh
          * @return false if either of the above conditions are true
          */
-        bool facet_vertex_depends_on_advs( uint aFacetVertexIndex );
+        bool facet_vertex_depends_on_advs( const uint aFacetVertexIndex );
 
-        /**
-         * Computes and returns the sensitivity of a facet vertex with respect to the ADVs
-         * NOTE: This function assumes that the facet vertex depends on ADVs. Check this with facet_vertex_depends_on_advs() if unsure
-         *
-         * @return Matrix< DDRMat > derivative of global vertex location with respect to each ADV. Size is <dimension> x <number of ADVs>
-         */
-        Matrix< DDRMat > get_dvertex_dadv( uint aFacetVertexIndex );
-
-        /**
-         * Gets the ADV IDs that the facet vertex depends on.
-         * These are the ADVs that control the bspline field value in the background element that the vertex lies in.
-         * NOTE: This function assumes that the facet vertex depends on ADVs. Check this with facet_vertex_depends_on_advs() if unsure
-         *
-         *
-         * @param aFacetVertexIndex Vertex index of the surface mesh
-         * @return Matrix< DDSMat > ADV IDs that the vertex depends on
-         */
-        Vector< sint > get_vertex_adv_ids( uint aFacetVertexIndex );
-
-        /**
-         * Gets the IDs of the ADVs that the given node depends on
-         *
-         * @param aNodeIndex the query node index on the integration mesh for which ADVs to retrieve
-         * @param aCoordinates the query node coordinates for which ADVs to retrieve
-         * @return Vector< sint > ADV IDs that the query node depends on
-         */
-        Vector< sint > get_determining_adv_ids(
-                uint                    aNodeIndex,
-                const Matrix< DDRMat >& aCoordinates );
 
       private:
         /**
          * @brief Performs a flood fill of the mesh nodes for geometric region. Casts as many rays as subphases are found in the flood fill
          *
-         * @param aMesh Interpolation mesh whose nodes will be flood filled. The result will be stored in mNodeMeshRegions
+         * @param mMesh Interpolation mesh whose nodes will be flood filled. The result will be stored in mNodeMeshRegions
          */
-        void flood_fill_mesh_regions( const mtk::Mesh* aMesh );
+        void flood_fill_mesh_regions();
 
         /**
-         * @brief Batch raycasts the remaining nodes that were not flood filled by flood_fill_mesh_regions().
-         * Updates any entries of mNodeMeshRegions that were previously UNDEFINED
+         * @brief Batch raycasts all nodes in mMesh whose index is not already stored in mNodeMeshRegions
          *
          */
-        void raycast_remaining_unknown_nodes( const mtk::Mesh* aMesh );
+        void raycast_remaining_unknown_nodes();
 
         /**
          *  @brief constructs a query point struct for ArborX queries
@@ -451,9 +466,9 @@ namespace moris::gen
          * @return QueryPoints< MemorySpace > struct for ArborX query
          */
         template< typename MemorySpace, typename ExecutionSpace >
-        QueryElements< MemorySpace > construct_query_elements( const mtk::Mesh* aMesh, ExecutionSpace const & aExecutionSpace )
+        QueryElements< MemorySpace > construct_query_elements( ExecutionSpace const & aExecutionSpace )
         {
-            uint const                                tNumElems = aMesh->get_num_elems();
+            uint const                                tNumElems = mMesh->get_num_elems();
             Kokkos::View< ArborX::Box*, MemorySpace > tElements( Kokkos::view_alloc( aExecutionSpace, Kokkos::WithoutInitializing, "view:elements" ), tNumElems );
 
             for ( size_t iElement = 0; iElement < tNumElems; iElement++ )
@@ -462,10 +477,10 @@ namespace moris::gen
                 ArborX::Box tBox;
 
                 // Get the coordinates of the element
-                Matrix< IndexMat > tNodeIndices = aMesh->get_nodes_connected_to_element_loc_inds( iElement );
+                Matrix< IndexMat > tNodeIndices = mMesh->get_nodes_connected_to_element_loc_inds( iElement );
                 for ( size_t iNode = 0; iNode < tNodeIndices.length(); ++iNode )
                 {
-                    tBox += mtk::arborx::coordinate_to_arborx_point< ArborX::Point >( aMesh->get_node_coordinate( tNodeIndices( iNode ) ) );
+                    tBox += mtk::arborx::coordinate_to_arborx_point< ArborX::Point >( mMesh->get_node_coordinate( tNodeIndices( iNode ) ) );
                 }
                 tElements( iElement ) = tBox;
             }
@@ -481,8 +496,8 @@ namespace moris::gen
          *
          * @return Index of the element in which aCoordinates resides. If no element is found, -1 is returned
          */
-        mtk::Cell*
-        find_background_element_from_global_coordinates( mtk::Mesh* aMesh, const Matrix< DDRMat >& aCoordinate );
+        const mtk::Cell*
+        find_background_element_from_global_coordinates( const Matrix< DDRMat >& aCoordinate );
 
         /**
          * Gets the bounding box of a requested mtk::Cell
@@ -490,7 +505,7 @@ namespace moris::gen
          * @param aElement mtk::Cell of which to get the bounding box
          * @return Vector< Vector< real > > 2 x dim 2D vector. First index is the minimum second is the maximum for each dimension
          */
-        Vector< Vector< real > > determine_mtk_cell_bounding_box( mtk::Cell* aElement );
+        Vector< Vector< real > > determine_mtk_cell_bounding_box( const mtk::Cell* aElement );
 
         /**
          * @brief Computes the basis functions at a given point in the background element.
@@ -500,14 +515,14 @@ namespace moris::gen
          * @param aBasis Return value. The basis functions at the point.
          */
         Matrix< DDRMat > compute_vertex_basis(
-                mtk::Cell*              aBackgroundElement,
+                const mtk::Cell*        aBackgroundElement,
                 const Matrix< DDRMat >& aParametricCoordinates );
 
         /**
          * Updates the values of the basis functions for all of the facet vertices and the background elements they lie in
          *
          */
-        void update_vertex_basis_data( mtk::Mesh* aMesh );
+        void update_vertex_basis_data();
 
         /**
          * Determines the field value at a given point in the background element.
@@ -518,15 +533,9 @@ namespace moris::gen
          * @return real
          */
         real interpolate_perturbation_from_background_element(
-                mtk::Cell* aBackgroundElement,
-                uint       aFieldIndex,
-                uint       aFacetVertexIndex );
-
-        /**
-         * @brief Determines the regions of any nodes in mNodeMeshRegions that are still unknown after the flood fill
-         * mNodeMeshRegions should already be intialized with regions for all nodes in the interpolation mesh. Thus it must be of size aMesh->get_num_nodes()
-         */
-        void raycast_remaining_unknown_nodes( mtk::Mesh* aMesh );
+                const mtk::Cell* aBackgroundElement,
+                const uint       aFieldIndex,
+                const uint       aFacetVertexIndex );
     };
 }    // namespace moris::gen
 

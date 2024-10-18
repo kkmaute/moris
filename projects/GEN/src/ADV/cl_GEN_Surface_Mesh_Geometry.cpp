@@ -134,6 +134,11 @@ namespace moris::gen
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aNodeCoordinates )
     {
+        if ( aNodeIndex == 33171 )
+        {
+            PRINT( aNodeCoordinates );
+        }
+
         // check if this node has been determined previously
         auto tNodeIt        = mNodeMeshRegions.find( aNodeIndex );
         bool tRegionUnknown = tNodeIt == mNodeMeshRegions.end();
@@ -250,15 +255,202 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Vector< std::shared_ptr< mtk::Field > > Surface_Mesh_Geometry::get_mtk_fields()
+    void Surface_Mesh_Geometry::flood_fill_mesh_regions()
     {
-        return {};
+        Tracer tTracer( "GEN", "Surface_Mesh_Geometry", "Flood fill mesh nodes" );
+
+        using ExecutionSpace = Kokkos::DefaultExecutionSpace;
+        using MemorySpace    = ExecutionSpace::memory_space;
+        ExecutionSpace tExecutionSpace{};
+
+        // ----------------------------------------------------------------------------------------------
+        // Initial setup for flood fill
+        // ----------------------------------------------------------------------------------------------
+
+        uint tNumNodes = mMesh->get_num_nodes();
+
+        // Matrix< DDRMat >      tNodeCoordinates( Surface_Mesh::get_spatial_dimension(), tNumNodes );
+        Vector< moris_index > tCellIndices( tNumNodes );
+
+        // Build the element connectivity from the interpolation mesh
+        Matrix< IndexMat > tNodeConnectivity;
+        for ( uint iNode = 0; iNode < tNumNodes; iNode++ )
+        {
+            // Get the connectivity for this node
+            Matrix< IndexMat > tSingleNodeConnectivity = mMesh->get_entity_connected_to_entity_loc_inds( iNode, mtk::EntityRank::NODE, mtk::EntityRank::NODE );
+
+            // If this node has more neighbors than any others, resize the connectivity matrix
+            if ( tSingleNodeConnectivity.length() > tNodeConnectivity.n_cols() )
+            {
+                // Get the previous length
+                uint tPreviousLength = tNodeConnectivity.n_cols();
+
+                // Resize the connectivity matrix for the new max number of neighbors
+                tNodeConnectivity.resize( tNumNodes, tSingleNodeConnectivity.length() );
+
+                // Backfill the previous neighbors with gNoIndex NOTE: This will only work if the Matrix is column major
+                std::fill( tNodeConnectivity.begin() + tNumNodes * tPreviousLength, tNodeConnectivity.end(), gNoIndex );
+            }
+
+            // Set the connectivity for this node
+            for ( uint iConnection = 0; iConnection < tNodeConnectivity.n_cols(); iConnection++ )
+            {
+                tNodeConnectivity( iNode, iConnection ) = iConnection < tSingleNodeConnectivity.length() ? tSingleNodeConnectivity( iConnection, 0 ) : gNoIndex;
+            }
+        }
+
+        // Dummy phase index for the entire mesh
+        Vector< moris_index > tNodesToInclude( tNumNodes, 1 );
+
+        // Active nodes (all nodes)
+        Vector< moris_index > tNodes( tNumNodes );
+        std::iota( tNodes.begin(), tNodes.end(), 0 );
+
+        // Return variable for max number of subphases
+        moris_index tMaxSubphase;
+
+        // ----------------------------------------------------------------------------------------------
+        // Determine which nodes do not lie in a surface mesh bounding box, and add them to the elements to include
+        // ----------------------------------------------------------------------------------------------
+        // Initialize to include all nodes
+        Vector< moris_index > tPhase( tNumNodes, 1 );
+
+        // Initialize the results and offsets
+        Kokkos::View< ElementQueryResult*, MemorySpace > tResults( "values", 0 );
+        Kokkos::View< int*, MemorySpace >                tOffsets( "offsets", 0 );
+
+        // Build the struct for the bounding boxes for the mesh
+        QueryElements< MemorySpace > tQueryElements = this->construct_query_elements< MemorySpace >( tExecutionSpace );
+
+        // Query the bounding volume hierarchy for the surface mesh
+        mBVH.query( tExecutionSpace, tQueryElements, ElementIntersectionCallback< MemorySpace >{ tQueryElements }, tResults, tOffsets );
+
+        for ( size_t iIntersection = 0; iIntersection < tResults.extent( 0 ); ++iIntersection )
+        {
+            // Get the element that was intersected
+            moris_index iElement = tResults( iIntersection ).mElementIndex;
+
+            Matrix< IndexMat > tNodesConnectedToElement = mMesh->get_nodes_connected_to_element_loc_inds( iElement );
+
+            // Flag all of the nodes associated with the element
+            for ( auto iNode : tNodesConnectedToElement )
+            {
+                tPhase( iNode ) = 0;
+            }
+        }
+
+        // ----------------------------------------------------------------------------------------------
+        // Run flood fill algorithm and get the subphases
+        // ----------------------------------------------------------------------------------------------
+
+        Matrix< IndexMat > tSubphases = mtk::flood_fill(
+                tNodeConnectivity,
+                tPhase,
+                tNodes,
+                tNodesToInclude,
+                gNoIndex,
+                tMaxSubphase,
+                true );
+
+        // ----------------------------------------------------------------------------------------------
+        // Assign the correct geometric region to each subphase
+        // ----------------------------------------------------------------------------------------------
+
+        // For every subphase, determine the geometric region via a raycast (or leave as undefined if the node is in a bounding box)
+        Vector< mtk::Mesh_Region > tSubPhaseMeshRegions( tMaxSubphase + 1, mtk::Mesh_Region::UNDEFINED );
+        for ( int iSubphase = 0; iSubphase < tMaxSubphase + 1; iSubphase++ )
+        {
+            // Get the first index of this subphase for seeding
+            moris_index iIndex = std::distance( tSubphases.cbegin(), std::find( tSubphases.cbegin(), tSubphases.cend(), iSubphase ) );
+
+            tSubPhaseMeshRegions( iSubphase ) = tPhase( iIndex ) == 0 ? mtk::Mesh_Region::UNDEFINED : Surface_Mesh::get_region_from_raycast( mMesh->get_node_coordinate( iIndex ) );
+        }
+
+        // Loop through the nodes and assign their regions
+        for ( uint iNode = 0; iNode < tNumNodes; iNode++ )
+        {
+            if ( tSubPhaseMeshRegions( tSubphases( iNode, 0 ) ) != mtk::Mesh_Region::UNDEFINED )
+            {
+                if ( iNode == 33171 )
+                {
+                    std::cout << tSubPhaseMeshRegions( tSubphases( iNode, 0 ) ) << "\n";
+                }
+                mNodeMeshRegions[ iNode ] = tSubPhaseMeshRegions( tSubphases( iNode, 0 ) );
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Surface_Mesh_Geometry::raycast_remaining_unknown_nodes()
+    {
+        Tracer tTracer( "GEN", "Surface_Mesh_Geometry", "Raycast remaining unknown nodes" );
+
+        // Get the number of nodes in the mesh and the spatial dimension
+        uint tDims     = Surface_Mesh::get_spatial_dimension();
+        uint tNumNodes = mMesh->get_num_nodes();
+
+        // Initialize a vector to store unknown node indices and their coordinates
+        Vector< uint > tUnknownNodes;
+        tUnknownNodes.reserve( tNumNodes );    // Reserve space to avoid multiple allocations
+
+        // Initialize a matrix to store the coordinates of unknown nodes
+        Matrix< DDRMat > tUnknownNodeCoordinates( tDims, tNumNodes );
+
+        // Fill the vector and matrix with unknown node indices and their coordinates
+        uint tNumUnknownNodes = 0;
+        for ( uint iNode = 0; iNode < tNumNodes; ++iNode )
+        {
+            if ( mNodeMeshRegions.find( iNode ) == mNodeMeshRegions.end() )
+            {
+                if ( iNode == 33171 )
+                {
+                    PRINT( tUnknownNodeCoordinates );
+                }
+
+                tUnknownNodes.emplace_back( iNode );
+                tUnknownNodeCoordinates.set_column( tNumUnknownNodes++, trans( mMesh->get_node_coordinate( iNode ) ) );
+            }
+        }
+        tUnknownNodeCoordinates.resize( tDims, tNumUnknownNodes );    // trim the matrix to the correct size
+
+        // Batch cast all of the points
+        Vector< mtk::Mesh_Region > tUnknownNodeRegions = Surface_Mesh::batch_get_region_from_raycast( tUnknownNodeCoordinates );
+
+        // Assign the regions to the unknown nodes
+        for ( uint iNode = 0; iNode < tNumUnknownNodes; ++iNode )
+        {
+            mNodeMeshRegions[ tUnknownNodes( iNode ) ] = tUnknownNodeRegions( iNode );
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Surface_Mesh_Geometry::reset_nodal_data( mtk::Interpolation_Mesh* aInterpolationMesh )
+    {
+        // Store this mesh
+        mMesh = aInterpolationMesh;
+
+        // update the perturbation fields with the new mesh
+        for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
+        {
+            mPerturbationFields( iFieldIndex )->reset_nodal_data( aInterpolationMesh );
+        }
+
+        if ( !mBasesComputed and this->depends_on_advs() )
+        {
+            this->update_vertex_basis_data();
+            mBasesComputed = true;
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     void Surface_Mesh_Geometry::import_advs( sol::Dist_Vector* aOwnedADVs )
     {
+        // since the shape is updating, clear any region information that was stored from the previous shape
+        mNodeMeshRegions.clear();
+
         const uint tDims        = Surface_Mesh::get_spatial_dimension();
         uint       tNumVertices = Surface_Mesh::get_number_of_vertices();
 
@@ -363,6 +555,10 @@ namespace moris::gen
 
         // write the new surface mesh
         Surface_Mesh::write_to_file( mName + "_" + std::to_string( mIteration++ ) + ".obj" );
+
+        // Determine new region information for the nodes
+        this->flood_fill_mesh_regions();
+        this->raycast_remaining_unknown_nodes();
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -379,7 +575,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     sint Surface_Mesh_Geometry::append_adv_info(
-            mtk::Interpolation_Mesh* aMesh,
+            mtk::Interpolation_Mesh* mMesh,
             Vector< sint >&          aOwnedADVIds,
             Matrix< IdMat >&         aOwnedijklIDs,
             sint                     aOffsetID,
@@ -392,7 +588,7 @@ namespace moris::gen
         for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
         {
             aOffsetID = Design::append_adv_info(
-                    aMesh,
+                    mMesh,
                     aOwnedADVIds,
                     aOwnedijklIDs,
                     aOffsetID,
@@ -411,27 +607,6 @@ namespace moris::gen
     bool Surface_Mesh_Geometry::depends_on_advs() const
     {
         return this->intended_discretization() or get_vertex_adv_dependency_user_defined != nullptr;
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    void Surface_Mesh_Geometry::reset_nodal_data( mtk::Interpolation_Mesh* aInterpolationMesh )
-    {
-        // update the perturbation fields with the new mesh
-        for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
-        {
-            mPerturbationFields( iFieldIndex )->reset_nodal_data( aInterpolationMesh );
-        }
-
-        if ( !mBasesComputed and this->depends_on_advs() )
-        {
-            this->update_vertex_basis_data( aInterpolationMesh );
-            mBasesComputed = true;
-        }
-
-        this->flood_fill_mesh_regions( aInterpolationMesh );
-        // FIXME: static cast should not be necessary, but without it a linker error occurs
-        this->raycast_remaining_unknown_nodes( static_cast< const mtk::Mesh* >( aInterpolationMesh ) );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -512,39 +687,8 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    std::string
-    Surface_Mesh_Geometry::get_name()
-    {
-        return mName;
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    Vector< std::string >
-    Surface_Mesh_Geometry::get_field_names()
-    {
-        Vector< std::string > tFieldNames( mPerturbationFields.size() );
-        for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
-        {
-            // Should never be empty, as they are created by the geometry with a name
-            tFieldNames( iFieldIndex ) = mPerturbationFields( iFieldIndex )->get_name();
-        }
-
-        return tFieldNames;
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    Vector< std::shared_ptr< Field > >
-    Surface_Mesh_Geometry::get_fields()
-    {
-        return mPerturbationFields;
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
     Matrix< DDRMat >
-    Surface_Mesh_Geometry::get_facet_center( uint aFacetIndex )
+    Surface_Mesh_Geometry::get_facet_center( const uint aFacetIndex )
     {
         // Get the coordinates of the vertices for this facet
         Matrix< DDRMat > tVertexCoordinates = Surface_Mesh::get_all_vertex_coordinates_of_facet( aFacetIndex );
@@ -566,7 +710,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    bool Surface_Mesh_Geometry::facet_vertex_depends_on_advs( uint aFacetVertexIndex )
+    bool Surface_Mesh_Geometry::facet_vertex_depends_on_advs( const uint aFacetVertexIndex )
     {
         // Get the factor that scales this vertex's movement
         Vector< real > tFactor = get_discretization_scaling_user_defined == nullptr ? Vector< real >( Surface_Mesh::get_spatial_dimension(), 1.0 )
@@ -584,7 +728,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDRMat >
-    Surface_Mesh_Geometry::get_dvertex_dadv( uint aFacetVertexIndex )
+    Surface_Mesh_Geometry::get_dvertex_dadv( const uint aFacetVertexIndex )
     {
         // Initialize sensitivity matrix
         Matrix< DDRMat > tVertexSensitivity;
@@ -653,7 +797,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Vector< sint >
-    Surface_Mesh_Geometry::get_vertex_adv_ids( uint aFacetVertexIndex )
+    Surface_Mesh_Geometry::get_vertex_adv_ids( const uint aFacetVertexIndex )
     {
         // Get spatial dimension of the problem
         const uint tDims = Surface_Mesh::get_spatial_dimension();
@@ -715,7 +859,7 @@ namespace moris::gen
 
     Vector< sint >
     Surface_Mesh_Geometry::get_determining_adv_ids(
-            uint                    aNodeIndex,
+            const uint              aNodeIndex,
             const Matrix< DDRMat >& aCoordinates )
     {
         Vector< sint > tADVIDs;
@@ -752,8 +896,216 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    Vector< Vector< real > >
+    Surface_Mesh_Geometry::determine_mtk_cell_bounding_box( const mtk::Cell* aElement )
+    {
+        // Initialize a bounding box
+        Vector< Vector< real > > tBoundingBox( 2, Vector< real >( Surface_Mesh::get_spatial_dimension() ) );
+
+        Matrix< DDRMat > tCurrentSearchElementVertexCoordinates = aElement->get_vertex_coords();
+
+        // Build bounding box, set the box as the coordinates for the first vertex
+        for ( uint iDimensionIndex = 0; iDimensionIndex < tCurrentSearchElementVertexCoordinates.n_cols(); iDimensionIndex++ )
+        {
+            tBoundingBox( 0 )( iDimensionIndex ) = tCurrentSearchElementVertexCoordinates( 0, iDimensionIndex );
+            tBoundingBox( 1 )( iDimensionIndex ) = tCurrentSearchElementVertexCoordinates( 0, iDimensionIndex );
+
+            // Loop over the rest of the vertices
+            for ( uint iVertexIndex = 1; iVertexIndex < tCurrentSearchElementVertexCoordinates.n_rows(); iVertexIndex++ )
+            {
+                // check if the entry is less than the minimum
+                if ( tCurrentSearchElementVertexCoordinates( iVertexIndex, iDimensionIndex ) < tBoundingBox( 0 )( iDimensionIndex ) )
+                {
+                    tBoundingBox( 0 )( iDimensionIndex ) = tCurrentSearchElementVertexCoordinates( iVertexIndex, iDimensionIndex );
+                }
+                // check if the entry is greater than the maximum
+                if ( tCurrentSearchElementVertexCoordinates( iVertexIndex, iDimensionIndex ) > tBoundingBox( 1 )( iDimensionIndex ) )
+                {
+                    tBoundingBox( 1 )( iDimensionIndex ) = tCurrentSearchElementVertexCoordinates( iVertexIndex, iDimensionIndex );
+                }
+            }
+        }
+
+        return tBoundingBox;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    const mtk::Cell* Surface_Mesh_Geometry::find_background_element_from_global_coordinates(
+            const Matrix< DDRMat >& aCoordinate )
+    {
+        uint tDim = Surface_Mesh::get_spatial_dimension();
+
+        // Loop through each mtk::Cell
+        for ( uint iCellIndex = 0; iCellIndex < mMesh->get_num_elems(); iCellIndex++ )
+        {
+            // get this Cell's bounding box
+            Vector< Vector< real > > tBoundingBox = this->determine_mtk_cell_bounding_box( &mMesh->get_mtk_cell( iCellIndex ) );
+
+            // assume the point is in this bounding box
+            bool tCoordinateInCell = true;
+
+            // Loop over the bounding box and determine if this is true
+            for ( uint iDimensionIndex = 0; iDimensionIndex < tDim; iDimensionIndex++ )
+            {
+                // check if the point is outside the bounding box in this dimension
+                if ( aCoordinate( iDimensionIndex ) < tBoundingBox( 0 )( iDimensionIndex )
+                        or aCoordinate( iDimensionIndex ) > tBoundingBox( 1 )( iDimensionIndex ) )
+                {
+                    tCoordinateInCell = false;
+                }
+            }
+
+            // The coordinate is in the cell if it is within the bounding box in every dimension
+            if ( tCoordinateInCell == true )
+            {
+                // If so, return this element's index
+                return &mMesh->get_mtk_cell( iCellIndex );
+            }
+        }
+
+        // if no element found, return -1
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Matrix< DDRMat > Surface_Mesh_Geometry::compute_vertex_basis(
+            const mtk::Cell*        aBackgroundElement,
+            const Matrix< DDRMat >& aParametricCoordinates )
+    {
+        // build interpolator
+        mtk::Interpolation_Function_Factory tFactory;
+        mtk::Interpolation_Function_Base*   tInterpolation;
+
+        // create interpolation function based on spatial dimension of problem
+        tInterpolation = tFactory.create_interpolation_function(
+                aBackgroundElement->get_geometry_type(),
+                mtk::Interpolation_Type::LAGRANGE,
+                aBackgroundElement->get_interpolation_order() );
+
+        // compute basis function at the vertices
+        Matrix< DDRMat > tBasis;
+        tInterpolation->eval_N( aParametricCoordinates, tBasis );
+
+        // clean up
+        delete tInterpolation;
+
+        return tBasis;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Surface_Mesh_Geometry::update_vertex_basis_data()
+    {
+        // Get the spatial dimension
+        uint tSpatialDimension = Surface_Mesh::get_spatial_dimension();
+
+        // Set size if it has not been set already
+        if ( mVertexBases.n_cols() != Surface_Mesh::get_number_of_vertices() )
+        {
+            mVertexBases.resize( mMesh->get_mtk_cell( 0 ).get_number_of_vertices(), Surface_Mesh::get_number_of_vertices() );
+            mVertexBackgroundElements.resize( Surface_Mesh::get_number_of_vertices() );
+        }
+
+        // Compute the bases for all facet vertices
+        for ( uint iVertexIndex = 0; iVertexIndex < Surface_Mesh::get_number_of_vertices(); iVertexIndex++ )
+        {
+            // Get this vertex's coordinates
+            Matrix< DDRMat > tVertexCoordinates = Surface_Mesh::get_vertex_coordinates( iVertexIndex );
+
+            Matrix< DDRMat > tVertexParametricCoordinates( tSpatialDimension, 1 );
+
+            // Determine which element this vertex lies in, will be the same for every field
+            mVertexBackgroundElements( iVertexIndex ) = this->find_background_element_from_global_coordinates( tVertexCoordinates );
+
+            // check if the vertex is inside the mesh domain
+            if ( mVertexBackgroundElements( iVertexIndex ) != nullptr )
+            {
+                // Get the bounding box for this element
+                Vector< Vector< real > > tElementBoundingBox = this->determine_mtk_cell_bounding_box( mVertexBackgroundElements( iVertexIndex ) );
+
+                // determine the local coordinates of the vertex inside the mtk::Cell
+                for ( uint iDimensionIndex = 0; iDimensionIndex < tSpatialDimension; iDimensionIndex++ )
+                {
+                    tVertexParametricCoordinates( iDimensionIndex, 0 ) = 2.0 * ( tVertexCoordinates( iDimensionIndex ) - tElementBoundingBox( 0 )( iDimensionIndex ) )
+                                                                               / ( tElementBoundingBox( 1 )( iDimensionIndex ) - tElementBoundingBox( 0 )( iDimensionIndex ) )
+                                                                       - 1.0;
+                }
+
+                // Get the basis function values at the vertex location
+                Matrix< DDRMat > tBasis = this->compute_vertex_basis( mVertexBackgroundElements( iVertexIndex ), tVertexParametricCoordinates );
+                mVertexBases.set_column( iVertexIndex, trans( tBasis ) );
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    real Surface_Mesh_Geometry::interpolate_perturbation_from_background_element(
+            const mtk::Cell* aBackgroundElement,
+            const uint       aFieldIndex,
+            const uint       aFacetVertexIndex )
+    {
+        // get the indices and coordinates of the background element vertices
+        Matrix< IndexMat > tVertexIndices        = aBackgroundElement->get_vertex_inds();
+        Matrix< DDRMat >   tAllVertexCoordinates = aBackgroundElement->get_vertex_coords();
+
+        // initialize field value at the node location
+        real tPerturbation = 0.0;
+
+        // get perturbation values at the vertices
+        for ( uint iBackgroundNodeIndex = 0; iBackgroundNodeIndex < aBackgroundElement->get_number_of_vertices(); iBackgroundNodeIndex++ )
+        {
+            // add this vertex's field value to the value
+            tPerturbation += mVertexBases.get_column( aFacetVertexIndex )( iBackgroundNodeIndex ) * mPerturbationFields( aFieldIndex )->get_field_value( tVertexIndices( iBackgroundNodeIndex ), { {} } );
+        }
+
+        return tPerturbation;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Vector< std::shared_ptr< mtk::Field > > Surface_Mesh_Geometry::get_mtk_fields()
+    {
+        return {};
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    std::string
+    Surface_Mesh_Geometry::get_name()
+    {
+        return mName;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Vector< std::string >
+    Surface_Mesh_Geometry::get_field_names()
+    {
+        Vector< std::string > tFieldNames( mPerturbationFields.size() );
+        for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
+        {
+            // Should never be empty, as they are created by the geometry with a name
+            tFieldNames( iFieldIndex ) = mPerturbationFields( iFieldIndex )->get_name();
+        }
+
+        return tFieldNames;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Vector< std::shared_ptr< Field > >
+    Surface_Mesh_Geometry::get_fields()
+    {
+        return mPerturbationFields;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     void Surface_Mesh_Geometry::get_design_info(
-            uint                    aNodeIndex,
+            const uint              aNodeIndex,
             const Matrix< DDRMat >& aCoordinates,
             Vector< real >&         aOutputDesignInfo )
     {
@@ -803,338 +1155,6 @@ namespace moris::gen
 
     void Surface_Mesh_Geometry::update_dependencies( const Vector< std::shared_ptr< Design > >& aAllUpdatedDesigns )
     {
-    }
-
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    Vector< Vector< real > >
-    Surface_Mesh_Geometry::determine_mtk_cell_bounding_box( mtk::Cell* aElement )
-    {
-        // Initialize a bounding box
-        Vector< Vector< real > > tBoundingBox( 2, Vector< real >( Surface_Mesh::get_spatial_dimension() ) );
-
-        Matrix< DDRMat > tCurrentSearchElementVertexCoordinates = aElement->get_vertex_coords();
-
-        // Build bounding box, set the box as the coordinates for the first vertex
-        for ( uint iDimensionIndex = 0; iDimensionIndex < tCurrentSearchElementVertexCoordinates.n_cols(); iDimensionIndex++ )
-        {
-            tBoundingBox( 0 )( iDimensionIndex ) = tCurrentSearchElementVertexCoordinates( 0, iDimensionIndex );
-            tBoundingBox( 1 )( iDimensionIndex ) = tCurrentSearchElementVertexCoordinates( 0, iDimensionIndex );
-
-            // Loop over the rest of the vertices
-            for ( uint iVertexIndex = 1; iVertexIndex < tCurrentSearchElementVertexCoordinates.n_rows(); iVertexIndex++ )
-            {
-                // check if the entry is less than the minimum
-                if ( tCurrentSearchElementVertexCoordinates( iVertexIndex, iDimensionIndex ) < tBoundingBox( 0 )( iDimensionIndex ) )
-                {
-                    tBoundingBox( 0 )( iDimensionIndex ) = tCurrentSearchElementVertexCoordinates( iVertexIndex, iDimensionIndex );
-                }
-                // check if the entry is greater than the maximum
-                if ( tCurrentSearchElementVertexCoordinates( iVertexIndex, iDimensionIndex ) > tBoundingBox( 1 )( iDimensionIndex ) )
-                {
-                    tBoundingBox( 1 )( iDimensionIndex ) = tCurrentSearchElementVertexCoordinates( iVertexIndex, iDimensionIndex );
-                }
-            }
-        }
-
-        return tBoundingBox;
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    void Surface_Mesh_Geometry::flood_fill_mesh_regions( const mtk::Mesh* aMesh )
-    {
-        Tracer tTracer( "GEN", "Surface_Mesh_Geometry", "Flood fill mesh nodes" );
-
-        using ExecutionSpace = Kokkos::DefaultExecutionSpace;
-        using MemorySpace    = ExecutionSpace::memory_space;
-        ExecutionSpace tExecutionSpace{};
-
-        // ----------------------------------------------------------------------------------------------
-        // Initial setup for flood fill
-        // ----------------------------------------------------------------------------------------------
-
-        uint tNumNodes = aMesh->get_num_nodes();
-
-        // Matrix< DDRMat >      tNodeCoordinates( Surface_Mesh::get_spatial_dimension(), tNumNodes );
-        Vector< moris_index > tCellIndices( tNumNodes );
-
-        // Build the element connectivity from the interpolation mesh
-        Matrix< IndexMat > tNodeConnectivity;
-        for ( uint iNode = 0; iNode < tNumNodes; iNode++ )
-        {
-            // Get the connectivity for this node
-            Matrix< IndexMat > tSingleNodeConnectivity = aMesh->get_entity_connected_to_entity_loc_inds( iNode, mtk::EntityRank::NODE, mtk::EntityRank::NODE );
-
-            // If this node has more neighbors than any others, resize the connectivity matrix
-            if ( tSingleNodeConnectivity.length() > tNodeConnectivity.n_cols() )
-            {
-                // Get the previous length
-                uint tPreviousLength = tNodeConnectivity.n_cols();
-
-                // Resize the connectivity matrix for the new max number of neighbors
-                tNodeConnectivity.resize( tNumNodes, tSingleNodeConnectivity.length() );
-
-                // Backfill the previous neighbors with gNoIndex NOTE: This will only work if the Matrix is column major
-                std::fill( tNodeConnectivity.begin() + tNumNodes * tPreviousLength, tNodeConnectivity.end(), gNoIndex );
-            }
-
-            // Set the connectivity for this node
-            for ( uint iConnection = 0; iConnection < tNodeConnectivity.n_cols(); iConnection++ )
-            {
-                tNodeConnectivity( iNode, iConnection ) = iConnection < tSingleNodeConnectivity.length() ? tSingleNodeConnectivity( iConnection, 0 ) : gNoIndex;
-            }
-        }
-
-        // Dummy phase index for the entire mesh
-        Vector< moris_index > tNodesToInclude( tNumNodes, 1 );
-
-        // Active nodes (all nodes)
-        Vector< moris_index > tNodes( tNumNodes );
-        std::iota( tNodes.begin(), tNodes.end(), 0 );
-
-        // Return variable for max number of subphases
-        moris_index tMaxSubphase;
-
-        // ----------------------------------------------------------------------------------------------
-        // Determine which nodes do not lie in a surface mesh bounding box, and add them to the elements to include
-        // ----------------------------------------------------------------------------------------------
-        // Initialize to include all nodes
-        Vector< moris_index > tPhase( tNumNodes, 1 );
-
-        // Initialize the results and offsets
-        Kokkos::View< ElementQueryResult*, MemorySpace > tResults( "values", 0 );
-        Kokkos::View< int*, MemorySpace >                tOffsets( "offsets", 0 );
-
-        // Build the struct for the bounding boxes for the mesh
-        QueryElements< MemorySpace > tQueryElements = this->construct_query_elements< MemorySpace >( aMesh, tExecutionSpace );
-
-        // Query the bounding volume hierarchy for the surface mesh
-        mBVH.query( tExecutionSpace, tQueryElements, ElementIntersectionCallback< MemorySpace >{ tQueryElements }, tResults, tOffsets );
-
-        for ( size_t iIntersection = 0; iIntersection < tResults.extent( 0 ); ++iIntersection )
-        {
-            // Get the element that was intersected
-            moris_index iElement = tResults( iIntersection ).mElementIndex;
-
-            Matrix< IndexMat > tNodesConnectedToElement = aMesh->get_nodes_connected_to_element_loc_inds( iElement );
-
-            // Flag all of the nodes associated with the element
-            for ( auto iNode : tNodesConnectedToElement )
-            {
-                tPhase( iNode ) = 0;
-            }
-        }
-
-        // ----------------------------------------------------------------------------------------------
-        // Run flood fill algorithm and get the subphases
-        // ----------------------------------------------------------------------------------------------
-
-        Matrix< IndexMat > tSubphases = mtk::flood_fill(
-                tNodeConnectivity,
-                tPhase,
-                tNodes,
-                tNodesToInclude,
-                gNoIndex,
-                tMaxSubphase,
-                true );
-
-        // ----------------------------------------------------------------------------------------------
-        // Assign the correct geometric region to each subphase
-        // ----------------------------------------------------------------------------------------------
-
-        // For every subphase, determine the geometric region via a raycast (or leave as undefined if the node is in a bounding box)
-        Vector< mtk::Mesh_Region > tSubPhaseMeshRegions( tMaxSubphase + 1, mtk::Mesh_Region::UNDEFINED );
-        for ( int iSubphase = 0; iSubphase < tMaxSubphase + 1; iSubphase++ )
-        {
-            // Get the first index of this subphase for seeding
-            moris_index iIndex = std::distance( tSubphases.cbegin(), std::find( tSubphases.cbegin(), tSubphases.cend(), iSubphase ) );
-
-            tSubPhaseMeshRegions( iSubphase ) = tPhase( iIndex ) == 0 ? mtk::Mesh_Region::UNDEFINED : Surface_Mesh::get_region_from_raycast( aMesh->get_node_coordinate( iIndex ) );
-        }
-
-        // Loop through the nodes and assign their regions
-        for ( uint iNode = 0; iNode < tNumNodes; iNode++ )
-        {
-            if ( tSubPhaseMeshRegions( tSubphases( iNode, 0 ) ) != mtk::Mesh_Region::UNDEFINED )
-            {
-                mNodeMeshRegions[ iNode ] = tSubPhaseMeshRegions( tSubphases( iNode, 0 ) );
-            }
-        }
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    void Surface_Mesh_Geometry::raycast_remaining_unknown_nodes( const mtk::Mesh* aMesh )
-    {
-        Tracer tTracer( "GEN", "Surface_Mesh_Geometry", "Raycast remaining unknown nodes" );
-
-        // Get the number of nodes in the mesh and the spatial dimension
-        uint tDims     = Surface_Mesh::get_spatial_dimension();
-        uint tNumNodes = aMesh->get_num_nodes();
-
-        // Initialize a vector to store unknown node indices and their coordinates
-        Vector< uint > tUnknownNodes;
-        tUnknownNodes.reserve( tNumNodes );    // Reserve space to avoid multiple allocations
-
-        // Initialize a matrix to store the coordinates of unknown nodes
-        Matrix< DDRMat > tUnknownNodeCoordinates( tDims, tNumNodes );
-
-        // Fill the vector and matrix with unknown node indices and their coordinates
-        uint tNumUnknownNodes = 0;
-        for ( uint iNode = 0; iNode < tNumNodes; ++iNode )
-        {
-            if ( mNodeMeshRegions.find( iNode ) == mNodeMeshRegions.end() )
-            {
-                tUnknownNodes.emplace_back( iNode );
-                tUnknownNodeCoordinates.set_column( tNumUnknownNodes++, trans( aMesh->get_node_coordinate( iNode ) ) );
-            }
-        }
-        tUnknownNodeCoordinates.resize( tDims, tNumUnknownNodes );    // trim the matrix to the correct size
-
-        // Batch cast all of the points
-        Vector< mtk::Mesh_Region > tUnknownNodeRegions = Surface_Mesh::batch_get_region_from_raycast( tUnknownNodeCoordinates );
-
-        // Assign the regions to the unknown nodes
-        for ( uint iNode = 0; iNode < tNumUnknownNodes; ++iNode )
-        {
-            mNodeMeshRegions[ tUnknownNodes( iNode ) ] = tUnknownNodeRegions( iNode );
-        }
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    mtk::Cell* Surface_Mesh_Geometry::find_background_element_from_global_coordinates( mtk::Mesh* aMesh, const Matrix< DDRMat >& aCoordinate )
-    {
-        uint tDim = Surface_Mesh::get_spatial_dimension();
-
-        // Loop through each mtk::Cell
-        for ( uint iCellIndex = 0; iCellIndex < aMesh->get_num_elems(); iCellIndex++ )
-        {
-            // get this Cell's bounding box
-            Vector< Vector< real > > tBoundingBox = this->determine_mtk_cell_bounding_box( &aMesh->get_mtk_cell( iCellIndex ) );
-
-            // assume the point is in this bounding box
-            bool tCoordinateInCell = true;
-
-            // Loop over the bounding box and determine if this is true
-            for ( uint iDimensionIndex = 0; iDimensionIndex < tDim; iDimensionIndex++ )
-            {
-                // check if the point is outside the bounding box in this dimension
-                if ( aCoordinate( iDimensionIndex ) < tBoundingBox( 0 )( iDimensionIndex )
-                        or aCoordinate( iDimensionIndex ) > tBoundingBox( 1 )( iDimensionIndex ) )
-                {
-                    tCoordinateInCell = false;
-                }
-            }
-
-            // The coordinate is in the cell if it is within the bounding box in every dimension
-            if ( tCoordinateInCell == true )
-            {
-                // If so, return this element's index
-                return &aMesh->get_mtk_cell( iCellIndex );
-            }
-        }
-
-        // if no element found, return -1
-        return nullptr;
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    Matrix< DDRMat > Surface_Mesh_Geometry::compute_vertex_basis(
-            mtk::Cell*              aBackgroundElement,
-            const Matrix< DDRMat >& aParametricCoordinates )
-    {
-        // build interpolator
-        mtk::Interpolation_Function_Factory tFactory;
-        mtk::Interpolation_Function_Base*   tInterpolation;
-
-        // create interpolation function based on spatial dimension of problem
-        tInterpolation = tFactory.create_interpolation_function(
-                aBackgroundElement->get_geometry_type(),
-                mtk::Interpolation_Type::LAGRANGE,
-                aBackgroundElement->get_interpolation_order() );
-
-        // compute basis function at the vertices
-        Matrix< DDRMat > tBasis;
-        tInterpolation->eval_N( aParametricCoordinates, tBasis );
-
-        // clean up
-        delete tInterpolation;
-
-        return tBasis;
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    void Surface_Mesh_Geometry::update_vertex_basis_data( mtk::Mesh* aMesh )
-    {
-        // Get the spatial dimension
-        uint tSpatialDimension = Surface_Mesh::get_spatial_dimension();
-
-        // Set size if it has not been set already
-        if ( mVertexBases.n_cols() != Surface_Mesh::get_number_of_vertices() )
-        {
-            mVertexBases.resize( aMesh->get_mtk_cell( 0 ).get_number_of_vertices(), Surface_Mesh::get_number_of_vertices() );
-            mVertexBackgroundElements.resize( Surface_Mesh::get_number_of_vertices() );
-        }
-
-        // Compute the bases for all facet vertices
-        for ( uint iVertexIndex = 0; iVertexIndex < Surface_Mesh::get_number_of_vertices(); iVertexIndex++ )
-        {
-            // Get this vertex's coordinates
-            Matrix< DDRMat > tVertexCoordinates = Surface_Mesh::get_vertex_coordinates( iVertexIndex );
-
-            Matrix< DDRMat > tVertexParametricCoordinates( tSpatialDimension, 1 );
-
-            // Determine which element this vertex lies in, will be the same for every field
-            mVertexBackgroundElements( iVertexIndex ) = this->find_background_element_from_global_coordinates( aMesh, tVertexCoordinates );
-
-            // check if the vertex is inside the mesh domain
-            if ( mVertexBackgroundElements( iVertexIndex ) != nullptr )
-            {
-                // Get the bounding box for this element
-                Vector< Vector< real > > tElementBoundingBox = this->determine_mtk_cell_bounding_box( mVertexBackgroundElements( iVertexIndex ) );
-
-                // determine the local coordinates of the vertex inside the mtk::Cell
-                for ( uint iDimensionIndex = 0; iDimensionIndex < tSpatialDimension; iDimensionIndex++ )
-                {
-                    tVertexParametricCoordinates( iDimensionIndex, 0 ) = 2.0 * ( tVertexCoordinates( iDimensionIndex ) - tElementBoundingBox( 0 )( iDimensionIndex ) )
-                                                                               / ( tElementBoundingBox( 1 )( iDimensionIndex ) - tElementBoundingBox( 0 )( iDimensionIndex ) )
-                                                                       - 1.0;
-                }
-
-                // Get the basis function values at the vertex location
-                Matrix< DDRMat > tBasis = this->compute_vertex_basis( mVertexBackgroundElements( iVertexIndex ), tVertexParametricCoordinates );
-                mVertexBases.set_column( iVertexIndex, trans( tBasis ) );
-            }
-        }
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    real Surface_Mesh_Geometry::interpolate_perturbation_from_background_element(
-            mtk::Cell* aBackgroundElement,
-            uint       aFieldIndex,
-            uint       aFacetVertexIndex )
-    {
-        // get the indices and coordinates of the background element vertices
-        Matrix< IndexMat > tVertexIndices        = aBackgroundElement->get_vertex_inds();
-        Matrix< DDRMat >   tAllVertexCoordinates = aBackgroundElement->get_vertex_coords();
-
-        // initialize field value at the node location
-        real tPerturbation = 0.0;
-
-        // get perturbation values at the vertices
-        for ( uint iBackgroundNodeIndex = 0; iBackgroundNodeIndex < aBackgroundElement->get_number_of_vertices(); iBackgroundNodeIndex++ )
-        {
-            // add this vertex's field value to the value
-            tPerturbation += mVertexBases.get_column( aFacetVertexIndex )( iBackgroundNodeIndex ) * mPerturbationFields( aFieldIndex )->get_field_value( tVertexIndices( iBackgroundNodeIndex ), { {} } );
-        }
-
-        return tPerturbation;
     }
 
     //--------------------------------------------------------------------------------------------------------------

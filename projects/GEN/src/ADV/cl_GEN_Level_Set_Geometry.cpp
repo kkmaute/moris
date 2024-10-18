@@ -609,7 +609,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void Level_Set_Geometry::get_design_info(
-            uint                    aNodeIndex,
+            const uint              aNodeIndex,
             const Matrix< DDRMat >& aCoordinates,
             Vector< real >&         aOutputDesignInfo )
     {
