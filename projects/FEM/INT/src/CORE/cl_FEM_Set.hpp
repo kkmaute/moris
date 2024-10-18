@@ -174,12 +174,17 @@ namespace moris
             // enum for perturbation strategy used for FD (FA and SA)
             fem::Perturbation_Type mPerturbationStrategy = fem::Perturbation_Type::RELATIVE;
 
-            Vector< std::shared_ptr< gen::Design_Extraction_Operator > > mIGExtractionOperators;
-            map< sint, sint >                                            mVertexMeshIndexToClusterIndexMap;
+            map< sint, sint > mVertexMeshIndexToClusterIndexMap;
 
-            // Vector< sint >             mAdvGeoAssemblyVector;
-            Vector< Matrix< DDRMat > > mAdvGeoWeights;           // Vector of each node with Adv weights
-            Matrix< DDRMat >           mCurrrentAdvGeoWeight;    // Adv weight of current node
+            Vector< std::shared_ptr< gen::Design_Extraction_Operator > > mIGExtractionOperators;
+            Vector< std::shared_ptr< gen::Design_Extraction_Operator > > mIPExtractionOperatorsLeader;
+            Vector< std::shared_ptr< gen::Design_Extraction_Operator > > mIPExtractionOperatorsFollower;
+
+            Vector< Matrix< DDRMat > > mAdvGeoWeights;             // Vector of each node with Adv weights
+            Vector< Matrix< DDRMat > > mAdvPropWeightsLeader;      // Vector of each node with Adv weights
+            Vector< Matrix< DDRMat > > mAdvPropWeightsFollower;    // Vector of each node with Adv weights
+
+            Matrix< DDRMat > mCurrrentAdvGeoWeight;    // Adv weight of current node
 
             friend class MSI::Equation_Object;
             friend class Cluster;
