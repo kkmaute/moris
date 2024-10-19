@@ -250,7 +250,7 @@ namespace moris
         aParameterLists.set( "PDV_types", "DENSITY" );
 
         // Geometry parameter lists
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::USER_DEFINED );
         aParameterLists.set( "field_function_name", "Func_Right_Plane" );
 
         // Density property
@@ -415,7 +415,7 @@ namespace moris
         aParameterLists.set( "TSA_Output_Indices", "0" );
         aParameterLists.set( "TSA_Output_Criteria", "Output_Criterion" );
 
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::IFPACK );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::IFPACK );
         aParameterLists.set( "ifpack_prec_type", "ILU" );
     }
 

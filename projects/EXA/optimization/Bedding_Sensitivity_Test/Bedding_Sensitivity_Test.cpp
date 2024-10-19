@@ -326,15 +326,15 @@ namespace moris
 
         if ( tIs3D )
         {
-            aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::SPHERE ) );
+            aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::SPHERE );
             aParameterLists.set( "center_z", 0.5 );
-            aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::SPHERE ) );
+            aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::SPHERE );
             aParameterLists.set( "center_z", 0.5 );
         }
         else
         {
-            aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE ) );
-            aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE ) );
+            aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::CIRCLE );
+            aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::CIRCLE );
         }
         aParameterLists( GEN::GEOMETRIES )( 0 ).set( "center_x", 0.5 );
         aParameterLists( GEN::GEOMETRIES )( 0 ).set( "center_y", 0.5 );
@@ -446,7 +446,7 @@ namespace moris
             aParameterLists.set( "stabilization_parameters", std::string( "SPGhost_Material,GhostSP" ) );
             aParameterLists.set( "ghost_order", (uint)tDispOrder );
             aParameterLists.set( "mesh_set_names", tMaterialGhost );
-            }
+        }
 
         //------------------------------------------------------------------------------
         aParameterLists( FEM::IQI ).add_parameter_list();
@@ -474,7 +474,7 @@ namespace moris
             aParameterLists.set( "dof_quantity", tDofStrg );
             aParameterLists.set( "vectorial_field_index", 2 );
             aParameterLists.set( "mesh_set_names", tTotalDomainSets );
-            }
+        }
 
         aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkStrainEnergy" );
@@ -559,14 +559,14 @@ namespace moris
             aParameterLists.set( "Field_Names", std::string( "UX,UY,UZ,StrainEnergy,StrainEnergyWithBedding,Volume" ) );
             aParameterLists.set( "Field_Type", std::string( "NODAL,NODAL,NODAL,GLOBAL,GLOBAL,GLOBAL" ) );
             aParameterLists.set( "IQI_Names", std::string( "IQIBulkUX,IQIBulkUY,IQIBulkUZ,IQIBulkStrainEnergy,"
-                                                                    "IQIBulkStrainEnergyWithBedding,IQIBulkVolume" ) );
+                                                           "IQIBulkStrainEnergyWithBedding,IQIBulkVolume" ) );
         }
         else
         {
             aParameterLists.set( "Field_Names", std::string( "UX,UY,StrainEnergy,StrainEnergyWithBedding,Volume" ) );
             aParameterLists.set( "Field_Type", std::string( "NODAL,NODAL,GLOBAL,GLOBAL,GLOBAL" ) );
             aParameterLists.set( "IQI_Names", std::string( "IQIBulkUX,IQIBulkUY,IQIBulkStrainEnergy,"
-                                                                    "IQIBulkStrainEnergyWithBedding,IQIBulkVolume" ) );
+                                                           "IQIBulkStrainEnergyWithBedding,IQIBulkVolume" ) );
         }
 
         aParameterLists.set( "Save_Frequency", 1 );
@@ -581,7 +581,7 @@ namespace moris
     }
 
     //--------------------------------------------------------------------------------------------------------------
-    void create_petsc_parameter_list( Module_Parameter_Lists & aParameterLists )
+    void create_petsc_parameter_list( Module_Parameter_Lists& aParameterLists )
     {
 
         aParameterLists( SOL::LINEAR_ALGORITHMS ).add_parameter_list( sol::SolverType::PETSC );
@@ -592,17 +592,17 @@ namespace moris
         aParameterLists( SOL::SOLVER_WAREHOUSE ).set( "SOL_TPL_Type", sol::MapType::Petsc );
         // aParameterLists.set( "SOL_save_operator_to_matlab", "jacc_par" );
 
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::PETSC );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::PETSC );
         aParameterLists.set( "PCType", "mumps" );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void create_trilinos_parameter_list( Module_Parameter_Lists & aParameterLists )
+    void create_trilinos_parameter_list( Module_Parameter_Lists& aParameterLists )
     {
         aParameterLists( SOL::LINEAR_ALGORITHMS ).add_parameter_list( sol::SolverType::AMESOS_IMPL );
 
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::NONE );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::NONE );
     }
 
     //--------------------------------------------------------------------------------------------------------------

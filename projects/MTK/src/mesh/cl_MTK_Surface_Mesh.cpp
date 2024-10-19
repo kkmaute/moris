@@ -506,7 +506,7 @@ namespace moris::mtk
                     return std::numeric_limits< real >::quiet_NaN();
                 }
             }
-            else
+        else
             {
                 // Lines are parallel, return nan
                 return std::numeric_limits< real >::quiet_NaN();

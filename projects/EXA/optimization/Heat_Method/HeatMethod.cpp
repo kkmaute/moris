@@ -483,7 +483,7 @@ namespace moris
         aParameterLists.set( "time_offset", 10.0 );
 
         // Levelset geometry
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::USER_DEFINED );
         aParameterLists.set( "name", "ADVfield" );
         aParameterLists.set( "field_function_name", "Inclusion" );
 
@@ -695,7 +695,7 @@ namespace moris
             aParameterLists.set( "follower_dof_dependencies", "THETA" );
             aParameterLists.set( "stabilization_parameters", "SPGPTemp,GhostSP" );
             aParameterLists.set( "mesh_set_names", tOuterPhaseGhost );
-            }
+        }
 
         aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGTimeContinuityTheta" );
@@ -764,7 +764,7 @@ namespace moris
             aParameterLists.set( "follower_dof_dependencies", "PHID" );
             aParameterLists.set( "stabilization_parameters", "SPGPTemp,GhostSP" );
             aParameterLists.set( "mesh_set_names", tOuterPhaseGhost );
-            }
+        }
 
         //------------------------------------------------------------------------------
         // Nodal THETA IQI
@@ -924,7 +924,7 @@ namespace moris
 
         // ----------------------------------------------------------
 
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::NONE );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::NONE );
     }
 
     void

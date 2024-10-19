@@ -1210,7 +1210,7 @@ namespace moris
         aParameterLists.set( "time_offset", 10.0 );
 
         // Plane 0 in y = 0
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::LINE );
         aParameterLists.set( "center_x", 0.0 );
         aParameterLists.set( "center_y", 0.0 );
         aParameterLists.set( "normal_x", 0.0 );
@@ -1219,7 +1219,7 @@ namespace moris
         aParameterLists.set( "refinement_mesh_index", 0 );
 
         // Plane 1 in y = 10.0*sH
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::LINE );
         aParameterLists.set( "center_x", 0.0 );
         aParameterLists.set( "center_y", 10.0 * sH );
         aParameterLists.set( "normal_x", 0.0 );
@@ -1228,7 +1228,7 @@ namespace moris
         aParameterLists.set( "refinement_mesh_index", 0 );
 
         // Plane 2 in x = 0.0*sH
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::LINE );
         aParameterLists.set( "center_x", 2.0 * sH );
         aParameterLists.set( "center_y", 0.0 );
         aParameterLists.set( "normal_x", 1.0 );
@@ -1237,7 +1237,7 @@ namespace moris
         aParameterLists.set( "refinement_mesh_index", 0 );
 
         // Plane 3 in x = 12.0*sH
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::LINE );
         aParameterLists.set( "center_x", 12.0 * sH );
         aParameterLists.set( "center_y", 0.0 );
         aParameterLists.set( "normal_x", 1.0 );
@@ -1246,7 +1246,7 @@ namespace moris
         aParameterLists.set( "refinement_mesh_index", 0 );
 
         // Thin wall inner 4
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::USER_DEFINED );
         aParameterLists.set( "field_function_name", "Func_Thin_Wall" );
         aParameterLists( 1 ).insert( "variable_1", 6.5 * sH );
         aParameterLists( 1 ).insert( "variable_2", 5.0 * sH );
@@ -1260,7 +1260,7 @@ namespace moris
         aParameterLists.set( "refinement_mesh_index", 0 );
 
         // Thin wall outer 5
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::USER_DEFINED );
         aParameterLists.set( "field_function_name", "Func_Thin_Wall" );
         aParameterLists( 1 ).insert( "variable_1", 6.5 * sH );
         aParameterLists( 1 ).insert( "variable_2", 5.0 * sH );
@@ -1274,7 +1274,7 @@ namespace moris
         aParameterLists.set( "refinement_mesh_index", 0 );
 
         // Inclusions 6
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::USER_DEFINED );
         aParameterLists.set( "field_function_name", "Func_Inclusion" );
         aParameterLists.set( "name", "Level_Set_Field" );
         aParameterLists.set( "number_of_refinements", tInterfaceRefinementInclusion );
@@ -1332,7 +1332,7 @@ namespace moris
             std::cout << "tPhiGamma                " << tPhiGamma << "\n";
         }
 
-         //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         aParameterLists( FEM::PHASES ).add_parameter_list();
         aParameterLists.set( "phase_name", "PhaseVoid" );
@@ -1836,7 +1836,7 @@ namespace moris
                     "PropWeightUV,             WeightPrevious;"
                     "PropInitialConditionU,    InitialCondition;"
                     "PropWeightResUV,          WeightResidual" );
-            }
+        }
 
         // inlet viscosity
         aParameterLists( FEM::IWG ).add_parameter_list();
@@ -1873,7 +1873,7 @@ namespace moris
                     "PropWeightUV,             WeightPrevious;"
                     "PropInitialConditionV,    InitialCondition;"
                     "PropWeightResUV,          WeightResidual" );
-            }
+        }
 
         if ( tUseGhost )
         {
@@ -2597,7 +2597,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::NONE );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::NONE );
     }
 
     void

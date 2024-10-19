@@ -356,7 +356,7 @@ namespace moris
         //        aParameterLists( 1 ).push_back( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         //        aParameterLists.set( "field_function_name", "Interface" );
         //
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::LINE );
         aParameterLists.set( "center_x", 0.1, 0.4, 0.7 );
         aParameterLists.set( "center_y", 0.0 );
         aParameterLists.set( "normal_x", 1.0 );
@@ -1004,7 +1004,7 @@ namespace moris
 
         if ( gUseBelosWithILUT )
         {
-            aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::IFPACK );
+            aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::IFPACK );
             aParameterLists.set( "Convergence Tolerance", 1e-12 );
             aParameterLists.set( "ifpack_prec_type", "ILUT" );
             aParameterLists.set( "fact: drop tolerance", 1e-10 );
@@ -1015,7 +1015,7 @@ namespace moris
         }
         else
         {
-            aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::NONE );
+            aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::NONE );
             aParameterLists( SOL::LINEAR_ALGORITHMS ).add_parameter_list( sol::SolverType::AMESOS_IMPL );
         }
 

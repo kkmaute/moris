@@ -189,14 +189,14 @@ namespace moris
         // Geometry parameter lists
 
         // vertical line
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::LINE );
         aParameterLists.set( "center_x", 0.8, 0.8, 0.8 );
         aParameterLists.set( "center_y", 0.3 );
         aParameterLists.set( "normal_x", 1.0 );
         aParameterLists.set( "normal_y", 0.0, 0.0, 0.0 );
 
         // oblique line
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::LINE );
         aParameterLists.set( "center_x", -0.6, -0.6, -0.6 );
         aParameterLists.set( "center_y", -0.3, -0.3, -0.3 );
         aParameterLists.set( "normal_x", 1.0, 1.0, 1.0 );
@@ -206,7 +206,7 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    FEMParameterList( Module_Parameter_Lists& aParameterLists )
+    FEMParameterList( Module_Parameter_Lists &aParameterLists )
     {
         aParameterLists.hack_for_legacy_fem();
         // create a cell of cell of parameter list for fem
@@ -365,7 +365,7 @@ namespace moris
 
         aParameterLists( SOL::SOLVER_WAREHOUSE ).set( "Sensitivity_Analysis_Type", sol::SensitivityAnalysisType::ADJOINT );
 
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::IFPACK );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::IFPACK );
         aParameterLists.set( "ifpack_prec_type", "ILU" );
     }
 

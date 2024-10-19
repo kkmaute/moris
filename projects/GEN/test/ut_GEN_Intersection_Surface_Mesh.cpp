@@ -116,7 +116,7 @@ namespace moris::gen
             mtk::Interpolation_Mesh* tMesh = tHMR.create_interpolation_mesh( 0 );
 
             // surface mesh
-            Submodule_Parameter_Lists tFieldParameterLists( "FIELDS" );
+            Submodule_Parameter_Lists tFieldParameterLists( "GEOMETRIES" );
             tFieldParameterLists.add_parameter_list( prm::create_surface_mesh_geometry_parameter_list() );
             tFieldParameterLists.set( "file_path", tMorisRoot + "projects/GEN/test/data/triangle_sensitivity_oblique.obj" );
             tFieldParameterLists.set( "intersection_tolerance", 1e-9 );
@@ -246,7 +246,7 @@ namespace moris::gen
         mtk::Interpolation_Mesh* tMesh = tHMR.create_interpolation_mesh( 0 );
 
         // surface mesh
-        Submodule_Parameter_Lists tSurfaceMeshParameterList( "FIELDS" );
+        Submodule_Parameter_Lists tSurfaceMeshParameterList( "GEOMETRIES" );
         tSurfaceMeshParameterList.add_parameter_list( prm::create_surface_mesh_geometry_parameter_list() );
         tSurfaceMeshParameterList.set( "file_path", tMorisRoot + "projects/GEN/test/data/tetra.obj" );
         tSurfaceMeshParameterList.set( "intersection_tolerance", 1e-8 );

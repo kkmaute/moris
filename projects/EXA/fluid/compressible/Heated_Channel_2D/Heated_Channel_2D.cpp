@@ -125,9 +125,9 @@ namespace moris
     // Constant function for properties
     void
     Func_Const(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         aPropMatrix = aParameters( 0 );
     }
@@ -137,9 +137,9 @@ namespace moris
     // heat load distribution
     void
     Func_Heat_Load_Distribution(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         // get x-coordinate
         real tX = aFIManager->get_IP_geometry_interpolator()->valx()( 0 );
@@ -156,9 +156,9 @@ namespace moris
     // initial pressure
     void
     Func_Initial_Pressure(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         aPropMatrix = { { tInitialPressure } };
     }
@@ -166,9 +166,9 @@ namespace moris
     // initial velocity
     void
     Func_Initial_Velocity(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         aPropMatrix = { { 0.0 }, { 0.0 } };
     }
@@ -176,9 +176,9 @@ namespace moris
     // initial pressure
     void
     Func_Initial_Temperature(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         aPropMatrix = { { tInitialTemperature } };
     }
@@ -188,9 +188,9 @@ namespace moris
     // local mach Number
     void
     Func_Mach_Number(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         // get field values
         real tTemp   = aFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP )->val()( 0 );
@@ -209,9 +209,9 @@ namespace moris
     // local reynolds Number
     void
     Func_Reynolds_Number(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         // get field values
         real tTemp   = aFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP )->val()( 0 );
@@ -239,8 +239,8 @@ namespace moris
 
     moris::real
     Func_Dummy_Plane(
-            const moris::Matrix< DDRMat >&     aCoordinates,
-            const Vector< real >& aGeometryParameters )
+            const moris::Matrix< DDRMat >& aCoordinates,
+            const Vector< real >&          aGeometryParameters )
     {
         moris::real aReturnValue = aCoordinates( 1 ) - 10000;    // tPlaneBottom - 0.01;
         return aReturnValue;
@@ -308,7 +308,7 @@ namespace moris
     GENParameterList( Module_Parameter_Lists& aParameterLists )
     {
         // Dummy plane
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::USER_DEFINED );
         aParameterLists.set( "field_function_name", "Func_Dummy_Plane" );
     }
 
@@ -511,7 +511,7 @@ namespace moris
             {
                 aParameterLists.set( "stabilization_parameters", "DummySP,GLS" );
             }
-            }
+        }
 
         // Boundary IWG for top and bottom
         // Boundary IWG inlet
@@ -548,7 +548,7 @@ namespace moris
             aParameterLists.set( "leader_material_model", "MMFluid,FluidMM" );
             aParameterLists.set( "leader_constitutive_models", "CMFluid,FluidCM" );
             aParameterLists.set( "stabilization_parameters", "NitscheSP,NitschePenaltyParameter" );
-            }
+        }
 
         // Nitsche IWGs for Outlets
         if ( tHaveFixedEnds )
@@ -621,7 +621,7 @@ namespace moris
                     "PropWeightPrevious,WeightPrevious;"
                     "PropInitialTemperature,InitialCondition" );
             aParameterLists.set( "time_continuity", true );
-            }
+        }
 
         //------------------------------------------------------------------------------
         // fill the IQI part of the parameter list
@@ -731,7 +731,7 @@ namespace moris
             aParameterLists.set( "TSA_Save_Sol_Vecs_to_file", "SolVec" );
         }
 
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::NONE );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::NONE );
     }
 
     //------------------------------------------------------------------------------
@@ -748,7 +748,7 @@ namespace moris
     VISParameterList( Module_Parameter_Lists& aParameterLists )
     {
         aParameterLists.set( "File_Name", std::pair< std::string, std::string >( "./", "Heated_Channel_2D.exo" ) );
-        aParameterLists.set( "Mesh_Type",  vis::VIS_Mesh_Type::STANDARD ) ;
+        aParameterLists.set( "Mesh_Type", vis::VIS_Mesh_Type::STANDARD );
         aParameterLists.set( "Set_Names", sFluid );
         aParameterLists.set( "Field_Names", "P,VX,VY,TEMP,Ma,Re,Q" );
         aParameterLists.set( "Field_Type", "NODAL,NODAL,NODAL,NODAL,NODAL,NODAL,NODAL" );

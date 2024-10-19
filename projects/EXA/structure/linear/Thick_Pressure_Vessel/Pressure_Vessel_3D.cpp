@@ -231,10 +231,10 @@ namespace moris
     GENParameterList( Module_Parameter_Lists& aParameterLists )
     {
         // Geometry parameter lists
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::SPHERE ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::SPHERE );
         aParameterLists.set( "radius", tOuterRad );
 
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::SPHERE ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::SPHERE );
         aParameterLists.set( "radius", tInnerRad );
     }
     /* ------------------------------------------------------------------------ */
@@ -565,7 +565,7 @@ namespace moris
         aParameterLists.set( "TSA_Output_Indices", "0" );
         aParameterLists.set( "TSA_Output_Criteria", "Output_Criterion" );
 
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::NONE );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::NONE );
     }
 
     /* ------------------------------------------------------------------------ */

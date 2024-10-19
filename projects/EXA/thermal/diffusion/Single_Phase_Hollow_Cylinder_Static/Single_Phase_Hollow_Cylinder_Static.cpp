@@ -54,9 +54,9 @@ namespace moris
 
     void
     AnalyticTemperatureFunc(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         // get parameters
         real RInner  = tRIn;                                // inner radius
@@ -80,18 +80,18 @@ namespace moris
     // Constant function for properties
     void
     Func_Const(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         aPropMatrix = aParameters( 0 );
     }
 
     void
     AnalyticdTemperaturedxFunc(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         // flux
         real tQ = tImposedFlux * 2 * M_PI * tROut;    // heat load (W)
@@ -165,10 +165,10 @@ namespace moris
     GENParameterList( Module_Parameter_Lists& aParameterLists )
     {
         // Geometry parameter lists
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::CIRCLE );
         aParameterLists.set( "radius", 2.0 );
 
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::CIRCLE );
         aParameterLists.set( "radius", 1.0 );
     }
 
@@ -215,7 +215,7 @@ namespace moris
         // create parameter list for constitutive model 1
         aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list();
         aParameterLists.set( "constitutive_name", "CMDiffusion" );
-        aParameterLists.set( "constitutive_type",  fem::Constitutive_Type::DIFF_LIN_ISO ) ;
+        aParameterLists.set( "constitutive_type", fem::Constitutive_Type::DIFF_LIN_ISO );
         aParameterLists.set( "dof_dependencies", std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
         aParameterLists.set( "properties", "PropConductivity,Conductivity" );
 
@@ -225,14 +225,14 @@ namespace moris
         // create parameter list for stabilization parameter 1
         aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", "SPDirichletNitscheTemp" );
-        aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::DIRICHLET_NITSCHE ) ;
+        aParameterLists.set( "stabilization_type", fem::Stabilization_Type::DIRICHLET_NITSCHE );
         aParameterLists.set( "function_parameters", std::to_string( tDirichletNitsche ) );
         aParameterLists.set( "leader_properties", "PropConductivity,Material" );
 
         // create parameter list for stabilization parameter 2
         aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", "SPGPTemperature" );
-        aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::GHOST_DISPL ) ;
+        aParameterLists.set( "stabilization_type", fem::Stabilization_Type::GHOST_DISPL );
         aParameterLists.set( "function_parameters", std::to_string( tGhostPenalty ) );
         aParameterLists.set( "leader_properties", "PropConductivity,Material" );
 
@@ -242,7 +242,7 @@ namespace moris
         // create parameter list for IWG 1
         aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGDiffusionBulk" );
-        aParameterLists.set( "IWG_type",  fem::IWG_Type::SPATIALDIFF_BULK ) ;
+        aParameterLists.set( "IWG_type", fem::IWG_Type::SPATIALDIFF_BULK );
         aParameterLists.set( "dof_residual", "TEMP" );
         aParameterLists.set( "leader_dof_dependencies", "TEMP" );
         aParameterLists.set( "leader_constitutive_models", "CMDiffusion,Diffusion" );
@@ -251,7 +251,7 @@ namespace moris
         // create parameter list for IWG 2
         aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGImposedTempIn" );
-        aParameterLists.set( "IWG_type",  fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE ) ;
+        aParameterLists.set( "IWG_type", fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
         aParameterLists.set( "dof_residual", "TEMP" );
         aParameterLists.set( "leader_dof_dependencies", "TEMP" );
         aParameterLists.set( "leader_properties", "PropImposedTemp,Dirichlet" );
@@ -262,7 +262,7 @@ namespace moris
         // create parameter list for IWG 3
         aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGImposedFluxOut" );
-        aParameterLists.set( "IWG_type",  fem::IWG_Type::SPATIALDIFF_NEUMANN ) ;
+        aParameterLists.set( "IWG_type", fem::IWG_Type::SPATIALDIFF_NEUMANN );
         aParameterLists.set( "dof_residual", "TEMP" );
         aParameterLists.set( "leader_dof_dependencies", "TEMP" );
         aParameterLists.set( "leader_properties", "PropImposedFlux,Neumann" );
@@ -271,7 +271,7 @@ namespace moris
         // create parameter list for IWG 5
         aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGGhostTemp" );
-        aParameterLists.set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
+        aParameterLists.set( "IWG_type", fem::IWG_Type::GHOST_NORMAL_FIELD );
         aParameterLists.set( "dof_residual", "TEMP" );
         aParameterLists.set( "leader_dof_dependencies", "TEMP" );
         aParameterLists.set( "follower_dof_dependencies", "TEMP" );
@@ -284,7 +284,7 @@ namespace moris
         // create parameter list for IQI 1
         aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkTEMP" );
-        aParameterLists.set( "IQI_type",  fem::IQI_Type::DOF ) ;
+        aParameterLists.set( "IQI_type", fem::IQI_Type::DOF );
         aParameterLists.set( "dof_quantity", "TEMP" );
         aParameterLists.set( "leader_dof_dependencies", "TEMP" );
         aParameterLists.set( "vectorial_field_index", 0 );
@@ -293,14 +293,14 @@ namespace moris
         // create parameter list for IQI 1
         aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkTEMPAnalytic" );
-        aParameterLists.set( "IQI_type",  fem::IQI_Type::PROPERTY ) ;
+        aParameterLists.set( "IQI_type", fem::IQI_Type::PROPERTY );
         aParameterLists.set( "leader_properties", "PropAnalyticTemp,Property" );
         aParameterLists.set( "mesh_set_names", tSolid );
 
         // create parameter list for IQI 2
         aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkL2Error" );
-        aParameterLists.set( "IQI_type",  fem::IQI_Type::L2_ERROR_ANALYTIC ) ;
+        aParameterLists.set( "IQI_type", fem::IQI_Type::L2_ERROR_ANALYTIC );
         aParameterLists.set( "dof_quantity", "TEMP" );
         aParameterLists.set( "leader_dof_dependencies", "TEMP" );
         aParameterLists.set( "leader_properties", "PropAnalyticTemp,L2Check" );
@@ -309,7 +309,7 @@ namespace moris
         // create parameter list for IQI 3
         aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkH1Error" );
-        aParameterLists.set( "IQI_type",  fem::IQI_Type::H1_ERROR_ANALYTIC ) ;
+        aParameterLists.set( "IQI_type", fem::IQI_Type::H1_ERROR_ANALYTIC );
         aParameterLists.set( "dof_quantity", "TEMP" );
         aParameterLists.set( "leader_dof_dependencies", "TEMP" );
         aParameterLists.set( "leader_properties", "PropAnalyticdTempdx,H1Check" );
@@ -317,7 +317,7 @@ namespace moris
 
         aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIMaxTEMP" );
-        aParameterLists.set( "IQI_type",  fem::IQI_Type::MAX_DOF ) ;
+        aParameterLists.set( "IQI_type", fem::IQI_Type::MAX_DOF );
         aParameterLists.set( "dof_quantity", "TEMP" );
         aParameterLists.set( "leader_dof_dependencies", "TEMP" );
         aParameterLists.set( "function_parameters", "5.0/30.0" );
@@ -325,7 +325,7 @@ namespace moris
 
         aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIVolume" );
-        aParameterLists.set( "IQI_type",  fem::IQI_Type::VOLUME ) ;
+        aParameterLists.set( "IQI_type", fem::IQI_Type::VOLUME );
         aParameterLists.set( "leader_dof_dependencies", "TEMP" );
         aParameterLists.set( "mesh_set_names", tSolid );
 
@@ -356,7 +356,7 @@ namespace moris
         aParameterLists.set( "TSA_Output_Indices", "0" );
         aParameterLists.set( "TSA_Output_Criteria", "Output_Criterion" );
 
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::NONE );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::NONE );
     }
 
     void
@@ -368,7 +368,7 @@ namespace moris
     VISParameterList( Module_Parameter_Lists& aParameterLists )
     {
         aParameterLists.set( "File_Name", std::pair< std::string, std::string >( "./", "Single_Phase_Hollow_Cylinder_Static.exo" ) );
-        aParameterLists.set( "Mesh_Type",  vis::VIS_Mesh_Type::STANDARD ) ;
+        aParameterLists.set( "Mesh_Type", vis::VIS_Mesh_Type::STANDARD );
         aParameterLists.set( "Set_Names", tSolid );
         aParameterLists.set( "Field_Names", "TEMP,TEMP_ANALYTIC,L2_ERROR_ANALYTIC,H1_ERROR_ANALYTIC,MAX_DOF,VOLUME" );
         aParameterLists.set( "Field_Type", "NODAL,NODAL,GLOBAL,GLOBAL,GLOBAL,GLOBAL" );

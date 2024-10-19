@@ -48,27 +48,27 @@ namespace moris
     // Constant function for properties
     void
     Func_Const(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         aPropMatrix = aParameters( 0 );
     }
 
     void
     Func_Initial_Condition(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         aPropMatrix = { { 313.0 } };
     }
 
     void
     Func_Wall_Condition(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         real tT = aFIManager->get_IP_geometry_interpolator()->valt()( 0 );
 
@@ -86,8 +86,8 @@ namespace moris
 
     moris::real
     Func_Bottom_Plane(
-            const moris::Matrix< DDRMat >&     aCoordinates,
-            const Vector< real >& aGeometryParameters )
+            const moris::Matrix< DDRMat >& aCoordinates,
+            const Vector< real >&          aGeometryParameters )
     {
         moris::real aReturnValue = aCoordinates( 1 ) - 10000;    // tPlaneBottom - 0.01;
         return aReturnValue;
@@ -172,7 +172,7 @@ namespace moris
     GENParameterList( Module_Parameter_Lists& aParameterLists )
     {
         // Geometry parameter lists
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::USER_DEFINED );
         aParameterLists.set( "field_function_name", "Func_Bottom_Plane" );
         aParameterLists.set( "number_of_refinements", 1 );
         aParameterLists.set( "refinement_mesh_index", 0 );
@@ -231,7 +231,7 @@ namespace moris
         // create parameter list for constitutive model 2 // Dirichlet & Neumann BC need separate CM, PC-Diffusion and normal Diffusion CM should be somehow merged in future
         aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list();
         aParameterLists.set( "constitutive_name", "CMDiffusion" );
-        aParameterLists.set( "constitutive_type",  fem::Constitutive_Type::DIFF_LIN_ISO ) ;
+        aParameterLists.set( "constitutive_type", fem::Constitutive_Type::DIFF_LIN_ISO );
         aParameterLists.set( "dof_dependencies", std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
         aParameterLists.set( "properties",
                 "PropConductivity,Conductivity;"
@@ -243,14 +243,14 @@ namespace moris
         // create parameter list for stabilization parameter 2
         aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", "SPGPTemp" );
-        aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::GHOST_DISPL ) ;
+        aParameterLists.set( "stabilization_type", fem::Stabilization_Type::GHOST_DISPL );
         aParameterLists.set( "function_parameters", "0.01" );
         aParameterLists.set( "leader_properties", "PropConductivity,Material" );
 
         // create parameter list for stabilization parameter 3
         aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", "SPGGLSDiffusion" );
-        aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::GGLS_DIFFUSION ) ;
+        aParameterLists.set( "stabilization_type", fem::Stabilization_Type::GGLS_DIFFUSION );
         aParameterLists.set( "leader_properties",
                 "PropConductivity,Conductivity;"
                 "PropDensity,Density;"
@@ -260,7 +260,7 @@ namespace moris
         // create parameter list for stabilization parameter 1
         aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", "SPNitscheTemp" );
-        aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::DIRICHLET_NITSCHE ) ;
+        aParameterLists.set( "stabilization_type", fem::Stabilization_Type::DIRICHLET_NITSCHE );
         aParameterLists.set( "function_parameters", "1000.0" );
         aParameterLists.set( "leader_properties", "PropConductivity,Material" );
 
@@ -269,7 +269,7 @@ namespace moris
         // create parameter list for IWG 1
         aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGDiffusionBulk" );
-        aParameterLists.set( "IWG_type",  fem::IWG_Type::SPATIALDIFF_BULK ) ;
+        aParameterLists.set( "IWG_type", fem::IWG_Type::SPATIALDIFF_BULK );
         aParameterLists.set( "dof_residual", "TEMP" );
         aParameterLists.set( "leader_dof_dependencies", "TEMP" );
         aParameterLists.set( "leader_constitutive_models", "CMDiffusion,Diffusion" );
@@ -279,7 +279,7 @@ namespace moris
         // create parameter list for IWG 2
         aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGOutletTemp" );
-        aParameterLists.set( "IWG_type",  fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE ) ;
+        aParameterLists.set( "IWG_type", fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
         aParameterLists.set( "dof_residual", "TEMP" );
         aParameterLists.set( "leader_dof_dependencies", "TEMP" );
         aParameterLists.set( "leader_properties", "PropImposedTemp,Dirichlet" );
@@ -290,7 +290,7 @@ namespace moris
         // create parameter list for IWG 5
         aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGTimeContinuityTemp" );
-        aParameterLists.set( "IWG_type",  fem::IWG_Type::TIME_CONTINUITY_DOF ) ;
+        aParameterLists.set( "IWG_type", fem::IWG_Type::TIME_CONTINUITY_DOF );
         aParameterLists.set( "dof_residual", "TEMP" );
         aParameterLists.set( "leader_dof_dependencies", "TEMP" );
         aParameterLists.set( "leader_properties",
@@ -305,7 +305,7 @@ namespace moris
         // create parameter list for IQI 4
         aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkTEMP" );
-        aParameterLists.set( "IQI_type",  fem::IQI_Type::DOF ) ;
+        aParameterLists.set( "IQI_type", fem::IQI_Type::DOF );
         aParameterLists.set( "dof_quantity", "TEMP" );
         aParameterLists.set( "leader_dof_dependencies", "TEMP" );
         aParameterLists.set( "vectorial_field_index", 0 );
@@ -343,7 +343,7 @@ namespace moris
         aParameterLists.set( "TSA_Output_Criteria", "Output_Criterion" );
         aParameterLists.set( "TSA_time_level_per_type", "TEMP,2" );
 
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::NONE );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::NONE );
     }
 
     void
@@ -355,7 +355,7 @@ namespace moris
     VISParameterList( Module_Parameter_Lists& aParameterLists )
     {
         aParameterLists.set( "File_Name", std::pair< std::string, std::string >( "./", "Fick_Problem_" + std::to_string( gTestCaseIndex ) + ".exo" ) );
-        aParameterLists.set( "Mesh_Type",  vis::VIS_Mesh_Type::STANDARD ) ;
+        aParameterLists.set( "Mesh_Type", vis::VIS_Mesh_Type::STANDARD );
         aParameterLists.set( "Set_Names", "HMR_dummy_n_p0" );
         aParameterLists.set( "Field_Names", "TEMP" );
         aParameterLists.set( "Field_Type", "NODAL" );

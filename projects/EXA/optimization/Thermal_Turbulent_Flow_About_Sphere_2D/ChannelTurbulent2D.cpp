@@ -619,7 +619,7 @@ namespace moris
         aParameterLists.set( "time_offset", 10.0 );
 
         // Inclusions
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::USER_DEFINED );
         aParameterLists.set( "field_function_name", "Func_Sphere" );
         aParameterLists.set( "sensitivity_function_name", "Func_Sphere_Deriv" );
         aParameterLists( 1 ).insert( "radius", Design_Variable( tSphereRadius * 0.9, tSphereRadius, tSphereRadius * 1.1 ) );
@@ -630,7 +630,7 @@ namespace moris
         aParameterLists.set( "intersection_tolerance", 1.0e-12 );
 
         // Inlet plane
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::USER_DEFINED );
         aParameterLists.set( "field_function_name", "Func_Plane" );
         aParameterLists( 1 ).insert( "variable_1", 1.0 );
         aParameterLists( 1 ).insert( "variable_2", 0.0 );
@@ -643,7 +643,7 @@ namespace moris
         aParameterLists.set( "intersection_tolerance", 1.0e-12 );
 
         // Out plane
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::USER_DEFINED );
         aParameterLists.set( "field_function_name", "Func_Plane" );
         aParameterLists( 1 ).insert( "variable_1", -1.0 );
         aParameterLists( 1 ).insert( "variable_2", 0.0 );
@@ -656,7 +656,7 @@ namespace moris
         aParameterLists.set( "intersection_tolerance", 1.0e-12 );
 
         // Lower plane
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::USER_DEFINED );
         aParameterLists.set( "field_function_name", "Func_Plane" );
         aParameterLists( 1 ).insert( "variable_1", 0.0 );
         aParameterLists( 1 ).insert( "variable_2", 1.0 );
@@ -669,7 +669,7 @@ namespace moris
         aParameterLists.set( "intersection_tolerance", 1.0e-12 );
 
         // Upper plane
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::USER_DEFINED );
         aParameterLists.set( "field_function_name", "Func_Plane" );
         aParameterLists( 1 ).insert( "variable_1", 0.0 );
         aParameterLists( 1 ).insert( "variable_2", -1.0 );
@@ -741,7 +741,7 @@ namespace moris
             std::cout << "Reynolds number     = " << 1.0 / std::stod( tFluidDynViscosity ) << " (" << reynolds << ")\n";
         }
 
-         //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         aParameterLists( FEM::PHASES ).add_parameter_list();
         aParameterLists.set( "phase_name", "PhaseFluid" );
@@ -1874,7 +1874,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::NONE );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::NONE );
     }
 
     void

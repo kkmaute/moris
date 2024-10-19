@@ -934,7 +934,7 @@ Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< re
         aParameterLists.set( "print_phase_table", true );
 
         // outer frame
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::USER_DEFINED );
         aParameterLists.set( "field_function_name", "general_shape_outer" );
         // aParameterLists.set( "number_of_refinements", "0,0" );
         // aParameterLists.set( "refinement_mesh_index", "0,1" );
@@ -942,7 +942,7 @@ Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< re
         aParameterLists.set( "isocontour_threshold", 1.2 );
         aParameterLists.set( "name", "Outer_shape" );
 
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::USER_DEFINED );
         aParameterLists.set( "field_function_name", "Hole_inner" );
         // aParameterLists.set( "number_of_refinements", "0,0" );
         // aParameterLists.set( "refinement_mesh_index", "0,1" );
@@ -950,7 +950,7 @@ Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< re
         aParameterLists.set( "isocontour_threshold", 1.2 );
         aParameterLists.set( "name", "Inner_Holes" );
 
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::USER_DEFINED );
         aParameterLists.set( "field_function_name", "Hole_outer" );
         // aParameterLists.set( "number_of_refinements", "0,0" );
         // aParameterLists.set( "refinement_mesh_index", "0,1" );
@@ -959,7 +959,7 @@ Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< re
         aParameterLists.set( "name", "Outer_Holes" );
 
         // initialize fins as swiss cheese geometry
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::USER_DEFINED );
         aParameterLists.set( "field_function_name", "Const_Geometry" );
         aParameterLists.set( "name", "Level_Set_Field" );
         // aParameterLists.set( "number_of_refinements", "0,0" );
@@ -1744,7 +1744,7 @@ Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< re
         aParameterLists.set( "TSA_Output_Indices", "0" );
         aParameterLists.set( "TSA_Output_Criteria", "Output_Criterion" );
 
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::NONE );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::NONE );
     }
 
     //--------------------------------------------------------------------------------------------------------------

@@ -569,7 +569,7 @@ namespace moris
         aParameterLists.set( "time_offset", 10.0 );
 
         // Inclusions
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::USER_DEFINED );
         aParameterLists.set( "field_function_name", "Func_Sphere" );
         aParameterLists.set( "number_of_refinements", tInterfaceRefinementSphere );
         aParameterLists.set( "refinement_mesh_index", 0 );
@@ -580,7 +580,6 @@ namespace moris
         aParameterLists.set( "discretization_mesh_index", 0 );
         aParameterLists.set( "discretization_lower_bound", -2.0 );
         aParameterLists.set( "discretization_upper_bound", 2.0 );
-
     }
 
     /* ------------------------------------------------------------------------ */
@@ -589,7 +588,7 @@ namespace moris
     FEMParameterList( Module_Parameter_Lists& aParameterLists )
     {
 
-         //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         aParameterLists( FEM::PHASES ).add_parameter_list();
         aParameterLists.set( "phase_name", "PhaseSolid" );
@@ -796,7 +795,7 @@ namespace moris
                     "PropInitialTemp,InitialCondition" );
             aParameterLists.set( "leader_phase_name", "PhaseSolid" );
             aParameterLists.set( "time_continuity", true );
-            }
+        }
 
         // Ghost  ----------------------------------------------------------------
 
@@ -933,7 +932,7 @@ namespace moris
             aParameterLists.set( "dof_quantity", "TEMP" );
             aParameterLists.set( "leader_phase_name", "PhaseSolid" );
             aParameterLists.set( "vectorial_field_index", 0 );
-            }
+        }
 
         //------------------------------------------------------------------------------
         // fill the computation part of the parameter list
@@ -1017,11 +1016,11 @@ namespace moris
         aParameterLists.set( "Update_Flag", false );        // 10 shift_invert
 
         // precondioerr
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::PETSC );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::PETSC );
         aParameterLists.set( "PCType", "none" );
 
         // Ifpack precondioner for the eigen solve
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::PETSC );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::PETSC );
         aParameterLists.set( "PCType", "mumps" );
 
         // **
@@ -1066,13 +1065,13 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list();    // 1: thermal subproblem
-        aParameterLists.set( "NLA_Nonlinear_solver_algorithms", "0,1" );           // set nonlinear algorithm with index 0
+        aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list();     // 1: thermal subproblem
+        aParameterLists.set( "NLA_Nonlinear_solver_algorithms", "0,1" );    // set nonlinear algorithm with index 0
         aParameterLists.set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         aParameterLists.set( "NLA_DofTypes", "TEMP" );
 
         aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list();    // 1: thermal subproblem
-        aParameterLists.set( "NLA_Nonlinear_solver_algorithms", "0" );             // set nonlinear algorithm with index 0
+        aParameterLists.set( "NLA_Nonlinear_solver_algorithms", "0" );     // set nonlinear algorithm with index 0
         aParameterLists.set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         aParameterLists.set( "NLA_DofTypes", "L2" );
 
@@ -1322,12 +1321,12 @@ namespace moris
         aParameterLists.set( "preconditioners", "1" );
 
         // ML precondioner for the linear solver
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::ML );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::ML );
         aParameterLists.set( "ml_prec_type", "NSSA" );
         aParameterLists.set( "PDE equations", 1 );
 
         // Ifpack precondioner for the eigen solve
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::IFPACK );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::IFPACK );
         aParameterLists.set( "ifpack_prec_type", "ILU" );
         aParameterLists.set( "fact: level-of-fill", 2 );
         aParameterLists.set( "fact: drop tolerance", 1.0e-2 );
@@ -1373,8 +1372,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list();    // 1: thermal subproblem
-        aParameterLists.set( "NLA_Nonlinear_solver_algorithms", "0,1,2" );         // set nonlinear algorithm with index 0
+        aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list();       // 1: thermal subproblem
+        aParameterLists.set( "NLA_Nonlinear_solver_algorithms", "0,1,2" );    // set nonlinear algorithm with index 0
         aParameterLists.set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         aParameterLists.set( "NLA_DofTypes", "TEMP" );
 

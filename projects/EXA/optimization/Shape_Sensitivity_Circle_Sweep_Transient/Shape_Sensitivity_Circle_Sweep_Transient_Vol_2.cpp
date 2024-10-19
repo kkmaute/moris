@@ -271,14 +271,14 @@ namespace moris
 
         // Geometry parameter lists
 
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::CIRCLE );
         aParameterLists.set( "center_x", 3.0, 3.0, 3.0 );
         aParameterLists.set( "center_y", 2.21, 2.21, 2.21 );
         aParameterLists.set( "radius", 1.4, 1.4, 1.4 );
     }
 
     void
-    FEMParameterList( Module_Parameter_Lists& aParameterLists )
+    FEMParameterList( Module_Parameter_Lists &aParameterLists )
     {
         aParameterLists.hack_for_legacy_fem();
         // create a cell of cell of parameter list for fem
@@ -510,7 +510,7 @@ namespace moris
 
         aParameterLists( SOL::SOLVER_WAREHOUSE ).set( "SOL_save_final_adjoint_vec_to_file", "Shape_Sensitivity_Transient_V2.hdf5" );
 
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::IFPACK );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::IFPACK );
         aParameterLists.set( "ifpack_prec_type", "ILU" );
     }
 

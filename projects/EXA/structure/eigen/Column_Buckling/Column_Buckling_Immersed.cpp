@@ -232,38 +232,38 @@ namespace moris
         gen::Field_Type tFtype = tDim == 3 ? gen::Field_Type::PLANE : gen::Field_Type::LINE;
 
         // Bottom
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( tFtype ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( tFtype );
         aParameterLists.set( "normal_x", 0.0 );
         aParameterLists.set( "normal_y", 1.0 );
 
         // Top
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( tFtype ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( tFtype );
         aParameterLists.set( "normal_x", 0.0 );
         aParameterLists.set( "center_y", 10.0 );
         aParameterLists.set( "normal_y", -1.0 );
 
         // Left
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( tFtype ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( tFtype );
         aParameterLists.set( "normal_x", 1.0 );
 
         // Right
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( tFtype ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( tFtype );
         aParameterLists.set( "center_x", 1.0 );
         aParameterLists.set( "normal_x", -1.0 );
 
         if ( tDim == 3 )
         {
             // front
-            aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( tFtype ) );
+            aParameterLists( GEN::GEOMETRIES ).add_parameter_list( tFtype );
             aParameterLists.set( "normal_x", 0.0 );
             aParameterLists.set( "normal_z", 1.0 );
 
             // back
-            aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( tFtype ) );
+            aParameterLists( GEN::GEOMETRIES ).add_parameter_list( tFtype );
             aParameterLists.set( "normal_x", 0.0 );
             aParameterLists.set( "center_z", 1.0 );
             aParameterLists.set( "normal_z", -1.0 );
-            }
+        }
     }
 
     /* ------------------------------------------------------------------------ */
@@ -495,7 +495,7 @@ namespace moris
                 aParameterLists.set( "vectorial_field_index", 2 );
                 aParameterLists.set( "function_parameters", std::to_string( i ) );
                 aParameterLists.set( "leader_phase_name", "PhaseBulk" );
-                    }
+            }
         }
 
         // create computation parameter list
@@ -587,7 +587,7 @@ namespace moris
 
         //---------------------------------------------------------------------------------------------------------------------------------------
 
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::IFPACK );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::IFPACK );
         // Ifpack Preconditioner parameters
         aParameterLists.set( "ifpack_prec_type", "Amesos" );
         aParameterLists.set( "amesos: solver type", "Amesos_Pardiso" );    // Amesos_Umfpack or Amesos_Pardiso
@@ -618,7 +618,7 @@ namespace moris
         aParameterLists.set( "Verbosity", false );
 
         // precondioerr
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::PETSC );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::PETSC );
         aParameterLists.set( "PCType", "mumps" );
 
         //---------------------------------------------------------------------------------------------------------------------------------------

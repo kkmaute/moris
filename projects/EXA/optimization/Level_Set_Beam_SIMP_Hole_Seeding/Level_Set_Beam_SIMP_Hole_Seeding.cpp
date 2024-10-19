@@ -617,7 +617,7 @@ namespace moris
         // aParameterLists.set("PDV_types"         , "LS1");
 
         // initialize fins as swiss cheese geometry
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::USER_DEFINED );
         aParameterLists.set( "isocontour_tolerance", 10e-14 );
         aParameterLists.set( "isocontour_threshold", 0.5 );
         aParameterLists.set( "field_function_name", "Const_Geometry" );
@@ -1188,7 +1188,7 @@ namespace moris
 
         aParameterLists( SOL::SOLVER_WAREHOUSE ).set( "SOL_save_operator_to_matlab", "Mat.dat" );
 
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::NONE );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::NONE );
     }
 
     //--------------------------------------------------------------------------------------------------------------

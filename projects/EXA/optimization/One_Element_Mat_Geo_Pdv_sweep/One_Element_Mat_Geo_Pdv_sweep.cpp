@@ -415,7 +415,7 @@ namespace moris
         // aParameterLists.set( "refinement_mesh_index", "0,1" );
         // aParameterLists.set( "use_multilinear_interpolation", false );
 
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::LINE );
         aParameterLists.set( "center_x", -5.0, 2.0, 5.0 );
         aParameterLists.set( "center_y", -1.0, 0.0, 1.0 );
         aParameterLists.set( "normal_x", -2.0, 1.0, 2.0 );
@@ -614,7 +614,7 @@ namespace moris
 
         aParameterLists( SOL::SOLVER_WAREHOUSE ).set( "SOL_save_operator_to_matlab", "Mat.dat" );
 
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::NONE );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::NONE );
     }
 
     //--------------------------------------------------------------------------------------------------------------

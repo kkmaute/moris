@@ -54,9 +54,9 @@ namespace moris
     // Constant function for properties
     void
     Func_Const(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         aPropMatrix = aParameters( 0 );
     }
@@ -64,9 +64,9 @@ namespace moris
     // Inlet velocity function
     void
     Func_Inlet_U(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         aPropMatrix.set_size( 2, 1, 0.0 );
         real tY          = aFIManager->get_IP_geometry_interpolator()->valx()( 1 );
@@ -81,7 +81,7 @@ namespace moris
 
     moris::real Func_Bottom_Plane(
             const moris::Matrix< DDRMat >& aCoordinates,
-            const Vector< real >&     aGeometryParameters )
+            const Vector< real >&          aGeometryParameters )
     {
         moris::real tValue = aCoordinates( 1 ) - tPlaneBottom;
 
@@ -90,7 +90,7 @@ namespace moris
 
     moris::real Func_Top_Plane(
             const moris::Matrix< DDRMat >& aCoordinates,
-            const Vector< real >&     aGeometryParameters )
+            const Vector< real >&          aGeometryParameters )
     {
         moris::real tValue = aCoordinates( 1 ) - tPlaneTop;
 
@@ -99,7 +99,7 @@ namespace moris
 
     moris::real Func_Left_Plane(
             const moris::Matrix< DDRMat >& aCoordinates,
-            const Vector< real >&     aGeometryParameters )
+            const Vector< real >&          aGeometryParameters )
     {
         moris::real tValue = aCoordinates( 0 ) - tPlaneLeft;
 
@@ -108,7 +108,7 @@ namespace moris
 
     moris::real Func_Right_Plane(
             const moris::Matrix< DDRMat >& aCoordinates,
-            const Vector< real >&     aGeometryParameters )
+            const Vector< real >&          aGeometryParameters )
     {
         moris::real tValue = aCoordinates( 0 ) - tPlaneRight;
 
@@ -117,7 +117,7 @@ namespace moris
 
     moris::real Func_Cylinder(
             const moris::Matrix< DDRMat >& aCoordinates,
-            const Vector< real >&     aGeometryParameters )
+            const Vector< real >&          aGeometryParameters )
     {
         moris::real tValue = tCylinderRadius - std::pow( std::pow( aCoordinates( 0 ) - 0.4, 2.0 ) + std::pow( aCoordinates( 1 ) - ( 0.2 - tCylinderOffset ), 2.0 ), 0.5 );
 
@@ -126,7 +126,7 @@ namespace moris
 
     moris::real Func_Cylinder2(
             const moris::Matrix< DDRMat >& aCoordinates,
-            const Vector< real >&     aGeometryParameters )
+            const Vector< real >&          aGeometryParameters )
     {
         moris::real tValue = tCylinderRadius - std::pow( std::pow( aCoordinates( 0 ) - 0.8, 2.0 ) + std::pow( aCoordinates( 1 ) - ( 0.2 + tCylinderOffset ), 2.0 ), 0.5 );
 
@@ -135,7 +135,7 @@ namespace moris
 
     moris::real Func_Cylinder3(
             const moris::Matrix< DDRMat >& aCoordinates,
-            const Vector< real >&     aGeometryParameters )
+            const Vector< real >&          aGeometryParameters )
     {
         moris::real tValue = tCylinderRadius - std::pow( std::pow( aCoordinates( 0 ) - 1.2, 2.0 ) + std::pow( aCoordinates( 1 ) - ( 0.2 - tCylinderOffset ), 2.0 ), 0.5 );
 
@@ -144,7 +144,7 @@ namespace moris
 
     moris::real Func_Cylinder4(
             const moris::Matrix< DDRMat >& aCoordinates,
-            const Vector< real >&     aGeometryParameters )
+            const Vector< real >&          aGeometryParameters )
     {
         moris::real tValue = tCylinderRadius - std::pow( std::pow( aCoordinates( 0 ) - 1.6, 2.0 ) + std::pow( aCoordinates( 1 ) - ( 0.2 + tCylinderOffset ), 2.0 ), 0.5 );
 
@@ -249,42 +249,42 @@ namespace moris
         aParameterLists.set( "output_mesh_file", "GEN_Channel_with_Four_Cylinders_Static_Temp_Only.exo" );
 
         // Geometry parameter lists
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::USER_DEFINED );
         aParameterLists.set( "field_function_name", "Func_Bottom_Plane" );
         aParameterLists.set( "number_of_refinements", 1 );
         aParameterLists.set( "refinement_mesh_index", 0 );
 
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::USER_DEFINED );
         aParameterLists.set( "field_function_name", "Func_Top_Plane" );
         aParameterLists.set( "number_of_refinements", 1 );
         aParameterLists.set( "refinement_mesh_index", 0 );
 
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::USER_DEFINED );
         aParameterLists.set( "field_function_name", "Func_Left_Plane" );
         aParameterLists.set( "number_of_refinements", 1 );
         aParameterLists.set( "refinement_mesh_index", 0 );
 
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::USER_DEFINED );
         aParameterLists.set( "field_function_name", "Func_Right_Plane" );
         aParameterLists.set( "number_of_refinements", 1 );
         aParameterLists.set( "refinement_mesh_index", 0 );
 
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::USER_DEFINED );
         aParameterLists.set( "field_function_name", "Func_Cylinder" );
         aParameterLists.set( "number_of_refinements", 1 );
         aParameterLists.set( "refinement_mesh_index", 0 );
 
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::USER_DEFINED );
         aParameterLists.set( "field_function_name", "Func_Cylinder2" );
         aParameterLists.set( "number_of_refinements", 1 );
         aParameterLists.set( "refinement_mesh_index", 0 );
 
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::USER_DEFINED );
         aParameterLists.set( "field_function_name", "Func_Cylinder3" );
         aParameterLists.set( "number_of_refinements", 1 );
         aParameterLists.set( "refinement_mesh_index", 0 );
 
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::USER_DEFINED );
         aParameterLists.set( "field_function_name", "Func_Cylinder4" );
         aParameterLists.set( "number_of_refinements", 1 );
         aParameterLists.set( "refinement_mesh_index", 0 );
@@ -347,7 +347,7 @@ namespace moris
         aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list();
         aParameterLists.set( "constitutive_name", "CMDiffusion" );
         aParameterLists.set( "phase_name", "PhaseFluid" );
-        aParameterLists.set( "constitutive_type",  fem::Constitutive_Type::DIFF_LIN_ISO ) ;
+        aParameterLists.set( "constitutive_type", fem::Constitutive_Type::DIFF_LIN_ISO );
         aParameterLists.set( "dof_dependencies", std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
         aParameterLists.set( "properties",
                 "PropConductivity,Conductivity;"
@@ -360,7 +360,7 @@ namespace moris
         // create parameter list for stabilization parameter 2
         aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", "SPDirichletNitscheT" );
-        aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::DIRICHLET_NITSCHE ) ;
+        aParameterLists.set( "stabilization_type", fem::Stabilization_Type::DIRICHLET_NITSCHE );
         aParameterLists.set( "function_parameters", "100.0" );
         aParameterLists.set( "leader_properties", "PropConductivity,Material" );
         aParameterLists.set( "leader_phase_name", "PhaseFluid" );
@@ -368,7 +368,7 @@ namespace moris
         // create parameter list for stabilization parameter 8
         aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", "SPGPTemp" );
-        aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::GHOST_DISPL ) ;
+        aParameterLists.set( "stabilization_type", fem::Stabilization_Type::GHOST_DISPL );
         aParameterLists.set( "function_parameters", "0.005" );
         aParameterLists.set( "leader_properties", "PropConductivity,Material" );
         aParameterLists.set( "leader_phase_name", "PhaseFluid" );
@@ -380,7 +380,7 @@ namespace moris
         // create parameter list for IWG 3
         aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGDiffusionBulk" );
-        aParameterLists.set( "IWG_type",  fem::IWG_Type::SPATIALDIFF_BULK ) ;
+        aParameterLists.set( "IWG_type", fem::IWG_Type::SPATIALDIFF_BULK );
         aParameterLists.set( "dof_residual", "TEMP" );
         aParameterLists.set( "leader_dof_dependencies", "TEMP" );
         aParameterLists.set( "leader_constitutive_models", "CMDiffusion,Diffusion" );
@@ -389,24 +389,24 @@ namespace moris
         // create parameter list for IWG 11
         aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGInletTemp" );
-        aParameterLists.set( "IWG_type",  fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE ) ;
+        aParameterLists.set( "IWG_type", fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE );
         aParameterLists.set( "dof_residual", "TEMP" );
         aParameterLists.set( "leader_dof_dependencies", "TEMP" );
         aParameterLists.set( "leader_properties", "PropInletTemp,Dirichlet" );
         aParameterLists.set( "leader_constitutive_models", "CMDiffusion,Diffusion" );
         aParameterLists.set( "stabilization_parameters", "SPDirichletNitscheT,DirichletNitsche" );
-        aParameterLists.set( "IWG_bulk_type",  fem::Element_Type::SIDESET ) ;
+        aParameterLists.set( "IWG_bulk_type", fem::Element_Type::SIDESET );
         aParameterLists.set( "leader_phase_name", "PhaseFluid" );
         aParameterLists.set( "neighbor_phases", "PhaseInlet" );
 
         // create parameter list for IWG 11
         aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGCylinderFluxTemp" );
-        aParameterLists.set( "IWG_type",  fem::IWG_Type::SPATIALDIFF_NEUMANN ) ;
+        aParameterLists.set( "IWG_type", fem::IWG_Type::SPATIALDIFF_NEUMANN );
         aParameterLists.set( "dof_residual", "TEMP" );
         aParameterLists.set( "leader_dof_dependencies", "TEMP" );
         aParameterLists.set( "leader_properties", "PropSideFlux,Neumann" );
-        aParameterLists.set( "IWG_bulk_type",  fem::Element_Type::SIDESET ) ;
+        aParameterLists.set( "IWG_bulk_type", fem::Element_Type::SIDESET );
         aParameterLists.set( "leader_phase_name", "PhaseFluid" );
         aParameterLists.set( "neighbor_phases", "PhaseCylinder" );
 
@@ -415,15 +415,15 @@ namespace moris
             // create parameter list for IWG 16
             aParameterLists( FEM::IWG ).add_parameter_list();
             aParameterLists.set( "IWG_name", "IWGGPTemp" );
-            aParameterLists.set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
+            aParameterLists.set( "IWG_type", fem::IWG_Type::GHOST_NORMAL_FIELD );
             aParameterLists.set( "dof_residual", "TEMP" );
             aParameterLists.set( "leader_dof_dependencies", "TEMP" );
             aParameterLists.set( "follower_dof_dependencies", "TEMP" );
             aParameterLists.set( "stabilization_parameters", "SPGPTemp,GhostSP" );
-            aParameterLists.set( "IWG_bulk_type",  fem::Element_Type::DOUBLE_SIDESET ) ;
+            aParameterLists.set( "IWG_bulk_type", fem::Element_Type::DOUBLE_SIDESET );
             aParameterLists.set( "leader_phase_name", "PhaseFluid" );
             aParameterLists.set( "follower_phase_name", "PhaseFluid" );
-            }
+        }
 
         //------------------------------------------------------------------------------
         // fill the IQI part of the parameter list
@@ -431,7 +431,7 @@ namespace moris
         // create parameter list for IQI 3
         aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkTEMP" );
-        aParameterLists.set( "IQI_type",  fem::IQI_Type::DOF ) ;
+        aParameterLists.set( "IQI_type", fem::IQI_Type::DOF );
         aParameterLists.set( "dof_quantity", "TEMP" );
         aParameterLists.set( "leader_dof_dependencies", "TEMP" );
         aParameterLists.set( "vectorial_field_index", 0 );
@@ -476,10 +476,10 @@ namespace moris
         aParameterLists( SOL::SOLVER_WAREHOUSE );
         if ( gTestCaseIndex == 0 )
         {
-            aParameterLists.set( "SOL_TPL_Type",  sol::MapType::Petsc ) ;
+            aParameterLists.set( "SOL_TPL_Type", sol::MapType::Petsc );
         }
 
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::NONE );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::NONE );
     }
 
     void
@@ -492,7 +492,7 @@ namespace moris
     VISParameterList( Module_Parameter_Lists& aParameterLists )
     {
         aParameterLists.set( "File_Name", std::pair< std::string, std::string >( "./", "Channel_with_Four_Cylinders_Static_Temp_Only.exo" ) );
-        aParameterLists.set( "Mesh_Type",  vis::VIS_Mesh_Type::STANDARD ) ;
+        aParameterLists.set( "Mesh_Type", vis::VIS_Mesh_Type::STANDARD );
         aParameterLists.set( "Set_Names", "HMR_dummy_n_p0,HMR_dummy_c_p0" );
         aParameterLists.set( "Field_Names", "TEMP,IQIBulkTEMP" );
         aParameterLists.set( "Field_Type", "NODAL,GLOBAL" );

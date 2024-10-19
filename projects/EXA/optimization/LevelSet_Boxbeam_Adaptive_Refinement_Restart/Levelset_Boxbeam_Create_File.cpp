@@ -609,7 +609,7 @@ namespace moris
         aParameterLists.set( "print_phase_table", true );
 
         // outer frame
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::USER_DEFINED );
         aParameterLists.set( "isocontour_tolerance", 10e-14 );
         aParameterLists.set( "field_function_name", "Box_2D3D" );
         aParameterLists.set( "number_of_refinements", 1, 0 );
@@ -617,7 +617,7 @@ namespace moris
         aParameterLists.set( "name", "Box" );
 
         // initialize fins as swiss cheese geometry
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::USER_DEFINED );
         aParameterLists.set( "field_function_name", "Hole_Pattern_2D3D" );
         aParameterLists.set( "name", "Level_Set_Field" );
         aParameterLists.set( "number_of_refinements", 1, 0 );
@@ -1070,7 +1070,7 @@ namespace moris
             aParameterLists.set( "dof_quantity", tDofStrg );
             aParameterLists.set( "vectorial_field_index", 2 );
             aParameterLists.set( "mesh_set_names", tTotalDomainSets );
-            }
+        }
 
         aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkStrainEnergy_Frame" );
@@ -1232,7 +1232,7 @@ namespace moris
         aParameterLists.set( "TSA_Output_Indices", "0" );
         aParameterLists.set( "TSA_Output_Criteria", "Output_Criterion" );
 
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::NONE );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::NONE );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -1265,7 +1265,7 @@ namespace moris
             aParameterLists.set( "Field_Names", std::string( "UX,UY,UZ,StrainEnergyFrame,StrainEnergyInterior,VolumeInterior,PerimeterInteriorVoid" ) );
             aParameterLists.set( "Field_Type", std::string( "NODAL,NODAL,NODAL,GLOBAL,GLOBAL,GLOBAL,GLOBAL" ) );
             aParameterLists.set( "IQI_Names", std::string( "IQIBulkUX,IQIBulkUY,IQIBulkUZ,IQIBulkStrainEnergy_Frame,IQIBulkStrainEnergy_Interior,"
-                                                                    "IQIBulkVolume_Interior,IQIPerimeter_InterfaceVoid" ) );
+                                                           "IQIBulkVolume_Interior,IQIPerimeter_InterfaceVoid" ) );
         }
         else
         {

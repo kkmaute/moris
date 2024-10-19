@@ -134,11 +134,6 @@ namespace moris::gen
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aNodeCoordinates )
     {
-        if ( aNodeIndex == 33171 )
-        {
-            PRINT( aNodeCoordinates );
-        }
-
         // check if this node has been determined previously
         auto tNodeIt        = mNodeMeshRegions.find( aNodeIndex );
         bool tRegionUnknown = tNodeIt == mNodeMeshRegions.end();
@@ -373,10 +368,6 @@ namespace moris::gen
         {
             if ( tSubPhaseMeshRegions( tSubphases( iNode, 0 ) ) != mtk::Mesh_Region::UNDEFINED )
             {
-                if ( iNode == 33171 )
-                {
-                    std::cout << tSubPhaseMeshRegions( tSubphases( iNode, 0 ) ) << "\n";
-                }
                 mNodeMeshRegions[ iNode ] = tSubPhaseMeshRegions( tSubphases( iNode, 0 ) );
             }
         }
@@ -405,11 +396,6 @@ namespace moris::gen
         {
             if ( mNodeMeshRegions.find( iNode ) == mNodeMeshRegions.end() )
             {
-                if ( iNode == 33171 )
-                {
-                    PRINT( tUnknownNodeCoordinates );
-                }
-
                 tUnknownNodes.emplace_back( iNode );
                 tUnknownNodeCoordinates.set_column( tNumUnknownNodes++, trans( mMesh->get_node_coordinate( iNode ) ) );
             }

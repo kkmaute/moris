@@ -67,41 +67,37 @@ namespace moris::xtk
             tGENParams( 0 )( 0 ).set( "output_mesh_file", "GEN_Snapping.exo" );
 
             // Geometry parameter lists
-            moris::uint tGeoCounter        = 0;
-            tGENParams( 1 ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE ) );
-            tGENParams( 1 )( tGeoCounter ).set( "isocontour_threshold", 1e-16 );
-            tGENParams( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1e-12 );
-            tGENParams( 1 )( tGeoCounter ).set( "intersection_tolerance", 1e-12 );
-            tGENParams( 1 )( tGeoCounter ).set( "center_x", 0.0 );
-            tGENParams( 1 )( tGeoCounter ).set( "center_y", tOffset );
-            tGENParams( 1 )( tGeoCounter ).set( "normal_x", tXNormal );
-            tGENParams( 1 )( tGeoCounter ).set( "normal_y", tYNormal );
-            tGENParams( 1 )( tGeoCounter ).set( "use_multilinear_interpolation", tBilinear );
-            tGeoCounter++;
+            tGENParams( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::LINE );
+            tGENParams.set( "isocontour_threshold", 1e-16 );
+            tGENParams.set( "isocontour_tolerance", 1e-12 );
+            tGENParams.set( "intersection_tolerance", 1e-12 );
+            tGENParams.set( "center_x", 0.0 );
+            tGENParams.set( "center_y", tOffset );
+            tGENParams.set( "normal_x", tXNormal );
+            tGENParams.set( "normal_y", tYNormal );
+            tGENParams.set( "use_multilinear_interpolation", tBilinear );
 
             // Geometry parameter lists
-            tGENParams( 1 ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE ) );
-            tGENParams( 1 )( tGeoCounter ).set( "isocontour_threshold", 1e-16 );
-            tGENParams( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1e-12 );
-            tGENParams( 1 )( tGeoCounter ).set( "intersection_tolerance", 1e-12 );
-            tGENParams( 1 )( tGeoCounter ).set( "center_x", -0.5 );
-            tGENParams( 1 )( tGeoCounter ).set( "center_y", 0.0 );
-            tGENParams( 1 )( tGeoCounter ).set( "normal_x", 1.0 );
-            tGENParams( 1 )( tGeoCounter ).set( "normal_y", 0.0 );
-            tGENParams( 1 )( tGeoCounter ).set( "use_multilinear_interpolation", tBilinear );
-            tGeoCounter++;
+            tGENParams( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::LINE );
+            tGENParams.set( "isocontour_threshold", 1e-16 );
+            tGENParams.set( "isocontour_tolerance", 1e-12 );
+            tGENParams.set( "intersection_tolerance", 1e-12 );
+            tGENParams.set( "center_x", -0.5 );
+            tGENParams.set( "center_y", 0.0 );
+            tGENParams.set( "normal_x", 1.0 );
+            tGENParams.set( "normal_y", 0.0 );
+            tGENParams.set( "use_multilinear_interpolation", tBilinear );
 
             // Geometry parameter lists
-            tGENParams( 1 ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE ) );
-            tGENParams( 1 )( tGeoCounter ).set( "isocontour_threshold", 1e-16 );
-            tGENParams( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1e-12 );
-            tGENParams( 1 )( tGeoCounter ).set( "intersection_tolerance", 1e-12 );
-            tGENParams( 1 )( tGeoCounter ).set( "center_x", 1.0 );
-            tGENParams( 1 )( tGeoCounter ).set( "center_y", 0.0 );
-            tGENParams( 1 )( tGeoCounter ).set( "normal_x", 1.0 );
-            tGENParams( 1 )( tGeoCounter ).set( "normal_y", 0.0 );
-            tGENParams( 1 )( tGeoCounter ).set( "use_multilinear_interpolation", tBilinear );
-            tGeoCounter++;
+            tGENParams( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::LINE );
+            tGENParams.set( "isocontour_threshold", 1e-16 );
+            tGENParams.set( "isocontour_tolerance", 1e-12 );
+            tGENParams.set( "intersection_tolerance", 1e-12 );
+            tGENParams.set( "center_x", 1.0 );
+            tGENParams.set( "center_y", 0.0 );
+            tGENParams.set( "normal_x", 1.0 );
+            tGENParams.set( "normal_y", 0.0 );
+            tGENParams.set( "use_multilinear_interpolation", tBilinear );
 
             // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             // HMR parameters
@@ -111,7 +107,7 @@ namespace moris::xtk
             std::string tDomainSidesets     = "1,2,3,4";
             std::string tInterpolationOrder = "1";
 
-            int                                      tRefineBuffer = 1;
+            int                    tRefineBuffer = 1;
             Module_Parameter_Lists tHMRParams( Module_Type::HMR );
             tHMRParams( 0 ).add_parameter_list( prm::create_hmr_parameter_list() );
             tHMRParams( 0 )( 0 ).set( "number_of_elements_per_dimension", tNumElemsPerDim );

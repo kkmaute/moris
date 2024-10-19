@@ -31,9 +31,9 @@ namespace moris
 {
 
     void
-    Func1( moris::Matrix< moris::DDRMat >&                 aPropMatrix,
+    Func1( moris::Matrix< moris::DDRMat >&            aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         aPropMatrix = aParameters( 0 );
     }
@@ -46,8 +46,8 @@ namespace moris
 
     moris::real
     Lvl_set_1(
-            const moris::Matrix< DDRMat >&     aCoordinates,
-            const Vector< moris::real* >& aGeometryParameters )
+            const moris::Matrix< DDRMat >& aCoordinates,
+            const Vector< moris::real* >&  aGeometryParameters )
     {
         return 1.01;
     }
@@ -327,10 +327,10 @@ namespace moris
     GENParameterList( Module_Parameter_Lists& aParameterList )
     {
         // Geometry parameter lists
-        aParameterList( 1 ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
-        aParameterList( 1 ).set( "field_function_name", "Lvl_set_1" );
-        aParameterList( 1 ).set( "number_of_refinements", 2u );
-        aParameterList( 1 ).set( "refinement_mesh_index", 0u );
+        aParameterList( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::USER_DEFINED );
+        aParameterList.set( "field_function_name", "Lvl_set_1" );
+        aParameterList.set( "number_of_refinements", 2u );
+        aParameterList.set( "refinement_mesh_index", 0u );
     }
 
     void

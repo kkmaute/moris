@@ -145,11 +145,18 @@ namespace moris
 
     void Submodule_Parameter_Lists::add_parameter_list( gen::Field_Type aFieldType )
     {
-        // Check for correct submodule type
-        this->check_submodule_type( GEN_Submodule_String::values( static_cast< uint >( GEN::PROPERTIES ) ) );
-
-        // Add new parameter list
-        mParameterLists.push_back( prm::create_gen_property_parameter_list( aFieldType ) );
+        if ( mType == GEN_Submodule_String::values( static_cast< uint >( GEN::GEOMETRIES ) ) )
+        {
+            mParameterLists.push_back( prm::create_level_set_geometry_parameter_list( aFieldType ) );
+        }
+        else if ( mType == GEN_Submodule_String::values( static_cast< uint >( GEN::PROPERTIES ) ) )
+        {
+            mParameterLists.push_back( prm::create_gen_property_parameter_list( aFieldType ) );
+        }
+        else
+        {
+            MORIS_ERROR( false, "A %s submodule cannot create a geometries or properties parameter list.", mType.c_str() );
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------

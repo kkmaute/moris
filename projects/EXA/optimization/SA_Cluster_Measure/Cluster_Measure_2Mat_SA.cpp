@@ -311,7 +311,7 @@ namespace moris
                 "IQIBulkStrainEnergy1" );
 
         // interface plane
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::LINE );
         aParameterLists.set( "center_x", 1.35, 1.35, 1.35 );
         aParameterLists.set( "center_y", 0.0, 0.0, 0.0 );
         aParameterLists.set( "normal_x", 1.0, 1.0, 1.0 );
@@ -320,7 +320,7 @@ namespace moris
 
     void FEMParameterList( Module_Parameter_Lists& aParameterLists )
     {
-         //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         aParameterLists( FEM::PHASES ).add_parameter_list();
         aParameterLists.set( "phase_name", "PhaseMaterial0" );
@@ -559,7 +559,7 @@ namespace moris
             aParameterLists.set( "follower_phase_name", "PhaseMaterial0" );
             aParameterLists.set( "dof_residual", "TEMP" );
             aParameterLists.set( "stabilization_parameters", "SPGPTemp0,GhostSP" );
-                // create IWG for ghost on material 1
+            // create IWG for ghost on material 1
             aParameterLists( FEM::IWG ).add_parameter_list();
             aParameterLists.set( "IWG_name", "IWGGP1Temp" );
             aParameterLists.set( "IWG_bulk_type", fem::Element_Type::DOUBLE_SIDESET );
@@ -686,7 +686,7 @@ namespace moris
         aParameterLists.set( "TSA_Output_Indices", "0" );
         aParameterLists.set( "TSA_Output_Criteria", "Output_Criterion" );
 
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::NONE );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::NONE );
     }
 
     void MSIParameterList( Module_Parameter_Lists& aParameterLists )

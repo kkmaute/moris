@@ -521,7 +521,7 @@ namespace moris
         // aParameterLists.set( "evaluate_new_pts_as_linear", true);
 
         // Inclusions
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::USER_DEFINED );
         aParameterLists.set( "field_function_name", "Func_Sphere" );
         aParameterLists.set( "sensitivity_function_name", "Func_Sphere_Deriv" );
         aParameterLists.set( "number_of_refinements", tInterfaceRefinementSphere );
@@ -550,7 +550,7 @@ namespace moris
     FEMParameterList( Module_Parameter_Lists& aParameterLists )
     {
 
-         //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         aParameterLists( FEM::PHASES ).add_parameter_list();
         aParameterLists.set( "phase_name", "PhaseSolid" );
@@ -753,7 +753,7 @@ namespace moris
                     "PropInitialTemp,InitialCondition" );
             aParameterLists.set( "leader_phase_name", "PhaseSolid" );
             aParameterLists.set( "time_continuity", true );
-            }
+        }
 
         // Ghost  ----------------------------------------------------------------
 
@@ -889,7 +889,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list();    // 1: thermal subproblem
-        aParameterLists.set( "NLA_Nonlinear_solver_algorithms", "0" );             // set nonlinear algorithm with index 0
+        aParameterLists.set( "NLA_Nonlinear_solver_algorithms", "0" );     // set nonlinear algorithm with index 0
         aParameterLists.set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         aParameterLists.set( "NLA_DofTypes", "TEMP" );
 
@@ -926,7 +926,7 @@ namespace moris
 
         aParameterLists( SOL::SOLVER_WAREHOUSE ).set( "SOL_save_operator_to_matlab", "Jacobian" );
 
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::NONE );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::NONE );
     }
 
     void
