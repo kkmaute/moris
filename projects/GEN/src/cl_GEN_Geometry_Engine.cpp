@@ -40,7 +40,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Geometry_Engine::Geometry_Engine(
-            Module_Parameter_Lists  aParameterLists,
+            Module_Parameter_Lists               aParameterLists,
             const std::shared_ptr< Library_IO >& aLibrary,
             mtk::Mesh*                           aMesh )
             : mNodeManager( aMesh )
@@ -914,7 +914,7 @@ namespace moris::gen
         // Set owned ADV IDs
         mPDVHostManager.set_owned_adv_ids( tOwnedADVIds );
 
-        MORIS_LOG_INFO( "Time to collect owned and shared ADVs: %f sec", ( moris::real )( clock() - tStart_Owned_Shared_ADVs ) / CLOCKS_PER_SEC );
+        MORIS_LOG_INFO( "Time to collect owned and shared ADVs: %f sec", (moris::real)( clock() - tStart_Owned_Shared_ADVs ) / CLOCKS_PER_SEC );
 
         //----------------------------------------//
         // Create owned ADV vector                //
@@ -965,7 +965,7 @@ namespace moris::gen
             }
         }
 
-        MORIS_LOG_INFO( "Time to create owned ADVs: %f sec", ( moris::real )( clock() - tStart_Create_Owned_ADVs ) / CLOCKS_PER_SEC );
+        MORIS_LOG_INFO( "Time to create owned ADVs: %f sec", (moris::real)( clock() - tStart_Create_Owned_ADVs ) / CLOCKS_PER_SEC );
 
         //----------------------------------------//
         // Convert to B-spline fields             //
@@ -981,9 +981,9 @@ namespace moris::gen
                 bool tUseMTKField = false;
                 for ( const auto& iMTKField : aFields )
                 {
+                    std::cout << aMeshPair.get_interpolation_mesh()->get_num_nodes() << "\n";
                     mGeometries( iGeometryIndex )->discretize( iMTKField, aMeshPair, tNewOwnedADVs );
                     tUseMTKField = true;
-                    break;
                 }
 
                 // Otherwise discretize with original field
@@ -1008,7 +1008,6 @@ namespace moris::gen
                 {
                     mProperties( iPropertyIndex )->discretize( iMTKField, aMeshPair, tNewOwnedADVs );
                     tUseMTKField = true;
-                    break;
                 }
             }
 
@@ -1044,7 +1043,7 @@ namespace moris::gen
         delete mOwnedADVs;
         mOwnedADVs = tNewOwnedADVs;
 
-        MORIS_LOG_INFO( "Time to convert to Bspline fields: %f sec", ( moris::real )( clock() - tStart_Convert_to_Bspline_Fields ) / CLOCKS_PER_SEC );
+        MORIS_LOG_INFO( "Time to convert to Bspline fields: %f sec", (moris::real)( clock() - tStart_Convert_to_Bspline_Fields ) / CLOCKS_PER_SEC );
 
         //----------------------------------------//
         // Communicate all ADV IDs to processor 0 //
@@ -1101,7 +1100,7 @@ namespace moris::gen
             communicate_mats( tCommunicationListMat, tSendingijklIDs, tReceivingjklIDs );
         }
 
-        MORIS_LOG_INFO( "Time to communicate ADV IDs: %f sec", ( moris::real )( clock() - tStart_Communicate_ADV_IDs ) / CLOCKS_PER_SEC );
+        MORIS_LOG_INFO( "Time to communicate ADV IDs: %f sec", (moris::real)( clock() - tStart_Communicate_ADV_IDs ) / CLOCKS_PER_SEC );
 
         // Assemble full ADVs/bounds
         clock_t tStart_ADV_Bounds = clock();
@@ -1160,13 +1159,13 @@ namespace moris::gen
             mFullijklIDs.set_size( 0, 0 );
         }
 
-        MORIS_LOG_INFO( "Time to assemble ADVs and bounds on Proc 0: %f sec", ( moris::real )( clock() - tStart_ADV_Bounds ) / CLOCKS_PER_SEC );
+        MORIS_LOG_INFO( "Time to assemble ADVs and bounds on Proc 0: %f sec", (moris::real)( clock() - tStart_ADV_Bounds ) / CLOCKS_PER_SEC );
 
         // Reset mesh information
         clock_t tStart_Reset_Mesh_Info = clock();
         this->reset_mesh_information( tMesh );
 
-        MORIS_LOG_INFO( "Time to reset mesh information: %f sec", ( moris::real )( clock() - tStart_Reset_Mesh_Info ) / CLOCKS_PER_SEC );
+        MORIS_LOG_INFO( "Time to reset mesh information: %f sec", (moris::real)( clock() - tStart_Reset_Mesh_Info ) / CLOCKS_PER_SEC );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -1676,7 +1675,7 @@ namespace moris::gen
 
     Phase_Table
     Geometry_Engine::create_phase_table(
-            const Module_Parameter_Lists& aParameterLists,
+            const Module_Parameter_Lists&        aParameterLists,
             const std::shared_ptr< Library_IO >& aLibrary )
     {
         // Get number of geometries

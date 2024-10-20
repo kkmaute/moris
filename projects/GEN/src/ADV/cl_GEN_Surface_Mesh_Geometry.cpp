@@ -568,20 +568,23 @@ namespace moris::gen
             Matrix< IdMat >&         aOwnedijklIDs,
             sint                     aOffsetID,
             Vector< real >&          aLowerBounds,
-            Vector< real >&          aUpperBounds )
+            Vector< real >&          aUpperBounds,
+            uint                     aFieldIndex )
     {
         // Get the original offset ID
         sint tOriginalOffsetID = aOffsetID;
 
         for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
         {
+            // Append the ADV info for this field
             aOffsetID = Design::append_adv_info(
                     mMesh,
                     aOwnedADVIds,
                     aOwnedijklIDs,
                     aOffsetID,
                     aLowerBounds,
-                    aUpperBounds );
+                    aUpperBounds,
+                    iFieldIndex );
         }
 
         // reset the offset back to the offset for the first perturabtion field (mOffsetID was changed in the above loop)

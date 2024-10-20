@@ -161,7 +161,8 @@ namespace moris::gen
                 Matrix< IdMat >&         aOwnedijklIDs,
                 sint                     aOffsetID,
                 Vector< real >&          aLowerBounds,
-                Vector< real >&          aUpperBounds );
+                Vector< real >&          aUpperBounds,
+                uint                     aFieldIndex = 0 );
 
         static void communicate_missing_owned_coefficients(
                 mtk::Interpolation_Mesh* aMesh,

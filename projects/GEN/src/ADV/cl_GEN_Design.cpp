@@ -70,7 +70,8 @@ namespace moris::gen
             Matrix< IdMat >&         aOwnedijklIDs,
             sint                     aOffsetID,
             Vector< real >&          aLowerBounds,
-            Vector< real >&          aUpperBounds )
+            Vector< real >&          aUpperBounds,
+            uint                     aFieldIndex )
     {
         // Store the ADV offset ID for this design
         mOffsetID = aOffsetID;
@@ -236,7 +237,12 @@ namespace moris::gen
             }
 
             // Append the shared ADV IDs
-            mSharedADVIDs.push_back( tSharedADVIds );
+            if ( aFieldIndex >= mSharedADVIDs.size() )
+            {
+                // push back if this field has not been added yet
+                mSharedADVIDs.resize( aFieldIndex + 1 );
+            }
+            mSharedADVIDs( aFieldIndex ) = ( tSharedADVIds );
 
             // Update offset based on maximum ID
             return aOffsetID + aMesh->get_max_entity_id( mtk::EntityRank::BSPLINE, tDiscretizationMeshIndex );

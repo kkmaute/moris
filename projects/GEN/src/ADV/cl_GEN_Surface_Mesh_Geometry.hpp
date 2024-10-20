@@ -285,7 +285,8 @@ namespace moris::gen
                 Matrix< IdMat >&         aOwnedijklIDs,
                 sint                     aOffsetID,
                 Vector< real >&          aLowerBounds,
-                Vector< real >&          aUpperBounds ) override;
+                Vector< real >&          aUpperBounds,
+                uint                     aFieldIndex ) override;
 
         /**
          * Gets the center of the facet at the given local index
