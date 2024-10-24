@@ -298,36 +298,42 @@ namespace moris::sdf
 
                 // batch all 3 rays and check that the result is correct
                 Matrix< DDRMat >           tOrigins    = { { 0.9, 0.9, 0.9 }, { 0.6, 0.6, 0.6 }, { 0.7, 0.7, 0.7 } };
-                Vector< Matrix< DDRMat > > tDirections = { { { 1.0 }, { 0.0 }, { 0.0 } }, { { 0.0 }, { 1.0 }, { 0.0 } }, { { 0.0 }, { 0.0 }, { 1.0 } } };
+                Vector< Matrix< DDRMat > > tDirections = { { { 1.0, 1.0 }, { 0.0, 0.0 }, { 0.0, 0.0 } }, { { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0 }, { 0.0, 0.0, 0.0 } }, { { 0.0 }, { 0.0 }, { 1.0 } } };
 
                 Vector< Vector< Vector< std::pair< uint, real > > > > tLineDistances = tObject.cast_batch_of_rays( tOrigins, tDirections );
 
                 REQUIRE( tLineDistances.size() == 3 );
-                REQUIRE( tLineDistances( 0 ).size() == 1 );
-                REQUIRE( tLineDistances( 1 ).size() == 1 );
+                REQUIRE( tLineDistances( 0 ).size() == 2 );
+                REQUIRE( tLineDistances( 1 ).size() == 3 );
                 REQUIRE( tLineDistances( 2 ).size() == 1 );
                 CHECK( std::abs( tLineDistances( 0 )( 0 )( 0 ).second - tLineDistanceXExpected ) < tEpsilon );
                 CHECK( tLineDistances( 0 )( 0 )( 0 ).first == 2 );
+                CHECK( std::abs( tLineDistances( 0 )( 1 )( 0 ).second - tLineDistanceXExpected ) < tEpsilon );
+                CHECK( tLineDistances( 0 )( 1 )( 0 ).first == 2 );
                 CHECK( std::abs( tLineDistances( 1 )( 0 )( 0 ).second - tLineDistanceYExpected ) < tEpsilon );
                 CHECK( tLineDistances( 1 )( 0 )( 0 ).first == 1 );
+                CHECK( std::abs( tLineDistances( 1 )( 1 )( 0 ).second - tLineDistanceYExpected ) < tEpsilon );
+                CHECK( tLineDistances( 1 )( 1 )( 0 ).first == 1 );
+                CHECK( std::abs( tLineDistances( 1 )( 2 )( 0 ).second - tLineDistanceYExpected ) < tEpsilon );
+                CHECK( tLineDistances( 1 )( 2 )( 0 ).first == 1 );
                 CHECK( std::abs( tLineDistances( 2 )( 0 )( 0 ).second - tLineDistanceZExpected ) < tEpsilon );
                 CHECK( tLineDistances( 2 )( 0 )( 0 ).first == 0 );
 
                 // batch again using the other functionality to cast the same direction on every origin
                 Matrix< DDRMat > tSameDirections = { { 1.0, 0.0, 0.0 }, { 0.0, 1.0, 0.0 }, { 0.0, 0.0, 1.0 } };
 
-                tLineDistances = tObject.cast_batch_of_rays( tOrigins, tDirections );
+                tLineDistances = tObject.cast_batch_of_rays( tOrigins, tSameDirections );
 
                 REQUIRE( tLineDistances.size() == 3 );
-                REQUIRE( tLineDistances( 0 ).size() == 1 );
-                REQUIRE( tLineDistances( 1 ).size() == 1 );
-                REQUIRE( tLineDistances( 2 ).size() == 1 );
+                REQUIRE( tLineDistances( 0 ).size() == 3 );
+                REQUIRE( tLineDistances( 1 ).size() == 3 );
+                REQUIRE( tLineDistances( 2 ).size() == 3 );
                 CHECK( std::abs( tLineDistances( 0 )( 0 )( 0 ).second - tLineDistanceXExpected ) < tEpsilon );
                 CHECK( tLineDistances( 0 )( 0 )( 0 ).first == 2 );
-                CHECK( std::abs( tLineDistances( 1 )( 0 )( 0 ).second - tLineDistanceYExpected ) < tEpsilon );
-                CHECK( tLineDistances( 1 )( 0 )( 0 ).first == 1 );
-                CHECK( std::abs( tLineDistances( 2 )( 0 )( 0 ).second - tLineDistanceZExpected ) < tEpsilon );
-                CHECK( tLineDistances( 2 )( 0 )( 0 ).first == 0 );
+                CHECK( std::abs( tLineDistances( 1 )( 1 )( 0 ).second - tLineDistanceYExpected ) < tEpsilon );
+                CHECK( tLineDistances( 1 )( 1 )( 0 ).first == 1 );
+                CHECK( std::abs( tLineDistances( 2 )( 2 )( 0 ).second - tLineDistanceZExpected ) < tEpsilon );
+                CHECK( tLineDistances( 2 )( 2 )( 0 ).first == 0 );
             }
             SECTION( "SDF: Compute distance to facets test - 2D" )
             {
