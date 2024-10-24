@@ -54,9 +54,9 @@ namespace moris::mtk
          * @brief Constructor for base surface mesh class. Builds mVertexToCellIndices, mFacetNormals, and mVertexCoordinates.
          *
          */
-        Surface_Mesh( Matrix< DDRMat >          aVertexCoordinates,
-                Vector< Vector< moris_index > > aFacetConnectivity,
-                real                            aIntersectionTolerance = 1e-8 );
+        Surface_Mesh( const Matrix< DDRMat >&          aVertexCoordinates,
+                const Vector< Vector< moris_index > >& aFacetConnectivity,
+                real                                   aIntersectionTolerance = 1e-8 );
 
         // -------------------------------------------------------------------------------
         // Mesh deformation methods
@@ -137,7 +137,7 @@ namespace moris::mtk
 
         [[nodiscard]] uint get_number_of_vertices() const;
 
-        [[nodiscard]] uint get_intersection_tolerance() const;
+        [[nodiscard]] real get_intersection_tolerance() const;
 
 
         // -------------------------------------------------------------------------------
@@ -223,7 +223,7 @@ namespace moris::mtk
         // Output Methods
         // -------------------------------------------------------------------------------
 
-        void write_to_file( std::string aFilePath ) const;
+        void write_to_file( const std::string& aFilePath ) const;
 
         //-------------------------------------------------------------------------------
         // Mesh modification methods

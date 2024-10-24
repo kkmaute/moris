@@ -44,9 +44,9 @@ namespace moris::mtk
     //--------------------------------------------------------------------------------------------------------------
 
     Surface_Mesh::Surface_Mesh(
-            Matrix< DDRMat >                aVertexCoordinates,
-            Vector< Vector< moris_index > > aFacetConnnectivity,
-            real                            aIntersectionTolerance )
+            const Matrix< DDRMat >&                aVertexCoordinates,
+            const Vector< Vector< moris_index > >& aFacetConnnectivity,
+            real                                   aIntersectionTolerance )
             : mVertexCoordinates( aVertexCoordinates )
             , mDisplacements( aVertexCoordinates.n_rows(), aVertexCoordinates.n_cols(), 0.0 )
             , mFacetConnectivity( aFacetConnnectivity )
@@ -176,7 +176,7 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
-    uint Surface_Mesh::get_intersection_tolerance() const
+    real Surface_Mesh::get_intersection_tolerance() const
     {
         return mIntersectionTolerance;
     }
@@ -205,19 +205,15 @@ namespace moris::mtk
             tDirection = { { 0.4990 }, { -0.3534 }, { -0.7912 } };
         }
 
-        // Initialize output
-        Mesh_Region tRegion = UNDEFINED;
-
-        real tNorm = norm( tDirection );
+        tDirection = tDirection / norm( tDirection );
 
         // Cast this ray and get the intersection locations
         Vector< real > tIntersections = this->cast_single_ray_distance_only( aPoint, tDirection );
 
         // Determine the region based on the number of intersections or if any intersection is close to zero
-        tRegion = std::any_of( tIntersections.begin(), tIntersections.end(), [ this, &tNorm ]( real aCoord ) { return std::abs( aCoord ) * tNorm < mIntersectionTolerance; } )
-                        ? Mesh_Region::INTERFACE
-                        : static_cast< Mesh_Region >( tIntersections.size() % 2 );
-
+        Mesh_Region tRegion = std::any_of( tIntersections.begin(), tIntersections.end(), [ this ]( real aCoord ) { return std::abs( aCoord ) < mIntersectionTolerance; } )
+                                    ? Mesh_Region::INTERFACE
+                                    : static_cast< Mesh_Region >( tIntersections.size() % 2 );
 
         return tRegion;
     }
@@ -242,13 +238,13 @@ namespace moris::mtk
             tDirection = { { 0.4990 }, { -0.3534 }, { -0.7912 } };
         }
 
+        tDirection = tDirection / norm( tDirection );
+
         // Initialize output
         Vector< Mesh_Region > tRegions( aPoint.n_cols(), UNDEFINED );
 
-        // Cast all of the rays
+        // Cast all the rays
         Vector< Vector< Intersection_Vector > > tIntersections = this->cast_batch_of_rays( aPoint, tDirection );
-
-        real tNorm = norm( tDirection );
 
         // Loop through the intersections and determine the region for each point
         for ( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
@@ -257,7 +253,7 @@ namespace moris::mtk
             Intersection_Vector tIntersectionsForPoint = tIntersections( iPoint )( 0 );
 
             // Store the region for this point
-            tRegions( iPoint ) = std::any_of( tIntersectionsForPoint.begin(), tIntersectionsForPoint.end(), [ this, &tNorm ]( std::pair< uint, real > aIntersection ) { return std::abs( aIntersection.second ) * tNorm < mIntersectionTolerance; } )
+            tRegions( iPoint ) = std::any_of( tIntersectionsForPoint.begin(), tIntersectionsForPoint.end(), [ this ]( std::pair< uint, real > aIntersection ) { return std::abs( aIntersection.second ) < mIntersectionTolerance; } )
                                        ? Mesh_Region::INTERFACE
                                        : static_cast< Mesh_Region >( tIntersectionsForPoint.size() % 2 );
         }
@@ -351,6 +347,8 @@ namespace moris::mtk
     {
         // Get the number of origins
         uint tNumberOfOrigins = aOrigins.n_cols();
+
+        MORIS_ASSERT( tNumberOfOrigins == aDirections.size(), "To cast a batch of rays with different directions for each ray, the size of the vector of directions (%lu) must match the columns of aOrigins (%d)", aDirections.size(), tNumberOfOrigins );
 
         // Get the facets that the ray could intersect
         Vector< Vector< Vector< uint > > > tCandidateFacets = this->batch_preselect_with_arborx( aOrigins, aDirections );
@@ -476,7 +474,7 @@ namespace moris::mtk
             tRayToVertex = tFacetCoordinates.get_column( 0 ) - trans( aPoint );
         }
 
-        // Get the determinate of the edge and the cast direction
+        // Get the determinant of the edge and the cast direction
         real tDet = aDirection( 0 ) * tEdge( 1 ) - aDirection( 1 ) * tEdge( 0 );
 
         // If the determinant is close to zero, the ray is parallel or colinear to the line
@@ -506,7 +504,7 @@ namespace moris::mtk
                     return std::numeric_limits< real >::quiet_NaN();
                 }
             }
-        else
+            else
             {
                 // Lines are parallel, return nan
                 return std::numeric_limits< real >::quiet_NaN();
@@ -623,7 +621,7 @@ namespace moris::mtk
                     KOKKOS_LAMBDA( size_t const iOrigin )    //
                     {
                         // Get the origin point for this group of rays
-                        const ArborX::Point tOrigin = arborx::coordinate_to_arborx_point< ArborX::Point >( aOrigins.get_column( iOrigin ) );
+                        const auto tOrigin = arborx::coordinate_to_arborx_point< ArborX::Point >( aOrigins.get_column( iOrigin ) );
 
                         // Get the number of directions for this origin point
                         const uint tNumDirections = aDirections( iOrigin ).n_cols();
@@ -673,7 +671,7 @@ namespace moris::mtk
                 KOKKOS_LAMBDA( size_t const iOrigin )    //
                 {
                     // Get the origin point for this group of rays
-                    ArborX::Point const tOrigin = arborx::coordinate_to_arborx_point< ArborX::Point >( aOrigins.get_column( iOrigin ) );
+                    const auto tOrigin = arborx::coordinate_to_arborx_point< ArborX::Point >( aOrigins.get_column( iOrigin ) );
 
                     // Build a ray for every direction
                     Kokkos::parallel_for(
@@ -696,8 +694,6 @@ namespace moris::mtk
 
     Vector< uint > Surface_Mesh::preselect_with_arborx( const Matrix< DDRMat >& aPoint, const Matrix< DDRMat >& aDirection ) const
     {
-        using ExecutionSpace = Kokkos::DefaultExecutionSpace;
-        using MemorySpace    = ExecutionSpace::memory_space;
         ExecutionSpace tExecutionSpace{};
 
         // Dummy cell index for the ray
@@ -734,8 +730,6 @@ namespace moris::mtk
             Matrix< DDRMat >&           aOrigins,
             Vector< Matrix< DDRMat > >& aDirections ) const
     {
-        using ExecutionSpace = Kokkos::DefaultExecutionSpace;
-        using MemorySpace    = ExecutionSpace::memory_space;
         ExecutionSpace tExecutionSpace{};
 
         // Get the number of origins
@@ -748,7 +742,7 @@ namespace moris::mtk
         Kokkos::View< arborx::QueryResult*, MemorySpace > tResults( "values", 0 );
         Kokkos::View< int*, MemorySpace >                 tOffsets( "offsets", 0 );
 
-        // Build the struct that holds the Arborx Ray information from the input matrices
+        // Build the struct that holds the ArborX Ray information from the input matrices
         arborx::QueryRays< MemorySpace > tQueryRays = this->build_arborx_ray_batch< MemorySpace >( tExecutionSpace, aOrigins, aDirections );
 
         // Query the BVH for the intersected facets
@@ -767,11 +761,12 @@ namespace moris::mtk
 
                 // Initialize the return vector for this origin and a temporary vector to store intersection results for this ray
                 tFacetIndices( iOrigin ).resize( tNumDirections );
-                Vector< uint > tFacetIndicesForRay( tOffsets( tOffsetIndex + 1 ) - tOffsets( tOffsetIndex ) );
 
                 // Loop through the directions for this origin point
                 for ( uint iDirection = 0; iDirection < tNumDirections; iDirection++ )
                 {
+                    Vector< uint > tFacetIndicesForRay( tOffsets( tOffsetIndex + 1 ) - tOffsets( tOffsetIndex ) );
+
                     // Loop through the results that correspond to this ray
                     for ( moris_index iIntersection = tOffsets( tOffsetIndex ); iIntersection < tOffsets( tOffsetIndex + 1 ); iIntersection++ )
                     {
@@ -796,8 +791,6 @@ namespace moris::mtk
             Matrix< DDRMat >& aOrigins,
             Matrix< DDRMat >& aDirections ) const
     {
-        using ExecutionSpace = Kokkos::DefaultExecutionSpace;
-        using MemorySpace    = ExecutionSpace::memory_space;
         ExecutionSpace tExecutionSpace{};
 
         // Get the number of origins
@@ -825,11 +818,11 @@ namespace moris::mtk
             // For every ray, get the intersected facets associated with each direction
             for ( uint iOrigin = 0; iOrigin < tNumOrigins; iOrigin++ )
             {
-                Vector< uint > tFacetIndicesForRay( tOffsets( tOffsetIndex + 1 ) - tOffsets( tOffsetIndex ) );
-
                 // Loop through the directions for this origin point
                 for ( uint iDirection = 0; iDirection < tNumDirections; iDirection++ )
                 {
+                    Vector< uint > tFacetIndicesForRay( tOffsets( tOffsetIndex + 1 ) - tOffsets( tOffsetIndex ) );
+
                     // Loop through the results that correspond to this ray
                     for ( moris_index iIntersection = tOffsets( tOffsetIndex ); iIntersection < tOffsets( tOffsetIndex + 1 ); iIntersection++ )
                     {
@@ -924,7 +917,7 @@ namespace moris::mtk
 
     //-------------------------------------------------------------------------------
 
-    void Surface_Mesh::write_to_file( std::string aFilePath ) const
+    void Surface_Mesh::write_to_file( const std::string& aFilePath ) const
     {
         // Open file for writing
         std::ofstream tFile;
