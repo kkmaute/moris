@@ -135,10 +135,9 @@ namespace moris::gen
             const Matrix< DDRMat >& aNodeCoordinates )
     {
         // check if this node has been determined previously
-        auto tNodeIt        = mNodeMeshRegions.find( aNodeIndex );
-        bool tRegionUnknown = tNodeIt == mNodeMeshRegions.end();
-
-        mtk::Mesh_Region tRegion = tRegionUnknown ? mNodeMeshRegions[ aNodeIndex ] = this->get_region_from_raycast( aNodeCoordinates ) : tNodeIt->second;
+        auto             tNodeIt        = mNodeMeshRegions.find( aNodeIndex );
+        bool             tRegionUnknown = tNodeIt == mNodeMeshRegions.end();
+        mtk::Mesh_Region tRegion        = tRegionUnknown ? mNodeMeshRegions[ aNodeIndex ] = this->get_region_from_raycast( aNodeCoordinates ) : tNodeIt->second;
 
         switch ( tRegion )
         {
@@ -545,7 +544,7 @@ namespace moris::gen
         Surface_Mesh::write_to_file( mName + "_" + std::to_string( mIteration++ ) + ".obj" );
 
         // Determine new region information for the nodes
-        this->flood_fill_mesh_regions();
+        // this->flood_fill_mesh_regions();
         this->raycast_remaining_unknown_nodes();
     }
 
@@ -563,7 +562,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     sint Surface_Mesh_Geometry::append_adv_info(
-            mtk::Interpolation_Mesh* mMesh,
+            mtk::Interpolation_Mesh* aMesh,
             Vector< sint >&          aOwnedADVIds,
             Matrix< IdMat >&         aOwnedijklIDs,
             sint                     aOffsetID,
@@ -578,7 +577,7 @@ namespace moris::gen
         {
             // Append the ADV info for this field
             aOffsetID = Design::append_adv_info(
-                    mMesh,
+                    aMesh,
                     aOwnedADVIds,
                     aOwnedijklIDs,
                     aOffsetID,

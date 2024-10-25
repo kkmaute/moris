@@ -742,7 +742,7 @@ namespace moris::mtk
         Kokkos::View< arborx::QueryResult*, MemorySpace > tResults( "values", 0 );
         Kokkos::View< int*, MemorySpace >                 tOffsets( "offsets", 0 );
 
-        // Build the struct that holds the ArborX Ray information from the input matrices
+        // Build the struct that holds the Arborx Ray information from the input matrices
         arborx::QueryRays< MemorySpace > tQueryRays = this->build_arborx_ray_batch< MemorySpace >( tExecutionSpace, aOrigins, aDirections );
 
         // Query the BVH for the intersected facets
