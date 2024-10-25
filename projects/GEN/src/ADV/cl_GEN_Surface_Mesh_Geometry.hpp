@@ -111,8 +111,6 @@ namespace moris::gen
     class Surface_Mesh_Geometry : public Geometry
             , public mtk::Surface_Mesh
     {
-
-
       private:
         uint mIteration     = 0;
         bool mBasesComputed = false;
@@ -135,6 +133,10 @@ namespace moris::gen
         const mtk::Mesh*                             mMesh = nullptr;
         std::unordered_map< uint, mtk::Mesh_Region > mNodeMeshRegions;    // contains information about the nodes in the interpolation mesh from a flood fill. The nodes that are undefined will be raycast to determine their region.
 
+        Matrix< DDRMat >                             tTEMPOrigins;
+        Vector< Matrix< DDRMat > >                   tTEMPDirections;
+        Vector< Vector< mtk::Intersection_Vector > > tSinglyCast;
+
       public:
         /**
          * Constructor taking in a field pointer and a set of parameters.
@@ -148,12 +150,6 @@ namespace moris::gen
                 const Vector< ADV >&          aADVs,
                 ADV_Manager&                  aADVManager,
                 std::shared_ptr< Library_IO > aLibrary = nullptr );
-
-        /**
-         * Default destructor
-         *
-         */
-        ~Surface_Mesh_Geometry();
 
         // ----------------------------------------------------------------------------------------------------------------
         // FORWARD ANALYSIS FUNCTIONS
@@ -215,7 +211,7 @@ namespace moris::gen
          *
          */
         bool
-        depends_on_advs() const;
+        depends_on_advs() const override;
 
         /**
          * Resets all nodal information, including child nodes. This should be called when a new XTK mesh is being
@@ -279,7 +275,7 @@ namespace moris::gen
          * @param aUpperBounds  ADV upper bounds
          * @return uint The new offset ID after this geometry has appended its information
          */
-        virtual sint append_adv_info(
+        sint append_adv_info(
                 mtk::Interpolation_Mesh* mMesh,
                 Vector< sint >&          aOwnedADVIds,
                 Matrix< IdMat >&         aOwnedijklIDs,
@@ -294,7 +290,7 @@ namespace moris::gen
          * @param aFacetIndex local index of the facet in the surface mesh
          * @return Matrix< DDRMat > center of the facet
          */
-        [[nodiscard]] Matrix< DDRMat > get_facet_center( const uint aFacetIndex );
+        [[nodiscard]] Matrix< DDRMat > get_facet_center( uint aFacetIndex );
 
         /**
          * Gets the basis functions for the specified vertex
@@ -361,7 +357,7 @@ namespace moris::gen
          *
          * @return Vector< std::string > The name of each perturbation field
          */
-        virtual Vector< std::string > get_field_names() override;
+        Vector< std::string > get_field_names() override;
 
         /**
          * Used to print geometry information to exodus files and print debug information.
@@ -440,7 +436,7 @@ namespace moris::gen
          * @return true if the vertex's index is not in mParameters.mFixedVertexIndices and the node's position is within the boundaries of the mesh
          * @return false if either of the above conditions are true
          */
-        bool facet_vertex_depends_on_advs( const uint aFacetVertexIndex );
+        bool facet_vertex_depends_on_advs( uint aFacetVertexIndex );
 
 
       private:
@@ -535,8 +531,8 @@ namespace moris::gen
          */
         real interpolate_perturbation_from_background_element(
                 const mtk::Cell* aBackgroundElement,
-                const uint       aFieldIndex,
-                const uint       aFacetVertexIndex );
+                uint             aFieldIndex,
+                uint             aFacetVertexIndex );
     };
 }    // namespace moris::gen
 

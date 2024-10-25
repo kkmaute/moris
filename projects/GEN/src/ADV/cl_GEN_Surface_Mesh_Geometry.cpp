@@ -117,12 +117,6 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Surface_Mesh_Geometry::~Surface_Mesh_Geometry()
-    {
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
     void Surface_Mesh_Geometry::set_node_manager( Node_Manager& aNodeManager )
     {
         mNodeManager = &aNodeManager;
