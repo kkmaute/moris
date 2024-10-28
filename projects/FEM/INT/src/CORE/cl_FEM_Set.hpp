@@ -177,6 +177,7 @@ namespace moris
             map< sint, sint > mVertexMeshIndexToClusterIndexMap;
 
             Vector< std::shared_ptr< gen::Design_Extraction_Operator > > mIGExtractionOperators;
+<<<<<<< HEAD
 
             Vector< Matrix< DDRMat > > mAdvGeoWeights;    // Vector of each node with Adv weights
 
@@ -185,6 +186,14 @@ namespace moris
 
             Vector< Vector< Matrix< DDRMat > > > mAdvPropWeightsLeader;      // Vector of each property and node with Adv weights
             Vector< Vector< Matrix< DDRMat > > > mAdvPropWeightsFollower;    // Vector of each property andnode with Adv weights
+=======
+            Vector< std::shared_ptr< gen::Design_Extraction_Operator > > mIPExtractionOperatorsLeader;
+            Vector< std::shared_ptr< gen::Design_Extraction_Operator > > mIPExtractionOperatorsFollower;
+
+            Vector< Matrix< DDRMat > > mAdvGeoWeights;             // Vector of each node with Adv weights
+            Vector< Matrix< DDRMat > > mAdvPropWeightsLeader;      // Vector of each node with Adv weights
+            Vector< Matrix< DDRMat > > mAdvPropWeightsFollower;    // Vector of each node with Adv weights
+>>>>>>> branch 'directSA' of git@github.com:kkmaute/moris
 
             Matrix< DDRMat > mCurrrentAdvGeoWeight;    // Adv weight of current node
 
