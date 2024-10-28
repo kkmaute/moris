@@ -875,6 +875,12 @@ namespace moris::prm
         // (either it is almost converged in the current configuration or the residual grows)
         tNonLinAlgorithmParameterList.insert( "NLA_remap_residual_change_tolerance", -1e-2 );
 
+        // Function to pause the forward solve if needed, useful if waiting for a file from an external source
+        tNonLinAlgorithmParameterList.insert( "NLA_forward_pause_function", "" );
+
+        // Function to pause the sensitivity analysis if needed, useful if waiting for a file from an external source
+        tNonLinAlgorithmParameterList.insert( "NLA_sensitivity_pause_function", "" );
+
         return tNonLinAlgorithmParameterList;
     }
 

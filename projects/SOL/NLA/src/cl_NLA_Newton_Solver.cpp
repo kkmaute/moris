@@ -116,9 +116,16 @@ void Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProble
             tRebuildJacobian = mParameterListNonlinearSolver.get< bool >( "NLA_rebuild_jacobian" );
         }
 
-        // For sensitivity analysis only: set current solution to LHS of linear system as residual is defined by A x - b
-        if ( !mMyNonLinSolverManager->get_solver_interface()->is_forward_analysis() )
+        // pause if needed
+        if ( mMyNonLinSolverManager->get_solver_interface()->is_forward_analysis() )
         {
+            mForwardPauseFunction();
+        }
+        else
+        {
+            mSensitivityPauseFunction();
+
+            // For sensitivity analysis only: set current solution to LHS of linear system as residual is defined by A x - b
             mNonlinearProblem->get_linearized_problem()->set_free_solver_LHS( mNonlinearProblem->get_full_vector() );
         }
 
