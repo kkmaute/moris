@@ -255,6 +255,9 @@ namespace moris::dla
         // add contribution to RHS
         mPointVectorRHS->vec_plus_vec( 1.0, *tMatTimesSolVec, 1.0 );
 
+        //        std::cout << "Linear_Problem::compute_residual_for_adjoint_solve";
+        //        mPointVectorRHS->print();
+
         // delete auxiliary vector
         delete tMatTimesSolVec;
     }

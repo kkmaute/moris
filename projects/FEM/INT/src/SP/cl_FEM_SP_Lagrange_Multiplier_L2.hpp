@@ -11,20 +11,20 @@
 #ifndef SRC_FEM_CL_FEM_SP_LAGRANGE_MULTIPLIER_L2_HPP_
 #define SRC_FEM_CL_FEM_SP_LAGRANGE_MULTIPLIER_L2_HPP_
 
-//#ifndef SRC_FEM_CL_FEM_SP_DIRICHLET_NITSCHE_HPP_
-//#define SRC_FEM_CL_FEM_SP_DIRICHLET_NITSCHE_HPP_
+// #ifndef SRC_FEM_CL_FEM_SP_DIRICHLET_NITSCHE_HPP_
+// #define SRC_FEM_CL_FEM_SP_DIRICHLET_NITSCHE_HPP_
 
 #include <map>
 
-#include "moris_typedefs.hpp"                     //MRS/COR/src
-#include "cl_Vector.hpp"                          //MRS/CNT/src
+#include "moris_typedefs.hpp"    //MRS/COR/src
+#include "cl_Vector.hpp"         //MRS/CNT/src
 
-#include "cl_Matrix.hpp"                    //LINALG/src
-#include "linalg_typedefs.hpp"              //LINALG/src
+#include "cl_Matrix.hpp"          //LINALG/src
+#include "linalg_typedefs.hpp"    //LINALG/src
 
-#include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
-#include "cl_FEM_Constitutive_Model.hpp"    //FEM/INT/src
-#include "cl_FEM_Stabilization_Parameter.hpp"     //FEM/INT/src
+#include "cl_FEM_Field_Interpolator.hpp"         //FEM/INT/src
+#include "cl_FEM_Constitutive_Model.hpp"         //FEM/INT/src
+#include "cl_FEM_Stabilization_Parameter.hpp"    //FEM/INT/src
 #include "cl_FEM_Cluster.hpp"
 
 namespace moris::fem
@@ -63,7 +63,7 @@ namespace moris::fem
         /**
          * trivial destructor
          */
-        ~SP_Lagrange_Multiplier_L2() override{};
+        ~SP_Lagrange_Multiplier_L2() override {};
 
         //------------------------------------------------------------------------------
         /**
@@ -88,9 +88,9 @@ namespace moris::fem
          * @param[ in ] aIsLeader enum for leader or follower
          */
         void set_dv_type_list(
-                Vector< Vector< gen::PDV_Type > > &aDvTypes,
-                Vector< std::string >             &aDvStrings,
-                mtk::Leader_Follower               aIsLeader = mtk::Leader_Follower::LEADER ) override
+                Vector< gen::PDV_Type > &aDvTypes,
+                Vector< std::string >   &aDvStrings,
+                mtk::Leader_Follower     aIsLeader = mtk::Leader_Follower::LEADER ) override
         {
             Stabilization_Parameter::set_dv_type_list( aDvTypes, aIsLeader );
         }
@@ -137,4 +137,3 @@ namespace moris::fem
 }    // namespace moris::fem
 
 #endif /* SRC_FEM_CL_FEM_SP_DIRICHLET_NITSCHE_HPP_ */
-

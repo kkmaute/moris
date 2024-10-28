@@ -12,13 +12,13 @@
 #define SRC_FEM_CL_FEM_SP_COMPRESSIBLE_VELOCITY_DIRICHLET_NITSCHE_HPP_
 
 #include <map>
-//MRS/CNT/src
+// MRS/CNT/src
 #include "moris_typedefs.hpp"
 #include "cl_Vector.hpp"
-//LINALG/src
+// LINALG/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-//FEM/INT/src
+// FEM/INT/src
 #include "cl_FEM_Field_Interpolator.hpp"
 #include "cl_FEM_Constitutive_Model.hpp"
 #include "cl_FEM_Stabilization_Parameter.hpp"
@@ -69,7 +69,7 @@ namespace moris::fem
         /**
          * trivial destructor
          */
-        ~SP_Compressible_Velocity_Dirichlet_Nitsche() override{};
+        ~SP_Compressible_Velocity_Dirichlet_Nitsche() override {};
 
         //------------------------------------------------------------------------------
         /**
@@ -91,9 +91,9 @@ namespace moris::fem
          * @param[ in ] aIsLeader enum for leader or follower
          */
         void set_dv_type_list(
-                Vector< Vector< gen::PDV_Type > > &aDvTypes,
-                Vector< std::string >             &aDvStrings,
-                mtk::Leader_Follower               aIsLeader = mtk::Leader_Follower::LEADER ) override
+                Vector< gen::PDV_Type > &aDvTypes,
+                Vector< std::string >   &aDvStrings,
+                mtk::Leader_Follower     aIsLeader = mtk::Leader_Follower::LEADER ) override
         {
             Stabilization_Parameter::set_dv_type_list( aDvTypes, aIsLeader );
         }
@@ -138,4 +138,3 @@ namespace moris::fem
 }    // namespace moris::fem
 
 #endif /* SRC_FEM_CL_FEM_SP_COMPRESSIBLE_VELOCITY_DIRICHLET_NITSCHE_HPP_ */
-

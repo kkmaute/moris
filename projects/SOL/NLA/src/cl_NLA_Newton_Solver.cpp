@@ -217,6 +217,7 @@ void Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProble
                 -tRelaxationParameter,
                 *mNonlinearProblem->get_linearized_problem()->get_full_solver_LHS(),
                 1.0 );
+        //        mNonlinearProblem->get_full_vector()->print();
     }
 }
 

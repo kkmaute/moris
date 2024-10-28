@@ -509,9 +509,11 @@ namespace moris::fem
 
     void
     IWG::set_dv_type_list(
-            const Vector< Vector< gen::PDV_Type > >& aDvTypes,
-            mtk::Leader_Follower                     aIsLeader )
+            const Vector< gen::PDV_Type >& aDvTypes,
+            mtk::Leader_Follower           aIsLeader )
     {
+        MORIS_ERROR( aDvTypes.size() <= 1, "IWG::set_dv_type_list - only one level of dv types is supported" );
+
         switch ( aIsLeader )
         {
             case mtk::Leader_Follower::LEADER:
@@ -533,7 +535,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    const Vector< Vector< gen::PDV_Type > >&
+    const Vector< gen::PDV_Type >&
     IWG::get_dv_type_list(
             mtk::Leader_Follower aIsLeader ) const
     {
@@ -804,11 +806,8 @@ namespace moris::fem
             tLeaderDofCounter += mLeaderDofTypes( iDof ).size();
         }
 
-        // get number of direct leader dv dependencies
-        for ( uint iDv = 0; iDv < mLeaderDvTypes.size(); iDv++ )
-        {
-            tLeaderDvCounter += mLeaderDvTypes( iDv ).size();
-        }
+        // count direct leader dv dependencies
+        tLeaderDvCounter += mLeaderDvTypes.size();
 
         // get number of direct leader field dependencies
         for ( uint iFi = 0; iFi < mLeaderFieldTypes.size(); iFi++ )
@@ -822,11 +821,8 @@ namespace moris::fem
             tFollowerDofCounter += mFollowerDofTypes( iDof ).size();
         }
 
-        // get number of direct follower dv dependencies
-        for ( uint iDv = 0; iDv < mFollowerDvTypes.size(); iDv++ )
-        {
-            tFollowerDvCounter += mFollowerDvTypes( iDv ).size();
-        }
+        // count direct follower dv dependencies
+        tFollowerDvCounter += mFollowerDvTypes.size();
 
         // get number of direct follower field dependencies
         for ( uint iFi = 0; iFi < mFollowerFieldTypes.size(); iFi++ )
@@ -993,12 +989,8 @@ namespace moris::fem
             aDofTypes( 0 ).append( mLeaderDofTypes( iDof ) );
         }
 
-        // loop over leader dv direct dependencies
-        for ( uint iDv = 0; iDv < mLeaderDvTypes.size(); iDv++ )
-        {
-            // populate the dv list
-            aDvTypes( 0 ).append( mLeaderDvTypes( iDv ) );
-        }
+        // add leader dv direct dependencies
+        aDvTypes( 0 ).append( mLeaderDvTypes );
 
         // loop over leader field direct dependencies
         for ( uint iFi = 0; iFi < mLeaderFieldTypes.size(); iFi++ )
@@ -1014,11 +1006,8 @@ namespace moris::fem
             aDofTypes( 1 ).append( mFollowerDofTypes( iDof ) );
         }
 
-        // loop over follower dv direct dependencies
-        for ( uint iDv = 0; iDv < mFollowerDvTypes.size(); iDv++ )
-        {
-            aDvTypes( 1 ).append( mFollowerDvTypes( iDv ) );
-        }
+        // add dv direct dependencies
+        aDvTypes( 1 ).append( mFollowerDvTypes );
 
         // loop over follower dv direct dependencies
         for ( uint iFi = 0; iFi < mFollowerFieldTypes.size(); iFi++ )
@@ -1171,8 +1160,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    IWG::build_global_dof_dv_and_field_type_list()
+    void IWG::build_global_dof_dv_and_field_type_list()
     {
         // LEADER-------------------------------------------------------
         // get number of dof and dv types on set
@@ -1210,7 +1198,7 @@ namespace moris::fem
         {
             // get set index for dv type
             sint tDvTypeIndex =
-                    mSet->get_index_from_unique_dv_type_map( mLeaderDvTypes( iDv )( 0 ) );    // FIXME'
+                    mSet->get_index_from_unique_dv_type_map( mLeaderDvTypes( iDv ) );    // FIXME'
 
             // put the dv type in the checklist
             tDvCheckList( tDvTypeIndex ) = 1;
@@ -1261,15 +1249,15 @@ namespace moris::fem
                 }
 
                 // get dv types for property
-                const Vector< Vector< gen::PDV_Type > >& tActiveDvTypes =
+                const Vector< gen::PDV_Type >& tActiveDvTypes =
                         tProperty->get_dv_type_list();
 
                 // loop on property dv type
-                for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
+                for ( const auto& tActiveDvType : tActiveDvTypes )
                 {
                     // get set index for dv type
                     sint tDvTypeIndex =
-                            mSet->get_index_from_unique_dv_type_map( tActiveDvTypes( iDv )( 0 ) );
+                            mSet->get_index_from_unique_dv_type_map( tActiveDvType );
 
                     // if dof enum not in the list
                     if ( tDvCheckList( tDvTypeIndex ) != 1 )
@@ -1278,7 +1266,7 @@ namespace moris::fem
                         tDvCheckList( tDvTypeIndex ) = 1;
 
                         // put the dof type in the global type list
-                        mLeaderGlobalDvTypes.push_back( tActiveDvTypes( iDv ) );
+                        mLeaderGlobalDvTypes.push_back( tActiveDvType );
                     }
                 }
 
@@ -1364,15 +1352,15 @@ namespace moris::fem
                 }
 
                 // get dv types for constitutive model
-                const Vector< Vector< gen::PDV_Type > >& tActiveDvTypes =
+                const Vector< gen::PDV_Type >& tActiveDvTypes =
                         tCM->get_global_dv_type_list();
 
                 // loop on property dv type
-                for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
+                for ( const auto& tActiveDvType : tActiveDvTypes )
                 {
                     // get set index for dv type
                     sint tDvTypeIndex =
-                            mSet->get_index_from_unique_dv_type_map( tActiveDvTypes( iDv )( 0 ) );
+                            mSet->get_index_from_unique_dv_type_map( tActiveDvType );
 
                     // if dv enum not in the list
                     if ( tDvCheckList( tDvTypeIndex ) != 1 )
@@ -1381,7 +1369,7 @@ namespace moris::fem
                         tDvCheckList( tDvTypeIndex ) = 1;
 
                         // put the dv type in the global type list
-                        mLeaderGlobalDvTypes.push_back( tActiveDvTypes( iDv ) );
+                        mLeaderGlobalDvTypes.push_back( tActiveDvType );
                     }
                 }
 
@@ -1437,15 +1425,15 @@ namespace moris::fem
                 }
 
                 // get dv types for constitutive model
-                const Vector< Vector< gen::PDV_Type > >& tActiveDvTypes =
+                const Vector< gen::PDV_Type >& tActiveDvTypes =
                         tSP->get_global_dv_type_list( mtk::Leader_Follower::LEADER );
 
                 // loop on property dv type
-                for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
+                for ( const auto& tActiveDvType : tActiveDvTypes )
                 {
                     // get set index for dv type
                     sint tDvTypeIndex =
-                            mSet->get_index_from_unique_dv_type_map( tActiveDvTypes( iDv )( 0 ) );
+                            mSet->get_index_from_unique_dv_type_map( tActiveDvType );
 
                     // if dv enum not in the list
                     if ( tDvCheckList( tDvTypeIndex ) != 1 )
@@ -1454,7 +1442,7 @@ namespace moris::fem
                         tDvCheckList( tDvTypeIndex ) = 1;
 
                         // put the dv type in the global type list
-                        mLeaderGlobalDvTypes.push_back( tActiveDvTypes( iDv ) );
+                        mLeaderGlobalDvTypes.push_back( tActiveDvType );
                     }
                 }
             }
@@ -1496,7 +1484,7 @@ namespace moris::fem
         {
             // get set index for dv type
             sint tDvTypeIndex =
-                    mSet->get_index_from_unique_dv_type_map( mFollowerDvTypes( iDv )( 0 ) );
+                    mSet->get_index_from_unique_dv_type_map( mFollowerDvTypes( iDv ) );
 
             // put the dv type in the check list
             tDvCheckList( tDvTypeIndex ) = 1;
@@ -1547,15 +1535,15 @@ namespace moris::fem
                 }
 
                 // get dv types for property
-                const Vector< Vector< gen::PDV_Type > >& tActiveDvTypes =
+                const Vector< gen::PDV_Type >& tActiveDvTypes =
                         tProperty->get_dv_type_list();
 
                 // loop on property dv type
-                for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
+                for ( const auto& tActiveDvType : tActiveDvTypes )
                 {
                     // get set index for dv type
                     sint tDvTypeIndex =
-                            mSet->get_index_from_unique_dv_type_map( tActiveDvTypes( iDv )( 0 ) );
+                            mSet->get_index_from_unique_dv_type_map( tActiveDvType );
 
                     // if dv enum not in the list
                     if ( tDvCheckList( tDvTypeIndex ) != 1 )
@@ -1564,7 +1552,7 @@ namespace moris::fem
                         tDvCheckList( tDvTypeIndex ) = 1;
 
                         // put the dv type in the global type list
-                        mFollowerGlobalDvTypes.push_back( tActiveDvTypes( iDv ) );
+                        mFollowerGlobalDvTypes.push_back( tActiveDvType );
                     }
                 }
 
@@ -1649,14 +1637,14 @@ namespace moris::fem
                 }
 
                 // get dv types for constitutive model
-                const Vector< Vector< gen::PDV_Type > >& tActiveDvTypes =
+                const Vector< gen::PDV_Type >& tActiveDvTypes =
                         tCM->get_global_dv_type_list();
 
                 // loop on property dv type
-                for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
+                for ( const auto& tActiveDvType : tActiveDvTypes )
                 {
                     // get set index for dv type
-                    sint tDvTypeIndex = mSet->get_index_from_unique_dv_type_map( tActiveDvTypes( iDv )( 0 ) );
+                    sint tDvTypeIndex = mSet->get_index_from_unique_dv_type_map( tActiveDvType );
 
                     // if dv enum not in the list
                     if ( tDvCheckList( tDvTypeIndex ) != 1 )
@@ -1665,7 +1653,7 @@ namespace moris::fem
                         tDvCheckList( tDvTypeIndex ) = 1;
 
                         // put the dv type in the global type list
-                        mFollowerGlobalDvTypes.push_back( tActiveDvTypes( iDv ) );
+                        mFollowerGlobalDvTypes.push_back( tActiveDvType );
                     }
                 }
 
@@ -1721,14 +1709,14 @@ namespace moris::fem
                 }
 
                 // get dv types for stabilization parameter
-                const Vector< Vector< gen::PDV_Type > >& tActiveDvTypes =
+                const Vector< gen::PDV_Type >& tActiveDvTypes =
                         tSP->get_global_dv_type_list( mtk::Leader_Follower::FOLLOWER );
 
                 // loop on property dv type
-                for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
+                for ( const auto& tActiveDvType : tActiveDvTypes )
                 {
                     // get set index for dv type
-                    sint tDvTypeIndex = mSet->get_index_from_unique_dv_type_map( tActiveDvTypes( iDv )( 0 ) );
+                    sint tDvTypeIndex = mSet->get_index_from_unique_dv_type_map( tActiveDvType );
 
                     // if dv enum not in the list
                     if ( tDvCheckList( tDvTypeIndex ) != 1 )
@@ -1737,7 +1725,7 @@ namespace moris::fem
                         tDvCheckList( tDvTypeIndex ) = 1;
 
                         // put the dv type in the global type list
-                        mFollowerGlobalDvTypes.push_back( tActiveDvTypes( iDv ) );
+                        mFollowerGlobalDvTypes.push_back( tActiveDvType );
                     }
                 }
             }
@@ -1751,8 +1739,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    IWG::build_requested_dof_type_list( const bool aIsStaggered )
+    void IWG::build_requested_dof_type_list( const bool aIsStaggered )
     {
         // clear the dof lists
         mRequestedLeaderGlobalDofTypes.clear();
@@ -1812,8 +1799,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    IWG::check_field_interpolators( mtk::Leader_Follower aIsLeader )
+    void IWG::check_field_interpolators( mtk::Leader_Follower aIsLeader )
     {
         switch ( aIsLeader )
         {
@@ -1836,7 +1822,7 @@ namespace moris::fem
                     // check that the field interpolator was set
                     MORIS_ASSERT(
                             this->get_field_interpolator_manager( aIsLeader )->    //
-                                    get_field_interpolators_for_type( mLeaderGlobalDvTypes( iDvFI )( 0 ) )
+                                    get_field_interpolators_for_type( mLeaderGlobalDvTypes( iDvFI ) )
                                     != nullptr,
                             "IWG::check_field_interpolators - Leader dv FI missing. " );
                 }
@@ -1861,7 +1847,7 @@ namespace moris::fem
                     // check that the field interpolator was set
                     MORIS_ASSERT(
                             this->get_field_interpolator_manager( aIsLeader )->    //
-                                    get_field_interpolators_for_type( mFollowerGlobalDvTypes( iDvFI )( 0 ) )
+                                    get_field_interpolators_for_type( mFollowerGlobalDvTypes( iDvFI ) )
                                     != nullptr,
                             "IWG::check_field_interpolators - Follower dv FI missing. " );
                 }
@@ -1920,7 +1906,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    const Vector< Vector< gen::PDV_Type > >&
+    const Vector< gen::PDV_Type >&
     IWG::get_global_dv_type_list(
             mtk::Leader_Follower aIsLeader )
     {
@@ -2003,8 +1989,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    IWG::select_jacobian_FD(
+    void IWG::select_jacobian_FD(
             real               aWStar,
             real               aPerturbation,
             fem::FDScheme_Type aFDSchemeType,
@@ -2138,8 +2123,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    IWG::select_jacobian_FD_double(
+    void IWG::select_jacobian_FD_double(
             real               aWStar,
             real               aPerturbation,
             fem::FDScheme_Type aFDSchemeType,
@@ -2493,8 +2477,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    bool
-    IWG::check_jacobian(
+    bool IWG::check_jacobian(
             real              aPerturbation,
             real              aEpsilon,
             real              aWStar,
@@ -2608,8 +2591,7 @@ namespace moris::fem
     //------------------------------------------------------------------------------
 
     // FIXME: This function needs to go, functionality will be integrated into the usual check jacobian function
-    bool
-    IWG::check_jacobian_multi_residual(
+    bool IWG::check_jacobian_multi_residual(
             real              aPerturbation,
             real              aEpsilon,
             real              aWStar,
@@ -2829,8 +2811,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    real
-    IWG::build_perturbation_size(
+    real IWG::build_perturbation_size(
             const real& aPerturbation,
             const real& aCoefficientToPerturb,
             const real& aMaxPerturbation,
@@ -2845,8 +2826,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    real
-    IWG::build_perturbation_size_relative(
+    real IWG::build_perturbation_size_relative(
             const real& aPerturbation,
             const real& aCoefficientToPerturb,
             const real& aMaxPerturbation,
@@ -2873,8 +2853,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    real
-    IWG::build_perturbation_size_absolute(
+    real IWG::build_perturbation_size_absolute(
             const real& aPerturbation,
             const real& aCoefficientToPerturb,
             const real& aMaxPerturbation,
@@ -2896,8 +2875,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    real
-    IWG::check_ig_coordinates_inside_ip_element(
+    real IWG::check_ig_coordinates_inside_ip_element(
             const real&         aPerturbation,
             const real&         aCoefficientToPerturb,
             const uint&         aSpatialDirection,
@@ -2992,8 +2970,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    IWG::select_dRdp_FD_geometry_bulk(
+    void IWG::select_dRdp_FD_geometry_bulk(
             moris::real                   aWStar,
             moris::real                   aPerturbation,
             fem::FDScheme_Type            aFDSchemeType,
@@ -3193,8 +3170,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    IWG::select_dRdp_FD_geometry_sideset(
+    void IWG::select_dRdp_FD_geometry_sideset(
             moris::real                   aWStar,
             moris::real                   aPerturbation,
             fem::FDScheme_Type            aFDSchemeType,
@@ -3360,7 +3336,7 @@ namespace moris::fem
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
 
-                    print( tDrDpGeo, "tDrDpGeo" );
+                    // print( tDrDpGeo, "tDrDpGeo" );
 
                     // yyyy
                     mSet->get_drdpgeo()(
@@ -3402,8 +3378,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    IWG::select_dRdp_FD_geometry_time_sideset(
+    void IWG::select_dRdp_FD_geometry_time_sideset(
             moris::real                   aWStar,
             moris::real                   aPerturbation,
             fem::FDScheme_Type            aFDSchemeType,
@@ -3588,8 +3563,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    IWG::select_dRdp_FD_geometry_double(
+    void IWG::select_dRdp_FD_geometry_double(
             moris::real                   aWStar,
             moris::real                   aPerturbation,
             fem::FDScheme_Type            aFDSchemeType,
@@ -3891,8 +3865,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    IWG::add_cluster_measure_dRdp_FD_geometry(
+    void IWG::add_cluster_measure_dRdp_FD_geometry(
             moris::real        aWStar,
             moris::real        aPerturbation,
             fem::FDScheme_Type aFDSchemeType )
@@ -3988,8 +3961,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    IWG::add_cluster_measure_dRdp_FD_geometry_double(
+    void IWG::add_cluster_measure_dRdp_FD_geometry_double(
             moris::real        aWStar,
             moris::real        aPerturbation,
             fem::FDScheme_Type aFDSchemeType )
@@ -4105,15 +4077,13 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    IWG::select_dRdp_FD_material(
+    void IWG::select_dRdp_FD_material(
             moris::real        aWStar,
             moris::real        aPerturbation,
             fem::FDScheme_Type aFDSchemeType )
     {
         // get the requested ip pdv types
-        Vector< Vector< gen::PDV_Type > > tRequestedPdvTypes;
-        mSet->get_ip_dv_types_for_set( tRequestedPdvTypes );
+        const Vector< gen::PDV_Type >& tRequestedPdvTypes = mSet->get_ip_dv_types_for_set();
 
         // get number of requested dv types
         uint tNumDvType = tRequestedPdvTypes.size();
@@ -4124,8 +4094,12 @@ namespace moris::fem
             return;
         }
 
+        const Vector< Vector< Matrix< DDRMat > > >& tPropWeightsLeader =
+                mSet->get_adv_prop_weights( mtk::Leader_Follower::LEADER );
+
         // storage residual value
-        Matrix< DDRMat > tResidualStore = mSet->get_residual()( 0 );
+        Matrix< DDRMat >
+                tResidualStore = mSet->get_residual()( 0 );
 
         // get the FD scheme info
         Vector< Vector< real > > tFDScheme;
@@ -4141,28 +4115,35 @@ namespace moris::fem
 
         // reset, evaluate and store the residual for unperturbed case
         mSet->get_residual()( 0 ).fill( 0.0 );
+
         this->compute_residual( aWStar );
+
         Matrix< DDRMat > tResidual =
                 mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } );
 
         // init perturbation
         real tDeltaH = 0.0;
 
+        // initialize derivative of ressidual with respect to single PDV
+        Matrix< DDRMat > tDrDpMat( mSet->get_drdpmat().n_rows(), 1 );
+
         // loop over the dv types associated with a FI
         for ( uint iFI = 0; iFI < tNumDvType; iFI++ )
         {
             // get dv index
-            sint tDvDepIndex = mSet->get_dv_index_for_type(
-                    tRequestedPdvTypes( iFI )( 0 ),
-                    mtk::Leader_Follower::LEADER );
+            //            sint tDvDepIndex = mSet->get_dv_index_for_type(
+            //                    tRequestedPdvTypes( iFI ),
+            //                    mtk::Leader_Follower::LEADER );
 
             // get the FI for the dv type
             Field_Interpolator* tFI =
-                    mLeaderFIManager->get_field_interpolators_for_type( tRequestedPdvTypes( iFI )( 0 ) );
+                    mLeaderFIManager->get_field_interpolators_for_type( tRequestedPdvTypes( iFI ) );
 
             // get number of leader FI bases and fields
-            uint tDerNumBases  = tFI->get_number_of_space_time_bases();
-            uint tDerNumFields = tFI->get_number_of_fields();
+            uint tDerNumBases = tFI->get_number_of_space_time_bases();
+
+            MORIS_ERROR( tFI->get_number_of_fields() == 1,
+                    "IWG::compute_dRdp_FD_material - Only one field is supported." );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();
@@ -4170,74 +4151,92 @@ namespace moris::fem
             // init coeff counter
             uint tCoeffCounter = 0;
 
-            // loop over the coefficient column
-            for ( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
+            // loop over the coefficient row
+            for ( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
             {
-                // loop over the coefficient row
-                for ( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
+                const Matrix< DDRMat >& tPropWeight = tPropWeightsLeader( iFI )( iCoeffRow );
+
+                // print( tPropWeight, "tPropWeightsLeader " );
+
+                // skip if the weight is zero
+                if ( norm( tPropWeight ) < MORIS_REAL_EPS )
                 {
-                    // compute the perturbation absolute value
-                    tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
-
-                    // check that perturbation is not zero
-                    if ( std::abs( tDeltaH ) < 1e-12 )
-                    {
-                        tDeltaH = aPerturbation;
-                    }
-
-                    // get mat pdv index
-                    uint tPdvIndex = mSet->get_mat_pdv_assembly_map()( tDvDepIndex )( 0, 0 ) + tCoeffCounter;
-
-                    // set starting point for FD
-                    uint tStartPoint = 0;
-
-                    // if backward or forward FD, add unperturbed residual contribution
-                    if ( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
-                            ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
-                    {
-                        // add unperturbed leader residual contribution to dRdp
-                        mSet->get_drdpmat()(
-                                { tResDofAssemblyStart, tResDofAssemblyStop },
-                                { tPdvIndex, tPdvIndex } ) +=
-                                tFDScheme( 1 )( 0 ) * tResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
-
-                        // skip first point in FD
-                        tStartPoint = 1;
-                    }
-
-                    // loop over the points for FD
-                    for ( uint iPoint = tStartPoint; iPoint < tNumFDPoints; iPoint++ )
-                    {
-                        // reset the perturbed coefficients
-                        Matrix< DDRMat > tCoeffPert = tCoeff;
-
-                        // perturb the coefficient
-                        tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
-
-                        // set the perturbed coefficients to FI
-                        tFI->set_coeff( tCoeffPert );
-
-                        // reset properties, CM and SP for IWG
-                        this->reset_eval_flags();
-
-                        // reset the residual
-                        mSet->get_residual()( 0 ).fill( 0.0 );
-
-                        // compute the residual
-                        this->compute_residual( aWStar );
-
-                        // evaluate dRdpMat
-                        mSet->get_drdpmat()(
-                                { tResDofAssemblyStart, tResDofAssemblyStop },
-                                { tPdvIndex, tPdvIndex } ) +=
-                                tFDScheme( 1 )( iPoint ) *                                                                //
-                                mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } ) /    //
-                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
-                    }
-                    // update coefficient counter
-                    tCoeffCounter++;
+                    continue;
                 }
+
+                // fill the derivative matrix with zeros
+                tDrDpMat.fill( 0.0 );
+
+                // compute the perturbation absolute value
+                tDeltaH = aPerturbation * tCoeff( iCoeffRow );
+
+                // check that perturbation is not zero
+                if ( std::abs( tDeltaH ) < 1e-12 )
+                {
+                    tDeltaH = aPerturbation;
+                }
+
+                // get mat pdv index
+                //                uint tPdvIndex = mSet->get_mat_pdv_assembly_map()( tDvDepIndex )( 0, 0 ) + tCoeffCounter;
+
+                // set starting point for FD
+                uint tStartPoint = 0;
+
+                // if backward or forward FD, add unperturbed residual contribution
+                if ( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
+                        ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                {
+                    // add unperturbed leader residual contribution to dRdp
+                    //                    mSet->get_drdpmat()(
+                    //                            { tResDofAssemblyStart, tResDofAssemblyStop },
+                    //                            { tPdvIndex, tPdvIndex } )
+                    tDrDpMat +=
+                            tFDScheme( 1 )( 0 ) * tResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                    // skip first point in FD
+                    tStartPoint = 1;
+                }
+
+                // loop over the points for FD
+                for ( uint iPoint = tStartPoint; iPoint < tNumFDPoints; iPoint++ )
+                {
+                    // reset the perturbed coefficients
+                    Matrix< DDRMat > tCoeffPert = tCoeff;
+
+                    // perturb the coefficient
+                    tCoeffPert( iCoeffRow ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
+
+                    // set the perturbed coefficients to FI
+                    tFI->set_coeff( tCoeffPert );
+
+                    // reset properties, CM and SP for IWG
+                    this->reset_eval_flags();
+
+                    // reset the residual
+                    mSet->get_residual()( 0 ).fill( 0.0 );
+
+                    // compute the residual
+                    this->compute_residual( aWStar );
+
+                    // evaluate dRdpMat
+                    //                    mSet->get_drdpmat()(
+                    //                            { tResDofAssemblyStart, tResDofAssemblyStop },
+                    //                            { tPdvIndex, tPdvIndex } )
+                    tDrDpMat +=
+                            tFDScheme( 1 )( iPoint ) *                                                                //
+                            mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } ) /    //
+                            ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                }
+                // update coefficient counter
+                tCoeffCounter++;
+
+                mSet->get_drdpmat()(
+                        { tResDofAssemblyStart, tResDofAssemblyStop },
+                        { 0, tPropWeight.n_cols() - 1 } ) += tDrDpMat * tPropWeight;
+
+                // print( tDrDpMat * tPropWeight, "tDrDpMat * tPropWeight " );
             }
+
             // reset the coefficients values
             tFI->set_coeff( tCoeff );
         }
@@ -4252,18 +4251,16 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    IWG::select_dRdp_FD_material_double(
+    void IWG::select_dRdp_FD_material_double(
             moris::real        aWStar,
             moris::real        aPerturbation,
             fem::FDScheme_Type aFDSchemeType )
     {
         // get the requested ip pdv types
-        Vector< Vector< gen::PDV_Type > > tRequestedPdvTypes;
-        mSet->get_ip_dv_types_for_set( tRequestedPdvTypes );
+        const Vector< gen::PDV_Type >& tRequestedPdvTypesLeader = mSet->get_ip_dv_types_for_set();
 
         // get number of requested dv types
-        uint tNumDvType = tRequestedPdvTypes.size();
+        uint tNumDvType = tRequestedPdvTypesLeader.size();
 
         // skip remainder if no dv types active on element
         if ( tNumDvType == 0 )
@@ -4322,12 +4319,12 @@ namespace moris::fem
         {
             // get dv index
             sint tDvDepIndex = mSet->get_dv_index_for_type(
-                    tRequestedPdvTypes( iFI )( 0 ),
+                    tRequestedPdvTypesLeader( iFI ),
                     mtk::Leader_Follower::LEADER );
 
             // get the FI for the dv type
             Field_Interpolator* tFI =
-                    mLeaderFIManager->get_field_interpolators_for_type( tRequestedPdvTypes( iFI )( 0 ) );
+                    mLeaderFIManager->get_field_interpolators_for_type( tRequestedPdvTypesLeader( iFI ) );
 
             // get number of leader FI bases and fields
             uint tDerNumBases  = tFI->get_number_of_space_time_bases();
@@ -4432,19 +4429,20 @@ namespace moris::fem
         }
 
         // get the requested ip pdv types for the follower side
-        mSet->get_ip_dv_types_for_set( tRequestedPdvTypes, mtk::Leader_Follower::FOLLOWER );
+        const Vector< enum gen::PDV_Type >& tRequestedPdvTypesFollower =
+                mSet->get_ip_dv_types_for_set( mtk::Leader_Follower::FOLLOWER );
 
         // loop over the follower dv types associated with a FI
-        for ( uint iFI = 0; iFI < tRequestedPdvTypes.size(); iFI++ )
+        for ( uint iFI = 0; iFI < tRequestedPdvTypesFollower.size(); iFI++ )
         {
             // get dv index
             sint tDvDepIndex = mSet->get_dv_index_for_type(
-                    tRequestedPdvTypes( iFI )( 0 ),
+                    tRequestedPdvTypesFollower( iFI ),
                     mtk::Leader_Follower::FOLLOWER );
 
             // get the FI for the dv type
             Field_Interpolator* tFI =
-                    mFollowerFIManager->get_field_interpolators_for_type( tRequestedPdvTypes( iFI )( 0 ) );
+                    mFollowerFIManager->get_field_interpolators_for_type( tRequestedPdvTypesFollower( iFI ) );
 
             // get number of leader FI bases and fields
             uint tDerNumBases  = tFI->get_number_of_space_time_bases();

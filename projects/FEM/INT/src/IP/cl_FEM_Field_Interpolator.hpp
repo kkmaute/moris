@@ -74,7 +74,7 @@ namespace moris::fem
         Vector< MSI::Dof_Type > mDofType;
 
         // dv type
-        Vector< gen::PDV_Type > mDvType;
+        gen::PDV_Type mDvType;
 
         // field type
         Vector< mtk::Field_Type > mFieldType;
@@ -157,7 +157,7 @@ namespace moris::fem
                 const uint&                    aNumberOfFields,
                 const mtk::Interpolation_Rule& aFieldInterpolationRule,
                 Geometry_Interpolator*         aGeometryInterpolator,
-                const Vector< gen::PDV_Type >& aDvType );
+                const gen::PDV_Type            aDvType );
 
         /**
          * constructor
@@ -188,9 +188,8 @@ namespace moris::fem
          * trivial constructor for unit test
          */
         Field_Interpolator(
-                const uint&                    aNumberOfFields,
-                const Vector< gen::PDV_Type >& aDvType )
-                : mNumberOfFields( aNumberOfFields )
+                const gen::PDV_Type aDvType )
+                : mNumberOfFields( 1 )
                 , mDvType( aDvType )
         {
             mNFieldCoeff = mNumberOfFields;
@@ -242,11 +241,11 @@ namespace moris::fem
         /**
          * get dof type
          */
-        const Vector< gen::PDV_Type >&
-        get_dv_type() const
-        {
-            return mDvType;
-        }
+        //        gen::PDV_Type
+        //        get_dv_type() const
+        //        {
+        //            return mDvType;
+        //        }
 
         //------------------------------------------------------------------------------
         /**

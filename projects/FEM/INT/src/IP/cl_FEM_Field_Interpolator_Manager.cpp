@@ -36,7 +36,7 @@ namespace moris::fem
 
     Field_Interpolator_Manager::Field_Interpolator_Manager(
             const Vector< Vector< enum MSI::Dof_Type > >&   aDofTypes,
-            const Vector< Vector< enum gen::PDV_Type > >&   aDvTypes,
+            const Vector< enum gen::PDV_Type >&             aDvTypes,
             const Vector< Vector< enum mtk::Field_Type > >& aFieldTypes,
             MSI::Equation_Set*                              aEquationSet,
             mtk::Leader_Follower                            aIsLeader )
@@ -201,7 +201,7 @@ namespace moris::fem
             uint tNumTimeNodes = 1;
 
             // get the set index for the dv type group
-            uint tDvIndex = mEquationSet->get_dv_index_for_type_1( mDvTypes( iDv )( 0 ), mIsLeader );
+            uint tDvIndex = mEquationSet->get_dv_index_for_type_1( mDvTypes( iDv ), mIsLeader );
 
             // create the field interpolation rule for the dv type group
             mtk::Interpolation_Rule tFieldInterpolationRule(
@@ -218,7 +218,7 @@ namespace moris::fem
 
             // create a field interpolator for the dof type group
             mDvFI( tDvIndex ) = new Field_Interpolator(
-                    mDvTypes( iDv ).size(),
+                    1,
                     tFieldInterpolationRule,
                     mIPGeometryInterpolator,
                     mDvTypes( iDv ) );
@@ -447,7 +447,7 @@ namespace moris::fem
         for ( uint iDvFI = 0; iDvFI < mDvTypes.size(); iDvFI++ )
         {
             // get the set index for the dv type
-            sint tDvIndex = mDvTypeMap( static_cast< uint >( mDvTypes( iDvFI )( 0 ) ) );
+            sint tDvIndex = mDvTypeMap( static_cast< uint >( mDvTypes( iDvFI ) ) );
 
             // set the evaluation point
             mDvFI( tDvIndex )->set_space_time( aParamPoint );

@@ -176,7 +176,7 @@ void Solver_Interface::assemble_staggered_RHS_contribution( moris::sol::Dist_Vec
     {
         moris::uint tNumEquationObjectOnSet = this->get_num_equation_objects_on_set( Ii );
 
-        this->initialize_set( Ii, true );    // FIXME FIXME should be true. this is a brutal hack and will be changed in a few days
+        this->initialize_set( Ii, true );
 
         for ( moris::uint Ik = 0; Ik < tNumEquationObjectOnSet; Ik++ )
         {
@@ -262,6 +262,9 @@ void Solver_Interface::assemble_additional_DqDs_RHS_contribution( moris::sol::Di
 
     // global assembly to switch entries to the right processor
     aVectorRHS->vector_global_assembly();
+
+    std::cout << "Solver_Interface::assemble_additional_DqDs_RHS_contribution\n";
+    aVectorRHS->print();
 
     this->report_end_of_assembly();
 }
@@ -376,7 +379,7 @@ void Solver_Interface::fill_matrix_and_RHS(
     aVectorRHS->vector_global_assembly();
 
     // print aVectorRHS
-    aVectorRHS->print();
+    //    aVectorRHS->print();
 
     this->report_end_of_assembly();
 }

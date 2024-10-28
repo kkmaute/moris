@@ -64,7 +64,7 @@ namespace moris::fem
         moris::uint mNumSolutionSets = 1;
 
         // dof type list for the FI manager
-        const Vector< Vector< enum gen::PDV_Type > > mDvTypes;
+        const Vector< enum gen::PDV_Type > mDvTypes;
 
         // dof type map
         Vector< sint > mDvTypeMap;
@@ -127,7 +127,7 @@ namespace moris::fem
          */
         Field_Interpolator_Manager(
                 const Vector< Vector< enum MSI::Dof_Type > >&   aDofTypes,
-                const Vector< Vector< enum gen::PDV_Type > >&   aDvTypes,
+                const Vector< enum gen::PDV_Type >&             aDvTypes,
                 const Vector< Vector< enum mtk::Field_Type > >& aFieldTypes,
                 MSI::Equation_Set*                              aEquationSet,
                 mtk::Leader_Follower                            aIsLeader = mtk::Leader_Follower::LEADER );

@@ -429,8 +429,8 @@ namespace moris::fem
 
     void
     IQI::set_dv_type_list(
-            const Vector< Vector< gen::PDV_Type > >& aDvTypes,
-            mtk::Leader_Follower                     aIsLeader )
+            const Vector< gen::PDV_Type >& aDvTypes,
+            mtk::Leader_Follower           aIsLeader )
     {
         switch ( aIsLeader )
         {
@@ -453,7 +453,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    Vector< Vector< gen::PDV_Type > >&
+    Vector< gen::PDV_Type >&
     IQI::get_dv_type_list(
             mtk::Leader_Follower aIsLeader )
     {
@@ -483,7 +483,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    const Vector< Vector< gen::PDV_Type > >&
+    const Vector< gen::PDV_Type >&
     IQI::get_global_dv_type_list(
             mtk::Leader_Follower aIsLeader )
     {
@@ -804,11 +804,8 @@ namespace moris::fem
             tLeaderDofCounter += mLeaderDofTypes( iDof ).size();
         }
 
-        // get number of direct leader dv dependencies
-        for ( uint iDv = 0; iDv < mLeaderDvTypes.size(); iDv++ )
-        {
-            tLeaderDvCounter += mLeaderDvTypes( iDv ).size();
-        }
+        // add number of direct leader dv dependencies
+        tLeaderDvCounter += mLeaderDvTypes.size();
 
         // get number of direct leader field dependencies
         for ( uint iFi = 0; iFi < mLeaderFieldTypes.size(); iFi++ )
@@ -822,11 +819,8 @@ namespace moris::fem
             tFollowerDofCounter += mFollowerDofTypes( iDof ).size();
         }
 
-        // get number of direct follower dv dependencies
-        for ( uint iDv = 0; iDv < mFollowerDvTypes.size(); iDv++ )
-        {
-            tFollowerDvCounter += mFollowerDvTypes( iDv ).size();
-        }
+        // add number of direct follower dv dependencies
+        tFollowerDvCounter += mFollowerDvTypes.size();
 
         // get number of direct follower field dependencies
         for ( uint iFi = 0; iFi < mFollowerFieldTypes.size(); iFi++ )
@@ -959,12 +953,9 @@ namespace moris::fem
             aDofTypes( 0 ).append( mLeaderDofTypes( iDof ) );
         }
 
-        // loop over leader dv direct dependencies
-        for ( uint iDv = 0; iDv < mLeaderDvTypes.size(); iDv++ )
-        {
-            // populate the dv list
-            aDvTypes( 0 ).append( mLeaderDvTypes( iDv ) );
-        }
+        // add leader dv direct dependencies
+        // populate the dv list
+        aDvTypes( 0 ).append( mLeaderDvTypes );
 
         // loop over leader field direct dependencies
         for ( uint iFi = 0; iFi < mLeaderFieldTypes.size(); iFi++ )
@@ -980,12 +971,8 @@ namespace moris::fem
             aDofTypes( 1 ).append( mFollowerDofTypes( iDof ) );
         }
 
-        // loop over follower dv direct dependencies
-        for ( uint iDv = 0; iDv < mFollowerDvTypes.size(); iDv++ )
-        {
-            // populate the dv list
-            aDvTypes( 1 ).append( mFollowerDvTypes( iDv ) );
-        }
+        // add follower dv direct dependencies
+        aDvTypes( 1 ).append( mFollowerDvTypes );
 
         // loop over follower dv direct dependencies
         for ( uint iFi = 0; iFi < mFollowerFieldTypes.size(); iFi++ )
@@ -1145,7 +1132,7 @@ namespace moris::fem
         for ( uint iDv = 0; iDv < mLeaderDvTypes.size(); iDv++ )
         {
             // get set index for dv type
-            sint tDvTypeIndex = mSet->get_index_from_unique_dv_type_map( mLeaderDvTypes( iDv )( 0 ) );    // FIXME'
+            sint tDvTypeIndex = mSet->get_index_from_unique_dv_type_map( mLeaderDvTypes( iDv ) );    // FIXME'
 
             // put the dv type in the checklist
             tDvCheckList( tDvTypeIndex ) = 1;
@@ -1194,14 +1181,14 @@ namespace moris::fem
                 }
 
                 // get dv types for property
-                const Vector< Vector< gen::PDV_Type > >& tActiveDvTypes =
+                const Vector< gen::PDV_Type >& tActiveDvTypes =
                         tProperty->get_dv_type_list();
 
                 // loop on property dv type
                 for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
                 {
                     // get set index for dv type
-                    sint tDvTypeIndex = mSet->get_index_from_unique_dv_type_map( tActiveDvTypes( iDv )( 0 ) );
+                    sint tDvTypeIndex = mSet->get_index_from_unique_dv_type_map( tActiveDvTypes( iDv ) );
 
                     // if dof enum not in the list
                     if ( tDvCheckList( tDvTypeIndex ) != 1 )
@@ -1264,14 +1251,14 @@ namespace moris::fem
                 }
 
                 // get dv types for constitutive model
-                const Vector< Vector< gen::PDV_Type > >& tActiveDvTypes =
+                const Vector< gen::PDV_Type >& tActiveDvTypes =
                         tCM->get_global_dv_type_list();
 
                 // loop on property dv type
                 for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
                 {
                     // get set index for dv type
-                    sint tDvTypeIndex = mSet->get_index_from_unique_dv_type_map( tActiveDvTypes( iDv )( 0 ) );
+                    sint tDvTypeIndex = mSet->get_index_from_unique_dv_type_map( tActiveDvTypes( iDv ) );
 
                     // if dv enum not in the list
                     if ( tDvCheckList( tDvTypeIndex ) != 1 )
@@ -1334,14 +1321,14 @@ namespace moris::fem
                 }
 
                 // get dv types for constitutive model
-                const Vector< Vector< gen::PDV_Type > >& tActiveDvTypes =
+                const Vector< gen::PDV_Type >& tActiveDvTypes =
                         tSP->get_global_dv_type_list( mtk::Leader_Follower::LEADER );
 
                 // loop on property dv type
                 for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
                 {
                     // get set index for dv type
-                    sint tDvTypeIndex = mSet->get_index_from_unique_dv_type_map( tActiveDvTypes( iDv )( 0 ) );
+                    sint tDvTypeIndex = mSet->get_index_from_unique_dv_type_map( tActiveDvTypes( iDv ) );
 
                     // if dv enum not in the list
                     if ( tDvCheckList( tDvTypeIndex ) != 1 )
@@ -1390,7 +1377,7 @@ namespace moris::fem
         for ( uint iDv = 0; iDv < mFollowerDvTypes.size(); iDv++ )
         {
             // get set index for dv type
-            sint tDvTypeIndex = mSet->get_index_from_unique_dv_type_map( mFollowerDvTypes( iDv )( 0 ) );
+            sint tDvTypeIndex = mSet->get_index_from_unique_dv_type_map( mFollowerDvTypes( iDv ) );
 
             // put the dv type in the checklist
             tDvCheckList( tDvTypeIndex ) = 1;
@@ -1439,14 +1426,14 @@ namespace moris::fem
                 }
 
                 // get dv types for property
-                const Vector< Vector< gen::PDV_Type > >& tActiveDvTypes =
+                const Vector< gen::PDV_Type >& tActiveDvTypes =
                         tProperty->get_dv_type_list();
 
                 // loop on property dv type
                 for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
                 {
                     // get set index for dv type
-                    sint tDvTypeIndex = mSet->get_index_from_unique_dv_type_map( tActiveDvTypes( iDv )( 0 ) );
+                    sint tDvTypeIndex = mSet->get_index_from_unique_dv_type_map( tActiveDvTypes( iDv ) );
 
                     // if dv enum not in the list
                     if ( tDvCheckList( tDvTypeIndex ) != 1 )
@@ -1509,14 +1496,14 @@ namespace moris::fem
                 }
 
                 // get dv types for constitutive model
-                const Vector< Vector< gen::PDV_Type > >& tActiveDvTypes =
+                const Vector< gen::PDV_Type >& tActiveDvTypes =
                         tCM->get_global_dv_type_list();
 
                 // loop on property dv type
                 for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
                 {
                     // get set index for dv type
-                    sint tDvTypeIndex = mSet->get_index_from_unique_dv_type_map( tActiveDvTypes( iDv )( 0 ) );
+                    sint tDvTypeIndex = mSet->get_index_from_unique_dv_type_map( tActiveDvTypes( iDv ) );
 
                     // if dv enum not in the list
                     if ( tDvCheckList( tDvTypeIndex ) != 1 )
@@ -1579,14 +1566,14 @@ namespace moris::fem
                 }
 
                 // get dv types for stabilization parameter
-                const Vector< Vector< gen::PDV_Type > >& tActiveDvTypes =
+                const Vector< gen::PDV_Type >& tActiveDvTypes =
                         tSP->get_global_dv_type_list( mtk::Leader_Follower::FOLLOWER );
 
                 // loop on property dv type
                 for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
                 {
                     // get set index for dv type
-                    sint tDvTypeIndex = mSet->get_index_from_unique_dv_type_map( tActiveDvTypes( iDv )( 0 ) );
+                    sint tDvTypeIndex = mSet->get_index_from_unique_dv_type_map( tActiveDvTypes( iDv ) );
 
                     // if dv enum not in the list
                     if ( tDvCheckList( tDvTypeIndex ) != 1 )
@@ -1971,6 +1958,21 @@ namespace moris::fem
             moris::real        aPerturbation,
             fem::FDScheme_Type aFDSchemeType )
     {
+        // get the requested ip pdv types
+        const Vector< gen::PDV_Type >& tRequestedPdvTypes = mSet->get_ip_dv_types_for_set();
+
+        // get number of requested dv types
+        uint tNumPdvType = tRequestedPdvTypes.size();
+
+        // skip remainder if no dv types active on element
+        if ( tNumPdvType == 0 )
+        {
+            return;
+        }
+
+        const Vector< Vector< Matrix< DDRMat > > >& tPropWeightsLeader =
+                mSet->get_adv_prop_weights( mtk::Leader_Follower::LEADER );
+
         // get the column index to assemble in residual
         sint tIQIAssemblyIndex = mSet->get_QI_assembly_index( mName );
 
@@ -1981,13 +1983,6 @@ namespace moris::fem
         Vector< Vector< real > > tFDScheme;
         fd_scheme( aFDSchemeType, tFDScheme );
         uint tNumFDPoints = tFDScheme( 0 ).size();
-
-        // get the requested ip pdv types
-        Vector< Vector< gen::PDV_Type > > tRequestedPdvTypes;
-        mSet->get_ip_dv_types_for_set( tRequestedPdvTypes );
-
-        // get number of requested dv types
-        uint tNumPdvType = tRequestedPdvTypes.size();
 
         // reset the QI
         mSet->get_QI()( tIQIAssemblyIndex ).fill( 0.0 );
@@ -2003,11 +1998,13 @@ namespace moris::fem
         {
             // get the FI for the dv type
             Field_Interpolator* tFI =
-                    mLeaderFIManager->get_field_interpolators_for_type( tRequestedPdvTypes( iFI )( 0 ) );
+                    mLeaderFIManager->get_field_interpolators_for_type( tRequestedPdvTypes( iFI ) );
 
             // get number of leader FI bases and fields
-            uint tDerNumBases  = tFI->get_number_of_space_time_bases();
-            uint tDerNumFields = tFI->get_number_of_fields();
+            uint tDerNumBases = tFI->get_number_of_space_time_bases();
+
+            MORIS_ERROR( tFI->get_number_of_fields() == 1,
+                    "IWG::compute_dRdp_FD_material - Only one field is supported." );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();
@@ -2015,69 +2012,80 @@ namespace moris::fem
             // init pdv coeff counter
             uint tPdvCoeffCounter = 0;
 
-            // loop over the pdv coefficient column
-            for ( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
+            // loop over the coefficient row
+            for ( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
             {
-                // loop over the pdv coefficient row
-                for ( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
+                const Matrix< DDRMat >& tPropWeight = tPropWeightsLeader( iFI )( iCoeffRow );
+
+                // print( tPropWeight, "tPropWeightsLeader " );
+
+                // skip if the weight is zero
+                if ( norm( tPropWeight ) < MORIS_REAL_EPS )
                 {
-                    // compute the perturbation absolute value
-                    real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
-
-                    // check that perturbation is not zero
-                    if ( std::abs( tDeltaH ) < 1e-12 )
-                    {
-                        tDeltaH = aPerturbation;
-                    }
-
-                    // get the pdv index for assembly
-                    uint tPdvAssemblyIndex = mSet->get_mat_pdv_assembly_map()( iFI )( 0, 0 ) + tPdvCoeffCounter;
-
-                    // set starting point for FD
-                    uint tStartPoint = 0;
-
-                    // if backward or forward fd
-                    if ( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
-                            ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
-                    {
-                        // add unperturbed QI contribution to dQIdp
-                        mSet->get_dqidpmat()( tIQIAssemblyIndex )( tPdvAssemblyIndex ) +=
-                                tFDScheme( 1 )( 0 ) * tQI( 0 ) / ( tFDScheme( 2 )( 0 ) * tDeltaH );
-
-                        // skip first point in FD
-                        tStartPoint = 1;
-                    }
-
-                    // loop over the points for FD
-                    for ( uint iPoint = tStartPoint; iPoint < tNumFDPoints; iPoint++ )
-                    {
-                        // reset the perturbed coefficients
-                        Matrix< DDRMat > tCoeffPert = tCoeff;
-
-                        // perturb the coefficient
-                        tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
-
-                        // set the perturbed coefficients to FI
-                        tFI->set_coeff( tCoeffPert );
-
-                        // reset properties, CM and SP for IWG
-                        this->reset_eval_flags();
-
-                        // reset the QI
-                        mSet->get_QI()( tIQIAssemblyIndex ).fill( 0.0 );
-
-                        // compute the QI
-                        this->compute_QI( aWStar );
-
-                        // assemble the jacobian
-                        mSet->get_dqidpmat()( tIQIAssemblyIndex )( tPdvAssemblyIndex ) +=
-                                tFDScheme( 1 )( iPoint ) *                    //
-                                mSet->get_QI()( tIQIAssemblyIndex )( 0 ) /    //
-                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
-                    }
-                    // update the pdv coefficient counter
-                    tPdvCoeffCounter++;
+                    continue;
                 }
+
+                // compute the perturbation absolute value
+                real tDeltaH = aPerturbation * tCoeff( iCoeffRow );
+
+                // check that perturbation is not zero
+                if ( std::abs( tDeltaH ) < 1e-12 )
+                {
+                    tDeltaH = aPerturbation;
+                }
+
+                //                // get the pdv index for assembly
+                //                uint tPdvAssemblyIndex = mSet->get_mat_pdv_assembly_map()( iFI )( 0, 0 ) + tPdvCoeffCounter;
+
+                real dQiDp = 0.0;
+
+                // set starting point for FD
+                uint tStartPoint = 0;
+
+                // if backward or forward fd
+                if ( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
+                        ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                {
+                    // add unperturbed QI contribution to dQIdp
+                    //                    mSet->get_dqidpmat()( tIQIAssemblyIndex )(tPdvAssemblyIndex)
+                    dQiDp += tFDScheme( 1 )( 0 ) * tQI( 0 ) / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                    // skip first point in FD
+                    tStartPoint = 1;
+                }
+
+                // loop over the points for FD
+                for ( uint iPoint = tStartPoint; iPoint < tNumFDPoints; iPoint++ )
+                {
+                    // reset the perturbed coefficients
+                    Matrix< DDRMat > tCoeffPert = tCoeff;
+
+                    // perturb the coefficient
+                    tCoeffPert( iCoeffRow ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
+
+                    // set the perturbed coefficients to FI
+                    tFI->set_coeff( tCoeffPert );
+
+                    // reset properties, CM and SP for IWG
+                    this->reset_eval_flags();
+
+                    // reset the QI
+                    mSet->get_QI()( tIQIAssemblyIndex ).fill( 0.0 );
+
+                    // compute the QI
+                    this->compute_QI( aWStar );
+
+                    // assemble the jacobian
+                    //                    mSet->get_dqidpmat()( tIQIAssemblyIndex )(tPdvAssemblyIndex)
+                    dQiDp +=
+                            tFDScheme( 1 )( iPoint ) *                    //
+                            mSet->get_QI()( tIQIAssemblyIndex )( 0 ) /    //
+                            ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                }
+                // update the pdv coefficient counter
+                tPdvCoeffCounter++;
+
+                mSet->get_dqidpmat()( tIQIAssemblyIndex ) += dQiDp * tPropWeight;
             }
             // reset the coefficients values
             tFI->set_coeff( tCoeff );

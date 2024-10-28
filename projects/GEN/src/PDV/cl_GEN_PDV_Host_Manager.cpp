@@ -72,8 +72,8 @@ namespace moris::gen
 
     void
     PDV_Host_Manager::get_ip_dv_types_for_set(
-            const moris::moris_index      aIPMeshSetIndex,
-            Vector< Vector< PDV_Type > >& aPDVTypes )
+            const moris::moris_index aIPMeshSetIndex,
+            Vector< PDV_Type >&      aPDVTypes )
     {
         if ( mIpPDVTypes.size() > 0 )    // FIXME
         {
@@ -91,19 +91,6 @@ namespace moris::gen
         if ( mIgPDVTypes.size() > 0 )    // FIXME
         {
             aPDVTypes = mIgPDVTypes( aIGMeshSetIndex );
-        }
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    void
-    PDV_Host_Manager::get_ip_unique_dv_types_for_set(
-            const moris_index   aIPMeshSetIndex,
-            Vector< PDV_Type >& aPDVTypes )
-    {
-        if ( mUniqueIpPDVTypes.size() > 0 )    // FIXME
-        {
-            aPDVTypes = mUniqueIpPDVTypes( aIPMeshSetIndex );
         }
     }
 
@@ -338,36 +325,10 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void PDV_Host_Manager::set_interpolation_pdv_types(
-            const Vector< Vector< Vector< PDV_Type > > >& aPDVTypes )
+            const Vector< Vector< PDV_Type > >& aPDVTypes )
     {
-        // Get number of sets
-        uint tNumSets = aPDVTypes.size();
-
         // Set PDV types
         mIpPDVTypes = aPDVTypes;
-        mUniqueIpPDVTypes.resize( tNumSets );
-
-        // Loop over each mesh set
-        for ( uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++ )
-        {
-            // Get number of unique PDV types for this set
-            uint tNumUniquePDVs = 0;
-            for ( uint tGroupIndex = 0; tGroupIndex < mIpPDVTypes( tMeshSetIndex ).size(); tGroupIndex++ )
-            {
-                tNumUniquePDVs += mIpPDVTypes( tMeshSetIndex )( tGroupIndex ).size();
-            }
-            mUniqueIpPDVTypes( tMeshSetIndex ).resize( tNumUniquePDVs );
-
-            // Copy PDV types over to unique list that doesn't consider grouping
-            uint tUniquePDVIndex = 0;
-            for ( uint tGroupIndex = 0; tGroupIndex < mIpPDVTypes( tMeshSetIndex ).size(); tGroupIndex++ )
-            {
-                for ( uint tPDVIndex = 0; tPDVIndex < mIpPDVTypes( tMeshSetIndex )( tGroupIndex ).size(); tPDVIndex++ )
-                {
-                    mUniqueIpPDVTypes( tMeshSetIndex )( tUniquePDVIndex++ ) = mIpPDVTypes( tMeshSetIndex )( tGroupIndex )( tPDVIndex );
-                }
-            }
-        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -400,24 +361,24 @@ namespace moris::gen
         // Create PDV hosts
         for ( uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++ )
         {
-            // Get number of unique PDV types for this set
-            uint tNumUniquePDVs = 0;
-
-            for ( uint tGroupIndex = 0; tGroupIndex < mIpPDVTypes( tMeshSetIndex ).size(); tGroupIndex++ )
-            {
-                tNumUniquePDVs += mIpPDVTypes( tMeshSetIndex )( tGroupIndex ).size();
-            }
-            mUniqueIpPDVTypes( tMeshSetIndex ).resize( tNumUniquePDVs );
-
-            // Copy PDV types over to unique list that doesn't consider grouping
-            uint tUniquePDVIndex = 0;
-            for ( uint tGroupIndex = 0; tGroupIndex < mIpPDVTypes( tMeshSetIndex ).size(); tGroupIndex++ )
-            {
-                for ( uint tPDVIndex = 0; tPDVIndex < mIpPDVTypes( tMeshSetIndex )( tGroupIndex ).size(); tPDVIndex++ )
-                {
-                    mUniqueIpPDVTypes( tMeshSetIndex )( tUniquePDVIndex++ ) = mIpPDVTypes( tMeshSetIndex )( tGroupIndex )( tPDVIndex );
-                }
-            }
+            //            // Get number of unique PDV types for this set
+            //            uint tNumUniquePDVs = 0;
+            //
+            //            for ( uint tGroupIndex = 0; tGroupIndex < mIpPDVTypes( tMeshSetIndex ).size(); tGroupIndex++ )
+            //            {
+            //                tNumUniquePDVs += mIpPDVTypes( tMeshSetIndex )( tGroupIndex ).size();
+            //            }
+            //            mUniqueIpPDVTypes( tMeshSetIndex ).resize( tNumUniquePDVs );
+            //
+            //            // Copy PDV types over to unique list that doesn't consider grouping
+            //            uint tUniquePDVIndex = 0;
+            //            for ( uint tGroupIndex = 0; tGroupIndex < mIpPDVTypes( tMeshSetIndex ).size(); tGroupIndex++ )
+            //            {
+            //                for ( uint tPDVIndex = 0; tPDVIndex < mIpPDVTypes( tMeshSetIndex )( tGroupIndex ).size(); tPDVIndex++ )
+            //                {
+            //                    mUniqueIpPDVTypes( tMeshSetIndex )( tUniquePDVIndex++ ) = mIpPDVTypes( tMeshSetIndex )( tGroupIndex )( tPDVIndex );
+            //                }
+            //            }
 
             // get number of nodes in current set
             uint tNumberOfNodes = aNodeIndicesPerSet( tMeshSetIndex ).size();
@@ -781,7 +742,7 @@ namespace moris::gen
         MORIS_ERROR( mADVIdsSet,
                 "PDV Host Manager must have ADV IDs set before computing sensitivities." );
 
-        tIPExtractionOperators.resize( mIpPDVHosts.size() );
+        mIPExtractionOperators.resize( mIpPDVHosts.size(), nullptr );
 
         // Loop of interpolation PDV hosts
         for ( uint tPDVHostIndex = 0; tPDVHostIndex < mIpPDVHosts.size(); tPDVHostIndex++ )
@@ -792,8 +753,9 @@ namespace moris::gen
                 // Get number of PDVs
                 uint tNumPDVsOnHost = mIpPDVHosts( tPDVHostIndex )->get_num_pdvs();
 
-                // create extract operator
-                tIPExtractionOperators( tPDVHostIndex ).resize( mPDVTypeMap.size(), nullptr );
+                Vector< uint >             tPdvTypeIndex;
+                Vector< Vector< sint > >   tAdvIdsVector;
+                Vector< Matrix< DDRMat > > tAdvSensitivities;
 
                 // Loop over all PDVs at PDV host
                 for ( uint tPDVIndex = 0; tPDVIndex < tNumPDVsOnHost; tPDVIndex++ )
@@ -819,17 +781,19 @@ namespace moris::gen
                         this->pack_sensitivities( tADVIds, tHostADVSensitivities );
 
                         // create design extraction operator
-                        tIPExtractionOperators( tPDVHostIndex )( tPDVIndex ) =
-                                std::make_shared< Design_Extraction_Operator >( tADVIds, tHostADVSensitivities );
+                        tPdvTypeIndex.push_back( tPDVIndex );
+                        tAdvIdsVector.push_back( tADVIds );
+                        tAdvSensitivities.push_back( tHostADVSensitivities );
 
                         // fprintf( stdout, "\nInterpolation PDVIndex = %d\n", (sint)tPDVID );
-                        //  print( tADVIds, "tADVIds for interpolation PDVs" );
+                        //                        print( tADVIds, "tADVIds for interpolation PDVs" );
                         //  print( tHostADVSensitivities, "tHostADVSensitivities for interpolation PDVs" );
-
-                        // store adv ids and weights
-                        // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
                     }
                 }
+
+                // create TP design extraction operator
+                mIPExtractionOperators( tPDVHostIndex ) =
+                        std::make_shared< IP_Design_Extraction_Operator >( tPdvTypeIndex, tAdvIdsVector, tAdvSensitivities );
             }
         }
 
@@ -837,7 +801,7 @@ namespace moris::gen
         Matrix< DDRMat > tHostADVSensitivities;
         Matrix< DDRMat > tI;
 
-        tIgExtractionOperators.resize( mNodeManager.get_total_number_of_nodes(), nullptr );
+        mIGExtractionOperators.resize( mNodeManager.get_total_number_of_nodes(), nullptr );
 
         // Loop over intersection nodes for inserting
         for ( uint iNodeIndex = mNodeManager.get_number_of_background_nodes(); iNodeIndex < mNodeManager.get_total_number_of_nodes(); iNodeIndex++ )
@@ -867,11 +831,11 @@ namespace moris::gen
                 //                    moris_id tPDVID = tStartingGlobalIndex + tCoordinateIndex;
                 //
                 //                    // fprintf( stdout, "\nIntegration PDVIndex = %d for tCoordinateIndex %d\n", (sint)tPDVID, (sint)tCoordinateIndex );
-                //                    // print( tADVIds, "tADVIds for integration PDVs" );
+                //                print( tADVIds, "tADVIds for integration PDVs" );
                 //                    // print( tHostADVSensitivities.get_row( tCoordinateIndex ), "tHostADVSensitivities for integration PDVs" );
                 //                }
 
-                tIgExtractionOperators( iNodeIndex ) = std::make_shared< Design_Extraction_Operator >( tADVIds, tHostADVSensitivities );
+                mIGExtractionOperators( iNodeIndex ) = std::make_shared< Design_Extraction_Operator >( tADVIds, tHostADVSensitivities );
             }
         }
     }
@@ -1704,7 +1668,7 @@ namespace moris::gen
                 tMeshNodeIndex = mGenMeshMap( tMeshNodeIndex );
             }
 
-            tVecExtractionOperators( iNodeIndex ) = tIgExtractionOperators( tMeshNodeIndex );
+            tVecExtractionOperators( iNodeIndex ) = mIGExtractionOperators( tMeshNodeIndex );
         }
 
         return tVecExtractionOperators;
@@ -1712,20 +1676,38 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    //    Vector< Vector< std::shared_ptr< Design_Extraction_Operator > > >
-    //    PDV_Host_Manager::get_ip_desgin_extraction_operators(
-    //            const Matrix< moris::IndexMat >&              aNodeIndexList,
-    //            const Vector< Vector< enum gen::PDV_Type > >& aRequestedDvTypes )
-    //    {
-    //        Vector < Vector< std::shared_ptr< Design_Extraction_Operator > > tVecExtractionOperators( aRequestedDvTypes.numel() );
-    //
-    //        for ( uint iNodeIndex = 0; iNodeIndex < aNodeIndexList.numel(); iNodeIndex++ )
-    //        {
-    //            tVecExtractionOperators( iNodeIndex ) = tIpExtractionOperators( tMeshNodeIndex );
-    //        }
-    //
-    //        return tVecExtractionOperators;
-    //    }
+    Vector< Vector< std::shared_ptr< gen::Design_Extraction_Operator > > >
+    PDV_Host_Manager::get_ip_desgin_extraction_operators(
+            const Matrix< moris::IndexMat >&    aNodeIndexList,
+            const Vector< enum gen::PDV_Type >& aRequestedDvTypes )
+    {
+        Vector< Vector< std::shared_ptr< Design_Extraction_Operator > > > tVecExtractionOperators( aRequestedDvTypes.size() );
+
+        // Loop over all requested PDV types
+        for ( uint iPdvType = 0; iPdvType < aRequestedDvTypes.size(); iPdvType++ )
+        {
+            // check that PDV type exists
+            MORIS_ASSERT( static_cast< sint >( aRequestedDvTypes( iPdvType ) ) >= 0,
+                    "PDV_Host_Manager::get_ip_desgin_extraction_operators - PDV type does not exist" );
+
+            // Get index of
+            uint iPdvIndex = mPDVTypeMap( static_cast< sint >( aRequestedDvTypes( iPdvType ) ) );
+
+            // Resize vector of extraction operators
+            tVecExtractionOperators( iPdvType ).resize( aNodeIndexList.numel() );
+
+            // Loop over all Lagrange nodes
+            for ( uint iNodeIndex = 0; iNodeIndex < aNodeIndexList.numel(); iNodeIndex++ )
+            {
+                uint tMeshNodeIndex = aNodeIndexList( iNodeIndex );
+
+                tVecExtractionOperators( iPdvType )( iNodeIndex ) =
+                        mIPExtractionOperators( tMeshNodeIndex )->get_design_extraction_operator( iPdvIndex );
+            }
+        }
+
+        return tVecExtractionOperators;
+    }
 
     //--------------------------------------------------------------------------------------------------------------
 
@@ -1764,6 +1746,56 @@ namespace moris::gen
                 for ( uint i = 0; i < tOperator->mLocalAdvIndices.size(); i++ )
                 {
                     tOperator->mLocalAdvIndices( i ) = tAdvIdToIndexMap[ tOperator->mAdvIds( i ) ];
+                }
+            }
+        }
+
+        return tAdvIds;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Vector< sint >
+    PDV_Host_Manager::build_local_adv_indices(
+            Vector< Vector< std::shared_ptr< gen::Design_Extraction_Operator > > >& aExtractionOperators )
+    {
+        // collect all Adv Ids
+        Vector< sint > tAdvIds;
+        for ( const auto& tOperators : aExtractionOperators )
+        {
+            for ( const auto& tOperator : tOperators )
+            {
+                // check that extraction operator is not empty
+                if ( tOperator )
+                {
+                    tAdvIds.append( tOperator->mAdvIds );
+                }
+            }
+        }
+
+        // determine unique Adv Ids
+        unique( tAdvIds );
+
+        // create map from Adv Id to index
+        map< sint, sint > tAdvIdToIndexMap;
+        for ( uint i = 0; i < tAdvIds.size(); i++ )
+        {
+            tAdvIdToIndexMap[ tAdvIds( i ) ] = (sint)i;
+        }
+
+        // update local Adv Indices in extraction operators
+        for ( const auto& tOperators : aExtractionOperators )
+        {
+            for ( auto& tOperator : tOperators )
+            {
+                // check that extraction operator is not empty
+                if ( tOperator )
+                {
+                    // update Adv Indices
+                    for ( uint i = 0; i < tOperator->mLocalAdvIndices.size(); i++ )
+                    {
+                        tOperator->mLocalAdvIndices( i ) = tAdvIdToIndexMap[ tOperator->mAdvIds( i ) ];
+                    }
                 }
             }
         }

@@ -82,12 +82,12 @@ namespace moris::fem
         Matrix< DDSMat > mFollowerGlobalDofTypeMap;
 
         // leader and follower dv type lists
-        Vector< Vector< gen::PDV_Type > > mLeaderDvTypes;
-        Vector< Vector< gen::PDV_Type > > mFollowerDvTypes;
+        Vector< gen::PDV_Type > mLeaderDvTypes;
+        Vector< gen::PDV_Type > mFollowerDvTypes;
 
         // leader and follower global dv type list
-        Vector< Vector< gen::PDV_Type > > mLeaderGlobalDvTypes;
-        Vector< Vector< gen::PDV_Type > > mFollowerGlobalDvTypes;
+        Vector< gen::PDV_Type > mLeaderGlobalDvTypes;
+        Vector< gen::PDV_Type > mFollowerGlobalDvTypes;
 
         // leader and follower global dv type maps
         Matrix< DDSMat > mLeaderGlobalDvTypeMap;
@@ -348,8 +348,8 @@ namespace moris::fem
          * @param[ in ] aIsLeader enum for leader or follower
          */
         void set_dv_type_list(
-                Vector< Vector< gen::PDV_Type > > &aDvTypes,
-                mtk::Leader_Follower               aIsLeader = mtk::Leader_Follower::LEADER );
+                Vector< gen::PDV_Type > &aDvTypes,
+                mtk::Leader_Follower     aIsLeader = mtk::Leader_Follower::LEADER );
 
         //------------------------------------------------------------------------------
         /**
@@ -359,9 +359,9 @@ namespace moris::fem
          * @param[ in ] aIsLeader  enum for leader or follower
          */
         virtual void set_dv_type_list(
-                Vector< Vector< gen::PDV_Type > > &aDvTypes,
-                Vector< std::string >             &aDvStrings,
-                mtk::Leader_Follower               aIsLeader = mtk::Leader_Follower::LEADER )
+                Vector< gen::PDV_Type > &aDvTypes,
+                Vector< std::string >   &aDvStrings,
+                mtk::Leader_Follower     aIsLeader = mtk::Leader_Follower::LEADER )
         {
             MORIS_ERROR( false, "Stabilization_Parameter::set_dv_type_list - not implemented for base class." );
         }
@@ -372,7 +372,7 @@ namespace moris::fem
          * @param[ in ]  aIsLeader enum leader or follower
          * @param[ out ] aDvTypes a list of group of dv types
          */
-        const Vector< Vector< gen::PDV_Type > > &get_dv_type_list(
+        const Vector< gen::PDV_Type > &get_dv_type_list(
                 mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
         //------------------------------------------------------------------------------
@@ -474,7 +474,7 @@ namespace moris::fem
          * get global dv type list
          * @param[ out ] mGlobalDvTypes global list of dv type
          */
-        const Vector< Vector< gen::PDV_Type > > &get_global_dv_type_list(
+        const Vector< gen::PDV_Type > &get_global_dv_type_list(
                 mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
         //------------------------------------------------------------------------------

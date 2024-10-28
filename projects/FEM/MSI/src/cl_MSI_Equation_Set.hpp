@@ -78,8 +78,8 @@ namespace moris
             Vector< moris::Matrix< DDSMat > > mJacDofAssemblyMap;
 
             // lists of leader and follower groups of dv types
-            Vector< Vector< enum gen::PDV_Type > > mLeaderDvTypes;
-            Vector< Vector< enum gen::PDV_Type > > mFollowerDvTypes;
+            Vector< enum gen::PDV_Type > mLeaderDvTypes;
+            Vector< enum gen::PDV_Type > mFollowerDvTypes;
 
             // maps for the leader and follower dv type
             Vector< sint > mLeaderDvTypeMap;
@@ -103,8 +103,7 @@ namespace moris
             bool                                                      mPdvGeoAssemblyFlag = false;
 
             Vector< sint > mIGAdvIds;
-            Vector< sint > mIGPropIdsLeader;
-            Vector< sint > mIGPropIdsFollower;
+            Vector< sint > mIPAdvIds;
 
             // Map from requested IQI Name to index.
             // I do not know if this is slow because the map is called per gauss point.
@@ -195,8 +194,12 @@ namespace moris
             }
 
             //------------------------------------------------------------------------------
-            [[nodiscard]] bool is_empty_set() const { return mIsEmptySet; }
+            [[nodiscard]] bool is_empty_set() const
+            {
+                return mIsEmptySet;
+            }
 
+            //------------------------------------------------------------------------------
             MSI::Equation_Model*
             get_equation_model()
             {
@@ -205,7 +208,10 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            [[nodiscard]] bool get_is_update_required() const { return mIsUpdateRequired; }
+            [[nodiscard]] bool get_is_update_required() const
+            {
+                return mIsUpdateRequired;
+            }
 
             //------------------------------------------------------------------------------
             /**
@@ -254,7 +260,7 @@ namespace moris
              * get dv type list
              * @param[ in ] aIsLeader enum for leader or follower
              */
-            const Vector< Vector< gen::PDV_Type > >& get_dv_type_list(
+            const Vector< gen::PDV_Type >& get_dv_type_list(
                     mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
@@ -337,6 +343,16 @@ namespace moris
                     const fem::Time_Continuity_Flag aTimeContinuityOnlyFlag = fem::Time_Continuity_Flag::DEFAULT )
             {
                 MORIS_ERROR( false, "Equation_Set::initialize_set - not implemented for virtual member function" );
+            }
+
+            //-------------------------------------------------------------------------------------------------
+            /**
+             * create field interpolator managers after initialization phase
+             */
+            virtual void create_field_interpolator_managers_adjoint(
+                    MSI::Model_Solver_Interface* aModelSolverInterface )
+            {
+                MORIS_ERROR( false, "Equation_Set::create_field_interpolator_managers_adjoint - not implemented for virtual member function" );
             }
 
             /**
@@ -538,6 +554,13 @@ namespace moris
             const Vector< sint >& get_ig_adv_ids()
             {
                 return mIGAdvIds;
+            }
+
+            //------------------------------------------------------------------------------
+            // return vector of Adv IDs for cluster
+            const Vector< sint >& get_ip_adv_ids()
+            {
+                return mIPAdvIds;
             }
 
             //-----------------------------------------------------------------------------------------

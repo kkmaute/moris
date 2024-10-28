@@ -177,12 +177,14 @@ namespace moris
             map< sint, sint > mVertexMeshIndexToClusterIndexMap;
 
             Vector< std::shared_ptr< gen::Design_Extraction_Operator > > mIGExtractionOperators;
-            Vector< std::shared_ptr< gen::Design_Extraction_Operator > > mIPExtractionOperatorsLeader;
-            Vector< std::shared_ptr< gen::Design_Extraction_Operator > > mIPExtractionOperatorsFollower;
 
-            Vector< Matrix< DDRMat > > mAdvGeoWeights;             // Vector of each node with Adv weights
-            Vector< Matrix< DDRMat > > mAdvPropWeightsLeader;      // Vector of each node with Adv weights
-            Vector< Matrix< DDRMat > > mAdvPropWeightsFollower;    // Vector of each node with Adv weights
+            Vector< Matrix< DDRMat > > mAdvGeoWeights;    // Vector of each node with Adv weights
+
+            Vector< sint > mAdvIdsLeader;      // Vector of adv ids for leader
+            Vector< sint > mAdvIdsFollower;    // Vector of adv ids for follower
+
+            Vector< Vector< Matrix< DDRMat > > > mAdvPropWeightsLeader;      // Vector of each property and node with Adv weights
+            Vector< Vector< Matrix< DDRMat > > > mAdvPropWeightsFollower;    // Vector of each property andnode with Adv weights
 
             Matrix< DDRMat > mCurrrentAdvGeoWeight;    // Adv weight of current node
 
@@ -551,15 +553,18 @@ namespace moris
              * @param[ in ] aModelSolverInterface model solver interface
              * ( only used to set the time levels )
              */
-            void create_field_interpolator_managers( MSI::Model_Solver_Interface* aModelSolverInterface );
+            void create_field_interpolator_managers(
+                    MSI::Model_Solver_Interface* aModelSolverInterface );
+
+            void create_field_interpolator_managers_adjoint(
+                    MSI::Model_Solver_Interface* aModelSolverInterface ) override;
 
             //------------------------------------------------------------------------------
             /**
              * get IWGs
              * @param[ out ] aIWGs cell of IWG pointers
              */
-            Vector< std::shared_ptr< IWG > >&
-            get_IWGs()
+            Vector< std::shared_ptr< IWG > >& get_IWGs()
             {
                 return mIWGs;
             }
@@ -1122,10 +1127,8 @@ namespace moris
              * @param[ in ] aMatPdvType list of group of ip pdv types on set
              * @param[ in ] aIsLeader determine the leader / follower side, only for dbl sided set, is leader by default
              */
-            void
-            get_ip_dv_types_for_set(
-                    Vector< Vector< enum gen::PDV_Type > >& aMatPdvType,
-                    mtk::Leader_Follower                    aIsLeader = mtk::Leader_Follower::LEADER );
+            const Vector< enum gen::PDV_Type >&
+            get_ip_dv_types_for_set( mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
 
@@ -1146,6 +1149,37 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
+             * get the property weights of design extraction operator of the cluster
+             *
+             * @return a vector of vector of matrices of design extraction operator weights
+             */
+            const Vector< Vector< Matrix< DDRMat > > >& get_adv_prop_weights(
+                    mtk::Leader_Follower aLeaderFollowerType = mtk::Leader_Follower::LEADER )
+            {
+                switch ( aLeaderFollowerType )
+                {
+                    case mtk::Leader_Follower::LEADER:
+                    {
+                        return mAdvPropWeightsLeader;
+                        break;
+                    }
+                    case mtk::Leader_Follower::FOLLOWER:
+                    {
+                        return mAdvPropWeightsFollower;
+                        break;
+                    }
+                    default:
+                    {
+                        MORIS_ASSERT( false, "Set::get_adv_geo_weights - Invalid leader/follower type" );
+                        break;
+                    }
+                }
+
+                return mAdvPropWeightsLeader;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
              * get the weights of design extraction operator of the cluster
              *
              * @param[ in ] aIndex index of the node
@@ -1159,10 +1193,17 @@ namespace moris
 
             void set_geo_weights_for_cluster_node_index( uint aIndex )
             {
-                MORIS_ASSERT( aIndex < mAdvGeoWeights.size(),
+                MORIS_ASSERT( mAdvGeoWeights.size() == 0 || aIndex < mAdvGeoWeights.size(),
                         "Set::set_index_for_geo_weights - Index out of range" );
 
-                mCurrrentAdvGeoWeight = mAdvGeoWeights( aIndex );
+                if ( mAdvGeoWeights.size() > 0 )
+                {
+                    mCurrrentAdvGeoWeight = mAdvGeoWeights( aIndex );
+                }
+                else
+                {
+                    mCurrrentAdvGeoWeight.set_size( 0, 0 );
+                }
             }
 
             //------------------------------------------------------------------------------

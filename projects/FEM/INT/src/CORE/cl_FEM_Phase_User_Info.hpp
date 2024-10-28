@@ -11,12 +11,12 @@
 #ifndef SRC_FEM_CL_FEM_PHASE_USER_INFO_HPP_
 #define SRC_FEM_CL_FEM_PHASE_USER_INFO_HPP_
 
-//MRS/COR/src
+// MRS/COR/src
 #include <utility>
 
 #include "moris_typedefs.hpp"
 #include "cl_Vector.hpp"
-//FEM/INT/src
+// FEM/INT/src
 #include "cl_FEM_Enums.hpp"
 #include "cl_FEM_Material_Model.hpp"
 #include "cl_FEM_Constitutive_Model.hpp"
@@ -48,7 +48,7 @@ namespace moris::fem
         Matrix< DDSMat > mDofCheck;
 
         // phase dv type list
-        Vector< Vector< gen::PDV_Type > > mDvTypes;
+        Vector< gen::PDV_Type > mDvTypes;
 
         // matrix to check if a pdv type was already set to the phase
         Matrix< DDSMat > mPdvCheck;
@@ -87,7 +87,7 @@ namespace moris::fem
         /**
          * trivial destructor
          */
-        ~Phase_User_Info(){};
+        ~Phase_User_Info() {};
 
         //------------------------------------------------------------------------------
         /**
@@ -217,7 +217,7 @@ namespace moris::fem
          */
         void set_dv_type_list( const Vector< Vector< gen::PDV_Type > > &aDvTypes )
         {
-            mDvTypes = aDvTypes;
+            mDvTypes = aDvTypes( 0 );
         }
 
         //------------------------------------------------------------------------------
@@ -225,7 +225,7 @@ namespace moris::fem
          * get dv type list
          * @param[ out ] mDvTypes list of group of dv types
          */
-        const Vector< Vector< gen::PDV_Type > > &get_dv_type_list()
+        const Vector< gen::PDV_Type > &get_dv_type_list()
         {
             return mDvTypes;
         }
@@ -244,7 +244,7 @@ namespace moris::fem
             if ( mPdvCheck( tPdvIndex ) == -1 )
             {
                 // add pdv type group to pdv type list
-                mDvTypes.push_back( aPdvTypes );
+                mDvTypes.append( aPdvTypes );
 
                 // set check to 1
                 mPdvCheck( tPdvIndex ) = 1;
@@ -381,4 +381,3 @@ namespace moris::fem
 }    // namespace moris::fem
 
 #endif /* SRC_FEM_CL_FEM_PHASE_USER_INFO_HPP_ */
-

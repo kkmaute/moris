@@ -161,7 +161,7 @@ namespace moris::fem
 
     void
     Property::set_dv_type_list(
-            const Vector< Vector< gen::PDV_Type > >& aDvTypes )
+            const Vector< gen::PDV_Type >& aDvTypes )
     {
         // set dv type list
         mDvTypes = aDvTypes;
@@ -195,7 +195,7 @@ namespace moris::fem
 
         for ( uint iDV = 0; iDV < tNumDvTypes; iDV++ )
         {
-            tMaxEnum = std::max( tMaxEnum, static_cast< int >( mDvTypes( iDV )( 0 ) ) );
+            tMaxEnum = std::max( tMaxEnum, static_cast< int >( mDvTypes( iDV ) ) );
         }
 
         tMaxEnum++;
@@ -207,7 +207,7 @@ namespace moris::fem
         for ( uint iDV = 0; iDV < tNumDvTypes; iDV++ )
         {
             // fill the property map
-            mDvTypeMap( static_cast< int >( mDvTypes( iDV )( 0 ) ) ) = iDV;
+            mDvTypeMap( static_cast< int >( mDvTypes( iDV ) ) ) = iDV;
         }
     }
 
@@ -346,12 +346,8 @@ namespace moris::fem
             tDofCounter += mDofTypes( iDof ).size();
         }
 
-        // loop over dv types
-        for ( uint iDv = 0; iDv < mDvTypes.size(); iDv++ )
-        {
-            // update counter
-            tDvCounter += mDvTypes( iDv ).size();
-        }
+        // count dv types
+        tDvCounter += mDvTypes.size();
 
         // loop over field types
         for ( uint iFi = 0; iFi < mFieldTypes.size(); iFi++ )
@@ -372,12 +368,8 @@ namespace moris::fem
             aDofTypes.append( mDofTypes( iDof ) );
         }
 
-        // loop over dv types
-        for ( uint iDv = 0; iDv < mDvTypes.size(); iDv++ )
-        {
-            // populate the dv type list
-            aDvTypes.append( mDvTypes( iDv ) );
-        }
+        // add dv types
+        aDvTypes.append( mDvTypes );
 
         // loop over field types
         for ( uint iFi = 0; iFi < mFieldTypes.size(); iFi++ )

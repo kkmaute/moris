@@ -85,8 +85,8 @@ namespace moris::NLA
         // log relative drop of residual
         if ( aIt > mRefIterationID )
         {
-            MORIS_LOG_SPEC( "RelResidualDrop", tResNorm / tRefNorm );
-            MORIS_LOG_SPEC( "RelResidualChange", ( tResNorm - mPreviousNorm ) / tRefNorm );
+            MORIS_LOG_SPEC( "RelResidualDrop", tResNorm / ( tRefNorm + MORIS_REAL_EPS ) );
+            MORIS_LOG_SPEC( "RelResidualChange", ( tResNorm - mPreviousNorm ) / ( tRefNorm + MORIS_REAL_EPS ) );
             mPreviousNorm = tResNorm;
         }
 

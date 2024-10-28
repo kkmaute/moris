@@ -13,15 +13,15 @@
 
 #include <map>
 
-#include "moris_typedefs.hpp"                     //MRS/COR/src
-#include "cl_Vector.hpp"                          //MRS/CNT/src
+#include "moris_typedefs.hpp"    //MRS/COR/src
+#include "cl_Vector.hpp"         //MRS/CNT/src
 
-#include "cl_Matrix.hpp"                    //LINALG/src
-#include "linalg_typedefs.hpp"              //LINALG/src
+#include "cl_Matrix.hpp"          //LINALG/src
+#include "linalg_typedefs.hpp"    //LINALG/src
 
-#include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
-#include "cl_FEM_Constitutive_Model.hpp"    //FEM/INT/src
-#include "cl_FEM_Stabilization_Parameter.hpp"     //FEM/INT/src
+#include "cl_FEM_Field_Interpolator.hpp"         //FEM/INT/src
+#include "cl_FEM_Constitutive_Model.hpp"         //FEM/INT/src
+#include "cl_FEM_Stabilization_Parameter.hpp"    //FEM/INT/src
 #include "cl_FEM_Cluster.hpp"
 
 namespace moris::fem
@@ -58,7 +58,7 @@ namespace moris::fem
         real get_weak_form_order();
 
         // init function pointer to get the weak form order. Pointer used to avoid a conditional call for every iteration
-        real ( SP_Ghost_Displacement::*mGetWeakFormOrder )() = &SP_Ghost_Displacement::get_weak_form_order_init;
+        real ( SP_Ghost_Displacement:: *mGetWeakFormOrder )() = &SP_Ghost_Displacement::get_weak_form_order_init;
 
       public:
         //------------------------------------------------------------------------------
@@ -72,7 +72,7 @@ namespace moris::fem
         /**
          * trivial destructor
          */
-        ~SP_Ghost_Displacement() override{};
+        ~SP_Ghost_Displacement() override {};
 
         //------------------------------------------------------------------------------
         /**
@@ -97,9 +97,9 @@ namespace moris::fem
          * @param[ in ] aIsLeader enum for leader or follower
          */
         void set_dv_type_list(
-                Vector< Vector< gen::PDV_Type > > &aDvTypes,
-                Vector< std::string >             &aDvStrings,
-                mtk::Leader_Follower               aIsLeader = mtk::Leader_Follower::LEADER ) override
+                Vector< gen::PDV_Type > &aDvTypes,
+                Vector< std::string >   &aDvStrings,
+                mtk::Leader_Follower     aIsLeader = mtk::Leader_Follower::LEADER ) override
         {
             Stabilization_Parameter::set_dv_type_list( aDvTypes, aIsLeader );
         }
@@ -146,4 +146,3 @@ namespace moris::fem
 }    // namespace moris::fem
 
 #endif /* SRC_FEM_CL_FEM_SP_GHOST_DISPLACEMENT_HPP_ */
-

@@ -39,7 +39,7 @@ namespace moris::fem
         {
             // get property parameter list
             const Parameter_List &tPropParameter = tPropParameterList( iProp );
-            auto           tProperty      = std::make_shared< fem::Property >();
+            auto                  tProperty      = std::make_shared< fem::Property >();
 
             // get property name from parameter list
             std::string tPropertyName = tPropParameter.get< std::string >( "property_name" );
@@ -54,7 +54,13 @@ namespace moris::fem
 
             // set dv dependencies
             auto tDvTypes = property_to_vec_of_vec( tPropParameter, "dv_dependencies", mMSIDvTypeMap );
-            tProperty->set_dv_type_list( tDvTypes );
+
+            if ( tDvTypes.size() > 0 )
+            {
+                MORIS_ERROR( tDvTypes.size() == 1, "Model_Initializer::create_properties() - tDvTypes does not equal 1." );
+
+                tProperty->set_dv_type_list( tDvTypes( 0 ) );
+            }
 
             // set field dependencies
             auto tFieldTypes = property_to_vec_of_vec( tPropParameter, "field_dependencies", mFieldTypeMap );

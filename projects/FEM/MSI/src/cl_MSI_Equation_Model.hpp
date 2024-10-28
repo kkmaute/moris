@@ -524,7 +524,8 @@ namespace moris
             /**
              * @brief compute explicit and implicit dQidp
              */
-            void compute_explicit_and_implicit_dQIdp();
+            void compute_explicit_and_implicit_dQIdp(
+                    MSI::Model_Solver_Interface* aModelSolverInterface );
 
             //------------------------------------------------------------------------------
             /**

@@ -88,12 +88,12 @@ namespace moris::fem
         Field_Interpolator_Manager* mLeaderPreviousFIManager = nullptr;
 
         // leader and follower dv type lists
-        Vector< Vector< gen::PDV_Type > > mLeaderDvTypes;
-        Vector< Vector< gen::PDV_Type > > mFollowerDvTypes;
+        Vector< gen::PDV_Type > mLeaderDvTypes;
+        Vector< gen::PDV_Type > mFollowerDvTypes;
 
         // leader and follower global dv type list
-        Vector< Vector< gen::PDV_Type > > mLeaderGlobalDvTypes;
-        Vector< Vector< gen::PDV_Type > > mFollowerGlobalDvTypes;
+        Vector< gen::PDV_Type > mLeaderGlobalDvTypes;
+        Vector< gen::PDV_Type > mFollowerGlobalDvTypes;
 
         // leader and follower field type lists
         Vector< Vector< mtk::Field_Type > > mLeaderFieldTypes;
@@ -166,16 +166,16 @@ namespace moris::fem
         enum moris::fem::IWG_Type mIWGType = moris::fem::IWG_Type::UNDEFINED;
 
         // function pointers
-        void ( IWG::*m_compute_jacobian_FD )(
+        void ( IWG::* m_compute_jacobian_FD )(
                 real               aWStar,
                 real               aPerturbation,
                 fem::FDScheme_Type aFDSchemeType,
                 bool               aUseAbsolutePerturbations ) = nullptr;
-        void ( IWG::*m_compute_dRdp_FD_material )(
+        void ( IWG::* m_compute_dRdp_FD_material )(
                 real               aWStar,
                 real               aPerturbation,
                 fem::FDScheme_Type aFDSchemeType ) = nullptr;
-        void ( IWG::*m_compute_dRdp_FD_geometry )(
+        void ( IWG::* m_compute_dRdp_FD_geometry )(
                 real                          aWStar,
                 real                          aPerturbation,
                 fem::FDScheme_Type            aFDSchemeType,
@@ -183,7 +183,7 @@ namespace moris::fem
                 Vector< Matrix< IndexMat > >& aVertexIndices ) = nullptr;
 
         // function pointer for building the perturbation size for FD
-        real ( IWG::*m_build_perturbation_size )(
+        real ( IWG::* m_build_perturbation_size )(
                 const real& aPerturbation,
                 const real& aCoefficientToPerturb,
                 const real& aMaxPerturbation,
@@ -196,13 +196,13 @@ namespace moris::fem
         /**
          * constructor
          */
-        IWG(){};
+        IWG() {};
 
         //------------------------------------------------------------------------------
         /**
          * virtual destructor
          */
-        virtual ~IWG(){};
+        virtual ~IWG() {};
 
         //------------------------------------------------------------------------------
         /**
@@ -535,8 +535,8 @@ namespace moris::fem
          * @param[ in ] aIsLeader enum for leader or follower
          */
         void set_dv_type_list(
-                const Vector< Vector< gen::PDV_Type > >& aDvTypes,
-                mtk::Leader_Follower                     aIsLeader = mtk::Leader_Follower::LEADER );
+                const Vector< gen::PDV_Type >& aDvTypes,
+                mtk::Leader_Follower           aIsLeader = mtk::Leader_Follower::LEADER );
 
         //------------------------------------------------------------------------------
         /**
@@ -544,7 +544,7 @@ namespace moris::fem
          * @param[ in ]  aIsLeader enum leader or follower
          * @param[ out ] aDvTypes a list of group of dv types
          */
-        const Vector< Vector< gen::PDV_Type > >& get_dv_type_list(
+        const Vector< gen::PDV_Type >& get_dv_type_list(
                 mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
         //------------------------------------------------------------------------------
@@ -692,7 +692,7 @@ namespace moris::fem
          * @param[ in ]  aIsLeader       enum leader or follower
          * @param[ out ] mGlobalDvTypes global list of group of dv types
          */
-        const Vector< Vector< gen::PDV_Type > >& get_global_dv_type_list(
+        const Vector< gen::PDV_Type >& get_global_dv_type_list(
                 mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
         //------------------------------------------------------------------------------

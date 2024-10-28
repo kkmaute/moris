@@ -161,8 +161,14 @@ namespace moris::fem
             string_to_vector(
                     std::get< 1 >( tCMParameterList( iCM ).get< std::pair< std::string, std::string > >( "dv_dependencies" ) ),
                     tDvTypeNames );
-            mConstitutiveModels( iCM )->set_dv_type_list( tDvTypes, tDvTypeNames );
 
+            if ( tDvTypes.size() > 1 )
+            {
+                MORIS_ERROR( tDvTypes.size() == 1,
+                        "Model_Initializer_Legacy::create_constitutive_models - dv dependencies needs to be single vector" );
+
+                mConstitutiveModels( iCM )->set_dv_type_list( tDvTypes( 0 ), tDvTypeNames );
+            }
             // set CM properties
             Vector< Vector< std::string > > tPropertyNamesPair;
             string_to_vector_of_vectors(
@@ -301,11 +307,19 @@ namespace moris::fem
                         std::get< 0 >( tSPParameter.get< std::pair< std::string, std::string > >( tIsLeaderString + "_dv_dependencies" ) ),
                         tDvTypes,
                         mMSIDvTypeMap );
+
                 Vector< std::string > tDvTypeNames;
                 string_to_vector(
                         std::get< 1 >( tSPParameter.get< std::pair< std::string, std::string > >( tIsLeaderString + "_dv_dependencies" ) ),
                         tDvTypeNames );
-                mStabilizationParameters( iSP )->set_dv_type_list( tDvTypes, tDvTypeNames, tIsLeader );
+
+                if ( tDvTypes.size() > 0 )
+                {
+                    MORIS_ERROR( tDvTypes.size() == 1,
+                            "Model_Initializer_Legacy::create_stabilization_parameters - dv_dependencies needs to be single vector" );
+
+                    mStabilizationParameters( iSP )->set_dv_type_list( tDvTypes( 0 ), tDvTypeNames, tIsLeader );
+                }
 
                 // set leader properties
                 Vector< Vector< std::string > > tPropertyNamesPair;
@@ -613,7 +627,13 @@ namespace moris::fem
 
         Vector< Vector< moris::gen::PDV_Type > > tDvTypes = property_to_vec_of_vec( aIWGParameter, tPrefix + "_dv_dependencies", mMSIDvTypeMap );
 
-        aIWG->set_dv_type_list( tDvTypes, aLeaderFollowerType );
+        if ( tDvTypes.size() > 1 )
+        {
+            MORIS_ERROR( tDvTypes.size() == 1,
+                    "Model_Initializer_Legacy::set_iwg_dv_dependencies - dv dependencies needs to be single vector" );
+
+            aIWG->set_dv_type_list( tDvTypes( 0 ), aLeaderFollowerType );
+        }
     }
 
     //----------------------------------------------------------------
@@ -707,7 +727,14 @@ namespace moris::fem
                         tIQIParameter.get< std::string >( tIsLeaderString + "_dv_dependencies" ),
                         tDvTypes,
                         mMSIDvTypeMap );
-                mIQIs( iIQI )->set_dv_type_list( tDvTypes, tIsLeader );
+
+                if ( tDvTypes.size() > 1 )
+                {
+                    MORIS_ERROR( tDvTypes.size() == 1,
+                            "Model_Initializer_Legacy::create_iqis - DV dependencies must be a single list of DV types" );
+
+                    mIQIs( iIQI )->set_dv_type_list( tDvTypes( 0 ), tIsLeader );
+                }
 
                 // set field types
                 Vector< Vector< moris::mtk::Field_Type > > tFieldTypes;

@@ -61,7 +61,7 @@ namespace moris::MSI
             }
             else
             {
-                mNumSensitivityAnalysisRHS = mDesignVariableInterface->get_my_local_global_map().n_rows();
+                mNumSensitivityAnalysisRHS = mDesignVariableInterface->get_my_local_global_map().max() + 1;
             }
 
             return mNumSensitivityAnalysisRHS;
@@ -156,7 +156,8 @@ namespace moris::MSI
     //------------------------------------------------------------------------------
 
     void
-    Equation_Model::compute_explicit_and_implicit_dQIdp()
+    Equation_Model::compute_explicit_and_implicit_dQIdp(
+            MSI::Model_Solver_Interface* aModelSolverInterface )
     {
         // Trace this function
         Tracer tTracer( "MSI", "Equation Model", "Compute dQI/dp explicit and implicit" );
@@ -167,6 +168,12 @@ namespace moris::MSI
         // loop over local equation sets
         for ( uint tSetIndex = 0; tSetIndex < tNumSets; tSetIndex++ )
         {
+            // check for empty set
+            if ( mFemSets( tSetIndex )->is_empty_set() )
+            {
+                continue;
+            }
+
             // get access to the equation objects
             Vector< MSI::Equation_Object* >& tEqnObjList = mFemSets( tSetIndex )->get_equation_object_list();
 
@@ -181,6 +188,9 @@ namespace moris::MSI
             {
                 MORIS_LOG_SPEC( "Process FEM set", mFemSets( tSetIndex )->get_set_name() );
             }
+
+            // create field manager for adjoint
+            mFemSets( tSetIndex )->create_field_interpolator_managers_adjoint( aModelSolverInterface );
 
             // loop over equation objects on treated equation set
             for ( uint tEqObjIndex = 0; tEqObjIndex < tNumEqObjOnSet; tEqObjIndex++ )

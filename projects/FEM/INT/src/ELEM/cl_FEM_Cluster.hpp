@@ -473,6 +473,11 @@ namespace moris::fem
                 const real             &tVolumeError );
 
         //------------------------------------------------------------------------------
+
+        const Vector< Vector< Matrix< DDRMat > > > &getAdvPropWeights(
+                mtk::Leader_Follower aLeaderFollowerType = mtk::Leader_Follower::LEADER );
+
+        //------------------------------------------------------------------------------
     };
 
     //------------------------------------------------------------------------------

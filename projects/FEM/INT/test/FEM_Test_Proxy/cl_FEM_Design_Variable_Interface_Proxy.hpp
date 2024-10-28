@@ -148,7 +148,7 @@ namespace moris::fem
         //------------------------------------------------------------------------------
 
         void
-        get_ip_unique_dv_types_for_set(
+        get_ip_dv_types_for_set(
                 const moris::moris_index      aIntegrationMeshSetIndex,
                 Vector< enum gen::PDV_Type >& aDvTypes ) override
         {

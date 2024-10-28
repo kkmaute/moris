@@ -38,6 +38,43 @@ namespace moris::gen
         }
     };
 
+    struct IP_Design_Extraction_Operator
+    {
+        Vector< uint > mPdvTypeIndices;
+
+        Vector< std::shared_ptr< Design_Extraction_Operator > > mDesignExtractionOperators;
+
+        IP_Design_Extraction_Operator(
+                const Vector< uint >&             aPdvTypeIndices,
+                const Vector< Vector< sint > >&   aAdvIds,
+                const Vector< Matrix< DDRMat > >& aWeights )
+                : mPdvTypeIndices( aPdvTypeIndices )
+        {
+            mDesignExtractionOperators.resize( aPdvTypeIndices.size() );
+
+            for ( uint ip = 0; ip < aPdvTypeIndices.size(); ip++ )
+            {
+                mDesignExtractionOperators( ip ) =
+                        std::make_shared< Design_Extraction_Operator >( aAdvIds( ip ), aWeights( ip ) );
+            }
+        }
+
+        std::shared_ptr< Design_Extraction_Operator >
+        get_design_extraction_operator( uint aPDVIndex )
+        {
+            sint tIndex = mPdvTypeIndices.find( aPDVIndex );
+
+            if ( tIndex > -1 )
+            {
+                return mDesignExtractionOperators( tIndex );
+            }
+            else
+            {
+                return nullptr;
+            }
+        }
+    };
+
     //-------------------------------------------------------------------------------
 
     class PDV_Host_Manager : public MSI::Design_Variable_Interface
@@ -68,17 +105,16 @@ namespace moris::gen
         std::unordered_map< moris_id, moris_index > mIPVertexIdtoIndMap;
         std::unordered_map< moris_id, moris_index > mIPBaseVertexIdtoIndMap;
 
-        // Groups of PDV types used per set
-        Vector< Vector< Vector< PDV_Type > > > mIpPDVTypes;
-        Vector< Vector< Vector< PDV_Type > > > mIgPDVTypes;
+        // PDV types used per set
+        Vector< Vector< PDV_Type > >           mIpPDVTypes;
+        Vector< Vector< Vector< PDV_Type > > > mIgPDVTypes;    // needs to be removed
 
         // Ungrouped PDV types
-        Vector< Vector< PDV_Type > > mUniqueIpPDVTypes;
-        Vector< Vector< PDV_Type > > mUniqueIgPDVTypes;
+        Vector< Vector< PDV_Type > > mUniqueIgPDVTypes;    /// needs to be removed
 
         // Requested PDV types
         Vector< PDV_Type > mRequestedIpPDVTypes;
-        Vector< PDV_Type > mRequestedIgPDVTypes;
+        Vector< PDV_Type > mRequestedIgPDVTypes;    /// needs to be removed
 
         // List of global indices for identifying a given local PDV
         Matrix< IndexMat > mOwnedPDVLocalToGlobalMap;
@@ -91,10 +127,8 @@ namespace moris::gen
         Vector< std::string > mRequestedIQIs;
 
         // Design extraction operators
-        // Vector at IP nodes of Vector of field types of Design_Extraction_Operators
-        // Vector at IG nodes of Design_Extraction_Operators
-        Vector< Vector< std::shared_ptr< Design_Extraction_Operator > > > tIPExtractionOperators;
-        Vector< std::shared_ptr< Design_Extraction_Operator > >           tIgExtractionOperators;
+        Vector< std::shared_ptr< IP_Design_Extraction_Operator > > mIPExtractionOperators;
+        Vector< std::shared_ptr< Design_Extraction_Operator > >    mIGExtractionOperators;
 
       public:
         /**
@@ -174,8 +208,8 @@ namespace moris::gen
          */
         void
         get_ip_dv_types_for_set(
-                moris_index                   aIGMeshSetIndex,
-                Vector< Vector< PDV_Type > >& aPDVTypes ) override;
+                moris_index         aIGMeshSetIndex,
+                Vector< PDV_Type >& aPDVTypes ) override;
 
         /**
          * Get dv types for set
@@ -189,18 +223,7 @@ namespace moris::gen
                 Vector< Vector< PDV_Type > >& aPDVTypes ) override;
 
         /**
-         * Get unique dv types for set
-         *
-         * @param aIPMeshSetIndex integration mesh index
-         * @param aPDVTypes       list dv types to fill
-         */
-        void
-        get_ip_unique_dv_types_for_set(
-                moris_index         aIGMeshSetIndex,
-                Vector< PDV_Type >& aPDVTypes ) override;
-
-        /**
-         * Get unique dv types for set
+         * Get unique dv types for set /// needs to be removed
          *
          * @param aIGMeshSetIndex integration mesh index
          * @param aPDVTypes       list dv types to fill
@@ -245,9 +268,22 @@ namespace moris::gen
 
         //-------------------------------------------------------------------------------
 
+        Vector< Vector< std::shared_ptr< gen::Design_Extraction_Operator > > >
+        get_ip_desgin_extraction_operators(
+                const Matrix< moris::IndexMat >&,
+                const Vector< enum gen::PDV_Type >& ) override;
+
+        //-------------------------------------------------------------------------------
+
         Vector< sint >
         build_local_adv_indices(
                 Vector< std::shared_ptr< gen::Design_Extraction_Operator > >& aExtractionOperators ) override;
+
+        //-------------------------------------------------------------------------------
+
+        Vector< sint >
+        build_local_adv_indices(
+                Vector< Vector< std::shared_ptr< gen::Design_Extraction_Operator > > >& aExtractionOperators ) override;
 
         //-------------------------------------------------------------------------------
 
@@ -312,7 +348,7 @@ namespace moris::gen
          * @param aPDVTypes The PDV types per set, grouped
          */
         void set_interpolation_pdv_types(
-                const Vector< Vector< Vector< PDV_Type > > >& aPDVTypes );
+                const Vector< Vector< PDV_Type > >& aPDVTypes );
 
         /**
          * Create the pdv hosts on interpolation nodes based on the pdv types per set

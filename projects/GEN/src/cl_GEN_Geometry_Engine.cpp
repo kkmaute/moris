@@ -640,24 +640,22 @@ namespace moris::gen
         mtk::Integration_Mesh*   tIntegrationMesh   = aMeshPair.get_integration_mesh();
         mtk::Interpolation_Mesh* tInterpolationMesh = aMeshPair.get_interpolation_mesh();
 
-        // Initialize PDV type groups and mesh set info from integration mesh
-        Vector< Vector< Vector< PDV_Type > > > tPDVTypes( tIntegrationMesh->get_num_sets() );
-        Vector< PDV_Type >                     tPDVTypeGroup( 1 );
+        // Initialize PDV type s and mesh set info from integration mesh
+        Vector< Vector< PDV_Type > > tPDVTypes( tIntegrationMesh->get_num_sets() );
 
         // Loop over properties to create PDVs
-        for ( uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++ )
+        for ( const auto& tProperty : mProperties )
         {
             // Get PDV type from property
-            tPDVTypeGroup( 0 ) = mProperties( tPropertyIndex )->get_pdv_type();
+            PDV_Type tPDVType = tProperty->get_pdv_type();
 
             // Get mesh set indices and names
-            Vector< uint > tMeshSetIndices = mProperties( tPropertyIndex )->get_pdv_mesh_set_indices( tIntegrationMesh );
+            Vector< uint > tMeshSetIndices = tProperty->get_pdv_mesh_set_indices( tIntegrationMesh );
 
             // Assign PDV types to each mesh set
-            for ( uint tSetIndexPosition = 0; tSetIndexPosition < tMeshSetIndices.size(); tSetIndexPosition++ )
+            for ( uint tSetIndex : tMeshSetIndices )
             {
-                uint tMeshSetIndex = tMeshSetIndices( tSetIndexPosition );
-                tPDVTypes( tMeshSetIndex ).push_back( tPDVTypeGroup );
+                tPDVTypes( tSetIndex ).push_back( tPDVType );
             }
         }
 
@@ -1738,9 +1736,9 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
     void
     Geometry_Engine::create_interpolation_pdvs(
-            mtk::Interpolation_Mesh*               aInterpolationMesh,
-            mtk::Integration_Mesh*                 aIntegrationMesh,
-            Vector< Vector< Vector< PDV_Type > > > aPDVTypes )
+            mtk::Interpolation_Mesh*     aInterpolationMesh,
+            mtk::Integration_Mesh*       aIntegrationMesh,
+            Vector< Vector< PDV_Type > > aPDVTypes )
     {
         // Tracer
         Tracer tTracer( "GEN", "Create interpolation PDV hosts" );

@@ -295,9 +295,11 @@ namespace moris::fem
 
     void
     Stabilization_Parameter::set_dv_type_list(
-            Vector< Vector< gen::PDV_Type > >& aDvTypes,
-            mtk::Leader_Follower               aIsLeader )
+            Vector< gen::PDV_Type >& aDvTypes,
+            mtk::Leader_Follower     aIsLeader )
     {
+        MORIS_ERROR( aDvTypes.size() <= 1, "Stabilization_Parameter::set_dv_type_list - size of aDvTypes must be one" );
+
         switch ( aIsLeader )
         {
             case mtk::Leader_Follower::LEADER:
@@ -319,7 +321,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    const Vector< Vector< gen::PDV_Type > >&
+    const Vector< gen::PDV_Type >&
     Stabilization_Parameter::get_dv_type_list(
             mtk::Leader_Follower aIsLeader ) const
     {
@@ -635,12 +637,8 @@ namespace moris::fem
             tDofCounter += mLeaderDofTypes( iDof ).size();
         }
 
-        // loop over direct leader dv dependencies
-        for ( uint iDv = 0; iDv < mLeaderDvTypes.size(); iDv++ )
-        {
-            // update counter
-            tDvCounter += mLeaderDvTypes( iDv ).size();
-        }
+        // account for leader dv dependencies
+        tDvCounter += mLeaderDvTypes.size();
 
         // get number of direct follower dof dependencies
         for ( uint iDof = 0; iDof < mFollowerDofTypes.size(); iDof++ )
@@ -649,12 +647,8 @@ namespace moris::fem
             tDofCounter += mFollowerDofTypes( iDof ).size();
         }
 
-        // get number of direct follower dv dependencies
-        for ( uint iDv = 0; iDv < mFollowerDvTypes.size(); iDv++ )
-        {
-            // update counter
-            tDvCounter += mFollowerDvTypes( iDv ).size();
-        }
+        // account for follower dv dependencies
+        tDvCounter += mFollowerDvTypes.size();
 
         // loop over the leader properties
         for ( const std::shared_ptr< Property >& tProperty : mLeaderProp )
@@ -751,12 +745,8 @@ namespace moris::fem
             aDofTypes.append( mLeaderDofTypes( iDof ) );
         }
 
-        // loop over leader dv direct dependencies
-        for ( uint iDv = 0; iDv < mLeaderDvTypes.size(); iDv++ )
-        {
-            // populate the dv list
-            aDvTypes.append( mLeaderDvTypes( iDv ) );
-        }
+        // add leader dv direct dependencies
+        aDvTypes.append( mLeaderDvTypes );
 
         // loop over follower dof direct dependencies
         for ( uint iDof = 0; iDof < mFollowerDofTypes.size(); iDof++ )
@@ -765,12 +755,8 @@ namespace moris::fem
             aDofTypes.append( mFollowerDofTypes( iDof ) );
         }
 
-        // loop over follower dv direct dependencies
-        for ( uint iDv = 0; iDv < mFollowerDvTypes.size(); iDv++ )
-        {
-            // populate the dv list
-            aDvTypes.append( mFollowerDvTypes( iDv ) );
-        }
+        // add over follower dv direct dependencies
+        aDvTypes.append( mFollowerDvTypes );
 
         // loop over leader properties
         for ( const std::shared_ptr< Property >& tProperty : mLeaderProp )
@@ -1221,7 +1207,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    const Vector< Vector< gen::PDV_Type > >&
+    const Vector< gen::PDV_Type >&
     Stabilization_Parameter::get_global_dv_type_list(
             mtk::Leader_Follower aIsLeader )
     {
@@ -1267,244 +1253,56 @@ namespace moris::fem
     Stabilization_Parameter::build_global_dv_type_list()
     {
         // LEADER-------------------------------------------------------
-        // get the size of the dv type list
-        uint tCounterMax = 0;
 
-        // get number of dv types from penalty parameter
-        tCounterMax += mLeaderDvTypes.size();
+        // initialize global list with SM dv types
+        mLeaderGlobalDvTypes = mLeaderDvTypes;
 
-        // get number of dv types from properties
+        // add dv types from properties
         for ( const std::shared_ptr< Property >& tProperty : mLeaderProp )
         {
             if ( tProperty != nullptr )
             {
-                tCounterMax += tProperty->get_dv_type_list().size();
+                mLeaderGlobalDvTypes.append( tProperty->get_dv_type_list() );
             }
         }
 
-        // get number of dof types from constitutive models
+        // ad dv types from constitutive models
         for ( const std::shared_ptr< Constitutive_Model >& tCM : mLeaderCM )
         {
             if ( tCM != nullptr )
             {
-                tCounterMax += tCM->get_global_dv_type_list().size();
+                mLeaderGlobalDvTypes.append( tCM->get_global_dv_type_list() );
             }
         }
 
-        // set size for the global dv type list
-        mLeaderGlobalDvTypes.resize( tCounterMax );
-
-        // set a size for the checkList (used to avoid repeating a dv type)
-        Vector< sint > tCheckList( tCounterMax, -1 );
-
-        // init total dv counter
-        uint tCounter = 0;
-
-        // get dv type from penalty parameter
-        for ( uint iDv = 0; iDv < mLeaderDvTypes.size(); iDv++ )
-        {
-            // put the dv type in the checklist
-            tCheckList( tCounter ) = static_cast< uint >( mLeaderDvTypes( iDv )( 0 ) );
-
-            // put the dv type in the global type list
-            mLeaderGlobalDvTypes( tCounter ) = mLeaderDvTypes( iDv );
-
-            // update the dv counter
-            tCounter++;
-        }
-
-        // get dv type from properties
-        for ( const std::shared_ptr< Property >& tProperty : mLeaderProp )
-        {
-            if ( tProperty != nullptr )
-            {
-                // get dv types for property
-                const Vector< Vector< gen::PDV_Type > >& tActiveDvType =
-                        tProperty->get_dv_type_list();
-
-                // loop on property dv type
-                for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
-                {
-                    // check enum is not already in the list
-                    bool tCheck = false;
-                    for ( uint i = 0; i < tCounter; i++ )
-                    {
-                        tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDvType( iDv )( 0 ) ) );
-                    }
-
-                    // if dof enum not in the list
-                    if ( !tCheck )
-                    {
-                        // put the dv type in the checklist
-                        tCheckList( tCounter ) = static_cast< uint >( tActiveDvType( iDv )( 0 ) );
-
-                        // put the dv type in the global type list
-                        mLeaderGlobalDvTypes( tCounter ) = tActiveDvType( iDv );
-
-                        // update dof counter
-                        tCounter++;
-                    }
-                }
-            }
-        }
-
-        // get dof type from constitutive models
-        for ( const std::shared_ptr< Constitutive_Model >& tCM : mLeaderCM )
-        {
-            if ( tCM != nullptr )
-            {
-                // get dof types for constitutive model
-                const Vector< Vector< gen::PDV_Type > >& tActiveDvType =
-                        tCM->get_global_dv_type_list();
-
-                // loop on property dv type
-                for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
-                {
-                    // check enum is not already in the list
-                    bool tCheck = false;
-                    for ( uint i = 0; i < tCounter; i++ )
-                    {
-                        tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDvType( iDv )( 0 ) ) );
-                    }
-
-                    // if dv enum not in the list
-                    if ( !tCheck )
-                    {
-                        // put the dv type in the checklist
-                        tCheckList( tCounter ) = static_cast< uint >( tActiveDvType( iDv )( 0 ) );
-
-                        // put the dv type in the global type list
-                        mLeaderGlobalDvTypes( tCounter ) = tActiveDvType( iDv );
-
-                        // update dv counter
-                        tCounter++;
-                    }
-                }
-            }
-        }
-
-        // get the number of unique dv type groups for the penalty parameter
-        mLeaderGlobalDvTypes.resize( tCounter );
+        // make list unique
+        unique( mLeaderGlobalDvTypes );
 
         // FOLLOWER--------------------------------------------------------
-        // get the size of the dv type list
-        tCounterMax = 0;
 
-        // get number of dv types from penalty parameter
-        tCounterMax += mFollowerDvTypes.size();
+        // initialize global list with SM dv types
+        mFollowerGlobalDvTypes = mFollowerDvTypes;
 
-        // get number of dv types from properties
+        // add dv types from properties
         for ( const std::shared_ptr< Property >& tProperty : mFollowerProp )
         {
             if ( tProperty != nullptr )
             {
-                tCounterMax += tProperty->get_dv_type_list().size();
+                mFollowerGlobalDvTypes.append( tProperty->get_dv_type_list() );
             }
         }
 
-        // get number of dv types from constitutive models
+        // add dv types from constitutive models
         for ( const std::shared_ptr< Constitutive_Model >& tCM : mFollowerCM )
         {
             if ( tCM != nullptr )
             {
-                tCounterMax += tCM->get_global_dv_type_list().size();
+                mFollowerGlobalDvTypes.append( tCM->get_dv_type_list() );
             }
         }
 
-        // set size for the global dv type list
-        mFollowerGlobalDvTypes.resize( tCounterMax );
-
-        // set a size for the checkList (used to avoid repeating a dv type)
-        tCheckList.resize( tCounterMax, -1 );
-
-        // init total dv counter
-        tCounter = 0;
-
-        // get dv type from penalty parameter
-        for ( uint iDv = 0; iDv < mFollowerDvTypes.size(); iDv++ )
-        {
-            // put the dv type in the checklist
-            tCheckList( tCounter ) = static_cast< uint >( mFollowerDvTypes( iDv )( 0 ) );
-
-            // put the dv type in the global type list
-            mFollowerGlobalDvTypes( tCounter ) = mFollowerDvTypes( iDv );
-
-            // update the dv counter
-            tCounter++;
-        }
-
-        // get dv type from properties
-        for ( const std::shared_ptr< Property >& tProperty : mFollowerProp )
-        {
-            if ( tProperty != nullptr )
-            {
-                // get dv types for property
-                const Vector< Vector< gen::PDV_Type > >& tActiveDvType =
-                        tProperty->get_dv_type_list();
-
-                // loop on property dv type
-                for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
-                {
-                    // check enum is not already in the list
-                    bool tCheck = false;
-                    for ( uint i = 0; i < tCounter; i++ )
-                    {
-                        tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDvType( iDv )( 0 ) ) );
-                    }
-
-                    // if dv enum not in the list
-                    if ( !tCheck )
-                    {
-                        // put the dv type in the checklist
-                        tCheckList( tCounter ) = static_cast< uint >( tActiveDvType( iDv )( 0 ) );
-
-                        // put the dv type in the global type list
-                        mFollowerGlobalDvTypes( tCounter ) = tActiveDvType( iDv );
-
-                        // update dv counter
-                        tCounter++;
-                    }
-                }
-            }
-        }
-
-        // get dv type from constitutive models
-        for ( const std::shared_ptr< Constitutive_Model >& tCM : mLeaderCM )
-        {
-            if ( tCM != nullptr )
-            {
-                // get dv types for constitutive model
-                const Vector< Vector< gen::PDV_Type > >& tActiveDvType =
-                        tCM->get_global_dv_type_list();
-
-                // loop on property dv type
-                for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
-                {
-                    // check enum is not already in the list
-                    bool tCheck = false;
-                    for ( uint i = 0; i < tCounter; i++ )
-                    {
-                        tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDvType( iDv )( 0 ) ) );
-                    }
-
-                    // if dv enum not in the list
-                    if ( !tCheck )
-                    {
-                        // put the dv type in the checklist
-                        tCheckList( tCounter ) = static_cast< uint >( tActiveDvType( iDv )( 0 ) );
-
-                        // put the dv type in the global type list
-                        mFollowerGlobalDvTypes( tCounter ) = tActiveDvType( iDv );
-
-                        // update dv counter
-                        tCounter++;
-                    }
-                }
-            }
-        }
-
-        // get the number of unique dv type groups for the penalty parameter
-        mFollowerGlobalDvTypes.resize( tCounter );
+        // make list unique
+        unique( mFollowerGlobalDvTypes );
 
         // build global dv type map
         this->build_global_dv_type_map();
@@ -1535,7 +1333,7 @@ namespace moris::fem
         sint tMaxEnum = 0;
         for ( uint iDv = 0; iDv < tNumDvTypes; iDv++ )
         {
-            tMaxEnum = std::max( tMaxEnum, static_cast< int >( mLeaderGlobalDvTypes( iDv )( 0 ) ) );
+            tMaxEnum = std::max( tMaxEnum, static_cast< int >( mLeaderGlobalDvTypes( iDv ) ) );
         }
         tMaxEnum++;
 
@@ -1546,7 +1344,7 @@ namespace moris::fem
         for ( uint iDv = 0; iDv < tNumDvTypes; iDv++ )
         {
             // fill the property map
-            mLeaderGlobalDvTypeMap( static_cast< int >( mLeaderGlobalDvTypes( iDv )( 0 ) ), 0 ) = iDv;
+            mLeaderGlobalDvTypeMap( static_cast< int >( mLeaderGlobalDvTypes( iDv ) ), 0 ) = iDv;
         }
 
         // FOLLOWER-------------------------------------------------------
@@ -1557,7 +1355,7 @@ namespace moris::fem
         tMaxEnum = 0;
         for ( uint iDv = 0; iDv < tNumDvTypes; iDv++ )
         {
-            tMaxEnum = std::max( tMaxEnum, static_cast< int >( mFollowerGlobalDvTypes( iDv )( 0 ) ) );
+            tMaxEnum = std::max( tMaxEnum, static_cast< int >( mFollowerGlobalDvTypes( iDv ) ) );
         }
         tMaxEnum++;
 
@@ -1568,7 +1366,7 @@ namespace moris::fem
         for ( uint iDv = 0; iDv < tNumDvTypes; iDv++ )
         {
             // fill the property map
-            mFollowerGlobalDvTypeMap( static_cast< int >( mFollowerGlobalDvTypes( iDv )( 0 ) ), 0 ) = iDv;
+            mFollowerGlobalDvTypeMap( static_cast< int >( mFollowerGlobalDvTypes( iDv ) ), 0 ) = iDv;
         }
     }
 

@@ -111,9 +111,9 @@ void Monolithic_Time_Solver::solve_monolithic_time_system( Vector< sol::Dist_Vec
         }
 
         // print the solution vector
-        Matrix< DDRMat > tSolVec;
-        aFullVector( tSolVecIndex )->extract_copy( tSolVec );
-        print( tSolVec, "Solution Vector" );
+        //        Matrix< DDRMat > tSolVec;
+        //        aFullVector( tSolVecIndex )->extract_copy( tSolVec );
+        //        print( tSolVec, "Solution Vector" );
 
         // output state at end of time slab
         mMyTimeSolver->check_for_outputs( tTime( 1 ), tMaxTimeIterationReached, true );
@@ -167,6 +167,12 @@ void Monolithic_Time_Solver::solve_implicit_DqDs( Vector< sol::Dist_Vector* >& a
 
         mNonlinearSolverForSensitivityAnalysis->solve( aFullAdjointVector( 0 ) );
 
+        //  print the adjoint solution vector
+        //        Matrix< DDRMat >
+        //                tSolVec;
+        //        aFullAdjointVector( 0 )->extract_copy( tSolVec );
+        //        print( tSolVec, "aFullAdjointVector" );
+
         Vector< enum MSI::Dof_Type > tDofTypeUnion = mMyTimeSolver->get_dof_type_union();
 
         mSolverInterface->set_requested_dof_types( tDofTypeUnion );
@@ -174,11 +180,6 @@ void Monolithic_Time_Solver::solve_implicit_DqDs( Vector< sol::Dist_Vector* >& a
         mSolverInterface->postmultiply_implicit_dQds();
 
         aFullAdjointVector( 1 )->vec_plus_vec( 1.0, *( aFullAdjointVector( 0 ) ), 0.0 );
-
-        // print the adjoint solution vector
-        //        Matrix< DDRMat > tSolVec;
-        //        aFullAdjointVector( 1 )->extract_copy( tSolVec );
-        //        print( tSolVec, "aFullAdjointVector" );
 
         // output state at end of time slab
         mMyTimeSolver->check_for_outputs(

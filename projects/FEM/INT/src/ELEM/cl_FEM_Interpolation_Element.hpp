@@ -270,6 +270,13 @@ namespace moris::fem
         void set_field_interpolators_coefficients();
 
         //------------------------------------------------------------------------------
+        void
+        create_prop_adv_assembly_data(
+                Vector< Vector< Matrix< DDRMat > > >&                                         aAdvPropWeights,
+                const Vector< sint >&                                                         aAdvIds,
+                const Vector< Vector< std::shared_ptr< gen::Design_Extraction_Operator > > >& aExtractionOperators );
+
+        //------------------------------------------------------------------------------
     };    // class FEM::Interpolation_Element
 
     //------------------------------------------------------------------------------

@@ -104,11 +104,6 @@ namespace moris
              * @param[ in ] aIntegrationMeshSetIndex
              * @param[ in ] aDvTypes
              */
-            virtual void get_ip_unique_dv_types_for_set(
-                    const moris::moris_index      aIntegrationMeshSetIndex,
-                    Vector< enum gen::PDV_Type >& aDvTypes ) = 0;
-
-            //------------------------------------------------------------------------------
 
             virtual void get_ig_unique_dv_types_for_set(
                     const moris::moris_index      aIntegrationMeshSetIndex,
@@ -121,8 +116,21 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
+            virtual Vector< Vector< std::shared_ptr< gen::Design_Extraction_Operator > > >
+            get_ip_desgin_extraction_operators(
+                    const Matrix< moris::IndexMat >&,
+                    const Vector< enum gen::PDV_Type >& ) = 0;
+
+            //------------------------------------------------------------------------------
+
             virtual Vector< sint >
             build_local_adv_indices( Vector< std::shared_ptr< gen::Design_Extraction_Operator > >& ) = 0;
+
+            //-------------------------------------------------------------------------------
+
+            virtual Vector< sint >
+            build_local_adv_indices(
+                    Vector< Vector< std::shared_ptr< gen::Design_Extraction_Operator > > >& aExtractionOperators ) = 0;
 
             //------------------------------------------------------------------------------
 
@@ -140,8 +148,8 @@ namespace moris
              * @param[ in ] aDvTypes                  list of group of dv types
              */
             virtual void get_ip_dv_types_for_set(
-                    const moris::moris_index                aIntegrationMeshSetIndex,
-                    Vector< Vector< enum gen::PDV_Type > >& aDvTypes ) = 0;
+                    const moris::moris_index      aIntegrationMeshSetIndex,
+                    Vector< enum gen::PDV_Type >& aDvTypes ) = 0;
 
             virtual void get_ig_dv_types_for_set(
                     const moris::moris_index                aIntegrationMeshSetIndex,

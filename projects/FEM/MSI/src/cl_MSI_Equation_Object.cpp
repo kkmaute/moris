@@ -817,16 +817,34 @@ namespace moris::MSI
 
         if ( !mEquationSet->mEquationModel->is_forward_analysis() )
         {
+
             if ( !mEquationSet->mEquationModel->is_adjoint_sensitivity_analysis() )
             {
+                // reset elemental residual
+                for ( auto& tEleRes : tElementalResidual )
+                {
+                    tEleRes.fill( 0.0 );
+                }
+
+                // get derivative of residual with respect to design parameters
                 const Vector< Matrix< DDRMat > >& tdRdp = mEquationSet->get_drdp();
 
-                //                print( tdRdp( 0 ), "dRdp for IP DVs" );
-                //                print( tdRdp( 1 ), "dRdp for IG DVs" );
+                print( tdRdp( 0 ), "dRdp for IP DVs" );
 
-                // xxxxxxxxxxxx
-                //                const Matrix< DDSMat >& tLocalToGlobalIdsIGPdv =
-                //                        mEquationSet->get_geo_pdv_assembly_vector();
+                const Vector< sint >& tLocalIpAdvIds = mEquationSet->get_ip_adv_ids();
+
+                print( tLocalIpAdvIds, "tLocalIpAdvIds" );
+
+                for ( uint Ik = 0; Ik < tLocalIpAdvIds.size(); Ik++ )
+                {
+                    sint tAdvId = tLocalIpAdvIds( Ik );
+
+                    tElementalResidual( tAdvId ) = 1.0 * tdRdp( 0 ).get_column( Ik );
+
+                    print( tElementalResidual( tAdvId ), "direct: tElementalResidual for tAdv Id " + std::to_string( tAdvId ) );
+                }
+
+                print( tdRdp( 1 ), "dRdp for IG DVs" );
 
                 const Vector< sint >& tLocalIgAdvIds = mEquationSet->get_ig_adv_ids();
 
@@ -834,12 +852,9 @@ namespace moris::MSI
 
                 for ( uint Ik = 0; Ik < tLocalIgAdvIds.size(); Ik++ )
                 {
-                    // xxxx uint Ik     = 0;
-                    sint tAdvId = tLocalIgAdvIds( Ik );    // xxxx  0;
+                    sint tAdvId = tLocalIgAdvIds( Ik );
 
-                    // xxx                   if ( tdRdp( 1 ).numel() > 0 )
-                    //  xxx                  {
-                    tElementalResidual( tAdvId ) = 1.0 * tdRdp( 1 ).get_column( Ik );
+                    tElementalResidual( tAdvId ) += 1.0 * tdRdp( 1 ).get_column( Ik );
 
                     print( tElementalResidual( tAdvId ), "direct: tElementalResidual for tAdv Id " + std::to_string( tAdvId ) );
                 }

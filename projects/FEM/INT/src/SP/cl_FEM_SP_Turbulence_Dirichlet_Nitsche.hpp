@@ -82,7 +82,7 @@ namespace moris::fem
          * @param[ in ] aIsLeader enum for leader or follower
          */
         void set_dv_type_list(
-                Vector< Vector< gen::PDV_Type > > &aDvTypes,
+                Vector< gen::PDV_Type > &aDvTypes,
                 Vector< std::string >             &aDvStrings,
                 mtk::Leader_Follower               aIsLeader = mtk::Leader_Follower::LEADER ) override
         {

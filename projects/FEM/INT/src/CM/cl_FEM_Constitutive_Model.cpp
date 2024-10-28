@@ -452,8 +452,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void Constitutive_Model::set_dv_type_list(
-            const Vector< Vector< gen::PDV_Type > >& aDvTypes )
+    void Constitutive_Model::set_dv_type_list( const Vector< gen::PDV_Type >& aDvTypes )
     {
         // set the dv types
         mDvTypes = aDvTypes;
@@ -473,7 +472,7 @@ namespace moris::fem
         sint tMaxEnum = 0;
         for ( uint iDV = 0; iDV < tNumDvTypes; iDV++ )
         {
-            tMaxEnum = std::max( tMaxEnum, static_cast< int >( mDvTypes( iDV )( 0 ) ) );
+            tMaxEnum = std::max( tMaxEnum, static_cast< int >( mDvTypes( iDV ) ) );
         }
         tMaxEnum++;
 
@@ -484,7 +483,7 @@ namespace moris::fem
         for ( uint iDV = 0; iDV < tNumDvTypes; iDV++ )
         {
             // fill the dv type map
-            mDvTypeMap( static_cast< int >( mDvTypes( iDV )( 0 ) ) ) = iDV;
+            mDvTypeMap( static_cast< int >( mDvTypes( iDV ) ) ) = iDV;
         }
     }
 
@@ -492,62 +491,21 @@ namespace moris::fem
 
     void Constitutive_Model::build_global_dv_type_list()
     {
-        // get number of dv types
-        uint tNumDvTypes = mDvTypes.size();
+        // initialize global list with CM's dv types
+        mGlobalDvTypes = mDvTypes;
 
-        // set the size of the dv type list
-        uint tCounterMax = tNumDvTypes;
-
-        for ( const std::shared_ptr< Property >& tProperty : mProperties )
-        {
-            if ( tProperty != nullptr )
-            {
-                tCounterMax += tProperty->get_dv_type_list().size();
-            }
-        }
-        mGlobalDvTypes.resize( tCounterMax );
-        Vector< sint > tCheckList( tCounterMax, -1 );
-
-        // initialize total dv counter
-        uint tCounter = 0;
-
-        // get active dv type for constitutive model
-        for ( uint iDV = 0; iDV < tNumDvTypes; iDV++ )
-        {
-            tCheckList( tCounter )     = static_cast< uint >( mDvTypes( iDV )( 0 ) );
-            mGlobalDvTypes( tCounter ) = mDvTypes( iDV );
-            tCounter++;
-        }
-
+        // add dv types from properties
         for ( const std::shared_ptr< Property >& tProperty : mProperties )
         {
             if ( tProperty != nullptr )
             {
                 // get active dv types
-                Vector< Vector< gen::PDV_Type > > tActiveDvType = tProperty->get_dv_type_list();
-
-                for ( uint iDV = 0; iDV < tActiveDvType.size(); iDV++ )
-                {
-                    // check enum is not already in the list
-                    bool tCheck = false;
-                    for ( uint i = 0; i < tCounter; i++ )
-                    {
-                        tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDvType( iDV )( 0 ) ) );
-                    }
-
-                    // if dof enum not in the list
-                    if ( !tCheck )
-                    {
-                        tCheckList( tCounter )     = static_cast< uint >( tActiveDvType( iDV )( 0 ) );
-                        mGlobalDvTypes( tCounter ) = tActiveDvType( iDV );
-                        tCounter++;
-                    }
-                }
+                mGlobalDvTypes.append( tProperty->get_dv_type_list() );
             }
         }
 
-        // get the number of unique dv type groups, i.e. the number of interpolators
-        mGlobalDvTypes.resize( tCounter );
+        // make list unique
+        unique( mGlobalDvTypes );
 
         // build global dv type map
         this->build_global_dv_type_map();
@@ -577,7 +535,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    const Vector< Vector< gen::PDV_Type > >& Constitutive_Model::get_global_dv_type_list()
+    const Vector< gen::PDV_Type >& Constitutive_Model::get_global_dv_type_list()
     {
         if ( mGlobalDvBuild )
         {
@@ -603,9 +561,9 @@ namespace moris::fem
 
         // determine the max Dv_Type enum
         sint tMaxEnum = 0;
-        for ( uint iDOF = 0; iDOF < tNumDvTypes; iDOF++ )
+        for ( uint iDV = 0; iDV < tNumDvTypes; iDV++ )
         {
-            tMaxEnum = std::max( tMaxEnum, static_cast< int >( mGlobalDvTypes( iDOF )( 0 ) ) );
+            tMaxEnum = std::max( tMaxEnum, static_cast< int >( mGlobalDvTypes( iDV ) ) );
         }
         tMaxEnum++;
 
@@ -616,7 +574,7 @@ namespace moris::fem
         for ( uint iDV = 0; iDV < tNumDvTypes; iDV++ )
         {
             // fill the dv type map
-            mGlobalDvTypeMap( static_cast< int >( mGlobalDvTypes( iDV )( 0 ) ), 0 ) = iDV;
+            mGlobalDvTypeMap( static_cast< int >( mGlobalDvTypes( iDV ) ), 0 ) = iDV;
         }
     }
 
@@ -988,12 +946,8 @@ namespace moris::fem
             tDofCounter += mDofTypes( iDof ).size();
         }
 
-        // loop over direct dv dependencies
-        for ( uint iDv = 0; iDv < mDvTypes.size(); iDv++ )
-        {
-            // update counter
-            tDvCounter += mDvTypes( iDv ).size();
-        }
+        // count direct dv dependencies
+        tDvCounter += mDvTypes.size();
 
         // loop over direct field dependencies
         for ( uint iField = 0; iField < mFieldTypes.size(); iField++ )
@@ -1050,12 +1004,8 @@ namespace moris::fem
             aDofTypes.append( mDofTypes( iDof ) );
         }
 
-        // loop over direct dv dependencies
-        for ( uint iDv = 0; iDv < mDvTypes.size(); iDv++ )
-        {
-            // populate the dv type list
-            aDvTypes.append( mDvTypes( iDv ) );
-        }
+        // add direct dv dependencies
+        aDvTypes.append( mDvTypes );
 
         // loop over direct field dependencies
         for ( uint iField = 0; iField < mFieldTypes.size(); iField++ )

@@ -146,9 +146,13 @@ Linear_Solver_Amesos::solve_linear_system(
     error = mAmesosSolver->NumericFactorization();
     MORIS_ERROR( error == 0, "NUMERIC FACTORIZATION in Linear Solver Trilinos Amesos returned an error %i. Exiting linear solve", error );
 
+    //    aLinearSystem->get_solver_RHS()->print();
+
     // Solve linear system
     error = mAmesosSolver->Solve();
     MORIS_ERROR( error == 0, "Error in solving linear system with Amesos" );
+
+    //    aLinearSystem->get_free_solver_LHS()->print();
 
     // compute exact residuals
     if ( mParameterList.get< bool >( "ComputeTrueResidual" ) )
@@ -192,8 +196,7 @@ Linear_Solver_Amesos::solve_linear_system(
 
 //-----------------------------------------------------------------------------
 
-void
-Linear_Solver_Amesos::set_solver_internal_parameters()
+void Linear_Solver_Amesos::set_solver_internal_parameters()
 {
     // Initialize parameter list
     Teuchos::ParameterList params;

@@ -158,8 +158,8 @@ namespace moris::fem
          * @param[ in ] aDvStrings a list of strings to describe the dv types
          */
         void set_dv_type_list(
-                const Vector< Vector< gen::PDV_Type > > & aDvTypes,
-                const Vector< std::string >             & aDvStrings ) override
+                const Vector< gen::PDV_Type > &aDvTypes,
+                const Vector< std::string >   &aDvStrings ) override
         {
             Constitutive_Model::set_dv_type_list( aDvTypes );
         }

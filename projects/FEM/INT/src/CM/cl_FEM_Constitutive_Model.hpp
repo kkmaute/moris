@@ -66,13 +66,13 @@ namespace moris::fem
         Matrix< DDSMat > mGlobalDofTypeMap;
 
         // dv type list
-        Vector< Vector< gen::PDV_Type > > mDvTypes;
+        Vector< gen::PDV_Type > mDvTypes;
 
         // local string to dv enum map
         std::map< std::string, gen::PDV_Type > mDvMap;
 
         // global dv type list
-        Vector< Vector< gen::PDV_Type > > mGlobalDvTypes;
+        Vector< gen::PDV_Type > mGlobalDvTypes;
 
         // global dv type map
         Matrix< DDSMat > mGlobalDvTypeMap;
@@ -473,7 +473,7 @@ namespace moris::fem
          * set constitutive model dv types
          * @param[ in ] aDvTypes a list of group of dv types
          */
-        void set_dv_type_list( const Vector< Vector< gen::PDV_Type > >& aDvTypes );
+        void set_dv_type_list( const Vector< gen::PDV_Type >& aDvTypes );
 
         //------------------------------------------------------------------------------
         /**
@@ -483,8 +483,8 @@ namespace moris::fem
          */
         virtual void
         set_dv_type_list(
-                const Vector< Vector< gen::PDV_Type > >& aDvTypes,
-                const Vector< std::string >&             aDvStrings )
+                const Vector< gen::PDV_Type >& aDvTypes,
+                const Vector< std::string >&   aDvStrings )
         {
             MORIS_ERROR( false, "Constitutive_Model::set_model_type - Not implemented for base class." );
         }
@@ -494,7 +494,7 @@ namespace moris::fem
          * return a cell of dv types
          * @param[ out ] aDvTypes a cell of cell of dv types
          */
-        const Vector< Vector< gen::PDV_Type > >&
+        const Vector< gen::PDV_Type >&
         get_dv_type_list() const
         {
             return mDvTypes;
@@ -674,7 +674,7 @@ namespace moris::fem
          * get global dv type list
          * @param[ out ] mGlobalDvTypes global list of dv types
          */
-        const Vector< Vector< gen::PDV_Type > >& get_global_dv_type_list();
+        const Vector< gen::PDV_Type >& get_global_dv_type_list();
 
         //------------------------------------------------------------------------------
         /**

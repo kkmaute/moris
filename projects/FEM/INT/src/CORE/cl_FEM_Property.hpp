@@ -66,7 +66,7 @@ namespace moris::fem
         Matrix< DDSMat > mDofTypeMap;
 
         // active dv types
-        Vector< Vector< gen::PDV_Type > > mDvTypes;
+        Vector< gen::PDV_Type > mDvTypes;
 
         // active dv type map
         Vector< sint > mDvTypeMap;
@@ -328,14 +328,14 @@ namespace moris::fem
          * set a list of dv types
          * @param[ in ] aDvTypes list of dv type
          */
-        void set_dv_type_list( const Vector< Vector< gen::PDV_Type > >& aDvTypes );
+        void set_dv_type_list( const Vector< gen::PDV_Type >& aDvTypes );
 
         //------------------------------------------------------------------------------
         /**
          * return a list of dv types
          * @param[ out ] mDvTypes list of dv type
          */
-        const Vector< Vector< gen::PDV_Type > >&
+        const Vector< gen::PDV_Type >&
         get_dv_type_list() const
         {
             return mDvTypes;

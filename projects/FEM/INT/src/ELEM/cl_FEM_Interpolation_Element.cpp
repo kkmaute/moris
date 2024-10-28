@@ -196,13 +196,14 @@ namespace moris::fem
             }
 
             // if adjoint vector
-            if ( mSet->mAdjointPdofValues.size() > 0 )
+            if ( mSet->mAdjointPdofValues.size() > 0 && mSet->get_field_interpolator_manager_adjoint_vectors() )
             {
                 // get the pdof values for the ith dof type group
                 Vector< Vector< Matrix< DDRMat > > > tCoeff_Original;
+
                 this->get_my_pdof_values( mSet->mAdjointPdofValues, tDofTypeGroup, tCoeff_Original );
 
-                // loop over all eigen vectors
+                // loop over all sensitivity vectors
                 for ( uint iv = 0; iv < tCoeff_Original.size(); ++iv )
                 {
                     // reshape tCoeffs into the order the cluster expects them
@@ -242,69 +243,62 @@ namespace moris::fem
         // dv field interpolators------------------------------------------
 
         // get leader dv type list from set
-        const Vector< Vector< gen::PDV_Type > >& tLeaderDvTypeList = mSet->get_dv_type_list( mtk::Leader_Follower::LEADER );
+        const Vector< gen::PDV_Type >& tLeaderDvTypeList = mSet->get_dv_type_list( mtk::Leader_Follower::LEADER );
 
-        // get number of leader dv types
-        uint const tLeaderNumDvTypes = tLeaderDvTypeList.size();
-
-        // loop on the leader dv types
-        for ( uint iDv = 0; iDv < tLeaderNumDvTypes; iDv++ )
+        if ( tLeaderDvTypeList.size() > 0 )
         {
-            // get the dv type group
-            const Vector< gen::PDV_Type >& tDvTypeGroup = tLeaderDvTypeList( iDv );
-
             // get the pdv values for the ith dv type group
             // FIXME: the underlying use of the base cell needs to be hidden within PDV
             Vector< Matrix< DDRMat > > tCoeff_Original;
+
             mSet->get_equation_model()
                     ->get_design_variable_interface()
                     ->get_ip_pdv_value(
                             mLeaderInterpolationCell->get_base_cell()->get_vertex_inds(),
-                            tDvTypeGroup,
+                            tLeaderDvTypeList,
                             tCoeff_Original );
 
             // reshape tCoeffs into the order the FI expects them
-            Matrix< DDRMat > tCoeff;
-            mSet->get_equation_model()
-                    ->get_design_variable_interface()
-                    ->reshape_pdv_values( tCoeff_Original, tCoeff );
+            // Matrix< DDRMat > tCoeff;
+
+            //        mSet->get_equation_model()
+            //                ->get_design_variable_interface()
+            //                ->reshape_pdv_values( tCoeff_Original, tCoeff );
 
             // set field interpolator coefficients
-            mSet->get_field_interpolator_manager()
-                    ->set_coeff_for_type( tDvTypeGroup( 0 ), tCoeff );
+            for ( uint i = 0; i < tLeaderDvTypeList.size(); i++ )
+            {
+                mSet->get_field_interpolator_manager()->set_coeff_for_type(
+                        tLeaderDvTypeList( i ), tCoeff_Original( i ) );
+            }
         }
 
         // get follower dv type list from set
-        const Vector< Vector< gen::PDV_Type > >& tFollowerDvTypeList =
-                mSet->get_dv_type_list( mtk::Leader_Follower::FOLLOWER );
+        const Vector< gen::PDV_Type >& tFollowerDvTypeList = mSet->get_dv_type_list( mtk::Leader_Follower::FOLLOWER );
 
-        // get number of follower dv types
-        uint const tFollowerNumDvTypes = tFollowerDvTypeList.size();
-
-        // loop on the follower dv types
-        for ( uint iDv = 0; iDv < tFollowerNumDvTypes; iDv++ )
+        if ( tFollowerDvTypeList.size() > 0 )
         {
-            // get the dv type group
-            const Vector< gen::PDV_Type >& tDvTypeGroup = tFollowerDvTypeList( iDv );
-
             // get the pdv values for the ith dv type group
             Vector< Matrix< DDRMat > > tCoeff_Original;
+
             mSet->get_equation_model()
                     ->get_design_variable_interface()
                     ->get_ip_pdv_value(
                             mFollowerInterpolationCell->get_base_cell()->get_vertex_inds(),
-                            tDvTypeGroup,
+                            tFollowerDvTypeList,
                             tCoeff_Original );
 
-            // reshape tCoeffs into the order the FI expects them
-            Matrix< DDRMat > tCoeff;
-            mSet->get_equation_model()
-                    ->get_design_variable_interface()
-                    ->reshape_pdv_values( tCoeff_Original, tCoeff );
+            //        // reshape tCoeffs into the order the FI expects them
+            //        mSet->get_equation_model()
+            //                ->get_design_variable_interface()
+            //                ->reshape_pdv_values( tCoeff_Original, tCoeff );
 
             // set the field coefficients
-            mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )
-                    ->set_coeff_for_type( tDvTypeGroup( 0 ), tCoeff );
+            for ( uint i = 0; i < tFollowerDvTypeList.size(); i++ )
+            {
+                mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )
+                        ->set_coeff_for_type( tFollowerDvTypeList( i ), tCoeff_Original( i ) );
+            }
         }
 
         // field field interpolators------------------------------------------
@@ -409,28 +403,32 @@ namespace moris::fem
         // if adjoint vector
         if ( mSet->mAdjointPdofValues.size() > 0 )
         {
-            // set the IP geometry interpolator physical space and time coefficients for eigen vectors
-            mSet->get_field_interpolator_manager_adjoint_vectors( mtk::Leader_Follower::LEADER )->    //
-                    get_IP_geometry_interpolator()
-                            ->set_space_coeff( mLeaderInterpolationCell->get_vertex_coords() );
-            mSet->get_field_interpolator_manager_adjoint_vectors( mtk::Leader_Follower::LEADER )->    //
-                    get_IP_geometry_interpolator()
-                            ->set_time_coeff( this->get_time() );
+            Field_Interpolator_Manager* tLeaderAdjointFieldInterpolator =
+                    mSet->get_field_interpolator_manager_adjoint_vectors( mtk::Leader_Follower::LEADER );
+
+            if ( tLeaderAdjointFieldInterpolator )
+            {
+                // set the IP geometry interpolator physical space and time coefficients for eigen vectors
+                tLeaderAdjointFieldInterpolator->get_IP_geometry_interpolator()
+                        ->set_space_coeff( mLeaderInterpolationCell->get_vertex_coords() );
+
+                tLeaderAdjointFieldInterpolator->get_IP_geometry_interpolator()
+                        ->set_time_coeff( this->get_time() );
+            }
         }
     }
 
     //------------------------------------------------------------------------------
 
-    void
-    Interpolation_Element::fill_mat_pdv_assembly_vector()
+    void Interpolation_Element::fill_mat_pdv_assembly_vector()
     {
         // get the design variable interface
         MSI::Design_Variable_Interface* tDVInterface =
                 mSet->mEquationModel->get_design_variable_interface();
 
         // get the list of requested dv types by the opt solver
-        Vector< Vector< enum gen::PDV_Type > > tRequestedDvTypes;
-        mSet->get_ip_dv_types_for_set( tRequestedDvTypes );
+
+        const Vector< enum gen::PDV_Type >& tRequestedDvTypesLeader = mSet->get_ip_dv_types_for_set();
 
         // reset material pdv assembly vector
         mSet->get_mat_pdv_assembly_vector().fill( -1 );
@@ -442,29 +440,44 @@ namespace moris::fem
         Matrix< IndexMat > tLeaderVerticesInds =
                 mLeaderInterpolationCell->get_base_cell()->get_vertex_inds();
 
-        // loop over the dv types
-        for ( uint Ik = 0; Ik < tRequestedDvTypes.size(); Ik++ )
+        // get extraction operators for the cluster for each requested PDV type and IP node (basis)
+        Vector< Vector< std::shared_ptr< gen::Design_Extraction_Operator > > > tIPExtractionOperatorsLeader =
+                tDVInterface->get_ip_desgin_extraction_operators( tLeaderVerticesInds, tRequestedDvTypesLeader );
+
+        // get unique adv ids for ip extraction operators on cluster
+        mSet->mAdvIdsLeader = tDVInterface->build_local_adv_indices( tIPExtractionOperatorsLeader );
+
+        this->create_prop_adv_assembly_data(
+                mSet->mAdvPropWeightsLeader,
+                mSet->mAdvIdsLeader,
+                tIPExtractionOperatorsLeader );
+
+        mSet->mIPAdvIds = mSet->mAdvIdsLeader;
+
+        // get dv ids for this type and node indices
+        Vector< Matrix< IdMat > >
+                tPdvIds;
+
+        // get the pdv ids for requested vertices and pdv type
+        tDVInterface->get_ip_dv_ids_for_type_and_ind(
+                tLeaderVerticesInds,
+                tRequestedDvTypesLeader,
+                tPdvIds );
+
+        for ( uint ip = 0; ip < tPdvIds.size(); ip++ )
         {
-            // get dv ids for this type and node indices
-            Vector< Matrix< IdMat > > tPdvIds;
-
-            // get the pdv ids for requested vertices and pdv type
-            tDVInterface->get_ip_dv_ids_for_type_and_ind(
-                    tLeaderVerticesInds,
-                    tRequestedDvTypes( Ik ),
-                    tPdvIds );
-
             // get number of coefficients
-            uint tNumCoeff = tPdvIds( 0 ).numel();
+            uint tNumCoeff = tPdvIds( ip ).numel();
 
             // check that coefficients are larger or equal 0
-            MORIS_ASSERT( tPdvIds( 0 ).min() > -1,
+            MORIS_ASSERT( tPdvIds( ip ).min() > -1,
                     "Interpolation_Element::fill_mat_pdv_assembly_vector - %s",
                     "Coefficient vector includes negative numbers.\n" );
 
             // fill the assembly vector with pdv ids
             mSet->get_mat_pdv_assembly_vector()(
-                    { tCounter, tCounter + tNumCoeff - 1 } ) = tPdvIds( 0 ).matrix_data();
+                    { tCounter, tCounter + tNumCoeff - 1 } ) =
+                    tPdvIds( ip ).matrix_data();
 
             // update pdv counter
             tCounter += tNumCoeff;
@@ -480,42 +493,92 @@ namespace moris::fem
                     mFollowerInterpolationCell->get_base_cell()->get_vertex_inds();
 
             // get the list of requested dv types by the opt solver for the follower side
-            mSet->get_ip_dv_types_for_set( tRequestedDvTypes, mtk::Leader_Follower::FOLLOWER );
+            const Vector< enum gen::PDV_Type >& tRequestedDvTypesFollower =
+                    mSet->get_ip_dv_types_for_set( mtk::Leader_Follower::FOLLOWER );
 
-            // loop over the dv types
-            for ( uint Ik = 0; Ik < tRequestedDvTypes.size(); Ik++ )
+            // get dv ids for this type and node indices
+            Vector< Matrix< IdMat > > tPdvIds;
+
+            tDVInterface->get_ip_dv_ids_for_type_and_ind(
+                    tFollowerVerticesInds,
+                    tRequestedDvTypesFollower,
+                    tPdvIds );
+
+            for ( uint ip = 0; ip < tPdvIds.size(); ++ip )
             {
-                // get dv ids for this type and node indices
-                Vector< Matrix< IdMat > > tPdvIds;
-
-                // get the pdv ids for requested vertices and pdv type
-                tDVInterface->get_ip_dv_ids_for_type_and_ind(
-                        tFollowerVerticesInds,
-                        tRequestedDvTypes( Ik ),
-                        tPdvIds );
-
                 // get number of coefficients
-                uint tNumCoeff = tPdvIds( 0 ).numel();
+                uint tNumCoeff = tPdvIds( ip ).numel();
 
                 // check that coefficients are larger or equal 0
-                MORIS_ASSERT( tPdvIds( 0 ).min() > -1,
+                MORIS_ASSERT( tPdvIds( ip ).min() > -1,
                         "Interpolation_Element::fill_mat_pdv_assembly_vector - %s",
                         "Coefficient vector includes negative numbers.\n" );
 
                 // fill the assembly vector with pdv ids
                 mSet->get_mat_pdv_assembly_vector()(
-                        { tCounter, tCounter + tNumCoeff - 1 } ) = tPdvIds( 0 ).matrix_data();
+                        { tCounter, tCounter + tNumCoeff - 1 } ) =
+                        tPdvIds( ip ).matrix_data();
 
                 // update pdv counter
                 tCounter += tNumCoeff;
             }
         }
     }
-
     //------------------------------------------------------------------------------
 
     void
-    Interpolation_Element::compute_jacobian()
+    Interpolation_Element::create_prop_adv_assembly_data(
+            Vector< Vector< Matrix< DDRMat > > >&                                         aAdvPropWeights,
+            const Vector< sint >&                                                         aAdvIds,
+            const Vector< Vector< std::shared_ptr< gen::Design_Extraction_Operator > > >& aExtractionOperators )
+    {
+        // get number of requested PDV types
+        uint tNumPdvTypes = aExtractionOperators.size();
+
+        // set dimension for GP level adv indices relative to cluster and weights
+        aAdvPropWeights.clear();
+        aAdvPropWeights.resize( tNumPdvTypes );
+
+        // skip remainder if no PDV types are requested
+        if ( tNumPdvTypes == 0 )
+        {
+            return;
+        }
+
+        // get design variable interfac
+        MSI::Design_Variable_Interface* tDVInterface =
+                mSet->mEquationModel->get_design_variable_interface();
+
+        // get number of unique adv ids active in the cluster
+        uint tNumAdvs = aAdvIds.size();
+
+        // loop over all PDV types
+        for ( uint iDvType = 0; iDvType < tNumPdvTypes; ++iDvType )
+        {
+            aAdvPropWeights( iDvType ).resize( aExtractionOperators( iDvType ).size() );
+
+            // loop over all vertices of Lagrange element
+            for ( uint iVert = 0; iVert < aExtractionOperators( iDvType ).size(); ++iVert )
+            {
+                // get local vertex index with respect to the cluster
+
+                const std::shared_ptr< gen::Design_Extraction_Operator >& tOperator = aExtractionOperators( iDvType )( iVert );
+
+                if ( tOperator )
+                {
+                    // populate adv geo weights
+                    tDVInterface->populate_adv_geo_weights(
+                            tOperator,
+                            aAdvPropWeights( iDvType )( iVert ),
+                            tNumAdvs );
+                }
+            }
+        }
+    }
+
+    //------------------------------------------------------------------------------
+
+    void Interpolation_Element::compute_jacobian()
     {
         // compute pdof values
         // FIXME do this only once
@@ -550,8 +613,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    Interpolation_Element::compute_residual()
+    void Interpolation_Element::compute_residual()
     {
         // Fixme do this only once
         this->compute_my_pdof_values();
@@ -624,8 +686,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    Interpolation_Element::compute_jacobian_and_residual()
+    void Interpolation_Element::compute_jacobian_and_residual()
     {
         // Fixme do this only once
         this->compute_my_pdof_values();
@@ -674,7 +735,7 @@ namespace moris::fem
                 // init IG pdv assembly map
                 mSet->create_geo_pdv_assembly_map( mFemCluster( 0 ) );
 
-                // init dRdp
+                // initialize dRdp
                 mSet->initialize_mdRdpMat();
                 mSet->initialize_mdRdpGeo( mFemCluster( 0 ) );
 
@@ -692,8 +753,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    Interpolation_Element::compute_dRdp()
+    void Interpolation_Element::compute_dRdp()
     {
         // compute pdof values
         // FIXME do this only once
@@ -732,8 +792,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    Interpolation_Element::compute_dQIdp_explicit()
+    void Interpolation_Element::compute_dQIdp_explicit()
     {
         // initialize IP and IG pdv assembly maps
         this->fill_mat_pdv_assembly_vector();
@@ -818,8 +877,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    Interpolation_Element::compute_dQIdp_explicit_implicit()
+    void Interpolation_Element::compute_dQIdp_explicit_implicit()
     {
         // make sure this is done on the FEM clusters and not on the VIS clusters
         MORIS_ASSERT( !mFemCluster( 0 )->is_VIS_cluster(),
@@ -840,6 +898,7 @@ namespace moris::fem
         const Matrix< DDSMat >& tLocalToGlobalIdsIGPdv =
                 mEquationSet->get_geo_pdv_assembly_vector();
 
+        const Vector< sint >& tIPAdvIds = mEquationSet->get_ip_adv_ids();
         const Vector< sint >& tIgAdvIds = mEquationSet->get_ig_adv_ids();
 
         // if there is no pdv defined, return
@@ -941,14 +1000,15 @@ namespace moris::fem
         for ( uint Ik = 0; Ik < tNumIQIs; Ik++ )
         {
             // Assembly for the IP pdv
-            if ( tLocalToGlobalIdsIPPdv.numel() != 0 )
+            if ( tIPAdvIds.size() > 0 )
             {
                 std::string tStr = "for IP DVs: dQdp " + std::to_string( Ik );
                 print( mSet->mdQIdp( 0 )( Ik ), tStr );
+                print( tIPAdvIds, "tIPAdvIds" );
 
                 // assemble explicit dQIdpMat into multivector
                 mEquationSet->get_equation_model()->get_explicit_dQidp()->sum_into_global_values(
-                        tLocalToGlobalIdsIPPdv,
+                        tIPAdvIds,
                         mSet->mdQIdp( 0 )( Ik ),
                         Ik );
             }
@@ -961,24 +1021,24 @@ namespace moris::fem
                 print( tIgAdvIds, "tIgAdvIds" );
 
                 // assemble explicit dQIdpGeo into multivector
-                mEquationSet->get_equation_model()->get_explicit_dQidp()->print();
+                // mEquationSet->get_equation_model()->get_explicit_dQidp()->print();
                 mEquationSet->get_equation_model()->get_explicit_dQidp()->sum_into_global_values(
                         tIgAdvIds,
                         mSet->mdQIdp( 1 )( Ik ),
                         Ik );
-                mEquationSet->get_equation_model()->get_explicit_dQidp()->print();
+                // mEquationSet->get_equation_model()->get_explicit_dQidp()->print();
             }
 
             // post multiplication of adjoint values time dRdp
             if ( mSet->mEquationModel->is_adjoint_sensitivity_analysis() )
             {
-                if ( tLocalToGlobalIdsIPPdv.numel() != 0 )
+                if ( tIPAdvIds.size() > 0 )
                 {
                     Matrix< DDRMat > tLocalIPdQiDp = -1.0 * trans( tAdjointPdofValuesReordered.get_column( Ik ) ) * tdRdpmat;
 
                     // assemble implicit dQidp into multivector
                     mEquationSet->get_equation_model()->get_implicit_dQidp()->sum_into_global_values(
-                            tLocalToGlobalIdsIPPdv,
+                            tIPAdvIds,
                             tLocalIPdQiDp,
                             Ik );
                 }
@@ -1384,8 +1444,11 @@ namespace moris::fem
             // get the type of the current cluster
             fem::Element_Type tElementType = mFemCluster( aFemMeshIndex )->get_element_type();
 
-            // init IG pdv assembly map
-            mSet->create_geo_pdv_assembly_map( mFemCluster( 0 ) );
+            // initialize the geo pdv assembly map
+            if ( !mSet->mEquationModel->is_forward_analysis() )
+            {
+                mSet->create_geo_pdv_assembly_map( mFemCluster( 0 ) );
+            }
 
             // compute the nodal values of the requested QIs
             // double sided clusters require additional treatment of the follower side
@@ -1471,7 +1534,7 @@ namespace moris::fem
             mFemCluster( aFemMeshIndex )->get_vertex_indices_in_cluster_for_sensitivity( tVertexIndicesForSensitivities );
 
             // this might not be correct as it assumes that IG mesh and the visualization mesh are the same
-            MORIS_ERROR( tVertexIndicesForSensitivities.numel() == tNumVertices,
+            MORIS_ERROR( tVertexIndicesForSensitivities.numel() == 0 || tVertexIndicesForSensitivities.numel() == tNumVertices,
                     "Interpolation_Element::compute_nodal_QIs() - "
                     "Number of vertices for sensitivity analysis does not match the number of vertices in cluster." );
 

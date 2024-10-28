@@ -91,12 +91,12 @@ namespace moris::fem
         Field_Interpolator_Manager* mFollowerAdjointFIManager = nullptr;
 
         // leader and follower dv type lists
-        Vector< Vector< gen::PDV_Type > > mLeaderDvTypes;
-        Vector< Vector< gen::PDV_Type > > mFollowerDvTypes;
+        Vector< gen::PDV_Type > mLeaderDvTypes;
+        Vector< gen::PDV_Type > mFollowerDvTypes;
 
         // leader and follower global dv type list
-        Vector< Vector< gen::PDV_Type > > mLeaderGlobalDvTypes;
-        Vector< Vector< gen::PDV_Type > > mFollowerGlobalDvTypes;
+        Vector< gen::PDV_Type > mLeaderGlobalDvTypes;
+        Vector< gen::PDV_Type > mFollowerGlobalDvTypes;
 
         // flag for building global dv type list
         bool mGlobalDvBuild = true;
@@ -542,15 +542,15 @@ namespace moris::fem
          * @param[ in ] aIsLeader enum for leader or follower
          */
         void set_dv_type_list(
-                const Vector< Vector< gen::PDV_Type > >& aDvTypes,
-                mtk::Leader_Follower                     aIsLeader = mtk::Leader_Follower::LEADER );
+                const Vector< gen::PDV_Type >& aDvTypes,
+                mtk::Leader_Follower           aIsLeader = mtk::Leader_Follower::LEADER );
 
         //------------------------------------------------------------------------------
         /**
          * return a cell of dv types
          * @param[ in ] aIsLeader enum leader or follower
          */
-        Vector< Vector< gen::PDV_Type > >& get_dv_type_list(
+        Vector< gen::PDV_Type >& get_dv_type_list(
                 mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
         //------------------------------------------------------------------------------
@@ -586,7 +586,7 @@ namespace moris::fem
          * IQI, property, constitutive and stabilization dependencies
          * @param[ in ] aIsLeader enum leader or follower
          */
-        const Vector< Vector< gen::PDV_Type > >& get_global_dv_type_list(
+        const Vector< gen::PDV_Type >& get_global_dv_type_list(
                 mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
         //------------------------------------------------------------------------------

@@ -179,7 +179,7 @@ namespace moris::MSI
 
     //------------------------------------------------------------------------------
 
-    const Vector< Vector< gen::PDV_Type > > &Equation_Set::get_dv_type_list(
+    const Vector< gen::PDV_Type > &Equation_Set::get_dv_type_list(
             mtk::Leader_Follower aIsLeader )
     {
         switch ( aIsLeader )

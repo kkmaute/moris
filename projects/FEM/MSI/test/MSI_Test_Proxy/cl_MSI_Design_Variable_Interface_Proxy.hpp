@@ -134,8 +134,8 @@ namespace moris::MSI
 
         //------------------------------------------------------------------------------
 
-        void get_ip_unique_dv_types_for_set( const moris::moris_index aIntegrationMeshSetIndex,
-                Vector< enum gen::PDV_Type >&                         aDvTypes ) override
+        void get_ip_dv_types_for_set( const moris::moris_index aIntegrationMeshSetIndex,
+                Vector< enum gen::PDV_Type >&                  aDvTypes ) override
         {
             aDvTypes = { gen::PDV_Type::DENSITY };
         };
