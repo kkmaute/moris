@@ -233,7 +233,6 @@ namespace moris
     /* ---------------------------------------------------------------------------------------------- */
     void OPTParameterList( Module_Parameter_Lists &aParameterLists )
     {
-        Parameter_List pl = prm::create_opt_problem_parameter_list();
         aParameterLists.set( "is_optimization_problem", false );
     }
 
@@ -299,7 +298,6 @@ namespace moris
         /* -------------------------------------------------------------------------------------------- */
         /*                                        GEN Parameter                                         */
         /* -------------------------------------------------------------------------------------------- */
-        Parameter_List pl( "" );
         aParameterLists.set( "number_of_phases", 3 );
         aParameterLists.set( "phase_function_name", F2STR( Phase_Index_Split ) );
         /* -------------------------------------------------------------------------------------------- */
@@ -313,25 +311,22 @@ namespace moris
             real tNormalX = std::cos( tInterfaceTopAngle + M_PI_2 );
             real tNormalY = std::sin( tInterfaceTopAngle + M_PI_2 );
 
-            pl = prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE );
-            pl.set( "plx", tTopXShift );
-            pl.set( "center_y", tTopYShift );
-            pl.set( "normal_x", tNormalX );
-            pl.set( "normal_y", tNormalY );
-
-            pl.set( "number_of_refinements", 0 );
-            pl.set( "refinement_mesh_index", 0 );
-            aParameterLists( GEN::GEOMETRIES ).add_parameter_list( pl );
+            aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE ) );
+            aParameterLists.set( "plx", tTopXShift );
+            aParameterLists.set( "center_y", tTopYShift );
+            aParameterLists.set( "normal_x", tNormalX );
+            aParameterLists.set( "normal_y", tNormalY );
+            aParameterLists.set( "number_of_refinements", 0 );
+            aParameterLists.set( "refinement_mesh_index", 0 );
         }
         else
         {
             // use a parabola for the top side
-            pl = prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED );
-            pl.set( "field_function_name", "Parabola" );
-            pl.insert( "variable_1", tTopXShift );
-            pl.insert( "variable_2", tTopYShift );
-            pl.insert( "variable_3", tTopParabolaFactor );
-            aParameterLists( GEN::GEOMETRIES ).add_parameter_list( pl );
+            aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
+            aParameterLists.set( "field_function_name", "Parabola" );
+            aParameterLists.insert( "variable_1", tTopXShift );
+            aParameterLists.insert( "variable_2", tTopYShift );
+            aParameterLists.insert( "variable_3", tTopParabolaFactor );
         }
 
         /* --------------------------------------- Bottom Plane --------------------------------------- */
@@ -341,25 +336,23 @@ namespace moris
             real tNormalX = std::cos( tInterfaceBottomAngle + M_PI_2 );
             real tNormalY = std::sin( tInterfaceBottomAngle + M_PI_2 );
 
-            pl = prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE );
-            pl.set( "center_x", tBottomXShift );
-            pl.set( "center_y", tBottomYShift );
-            pl.set( "normal_x", tNormalX );
-            pl.set( "normal_y", tNormalY );
+            aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE ) );
+            aParameterLists.set( "center_x", tBottomXShift );
+            aParameterLists.set( "center_y", tBottomYShift );
+            aParameterLists.set( "normal_x", tNormalX );
+            aParameterLists.set( "normal_y", tNormalY );
 
-            pl.set( "number_of_refinements", 0 );
-            pl.set( "refinement_mesh_index", 0 );
-            aParameterLists( GEN::GEOMETRIES ).add_parameter_list( pl );
+            aParameterLists.set( "number_of_refinements", 0 );
+            aParameterLists.set( "refinement_mesh_index", 0 );
         }
         else
         {
             // use a parabola for the bottom side
-            pl = prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED );
-            pl.set( "field_function_name", "Parabola" );
-            pl.insert( "variable_1", tBottomXShift );
-            pl.insert( "variable_2", tBottomYShift );
-            pl.insert( "variable_3", tBottomParabolaFactor );
-            aParameterLists( GEN::GEOMETRIES ).add_parameter_list( pl );
+            aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
+            aParameterLists.set( "field_function_name", "Parabola" );
+            aParameterLists.insert( "variable_1", tBottomXShift );
+            aParameterLists.insert( "variable_2", tBottomYShift );
+            aParameterLists.insert( "variable_3", tBottomParabolaFactor );
         }
     }
 
@@ -802,15 +795,13 @@ namespace moris
         /* -------------------------------------------------------------------------------------------- */
         /*                                   Computation Parameter List                                 */
         /* -------------------------------------------------------------------------------------------- */
-        pl = prm::create_computation_parameter_list();
-        pl.set( "is_analytical_forward", true );
-        pl.set( "finite_difference_scheme_forward", (uint)( tFDScheme ) );
-        pl.set( "finite_difference_perturbation_size_forward", tFDPerturbationSize );
-        pl.set( "finite_difference_perturbation_strategy", (uint)tFDPerturbationStrategy );
-        pl.set( "nonconformal_integration_order", static_cast< uint >( tNonconformalIntegrationOrder ) );
-        pl.set( "nonconformal_max_negative_ray_length", tMaxNegativeRayLength );
-        pl.set( "nonconformal_max_positive_ray_length", tMaxPositiveRayLength );
-        aParameterLists( FEM::COMPUTATION ).add_parameter_list( pl );
+        aParameterLists( FEM::COMPUTATION ).set( "is_analytical_forward", true );
+        aParameterLists.set( "finite_difference_scheme_forward", (uint)( tFDScheme ) );
+        aParameterLists.set( "finite_difference_perturbation_size_forward", tFDPerturbationSize );
+        aParameterLists.set( "finite_difference_perturbation_strategy", (uint)tFDPerturbationStrategy );
+        aParameterLists.set( "nonconformal_integration_order", static_cast< uint >( tNonconformalIntegrationOrder ) );
+        aParameterLists.set( "nonconformal_max_negative_ray_length", tMaxNegativeRayLength );
+        aParameterLists.set( "nonconformal_max_positive_ray_length", tMaxPositiveRayLength );
     }
 
     /* ----------------------------------------------------------------------------------------------
@@ -912,10 +903,8 @@ namespace moris
         /*                                       MSI Parameter List */
         /* --------------------------------------------------------------------------------------------
          */
-        Parameter_List pl = prm::create_msi_parameter_list();
-        pl.set( "UX", 0 );
-        pl.set( "UY", 0 );
-        aParameterLists( 0 ).add_parameter_list( pl );
+        aParameterLists.set( "UX", 0 );
+        aParameterLists.set( "UY", 0 );
     }
 
     /* ----------------------------------------------------------------------------------------------
@@ -931,9 +920,8 @@ namespace moris
         /*                                          VIS Parameter */
         /* --------------------------------------------------------------------------------------------
          */
-        Parameter_List pl = prm::create_vis_parameter_list();
-        pl.set( "File_Name", std::pair< std::string, std::string >( "./", tOutputFileName ) );
-        pl.set( "Mesh_Type", (uint)vis::VIS_Mesh_Type::STANDARD );
+        aParameterLists.set( "File_Name", std::pair< std::string, std::string >( "./", tOutputFileName ) );
+        aParameterLists.set( "Mesh_Type", (uint)vis::VIS_Mesh_Type::STANDARD );
 
         // std::string tSetNames = tDomain;
         std::string tSetNames   = tDomain + "," + tContactInterface;
@@ -980,13 +968,12 @@ namespace moris
             tIQINames += ",IQINormal" + tComponent;
         }
 
-        pl.set( "Set_Names", tSetNames );
-        pl.set( "Field_Names", tFieldNames );
-        pl.set( "Field_Type", tFieldTypes );
-        pl.set( "IQI_Names", tIQINames );
-        pl.set( "Save_Frequency", 1 );
-        pl.set( "Time_Offset", 0.1 );
-        aParameterLists( 0 ).add_parameter_list( pl );
+        aParameterLists.set( "Set_Names", tSetNames );
+        aParameterLists.set( "Field_Names", tFieldNames );
+        aParameterLists.set( "Field_Type", tFieldTypes );
+        aParameterLists.set( "IQI_Names", tIQINames );
+        aParameterLists.set( "Save_Frequency", 1 );
+        aParameterLists.set( "Time_Offset", 0.1 );
     }
 
     void MORISGENERALParameterList( Module_Parameter_Lists &aParameterLists ) {}
