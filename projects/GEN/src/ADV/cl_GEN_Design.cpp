@@ -63,6 +63,14 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    Vector< Vector< sint > >
+    Design::get_shared_adv_ids()
+    {
+        return mSharedADVIDs;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     sint
     Design::append_adv_info(
             mtk::Interpolation_Mesh* aMesh,

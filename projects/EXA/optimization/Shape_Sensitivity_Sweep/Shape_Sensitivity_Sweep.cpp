@@ -396,7 +396,7 @@ namespace moris
         aParameterLists.set( "TSA_Output_Indices", "0" );
         aParameterLists.set( "TSA_Output_Criteria", "Output_Criterion" );
 
-        aParameterLists( SOL::SOLVER_WAREHOUSE )
+        aParameterLists( SOL::SOLVER_WAREHOUSE );
         aParameterLists.set( "Sensitivity_Analysis_Type", sol::SensitivityAnalysisType::DIRECT );
 
         aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::IFPACK );

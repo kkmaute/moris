@@ -405,8 +405,8 @@ namespace moris
         aParameterLists.set( "TSA_Output_Indices", "0" );
         aParameterLists.set( "TSA_Output_Criteria", "Output_Criterion" );
 
-        tParameterlist( SOL::SOLVER_WAREHOUSE );
-        tParameterlist.set( "Sensitivity_Analysis_Type", sol::SensitivityAnalysisType::DIRECT );
+        aParameterLists( SOL::SOLVER_WAREHOUSE );
+        aParameterLists.set( "Sensitivity_Analysis_Type", sol::SensitivityAnalysisType::DIRECT );
     }
 
     //--------------------------------------------------------------------------------------------------------------

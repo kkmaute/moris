@@ -143,6 +143,8 @@ namespace moris::gen
          */
         virtual Vector< std::shared_ptr< Field > > get_fields() = 0;
 
+        Vector< Vector< sint > > get_shared_adv_ids();
+
         /**
          * Appends this designs ADV IDs, ijklIDs, lower bounds, and upper bounds to the global matrices stored in the geometry engine.
          * Sets mNumCoeff, mOffsetID, and appends to mSharedADVIDs

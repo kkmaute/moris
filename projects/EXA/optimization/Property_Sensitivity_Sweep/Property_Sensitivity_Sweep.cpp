@@ -277,7 +277,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         // create parameter list for property 1
-        aParameterLists = prm::create_property_parameter_list();
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropDensity" );
         aParameterLists.set( "function_parameters", "1.0" );
         aParameterLists.set( "value_function", "tDensityFunc" );
@@ -285,7 +285,7 @@ namespace moris
         aParameterLists.set( "dv_dependencies", "DENSITY" );
 
         // create parameter list for property 2
-        aParameterLists( FEM::PROPERTY ).add_parameter_list();
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropYoungs" );
         aParameterLists.set( "function_parameters", "1.0,3.0" );
         aParameterLists.set( "value_function", "tYoungsFunc" );
@@ -293,25 +293,25 @@ namespace moris
         aParameterLists.set( "dv_dependencies", "DENSITY" );
 
         // create parameter list for property 5
-        aParameterLists( FEM::PROPERTY ).add_parameter_list();
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropFlux" );
         aParameterLists.set( "function_parameters", "10.0" );
         aParameterLists.set( "value_function", "Func_Const" );
 
         // create parameter list for property 4
-        aParameterLists( FEM::PROPERTY ).add_parameter_list();
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropDirichletU" );
         aParameterLists.set( "function_parameters", "0.0;0.0" );
         aParameterLists.set( "value_function", "Func_Const" );
 
         // create parameter list for property 10
-        aParameterLists( FEM::PROPERTY ).add_parameter_list();
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropNeumann" );
         aParameterLists.set( "function_parameters", "1.0;0.0" );
         aParameterLists.set( "value_function", "Func_Const" );
 
         // create parameter list for property 7
-        aParameterLists( FEM::PROPERTY ).add_parameter_list();
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropPoisson" );
         aParameterLists.set( "function_parameters", "0.0" );
         aParameterLists.set( "value_function", "Func_Const" );

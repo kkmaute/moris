@@ -891,6 +891,9 @@ namespace moris::gen
             tPrimitiveADVIds( iADVIndex ) = iADVIndex;
         }
 
+        // create a vector unique owned and shared ids
+        Vector< sint > tAllOwnedAndSharedADVIds = tPrimitiveADVIds;
+
         // Define primitive ADVs to be owned by processor 0
         Vector< sint > tOwnedADVIds( 0, 0 );
         if ( par_rank() == 0 )
@@ -903,22 +906,23 @@ namespace moris::gen
 
         // Loop over all designs, i.e., geometries and properties, to get number of ADVs
         sint tOffsetID = tPrimitiveADVIds.size();
-        for ( uint iDesignIndex = 0; iDesignIndex < tDesigns.size(); iDesignIndex++ )
+        for ( auto & iDesign : tDesigns )
         {
-            tOffsetID = tDesigns( iDesignIndex )->append_adv_info(    //
+            tOffsetID = iDesign->append_adv_info(    //
                     aMeshPair.get_interpolation_mesh(),
                     tOwnedADVIds,
                     tOwnedijklIDs,
                     tOffsetID,
                     mADVManager.mLowerBounds,
                     mADVManager.mUpperBounds );
-        }
 
-        // create a vector unique owned and shared ids
-        Vector< sint > tAllOwnedAndSharedADVIds = tPrimitiveADVIds;
-        for ( auto const & tOwnedAndShared : tOwnedAndSharedADVIds )
-        {
-            tAllOwnedAndSharedADVIds.append( tOwnedAndShared );
+            // Get all the owned and shared ADV IDs for this design
+            Vector< Vector< sint > > tDesignOwnedAndSharedADVIds = iDesign->get_shared_adv_ids();
+
+            for ( auto const & tOwnedAndShared : tDesignOwnedAndSharedADVIds )
+            {
+                tAllOwnedAndSharedADVIds.append( tOwnedAndShared );
+            }
         }
 
         // Set owned and owned and shared ADV IDs in PDV host manager
