@@ -630,7 +630,7 @@ namespace moris
         aParameterLists.set( "TSA_time_level_per_type", "UX,1;UY,1" );
 
         // aParameterLists.set( "SOL_save_operator_to_matlab", "MassMat" );
-        aParameterLists.set( "SOL_TPL_Type",  sol::MapType::Petsc ) ;
+        aParameterLists( SOL::SOLVER_WAREHOUSE ).set( "SOL_TPL_Type",  sol::MapType::Petsc ) ;
 
     }
 
