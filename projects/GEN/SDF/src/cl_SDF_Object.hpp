@@ -13,6 +13,8 @@
 #include <cl_SDF_Facet_Vertex.hpp>
 #include <string>
 
+#include "cl_MTK_Surface_Mesh.hpp"
+
 #include "moris_typedefs.hpp"
 #include "cl_Vector.hpp"
 #include "cl_SDF_Triangle.hpp"
@@ -20,90 +22,35 @@
 
 namespace moris::sdf
 {
-    //-------------------------------------------------------------------------------
-    class Object
-    {
-        const real                         mMeshHighPass = 1e-9;
-        Vector< std::shared_ptr< Facet > > mFacets;
+        //-------------------------------------------------------------------------------
+        class Object : public mtk::Surface_Mesh
+        {
+          protected:
+            Vector< std::shared_ptr< Facet_Vertex > > mVertices  = {};    // vertices of all facets, can be modified by ADVs
+            Vector< std::shared_ptr< Facet > >        mFacets = {};
 
-        uint mDimension;
-        uint mNumberOfFacets;
+          private:
+            const real mMeshHighPass = 1e-9;
+
 
         //-------------------------------------------------------------------------------
 
       public:
         //-------------------------------------------------------------------------------
 
-        Object( const std::string&    aFilePath,
-                const Vector< real >& aOffsets = { 0, 0, 0 },
-                const Vector< real >& aScale   = { 1.0, 1.0, 1.0 } );
+        Object( const std::string&           aFilePath,
+                real                         aIntersectionTolerance = 1e-8,
+                const moris::Vector< real >& aOffsets               = { 0, 0, 0 },
+                const moris::Vector< real >& aScale                 = { 1.0, 1.0, 1.0 } );
 
         //-------------------------------------------------------------------------------
 
-        /**
-         * Performs a coordinate rotation of the object's facets and vertices
-         * NOTE: This action itself cannot be undone without using reset_object_coordinates, which will also remove any applied scaling or translation.
-         *
-         * @param aRotationMatrix the direction cosine matrix defining the rotation
-         */
-        void
-        rotate( const Matrix< DDRMat >& aRotationMatrix );
-
-        //-------------------------------------------------------------------------------
-
-        /**
-         * Scales all the coordinates of the object.
-         * NOTE: This action can be undone by calling scale_object( aScaling^-1 )
-         *
-         * @param aScaling factor to scale in each coordinate direction
-         */
-        void
-        scale( const Vector< real >& aScaling );
-
-        //-------------------------------------------------------------------------------
-
-        /**
-         * Moves the object's spatial position.
-         * NOTE: This action can be undone by calling translate_object( -aShift )
-         *
-         * @param aShift shift in each coordinate direction that is added to the objects coordinates.
-         */
-        void
-        shift( const Vector< real >& aShift );
-
-        //-------------------------------------------------------------------------------
-
-        /**
-         * Resets the object back to its attitude when it was constructed,
-         * removing any rotation, scaling, or translation that was applied
-         *
-         */
-        void
-        reset_coordinates();
-
-        //-------------------------------------------------------------------------------
 
         Facet&
         get_facet( uint aFacetIndex )
         {
             MORIS_ASSERT( aFacetIndex >= 0, "SDF_Object: get_facet - aFacetIndex needs to be >= 0. Provided index: %u", aFacetIndex );
             return *mFacets( aFacetIndex );
-        }
-
-        //-------------------------------------------------------------------------------
-
-        uint
-        get_num_facets()
-        {
-            return mNumberOfFacets;
-        }
-
-        //-------------------------------------------------------------------------------
-
-        uint
-        get_dimension() const
-        {
-            return mDimension;
         }
 
         //-------------------------------------------------------------------------------
@@ -129,7 +76,15 @@ namespace moris::sdf
 
         //-------------------------------------------------------------------------------
 
-      private:
+        protected:
+        /**
+         * Updates all member data for each facet of the object such as Hesse distance, normal, and center
+         *
+         */
+        void
+        update_all_facets();
+
+        private:
         //-------------------------------------------------------------------------------
 
         /**
@@ -148,17 +103,6 @@ namespace moris::sdf
         void
         load_from_stl_file( const std::string& aFilePath );
 
-        //-------------------------------------------------------------------------------
-
-        /**
-         * loads an ASCII file into a buffer of strings.
-         * Called through construction.
-         */
-        void
-        load_ascii_to_buffer( const std::string& aFilePath,
-                Vector< std::string >&           aBuffer );
-
-        //-------------------------------------------------------------------------------
     };
     //-------------------------------------------------------------------------------
 }    // namespace moris::sdf

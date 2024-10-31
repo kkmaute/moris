@@ -259,7 +259,22 @@ void SOL_Warehouse::create_nonlinear_solver_algorithms()
             mNonlinearSolverAlgorithms( Ik )    //
                     ->set_linear_solver_for_adjoint_solve( mLinearSolvers( mParameterlist( 2 )( Ik ).get< moris::sint >( "NLA_linear_solver_for_adjoint_solve" ) ) );
         }
+
+        // Get pause function names for the forward and sensitivity analysis
+        std::string tForwardPauseFunctionName = mParameterlist( 2 )( Ik ).get< std::string >( "NLA_forward_pause_function" );
+        std::string tSensitivityPauseFunctionName = mParameterlist( 2 )( Ik ).get< std::string >( "NLA_sensitivity_pause_function" );
+
+        if ( not tForwardPauseFunctionName.empty() )
+        {
+            mNonlinearSolverAlgorithms( Ik )->set_forward_analysis_pause_function( mLibrary->load_function< Void_Function >( tForwardPauseFunctionName ) );
+        }
+        if( not tSensitivityPauseFunctionName.empty() )
+        {
+            mNonlinearSolverAlgorithms( Ik )->set_sensitivity_analysis_pause_function( mLibrary->load_function< Void_Function >( tSensitivityPauseFunctionName ) );
+        }
     }
+
+
 }
 
 //---------------------------------------------------------------------------------------------------------------------

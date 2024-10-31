@@ -471,30 +471,26 @@ namespace moris
 
             // create linear solver and algorithm
             // --------------------------------------------------------------------------------------
-            Vector< Vector< moris::Parameter_List > > tSOLParameterlist( 8 );
-            for ( uint Ik = 0; Ik < 8; Ik++ )
-            {
-                tSOLParameterlist( Ik ).resize( 1 );
-            }
+            Module_Parameter_Lists tSOLParameterlist( Module_Type::SOL );;
 
-            tSOLParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
+            tSOLParameterlist( 0 ).add_parameter_list( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
 
-            tSOLParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
+            tSOLParameterlist( 1 ).add_parameter_list( moris::prm::create_linear_solver_parameter_list() );
 
-            tSOLParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+            tSOLParameterlist( 2 ).add_parameter_list( moris::prm::create_nonlinear_algorithm_parameter_list() );
 
-            tSOLParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
+            tSOLParameterlist( 3 ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );
             tSOLParameterlist( 3 )( 0 ).set( "NLA_DofTypes", "VX,VY;P" );
 
-            tSOLParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
+            tSOLParameterlist( 4 ).add_parameter_list( moris::prm::create_time_solver_algorithm_parameter_list() );
 
-            tSOLParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
+            tSOLParameterlist( 5 ).add_parameter_list( moris::prm::create_time_solver_parameter_list() );
             tSOLParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "VX,VY;P" );
             tSOLParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec", "VX,1E-4;VY,1E-4;P,0.0" );
 
-            tSOLParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+            tSOLParameterlist( 6 ).add_parameter_list( moris::prm::create_solver_warehouse_parameterlist() );
 
-            tSOLParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE );
+            tSOLParameterlist( 7 ).add_parameter_list( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE ) );
 
             sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
             tSolverWarehouse.set_parameterlist( tSOLParameterlist );
@@ -837,30 +833,26 @@ namespace moris
 
             // create linear solver and algorithm
             // --------------------------------------------------------------------------------------
-            Vector< Vector< moris::Parameter_List > > tSOLParameterlist( 8 );
-            for ( uint Ik = 0; Ik < 8; Ik++ )
-            {
-                tSOLParameterlist( Ik ).resize( 1 );
-            }
+            Module_Parameter_Lists tSOLParameterlist( Module_Type::SOL );;
 
-            tSOLParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
+            tSOLParameterlist( 0 ).add_parameter_list( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
 
-            tSOLParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
+            tSOLParameterlist( 1 ).add_parameter_list( moris::prm::create_linear_solver_parameter_list() );
 
-            tSOLParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+            tSOLParameterlist( 2 ).add_parameter_list( moris::prm::create_nonlinear_algorithm_parameter_list() );
 
-            tSOLParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
+            tSOLParameterlist( 3 ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );
             tSOLParameterlist( 3 )( 0 ).set( "NLA_DofTypes", "VX,VY;P" );
 
-            tSOLParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
+            tSOLParameterlist( 4 ).add_parameter_list( moris::prm::create_time_solver_algorithm_parameter_list() );
 
-            tSOLParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
+            tSOLParameterlist( 5 ).add_parameter_list( moris::prm::create_time_solver_parameter_list() );
             tSOLParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "VX,VY;P" );
             tSOLParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec", "VX,1E-4;VY,1E-4;P,0.0" );
 
-            tSOLParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+            tSOLParameterlist( 6 ).add_parameter_list( moris::prm::create_solver_warehouse_parameterlist() );
 
-            tSOLParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE );
+            tSOLParameterlist( 7 ).add_parameter_list( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE ) );
 
             sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
             tSolverWarehouse.set_parameterlist( tSOLParameterlist );
@@ -1280,22 +1272,22 @@ namespace moris
     //            tSOLParameterlist( Ik ).resize(1);
     //        }
     //
-    //        tSOLParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
+    //        tSOLParameterlist( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
     //
-    //        tSOLParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
+    //        tSOLParameterlist( 1 ).push_back( moris::prm::create_linear_solver_parameter_list() );
     //
-    //        tSOLParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+    //        tSOLParameterlist( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );
     //
-    //        tSOLParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
+    //        tSOLParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );
     //        tSOLParameterlist( 3 )( 0 ).set("NLA_DofTypes", "VX,VY,VZ;P" );
     //
-    //        tSOLParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
+    //        tSOLParameterlist( 4 ).push_back( moris::prm::create_time_solver_algorithm_parameter_list() );
     //
-    //        tSOLParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
+    //        tSOLParameterlist( 5 ).push_back( moris::prm::create_time_solver_parameter_list() );
     //        tSOLParameterlist( 5 )( 0 ).set("TSA_DofTypes", "VX,VY,VZ;P" );
     //        tSOLParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec" , "VX,1E-4;VY,1E-4;VZ,1E-4;P,0.0" );
     //
-    //        tSOLParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+    //        tSOLParameterlist( 6 ).push_back( moris::prm::create_solver_warehouse_parameterlist() );
     //
     //        sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
     //        tSolverWarehouse.set_parameterlist( tSOLParameterlist );
@@ -1548,22 +1540,22 @@ namespace moris
     //             tSOLParameterlist( Ik ).resize(1);
     //         }
     //
-    //         tSOLParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
+    //         tSOLParameterlist( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
     //
-    //         tSOLParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
+    //         tSOLParameterlist( 1 ).push_back( moris::prm::create_linear_solver_parameter_list() );
     //
-    //         tSOLParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+    //         tSOLParameterlist( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );
     //
-    //         tSOLParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
+    //         tSOLParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );
     //         tSOLParameterlist( 3 )( 0 ).set("NLA_DofTypes", "VX,VY;P" );
     //
-    //         tSOLParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
+    //         tSOLParameterlist( 4 ).push_back( moris::prm::create_time_solver_algorithm_parameter_list() );
     //
-    //         tSOLParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
+    //         tSOLParameterlist( 5 ).push_back( moris::prm::create_time_solver_parameter_list() );
     //         tSOLParameterlist( 5 )( 0 ).set("TSA_DofTypes", "VX,VY;P" );
     //         tSOLParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec" , "VX,1E-4;VY,0.0;P,0.0" );
     //
-    //         tSOLParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+    //         tSOLParameterlist( 6 ).push_back( moris::prm::create_solver_warehouse_parameterlist() );
     //
     //         sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
     //         tSolverWarehouse.set_parameterlist( tSOLParameterlist );
@@ -1811,22 +1803,22 @@ namespace moris
     //             tSOLParameterlist( Ik ).resize(1);
     //         }
     //
-    //         tSOLParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
+    //         tSOLParameterlist( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
     //
-    //         tSOLParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
+    //         tSOLParameterlist( 1 ).push_back( moris::prm::create_linear_solver_parameter_list() );
     //
-    //         tSOLParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+    //         tSOLParameterlist( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );
     //
-    //         tSOLParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
+    //         tSOLParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );
     //         tSOLParameterlist( 3 )( 0 ).set("NLA_DofTypes", "VX,VY;P" );
     //
-    //         tSOLParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
+    //         tSOLParameterlist( 4 ).push_back( moris::prm::create_time_solver_algorithm_parameter_list() );
     //
-    //         tSOLParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
+    //         tSOLParameterlist( 5 ).push_back( moris::prm::create_time_solver_parameter_list() );
     //         tSOLParameterlist( 5 )( 0 ).set("TSA_DofTypes", "VX,VY;P" );
     //         tSOLParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec" , "VX,1E-4;VY,0.0;P,0.0" );
     //
-    //         tSOLParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+    //         tSOLParameterlist( 6 ).push_back( moris::prm::create_solver_warehouse_parameterlist() );
     //
     //         sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
     //         tSolverWarehouse.set_parameterlist( tSOLParameterlist );
@@ -2105,22 +2097,22 @@ namespace moris
     //             tSOLParameterlist( Ik ).resize(1);
     //         }
     //
-    //         tSOLParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
+    //         tSOLParameterlist( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
     //
-    //         tSOLParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
+    //         tSOLParameterlist( 1 ).push_back( moris::prm::create_linear_solver_parameter_list() );
     //
-    //         tSOLParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+    //         tSOLParameterlist( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );
     //
-    //         tSOLParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
+    //         tSOLParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );
     //         tSOLParameterlist( 3 )( 0 ).set("NLA_DofTypes", "VX,VY,VZ;P" );
     //
-    //         tSOLParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
+    //         tSOLParameterlist( 4 ).push_back( moris::prm::create_time_solver_algorithm_parameter_list() );
     //
-    //         tSOLParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
+    //         tSOLParameterlist( 5 ).push_back( moris::prm::create_time_solver_parameter_list() );
     //         tSOLParameterlist( 5 )( 0 ).set("TSA_DofTypes", "VX,VY,VZ;P" );
     //         tSOLParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec" , "VX,1E-4;VY,0.0;VZ,0.0;P,0.0" );
     //
-    //         tSOLParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+    //         tSOLParameterlist( 6 ).push_back( moris::prm::create_solver_warehouse_parameterlist() );
     //
     //         sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
     //         tSolverWarehouse.set_parameterlist( tSOLParameterlist );
@@ -2539,30 +2531,26 @@ namespace moris
 
             // create linear solver and algorithm
             // --------------------------------------------------------------------------------------
-            Vector< Vector< moris::Parameter_List > > tSOLParameterlist( 8 );
-            for ( uint Ik = 0; Ik < 8; Ik++ )
-            {
-                tSOLParameterlist( Ik ).resize( 1 );
-            }
+            Module_Parameter_Lists tSOLParameterlist( Module_Type::SOL );;
 
-            tSOLParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
+            tSOLParameterlist( 0 ).add_parameter_list( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
 
-            tSOLParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
+            tSOLParameterlist( 1 ).add_parameter_list( moris::prm::create_linear_solver_parameter_list() );
 
-            tSOLParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+            tSOLParameterlist( 2 ).add_parameter_list( moris::prm::create_nonlinear_algorithm_parameter_list() );
 
-            tSOLParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
+            tSOLParameterlist( 3 ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );
             tSOLParameterlist( 3 )( 0 ).set( "NLA_DofTypes", "VX,VY;P" );
 
-            tSOLParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
+            tSOLParameterlist( 4 ).add_parameter_list( moris::prm::create_time_solver_algorithm_parameter_list() );
 
-            tSOLParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
+            tSOLParameterlist( 5 ).add_parameter_list( moris::prm::create_time_solver_parameter_list() );
             tSOLParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "VX,VY;P" );
             tSOLParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec", "VX,1E-4;VY,0.0;P,0.0" );
 
-            tSOLParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+            tSOLParameterlist( 6 ).add_parameter_list( moris::prm::create_solver_warehouse_parameterlist() );
 
-            tSOLParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE );
+            tSOLParameterlist( 7 ).add_parameter_list( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE ) );
 
             sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
             tSolverWarehouse.set_parameterlist( tSOLParameterlist );

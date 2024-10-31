@@ -177,9 +177,9 @@ namespace moris::gen
 
     void
     Phase_Table::set_phase_function(
-            PHASE_FUNCTION               aPhaseFunction,
-            uint                         aNumPhases,
-            const Vector< std::string >& aPhaseNames )
+        PHASE_FUNCTION               aPhaseFunction,
+        uint                         aNumPhases,
+        const Vector< std::string >& aPhaseNames )
     {
         mNumGeometries = 0;
         mBulkPhases    = { { aNumPhases - 1 } };
@@ -187,4 +187,4 @@ namespace moris::gen
         mPhaseFunction = aPhaseFunction;
     }
 
-}
+}    // namespace moris::gen

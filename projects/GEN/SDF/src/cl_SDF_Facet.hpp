@@ -15,10 +15,12 @@
 #include "linalg_typedefs.hpp"
 #include "op_minus.hpp"
 #include "op_times.hpp"
+#include "fn_eye.hpp"
 
 #include "cl_Vector.hpp"
 #include "cl_MTK_Cell.hpp"
 #include "cl_SDF_Facet_Vertex.hpp"
+#include "SDF_Tools.hpp"
 
 namespace moris::sdf
 {
@@ -50,6 +52,8 @@ namespace moris::sdf
 
         bool mFlag = false;
 
+        real mIntersectionTolerance;
+
         //-------------------------------------------------------------------------------
 
       public:
@@ -58,7 +62,8 @@ namespace moris::sdf
         Facet(
                 moris_index                                aIndex,
                 Vector< std::shared_ptr< Facet_Vertex > >& aVertices,
-                uint                                       aDimension );
+                uint                                       aDimension,
+                real                                       aIntersectionTolerance = 1e-8 );
 
         //-------------------------------------------------------------------------------
 
@@ -81,56 +86,6 @@ namespace moris::sdf
         get_distance_to_point(
                 const Matrix< DDRMat >& aPoint ) = 0;
 
-        //-------------------------------------------------------------------------------
-
-        /**
-         * Performs a coordinate rotation of the object's facets and vertices
-         * NOTE: This action itself cannot be undone without using reset_object_coordinates, which will also remove any applied scaling or translation.
-         *
-         * @param aRotationMatrix the direction cosine matrix defining the rotation
-         */
-        void
-        rotate( const Matrix< DDRMat >& aRotationMatrix );
-
-        //-------------------------------------------------------------------------------
-
-        /**
-         * Scales all the coordinates of the object.
-         * NOTE: This action can be undone by calling scale_object( aScaling^-1 )
-         *
-         * @param aScaling factor to scale in each coordinate direction
-         */
-        void
-        scale( const Vector< real >& aScaling );
-
-        //-------------------------------------------------------------------------------
-
-        /**
-         * Moves the object's spatial position.
-         * NOTE: This action can be undone by calling translate_object( -aShift )
-         *
-         * @param aShift shift in each coordinate direction that is added to the objects coordinates.
-         */
-        void
-        shift( const Vector< real >& aShift );
-
-        //-------------------------------------------------------------------------------
-
-        /**
-         * Resets all the transformed flags for each vertex of the facet
-         */
-        void
-        reset_vertex_transformed_flags();
-
-        //-------------------------------------------------------------------------------
-
-        /**
-         * Resets the object back to its attitude when it was constructed,
-         * removing any rotation, scaling, or translation that was applied
-         *
-         */
-        void
-        reset_coordinates();
 
         //-------------------------------------------------------------------------------
         // SDF functions
@@ -227,6 +182,23 @@ namespace moris::sdf
                 const uint              aAxis,
                 real&                   aCoordinate,
                 bool&                   aError );
+
+        //-------------------------------------------------------------------------------
+
+        /**
+         * Gets the specified axis coordinate of the specified vertex
+         *
+         * @param aVertexIndex Vertex to get the coord of
+         * @param aAxis Component of the vertex to retrieve
+         * @return global coordinate of the vertex
+         */
+        real
+        get_vertex_coord( uint aVertexIndex, uint aAxis );
+
+        //-------------------------------------------------------------------------------
+
+        const Vector< std::shared_ptr< sdf::Facet_Vertex > >&
+        get_facet_vertex_pointers() const;
 
         //-------------------------------------------------------------------------------
         // MTK API functions

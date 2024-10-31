@@ -13,6 +13,7 @@
 #include "assert.hpp"
 #include "fn_dot.hpp"
 #include "fn_norm.hpp"
+#include "fn_trans.hpp"
 #include "op_times.hpp"
 #include "SDF_Tools.hpp"
 #include "fn_stringify_matrix.hpp"
@@ -23,8 +24,9 @@ namespace moris::sdf
 
     Triangle::Triangle(
             moris_index                                aIndex,
-            Vector< std::shared_ptr< Facet_Vertex > >& aVertices )
-            : Facet( aIndex, aVertices, 3 )
+            Vector< std::shared_ptr< Facet_Vertex > >& aVertices,
+                real                                       aIntersectionTolerance )
+            : Facet( aIndex, aVertices, 3, aIntersectionTolerance )
             , mPredictY( 3, 3 )
             , mPredictYRA( 3, 3 )
             , mPredictYRB( 3, 3 )
@@ -123,11 +125,11 @@ namespace moris::sdf
         }
 
         // enlarge triangle
-        mBarycentric.mLocalNodeCoordsInPlane( 0, 0 ) -= gSDFepsilon;
-        mBarycentric.mLocalNodeCoordsInPlane( 1, 0 ) -= gSDFepsilon;
-        mBarycentric.mLocalNodeCoordsInPlane( 0, 1 ) += gSDFepsilon;
-        mBarycentric.mLocalNodeCoordsInPlane( 1, 1 ) -= gSDFepsilon;
-        mBarycentric.mLocalNodeCoordsInPlane( 0, 2 ) += gSDFepsilon;
+        mBarycentric.mLocalNodeCoordsInPlane( 0, 0 ) -= mIntersectionTolerance;
+        mBarycentric.mLocalNodeCoordsInPlane( 1, 0 ) -= mIntersectionTolerance;
+        mBarycentric.mLocalNodeCoordsInPlane( 0, 1 ) += mIntersectionTolerance;
+        mBarycentric.mLocalNodeCoordsInPlane( 1, 1 ) -= mIntersectionTolerance;
+        mBarycentric.mLocalNodeCoordsInPlane( 0, 2 ) += mIntersectionTolerance;
 
         // twice the area
         mBarycentric.mTwiceArea = ( mBarycentric.mLocalNodeCoordsInPlane( 0, 0 )
@@ -139,8 +141,9 @@ namespace moris::sdf
                                           * ( mBarycentric.mLocalNodeCoordsInPlane( 0, 1 )
                                                   - mBarycentric.mLocalNodeCoordsInPlane( 0, 2 ) );
 
+
         // warn if the the triangle has a volume close to zero
-        if ( mBarycentric.mTwiceArea <= 2 * gSDFepsilon )
+        if ( mBarycentric.mTwiceArea <= 2 * mIntersectionTolerance )
         {
             MORIS_LOG_WARNING(
                     "TRI/TET with ID %i is potentially degenerate and has a volume of V = %e. ",
@@ -165,7 +168,7 @@ namespace moris::sdf
         {
             uint i;
             uint j;
-            TrianglePermutation( k, i, j );
+            triangle_permutation( k, i, j );
             for ( uint l = 0; l < 2; ++l )
             {
                 mBarycentric.mLocalEdgeDirectionVectors( l, k ) = mBarycentric.mLocalNodeCoordsInPlane( l, j )
@@ -183,39 +186,42 @@ namespace moris::sdf
 
     //-------------------------------------------------------------------------------
 
-    void
-    Triangle::calculate_prediction_helpers()
-    {
-        // values for cross prediction
-        uint i;
-        uint j;
-        uint p;
-        uint q;
-        for ( moris::uint k = 0; k < 3; ++k )
+        void
+        Triangle::calculate_prediction_helpers()
         {
-            TrianglePermutation( k, i, j );
+            // values for cross prediction
+            uint i;    // first off axis
+            uint j;    // second off axis
+            uint p;    // first off vertex
+            uint q;    // second off vertex
 
-            for ( uint r = 0; r < 3; ++r )
+            Matrix< DDRMat > tVertexCoordinates = this->get_vertex_coords();
+
+            for ( moris::uint iAxis = 0; iAxis < 3; ++iAxis )
             {
-                TrianglePermutation( r, p, q );
-                real tDelta = mVertices( p )->get_coord( i ) - mVertices( q )->get_coord( i );
-                if ( std::abs( tDelta ) < gSDFepsilon )
+                // get the other two axes (i,j) for the current axis k
+                triangle_permutation( iAxis, i, j );
+
+                for ( uint iVertex = 0; iVertex < 3; ++iVertex )
                 {
-                    if ( tDelta < 0 )
-                        tDelta = -gSDFepsilon;
-                    else
-                        tDelta = gSDFepsilon;
+                    // get the other two axes (p,q) for the current axis r
+                    triangle_permutation( iVertex, p, q );
+                    real tDelta = tVertexCoordinates( p, i ) - tVertexCoordinates( q, i );
+                        // check if the delta is too small, and set accordingly if so
+                    if ( std::abs( tDelta ) < mIntersectionTolerance )
+                    {
+                        if ( tDelta < 0 )
+                            tDelta = -mIntersectionTolerance;
+                        else
+                            tDelta = mIntersectionTolerance;
+                    }
+
+                    mPredictYRA( iVertex, iAxis ) = ( tVertexCoordinates( p, j ) - tVertexCoordinates( q, j ) ) / tDelta;
+                    mPredictY( iVertex, iAxis )   = tVertexCoordinates( p, j ) + mPredictYRA( iVertex, iAxis ) * ( tVertexCoordinates( iVertex, i ) - tVertexCoordinates( p, i ) );
+                    mPredictYRB( iVertex, iAxis ) = tVertexCoordinates( p, j ) - tVertexCoordinates( p, i ) * mPredictYRA( iVertex, iAxis );
                 }
-
-                mPredictYRA( r, k ) = ( mVertices( p )->get_coord( j ) - mVertices( q )->get_coord( j ) ) / tDelta;
-
-                mPredictY( r, k ) = mVertices( p )->get_coord( j )
-                                  + mPredictYRA( r, k ) * ( mVertices( r )->get_coord( i ) - mVertices( p )->get_coord( i ) );
-
-                mPredictYRB( r, k ) = mVertices( p )->get_coord( j ) - mVertices( p )->get_coord( i ) * mPredictYRA( r, k );
             }
         }
-    }
 
     //-------------------------------------------------------------------------------
     // SDF functions
@@ -227,28 +233,97 @@ namespace moris::sdf
             const uint              aAxis,
             const Matrix< DDRMat >& aPoint )
     {
-        uint tI;
-        uint tJ;
-        uint tP;
-        uint tQ;
+        uint tI;    // first off axis
+        uint tJ;    // second off axis
+        uint tP;    // first off vertex
+        uint tQ;    // second off vertex
 
         // permutation parameter for axis
-        TrianglePermutation( aAxis, tI, tJ );
+        triangle_permutation( aAxis, tI, tJ );
 
         // permutation parameter for edge
-        TrianglePermutation( aEdge, tP, tQ );
+        triangle_permutation( aEdge, tP, tQ );
 
         // R
         real tPredictYR = mPredictYRA( aEdge, aAxis ) * aPoint( tI ) + mPredictYRB( aEdge, aAxis );
 
+        Matrix< DDRMat > tNodeCoords = this->get_vertex_coords();
+
         // check if point is within all three projected edges
-        return ( ( mPredictY( aEdge, aAxis ) > mVertices( aEdge )->get_coord( tJ ) )
-                       && ( tPredictYR + gSDFepsilon > aPoint( tJ ) ) )
-            || ( ( mPredictY( aEdge, aAxis ) < mVertices( aEdge )->get_coord( tJ ) )
-                    && ( tPredictYR - gSDFepsilon < aPoint( tJ ) ) )
-            || ( std::abs( ( mVertices( tP )->get_coord( tJ ) - mVertices( tQ )->get_coord( tJ ) )
-                           * ( mVertices( tP )->get_coord( tI ) - aPoint( tI ) ) )
-                    < gSDFepsilon );
+        return ( ( mPredictY( aEdge, aAxis ) > tNodeCoords( aEdge, tJ ) )
+                        && ( tPredictYR + mIntersectionTolerance > aPoint( tJ ) ) )
+            || ( ( mPredictY( aEdge, aAxis ) < tNodeCoords( aEdge, tJ ) )
+                    && ( tPredictYR - mIntersectionTolerance < aPoint( tJ ) ) )
+            || ( std::abs( ( tNodeCoords( tP, tJ ) - tNodeCoords( tQ, tJ ) )
+                            * ( tNodeCoords( tP, tI ) - aPoint( tI ) ) )
+                    < mIntersectionTolerance );
+    }
+
+    //-------------------------------------------------------------------------------
+
+    real
+    Triangle::moller_trumbore(
+            uint                    aAxis,
+            const Matrix< DDRMat >& aPoint )
+    {
+        // Build the cast direction vector
+        Matrix< DDRMat > tDirection( 3, 1, 0.0 );
+        tDirection( aAxis ) = 1.0;
+
+        // Build the edge vectors
+        Matrix< DDRMat > tEdge1 = mVertices( 1 )->get_coords() - mVertices( 0 )->get_coords();
+        Matrix< DDRMat > tEdge2 = mVertices( 2 )->get_coords() - mVertices( 0 )->get_coords();
+
+        // Compute the determinant of the edges and the cast direction
+        Matrix< DDRMat > tP   = cross( tDirection, tEdge2 );
+        real             tDet = dot( tEdge1, tP );
+
+        // If the determinant is close to zero, the ray is parallel to the triangle. Return NaN
+        if ( tDet > -mIntersectionTolerance and tDet < mIntersectionTolerance )
+        {
+            return std::numeric_limits< real >::quiet_NaN();
+        }
+
+        // compute the inverse of the determinant
+        real tInverseDeterminant = 1.0 / tDet;
+
+        // Compute the vector from the origin to the first vertex
+        Matrix< DDRMat > tT;
+        if ( aPoint.n_cols() == 1 )
+        {
+            tT = aPoint - mVertices( 0 )->get_coords();
+        }
+        else
+        {
+            tT = trans( aPoint ) - mVertices( 0 )->get_coords();
+        }
+
+        // Compute the u parameter
+        real tU = dot( tT, tP ) * tInverseDeterminant;
+
+        // If the u parameter is < 0.0 or > 1.0, the intersection is outside the triangle
+        if ( tU < 0.0 or tU > 1.0 )
+        {
+            return std::numeric_limits< real >::quiet_NaN();
+        }
+
+        // Compute the vector from the origin to the second vertex
+        Matrix< DDRMat > tQ = cross( tT, tEdge1 );
+
+        // Compute the v parameter
+        real tV = dot( tDirection, tQ ) * tInverseDeterminant;
+
+        // If the v parameter is < 0.0 or > 1.0, the intersection is outside the triangle
+        if ( tV < 0.0 or tU + tV > 1.0 )
+        {
+            return std::numeric_limits< real >::quiet_NaN();
+        }
+
+        // Compute the distance from the origin to the intersection point
+        real tDistance = dot( tEdge2, tQ ) * tInverseDeterminant;
+
+        // Return the distance
+        return aPoint( aAxis ) + tDistance;
     }
 
     //-------------------------------------------------------------------------------
@@ -299,7 +374,7 @@ namespace moris::sdf
         uint j;
 
         // permutation parameter of current edge
-        TrianglePermutation( aEdge, i, j );
+        triangle_permutation( aEdge, i, j );
 
         // calculate projection of point on edge
 
@@ -315,13 +390,13 @@ namespace moris::sdf
 
         Matrix< F31RMat > aDirection( 3, 1 );
 
-        if ( tParam < gSDFepsilon )
+        if ( tParam < mIntersectionTolerance )
         {
             // snap to point i and set tParam = 0.0;
             aDirection( 0 ) = aLocalPoint( 0 ) - mBarycentric.mLocalNodeCoordsInPlane( 0, i );
             aDirection( 1 ) = aLocalPoint( 1 ) - mBarycentric.mLocalNodeCoordsInPlane( 1, i );
         }
-        else if ( tParam > 1.0 - gSDFepsilon )
+        else if ( tParam > 1.0 - mIntersectionTolerance )
         {
             // snap to point j and set tParam = 1.0;
             aDirection( 0 ) = aLocalPoint( 0 ) - mBarycentric.mLocalNodeCoordsInPlane( 0, j );
@@ -377,9 +452,9 @@ namespace moris::sdf
         Matrix< F31RMat > tXi = this->get_barycentric_from_local_cartesian( tLocalPointCoords );
 
         // step 3: check if we are inside the triangle
-        if ( ( tXi( 0 ) >= -gSDFepsilon )
-                && ( tXi( 1 ) >= -gSDFepsilon )
-                && ( tXi( 2 ) >= -gSDFepsilon ) )
+        if ( ( tXi( 0 ) >= -mIntersectionTolerance )
+                && ( tXi( 1 ) >= -mIntersectionTolerance )
+                && ( tXi( 2 ) >= -mIntersectionTolerance ) )
         {
             // the absolute value of the local z-coordinate is the distance
             return std::abs( tLocalPointCoords( 2 ) );

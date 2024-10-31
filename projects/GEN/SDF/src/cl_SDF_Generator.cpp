@@ -30,14 +30,14 @@ namespace moris::sdf
 
     //-------------------------------------------------------------------------------
 
-    SDF_Generator::SDF_Generator(
-            const std::string& aObjectPath,
-            Vector< real >&    aObjectOffset,
-            const bool         aVerboseFlag )
-            : mObject( aObjectPath, aObjectOffset )
-            , mVerboseFlag( aVerboseFlag )
-    {
-    }
+        SDF_Generator::SDF_Generator(
+                const std::string& aObjectPath,
+                Vector< real >&      aObjectOffset,
+                const bool         aVerboseFlag )
+                : mObject( aObjectPath, 1e-8, aObjectOffset )
+                , mVerboseFlag( aVerboseFlag )
+        {
+        }
 
     //-------------------------------------------------------------------------------
 

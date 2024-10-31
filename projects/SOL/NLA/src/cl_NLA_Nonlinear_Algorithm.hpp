@@ -40,6 +40,8 @@ namespace moris
 
     namespace NLA
     {
+        typedef void ( *Void_Function )();
+        
         class Nonlinear_Solver;
         class Nonlinear_Problem;
         class Nonlinear_Algorithm
@@ -61,6 +63,12 @@ namespace moris
 
             //! Parameterlist for this nonlinear solver
             moris::Parameter_List mParameterListNonlinearSolver;
+
+            //! User defined function to pause forward analysis solver if needed
+            Void_Function mForwardPauseFunction = []() {};
+
+            //! User defined function to pause forward analysis solver if needed
+            Void_Function mSensitivityPauseFunction = []() {};
 
             bool mLinSolverOwned = false;
 
@@ -125,6 +133,14 @@ namespace moris
             //--------------------------------------------------------------------------------------------------
 
             void set_nonlinear_solver_manager( Nonlinear_Solver* aNonlinSolverManager );
+
+            //--------------------------------------------------------------------------------------------------
+
+            void set_forward_analysis_pause_function( Void_Function aPauseFunction );
+
+            //--------------------------------------------------------------------------------------------------
+
+            void set_sensitivity_analysis_pause_function( Void_Function aPauseFunction );
 
             //--------------------------------------------------------------------------------------------------
 

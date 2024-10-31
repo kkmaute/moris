@@ -23,19 +23,19 @@
 #include "HMR_Globals.hpp"                       //HMR/src
 #include "HMR_Tools.hpp"                         //HMR/src
 #include "assert.hpp"
-#include "cl_Communication_Tools.hpp"            //COM/src
-#include "cl_Communication_Manager.hpp"          //COM/src
+#include "cl_Communication_Tools.hpp"      //COM/src
+#include "cl_Communication_Manager.hpp"    //COM/src
 #include "cl_Tracer.hpp"
 #include "fn_stringify_matrix.hpp"
 
-#include "fn_equal_to.hpp"     //COM/src
+#include "fn_equal_to.hpp"    //COM/src
 
-#include "moris_typedefs.hpp"        //COR/src
-#include "cl_Vector.hpp"             //CNT/src
+#include "moris_typedefs.hpp"    //COR/src
+#include "cl_Vector.hpp"         //CNT/src
 
 #include "cl_Stopwatch.hpp"    //CHR/src
 
-#include "cl_Matrix.hpp"       //LINALG/src
+#include "cl_Matrix.hpp"    //LINALG/src
 
 namespace moris::hmr
 {
@@ -430,7 +430,7 @@ namespace moris::hmr
          * level for a side
          */
         void collect_coarsest_elements_on_side(
-                uint                              aSideOrdinal,
+                uint                                aSideOrdinal,
                 Vector< Background_Element_Base* >& aCoarsestElementsOnSide ) override;
 
         //--------------------------------------------------------------------------------
@@ -1005,10 +1005,10 @@ namespace moris::hmr
          *                       containing number of elements per direction
          *                       on coarsest proc, including aura
          */
-        Matrix< DDLUMat >
+        Vector< luint >
         get_number_of_subdomain_elements_per_direction_on_level_zero()
         {
-            Matrix< DDLUMat > aNumberOfElements( N, 1 );
+            Vector< luint > aNumberOfElements( N );
             for ( uint k = 0; k < N; ++k )
             {
                 aNumberOfElements( k ) = mMySubDomain.mNumberOfElementsPerDimension[ 0 ][ k ];
@@ -1026,8 +1026,8 @@ namespace moris::hmr
          *
          */
         void
-        insert_zero_level_element( 
-                luint aPosition,
+        insert_zero_level_element(
+                luint                    aPosition,
                 Background_Element_Base* aElement )
         {
             mCoarsestElementsIncludingAura( aPosition ) = aElement;
@@ -1252,9 +1252,10 @@ namespace moris::hmr
 
         //--------------------------------------------------------------------------------
 
-        void collect_coarsest_elements_in_bounding_box( Vector< Background_Element_Base* >& aBackgroundElements,
-                luint                                                                     aBoundingBoxStartEndIJK[][ 2 ],
-                uint                                                                      alevel );
+        void collect_coarsest_elements_in_bounding_box(
+                Vector< Background_Element_Base* >& aBackgroundElements,
+                luint                               aBoundingBoxStartEndIJK[][ 2 ],
+                uint                                alevel );
 
         //--------------------------------------------------------------------------------
     }; /* Background_Mesh */
@@ -1443,7 +1444,7 @@ namespace moris::hmr
     template< uint N >
     inline void
     Background_Mesh< N >::collect_coarsest_elements_on_side(
-            uint                              aSideOrdinal,
+            uint                                aSideOrdinal,
             Vector< Background_Element_Base* >& aCoarsestElementsOnSide )
     {
         MORIS_ERROR( false, "Do not know how to collect coarsest elements on side \n" );
@@ -1455,8 +1456,8 @@ namespace moris::hmr
     inline void
     Background_Mesh< N >::collect_coarsest_elements_in_bounding_box(
             Vector< Background_Element_Base* >& aBackgroundElements,
-            luint                                    aBoundingBoxStartEndIJK[][ 2 ],
-            uint                                     alevel )
+            luint                               aBoundingBoxStartEndIJK[][ 2 ],
+            uint                                alevel )
     {
         MORIS_ERROR( false, "Do not know how initialize elements\n" );
     }

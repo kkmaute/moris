@@ -91,7 +91,7 @@ namespace moris::gen
          * @param aMesh Mesh for discrete or mesh based geomtries
          */
         explicit Geometry_Engine(
-                Vector< Vector< Parameter_List > >   aParameterLists,
+                Module_Parameter_Lists               aParameterLists,
                 const std::shared_ptr< Library_IO >& aLibrary = nullptr,
                 mtk::Mesh*                           aMesh    = nullptr );
 
@@ -185,17 +185,12 @@ namespace moris::gen
         MSI::Design_Variable_Interface* get_design_variable_interface();
 
         /**
-         * Returns if the element consisting of provided node indices and coordinates is intersected by the given geometry.
+         * Returns if the element consisting of provided node indices and coordinates is intersected by the active geometry index.
          *
-         * @param aGeometryIndex Geometry index
          * @param aNodeIndices Node indices
-         * @param aNodeCoordinates Node coordinates
          * @return If the element is intersected
          */
-        bool is_intersected(
-                uint                      aGeometryIndex,
-                const Matrix< IndexMat >& aNodeIndices,
-                const Matrix< DDRMat >&   aNodeCoordinates );
+        bool is_intersected_by_active_geometry( const Matrix< IndexMat >& aNodeIndices );
 
         /**
          * Returns if the element consisting of provided node indices and coordinates is intersected by the given geometry.
@@ -206,9 +201,8 @@ namespace moris::gen
          * @return If the element is intersected
          */
         bool is_intersected(
-                uint                                           aGeometryIndex,
-                const Matrix< IndexMat >&                      aNodeIndices,
-                Vector< std::shared_ptr< Matrix< DDRMat > > >* aNodeCoordinates );
+                uint                      aGeometryIndex,
+                const Matrix< IndexMat >& aNodeIndices );
 
         /**
          * Determines if the given edge is intersected, and queues an intersection node if it is. If an intersection
@@ -474,16 +468,6 @@ namespace moris::gen
         //-------------------------------------------------------------------------------
 
       private:
-        static void communicate_missing_owned_coefficients(
-                mtk::Mesh_Pair&  aMeshPair,
-                Matrix< IdMat >& aAllCoefIds,
-                Matrix< IdMat >& aAllCoefOwners,
-                Matrix< IdMat >& aAllCoefijklIds,
-                Vector< uint >&  aNumCoeff,
-                uint             aFieldIndex,
-                uint             aDiscretizationMeshIndex,
-                mtk::MeshType    aMeshType );
-
         /**
          * Create PDV_Type hosts with the specified PDV_Type types on the interpolation mesh
          *
@@ -514,8 +498,8 @@ namespace moris::gen
          * @return Phase table
          */
         static Phase_Table create_phase_table(
-                const Vector< Vector< Parameter_List > >& aParameterLists,
-                const std::shared_ptr< Library_IO >&      aLibrary );
+                const Module_Parameter_Lists&        aParameterLists,
+                const std::shared_ptr< Library_IO >& aLibrary );
 
         /**
          * Decides how to construct the phase table based on the given parameter lists

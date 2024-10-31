@@ -84,7 +84,8 @@ namespace moris::xtk
             moris::mtk::Interpolation_Mesh *aMeshData,
             moris::gen::Geometry_Engine    *aGeometryEngine,
             bool                            aLinkGeometryOnConstruction )
-            : mModelDimension( aModelDimension )
+            : mParameterList( "None" )
+            , mModelDimension( aModelDimension )
             , mBackgroundMesh( aMeshData )
             , mCutMesh( this, mModelDimension )
             , mGeometryEngine( aGeometryEngine )
@@ -1402,13 +1403,14 @@ namespace moris::xtk
     }
 
     //------------------------------------------------------------------------------
+
     void
     Model::perform_unenrichment( Matrix< IndexMat > const &aUnenrichedBsplineMeshIndices )
     {
         // if there is any elements in the matrix
         if ( aUnenrichedBsplineMeshIndices.numel() )
         {
-            Tracer tTracer( "XTK", "No-Type", "Unenrichment" );
+            Tracer tTracer( "XTK",  "Unenrichment" );
 
             // set the mesh indices
             mEnrichedInterpMesh( 0 )->set_unenriched_mesh_indices( aUnenrichedBsplineMeshIndices );

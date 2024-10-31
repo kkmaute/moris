@@ -18,13 +18,13 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Intersection_Node_Voxel::Intersection_Node_Voxel(
-            uint                     aNodeIndex,
+            uint                              aNodeIndex,
             const Vector< Background_Node* >& aBackgroundNodes,
-            const Parent_Node&       aFirstParentNode,
-            const Parent_Node&       aSecondParentNode,
-            mtk::Geometry_Type       aBackgroundGeometryType,
-            mtk::Interpolation_Order aBackgroundInterpolationOrder,
-            Voxel_Geometry&          aInterfaceGeometry )
+            const Parent_Node&                aFirstParentNode,
+            const Parent_Node&                aSecondParentNode,
+            mtk::Geometry_Type                aBackgroundGeometryType,
+            mtk::Interpolation_Order          aBackgroundInterpolationOrder,
+            Voxel_Geometry&                   aInterfaceGeometry )
             : Intersection_Node(
                     aNodeIndex,
                     aBackgroundNodes,
@@ -53,4 +53,19 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-}
+    Matrix< DDRMat >
+    Intersection_Node_Voxel::get_dxi_dcoordinate_first_parent() const
+    {
+        return { {} };
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+
+    Matrix< DDRMat >
+    Intersection_Node_Voxel::get_dxi_dcoordinate_second_parent() const
+    {
+        return { {} };
+    }
+
+}    // namespace moris::gen

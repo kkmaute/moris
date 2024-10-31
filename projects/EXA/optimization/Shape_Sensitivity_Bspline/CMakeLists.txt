@@ -6,7 +6,7 @@
 #
 
 set(EXAMPLE_MAIN Main_Shape_Sensitivity_Bspline)
-set(EXAMPLE_FILES Shape_Sensitivity_Bspline_2D Shape_Sensitivity_Bspline_3D)
+set(EXAMPLE_FILES Shape_Sensitivity_Bspline_2D Shape_Sensitivity_Bspline_3D Shape_Sensitivity_Bspline_Surface_Mesh_2D Shape_Sensitivity_Bspline_Surface_Mesh_3D)
 set(EXAMPLE_PROCS 1)
 
 # List source files
@@ -14,6 +14,9 @@ set(EXAMPLE_SOURCES
     ../../src/example_main.cpp
     example_test_case.cpp
 )
+
+# Include functionality of paths
+include_directories( ${CMAKE_BINARY_DIR}/generated/ )
 
 # List include directories
 set(EXAMPLE_INCLUDES
@@ -91,6 +94,7 @@ endforeach()
 
 # create dynamically linked .so files
 foreach(EXAMPLE_FILE ${EXAMPLE_FILES})
+    message(STATUS "Creating dynamic link for ${EXAMPLE_FILE}")
     dynamic_link_input(${EXAMPLE_FILE} ${EXAMPLE_FILE} ${EXAMPLE_FILE}.cpp ${SO_INCLUDES})
 endforeach()
 

@@ -23,7 +23,7 @@
 #include "cl_XTK_Child_Mesh.hpp"
 #include "cl_XTK_Child_Mesh_Modification_Template.hpp"
 #include "cl_XTK_Output_Options.hpp"
-#include "fn_mesh_flood_fill.hpp"
+#include "fn_MTK_mesh_flood_fill.hpp"
 #include "fn_generate_element_to_element.hpp"
 #include "cl_XTK_Enrichment.hpp"
 #include "fn_local_child_mesh_flood_fill.hpp"
@@ -175,20 +175,18 @@ namespace moris::xtk
         CHECK( approximate( tVolume, 1.0 ) );
 
         //
-        moris::Matrix< IndexMat > tElementPhase( 1, 24, 0 );
+        Vector< moris_index > tElementPhase( 24, 0 );
 
-        moris::moris_index tMax       = std::numeric_limits< moris::moris_index >::max();
-        size_t             tNumPhases = 2;
+        moris::moris_index tMax = std::numeric_limits< moris::moris_index >::max();
 
-        moris::Matrix< IndexMat > tActiveElements( { { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23 } } );
-        moris::Matrix< IndexMat > tIncludedElementMarker( 1, 24, 1 );
-        moris::moris_index        tMaxFloodFill = 0;
+        Vector< moris_index > tActiveElements = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23 };
+        Vector< moris_index > tIncludedElementMarker( 24, 1 );
+        moris::moris_index    tMaxFloodFill = 0;
         // Run flood fill Algorithm to ensure that the floodfill can traverse the mesh
-        moris::Matrix< IndexMat > tElementSubphase = flood_fill( tRegSubChildMesh.get_element_to_element(),
+        moris::Matrix< IndexMat > tElementSubphase = mtk::flood_fill( tRegSubChildMesh.get_element_to_element(),
                 tElementPhase,
                 tActiveElements,
                 tIncludedElementMarker,
-                tNumPhases,
                 tMax,
                 tMaxFloodFill,
                 true );

@@ -8,11 +8,9 @@
  *
  */
 
-#ifndef PROJECTS_PRM_SRC_FN_PRM_VIS_PARAMETERS_HPP_
-#define PROJECTS_PRM_SRC_FN_PRM_VIS_PARAMETERS_HPP_
+#pragma once
 
 #include "cl_Parameter_List.hpp"
-
 #include "cl_VIS_Output_Enums.hpp"
 
 namespace moris::prm
@@ -23,7 +21,7 @@ namespace moris::prm
     // creates a parameter list with default inputs
     inline moris::Parameter_List create_vis_parameter_list()
     {
-        Parameter_List mVISParameterList;
+        Parameter_List mVISParameterList( "VIS" );
 
         mVISParameterList.insert( "Output_Index", 0 );
         mVISParameterList.insert( "Mesh_Type", static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
@@ -42,5 +40,3 @@ namespace moris::prm
     //------------------------------------------------------------------------------
 
 }    // namespace moris::prm
-
-#endif /* PROJECTS_PRM_SRC_FN_PRM_VIS_PARAMETERS_HPP_ */

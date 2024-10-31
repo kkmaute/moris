@@ -1,12 +1,12 @@
 /*
-* Copyright (c) 2022 University of Colorado
-* Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
-*
-*------------------------------------------------------------------------------------
-*
-* cl_GEN_Design_Factory.hpp
-*
-*/
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_GEN_Design_Factory.hpp
+ *
+ */
 
 #pragma once
 
@@ -15,7 +15,7 @@
 #include "cl_GEN_Surface_Mesh_Geometry.hpp"
 #include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Property.hpp"
-#include "cl_Parameter_List.hpp"
+#include "cl_Submodule_Parameter_Lists.hpp"
 
 // Forward declarations
 namespace moris
@@ -29,14 +29,14 @@ namespace moris
     {
         class Mesh;
     }
-}
+}    // namespace moris
 
 namespace moris::gen
 {
     class Design_Factory
     {
       private:
-        Vector< std::shared_ptr< Field > > mFields;
+        Vector< std::shared_ptr< Field > >    mFields;
         Vector< std::shared_ptr< Geometry > > mGeometries;
         Vector< std::shared_ptr< Property > > mProperties;
 
@@ -51,7 +51,7 @@ namespace moris::gen
          * @param aNodeManager Node manager from the geometry engine, if applicable
          */
         Design_Factory(
-                Vector< Parameter_List >             aParameterLists,
+                Submodule_Parameter_Lists            aParameterLists,
                 ADV_Manager&                         aADVManager,
                 const std::shared_ptr< Library_IO >& aLibrary     = nullptr,
                 mtk::Mesh*                           aMesh        = nullptr,
@@ -71,4 +71,4 @@ namespace moris::gen
          */
         Vector< std::shared_ptr< Property > > get_properties();
     };
-}
+}    // namespace moris::gen

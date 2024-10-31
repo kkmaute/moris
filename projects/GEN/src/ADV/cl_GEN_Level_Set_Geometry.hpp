@@ -24,7 +24,7 @@ namespace moris::gen
     {
         real mIsocontourThreshold;      // Level set isocontour level
         real mIsocontourTolerance;      // Interface tolerance based on geometry value
-        real mIntersectionTolerance;    // Interface tolerance based on intersecction distance
+        real mIntersectionTolerance;    // Interface tolerance based on intersection distance
 
         /**
          * Constructor with a given parameter list
@@ -117,7 +117,7 @@ namespace moris::gen
         real compute_intersection_local_coordinate(
                 const Vector< Background_Node* >& aBackgroundNodes,
                 const Parent_Node&                aFirstParentNode,
-                const Parent_Node&                aSecondParentNode ) override;
+                const Parent_Node&                aSecondParentNode );
 
         /**
          * Given a node index or coordinates, returns a vector of the field derivatives with respect to the nodal
@@ -152,6 +152,13 @@ namespace moris::gen
         std::string get_name() override;
 
         /**
+         * Gets the names of all the fields associated with this design
+         *
+         * @return Vector< std::string > the geometry name, as this implementation only has one field
+         */
+        virtual Vector< std::string > get_field_names() override;
+
+        /**
          * Resets all nodal information, including child nodes. This should be called when a new XTK mesh is being
          * created.
          *
@@ -164,29 +171,22 @@ namespace moris::gen
          *
          * @param aMeshPair The mesh pair where the discretization information can be obtained
          * @param aOwnedADVs Pointer to the owned distributed ADVs
-         * @param aSharedADVIds All owned and shared ADV IDs for this B-spline field
-         * @param aADVOffsetID Offset in the owned ADV IDs for pulling ADV IDs
          */
         void discretize(
-                mtk::Mesh_Pair        aMeshPair,
-                sol::Dist_Vector*     aOwnedADVs,
-                const Vector< sint >& aSharedADVIds,
-                uint                  aADVOffsetID ) override;
+                mtk::Mesh_Pair    aMeshPair,
+                sol::Dist_Vector* aOwnedADVs ) override;
 
         /**
          * If intended for this field, maps the field to B-spline coefficients or stores the nodal field values in a stored field object.
          *
          * @param aMTKField Input MTK field to map based on
+         * @param aMeshPair The mesh pair where the discretization information can be obtained
          * @param aOwnedADVs Pointer to the owned distributed ADVs
-         * @param aSharedADVIds All owned and shared ADV IDs for this B-spline field
-         * @param aADVOffsetID Offset in the owned ADV IDs for pulling ADV IDs
          */
         void discretize(
                 std::shared_ptr< mtk::Field > aMTKField,
                 mtk::Mesh_Pair                aMeshPair,
-                sol::Dist_Vector*             aOwnedADVs,
-                const Vector< sint >&         aSharedADVIds,
-                uint                          aADVOffsetID ) override;
+                sol::Dist_Vector*             aOwnedADVs ) override;
 
         /**
          * Used to print geometry information to exodus files and print debug information.
@@ -196,7 +196,7 @@ namespace moris::gen
          * @return the value of the level set field at the requested location
          */
         void get_design_info(
-                uint                    aNodeIndex,
+                const uint              aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates,
                 Vector< real >&         aOutputDesignInfo ) override;
 
@@ -213,9 +213,9 @@ namespace moris::gen
          *
          * @return Underlying field
          */
-        std::shared_ptr< Field > get_field() override
+        Vector< std::shared_ptr< Field > > get_fields() override
         {
-            return Design_Field::mField;
+            return { Design_Field::mField };
         }
 
         /**
@@ -233,28 +233,28 @@ namespace moris::gen
          *
          * @return Logic for B-spline creation
          */
-        bool intended_discretization() override;
+        bool intended_discretization() const override;
 
         /**
          * Gets a discretization mesh index for a discretized field.
          *
          * @return Mesh index
          */
-        moris_index get_discretization_mesh_index() override;
+        moris_index get_discretization_mesh_index() const override;
 
         /**
          * Gets the lower bound for a discretized field.
          *
          * @return Lower bound
          */
-        real get_discretization_lower_bound() override;
+        real get_discretization_lower_bound() const override;
 
         /**
          * Get the upper bound for a discretized field.
          *
          * @return Upper bound
          */
-        real get_discretization_upper_bound() override;
+        real get_discretization_upper_bound() const override;
 
         /**
          * Updates the dependencies of this design based on the given designs

@@ -712,7 +712,7 @@ namespace moris::xtk
 
         // ----------------------------------------------------------------------------------
 
-        Matrix< IndexMat > const &
+        Vector< moris_index > const &
         get_element_phase_indices() const;
 
         // ----------------------------------------------------------------------------------
@@ -784,12 +784,12 @@ namespace moris::xtk
 
         // ----------------------------------------------------------------------------------
 
-        Vector<Vector< moris_index > > const &
+        Vector< Vector< moris_index > > const &
         get_double_side_interface_cell_pairs( moris_index aDblSideCMIndex ) const;
 
         // ----------------------------------------------------------------------------------
 
-        Vector<Vector< moris_index > > const &
+        Vector< Vector< moris_index > > const &
         get_double_side_interface_cell_pairs_facet_ords( moris_index aDblSideCMIndex ) const;
 
         // ----------------------------------------------------------------------------------
@@ -981,7 +981,7 @@ namespace moris::xtk
 
         // Phase member variables -----------------------------
         bool                         mHasPhaseInfo;
-        Matrix< IndexMat >           mElementPhaseIndices;
+        Vector< moris_index >        mElementPhaseIndices;
         Matrix< IndexMat >           mElementBinIndex;
         Vector< moris::moris_index > mBinBulkPhase;
 
@@ -992,9 +992,9 @@ namespace moris::xtk
         Vector< Vector< moris_index > > mSubphaseBasisEnrichmentLevel;
 
         // Double side set between subphases
-        Vector<Vector< moris_index > >           mDoubleSideSetSubphaseInds;
-        Vector<Vector<Vector< moris_index > > > mDoubleSideSetCellPairs;
-        Vector<Vector<Vector< moris_index > > > mDoubleSideSetFacetPairs;
+        Vector< Vector< moris_index > >           mDoubleSideSetSubphaseInds;
+        Vector< Vector< Vector< moris_index > > > mDoubleSideSetCellPairs;
+        Vector< Vector< Vector< moris_index > > > mDoubleSideSetFacetPairs;
 
         Matrix< IndexMat > mHangingNodes;
 

@@ -295,15 +295,6 @@ namespace moris::xtk
                 Vector< mtk::Cell const * >& aGhostIpCellConnectedToVertex );
 
         // ----------------------------------------------------------------------------------
-        /**
-         * @brief Using a background vertex id, and a enriched interpolation cell id
-         * find the corresponding enriched interpolation vertex
-         */
-        moris_index
-        get_enriched_interpolation_vertex( moris_index const & aBGVertId,
-                moris_index const &                            aEnrichedIpCellIndex );
-
-        // ----------------------------------------------------------------------------------
 
         void
         prepare_ip_cell_id_answers(

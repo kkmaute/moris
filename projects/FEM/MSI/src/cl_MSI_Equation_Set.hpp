@@ -440,7 +440,7 @@ namespace moris
             get_element_type() const
             {
                 MORIS_ERROR( false, "Equation_Set::get_element_type - not implemented for virtual member function" );
-                return fem::Element_Type::UNDEFINED;
+                return fem::Element_Type::END_ELEMENT_TYPE;
             }
 
             //------------------------------------------------------------------------------

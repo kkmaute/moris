@@ -268,11 +268,7 @@ namespace moris::fem
          * @return constitutive type
          */
         virtual Constitutive_Type
-        get_constitutive_type() const
-        {
-            // need to define this for every CM
-            return Constitutive_Type::UNDEFINED;
-        }
+        get_constitutive_type() const = 0;
 
         //------------------------------------------------------------------------------
         /**
@@ -298,6 +294,17 @@ namespace moris::fem
          * @param[ out ] tProperty       property shared pointer
          */
         std::shared_ptr< fem::Property >& get_property( const std::string& aPropertyString );
+
+        //------------------------------------------------------------------------------
+        /**
+         * get the entire property map
+         * @param[ out ]  mPropertyMap map of string to uint of properties
+         */
+        std::map< std::string, uint >&
+        get_property_map()
+        {
+            return mPropertyMap;
+        }
 
         //------------------------------------------------------------------------------
         /**
@@ -567,7 +574,6 @@ namespace moris::fem
         virtual void
         set_model_type( fem::Model_Type aModelType )
         {
-            MORIS_ERROR( false, "Constitutive_Model::set_model_type - Not implemented for base class." );
         }
 
         //------------------------------------------------------------------------------
@@ -577,7 +583,7 @@ namespace moris::fem
         virtual Model_Type
         get_plane_type() const
         {
-            return Model_Type::UNDEFINED;
+            return Model_Type::FULL;
         }
 
         //------------------------------------------------------------------------------

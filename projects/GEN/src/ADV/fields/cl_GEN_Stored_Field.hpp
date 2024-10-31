@@ -18,58 +18,55 @@ namespace moris::gen
     class Stored_Field : public Field_Discrete_Integration
     {
 
-    private:
+      private:
         std::shared_ptr< Field > mField;
-        mtk::Mesh* mMesh;
-        Vector< real > mFieldValues;
+        mtk::Mesh*               mMesh;
+        Vector< real >           mFieldValues;
 
-    public:
-
+      public:
         /**
          * Constructor
          *
          * @param aMesh The mesh pointer where node information can be obtained
          * @param aField Field for obtaining values to store
          */
-      Stored_Field(
-              mtk::Mesh*                      aMesh,
-              const std::shared_ptr< Field >& aField );
+        Stored_Field(
+                mtk::Mesh*                      aMesh,
+                const std::shared_ptr< Field >& aField );
 
-      /**
-       * Given a node index or coordinate, returns the field value.
-       *
-       * @param aNodeIndex Node index
-       * @return Field value
-       */
-      real get_field_value( uint aNodeIndex ) override;
+        /**
+         * Given a node index or coordinate, returns the field value.
+         *
+         * @param aNodeIndex Node index
+         * @return Field value
+         */
+        real get_field_value( uint aNodeIndex ) override;
 
-      /**
-       * Given a node index or coordinates, returns a vector of the field derivatives with respect to its ADVs.
-       *
-       * @param aNodeIndex Node index
-       * @return Vector of sensitivities
-       */
-      const Matrix< DDRMat >& get_dfield_dadvs( uint aNodeIndex ) override;
+        /**
+         * Given a node index or coordinates, returns a vector of the field derivatives with respect to its ADVs.
+         *
+         * @param aNodeIndex Node index
+         * @return Vector of sensitivities
+         */
+        const Matrix< DDRMat >& get_dfield_dadvs( uint aNodeIndex ) override;
 
-      /**
-       * Gets the IDs of ADVs which this field depends on for evaluations.
-       *
-       * @param aNodeIndex Node index
-       * @return Determining ADV IDs at this node
-       */
-      Vector< sint > get_determining_adv_ids( uint aNodeIndex ) override;
+        /**
+         * Gets the IDs of ADVs which this field depends on for evaluations.
+         *
+         * @param aNodeIndex Node index
+         * @return Determining ADV IDs at this node
+         */
+        Vector< sint > get_determining_adv_ids( uint aNodeIndex ) override;
 
-      /**
-       * Resets all nodal information about field values.
-       */
-      void reset_nodal_data( mtk::Interpolation_Mesh* aMesh ) override;
+        /**
+         * Resets all nodal information about field values.
+         */
+        void reset_nodal_data( mtk::Interpolation_Mesh* aMesh ) override;
 
-    private:
-
+      private:
         /**
          * Evaluates and stores the nodal values of this field for use later.
          */
         void evaluate_nodal_values();
-
     };
-}
+}    // namespace moris::gen

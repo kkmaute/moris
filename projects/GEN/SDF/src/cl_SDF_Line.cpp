@@ -13,6 +13,7 @@
 #include "assert.hpp"
 #include "fn_dot.hpp"
 #include "fn_norm.hpp"
+#include "fn_trans.hpp"
 #include "op_times.hpp"
 #include "SDF_Tools.hpp"
 #include "fn_stringify_matrix.hpp"
@@ -23,8 +24,9 @@ namespace moris::sdf
 
     Line::Line(
             moris_index                                aIndex,
-            Vector< std::shared_ptr< Facet_Vertex > >& aVertices )
-            : Facet( aIndex, aVertices, 2 )
+            Vector< std::shared_ptr< Facet_Vertex > >& aVertices,
+            real                                       aIntersectionTolerance )
+            : Facet( aIndex, aVertices, 2, aIntersectionTolerance )
     {
         this->update_data();
     }
@@ -72,7 +74,7 @@ namespace moris::sdf
             const uint              aAxis,
             const Matrix< DDRMat >& aPoint )
     {
-        MORIS_ERROR( false, "SDF_Line()::check_edge() not implemented for Lines yet." );
+        MORIS_ERROR( false, "SDF_Line()::check_edge() not implemented for Line." );
         return false;
     }
 
@@ -82,8 +84,10 @@ namespace moris::sdf
     Line::get_distance_to_point(
             const Matrix< DDRMat >& aPoint )
     {
-        MORIS_ERROR( false, "SDF_Line()::get_distance_to_point() not implemented for Lines yet." );
+        MORIS_ERROR( false, "SDF_Line()::get_distance_to_point() not implemented for Line." );
         return -1.0;
     }
+
+    //-------------------------------------------------------------------------------
 
 } /* namespace moris::sdf */

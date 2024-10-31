@@ -190,7 +190,7 @@ namespace moris
          * @param ptr_aux_mem  pointer to external (writable)
          * @param aNumRows     number of rows
          * @param aNumCols     number of columns
-         * @param copy_aux_mem flag whether memory should be copied or used
+         * @param copy_aux_mem flag whether memory should be copied
          * @param strict       flag whether memory size can change
          *
          * Note: defaults for flags do not work; conflict with constructor with

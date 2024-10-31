@@ -136,7 +136,7 @@ namespace moris::gen
          *
          * @return Node ID
          */
-        virtual moris_id get_id();
+        virtual moris_id get_id() const;
 
         /**
          * Get the owning processor for this node.

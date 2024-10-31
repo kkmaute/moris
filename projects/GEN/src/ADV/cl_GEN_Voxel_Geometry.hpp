@@ -81,7 +81,7 @@ namespace moris::gen
         real compute_intersection_local_coordinate(
                 const Vector< Background_Node* >& aBackgroundNodes,
                 const Parent_Node&                aFirstParentNode,
-                const Parent_Node&                aSecondParentNode ) override;
+                const Parent_Node&                aSecondParentNode );
 
         /**
          * A voxel geometry has no relevant MTK fields for remeshing, so this returns an empty vector.
@@ -98,46 +98,53 @@ namespace moris::gen
         uint get_num_fields() override;
 
         /**
-         * Gets the name of the design
+         * Gets the name of the geometry
          *
-         * @return Design name
+         * @return geometry name
          */
         std::string get_name() override;
+
+        /**
+         * Gets the names of all the fields associated with this geometry
+         *
+         * @return Vector< std::string > empty array, as voxel geometries do not have fields
+         */
+        virtual Vector< std::string > get_field_names() override;
 
         /**
          * Gets if this field is to be used for seeding a B-spline field.
          *
          * @return Logic for B-spline creation
          */
-        bool intended_discretization() override;
+        bool intended_discretization() const override;
 
         /**
          * Gets a discretization mesh index for a discretized field.
          *
          * @return Mesh index
          */
-        moris_index get_discretization_mesh_index() override;
+        moris_index get_discretization_mesh_index() const override;
 
         /**
          * Gets the lower bound for a discretized field.
          *
          * @return Lower bound
          */
-        real get_discretization_lower_bound() override;
+        real get_discretization_lower_bound() const override;
 
         /**
          * Get the upper bound for a discretized field.
          *
          * @return Upper bound
          */
-        real get_discretization_upper_bound() override;
+        real get_discretization_upper_bound() const override;
 
         /**
          * Allows for access to the GEN field
          *
-         * @return Underlying field
+         * @return empty vector for this implementation
          */
-        std::shared_ptr< Field > get_field() override;
+        Vector< std::shared_ptr< Field > > get_fields() override;
 
         /**
          * Sets the ADVs and grabs the field variables needed from the ADV vector
@@ -166,29 +173,22 @@ namespace moris::gen
          *
          * @param aMeshPair The mesh pair where the discretization information can be obtained
          * @param aOwnedADVs Pointer to the owned distributed ADVs
-         * @param aSharedADVIds All owned and shared ADV IDs for this B-spline field
-         * @param aADVOffsetID Offset in the owned ADV IDs for pulling ADV IDs
          */
         void discretize(
-                mtk::Mesh_Pair        aMeshPair,
-                sol::Dist_Vector*     aOwnedADVs,
-                const Vector< sint >& aSharedADVIds,
-                uint                  aADVOffsetID ) override;
+                mtk::Mesh_Pair    aMeshPair,
+                sol::Dist_Vector* aOwnedADVs ) override;
 
         /**
          * If intended for this field, maps the field to B-spline coefficients or stores the nodal field values in a stored field object.
          *
          * @param aMTKField Input MTK field to map based on
+         * @param aMeshPair The mesh pair where the discretization information can be obtained
          * @param aOwnedADVs Pointer to the owned distributed ADVs
-         * @param aSharedADVIds All owned and shared ADV IDs for this B-spline field
-         * @param aADVOffsetID Offset in the owned ADV IDs for pulling ADV IDs
          */
         void discretize(
                 std::shared_ptr< mtk::Field > aMTKField,
                 mtk::Mesh_Pair                aMeshPair,
-                sol::Dist_Vector*             aOwnedADVs,
-                const Vector< sint >&         aSharedADVIds,
-                uint                          aADVOffsetID ) override;
+                sol::Dist_Vector*             aOwnedADVs ) override;
 
         /**
          * Used to print geometry information to exodus files and print debug information.
@@ -198,7 +198,7 @@ namespace moris::gen
          * @return the value of the property field at the requested location
          */
         void get_design_info(
-                uint                    aNodeIndex,
+                const uint              aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates,
                 Vector< real >&         aOutputDesignInfo ) override;
 

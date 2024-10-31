@@ -22,7 +22,7 @@ namespace moris::fem
     {
       public:
         Model_Initializer_Legacy(
-                const Vector< Vector< Parameter_List > >        &aParameterList,
+                const Module_Parameter_Lists        &aParameterList,
                 std::shared_ptr< Library_IO >                    aLibrary,
                 mtk::Mesh_Pair const                            *aMeshPair,
                 uint                                             aSpatialDimension,

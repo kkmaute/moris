@@ -23,7 +23,7 @@ namespace moris::gen
     Voxel_Geometry::Voxel_Geometry(
             std::shared_ptr< Voxel_Input > aVoxelInput,
             uint                           aIndex )
-            : Geometry( Design_Parameters() )
+            : Geometry( Design_Parameters(), 1e-12 )
             , mVoxelInput( std::move( aVoxelInput ) )
             , mIndex( aIndex )
     {
@@ -192,37 +192,44 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    bool Voxel_Geometry::intended_discretization()
+    Vector< std::string > Voxel_Geometry::get_field_names()
+    {
+        return {};
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    bool Voxel_Geometry::intended_discretization() const
     {
         return false;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    moris_index Voxel_Geometry::get_discretization_mesh_index()
+    moris_index Voxel_Geometry::get_discretization_mesh_index() const
     {
         return -1;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real Voxel_Geometry::get_discretization_lower_bound()
+    real Voxel_Geometry::get_discretization_lower_bound() const
     {
         return -1.0;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real Voxel_Geometry::get_discretization_upper_bound()
+    real Voxel_Geometry::get_discretization_upper_bound() const
     {
         return 1.0;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    std::shared_ptr< Field > Voxel_Geometry::get_field()
+    Vector< std::shared_ptr< Field > > Voxel_Geometry::get_fields()
     {
-        return nullptr;
+        return {};
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -246,10 +253,8 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void Voxel_Geometry::discretize(
-            mtk::Mesh_Pair        aMeshPair,
-            sol::Dist_Vector*     aOwnedADVs,
-            const Vector< sint >& aSharedADVIds,
-            uint                  aADVOffsetID )
+            mtk::Mesh_Pair    aMeshPair,
+            sol::Dist_Vector* aOwnedADVs )
     {
     }
 
@@ -258,16 +263,14 @@ namespace moris::gen
     void Voxel_Geometry::discretize(
             std::shared_ptr< mtk::Field > aMTKField,
             mtk::Mesh_Pair                aMeshPair,
-            sol::Dist_Vector*             aOwnedADVs,
-            const Vector< sint >&         aSharedADVIds,
-            uint                          aADVOffsetID )
+            sol::Dist_Vector*             aOwnedADVs )
     {
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     void Voxel_Geometry::get_design_info(
-            uint                    aNodeIndex,
+            const uint              aNodeIndex,
             const Matrix< DDRMat >& aCoordinates,
             Vector< real >&         aOutputDesignInfo )
     {

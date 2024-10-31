@@ -15,8 +15,8 @@
 #include "cl_XTK_Child_Mesh.hpp"
 #include "cl_Matrix.hpp"
 
-// XTKL: XTK Includes
-#include "fn_mesh_flood_fill.hpp"
+// MTKL : Mesh Includes
+#include "fn_MTK_mesh_flood_fill.hpp"
 
 namespace moris::xtk
 {
@@ -33,31 +33,27 @@ namespace moris::xtk
         // Specify dummy value as maximum moris::size_t val
         moris::size_t tMax = std::numeric_limits< moris::moris_index >::max();
 
-        // Maximum number of phases
-        moris::size_t tNumPhases = 2;
-
         // Allocate space for active elements
-        Matrix< IndexMat > tActiveElements( 1, tNumElements );
+        Vector< moris_index > tActiveElements( tNumElements );
 
         for ( moris::size_t iE = 0; iE < tNumElements; iE++ )
         {
             // Add element index to active element list
-            ( tActiveElements )( 0, iE ) = iE;
+            ( tActiveElements )( iE ) = iE;
         }
 
         // Mark all elements as included
-        Matrix< IndexMat > tIncludedElementMarker( 1, tNumElements, 1 );
+        Vector< moris_index > tIncludedElementMarker( tNumElements, 1 );
 
         // maximum subphase
         moris_index tMaxSubphase = 0;
 
         // Run flood fill Algorithm
-        Matrix< IndexMat > tElementSubphase = flood_fill( 
+        Matrix< IndexMat > tElementSubphase = mtk::flood_fill( 
                 aChildMesh.get_element_to_element(),
                 aChildMesh.get_element_phase_indices(),
                 tActiveElements,
                 tIncludedElementMarker,
-                tNumPhases,
                 tMax,
                 tMaxSubphase,
                 true );

@@ -31,7 +31,6 @@ namespace moris::gen
             , Design_Parameters( aParameterList )
             , mIsocontourThreshold( aParameterList.get< real >( "isocontour_threshold" ) )
             , mIsocontourTolerance( aParameterList.get< real >( "isocontour_tolerance" ) )
-            , mIntersectionTolerance( aParameterList.get< real >( "intersection_tolerance" ) )
     {
     }
 
@@ -41,7 +40,7 @@ namespace moris::gen
             std::shared_ptr< Field >    aField,
             const Level_Set_Parameters& aParameters,
             Node_Manager&               aNodeManager )
-            : Geometry( aParameters )
+            : Geometry( aParameters, aParameters.mIntersectionTolerance )
             , Design_Field( std::move( aField ), aParameters, aNodeManager )
             , mParameters( aParameters )
     {
@@ -536,6 +535,19 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    Vector< std::string >
+    Level_Set_Geometry::get_field_names()
+    {
+        Vector< std::string > tFieldNames( 1 );
+
+        // Assign a default if this geometry does not have a name
+        this->get_name() == "" ? tFieldNames( 0 ) = "Level Set Geometry: " + std::to_string( mOffsetID ) : tFieldNames( 0 ) = this->get_name();
+
+        return tFieldNames;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     void
     Level_Set_Geometry::import_advs( sol::Dist_Vector* aOwnedADVs )
     {
@@ -554,12 +566,20 @@ namespace moris::gen
 
     void
     Level_Set_Geometry::discretize(
-            mtk::Mesh_Pair        aMeshPair,
-            sol::Dist_Vector*     aOwnedADVs,
-            const Vector< sint >& aSharedADVIds,
-            uint                  aADVOffsetID )
+            mtk::Mesh_Pair    aMeshPair,
+            sol::Dist_Vector* aOwnedADVs )
     {
-        Design_Field::discretize( aMeshPair, aOwnedADVs, aSharedADVIds, aADVOffsetID );
+        if ( mSharedADVIDs.size() == 0 )
+        {
+            Design_Field::discretize( aMeshPair, aOwnedADVs, { {} }, mOffsetID );
+        }
+        else
+        {
+            MORIS_ASSERT( mSharedADVIDs.size() == 1,
+                    "discretize() - Level Set geometries should have max one set of shared ADV IDs. Size = %ld",
+                    mSharedADVIDs.size() );
+            Design_Field::discretize( aMeshPair, aOwnedADVs, mSharedADVIDs( 0 ), mOffsetID );
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -568,17 +588,28 @@ namespace moris::gen
     Level_Set_Geometry::discretize(
             std::shared_ptr< mtk::Field > aMTKField,
             mtk::Mesh_Pair                aMeshPair,
-            sol::Dist_Vector*             aOwnedADVs,
-            const Vector< sint >&         aSharedADVIds,
-            uint                          aADVOffsetID )
+            sol::Dist_Vector*             aOwnedADVs )
     {
-        Design_Field::discretize( aMTKField, aMeshPair, aOwnedADVs, aSharedADVIds, aADVOffsetID );
+        if ( aMTKField->get_label() == this->get_name() )
+        {
+            if ( mSharedADVIDs.size() == 0 )
+            {
+                Design_Field::discretize( aMTKField, aMeshPair, aOwnedADVs, { {} }, mOffsetID );
+            }
+            else
+            {
+                MORIS_ASSERT( mSharedADVIDs.size() == 1,
+                        "discretize() - Level Set geometries should have max one set of shared ADV IDs. Size = %ld",
+                        mSharedADVIDs.size() );
+                Design_Field::discretize( aMTKField, aMeshPair, aOwnedADVs, mSharedADVIDs( 0 ), mOffsetID );
+            }
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     void Level_Set_Geometry::get_design_info(
-            uint                    aNodeIndex,
+            const uint              aNodeIndex,
             const Matrix< DDRMat >& aCoordinates,
             Vector< real >&         aOutputDesignInfo )
     {
@@ -586,7 +617,7 @@ namespace moris::gen
         aOutputDesignInfo( 0 ) = Design_Field::get_field_value( aNodeIndex, aCoordinates );
     }
 
-    bool Level_Set_Geometry::intended_discretization()
+    bool Level_Set_Geometry::intended_discretization() const
     {
         return ( mParameters.mDiscretizationIndex >= 0 );
     }
@@ -594,7 +625,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     moris_index
-    Level_Set_Geometry::get_discretization_mesh_index()
+    Level_Set_Geometry::get_discretization_mesh_index() const
     {
         MORIS_ASSERT( mParameters.mDiscretizationIndex >= 0,
                 "A discretization is not intended for this field. Check this with intended_discretization() first." );
@@ -605,7 +636,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     real
-    Level_Set_Geometry::get_discretization_lower_bound()
+    Level_Set_Geometry::get_discretization_lower_bound() const
     {
         return mParameters.mDiscretizationLowerBound;
     }
@@ -613,7 +644,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     real
-    Level_Set_Geometry::get_discretization_upper_bound()
+    Level_Set_Geometry::get_discretization_upper_bound() const
     {
         return mParameters.mDiscretizationUpperBound;
     }
@@ -626,7 +657,7 @@ namespace moris::gen
         Vector< std::shared_ptr< Field > > tUpdatedFields( aAllUpdatedDesigns.size() );
         for ( uint iFieldIndex = 0; iFieldIndex < tUpdatedFields.size(); iFieldIndex++ )
         {
-            tUpdatedFields( iFieldIndex ) = aAllUpdatedDesigns( iFieldIndex )->get_field();
+            tUpdatedFields.append( aAllUpdatedDesigns( iFieldIndex )->get_fields() );
         }
 
         // Update fields

@@ -46,16 +46,14 @@ namespace moris::gen
 
     class Geometry : public Design
     {
+      private:
+        real mIntersectionTolerance;
+
       public:
         /**
          * Constructor
          */
-        explicit Geometry( Design_Parameters aParameters );
-
-        /**
-         * Default destructor
-         */
-        ~Geometry() override = default;
+        explicit Geometry( Design_Parameters aParameters, real aIntersectionTolerance );
 
         /**
          * Sets a new node manager (from the geometry engine, if it was created after this geometry).
@@ -97,25 +95,12 @@ namespace moris::gen
          * @return New intersection node
          */
         virtual Intersection_Node* create_intersection_node(
-                uint                     aNodeIndex,
+                uint                              aNodeIndex,
                 const Vector< Background_Node* >& aBackgroundNodes,
-                const Parent_Node&       aFirstParentNode,
-                const Parent_Node&       aSecondParentNode,
-                mtk::Geometry_Type       aBackgroundGeometryType,
-                mtk::Interpolation_Order aBackgroundInterpolationOrder ) = 0;
-
-        /**
-         * Computes the local coordinate along a parent edge of an intersection node created using this geometry.
-         *
-         * @param aBackgroundNodes Background nodes of the element where the intersection lies
-         * @param aFirstParentNode Node marking the starting point of the intersection edge
-         * @param aSecondParentNode Node marking the ending point of the intersection edge
-         * @return Parent edge local coordinate, between -1 and 1
-         */
-        virtual real compute_intersection_local_coordinate(
-                const Vector< Background_Node* >& aBackgroundNodes,
-                const Parent_Node&   aFirstParentNode,
-                const Parent_Node&   aSecondParentNode ) = 0;
+                const Parent_Node&                aFirstParentNode,
+                const Parent_Node&                aSecondParentNode,
+                mtk::Geometry_Type                aBackgroundGeometryType,
+                mtk::Interpolation_Order          aBackgroundInterpolationOrder ) = 0;
 
         /**
          * Gets an MTK field, if this geometry uses one that needs to be remapped to a new mesh
@@ -145,13 +130,10 @@ namespace moris::gen
          * @param aMeshPair The mesh pair where the discretization information can be obtained
          * @param aOwnedADVs Pointer to the owned distributed ADVs
          * @param aSharedADVIds All owned and shared ADV IDs for this B-spline field
-         * @param aADVOffsetID Offset in the owned ADV IDs for pulling ADV IDs
          */
         virtual void discretize(
-                mtk::Mesh_Pair          aMeshPair,
-                sol::Dist_Vector*       aOwnedADVs,
-                const Vector< sint >& aSharedADVIds,
-                uint                    aADVOffsetID ) = 0;
+                mtk::Mesh_Pair    aMeshPair,
+                sol::Dist_Vector* aOwnedADVs ) = 0;
 
         /**
          * If intended for this field, maps the field to B-spline coefficients or stores the nodal field values in a stored field object.
@@ -159,13 +141,33 @@ namespace moris::gen
          * @param aMTKField Input MTK field to map based on
          * @param aOwnedADVs Pointer to the owned distributed ADVs
          * @param aSharedADVIds All owned and shared ADV IDs for this B-spline field
-         * @param aADVOffsetID Offset in the owned ADV IDs for pulling ADV IDs
          */
         virtual void discretize(
                 std::shared_ptr< mtk::Field > aMTKField,
                 mtk::Mesh_Pair                aMeshPair,
-                sol::Dist_Vector*             aOwnedADVs,
-                const Vector< sint >&       aSharedADVIds,
-                uint                          aADVOffsetID ) = 0;
+                sol::Dist_Vector*             aOwnedADVs ) = 0;
+
+        /**
+         * Used to print geometry information to exodus files and print debug information.
+         *
+         * @param aNodeIndex decides the point at which the field value is printed. If the node is a derived node, the value is interpolated from the parents.
+         * @param aCoordinates The field location to get the value from.
+         * @param aOutputDesignInfo return variable. The design info for every field
+         * @return the value of the geometry field at the requested location
+         */
+        virtual void get_design_info(
+                const uint                    aNodeIndex,
+                const Matrix< DDRMat >& aCoordinates,
+                Vector< real >&         aOutputDesignInfo ) = 0;
+
+        /**
+         * Gets the intersection tolerance for this geometry
+         *
+         * @return tolerance for creating intersection nodes
+         */
+        virtual real get_intersection_tolerance()
+        {
+            return mIntersectionTolerance;
+        }
     };
 }    // namespace moris::gen

@@ -60,7 +60,7 @@ namespace moris::gen
             , mADVOffsetID( aADVOffsetID )
             , mMeshPair( aMeshPair )
             , mDiscretizationIndex( aDiscretizationIndex )
-    {
+    {        
         // Map to B-splines
         const Matrix< DDRMat >& tTargetField = aMTKField->get_coefficients();
 

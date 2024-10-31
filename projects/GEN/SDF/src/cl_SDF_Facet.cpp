@@ -16,7 +16,6 @@
 #include "fn_dot.hpp"
 #include "fn_norm.hpp"
 #include "op_times.hpp"
-#include "SDF_Tools.hpp"
 #include "fn_stringify_matrix.hpp"
 #include "op_equal_equal.hpp"
 #include "fn_all_true.hpp"
@@ -28,77 +27,18 @@ namespace moris::sdf
     Facet::Facet(
             moris_index                                aIndex,
             Vector< std::shared_ptr< Facet_Vertex > >& aVertices,
-            uint                                       aDimension )
+            uint                                       aDimension,
+            real                                       aIntersectionTolerance )
             : mIndex( aIndex )
             , mVertices( aVertices )
             , mCenter( aDimension, 1 )
             , mNormal( aDimension, 1 )
             , mMinCoord( aDimension, 1 )
             , mMaxCoord( aDimension, 1 )
+            , mIntersectionTolerance( aIntersectionTolerance )
     {
     }
 
-    void
-    Facet::rotate( const Matrix< DDRMat >& aRotationMatrix )
-    {
-        for ( uint iVertex = 0; iVertex < mVertices.size(); iVertex++ )
-        {
-            if ( not mVertices( iVertex )->is_transformed() )
-            {
-                mVertices( iVertex )->rotate_node_coords( aRotationMatrix );
-            }
-        }
-    }
-
-    //-------------------------------------------------------------------------------
-
-    void
-    Facet::scale( const Vector< real >& aScaling )
-    {
-        for ( uint iVertex = 0; iVertex < mVertices.size(); iVertex++ )
-        {
-            if ( not mVertices( iVertex )->is_transformed() )
-            {
-                mVertices( iVertex )->scale_node_coords( aScaling );
-            }
-        }
-    }
-
-    //-------------------------------------------------------------------------------
-
-    void
-    Facet::shift( const Vector< real >& aShift )
-    {
-        for ( uint iVertex = 0; iVertex < mVertices.size(); iVertex++ )
-        {
-            if ( not mVertices( iVertex )->is_transformed() )
-            {
-                mVertices( iVertex )->shift_node_coords( aShift );
-            }
-        }
-    }
-
-    //-------------------------------------------------------------------------------
-
-    void
-    Facet::reset_vertex_transformed_flags()
-    {
-        for ( uint iVertex = 0; iVertex < mVertices.size(); iVertex++ )
-        {
-            mVertices( iVertex )->reset_transformed_flag();
-        }
-    }
-
-    //-------------------------------------------------------------------------------
-
-    void
-    Facet::reset_coordinates()
-    {
-        for ( uint iVertex = 0; iVertex < mVertices.size(); iVertex++ )
-        {
-            mVertices( iVertex )->reset_node_coords();
-        }
-    }
 
     //-------------------------------------------------------------------------------
     // SDF Functions
@@ -111,9 +51,9 @@ namespace moris::sdf
             real&                   aCoordinate,
             bool&                   aError )
     {
-        if ( std::abs( mNormal( aAxis ) ) < gSDFepsilon )
+        if ( std::abs( mNormal( aAxis ) ) < mIntersectionTolerance )
         {
-            aCoordinate = 0;
+            aCoordinate = std::numeric_limits< real >::quiet_NaN();
             aError      = true;
         }
         else
@@ -124,6 +64,22 @@ namespace moris::sdf
     }
 
     //-------------------------------------------------------------------------------
+
+    real
+    Facet::get_vertex_coord( uint aVertexIndex, uint aAxis )
+    {
+        return mVertices( aVertexIndex )->get_coord( aAxis );
+    }
+
+    //-------------------------------------------------------------------------------
+
+    const Vector< std::shared_ptr< sdf::Facet_Vertex > >&
+    Facet::get_facet_vertex_pointers() const
+    {
+        return mVertices;
+    }
+
+    //-------------------------------------------------------------------------------
     // MTK Interface
     //-------------------------------------------------------------------------------
     uint
@@ -131,6 +87,8 @@ namespace moris::sdf
     {
         return mVertices.size();
     }
+
+    //-------------------------------------------------------------------------------
 
     Vector< mtk::Vertex* >
     Facet::get_vertex_pointers() const
@@ -189,17 +147,18 @@ namespace moris::sdf
     Matrix< DDRMat >
     Facet::get_vertex_coords() const
     {
-        uint             tDimension = get_number_of_vertices();
-        Matrix< DDRMat > aCoords( tDimension, tDimension );
+        uint             tDimension = this->get_number_of_vertices();
+        Matrix< DDRMat > tCoords( tDimension, tDimension );
 
         for ( uint iVertex = 0; iVertex < tDimension; ++iVertex )
         {
-            for ( uint iDimensionIndex = 0; iDimensionIndex < tDimension; iDimensionIndex++ )
-                aCoords( iVertex, iDimensionIndex ) = mVertices( iVertex )->get_coord( iDimensionIndex );
+            tCoords.set_row( iVertex, mVertices( iVertex )->get_coords() );
         }
 
-        return aCoords;
+        return tCoords;
     }
+
+    //-------------------------------------------------------------------------------
 
     mtk::Geometry_Type
     Facet::get_geometry_type() const
@@ -289,11 +248,9 @@ namespace moris::sdf
     bool
     Facet::operator==( const Facet& aRHS ) const
     {
-        if ( mVertices.size() != aRHS.get_number_of_vertices() )
-        {
-            return false;
-        }
-
-        return all_true( this->get_vertex_ids() == aRHS.get_vertex_ids() ) && all_true( mNormal == aRHS.get_normal() ) && std::abs( mHesse - aRHS.get_hesse() ) < gSDFepsilon;
+        return mVertices.size() == aRHS.get_number_of_vertices()
+            && all_true( this->get_vertex_ids() == aRHS.get_vertex_ids() )
+            && std::abs( mHesse - aRHS.get_hesse() ) < mIntersectionTolerance
+            && this->get_id() == aRHS.get_id();
     }
-}    // namespace moris::sdf
+} /* namespace moris::sdf */

@@ -660,6 +660,50 @@ namespace moris::xtk
         create_interface_double_side_sets_and_clusters();
 
         //------------------------------------------------------------------------------
+        // suite of functions to communicate T matrices
+
+        void
+        communicate_T_matrices_for_UIPCs( 
+                const Vector<moris_index> & aNonOwnedUipcIndices );
+
+        void
+        collect_UIPVs_without_interpolation(
+                const Vector<moris_index> &   aNonOwnedUipcIndices,
+                Vector< mtk::Vertex * > &     aVerticesWithoutInterpolation,
+                Vector< mtk::Cell const * > & aUIPCsConnectedToVertices,
+                const moris_index             aMeshIndex );
+
+        void
+        prepare_requests_for_T_matrices(
+                Vector< mtk::Vertex * > const &     aVerticesWithoutInterpolation,
+                Vector< mtk::Cell const * > const & aUIPCsConnectedToVertices,
+                Vector< Vector< moris_index > > &   aNotOwnedIPVertIndsInNotOwnedList,
+                Vector< Vector< moris_index > > &   aIPVertIndsToProcs,
+                Vector< Matrix< IdMat > > &         aBaseVertexIds,
+                Vector< Matrix< IdMat > > &         aUnzippedIpCellIds );
+
+        void
+        prepare_answers_for_T_matrices(
+                Vector< Matrix< IdMat > > const & aReceivedBaseVertexIds,
+                Vector< Matrix< IdMat > > const & aReceivedUnzippedIpCellIds,
+                Vector< Matrix< DDRMat > >&       aTMatrixWeights,
+                Vector< Matrix< IdMat > >&        aTMatrixIds,
+                Vector< Matrix< IdMat > >&        aTMatrixOwners,
+                Vector< Matrix< IndexMat > >&     aTMatrixOffsets,
+                const moris_index                 aMeshIndex );
+
+        void
+        handle_requested_T_matrix_answers(
+                Vector< mtk::Cell const * > const &     aUIPCsConnectedToVertices,
+                Vector< Vector< moris_index > > const & aNotOwnedIPVertIndsInNotOwnedList,
+                Vector< Vector< moris_index > > const & aIPVertIndsToProcs,
+                Vector< Matrix< DDRMat > > const &      aReceivedTMatrixWeights,
+                Vector< Matrix< IdMat > > const &       aReceivedTMatrixIds,
+                Vector< Matrix< IdMat > > const &       aReceivedTMatrixOwners,
+                Vector< Matrix< IndexMat > > const &    aReceivedTMatrixOffsets,
+                const moris_index                       aMeshIndex );
+
+        //------------------------------------------------------------------------------
 
         void
         add_side_to_cluster(

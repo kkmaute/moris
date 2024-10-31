@@ -24,7 +24,7 @@ namespace moris::xtk
 {
     //------------------------------------------------------------------------------
     /**
-     * \brief This is the XTK cell implementation when there is a child mesh to use.
+     * \brief This is the XTK cell implementation when there is not a child mesh to use.
      */
 
     class Cell_XTK_No_CM : public moris::mtk::Cell

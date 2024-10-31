@@ -131,7 +131,7 @@ namespace moris::sdf
 
             tHorizontalLine.intersect_with_coordinate_axis( tPoint, 0, tComputedIntersection, tError );
             CHECK( tError );
-            CHECK( abs( tComputedIntersection ) < tEpsilon );
+            CHECK( std::isnan( tComputedIntersection ) );
 
             // extra check of the min/max coords for a vertical line
             real tMinX = -4.0;
@@ -189,7 +189,7 @@ namespace moris::sdf
 
             tVerticalLine.intersect_with_coordinate_axis( tPoint, 1, tComputedIntersection, tError );
             CHECK( tError );
-            CHECK( abs( tComputedIntersection ) < tEpsilon );
+            CHECK( std::isnan( tComputedIntersection ) );
 
             // extra check of the min/max coords for a vertical line
             real tMinX = 2.0;

@@ -59,4 +59,4 @@ namespace moris::gen
          */
         ADV create_adv( const Design_Variable& aDesignVariable );
     };
-}
+}    // namespace moris::gen

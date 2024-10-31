@@ -215,6 +215,13 @@ namespace moris::fem
          */
         ~CM_Compressible_Newtonian_Fluid() override {};
 
+        /**
+         * Gets the constitutive type
+         *
+         * @return Compressible newtonian fluid
+         */
+        Constitutive_Type get_constitutive_type() const override;
+
         //------------------------------------------------------------------------------
         /**
          * set space dim

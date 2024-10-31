@@ -111,7 +111,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     real Design_Field::get_field_value(
-            uint                    aNodeIndex,
+            const uint              aNodeIndex,
             const Matrix< DDRMat >& aCoordinates ) const
     {
         if ( mNodeManager->is_background_node( aNodeIndex ) )

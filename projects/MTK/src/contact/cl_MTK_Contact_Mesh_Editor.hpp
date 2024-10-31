@@ -12,6 +12,7 @@
 #define MORIS_CL_MTK_CONTACT_MESH_EDITOR_HPP
 
 #include "cl_MTK_Integration_Mesh.hpp"
+#include "cl_MTK_Mesh_DataBase_IG.hpp"
 #include "cl_MTK_Integrator.hpp"
 #include "fn_assert.hpp"
 

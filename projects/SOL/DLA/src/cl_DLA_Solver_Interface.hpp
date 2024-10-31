@@ -320,11 +320,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         virtual fem::Element_Type
-        get_set_type( uint aMyEquSetInd )
-        {
-            MORIS_ERROR( false, "Solver_Interface::get_set_type: not set." );
-            return fem::Element_Type::UNDEFINED;
-        };
+        get_set_type( uint aMyEquSetInd ) = 0;
 
         //------------------------------------------------------------------------------
 

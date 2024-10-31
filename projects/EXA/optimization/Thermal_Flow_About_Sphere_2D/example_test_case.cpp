@@ -342,7 +342,7 @@ TEST_CASE( "Thermal_Flow_About_Sphere_2D",
     int argc = 2;
 
     char tString1[] = "";
-    char tString2[] = "./Channel2D.so";
+    char tString2[] = "./Thermal_Flow_About_Sphere_2D.so";
 
     char* argv[ 2 ] = { tString1, tString2 };
 
@@ -362,7 +362,7 @@ TEST_CASE( "Thermal_Flow_About_Sphere_2D",
         fn_WRK_Workflow_Main_Interface( argc, argv );
 
         // perform check for Test Case 0
-        check_results( "Channel2D_0.exo.e-s.0001", "Channel2D_0_SEN.hdf5", gTestCaseIndex );
+        check_results( "Thermal_Flow_About_Sphere_2D_0.exo.e-s.0001", "Thermal_Flow_About_Sphere_2D_0_SEN.hdf5", gTestCaseIndex );
     }
 
     if ( par_size() == 3 )
@@ -376,7 +376,7 @@ TEST_CASE( "Thermal_Flow_About_Sphere_2D",
         // perform check for Test Case 2
         if ( par_rank() == 0 )
         {
-            check_results( "Channel2D_2.exo.e-s.0001", "Channel2D_2_SEN.hdf5", gTestCaseIndex );
+            check_results( "Thermal_Flow_About_Sphere_2D_2.exo.e-s.0001", "Thermal_Flow_About_Sphere_2D_2_SEN.hdf5", gTestCaseIndex );
         }
     }
 
@@ -396,7 +396,7 @@ TEST_CASE( "Thermal_Flow_About_Sphere_2D",
         fn_WRK_Workflow_Main_Interface( argc, argv );
 
         // perform check for Test Case 1
-        check_results( "Channel2D_1.exo.e-s.0001", "Channel2D_1_SEN.hdf5", gTestCaseIndex );
+        check_results( "Thermal_Flow_About_Sphere_2D_1.exo.e-s.0001", "Thermal_Flow_About_Sphere_2D_1_SEN.hdf5", gTestCaseIndex );
     }
 
     if ( par_size() == 3 )
@@ -410,7 +410,7 @@ TEST_CASE( "Thermal_Flow_About_Sphere_2D",
         if ( par_rank() == 0 )
         {
             // perform check for Test Case 3
-            check_results( "Channel2D_3.exo.e-s.0001", "Channel2D_3_SEN.hdf5", gTestCaseIndex );
+            check_results( "Thermal_Flow_About_Sphere_2D_3.exo.e-s.0001", "Thermal_Flow_About_Sphere_2D_3_SEN.hdf5", gTestCaseIndex );
         }
     }
 }

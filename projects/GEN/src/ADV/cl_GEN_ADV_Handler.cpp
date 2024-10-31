@@ -64,8 +64,8 @@ namespace moris::gen
     {
         // Create shared distributed vector
         sol::Matrix_Vector_Factory tDistributedFactory;
-        sol::Dist_Map* tSharedADVMap = tDistributedFactory.create_map( aSharedADVIds );
-        mSharedADVs = tDistributedFactory.create_vector( tSharedADVMap, 1, false, true );
+        sol::Dist_Map*             tSharedADVMap = tDistributedFactory.create_map( aSharedADVIds );
+        mSharedADVs                              = tDistributedFactory.create_vector( tSharedADVMap, 1, false, true );
 
         // Set variables from ADVs
         uint tNumSharedADVs = aSharedADVIds.size();
@@ -79,7 +79,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     ADV_Handler::ADV_Handler(
-            const ADV_Handler& aCopyADVManager,
+            const ADV_Handler&    aCopyADVManager,
             const Vector< uint >& aReplaceVariables,
             const Vector< real >& aNewConstants )
             : mADVs( aCopyADVManager.mADVs )
@@ -125,6 +125,19 @@ namespace moris::gen
     real ADV_Handler::get_variable( uint aVariableIndex )
     {
         return mADVs( aVariableIndex ).get_value();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Vector< real > ADV_Handler::get_values()
+    {
+        Vector< real > tValues( mADVs.size() );
+        for ( uint iADV = 0; iADV < mADVs.size(); iADV++ )
+        {
+            tValues( iADV ) = mADVs( iADV ).get_value();
+        }
+
+        return tValues;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -183,4 +196,4 @@ namespace moris::gen
     template void ADV_Handler::set_advs( sol::Dist_Vector*& aADVs );
 
     //--------------------------------------------------------------------------------------------------------------
-}
+}    // namespace moris::gen

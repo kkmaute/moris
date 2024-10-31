@@ -21,21 +21,18 @@ namespace moris::sdf
 
     class Triangle;
 
-    //-------------------------------------------------------------------------------
-    class Facet_Vertex : public mtk::Vertex
-            , std::enable_shared_from_this< Facet_Vertex >
-    {
+        //-------------------------------------------------------------------------------
+        class Facet_Vertex : public mtk::Vertex
+                , std::enable_shared_from_this< Facet_Vertex >
+        {
 
-        const moris_index mIndex;
-
-        bool mIsTransformed = false;
+            const moris_index mIndex;
 
         //-------------------------------------------------------------------------------
 
-        Matrix< DDRMat > mNodeCoords;
+            Matrix< DDRMat > mNodeCoords;             // can be changed through coordinate transformations in raycasts and design iterations
 
-        const Matrix< DDRMat > mOriginalNodeCoords;
-        //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
       public:
         //-------------------------------------------------------------------------------
@@ -57,59 +54,83 @@ namespace moris::sdf
 
         //-------------------------------------------------------------------------------
 
-        void
-        scale_node_coords( const Vector< real >& aScaling )
-        {
-            for ( uint iAxis = 0; iAxis < mNodeCoords.numel(); iAxis++ )
-            {
-                mNodeCoords( iAxis ) *= aScaling( iAxis );
-            }
-            mIsTransformed = true;
-        }
+            void
+            scale_node_coords( const Vector< real >& aScaling );
+
+
+            //-------------------------------------------------------------------------------
+
+            /**
+             * Sets the coordinates of this node. Also changes mIterationNodeCoords. As such, this function should ONLY be called between design iterations.
+             *
+             * @param aCoordinates new coordinates to be set to
+             */
+            void
+            set_node_coords( const Vector< real >& aCoordinates );
 
         //-------------------------------------------------------------------------------
 
-        void
-        shift_node_coords( const Vector< real >& aShift )
-        {
-            for ( uint iAxis = 0; iAxis < mNodeCoords.numel(); iAxis++ )
-            {
-                mNodeCoords( iAxis ) += aShift( iAxis );
-            }
-            mIsTransformed = true;
-        }
+            /**
+             * Sets the coordinates of this node (Matrix version).
+             * Also changes mIterationNodeCoords. As such, this function should ONLY be called between design iterations.
+             *
+             * @param aCoordinates new coordinates to be set to
+             */
+            void
+            set_node_coords( const Matrix< DDRMat >& aCoordinates );
 
         //-------------------------------------------------------------------------------
 
-        void
-        reset_node_coords();
+            /**
+             * Sets only the aDimension index of this nodes coordinates.
+             * Also changes mIterationNodeCoords. As such, this function should ONLY be called between design iterations.
+             *
+             * @param aCoordinate new coordinates to be set to
+             * @param aDimension spatial dimension of the coordinate to be set
+             */
+            void
+            set_node_coord( const real aCoordinate, uint aDimension );
+
+
+            //-------------------------------------------------------------------------------
+
+            /**
+             * Shifts only the node coordinates. Used for raycasts and coordinate transformations
+             *
+             * @param aShift Perturbation applied to the coordinates. size of mNodeCoords
+             */
+            void shift_node_coords_from_current( const moris::Vector< real >& aShift );
 
         //-------------------------------------------------------------------------------
 
-        void
-        reset_transformed_flag()
-        {
-            mIsTransformed = false;
-        }
+            /**
+             * Sets the coordinates of the node back to the coordinates at the start of the design iteration
+             *
+             */
+            void
+            reset_node_coords();
 
         //-------------------------------------------------------------------------------
 
-        bool
-        is_transformed()
-        {
-            return mIsTransformed;
-        }
+            Matrix< DDRMat > const &
+            get_coords_reference() const;
+
 
         //-------------------------------------------------------------------------------
         // MTK API functions
         //-------------------------------------------------------------------------------
 
-        real
-        get_coord( uint aAxis ) const
-        {
-            MORIS_ASSERT( aAxis <= mNodeCoords.numel(), "SDF_Facet_Vertex::get_coord() - Provided axis of %u exceeds the dimension of the vertex.", aAxis );
-            return mNodeCoords( aAxis );
-        }
+            real
+            get_coord( uint aAxis ) const
+            {
+                MORIS_ASSERT( aAxis <= mNodeCoords.numel(), "SDF_Facet_Vertex::get_coord() - Provided axis of %u exceeds the dimension of the vertex.", aAxis );
+                return mNodeCoords( aAxis );
+            }
+
+            //-------------------------------------------------------------------------------
+
+            Matrix< DDRMat >
+            get_coords() const override;
 
         //-------------------------------------------------------------------------------
 

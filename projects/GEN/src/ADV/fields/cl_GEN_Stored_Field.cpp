@@ -28,15 +28,15 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     real
-    Stored_Field::get_field_value(uint aNodeIndex)
+    Stored_Field::get_field_value( uint aNodeIndex )
     {
         return mFieldValues( aNodeIndex );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Matrix<DDRMat>&
-    Stored_Field::get_dfield_dadvs(uint aNodeIndex)
+    const Matrix< DDRMat >&
+    Stored_Field::get_dfield_dadvs( uint aNodeIndex )
     {
         return mField->get_dfield_dadvs( aNodeIndex, mMesh->get_node_coordinate( aNodeIndex ) );
     }
@@ -44,7 +44,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Vector< sint >
-    Stored_Field::get_determining_adv_ids(uint aNodeIndex)
+    Stored_Field::get_determining_adv_ids( uint aNodeIndex )
     {
         return mField->get_determining_adv_ids( aNodeIndex, mMesh->get_node_coordinate( aNodeIndex ) );
     }
@@ -68,7 +68,7 @@ namespace moris::gen
     {
         // Assign nodal values
         uint tNumNodes = mMesh->get_num_nodes();
-        for (uint tNodeIndex = 0; tNodeIndex < tNumNodes; tNodeIndex++)
+        for ( uint tNodeIndex = 0; tNodeIndex < tNumNodes; tNodeIndex++ )
         {
             mFieldValues( tNodeIndex ) = mField->get_field_value( tNodeIndex, mMesh->get_node_coordinate( tNodeIndex ) );
         }
@@ -76,4 +76,4 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-}
+}    // namespace moris::gen
