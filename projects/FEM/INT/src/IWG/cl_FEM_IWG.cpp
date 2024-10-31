@@ -3385,6 +3385,19 @@ namespace moris::fem
             Matrix< DDSMat >&             aGeoLocalAssembly,
             Vector< Matrix< IndexMat > >& aVertexIndices )
     {
+        const Vector< Matrix< DDRMat > >& tGeoWeights = mSet->get_adv_geo_weights();
+        // print( tGeoWeights, "tGeoWeights" );
+
+        real tNorm = 0.0;
+        for ( const auto& tGeoWeight : tGeoWeights )
+        {
+            tNorm += norm( tGeoWeight );
+        }
+
+        if ( tNorm < MORIS_REAL_EPS )
+        {
+            return;
+        }
         // storage residual value
         Matrix< DDRMat > tResidualStore = mSet->get_residual()( 0 );
 
@@ -3431,17 +3444,29 @@ namespace moris::fem
         uint tDerNumBases      = tIGGI->get_number_of_space_bases();
         uint tDerNumDimensions = tIPGI->get_number_of_space_dimensions();
 
+        Matrix< DDRMat > tDrDpGeo( tResDofAssemblyStop - tResDofAssemblyStart + 1, 1 );
+
         // loop over the spatial directions
         for ( uint iCoeffCol = 0; iCoeffCol < tDerNumDimensions; iCoeffCol++ )
         {
             // loop over the IG nodes
             for ( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
             {
-                // get the geometry pdv assembly index
-                sint tPdvAssemblyIndex = aGeoLocalAssembly( iCoeffRow, iCoeffCol );
+                if ( tGeoWeights( iCoeffRow ).n_rows() == 0 )
+                {
+                    continue;
+                }
 
-                // if pdv is active
-                if ( tPdvAssemblyIndex != -1 )
+                tDrDpGeo.fill( 0.0 );
+
+                Matrix< DDRMat > dIGNodeCorddAdv = tGeoWeights( iCoeffRow ).get_row( iCoeffCol );
+
+                //                // get the geometry pdv assembly index
+                //                sint tPdvAssemblyIndex = aGeoLocalAssembly( iCoeffRow, iCoeffCol );
+                //
+                //                // if pdv is active
+                //                if ( tPdvAssemblyIndex != -1 )
+                if ( norm( dIGNodeCorddAdv ) > MORIS_REAL_EPS )
                 {
                     // provide adapted perturbation and FD scheme considering ip element boundaries
                     fem::FDScheme_Type tUsedFDSchemeType = aFDSchemeType;
@@ -3465,10 +3490,7 @@ namespace moris::fem
                             ( tUsedFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                     {
                         // add unperturbed residual contribution to dRdp
-                        mSet->get_drdpgeo()(
-                                { tResDofAssemblyStart, tResDofAssemblyStop },
-                                { tPdvAssemblyIndex, tPdvAssemblyIndex } ) +=
-                                tFDScheme( 1 )( 0 ) * tResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                        tDrDpGeo += tFDScheme( 1 )( 0 ) * tResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
                         // skip first point in FD
                         tStartPoint = 1;
@@ -3516,13 +3538,15 @@ namespace moris::fem
                         this->compute_residual( tWStarPert );
 
                         // evaluate dRdpGeo
-                        mSet->get_drdpgeo()(
-                                { tResDofAssemblyStart, tResDofAssemblyStop },
-                                { tPdvAssemblyIndex, tPdvAssemblyIndex } ) +=
+                        tDrDpGeo +=
                                 tFDScheme( 1 )( iPoint ) *                                                                //
                                 mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } ) /    //
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
+
+                    mSet->get_drdpgeo()(
+                            { tResDofAssemblyStart, tResDofAssemblyStop },
+                            { 0, dIGNodeCorddAdv.n_cols() - 1 } ) += tDrDpGeo * dIGNodeCorddAdv;
                 }
             }
         }
@@ -3571,6 +3595,7 @@ namespace moris::fem
             Vector< Matrix< IndexMat > >& aVertexIndices )
     {
         // unpack vertex indices
+        // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
         Matrix< IndexMat >& aLeaderVertexIndices   = aVertexIndices( 0 );
         Matrix< IndexMat >& aFollowerVertexIndices = aVertexIndices( 1 );
 
@@ -4125,7 +4150,7 @@ namespace moris::fem
         real tDeltaH = 0.0;
 
         // initialize derivative of ressidual with respect to single PDV
-        Matrix< DDRMat > tDrDpMat( mSet->get_drdpmat().n_rows(), 1 );
+        Matrix< DDRMat > tDrDpMat( tResDofAssemblyStop - tResDofAssemblyStart + 1, 1 );
 
         // loop over the dv types associated with a FI
         for ( uint iFI = 0; iFI < tNumDvType; iFI++ )

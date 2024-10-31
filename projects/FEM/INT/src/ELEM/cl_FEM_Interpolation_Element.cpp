@@ -445,14 +445,14 @@ namespace moris::fem
                 tDVInterface->get_ip_desgin_extraction_operators( tLeaderVerticesInds, tRequestedDvTypesLeader );
 
         // get unique adv ids for ip extraction operators on cluster
-        mSet->mAdvIdsLeader = tDVInterface->build_local_adv_indices( tIPExtractionOperatorsLeader );
+        mSet->mIPAdvIdsLeader = tDVInterface->build_local_adv_indices( tIPExtractionOperatorsLeader );
 
         this->create_prop_adv_assembly_data(
                 mSet->mAdvPropWeightsLeader,
-                mSet->mAdvIdsLeader,
+                mSet->mIPAdvIdsLeader,
                 tIPExtractionOperatorsLeader );
 
-        mSet->mIPAdvIds = mSet->mAdvIdsLeader;
+        mSet->mIPAdvIds = mSet->mIPAdvIdsLeader;
 
         // get dv ids for this type and node indices
         Vector< Matrix< IdMat > >
@@ -488,13 +488,27 @@ namespace moris::fem
                 ( mElementType == fem::Element_Type::DOUBLE_SIDESET ) ||    //
                 ( mElementType == fem::Element_Type::NONCONFORMAL_SIDESET ) )
         {
+            // get the list of requested dv types by the opt solver for the follower side
+            const Vector< enum gen::PDV_Type >& tRequestedDvTypesFollower =
+                    mSet->get_ip_dv_types_for_set( mtk::Leader_Follower::FOLLOWER );
+
             // get follower vertices from cell
             Matrix< IndexMat > tFollowerVerticesInds =
                     mFollowerInterpolationCell->get_base_cell()->get_vertex_inds();
 
-            // get the list of requested dv types by the opt solver for the follower side
-            const Vector< enum gen::PDV_Type >& tRequestedDvTypesFollower =
-                    mSet->get_ip_dv_types_for_set( mtk::Leader_Follower::FOLLOWER );
+            // get extraction operators for the cluster for each requested PDV type and IP node (basis)
+            Vector< Vector< std::shared_ptr< gen::Design_Extraction_Operator > > > tIPExtractionOperatorsFollower =
+                    tDVInterface->get_ip_desgin_extraction_operators( tFollowerVerticesInds, tRequestedDvTypesFollower );
+
+            // get unique adv ids for ip extraction operators on cluster
+            mSet->mIPAdvIdsFollower = tDVInterface->build_local_adv_indices( tIPExtractionOperatorsFollower );
+
+            this->create_prop_adv_assembly_data(
+                    mSet->mAdvPropWeightsFollower,
+                    mSet->mIPAdvIdsFollower,
+                    tIPExtractionOperatorsFollower );
+
+            mSet->mIPAdvIds.append( mSet->mIPAdvIdsFollower );
 
             // get dv ids for this type and node indices
             Vector< Matrix< IdMat > > tPdvIds;

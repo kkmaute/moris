@@ -461,6 +461,9 @@ namespace moris::fem
         tVertexIndices( 0 ) = mLeaderCell->get_vertices_ind_on_side_ordinal( tLeaderSideOrd );
         tVertexIndices( 1 ) = mFollowerCell->get_vertices_ind_on_side_ordinal( tFollowerSideOrd );
 
+        mSet->create_geo_adv_assembly_data( tVertexIndices( 0 ), mtk::Leader_Follower::LEADER );
+        mSet->create_geo_adv_assembly_data( tVertexIndices( 1 ), mtk::Leader_Follower::FOLLOWER );
+
         // loop over integration points
         uint const tNumIntegPoints = get_number_of_integration_points();
 

@@ -176,24 +176,17 @@ namespace moris
 
             map< sint, sint > mVertexMeshIndexToClusterIndexMap;
 
+            // design extraction operator for cluster (cluster is assumed to be the same for leader and follower side)
             Vector< std::shared_ptr< gen::Design_Extraction_Operator > > mIGExtractionOperators;
-<<<<<<< HEAD
 
-            Vector< Matrix< DDRMat > > mAdvGeoWeights;    // Vector of each node with Adv weights
+            Vector< Matrix< DDRMat > > mAdvGeoWeightsLeader;      // Vector of each node with Adv weights
+            Vector< Matrix< DDRMat > > mAdvGeoWeightsFollower;    // Vector of each node with Adv weights
 
-            Vector< sint > mAdvIdsLeader;      // Vector of adv ids for leader
-            Vector< sint > mAdvIdsFollower;    // Vector of adv ids for follower
+            Vector< sint > mIPAdvIdsLeader;      // Vector of adv ids for leader
+            Vector< sint > mIPAdvIdsFollower;    // Vector of adv ids for follower
 
             Vector< Vector< Matrix< DDRMat > > > mAdvPropWeightsLeader;      // Vector of each property and node with Adv weights
-            Vector< Vector< Matrix< DDRMat > > > mAdvPropWeightsFollower;    // Vector of each property andnode with Adv weights
-=======
-            Vector< std::shared_ptr< gen::Design_Extraction_Operator > > mIPExtractionOperatorsLeader;
-            Vector< std::shared_ptr< gen::Design_Extraction_Operator > > mIPExtractionOperatorsFollower;
-
-            Vector< Matrix< DDRMat > > mAdvGeoWeights;             // Vector of each node with Adv weights
-            Vector< Matrix< DDRMat > > mAdvPropWeightsLeader;      // Vector of each node with Adv weights
-            Vector< Matrix< DDRMat > > mAdvPropWeightsFollower;    // Vector of each node with Adv weights
->>>>>>> branch 'directSA' of git@github.com:kkmaute/moris
+            Vector< Vector< Matrix< DDRMat > > > mAdvPropWeightsFollower;    // Vector of each property and node with Adv weights
 
             Matrix< DDRMat > mCurrrentAdvGeoWeight;    // Adv weight of current node
 
@@ -204,7 +197,7 @@ namespace moris
             friend class Element_Time_Sideset;
             friend class Element_Double_Sideset;
             friend class Element_Nonconformal_Sideset;
-            friend class Element_Time_Continuity;
+            friend class mIPAdvIdsFollower;
             friend class Element_Time_Boundary;
             friend class Element;
             friend class Field_Interpolator_Manager;
@@ -751,7 +744,35 @@ namespace moris
             /**
              * create the adv weights and assembly vector at integration point
              */
-            void create_geo_adv_assembly_data( const Matrix< IndexMat >& tVertexMeshIndices );
+            void create_geo_adv_assembly_data_base(
+                    const Matrix< IndexMat >&   aVertexMeshIndices,
+                    Vector< Matrix< DDRMat > >& aAdvGeoWeights );
+
+            //------------------------------------------------------------------------------
+
+            void create_geo_adv_assembly_data(
+                    const Matrix< IndexMat >& tVertexMeshIndicesLeader,
+                    mtk::Leader_Follower      aLeaderFollowerType = mtk::Leader_Follower::LEADER )
+            {
+                switch ( aLeaderFollowerType )
+                {
+                    case mtk::Leader_Follower::LEADER:
+                    {
+                        this->create_geo_adv_assembly_data_base( tVertexMeshIndicesLeader, mAdvGeoWeightsLeader );
+                        break;
+                    }
+                    case mtk::Leader_Follower::FOLLOWER:
+                    {
+                        this->create_geo_adv_assembly_data_base( tVertexMeshIndicesLeader, mAdvGeoWeightsFollower );
+                        break;
+                    }
+                    default:
+                    {
+                        MORIS_ASSERT( false, "Set::create_geo_adv_assembly_data - Invalid leader/follower type" );
+                        break;
+                    }
+                }
+            }
 
             //------------------------------------------------------------------------------
             /**
@@ -1151,9 +1172,29 @@ namespace moris
              *
              * @return a vector of matrices of design extraction operator weights
              */
-            const Vector< Matrix< DDRMat > >& get_adv_geo_weights()
+            const Vector< Matrix< DDRMat > >& get_adv_geo_weights(
+                    mtk::Leader_Follower aLeaderFollowerType = mtk::Leader_Follower::LEADER )
             {
-                return mAdvGeoWeights;
+                switch ( aLeaderFollowerType )
+                {
+                    case mtk::Leader_Follower::LEADER:
+                    {
+                        return mAdvGeoWeightsLeader;
+                        break;
+                    }
+                    case mtk::Leader_Follower::FOLLOWER:
+                    {
+                        return mAdvGeoWeightsFollower;
+                        break;
+                    }
+                    default:
+                    {
+                        MORIS_ASSERT( false, "Set::get_adv_geo_weights - Invalid leader/follower type" );
+                        break;
+                    }
+                }
+
+                return mAdvGeoWeightsLeader;
             }
 
             //------------------------------------------------------------------------------
@@ -1194,20 +1235,42 @@ namespace moris
              * @param[ in ] aIndex index of the node
              * @return matrix of design extraction operator weights for the node
              */
-            const Matrix< DDRMat >& get_adv_geo_weight_by_cluster_node_index( uint aIndex )
+            const Matrix< DDRMat >& get_adv_geo_weight_by_cluster_node_index(
+                    uint                 aIndex,
+                    mtk::Leader_Follower aLeaderFollowerType = mtk::Leader_Follower::LEADER )
             {
-                return mAdvGeoWeights( aIndex );
+                switch ( aLeaderFollowerType )
+                {
+                    case mtk::Leader_Follower::LEADER:
+                    {
+                        return mAdvGeoWeightsLeader( aIndex );
+                        break;
+                    }
+                    case mtk::Leader_Follower::FOLLOWER:
+                    {
+                        return mAdvGeoWeightsFollower( aIndex );
+                        break;
+                    }
+                    default:
+                    {
+                        MORIS_ASSERT( false, "Set::get_adv_geo_weight_by_cluster_node_index - Invalid leader/follower type" );
+                        break;
+                    }
+                }
+
+                return mAdvGeoWeightsLeader( aIndex );
             }
+
             //------------------------------------------------------------------------------
 
             void set_geo_weights_for_cluster_node_index( uint aIndex )
             {
-                MORIS_ASSERT( mAdvGeoWeights.size() == 0 || aIndex < mAdvGeoWeights.size(),
+                MORIS_ASSERT( mAdvGeoWeightsLeader.size() == 0 || aIndex < mAdvGeoWeightsLeader.size(),
                         "Set::set_index_for_geo_weights - Index out of range" );
 
-                if ( mAdvGeoWeights.size() > 0 )
+                if ( mAdvGeoWeightsLeader.size() > 0 )
                 {
-                    mCurrrentAdvGeoWeight = mAdvGeoWeights( aIndex );
+                    mCurrrentAdvGeoWeight = mAdvGeoWeightsLeader( aIndex );
                 }
                 else
                 {

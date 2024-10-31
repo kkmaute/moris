@@ -2694,7 +2694,7 @@ namespace moris::fem
             // loop over requested IQIs and set size
             for ( auto& tdQIdp : mdQIdp( 0 ) )
             {
-                tdQIdp.set_size( 1, mAdvIdsLeader.size(), 0.0 );
+                tdQIdp.set_size( 1, mIPAdvIdsLeader.size(), 0.0 );
             }
 
             // set exist flag to true
@@ -3770,14 +3770,16 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void Set::create_geo_adv_assembly_data( const Matrix< IndexMat >& tVertexMeshIndices )
+    void Set::create_geo_adv_assembly_data_base(
+            const Matrix< IndexMat >&   aVertexMeshIndices,
+            Vector< Matrix< DDRMat > >& aAdvGeoWeights )
     {
         // get number of vertices in cluster
-        uint tNumVertices = tVertexMeshIndices.numel();
+        uint tNumVertices = aVertexMeshIndices.numel();
 
         // set dimension for GP level adv indices relative to cluster and weights
-        mAdvGeoWeights.clear();
-        mAdvGeoWeights.resize( tNumVertices, Matrix< DDRMat >( 0, 0 ) );
+        aAdvGeoWeights.clear();
+        aAdvGeoWeights.resize( tNumVertices, Matrix< DDRMat >( 0, 0 ) );
 
         // skip remainder if no vertices
         if ( tNumVertices == 0 )
@@ -3796,7 +3798,7 @@ namespace moris::fem
         for ( uint iVert = 0; iVert < tNumVertices; ++iVert )
         {
             // get local vertex index with respect to the cluster
-            uint tLocalVertexIndex = mVertexMeshIndexToClusterIndexMap[ tVertexMeshIndices( iVert ) ];
+            uint tLocalVertexIndex = mVertexMeshIndexToClusterIndexMap[ aVertexMeshIndices( iVert ) ];
 
             const std::shared_ptr< gen::Design_Extraction_Operator >& tOperator = mIGExtractionOperators( tLocalVertexIndex );
 
@@ -3805,7 +3807,7 @@ namespace moris::fem
                 // populate adv geo weights
                 tDVInterface->populate_adv_geo_weights(
                         tOperator,
-                        mAdvGeoWeights( iVert ),
+                        aAdvGeoWeights( iVert ),
                         tNumAdvs );
             }
         }
