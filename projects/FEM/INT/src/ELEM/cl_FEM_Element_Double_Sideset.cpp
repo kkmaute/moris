@@ -456,11 +456,12 @@ namespace moris::fem
 
         Matrix< DDSMat > tGeoLocalAssembly = get_local_cluster_assembly_indices( tLeaderSideOrd, tFollowerSideOrd );
 
-        // get the vertices indices
+        // get the vertices indices; for conformal cluster the leader and follower vertices are the same
         Vector< Matrix< IndexMat > > tVertexIndices( 2 );
         tVertexIndices( 0 ) = mLeaderCell->get_vertices_ind_on_side_ordinal( tLeaderSideOrd );
         tVertexIndices( 1 ) = mFollowerCell->get_vertices_ind_on_side_ordinal( tFollowerSideOrd );
 
+        // only leader vertices are currently used
         mSet->create_geo_adv_assembly_data( tVertexIndices( 0 ), mtk::Leader_Follower::LEADER );
         mSet->create_geo_adv_assembly_data( tVertexIndices( 1 ), mtk::Leader_Follower::FOLLOWER );
 

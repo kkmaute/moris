@@ -2493,6 +2493,8 @@ namespace moris::fem
         // init perturbation
         real tDeltaH = 0.0;
 
+        const Vector< Matrix< DDRMat > >& tGeoWeights = mSet->get_adv_geo_weights();
+
         // get number of leader GI bases and space dimensions
         uint tDerNumBases      = tIGGI->get_number_of_space_bases();
         uint tDerNumDimensions = tIPGI->get_number_of_space_dimensions();
@@ -2503,12 +2505,22 @@ namespace moris::fem
             // loop over the IG nodes/loop one nodes
             for ( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
             {
-                // get the geometry pdv assembly index
-                sint tPdvAssemblyIndex = aGeoLocalAssembly( iCoeffRow, iCoeffCol );
-
-                // if pdv is active
-                if ( tPdvAssemblyIndex != -1 )
+                if ( tGeoWeights( iCoeffRow ).n_rows() == 0 )
                 {
+                    continue;
+                }
+
+                Matrix< DDRMat > dIGNodeCorddAdv = tGeoWeights( iCoeffRow ).get_row( iCoeffCol );
+
+                //                // get the geometry pdv assembly index
+                //                sint tPdvAssemblyIndex = aGeoLocalAssembly( iCoeffRow, iCoeffCol );
+                //
+                //                // if pdv is active
+                //                if ( tPdvAssemblyIndex != -1 )
+                if ( norm( dIGNodeCorddAdv ) > MORIS_REAL_EPS )
+                {
+                    real tDQiDgeo = 0.0;
+
                     // check point location and define perturbation size and FD scheme accordingly
                     fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
                     tDeltaH                          = this->check_ig_coordinates_inside_ip_element(
@@ -2529,8 +2541,7 @@ namespace moris::fem
                             ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_FORWARD ) )
                     {
                         // add unperturbed QI contribution to dQIdp
-                        mSet->get_dqidpgeo()( tIQIAssemblyIndex )( tPdvAssemblyIndex ) +=
-                                tFDScheme( 1 )( 0 ) * tQI( 0 ) / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                        tDQiDgeo += tFDScheme( 1 )( 0 ) * tQI( 0 ) / ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
                         // skip first point in FD
                         tStartPoint = 1;
@@ -2580,10 +2591,11 @@ namespace moris::fem
                         this->compute_QI( tWStarPert );
 
                         // evaluate dQIdpGeo
-                        mSet->get_dqidpgeo()( tIQIAssemblyIndex )( tPdvAssemblyIndex ) +=
+                        tDQiDgeo +=
                                 tFDScheme( 1 )( iPoint ) * mSet->get_QI()( tIQIAssemblyIndex )( 0 ) /    //
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
+                    mSet->get_dqidpgeo()( tIQIAssemblyIndex ) += tDQiDgeo * dIGNodeCorddAdv;
                 }
             }
             // reset xyz values

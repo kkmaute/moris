@@ -718,15 +718,33 @@ namespace moris::gen
         //        tFulldIQIdADV->extract_copy( tFullSensitivity );
         //        tFullSensitivity = trans( tFullSensitivity );
 
-        Matrix< DDRMat >  tFullSensitivity;
-        sol::Dist_Vector* tFulldIQIdADV = this->get_dQIdp();
+        sol::Dist_Vector* tdIQIdADV = this->get_dQIdp();
+        // tdIQIdADV->print();
+
+        sint tNumIQIs = tdIQIdADV->get_num_vectors();
+
+        // Create factory for resulting distributed vector
+        sol::Matrix_Vector_Factory tDistributedFactory;
+
+        sol::Dist_Map*    tFullADVMap   = tDistributedFactory.create_map( aFullADVIds );
+        sol::Dist_Vector* tFulldIQIdADV = tDistributedFactory.create_vector( tFullADVMap, tNumIQIs, false, true );
+
+        // Import
+        tFulldIQIdADV->import_local_to_global( *tdIQIdADV );
+
+        // Extract values
+        Matrix< DDRMat > tFullSensitivity;
         tFulldIQIdADV->extract_copy( tFullSensitivity );
         tFullSensitivity = trans( tFullSensitivity );
+
+        //        barrier();
+        //        std::cout << "compute_diqi_dadv Rank " << par_rank() << std::endl;
+        //        barrier();
 
         //        // Clean up
         //        delete tdIQIdPDV;
         //        delete tdIQIdADV;
-        //        delete tFulldIQIdADV;
+        delete tFulldIQIdADV;
 
         return tFullSensitivity;
     }

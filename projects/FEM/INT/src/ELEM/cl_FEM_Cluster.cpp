@@ -680,78 +680,112 @@ namespace moris::fem
         // check that this function is not called on the VIS clusters, only makes sense on actual FEM clusters
         MORIS_ASSERT( !this->is_VIS_cluster(), "FEM cluster is actually VIS cluster." );
 
+        // get adv ids on cluster
+        const Vector< sint > &tAdvIds = mSet->get_ig_adv_ids();
+
+        // get number of pdv on cluster
+        uint tNumADV = tAdvIds.size();
+
+        // fill matrix with derivatives
+        Matrix< DDRMat > tDerivatives( 1, tNumADV, 0.0 );
+
+        // if pdv defined on cluster
+        if ( tNumADV == 0 )
+        {
+            return tDerivatives;
+        }
+
         // get the vertex pointers in cluster
         Vector< moris::mtk::Vertex const * > tVertices =
                 mMeshCluster->get_vertices_in_cluster( aIsLeader );
 
-        // get the requested geo pdv types
-        Vector< enum gen::PDV_Type > tGeoPdvType;
-        mSet->get_ig_unique_dv_types_for_set( tGeoPdvType );
+        // get the vertex indices in cluster
+        Matrix< IndexMat > tVertexIndices = mMeshCluster->get_vertex_indices_in_cluster( aIsLeader );
 
-        // get number of pdv on cluster
-        uint tNumPDV = mSet->get_geo_pdv_assembly_vector().numel();
+        // build design extraction operator for all nodes in cluster
+        mSet->create_geo_adv_assembly_data( tVertexIndices, aIsLeader );
 
-        // fill matrix with derivatives
-        Matrix< DDRMat > tDerivatives( 1, tNumPDV, 0.0 );
+        // get design extraction operator
+        const Vector< Matrix< DDRMat > > &tGeoWeights = mSet->get_adv_geo_weights( aIsLeader );
 
-        // if pdv defined on cluster
-        if ( tNumPDV > 0 )
+        //        // get the requested geo pdv types
+        //        Vector< enum gen::PDV_Type > tGeoPdvType;
+        //        mSet->get_ig_unique_dv_types_for_set( tGeoPdvType );
+
+        //        // get number of pdv on cluster
+        //        uint tNumPDV = mSet->get_geo_pdv_assembly_vector().numel();
+        //
+        //        // fill matrix with derivatives
+        //        Matrix< DDRMat > tDerivatives( 1, tNumPDV, 0.0 );
+
+        //        // if pdv defined on cluster
+        //        if ( tNumPDV > 0 )
+        //        {
+        //            // loop over the vertices in cluster
+
+        for ( uint iClusterNode = 0; iClusterNode < tVertices.size(); iClusterNode++ )
         {
-            // loop over the vertices in cluster
-            for ( uint iClusterNode = 0; iClusterNode < tVertices.size(); iClusterNode++ )
+            // check that adv influence this node
+            if ( tGeoWeights( iClusterNode ).n_rows() == 0 )
             {
-                // get local assembly indices
-                Matrix< DDSMat >     tGeoLocalAssembly;
-                MSI::Equation_Model *tEquationModel    = mSet->get_equation_model();
-                Matrix< IndexMat >   tClusterNodeIndex = { { tVertices( iClusterNode )->get_index() } };
-                tEquationModel->get_integration_xyz_pdv_assembly_indices(
-                        tClusterNodeIndex,
-                        tGeoPdvType,
-                        tGeoLocalAssembly );
+                continue;
+            }
 
-                // if cluster node is not associated with pdv
-                if ( sum( tGeoLocalAssembly ) == -2 || sum( tGeoLocalAssembly ) == -3 )
+            //
+            //            // get local assembly indices
+            //            Matrix< DDSMat >     tGeoLocalAssembly;
+            //            MSI::Equation_Model *tEquationModel    = mSet->get_equation_model();
+            //            Matrix< IndexMat >   tClusterNodeIndex = { { tVertices( iClusterNode )->get_index() } };
+            //            tEquationModel->get_integration_xyz_pdv_assembly_indices(
+            //                    tClusterNodeIndex,
+            //                    tGeoPdvType,
+            //                    tGeoLocalAssembly );
+
+            //            // if cluster node is not associated with pdv
+            //            if ( sum( tGeoLocalAssembly ) == -2 || sum( tGeoLocalAssembly ) == -3 )
+            //            {
+            //                continue;
+            //            }
+
+            // get the node coordinates
+            const Matrix< DDRMat > &tPerturbedNodeCoords = tVertices( iClusterNode )->get_coords();
+
+            // loop over the space directions
+            for ( uint iSpace = 0; iSpace < tPerturbedNodeCoords.n_cols(); iSpace++ )
+            {
+                //                // get the pdv assembly index
+                //                moris_index tPDVAssemblyIndex = tGeoLocalAssembly( iSpace );
+                //
+                //                // sanity check
+                //                MORIS_ASSERT( tPDVAssemblyIndex != MORIS_INDEX_MAX,
+                //                        "FEM::Cluster::compute_cluster_cell_measure_derivative() - "
+                //                        "tPDVAssemblyIndex is MORIS_INDEX_MAX which likely means that mXYZLocalAssemblyIndices"
+                //                        "in the FEM-Model has not been set for this node and PDV type." );
+
+                Matrix< DDRMat > dIGNodeCorddAdv = tGeoWeights( iClusterNode ).get_row( iSpace );
+
+                //                // if pdv assembly index is set
+                //                if ( tPDVAssemblyIndex != -1 )
+                if ( norm( dIGNodeCorddAdv ) > MORIS_REAL_EPS )
                 {
-                    continue;
-                }
+                    //                    // check
+                    //                    MORIS_ASSERT( tPDVAssemblyIndex < (moris_index)tDerivatives.numel(),
+                    //                            "FEM::Cluster::compute_cluster_cell_measure_derivative() - "
+                    //                            "tPDVAssemblyIndex is out of bounds. Assembly index is %i, but number of PDVs only is: %zu",
+                    //                            tPDVAssemblyIndex,
+                    //                            tDerivatives.numel() );
 
-                // get the node coordinates
-                const Matrix< DDRMat > &tPerturbedNodeCoords =
-                        tVertices( iClusterNode )->get_coords();
+                    // add contribution from the cell to the cluster measure
+                    real tDeriv = mMeshCluster->compute_cluster_cell_measure_derivative(
+                            tPerturbedNodeCoords,
+                            iSpace,
+                            aPrimaryOrVoid,
+                            aIsLeader );
 
-                // loop over the space directions
-                for ( uint iSpace = 0; iSpace < tGeoLocalAssembly.n_cols(); iSpace++ )
-                {
-                    // get the pdv assembly index
-                    moris_index tPDVAssemblyIndex = tGeoLocalAssembly( iSpace );
-
-                    // sanity check
-                    MORIS_ASSERT( tPDVAssemblyIndex != MORIS_INDEX_MAX,
-                            "FEM::Cluster::compute_cluster_cell_measure_derivative() - "
-                            "tPDVAssemblyIndex is MORIS_INDEX_MAX which likely means that mXYZLocalAssemblyIndices"
-                            "in the FEM-Model has not been set for this node and PDV type." );
-
-                    // if pdv assembly index is set
-                    if ( tPDVAssemblyIndex != -1 )
-                    {
-
-                        // check
-                        MORIS_ASSERT( tPDVAssemblyIndex < (moris_index)tDerivatives.numel(),
-                                "FEM::Cluster::compute_cluster_cell_measure_derivative() - "
-                                "tPDVAssemblyIndex is out of bounds. Assembly index is %i, but number of PDVs only is: %zu",
-                                tPDVAssemblyIndex,
-                                tDerivatives.numel() );
-
-                        // add contribution from the cell to the cluster measure
-                        tDerivatives( tPDVAssemblyIndex ) +=
-                                mMeshCluster->compute_cluster_cell_measure_derivative(
-                                        tPerturbedNodeCoords,
-                                        iSpace,
-                                        aPrimaryOrVoid,
-                                        aIsLeader );
-                    }
+                    tDerivatives += tDeriv * dIGNodeCorddAdv;
                 }
             }
+            //        }
         }
         return tDerivatives;
     }
@@ -872,7 +906,7 @@ namespace moris::fem
             }
         }
 
-        print( tDerivatives, "tDerivatives" );
+        // print( tDerivatives, "tDerivatives" );
         return tDerivatives;
     }
 

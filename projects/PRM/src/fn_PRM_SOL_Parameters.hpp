@@ -45,7 +45,7 @@ namespace moris::prm
         tSolverWarehouseList.insert( "SOL_load_sol_vec_num_vec", (sint)1 );
 
         // save final adjoint vector to file
-        std::cout << "need fix in create_solver_warehouse_parameterlist \n";
+        //        std::cout << "need fix in create_solver_warehouse_parameterlist \n";
 
         tSolverWarehouseList.insert( "SOL_save_final_adjoint_vec_to_file", std::string( "" ) );
 
@@ -737,7 +737,7 @@ namespace moris::prm
 
         tNonLinAlgorithmParameterList.insert( "NLA_Linear_solver", 0 );
 
-        std::cout << "need fix in create_nonlinear_algorithm_parameter_list \n";
+        //        std::cout << "need fix in create_nonlinear_algorithm_parameter_list \n";
 
         tNonLinAlgorithmParameterList.insert( "NLA_linear_solver_for_adjoint_solve", -1 );
 
