@@ -3594,8 +3594,28 @@ namespace moris::fem
             Matrix< DDSMat >&             aGeoLocalAssembly,
             Vector< Matrix< IndexMat > >& aVertexIndices )
     {
+        const Vector< Matrix< DDRMat > >& tGeoWeightsLeader   = mSet->get_adv_geo_weights( mtk::Leader_Follower::LEADER );
+        const Vector< Matrix< DDRMat > >& tGeoWeightsFollower = mSet->get_adv_geo_weights( mtk::Leader_Follower::FOLLOWER );
+        // print( tGeoWeights, "tGeoWeights" );
+
+        real tNormLeader = 0.0;
+        for ( const auto& tGeoWeight : tGeoWeightsLeader )
+        {
+            tNormLeader += norm( tGeoWeight );
+        }
+
+        real tNormFollower = 0.0;
+        for ( const auto& tGeoWeight : tGeoWeightsFollower )
+        {
+            tNormFollower += norm( tGeoWeight );
+        }
+
+        if ( tNormLeader + tNormFollower < MORIS_REAL_EPS )
+        {
+            return;
+        }
+
         // unpack vertex indices
-        // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
         Matrix< IndexMat >& aLeaderVertexIndices   = aVertexIndices( 0 );
         Matrix< IndexMat >& aFollowerVertexIndices = aVertexIndices( 1 );
 
@@ -3676,12 +3696,15 @@ namespace moris::fem
                     mSet->get_residual()( 0 )( { tFollowerResDofAssemblyStart, tFollowerResDofAssemblyStop }, { 0, 0 } );
         }
 
+        // init FD scheme
+        Vector< Vector< real > > tFDScheme;
+
         // get number of leader GI bases and space dimensions
         uint const tNumBases      = tLeaderIGGI->get_number_of_space_bases();
         uint const tNumDimensions = tLeaderIPGI->get_number_of_space_dimensions();
 
-        // init FD scheme
-        Vector< Vector< real > > tFDScheme;
+        Matrix< DDRMat > tDrDpGeoLeader( tLeaderResDofAssemblyStop - tLeaderResDofAssemblyStart + 1, 1 );
+        Matrix< DDRMat > tDrDpGeoFollower( tFollowerResDofAssemblyStop - tFollowerResDofAssemblyStart + 1, 1 );
 
         // loop over the IG nodes
         for ( uint iLeaderNode = 0; iLeaderNode < tNumBases; iLeaderNode++ )
@@ -3709,12 +3732,27 @@ namespace moris::fem
             }
             MORIS_ERROR( iFollowerNode != -1, "IWG::compute_dRdp_FD_geometry_double - follower index not found." );
 
+            MORIS_ASSERT( norm( tGeoWeightsLeader( iLeaderNode ) - tGeoWeightsFollower( iFollowerNode ) ) < MORIS_REAL_EPS,
+                    "IWG::compute_dRdp_FD_geometry_double - inconsistent derivatives." );
+
             // loop over the spatial directions
             for ( uint iSpatialDir = 0; iSpatialDir < tNumDimensions; iSpatialDir++ )
             {
+                if ( tGeoWeightsLeader( iLeaderNode ).n_rows() == 0 )
+                {
+                    continue;
+                }
+                tDrDpGeoLeader.fill( 0.0 );
+                tDrDpGeoFollower.fill( 0.0 );
+
+                // assuming that for conformal side set leader and follower have the same geometry weights
+                // thus, follower is not considered explicitly; needs to be different for nonconformal side sets
+                Matrix< DDRMat > dIGNodeCorddAdv = tGeoWeightsLeader( iLeaderNode ).get_row( iSpatialDir );
+
                 // get the geometry pdv assembly index
-                sint const tPdvAssemblyIndex = aGeoLocalAssembly( iLeaderNode, iSpatialDir );
-                if ( tPdvAssemblyIndex != -1 )
+                //                sint const tPdvAssemblyIndex = aGeoLocalAssembly( iLeaderNode, iSpatialDir );
+                //                if ( tPdvAssemblyIndex != -1 )
+                if ( norm( dIGNodeCorddAdv ) > MORIS_REAL_EPS )
                 {
                     // provide adapted perturbation and FD scheme considering ip element boundaries
                     fem::FDScheme_Type tUsedFDSchemeType = aFDSchemeType;
@@ -3738,18 +3776,12 @@ namespace moris::fem
                             ( tUsedFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                     {
                         // add unperturbed leader residual contribution to dRdp
-                        mSet->get_drdpgeo()(
-                                { tLeaderResDofAssemblyStart, tLeaderResDofAssemblyStop },
-                                { tPdvAssemblyIndex, tPdvAssemblyIndex } ) +=
-                                tFDScheme( 1 )( 0 ) * tLeaderResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                        tDrDpGeoLeader += tFDScheme( 1 )( 0 ) * tLeaderResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
                         // add unperturbed follower residual contribution to dRdp
                         if ( tFollowerResDofIndex != -1 )
                         {
-                            mSet->get_drdpgeo()(
-                                    { tFollowerResDofAssemblyStart, tFollowerResDofAssemblyStop },
-                                    { tPdvAssemblyIndex, tPdvAssemblyIndex } ) +=
-                                    tFDScheme( 1 )( 0 ) * tFollowerResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                            tDrDpGeoFollower += tFDScheme( 1 )( 0 ) * tFollowerResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
                         }
 
                         // skip first point in FD
@@ -3836,9 +3868,7 @@ namespace moris::fem
                         this->compute_residual( tWStarPert );
 
                         // evaluate dLeaderRdpGeo
-                        mSet->get_drdpgeo()(
-                                { tLeaderResDofAssemblyStart, tLeaderResDofAssemblyStop },
-                                { tPdvAssemblyIndex, tPdvAssemblyIndex } ) +=
+                        tDrDpGeoLeader +=
                                 tFDScheme( 1 )( iFDPoint ) *                                                                          //
                                 mSet->get_residual()( 0 )( { tLeaderResDofAssemblyStart, tLeaderResDofAssemblyStop }, { 0, 0 } ) /    //
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
@@ -3846,14 +3876,20 @@ namespace moris::fem
                         // evaluate dFollowerRdpGeo (not needed in the nonconformal case)
                         if ( tFollowerResDofIndex != -1 && !tIsNonconformal )
                         {
-                            mSet->get_drdpgeo()(
-                                    { tFollowerResDofAssemblyStart, tFollowerResDofAssemblyStop },
-                                    { tPdvAssemblyIndex, tPdvAssemblyIndex } ) +=
+                            tDrDpGeoFollower +=
                                     tFDScheme( 1 )( iFDPoint ) *                                                                              //
                                     mSet->get_residual()( 0 )( { tFollowerResDofAssemblyStart, tFollowerResDofAssemblyStop }, { 0, 0 } ) /    //
                                     ( tFDScheme( 2 )( 0 ) * tDeltaH );
                         }
                     }
+
+                    mSet->get_drdpgeo()(
+                            { tLeaderResDofAssemblyStart, tLeaderResDofAssemblyStop },
+                            { 0, dIGNodeCorddAdv.n_cols() - 1 } ) += tDrDpGeoLeader * dIGNodeCorddAdv;
+
+                    mSet->get_drdpgeo()(
+                            { tFollowerResDofAssemblyStart, tFollowerResDofAssemblyStop },
+                            { 0, dIGNodeCorddAdv.n_cols() - 1 } ) += tDrDpGeoFollower * dIGNodeCorddAdv;
                 }
             }
         }

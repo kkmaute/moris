@@ -672,7 +672,7 @@ namespace moris::MSI
             }
 
             // compute previous adjoint values
-            std::cout << "need fix in Equation_Object::get_equation_obj_off_diagonal_residual \n";
+            //            std::cout << "need fix in Equation_Object::get_equation_obj_off_diagonal_residual \n";
 
             this->compute_my_previous_adjoint_values();
 
@@ -829,11 +829,11 @@ namespace moris::MSI
                 // get derivative of residual with respect to design parameters
                 const Vector< Matrix< DDRMat > >& tdRdp = mEquationSet->get_drdp();
 
-                print( tdRdp( 0 ), "dRdp for IP DVs" );
+                //                print( tdRdp( 0 ), "dRdp for IP DVs" );
 
                 const Vector< sint >& tLocalIpAdvIds = mEquationSet->get_ip_adv_ids();
 
-                print( tLocalIpAdvIds, "tLocalIpAdvIds" );
+                //                print( tLocalIpAdvIds, "tLocalIpAdvIds" );
 
                 for ( uint Ik = 0; Ik < tLocalIpAdvIds.size(); Ik++ )
                 {
@@ -841,14 +841,14 @@ namespace moris::MSI
 
                     tElementalResidual( tAdvId ) = 1.0 * tdRdp( 0 ).get_column( Ik );
 
-                    print( tElementalResidual( tAdvId ), "direct: tElementalResidual for tAdv Id " + std::to_string( tAdvId ) );
+                    //                    print( tElementalResidual( tAdvId ), "direct: tElementalResidual for tAdv Id " + std::to_string( tAdvId ) );
                 }
 
-                print( tdRdp( 1 ), "dRdp for IG DVs" );
+                //                print( tdRdp( 1 ), "dRdp for IG DVs" );
 
                 const Vector< sint >& tLocalIgAdvIds = mEquationSet->get_ig_adv_ids();
 
-                print( tLocalIgAdvIds, "tLocalIgAdvIds" );
+                //                print( tLocalIgAdvIds, "tLocalIgAdvIds" );
 
                 for ( uint Ik = 0; Ik < tLocalIgAdvIds.size(); Ik++ )
                 {
@@ -856,7 +856,7 @@ namespace moris::MSI
 
                     tElementalResidual( tAdvId ) += 1.0 * tdRdp( 1 ).get_column( Ik );
 
-                    print( tElementalResidual( tAdvId ), "direct: tElementalResidual for tAdv Id " + std::to_string( tAdvId ) );
+                    //                    print( tElementalResidual( tAdvId ), "direct: tElementalResidual for tAdv Id " + std::to_string( tAdvId ) );
                 }
             }
             else
@@ -865,7 +865,7 @@ namespace moris::MSI
                 {
                     tElementalResidual( Ik ) = -1.0 * tElementalResidual( Ik );
 
-                    print( tElementalResidual( Ik ), "adjoint: tElementalResidual for IQI " + std::to_string( Ik ) );
+                    //                    print( tElementalResidual( Ik ), "adjoint: tElementalResidual for IQI " + std::to_string( Ik ) );
                 }
             }
         }
@@ -891,7 +891,7 @@ namespace moris::MSI
 
         if ( tAllSecDofTypes.size() != 0 )
         {
-            std::cout << "need fix in Equation_Object::add_staggered_contribution_to_residual \n";
+            //            std::cout << "need fix in Equation_Object::add_staggered_contribution_to_residual \n";
 
             this->compute_my_adjoint_values();
         }
@@ -1244,7 +1244,7 @@ namespace moris::MSI
     void
     Equation_Object::compute_my_adjoint_values()
     {
-        std::cout << "need fix in Equation_Object::compute_my_adjoint_values \n";
+        //        std::cout << "need fix in Equation_Object::compute_my_adjoint_values \n";
 
         Matrix< DDRMat > tTMatrix;
 
@@ -1254,7 +1254,7 @@ namespace moris::MSI
         Vector< Matrix< DDRMat > > tMyValues;
 
         // Extract this equation objects adof values from solution vector
-        std::cout << "need fix in Equation_Object::compute_my_adjoint_values - 1\n";
+        //        std::cout << "need fix in Equation_Object::compute_my_adjoint_values - 1\n";
 
         auto ptr = mEquationSet->mEquationModel->get_adjoint_solution_vector();
 
@@ -1290,7 +1290,7 @@ namespace moris::MSI
     void
     Equation_Object::compute_my_previous_adjoint_values()
     {
-        std::cout << "need fix in Equation_Object::compute_my_previous_adjoint_values \n";
+        //        std::cout << "need fix in Equation_Object::compute_my_previous_adjoint_values \n";
 
         Matrix< DDRMat > tTMatrix;
 
@@ -1300,7 +1300,7 @@ namespace moris::MSI
         Vector< Matrix< DDRMat > > tMyValues;
 
         // Extract this equation objects adof values from solution vector
-        std::cout << "need fix in Equation_Object::compute_my_previous_adjoint_values -1 \n";
+        //        std::cout << "need fix in Equation_Object::compute_my_previous_adjoint_values -1 \n";
 
         mEquationSet->mEquationModel
                 ->get_previous_adjoint_solution_vector()

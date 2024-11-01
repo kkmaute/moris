@@ -149,7 +149,7 @@ void Monolithic_Time_Solver::solve_implicit_DqDs( Vector< sol::Dist_Vector* >& a
         mSolverInterface->set_solution_vector( tSolVec( tSolVecIndex ) );
         mSolverInterface->set_solution_vector_prev_time_step( tSolVec( tPrevSolVecIndex ) );
 
-        std::cout << "need fix in Monolithic_Time_Solver::solve_implicit_DqDs \n";
+        //        std::cout << "need fix in Monolithic_Time_Solver::solve_implicit_DqDs \n";
 
         mSolverInterface->set_adjoint_solution_vector( aFullAdjointVector( 0 ) );
         mSolverInterface->set_previous_adjoint_solution_vector( aFullAdjointVector( 1 ) );

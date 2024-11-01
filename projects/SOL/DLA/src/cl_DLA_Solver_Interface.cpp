@@ -263,8 +263,8 @@ void Solver_Interface::assemble_additional_DqDs_RHS_contribution( moris::sol::Di
     // global assembly to switch entries to the right processor
     aVectorRHS->vector_global_assembly();
 
-    std::cout << "Solver_Interface::assemble_additional_DqDs_RHS_contribution\n";
-    aVectorRHS->print();
+    //    std::cout << "Solver_Interface::assemble_additional_DqDs_RHS_contribution\n";
+    //    aVectorRHS->print();
 
     this->report_end_of_assembly();
 }

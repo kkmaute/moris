@@ -230,7 +230,7 @@ void Nonlinear_Problem::build_linearized_problem(
     // of secondary dof types to residual
     if ( !mSolverInterface->is_forward_analysis() )
     {
-        std::cout << "need fix in Nonlinear_Problem::build_linearized_problem \n";
+        //        std::cout << "need fix in Nonlinear_Problem::build_linearized_problem \n";
 
         Vector< enum MSI::Dof_Type > tSecDofTypes = mMyNonLinSolver->get_sec_dof_type_union();
 

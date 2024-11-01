@@ -126,7 +126,7 @@ void Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProble
             mSensitivityPauseFunction();
 
             // For sensitivity analysis only: set current solution to LHS of linear system as residual is defined by A x - b
-            std::cout << "need fix in solver_nonlinear_system \n";
+            //            std::cout << "need fix in solver_nonlinear_system \n";
 
             mNonlinearProblem->get_linearized_problem()->set_free_solver_LHS( mNonlinearProblem->get_full_vector() );
         }

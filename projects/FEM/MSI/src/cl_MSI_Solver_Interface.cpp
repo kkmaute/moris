@@ -176,7 +176,7 @@ namespace moris::MSI
     void
     MSI_Solver_Interface::set_adjoint_solution_vector( sol::Dist_Vector* aSolutionVector )
     {
-        std::cout << "need fix in MSI_Solver_Interface::set_adjoint_solution_vector \n";
+        //        std::cout << "need fix in MSI_Solver_Interface::set_adjoint_solution_vector \n";
 
         mAdjointSolutionVector = aSolutionVector;
 
@@ -188,7 +188,7 @@ namespace moris::MSI
     void
     MSI_Solver_Interface::set_previous_adjoint_solution_vector( sol::Dist_Vector* aSolutionVector )
     {
-        std::cout << "need fix in MSI_Solver_Interface::set_previous_adjoint_solution_vector \n";
+        //        std::cout << "need fix in MSI_Solver_Interface::set_previous_adjoint_solution_vector \n";
 
         mPreviousAdjointSolutionVector = aSolutionVector;
 
@@ -262,7 +262,7 @@ namespace moris::MSI
             const fem::Time_Continuity_Flag aTimeContinuityOnlyFlag,
             const bool                      aIsAdjointOffDiagonalTimeContribution )
     {
-        std::cout << "need fix in MSI_Solver_Interface::initialize_set \n";
+        //        std::cout << "need fix in MSI_Solver_Interface::initialize_set \n";
 
         mMSI->get_equation_model()->set_is_adjoint_off_diagonal_time_contribution( aIsAdjointOffDiagonalTimeContribution );
 
@@ -301,7 +301,7 @@ namespace moris::MSI
     void
     MSI_Solver_Interface::free_block_memory( const uint aMyEquSetInd )
     {
-        std::cout << "need fix in MSI_Solver_Interface::free_block_memory \n";
+        //        std::cout << "need fix in MSI_Solver_Interface::free_block_memory \n";
 
         mMSI->get_equation_model()->set_is_adjoint_off_diagonal_time_contribution( false );
 

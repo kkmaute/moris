@@ -1030,9 +1030,9 @@ namespace moris::fem
             // Assembly for the IG pdv
             if ( tIgAdvIds.size() > 0 )
             {
-                std::string tStr = "for IG DVs: dQdp " + std::to_string( Ik );
-                print( mSet->mdQIdp( 1 )( Ik ), tStr );
-                print( tIgAdvIds, "tIgAdvIds" );
+                //                std::string tStr = "for IG DVs: dQdp " + std::to_string( Ik );
+                //                print( mSet->mdQIdp( 1 )( Ik ), tStr );
+                //                print( tIgAdvIds, "tIgAdvIds" );
 
                 // assemble explicit dQIdpGeo into multivector
                 // mEquationSet->get_equation_model()->get_explicit_dQidp()->print();
@@ -1073,7 +1073,7 @@ namespace moris::fem
 
                 Matrix< DDRMat > tLocaldQiDp = 1.0 * trans( tAdjointPdofValuesReordered ) * tdRdpgeo.get_column( Ik );
 
-                print( tLocaldQiDp, "tLocaldQiDp" );
+                //                print( tLocaldQiDp, "tLocaldQiDp" );
 
                 uint tNumADVs = tAdjointPdofValuesReordered.n_cols();
 
@@ -1243,7 +1243,7 @@ namespace moris::fem
         Vector< Matrix< DDRMat > >& tdRdp = mEquationSet->get_drdp();
 
         // extract adjoint values for this equation object
-        std::cout << "need fix in Interpolation_Element::compute_dQIdp_implicit - 1\n";
+        //        std::cout << "need fix in Interpolation_Element::compute_dQIdp_implicit - 1\n";
 
         this->compute_my_adjoint_values();
 
@@ -1273,7 +1273,7 @@ namespace moris::fem
         // loop over the RHS
         for ( uint Ik = 0; Ik < tNumRHS; Ik++ )
         {
-            std::cout << "need fix in Interpolation_Element::compute_dQIdp_implicit - 2\n";
+            //            std::cout << "need fix in Interpolation_Element::compute_dQIdp_implicit - 2\n";
 
             // set size for reordered adjoint values
             tAdjointPdofValuesReordered.set_size( tNumPdofValues, 1, 0.0 );
@@ -1303,7 +1303,7 @@ namespace moris::fem
                         tLeaderAdjointCoeff.matrix_data();
             }
 
-            std::cout << "need fix in Interpolation_Element::compute_dQIdp_implicit - 3\n";
+            //            std::cout << "need fix in Interpolation_Element::compute_dQIdp_implicit - 3\n";
 
             // loop over the follower dof types
             for ( uint Ia = 0; Ia < tNumFollowerDofTypes; Ia++ )
@@ -1330,7 +1330,7 @@ namespace moris::fem
                         tFollowerAdjointCoeff.matrix_data();
             }
 
-            std::cout << "need fix in Interpolation_Element::compute_dQIdp_implicit - 3\n";
+            //            std::cout << "need fix in Interpolation_Element::compute_dQIdp_implicit - 3\n";
 
             // Assembly for the IP pdv
             //----------------------------------------------------------------------------------------
@@ -1348,7 +1348,7 @@ namespace moris::fem
                         Ik );
             }
 
-            std::cout << "need fix in Interpolation_Element::compute_dQIdp_implicit - 4\n";
+            //            std::cout << "need fix in Interpolation_Element::compute_dQIdp_implicit - 4\n";
 
             // Assembly for the IG pdv
             //----------------------------------------------------------------------------------------

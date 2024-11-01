@@ -2072,7 +2072,7 @@ namespace moris::fem
         moris::Matrix< moris::IndexMat > tNodeIndicesOnCluster;
         aFemCluster->get_vertex_indices_in_cluster_for_sensitivity( tNodeIndicesOnCluster );
 
-        // get extraction operators for the cluster
+        // get extraction operators for the cluster; current implementation only works for conformal side sets
         mIGExtractionOperators = tDVInterface->get_ig_desgin_extraction_operators( tNodeIndicesOnCluster );
 
         mIGAdvIds = tDVInterface->build_local_adv_indices( mIGExtractionOperators );
@@ -2283,7 +2283,7 @@ namespace moris::fem
                         {
                             if ( mEquationModel->get_is_adjoint_off_diagonal_time_contribution() )
                             {
-                                std::cout << "need fix in Set::create_requested_IWG_list \n";
+                                // std::cout << "need fix in Set::create_requested_IWG_list \n";
 
                                 if ( mIWGs( iIWG )->get_IWG_type() == moris::fem::IWG_Type::TIME_CONTINUITY_DOF )
                                 {
