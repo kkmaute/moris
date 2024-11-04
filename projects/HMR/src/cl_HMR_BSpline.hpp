@@ -739,7 +739,73 @@ namespace moris::hmr
         }
 
         //------------------------------------------------------------------------------
-    };
+
+        virtual void
+        print() const override
+        {
+            std::cout << "\n--------------------------------------------------\n";
+            
+            // basic identifying information
+            std::cout << "B-spline basis function #" << mMemoryIndex << "\n";
+            std::cout << "Level: " << mLevel << "\n";
+            
+            // print the flags
+            std::cout << "Used: " << mUsedFlag << "\n";
+            std::cout << "Active: " << mActiveFlag << "\n";
+            std::cout << "Refined: " << mRefinedFlag << "\n";
+
+            // print basis IJK
+            std::cout << "IJK: [ " << mIJK[ 0 ];
+            for ( uint k = 1; k < N; ++k )
+            {
+                std::cout << ", " << mIJK[ k ];
+            }
+            std::cout << " ]\n";
+
+            // find the element ijk-range it spans
+            luint tIjkRange[ N ][ 2 ] = { { 0 } };
+            for ( uint iElem = 0; iElem < mElements.size(); ++iElem )
+            {
+                const luint* tElemIJK = mElements( iElem )->get_ijk();
+
+                for ( uint iDim = 0; iDim < N; ++iDim )
+                {
+                    const luint tPos = tElemIJK[ iDim ];
+
+                    if ( iElem == 0 )
+                    {
+                        tIjkRange[ iDim ][ 0 ] = tPos;
+                        tIjkRange[ iDim ][ 1 ] = tPos;
+                    }
+                    else
+                    {
+                        if ( tPos < tIjkRange[ iDim ][ 0 ] )
+                        {
+                            tIjkRange[ iDim ][ 0 ] = tPos;
+                        }
+                        if ( tPos > tIjkRange[ iDim ][ 1 ] )
+                        {
+                            tIjkRange[ iDim ][ 1 ] = tPos;
+                        }
+                    }
+                }    
+            }
+
+            // print the element ijk-range it spans
+            std::cout << "Spans element ijk range: [ " << tIjkRange[ 0 ][ 0 ] << " - " << tIjkRange[ 0 ][ 1 ];
+            for ( uint k = 1; k < N; ++k )
+            {
+                std::cout << ", " << tIjkRange[ k ][ 0 ] << " - " << tIjkRange[ k ][ 1 ];
+            }
+            std::cout << " ]\n";
+
+            std::cout << "--------------------------------------------------\n" << std::endl;
+        }
+
+        //------------------------------------------------------------------------------
+
+    }; // class hmr::BSpline
+
     //------------------------------------------------------------------------------
 
 }    // namespace moris::hmr

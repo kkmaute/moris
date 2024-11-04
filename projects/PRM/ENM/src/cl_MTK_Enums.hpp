@@ -275,11 +275,16 @@ namespace moris::mtk
 
     enum class Field_Type
     {
+        FIELD_0,
         FIELD_1,
         FIELD_2,
         FIELD_3,
         FIELD_4,
         FIELD_5,
+        FIELD_6,
+        FIELD_7,
+        FIELD_8,
+        FIELD_9,
         UNDEFINED
     };
 

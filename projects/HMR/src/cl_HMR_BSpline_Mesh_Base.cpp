@@ -11,8 +11,10 @@
 #include "cl_HMR_BSpline_Mesh_Base.hpp"    //HMR/src
 
 #include <fstream>
+#include <string>
 
 #include "HMR_Tools.hpp"       //HMR/src
+#include "cl_HMR_Basis.hpp"
 #include "cl_Stopwatch.hpp"    //CHR/src
 #include "cl_Matrix.hpp"       //LINALG/src
 #include "fn_unique.hpp"       //LINALG/src
@@ -312,7 +314,7 @@ namespace moris::hmr
 
         for ( Background_Element_Base* tBackElement : tBackgroundElements )
         {
-            if ( !tBackElement->is_neither_active_nor_refined( mActivationPattern ) )
+            if ( !tBackElement->is_neither_active_nor_refined( mActivationPattern ) ) // is active or refined
             {
                 tElementCount++;
             }
@@ -343,7 +345,7 @@ namespace moris::hmr
         // initialize list of all basis functions on the current refinement level
         Vector< Basis* > tBFsOnThisLevel;
 
-        // collect basis from given level
+        // collect all active/used (?) basis functions from given level
         this->preprocess_bases_from_level(
                 tElementsOnThisLevel,
                 tBFsOnThisLevel );
