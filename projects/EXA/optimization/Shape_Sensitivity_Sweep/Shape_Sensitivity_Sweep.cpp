@@ -428,7 +428,7 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    OPTParameterLists( Module_Parameter_Lists &aParameterLists )
+    OPTParameterList( Module_Parameter_Lists &aParameterLists )
     {
         aParameterLists.set( "is_optimization_problem", true );
         aParameterLists.set( "problem", "user_defined" );

@@ -169,8 +169,9 @@ namespace moris::gen
         // Determine the local coordinate of the intersection and the facet that intersects the parent edge
         std::pair< uint, real > tIntersection = this->compute_intersection_local_coordinate( aBackgroundNodes, aFirstParentNode, aSecondParentNode );
 
-        if ( tIntersection.second > 1.0 or std::isnan( tIntersection.second ) )
+        if ( tIntersection.second > 1.0 or std::isnan( tIntersection.second ) ) // BRENDAN: debug information prints
         {
+            this->write_to_file( "failed.obj" );
             std::cout << "First parent node index :" << aFirstParentNode.get_index() << std::endl;
             PRINT( aFirstParentNode.get_global_coordinates() );
             std::cout << "Second parent node index :" << aSecondParentNode.get_index() << std::endl;
