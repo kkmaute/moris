@@ -1,0 +1,31 @@
+Global Clock Initialized ... 
+Memory usage in MB: total 71 | max 71 | min 71 || current 71 | max 71 | min 71
+
+            .___  ___.   ______   .______       __       _______.
+            |   \/   |  /  __  \  |   _  \     |  |     /       |
+            |  \  /  | |  |  |  | |  |_)  |    |  |    |   (----`
+            |  |\/|  | |  |  |  | |      /     |  |     \   \
+            |  |  |  | |  `--'  | |  |\  \----.|  | .----)   |
+            |__|  |__|  \______/  | _| `._____||__| |_______/
+
+                   2023 University of Colorado Boulder
+                        Aerospace Mechanics Research Center
+
+
+     DEBUG flags are OFF.
+
+     User/Host    : wunsch at mirage.colorado.edu ( linux / x86_64 )
+     CPU Info     : AMD Ryzen 9 5950X 16-Core Processor 
+     Procs Used   : 8
+
+     Build Date   : Sep  5 2024 at 11:47:38
+     Date of Run  : Wed Sep 25 15:01:54 2024
+ 
+     Matrix Lib   : Armadillo
+
+     Executable   : /home/wunsch/codes/moris/build_opt/projects/mains/moris
+     Arguments    : brick_wall.so
+     Run Dir      : /home/wunsch/work/XTK_Paper/brick_wall/run_new_2/G_true/R_0.001/run
+
+     GIT branch   : refs/heads/main
+     GIT revision : dc5405c9d4e0fdce4b441bcfabf7a4b537679639
