@@ -13,12 +13,13 @@
 #include "cl_Matrix.hpp"
 #include "cl_Vector.hpp"
 
+#ifdef MORIS_HAVE_ARBORX
 #include <ArborX.hpp>
 #include <ArborX_Box.hpp>
+
 #include <Kokkos_Macros.hpp>
 #include <Kokkos_View.hpp>
 #include <decl/Kokkos_Declare_SERIAL.hpp>
-
 namespace moris::mtk::arborx
 {
     template< typename MemorySpace >
@@ -36,11 +37,17 @@ namespace moris::mtk::arborx
 
 namespace moris::mtk
 {
-
-    typedef Vector< std::pair< uint, real > > Intersection_Vector;
-
     using ExecutionSpace = Kokkos::DefaultExecutionSpace;
     using MemorySpace    = ExecutionSpace::memory_space;
+}    // namespace moris::mtk
+
+
+#endif
+
+namespace moris::mtk
+{
+
+    typedef Vector< std::pair< uint, real > > Intersection_Vector;
 
     /**
      * @brief This class is used to extract a surface mesh from a given mesh.
@@ -243,12 +250,6 @@ namespace moris::mtk
          */
         void initialize_facet_normals();
 
-        /**
-         * @brief Constructs the ArborX bounding volume hierarchy for the surface mesh and stores it in mBVH
-         *
-         */
-        void construct_bvh();
-
         //-------------------------------------------------------------------------------
         // Private methods useful for raycasting
         // -------------------------------------------------------------------------------
@@ -296,6 +297,30 @@ namespace moris::mtk
                 uint                    aFacet,
                 const Matrix< DDRMat >& aPoint,
                 const Matrix< DDRMat >& aDirection ) const;
+
+        /**
+         * @brief Takes candidate facets and attempts to compute the intersection locations for the given ray.
+         *
+         * @param aPoint Origin point of the ray
+         * @param aDirection Direction of the ray
+         * @param aCandidateFacets Indices of facets that the ray could hit.
+         * @return Intersection locations and associated facet indices for every ray-facet intersection. Max size of aCandidateFacets.
+         */
+        Intersection_Vector determine_valid_intersections_from_candidates(
+                const Matrix< DDRMat >& aPoint,
+                const Matrix< DDRMat >& aDirection,
+                const Vector< uint >&   aCandidateFacets ) const;
+
+        /**
+         * @brief Removes duplicate intersections and sorts them by distance from the origin point
+         *
+         * @param aIntersections Intersection distances
+         * @param aIntersectionFacetIndices Index of the facet that the ray hit.
+         * @return Intersection_Vector Index, distance pairs sorted by distance
+         */
+        Intersection_Vector postprocess_raycast_results( Intersection_Vector& aIntersections ) const;
+
+#ifdef MORIS_HAVE_ARBORX
 
         /**
          * Constructs the ArborX rays for the given points and directions
@@ -366,27 +391,14 @@ namespace moris::mtk
                 Matrix< DDRMat >& aOrigins,
                 Matrix< DDRMat >& aDirections ) const;
 
+      protected:
         /**
-         * @brief Takes candidate facets and attempts to compute the intersection locations for the given ray.
+         * @brief Constructs the ArborX bounding volume hierarchy for the surface mesh and stores it in mBVH
          *
-         * @param aPoint Origin point of the ray
-         * @param aDirection Direction of the ray
-         * @param aCandidateFacets Indices of facets that the ray could hit.
-         * @return Intersection locations and associated facet indices for every ray-facet intersection. Max size of aCandidateFacets.
          */
-        Intersection_Vector determine_valid_intersections_from_candidates(
-                const Matrix< DDRMat >& aPoint,
-                const Matrix< DDRMat >& aDirection,
-                const Vector< uint >&   aCandidateFacets ) const;
+        void construct_bvh();
 
-        /**
-         * @brief Removes duplicate intersections and sorts them by distance from the origin point
-         *
-         * @param aIntersections Intersection distances
-         * @param aIntersectionFacetIndices Index of the facet that the ray hit.
-         * @return Intersection_Vector Index, distance pairs sorted by distance
-         */
-        Intersection_Vector postprocess_raycast_results( Intersection_Vector& aIntersections ) const;
+#endif
 
         // -------------------------------------------------------------------------------
         // Member data
@@ -419,11 +431,13 @@ namespace moris::mtk
         Matrix< DDRMat > mFacetNormals = Matrix< DDRMat >( 0, 0 );
 
       protected:    // variables
+#ifdef MORIS_HAVE_ARBORX
         /**
          * @brief ArborX Bounding volume hierarchy. Used to preselect which facets to check for intersection with a ray.
          *
          */
         ArborX::BVH< MemorySpace > mBVH;
+#endif
 
         real mIntersectionTolerance = 1e-8;    // tolerance for interfaces when raycasting with this surface mesh
     };

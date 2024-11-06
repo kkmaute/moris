@@ -245,6 +245,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+#ifdef MORIS_HAVE_ARBOX
     void Surface_Mesh_Geometry::flood_fill_mesh_regions()
     {
         Tracer tTracer( "GEN", "Surface_Mesh_Geometry", "Flood fill mesh nodes" );
@@ -366,6 +367,8 @@ namespace moris::gen
         }
     }
 
+#endif
+
     //--------------------------------------------------------------------------------------------------------------
 
     void Surface_Mesh_Geometry::raycast_remaining_unknown_nodes()
@@ -465,7 +468,7 @@ namespace moris::gen
                                 iVertexIndex );
 
                         // build the matrix for new coordinates
-                        tOwnedVertexDisplacements( tDims, iVertexIndex )       = 1.0;    // says that this vertex is owned by this proc
+                        tOwnedVertexDisplacements( tDims, iVertexIndex )       = 1.0;    // says that this vertex is owned bwwy this proc
                         tOwnedVertexDisplacements( iFieldIndex, iVertexIndex ) = tFactor( iFieldIndex ) * tInterpolatedPerturbation;
                     }
                 }
@@ -532,13 +535,15 @@ namespace moris::gen
 
         // Update the facet's information based on the new vertex coordinates
         Surface_Mesh::initialize_facet_normals();
-        Surface_Mesh::construct_bvh();
 
         // write the new surface mesh
         Surface_Mesh::write_to_file( mName + "_" + std::to_string( mIteration++ ) + ".obj" );
 
         // Determine new region information for the nodes
+#ifdef MORIS_HAVE_ARBORX
+        Surface_Mesh::construct_bvh();
         // this->flood_fill_mesh_regions();
+#endif
         this->raycast_remaining_unknown_nodes();
     }
 

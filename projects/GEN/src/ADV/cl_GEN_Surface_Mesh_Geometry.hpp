@@ -57,7 +57,8 @@ namespace moris::gen
     };
 
     // ----------------------------------------------------------------------------------------------------------------
-
+    // Additional functionality to use the flood fill and raycasting functions if ArborX is installed
+#ifdef MORIS_HAVE_ARBORX
     struct ElementQueryResult
     {
         moris_index mElementIndex;
@@ -106,6 +107,8 @@ namespace moris::gen
         QueryElements< MemorySpace > mQueryPoints;
     };
 
+#endif
+
     // ----------------------------------------------------------------------------------------------------------------
 
     class Surface_Mesh_Geometry : public Geometry
@@ -132,10 +135,6 @@ namespace moris::gen
         // Forward analysis variables
         const mtk::Mesh*                             mMesh = nullptr;
         std::unordered_map< uint, mtk::Mesh_Region > mNodeMeshRegions;    // contains information about the nodes in the interpolation mesh from a flood fill. The nodes that are undefined will be raycast to determine their region.
-
-        Matrix< DDRMat >                             tTEMPOrigins;
-        Vector< Matrix< DDRMat > >                   tTEMPDirections;
-        Vector< Vector< mtk::Intersection_Vector > > tSinglyCast;
 
       public:
         /**
@@ -441,49 +440,10 @@ namespace moris::gen
 
       private:
         /**
-         * @brief Performs a flood fill of the mesh nodes for geometric region. Casts as many rays as subphases are found in the flood fill
-         *
-         * @param mMesh Interpolation mesh whose nodes will be flood filled. The result will be stored in mNodeMeshRegions
-         */
-        void flood_fill_mesh_regions();
-
-        /**
          * @brief Batch raycasts all nodes in mMesh whose index is not already stored in mNodeMeshRegions
          *
          */
         void raycast_remaining_unknown_nodes();
-
-        /**
-         *  @brief constructs a query point struct for ArborX queries
-         *
-         * @tparam MemorySpace
-         * @tparam ExecutionSpace
-         * @param iExecution Trivial in this case, but necessary for the ArborX API
-         * @param aPoints all the points that to check. size = nDims x nPoints
-         * @return QueryPoints< MemorySpace > struct for ArborX query
-         */
-        template< typename MemorySpace, typename ExecutionSpace >
-        QueryElements< MemorySpace > construct_query_elements( ExecutionSpace const & aExecutionSpace )
-        {
-            uint const                                tNumElems = mMesh->get_num_elems();
-            Kokkos::View< ArborX::Box*, MemorySpace > tElements( Kokkos::view_alloc( aExecutionSpace, Kokkos::WithoutInitializing, "view:elements" ), tNumElems );
-
-            for ( size_t iElement = 0; iElement < tNumElems; iElement++ )
-            {
-                // Initialize arborx box
-                ArborX::Box tBox;
-
-                // Get the coordinates of the element
-                Matrix< IndexMat > tNodeIndices = mMesh->get_nodes_connected_to_element_loc_inds( iElement );
-                for ( size_t iNode = 0; iNode < tNodeIndices.length(); ++iNode )
-                {
-                    tBox += mtk::arborx::coordinate_to_arborx_point< ArborX::Point >( mMesh->get_node_coordinate( tNodeIndices( iNode ) ) );
-                }
-                tElements( iElement ) = tBox;
-            }
-
-            return QueryElements< MemorySpace >{ tElements };
-        }
 
         /**
          * Finds the background elemenent in aField that contains aCoordinates
@@ -533,9 +493,51 @@ namespace moris::gen
                 const mtk::Cell* aBackgroundElement,
                 uint             aFieldIndex,
                 uint             aFacetVertexIndex );
+
+#ifdef MORIS_HAVE_ARBORX
+        /**
+         * @brief Performs a flood fill of the mesh nodes for geometric region. Casts as many rays as subphases are found in the flood fill
+         *
+         * @param mMesh Interpolation mesh whose nodes will be flood filled. The result will be stored in mNodeMeshRegions
+         */
+        void flood_fill_mesh_regions();
+
+        /**
+         * @brief constructs a query point struct for ArborX queries
+         *
+         * @tparam MemorySpace
+         * @tparam ExecutionSpace
+         * @param iExecution Trivial in this case, but necessary for the ArborX API
+         * @param aPoints all the points that to check. size = nDims x nPoints
+         * @return QueryPoints< MemorySpace > struct for ArborX query
+         */
+        template< typename MemorySpace, typename ExecutionSpace >
+        QueryElements< MemorySpace > construct_query_elements( ExecutionSpace const & aExecutionSpace )
+        {
+            uint const                                tNumElems = mMesh->get_num_elems();
+            Kokkos::View< ArborX::Box*, MemorySpace > tElements( Kokkos::view_alloc( aExecutionSpace, Kokkos::WithoutInitializing, "view:elements" ), tNumElems );
+
+            for ( size_t iElement = 0; iElement < tNumElems; iElement++ )
+            {
+                // Initialize arborx box
+                ArborX::Box tBox;
+
+                // Get the coordinates of the element
+                Matrix< IndexMat > tNodeIndices = mMesh->get_nodes_connected_to_element_loc_inds( iElement );
+                for ( size_t iNode = 0; iNode < tNodeIndices.length(); ++iNode )
+                {
+                    tBox += mtk::arborx::coordinate_to_arborx_point< ArborX::Point >( mMesh->get_node_coordinate( tNodeIndices( iNode ) ) );
+                }
+                tElements( iElement ) = tBox;
+            }
+
+            return QueryElements< MemorySpace >{ tElements };
+        }
+#endif
     };
 }    // namespace moris::gen
 
+#ifdef MORIS_HAVE_ARBORX
 namespace ArborX
 {
     using moris::gen::QueryElements;
@@ -558,3 +560,4 @@ namespace ArborX
         }
     };
 }    // namespace ArborX
+#endif
