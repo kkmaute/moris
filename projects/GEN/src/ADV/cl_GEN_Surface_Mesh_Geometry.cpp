@@ -531,13 +531,10 @@ namespace moris::gen
             }
         }
 
-        this->write_to_file( mName + "_" + std::to_string( mIteration++ ) + ".obj" );
+        this->write_to_file( mName + "_opt_iter" + std::to_string( gLogger.get_opt_iteration() ) + ".obj" );
 
         // Update the facet's information based on the new vertex coordinates
         Surface_Mesh::initialize_facet_normals();
-
-        // write the new surface mesh
-        Surface_Mesh::write_to_file( mName + "_" + std::to_string( mIteration++ ) + ".obj" );
 
         // Determine new region information for the nodes
 #ifdef MORIS_HAVE_ARBORX

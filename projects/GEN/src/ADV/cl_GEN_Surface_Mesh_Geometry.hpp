@@ -115,7 +115,6 @@ namespace moris::gen
             , public mtk::Surface_Mesh
     {
       private:
-        uint mIteration     = 0;
         bool mBasesComputed = false;
 
         Surface_Mesh_Parameters mParameters;
