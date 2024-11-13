@@ -23,7 +23,7 @@
 #include "cl_DLA_Linear_Solver_PETSc.hpp"
 #ifdef MORIS_HAVE_SLEPC
 #include "cl_DLA_Eigen_Solver_SLEPc.hpp"
-#endif  
+#endif
 #endif
 
 #include "cl_DLA_Linear_Solver_Algorithm.hpp"
@@ -56,7 +56,12 @@ Solver_Factory::create_preconditioner( const Parameter_List& aParameterList )
         case ( sol::PreconditionerType::ML ):
             return new Preconditioner_Trilinos( aParameterList );
         case ( sol::PreconditionerType::PETSC ):
+#ifdef MORIS_HAVE_PETSC
             return new Preconditioner_PETSc( aParameterList );
+#else
+            MORIS_ERROR( false, "MORIS is configured with out PETSC support." );
+            return nullptr;
+#endif
         default:
             MORIS_ERROR( false, "No solver type specified" );
             return nullptr;
@@ -100,7 +105,7 @@ Solver_Factory::create_solver(
             break;
         case ( sol::SolverType::SLEPC_SOLVER ):
 #ifdef MORIS_HAVE_SLEPC
-            tLinSol = std::make_shared< Eigen_Solver_SLEPc >(aParameterlist);
+            tLinSol = std::make_shared< Eigen_Solver_SLEPc >( aParameterlist );
 #else
             MORIS_ERROR( false, "MORIS is configured with out SLEPc support." );
 #endif
