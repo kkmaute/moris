@@ -47,6 +47,7 @@ namespace moris::gen
         std::string    mAnalyticADVFunctionName;               // Name of the user-defined function that determines how surface mesh vertices are affected by ADVs. Mutually exclusive with mDiscretizationFactorFunctionName
         std::string    mAnalyticADVSensitivityFunctionName;    // Name of the user-defined function that determines vertex/adv sensitivity. Mutually exclusive with mDiscretizationFactorFunctionName
         std::string    mAnalyticADVIDFunctionName;             // Name of the user-defined function that determines which ADVs a vertex depends on. Mutually exclusive with mDiscretizationFactorFunctionName
+        std::string    mOutputFileName;                        // Name of the output file for the surface mesh
 
         /**
          * Constructor with a given parameter list

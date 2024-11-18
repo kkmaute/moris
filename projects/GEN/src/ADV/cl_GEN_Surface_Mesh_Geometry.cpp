@@ -48,6 +48,7 @@ namespace moris::gen
             , mDiscretizationFactorFunctionName( aParameterList.get< std::string >( "discretization_factor_function_name" ) )
             , mAnalyticADVFunctionName( aParameterList.get< std::string >( "field_function_name" ) )
             , mAnalyticADVSensitivityFunctionName( aParameterList.get< std::string >( "sensitivity_function_name" ) )
+            , mOutputFileName( aParameterList.get< std::string >( "output_file_name" ) )
     {
         MORIS_ASSERT( (uint)( mDiscretizationIndex < -1 + not mAnalyticADVFunctionName.empty() ) < 2, "Both a discretization index and an analytical function are provided. Pick only one or neither!" );
     }
@@ -531,7 +532,22 @@ namespace moris::gen
             }
         }
 
-        this->write_to_file( mName + "_opt_iter" + std::to_string( gLogger.get_opt_iteration() ) + ".obj" );
+        // Output the updated surface mesh to a file if needed
+        if ( not mParameters.mOutputFileName.empty() )
+        {
+            // Initialize file extension as an obj file as default
+            std::string tFileExt = ".obj";
+
+            // check if there is a file extension provided
+            if ( mParameters.mOutputFileName.find_last_of( "." ) != std::string::npos )
+            {
+                // if so, get the file extension
+                tFileExt = mParameters.mOutputFileName.substr( mParameters.mOutputFileName.find_last_of( "." ), mParameters.mOutputFileName.length() );
+            }
+
+            // write the updated surface mesh to a file
+            this->write_to_file( mParameters.mOutputFileName + "_proc_" + std::to_string( par_rank() ) + "_iter_" + std::to_string( gLogger.get_opt_iteration() ) + tFileExt );
+        }
 
         // Update the facet's information based on the new vertex coordinates
         Surface_Mesh::initialize_facet_normals();
@@ -775,6 +791,10 @@ namespace moris::gen
         else if ( get_vertex_adv_dependency_user_defined != nullptr )
         {
             get_dvertex_dadv_user_defined( this->get_original_vertex_coordinates( aFacetVertexIndex ), mADVHandler.get_values(), tVertexSensitivity );
+
+            // Check that the user gave the correct size matrix
+            MORIS_ASSERT( tVertexSensitivity.n_cols() == mADVHandler.get_determining_adv_ids().size(), "User defined function for vertex sensitivity needs to have as many columns as ADVs" );
+            MORIS_ASSERT( tVertexSensitivity.n_rows() == Surface_Mesh::get_spatial_dimension(), "User defined function for vertex sensitivity needs to have as many rows as spatial dimensions" );
         }
 
         return tVertexSensitivity;
