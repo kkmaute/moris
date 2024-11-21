@@ -216,10 +216,16 @@ namespace moris
                 {
                     auto &tGroupBox = dynamic_cast< Moris_Group_Box & >( *mWidget[ i ] );
                     tGroupBox.set_property_list( mPropertyNameList );
+                    mIsPropertyListSet = true;
                     break;
                 }
             }
         }
+    }
+
+    bool Moris_Tree_Widget_Item::isPropertyListSet()
+    {
+        return mIsPropertyListSet;
     }
 
     void Moris_Tree_Widget_Item::add_elements( Parameter_List &aParameters )

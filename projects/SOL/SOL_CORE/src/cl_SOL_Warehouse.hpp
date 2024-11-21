@@ -23,7 +23,7 @@
 #include "cl_NLA_Nonlinear_Solver_Enums.hpp"    //CNT/src
 #include "cl_TSA_Time_Solver_Enums.hpp"         //CNT/src
 
-#include "cl_Submodule_Parameter_Lists.hpp"
+#include "cl_Module_Parameter_Lists.hpp"
 
 namespace moris
 {
@@ -89,7 +89,7 @@ namespace moris
 
             //! Parameterlist for (0) Linear Algorithm (1) Linear Solver (2) nonlinear Algorithm (3)
             //! Nonlinear Solver (4) TimeSolver Algorithm (5) Time Solver (6) Warehouse
-            Vector< Submodule_Parameter_Lists > mParameterlist;
+            Module_Parameter_Lists mParameterlist;
 
             // pointer to dynamically linked library
             std::shared_ptr< Library_IO > mLibrary = nullptr;
@@ -183,14 +183,23 @@ namespace moris
              * @param[in] aSolverInterface Pointer to the solver interface
              */
             SOL_Warehouse( moris::Solver_Interface* aSolverInterface )
-                    : mSolverInterface( aSolverInterface ) {};
+                    : mSolverInterface( aSolverInterface )
+                    , mParameterlist( Module_Type::SOL )
+            {
+            };
 
             SOL_Warehouse( moris::Solver_Interface* aSolverInterface,
                     std::shared_ptr< Library_IO >   aLibrary )
                     : mSolverInterface( aSolverInterface )
-                    , mLibrary( std::move( aLibrary ) ) {};
+                    , mParameterlist( Module_Type::SOL )
+                    , mLibrary( std::move( aLibrary ) )
+            {
+            };
 
-            SOL_Warehouse() {};
+            SOL_Warehouse()
+                    : mParameterlist( Module_Type::SOL )
+            {
+            }
 
             //--------------------------------------------------------------------------------------------------------
 
@@ -202,7 +211,7 @@ namespace moris
             //--------------------------------------------------------------------------------------------------------
 
             void
-            set_parameterlist( const Vector< Submodule_Parameter_Lists >& aParameterlist )
+            set_parameterlist( const Module_Parameter_Lists& aParameterlist )
             {
                 mParameterlist = aParameterlist;
             };

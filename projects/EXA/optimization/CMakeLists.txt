@@ -5,6 +5,7 @@
 #------------------------------------------------------------------------------------
 #
 
+add_subdirectory(Property_Sensitivity_Sweep)
 add_subdirectory(Shape_Sensitivity_Sweep)
 add_subdirectory(Shape_Sensitivity_Bspline)
 add_subdirectory(Shape_Sensitivity_Circle_Sweep_Transient)

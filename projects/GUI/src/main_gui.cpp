@@ -21,6 +21,8 @@ namespace moris
     Moris_Gui::Moris_Gui( QWidget *parent )
             : QWidget( parent )
     {
+        this->setWindowTitle( "MORIS GUI" );
+        this->resize( 800, 600 );
         // gMorisGui         = this;
         QString tFilePath = get_moris_file_path();
 
@@ -156,6 +158,28 @@ namespace moris
                         }
                     }
                     mTreeWidgetChildren[ iRoot ][ iChildren ]->setComboBoxItems( tGENGeometriesList );
+                    mTreeWidgetChildren[ iRoot ][ iChildren ]->set_form_visible( false );
+
+                    if ( mLibrary.get_parameter_lists()( iRoot )( iChildren ).size() > 1 )
+                    {
+                        for ( uint i = 0; i < mLibrary.get_parameter_lists()( iRoot )( iChildren ).size(); i++ )
+                        {
+                            add_project( iRoot, iChildren, i );
+                        }
+                    }
+                }
+                else if ( iRoot == (uint)( Parameter_List_Type::GEN ) && iChildren == (uint)( GEN_SubModule::PROPERTIES ) )
+                {
+                    // Adding the GEN/Field to its combo box
+                    mTreeWidgetChildren[ iRoot ][ iChildren ]->setSubFormCheck( true );
+                    // Hold
+                    mTreeWidgetChildren[ iRoot ][ iChildren ]->setSpecialFormStatus( true );
+                    QStringList tGENFieldList;
+                    for ( uint iField = 0; iField < (uint)gen::Field_Type_String::values.size(); iField++ )
+                    {
+                        tGENFieldList.append( QString::fromStdString( gen::Field_Type_String::values( iField ) ) );
+                    }
+                    mTreeWidgetChildren[ iRoot ][ iChildren ]->setComboBoxItems( tGENFieldList );
                     mTreeWidgetChildren[ iRoot ][ iChildren ]->set_form_visible( false );
 
                     if ( mLibrary.get_parameter_lists()( iRoot )( iChildren ).size() > 1 )
@@ -536,8 +560,12 @@ namespace moris
                 {
                     for ( uint i = 0; i < mTreeWidgetSubChildren[ (uint)Parameter_List_Type::FEM ][ (uint)FEM_SubModule::CONSTITUTIVE_MODELS ].size(); i++ )
                     {
-                        // pass the updated property name list to the Moris_Tree_Widget_Item by reference
+                        if (!mTreeWidgetSubChildren[ (uint)Parameter_List_Type::FEM ][ (uint)FEM_SubModule::CONSTITUTIVE_MODELS ][ i ]->isPropertyListSet())
+                        {
                         mTreeWidgetSubChildren[ (uint)Parameter_List_Type::FEM ][ (uint)FEM_SubModule::CONSTITUTIVE_MODELS ][ i ]->setPropertyNameList( mPropertyNameList );
+
+                        }
+                        // pass the updated property name list to the Moris_Tree_Widget_Item by reference
                     }
                 }
             }

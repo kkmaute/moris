@@ -10,7 +10,18 @@
 
 #pragma once
 
-#include "cl_Submodule_Parameter_Lists.hpp"
+#include "cl_Parameter_List.hpp"
+
+namespace moris::opt
+{
+    enum class Optimization_Algorithm_Type
+    {
+        GCMMA,
+        LBFGS,
+        SQP,
+        SWEEP
+    };
+}
 
 namespace moris::prm
 {
@@ -215,6 +226,30 @@ namespace moris::prm
         tParameterList.insert( "hdf5_path", "" );                          // Path and file name for saving if "save" is set to true
 
         return tParameterList;
+    }
+
+    /**
+     * Creates an optimization algorithm parameter list depending on the optimziation algorithm type given.
+     *
+     * @param aOptimizationAlgorithmType Type of optimization algorithm supported
+     * @return Parameter list
+     */
+    inline Parameter_List create_optimization_algorithm_parameter_list( opt::Optimization_Algorithm_Type aOptimizationAlgorithmType )
+    {
+        switch ( aOptimizationAlgorithmType )
+        {
+            case opt::Optimization_Algorithm_Type::GCMMA:
+                return create_gcmma_parameter_list();
+            case opt::Optimization_Algorithm_Type::LBFGS:
+                return create_lbfgs_parameter_list();
+            case opt::Optimization_Algorithm_Type::SQP:
+                return create_sqp_parameter_list();
+            case opt::Optimization_Algorithm_Type::SWEEP:
+                return create_sweep_parameter_list();
+            default:
+                MORIS_ERROR( false, "Unknown optimization algorithm type provided." );
+                return Parameter_List( "Error" );
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------

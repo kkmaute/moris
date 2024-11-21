@@ -10,7 +10,6 @@
 
 #include "cl_WRK_Performer_Manager.hpp"
 #include "cl_WRK_Workflow_STK_FEM.hpp"
-#include "cl_Submodule_Parameter_Lists.hpp"
 
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
@@ -52,7 +51,7 @@ namespace moris::wrk
         mPerformerManager->mMDLPerformer.resize( 1 );
 
         // load the STK parameter list
-        ModuleParameterList tSTKParameterList = aPerformerManager->mLibrary->get_parameters_for_module( Parameter_List_Type::STK );
+        Module_Parameter_Lists tSTKParameterList = aPerformerManager->mLibrary->get_parameters_for_module( Module_Type::STK );
 
         // load the meshes
         mPerformerManager->mMTKPerformer( 0 ) = std::make_shared< mtk::Mesh_Manager >();
@@ -116,7 +115,7 @@ namespace moris::wrk
     }
 
     void
-    Workflow_STK_FEM::create_stk( Vector< Submodule_Parameter_Lists >& aParameterLists )
+    Workflow_STK_FEM::create_stk( Module_Parameter_Lists& aParameterLists )
     {
         Tracer            tTracer( "STK", "Mesh", "InitializeMesh" );
         std::string       tMeshFile     = aParameterLists( 0 )( 0 ).get< std::string >( "input_file" );

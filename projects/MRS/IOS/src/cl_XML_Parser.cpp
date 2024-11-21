@@ -177,8 +177,12 @@ namespace moris
                         {
                             if ( w.second.empty() )
                             {
-                                aFirst.push_back( w.first.data() );
+                                // replace all $ in aFirst with whitespace
+                                std::string tFirst = w.first.data();
+                                std::replace( tFirst.begin(), tFirst.end(), '$', ' ' );
+                                aFirst.push_back( tFirst );
                                 aSecond.push_back( w.second.data() );
+                                
                             }
                         }
                     }

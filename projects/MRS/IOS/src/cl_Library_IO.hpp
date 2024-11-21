@@ -19,21 +19,9 @@
 #include "assert.hpp"
 
 #include "cl_Library_Enums.hpp"
-#include "cl_Submodule_Parameter_Lists.hpp"
 #include "cl_Vector.hpp"
 
-#include "fn_PRM_FEM_Parameters.hpp"
-#include "fn_PRM_MSI_Parameters.hpp"
-#include "fn_PRM_SOL_Parameters.hpp"
-#include "fn_PRM_VIS_Parameters.hpp"
-#include "fn_PRM_HMR_Parameters.hpp"
-#include "fn_PRM_GEN_Parameters.hpp"
-#include "fn_PRM_XTK_Parameters.hpp"
-#include "fn_PRM_OPT_Parameters.hpp"
-#include "fn_PRM_MIG_Parameters.hpp"
-#include "fn_PRM_STK_Parameters.hpp"
-#include "fn_PRM_WRK_Parameters.hpp"
-#include "fn_PRM_MORIS_GENERAL_Parameters.hpp"
+#include "parameters.hpp"
 
 
 namespace moris
@@ -43,11 +31,8 @@ namespace moris
     // Forward declare the XML-parser
     class XML_Parser;
 
-    // Define what a module parameter list is
-    typedef Vector< Submodule_Parameter_Lists > ModuleParameterList;
-
     // Define what a parameter function is
-    typedef void ( *Parameter_Function )( ModuleParameterList& aParameterList );
+    typedef void ( *Parameter_Function )( Module_Parameter_Lists& aParameterList );
 
     // -----------------------------------------------------------------------------
 
@@ -74,17 +59,14 @@ namespace moris
         // flag indicating whether the library is complete and initialized
         bool mLibraryIsFinalized;
 
-        // Library type
-        Library_Type mLibraryType;
-
         // storage for the parameters for the various Modules
-        Vector< ModuleParameterList > mParameterLists;
+        Vector< Module_Parameter_Lists > mParameterLists;
 
         // XML parser for output
         std::unique_ptr< XML_Parser > mXmlWriter;
 
         // list of parameter lists supported by the particular workflow
-        std::set< Parameter_List_Type > mSupportedParamListTypes;
+        std::set< Module_Type > mSupportedParamListTypes;
 
         // -----------------------------------------------------------------------------
 
@@ -122,8 +104,8 @@ namespace moris
          */
         void
         overwrite_and_add_parameters(
-                ModuleParameterList& aParamListToModify,
-                ModuleParameterList& aParamsToAdd );
+                Module_Parameter_Lists& aParamListToModify,
+                Module_Parameter_Lists& aParamsToAdd );
 
       public:
         // -----------------------------------------------------------------------------
@@ -153,7 +135,7 @@ namespace moris
 
         // -----------------------------------------------------------------------------
 
-        Vector< Vector < Submodule_Parameter_Lists > >&
+        Vector< Module_Parameter_Lists >&
         get_parameter_lists()
         {
             return mParameterLists;
@@ -217,7 +199,7 @@ namespace moris
         // -----------------------------------------------------------------------------
 
         void
-        write_module_parameter_list_to_xml_tree( const Parameter_List_Type aModule );
+        write_module_parameter_list_to_xml_tree( const Module_Type aModule );
 
         // -----------------------------------------------------------------------------
 
@@ -228,7 +210,7 @@ namespace moris
 
         std::string
         get_sub_parameter_list_location_in_xml_tree(
-                const Parameter_List_Type aModule,
+                const Module_Type aModule,
                 const uint                aSubParamListIndex = MORIS_UINT_MAX,
                 const bool                aIsInnerParamList  = false );
 
@@ -238,10 +220,10 @@ namespace moris
          * @brief Get the parameters for module object
          *
          * @param aParamListType
-         * @return ModuleParameterList
+         * @return Module_Parameter_Lists
          */
-        ModuleParameterList
-        get_parameters_for_module( Parameter_List_Type aParamListType ) const;
+        Module_Parameter_Lists
+        get_parameters_for_module( Module_Type aParamListType ) const;
 
         // -----------------------------------------------------------------------------
 
@@ -337,7 +319,7 @@ namespace moris
      * @return uint - The index of the sub-module type for special forms like "GEN/Geometry", "OPT/Algorithm" and "SOL/Linear_Algorithm", if not these forms, returns 0
      */
 
-    uint get_subchild_index_from_xml_list( std::string tInnerSubParamListName, Vector< std::string >& aKeys, Vector< std::string >& aValues );
+    uint get_subchild_index_from_xml_list( Parameter_List_Type iParameterListType, std::string tInnerSubParamListName, Vector< std::string >& aKeys, Vector< std::string >& aValues );
 
     /**
      * @brief convert_parameter_from_string_to_type - Converts the string value from the XML file to the correct data type
@@ -361,11 +343,11 @@ namespace moris
      * @return Parameter_List - The parameter list with the set values from the XML file
      */
 
-    Parameter_List create_and_set_parameter_list( Parameter_List_Type aModule,
+    Parameter_List create_and_set_parameter_list( Module_Type aModule,
             uint                                                      aChild,
             uint                                                      aSubChild,
-            const Vector< std::string >&                              aKeys,
-            const Vector< std::string >&                              aValues );
+            Vector< std::string >&                              aKeys,
+            Vector< std::string >&                              aValues );
 
     /**
      * @brief Create a parameter list for a given module, child, and sub-child
@@ -376,6 +358,12 @@ namespace moris
      * @return Parameter_List
      */
 
-    Parameter_List create_parameter_list( Parameter_List_Type aModule, uint aChild, uint aSubChild );
+    Parameter_List create_parameter_list( Module_Type aModule, uint aChild, uint aSubChild );
+
+    /**
+     * 
+     */
+    void set_new_parameter( Parameter& aParameter, std::string& aKey, const std::string& aValue );
+
 
 }    // namespace moris

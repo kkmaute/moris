@@ -46,7 +46,27 @@ namespace moris
             for ( auto it = mWidget.begin(); it != mWidget.end(); ++it )
             {
                 it->second->clear();
+                it->second->blockSignals( true );
                 it->second->addItems( m_options );
+                it->second->blockSignals( false );
+            }
+            if ( not m_parameter.get_value< std::string >().empty()) {
+                std::stringstream ss( m_parameter.get_value< std::string >() );
+                std::string       pair;
+                while ( std::getline( ss, pair, ';' ) )
+                {
+                    std::stringstream pairStream( pair );
+                    std::string       tKey, tValue;
+
+                    // Split each pair by comma
+                    if ( std::getline( pairStream, tValue, ',' ) && std::getline( pairStream, tKey ) )
+                    {
+                        mWidget[ tKey ]->blockSignals( true );
+                        // Set the current index of the combo box
+                        mWidget[ tKey ]->setCurrentIndex( m_options.indexOf( QString::fromStdString( tValue ) ) );
+                        mWidget[ tKey ]->blockSignals( false );
+                    }
+                }
             }
         }
 

@@ -93,8 +93,8 @@ namespace moris
          */
         void
         create_standard_parameter_list_for_module(
-                Parameter_List_Type  aParamListType,
-                ModuleParameterList& aParameterList );
+                Module_Type             aParamListType,
+                Module_Parameter_Lists& aParameterList );
 
         // -----------------------------------------------------------------------------
 
@@ -105,7 +105,7 @@ namespace moris
          * @param aParameterList address to the parameter list to fill with standard parameters
          */
         void
-        create_standard_OPT_parameter_list( ModuleParameterList& aParameterList );
+        create_standard_OPT_parameter_list( Module_Parameter_Lists& aParameterList );
 
         // -----------------------------------------------------------------------------
 
@@ -116,7 +116,7 @@ namespace moris
          * @param aParameterList address to the parameter list to fill with standard parameters
          */
         void
-        create_standard_XTK_parameter_list( ModuleParameterList& aParameterList );
+        create_standard_XTK_parameter_list( Module_Parameter_Lists& aParameterList );
 
         // -----------------------------------------------------------------------------
 
@@ -127,7 +127,7 @@ namespace moris
          * @param aParameterList address to the parameter list to fill with standard parameters
          */
         void
-        create_standard_HMR_parameter_list( ModuleParameterList& aParameterList );
+        create_standard_HMR_parameter_list( Module_Parameter_Lists& aParameterList );
 
         // -----------------------------------------------------------------------------
 
@@ -138,7 +138,7 @@ namespace moris
          * @param aParameterList address to the parameter list to fill with standard parameters
          */
         void
-        create_standard_GEN_parameter_list( ModuleParameterList& aParameterList );
+        create_standard_GEN_parameter_list( Module_Parameter_Lists& aParameterList );
 
         // -----------------------------------------------------------------------------
 

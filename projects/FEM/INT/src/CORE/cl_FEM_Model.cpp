@@ -163,7 +163,7 @@ namespace moris::fem
     FEM_Model::FEM_Model(
             std::shared_ptr< mtk::Mesh_Manager >      aMeshManager,
             const moris_index                        &aMeshPairIndex,
-            const Vector< Submodule_Parameter_Lists > &aParameterList,
+            const Module_Parameter_Lists &aParameterList,
             const std::shared_ptr< Library_IO >      &aLibrary )
             : mMeshManager( std::move( aMeshManager ) )
             , mMeshPairIndex( aMeshPairIndex )
@@ -201,7 +201,7 @@ namespace moris::fem
     FEM_Model::FEM_Model(
             std::shared_ptr< mtk::Mesh_Manager >      aMeshManager,
             const moris_index                        &aMeshPairIndex,
-            const Vector< Submodule_Parameter_Lists > &aParameterList,
+            const Module_Parameter_Lists &aParameterList,
             MSI::Design_Variable_Interface           *aDesignVariableInterface )
             : mMeshManager( std::move( aMeshManager ) )
             , mMeshPairIndex( aMeshPairIndex )
@@ -814,30 +814,34 @@ namespace moris::fem
          * elements in the ParameterList. If it is 8, then the legacy method was used, if it is 9, the new method was used.
          */
         std::unique_ptr< Model_Initializer > tModelInitializer;
-
-        if ( mParameterList.size() == 8 || mParameterList( 9 ).empty() )
+        switch ( mParameterList.size() )
         {
-            tModelInitializer = std::make_unique< Model_Initializer_Legacy >(
-                    mParameterList,
-                    aLibrary,
-                    tMeshPair,
-                    mSpaceDim,
-                    mUseNewGhostSets,
-                    mDofTypeToBsplineMeshIndex );
-        }
-        else if ( mParameterList.size() == 9 )
-        {
-            tModelInitializer = std::make_unique< Model_Initializer_Phasebased >(
-                    mParameterList,
-                    aLibrary,
-                    tMeshPair,
-                    mSpaceDim,
-                    mUseNewGhostSets,
-                    mDofTypeToBsplineMeshIndex );
-        }
-        else
-        {
-            MORIS_ERROR( false, "FEM_Model::initialize - wrong size for parameter list: %zu", mParameterList.size() );
+            case 8:
+            {
+                tModelInitializer = std::make_unique< Model_Initializer_Legacy >(
+                        mParameterList,
+                        aLibrary,
+                        tMeshPair,
+                        mSpaceDim,
+                        mUseNewGhostSets,
+                        mDofTypeToBsplineMeshIndex );
+                break;
+            }
+            case 9:
+            {
+                tModelInitializer = std::make_unique< Model_Initializer_Phasebased >(
+                        mParameterList,
+                        aLibrary,
+                        tMeshPair,
+                        mSpaceDim,
+                        mUseNewGhostSets,
+                        mDofTypeToBsplineMeshIndex );
+                break;
+            }
+            default:
+            {
+                MORIS_ERROR( false, "FEM_Model::initialize - wrong size for parameter list: %u", mParameterList.size() );
+            }
         }
 
         tModelInitializer->initialize();

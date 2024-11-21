@@ -56,6 +56,13 @@ namespace moris
     }
 
     //--------------------------------------------------------------------------------------------------------------
+    template< typename Map_Type >
+    bool Parameter_Iterator< Map_Type >::operator==( const Parameter_Iterator< Map_Type >& aComparisonIterator ) const
+    {
+        return mKeyIndex == aComparisonIterator.mKeyIndex;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
 
     template< typename Map_Type >
     const std::string& Parameter_Iterator< Map_Type >::get_name() const
@@ -99,15 +106,11 @@ namespace moris
             const std::string&           aDefaultValue,
             const Vector< std::string >& aValidSelections )
     {
-        // Check for leading and trailing whitespaces in key
-        std::string tKeyWithoutSpaces = aName;
-        split_trim_string( tKeyWithoutSpaces, "" );
-        MORIS_ERROR( aName == tKeyWithoutSpaces,
-                "Param_List::insert - key contains whitespaces" );
+        std::string tKey = this->register_key( aName );
 
         // Insert new value
         Parameter tParameter( aDefaultValue, aValidSelections );
-        mParameterMap.insert( { aName, tParameter } );
+        mParameterMap.insert( { tKey, tParameter } );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -116,15 +119,11 @@ namespace moris
             const std::string&           aName,
             const Vector< std::string >& aEnumStrings )
     {
-        // Check for leading and trailing whitespaces in key
-        std::string tKeyWithoutSpaces = aName;
-        split_trim_string( tKeyWithoutSpaces, "" );
-        MORIS_ERROR( aName == tKeyWithoutSpaces,
-                "Param_List::insert - key contains whitespaces" );
+        std::string tKey = this->register_key( aName );
 
         // Insert new value
         Parameter tParameter( aEnumStrings );
-        mParameterMap.insert( { aName, tParameter } );
+        mParameterMap.insert( { tKey, tParameter } );
     }
 
     //--------------------------------------------------------------------------------------------------------------

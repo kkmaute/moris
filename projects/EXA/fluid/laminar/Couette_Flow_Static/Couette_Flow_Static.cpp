@@ -18,14 +18,7 @@
 #include "cl_TSA_Time_Solver.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
 #include "cl_DLA_Linear_Solver_Aztec.hpp"
-#include "fn_PRM_FEM_Parameters.hpp"
-#include "fn_PRM_MSI_Parameters.hpp"
-#include "fn_PRM_SOL_Parameters.hpp"
-#include "fn_PRM_VIS_Parameters.hpp"
-#include "fn_PRM_HMR_Parameters.hpp"
-#include "fn_PRM_GEN_Parameters.hpp"
-#include "fn_PRM_XTK_Parameters.hpp"
-#include "fn_PRM_OPT_Parameters.hpp"
+#include "parameters.hpp"
 #include "fn_equal_to.hpp"
 
 #include "AztecOO.h"
@@ -123,368 +116,345 @@ namespace moris
     }
 
     void
-    OPTParameterList( Vector< Submodule_Parameter_Lists >& tParameterlist )
+    OPTParameterList( Module_Parameter_Lists& aParameterLists )
     {
-        tParameterlist.resize( 1 );
-        tParameterlist( 0 ).add_parameter_list( prm::create_opt_problem_parameter_list() );
-
-        tParameterlist( 0 ).set( "is_optimization_problem", false );
+        aParameterLists.set( "is_optimization_problem", false );
     }
 
     void
-    HMRParameterList( Vector< Submodule_Parameter_Lists >& tParameterlist )
+    HMRParameterList( Module_Parameter_Lists& aParameterLists )
     {
-        tParameterlist.resize( 1 );
-        tParameterlist( 0 ).add_parameter_list( prm::create_hmr_parameter_list() );
+        aParameterLists.set( "number_of_elements_per_dimension", "22,22" );
+        aParameterLists.set( "domain_dimensions", "5,5" );
+        aParameterLists.set( "domain_offset", "-2.5+0.25,-2.5+0.25" );
+        aParameterLists.set( "domain_sidesets", "1,2,3,4" );
+        aParameterLists.set( "lagrange_output_meshes", "0" );
 
-        tParameterlist( 0 ).set( "number_of_elements_per_dimension", "22,22" );
-        tParameterlist( 0 ).set( "domain_dimensions", "5,5" );
-        tParameterlist( 0 ).set( "domain_offset", "-2.5+0.25,-2.5+0.25" );
-        tParameterlist( 0 ).set( "domain_sidesets", "1,2,3,4" );
-        tParameterlist( 0 ).set( "lagrange_output_meshes", "0" );
+        aParameterLists.set( "lagrange_orders", "1" );
+        aParameterLists.set( "lagrange_pattern", "0" );
+        aParameterLists.set( "bspline_orders", "1" );
+        aParameterLists.set( "bspline_pattern", "0" );
 
-        tParameterlist( 0 ).set( "lagrange_orders", "1" );
-        tParameterlist( 0 ).set( "lagrange_pattern", "0" );
-        tParameterlist( 0 ).set( "bspline_orders", "1" );
-        tParameterlist( 0 ).set( "bspline_pattern", "0" );
+        aParameterLists.set( "lagrange_to_bspline", "0" );
 
-        tParameterlist( 0 ).set( "lagrange_to_bspline", "0" );
+        aParameterLists.set( "truncate_bsplines", 1 );
+        aParameterLists.set( "refinement_buffer", 3 );
+        aParameterLists.set( "staircase_buffer", 3 );
+        aParameterLists.set( "initial_refinement", "0" );
+        aParameterLists.set( "initial_refinement_pattern", "0" );
 
-        tParameterlist( 0 ).set( "truncate_bsplines", 1 );
-        tParameterlist( 0 ).set( "refinement_buffer", 3 );
-        tParameterlist( 0 ).set( "staircase_buffer", 3 );
-        tParameterlist( 0 ).set( "initial_refinement", "0" );
-        tParameterlist( 0 ).set( "initial_refinement_pattern", "0" );
+        aParameterLists.set( "use_multigrid", 0 );
+        aParameterLists.set( "severity_level", 0 );
 
-        tParameterlist( 0 ).set( "use_multigrid", 0 );
-        tParameterlist( 0 ).set( "severity_level", 0 );
-
-        tParameterlist( 0 ).set( "adaptive_refinement_level", 2 );
+        aParameterLists.set( "adaptive_refinement_level", 2 );
     }
 
     void
-    XTKParameterList( Vector< Submodule_Parameter_Lists >& tParameterlist )
+    XTKParameterList( Module_Parameter_Lists& aParameterLists )
     {
-        tParameterlist.resize( 1 );
-        tParameterlist( 0 ).add_parameter_list( prm::create_xtk_parameter_list() );
-        tParameterlist( 0 ).set( "decompose", true );
-        tParameterlist( 0 ).set( "decomposition_type", "conformal" );
-        tParameterlist( 0 ).set( "enrich", true );
-        tParameterlist( 0 ).set( "basis_rank", "bspline" );
-        tParameterlist( 0 ).set( "enrich_mesh_indices", "0" );
-        tParameterlist( 0 ).set( "ghost_stab", true );
-        tParameterlist( 0 ).set( "multigrid", false );
-        tParameterlist( 0 ).set( "print_enriched_ig_mesh", true );
-        tParameterlist( 0 ).set( "exodus_output_XTK_ig_mesh", true );
+        aParameterLists.set( "decompose", true );
+        aParameterLists.set( "decomposition_type", "conformal" );
+        aParameterLists.set( "enrich", true );
+        aParameterLists.set( "basis_rank", "bspline" );
+        aParameterLists.set( "enrich_mesh_indices", "0" );
+        aParameterLists.set( "ghost_stab", true );
+        aParameterLists.set( "multigrid", false );
+        aParameterLists.set( "print_enriched_ig_mesh", true );
+        aParameterLists.set( "exodus_output_XTK_ig_mesh", true );
     }
 
     void
-    GENParameterList( Vector< Submodule_Parameter_Lists >& tParameterlist )
+    GENParameterList( Module_Parameter_Lists& aParameterLists )
     {
-        tParameterlist.resize( 3 );
-        tParameterlist( 0 ).add_parameter_list( prm::create_gen_parameter_list() );
-
-
         // Geometry parameter lists
-        tParameterlist( 1 ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE ) );
-        tParameterlist( 1 ).set( "radius", 1.0 );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE ) );
+        aParameterLists.set( "radius", 1.0 );
 
-        tParameterlist( 1 ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE ) );
-        tParameterlist( 1 ).set( "radius", 2.0 );
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE ) );
+        aParameterLists.set( "radius", 2.0 );
     }
 
     void
-    FEMParameterList( Vector< Submodule_Parameter_Lists >& tParameterList )
+    FEMParameterList( Module_Parameter_Lists& aParameterLists )
     {
+        aParameterLists.hack_for_legacy_fem();
         // create a cell of cell of parameter list for fem
-        tParameterList.resize( 8 );
 
         //------------------------------------------------------------------------------
         // fill the property part of the parameter list
 
-
         // create parameter list for property 1
-        tParameterList( 0 ).add_parameter_list( prm::create_property_parameter_list() );
-        tParameterList( 0 ).set( "property_name", "PropViscosity" );
-        tParameterList( 0 ).set( "function_parameters", "1.0" );
-        tParameterList( 0 ).set( "value_function", "Func_Const" );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
+        aParameterLists.set( "property_name", "PropViscosity" );
+        aParameterLists.set( "function_parameters", "1.0" );
+        aParameterLists.set( "value_function", "Func_Const" );
 
         // create parameter list for property 2
-        tParameterList( 0 ).add_parameter_list( prm::create_property_parameter_list() );
-        tParameterList( 0 ).set( "property_name", "PropDensity" );
-        tParameterList( 0 ).set( "function_parameters", "1.0" );
-        tParameterList( 0 ).set( "value_function", "Func_Const" );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
+        aParameterLists.set( "property_name", "PropDensity" );
+        aParameterLists.set( "function_parameters", "1.0" );
+        aParameterLists.set( "value_function", "Func_Const" );
 
         // create parameter list for property 3
-        tParameterList( 0 ).add_parameter_list( prm::create_property_parameter_list() );
-        tParameterList( 0 ).set( "property_name", "PropDirichletInU" );
-        tParameterList( 0 ).set( "value_function", "ImposedVelocityFunc" );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
+        aParameterLists.set( "property_name", "PropDirichletInU" );
+        aParameterLists.set( "value_function", "ImposedVelocityFunc" );
 
         // create parameter list for property 4
-        tParameterList( 0 ).add_parameter_list( prm::create_property_parameter_list() );
-        tParameterList( 0 ).set( "property_name", "PropDirichletOutU" );
-        tParameterList( 0 ).set( "value_function", "ImposedVelocityFunc" );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
+        aParameterLists.set( "property_name", "PropDirichletOutU" );
+        aParameterLists.set( "value_function", "ImposedVelocityFunc" );
 
         // create parameter list for property 5
-        tParameterList( 0 ).add_parameter_list( prm::create_property_parameter_list() );
-        tParameterList( 0 ).set( "property_name", "PropdUdx" );
-        tParameterList( 0 ).set( "value_function", "AnalyticdVelocitydxFunc" );
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
+        aParameterLists.set( "property_name", "PropdUdx" );
+        aParameterLists.set( "value_function", "AnalyticdVelocitydxFunc" );
 
         //------------------------------------------------------------------------------
         // fill the constitutive model part of the parameter list
 
-
         // create parameter list for constitutive model 1
-        tParameterList( 1 ).add_parameter_list( prm::create_constitutive_model_parameter_list() );
-        tParameterList( 1 ).set( "constitutive_name", "CMFluid" );
-        tParameterList( 1 ).set( "constitutive_type",  fem::Constitutive_Type::FLUID_INCOMPRESSIBLE ) ;
-        tParameterList( 1 ).set( "dof_dependencies", std::pair< std::string, std::string >( "VX,VY;P", "Velocity,Pressure" ) );
-        tParameterList( 1 ).set( "properties", "PropViscosity,Viscosity;PropDensity,Density" );
+        aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list();
+        aParameterLists.set( "constitutive_name", "CMFluid" );
+        aParameterLists.set( "constitutive_type",  fem::Constitutive_Type::FLUID_INCOMPRESSIBLE ) ;
+        aParameterLists.set( "dof_dependencies", std::pair< std::string, std::string >( "VX,VY;P", "Velocity,Pressure" ) );
+        aParameterLists.set( "properties", "PropViscosity,Viscosity;PropDensity,Density" );
 
         //------------------------------------------------------------------------------
         // fill the stabilization parameter part of the parameter list
 
-
         // create parameter list for stabilization parameter 1
-        tParameterList( 2 ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( 2 ).set( "stabilization_name", "SPIncFlow" );
-        tParameterList( 2 ).set( "stabilization_type",  fem::Stabilization_Type::INCOMPRESSIBLE_FLOW ) ;
-        tParameterList( 2 ).set( "function_parameters", "36.0" );
-        tParameterList( 2 ).set( "leader_properties", "PropViscosity,Viscosity;PropDensity,Density" );
-        tParameterList( 2 ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY;P", "Velocity,Pressure" ) );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list();
+        aParameterLists.set( "stabilization_name", "SPIncFlow" );
+        aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::INCOMPRESSIBLE_FLOW ) ;
+        aParameterLists.set( "function_parameters", "36.0" );
+        aParameterLists.set( "leader_properties", "PropViscosity,Viscosity;PropDensity,Density" );
+        aParameterLists.set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY;P", "Velocity,Pressure" ) );
 
         // create parameter list for stabilization parameter 2
-        tParameterList( 2 ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( 2 ).set( "stabilization_name", "SPDirichletNitscheU" );
-        tParameterList( 2 ).set( "stabilization_type",  fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE ) ;
-        tParameterList( 2 ).set( "function_parameters", "100.0/1.0" );
-        tParameterList( 2 ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
-        tParameterList( 2 ).set( "leader_properties", "PropViscosity,Viscosity;PropDensity,Density" );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list();
+        aParameterLists.set( "stabilization_name", "SPDirichletNitscheU" );
+        aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE ) ;
+        aParameterLists.set( "function_parameters", "100.0/1.0" );
+        aParameterLists.set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
+        aParameterLists.set( "leader_properties", "PropViscosity,Viscosity;PropDensity,Density" );
 
         // create parameter list for stabilization parameter 3
-        tParameterList( 2 ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( 2 ).set( "stabilization_name", "SPGPViscosity" );
-        tParameterList( 2 ).set( "stabilization_type",  fem::Stabilization_Type::VISCOUS_GHOST ) ;
-        tParameterList( 2 ).set( "function_parameters", "0.05" );
-        tParameterList( 2 ).set( "leader_properties", "PropViscosity,Viscosity" );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list();
+        aParameterLists.set( "stabilization_name", "SPGPViscosity" );
+        aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::VISCOUS_GHOST ) ;
+        aParameterLists.set( "function_parameters", "0.05" );
+        aParameterLists.set( "leader_properties", "PropViscosity,Viscosity" );
 
         // create parameter list for stabilization parameter 4
-        tParameterList( 2 ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( 2 ).set( "stabilization_name", "SPGPVelocity" );
-        tParameterList( 2 ).set( "stabilization_type",  fem::Stabilization_Type::CONVECTIVE_GHOST ) ;
-        tParameterList( 2 ).set( "function_parameters", "0.05" );
-        tParameterList( 2 ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
-        tParameterList( 2 ).set( "leader_properties", "PropDensity,Density" );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list();
+        aParameterLists.set( "stabilization_name", "SPGPVelocity" );
+        aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::CONVECTIVE_GHOST ) ;
+        aParameterLists.set( "function_parameters", "0.05" );
+        aParameterLists.set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
+        aParameterLists.set( "leader_properties", "PropDensity,Density" );
 
         // create parameter list for stabilization parameter 5
-        tParameterList( 2 ).add_parameter_list( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( 2 ).set( "stabilization_name", "SPGPPressure" );
-        tParameterList( 2 ).set( "stabilization_type",  fem::Stabilization_Type::PRESSURE_GHOST ) ;
-        tParameterList( 2 ).set( "function_parameters", "0.005/1.0" );
-        tParameterList( 2 ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
-        tParameterList( 2 ).set( "leader_properties", "PropViscosity,Viscosity;PropDensity,Density" );
+        aParameterLists( FEM::STABILIZATION ).add_parameter_list();
+        aParameterLists.set( "stabilization_name", "SPGPPressure" );
+        aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::PRESSURE_GHOST ) ;
+        aParameterLists.set( "function_parameters", "0.005/1.0" );
+        aParameterLists.set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
+        aParameterLists.set( "leader_properties", "PropViscosity,Viscosity;PropDensity,Density" );
 
         //------------------------------------------------------------------------------
         // fill the IWG part of the parameter list
 
         // create parameter list for IWG 1
-        tParameterList( 3 ).add_parameter_list( prm::create_IWG_parameter_list() );
-        tParameterList( 3 ).set( "IWG_name", "IWGVelocityBulk" );
-        tParameterList( 3 ).set( "IWG_type",  fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK ) ;
-        tParameterList( 3 ).set( "dof_residual", "VX,VY" );
-        tParameterList( 3 ).set( "leader_dof_dependencies", "VX,VY;P" );
-        tParameterList( 3 ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
-        tParameterList( 3 ).set( "stabilization_parameters", "SPIncFlow,IncompressibleFlow" );
-        tParameterList( 3 ).set( "mesh_set_names", sFluid );
+        aParameterLists( FEM::IWG ).add_parameter_list();
+        aParameterLists.set( "IWG_name", "IWGVelocityBulk" );
+        aParameterLists.set( "IWG_type",  fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK ) ;
+        aParameterLists.set( "dof_residual", "VX,VY" );
+        aParameterLists.set( "leader_dof_dependencies", "VX,VY;P" );
+        aParameterLists.set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
+        aParameterLists.set( "stabilization_parameters", "SPIncFlow,IncompressibleFlow" );
+        aParameterLists.set( "mesh_set_names", sFluid );
 
         // create parameter list for IWG 2
-        tParameterList( 3 ).add_parameter_list( prm::create_IWG_parameter_list() );
-        tParameterList( 3 ).set( "IWG_name", "IWGPressureBulk" );
-        tParameterList( 3 ).set( "IWG_type",  fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK ) ;
-        tParameterList( 3 ).set( "dof_residual", "P" );
-        tParameterList( 3 ).set( "leader_dof_dependencies", "VX,VY;P" );
-        tParameterList( 3 ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
-        tParameterList( 3 ).set( "stabilization_parameters", "SPIncFlow,IncompressibleFlow" );
-        tParameterList( 3 ).set( "mesh_set_names", sFluid );
+        aParameterLists( FEM::IWG ).add_parameter_list();
+        aParameterLists.set( "IWG_name", "IWGPressureBulk" );
+        aParameterLists.set( "IWG_type",  fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK ) ;
+        aParameterLists.set( "dof_residual", "P" );
+        aParameterLists.set( "leader_dof_dependencies", "VX,VY;P" );
+        aParameterLists.set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
+        aParameterLists.set( "stabilization_parameters", "SPIncFlow,IncompressibleFlow" );
+        aParameterLists.set( "mesh_set_names", sFluid );
 
         // create parameter list for IWG 3
-        tParameterList( 3 ).add_parameter_list( prm::create_IWG_parameter_list() );
-        tParameterList( 3 ).set( "IWG_name", "IWGInVelocity" );
-        tParameterList( 3 ).set( "IWG_type",  fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE ) ;
-        tParameterList( 3 ).set( "dof_residual", "VX,VY" );
-        tParameterList( 3 ).set( "leader_dof_dependencies", "VX,VY;P" );
-        tParameterList( 3 ).set( "leader_properties", "PropDirichletInU,Dirichlet" );
-        tParameterList( 3 ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
-        tParameterList( 3 ).set( "stabilization_parameters", "SPDirichletNitscheU,DirichletNitsche" );
-        tParameterList( 3 ).set( "mesh_set_names", sIn );
+        aParameterLists( FEM::IWG ).add_parameter_list();
+        aParameterLists.set( "IWG_name", "IWGInVelocity" );
+        aParameterLists.set( "IWG_type",  fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE ) ;
+        aParameterLists.set( "dof_residual", "VX,VY" );
+        aParameterLists.set( "leader_dof_dependencies", "VX,VY;P" );
+        aParameterLists.set( "leader_properties", "PropDirichletInU,Dirichlet" );
+        aParameterLists.set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
+        aParameterLists.set( "stabilization_parameters", "SPDirichletNitscheU,DirichletNitsche" );
+        aParameterLists.set( "mesh_set_names", sIn );
 
         // create parameter list for IWG 4
-        tParameterList( 3 ).add_parameter_list( prm::create_IWG_parameter_list() );
-        tParameterList( 3 ).set( "IWG_name", "IWGInPressure" );
-        tParameterList( 3 ).set( "IWG_type",  fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE ) ;
-        tParameterList( 3 ).set( "dof_residual", "P" );
-        tParameterList( 3 ).set( "leader_dof_dependencies", "VX,VY;P" );
-        tParameterList( 3 ).set( "leader_properties", "PropDirichletInU,Dirichlet" );
-        tParameterList( 3 ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
-        tParameterList( 3 ).set( "mesh_set_names", sIn );
+        aParameterLists( FEM::IWG ).add_parameter_list();
+        aParameterLists.set( "IWG_name", "IWGInPressure" );
+        aParameterLists.set( "IWG_type",  fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE ) ;
+        aParameterLists.set( "dof_residual", "P" );
+        aParameterLists.set( "leader_dof_dependencies", "VX,VY;P" );
+        aParameterLists.set( "leader_properties", "PropDirichletInU,Dirichlet" );
+        aParameterLists.set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
+        aParameterLists.set( "mesh_set_names", sIn );
 
         // create parameter list for IWG 5
-        tParameterList( 3 ).add_parameter_list( prm::create_IWG_parameter_list() );
-        tParameterList( 3 ).set( "IWG_name", "IWGOutVelocity" );
-        tParameterList( 3 ).set( "IWG_type",  fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE ) ;
-        tParameterList( 3 ).set( "dof_residual", "VX,VY" );
-        tParameterList( 3 ).set( "leader_dof_dependencies", "VX,VY;P" );
-        tParameterList( 3 ).set( "leader_properties", "PropDirichletOutU,Dirichlet" );
-        tParameterList( 3 ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
-        tParameterList( 3 ).set( "stabilization_parameters", "SPDirichletNitscheU,DirichletNitsche" );
-        tParameterList( 3 ).set( "mesh_set_names", sOut );
+        aParameterLists( FEM::IWG ).add_parameter_list();
+        aParameterLists.set( "IWG_name", "IWGOutVelocity" );
+        aParameterLists.set( "IWG_type",  fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE ) ;
+        aParameterLists.set( "dof_residual", "VX,VY" );
+        aParameterLists.set( "leader_dof_dependencies", "VX,VY;P" );
+        aParameterLists.set( "leader_properties", "PropDirichletOutU,Dirichlet" );
+        aParameterLists.set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
+        aParameterLists.set( "stabilization_parameters", "SPDirichletNitscheU,DirichletNitsche" );
+        aParameterLists.set( "mesh_set_names", sOut );
 
         // create parameter list for IWG 6
-        tParameterList( 3 ).add_parameter_list( prm::create_IWG_parameter_list() );
-        tParameterList( 3 ).set( "IWG_name", "IWGOutPressure" );
-        tParameterList( 3 ).set( "IWG_type",  fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE ) ;
-        tParameterList( 3 ).set( "dof_residual", "P" );
-        tParameterList( 3 ).set( "leader_dof_dependencies", "VX,VY;P" );
-        tParameterList( 3 ).set( "leader_properties", "PropDirichletOutU,Dirichlet" );
-        tParameterList( 3 ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
-        tParameterList( 3 ).set( "mesh_set_names", sOut );
+        aParameterLists( FEM::IWG ).add_parameter_list();
+        aParameterLists.set( "IWG_name", "IWGOutPressure" );
+        aParameterLists.set( "IWG_type",  fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE ) ;
+        aParameterLists.set( "dof_residual", "P" );
+        aParameterLists.set( "leader_dof_dependencies", "VX,VY;P" );
+        aParameterLists.set( "leader_properties", "PropDirichletOutU,Dirichlet" );
+        aParameterLists.set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
+        aParameterLists.set( "mesh_set_names", sOut );
 
         // create parameter list for IWG 7
-        tParameterList( 3 ).add_parameter_list( prm::create_IWG_parameter_list() );
-        tParameterList( 3 ).set( "IWG_name", "IWGGPViscous" );
-        tParameterList( 3 ).set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
-        tParameterList( 3 ).set( "dof_residual", "VX,VY" );
-        tParameterList( 3 ).set( "leader_dof_dependencies", "VX,VY;P" );
-        tParameterList( 3 ).set( "follower_dof_dependencies", "VX,VY;P" );
-        tParameterList( 3 ).set( "stabilization_parameters", "SPGPViscosity,GhostSP" );
-        tParameterList( 3 ).set( "mesh_set_names", sFluidGhost );
+        aParameterLists( FEM::IWG ).add_parameter_list();
+        aParameterLists.set( "IWG_name", "IWGGPViscous" );
+        aParameterLists.set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
+        aParameterLists.set( "dof_residual", "VX,VY" );
+        aParameterLists.set( "leader_dof_dependencies", "VX,VY;P" );
+        aParameterLists.set( "follower_dof_dependencies", "VX,VY;P" );
+        aParameterLists.set( "stabilization_parameters", "SPGPViscosity,GhostSP" );
+        aParameterLists.set( "mesh_set_names", sFluidGhost );
 
         // create parameter list for IWG 8
-        tParameterList( 3 ).add_parameter_list( prm::create_IWG_parameter_list() );
-        tParameterList( 3 ).set( "IWG_name", "IWGGPConvective" );
-        tParameterList( 3 ).set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
-        tParameterList( 3 ).set( "dof_residual", "VX,VY" );
-        tParameterList( 3 ).set( "leader_dof_dependencies", "VX,VY;P" );
-        tParameterList( 3 ).set( "follower_dof_dependencies", "VX,VY;P" );
-        tParameterList( 3 ).set( "stabilization_parameters", "SPGPVelocity,GhostSP" );
-        tParameterList( 3 ).set( "mesh_set_names", sFluidGhost );
+        aParameterLists( FEM::IWG ).add_parameter_list();
+        aParameterLists.set( "IWG_name", "IWGGPConvective" );
+        aParameterLists.set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
+        aParameterLists.set( "dof_residual", "VX,VY" );
+        aParameterLists.set( "leader_dof_dependencies", "VX,VY;P" );
+        aParameterLists.set( "follower_dof_dependencies", "VX,VY;P" );
+        aParameterLists.set( "stabilization_parameters", "SPGPVelocity,GhostSP" );
+        aParameterLists.set( "mesh_set_names", sFluidGhost );
 
         // create parameter list for IWG 9
-        tParameterList( 3 ).add_parameter_list( prm::create_IWG_parameter_list() );
-        tParameterList( 3 ).set( "IWG_name", "IWGGPPressure" );
-        tParameterList( 3 ).set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
-        tParameterList( 3 ).set( "dof_residual", "P" );
-        tParameterList( 3 ).set( "leader_dof_dependencies", "VX,VY;P" );
-        tParameterList( 3 ).set( "follower_dof_dependencies", "VX,VY;P" );
-        tParameterList( 3 ).set( "stabilization_parameters", "SPGPPressure,GhostSP" );
-        tParameterList( 3 ).set( "mesh_set_names", sFluidGhost );
+        aParameterLists( FEM::IWG ).add_parameter_list();
+        aParameterLists.set( "IWG_name", "IWGGPPressure" );
+        aParameterLists.set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
+        aParameterLists.set( "dof_residual", "P" );
+        aParameterLists.set( "leader_dof_dependencies", "VX,VY;P" );
+        aParameterLists.set( "follower_dof_dependencies", "VX,VY;P" );
+        aParameterLists.set( "stabilization_parameters", "SPGPPressure,GhostSP" );
+        aParameterLists.set( "mesh_set_names", sFluidGhost );
 
         //------------------------------------------------------------------------------
         // fill the IQI part of the parameter list
 
         // create parameter list for IQI 1
-        tParameterList( 4 ).add_parameter_list( prm::create_IQI_parameter_list() );
-        tParameterList( 4 ).set( "IQI_name", "IQIBulkVX" );
-        tParameterList( 4 ).set( "IQI_type",  fem::IQI_Type::DOF ) ;
-        tParameterList( 4 ).set( "dof_quantity", "VX,VY" );
-        tParameterList( 4 ).set( "leader_dof_dependencies", "VX,VY" );
-        tParameterList( 4 ).set( "vectorial_field_index", 0 );
-        tParameterList( 4 ).set( "mesh_set_names", sFluid );
+        aParameterLists( FEM::IQI ).add_parameter_list();
+        aParameterLists.set( "IQI_name", "IQIBulkVX" );
+        aParameterLists.set( "IQI_type",  fem::IQI_Type::DOF ) ;
+        aParameterLists.set( "dof_quantity", "VX,VY" );
+        aParameterLists.set( "leader_dof_dependencies", "VX,VY" );
+        aParameterLists.set( "vectorial_field_index", 0 );
+        aParameterLists.set( "mesh_set_names", sFluid );
 
         // create parameter list for IQI 2
-        tParameterList( 4 ).add_parameter_list( prm::create_IQI_parameter_list() );
-        tParameterList( 4 ).set( "IQI_name", "IQIBulkVY" );
-        tParameterList( 4 ).set( "IQI_type",  fem::IQI_Type::DOF ) ;
-        tParameterList( 4 ).set( "dof_quantity", "VX,VY" );
-        tParameterList( 4 ).set( "leader_dof_dependencies", "VX,VY" );
-        tParameterList( 4 ).set( "vectorial_field_index", 1 );
-        tParameterList( 4 ).set( "mesh_set_names", sFluid );
+        aParameterLists( FEM::IQI ).add_parameter_list();
+        aParameterLists.set( "IQI_name", "IQIBulkVY" );
+        aParameterLists.set( "IQI_type",  fem::IQI_Type::DOF ) ;
+        aParameterLists.set( "dof_quantity", "VX,VY" );
+        aParameterLists.set( "leader_dof_dependencies", "VX,VY" );
+        aParameterLists.set( "vectorial_field_index", 1 );
+        aParameterLists.set( "mesh_set_names", sFluid );
 
         // create parameter list for IQI 3
-        tParameterList( 4 ).add_parameter_list( prm::create_IQI_parameter_list() );
-        tParameterList( 4 ).set( "IQI_name", "IQIBulkP" );
-        tParameterList( 4 ).set( "IQI_type",  fem::IQI_Type::DOF ) ;
-        tParameterList( 4 ).set( "dof_quantity", "P" );
-        tParameterList( 4 ).set( "leader_dof_dependencies", "P" );
-        tParameterList( 4 ).set( "vectorial_field_index", 0 );
-        tParameterList( 4 ).set( "mesh_set_names", sFluid );
+        aParameterLists( FEM::IQI ).add_parameter_list();
+        aParameterLists.set( "IQI_name", "IQIBulkP" );
+        aParameterLists.set( "IQI_type",  fem::IQI_Type::DOF ) ;
+        aParameterLists.set( "dof_quantity", "P" );
+        aParameterLists.set( "leader_dof_dependencies", "P" );
+        aParameterLists.set( "vectorial_field_index", 0 );
+        aParameterLists.set( "mesh_set_names", sFluid );
 
         // create parameter list for IQI 4
-        tParameterList( 4 ).add_parameter_list( prm::create_IQI_parameter_list() );
-        tParameterList( 4 ).set( "IQI_name", "IQIBulkL2Error" );
-        tParameterList( 4 ).set( "IQI_type",  fem::IQI_Type::L2_ERROR_ANALYTIC ) ;
-        tParameterList( 4 ).set( "dof_quantity", "VX,VY" );
-        tParameterList( 4 ).set( "leader_dof_dependencies", "VX,VY" );
-        tParameterList( 4 ).set( "leader_properties", "PropDirichletInU,L2Check" );
-        tParameterList( 4 ).set( "mesh_set_names", sFluid );
+        aParameterLists( FEM::IQI ).add_parameter_list();
+        aParameterLists.set( "IQI_name", "IQIBulkL2Error" );
+        aParameterLists.set( "IQI_type",  fem::IQI_Type::L2_ERROR_ANALYTIC ) ;
+        aParameterLists.set( "dof_quantity", "VX,VY" );
+        aParameterLists.set( "leader_dof_dependencies", "VX,VY" );
+        aParameterLists.set( "leader_properties", "PropDirichletInU,L2Check" );
+        aParameterLists.set( "mesh_set_names", sFluid );
 
         // create parameter list for IQI 5
-        tParameterList( 4 ).add_parameter_list( prm::create_IQI_parameter_list() );
-        tParameterList( 4 ).set( "IQI_name", "IQIBulkH1Error" );
-        tParameterList( 4 ).set( "IQI_type",  fem::IQI_Type::H1_ERROR_ANALYTIC ) ;
-        tParameterList( 4 ).set( "dof_quantity", "VX,VY" );
-        tParameterList( 4 ).set( "leader_dof_dependencies", "VX,VY" );
-        tParameterList( 4 ).set( "leader_properties", "PropdUdx,H1Check" );
-        tParameterList( 4 ).set( "mesh_set_names", sFluid );
+        aParameterLists( FEM::IQI ).add_parameter_list();
+        aParameterLists.set( "IQI_name", "IQIBulkH1Error" );
+        aParameterLists.set( "IQI_type",  fem::IQI_Type::H1_ERROR_ANALYTIC ) ;
+        aParameterLists.set( "dof_quantity", "VX,VY" );
+        aParameterLists.set( "leader_dof_dependencies", "VX,VY" );
+        aParameterLists.set( "leader_properties", "PropdUdx,H1Check" );
+        aParameterLists.set( "mesh_set_names", sFluid );
 
         //------------------------------------------------------------------------------
         // fill the computation part of the parameter list
-        tParameterList( 5 ).add_parameter_list( prm::create_computation_parameter_list() );
+        aParameterLists( FEM::COMPUTATION );
     }
 
     void
-    SOLParameterList( Vector< Submodule_Parameter_Lists >& tParameterlist )
+    SOLParameterList( Module_Parameter_Lists& aParameterLists )
     {
-        tParameterlist.resize( 8 );
 
+        aParameterLists( SOL::LINEAR_ALGORITHMS ).add_parameter_list( sol::SolverType::AMESOS_IMPL );
 
-        tParameterlist( 0 ).add_parameter_list( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
+        aParameterLists( SOL::LINEAR_SOLVERS ).add_parameter_list();
 
-        tParameterlist( 1 ).add_parameter_list( moris::prm::create_linear_solver_parameter_list() );
+        aParameterLists( SOL::NONLINEAR_ALGORITHMS ).add_parameter_list();
+        aParameterLists.set( "NLA_rel_res_norm_drop", 1e-06 );
+        aParameterLists.set( "NLA_relaxation_parameter", 1.0 );
+        aParameterLists.set( "NLA_max_iter", 20 );
 
-        tParameterlist( 2 ).add_parameter_list( moris::prm::create_nonlinear_algorithm_parameter_list() );
-        tParameterlist( 2 ).set( "NLA_rel_res_norm_drop", 1e-06 );
-        tParameterlist( 2 ).set( "NLA_relaxation_parameter", 1.0 );
-        tParameterlist( 2 ).set( "NLA_max_iter", 20 );
+        aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list();
+        aParameterLists.set( "NLA_DofTypes", "VX,VY;P" );
 
-        tParameterlist( 3 ).add_parameter_list( moris::prm::create_nonlinear_solver_parameter_list() );
-        tParameterlist( 3 ).set( "NLA_DofTypes", "VX,VY;P" );
+        aParameterLists( SOL::TIME_SOLVER_ALGORITHMS ).add_parameter_list();
 
-        tParameterlist( 4 ).add_parameter_list( moris::prm::create_time_solver_algorithm_parameter_list() );
+        aParameterLists( SOL::TIME_SOLVERS ).add_parameter_list();
+        aParameterLists.set( "TSA_DofTypes", "VX,VY;P" );
+        aParameterLists.set( "TSA_Initialize_Sol_Vec", "VX,1E-4;VY,1E-4;P,0.0" );
+        aParameterLists.set( "TSA_Output_Indices", "0" );
+        aParameterLists.set( "TSA_Output_Criteria", "Output_Criterion" );
 
-        tParameterlist( 5 ).add_parameter_list( moris::prm::create_time_solver_parameter_list() );
-        tParameterlist( 5 ).set( "TSA_DofTypes", "VX,VY;P" );
-        tParameterlist( 5 ).set( "TSA_Initialize_Sol_Vec", "VX,1E-4;VY,1E-4;P,0.0" );
-        tParameterlist( 5 ).set( "TSA_Output_Indices", "0" );
-        tParameterlist( 5 ).set( "TSA_Output_Criteria", "Output_Criterion" );
-
-        tParameterlist( 6 ).add_parameter_list( moris::prm::create_solver_warehouse_parameterlist() );
-
-        tParameterlist( 7 ).add_parameter_list( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE ) );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::NONE );
     }
 
     void
-    MSIParameterList( Vector< Submodule_Parameter_Lists >& tParameterlist )
+    MSIParameterList( Module_Parameter_Lists& aParameterLists )
     {
-        tParameterlist.resize( 1 );
-        tParameterlist( 0 ).add_parameter_list( prm::create_msi_parameter_list() );
     }
 
     void
-    VISParameterList( Vector< Submodule_Parameter_Lists >& tParameterlist )
+    VISParameterList( Module_Parameter_Lists& aParameterLists )
     {
-        tParameterlist.resize( 1 );
-        tParameterlist( 0 ).add_parameter_list( prm::create_vis_parameter_list() );
-        tParameterlist( 0 ).set( "File_Name", std::pair< std::string, std::string >( "./", "Couette_Flow_Static.exo" ) );
-        tParameterlist( 0 ).set( "Mesh_Type",  vis::VIS_Mesh_Type::STANDARD ) ;
-        tParameterlist( 0 ).set( "Set_Names", sFluid + "," + sInterfaces );
-        tParameterlist( 0 ).set( "Field_Names", "VX,VY,P,L2_ERROR_ANALYTIC,H1_ERROR_ANALYTIC" );
-        tParameterlist( 0 ).set( "Field_Type", "NODAL,NODAL,NODAL,NODAL,NODAL" );
-        tParameterlist( 0 ).set( "IQI_Names", "IQIBulkVX,IQIBulkVY,IQIBulkP,IQIBulkL2Error,IQIBulkH1Error" );
+        aParameterLists.set( "File_Name", std::pair< std::string, std::string >( "./", "Couette_Flow_Static.exo" ) );
+        aParameterLists.set( "Mesh_Type",  vis::VIS_Mesh_Type::STANDARD ) ;
+        aParameterLists.set( "Set_Names", sFluid + "," + sInterfaces );
+        aParameterLists.set( "Field_Names", "VX,VY,P,L2_ERROR_ANALYTIC,H1_ERROR_ANALYTIC" );
+        aParameterLists.set( "Field_Type", "NODAL,NODAL,NODAL,NODAL,NODAL" );
+        aParameterLists.set( "IQI_Names", "IQIBulkVX,IQIBulkVY,IQIBulkP,IQIBulkL2Error,IQIBulkH1Error" );
     }
 
     void
-    MORISGENERALParameterList( Vector< Submodule_Parameter_Lists >& tParameterlist )
+    MORISGENERALParameterList( Module_Parameter_Lists& aParameterLists )
     {
     }
 

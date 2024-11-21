@@ -11,6 +11,9 @@
 #pragma once
 
 #include "cl_Parameter_List.hpp"
+#include "GEN_Data_Types.hpp"
+#include "cl_SOL_Enums.hpp"
+#include "fn_PRM_OPT_Parameters.hpp"
 
 namespace moris
 {
@@ -26,14 +29,7 @@ namespace moris
          *
          * @param aParameterLists Vector of constructed parameter lists
          */
-        Submodule_Parameter_Lists( const Vector< Parameter_List >& aParameterLists = {} );
-
-        /**
-         * Sets the type of the submodule parameter list. Can only be done once.
-         *
-         * @param aType Type of parameter list, as a string
-         */
-        void set_type( const std::string& aType );
+        explicit Submodule_Parameter_Lists( std::string aType );
 
         /**
          * Gets the type of this submodule parameter list.
@@ -62,6 +58,52 @@ namespace moris
          * @param aParameterListIndex Index of the parameter list
          */
         void erase( uint aParameterListIndex );
+
+        /**
+         * Adds a new parameter list to be stored in this class. The type of parameter list depends on the stored submodule type.
+         * If this submodule does not support adding a new parameter list, an error will be thrown.
+         */
+        void add_parameter_list();
+        
+        /**
+         * Adds a new optimization algorithm parameter list to be stored in this class. 
+         * Will throw an error if this is not an optimization algorithm submodule.
+         * 
+         * @param aOptimizationAlgorithmType Type of optimization algorithm
+         */
+        void add_parameter_list( opt::Optimization_Algorithm_Type aOptimziationAlgorithmType );
+        
+        /**
+         * Adds a new geometry parameter list to be stored in this class. 
+         * Will throw an error if this is not a geometry submodule.
+         * 
+         * @param aGeometryType Type of geometry
+         */
+        //void add_parameter_list( uint aGeometryType, gen::Field_Type aFieldType );
+        
+        /**
+         * Adds a new GEN property parameter list to be stored in this class. 
+         * Will throw an error if this is not a GEN property submodule.
+         * 
+         * @param aFieldType Type of field
+         */
+        void add_parameter_list( gen::Field_Type aFieldType );
+        
+        /**
+         * Adds a new linear algorithm parameter list to be stored in this class. 
+         * Will throw an error if this is not a linear algorithm submodule.
+         * 
+         * @param aSolverType Type of linear solver
+         */
+        void add_parameter_list( sol::SolverType aSolverType );
+        
+        /**
+         * Adds a new preconditioner parameter list to be stored in this class. 
+         * Will throw an error if this is not a preconditioner submodule.
+         * 
+         * @param aPreconditionerType Type of preconditioner
+         */
+        void add_parameter_list( sol::PreconditionerType aPreconditionerType );
 
         /**
          * Appends another submodule parameter list to this submodule parameter list.
@@ -150,5 +192,11 @@ namespace moris
          * @return End of the parameter list vector
          */
         [[nodiscard]] auto end()->decltype( mParameterLists.end() );
+        
+      private:
+        /**
+         * This function errors out if the given type does not match the stored type for adding parameter lists
+         */
+        void check_submodule_type( const std::string& aExpectedType );
     };
 }

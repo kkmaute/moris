@@ -212,6 +212,9 @@ namespace moris
         // set mPropertyNameList by reference
         void setPropertyNameList( QStringList &aPropertyNameList );
 
+        // get mIsPropertyListSet
+        bool isPropertyListSet();
+
         /**
          * @brief Function to add elements to the form
          * @param QList< QStringList > aParameters
@@ -258,6 +261,7 @@ namespace moris
         bool mCheckForm       = false;
         // Keep on hold
         bool mIsSpecialForm = false;
+        bool mIsPropertyListSet = false;
 
         int           mCountProps = 0;
         int           mSubFormType;

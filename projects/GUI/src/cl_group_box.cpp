@@ -54,7 +54,6 @@ namespace moris
                     // Create a new QComboBox
                     QComboBox *tComboBox = new QComboBox();
                     tComboBox->addItems( m_options );
-
                     // Add the key and the QLineEdit pointer to tRows
                     mWidget[ tKey ] = tComboBox;
 
@@ -79,7 +78,7 @@ namespace moris
                     tResult += ";";
                 }
             }
-            m_parameter.set_value( objectName().toStdString(), tResult, false );
+            //m_parameter.set_value( objectName().toStdString(), tResult, false );
         }
     }
 

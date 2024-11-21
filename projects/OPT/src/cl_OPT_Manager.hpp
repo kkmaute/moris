@@ -11,7 +11,7 @@
 #pragma once
 
 #include "cl_Vector.hpp"
-#include "cl_Submodule_Parameter_Lists.hpp"
+#include "cl_Module_Parameter_Lists.hpp"
 #include "cl_OPT_Algorithm.hpp"
 #include "cl_OPT_Problem.hpp"
 #include "cl_OPT_Criteria_Interface.hpp"
@@ -31,7 +31,7 @@ namespace moris::opt
          * @param aParameterLists parameter lists for defining an optimization problem
          * @param aCriteriaInterface criteria interfaces, in addition to any specified in the parameter lists
          */
-        Manager( const Vector< Submodule_Parameter_Lists >&             aParameterLists,
+        Manager( const Module_Parameter_Lists&             aParameterLists,
                 const Vector< std::shared_ptr< Criteria_Interface > >& aInterfaces = Vector< std::shared_ptr< Criteria_Interface > >( 0 ) );
 
         /**

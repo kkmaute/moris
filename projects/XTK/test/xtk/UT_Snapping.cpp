@@ -22,7 +22,7 @@
 #include "fn_PRM_HMR_Parameters.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
 #include "fn_PRM_XTK_Parameters.hpp"
-#include "cl_Submodule_Parameter_Lists.hpp"
+#include "cl_Module_Parameter_Lists.hpp"
 
 namespace moris::xtk
 {
@@ -39,7 +39,7 @@ namespace moris::xtk
             bool tBilinear = false;
 
             // XTK parameter list
-            Vector< Submodule_Parameter_Lists > tXTKParams( 1 );
+            Module_Parameter_Lists tXTKParams( Module_Type::XTK );
             tXTKParams( 0 ).add_parameter_list( prm::create_xtk_parameter_list() );
             tXTKParams( 0 )( 0 ).set( "decompose", true );
             tXTKParams( 0 )( 0 ).set( "decomposition_type", "conformal" );
@@ -56,7 +56,7 @@ namespace moris::xtk
 
             // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             // GEN Parameters
-            Vector< Submodule_Parameter_Lists > tGENParams( 3 );
+            Module_Parameter_Lists tGENParams( Module_Type::GEN );
 
             // Calculations
             real tOffset  = 0.5 * ( 1 + tIntersectionLocalCoordinate );
@@ -112,7 +112,7 @@ namespace moris::xtk
             std::string tInterpolationOrder = "1";
 
             int                                      tRefineBuffer = 1;
-            Vector< Submodule_Parameter_Lists > tHMRParams( 1 );
+            Module_Parameter_Lists tHMRParams( Module_Type::HMR );
             tHMRParams( 0 ).add_parameter_list( prm::create_hmr_parameter_list() );
             tHMRParams( 0 )( 0 ).set( "number_of_elements_per_dimension", tNumElemsPerDim );
             tHMRParams( 0 )( 0 ).set( "domain_dimensions", tDomainDims );

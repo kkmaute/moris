@@ -18,6 +18,7 @@ set(HEADERS
         cl_XML_Parser.hpp
         fn_Parsing_Tools.hpp
         cl_Library_Enums.hpp
+        cl_Module_Parameter_Lists.hpp
         cl_Submodule_Parameter_Lists.hpp
         cl_Library_Factory.hpp
         cl_Library_IO.hpp
@@ -38,6 +39,7 @@ set(HEADERS
 # List library source files
 set(LIB_SOURCES
         cl_Library_Enums.cpp
+        cl_Module_Parameter_Lists.cpp
         cl_Submodule_Parameter_Lists.cpp
         cl_Library_IO.cpp
         cl_Library_IO_Meshgen.cpp

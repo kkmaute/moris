@@ -229,10 +229,10 @@ namespace moris::hmr
 #endif
                                         break;
                                     }
-                                }
-                            }
-                        }
-                    }
+                                } // end for: loop searching which local index the child BF has wrt to the refined element
+                            } // end case: child BF is neither active nor refined (i.e. it is inactive)
+                        } // end case: child BF actually exists
+                    } // end for: loop over all children of the parent basis function
 
                     if ( aTMatrixTransposed.get_column( tDOFCount ).min() < -gEpsilon || aTMatrixTransposed.get_column( tDOFCount ).max() > gEpsilon )
                     {
@@ -244,11 +244,11 @@ namespace moris::hmr
                         // reset this column to zero
                         aTMatrixTransposed.set_column( tDOFCount, mZero.get_column( 0 ) );
                     }
-                }
+                } // end case: parent basis function is active (i.e. used)
 
                 tAllBasis( tBasisCount++ ) = tBasis;
-            }
-        }
+            } // end for: loop over all basis functions on the parent element
+        } // end case: this is a refined element (level > 0)
 
         // Shrink output to exact size
         aTMatrixTransposed.resize( tNumberOfBasisPerElement, tDOFCount );
@@ -367,7 +367,7 @@ namespace moris::hmr
 
                 // calculate the B-Spline T-Matrix
                 Matrix< DDRMat > tB;
-                Vector< Basis* >   tDOFs;
+                Vector< Basis* > tDOFs;
 
                 uint tElemMemIndex = tBackgroundElement->get_memory_index();
                 this->calculate_t_matrix(

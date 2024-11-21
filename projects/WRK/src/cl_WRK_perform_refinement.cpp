@@ -492,10 +492,10 @@ namespace moris::wrk
         // get the maximum number of refinements that need to be performed and therefore refinement iterations
         moris::sint tMaxNumRefinements = this->get_max_refinement_level( aPerformers );
 
-        // TODO: get number of what kind of meshes? (Lagrange meshes?, B-spline meshes?, output meshes?, other?)
+        // get number of Lagrange meshes
         moris::Matrix< DDSMat > tMeshIndices;
         uint                    tNumMeshes = 0;
-        this->get_all_refinement_mesh_indices(
+        this->get_all_refinement_mesh_indices( //  list of all the mesh indices listed for refinement in GEN
                 aPerformers,
                 tMeshIndices,
                 tNumMeshes );
@@ -507,23 +507,23 @@ namespace moris::wrk
         std::shared_ptr< hmr::Database > tDataBase       = aHMR->get_database();
         hmr::Background_Mesh_Base*       tBackgroundMesh = tDataBase->get_background_mesh();
 
-        // TODO: loop over what kind of meshes?
+        // loop over the Lagrange meshes which are listed for refinement in GEN
         for ( uint iMesh = 0; iMesh < tNumMeshes; iMesh++ )
         {
-            // TODO: what kind of mesh index?
+            // get the Lagrange mesh index
             moris_index tMeshIndex = tMeshIndices( iMesh );
 
             // iteratively refine meshes
             for ( moris_index iRefinement = 0; iRefinement < tMaxNumRefinements; iRefinement++ )
             {
-                // Create mesh //FIXME
+                // Create an hmr::Mesh (which is a wrapper for the Lagrange mesh to interface via the mtk::Mesh)
                 std::shared_ptr< hmr::Mesh > tMesh = aHMR->create_mesh( tMeshIndex );
 
-                uint tLagrangeMeshPattern = tMesh->get_lagrange_mesh_pattern();
+                uint tLagrangeMeshPattern = tMesh->get_lagrange_mesh_pattern(); // get the pattern associated with the Lagrange mesh which was requested to be refined in GEN
 
                 for ( moris_index iPerformer = 0; iPerformer < tNumPerformers; iPerformer++ )
                 {
-                    // Queue refinement
+                    // find all elements active on the Lagrange mesh for which there is a sign-change in the LS-field
                     this->queue_single_refinement(
                             aHMR,
                             tMesh,
@@ -534,7 +534,7 @@ namespace moris::wrk
 
                 //  perform refinement on the geometric meshes (replacing elements with their children, where necessary)
                 aHMR->perform_refinement( tLagrangeMeshPattern );
-                aHMR->update_refinement_pattern( tLagrangeMeshPattern );
+                aHMR->update_refinement_pattern( tLagrangeMeshPattern ); // update the B-spline and Lagrange meshes
 
                 // TODO: ?
                 tBackgroundMesh->update_database();
@@ -546,7 +546,7 @@ namespace moris::wrk
             // TODO: ?
             tBackgroundMesh->clear_refinement_queue();
 
-        }    // end for: each mesh // TODO: what kind of meshes?
+        }    // end for: each pattern which is listed for local (geometric) refinement
 
         // refinement loop to ensure that all intersected elements are on same refinement level
         for ( uint iMesh = 0; iMesh < tNumMeshes; iMesh++ )
@@ -610,7 +610,7 @@ namespace moris::wrk
         tDataBase->update_bspline_meshes();
         tDataBase->update_lagrange_meshes();
 
-    }    // end function:
+    }    // end function: Refinement_Mini_Performer::perform_refinement_old()
 
     //--------------------------------------------------------------------------------------------------------------
 
@@ -637,7 +637,7 @@ namespace moris::wrk
                 {
                     if ( tNumRefinements( iLagMesh ) > aRefinementNumber )
                     {
-                        // Loop over nodes and get field values
+                        // Loop over all nodes in the Lagrange mesh and get field values
                         Matrix< DDRMat > tFieldValues( aMesh->get_num_nodes(), 1 );
                         for ( uint tNodeIndex = 0; tNodeIndex < aMesh->get_num_nodes(); tNodeIndex++ )
                         {

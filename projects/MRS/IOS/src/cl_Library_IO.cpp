@@ -20,7 +20,7 @@ namespace moris
     //------------------------------------------------------------------------------------------------------------------
 
     // Declare helper function for reading a module's parameter lists
-    Vector< Submodule_Parameter_Lists > read_module( uint aRoot );
+    Module_Parameter_Lists read_module( uint aRoot );
 
     //------------------------------------------------------------------------------------------------------------------
 
@@ -32,12 +32,13 @@ namespace moris
             , mXmlReader( std::make_unique< XML_Parser >() )
             , mXmlParserIsInitialized( false )
             , mLibraryIsFinalized( false )
-            , mLibraryType( Library_Type::UNDEFINED )                       // base class library-type is undefined
-            , mParameterLists( (uint)( Parameter_List_Type::END_ENUM ) )    // list of module parameter lists sized to the number of modules that exist
             , mXmlWriter( std::make_unique< XML_Parser >() )
             , mSupportedParamListTypes()
     {
-        // do nothing else
+        for ( uint iTypeIndex = 0; iTypeIndex < static_cast< uint >( Module_Type::END_ENUM ); iTypeIndex++ )
+        {
+            mParameterLists.push_back( Module_Parameter_Lists( static_cast< Module_Type >( iTypeIndex ) ) );
+        }
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -107,8 +108,8 @@ namespace moris
 
     void
     Library_IO::overwrite_and_add_parameters(
-            ModuleParameterList& aParamListToModify,
-            ModuleParameterList& aParamListToAdd )
+            Module_Parameter_Lists& aParamListToModify,
+            Module_Parameter_Lists& aParamListToAdd )
     {
         // get the sizes of the different parameter lists
         uint tOuterSizeToMod = aParamListToModify.size();
@@ -117,7 +118,9 @@ namespace moris
         // resize the outer cell, if the parameter list to add is longer
         if ( tOuterSizeToAdd > tOuterSizeToMod )
         {
-            aParamListToModify.resize( tOuterSizeToAdd );
+            // TODO if we want to handle this again, give to the module parameter list for copying
+            MORIS_ERROR( false, "Parameter lists are not the same size" );
+            //aParamListToModify.resize( tOuterSizeToAdd );
         }
 
         // resize the inner cells, if the parameter lists to add are longer than the original ones
@@ -291,17 +294,17 @@ namespace moris
         MORIS_ERROR( mSoLibIsInitialized, "Library_IO::load_parameters_from_shared_object_library() - No .so file has been loaded." );
 
         // go through the various parameter list names and see if they exist in the provided .so file
-        for ( uint iParamListType = 0; iParamListType < (uint)( Parameter_List_Type::END_ENUM ); iParamListType++ )
+        for ( uint iParamListType = 0; iParamListType < (uint)( Module_Type::END_ENUM ); iParamListType++ )
         {
             // get the current enum
-            Parameter_List_Type tParamListType = (Parameter_List_Type)( iParamListType );
+            Module_Type tParamListType = (Module_Type)( iParamListType );
 
             // get the name of the parameter list function
             std::string tParamListFuncName = get_name_for_parameter_list_type( tParamListType );
 
             // see if a function for this parameter list function exists in the provide input file
-            Parameter_Function tUserDefinedParmListFunc = reinterpret_cast< Parameter_Function >( dlsym( mLibraryHandle, tParamListFuncName.c_str() ) );
-            bool               tParamListFuncExists     = ( tUserDefinedParmListFunc != nullptr );
+            Parameter_Function tUserDefinedParamListFunc = reinterpret_cast< Parameter_Function >( dlsym( mLibraryHandle, tParamListFuncName.c_str() ) );
+            bool               tParamListFuncExists     = ( tUserDefinedParamListFunc != nullptr );
 
             // if the parameter list function exists, use it to overwrite and add to the standard parameters
             if ( tParamListFuncExists )
@@ -316,18 +319,13 @@ namespace moris
                 }
                 else    // otherwise, if parameter list is supported, overwrite and add parameters to standard parameters
                 {
-                    // create a copy of the parameter list the .so file provided
-                    ModuleParameterList tUserDefinedParamList;
-                    tUserDefinedParmListFunc( tUserDefinedParamList );
-
-                    // get the parameter list to the currently
-                    ModuleParameterList& tCurrentModuleStandardParamList = mParameterLists( iParamListType );
-
-                    // supersede standard parameters with user-defined parameters
-                    this->overwrite_and_add_parameters( tCurrentModuleStandardParamList, tUserDefinedParamList );
+                    tUserDefinedParamListFunc( mParameterLists( iParamListType ) );
                 }
             }
-
+            else
+            {
+                mParameterLists( iParamListType ).clear();
+            }
         }    // end for: parameter list types that could be specified
     }
 
@@ -340,10 +338,10 @@ namespace moris
         MORIS_ERROR( mXmlParserIsInitialized, "Library_IO::load_parameters_from_xml() - No XML file has been loaded." );
 
         // go through the various parameter list names and see if they exist in the provided xml file
-        for ( uint iParamListType = 0; iParamListType < (uint)( Parameter_List_Type::END_ENUM ); iParamListType++ )
+        for ( uint iParamListType = 0; iParamListType < (uint)( Module_Type::END_ENUM ); iParamListType++ )
         {
             // get the current enum
-            Parameter_List_Type tParamListType = (Parameter_List_Type)( iParamListType );
+            Module_Type tParamListType = (Module_Type)( iParamListType );
 
             // get the name of the module, e.g. "HMR"
             std::string tModuleName = convert_parameter_list_enum_to_string( tParamListType );
@@ -369,7 +367,7 @@ namespace moris
                 tMaxNumSubParamLists = 8;
             }
             // temporary storage for the parameter lists, later addded to mParamterLists
-            ModuleParameterList tParameterList;
+            Module_Parameter_Lists tParameterList( tParamListType );
 
             // If there are no modules of this type, create a default parameter list
             if ( tCount == 0 )
@@ -387,11 +385,14 @@ namespace moris
             // get the root of the current Module parameter list
             std::string tModuleRoot = XML_PARAMETER_FILE_ROOT + "." + tModuleName;
 
+            // get all submodule names
+            Vector< std::string > tSubmoduleNames = get_submodule_names( tParamListType );
+
             // go over each of the sub-parameter lists
             for ( uint iSubParamList = 0; iSubParamList < tMaxNumSubParamLists; iSubParamList++ )
             {
                 // get the name for this sub-parameter list
-                std::string tOuterSubParamListName = get_outer_sub_parameter_list_name( tParamListType, iSubParamList );
+                std::string tOuterSubParamListName = tSubmoduleNames( iSubParamList );
 
                 // check if the sub-parameter list is found
                 size_t tSubParamListCount = mXmlReader->count_keys_in_subtree( tModuleRoot, tOuterSubParamListName );
@@ -433,7 +434,7 @@ namespace moris
                         mXmlReader->get_keys_from_subtree( tInnerSubParamListRoot, tInnerSubParamListName, 0, tKeys, tValues );
 
                         // getting the index of the inner sub-module type by reading from the XML file parameter list (used for special forms like "GEN/Geometry", "OPT/Algorithm" and "SOL/Linear_Algorithm")
-                        uint tIndex = get_subchild_index_from_xml_list( tInnerSubParamListName, tKeys, tValues );
+                        uint tIndex = get_subchild_index_from_xml_list( tParamListType, tInnerSubParamListName, tKeys, tValues );
                         // Adding the parameter list with set values from the XML file to tParameterList (that is added to mParameterLists)
                         tParameterList( iSubParamList ).add_parameter_list( create_and_set_parameter_list( tParamListType, iSubParamList, tIndex, tKeys, tValues ) );
                     }
@@ -447,7 +448,7 @@ namespace moris
                             mXmlReader->get_keys_from_subtree( tInnerSubParamListRoot, tInnerSubParamListName, iInnerSubParamList, tKeys, tValues );
 
                             // getting the index of the inner sub-module type by reading from the XML file parameter list (used for special forms like "GEN/Geometry", "OPT/Algorithm" and "SOL/Linear_Algorithm")
-                            uint tIndex = get_subchild_index_from_xml_list( tInnerSubParamListName, tKeys, tValues );
+                            uint tIndex = get_subchild_index_from_xml_list( tParamListType, tInnerSubParamListName, tKeys, tValues );
 
                             // Adding the parameter list with set values from the XML file to tParameterList (that is added to mParameterLists)
                             tParameterList( iSubParamList ).add_parameter_list( create_and_set_parameter_list( tParamListType, iSubParamList, tIndex, tKeys, tValues ) );
@@ -456,14 +457,14 @@ namespace moris
                 }
                 else
                 {
-                    // If there is no inner sub-parameter list, just adding the set parameter list from the xml file to the ModuleParameterList
+                    // If there is no inner sub-parameter list, just adding the set parameter list from the xml file to the Module_Parameter_Lists
                     // mXmlReader->get_keys_from_subtree( tInnerSubParamListRoot, tInnerSubParamListName, 0, tKeys, tValues );
                     mXmlReader->get_keys_from_subtree( tModuleRoot, tOuterSubParamListName, 0, tKeys, tValues );
 
                     tParameterList( iSubParamList ).add_parameter_list( create_and_set_parameter_list( tParamListType, iSubParamList, 0, tKeys, tValues ) );
                 }
             }
-            // adding the ModuleParameterList to the mParameterLists (which is a vector of ModuleParameterLists)
+            // adding the Module_Parameter_Lists to the mParameterLists (which is a vector of Module_Parameter_Listss)
             mParameterLists( iParamListType ) = tParameterList;
             // this->overwrite_and_add_parameters(mParameterLists(iParamListType),tParameterList);
             MORIS_LOG( "Parameters for %s provided in .xml file.", convert_parameter_list_enum_to_string( (Parameter_List_Type)iParamListType ).c_str() );
@@ -474,8 +475,8 @@ namespace moris
 
     void
     Library_IO::create_new_module_parameterlist() {
-        Vector< ModuleParameterList > tParameterList;
-        for ( uint iParamListType = 0; iParamListType < (uint)( Parameter_List_Type::END_ENUM ); iParamListType++ )
+        Vector< Module_Parameter_Lists > tParameterList;
+        for ( uint iParamListType = 0; iParamListType < (uint)( Module_Type::END_ENUM ); iParamListType++ )
         {
             mParameterLists( iParamListType ) = read_module( iParamListType );
         }
@@ -495,10 +496,10 @@ namespace moris
             // mXmlWriter->flush_buffer_to_tree( XML_PARAMETER_FILE_ROOT );
 
             // go through the modules and print their parameters to file
-            for ( uint iModule = 0; iModule < (uint)( Parameter_List_Type::END_ENUM ); iModule++ )
+            for ( uint iModule = 0; iModule < (uint)( Module_Type::END_ENUM ); iModule++ )
             {
                 // get the enum and name of the current module
-                Parameter_List_Type tModule = (Parameter_List_Type)( iModule );
+                Module_Type tModule = (Module_Type)( iModule );
 
                 // write this module to the xml tree
                 this->write_module_parameter_list_to_xml_tree( tModule );
@@ -512,13 +513,13 @@ namespace moris
     //------------------------------------------------------------------------------------------------------------------
 
     void
-    Library_IO::write_module_parameter_list_to_xml_tree( const Parameter_List_Type aModule )
+    Library_IO::write_module_parameter_list_to_xml_tree( const Module_Type aModule )
     {
         // get the location of the current
         uint tModuleIndex = (uint)( aModule );
 
         // get this module's parameter list
-        ModuleParameterList& tModuleParamList    = mParameterLists( tModuleIndex );
+        Module_Parameter_Lists& tModuleParamList    = mParameterLists( tModuleIndex );
         uint                 tOuterParamListSize = tModuleParamList.size();
 
         // go through the individual sub-parameter lists and write them to the file
@@ -556,7 +557,11 @@ namespace moris
         for ( const auto& iParamToAdd : aParameterList )
         {
             // ... and add or modify them
-            mXmlWriter->set_in_buffer( iParamToAdd.get_name(), iParamToAdd.get_parameter().get_string() );
+            // check if the get_name() has whitespaces, if so, replace them with $
+            std::string tName = iParamToAdd.get_name();
+            std::replace( tName.begin(), tName.end(), ' ', '$' );
+
+            mXmlWriter->set_in_buffer( tName, iParamToAdd.get_parameter().get_string() );
         }
     }
 
@@ -564,7 +569,7 @@ namespace moris
 
     std::string
     Library_IO::get_sub_parameter_list_location_in_xml_tree(
-            const Parameter_List_Type aModule,
+            const Module_Type aModule,
             const uint                aSubParamListIndex,
             const bool                aIsInnerParamList )
     {
@@ -579,7 +584,7 @@ namespace moris
         if ( aSubParamListIndex < MORIS_UINT_MAX )
         {
             // get the name of the sub-parameter list
-            std::string tSubParamListName = get_outer_sub_parameter_list_name( aModule, aSubParamListIndex );
+            std::string tSubParamListName = get_submodule_names( aModule )( aSubParamListIndex );
 
             // add it to the location if not empty, otherwise don't add anything
             if ( tSubParamListName != "" )
@@ -606,8 +611,8 @@ namespace moris
 
     //------------------------------------------------------------------------------------------------------------------
 
-    ModuleParameterList
-    Library_IO::get_parameters_for_module( Parameter_List_Type aParamListType ) const
+    Module_Parameter_Lists
+    Library_IO::get_parameters_for_module( Module_Type aParamListType ) const
     {
         // check that the parameter lists are complete
         MORIS_ERROR( mLibraryIsFinalized,
@@ -700,10 +705,10 @@ namespace moris
                                         // Additional info about where the checked options came from
                                         std::string tExternalValidatorString =
                                                 "These selections are taken from parameter " + tExternalValidator.mParameterName + ", located in the ";
-                                        if ( tExternalValidator.mParameterListType == Parameter_List_Type::END_ENUM )
+                                        if ( tExternalValidator.mParameterListType == Module_Type::END_ENUM )
                                         {
                                             tExternalValidatorString +=
-                                                    convert_parameter_list_enum_to_string( (Parameter_List_Type)iModuleIndex )
+                                                    convert_parameter_list_enum_to_string( (Module_Type)iModuleIndex )
                                                     + " parameters with outer vector index " + std::to_string( iOuterIndex ) + " and inner vector index " + std::to_string( iInnerIndex );
                                         }
                                         else
@@ -740,10 +745,10 @@ namespace moris
                                         // Additional info about where the checked options came from
                                         std::string tExternalValidatorString =
                                                 "This size is based on parameter " + tExternalValidator.mParameterName + ", located in the ";
-                                        if ( tExternalValidator.mParameterListType == Parameter_List_Type::END_ENUM )
+                                        if ( tExternalValidator.mParameterListType == Module_Type::END_ENUM )
                                         {
                                             tExternalValidatorString +=
-                                                    convert_parameter_list_enum_to_string( (Parameter_List_Type)iModuleIndex )
+                                                    convert_parameter_list_enum_to_string( (Module_Type)iModuleIndex )
                                                     + " parameters with outer vector index " + std::to_string( iOuterIndex ) + " and inner vector index " + std::to_string( iInnerIndex );
                                         }
                                         else
@@ -781,7 +786,7 @@ namespace moris
         Vector< Variant > tExternalOptions;
 
         // Check if external validation is required
-        if ( aExternalValidator.mParameterListType == Parameter_List_Type::END_ENUM )
+        if ( aExternalValidator.mParameterListType == Module_Type::END_ENUM )
         {
             // Return single parameter
             tExternalOptions = { aContainingParameterList.get_variant( aExternalValidator.mParameterName ) };
@@ -818,10 +823,11 @@ namespace moris
      * @param tValues - The values of the XML file parameter list
      * @return uint - The index of the sub-module type for special forms like "GEN/Geometry", "OPT/Algorithm" and "SOL/Linear_Algorithm", if not these forms, returns 0
      */
-    uint get_subchild_index_from_xml_list( std::string tInnerSubParamListName, Vector< std::string >& tKeys, Vector< std::string >& tValues )
+    uint get_subchild_index_from_xml_list( Parameter_List_Type iParameterListType, std::string tInnerSubParamListName, Vector< std::string >& tKeys, Vector< std::string >& tValues )
     {
         uint tIndex = 0;
-        if ( tInnerSubParamListName == "Geometry" )
+        // Check if the paramter_list_type is GEN and the inner sub-parameter list name is Geometry or Field
+        if ( iParameterListType == Parameter_List_Type::GEN && ( tInnerSubParamListName == "Geometry" || tInnerSubParamListName == "Field" ) )
         {
             // Finding field_type in the keys of the XML file parameter list
             auto it = std::find( tKeys.begin(), tKeys.end(), "field_type" );
@@ -862,27 +868,46 @@ namespace moris
                 }
             }
         }
-        else if ( tInnerSubParamListName == "Linear_Algorithm" )
+        else if ( tInnerSubParamListName == "LinearAlgorithm" )
         {
             // Finding solver_type in the keys of the XML file parameter list
-            std::string tSolverType;
-            auto        it = std::find( tKeys.begin(), tKeys.end(), "solver_type" );
+            auto        it = std::find( tKeys.begin(), tKeys.end(), "Solver_Implementation" );
             if ( it != tKeys.end() )
             {
-                // Index is the value of solver_type
+                // Index is the value of Solver_Implementation
 
                 // solver_type returns a string name of the solver type
-                tSolverType = tValues( std::distance( tKeys.begin(), it ) );
+                tIndex = convert_parameter_from_string_to_type< uint >( tValues( std::distance( tKeys.begin(), it ) ) );
+                
+                
+                // // Transforming the string to uppercase
+                // transform( tSolverType.begin(), tSolverType.end(), tSolverType.begin(), ::toupper );
+                // //remove any \ or " from the string
+                // tSolverType.erase( std::remove( tSolverType.begin(), tSolverType.end(), '\"' ), tSolverType.end() );
+                // tSolverType.erase( std::remove( tSolverType.begin(), tSolverType.end(), '\\' ), tSolverType.end() );
 
-                // Transforming the string to uppercase
-                transform( tSolverType.begin(), tSolverType.end(), tSolverType.begin(), ::toupper );
+                // if ( tSolverType == "AMESOS_MUMPS") {
+                //     tIndex = (uint) (sol::SolverType::AMESOS_IMPL);
+                // }
+                // else if ( tSolverType == "GMRES")
+                // else {
 
-                // Finding the index of the solver type in SolverType ENUM
-                auto iFind = std::find( sol::SolverType_String::values.begin(), sol::SolverType_String::values.end(), tSolverType );
-                if ( iFind != sol::SolverType_String::values.end() )
-                {
-                    tIndex = std::distance( sol::SolverType_String::values.begin(), iFind );
-                }
+                // // Finding the index of the solver type in SolverType ENUM
+                // auto iFind = std::find( sol::SolverType_String::values.begin(), sol::SolverType_String::values.end(), tSolverType );
+                // if ( iFind != sol::SolverType_String::values.end() )
+                // {
+                //     tIndex = std::distance( sol::SolverType_String::values.begin(), iFind );
+                // }
+                // }
+            }
+        }
+        else if ( tInnerSubParamListName == "Preconditioner" ) {
+            // Finding preconditioner_type in the keys of the XML file parameter list
+            auto it = std::find( tKeys.begin(), tKeys.end(), "Preconditioner_Implementation" );
+            if ( it != tKeys.end() )
+            {
+                // Index is the value of preconditioner_type
+                tIndex = (uint)std::stoi( tValues( std::distance( tKeys.begin(), it ) ) );
             }
         }
         else
@@ -903,156 +928,350 @@ namespace moris
      * @return Parameter_List - The parameter list with the set values from the XML file
      */
 
-    Parameter_List create_and_set_parameter_list( Parameter_List_Type aModule,
+    Parameter_List create_and_set_parameter_list( Module_Type aModule,
             uint                                                      aChild,
             uint                                                      aSubChild,
-            const Vector< std::string >&                              aKeys,
-            const Vector< std::string >&                              aValues )
+            Vector< std::string >&                              aKeys,
+            Vector< std::string >&                              aValues )
     {
         // Create the parameter list with default values
         Parameter_List tParameterList = create_parameter_list( aModule, aChild, aSubChild );
 
         // Loop through the default parameter list
-        for ( auto iElements : tParameterList )
-        {
-            //  Cannot set locked parameters
-            if ( iElements.get_parameter().is_locked() )
-            {
-                continue;
-            }
 
-            // Find the key in the XML file parameter list
-            auto tFind = std::find( aKeys.begin(), aKeys.end(), iElements.get_name() );
+        // Instead of looping through iElements, the following for loop should loop over the keys and check that against the parameter list
+        // If the key is found in the parameter list, then set the value of the parameter list with the value from the XML file
 
-            if ( tFind == aKeys.end() )
-            {
-                continue;
+        for (uint iIndex = 0; iIndex < aKeys.size(); iIndex++)
+{
+    // Find the key in the parameter list
+    bool tCheck = false;
+    for ( Parameter_List::iterator iElements : tParameterList) {
+        if ( iElements.get_name() == aKeys(iIndex) ) {
+            Parameter& aParameter = iElements.get_parameter();
+            tCheck = true;
+            if ( aKeys(iIndex) == "field_function_name" ) {
+                std::cout << "field_function_name" << std::endl;
             }
-
-            // Set the value of the parameter list with the value from the XML file by converting the string to the correct data type
-            // Calls the convert_parameter_from_string_to_type function for bool, uint, sint, real
-            // Calls the string_to_vector function for std::string, std::pair< std::string, std::string >, Vector< uint >, Vector< sint >, Vector< real >, Vector< std::string > and Design_Variable
-            if ( iElements.get_parameter().index() == variant_index< bool >() )
-            {
-                if ( tFind != aKeys.end() )
-                {
-                    bool tBool = convert_parameter_from_string_to_type< bool >( aValues( std::distance( aKeys.begin(), tFind ) ) );
-                    iElements.get_parameter().set_value( iElements.get_name(), tBool, false );
-                }
-            }
-            else if ( iElements.get_parameter().index() == variant_index< uint >() )
-            {
-                if ( tFind != aKeys.end() )
-                {
-                    if ( iElements.get_parameter().get_entry_type() == Entry_Type::SELECTION )
-                    {
-                        uint tUint = convert_parameter_from_string_to_type< uint >( aValues( std::distance( aKeys.begin(), tFind ) ) );
-                        iElements.get_parameter().set_value( iElements.get_name(), tUint, false );
-                    }
-                    else
-                    {
-                        uint tUint = convert_parameter_from_string_to_type< uint >( aValues( std::distance( aKeys.begin(), tFind ) ) );
-                        iElements.get_parameter().set_value( iElements.get_name(), tUint, false );
-                    }
-                    // uint tUint = convert_parameter_from_string_to_type< uint >( aValues( std::distance( aKeys.begin(), tFind ) ) );
-                    // iElements.get_parameter().set_value( iElements.get_name(), tUint, false );
-                }
-            }
-            else if ( iElements.get_parameter().index() == variant_index< sint >() )
-            {
-                if ( tFind != aKeys.end() )
-                {
-                    sint tSint = convert_parameter_from_string_to_type< sint >( aValues( std::distance( aKeys.begin(), tFind ) ) );
-
-                    iElements.get_parameter().set_value( iElements.get_name(), tSint, false );
-                }
-            }
-            else if ( iElements.get_parameter().index() == variant_index< real >() )
-            {
-                if ( tFind != aKeys.end() )
-                {
-                    real tReal = convert_parameter_from_string_to_type< real >( aValues( std::distance( aKeys.begin(), tFind ) ) );
-                    iElements.get_parameter().set_value( iElements.get_name(), tReal, false );
-                }
-            }
-            else if ( iElements.get_parameter().index() == variant_index< std::string >() )
-            {
-                if ( tFind != aKeys.end() )
-                {
-                    std::string tString = aValues( std::distance( aKeys.begin(), tFind ) );
-                    // Strip the string of leading and trailing quotation marks
-                    tString.erase( std::remove( tString.begin(), tString.end(), '\"' ), tString.end() );
-                    iElements.get_parameter().set_value( iElements.get_name(), tString, false );
-                }
-            }
-            else if ( iElements.get_parameter().index() == variant_index< std::pair< std::string, std::string > >() )
-            {
-                if ( tFind != aKeys.end() )
-                {
-                    std::pair< std::string, std::string > tPair;
-                    // Everything before a ; is the key and everything after is the value of tPair
-                    // Remove any whitespaces or {}
-                    std::string tPairString = aValues( std::distance( aKeys.begin(), tFind ) );
-                    tPairString.erase( std::remove( tPairString.begin(), tPairString.end(), '{' ), tPairString.end() );
-                    tPairString.erase( std::remove( tPairString.begin(), tPairString.end(), '}' ), tPairString.end() );
-                    tPairString.erase( std::remove( tPairString.begin(), tPairString.end(), ' ' ), tPairString.end() );
-                    size_t tPos  = tPairString.find( ';' );
-                    tPair.first  = tPairString.substr( 0, tPos );
-                    tPair.second = tPairString.substr( tPos + 1 );
-
-                    iElements.get_parameter().set_value( iElements.get_name(), tPair, false );
-                }
-            }
-            else if ( iElements.get_parameter().index() == variant_index< Vector< uint > >() )
-            {
-                if ( tFind != aKeys.end() )
-                {
-                    Vector< uint > tVec = string_to_vector< uint >( aValues( std::distance( aKeys.begin(), tFind ) ) );
-                    iElements.get_parameter().set_value( iElements.get_name(), tVec, false );
-                }
-            }
-            else if ( iElements.get_parameter().index() == variant_index< Vector< sint > >() )
-            {
-                if ( tFind != aKeys.end() )
-                {
-                    Vector< sint > tVec = string_to_vector< sint >( aValues( std::distance( aKeys.begin(), tFind ) ) );
-                    iElements.get_parameter().set_value( iElements.get_name(), tVec, false );
-                }
-            }
-            else if ( iElements.get_parameter().index() == variant_index< Vector< real > >() )
-            {
-                if ( tFind != aKeys.end() )
-                {
-                    Vector< real > tVec = string_to_vector< real >( aValues( std::distance( aKeys.begin(), tFind ) ) );
-                    iElements.get_parameter().set_value( iElements.get_name(), tVec, false );
-                }
-            }
-            else if ( iElements.get_parameter().index() == variant_index< Vector< std::string > >() )
-            {
-                if ( tFind != aKeys.end() )
-                {
-                    // Remove any whitespaces or {}
-                    std::string tString = aValues( std::distance( aKeys.begin(), tFind ) );
-                    tString.erase( std::remove( tString.begin(), tString.end(), '{' ), tString.end() );
-                    tString.erase( std::remove( tString.begin(), tString.end(), '}' ), tString.end() );
-                    tString.erase( std::remove( tString.begin(), tString.end(), ' ' ), tString.end() );
-
-                    // Split the string into a vector of strings by the delimiter ,
-                    Vector< std::string > tVec = split_string( tString, "," );
-
-                    iElements.get_parameter().set_value( iElements.get_name(), tVec, false );
-                }
-            }
-            else
-            {
-                // Vector< real >  tVec            = string_to_vector< real >( aValues( std::distance( aKeys.begin(), tFind ) ) );
-                // Design_Variable tDesignVariable = Design_Variable( tVec( 0 ), tVec( 1 ), tVec( 2 ) );
-                Design_Variable tDesignVariable = convert_parameter_from_string_to_type< real >( aValues( std::distance( aKeys.begin(), tFind ) ) );
-                iElements.get_parameter().set_value( iElements.get_name(), tDesignVariable, false );
-            }
+            set_new_parameter(aParameter, aKeys(iIndex), aValues(iIndex));
+            break; 
         }
+    }
+        
+    // Skip if the key is not found in the parameter list
+    if ( not tCheck )
+    {
+        Design_Variable tDesign_Variable = convert_parameter_from_string_to_type<real>(aValues(iIndex));
+        
+        tParameterList.insert(aKeys(iIndex), tDesign_Variable);
+        continue;
+    }
+
+    // auto &iElement = tFindParameter;
+
+    // // Skip locked parameters
+    // if (iElement.get_parameter().is_locked())
+    // {
+    //     continue;
+    // }
+
+    // // Set the value based on the type of parameter
+    // if (iElement.get_parameter().index() == variant_index<bool>())
+    // {
+    //     bool tBool = convert_parameter_from_string_to_type<bool>(aValues(tIndex));
+    //     iElement.get_parameter().set_value(tKey, tBool, false);
+    // }
+    // else if (iElement.get_parameter().index() == variant_index<uint>())
+    // {
+    //     uint tUint = convert_parameter_from_string_to_type<uint>(aValues(tIndex));
+    //     iElement.get_parameter().set_value(tKey, tUint, false);
+    // }
+    // else if (iElement.get_parameter().index() == variant_index<sint>())
+    // {
+    //     sint tSint = convert_parameter_from_string_to_type<sint>(aValues(tIndex));
+    //     iElement.get_parameter().set_value(tKey, tSint, false);
+    // }
+    // else if (iElement.get_parameter().index() == variant_index<real>())
+    // {
+    //     real tReal = convert_parameter_from_string_to_type<real>(aValues(tIndex));
+    //     iElement.get_parameter().set_value(tKey, tReal, false);
+    // }
+    // else if (iElement.get_parameter().index() == variant_index<std::string>())
+    // {
+    //     std::string tString = aValues(tIndex);
+    //     // Strip the string of leading and trailing quotation marks
+    //     tString.erase(std::remove(tString.begin(), tString.end(), '\"'), tString.end());
+    //     iElement.get_parameter().set_value(tKey, tString, false);
+    // }
+    // else if (iElement.get_parameter().index() == variant_index<std::pair<std::string, std::string>>())
+    // {
+    //     std::string tPairString = aValues(tIndex);
+    //     // Process the pair string
+    //     tPairString.erase(std::remove(tPairString.begin(), tPairString.end(), '{'), tPairString.end());
+    //     tPairString.erase(std::remove(tPairString.begin(), tPairString.end(), '}'), tPairString.end());
+    //     tPairString.erase(std::remove(tPairString.begin(), tPairString.end(), ' '), tPairString.end());
+    //     size_t tPos = tPairString.find(';');
+    //     std::pair<std::string, std::string> tPair = {tPairString.substr(0, tPos), tPairString.substr(tPos + 1)};
+    //     iElement.get_parameter().set_value(tKey, tPair, false);
+    // }
+    // else if (iElement.get_parameter().index() == variant_index<Vector<uint>>())
+    // {
+    //     Vector<uint> tVec = string_to_vector<uint>(aValues(tIndex));
+    //     iElement.get_parameter().set_value(tKey, tVec, false);
+    // }
+    // else if (iElement.get_parameter().index() == variant_index<Vector<sint>>())
+    // {
+    //     Vector<sint> tVec = string_to_vector<sint>(aValues(tIndex));
+    //     iElement.get_parameter().set_value(tKey, tVec, false);
+    // }
+    // else if (iElement.get_parameter().index() == variant_index<Vector<real>>())
+    // {
+    //     Vector<real> tVec = string_to_vector<real>(aValues(tIndex));
+    //     iElement.get_parameter().set_value(tKey, tVec, false);
+    // }
+    // else if (iElement.get_parameter().index() == variant_index<Vector<std::string>>())
+    // {
+    //     std::string tString = aValues(tIndex);
+    //     tString.erase(std::remove(tString.begin(), tString.end(), '{'), tString.end());
+    //     tString.erase(std::remove(tString.begin(), tString.end(), '}'), tString.end());
+    //     tString.erase(std::remove(tString.begin(), tString.end(), ' '), tString.end());
+    //     Vector<std::string> tVec = split_string(tString, ",");
+    //     iElement.get_parameter().set_value(tKey, tVec, false);
+    // }
+    // else
+    // {
+    //     // For other types, process accordingly
+    //     Design_Variable tDesignVariable = convert_parameter_from_string_to_type<real>(aValues(tIndex));
+    //     iElement.get_parameter().set_value(tKey, tDesignVariable, false);
+    // }
+    }
+
+        // for ( auto iElements : tParameterList )
+        // {
+        //     if ( iElements.get_name() == "constitutive_type") {
+        //         std::cout << "constitutive_type" << std::endl;
+        //     }
+        //     //  Cannot set locked parameters
+        //     if ( iElements.get_parameter().is_locked() )
+        //     {
+        //         continue;
+        //     }
+
+        //     // Find the key in the XML file parameter list
+        //     auto tFind = std::find( aKeys.begin(), aKeys.end(), iElements.get_name() );
+
+        //     if ( tFind == aKeys.end() )
+        //     {
+        //         continue;
+        //     }
+
+        //     // Set the value of the parameter list with the value from the XML file by converting the string to the correct data type
+        //     // Calls the convert_parameter_from_string_to_type function for bool, uint, sint, real
+        //     // Calls the string_to_vector function for std::string, std::pair< std::string, std::string >, Vector< uint >, Vector< sint >, Vector< real >, Vector< std::string > and Design_Variable
+        //     if ( iElements.get_parameter().index() == variant_index< bool >() )
+        //     {
+        //         if ( tFind != aKeys.end() )
+        //         {
+        //             bool tBool = convert_parameter_from_string_to_type< bool >( aValues( std::distance( aKeys.begin(), tFind ) ) );
+        //             iElements.get_parameter().set_value( iElements.get_name(), tBool, false );
+        //         }
+        //     }
+        //     else if ( iElements.get_parameter().index() == variant_index< uint >() )
+        //     {
+        //         if ( tFind != aKeys.end() )
+        //         {
+        //             if ( iElements.get_parameter().get_entry_type() == Entry_Type::SELECTION )
+        //             {
+        //                 uint tUint = convert_parameter_from_string_to_type< uint >( aValues( std::distance( aKeys.begin(), tFind ) ) );
+        //                 iElements.get_parameter().set_value( iElements.get_name(), tUint, false );
+        //             }
+        //             else
+        //             {
+        //                 uint tUint = convert_parameter_from_string_to_type< uint >( aValues( std::distance( aKeys.begin(), tFind ) ) );
+        //                 iElements.get_parameter().set_value( iElements.get_name(), tUint, false );
+        //             }
+        //             // uint tUint = convert_parameter_from_string_to_type< uint >( aValues( std::distance( aKeys.begin(), tFind ) ) );
+        //             // iElements.get_parameter().set_value( iElements.get_name(), tUint, false );
+        //         }
+        //     }
+        //     else if ( iElements.get_parameter().index() == variant_index< sint >() )
+        //     {
+        //         if ( tFind != aKeys.end() )
+        //         {
+        //             sint tSint = convert_parameter_from_string_to_type< sint >( aValues( std::distance( aKeys.begin(), tFind ) ) );
+
+        //             iElements.get_parameter().set_value( iElements.get_name(), tSint, false );
+        //         }
+        //     }
+        //     else if ( iElements.get_parameter().index() == variant_index< real >() )
+        //     {
+        //         if ( tFind != aKeys.end() )
+        //         {
+        //             real tReal = convert_parameter_from_string_to_type< real >( aValues( std::distance( aKeys.begin(), tFind ) ) );
+        //             iElements.get_parameter().set_value( iElements.get_name(), tReal, false );
+        //         }
+        //     }
+        //     else if ( iElements.get_parameter().index() == variant_index< std::string >() )
+        //     {
+        //         if ( tFind != aKeys.end() )
+        //         {
+        //             std::string tString = aValues( std::distance( aKeys.begin(), tFind ) );
+        //             // Strip the string of leading and trailing quotation marks
+        //             tString.erase( std::remove( tString.begin(), tString.end(), '\"' ), tString.end() );
+        //             iElements.get_parameter().set_value( iElements.get_name(), tString, false );
+        //         }
+        //     }
+        //     else if ( iElements.get_parameter().index() == variant_index< std::pair< std::string, std::string > >() )
+        //     {
+        //         if ( tFind != aKeys.end() )
+        //         {
+        //             std::pair< std::string, std::string > tPair;
+        //             // Everything before a ; is the key and everything after is the value of tPair
+        //             // Remove any whitespaces or {}
+        //             std::string tPairString = aValues( std::distance( aKeys.begin(), tFind ) );
+        //             tPairString.erase( std::remove( tPairString.begin(), tPairString.end(), '{' ), tPairString.end() );
+        //             tPairString.erase( std::remove( tPairString.begin(), tPairString.end(), '}' ), tPairString.end() );
+        //             tPairString.erase( std::remove( tPairString.begin(), tPairString.end(), ' ' ), tPairString.end() );
+        //             size_t tPos  = tPairString.find( ';' );
+        //             tPair.first  = tPairString.substr( 0, tPos );
+        //             tPair.second = tPairString.substr( tPos + 1 );
+
+        //             iElements.get_parameter().set_value( iElements.get_name(), tPair, false );
+        //         }
+        //     }
+        //     else if ( iElements.get_parameter().index() == variant_index< Vector< uint > >() )
+        //     {
+        //         if ( tFind != aKeys.end() )
+        //         {
+        //             Vector< uint > tVec = string_to_vector< uint >( aValues( std::distance( aKeys.begin(), tFind ) ) );
+        //             iElements.get_parameter().set_value( iElements.get_name(), tVec, false );
+        //         }
+        //     }
+        //     else if ( iElements.get_parameter().index() == variant_index< Vector< sint > >() )
+        //     {
+        //         if ( tFind != aKeys.end() )
+        //         {
+        //             Vector< sint > tVec = string_to_vector< sint >( aValues( std::distance( aKeys.begin(), tFind ) ) );
+        //             iElements.get_parameter().set_value( iElements.get_name(), tVec, false );
+        //         }
+        //     }
+        //     else if ( iElements.get_parameter().index() == variant_index< Vector< real > >() )
+        //     {
+        //         if ( tFind != aKeys.end() )
+        //         {
+        //             Vector< real > tVec = string_to_vector< real >( aValues( std::distance( aKeys.begin(), tFind ) ) );
+        //             iElements.get_parameter().set_value( iElements.get_name(), tVec, false );
+        //         }
+        //     }
+        //     else if ( iElements.get_parameter().index() == variant_index< Vector< std::string > >() )
+        //     {
+        //         if ( tFind != aKeys.end() )
+        //         {
+        //             // Remove any whitespaces or {}
+        //             std::string tString = aValues( std::distance( aKeys.begin(), tFind ) );
+        //             tString.erase( std::remove( tString.begin(), tString.end(), '{' ), tString.end() );
+        //             tString.erase( std::remove( tString.begin(), tString.end(), '}' ), tString.end() );
+        //             tString.erase( std::remove( tString.begin(), tString.end(), ' ' ), tString.end() );
+
+        //             // Split the string into a vector of strings by the delimiter ,
+        //             Vector< std::string > tVec = split_string( tString, "," );
+
+        //             iElements.get_parameter().set_value( iElements.get_name(), tVec, false );
+        //         }
+        //     }
+        //     else
+        //     {
+        //         // Vector< real >  tVec            = string_to_vector< real >( aValues( std::distance( aKeys.begin(), tFind ) ) );
+        //         // Design_Variable tDesignVariable = Design_Variable( tVec( 0 ), tVec( 1 ), tVec( 2 ) );
+        //         Design_Variable tDesignVariable = convert_parameter_from_string_to_type< real >( aValues( std::distance( aKeys.begin(), tFind ) ) );
+        //         iElements.get_parameter().set_value( iElements.get_name(), tDesignVariable, false );
+        //     }
+        // }
 
         return tParameterList;
+    }
+
+    void set_new_parameter( Parameter& aParameter,
+                            std::string& aKey, const std::string& aValue )
+    {
+        if (aParameter.is_locked())
+    {
+        return;
+    }
+
+    // Replace $ with whitespace in key
+    std::replace(aKey.begin(), aKey.end(), '$', ' ');
+
+
+    // Set the value based on the type of parameter
+    if (aParameter.index() == variant_index<bool>())
+    {
+        bool tBool = convert_parameter_from_string_to_type<bool>(aValue);
+        aParameter.set_value(aKey, tBool, false);
+    }
+    else if (aParameter.index() == variant_index<uint>())
+    {
+        uint tUint = convert_parameter_from_string_to_type<uint>(aValue);
+        aParameter.set_value(aKey, tUint, false);
+    }
+    else if (aParameter.index() == variant_index<sint>())
+    {
+        sint tSint = convert_parameter_from_string_to_type<sint>(aValue);
+        aParameter.set_value(aKey, tSint, false);
+    }
+    else if (aParameter.index() == variant_index<real>())
+    {
+        real tReal = convert_parameter_from_string_to_type<real>(aValue);
+        aParameter.set_value(aKey, tReal, false);
+    }
+    else if (aParameter.index() == variant_index<std::string>())
+    {
+        std::string tString = aValue;
+        // Strip the string of leading and trailing quotation marks
+        tString.erase(std::remove(tString.begin(), tString.end(), '\"'), tString.end());
+        aParameter.set_value(aKey, tString, false);
+    }
+    else if (aParameter.index() == variant_index<std::pair<std::string, std::string>>())
+    {
+        std::string tPairString = aValue;
+        // Process the pair string
+        tPairString.erase(std::remove(tPairString.begin(), tPairString.end(), '{'), tPairString.end());
+        tPairString.erase(std::remove(tPairString.begin(), tPairString.end(), '}'), tPairString.end());
+        tPairString.erase(std::remove(tPairString.begin(), tPairString.end(), ' '), tPairString.end());
+        size_t tPos = tPairString.find(';');
+        std::pair<std::string, std::string> tPair = {tPairString.substr(0, tPos), tPairString.substr(tPos + 1)};
+        aParameter.set_value(aKey, tPair, false);
+    }
+    else if (aParameter.index() == variant_index<Vector<uint>>())
+    {
+        Vector<uint> tVec = string_to_vector<uint>(aValue);
+        aParameter.set_value(aKey, tVec, false);
+    }
+    else if (aParameter.index() == variant_index<Vector<sint>>())
+    {
+        Vector<sint> tVec = string_to_vector<sint>(aValue);
+        aParameter.set_value(aKey, tVec, false);
+    }
+    else if (aParameter.index() == variant_index<Vector<real>>())
+    {
+        Vector<real> tVec = string_to_vector<real>(aValue);
+        aParameter.set_value(aKey, tVec, false);
+    }
+    else if (aParameter.index() == variant_index<Vector<std::string>>())
+    {
+        std::string tString = aValue;
+        tString.erase(std::remove(tString.begin(), tString.end(), '{'), tString.end());
+        tString.erase(std::remove(tString.begin(), tString.end(), '}'), tString.end());
+        tString.erase(std::remove(tString.begin(), tString.end(), ' '), tString.end());
+        Vector<std::string> tVec = split_string(tString, ",");
+        aParameter.set_value(aKey, tVec, false);
+    }
+    else
+    {
+        // For other types, process accordingly
+        Design_Variable tDesignVariable = convert_parameter_from_string_to_type<real>(aValue);
+        aParameter.set_value(aKey, tDesignVariable, false);
+    }
     }
 
     /**
@@ -1093,7 +1312,7 @@ namespace moris
      * @param aSubChild - Should be 0 unless a sub-module has inner types (for instance GEN/Geometries, OPT/Algorithms and SOL/LinearAlgorithms)
      * @return Parameter_List
      */
-    Parameter_List create_parameter_list( Parameter_List_Type aModule, uint aChild, uint aSubChild )
+    Parameter_List create_parameter_list( Module_Type aModule, uint aChild, uint aSubChild )
     {
         /*
         function name: create_parameter_list
@@ -1109,7 +1328,7 @@ namespace moris
         */
         switch ( aModule )
         {
-            case Parameter_List_Type::OPT:
+            case Module_Type::OPT:
                 switch ( aChild )
                 {
                     case 0:
@@ -1165,16 +1384,16 @@ namespace moris
                 // Free
                 break;
 
-            case Parameter_List_Type::HMR:
+            case Module_Type::HMR:
                 return prm::create_hmr_parameter_list();
 
-            case Parameter_List_Type::STK:
+            case Module_Type::STK:
                 return prm::create_stk_parameter_list();
 
-            case Parameter_List_Type::XTK:
+            case Module_Type::XTK:
                 return prm::create_xtk_parameter_list();
 
-            case Parameter_List_Type::GEN:
+            case Module_Type::GEN:
                 switch ( aChild )
                 {
                     case 0:
@@ -1200,7 +1419,7 @@ namespace moris
                     }
                     case 2:
                     {
-                        return prm::create_gen_property_parameter_list( gen::Field_Type::CONSTANT );
+                        return prm::create_gen_property_parameter_list( (gen::Field_Type) aSubChild );
                     }
                     default:
                     {
@@ -1209,7 +1428,7 @@ namespace moris
                 }
                 break;
 
-            case Parameter_List_Type::FEM:
+            case Module_Type::FEM:
                 /*
                  * Set of Dropdowns for tParameterList[0] (property_name in FEM)
                  * //Dropdown
@@ -1256,9 +1475,8 @@ namespace moris
 
                 break;
 
-            case Parameter_List_Type::SOL:
-                //            tParameterList.resize( 8 );
-
+            case Module_Type::SOL:
+                //
                 switch ( aChild )
                 {
                     case 0:
@@ -1294,19 +1512,19 @@ namespace moris
 
                 break;
 
-            case Parameter_List_Type::MSI:
+            case Module_Type::MSI:
                 return prm::create_msi_parameter_list();
 
-            case Parameter_List_Type::VIS:
+            case Module_Type::VIS:
                 return prm::create_vis_parameter_list();    //
 
-            case Parameter_List_Type::MIG:
+            case Module_Type::MIG:
                 return prm::create_mig_parameter_list();
 
-            case Parameter_List_Type::WRK:
+            case Module_Type::WRK:
                 return prm::create_wrk_parameter_list();
 
-            case Parameter_List_Type::MORISGENERAL:
+            case Module_Type::MORISGENERAL:
                 switch ( aChild )
                 {
                     case 0:
@@ -1348,21 +1566,20 @@ namespace moris
         return Parameter_List( "" );
     }
 
-    Vector< Submodule_Parameter_Lists > read_module( uint aRoot )
+    Module_Parameter_Lists read_module( uint aRoot )
     {
         // Create the 3d vector
-        Vector< Submodule_Parameter_Lists > tParameterList;
-        tParameterList.resize( (uint)( Parameter_List_Type::END_ENUM ) );
-        for ( uint iChild = 0; iChild < get_number_of_sub_parameter_lists_in_module( (Parameter_List_Type)aRoot ); iChild++ )
+        Module_Parameter_Lists tParameterList( static_cast< Module_Type >( aRoot ) );
+        for ( uint iChild = 0; iChild < get_number_of_sub_parameter_lists_in_module( (Module_Type)aRoot ); iChild++ )
         {
-            if ( ( aRoot == (uint)( Parameter_List_Type::OPT ) && iChild == (uint)( OPT_SubModule::ALGORITHMS ) )
-                    || ( aRoot == (uint)( Parameter_List_Type::GEN ) && iChild == (uint)( GEN_SubModule::GEOMETRIES ) )
-                    || ( aRoot == (uint)( Parameter_List_Type::SOL ) && iChild == (uint)( SOL_SubModule::LINEAR_ALGORITHMS ) ) )
+            if ( ( aRoot == (uint)( Module_Type::OPT ) && iChild == (uint)( OPT_Submodule::ALGORITHMS ) )
+                    || ( aRoot == (uint)( Module_Type::GEN ) && iChild == (uint)( GEN_Submodule::GEOMETRIES ) )
+                    || ( aRoot == (uint)( Module_Type::SOL ) && iChild == (uint)( SOL_Submodule::LINEAR_ALGORITHMS ) ) )
             {
             }
             else
             {
-                tParameterList( iChild ).add_parameter_list( create_parameter_list( (Parameter_List_Type)aRoot, iChild, 0 ) );
+                tParameterList( iChild ).add_parameter_list( create_parameter_list( (Module_Type)aRoot, iChild, 0 ) );
             }
         }
 

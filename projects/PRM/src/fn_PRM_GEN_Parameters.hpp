@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "cl_Submodule_Parameter_Lists.hpp"
+#include "cl_Parameter_List.hpp"
 #include "GEN_Data_Types.hpp"
 
 namespace moris::prm
@@ -34,7 +34,8 @@ namespace moris::prm
 
         // IQIs/PDVs
         tGENParameterList.insert( "IQI_types", Vector< std::string >(),      // Requested IQI types for sensitivity analysis
-                Entry_Type::SELECTION, "IQI_name", Parameter_List_Type::FEM, 4 );
+                Entry_Type::SELECTION, "IQI_name",
+                Module_Type::FEM, 4 );
         tGENParameterList.insert( "PDV_types", Vector< std::string >() );    // Requested PDV types for sensitivity analysis
 
         // Phase table

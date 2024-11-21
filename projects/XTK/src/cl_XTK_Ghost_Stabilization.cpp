@@ -699,7 +699,7 @@ namespace moris::xtk
                 moris_id tUipcId       = aReceivedUnzippedIpCellIds( iProc )( iVert );
 
                 // get the UIPV
-                moris_index                           tVertexIndex = this->get_enriched_interpolation_vertex( tBaseVertexId, tUipcId );
+                moris_index                           tVertexIndex = tEnrInterpMesh.get_enriched_interpolation_vertex( tBaseVertexId, tUipcId );
                 Interpolation_Vertex_Unzipped const * tUIPV        = tEnrInterpMesh.get_unzipped_vertex_pointer( tVertexIndex );
 
                 // get the enriched T-matrix
@@ -834,7 +834,7 @@ namespace moris::xtk
                         continue;
                     }
 
-                    // add this basis to the mesh if it does not exists on the current partition
+                    // add this basis to the mesh if it does not exist on the current partition
                     if ( !tEnrInterpMesh.basis_exists_on_partition( aMeshIndex, tBasisId ) )
                     {
                         // get the bulk-phase the basis interpolates into
@@ -1023,41 +1023,6 @@ namespace moris::xtk
                 }
             }
         }
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    moris_index
-    Ghost_Stabilization::get_enriched_interpolation_vertex(
-            moris_index const & aBGVertId,
-            moris_index const & aEnrichedIpCellId )
-    {
-        Enriched_Interpolation_Mesh& tEnrInterpMesh = mXTKModel->get_enriched_interp_mesh();
-
-        // get the interpolation cell index using the id
-        moris_index tCellIndex = tEnrInterpMesh.get_loc_entity_ind_from_entity_glb_id( aEnrichedIpCellId, mtk::EntityRank::ELEMENT, 0 );
-
-        // get the cell
-        Interpolation_Cell_Unzipped* tEnrIpCell = tEnrInterpMesh.get_enriched_interpolation_cells()( tCellIndex );
-
-        // get the vertices
-        Vector< xtk::Interpolation_Vertex_Unzipped* > const & tVertexPointers = tEnrIpCell->get_xtk_interpolation_vertices();
-
-        moris_index tVertexPointerInd = 0;
-        uint        tCount            = 0;
-
-        for ( uint i = 0; i < tVertexPointers.size(); i++ )
-        {
-            if ( tVertexPointers( i )->get_base_vertex()->get_id() == aBGVertId )
-            {
-                tVertexPointerInd = tVertexPointers( i )->get_index();
-                tCount++;
-            }
-        }
-
-        MORIS_ERROR( tCount == 1, "Enriched interpolation vertex not found or found more than once" );
-
-        return tVertexPointerInd;
     }
 
     // ----------------------------------------------------------------------------------

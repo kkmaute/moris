@@ -911,7 +911,7 @@ namespace moris
             //-------------------------------------------------------
             sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
-            Vector< Submodule_Parameter_Lists > tParameterlist( 8 );
+            Module_Parameter_Lists tParameterlist( Module_Type::SOL );
 
             tParameterlist( 0 ).add_parameter_list( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::PETSC ) );
             tParameterlist( 0 )( 0 ).set( "KSPType", std::string( "fgmres" ) );
@@ -1189,7 +1189,7 @@ namespace moris
             //-------------------------------------------------------
             sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
-            Vector< Submodule_Parameter_Lists > tParameterlist( 8 );
+            Module_Parameter_Lists tParameterlist( Module_Type::SOL );
 
             tParameterlist( 0 ).add_parameter_list( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::PETSC ) );
             tParameterlist( 0 )( 0 ).set( "KSPType", std::string( "fgmres" ) );

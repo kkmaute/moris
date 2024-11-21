@@ -69,6 +69,13 @@ namespace moris
         bool operator!=( const Parameter_Iterator& ) const;
 
         /**
+         * Comparison operator for checking if iterator is at the end of the parameter list container.
+         *
+         * @return If iterators are equal
+         */
+        bool operator==( const Parameter_Iterator& ) const;
+
+        /**
          * Gets the name of the parameter at the current key index.
          *
          * @return Parameter name
@@ -107,8 +114,7 @@ namespace moris
         Vector< std::string > mOrderedKeys;
 
         // Scoped iterator types
-        typedef Parameter_Iterator< std::map< std::string, Parameter >& > iterator;
-        typedef Parameter_Iterator< const std::map< std::string, Parameter >& > const_iterator;
+        
 
       public:
         /**
@@ -117,6 +123,9 @@ namespace moris
          * @param aName Name of this parameter list
          */
         explicit Parameter_List( std::string aName );
+
+        typedef Parameter_Iterator< std::map< std::string, Parameter >& > iterator;
+        typedef Parameter_Iterator< const std::map< std::string, Parameter >& > const_iterator;
 
         /**
          * Sets the name of this parameter list.
@@ -153,9 +162,9 @@ namespace moris
         void insert(
                 const std::string&  aName,
                 T                   aDefaultValue,
-                Entry_Type          aExternalValidationType     = Entry_Type::FREE,
-                std::string         aExternalParameterName      = "",
-                Parameter_List_Type aExternalParameterListType  = Parameter_List_Type::END_ENUM,
+                Entry_Type          aExternalValidationType = Entry_Type::FREE,
+                std::string         aExternalParameterName = "",
+                Module_Type        aExternalParameterListType = Module_Type::END_ENUM,
                 uint                aExternalParameterListIndex = 0 )
         {
             // Register new
