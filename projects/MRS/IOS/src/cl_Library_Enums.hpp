@@ -153,7 +153,7 @@ namespace moris
     // -----------------------------------------------------------------------------
 
     /**
-     * @brief converts an enum of type Parameter_List_Type to a string spelled equivalent to the enum
+     * @brief converts an enum of type Module_Type to a string spelled equivalent to the enum
      *
      * @param aModuleType enum to convert to string
      * @return std::string enum spelled out as string
@@ -166,7 +166,7 @@ namespace moris
     /**
      * @brief Get the name for parameter list function expected for a given module
      *
-     * @param aModuleType Parameter_List_Type enum naming the module for which parameters should be parsed
+     * @param aModuleType Module_Type enum naming the module for which parameters should be parsed
      * @return std::string name of the parameter list function expected in an .so input file
      */
     std::string

@@ -121,7 +121,7 @@ namespace moris
                 case Module_Type::END_ENUM:
                     MORIS_ERROR( false,
                             "Library_IO_Standard::load_all_standard_parameters() - "
-                            "Parameter_List_Type is UNDEFINED. This loop shouldn't get here." );
+                            "Module_Type is UNDEFINED. This loop shouldn't get here." );
                     break;
 
                 default:

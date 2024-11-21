@@ -319,7 +319,7 @@ namespace moris
      * @return uint - The index of the sub-module type for special forms like "GEN/Geometry", "OPT/Algorithm" and "SOL/Linear_Algorithm", if not these forms, returns 0
      */
 
-    uint get_subchild_index_from_xml_list( Parameter_List_Type iParameterListType, std::string tInnerSubParamListName, Vector< std::string >& aKeys, Vector< std::string >& aValues );
+    uint get_subchild_index_from_xml_list( Module_Type iParameterListType, std::string tInnerSubParamListName, Vector< std::string >& aKeys, Vector< std::string >& aValues );
 
     /**
      * @brief convert_parameter_from_string_to_type - Converts the string value from the XML file to the correct data type
@@ -335,7 +335,7 @@ namespace moris
 
     /**
      * @brief create_and_set_parameter_list - Calls the create_parameter_list function and sets the parameter list with the values from the XML file in the correct data type
-     * @param aModule - Module in Parameter_List_Type enum type
+     * @param aModule - Module in Module_Type enum type
      * @param aChild - The index of the sub-module
      * @param aSubChild - The index of the sub-module type for special forms like "GEN/Geometry", "OPT/Algorithm" and "SOL/Linear_Algorithm", if not these forms, then 0
      * @param tKeys - The keys of the XML file parameter list
@@ -365,5 +365,6 @@ namespace moris
      */
     void set_new_parameter( Parameter& aParameter, std::string& aKey, const std::string& aValue );
 
+    void set_parameter_list ( Parameter_List& tParameterList, Vector< std::string >& aKeys, Vector< std::string >& aValues );   
 
 }    // namespace moris

@@ -47,9 +47,7 @@ namespace moris
     {
         mParameterLists.erase( aParameterListIndex );
     }
-
-    //--------------------------------------------------------------------------------------------------------------
-
+    
     void Submodule_Parameter_Lists::add_parameter_list()
     {
         if ( mType == FEM_Submodule_String::values( static_cast< uint >( FEM::PROPERTIES ) ) )
