@@ -152,8 +152,8 @@ namespace moris
     std::string tBulkSets = "HMR_dummy_n_p1,HMR_dummy_c_p1";
     std::string tVoidSets = "HMR_dummy_n_p0,HMR_dummy_c_p0";
 
-    std::string tDirichletSets = "SideSet_4_n_p1,SideSet_4_n_p1";
-    std::string tLoadSets      = "SideSet_2_n_p1,SideSet_2_n_p1";
+    std::string tDirichletSets = "SideSet_4_n_p1,SideSet_4_c_p1";
+    std::string tLoadSets      = "SideSet_2_n_p1,SideSet_2_c_p1";
 
     std::string tInterfaceVoidSets = "iside_b0_1_b1_0";
 
@@ -553,14 +553,14 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "is_optimization_problem", tIsOpt );
         tParameterlist( 0 )( 0 ).set( "problem", "user_defined" );
         tParameterlist( 0 )( 0 ).set( "library", tLibraryName );
-        tParameterlist( 0 )( 0 ).set( "restart_file", "" );
+        tParameterlist( 0 )( 0 ).set( "restart_file", "ADV_Alg_0_Iter_15.hdf5" );
         tParameterlist( 0 )( 0 ).set( "reinitialize_interface_iter", 10000 );
 
         tParameterlist( 2 )( 0 ) = moris::prm::create_gcmma_parameter_list();
         tParameterlist( 2 )( 0 ).set( "step_size", tMMAStepSize );
         tParameterlist( 2 )( 0 ).set( "penalty", tMMAPenalty );
         tParameterlist( 2 )( 0 ).set( "max_its", tMMAMaxIter );    // Maximum number of iterations
-        tParameterlist( 2 )( 0 ).set( "restart_index", 0 );
+        tParameterlist( 2 )( 0 ).set( "restart_index", 15 );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -1296,7 +1296,6 @@ namespace moris
         tParameterlist( 5 )( 0 ).set( "TSA_Output_Criteria", "Output_Criterion" );
 
         tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
-        tParameterlist( 6 )( 0 ).set( "SOL_save_operator_to_matlab", "Mat.dat" );
 
         tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE );
     }

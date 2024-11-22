@@ -2694,7 +2694,7 @@ namespace moris::fem
             // loop over requested IQIs and set size
             for ( auto& tdQIdp : mdQIdp( 0 ) )
             {
-                tdQIdp.set_size( 1, mIPAdvIdsLeader.size(), 0.0 );
+                tdQIdp.set_size( 1, mIPAdvIds.size(), 0.0 );
             }
 
             // set exist flag to true
@@ -3781,8 +3781,11 @@ namespace moris::fem
         aAdvGeoWeights.clear();
         aAdvGeoWeights.resize( tNumVertices, Matrix< DDRMat >( 0, 0 ) );
 
+        // get number of unique adv ids active in the cluster
+        uint tNumAdvs = mIGAdvIds.size();
+
         // skip remainder if no vertices
-        if ( tNumVertices == 0 )
+        if ( tNumVertices == 0 || tNumAdvs == 0 )
         {
             return;
         }
@@ -3790,9 +3793,6 @@ namespace moris::fem
         // get design variable interfac
         MSI::Design_Variable_Interface* tDVInterface =
                 mEquationModel->get_design_variable_interface();
-
-        // get number of unique adv ids active in the cluster
-        uint tNumAdvs = mIGAdvIds.size();
 
         // loop over all vertices in cluster
         for ( uint iVert = 0; iVert < tNumVertices; ++iVert )

@@ -310,7 +310,7 @@ namespace moris::opt
 
         // Open open restart file
         // Note: only processor 0 reads this file; therefore no parallel file name extension is used
-        hid_t tFileID = open_hdf5_file( mRestartFile, false );
+        hid_t tFileID = open_hdf5_file( mRestartFile, false, true );
 
         // Define matrix in which to read restart ADVs
         Vector< real >  tRestartADVs;

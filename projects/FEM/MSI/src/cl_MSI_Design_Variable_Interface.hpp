@@ -128,9 +128,12 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
-            virtual Vector< sint >
+            virtual void
             build_local_adv_indices(
-                    Vector< Vector< std::shared_ptr< gen::Design_Extraction_Operator > > >& aExtractionOperators ) = 0;
+                    Vector< Vector< std::shared_ptr< gen::Design_Extraction_Operator > > >& aExtractionOperators,
+                    Vector< Vector< Matrix< DDRMat > > >&                                   aAdvPropWeights,
+                    Vector< sint >&                                                         aAdvIds,
+                    Vector< Matrix< DDSMat > >&                                             aDVTypeAdvMap ) = 0;
 
             //------------------------------------------------------------------------------
 

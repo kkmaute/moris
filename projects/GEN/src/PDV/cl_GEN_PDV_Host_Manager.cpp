@@ -719,7 +719,6 @@ namespace moris::gen
         //        tFullSensitivity = trans( tFullSensitivity );
 
         sol::Dist_Vector* tdIQIdADV = this->get_dQIdp();
-        // tdIQIdADV->print();
 
         sint tNumIQIs = tdIQIdADV->get_num_vectors();
 
@@ -737,13 +736,6 @@ namespace moris::gen
         tFulldIQIdADV->extract_copy( tFullSensitivity );
         tFullSensitivity = trans( tFullSensitivity );
 
-        //        barrier();
-        //        std::cout << "compute_diqi_dadv Rank " << par_rank() << std::endl;
-        //        barrier();
-
-        //        // Clean up
-        //        delete tdIQIdPDV;
-        //        delete tdIQIdADV;
         delete tFulldIQIdADV;
 
         return tFullSensitivity;
@@ -824,14 +816,14 @@ namespace moris::gen
         // Loop over intersection nodes for inserting
         for ( uint iNodeIndex = mNodeManager.get_number_of_background_nodes(); iNodeIndex < mNodeManager.get_total_number_of_nodes(); iNodeIndex++ )
         {
-            if ( mNodeManager.node_depends_on_advs( iNodeIndex ) and mNodeManager.get_derived_node_owner( iNodeIndex ) == par_rank() )
+            if ( mNodeManager.node_depends_on_advs( iNodeIndex ) )
             {
                 // Get starting ID and number of coordinates
                 // uint tStartingGlobalIndex = mNodeManager.get_derived_node_starting_pdv_id( iNodeIndex );
                 uint tNumCoordinates = mNodeManager.get_number_of_derived_node_pdvs( iNodeIndex );
 
                 // Parent sensitivities and ADV IDs
-                tHostADVSensitivities.set_size( 0.0, 0.0 );
+                tHostADVSensitivities.set_size( 0, 0 );
                 eye( tNumCoordinates, tNumCoordinates, tI );
                 mNodeManager.append_dcoordinate_dadv_from_derived_node( iNodeIndex, tHostADVSensitivities, tI );
                 Vector< sint > tADVIds = mNodeManager.get_coordinate_determining_adv_ids_from_derived_node( iNodeIndex );
@@ -1773,52 +1765,92 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Vector< sint >
+    void
     PDV_Host_Manager::build_local_adv_indices(
-            Vector< Vector< std::shared_ptr< gen::Design_Extraction_Operator > > >& aExtractionOperators )
+            Vector< Vector< std::shared_ptr< gen::Design_Extraction_Operator > > >& aExtractionOperators,
+            Vector< Vector< Matrix< DDRMat > > >&                                   aAdvPropWeights,
+            Vector< sint >&                                                         aAdvIds,
+            Vector< Matrix< DDSMat > >&                                             aDVTypeAdvMap )
     {
-        // collect all Adv Ids
-        Vector< sint > tAdvIds;
+        // get number of dv types
+        uint tNumDvTypes = aExtractionOperators.size();
+
+        // initialize vector storing adv weights for each dv type and interpolation vertex
+        aAdvPropWeights.clear();
+        aAdvPropWeights.resize( tNumDvTypes );
+
+        // initialize local dv type adv map
+        aDVTypeAdvMap.clear();
+        aDVTypeAdvMap.resize( tNumDvTypes, Matrix< DDSMat >( 2, 1, -1 ) );
+
+        // initialize counter for start and stop indices for each dv type in adv id list
+        uint tCounter = aAdvIds.size();
+
+        uint iDvType = 0;
         for ( const auto& tOperators : aExtractionOperators )
         {
+            // collect all Adv Ids
+            Vector< sint > tDvTypeAdvIds;
+
             for ( const auto& tOperator : tOperators )
             {
                 // check that extraction operator is not empty
                 if ( tOperator )
                 {
-                    tAdvIds.append( tOperator->mAdvIds );
+                    tDvTypeAdvIds.append( tOperator->mAdvIds );
                 }
             }
-        }
 
-        // determine unique Adv Ids
-        unique( tAdvIds );
+            // determine unique Adv Ids of DV type
+            unique( tDvTypeAdvIds );
 
-        // create map from Adv Id to index
-        map< sint, sint > tAdvIdToIndexMap;
-        for ( uint i = 0; i < tAdvIds.size(); i++ )
-        {
-            tAdvIdToIndexMap[ tAdvIds( i ) ] = (sint)i;
-        }
+            // add to total Adv Ids
+            aAdvIds.append( tDvTypeAdvIds );
 
-        // update local Adv Indices in extraction operators
-        for ( const auto& tOperators : aExtractionOperators )
-        {
+            // update start and stop indices for DV type
+            aDVTypeAdvMap( iDvType )( 0 ) = tCounter;
+            tCounter += tDvTypeAdvIds.size();
+            aDVTypeAdvMap( iDvType )( 1 ) = tCounter - 1;
+
+            // create map from Adv Ids to Adv indices
+            map< sint, sint > tAdvIdToIndexMap;
+            for ( uint i = 0; i < tDvTypeAdvIds.size(); i++ )
+            {
+                tAdvIdToIndexMap[ tDvTypeAdvIds( i ) ] = (sint)i;
+            }
+
+            // initialize weights for all interpolation vertices
+            aAdvPropWeights( iDvType ).resize( tOperators.size() );
+
+            // update local Adv Indices in extraction operators for DV type
+            uint iVert = 0;
             for ( auto& tOperator : tOperators )
             {
                 // check that extraction operator is not empty
                 if ( tOperator )
                 {
                     // update Adv Indices
+                    // FIXME note that local indices are stored with extraction operator
+                    // and might be overwritten; thus would be better to store them in a separate vector
                     for ( uint i = 0; i < tOperator->mLocalAdvIndices.size(); i++ )
                     {
                         tOperator->mLocalAdvIndices( i ) = tAdvIdToIndexMap[ tOperator->mAdvIds( i ) ];
                     }
-                }
-            }
-        }
 
-        return tAdvIds;
+                    // fill property weight matrix
+                    this->populate_adv_geo_weights(
+                            tOperator,
+                            aAdvPropWeights( iDvType )( iVert ),
+                            tDvTypeAdvIds.size() );
+                }
+
+                // increment vertex counter
+                iVert++;
+            }
+
+            // increment dv type counter
+            iDvType++;
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------

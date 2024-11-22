@@ -152,6 +152,11 @@ namespace moris::fem
 
             // reshape tCoeffs into the order the cluster expects them
             Matrix< DDRMat > tCoeff;
+
+            MORIS_ASSERT( tCoeff_Original.size() > 0,
+                    "Interpolation_Element::set_field_interpolators_coefficients - %s",
+                    "Inconsistent number of pdof values for leader dof type group.\n" );
+
             this->reshape_pdof_values( tCoeff_Original( 0 ), tCoeff );
 
             // set field interpolator coefficients
@@ -427,7 +432,6 @@ namespace moris::fem
                 mSet->mEquationModel->get_design_variable_interface();
 
         // get the list of requested dv types by the opt solver
-
         const Vector< enum gen::PDV_Type >& tRequestedDvTypesLeader = mSet->get_ip_dv_types_for_set();
 
         // reset material pdv assembly vector
@@ -444,15 +448,21 @@ namespace moris::fem
         Vector< Vector< std::shared_ptr< gen::Design_Extraction_Operator > > > tIPExtractionOperatorsLeader =
                 tDVInterface->get_ip_desgin_extraction_operators( tLeaderVerticesInds, tRequestedDvTypesLeader );
 
+        // reset IP Adv list
+        mSet->mIPAdvIds.clear();
+
         // get unique adv ids for ip extraction operators on cluster
-        mSet->mIPAdvIdsLeader = tDVInterface->build_local_adv_indices( tIPExtractionOperatorsLeader );
-
-        this->create_prop_adv_assembly_data(
+        tDVInterface->build_local_adv_indices(
+                tIPExtractionOperatorsLeader,
                 mSet->mAdvPropWeightsLeader,
-                mSet->mIPAdvIdsLeader,
-                tIPExtractionOperatorsLeader );
+                mSet->mIPAdvIds,
+                mSet->mIPDVTypeAdvMapLeader );
 
-        mSet->mIPAdvIds = mSet->mIPAdvIdsLeader;
+        //        this->create_prop_adv_assembly_data(
+        //                mSet->mAdvPropWeightsLeader,
+        //                mSet->mIPAdvIdsLeader,
+        //                tIPExtractionOperatorsLeader );
+        //
 
         // get dv ids for this type and node indices
         Vector< Matrix< IdMat > >
@@ -501,17 +511,17 @@ namespace moris::fem
                     tDVInterface->get_ip_desgin_extraction_operators( tFollowerVerticesInds, tRequestedDvTypesFollower );
 
             // get unique adv ids for ip extraction operators on cluster
-            mSet->mIPAdvIdsFollower = tDVInterface->build_local_adv_indices( tIPExtractionOperatorsFollower );
-
-            this->create_prop_adv_assembly_data(
+            tDVInterface->build_local_adv_indices(
+                    tIPExtractionOperatorsFollower,
                     mSet->mAdvPropWeightsFollower,
-                    mSet->mIPAdvIdsFollower,
-                    tIPExtractionOperatorsFollower );
+                    mSet->mIPAdvIds,
+                    mSet->mIPDVTypeAdvMapFollower );
 
-            mSet->mIPAdvIds.append( mSet->mIPAdvIdsFollower );
+            std::cout << "Rank " << par_rank() << " " << mSet->mIPAdvIds.size() << " " << std::endl;
 
             // get dv ids for this type and node indices
-            Vector< Matrix< IdMat > > tPdvIds;
+            Vector< Matrix< IdMat > >
+                    tPdvIds;
 
             tDVInterface->get_ip_dv_ids_for_type_and_ind(
                     tFollowerVerticesInds,
@@ -546,48 +556,46 @@ namespace moris::fem
             const Vector< sint >&                                                         aAdvIds,
             const Vector< Vector< std::shared_ptr< gen::Design_Extraction_Operator > > >& aExtractionOperators )
     {
-        // get number of requested PDV types
-        uint tNumPdvTypes = aExtractionOperators.size();
-
-        // set dimension for GP level adv indices relative to cluster and weights
-        aAdvPropWeights.clear();
-        aAdvPropWeights.resize( tNumPdvTypes );
-
-        // skip remainder if no PDV types are requested
-        if ( tNumPdvTypes == 0 )
-        {
-            return;
-        }
-
-        // get design variable interfac
-        MSI::Design_Variable_Interface* tDVInterface =
-                mSet->mEquationModel->get_design_variable_interface();
-
-        // get number of unique adv ids active in the cluster
-        uint tNumAdvs = aAdvIds.size();
-
-        // loop over all PDV types
-        for ( uint iDvType = 0; iDvType < tNumPdvTypes; ++iDvType )
-        {
-            aAdvPropWeights( iDvType ).resize( aExtractionOperators( iDvType ).size() );
-
-            // loop over all vertices of Lagrange element
-            for ( uint iVert = 0; iVert < aExtractionOperators( iDvType ).size(); ++iVert )
-            {
-                // get local vertex index with respect to the cluster
-
-                const std::shared_ptr< gen::Design_Extraction_Operator >& tOperator = aExtractionOperators( iDvType )( iVert );
-
-                if ( tOperator )
-                {
-                    // populate adv geo weights
-                    tDVInterface->populate_adv_geo_weights(
-                            tOperator,
-                            aAdvPropWeights( iDvType )( iVert ),
-                            tNumAdvs );
-                }
-            }
-        }
+        //        // get number of requested PDV types
+        //        uint tNumPdvTypes = aExtractionOperators.size();
+        //
+        //        // set dimension for GP level adv indices relative to cluster and weights
+        //        aAdvPropWeights.clear();
+        //        aAdvPropWeights.resize( tNumPdvTypes );
+        //
+        //        // skip remainder if no PDV types are requested
+        //        if ( tNumPdvTypes == 0 )
+        //        {
+        //            return;
+        //        }
+        //
+        //        // get design variable interface
+        //        MSI::Design_Variable_Interface* tDVInterface =
+        //                mSet->mEquationModel->get_design_variable_interface();
+        //
+        //        // loop over all PDV types
+        //        for ( uint iDvType = 0; iDvType < tNumPdvTypes; ++iDvType )
+        //        {
+        //            aAdvPropWeights( iDvType ).resize( aExtractionOperators( iDvType ).size() );
+        //
+        //            // get number of unique adv ids active in the cluster per DV type
+        //            uint tNumAdvs = mDVTypeAdvMap( iDvType )( 1 ) - mDVTypeAdvMap( iDvType )( 0 ) + 1;
+        //
+        //            // loop over all vertices of Lagrange element
+        //            for ( uint iVert = 0; iVert < aExtractionOperators( iDvType ).size(); ++iVert )
+        //            {
+        //                const std::shared_ptr< gen::Design_Extraction_Operator >& tOperator = aExtractionOperators( iDvType )( iVert );
+        //
+        //                if ( tOperator )
+        //                {
+        //                    // populate adv geo weights
+        //                    tDVInterface->populate_adv_geo_weights(
+        //                            tOperator,
+        //                            aAdvPropWeights( iDvType )( iVert ),
+        //                            tNumAdvs );
+        //                }
+        //            }
+        //        }
     }
 
     //------------------------------------------------------------------------------
@@ -904,24 +912,24 @@ namespace moris::fem
         // init IG pdv assembly map
         mSet->create_geo_pdv_assembly_map( mFemCluster( 0 ) );
 
-        // get the IP pdv assembly vector
-        const Matrix< DDSMat >& tLocalToGlobalIdsIPPdv =
-                mEquationSet->get_mat_pdv_assembly_vector();
-
-        // get the IG pdv assembly vector
-        const Matrix< DDSMat >& tLocalToGlobalIdsIGPdv =
-                mEquationSet->get_geo_pdv_assembly_vector();
+        //        // get the IP pdv assembly vector
+        //        const Matrix< DDSMat >& tLocalToGlobalIdsIPPdv =
+        //                mEquationSet->get_mat_pdv_assembly_vector();
+        //
+        //        // get the IG pdv assembly vector
+        //        const Matrix< DDSMat >& tLocalToGlobalIdsIGPdv =
+        //                mEquationSet->get_geo_pdv_assembly_vector();
 
         const Vector< sint >& tIPAdvIds = mEquationSet->get_ip_adv_ids();
         const Vector< sint >& tIgAdvIds = mEquationSet->get_ig_adv_ids();
 
         // if there is no pdv defined, return
-        if ( mSet->mEquationModel->is_adjoint_sensitivity_analysis()    //
-                && tLocalToGlobalIdsIPPdv.numel() == 0
-                && tLocalToGlobalIdsIGPdv.numel() == 0 )
-        {
-            return;
-        }
+        //        if ( mSet->mEquationModel->is_adjoint_sensitivity_analysis()    //
+        //                && tLocalToGlobalIdsIPPdv.numel() == 0
+        //                && tLocalToGlobalIdsIGPdv.numel() == 0 )
+        //        {
+        //            return;
+        //        }
 
         // init dRdp
         mSet->initialize_mdRdpMat();    // xxx Can this be skipped if tLocalToGlobalIdsIGPdv is empty?
@@ -972,6 +980,7 @@ namespace moris::fem
 
         Matrix< DDRMat > tdRdpmat;
         Matrix< DDRMat > tdRdpgeo;
+        uint             tNumPdofs;
 
         if ( mSet->mEquationModel->is_adjoint_sensitivity_analysis() )
         {
@@ -980,6 +989,8 @@ namespace moris::fem
 
             tdRdpmat = mEquationSet->get_drdp()( 0 );
             tdRdpgeo = mEquationSet->get_drdp()( 1 );
+
+            tNumPdofs = tdRdpmat.n_rows();
 
             // print( tdRdpmat, "dRdp for IP DVs" );
             // print( tdRdpgeo, "dRdp for IG DVs" );
@@ -999,14 +1010,16 @@ namespace moris::fem
                 tdRdpgeo.get_column( Ik ) = tResidual( Ik ).matrix_data();
             }
 
-            print( tdRdpgeo, "dQdu" );
+            tNumPdofs = tdRdpgeo.n_rows();
+
+            // print( tdRdpgeo, "dQdu" );
         }
 
         // extract adjoint values for this equation object
         this->compute_my_adjoint_values();
 
         // reorder adjoint values following the requested dof types order
-        Matrix< DDRMat > tAdjointPdofValuesReordered = this->reorder_adjoint_pdofs();
+        Matrix< DDRMat > tAdjointPdofValuesReordered = this->reorder_adjoint_pdofs( tNumPdofs );
 
         // print( tAdjointPdofValuesReordered, "reordered adjoint" );
 
@@ -1016,9 +1029,18 @@ namespace moris::fem
             // Assembly for the IP pdv
             if ( tIPAdvIds.size() > 0 )
             {
-                std::string tStr = "for IP DVs: dQdp " + std::to_string( Ik );
-                print( mSet->mdQIdp( 0 )( Ik ), tStr );
-                print( tIPAdvIds, "tIPAdvIds" );
+                //                if ( par_rank() == 1 )
+                //                {
+                //                    std::string tStr = "for IP DVs: dQdp " + std::to_string( Ik );
+                //                    print( mSet->mdQIdp( 0 )( Ik ), tStr );
+                //                    print( tIPAdvIds, "tIPAdvIds" );
+                //                    print( mSet->mdQIdp( 0 )( Ik ), "mSet->mdQIdp( 0 )( Ik )" );
+                //                }
+
+                MORIS_ASSERT( tIPAdvIds.size() <= mSet->mdQIdp( 0 )( Ik ).numel(),
+                        "Interpolation_Element::compute_dQIdp_explicit_implicit - inconsistent size of IPAdvIds: %d > %d",
+                        (sint)tIPAdvIds.size(),
+                        (sint)( mSet->mdQIdp( 0 )( Ik ).numel() ) );
 
                 // assemble explicit dQIdpMat into multivector
                 mEquationSet->get_equation_model()->get_explicit_dQidp()->sum_into_global_values(
@@ -1092,16 +1114,13 @@ namespace moris::fem
 
     //-------------------------------------------------------------------------------------------------
 
-    Matrix< DDRMat > Interpolation_Element::reorder_adjoint_pdofs()
+    Matrix< DDRMat > Interpolation_Element::reorder_adjoint_pdofs( uint aNumPdofValues )
     {
-        // get number of pdof values
-        uint tNumPdofValues = mSet->mAdjointPdofValues( 0 ).n_rows();
-
         // get number of RHS, i.e., number of IQIs or PDVs
         uint tNumRHS = mSet->mAdjointPdofValues.size();
 
         // initialize vector with adjoint pdof values
-        Matrix< DDRMat > tAdjointPdofValuesReordered( tNumPdofValues, tNumRHS );
+        Matrix< DDRMat > tAdjointPdofValuesReordered( aNumPdofValues, tNumRHS );
 
         // get leader dof type list from set
         const Vector< Vector< MSI::Dof_Type > >& tLeaderDofTypeGroup =
@@ -1115,6 +1134,7 @@ namespace moris::fem
         {
             // get the adjoint values for the ith dof type group
             Vector< Vector< Matrix< DDRMat > > > tLeaderAdjointOriginal;
+
             this->get_my_pdof_values(
                     mSet->mAdjointPdofValues,
                     tLeaderDofTypeGroup( Ia ),

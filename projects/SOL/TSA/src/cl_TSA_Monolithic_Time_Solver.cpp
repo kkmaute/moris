@@ -167,6 +167,8 @@ void Monolithic_Time_Solver::solve_implicit_DqDs( Vector< sol::Dist_Vector* >& a
 
         mNonlinearSolverForSensitivityAnalysis->solve( aFullAdjointVector( 0 ) );
 
+        //        aFullAdjointVector( 0 )->print();
+
         //  print the adjoint solution vector
         //        Matrix< DDRMat >
         //                tSolVec;

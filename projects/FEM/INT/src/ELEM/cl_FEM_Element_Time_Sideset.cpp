@@ -276,7 +276,9 @@ namespace moris::fem
 
         // set physical and parametric space and time coefficients for IG element
         Matrix< DDSMat > tGeoLocalAssembly;
-        this->init_ig_geometry_interpolator( tGeoLocalAssembly );
+
+        tComputedRdp ? this->init_ig_geometry_interpolator( tGeoLocalAssembly )
+                     : this->init_ig_geometry_interpolator();
 
         // loop over integration points
         uint tNumIntegPoints = mSet->get_number_of_integration_points();

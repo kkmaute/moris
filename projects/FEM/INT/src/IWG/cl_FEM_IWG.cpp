@@ -3040,7 +3040,6 @@ namespace moris::fem
             // loop over the IG nodes
             for ( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
             {
-                // yyyy
                 if ( tGeoWeights( iCoeffRow ).n_rows() == 0 )
                 {
                     continue;
@@ -3048,16 +3047,8 @@ namespace moris::fem
 
                 tDrDpGeo.fill( 0.0 );
 
-                // yyyy
                 Matrix< DDRMat > dIGNodeCorddAdv = tGeoWeights( iCoeffRow ).get_row( iCoeffCol );
-                // print( dIGNodeCorddAdv, "dIGNodeCorddAdv" );
 
-                // xxx get the geometry pdv assembly index
-                //                sint tPdvAssemblyIndex = aGeoLocalAssembly( iCoeffRow, iCoeffCol );
-
-                // xxx if pdv is active
-                //                if ( tPdvAssemblyIndex != -1 )
-                // yyy
                 if ( norm( dIGNodeCorddAdv ) > MORIS_REAL_EPS )
                 {
                     // provide adapted perturbation and FD scheme considering ip element boundaries
@@ -3130,17 +3121,9 @@ namespace moris::fem
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
 
-                    // print( tDrDpGeo, "tDrDpGeo" );
-
-                    // yyyy
                     mSet->get_drdpgeo()(
                             { tResDofAssemblyStart, tResDofAssemblyStop },
                             { 0, dIGNodeCorddAdv.n_cols() - 1 } ) += tDrDpGeo * dIGNodeCorddAdv;
-
-                    // xxxx
-                    //                    mSet->get_drdpgeo()(
-                    //                            { tResDofAssemblyStart, tResDofAssemblyStop },
-                    //                            { tPdvAssemblyIndex, tPdvAssemblyIndex } ) += tDrDpGeo.matrix_data();
                 }
             }
         }
@@ -3254,15 +3237,9 @@ namespace moris::fem
 
                 tDrDpGeo.fill( 0.0 );
 
-                // yyyy
                 Matrix< DDRMat > dIGNodeCorddAdv = tGeoWeights( iCoeffRow ).get_row( iCoeffCol );
                 // print( dIGNodeCorddAdv, "dIGNodeCorddAdv" );
 
-                //                // get the geometry pdv assembly index
-                //                sint tPdvAssemblyIndex = aGeoLocalAssembly( iCoeffRow, iCoeffCol );
-                //
-                //                // if pdv is active
-                //                if ( tPdvAssemblyIndex != -1 )
                 if ( norm( dIGNodeCorddAdv ) > MORIS_REAL_EPS )
                 {
                     // provide adapted perturbation and FD scheme considering ip element boundaries
@@ -3336,9 +3313,6 @@ namespace moris::fem
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
 
-                    // print( tDrDpGeo, "tDrDpGeo" );
-
-                    // yyyy
                     mSet->get_drdpgeo()(
                             { tResDofAssemblyStart, tResDofAssemblyStop },
                             { 0, dIGNodeCorddAdv.n_cols() - 1 } ) += tDrDpGeo * dIGNodeCorddAdv;
@@ -4156,7 +4130,7 @@ namespace moris::fem
         }
 
         const Vector< Vector< Matrix< DDRMat > > >& tPropWeightsLeader =
-                mSet->get_adv_prop_weights( mtk::Leader_Follower::LEADER );
+                mSet->get_adv_prop_weights();
 
         // storage residual value
         Matrix< DDRMat >
@@ -4191,6 +4165,9 @@ namespace moris::fem
         // loop over the dv types associated with a FI
         for ( uint iFI = 0; iFI < tNumDvType; iFI++ )
         {
+            uint tIPAdvAssemblyStart = mSet->get_ip_adv_assembly_map()( iFI )( 0 );
+            uint tIPAdvAssemblyStop  = mSet->get_ip_adv_assembly_map()( iFI )( 1 );
+
             // get dv index
             //            sint tDvDepIndex = mSet->get_dv_index_for_type(
             //                    tRequestedPdvTypes( iFI ),
@@ -4293,7 +4270,7 @@ namespace moris::fem
 
                 mSet->get_drdpmat()(
                         { tResDofAssemblyStart, tResDofAssemblyStop },
-                        { 0, tPropWeight.n_cols() - 1 } ) += tDrDpMat * tPropWeight;
+                        { tIPAdvAssemblyStart, tIPAdvAssemblyStop } ) += tDrDpMat * tPropWeight;
 
                 // print( tDrDpMat * tPropWeight, "tDrDpMat * tPropWeight " );
             }
@@ -4318,16 +4295,28 @@ namespace moris::fem
             fem::FDScheme_Type aFDSchemeType )
     {
         // get the requested ip pdv types
-        const Vector< gen::PDV_Type >& tRequestedPdvTypesLeader = mSet->get_ip_dv_types_for_set();
+        const Vector< gen::PDV_Type >& tRequestedPdvTypesLeader =
+                mSet->get_ip_dv_types_for_set( mtk::Leader_Follower::LEADER );
+
+        // get the requested ip pdv types for the follower side
+        const Vector< enum gen::PDV_Type >& tRequestedPdvTypesFollower =
+                mSet->get_ip_dv_types_for_set( mtk::Leader_Follower::FOLLOWER );
 
         // get number of requested dv types
-        uint tNumDvType = tRequestedPdvTypesLeader.size();
+        uint tNumDvTypeLeader   = tRequestedPdvTypesLeader.size();
+        uint tNumDvTypeFollower = tRequestedPdvTypesFollower.size();
 
         // skip remainder if no dv types active on element
-        if ( tNumDvType == 0 )
+        if ( tNumDvTypeLeader + tNumDvTypeFollower == 0 )
         {
             return;
         }
+
+        const Vector< Vector< Matrix< DDRMat > > >& tPropWeightsLeader =
+                mSet->get_adv_prop_weights( mtk::Leader_Follower::LEADER );
+
+        const Vector< Vector< Matrix< DDRMat > > >& tPropWeightsFollower =
+                mSet->get_adv_prop_weights( mtk::Leader_Follower::FOLLOWER );
 
         // storage residual value
         Matrix< DDRMat > tResidualStore = mSet->get_residual()( 0 );
@@ -4375,21 +4364,29 @@ namespace moris::fem
         // init perturbation
         real tDeltaH = 0.0;
 
+        // initialize derivative of ressidual with respect to single PDV
+        Matrix< DDRMat > tDrDpMatLeader( tLeaderResDofAssemblyStop - tLeaderResDofAssemblyStart + 1, 1 );
+        Matrix< DDRMat > tDrDpMatFollower( tFollowerResDofAssemblyStop - tFollowerResDofAssemblyStart + 1, 1 );
+
         // loop over the leader dv types associated with a FI
-        for ( uint iFI = 0; iFI < tNumDvType; iFI++ )
+        for ( uint iFI = 0; iFI < tNumDvTypeLeader; iFI++ )
         {
-            // get dv index
-            sint tDvDepIndex = mSet->get_dv_index_for_type(
-                    tRequestedPdvTypesLeader( iFI ),
-                    mtk::Leader_Follower::LEADER );
+            uint tLeaderIPAdvAssemblyStart = mSet->get_ip_adv_assembly_map( mtk::Leader_Follower::LEADER )( iFI )( 0 );
+            uint tLeaderIPAdvAssemblyStop  = mSet->get_ip_adv_assembly_map( mtk::Leader_Follower::LEADER )( iFI )( 1 );
+            //            // get dv index
+            //            sint tDvDepIndex = mSet->get_dv_index_for_type(
+            //                    tRequestedPdvTypesLeader( iFI ),
+            //                    mtk::Leader_Follower::LEADER );
 
             // get the FI for the dv type
             Field_Interpolator* tFI =
                     mLeaderFIManager->get_field_interpolators_for_type( tRequestedPdvTypesLeader( iFI ) );
 
             // get number of leader FI bases and fields
-            uint tDerNumBases  = tFI->get_number_of_space_time_bases();
-            uint tDerNumFields = tFI->get_number_of_fields();
+            uint tDerNumBases = tFI->get_number_of_space_time_bases();
+
+            MORIS_ERROR( tFI->get_number_of_fields() == 1,
+                    "IWG::compute_dRdp_FD_material - Leader: Only one field is supported." );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();
@@ -4397,117 +4394,142 @@ namespace moris::fem
             // init coeff counter
             uint tCoeffCounter = 0;
 
-            // loop over the coefficient column
-            for ( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
+            // loop over the coefficient row
+            for ( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
             {
-                // loop over the coefficient row
-                for ( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
+                const Matrix< DDRMat >& tPropWeight = tPropWeightsLeader( iFI )( iCoeffRow );
+
+                // skip if the weight is zero
+                if ( norm( tPropWeight ) < MORIS_REAL_EPS )
                 {
-                    // compute the perturbation absolute value
-                    tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+                    continue;
+                }
 
-                    // check that perturbation is not zero
-                    if ( std::abs( tDeltaH ) < 1e-12 )
+                // fill the derivative matrix with zeros
+                tDrDpMatLeader.fill( 0.0 );
+                tDrDpMatFollower.fill( 0.0 );
+
+                // compute the perturbation absolute value
+                tDeltaH = aPerturbation * tCoeff( iCoeffRow );
+
+                // check that perturbation is not zero
+                if ( std::abs( tDeltaH ) < 1e-12 )
+                {
+                    tDeltaH = aPerturbation;
+                }
+
+                //                    // get mat pdv index
+                //                    uint tPdvIndex = mSet->get_mat_pdv_assembly_map()( tDvDepIndex )( 0, 0 ) + tCoeffCounter;
+
+                // set starting point for FD
+                uint tStartPoint = 0;
+
+                // if backward or forward FD, add unperturbed residual contribution
+                if ( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
+                        ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                {
+                    // add unperturbed leader residual contribution to dRdp
+                    //                        mSet->get_drdpmat()(
+                    //                                { tLeaderResDofAssemblyStart, tLeaderResDofAssemblyStop },
+                    //                                { tPdvIndex, tPdvIndex } )
+                    tDrDpMatLeader +=
+                            tFDScheme( 1 )( 0 ) * tLeaderResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                    // add unperturbed leader residual contribution to dRdp
+                    if ( tFollowerResDofIndex != -1 )
                     {
-                        tDeltaH = aPerturbation;
+                        //                            mSet->get_drdpmat()(
+                        //                                    { tFollowerResDofAssemblyStart, tFollowerResDofAssemblyStop },
+                        //                                    { tPdvIndex, tPdvIndex } )
+                        tDrDpMatFollower +=
+                                tFDScheme( 1 )( 0 ) * tFollowerResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
 
-                    // get mat pdv index
-                    uint tPdvIndex = mSet->get_mat_pdv_assembly_map()( tDvDepIndex )( 0, 0 ) + tCoeffCounter;
+                    // skip first point in FD
+                    tStartPoint = 1;
+                }
 
-                    // set starting point for FD
-                    uint tStartPoint = 0;
+                // loop over the points for FD
+                for ( uint iPoint = tStartPoint; iPoint < tNumFDPoints; iPoint++ )
+                {
+                    // reset the perturbed coefficients
+                    Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                    // if backward or forward FD, add unperturbed residual contribution
-                    if ( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
-                            ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                    // perturb the coefficient
+                    tCoeffPert( iCoeffRow ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
+
+                    // set the perturbed coefficients to FI
+                    tFI->set_coeff( tCoeffPert );
+
+                    // reset properties, CM and SP for IWG
+                    this->reset_eval_flags();
+
+                    // reset the residual
+                    mSet->get_residual()( 0 ).fill( 0.0 );
+
+                    // compute the residual
+                    this->compute_residual( aWStar );
+
+                    // assemble dRLeaderdpMat
+                    //                        mSet->get_drdpmat()(
+                    //                                { tLeaderResDofAssemblyStart, tLeaderResDofAssemblyStop },
+                    //                                { tPdvIndex, tPdvIndex } )
+                    tDrDpMatLeader +=
+                            tFDScheme( 1 )( iPoint ) *                                                                            //
+                            mSet->get_residual()( 0 )( { tLeaderResDofAssemblyStart, tLeaderResDofAssemblyStop }, { 0, 0 } ) /    //
+                            ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                    // assemble dRFollowerdpMat
+                    if ( tFollowerResDofIndex != -1 )
                     {
-                        // add unperturbed leader residual contribution to dRdp
-                        mSet->get_drdpmat()(
-                                { tLeaderResDofAssemblyStart, tLeaderResDofAssemblyStop },
-                                { tPdvIndex, tPdvIndex } ) +=
-                                tFDScheme( 1 )( 0 ) * tLeaderResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
-
-                        // add unperturbed leader residual contribution to dRdp
-                        if ( tFollowerResDofIndex != -1 )
-                        {
-                            mSet->get_drdpmat()(
-                                    { tFollowerResDofAssemblyStart, tFollowerResDofAssemblyStop },
-                                    { tPdvIndex, tPdvIndex } ) +=
-                                    tFDScheme( 1 )( 0 ) * tFollowerResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
-                        }
-
-                        // skip first point in FD
-                        tStartPoint = 1;
-                    }
-
-                    // loop over the points for FD
-                    for ( uint iPoint = tStartPoint; iPoint < tNumFDPoints; iPoint++ )
-                    {
-                        // reset the perturbed coefficients
-                        Matrix< DDRMat > tCoeffPert = tCoeff;
-
-                        // perturb the coefficient
-                        tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
-
-                        // set the perturbed coefficients to FI
-                        tFI->set_coeff( tCoeffPert );
-
-                        // reset properties, CM and SP for IWG
-                        this->reset_eval_flags();
-
-                        // reset the residual
-                        mSet->get_residual()( 0 ).fill( 0.0 );
-
-                        // compute the residual
-                        this->compute_residual( aWStar );
-
-                        // assemble dRLeaderdpMat
-                        mSet->get_drdpmat()(
-                                { tLeaderResDofAssemblyStart, tLeaderResDofAssemblyStop },
-                                { tPdvIndex, tPdvIndex } ) +=
-                                tFDScheme( 1 )( iPoint ) *                                                                            //
-                                mSet->get_residual()( 0 )( { tLeaderResDofAssemblyStart, tLeaderResDofAssemblyStop }, { 0, 0 } ) /    //
+                        //                            mSet->get_drdpmat()(
+                        //                                    { tFollowerResDofAssemblyStart, tFollowerResDofAssemblyStop },
+                        //                                    { tPdvIndex, tPdvIndex } )
+                        tDrDpMatFollower +=
+                                tFDScheme( 1 )( iPoint ) *                                                                                //
+                                mSet->get_residual()( 0 )( { tFollowerResDofAssemblyStart, tFollowerResDofAssemblyStop }, { 0, 0 } ) /    //
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
-
-                        // assemble dRFollowerdpMat
-                        if ( tFollowerResDofIndex != -1 )
-                        {
-                            mSet->get_drdpmat()(
-                                    { tFollowerResDofAssemblyStart, tFollowerResDofAssemblyStop },
-                                    { tPdvIndex, tPdvIndex } ) +=
-                                    tFDScheme( 1 )( iPoint ) *                                                                                //
-                                    mSet->get_residual()( 0 )( { tFollowerResDofAssemblyStart, tFollowerResDofAssemblyStop }, { 0, 0 } ) /    //
-                                    ( tFDScheme( 2 )( 0 ) * tDeltaH );
-                        }
                     }
-                    // update coefficient counter
-                    tCoeffCounter++;
+                }
+                // update coefficient counter
+                tCoeffCounter++;
+
+                mSet->get_drdpmat()(
+                        { tLeaderResDofAssemblyStart, tLeaderResDofAssemblyStop },
+                        { tLeaderIPAdvAssemblyStart, tLeaderIPAdvAssemblyStop } ) += tDrDpMatLeader * tPropWeight;
+
+                if ( tFollowerResDofIndex != -1 )
+                {
+                    mSet->get_drdpmat()(
+                            { tFollowerResDofAssemblyStart, tFollowerResDofAssemblyStop },
+                            { tLeaderIPAdvAssemblyStart, tLeaderIPAdvAssemblyStop } ) += tDrDpMatFollower * tPropWeight;
                 }
             }
+
             // reset the coefficients values
             tFI->set_coeff( tCoeff );
         }
 
-        // get the requested ip pdv types for the follower side
-        const Vector< enum gen::PDV_Type >& tRequestedPdvTypesFollower =
-                mSet->get_ip_dv_types_for_set( mtk::Leader_Follower::FOLLOWER );
-
         // loop over the follower dv types associated with a FI
-        for ( uint iFI = 0; iFI < tRequestedPdvTypesFollower.size(); iFI++ )
+        for ( uint iFI = 0; iFI < tNumDvTypeFollower; iFI++ )
         {
-            // get dv index
-            sint tDvDepIndex = mSet->get_dv_index_for_type(
-                    tRequestedPdvTypesFollower( iFI ),
-                    mtk::Leader_Follower::FOLLOWER );
+            uint tFollowerIPAdvAssemblyStart = mSet->get_ip_adv_assembly_map( mtk::Leader_Follower::FOLLOWER )( iFI )( 0 );
+            uint tFollowerIPAdvAssemblyStop  = mSet->get_ip_adv_assembly_map( mtk::Leader_Follower::FOLLOWER )( iFI )( 1 );
+
+            //            // get dv index
+            //            sint tDvDepIndex = mSet->get_dv_index_for_type(
+            //                    tRequestedPdvTypesFollower( iFI ),
+            //                    mtk::Leader_Follower::FOLLOWER );
 
             // get the FI for the dv type
             Field_Interpolator* tFI =
                     mFollowerFIManager->get_field_interpolators_for_type( tRequestedPdvTypesFollower( iFI ) );
 
             // get number of leader FI bases and fields
-            uint tDerNumBases  = tFI->get_number_of_space_time_bases();
-            uint tDerNumFields = tFI->get_number_of_fields();
+            uint tDerNumBases = tFI->get_number_of_space_time_bases();
+
+            MORIS_ERROR( tFI->get_number_of_fields() == 1,
+                    "IWG::compute_dRdp_FD_material - Follower: Only one field is supported." );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();
@@ -4537,92 +4559,115 @@ namespace moris::fem
             // init coeff counter
             uint tCoeffCounter = 0;
 
-            // loop over the coefficient column
-            for ( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
+            // loop over the coefficient row
+            for ( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
             {
-                // loop over the coefficient row
-                for ( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
+                const Matrix< DDRMat >& tPropWeight = tPropWeightsFollower( iFI )( iCoeffRow );
+
+                // skip if the weight is zero
+                if ( norm( tPropWeight ) < MORIS_REAL_EPS )
                 {
-                    // compute the perturbation absolute value
-                    tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+                    continue;
+                }
 
-                    // check that perturbation is not zero
-                    if ( std::abs( tDeltaH ) < 1e-12 )
+                // fill the derivative matrix with zeros
+                tDrDpMatLeader.fill( 0.0 );
+                tDrDpMatFollower.fill( 0.0 );
+
+                // compute the perturbation absolute value
+                tDeltaH = aPerturbation * tCoeff( iCoeffRow );
+
+                // check that perturbation is not zero
+                if ( std::abs( tDeltaH ) < 1e-12 )
+                {
+                    tDeltaH = aPerturbation;
+                }
+
+                //                // get mat pdv index
+                //                uint tPdvIndex = mSet->get_mat_pdv_assembly_map()( tDvDepIndex )( 0, 0 ) + tCoeffCounter;
+
+                // set starting point for FD
+                uint tStartPoint = 0;
+
+                // if backward or forward FD, add unperturbed residual contribution
+                if ( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
+                        ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                {
+                    // add unperturbed leader residual contribution to dRdp
+                    //                    mSet->get_drdpmat()(
+                    //                            { tLeaderResDofAssemblyStart, tLeaderResDofAssemblyStop },
+                    //                            { tPdvIndex, tPdvIndex } )
+                    tDrDpMatLeader +=
+                            tFDScheme( 1 )( 0 ) * tLeaderResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                    // add unperturbed leader residual contribution to dRdp
+                    if ( tFollowerResDofIndex != -1 )
                     {
-                        tDeltaH = aPerturbation;
+                        //                        mSet->get_drdpmat()(
+                        //                                { tFollowerResDofAssemblyStart, tFollowerResDofAssemblyStop },
+                        //                                { tPdvIndex, tPdvIndex } )
+                        tDrDpMatFollower +=
+                                tFDScheme( 1 )( 0 ) * tFollowerResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
 
-                    // get mat pdv index
-                    uint tPdvIndex = mSet->get_mat_pdv_assembly_map()( tDvDepIndex )( 0, 0 ) + tCoeffCounter;
+                    // skip first point in FD
+                    tStartPoint = 1;
+                }
 
-                    // set starting point for FD
-                    uint tStartPoint = 0;
+                // loop over the points for FD
+                for ( uint iPoint = tStartPoint; iPoint < tNumFDPoints; iPoint++ )
+                {
+                    // reset the perturbed coefficients
+                    Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                    // if backward or forward FD, add unperturbed residual contribution
-                    if ( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
-                            ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                    // perturb the coefficient
+                    tCoeffPert( iCoeffRow ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
+
+                    // set the perturbed coefficients to FI
+                    tFI->set_coeff( tCoeffPert );
+
+                    // reset properties, CM and SP for IWG
+                    this->reset_eval_flags();
+
+                    // reset the residual
+                    mSet->get_residual()( 0 ).fill( 0.0 );
+
+                    // compute the residual
+                    this->compute_residual( aWStar );
+
+                    // assemble dRLeaderdpMat
+                    //                    mSet->get_drdpmat()(
+                    //                            { tLeaderResDofAssemblyStart, tLeaderResDofAssemblyStop },
+                    //                            { tPdvIndex, tPdvIndex } )
+                    tDrDpMatLeader +=
+                            tFDScheme( 1 )( iPoint ) *                                                                            //
+                            mSet->get_residual()( 0 )( { tLeaderResDofAssemblyStart, tLeaderResDofAssemblyStop }, { 0, 0 } ) /    //
+                            ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                    // assemble dRFollowerdpMat
+                    if ( tFollowerResDofIndex != -1 )
                     {
-                        // add unperturbed leader residual contribution to dRdp
-                        mSet->get_drdpmat()(
-                                { tLeaderResDofAssemblyStart, tLeaderResDofAssemblyStop },
-                                { tPdvIndex, tPdvIndex } ) +=
-                                tFDScheme( 1 )( 0 ) * tLeaderResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
-
-                        // add unperturbed leader residual contribution to dRdp
-                        if ( tFollowerResDofIndex != -1 )
-                        {
-                            mSet->get_drdpmat()(
-                                    { tFollowerResDofAssemblyStart, tFollowerResDofAssemblyStop },
-                                    { tPdvIndex, tPdvIndex } ) +=
-                                    tFDScheme( 1 )( 0 ) * tFollowerResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
-                        }
-
-                        // skip first point in FD
-                        tStartPoint = 1;
-                    }
-
-                    // loop over the points for FD
-                    for ( uint iPoint = tStartPoint; iPoint < tNumFDPoints; iPoint++ )
-                    {
-                        // reset the perturbed coefficients
-                        Matrix< DDRMat > tCoeffPert = tCoeff;
-
-                        // perturb the coefficient
-                        tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
-
-                        // set the perturbed coefficients to FI
-                        tFI->set_coeff( tCoeffPert );
-
-                        // reset properties, CM and SP for IWG
-                        this->reset_eval_flags();
-
-                        // reset the residual
-                        mSet->get_residual()( 0 ).fill( 0.0 );
-
-                        // compute the residual
-                        this->compute_residual( aWStar );
-
-                        // assemble dRLeaderdpMat
-                        mSet->get_drdpmat()(
-                                { tLeaderResDofAssemblyStart, tLeaderResDofAssemblyStop },
-                                { tPdvIndex, tPdvIndex } ) +=
-                                tFDScheme( 1 )( iPoint ) *                                                                            //
-                                mSet->get_residual()( 0 )( { tLeaderResDofAssemblyStart, tLeaderResDofAssemblyStop }, { 0, 0 } ) /    //
+                        //                        mSet->get_drdpmat()(
+                        //                                { tFollowerResDofAssemblyStart, tFollowerResDofAssemblyStop },
+                        //                                { tPdvIndex, tPdvIndex } )
+                        tDrDpMatFollower +=
+                                tFDScheme( 1 )( iPoint ) *                                                                                //
+                                mSet->get_residual()( 0 )( { tFollowerResDofAssemblyStart, tFollowerResDofAssemblyStop }, { 0, 0 } ) /    //
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
-
-                        // assemble dRFollowerdpMat
-                        if ( tFollowerResDofIndex != -1 )
-                        {
-                            mSet->get_drdpmat()(
-                                    { tFollowerResDofAssemblyStart, tFollowerResDofAssemblyStop },
-                                    { tPdvIndex, tPdvIndex } ) +=
-                                    tFDScheme( 1 )( iPoint ) *                                                                                //
-                                    mSet->get_residual()( 0 )( { tFollowerResDofAssemblyStart, tFollowerResDofAssemblyStop }, { 0, 0 } ) /    //
-                                    ( tFDScheme( 2 )( 0 ) * tDeltaH );
-                        }
                     }
-                    // update coefficient counter
-                    tCoeffCounter++;
+                }
+                // update coefficient counter
+                tCoeffCounter++;
+
+                mSet->get_drdpmat()(
+                        { tLeaderResDofAssemblyStart, tLeaderResDofAssemblyStop },
+                        { tFollowerIPAdvAssemblyStart, tFollowerIPAdvAssemblyStop } ) += tDrDpMatLeader * tPropWeight;
+
+                if ( tFollowerResDofIndex != -1 )
+                {
+                    mSet->get_drdpmat()(
+                            { tFollowerResDofAssemblyStart, tFollowerResDofAssemblyStop },
+                            { tFollowerIPAdvAssemblyStart, tFollowerIPAdvAssemblyStop } ) += tDrDpMatFollower * tPropWeight;
                 }
             }
             // reset the coefficients values

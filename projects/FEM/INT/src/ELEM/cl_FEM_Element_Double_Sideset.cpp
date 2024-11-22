@@ -89,7 +89,9 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    Matrix< DDSMat > Element_Double_Sideset::get_local_cluster_assembly_indices( moris_index const aLeaderSideOrdinal, moris_index const aFollowerSideOrdinal ) const
+    Matrix< DDSMat > Element_Double_Sideset::get_local_cluster_assembly_indices(
+            moris_index const aLeaderSideOrdinal,
+            moris_index const aFollowerSideOrdinal ) const
     {
         Matrix< DDSMat > tGeoLocalAssembly;
         if ( mSet->get_geo_pdv_assembly_flag() )
@@ -302,7 +304,11 @@ namespace moris::fem
         moris_index const tLeaderSideOrd   = mCluster->mLeaderListOfSideOrdinals( get_leader_local_cell_index() );
         moris_index const tFollowerSideOrd = mCluster->mFollowerListOfSideOrdinals( get_follower_local_cell_index() );
 
-        Matrix< DDSMat > tGeoLocalAssembly = get_local_cluster_assembly_indices( tLeaderSideOrd, tFollowerSideOrd );
+        Matrix< DDSMat > tGeoLocalAssembly;
+        if ( tComputedRdp )
+        {
+            tGeoLocalAssembly = get_local_cluster_assembly_indices( tLeaderSideOrd, tFollowerSideOrd );
+        }
 
         // loop over the integration points
         uint const tNumIntegPoints = this->get_number_of_integration_points();

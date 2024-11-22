@@ -281,9 +281,12 @@ namespace moris::gen
 
         //-------------------------------------------------------------------------------
 
-        Vector< sint >
+        void
         build_local_adv_indices(
-                Vector< Vector< std::shared_ptr< gen::Design_Extraction_Operator > > >& aExtractionOperators ) override;
+                Vector< Vector< std::shared_ptr< gen::Design_Extraction_Operator > > >& aExtractionOperators,
+                Vector< Vector< Matrix< DDRMat > > >&                                   aAdvPropWeights,
+                Vector< sint >&                                                         aAdvIds,
+                Vector< Matrix< DDSMat > >&                                             aDVTypeAdvMap ) override;
 
         //-------------------------------------------------------------------------------
 

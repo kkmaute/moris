@@ -650,7 +650,7 @@ namespace moris
     }
 
     //--------------------------------------------------------------------------------------------------------------
-    void create_petsc_parameter_list( Vector< Vector< Parameter_List > > & aParameterlist )
+    void create_petsc_parameter_list( Vector< Vector< Parameter_List > >& aParameterlist )
     {
 
         aParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::PETSC );
@@ -668,7 +668,7 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void create_trilinos_parameter_list( Vector< Vector< Parameter_List > > & aParameterlist )
+    void create_trilinos_parameter_list( Vector< Vector< Parameter_List > >& aParameterlist )
     {
         aParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
 

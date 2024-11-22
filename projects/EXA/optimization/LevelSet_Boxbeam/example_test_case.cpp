@@ -22,6 +22,32 @@ int fn_WRK_Workflow_Main_Interface( int argc, char *argv[] );
 
 //---------------------------------------------------------------
 
+void test_pause()
+{
+    // communicate process ids
+    pid_t tPId = getpid();
+
+    moris::Matrix< moris::DDSMat > tPIdVec;
+    allgather_scalar( tPId, tPIdVec );
+
+    if ( moris::par_rank() == 0 )
+    {
+        // print process Ids
+        for ( int i = 0; i < moris::par_size(); ++i )
+        {
+            fprintf( stderr, "Process Rank %d ID: %d\n", i, tPIdVec( i ) );
+        }
+
+        std::string dummy;
+
+        std::cout << "Press enter to continue . . .\n"
+                  << std::flush;
+        std::getline( std::cin, dummy );
+    }
+}
+
+//---------------------------------------------------------------
+
 extern "C" void
 check_results(
         const std::string &aExoFileName,
@@ -90,6 +116,9 @@ TEST_CASE( "Leveset Boxbeam",
     char tString2[] = "Levelset_Boxbeam.so";
 
     char *argv[ 2 ] = { tString1, tString2 };
+
+    // for debugging in parallel
+    // test_pause();
 
     // call to performance manager main interface
     int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );

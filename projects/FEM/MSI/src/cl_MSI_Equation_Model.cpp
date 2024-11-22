@@ -187,16 +187,18 @@ namespace moris::MSI
             if ( tNumEqObjOnSet > 0 )
             {
                 MORIS_LOG_SPEC( "Process FEM set", mFemSets( tSetIndex )->get_set_name() );
-            }
 
-            // create field manager for adjoint
-            mFemSets( tSetIndex )->create_field_interpolator_managers_adjoint( aModelSolverInterface );
+                std::cout << "Rank " << par_rank() << " is processing FEM set " << mFemSets( tSetIndex )->get_set_name() << std::endl;
 
-            // loop over equation objects on treated equation set
-            for ( uint tEqObjIndex = 0; tEqObjIndex < tNumEqObjOnSet; tEqObjIndex++ )
-            {
-                // compute dQIdp implicit
-                tEqnObjList( tEqObjIndex )->compute_dQIdp_explicit_implicit();
+                // create field manager for adjoint
+                mFemSets( tSetIndex )->create_field_interpolator_managers_adjoint( aModelSolverInterface );
+
+                // loop over equation objects on treated equation set
+                for ( uint tEqObjIndex = 0; tEqObjIndex < tNumEqObjOnSet; tEqObjIndex++ )
+                {
+                    // compute dQIdp implicit
+                    tEqnObjList( tEqObjIndex )->compute_dQIdp_explicit_implicit();
+                }
             }
 
             // free memory on treated equation set

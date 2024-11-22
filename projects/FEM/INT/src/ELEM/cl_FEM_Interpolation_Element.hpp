@@ -220,7 +220,7 @@ namespace moris::fem
          *
          * @return reordered adjoint
          */
-        Matrix< DDRMat > reorder_adjoint_pdofs();
+        Matrix< DDRMat > reorder_adjoint_pdofs( uint aNumPdofValues );
 
         //------------------------------------------------------------------------------
 

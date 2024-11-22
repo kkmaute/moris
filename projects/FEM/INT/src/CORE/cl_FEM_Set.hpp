@@ -182,8 +182,8 @@ namespace moris
             Vector< Matrix< DDRMat > > mAdvGeoWeightsLeader;      // Vector of each node with Adv weights
             Vector< Matrix< DDRMat > > mAdvGeoWeightsFollower;    // Vector of each node with Adv weights
 
-            Vector< sint > mIPAdvIdsLeader;      // Vector of adv ids for leader
-            Vector< sint > mIPAdvIdsFollower;    // Vector of adv ids for follower
+            Vector< Matrix< DDSMat > > mIPDVTypeAdvMapLeader;      // vector of start and stop indices in mIPAdvIdsLeader for each PDV type
+            Vector< Matrix< DDSMat > > mIPDVTypeAdvMapFollower;    // vector of start and stop indices in mIPAdvIdsFollower for each PDV type
 
             Vector< Vector< Matrix< DDRMat > > > mAdvPropWeightsLeader;      // Vector of each property and node with Adv weights
             Vector< Vector< Matrix< DDRMat > > > mAdvPropWeightsFollower;    // Vector of each property and node with Adv weights
@@ -1165,6 +1165,34 @@ namespace moris
             void populate_fields(
                     Vector< std::shared_ptr< fem::Field > >& aFieldToPopulate,
                     Vector< std::string > const &            aFieldIQINames ) override;
+
+            //------------------------------------------------------------------------------
+
+            const Vector< Matrix< DDSMat > >&
+            get_ip_adv_assembly_map(
+                    mtk::Leader_Follower aLeaderFollowerType = mtk::Leader_Follower::LEADER )
+            {
+                switch ( aLeaderFollowerType )
+                {
+                    case mtk::Leader_Follower::LEADER:
+                    {
+                        return mIPDVTypeAdvMapLeader;
+                        break;
+                    }
+                    case mtk::Leader_Follower::FOLLOWER:
+                    {
+                        return mIPDVTypeAdvMapFollower;
+                        break;
+                    }
+                    default:
+                    {
+                        MORIS_ASSERT( false, "Set::get_ip_adv_assembly_map - Invalid leader/follower type" );
+                        break;
+                    }
+                }
+
+                return mIPDVTypeAdvMapLeader;
+            }
 
             //------------------------------------------------------------------------------
             /**
