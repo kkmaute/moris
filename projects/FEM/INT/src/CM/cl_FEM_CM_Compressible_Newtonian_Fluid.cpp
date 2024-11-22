@@ -37,6 +37,13 @@ namespace moris::fem
 
     //--------------------------------------------------------------------------------------------------------------
 
+    Constitutive_Type CM_Compressible_Newtonian_Fluid::get_constitutive_type() const
+    {
+        return Constitutive_Type::FLUID_COMPRESSIBLE_NEWTONIAN;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     void
     CM_Compressible_Newtonian_Fluid::set_function_pointers()
     {

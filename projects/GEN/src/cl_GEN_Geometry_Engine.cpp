@@ -9,7 +9,7 @@
  */
 
 // MRS
-#include "cl_Parameter_List.hpp"
+#include "cl_Module_Parameter_Lists.hpp"
 #include "fn_Parsing_Tools.hpp"
 #include "cl_Tracer.hpp"
 #include "cl_Library_IO.hpp"
@@ -40,7 +40,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Geometry_Engine::Geometry_Engine(
-            Vector< Vector< Parameter_List > >   aParameterLists,
+            Module_Parameter_Lists               aParameterLists,
             const std::shared_ptr< Library_IO >& aLibrary,
             mtk::Mesh*                           aMesh )
             : mNodeManager( aMesh )
@@ -255,40 +255,43 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     bool
-    Geometry_Engine::is_intersected(
-            uint                      aGeometryIndex,
-            const Matrix< IndexMat >& aNodeIndices,
-            const Matrix< DDRMat >&   aNodeCoordinates )
+    Geometry_Engine::is_intersected_by_active_geometry( const Matrix< IndexMat >& aNodeIndices )
     {
-        // Create node coordinates
-        Vector< std::shared_ptr< Matrix< DDRMat > > > tNodeCoordinates( aNodeIndices.max() + 1 );
+        // Get first geometric region
+        Geometric_Region tFirstNodeGeometricRegion = mGeometries( mActiveGeometryIndex )->get_geometric_region( aNodeIndices( 0 ), mNodeManager.get_node( aNodeIndices( 0 ) ).get_global_coordinates() );
 
-        // Fill node coordinates
-        for ( uint iNodeInEntityIndex = 0; iNodeInEntityIndex < aNodeIndices.length(); iNodeInEntityIndex++ )
+        // Test nodes for other geometric regions
+        for ( uint iNodeInEntityIndex = 1; iNodeInEntityIndex < aNodeIndices.length(); iNodeInEntityIndex++ )
         {
-            tNodeCoordinates( aNodeIndices( iNodeInEntityIndex ) ) = std::make_shared< Matrix< DDRMat > >( aNodeCoordinates.get_row( iNodeInEntityIndex ) );
+            // Get test geometric region
+            Geometric_Region tTestGeometricRegion = mGeometries( mActiveGeometryIndex )->get_geometric_region( aNodeIndices( iNodeInEntityIndex ), mNodeManager.get_node( aNodeIndices( iNodeInEntityIndex ) ).get_global_coordinates() );
+
+            // Test if it is different from the first region. If so, the entity is intersected
+            if ( tTestGeometricRegion != tFirstNodeGeometricRegion )
+            {
+                return true;
+            }
         }
 
-        // Return result
-        return is_intersected( aGeometryIndex, aNodeIndices, &tNodeCoordinates );
+        // If no differences were found, this entity is not intersected
+        return false;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     bool
     Geometry_Engine::is_intersected(
-            uint                                                         aGeometryIndex,
-            const Matrix< IndexMat >&                                    aNodeIndices,
-            Vector< std::shared_ptr< moris::Matrix< moris::DDRMat > > >* aNodeCoordinates )
+            uint                      aGeometryIndex,
+            const Matrix< IndexMat >& aNodeIndices )
     {
         // Get first geometric region
-        Geometric_Region tFirstNodeGeometricRegion = mGeometries( aGeometryIndex )->get_geometric_region( aNodeIndices( 0 ), *( *aNodeCoordinates )( aNodeIndices( 0 ) ) );
+        Geometric_Region tFirstNodeGeometricRegion = mGeometries( aGeometryIndex )->get_geometric_region( aNodeIndices( 0 ), mNodeManager.get_node( aNodeIndices( 0 ) ).get_global_coordinates() );
 
         // Test nodes for other geometric regions
-        for ( uint iNodeInEntityIndex = 0; iNodeInEntityIndex < aNodeIndices.length(); iNodeInEntityIndex++ )
+        for ( uint iNodeInEntityIndex = 1; iNodeInEntityIndex < aNodeIndices.length(); iNodeInEntityIndex++ )
         {
             // Get test geometric region
-            Geometric_Region tTestGeometricRegion = mGeometries( aGeometryIndex )->get_geometric_region( aNodeIndices( iNodeInEntityIndex ), *( *aNodeCoordinates )( aNodeIndices( iNodeInEntityIndex ) ) );
+            Geometric_Region tTestGeometricRegion = mGeometries( aGeometryIndex )->get_geometric_region( aNodeIndices( iNodeInEntityIndex ), mNodeManager.get_node( aNodeIndices( iNodeInEntityIndex ) ).get_global_coordinates() );
 
             // Test if it is different from the first region. If so, the entity is intersected
             if ( tTestGeometricRegion != tFirstNodeGeometricRegion )
@@ -744,7 +747,6 @@ namespace moris::gen
             }
             for ( moris::uint iGeom = 0; iGeom < this->get_number_of_geometries(); iGeom++ )
             {
-                // BRENDAN is this okay?
                 Vector< real > tGeometryInfo;
                 mGeometries( iGeom )->get_design_info( tVertex.get_index(), tCoords, tGeometryInfo );
 
@@ -889,6 +891,9 @@ namespace moris::gen
             tPrimitiveADVIds( iADVIndex ) = iADVIndex;
         }
 
+        // create a vector unique owned and shared ids
+        Vector< sint > tAllOwnedAndSharedADVIds = tPrimitiveADVIds;
+
         // Define primitive ADVs to be owned by processor 0
         Vector< sint > tOwnedADVIds( 0, 0 );
         if ( par_rank() == 0 )
@@ -899,192 +904,31 @@ namespace moris::gen
         // initialize HMR ijkl information for primitive adv with gNoID
         Matrix< IdMat > tOwnedijklIDs( tPrimitiveADVIds.size(), 1, gNoID );
 
-        // Define shared ADVs per geometry
-        Vector< Vector< sint > > tOwnedAndSharedADVIds( tDesigns.size() );
-        Vector< uint >           tAllOffsetIDs( tDesigns.size() );
-        Vector< uint >           tNumCoeff( tDesigns.size() );
-
         // Loop over all designs, i.e., geometries and properties, to get number of ADVs
         sint tOffsetID = tPrimitiveADVIds.size();
-        for ( uint iDesignIndex = 0; iDesignIndex < tDesigns.size(); iDesignIndex++ )
+        for ( auto & iDesign : tDesigns )
         {
-            // Determine if level set will be created
-            if ( tDesigns( iDesignIndex )->intended_discretization() )
+            tOffsetID = iDesign->append_adv_info(    //
+                    aMeshPair.get_interpolation_mesh(),
+                    tOwnedADVIds,
+                    tOwnedijklIDs,
+                    tOffsetID,
+                    mADVManager.mLowerBounds,
+                    mADVManager.mUpperBounds );
+
+            // Get all the owned and shared ADV IDs for this design
+            Vector< Vector< sint > > tDesignOwnedAndSharedADVIds = iDesign->get_shared_adv_ids();
+
+            for ( auto const & tOwnedAndShared : tDesignOwnedAndSharedADVIds )
             {
-                // Get discretization mesh index
-                uint tDiscretizationMeshIndex = tDesigns( iDesignIndex )->get_discretization_mesh_index();
-
-                // Get number of coefficients on processor
-                uint tMaxNumberOfCoefficients = tMesh->get_max_num_coeffs_on_proc( tDiscretizationMeshIndex );
-
-                // Initialize coefficient IDs, indices, and owners for all coefficients of design
-                Matrix< IdMat >    tAllCoefIds( tMaxNumberOfCoefficients, 1, gNoID );
-                Matrix< IndexMat > tAllCoefIndices( tMaxNumberOfCoefficients, 1, gNoIndex );
-                Matrix< IdMat >    tAllCoefOwners( tMaxNumberOfCoefficients, 1, gNoID );
-                Matrix< IdMat >    tAllCoefijklIDs( tMaxNumberOfCoefficients, 1, gNoID );
-
-                for ( uint iNodeIndex = 0; iNodeIndex < tMesh->get_num_nodes(); iNodeIndex++ )
-                {
-                    // check whether node has an underlying discretization on this processor
-                    bool tNodeHasDiscretization =
-                            tMesh->get_mtk_vertex( iNodeIndex ).has_interpolation( tDiscretizationMeshIndex );
-
-                    // process only nodes that have discretization
-                    if ( tNodeHasDiscretization )
-                    {
-                        // get indices and IDs from mtk mesh - FIXME: should return const &
-                        const Matrix< IndexMat > tCoefIndices = tMesh->get_coefficient_indices_of_node(
-                                iNodeIndex,
-                                tDiscretizationMeshIndex );
-
-                        const Matrix< IdMat > tCoefIds = tMesh->get_coefficient_IDs_of_node(
-                                iNodeIndex,
-                                tDiscretizationMeshIndex );
-
-                        const Matrix< IdMat > tCoefOwners = tMesh->get_coefficient_owners_of_node(
-                                iNodeIndex,
-                                tDiscretizationMeshIndex );
-
-                        Matrix< IdMat > tCoeffijklIDs;
-
-                        if ( mtk::MeshType::HMR == tMesh->get_mesh_type() )
-                        {
-                            tCoeffijklIDs = tMesh->get_coefficient_ijkl_IDs_of_node(
-                                    iNodeIndex,
-                                    tDiscretizationMeshIndex );
-                        }
-
-                        // check that number of indices and ids are the same
-                        MORIS_ASSERT( tCoefIds.numel() == tCoefIndices.numel(),
-                                "distribute_advs - numbers of coefficients and ids do not match.\n" );
-
-                        // get number of coefficients for current node
-                        uint tNumCoefOfNode = tCoefIds.numel();
-
-                        for ( uint tCoefIndex = 0; tCoefIndex < tNumCoefOfNode; ++tCoefIndex )
-                        {
-                            // get coefficient index
-                            moris_index tCurrentIndex = tCoefIndices( tCoefIndex );
-
-                            // check whether mesh coefficient has already been set
-                            if ( tAllCoefIds( tCurrentIndex ) == -1 )
-                            {
-                                // increase field coefficient count
-                                tNumCoeff( iDesignIndex )++;
-
-                                // populate mesh index to mesh coefficient id map
-                                tAllCoefIds( tCurrentIndex ) = tCoefIds( tCoefIndex );
-
-                                tAllCoefOwners( tCurrentIndex ) = tCoefOwners( tCoefIndex );
-
-                                if ( tMesh->get_mesh_type() == mtk::MeshType::HMR )
-                                {
-                                    tAllCoefijklIDs( tCurrentIndex ) = tCoeffijklIDs( tCoefIndex );
-                                }
-                            }
-                            else
-                            {
-                                // check for consistency
-                                MORIS_ASSERT( tAllCoefIds( tCurrentIndex ) == tCoefIds( tCoefIndex ),
-                                        "distribute_advs - inconsistent index and ids.\n" );
-                            }
-                        }
-                    }
-                }
-
-                if ( par_size() > 1 )
-                {
-                    Geometry_Engine::communicate_missing_owned_coefficients(
-                            aMeshPair,
-                            tAllCoefIds,
-                            tAllCoefOwners,
-                            tAllCoefijklIDs,
-                            tNumCoeff,
-                            iDesignIndex,
-                            tDiscretizationMeshIndex,
-                            tMesh->get_mesh_type() );
-                }
-
-                // Count number of owned coefficients
-                uint tOwnedCounter = 0;
-                for ( uint iCoefficientIndex = 0; iCoefficientIndex < tAllCoefIds.numel(); iCoefficientIndex++ )
-                {
-                    if ( tAllCoefIds( iCoefficientIndex ) != gNoID && tAllCoefOwners( iCoefficientIndex ) == par_rank() )
-                    {
-                        tOwnedCounter++;
-                    }
-                }
-
-                // Create vectors of owned coefficients
-                Matrix< DDUMat > tOwnedCoefficients( tOwnedCounter, 1 );
-
-                // Set owned coefficients
-                tOwnedCounter = 0;
-                for ( uint Ik = 0; Ik < tAllCoefIds.numel(); Ik++ )
-                {
-                    if ( tAllCoefIds( Ik ) != gNoID && tAllCoefOwners( Ik ) == par_rank() )
-                    {
-                        tOwnedCoefficients( tOwnedCounter++ ) = Ik;
-                    }
-                }
-
-                // Sizes of ID vectors
-                uint tNumOwnedADVs         = tOwnedADVIds.size();
-                uint tNumOwnedCoefficients = tOwnedCoefficients.numel();
-
-                // Resize ID lists and bounds
-                tOwnedADVIds.resize( tNumOwnedADVs + tNumOwnedCoefficients );
-                mADVManager.mLowerBounds.resize( tNumOwnedADVs + tNumOwnedCoefficients );
-                mADVManager.mUpperBounds.resize( tNumOwnedADVs + tNumOwnedCoefficients );
-                tOwnedijklIDs.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
-                tOwnedAndSharedADVIds( iDesignIndex ).resize( tAllCoefIds.length() );
-
-                // Add owned coefficients to lists
-                for ( uint iOwnedCoefficient = 0; iOwnedCoefficient < tNumOwnedCoefficients; iOwnedCoefficient++ )
-                {
-                    // Set the ADV ID as the offset plus the entity ID
-                    sint tADVId = tOffsetID
-                                + tMesh->get_glb_entity_id_from_entity_loc_index(
-                                        tOwnedCoefficients( iOwnedCoefficient ),
-                                        aADVEntityRank,
-                                        tDiscretizationMeshIndex );
-
-                    MORIS_ASSERT( tADVId - tOffsetID == tAllCoefIds( tOwnedCoefficients( iOwnedCoefficient ) ), "check if this is a problem" );
-
-                    tOwnedADVIds( tNumOwnedADVs + iOwnedCoefficient )             = tADVId;
-                    mADVManager.mLowerBounds( tNumOwnedADVs + iOwnedCoefficient ) = tDesigns( iDesignIndex )->get_discretization_lower_bound();
-                    mADVManager.mUpperBounds( tNumOwnedADVs + iOwnedCoefficient ) = tDesigns( iDesignIndex )->get_discretization_upper_bound();
-
-                    if ( tMesh->get_mesh_type() == mtk::MeshType::HMR )
-                    {
-                        tOwnedijklIDs( tNumOwnedADVs + iOwnedCoefficient ) = tAllCoefijklIDs( tOwnedCoefficients( iOwnedCoefficient ) );
-                    }
-                }
-
-                // Add shared coefficients to field-specific list
-                for ( uint iSharedCoefficientIndex = 0; iSharedCoefficientIndex < tAllCoefIds.length(); iSharedCoefficientIndex++ )
-                {
-                    // Set the ADV ID as the offset plus the entity ID
-                    tOwnedAndSharedADVIds( iDesignIndex )( iSharedCoefficientIndex ) = tOffsetID + tAllCoefIds( iSharedCoefficientIndex );
-                }
-
-                // Update offset based on maximum ID
-                tAllOffsetIDs( iDesignIndex ) = tOffsetID;
-                tOffsetID += tMesh->get_max_entity_id( aADVEntityRank, tDiscretizationMeshIndex );
+                tAllOwnedAndSharedADVIds.append( tOwnedAndShared );
             }
-        }
-
-        // create a vector unique owned and shared ids
-        Vector< sint > tAllOwnedAndSharedADVIds = tPrimitiveADVIds;
-        for ( auto const & tOwnedAndShared : tOwnedAndSharedADVIds )
-        {
-            tAllOwnedAndSharedADVIds.append( tOwnedAndShared );
         }
 
         // Set owned and owned and shared ADV IDs in PDV host manager
         mPDVHostManager.set_owned_adv_ids( tOwnedADVIds, tAllOwnedAndSharedADVIds );
 
-        MORIS_LOG_INFO( "Time to collect owned and shared ADVs: %f sec", ( moris::real )( clock() - tStart_Owned_Shared_ADVs ) / CLOCKS_PER_SEC );
+        MORIS_LOG_INFO( "Time to collect owned and shared ADVs: %f sec", (moris::real)( clock() - tStart_Owned_Shared_ADVs ) / CLOCKS_PER_SEC );
 
         //----------------------------------------//
         // Create owned ADV vector                //
@@ -1135,7 +979,7 @@ namespace moris::gen
             }
         }
 
-        MORIS_LOG_INFO( "Time to create owned ADVs: %f sec", ( moris::real )( clock() - tStart_Create_Owned_ADVs ) / CLOCKS_PER_SEC );
+        MORIS_LOG_INFO( "Time to create owned ADVs: %f sec", (moris::real)( clock() - tStart_Create_Owned_ADVs ) / CLOCKS_PER_SEC );
 
         //----------------------------------------//
         // Convert to B-spline fields             //
@@ -1145,50 +989,45 @@ namespace moris::gen
         // Loop to discretize geometries when requested
         for ( uint iGeometryIndex = 0; iGeometryIndex < mGeometries.size(); iGeometryIndex++ )
         {
+            for ( uint iGeometryFieldIndex = 0; iGeometryFieldIndex < mGeometries( iGeometryIndex )->get_num_fields(); iGeometryFieldIndex++ )
+            {
+                // Loop over MTK fields to find a match
+                bool tUseMTKField = false;
+                for ( const auto& iMTKField : aFields )
+                {
+                    mGeometries( iGeometryIndex )->discretize( iMTKField, aMeshPair, tNewOwnedADVs );
+                    tUseMTKField = true;
+                }
+
+                // Otherwise discretize with original field
+                if ( not tUseMTKField )
+                {
+                    mGeometries( iGeometryIndex )->discretize( aMeshPair, tNewOwnedADVs );
+                }
+
+                // Shape sensitivities logic
+                mShapeSensitivities = ( mShapeSensitivities or mGeometries( iGeometryIndex )->depends_on_advs() );
+            }
+        }
+
+        // Loop to discretize properties when requested
+        for ( uint iPropertyIndex = 0; iPropertyIndex < mProperties.size(); iPropertyIndex++ )
+        {
             // Loop over MTK fields to find a match
             bool tUseMTKField = false;
             for ( const auto& iMTKField : aFields )
             {
-                if ( mGeometries( iGeometryIndex )->get_name() == iMTKField->get_label() )
+                if ( mProperties( iPropertyIndex )->get_name() == iMTKField->get_label() )
                 {
-                    mGeometries( iGeometryIndex )->discretize( iMTKField, aMeshPair, tNewOwnedADVs, tOwnedAndSharedADVIds( iGeometryIndex ), tAllOffsetIDs( iGeometryIndex ) );
+                    mProperties( iPropertyIndex )->discretize( iMTKField, aMeshPair, tNewOwnedADVs );
                     tUseMTKField = true;
-                    break;
                 }
             }
 
             // Otherwise discretize with original field
             if ( not tUseMTKField )
             {
-                mGeometries( iGeometryIndex )->discretize( aMeshPair, tNewOwnedADVs, tOwnedAndSharedADVIds( iGeometryIndex ), tAllOffsetIDs( iGeometryIndex ) );
-            }
-
-            // Shape sensitivities logic
-            mShapeSensitivities = ( mShapeSensitivities or mGeometries( iGeometryIndex )->depends_on_advs() );
-        }
-
-        // Loop to discretize properties when requested
-        for ( uint iPropertyIndex = 0; iPropertyIndex < mProperties.size(); iPropertyIndex++ )
-        {
-            if ( mProperties( iPropertyIndex )->intended_discretization() )    // BRENDAN this if statement was added, remove if geometries are not being discretized properly
-            {
-                // Loop over MTK fields to find a match
-                bool tUseMTKField = false;
-                for ( const auto& iMTKField : aFields )
-                {
-                    if ( mProperties( iPropertyIndex )->get_name() == iMTKField->get_label() )
-                    {
-                        mProperties( iPropertyIndex )->discretize( iMTKField, aMeshPair, tNewOwnedADVs, tOwnedAndSharedADVIds( mGeometries.size() + iPropertyIndex ), tAllOffsetIDs( mGeometries.size() + iPropertyIndex ) );
-                        tUseMTKField = true;
-                        break;
-                    }
-                }
-
-                // Otherwise discretize with original field
-                if ( not tUseMTKField )
-                {
-                    mProperties( iPropertyIndex )->discretize( aMeshPair, tNewOwnedADVs, tOwnedAndSharedADVIds( mGeometries.size() + iPropertyIndex ), tAllOffsetIDs( mGeometries.size() + iPropertyIndex ) );
-                }
+                mProperties( iPropertyIndex )->discretize( aMeshPair, tNewOwnedADVs );
             }
         }
 
@@ -1217,7 +1056,7 @@ namespace moris::gen
         delete mOwnedADVs;
         mOwnedADVs = tNewOwnedADVs;
 
-        MORIS_LOG_INFO( "Time to convert to Bspline fields: %f sec", ( moris::real )( clock() - tStart_Convert_to_Bspline_Fields ) / CLOCKS_PER_SEC );
+        MORIS_LOG_INFO( "Time to convert to Bspline fields: %f sec", (moris::real)( clock() - tStart_Convert_to_Bspline_Fields ) / CLOCKS_PER_SEC );
 
         //----------------------------------------//
         // Communicate all ADV IDs to processor 0 //
@@ -1274,7 +1113,7 @@ namespace moris::gen
             communicate_mats( tCommunicationListMat, tSendingijklIDs, tReceivingjklIDs );
         }
 
-        MORIS_LOG_INFO( "Time to communicate ADV IDs: %f sec", ( moris::real )( clock() - tStart_Communicate_ADV_IDs ) / CLOCKS_PER_SEC );
+        MORIS_LOG_INFO( "Time to communicate ADV IDs: %f sec", (moris::real)( clock() - tStart_Communicate_ADV_IDs ) / CLOCKS_PER_SEC );
 
         // Assemble full ADVs/bounds
         clock_t tStart_ADV_Bounds = clock();
@@ -1333,13 +1172,13 @@ namespace moris::gen
             mFullijklIDs.set_size( 0, 0 );
         }
 
-        MORIS_LOG_INFO( "Time to assemble ADVs and bounds on Proc 0: %f sec", ( moris::real )( clock() - tStart_ADV_Bounds ) / CLOCKS_PER_SEC );
+        MORIS_LOG_INFO( "Time to assemble ADVs and bounds on Proc 0: %f sec", (moris::real)( clock() - tStart_ADV_Bounds ) / CLOCKS_PER_SEC );
 
         // Reset mesh information
         clock_t tStart_Reset_Mesh_Info = clock();
         this->reset_mesh_information( tMesh );
 
-        MORIS_LOG_INFO( "Time to reset mesh information: %f sec", ( moris::real )( clock() - tStart_Reset_Mesh_Info ) / CLOCKS_PER_SEC );
+        MORIS_LOG_INFO( "Time to reset mesh information: %f sec", (moris::real)( clock() - tStart_Reset_Mesh_Info ) / CLOCKS_PER_SEC );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -1365,159 +1204,6 @@ namespace moris::gen
         for ( uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++ )
         {
             mProperties( tPropertyIndex )->reset_nodal_data( aMesh );
-        }
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    void Geometry_Engine::communicate_missing_owned_coefficients(
-            mtk::Mesh_Pair&  aMeshPair,
-            Matrix< IdMat >& aAllCoefIds,
-            Matrix< IdMat >& aAllCoefOwners,
-            Matrix< IdMat >& aAllCoefijklIds,
-            Vector< uint >&  aNumCoeff,
-            uint             aFieldIndex,
-            uint             aDiscretizationMeshIndex,
-            mtk::MeshType    aMeshType )
-    {
-
-        Matrix< IdMat > tCommTable = aMeshPair.get_interpolation_mesh()->get_communication_table();
-
-        // Build communication table map to determine the right position for each processor rank. +1 because c++ is 0 based
-        Matrix< DDSMat > tCommTableMap( tCommTable.max() + 1, 1, -1 );
-
-        moris::uint tNumCommProcs = tCommTable.numel();
-
-        // Loop over communication table to fill the communication table map
-        for ( moris::uint Ik = 0; Ik < tNumCommProcs; Ik++ )
-        {
-            tCommTableMap( tCommTable( Ik ) ) = Ik;
-        }
-
-        Vector< Matrix< IdMat > > tSharedCoeffsPosGlobal( tNumCommProcs );
-        Vector< Matrix< IdMat > > tSharedCoeffsijklIdGlobal( tNumCommProcs );
-
-        // Set Mat to store number of shared coeffs per processor
-        Matrix< DDUMat > tNumSharedCoeffsPerProc( tNumCommProcs, 1, 0 );
-
-        // Count number of coeffs per proc which have to be communicated
-        for ( moris::uint Ib = 0; Ib < aAllCoefIds.numel(); Ib++ )
-        {
-            // Check if coeffs at this position is not NULL
-            if ( aAllCoefIds( Ib ) != gNoID && aAllCoefOwners( Ib ) != par_rank() )
-            {
-
-                // get owning processor
-                moris::moris_id tProcID = aAllCoefOwners( Ib );
-
-                moris::sint tProcIdPos = tCommTableMap( tProcID );
-
-                MORIS_ASSERT( tProcIdPos != gNoID,
-                        "communicate_missing_owned_coefficients: Map returns proc rank -1. Check communication table" );
-
-                // Add +1 to the processor number of shared coeffs per processor
-                tNumSharedCoeffsPerProc( tProcIdPos )++;
-            }
-        }
-
-        // Set size of the moris::Mats in the Cell
-        for ( moris::uint Ik = 0; Ik < tNumCommProcs; Ik++ )
-        {
-            if ( tNumSharedCoeffsPerProc( Ik ) != 0 )
-            {
-                tSharedCoeffsPosGlobal( Ik ).set_size( tNumSharedCoeffsPerProc( Ik ), 1 );
-                tSharedCoeffsijklIdGlobal( Ik ).set_size( tNumSharedCoeffsPerProc( Ik ), 1 );
-            }
-        }
-
-        // Temporary Mat to add external coeffs ids at the next spot in the matrix which will be communicated
-        Matrix< DDUMat > tShredCoeffPosPerProc( tNumCommProcs, 1, 0 );
-
-        // Loop over coeffs per type
-        for ( moris::uint Ia = 0; Ia < aAllCoefIds.numel(); Ia++ )
-        {
-            // Check if coeffs at this position is not NULL
-            if ( aAllCoefIds( Ia ) != gNoID && aAllCoefOwners( Ia ) != par_rank() )
-            {
-                // Get owning processor
-                moris::uint tProcID = aAllCoefOwners( Ia );
-
-                moris::sint tProcIdPos = tCommTableMap( tProcID );
-
-                // Add owning processor id to moris::Mat
-                tSharedCoeffsPosGlobal( tProcIdPos )( tShredCoeffPosPerProc( tProcIdPos ) ) =
-                        aAllCoefIds( Ia );
-
-                if ( aMeshType == mtk::MeshType::HMR )
-                {
-                    tSharedCoeffsijklIdGlobal( tProcIdPos )( tShredCoeffPosPerProc( tProcIdPos ) ) =
-                            aAllCoefijklIds( Ia );
-                }
-
-                tShredCoeffPosPerProc( tProcIdPos )++;
-            }
-        }
-
-        // receiving list
-        Vector< Matrix< IdMat > > tMatsToReceive;
-        Vector< Matrix< IdMat > > tMatsToReceiveijklID;
-
-        barrier();
-
-        // Communicate position of shared adofs to the owning processor
-        communicate_mats(
-                tCommTable,
-                tSharedCoeffsPosGlobal,
-                tMatsToReceive );
-
-        barrier();
-
-        if ( aMeshType == mtk::MeshType::HMR )
-        {
-            communicate_mats(
-                    tCommTable,
-                    tSharedCoeffsijklIdGlobal,
-                    tMatsToReceiveijklID );
-
-            MORIS_ASSERT( tMatsToReceiveijklID.size() == tMatsToReceive.size(), "size must be the same" );
-        }
-
-        map< moris_id, moris_index > tCoeffGlobalToLocalMap;
-        aMeshPair.get_interpolation_mesh()->get_adof_map(
-                aDiscretizationMeshIndex,
-                tCoeffGlobalToLocalMap );
-
-        // Loop over all Mats set dummy owned coeffs
-        for ( moris::uint Ik = 0; Ik < tMatsToReceive.size(); Ik++ )
-        {
-            for ( moris::uint Ii = 0; Ii < tMatsToReceive( Ik ).numel(); Ii++ )
-            {
-                // Get owned coeff Index
-                moris_id    tID            = tMatsToReceive( Ik )( Ii );
-                moris_index tLocalCoeffInd = tCoeffGlobalToLocalMap.find( tID );
-
-                if ( aAllCoefIds( tLocalCoeffInd ) == gNoID )
-                {
-                    aAllCoefIds( tLocalCoeffInd )    = tID;
-                    aAllCoefOwners( tLocalCoeffInd ) = par_rank();
-
-                    if ( aMeshType == mtk::MeshType::HMR )
-                    {
-                        aAllCoefijklIds( tLocalCoeffInd ) = tMatsToReceiveijklID( Ik )( Ii );
-                    }
-
-                    aNumCoeff( aFieldIndex )++;
-                }
-
-                MORIS_ASSERT( aAllCoefIds( tLocalCoeffInd ) == tID,
-                        "communicate_missing_owned_coefficients( ), coefficient IDs are not parallel consistent" );
-
-                if ( aMeshType == mtk::MeshType::HMR )
-                {
-                    MORIS_ASSERT( aAllCoefijklIds( tLocalCoeffInd ) == tMatsToReceiveijklID( Ik )( Ii ),
-                            "communicate_missing_owned_coefficients( ), coefficient ijkl IDs are not parallel consistent" );
-                }
-            }
         }
     }
 
@@ -1564,45 +1250,30 @@ namespace moris::gen
 
             // Setup field names
             uint tNumGeometryFields = 0;
-            uint tNumPropertyFields = 0;
             for ( uint iGeom = 0; iGeom < mGeometries.size(); iGeom++ )
             {
                 tNumGeometryFields += mGeometries( iGeom )->get_num_fields();
             }
-            for ( uint iProperty = 0; iProperty < mProperties.size(); iProperty++ )
-            {
-                tNumPropertyFields += mProperties( iProperty )->get_num_fields();
-            }
-            Vector< std::string > tFieldNames( tNumGeometryFields + tNumPropertyFields );
+            Vector< std::string > tFieldNames( 0 );
 
             // Geometry field names
-            uint iFieldIndex = 0;
             for ( uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++ )
             {
-                for ( uint iGeometryFieldIndex = 0; iGeometryFieldIndex < mGeometries( tGeometryIndex )->get_num_fields(); iGeometryFieldIndex++ )
-                {
-                    tFieldNames( iFieldIndex ) = mGeometries( tGeometryIndex )->get_name();
-                    if ( tFieldNames( tGeometryIndex ).empty() )
-                    {
-                        tFieldNames( tGeometryIndex ) = "Geometry " + std::to_string( tGeometryIndex ) + "Field " + std::to_string( iGeometryFieldIndex );
-                    }
-                    iFieldIndex++;
-                }
+                // Get the geometries field names
+                Vector< std::string > tGeometryFieldNames = mGeometries( tGeometryIndex )->get_field_names();
+
+                // Append the field names to the list
+                tFieldNames.append( tGeometryFieldNames );
             }
 
-            MORIS_ASSERT( iFieldIndex == tNumGeometryFields, "GEN - Geometry_Engine::output_fields_on_mesh() Number of output fields does not equal total number of geometry fields." );
-
             // Property field names
-            for ( uint tPropertyIndex = 0; tPropertyIndex < tNumPropertyFields; tPropertyIndex++ )
+            for ( uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++ )
             {
-                for ( uint iPropertyFieldIndex = 0; iPropertyFieldIndex < mProperties( tPropertyIndex )->get_num_fields(); iPropertyFieldIndex++ )
-                {
-                    tFieldNames( tNumGeometryFields + tPropertyIndex ) = mProperties( tPropertyIndex )->get_name();
-                    if ( tFieldNames( tNumGeometryFields + tPropertyIndex ).empty() )
-                    {
-                        tFieldNames( tNumGeometryFields + tPropertyIndex ) = "Property " + std::to_string( tPropertyIndex ) + "Field " + std::to_string( iPropertyFieldIndex );
-                    }
-                }
+                // Get the geometries field names
+                Vector< std::string > tPropertyFieldNames = mProperties( tPropertyIndex )->get_field_names();
+
+                // Append the field names to the list
+                tFieldNames.append( tPropertyFieldNames );
             }
 
             // write time to file
@@ -1637,7 +1308,7 @@ namespace moris::gen
                     }
 
                     // Create field on mesh
-                    tWriter.write_nodal_field( tFieldNames( tGeometryIndex ), tFieldData );
+                    tWriter.write_nodal_field( tFieldNames( iGeometryFieldIndex ), tFieldData );
                 }
             }
 
@@ -1672,8 +1343,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    Geometry_Engine::write_geometry_fields(
+    void Geometry_Engine::write_geometry_fields(
             mtk::Mesh*         aMesh,
             const std::string& aBaseFileName )
     {
@@ -1969,8 +1639,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    Geometry_Engine::set_integration_pdv_types( mtk::Integration_Mesh* aIntegrationMesh )
+    void Geometry_Engine::set_integration_pdv_types( mtk::Integration_Mesh* aIntegrationMesh )
     {
         // Tracer
         Tracer tTracer( "GEN", "Set integration PDV types" );
@@ -2020,8 +1689,8 @@ namespace moris::gen
 
     Phase_Table
     Geometry_Engine::create_phase_table(
-            const Vector< Vector< Parameter_List > >& aParameterLists,
-            const std::shared_ptr< Library_IO >&      aLibrary )
+            const Module_Parameter_Lists&        aParameterLists,
+            const std::shared_ptr< Library_IO >& aLibrary )
     {
         // Get number of geometries
         uint tNumGeometries = aParameterLists( 1 ).size();
@@ -2073,5 +1742,4 @@ namespace moris::gen
     }
 
     //--------------------------------------------------------------------------------------------------------------
-
 }    // namespace moris::gen

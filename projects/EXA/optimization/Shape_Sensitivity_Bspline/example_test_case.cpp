@@ -13,7 +13,14 @@
 #include "cl_Logger.hpp"    // MRS/IOS/src
 #include "HDF5_Tools.hpp"
 
+#include <Kokkos_Core.hpp>
+
 using namespace moris;
+
+#ifdef MORIS_HAVE_ARBORX
+// initialize Kokkos for the use in the spatial tree library ArborX
+std::unique_ptr< Kokkos::ScopeGuard > guard = !Kokkos::is_initialized() && !Kokkos::is_finalized() ? std::make_unique< Kokkos::ScopeGuard >() : nullptr;
+#endif
 
 // global variable to define test cases
 uint tGeoModel;
@@ -119,6 +126,42 @@ TEST_CASE( "Shape_Sensitivity_Bspline_2D",
     }
 }
 
+TEST_CASE( "Shape_Sensitivity_Bspline_Surface_Mesh_2D",
+        "[moris],[example],[optimization],[sweep]" )
+{
+    // remove files from previous test runs
+    // FIXME: should be made independent of OS; note std::remove does not take wild cards
+    if ( par_rank() == 0 )
+    {
+        MORIS_ERROR( std::system( "rm -f *exo*" ) == 0, "Shape_Sensitivity_Bspline - removing *exo* files failed" );
+        MORIS_ERROR( std::system( "rm -f *hdf5*" ) == 0, "Shape_Sensitivity_Bspline - removing *hdf5* files failed" );
+    }
+
+    // define command line call
+    int argc = 2;
+
+    char tString1[] = "";
+    char tString2[] = "Shape_Sensitivity_Bspline_Surface_Mesh_2D.so";
+
+    char* argv[ 2 ] = { tString1, tString2 };
+
+    if ( par_size() == 1 )
+    {
+        // loop over all test configurations
+        for ( tGeoModel = 0; tGeoModel < 2; ++tGeoModel )
+        {
+            // call to performance manager main interface
+            int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
+
+            // catch test statements should follow
+            REQUIRE( tRet == 0 );
+
+            // check results
+            check_results( tGeoModel, "shape_opt_test_surface_mesh_2D.hdf5" );
+        }
+    }
+}
+
 TEST_CASE( "Shape_Sensitivity_Bspline_3D",
         "[moris],[example],[optimization],[sweep]" )
 {
@@ -151,6 +194,41 @@ TEST_CASE( "Shape_Sensitivity_Bspline_3D",
 
             // check results
             check_results( tGeoModel, "shape_opt_test_3D.hdf5" );
+        }
+    }
+}
+TEST_CASE( "Shape_Sensitivity_Bspline_Surface_Mesh_3D",
+        "[moris],[example],[optimization],[sweep]" )
+{
+    // remove files from previous test runs
+    // FIXME: should be made independent of OS; note std::remove does not take wild cards
+    if ( par_rank() == 0 )
+    {
+        MORIS_ERROR( std::system( "rm -f *exo*" ) == 0, "Shape_Sensitivity_Bspline - removing *exo* files failed" );
+        MORIS_ERROR( std::system( "rm -f *hdf5*" ) == 0, "Shape_Sensitivity_Bspline - removing *hdf5* files failed" );
+    }
+
+    // define command line call
+    int argc = 2;
+
+    char tString1[] = "";
+    char tString2[] = "Shape_Sensitivity_Bspline_Surface_Mesh_3D.so";
+
+    char* argv[ 2 ] = { tString1, tString2 };
+
+    if ( par_size() == 1 )
+    {
+        // loop over all test configurations
+        for ( tGeoModel = 0; tGeoModel < 2; ++tGeoModel )
+        {
+            // call to performance manager main interface
+            int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
+
+            // catch test statements should follow
+            REQUIRE( tRet == 0 );
+
+            // check results
+            check_results( tGeoModel, "shape_opt_test_surface_mesh_3D.hdf5" );
         }
     }
 }

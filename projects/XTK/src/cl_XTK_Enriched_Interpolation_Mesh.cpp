@@ -9,10 +9,12 @@
  */
 
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
+#include "cl_Logger.hpp"
 #include "cl_Map.hpp"
 
 #include "cl_XTK_Multigrid.hpp"
 #include "fn_TOL_Capacities.hpp"
+#include "fn_log_assert.hpp"
 #include "fn_stringify_matrix.hpp"
 #include "cl_XTK_Field.hpp"
 #include "cl_MTK_Writer_Exodus.hpp"
@@ -1163,6 +1165,41 @@ namespace moris::xtk
     Enriched_Interpolation_Mesh::get_enriched_interpolation_cells()
     {
         return mEnrichedInterpCells;
+    }
+
+    // ----------------------------------------------------------------------------------
+
+    moris_index
+    Enriched_Interpolation_Mesh::get_enriched_interpolation_vertex(
+            moris_index const & aBGVertId,
+            moris_index const & aEnrichedIpCellId ) const
+    {
+        // get the interpolation cell index using the id
+        moris_index tCellIndex = this->get_loc_entity_ind_from_entity_glb_id( aEnrichedIpCellId, mtk::EntityRank::ELEMENT, 0 );
+
+        // get the cell
+        Interpolation_Cell_Unzipped* tEnrIpCell = this->get_enriched_interpolation_cells()( tCellIndex );
+
+        // get the vertices
+        Vector< xtk::Interpolation_Vertex_Unzipped* > const & tVertexPointers = tEnrIpCell->get_xtk_interpolation_vertices();
+
+        moris_index tVertexPointerInd = 0;
+        uint        tCount            = 0;
+
+        for ( uint i = 0; i < tVertexPointers.size(); i++ )
+        {
+            if ( tVertexPointers( i )->get_base_vertex()->get_id() == aBGVertId )
+            {
+                tVertexPointerInd = tVertexPointers( i )->get_index();
+                tCount++;
+            }
+        }
+
+        MORIS_ERROR( tCount == 1, 
+                "Enriched_Interpolation_Mesh::get_enriched_interpolation_vertex() - "
+                "Enriched interpolation vertex not found or found more than once" );
+
+        return tVertexPointerInd;
     }
 
     // ----------------------------------------------------------------------------
@@ -2893,27 +2930,38 @@ namespace moris::xtk
                         // get the base vertex interpolation
                         mtk::Vertex_Interpolation const * tBaseVertexInterpolation = iVertexEnrichment->get_base_vertex_interpolation();
 
-                        // extract basis indices of the base one
-                        Matrix< IndexMat > tBaseCoeffInds = tBaseVertexInterpolation->get_indices();
+                        /* IMPORTANT!:
+                         * If dbl. side clusters coincide with proc boundaries, some interpolation vertices may not have a non-enriched T-matrix.
+                         * The expectation here is that dbl. side sets are not used for assembling with an un-enriched basis.
+                         * The communication call will throw a warning if this is potentially the case, but will not error out.
+                         * Should this still be needed for some reason the communication call that throws that warning needs to be modified 
+                         * to communicate the base vertex interpolations in place of throwing the warning.
+                         */
 
-                        // get access to the basis to local index map of the vertex enrichment for modification
-                        IndexMap& tVertEnrichMap = iVertexEnrichment->get_basis_map();
-
-                        // clear the map and populate it with the new indices
-                        tVertEnrichMap.clear();
-                        for ( uint iBC = 0; iBC < tBaseCoeffInds.numel(); iBC++ )
+                        if ( tBaseVertexInterpolation != nullptr )
                         {
-                            moris::moris_index tBasisIndex = tBaseCoeffInds( iBC );
-                            tVertEnrichMap[ tBasisIndex ]  = iBC;
-                        }
+                            // extract basis indices of the base one
+                            Matrix< IndexMat > tBaseCoeffInds = tBaseVertexInterpolation->get_indices();
 
-                        // replace the index and the id of the vertex interpolations with the base one
-                        iVertexEnrichment->add_basis_information( tBaseCoeffInds, tBaseVertexInterpolation->get_ids() );
-                    }
-                }
-            }
-        }
-    }
+                            // get access to the basis to local index map of the vertex enrichment for modification
+                            IndexMap& tVertEnrichMap = iVertexEnrichment->get_basis_map();
+
+                            // clear the map and populate it with the new indices
+                            tVertEnrichMap.clear();
+                            for ( uint iBC = 0; iBC < tBaseCoeffInds.numel(); iBC++ )
+                            {
+                                moris::moris_index tBasisIndex = tBaseCoeffInds( iBC );
+                                tVertEnrichMap[ tBasisIndex ]  = iBC;
+                            }
+
+                            // replace the index and the id of the vertex interpolations with the base one
+                            iVertexEnrichment->add_basis_information( tBaseCoeffInds, tBaseVertexInterpolation->get_ids() );
+                        }
+                    } // end case: T-matrix is non-empty
+                } // end case: T-matrix exists
+            } // end for: each T-matrix
+        } // end for: each discretization mesh index
+    } // end function: Enriched_Interpolation_Mesh::override_vertex_enrichment_id_index()
 
     // ----------------------------------------------------------------------------
 

@@ -19,7 +19,7 @@ namespace moris::gen
 
       private:
         Vector< std::shared_ptr< Field > > mFields;
-        real                             mScale;
+        real                               mScale;
 
       public:
         /**
@@ -121,4 +121,4 @@ namespace moris::gen
          */
         std::shared_ptr< mtk::Field > get_mtk_field() override;
     };
-}
+}    // namespace moris::gen

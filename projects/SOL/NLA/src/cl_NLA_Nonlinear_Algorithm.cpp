@@ -81,3 +81,19 @@ Nonlinear_Algorithm::get_my_nonlin_solver()
 
     return mMyNonLinSolverManager;
 }
+
+//--------------------------------------------------------------------------------------------------------------------------
+
+void Nonlinear_Algorithm::set_forward_analysis_pause_function( Void_Function aPauseFunction )
+{
+    mForwardPauseFunction = aPauseFunction;
+}
+
+//--------------------------------------------------------------------------------------------------------------------------
+
+void Nonlinear_Algorithm::set_sensitivity_analysis_pause_function( Void_Function aPauseFunction )
+{
+    mSensitivityPauseFunction = aPauseFunction;
+}
+
+

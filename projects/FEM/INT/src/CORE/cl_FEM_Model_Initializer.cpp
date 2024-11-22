@@ -29,7 +29,7 @@ namespace moris::fem
 
     void Model_Initializer::create_properties()
     {
-        Vector< Parameter_List > tPropParameterList = mParameterList( 0 );
+        Submodule_Parameter_Lists tPropParameterList = mParameterList( 0 );
         uint                     tNumProps          = tPropParameterList.size();
 
         mProperties.resize( tNumProps, nullptr );
@@ -99,7 +99,7 @@ namespace moris::fem
 
     void Model_Initializer::create_fields()
     {
-        Vector< Parameter_List > tFieldParameterList = mParameterList( 6 );
+        Submodule_Parameter_Lists tFieldParameterList = mParameterList( 6 );
         sint                     tNumFields          = tFieldParameterList.size();
 
         mFields.resize( tNumFields, nullptr );

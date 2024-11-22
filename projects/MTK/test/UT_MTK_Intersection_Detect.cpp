@@ -59,7 +59,7 @@ namespace moris::mtk
             tMeshManager->register_mesh_pair( tInterpMesh, tIntegMesh );
 
             // parameter list input for the surfaces that are going to be periodic
-            moris::Parameter_List tParameterList;
+            moris::Parameter_List tParameterList( "" );
             tParameterList.insert( "periodic_side_set_pair", "surface_1,surface_2" );
 
             // construct the intersection detect
@@ -160,7 +160,7 @@ namespace moris::mtk
             tMeshManager->register_mesh_pair( tInterpMesh, tIntegMesh );
 
             // parameter list input for the surfaces that are going to be periodic
-            moris::Parameter_List tParameterList;
+            moris::Parameter_List tParameterList( "" );
             tParameterList.insert( "periodic_side_set_pair", "surface_1,surface_2" );
 
             // construct the intersection detect

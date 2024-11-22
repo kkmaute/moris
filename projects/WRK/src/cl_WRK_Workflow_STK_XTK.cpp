@@ -10,7 +10,6 @@
 
 #include "cl_WRK_Performer_Manager.hpp"
 #include "cl_WRK_Workflow_STK_XTK.hpp"
-#include "cl_Parameter_List.hpp"
 
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
@@ -48,7 +47,7 @@ namespace moris::wrk
         mPerformerManager->mMDLPerformer.resize( 1 );
 
         // load the STK parameter list
-        ModuleParameterList tSTKParameterList = aPerformerManager->mLibrary->get_parameters_for_module( Parameter_List_Type::STK );
+        Module_Parameter_Lists tSTKParameterList = aPerformerManager->mLibrary->get_parameters_for_module( Module_Type::STK );
 
         // load the meshes
         mPerformerManager->mMTKPerformer( 0 ) = std::make_shared< mtk::Mesh_Manager >();
@@ -63,7 +62,7 @@ namespace moris::wrk
         // tMeshChecker.print_diagnostics();
 
         // load gen parameter list
-        ModuleParameterList tGENParameterList = mPerformerManager->mLibrary->get_parameters_for_module( Parameter_List_Type::GEN );
+        Module_Parameter_Lists tGENParameterList = mPerformerManager->mLibrary->get_parameters_for_module( Module_Type::GEN );
 
         // Create GE performer
         mPerformerManager->mGENPerformer( 0 ) = std::make_shared< gen::Geometry_Engine >(
@@ -205,7 +204,7 @@ namespace moris::wrk
     Workflow_STK_XTK::create_xtk()
     {
         // get the parameter list
-        ModuleParameterList tXTKParameterList = mPerformerManager->mLibrary->get_parameters_for_module( Parameter_List_Type::XTK );
+        Module_Parameter_Lists tXTKParameterList = mPerformerManager->mLibrary->get_parameters_for_module( Module_Type::XTK );
 
         // Create XTK
         mPerformerManager->mXTKPerformer( 0 ) = std::make_shared< xtk::Model >( tXTKParameterList( 0 )( 0 ) );
@@ -221,7 +220,7 @@ namespace moris::wrk
     }
 
     void
-    Workflow_STK_XTK::create_stk( Vector< Vector< Parameter_List > >& aParameterLists )
+    Workflow_STK_XTK::create_stk( Module_Parameter_Lists& aParameterLists )
     {
         Tracer            tTracer( "STK", "Mesh", "InitializeMesh" );
         std::string       tMeshFile     = aParameterLists( 0 )( 0 ).get< std::string >( "input_file" );

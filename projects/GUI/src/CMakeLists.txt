@@ -1,3 +1,4 @@
+cmake_minimum_required(VERSION 3.5)
 # Set executable output location
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
@@ -19,7 +20,36 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 message("QT version: ${QT_VERSION_MAJOR}")
   
 set(PROJECT_SOURCES
-       main_gui.cpp )
+       main_gui.cpp
+       main.cpp 
+       cl_line_edit.cpp
+       cl_combo_box.cpp
+       cl_bool_combo_box.cpp
+       TestWindow.cpp
+       cl_double_spin_box.cpp
+       cl_int_spin_box.cpp
+       cl_pair_box.cpp
+       cl_tree_widget_item.cpp
+       fn_read_file_dialog.cpp
+       fn_write_file_dialog.cpp
+       cl_group_box.cpp
+       )
+
+set(HEADERS
+       main_gui.hpp
+       cl_line_edit.hpp
+       cl_combo_box.hpp
+       cl_bool_combo_box.hpp
+       TestWindow.hpp
+       cl_double_spin_box.hpp
+       cl_int_spin_box.hpp
+       cl_pair_box.hpp
+       cl_tree_widget_item.hpp
+       fn_read_file_dialog.hpp
+       fn_write_file_dialog.hpp
+       cl_group_box.hpp
+
+)
  
  # List include directories
 set(MAIN_INCLUDES

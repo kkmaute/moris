@@ -214,7 +214,7 @@ namespace moris::dla
             Parameter_List                             tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_belos();
             std::shared_ptr< Linear_Solver_Algorithm > tLinSolver                 = tSolFactory.create_solver( tLinearSolverParameterList );
 
-            Parameter_List tParamList;
+            Parameter_List tParamList( "" );
             tParamList.insert( "ifpack_prec_type", std::string( "ILU" ) );
             tParamList.insert( "ml_prec_type", "" );
             tParamList.insert( "fact: level-of-fill", 1 );
@@ -307,7 +307,7 @@ namespace moris::dla
             tLinProblem->assemble_residual_and_jacobian();
 
             // create preconditioner
-            Parameter_List tParamList;
+            Parameter_List tParamList( "" );
             tParamList.insert( "PCType", std::string( "none" ) );
             Preconditioner_PETSc tPreconditioner( tParamList );
             tLinSolver->set_preconditioner( &tPreconditioner );
@@ -404,7 +404,7 @@ namespace moris::dla
             // create eigen solver
             std::shared_ptr< Linear_Solver_Algorithm > tEigSolver = tSolFactory.create_solver( tLinearSolverParameterList );
 
-            Parameter_List tParamList;
+            Parameter_List tParamList( "" );
             tParamList.insert( "ifpack_prec_type", std::string( "Amesos" ) );
             tParamList.insert( "ml_prec_type", "" );
             tParamList.insert( "amesos: solver type", std::string( "Amesos_Pardiso" ) );

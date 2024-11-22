@@ -28,7 +28,6 @@ set(HEADERS
     cl_SDF_STK.hpp
     cl_SDF_Triangle.hpp
     cl_SDF_Vertex.hpp
-    fn_SDF_Raycast.hpp
     SDF_Tools.hpp
     )
 
@@ -51,7 +50,6 @@ set(LIB_SOURCES
     cl_SDF_STK.cpp
     cl_SDF_Triangle.cpp
     cl_SDF_Vertex.cpp
-    fn_SDF_Raycast.cpp
     )
 
 # List library dependencies

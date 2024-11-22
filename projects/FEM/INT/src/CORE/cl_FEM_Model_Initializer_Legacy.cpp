@@ -30,7 +30,7 @@ namespace moris::fem
         MM_Factory tMMFactory;
 
         // get the MM parameter list
-        Vector< Parameter_List > tMMParameterList = mParameterList( 7 );
+        Submodule_Parameter_Lists tMMParameterList = mParameterList( 7 );
 
         // get number of material models
         uint tNumMMs = tMMParameterList.size();
@@ -106,7 +106,7 @@ namespace moris::fem
         CM_Factory tCMFactory;
 
         // get the CM parameter list
-        Vector< Parameter_List > tCMParameterList = mParameterList( 1 );
+        Submodule_Parameter_Lists tCMParameterList = mParameterList( 1 );
 
         // get number of constitutive models
         uint tNumCMs = tCMParameterList.size();
@@ -131,7 +131,7 @@ namespace moris::fem
 
             // set CM model type
             auto tCMModelType = tCMParameterList( iCM ).get< fem::Model_Type >( "model_type" );
-            if ( tCMModelType != fem::Model_Type::UNDEFINED )
+            if ( tCMModelType != fem::Model_Type::END_MODEL_TYPE )
             {
                 mConstitutiveModels( iCM )->set_model_type( tCMModelType );
             }
@@ -237,7 +237,7 @@ namespace moris::fem
         SP_Factory tSPFactory;
 
         // get the SP parameter list
-        Vector< Parameter_List > tSPParameterList = mParameterList( 2 );
+        Submodule_Parameter_Lists tSPParameterList = mParameterList( 2 );
 
         // get the number of stabilization parameters
         uint tNumSPs = tSPParameterList.size();
@@ -381,7 +381,7 @@ namespace moris::fem
     void Model_Initializer_Legacy::create_iwgs()
     {
         IWG_Factory              tIWGFactory;
-        Vector< Parameter_List > tIWGParameterList = mParameterList( 3 );
+        Submodule_Parameter_Lists tIWGParameterList = mParameterList( 3 );
         uint const               tNumIWGs          = tIWGParameterList.size();
         mIWGs.resize( tNumIWGs, nullptr );    // list of IWG pointers
 
@@ -645,7 +645,7 @@ namespace moris::fem
         IQI_Factory tIQIFactory;
 
         // get the IQI parameter list
-        Vector< Parameter_List > tIQIParameterList = mParameterList( 4 );
+        Submodule_Parameter_Lists tIQIParameterList = mParameterList( 4 );
 
         // get number of IQIs
         uint tNumIQIs = tIQIParameterList.size();
@@ -869,7 +869,7 @@ namespace moris::fem
 
         auto tPerturbationStrategy = tComputationParameterList.get< fem::Perturbation_Type >( "finite_difference_perturbation_strategy" );
 
-        Vector< Parameter_List > tIWGParameterLists = this->mParameterList( 3 );
+        Submodule_Parameter_Lists tIWGParameterLists = this->mParameterList( 3 );
         for ( uint iIWG = 0; iIWG < tIWGParameterLists.size(); iIWG++ )
         {
             Parameter_List const         &tIWGParameterList = tIWGParameterLists( iIWG );
@@ -946,7 +946,7 @@ namespace moris::fem
 
         auto tPerturbationStrategy = tComputationParameterList.get< fem::Perturbation_Type >( "finite_difference_perturbation_strategy" );
 
-        Vector< Parameter_List > tIQIParameterLists = this->mParameterList( 4 );
+        Submodule_Parameter_Lists tIQIParameterLists = this->mParameterList( 4 );
         for ( uint iIQI = 0; iIQI < tIQIParameterLists.size(); iIQI++ )
         {
             Parameter_List const         &tIQIParameterList = tIQIParameterLists( iIQI );

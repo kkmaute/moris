@@ -92,6 +92,28 @@ namespace moris::gen
         Vector< uint > get_pdv_mesh_set_indices( mtk::Integration_Mesh* aMesh );
 
         /**
+         * If intended for this field, maps the field to B-spline coefficients or stores the nodal field values in a stored field object.
+         *
+         * @param aMeshPair The mesh pair where the discretization information can be obtained
+         * @param aOwnedADVs Pointer to the owned distributed ADVs
+         */
+        void discretize(
+                mtk::Mesh_Pair    aMeshPair,
+                sol::Dist_Vector* aOwnedADVs );
+
+        /**
+         * If intended for this field, maps the field to B-spline coefficients or stores the nodal field values in a stored field object.
+         *
+         * @param aMTKField Input MTK field to map based on
+         * @param aMeshPair The mesh pair where the discretization information can be obtained
+         * @param aOwnedADVs Pointer to the owned distributed ADVs
+         */
+        void discretize(
+                std::shared_ptr< mtk::Field > aMTKField,
+                mtk::Mesh_Pair                aMeshPair,
+                sol::Dist_Vector*             aOwnedADVs );
+
+        /**
          * Used for writing to mtk meshes and printing for debug info
          *
          * @param aNodeIndex decides the point at which the field value is printed. If the node is a derived node, the value is interpolated from the parents.
@@ -99,7 +121,7 @@ namespace moris::gen
          * @return the value of the property field at the requested location
          */
         void get_design_info(
-                uint                    aNodeIndex,
+                const uint                    aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates,
                 Vector< real >&         aOutputDesignInfo ) override;
 
@@ -116,16 +138,23 @@ namespace moris::gen
          *
          * @return Underlying field
          */
-        std::shared_ptr< Field > get_field() override
+        Vector< std::shared_ptr< Field > > get_fields() override
         {
-            return Design_Field::mField;
+            return { Design_Field::mField };
         }
 
         /**
-         * Gets the name of the geometry
+         * Gets the name of the property
          *
          */
         std::string get_name() override;
+
+        /**
+         * Gets the names of all the fields associated with this property
+         *
+         * @return Vector< std::string > the property name
+         */
+        virtual Vector< std::string > get_field_names() override;
 
         /**
          * Sets the ADVs and grabs the field variables needed from the ADV vector
@@ -142,27 +171,27 @@ namespace moris::gen
          *
          * @return Logic for B-spline creation
          */
-        bool intended_discretization() override;
+        bool intended_discretization() const override;
 
         /**
          * Gets a discretization mesh index for a discretized field.
          *
          * @return Mesh index
          */
-        moris_index get_discretization_mesh_index() override;
+        moris_index get_discretization_mesh_index() const override;
 
         /**
          * Gets the lower bound for a discretized field.
          *
          * @return Lower bound
          */
-        real get_discretization_lower_bound() override;
+        real get_discretization_lower_bound() const override;
 
         /**
          * Get the upper bound for a discretized field.
          *
          * @return Upper bound
          */
-        real get_discretization_upper_bound() override;
+        real get_discretization_upper_bound() const override;
     };
 }    // namespace moris::gen

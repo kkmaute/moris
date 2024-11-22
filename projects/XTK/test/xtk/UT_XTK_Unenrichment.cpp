@@ -141,7 +141,7 @@ namespace moris::xtk
             moris::map< moris::moris_id, moris::moris_index > tHMRMap;
             tXTKModel.mBackgroundMesh->get_adof_map( tMeshIndices( 0 ), tHMRMap );
 
-            // loop over the vertex enrichments to see if the t-matrics are actually overwritten
+            // loop over the vertex enrichments to see if the t-matrices are actually overwritten
             for ( Vertex_Enrichment* iVertexEnrichment : tInterpMesh.mInterpVertEnrichment( tInterpMesh.mUnenrichedMeshIndices( 0 ) ) )
             {
                 // if it is not nullptr
@@ -173,7 +173,7 @@ namespace moris::xtk
                         CHECK( tItisOverwritten );
                     }
 
-                    // if it has interpolation data but does not have a base vertex them it is created during the ghost and it is in auro
+                    // if it has interpolation data but does not have a base vertex them it is created during the ghost and it is in aura
                     // we will check that ids created during the ghost
                     else
                     {
@@ -200,15 +200,15 @@ namespace moris::xtk
             // initialize the max index that exist
             moris::moris_index tMaxIndex = -1;
 
-            // loop over the maps and check fi the map created by xtk and modified hmr map are the same
+            // loop over the maps and check if the map created by xtk and modified hmr map are the same
             for ( const auto& iHMRGlobalToLocal : tHMRMap )
             {
                 // get the indices from two maps
                 moris_index tHMRIndex         = iHMRGlobalToLocal.second;
-                moris_index tNonEnirhcedIndex = tUnenrichedMap.find( iHMRGlobalToLocal.first );
+                moris_index tNonEnrichedIndex = tUnenrichedMap.find( iHMRGlobalToLocal.first );
 
                 // compare the indices to be the same
-                CHECK( tHMRIndex == tNonEnirhcedIndex );
+                CHECK( tHMRIndex == tNonEnrichedIndex );
 
                 // update the max index
                 tMaxIndex = std::max( tMaxIndex, tHMRIndex );

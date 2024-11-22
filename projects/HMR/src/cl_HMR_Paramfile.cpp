@@ -28,7 +28,7 @@ namespace moris::hmr
 // -----------------------------------------------------------------------------
 
 Paramfile::Paramfile( const std::string & aPath,
-                      const enum State aState ) : mState( aState )
+                      const enum State aState ) : mState( aState ) , mParameterList( "" )
 {
     // create parser
     mParser = new XML_Parser( aPath );

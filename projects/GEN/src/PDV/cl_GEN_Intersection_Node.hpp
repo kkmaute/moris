@@ -11,6 +11,7 @@
 #pragma once
 
 #include "cl_GEN_Derived_Node.hpp"
+#include "cl_GEN_Basis_Node.hpp"
 
 namespace moris::gen
 {
@@ -24,9 +25,9 @@ namespace moris::gen
     {
       private:
         Vector< Basis_Node > mParentNodes;
-        moris_id mPDVStartingID;
-        moris_id mNodeID    = -1;
-        moris_index mNodeOwner = -1;
+        moris_id             mPDVStartingID;
+        moris_id             mNodeID    = -1;
+        moris_index          mNodeOwner = -1;
 
       public:
         /**
@@ -41,13 +42,13 @@ namespace moris::gen
          * @param aInterfaceGeometry Interface geometry
          */
         Intersection_Node(
-                uint                        aNodeIndex,
+                uint                              aNodeIndex,
                 const Vector< Background_Node* >& aBackgroundNodes,
-                const Parent_Node&          aFirstParentNode,
-                const Parent_Node&          aSecondParentNode,
-                real                        aLocalCoordinate,
-                mtk::Geometry_Type          aBackgroundGeometryType,
-                mtk::Interpolation_Order    aBackgroundInterpolationOrder );
+                const Parent_Node&                aFirstParentNode,
+                const Parent_Node&                aSecondParentNode,
+                real                              aLocalCoordinate,
+                mtk::Geometry_Type                aBackgroundGeometryType,
+                mtk::Interpolation_Order          aBackgroundInterpolationOrder );
 
         /**
          * Gets if this node's position depends on ADVs. This means either the interface geometry or the parent nodes depend on ADVs.
@@ -141,7 +142,7 @@ namespace moris::gen
          *
          * @return Node ID
          */
-        moris_id get_id() override;
+        moris_id get_id() const override;
 
         /**
          * Get the owning processor for this node.
@@ -149,22 +150,6 @@ namespace moris::gen
          * @return Owning processor
          */
         moris_index get_owner() override;
-
-      protected:
-
-        /**
-         * Gets the geometry that this intersection node was created on its interface.
-         *
-         * @return Geometry reference
-         */
-        virtual Geometry& get_interface_geometry() = 0;
-
-        /**
-         * Gets the geometry that this intersection node was created on its interface (const version)
-         *
-         * @return Const geometry reference
-         */
-        virtual const Geometry& get_interface_geometry() const = 0;
 
         /**
          * Gets the first parent node of this intersection node.
@@ -180,6 +165,21 @@ namespace moris::gen
          */
         const Basis_Node& get_second_parent_node() const;
 
+      protected:
+        /**
+         * Gets the geometry that this intersection node was created on its interface.
+         *
+         * @return Geometry reference
+         */
+        virtual Geometry& get_interface_geometry() = 0;
+
+        /**
+         * Gets the geometry that this intersection node was created on its interface (const version)
+         *
+         * @return Const geometry reference
+         */
+        virtual const Geometry& get_interface_geometry() const = 0;
+
         /**
          * Function for appending to the depending ADV IDs member variable, eliminating duplicate code
          *
@@ -189,5 +189,21 @@ namespace moris::gen
         static void join_adv_ids(
                 Vector< sint >&       aCombinedIDs,
                 const Vector< sint >& aIDsToAdd );
+
+        /**
+         * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
+         * coordinate values of its first parent.
+         *
+         * @return Local coordinate sensitivity
+         */
+        virtual Matrix< DDRMat > get_dxi_dcoordinate_first_parent() const = 0;
+
+        /**
+         * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
+         * coordinate values of its second parent.
+         *
+         * @return Local coordinate sensitivity
+         */
+        virtual Matrix< DDRMat > get_dxi_dcoordinate_second_parent() const = 0;
     };
-}
+}    // namespace moris::gen

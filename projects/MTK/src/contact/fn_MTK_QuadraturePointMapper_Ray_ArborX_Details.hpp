@@ -4,14 +4,13 @@
  *
  * ------------------------------------------------------------------------------------
  *
- * cl_MTK_QuadraturePointMapper_Ray_ArborX_Details.hpp
+ * fn_MTK_QuadraturePointMapper_Ray_ArborX_Details.hpp
  *
  */
 #pragma once
 #include "moris_typedefs.hpp"
 #include "cl_Vector.hpp"
 #include "cl_MTK_MappingResult.hpp"
-#include "cl_MTK_Surface_Mesh.hpp"
 
 #include <ArborX.hpp>
 #include <ArborX_Box.hpp>
@@ -23,7 +22,6 @@
 #include <sys/types.h>
 #include <tuple>
 #include <unordered_map>
-#include <utility>
 
 using moris::moris_index;
 
@@ -39,15 +37,6 @@ namespace moris::mtk::arborx
      */
     using cell_locator_map = index_map< index_map< moris::Vector< moris_index > > >;
 
-    /**
-     * @brief Converts a moris::Matrix< moris::DDRMat > to an ArborX::Point or ArborX::Vector.
-     * @tparam T The type of the ArborX object to be returned (Point or Vector)
-     * @param aMatrix The matrix to be converted (either 3x1 or 2x1)
-     * @return The converted ArborX object
-     */
-    template< typename T >
-    T coordinate_to_arborx_point( moris::Matrix< moris::DDRMat > const &aMatrix );
-
     template< typename MemorySpace >
     struct QueryBoxes
     {
@@ -55,14 +44,13 @@ namespace moris::mtk::arborx
                 Kokkos::View< ArborX::Box *, MemorySpace > aBoxes,
                 Kokkos::View< moris_index *, MemorySpace > aMeshIndices,
                 Kokkos::View< moris_index *, MemorySpace > aCellIndices )
-                : mBoxes( std::move( aBoxes ) )
-                , mMeshIndices( std::move( aMeshIndices ) )
-                , mCellIndices( std::move( aCellIndices ) )
+                : mBoxes( aBoxes )
+                , mMeshIndices( aMeshIndices )
+                , mCellIndices( aCellIndices )
         {
         }
-        [[nodiscard]] KOKKOS_FUNCTION
-                std::size_t
-                size() const
+        KOKKOS_FUNCTION
+        [[nodiscard]] std::size_t size() const
         {
             return mBoxes.extent( 0 );
         }
@@ -81,15 +69,14 @@ namespace moris::mtk::arborx
     struct QueryRays
     {
         explicit QueryRays( Kokkos::View< ArborX::Experimental::Ray *, MemorySpace > aRays,
-                Kokkos::View< moris_index *, MemorySpace >                           aCellIndices )
-                : mRays( std::move( aRays ) )
-                , mCellIndices( std::move( aCellIndices ) )
+                Kokkos::View< moris_index *, MemorySpace >                           aCellIndices = {} )
+                : mRays( aRays )
+                , mCellIndices( aCellIndices )
         {
         }
 
-        [[nodiscard]] KOKKOS_FUNCTION
-                std::size_t
-                size() const
+        KOKKOS_FUNCTION
+        [[nodiscard]] std::size_t size() const
         {
             return mRays.extent( 0 );
         }
@@ -110,8 +97,9 @@ namespace moris::mtk::arborx
         moris_index mBoxIndex;
     };
 
+
     template< typename MemorySpace >
-    struct IntersectionCallback
+    struct RayIntersectionCallback
     {
         template< typename Predicate, typename OutputFunctor >
         KOKKOS_FUNCTION void operator()( Predicate const &predicate, int const primitive_index, OutputFunctor const &out ) const
@@ -121,24 +109,11 @@ namespace moris::mtk::arborx
             //            uint const tBoxMeshIndex   = mQueryBoxes.mMeshIndices( primitive_index );
             //            uint const tRayCellIndex   = mQueryRays.mCellIndices( predicate_index );
 
-            /**
-             * since ArborX treats Rays as directional objects (i.e. they can only hit on the positive side of the normal), the rays are doubled. The first ray is the original ray and the second ray is the negative ray.
-             * Therefore, the indices 0 and 1 both belong to the first point, 2 and 3 to the second point and so on...
-             * Since the detailed check if and where the ray actually intersects the box does not depend on the direction, we are only interested in the index of the point, not the direction (i.e. which of the two rays hit).
-             *
-             * The index of the ray is the index of the predicate with the direction in either positive (p) or negative (n) direction.
-             *   index:    0   1   2   3   4   5   6   7   8   9
-             *   rays:     0p  0n  1p  1n  2p  2n  3p  3n  4p  4n
-             *   points:   0   0   1   1   2   2   3   3   4   4
-             *
-             *  The point index can therefore be easily calculated from the ray index by dividing by 2 and rounding down (which happens automatically in C++!).
-             */
-            moris_index const tPointIndex = predicate_index / 2;
+            moris_index const tPointIndex = predicate_index;
             //            std::cout << "Intersection found between ray " << predicate_index << " (" << tRayCellIndex << ") and box " << primitive_index << " (" << tBocCellIndex << " on mesh " << tBoxMeshIndex << ")" << std::endl;
             out( QueryResult{ tPointIndex, primitive_index } );
         }
-        QueryBoxes< MemorySpace > mQueryBoxes;    // TODO @ff: Not used. Remove?
-        QueryRays< MemorySpace >  mQueryRays;
+        QueryRays< MemorySpace > mQueryRays;
     };
 
     template< typename MemorySpace, typename ExecutionSpace >

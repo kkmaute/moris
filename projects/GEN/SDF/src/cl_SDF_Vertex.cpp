@@ -21,7 +21,7 @@ namespace moris::sdf
      */
     Vertex::Vertex( const moris_index aIndex, const Matrix< DDRMat >& aNodeCoords )
             : mIndex( aIndex )
-            , mNodeCoords( 3, 1 )
+            , mNodeCoords( 1, 3 )
             , mOriginalNodeCoords( 3, 1 )
     {
         // convert dynamic array to fixed array

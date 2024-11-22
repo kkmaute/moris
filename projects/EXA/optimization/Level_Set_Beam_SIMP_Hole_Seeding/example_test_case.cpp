@@ -195,7 +195,7 @@ TEST_CASE( "Level_Set_Beam_SIMP_Hole_Seeding",
     char *argv[ 2 ] = { tString1, tString2 };
 
     // for debugging in parallel
-    test_pause();
+    // test_pause();
 
     // call to performance manager main interface
     int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );

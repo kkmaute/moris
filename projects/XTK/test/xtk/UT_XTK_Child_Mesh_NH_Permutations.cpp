@@ -701,18 +701,16 @@ namespace moris::xtk
                 tChildMesh.modify_child_mesh( TemplateType::HIERARCHY_TET4 );
 
                 // Verify that if we set each element to the same bulk phase we can traverse the element to element connectivity
-                moris::moris_index        tMax       = std::numeric_limits< moris::moris_index >::max();
-                moris::size_t             tNumPhases = 2;
-                moris::Matrix< IndexMat > tActiveElements( { { 0, 1, 2, 3 } } );
-                moris::Matrix< IndexMat > tIncludedElementMarker( 1, 4, 1 );
-                moris::Matrix< IndexMat > tElementPhase( 1, 4, 0 );
+                moris::moris_index        tMax            = std::numeric_limits< moris::moris_index >::max();
+                Vector< moris_index >     tActiveElements = { 0, 1, 2, 3 };
+                Vector< moris_index >     tIncludedElementMarker( 4, 1 );
+                Vector< moris_index >     tElementPhase( 4 );
                 moris::moris_index        tMaxFloodFill = 0;
                 moris::Matrix< IndexMat > tElementSubphase =
-                        flood_fill( tChildMesh.get_element_to_element(),
+                        mtk::flood_fill( tChildMesh.get_element_to_element(),
                                 tElementPhase,
                                 tActiveElements,
                                 tIncludedElementMarker,
-                                tNumPhases,
                                 tMax,
                                 tMaxFloodFill,
                                 true );
@@ -879,18 +877,16 @@ namespace moris::xtk
                 tChildMesh.modify_child_mesh( TemplateType::HIERARCHY_TET4 );
 
                 // Verify that if we set each element to the same bulk phase we can traverse the element to element connectivity
-                moris::moris_index        tMax       = std::numeric_limits< moris::moris_index >::max();
-                size_t                    tNumPhases = 2;
-                moris::Matrix< IndexMat > tActiveElements( { { 0, 1, 2, 3, 4, 5 } } );
-                moris::Matrix< IndexMat > tIncludedElementMarker( 1, 6, 1 );
-                moris::Matrix< IndexMat > tElementPhase( 1, 6, 0 );
+                moris::moris_index        tMax            = std::numeric_limits< moris::moris_index >::max();
+                Vector< moris_index >     tActiveElements = { 0, 1, 2, 3, 4, 5 };
+                Vector< moris_index >     tIncludedElementMarker( 6, 1 );
+                Vector< moris_index >     tElementPhase( 6, 0 );
                 moris::moris_index        tMaxFloodFill = 0;
                 moris::Matrix< IndexMat > tElementSubphase =
-                        flood_fill( tChildMesh.get_element_to_element(),
+                        mtk::flood_fill( tChildMesh.get_element_to_element(),
                                 tElementPhase,
                                 tActiveElements,
                                 tIncludedElementMarker,
-                                tNumPhases,
                                 tMax,
                                 tMaxFloodFill,
                                 true );
@@ -1036,19 +1032,17 @@ namespace moris::xtk
             tChildMesh.modify_child_mesh( TemplateType::HIERARCHY_TET4 );
 
             // Verify that if we set each element to the same bulk phase we can traverse the element to element connectivity
-            moris::moris_index        tMax       = std::numeric_limits< moris::moris_index >::max();
-            size_t                    tNumPhases = 2;
-            moris::Matrix< IndexMat > tActiveElements( { { 0, 1 } } );
-            moris::Matrix< IndexMat > tIncludedElementMarker( 1, 2, 1 );
-            moris::Matrix< IndexMat > tElementPhase( 1, 2, 0 );
+            moris::moris_index    tMax            = std::numeric_limits< moris::moris_index >::max();
+            Vector< moris_index > tActiveElements = { 0, 1 };
+            Vector< moris_index > tIncludedElementMarker( 2, 1 );
+            Vector< moris_index > tElementPhase( 2, 0 );
 
             moris::moris_index        tMaxFloodFill = 0;
             moris::Matrix< IndexMat > tElementSubphase =
-                    flood_fill( tChildMesh.get_element_to_element(),
+                    mtk::flood_fill( tChildMesh.get_element_to_element(),
                             tElementPhase,
                             tActiveElements,
                             tIncludedElementMarker,
-                            tNumPhases,
                             tMax,
                             tMaxFloodFill,
                             true );
@@ -1200,18 +1194,16 @@ namespace moris::xtk
             tChildMesh.modify_child_mesh( TemplateType::HIERARCHY_TET4 );
 
             // Verify that if we set each element to the same bulk phase we can traverse the element to element connectivity
-            moris::moris_index        tMax       = std::numeric_limits< moris::moris_index >::max();
-            size_t                    tNumPhases = 2;
-            moris::Matrix< IndexMat > tActiveElements( { { 0, 1, 2 } } );
-            moris::Matrix< IndexMat > tIncludedElementMarker( 1, 3, 1 );
-            moris::Matrix< IndexMat > tElementPhase( 1, 3, 0 );
+            moris::moris_index        tMax            = std::numeric_limits< moris::moris_index >::max();
+            Vector< moris_index >     tActiveElements = { 0, 1, 2 };
+            Vector< moris_index >     tIncludedElementMarker( 3, 1 );
+            Vector< moris_index >     tElementPhase( 3, 0 );
             moris::moris_index        tMaxFloodFill = 0;
             moris::Matrix< IndexMat > tElementSubphase =
-                    flood_fill( tChildMesh.get_element_to_element(),
+                    mtk::flood_fill( tChildMesh.get_element_to_element(),
                             tElementPhase,
                             tActiveElements,
                             tIncludedElementMarker,
-                            tNumPhases,
                             tMax,
                             tMaxFloodFill,
                             true );

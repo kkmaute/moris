@@ -13,6 +13,7 @@
 #include "cl_Stopwatch.hpp"
 #include "cl_Communication_Tools.hpp"
 #include "SDF_Tools.hpp"
+#include "cl_MTK_Enums.hpp"
 #include "cl_SDF_Core.hpp"
 #include "cl_Tracer.hpp"
 #include "fn_sort.hpp"
@@ -113,7 +114,7 @@ namespace moris::sdf
         }
 
         // make sure that everything is OK
-        MORIS_ASSERT( tSurfaceCount = mSurfaceElements,
+        MORIS_ASSERT( tSurfaceCount == mSurfaceElements,
                 "Number of surface elements does not match" );
     }
 
@@ -128,46 +129,22 @@ namespace moris::sdf
         // set unsure flag of all nodes to true
         uint tNumberOfNodes = mMesh.get_num_nodes();
 
+        // reset all of the nodes and get their coordinates for a raycast
+        Matrix< DDRMat > tPoints( mObject.get_spatial_dimension(), tNumberOfNodes );
         for ( uint iNodeIndex = 0; iNodeIndex < tNumberOfNodes; ++iNodeIndex )
         {
             mMesh.get_vertex( iNodeIndex )->reset();
+            tPoints.set_column( iNodeIndex, mMesh.get_node_coordinate( iNodeIndex ) );
         }
 
+        // raycast the batch of points
+        Vector< mtk::Mesh_Region > tRegions = mObject.batch_get_region_from_raycast( tPoints );
+
+        // Set the regions of the nodes
         for ( uint iNodeIndex = 0; iNodeIndex < tNumberOfNodes; ++iNodeIndex )
         {
-            if ( mMesh.get_vertex( iNodeIndex )->is_flagged() )
-            {
-                // get node coordinate
-                const Matrix< DDRMat >& tPoint = mMesh.get_node_coordinate( iNodeIndex );
-
-                // raycast on this point until the point is determined
-                Object_Region tPointRegion = raycast_point( mObject, tPoint );
-
-                switch ( tPointRegion )
-                {
-                    case OUTSIDE:
-                    {
-                        mMesh.get_vertex( iNodeIndex )->unset_inside_flag();
-                        mMesh.get_vertex( iNodeIndex )->unflag();
-                        break;
-                    }
-                    case INSIDE:
-                    {
-                        mMesh.get_vertex( iNodeIndex )->set_inside_flag();
-                        mMesh.get_vertex( iNodeIndex )->unflag();
-                        break;
-                    }
-                    case UNSURE:
-                    {
-                        mMesh.get_vertex( iNodeIndex )->flag();
-                        break;
-                    }
-                    default:
-                    {
-                        MORIS_ERROR( false, "SDF_Core - raycast_mesh(): Unexpected inside condition returned from Raycast class. Inside condition = %u, should be [0,2]", tPointRegion );
-                    }
-                }
-            }
+            // raycast on this point until the point is determined
+            mMesh.get_vertex( iNodeIndex )->set_region( tRegions( iNodeIndex ) );
         }
 
         this->calculate_candidate_points_and_buffer_diagonal();
@@ -214,7 +191,7 @@ namespace moris::sdf
         Tracer tTracer( "SDF", "Compute UDF" );
 
         // get number of triangles
-        uint tNumberOfFacets = mObject.get_num_facets();
+        uint tNumberOfFacets = mObject.get_number_of_facets();
 
         // loop over all triangles
         for ( uint k = 0; k < tNumberOfFacets; ++k )
@@ -278,16 +255,16 @@ namespace moris::sdf
             uint tNumberOfNodes = tNodes.size();
 
             // get first sign
-            bool tIsInside = tNodes( 0 )->is_inside();
+            mtk::Mesh_Region tRegion = tNodes( 0 )->get_region();
 
             // assume element is not intersected
-            bool tIsIntersected = false;
+            bool tIsIntersected = tRegion == mtk::Mesh_Region::INTERFACE;
 
             // loop over all other nodes
             for ( uint k = 1; k < tNumberOfNodes; ++k )
             {
                 // check of sign is the same
-                if ( tNodes( k )->is_inside() != tIsInside )
+                if ( tNodes( k )->get_region() != tRegion )
                 {
                     // sign is not same
                     tIsIntersected = true;
@@ -322,7 +299,7 @@ namespace moris::sdf
                     tNodes( k )->set_candidate_flag();
                 }
             }
-            else if ( tIsInside )
+            else if ( tRegion == mtk::Mesh_Region::INSIDE )
             {
                 // flag this element as volume element
                 tElement->unset_surface_flag();
@@ -357,21 +334,8 @@ namespace moris::sdf
                     // get number of nodes
                     uint tNumberOfNodes = tNodes.size();
 
-                    bool tIsCandidate = false;
-
-                    // test if at least one node of this element is flagged
-                    // as candidate
-                    for ( uint k = 0; k < tNumberOfNodes; ++k )
-                    {
-                        if ( tNodes( k )->is_candidate() )
-                        {
-                            tIsCandidate = true;
-                            break;
-                        }
-                    }
-
                     // test if candidtae flag is set
-                    if ( tIsCandidate )
+                    if ( std::any_of( tNodes.begin(), tNodes.end(), []( const Vertex* aNode ) { return aNode->is_candidate(); } ) )
                     {
                         // update buffer diagonal
                         mBufferDiagonal = std::max(
@@ -599,10 +563,11 @@ namespace moris::sdf
                 // write value
                 aSDF( tVertex->get_index() ) = tSDF;
 
-                if ( tVertex->is_inside() )
+                if ( tVertex->get_region() == mtk::Mesh_Region::INSIDE )
                 {
                     tMinSDF = std::min( tMinSDF, tSDF );
                 }
+                // FIXME: This assumes nodes on the interface are outside. An extra else if may be needed
                 else
                 {
                     tMaxSDF = std::max( tMaxSDF, tSDF );
@@ -634,10 +599,11 @@ namespace moris::sdf
             // test if vertex does not have an SDF
             if ( !tVertex->has_sdf() )
             {
-                if ( tVertex->is_inside() )
+                if ( tVertex->get_region() == mtk::Mesh_Region::INSIDE )
                 {
                     aSDF( tVertex->get_index() ) = tMinSDF;
                 }
+                // FIXME: This assumes nodes on the interface are outside. An extra else if may be needed
                 else
                 {
                     aSDF( tVertex->get_index() ) = tMaxSDF;
@@ -830,14 +796,15 @@ namespace moris::sdf
             tFile.write( (char*)&tIChar, sizeof( int ) );
         }
 
-        tFile << "SCALARS IS_INSIDE int" << '\n';
-        tFile << "LOOKUP_TABLE default" << '\n';
+        tFile << "SCALARS IS_INSIDE int\n";
+        tFile << "LOOKUP_TABLE default\n";
         for ( uint k = 0; k < tNumberOfNodes; ++k )
         {
-            if ( mMesh.get_vertex( k )->is_inside() )
+            if ( mMesh.get_vertex( k )->get_region() == mtk::Mesh_Region::INSIDE )
             {
                 tIChar = swap_byte_endian( 1 );
             }
+            // FIXME: This assumes nodes on the interface are outside. An extra else if may be needed
             else
             {
                 tIChar = swap_byte_endian( 0 );
@@ -1018,8 +985,8 @@ namespace moris::sdf
 
         tFile << "POINT_DATA " << tNumberOfNodes << '\n';
 
-        tFile << "SCALARS RAYCAST int" << '\n';
-        tFile << "LOOKUP_TABLE default" << '\n';
+        tFile << "SCALARS RAYCAST int\n";
+        tFile << "LOOKUP_TABLE default\n";
         for ( uint k = 0; k < tNumberOfNodes; ++k )
         {
             // test if vertex is determined
@@ -1027,13 +994,14 @@ namespace moris::sdf
             {
                 tIChar = swap_byte_endian( 0 );
             }
-            else if ( mMesh.get_vertex( k )->is_inside() )
+            else if ( mMesh.get_vertex( k )->get_region() == mtk::Mesh_Region::INSIDE )
             {
-                tIChar = swap_byte_endian( ( -1 ) );
+                tIChar = swap_byte_endian( -1 );
             }
+            // FIXME: This assumes nodes on the interface are outside. An extra else if may be needed
             else
             {
-                tIChar = swap_byte_endian( 1 );
+                tIChar = swap_byte_endian( (int)1 );
             }
             tFile.write( (char*)&tIChar, sizeof( int ) );
         }

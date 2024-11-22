@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_fn_PRM_MIG_Parameters
-#define SRC_fn_PRM_MIG_Parameters
+#pragma once
 
 #include "cl_Parameter_List.hpp"
 
@@ -21,7 +20,7 @@ namespace moris::prm
     inline Parameter_List
     create_mig_parameter_list()
     {
-        Parameter_List tParameterList;
+        Parameter_List tParameterList( "MIG" );
 
         tParameterList.insert( "periodic_side_set_pair", "" );
 
@@ -31,5 +30,3 @@ namespace moris::prm
     //------------------------------------------------------------------------------
 
 }    // namespace moris::prm
-
-#endif    // SRC_fn_PRM_MIG_Parameters

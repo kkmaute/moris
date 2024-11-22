@@ -24,10 +24,11 @@ namespace moris::gen
     TEST_CASE( "Constant property", "[gen], [property], [constant property]" )
     {
         // Set up property
-        Parameter_List tConstantPropertyParameterList = prm::create_gen_property_parameter_list( gen::Field_Type::CONSTANT );
-        tConstantPropertyParameterList.set( "constant", 0.0, 0.0, 0.0 );
-        ADV_Manager tADVManager;
-        Design_Factory              tDesignFactory( { tConstantPropertyParameterList }, tADVManager );
+        Submodule_Parameter_Lists tFieldParameterLists( "PROPERTIES" );
+        tFieldParameterLists.add_parameter_list( prm::create_gen_property_parameter_list( gen::Field_Type::CONSTANT ) );
+        tFieldParameterLists.set( "constant", 0.0, 0.0, 0.0 );
+        ADV_Manager                 tADVManager;
+        Design_Factory              tDesignFactory( tFieldParameterLists, tADVManager );
         std::shared_ptr< Property > tConstantProperty = tDesignFactory.get_properties()( 0 );
 
         // Random distribution
@@ -57,15 +58,16 @@ namespace moris::gen
     TEST_CASE( "Scaled field property", "[gen], [property], [scaled field]" )
     {
         // Set up and create geometry
-        Parameter_List tCircleParameterList = prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE );
-        tCircleParameterList.set( "center_x", 0.0, 0.0, 0.0 );
-        tCircleParameterList.set( "center_y", 0.0, 0.0, 0.0 );
-        tCircleParameterList.set( "radius", 0.5, 0.5, 0.5 );
-        tCircleParameterList.set( "name", "My Circle" );
+        Submodule_Parameter_Lists tFieldParameterLists( "FIELDS" );
+        tFieldParameterLists.add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::CIRCLE ) );
+        tFieldParameterLists.set( "center_x", 0.0, 0.0, 0.0 );
+        tFieldParameterLists.set( "center_y", 0.0, 0.0, 0.0 );
+        tFieldParameterLists.set( "radius", 0.5, 0.5, 0.5 );
+        tFieldParameterLists.set( "name", "My Circle" );
 
         // Set up property
-        Parameter_List tScaledFieldParameterList = prm::create_gen_property_parameter_list( gen::Field_Type::SCALED_FIELD );
-        tScaledFieldParameterList.set( "dependencies", "My Circle" );
+        tFieldParameterLists.add_parameter_list( prm::create_gen_property_parameter_list( gen::Field_Type::SCALED_FIELD ) );
+        tFieldParameterLists.set( "dependencies", "My Circle" );
 
         // Random distribution
         std::uniform_real_distribution< real > tUniform( -100.0, 100.0 );
@@ -75,9 +77,9 @@ namespace moris::gen
         {
             // Create scaled field
             real tScale = tUniform( tEngine );
-            tScaledFieldParameterList.set( "scaling_factor", tScale, false );
-            ADV_Manager tADVManager;
-            Design_Factory                        tDesignFactory( { tCircleParameterList, tScaledFieldParameterList }, tADVManager );
+            tFieldParameterLists( 1 ).set( "scaling_factor", tScale, false );
+            ADV_Manager                           tADVManager;
+            Design_Factory                        tDesignFactory( tFieldParameterLists, tADVManager );
             std::shared_ptr< Level_Set_Geometry > tCircle     = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
             auto                                  tProperties = tDesignFactory.get_properties();
 
@@ -106,12 +108,14 @@ namespace moris::gen
 
     TEST_CASE( "B-spline Property", "[gen], [property], [distributed advs], [B-spline property]" )
     {
+
         // Constant B-spline parameter list
-        Parameter_List tPropertyParameterList = prm::create_gen_property_parameter_list( gen::Field_Type::CONSTANT );
-        tPropertyParameterList.set( "constant", 1.0 );
-        tPropertyParameterList.set( "discretization_mesh_index", 0 );
-        tPropertyParameterList.set( "discretization_lower_bound", -2.0 );
-        tPropertyParameterList.set( "discretization_upper_bound", 2.0 );
+        Submodule_Parameter_Lists tFieldParameterLists( "PROPERTIES" );
+        tFieldParameterLists.add_parameter_list( prm::create_gen_property_parameter_list( gen::Field_Type::CONSTANT ) );
+        tFieldParameterLists.set( "constant", 1.0 );
+        tFieldParameterLists.set( "discretization_mesh_index", 0 );
+        tFieldParameterLists.set( "discretization_lower_bound", -2.0 );
+        tFieldParameterLists.set( "discretization_upper_bound", 2.0 );
 
         // Loop over possible cases
         for ( uint tCaseNumber = 0; tCaseNumber < 4; tCaseNumber++ )
@@ -152,9 +156,9 @@ namespace moris::gen
                     tBSplineOrder );
 
             // Set up property
-            ADV_Manager tADVManager;
-            Design_Factory   tDesignFactory( { tPropertyParameterList }, tADVManager );
-            auto             tBSplineProperty = tDesignFactory.get_properties()( 0 );
+            ADV_Manager    tADVManager;
+            Design_Factory tDesignFactory( tFieldParameterLists, tADVManager );
+            auto           tBSplineProperty = tDesignFactory.get_properties()( 0 );
 
             // Create geometry engine
             Geometry_Engine_Parameters tGeometryEngineParameters;
@@ -162,7 +166,7 @@ namespace moris::gen
             Geometry_Engine_Test tGeometryEngine( tMesh, tGeometryEngineParameters );
 
             // Get ADVs and upper/lower bounds
-            Vector< real > tADVs = tGeometryEngine.get_advs();
+            Vector< real > tADVs        = tGeometryEngine.get_advs();
             Vector< real > tLowerBounds = tGeometryEngine.get_lower_bounds();
             Vector< real > tUpperBounds = tGeometryEngine.get_upper_bounds();
 
@@ -200,7 +204,7 @@ namespace moris::gen
                 {
                     Matrix< DDRMat > tMatrix = trans( tMesh->get_t_matrix_of_node_loc_ind( tNodeIndex, 0 ) );
                     Matrix< DDSMat > tIDs    = trans( tMesh->get_coefficient_IDs_of_node( tNodeIndex, 0 ) );
-                    Vector< sint > tIDVector( tIDs.length() );
+                    Vector< sint >   tIDVector( tIDs.length() );
                     for ( uint iIndex = 0; iIndex < tIDVector.size(); iIndex++ )
                     {
                         tIDVector( iIndex ) = tIDs( iIndex );

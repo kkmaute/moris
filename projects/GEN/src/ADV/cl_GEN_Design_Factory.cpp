@@ -9,7 +9,7 @@
  */
 
 #include "cl_GEN_Design_Factory.hpp"
-#include "cl_Parameter_List.hpp"
+#include "cl_Submodule_Parameter_Lists.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_Library_IO.hpp"
 #include "fn_GEN_create_field.hpp"
@@ -21,7 +21,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Design_Factory::Design_Factory(
-            Vector< Parameter_List >             aParameterLists,
+            Submodule_Parameter_Lists            aParameterLists,
             ADV_Manager&                         aADVManager,
             const std::shared_ptr< Library_IO >& aLibrary,
             mtk::Mesh*                           aMesh,
@@ -182,7 +182,24 @@ namespace moris::gen
                         }
                         else if ( tGeometryType == "surface_mesh" )
                         {
-                            mGeometries( tGeometryIndex++ ) = std::make_shared< Surface_Mesh_Geometry >( Surface_Mesh_Parameters( iParameterList ) );
+                            // Loop over parameters to create ADVs
+                            Vector< ADV > tADVs;
+                            for ( const auto& iParameter : iParameterList )
+                            {
+                                // Determine if parameter is design variable
+                                if ( iParameter.get_parameter().index() == variant_index< Design_Variable >() )
+                                {
+                                    // Get design variable from parameter list
+                                    tADVs.push_back( aADVManager.create_adv( iParameterList.get< Design_Variable >( iParameter.get_name() ) ) );
+                                }
+                            }
+
+                            mGeometries( tGeometryIndex++ ) = std::make_shared< Surface_Mesh_Geometry >(
+                                    Surface_Mesh_Parameters( iParameterList ),
+                                    aNodeManager,
+                                    tADVs,
+                                    aADVManager,
+                                    aLibrary );
                             tSomethingHasBeenBuilt = true;
                         }
                         else
@@ -191,7 +208,7 @@ namespace moris::gen
                         }
                     }
 
-                    // Property
+                    // PropertyGF
                     else if ( tDesignType == "property" )
                     {
                         // Create new property

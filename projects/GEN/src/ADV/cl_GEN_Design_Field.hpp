@@ -97,7 +97,7 @@ namespace moris::gen
          * @return Field value
          */
         real get_field_value(
-                uint                    aNodeIndex,
+                const uint              aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates ) const;
 
         /**

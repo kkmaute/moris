@@ -27,28 +27,32 @@
 #include "fn_Parsing_Tools.hpp"
 
 namespace moris::sdf
-{
-    const real gSDFepsilon = 1e-8;
-
+{      
     //-------------------------------------------------------------------------------
 
     inline void
-    TrianglePermutation( const uint aZ, uint& aX, uint& aY )
+    triangle_permutation( const uint aZ, uint& aX, uint& aY )
     {
-        if ( aZ == 0 )
-        {    // y-z
-            aX = 1;
-            aY = 2;
-        }
-        else if ( aZ == 1 )
-        {    // x-z
-            aX = 2;
-            aY = 0;
-        }
-        else
-        {    // x-y
-            aX = 0;
-            aY = 1;
+        switch ( aZ )
+        {
+            case 0:
+                // y-z
+                aX = 1;
+                aY = 2;
+                break;
+            case 1:
+                // z-x
+                aX = 2;
+                aY = 0;
+                break;
+            case 2:
+                // x-y
+                aX = 0;
+                aY = 1;
+                break;
+            default:
+                MORIS_ERROR( false, "triangle_permuation() expects an input less than 3" );
+                break;
         }
     }
 

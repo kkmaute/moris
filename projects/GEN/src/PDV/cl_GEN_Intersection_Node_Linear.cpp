@@ -65,7 +65,7 @@ namespace moris::gen
     Intersection_Node_Linear::get_dxi_dcoordinate_first_parent() const
     {
         // Compute sensitivity of the local coordinate with respect to the ancestor coordinates
-        Matrix< DDRMat > tCoordinateSensitivities( 1, this->get_global_coordinates().n_cols(), 0.0 );
+        Matrix< DDRMat > tCoordinateSensitivities( 1, this->get_global_coordinates().length(), 0.0 );
         mInterfaceGeometry.get_dfield_dcoordinates(
                 this->get_first_parent_node(),
                 tCoordinateSensitivities );
@@ -78,7 +78,7 @@ namespace moris::gen
     Intersection_Node_Linear::get_dxi_dcoordinate_second_parent() const
     {
         // Compute sensitivity of the local coordinate with respect to the ancestor coordinates
-        Matrix< DDRMat > tCoordinateSensitivities( 1, this->get_global_coordinates().n_cols() );
+        Matrix< DDRMat > tCoordinateSensitivities( 1, this->get_global_coordinates().length() );
         mInterfaceGeometry.get_dfield_dcoordinates(
                 this->get_second_parent_node(),
                 tCoordinateSensitivities );

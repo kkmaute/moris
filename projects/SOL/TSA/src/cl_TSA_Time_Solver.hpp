@@ -377,9 +377,6 @@ namespace moris
                     const bool         aEndOfTimeIteration,
                     const bool         aIsForwardAnalysis );
 
-            //--------------------------------------------------------------------------------------------------
-
-            void set_time_solver_parameters();
         };
     }    // namespace tsa
 }    // namespace moris

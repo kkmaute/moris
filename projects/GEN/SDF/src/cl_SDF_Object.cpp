@@ -8,14 +8,20 @@
  *
  */
 
-#include <cl_SDF_Object.hpp>
+#include "cl_SDF_Object.hpp"
 #include <fstream>
 #include <iostream>
+#include <filesystem>
 
 #include "cl_Vector.hpp"
 #include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
+#include "fn_inv.hpp"
+#include "fn_eye.hpp"
+#include "op_elemwise_div.hpp"
+
+#include "fn_MTK_Load_External_Surface_Mesh.hpp"
 
 #include "SDF_Tools.hpp"
 #include "cl_SDF_Facet_Vertex.hpp"
@@ -26,14 +32,15 @@ namespace moris::sdf
     //-------------------------------------------------------------------------------
 
     Object::Object( const std::string& aFilePath,
+            real                       aIntersectionTolerance,
             const Vector< real >&      aOffsets,
             const Vector< real >&      aScale )
-            : mNumberOfFacets( 0 )
+            : mtk::Surface_Mesh( mtk::load_vertices_from_object_file( aFilePath, aOffsets, aScale ), mtk::load_facets_from_object_file( aFilePath ), aIntersectionTolerance )
     {
         MORIS_ERROR( aOffsets.size() > 0, "SDF - Object(): Null offset matrix provided. If no offset is needed, use the default value" );
 
         // check the file extension
-        auto tFileExt = aFilePath.substr( aFilePath.find_last_of( '.' ) + 1, aFilePath.length() );
+        std::string tFileExt = aFilePath.substr( aFilePath.find_last_of( "." ) + 1, aFilePath.length() );
 
         if ( tFileExt == "obj" )
         {
@@ -45,10 +52,10 @@ namespace moris::sdf
         }
         else
         {
-            MORIS_ERROR( false, "Object(), file type is not supported" );
+            MORIS_ERROR( false, "sdf::Object(), file type of %s is not supported", tFileExt.c_str() );
         }
-        MORIS_ASSERT( mNumberOfFacets == mFacets.size(), "SDF - Object(): number of facets not consistent" );
     }
+
 
     //-------------------------------------------------------------------------------
 
@@ -57,12 +64,12 @@ namespace moris::sdf
     {
         // copy file into buffer
         Vector< std::string > tBuffer;
-        this->load_ascii_to_buffer( aFilePath, tBuffer );
+        mtk::load_ascii_to_buffer( aFilePath, tBuffer );
 
         // step 1: count number of dimensions, vertices and facets in file
 
         // flag to determine dimensionality only once
-        mDimension           = 0;
+        uint tDimension = 0;
         bool tDimsDetermined = false;
 
         // reset counter for vertices
@@ -83,11 +90,11 @@ namespace moris::sdf
                 // for the first line only, determine the number of columns
                 if ( !tDimsDetermined )
                 {
-                    for ( char c : tBuffer( k ) )
+                    for ( uint iCharacter = 0; iCharacter < tBuffer( k ).length(); iCharacter++ )
                     {
-                        if ( c == ' ' or c == '\t' )
+                        if ( ( tBuffer( k )[ iCharacter ] == ' ' or tBuffer( k )[ iCharacter ] == '\t' ) && iCharacter != tBuffer( k ).length() - 1 )
                         {
-                            mDimension++;
+                            tDimension++;
                         }
                     }
                     tDimsDetermined = true;
@@ -100,10 +107,9 @@ namespace moris::sdf
         }
 
         // step 2: create vertices
-        Vector< std::shared_ptr< Facet_Vertex > > tVertices( tNumberOfVertices );
+        mVertices.resize( tNumberOfVertices );
 
         // reset counter
-
         uint tCount = 0;
         // loop over all lines
         for ( uint k = 0; k < tBufferLength; ++k )
@@ -111,34 +117,28 @@ namespace moris::sdf
             if ( tBuffer( k ).substr( 0, 2 ) == "v " )
             {
                 // create matrix with coordinates
-                Matrix< DDRMat > tNodeCoords( mDimension, 1 );
+                Matrix< DDRMat > tNodeCoords( tDimension, 1 );
 
-                float tX[ 3 ];
+                real tX[ 3 ];
 
-                if ( mDimension == 3 )
-                {
-                    // read ascii data into coordinates
-                    std::sscanf( tBuffer( k ).substr( 2, tBuffer( k ).length() ).c_str(),
-                            "%f %f %f",
-                            &tX[ 0 ],
-                            &tX[ 1 ],
-                            &tX[ 2 ] );
-                }
-                else if ( mDimension == 2 )
-                {
-                    // read ascii data into coordinates
-                    std::sscanf( tBuffer( k ).substr( 2, tBuffer( k ).length() ).c_str(),
-                            "%f %f",
-                            &tX[ 0 ],
-                            &tX[ 1 ] );
-                }
-                else
-                {
-                    MORIS_ERROR( false, "SDF Object() - .obj files with %d dimensions not supported.", mDimension );
-                }
+#if MORIS_USE_32BIT
+                // read ascii data into coordinates
+                std::sscanf( tBuffer( k ).substr( 2, tBuffer( k ).length() ).c_str(),
+                        "%lf %lf %lf",
+                        &tX[ 0 ],
+                        &tX[ 1 ],
+                        &tX[ 2 ] );
+#else
+                // read ascii data into coordinates
+                std::sscanf( tBuffer( k ).substr( 2, tBuffer( k ).length() ).c_str(),
+                        "%Lf %Lf %Lf",
+                        &tX[ 0 ],
+                        &tX[ 1 ],
+                        &tX[ 2 ] );
+#endif
 
                 // test coordinates for highpass
-                for ( uint i = 0; i < mDimension; ++i )
+                for ( uint i = 0; i < tDimension; ++i )
                 {
                     if ( std::abs( tX[ i ] ) > mMeshHighPass )
                     {
@@ -152,7 +152,7 @@ namespace moris::sdf
                 }
 
                 // create vertex
-                tVertices( tCount ) = std::make_shared< Facet_Vertex >( tCount, tNodeCoords );
+                mVertices( tCount ) = std::make_shared< Facet_Vertex >( tCount, tNodeCoords );
 
                 // increment counter
                 ++tCount;
@@ -176,103 +176,64 @@ namespace moris::sdf
             if ( tBuffer( k ).substr( 0, 2 ) == "f " )
             {
                 // temporary container for vertices
-                Vector< std::shared_ptr< Facet_Vertex > > tNodes( mDimension, nullptr );
-                Matrix< DDUMat >                          tNodeIndices( 3, 1 );
-                // read facet topology
-                if ( mDimension == 3 )
+                Vector< std::shared_ptr< Facet_Vertex > > tNodes( tDimension, nullptr );
+                Vector< uint >                            tNodeIndices( tDimension );
+
+                // get the facet indices excluding any texture and normal vector information. Facets are formatted as "f v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3"
+                // note: the indices are one-based
+                moris::size_t tStart = 2;
+                moris::size_t tEnd   = tBuffer( k ).find( "/" ) == std::string::npos ? tBuffer( k ).find( " ", tStart ) : tBuffer( k ).find( "/", tStart );
+
+                for ( uint iVertex = 0; iVertex < tDimension; iVertex++ )
                 {
-                    std::sscanf( tBuffer( k ).substr( 2, tBuffer( k ).length() ).c_str(),
-                            "%u %u %u",
-                            &tNodeIndices( 0 ),
-                            &tNodeIndices( 1 ),
-                            &tNodeIndices( 2 ) );
-                }
-                else if ( mDimension == 2 )
-                {
-                    std::sscanf( tBuffer( k ).substr( 2, tBuffer( k ).length() ).c_str(),
-                            "%u %u",
-                            &tNodeIndices( 0 ),
-                            &tNodeIndices( 1 ) );
-                }
-                else
-                {
-                    MORIS_ERROR( false, "SDF Object() - .obj files with %d dimensions not supported.", mDimension );
+                    // Parse the v1 part of vertex
+                    tNodeIndices( iVertex ) = std::stoi( tBuffer( k ).substr( tStart, tEnd - tStart ) );
+
+                    // Move indices to the next vertex
+                    tStart = tBuffer( k ).find( " ", tEnd );
+                    if ( tStart == std::string::npos )
+                    {
+                        break;
+                    }
+                    tStart++;
+                    tEnd = tBuffer( k ).find( "/", tStart ) == std::string::npos ? tBuffer( k ).find( " ", tStart ) : tBuffer( k ).find( "/", tStart );
                 }
 
                 // assign vertices with facet
-                for ( uint i = 0; i < mDimension; ++i )
+                for ( uint i = 0; i < tDimension; ++i )
                 {
                     // make sure that file is sane
                     MORIS_ERROR( 0 < tNodeIndices( i ) && tNodeIndices( i ) <= tNumberOfVertices,
                             "Invalid vertex ID in object file" );
 
                     // copy vertex into cell
-                    tNodes( i ) = tVertices( tNodeIndices( i ) - 1 );
+                    tNodes( i ) = mVertices( tNodeIndices( i ) - 1 );
                 }
 
                 // create facet pointer
-                switch ( mDimension )
+                switch ( tDimension )
                 {
                     case 2:
                     {
-                        mFacets( tCount ) = std::make_shared< Line >( tCount, tNodes );
-                        mNumberOfFacets++;
+                        // FIXME: The intersection tolerance is the same for every facet, therefore it should be necessary member data in Line
+                        mFacets( tCount ) = std::make_shared< Line >( tCount, tNodes, mIntersectionTolerance );
                         break;
                     }
                     case 3:
                     {
-                        mFacets( tCount ) = std::make_shared< Triangle >( tCount, tNodes );
-                        mNumberOfFacets++;
+                        // FIXME: The intersection tolerance is the same for every facet, therefore it should be necessary member data in Line
+                        mFacets( tCount ) = std::make_shared< Triangle >( tCount, tNodes, mIntersectionTolerance );
                         break;
                     }
                     default:
                     {
-                        MORIS_ERROR( false, "Facet implementation for %dD facets not implemented yet.", mDimension );
+                        MORIS_ERROR( false, "Facet implementation for %dD facets not implemented yet.", tDimension );
                     }
                 }
 
                 // increment counter
                 ++tCount;
             }
-        }
-    }
-
-    //-------------------------------------------------------------------------------
-    void
-    Object::load_ascii_to_buffer( const std::string& aFilePath,
-            Vector< std::string >&                   aBuffer )
-    {
-        // try to open ascii file
-        std::ifstream tAsciiFile( aFilePath );
-        std::string   tLine;
-
-        // load file into buffer, otherwise throw error
-        if ( tAsciiFile )
-        {
-
-            // count number of lines
-            uint tBufferLength = 0;
-            while ( !tAsciiFile.eof() )
-            {
-                std::getline( tAsciiFile, tLine );
-                ++tBufferLength;
-            }
-            tAsciiFile.close();
-            tAsciiFile.open( aFilePath );
-
-            // load file into buffer
-            aBuffer.reserve( tBufferLength );
-            while ( !tAsciiFile.eof() )
-            {
-                std::getline( tAsciiFile, tLine );
-                aBuffer.push_back( tLine );
-            }
-            tAsciiFile.close();
-        }
-        else
-        {
-            MORIS_ERROR( false, "Something went wrong while trying to load from %s.", aFilePath.c_str() );
-            std::cerr << "Something went wrong while trying to load from " << aFilePath << "." << '\n';
         }
     }
 
@@ -285,7 +246,7 @@ namespace moris::sdf
     {
         // copy file into buffer
         Vector< std::string > tBuffer;
-        this->load_ascii_to_buffer( aFilePath, tBuffer );
+        mtk::load_ascii_to_buffer( aFilePath, tBuffer );
 
         // get length of buffer
         uint tBufferLength = tBuffer.size();
@@ -318,7 +279,7 @@ namespace moris::sdf
         // step 2: create vertices
         // - - - - - - - - - - - - -
 
-        Vector< std::shared_ptr< Facet_Vertex > > tVertices( 3 * tTriangleCount );
+        mVertices.resize( 3 * tTriangleCount );
 
         // initialize vertex counter
         uint tVertexCount = 0;
@@ -342,7 +303,7 @@ namespace moris::sdf
                     tNodeCoords( 2 ) = stod( tWords( 3 ) );
 
                     // create vertex
-                    tVertices( tVertexCount ) = std::make_shared< Facet_Vertex >( tVertexCount, tNodeCoords );
+                    mVertices( tVertexCount ) = std::make_shared< Facet_Vertex >( tVertexCount, tNodeCoords );
 
                     // increment vertex counter
                     ++tVertexCount;
@@ -351,7 +312,7 @@ namespace moris::sdf
         }
 
         // make sure that number of triangles is correct
-        MORIS_ERROR( tVertexCount == tVertices.size(), "Number of vertices does not match" );
+        MORIS_ERROR( tVertexCount == mVertices.size(), "Number of vertices does not match" );
 
         // - - - - - - - - - - - - -
         // step 3: create triangles
@@ -369,13 +330,12 @@ namespace moris::sdf
         // create triangles
         for ( uint iTriangle = 0; iTriangle < tNumberOfTriangles; ++iTriangle )
         {
-            tNodes( 0 ) = tVertices( tTriangleCount++ );
-            tNodes( 1 ) = tVertices( tTriangleCount++ );
-            tNodes( 2 ) = tVertices( tTriangleCount++ );
+            tNodes( 0 ) = mVertices( tTriangleCount++ );
+            tNodes( 1 ) = mVertices( tTriangleCount++ );
+            tNodes( 2 ) = mVertices( tTriangleCount++ );
 
             // create triangle pointer
             mFacets( iTriangle ) = std::make_shared< Triangle >( iTriangle, tNodes );
-            mNumberOfFacets++;
         }
     }
 
@@ -390,82 +350,16 @@ namespace moris::sdf
 
     //-------------------------------------------------------------------------------
 
-    void
-    Object::rotate( const Matrix< DDRMat >& aRotationMatrix )
-    {
-        // go through each facet and rotate its vertices
-        for ( uint iFacet = 0; iFacet < mFacets.size(); iFacet++ )
-        {
-            mFacets( iFacet )->rotate( aRotationMatrix );
 
-            // recompute information about the facet (normal, center, etc.)
-            mFacets( iFacet )->update_data();
-        }
-
-        // reset the transformed flags for all the vertices
-        for ( uint iFacet = 0; iFacet < mFacets.size(); iFacet++ )
-        {
-            mFacets( iFacet )->reset_vertex_transformed_flags();
-        }
-    }
 
     //-------------------------------------------------------------------------------
 
     void
-    Object::scale( const Vector< real >& aScaling )
+    Object::update_all_facets()
     {
-        MORIS_ASSERT( aScaling.size() == mDimension, "SDF_Object: scale_object() - Scaling factors must be equal to object dimension." );
-
-        // go through each facet and scale its vertices
+        // update information about the facets (normal, center, etc.)
         for ( uint iFacet = 0; iFacet < mFacets.size(); iFacet++ )
         {
-            mFacets( iFacet )->scale( aScaling );
-
-            // recompute information about the facet (normal, center, etc.)
-            mFacets( iFacet )->update_data();
-        }
-
-        // reset the transformed flags for all the vertices
-        for ( uint iFacet = 0; iFacet < mFacets.size(); iFacet++ )
-        {
-            mFacets( iFacet )->reset_vertex_transformed_flags();
-        }
-    }
-
-    //-------------------------------------------------------------------------------
-
-    void
-    Object::shift( const Vector< real >& aShift )
-    {
-        MORIS_ASSERT( aShift.size() == mDimension, "SDF_Object::shift_object() - Shift must be equal to object dimension." );
-
-        // go through each facet and shift its vertices
-        for ( uint iFacet = 0; iFacet < mFacets.size(); iFacet++ )
-        {
-            mFacets( iFacet )->shift( aShift );
-
-            // recompute information about the facet (normal, center, etc.)
-            mFacets( iFacet )->update_data();
-        }
-
-        // reset the transformed flags for all the vertices
-        for ( uint iFacet = 0; iFacet < mFacets.size(); iFacet++ )
-        {
-            mFacets( iFacet )->reset_vertex_transformed_flags();
-        }
-    }
-
-    //-------------------------------------------------------------------------------
-
-    void
-    Object::reset_coordinates()
-    {
-        // go through each facet and reset its coordinates
-        for ( uint iFacet = 0; iFacet < mFacets.size(); iFacet++ )
-        {
-            mFacets( iFacet )->reset_coordinates();
-
-            // recompute information about the facet (normal, center, etc.)
             mFacets( iFacet )->update_data();
         }
     }
@@ -477,9 +371,6 @@ namespace moris::sdf
             uint aFacetIndex,
             uint aAxis )
     {
-        MORIS_ASSERT( aFacetIndex >= 0, "SDF_Object:get_facet_min_coord() - aFacetIndex must be >= 0. Current index: %u", aFacetIndex );
-        MORIS_ASSERT( aFacetIndex >= 0, "SDF_Object:get_facet_min_coord() - aAxis must be >= 0. Current index: %u", aAxis );
-
         return mFacets( aFacetIndex )->get_min_coord( aAxis );
     }
 
@@ -491,9 +382,6 @@ namespace moris::sdf
             uint aAxis )
 
     {
-        MORIS_ASSERT( aFacetIndex >= 0, "SDF_Object:get_facet_max_coord() - aFacetIndex must be >= 0. Current index: %u", aFacetIndex );
-        MORIS_ASSERT( aFacetIndex >= 0, "SDF_Object:get_facet_max_coord() - aAxis must be >= 0. Current index: %u", aAxis );
-
         return mFacets( aFacetIndex )->get_max_coord( aAxis );
     }
 

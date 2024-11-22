@@ -163,6 +163,16 @@ void Arc_Length_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinearPr
     sint tIter = 1;
     while ( ( ( std::abs( mGlobalRHS->vec_norm2()( 0 ) / mR0 ) > mResTol ) || ( ( mFArc - mDeltaA ) / mDeltaA > mForTol ) ) && ( tIter <= tMaxIts ) )
     {
+        // pause if needed
+        if ( mMyNonLinSolverManager->get_solver_interface()->is_forward_analysis() )
+        {
+            mForwardPauseFunction();
+        }
+        else
+        {
+            mSensitivityPauseFunction();
+        }
+
         clock_t tArcLengthLoopStart = clock();
         clock_t tStartAssemblyTime  = clock();
 

@@ -14,6 +14,8 @@
 #include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
+#include "SDF_Tools.hpp"
+#include "cl_MTK_Enums.hpp"
 
 #include "cl_MTK_Vertex.hpp"
 
@@ -37,9 +39,9 @@ namespace moris::sdf
         const moris_index mIndex;
 
         //! flag telling if vertex is inside
-        bool mIsInside = false;
+        mtk::Mesh_Region mRegion = mtk::Mesh_Region::UNDEFINED;
 
-        //! flag telling if an SDF has been calculated for this vertex
+            //! flag telling if an SDF has been calculated for this vertex
         bool mHasSDF = false;
 
         bool mIsCandidate = false;
@@ -47,8 +49,8 @@ namespace moris::sdf
         bool mFlag = true;
 
         // current node coords
-        Matrix< F31RMat > mNodeCoords;
-        Matrix< F31RMat > mOriginalNodeCoords;
+        Matrix< DDRMat > mNodeCoords;
+        Matrix< DDRMat > mOriginalNodeCoords;
 
         real   mSDF;
         Facet* mClosestFacet = nullptr;
@@ -91,25 +93,16 @@ namespace moris::sdf
         // -----------------------------------------------------------------------------
 
         void
-        set_inside_flag()
+        set_region( const mtk::Mesh_Region aRegion )
         {
-            mIsInside = true;
+            mRegion = aRegion;
         }
 
         // -----------------------------------------------------------------------------
 
-        void
-        unset_inside_flag()
+        mtk::Mesh_Region get_region() const
         {
-            mIsInside = false;
-        }
-
-        // -----------------------------------------------------------------------------
-
-        bool
-        is_inside() const
-        {
-            return mIsInside;
+            return mRegion;
         }
 
         // -----------------------------------------------------------------------------
@@ -202,7 +195,6 @@ namespace moris::sdf
             mFlag         = true;
             mSDF          = std::numeric_limits< real >::max();
             mClosestFacet = nullptr;
-            mIsInside     = false;
         }
 
         // -----------------------------------------------------------------------------
@@ -298,7 +290,7 @@ namespace moris::sdf
         real
         get_sdf() const
         {
-            if ( mIsInside )
+            if  ( mRegion == mtk::Mesh_Region::INSIDE )
             {
                 return -mSDF;
             }

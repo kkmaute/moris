@@ -52,10 +52,10 @@ namespace moris::gen
     void Property::update_dependencies( const Vector< std::shared_ptr< Design > >& aAllUpdatedDesigns )
     {
         // Get fields from designs
-        Vector< std::shared_ptr< Field > > tUpdatedFields( aAllUpdatedDesigns.size() );
-        for ( uint iFieldIndex = 0; iFieldIndex < tUpdatedFields.size(); iFieldIndex++ )
+        Vector< std::shared_ptr< Field > > tUpdatedFields;
+        for ( uint iDesignIndex = 0; iDesignIndex < aAllUpdatedDesigns.size(); iDesignIndex++ )
         {
-            tUpdatedFields( iFieldIndex ) = aAllUpdatedDesigns( iFieldIndex )->get_field();
+            tUpdatedFields.append( aAllUpdatedDesigns( iDesignIndex )->get_fields() );
         }
 
         // Update fields
@@ -101,8 +101,52 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    void
+    Property::discretize(
+            mtk::Mesh_Pair    aMeshPair,
+            sol::Dist_Vector* aOwnedADVs )
+    {
+        if ( mSharedADVIDs.size() == 0 )
+        {
+            Design_Field::discretize( aMeshPair, aOwnedADVs, { {} }, mOffsetID );
+        }
+        else
+        {
+            MORIS_ASSERT( mSharedADVIDs.size() == 1,
+                    "discretize() - Properties should have one set of shared ADV IDs. Size = %ld",
+                    mSharedADVIDs.size() );
+            Design_Field::discretize( aMeshPair, aOwnedADVs, mSharedADVIDs( 0 ), mOffsetID );
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void
+    Property::discretize(
+            std::shared_ptr< mtk::Field > aMTKField,
+            mtk::Mesh_Pair                aMeshPair,
+            sol::Dist_Vector*             aOwnedADVs )
+    {
+        if ( aMTKField->get_label() == this->get_name() )
+        {
+            if ( mSharedADVIDs.size() == 0 )
+            {
+                Design_Field::discretize( aMTKField, aMeshPair, aOwnedADVs, { {} }, mOffsetID );
+            }
+            else
+            {
+                MORIS_ASSERT( mSharedADVIDs.size() == 1,
+                        "discretize() - Properties should have one set of shared ADV IDs. Size = %ld",
+                        mSharedADVIDs.size() );
+                Design_Field::discretize( aMTKField, aMeshPair, aOwnedADVs, mSharedADVIDs( 0 ), mOffsetID );
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     void Property::get_design_info(
-            uint                    aNodeIndex,
+            const uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates,
             Vector< real >&         aOutputDesignInfo )
     {
@@ -110,13 +154,30 @@ namespace moris::gen
         aOutputDesignInfo( 0 ) = Design_Field::get_field_value( aNodeIndex, aCoordinates );
     }
 
+    //--------------------------------------------------------------------------------------------------------------
+
     std::string
     Property::get_name()
     {
         return Design_Field::get_name();
     }
 
-    bool Property::intended_discretization()
+    //--------------------------------------------------------------------------------------------------------------
+
+    Vector< std::string >
+    Property::get_field_names()
+    {
+        Vector< std::string > tFieldNames( 1 );
+
+        // Assign a default if this property does not have a name
+        this->get_name() == "" ? tFieldNames( 0 ) = "Property: " + std::to_string( mOffsetID ) : tFieldNames( 0 ) = this->get_name();
+
+        return tFieldNames;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    bool Property::intended_discretization() const
     {
         return ( mParameters.mDiscretizationIndex >= 0 );
     }
@@ -124,7 +185,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     moris_index
-    Property::get_discretization_mesh_index()
+    Property::get_discretization_mesh_index() const
     {
         MORIS_ASSERT( mParameters.mDiscretizationIndex >= 0,
                 "A discretization is not intended for this field. Check this with intended_discretization() first." );
@@ -135,7 +196,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     real
-    Property::get_discretization_lower_bound()
+    Property::get_discretization_lower_bound() const
     {
         return mParameters.mDiscretizationLowerBound;
     }
@@ -143,7 +204,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     real
-    Property::get_discretization_upper_bound()
+    Property::get_discretization_upper_bound() const
     {
         return mParameters.mDiscretizationUpperBound;
     }

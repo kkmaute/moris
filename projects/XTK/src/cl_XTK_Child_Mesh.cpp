@@ -44,7 +44,7 @@ namespace moris::xtk
             , mHasCoincidentEdges( false )
             , mHasInterChildMeshInterface( false )
             , mHasPhaseInfo( false )
-            , mElementPhaseIndices( 0, 0 )
+            , mElementPhaseIndices( 0 )
             , mElementBinIndex( 0, 0 )
             , mBinBulkPhase( 0 )
             , mSubPhaseBinIndices( 0 )
@@ -91,7 +91,7 @@ namespace moris::xtk
             , mHasCoincidentEdges( false )
             , mHasInterChildMeshInterface( false )
             , mHasPhaseInfo( false )
-            , mElementPhaseIndices( 0, 0 )
+            , mElementPhaseIndices( 0 )
             , mElementBinIndex( 0, 0 )
             , mBinBulkPhase( 0 )
             , mSubPhaseBinIndices( 0 )
@@ -158,7 +158,7 @@ namespace moris::xtk
             , mHasCoincidentEdges( false )
             , mHasInterChildMeshInterface( false )
             , mHasPhaseInfo( false )
-            , mElementPhaseIndices( 0, 0 )
+            , mElementPhaseIndices( 0 )
             , mElementBinIndex( 0, 0 )
             , mBinBulkPhase( 0 )
             , mSubPhaseBinIndices( 0 )
@@ -240,7 +240,7 @@ namespace moris::xtk
             , mHasCoincidentEdges( false )
             , mHasInterChildMeshInterface( false )
             , mHasPhaseInfo( false )
-            , mElementPhaseIndices( 0, 0 )
+            , mElementPhaseIndices( 0 )
             , mElementBinIndex( 0, 0 )
             , mBinBulkPhase( 0 )
             , mSubPhaseBinIndices( 0 )
@@ -1936,7 +1936,7 @@ namespace moris::xtk
     void
     Child_Mesh::initialize_element_phase_mat()
     {
-        mElementPhaseIndices = Matrix< IndexMat >( 1, get_num_entities( moris::mtk::EntityRank::ELEMENT ), std::numeric_limits< moris::moris_index >::max() );
+        mElementPhaseIndices = Vector< moris_index >( get_num_entities( moris::mtk::EntityRank::ELEMENT ), std::numeric_limits< moris::moris_index >::max() );
     }
 
     // ---------------------------------------------------------------------------------
@@ -1947,7 +1947,7 @@ namespace moris::xtk
     {
         MORIS_ASSERT( aEntityIndex < get_num_entities( moris::mtk::EntityRank::ELEMENT ), "EntityIndex out of bounds, aEntityIndex should be a child mesh local index" );
         mHasPhaseInfo                           = true;
-        mElementPhaseIndices( 0, aEntityIndex ) = aEntityPhaseIndex;
+        mElementPhaseIndices( aEntityIndex ) = aEntityPhaseIndex;
     }
 
     // ---------------------------------------------------------------------------------
@@ -1957,7 +1957,7 @@ namespace moris::xtk
     {
         MORIS_ASSERT( aEntityIndex < get_num_entities( moris::mtk::EntityRank::ELEMENT ), "EntityIndex out of bounds, aEntityIndex should be a child mesh local index" );
         MORIS_ASSERT( mHasPhaseInfo, "Elemental phase information not set" );
-        return mElementPhaseIndices( 0, aEntityIndex );
+        return mElementPhaseIndices( aEntityIndex );
     }
 
     // ---------------------------------------------------------------------------------
@@ -1969,7 +1969,7 @@ namespace moris::xtk
         return mElementBinIndex( aEntityIndex );
     }
     // ---------------------------------------------------------------------------------
-    Matrix< IndexMat > const &
+    Vector< moris_index > const &
     Child_Mesh::get_element_phase_indices() const
     {
         MORIS_ASSERT( mHasPhaseInfo, "Elemental phase information not set" );
@@ -2403,12 +2403,12 @@ namespace moris::xtk
 
         Vector< moris::size_t > tPhaseCounter( aNumPhases, 0 );
 
-        Matrix< IndexMat > const &tElementPhaseIndices = get_element_phase_indices();
+        Vector< moris_index > const &tElementPhaseIndices = get_element_phase_indices();
         Matrix< IdMat > const    &tElementIds          = get_element_ids();
 
         for ( moris::size_t i = 0; i < tNumElems; i++ )
         {
-            moris::size_t tPhaseIndex                       = tElementPhaseIndices( 0, i );
+            moris::size_t tPhaseIndex                       = tElementPhaseIndices( i );
             moris::size_t tPhaseCount                       = tPhaseCounter( tPhaseIndex );
             aElementIds( tPhaseIndex )( 0, tPhaseCount )    = tElementIds( 0, i );
             aElementCMInds( tPhaseIndex )( 0, tPhaseCount ) = i;
@@ -4038,13 +4038,5 @@ namespace moris::xtk
     }
 
     // ---------------------------------------------------------------------------------
-    // ---------------------------------------------------------------------------------
-    // ---------------------------------------------------------------------------------
-    // ---------------------------------------------------------------------------------
-    // ---------------------------------------------------------------------------------
-    // ---------------------------------------------------------------------------------
-    // ---------------------------------------------------------------------------------
-    // ---------------------------------------------------------------------------------
-    // ---------------------------------------------------------------------------------
-    // ---------------------------------------------------------------------------------
+
 }    // namespace moris::xtk

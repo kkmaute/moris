@@ -509,11 +509,11 @@ namespace moris::gen
         uint tNumADVs = 2 * par_size();
 
         // Create constant properties
-        Vector< Parameter_List > tPropertyParameterLists;
+        Submodule_Parameter_Lists tPropertyParameterLists( "PROPERTIES" );
         for ( uint iPropertyIndex = 0; iPropertyIndex < tNumADVs; iPropertyIndex++ )
         {
             // Constant property parameter list
-            tPropertyParameterLists.push_back( moris::prm::create_gen_property_parameter_list( gen::Field_Type::CONSTANT ) );
+            tPropertyParameterLists.add_parameter_list( moris::prm::create_gen_property_parameter_list( gen::Field_Type::CONSTANT ) );
             tPropertyParameterLists( iPropertyIndex ).set( "pdv_type", "DENSITY" );
             tPropertyParameterLists( iPropertyIndex ).set( "constant", 0.0, 0.0, 0.0 );
         }

@@ -36,7 +36,8 @@ namespace moris::sdf
 
         Line(
                 moris_index                                aIndex,
-                Vector< std::shared_ptr< Facet_Vertex > >& aVertices );
+                Vector< std::shared_ptr< Facet_Vertex > >& aVertices,
+                real                                       aIntersectionTolerance = 1e-8 );
 
         //-------------------------------------------------------------------------------
 
@@ -79,9 +80,6 @@ namespace moris::sdf
         get_distance_to_point(
                 const Matrix< DDRMat >& aPoint ) override;
 
-        //-------------------------------------------------------------------------------
-
-      private:
     };    // class Line
 
     //-------------------------------------------------------------------------------

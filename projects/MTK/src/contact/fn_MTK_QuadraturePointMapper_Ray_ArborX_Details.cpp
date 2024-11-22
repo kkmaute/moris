@@ -4,12 +4,13 @@
  *
  * ------------------------------------------------------------------------------------
  *
- * cl_MTK_QuadraturePointMapper_Ray_ArborX_Details.cpp
+ * fn_MTK_QuadraturePointMapper_Ray_ArborX_Details.cpp
  *
  */
-#include "cl_MTK_QuadraturePointMapper_Ray_ArborX_Details.hpp"
-#include "cl_MTK_MappingResult.hpp"
+
 #include "cl_MTK_Surface_Mesh.hpp"
+#include "fn_MTK_QuadraturePointMapper_Ray_ArborX_Details.hpp"
+#include "cl_MTK_MappingResult.hpp"
 #include "cl_Tracer.hpp"
 #include <unordered_map>
 #include <functional>
@@ -21,7 +22,7 @@ namespace moris::mtk::arborx
             ExecutionSpace const                                                      &aExecutionSpace,
             moris::Vector< std::pair< moris_index, moris::mtk::Surface_Mesh > > const &aTargetSurfaceMeshes )
     {
-        uint const tNumCells = std::accumulate( aTargetSurfaceMeshes.begin(), aTargetSurfaceMeshes.end(), 0, []( auto a, const auto &b ) { return a + b.second.get_number_of_cells(); } );
+        uint const tNumCells = std::accumulate( aTargetSurfaceMeshes.begin(), aTargetSurfaceMeshes.end(), 0, []( auto a, auto b ) { return a + b.second.get_number_of_facets(); } );
 
         Kokkos::View< ArborX::Box *, MemorySpace > tBoxes( Kokkos::view_alloc( aExecutionSpace, Kokkos::WithoutInitializing, "view:boxes" ), tNumCells );
         Kokkos::View< moris_index *, MemorySpace > tMeshIndices( Kokkos::view_alloc( aExecutionSpace, Kokkos::WithoutInitializing, "view:mesh_indices" ), tNumCells );
@@ -31,10 +32,10 @@ namespace moris::mtk::arborx
         for ( size_t iMeshIndex = 0; iMeshIndex < aTargetSurfaceMeshes.size(); ++iMeshIndex )
         {
             auto const &tSurfaceMesh = aTargetSurfaceMeshes( iMeshIndex ).second;
-            for ( size_t iCellIndex = 0; iCellIndex < tSurfaceMesh.get_number_of_cells(); ++iCellIndex )
+            for ( size_t iCellIndex = 0; iCellIndex < tSurfaceMesh.get_number_of_facets(); ++iCellIndex )
             {
                 ArborX::Box                    tBox;
-                moris::Matrix< moris::DDRMat > tVertices = tSurfaceMesh.get_vertex_coordinates_of_cell( iCellIndex );
+                moris::Matrix< moris::DDRMat > tVertices = tSurfaceMesh.get_all_vertex_coordinates_of_facet( iCellIndex );
                 for ( size_t iVertexIndex = 0; iVertexIndex < tVertices.n_cols(); ++iVertexIndex )
                 {
                     tBox += coordinate_to_arborx_point< ArborX::Point >( tVertices.get_column( iVertexIndex ) );
@@ -54,7 +55,7 @@ namespace moris::mtk::arborx
     {
         uint const tNumPoints = aMappingResult.mSourcePhysicalCoordinate.n_cols();
         // since rays are directional, we need to double the number of rays to store rays pointing in both directions (positive and negative)
-        uint const                                               tNumRays = 2 * tNumPoints;
+        const uint                                               tNumRays = 2 * tNumPoints;
         Kokkos::View< ArborX::Experimental::Ray *, MemorySpace > tRays( Kokkos::view_alloc( aExecutionSpace, Kokkos::WithoutInitializing, "view:rays" ), tNumRays );
         Kokkos::View< moris_index *, MemorySpace >               tCellIndices( Kokkos::view_alloc( aExecutionSpace, Kokkos::WithoutInitializing, "view:cell_indices" ), tNumRays );
 
@@ -100,7 +101,7 @@ namespace moris::mtk::arborx
         Kokkos::View< QueryResult *, MemorySpace > tResults( "values", 0 );
         Kokkos::View< int *, MemorySpace >         tOffsets( "offsets", 0 );
 
-        tBoundingVolumeHierarchy.query( tExecutionSpace, tQueryRays, IntersectionCallback< MemorySpace >{ tQueryBoxes, tQueryRays }, tResults, tOffsets );
+        tBoundingVolumeHierarchy.query( tExecutionSpace, tQueryRays, RayIntersectionCallback< MemorySpace >{ tQueryRays }, tResults, tOffsets );
 
         // return the results as unordered map
         // the key determines the cell < mesh index, cluster index, cell index >
@@ -108,21 +109,26 @@ namespace moris::mtk::arborx
         cell_locator_map tBoxRayMap;
         for ( size_t i = 0; i < tResults.extent( 0 ); ++i )
         {
+            /**
+             * since ArborX treats Rays as directional objects (i.e. they can only hit on the positive side of the normal), the rays are doubled. The first ray is the original ray and the second ray is the negative ray.
+             * Therefore, the indices 0 and 1 both belong to the first point, 2 and 3 to the second point and so on...
+             * Since the detailed check if and where the ray actually intersects the box does not depend on the direction, we are only interested in the index of the point, not the direction (i.e. which of the two rays hit).
+             *
+             * The index of the ray is the index of the predicate with the direction in either positive (p) or negative (n) direction.
+             *   index:    0   1   2   3   4   5   6   7   8   9
+             *   rays:     0p  0n  1p  1n  2p  2n  3p  3n  4p  4n
+             *   points:   0   0   1   1   2   2   3   3   4   4
+             *
+             *  The point index can therefore be easily calculated from the ray index by dividing by 2 and rounding down (which happens automatically in C++!).
+             */
+
             moris_index const tBoxIndex   = tResults( i ).mBoxIndex;
-            moris_index const tPointIndex = tResults( i ).mPointIndex;    // index of the point from which a hitting ray originates (might be either the positive or negative ray)
+            moris_index const tPointIndex = tResults( i ).mPointIndex / 2;    // index of the point from which a hitting ray originates (might be either the positive or negative ray)
             moris_index const tMeshIndex  = tQueryBoxes.mMeshIndices( tBoxIndex );
             moris_index const tCellIndex  = tQueryBoxes.mCellIndices( tBoxIndex );    // TODO @ff: This is trivial at the moment since box and cell indices are the same.
             tBoxRayMap[ tMeshIndex ][ tCellIndex ].push_back( tPointIndex );
         }
 
         return tBoxRayMap;
-    }
-
-    template< typename T >
-    T coordinate_to_arborx_point( Matrix< moris::DDRMat > const &aMatrix )
-    {
-        MORIS_ASSERT( ( aMatrix.n_rows() == 3 || aMatrix.n_rows() == 2 ) && aMatrix.n_cols() == 1, "The input matrix must have 2 or 3 rows and 1 column." );
-        float tZCoord = aMatrix.n_rows() == 3 ? aMatrix( 2, 0 ) : 0.0;
-        return { static_cast< float >( aMatrix( 0, 0 ) ), static_cast< float >( aMatrix( 1, 0 ) ), tZCoord };
     }
 }    // namespace moris::mtk::arborx

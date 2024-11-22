@@ -43,6 +43,10 @@ namespace moris::gen
       private:
         Design_Parameters mParameters;
 
+      protected:
+        uint                     mOffsetID;        // Offset of the global ADVs to this Design's ADVs
+        Vector< Vector< sint > > mSharedADVIDs;    // IDs of the ADVs that this design shares. Size = number of fields
+
       public:
         /**
          * Constructor
@@ -79,7 +83,7 @@ namespace moris::gen
          * @param aNodeIndex
          */
         virtual void get_design_info(
-                uint                    aNodeIndex,
+                const uint              aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates,
                 Vector< real >&         aOutputDesignInfo ) = 0;
 
@@ -98,39 +102,78 @@ namespace moris::gen
         virtual std::string get_name() = 0;
 
         /**
+         * Gets the names of all the fields associated with this design
+         *
+         * @return Vector< std::string >
+         */
+        virtual Vector< std::string > get_field_names() = 0;
+
+        /**
          * Gets if this field is to be used for seeding a B-spline field.
          *
          * @return Logic for B-spline creation
          */
-        virtual bool intended_discretization() = 0;
+        virtual bool intended_discretization() const = 0;
 
         /**
          * Gets a discretization mesh index for a discretized field.
          *
          * @return Mesh index
          */
-        virtual moris_index get_discretization_mesh_index() = 0;
+        virtual moris_index get_discretization_mesh_index() const = 0;
 
         /**
          * Gets the lower bound for a discretized field.
          *
          * @return Lower bound
          */
-        virtual real get_discretization_lower_bound() = 0;
+        virtual real get_discretization_lower_bound() const = 0;
 
         /**
          * Get the upper bound for a discretized field.
          *
          * @return Upper bound
          */
-        virtual real get_discretization_upper_bound() = 0;
+        virtual real get_discretization_upper_bound() const = 0;
 
         /**
-         * Allows for access to the GEN field
+         * Allows for access to all the GEN Fields for this design
          *
-         * @return Underlying field
+         * @return Underlying fields
          */
-        virtual std::shared_ptr< Field > get_field() = 0;
+        virtual Vector< std::shared_ptr< Field > > get_fields() = 0;
+
+        Vector< Vector< sint > > get_shared_adv_ids();
+
+        /**
+         * Appends this designs ADV IDs, ijklIDs, lower bounds, and upper bounds to the global matrices stored in the geometry engine.
+         * Sets mNumCoeff, mOffsetID, and appends to mSharedADVIDs
+         *
+         * @param aMeshPair     Background mesh pair
+         * @param aOwnedADVIds  IDs of the ADVs that are owned by this design
+         * @param aOwnedijklIDs
+         * @param aOffsetID     Offset of this Design's ADVs from the global ADV vector
+         * @param aLowerBounds  ADV lower bounds
+         * @param aUpperBounds  ADV upper bounds
+         * @return uint The new offset ID after this geometry has appended its information
+         */
+        virtual sint append_adv_info(
+                mtk::Interpolation_Mesh* aMesh,
+                Vector< sint >&          aOwnedADVIds,
+                Matrix< IdMat >&         aOwnedijklIDs,
+                sint                     aOffsetID,
+                Vector< real >&          aLowerBounds,
+                Vector< real >&          aUpperBounds,
+                uint                     aFieldIndex = 0 );
+
+        static void communicate_missing_owned_coefficients(
+                mtk::Interpolation_Mesh* aMesh,
+                Matrix< IdMat >&         aAllCoefIds,
+                Matrix< IdMat >&         aAllCoefOwners,
+                Matrix< IdMat >&         aAllCoefijklIds,
+                uint                     aNumCoeff,
+                uint                     aDiscretizationMeshIndex,
+                mtk::MeshType            aMeshType );
 
         /**
          * Sets the ADVs and grabs the field variables needed from the ADV vector
