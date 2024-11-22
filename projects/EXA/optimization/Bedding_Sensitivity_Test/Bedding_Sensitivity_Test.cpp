@@ -37,7 +37,7 @@ extern moris::uint gTestCaseIndex;
 
 #ifdef __cplusplus
 extern "C" {
-#endif 
+#endif
 
 //------------------------------------------------------------------------------
 
