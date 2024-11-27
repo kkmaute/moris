@@ -13,7 +13,7 @@
 #include "cl_Matrix.hpp"
 #include "cl_Vector.hpp"
 
-#ifdef MORIS_HAVE_ARBORX
+#if MORIS_HAVE_ARBORX
 #include <ArborX.hpp>
 #include <ArborX_Box.hpp>
 
@@ -46,6 +46,9 @@ namespace moris::mtk
 
 namespace moris::mtk
 {
+
+    // helper function for 2d raycast
+    real cross_2d( const Matrix< DDRMat >& aVector1, const Matrix< DDRMat >& aVector2 );
 
     typedef Vector< std::pair< uint, real > > Intersection_Vector;
 
@@ -320,7 +323,7 @@ namespace moris::mtk
          */
         Intersection_Vector postprocess_raycast_results( Intersection_Vector& aIntersections ) const;
 
-#ifdef MORIS_HAVE_ARBORX
+#if MORIS_HAVE_ARBORX
 
         /**
          * Constructs the ArborX rays for the given points and directions
@@ -431,7 +434,7 @@ namespace moris::mtk
         Matrix< DDRMat > mFacetNormals = Matrix< DDRMat >( 0, 0 );
 
       protected:    // variables
-#ifdef MORIS_HAVE_ARBORX
+#if MORIS_HAVE_ARBORX
         /**
          * @brief ArborX Bounding volume hierarchy. Used to preselect which facets to check for intersection with a ray.
          *

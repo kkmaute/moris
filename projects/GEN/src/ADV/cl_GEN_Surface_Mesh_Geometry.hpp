@@ -59,7 +59,7 @@ namespace moris::gen
 
     // ----------------------------------------------------------------------------------------------------------------
     // Additional functionality to use the flood fill and raycasting functions if ArborX is installed
-#ifdef MORIS_HAVE_ARBORX
+#if MORIS_HAVE_ARBORX
     struct ElementQueryResult
     {
         moris_index mElementIndex;
@@ -136,6 +136,10 @@ namespace moris::gen
         const mtk::Mesh*                             mMesh = nullptr;
         std::unordered_map< uint, mtk::Mesh_Region > mNodeMeshRegions;    // contains information about the nodes in the interpolation mesh from a flood fill. The nodes that are undefined will be raycast to determine their region.
 
+        // brendan delete
+        std::chrono::milliseconds mCurrentTime = std::chrono::milliseconds( 0 );
+        Vector< std::chrono::milliseconds > mIterationTimes;
+        
       public:
         /**
          * Constructor taking in a field pointer and a set of parameters.
@@ -494,7 +498,7 @@ namespace moris::gen
                 uint             aFieldIndex,
                 uint             aFacetVertexIndex );
 
-#ifdef MORIS_HAVE_ARBORX
+#if MORIS_HAVE_ARBORX
         /**
          * @brief Performs a flood fill of the mesh nodes for geometric region. Casts as many rays as subphases are found in the flood fill
          *
@@ -537,7 +541,7 @@ namespace moris::gen
     };
 }    // namespace moris::gen
 
-#ifdef MORIS_HAVE_ARBORX
+#if MORIS_HAVE_ARBORX
 namespace ArborX
 {
     using moris::gen::QueryElements;

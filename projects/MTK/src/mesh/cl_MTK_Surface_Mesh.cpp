@@ -15,7 +15,6 @@
 #include "fn_norm.hpp"
 #include "fn_dot.hpp"
 #include "fn_cross.hpp"
-#include "fn_eye.hpp"
 #include "fn_trans.hpp"
 #include "op_elemwise_mult.hpp"
 
@@ -41,6 +40,12 @@ namespace moris::mtk::arborx
 
 namespace moris::mtk
 {
+    // helper function for 2d raycast
+    real cross_2d( const Matrix< DDRMat >& aVector1, const Matrix< DDRMat >& aVector2 )
+    {
+        return aVector1( 0 ) * aVector2( 1 ) - aVector1( 1 ) * aVector2( 0 );
+    }
+
     //--------------------------------------------------------------------------------------------------------------
 
     Surface_Mesh::Surface_Mesh(
@@ -58,7 +63,7 @@ namespace moris::mtk
         // Compute the normals of the facets
         this->initialize_facet_normals();
 
-#ifdef MORIS_HAVE_ARBORX
+#if MORIS_HAVE_ARBORX
         // Construct the ArborX BVH
         this->construct_bvh();
 #else
@@ -78,7 +83,7 @@ namespace moris::mtk
         // Update the normal vector for all the facets
         this->initialize_facet_normals();
 
-#ifdef MORIS_HAVE_ARBORX
+#if MORIS_HAVE_ARBORX
         // Update the bounding volume hierarchy
         this->construct_bvh();
 #endif
@@ -206,7 +211,7 @@ namespace moris::mtk
         Matrix< DDRMat > tDirection( this->get_spatial_dimension(), 1 );
         if ( this->get_spatial_dimension() == 2 )
         {
-            tDirection = { { 0.6398 }, { -0.4472 } };
+            tDirection = { { 0.6398, -0.4472 } };
         }
         else
         {
@@ -275,7 +280,7 @@ namespace moris::mtk
             const Matrix< DDRMat >& aPoint,
             const Matrix< DDRMat >& aDirection ) const
     {
-#ifdef MORIS_HAVE_ARBOX
+#if MORIS_HAVE_ARBORX
         // Get the facets that the ray could intersect using arborx
         Vector< uint > tCandidateFacets = this->preselect_with_arborx( aPoint, aDirection );
 #else
@@ -296,7 +301,7 @@ namespace moris::mtk
             const Matrix< DDRMat >& aPoint,
             const Matrix< DDRMat >& aDirection ) const
     {
-#ifdef MORIS_HAVE_ARBOX
+#if MORIS_HAVE_ARBORX
         // Get the facets that the ray could intersect using arborx
         Vector< uint > tCandidateFacets = this->preselect_with_arborx( aPoint, aDirection );
 #else
@@ -370,7 +375,7 @@ namespace moris::mtk
 
         MORIS_ASSERT( tNumberOfOrigins == aDirections.size(), "To cast a batch of rays with different directions for each ray, the size of the vector of directions (%lu) must match the columns of aOrigins (%d)", aDirections.size(), tNumberOfOrigins );
 
-#ifdef MORIS_HAVE_ARBORX
+#if MORIS_HAVE_ARBORX
         // Get the facets that the ray could intersect
         Vector< Vector< Vector< uint > > > tCandidateFacets = this->batch_preselect_with_arborx( aOrigins, aDirections );
 #else
@@ -439,7 +444,7 @@ namespace moris::mtk
         const uint tNumberOfOrigins    = aOrigins.n_cols();
         const uint tNumberOfDirections = aDirections.n_cols();
 
-#ifdef MORIS_HAVE_ARBORX
+#if MORIS_HAVE_ARBORX
         // Get the facets that the ray could intersect
         Vector< Vector< Vector< uint > > > tCandidateFacets = this->batch_preselect_with_arborx( aOrigins, aDirections );
 #else
@@ -519,13 +524,10 @@ namespace moris::mtk
             const Matrix< DDRMat >& aPoint,
             const Matrix< DDRMat >& aDirection ) const
     {
-        // Get the indices of the vertices for the requested facet
-        Vector< moris_index > tVertexIndices = mFacetConnectivity( aFacet );
-
         // Get the vertex coordinates for the requested facet
         Matrix< DDRMat > tFacetCoordinates = this->get_all_vertex_coordinates_of_facet( aFacet );
 
-        // Build the edge vector
+        // Build the vector pointing along the facet edge
         Matrix< DDRMat > tEdge = tFacetCoordinates.get_column( 1 ) - tFacetCoordinates.get_column( 0 );
 
         // Vector from the origin of the ray to the origin of the first vertex
@@ -540,13 +542,13 @@ namespace moris::mtk
         }
 
         // Get the determinant of the edge and the cast direction
-        real tDet = aDirection( 0 ) * tEdge( 1 ) - aDirection( 1 ) * tEdge( 0 );
+        real tDet = cross_2d( aDirection, tEdge );
 
         // If the determinant is close to zero, the ray is parallel or colinear to the line
         if ( std::abs( tDet ) < mIntersectionTolerance )
         {
             // Check for colinearity
-            if ( std::abs( tRayToVertex( 0 ) * aDirection( 1 ) - tRayToVertex( 1 ) * aDirection( 0 ) ) < mIntersectionTolerance )
+            if ( std::abs( cross_2d( tRayToVertex, aDirection ) < mIntersectionTolerance ) )
             {
                 // Check if the point is in between the vertices
                 if ( ( tFacetCoordinates( 0, 0 ) - aPoint( 0 ) ) * ( tFacetCoordinates( 0, 1 ) - aPoint( 0 ) ) < 0.0
@@ -577,11 +579,11 @@ namespace moris::mtk
         }    // end if lines are parallel or colinear
 
         // Compute the inverse determinant
-        real tInverseDeterminant = 1.0 / tDet;
+        real tInverseDet = 1.0 / tDet;
 
         // Solve the 2D system
-        real tDistance = ( tRayToVertex( 0 ) * tEdge( 1 ) - tRayToVertex( 1 ) * tEdge( 0 ) ) * tInverseDeterminant;
-        real tU        = ( aDirection( 1 ) * tRayToVertex( 0 ) - aDirection( 0 ) * tRayToVertex( 1 ) ) * tInverseDeterminant;
+        real tDistance = cross_2d( tRayToVertex, tEdge ) * tInverseDet;
+        real tU        = cross_2d( tRayToVertex, aDirection ) * tInverseDet;
 
         // Check if the intersection is within the line segment
         if ( tU < -mIntersectionTolerance or tU > 1.0 + mIntersectionTolerance or tDistance < -mIntersectionTolerance )
@@ -589,7 +591,7 @@ namespace moris::mtk
             return std::numeric_limits< real >::quiet_NaN();
         }
 
-        return tDistance < -mIntersectionTolerance ? ( std::numeric_limits< real >::quiet_NaN() ) : ( std::abs( tDistance ) < mIntersectionTolerance ? 0.0 : tDistance );
+        return ( std::abs( tDistance ) < mIntersectionTolerance ? 0.0 : tDistance );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -734,7 +736,7 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
-#ifdef MORIS_HAVE_ARBORX
+#if MORIS_HAVE_ARBORX
     template< typename MemorySpace, typename ExecutionSpace >
     arborx::QueryRays< MemorySpace > Surface_Mesh::build_arborx_ray_batch(
             ExecutionSpace const &      aExecutionSpace,
@@ -1012,7 +1014,7 @@ namespace moris::mtk
             {
                 tFile << this->get_vertex_coordinates( iVertex )( iDimension ) << " ";
             }
-            tFile << std::endl;
+            tFile << "\n";
         }
 
         for ( uint iFacet = 0; iFacet < this->get_number_of_facets(); iFacet++ )
@@ -1023,7 +1025,7 @@ namespace moris::mtk
             {
                 tFile << tVertexIndices( iVertexIndex ) + 1 << " ";
             }
-            tFile << std::endl;
+            tFile << "\n";
         }
 
         // close file

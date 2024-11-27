@@ -129,6 +129,8 @@ namespace moris::gen
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aNodeCoordinates )
     {
+        auto tStartTime = std::chrono::high_resolution_clock::now();
+
         // check if this node has been determined previously
         auto             tNodeIt        = mNodeMeshRegions.find( aNodeIndex );
         bool             tRegionUnknown = tNodeIt == mNodeMeshRegions.end();
@@ -138,19 +140,31 @@ namespace moris::gen
         {
             case mtk::Mesh_Region::INSIDE:
             {
+                auto tEndTime = std::chrono::high_resolution_clock::now();
+                mCurrentTime += std::chrono::duration_cast< std::chrono::milliseconds >( tEndTime - tStartTime );
+
                 return Geometric_Region::NEGATIVE;
             }
             case mtk::Mesh_Region::OUTSIDE:
             {
+                auto tEndTime = std::chrono::high_resolution_clock::now();
+                mCurrentTime += std::chrono::duration_cast< std::chrono::milliseconds >( tEndTime - tStartTime );
+
                 return Geometric_Region::POSITIVE;
             }
             case mtk::Mesh_Region::INTERFACE:
             {
+                auto tEndTime = std::chrono::high_resolution_clock::now();
+                mCurrentTime += std::chrono::duration_cast< std::chrono::milliseconds >( tEndTime - tStartTime );
+
                 return Geometric_Region::INTERFACE;
                 break;
             }
             default:
             {
+                auto tEndTime = std::chrono::high_resolution_clock::now();
+                mCurrentTime += std::chrono::duration_cast< std::chrono::milliseconds >( tEndTime - tStartTime );
+
                 MORIS_ERROR( false, "Unexpected sdf::Object_Region of %d returned from raycast.", tRegion );
                 return Geometric_Region::INTERFACE;
             }
@@ -166,11 +180,13 @@ namespace moris::gen
             const Parent_Node&                aSecondParentNode,
             mtk::Geometry_Type                aBackgroundGeometryType,
             mtk::Interpolation_Order          aBackgroundInterpolationOrder )
-    {
+     {
+        auto tStartTime = std::chrono::high_resolution_clock::now();
+
         // Determine the local coordinate of the intersection and the facet that intersects the parent edge
         std::pair< uint, real > tIntersection = this->compute_intersection_local_coordinate( aBackgroundNodes, aFirstParentNode, aSecondParentNode );
 
-        if ( tIntersection.second > 1.0 or std::isnan( tIntersection.second ) )
+        if ( tIntersection.second > 1.0 + Surface_Mesh::mIntersectionTolerance or std::isnan( tIntersection.second ) )
         {
             std::cout << "First parent node index :" << aFirstParentNode.get_index() << std::endl;
             PRINT( aFirstParentNode.get_global_coordinates() );
@@ -180,14 +196,17 @@ namespace moris::gen
             std::cout << "2nd Region by raycasting" << get_region_from_raycast( aSecondParentNode.get_global_coordinates() ) << std::endl;
             std::cout << "1st region from stored data " << mNodeMeshRegions.at( aFirstParentNode.get_index() ) << std::endl;
             std::cout << "2nd region from stored data " << mNodeMeshRegions.at( aSecondParentNode.get_index() ) << std::endl;
-
             tIntersection = this->compute_intersection_local_coordinate( aBackgroundNodes, aFirstParentNode, aSecondParentNode );
+            Surface_Mesh::write_to_file( "failed.obj" );
         }
 
         MORIS_ERROR( tIntersection.first != MORIS_UINT_MAX and ( tIntersection.second < ( 1.0 + Surface_Mesh::mIntersectionTolerance ) and tIntersection.second > ( -1.0 - Surface_Mesh::mIntersectionTolerance ) ),
                 "Intersection node %d has local coordinate %f. Should be [-1, 1]",
                 aNodeIndex,
                 tIntersection.second );
+
+        auto tEndTime = std::chrono::high_resolution_clock::now();
+        mCurrentTime += std::chrono::duration_cast< std::chrono::milliseconds >( tEndTime - tStartTime );
 
         // Create surface mesh intersection node
         return new Intersection_Node_Surface_Mesh(
@@ -200,6 +219,7 @@ namespace moris::gen
                 aBackgroundInterpolationOrder,
                 *this );
     }
+
 
     //--------------------------------------------------------------------------------------------------------------
 
@@ -246,9 +266,11 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-#ifdef MORIS_HAVE_ARBOX
+#if MORIS_HAVE_ARBORX
     void Surface_Mesh_Geometry::flood_fill_mesh_regions()
     {
+        auto tStartTime = std::chrono::high_resolution_clock::now();
+
         Tracer tTracer( "GEN", "Surface_Mesh_Geometry", "Flood fill mesh nodes" );
 
         using ExecutionSpace = Kokkos::DefaultExecutionSpace;
@@ -366,7 +388,12 @@ namespace moris::gen
                 mNodeMeshRegions[ iNode ] = tSubPhaseMeshRegions( tSubphases( iNode, 0 ) );
             }
         }
+
+        auto tEnd = std::chrono::high_resolution_clock::now();
+
+        mCurrentTime += std::chrono::duration_cast< std::chrono::milliseconds >( tEnd - tStartTime );
     }
+
 
 #endif
 
@@ -374,6 +401,8 @@ namespace moris::gen
 
     void Surface_Mesh_Geometry::raycast_remaining_unknown_nodes()
     {
+        auto tStartTime = std::chrono::high_resolution_clock::now();
+
         Tracer tTracer( "GEN", "Surface_Mesh_Geometry", "Raycast remaining unknown nodes" );
 
         // Get the number of nodes in the mesh and the spatial dimension
@@ -407,7 +436,12 @@ namespace moris::gen
         {
             mNodeMeshRegions[ tUnknownNodes( iNode ) ] = tUnknownNodeRegions( iNode );
         }
+
+        auto tEnd = std::chrono::high_resolution_clock::now();
+
+        mCurrentTime += std::chrono::duration_cast< std::chrono::milliseconds >( tEnd - tStartTime );
     }
+
 
     //--------------------------------------------------------------------------------------------------------------
 
@@ -553,7 +587,7 @@ namespace moris::gen
         Surface_Mesh::initialize_facet_normals();
 
         // Determine new region information for the nodes
-#ifdef MORIS_HAVE_ARBORX
+#if MORIS_HAVE_ARBORX
         Surface_Mesh::construct_bvh();
         // this->flood_fill_mesh_regions();
 #endif
@@ -564,6 +598,8 @@ namespace moris::gen
 
     void Surface_Mesh_Geometry::set_advs( sol::Dist_Vector* aADVs )
     {
+        mADVHandler.set_advs( aADVs );
+
         // Have each field import the advs
         for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
         {
@@ -772,11 +808,6 @@ namespace moris::gen
                             tVertexSensitivitySizeDetermined = true;
                         }
 
-                        // Each sensitivity is a separate index
-                        for ( uint iADVIndex = 0; iADVIndex < tNodeSensitivity.numel(); iADVIndex++ )
-                        {
-                            tVertexSensitivity( iDimensionIndex, tNumVertexSensitivities + tNodeSensitivity.length() * tDimensionSensitivitiesAdded + iADVIndex ) = tNodeSensitivity( iADVIndex );
-                        }
                         // Each sensitivity is a separate index
                         for ( uint iADVIndex = 0; iADVIndex < tNodeSensitivity.numel(); iADVIndex++ )
                         {

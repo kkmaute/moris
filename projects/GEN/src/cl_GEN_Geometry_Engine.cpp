@@ -981,7 +981,6 @@ namespace moris::gen
                 bool tUseMTKField = false;
                 for ( const auto& iMTKField : aFields )
                 {
-                    std::cout << aMeshPair.get_interpolation_mesh()->get_num_nodes() << "\n";
                     mGeometries( iGeometryIndex )->discretize( iMTKField, aMeshPair, tNewOwnedADVs );
                     tUseMTKField = true;
                 }
@@ -991,10 +990,10 @@ namespace moris::gen
                 {
                     mGeometries( iGeometryIndex )->discretize( aMeshPair, tNewOwnedADVs );
                 }
-
-                // Shape sensitivities logic}
-                mShapeSensitivities = ( mShapeSensitivities or mGeometries( iGeometryIndex )->depends_on_advs() );
             }
+
+            // Shape sensitivities logic
+            mShapeSensitivities = ( mShapeSensitivities or mGeometries( iGeometryIndex )->depends_on_advs() );
         }
 
         // Loop to discretize properties when requested

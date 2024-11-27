@@ -31,13 +31,13 @@
 
 #include "fn_check_equal.hpp"
 
-#ifdef MORIS_HAVE_ARBORX
+#if MORIS_HAVE_ARBORX
 // initialize Kokkos for the use in the spatial tree library ArborX
 std::unique_ptr< Kokkos::ScopeGuard > guard = !Kokkos::is_initialized() && !Kokkos::is_finalized() ? std::make_unique< Kokkos::ScopeGuard >() : nullptr;
 namespace moris::gen
 {
 
-#ifdef MORIS_HAVE_ARBORX
+#if MORIS_HAVE_ARBORX
     // initialize Kokkos for the use in the spatial tree library ArborX
     std::unique_ptr< Kokkos::ScopeGuard > guard = !Kokkos::is_initialized() && !Kokkos::is_finalized() ? std::make_unique< Kokkos::ScopeGuard >() : nullptr;
 #endif

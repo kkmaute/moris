@@ -7,7 +7,7 @@
  * fn_MTK_QuadraturePointMapper_Ray_ArborX_Details.hpp
  *
  */
-#ifdef MORIS_HAVE_ARBORX
+#if MORIS_HAVE_ARBORX
 
 #pragma once
 #include "moris_typedefs.hpp"
