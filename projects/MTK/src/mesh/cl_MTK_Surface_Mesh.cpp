@@ -207,24 +207,38 @@ namespace moris::mtk
     Mesh_Region
     Surface_Mesh::get_region_from_raycast( const Matrix< DDRMat >& aPoint ) const
     {
+        // Assume a warning will be thrown, this will be changed if the raycast is successful
+        bool tWarning = true;
+
+        uint tDim = this->get_spatial_dimension();
+
         // Initialize random ray direction vector
-        Matrix< DDRMat > tDirection( this->get_spatial_dimension(), 1 );
-        if ( this->get_spatial_dimension() == 2 )
+        Matrix< DDRMat > tDirection( tDim, 1 );
+        if ( tDim == 2 )
         {
-            tDirection = { { 0.6398, -0.4472 } };
+            tDirection = { { 0.6398,  -0.4472 } };
         }
         else
         {
-            tDirection = { { 0.4990 }, { -0.3534 }, { -0.7912 } };
+            tDirection = { { 0.4990, -0.3534, -0.7912 } };
         }
 
         tDirection = tDirection / norm( tDirection );
 
-        // Cast this ray and get the intersection locations
-        Vector< real > tIntersections = this->cast_single_ray_distance_only( aPoint, tDirection );
+        // Initialize vector to hold raycast result
+        Intersection_Vector tIntersections;
+        while( tWarning )
+        {
+            tIntersections = this->cast_single_ray( aPoint, tDirection, tWarning, false );
+
+            if( tWarning )
+            {
+                tDirection = this->random_direction();
+            }
+        }
 
         // Determine the region based on the number of intersections or if any intersection is close to zero
-        Mesh_Region tRegion = std::any_of( tIntersections.begin(), tIntersections.end(), [ this ]( real aCoord ) { return std::abs( aCoord ) < mIntersectionTolerance; } )
+        Mesh_Region tRegion = std::any_of( tIntersections.begin(), tIntersections.end(), [ this ]( std::pair< uint, real > aIntersection ) { return std::abs( aIntersection.second ) < mIntersectionTolerance; } )
                                     ? Mesh_Region::INTERFACE
                                     : static_cast< Mesh_Region >( tIntersections.size() % 2 );
 
@@ -254,10 +268,66 @@ namespace moris::mtk
         tDirection = tDirection / norm( tDirection );
 
         // Initialize output
-        Vector< Mesh_Region > tRegions( aPoint.n_cols(), UNDEFINED );
+        Vector< Mesh_Region > tRegions( tNumPoints, UNDEFINED );
 
-        // Cast all the rays
-        Vector< Vector< Intersection_Vector > > tIntersections = this->cast_batch_of_rays( aPoint, tDirection );
+        // Vector to track unresolved points
+        Vector< bool > tWarnings( tNumPoints, false );
+
+        // Preallocate for errors to minimize reallocations
+        Matrix< DDRMat > tErroredOrigins( tDim, tNumPoints ); // Initially as large as possible
+        Vector< uint > tErroredIndices( tNumPoints );        // Tracks errored indices
+
+        // Perform initial ray casting
+        Vector< Vector< Intersection_Vector > > tIntersections = this->cast_batch_of_rays( aPoint, tDirection, tWarnings, false );
+
+        // Filter the indices of errored points
+        uint tNumWarnings = 0;
+        for ( uint iRayIndex = 0; iRayIndex < tNumPoints; ++iRayIndex )
+        {
+            if ( tWarnings( iRayIndex ) )
+            {                
+                tErroredIndices( tNumWarnings ) = iRayIndex;
+                tErroredOrigins.set_column( tNumWarnings++, aPoint.get_column( iRayIndex ) ); 
+            }
+        }
+
+        // Process errors iteratively
+        while ( tNumWarnings > 0 )
+        {
+            // Update direction
+            tDirection = this->random_direction();
+
+            // Resize preallocated structures to match the actual number of errors
+            tErroredOrigins.resize( tDim, tNumWarnings );
+
+            // Create a temporary warnings vector for this batch of errored rays
+            Vector< bool > tNewWarnings( tNumWarnings, false );
+
+            // Cast the errored rays
+            Vector< Vector< Intersection_Vector > > tErroredIntersections = this->cast_batch_of_rays( tErroredOrigins, tDirection, tNewWarnings, false );
+
+            // Update intersections for resolved rays and rebuild error list
+            uint tNewNumWarnings = 0;
+            for ( uint iWarning = 0; iWarning < tNumWarnings; ++iWarning )
+            {                
+                uint tRayIndex = tErroredIndices( iWarning );
+
+                if ( !tNewWarnings( iWarning ) ) // No warning, means the ray was resolved
+                {
+                    // Update intersection for resolved rays
+                    tIntersections( tRayIndex )( 0 ) = tErroredIntersections( iWarning )( 0 );
+                }
+                else
+                {
+                    // Keep unresolved rays in the error list
+                    tErroredIndices( tNewNumWarnings ) = tRayIndex;
+                    tErroredOrigins.set_column( tNewNumWarnings++, aPoint.get_column( tRayIndex ) );
+                }
+            }
+
+            // Update the number of warnings
+            tNumWarnings = tNewNumWarnings;
+        }
 
         // Loop through the intersections and determine the region for each point
         for ( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
@@ -278,7 +348,9 @@ namespace moris::mtk
     Intersection_Vector
     Surface_Mesh::cast_single_ray(
             const Matrix< DDRMat >& aPoint,
-            const Matrix< DDRMat >& aDirection ) const
+            const Matrix< DDRMat >& aDirection, 
+            bool& aWarning,
+            bool aIgnoreWarnings ) const
     {
 #if MORIS_HAVE_ARBORX
         // Get the facets that the ray could intersect using arborx
@@ -290,77 +362,180 @@ namespace moris::mtk
 #endif
 
         // Compute the intersection locations for all of the candidates, remove duplicates, and sort
-        return this->determine_valid_intersections_from_candidates( aPoint, aDirection, tCandidateFacets );
+        return this->determine_valid_intersections_from_candidates( aPoint, aDirection, tCandidateFacets, aWarning );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
+//     Vector< real >
+//     Surface_Mesh::cast_single_ray_for_region(
+//             const Matrix< DDRMat >& aPoint) const
+//     {
+//         // Flag to store warnings
+//         bool tWarnings = true;
 
-    Vector< real >
-    Surface_Mesh::cast_single_ray_distance_only(
-            const Matrix< DDRMat >& aPoint,
-            const Matrix< DDRMat >& aDirection ) const
-    {
+//         // Initialize random ray direction vector
+//         Matrix< DDRMat > tDirection( this->get_spatial_dimension(), 1 );
+//         if ( this->get_spatial_dimension() == 2 )
+//         {
+//             tDirection = { { 0.6398, -0.4472 } };
+//         }
+//         else
+//         {
+//             tDirection = { { 0.4990 }, { -0.3534 }, { -0.7912 } };
+//         }
+
+//         tDirection = tDirection / norm( tDirection );
+
+//         // Initialize return vector that stores intersections and counter for number of valid intersections
+//         Vector< real > tIntersections;
+//         uint           tNumberOfValidIntersections = 0;
+
+//         while( tWarnings )
+//         {
+// #if MORIS_HAVE_ARBORX
+//             // Get the facets that the ray could intersect using arborx
+//             Vector< uint > tCandidateFacets = this->preselect_with_arborx( aPoint, tDirection );
+// #else
+//             // Get all of the facets
+//             Vector< uint > tCandidateFacets( this->get_number_of_facets() );
+//             std::iota( tCandidateFacets.begin(), tCandidateFacets.end(), 0 );
+// #endif
+//             // Resize intersection vector for this ray
+//             tIntersections.resize( tCandidateFacets.size() );
+            
+//             for ( uint iCandidate : tCandidateFacets )
+//             {
+//                 // Compute the intersection location
+//                 real tIntersection = this->moller_trumbore( iCandidate, aPoint, tDirection, tWarnings );
+
+//                 // Check for warnings and abort this ray if any are found
+//                 if( tWarnings )
+//                 {
+//                     tNumberOfValidIntersections = 0;
+//                     break;
+//                 }
+
+//                 // If it is valid, add it to the list
+//                 if ( not std::isnan( tIntersection ) )
+//                 {
+//                     tIntersections( tNumberOfValidIntersections++ ) = tIntersection;
+//                 }
+//             }
+
+//             // If there are warnings, get a new random direction
+//             if( tWarnings )
+//             {
+//                 tDirection = this->random_direction();
+//             }
+//         }
+
+//         // Trim output vectors
+//         tIntersections.resize( tNumberOfValidIntersections );
+
+//         if ( tNumberOfValidIntersections != 0 )
+//         {
+//             // sort the indices of the array based on the intersection values
+//             std::sort( tIntersections.begin(), tIntersections.end() );
+
+//             // make result unique
+//             uint tNumberOfUniqueIntersections = 0;
+
+//             // initialize return vector
+//             Vector< real > tUniqueIntersections( tNumberOfValidIntersections );
+
+//             // set first entry
+//             tUniqueIntersections( tNumberOfUniqueIntersections++ ) = tIntersections( 0 );
+
+//             // find unique entries
+//             for ( uint iIntersection = 1; iIntersection < tNumberOfValidIntersections; ++iIntersection )
+//             {
+//                 if ( std::abs( tIntersections( iIntersection ) - tIntersections( iIntersection - 1 ) ) > mIntersectionTolerance )
+//                 {
+//                     tUniqueIntersections( tNumberOfUniqueIntersections++ ) = tIntersections( iIntersection );
+//                 }
+//             }
+
+//             // chop vector
+//             tUniqueIntersections.resize( tNumberOfUniqueIntersections );
+
+//             return tUniqueIntersections;
+//         }
+//         else
+//         {
+//             return tIntersections;
+//         }
+//     }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Vector< Vector< Intersection_Vector > >
+    Surface_Mesh::cast_batch_of_rays(
+            Matrix< DDRMat >& aOrigins,
+            Matrix< DDRMat >& aDirections,
+            Vector< bool >& aWarnings,
+            bool aIgnoreWarnings ) const
+    {        
+        // Get the number of origins
+        const uint tNumberOfOrigins    = aOrigins.n_cols();
+        const uint tNumberOfDirections = aDirections.n_cols();
+
+        // Prepare warning vector
+        aWarnings.resize( tNumberOfOrigins, false );
+
 #if MORIS_HAVE_ARBORX
-        // Get the facets that the ray could intersect using arborx
-        Vector< uint > tCandidateFacets = this->preselect_with_arborx( aPoint, aDirection );
+        // Get the facets that the ray could intersect
+        Vector< Vector< Vector< uint > > > tCandidateFacets = this->batch_preselect_with_arborx( aOrigins, aDirections );
 #else
+
+        // initialize the candidate vector
+        Vector< Vector< Vector< uint > > > tCandidateFacets( tNumberOfOrigins, Vector< Vector< uint > >( tNumberOfDirections ) );
+
         // Get all of the facets
-        Vector< uint > tCandidateFacets( this->get_number_of_facets() );
-        std::iota( tCandidateFacets.begin(), tCandidateFacets.end(), 0 );
+        Vector< uint > tAllFacetIndices( this->get_number_of_facets() );
+        std::iota( tAllFacetIndices.begin(), tAllFacetIndices.end(), 0 );
+
+        // Assign all of the facets to the candidate vector
+        for ( uint iOrigin = 0; iOrigin < tNumberOfOrigins; iOrigin++ )
+        {
+            for ( uint iDirection = 0; iDirection < tNumberOfDirections; iDirection++ )
+            {
+                tCandidateFacets( iOrigin )( iDirection ) = tAllFacetIndices;
+            }
+        }
 #endif
 
-        // Initialize return vector that stores intersections and counter for number of valid intersections
-        Vector< real > tIntersections( tCandidateFacets.size() );
-        uint           tNumberOfValidIntersections = 0;
+        // Initialize return variables
+        Vector< Vector< Intersection_Vector > > tAllIntersections( tNumberOfOrigins );
 
-        for ( uint iCandidate : tCandidateFacets )
-        {
-            // Compute the intersection location
-            real tIntersection = this->moller_trumbore( iCandidate, aPoint, aDirection );
+        // Loop over every origin
+        for ( uint iOrigin = 0; iOrigin < tNumberOfOrigins; iOrigin++ )
+        {            
+            // Resize the return vector
+            tAllIntersections( iOrigin ).resize( tNumberOfDirections );
 
-            // If it is valid, add it to the list
-            if ( not std::isnan( tIntersection ) )
+            // Loop over every direction (now looping over rays)
+            for ( uint iDirection = 0; iDirection < tNumberOfDirections; iDirection++ )
             {
-                tIntersections( tNumberOfValidIntersections++ ) = tIntersection;
+                bool tWarning;
+                
+                // Get the candidate facets for this ray
+                Vector< uint > tCandidateFacetsForRay = tCandidateFacets( iOrigin )( iDirection );
+
+                // Compute which facets are intersected, remove duplicates, sort, and store in output
+                tAllIntersections( iOrigin )( iDirection ) = this->determine_valid_intersections_from_candidates(
+                        aOrigins.get_column( iOrigin ),
+                        aDirections.get_column( iDirection ),
+                        tCandidateFacetsForRay,
+                        tWarning,
+                        aIgnoreWarnings );
+
+                // Store the warning
+                aWarnings( iOrigin ) = tWarning;
             }
         }
 
-        // Trim output vectors
-        tIntersections.resize( tNumberOfValidIntersections );
-
-        if ( tNumberOfValidIntersections != 0 )
-        {
-            // sort the indices of the array based on the intersection values
-            std::sort( tIntersections.begin(), tIntersections.end() );
-
-            // make result unique
-            uint tNumberOfUniqueIntersections = 0;
-
-            // initialize return vector
-            Vector< real > tUniqueIntersections( tNumberOfValidIntersections );
-
-            // set first entry
-            tUniqueIntersections( tNumberOfUniqueIntersections++ ) = tIntersections( 0 );
-
-            // find unique entries
-            for ( uint iIntersection = 1; iIntersection < tNumberOfValidIntersections; ++iIntersection )
-            {
-                if ( std::abs( tIntersections( iIntersection ) - tIntersections( iIntersection - 1 ) ) > mIntersectionTolerance )
-                {
-                    tUniqueIntersections( tNumberOfUniqueIntersections++ ) = tIntersections( iIntersection );
-                }
-            }
-
-            // chop vector
-            tUniqueIntersections.resize( tNumberOfUniqueIntersections );
-
-            return tUniqueIntersections;
-        }
-        else
-        {
-            return tIntersections;
-        }
+        return tAllIntersections;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -368,12 +543,17 @@ namespace moris::mtk
     Vector< Vector< Intersection_Vector > >
     Surface_Mesh::cast_batch_of_rays(
             Matrix< DDRMat >&           aOrigins,
-            Vector< Matrix< DDRMat > >& aDirections ) const
+            Vector< Matrix< DDRMat > >& aDirections,
+            Vector< Vector< bool > >& aWarnings,
+            bool aIgnoreWarnings ) const
     {
         // Get the number of origins
         uint tNumberOfOrigins = aOrigins.n_cols();
 
         MORIS_ASSERT( tNumberOfOrigins == aDirections.size(), "To cast a batch of rays with different directions for each ray, the size of the vector of directions (%lu) must match the columns of aOrigins (%d)", aDirections.size(), tNumberOfOrigins );
+
+        // Prepare warning vector
+        aWarnings.resize( tNumberOfOrigins, false );
 
 #if MORIS_HAVE_ARBORX
         // Get the facets that the ray could intersect
@@ -419,6 +599,8 @@ namespace moris::mtk
             // Loop over every direction (now looping over rays)
             for ( uint iDirection = 0; iDirection < tNumberOfDirections; iDirection++ )
             {
+                bool tWarning;
+                
                 // Get the candidate facets for this ray
                 Vector< uint > tCandidateFacetsForRay = tCandidateFacets( iOrigin )( iDirection );
 
@@ -426,7 +608,12 @@ namespace moris::mtk
                 tAllIntersections( iOrigin )( iDirection ) = this->determine_valid_intersections_from_candidates(
                         aOrigins.get_column( iOrigin ),
                         aDirections( iOrigin ).get_column( iDirection ),
-                        tCandidateFacetsForRay );
+                        tCandidateFacetsForRay,
+                        tWarning,
+                        aIgnoreWarnings );
+
+                // Store the warning
+                aWarnings( iOrigin )( iDirection ) = tWarning;
             }
         }
 
@@ -435,79 +622,21 @@ namespace moris::mtk
 
     // --------------------------------------------------------------------------------------------------------------
 
-    Vector< Vector< Intersection_Vector > >
-    Surface_Mesh::cast_batch_of_rays(
-            Matrix< DDRMat >& aOrigins,
-            Matrix< DDRMat >& aDirections ) const
-    {
-        // Get the number of origins
-        const uint tNumberOfOrigins    = aOrigins.n_cols();
-        const uint tNumberOfDirections = aDirections.n_cols();
-
-#if MORIS_HAVE_ARBORX
-        // Get the facets that the ray could intersect
-        Vector< Vector< Vector< uint > > > tCandidateFacets = this->batch_preselect_with_arborx( aOrigins, aDirections );
-#else
-
-        // initialize the candidate vector
-        Vector< Vector< Vector< uint > > > tCandidateFacets( tNumberOfOrigins, Vector< Vector< uint > >( tNumberOfDirections ) );
-
-        // Get all of the facets
-        Vector< uint > tAllFacetIndices( this->get_number_of_facets() );
-        std::iota( tAllFacetIndices.begin(), tAllFacetIndices.end(), 0 );
-
-        // Assign all of the facets to the candidate vector
-        for ( uint iOrigin = 0; iOrigin < tNumberOfOrigins; iOrigin++ )
-        {
-            for ( uint iDirection = 0; iDirection < tNumberOfDirections; iDirection++ )
-            {
-                tCandidateFacets( iOrigin )( iDirection ) = tAllFacetIndices;
-            }
-        }
-#endif
-
-        // Initialize return variables
-        Vector< Vector< Intersection_Vector > > tAllIntersections( tNumberOfOrigins );
-
-        // Loop over every origin
-        for ( uint iOrigin = 0; iOrigin < tNumberOfOrigins; iOrigin++ )
-        {
-            // Resize the return vector
-            tAllIntersections( iOrigin ).resize( tNumberOfDirections );
-
-            // Loop over every direction (now looping over rays)
-            for ( uint iDirection = 0; iDirection < tNumberOfDirections; iDirection++ )
-            {
-                // Get the candidate facets for this ray
-                Vector< uint > tCandidateFacetsForRay = tCandidateFacets( iOrigin )( iDirection );
-
-                // Compute which facets are intersected, remove duplicates, sort, and store in output
-                tAllIntersections( iOrigin )( iDirection ) = this->determine_valid_intersections_from_candidates(
-                        aOrigins.get_column( iOrigin ),
-                        aDirections.get_column( iDirection ),
-                        tCandidateFacetsForRay );
-            }
-        }
-
-        return tAllIntersections;
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
     real Surface_Mesh::moller_trumbore(
             uint                    aFacet,
             const Matrix< DDRMat >& aPoint,
-            const Matrix< DDRMat >& aDirection ) const
+            const Matrix< DDRMat >& aDirection,
+            bool& aWarning ) const
     {
         switch ( this->get_spatial_dimension() )
         {
             case 2:
             {
-                return moller_trumbore_2D( aFacet, aPoint, aDirection );
+                return moller_trumbore_2D( aFacet, aPoint, aDirection, aWarning );
             }
             case 3:
             {
-                return moller_trumbore_3D( aFacet, aPoint, aDirection );
+                return moller_trumbore_3D( aFacet, aPoint, aDirection, aWarning );
             }
             default:
             {
@@ -522,8 +651,12 @@ namespace moris::mtk
     real Surface_Mesh::moller_trumbore_2D(
             uint                    aFacet,
             const Matrix< DDRMat >& aPoint,
-            const Matrix< DDRMat >& aDirection ) const
+            const Matrix< DDRMat >& aDirection,
+            bool& aWarning ) const
     {
+        // Assume this ray will not hit a vertex
+        aWarning = false;
+        
         // Get the vertex coordinates for the requested facet
         Matrix< DDRMat > tFacetCoordinates = this->get_all_vertex_coordinates_of_facet( aFacet );
 
@@ -590,6 +723,12 @@ namespace moris::mtk
         {
             return std::numeric_limits< real >::quiet_NaN();
         }
+        
+        // Check the u parameter for edge cases
+        if( std::abs( tU ) < 1e-4 or std::abs( tU - 1.0 - 1e-4 ) < mIntersectionTolerance )
+        {
+            aWarning = true;
+        }
 
         return ( std::abs( tDistance ) < mIntersectionTolerance ? 0.0 : tDistance );
     }
@@ -599,8 +738,12 @@ namespace moris::mtk
     real Surface_Mesh::moller_trumbore_3D(
             uint                    aFacet,
             const Matrix< DDRMat >& aPoint,
-            const Matrix< DDRMat >& aDirection ) const
+            const Matrix< DDRMat >& aDirection,
+            bool& aWarning ) const
     {
+        // Assume this ray will not hit a vertex
+        aWarning = false;
+
         // Get the vertex coordinates for the requested facet
         Matrix< DDRMat > tVertexCoordinates = this->get_all_vertex_coordinates_of_facet( aFacet );
 
@@ -636,9 +779,15 @@ namespace moris::mtk
         real tU = dot( tT, tP ) * tInverseDeterminant;
 
         // If the u parameter is < 0.0 or > 1.0, the intersection is outside the triangle
-        if ( tU < 0.0 or tU > 1.0 )
+        if ( tU < -mIntersectionTolerance or tU > 1.0 + mIntersectionTolerance )
         {
             return std::numeric_limits< real >::quiet_NaN();
+        }
+        
+        // Check if the u parameter is close to an edge case and throw a warning if so
+        if( std::abs( tU ) < 1e-4 or std::abs( tU - 1.0 + 1e-4 ) < mIntersectionTolerance )
+        {
+            aWarning = true;
         }
 
         // Compute the vector from the origin to the second vertex
@@ -651,6 +800,12 @@ namespace moris::mtk
         if ( tV < -mIntersectionTolerance or tU + tV > 1.0 + mIntersectionTolerance )
         {
             return std::numeric_limits< real >::quiet_NaN();
+        }
+        
+        // Check if the v parameter is close to an edge case and throw a warning if so
+        if( std::abs( tV ) < 1e-4 or std::abs( tV - 1.0- 1e-4 ) < mIntersectionTolerance )
+        {
+            aWarning = true;            
         }
 
         // Compute the distance from the origin to the intersection point
@@ -665,16 +820,29 @@ namespace moris::mtk
     Intersection_Vector Surface_Mesh::determine_valid_intersections_from_candidates(
             const Matrix< DDRMat >& aPoint,
             const Matrix< DDRMat >& aDirection,
-            const Vector< uint >&   aCandidateFacets ) const
-    {
+            const Vector< uint >&   aCandidateFacets,
+            bool& aWarning,
+            bool aIgnoreWarnings ) const
+    {        
+        // Assume this ray will not be a pathological case
+        aWarning = false;
+        
         Intersection_Vector tIntersections( aCandidateFacets.size() );
         uint                tNumberOfValidIntersections = 0;
 
         for ( uint iCandidate : aCandidateFacets )
         {
             // Compute the intersection location
-            real tIntersection = this->moller_trumbore( iCandidate, aPoint, aDirection );
-
+            real tIntersection = this->moller_trumbore( iCandidate, aPoint, aDirection, aWarning );
+            
+            // If we are not ignoring warnings, check for one
+            if( not aIgnoreWarnings and aWarning )
+            {
+                tNumberOfValidIntersections = 0;
+                aWarning = true;
+                break;
+            }
+            
             // If it is valid, add it to the list
             if ( not std::isnan( tIntersection ) )
             {
@@ -735,6 +903,29 @@ namespace moris::mtk
     }
 
     //--------------------------------------------------------------------------------------------------------------
+
+    Matrix< DDRMat > Surface_Mesh::random_direction() const
+    {
+        // Seed a random generator
+        std::srand( std::time( nullptr ) );
+
+        real tMin = -1.0;
+        real tMax = 1.0;
+        uint tDim = this->get_spatial_dimension();
+        
+        // Get a random number for each direction
+        Matrix< DDRMat > tDirection( tDim, 1 );
+        for( uint iDim = 0; iDim < tDim ; iDim++ )
+        {
+            tDirection( iDim ) = tMin + static_cast< real >( std::rand() ) / ( static_cast< real >( RAND_MAX / ( tMax - tMin ) ) );
+        }
+
+        // Normalize the direction
+        return tDirection / norm( tDirection );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
 
 #if MORIS_HAVE_ARBORX
     template< typename MemorySpace, typename ExecutionSpace >

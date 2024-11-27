@@ -243,7 +243,8 @@ namespace moris::gen
         // -------------------------------------------------------------------------------------
         // STEP 2: Compute the distance from the first parent to all the facets
         // -------------------------------------------------------------------------------------
-        mtk::Intersection_Vector tLocalCoordinate = this->cast_single_ray( tFirstParentNodeCoordinates, tRayDirection );
+        bool tWarning;
+        mtk::Intersection_Vector tLocalCoordinate = this->cast_single_ray( tFirstParentNodeCoordinates, tRayDirection, tWarning );
 
         // Put the intersections in the local coordinate frame
         for ( uint iIntersection = 0; iIntersection < tLocalCoordinate.size(); iIntersection++ )
