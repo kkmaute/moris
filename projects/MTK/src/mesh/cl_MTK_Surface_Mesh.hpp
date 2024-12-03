@@ -337,7 +337,7 @@ namespace moris::mtk
          * @param aIntersectionFacetIndices Index of the facet that the ray hit.
          * @return Intersection_Vector Index, distance pairs sorted by distance
          */
-        Intersection_Vector postprocess_raycast_results( Intersection_Vector& aIntersections ) const;
+        Intersection_Vector sort_and_find_unique_intersections( Intersection_Vector& aIntersections ) const;
 
         // Generates a random direction vector for raycasting
         Matrix< DDRMat > random_direction() const;

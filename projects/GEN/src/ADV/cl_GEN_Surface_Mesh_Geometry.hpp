@@ -135,10 +135,6 @@ namespace moris::gen
         // Forward analysis variables
         const mtk::Mesh*                             mMesh = nullptr;
         std::unordered_map< uint, mtk::Mesh_Region > mNodeMeshRegions;    // contains information about the nodes in the interpolation mesh from a flood fill. The nodes that are undefined will be raycast to determine their region.
-
-        // brendan delete
-        std::chrono::milliseconds mCurrentTime = std::chrono::milliseconds( 0 );
-        Vector< std::chrono::milliseconds > mIterationTimes;
         
       public:
         /**

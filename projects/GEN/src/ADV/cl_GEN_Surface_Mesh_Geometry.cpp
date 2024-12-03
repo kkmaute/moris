@@ -129,8 +129,6 @@ namespace moris::gen
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aNodeCoordinates )
     {
-        auto tStartTime = std::chrono::high_resolution_clock::now();
-
         // check if this node has been determined previously
         auto             tNodeIt        = mNodeMeshRegions.find( aNodeIndex );
         bool             tRegionUnknown = tNodeIt == mNodeMeshRegions.end();
@@ -140,31 +138,18 @@ namespace moris::gen
         {
             case mtk::Mesh_Region::INSIDE:
             {
-                auto tEndTime = std::chrono::high_resolution_clock::now();
-                mCurrentTime += std::chrono::duration_cast< std::chrono::milliseconds >( tEndTime - tStartTime );
-
                 return Geometric_Region::NEGATIVE;
             }
             case mtk::Mesh_Region::OUTSIDE:
             {
-                auto tEndTime = std::chrono::high_resolution_clock::now();
-                mCurrentTime += std::chrono::duration_cast< std::chrono::milliseconds >( tEndTime - tStartTime );
-
                 return Geometric_Region::POSITIVE;
             }
             case mtk::Mesh_Region::INTERFACE:
             {
-                auto tEndTime = std::chrono::high_resolution_clock::now();
-                mCurrentTime += std::chrono::duration_cast< std::chrono::milliseconds >( tEndTime - tStartTime );
-
                 return Geometric_Region::INTERFACE;
-                break;
             }
             default:
             {
-                auto tEndTime = std::chrono::high_resolution_clock::now();
-                mCurrentTime += std::chrono::duration_cast< std::chrono::milliseconds >( tEndTime - tStartTime );
-
                 MORIS_ERROR( false, "Unexpected sdf::Object_Region of %d returned from raycast.", tRegion );
                 return Geometric_Region::INTERFACE;
             }
@@ -180,9 +165,7 @@ namespace moris::gen
             const Parent_Node&                aSecondParentNode,
             mtk::Geometry_Type                aBackgroundGeometryType,
             mtk::Interpolation_Order          aBackgroundInterpolationOrder )
-     {
-        auto tStartTime = std::chrono::high_resolution_clock::now();
-
+    {
         // Determine the local coordinate of the intersection and the facet that intersects the parent edge
         std::pair< uint, real > tIntersection = this->compute_intersection_local_coordinate( aBackgroundNodes, aFirstParentNode, aSecondParentNode );
 
@@ -204,9 +187,6 @@ namespace moris::gen
                 "Intersection node %d has local coordinate %f. Should be [-1, 1]",
                 aNodeIndex,
                 tIntersection.second );
-
-        auto tEndTime = std::chrono::high_resolution_clock::now();
-        mCurrentTime += std::chrono::duration_cast< std::chrono::milliseconds >( tEndTime - tStartTime );
 
         // Create surface mesh intersection node
         return new Intersection_Node_Surface_Mesh(
@@ -243,7 +223,7 @@ namespace moris::gen
         // -------------------------------------------------------------------------------------
         // STEP 2: Compute the distance from the first parent to all the facets
         // -------------------------------------------------------------------------------------
-        bool tWarning;
+        bool                     tWarning;
         mtk::Intersection_Vector tLocalCoordinate = this->cast_single_ray( tFirstParentNodeCoordinates, tRayDirection, tWarning );
 
         // Put the intersections in the local coordinate frame
@@ -270,8 +250,6 @@ namespace moris::gen
 #if MORIS_HAVE_ARBORX
     void Surface_Mesh_Geometry::flood_fill_mesh_regions()
     {
-        auto tStartTime = std::chrono::high_resolution_clock::now();
-
         Tracer tTracer( "GEN", "Surface_Mesh_Geometry", "Flood fill mesh nodes" );
 
         using ExecutionSpace = Kokkos::DefaultExecutionSpace;
@@ -389,10 +367,6 @@ namespace moris::gen
                 mNodeMeshRegions[ iNode ] = tSubPhaseMeshRegions( tSubphases( iNode, 0 ) );
             }
         }
-
-        auto tEnd = std::chrono::high_resolution_clock::now();
-
-        mCurrentTime += std::chrono::duration_cast< std::chrono::milliseconds >( tEnd - tStartTime );
     }
 
 
@@ -402,8 +376,6 @@ namespace moris::gen
 
     void Surface_Mesh_Geometry::raycast_remaining_unknown_nodes()
     {
-        auto tStartTime = std::chrono::high_resolution_clock::now();
-
         Tracer tTracer( "GEN", "Surface_Mesh_Geometry", "Raycast remaining unknown nodes" );
 
         // Get the number of nodes in the mesh and the spatial dimension
@@ -437,10 +409,6 @@ namespace moris::gen
         {
             mNodeMeshRegions[ tUnknownNodes( iNode ) ] = tUnknownNodeRegions( iNode );
         }
-
-        auto tEnd = std::chrono::high_resolution_clock::now();
-
-        mCurrentTime += std::chrono::duration_cast< std::chrono::milliseconds >( tEnd - tStartTime );
     }
 
 
@@ -590,7 +558,7 @@ namespace moris::gen
         // Determine new region information for the nodes
 #if MORIS_HAVE_ARBORX
         Surface_Mesh::construct_bvh();
-        // this->flood_fill_mesh_regions();
+        this->flood_fill_mesh_regions();
 #endif
         this->raycast_remaining_unknown_nodes();
     }
