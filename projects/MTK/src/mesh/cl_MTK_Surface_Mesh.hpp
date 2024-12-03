@@ -169,7 +169,7 @@ namespace moris::mtk
          * This method utilizes ArborX to find ray facet intersections, and then computes the intersection locations for the ray.
          * The region is determined by the number of intersections. Even number = outside, Odd number = inside.
          *
-         * @param aPoint Ray origin points. Each column is a point, size <dimension> x <number of points>. 
+         * @param aPoint Ray origin points. Each column is a point, size <dimension> x <number of points>.
          */
         Vector< Mesh_Region >
         batch_get_region_from_raycast( Matrix< DDRMat >& aPoint ) const;
@@ -189,8 +189,8 @@ namespace moris::mtk
         cast_single_ray(
                 const Matrix< DDRMat >& aPoint,
                 const Matrix< DDRMat >& aDirection,
-                bool& aWarning,
-                bool aIgnoreWarnings = true ) const;
+                bool&                   aWarning,
+                bool                    aIgnoreWarnings = true ) const;
 
         // /**
         //  * @brief Determines if a point is inside or outside the surface mesh via raycasting
@@ -217,10 +217,10 @@ namespace moris::mtk
          */
         Vector< Vector< Intersection_Vector > >
         cast_batch_of_rays(
-                Matrix< DDRMat >& aOrigins,
-                Matrix< DDRMat >& aDirections,
-                Vector< bool >& aWarnings,
-                bool aIgnoreWarnings = true ) const;
+                Matrix< DDRMat >&         aOrigins,
+                Matrix< DDRMat >&         aDirections,
+                Vector< Vector< bool > >& aWarnings,
+                bool                      aIgnoreWarnings = true ) const;
 
         /**
          * Casts many rays and returns all of the associated intersection pairs. Allows for raycasting for any direction for any of the points.
@@ -237,8 +237,8 @@ namespace moris::mtk
         cast_batch_of_rays(
                 Matrix< DDRMat >&           aOrigins,
                 Vector< Matrix< DDRMat > >& aDirections,
-                Vector< Vector< bool > >& aWarnings,
-                bool aIgnoreWarnings = true ) const;
+                Vector< Vector< bool > >&   aWarnings,
+                bool                        aIgnoreWarnings = true ) const;
 
         //-------------------------------------------------------------------------------
         // Output Methods
@@ -279,10 +279,10 @@ namespace moris::mtk
          */
         real
         moller_trumbore(
-                uint                    aFacet, 
+                uint                    aFacet,
                 const Matrix< DDRMat >& aPoint,
                 const Matrix< DDRMat >& aDirection,
-                bool& aWarning ) const;
+                bool&                   aWarning ) const;
 
         /**
          * @brief Moller trumbore algorithm for determining if the ray intersects a triangle.
@@ -298,7 +298,7 @@ namespace moris::mtk
                 uint                    aFacet,
                 const Matrix< DDRMat >& aPoint,
                 const Matrix< DDRMat >& aDirection,
-                bool& aWarning ) const;
+                bool&                   aWarning ) const;
 
         /**
          * @brief (Psuedo) Moller trumbore algorithm for determining if the ray intersects a line.
@@ -313,7 +313,7 @@ namespace moris::mtk
                 uint                    aFacet,
                 const Matrix< DDRMat >& aPoint,
                 const Matrix< DDRMat >& aDirection,
-                bool& aWarning ) const;
+                bool&                   aWarning ) const;
 
         /**
          * @brief Takes candidate facets and attempts to compute the intersection locations for the given ray.
@@ -327,8 +327,8 @@ namespace moris::mtk
                 const Matrix< DDRMat >& aPoint,
                 const Matrix< DDRMat >& aDirection,
                 const Vector< uint >&   aCandidateFacets,
-                bool& aWarning,
-                bool aIgnoreWarnings = true ) const;
+                bool&                   aWarning,
+                bool                    aIgnoreWarnings = true ) const;
 
         /**
          * @brief Removes duplicate intersections and sorts them by distance from the origin point

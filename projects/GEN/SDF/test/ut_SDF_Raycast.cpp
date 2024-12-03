@@ -282,7 +282,7 @@ namespace moris::sdf
                 real tLineDistanceZExpected = 0.180556130610548;    // facet index = 0
 
                 // compute with raycast function
-                bool tWarning;
+                bool                              tWarning;
                 Vector< std::pair< uint, real > > tLineDistanceX = tObject.cast_single_ray( tTestPoint, tDirection, tWarning );
                 tDirection                                       = { { 0.0 }, { 1.0 }, { 0.0 } };
                 Vector< std::pair< uint, real > > tLineDistanceY = tObject.cast_single_ray( tTestPoint, tDirection, tWarning );
@@ -301,7 +301,7 @@ namespace moris::sdf
                 Matrix< DDRMat >           tOrigins    = { { 0.9, 0.9, 0.9 }, { 0.6, 0.6, 0.6 }, { 0.7, 0.7, 0.7 } };
                 Vector< Matrix< DDRMat > > tDirections = { { { 1.0, 1.0 }, { 0.0, 0.0 }, { 0.0, 0.0 } }, { { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0 }, { 0.0, 0.0, 0.0 } }, { { 0.0 }, { 0.0 }, { 1.0 } } };
 
-                Vector< Vector< bool > > tWarnings;
+                Vector< Vector< bool > >                              tWarnings;
                 Vector< Vector< Vector< std::pair< uint, real > > > > tLineDistances = tObject.cast_batch_of_rays( tOrigins, tDirections, tWarnings );
 
                 REQUIRE( tLineDistances.size() == 3 );
@@ -324,7 +324,7 @@ namespace moris::sdf
                 // batch again using the other functionality to cast the same direction on every origin
                 Matrix< DDRMat > tSameDirections = { { 1.0, 0.0, 0.0 }, { 0.0, 1.0, 0.0 }, { 0.0, 0.0, 1.0 } };
 
-                Vector< bool > tWarningSame;
+                Vector< Vector< bool > > tWarningSame;
                 tLineDistances = tObject.cast_batch_of_rays( tOrigins, tSameDirections, tWarningSame );
 
                 REQUIRE( tLineDistances.size() == 3 );
@@ -358,7 +358,7 @@ namespace moris::sdf
                 Vector< real > tLineDistanceYExpected = { 0.05, 0.55 };
 
                 // compute with raycast
-                bool tWarning;
+                bool                              tWarning;
                 Vector< std::pair< uint, real > > tLineDistanceX = tObject.cast_single_ray( tTestPoint, tDirection, tWarning );
                 tDirection                                       = { { 0.0 }, { 1.0 } };
                 Vector< std::pair< uint, real > > tLineDistanceY = tObject.cast_single_ray( tTestPoint, tDirection, tWarning );

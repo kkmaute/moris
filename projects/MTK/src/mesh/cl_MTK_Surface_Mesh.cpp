@@ -271,7 +271,7 @@ namespace moris::mtk
         Vector< Mesh_Region > tRegions( tNumPoints, UNDEFINED );
 
         // Vector to track which rays have warnings
-        Vector< bool > tWarnings( tNumPoints, false );
+        Vector< Vector< bool > > tWarnings;
 
         // Preallocate for errors to minimize reallocations
         Matrix< DDRMat > tErroredOrigins( tDim, tNumPoints );    // Initially as large as possible
@@ -284,7 +284,7 @@ namespace moris::mtk
         uint tNumWarnings = 0;
         for ( uint iRayIndex = 0; iRayIndex < tNumPoints; ++iRayIndex )
         {
-            if ( tWarnings( iRayIndex ) )
+            if ( tWarnings( iRayIndex )( 0 ) )
             {
                 tErroredIndices( tNumWarnings ) = iRayIndex;
                 tErroredOrigins.set_column( tNumWarnings++, aPoint.get_column( iRayIndex ) );
@@ -295,7 +295,7 @@ namespace moris::mtk
         while ( tNumWarnings > 0 )
         {
             MORIS_LOG_INFO( "%d rays failed to resolve", tNumWarnings );
-            
+
             // Get a new random direction
             tDirection = this->random_direction();
 
@@ -303,7 +303,7 @@ namespace moris::mtk
             tErroredOrigins.resize( tDim, tNumWarnings );
 
             // Create a temporary warnings vector for this batch of errored rays
-            Vector< bool > tNewWarnings( tNumWarnings, false );
+            Vector< Vector< bool > > tNewWarnings;
 
             // Cast the errored rays
             Vector< Vector< Intersection_Vector > > tErroredIntersections = this->cast_batch_of_rays( tErroredOrigins, tDirection, tNewWarnings, false );
@@ -314,7 +314,7 @@ namespace moris::mtk
             {
                 uint tRayIndex = tErroredIndices( iWarning );
 
-                if ( !tNewWarnings( iWarning ) )    // No warning, means the ray was resolved
+                if ( !tNewWarnings( iWarning )( 0 ) )    // No warning, means the ray was resolved
                 {
                     // Update intersection for resolved rays
                     tIntersections( tRayIndex )( 0 ) = tErroredIntersections( iWarning )( 0 );
@@ -373,17 +373,20 @@ namespace moris::mtk
 
     Vector< Vector< Intersection_Vector > >
     Surface_Mesh::cast_batch_of_rays(
-            Matrix< DDRMat >& aOrigins,
-            Matrix< DDRMat >& aDirections,
-            Vector< bool >&   aWarnings,
-            bool              aIgnoreWarnings ) const
+            Matrix< DDRMat >&         aOrigins,
+            Matrix< DDRMat >&         aDirections,
+            Vector< Vector< bool > >& aWarnings,
+            bool                      aIgnoreWarnings ) const
     {
         // Get the number of origins
         const uint tNumberOfOrigins    = aOrigins.n_cols();
         const uint tNumberOfDirections = aDirections.n_cols();
 
-        // Prepare warning vector
-        aWarnings.resize( tNumberOfOrigins, false );
+        // Prepare warning vector if needed
+        if ( not aIgnoreWarnings )
+        {
+            aWarnings.resize( tNumberOfOrigins, Vector< bool >( tNumberOfDirections, false ) );
+        }
 
 #if MORIS_HAVE_ARBORX
         // Get the facets that the ray could intersect
@@ -432,8 +435,11 @@ namespace moris::mtk
                         tWarning,
                         aIgnoreWarnings );
 
-                // Store the warning
-                aWarnings( iOrigin ) = tWarning;
+                // Store the warning if needed
+                if ( not aIgnoreWarnings )
+                {
+                    aWarnings( iOrigin )( iDirection ) = tWarning;
+                }
             }
         }
 
@@ -454,12 +460,24 @@ namespace moris::mtk
 
         MORIS_ASSERT( tNumberOfOrigins == aDirections.size(), "To cast a batch of rays with different directions for each ray, the size of the vector of directions (%lu) must match the columns of aOrigins (%d)", aDirections.size(), tNumberOfOrigins );
 
-        // Prepare warning vector
-        aWarnings.resize( tNumberOfOrigins, false );
+        // Prepare warning vector if needed
+        if ( not aIgnoreWarnings )
+        {
+            aWarnings.resize( tNumberOfOrigins, false );
+        }
 
 #if MORIS_HAVE_ARBORX
         // Get the facets that the ray could intersect
         Vector< Vector< Vector< uint > > > tCandidateFacets = this->batch_preselect_with_arborx( aOrigins, aDirections );
+
+        // Resize the warnings vector
+        if ( not aIgnoreWarnings )
+        {
+            for ( uint iOrigin = 0; iOrigin < tNumberOfOrigins; iOrigin++ )
+            {
+                aWarnings( iOrigin ).resize( aDirections( iOrigin ).n_cols() );
+            }
+        }
 #else
 
         // initialize the candidate vector
@@ -475,8 +493,12 @@ namespace moris::mtk
             // Get the number of directions for this origin
             uint tNumberOfDirections = aDirections( iOrigin ).n_cols();
 
-            // resize the candidate vector
+            // resize the candidates and the warnings
             tCandidateFacets( iOrigin ).resize( tNumberOfDirections );
+            if ( not aIgnoreWarnings )
+            {
+                aWarnings( iOrigin ).resize( tNumberOfDirections );
+            }
 
             // fill the candidate vector with all facets
             for ( uint iDirection = 0; iDirection < tNumberOfDirections; iDirection++ )
@@ -514,8 +536,11 @@ namespace moris::mtk
                         tWarning,
                         aIgnoreWarnings );
 
-                // Store the warning
-                aWarnings( iOrigin )( iDirection ) = tWarning;
+                // Store the warning if needed
+                if ( not aIgnoreWarnings )
+                {
+                    aWarnings( iOrigin )( iDirection ) = tWarning;
+                }
             }
         }
 
