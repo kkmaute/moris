@@ -1004,10 +1004,10 @@ namespace moris::gen
                 {
                     mGeometries( iGeometryIndex )->discretize( aMeshPair, tNewOwnedADVs );
                 }
-
-                // Shape sensitivities logic
-                mShapeSensitivities = ( mShapeSensitivities or mGeometries( iGeometryIndex )->depends_on_advs() );
             }
+            
+            // Shape sensitivities logic
+            mShapeSensitivities = ( mShapeSensitivities or mGeometries( iGeometryIndex )->depends_on_advs() );
         }
 
         // Loop to discretize properties when requested

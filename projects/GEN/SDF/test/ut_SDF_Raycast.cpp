@@ -39,7 +39,7 @@
 namespace moris::sdf
 {
 
-#ifdef MORIS_HAVE_ARBORX
+#if MORIS_HAVE_ARBORX
     // initialize Kokkos for the use in the spatial tree library ArborX
     std::unique_ptr< Kokkos::ScopeGuard > guard = !Kokkos::is_initialized() && !Kokkos::is_finalized() ? std::make_unique< Kokkos::ScopeGuard >() : nullptr;
 
@@ -282,11 +282,12 @@ namespace moris::sdf
                 real tLineDistanceZExpected = 0.180556130610548;    // facet index = 0
 
                 // compute with raycast function
-                Vector< std::pair< uint, real > > tLineDistanceX = tObject.cast_single_ray( tTestPoint, tDirection );
+                bool                              tWarning;
+                Vector< std::pair< uint, real > > tLineDistanceX = tObject.cast_single_ray( tTestPoint, tDirection, tWarning );
                 tDirection                                       = { { 0.0 }, { 1.0 }, { 0.0 } };
-                Vector< std::pair< uint, real > > tLineDistanceY = tObject.cast_single_ray( tTestPoint, tDirection );
+                Vector< std::pair< uint, real > > tLineDistanceY = tObject.cast_single_ray( tTestPoint, tDirection, tWarning );
                 tDirection                                       = { { 0.0 }, { 0.0 }, { 1.0 } };
-                Vector< std::pair< uint, real > > tLineDistanceZ = tObject.cast_single_ray( tTestPoint, tDirection );
+                Vector< std::pair< uint, real > > tLineDistanceZ = tObject.cast_single_ray( tTestPoint, tDirection, tWarning );
 
                 // compare
                 REQUIRE( tLineDistanceX.size() == 1 );
@@ -300,7 +301,8 @@ namespace moris::sdf
                 Matrix< DDRMat >           tOrigins    = { { 0.9, 0.9, 0.9 }, { 0.6, 0.6, 0.6 }, { 0.7, 0.7, 0.7 } };
                 Vector< Matrix< DDRMat > > tDirections = { { { 1.0, 1.0 }, { 0.0, 0.0 }, { 0.0, 0.0 } }, { { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0 }, { 0.0, 0.0, 0.0 } }, { { 0.0 }, { 0.0 }, { 1.0 } } };
 
-                Vector< Vector< Vector< std::pair< uint, real > > > > tLineDistances = tObject.cast_batch_of_rays( tOrigins, tDirections );
+                Vector< Vector< bool > >                              tWarnings;
+                Vector< Vector< Vector< std::pair< uint, real > > > > tLineDistances = tObject.cast_batch_of_rays( tOrigins, tDirections, tWarnings );
 
                 REQUIRE( tLineDistances.size() == 3 );
                 REQUIRE( tLineDistances( 0 ).size() == 2 );
@@ -322,7 +324,8 @@ namespace moris::sdf
                 // batch again using the other functionality to cast the same direction on every origin
                 Matrix< DDRMat > tSameDirections = { { 1.0, 0.0, 0.0 }, { 0.0, 1.0, 0.0 }, { 0.0, 0.0, 1.0 } };
 
-                tLineDistances = tObject.cast_batch_of_rays( tOrigins, tSameDirections );
+                Vector< Vector< bool > > tWarningSame;
+                tLineDistances = tObject.cast_batch_of_rays( tOrigins, tSameDirections, tWarningSame );
 
                 REQUIRE( tLineDistances.size() == 3 );
                 REQUIRE( tLineDistances( 0 ).size() == 3 );
@@ -355,9 +358,10 @@ namespace moris::sdf
                 Vector< real > tLineDistanceYExpected = { 0.05, 0.55 };
 
                 // compute with raycast
-                Vector< std::pair< uint, real > > tLineDistanceX = tObject.cast_single_ray( tTestPoint, tDirection );
+                bool                              tWarning;
+                Vector< std::pair< uint, real > > tLineDistanceX = tObject.cast_single_ray( tTestPoint, tDirection, tWarning );
                 tDirection                                       = { { 0.0 }, { 1.0 } };
-                Vector< std::pair< uint, real > > tLineDistanceY = tObject.cast_single_ray( tTestPoint, tDirection );
+                Vector< std::pair< uint, real > > tLineDistanceY = tObject.cast_single_ray( tTestPoint, tDirection, tWarning );
 
                 // compare
                 REQUIRE( tLineDistanceX.size() == 2 );

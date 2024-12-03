@@ -13,12 +13,13 @@
 #include "cl_Matrix.hpp"
 #include "cl_Vector.hpp"
 
+#if MORIS_HAVE_ARBORX
 #include <ArborX.hpp>
 #include <ArborX_Box.hpp>
+
 #include <Kokkos_Macros.hpp>
 #include <Kokkos_View.hpp>
 #include <decl/Kokkos_Declare_SERIAL.hpp>
-
 namespace moris::mtk::arborx
 {
     template< typename MemorySpace >
@@ -36,11 +37,20 @@ namespace moris::mtk::arborx
 
 namespace moris::mtk
 {
-
-    typedef Vector< std::pair< uint, real > > Intersection_Vector;
-
     using ExecutionSpace = Kokkos::DefaultExecutionSpace;
     using MemorySpace    = ExecutionSpace::memory_space;
+}    // namespace moris::mtk
+
+
+#endif
+
+namespace moris::mtk
+{
+
+    // helper function for 2d raycast
+    real cross_2d( const Matrix< DDRMat >& aVector1, const Matrix< DDRMat >& aVector2 );
+
+    typedef Vector< std::pair< uint, real > > Intersection_Vector;
 
     /**
      * @brief This class is used to extract a surface mesh from a given mesh.
@@ -159,7 +169,7 @@ namespace moris::mtk
          * This method utilizes ArborX to find ray facet intersections, and then computes the intersection locations for the ray.
          * The region is determined by the number of intersections. Even number = outside, Odd number = inside.
          *
-         * @param aPoint Ray origin points. Each column is a point, size <dimension> x <number of points>
+         * @param aPoint Ray origin points. Each column is a point, size <dimension> x <number of points>.
          */
         Vector< Mesh_Region >
         batch_get_region_from_raycast( Matrix< DDRMat >& aPoint ) const;
@@ -172,25 +182,45 @@ namespace moris::mtk
          *
          * @param aPoint Ray origin point. Passed by value as it may be altered
          * @param aDirection Direction that the ray casts in. Does not have to be a unit vector
+         * @param aWarning Flag if the ray hits an edge or another pathological case
+         * @param aIgnoreWarnings If true, all rays that hit a warning will be ceased immediately. Otherwise, the ray is cast and the result is returned as normal.
          */
         Intersection_Vector
         cast_single_ray(
                 const Matrix< DDRMat >& aPoint,
-                const Matrix< DDRMat >& aDirection ) const;
+                const Matrix< DDRMat >& aDirection,
+                bool&                   aWarning,
+                bool                    aIgnoreWarnings = true ) const;
+
+        // /**
+        //  * @brief Determines if a point is inside or outside the surface mesh via raycasting
+        //  * This method utilizes ArborX to find ray facet intersections, and then computes the intersection locations for the ray.
+        //  * The method will only cast a single ray. Note that if a pathological casee is detected, the method will cast a new ray in a random direction.
+        //  * The region is determined by the number of intersections. Even number = outside, Odd number = inside.
+        //  *
+        //  * @param aPoint Ray origin point. Passed by value as it may be altered
+        //  * @param aDirection Direction that the ray casts in. Does not have to be a unit vector
+        //  */
+        // Vector< real >
+        // cast_single_ray_for_region( const Matrix< DDRMat >& aPoint ) const;
+
 
         /**
-         * @brief Determines if a point is inside or outside the surface mesh via raycasting
-         * This method utilizes ArborX to find ray facet intersections, and then computes the intersection locations for the ray.
-         * The method will only cast a single ray, which may not be sufficient to determine the region if the ray hits an edge or another pathological case is detected
-         * The region is determined by the number of intersections. Even number = outside, Odd number = inside.
+         * Casts many rays and returns all of the associated intersection pairs. Uses the same directions for every origin.
          *
-         * @param aPoint Ray origin point. Passed by value as it may be altered
-         * @param aDirection Direction that the ray casts in. Does not have to be a unit vector
+         * @param aOrigins Origin points for the rays. Each column is a new origin, size <dimension> x <number of origins>
+         * @param aDirections Directions for the rays, where each column is a new direction. Size <dimension> x <number of directions>
+         * @param aWarnings Vector of warnings for each ray. Size <number of origins>
+         * @param aIgnoreWarnings If true, all rays that hit a warning will be ceased immediately. Otherwise, the ray is cast and the result is returned as normal.
+         * @return Vector< Vector< Intersection_Vector > > Outer vector corresponds to the origin point, and the inner vector corresponds to the direction.
+         *      Intersection_Vector contains pairs of <uint, real> which correspond to the facet index and the distance to the intersection point
          */
-        Vector< real >
-        cast_single_ray_distance_only(
-                const Matrix< DDRMat >& aPoint,
-                const Matrix< DDRMat >& aDirection ) const;
+        Vector< Vector< Intersection_Vector > >
+        cast_batch_of_rays(
+                Matrix< DDRMat >&         aOrigins,
+                Matrix< DDRMat >&         aDirections,
+                Vector< Vector< bool > >& aWarnings,
+                bool                      aIgnoreWarnings = true ) const;
 
         /**
          * Casts many rays and returns all of the associated intersection pairs. Allows for raycasting for any direction for any of the points.
@@ -198,26 +228,17 @@ namespace moris::mtk
          * @param aOrigins Origin points for the rays. Each column is a new origin, size <dimension> x <number of origins>
          * @param aDirections Directions for the rays. The size of the vector is <number of origins >,
          *      and each matrix in the vector contains directions, where each column is a new direction. Size <dimension> x <number of directions> )
+         * @param aWarnings Vector of warnings for each ray. Size <number of origins>
+         * @param aIgnoreWarnings If true, all rays that hit a warning will be ceased immediately. Otherwise, the ray is cast and the result is returned as normal.
          * @return Vector< Vector< Intersection_Vector > > Outer vector corresponds to the origin point, and the inner vector corresponds to the direction.
          *      Intersection_Vector contains pairs of <uint, real> which correspond to the facet index and the distance to the intersection point
          */
         Vector< Vector< Intersection_Vector > >
         cast_batch_of_rays(
                 Matrix< DDRMat >&           aOrigins,
-                Vector< Matrix< DDRMat > >& aDirections ) const;
-
-        /**
-         * Casts many rays and returns all of the associated intersection pairs. Uses the same directions for every origin.
-         *
-         * @param aOrigins Origin points for the rays. Each column is a new origin, size <dimension> x <number of origins>
-         * @param aDirections Directions for the rays, where each column is a new direction. Size <dimension> x <number of directions>
-         * @return Vector< Vector< Intersection_Vector > > Outer vector corresponds to the origin point, and the inner vector corresponds to the direction.
-         *      Intersection_Vector contains pairs of <uint, real> which correspond to the facet index and the distance to the intersection point
-         */
-        Vector< Vector< Intersection_Vector > >
-        cast_batch_of_rays(
-                Matrix< DDRMat >& aOrigins,
-                Matrix< DDRMat >& aDirections ) const;
+                Vector< Matrix< DDRMat > >& aDirections,
+                Vector< Vector< bool > >&   aWarnings,
+                bool                        aIgnoreWarnings = true ) const;
 
         //-------------------------------------------------------------------------------
         // Output Methods
@@ -243,12 +264,6 @@ namespace moris::mtk
          */
         void initialize_facet_normals();
 
-        /**
-         * @brief Constructs the ArborX bounding volume hierarchy for the surface mesh and stores it in mBVH
-         *
-         */
-        void construct_bvh();
-
         //-------------------------------------------------------------------------------
         // Private methods useful for raycasting
         // -------------------------------------------------------------------------------
@@ -266,7 +281,8 @@ namespace moris::mtk
         moller_trumbore(
                 uint                    aFacet,
                 const Matrix< DDRMat >& aPoint,
-                const Matrix< DDRMat >& aDirection ) const;
+                const Matrix< DDRMat >& aDirection,
+                bool&                   aWarning ) const;
 
         /**
          * @brief Moller trumbore algorithm for determining if the ray intersects a triangle.
@@ -281,7 +297,8 @@ namespace moris::mtk
         moller_trumbore_3D(
                 uint                    aFacet,
                 const Matrix< DDRMat >& aPoint,
-                const Matrix< DDRMat >& aDirection ) const;
+                const Matrix< DDRMat >& aDirection,
+                bool&                   aWarning ) const;
 
         /**
          * @brief (Psuedo) Moller trumbore algorithm for determining if the ray intersects a line.
@@ -295,7 +312,37 @@ namespace moris::mtk
         moller_trumbore_2D(
                 uint                    aFacet,
                 const Matrix< DDRMat >& aPoint,
-                const Matrix< DDRMat >& aDirection ) const;
+                const Matrix< DDRMat >& aDirection,
+                bool&                   aWarning ) const;
+
+        /**
+         * @brief Takes candidate facets and attempts to compute the intersection locations for the given ray.
+         *
+         * @param aPoint Origin point of the ray
+         * @param aDirection Direction of the ray
+         * @param aCandidateFacets Indices of facets that the ray could hit.
+         * @return Intersection locations and associated facet indices for every ray-facet intersection. Max size of aCandidateFacets.
+         */
+        Intersection_Vector determine_valid_intersections_from_candidates(
+                const Matrix< DDRMat >& aPoint,
+                const Matrix< DDRMat >& aDirection,
+                const Vector< uint >&   aCandidateFacets,
+                bool&                   aWarning,
+                bool                    aIgnoreWarnings = true ) const;
+
+        /**
+         * @brief Removes duplicate intersections and sorts them by distance from the origin point
+         *
+         * @param aIntersections Intersection distances
+         * @param aIntersectionFacetIndices Index of the facet that the ray hit.
+         * @return Intersection_Vector Index, distance pairs sorted by distance
+         */
+        Intersection_Vector sort_and_find_unique_intersections( Intersection_Vector& aIntersections ) const;
+
+        // Generates a random direction vector for raycasting
+        Matrix< DDRMat > random_direction() const;
+
+#if MORIS_HAVE_ARBORX
 
         /**
          * Constructs the ArborX rays for the given points and directions
@@ -366,27 +413,14 @@ namespace moris::mtk
                 Matrix< DDRMat >& aOrigins,
                 Matrix< DDRMat >& aDirections ) const;
 
+      protected:
         /**
-         * @brief Takes candidate facets and attempts to compute the intersection locations for the given ray.
+         * @brief Constructs the ArborX bounding volume hierarchy for the surface mesh and stores it in mBVH
          *
-         * @param aPoint Origin point of the ray
-         * @param aDirection Direction of the ray
-         * @param aCandidateFacets Indices of facets that the ray could hit.
-         * @return Intersection locations and associated facet indices for every ray-facet intersection. Max size of aCandidateFacets.
          */
-        Intersection_Vector determine_valid_intersections_from_candidates(
-                const Matrix< DDRMat >& aPoint,
-                const Matrix< DDRMat >& aDirection,
-                const Vector< uint >&   aCandidateFacets ) const;
+        void construct_bvh();
 
-        /**
-         * @brief Removes duplicate intersections and sorts them by distance from the origin point
-         *
-         * @param aIntersections Intersection distances
-         * @param aIntersectionFacetIndices Index of the facet that the ray hit.
-         * @return Intersection_Vector Index, distance pairs sorted by distance
-         */
-        Intersection_Vector postprocess_raycast_results( Intersection_Vector& aIntersections ) const;
+#endif
 
         // -------------------------------------------------------------------------------
         // Member data
@@ -419,11 +453,13 @@ namespace moris::mtk
         Matrix< DDRMat > mFacetNormals = Matrix< DDRMat >( 0, 0 );
 
       protected:    // variables
+#if MORIS_HAVE_ARBORX
         /**
          * @brief ArborX Bounding volume hierarchy. Used to preselect which facets to check for intersection with a ray.
          *
          */
         ArborX::BVH< MemorySpace > mBVH;
+#endif
 
         real mIntersectionTolerance = 1e-8;    // tolerance for interfaces when raycasting with this surface mesh
     };

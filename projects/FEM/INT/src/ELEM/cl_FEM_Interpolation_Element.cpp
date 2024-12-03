@@ -320,16 +320,34 @@ namespace moris::fem
         {
             // get the field type group
             const Vector< mtk::Field_Type >& tFieldTypeGroup = tLeaderFieldTypeList( iFi );
+            uint tNumFieldComponents = tFieldTypeGroup.size();
 
             Matrix< IndexMat > const tIPCellIndices = mLeaderInterpolationCell->get_vertex_inds();
+            uint tNumCoeffs = tIPCellIndices.numel();
 
-            Matrix< DDRMat > tCoeff;
-            mSet->get_fem_model()->get_field( tFieldTypeGroup( 0 ) )->get_values( tIPCellIndices, tCoeff, tFieldTypeGroup );
+            // assembly coefficient matrix depending on number of fields
+            if ( tNumFieldComponents == 1 ) // scalar fields
+            {
+                Matrix< DDRMat > tCoeff;
+                mSet->get_fem_model()->get_field( tFieldTypeGroup( 0 ) )->get_values( tIPCellIndices, tCoeff, tFieldTypeGroup );
 
-            // FIXME implement reshape for vector fields
+                // set field interpolator coefficients
+                mSet->get_field_interpolator_manager()->set_coeff_for_type( tFieldTypeGroup( 0 ), tCoeff );
+            }
+            else // vectorial fields
+            {
+                Vector< Matrix< DDRMat > > tCoeffs( tNumFieldComponents );
+                Matrix< DDRMat > tCoeffMat( tNumCoeffs, tNumFieldComponents );
+                
+                for ( uint iComponent = 0; iComponent < tNumFieldComponents; iComponent++ )
+                {
+                    mSet->get_fem_model()->get_field( tFieldTypeGroup( iComponent ) )->get_values( tIPCellIndices, tCoeffs( iComponent ), tFieldTypeGroup );    
+                    tCoeffMat( { 0, tNumCoeffs - 1 }, { iComponent, iComponent } ) = tCoeffs( iComponent )( { 0, tNumCoeffs - 1 }, { 0, 0 } );            
+                }
 
-            // set field interpolator coefficients
-            mSet->get_field_interpolator_manager()->set_coeff_for_type( tFieldTypeGroup( 0 ), tCoeff );
+                // set field interpolator coefficients
+                mSet->get_field_interpolator_manager()->set_coeff_for_type( tFieldTypeGroup( 0 ), tCoeffMat );
+            }
         }
 
         // get follower field type list from set
@@ -344,16 +362,34 @@ namespace moris::fem
         {
             // get the field type group
             const Vector< mtk::Field_Type >& tFieldTypeGroup = tFollowerFieldTypeList( iFi );
+            uint tNumFieldComponents = tFieldTypeGroup.size();
 
             Matrix< IndexMat > const tIPCellIndices = mFollowerInterpolationCell->get_vertex_inds();
+            uint tNumCoeffs = tIPCellIndices.numel();
 
-            Matrix< DDRMat > tCoeff;
-            mSet->get_fem_model()->get_field( tFieldTypeGroup( 0 ) )->get_values( tIPCellIndices, tCoeff, tFieldTypeGroup );
+            // assembly coefficient matrix depending on number of fields
+            if ( tNumFieldComponents == 1 ) // scalar fields
+            {
+                Matrix< DDRMat > tCoeff;
+                mSet->get_fem_model()->get_field( tFieldTypeGroup( 0 ) )->get_values( tIPCellIndices, tCoeff, tFieldTypeGroup );
 
-            // FIXME implement reshape for vector fields
+                // set field interpolator coefficients
+                mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )->set_coeff_for_type( tFieldTypeGroup( 0 ), tCoeff );
+            }
+            else // vectorial fields
+            {
+                Vector< Matrix< DDRMat > > tCoeffs( tNumFieldComponents );
+                Matrix< DDRMat > tCoeffMat( tNumCoeffs, tNumFieldComponents );
+                
+                for ( uint iComponent = 0; iComponent < tNumFieldComponents; iComponent++ )
+                {
+                    mSet->get_fem_model()->get_field( tFieldTypeGroup( iComponent ) )->get_values( tIPCellIndices, tCoeffs( iComponent ), tFieldTypeGroup );    
+                    tCoeffMat( { 0, tNumCoeffs - 1 }, { iComponent, iComponent } ) = tCoeffs( iComponent )( { 0, tNumCoeffs - 1 }, { 0, 0 } );            
+                }
 
-            // set field interpolator coefficients
-            mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )->set_coeff_for_type( tFieldTypeGroup( 0 ), tCoeff );
+                // set field interpolator coefficients
+                mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )->set_coeff_for_type( tFieldTypeGroup( 0 ), tCoeffMat );
+            }
         }
 
         // geometry interpolators------------------------------------------

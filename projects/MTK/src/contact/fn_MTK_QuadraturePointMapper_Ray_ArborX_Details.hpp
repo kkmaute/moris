@@ -7,6 +7,8 @@
  * fn_MTK_QuadraturePointMapper_Ray_ArborX_Details.hpp
  *
  */
+#if MORIS_HAVE_ARBORX
+
 #pragma once
 #include "moris_typedefs.hpp"
 #include "cl_Vector.hpp"
@@ -188,3 +190,5 @@ namespace ArborX
         }
     };
 }    // namespace ArborX
+
+#endif    // MORIS_HAVE_ARBORX

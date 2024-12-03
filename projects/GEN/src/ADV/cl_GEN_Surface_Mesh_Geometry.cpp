@@ -48,6 +48,7 @@ namespace moris::gen
             , mDiscretizationFactorFunctionName( aParameterList.get< std::string >( "discretization_factor_function_name" ) )
             , mAnalyticADVFunctionName( aParameterList.get< std::string >( "field_function_name" ) )
             , mAnalyticADVSensitivityFunctionName( aParameterList.get< std::string >( "sensitivity_function_name" ) )
+            , mOutputFileName( aParameterList.get< std::string >( "output_file_name" ) )
     {
         MORIS_ASSERT( (uint)( mDiscretizationIndex < -1 + not mAnalyticADVFunctionName.empty() ) < 2, "Both a discretization index and an analytical function are provided. Pick only one or neither!" );
     }
@@ -146,7 +147,6 @@ namespace moris::gen
             case mtk::Mesh_Region::INTERFACE:
             {
                 return Geometric_Region::INTERFACE;
-                break;
             }
             default:
             {
@@ -169,7 +169,7 @@ namespace moris::gen
         // Determine the local coordinate of the intersection and the facet that intersects the parent edge
         std::pair< uint, real > tIntersection = this->compute_intersection_local_coordinate( aBackgroundNodes, aFirstParentNode, aSecondParentNode );
 
-        if ( tIntersection.second > 1.0 or std::isnan( tIntersection.second ) ) // BRENDAN: debug information prints
+        if ( tIntersection.second > 1.0 + Surface_Mesh::mIntersectionTolerance or std::isnan( tIntersection.second ) )
         {
             this->write_to_file( "failed.obj" );
             std::cout << "First parent node index :" << aFirstParentNode.get_index() << std::endl;
@@ -180,8 +180,8 @@ namespace moris::gen
             std::cout << "2nd Region by raycasting" << get_region_from_raycast( aSecondParentNode.get_global_coordinates() ) << std::endl;
             std::cout << "1st region from stored data " << mNodeMeshRegions.at( aFirstParentNode.get_index() ) << std::endl;
             std::cout << "2nd region from stored data " << mNodeMeshRegions.at( aSecondParentNode.get_index() ) << std::endl;
-
             tIntersection = this->compute_intersection_local_coordinate( aBackgroundNodes, aFirstParentNode, aSecondParentNode );
+            Surface_Mesh::write_to_file( "failed.obj" );
         }
 
         MORIS_ERROR( tIntersection.first != MORIS_UINT_MAX and ( tIntersection.second < ( 1.0 + Surface_Mesh::mIntersectionTolerance ) and tIntersection.second > ( -1.0 - Surface_Mesh::mIntersectionTolerance ) ),
@@ -200,6 +200,7 @@ namespace moris::gen
                 aBackgroundInterpolationOrder,
                 *this );
     }
+
 
     //--------------------------------------------------------------------------------------------------------------
 
@@ -223,7 +224,8 @@ namespace moris::gen
         // -------------------------------------------------------------------------------------
         // STEP 2: Compute the distance from the first parent to all the facets
         // -------------------------------------------------------------------------------------
-        mtk::Intersection_Vector tLocalCoordinate = this->cast_single_ray( tFirstParentNodeCoordinates, tRayDirection );
+        bool                     tWarning;
+        mtk::Intersection_Vector tLocalCoordinate = this->cast_single_ray( tFirstParentNodeCoordinates, tRayDirection, tWarning );
 
         // Put the intersections in the local coordinate frame
         for ( uint iIntersection = 0; iIntersection < tLocalCoordinate.size(); iIntersection++ )
@@ -246,6 +248,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+#if MORIS_HAVE_ARBORX
     void Surface_Mesh_Geometry::flood_fill_mesh_regions()
     {
         Tracer tTracer( "GEN", "Surface_Mesh_Geometry", "Flood fill mesh nodes" );
@@ -367,6 +370,9 @@ namespace moris::gen
         }
     }
 
+
+#endif
+
     //--------------------------------------------------------------------------------------------------------------
 
     void Surface_Mesh_Geometry::raycast_remaining_unknown_nodes()
@@ -405,6 +411,7 @@ namespace moris::gen
             mNodeMeshRegions[ tUnknownNodes( iNode ) ] = tUnknownNodeRegions( iNode );
         }
     }
+
 
     //--------------------------------------------------------------------------------------------------------------
 
@@ -466,7 +473,7 @@ namespace moris::gen
                                 iVertexIndex );
 
                         // build the matrix for new coordinates
-                        tOwnedVertexDisplacements( tDims, iVertexIndex )       = 1.0;    // says that this vertex is owned by this proc
+                        tOwnedVertexDisplacements( tDims, iVertexIndex )       = 1.0;    // says that this vertex is owned bwwy this proc
                         tOwnedVertexDisplacements( iFieldIndex, iVertexIndex ) = tFactor( iFieldIndex ) * tInterpolatedPerturbation;
                     }
                 }
@@ -529,17 +536,31 @@ namespace moris::gen
             }
         }
 
-        this->write_to_file( mName + "_" + std::to_string( mIteration++ ) + ".obj" );
+        // Output the updated surface mesh to a file if needed
+        if ( not mParameters.mOutputFileName.empty() )
+        {
+            // Initialize file extension as an obj file as default
+            std::string tFileExt = ".obj";
+
+            // check if there is a file extension provided
+            if ( mParameters.mOutputFileName.find_last_of( "." ) != std::string::npos )
+            {
+                // if so, get the file extension
+                tFileExt = mParameters.mOutputFileName.substr( mParameters.mOutputFileName.find_last_of( "." ), mParameters.mOutputFileName.length() );
+            }
+
+            // write the updated surface mesh to a file
+            this->write_to_file( mParameters.mOutputFileName + "_proc_" + std::to_string( par_rank() ) + "_iter_" + std::to_string( gLogger.get_opt_iteration() ) + tFileExt );
+        }
 
         // Update the facet's information based on the new vertex coordinates
         Surface_Mesh::initialize_facet_normals();
-        Surface_Mesh::construct_bvh();
-
-        // write the new surface mesh
-        Surface_Mesh::write_to_file( mName + "_" + std::to_string( mIteration++ ) + ".obj" );
 
         // Determine new region information for the nodes
-        // this->flood_fill_mesh_regions();
+#if MORIS_HAVE_ARBORX
+        Surface_Mesh::construct_bvh();
+        this->flood_fill_mesh_regions();
+#endif
         this->raycast_remaining_unknown_nodes();
     }
 
@@ -547,6 +568,8 @@ namespace moris::gen
 
     void Surface_Mesh_Geometry::set_advs( sol::Dist_Vector* aADVs )
     {
+        mADVHandler.set_advs( aADVs );
+
         // Have each field import the advs
         for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
         {
@@ -760,11 +783,6 @@ namespace moris::gen
                         {
                             tVertexSensitivity( iDimensionIndex, tNumVertexSensitivities + tNodeSensitivity.length() * tDimensionSensitivitiesAdded + iADVIndex ) = tNodeSensitivity( iADVIndex );
                         }
-                        // Each sensitivity is a separate index
-                        for ( uint iADVIndex = 0; iADVIndex < tNodeSensitivity.numel(); iADVIndex++ )
-                        {
-                            tVertexSensitivity( iDimensionIndex, tNumVertexSensitivities + tNodeSensitivity.length() * tDimensionSensitivitiesAdded + iADVIndex ) = tNodeSensitivity( iADVIndex );
-                        }
 
                         tDimensionSensitivitiesAdded++;
                     }
@@ -774,6 +792,10 @@ namespace moris::gen
         else if ( get_vertex_adv_dependency_user_defined != nullptr )
         {
             get_dvertex_dadv_user_defined( this->get_original_vertex_coordinates( aFacetVertexIndex ), mADVHandler.get_values(), tVertexSensitivity );
+
+            // Check that the user gave the correct size matrix
+            MORIS_ASSERT( tVertexSensitivity.n_cols() == mADVHandler.get_determining_adv_ids().size(), "User defined function for vertex sensitivity needs to have as many columns as ADVs" );
+            MORIS_ASSERT( tVertexSensitivity.n_rows() == Surface_Mesh::get_spatial_dimension(), "User defined function for vertex sensitivity needs to have as many rows as spatial dimensions" );
         }
 
         return tVertexSensitivity;

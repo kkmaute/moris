@@ -16,7 +16,7 @@
 #include "cl_MTK_Integrator.hpp"
 #include "fn_assert.hpp"
 
-#ifdef MORIS_HAVE_ARBORX
+#if MORIS_HAVE_ARBORX
 #include "cl_MTK_QuadraturePointMapper_Ray_ArborX.hpp"
 using PointMapper = moris::mtk::QuadraturePointMapper_ArborX;
 #else
