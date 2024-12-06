@@ -2744,6 +2744,15 @@ namespace moris::xtk
         // iterate through interpolation cells to create cell clusters
         for ( uint i = 0; i < tNumInterpCells; i++ )
         {
+            // Get polynomial order
+            uint mOrder = mCutIgMesh->get_order();
+            
+            // get dimension 
+            uint mDim = mCutIgMesh->get_spatial_dim();
+
+            // Get facet connectivity map
+            auto tFacetConnectivity = mCutIgMesh->get_face_connectivity();
+
             // index
             moris_index tInterpCellIndex = tEnrichedInterpCells( i )->get_index();    // TODO: where does the enr. IP cell's index get set, how does it differ from position in list?
 
@@ -2791,6 +2800,16 @@ namespace moris::xtk
                 mCellClusters( tInterpCellIndex )->set_primary_integration_cell_group( tSubphaseCells );
                 mCellClusters( tInterpCellIndex )->set_void_integration_cell_groups( tVoidSubphases );
                 mCellClusters( tInterpCellIndex )->set_ig_vertex_group( tVertexGroupForCluster );
+
+                // Place quadrature points inside cluster
+                mCellClusters( tInterpCellIndex )->set_quadrature_points( mOrder , mDim );
+                
+                // Identify subphase boundary facets
+                mCellClusters( tInterpCellIndex )->find_subphase_boundary_vertices( tSubphaseCells , tFacetConnectivity );
+                
+                // Compute Weights as per moment fitting
+                mCellClusters( tInterpCellIndex )->compute_quadrature_weights_moment_fitting( mOrder , mDim );
+
             }
 
             // trivial case, the base of the enriched interpolation cell becomes the primary cell
@@ -2800,6 +2819,13 @@ namespace moris::xtk
                 Matrix< IndexMat > tVertexIndices                     = mCellClusters( tInterpCellIndex )->mPrimaryIntegrationCells( 0 )->get_vertex_inds();
                 mCellClusters( tInterpCellIndex )->mVerticesInCluster = this->get_mtk_vertices_loc_inds( tVertexIndices );
                 tBaseInterpCell->get_cell_info()->get_loc_coords_of_cell( mCellClusters( tInterpCellIndex )->mLocalCoords );
+                
+                // generate tensor product weights -
+                mCellClusters( tInterpCellIndex )->set_quadrature_points( mOrder , mDim );
+                
+                // Since this is a trivial case (volume fraction equals one), generate weights without moment fitting
+                mCellClusters( tInterpCellIndex )->set_quadrature_weights( mOrder , mDim );
+
             }
         }
     }

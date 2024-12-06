@@ -29,6 +29,7 @@ namespace moris::xtk
 
     struct IG_Cell_Group;
     struct IG_Vertex_Group;
+    struct Facet_Based_Connectivity;
 
     class Cell_Cluster : public mtk::Cell_Cluster
     {
@@ -48,10 +49,13 @@ namespace moris::xtk
         Vector< moris::mtk::Cell const * >            mVoidIntegrationCells;
         Vector< moris::mtk::Vertex const * >          mVerticesInCluster;
         Matrix< DDRMat >                              mLocalCoords;
+        Matrix< DDRMat >                              mQuadraturePoints; // Quadrature points.
+        Vector< real >                                mQuadratureWeights; // Quadrature weights
         std::shared_ptr< IG_Vertex_Group >            mVertexGroup;
         Vector< std::shared_ptr< IG_Cell_Group > >    mPrimaryIgCellGroup;
         Vector< std::shared_ptr< IG_Cell_Group > >    mVoidIgCellGroup;
         Vector< std::weak_ptr< mtk::Cluster_Group > > mClusterGroups;
+        Vector< Vector< moris::mtk::Vertex* > >       mFacetVerticesOnSubphaseBoundary;
 
         //------------------------------------------------------------------------------
 
@@ -70,6 +74,9 @@ namespace moris::xtk
         Matrix< DDRMat >                           get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex, const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const override;
         moris_index                                get_dim_of_param_coord( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const override;
         Matrix< DDRMat >                           get_primary_cell_local_coords_on_side_wrt_interp_cell( moris::moris_index aPrimaryCellClusterIndex ) const override;
+        Matrix< DDRMat >                           set_quadrature_points( const uint, const uint ) ;
+        Vector< real >                             set_quadrature_weights( const uint, const uint) ;
+        Vector< real >                             compute_quadrature_weights_moment_fitting( const uint, const uint ) ;
 
         // constructor for cell clusters that will only be used for visualization purposes
         // this results in cell-clusters that may miss some data and have reduced functionality
@@ -128,6 +135,15 @@ namespace moris::xtk
         set_cluster_group(
                 const moris_index                            aDiscretizationMeshIndex,
                 const std::shared_ptr< mtk::Cluster_Group >& aClusterGroupPtr ) override;
+        
+        //-------------------------------------------------------------------------------
+
+        void 
+        find_subphase_boundary_vertices(
+                const std::shared_ptr< IG_Cell_Group >  aSubphaseIGCells,
+                const std::shared_ptr< Facet_Based_Connectivity > aFacetConnectivity 
+        );
+
 
         //------------------------------------------------------------------------------
 

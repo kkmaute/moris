@@ -31,6 +31,7 @@ namespace moris::xtk
             , mVoidIntegrationCells( 0, nullptr )
             , mVerticesInCluster( 0, nullptr )
             , mClusterGroups( 0 )
+
     {
     }
 
@@ -293,6 +294,130 @@ namespace moris::xtk
             mLocalCoords.set_row( i, *mVertexGroup->get_vertex_local_coords( mVerticesInCluster( i )->get_index() ) );
         }
     }
+
+    Matrix< DDRMat >
+    Cell_Cluster::set_quadrature_points( const uint mOrder, const uint mDim )
+    {
+    
+        MORIS_ASSERT(mDim > 2, "Currently moment fitting only works for 2D problems");
+            
+        Vector< real > mOneDPoints;
+
+        if (mOrder == 1)
+        {
+            mOneDPoints = {1.0/std::sqrt(3.0) , -1.0/std::sqrt(3.0)};
+        }
+        else
+        {
+            mOneDPoints =  {0.0, std::sqrt(3.0/5.0) , -std::sqrt(3.0/5.0)};
+        }
+        
+        MORIS_ASSERT(mOrder > 2, "Only 2nd order supported currently");
+        
+        mQuadraturePoints.resize( mOneDPoints.size()*mOneDPoints.size() , 2 );
+
+        for (uint iRowIndex = 0; iRowIndex < mOneDPoints.size() ; iRowIndex ++ )
+        {
+            for (uint iColIndex = 0; iColIndex < mOneDPoints.size() ; iColIndex ++ )
+            {
+                uint iMatIndex = 2*(iRowIndex - 1) + iColIndex;
+                
+                mQuadraturePoints( iMatIndex , 0 ) = mOneDPoints( iRowIndex );
+
+                mQuadraturePoints( iMatIndex , 1 ) = mOneDPoints( iColIndex );
+
+            }
+        }
+        return mQuadraturePoints;
+    
+
+    }
+
+    // This function for the trivial case of the volume fraction being 1.
+
+    Vector< real >
+    Cell_Cluster::set_quadrature_weights( const uint mOrder, const uint mDim )
+    {
+        // if 3D problem throw exception
+
+        MORIS_ASSERT(mDim > 2, "Currently moment fitting only works for 2D problems");
+     
+        Vector< real > mOneDWeights;
+
+        if (mOrder == 1)
+        {
+            mOneDWeights = { 1.0 , 1.0 };
+        }
+        else
+        {
+            mOneDWeights =  { 8.0/9.0, 5.0/9.0 , 5.0/9.0 };
+        }
+        
+        MORIS_ASSERT(mOrder > 2, "Only 2nd order supported currently");
+        
+        mQuadratureWeights.resize( mOneDWeights.size()*mOneDWeights.size() , 2 );
+
+        for (uint iRowIndex = 0; iRowIndex < mOneDWeights.size() ; iRowIndex ++ )
+        {
+            for (uint iColIndex = 0; iColIndex < mOneDWeights.size() ; iColIndex ++ )
+            {
+                uint iMatIndex = 2*(iRowIndex - 1) + iColIndex;
+                
+                mQuadratureWeights( iMatIndex ) = mOneDWeights( iRowIndex ) * mOneDWeights( iColIndex );
+
+            }
+        }
+
+        return mQuadratureWeights;
+
+    }
+
+    void 
+    Cell_Cluster::find_subphase_boundary_vertices(
+                const std::shared_ptr< IG_Cell_Group >  aSubphaseIGCells,
+                const std::shared_ptr< Facet_Based_Connectivity > aFacetConnectivity
+                )
+    {
+        // Get the primary subphase IG cells first
+        Vector< mtk::Cell *> tSubphaseIgCellsPtr = aSubphaseIGCells->mIgCellGroup;
+        
+        // Initialize the vector containing the facets
+        Vector< moris_index > tSubphaseFacets;
+
+        // Now run a for loop to extract the facets corresponding to the subphase
+        for (uint iCellIndex = 0; iCellIndex < tSubphaseIgCellsPtr.size(); iCellIndex++)
+        {
+            // Get the global cell index
+            moris_index tCellIndexGlobal = tSubphaseIgCellsPtr( iCellIndex )->get_index();
+
+            // Get facet connectivity specific cell index
+            moris_index tCellIndexLocal = aFacetConnectivity->get_cell_ordinal( tCellIndexGlobal );
+
+            // Get facets attached to this cell
+            tSubphaseFacets.append(aFacetConnectivity->mCellToFacet( tCellIndexLocal ));
+
+        }
+
+        // Now filter out the facets only belonging to one cell
+        for (uint iFacetIndex =0; iFacetIndex < tSubphaseFacets.size(); iFacetIndex++ )
+        {
+            // Get facet
+            moris_index tSingleFacet = tSubphaseFacets( iFacetIndex );
+
+            // Now check how many elements does the facet belong to
+            Vector< moris::mtk::Cell* > tOwningElements = aFacetConnectivity->mFacetToCell( tSingleFacet );
+
+            // If belonging to one cell then add it into the vector containing pointer to facet indices.
+            if ( tOwningElements.size()  == 1 )
+            {
+                mFacetVerticesOnSubphaseBoundary.push_back( aFacetConnectivity->mFacetVertices( tSingleFacet ) );
+            }
+
+        }       
+
+    }
+
+
 
     //----------------------------------------------------------------
 
