@@ -320,13 +320,15 @@ namespace moris::fem
         {
             // get the field type group
             const Vector< mtk::Field_Type >& tFieldTypeGroup = tLeaderFieldTypeList( iFi );
+
             uint tNumFieldComponents = tFieldTypeGroup.size();
 
             Matrix< IndexMat > const tIPCellIndices = mLeaderInterpolationCell->get_vertex_inds();
+
             uint tNumCoeffs = tIPCellIndices.numel();
 
             // assembly coefficient matrix depending on number of fields
-            if ( tNumFieldComponents == 1 ) // scalar fields
+            if ( tNumFieldComponents == 1 )    // scalar fields
             {
                 Matrix< DDRMat > tCoeff;
                 mSet->get_fem_model()->get_field( tFieldTypeGroup( 0 ) )->get_values( tIPCellIndices, tCoeff, tFieldTypeGroup );
@@ -334,15 +336,15 @@ namespace moris::fem
                 // set field interpolator coefficients
                 mSet->get_field_interpolator_manager()->set_coeff_for_type( tFieldTypeGroup( 0 ), tCoeff );
             }
-            else // vectorial fields
+            else    // vectorial fields
             {
                 Vector< Matrix< DDRMat > > tCoeffs( tNumFieldComponents );
-                Matrix< DDRMat > tCoeffMat( tNumCoeffs, tNumFieldComponents );
-                
+                Matrix< DDRMat >           tCoeffMat( tNumCoeffs, tNumFieldComponents );
+
                 for ( uint iComponent = 0; iComponent < tNumFieldComponents; iComponent++ )
                 {
-                    mSet->get_fem_model()->get_field( tFieldTypeGroup( iComponent ) )->get_values( tIPCellIndices, tCoeffs( iComponent ), tFieldTypeGroup );    
-                    tCoeffMat( { 0, tNumCoeffs - 1 }, { iComponent, iComponent } ) = tCoeffs( iComponent )( { 0, tNumCoeffs - 1 }, { 0, 0 } );            
+                    mSet->get_fem_model()->get_field( tFieldTypeGroup( iComponent ) )->get_values( tIPCellIndices, tCoeffs( iComponent ), tFieldTypeGroup );
+                    tCoeffMat( { 0, tNumCoeffs - 1 }, { iComponent, iComponent } ) = tCoeffs( iComponent )( { 0, tNumCoeffs - 1 }, { 0, 0 } );
                 }
 
                 // set field interpolator coefficients
@@ -362,13 +364,15 @@ namespace moris::fem
         {
             // get the field type group
             const Vector< mtk::Field_Type >& tFieldTypeGroup = tFollowerFieldTypeList( iFi );
+
             uint tNumFieldComponents = tFieldTypeGroup.size();
 
             Matrix< IndexMat > const tIPCellIndices = mFollowerInterpolationCell->get_vertex_inds();
+
             uint tNumCoeffs = tIPCellIndices.numel();
 
             // assembly coefficient matrix depending on number of fields
-            if ( tNumFieldComponents == 1 ) // scalar fields
+            if ( tNumFieldComponents == 1 )    // scalar fields
             {
                 Matrix< DDRMat > tCoeff;
                 mSet->get_fem_model()->get_field( tFieldTypeGroup( 0 ) )->get_values( tIPCellIndices, tCoeff, tFieldTypeGroup );
@@ -376,15 +380,15 @@ namespace moris::fem
                 // set field interpolator coefficients
                 mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )->set_coeff_for_type( tFieldTypeGroup( 0 ), tCoeff );
             }
-            else // vectorial fields
+            else    // vectorial fields
             {
                 Vector< Matrix< DDRMat > > tCoeffs( tNumFieldComponents );
-                Matrix< DDRMat > tCoeffMat( tNumCoeffs, tNumFieldComponents );
-                
+                Matrix< DDRMat >           tCoeffMat( tNumCoeffs, tNumFieldComponents );
+
                 for ( uint iComponent = 0; iComponent < tNumFieldComponents; iComponent++ )
                 {
-                    mSet->get_fem_model()->get_field( tFieldTypeGroup( iComponent ) )->get_values( tIPCellIndices, tCoeffs( iComponent ), tFieldTypeGroup );    
-                    tCoeffMat( { 0, tNumCoeffs - 1 }, { iComponent, iComponent } ) = tCoeffs( iComponent )( { 0, tNumCoeffs - 1 }, { 0, 0 } );            
+                    mSet->get_fem_model()->get_field( tFieldTypeGroup( iComponent ) )->get_values( tIPCellIndices, tCoeffs( iComponent ), tFieldTypeGroup );
+                    tCoeffMat( { 0, tNumCoeffs - 1 }, { iComponent, iComponent } ) = tCoeffs( iComponent )( { 0, tNumCoeffs - 1 }, { 0, 0 } );
                 }
 
                 // set field interpolator coefficients
@@ -1033,20 +1037,28 @@ namespace moris::fem
         }
         else
         {
-            // ask cluster to compute explicit derivatives of IQI wrt. PDVs and PDOFs
-            mFemCluster( 0 )->compute_dRdp_and_dQIdp();
-            mFemCluster( 0 )->compute_dQIdu();
-
             const Vector< Matrix< DDRMat > >& tResidual = mEquationSet->get_residual();
 
-            tdRdpgeo.set_size( tResidual( 0 ).n_rows(), mSet->mdQIdp( 0 ).size() );
+            tNumPdofs = tResidual( 0 ).n_rows();
 
-            for ( uint Ik = 0; Ik < mSet->mdQIdp( 0 ).size(); ++Ik )
+            tdRdpgeo.set_size( tNumPdofs, mSet->mdQIdp( 0 ).size() );
+
+            // ask cluster to compute explicit derivatives of IQI wrt. PDVs and PDOFs
+            mFemCluster( 0 )->compute_dRdp_and_dQIdp();
+
+            if ( mSet->get_number_of_requested_IQIs() > 0 )
             {
-                tdRdpgeo.get_column( Ik ) = tResidual( Ik ).matrix_data();
-            }
+                mFemCluster( 0 )->compute_dQIdu();
 
-            tNumPdofs = tdRdpgeo.n_rows();
+                for ( uint Ik = 0; Ik < mSet->mdQIdp( 0 ).size(); ++Ik )
+                {
+                    tdRdpgeo.get_column( Ik ) = tResidual( Ik ).matrix_data();
+                }
+            }
+            else
+            {
+                tdRdpgeo.fill( 0.0 );
+            }
 
             // print( tdRdpgeo, "dQdu" );
         }
@@ -1138,12 +1150,12 @@ namespace moris::fem
                 Matrix< DDSMat > tLocalToGlobalIdsPdv = linspace< sint >( 0, tNumADVs - 1, tNumADVs );
 
                 // assemble implicit dQidp into multivector
-                mEquationSet->get_equation_model()->get_implicit_dQidp()->print();
+                // mEquationSet->get_equation_model()->get_implicit_dQidp()->print();
                 mEquationSet->get_equation_model()->get_implicit_dQidp()->sum_into_global_values(
                         tLocalToGlobalIdsPdv,
                         tLocaldQiDp,
                         Ik );
-                mEquationSet->get_equation_model()->get_implicit_dQidp()->print();
+                // mEquationSet->get_equation_model()->get_implicit_dQidp()->print();
             }
         }
     }
