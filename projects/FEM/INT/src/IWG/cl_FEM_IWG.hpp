@@ -877,6 +877,13 @@ namespace moris::fem
                 Matrix< DDSMat >&             aGeoLocalAssembly,
                 Vector< Matrix< IndexMat > >& aVertexIndices );
 
+        void select_dRdp_FD_geometry_sideset_by_adv(
+                moris::real                   aWStar,
+                moris::real                   aPerturbation,
+                fem::FDScheme_Type            aFDSchemeType,
+                Matrix< DDSMat >&             aGeoLocalAssembly,
+                Vector< Matrix< IndexMat > >& aVertexIndices );
+
         void select_dRdp_FD_geometry_time_sideset(
                 moris::real                   aWStar,
                 moris::real                   aPerturbation,

@@ -166,6 +166,7 @@ namespace moris::fem
                 m_compute_jacobian_FD      = &IWG::select_jacobian_FD;
                 m_compute_dRdp_FD_material = &IWG::select_dRdp_FD_material;
                 m_compute_dRdp_FD_geometry = &IWG::select_dRdp_FD_geometry_sideset;
+                // m_compute_dRdp_FD_geometry = &IWG::select_dRdp_FD_geometry_sideset_by_adv;
                 break;
             }
             case fem::Element_Type::TIME_SIDESET:
@@ -3317,6 +3318,272 @@ namespace moris::fem
                             { tResDofAssemblyStart, tResDofAssemblyStop },
                             { 0, dIGNodeCorddAdv.n_cols() - 1 } ) += tDrDpGeo * dIGNodeCorddAdv;
                 }
+            }
+        }
+
+        // reset xyz values
+        tIGGI->set_space_coeff( tCoeff );
+
+        // reset local coordinates values
+        tIGGI->set_space_param_coeff( tParamCoeff );
+
+        // reset evaluation point
+        mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tEvaluationPoint );
+
+        // reset normal
+        this->set_normal( tNormal );
+
+        // reset the value of the residual
+        mSet->get_residual()( 0 ) = tResidualStore;
+
+        // add contribution of cluster measure to dRdp
+        if ( mActiveCMEAFlag )
+        {
+            // add their contribution to dQIdp
+            this->add_cluster_measure_dRdp_FD_geometry(
+                    aWStar,
+                    aPerturbation,
+                    aFDSchemeType );
+        }
+
+        // check for nan, infinity
+        MORIS_ASSERT( isfinite( mSet->get_drdpgeo() ),
+                "IWG::compute_dRdp_FD_geometry - dRdp contains NAN or INF, exiting!" );
+    }
+
+    //------------------------------------------------------------------------------
+
+    void IWG::select_dRdp_FD_geometry_sideset_by_adv(
+            moris::real                   aWStar,
+            moris::real                   aPerturbation,
+            fem::FDScheme_Type            aFDSchemeType,
+            Matrix< DDSMat >&             aGeoLocalAssembly,
+            Vector< Matrix< IndexMat > >& aVertexIndices )
+    {
+        const Vector< Matrix< DDRMat > >& tGeoWeights = mSet->get_adv_geo_weights();
+        // print( tGeoWeights, "tGeoWeights" );
+
+        real tNorm = 0.0;
+        for ( const auto& tGeoWeight : tGeoWeights )
+        {
+            tNorm += norm( tGeoWeight );
+        }
+
+        if ( tNorm < MORIS_REAL_EPS )
+        {
+            return;
+        }
+
+        // storage residual value
+        Matrix< DDRMat > tResidualStore = mSet->get_residual()( 0 );
+
+        // get the GI for the IG element considered
+        Geometry_Interpolator* tIGGI =
+                mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator();
+        Geometry_Interpolator* tIPGI =
+                mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator();
+
+        // get the residual dof type index in the set
+        uint tResDofIndex         = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+        uint tResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 0 );
+        uint tResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 1 );
+
+        // reset, evaluate and store the residual for unperturbed case
+        mSet->get_residual()( 0 ).fill( 0.0 );
+        this->compute_residual( aWStar );
+        Matrix< DDRMat > tResidual = mSet->get_residual()( 0 )(
+                { tResDofAssemblyStart, tResDofAssemblyStop },
+                { 0, 0 } );
+
+        // store unperturbed xyz
+        Matrix< DDRMat > tCoeff = tIGGI->get_space_coeff();
+
+        // store unperturbed local coordinates
+        Matrix< DDRMat > tParamCoeff = tIGGI->get_space_param_coeff();
+
+        // store unperturbed evaluation point
+        Matrix< DDRMat > tEvaluationPoint;
+        tIGGI->get_space_time( tEvaluationPoint );
+
+        // store unperturbed evaluation point weight
+        real tGPWeight = aWStar / tIGGI->det_J();
+
+        // store unperturbed normal
+        Matrix< DDRMat > tNormal;
+        tIGGI->get_normal( tNormal );
+
+        // get number of leader GI bases and space dimensions
+        uint tDerNumBases      = tIGGI->get_number_of_space_bases();
+        uint tDerNumDimensions = tIPGI->get_number_of_space_dimensions();
+
+        Matrix< DDRMat > tDrDpGeo( tResDofAssemblyStop - tResDofAssemblyStart + 1, 1 );
+
+        // determine feasible perturbation size and fd scheme
+
+        Vector< Vector< uint > > tTableFDScheme( (uint)fem::FDScheme_Type::END_FD_SCHEME );
+        Vector< Vector< real > > tTablePertubSize( (uint)fem::FDScheme_Type::END_FD_SCHEME );
+
+        // loop over the spatial directions
+        for ( uint iCoeffCol = 0; iCoeffCol < tDerNumDimensions; iCoeffCol++ )
+        {
+            // loop over the IG nodes
+            for ( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
+            {
+                // provide adapted perturbation and FD scheme considering ip element boundaries
+                fem::FDScheme_Type tUsedFDSchemeType = aFDSchemeType;
+
+                // compute step size and change FD scheme if needed
+                real tDeltaH = this->check_ig_coordinates_inside_ip_element(
+                        aPerturbation,
+                        tCoeff( iCoeffRow, iCoeffCol ),
+                        iCoeffCol,
+                        tUsedFDSchemeType );
+
+                tTableFDScheme( (uint)tUsedFDSchemeType ).push_back( iCoeffCol * tDerNumBases + iCoeffRow );
+                tTablePertubSize( (uint)tUsedFDSchemeType ).push_back( tDeltaH );
+            }
+        }
+
+        // get number of advs
+        uint tNumAdvs = mSet->get_ig_adv_ids().size();
+
+        // loop over all advs
+        for ( uint iAdv = 0; iAdv < tNumAdvs; iAdv++ )
+        {
+            // get derivatives of nodal positions wrt to adv
+            Matrix< DDRMat > tDCoordDAdv( tDerNumBases, tDerNumDimensions );
+
+            for ( uint iCoeffCol = 0; iCoeffCol < tDerNumDimensions; iCoeffCol++ )
+            {
+                // loop over the IG nodes
+                for ( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
+                {
+                    // check that matrix is not empty
+                    if ( tGeoWeights( iCoeffRow ).n_rows() > 0 )
+                    {
+                        tDCoordDAdv( iCoeffRow, iCoeffCol ) = tGeoWeights( iCoeffRow )( iCoeffCol, iAdv );
+                    }
+                }
+            }
+
+            // skip remainder if adv derivative is zero
+            if ( norm( tDCoordDAdv ) < MORIS_REAL_EPS )
+            {
+                continue;
+            }
+
+            // loop over all FD shemes
+            for ( uint iFDScheme = 0; iFDScheme < (uint)fem::FDScheme_Type::END_FD_SCHEME; iFDScheme++ )
+            {
+                // check if there any variable that use this scheme; if there are none, skip
+                if ( tTableFDScheme( iFDScheme ).size() == 0 )
+                {
+                    continue;
+                }
+
+                // initialize FD scheme
+                Vector< Vector< real > > tFDScheme;
+
+                fem::FDScheme_Type tUsedFDSchemeType = (fem::FDScheme_Type)iFDScheme;
+
+                fd_scheme( tUsedFDSchemeType, tFDScheme );
+
+                uint tNumFDPoints = tFDScheme( 0 ).size();
+
+                // create local copy of
+                Matrix< DDRMat > tDCoordDAdvLocal( tDerNumBases, tDerNumDimensions, 0.0 );
+
+                // Compute perturbation size for adv
+                real tDeltaH = MORIS_REAL_MAX;
+
+                for ( uint iEntry = 0; iEntry < tTableFDScheme( iFDScheme ).size(); iEntry++ )
+                {
+                    uint tKey = tTableFDScheme( iFDScheme )( iEntry );
+
+                    uint iNode = std::floor( tKey / tDerNumBases );
+                    uint iDir  = tKey % tDerNumBases;
+
+                    tDCoordDAdvLocal( iNode, iDir ) = tDCoordDAdv( iNode, iDir );
+
+                    if ( std::abs( tDCoordDAdv( iNode, iDir ) ) > MORIS_REAL_EPS )
+                    {
+                        tDeltaH = std::min( tDeltaH, tTablePertubSize( iFDScheme )( iEntry ) / std::abs( tDCoordDAdv( iNode, iDir ) ) );
+                    }
+                }
+
+                // check for valie perturbation size
+                if ( tDeltaH == MORIS_REAL_MAX )
+                {
+                    continue;
+                }
+
+                // set starting point for FD
+                uint tStartPoint = 0;
+
+                // initialize dRdpGeo
+                tDrDpGeo.fill( 0.0 );
+
+                // if backward or forward add unperturbed contribution
+                if ( ( tUsedFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
+                        ( tUsedFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                {
+                    // add unperturbed residual contribution to dRdp
+                    tDrDpGeo += tFDScheme( 1 )( 0 ) * tResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                    // skip first point in FD
+                    tStartPoint = 1;
+                }
+
+                // loop over point of FD scheme
+                for ( uint iPoint = tStartPoint; iPoint < tNumFDPoints; iPoint++ )
+                {
+                    // reset the perturbed coefficients
+                    Matrix< DDRMat > tCoeffPert = tCoeff + tFDScheme( 0 )( iPoint ) * tDeltaH * tDCoordDAdvLocal;
+
+                    // setting the perturbed coefficients
+                    tIGGI->set_space_coeff( tCoeffPert );
+
+                    // update local coordinates
+                    Matrix< DDRMat > tParamCoeffPert = tParamCoeff;
+
+                    for ( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
+                    {
+                        Matrix< DDRMat > tXCoords  = tCoeffPert.get_row( iCoeffRow );
+                        Matrix< DDRMat > tXiCoords = tParamCoeff.get_row( iCoeffRow );
+
+                        tIPGI->update_parametric_coordinates( tXCoords, tXiCoords );
+
+                        tParamCoeffPert.get_row( iCoeffRow ) = tXiCoords.matrix_data();
+                    }
+
+                    tIGGI->set_space_param_coeff( tParamCoeffPert );
+
+                    // set evaluation point for interpolators (FIs and GIs)
+                    mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tEvaluationPoint );
+
+                    // reset the normal
+                    Matrix< DDRMat > tNormalPert;
+                    tIGGI->get_normal( tNormalPert );
+                    this->set_normal( tNormalPert );
+
+                    // reset properties, CM and SP for IWG
+                    this->reset_eval_flags();
+
+                    // reset and evaluate the residual
+                    mSet->get_residual()( 0 ).fill( 0.0 );
+                    real tWStarPert = tGPWeight * tIGGI->det_J();
+                    this->compute_residual( tWStarPert );
+
+                    // evaluate dRdpGeo
+                    tDrDpGeo +=
+                            tFDScheme( 1 )( iPoint ) *                                                                //
+                            mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } ) /    //
+                            ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                }
+
+                mSet->get_drdpgeo()(
+                        { tResDofAssemblyStart, tResDofAssemblyStop },
+                        { iAdv, iAdv } ) += tDrDpGeo.matrix_data();
             }
         }
 
