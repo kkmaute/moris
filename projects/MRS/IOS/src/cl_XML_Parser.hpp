@@ -286,6 +286,15 @@ namespace moris
                 Vector< std::string >& aSecond );
 
         // -----------------------------------------------------------------------------
+        /**
+         * checks whether a specified label exists in a subtree
+         */
+
+        bool label_exists_in_subtree( 
+            const std::string& aSubTree, 
+            const std::string& aLabel );
+
+        // -----------------------------------------------------------------------------
 
         /**
          * @brief copies a particular instance of a subtree into the buffer

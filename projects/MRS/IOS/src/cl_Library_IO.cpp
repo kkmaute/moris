@@ -359,15 +359,23 @@ namespace moris
 
             // check if an entry for this Module exists in the XML file, if not, skip to next module
 
+            // temporary storage for the parameter lists, later addded to mParamterLists
+            Module_Parameter_Lists tParameterList( tParamListType );
 
-            // get the number of sub-parameter lists that could be specified
+// get the number of sub-parameter lists that could be specified
             uint tMaxNumSubParamLists = get_number_of_sub_parameter_lists_in_module( tParamListType );
             if ( tParamListType == Module_Type::FEM )
             {
-                tMaxNumSubParamLists = 8;
+                // Check if PHASES is specified in the XML file
+                if ( mXmlReader->label_exists_in_subtree( XML_PARAMETER_FILE_ROOT + "." + tModuleName, "PHASES" ) )
+                {
+                    tMaxNumSubParamLists = 9;
+                }
+                else {
+                    tMaxNumSubParamLists = 8;
+                    tParameterList.hack_for_legacy_fem();
+                }
             }
-            // temporary storage for the parameter lists, later addded to mParamterLists
-            Module_Parameter_Lists tParameterList( tParamListType );
 
             // If there are no modules of this type, create a default parameter list
             if ( tCount == 0 )
@@ -435,7 +443,7 @@ namespace moris
                         // getting the index of the inner sub-module type by reading from the XML file parameter list (used for special forms like "GEN/Geometry", "OPT/Algorithm" and "SOL/Linear_Algorithm")
                         uint tIndex = get_subchild_index_from_xml_list( tParamListType, tInnerSubParamListName, tKeys, tValues );
                         // Adding the parameter list with set values from the XML file to tParameterList (that is added to mParameterLists)
-                        // If tParameterList is empty, create and set a new parameter list, else set the parameter list 
+                        // If tParameterList is empty, create and set a new parameter list, else set the parameter list
                         if ( tParameterList( iSubParamList ).empty() )
                         {
                             tParameterList( iSubParamList ).add_parameter_list( create_and_set_parameter_list( tParamListType, iSubParamList, tIndex, tKeys, tValues ) );
@@ -452,36 +460,36 @@ namespace moris
                         if ( tParameterList( iSubParamList ).empty() )
                         {
                             for ( uint iInnerSubParamList = 0; iInnerSubParamList < tInnerSubParamListCount; iInnerSubParamList++ )
-                        {
-                            tKeys.clear();
-                            tValues.clear();
-                            // tKeys and tValues are filled with the keys and values of the inner sub-parameter list
-                            mXmlReader->get_keys_from_subtree( tInnerSubParamListRoot, tInnerSubParamListName, iInnerSubParamList, tKeys, tValues );
+                            {
+                                tKeys.clear();
+                                tValues.clear();
+                                // tKeys and tValues are filled with the keys and values of the inner sub-parameter list
+                                mXmlReader->get_keys_from_subtree( tInnerSubParamListRoot, tInnerSubParamListName, iInnerSubParamList, tKeys, tValues );
 
-                            // getting the index of the inner sub-module type by reading from the XML file parameter list (used for special forms like "GEN/Geometry", "OPT/Algorithm" and "SOL/Linear_Algorithm")
-                            uint tIndex = get_subchild_index_from_xml_list( tParamListType, tInnerSubParamListName, tKeys, tValues );
+                                // getting the index of the inner sub-module type by reading from the XML file parameter list (used for special forms like "GEN/Geometry", "OPT/Algorithm" and "SOL/Linear_Algorithm")
+                                uint tIndex = get_subchild_index_from_xml_list( tParamListType, tInnerSubParamListName, tKeys, tValues );
 
-                            // Adding the parameter list with set values from the XML file to tParameterList (that is added to mParameterLists)
-                            tParameterList( iSubParamList ).add_parameter_list( create_and_set_parameter_list( tParamListType, iSubParamList, tIndex, tKeys, tValues ) );
-                        }
+                                // Adding the parameter list with set values from the XML file to tParameterList (that is added to mParameterLists)
+                                tParameterList( iSubParamList ).add_parameter_list( create_and_set_parameter_list( tParamListType, iSubParamList, tIndex, tKeys, tValues ) );
+                            }
                         }
                         else
                         {
                             mXmlReader->get_keys_from_subtree( tInnerSubParamListRoot, tInnerSubParamListName, 0, tKeys, tValues );
                             set_parameter_list( tParameterList( iSubParamList )( 0 ), tKeys, tValues );
                             for ( uint iInnerSubParamList = 1; iInnerSubParamList < tInnerSubParamListCount; iInnerSubParamList++ )
-                        {
-                            tKeys.clear();
-                            tValues.clear();
-                            // tKeys and tValues are filled with the keys and values of the inner sub-parameter list
-                            mXmlReader->get_keys_from_subtree( tInnerSubParamListRoot, tInnerSubParamListName, iInnerSubParamList, tKeys, tValues );
+                            {
+                                tKeys.clear();
+                                tValues.clear();
+                                // tKeys and tValues are filled with the keys and values of the inner sub-parameter list
+                                mXmlReader->get_keys_from_subtree( tInnerSubParamListRoot, tInnerSubParamListName, iInnerSubParamList, tKeys, tValues );
 
-                            // getting the index of the inner sub-module type by reading from the XML file parameter list (used for special forms like "GEN/Geometry", "OPT/Algorithm" and "SOL/Linear_Algorithm")
-                            uint tIndex = get_subchild_index_from_xml_list( tParamListType, tInnerSubParamListName, tKeys, tValues );
+                                // getting the index of the inner sub-module type by reading from the XML file parameter list (used for special forms like "GEN/Geometry", "OPT/Algorithm" and "SOL/Linear_Algorithm")
+                                uint tIndex = get_subchild_index_from_xml_list( tParamListType, tInnerSubParamListName, tKeys, tValues );
 
-                            // Adding the parameter list with set values from the XML file to tParameterList (that is added to mParameterLists)
-                            tParameterList( iSubParamList ).add_parameter_list( create_and_set_parameter_list( tParamListType, iSubParamList, tIndex, tKeys, tValues ) );
-                        }
+                                // Adding the parameter list with set values from the XML file to tParameterList (that is added to mParameterLists)
+                                tParameterList( iSubParamList ).add_parameter_list( create_and_set_parameter_list( tParamListType, iSubParamList, tIndex, tKeys, tValues ) );
+                            }
                         }
                     }
                 }
@@ -972,22 +980,33 @@ namespace moris
             Vector< std::string >&                            aKeys,
             Vector< std::string >&                            aValues )
     {
+        // If aModule is GEN and aChild is (uint) GEOMETRIES and and if aKeys contains a string called "lower_bound_x" then create a field array parameter list
+        if ( aModule == Module_Type::GEN && aChild == (uint)GEN_Submodule::GEOMETRIES  && std::find( aKeys.begin(), aKeys.end(), "lower_bound_x" ) != aKeys.end() )
+        {
+            Parameter_List tParameterList = prm::create_field_array_parameter_list( gen::Field_Type ( aSubChild ) );
+            set_parameter_list( tParameterList, aKeys, aValues );
+
+        return tParameterList;
+        }
+        else {
         // Create the parameter list with default values
         Parameter_List tParameterList = create_parameter_list( aModule, aChild, aSubChild );
+set_parameter_list( tParameterList, aKeys, aValues );
+
+        return tParameterList;
+        }
 
         // Loop through the default parameter list
 
         // Instead of looping through iElements, the following for loop should loop over the keys and check that against the parameter list
         // If the key is found in the parameter list, then set the value of the parameter list with the value from the XML file
 
-        set_parameter_list( tParameterList, aKeys, aValues );
         
-        return tParameterList;
     }
 
     void set_parameter_list( Parameter_List& tParameterList,
-            Vector< std::string >& aKeys,
-            Vector< std::string >& aValues )
+            Vector< std::string >&           aKeys,
+            Vector< std::string >&           aValues )
     {
         for ( uint iIndex = 0; iIndex < aKeys.size(); iIndex++ )
         {

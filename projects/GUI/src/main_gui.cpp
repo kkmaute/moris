@@ -39,6 +39,36 @@ namespace moris
             mLibrary.load_parameters_from_xml();
         }
 
+        // Initialize the GUI
+        initialize_gui();
+        
+    }
+
+    Moris_Gui::Moris_Gui( QWidget *parent, std::string aFileName )
+            : QWidget( parent )
+    {
+        // gMorisGui         = this;
+        QString tFilePath = QString::fromStdString( aFileName );
+
+        if ( tFilePath.isEmpty() )
+        {
+            mLibrary.create_new_module_parameterlist();
+        }
+        else
+        {
+            // load the parameter list from the xml file
+            mLibrary.load_parameter_list( tFilePath.toStdString(), File_Type::XML_FILE );
+
+            // Update mParameterLists (sitting in cl_Library_IO) with the parameter lists from the xml file
+            mLibrary.load_parameters_from_xml();
+        }
+
+        // Initialize the GUI
+        initialize_gui();
+    }
+
+    void Moris_Gui::initialize_gui() {
+
         //  mLayout is the main layout of the GUI
         //  mSidePanel is the side panel layout where the tree widget and buttons are placed
 

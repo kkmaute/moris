@@ -114,10 +114,30 @@ namespace moris
          * @param QWidget *parent
          * @note This constructor initializes the GUI, sets up the layout, the layout and elements related objects and connects the signals and slots
          */
-        Moris_Gui( QWidget *parent = nullptr );
+        explicit Moris_Gui( QWidget *parent = nullptr );
 
-        void add_property_name( const QString &aText, uint tPropListSize );
+        //--------------------------------------------------------------------------------------------------------------
+        // Alternate constructor that takes in a std::string called aFileName
 
+        /**
+         * @brief Constructor for the Moris_Gui class
+         * @param QWidget *parent
+         * @param std::string aFileName
+         * @note This constructor initializes the GUI, sets up the layout, the layout and elements related objects and connects the signals and slots
+         */
+        explicit Moris_Gui( QWidget *parent, std::string aFileName ); 
+
+        //--------------------------------------------------------------------------------------------------------------
+        //Initialize the GUI
+        /**
+         * @brief Function to initialize the GUI
+         * @param NONE
+         * @return NONE
+         * @note This function initializes the GUI, sets up the layout, the layout and elements related objects and connects the signals and slots
+         */
+        void initialize_gui();
+
+        
       private slots:
 
         /**

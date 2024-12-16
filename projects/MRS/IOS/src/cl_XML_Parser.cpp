@@ -195,6 +195,22 @@ namespace moris
 
     // -----------------------------------------------------------------------------
 
+    // A function that checks if a label exists in a subtree
+    bool XML_Parser::label_exists_in_subtree( const std::string& aSubTree, const std::string& aLabel )
+    {
+        // loop over all entries in this tag
+        BOOST_FOREACH ( boost::property_tree::ptree::value_type &v, mTree.get_child( aSubTree ) )
+        {
+            if ( v.first.data() == aLabel )
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+    // -----------------------------------------------------------------------------
+
     bool
     XML_Parser::to_bool( std::string const &aStr )
     {
