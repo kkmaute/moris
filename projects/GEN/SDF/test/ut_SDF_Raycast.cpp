@@ -95,11 +95,9 @@ namespace moris::sdf
                 // tDirection          = { { 0.0 }, { 0.0 }, { 1.0 } };
                 // tCandidatesExpected = { 1, 0 };
                 // tCandidateTriangles = tObject.preselect_with_arborx( tTestPoint, tDirection );
-                // // tPreselection       = preselect_triangles( tObject, tTestPoint, 2, tCandidateTriangles ); brendan
 
                 // // Check the preselection results
                 // REQUIRE( tCandidateTriangles.size() == 2 );
-                // // REQUIRE( tPreselection == Preselection_Result::SUCCESS ); brendan
                 // CHECK( tCandidatesExpected( 0 ) == tCandidateTriangles( 0 ) );
                 // CHECK( tCandidatesExpected( 1 ) == tCandidateTriangles( 1 ) );
 

@@ -165,8 +165,8 @@ namespace moris::fem
             {
                 m_compute_jacobian_FD      = &IWG::select_jacobian_FD;
                 m_compute_dRdp_FD_material = &IWG::select_dRdp_FD_material;
-                m_compute_dRdp_FD_geometry = &IWG::select_dRdp_FD_geometry_sideset;
-                // m_compute_dRdp_FD_geometry = &IWG::select_dRdp_FD_geometry_sideset_by_adv;
+                // m_compute_dRdp_FD_geometry = &IWG::select_dRdp_FD_geometry_sideset;
+                m_compute_dRdp_FD_geometry = &IWG::select_dRdp_FD_geometry_sideset_by_adv;
                 break;
             }
             case fem::Element_Type::TIME_SIDESET:
@@ -3572,6 +3572,21 @@ namespace moris::fem
                     // reset and evaluate the residual
                     mSet->get_residual()( 0 ).fill( 0.0 );
                     real tWStarPert = tGPWeight * tIGGI->det_J();
+
+                    // FIXME BRENDAN: This is a hack to do sensitivity analysis from external code
+                    gLogger.set_action_data(
+                            "FEM",
+                            "IWG",
+                            "ComputedRdP",
+                            "Epsilon",
+                            tFDScheme( 0 )( iPoint ) * tDeltaH );
+                    gLogger.set_action_data(
+                            "FEM",
+                            "IWG",
+                            "ComputedRdP",
+                            "ADVID",
+                            (real)mSet->get_ig_adv_ids()( iAdv ) );
+
                     this->compute_residual( tWStarPert );
 
                     // evaluate dRdpGeo
