@@ -20,13 +20,14 @@
 # See the Spack documentation for more information on packaging.
 # ----------------------------------------------------------------------------
 
-from spack import *
-
 import os
-import re
-import subprocess
 
-class Moris(CMakePackage):
+import spack.build_systems.cmake
+import spack.build_systems.generic
+from spack.package import *
+
+
+class Moris(CMakePackage, Package):
     """MORIS"""
 
     git = "ssh://git@github.com/kkmaute/moris"
