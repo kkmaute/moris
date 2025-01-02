@@ -10,7 +10,6 @@ namespace moris
             : QLineEdit( parent )
             , mParameter( parameter )
     {
-
         if ( mParameter.index() == variant_index< std::string >() )
         {
             setText( QString::fromStdString( mParameter.get_value< std::string >() ) );
@@ -59,7 +58,6 @@ namespace moris
     // - new_text: New text input in the widget.
     void Moris_Line_Edit::onTextChanged( const QString &new_text )
     {
-
         // Switch between different types based on the parameter index and update the parameter value
         if ( mParameter.index() == variant_index< std::string >() )
         {

@@ -50,18 +50,6 @@ set(HEADERS
        cl_group_box.hpp
 
 )
-
-# List include directories
-set(EXAMPLE_INCLUDES
-    ${COM}
-    ${IOS}
-    ${WRK}
-    ${LINALG}
-        )
-
-foreach(EXAMPLE_INCLUDE ${EXAMPLE_INCLUDES})
-    include_directories(../${EXAMPLE_INCLUDE}/src)
-endforeach()
  
  # List include directories
 set(MAIN_INCLUDES
@@ -109,26 +97,6 @@ endif()
 
 target_link_libraries(moris_gui PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_link_libraries(moris_gui PRIVATE ${MAIN_DEPENDENCIES})
-
-# Add test dependencies
-set(TEST_DEPENDENCIES
-    ${MAIN_DEPENDENCIES}  # Reuse dependencies from the main executable
-    Qt${QT_VERSION_MAJOR}::Widgets
-)
-
-if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(moris_gui_test
-        MANUAL_FINALIZATION
-        example_test.cpp
-    )
-else()
-    add_executable(moris_gui
-    example_test.cpp
-    )
-endif()
-
-target_include_directories(moris_gui_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(moris_gui_test PRIVATE ${TEST_DEPENDENCIES})
 
 # following lines commented out as cause error on linux
 #if(QT_VERSION_MAJOR EQUAL 6)

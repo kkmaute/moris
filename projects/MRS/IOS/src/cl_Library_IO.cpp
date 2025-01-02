@@ -1149,6 +1149,25 @@ set_parameter_list( tParameterList, aKeys, aValues );
         }
     }
 
+    bool endswith( const std::string &aString, const std::string &aEnding )
+    {
+        /**
+         * @brief Function to check if a string ends with a particular substring
+         * @param const std::string &aString, const std::string &aEnding
+         * @return bool
+         * @note This function checks if a string ends with a particular substring
+         */
+        if ( aString.size() >= aEnding.size() )
+        {
+            // Compare the end of the string with the suffix
+            return aString.compare( aString.size() - aEnding.size(), aEnding.size(), aEnding ) == 0;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     /**
      * @brief create_parameter_list - This function creates a parameter list for a given module, child, and sub-child
      * @param aModule - The project index
@@ -1413,18 +1432,18 @@ set_parameter_list( tParameterList, aKeys, aValues );
     {
         // Create the 3d vector
         Module_Parameter_Lists tParameterList( static_cast< Module_Type >( aRoot ) );
-        for ( uint iChild = 0; iChild < get_number_of_sub_parameter_lists_in_module( (Module_Type)aRoot ); iChild++ )
-        {
-            if ( ( aRoot == (uint)( Module_Type::OPT ) && iChild == (uint)( OPT_Submodule::ALGORITHMS ) )
-                    || ( aRoot == (uint)( Module_Type::GEN ) && iChild == (uint)( GEN_Submodule::GEOMETRIES ) )
-                    || ( aRoot == (uint)( Module_Type::SOL ) && iChild == (uint)( SOL_Submodule::LINEAR_ALGORITHMS ) ) )
-            {
-            }
-            else
-            {
-                tParameterList( iChild ).add_parameter_list( create_parameter_list( (Module_Type)aRoot, iChild, 0 ) );
-            }
-        }
+        // for ( uint iChild = 0; iChild < get_number_of_sub_parameter_lists_in_module( (Module_Type)aRoot ); iChild++ )
+        // {
+        //     if ( ( aRoot == (uint)( Module_Type::OPT ) && iChild == (uint)( OPT_Submodule::ALGORITHMS ) )
+        //             || ( aRoot == (uint)( Module_Type::GEN ) && iChild == (uint)( GEN_Submodule::GEOMETRIES ) )
+        //             || ( aRoot == (uint)( Module_Type::SOL ) && iChild == (uint)( SOL_Submodule::LINEAR_ALGORITHMS ) ) )
+        //     {
+        //     }
+        //     else
+        //     {
+        //         tParameterList( iChild ).add_parameter_list( create_parameter_list( (Module_Type)aRoot, iChild, 0 ) );
+        //     }
+        // }
 
         // Resize based on the projects/sub-projects
         // Populate based on the parameter_list

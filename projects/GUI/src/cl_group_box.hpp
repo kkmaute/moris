@@ -35,7 +35,7 @@ namespace moris
         // - a_parent: Pointer to the parent widget (default is nullptr).
         // - a_param: Reference to a Parameter object to be linked with this widget.
         explicit Moris_Group_Box( QWidget *a_parent, Parameter &a_param, QStringList &a_options );
-
+        ~Moris_Group_Box() override; // Virtual to ensure proper cleanup in derived classes
         // Public member variables
         std::map< std::string, QComboBox * > mWidget;
         QFormLayout                         *mFormLayout = new QFormLayout;
@@ -70,6 +70,8 @@ namespace moris
             }
         }
 
+        Parameter &get_parameter() { return m_parameter; }
+
       public slots:
 
         // Slot to handle text changes in the line edit
@@ -81,6 +83,7 @@ namespace moris
 
         void on_property_selection_changed( const int a_index );
 
+        
 
         // Slot to set the associated Parameter with the combined value of the combo box and line edit
         // void set_parameter();

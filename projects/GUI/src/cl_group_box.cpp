@@ -82,6 +82,21 @@ namespace moris
         }
     }
 
+    Moris_Group_Box::~Moris_Group_Box()
+    {
+        // Clean up the dynamically allocated QFormLayout
+        delete mFormLayout;
+
+        // Clean up each QComboBox in the mWidget map
+        for (auto &pair : mWidget)
+        {
+            delete pair.second;
+        }
+
+        // Clear the mWidget map to avoid dangling pointers
+        mWidget.clear();
+    }
+
     void Moris_Group_Box::on_property_selection_changed( const int a_index )
     {
         std::string tResult;

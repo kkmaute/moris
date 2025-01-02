@@ -126,6 +126,25 @@ namespace moris
         }
     }
 
+    void Moris_Tree_Widget_Item::removeSubFormCountProps()
+    {
+        /**
+         * @brief Function to decrement the count of properties in the sub-form
+         * @param NONE
+         * @return NONE
+         * @note If the associated form has an associated sub-form then the function decrements the count of properties in the sub-form
+         */
+
+        if ( mHasSubFormCheck && mComboBox->count() == 0 )
+        {
+            mSubFormCountProps--;
+        }
+        else
+        {
+            QMessageBox::warning( this, "Warning", "SubFormCountProps is not allowed in this form. If you would like a sub-form, please set mSubFormCheck to true." );
+        }
+    }
+
     void Moris_Tree_Widget_Item::removeSubFormCountProps( int aIndex )
     {
         /**
@@ -138,11 +157,6 @@ namespace moris
         if ( mHasSubFormCheck && mComboBox->count() > 0 )
         {
             mSubFormCountPropsVec[ aIndex ]--;
-        }
-        else if ( mComboBox->count() == 0 && mHasSubFormCheck )
-        {
-            mSubFormCountProps--;
-            // QMessageBox::warning( this, "Warning", "Please add items to the ComboBox before decrementing the count." );
         }
         else
         {
@@ -207,14 +221,15 @@ namespace moris
 
     void Moris_Tree_Widget_Item::setPropertyNameList( QStringList &aPropertyNameList )
     {
-        mPropertyNameList = aPropertyNameList;
+        mPropertyNameList = aPropertyNameList;          
         if ( mWidget.size() > 0 )
         {
             for ( uint i = 0; i < mWidget.size(); i++ )
             {
                 if ( mWidget[ i ]->objectName() == "properties" )
                 {
-                    auto &tGroupBox = dynamic_cast< Moris_Group_Box & >( *mWidget[ i ] );
+                    //Parameter tParameter = mWidget[i]->get_parameter();
+                    Moris_Group_Box &tGroupBox = dynamic_cast< Moris_Group_Box & >( *mWidget[ i ] );
                     tGroupBox.set_property_list( mPropertyNameList );
                     mIsPropertyListSet = true;
                     break;
@@ -248,8 +263,6 @@ namespace moris
 
             for ( auto iElements : aParameters )
             {
-
-                // Custom iterator doesn't allow .get_parameter() so change to .get_parameter()
                 if ( iElements.get_parameter().get_entry_type() == Entry_Type::SELECTION )
                 {
                     Moris_Combo_Box *tComboBox = new Moris_Combo_Box( mScrollWidget, iElements.get_parameter() );

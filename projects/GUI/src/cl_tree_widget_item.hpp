@@ -162,13 +162,14 @@ namespace moris
 
         void addSubFormCountProps();
 
+        // Two seperate functions to remove sub form count props, one default with no arguments and one that takes an integer argument called aIndex
         /**
-         * @brief Function to remove the count of a sub-form type from mSubFormCountPropsVec
+         * @brief Function to remove the number of sub-forms of a certain type.
          * @param int aIndex
          * @return NONE
-         * @note If a form has associated sub forms, this function will remove the count of properties in the sub form to keep track of the numnber of properties of each type
+         * @note If a form has associated sub forms, it removes the number of sub-forms of the type selected in the mComboBox to keep track of the number of properties of each type.
          */
-
+        void removeSubFormCountProps();
         void removeSubFormCountProps( int aIndex );
 
         /**

@@ -332,6 +332,8 @@ namespace moris
 
     template<>
     bool convert_parameter_from_string_to_type< bool >( const std::string& aString );
+    
+    bool endswith( const std::string &aString, const std::string &aEnding );
 
     /**
      * @brief create_and_set_parameter_list - Calls the create_parameter_list function and sets the parameter list with the values from the XML file in the correct data type

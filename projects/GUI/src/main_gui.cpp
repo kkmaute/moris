@@ -41,7 +41,6 @@ namespace moris
 
         // Initialize the GUI
         initialize_gui();
-        
     }
 
     Moris_Gui::Moris_Gui( QWidget *parent, std::string aFileName )
@@ -67,7 +66,8 @@ namespace moris
         initialize_gui();
     }
 
-    void Moris_Gui::initialize_gui() {
+    void Moris_Gui::initialize_gui()
+    {
 
         //  mLayout is the main layout of the GUI
         //  mSidePanel is the side panel layout where the tree widget and buttons are placed
@@ -269,7 +269,7 @@ namespace moris
                 {
                     if ( iChildren < mLibrary.get_parameter_lists()( iRoot ).size() )
                     {
-                        if ( mLibrary.get_parameter_lists()( iRoot )( iChildren ).size() > 1 )
+                        if ( mLibrary.get_parameter_lists()( iRoot )( iChildren ).size() >= 1 )
                         {
                             for ( uint i = 0; i < mLibrary.get_parameter_lists()( iRoot )( iChildren ).size(); i++ )
                             {
@@ -377,32 +377,6 @@ namespace moris
         }
     }
 
-
-    QList< QStringList > Moris_Gui::convert_parameters_to_QStringList( Parameter_List aList )
-    {
-
-        /**
-         * @brief Function to convert the parameter list to a QList of QStringList
-         * @param Parameter_List aParameterList
-         * @return QList< QStringList >
-         * @note This function converts the MORIS parameter list to a QList of QStringList where the 0th index of the list gives the key of the parameter_list and the 1st index gives the value of the parameter_list
-         * @note tQtList[0] corresponds to the "key" values of the parameter map, tQtList[1] corresponds to the "value" of the parameter map
-         */
-
-        QList< QStringList > tQtList;
-        QStringList          tStringList;
-        tQtList.append( tStringList );
-        tQtList.append( tStringList );
-
-        for ( auto it = aList.begin(); it != aList.end(); ++it )
-        {
-            tQtList[ 0 ].append( QString::fromStdString( it.get_name() ) );
-            tQtList[ 1 ].append( QString::fromStdString( it.get_parameter().get_string() ) );
-        }
-
-        return tQtList;
-    }
-
     void Moris_Gui::add_more_props()
     {
         /**
@@ -425,27 +399,32 @@ namespace moris
 
                 // Get the index of the current widget
                 QList< uint > tCurrentIndex = tCurrentWidget->getIndex();
+                uint          tRoot         = tCurrentIndex[ 0 ];
+                uint          tChild        = tCurrentIndex[ 1 ];
 
                 // Append a new QTreeWidgetItem and Moris_Tree_Widget_Item to the sub-children list of the current widget
                 // And set up the necessary elements
 
-                mQTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].append( new QTreeWidgetItem( mQTreeWidgetChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ] ) );
-                mTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].append( new Moris_Tree_Widget_Item() );
+                mQTreeWidgetSubChildren[ tRoot ][ tChild ].append( new QTreeWidgetItem( mQTreeWidgetChildren[ tRoot ][ tChild ] ) );
+                mTreeWidgetSubChildren[ tRoot ][ tChild ].append( new Moris_Tree_Widget_Item() );
 
-                mQTreeWidgetChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ]->addChild( mQTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last() );
+                mQTreeWidgetChildren[ tRoot ][ tChild ]->addChild( mQTreeWidgetSubChildren[ tRoot ][ tChild ].last() );
 
                 // Reorganizing the count of the sub-forms from the item selection in the combo box
                 // All these depend on the item selection in the combo box
                 mTreeWidgetChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ]->addSubFormCountProps();
                 if ( mTreeWidgetChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ]->getComboBox()->count() == 0 )
                 {
-                    mQTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last()->setText( 0, mQTreeWidgetChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ]->text( 0 ) + QString::number( tCurrentWidget->getSubFormCountProps() ) );
+                    // For ordinary sub-forms
+                    std::string tSubParameterListName = get_inner_sub_parameter_list_name( (Module_Type)tCurrentIndex[ 0 ], tCurrentIndex[ 1 ] );
+                    mQTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last()->setText( 0, QString::fromStdString( tSubParameterListName ) + " " + QString::number( tCurrentWidget->getSubFormCountProps() ) );
                     mTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last()->setSubFormType( -1 );
                     mLibrary.get_parameter_lists()( tCurrentIndex[ 0 ] )( tCurrentIndex[ 1 ] ).add_parameter_list( create_parameter_list( (Module_Type)tCurrentIndex[ 0 ], tCurrentIndex[ 1 ], 0 ) );
                 }
                 else
                 {
-                    mQTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last()->setText( 0, tCurrentWidget->getComboBox()->currentText() + QString::number( tCurrentWidget->getSubFormCountProps() ) );
+                    // For special sub-forms (e.g. OPT/Algorithms, GEN/Geometries, GEN/Field, SOL/Linear Algorithms, SOL/Preconditioners)
+                    mQTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last()->setText( 0, tCurrentWidget->getComboBox()->currentText() + " " + QString::number( tCurrentWidget->getSubFormCountProps() ) );
                     mTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last()->setSubFormType( tCurrentWidget->getComboBox()->currentIndex() );
                     mLibrary.get_parameter_lists()( tCurrentIndex[ 0 ] )( tCurrentIndex[ 1 ] ).add_parameter_list( create_parameter_list( (Module_Type)tCurrentIndex[ 0 ], tCurrentIndex[ 1 ], tCurrentWidget->getComboBox()->currentIndex() ) );
                 }
@@ -454,46 +433,51 @@ namespace moris
                 mTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last()->setupScrollArea();
                 mTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last()->setIndex( { tCurrentIndex[ 0 ], tCurrentIndex[ 1 ], (uint)mQTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].size() - 1 } );
 
-                if ( mTreeWidgetItems.size() >= (uint)Module_Type::FEM )
+                // Append to mLibrary.get_parameter_lists() and pass it into add_elements
+                Submodule_Parameter_Lists &tSubmoduleParameterList = mLibrary.get_parameter_lists()( tRoot )( tChild );
+                mTreeWidgetSubChildren[ tRoot ][ tChild ].last()->add_elements( tSubmoduleParameterList( tSubmoduleParameterList.size() - 1 ) );
+                mTreeWidgetSubChildren[ tRoot ][ tChild ].last()->set_form_visible( false );
+
+                // Connecting the QTreeWidgetItem to the Moris_Tree_Widget_Item
+                mTreeWidget->setItemWidget( mQTreeWidgetSubChildren[ tRoot ][ tChild ].last(), 0, mTreeWidgetSubChildren[ tRoot ][ tChild ].last() );
+
+                // Adding the scroll area to the main layout
+                mLayout->addWidget( mTreeWidgetSubChildren[ tRoot ][ tChild ].last()->getScrollArea() );
+
+                if ( tRoot == (uint)Module_Type::FEM && tChild == (uint)FEM_Submodule::PROPERTIES && mQTreeWidgetSubChildren[ tRoot ][ tChild ].size() > 0 )
                 {
-                    if ( mTreeWidgetChildren[ (uint)Module_Type::FEM ].size() >= (uint)FEM_Submodule::CONSTITUTIVE_MODELS )
+                    mPropertyNameList.resize( mQTreeWidgetSubChildren[ tRoot ][ tChild ].size() );
+                    for ( uint i = 0; i < mQTreeWidgetSubChildren[ tRoot ][ tChild ].size(); i++ )
                     {
-                        if ( mTreeWidgetSubChildren[ (uint)Module_Type::FEM ][ (uint)FEM_Submodule::CONSTITUTIVE_MODELS ].size() > 0 )
-                        {
-                            for ( uint i = 0; i < mTreeWidgetSubChildren[ (uint)Module_Type::FEM ][ (uint)FEM_Submodule::CONSTITUTIVE_MODELS ].size(); i++ )
-                            {
-                                // pass the updated property name list to the Moris_Tree_Widget_Item by reference
-                                mTreeWidgetSubChildren[ (uint)Module_Type::FEM ][ (uint)FEM_Submodule::CONSTITUTIVE_MODELS ][ i ]->setPropertyNameList( mPropertyNameList );
-                            }
-                        }
+                        mPropertyNameList[ i ] = mQTreeWidgetSubChildren[ tRoot ][ tChild ][ i ]->text( 0 );
                     }
                 }
 
-                // Append to mLibrary.get_parameter_lists() and pass it into add_elements
-                mTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last()->add_elements( mLibrary.get_parameter_lists()( tCurrentIndex[ 0 ] )( tCurrentIndex[ 1 ] )( mLibrary.get_parameter_lists()( tCurrentIndex[ 0 ] )( tCurrentIndex[ 1 ] ).size() - 1 ) );
-                mTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last()->set_form_visible( false );
-
-                // Connecting the QTreeWidgetItem to the Moris_Tree_Widget_Item
-                mTreeWidget->setItemWidget( mQTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last(), 0, mTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last() );
-
-                // Adding the scroll area to the main layout
-                mLayout->addWidget( mTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last()->getScrollArea() );
-
                 // Get mWidget from the Moris_Tree_Widget_Item by reference
-                QList< QWidget * > &tWidget = mTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last()->getWidget();
+                QList< QWidget * > &tWidget = mTreeWidgetSubChildren[ tRoot ][ tChild ].last()->getWidget();
 
                 for ( uint it = 0; it < tWidget.size() - 1; it++ )
                 {
                     if ( endswith( tWidget[ it ]->objectName().toStdString(), "name" ) )
                     {
                         auto &tLineEdit      = dynamic_cast< Moris_Line_Edit      &>( *tWidget[ it ] );
-                        auto &treeWidgetItem = mTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last();
+                        auto &treeWidgetItem = mTreeWidgetSubChildren[ tRoot ][ tChild ].last();
 
-                        connect( &tLineEdit, &QLineEdit::textChanged, this, [ this, treeWidgetItem ]( const QString &aText ) {
-                            // Call the rename_tree_widget_item function, passing both the QTreeWidgetItem and the text
-                            update_tree_widget_name( treeWidgetItem, aText );
-                        } );
+                        if ( tRoot == (uint)Module_Type::FEM && tChild == (uint)FEM_Submodule::PROPERTIES && mQTreeWidgetSubChildren[ tRoot ][ tChild ].size() > 0 )
+                        {
+                            connect( &tLineEdit, &QLineEdit::textChanged, this, [ this, treeWidgetItem ]( const QString &aText ) {
+                                // Call the rename_tree_widget_item function, passing both the QTreeWidgetItem and the text
+                                update_property_tree_widget_name( treeWidgetItem, aText );
+                            } );
+                        }
+                        else
+                        {
 
+                            connect( &tLineEdit, &QLineEdit::textChanged, this, [ this, treeWidgetItem ]( const QString &aText ) {
+                                // Call the rename_tree_widget_item function, passing both the QTreeWidgetItem and the text
+                                update_tree_widget_name( treeWidgetItem, aText );
+                            } );
+                        }
                         break;
                     }
                 }
@@ -534,6 +518,10 @@ namespace moris
                 {
                     mTreeWidgetChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ]->removeSubFormCountProps( tCurrentWidget->getSubFormType() );
                 }
+                else
+                {
+                    mTreeWidgetChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ]->removeSubFormCountProps();
+                }
 
                 // If the first form is selected then the user is redirected to the main form
                 if ( tCurrentIndex[ 2 ] == 0 && mLibrary.get_parameter_lists()( tCurrentIndex[ 0 ] )( tCurrentIndex[ 1 ] ).size() == 1 )
@@ -552,10 +540,7 @@ namespace moris
             }
             else
             {
-                // If the current widget is not a sub-form, then remove the elements from the form in the Moris_Tree_Widget_Item
-
-                mLibrary.get_parameter_lists()( tCurrentWidget->getIndex()[ 0 ] )( tCurrentWidget->getIndex()[ 1 ] ).erase( mLibrary.get_parameter_lists()( tCurrentWidget->getIndex()[ 0 ] )( tCurrentWidget->getIndex()[ 1 ] ).size() - 1 );
-                tCurrentWidget->remove_elements();
+                QMessageBox::warning( this, "Warning", "Cannot remove parameters here." );
             }
         }
     }
@@ -574,6 +559,7 @@ namespace moris
         {
             if ( endswith( iFindName.get_name(), "name" ) )
             {
+                // Check if the name is empty or whitespace then break
                 if ( iFindName.get_parameter().get_value< std::string >().empty() )
                 {
                     break;
@@ -614,12 +600,41 @@ namespace moris
         mTreeWidget->setItemWidget( mQTreeWidgetSubChildren[ aRoot ][ aChild ].last(), 0, mTreeWidgetSubChildren[ aRoot ][ aChild ].last() );
         mLayout->addWidget( mTreeWidgetSubChildren[ aRoot ][ aChild ].last()->getScrollArea() );
 
-        if ( mQTreeWidgetChildren[ aRoot ][ aChild ]->text( 0 ) == "Properties" && mQTreeWidgetSubChildren[ aRoot ][ aChild ].size() > 0 )
+        if ( mQTreeWidgetChildren[ aRoot ][ aChild ]->text( 0 ).toStdString() == get_submodule_names( Module_Type::FEM )( 0 ) && mQTreeWidgetSubChildren[ aRoot ][ aChild ].size() > 0 )
         {
             mPropertyNameList.resize( mQTreeWidgetSubChildren[ aRoot ][ aChild ].size() );
             for ( uint i = 0; i < mQTreeWidgetSubChildren[ aRoot ][ aChild ].size(); i++ )
             {
                 mPropertyNameList[ i ] = mQTreeWidgetSubChildren[ aRoot ][ aChild ][ i ]->text( 0 );
+            }
+        }
+
+        // Get mWidget from the Moris_Tree_Widget_Item by reference
+        QList< QWidget * > &tWidget = mTreeWidgetSubChildren[ aRoot ][ aChild ].last()->getWidget();
+
+        for ( uint it = 0; it < tWidget.size() - 1; it++ )
+        {
+            if ( endswith( tWidget[ it ]->objectName().toStdString(), "name" ) )
+            {
+                auto &tLineEdit      = dynamic_cast< Moris_Line_Edit      &>( *tWidget[ it ] );
+                auto &treeWidgetItem = mTreeWidgetSubChildren[ aRoot ][ aChild ].last();
+
+                if ( aRoot == (uint)Module_Type::FEM && aChild == (uint)FEM_Submodule::PROPERTIES && mQTreeWidgetSubChildren[ aRoot ][ aChild ].size() > 0 )
+                {
+                    connect( &tLineEdit, &QLineEdit::textChanged, this, [ this, treeWidgetItem ]( const QString &aText ) {
+                        // Call the rename_tree_widget_item function, passing both the QTreeWidgetItem and the text
+                        update_property_tree_widget_name( treeWidgetItem, aText );
+                    } );
+                }
+                else
+                {
+
+                    connect( &tLineEdit, &QLineEdit::textChanged, this, [ this, treeWidgetItem ]( const QString &aText ) {
+                        // Call the rename_tree_widget_item function, passing both the QTreeWidgetItem and the text
+                        update_tree_widget_name( treeWidgetItem, aText );
+                    } );
+                }
+                break;
             }
         }
     }
@@ -635,25 +650,6 @@ namespace moris
         QCoreApplication::quit();
     }
 
-    bool Moris_Gui::endswith( const std::string &aString, const std::string &aEnding )
-    {
-        /**
-         * @brief Function to check if a string ends with a particular substring
-         * @param const std::string &aString, const std::string &aEnding
-         * @return bool
-         * @note This function checks if a string ends with a particular substring
-         */
-        if ( aString.size() >= aEnding.size() )
-        {
-            // Compare the end of the string with the suffix
-            return aString.compare( aString.size() - aEnding.size(), aEnding.size(), aEnding ) == 0;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
     void Moris_Gui::update_tree_widget_name( Moris_Tree_Widget_Item *aItem, const QString &aText )
     {
         /**
@@ -667,8 +663,23 @@ namespace moris
         QList< uint > tIndex = aItem->getIndex();
         // set the text of the QTreeWidgetItem
         mQTreeWidgetSubChildren[ tIndex[ 0 ] ][ tIndex[ 1 ] ][ tIndex[ 2 ] ]->setText( 0, aText );
+    }
 
-        if ( mQTreeWidgetChildren[ tIndex[ 0 ] ][ tIndex[ 1 ] ]->text( 0 ) == "Properties" && mQTreeWidgetSubChildren[ tIndex[ 0 ] ][ tIndex[ 1 ] ].size() > 0 )
+    void Moris_Gui::update_property_tree_widget_name( Moris_Tree_Widget_Item *aItem, const QString &aText )
+    {
+        /**
+         * @brief Function to update the name of the tree widget item
+         * @param QTreeWidgetItem *aItem, const QString &aText
+         * @return NONE
+         * @note This function updates the name of the tree widget item
+         */
+
+        // get the index for the Moris_Tree_Widget_Item
+        QList< uint > tIndex = aItem->getIndex();
+        // set the text of the QTreeWidgetItem
+        mQTreeWidgetSubChildren[ tIndex[ 0 ] ][ tIndex[ 1 ] ][ tIndex[ 2 ] ]->setText( 0, aText );
+
+        if ( mQTreeWidgetChildren[ tIndex[ 0 ] ][ tIndex[ 1 ] ]->text( 0 ).toStdString() == get_submodule_names( Module_Type::FEM )( 0 ) && mQTreeWidgetSubChildren[ tIndex[ 0 ] ][ tIndex[ 1 ] ].size() > 0 )
         {
             mPropertyNameList.resize( mQTreeWidgetSubChildren[ tIndex[ 0 ] ][ tIndex[ 1 ] ].size() );
             for ( uint i = 0; i < mQTreeWidgetSubChildren[ tIndex[ 0 ] ][ tIndex[ 1 ] ].size(); i++ )
@@ -691,6 +702,32 @@ namespace moris
                 }
             }
         }
+    }
+
+
+    QList< QStringList > Moris_Gui::convert_parameters_to_QStringList( Parameter_List aList )
+    {
+
+        /**
+         * @brief Function to convert the parameter list to a QList of QStringList
+         * @param Parameter_List aParameterList
+         * @return QList< QStringList >
+         * @note This function converts the MORIS parameter list to a QList of QStringList where the 0th index of the list gives the key of the parameter_list and the 1st index gives the value of the parameter_list
+         * @note tQtList[0] corresponds to the "key" values of the parameter map, tQtList[1] corresponds to the "value" of the parameter map
+         */
+
+        QList< QStringList > tQtList;
+        QStringList          tStringList;
+        tQtList.append( tStringList );
+        tQtList.append( tStringList );
+
+        for ( auto it = aList.begin(); it != aList.end(); ++it )
+        {
+            tQtList[ 0 ].append( QString::fromStdString( it.get_name() ) );
+            tQtList[ 1 ].append( QString::fromStdString( it.get_parameter().get_string() ) );
+        }
+
+        return tQtList;
     }
 
 

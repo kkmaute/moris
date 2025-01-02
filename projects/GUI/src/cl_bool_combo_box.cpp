@@ -16,6 +16,16 @@ namespace moris
         addItem( "true" );
         addItem( "false" );
 
+        // If m_parameter holds a true value, set the current index to 0 (true)
+        if ( m_Parameter.get_value< bool >() )
+        {
+            setCurrentIndex( 0 );
+        }
+        else   // Otherwise, set the current index to 1 (false)
+        {
+            setCurrentIndex( 1 );
+        }
+
         // Connect the currentIndexChanged(int) signal of QComboBox to the on_index_changed slot
         if ( m_Parameter.is_locked() )
         {
