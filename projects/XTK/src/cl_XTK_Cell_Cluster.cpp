@@ -14,6 +14,11 @@
 #include "cl_XTK_Child_Mesh.hpp"
 #include "cl_XTK_Cut_Integration_Mesh.hpp"
 #include "fn_stringify_matrix.hpp"
+#include "HDF5_Tools.hpp"
+#include "cl_MTK_Integrator.hpp"
+#include "cl_MTK_Integration_Rule.hpp"
+#include "cl_MTK_Space_Interpolator.hpp"
+#include "cl_MTK_Interpolation_Rule.hpp"
 
 // namespace moris
 // {
@@ -295,13 +300,27 @@ namespace moris::xtk
         }
     }
 
-    Matrix< DDRMat >
-    Cell_Cluster::set_quadrature_points( const uint mOrder, const uint mDim )
+    //------------------------------------------------------------------------------
+
+    void
+    Cell_Cluster::set_quadrature_points( const uint aOrder, const uint aDim )
     {
     
-        MORIS_ASSERT(mDim > 2, "Currently moment fitting only works for 2D problems");
+        MORIS_ASSERT( aDim < 3, "Currently moment fitting only works for 2D problems" );
+
+        MORIS_ASSERT( aOrder < 2, "Currently moment fitting only works for linear problems" );
+
+        mtk::Integration_Rule tIntObj( mtk::Geometry_Type::QUAD , mtk::Integration_Type::GAUSS , mtk::Integration_Order::QUAD_2x2 , mtk::Geometry_Type::LINE , mtk::Integration_Type::GAUSS , mtk::Integration_Order::BAR_1  );
+        
+        const mtk::Integrator tIntData( tIntObj );
+
+        // Get weights from mtk::integrator
+
+        Matrix< DDRMat >  tMTKPoints;
+        
+        tIntData.get_points( tMTKPoints );
             
-        Vector< real > mOneDPoints;
+        /*Vector< real > mOneDPoints;
 
         if (mOrder == 1)
         {
@@ -312,7 +331,7 @@ namespace moris::xtk
             mOneDPoints =  {0.0, std::sqrt(3.0/5.0) , -std::sqrt(3.0/5.0)};
         }
         
-        MORIS_ASSERT(mOrder > 2, "Only 2nd order supported currently");
+        MORIS_ASSERT(mOrder < 2, "Only 2nd order supported currently");
         
         mQuadraturePoints.resize( mOneDPoints.size()*mOneDPoints.size() , 2 );
 
@@ -320,57 +339,83 @@ namespace moris::xtk
         {
             for (uint iColIndex = 0; iColIndex < mOneDPoints.size() ; iColIndex ++ )
             {
-                uint iMatIndex = 2*(iRowIndex - 1) + iColIndex;
+                uint iMatIndex = 2*(iRowIndex) + iColIndex;
                 
                 mQuadraturePoints( iMatIndex , 0 ) = mOneDPoints( iRowIndex );
 
                 mQuadraturePoints( iMatIndex , 1 ) = mOneDPoints( iColIndex );
 
             }
-        }
-        return mQuadraturePoints;
+        }*/
+
+        mQuadraturePoints = tMTKPoints;
+        
     
 
     }
 
+    //------------------------------------------------------------------------------
+
+    Matrix< DDRMat >
+    Cell_Cluster::get_quadrature_points() const
+    {
+        return mQuadraturePoints;
+    }
+
+    //------------------------------------------------------------------------------
+
+
     // This function for the trivial case of the volume fraction being 1.
 
-    Vector< real >
-    Cell_Cluster::set_quadrature_weights( const uint mOrder, const uint mDim )
+    void
+    Cell_Cluster::set_quadrature_weights( const uint aOrder, const uint aDim )
     {
         // if 3D problem throw exception
 
-        MORIS_ASSERT(mDim > 2, "Currently moment fitting only works for 2D problems");
-     
-        Vector< real > mOneDWeights;
+        MORIS_ASSERT(aDim < 3, "Currently moment fitting only works for 2D problems");
 
-        if (mOrder == 1)
-        {
-            mOneDWeights = { 1.0 , 1.0 };
-        }
-        else
-        {
-            mOneDWeights =  { 8.0/9.0, 5.0/9.0 , 5.0/9.0 };
-        }
+        mtk::Integration_Rule tIntObj( mtk::Geometry_Type::QUAD , mtk::Integration_Type::GAUSS , mtk::Integration_Order::QUAD_2x2 , mtk::Geometry_Type::LINE , mtk::Integration_Type::GAUSS , mtk::Integration_Order::BAR_1  );
         
-        MORIS_ASSERT(mOrder > 2, "Only 2nd order supported currently");
+        mtk::Integrator tIntData( tIntObj );
+
+        // Get weights from mtk::integrator
+
+        Matrix< DDRMat >  tMTKWeights;
         
-        mQuadratureWeights.resize( mOneDWeights.size()*mOneDWeights.size() , 2 );
+        tIntData.get_weights( tMTKWeights );
+        
+        //Vector< real > mOneDWeights;
+
+        // if (mOrder == 1)
+        // {
+        //     mOneDWeights = { 1.0 , 1.0 };
+        // }
+        // else
+        // {
+        //     mOneDWeights =  { 8.0/9.0, 5.0/9.0 , 5.0/9.0 };
+        // }
+        
+        MORIS_ASSERT( aOrder < 2, "Only 1st order supported currently");
+        
+        /*mQuadratureWeights.resize( mOneDWeights.size()*mOneDWeights.size() , 2 );
 
         for (uint iRowIndex = 0; iRowIndex < mOneDWeights.size() ; iRowIndex ++ )
         {
             for (uint iColIndex = 0; iColIndex < mOneDWeights.size() ; iColIndex ++ )
             {
-                uint iMatIndex = 2*(iRowIndex - 1) + iColIndex;
+                uint iMatIndex = 2*(iRowIndex) + iColIndex;
                 
                 mQuadratureWeights( iMatIndex ) = mOneDWeights( iRowIndex ) * mOneDWeights( iColIndex );
 
             }
-        }
+        }*/
+        mQuadratureWeights = tMTKWeights;
 
-        return mQuadratureWeights;
+        
 
     }
+
+    //------------------------------------------------------------------------------
 
     void 
     Cell_Cluster::find_subphase_boundary_vertices(
@@ -379,7 +424,15 @@ namespace moris::xtk
                 )
     {
         // Get the primary subphase IG cells first
-        Vector< mtk::Cell *> tSubphaseIgCellsPtr = aSubphaseIGCells->mIgCellGroup;
+        Vector< mtk::Cell* > tSubphaseIgCellsPtr = aSubphaseIGCells->mIgCellGroup;
+
+        for (uint iCellIndex = 0; iCellIndex < tSubphaseIgCellsPtr.size(); iCellIndex++)
+            {
+                // get cell
+                mtk::Cell* tCellObj = tSubphaseIgCellsPtr( iCellIndex );
+
+                fprintf( stdout, " Cell ID in subphase %d\n", (moris_id)tCellObj->get_id() );
+            }
         
         // Initialize the vector containing the facets
         Vector< moris_index > tSubphaseFacets;
@@ -405,18 +458,212 @@ namespace moris::xtk
             moris_index tSingleFacet = tSubphaseFacets( iFacetIndex );
 
             // Now check how many elements does the facet belong to
-            Vector< moris::mtk::Cell* > tOwningElements = aFacetConnectivity->mFacetToCell( tSingleFacet );
+            Vector< mtk::Cell* > tOwningElements = aFacetConnectivity->mFacetToCell( tSingleFacet );
+
+            // Only retain cells in the subphase from the facet to cell map
+            Vector< moris::mtk::Cell* > tOwningElementsInSubphase;
+
+            for (uint iSubphaseCellIndex = 0; iSubphaseCellIndex < tSubphaseIgCellsPtr.size(); iSubphaseCellIndex++)
+            {
+                // Get cell
+                mtk::Cell* tSubphaseCellToCheck = tSubphaseIgCellsPtr( iSubphaseCellIndex );
+
+                for (uint iOwningCells = 0; iOwningCells < tOwningElements.size() ; iOwningCells++) 
+                {
+                    // Check if subphase cell part of facet owning cells
+                    if (tOwningElements( iOwningCells ) == tSubphaseCellToCheck)
+                    {
+                        tOwningElementsInSubphase.push_back( tOwningElements( iOwningCells ) );
+                    } 
+
+
+                }
+
+            } 
 
             // If belonging to one cell then add it into the vector containing pointer to facet indices.
-            if ( tOwningElements.size()  == 1 )
+            if ( tOwningElementsInSubphase.size()  == 1 )
             {
                 mFacetVerticesOnSubphaseBoundary.push_back( aFacetConnectivity->mFacetVertices( tSingleFacet ) );
             }
 
-        }       
+        }  
+
+        // The code below was all for testing the facet filtering function. Not needed otherwise, but still kept.
+
+        std::vector< double > tFacetCoordinatesFileVectorX;
+
+        std::vector< double > tFacetCoordinatesFileVectorY;
+
+
+        for(uint iVertInd = 0; iVertInd < mFacetVerticesOnSubphaseBoundary.size(); iVertInd++)
+        {
+             // Get vertex
+             
+             moris::Vector< moris::mtk::Vertex* > tFacetIndexBdry = mFacetVerticesOnSubphaseBoundary( iVertInd ) ;
+
+             for (uint iFacetVertInd = 0; iFacetVertInd < tFacetIndexBdry.size() ; iFacetVertInd++ )
+             
+             {
+                // Get one facet vertex
+                moris::mtk::Vertex* tBdryFacet = tFacetIndexBdry( iFacetVertInd );
+                
+                // Get coords
+                Matrix<DDRMat> tBdryCoords = tBdryFacet->get_coords();
+
+                tFacetCoordinatesFileVectorX.push_back(tBdryCoords( 0 , 0 ));
+
+                tFacetCoordinatesFileVectorY.push_back(tBdryCoords( 0 , 1 ));
+
+             }
+
+                   
+                   
+        
+        }  
+
+        hid_t  tFileID = create_hdf5_file( "FacetVertices_X.hdf5" );
+        herr_t tStatus = 0;
+        save_vector_to_hdf5_file( tFileID, std::string("Coords"), tFacetCoordinatesFileVectorX, tStatus );
+
+        close_hdf5_file( tFileID );
+
+
+        hid_t  tFileID1 = create_hdf5_file( "FacetVertices_Y.hdf5" );
+        herr_t tStatus1 = 0;
+        save_vector_to_hdf5_file( tFileID1, std::string("Coords"), tFacetCoordinatesFileVectorY, tStatus1 );
+
+        close_hdf5_file( tFileID1 );
+        
 
     }
 
+    //----------------------------------------------------------------
+
+    void
+    Cell_Cluster::compute_quadrature_weights( const uint aOrder, const uint aDim )
+    {
+
+        // Get midpoint of facet coordinates -
+
+        Matrix< DDRMat > tFacetMidpoints;
+
+        tFacetMidpoints.reshape( mFacetVerticesOnSubphaseBoundary.size() , 2 );
+
+        for (uint iFacetIndex = 0; iFacetIndex < mFacetVerticesOnSubphaseBoundary.size(); iFacetIndex++)
+        {
+            // Get coordinates corresponding to one facet -
+            Vector< mtk::Vertex* > tFacetCoords = mFacetVerticesOnSubphaseBoundary( iFacetIndex );
+
+            // Get coordinates and sum them to get midpoint
+            mtk::Vertex* tFirstFacetCoord = tFacetCoords( 0 );
+
+            mtk::Vertex* tSecondFacetCoord = tFacetCoords( 1 );
+
+            Matrix< DDRMat > tFacetMidpointCoords = 0.5*(tFirstFacetCoord->get_coords() + tSecondFacetCoord->get_coords()) ;
+
+            tFacetMidpoints.set_row( iFacetIndex, tFacetMidpointCoords ) ;
+            
+        }
+
+        // Now, create interpolation objects for specifying the basis function for each facet. One for the IP and one for the geometry.
+        mtk::Interpolation_Rule tInterpolationRule( mtk::Geometry_Type::LINE , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR , mtk::Geometry_Type::LINE , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR );
+
+        mtk::Interpolation_Rule tIPInterpolationRule( mtk::Geometry_Type::QUAD , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR , mtk::Geometry_Type::LINE , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR );
+
+        // Declare cellshape
+        mtk::CellShape tCellShape = mtk::CellShape::GENERAL;
+
+        // Set space sideset to true for interpolation to start
+        bool tSpaceSideset = true;
+
+        // Create space interpolator object
+        mtk::Space_Interpolator tSpaceInterpolationObject( tInterpolationRule , tIPInterpolationRule , tCellShape , tSpaceSideset );
+
+        Matrix< DDRMat > tFacetNormals;
+
+        tFacetNormals.reshape( mFacetVerticesOnSubphaseBoundary.size() , 2 );
+        
+        // compute the normals of all the boundary facets.
+        for (uint iFacetMidpointIndex = 0; iFacetMidpointIndex < mFacetVerticesOnSubphaseBoundary.size(); iFacetMidpointIndex++ )
+        {
+            // Location at which to compute the normal in parent coordinates (midpoint of facet)
+            Matrix< DDRMat > aXiLocal = {{0}};
+
+            // Define parent element coordinate
+            tSpaceInterpolationObject.set_space( aXiLocal );
+
+            // Get facet end coordinates (physical coordinates of line element)
+            Vector< mtk::Vertex* > tFacetCoords = mFacetVerticesOnSubphaseBoundary( iFacetMidpointIndex );
+
+            // Get coordinates 
+            Matrix< DDRMat > tFirstFacetCoord = tFacetCoords( 0 )->get_coords();
+
+            Matrix< DDRMat > tSecondFacetCoord = tFacetCoords( 1 )->get_coords();
+
+            Matrix< DDRMat > tXiHat;
+
+            tXiHat.reshape( 2 , 2 );
+
+            tXiHat.set_row( 0 , tFirstFacetCoord );
+
+            tXiHat.set_row( 1 , tSecondFacetCoord );
+            
+            // Specify physical coordinate
+            tSpaceInterpolationObject.set_space_coeff( tXiHat );
+
+            // Declare facet normal vector
+            Matrix< DDRMat > tFacetNormal;
+            
+            // Compute normal
+            tSpaceInterpolationObject.get_normal( tFacetNormal );
+
+            // Store the computed normals
+            tFacetNormals.set_row( iFacetMidpointIndex ,  trans( tFacetNormal ) );
+
+
+        }
+
+        // For inspection purposes only - check the value of the computed facet normals
+        hid_t  tFileID2 = create_hdf5_file( "FacetNormals.hdf5" );
+        herr_t tStatus2 = 0;
+        save_matrix_to_hdf5_file( tFileID2, std::string("Coords"), tFacetNormals, tStatus2 );
+
+        close_hdf5_file( tFileID2 );
+
+        //Declare LHS matrix
+        Matrix < DDRMat > tMomentFittingLHS;
+        tMomentFittingLHS.reshape( 4 , 4 );
+        
+        mtk::Interpolation_Function_Base* tIPInterp = tIPInterpolationRule.create_space_interpolation_function();
+
+        // Generate LHS
+        for (uint iQuadPointIndex = 0; iQuadPointIndex < mQuadraturePoints.n_rows() ; iQuadPointIndex++)
+        {
+            // Declare matrix for basis function values
+            Matrix< DDRMat > tN;
+
+            // Get quad point
+            Matrix< DDRMat > tXi = mQuadraturePoints.get_column( iQuadPointIndex );
+
+            // Get value of basis functions at quad point
+            tIPInterp->eval_N( tXi , tN );
+
+            // Place it in LHS 
+            tMomentFittingLHS.set_column( iQuadPointIndex , trans( tN ) );
+
+        }
+        
+    }
+    
+
+    //----------------------------------------------------------------
+
+    Matrix< DDRMat >
+    Cell_Cluster::get_quadrature_weights() const
+    {
+        return mQuadratureWeights;
+    }
 
 
     //----------------------------------------------------------------

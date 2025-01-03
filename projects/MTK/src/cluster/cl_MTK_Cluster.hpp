@@ -114,6 +114,21 @@ namespace moris::mtk
         virtual Vector< moris::mtk::Vertex const * >
         get_vertices_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const = 0;
 
+        virtual Matrix< DDRMat >
+        get_quadrature_weights(  ) const
+        {
+            Matrix< DDRMat > tDummyWeights ;
+            return tDummyWeights;
+        }
+
+        virtual Matrix< DDRMat >
+        get_quadrature_points(  ) const 
+        {
+            Matrix< DDRMat > tDummyPoints ;
+            return tDummyPoints;
+        }
+
+
         virtual moris::mtk::Vertex const *
         get_leader_vertex_pair( moris::mtk::Vertex const *aLeaderVertex ) const
         {

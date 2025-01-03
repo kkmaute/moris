@@ -133,6 +133,74 @@ namespace moris::fem
     void
     Element_Bulk::compute_residual()
     {
+     if ( mSet->get_moment_fitting_flag() )
+     {
+        // Get quadrature points
+        Matrix< DDRMat > tQuadraturePoints = mCluster->get_quadrature_points();
+
+        // Get quadrature weights
+        Matrix< DDRMat > tQuadratureWeights = mCluster->get_quadrature_weights();
+        
+        // get number of IWGs
+        uint tNumIWGs = mSet->get_number_of_requested_IWGs();
+
+        // check for active IWGs
+        if ( tNumIWGs == 0 )
+        {
+            return;
+        }
+
+        // set physical and parametric space and time coefficients for IG element
+        this->init_ig_geometry_interpolator();
+
+        // loop over integration points
+        uint tNumIntegPoints = tQuadraturePoints.numel();
+
+        for ( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
+        {
+            // get the current integration point in the IG param space
+            const Matrix< DDRMat >& tLocalIntegPoint =
+                    mSet->get_integration_points().get_column( iGP );
+
+            // set evaluation point for interpolators (FIs and GIs)
+            mSet->get_field_interpolator_manager()->set_space_time( tLocalIntegPoint );
+
+            // compute detJ of integration domain
+            real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+            // skip if detJ smaller than threshold
+            if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+            {
+                continue;
+            }
+
+            // compute integration point weight
+            real tWStar = tQuadratureWeights( iGP ) ;
+
+            // loop over the IWGs
+            for ( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
+            {
+                // get requested IWG
+                const std::shared_ptr< IWG >& tReqIWG = mSet->get_requested_IWGs()( iIWG );
+
+                // reset IWG
+                tReqIWG->reset_eval_flags();
+
+                // FIXME: enforced nodal weak bcs
+                tReqIWG->set_nodal_weak_bcs(
+                        mCluster->mInterpolationElement->get_weak_bcs() );
+
+                // compute residual at evaluation point
+                tReqIWG->compute_residual( tWStar );
+
+                // compute off-diagonal Jacobian for staggered solve
+                ( this->*m_compute_jacobian )( tReqIWG, tWStar );
+            }
+        }
+
+     }
+     else
+     {
         // get number of IWGs
         uint tNumIWGs = mSet->get_number_of_requested_IWGs();
 
@@ -189,6 +257,9 @@ namespace moris::fem
                 ( this->*m_compute_jacobian )( tReqIWG, tWStar );
             }
         }
+
+     }
+        
     }
 
     //------------------------------------------------------------------------------
@@ -196,6 +267,73 @@ namespace moris::fem
     void
     Element_Bulk::compute_jacobian()
     {
+     if ( mSet->get_moment_fitting_flag() )
+     {
+        // Get quadrature points
+        Matrix< DDRMat > tQuadraturePoints = mCluster->get_quadrature_points();
+
+        // Get quadrature weights
+        Matrix< DDRMat > tQuadratureWeights = mCluster->get_quadrature_weights();
+
+        // get number of IWGs
+        uint tNumIWGs = mSet->get_number_of_requested_IWGs();
+
+        // check for active IWGs
+        if ( tNumIWGs == 0 )
+        {
+            return;
+        }
+
+        // set physical and parametric space and time coefficients for IG element
+        this->init_ig_geometry_interpolator();
+
+        // loop over integration points
+        uint tNumIntegPoints = tQuadratureWeights.numel();
+
+        for ( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
+        {
+            // get the ith integration point in the IG param space
+            const Matrix< DDRMat >& tLocalIntegPoint =
+                    tQuadraturePoints.get_column( iGP );
+
+            // set evaluation point for interpolators (FIs and GIs)
+            mSet->get_field_interpolator_manager()->set_space_time( tLocalIntegPoint );
+
+            // compute detJ of integration domain
+            real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+            // skip if detJ smaller than threshold
+            if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+            {
+                continue;
+            }
+
+            // compute integration point weight
+            real tWStar = tQuadratureWeights( iGP ) ;
+
+            // loop over the IWGs
+            for ( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
+            {
+                // get requested IWG
+                const std::shared_ptr< IWG >& tReqIWG =
+                        mSet->get_requested_IWGs()( iIWG );
+
+                // reset IWG
+                tReqIWG->reset_eval_flags();
+
+                // FIXME set nodal weak BCs
+                tReqIWG->set_nodal_weak_bcs(
+                        mCluster->mInterpolationElement->get_weak_bcs() );
+
+                // compute Jacobian at evaluation point
+                ( this->*m_compute_jacobian )( tReqIWG, tWStar );
+            }
+        }
+
+
+     }
+     else
+     { 
         // get number of IWGs
         uint tNumIWGs = mSet->get_number_of_requested_IWGs();
 
@@ -250,6 +388,11 @@ namespace moris::fem
                 ( this->*m_compute_jacobian )( tReqIWG, tWStar );
             }
         }
+
+     }
+        
+        
+        
     }
 
     //------------------------------------------------------------------------------
@@ -257,6 +400,116 @@ namespace moris::fem
     void
     Element_Bulk::compute_jacobian_and_residual()
     {
+      if ( mSet->get_moment_fitting_flag() )
+      { 
+        // Get quadrature points
+        Matrix< DDRMat > tQuadraturePoints = mCluster->get_quadrature_points();
+
+        // Get quadrature weights
+        Matrix< DDRMat > tQuadratureWeights = mCluster->get_quadrature_weights();
+
+        // get number of IWGs
+        uint tNumIWGs = mSet->get_number_of_requested_IWGs();
+
+        // get number of IQIs
+        uint tNumIQIs = mSet->get_number_of_requested_IQIs();
+
+        // check for active IWGs or IQIs
+        if ( tNumIWGs == 0 && tNumIQIs == 0 )
+        {
+            return;
+        }
+
+        // set physical and parametric space and time coefficients for IG element
+        this->init_ig_geometry_interpolator();
+
+        // loop over integration points
+        uint tNumIntegPoints = tQuadratureWeights.numel();
+
+        for ( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
+        {
+            // get the ith integration point in the IG param space
+            const Matrix< DDRMat >& tIntegPoint =
+                    tQuadraturePoints.get_column( iGP );
+
+            // set evaluation point for interpolators (FIs and GIs)
+            mSet->get_field_interpolator_manager()->set_space_time( tIntegPoint );
+
+            // compute detJ of integration domain
+            real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+            // skip if detJ smaller than threshold
+            if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+            {
+                continue;
+            }
+
+            // compute integration point weight
+            real tWStar = tQuadratureWeights( iGP );
+
+            // loop over the IWGs
+            for ( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
+            {
+                // get requested IWG
+                const std::shared_ptr< IWG >& tReqIWG = mSet->get_requested_IWGs()( iIWG );
+
+                // reset IWG
+                tReqIWG->reset_eval_flags();
+
+                // FIXME set nodal weak BCs
+                tReqIWG->set_nodal_weak_bcs(
+                        mCluster->mInterpolationElement->get_weak_bcs() );
+
+                if ( mSet->mEquationModel->is_forward_analysis() )
+                {
+                    // compute residual at evaluation point
+                    tReqIWG->compute_residual( tWStar );
+                }
+
+                // compute Jacobian at evaluation point
+                ( this->*m_compute_jacobian )( tReqIWG, tWStar );
+
+                // compute dRdp if direct sensitivity analysis
+                if ( !mSet->mEquationModel->is_forward_analysis() &&    //
+                        !mSet->mEquationModel->is_adjoint_sensitivity_analysis() )
+                {
+                    // just placeholder
+                    Matrix< DDSMat > tGeoLocalAssembly;
+
+                    Vector< Matrix< IndexMat > > tVertexIndices( 0 );
+                    ( this->*m_compute_dRdp )( tReqIWG, tWStar, tGeoLocalAssembly, tVertexIndices );
+                }
+            }
+
+            // if adjoint sensitivity analysis is used and IQIs exists
+            if ( ( !mSet->mEquationModel->is_forward_analysis() ) &&              //
+                    mSet->mEquationModel->is_adjoint_sensitivity_analysis() &&    //
+                    ( tNumIQIs > 0 ) )
+            {
+                // loop over the IQIs
+                for ( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
+                {
+                    // get requested IQI
+                    const std::shared_ptr< IQI >& tReqIQI =
+                            mSet->get_requested_IQIs()( iIQI );
+
+                    // reset IQI
+                    tReqIQI->reset_eval_flags();
+
+                    // compute dQIdu at evaluation point
+                    ( this->*m_compute_dQIdu )( tReqIQI, tWStar );
+                }
+            }
+
+            mSet->mFemModel->mBulkGaussPoints++;
+        }
+
+
+
+
+      }
+      else
+      {
         // get number of IWGs
         uint tNumIWGs = mSet->get_number_of_requested_IWGs();
 
@@ -352,6 +605,7 @@ namespace moris::fem
 
             mSet->mFemModel->mBulkGaussPoints++;
         }
+      }
     }
 
     //------------------------------------------------------------------------------

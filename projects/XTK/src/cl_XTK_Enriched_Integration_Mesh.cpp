@@ -2808,7 +2808,7 @@ namespace moris::xtk
                 mCellClusters( tInterpCellIndex )->find_subphase_boundary_vertices( tSubphaseCells , tFacetConnectivity );
                 
                 // Compute Weights as per moment fitting
-                mCellClusters( tInterpCellIndex )->compute_quadrature_weights_moment_fitting( mOrder , mDim );
+                //mCellClusters( tInterpCellIndex )->compute_quadrature_weights_moment_fitting( mOrder , mDim );
 
             }
 
@@ -2843,6 +2843,12 @@ namespace moris::xtk
 
         // get number of base IP cells
         uint tNumBaseIpCells = mModel->mBackgroundMesh->get_num_elems();
+
+        // Get polynomial order
+        uint mOrder = mCutIgMesh->get_order();
+            
+        // get dimension 
+        uint mDim = mCutIgMesh->get_spatial_dim();
 
         // get pointer to enr. IP mesh
         Enriched_Interpolation_Mesh *tEnrInterpMesh = mModel->mEnrichedInterpMesh( 0 );
@@ -2897,8 +2903,20 @@ namespace moris::xtk
                 {
                     mCellClusters( tEnrIpCellIndex )->mVoid = false;
 
+                    moris_index tProcSubphaseIndex = mCellClusters( tEnrIpCellIndex )->mInterpolationCell->get_subphase_index();
+
+                    fprintf(stdout,"Subphase_Index %d\n", (moris_index)tProcSubphaseIndex );
+
+                    // Get subphase IG cells
+                    std::shared_ptr< IG_Cell_Group > tSubphaseCells = mCutIgMesh->get_subphase_ig_cells( tProcSubphaseIndex );
+                    
                     // material cluster is only trivial if it is the only subphase on base IP cell, i.e. there are no triangulated child cells
                     mCellClusters( tEnrIpCellIndex )->mTrivial = tAllClustersOnCellTrivial;
+
+                     // Place quadrature points inside cluster
+                    mCellClusters( tEnrIpCellIndex )->set_quadrature_points( mOrder , mDim );
+                
+
                 }
                 else    // void clusters
                 {
@@ -2906,6 +2924,10 @@ namespace moris::xtk
 
                     // all void clusters are trivial
                     mCellClusters( tEnrIpCellIndex )->mTrivial = true;
+
+                    moris_index tProcSubphaseIndex = mCellClusters( tEnrIpCellIndex )->mInterpolationCell->get_subphase_index();
+
+                    fprintf(stdout,"Subphase_Index_Void %d\n", (moris_index)tProcSubphaseIndex );
                 }
 
                 // Cluster is trivial (integration domain is single quadrilateral cell which is either void or full)
@@ -2931,6 +2953,10 @@ namespace moris::xtk
                     else    // cluster is full
                     {
                         mCellClusters( tEnrIpCellIndex )->mPrimaryIntegrationCells.push_back( tBaseCell );
+
+                        // Since this is a trivial case (volume fraction equals one), generate weights without moment fitting
+                        mCellClusters( tEnrIpCellIndex )->set_quadrature_weights( mOrder , mDim );
+
 
                         // sanity check for this case
                         MORIS_ASSERT( mCellClusters( tEnrIpCellIndex )->is_full(),
@@ -2958,6 +2984,15 @@ namespace moris::xtk
 
                     // set primary IG cells in cluster
                     mCellClusters( tEnrIpCellIndex )->set_primary_integration_cell_group( tIgCellGroupsInCluster );
+
+                    // Get facet connectivity map
+                    auto tFacetConnectivity = mCutIgMesh->get_face_connectivity();
+                    
+                    // Identify subphase boundary facets
+                    mCellClusters( tEnrIpCellIndex )->find_subphase_boundary_vertices( tIgCellGroupsInCluster , tFacetConnectivity );
+
+                    // Compute quadrature weights via moment fitting
+                    mCellClusters( tEnrIpCellIndex )->compute_quadrature_weights( mOrder, mDim );
 
                     // get the subphases in the void region
                     for ( uint iVoid = 0; iVoid < tNumSPsOnCell; iVoid++ )

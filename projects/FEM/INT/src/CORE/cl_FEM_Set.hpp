@@ -42,6 +42,7 @@ namespace moris
     {
         class Cell;
         class Set;
+        class Cluster; // Only for the quadrature points
     }    // namespace mtk
     namespace MSI
     {
@@ -100,6 +101,9 @@ namespace moris
             // number of eigen vectors
             uint mNumEigenVectors = 0;
 
+            // Flag for moment fitting
+            bool mUseMomentFitting = false;
+
             // cell of pointers to IWG objects
             Vector< std::shared_ptr< IWG > > mIWGs;
             Vector< std::shared_ptr< IWG > > mRequestedIWGs;
@@ -123,11 +127,11 @@ namespace moris
             // enum for element type
             fem::Element_Type mElementType = fem::Element_Type::END_ELEMENT_TYPE;
 
-            // integration points
-            Matrix< DDRMat > mIntegPoints;
-
             // integration weights
             Matrix< DDRMat > mIntegWeights;
+
+            // integration points
+            Matrix< DDRMat > mIntegPoints;
 
             // map for the dof type
             Matrix< DDSMat > mUniqueDofTypeMap;
@@ -251,6 +255,13 @@ namespace moris
             };
 
             //------------------------------------------------------------------------------
+
+            bool get_moment_fitting_flag()
+            {
+                return mUseMomentFitting;
+            }
+
+            //------------------------------------------------------------------------------
             /**
              * finalize the fem sets
              * create and set the field interpolators
@@ -269,6 +280,7 @@ namespace moris
              * create integrator
              */
             void create_integrator( MSI::Model_Solver_Interface* aModelSolverInterface );
+
 
             //------------------------------------------------------------------------------
 

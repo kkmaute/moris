@@ -25,6 +25,9 @@ namespace moris::mtk
         Vector< moris::mtk::Cell const * > mPrimaryIntegrationCells;
         Vector< moris::mtk::Cell const * > mVoidIntegrationCells;
 
+        Matrix< DDRMat > mQuadratureWeights;
+        Matrix< DDRMat > mQuadraturePoints;
+
         moris_index mCellClusterIndex;    // cell cluster index
         mtk::Mesh*  mMesh;                // mesh pointer
 
@@ -232,6 +235,37 @@ namespace moris::mtk
 
         void
         set_outward_data();
+
+        //------------------------------------------------------------------------------
+
+        /* Modify the quadrature weights
+         */
+        void
+        set_quadrature_weights( Matrix< DDRMat > aQuadratureWeights );
+
+        //------------------------------------------------------------------------------
+
+
+        /* Modify the quadrature points
+         */
+        void
+        set_quadrature_points( Matrix< DDRMat > aQuadraturePoints );
+
+        //------------------------------------------------------------------------------
+
+        /* Get the quadrature weights
+         */
+        Matrix< DDRMat >
+        get_quadrature_weights( );
+
+        //------------------------------------------------------------------------------
+
+
+        /* Get the quadrature points
+         */
+        Matrix< DDRMat >
+        get_quadrature_points( );
+
 
         //------------------------------------------------------------------------------
 

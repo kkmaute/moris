@@ -56,6 +56,10 @@ namespace moris::fem
         Matrix< IndexMat > mLeaderListOfSideOrdinals;
         Matrix< IndexMat > mFollowerListOfSideOrdinals;
 
+        Matrix< DDRMat > mQuadraturePoints;
+
+        Matrix< DDRMat > mQuadratureWeights;
+
         // list of pointers to element
         Vector< fem::Element * > mElements;
 
@@ -151,6 +155,22 @@ namespace moris::fem
         {
             return mMeshCluster;
         }
+
+        //------------------------------------------------------------------------------
+
+        Matrix< DDRMat > get_quadrature_points() const ;
+
+        //------------------------------------------------------------------------------
+          
+        Matrix< DDRMat > get_quadrature_weights() const ;
+
+        //------------------------------------------------------------------------------
+
+        void set_quadrature_points() ;
+
+        //------------------------------------------------------------------------------
+
+        void set_quadrature_weights() ;
 
         //------------------------------------------------------------------------------
         /**

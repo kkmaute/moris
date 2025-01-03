@@ -394,6 +394,46 @@ namespace moris::fem
         // return the index of the paired vertex on the right
         return mMeshCluster->get_follower_vertex_ord_on_facet( aCellIndexInCluster, aVertex );
     }
+    //------------------------------------------------------------------------------
+
+    void 
+    Cluster::set_quadrature_points( )
+    {
+        // Get quadrature points from the mtk cluster
+        Matrix< DDRMat > tQuadraturePoints = mMeshCluster->get_quadrature_points();
+        
+        // Set quadrature points
+        mQuadraturePoints = tQuadraturePoints;
+    }
+
+    //------------------------------------------------------------------------------
+
+    void 
+    Cluster::set_quadrature_weights( ) 
+    {
+        // Get quad weights from mtk::cluster
+        Matrix< DDRMat > tQuadratureWeights = mMeshCluster->get_quadrature_weights();
+
+        // Set quad weights
+        mQuadratureWeights = tQuadratureWeights;
+    }
+
+    //------------------------------------------------------------------------------
+
+    Matrix< DDRMat > 
+    Cluster::get_quadrature_points(  ) const
+    {
+        return mQuadraturePoints;
+    }
+
+    //------------------------------------------------------------------------------
+
+    Matrix< DDRMat >
+    Cluster::get_quadrature_weights(  ) const
+    {
+        return mQuadratureWeights;
+    }
+
 
     //------------------------------------------------------------------------------
 
@@ -403,16 +443,30 @@ namespace moris::fem
         // reset cluster measures
         this->reset_cluster_measure();
 
-        // loop over the IG elements
-        for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+        // If moment fitting flag is set
+        if ( mSet->get_moment_fitting_flag() )
         {
-            // check whether to compute jacobian
-            if ( mComputeResidualAndIQI( iElem ) )
+            // The entire cluster is the IG element
+            MORIS_ASSERT( mElementType == fem::Element_Type::BULK, "Cluster::compute_jacobian - Moment fitting is only supported for bulk elements.");
+
+            // No need to loop over the elements - the entire cluster is the IG element, so no need for repeated cell check either.
+            mElements( 0 )->compute_jacobian();
+        }
+        else
+        {
+             // loop over the IG elements
+            for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
             {
-                // compute the jacobian for the IG element
-                mElements( iElem )->compute_jacobian();
+                // check whether to compute jacobian
+                 if ( mComputeResidualAndIQI( iElem ) )
+                {
+                     // compute the jacobian for the IG element
+                     mElements( iElem )->compute_jacobian();
+                }
             }
         }
+
+        
     }
 
     //------------------------------------------------------------------------------
@@ -423,16 +477,33 @@ namespace moris::fem
         // reset cluster measures
         this->reset_cluster_measure();
 
-        // loop over the IG elements
-        for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+        // if flag for moment fitting is set
+        if ( mSet->get_moment_fitting_flag() )
         {
-            // check whether to compute residual
-            if ( mComputeResidualAndIQI( iElem ) )
-            {
-                // compute the residual for the IG element
-                mElements( iElem )->compute_residual();
-            }
+            // The entire cluster is the IG element
+            MORIS_ASSERT( mElementType == fem::Element_Type::BULK, "Cluster::compute_residual - Moment fitting is only supported for bulk elements.");
+
+            // No need to loop over the elements - the entire cluster is the IG element, so no need for repeated cell check either.
+            mElements( 0 )->compute_residual();
         }
+
+        
+        else
+        {
+            // loop over the IG elements
+          for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+          {
+              // check whether to compute residual
+              if ( mComputeResidualAndIQI( iElem ) )
+              {
+                  // compute the residual for the IG element
+                  mElements( iElem )->compute_residual();
+              }
+          }
+
+        }
+
+          
     }
 
     //------------------------------------------------------------------------------
@@ -443,16 +514,34 @@ namespace moris::fem
         // reset cluster measures
         this->reset_cluster_measure();
 
-        // loop over the IG elements
-        for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+        // if flag for moment fitting is set
+        if ( mSet->get_moment_fitting_flag() )
         {
-            // check whether to compute residual and jacobian for this element
-            if ( mComputeResidualAndIQI( iElem ) )
-            {
-                // compute the jacobian and residual for the IG element
-                mElements( iElem )->compute_jacobian_and_residual();
-            }
+            // The entire cluster is the IG element
+            MORIS_ASSERT( mElementType == fem::Element_Type::BULK, "Cluster::compute_jacobian_and_residual - Moment fitting is only supported for bulk elements.");
+
+            // No need to loop over the elements - the entire cluster is the IG element, so no need for repeated cell check either.
+            mElements( 0 )->compute_jacobian_and_residual();
+            
         }
+        else
+        {
+
+          // loop over the IG elements
+           for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+           {
+              // check whether to compute residual and jacobian for this element
+              if ( mComputeResidualAndIQI( iElem ) )
+              {
+                   // compute the jacobian and residual for the IG element
+                   mElements( iElem )->compute_jacobian_and_residual();
+              }
+           
+           }
+        }
+        
+        
+
     }
 
     //------------------------------------------------------------------------------

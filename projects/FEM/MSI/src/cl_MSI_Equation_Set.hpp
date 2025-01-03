@@ -64,6 +64,15 @@ namespace moris
             Vector< Matrix< DDRMat > >           mdRdp;
             Vector< Vector< Matrix< DDRMat > > > mdQIdp;
 
+            // Integration points for moment fitting
+            Vector < Matrix< DDRMat > > mIntegPointsMomentFitting;
+
+            // Integration weights for moment fitting
+            Vector < Matrix< DDRMat > > mIntegWeightsMomentFitting; 
+
+            // Cluster indices on set
+            Vector< uint > mClusterIndicesOnSet;
+
             // lists of leader and follower groups of dof types
             Vector< Vector< enum MSI::Dof_Type > > mLeaderDofTypes;
             Vector< Vector< enum MSI::Dof_Type > > mFollowerDofTypes;
@@ -321,6 +330,15 @@ namespace moris
              * i.e. free residual and jacobian matrices
              */
             void free_matrix_memory();
+
+            //-------------------------------------------------------------------------------------------------
+            void
+            set_quadrature_weights( Matrix< DDRMat >& aQuadratureWeights , const uint aCellIndex );
+
+            //------------------------------------------------------------------------------
+
+            void
+            set_quadrature_points( Matrix< DDRMat >& aQuadraturePoints );
 
             //-------------------------------------------------------------------------------------------------
             /**

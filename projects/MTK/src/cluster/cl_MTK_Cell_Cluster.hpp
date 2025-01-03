@@ -453,6 +453,20 @@ namespace moris::mtk
             return tVertexIndices;
         }
 
+        Matrix< DDRMat >
+        get_quadrature_weights(  ) const
+        {
+            Matrix< DDRMat > tDummyWeights ;
+            return tDummyWeights;
+        }
+
+        Matrix< DDRMat >
+        get_quadrature_points(  ) const 
+        {
+            Matrix< DDRMat > tDummyPoints ;
+            return tDummyPoints;
+        }
+
         // ##############################################
         //  Cell/Vertex Id Access
         // ##############################################

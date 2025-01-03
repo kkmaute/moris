@@ -202,6 +202,14 @@ namespace moris::fem
             {
                 this->create_integrator( aModelSolverInterface );
             }
+            // Get the MSI parameter list
+            const Parameter_List& tMSIParameterList = aModelSolverInterface->get_msi_parameterlist();
+
+            // Use moment fitting weights and points
+            if ( tMSIParameterList.get< bool >( "use_moment_fitting" ) ) 
+            {
+                this->set_custom_integration_rule( aModelSolverInterface );
+            }
 
             // create the field interpolators
             this->create_field_interpolator_managers( aModelSolverInterface );
@@ -307,7 +315,7 @@ namespace moris::fem
             // create an interpolation element and fem cluster
             auto const tInterpolationElement = new fem::Interpolation_Element( mElementType, tInterpolationCell, mIPNodes, this );
             auto const tCluster              = std::make_shared< fem::Cluster >( mElementType, tMeshCluster, this, tInterpolationElement );
-
+            
             tInterpolationElement->set_cluster( tCluster, 0 );
 
             mEquationObjList( iCluster ) = tInterpolationElement;
@@ -384,8 +392,20 @@ namespace moris::fem
 
     void Set::set_custom_integration_rule( MSI::Model_Solver_Interface* aModelSolverInterface )
     {
-        MORIS_ERROR( false, "Set::set_custom_integration_rule - not yet implemented" );
+        //MORIS_ERROR( false, "Set::set_custom_integration_rule - not yet implemented" );
+        // Get the custom integration rule flag from the model solver interface
+        const Parameter_List& tMSIParameterList = aModelSolverInterface->get_msi_parameterlist();
+        
+        if ( tMSIParameterList.get< bool >( "use_moment_fitting" ) ) 
+        {
+            MORIS_LOG_INFO( "Set::set_custom_integration_rule - using moment fitting. Caution: Does not work for all cases yet!" );
+
+            // Set flag for use moment fitting to true.
+            mUseMomentFitting = true;
+        }
+                
     }
+
 
     //------------------------------------------------------------------------------
 

@@ -402,6 +402,30 @@ namespace moris::fem
 
             // collect equation objects associated with the set
             mFemClusters.append( mFemSets( iSet )->get_equation_object_list() );
+
+            // Get number of mesh clusters on set
+            uint  tNumClustersOnSet = tMeshSet->get_num_clusters_on_set();
+
+            // Loop over mesh sets to populate quadrature points and weights for each cluster
+            for ( uint iNumClusters = 0; iNumClusters < tNumClustersOnSet; iNumClusters++ )
+            {
+                // Get Cluster
+                const mtk::Cluster *tCluster = tMeshSet->get_clusters_by_index( iNumClusters );
+
+                // Get quadrature point and weight for the cluster
+                Matrix< DDRMat > tQuadPoints = tCluster->get_quadrature_points();
+
+                // Get quadrature weights
+                Matrix< DDRMat > tQuadWeights = tCluster->get_quadrature_weights();
+
+                // Set FEM Cluster quad points
+                mFemSets( iSet )->set_quadrature_points( tQuadPoints );
+
+                // Set FEM Cluster quad points
+                mFemSets( iSet )->set_quadrature_weights( tQuadWeights, tCluster->get_interpolation_cell_index() );
+
+            }
+
         }
         // shrink list to fit size
         mFemClusters.shrink_to_fit();

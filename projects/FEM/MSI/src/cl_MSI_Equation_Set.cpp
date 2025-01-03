@@ -375,6 +375,26 @@ namespace moris::MSI
     }
 
     //------------------------------------------------------------------------------
+    void
+    Equation_Set::set_quadrature_weights( Matrix< DDRMat >& aQuadratureWeights , const uint aCellIndex )
+    {
+
+        mIntegWeightsMomentFitting.push_back( aQuadratureWeights );
+
+        mClusterIndicesOnSet.push_back( aCellIndex );
+
+    
+    }
+
+
+    //------------------------------------------------------------------------------
+
+    void
+    Equation_Set::set_quadrature_points( Matrix< DDRMat >& aQuadraturePoints )
+    {
+        mIntegPointsMomentFitting.push_back( aQuadraturePoints );
+
+    }
 
     sint Equation_Set::get_field_index_for_type_1(
             mtk::Field_Type      aFieldType,

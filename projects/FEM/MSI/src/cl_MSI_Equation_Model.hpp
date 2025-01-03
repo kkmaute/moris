@@ -157,6 +157,7 @@ namespace moris
             finalize_equation_sets( MSI::Model_Solver_Interface* aModelSolverInterface ) = 0;
 
             //------------------------------------------------------------------------------
+            
             /**
              * @brief set solution vector
              * @param[ in ] aSolutionVector distributed solution vector

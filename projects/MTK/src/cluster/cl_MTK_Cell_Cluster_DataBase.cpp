@@ -225,6 +225,41 @@ namespace moris::mtk
 
     //------------------------------------------------------------------------------
 
+    void
+    Cell_Cluster_DataBase::set_quadrature_weights( Matrix< DDRMat > aQuadratureWeights )
+    {
+        this->mQuadratureWeights = aQuadratureWeights;
+    }
+
+    //------------------------------------------------------------------------------
+
+
+    void
+    Cell_Cluster_DataBase::set_quadrature_points( Matrix< DDRMat > aQuadraturePoints )
+    {
+        this->mQuadraturePoints = aQuadraturePoints;
+    }
+
+    //------------------------------------------------------------------------------
+
+    Matrix< DDRMat >
+    Cell_Cluster_DataBase::get_quadrature_weights( )
+    {
+        return mQuadratureWeights;
+    }
+
+    //------------------------------------------------------------------------------
+
+    Matrix< DDRMat >
+    Cell_Cluster_DataBase::get_quadrature_points( )
+    {
+        return mQuadraturePoints;
+    }
+
+
+
+    //------------------------------------------------------------------------------
+
     size_t
     Cell_Cluster_DataBase::capacity()
     {

@@ -73,6 +73,7 @@ namespace moris::prm
         // Geometric multigrid parameters
         mMSIParameterList.insert( "multigrid", false );
         mMSIParameterList.insert( "level", 2 );
+        mMSIParameterList.insert( "use_moment_fitting", false );
 
         return mMSIParameterList;
     }

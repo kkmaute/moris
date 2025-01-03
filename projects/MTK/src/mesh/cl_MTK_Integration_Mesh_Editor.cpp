@@ -1098,6 +1098,17 @@ namespace moris::mtk
             // constrcut the cell cluster
             mtk::Cell_Cluster_DataBase tCellCluster( (moris_index)iCell, mOutputMesh );
 
+            // Get the quadrature points and weights from the input mesh
+            Matrix< DDRMat > tQuadPoints = mInputMesh->get_cell_cluster( iCell ).get_quadrature_points();
+
+            Matrix< DDRMat > tQuadWeights = mInputMesh->get_cell_cluster( iCell ).get_quadrature_weights();
+
+            // Set these quadrature points and weights in the database cell cluster
+            tCellCluster.set_quadrature_points( tQuadPoints );
+
+            tCellCluster.set_quadrature_weights( tQuadWeights );
+            
+
             // add the cell cluster to the list
             mOutputMesh->mCellClusters.push_back( tCellCluster );
             mOutputMesh->mCellClusterIsTrivial.push_back( mInputMesh->get_cell_cluster( iCell ).is_trivial() );
