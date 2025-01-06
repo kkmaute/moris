@@ -426,7 +426,8 @@ namespace moris
                     // For special sub-forms (e.g. OPT/Algorithms, GEN/Geometries, GEN/Field, SOL/Linear Algorithms, SOL/Preconditioners)
                     mQTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last()->setText( 0, tCurrentWidget->getComboBox()->currentText() + " " + QString::number( tCurrentWidget->getSubFormCountProps() ) );
                     mTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last()->setSubFormType( tCurrentWidget->getComboBox()->currentIndex() );
-                    mLibrary.get_parameter_lists()( tCurrentIndex[ 0 ] )( tCurrentIndex[ 1 ] ).add_parameter_list( create_parameter_list( (Module_Type)tCurrentIndex[ 0 ], tCurrentIndex[ 1 ], tCurrentWidget->getComboBox()->currentIndex() ) );
+                    //mLibrary.get_parameter_lists()( tCurrentIndex[ 0 ] )( tCurrentIndex[ 1 ] ).add_parameter_list( create_parameter_list( (Module_Type)tCurrentIndex[ 0 ], tCurrentIndex[ 1 ], tCurrentWidget->getComboBox()->currentIndex() ) );
+                    mLibrary.get_parameter_lists()( tCurrentIndex[ 0 ] )( tCurrentIndex[ 1 ] ).add_parameter_list();
                 }
 
                 // Setting up the scroll area, index, saving type for the sub-forms
@@ -453,32 +454,56 @@ namespace moris
                     }
                 }
 
-                // Get mWidget from the Moris_Tree_Widget_Item by reference
-                QList< QWidget * > &tWidget = mTreeWidgetSubChildren[ tRoot ][ tChild ].last()->getWidget();
-
-                for ( uint it = 0; it < tWidget.size() - 1; it++ )
+                if ( mTreeWidgetItems.size() >= (uint)Module_Type::FEM )
                 {
-                    if ( endswith( tWidget[ it ]->objectName().toStdString(), "name" ) )
+                    if ( mTreeWidgetChildren[ (uint)Module_Type::FEM ].size() >= (uint)FEM_Submodule::CONSTITUTIVE_MODELS )
                     {
-                        auto &tLineEdit      = dynamic_cast< Moris_Line_Edit      &>( *tWidget[ it ] );
-                        auto &treeWidgetItem = mTreeWidgetSubChildren[ tRoot ][ tChild ].last();
-
-                        if ( tRoot == (uint)Module_Type::FEM && tChild == (uint)FEM_Submodule::PROPERTIES && mQTreeWidgetSubChildren[ tRoot ][ tChild ].size() > 0 )
+                        if ( mTreeWidgetSubChildren[ (uint)Module_Type::FEM ][ (uint)FEM_Submodule::CONSTITUTIVE_MODELS ].size() > 0 )
                         {
-                            connect( &tLineEdit, &QLineEdit::textChanged, this, [ this, treeWidgetItem ]( const QString &aText ) {
-                                // Call the rename_tree_widget_item function, passing both the QTreeWidgetItem and the text
-                                update_property_tree_widget_name( treeWidgetItem, aText );
-                            } );
+                            for ( uint i = 0; i < mTreeWidgetSubChildren[ (uint)Module_Type::FEM ][ (uint)FEM_Submodule::CONSTITUTIVE_MODELS ].size(); i++ )
+                            {
+                                if ( !mTreeWidgetSubChildren[ (uint)Module_Type::FEM ][ (uint)FEM_Submodule::CONSTITUTIVE_MODELS ][ i ]->isPropertyListSet() )
+                                {
+                                    mTreeWidgetSubChildren[ (uint)Module_Type::FEM ][ (uint)FEM_Submodule::CONSTITUTIVE_MODELS ][ i ]->setPropertyNameList( mPropertyNameList );
+                                }
+                                // pass the updated property name list to the Moris_Tree_Widget_Item by reference
+                            }
                         }
-                        else
-                        {
+                    }
+                }
 
-                            connect( &tLineEdit, &QLineEdit::textChanged, this, [ this, treeWidgetItem ]( const QString &aText ) {
-                                // Call the rename_tree_widget_item function, passing both the QTreeWidgetItem and the text
-                                update_tree_widget_name( treeWidgetItem, aText );
-                            } );
+                // Get mWidget from the Moris_Tree_Widget_Item by reference
+                // Loop over all the widgets in mTreeWidgetSubChildren[ tRoot ][ tChild ] and assign tWidget to every one
+                QList < QList< QWidget * > > tWidget;
+                tWidget.resize( mTreeWidgetSubChildren[ tRoot ][ tChild ].size() );
+                for ( uint i = 0; i < mTreeWidgetSubChildren[ tRoot ][ tChild ].size(); i++ )
+                {
+                    tWidget[i] = mTreeWidgetSubChildren[ tRoot ][ tChild ][ i ]->getWidget();
+
+                    for ( uint it = 0; it < tWidget[i].size() - 1; it++ )
+                    {
+                        if ( endswith( tWidget[i][ it ]->objectName().toStdString(), "name" ) )
+                        {
+                            auto &tLineEdit      = dynamic_cast< Moris_Line_Edit      &>( *tWidget[i][ it ] );
+                            auto &treeWidgetItem = mTreeWidgetSubChildren[ tRoot ][ tChild ][i];
+
+                            if ( tRoot == (uint)Module_Type::FEM && tChild == (uint)FEM_Submodule::PROPERTIES && mQTreeWidgetSubChildren[ tRoot ][ tChild ].size() > 0 )
+                            {
+                                connect( &tLineEdit, &QLineEdit::textChanged, this, [ this, treeWidgetItem ]( const QString &aText ) {
+                                    // Call the rename_tree_widget_item function, passing both the QTreeWidgetItem and the text
+                                    update_property_tree_widget_name( treeWidgetItem, aText );
+                                } );
+                            }
+                            else
+                            {
+
+                                connect( &tLineEdit, &QLineEdit::textChanged, this, [ this, treeWidgetItem ]( const QString &aText ) {
+                                    // Call the rename_tree_widget_item function, passing both the QTreeWidgetItem and the text
+                                    update_tree_widget_name( treeWidgetItem, aText );
+                                } );
+                            }
+                            break;
                         }
-                        break;
                     }
                 }
             }
