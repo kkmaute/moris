@@ -3575,15 +3575,15 @@ namespace moris::fem
 
                     // FIXME BRENDAN: This is a hack to do sensitivity analysis from external code
                     gLogger.set_action_data(
-                            "FEM",
-                            "IWG",
-                            "ComputedRdP",
+                            "OPT",
+                            "Arbitrary",
+                            "Arbitrary",
                             "Epsilon",
                             tFDScheme( 0 )( iPoint ) * tDeltaH );
                     gLogger.set_action_data(
-                            "FEM",
-                            "IWG",
-                            "ComputedRdP",
+                            "OPT",
+                            "Arbitrary",
+                            "Arbitrary",
                             "ADVID",
                             (real)mSet->get_ig_adv_ids()( iAdv ) );
 
