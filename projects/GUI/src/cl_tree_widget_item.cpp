@@ -343,7 +343,7 @@ namespace moris
                                 qWarning() << "Failed to cast widgets:" << e.what();
                             }
                         }
-                        else if ( iElements.get_name() == "phase_name" && mIndex[1] != (uint)FEM_Submodule::PHASES )
+                        else if ( endswith( iElements.get_name(), "phase_name" )  && mIndex[1] != (uint)FEM_Submodule::PHASES)
                         {
                             Moris_Combo_Box *tComboBox = new Moris_Combo_Box( mScrollWidget, iElements.get_parameter(), mPhaseNameList );
                             tComboBox->setObjectName( QString::fromStdString( iElements.get_name() ) );

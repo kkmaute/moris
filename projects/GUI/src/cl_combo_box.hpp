@@ -46,6 +46,7 @@ namespace moris
         {
             m_options = a_options;
             clear();
+            addItem( "" );
             addItems( m_options );
             if ( m_parameter.index() == variant_index< uint >() )
             {

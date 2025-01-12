@@ -778,7 +778,7 @@ namespace moris
                         QList< QWidget * > &tWidget = mTreeWidgetSubChildren[ (uint)Module_Type::FEM ][ i ][ iChild ]->mWidget;
                         for ( uint it = 0; it < tWidget.size(); it++ )
                         {
-                            if ( tWidget[ it ]->objectName().toStdString() == "phase_name" )
+                            if ( endswith( tWidget[ it ]->objectName().toStdString(), "phase_name" ) )
                             {
                                 auto &tComboBox = dynamic_cast< Moris_Combo_Box & >( *tWidget[ it ] );
                                 tComboBox.set_options_list( mPhaseNameList );
