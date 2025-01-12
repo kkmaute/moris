@@ -21,6 +21,13 @@ namespace moris
         // - a_parameter: Reference to a Parameter object to be linked with this widget.
         explicit Moris_Combo_Box( QWidget *a_parent, Parameter &a_parameter );
 
+        // Overload constructor that gives the option to set the combo box items.
+        // Inputs:
+        // - a_parent: Pointer to the parent widget (default is nullptr).
+        // - a_parameter: Reference to a Parameter object to be linked with this widget.
+        // - a_options: QStringList containing the options to be set in the combo box.
+        Moris_Combo_Box( QWidget *a_parent, Parameter &a_parameter, QStringList &a_options );
+
         // Destructor for Moris_Combo_Box.
         // The destructor is defaulted as there are no specific cleanup requirements.
         // Inputs:
@@ -34,6 +41,24 @@ namespace moris
         // Outputs:
         // - Reference to the Parameter object.
         Parameter &get_parameter();
+
+        void set_options_list( QStringList &a_options )
+        {
+            m_options = a_options;
+            clear();
+            addItems( m_options );
+            if ( m_parameter.index() == variant_index< uint >() )
+            {
+                setCurrentIndex( m_parameter.get_value< uint >() );
+            }
+            else if ( m_parameter.index() == variant_index< std::string >() )
+            {
+                setCurrentIndex( m_options.indexOf( QString::fromStdString( m_parameter.get_value< std::string >() ) ) );
+            }
+            else {
+                setCurrentIndex( 0 );
+            }
+        }
 
       signals:
         // Signal emitted when the index changes.
@@ -53,6 +78,7 @@ namespace moris
 
       private:
         Parameter &m_parameter;    // Reference to the associated Parameter object
+        QStringList m_options;     // List of options for the combo box
     };
 
 }    // namespace moris

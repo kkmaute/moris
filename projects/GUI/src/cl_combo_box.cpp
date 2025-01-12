@@ -32,6 +32,30 @@ namespace moris
         }
     }
 
+    // Overload constructor that gives the option to set the combo box items
+    // Inputs:
+    // - a_parent: Pointer to the parent widget (default is nullptr).
+    // - a_parameter: Reference to a Parameter object to be linked with this widget.
+    // - a_options: QStringList containing the options to be set in the combo box.
+    Moris_Combo_Box::Moris_Combo_Box( QWidget *a_parent, Parameter &a_parameter, QStringList &a_options )
+            : QComboBox( a_parent )
+            , m_parameter( a_parameter )
+            , m_options( a_options )
+    {
+        // Set up the combo box with the provided options
+        set_options_list( a_options );
+
+        // Connect the currentIndexChanged(int) signal of QComboBox to the on_index_changed slot
+        if ( m_parameter.is_locked() )
+        {
+            setDisabled( true );
+        }
+        else
+        {
+            connect( this, QOverload< int >::of( &QComboBox::currentIndexChanged ), this, &Moris_Combo_Box::on_index_changed );
+        }
+    }
+
     // Destructor for Moris_Combo_Box
     // The destructor is defaulted as there are no specific cleanup requirements.
     Moris_Combo_Box::~Moris_Combo_Box() = default;

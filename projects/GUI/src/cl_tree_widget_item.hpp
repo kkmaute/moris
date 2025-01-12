@@ -212,6 +212,7 @@ namespace moris
 
         // set mPropertyNameList by reference
         void setPropertyNameList( QStringList &aPropertyNameList );
+        void setPhaseNameList( QStringList &aPhaseNameList );
 
         // get mIsPropertyListSet
         bool isPropertyListSet();
@@ -232,6 +233,8 @@ namespace moris
          * @note This function removes one parameter worth of elements and reorganizes mCountProps.
          */
         void remove_elements();
+        
+        QList< QWidget * > mWidget;
 
       private:
         //--------------------------------------------------------------------------------------------------------------
@@ -277,7 +280,6 @@ namespace moris
          * mComboBox -> Combo box to select sub forms
          *
          */
-        QList< QWidget * > mWidget;
         // std::map < std::string, QWidget* > mWidget;
 
         QComboBox *mComboBox = new QComboBox();
@@ -285,6 +287,8 @@ namespace moris
         QList< uint > mIndex;
 
         QStringList mPropertyNameList;
+
+        QStringList mPhaseNameList;
     };
 
 }    // namespace moris

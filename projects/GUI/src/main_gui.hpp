@@ -105,6 +105,7 @@ namespace moris
         // Vector< Vector< Vector< Parameter_List > > > & mGUIParameterLists;
 
         QStringList mPropertyNameList;
+        QStringList mPhaseNameList;
 
       public:
         // Add argument that reads a parameter list
@@ -195,6 +196,7 @@ namespace moris
 
         void update_tree_widget_name( Moris_Tree_Widget_Item *aItem, const QString &aText );
         void update_property_tree_widget_name( Moris_Tree_Widget_Item *aItem, const QString &aText );
+        void update_phase_tree_widget_name( Moris_Tree_Widget_Item *aItem, const QString &aText );
     };
 
 

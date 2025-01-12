@@ -238,6 +238,12 @@ namespace moris
         }
     }
 
+    void Moris_Tree_Widget_Item::setPhaseNameList( QStringList &aPhaseNameList )
+    {
+        mPhaseNameList = aPhaseNameList;
+        
+    }
+
     bool Moris_Tree_Widget_Item::isPropertyListSet()
     {
         return mIsPropertyListSet;
@@ -336,6 +342,13 @@ namespace moris
                             {
                                 qWarning() << "Failed to cast widgets:" << e.what();
                             }
+                        }
+                        else if ( iElements.get_name() == "phase_name" && mIndex[1] != (uint)FEM_Submodule::PHASES )
+                        {
+                            Moris_Combo_Box *tComboBox = new Moris_Combo_Box( mScrollWidget, iElements.get_parameter(), mPhaseNameList );
+                            tComboBox->setObjectName( QString::fromStdString( iElements.get_name() ) );
+                            mWidget.append( tComboBox );
+                            mFormLayout->addRow( QString::fromStdString( iElements.get_name() ), mWidget[ tIndex + tCounter ] );
                         }
                         else
                         {
