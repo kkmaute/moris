@@ -8,6 +8,7 @@
 #include <QComboBox>
 #include <QMessageBox>
 #include <QStringList>
+#include <QPushButton>
 
 #include "cl_line_edit.hpp"
 #include "cl_combo_box.hpp"
@@ -235,6 +236,16 @@ namespace moris
          */
         void remove_elements();
 
+        /**
+          * @brief Function to set the MSI form layout for the Moris_Tree_Widget_Item
+          * @param Parameter_List &aParameters
+          * @return NONE
+         */
+        void setMSIForm();
+
+        void changeMSIRowVisibility( bool aVisible );
+
+
         QList< QWidget * > mWidget;
 
       private:
@@ -290,6 +301,10 @@ namespace moris
         QStringList mPropertyNameList;
 
         QStringList mPhaseNameList;
+
+        QComboBox *mMSIComboBox = new QComboBox();
+        QPushButton *mAddMSI = new QPushButton( "Add DoF" );
+        QPushButton *mRemoveMSI = new QPushButton( "Remove DoF" );
     };
 
 }    // namespace moris

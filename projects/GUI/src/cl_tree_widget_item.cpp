@@ -206,10 +206,10 @@ namespace moris
          * @note This function sets the form visible or invisible based on the argument passed
          */
 
-        for ( uint i = 0; i < (uint)mFormLayout->rowCount(); i++ )
-        {
-            mFormLayout->setRowVisible( i, aVisible );
-        }
+        // for ( uint i = 0; i < (uint)mFormLayout->rowCount(); i++ )
+        // {
+        //     mFormLayout->setRowVisible( i, aVisible );
+        // }
         mScrollWidget->setVisible( aVisible );
         mScrollArea->setVisible( aVisible );
     }
@@ -366,6 +366,11 @@ namespace moris
             mCheckForm = true;
             mCountProps++;
         }
+
+        if ( mIndex[0] == (uint) Module_Type::MSI && mIndex[1] == (uint) MSI_Submodule::GENERAL ) {
+            setMSIForm();
+        }
+
     }
 
     void Moris_Tree_Widget_Item::remove_elements()
@@ -393,4 +398,57 @@ namespace moris
             mCountProps--;
         }
     }
+
+    void Moris_Tree_Widget_Item::setMSIForm()
+    {
+        /**
+         * @brief Function to set the MSI form
+         * @param NONE
+         * @return NONE
+         */
+
+        // Hide all the rows in the form layout
+        for ( int i = 0; i < mFormLayout->rowCount(); i++ )
+        {
+            mFormLayout->setRowVisible( i, false );
+        }
+
+        // loop over all the widgets and get the object name and add it to the combo box
+        for ( auto &iWidget : mWidget )
+        {
+            mMSIComboBox->addItem( iWidget->objectName() );
+        }
+        mFormLayout->addRow( "Please select: ", mMSIComboBox );
+
+        mFormLayout->addRow( mAddMSI, mRemoveMSI );
+        
+        // Connect the signal from the add button pushed to the slot addMSI
+        connect(mAddMSI, &QPushButton::clicked, this, [this]() { changeMSIRowVisibility(true); });
+        connect(mRemoveMSI, &QPushButton::clicked, this, [this]() { changeMSIRowVisibility(false); });
+
+    }
+
+    void Moris_Tree_Widget_Item::changeMSIRowVisibility( bool aVisible )
+    {
+        /**
+         * @brief Function to add MSI
+         * @param NONE
+         * @return NONE
+         */
+        // Get the text of the current item selected in mMSIComboBox
+        QString tCurrentItem = mMSIComboBox->currentText();
+
+        // Get the object name in the mWidget list which is equal to the current item selected in mMSIComboBox
+        for ( auto &iWidget : mWidget )
+        {
+            if ( iWidget->objectName() == tCurrentItem )
+            {
+                // Set this row visible
+                mFormLayout->setRowVisible( iWidget, aVisible );                
+                break;
+            }
+        }
+    }
+
+
 }    // namespace moris
