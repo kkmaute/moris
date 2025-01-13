@@ -24,7 +24,7 @@ namespace moris::opt
     // -------------------------------------------------------------------------------------------------------------
 
     Manager::Manager(
-            const Module_Parameter_Lists&              aParameterLists,
+            const Module_Parameter_Lists&                          aParameterLists,
             const Vector< std::shared_ptr< Criteria_Interface > >& aInterfaces )
             : Manager(
                       aParameterLists( 2 ),
@@ -40,7 +40,7 @@ namespace moris::opt
 
     Manager::Manager(
             const Submodule_Parameter_Lists& aAlgorithmParameterLists,
-            std::shared_ptr< Problem >      aProblem )
+            std::shared_ptr< Problem >       aProblem )
             : mProblem( std::move( aProblem ) )
     {
         // Construct Algorithm cell
@@ -64,6 +64,8 @@ namespace moris::opt
     {
         // Trace optimization
         Tracer tTracer( "OPT", "Manager", "Perform" );
+
+        gLogger.set_action_data( "OPT", "Arbitrary", "Arbitrary", "Epsilon", 0.0 );    // BRENDAN remove this hack to set action data
 
         // initialize the problem
         mProblem->initialize();
@@ -116,4 +118,4 @@ namespace moris::opt
     }
 
     // -------------------------------------------------------------------------------------------------------------
-    }
+}    // namespace moris::opt
