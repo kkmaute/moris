@@ -174,7 +174,7 @@ namespace moris::xtk
         mEnrichment         = nullptr;
         mGhostStabilization = nullptr;
         mEnrichedInterpMesh = Vector< Enriched_Interpolation_Mesh * >( 0, nullptr );
-        mEnrichedIntegMesh  = Vector< Enriched_Integration_Mesh  *>( 0, nullptr );
+        mEnrichedIntegMesh  = Vector< Enriched_Integration_Mesh * >( 0, nullptr );
         mConvertedToTet10s  = false;
     }
 
@@ -341,7 +341,7 @@ namespace moris::xtk
 
             this->perform_unenrichment( tUnenrichedBsplineMeshIndices );
 
-        } // end: enrichment
+        }    // end: enrichment
 
         if ( mParameterList.get< bool >( "identify_hanging_nodes" ) )
         {
@@ -617,6 +617,7 @@ namespace moris::xtk
         mtk::Geometry_Type tBGCellTopo       = this->get_parent_cell_geometry();
         std::string        tDecompStr        = mParameterList.get< std::string >( "decomposition_type" );
         moris::lint        tOctreeRefLevel   = std::stoi( mParameterList.get< std::string >( "octree_refinement_level" ) );
+        bool               tDelaunay         = mParameterList.get< bool >( "delaunay" );
 
         if ( tDecompStr.compare( "octree_only" ) == 0 )
         {
@@ -643,11 +644,17 @@ namespace moris::xtk
             MORIS_ERROR( 0, "Invalid decomposition_type provided. Recognized Options: Conformal and Non-conformal" );
         }
 
+        // add Delaunay if requested, note that this must come before the regular subdivision
+        if ( tDelaunay && tConformal )
+        {
+            tSubdivisionMethods.push_back( Subdivision_Method::C_DELAUNAY );
+        }
+
         if ( tSpatialDimension == 2 )
         {
             if ( tBGCellTopo == mtk::Geometry_Type::QUAD && tConformal )
             {
-                Vector< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
+                Vector< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4/*, Subdivision_Method::C_TRI3*/ }; // brendan add node hierarchy back in
                 tSubdivisionMethods.append( tMethods );
             }
             else if ( tBGCellTopo == mtk::Geometry_Type::QUAD && !tConformal )
@@ -1410,7 +1417,7 @@ namespace moris::xtk
         // if there is any elements in the matrix
         if ( aUnenrichedBsplineMeshIndices.numel() )
         {
-            Tracer tTracer( "XTK",  "Unenrichment" );
+            Tracer tTracer( "XTK", "Unenrichment" );
 
             // set the mesh indices
             mEnrichedInterpMesh( 0 )->set_unenriched_mesh_indices( aUnenrichedBsplineMeshIndices );

@@ -18,6 +18,7 @@ fn_all_true.hpp
 fn_chol_l.hpp
 fn_chol_u.hpp
 fn_comp_abs.hpp
+fn_concatenate_cell_of_mats.hpp
 fn_cond.hpp
 fn_cross.hpp
 fn_ctrans.hpp

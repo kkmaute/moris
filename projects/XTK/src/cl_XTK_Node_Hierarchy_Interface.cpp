@@ -50,6 +50,24 @@ namespace moris::xtk
 
     // ----------------------------------------------------------------------------------
 
+    bool
+    Node_Hierarchy_Interface::is_eligible( std::pair< mtk::Cell*, Vector< Decomposition_Algorithm_Type > >& aElementContext,
+            Cut_Integration_Mesh*                                                                           aCutIntegrationMesh,
+            Integration_Mesh_Generator*                                                                     aMeshGenerator ) const
+    {
+        return true;
+    }
+
+    // ----------------------------------------------------------------------------------
+
+    Vector< moris_index >
+    Node_Hierarchy_Interface::get_decomposed_cell_indices()
+    {
+        return mMeshGenerationData->mAllIntersectedBgCellInds;
+    }
+    
+    // ----------------------------------------------------------------------------------
+
     void
     Node_Hierarchy_Interface::perform(
             Integration_Mesh_Generation_Data* aMeshGenerationData,
@@ -117,9 +135,7 @@ namespace moris::xtk
             // create associations between child meshes and the vertices we need this to commit the data to the integration mesh
             this->associate_new_vertices_with_cell_groups(
                     tIgCellGroupEdgeConnectivity,
-                    tIgEdgeAncestry,
                     &tBackgroundCellForEdge,
-                    &tVertexGroups,
                     &tIntersectedEdgeIndices,
                     &tIntersectedEdgeLocCoords );
 
@@ -191,7 +207,7 @@ namespace moris::xtk
         tGeometricQuery.set_associated_vertex_group( aVertexGroups );
 
         mDecompositionData->mHasSecondaryIdentifier = true;
-        
+
         // iterate through the edges in aEdgeConnectivity ask the geometry engine if we are intersected
         for ( uint iEdge = 0; iEdge < tNumEdges; iEdge++ )
         {
@@ -225,14 +241,14 @@ namespace moris::xtk
             if ( tIsIntersected )
             {
                 // Queue intersection node
-                mGeometryEngine->queue_intersection( 
-                    tEdgeToVertex( 0 ),
-                    tEdgeToVertex( 1 ),
-                    tGeometricQuery.get_vertex_local_coord_wrt_parent_entity( tEdgeToVertex( 0 ) ),
-                    tGeometricQuery.get_vertex_local_coord_wrt_parent_entity( tEdgeToVertex( 1 ) ),
-                    tParentEntityIndicesUINT,
-                    tGeometricQuery.get_geometry_type(),
-                    tGeometricQuery.get_interpolation_order() );
+                mGeometryEngine->queue_intersection(
+                        tEdgeToVertex( 0 ),
+                        tEdgeToVertex( 1 ),
+                        tGeometricQuery.get_vertex_local_coord_wrt_parent_entity( tEdgeToVertex( 0 ) ),
+                        tGeometricQuery.get_vertex_local_coord_wrt_parent_entity( tEdgeToVertex( 1 ) ),
+                        tParentEntityIndicesUINT,
+                        tGeometricQuery.get_geometry_type(),
+                        tGeometricQuery.get_interpolation_order() );
 
                 bool tBothVerticesNotOnInterface =
                         !mGeometryEngine->queued_intersection_first_parent_on_interface()
@@ -295,9 +311,7 @@ namespace moris::xtk
     bool
     Node_Hierarchy_Interface::associate_new_vertices_with_cell_groups(
             const std::shared_ptr< Edge_Based_Connectivity >& aEdgeConnectivity,
-            const std::shared_ptr< Edge_Based_Ancestry >&     aIgEdgeAncestry,
             Vector< mtk::Cell* >*                             aBackgroundCellForEdge,
-            Vector< std::shared_ptr< IG_Vertex_Group > >*     aVertexGroups,
             Vector< moris_index >*                            aIntersectedEdges,
             Vector< real >*                                   aEdgeLocalCoordinate )
     {

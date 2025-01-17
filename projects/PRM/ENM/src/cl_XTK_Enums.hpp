@@ -17,8 +17,8 @@ enum class TemplateType
     REGULAR_SUBDIVISION_HEX8,     // Topology created using a regularized subdivision (for generate_templated_mesh)
     REGULAR_SUBDIVISION_QUAD4,    // Topology created using a regular subdivision of Quad 4
     TRI_3,
-    QUAD_4,                       // Topology created using a Quad 4 template topology
-    TET_4,                        // Standard tet 4 topology
+    QUAD_4,    // Topology created using a Quad 4 template topology
+    TET_4,     // Standard tet 4 topology
     HEX_8,
     HIERARCHY_TET4,
     HIERARCHY_TET4_3N,     // 3 node intersection pattern
@@ -41,14 +41,15 @@ enum class Subdivision_Method
     // T  - specifies a Test method
     NC_REGULAR_SUBDIVISION_QUAD4,    // Non-conforming and a regular subdivision template will be used
     NC_REGULAR_SUBDIVISION_HEX8,
-    C_HIERARCHY_TRI3,                // Conformal and a hierarchy template will be used
+    C_DELAUNAY,          // Conformal Delaunay triangulation
+    C_HIERARCHY_TRI3,    // Conformal and a hierarchy template will be used
     C_HIERARCHY_TET4,
-    C_TRI3,                          // Conformal tri 3 mesh  will be constructed
+    C_TRI3,    // Conformal tri 3 mesh  will be constructed
     NC_OCTREE,
-    P_ELEVATE_ORDER_TRI3_TRI6,       // Elevate order (adding nodes) of TRI3 to TRI6 elements
-    P_ELEVATE_ORDER_TRI3_TRI10,      // Elevate order (adding nodes) of TRI3 to TRI10 elements
-    P_ELEVATE_ORDER_TET4_TET10,      // Elevate order (adding nodes) of TET4 to TET10 elements
-    P_ELEVATE_ORDER_TET4_TET20,      // Elevate order (adding nodes) of TET4 to TET20 elements
+    P_ELEVATE_ORDER_TRI3_TRI6,     // Elevate order (adding nodes) of TRI3 to TRI6 elements
+    P_ELEVATE_ORDER_TRI3_TRI10,    // Elevate order (adding nodes) of TRI3 to TRI10 elements
+    P_ELEVATE_ORDER_TET4_TET10,    // Elevate order (adding nodes) of TET4 to TET10 elements
+    P_ELEVATE_ORDER_TET4_TET20,    // Elevate order (adding nodes) of TET4 to TET20 elements
     NO_METHOD
 };
 

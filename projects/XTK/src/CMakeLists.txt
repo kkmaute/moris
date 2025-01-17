@@ -50,6 +50,7 @@ set(HEADERS
         cl_XTK_Decomposition_Algorithm.hpp
         cl_XTK_Regular_Subdivision_Interface.hpp
         cl_XTK_Node_Hierarchy_Interface.hpp
+        cl_XTK_Delaunay_Subdivision_Interface.hpp
         cl_XTK_Elevate_Order_Interface.hpp
         cl_XTK_Octree_Interface.hpp
         cl_XTK_Cut_Integration_Mesh.hpp
@@ -156,6 +157,7 @@ set(LIB_SOURCES
         cl_XTK_Decomposition_Algorithm_Factory.cpp
         cl_XTK_Regular_Subdivision_Interface.cpp
         cl_XTK_Node_Hierarchy_Interface.cpp
+        cl_XTK_Delaunay_Subdivision_Interface.cpp
         cl_XTK_Node_Hierarchy_Template_Library.cpp
         cl_XTK_Elevate_Order_Interface.cpp
         cl_XTK_Octree_Interface.cpp
@@ -190,6 +192,7 @@ target_include_directories(${XTK}-lib PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
         $<INSTALL_INTERFACE:${${XTK}_HEADER_INSTALL_DIR}>)
 target_link_libraries(${XTK}-lib PUBLIC ${LIB_DEPENDENCIES})
+target_link_libraries(${XTK}-lib PUBLIC "/home/maute/codes/geompack3d/lib/libgeompack3.gcc.a" ) # brendan remove this
 set_target_properties(${XTK}-lib PROPERTIES OUTPUT_NAME ${XTK})
 
 # Link third party libraries

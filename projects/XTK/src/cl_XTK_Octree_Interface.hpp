@@ -691,6 +691,12 @@ namespace moris::xtk
         bool
         has_geometric_independent_vertices() const override;
 
+        bool is_eligible( std::pair< mtk::Cell*, Vector< Decomposition_Algorithm_Type > >& aElementContext,
+                Cut_Integration_Mesh*                                           aCutIntegrationMesh,
+                Integration_Mesh_Generator*                                     aMeshGenerator ) const override;
+
+        Vector< moris_index > get_decomposed_cell_indices() override;
+
         void
         perform_impl_vertex_requests(
                 Integration_Mesh_Generation_Data *aMeshGenerationData,

@@ -158,6 +158,50 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    bool Surface_Mesh_Geometry::has_surface_points( mtk::Cell* aCell )
+    {
+        // Try and see if the pointer is in the stored list
+        auto tIt = std::find( mVertexBackgroundElements.begin(), mVertexBackgroundElements.end(), aCell );
+
+        // Return if it was found
+        return tIt != mVertexBackgroundElements.end();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Matrix< DDRMat > Surface_Mesh_Geometry::get_surface_points( mtk::Cell* aCell )
+    {
+        // Get the spatial dimension of the surface mesh
+        uint tDim = this->get_spatial_dimension();
+
+        // Get the number of vertices for this surface mesh
+        uint tNumNodes = this->get_number_of_vertices();
+
+        // Initialize matrix
+        Matrix< DDRMat > tSurfacePoints( tDim, tNumNodes );
+
+        // Initialize counter for number of vertices added
+        uint iDelaunayPointIndex = 0;
+
+        // Loop over all surface mesh vertices and check if they are in the background element
+        // FIXME: brute force search could be optimized
+        for ( uint iSurfaceMeshVertex = 0; iSurfaceMeshVertex < tNumNodes; iSurfaceMeshVertex++ )
+        {
+            if ( mVertexBackgroundElements( iSurfaceMeshVertex ) == aCell )
+            {
+                // Add the vertex to the matrix
+                tSurfacePoints.set_column( iDelaunayPointIndex++, this->get_vertex_coordinates( iSurfaceMeshVertex ) );
+            }
+        }
+
+        // Trim output matrix
+        tSurfacePoints.resize( tDim, iDelaunayPointIndex );
+
+        return tSurfacePoints;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     Intersection_Node* Surface_Mesh_Geometry::create_intersection_node(
             uint                              aNodeIndex,
             const Vector< Background_Node* >& aBackgroundNodes,

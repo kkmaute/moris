@@ -381,6 +381,34 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    bool
+    Geometry_Engine::has_surface_points(
+            uint       aGeometryIndex,
+            mtk::Cell* aCell )
+    {
+        return mGeometries( aGeometryIndex )->has_surface_points( aCell );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Matrix< DDRMat >
+    Geometry_Engine::get_surface_points_of_active_geometry( mtk::Cell* aCell )
+    {
+        return mGeometries( mActiveGeometryIndex )->get_surface_points( aCell );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Matrix< DDRMat >
+    Geometry_Engine::get_surface_points(
+            uint       aGeometryIndex,
+            mtk::Cell* aCell )
+    {
+        return mGeometries( aGeometryIndex )->get_surface_points( aCell );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     void
     Geometry_Engine::update_intersection_node(
             uint        aNodeIndex,
@@ -900,9 +928,9 @@ namespace moris::gen
 
         // Loop over all geometries to get number of new ADVs
         sint tOffsetID = tPrimitiveADVIds.size();
-        for ( uint iDesignIndex = 0; iDesignIndex < tDesigns.size(); iDesignIndex++ )
+        for ( auto& iDesign : tDesigns )
         {
-            tOffsetID = tDesigns( iDesignIndex )->append_adv_info(    //
+            tOffsetID = iDesign->append_adv_info(    //
                     aMeshPair.get_interpolation_mesh(),
                     tOwnedADVIds,
                     tOwnedijklIDs,

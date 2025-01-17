@@ -43,9 +43,15 @@ namespace moris::xtk
         // number of child meshes
         moris_index mNumChildMeshes = 0;
 
-        // outer cell: geometry index (if the geometry is inactive the cell is empty)
-        // inner cell: active child mesh index by cut mesh index
+        // outer vector: geometry index (if the geometry is inactive the cell is empty)
+        // inner vector: active child mesh index by cut mesh index
         Vector< Vector< moris_index > > mIntersectedBackgroundCellIndex;
+
+        // All background cell indices that will be delaunay triangulated (have surface points as defined by GEN geometries)
+        Vector< moris_index > mDeluanayBgCellInds;
+
+        // All background cells that will use regular subdivision
+        Vector< moris_index > mRegularSubdivisionBgCellInds;
 
         // All intersected background cells (uniques removed from the concatenated version of mIntersectedBackgroundCellIndex)
         Vector< moris_index > mAllIntersectedBgCellInds;
@@ -55,6 +61,11 @@ namespace moris::xtk
 
         // // this maps from the background cell index to the child mesh index
         // std::unordered_map< moris_index, moris_index > mIntersectedBackgroundCellIndexToChildMeshIndex;
+
+        // Stores the surface points from every geometry for each background cell that has surface points
+        // Outer vector: cell index
+        // Matrix: each column is a surface point, each row is a spatial dimension
+        Vector< Matrix< DDRMat > > mDelaunayPoints;
 
     };    // struct Integration_Mesh_Generation_Data
 

@@ -17,6 +17,7 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "fn_all_true.hpp"
+#include "fn_concatenate_vector_of_mats.hpp"
 #include "fn_norm.hpp"
 #include "fn_unique.hpp"
 #include "op_minus.hpp"
@@ -240,8 +241,8 @@ namespace moris::mtk
         if ( par_rank() == 0 )
         {
 
-            Matrix< IndexMat > tAllNodeMaps   = this->concatenate_cell_of_mats( aSerializedMesh->mCollectVertexIds, 1 );
-            Matrix< DDRMat >   tAllNodeCoords = this->concatenate_cell_of_mats( aSerializedMesh->mCollectVertexCoords, 1 );
+            Matrix< IndexMat > tAllNodeMaps   = concatenate_vector_of_mats( aSerializedMesh->mCollectVertexIds, 1 );
+            Matrix< DDRMat >   tAllNodeCoords = concatenate_vector_of_mats( aSerializedMesh->mCollectVertexCoords, 1 );
 
             // check coordinates
             std::unordered_map< moris_id, moris_index > tNodeIdToIndMap;

@@ -16,7 +16,7 @@
 namespace moris::mtk
 {
     class Mesh;
-    }
+}
 
 namespace moris::xtk
 {
@@ -445,6 +445,12 @@ namespace moris::xtk
         Regular_Subdivision_Interface( Parameter_List& aParameterList, mtk::CellTopology aCellTopology );
 
         ~Regular_Subdivision_Interface() override {}
+
+        bool is_eligible( std::pair< mtk::Cell*, Vector< Decomposition_Algorithm_Type > >& aElementContext,
+                Cut_Integration_Mesh*                                                      aCutIntegrationMesh,
+                Integration_Mesh_Generator*                                                aMeshGenerator ) const override;
+
+        Vector< moris_index > get_decomposed_cell_indices() override;
 
         bool has_geometric_independent_vertices() const override;
 

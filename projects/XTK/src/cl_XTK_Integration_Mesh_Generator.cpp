@@ -17,6 +17,7 @@
 #include "fn_XTK_find_most_frequent_int_in_cell.hpp"
 #include "fn_XTK_Multiset_Operations.hpp"
 #include "fn_stringify_matrix.hpp"
+#include "fn_concatenate_vector_of_mats.hpp"
 
 using namespace moris;
 namespace moris::xtk
@@ -448,6 +449,8 @@ namespace moris::xtk
 
         aMeshGenerationData.mAllIntersectedBgCellInds.reserve( tNumCells );
 
+        aMeshGenerationData.mDelaunayPoints.reserve( tNumCells );
+
         // Initialize geometric query
         Geometric_Query tGeometricQuery;
 
@@ -463,9 +466,13 @@ namespace moris::xtk
             aMeshGenerationData.mIntersectedBackgroundCellIndex( iGeom ).reserve( tNumCells / tNumGeometries );
         }
 
+
         // iterate through all cells
         for ( uint iCell = 0; iCell < tNumCells; iCell++ )
         {
+            // Initialize a list of all the surface points for every geometry for this cell
+            Vector< Matrix< DDRMat > > tSurfacePoints( tNumGeometries );
+
             // setup geometric query with this current cell information
             tGeometricQuery.set_parent_cell( &aBackgroundMesh->get_mtk_cell( (moris_index)iCell ) );
             tGeometricQuery.set_query_cell( &aBackgroundMesh->get_mtk_cell( (moris_index)iCell ) );
@@ -473,27 +480,47 @@ namespace moris::xtk
             // iterate through all geometries for current cell
             for ( moris::size_t iGeom = 0; iGeom < tNumGeometries; iGeom++ )
             {
-                if ( mXTKModel->get_geom_engine()->is_intersected( iGeom, tGeometricQuery.get_query_entity_to_vertex_connectivity() ) )
+                if ( mXTKModel->get_geom_engine()->has_surface_points( iGeom, &aBackgroundMesh->get_mtk_cell( iCell ) ) )
+                {
+                    // Get the surface points for this cell for this geometry and store
+                    tSurfacePoints( iGeom ) = mXTKModel->get_geom_engine()->get_surface_points( iGeom, &aBackgroundMesh->get_mtk_cell( iCell ) );
+
+                    // add background cell to the list for delaunay triangulation
+                    aMeshGenerationData.mDeluanayBgCellInds.push_back( iCell );
+
+                    // add to the number of child meshes for the octree decomposition to use (?)
+                    aMeshGenerationData.mNumChildMeshes++;
+
+                    // add background cell to the list of intersected cells
+                    aMeshGenerationData.mAllIntersectedBgCellInds.push_back( iCell );
+                }
+                else if ( mXTKModel->get_geom_engine()->is_intersected( iGeom, tGeometricQuery.get_query_entity_to_vertex_connectivity() ) )
                 {
                     // add background cell to the list for iGEOM
                     aMeshGenerationData.mIntersectedBackgroundCellIndex( iGeom ).push_back( iCell );
 
+                    // add to the number of child meshes for the octree decomposition to use (?)
                     aMeshGenerationData.mNumChildMeshes++;
 
+                    // add background cell to the list of intersected cells
                     aMeshGenerationData.mAllIntersectedBgCellInds.push_back( iCell );
                 }
-                // add to the global list of intersected cells,
+                // add to the global list of intersected cells
                 else if ( mXTKModel->triangulate_all() )
                 {
                     aMeshGenerationData.mAllIntersectedBgCellInds.push_back( iCell );
                 }
             }
+            // add surface points to the list of all surface points
+            aMeshGenerationData.mDelaunayPoints.push_back( concatenate_vector_of_mats( tSurfacePoints, 0 ) );
         }
 
         // remove the excess space
         shrink_to_fit_all( aMeshGenerationData.mIntersectedBackgroundCellIndex );
 
         unique( aMeshGenerationData.mAllIntersectedBgCellInds );
+        unique( aMeshGenerationData.mDeluanayBgCellInds );
+        unique( aMeshGenerationData.mRegularSubdivisionBgCellInds );
 
         return true;
     }
@@ -3888,8 +3915,11 @@ namespace moris::xtk
                     (moris_index)aDecompositionData->tNewNodeParentIndex( iV );
         }
 
+        // Get the cells that the algorithm decomposed
+        Vector< moris_index > tDecomposedCells = aDecompAlg->get_decomposed_cell_indices();
+
         // iterate through child meshes and commit the vertices to their respective vertex groups
-        for ( auto& iCell : aMeshGenerationData->mAllIntersectedBgCellInds )
+        for ( auto& iCell : tDecomposedCells )
         {
             MORIS_ERROR( aDecompositionData->tCMNewNodeLoc.size() == (uint)aCutIntegrationMesh->mChildMeshes.size(),
                     "Mismatch in child mesh sizes. All child meshes need to be present in the decomposition data" );

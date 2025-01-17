@@ -91,7 +91,7 @@ namespace moris::gen
          * @param aMesh Mesh for discrete or mesh based geomtries
          */
         explicit Geometry_Engine(
-                Module_Parameter_Lists        aParameterLists,
+                Module_Parameter_Lists               aParameterLists,
                 const std::shared_ptr< Library_IO >& aLibrary = nullptr,
                 mtk::Mesh*                           aMesh    = nullptr );
 
@@ -259,6 +259,36 @@ namespace moris::gen
          * Admit the queued intersection as a unique, permanent node for sensitivity calculations.
          */
         void admit_queued_intersection();
+
+        /**
+         * Checks if the given geometry has surface points inside the given element.
+         *
+         * @param aGeometryIndex Geometry index
+         * @param aCell Background mesh element to query for surface points
+         */
+        bool
+        has_surface_points(
+                uint       aGeometryIndex,
+                mtk::Cell* aCell );
+
+        /**
+         * Returns points on the surface of the active geometry that are inside the given element.
+         *
+         * @param aCell Background mesh element to query for surface points
+         * @return Local coordinates of surface points in cell. Size <spatial dim> x <num points>
+         */
+        Matrix< DDRMat > get_surface_points_of_active_geometry( mtk::Cell* aCell );
+
+        /**
+         * Returns points on the surface of the given geometry that are inside the given element.
+         *
+         * @param aGeometryIndex Geometry index
+         * @param aCell Background mesh element to query for surface points
+         * @return Local coordinates of surface points. Size <spatial dim> x <num points>
+         */
+        Matrix< DDRMat > get_surface_points(
+                uint       aGeometryIndex,
+                mtk::Cell* aCell );
 
         /**
          * Update the queued intersection node with its node ID and node owner.
@@ -498,7 +528,7 @@ namespace moris::gen
          * @return Phase table
          */
         static Phase_Table create_phase_table(
-                const Module_Parameter_Lists& aParameterLists,
+                const Module_Parameter_Lists&        aParameterLists,
                 const std::shared_ptr< Library_IO >& aLibrary );
 
         /**

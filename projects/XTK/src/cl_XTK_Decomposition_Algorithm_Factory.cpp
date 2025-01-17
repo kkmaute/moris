@@ -12,6 +12,7 @@
 #include "cl_XTK_Decomposition_Algorithm.hpp"
 #include "cl_XTK_Regular_Subdivision_Interface.hpp"
 #include "cl_XTK_Node_Hierarchy_Interface.hpp"
+#include "cl_XTK_Delaunay_Subdivision_Interface.hpp"
 #include "cl_XTK_Octree_Interface.hpp"
 #include "cl_XTK_Elevate_Order_Interface.hpp"
 
@@ -21,7 +22,7 @@ namespace moris::xtk
     std::shared_ptr< xtk::Decomposition_Algorithm >
     create_decomposition_algorithm(
             enum Subdivision_Method aSubdivisionMethod,
-            moris::Parameter_List&   aParameterList )
+            moris::Parameter_List&  aParameterList )
     {
         switch ( aSubdivisionMethod )
         {
@@ -31,6 +32,10 @@ namespace moris::xtk
 
             case Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8:
                 return std::make_shared< xtk::Regular_Subdivision_Interface >( aParameterList, mtk::CellTopology::HEX8 );
+                break;
+
+            case Subdivision_Method::C_DELAUNAY:
+                return std::make_shared< xtk::Delaunay_Subdivision_Interface >( aParameterList );
                 break;
 
             case Subdivision_Method::C_TRI3:
@@ -69,4 +74,4 @@ namespace moris::xtk
                 break;
         }
     }
-}
+}    // namespace moris::xtk

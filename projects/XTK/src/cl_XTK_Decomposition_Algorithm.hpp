@@ -22,6 +22,7 @@ namespace moris::xtk
         NODE_HEIRARCHY,
         OCTREE,
         ELEVATE_ORDER,
+        DELAUNAY,
         MAX_ENUM
     };
 
@@ -44,6 +45,21 @@ namespace moris::xtk
       public:
         Decomposition_Algorithm() {}
         virtual ~Decomposition_Algorithm() {}
+
+        /**
+         * Checks if the given cell should be operated on by this decomposition algorithm
+         *
+         * @param aCell The cell to check
+         * @return True if the cell will be decomposed by this algorithm, false otherwise
+         */
+        virtual bool is_eligible( std::pair< mtk::Cell*, Vector< Decomposition_Algorithm_Type > >& aElementContext,
+                Cut_Integration_Mesh*                                                              aCutIntegrationMesh,
+                Integration_Mesh_Generator*                                                        aMeshGenerator ) const = 0;
+
+        /**
+         * Gets the indices of the cells in the background mesh that were decomposed by this algorithm
+         */
+        virtual Vector< moris_index > get_decomposed_cell_indices() = 0;
 
         // set of
         virtual void perform(

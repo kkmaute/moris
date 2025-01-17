@@ -339,6 +339,25 @@ namespace moris::xtk
         return true;
     }
     // ----------------------------------------------------------------------------------
+
+    bool
+    Octree_Interface::is_eligible( std::pair< mtk::Cell *, Vector< Decomposition_Algorithm_Type > > &aElementContext,
+            Cut_Integration_Mesh                                                                    *aCutIntegrationMesh,
+            Integration_Mesh_Generator                                                              *aMeshGenerator ) const
+    {
+        return true;
+    }
+
+    // ----------------------------------------------------------------------------------
+
+    Vector< moris_index >
+    Octree_Interface::get_decomposed_cell_indices()
+    {
+        return mIgMeshGenData->mRegularSubdivisionBgCellInds;
+    }
+
+    // ----------------------------------------------------------------------------------
+
     void
     Octree_Interface::perform_impl_vertex_requests(
             Integration_Mesh_Generation_Data *aMeshGenerationData,

@@ -135,7 +135,7 @@ namespace moris::gen
         // Forward analysis variables
         const mtk::Mesh*                             mMesh = nullptr;
         std::unordered_map< uint, mtk::Mesh_Region > mNodeMeshRegions;    // contains information about the nodes in the interpolation mesh from a flood fill. The nodes that are undefined will be raycast to determine their region.
-        
+
       public:
         /**
          * Constructor taking in a field pointer and a set of parameters.
@@ -164,6 +164,19 @@ namespace moris::gen
         Geometric_Region get_geometric_region(
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aNodeCoordinates ) override;
+
+        /**
+         * Checks if there are surface mesh vertices inside the given cell
+         */
+        bool
+        has_surface_points( mtk::Cell* aCell ) override;
+
+        /**
+         * Override to return the location of any surface mesh nodes that are inside the requested cell
+         *
+         * @param aCell The element to check to see if the surface mesh nodes are inside
+         */
+        Matrix< DDRMat > get_surface_points( mtk::Cell* aCell ) override;
 
         /**
          * Creates an intersection node based on the given information. The intersection node may or may not represent an intersection;

@@ -35,6 +35,34 @@ namespace moris::xtk
         }
     }
 
+    //--------------------------------------------------------------------------------------------------
+
+    bool
+    Regular_Subdivision_Interface::is_eligible( std::pair< mtk::Cell*, Vector< Decomposition_Algorithm_Type > >& aElementContext,
+            Cut_Integration_Mesh*                                                                                aCutIntegrationMesh,
+            Integration_Mesh_Generator*                                                                          aMeshGenerator ) const
+    {
+        // Get the existing decomposition types
+        Vector< Decomposition_Algorithm_Type > tDecompTypes = aElementContext.second;
+
+        // Check if this element is doing Delaunay
+        bool tIsDelaunay = std::find( tDecompTypes.begin(), tDecompTypes.end(), Decomposition_Algorithm_Type::DELAUNAY ) != tDecompTypes.end();
+
+        // Decompose if it the element has not been Delaunay triangulated and is intersected
+        // return not tIsDelaunay and aMeshGenerator->is_intersected( aElementContext.first );
+        return not tIsDelaunay;
+    }
+
+    //--------------------------------------------------------------------------------------------------
+
+    Vector< moris_index >
+    Regular_Subdivision_Interface::get_decomposed_cell_indices()
+    {
+        return mMeshGenerationData->mAllIntersectedBgCellInds;
+    }
+
+    //--------------------------------------------------------------------------------------------------
+
     bool
     Regular_Subdivision_Interface::has_geometric_independent_vertices() const
     {
@@ -142,7 +170,7 @@ namespace moris::xtk
 
         // populate new cell data
         moris::moris_index tCurrentCellIndex = 0;
-        for ( auto& iCM : aMeshGenerationData->mAllIntersectedBgCellInds )
+        for ( auto& iCM : aMeshGenerationData->mRegularSubdivisionBgCellInds )
         {
             std::shared_ptr< Child_Mesh_Experimental > tChildMesh = aCutIntegrationMesh->get_child_mesh( iCM );
 
@@ -187,7 +215,7 @@ namespace moris::xtk
                 }
             }
         }    // end for: each intersected background element
-    }        // end function: Regular_Subdivision_Interface::perform_impl_generate_mesh()
+    }    // end function: Regular_Subdivision_Interface::perform_impl_generate_mesh()
 
     //--------------------------------------------------------------------------------------------------
 
@@ -280,9 +308,9 @@ namespace moris::xtk
                 tParentCellInfo->eval_N( tNewNodeXi, aRegularSubdivisionInterfaceData->mNXi );
 
                 // create a new request
-                std::shared_ptr< Matrix< DDRMat > > tNewNodeXiPtr = std::make_shared< Matrix< DDRMat > >( tNewNodeXi );
-                Matrix< DDRMat > tNewNodePhysCoords = aRegularSubdivisionInterfaceData->mNXi * tParentCell->get_vertex_coords();
-                moris_index tNewNodeIndexInSubdivision = aDecompositionData->register_new_request(
+                std::shared_ptr< Matrix< DDRMat > > tNewNodeXiPtr              = std::make_shared< Matrix< DDRMat > >( tNewNodeXi );
+                Matrix< DDRMat >                    tNewNodePhysCoords         = aRegularSubdivisionInterfaceData->mNXi * tParentCell->get_vertex_coords();
+                moris_index                         tNewNodeIndexInSubdivision = aDecompositionData->register_new_request(
                         tBgFacetIndex,
                         tOwner,
                         mtk::EntityRank::FACE,
@@ -346,7 +374,7 @@ namespace moris::xtk
                         aRegularSubdivisionInterfaceData->mNewNodeXi( tNewNodeTemplateOrd );
             }
         }    // end for: iVertsInCell
-    }        // end function: Regular_Subdivision_Interface::make_new_vertex_requests()
+    }    // end function: Regular_Subdivision_Interface::make_new_vertex_requests()
 
     //--------------------------------------------------------------------------------------------------
 

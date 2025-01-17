@@ -79,6 +79,18 @@ namespace moris::xtk
         Node_Hierarchy_Interface( Parameter_List &aParameterList ) {}
         ~Node_Hierarchy_Interface() override {}
 
+        /**
+         * @brief Checks if the given cell should be operated on by this decomposition algorithm
+         *
+         * @param aCell The cell to check
+         * @return True if the cell will be decomposed by this algorithm, false otherwise
+         */
+        bool is_eligible( std::pair< mtk::Cell *, Vector< Decomposition_Algorithm_Type > > &aElementContext,
+                Cut_Integration_Mesh                                                       *aCutIntegrationMesh,
+                Integration_Mesh_Generator                                                 *aMeshGenerator ) const override;
+
+        Vector< moris_index > get_decomposed_cell_indices() override;
+
         bool has_geometric_independent_vertices() const override;
 
         /**
@@ -152,9 +164,7 @@ namespace moris::xtk
         bool
         associate_new_vertices_with_cell_groups(
                 const std::shared_ptr< Edge_Based_Connectivity > &aEdgeConnectivity,
-                const std::shared_ptr< Edge_Based_Ancestry >     &aIgEdgeAncestry,
                 Vector< moris::mtk::Cell * >                     *aBackgroundCellForEdge,
-                Vector< std::shared_ptr< IG_Vertex_Group > >     *aVertexGroups,
                 Vector< moris_index >                            *aIntersectedEdges,
                 Vector< moris::real >                            *aEdgeLocalCoordinate );
 

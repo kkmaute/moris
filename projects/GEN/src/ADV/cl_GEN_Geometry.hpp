@@ -82,6 +82,16 @@ namespace moris::gen
                 const Matrix< DDRMat >& aNodeCoordinates ) = 0;
 
         /**
+         * Checks if there are surface points inside the given cell
+         */
+        virtual bool has_surface_points( mtk::Cell* aCell );
+
+        /**
+         * Gets local coordinates of surface points on the interface of the geometry for a given cell
+         */
+        virtual Matrix< DDRMat > get_surface_points( mtk::Cell* aCell );
+
+        /**
          * Creates an intersection node based on the given information. The intersection node may or may not represent an intersection;
          * that is, its position may lie outside of the edge definition based on the given nodal coordinates. This information can be
          * requested from the created intersection node.
@@ -156,7 +166,7 @@ namespace moris::gen
          * @return the value of the geometry field at the requested location
          */
         virtual void get_design_info(
-                const uint                    aNodeIndex,
+                const uint              aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates,
                 Vector< real >&         aOutputDesignInfo ) = 0;
 
