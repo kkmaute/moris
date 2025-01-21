@@ -447,10 +447,36 @@ namespace moris::fem
         if ( mSet->get_moment_fitting_flag() )
         {
             // The entire cluster is the IG element
-            MORIS_ASSERT( mElementType == fem::Element_Type::BULK, "Cluster::compute_jacobian - Moment fitting is only supported for bulk elements.");
+            //MORIS_ASSERT( mElementType == fem::Element_Type::BULK, "Cluster::compute_jacobian - Moment fitting is only supported for bulk elements.");
 
-            // No need to loop over the elements - the entire cluster is the IG element, so no need for repeated cell check either.
-            mElements( 0 )->compute_jacobian();
+            if (mElementType == fem::Element_Type::BULK)
+            {
+                // Get quadrature points from the mesh cluster
+                this->set_quadrature_points();
+
+                // Get quadrature points from the mesh cluster
+                this->set_quadrature_weights();
+
+                // No need to loop over the elements - the entire cluster is the IG element, so no need for repeated cell check either.
+                mElements( 0 )->compute_jacobian();
+            }
+            else
+            {
+                 // loop over the IG elements
+                 for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+                 {
+                     // check whether to compute jacobian
+                     if ( mComputeResidualAndIQI( iElem ) )
+                     {
+                         // compute the jacobian for the IG element
+                        mElements( iElem )->compute_jacobian();
+                     }
+                }
+            }
+
+                
+
+            
         }
         else
         {
@@ -481,10 +507,32 @@ namespace moris::fem
         if ( mSet->get_moment_fitting_flag() )
         {
             // The entire cluster is the IG element
-            MORIS_ASSERT( mElementType == fem::Element_Type::BULK, "Cluster::compute_residual - Moment fitting is only supported for bulk elements.");
+            //MORIS_ASSERT( mElementType == fem::Element_Type::BULK, "Cluster::compute_residual - Moment fitting is only supported for bulk elements.");
 
-            // No need to loop over the elements - the entire cluster is the IG element, so no need for repeated cell check either.
-            mElements( 0 )->compute_residual();
+            if( mElementType == fem::Element_Type::BULK )
+            {
+                // Get quadrature points from the mesh cluster
+                this->set_quadrature_points();
+
+                // Get quadrature points from the mesh cluster
+                this->set_quadrature_weights();
+                
+                // No need to loop over the elements - the entire cluster is the IG element, so no need for repeated cell check either.
+                mElements( 0 )->compute_residual();
+            }
+            else
+            {
+                // loop over the IG elements
+                for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+                {
+                    // check whether to compute residual
+                    if ( mComputeResidualAndIQI( iElem ) )
+                    {
+                        // compute the residual for the IG element
+                        mElements( iElem )->compute_residual();
+                    }
+                }
+            }
         }
 
         
@@ -518,10 +566,35 @@ namespace moris::fem
         if ( mSet->get_moment_fitting_flag() )
         {
             // The entire cluster is the IG element
-            MORIS_ASSERT( mElementType == fem::Element_Type::BULK, "Cluster::compute_jacobian_and_residual - Moment fitting is only supported for bulk elements.");
+            //MORIS_ASSERT( mElementType == fem::Element_Type::BULK, "Cluster::compute_jacobian_and_residual - Moment fitting is only supported for bulk elements.");
+
+            if( mElementType == fem::Element_Type::BULK )
+            {
+                // Set quadrature points from the mesh cluster
+                this->set_quadrature_points();
+
+                // Set quadrature weights from the mesh cluster
+                this->set_quadrature_weights();
+                
+                // No need to loop over the elements - the entire cluster is the IG element, so no need for repeated cell check either.
+                mElements( 0 )->compute_jacobian_and_residual();
+            }
+            else
+            {
+                // loop over the IG elements
+                for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+                {
+                    // check whether to compute residual and jacobian for this element
+                    if ( mComputeResidualAndIQI( iElem ) )
+                    {
+                        // compute the jacobian and residual for the IG element
+                        mElements( iElem )->compute_jacobian_and_residual();
+                    }
+                }
+            }
 
             // No need to loop over the elements - the entire cluster is the IG element, so no need for repeated cell check either.
-            mElements( 0 )->compute_jacobian_and_residual();
+            //mElements( 0 )->compute_jacobian_and_residual();
             
         }
         else

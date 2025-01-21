@@ -243,7 +243,7 @@ namespace moris::mtk
     //------------------------------------------------------------------------------
 
     Matrix< DDRMat >
-    Cell_Cluster_DataBase::get_quadrature_weights( )
+    Cell_Cluster_DataBase::get_quadrature_weights( ) const
     {
         return mQuadratureWeights;
     }
@@ -251,7 +251,7 @@ namespace moris::mtk
     //------------------------------------------------------------------------------
 
     Matrix< DDRMat >
-    Cell_Cluster_DataBase::get_quadrature_points( )
+    Cell_Cluster_DataBase::get_quadrature_points( ) const
     {
         return mQuadraturePoints;
     }

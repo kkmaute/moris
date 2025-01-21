@@ -256,7 +256,7 @@ namespace moris::mtk
         /* Get the quadrature weights
          */
         Matrix< DDRMat >
-        get_quadrature_weights( );
+        get_quadrature_weights( ) const override;
 
         //------------------------------------------------------------------------------
 
@@ -264,7 +264,7 @@ namespace moris::mtk
         /* Get the quadrature points
          */
         Matrix< DDRMat >
-        get_quadrature_points( );
+        get_quadrature_points( ) const override;
 
 
         //------------------------------------------------------------------------------

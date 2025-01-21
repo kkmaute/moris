@@ -365,7 +365,7 @@ namespace moris::mtk
             real        tX2         = tVertexCoords( tSecondNode, 0 );
             real        tY1         = tVertexCoords( tFirstNode, 1 );
             real        tY2         = tVertexCoords( tSecondNode, 1 );
-            tOutwardNormal          = { { tY2 - tY1 }, { tX2 - tX1 } };
+            tOutwardNormal          = { { - tY2 + tY1 }, { tX2 - tX1 } };
         }
 
         // for 3D get the normal to the plane spanned by two edges

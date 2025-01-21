@@ -454,14 +454,14 @@ namespace moris::mtk
         }
 
         Matrix< DDRMat >
-        get_quadrature_weights(  ) const
+        get_quadrature_weights(  ) const override 
         {
             Matrix< DDRMat > tDummyWeights ;
             return tDummyWeights;
         }
 
         Matrix< DDRMat >
-        get_quadrature_points(  ) const 
+        get_quadrature_points(  ) const override
         {
             Matrix< DDRMat > tDummyPoints ;
             return tDummyPoints;

@@ -19,6 +19,10 @@
 #include "cl_MTK_Integration_Rule.hpp"
 #include "cl_MTK_Space_Interpolator.hpp"
 #include "cl_MTK_Interpolation_Rule.hpp"
+#include "fn_linsolve.hpp"
+#include "fn_inv.hpp"
+#include "fn_dot.hpp"
+
 
 // namespace moris
 // {
@@ -426,14 +430,6 @@ namespace moris::xtk
         // Get the primary subphase IG cells first
         Vector< mtk::Cell* > tSubphaseIgCellsPtr = aSubphaseIGCells->mIgCellGroup;
 
-        for (uint iCellIndex = 0; iCellIndex < tSubphaseIgCellsPtr.size(); iCellIndex++)
-            {
-                // get cell
-                mtk::Cell* tCellObj = tSubphaseIgCellsPtr( iCellIndex );
-
-                fprintf( stdout, " Cell ID in subphase %d\n", (moris_id)tCellObj->get_id() );
-            }
-        
         // Initialize the vector containing the facets
         Vector< moris_index > tSubphaseFacets;
 
@@ -461,21 +457,34 @@ namespace moris::xtk
             Vector< mtk::Cell* > tOwningElements = aFacetConnectivity->mFacetToCell( tSingleFacet );
 
             // Only retain cells in the subphase from the facet to cell map
-            Vector< moris::mtk::Cell* > tOwningElementsInSubphase;
+            Vector< mtk::Cell* > tOwningElementsInSubphase;
+            
+            // For facet to cell edge ordinal map
+            uint tCellIndexForFacet = 0;
 
+            // Now check if the facet belongs to only one cell in the subphase
             for (uint iSubphaseCellIndex = 0; iSubphaseCellIndex < tSubphaseIgCellsPtr.size(); iSubphaseCellIndex++)
             {
                 // Get cell
                 mtk::Cell* tSubphaseCellToCheck = tSubphaseIgCellsPtr( iSubphaseCellIndex );
 
-                for (uint iOwningCells = 0; iOwningCells < tOwningElements.size() ; iOwningCells++) 
-                {
-                    // Check if subphase cell part of facet owning cells
-                    if (tOwningElements( iOwningCells ) == tSubphaseCellToCheck)
-                    {
-                        tOwningElementsInSubphase.push_back( tOwningElements( iOwningCells ) );
-                    } 
+                fprintf( stdout , "Subphase cell index %d\n", tSubphaseCellToCheck->get_index() );
 
+                // Get local cell index
+                //moris_index tSubphaseCellIndexLocal = aFacetConnectivity->get_cell_ordinal( tSubphaseCellToCheck->get_index() );
+
+                for (uint iOwningCells = 0; iOwningCells < tOwningElements.size() ; iOwningCells++) 
+                {                    
+                    // Check if subphase cell part of facet owning cells
+                    if ( tOwningElements( iOwningCells )->get_index() == tSubphaseCellToCheck->get_index() )
+                    {
+                        // Add to vector containing only subphase cells sharing facet
+                        tOwningElementsInSubphase.push_back( tOwningElements( iOwningCells ) );
+
+                        // Get cell index value for facet to cell ordinal map
+                        tCellIndexForFacet = iOwningCells;
+                               
+                    } 
 
                 }
 
@@ -485,9 +494,102 @@ namespace moris::xtk
             if ( tOwningElementsInSubphase.size()  == 1 )
             {
                 mFacetVerticesOnSubphaseBoundary.push_back( aFacetConnectivity->mFacetVertices( tSingleFacet ) );
+
+                // Get all possible cell ordinals for this facet
+                Vector< moris_index > tFacetOrdinals = aFacetConnectivity->mFacetToCellEdgeOrdinal( tSingleFacet ) ;
+
+                // Get ordinal corresponding to given subphase cell _and_ facet
+                moris_index tCellOrdinal = tFacetOrdinals( tCellIndexForFacet );
+
+                // Compute normal for this facet based on the side ordinal data
+                Matrix< DDRMat > tFacetNormal = tOwningElementsInSubphase( 0 )->compute_outward_side_normal( tCellOrdinal );
+
+                // Add to vector containing facet normals
+                mFacetNormals.push_back( tFacetNormal );
+
+                // Get the (ordered) vertices for this facet
+                Vector< moris::mtk::Vertex const * > tVerticesOnFacet = tOwningElementsInSubphase( 0 )->get_vertices_on_side_ordinal( tCellOrdinal );
+
+                Matrix< DDRMat > tVertexCoordinatesFacetOrdered;
+
+                tVertexCoordinatesFacetOrdered.reshape( tVerticesOnFacet.size() , 2 );
+
+                // Get the vertex local coordinates and add to mFacetCoordinates
+                for ( uint iVertex = 0; iVertex < tVerticesOnFacet.size(); iVertex++ )
+                {
+                    // Get vertex
+                    moris::mtk::Vertex const * tVertexInFacet = tVerticesOnFacet( iVertex );
+
+                    // Get local coordinates
+                    Matrix< DDRMat > tVertexCoords = get_vertex_local_coordinate_wrt_interp_cell( tVertexInFacet );
+
+                    // Add to Matrix
+                    tVertexCoordinatesFacetOrdered.set_row( iVertex , tVertexCoords.get_row( 0 ) );
+
+                }
+
+                mFacetVertexCoordinates.push_back( tVertexCoordinatesFacetOrdered );
+
+                // get the vertex coordinates
+                //moris::Matrix< moris::DDRMat > tVertexCoords = tOwningElementsInSubphase( 0 )->get_vertex_coords();
+
+                // Get the nodes which need to be used
+                //moris::Matrix< moris::IndexMat > tEdgeNodesForNormal = tOwningElementsInSubphase( 0 )->get_cell_info()->get_node_map_outward_normal( tCellOrdinal );
+
+                // Declare node matrix
+                //Matrix < DDRMat > tFacetVertexCoordinates;
+                //tFacetVertexCoordinates.reshape( 2 , 2 );
+                
+                // Order the nodes
+                //moris_index tFirstNode  = tEdgeNodesForNormal( 0 );
+                //moris_index tSecondNode = tEdgeNodesForNormal( 1 );
+                //tFacetVertexCoordinates( 0 , 0 ) = tVertexCoords( tFirstNode, 0 );
+                //tFacetVertexCoordinates( 1 , 0 ) = tVertexCoords( tSecondNode, 0 );
+                //tFacetVertexCoordinates( 0 , 1 ) = tVertexCoords( tFirstNode, 1 );
+                //tFacetVertexCoordinates( 1 , 1 ) = tVertexCoords( tSecondNode, 1 );
+
+                // Add the vertex coordinate matrix to the vector
+                //mFacetVertexCoordinates.push_back( tFacetVertexCoordinates );
+                
             }
 
+            
+
         }  
+
+        // Code below for testing the facet normal computation function. Not needed otherwise, but still kept.
+        
+        Matrix < DDRMat > tFacetNormals;
+
+        tFacetNormals.reshape( mFacetNormals.size() , 2 );
+
+
+        for (uint iFacetNormalIndex = 0; iFacetNormalIndex < mFacetNormals.size(); iFacetNormalIndex++ )
+        {
+            Matrix < DDRMat > tFacetNormal = mFacetNormals( iFacetNormalIndex );
+
+            Matrix < DDRMat > tFacetNormalReshaped  = trans( tFacetNormal );
+            
+            tFacetNormals.set_row( iFacetNormalIndex , tFacetNormalReshaped );
+                
+        }
+
+        Matrix < DDRMat > tFacetCoords;
+
+        tFacetCoords.reshape( 2*mFacetVertexCoordinates.size() , 2 );
+
+
+        for (uint iFacetNormalIndex = 0; iFacetNormalIndex < mFacetVertexCoordinates.size(); iFacetNormalIndex++ )
+        {
+            Matrix < DDRMat > tFacetCoord = mFacetVertexCoordinates( iFacetNormalIndex );
+            
+            tFacetCoords.set_row( 2*iFacetNormalIndex , tFacetCoord.get_row( 0 ) );
+
+            tFacetCoords.set_row( 2*iFacetNormalIndex + 1 , tFacetCoord.get_row( 1 ) );
+                
+        }
+
+
 
         // The code below was all for testing the facet filtering function. Not needed otherwise, but still kept.
 
@@ -534,6 +636,19 @@ namespace moris::xtk
         save_vector_to_hdf5_file( tFileID1, std::string("Coords"), tFacetCoordinatesFileVectorY, tStatus1 );
 
         close_hdf5_file( tFileID1 );
+
+        hid_t  tFileID2 = create_hdf5_file( "FacetNormals_new.hdf5" );
+        herr_t tStatus2 = 0;
+        save_matrix_to_hdf5_file( tFileID2, std::string("Coords"), tFacetNormals, tStatus2 );
+
+        close_hdf5_file( tFileID2 );
+
+        hid_t  tFileID3 = create_hdf5_file( "FacetVertices_New.hdf5" );
+        herr_t tStatus3 = 0;
+        save_matrix_to_hdf5_file( tFileID3, std::string("Coords"), tFacetCoords, tStatus3 );
+
+        close_hdf5_file( tFileID3 );
+
         
 
     }
@@ -567,22 +682,22 @@ namespace moris::xtk
         }
 
         // Now, create interpolation objects for specifying the basis function for each facet. One for the IP and one for the geometry.
-        mtk::Interpolation_Rule tInterpolationRule( mtk::Geometry_Type::LINE , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR , mtk::Geometry_Type::LINE , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR );
+        //mtk::Interpolation_Rule tInterpolationRule( mtk::Geometry_Type::LINE , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR , mtk::Geometry_Type::LINE , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR );
 
         mtk::Interpolation_Rule tIPInterpolationRule( mtk::Geometry_Type::QUAD , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR , mtk::Geometry_Type::LINE , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR );
 
         // Declare cellshape
-        mtk::CellShape tCellShape = mtk::CellShape::GENERAL;
+        //mtk::CellShape tCellShape = mtk::CellShape::GENERAL;
 
         // Set space sideset to true for interpolation to start
-        bool tSpaceSideset = true;
+        //bool tSpaceSideset = true;
 
         // Create space interpolator object
-        mtk::Space_Interpolator tSpaceInterpolationObject( tInterpolationRule , tIPInterpolationRule , tCellShape , tSpaceSideset );
+        //mtk::Space_Interpolator tSpaceInterpolationObject( tInterpolationRule , tIPInterpolationRule , tCellShape , tSpaceSideset );
 
-        Matrix< DDRMat > tFacetNormals;
+        //Matrix< DDRMat > tFacetNormals;
 
-        tFacetNormals.reshape( mFacetVerticesOnSubphaseBoundary.size() , 2 );
+        /*tFacetNormals.reshape( mFacetVerticesOnSubphaseBoundary.size() , 2 );
         
         // compute the normals of all the boundary facets.
         for (uint iFacetMidpointIndex = 0; iFacetMidpointIndex < mFacetVerticesOnSubphaseBoundary.size(); iFacetMidpointIndex++ )
@@ -629,7 +744,7 @@ namespace moris::xtk
         herr_t tStatus2 = 0;
         save_matrix_to_hdf5_file( tFileID2, std::string("Coords"), tFacetNormals, tStatus2 );
 
-        close_hdf5_file( tFileID2 );
+        close_hdf5_file( tFileID2 );*/
 
         //Declare LHS matrix
         Matrix < DDRMat > tMomentFittingLHS;
@@ -638,7 +753,7 @@ namespace moris::xtk
         mtk::Interpolation_Function_Base* tIPInterp = tIPInterpolationRule.create_space_interpolation_function();
 
         // Generate LHS
-        for (uint iQuadPointIndex = 0; iQuadPointIndex < mQuadraturePoints.n_rows() ; iQuadPointIndex++)
+        for (uint iQuadPointIndex = 0; iQuadPointIndex < 4 ; iQuadPointIndex++)
         {
             // Declare matrix for basis function values
             Matrix< DDRMat > tN;
@@ -653,6 +768,101 @@ namespace moris::xtk
             tMomentFittingLHS.set_column( iQuadPointIndex , trans( tN ) );
 
         }
+
+        // Generate RHS
+        Matrix < DDRMat > tMomentFittingRHS;
+        tMomentFittingRHS.reshape( 4 , 1 );
+
+        // Compute the RHS
+        for (uint iFacetIndex = 0; iFacetIndex < mFacetVerticesOnSubphaseBoundary.size() ; iFacetIndex++)
+        {
+            // Get subphase facet coordinates
+            Matrix< DDRMat > tFacetCoords = mFacetVertexCoordinates( iFacetIndex );
+
+            // Get facet normal
+            Matrix< DDRMat > tFacetNormal = mFacetNormals( iFacetIndex );
+
+            real tx0  = tFacetCoords( 0 , 0 );
+            real ty0  = tFacetCoords( 0 , 1 );
+
+            real tx1  = tFacetCoords( 1 , 0 );
+            real ty1  = tFacetCoords( 1 , 1 );
+
+            real tNx  = tFacetNormal( 0 , 0 );
+            real tNy  = tFacetNormal( 1 , 0 );
+
+            /*real ta11 = tx0 - tx1;
+            real ta12 = ty0 - ty1;
+            real tb11  = 1.0 - tx0;
+            real tb12  = 1.0 - ty0;
+
+            real ta21 = tx1 - tx0;
+            real ta22 = ty0 - ty1;
+            real tb21  = 1.0 + tx0;
+            real tb22  = 1.0 - ty0;
+            
+            real ta31 = tx1 - tx0;
+            real ta32 = ty1 - ty0;
+            real tb31  = 1.0 + tx0;
+            real tb32  = 1.0 + ty0;
+
+            real ta41 = tx0 - tx1;
+            real ta42 = ty1 - ty0;
+            real tb41  = 1.0 - tx0;
+            real tb42  = 1.0 + ty0;
+
+            // Compute the RHS
+            tMomentFittingRHS( 0 , 0 ) = tMomentFittingRHS( 0 , 0 ) - ta11 * tNx * (1.0/4.0) * ( ( ta12/ 4*ta11 )*( std::pow( (ta11 + tb11) , 4 ) -  std::pow( tb11 , 4 ) ) + ( ta12* tb11 / (3 * ta11) )*( std::pow( (ta11 + tb11) , 3 ) -  std::pow( tb11 , 3 ) ) + (tb12 / 3)*( std::pow( (ta11 + tb11) , 3 ) -  std::pow( tb11 , 3 ) ) );
+
+            tMomentFittingRHS( 0 , 0 ) = tMomentFittingRHS( 0 , 0 ) - ta12 * tNy * (1.0/4.0) * ( ( ta11/ 4*ta12 )*( std::pow( (ta12 + tb12) , 4 ) -  std::pow( tb12 , 4 ) ) + ( ta11* tb12 / (3 * ta12) )*( std::pow( (ta12 + tb12) , 3 ) -  std::pow( tb11 , 3 ) ) + (tb12 / 3)*( std::pow( (ta12 + tb12) , 3 ) -  std::pow( tb12 , 3 ) ) );
+
+
+            tMomentFittingRHS( 1 , 0 ) = tMomentFittingRHS( 1 , 0 ) + ta21 * tNx * (1.0/4.0) * ( ( ta22/ 4*ta21 )*( std::pow( (ta21 + tb21) , 4 ) -  std::pow( tb21 , 4 ) ) + ( ta22* tb21 / (3 * ta21) )*( std::pow( (ta21 + tb21) , 3 ) -  std::pow( tb21 , 3 ) ) + (tb22 / 3)*( std::pow( (ta21 + tb21) , 3 ) -  std::pow( tb21 , 3 ) ) );
+
+            tMomentFittingRHS( 1 , 0 ) = tMomentFittingRHS( 1 , 0 ) - ta22 * tNy * (1.0/4.0) * ( ( ta21/ 4*ta22 )*( std::pow( (ta22 + tb22) , 4 ) -  std::pow( tb22 , 4 ) ) + ( ta21* tb22 / (3 * ta22) )*( std::pow( (ta22 + tb22) , 3 ) -  std::pow( tb21 , 3 ) ) + (tb22 / 3)*( std::pow( (ta22 + tb22) , 3 ) -  std::pow( tb22 , 3 ) ) );
+
+
+            tMomentFittingRHS( 2 , 0 ) = tMomentFittingRHS( 2 , 0 ) + ta31 * tNx * (1.0/4.0) * ( ( ta32/ 4*ta31 )*( std::pow( (ta31 + tb31) , 4 ) -  std::pow( tb31 , 4 ) ) + ( ta32* tb31 / (3 * ta31) )*( std::pow( (ta31 + tb31) , 3 ) -  std::pow( tb31 , 3 ) ) + (tb32 / 3)*( std::pow( (ta31 + tb31) , 3 ) -  std::pow( tb31 , 3 ) ) );
+
+            tMomentFittingRHS( 2 , 0 ) = tMomentFittingRHS( 2 , 0 ) + ta32 * tNy * (1.0/4.0) * ( ( ta31/ 4*ta32 )*( std::pow( (ta32 + tb32) , 4 ) -  std::pow( tb32 , 4 ) ) + ( ta31* tb32 / (3 * ta32) )*( std::pow( (ta32 + tb32) , 3 ) -  std::pow( tb31 , 3 ) ) + (tb32 / 3)*( std::pow( (ta32 + tb32) , 3 ) -  std::pow( tb32 , 3 ) ) );
+
+            
+            tMomentFittingRHS( 3 , 0 ) = tMomentFittingRHS( 3 , 0 ) - ta41 * tNx * (1.0/4.0) * ( ( ta42/ 4*ta41 )*( std::pow( (ta41 + tb41) , 4 ) -  std::pow( tb41 , 4 ) ) + ( ta42* tb41 / (3 * ta41) )*( std::pow( (ta41 + tb41) , 3 ) -  std::pow( tb41 , 3 ) ) + (tb42 / 3)*( std::pow( (ta41 + tb41) , 3 ) -  std::pow( tb41 , 3 ) ) );
+
+            tMomentFittingRHS( 3 , 0 ) = tMomentFittingRHS( 3 , 0 ) + ta42 * tNy * (1.0/4.0) * ( ( ta41/ 4*ta42 )*( std::pow( (ta42 + tb42) , 4 ) -  std::pow( tb42 , 4 ) ) + ( ta41* tb42 / (3 * ta42) )*( std::pow( (ta42 + tb42) , 3 ) -  std::pow( tb41 , 3 ) ) + (tb42 / 3)*( std::pow( (ta42 + tb42) , 3 ) -  std::pow( tb42 , 3 ) ) );
+
+            // Compute the RHS
+
+            //tMomentFittingRHS( 0 , 0 ) = tMomentFittingRHS( 0 , 0 ) + 0.5 * ( (std::pow( (tx0 - tx1) , 2)*( ty0 - 1.0 ))/24.0 - (std::pow( (tx0 - tx1) , 2)*( ty0 - ty1 ))/32.0 + ((( 1 / 8.0 ) * std::pow( tx0 , 2 ) -  tx0 / 4.0 )*( ty0 - ty1 ))/2.0 )*/
+            
+            tMomentFittingRHS( 0 , 0 ) = tMomentFittingRHS( 0 , 0 ) + 0.5*tNx*(( 1.0 / 24.0 ) * std::pow(( tx0 - tx1 ), 2 )* ( ty0 - 1.0 ) - ( 1.0 / 32.0 ) * std::pow(( tx0 - tx1 ), 2 )* ( ty0 - ty1 ) + 0.5 * (( 1.0 / 8.0 )* (- std::pow( tx0 , 2 )) + ( 1.0 / 4.0 )*( tx0 ) )*( ty0 - ty1 ) + (1.0 / 3.0)*( ty0 - ty1 )*( tx1/4.0 - tx0/4.0 + (tx0/4.0) * (tx0 - tx1) ) - ( -std::pow( tx0 , 2 )/8.0 + tx0/4.0 )*(ty0 - 1) - 0.5*(ty0 - 1.0)*(tx1/4.0 - tx0/4.0 + (tx0/4.0)*(tx0 - tx1) ));  
+
+            tMomentFittingRHS( 0 , 0 ) = tMomentFittingRHS( 0 , 0 ) + 0.5*tNy*( 0.25*0.5*(tx0 - tx1)*(0.5 * std::pow( ty0 , 2 ) + ty0) - (1.0/32.0)*(tx0-tx1)*(std::pow( (ty0-ty1), 2)) + (1.0/12.0)*(tx0 - tx1)*(ty1 - ty0 + ty0*(ty0 - ty1)) + (1.0/24.0)*(ty0 - 1.0)*(std::pow( (ty0-ty1), 2)) - ( -0.5*std::pow( ty0, 2 ) + ty0 )*0.25*( tx0 - 1.0 ) - 0.5*0.25*( tx0 - 1 )*( ty1- ty0 + ty0*(ty0 - ty1) ) );   
+
+            tMomentFittingRHS( 1 , 0 ) = tMomentFittingRHS( 1 , 0 ) + 0.5*tNx*( ( 1.0 / 24.0 ) * std::pow(( tx0 - tx1 ), 2 )* ( ty0 - 1.0 ) - ( 1.0 / 32.0 ) * std::pow(( tx0 - tx1 ), 2 )* ( ty0 - ty1 ) + (( 1.0/8.0 )*std::pow( tx0 , 2) - tx0/4.0 )*0.5*( ty0 -ty1 ) - (1.0/3.0)*(ty0 - ty1)*( tx0/4.0 - tx1/4.0 + (tx0/4.0)*( tx0 - tx1 )) - (std::pow(tx0,2)/8.0 + tx0/4.0)*(ty0 - 1.0) + 0.5*(ty0 - 1.0)*(tx0/4.0 - tx1/4.0 + (tx0/4.0)*(tx0 - tx1) ) );
+
+            tMomentFittingRHS( 1 , 0 ) = tMomentFittingRHS( 1 , 0 ) + 0.5*tNy*((1.0/32.0)*(tx0 - tx1)*(std::pow( (ty0 - ty1), 2)) - (1.0/8.0)*(tx0 - tx1)*( 0.5*std::pow( ty0 , 2 ) + ty0 ) - (1.0/12.0)*(tx0 - tx1)*(ty1 - ty0 + ty0*(ty0 - ty1)) -  (1.0/24.0)*(std::pow(ty0 - ty1, 2))*( tx0 + 1.0) + 0.25*(-std::pow(ty0,2) + ty0 ) + 0.25*0.5*(tx0 + 1)*(ty1 - ty0 + ty0*(ty0 - ty1)));
+
+            tMomentFittingRHS( 2 , 0 ) = tMomentFittingRHS( 2 , 0 ) + 0.5*tNx*( ( 1.0 / 24.0 ) * std::pow(( tx0 - tx1 ), 2 )* ( ty0 + 1.0 ) - ( 1.0 / 32.0 ) * std::pow(( tx0 - tx1 ), 2 )* ( ty0 - ty1 ) + 0.5*((1.0/8.0)*std::pow(tx0,2)+ tx0/4.0 )*(ty0 - ty1) + (1.0/3.0)*(ty0 -ty1)*0.25*(tx0 - tx1 + tx0*(tx0 - tx1)) + 0.25*(0.5*std::pow(tx0,2) + tx0)*(ty0 + 1.0) - 0.5*0.25*(ty0 + 1.0)*(tx0 - tx1 + tx0*(tx0 - tx1)));
+
+            tMomentFittingRHS( 2 , 0 ) = tMomentFittingRHS( 2 , 0 ) + 0.5*tNy*( (1.0/12.0)*(tx0 - tx1)*(ty0 - ty1 + ty0*(ty0 - ty1)) - 0.5*0.25*(tx0 - tx1)*(0.5*std::pow(ty0,2)+ty0) - (1.0/32.0)*(tx0 - tx1)*(std::pow(ty0 - ty1,2)) + (1.0/24.0)*(tx0 + 1.0)*(std::pow(ty0 - ty1, 2)) + 0.25*(0.5*std::pow(ty0,2) + ty0)*(tx0 + 1.0) - 0.5*0.25*(tx0 + 1.0)*(ty0 - ty1 +ty0*(ty0 - ty1)));
+
+            tMomentFittingRHS( 3 , 0 ) = tMomentFittingRHS( 3 , 0 ) + 0.5*tNx*( -( 1.0 / 24.0 ) * std::pow(( tx0 - tx1 ), 2 )* ( ty0 + 1.0 ) + ( 1.0 / 32.0 ) * std::pow(( tx0 - tx1 ), 2 )* ( ty0 - ty1 ) - 0.25*(-0.5*std::pow(tx0 , 2) + tx0 )*( ty0 - ty1 ) - (1.0/12.0)*(ty0 - 1)*( tx1 - tx0 + tx0*(tx0 - tx1)) + 0.25*(ty0 + 1.0)*( -0.5*std::pow(tx0 , 2) + tx0 ) + (1.0/8.0)*(ty0 + 1)*( tx1 - tx0 + tx0*(tx0 - tx1)) );
+
+            tMomentFittingRHS( 3 , 0 ) = tMomentFittingRHS( 3 , 0 ) + 0.5*tNy*( (1.0/32.0)*(tx0 -tx1)*(std::pow(ty0 - ty1, 2)) + 0.25*0.5*(tx0 - tx1)*( 0.5*std::pow(ty0, 2) + ty0 ) - (1.0/12.0)*(tx0 - tx1)*(ty0 - ty1 + ty0*(ty0 - ty1)) - (1.0/24.0)*(tx0 - 1.0)*(std::pow(ty0 - ty1, 2)) + 0.25*(tx0 - 1)*(0.25*std::pow(ty0,2)) + 0.5*0.25*(tx0 - 1)*( ty0 - ty1 + ty0*(ty0 - ty1)));
+
+
+
+        }
+
+        // Solve the system
+        mQuadratureWeights = {{0.0}, {0.0}, {0.0}, {0.0}};
+        
+        mQuadratureWeights = ( inv( tMomentFittingLHS ) * tMomentFittingRHS);
+
+        
+
+        mQuadratureWeights.reshape( 1 , 4 );
         
     }
     

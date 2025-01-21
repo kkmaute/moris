@@ -2905,8 +2905,6 @@ namespace moris::xtk
 
                     moris_index tProcSubphaseIndex = mCellClusters( tEnrIpCellIndex )->mInterpolationCell->get_subphase_index();
 
-                    fprintf(stdout,"Subphase_Index %d\n", (moris_index)tProcSubphaseIndex );
-
                     // Get subphase IG cells
                     std::shared_ptr< IG_Cell_Group > tSubphaseCells = mCutIgMesh->get_subphase_ig_cells( tProcSubphaseIndex );
                     
@@ -2993,6 +2991,8 @@ namespace moris::xtk
 
                     // Compute quadrature weights via moment fitting
                     mCellClusters( tEnrIpCellIndex )->compute_quadrature_weights( mOrder, mDim );
+
+                    fprintf( stdout,"Subphase_Index %d\n", (moris_index)tPrimarySpIndex );
 
                     // get the subphases in the void region
                     for ( uint iVoid = 0; iVoid < tNumSPsOnCell; iVoid++ )

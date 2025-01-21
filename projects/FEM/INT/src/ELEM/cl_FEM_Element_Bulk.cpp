@@ -154,7 +154,7 @@ namespace moris::fem
         this->init_ig_geometry_interpolator();
 
         // loop over integration points
-        uint tNumIntegPoints = tQuadraturePoints.numel();
+        uint tNumIntegPoints = tQuadratureWeights.numel();
 
         for ( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
         {
@@ -166,13 +166,13 @@ namespace moris::fem
             mSet->get_field_interpolator_manager()->set_space_time( tLocalIntegPoint );
 
             // compute detJ of integration domain
-            real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+            //real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
 
             // skip if detJ smaller than threshold
-            if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
-            {
-                continue;
-            }
+            //if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+            //{
+            //    continue;
+            //}
 
             // compute integration point weight
             real tWStar = tQuadratureWeights( iGP ) ;
@@ -300,13 +300,13 @@ namespace moris::fem
             mSet->get_field_interpolator_manager()->set_space_time( tLocalIntegPoint );
 
             // compute detJ of integration domain
-            real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+            //real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
 
             // skip if detJ smaller than threshold
-            if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
-            {
-                continue;
-            }
+            //if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+            //{
+            //    continue;
+            //}
 
             // compute integration point weight
             real tWStar = tQuadratureWeights( iGP ) ;
@@ -436,13 +436,13 @@ namespace moris::fem
             mSet->get_field_interpolator_manager()->set_space_time( tIntegPoint );
 
             // compute detJ of integration domain
-            real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+            //real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
 
             // skip if detJ smaller than threshold
-            if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
-            {
-                continue;
-            }
+            //if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+            //{
+            //    continue;
+            //}
 
             // compute integration point weight
             real tWStar = tQuadratureWeights( iGP );

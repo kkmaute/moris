@@ -56,6 +56,8 @@ namespace moris::xtk
         Vector< std::shared_ptr< IG_Cell_Group > >    mVoidIgCellGroup;
         Vector< std::weak_ptr< mtk::Cluster_Group > > mClusterGroups;
         Vector< Vector< moris::mtk::Vertex* > >       mFacetVerticesOnSubphaseBoundary;
+        Vector< Matrix< DDRMat > >                    mFacetNormals;
+        Vector< Matrix< DDRMat > >                    mFacetVertexCoordinates;
 
         //------------------------------------------------------------------------------
 
