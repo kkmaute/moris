@@ -864,6 +864,41 @@ namespace moris::hmr
 
         //--------------------------------------------------------------------------------
 
+        void 
+        print( const uint aPattern ) const override
+        {
+            std::cout << "\n--------------------------------------------------\n";
+            
+            // basic identifying information
+            std::cout << "Background element..." << "\n";
+            std::cout << "Memory Index: " << this->get_memory_index() << "\n";
+            std::cout << "Domain Index: " << mDomainIndex( aPattern ) << "\n";
+            std::cout << "Domain ID: " << mDomainID << "\n\n";
+
+            // print the flags
+            std::cout << "Active: " << mActiveFlags.test( aPattern ) << "\n";
+            std::cout << "Refined: " << mRefinedFlags.test( aPattern ) << "\n";
+            std::cout << "Has children: " << mChildrenFlag << "\n\n";
+
+            // print the level
+            std::cout << "Level: " << mLevel << "\n";
+
+            // get IJK
+            const luint* tIJK = this->get_ijk();
+
+            // print IJK
+            std::cout << "IJK: [ " << tIJK[ 0 ];
+            for ( uint k = 1; k < N; ++k )
+            {
+                std::cout << ", " << tIJK[ k ];
+            }
+            std::cout << " ]\n";
+
+            std::cout << "--------------------------------------------------\n" << std::endl;
+        }
+        
+        //--------------------------------------------------------------------------------
+
       private:
         //--------------------------------------------------------------------------------
 
@@ -872,8 +907,11 @@ namespace moris::hmr
         //-------------------------------------------------------------------------------
 
         void delete_edge_container();
-        //--------------------------------------------------------------------------------
-    };
+
+        //-------------------------------------------------------------------------------
+    
+    }; // class Background_Element
+
     //--------------------------------------------------------------------------------
 
     template< uint N >
@@ -4499,6 +4537,7 @@ namespace moris::hmr
     }
 
     //--------------------------------------------------------------------------------
+
 }    // namespace moris::hmr
 
 #include "fn_HMR_Background_Element_Neighbors_2D.hpp"

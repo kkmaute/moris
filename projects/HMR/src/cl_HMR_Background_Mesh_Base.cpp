@@ -2483,5 +2483,25 @@ namespace moris::hmr
     }
 
     //-------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------
+
+    void
+    print_background_elements(
+            const Vector< Background_Element_Base* >& aListOfBgElements,
+            const std::string&                        aListName,
+            const uint                                aPattern )
+    {
+        std::cout << "\n===================================================\n";
+        std::cout << "Printing background elements from list: '" << aListName << "' of size " << aListOfBgElements.size() << "\n";
+
+        for ( uint i = 0; i < aListOfBgElements.size(); ++i )
+        {
+            std::cout << "\nBackground element #" << i << ":";
+            aListOfBgElements( i )->print( aPattern );
+        }
+        std::cout << "\n===================================================\n" << std::endl;
+    }
+
+    //-------------------------------------------------------------------------------
 
 }    // namespace moris::hmr

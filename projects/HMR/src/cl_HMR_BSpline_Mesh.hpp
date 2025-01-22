@@ -546,18 +546,18 @@ namespace moris::hmr
                 // init basis container
                 tElement->init_basis_container();
 
-                // loop over all basis of this element
-                for ( uint iBasisIndex = 0; iBasisIndex < B; iBasisIndex++ )
+                // loop over all basis functions of this element
+                for ( uint iBfInElement = 0; iBfInElement < B; iBfInElement++ )
                 {
                     // Get IJK position of this basis
                     luint tIJK[ N ];
-                    tElement->get_ijk_of_basis( iBasisIndex, tIJK );
+                    tElement->get_ijk_of_basis( iBfInElement, tIJK );
 
                     // Get basis index
                     luint tCoarseBasisIndex = calculate_basis_identifier< N >( tIJK, mNumberOfCoarsestBasisOnProc );
 
                     // Insert point to basis into element
-                    tElement->insert_basis( iBasisIndex, mAllCoarsestBasisOnProc( tCoarseBasisIndex ) );
+                    tElement->insert_basis( iBfInElement, mAllCoarsestBasisOnProc( tCoarseBasisIndex ) );
                 }
             }
         }
@@ -741,7 +741,7 @@ namespace moris::hmr
             // loop over all basis functions parsed into this function and flag them as (de-)activated and as (non-)refined
             for ( Basis* iBasisFunction : aBases )
             {
-                // only process basis that are used by this proc
+                // only process basis that are used by this proc (unused basis functions, in this case, are those solely supported in the padding)
                 if ( iBasisFunction->is_used() )
                 {
                     // test number of elements in basis function's support
@@ -755,8 +755,7 @@ namespace moris::hmr
                     }
                     else    // Basis function is fully supported within domain + padding
                     {
-                        // check if any element in the BF's support are neither active nor refined which also indicates irrelevance
-                        // TODO: for the truncation refactor the condition is that any element within the BF's support is active to be considered
+                        // check if any element in the BF's support is neither active nor refined which also indicates irrelevance
                         bool tHasDeactivatedElement = false;
                         for ( uint iElementIndex = 0; iElementIndex < B; iElementIndex++ )
                         {
@@ -773,11 +772,11 @@ namespace moris::hmr
                         {
                             iBasisFunction->unset_active_flag();
                         }
-                        else
+                        else // Basis function is fully supported on its level: supp(\beta) \subseteq \Omega^{l}, \beta \in \mathcal{B}^{l}
                         {
                             bool tIsActive = false;
 
-                            // consider BF active if any of the elements in the basis function's support on its level are active
+                            // consider BF active if any of the elements in the basis function's support on its level are active: supp(\beta) \nsubseteq \Omega^{l+1}, \beta \in \mathcal{B}^{l}
                             for ( uint iElementIndex = 0; iElementIndex < B; iElementIndex++ )
                             {
                                 Element* tElement = iBasisFunction->get_element( iElementIndex );
@@ -796,7 +795,7 @@ namespace moris::hmr
                                 // flag this basis as active
                                 iBasisFunction->set_active_flag();
                             }
-                            else    // the BF interpolates only into de-activated elements, hence it must be refined and fully replaced by finer BFs
+                            else    // the BF interpolates only into de-activated elements, hence it must be refined and fully replaced by finer BFs: supp(\beta) \subseteq \Omega^{l+1}, \beta \in \mathcal{B}^{l}
                             {
                                 // flag this basis as refined
                                 iBasisFunction->set_refined_flag();

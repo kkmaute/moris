@@ -52,7 +52,7 @@ namespace moris::hmr
         //! 2, 8 or26
         const uint mNumberOfNeighborsPerElement;
 
-        //! cell of Lagrange elements
+        //! cell of B-spline/Lagrange elements. The location of a given element in this array is its "memory index".
         Vector< Element* > mAllElementsOnProc;
 
         //! cell of coarsest Lagrange elements including aura

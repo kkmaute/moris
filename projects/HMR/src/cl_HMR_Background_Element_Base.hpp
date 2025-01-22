@@ -1092,7 +1092,16 @@ namespace moris::hmr
         // virtual void
         // reset_flags_of_edges() = 0;
 
+        //-------------------------------------------------------------------------------
+
+        virtual void 
+        print( const uint aPattern ) const = 0;
+
+        //-------------------------------------------------------------------------------
+
     }; /* Background_Element_Base */
+
+
 }    // namespace moris::hmr
 
 #endif /* SRC_MESH_CL_HMR_ELEMENT_HPP_ */

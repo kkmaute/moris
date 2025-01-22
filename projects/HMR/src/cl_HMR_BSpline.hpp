@@ -746,13 +746,19 @@ namespace moris::hmr
             std::cout << "\n--------------------------------------------------\n";
             
             // basic identifying information
-            std::cout << "B-spline basis function #" << mMemoryIndex << "\n";
-            std::cout << "Level: " << mLevel << "\n";
-            
+            std::cout << "B-spline basis function..." << "\n";
+            std::cout << "Memory Index: " << mMemoryIndex << "\n";
+            std::cout << "Local Index: " << this->get_index() << "\n";
+            std::cout << "Domain Index: " << mDomainIndex << "\n";
+            std::cout << "Domain ID: " << mDomainID << "\n\n";
+
             // print the flags
             std::cout << "Used: " << mUsedFlag << "\n";
             std::cout << "Active: " << mActiveFlag << "\n";
-            std::cout << "Refined: " << mRefinedFlag << "\n";
+            std::cout << "Refined: " << mRefinedFlag << "\n\n";
+
+            // print the level
+            std::cout << "Level: " << mLevel << "\nn";
 
             // print basis IJK
             std::cout << "IJK: [ " << mIJK[ 0 ];

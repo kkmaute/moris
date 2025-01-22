@@ -420,7 +420,7 @@ namespace moris::hmr
         // loop over all possible neighbors
         for ( uint q = 0; q < 9; ++q )
         {
-            // check if neigbor exists and is not myself
+            // check if neighbor exists and is not myself
             if ( mMyProcNeighbors( q ) != gNoProcNeighbor && mMyProcNeighbors( q ) != par_rank() )
             {
                 // count elements for inverse aura

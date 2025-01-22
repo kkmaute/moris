@@ -14,6 +14,7 @@
 #include "cl_HMR_Background_Element_Base.hpp"
 #include "cl_HMR_Background_Mesh_Base.hpp"
 #include "cl_HMR_BSpline_Mesh_Base.hpp"
+#include "cl_HMR_Factory.hpp"
 #include "cl_HMR_Lagrange_Edge.hpp"
 #include "cl_HMR_Lagrange_Edge2.hpp"
 #include "cl_HMR_Lagrange_Edge3.hpp"

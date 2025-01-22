@@ -69,7 +69,7 @@ namespace moris::hmr
         //! flag telling if node is used by owned and shared elements
         bool mUsedOwnedAndSharedFlag = false;
 
-        //  array containing connected elements
+        //  array containing connected elements - NOT sorted by element location in support
         Vector< Element* > mElements;
 
         //! counts how many facets are connected to this basis
@@ -471,7 +471,7 @@ namespace moris::hmr
         //------------------------------------------------------------------------------
 
         /**
-         * tells if this basis is used by curreny proc
+         * tells if this basis is used by current proc
          *
          * @return bool
          */
@@ -1196,7 +1196,7 @@ namespace moris::hmr
             const std::string&      aListName )
     {
         std::cout << "\n===================================================\n";
-        std::cout << "Printing basis functions from list: " << aListName << " of size " << aBasisList.size() << "\n";
+        std::cout << "Printing basis functions from list: '" << aListName << "' of size " << aBasisList.size() << "\n";
 
         for ( uint i = 0; i < aBasisList.size(); ++i )
         {

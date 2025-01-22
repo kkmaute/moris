@@ -1386,6 +1386,17 @@ namespace moris::hmr
                 uint                     aHalfBuffer );
 
         //------------------------------------------------------------------------------
-    };
+    }; // class Background_Mesh_Base
+
+    //--------------------------------------------------------------------------------
+
+    void
+    print_background_elements(
+            const Vector< Background_Element_Base* >& aListOfBgElements,
+            const std::string&                        aListName,
+            const uint                                aPattern = 0 );
+
+    //--------------------------------------------------------------------------------
+
 }    // namespace moris::hmr
 #endif /* SRC_HMR_CL_HMR_BACKGROUND_MESH_BASE_HPP_ */
